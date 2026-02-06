@@ -1,0 +1,36 @@
+{
+  "youtube_channels": [
+    {"name": "Michael Saylor", "channel_id": "UCjpkLzNLkZJGQvVQw7hFnSg", "tier": "macro", "featured": true},
+    {"name": "Lyn Alden", "channel_id": "UCN49rFQFZuiUHpE8NR7mttQ", "tier": "macro", "featured": true},
+    {"name": "Preston Pysh", "channel_id": "UCmvn0Cgun-7O7L8GeFeyxdA", "tier": "macro", "featured": true},
+    {"name": "Natalie Brunell", "channel_id": "UCv-_bq3fB7y_wGmRqNGbCrw", "tier": "media", "featured": true},
+    {"name": "Peter McCormack", "channel_id": "UCbVWZ3m6gxu0gXY5n1P9f6Q", "tier": "media", "featured": true},
+    {"name": "Robert Breedlove", "channel_id": "UC23sHrD-23HJcxMqGy-p9Uw", "tier": "macro", "featured": true},
+    {"name": "Marty Bent", "channel_id": "UCZoB2BkHn6EB13_UE_o6dCQ", "tier": "media", "featured": true},
+    {"name": "Saifedean Ammous", "channel_id": "UCtxQJhOA5WCxnKZ8Y9eQ5kg", "tier": "macro", "featured": true},
+    {"name": "BTC Sessions", "channel_id": "UCQvhxHvJSQr-xPWKuqT2e7w", "tier": "media", "featured": true},
+    {"name": "Simply Bitcoin", "channel_id": "UCxu0RQ-f4R6FbLVzAjS-49Q", "tier": "media", "featured": true},
+    {"name": "Bitcoin Magazine", "channel_id": "UCwdB8sCl5w9fLOTxrpJoVtA", "tier": "media", "featured": true},
+    {"name": "Swan Bitcoin", "channel_id": "UCMf25RLfLSMGM5s6LGaP-Rw", "tier": "macro", "featured": true},
+    {"name": "Bitcoin Audible", "channel_id": "UC-qcqWPQ6rjZJwH8mZIRD3g", "tier": "media", "featured": true},
+    {"name": "Matt Odell", "channel_id": "UCp7fPC-rUYPqEyGP5OL3a6g", "tier": "dev", "featured": true},
+    {"name": "Anthony Pompliano", "channel_id": "UCq_eqvpFWZOcxJQ0fLNIJSg", "tier": "macro", "featured": true},
+    {"name": "Coin Bureau", "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw", "tier": "macro", "featured": false},
+    {"name": "The Bitcoin Layer", "channel_id": "UCt8Wjn4H5FdLNdQ9FxQYMTg", "tier": "quant", "featured": false},
+    {"name": "Bitcoin Rapid-Fire", "channel_id": "UCp_P3vpQUcDpE8g5u5F9dJw", "tier": "dev", "featured": false},
+    {"name": "Stephan Livera", "channel_id": "UCp4zWYGBZeqQ-ZLYgDCaLCw", "tier": "macro", "featured": false},
+    {"name": "River", "channel_id": "UCxq8WMg4CmJvU1sQQz_3Cjw", "tier": "macro", "featured": false},
+    {"name": "Unchained", "channel_id": "UC8oRRfHG4kDp5gS5JhAVIuw", "tier": "macro", "featured": false}
+  ],
+  "rss_sources": [
+    {"name": "Bitcoin Magazine", "rss_url": "https://bitcoinmagazine.com/feed", "tier": "media"},
+    {"name": "Lyn Alden Blog", "rss_url": "https://www.lynalden.com/feed/", "tier": "macro"},
+    {"name": "Bitcoin Optech", "rss_url": "https://bitcoinops.org/feed.xml", "tier": "dev"},
+    {"name": "River Blog", "rss_url": "https://river.com/learn/feed/", "tier": "macro"},
+    {"name": "Stacker News", "rss_url": "https://stacker.news/rss", "tier": "media"},
+    {"name": "Casa Blog", "rss_url": "https://blog.keys.casa/rss/", "tier": "dev"},
+    {"name": "Unchained Blog", "rss_url": "https://unchained.com/blog/feed/", "tier": "macro"}
+  ],
+  "x_accounts": [],
+  "nostr_allowlist": []
+}

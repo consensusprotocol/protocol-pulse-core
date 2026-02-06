@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+
+{% block title %}Upgrade to Premium | Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+:root {
+    --pp-red: #dc2626;
+    --pp-dark: #0a0a0a;
+    --pp-glass: rgba(10, 10, 10, 0.95);
+    --gold: #f59e0b;
+    --btc-orange: #f7931a;
+}
+
+.premium-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0505 100%);
+    padding: 100px 20px 60px;
+}
+
+.premium-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.premium-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.premium-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2.5rem;
+    color: #fff;
+    margin-bottom: 15px;
+}
+
+.premium-title span {
+    background: linear-gradient(135deg, var(--gold), var(--btc-orange));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.premium-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    margin-bottom: 60px;
+}
+
+@media (max-width: 992px) {
+    .pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin: 0 auto 60px;
+    }
+}
+
+.pricing-card {
+    background: var(--pp-glass);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 35px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.pricing-card:hover {
+    transform: translateY(-5px);
+}
+
+.pricing-card.featured {
+    border-color: var(--gold);
+    box-shadow: 0 0 40px rgba(245, 158, 11, 0.2);
+}
+
+.pricing-card.featured::before {
+    content: 'MOST POPULAR';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gold);
+    color: #000;
+    padding: 6px 20px;
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.tier-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+.tier-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    color: #fff;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.tier-price {
+    margin-bottom: 25px;
+}
+
+.price-amount {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 3rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.featured .price-amount {
+    color: var(--gold);
+}
+
+.price-period {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.sats-price {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--btc-orange);
+    margin-top: 5px;
+}
+
+.features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 30px;
+}
+
+.features-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.features-list li i {
+    color: #22c55e;
+    margin-top: 3px;
+}
+
+.subscribe-btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+}
+
+.subscribe-btn.primary {
+    background: var(--gold);
+    border: none;
+    color: #000;
+}
+
+.subscribe-btn.primary:hover {
+    background: #d97706;
+}
+
+.subscribe-btn.secondary {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.subscribe-btn.secondary:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+}
+
+.subscribe-btn.free {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.faq-section {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.faq-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.faq-item {
+    background: var(--pp-glass);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.faq-question {
+    padding: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.faq-question:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.faq-answer {
+    padding: 0 20px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+    display: none;
+}
+
+.faq-item.active .faq-answer {
+    display: block;
+}
+
+.payment-methods {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.payment-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+}
+
+.payment-icons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.payment-icon {
+    width: 50px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.2rem;
+}
+
+.payment-icon.btc {
+    color: var(--btc-orange);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="premium-page">
+    <div class="premium-container">
+        <div class="premium-header">
+            <h1 class="premium-title">Upgrade to <span>Premium Intelligence</span></h1>
+            <p class="premium-subtitle">Access exclusive research, strategy calls, and priority intel alerts. Pay with card or Bitcoin.</p>
+        </div>
+        
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <div class="tier-name">Starter</div>
+                <div class="tier-title">{{ tiers.free.name }}</div>
+                <div class="tier-price">
+                    <span class="price-amount">$0</span>
+                    <span class="price-period">/forever</span>
+                </div>
+                <ul class="features-list">
+                    {% for feature in tiers.free.features %}
+                    <li><i class="fas fa-check"></i> {{ feature }}</li>
+                    {% endfor %}
+                </ul>
+                <a href="/register" class="subscribe-btn free">Current Plan</a>
+            </div>
+            
+            <div class="pricing-card featured">
+                <div class="tier-name">Recommended</div>
+                <div class="tier-title">{{ tiers.operator.name }}</div>
+                <div class="tier-price">
+                    <span class="price-amount">${{ tiers.operator.price_monthly }}</span>
+                    <span class="price-period">/month</span>
+                    <div class="sats-price">~21,000 sats/month</div>
+                </div>
+                <ul class="features-list">
+                    {% for feature in tiers.operator.features %}
+                    <li><i class="fas fa-check"></i> {{ feature }}</li>
+                    {% endfor %}
+                </ul>
+                <a href="/subscribe/premium/operator" class="subscribe-btn primary">Upgrade Now</a>
+            </div>
+            
+            <div class="pricing-card">
+                <div class="tier-name">Elite</div>
+                <div class="tier-title">{{ tiers.sovereign.name }}</div>
+                <div class="tier-price">
+                    <span class="price-amount">${{ tiers.sovereign.price_monthly }}</span>
+                    <span class="price-period">/month</span>
+                    <div class="sats-price">~210,000 sats/month</div>
+                </div>
+                <ul class="features-list">
+                    {% for feature in tiers.sovereign.features %}
+                    <li><i class="fas fa-check"></i> {{ feature }}</li>
+                    {% endfor %}
+                </ul>
+                <a href="/subscribe/premium/sovereign" class="subscribe-btn secondary">Go Sovereign</a>
+            </div>
+        </div>
+        
+        <div class="faq-section">
+            <h2 class="faq-title">Frequently Asked Questions</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('active')">
+                    Can I pay with Bitcoin?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Yes! We accept both on-chain Bitcoin and Lightning payments. After checkout, you'll receive an invoice you can pay with any Bitcoin wallet. Lightning payments are instant.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('active')">
+                    What's the refund policy?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    We offer a 7-day money-back guarantee. If you're not satisfied within the first week, contact us for a full refund. After 7 days, you can cancel anytime but no refunds are provided for the current billing period.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('active')">
+                    How do I access premium content?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    After subscribing, you'll get access to the private Discord/Telegram channels, premium articles marked with a gold badge, and strategy call invites via email. Everything is linked to your account.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('active')">
+                    Can I upgrade or downgrade later?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Absolutely. You can change your plan at any time from your account settings. Upgrades take effect immediately, and downgrades apply at the end of your current billing period.
+                </div>
+            </div>
+        </div>
+        
+        <div class="payment-methods">
+            <div class="payment-title">Accepted Payment Methods</div>
+            <div class="payment-icons">
+                <div class="payment-icon btc"><i class="fab fa-bitcoin"></i></div>
+                <div class="payment-icon"><i class="fas fa-bolt"></i></div>
+                <div class="payment-icon"><i class="fab fa-cc-visa"></i></div>
+                <div class="payment-icon"><i class="fab fa-cc-mastercard"></i></div>
+                <div class="payment-icon"><i class="fab fa-apple-pay"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

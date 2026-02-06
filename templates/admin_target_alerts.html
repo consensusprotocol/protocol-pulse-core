@@ -1,0 +1,368 @@
+{% extends "base.html" %}
+
+{% block title %}Target Alerts | Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+:root {
+    --pp-red: #dc2626;
+    --pp-dark: #0a0a0a;
+    --pp-glass: rgba(10, 10, 10, 0.95);
+}
+
+.alerts-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0505 100%);
+    padding: 100px 20px 60px;
+}
+
+.alerts-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+    transition: color 0.3s ease;
+}
+
+.back-link:hover {
+    color: var(--pp-red);
+}
+
+.alerts-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.alerts-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.alerts-title i {
+    color: var(--pp-red);
+}
+
+.scan-btn {
+    background: var(--pp-red);
+    border: none;
+    border-radius: 10px;
+    padding: 14px 28px;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.scan-btn:hover {
+    background: #b91c1c;
+    transform: translateY(-2px);
+}
+
+.alerts-grid {
+    display: grid;
+    gap: 20px;
+}
+
+.alert-card {
+    background: var(--pp-glass);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 16px;
+    padding: 25px;
+    transition: all 0.3s ease;
+}
+
+.alert-card:hover {
+    border-color: var(--pp-red);
+}
+
+.alert-card.priority-1 {
+    border-left: 4px solid var(--pp-red);
+}
+
+.alert-card.priority-2 {
+    border-left: 4px solid #eab308;
+}
+
+.alert-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.alert-source {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    color: var(--pp-red);
+    font-weight: 600;
+}
+
+.alert-badges {
+    display: flex;
+    gap: 10px;
+}
+
+.badge {
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+}
+
+.badge-type {
+    background: rgba(96, 165, 250, 0.2);
+    color: #60a5fa;
+}
+
+.badge-pending {
+    background: rgba(234, 179, 8, 0.2);
+    color: #eab308;
+}
+
+.badge-approved {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+}
+
+.badge-skipped {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.alert-content {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.alert-drafts {
+    margin-bottom: 20px;
+}
+
+.drafts-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 10px;
+}
+
+.draft-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.draft-pill {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.draft-pill:hover {
+    background: var(--pp-red);
+    border-color: var(--pp-red);
+    color: #fff;
+}
+
+.alert-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.action-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.action-btn-approve {
+    background: rgba(34, 197, 94, 0.2);
+    border: 1px solid #22c55e;
+    color: #22c55e;
+}
+
+.action-btn-approve:hover {
+    background: #22c55e;
+    color: #fff;
+}
+
+.action-btn-skip {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.action-btn-skip:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--pp-glass);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 16px;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: rgba(255, 255, 255, 0.2);
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    font-family: 'JetBrains Mono', monospace;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    font-family: 'JetBrains Mono', monospace;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="alerts-page">
+    <div class="alerts-container">
+        <a href="/admin/intelligence" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Intelligence
+        </a>
+        
+        <div class="alerts-header">
+            <h1 class="alerts-title">
+                <i class="fas fa-crosshairs"></i>
+                Target Alerts
+            </h1>
+            <form action="/admin/target-alerts/scan" method="POST" style="display: inline;">
+                <button type="submit" class="scan-btn">
+                    <i class="fas fa-radar"></i> Scan for Opportunities
+                </button>
+            </form>
+        </div>
+        
+        <div class="alerts-grid">
+            {% if alerts %}
+                {% for alert in alerts %}
+                <div class="alert-card priority-{{ alert.priority }}">
+                    <div class="alert-header">
+                        <span class="alert-source">{{ alert.source_account }}</span>
+                        <div class="alert-badges">
+                            <span class="badge badge-type">{{ alert.trigger_type }}</span>
+                            <span class="badge badge-{{ alert.status }}">{{ alert.status }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="alert-content">
+                        {{ alert.content_snippet or 'No content' }}
+                    </div>
+                    
+                    {% if alert.draft_replies %}
+                    <div class="alert-drafts">
+                        <div class="drafts-title">Reply Drafts (click to copy)</div>
+                        <div class="draft-pills">
+                            {% for draft in alert.draft_replies | from_json %}
+                            <span class="draft-pill" onclick="copyDraft('{{ draft.text | e if draft.text else draft | e }}')">
+                                {{ draft.type if draft.type else 'Draft' }} {{ loop.index }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if alert.status == 'pending' %}
+                    <div class="alert-actions">
+                        <button class="action-btn action-btn-approve" onclick="approveAlert({{ alert.id }})">
+                            <i class="fas fa-check"></i> Approve
+                        </button>
+                        <button class="action-btn action-btn-skip" onclick="skipAlert({{ alert.id }})">
+                            <i class="fas fa-times"></i> Skip
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-crosshairs"></i>
+                <h3>No Alerts Yet</h3>
+                <p>Click "Scan for Opportunities" to find new engagement targets.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyDraft(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        alert('Draft copied to clipboard!');
+    });
+}
+
+function approveAlert(alertId) {
+    fetch(`/admin/target-alert/${alertId}/approve`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+}
+
+function skipAlert(alertId) {
+    fetch(`/admin/target-alert/${alertId}/skip`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+}
+</script>
+{% endblock %}

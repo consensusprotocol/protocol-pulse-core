@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+{% block title %}Sovereign ₿ Gravity Well - Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+    body {
+        background: #000;
+        overflow: hidden;
+    }
+    
+    .gravity-well-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: #000;
+    }
+    
+    #bitfeed-canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+    
+    .terminal-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background: linear-gradient(180deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.8) 70%, transparent 100%);
+        padding: 20px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .terminal-brand {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .terminal-brand h1 {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #fff;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    
+    .terminal-brand .accent {
+        color: #dc2626;
+    }
+    
+    .terminal-brand.sovereign h1 .accent {
+        color: #a855f7;
+    }
+    
+    .terminal-subtitle {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+    }
+    
+    .terminal-stats {
+        display: flex;
+        gap: 40px;
+        align-items: center;
+    }
+    
+    .stat-block {
+        text-align: center;
+    }
+    
+    .stat-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 4px;
+    }
+    
+    .stat-value {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #fff;
+    }
+    
+    .stat-value.fee {
+        color: #22c55e;
+    }
+    
+    .sovereign-toggle-wrap {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .sovereign-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .toggle-switch {
+        position: relative;
+        width: 50px;
+        height: 26px;
+    }
+    
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #333;
+        transition: 0.3s;
+        border-radius: 26px;
+        border: 1px solid #444;
+    }
+    
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: #888;
+        transition: 0.3s;
+        border-radius: 50%;
+    }
+    
+    input:checked + .toggle-slider {
+        background-color: #a855f7;
+        border-color: #a855f7;
+        box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+    }
+    
+    input:checked + .toggle-slider:before {
+        transform: translateX(24px);
+        background-color: #fff;
+    }
+    
+    .back-link {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 100;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        color: #666;
+        text-decoration: none;
+        padding: 10px 20px;
+        background: rgba(0, 0, 0, 0.8);
+        border: 1px solid #333;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+    
+    .back-link:hover {
+        color: #fff;
+        border-color: #dc2626;
+        box-shadow: 0 0 15px rgba(220, 38, 38, 0.3);
+    }
+    
+    @media (max-width: 768px) {
+        .terminal-header {
+            flex-direction: column;
+            gap: 15px;
+            padding: 15px;
+        }
+        
+        .terminal-stats {
+            gap: 20px;
+        }
+        
+        .stat-block {
+            display: none;
+        }
+        
+        .stat-block:first-child,
+        .stat-block:nth-child(2) {
+            display: block;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="gravity-well-container">
+    <canvas id="bitfeed-canvas"></canvas>
+</div>
+
+<header class="terminal-header" id="terminal-header">
+    <div class="terminal-brand">
+        <div>
+            <h1>Sovereign <span class="accent">₿</span> Gravity Well</h1>
+            <div class="terminal-subtitle">Real-Time Mempool Physics</div>
+        </div>
+    </div>
+    
+    <div class="terminal-stats">
+        <div class="stat-block">
+            <div class="stat-label">Pending TXs</div>
+            <div class="stat-value" id="mempool-count">---</div>
+        </div>
+        <div class="stat-block">
+            <div class="stat-label">Priority Fee</div>
+            <div class="stat-value fee" id="current-fee">---</div>
+        </div>
+        <div class="sovereign-toggle-wrap">
+            <span class="sovereign-label">Sovereign Mode</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="sovereign-toggle">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+    </div>
+</header>
+
+<a href="/" class="back-link">
+    <i class="fas fa-arrow-left"></i> Back to Protocol Pulse
+</a>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<script src="{{ url_for('static', filename='js/sovereign_gravity_well.js') }}"></script>
+
+<script>
+    // Update header styling when Sovereign Mode is toggled
+    document.getElementById('sovereign-toggle').addEventListener('change', function(e) {
+        const header = document.getElementById('terminal-header');
+        const brand = document.querySelector('.terminal-brand');
+        if (e.target.checked) {
+            brand.classList.add('sovereign');
+        } else {
+            brand.classList.remove('sovereign');
+        }
+    });
+</script>
+{% endblock %}

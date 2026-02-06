@@ -1,0 +1,1287 @@
+{% extends "base.html" %}
+{% block title %}Solo Slayers - Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+:root {
+    --solo-gold: #fbbf24;
+    --solo-red: #dc2626;
+    --solo-purple: #a855f7;
+}
+
+.solo-hero {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 50%, #0a0a1a 100%);
+    min-height: 40vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.solo-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 50%, rgba(251, 191, 36, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 70% 50%, rgba(220, 38, 38, 0.08) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.solo-hero h1 {
+    font-size: 3.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--solo-gold) 0%, #fff 50%, var(--solo-gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 60px rgba(251, 191, 36, 0.3);
+}
+
+.solo-hero p {
+    font-size: 1.3rem;
+    color: #888;
+    max-width: 600px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: -3rem auto 2rem;
+    position: relative;
+    z-index: 10;
+}
+
+.stat-card {
+    background: linear-gradient(145deg, #111 0%, #0a0a0a 100%);
+    border: 1px solid #222;
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    border-color: var(--solo-gold);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 40px rgba(251, 191, 36, 0.15);
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--solo-gold);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 0.5rem;
+}
+
+.content-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-title i {
+    color: var(--solo-gold);
+}
+
+.leaderboard {
+    background: #0a0a0a;
+    border: 1px solid #222;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.leaderboard-header {
+    display: grid;
+    grid-template-columns: 60px 1fr 100px 120px;
+    padding: 1rem 1.5rem;
+    background: #111;
+    font-weight: 600;
+    color: #888;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.leaderboard-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 100px 120px;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #1a1a1a;
+    transition: background 0.2s ease;
+    align-items: center;
+}
+
+.leaderboard-row:hover {
+    background: #111;
+}
+
+.rank {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #444;
+}
+
+.rank.gold { color: #fbbf24; }
+.rank.silver { color: #94a3b8; }
+.rank.bronze { color: #cd7c32; }
+
+.miner-name {
+    font-weight: 600;
+    color: #fff;
+}
+
+.blocks-count {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--solo-gold);
+    font-weight: 700;
+}
+
+.total-btc {
+    font-family: 'JetBrains Mono', monospace;
+    color: #22c55e;
+}
+
+.blocks-timeline {
+    display: grid;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.block-card {
+    background: linear-gradient(145deg, #111 0%, #0a0a0a 100%);
+    border: 1px solid #222;
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.block-card:hover {
+    border-color: var(--solo-red);
+    transform: translateX(4px);
+}
+
+.block-height {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--solo-red);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.block-pool {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.block-reward {
+    text-align: right;
+}
+
+.reward-btc {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #22c55e;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.reward-label {
+    color: #666;
+    font-size: 0.8rem;
+}
+
+.sovereign-toggle-container {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 50px;
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    z-index: 100;
+}
+
+.sovereign-toggle-container label {
+    color: #888;
+    font-size: 0.85rem;
+}
+
+.sovereign-toggle {
+    width: 48px;
+    height: 24px;
+    appearance: none;
+    background: #333;
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.sovereign-toggle:checked {
+    background: var(--solo-purple);
+}
+
+.sovereign-toggle::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s ease;
+}
+
+.sovereign-toggle:checked::before {
+    transform: translateX(24px);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #666;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+/* Lottery Mining Explainer */
+.lottery-explainer {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+.lottery-content {
+    background: linear-gradient(145deg, #1a1a0a 0%, #0a0a0a 50%, #1a0a1a 100%);
+    border: 2px solid var(--solo-gold);
+    border-radius: 20px;
+    padding: 2.5rem;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.lottery-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 10% 50%, rgba(251, 191, 36, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.lottery-icon {
+    font-size: 5rem;
+    color: var(--solo-gold);
+    text-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
+    animation: ticketPulse 2s ease-in-out infinite;
+}
+
+@keyframes ticketPulse {
+    0%, 100% { transform: scale(1) rotate(-5deg); }
+    50% { transform: scale(1.1) rotate(5deg); }
+}
+
+.lottery-text h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--solo-gold);
+    margin-bottom: 0.5rem;
+}
+
+.lottery-tagline {
+    font-size: 1.2rem;
+    color: #888;
+    margin-bottom: 1.5rem;
+}
+
+.lottery-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.lottery-fact {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(251, 191, 36, 0.05);
+    border: 1px solid rgba(251, 191, 36, 0.2);
+    border-radius: 12px;
+}
+
+.fact-icon {
+    font-size: 1.5rem;
+    color: var(--solo-gold);
+}
+
+.fact-content strong {
+    display: block;
+    color: #fff;
+    font-size: 0.85rem;
+}
+
+.fact-content span {
+    color: #888;
+    font-size: 0.8rem;
+}
+
+.lottery-philosophy {
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    border-left: 3px solid var(--solo-gold);
+    padding-left: 1rem;
+    margin-top: 1rem;
+}
+
+/* Bitaxe CTA */
+.bitaxe-cta {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+.bitaxe-card {
+    background: linear-gradient(145deg, #0a1a0a 0%, #0a0a0a 100%);
+    border: 2px solid #22c55e;
+    border-radius: 20px;
+    padding: 2.5rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.bitaxe-glow {
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(34, 197, 94, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+    animation: glowPulse 4s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+}
+
+.bitaxe-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #000;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+}
+
+.bitaxe-content h3 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #22c55e;
+    margin-bottom: 1rem;
+}
+
+.bitaxe-content > p {
+    color: #888;
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+}
+
+.bitaxe-stats {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.bitaxe-stat {
+    text-align: center;
+}
+
+.stat-num {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: #22c55e;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.stat-desc {
+    font-size: 0.75rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.bitaxe-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #000;
+    font-weight: 700;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.bitaxe-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
+    color: #000;
+}
+
+.bitaxe-note {
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: #555;
+    font-style: italic;
+}
+
+.bitaxe-visual {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.bitaxe-chip-icon {
+    font-size: 6rem;
+    color: #22c55e;
+    text-shadow: 0 0 40px rgba(34, 197, 94, 0.5);
+}
+
+.hash-animation {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.hash-particle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #22c55e;
+    border-radius: 50%;
+    animation: hashFloat 3s ease-in-out infinite;
+}
+
+.hash-particle:nth-child(1) { top: 20%; left: 30%; animation-delay: 0s; }
+.hash-particle:nth-child(2) { top: 50%; left: 70%; animation-delay: 1s; }
+.hash-particle:nth-child(3) { top: 70%; left: 20%; animation-delay: 2s; }
+
+@keyframes hashFloat {
+    0%, 100% { transform: translateY(0) scale(1); opacity: 0.5; }
+    50% { transform: translateY(-20px) scale(1.5); opacity: 1; }
+}
+
+/* Tutorial Section */
+.tutorial-section {
+    max-width: 1200px;
+    margin: 3rem auto;
+    padding: 0 2rem;
+}
+
+.tutorial-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.tutorial-header h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.tutorial-header h2 i {
+    color: var(--solo-gold);
+    margin-right: 0.5rem;
+}
+
+.tutorial-subtitle {
+    color: #888;
+    font-size: 1.1rem;
+}
+
+.tutorial-steps {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.tutorial-step {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 1.5rem;
+    background: linear-gradient(145deg, #111 0%, #0a0a0a 100%);
+    border: 1px solid #222;
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.tutorial-step:hover {
+    border-color: var(--solo-gold);
+    transform: translateX(8px);
+}
+
+.step-number {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--solo-gold), #f59e0b);
+    color: #000;
+    font-size: 1.5rem;
+    font-weight: 900;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.step-content h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.step-content h3 i {
+    color: var(--solo-gold);
+    margin-right: 0.5rem;
+}
+
+.step-content p {
+    color: #888;
+    line-height: 1.7;
+    margin-bottom: 0.75rem;
+}
+
+.step-content a {
+    color: var(--solo-gold);
+    text-decoration: underline;
+}
+
+.step-tip {
+    background: rgba(251, 191, 36, 0.1);
+    border-left: 3px solid var(--solo-gold);
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    color: #aaa;
+    border-radius: 0 8px 8px 0;
+}
+
+.step-tip i {
+    color: var(--solo-gold);
+    margin-right: 0.5rem;
+}
+
+.code-block {
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.code-line {
+    margin-bottom: 0.5rem;
+}
+
+.code-label {
+    color: #666;
+    margin-right: 0.5rem;
+}
+
+.code-block code {
+    background: #1a1a1a;
+    color: #22c55e;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.tutorial-cta {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.cta-btn.primary {
+    background: linear-gradient(135deg, var(--solo-gold), #f59e0b);
+    color: #000;
+}
+
+.cta-btn.secondary {
+    background: transparent;
+    border: 2px solid var(--solo-gold);
+    color: var(--solo-gold);
+}
+
+.cta-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(251, 191, 36, 0.2);
+}
+
+/* Verified Badge */
+.verified-badge {
+    font-size: 0.7rem;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-left: 1rem;
+    font-weight: 600;
+}
+
+/* Legendary Blocks */
+.legendary-blocks .block-card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    position: relative;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+.block-card.legendary {
+    background: linear-gradient(145deg, #1a1a0a 0%, #0a0a0a 100%);
+    border: 1px solid #333;
+    padding: 1.5rem;
+}
+
+.block-card.legendary.verified {
+    border-color: var(--solo-gold);
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.1);
+}
+
+.block-card.legendary:hover {
+    border-color: var(--solo-gold);
+    transform: translateX(8px);
+    box-shadow: 0 5px 30px rgba(251, 191, 36, 0.2);
+}
+
+.block-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.device-tag {
+    display: inline-block;
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: #fff;
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-right: 0.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.block-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.meta-item {
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.meta-item i {
+    color: var(--solo-gold);
+    margin-right: 4px;
+}
+
+.reward-usd {
+    font-size: 0.9rem;
+    color: #22c55e;
+    font-weight: 600;
+}
+
+.verified-icon {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    color: #22c55e;
+    font-size: 1.2rem;
+}
+
+/* Hover Story Tooltip */
+.block-story-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
+    border: 2px solid var(--solo-gold);
+    border-radius: 12px;
+    padding: 1.25rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    z-index: 100;
+    pointer-events: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.block-card.legendary:hover .block-story-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-10px);
+}
+
+.story-content {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #ccc;
+    margin-bottom: 0.75rem;
+}
+
+.story-cta {
+    font-size: 0.8rem;
+    color: var(--solo-gold);
+    font-weight: 600;
+}
+
+.story-cta i {
+    margin-right: 4px;
+}
+
+@media (max-width: 768px) {
+    .solo-hero h1 { font-size: 2.5rem; }
+    .leaderboard-header,
+    .leaderboard-row {
+        grid-template-columns: 40px 1fr 80px;
+    }
+    .leaderboard-header > *:last-child,
+    .leaderboard-row > *:last-child {
+        display: none;
+    }
+    
+    .lottery-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    
+    .lottery-icon {
+        font-size: 3rem;
+    }
+    
+    .lottery-philosophy {
+        border-left: none;
+        border-top: 3px solid var(--solo-gold);
+        padding-left: 0;
+        padding-top: 1rem;
+    }
+    
+    .bitaxe-card {
+        grid-template-columns: 1fr;
+    }
+    
+    .bitaxe-visual {
+        display: none;
+    }
+    
+    .bitaxe-stats {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .block-card.legendary {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .block-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .block-story-tooltip {
+        position: fixed;
+        bottom: auto;
+        top: 50%;
+        left: 5%;
+        right: 5%;
+        transform: translateY(-50%);
+    }
+    
+    .block-card.legendary:hover .block-story-tooltip {
+        transform: translateY(-50%);
+    }
+    
+    .verified-badge {
+        display: none;
+    }
+    
+    .tutorial-step {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    
+    .step-number {
+        margin: 0 auto 1rem;
+    }
+    
+    .code-block {
+        font-size: 0.75rem;
+        overflow-x: auto;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="solo-hero">
+    <h1><i class="fas fa-hammer"></i> Solo Slayers</h1>
+    <p>Celebrating the independent miners who beat the odds and find blocks on their own. No pool, no split, pure glory.</p>
+</div>
+
+<!-- Lottery Mining Explainer -->
+<div class="lottery-explainer">
+    <div class="lottery-content">
+        <div class="lottery-icon">
+            <i class="fas fa-ticket-alt"></i>
+        </div>
+        <div class="lottery-text">
+            <h2><i class="fas fa-dice"></i> Lottery Mining: Your Ticket to 3.125 BTC</h2>
+            <p class="lottery-tagline">Every 10 minutes, you get a new ticket. Every hash is a chance at the jackpot.</p>
+            <div class="lottery-details">
+                <div class="lottery-fact">
+                    <div class="fact-icon"><i class="fas fa-cube"></i></div>
+                    <div class="fact-content">
+                        <strong>Block Reward</strong>
+                        <span>3.125 BTC + Fees (~$300,000+)</span>
+                    </div>
+                </div>
+                <div class="lottery-fact">
+                    <div class="fact-icon"><i class="fas fa-clock"></i></div>
+                    <div class="fact-content">
+                        <strong>New Block Every</strong>
+                        <span>~10 Minutes (New Lottery)</span>
+                    </div>
+                </div>
+                <div class="lottery-fact">
+                    <div class="fact-icon"><i class="fas fa-infinity"></i></div>
+                    <div class="fact-content">
+                        <strong>Your Odds</strong>
+                        <span>Every hash = a ticket to win</span>
+                    </div>
+                </div>
+            </div>
+            <p class="lottery-philosophy">
+                Unlike the state lottery where your money is gone forever, Bitcoin mining rewards you with sound money. 
+                Solo miners prove that even a single Bitaxe can beat a billion-dollar pool. It's not about the odds—it's about sovereignty.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Bitaxe CTA -->
+<div class="bitaxe-cta">
+    <div class="bitaxe-card">
+        <div class="bitaxe-glow"></div>
+        <div class="bitaxe-content">
+            <div class="bitaxe-badge">START YOUR LOTTERY</div>
+            <h3><i class="fas fa-microchip"></i> Get Your Own Bitaxe</h3>
+            <p>The Bitaxe is an open-source ASIC miner that fits in your hand. Plug it in, point it at a solo pool, and start generating lottery tickets. Every 10 minutes, when a new block begins, you have a fresh chance at 3.125 BTC.</p>
+            <div class="bitaxe-stats">
+                <div class="bitaxe-stat">
+                    <span class="stat-num">~500</span>
+                    <span class="stat-desc">GH/s Hashrate</span>
+                </div>
+                <div class="bitaxe-stat">
+                    <span class="stat-num">15W</span>
+                    <span class="stat-desc">Power Draw</span>
+                </div>
+                <div class="bitaxe-stat">
+                    <span class="stat-num">24/7</span>
+                    <span class="stat-desc">Lottery Tickets</span>
+                </div>
+            </div>
+            <a href="https://bitaxe.org/" target="_blank" rel="noopener" class="bitaxe-btn">
+                <i class="fas fa-external-link-alt"></i> Visit Bitaxe.org
+            </a>
+            <p class="bitaxe-note">Open-source. Sovereign. Your miner, your rules.</p>
+        </div>
+        <div class="bitaxe-visual">
+            <div class="hash-animation">
+                <div class="hash-particle"></div>
+                <div class="hash-particle"></div>
+                <div class="hash-particle"></div>
+            </div>
+            <i class="fas fa-microchip bitaxe-chip-icon"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Step-by-Step Solo Mining Tutorial -->
+<div class="tutorial-section">
+    <div class="tutorial-header">
+        <h2><i class="fas fa-graduation-cap"></i> How to Start Solo Mining (5-Minute Setup)</h2>
+        <p class="tutorial-subtitle">Point your Bitaxe at Solo CKPool and start generating lottery tickets. No registration required.</p>
+    </div>
+    
+    <div class="tutorial-steps">
+        <div class="tutorial-step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3><i class="fas fa-shopping-cart"></i> Get Your Hardware</h3>
+                <p>Purchase a Bitaxe from <a href="https://bitaxe.org" target="_blank" rel="noopener">bitaxe.org</a> or authorized resellers. The Bitaxe Ultra (~500 GH/s) or Gamma (~1.2 TH/s) are popular choices. Cost: ~$150-300.</p>
+                <div class="step-tip"><i class="fas fa-lightbulb"></i> Pro tip: Multiple Bitaxes in a farm increase your tickets per 10-minute round.</div>
+            </div>
+        </div>
+        
+        <div class="tutorial-step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3><i class="fas fa-plug"></i> Power Up & Connect</h3>
+                <p>Connect your Bitaxe to power (USB-C, 5V 3A) and your WiFi network. Access the web interface at <code>http://bitaxe.local</code> or find its IP in your router.</p>
+                <div class="step-tip"><i class="fas fa-lightbulb"></i> Use a stable power supply—hashrate drops with unstable voltage.</div>
+            </div>
+        </div>
+        
+        <div class="tutorial-step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3><i class="fas fa-server"></i> Configure Solo Pool</h3>
+                <p>In the Bitaxe settings, enter the Solo CKPool details:</p>
+                <div class="code-block">
+                    <div class="code-line"><span class="code-label">Pool URL:</span> <code>solo.ckpool.org:3333</code></div>
+                    <div class="code-line"><span class="code-label">Username:</span> <code>YOUR_BITCOIN_ADDRESS</code></div>
+                    <div class="code-line"><span class="code-label">Password:</span> <code>x</code> (or anything)</div>
+                </div>
+                <div class="step-tip"><i class="fas fa-shield-alt"></i> Use a fresh, cold-storage Bitcoin address. Your reward goes directly there—100% to you.</div>
+            </div>
+        </div>
+        
+        <div class="tutorial-step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+                <h3><i class="fas fa-play-circle"></i> Start Mining</h3>
+                <p>Click "Save" and your Bitaxe will connect to Solo CKPool. You'll see hashrate, accepted shares, and best difficulty hit on the dashboard.</p>
+                <div class="step-tip"><i class="fas fa-lightbulb"></i> Every ~10 minutes, a new block starts = a fresh lottery. Your shares are tickets.</div>
+            </div>
+        </div>
+        
+        <div class="tutorial-step">
+            <div class="step-number">5</div>
+            <div class="step-content">
+                <h3><i class="fas fa-trophy"></i> Monitor Your Luck</h3>
+                <p>Track your miner at <a href="https://solo.ckpool.org" target="_blank" rel="noopener">solo.ckpool.org</a> by entering your Bitcoin address. Watch your "Best Share" climb—when it exceeds network difficulty, you win!</p>
+                <div class="step-tip"><i class="fas fa-dice"></i> Average wait at 500 GH/s: ~3,500 years. But someone wins every block—why not you?</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tutorial-cta">
+        <a href="https://solo.ckpool.org" target="_blank" rel="noopener" class="cta-btn primary">
+            <i class="fas fa-external-link-alt"></i> Go to Solo CKPool
+        </a>
+        <a href="https://bitaxe.org" target="_blank" rel="noopener" class="cta-btn secondary">
+            <i class="fas fa-microchip"></i> Get a Bitaxe
+        </a>
+    </div>
+</div>
+
+<!-- Hardware Manifest - Diegetic Placement -->
+<div class="hardware-manifest">
+    <div class="manifest-content">
+        <div class="manifest-header">
+            <div class="manifest-badge">HARDWARE MANIFEST</div>
+            <h3><i class="fas fa-clipboard-list"></i> Solo Mining Equipment</h3>
+        </div>
+        <p class="manifest-description">
+            Documented hardware paths for lottery mining operations. These are the tools used by verified solo slayers.
+        </p>
+        <div class="manifest-items">
+            <a href="/go/bitaxe" class="manifest-item">
+                <i class="fas fa-microchip"></i>
+                <span>Bitaxe Ultra</span>
+                <span class="manifest-spec">~500 GH/s</span>
+            </a>
+            <a href="/go/bitaxe" class="manifest-item">
+                <i class="fas fa-microchip"></i>
+                <span>Bitaxe Gamma</span>
+                <span class="manifest-spec">~1.2 TH/s</span>
+            </a>
+        </div>
+        <a href="/logistics" class="manifest-link">
+            <i class="fas fa-folder-open"></i>
+            View Full Infrastructure Index
+        </a>
+    </div>
+</div>
+
+<style>
+.hardware-manifest {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+.manifest-content {
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 30px;
+}
+
+.manifest-header {
+    margin-bottom: 15px;
+}
+
+.manifest-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: rgba(251, 191, 36, 0.7);
+    letter-spacing: 0.2em;
+    margin-bottom: 10px;
+}
+
+.manifest-header h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+}
+
+.manifest-description {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.manifest-items {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.manifest-item {
+    background: rgba(251, 191, 36, 0.08);
+    border: 1px solid rgba(251, 191, 36, 0.2);
+    border-radius: 10px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.manifest-item:hover {
+    border-color: var(--solo-gold);
+    background: rgba(251, 191, 36, 0.12);
+    color: #fff;
+}
+
+.manifest-item i {
+    color: var(--solo-gold);
+}
+
+.manifest-spec {
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.4);
+    background: rgba(0, 0, 0, 0.3);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.manifest-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.manifest-link:hover {
+    color: rgba(255, 255, 255, 0.7);
+}
+</style>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.total_solo_blocks }}</div>
+        <div class="stat-label">Solo Blocks Found</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ "%.2f"|format(stats.total_rewards) }}</div>
+        <div class="stat-label">Total BTC Earned</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ "%.4f"|format(stats.avg_reward) if stats.avg_reward else '0' }}</div>
+        <div class="stat-label">Avg Block Reward</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.latest_solo_block.height|default('--') }}</div>
+        <div class="stat-label">Latest Solo Block</div>
+    </div>
+</div>
+
+<div class="content-section">
+    <h2 class="section-title"><i class="fas fa-trophy"></i> Solo Miner Leaderboard</h2>
+    
+    {% if leaderboard %}
+    <div class="leaderboard">
+        <div class="leaderboard-header">
+            <div>Rank</div>
+            <div>Miner / Pool</div>
+            <div>Blocks</div>
+            <div>Total BTC</div>
+        </div>
+        {% for miner in leaderboard %}
+        <div class="leaderboard-row">
+            <div class="rank {% if loop.index == 1 %}gold{% elif loop.index == 2 %}silver{% elif loop.index == 3 %}bronze{% endif %}">
+                #{{ loop.index }}
+            </div>
+            <div class="miner-name">{{ miner.name }}</div>
+            <div class="blocks-count">{{ miner.blocks }}</div>
+            <div class="total-btc">{{ "%.4f"|format(miner.total_reward) }} ₿</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-search"></i>
+        <h3>Scanning the blockchain...</h3>
+        <p>Looking for solo-mined blocks. This may take a moment.</p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="content-section">
+    <h2 class="section-title"><i class="fas fa-star"></i> Legendary Solo Blocks <span class="verified-badge"><i class="fas fa-check-circle"></i> Verified On-Chain</span></h2>
+    
+    <div class="blocks-timeline legendary-blocks">
+        {% for block in solo_blocks[:20] %}
+        <a href="{{ block.mempool_url|default('https://mempool.space/block/' ~ block.height) }}" target="_blank" rel="noopener" class="block-card legendary {% if block.verified %}verified{% endif %}" data-story="{{ block.story|default('Solo mined block') }}">
+            <div class="block-info">
+                <div class="block-height">#{{ block.height }}</div>
+                <div class="block-pool">
+                    <span class="device-tag">{{ block.device|default('Solo Miner') }}</span>
+                    {{ block.pool_name or 'Unknown Solo Miner' }}
+                </div>
+                <div class="block-meta">
+                    <span class="meta-item"><i class="fas fa-calendar"></i> {{ block.date|default('') }}</span>
+                    <span class="meta-item"><i class="fas fa-tachometer-alt"></i> {{ block.hashrate|default('Unknown') }}</span>
+                    <span class="meta-item"><i class="fas fa-dice"></i> {{ block.odds|default('Unknown') }}</span>
+                </div>
+            </div>
+            <div class="block-reward">
+                <div class="reward-btc">{{ "%.4f"|format(block.reward) }} ₿</div>
+                <div class="reward-usd">{{ block.usd_value|default('') }}</div>
+                <div class="reward-label">{{ block.tx_count }} txs</div>
+            </div>
+            <div class="block-story-tooltip">
+                <div class="story-content">{{ block.story|default('Solo mined block') }}</div>
+                <div class="story-cta"><i class="fas fa-external-link-alt"></i> View on Mempool.space</div>
+            </div>
+            {% if block.verified %}
+            <div class="verified-icon" title="Verified on-chain"><i class="fas fa-check-circle"></i></div>
+            {% endif %}
+        </a>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-cube"></i>
+            <h3>Loading legendary blocks...</h3>
+            <p>Fetching verified solo-mined blocks from the blockchain.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="sovereign-toggle-container">
+    <label for="sovereign-mode">Sovereign Mode</label>
+    <input type="checkbox" class="sovereign-toggle" id="sovereign-mode">
+</div>
+
+<script>
+document.getElementById('sovereign-mode').addEventListener('change', function(e) {
+    document.documentElement.style.setProperty('--solo-gold', e.target.checked ? '#a855f7' : '#fbbf24');
+    document.documentElement.style.setProperty('--solo-red', e.target.checked ? '#a855f7' : '#dc2626');
+});
+</script>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}YouTube Authorized - Protocol Pulse{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card bg-dark border-success">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="fas fa-check-circle me-2"></i>YouTube Authorization Successful</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <h5>Almost Done!</h5>
+                        <p>Protocol Pulse has been authorized to upload to your YouTube channel. You need to save the refresh token below as a secret.</p>
+                    </div>
+                    
+                    <h5 class="text-white">Your Refresh Token</h5>
+                    <p class="text-muted">Copy this entire token and add it to your secrets as <code>YOUTUBE_REFRESH_TOKEN</code>:</p>
+                    
+                    <div class="position-relative mb-3">
+                        <textarea id="refreshToken" class="form-control bg-secondary text-light font-monospace" rows="3" readonly>{{ refresh_token }}</textarea>
+                        <button class="btn btn-sm btn-outline-light position-absolute" style="top: 5px; right: 5px;" onclick="copyToken()">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-exclamation-triangle me-2"></i>Important</h6>
+                        <ol class="mb-0">
+                            <li>Go to the <strong>Secrets</strong> tab (padlock icon) in Replit</li>
+                            <li>Add a new secret with key: <code>YOUTUBE_REFRESH_TOKEN</code></li>
+                            <li>Paste the token above as the value</li>
+                            <li>The app will restart automatically</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="/admin/youtube-auth" class="btn btn-primary">
+                            <i class="fas fa-arrow-left me-1"></i>Back to YouTube Settings
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyToken() {
+    const textarea = document.getElementById('refreshToken');
+    textarea.select();
+    document.execCommand('copy');
+    alert('Refresh token copied to clipboard!');
+}
+</script>
+{% endblock %}

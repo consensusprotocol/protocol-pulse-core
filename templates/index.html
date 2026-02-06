@@ -1,0 +1,2595 @@
+{% extends "base.html" %}
+{% block title %}Protocol Pulse | Bitcoin Intelligence Hub{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+    --pulse-red: #dc2626;
+    --pulse-red-glow: rgba(220, 38, 38, 0.4);
+    --pulse-dark: #0a0a0a;
+    --pulse-darker: #050505;
+    --pulse-glass: rgba(10, 10, 10, 0.85);
+    --pulse-border: rgba(220, 38, 38, 0.15);
+    --terminal-font: 'JetBrains Mono', monospace;
+}
+
+/* Hero Section - Full Viewport Impact */
+.pulse-hero {
+    min-height: 100vh;
+    background: radial-gradient(ellipse at 20% 50%, rgba(220, 38, 38, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(220, 38, 38, 0.1) 0%, transparent 40%),
+                radial-gradient(ellipse at 50% 100%, rgba(220, 38, 38, 0.08) 0%, transparent 50%),
+                linear-gradient(180deg, #0a0a0a 0%, #050505 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    padding-top: 80px;
+}
+
+.pulse-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23dc2626' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* Neural Network Canvas */
+#neural-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Animated Grid Lines */
+.grid-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(rgba(220, 38, 38, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(220, 38, 38, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: gridPulse 4s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes gridPulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+}
+
+/* Data Pulse Effect */
+.data-pulse {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--pulse-red);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--pulse-red), 0 0 20px var(--pulse-red);
+    animation: dataPulseMove 3s linear infinite;
+    pointer-events: none;
+}
+
+/* Floating Orbs */
+.hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    animation: orbFloat 8s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.orb-1 {
+    width: 400px;
+    height: 400px;
+    background: rgba(220, 38, 38, 0.15);
+    top: 10%;
+    left: -5%;
+    animation-delay: 0s;
+}
+
+.orb-2 {
+    width: 300px;
+    height: 300px;
+    background: rgba(220, 38, 38, 0.1);
+    bottom: 20%;
+    right: -5%;
+    animation-delay: -4s;
+}
+
+.orb-3 {
+    width: 200px;
+    height: 200px;
+    background: rgba(220, 38, 38, 0.08);
+    top: 50%;
+    left: 50%;
+    animation-delay: -2s;
+}
+
+@keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -30px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+/* Hero Content */
+.hero-content {
+    position: relative;
+    z-index: 10;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(10, 10, 10, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-family: var(--terminal-font);
+    font-size: 0.75rem;
+    color: var(--pulse-red);
+    margin-bottom: 30px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    box-shadow: 
+        inset 0 0 15px rgba(220, 38, 38, 0.05),
+        0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.hero-badge .pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--pulse-red);
+    border-radius: 50%;
+    animation: pulseDot 2s ease-in-out infinite;
+}
+
+@keyframes pulseDot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--pulse-red-glow); }
+    50% { opacity: 0.6; box-shadow: 0 0 0 8px transparent; }
+}
+
+.hero-title {
+    font-family: var(--terminal-font);
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.1;
+    margin-bottom: 25px;
+    letter-spacing: -2px;
+}
+
+.hero-title .highlight {
+    background: linear-gradient(135deg, var(--pulse-red) 0%, #ff4d4d 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.6);
+    max-width: 600px;
+    line-height: 1.7;
+    margin-bottom: 40px;
+}
+
+/* Hero CTAs */
+.hero-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 60px;
+}
+
+.cta-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, var(--pulse-red) 0%, #b91c1c 100%);
+    color: #fff;
+    padding: 16px 32px;
+    border-radius: 12px;
+    font-family: var(--terminal-font);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(220, 38, 38, 0.3);
+}
+
+.cta-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(220, 38, 38, 0.4);
+    color: #fff;
+}
+
+.cta-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    padding: 16px 32px;
+    border-radius: 12px;
+    font-family: var(--terminal-font);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.cta-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+}
+
+/* Live Stats Bar */
+.live-stats-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.stat-label {
+    font-family: var(--terminal-font);
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.stat-value {
+    font-family: var(--terminal-font);
+    font-size: 1.1rem;
+    color: #fff;
+    font-weight: 600;
+}
+
+.stat-value.live {
+    color: var(--pulse-red);
+}
+
+.stat-value .unit {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-left: 3px;
+}
+
+/* Hero Visual - Right Side */
+.hero-visual {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bitcoin-orb {
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle at 30% 30%, rgba(220, 38, 38, 0.3) 0%, rgba(220, 38, 38, 0.1) 40%, transparent 70%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    animation: orbGlow 4s ease-in-out infinite;
+}
+
+@keyframes orbGlow {
+    0%, 100% { box-shadow: 0 0 60px rgba(220, 38, 38, 0.2), inset 0 0 60px rgba(220, 38, 38, 0.1); }
+    50% { box-shadow: 0 0 100px rgba(220, 38, 38, 0.3), inset 0 0 80px rgba(220, 38, 38, 0.15); }
+}
+
+.bitcoin-symbol {
+    font-size: 8rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.7) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-family: var(--terminal-font);
+}
+
+.orbit-ring {
+    position: absolute;
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 50%;
+    animation: orbitRotate 20s linear infinite;
+}
+
+.orbit-1 { width: 350px; height: 350px; animation-duration: 25s; }
+.orbit-2 { width: 400px; height: 400px; animation-duration: 30s; animation-direction: reverse; }
+.orbit-3 { width: 450px; height: 450px; animation-duration: 35s; }
+
+@keyframes orbitRotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.orbit-dot {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: var(--pulse-red);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--pulse-red);
+}
+
+/* Command Center Section */
+.command-section {
+    padding: 100px 0;
+    background: linear-gradient(180deg, #050505 0%, #0a0a0a 50%, #050505 100%);
+    position: relative;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.section-tag {
+    display: inline-block;
+    font-family: var(--terminal-font);
+    font-size: 0.75rem;
+    color: var(--pulse-red);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 15px;
+}
+
+.section-title {
+    font-family: var(--terminal-font);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 15px;
+}
+
+.section-desc {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Feature Cards */
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.feature-card {
+    background: var(--pulse-glass);
+    border: 1px solid var(--pulse-border);
+    border-radius: 20px;
+    padding: 35px;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    display: block;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--pulse-red), transparent);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.feature-card:hover {
+    border-color: rgba(220, 38, 38, 0.4);
+    transform: translateY(-5px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.feature-card:hover::before {
+    opacity: 1;
+}
+
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(220, 38, 38, 0.1);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 25px;
+    color: var(--pulse-red);
+    font-size: 1.5rem;
+}
+
+.feature-title {
+    font-family: var(--terminal-font);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 12px;
+}
+
+.feature-desc {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.feature-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--terminal-font);
+    font-size: 0.85rem;
+    color: var(--pulse-red);
+    text-decoration: none;
+    transition: gap 0.3s ease;
+}
+
+.feature-card:hover .feature-link {
+    gap: 12px;
+}
+
+/* Intelligence Briefs Section */
+.briefs-section {
+    padding: 100px 0;
+    background: #0a0a0a;
+}
+
+.brief-card {
+    background: var(--pulse-glass);
+    border: 1px solid var(--pulse-border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.brief-card:hover {
+    border-color: rgba(220, 38, 38, 0.4);
+    transform: translateY(-3px);
+}
+
+.brief-category {
+    display: inline-block;
+    padding: 6px 12px;
+    background: rgba(220, 38, 38, 0.15);
+    color: var(--pulse-red);
+    font-family: var(--terminal-font);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+.brief-content {
+    padding: 25px;
+}
+
+.brief-title {
+    font-family: var(--terminal-font);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.brief-title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.brief-title a:hover {
+    color: var(--pulse-red);
+}
+
+.brief-excerpt {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.brief-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--terminal-font);
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Markets Widget */
+.markets-widget {
+    background: var(--pulse-glass);
+    border: 1px solid var(--pulse-border);
+    border-radius: 20px;
+    padding: 30px;
+    position: sticky;
+    top: 100px;
+}
+
+.widget-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 25px;
+}
+
+.widget-title {
+    font-family: var(--terminal-font);
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.widget-title i {
+    color: var(--pulse-red);
+}
+
+.live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--terminal-font);
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.live-badge .dot {
+    width: 6px;
+    height: 6px;
+    background: #22c55e;
+    border-radius: 50%;
+    animation: pulseDot 2s ease-in-out infinite;
+}
+
+.market-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.market-item:last-child {
+    border-bottom: none;
+}
+
+.market-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.market-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.market-icon.btc { background: #F7931A; color: #fff; }
+.market-icon.eth { background: #627EEA; color: #fff; }
+.market-icon.sol { background: linear-gradient(135deg, #9945FF, #14F195); color: #fff; }
+
+.market-name {
+    font-family: var(--terminal-font);
+    font-size: 0.9rem;
+    color: #fff;
+    font-weight: 500;
+}
+
+.market-data {
+    text-align: right;
+}
+
+.market-price {
+    font-family: var(--terminal-font);
+    font-size: 0.95rem;
+    color: #fff;
+    font-weight: 600;
+}
+
+.market-change {
+    font-family: var(--terminal-font);
+    font-size: 0.75rem;
+}
+
+.market-change.positive { color: #22c55e; }
+.market-change.negative { color: #ef4444; }
+
+/* Newsletter Section */
+.newsletter-section {
+    padding: 80px 0;
+    background: linear-gradient(180deg, #0a0a0a 0%, rgba(220, 38, 38, 0.05) 50%, #0a0a0a 100%);
+    border-top: 1px solid var(--pulse-border);
+    border-bottom: 1px solid var(--pulse-border);
+}
+
+.newsletter-card {
+    background: var(--pulse-glass);
+    border: 1px solid var(--pulse-border);
+    border-radius: 24px;
+    padding: 50px;
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.newsletter-title {
+    font-family: var(--terminal-font);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 15px;
+}
+
+.newsletter-desc {
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 30px;
+}
+
+.newsletter-form {
+    display: flex;
+    gap: 12px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.newsletter-form input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px 20px;
+    color: #fff;
+    font-family: var(--terminal-font);
+    font-size: 0.9rem;
+}
+
+.newsletter-form input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.newsletter-form input:focus {
+    outline: none;
+    border-color: var(--pulse-red);
+}
+
+.newsletter-form button {
+    background: var(--pulse-red);
+    border: none;
+    border-radius: 12px;
+    padding: 16px 28px;
+    color: #fff;
+    font-family: var(--terminal-font);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.newsletter-form button:hover {
+    background: #b91c1c;
+}
+
+/* ==================== NETWORK SECTIONS STYLES ==================== */
+.network-section {
+    padding: 80px 0;
+    background: linear-gradient(180deg, #050505 0%, #0a0a0a 50%, #050505 100%);
+    border-bottom: 1px solid rgba(220, 38, 38, 0.1);
+}
+
+.section-header-inline {
+    margin-bottom: 40px;
+}
+
+.section-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.section-title-row h2 {
+    font-family: var(--terminal-font);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+}
+
+.section-subtitle {
+    color: rgba(255, 255, 255, 0.5);
+    font-family: var(--terminal-font);
+    font-size: 0.9rem;
+}
+
+.live-indicator-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-family: var(--terminal-font);
+    font-size: 0.7rem;
+    color: #22c55e;
+    letter-spacing: 1px;
+}
+
+.live-dot-sm {
+    width: 8px;
+    height: 8px;
+    background: #22c55e;
+    border-radius: 50%;
+    animation: pulseDot 2s ease-in-out infinite;
+}
+
+/* Dashboard Metrics */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.metric-card-inline {
+    background: var(--pulse-glass);
+    border: 1px solid var(--pulse-border);
+    border-radius: 16px;
+    padding: 25px;
+    text-align: center;
+}
+
+.metric-label-sm {
+    font-family: var(--terminal-font);
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.metric-value-lg {
+    font-family: var(--terminal-font);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.metric-change-sm {
+    font-family: var(--terminal-font);
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Fee Grid */
+.fee-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+.fee-card {
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+}
+
+.fee-card.fastest .fee-value { color: #dc2626; }
+.fee-card.fast .fee-value { color: #f59e0b; }
+.fee-card.medium .fee-value { color: #3b82f6; }
+.fee-card.economy .fee-value { color: #22c55e; }
+.fee-card.minimum .fee-value { color: rgba(255, 255, 255, 0.5); }
+
+.fee-value {
+    font-family: var(--terminal-font);
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.fee-label {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 3px;
+}
+
+.fee-time {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Charts Row */
+.charts-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 25px;
+}
+
+.chart-panel {
+    background: var(--pulse-glass);
+    border: 1px solid var(--pulse-border);
+    border-radius: 16px;
+    padding: 25px;
+}
+
+.chart-header {
+    font-family: var(--terminal-font);
+    font-size: 0.9rem;
+    color: var(--pulse-red);
+    margin-bottom: 20px;
+}
+
+.chart-wrapper {
+    height: 250px;
+}
+
+.gauge-wrapper {
+    text-align: center;
+}
+
+.gauge-wrapper canvas {
+    max-width: 180px;
+    margin: 0 auto 20px;
+}
+
+.gauge-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.gauge-stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.gauge-label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.gauge-value {
+    font-family: var(--terminal-font);
+    font-weight: 600;
+    color: #fff;
+}
+
+/* Terminal Section */
+.terminal-embed-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 25px;
+    min-height: 500px;
+}
+
+.terminal-frame {
+    background: #000;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--pulse-border);
+}
+
+.bitfeed-embed {
+    width: 100%;
+    height: 500px;
+    border: none;
+    filter: hue-rotate(330deg) saturate(1.2);
+}
+
+.terminal-sidebar {
+    background: var(--pulse-glass);
+    border: 1px solid var(--pulse-border);
+    border-radius: 16px;
+    padding: 25px;
+}
+
+.sidebar-title {
+    font-family: var(--terminal-font);
+    color: var(--pulse-red);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar-title::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--pulse-red);
+    border-radius: 50%;
+    animation: pulseDot 1.5s infinite;
+}
+
+.sidebar-metric {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-label {
+    font-family: var(--terminal-font);
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+}
+
+.sidebar-value {
+    font-family: var(--terminal-font);
+    font-size: 1rem;
+    color: #fff;
+    font-weight: 600;
+}
+
+.fee-color { color: #f59e0b; }
+
+.mempool-bar-container {
+    position: relative;
+    height: 50px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+.mempool-bar-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20%;
+    background: linear-gradient(to top, var(--pulse-red), rgba(220, 38, 38, 0.3));
+    transition: height 0.5s ease;
+}
+
+.mempool-bar-label {
+    position: absolute;
+    bottom: 8px;
+    left: 12px;
+    font-family: var(--terminal-font);
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.8);
+    z-index: 1;
+}
+
+.latest-block-card {
+    background: rgba(220, 38, 38, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.block-card-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.block-height-val {
+    font-family: var(--terminal-font);
+    color: var(--pulse-red);
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.block-time-val {
+    font-family: var(--terminal-font);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.75rem;
+}
+
+.block-card-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.block-stat-item {
+    text-align: center;
+}
+
+.block-stat-num {
+    display: block;
+    font-family: var(--terminal-font);
+    font-size: 0.9rem;
+    color: #fff;
+}
+
+.block-stat-name {
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+}
+
+.terminal-source-text {
+    font-family: var(--terminal-font);
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-align: center;
+}
+
+.terminal-source-text a {
+    color: var(--pulse-red);
+    text-decoration: none;
+}
+
+/* Whale Watcher Section - Compact */
+.whale-section-compact {
+    padding: 30px 0;
+}
+
+.whale-compact-card {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.whale-compact-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.whale-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.whale-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.5px;
+}
+
+.whale-live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(220, 38, 38, 0.15);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--pulse-red);
+    letter-spacing: 1px;
+}
+
+.whale-compact-stats {
+    display: flex;
+    gap: 20px;
+}
+
+.whale-mini-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.mini-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.mini-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #22c55e;
+}
+
+.whale-compact-list {
+    max-height: 180px;
+    overflow: hidden;
+}
+
+.whale-loading-compact {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 40px;
+    color: rgba(255, 255, 255, 0.4);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+}
+
+.whale-compact-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    transition: background 0.2s ease;
+}
+
+.whale-compact-row:hover {
+    background: rgba(220, 38, 38, 0.05);
+}
+
+.whale-compact-row.mega {
+    background: rgba(234, 179, 8, 0.05);
+}
+
+.whale-row-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.whale-icon-sm {
+    width: 32px;
+    height: 32px;
+    background: rgba(220, 38, 38, 0.15);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--pulse-red);
+    font-size: 0.8rem;
+}
+
+.whale-icon-sm.mega {
+    background: rgba(234, 179, 8, 0.15);
+    color: #eab308;
+}
+
+.whale-amount-sm {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.whale-row-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.whale-usd-sm {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: #22c55e;
+}
+
+.whale-time-sm {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.35);
+    min-width: 50px;
+    text-align: right;
+}
+
+.whale-view-all {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    background: rgba(220, 38, 38, 0.1);
+    color: var(--pulse-red);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+}
+
+.whale-view-all:hover {
+    background: rgba(220, 38, 38, 0.2);
+    color: #fff;
+}
+
+.whale-empty-compact {
+    padding: 30px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+}
+
+@media (max-width: 768px) {
+    .whale-compact-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+    
+    .whale-compact-stats {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .whale-mini-stat {
+        align-items: flex-start;
+    }
+    
+    .whale-row-right {
+        gap: 10px;
+    }
+    
+    .whale-time-sm {
+        display: none;
+    }
+}
+
+.status-dot-green {
+    width: 8px;
+    height: 8px;
+    background: #22c55e;
+    border-radius: 50%;
+    animation: pulseDot 2s infinite;
+}
+
+.whale-transactions-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.whale-loading {
+    text-align: center;
+    padding: 60px;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: var(--terminal-font);
+}
+
+.whale-tx-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 20px;
+    align-items: center;
+    padding: 18px 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    transition: all 0.3s ease;
+}
+
+.whale-tx-row:hover {
+    background: rgba(220, 38, 38, 0.05);
+}
+
+.whale-tx-row.mega {
+    background: rgba(234, 179, 8, 0.05);
+}
+
+.whale-tx-icon {
+    width: 45px;
+    height: 45px;
+    background: rgba(220, 38, 38, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--pulse-red);
+    font-size: 1.2rem;
+}
+
+.whale-tx-icon.mega {
+    background: rgba(234, 179, 8, 0.2);
+    color: #eab308;
+}
+
+.whale-tx-info {
+    overflow: hidden;
+}
+
+.whale-tx-amount {
+    font-family: var(--terminal-font);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 3px;
+}
+
+.whale-tx-hash {
+    font-family: var(--terminal-font);
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.whale-tx-hash a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.whale-tx-hash a:hover {
+    color: var(--pulse-red);
+}
+
+.whale-tx-usd {
+    font-family: var(--terminal-font);
+    font-size: 1rem;
+    color: #22c55e;
+}
+
+.whale-tx-time {
+    font-family: var(--terminal-font);
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    min-width: 70px;
+    text-align: right;
+}
+
+.whale-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.whale-empty i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.3;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .hero-visual {
+        display: none;
+    }
+    
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .newsletter-form {
+        flex-direction: column;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .fee-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .charts-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .terminal-embed-wrapper {
+        grid-template-columns: 1fr;
+    }
+    
+    .terminal-sidebar {
+        order: -1;
+    }
+    
+    .whale-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .pulse-hero {
+        padding-top: 70px;
+        min-height: auto;
+        padding-bottom: 40px;
+    }
+    
+    .hero-ctas {
+        flex-direction: column;
+    }
+    
+    .cta-primary, .cta-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .live-stats-bar {
+        gap: 20px;
+    }
+    
+    .markets-widget {
+        position: static;
+        margin-top: 40px;
+    }
+    
+    .network-section {
+        padding: 50px 0;
+    }
+    
+    .section-title-row h2 {
+        font-size: 1.3rem;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+    
+    .metric-value-lg {
+        font-size: 1.3rem;
+    }
+    
+    .fee-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .fee-card:nth-child(5) {
+        grid-column: span 2;
+    }
+    
+    .fee-value {
+        font-size: 1.3rem;
+    }
+    
+    .bitfeed-embed {
+        height: 350px;
+    }
+    
+    .whale-stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+    
+    .whale-stat-value {
+        font-size: 1.2rem;
+    }
+    
+    .whale-tx-row {
+        grid-template-columns: auto 1fr;
+        gap: 12px;
+    }
+    
+    .whale-tx-usd, .whale-tx-time {
+        display: none;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="pulse-hero">
+    <canvas id="neural-canvas"></canvas>
+    <div class="grid-overlay"></div>
+    <div class="hero-orb orb-1"></div>
+    <div class="hero-orb orb-2"></div>
+    <div class="hero-orb orb-3"></div>
+    
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7 hero-content">
+                <div class="hero-badge">
+                    <span class="pulse-dot"></span>
+                    <span>Live Network Intelligence</span>
+                </div>
+                
+                <h1 class="hero-title">
+                    Sovereign <span class="highlight">Intelligence.</span><br>
+                    Real-Time Signal.
+                </h1>
+                
+                <p class="hero-subtitle">
+                    The definitive command center for the global transactor class. Hard data, autonomous analysis, and the cypherpunk lens—delivered at the speed of the network.
+                </p>
+                
+                <div class="hero-ctas">
+                    <a href="/articles" class="cta-primary">
+                        <i class="fas fa-bolt"></i>
+                        Latest Intel
+                    </a>
+                    <a href="#intelligence-dashboard" class="cta-secondary">
+                        <i class="fas fa-chart-area"></i>
+                        Live Dashboard
+                    </a>
+                    <a href="/bitfeed-live" class="cta-secondary">
+                        <i class="fas fa-satellite-dish"></i>
+                        Settlement Terminal
+                    </a>
+                </div>
+                
+                <div class="live-stats-bar">
+                    <div class="stat-item">
+                        <span class="stat-label">Block Height</span>
+                        <span class="stat-value" id="hero-block">---,---</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Network Fees</span>
+                        <span class="stat-value live" id="hero-fees">--<span class="unit">sat/vB</span></span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Difficulty</span>
+                        <span class="stat-value">146.47<span class="unit">T</span></span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Hashrate</span>
+                        <span class="stat-value">~1,046<span class="unit">EH/s</span></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-5 hero-visual">
+                <div class="bitcoin-orb">
+                    <span class="bitcoin-symbol">₿</span>
+                    <div class="orbit-ring orbit-1">
+                        <span class="orbit-dot" style="top: 0; left: 50%; transform: translateX(-50%);"></span>
+                    </div>
+                    <div class="orbit-ring orbit-2">
+                        <span class="orbit-dot" style="bottom: 0; left: 50%; transform: translateX(-50%);"></span>
+                    </div>
+                    <div class="orbit-ring orbit-3">
+                        <span class="orbit-dot" style="top: 50%; right: 0; transform: translateY(-50%);"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== INTELLIGENCE HUB SECTIONS ==================== -->
+
+<!-- Intelligence Dashboard Section -->
+<section id="intelligence-dashboard" class="network-section dashboard-section">
+    <div class="container">
+        <div class="section-header-inline">
+            <div class="section-title-row">
+                <h2><i class="fas fa-chart-area text-danger me-3"></i>Intelligence Dashboard</h2>
+                <div class="live-indicator-sm">
+                    <span class="live-dot-sm"></span>
+                    LIVE
+                </div>
+            </div>
+            <p class="section-subtitle">Real-time Bitcoin network metrics for transactors</p>
+        </div>
+        
+        <!-- Primary Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card-inline">
+                <div class="metric-label-sm">Bitcoin Price</div>
+                <div class="metric-value-lg text-warning" id="dash-price">$--,---</div>
+                <div class="metric-change-sm" id="dash-price-change">--% (24h)</div>
+            </div>
+            <div class="metric-card-inline">
+                <div class="metric-label-sm">Network Difficulty</div>
+                <div class="metric-value-lg text-danger" id="dash-difficulty">-- T</div>
+                <div class="metric-change-sm">Computational Security</div>
+            </div>
+            <div class="metric-card-inline">
+                <div class="metric-label-sm">Network Hashrate</div>
+                <div class="metric-value-lg text-info" id="dash-hashrate">-- EH/s</div>
+                <div class="metric-change-sm">Mining Power</div>
+            </div>
+            <div class="metric-card-inline">
+                <div class="metric-label-sm">Mempool Size</div>
+                <div class="metric-value-lg text-success" id="dash-mempool">--</div>
+                <div class="metric-change-sm">Unconfirmed TXs</div>
+            </div>
+        </div>
+        
+        <!-- Fee Rates -->
+        <div class="fee-grid">
+            <div class="fee-card fastest">
+                <div class="fee-value" id="fee-fastest">--</div>
+                <div class="fee-label">Fastest</div>
+                <div class="fee-time">~10 min</div>
+            </div>
+            <div class="fee-card fast">
+                <div class="fee-value" id="fee-fast">--</div>
+                <div class="fee-label">Fast</div>
+                <div class="fee-time">~30 min</div>
+            </div>
+            <div class="fee-card medium">
+                <div class="fee-value" id="fee-medium">--</div>
+                <div class="fee-label">Medium</div>
+                <div class="fee-time">~1 hour</div>
+            </div>
+            <div class="fee-card economy">
+                <div class="fee-value" id="fee-economy">--</div>
+                <div class="fee-label">Economy</div>
+                <div class="fee-time">~2 hours</div>
+            </div>
+            <div class="fee-card minimum">
+                <div class="fee-value" id="fee-minimum">--</div>
+                <div class="fee-label">Minimum</div>
+                <div class="fee-time">No priority</div>
+            </div>
+        </div>
+        
+        <!-- Charts Row -->
+        <div class="charts-row">
+            <div class="chart-panel main-chart">
+                <div class="chart-header"><i class="fas fa-chart-line me-2"></i>Hashrate History (30 Days)</div>
+                <div class="chart-wrapper">
+                    <canvas id="hashrateChartHome"></canvas>
+                </div>
+            </div>
+            <div class="chart-panel side-chart">
+                <div class="chart-header"><i class="fas fa-clock me-2"></i>Difficulty Adjustment</div>
+                <div class="gauge-wrapper">
+                    <canvas id="difficultyGaugeHome"></canvas>
+                    <div class="gauge-info">
+                        <div class="gauge-stat">
+                            <span class="gauge-label">Progress</span>
+                            <span class="gauge-value text-warning" id="diff-progress">--%</span>
+                        </div>
+                        <div class="gauge-stat">
+                            <span class="gauge-label">Blocks Left</span>
+                            <span class="gauge-value" id="diff-remaining">--</span>
+                        </div>
+                        <div class="gauge-stat">
+                            <span class="gauge-label">Est. Change</span>
+                            <span class="gauge-value" id="diff-change">--%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Live Terminal CTA -->
+<section id="terminal" class="network-section" style="padding: 60px 0;">
+    <div class="container">
+        <a href="/live" class="terminal-cta-card" style="display: block; text-decoration: none; background: linear-gradient(135deg, rgba(220, 38, 38, 0.15) 0%, rgba(10, 10, 10, 0.95) 50%, rgba(247, 147, 26, 0.1) 100%); border: 1px solid rgba(220, 38, 38, 0.3); border-radius: 20px; padding: 40px; position: relative; overflow: hidden; transition: all 0.4s ease;">
+            <div style="position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(247, 147, 26, 0.05) 0%, transparent 70%); pointer-events: none;"></div>
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 30px; position: relative; z-index: 1;">
+                <div style="flex: 1; min-width: 280px;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                        <div style="width: 50px; height: 50px; background: rgba(220, 38, 38, 0.2); border: 1px solid rgba(220, 38, 38, 0.4); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-satellite-dish" style="font-size: 1.3rem; color: #dc2626;"></i>
+                        </div>
+                        <div>
+                            <h2 style="font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; color: #fff; margin: 0;">Alchemical Transmutation Terminal</h2>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-top: 5px;">
+                                <span style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%; animation: pulse 2s infinite;"></span>
+                                <span style="font-size: 0.7rem; color: #22c55e; text-transform: uppercase; letter-spacing: 1px;">Live</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="color: rgba(255,255,255,0.6); font-size: 0.95rem; line-height: 1.6; margin: 0;">Experience real Bitcoin transactions as particles flowing through the network. 400+ live TXIDs, mempool heatmaps, whale detection, and deep sovereignty analytics.</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div style="text-align: center; padding: 15px 25px; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid rgba(247, 147, 26, 0.2);">
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.8rem; color: #f7931a; font-weight: 700;">15+</div>
+                        <div style="font-size: 0.65rem; color: rgba(255,255,255,0.5); text-transform: uppercase;">Analytics Modules</div>
+                    </div>
+                    <div style="width: 50px; height: 50px; background: rgba(247, 147, 26, 0.15); border: 1px solid rgba(247, 147, 26, 0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-arrow-right" style="color: #f7931a; font-size: 1.2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</section>
+
+<!-- Whale Watcher Section - Compact -->
+<section id="whale-watcher" class="network-section whale-section-compact">
+    <div class="container">
+        <div class="whale-compact-card">
+            <div class="whale-compact-header">
+                <div class="whale-title-row">
+                    <i class="fas fa-water" style="color: var(--pulse-red);"></i>
+                    <span class="whale-title">Whale Watcher</span>
+                    <div class="whale-live-badge">
+                        <span class="live-dot-sm"></span>
+                        LIVE
+                    </div>
+                </div>
+                <div class="whale-compact-stats">
+                    <div class="whale-mini-stat">
+                        <span class="mini-label">Largest</span>
+                        <span class="mini-value" id="whale-largest">--</span>
+                    </div>
+                    <div class="whale-mini-stat">
+                        <span class="mini-label">Volume</span>
+                        <span class="mini-value" id="whale-volume">--</span>
+                    </div>
+                    <span id="whale-count" style="display:none;">0</span>
+                    <span id="whale-price" style="display:none;">0</span>
+                </div>
+            </div>
+            <div class="whale-compact-list" id="whale-list-home">
+                <div class="whale-loading-compact">
+                    <i class="fas fa-circle-notch fa-spin"></i>
+                    <span>Scanning blocks...</span>
+                </div>
+            </div>
+            <a href="{{ url_for('whale_watcher') }}" class="whale-view-all">
+                View Full Monitor <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== END INTELLIGENCE HUB ==================== -->
+
+<!-- Command Center Section -->
+<section class="command-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">Command Center</span>
+            <h2 class="section-title">Your Bitcoin Intelligence Suite</h2>
+            <p class="section-desc">Purpose-built tools for monitoring, analyzing, and understanding the world's most secure network.</p>
+        </div>
+        
+        <div class="feature-grid">
+            <a href="/live" class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-satellite-dish"></i>
+                </div>
+                <h3 class="feature-title">Alchemical Terminal</h3>
+                <p class="feature-desc">Experience 400+ live Bitcoin transactions as particles. Real TXIDs, mempool heatmaps, whale detection, and deep sovereignty analytics.</p>
+                <span class="feature-link">Enter the Terminal <i class="fas fa-arrow-right"></i></span>
+            </a>
+            
+            <a href="#intelligence-dashboard" class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-area"></i>
+                </div>
+                <h3 class="feature-title">Intelligence Dashboard</h3>
+                <p class="feature-desc">Network metrics at a glance. Difficulty adjustments, hashrate trends, and mining economics visualized with Chart.js.</p>
+                <span class="feature-link">View Below <i class="fas fa-arrow-down"></i></span>
+            </a>
+            
+            <a href="#whale-watcher" class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-water"></i>
+                </div>
+                <h3 class="feature-title">Whale Watcher</h3>
+                <p class="feature-desc">Track large Bitcoin movements in real-time. Monitor 500+ BTC transactions as institutional capital flows across the network.</p>
+                <span class="feature-link">View Below <i class="fas fa-arrow-down"></i></span>
+            </a>
+            
+            <a href="/map" class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <h3 class="feature-title">Merchant Map</h3>
+                <p class="feature-desc">Discover 5,000+ Bitcoin-accepting businesses worldwide. Find sovereign merchants in your area ready to transact.</p>
+                <span class="feature-link">Explore Map <i class="fas fa-arrow-right"></i></span>
+            </a>
+            
+            <a href="/scorecard" class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 class="feature-title">Sovereign Scorecard</h3>
+                <p class="feature-desc">Assess your Bitcoin security posture. Get personalized recommendations to strengthen your self-custody practices.</p>
+                <span class="feature-link">Take Assessment <i class="fas fa-arrow-right"></i></span>
+            </a>
+            
+            <a href="/podcasts" class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-podcast"></i>
+                </div>
+                <h3 class="feature-title">Audio Intelligence</h3>
+                <p class="feature-desc">Live analysis and expert commentary on Bitcoin developments. Deep-dive discussions distilled into actionable audio briefings.</p>
+                <span class="feature-link">Listen Now <i class="fas fa-arrow-right"></i></span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Intelligence Briefs Section -->
+<section class="briefs-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">Intelligence Briefs</span>
+            <h2 class="section-title">Latest Analysis</h2>
+            <p class="section-desc">AI-powered briefings with real-time fact-checking against network ground truth.</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="row">
+                    {% if featured_articles %}
+                        {% for article in featured_articles[:3] %}
+                        <div class="col-md-6 mb-4">
+                            <div class="brief-card">
+                                <div class="brief-content">
+                                    <span class="brief-category">{{ article.category }}</span>
+                                    <h3 class="brief-title">
+                                        <a href="/articles/{{ article.id }}">{{ article.title }}</a>
+                                    </h3>
+                                    <p class="brief-excerpt">{{ article.content | clean_preview(120) }}...</p>
+                                    <div class="brief-meta">
+                                        <span>{{ article.created_at.strftime('%b %d, %Y') }}</span>
+                                        <span><i class="fas fa-clock me-1"></i>5 min read</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    {% if recent_articles %}
+                        {% for article in recent_articles[:3] %}
+                        <div class="col-md-6 mb-4">
+                            <div class="brief-card">
+                                <div class="brief-content">
+                                    <span class="brief-category">{{ article.category }}</span>
+                                    <h3 class="brief-title">
+                                        <a href="/articles/{{ article.id }}">{{ article.title }}</a>
+                                    </h3>
+                                    <p class="brief-excerpt">{{ article.content | clean_preview(120) }}...</p>
+                                    <div class="brief-meta">
+                                        <span>{{ article.created_at.strftime('%b %d, %Y') }}</span>
+                                        <span><i class="fas fa-clock me-1"></i>5 min read</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="/articles" class="cta-primary">
+                        <i class="fas fa-newspaper"></i>
+                        View All Briefs
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="markets-widget">
+                    <div class="widget-header">
+                        <h3 class="widget-title">
+                            <i class="fas fa-chart-line"></i>
+                            Markets
+                        </h3>
+                        <span class="live-badge">
+                            <span class="dot"></span>
+                            Live
+                        </span>
+                    </div>
+                    
+                    <div class="market-item">
+                        <div class="market-info">
+                            <div class="market-icon btc">₿</div>
+                            <span class="market-name">Bitcoin</span>
+                        </div>
+                        <div class="market-data">
+                            <div class="market-price">{{ price_service.format_price(prices.bitcoin.price) if prices and prices.bitcoin else '$--' }}</div>
+                            <div class="market-change {{ 'positive' if prices and prices.bitcoin and prices.bitcoin.change_24h >= 0 else 'negative' }}">
+                                {{ price_service.format_change(prices.bitcoin.change_24h) if prices and prices.bitcoin else '--' }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="market-item">
+                        <div class="market-info">
+                            <div class="market-icon eth">Ξ</div>
+                            <span class="market-name">Ethereum</span>
+                        </div>
+                        <div class="market-data">
+                            <div class="market-price">{{ price_service.format_price(prices.ethereum.price) if prices and prices.ethereum else '$--' }}</div>
+                            <div class="market-change {{ 'positive' if prices and prices.ethereum and prices.ethereum.change_24h >= 0 else 'negative' }}">
+                                {{ price_service.format_change(prices.ethereum.change_24h) if prices and prices.ethereum else '--' }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="market-item">
+                        <div class="market-info">
+                            <div class="market-icon sol">S</div>
+                            <span class="market-name">Solana</span>
+                        </div>
+                        <div class="market-data">
+                            <div class="market-price">{{ price_service.format_price(prices.solana.price) if prices and prices.solana else '$--' }}</div>
+                            <div class="market-change {{ 'positive' if prices and prices.solana and prices.solana.change_24h >= 0 else 'negative' }}">
+                                {{ price_service.format_change(prices.solana.change_24h) if prices and prices.solana else '--' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="newsletter-section">
+    <div class="container">
+        <div class="newsletter-card">
+            <h2 class="newsletter-title">
+                <i class="fas fa-bolt me-2" style="color: var(--pulse-red);"></i>
+                Join the Intel Network
+            </h2>
+            <p class="newsletter-desc">
+                Get daily briefings on Bitcoin network security, mining economics, and sound money philosophy delivered to your inbox.
+            </p>
+            <form id="newsletter-form" class="newsletter-form">
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                <button type="submit" id="subscribe-btn">
+                    <i class="fas fa-paper-plane me-1"></i>Subscribe
+                </button>
+            </form>
+            <div id="newsletter-message" class="mt-3" style="display: none;"></div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Neural Network Animation - Blockchain Node Visualization
+    const canvas = document.getElementById('neural-canvas');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        let nodes = [];
+        let animationId;
+        const nodeCount = window.innerWidth < 768 ? 35 : 60;
+        const connectionDistance = window.innerWidth < 768 ? 120 : 180;
+        const pulseRed = { r: 220, g: 38, b: 38 };
+        
+        function resize() {
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = canvas.parentElement.offsetHeight;
+        }
+        
+        function createNodes() {
+            nodes = [];
+            for (let i = 0; i < nodeCount; i++) {
+                nodes.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    radius: Math.random() * 2 + 1,
+                    pulsePhase: Math.random() * Math.PI * 2,
+                    isActive: Math.random() > 0.7
+                });
+            }
+        }
+        
+        function drawNode(node, time) {
+            const pulse = Math.sin(time * 0.002 + node.pulsePhase) * 0.5 + 0.5;
+            const alpha = node.isActive ? 0.4 + pulse * 0.4 : 0.15 + pulse * 0.1;
+            const radius = node.radius * (1 + pulse * 0.3);
+            
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${pulseRed.r}, ${pulseRed.g}, ${pulseRed.b}, ${alpha})`;
+            ctx.fill();
+            
+            if (node.isActive) {
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, radius + 4, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(${pulseRed.r}, ${pulseRed.g}, ${pulseRed.b}, ${alpha * 0.3})`;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+        }
+        
+        function drawConnections(time) {
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const dx = nodes[i].x - nodes[j].x;
+                    const dy = nodes[i].y - nodes[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist < connectionDistance) {
+                        const alpha = (1 - dist / connectionDistance) * 0.15;
+                        const pulse = Math.sin(time * 0.003 + i * 0.1) * 0.5 + 0.5;
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(nodes[i].x, nodes[i].y);
+                        ctx.lineTo(nodes[j].x, nodes[j].y);
+                        ctx.strokeStyle = `rgba(${pulseRed.r}, ${pulseRed.g}, ${pulseRed.b}, ${alpha * (0.5 + pulse * 0.5)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                        
+                        // Data pulse traveling along connection
+                        if (nodes[i].isActive && nodes[j].isActive && Math.random() > 0.995) {
+                            drawDataPulse(nodes[i], nodes[j], time);
+                        }
+                    }
+                }
+            }
+        }
+        
+        function drawDataPulse(from, to, time) {
+            const progress = (time % 1000) / 1000;
+            const x = from.x + (to.x - from.x) * progress;
+            const y = from.y + (to.y - from.y) * progress;
+            
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${pulseRed.r}, ${pulseRed.g}, ${pulseRed.b}, 0.8)`;
+            ctx.fill();
+            
+            // Glow effect
+            const gradient = ctx.createRadialGradient(x, y, 0, x, y, 10);
+            gradient.addColorStop(0, `rgba(${pulseRed.r}, ${pulseRed.g}, ${pulseRed.b}, 0.4)`);
+            gradient.addColorStop(1, 'rgba(220, 38, 38, 0)');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(x, y, 10, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function updateNodes() {
+            nodes.forEach(node => {
+                node.x += node.vx;
+                node.y += node.vy;
+                
+                // Bounce off edges
+                if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
+                if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
+                
+                // Randomly toggle active state
+                if (Math.random() > 0.998) node.isActive = !node.isActive;
+            });
+        }
+        
+        function animate(time) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            drawConnections(time);
+            nodes.forEach(node => drawNode(node, time));
+            updateNodes();
+            
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        // Initialize
+        resize();
+        createNodes();
+        animate(0);
+        
+        // Handle resize
+        window.addEventListener('resize', () => {
+            resize();
+            createNodes();
+        });
+        
+        // Performance: pause animation when not visible
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                cancelAnimationFrame(animationId);
+            } else {
+                animate(0);
+            }
+        });
+    }
+    
+    // ==================== COMPREHENSIVE DATA FETCHING ====================
+    
+    let btcPrice = 100000;
+    let whaleTransactions = [];
+    let totalVolume = 0;
+    let largestTx = 0;
+    let hashrateChart = null;
+    let difficultyGauge = null;
+    
+    // Fetch all network data from server API (avoids CORS issues)
+    async function fetchAllNetworkData() {
+        try {
+            // Use server-side API for reliable data fetching
+            const [serverRes, blockRes] = await Promise.all([
+                fetch('/api/network-data'),
+                fetch('https://mempool.space/api/blocks')
+            ]);
+            
+            // Server API data (prices, fees, mempool, difficulty)
+            if (serverRes.ok) {
+                const data = await serverRes.json();
+                if (data.success) {
+                    // Price Data
+                    btcPrice = data.bitcoin.price;
+                    const change = data.bitcoin.change_24h;
+                    
+                    const dashPrice = document.getElementById('dash-price');
+                    const dashPriceChange = document.getElementById('dash-price-change');
+                    const whalePrice = document.getElementById('whale-price');
+                    
+                    if (dashPrice) dashPrice.textContent = '$' + btcPrice.toLocaleString();
+                    if (dashPriceChange) {
+                        dashPriceChange.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '% (24h)';
+                        dashPriceChange.className = 'metric-change-sm ' + (change >= 0 ? 'text-success' : 'text-danger');
+                    }
+                    if (whalePrice) whalePrice.textContent = '$' + btcPrice.toLocaleString();
+                    
+                    // Fee Data
+                    const fees = data.fees;
+                    document.getElementById('hero-fees').innerHTML = fees.halfHourFee + '<span class="unit">sat/vB</span>';
+                    
+                    const feeF = document.getElementById('fee-fastest');
+                    const feeH = document.getElementById('fee-fast');
+                    const feeM = document.getElementById('fee-medium');
+                    const feeE = document.getElementById('fee-economy');
+                    const feeMin = document.getElementById('fee-minimum');
+                    
+                    if (feeF) feeF.textContent = fees.fastest;
+                    if (feeH) feeH.textContent = fees.halfHourFee;
+                    if (feeM) feeM.textContent = fees.hourFee;
+                    if (feeE) feeE.textContent = fees.economyFee;
+                    if (feeMin) feeMin.textContent = fees.minimumFee;
+                    
+                    const termFee = document.getElementById('term-fee');
+                    const termLow = document.getElementById('term-low-fee');
+                    if (termFee) {
+                        termFee.textContent = fees.fastest + ' sat/vB';
+                        termFee.className = 'sidebar-value ' + (fees.fastest < 10 ? 'text-success' : fees.fastest < 50 ? 'fee-color' : 'text-danger');
+                    }
+                    if (termLow) termLow.textContent = fees.hourFee + ' sat/vB';
+                    
+                    // Mempool Data
+                    const mempool = data.mempool;
+                    const mempoolMB = (mempool.vsize / 1000000).toFixed(1);
+                    const mempoolPercent = Math.min((mempool.vsize / 300000000) * 100, 100);
+                    
+                    const dashMempool = document.getElementById('dash-mempool');
+                    if (dashMempool) dashMempool.textContent = mempool.count.toLocaleString();
+                    
+                    const termMempool = document.getElementById('term-mempool');
+                    const termPending = document.getElementById('term-pending');
+                    const termMempoolBar = document.getElementById('term-mempool-bar');
+                    const termMempoolMB = document.getElementById('term-mempool-mb');
+                    
+                    if (termMempool) termMempool.textContent = mempoolMB + ' vMB';
+                    if (termPending) termPending.textContent = mempool.count.toLocaleString();
+                    if (termMempoolBar) termMempoolBar.style.height = mempoolPercent + '%';
+                    if (termMempoolMB) termMempoolMB.textContent = mempoolMB + ' MB';
+                    
+                    // Network Stats
+                    const dashHashrate = document.getElementById('dash-hashrate');
+                    const dashDifficulty = document.getElementById('dash-difficulty');
+                    if (dashHashrate && data.network.hashrate) {
+                        dashHashrate.textContent = Math.round(data.network.hashrate) + ' EH/s';
+                    }
+                    if (dashDifficulty && data.network.difficulty) {
+                        dashDifficulty.textContent = data.network.difficulty.toFixed(2) + ' T';
+                    }
+                    
+                    // Difficulty Adjustment
+                    const diffAdj = data.difficulty_adjustment;
+                    if (diffAdj) {
+                        const diffProgress = document.getElementById('diff-progress');
+                        const diffRemaining = document.getElementById('diff-remaining');
+                        const diffChange = document.getElementById('diff-change');
+                        
+                        if (diffAdj.progress !== undefined && diffProgress) {
+                            diffProgress.textContent = diffAdj.progress.toFixed(1) + '%';
+                            updateDifficultyGauge(diffAdj.progress);
+                        }
+                        if (diffAdj.remaining_blocks !== undefined && diffRemaining) {
+                            diffRemaining.textContent = diffAdj.remaining_blocks;
+                        }
+                        if (diffAdj.change_percent !== undefined && diffChange) {
+                            diffChange.textContent = (diffAdj.change_percent >= 0 ? '+' : '') + diffAdj.change_percent.toFixed(2) + '%';
+                            diffChange.className = 'gauge-value ' + (diffAdj.change_percent >= 0 ? 'text-success' : 'text-danger');
+                        }
+                    }
+                }
+            }
+            
+            // Block Data (still from mempool.space for real-time blocks)
+            if (blockRes.ok) {
+                const blocks = await blockRes.json();
+                if (blocks.length > 0) {
+                    const latest = blocks[0];
+                    document.getElementById('hero-block').textContent = latest.height.toLocaleString();
+                    
+                    const termBlock = document.getElementById('term-block');
+                    const termBlockTime = document.getElementById('term-block-time');
+                    const termBlockTxs = document.getElementById('term-block-txs');
+                    const termBlockSize = document.getElementById('term-block-size');
+                    
+                    if (termBlock) termBlock.textContent = '#' + latest.height.toLocaleString();
+                    if (termBlockTime) {
+                        const minAgo = Math.floor((Date.now() - latest.timestamp * 1000) / 60000);
+                        termBlockTime.textContent = minAgo + ' min ago';
+                    }
+                    if (termBlockTxs) termBlockTxs.textContent = latest.tx_count.toLocaleString();
+                    if (termBlockSize) termBlockSize.textContent = (latest.size / 1000000).toFixed(2) + ' MB';
+                }
+            }
+            
+        } catch (e) {
+            console.log('Network data error:', e);
+        }
+    }
+    
+    // Fetch hashrate and difficulty data
+    async function fetchHashrateData() {
+        try {
+            // Fetch hashrate history for chart
+            const hashrateRes = await fetch('https://mempool.space/api/v1/mining/hashrate/1m');
+            if (hashrateRes.ok) {
+                const data = await hashrateRes.json();
+                
+                // Dashboard hashrate - use currentHashrate if available
+                const dashHashrate = document.getElementById('dash-hashrate');
+                if (dashHashrate) {
+                    if (data.currentHashrate) {
+                        dashHashrate.textContent = (data.currentHashrate / 1e18).toFixed(0) + ' EH/s';
+                    } else {
+                        dashHashrate.textContent = '~1,046 EH/s';
+                    }
+                }
+                
+                // Dashboard difficulty - use currentDifficulty if available
+                const dashDiff = document.getElementById('dash-difficulty');
+                if (dashDiff) {
+                    if (data.currentDifficulty) {
+                        dashDiff.textContent = (data.currentDifficulty / 1e12).toFixed(2) + ' T';
+                    } else {
+                        dashDiff.textContent = '146.47 T';
+                    }
+                }
+                
+                // Hashrate chart - use hashrates array if available
+                const ctx = document.getElementById('hashrateChartHome');
+                if (ctx && !hashrateChart) {
+                    let labels, values;
+                    
+                    if (data.hashrates && data.hashrates.length > 0) {
+                        labels = data.hashrates.slice(-30).map(d => {
+                            const date = new Date(d.timestamp * 1000);
+                            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        });
+                        values = data.hashrates.slice(-30).map(d => d.avgHashrate / 1e18);
+                    } else {
+                        // Fallback: generate sample data
+                        labels = Array.from({length: 30}, (_, i) => {
+                            const date = new Date();
+                            date.setDate(date.getDate() - (29 - i));
+                            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        });
+                        values = Array.from({length: 30}, () => 950 + Math.random() * 100);
+                    }
+                    
+                    hashrateChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Hashrate (EH/s)',
+                                data: values,
+                                borderColor: '#dc2626',
+                                backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 0,
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#666', maxTicksLimit: 8 } },
+                                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#666', callback: v => v.toFixed(0) + ' EH/s' } }
+                            }
+                        }
+                    });
+                }
+            }
+        } catch (e) {
+            console.log('Hashrate fetch error:', e);
+            // Set fallback values
+            const dashHashrate = document.getElementById('dash-hashrate');
+            const dashDiff = document.getElementById('dash-difficulty');
+            if (dashHashrate) dashHashrate.textContent = '~1,046 EH/s';
+            if (dashDiff) dashDiff.textContent = '146.47 T';
+        }
+    }
+    
+    // Initialize difficulty gauge
+    function initDifficultyGauge() {
+        const ctx = document.getElementById('difficultyGaugeHome');
+        if (ctx && !difficultyGauge) {
+            try {
+                difficultyGauge = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [50, 50],
+                            backgroundColor: ['#dc2626', '#1a1a1a'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        cutout: '70%',
+                        rotation: -90,
+                        circumference: 180,
+                        plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                    }
+                });
+            } catch (e) {
+                console.log('Gauge init error:', e);
+            }
+        }
+    }
+    
+    // Safely update difficulty gauge
+    function updateDifficultyGauge(progress) {
+        if (difficultyGauge && difficultyGauge.data && difficultyGauge.data.datasets) {
+            try {
+                difficultyGauge.data.datasets[0].data = [progress, 100 - progress];
+                difficultyGauge.update();
+            } catch (e) {
+                console.log('Gauge update error:', e);
+            }
+        }
+    }
+    
+    // Whale Watcher Functions
+    async function fetchWhaleTransactions() {
+        try {
+            const response = await fetch('https://mempool.space/api/mempool/recent');
+            const transactions = await response.json();
+            
+            const whales = transactions.filter(tx => {
+                const btcValue = tx.value / 100000000;
+                return btcValue >= 500;
+            }).map(tx => ({
+                txid: tx.txid,
+                btc: tx.value / 100000000,
+                fee: tx.fee,
+                time: Date.now()
+            }));
+            
+            if (whales.length > 0) {
+                whales.forEach(whale => {
+                    if (!whaleTransactions.find(w => w.txid === whale.txid)) {
+                        whaleTransactions.unshift(whale);
+                        totalVolume += whale.btc;
+                        if (whale.btc > largestTx) largestTx = whale.btc;
+                    }
+                });
+                
+                whaleTransactions = whaleTransactions.slice(0, 30);
+                updateWhaleUI();
+            }
+            
+            if (whaleTransactions.length < 3) {
+                await fetchRecentBlocksForWhales();
+            }
+            
+        } catch (error) {
+            console.error('Whale fetch error:', error);
+            await fetchRecentBlocksForWhales();
+        }
+    }
+    
+    async function fetchRecentBlocksForWhales() {
+        try {
+            const blocksResponse = await fetch('https://mempool.space/api/blocks');
+            const blocks = await blocksResponse.json();
+            
+            let allLargeTxs = [];
+            
+            for (const block of blocks.slice(0, 5)) {
+                const txResponse = await fetch(`https://mempool.space/api/block/${block.id}/txs`);
+                const transactions = await txResponse.json();
+                
+                transactions.forEach(tx => {
+                    const outputs = tx.vout || [];
+                    const totalOut = outputs.reduce((sum, out) => sum + (out.value || 0), 0);
+                    const btcValue = totalOut / 100000000;
+                    
+                    if (btcValue >= 100 && !whaleTransactions.find(w => w.txid === tx.txid)) {
+                        allLargeTxs.push({
+                            txid: tx.txid,
+                            btc: btcValue,
+                            fee: tx.fee || 0,
+                            time: (block.timestamp || Math.floor(Date.now()/1000)) * 1000
+                        });
+                    }
+                });
+            }
+            
+            allLargeTxs.sort((a, b) => b.btc - a.btc);
+            const topWhales = allLargeTxs.slice(0, 5);
+            
+            topWhales.forEach(whale => {
+                if (!whaleTransactions.find(w => w.txid === whale.txid)) {
+                    whaleTransactions.unshift(whale);
+                    totalVolume += whale.btc;
+                    if (whale.btc > largestTx) largestTx = whale.btc;
+                }
+            });
+            
+            whaleTransactions = whaleTransactions.slice(0, 30);
+            updateWhaleUI();
+            
+        } catch (error) {
+            console.error('Block fetch error:', error);
+            showWhaleEmptyState();
+        }
+    }
+    
+    function updateWhaleUI() {
+        const volEl = document.getElementById('whale-volume');
+        const countEl = document.getElementById('whale-count');
+        const largestEl = document.getElementById('whale-largest');
+        
+        if (volEl) volEl.textContent = totalVolume.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' BTC';
+        if (countEl) countEl.textContent = whaleTransactions.length;
+        if (largestEl) largestEl.textContent = largestTx.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' BTC';
+        
+        const listEl = document.getElementById('whale-list-home');
+        if (!listEl) return;
+        
+        if (whaleTransactions.length === 0) {
+            showWhaleEmptyState();
+            return;
+        }
+        
+        const displayTxs = whaleTransactions.slice(0, 3);
+        
+        listEl.innerHTML = displayTxs.map(tx => {
+            const usdValue = tx.btc * btcPrice;
+            const isMega = tx.btc >= 1000;
+            const timeAgo = getTimeAgo(tx.time);
+            
+            return `
+                <a href="https://mempool.space/tx/${tx.txid}" target="_blank" class="whale-compact-row ${isMega ? 'mega' : ''}" style="text-decoration: none;">
+                    <div class="whale-row-left">
+                        <div class="whale-icon-sm ${isMega ? 'mega' : ''}">
+                            <i class="fas ${isMega ? 'fa-crown' : 'fa-fish'}"></i>
+                        </div>
+                        <span class="whale-amount-sm">${tx.btc.toLocaleString(undefined, {maximumFractionDigits: 0})} BTC</span>
+                    </div>
+                    <div class="whale-row-right">
+                        <span class="whale-usd-sm">$${(usdValue / 1000000).toFixed(1)}M</span>
+                        <span class="whale-time-sm">${timeAgo}</span>
+                    </div>
+                </a>
+            `;
+        }).join('');
+    }
+    
+    function showWhaleEmptyState() {
+        const listEl = document.getElementById('whale-list-home');
+        if (listEl) {
+            listEl.innerHTML = `
+                <div class="whale-empty-compact">
+                    <i class="fas fa-water me-2"></i>
+                    Scanning for large transactions...
+                </div>
+            `;
+        }
+    }
+    
+    function getTimeAgo(timestamp) {
+        let ts = timestamp;
+        if (ts < 1000000000000) ts = ts * 1000;
+        
+        const seconds = Math.floor((Date.now() - ts) / 1000);
+        
+        if (seconds < 0) return 'just now';
+        if (seconds < 60) return seconds + 's ago';
+        if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+        if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+        return Math.floor(seconds / 86400) + 'd ago';
+    }
+    
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+    
+    // Initialize everything
+    fetchAllNetworkData();
+    fetchHashrateData();
+    initDifficultyGauge();
+    fetchWhaleTransactions();
+    
+    // Refresh intervals
+    setInterval(fetchAllNetworkData, 15000);
+    setInterval(fetchWhaleTransactions, 30000);
+    
+    // Newsletter form
+    const form = document.getElementById('newsletter-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const btn = document.getElementById('subscribe-btn');
+            const msg = document.getElementById('newsletter-message');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            fetch('/api/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    msg.innerHTML = '<div class="alert alert-success" style="background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.3); color: #22c55e; border-radius: 12px; padding: 15px;">Welcome to the network. Check your inbox.</div>';
+                    form.reset();
+                } else {
+                    msg.innerHTML = '<div class="alert alert-danger" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; border-radius: 12px; padding: 15px;">' + (data.error || 'Subscription failed') + '</div>';
+                }
+                msg.style.display = 'block';
+            })
+            .catch(() => {
+                msg.innerHTML = '<div class="alert alert-danger" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; border-radius: 12px; padding: 15px;">Network error. Please try again.</div>';
+                msg.style.display = 'block';
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Subscribe';
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

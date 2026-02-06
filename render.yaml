@@ -1,0 +1,15 @@
+# Render Blueprint: consensusprotocol/protocol-pulse-core
+# Repo: https://github.com/consensusprotocol/protocol-pulse-core
+# After connecting the repo, add env vars from core/.env (never commit .env).
+
+services:
+  - type: web
+    name: protocol-pulse
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -b 0.0.0.0:$PORT app:app
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: "3.12"

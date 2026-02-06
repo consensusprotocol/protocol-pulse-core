@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}Support Protocol Pulse | Donate{% endblock %}
+
+{% block head %}
+<style>
+:root {
+    --pp-red: #dc2626;
+    --pp-dark: #0a0a0a;
+    --btc-orange: #f7931a;
+}
+
+.donate-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0505 100%);
+    padding: 100px 20px 60px;
+}
+
+.donate-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.donate-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.donate-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2rem;
+    color: #fff;
+    margin-bottom: 15px;
+}
+
+.donate-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.6;
+}
+
+.donate-card {
+    background: rgba(10, 10, 10, 0.95);
+    border: 1px solid rgba(247, 147, 26, 0.3);
+    border-radius: 20px;
+    padding: 35px;
+}
+
+.amount-selector {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.amount-btn {
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.amount-btn:hover, .amount-btn.selected {
+    border-color: var(--btc-orange);
+    background: rgba(247, 147, 26, 0.1);
+    color: var(--btc-orange);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 8px;
+}
+
+.form-input, .form-textarea {
+    width: 100%;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+}
+
+.form-input:focus, .form-textarea:focus {
+    outline: none;
+    border-color: var(--btc-orange);
+}
+
+.form-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.donate-btn {
+    width: 100%;
+    padding: 18px;
+    background: var(--btc-orange);
+    border: none;
+    border-radius: 12px;
+    color: #000;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.donate-btn:hover {
+    background: #e8820f;
+    transform: translateY(-2px);
+}
+
+.lightning-section {
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+.lightning-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 15px;
+}
+
+.lightning-address {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px 20px;
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--btc-orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.lightning-address:hover {
+    background: rgba(247, 147, 26, 0.1);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="donate-page">
+    <div class="donate-container">
+        <div class="donate-header">
+            <h1 class="donate-title"><i class="fas fa-heart" style="color: var(--pp-red);"></i> Support Sovereign Journalism</h1>
+            <p class="donate-subtitle">Your contribution helps keep Protocol Pulse independent, ad-light, and committed to truth. Every satoshi counts.</p>
+        </div>
+        
+        <div class="donate-card">
+            <form method="POST" action="/donate">
+                <div class="amount-selector">
+                    <button type="button" class="amount-btn" data-amount="21">$21</button>
+                    <button type="button" class="amount-btn selected" data-amount="50">$50</button>
+                    <button type="button" class="amount-btn" data-amount="100">$100</button>
+                    <button type="button" class="amount-btn" data-amount="210">$210</button>
+                </div>
+                
+                <input type="hidden" name="amount" id="amount-input" value="50">
+                
+                <div class="form-group">
+                    <label class="form-label">Custom Amount (USD)</label>
+                    <input type="number" class="form-input" id="custom-amount" min="1" placeholder="Enter custom amount">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email (for receipt)</label>
+                    <input type="email" name="email" class="form-input" placeholder="your@email.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Message (optional)</label>
+                    <textarea name="message" class="form-textarea" placeholder="Leave a message of support..."></textarea>
+                </div>
+                
+                <button type="submit" class="donate-btn">
+                    <i class="fas fa-bolt"></i> Donate Now
+                </button>
+            </form>
+            
+            <div class="lightning-section">
+                <div class="lightning-title">Or pay with Bitcoin</div>
+                <a href="/donate/bitcoin" style="display: inline-flex; align-items: center; gap: 10px; padding: 15px 25px; background: rgba(247, 147, 26, 0.2); border: 1px solid #f7931a; border-radius: 10px; color: #f7931a; font-family: 'JetBrains Mono', monospace; text-decoration: none; margin-bottom: 15px;">
+                    <i class="fab fa-bitcoin"></i> Donate with Bitcoin / Lightning
+                </a>
+                <div class="lightning-address" onclick="copyLightning()">
+                    <i class="fas fa-bolt"></i>
+                    protocolpulse@getalby.com
+                    <i class="fas fa-copy"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.amount-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+        this.classList.add('selected');
+        document.getElementById('amount-input').value = this.dataset.amount;
+        document.getElementById('custom-amount').value = '';
+    });
+});
+
+document.getElementById('custom-amount').addEventListener('input', function() {
+    if (this.value) {
+        document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+        document.getElementById('amount-input').value = this.value;
+    }
+});
+
+function copyLightning() {
+    navigator.clipboard.writeText('protocolpulse@getalby.com');
+    alert('Lightning address copied!');
+}
+</script>
+{% endblock %}

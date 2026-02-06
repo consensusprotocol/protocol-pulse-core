@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to The Pulse - Subscription Confirmed{% endblock %}
+
+{% block extra_css %}
+<style>
+    .success-hero {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: 
+            radial-gradient(ellipse at center, rgba(0, 255, 65, 0.1) 0%, transparent 50%),
+            linear-gradient(180deg, #0a0a0a 0%, #050505 100%);
+    }
+    
+    .success-card {
+        background: linear-gradient(145deg, #0d0d0d, #0a0a0a);
+        border: 1px solid rgba(0, 255, 65, 0.3);
+        border-radius: 16px;
+        padding: 60px 50px;
+        max-width: 520px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 
+            0 20px 60px rgba(0, 0, 0, 0.5),
+            0 0 40px rgba(0, 255, 65, 0.1);
+    }
+    
+    .success-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #00ff41, #00cc33);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 30px;
+        animation: pulse-success 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse-success {
+        0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 65, 0.4); }
+        50% { box-shadow: 0 0 40px rgba(0, 255, 65, 0.6); }
+    }
+    
+    .success-icon i {
+        font-size: 2.5rem;
+        color: #000;
+    }
+    
+    .terminal-status {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        color: #00ff41;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin-bottom: 15px;
+        animation: blink 1s ease-in-out 3;
+    }
+    
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    
+    .success-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 15px;
+    }
+    
+    .success-message {
+        color: #888;
+        font-size: 1rem;
+        line-height: 1.6;
+        margin-bottom: 30px;
+    }
+    
+    .email-display {
+        background: #0a0a0a;
+        border: 1px solid #1a1a1a;
+        border-radius: 8px;
+        padding: 15px 20px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.9rem;
+        color: #00ff41;
+        margin-bottom: 30px;
+    }
+    
+    .next-steps {
+        text-align: left;
+        background: rgba(255, 102, 0, 0.05);
+        border: 1px solid rgba(255, 102, 0, 0.2);
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 30px;
+    }
+    
+    .next-steps h4 {
+        color: #ff6600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 15px;
+    }
+    
+    .next-steps ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .next-steps li {
+        color: #aaa;
+        font-size: 0.9rem;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+    }
+    
+    .next-steps li:last-child {
+        border-bottom: none;
+    }
+    
+    .next-steps li i {
+        color: #ff6600;
+        margin-right: 12px;
+        width: 20px;
+    }
+    
+    .cta-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+    
+    .cta-btn {
+        padding: 14px 28px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    
+    .cta-btn-primary {
+        background: linear-gradient(135deg, #ff6600, #ff8533);
+        color: #000;
+    }
+    
+    .cta-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 102, 0, 0.4);
+        color: #000;
+    }
+    
+    .cta-btn-secondary {
+        background: transparent;
+        border: 1px solid #333;
+        color: #fff;
+    }
+    
+    .cta-btn-secondary:hover {
+        border-color: #00ff41;
+        color: #00ff41;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="success-hero">
+    <div class="success-card">
+        <div class="success-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        
+        <div class="terminal-status">// INTEL RECEIVED</div>
+        <h1 class="success-title">Welcome, Sovereign</h1>
+        
+        <p class="success-message">
+            You are now synced with the Protocol Pulse intelligence network. 
+            Your first briefing will arrive within 24 hours.
+        </p>
+        
+        {% if email %}
+        <div class="email-display">
+            {{ email }}
+        </div>
+        {% endif %}
+        
+        <div class="next-steps">
+            <h4>What Happens Next</h4>
+            <ul>
+                <li><i class="fas fa-envelope"></i> Check your inbox for the welcome transmission</li>
+                <li><i class="fas fa-chart-network"></i> Daily briefings on network difficulty & hashrate</li>
+                <li><i class="fas fa-shield-alt"></i> Exclusive transactor intelligence reports</li>
+                <li><i class="fas fa-podcast"></i> Early access to AI-generated podcast episodes</li>
+            </ul>
+        </div>
+        
+        <div class="cta-buttons">
+            <a href="{{ url_for('index') }}" class="cta-btn cta-btn-primary">
+                View Latest Intel
+            </a>
+            <a href="{{ url_for('media_hub') }}" class="cta-btn cta-btn-secondary">
+                Explore The Network
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

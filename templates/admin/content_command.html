@@ -1,0 +1,773 @@
+{% extends "base.html" %}
+{% block title %}Content Command Center{% endblock %}
+
+{% block content %}
+<style>
+    .command-center {
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 100%);
+        min-height: 100vh;
+        padding: 2rem;
+    }
+    
+    .command-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 2rem;
+        background: rgba(139, 0, 0, 0.1);
+        border: 1px solid rgba(139, 0, 0, 0.3);
+        border-radius: 12px;
+    }
+    
+    .command-header h1 {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 2.5rem;
+        color: #ff4444;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .command-header .subtitle {
+        color: #888;
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+    }
+    
+    .status-bar {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .status-item {
+        text-align: center;
+    }
+    
+    .status-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #ff6b6b;
+        font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .status-label {
+        font-size: 0.75rem;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .tools-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .tool-card {
+        background: rgba(20, 20, 20, 0.9);
+        border: 1px solid rgba(139, 0, 0, 0.3);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .tool-card:hover {
+        border-color: #ff4444;
+        box-shadow: 0 0 30px rgba(139, 0, 0, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    .tool-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(139, 0, 0, 0.2);
+    }
+    
+    .tool-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #8b0000, #cc0000);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+    
+    .tool-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #fff;
+        margin: 0;
+    }
+    
+    .tool-badge {
+        margin-left: auto;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .badge-ai { background: linear-gradient(135deg, #8b0000, #cc0000); color: white; }
+    .badge-auto { background: linear-gradient(135deg, #006400, #228b22); color: white; }
+    .badge-manual { background: rgba(100, 100, 100, 0.5); color: #aaa; }
+    
+    .tool-description {
+        color: #888;
+        font-size: 0.85rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+    }
+    
+    .tool-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .form-group label {
+        font-size: 0.8rem;
+        color: #aaa;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(139, 0, 0, 0.3);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        color: #fff;
+        font-size: 0.9rem;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #ff4444;
+    }
+    
+    .form-group textarea {
+        min-height: 80px;
+        resize: vertical;
+    }
+    
+    .btn-execute {
+        background: linear-gradient(135deg, #8b0000, #cc0000);
+        border: none;
+        padding: 0.875rem 1.5rem;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+    }
+    
+    .btn-execute:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(139, 0, 0, 0.4);
+    }
+    
+    .btn-execute:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .btn-execute.loading {
+        pointer-events: none;
+    }
+    
+    .btn-execute.loading .btn-text {
+        display: none;
+    }
+    
+    .btn-execute .spinner {
+        display: none;
+    }
+    
+    .btn-execute.loading .spinner {
+        display: inline-block;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    .result-output {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 8px;
+        border-left: 3px solid #ff4444;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8rem;
+        color: #aaa;
+        display: none;
+    }
+    
+    .result-output.success {
+        border-left-color: #22c55e;
+        color: #22c55e;
+    }
+    
+    .result-output.error {
+        border-left-color: #ef4444;
+        color: #ef4444;
+    }
+    
+    .quick-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+    }
+    
+    .quick-btn {
+        padding: 0.5rem 1rem;
+        background: rgba(139, 0, 0, 0.2);
+        border: 1px solid rgba(139, 0, 0, 0.3);
+        border-radius: 6px;
+        color: #ff6b6b;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .quick-btn:hover {
+        background: rgba(139, 0, 0, 0.4);
+        border-color: #ff4444;
+    }
+    
+    .section-divider {
+        text-align: center;
+        margin: 3rem 0 2rem;
+        position: relative;
+    }
+    
+    .section-divider::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(139, 0, 0, 0.5), transparent);
+    }
+    
+    .section-divider span {
+        background: #0a0a0a;
+        padding: 0 2rem;
+        color: #666;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        position: relative;
+    }
+    
+    .channels-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    
+    .channel-tag {
+        padding: 4px 10px;
+        background: rgba(139, 0, 0, 0.2);
+        border-radius: 4px;
+        font-size: 0.75rem;
+        color: #ff6b6b;
+    }
+    
+    .toggle-switch {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .toggle-switch input[type="checkbox"] {
+        width: 40px;
+        height: 22px;
+        appearance: none;
+        background: rgba(100, 100, 100, 0.3);
+        border-radius: 11px;
+        position: relative;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+    
+    .toggle-switch input[type="checkbox"]:checked {
+        background: linear-gradient(135deg, #8b0000, #cc0000);
+    }
+    
+    .toggle-switch input[type="checkbox"]::before {
+        content: '';
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        background: white;
+        border-radius: 50%;
+        top: 2px;
+        left: 2px;
+        transition: left 0.3s ease;
+    }
+    
+    .toggle-switch input[type="checkbox"]:checked::before {
+        left: 20px;
+    }
+</style>
+
+<div class="command-center">
+    <div class="container">
+        <div class="command-header">
+            <h1><i class="fas fa-terminal me-3"></i>Content Command Center</h1>
+            <p class="subtitle">Autonomous Content Generation & Distribution Hub</p>
+            
+            <div class="status-bar">
+                <div class="status-item">
+                    <div class="status-value">{{ total_articles or 0 }}</div>
+                    <div class="status-label">Total Articles</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-value">{{ published_articles or 0 }}</div>
+                    <div class="status-label">Published</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-value">{{ total_podcasts or 0 }}</div>
+                    <div class="status-label">Podcasts</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-value">{{ total_clips or 0 }}</div>
+                    <div class="status-label">Signal Clips</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section-divider">
+            <span>Article Generation</span>
+        </div>
+        
+        <div class="tools-grid">
+            <!-- AI Article Generator -->
+            <div class="tool-card">
+                <div class="tool-header">
+                    <div class="tool-icon"><i class="fas fa-robot"></i></div>
+                    <h3 class="tool-title">AI Article Generator</h3>
+                    <span class="tool-badge badge-ai">AI Powered</span>
+                </div>
+                <p class="tool-description">Generate publication-ready articles with the 5-section Protocol Pulse structure. Includes fact-checking, Bitcoin Lens analysis, and SEO optimization.</p>
+                <form class="tool-form" id="article-form">
+                    <div class="form-group">
+                        <label>Topic or Headline</label>
+                        <input type="text" name="topic" placeholder="e.g., Bitcoin ETF approvals reach new milestone" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Content Template</label>
+                        <select name="prompt_id">
+                            <option value="">Standard Bitcoin News</option>
+                            {% for prompt in prompts %}
+                            <option value="{{ prompt.id }}">{{ prompt.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="toggle-switch">
+                        <input type="checkbox" name="auto_publish" id="auto-publish">
+                        <label for="auto-publish">Auto-publish after review</label>
+                    </div>
+                    <button type="submit" class="btn-execute">
+                        <span class="btn-text"><i class="fas fa-bolt me-2"></i>Generate Article</span>
+                        <i class="fas fa-spinner spinner"></i>
+                    </button>
+                </form>
+                <div class="result-output" id="article-result"></div>
+            </div>
+            
+            <!-- Reddit Trending Generator -->
+            <div class="tool-card">
+                <div class="tool-header">
+                    <div class="tool-icon"><i class="fab fa-reddit"></i></div>
+                    <h3 class="tool-title">Reddit Trend Scanner</h3>
+                    <span class="tool-badge badge-auto">Auto-Source</span>
+                </div>
+                <p class="tool-description">Scan Bitcoin subreddits for trending discussions and generate articles based on community consensus and emerging narratives.</p>
+                <form class="tool-form" id="reddit-form">
+                    <div class="form-group">
+                        <label>Subreddit Focus</label>
+                        <select name="subreddit">
+                            <option value="bitcoin">r/Bitcoin</option>
+                            <option value="cryptocurrency">r/Cryptocurrency</option>
+                            <option value="bitcoinmarkets">r/BitcoinMarkets</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Time Window</label>
+                        <select name="time_filter">
+                            <option value="day">Past 24 Hours</option>
+                            <option value="week">Past Week</option>
+                            <option value="hour">Past Hour (Breaking)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-execute">
+                        <span class="btn-text"><i class="fas fa-search me-2"></i>Scan & Generate</span>
+                        <i class="fas fa-spinner spinner"></i>
+                    </button>
+                </form>
+                <div class="result-output" id="reddit-result"></div>
+            </div>
+        </div>
+        
+        <div class="section-divider">
+            <span>Video & Audio Intelligence</span>
+        </div>
+        
+        <div class="tools-grid">
+            <!-- AI Clip Extractor -->
+            <div class="tool-card">
+                <div class="tool-header">
+                    <div class="tool-icon"><i class="fas fa-cut"></i></div>
+                    <h3 class="tool-title">AI Clip Extractor</h3>
+                    <span class="tool-badge badge-ai">AI Powered</span>
+                </div>
+                <p class="tool-description">Extract viral-worthy clips from YouTube videos using AI transcript analysis. Identifies peak engagement moments and generates optimized short-form content.</p>
+                <form class="tool-form" id="clips-form">
+                    <div class="form-group">
+                        <label>YouTube Video URL or ID</label>
+                        <input type="text" name="video_id" placeholder="e.g., dQw4w9WgXcQ or full URL" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Clips</label>
+                        <select name="num_clips">
+                            <option value="3">3 Clips (Quick)</option>
+                            <option value="5" selected>5 Clips (Standard)</option>
+                            <option value="10">10 Clips (Full Extraction)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-execute">
+                        <span class="btn-text"><i class="fas fa-magic me-2"></i>Extract Clips</span>
+                        <i class="fas fa-spinner spinner"></i>
+                    </button>
+                </form>
+                <div class="quick-actions">
+                    <button class="quick-btn" onclick="processPartnerChannels()"><i class="fas fa-broadcast-tower me-1"></i>Process Partner Channels</button>
+                    <a href="/clips" class="quick-btn"><i class="fas fa-film me-1"></i>View Clips Gallery</a>
+                </div>
+                <div class="result-output" id="clips-result"></div>
+            </div>
+            
+            <!-- Podcast Generator -->
+            <div class="tool-card">
+                <div class="tool-header">
+                    <div class="tool-icon"><i class="fas fa-podcast"></i></div>
+                    <h3 class="tool-title">Podcast Generator</h3>
+                    <span class="tool-badge badge-ai">AI Voices</span>
+                </div>
+                <p class="tool-description">Transform YouTube videos into multi-voice podcasts with AI-generated scripts and ElevenLabs voice synthesis. Perfect for daily intelligence briefs.</p>
+                <form class="tool-form" id="podcast-form">
+                    <div class="form-group">
+                        <label>YouTube Video URL or ID</label>
+                        <input type="text" name="video_id" placeholder="e.g., dQw4w9WgXcQ or full URL" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Channel Name (for attribution)</label>
+                        <input type="text" name="channel_name" placeholder="e.g., Coin Bureau" value="Partner Channel">
+                    </div>
+                    <button type="submit" class="btn-execute">
+                        <span class="btn-text"><i class="fas fa-microphone me-2"></i>Generate Podcast</span>
+                        <i class="fas fa-spinner spinner"></i>
+                    </button>
+                </form>
+                <div class="quick-actions">
+                    <button class="quick-btn" onclick="batchPodcasts()"><i class="fas fa-layer-group me-1"></i>Batch From Partners</button>
+                </div>
+                <div class="result-output" id="podcast-result"></div>
+            </div>
+            
+            <!-- Social Package Generator -->
+            <div class="tool-card">
+                <div class="tool-header">
+                    <div class="tool-icon"><i class="fas fa-box-open"></i></div>
+                    <h3 class="tool-title">Full Social Package</h3>
+                    <span class="tool-badge badge-auto">All-in-One</span>
+                </div>
+                <p class="tool-description">Generate a complete content bundle from a single YouTube video: podcast episode, article with Bitcoin Lens, and viral clips ready for distribution.</p>
+                <form class="tool-form" id="social-form">
+                    <div class="form-group">
+                        <label>YouTube Video URL or ID</label>
+                        <input type="text" name="video_id" placeholder="e.g., dQw4w9WgXcQ or full URL" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Channel Name</label>
+                        <input type="text" name="channel_name" placeholder="e.g., Natalie Brunell" required>
+                    </div>
+                    <button type="submit" class="btn-execute">
+                        <span class="btn-text"><i class="fas fa-rocket me-2"></i>Generate Full Package</span>
+                        <i class="fas fa-spinner spinner"></i>
+                    </button>
+                </form>
+                <div class="result-output" id="social-result"></div>
+            </div>
+            
+            <!-- Bitcoin Lens Article -->
+            <div class="tool-card">
+                <div class="tool-header">
+                    <div class="tool-icon"><i class="fas fa-glasses"></i></div>
+                    <h3 class="tool-title">Bitcoin Lens Review</h3>
+                    <span class="tool-badge badge-ai">Analysis</span>
+                </div>
+                <p class="tool-description">Generate a reactionary Bitcoin Lens article analyzing any YouTube video through the Protocol Pulse perspective. Perfect for commentary on competitor content.</p>
+                <form class="tool-form" id="lens-form">
+                    <div class="form-group">
+                        <label>YouTube Video URL or ID</label>
+                        <input type="text" name="video_id" placeholder="e.g., dQw4w9WgXcQ or full URL" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Channel/Creator Name</label>
+                        <input type="text" name="channel_name" placeholder="e.g., Peter Schiff" required>
+                    </div>
+                    <button type="submit" class="btn-execute">
+                        <span class="btn-text"><i class="fas fa-microscope me-2"></i>Generate Review</span>
+                        <i class="fas fa-spinner spinner"></i>
+                    </button>
+                </form>
+                <div class="result-output" id="lens-result"></div>
+            </div>
+        </div>
+        
+        <div class="section-divider">
+            <span>Automation & Batch Processing</span>
+        </div>
+        
+        <div class="tools-grid">
+            <!-- Partner Channel Monitor -->
+            <div class="tool-card">
+                <div class="tool-header">
+                    <div class="tool-icon"><i class="fab fa-youtube"></i></div>
+                    <h3 class="tool-title">Partner Channel Monitor</h3>
+                    <span class="tool-badge badge-auto">Automated</span>
+                </div>
+                <p class="tool-description">Process all partner YouTube channels for new content. Automatically generates podcasts, clips, and articles from configured channels.</p>
+                <div class="channels-list">
+                    <span class="channel-tag">Coin Bureau</span>
+                    <span class="channel-tag">Natalie Brunell</span>
+                    <span class="channel-tag">Simply Bitcoin</span>
+                    <span class="channel-tag">Swan Bitcoin</span>
+                    <span class="channel-tag">What Bitcoin Did</span>
+                </div>
+                <form class="tool-form" id="monitor-form" style="margin-top: 1rem;">
+                    <button type="submit" class="btn-execute">
+                        <span class="btn-text"><i class="fas fa-sync me-2"></i>Process All Channels</span>
+                        <i class="fas fa-spinner spinner"></i>
+                    </button>
+                </form>
+                <div class="result-output" id="monitor-result"></div>
+            </div>
+            
+            <!-- Daily Automation -->
+            <div class="tool-card">
+                <div class="tool-header">
+                    <div class="tool-icon"><i class="fas fa-calendar-alt"></i></div>
+                    <h3 class="tool-title">Daily Content Pipeline</h3>
+                    <span class="tool-badge badge-auto">Scheduled</span>
+                </div>
+                <p class="tool-description">Trigger the full daily automation sequence: scan Reddit for trends, check partner channels, generate articles, and prepare social distribution queue.</p>
+                <form class="tool-form" id="daily-form">
+                    <div class="toggle-switch">
+                        <input type="checkbox" name="include_reddit" id="include-reddit" checked>
+                        <label for="include-reddit">Include Reddit Scan</label>
+                    </div>
+                    <div class="toggle-switch">
+                        <input type="checkbox" name="include_youtube" id="include-youtube" checked>
+                        <label for="include-youtube">Include YouTube Channels</label>
+                    </div>
+                    <div class="toggle-switch">
+                        <input type="checkbox" name="auto_publish" id="daily-auto-publish">
+                        <label for="daily-auto-publish">Auto-publish approved content</label>
+                    </div>
+                    <button type="submit" class="btn-execute">
+                        <span class="btn-text"><i class="fas fa-play me-2"></i>Run Daily Pipeline</span>
+                        <i class="fas fa-spinner spinner"></i>
+                    </button>
+                </form>
+                <div class="result-output" id="daily-result"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Helper function to extract YouTube video ID
+    function extractVideoId(input) {
+        if (!input) return null;
+        // Already a video ID
+        if (/^[a-zA-Z0-9_-]{11}$/.test(input)) return input;
+        // Full URL
+        const match = input.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+        return match ? match[1] : input;
+    }
+    
+    // Generic form handler
+    function setupForm(formId, endpoint, resultId, processData) {
+        const form = document.getElementById(formId);
+        if (!form) return;
+        
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = form.querySelector('.btn-execute');
+            const result = document.getElementById(resultId);
+            
+            btn.classList.add('loading');
+            result.style.display = 'none';
+            
+            const formData = new FormData(form);
+            let data = {};
+            formData.forEach((value, key) => data[key] = value);
+            
+            if (processData) data = processData(data);
+            
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const json = await response.json();
+                
+                result.style.display = 'block';
+                if (json.success || json.article_id || json.podcast_id) {
+                    result.className = 'result-output success';
+                    result.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + 
+                        (json.message || json.title || 'Content generated successfully!') +
+                        (json.article_id ? ` <a href="/article/${json.article_id}" target="_blank">[View]</a>` : '');
+                } else {
+                    result.className = 'result-output error';
+                    result.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + 
+                        (json.error || 'Generation failed');
+                }
+            } catch (err) {
+                result.style.display = 'block';
+                result.className = 'result-output error';
+                result.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>Request failed: ' + err.message;
+            }
+            
+            btn.classList.remove('loading');
+        });
+    }
+    
+    // Setup all forms
+    setupForm('article-form', '/api/generate-article', 'article-result', (data) => ({
+        topic: data.topic,
+        prompt_id: data.prompt_id || null,
+        auto_publish: data.auto_publish === 'on'
+    }));
+    
+    setupForm('reddit-form', '/admin/generate-from-reddit', 'reddit-result');
+    
+    setupForm('clips-form', '/admin/api/extract-clips', 'clips-result', (data) => ({
+        video_id: extractVideoId(data.video_id),
+        num_clips: parseInt(data.num_clips)
+    }));
+    
+    setupForm('podcast-form', '/admin/generate-podcast', 'podcast-result', (data) => ({
+        video_id: extractVideoId(data.video_id),
+        channel_name: data.channel_name
+    }));
+    
+    setupForm('social-form', '/admin/multimodal/social-package', 'social-result', (data) => ({
+        video_id: extractVideoId(data.video_id),
+        channel_name: data.channel_name
+    }));
+    
+    setupForm('lens-form', '/admin/multimodal/bitcoin-lens', 'lens-result', (data) => ({
+        video_id: extractVideoId(data.video_id),
+        channel_name: data.channel_name
+    }));
+    
+    setupForm('monitor-form', '/admin/process-partner-channels', 'monitor-result');
+    
+    setupForm('daily-form', '/admin/run-daily-pipeline', 'daily-result', (data) => ({
+        include_reddit: data.include_reddit === 'on',
+        include_youtube: data.include_youtube === 'on',
+        auto_publish: data.auto_publish === 'on'
+    }));
+});
+
+async function processPartnerChannels() {
+    const result = document.getElementById('clips-result');
+    result.style.display = 'block';
+    result.className = 'result-output';
+    result.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing partner channels...';
+    
+    try {
+        const response = await fetch('/admin/api/process-partner-clips', { method: 'POST' });
+        const json = await response.json();
+        
+        if (json.success) {
+            result.className = 'result-output success';
+            result.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + 
+                `Processed ${json.clips_created || 0} clips from partner channels`;
+        } else {
+            result.className = 'result-output error';
+            result.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + (json.error || 'Processing failed');
+        }
+    } catch (err) {
+        result.className = 'result-output error';
+        result.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + err.message;
+    }
+}
+
+async function batchPodcasts() {
+    const result = document.getElementById('podcast-result');
+    result.style.display = 'block';
+    result.className = 'result-output';
+    result.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generating podcasts from all partners...';
+    
+    try {
+        const response = await fetch('/admin/generate-podcasts-batch', { method: 'POST' });
+        const json = await response.json();
+        
+        if (json.success) {
+            result.className = 'result-output success';
+            result.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + 
+                `Generated ${json.podcasts_created || 0} podcasts`;
+        } else {
+            result.className = 'result-output error';
+            result.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + (json.error || 'Batch failed');
+        }
+    } catch (err) {
+        result.className = 'result-output error';
+        result.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + err.message;
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}Advertisement Management - Protocol Pulse Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 text-primary">Advertisement Management</h1>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAdModal">
+                    <i class="fas fa-plus me-2"></i>Add New Advertisement
+                </button>
+            </div>
+
+            <!-- Advertisements Grid -->
+            <div class="row g-4">
+                {% if ads %}
+                    {% for ad in ads %}
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card h-100 ad-card" data-ad-id="{{ ad.id }}">
+                            <div class="position-relative">
+                                <img src="{{ ad.image_url }}" alt="{{ ad.name }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                                <div class="position-absolute top-0 end-0 p-2">
+                                    <span class="badge bg-{{ 'success' if ad.is_active else 'secondary' }}">
+                                        {{ 'Active' if ad.is_active else 'Inactive' }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{{ ad.name }}</h5>
+                                <p class="card-text">
+                                    <strong>Target URL:</strong><br>
+                                    <a href="{{ ad.target_url }}" target="_blank" class="text-break">{{ ad.target_url }}</a>
+                                </p>
+                                <small class="text-muted">Created: {{ ad.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <div class="btn-group w-100" role="group">
+                                    <button class="btn btn-outline-{{ 'warning' if ad.is_active else 'success' }} toggle-ad-btn" 
+                                            data-ad-id="{{ ad.id }}" 
+                                            data-current-status="{{ ad.is_active }}">
+                                        <i class="fas fa-{{ 'pause' if ad.is_active else 'play' }} me-1"></i>
+                                        {{ 'Deactivate' if ad.is_active else 'Activate' }}
+                                    </button>
+                                    <button class="btn btn-outline-danger delete-ad-btn" 
+                                            data-ad-id="{{ ad.id }}" 
+                                            data-ad-name="{{ ad.name }}">
+                                        <i class="fas fa-trash me-1"></i>Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <i class="fas fa-ad text-muted" style="font-size: 4rem;"></i>
+                        <h3 class="mt-3 text-muted">No advertisements yet</h3>
+                        <p class="text-muted">Create your first advertisement to get started.</p>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAdModal">
+                            <i class="fas fa-plus me-2"></i>Add First Advertisement
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Advertisement Modal -->
+<div class="modal fade" id="addAdModal" tabindex="-1" aria-labelledby="addAdModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addAdModalLabel">Add New Advertisement</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addAdForm" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="adName" class="form-label">Advertisement Name</label>
+                        <input type="text" class="form-control" id="adName" name="name" required>
+                        <div class="form-text">Internal name for identification</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="adTargetUrl" class="form-label">Target URL</label>
+                        <input type="url" class="form-control" id="adTargetUrl" name="target_url" required>
+                        <div class="form-text">Where users will be redirected when clicking the ad</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="adImage" class="form-label">Advertisement Image</label>
+                        <input type="file" class="form-control" id="adImage" name="image" accept="image/*" required>
+                        <div class="form-text">Image will be enhanced using AI for optimal visual impact</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-magic me-2"></i>Create & Enhance
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.ad-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ad-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-img-top {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.btn-group .btn {
+    flex: 1;
+}
+
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addAdForm = document.getElementById('addAdForm');
+    const addAdModal = new bootstrap.Modal(document.getElementById('addAdModal'));
+
+    // Handle form submission
+    addAdForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        // Show loading state
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating...';
+        submitBtn.disabled = true;
+        
+        try {
+            const response = await fetch('/api/add-ad', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                addAdModal.hide();
+                location.reload(); // Refresh to show new ad
+            } else {
+                alert('Error: ' + result.error);
+            }
+        } catch (error) {
+            alert('Error creating advertisement: ' + error.message);
+        } finally {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    });
+
+    // Handle toggle buttons
+    document.querySelectorAll('.toggle-ad-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const adId = this.dataset.adId;
+            const currentStatus = this.dataset.currentStatus === 'True';
+            
+            try {
+                const response = await fetch(`/api/toggle-ad/${adId}`, {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    location.reload(); // Refresh to show updated status
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error toggling advertisement: ' + error.message);
+            }
+        });
+    });
+
+    // Handle delete buttons
+    document.querySelectorAll('.delete-ad-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const adId = this.dataset.adId;
+            const adName = this.dataset.adName;
+            
+            if (confirm(`Are you sure you want to delete "${adName}"? This action cannot be undone.`)) {
+                try {
+                    const response = await fetch(`/api/delete-ad/${adId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        location.reload(); // Refresh to show updated list
+                    } else {
+                        alert('Error: ' + result.error);
+                    }
+                } catch (error) {
+                    alert('Error deleting advertisement: ' + error.message);
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

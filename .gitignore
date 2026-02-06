@@ -1,0 +1,30 @@
+# Environment and secrets
+.env
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Local DB and instance data
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Large media (excluded so GitHub push succeeds; use CDN or LFS for production)
+static/video/*.mp4
+static/audio/*.mp3
+static/audio/*.mp4
+static/audio/pulse-bed.mp3

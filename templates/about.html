@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}About Us - Protocol Pulse{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="row mb-5">
+            <div class="col-12 text-center">
+                <h1 class="display-4 fw-bold mb-4">
+                    About <span class="text-primary">Protocol Pulse</span>
+                </h1>
+                <p class="lead text-muted">Your trusted source for Bitcoin and DeFi news, delivering timely insights and expert analysis</p>
+            </div>
+        </div>
+
+        <!-- Mission Section -->
+        <div class="row mb-5">
+            <div class="col-lg-6 mb-4">
+                <div class="card bg-secondary border-0 h-100">
+                    <div class="card-body p-4">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-target text-primary fa-3x"></i>
+                        </div>
+                        <h3 class="text-center mb-3">Our Mission</h3>
+                        <p class="text-muted text-center">
+                            To democratize access to high-quality Bitcoin journalism, delivering timely, 
+                            accurate, and insightful coverage of the Bitcoin and DeFi ecosystem.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="card bg-secondary border-0 h-100">
+                    <div class="card-body p-4">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-eye text-primary fa-3x"></i>
+                        </div>
+                        <h3 class="text-center mb-3">Our Vision</h3>
+                        <p class="text-muted text-center">
+                            To become the leading media network in the Bitcoin space, combining cutting-edge 
+                            insights with expert analysis to help our readers navigate the future of finance.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Our Approach -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="text-center mb-5">Our Approach</h2>
+                <div class="row g-4">
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card bg-secondary border-0 text-center p-3">
+                            <i class="fab fa-bitcoin text-primary fa-2x mb-3"></i>
+                            <h6>Bitcoin-First Focus</h6>
+                            <small class="text-muted">Dedicated coverage</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card bg-secondary border-0 text-center p-3">
+                            <i class="fas fa-search text-primary fa-2x mb-3"></i>
+                            <h6>Deep Research</h6>
+                            <small class="text-muted">Thorough analysis</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card bg-secondary border-0 text-center p-3">
+                            <i class="fas fa-bolt text-primary fa-2x mb-3"></i>
+                            <h6>Breaking News</h6>
+                            <small class="text-muted">Real-time updates</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card bg-secondary border-0 text-center p-3">
+                            <i class="fas fa-clock text-primary fa-2x mb-3"></i>
+                            <h6>24/7 Coverage</h6>
+                            <small class="text-muted">Always on</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact CTA -->
+        <div class="row">
+            <div class="col-12 text-center">
+                <div class="card bg-primary text-white">
+                    <div class="card-body p-5">
+                        <h2 class="mb-3">Stay Connected</h2>
+                        <p class="mb-4">Join our community for the latest Bitcoin and DeFi insights.</p>
+                        <a href="{{ url_for('contact') }}" class="btn btn-light btn-lg">
+                            <i class="fas fa-envelope me-2"></i>Contact Us
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
