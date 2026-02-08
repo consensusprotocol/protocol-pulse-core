@@ -221,6 +221,11 @@
     border-bottom: 1px solid var(--border-subtle);
 }
 
+.hub-nav .hub-tab {
+    flex-shrink: 0;
+    min-width: 0;
+}
+
 .hub-tab {
     padding: 10px 20px;
     background: var(--bg-card);
@@ -231,9 +236,10 @@
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 8px;
+    white-space: nowrap;
 }
 
 .hub-tab:hover {
@@ -694,6 +700,163 @@
     height: 24px;
     background: var(--accent);
     border-radius: 2px;
+}
+
+/* ========== BOOKS SECTION (Sovereign Library + Recommended Reading) ========== */
+.books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+}
+
+.book-card {
+    background: linear-gradient(145deg, rgba(15, 15, 15, 0.95) 0%, rgba(8, 8, 8, 0.98) 100%);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.book-card:hover {
+    border-color: rgba(220, 38, 38, 0.5);
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(220, 38, 38, 0.15);
+}
+
+.book-cover {
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    background-color: var(--bg-elevated);
+}
+
+.book-info {
+    padding: 1.25rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.book-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: var(--bitcoin);
+    color: #000;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.book-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+    color: var(--text-primary);
+    line-height: 1.3;
+}
+
+.book-author {
+    font-size: 0.8rem;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 0.5rem;
+}
+
+.book-desc {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin-bottom: 0.75rem;
+    flex: 1;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    display: -webkit-box;
+}
+
+.book-cta {
+    font-size: 0.8rem;
+    color: var(--accent);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.book-card:hover .book-cta { color: #f97316; }
+
+/* Books strip on Live Feed (visible by default on /media) */
+.books-on-feed {
+    margin-top: 2rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--border-subtle);
+}
+.books-on-feed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+.books-on-feed-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+}
+.books-on-feed-title i { color: var(--accent); }
+.books-on-feed-more {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s;
+}
+.books-on-feed-more:hover {
+    background: var(--accent);
+    color: white;
+}
+.books-on-feed-sub {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1.25rem;
+}
+.books-on-feed-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+}
+.book-card-inline .book-cover { height: 160px; }
+.book-card-inline .book-info { padding: 0.75rem; }
+.book-card-inline .book-title { font-size: 0.9rem; }
+.book-card-inline .book-desc { display: none; }
+@media (max-width: 768px) {
+    .books-on-feed-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; }
+    .book-card-inline .book-cover { height: 140px; }
+}
+
+@media (max-width: 768px) {
+    .books-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .book-cover { height: 160px; }
+    .book-info { padding: 1rem; }
 }
 
 /* ========== SERIES SHOWCASE (original interactive design) ========== */
@@ -1320,18 +1483,21 @@
             </div>
         </div>
 
-        <!-- Navigation -->
-        <div class="hub-nav">
-            <button class="hub-tab active" onclick="showSection('channels')">
+        <!-- Navigation: Live Feed | Books | Series | Nostr (all 4 must be visible) -->
+        <nav class="hub-nav" id="hub-nav" role="tablist" aria-label="Media hub sections">
+            <button type="button" class="hub-tab active" id="hub-tab-channels" role="tab" aria-selected="true" onclick="showSection('channels')">
                 <i class="fas fa-satellite-dish"></i> Live Feed
             </button>
-            <button class="hub-tab" onclick="showSection('series')">
+            <button type="button" class="hub-tab" id="hub-tab-books" role="tab" aria-selected="false" onclick="showSection('books')">
+                <i class="fas fa-book"></i> Books
+            </button>
+            <button type="button" class="hub-tab" onclick="showSection('series')">
                 <i class="fas fa-play-circle"></i> Series
             </button>
-            <button class="hub-tab" onclick="showSection('nostr')">
+            <button type="button" class="hub-tab" onclick="showSection('nostr')">
                 <i class="fas fa-bolt"></i> Nostr
             </button>
-        </div>
+        </nav>
 
         <!-- LIVE FEED SECTION -->
         <div id="section-channels" class="hub-section">
@@ -1377,6 +1543,85 @@
                         <div class="live-badge"><span class="live-dot"></span> LIVE</div>
                     </div>
                     <div class="feed-content" id="pulseFeed"></div>
+                </div>
+            </div>
+
+            <!-- Sovereign Library: books visible on default /media view -->
+            <div class="books-on-feed">
+                <div class="books-on-feed-header">
+                    <span class="books-on-feed-title"><i class="fas fa-book"></i> Sovereign Library</span>
+                    <button type="button" class="books-on-feed-more" onclick="showSection('books');">
+                        All books &amp; Amazon links <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+                <p class="books-on-feed-sub">Featured on the show + recommended reading. Support authors with our affiliate links.</p>
+                <div class="books-on-feed-grid">
+                    {% for book in our_books %}
+                    <a href="{{ book.amazon_url }}" target="_blank" rel="noopener" class="book-card book-card-inline">
+                        <div class="book-cover" style="background-image: url('{{ book.cover_url }}');"></div>
+                        <div class="book-info">
+                            <h3 class="book-title">{{ book.title }}</h3>
+                            <p class="book-author">{{ book.author }}</p>
+                            <span class="book-cta"><i class="fab fa-amazon"></i> Amazon</span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                    {% for book in recommended_books[:6] %}
+                    <a href="{{ book.amazon_url }}" target="_blank" rel="noopener" class="book-card book-card-inline {% if book.bestseller %}bestseller{% endif %}">
+                        <div class="book-cover" style="background-image: url('{{ book.cover_url }}');"></div>
+                        <div class="book-info">
+                            {% if book.bestseller %}<span class="book-badge">Bestseller</span>{% endif %}
+                            <h3 class="book-title">{{ book.title }}</h3>
+                            <p class="book-author">{{ book.author }}</p>
+                            <span class="book-cta"><i class="fab fa-amazon"></i> Amazon</span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- BOOKS SECTION: Featured + Recommended Reading with Amazon links -->
+        <div id="section-books" class="hub-section" style="display: none;">
+            <div class="series-showcase">
+                <div class="showcase-header">
+                    <div class="showcase-badge">
+                        <i class="fas fa-book" style="font-size: 1.25em;"></i>
+                        <span>SOVEREIGN LIBRARY</span>
+                    </div>
+                    <h2 class="showcase-title">Featured on the Show</h2>
+                    <p class="showcase-subtitle">Books we've broken down episode by episode. Get the physical copy and support the authors.</p>
+                </div>
+                <div class="books-grid">
+                    {% for book in our_books %}
+                    <a href="{{ book.amazon_url }}" target="_blank" rel="noopener" class="book-card">
+                        <div class="book-cover" style="background-image: url('{{ book.cover_url }}');"></div>
+                        <div class="book-info">
+                            <h3 class="book-title">{{ book.title }}</h3>
+                            <p class="book-author">{{ book.author }}</p>
+                            <p class="book-desc">{{ book.description[:120] }}{% if book.description|length > 120 %}...{% endif %}</p>
+                            <span class="book-cta"><i class="fab fa-amazon"></i> Get on Amazon</span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                <div class="showcase-header" style="margin-top: 3rem;">
+                    <h2 class="showcase-title">Recommended Reading</h2>
+                    <p class="showcase-subtitle">Essential Bitcoin and sound-money books. Bestsellers and deep dives for every level.</p>
+                </div>
+                <div class="books-grid">
+                    {% for book in recommended_books %}
+                    <a href="{{ book.amazon_url }}" target="_blank" rel="noopener" class="book-card {% if book.bestseller %}bestseller{% endif %}">
+                        <div class="book-cover" style="background-image: url('{{ book.cover_url }}');"></div>
+                        <div class="book-info">
+                            {% if book.bestseller %}<span class="book-badge">Bestseller</span>{% endif %}
+                            <h3 class="book-title">{{ book.title }}</h3>
+                            <p class="book-author">{{ book.author }}</p>
+                            <p class="book-desc">{{ book.description[:120] }}{% if book.description|length > 120 %}...{% endif %}</p>
+                            <span class="book-cta"><i class="fab fa-amazon"></i> Get on Amazon</span>
+                        </div>
+                    </a>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -1694,12 +1939,18 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 
 // Section Navigation
 function showSection(section) {
-    document.querySelectorAll('.hub-section').forEach(s => s.style.display = 'none');
-    document.querySelectorAll('.hub-tab').forEach(t => t.classList.remove('active'));
-    
-    document.getElementById('section-' + section).style.display = 'block';
-    event.target.closest('.hub-tab').classList.add('active');
-    
+    document.querySelectorAll('.hub-section').forEach(s => { s.style.display = 'none'; });
+    document.querySelectorAll('.hub-tab').forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+    });
+    var sectionEl = document.getElementById('section-' + section);
+    if (sectionEl) sectionEl.style.display = 'block';
+    var tab = (typeof event !== 'undefined' && event.target) ? event.target.closest('.hub-tab') : document.getElementById('hub-tab-' + section);
+    if (tab) {
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
+    }
     if (section === 'nostr' && !window.nostrInitialized) {
         initNostr();
     }

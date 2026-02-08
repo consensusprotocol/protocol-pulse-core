@@ -1,16 +1,16 @@
 """
 Automation helpers for Protocol Pulse (core version).
 
-Right now we only expose a thin wrapper for:
-- Generating podcasts from all monitored partner channels
-  (driven by `supported_sources.json` via `youtube_service.auto_process_partners`).
-
-This keeps the `/admin/generate-podcasts-batch` route working end-to-end
-without pulling in the entire legacy Replit automation module.
+- generate_article_with_tracking: webhook-triggered article drafting (e.g. from cron).
+- get_last_run_status: for /health/automation.
+- generate_from_trending_reddit: Reddit → articles (used by run_daily_pipeline).
+- process_all_partner_channels: YouTube partners → articles/podcasts (used by run_daily_pipeline).
+- generate_podcasts_from_partners: podcasts from supported_sources.json.
 """
 
 import logging
 from contextlib import contextmanager
+from datetime import datetime, timedelta
 
 from app import app, db  # type: ignore
 import models  # type: ignore
@@ -19,12 +19,174 @@ from services.youtube_service import YouTubeService  # type: ignore
 
 logger = logging.getLogger(__name__)
 
+AUTOMATION_TASK_NAME = "trigger_automation"
+SKIP_IF_RAN_WITHIN_MINUTES = 10
+
 
 @contextmanager
 def app_context():
     """Ensure we always run inside a Flask app context."""
     with app.app_context():
         yield
+
+
+def get_last_run_status() -> dict:
+    """Return status of last trigger_automation run for /health/automation."""
+    with app_context():
+        run = (
+            models.AutomationRun.query.filter_by(task_name=AUTOMATION_TASK_NAME)
+            .order_by(models.AutomationRun.started_at.desc())
+            .first()
+        )
+        if not run:
+            return {"status": "never_run", "last_run": None}
+        return {
+            "status": run.status or "unknown",
+            "last_run": run.finished_at.isoformat() if run.finished_at else run.started_at.isoformat(),
+            "error": run.error,
+        }
+
+
+def generate_article_with_tracking() -> dict:
+    """
+    Generate one article (draft) and record the run. Used by /api/trigger-automation.
+    Skips if a run completed within the last SKIP_IF_RAN_WITHIN_MINUTES minutes.
+    Returns: {success, title, article_id}, {skipped}, or {error}.
+    """
+    with app_context():
+        # Skip if we ran recently
+        recent = (
+            models.AutomationRun.query.filter_by(task_name=AUTOMATION_TASK_NAME)
+            .filter(models.AutomationRun.finished_at.isnot(None))
+            .order_by(models.AutomationRun.started_at.desc())
+            .first()
+        )
+        if recent and recent.finished_at:
+            if datetime.utcnow() - recent.finished_at < timedelta(minutes=SKIP_IF_RAN_WITHIN_MINUTES):
+                return {"skipped": True, "message": "Another process is running or ran recently"}
+        run = models.AutomationRun(
+            task_name=AUTOMATION_TASK_NAME,
+            started_at=datetime.utcnow(),
+            finished_at=None,
+            status="running",
+        )
+        db.session.add(run)
+        db.session.commit()
+        try:
+            # 1) Try ContentEngine: one article from a trending-style topic (saved as draft)
+            topic = "Bitcoin network and market update"
+            try:
+                from services.content_engine import ContentEngine
+                engine = ContentEngine()
+                result = engine.generate_and_publish_article(
+                    topic, content_type="bitcoin_news", auto_publish=False
+                )
+                if result.get("success") and result.get("article_id"):
+                    article = models.Article.query.get(result["article_id"])
+                    run.finished_at = datetime.utcnow()
+                    run.status = "completed"
+                    run.error = None
+                    db.session.commit()
+                    return {
+                        "success": True,
+                        "title": article.title if article else topic,
+                        "article_id": result["article_id"],
+                    }
+            except Exception as e:
+                logger.warning("ContentEngine article generation failed: %s", e)
+            # 2) Fallback: try Reddit trending → one article
+            last_error = None
+            try:
+                from services.reddit_service import RedditService
+                from services.content_generator import ContentGenerator
+                reddit = RedditService()
+                ideas = reddit.get_content_ideas(topic_type="bitcoin", limit=1)
+                if ideas:
+                    idea = ideas[0]
+                    topic = idea.get("title") or idea.get("article_angle") or topic
+                gen = ContentGenerator()
+                article_data = gen.generate_article(topic, content_type="news_article", source_type="reddit")
+                if article_data and not article_data.get("skipped") and article_data.get("title"):
+                    article = models.Article(
+                        title=article_data["title"],
+                        content=article_data["content"],
+                        summary=article_data.get("summary", ""),
+                        category=article_data.get("category", "Bitcoin"),
+                        source_type="reddit",
+                        author="Al Ingle",
+                        published=False,
+                    )
+                    db.session.add(article)
+                    db.session.commit()
+                    run.finished_at = datetime.utcnow()
+                    run.status = "completed"
+                    run.error = None
+                    db.session.commit()
+                    return {"success": True, "title": article.title, "article_id": article.id}
+            except Exception as e:
+                last_error = e
+                logger.warning("Reddit/ContentGenerator fallback failed: %s", e)
+            run.finished_at = datetime.utcnow()
+            run.status = "failed"
+            run.error = (str(last_error)[:500] if last_error else "No article generated")
+            db.session.commit()
+            return {"success": False, "error": run.error}
+        except Exception as e:
+            run.finished_at = datetime.utcnow()
+            run.status = "failed"
+            run.error = str(e)[:500]
+            db.session.commit()
+            return {"success": False, "error": str(e)}
+
+
+def generate_from_trending_reddit() -> dict:
+    """Generate articles from trending Reddit posts. Used by admin run_daily_pipeline."""
+    with app_context():
+        try:
+            from services.reddit_service import RedditService
+            from services.content_generator import ContentGenerator
+            reddit = RedditService()
+            gen = ContentGenerator()
+            ideas = reddit.get_content_ideas(topic_type="bitcoin", limit=3)
+            articles_generated = []
+            for idea in ideas:
+                try:
+                    topic = idea.get("title") or idea.get("article_angle", "Bitcoin trend")
+                    article_data = gen.generate_article(topic, content_type="news_article", source_type="reddit")
+                    if article_data and not article_data.get("skipped") and article_data.get("title"):
+                        article = models.Article(
+                            title=article_data["title"],
+                            content=article_data["content"],
+                            summary=article_data.get("summary", ""),
+                            category=article_data.get("category", "Bitcoin"),
+                            source_type="reddit",
+                            author="Al Ingle",
+                            published=False,
+                        )
+                        db.session.add(article)
+                        db.session.commit()
+                        articles_generated.append(article.id)
+                except Exception as e:
+                    logger.warning("Reddit idea article failed: %s", e)
+            return {"articles_generated": len(articles_generated)}
+        except Exception as e:
+            logger.error("generate_from_trending_reddit failed: %s", e)
+            return {"articles_generated": 0}
+
+
+def process_all_partner_channels() -> dict:
+    """Process YouTube partner channels for articles/podcasts. Used by admin run_daily_pipeline."""
+    with app_context():
+        try:
+            service = YouTubeService()
+            results = service.auto_process_partners()
+            return {
+                "articles_generated": len(results.get("articles_generated", [])),
+                "podcasts_generated": len(results.get("podcasts_generated", [])),
+            }
+        except Exception as e:
+            logger.error("process_all_partner_channels failed: %s", e)
+            return {"articles_generated": 0, "podcasts_generated": 0}
 
 
 def generate_podcasts_from_partners() -> dict:
