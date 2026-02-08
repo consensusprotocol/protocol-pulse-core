@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Premium Hub | Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+body { background: var(--pp-bg-primary, #050508) !important; }
+.hub-page {
+    min-height: 100vh;
+    padding: 100px 24px 60px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--pp-text-primary, #fafafa);
+}
+.hub-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+.hub-badge {
+    display: inline-block;
+    background: var(--pp-accent, #e54848);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    margin-bottom: 1.5rem;
+}
+.hub-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+.hub-card {
+    background: var(--pp-bg-card, #0f0f14);
+    border: 1px solid var(--pp-border-subtle, rgba(255,255,255,0.06));
+    border-radius: var(--pp-radius-lg, 20px);
+    padding: 1.5rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.hub-card:hover {
+    border-color: var(--pp-accent);
+    box-shadow: 0 0 30px rgba(229, 72, 72, 0.1);
+}
+.hub-card-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--pp-text-muted, rgba(255,255,255,0.45));
+    margin-bottom: 0.5rem;
+}
+.hub-card-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--pp-accent);
+}
+.hub-card-value.btc { color: var(--pp-bitcoin, #f7931a); }
+.hub-card-sub {
+    font-size: 0.85rem;
+    color: var(--pp-text-secondary);
+    margin-top: 0.25rem;
+}
+.hub-section-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.hub-brief-list { list-style: none; padding: 0; margin: 0; }
+.hub-brief-list li {
+    border-bottom: 1px solid var(--pp-border-subtle);
+    padding: 0.75rem 0;
+}
+.hub-brief-list li:last-child { border-bottom: none; }
+.hub-brief-list a {
+    color: var(--pp-text-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+.hub-brief-list a:hover { color: var(--pp-accent); }
+.hub-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--pp-accent);
+    color: #fff;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--pp-radius-md, 14px);
+    font-weight: 600;
+    text-decoration: none;
+    margin-top: 0.5rem;
+    transition: opacity 0.2s;
+}
+.hub-cta:hover { color: #fff; opacity: 0.95; }
+.hub-cta.secondary {
+    background: var(--pp-bg-elevated);
+    border: 1px solid var(--pp-border-subtle);
+    color: var(--pp-text-primary);
+}
+.hub-cta.secondary:hover { color: var(--pp-accent); }
+.live-dot {
+    width: 8px;
+    height: 8px;
+    background: #22c55e;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hub-page pp-page">
+    <div class="container-fluid" style="max-width: 1200px;">
+        <span class="hub-badge">COMMANDER HUB</span>
+        <h1 class="hub-title">Premium Intel Command Center</h1>
+        <p class="text-muted mb-4">Real-time network data, exclusive briefs, and tools — your $99/mo at work.</p>
+
+        <div class="hub-grid">
+            <div class="hub-card">
+                <div class="hub-card-label"><span class="live-dot me-1"></span> Block height</div>
+                <div class="hub-card-value">{{ network.get('height', '—') }}</div>
+                <div class="hub-card-sub">Chain tip · {{ network.get('status', 'LIVE') }}</div>
+            </div>
+            <div class="hub-card">
+                <div class="hub-card-label">Hashrate</div>
+                <div class="hub-card-value">{{ network.get('hashrate', '—') }}</div>
+                <div class="hub-card-sub">3-day rolling</div>
+            </div>
+            <div class="hub-card">
+                <div class="hub-card-label">Difficulty progress</div>
+                <div class="hub-card-value">{{ network.get('difficulty_progress', '—') }}</div>
+                <div class="hub-card-sub">{{ network.get('remaining_blocks', '—') }} blocks to next adjustment</div>
+            </div>
+            {% set fees = (mempool_data or {}).get('fees') or {} %}
+            <div class="hub-card">
+                <div class="hub-card-label">Mempool · Fee (sat/vB)</div>
+                <div class="hub-card-value">1h: {{ fees.get('hour', '—') }} · 30m: {{ fees.get('half_hour', '—') }}</div>
+                <div class="hub-card-sub">{{ (mempool_data or {}).get('count', 0) }} tx in mempool</div>
+            </div>
+            <div class="hub-card">
+                <div class="hub-card-label">BTC/USD</div>
+                <div class="hub-card-value btc">${{ "%.2f"|format((prices or {}).get('btc', 0) or 0) }}</div>
+                <div class="hub-card-sub">Spot</div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="hub-section-title"><i class="fas fa-bolt"></i> Live tools</div>
+                <div class="hub-card">
+                    <a href="/live" class="hub-cta"><i class="fas fa-atom"></i> Live Terminal</a>
+                    <p class="hub-card-sub mt-2 mb-2">Block-by-block settlement view</p>
+                    <a href="/whale-watcher" class="hub-cta secondary"><i class="fas fa-water"></i> Whale Watcher</a>
+                    <p class="hub-card-sub mt-2 mb-2">Large transaction alerts</p>
+                    <a href="/bitfeed-live" class="hub-cta secondary"><i class="fas fa-heartbeat"></i> Bitfeed Live</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hub-section-title"><i class="fas fa-file-alt"></i> Latest briefs</div>
+                <div class="hub-card">
+                    <ul class="hub-brief-list">
+                        {% for a in latest_briefs %}
+                        <li><a href="{{ url_for('article_detail', article_id=a.id) }}">{{ a.title }}</a></li>
+                        {% else %}
+                        <li class="text-muted">No briefs yet.</li>
+                        {% endfor %}
+                    </ul>
+                    <a href="/articles" class="hub-cta secondary">All briefs</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

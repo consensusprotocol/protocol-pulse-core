@@ -12,9 +12,12 @@
     <title>{% block title %}Protocol Pulse{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=1.3">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/coindesk-style.css') }}?v=1.1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/protocol-pulse-tokens.css') }}?v=1.0">
     {% if current_user.is_authenticated and current_user.operative_rank >= 3 %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/stealth-alpha.css') }}?v=1.0">
     {% endif %}
@@ -244,6 +247,9 @@
             {% if current_user.is_authenticated %}
                 {% if current_user.is_admin %}
                 <a href="/admin/command-deck" class="nav-item" style="color: #fbbf24;"><i class="fas fa-user-shield"></i><span class="d-none d-lg-inline">Admin</span></a>
+                {% endif %}
+                {% if current_user.has_commander_tier() %}
+                <a href="/hub" class="nav-item" style="color: var(--pp-accent);"><i class="fas fa-gem"></i><span class="d-none d-lg-inline">Hub</span></a>
                 {% endif %}
                 <a href="/logout" class="nav-item"><i class="fas fa-sign-out-alt"></i></a>
             {% else %}
@@ -883,6 +889,9 @@
     <!-- Real-Time Analytics Tracking -->
     <script>
     (function() {
+        var pageLoadTime = Date.now();
+        var maxScroll = 0;
+
         function trackPageView() {
             fetch('/api/track/pageview', {
                 method: 'POST',
@@ -893,7 +902,34 @@
                 })
             }).catch(function() {});
         }
-        
+
+        function trackEngagement() {
+            var timeOnPage = Math.round((Date.now() - pageLoadTime) / 1000);
+            var scrollPct = Math.round(maxScroll);
+            fetch('/api/track/event', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    event_type: 'engagement',
+                    page_path: window.location.pathname,
+                    time_on_page: timeOnPage,
+                    scroll_depth: scrollPct
+                })
+            }).catch(function() {});
+        }
+
+        function onScroll() {
+            var h = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            if (h > 0) {
+                var pct = Math.round((window.scrollY / h) * 100);
+                if (pct > maxScroll) maxScroll = pct;
+            }
+        }
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        setInterval(trackEngagement, 30000);
+        window.addEventListener('beforeunload', trackEngagement);
+
         function loadHotTicker() {
             fetch('/api/hot-ticker')
                 .then(function(res) { return res.json(); })

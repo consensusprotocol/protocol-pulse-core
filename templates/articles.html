@@ -3,25 +3,10 @@
 {% block title %}Latest Intelligence - Protocol Pulse{% endblock %}
 
 {% block head %}
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-    :root {
-        --btc-gold: #f7931a;
-        --btc-gold-glow: rgba(247, 147, 26, 0.25);
-        --dark-bg: #050505;
-        --card-bg: #0a0a0a;
-        --card-hover: #0f0f0f;
-        --text-main: #f5f5f5;
-        --text-muted: #707070;
-        --border-dim: rgba(220, 38, 38, 0.1);
-        --accent-red: #dc2626;
-        --accent-red-glow: rgba(220, 38, 38, 0.25);
-    }
-
-    body { 
-        background-color: var(--dark-bg); 
-        color: var(--text-main);
-    }
+    /* Use Protocol Pulse design tokens */
+    #news-pulse-container { --btc-gold: var(--pp-bitcoin); --btc-gold-glow: rgba(247,147,26,0.25); --dark-bg: var(--pp-bg-primary); --card-bg: var(--pp-bg-card); --card-hover: var(--pp-bg-elevated); --text-main: var(--pp-text-primary); --text-muted: var(--pp-text-muted); --border-dim: var(--pp-border-subtle); --accent-red: var(--pp-accent); --accent-red-glow: var(--pp-accent-glow); }
+    body { background: var(--pp-bg-primary) !important; color: var(--pp-text-primary); }
 
     #news-pulse-container {
         background: 
@@ -540,6 +525,9 @@
                             <span class="timestamp">{{ last_updated.strftime('%H:%M:%S') }} UTC</span>
                         </div>
                         <h1 class="page-title">The Report</h1>
+                        <p class="mb-0 mt-2" style="font-size: 0.9rem; color: var(--pp-text-muted);">
+                            <a href="/media#newsletter-cta" style="color: var(--pp-accent); text-decoration: none; font-weight: 600;">Get the weekly digest</a> — new briefs in your inbox.
+                        </p>
                     </header>
 
                     {% if today_articles %}

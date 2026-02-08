@@ -5,6 +5,30 @@
 {% block meta_description %}{{ article.summary if article.summary else article.content[:150] }}{% endblock %}
 
 {% block head %}
+<style>
+body { background: var(--pp-bg-primary) !important; }
+.article-digest-cta {
+    background: var(--pp-bg-glass);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: var(--pp-radius-lg);
+    padding: 20px 24px;
+    margin: 2rem 0;
+    text-align: center;
+}
+.article-digest-cta p { margin: 0 0 12px; color: var(--pp-text-secondary); font-size: 0.95rem; }
+.article-digest-cta a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--pp-accent);
+    color: #fff;
+    border-radius: var(--pp-radius-md);
+    font-weight: 600;
+    text-decoration: none;
+}
+.article-digest-cta a:hover { opacity: 0.95; color: #fff; }
+</style>
 <!-- Open Graph meta tags for social media sharing -->
 <meta property="og:title" content="{{ article.title }}">
 <meta property="og:description" content="{{ article.content[:200] }}...">
@@ -109,6 +133,12 @@
                     {% if article.audio_url %}<audio controls src="{{ article.audio_url }}"></audio>{% endif %}
                     {% if article.transcript_text %}<p class="transcript">Transcript Overview: {{ article.transcript_text[:500] }}...</p>{% endif %}
                     {{ article.content | safe }}
+                </div>
+
+                <!-- Digest CTA -->
+                <div class="article-digest-cta">
+                    <p>Get the weekly intel digest — new briefs and reads in your inbox.</p>
+                    <a href="/media#newsletter-cta"><i class="fas fa-envelope"></i> Subscribe</a>
                 </div>
 
                 <!-- Tip Jar - Support sovereign journalism with sats or dollars -->

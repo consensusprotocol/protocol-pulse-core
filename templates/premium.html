@@ -52,9 +52,15 @@
 
 .pricing-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 25px;
     margin-bottom: 60px;
+}
+
+@media (max-width: 1200px) {
+    .pricing-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 992px) {
@@ -299,6 +305,13 @@
 {% block content %}
 <div class="premium-page">
     <div class="premium-container">
+        {% if current_user.is_authenticated and current_user.has_commander_tier() %}
+        <div class="text-center mb-4 p-3" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 12px;">
+            <a href="{{ url_for('premium_hub') }}" class="subscribe-btn primary" style="display: inline-block; width: auto; padding: 12px 24px;">
+                <i class="fas fa-bolt me-2"></i>Go to Premium Hub
+            </a>
+        </div>
+        {% endif %}
         <div class="premium-header">
             <h1 class="premium-title">Upgrade to <span>Premium Intelligence</span></h1>
             <p class="premium-subtitle">Access exclusive research, strategy calls, and priority intel alerts. Pay with card or Bitcoin.</p>
@@ -320,20 +333,35 @@
                 <a href="/register" class="subscribe-btn free">Current Plan</a>
             </div>
             
-            <div class="pricing-card featured">
-                <div class="tier-name">Recommended</div>
+            <div class="pricing-card">
+                <div class="tier-name">Starter</div>
                 <div class="tier-title">{{ tiers.operator.name }}</div>
                 <div class="tier-price">
                     <span class="price-amount">${{ tiers.operator.price_monthly }}</span>
                     <span class="price-period">/month</span>
-                    <div class="sats-price">~21,000 sats/month</div>
                 </div>
                 <ul class="features-list">
-                    {% for feature in tiers.operator.features %}
+                    {% for feature in tiers.operator.features[:4] %}
                     <li><i class="fas fa-check"></i> {{ feature }}</li>
                     {% endfor %}
                 </ul>
-                <a href="/subscribe/premium/operator" class="subscribe-btn primary">Upgrade Now</a>
+                <a href="/subscribe/premium/operator" class="subscribe-btn secondary">Upgrade</a>
+            </div>
+            
+            <div class="pricing-card featured">
+                <div class="tier-name">Best value</div>
+                <div class="tier-title">{{ tiers.commander.name }}</div>
+                <div class="tier-price">
+                    <span class="price-amount">${{ tiers.commander.price_monthly }}</span>
+                    <span class="price-period">/month</span>
+                    <div class="sats-price">Premium Hub · Real-time intel</div>
+                </div>
+                <ul class="features-list">
+                    {% for feature in tiers.commander.features[:5] %}
+                    <li><i class="fas fa-check"></i> {{ feature }}</li>
+                    {% endfor %}
+                </ul>
+                <a href="/subscribe/premium/commander" class="subscribe-btn primary">Get Premium Hub</a>
             </div>
             
             <div class="pricing-card">

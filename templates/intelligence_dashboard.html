@@ -4,16 +4,12 @@
 
 {% block head %}
 <style>
-:root {
-    --pp-red: #dc2626;
-    --pp-dark: #0a0a0a;
-    --pp-glass: rgba(10, 10, 10, 0.95);
-}
-
+body { background: var(--pp-bg-primary) !important; }
 .intel-page {
     min-height: 100vh;
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a0505 100%);
-    padding: 100px 20px 60px;
+    background: var(--pp-bg-primary);
+    padding: 100px 24px 60px;
+    font-family: 'DM Sans', sans-serif;
 }
 
 .intel-container {
@@ -40,7 +36,7 @@
 }
 
 .intel-title i {
-    color: var(--pp-red);
+    color: var(--pp-accent);
 }
 
 .quick-actions {
@@ -66,18 +62,18 @@
 }
 
 .quick-btn:hover {
-    border-color: var(--pp-red);
+    border-color: var(--pp-accent);
     color: #fff;
 }
 
 .quick-btn.primary {
-    background: var(--pp-red);
-    border-color: var(--pp-red);
+    background: var(--pp-accent);
+    border-color: var(--pp-accent);
     color: #fff;
 }
 
 .quick-btn.primary:hover {
-    background: #b91c1c;
+    opacity: 0.95;
 }
 
 .metrics-grid {
@@ -88,9 +84,9 @@
 }
 
 .metric-card {
-    background: var(--pp-glass);
-    border: 1px solid rgba(220, 38, 38, 0.2);
-    border-radius: 12px;
+    background: var(--pp-bg-card);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: var(--pp-radius-lg);
     padding: 20px;
     text-align: center;
 }
@@ -104,7 +100,7 @@
 }
 
 .metric-value.highlight {
-    color: var(--pp-red);
+    color: var(--pp-accent);
 }
 
 .metric-value.success {
@@ -132,9 +128,9 @@
 }
 
 .dash-panel {
-    background: var(--pp-glass);
-    border: 1px solid rgba(220, 38, 38, 0.2);
-    border-radius: 16px;
+    background: var(--pp-bg-card);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: var(--pp-radius-lg);
     padding: 25px;
 }
 
@@ -159,12 +155,12 @@
 }
 
 .panel-title i {
-    color: var(--pp-red);
+    color: var(--pp-accent);
 }
 
 .panel-badge {
-    background: rgba(220, 38, 38, 0.2);
-    color: var(--pp-red);
+    background: var(--pp-accent-soft);
+    color: var(--pp-accent);
     padding: 4px 12px;
     border-radius: 15px;
     font-family: 'JetBrains Mono', monospace;
@@ -197,7 +193,7 @@
 .item-type {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.7rem;
-    color: var(--pp-red);
+    color: var(--pp-accent);
     text-transform: uppercase;
 }
 
@@ -220,7 +216,7 @@
 }
 
 .item-content a {
-    color: var(--pp-red);
+    color: var(--pp-accent);
     text-decoration: none;
 }
 
@@ -279,7 +275,7 @@
 .squad-handle {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.85rem;
-    color: var(--pp-red);
+    color: var(--pp-accent);
     font-weight: 600;
 }
 
@@ -308,7 +304,7 @@
 }
 
 .back-link:hover {
-    color: var(--pp-red);
+    color: var(--pp-accent);
 }
 
 .empty-state {

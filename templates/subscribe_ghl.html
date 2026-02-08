@@ -1,151 +1,107 @@
 {% extends "base.html" %}
 
-{% block title %}Join The Pulse - Sovereign Intelligence Network{% endblock %}
+{% block title %}Get the weekly digest — Protocol Pulse{% endblock %}
 
-{% block extra_css %}
+{% block head %}
+{{ super() }}
 <style>
-    .subscribe-hero {
-        min-height: 80vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: 
-            radial-gradient(ellipse at top, rgba(255, 102, 0, 0.1) 0%, transparent 50%),
-            radial-gradient(ellipse at bottom, rgba(0, 255, 65, 0.05) 0%, transparent 50%),
-            linear-gradient(180deg, #0a0a0a 0%, #050505 100%);
-    }
-    
-    .subscribe-card {
-        background: linear-gradient(145deg, #0d0d0d, #0a0a0a);
-        border: 1px solid #1a1a1a;
-        border-radius: 16px;
-        padding: 50px 40px;
-        max-width: 480px;
-        width: 100%;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    }
-    
-    .terminal-header {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.75rem;
-        color: #00ff41;
-        text-transform: uppercase;
-        letter-spacing: 3px;
-        margin-bottom: 10px;
-        opacity: 0.8;
-    }
-    
-    .subscribe-title {
-        font-family: 'Inter', sans-serif;
-        font-size: 2rem;
-        font-weight: 700;
-        color: #fff;
-        margin-bottom: 15px;
-    }
-    
-    .subscribe-subtitle {
-        color: #888;
-        font-size: 1rem;
-        line-height: 1.6;
-        margin-bottom: 30px;
-    }
-    
-    .form-group {
-        margin-bottom: 20px;
-    }
-    
-    .form-label {
-        display: block;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.75rem;
-        color: #00ff41;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 8px;
-    }
-    
-    .form-input {
-        width: 100%;
-        padding: 14px 18px;
-        background: #0a0a0a;
-        border: 1px solid #333;
-        border-radius: 8px;
-        color: #fff;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-    }
-    
-    .form-input:focus {
-        outline: none;
-        border-color: #00ff41;
-        box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
-    }
-    
-    .form-input::placeholder {
-        color: #555;
-    }
-    
-    .submit-btn {
-        width: 100%;
-        padding: 16px;
-        background: linear-gradient(135deg, #ff6600, #ff8533);
-        border: none;
-        border-radius: 8px;
-        color: #000;
-        font-size: 1rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    
-    .submit-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(255, 102, 0, 0.4);
-    }
-    
-    .benefits-list {
-        margin-top: 30px;
-        padding-top: 30px;
-        border-top: 1px solid #1a1a1a;
-    }
-    
-    .benefit-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 12px;
-        color: #aaa;
-        font-size: 0.9rem;
-    }
-    
-    .benefit-icon {
-        color: #00ff41;
-        margin-right: 12px;
-        font-size: 1rem;
-    }
-    
-    .privacy-note {
-        text-align: center;
-        margin-top: 20px;
-        font-size: 0.75rem;
-        color: #555;
-    }
-    
-    .privacy-note a {
-        color: #00ff41;
-    }
+body { background: var(--pp-bg-primary) !important; }
+.subscribe-hero {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 24px 60px;
+    font-family: 'DM Sans', sans-serif;
+}
+.subscribe-card {
+    background: var(--pp-bg-card);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: var(--pp-radius-xl);
+    padding: 40px 36px;
+    max-width: 440px;
+    width: 100%;
+    box-shadow: var(--pp-shadow-md);
+}
+.subscribe-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--pp-text-primary);
+    margin-bottom: 12px;
+}
+.subscribe-subtitle {
+    color: var(--pp-text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 28px;
+}
+.subscribe-hero .form-group { margin-bottom: 18px; }
+.subscribe-hero .form-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--pp-text-secondary);
+    margin-bottom: 6px;
+}
+.subscribe-hero .form-input {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--pp-bg-elevated);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: var(--pp-radius-md);
+    color: var(--pp-text-primary);
+    font-size: 1rem;
+}
+.subscribe-hero .form-input:focus {
+    outline: none;
+    border-color: var(--pp-accent);
+    box-shadow: 0 0 0 2px var(--pp-accent-soft);
+}
+.subscribe-hero .form-input::placeholder { color: var(--pp-text-muted); }
+.subscribe-hero .submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--pp-accent);
+    border: none;
+    border-radius: var(--pp-radius-md);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s var(--pp-ease);
+}
+.subscribe-hero .submit-btn:hover { opacity: 0.95; }
+.benefits-list {
+    margin-top: 28px;
+    padding-top: 28px;
+    border-top: 1px solid var(--pp-border-subtle);
+}
+.benefit-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    color: var(--pp-text-secondary);
+    font-size: 0.88rem;
+}
+.benefit-icon { color: var(--pp-accent); margin-right: 10px; font-size: 0.9rem; }
+.privacy-note {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.75rem;
+    color: var(--pp-text-muted);
+}
+.privacy-note a { color: var(--pp-accent); text-decoration: none; }
+.privacy-note a:hover { text-decoration: underline; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="subscribe-hero">
+<div class="subscribe-hero pp-page">
     <div class="subscribe-card">
-        <div class="terminal-header">// SECURE CHANNEL</div>
-        <h1 class="subscribe-title">Join The Pulse</h1>
+        <h1 class="subscribe-title">Get the weekly digest</h1>
         <p class="subscribe-subtitle">
-            Receive daily intelligence briefings on Bitcoin network status, mining economics, 
-            and sovereign wealth strategies. Written for transactors, not tourists.
+            New intel briefs, episodes, and reads in your inbox. No spam — one email a week.
         </p>
         
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -172,32 +128,27 @@
             <input type="hidden" name="source" value="{{ request.args.get('source', 'website') }}">
             
             <button type="submit" class="submit-btn">
-                Activate Intelligence Feed
+                Subscribe
             </button>
         </form>
         
         <div class="benefits-list">
             <div class="benefit-item">
-                <i class="fas fa-shield-alt benefit-icon"></i>
-                <span>Daily network difficulty & hashrate reports</span>
+                <i class="fas fa-bolt benefit-icon"></i>
+                <span>Latest intel briefs</span>
             </div>
             <div class="benefit-item">
-                <i class="fas fa-chart-line benefit-icon"></i>
-                <span>Mining economics & fee market analysis</span>
+                <i class="fas fa-play-circle benefit-icon"></i>
+                <span>New episodes & series</span>
             </div>
             <div class="benefit-item">
-                <i class="fas fa-lock benefit-icon"></i>
-                <span>Self-custody strategies & security updates</span>
-            </div>
-            <div class="benefit-item">
-                <i class="fas fa-globe benefit-icon"></i>
-                <span>Geopolitical Bitcoin intelligence</span>
+                <i class="fas fa-book benefit-icon"></i>
+                <span>Sovereign Library picks</span>
             </div>
         </div>
         
         <p class="privacy-note">
-            Your data is sovereign. We never share your information. 
-            <a href="#">Privacy Policy</a>
+            We never share your email. <a href="/about">About Protocol Pulse</a>
         </p>
     </div>
 </div>

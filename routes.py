@@ -69,6 +69,20 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+
+def premium_required(f):
+    """Require Commander ($99/mo) or higher for premium hub access."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            flash('Sign in to access the Premium Hub.')
+            return redirect(url_for('login') + '?next=' + request.path)
+        if not getattr(current_user, 'has_commander_tier', lambda: False)():
+            flash('Premium Hub requires a Commander ($99/mo) subscription.')
+            return redirect(url_for('premium_page'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.template_filter('clean_preview')
 def clean_preview_filter(content, max_length=150):
     """Extract clean preview text from HTML content, prioritizing TL;DR sections"""
@@ -1254,7 +1268,7 @@ def media_hub():
     """Media Hub page with live RSS feeds, books, and merch"""
     our_books, recommended_books = _get_media_hub_books()
     if not rss_service:
-        return render_template('media_hub.html', shows=[], products=[], our_books=our_books, recommended_books=recommended_books, youtube_series={}, live_broadcasts={}, intel_posts=[], get_thumbnail=YouTubeService.get_thumbnail)
+        return render_template('media_hub.html', shows=[], products=[], our_books=our_books, recommended_books=recommended_books, youtube_series={}, live_broadcasts={}, intel_posts=[], new_this_week=[], latest_feed=[], get_thumbnail=YouTubeService.get_thumbnail)
     try:
         shows = rss_service.get_show_info()
         products = []
@@ -1311,6 +1325,69 @@ def media_hub():
         except Exception as e:
             logging.warning(f"Could not load intel posts for media hub: {e}")
         
+        # New this week: 2 intel, 1 latest episode, 1 featured book
+        new_this_week = []
+        for post in intel_posts[:2]:
+            new_this_week.append({
+                'type': 'intel',
+                'title': (post.get('key_insight') or post.get('primary_tweet') or 'Intel brief')[:80],
+                'url': post.get('x_url') or '#',
+                'meta': post.get('time_ago', '') + ' · ' + (post.get('persona') or ''),
+                'description': post.get('key_insight') or '',
+            })
+        lb = live_broadcasts.get('cypherpunkd') or {}
+        if lb:
+            new_this_week.append({
+                'type': 'episode',
+                'title': lb.get('title', "Cypherpunk'd // Intel Briefing"),
+                'url': '#section-series',
+                'meta': 'Latest episode',
+                'video_id': lb.get('latest_id'),
+                'series_id': 'everything_21m',
+                'description': lb.get('description', '')[:120],
+            })
+        if our_books:
+            b = our_books[0]
+            new_this_week.append({
+                'type': 'book',
+                'title': b.get('title', ''),
+                'url': b.get('amazon_url', '#'),
+                'meta': 'Featured',
+                'description': (b.get('description') or '')[:100],
+                'cover_url': b.get('cover_url'),
+            })
+        
+        # Unified latest feed (intel + one episode + one book) for "Latest" section
+        latest_feed = []
+        for post in intel_posts:
+            latest_feed.append({
+                'type': 'intel',
+                'title': (post.get('key_insight') or post.get('primary_tweet') or 'Intel brief')[:80],
+                'url': post.get('x_url') or '#',
+                'meta': post.get('time_ago', '') + ' · ' + (post.get('persona') or ''),
+                'description': post.get('key_insight') or '',
+            })
+        if lb and not any(x.get('type') == 'episode' for x in latest_feed):
+            latest_feed.append({
+                'type': 'episode',
+                'title': lb.get('title', "Cypherpunk'd"),
+                'url': '#section-series',
+                'meta': 'Latest',
+                'video_id': lb.get('latest_id'),
+                'series_id': 'everything_21m',
+                'description': lb.get('description', '')[:120],
+            })
+        if our_books:
+            b = our_books[0]
+            latest_feed.append({
+                'type': 'book',
+                'title': b.get('title', ''),
+                'url': b.get('amazon_url', '#'),
+                'meta': 'Sovereign Library',
+                'description': (b.get('description') or '')[:100],
+                'cover_url': b.get('cover_url'),
+            })
+        
         return render_template('media_hub.html', 
                                shows=shows, 
                                products=products,
@@ -1320,10 +1397,12 @@ def media_hub():
                                live_broadcasts=live_broadcasts,
                                active_ads=active_ads,
                                intel_posts=intel_posts,
+                               new_this_week=new_this_week,
+                               latest_feed=latest_feed,
                                get_thumbnail=YouTubeService.get_thumbnail)
     except Exception as e:
         logging.error(f"Error loading media hub: {e}")
-        return render_template('media_hub.html', shows=[], products=[], our_books=our_books, recommended_books=recommended_books, youtube_series={}, live_broadcasts={}, intel_posts=[], get_thumbnail=YouTubeService.get_thumbnail)
+        return render_template('media_hub.html', shows=[], products=[], our_books=our_books, recommended_books=recommended_books, youtube_series={}, live_broadcasts={}, intel_posts=[], new_this_week=[], latest_feed=[], get_thumbnail=YouTubeService.get_thumbnail)
 
 @app.route('/api/latest-episodes')
 def get_latest_episodes():
@@ -4103,9 +4182,35 @@ def api_merchant_search():
 def premium_page():
     """Premium subscription pricing page"""
     from services.monetization_service import monetization_service
-    
+
     tiers = monetization_service.get_subscription_tiers()
     return render_template('premium.html', tiers=tiers)
+
+
+@app.route('/hub')
+@login_required
+@premium_required
+def premium_hub():
+    """Premium Hub: real-time command center for Commander ($99/mo) subscribers."""
+    try:
+        network = NodeService.get_network_stats()
+    except Exception:
+        network = {}
+    try:
+        mempool_data = fetch_mempool_data()
+    except Exception:
+        mempool_data = {}
+    try:
+        prices = price_service.get_prices()
+    except Exception:
+        prices = {}
+    # Latest published briefs (premium early access feel)
+    latest_briefs = models.Article.query.filter_by(published=True).order_by(models.Article.updated_at.desc()).limit(5).all()
+    return render_template('premium_hub.html',
+                         network=network,
+                         mempool_data=mempool_data,
+                         prices=prices,
+                         latest_briefs=latest_briefs)
 
 @app.route('/subscribe/premium/<tier>')
 @login_required
@@ -4227,15 +4332,28 @@ def stripe_webhook():
             event = stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
             
             if event['type'] == 'checkout.session.completed':
-                session = event['data']['object']
-                metadata = session.get('metadata', {})
-                
+                session_obj = event['data']['object']
+                metadata = session_obj.get('metadata', {})
+
+                # Subscription: set user tier by email
+                tier = metadata.get('tier')
+                if tier in ('operator', 'commander', 'sovereign'):
+                    email = session_obj.get('customer_email') or (session_obj.get('customer_details') or {}).get('email')
+                    if email:
+                        user = models.User.query.filter_by(email=email).first()
+                        if user:
+                            user.subscription_tier = tier
+                            user.stripe_customer_id = session_obj.get('customer')
+                            user.stripe_subscription_id = session_obj.get('subscription')
+                            db.session.commit()
+                            logging.info(f"Subscription tier set: {email} -> {tier}")
+
                 # Handle merch orders - submit to Printful
                 if metadata.get('type') == 'merch_order':
                     try:
                         printful_items_json = metadata.get('printful_items', '[]')
                         printful_items = json.loads(printful_items_json)
-                        shipping = session.get('shipping_details', {})
+                        shipping = session_obj.get('shipping_details', {})
                         address = shipping.get('address', {})
                         
                         # Create Printful order
@@ -4248,7 +4366,7 @@ def stripe_webhook():
                                 'state_code': address.get('state', ''),
                                 'country_code': address.get('country', 'US'),
                                 'zip': address.get('postal_code', ''),
-                                'email': session.get('customer_details', {}).get('email', '')
+                                'email': session_obj.get('customer_details', {}).get('email', '')
                             },
                             'items': printful_items
                         }
@@ -6393,25 +6511,126 @@ def api_generate_suggestions():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+
+def _seed_affiliate_products_if_empty():
+    """Seed default affiliate products for cold wallets, seed plates, miners (only if none exist)."""
+    if models.AffiliateProduct.query.first():
+        return
+    from services.monetization_service import monetization_service
+    defaults = [
+        {'name': 'Trezor Model T', 'product_type': 'trezor', 'product_id': 'trezor-model-t', 'category': 'cold_wallet', 'short_description': 'Hardware wallet with touchscreen and passphrase support.'},
+        {'name': 'Trezor Safe 3', 'product_type': 'trezor', 'product_id': 'trezor-safe-3', 'category': 'cold_wallet', 'short_description': 'Secure hardware wallet for Bitcoin self-custody.'},
+        {'name': 'Ledger Nano X', 'product_type': 'amazon', 'product_id': 'B07S5JQ7M2', 'category': 'cold_wallet', 'short_description': 'Bluetooth hardware wallet (Amazon).'},
+        {'name': 'Cryptosteel Capsule', 'product_type': 'amazon', 'product_id': 'B09V2R9Q7K', 'category': 'seed_plate', 'short_description': 'Fire- and shock-resistant seed phrase backup.'},
+        {'name': 'Bitaxe Miner', 'product_type': 'amazon', 'product_id': 'B0B1XYZ', 'category': 'miner', 'short_description': 'DIY Bitcoin mining (use real ASIN when you have one).'},
+    ]
+    for d in defaults:
+        url = monetization_service.generate_affiliate_link(d['product_type'], d['product_id'])
+        p = models.AffiliateProduct(
+            name=d['name'],
+            product_type=d['product_type'],
+            product_id=d['product_id'],
+            category=d['category'],
+            short_description=d['short_description'],
+            affiliate_url=url or '',
+            active=True,
+        )
+        db.session.add(p)
+    db.session.commit()
+    logging.info("Seeded affiliate products.")
+
+
+@app.route('/admin/smart-analytics')
+@login_required
+@admin_required
+def admin_smart_analytics():
+    """Smart analytics dashboard: all metrics, user preferences, affiliate performance, revenue."""
+    try:
+        _seed_affiliate_products_if_empty()
+        from services.smart_analytics_service import smart_analytics_service
+        from services.monetization_service import monetization_service
+        days = request.args.get('days', 7, type=int)
+        if days not in (1, 7, 14, 30):
+            days = 7
+        data = smart_analytics_service.get_smart_dashboard_data(days=days)
+        revenue = monetization_service.get_revenue_stats()
+        return render_template('admin/smart_analytics.html',
+                             data=data,
+                             revenue=revenue,
+                             days=days)
+    except Exception as e:
+        logging.error(f"Smart analytics error: {e}")
+        return render_template('admin/smart_analytics.html',
+                             data={},
+                             revenue={},
+                             days=7)
+
+
+@app.route('/admin/generate-affiliate-article', methods=['POST'])
+@login_required
+@admin_required
+def admin_generate_affiliate_article():
+    """Generate one product-highlight article (draft) with affiliate link."""
+    from services.monetization_service import monetization_service
+    from services.content_engine import ContentEngine
+    import random
+    products = models.AffiliateProduct.query.filter_by(active=True).all()
+    product = random.choice(products) if products else None
+    if not product:
+        return jsonify({'success': False, 'error': 'No affiliate products. Add products in admin.'}), 400
+    affiliate_url = product.affiliate_url or monetization_service.generate_affiliate_link(product.product_type, product.product_id or '')
+    topic = (
+        f"Product highlight: {product.name}. "
+        f"For transactors who want the best in our niche. "
+        f"Write a practical, helpful article (not salesy). "
+        f"Include this referral link as the primary CTA for readers: {affiliate_url}. "
+        f"Product category: {product.category}. "
+        f"Short description: {product.short_description or ''}. "
+        f"Keep tone Protocol Pulse: intelligence for transactors."
+    )
+    try:
+        engine = ContentEngine()
+        result = engine.generate_and_publish_article(
+            topic, content_type="bitcoin_news", auto_publish=False
+        )
+        if result.get('success') and result.get('article_id'):
+            article = models.Article.query.get(result['article_id'])
+            if article and affiliate_url:
+                article.content = (article.content or '') + f"\n\n---\n[Get {product.name}]({affiliate_url})"
+                db.session.commit()
+            return jsonify({
+                'success': True,
+                'article_id': result['article_id'],
+                'title': result.get('title'),
+                'product': product.name,
+            })
+    except Exception as e:
+        logging.error(f"Affiliate article generation failed: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+    return jsonify({'success': False, 'error': 'Generation failed'}), 500
+
+
 @app.route('/api/track/pageview', methods=['POST'])
 def api_track_pageview():
-    """Track a page view for analytics (public endpoint)"""
+    """Track a page view for analytics (public endpoint). Accepts path, title, time_on_page, scroll_depth."""
     try:
         from services.realtime_intel import realtime_intel
         from flask_login import current_user
-        
+
         data = request.get_json() or {}
         page_path = data.get('path', request.referrer or '/')
         page_title = data.get('title', '')
-        
+        time_on_page = data.get('time_on_page')
+        scroll_depth = data.get('scroll_depth')
+
         session_id = session.get('session_id')
         if not session_id:
             import secrets
             session_id = secrets.token_urlsafe(16)
             session['session_id'] = session_id
-        
+
         user_id = current_user.id if current_user.is_authenticated else None
-        
+
         realtime_intel.track_page_view(
             page_path=page_path,
             page_title=page_title,
@@ -6419,12 +6638,55 @@ def api_track_pageview():
             ip_address=request.remote_addr,
             user_agent=request.user_agent.string if request.user_agent else None,
             referrer=request.referrer,
-            user_id=user_id
+            user_id=user_id,
+            time_on_page=time_on_page,
+            scroll_depth=scroll_depth,
         )
-        
         return jsonify({'success': True})
     except Exception as e:
         logging.error(f"Page view tracking error: {e}")
+        return jsonify({'success': False}), 500
+
+
+@app.route('/api/track/event', methods=['POST'])
+def api_track_event():
+    """Track engagement events: time_on_page, scroll_depth, affiliate_click."""
+    try:
+        from services.realtime_intel import realtime_intel
+        from flask_login import current_user
+
+        data = request.get_json() or {}
+        event_type = data.get('event_type')
+        session_id = session.get('session_id')
+        user_id = current_user.id if current_user.is_authenticated else None
+
+        if event_type == 'engagement':
+            page_path = data.get('page_path', '')
+            time_on_page = data.get('time_on_page', 0)
+            scroll_depth = data.get('scroll_depth', 0)
+            if session_id and page_path:
+                realtime_intel.update_page_view_engagement(
+                    session_id=session_id,
+                    page_path=page_path,
+                    time_on_page=int(time_on_page) if time_on_page is not None else None,
+                    scroll_depth=int(scroll_depth) if scroll_depth is not None else None,
+                )
+        elif event_type == 'affiliate_click':
+            product_id = data.get('product_id', type=int)
+            link_type = data.get('link_type', '')
+            page_path = data.get('page_path', '')
+            click = models.AffiliateProductClick(
+                product_id=product_id,
+                link_type=link_type or None,
+                page_path=page_path[:500] if page_path else None,
+                session_id=session_id,
+                user_id=user_id,
+            )
+            db.session.add(click)
+            db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        logging.error(f"Track event error: {e}")
         return jsonify({'success': False}), 500
 
 @app.route('/api/hot-ticker')

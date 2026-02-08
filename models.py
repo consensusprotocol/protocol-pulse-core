@@ -24,6 +24,12 @@ class User(UserMixin, db.Model):
     last_drill_at = db.Column(db.DateTime)
     last_brief_at = db.Column(db.DateTime)
     
+    # Premium subscription (free | operator | commander | sovereign)
+    subscription_tier = db.Column(db.String(30), default='free')
+    stripe_customer_id = db.Column(db.String(120))
+    stripe_subscription_id = db.Column(db.String(120))
+    subscription_expires_at = db.Column(db.DateTime)
+    
     # --- Auth Methods ---
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -67,6 +73,16 @@ class User(UserMixin, db.Model):
             return True
         cooldown = datetime.utcnow() - self.last_brief_at
         return cooldown.total_seconds() >= 60
+    
+    def has_premium(self):
+        """True if user has any paid tier (operator, commander, sovereign)."""
+        tier = getattr(self, 'subscription_tier', None)
+        return tier and tier != 'free'
+
+    def has_commander_tier(self):
+        """True if user has $99/mo Commander (or higher) tier."""
+        tier = getattr(self, 'subscription_tier', None)
+        return tier in ('commander', 'sovereign')
 
 # =====================================
 # CONTENT & INTELLIGENCE MODELS
@@ -122,6 +138,34 @@ class Advertisement(db.Model):
     target_url = db.Column(db.String(300), nullable=False)
     is_active = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class AffiliateProduct(db.Model):
+    """Products we have affiliate links for (Amazon, Trezor, etc.) — used in product-highlight articles."""
+    __tablename__ = 'affiliate_product'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    product_type = db.Column(db.String(50), nullable=False)  # amazon_book, trezor, cold_wallet, seed_plate, miner, etc.
+    product_id = db.Column(db.String(100))  # ASIN, offer_id, etc.
+    affiliate_url = db.Column(db.String(500))
+    category = db.Column(db.String(80))  # cold_wallet, seed_plate, bitaxe_miner, book, etc.
+    short_description = db.Column(db.String(500))
+    active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class AffiliateProductClick(db.Model):
+    """Track affiliate product link clicks for revenue analytics (Smart Analytics)."""
+    __tablename__ = 'affiliate_product_click'
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('affiliate_product.id'), nullable=True)
+    link_type = db.Column(db.String(50))  # amazon, trezor, etc.
+    page_path = db.Column(db.String(500))
+    session_id = db.Column(db.String(64))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 # =====================================
 # AUTOMATION & LOGISTICS

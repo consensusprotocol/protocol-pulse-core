@@ -318,7 +318,9 @@ class MonetizationService:
         """Generate an affiliate tracking link"""
         base_urls = {
             'amazon_book': 'https://www.amazon.com/dp/',
+            'amazon': 'https://www.amazon.com/dp/',
             'trezor': 'https://shop.trezor.io/?offer_id=',
+            'cold_wallet': 'https://shop.trezor.io/?offer_id=',
             'swan': 'https://www.swanbitcoin.com/signup?ref=',
             'river': 'https://river.com/signup?ref='
         }
@@ -329,10 +331,9 @@ class MonetizationService:
 
         affiliate_tag = os.environ.get('AMAZON_AFFILIATE_TAG', 'protocolpulse-20')
 
-        if product_type == 'amazon_book':
+        if product_type in ('amazon_book', 'amazon'):
             return f"{base}{product_id}?tag={affiliate_tag}"
-        else:
-            return f"{base}{product_id}"
+        return f"{base}{product_id}" if base else ''
 
     def track_affiliate_click(self, link_type: str, product_id: str,
                                user_id: Optional[int] = None) -> bool:
