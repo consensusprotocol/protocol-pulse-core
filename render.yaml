@@ -13,3 +13,23 @@ services:
         value: production
       - key: PYTHON_VERSION
         value: "3.12"
+
+  # Cron: trigger article drafting every 6 hours (UTC). Fully automated.
+  - type: cron
+    name: protocol-pulse-article-drafts
+    runtime: python
+    schedule: "0 */6 * * *"
+    buildCommand: pip install requests
+    startCommand: python -c "import urllib.request; urllib.request.urlopen('https://protocolpulse.io/api/trigger-automation')"
+
+  # Optional: Sarah Daily Brief at 06:00 UTC. Uncomment and set BASE_URL if using.
+  # - type: cron
+  #   name: protocol-pulse-sarah-brief
+  #   schedule: "0 6 * * *"
+  #   startCommand: python -c "import urllib.request; urllib.request.urlopen('https://protocolpulse.io/api/sarah-briefing/generate', data=urllib.parse.urlencode({}).encode(), method='POST')"
+
+  # Optional: Intelligence stream (intel tweets every 3h). Add endpoint or use scheduler.
+  # - type: cron
+  #   name: protocol-pulse-intel-stream
+  #   schedule: "0 */3 * * *"
+  #   startCommand: <call your intel-stream endpoint>

@@ -407,9 +407,9 @@ Your headline MUST be a factual statement. Start with a noun (Bitcoin, Lightning
             lens where Bitcoin is money, the only truly decentralized currency, and foundation 
             of freedom and sovereignty.
             
-            Structure as two distinct sections:
-            1. 'The Report' - Factual news account with context and analysis
-            2. 'The Bitcoin Lens' - Bitcoin-focused commentary and philosophical perspective
+            You MUST use the LOCKED 6-SECTION structure defined in this prompt (TL;DR, The Report, 
+            Exclusive Data Analysis, The Bitcoin Lens, Transactor Intelligence, Sources) with the 
+            stated word minimums per section and 1,200+ words total. Do not reduce to fewer sections.
             
             Make it engaging, authoritative, and educational while orange-pilling readers 
             about Bitcoin's unique importance to humanity.
@@ -482,14 +482,7 @@ Focus on qualitative analysis only. No fabricated numbers allowed.
             When other crypto projects are mentioned, they should be framed as secondary, never rivaling 
             Bitcoin's role. 
             
-            MANDATORY 5-SECTION STRUCTURE:
-            1. TL;DR (punchy 3-sentence summary)
-            2. 'The Report' (factual news reporting - 300+ words)
-            3. 'The Bitcoin Lens' (philosophical analysis - 300+ words)
-            4. 'Transactor Intelligence' (actionable advice for miners and users - 200+ words)
-            5. 'Sources' (formatted list of data sources)
-            
-            This reinforces the separation between unbiased news, philosophical commentary, and actionable intelligence.
+            The LOCKED STRUCTURE above (6 sections, 1,200+ words) is mandatory. Do not substitute a shorter structure.
             
             CRITICAL: OUTPUT ONLY CLEAN HTML - NO MARKDOWN SYNTAX ALLOWED.
             Use <div class="tldr-section"><em><strong>TL;DR: content</strong></em></div> for summaries.
@@ -498,7 +491,7 @@ Focus on qualitative analysis only. No fabricated numbers allowed.
             Use <p class="article-paragraph"> for all paragraphs.
             Never use **, ***, ##, ### or any markdown syntax - only HTML tags.
             
-            MINIMUM: 800 words total. Build the full narrative around the ground truth metrics.
+            MINIMUM: 1,200 words total. Build the full narrative around the ground truth metrics.
             """
             
             # Generate the main content using OpenAI (primary for better structure compliance) with fallbacks

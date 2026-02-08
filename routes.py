@@ -5391,7 +5391,8 @@ def collect_signals_api():
         x_posts = tracker.fetch_x_posts(hours_back=24)
         nostr_notes = tracker.fetch_nostr_notes(hours_back=24)
         stacker_posts = tracker.fetch_stacker_news(limit=15)
-        
+        all_posts = x_posts + nostr_notes + stacker_posts
+        saved = tracker.save_signals_to_db(all_posts)
         return jsonify({
             'success': True,
             'collected': {
@@ -5399,7 +5400,8 @@ def collect_signals_api():
                 'nostr_notes': len(nostr_notes),
                 'stacker_news': len(stacker_posts)
             },
-            'message': f'Collected {len(x_posts)} X posts, {len(nostr_notes)} Nostr notes, {len(stacker_posts)} Stacker News posts'
+            'saved_to_db': saved,
+            'message': f'Collected {len(x_posts)} X, {len(nostr_notes)} Nostr, {len(stacker_posts)} Stacker News; saved {saved} new signals'
         })
     except Exception as e:
         logging.error(f"Signal collection error: {e}")

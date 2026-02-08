@@ -125,8 +125,8 @@
             <div class="col-md-3">
                 <div class="metric-card">
                     <div class="metric-label">Bitcoin Price</div>
-                    <div class="metric-value text-warning">{{ price_service.format_price(prices.bitcoin.price) if prices and prices.bitcoin else '$--' }}</div>
-                    <div class="metric-change {{ 'positive' if prices and prices.bitcoin and prices.bitcoin.change_24h >= 0 else 'negative' }}">
+                    <div class="metric-value text-warning" id="dashboard-btc-price">{{ price_service.format_price(prices.bitcoin.price) if prices and prices.bitcoin and prices.bitcoin.price else '$--' }}</div>
+                    <div class="metric-change {{ 'positive' if prices and prices.bitcoin and prices.bitcoin.change_24h >= 0 else 'negative' }}" id="dashboard-btc-change">
                         {{ price_service.format_change(prices.bitcoin.change_24h) if prices and prices.bitcoin else '--' }} (24h)
                     </div>
                 </div>
@@ -156,58 +156,6 @@
                     <div class="metric-label">Mempool Size</div>
                     <div class="metric-value text-success">{{ '{:,}'.format(mempool_data.count) if mempool_data and mempool_data.count else '--' }}</div>
                     <div class="metric-change text-muted">Unconfirmed TXs</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Fee Estimates Row -->
-        <div class="row g-4 mb-4">
-            <div class="col-12">
-                <div class="chart-container">
-                    <div class="chart-title"><i class="fas fa-tachometer-alt me-2"></i>Recommended Fee Rates (sat/vB)</div>
-                    <div class="row">
-                        {% if mempool_data and mempool_data.fees %}
-                        <div class="col-md-2 text-center">
-                            <div class="p-3 bg-dark rounded">
-                                <div class="text-danger fs-3 fw-bold font-monospace">{{ mempool_data.fees.fastest }}</div>
-                                <div class="text-muted small">Fastest</div>
-                                <div class="text-muted small">~10 min</div>
-                            </div>
-                        </div>
-                        <div class="col-md-2 text-center">
-                            <div class="p-3 bg-dark rounded">
-                                <div class="text-warning fs-3 fw-bold font-monospace">{{ mempool_data.fees.half_hour }}</div>
-                                <div class="text-muted small">Fast</div>
-                                <div class="text-muted small">~30 min</div>
-                            </div>
-                        </div>
-                        <div class="col-md-2 text-center">
-                            <div class="p-3 bg-dark rounded">
-                                <div class="text-info fs-3 fw-bold font-monospace">{{ mempool_data.fees.hour }}</div>
-                                <div class="text-muted small">Medium</div>
-                                <div class="text-muted small">~1 hour</div>
-                            </div>
-                        </div>
-                        <div class="col-md-2 text-center">
-                            <div class="p-3 bg-dark rounded">
-                                <div class="text-success fs-3 fw-bold font-monospace">{{ mempool_data.fees.economy }}</div>
-                                <div class="text-muted small">Economy</div>
-                                <div class="text-muted small">~2 hours</div>
-                            </div>
-                        </div>
-                        <div class="col-md-2 text-center">
-                            <div class="p-3 bg-dark rounded">
-                                <div class="text-muted fs-3 fw-bold font-monospace">{{ mempool_data.fees.minimum }}</div>
-                                <div class="text-muted small">Minimum</div>
-                                <div class="text-muted small">No priority</div>
-                            </div>
-                        </div>
-                        {% else %}
-                        <div class="col-12 text-center text-muted py-4">
-                            <i class="fas fa-spinner fa-spin me-2"></i>Loading fee data...
-                        </div>
-                        {% endif %}
-                    </div>
                 </div>
             </div>
         </div>
@@ -403,5 +351,25 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Fallback: if Bitcoin price is $--, fetch from CoinGecko so dashboard always shows current price
+(function() {
+    const priceEl = document.getElementById('dashboard-btc-price');
+    const changeEl = document.getElementById('dashboard-btc-change');
+    if (!priceEl || priceEl.textContent !== '$--') return;
+    fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true', { method: 'GET' })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var btc = data && data.bitcoin;
+            if (btc && btc.usd != null) {
+                priceEl.textContent = (btc.usd >= 1000 ? '$' + btc.usd.toLocaleString('en', { maximumFractionDigits: 0 }) : '$' + btc.usd.toFixed(2));
+                if (changeEl && btc.usd_24h_change != null) {
+                    changeEl.textContent = (btc.usd_24h_change >= 0 ? '+' : '') + btc.usd_24h_change.toFixed(1) + '% (24h)';
+                    changeEl.className = 'metric-change ' + (btc.usd_24h_change >= 0 ? 'positive' : 'negative');
+                }
+            }
+        })
+        .catch(function() {});
+})();
 </script>
 {% endblock %}

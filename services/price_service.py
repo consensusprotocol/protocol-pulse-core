@@ -26,7 +26,7 @@ class PriceService:
                 return self.cache
         
         try:
-            # Fetch prices from CoinGecko
+            # Fetch prices from CoinGecko (free, no API key)
             url = f"{self.base_url}/simple/price"
             params = {
                 'ids': 'bitcoin,ethereum,solana',
@@ -34,8 +34,7 @@ class PriceService:
                 'include_24hr_change': 'true',
                 'include_market_cap': 'true'
             }
-            
-            response = requests.get(url, params=params, timeout=10)
+            response = requests.get(url, params=params, timeout=15)
             response.raise_for_status()
             data = response.json()
             

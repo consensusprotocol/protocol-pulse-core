@@ -51,6 +51,7 @@ STRICTLY PROHIBITED - IMMEDIATE REJECTION IF VIOLATED:
 
 REALITY CHECK - As of January 2026:
 - Bitcoin hashrate has DECLINED approximately 15% from its October 2024 peak
+- Difficulty ATH: 155.9T (November 2025). Do not claim "all-time high" unless current difficulty exceeds this.
 - Difficulty adjustments can be NEGATIVE (downward) - this is normal during miner stress
 - The network is NOT always hitting "new highs" - it fluctuates based on miner economics
 
