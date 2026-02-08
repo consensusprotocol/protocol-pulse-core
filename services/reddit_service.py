@@ -16,7 +16,9 @@ class RedditService:
             logging.info("Reddit PRAW service initialized successfully")
         except Exception as e:
             logging.error(f"Failed to initialize PRAW: {e}")
-        
+        self.use_api = bool(self.reddit)
+        self.base_url = "https://www.reddit.com"
+
         # Bitcoin and DeFi focused subreddits
         self.crypto_subreddits = [
             'bitcoin',

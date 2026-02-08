@@ -730,9 +730,23 @@
 
 .book-cover {
     height: 200px;
-    background-size: cover;
-    background-position: center;
-    background-color: var(--bg-elevated);
+    min-height: 200px;
+    background: var(--bg-elevated);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+.book-cover img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    object-position: center;
+    display: block;
 }
 
 .book-info {
@@ -844,7 +858,8 @@
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 1rem;
 }
-.book-card-inline .book-cover { height: 160px; }
+.book-card-inline .book-cover { height: 160px; min-height: 160px; }
+.book-card-inline .book-cover img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; object-position: center; display: block; }
 .book-card-inline .book-info { padding: 0.75rem; }
 .book-card-inline .book-title { font-size: 0.9rem; }
 .book-card-inline .book-desc { display: none; }
@@ -855,7 +870,7 @@
 
 @media (max-width: 768px) {
     .books-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-    .book-cover { height: 160px; }
+    .book-cover { height: 160px; min-height: 160px; }
     .book-info { padding: 1rem; }
 }
 
@@ -1558,7 +1573,7 @@
                 <div class="books-on-feed-grid">
                     {% for book in our_books %}
                     <a href="{{ book.amazon_url }}" target="_blank" rel="noopener" class="book-card book-card-inline">
-                        <div class="book-cover" style="background-image: url('{{ book.cover_url }}');"></div>
+                        <div class="book-cover"><img src="{{ book.cover_url }}" alt="{{ book.title }}" loading="lazy" onerror="this.src='/static/images/book-placeholder.svg'; this.onerror=null;"></div>
                         <div class="book-info">
                             <h3 class="book-title">{{ book.title }}</h3>
                             <p class="book-author">{{ book.author }}</p>
@@ -1568,7 +1583,7 @@
                     {% endfor %}
                     {% for book in recommended_books[:6] %}
                     <a href="{{ book.amazon_url }}" target="_blank" rel="noopener" class="book-card book-card-inline {% if book.bestseller %}bestseller{% endif %}">
-                        <div class="book-cover" style="background-image: url('{{ book.cover_url }}');"></div>
+                        <div class="book-cover"><img src="{{ book.cover_url }}" alt="{{ book.title }}" loading="lazy" onerror="this.src='/static/images/book-placeholder.svg'; this.onerror=null;"></div>
                         <div class="book-info">
                             {% if book.bestseller %}<span class="book-badge">Bestseller</span>{% endif %}
                             <h3 class="book-title">{{ book.title }}</h3>
@@ -1595,7 +1610,7 @@
                 <div class="books-grid">
                     {% for book in our_books %}
                     <a href="{{ book.amazon_url }}" target="_blank" rel="noopener" class="book-card">
-                        <div class="book-cover" style="background-image: url('{{ book.cover_url }}');"></div>
+                        <div class="book-cover"><img src="{{ book.cover_url }}" alt="{{ book.title }}" loading="lazy" onerror="this.src='/static/images/book-placeholder.svg'; this.onerror=null;"></div>
                         <div class="book-info">
                             <h3 class="book-title">{{ book.title }}</h3>
                             <p class="book-author">{{ book.author }}</p>
@@ -1612,7 +1627,7 @@
                 <div class="books-grid">
                     {% for book in recommended_books %}
                     <a href="{{ book.amazon_url }}" target="_blank" rel="noopener" class="book-card {% if book.bestseller %}bestseller{% endif %}">
-                        <div class="book-cover" style="background-image: url('{{ book.cover_url }}');"></div>
+                        <div class="book-cover"><img src="{{ book.cover_url }}" alt="{{ book.title }}" loading="lazy" onerror="this.src='/static/images/book-placeholder.svg'; this.onerror=null;"></div>
                         <div class="book-info">
                             {% if book.bestseller %}<span class="book-badge">Bestseller</span>{% endif %}
                             <h3 class="book-title">{{ book.title }}</h3>
