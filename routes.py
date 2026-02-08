@@ -5680,6 +5680,37 @@ def affiliate_redirect(partner_key):
 # MEDIA INTELLIGENCE TERMINAL API ROUTES
 # =============================================
 
+# Tag -> subreddits for trending links (public, no auth)
+TRENDING_TAG_SUBREDDITS = {
+    'bitcoin': ['bitcoin', 'bitcoindiscussion', 'cryptocurrency'],
+    'etf': ['bitcoin', 'cryptocurrency', 'ethereum'],
+    'lightning': ['lightningnetwork', 'bitcoin'],
+    'nostr': ['bitcoin', 'nostr', 'cryptocurrency'],
+    'mining': ['bitcoin', 'bitcoinmining', 'cryptocurrency'],
+    'halving': ['bitcoin', 'cryptocurrency'],
+}
+
+
+@app.route('/api/media/trending-links')
+def api_media_trending_links():
+    """Public API: top 5 links for a trending tag (e.g. ?tag=bitcoin). For hover popovers."""
+    tag = (request.args.get('tag') or '').strip().lower().replace('#', '')
+    if not tag:
+        return jsonify({'links': [], 'expand_url': None})
+    subreddits = TRENDING_TAG_SUBREDDITS.get(tag, ['bitcoin', 'cryptocurrency'])
+    try:
+        trends = reddit_service.get_trending_topics(subreddits, limit=5, time_period='day')
+        links = [
+            {'title': t.get('title', '')[:80] + ('…' if len(t.get('title', '')) > 80 else ''), 'url': t.get('permalink') or t.get('url', '#')}
+            for t in trends[:5]
+        ]
+        expand_url = f"https://www.reddit.com/search/?q={tag}&type=link" if tag else None
+        return jsonify({'links': links, 'expand_url': expand_url})
+    except Exception as e:
+        logging.warning("Trending links for %s: %s", tag, e)
+        return jsonify({'links': [], 'expand_url': f"https://www.reddit.com/r/bitcoin/search/?q={tag}"})
+
+
 @app.route('/api/media/feed')
 def api_media_feed():
     """Get aggregated feed items from all sources, with articles as fallback"""
