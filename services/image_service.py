@@ -4,16 +4,22 @@
 import os
 import json
 import logging
-from openai import OpenAI
 import requests
 from datetime import datetime
+try:
+    from openai import OpenAI
+except ImportError:
+    OpenAI = None
 
 class ImageGenerationService:
     def __init__(self):
         """Initialize the image generation service with OpenAI DALL-E. OPENAI_API_KEY is optional."""
         api_key = os.environ.get("OPENAI_API_KEY")
-        if not api_key:
-            logging.warning("OPENAI_API_KEY missing - image generation disabled. Header images will use defaults.")
+        if not api_key or OpenAI is None:
+            if OpenAI is None:
+                logging.warning("openai package not available - image generation disabled.")
+            else:
+                logging.warning("OPENAI_API_KEY missing - image generation disabled. Header images will use defaults.")
             self.openai_client = None
         else:
             try:

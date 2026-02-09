@@ -1,12 +1,18 @@
-import tweepy
 import os
 import logging
 import json
 import re
 import tempfile
 import requests
-from openai import OpenAI
 import models  # Lazy import infrastructure to stop the circular loop
+try:
+    import tweepy
+except ImportError:
+    tweepy = None
+try:
+    from openai import OpenAI
+except ImportError:
+    OpenAI = None
 
 def _strip_hashtags(text):
     """Remove all hashtags from text - Protocol Pulse never uses hashtags."""
@@ -16,6 +22,12 @@ def _strip_hashtags(text):
 
 class XService:
     def __init__(self):
+        if tweepy is None:
+            self.client = None
+            self.client_v2 = None
+            self.openai_client = None
+            logging.warning("tweepy not installed. X/Twitter features offline.")
+            return
         try:
             if all([os.environ.get('TWITTER_API_KEY'), 
                     os.environ.get('TWITTER_API_SECRET'),
@@ -47,7 +59,7 @@ class XService:
             self.client = None
             self.client_v2 = None
         
-        self.openai_client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY')) if os.environ.get('OPENAI_API_KEY') else None
+        self.openai_client = (OpenAI(api_key=os.environ.get('OPENAI_API_KEY')) if OpenAI and os.environ.get('OPENAI_API_KEY') else None)
         
     def get_feedback(self, handle):
         if not self.client:

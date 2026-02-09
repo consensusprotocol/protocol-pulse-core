@@ -1,7 +1,10 @@
 import os
 import json
 import logging
-from openai import OpenAI
+try:
+    from openai import OpenAI
+except ImportError:
+    OpenAI = None
 
 # Grok API service using xAI's OpenAI-compatible API
 class GrokService:
@@ -11,13 +14,22 @@ class GrokService:
             logging.warning("XAI_API_KEY missing. Grok narrative intelligence offline.")
             self.client = None
             self.model = None
+        elif OpenAI is None:
+            logging.warning("openai package not available. Grok offline.")
+            self.client = None
+            self.model = None
         else:
-            self.client = OpenAI(
-                base_url="https://api.x.ai/v1",
-                api_key=self.api_key
-            )
-            self.model = "grok-3"
-            logging.info("Grok service initialized successfully")
+            try:
+                self.client = OpenAI(
+                    base_url="https://api.x.ai/v1",
+                    api_key=self.api_key
+                )
+                self.model = "grok-3"
+                logging.info("Grok service initialized successfully")
+            except Exception as e:
+                logging.warning("Grok init failed: %s", e)
+                self.client = None
+                self.model = None
 
     def generate_bitcoin_article(self, topic, article_type="news"):
         """Generate Bitcoin-focused content using Grok"""

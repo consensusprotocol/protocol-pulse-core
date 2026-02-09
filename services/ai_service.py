@@ -1,27 +1,36 @@
 import os
 import json
 import logging
-from openai import OpenAI
-import anthropic
-from anthropic import Anthropic
+try:
+    from openai import OpenAI
+except ImportError:
+    OpenAI = None
+try:
+    from anthropic import Anthropic
+except ImportError:
+    Anthropic = None
 from .grok_service import grok_service
 from .gemini_service import gemini_service
 
 class AIService:
     def __init__(self):
-        # Initialize OpenAI client
-        # Using GPT-5 model for content generation
+        # Initialize OpenAI client (optional if openai package missing or old)
         openai_key = os.environ.get("OPENAI_API_KEY")
-        if openai_key:
-            self.openai_client = OpenAI(api_key=openai_key)
+        if openai_key and OpenAI is not None:
+            try:
+                self.openai_client = OpenAI(api_key=openai_key)
+            except Exception:
+                self.openai_client = None
         else:
             self.openai_client = None
         
-        # Initialize Anthropic client
-        # Using Claude Opus 4.1 model for content generation
+        # Initialize Anthropic client (optional if anthropic package missing)
         anthropic_key = os.environ.get("ANTHROPIC_API_KEY")
-        if anthropic_key:
-            self.anthropic_client = Anthropic(api_key=anthropic_key)
+        if anthropic_key and Anthropic is not None:
+            try:
+                self.anthropic_client = Anthropic(api_key=anthropic_key)
+            except Exception:
+                self.anthropic_client = None
         else:
             self.anthropic_client = None
         

@@ -7,14 +7,18 @@ load_dotenv(Path(__file__).resolve().parent / ".env")
 import logging
 import json
 import random
-from flask import Flask
+from flask import Flask, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy.orm import DeclarativeBase
 from flask_login import LoginManager
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from flask_caching import Cache
+try:
+    from flask_caching import Cache
+    _cache = Cache(config={"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 60})
+except ImportError:
+    _cache = None
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -54,8 +58,16 @@ login_manager.login_view = "login"
 limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day"])
 limiter.init_app(app)
 
-cache = Cache(config={"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 60})
-cache.init_app(app)
+if _cache is not None:
+    _cache.init_app(app)
+    cache = _cache
+else:
+    class _NullCache:
+        def init_app(self, app): pass
+        def cached(self, timeout=None, key_prefix=None):
+            def decorator(f): return f
+            return decorator
+    cache = _NullCache()
 
 @app.context_processor
 def inject_csrf():

@@ -2,16 +2,27 @@ import os
 import re
 import json
 import logging
-import googleapiclient.discovery
+try:
+    import googleapiclient.discovery
+except ImportError:
+    googleapiclient = None
 try:
     from youtube_transcript_api import YouTubeTranscriptApi
 except ModuleNotFoundError:
     YouTubeTranscriptApi = None
     logging.warning("youtube_transcript_api not installed - transcript fetching disabled")
-from openai import OpenAI
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import Flow
-from googleapiclient.http import MediaFileUpload
+try:
+    from openai import OpenAI
+except ImportError:
+    OpenAI = None
+try:
+    from google.oauth2.credentials import Credentials
+    from google_auth_oauthlib.flow import Flow
+    from googleapiclient.http import MediaFileUpload
+except ImportError:
+    Credentials = None
+    Flow = None
+    MediaFileUpload = None
 
 YOUTUBE_UPLOAD_SCOPES = ['https://www.googleapis.com/auth/youtube.upload']
 
@@ -205,8 +216,8 @@ class YouTubeService:
 
     def __init__(self):
         self.api_key = os.environ.get('YOUTUBE_API_KEY')
-        self.youtube = googleapiclient.discovery.build('youtube', 'v3', developerKey=self.api_key) if self.api_key else None
-        self.openai_client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY')) if os.environ.get('OPENAI_API_KEY') else None
+        self.youtube = (googleapiclient.discovery.build('youtube', 'v3', developerKey=self.api_key) if googleapiclient and self.api_key else None)
+        self.openai_client = (OpenAI(api_key=os.environ.get('OPENAI_API_KEY')) if OpenAI and os.environ.get('OPENAI_API_KEY') else None)
         self.handles = ['BitcoinMagazine', 'nataliebrunell', 'bytefederal', 'BTCSessions', 'SimplyBitcoin', 'CoinBureau', 'thejackmallersshow', 'RobertBreedlove22']
         self._playlist_cache = {}  # Cache for API results
     
