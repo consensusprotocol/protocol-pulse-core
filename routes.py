@@ -806,23 +806,102 @@ def _dossier_manifest_path():
     return os.path.join(core_dir, 'static', 'data', 'dossier_manifest.json')
 
 
+def _sovereign7_manifest_path():
+    """Sovereign 7 condensed dossier manifest (7 chapters)."""
+    core_dir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(core_dir, 'static', 'data', 'sovereign7_manifest.json')
+
+
+# Built-in Sovereign 7 chapters so /dossier always works even if JSON is missing (e.g. wrong cwd or deploy).
+SOVEREIGN7_CHAPTERS_FALLBACK = [
+    {"id": 1, "title": "The Infinite Printing Press", "subtitle": "The Problem",
+     "narrative": "Modern money isn't earned; it's printed. When they add a zero to the supply, they subtract a year of your life.",
+     "image_path": "/static/images/dossier/sovereign7/01_infinite_printing.png",
+     "deep_dive": {"key_metric": "M2 Money Supply Expansion vs. Purchasing Power",
+                  "math": "Since 1913, the USD has lost over 96% of its value. Since 2020, over 40% of all USD in existence was printed.",
+                  "technical_insight": "The Cantillon Effect: newly printed money benefits banks and government first, while dilution (inflation) hits the average citizen last."}},
+    {"id": 2, "title": "The Nixon Shock", "subtitle": "The Point of No Return",
+     "narrative": "In 1971, the world lost its anchor. We moved from \"Money backed by Gold\" to \"Money backed by Promises.\"",
+     "image_path": "/static/images/dossier/sovereign7/02_nixon_shock.png",
+     "deep_dive": {"key_metric": "Real Wages vs. Productivity Gap",
+                  "math": "Post-1971, productivity continued to rise, but real wages decoupled and stayed flat.",
+                  "technical_insight": "Transition from Commodity-Backed Money to Debt-Based Fiat. \"Fiat\" is Latin for \"by decree\"—value only because the government says so, backed by nothing but tax collection and military force."}},
+    {"id": 3, "title": "The Scarcity Wall", "subtitle": "The Solution",
+     "narrative": "For the first time in human history, we have an asset where the supply is mathematically fixed. There will only ever be 21 million.",
+     "image_path": "/static/images/dossier/sovereign7/03_scarcity_wall.png",
+     "deep_dive": {"key_metric": "Absolute Scarcity vs. Stock-to-Flow",
+                  "math": "Total Supply = Σ (n=0 to 32) of 210,000 × (50 / 2^n)",
+                  "technical_insight": "Bitcoin is the first un-inflatable asset. Unlike gold (higher price → more mining), Bitcoin's supply is inelastic. No matter how high the price, the issuance schedule stays identical."}},
+    {"id": 4, "title": "The Difficulty Adjustment", "subtitle": "The Heartbeat",
+     "narrative": "Bitcoin breathes. Every two weeks, the network adjusts to ensure it can never be killed, cheated, or rushed. It is the only machine that manages itself.",
+     "image_path": "/static/images/dossier/sovereign7/04_difficulty_adjustment.png",
+     "deep_dive": {"key_metric": "The 2016 Block Target (Approx. 2 weeks)",
+                  "math": "If blocks are found too fast (<10 min), difficulty increases. If too slow (>10 min), it decreases.",
+                  "technical_insight": "The most important Satoshi discovery. Ensures Bitcoin's issuance cannot be rushed by more powerful hardware. The network is a living, self-correcting biological machine."}},
+    {"id": 5, "title": "The Energy Shield", "subtitle": "The Security",
+     "narrative": "Bitcoin isn't backed by nothing. It's backed by the laws of physics. Every block is a wall of pure energy that makes the network unhackable.",
+     "image_path": "/static/images/dossier/sovereign7/05_energy_shield.png",
+     "deep_dive": {"key_metric": "Terahashes per Second (TH/s) & Exahashes",
+                  "math": "To rewrite a block, an attacker must control >51% of total network hashrate—costing billions in hardware and electricity.",
+                  "technical_insight": "Thermodynamic Security. Bitcoin converts raw energy into a digital wall that protects wealth. The only digital asset that is expensive to create, preventing the Infinite Printing problem of fiat."}},
+    {"id": 6, "title": "The S-Curve", "subtitle": "The Inevitability",
+     "narrative": "Adoption isn't a straight line; it's a tidal wave. We are currently at the \"Early Majority\" stage. The shift to a Bitcoin Standard is a mathematical certainty.",
+     "image_path": "/static/images/dossier/sovereign7/06_scurve.png",
+     "deep_dive": {"key_metric": "Metcalfe's Law (V ∝ n²)",
+                  "math": "The value of a network is proportional to the square of its users.",
+                  "technical_insight": "Bitcoin's adoption curve parallels the Internet, the Smartphone, and the Automobile. We are in the Early Majority phase. As the network grows, utility and liquidity increase exponentially—making it harder for any other coin to catch up."}},
+    {"id": 7, "title": "Sovereign Custody", "subtitle": "The Freedom",
+     "narrative": "If you don't hold the keys, you don't hold the coins. Sovereignty starts with your own private vault.",
+     "image_path": "/static/images/dossier/sovereign7/07_sovereign_custody.png",
+     "deep_dive": {"key_metric": "256-bit ECDSA Encryption",
+                  "math": "There are 2^256 possible private keys—more than the number of atoms in the observable universe.",
+                  "technical_insight": "Holding your own keys means you are your own central bank. No customer service to freeze your account. You move from Permissioned Finance (asking to use your money) to Permissionless Sovereignty."}},
+]
+
+
+def _load_json_manifest(path):
+    """Load JSON manifest; return [] on any error."""
+    try:
+        with open(path, encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        logging.warning("Manifest not found at %s", path)
+        return []
+    except json.JSONDecodeError as e:
+        logging.warning("Manifest invalid JSON: %s", e)
+        return []
+    except Exception as e:
+        logging.warning("Manifest error: %s", e)
+        return []
+
+
+def _get_sovereign7_chapters():
+    """Return Sovereign 7 chapters from JSON file, or built-in fallback so /dossier always has content."""
+    path = _sovereign7_manifest_path()
+    chapters = _load_json_manifest(path)
+    if chapters and len(chapters) >= 7:
+        return chapters
+    logging.warning("Using built-in Sovereign 7 chapters (file missing or invalid at %s)", path)
+    return SOVEREIGN7_CHAPTERS_FALLBACK
+
+
 @app.route('/dossier')
 def dossier():
-    """The Protocol Pulse Dossier — 32-image interactive sovereign manifesto"""
+    """The Protocol Pulse Dossier — Sovereign 7 (7 chapters). Main dossier template is dossier.html."""
+    chapters = _get_sovereign7_chapters()
+    resp = make_response(render_template('dossier.html', chapters=chapters))
+    resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    resp.headers["Pragma"] = "no-cache"
+    resp.headers["Expires"] = "0"
+    return resp
+
+
+@app.route('/dossier/classic')
+def dossier_classic():
+    """The Protocol Pulse Dossier — full 32-slide version."""
     manifest_path = _dossier_manifest_path()
-    try:
-        with open(manifest_path, encoding='utf-8') as f:
-            manifest = json.load(f)
-    except FileNotFoundError:
-        logging.warning("Dossier manifest not found at %s", manifest_path)
-        manifest = []
-    except json.JSONDecodeError as e:
-        logging.warning("Dossier manifest invalid JSON: %s", e)
-        manifest = []
-    except Exception as e:
-        logging.warning("Dossier manifest error: %s", e)
-        manifest = []
-    return render_template('dossier.html', manifest=manifest)
+    manifest = _load_json_manifest(manifest_path)
+    return render_template('dossier_classic.html', manifest=manifest)
 
 
 @app.route('/mining-risk')

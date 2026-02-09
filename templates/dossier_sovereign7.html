@@ -1,3 +1,4 @@
+<!-- Protocol Pulse Dossier: Sovereign 7 (7 chapters) - new condensed walkthrough -->
 {% extends "base.html" %}
 {% block title %}The Sovereign 7 | Protocol Pulse Dossier{% endblock %}
 {% block extra_css %}
@@ -14,6 +15,7 @@
   padding-top: 56px;
   overflow: hidden;
 }
+/* Sovereignty Tracker HUD */
 .s7-hud {
   position: fixed;
   top: 0;
@@ -88,6 +90,7 @@
   text-decoration: none;
 }
 .s7-hud-classic:hover { color: var(--s7-red); }
+/* Horizontal scroll — smooth, touch-friendly */
 .s7-scroll {
   display: flex;
   overflow-x: auto;
@@ -101,6 +104,7 @@
   touch-action: pan-x;
 }
 .s7-scroll::-webkit-scrollbar { display: none; }
+/* Section */
 .s7-section {
   flex: 0 0 100%;
   min-width: 100%;
@@ -184,6 +188,7 @@
   background: rgba(220, 38, 38, 0.2);
   box-shadow: 0 0 14px var(--s7-red-glow);
 }
+/* Modal: terminal-style Deep Dive */
 .s7-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -270,60 +275,14 @@
   color: rgba(255,255,255,0.88);
   overflow-x: auto;
 }
-.s7-modal-img-wrap {
-  margin-bottom: 20px;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.1);
-  display: none;
-}
-.s7-modal-img-wrap img {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-height: 220px;
-  object-fit: contain;
-  background: #000;
-}
-.s7-modal-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255,255,255,0.08);
-}
-.s7-modal-nav-btn {
-  padding: 8px 16px;
-  border: 1px solid var(--s7-red);
-  border-radius: 6px;
-  background: transparent;
-  color: var(--s7-white);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.s7-modal-nav-btn:hover:not(:disabled) {
-  background: rgba(220, 38, 38, 0.25);
-}
-.s7-modal-nav-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-.s7-modal-score {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
-  color: rgba(255,255,255,0.6);
-}
+/* Nav arrows */
 .s7-nav {
   position: fixed;
   top: 50%;
   left: 0;
   right: 0;
   transform: translateY(-50%);
-  z-index: 150;
+  z-index: 100;
   pointer-events: none;
   padding: 0 8px;
 }
@@ -332,19 +291,19 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border: none;
   border-radius: 50%;
-  background: rgba(0,0,0,0.75);
-  border: 2px solid rgba(255,255,255,0.2);
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.15);
   color: var(--s7-white);
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  transition: background 0.2s, border-color 0.2s, opacity 0.2s;
 }
 .s7-nav-btn:hover {
   background: rgba(220, 38, 38, 0.3);
@@ -355,15 +314,15 @@
   cursor: not-allowed;
   pointer-events: none;
 }
-.s7-nav-btn.prev { left: 12px; }
-.s7-nav-btn.next { right: 12px; }
-.s7-nav-btn i { pointer-events: none; }
+.s7-nav-btn.prev { left: 8px; }
+.s7-nav-btn.next { right: 8px; }
+/* Dot nav */
 .s7-dots {
   position: fixed;
-  bottom: 24px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 150;
+  z-index: 100;
   display: flex;
   gap: 10px;
   align-items: center;
@@ -389,6 +348,7 @@
   transform: scale(1.2);
   box-shadow: 0 0 10px var(--s7-red-glow);
 }
+/* Mobile */
 @media (max-width: 768px) {
   .s7-section-inner { flex-direction: column; gap: 24px; }
   .s7-img-wrap { max-width: 100%; }
@@ -422,19 +382,17 @@
   <div class="s7-scroll" id="s7Scroll">
     {% for chapter in chapters or [] %}
     {% set dd = chapter.deep_dive or {} %}
-    {% set img_file = chapter.image_path.replace('/static/', '') if chapter.image_path and chapter.image_path.startswith('/static/') else (chapter.image_path or '') %}
     <section class="s7-section" data-chapter-id="{{ chapter.id }}" data-index="{{ loop.index0 }}">
       <div class="s7-section-inner">
         <div class="s7-img-wrap">
-          <img src="{{ url_for('static', filename=img_file) if img_file else '' }}" alt="{{ chapter.title or 'Chapter' }}" loading="lazy">
+          <img src="{{ chapter.image_path or '' }}" alt="{{ chapter.title or 'Chapter' }}" loading="lazy">
         </div>
         <div class="s7-content">
           <div class="s7-subtitle">{{ chapter.subtitle or '' }}</div>
           <h2 class="s7-title">{{ chapter.title or 'Chapter' }}</h2>
           <p class="s7-narrative">{{ chapter.narrative or '' }}</p>
-          <button type="button" class="s7-btn-deep s7-deep-dive" data-chapter-id="{{ chapter.id }}" data-index="{{ loop.index0 }}"
+          <button type="button" class="s7-btn-deep s7-deep-dive" data-chapter-id="{{ chapter.id }}"
             data-title="{{ chapter.title or '' }}" data-subtitle="{{ chapter.subtitle or '' }}"
-            data-image-src="{{ chapter.image_path or '' }}"
             data-key-metric="{{ dd.key_metric or '' }}"
             data-math="{{ dd.math or '' }}"
             data-technical-insight="{{ dd.technical_insight or '' }}">
@@ -446,6 +404,7 @@
     {% endfor %}
   </div>
 
+  <!-- Navigation -->
   <nav class="s7-nav" aria-label="Dossier navigation">
     <button type="button" class="s7-nav-btn prev" id="s7Prev" aria-label="Previous chapter"><i class="fas fa-chevron-left"></i></button>
     <button type="button" class="s7-nav-btn next" id="s7Next" aria-label="Next chapter"><i class="fas fa-chevron-right"></i></button>
@@ -453,6 +412,7 @@
   <div class="s7-dots" id="s7Dots" role="tablist" aria-label="Jump to chapter"></div>
 </div>
 
+<!-- Deep Dive Modal (terminal-style) -->
 <div class="s7-modal-backdrop" id="s7ModalBackdrop" aria-hidden="true"></div>
 <div class="s7-modal" id="s7Modal" role="dialog" aria-hidden="true">
   <div class="s7-modal-panel">
@@ -461,9 +421,6 @@
       <button type="button" class="s7-modal-close" id="s7ModalClose" aria-label="Close">&times;</button>
     </div>
     <div class="s7-modal-body">
-      <div class="s7-modal-img-wrap" id="s7ModalImgWrap">
-        <img id="s7ModalImg" src="" alt="" style="display:none;">
-      </div>
       <div class="s7-modal-row">
         <div class="s7-modal-label">Key metric</div>
         <div class="s7-modal-value" id="s7ModalKeyMetric"></div>
@@ -476,11 +433,6 @@
         <div class="s7-modal-label">Technical insight</div>
         <div class="s7-modal-value" id="s7ModalInsight"></div>
       </div>
-      <div class="s7-modal-footer">
-        <button type="button" class="s7-modal-nav-btn" id="s7ModalPrev" aria-label="Previous chapter">&larr; Previous</button>
-        <span class="s7-modal-score" id="s7ModalScore"></span>
-        <button type="button" class="s7-modal-nav-btn" id="s7ModalNext" aria-label="Next chapter">Next &rarr;</button>
-      </div>
     </div>
   </div>
 </div>
@@ -490,32 +442,31 @@
   var scrollEl = document.getElementById('s7Scroll');
   var progressBar = document.getElementById('s7ProgressBar');
   var scoreEl = document.getElementById('s7Score');
-  var sections = scrollEl ? scrollEl.querySelectorAll('.s7-section') : [];
+  var sections = scrollEl.querySelectorAll('.s7-section');
   var total = sections.length;
+  var sectionWidth = 0;
   var ticking = false;
   var currentIndex = 0;
 
   function getSectionWidth() {
-    return scrollEl ? scrollEl.clientWidth : 0;
+    return scrollEl.clientWidth;
   }
   function scrollToIndex(index) {
-    if (!scrollEl) return;
     index = Math.max(0, Math.min(total - 1, index));
     var w = getSectionWidth();
     scrollEl.scrollTo({ left: index * w, behavior: 'smooth' });
   }
   function getCurrentIndex() {
     var w = getSectionWidth();
-    if (w <= 0 || !scrollEl) return 0;
+    if (w <= 0) return 0;
     var scrollLeft = scrollEl.scrollLeft;
     return Math.min(total - 1, Math.round(scrollLeft / w));
   }
   function updateUI() {
-    if (!progressBar || !scoreEl) return;
     currentIndex = getCurrentIndex();
-    var pct = total > 1 ? (currentIndex / (total - 1)) * 100 : (total ? 100 : 0);
+    var pct = total > 1 ? (currentIndex / (total - 1)) * 100 : 100;
     progressBar.style.width = pct + '%';
-    scoreEl.textContent = (currentIndex + 1) + ' / ' + (total || 7);
+    scoreEl.textContent = (currentIndex + 1) + ' / ' + total;
     var prevBtn = document.getElementById('s7Prev');
     var nextBtn = document.getElementById('s7Next');
     if (prevBtn) prevBtn.disabled = currentIndex === 0;
@@ -536,40 +487,40 @@
     }
   }
 
-  if (scrollEl) {
-    scrollEl.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', updateUI);
-  }
+  sectionWidth = getSectionWidth();
+  scrollEl.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', function() {
+    sectionWidth = getSectionWidth();
+    updateUI();
+  });
   updateUI();
 
-  var prevBtn = document.getElementById('s7Prev');
-  var nextBtn = document.getElementById('s7Next');
-  if (prevBtn) prevBtn.addEventListener('click', function() {
+  // Prev/Next buttons
+  document.getElementById('s7Prev').addEventListener('click', function() {
     if (currentIndex > 0) scrollToIndex(currentIndex - 1);
   });
-  if (nextBtn) nextBtn.addEventListener('click', function() {
+  document.getElementById('s7Next').addEventListener('click', function() {
     if (currentIndex < total - 1) scrollToIndex(currentIndex + 1);
   });
 
+  // Dot nav
   var dotsEl = document.getElementById('s7Dots');
-  if (dotsEl) {
-    for (var i = 0; i < total; i++) {
-      var dot = document.createElement('button');
-      dot.type = 'button';
-      dot.className = 's7-dot' + (i === 0 ? ' active' : '');
-      dot.setAttribute('aria-label', 'Chapter ' + (i + 1));
-      dot.setAttribute('role', 'tab');
-      dot.setAttribute('aria-selected', i === 0);
-      (function(idx) {
-        dot.addEventListener('click', function() { scrollToIndex(idx); });
-      })(i);
-      dotsEl.appendChild(dot);
-    }
+  for (var i = 0; i < total; i++) {
+    var dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 's7-dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', 'Chapter ' + (i + 1));
+    dot.setAttribute('role', 'tab');
+    dot.setAttribute('aria-selected', i === 0);
+    (function(idx) {
+      dot.addEventListener('click', function() { scrollToIndex(idx); });
+    })(i);
+    dotsEl.appendChild(dot);
   }
 
-  var modal = document.getElementById('s7Modal');
+  // Keyboard
   document.addEventListener('keydown', function(e) {
-    if (modal && modal.getAttribute('aria-hidden') === 'false') return;
+    if (modal.getAttribute('aria-hidden') === 'false') return;
     if (e.key === 'ArrowLeft') {
       e.preventDefault();
       if (currentIndex > 0) scrollToIndex(currentIndex - 1);
@@ -579,95 +530,45 @@
     }
   });
 
-  if (modal) {
-    var backdrop = document.getElementById('s7ModalBackdrop');
-    var modalTitle = document.getElementById('s7ModalTitle');
-    var modalImg = document.getElementById('s7ModalImg');
-    var modalImgWrap = document.getElementById('s7ModalImgWrap');
-    var keyMetricEl = document.getElementById('s7ModalKeyMetric');
-    var mathEl = document.getElementById('s7ModalMath');
-    var insightEl = document.getElementById('s7ModalInsight');
-    var modalClose = document.getElementById('s7ModalClose');
-    var modalPrev = document.getElementById('s7ModalPrev');
-    var modalNext = document.getElementById('s7ModalNext');
-    var modalScore = document.getElementById('s7ModalScore');
+  // Deep Dive modal
+  var modal = document.getElementById('s7Modal');
+  var backdrop = document.getElementById('s7ModalBackdrop');
+  var modalTitle = document.getElementById('s7ModalTitle');
+  var keyMetricEl = document.getElementById('s7ModalKeyMetric');
+  var mathEl = document.getElementById('s7ModalMath');
+  var insightEl = document.getElementById('s7ModalInsight');
+  var modalClose = document.getElementById('s7ModalClose');
 
-    var chapterData = [];
-    document.querySelectorAll('.s7-deep-dive').forEach(function(btn) {
-      chapterData.push({
-        title: btn.getAttribute('data-title') || '',
-        subtitle: btn.getAttribute('data-subtitle') || '',
-        imageSrc: btn.getAttribute('data-image-src') || '',
-        keyMetric: btn.getAttribute('data-key-metric') || '',
-        math: btn.getAttribute('data-math') || '',
-        insight: btn.getAttribute('data-technical-insight') || ''
-      });
-    });
-    var modalChapterIndex = 0;
-
-    function showModalChapter(index) {
-      modalChapterIndex = Math.max(0, Math.min(chapterData.length - 1, index));
-      var ch = chapterData[modalChapterIndex];
-      if (!ch) return;
-      if (modalTitle) modalTitle.textContent = ch.title + ' — ' + ch.subtitle;
-      if (keyMetricEl) keyMetricEl.textContent = ch.keyMetric;
-      if (mathEl) mathEl.textContent = ch.math;
-      if (insightEl) insightEl.textContent = ch.insight;
-      if (modalImg) {
-        if (ch.imageSrc) {
-          modalImg.src = ch.imageSrc;
-          modalImg.alt = ch.title;
-          modalImg.style.display = 'block';
-          if (modalImgWrap) modalImgWrap.style.display = 'block';
-        } else {
-          modalImg.src = '';
-          modalImg.style.display = 'none';
-          if (modalImgWrap) modalImgWrap.style.display = 'none';
-        }
-      }
-      if (modalScore) modalScore.textContent = (modalChapterIndex + 1) + ' / ' + chapterData.length;
-      if (modalPrev) modalPrev.disabled = modalChapterIndex === 0;
-      if (modalNext) modalNext.disabled = modalChapterIndex === chapterData.length - 1;
-    }
-
-    function openDeepDive(buttonIndex) {
-      var idx = typeof buttonIndex === 'number' ? buttonIndex : 0;
-      showModalChapter(idx);
-      modal.setAttribute('aria-hidden', 'false');
-      if (backdrop) backdrop.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
-    }
-    function closeDeepDive() {
-      modal.setAttribute('aria-hidden', 'true');
-      if (backdrop) backdrop.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-    }
-
-    document.querySelectorAll('.s7-deep-dive').forEach(function(btn, i) {
-      btn.addEventListener('click', function() {
-        var idx = parseInt(btn.getAttribute('data-index'), 10);
-        if (isNaN(idx)) idx = i;
-        openDeepDive(idx);
-      });
-    });
-    if (backdrop) backdrop.addEventListener('click', closeDeepDive);
-    if (modalClose) modalClose.addEventListener('click', closeDeepDive);
-    if (modalPrev) modalPrev.addEventListener('click', function() {
-      if (modalChapterIndex > 0) {
-        showModalChapter(modalChapterIndex - 1);
-        scrollToIndex(modalChapterIndex - 1);
-      }
-    });
-    if (modalNext) modalNext.addEventListener('click', function() {
-      if (modalChapterIndex < chapterData.length - 1) {
-        showModalChapter(modalChapterIndex + 1);
-        scrollToIndex(modalChapterIndex + 1);
-      }
-    });
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') closeDeepDive();
-    });
+  function openDeepDive(title, subtitle, keyMetric, math, technicalInsight) {
+    modalTitle.textContent = title + ' — ' + subtitle;
+    keyMetricEl.textContent = keyMetric;
+    mathEl.textContent = math;
+    insightEl.textContent = technicalInsight;
+    modal.setAttribute('aria-hidden', 'false');
+    backdrop.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
   }
+  function closeDeepDive() {
+    modal.setAttribute('aria-hidden', 'true');
+    backdrop.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('.s7-deep-dive').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var title = btn.getAttribute('data-title') || '';
+      var subtitle = btn.getAttribute('data-subtitle') || '';
+      var keyMetric = btn.getAttribute('data-key-metric') || '';
+      var math = btn.getAttribute('data-math') || '';
+      var insight = btn.getAttribute('data-technical-insight') || '';
+      openDeepDive(title, subtitle, keyMetric, math, insight);
+    });
+  });
+  backdrop.addEventListener('click', closeDeepDive);
+  modalClose.addEventListener('click', closeDeepDive);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') closeDeepDive();
+  });
 })();
 </script>
 {% endblock %}
