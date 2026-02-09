@@ -1,8 +1,8 @@
-from flask import render_template, request, jsonify, redirect, url_for, flash, make_response, session, Response
+from flask import render_template, request, jsonify, redirect, url_for, flash, make_response, session, Response, abort
 from flask_login import login_required, login_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from app import app, db
+from app import app, db, limiter, cache
 
 # --- CIRCULAR IMPORT FIX ---
 # Instead of 'from models import ...', we import the module itself.
@@ -83,6 +83,20 @@ def premium_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+
+def premium_hub_required(f):
+    """Require any paid tier (Operator / Commander / Sovereign) for hub access."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            flash('Sign in to access the Premium Hub.')
+            return redirect(url_for('login') + '?next=' + request.path)
+        if not getattr(current_user, 'has_premium', lambda: False)():
+            flash('Premium Hub requires a paid subscription (Operator $21/mo or higher).')
+            return redirect(url_for('premium_page'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.template_filter('clean_preview')
 def clean_preview_filter(content, max_length=150):
     """Extract clean preview text from HTML content, prioritizing TL;DR sections"""
@@ -106,6 +120,16 @@ def clean_preview_filter(content, max_length=150):
     # Return truncated clean text
     return clean_text[:max_length] + ("..." if len(clean_text) > max_length else "")
 
+
+def _require_csrf():
+    """Abort 400 if POST CSRF token is missing or does not match session."""
+    if request.method != "POST":
+        return
+    token = request.form.get("csrf_token") or request.headers.get("X-CSRF-Token")
+    if not token or not session.get("csrf_token") or token != session.get("csrf_token"):
+        abort(400, "Invalid or missing CSRF token")
+
+
 @app.route('/debug-routes')
 def debug_routes():
     """List all registered URL rules (for 404 debugging: confirm / is in the app that is actually running)."""
@@ -113,7 +137,81 @@ def debug_routes():
              for r in app.url_map.iter_rules()]
     return jsonify({"app": "Protocol Pulse", "rules": sorted(rules, key=lambda x: x["rule"])})
 
+
+@app.route('/health')
+def health():
+    """Liveness: app is up. Used by load balancers and Render."""
+    return jsonify({"status": "ok", "service": "protocol-pulse"}), 200
+
+
+@app.route('/ready')
+def ready():
+    """Readiness: app and DB are responsive. Used by orchestrators before sending traffic."""
+    try:
+        db.session.execute(db.text("SELECT 1"))
+        return jsonify({"status": "ready", "db": "ok"}), 200
+    except Exception as e:
+        logging.warning("Ready check failed: %s", e)
+        return jsonify({"status": "not_ready", "db": "error"}), 503
+
+
+@app.route('/robots.txt')
+def robots_txt():
+    """Search engine crawler instructions."""
+    lines = [
+        "User-agent: *",
+        "Allow: /",
+        "Disallow: /admin",
+        "Disallow: /api/",
+        "Disallow: /hub",
+        "Disallow: /login",
+        "Disallow: /signup",
+        "",
+        "Sitemap: " + (request.url_root.rstrip("/") + "/sitemap.xml"),
+    ]
+    return Response("\n".join(lines), mimetype="text/plain")
+
+
+@app.route('/sitemap.xml')
+def sitemap_xml():
+    """Simple sitemap for SEO: home, articles, key public pages."""
+    base = request.url_root.rstrip("/")
+    pages = [
+        ("/", "daily", "1.0"),
+        ("/articles", "daily", "0.9"),
+        ("/dossier", "weekly", "0.9"),
+        ("/live", "daily", "0.8"),
+        ("/whale-watcher", "daily", "0.8"),
+        ("/map", "weekly", "0.7"),
+        ("/about", "monthly", "0.5"),
+        ("/contact", "monthly", "0.5"),
+        ("/donate", "monthly", "0.5"),
+        ("/donate/bitcoin", "monthly", "0.5"),
+        ("/premium", "monthly", "0.6"),
+        ("/privacy-policy", "monthly", "0.3"),
+    ]
+    try:
+        articles = models.Article.query.filter_by(published=True).order_by(models.Article.updated_at.desc()).limit(500).all()
+    except Exception:
+        articles = []
+    out = ['<?xml version="1.0" encoding="UTF-8"?>']
+    out.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
+    for path, changefreq, priority in pages:
+        out.append(f"  <url><loc>{base}{path}</loc><changefreq>{changefreq}</changefreq><priority>{priority}</priority></url>")
+    for a in articles:
+        lastmod = getattr(a, "updated_at", None) or getattr(a, "created_at", None)
+        lastmod_str = lastmod.strftime("%Y-%m-%d") if lastmod else ""
+        out.append(f"  <url><loc>{base}/articles/{a.id}</loc><changefreq>weekly</changefreq><priority>0.7</priority><lastmod>{lastmod_str}</lastmod></url>")
+    out.append("</urlset>")
+    return Response("\n".join(out), mimetype="application/xml")
+
+def _index_cache_key():
+    from flask_login import current_user
+    return "index_" + (str(current_user.id) if current_user.is_authenticated else "anon")
+
+
 @app.route('/')
+@cache.cached(timeout=60, key_prefix=_index_cache_key)
 def index():
     """Homepage with featured articles, segment-based Bento-box ranking"""
     featured_articles = models.Article.query.filter_by(published=True, featured=True).order_by(models.Article.created_at.desc()).limit(3).all()
@@ -701,6 +799,55 @@ def solo_slayers():
                          leaderboard=leaderboard,
                          solo_blocks=solo_blocks)
 
+
+def _dossier_manifest_path():
+    """Resolve dossier manifest path from the core package dir (works with any cwd or gunicorn core.app:app)."""
+    core_dir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(core_dir, 'static', 'data', 'dossier_manifest.json')
+
+
+@app.route('/dossier')
+def dossier():
+    """The Protocol Pulse Dossier — 32-image interactive sovereign manifesto"""
+    manifest_path = _dossier_manifest_path()
+    try:
+        with open(manifest_path, encoding='utf-8') as f:
+            manifest = json.load(f)
+    except FileNotFoundError:
+        logging.warning("Dossier manifest not found at %s", manifest_path)
+        manifest = []
+    except json.JSONDecodeError as e:
+        logging.warning("Dossier manifest invalid JSON: %s", e)
+        manifest = []
+    except Exception as e:
+        logging.warning("Dossier manifest error: %s", e)
+        manifest = []
+    return render_template('dossier.html', manifest=manifest)
+
+
+@app.route('/mining-risk')
+def mining_risk():
+    """Mining Risk by Geography — risk factor by deployment location with real-time metrics"""
+    return render_template('mining_risk.html')
+
+
+@app.route('/api/mining-risk')
+def api_mining_risk():
+    """API: regions with risk scores + live network metrics for Mining Risk page"""
+    try:
+        from services.mining_risk_service import get_regions_with_risk, get_live_network_metrics
+        regions = get_regions_with_risk()
+        network = get_live_network_metrics()
+        return jsonify({
+            'regions': regions,
+            'network': network,
+            'updated_at': network.get('updated_at'),
+        })
+    except Exception as e:
+        logging.error(f"Mining risk API error: {e}")
+        return jsonify({'regions': [], 'network': {}, 'error': str(e)}), 500
+
+
 @app.route('/api/solo-blocks')
 def api_solo_blocks():
     """API endpoint for solo block data"""
@@ -921,10 +1068,10 @@ def api_network_data():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/articles')
+@cache.cached(timeout=60, key_prefix="articles_list")
 def articles():
     """Articles listing page with simple, reliable chronological layout."""
     now = datetime.utcnow()
-
     # Always show the most recent articles, even if nothing is marked published yet.
     # Prefer published ones; if none exist, fall back to all.
     base_q = models.Article.query.filter(models.Article.published.is_(True)).order_by(
@@ -997,14 +1144,10 @@ def _slugify_section(name):
     return re.sub(r'[-\s]+', '-', s) or "general"
 
 
-@app.route('/podcasts')
-def podcasts():
-    """Podcasts listing page with RSS feed sections."""
-    # Group podcasts by RSS source; show 3 most recent per section
+def _get_podcast_sections(per_section=6):
+    """Build podcast sections list (Protocol Pulse, Cypherpunk'd, etc.) for Media Hub."""
     sections_list = []
     seen_slugs = set()
-
-    # Distinct RSS sources (including None -> "General")
     sources = db.session.query(models.Podcast.rss_source).distinct().all()
     for (source,) in sources:
         source_name = source if source else "General"
@@ -1014,32 +1157,20 @@ def podcasts():
         seen_slugs.add(slug)
         recent = models.Podcast.query.filter_by(rss_source=source).order_by(
             models.Podcast.published_date.desc()
-        ).limit(3).all()
+        ).limit(per_section).all()
         if recent:
             sections_list.append({
                 "name": source_name,
                 "slug": slug,
                 "podcasts": recent,
             })
+    return sections_list
 
-    # Generate smart playlist (optional; never break the page)
-    smart_playlist = None
-    try:
-        seg = "institution"
-        if current_user.is_authenticated:
-            us = models.UserSegment.query.filter_by(user_id=current_user.id).first()
-            if us:
-                seg = us.segment_type
-        from services.content_engine import content_engine
-        smart_playlist = content_engine.get_smart_playlist(seg)
-    except Exception as e:
-        logging.warning("Smart playlist skipped: %s", e)
 
-    return render_template(
-        "podcasts.html",
-        podcast_sections_list=sections_list,
-        smart_playlist=smart_playlist,
-    )
+@app.route('/podcasts')
+def podcasts():
+    """Redirect to Media Hub Podcasts section."""
+    return redirect(url_for('media_hub') + '#section-podcasts')
 
 @app.route('/api/podcast/<int:podcast_id>')
 def get_podcast_api(podcast_id):
@@ -1265,10 +1396,11 @@ def _get_media_hub_books():
 @app.route('/media')
 @app.route('/media-hub')
 def media_hub():
-    """Media Hub page with live RSS feeds, books, and merch"""
+    """Media Hub page with live RSS feeds, books, podcasts, and merch"""
     our_books, recommended_books = _get_media_hub_books()
+    podcast_sections_list = _get_podcast_sections(per_section=6)
     if not rss_service:
-        return render_template('media_hub.html', shows=[], products=[], our_books=our_books, recommended_books=recommended_books, youtube_series={}, live_broadcasts={}, intel_posts=[], new_this_week=[], latest_feed=[], get_thumbnail=YouTubeService.get_thumbnail)
+        return render_template('media_hub.html', shows=[], products=[], our_books=our_books, recommended_books=recommended_books, youtube_series={}, live_broadcasts={}, intel_posts=[], new_this_week=[], latest_feed=[], podcast_sections_list=podcast_sections_list, get_thumbnail=YouTubeService.get_thumbnail)
     try:
         shows = rss_service.get_show_info()
         products = []
@@ -1399,10 +1531,11 @@ def media_hub():
                                intel_posts=intel_posts,
                                new_this_week=new_this_week,
                                latest_feed=latest_feed,
+                               podcast_sections_list=podcast_sections_list,
                                get_thumbnail=YouTubeService.get_thumbnail)
     except Exception as e:
         logging.error(f"Error loading media hub: {e}")
-        return render_template('media_hub.html', shows=[], products=[], our_books=our_books, recommended_books=recommended_books, youtube_series={}, live_broadcasts={}, intel_posts=[], new_this_week=[], latest_feed=[], get_thumbnail=YouTubeService.get_thumbnail)
+        return render_template('media_hub.html', shows=[], products=[], our_books=our_books, recommended_books=recommended_books, youtube_series={}, live_broadcasts={}, intel_posts=[], new_this_week=[], latest_feed=[], podcast_sections_list=podcast_sections_list or [], get_thumbnail=YouTubeService.get_thumbnail)
 
 @app.route('/api/latest-episodes')
 def get_latest_episodes():
@@ -1721,9 +1854,72 @@ def about():
     """About page"""
     return render_template('about.html')
 
-@app.route('/contact')
+@app.route('/privacy-policy')
+def privacy_policy():
+    """Privacy policy (legal)."""
+    return render_template('privacy_policy.html')
+
+def _send_contact_notification_email(submission):
+    """Send a notification email to CONTACT_EMAIL when SENDGRID_API_KEY is set."""
+    to_email = os.environ.get("CONTACT_EMAIL") or os.environ.get("SENDGRID_FROM_EMAIL")
+    if not to_email:
+        return False
+    try:
+        from sendgrid import SendGridAPIClient
+        from sendgrid.helpers.mail import Mail, Email, To, Content
+    except ImportError:
+        return False
+    api_key = os.environ.get("SENDGRID_API_KEY")
+    if not api_key:
+        return False
+    from_email = os.environ.get("SENDGRID_FROM_EMAIL", "noreply@protocolpulse.io")
+    subject = f"[Protocol Pulse Contact] {submission.subject} — {submission.name}"
+    body = f"Name: {submission.name}\nEmail: {submission.email}\nSubject: {submission.subject}\n\n{submission.message}"
+    message = Mail(
+        from_email=Email(from_email, "Protocol Pulse"),
+        to_emails=To(to_email),
+        subject=subject,
+        plain_text_content=Content("text/plain", body),
+    )
+    try:
+        SendGridAPIClient(api_key).send(message)
+        return True
+    except Exception as e:
+        logging.warning("Contact notification email failed: %s", e)
+        return False
+
+
+@app.route('/contact', methods=['GET', 'POST'])
+@limiter.limit("3 per minute")
 def contact():
-    """Contact page"""
+    """Contact page: GET shows form; POST saves submission and optionally emails."""
+    if request.method == 'POST':
+        _require_csrf()
+        name = (request.form.get("name") or "").strip()[:200]
+        email = (request.form.get("email") or "").strip()[:200]
+        subject = (request.form.get("subject") or "general").strip()[:100]
+        message = (request.form.get("message") or "").strip()[:10000]
+        if not name or not email or not message:
+            flash("Please fill in name, email, and message.", "error")
+            return render_template("contact.html")
+        submission = models.ContactSubmission(
+            name=name,
+            email=email,
+            subject=subject or "general",
+            message=message,
+            ip_address=request.remote_addr,
+        )
+        try:
+            db.session.add(submission)
+            db.session.commit()
+            _send_contact_notification_email(submission)
+            flash("Signal received. We'll respond within 24–48 hours.", "success")
+        except Exception as e:
+            logging.exception("Contact form save failed: %s", e)
+            db.session.rollback()
+            flash("Something went wrong. Please try again or email us directly.", "error")
+            return render_template("contact.html")
+        return redirect(url_for("contact"))
     return render_template('contact.html')
 
 @app.route('/newsletter/subscribe', methods=['POST'])
@@ -1747,8 +1943,10 @@ def newsletter_subscribe():
     return redirect(url_for('index'))
 
 @app.route('/login', methods=['GET', 'POST'])
+@limiter.limit("5 per minute")
 def login():
     if request.method == 'POST':
+        _require_csrf()
         login_input = request.form.get('username', '').strip()
         password = request.form.get('password', '')
         user = models.User.query.filter_by(username=login_input).first()
@@ -3525,16 +3723,25 @@ def get_series_teaser():
 
 @app.route('/api/trigger-automation', methods=['POST', 'GET'])
 def trigger_automation():
-    """Webhook endpoint to trigger article generation from Scheduled Deployment"""
+    """Webhook endpoint to trigger article generation (cron or admin). Use ?force=1 with POST when logged in as admin to skip cooldown."""
     from services.automation import generate_article_with_tracking
-    
-    result = generate_article_with_tracking()
+
+    force = request.args.get("force") in ("1", "true", "yes")
+    if force and request.method == "POST":
+        if not current_user.is_authenticated or not getattr(current_user, "is_admin", False):
+            return jsonify({"status": "error", "message": "Admin required to use force=1"}), 403
+    result = generate_article_with_tracking(force=force)
     
     if result.get('success'):
+        msg = f"Article generated: {result.get('title')}"
+        if result.get('stub'):
+            msg += " (stub — add OPENAI_API_KEY or GEMINI_API_KEY or ANTHROPIC_API_KEY to enable real drafting)"
         return jsonify({
             'status': 'success',
-            'message': f"Article generated: {result.get('title')}",
-            'article_id': result.get('article_id')
+            'message': msg,
+            'article_id': result.get('article_id'),
+            'stub': result.get('stub'),
+            'error': result.get('error'),
         }), 200
     elif result.get('skipped'):
         return jsonify({
@@ -4189,9 +4396,10 @@ def premium_page():
 
 @app.route('/hub')
 @login_required
-@premium_required
+@premium_hub_required
 def premium_hub():
-    """Premium Hub: real-time command center for Commander ($99/mo) subscribers."""
+    """Premium Hub: tiered command center for Operator / Commander / Sovereign subscribers."""
+    from datetime import datetime, timedelta
     try:
         network = NodeService.get_network_stats()
     except Exception:
@@ -4204,13 +4412,134 @@ def premium_hub():
         prices = price_service.get_prices()
     except Exception:
         prices = {}
-    # Latest published briefs (premium early access feel)
+    # Latest briefs (all subs)
     latest_briefs = models.Article.query.filter_by(published=True).order_by(models.Article.updated_at.desc()).limit(5).all()
+    # Commander+ only: Pro Briefs (premium_tier commander/sovereign or featured)
+    try:
+        commander_briefs = models.Article.query.filter(
+            models.Article.published.is_(True),
+            db.or_(
+                models.Article.premium_tier.in_(['commander', 'sovereign']),
+                models.Article.featured.is_(True)
+            )
+        ).order_by(models.Article.updated_at.desc()).limit(5).all()
+    except Exception:
+        commander_briefs = models.Article.query.filter_by(
+            published=True, featured=True
+        ).order_by(models.Article.updated_at.desc()).limit(5).all()
+    # Whale feed (last 24h) and alert summary — Commander+
+    since_24h = datetime.utcnow() - timedelta(hours=24)
+    since_7d = datetime.utcnow() - timedelta(days=7)
+    hub_whales = models.WhaleTransaction.query.filter(
+        models.WhaleTransaction.detected_at >= since_24h
+    ).order_by(models.WhaleTransaction.detected_at.desc()).limit(20).all()
+    whale_count_24h = models.WhaleTransaction.query.filter(
+        models.WhaleTransaction.detected_at >= since_24h
+    ).count()
+    mega_count_24h = models.WhaleTransaction.query.filter(
+        models.WhaleTransaction.detected_at >= since_24h,
+        models.WhaleTransaction.is_mega.is_(True)
+    ).count()
+    whale_count_7d = models.WhaleTransaction.query.filter(
+        models.WhaleTransaction.detected_at >= since_7d
+    ).count()
+    mega_count_7d = models.WhaleTransaction.query.filter(
+        models.WhaleTransaction.detected_at >= since_7d,
+        models.WhaleTransaction.is_mega.is_(True)
+    ).count()
+    # 24h whale volume in USD (for premium metric card)
+    btc_price = (prices or {}).get('btc') or 0
+    whale_volume_usd_24h = sum((w.usd_value or (w.btc_amount * btc_price) or 0) for w in hub_whales)
+    # Pro Brief of the week (single highlighted for Commander+)
+    brief_of_the_week = (commander_briefs[0] if commander_briefs else None)
+    # Sovereign: monthly ask status
+    sovereign_ask = None
+    sovereign_asks_this_month = 0
+    if getattr(current_user, 'subscription_tier', None) == 'sovereign':
+        try:
+            month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            sovereign_asks_this_month = models.PremiumAsk.query.filter(
+                models.PremiumAsk.user_id == current_user.id,
+                models.PremiumAsk.created_at >= month_start
+            ).count()
+            sovereign_ask = models.PremiumAsk.query.filter_by(
+                user_id=current_user.id
+            ).order_by(models.PremiumAsk.created_at.desc()).first()
+        except Exception:
+            pass
+    tier = getattr(current_user, 'subscription_tier', 'free')
+    mega_whale_alerts_enabled = getattr(current_user, 'mega_whale_email_alerts', False)
     return render_template('premium_hub.html',
                          network=network,
                          mempool_data=mempool_data,
                          prices=prices,
-                         latest_briefs=latest_briefs)
+                         latest_briefs=latest_briefs,
+                         commander_briefs=commander_briefs,
+                         brief_of_the_week=brief_of_the_week,
+                         hub_whales=hub_whales,
+                         whale_count_24h=whale_count_24h,
+                         mega_count_24h=mega_count_24h,
+                         whale_count_7d=whale_count_7d,
+                         mega_count_7d=mega_count_7d,
+                         whale_volume_usd_24h=whale_volume_usd_24h,
+                         sovereign_ask=sovereign_ask,
+                         sovereign_asks_this_month=sovereign_asks_this_month,
+                         tier=tier,
+                         mega_whale_alerts_enabled=mega_whale_alerts_enabled)
+
+
+@app.route('/hub/ask', methods=['POST'])
+@login_required
+def hub_submit_ask():
+    """Sovereign Elite: submit monthly research ask (1 per month)."""
+    if getattr(current_user, 'subscription_tier', None) != 'sovereign':
+        flash('Monthly ask is available for Sovereign Elite only.')
+        return redirect(url_for('premium_hub'))
+    from datetime import datetime
+    month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    used = models.PremiumAsk.query.filter(
+        models.PremiumAsk.user_id == current_user.id,
+        models.PremiumAsk.created_at >= month_start
+    ).count()
+    if used >= 1:
+        flash('You have already used your monthly ask this month. Next resets at month start.')
+        return redirect(url_for('premium_hub'))
+    question = (request.form.get('question') or '').strip()
+    if not question or len(question) < 10:
+        flash('Please submit a question of at least 10 characters.')
+        return redirect(url_for('premium_hub'))
+    try:
+        ask = models.PremiumAsk(user_id=current_user.id, question_text=question[:2000], status='pending')
+        db.session.add(ask)
+        db.session.commit()
+        flash('Your monthly ask has been submitted. The team will respond via email or in this hub.')
+    except Exception as e:
+        logging.warning("PremiumAsk submit failed (table may not exist): %s", e)
+        flash('Submit temporarily unavailable. Please try again or contact support.')
+    return redirect(url_for('premium_hub'))
+
+
+@app.route('/hub/alerts', methods=['POST'])
+@login_required
+@premium_hub_required
+def hub_alerts_preference():
+    """Commander+: toggle mega whale email alerts preference."""
+    if not getattr(current_user, 'has_commander_tier', lambda: False)():
+        flash('Mega whale alerts are for Commander tier and above.')
+        return redirect(url_for('premium_hub'))
+    enabled = request.form.get('mega_whale_email') == 'on'
+    try:
+        current_user.mega_whale_email_alerts = enabled
+        db.session.commit()
+        flash('Mega whale email alerts ' + ('enabled' if enabled else 'disabled') + '.')
+    except Exception as e:
+        if getattr(current_user, 'mega_whale_email_alerts', None) is None:
+            flash('Alert preference not available yet. Try again after a refresh.')
+        else:
+            flash('Could not save preference.')
+        logging.warning("Hub alerts preference save failed: %s", e)
+    return redirect(url_for('premium_hub'))
+
 
 @app.route('/subscribe/premium/<tier>')
 @login_required
@@ -4246,11 +4575,13 @@ def subscription_success():
     return render_template('subscription_success.html', session_id=session_id)
 
 @app.route('/donate', methods=['GET', 'POST'])
+@limiter.limit("10 per minute")
 def donate():
     """One-time donation page"""
     from services.monetization_service import monetization_service
-    
+
     if request.method == 'POST':
+        _require_csrf()
         amount = int(request.form.get('amount', 21))
         email = request.form.get('email', '')
         message = request.form.get('message', '')
@@ -4403,6 +4734,68 @@ def admin_revenue():
     
     stats = monetization_service.get_revenue_stats()
     return render_template('admin_revenue.html', stats=stats)
+
+
+@app.route('/admin/contact-submissions')
+@login_required
+@admin_required
+def admin_contact_submissions():
+    """List contact form submissions; filter by read/unread."""
+    read_filter = request.args.get('read', '')
+    q = models.ContactSubmission.query
+    if read_filter == 'read':
+        q = q.filter_by(read=True)
+    elif read_filter == 'unread':
+        q = q.filter_by(read=False)
+    submissions = q.order_by(models.ContactSubmission.created_at.desc()).limit(200).all()
+    unread_count = models.ContactSubmission.query.filter_by(read=False).count()
+    return render_template('admin/contact_submissions.html', submissions=submissions, read_filter=read_filter, unread_count=unread_count)
+
+
+@app.route('/admin/contact-submissions/<int:sub_id>/read', methods=['POST'])
+@login_required
+@admin_required
+def admin_contact_submission_mark_read(sub_id):
+    """Mark a contact submission as read."""
+    _require_csrf()
+    sub = models.ContactSubmission.query.get_or_404(sub_id)
+    sub.read = True
+    db.session.commit()
+    flash('Marked as read.', 'success')
+    return redirect(url_for('admin_contact_submissions'))
+
+
+@app.route('/admin/premium-asks')
+@login_required
+@admin_required
+def admin_premium_asks():
+    """List Sovereign Elite monthly asks; filter by status."""
+    status_filter = request.args.get('status', '')
+    q = models.PremiumAsk.query
+    if status_filter in ('pending', 'answered'):
+        q = q.filter_by(status=status_filter)
+    asks = q.order_by(models.PremiumAsk.created_at.desc()).limit(100).all()
+    pending_count = models.PremiumAsk.query.filter_by(status='pending').count()
+    return render_template('admin/premium_asks.html', asks=asks, status_filter=status_filter, pending_count=pending_count)
+
+
+@app.route('/admin/premium-asks/<int:ask_id>/answer', methods=['POST'])
+@login_required
+@admin_required
+def admin_premium_ask_answer(ask_id):
+    """Mark a PremiumAsk as answered with optional text and URL."""
+    from datetime import datetime
+    ask = models.PremiumAsk.query.get_or_404(ask_id)
+    answer_text = (request.form.get('answer_text') or '').strip()
+    answer_url = (request.form.get('answer_url') or '').strip()[:500]
+    ask.answer_text = answer_text or None
+    ask.answer_url = answer_url or None
+    ask.status = 'answered'
+    ask.answered_at = datetime.utcnow()
+    db.session.commit()
+    flash('Ask marked as answered.')
+    return redirect(url_for('admin_premium_asks'))
+
 
 # ============================================
 # CAPTIONS.AI VIDEO GENERATION
@@ -5367,23 +5760,23 @@ def recommend_segment():
 @admin_required
 def command_deck():
     """Sovereign Command Deck - System control center"""
+    scheduler_status = {'running': False, 'jobs': []}
+    telegram_status = {'initialized': False}
     try:
         from services.scheduler import get_scheduler_status
-        from services.telegram_bot import pulse_operative
-        
         scheduler_status = get_scheduler_status()
-        telegram_status = pulse_operative.get_status()
-        
-        return render_template('admin/command_deck.html',
-            scheduler_status=scheduler_status,
-            telegram_status=telegram_status
-        )
     except Exception as e:
-        logging.error(f"Command deck error: {e}")
-        return render_template('admin/command_deck.html',
-            scheduler_status={'running': False, 'jobs': []},
-            telegram_status={'initialized': False}
-        )
+        logging.debug("Scheduler not available: %s", e)
+    try:
+        from services.telegram_bot import pulse_operative
+        telegram_status = pulse_operative.get_status()
+    except Exception:
+        pass  # telegram_bot optional
+    return render_template('admin/command_deck.html',
+        scheduler_status=scheduler_status,
+        telegram_status=telegram_status,
+        deck_time=datetime.utcnow()
+    )
 
 
 @app.route('/admin/api/activate-scheduler', methods=['POST'])

@@ -12,6 +12,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy.orm import DeclarativeBase
 from flask_login import LoginManager
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_caching import Cache
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -47,6 +50,30 @@ migrate = Migrate(app, db)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
+
+limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day"])
+limiter.init_app(app)
+
+cache = Cache(config={"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 60})
+cache.init_app(app)
+
+@app.context_processor
+def inject_csrf():
+    """Inject CSRF token for forms. Generate once per session."""
+    if "csrf_token" not in session:
+        session["csrf_token"] = os.urandom(32).hex()
+    return {"csrf_token": session.get("csrf_token")}
+
+
+@app.after_request
+def add_static_cache_headers(response):
+    """Allow browsers to cache static assets for 1 day."""
+    from flask import request
+    if request.path.startswith("/static/"):
+        response.cache_control.max_age = 86400
+        response.cache_control.public = True
+    return response
+
 
 # 4. Define Template Filters
 @app.template_filter('inject_ads')

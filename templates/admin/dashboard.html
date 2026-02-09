@@ -82,6 +82,16 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="/admin/premium-asks">
+                            <i class="fas fa-crown"></i> Premium Asks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/contact-submissions">
+                            <i class="fas fa-envelope"></i> Contact
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="/admin/smart-analytics">
                             <i class="fas fa-chart-line"></i> Smart Analytics
                         </a>
@@ -92,7 +102,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/podcasts">
+                        <a class="nav-link" href="/media#section-podcasts">
                             <i class="fas fa-podcast"></i> View Podcasts
                         </a>
                     </li>
@@ -214,6 +224,11 @@
                                             <i class="fas fa-magic"></i> Generate
                                         </button>
                                     </div>
+                                </div>
+                                <div class="col-md-6 d-flex align-items-end mb-3">
+                                    <button type="button" class="btn btn-success" onclick="triggerDraftNow()" title="Run pipeline: one article (Bitcoin/Reddit), published live">
+                                        <i class="fas fa-bolt"></i> Draft articles now
+                                    </button>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label text-light">Content Type:</label>
@@ -375,6 +390,30 @@
 </style>
 
 <script>
+async function triggerDraftNow() {
+    const btn = event && event.target ? event.target.closest('button') : null;
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...'; }
+    try {
+        const r = await fetch('/api/trigger-automation?force=1', { method: 'POST' });
+        const result = await r.json();
+        if (result.status === 'success') {
+            var msg = result.message || ('Article: ' + (result.title || 'Done'));
+            if (result.stub) msg += '\n\n(Stub created — add OPENAI_API_KEY or GEMINI_API_KEY or ANTHROPIC_API_KEY to .env for real drafting)';
+            if (result.error) msg += '\n\nDetails: ' + result.error;
+            alert(msg);
+            location.reload();
+        } else if (result.status === 'skipped') {
+            alert('Skipped: ' + (result.message || 'Run again in a few minutes'));
+        } else {
+            alert('Failed: ' + (result.message || result.error || 'Check server logs'));
+        }
+    } catch (e) {
+        alert('Error: ' + e.message);
+    } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-bolt"></i> Draft articles now'; }
+    }
+}
+
 async function quickGenerate() {
     const topic = document.getElementById('quickTopic').value;
     const contentType = document.getElementById('contentType').value;

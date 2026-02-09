@@ -15,6 +15,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+    <link rel="preload" href="{{ url_for('static', filename='css/style.css') }}?v=1.3" as="style">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=1.3">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/coindesk-style.css') }}?v=1.1">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/protocol-pulse-tokens.css') }}?v=1.0">
@@ -60,6 +61,7 @@
     </script>
     {% block schema %}{% endblock %}
     {% block head %}{% endblock %}
+    {% block extra_css %}{% endblock %}
     
     <!-- Phase 4: High-Voltage Lightning Discharge SVG Filter -->
     <svg class="pp-filters-svg" style="position:absolute;width:0;height:0;">
@@ -158,7 +160,7 @@
                 <a href="#" class="nav-item"><i class="fas fa-play-circle"></i><span class="d-none d-lg-inline">Media</span><i class="fas fa-chevron-down ms-1" style="font-size: 0.6rem;"></i></a>
                 <div class="nav-dropdown-menu">
                     <a href="/media" class="nav-dropdown-item"><i class="fas fa-broadcast-tower" style="color: #f7931a;"></i>Media Hub</a>
-                    <a href="/podcasts" class="nav-dropdown-item"><i class="fas fa-podcast" style="color: #a855f7;"></i>Podcasts</a>
+                    <a href="/media#section-podcasts" class="nav-dropdown-item"><i class="fas fa-podcast" style="color: #a855f7;"></i>Podcasts</a>
                     <a href="/clips" class="nav-dropdown-item"><i class="fas fa-film" style="color: #3b82f6;"></i>Signal Clips</a>
                 </div>
             </div>
@@ -178,7 +180,7 @@
                     <a href="/bitcoin" class="nav-dropdown-item"><i class="fab fa-bitcoin text-warning"></i>Bitcoin</a>
                     <a href="/defi" class="nav-dropdown-item"><i class="fas fa-coins text-info"></i>DeFi</a>
                     <a href="/regulation" class="nav-dropdown-item"><i class="fas fa-gavel text-danger"></i>Regulation</a>
-                    <a href="/privacy" class="nav-dropdown-item"><i class="fas fa-user-secret text-success"></i>Privacy</a>
+                    <a href="/privacy-policy" class="nav-dropdown-item"><i class="fas fa-user-secret text-success"></i>Privacy</a>
                     <div class="nav-dropdown-divider"></div>
                     <a href="/sovereign-custody" class="nav-dropdown-item"><i class="fas fa-shield-alt" style="color: #a855f7;"></i>Sovereign Custody</a>
                     <a href="/cypherpunks" class="nav-dropdown-item"><i class="fas fa-mask" style="color: #a855f7;"></i>Cypherpunks</a>
@@ -195,9 +197,11 @@
             <div class="nav-dropdown">
                 <a href="#" class="nav-item"><i class="fas fa-tools"></i><span class="d-none d-lg-inline">Tools</span><i class="fas fa-chevron-down ms-1" style="font-size: 0.6rem;"></i></a>
                 <div class="nav-dropdown-menu">
+                    <a href="/dossier" class="nav-dropdown-item"><i class="fas fa-folder-open" style="color: #dc2626;"></i>The Dossier <span style="font-size: 0.6rem; color: #dc2626; letter-spacing: 0.05em;">DECLASSIFIED</span></a>
                     <a href="/live" class="nav-dropdown-item"><i class="fas fa-atom" style="color: #dc2626;"></i>Live Terminal</a>
                     <a href="/whale-watcher" class="nav-dropdown-item"><i class="fas fa-water" style="color: #3b82f6;"></i>Whale Watcher</a>
                     <a href="/live#intel-mining" class="nav-dropdown-item"><i class="fas fa-microchip" style="color: #f97316;"></i>Mining Intel</a>
+                    <a href="/mining-risk" class="nav-dropdown-item"><i class="fas fa-globe-americas" style="color: #f97316;"></i>Mining Risk</a>
                     <a href="/hud" class="nav-dropdown-item"><i class="fas fa-broadcast-tower" style="color: #22c55e;"></i>Predictive HUD</a>
                     <div class="nav-dropdown-divider"></div>
                     <a href="/value-stream" class="nav-dropdown-item"><i class="fas fa-bolt" style="color: #f7931a;"></i>Value Stream <span style="background: linear-gradient(135deg, #8b5cf6, #a855f7); color: #fff; font-size: 0.6rem; padding: 2px 6px; border-radius: 8px; margin-left: 6px; font-weight: 700;">NEW</span></a>
@@ -215,10 +219,18 @@
             </div>
             
             <div class="sovereign-mode-toggle">
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                <a href="/admin/command-deck" class="btn btn-outline-success btn-sm sovereign-btn" id="commandDeckNavBtn">
+                    <i class="fas fa-user-shield"></i>
+                    <span class="d-none d-lg-inline">Command Deck</span>
+                </a>
+                {% else %}
                 <button class="btn btn-outline-success btn-sm sovereign-btn" id="sovereignModeBtn" onclick="toggleSovereignMode()">
                     <i class="fas fa-user-shield"></i>
                     <span class="d-none d-lg-inline">Sovereign</span>
                 </button>
+                {% endif %}
+                {% if not current_user.is_authenticated or not current_user.is_admin %}
                 <div class="sovereign-explainer">
                     <div class="sovereign-explainer-header">
                         <i class="fas fa-shield-alt"></i>
@@ -242,13 +254,14 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
             
             {% if current_user.is_authenticated %}
                 {% if current_user.is_admin %}
                 <a href="/admin/command-deck" class="nav-item" style="color: #fbbf24;"><i class="fas fa-user-shield"></i><span class="d-none d-lg-inline">Admin</span></a>
                 {% endif %}
-                {% if current_user.has_commander_tier() %}
+                {% if current_user.has_premium() %}
                 <a href="/hub" class="nav-item" style="color: var(--pp-accent);"><i class="fas fa-gem"></i><span class="d-none d-lg-inline">Hub</span></a>
                 {% endif %}
                 <a href="/logout" class="nav-item"><i class="fas fa-sign-out-alt"></i></a>
@@ -325,6 +338,20 @@
                         <div class="command-item-desc">Lottery miners who beat the odds</div>
                     </div>
                 </div>
+                <div class="command-item" onclick="navigateTo('/dossier')">
+                    <div class="command-item-icon" style="color: #dc2626;"><i class="fas fa-folder-open"></i></div>
+                    <div class="command-item-text">
+                        <div class="command-item-title">The Dossier</div>
+                        <div class="command-item-desc">32-image sovereign manifesto</div>
+                    </div>
+                </div>
+                <div class="command-item" onclick="navigateTo('/mining-risk')">
+                    <div class="command-item-icon" style="color: #f97316;"><i class="fas fa-globe-americas"></i></div>
+                    <div class="command-item-text">
+                        <div class="command-item-title">Mining Risk</div>
+                        <div class="command-item-desc">Deployment risk by geography</div>
+                    </div>
+                </div>
                 <div class="command-item" onclick="navigateTo('/chat')">
                     <div class="command-item-icon"><i class="fas fa-robot"></i></div>
                     <div class="command-item-text">
@@ -344,7 +371,7 @@
         <a href="/#intelligence-dashboard" class="mobile-nav-item"><i class="fas fa-satellite"></i>Intel Dashboard</a>
         <a href="/articles" class="mobile-nav-item"><i class="fas fa-terminal"></i>Briefs</a>
         <a href="/media" class="mobile-nav-item"><i class="fas fa-broadcast-tower" style="color: #f7931a;"></i>Media Hub</a>
-        <a href="/podcasts" class="mobile-nav-item"><i class="fas fa-podcast" style="color: #a855f7;"></i>Podcasts</a>
+        <a href="/media#section-podcasts" class="mobile-nav-item"><i class="fas fa-podcast" style="color: #a855f7;"></i>Podcasts</a>
         <a href="/clips" class="mobile-nav-item"><i class="fas fa-film" style="color: #3b82f6;"></i>Signal Clips</a>
         <a href="/bitfeed-live" class="mobile-nav-item"><i class="fas fa-heartbeat"></i>Pulse</a>
         <a href="/map" class="mobile-nav-item"><i class="fas fa-map-marked-alt"></i>Merchant Map</a>
@@ -352,6 +379,8 @@
         <a href="/logistics" class="mobile-nav-item"><i class="fas fa-folder-open"></i>Infrastructure Index</a>
         <a href="/whale-watcher" class="mobile-nav-item"><i class="fas fa-water"></i>Whale Watcher</a>
         <a href="/solo-slayers" class="mobile-nav-item"><i class="fas fa-hammer" style="color: #fbbf24;"></i>Solo Slayers</a>
+        <a href="/mining-risk" class="mobile-nav-item"><i class="fas fa-globe-americas" style="color: #f97316;"></i>Mining Risk</a>
+        <a href="/dossier" class="mobile-nav-item"><i class="fas fa-folder-open" style="color: #dc2626;"></i>The Dossier</a>
         <a href="/live" class="mobile-nav-item"><i class="fas fa-atom"></i>Live Terminal</a>
         <a href="/sovereign-custody" class="mobile-nav-item"><i class="fas fa-shield-alt"></i>Sovereign Custody</a>
         <a href="/chat" class="mobile-nav-item"><i class="fas fa-robot"></i>Ask Alex</a>
@@ -490,8 +519,8 @@
                 </div>
             </div>
             <hr>
-            <div class="d-flex justify-content-between align-items-center">
-                <p class="mb-0">&copy; 2026 Protocol Pulse</p>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <p class="mb-0">&copy; 2026 Protocol Pulse &nbsp; <a href="/privacy-policy" class="text-white-50 text-decoration-none">Privacy</a></p>
                 <div class="gas-alert-toggle">
                     <button class="btn btn-sm btn-outline-danger" onclick="toggleGasAlerts()" id="gas-alert-btn">
                         <i class="fas fa-bell me-1"></i>
@@ -553,9 +582,9 @@
         font-size: 0.75rem;
     }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/coindesk.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/coindesk.js') }}" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var navbarCollapse = document.getElementById('navbarNav');

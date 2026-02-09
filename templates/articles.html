@@ -526,7 +526,10 @@
                         </div>
                         <h1 class="page-title">The Report</h1>
                         <p class="mb-0 mt-2" style="font-size: 0.9rem; color: var(--pp-text-muted);">
-                            <a href="/media#newsletter-cta" style="color: var(--pp-accent); text-decoration: none; font-weight: 600;">Get the weekly digest</a> — new briefs in your inbox.
+                            New to sovereignty? Start with <a href="/dossier" style="color: var(--pp-accent); text-decoration: none; font-weight: 600;">The Dossier</a> — 32 intel briefs on why Bitcoin wins.
+                        </p>
+                        <p class="mb-0 mt-1" style="font-size: 0.85rem; color: var(--pp-text-muted);">
+                            <a href="/media#newsletter-cta" style="color: var(--pp-accent); text-decoration: none;">Get the weekly digest</a> — new briefs in your inbox.
                         </p>
                     </header>
 
@@ -544,6 +547,9 @@
                                     <span class="badge-breaking">Breaking</span>
                                     {% endif %}
                                     <span class="badge-category">{{ today_articles[0].category }}</span>
+                                    {% if today_articles[0].featured or (today_articles[0].premium_tier and today_articles[0].premium_tier in ['commander', 'sovereign']) %}
+                                    <span class="badge bg-warning text-dark" style="font-size: 0.6rem;">Pro</span>
+                                    {% endif %}
                                     <span class="meta-mono ms-2">{{ today_articles[0].created_at.strftime('%H:%M') }} UTC</span>
                                 </div>
                                 <h2 class="headline-hero mb-4">{{ today_articles[0].title }}</h2>
@@ -562,6 +568,9 @@
                                     <span class="badge-breaking" style="font-size: 0.5rem; padding: 3px 7px;">Breaking</span>
                                     {% endif %}
                                     <span class="badge-category">{{ article.category }}</span>
+                                    {% if article.featured or (article.premium_tier and article.premium_tier in ['commander', 'sovereign']) %}
+                                    <span class="badge bg-warning text-dark" style="font-size: 0.55rem;">Pro</span>
+                                    {% endif %}
                                 </div>
                                 <h3 class="headline-secondary mb-3">{{ article.title }}</h3>
                                 <p class="body-text mb-3" style="font-size: 0.9rem; line-height: 1.6;">{{ article.content | clean_preview(100) }}</p>
@@ -579,6 +588,9 @@
                             <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none bento-card">
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     <span class="badge-category">{{ article.category }}</span>
+                                    {% if article.featured or (article.premium_tier and article.premium_tier in ['commander', 'sovereign']) %}
+                                    <span class="badge bg-warning text-dark" style="font-size: 0.55rem;">Pro</span>
+                                    {% endif %}
                                 </div>
                                 <h3 class="headline-secondary mb-2">{{ article.title }}</h3>
                                 <span class="meta-mono">{{ article.created_at.strftime('%H:%M') }} UTC</span>
@@ -610,6 +622,9 @@
                                         <h4 class="terminal-headline">{{ article.title }}</h4>
                                         <div class="terminal-meta">
                                             <span class="badge-category">{{ article.category }}</span>
+                                            {% if article.featured or (article.premium_tier and article.premium_tier in ['commander', 'sovereign']) %}
+                                            <span class="badge bg-warning text-dark" style="font-size: 0.55rem;">Pro</span>
+                                            {% endif %}
                                             <span>{{ article.created_at.strftime('%H:%M:%S') }}</span>
                                             <span>{{ article.created_at.strftime('%Y-%m-%d') }}</span>
                                         </div>

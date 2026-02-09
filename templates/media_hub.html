@@ -654,6 +654,55 @@
 .btn-save-for-later:hover { color: var(--accent); }
 .btn-save-for-later.saved { color: var(--accent); }
 
+/* ========== PODCASTS SECTION (Media Hub) ========== */
+.podcasts-hub-intro { margin-bottom: 2rem; }
+.podcasts-hub-sub { font-size: 1rem; color: var(--text-secondary); max-width: 640px; margin: 0; line-height: 1.6; }
+.podcasts-empty-state { text-align: center; padding: 4rem 2rem; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); }
+.podcasts-empty-icon { font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem; }
+.podcasts-empty-state h3 { font-family: 'Outfit', sans-serif; font-size: 1.35rem; margin-bottom: 0.5rem; color: var(--text-primary); }
+.podcasts-empty-state p { color: var(--text-secondary); font-size: 0.95rem; max-width: 420px; margin: 0 auto; }
+.podcast-section-block { margin-bottom: 3rem; }
+.podcast-section-name { font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 10px; }
+.podcast-section-name i { color: var(--nostr-purple); }
+.podcast-bento { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+.podcast-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); overflow: hidden; transition: border-color 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out), transform 0.25s var(--ease-out); display: flex; flex-direction: column; }
+.podcast-card:hover { border-color: rgba(168,85,247,0.4); box-shadow: var(--shadow-md); transform: translateY(-4px); }
+.podcast-card-cover { position: relative; aspect-ratio: 1; background: var(--bg-elevated); overflow: hidden; }
+.podcast-card-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.podcast-card-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-secondary) 100%); color: var(--nostr-purple); font-size: 2.5rem; opacity: 0.5; }
+.podcast-play-btn { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.4); border: none; color: #fff; font-size: 2rem; cursor: pointer; opacity: 0; transition: opacity 0.25s var(--ease-out); }
+.podcast-card:hover .podcast-play-btn { opacity: 1; }
+.podcast-play-btn:hover { background: rgba(168,85,247,0.5); color: #fff; }
+.podcast-play-btn i { filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5)); }
+.podcast-card-body { padding: 1.25rem; flex: 1; display: flex; flex-direction: column; }
+.podcast-card-meta { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 0.5rem; }
+.podcast-card-title { font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700; color: var(--text-primary); margin: 0 0 0.5rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.podcast-card-desc { font-size: 0.85rem; color: var(--text-secondary); margin: 0 0 0.75rem; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1; }
+.podcast-card-footer { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem; display: flex; justify-content: space-between; gap: 8px; }
+.podcast-card-cta { width: 100%; padding: 10px 16px; background: var(--nostr-purple); color: #fff; border: none; border-radius: var(--radius-md); font-size: 0.9rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.2s var(--ease-out); }
+.podcast-card-cta:hover { opacity: 0.95; }
+.podcast-load-more-wrap { text-align: center; margin-top: 1.5rem; }
+.podcast-load-more { padding: 12px 24px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-full); color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: border-color 0.2s var(--ease-out), color 0.2s var(--ease-out); }
+.podcast-load-more:hover { border-color: var(--nostr-purple); color: var(--nostr-purple); }
+.media-hub-podcast-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: rgba(15,15,20,0.96); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border-subtle); padding: 12px 0; }
+.podcast-bar-inner { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.podcast-bar-art { width: 48px; height: 48px; min-width: 48px; background: var(--bg-elevated); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: var(--nostr-purple); font-size: 1.25rem; overflow: hidden; }
+.podcast-bar-art img { width: 100%; height: 100%; object-fit: cover; }
+.podcast-bar-info { min-width: 0; flex: 0 1 200px; }
+.podcast-bar-title { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.podcast-bar-meta { font-size: 0.75rem; color: var(--text-muted); }
+.podcast-bar-controls { display: flex; align-items: center; gap: 8px; }
+.podcast-bar-btn { background: none; border: none; color: var(--text-muted); font-size: 1rem; cursor: pointer; padding: 8px; transition: color 0.2s var(--ease-out); }
+.podcast-bar-btn:hover { color: var(--accent); }
+.podcast-bar-play { width: 44px; height: 44px; border-radius: 50%; background: var(--nostr-purple); border: none; color: #fff; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: opacity 0.2s var(--ease-out); }
+.podcast-bar-play:hover { opacity: 0.9; }
+.podcast-bar-progress-wrap { flex: 1; min-width: 120px; display: flex; align-items: center; gap: 10px; }
+.podcast-bar-time { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); min-width: 36px; }
+.podcast-bar-track { flex: 1; height: 6px; background: var(--bg-elevated); border-radius: 3px; cursor: pointer; overflow: hidden; }
+.podcast-bar-fill { height: 100%; width: 0%; background: var(--nostr-purple); border-radius: 3px; transition: width 0.1s linear; }
+.podcast-bar-close { background: none; border: none; color: var(--text-muted); font-size: 1rem; cursor: pointer; padding: 8px; transition: color 0.2s var(--ease-out); }
+.podcast-bar-close:hover { color: var(--text-primary); }
+
 /* ========== SECTIONS ========== */
 .hub-section {
     margin-bottom: 64px;
@@ -1558,6 +1607,9 @@
             <button type="button" class="hub-tab" onclick="showSection('series')">
                 <i class="fas fa-play-circle"></i> Series
             </button>
+            <button type="button" class="hub-tab" id="hub-tab-podcasts" onclick="showSection('podcasts')">
+                <i class="fas fa-podcast"></i> Podcasts
+            </button>
             <button type="button" class="hub-tab" onclick="showSection('nostr')">
                 <i class="fas fa-bolt"></i> Nostr
             </button>
@@ -1846,6 +1898,61 @@
             </div>
         </div>
 
+        <!-- PODCASTS SECTION: Protocol Pulse & Cypherpunk'd -->
+        <div id="section-podcasts" class="hub-section" style="display: none;">
+            <div class="podcasts-hub-intro">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-podcast" style="color: var(--nostr-purple);"></i> Protocol Pulse & Cypherpunk'd Podcasts</h2>
+                </div>
+                <p class="podcasts-hub-sub">Listen to our shows and partner intelligence. Play any episode below — the player stays with you as you browse.</p>
+            </div>
+            {% set plist = podcast_sections_list|default([]) %}
+            {% if not plist %}
+            <div class="podcasts-empty-state">
+                <div class="podcasts-empty-icon"><i class="fas fa-microphone"></i></div>
+                <h3>Podcasts coming soon</h3>
+                <p>From the Command Deck, run <strong>Generate podcasts from all partners</strong> to populate episodes from Protocol Pulse and Cypherpunk'd channels.</p>
+            </div>
+            {% else %}
+            {% for section in plist %}
+            <div class="podcast-section-block">
+                <h3 class="podcast-section-name"><i class="fas fa-rss"></i> {{ section.name }}</h3>
+                <div class="podcast-bento">
+                    {% for podcast in section.podcasts %}
+                    <article class="podcast-card">
+                        <div class="podcast-card-cover">
+                            {% if podcast.cover_image_url %}
+                            <img src="{{ podcast.cover_image_url }}" alt="{{ podcast.title }}" loading="lazy">
+                            {% else %}
+                            <div class="podcast-card-placeholder"><i class="fas fa-microphone"></i></div>
+                            {% endif %}
+                            <button type="button" class="podcast-play-btn" onclick="mediaHubPlayPodcast({{ podcast.id }})" aria-label="Play {{ podcast.title }}">
+                                <i class="fas fa-play"></i>
+                            </button>
+                        </div>
+                        <div class="podcast-card-body">
+                            <span class="podcast-card-meta">Ep {{ podcast.episode_number or '—' }}{% if podcast.duration %} · {{ podcast.duration }}{% endif %}</span>
+                            <h4 class="podcast-card-title">{{ podcast.title }}</h4>
+                            <p class="podcast-card-desc">{{ (podcast.description[:100] + '…') if podcast.description and podcast.description|length > 100 else (podcast.description or '') }}</p>
+                            <div class="podcast-card-footer">
+                                <span><i class="fas fa-user"></i> {{ podcast.host or 'Protocol Pulse' }}</span>
+                                <span>{{ podcast.published_date.strftime('%b %d, %Y') if podcast.published_date else '' }}</span>
+                            </div>
+                            <button type="button" class="podcast-card-cta" onclick="mediaHubPlayPodcast({{ podcast.id }})"><i class="fas fa-play"></i> Play</button>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+                <div class="podcast-load-more-wrap">
+                    <button type="button" class="podcast-load-more" data-section="{{ section.name }}" data-slug="{{ section.slug }}" onclick="mediaHubLoadMoreEpisodes(this)">
+                        <i class="fas fa-chevron-down"></i> More {{ section.name }}
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+
         <!-- NOSTR SECTION -->
         <div id="section-nostr" class="hub-section" style="display: none;">
             <div class="nostr-section">
@@ -1869,6 +1976,31 @@
         </div>
 
     </div>
+</div>
+
+<!-- Global Podcast Player (sticky) -->
+<div id="mediaHubPodcastBar" class="media-hub-podcast-bar" style="display: none;">
+    <div class="hub-container">
+        <div class="podcast-bar-inner">
+            <div class="podcast-bar-art" id="podcastBarArt"><i class="fas fa-podcast"></i></div>
+            <div class="podcast-bar-info">
+                <div class="podcast-bar-title" id="podcastBarTitle">Episode</div>
+                <div class="podcast-bar-meta" id="podcastBarMeta">Protocol Pulse</div>
+            </div>
+            <div class="podcast-bar-controls">
+                <button type="button" class="podcast-bar-btn" onclick="mediaHubSeekBack()" aria-label="Back 15s"><i class="fas fa-backward"></i></button>
+                <button type="button" class="podcast-bar-play" id="podcastBarPlayBtn" onclick="mediaHubTogglePlay()" aria-label="Play/Pause"><i class="fas fa-play"></i></button>
+                <button type="button" class="podcast-bar-btn" onclick="mediaHubSeekFwd()" aria-label="Forward 15s"><i class="fas fa-forward"></i></button>
+            </div>
+            <div class="podcast-bar-progress-wrap">
+                <span class="podcast-bar-time" id="podcastBarCur">0:00</span>
+                <div class="podcast-bar-track" id="podcastBarTrack" onclick="mediaHubSeekTo(event)"><div class="podcast-bar-fill" id="podcastBarFill"></div></div>
+                <span class="podcast-bar-time" id="podcastBarDur">0:00</span>
+            </div>
+            <button type="button" class="podcast-bar-close" onclick="mediaHubClosePlayer()" aria-label="Close"><i class="fas fa-times"></i></button>
+        </div>
+    </div>
+    <audio id="mediaHubAudio" preload="metadata"></audio>
 </div>
 
 <!-- Video Player Modal -->
@@ -1934,6 +2066,76 @@ function showSection(section) {
     if (section === 'nostr' && !window.nostrInitialized) {
         initNostr();
     }
+}
+// Open Podcasts section when URL hash is #section-podcasts
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.location.hash === '#section-podcasts') {
+        showSection('podcasts');
+    }
+});
+
+// ——— Media Hub Podcast Player ———
+let mediaHubCurrentPodcast = null;
+function mediaHubPlayPodcast(id) {
+    fetch('/api/podcast/' + id).then(function(r) { return r.json(); }).then(function(p) {
+        if (!p.audio_url) { alert('Audio not available for this episode yet.'); return; }
+        mediaHubCurrentPodcast = p;
+        document.getElementById('podcastBarTitle').textContent = p.title;
+        document.getElementById('podcastBarMeta').textContent = p.host || 'Protocol Pulse';
+        var art = document.getElementById('podcastBarArt');
+        if (p.cover_image_url) { art.innerHTML = '<img src="' + p.cover_image_url + '" alt="">'; } else { art.innerHTML = '<i class="fas fa-podcast"></i>'; }
+        document.getElementById('mediaHubPodcastBar').style.display = 'block';
+        var audio = document.getElementById('mediaHubAudio');
+        audio.src = p.audio_url;
+        audio.play();
+        document.getElementById('podcastBarPlayBtn').querySelector('i').className = 'fas fa-pause';
+    }).catch(function() { alert('Unable to load podcast.'); });
+}
+function mediaHubTogglePlay() {
+    var audio = document.getElementById('mediaHubAudio');
+    var icon = document.getElementById('podcastBarPlayBtn').querySelector('i');
+    if (audio.paused) { audio.play(); icon.className = 'fas fa-pause'; } else { audio.pause(); icon.className = 'fas fa-play'; }
+}
+function mediaHubSeekBack() { var a = document.getElementById('mediaHubAudio'); a.currentTime = Math.max(0, a.currentTime - 15); }
+function mediaHubSeekFwd() { var a = document.getElementById('mediaHubAudio'); a.currentTime = Math.min(a.duration || 0, a.currentTime + 15); }
+function mediaHubSeekTo(ev) {
+    var track = document.getElementById('podcastBarTrack');
+    var rect = track.getBoundingClientRect();
+    var pct = (ev.clientX - rect.left) / rect.width;
+    var audio = document.getElementById('mediaHubAudio');
+    if (audio.duration) { audio.currentTime = pct * audio.duration; }
+}
+function mediaHubClosePlayer() {
+    document.getElementById('mediaHubAudio').pause(); document.getElementById('mediaHubPodcastBar').style.display = 'none';
+}
+var mediaHubAudioEl = document.getElementById('mediaHubAudio');
+if (mediaHubAudioEl) {
+    mediaHubAudioEl.addEventListener('timeupdate', function() {
+        var cur = document.getElementById('podcastBarCur'); var dur = document.getElementById('podcastBarDur'); var fill = document.getElementById('podcastBarFill');
+        if (cur) cur.textContent = formatTime(mediaHubAudioEl.currentTime);
+        if (dur) dur.textContent = formatTime(mediaHubAudioEl.duration || 0);
+        if (fill && mediaHubAudioEl.duration) fill.style.width = (100 * mediaHubAudioEl.currentTime / mediaHubAudioEl.duration) + '%';
+    });
+    mediaHubAudioEl.addEventListener('play', function() { var i = document.getElementById('podcastBarPlayBtn'); if (i) i.querySelector('i').className = 'fas fa-pause'; });
+    mediaHubAudioEl.addEventListener('pause', function() { var i = document.getElementById('podcastBarPlayBtn'); if (i) i.querySelector('i').className = 'fas fa-play'; });
+    mediaHubAudioEl.addEventListener('loadedmetadata', function() { document.getElementById('podcastBarDur').textContent = formatTime(mediaHubAudioEl.duration || 0); });
+}
+function formatTime(s) { var m = Math.floor(s / 60); var sec = Math.floor(s % 60); return m + ':' + (sec < 10 ? '0' : '') + sec; }
+function mediaHubLoadMoreEpisodes(btn) {
+    var sectionName = btn.getAttribute('data-section'); var slug = btn.getAttribute('data-slug');
+    var block = btn.closest('.podcast-section-block');
+    var offset = block ? block.querySelectorAll('.podcast-card').length : 0;
+    fetch('/api/podcasts/' + encodeURIComponent(sectionName) + '?offset=' + offset + '&limit=6').then(function(r) { return r.json(); }).then(function(data) {
+        if (!data.podcasts || data.podcasts.length === 0) { btn.style.display = 'none'; return; }
+        var wrap = document.createElement('div'); wrap.className = 'podcast-bento'; wrap.style.marginTop = '1rem';
+        data.podcasts.forEach(function(p) {
+            var card = document.createElement('article'); card.className = 'podcast-card';
+            card.innerHTML = '<div class="podcast-card-cover">' + (p.cover_image_url ? '<img src="' + p.cover_image_url + '" alt="" loading="lazy">' : '<div class="podcast-card-placeholder"><i class="fas fa-microphone"></i></div>') + '<button type="button" class="podcast-play-btn" onclick="mediaHubPlayPodcast(' + p.id + ')" aria-label="Play"><i class="fas fa-play"></i></button></div><div class="podcast-card-body"><span class="podcast-card-meta">Ep ' + (p.episode_number || '—') + (p.duration ? ' · ' + p.duration : '') + '</span><h4 class="podcast-card-title">' + (p.title || '').replace(/</g,'&lt;') + '</h4><p class="podcast-card-desc">' + (p.description || '').replace(/</g,'&lt;').substring(0,100) + '</p><div class="podcast-card-footer"><span><i class="fas fa-user"></i> ' + (p.host || 'Protocol Pulse') + '</span><span>' + (p.published_date || '') + '</span></div><button type="button" class="podcast-card-cta" onclick="mediaHubPlayPodcast(' + p.id + ')"><i class="fas fa-play"></i> Play</button></div>';
+            wrap.appendChild(card);
+        });
+        btn.parentElement.insertBefore(wrap, btn);
+        if (!data.has_more) btn.style.display = 'none';
+    }).catch(function() { btn.textContent = 'Failed to load'; });
 }
 
 // Nostr Integration

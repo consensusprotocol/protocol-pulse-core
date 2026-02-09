@@ -175,7 +175,8 @@ body { background: var(--pp-bg-primary) !important; }
         </div>
 
         <div class="donate-card">
-            <form method="POST" action="/donate">
+            <form method="POST" action="{{ url_for('donate') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <div class="amount-selector">
                     <button type="button" class="amount-btn" data-amount="21">$21</button>
                     <button type="button" class="amount-btn selected" data-amount="50">$50</button>

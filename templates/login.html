@@ -2,17 +2,21 @@
 
 {% block title %}Login - Protocol Pulse{% endblock %}
 
+{% block head %}
+<style>body { background: var(--pp-bg-primary, #050508) !important; }</style>
+{% endblock %}
+
 {% block content %}
-<section class="py-5">
+<section class="py-5" style="padding-top: 100px !important;">
     <div class="container">
         <div class="row justify-content-center align-items-center min-vh-75">
             <div class="col-md-6 col-lg-4">
-                <div class="card bg-secondary border-0 shadow-lg">
+                <div class="card shadow-lg" style="background: var(--pp-bg-card, rgba(15,15,20,0.95)); border: 1px solid var(--pp-border-subtle, rgba(255,255,255,0.08)); border-radius: 20px;">
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
-                            <i class="fas fa-broadcast-tower text-primary fa-3x mb-3"></i>
-                            <h2 class="h3 fw-bold text-white">Welcome Back</h2>
-                            <p class="text-muted">Sign in to access your Protocol Pulse dashboard</p>
+                            <i class="fas fa-broadcast-tower fa-3x mb-3" style="color: var(--pp-accent, #dc2626);"></i>
+                            <h2 class="h3 fw-bold text-white" style="font-family: 'Outfit', sans-serif;">Welcome Back</h2>
+                            <p class="text-muted" style="font-size: 0.95rem;">Sign in to access the Hub, drills, and your intel preferences.</p>
                         </div>
 
                         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -27,6 +31,7 @@
                         {% endwith %}
 
                         <form method="post" class="needs-validation" novalidate>
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                             <div class="mb-4">
                                 <label for="username" class="form-label text-white">
                                     <i class="fas fa-user me-2"></i>Username
@@ -71,15 +76,13 @@
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                            <button type="submit" class="btn btn-lg w-100 mb-3" style="background: var(--pp-accent); border: none; color: #fff;">
                                 <i class="fas fa-sign-in-alt me-2"></i>Sign In
                             </button>
 
                             <div class="text-center">
-                                <a href="#" class="text-primary text-decoration-none me-3">
-                                    <i class="fas fa-key me-1"></i>Forgot Password?
-                                </a>
-                                <a href="{{ url_for('signup') }}" class="text-primary text-decoration-none">
+                                <a href="{{ url_for('contact') }}" class="text-decoration-none me-3" style="color: var(--pp-accent);">Contact us to recover access</a>
+                                <a href="{{ url_for('signup') }}" class="text-decoration-none" style="color: var(--pp-accent);">
                                     <i class="fas fa-user-plus me-1"></i>Create Account
                                 </a>
                             </div>

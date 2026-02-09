@@ -29,6 +29,8 @@ class User(UserMixin, db.Model):
     stripe_customer_id = db.Column(db.String(120))
     stripe_subscription_id = db.Column(db.String(120))
     subscription_expires_at = db.Column(db.DateTime)
+    # Commander+: opt-in to email alerts for mega whales (≥1000 BTC)
+    mega_whale_email_alerts = db.Column(db.Boolean, default=False)
     
     # --- Auth Methods ---
     def set_password(self, password):
@@ -100,6 +102,8 @@ class Article(db.Model):
     source_type = db.Column(db.String(50))
     featured = db.Column(db.Boolean, default=False)
     published = db.Column(db.Boolean, default=False)
+    # Premium gating: None/'operator'/'commander'/'sovereign' — minimum tier to view
+    premium_tier = db.Column(db.String(30), default=None)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     seo_title = db.Column(db.String(200))
@@ -263,6 +267,32 @@ class WhaleTransaction(db.Model):
     block_height = db.Column(db.Integer)
     detected_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_mega = db.Column(db.Boolean, default=False)
+
+
+class ContactSubmission(db.Model):
+    """Contact form submissions (stored for admin; optional email notification)."""
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    email = db.Column(db.String(200), nullable=False)
+    subject = db.Column(db.String(100), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    ip_address = db.Column(db.String(64))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    read = db.Column(db.Boolean, default=False)
+
+
+class PremiumAsk(db.Model):
+    """Sovereign Elite monthly ask: one research/question per month, answered by team."""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    question_text = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(20), default='pending')  # pending | answered
+    answer_text = db.Column(db.Text)
+    answer_url = db.Column(db.String(500))  # optional link to brief or doc
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    answered_at = db.Column(db.DateTime)
+    user = db.relationship('User', backref=db.backref('premium_asks', lazy='dynamic'))
+
 
 class BitcoinDonation(db.Model):
     id = db.Column(db.Integer, primary_key=True)

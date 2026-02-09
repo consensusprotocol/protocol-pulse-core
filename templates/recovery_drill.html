@@ -4,48 +4,45 @@
 
 {% block extra_css %}
 <style>
-:root {
-    --drill-glass: rgba(255, 255, 255, 0.03);
-    --drill-border: rgba(255, 255, 255, 0.08);
-    --drill-success: #22c55e;
-    --drill-warning: #f59e0b;
-    --drill-danger: #ef4444;
-}
-
+/* Recovery Drill — Protocol Pulse design system */
+body { background: var(--pp-bg-primary) !important; }
 .drill-page {
     min-height: 100vh;
-    background: linear-gradient(180deg, #000 0%, #0a0a0a 100%);
-    padding: 40px 20px;
+    background: var(--pp-bg-primary);
+    padding: 100px 24px 60px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    font-family: 'DM Sans', sans-serif;
 }
-
 .drill-container {
     max-width: 640px;
     width: 100%;
 }
-
 .drill-header {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 2.5rem;
 }
-
 .drill-title {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1rem;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.4);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    margin-bottom: 10px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--pp-text-primary);
+    letter-spacing: 0.02em;
+    margin-bottom: 0.5rem;
 }
-
 .drill-subtitle {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.25);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--pp-text-muted);
+}
+:root {
+    --drill-glass: var(--pp-bg-card);
+    --drill-border: var(--pp-border-subtle);
+    --drill-success: var(--pp-success);
+    --drill-warning: #f59e0b;
+    --drill-danger: var(--pp-accent);
 }
 
 .drill-stage {
@@ -63,13 +60,14 @@
 }
 
 .glass-panel {
-    background: var(--drill-glass);
-    backdrop-filter: blur(40px);
-    -webkit-backdrop-filter: blur(40px);
-    border: 1px solid var(--drill-border);
-    border-radius: 20px;
-    padding: 50px 40px;
+    background: var(--pp-bg-card);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: var(--pp-radius-xl);
+    padding: 2.5rem 2rem;
     text-align: center;
+    box-shadow: var(--pp-shadow-md);
 }
 
 .stage-indicator {
@@ -88,8 +86,8 @@
 }
 
 .stage-dot.active {
-    background: var(--pp-red, #dc2626);
-    box-shadow: 0 0 10px rgba(220, 38, 38, 0.5);
+    background: var(--pp-accent);
+    box-shadow: 0 0 12px var(--pp-accent-glow);
 }
 
 .stage-dot.completed {
@@ -97,20 +95,20 @@
 }
 
 .stage-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.3);
-    letter-spacing: 0.15em;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--pp-text-muted);
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    margin-bottom: 25px;
+    margin-bottom: 1.5rem;
 }
-
 .stage-instruction {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.8);
-    margin-bottom: 35px;
-    line-height: 1.6;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.05rem;
+    color: var(--pp-text-secondary);
+    margin-bottom: 2rem;
+    line-height: 1.7;
 }
 
 .word-grid {
@@ -140,19 +138,18 @@
 }
 
 .word-card.hidden-word {
-    background: rgba(220, 38, 38, 0.1);
-    border-color: rgba(220, 38, 38, 0.3);
+    background: var(--pp-accent-soft);
+    border-color: var(--pp-accent);
     color: transparent;
     position: relative;
 }
-
 .word-card.hidden-word::after {
     content: '?';
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: rgba(220, 38, 38, 0.6);
+    color: var(--pp-accent);
     font-size: 1.2rem;
 }
 
@@ -161,8 +158,8 @@
 }
 
 .word-card.selectable:hover {
-    border-color: var(--pp-red, #dc2626);
-    background: rgba(220, 38, 38, 0.1);
+    border-color: var(--pp-accent);
+    background: var(--pp-accent-soft);
     transform: translateY(-2px);
 }
 
@@ -204,7 +201,7 @@
 }
 
 .countdown-ring .progress {
-    stroke: var(--pp-red, #dc2626);
+    stroke: var(--pp-accent);
     stroke-linecap: round;
     stroke-dasharray: 339.292;
     stroke-dashoffset: 0;
@@ -223,24 +220,25 @@
 }
 
 .drill-btn {
-    background: linear-gradient(135deg, rgba(220, 38, 38, 0.2) 0%, rgba(220, 38, 38, 0.1) 100%);
-    border: 1px solid rgba(220, 38, 38, 0.4);
-    border-radius: 12px;
-    padding: 16px 40px;
+    background: var(--pp-accent);
+    border: none;
+    border-radius: var(--pp-radius-md);
+    padding: 1rem 2rem;
     color: #fff;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.85rem;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: opacity 0.2s var(--pp-ease), transform 0.2s var(--pp-ease);
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    gap: 0.6rem;
+    box-shadow: var(--pp-shadow-sm);
 }
-
 .drill-btn:hover {
-    background: linear-gradient(135deg, rgba(220, 38, 38, 0.3) 0%, rgba(220, 38, 38, 0.2) 100%);
-    border-color: var(--pp-red, #dc2626);
-    transform: translateY(-2px);
+    opacity: 0.95;
+    transform: translateY(-1px);
 }
 
 .drill-btn:disabled {
@@ -303,13 +301,12 @@
 }
 
 .drop-zone.active {
-    border-color: var(--pp-red, #dc2626);
-    background: rgba(220, 38, 38, 0.05);
+    border-color: var(--pp-accent);
+    background: var(--pp-accent-soft);
 }
-
 .draggable-word {
-    background: rgba(220, 38, 38, 0.15);
-    border: 1px solid rgba(220, 38, 38, 0.4);
+    background: var(--pp-accent-soft);
+    border: 1px solid var(--pp-accent);
     border-radius: 8px;
     padding: 10px 16px;
     font-family: 'JetBrains Mono', monospace;
@@ -368,27 +365,26 @@
 }
 
 .sarah-note {
-    background: rgba(107, 33, 168, 0.1);
-    border-left: 3px solid var(--sovereign-purple-electric, #a855f7);
-    padding: 20px;
-    margin: 30px 0;
-    border-radius: 0 12px 12px 0;
+    background: var(--pp-bg-elevated);
+    border-left: 3px solid var(--pp-nostr);
+    padding: 1.25rem;
+    margin: 1.75rem 0;
+    border-radius: 0 var(--pp-radius-md) var(--pp-radius-md) 0;
     text-align: left;
 }
-
 .sarah-note .note-author {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--sovereign-purple-electric, #a855f7);
-    letter-spacing: 0.1em;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--pp-nostr);
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    margin-bottom: 8px;
+    margin-bottom: 0.5rem;
 }
-
 .sarah-note .note-text {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.7);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--pp-text-secondary);
     font-style: italic;
     line-height: 1.6;
 }
@@ -422,21 +418,20 @@
 
 .nav-back {
     position: fixed;
-    top: 20px;
-    left: 20px;
-    color: rgba(255, 255, 255, 0.4);
+    top: 5.5rem;
+    left: 1.5rem;
+    color: var(--pp-text-muted);
     text-decoration: none;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
     display: flex;
     align-items: center;
-    gap: 8px;
-    transition: color 0.3s ease;
+    gap: 0.5rem;
+    transition: color 0.2s var(--pp-ease);
     z-index: 100;
 }
-
 .nav-back:hover {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--pp-accent);
 }
 
 @media (max-width: 640px) {
@@ -459,7 +454,7 @@
     <span>Protocol Pulse</span>
 </a>
 
-<div class="drill-page">
+<div class="drill-page pp-page">
     <div class="drill-container">
         <div class="drill-header">
             <h1 class="drill-title">Recovery Drill</h1>

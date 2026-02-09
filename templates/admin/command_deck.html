@@ -388,8 +388,8 @@
                 <span class="status-badge status-online">LIVE</span>
             </div>
             <div class="log-output" id="logOutput">
-                [{{ now().strftime('%Y-%m-%d %H:%M:%S') }}] Command Deck initialized
-                [{{ now().strftime('%Y-%m-%d %H:%M:%S') }}] Awaiting operator commands...
+                [{{ (deck_time.strftime('%Y-%m-%d %H:%M:%S') if deck_time is defined else '') }}] Command Deck initialized
+                [{{ (deck_time.strftime('%Y-%m-%d %H:%M:%S') if deck_time is defined else '') }}] Awaiting operator commands...
             </div>
         </div>
     </div>

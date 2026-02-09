@@ -12,7 +12,7 @@ class PriceService:
     def __init__(self):
         self.base_url = "https://api.coingecko.com/api/v3"
         self.cache = {}
-        self.cache_duration = 60  # Cache prices for 60 seconds
+        self.cache_duration = 120  # Cache prices for 2 minutes
         self.last_fetch = None
         logging.info("Price service initialized")
     
@@ -34,7 +34,7 @@ class PriceService:
                 'include_24hr_change': 'true',
                 'include_market_cap': 'true'
             }
-            response = requests.get(url, params=params, timeout=15)
+            response = requests.get(url, params=params, timeout=3)
             response.raise_for_status()
             data = response.json()
             

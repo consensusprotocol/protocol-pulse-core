@@ -8,7 +8,7 @@ Status of systems that are **ready to run** vs **need cron/env** to start the co
 
 | System | What it does | How to trigger |
 |--------|----------------|----------------|
-| **Article drafting** | Generates one article (ContentEngine or Reddit → ContentGenerator), saves draft, optional Substack | `POST /api/trigger-automation` or cron every 6h |
+| **Article drafting** | Generates one article (ContentEngine or Reddit → ContentGenerator), **publishes live** so it appears on the site | Admin: **Draft articles now** button; cron: `POST /api/trigger-automation`; CLI: `python -m core.scripts.draft_articles_now` (use `?force=1` or script to skip 10‑min cooldown) |
 | **Sarah daily brief** | Builds briefing from CollectedSignal + NodeService, creates Article + SarahBrief | `POST /api/sarah-briefing/generate` (e.g. cron 06:00 UTC) |
 | **Signal collection** | Fetches X, Nostr, Stacker News → saves to CollectedSignal | `POST /admin/api/collect-signals` (admin) |
 | **Emergency flash check** | Checks SentimentBuffer for 40%+ drift, creates EmergencyFlash | `POST /api/sarah-briefing/check-flash` |
@@ -40,7 +40,7 @@ Status of systems that are **ready to run** vs **need cron/env** to start the co
 
 ## Summary
 
-- **Article pipeline**: Trigger automation is live; ensure the 6h cron is active on Render so drafting runs automatically.
+- **Article pipeline**: Trigger automation is live; generated articles are **published** so they show on the homepage and /articles. Use Admin → **Draft articles now** or `python -m core.scripts.draft_articles_now` to run immediately; ensure the 6h cron is active on Render for ongoing drafting.
 - **Sarah brief**: Routes and DB are in place; run signal collection (admin or cron), then call generate (manual or 06:00 cron).
 - **Intel stream / sentiment / social listener / Spaces**: Code is in place; enable via cron or background workers once the right env (X, Nostr, AssemblyAI, etc.) is configured.
 

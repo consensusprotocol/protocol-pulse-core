@@ -1,8 +1,10 @@
 flask
 flask_sqlalchemy
+flask_caching
 gunicorn
 flask_migrate
 flask_login
+flask_limiter
 sqlalchemy
 python-dotenv
 openai

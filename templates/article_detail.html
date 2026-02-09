@@ -72,6 +72,9 @@ body { background: var(--pp-bg-primary) !important; }
                     <!-- Category Badge -->
                     <div class="category-section mb-4">
                         <span class="category-badge">{{ article.category }}</span>
+                        {% if article.premium_tier in ['commander', 'sovereign'] %}
+                        <span class="badge bg-warning text-dark ms-2" style="font-size: 0.7rem;">Pro</span>
+                        {% endif %}
                     </div>
 
                     <!-- Article Title -->
@@ -126,6 +129,13 @@ body { background: var(--pp-bg-primary) !important; }
                     </div>
                 </header>
 
+                {% if article.summary %}
+                <div class="alert alert-dark border-secondary mb-4" style="background: rgba(10,10,10,0.9);">
+                    <strong class="d-block mb-2" style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--pp-accent);">TL;DR</strong>
+                    <p class="mb-0 text-white-50">{{ article.summary }}</p>
+                </div>
+                {% endif %}
+
                 <!-- Article Content -->
                 <div class="article-content">
                     {% if article.video_url %}<iframe src="{{ article.video_url }}" width="100%" height="315" frameborder="0" allowfullscreen></iframe>{% endif %}
@@ -134,6 +144,18 @@ body { background: var(--pp-bg-primary) !important; }
                     {% if article.transcript_text %}<p class="transcript">Transcript Overview: {{ article.transcript_text[:500] }}...</p>{% endif %}
                     {{ article.content | safe }}
                 </div>
+
+                <!-- Next read + More intel -->
+                {% if related_articles %}
+                <div class="mb-4">
+                    <p class="mb-2" style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: rgba(255,255,255,0.5);">Next read</p>
+                    <a href="{{ url_for('article_detail', article_id=related_articles[0].id) }}" class="d-block p-3 rounded border border-secondary text-decoration-none" style="background: rgba(255,255,255,0.03); color: var(--pp-text-primary);">
+                        <strong>{{ related_articles[0].title }}</strong>
+                        <span class="d-block small text-muted mt-1">{{ related_articles[0].category }} · {{ ((related_articles[0].content | length) / 1000 * 3) | round | int }} min</span>
+                    </a>
+                    <a href="{{ url_for('articles') }}" class="small text-muted mt-2 d-inline-block">More in Latest Intel <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+                {% endif %}
 
                 <!-- Digest CTA -->
                 <div class="article-digest-cta">

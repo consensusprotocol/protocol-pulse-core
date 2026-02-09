@@ -16,10 +16,16 @@ Base URL when running locally: **http://127.0.0.1:5000** (or the port in your `.
 | `/bitcoin` | Bitcoin section |
 | `/defi` | DeFi section |
 | `/regulation` | Regulation |
-| `/privacy` | Privacy |
+| `/privacy` | Privacy (article category) |
+| `/privacy-policy` | Privacy policy (legal) |
 | `/innovation` | Innovation |
 | `/about` | About |
 | `/contact` | Contact |
+| `/health` | Liveness (load balancers) |
+| `/ready` | Readiness (app + DB) |
+| `/robots.txt` | Crawler instructions |
+| `/sitemap.xml` | Sitemap for SEO |
+| `/admin/contact-submissions` | Admin: contact form submissions |
 | `/login` | Login |
 | `/signup` | Signup |
 | `/dashboard` | Dashboard |
@@ -32,6 +38,7 @@ Base URL when running locally: **http://127.0.0.1:5000** (or the port in your `.
 | `/donate/bitcoin` | Bitcoin donate |
 | `/donate/thanks` | Donate thanks |
 | `/premium` | Premium |
+| `/hub` | Premium Hub (Operator+ command center) |
 | `/subscribe/premium/<tier>` | Premium subscribe |
 | `/subscription/success` | Subscription success |
 | `/cypherpunks` | Cypherpunks |
@@ -107,6 +114,7 @@ Base URL when running locally: **http://127.0.0.1:5000** (or the port in your `.
 | `/admin/edit/<id>` | Edit article |
 | `/admin/delete/<id>` | Delete article |
 | `/admin/ads` | Ads |
+| `/admin/premium-asks` | Sovereign Elite monthly asks (answer, list) |
 | `/admin/generate` | Generate content |
 | `/admin/generate-content` | Generate content |
 | `/admin/publish-to-substack/<id>` | Publish to Substack |
