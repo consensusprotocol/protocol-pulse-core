@@ -19,4 +19,4 @@ pillow
 werkzeug
 anthropic
 google-cloud-secret-manager
-google-genai
+# google-genai  # optional: requires Python 3.9+; install separately if needed

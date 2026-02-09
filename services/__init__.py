@@ -5,8 +5,11 @@ def __init__(self):
             print("⚠️  WARNING: GEMINI_API_KEY missing. Narrative intelligence features will be disabled.")
             self.client = None
         else:
-            # The official 2026 SDK initialization
-            from google import genai
-            self.client = genai.Client(api_key=self.api_key)
+            try:
+                from google import genai
+                self.client = genai.Client(api_key=self.api_key)
+            except ImportError:
+                print("⚠️  google-genai not installed. Install with: pip install google-genai")
+                self.client = None
             self.model_id = "gemini-2.0-flash" 
             logging.info("Gemini service initialized successfully")

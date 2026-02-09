@@ -6,16 +6,15 @@ with app.app_context():
     db.create_all()
     print("✅ Database tables confirmed!")
 
-    # 2. Create the Admin User with the required email
-    if not User.query.filter_by(username='admin').first():
+    # 2. Create or reset the Admin User (username: admin, password: admin)
+    u = User.query.filter_by(username='admin').first()
+    if not u:
         u = User(
-            username='admin', 
-            email='admin@protocolpulse.com',  # Added this to satisfy the NOT NULL constraint
+            username='admin',
+            email='admin@protocolpulse.com',
             is_admin=True
         )
-        u.set_password('bitcoin2026')
         db.session.add(u)
-        db.session.commit()
-        print("✅ Admin user created! (User: admin | Pass: bitcoin2026)")
-    else:
-        print("ℹ️ Admin user already exists.")
+    u.set_password('admin')
+    db.session.commit()
+    print("✅ Admin ready! Username: admin | Password: admin")

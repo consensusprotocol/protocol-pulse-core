@@ -1754,7 +1754,7 @@ def login():
         user = models.User.query.filter_by(username=login_input).first()
         if not user:
             user = models.User.query.filter_by(email=login_input).first()
-        if user and check_password_hash(user.password_hash, password):
+        if user and user.password_hash and user.check_password(password):
             login_user(user)
             return redirect('/admin')
         else:

@@ -1,16 +1,27 @@
 import os
 import json
 import logging
-from google import genai
-from google.genai import types
-from pydantic import BaseModel
+
+try:
+    from google import genai
+    from google.genai import types
+    _GENAI_AVAILABLE = True
+except ImportError:
+    genai = None
+    types = None
+    _GENAI_AVAILABLE = False
 
 
 class GeminiService:
     def __init__(self):
         self.api_key = os.environ.get("GEMINI_API_KEY")
         if not self.api_key:
-            print("⚠️  WARNING: GEMINI_API_KEY missing. Narrative intelligence offline.")
+            logging.warning("GEMINI_API_KEY missing. Narrative intelligence offline.")
+            self.client = None
+            self.text_model = None
+            self.pro_model = None
+        elif not _GENAI_AVAILABLE:
+            logging.warning("google-genai not installed. Install with: pip install google-genai")
             self.client = None
             self.text_model = None
             self.pro_model = None
