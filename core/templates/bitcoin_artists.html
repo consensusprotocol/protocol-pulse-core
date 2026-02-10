@@ -1,0 +1,402 @@
+{% extends "base.html" %}
+
+{% block title %}Bitcoin Artists & Creators | Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+:root {
+    --pp-red: #dc2626;
+    --pp-dark: #0a0a0a;
+    --btc-orange: #f7931a;
+    --pp-glass: rgba(10, 10, 10, 0.85);
+}
+
+.artists-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0808 50%, #0a0a0a 100%);
+    padding-top: 100px;
+    padding-bottom: 80px;
+}
+
+.artists-hero {
+    text-align: center;
+    padding: 60px 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.hero-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--pp-red);
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    margin-bottom: 20px;
+}
+
+.artists-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 20px;
+    line-height: 1.1;
+}
+
+.artists-title span {
+    color: var(--btc-orange);
+}
+
+.artists-subtitle {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.6);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+.category-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 40px 20px;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-btn:hover, .tab-btn.active {
+    background: var(--btc-orange);
+    color: #000;
+    border-color: var(--btc-orange);
+}
+
+.creators-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.creator-card {
+    background: var(--pp-glass);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(40px);
+}
+
+.creator-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--btc-orange);
+    box-shadow: 0 20px 60px rgba(247, 147, 26, 0.15);
+}
+
+.creator-banner {
+    height: 120px;
+    background: linear-gradient(135deg, rgba(247, 147, 26, 0.3) 0%, rgba(220, 38, 38, 0.2) 100%);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-shadow: none;
+    -webkit-text-fill-color: initial;
+    -webkit-background-clip: unset;
+}
+
+.creator-content {
+    padding: 1.5rem;
+}
+
+.creator-type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--btc-orange);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+
+.creator-name {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.creator-desc {
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.creator-links {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.creator-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.8);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.creator-link:hover {
+    background: var(--btc-orange);
+    color: #000;
+    border-color: var(--btc-orange);
+}
+
+.creator-link.shop {
+    background: rgba(220, 38, 38, 0.1);
+    border-color: rgba(220, 38, 38, 0.3);
+    color: var(--pp-red);
+}
+
+.creator-link.shop:hover {
+    background: var(--pp-red);
+    color: #fff;
+}
+
+.section-divider {
+    text-align: center;
+    padding: 60px 20px 30px;
+}
+
+.divider-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 4px;
+}
+
+.submit-section {
+    max-width: 800px;
+    margin: 60px auto;
+    padding: 0 20px;
+}
+
+.submit-card {
+    background: linear-gradient(135deg, rgba(247, 147, 26, 0.1) 0%, var(--pp-glass) 100%);
+    border: 1px solid rgba(247, 147, 26, 0.3);
+    border-radius: 24px;
+    padding: 50px;
+    text-align: center;
+}
+
+.submit-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 2rem;
+    color: #fff;
+    margin-bottom: 15px;
+}
+
+.submit-desc {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 25px;
+}
+
+.submit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 28px;
+    background: var(--btc-orange);
+    color: #000;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(247, 147, 26, 0.3);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="artists-page">
+    <div class="artists-hero">
+        <div class="hero-label">Sovereign Creativity</div>
+        <h1 class="artists-title">Bitcoin <span>Artists & Creators</span></h1>
+        <p class="artists-subtitle">Discover the artists, makers, and creators building beautiful things in the Bitcoin ecosystem. Support sovereign art.</p>
+    </div>
+    
+    <div class="category-tabs">
+        <button class="tab-btn active" data-category="all">All Creators</button>
+        <button class="tab-btn" data-category="visual">Visual Art</button>
+        <button class="tab-btn" data-category="physical">Physical Goods</button>
+        <button class="tab-btn" data-category="digital">Digital Art</button>
+        <button class="tab-btn" data-category="content">Content</button>
+    </div>
+    
+    <div class="creators-grid">
+        <div class="creator-card" data-category="visual">
+            <div class="creator-banner">🎨</div>
+            <div class="creator-content">
+                <div class="creator-type">Visual Artist</div>
+                <h3 class="creator-name">FractalEncrypt</h3>
+                <p class="creator-desc">Stunning Bitcoin-themed digital art and generative pieces. Every piece tells a story of sovereignty.</p>
+                <div class="creator-links">
+                    <a href="https://twitter.com/FractalEncrypt" target="_blank" class="creator-link"><i class="fab fa-x-twitter"></i> X</a>
+                    <a href="#" class="creator-link shop"><i class="fas fa-store"></i> Shop</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="creator-card" data-category="physical">
+            <div class="creator-banner">🔥</div>
+            <div class="creator-content">
+                <div class="creator-type">Apparel & Goods</div>
+                <h3 class="creator-name">Orange Pill App</h3>
+                <p class="creator-desc">Premium Bitcoin apparel and merchandise. Wear your conviction.</p>
+                <div class="creator-links">
+                    <a href="https://twitter.com/orangepillapp" target="_blank" class="creator-link"><i class="fab fa-x-twitter"></i> X</a>
+                    <a href="https://orangepillapp.com" target="_blank" class="creator-link shop"><i class="fas fa-store"></i> Shop</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="creator-card" data-category="physical">
+            <div class="creator-banner">⚡</div>
+            <div class="creator-content">
+                <div class="creator-type">Hardware Art</div>
+                <h3 class="creator-name">Coinkite</h3>
+                <p class="creator-desc">Beautiful hardware wallets and Bitcoin accessories. Function meets art.</p>
+                <div class="creator-links">
+                    <a href="https://twitter.com/coinkite" target="_blank" class="creator-link"><i class="fab fa-x-twitter"></i> X</a>
+                    <a href="https://coinkite.com" target="_blank" class="creator-link shop"><i class="fas fa-store"></i> Shop</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="creator-card" data-category="digital">
+            <div class="creator-banner">🖼️</div>
+            <div class="creator-content">
+                <div class="creator-type">Digital Artist</div>
+                <h3 class="creator-name">Bitcoin Art Gallery</h3>
+                <p class="creator-desc">Curated collection of the finest Bitcoin art from around the world.</p>
+                <div class="creator-links">
+                    <a href="#" class="creator-link"><i class="fab fa-x-twitter"></i> X</a>
+                    <a href="#" class="creator-link shop"><i class="fas fa-globe"></i> Gallery</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="creator-card" data-category="content">
+            <div class="creator-banner">📖</div>
+            <div class="creator-content">
+                <div class="creator-type">Author</div>
+                <h3 class="creator-name">Saifedean Ammous</h3>
+                <p class="creator-desc">Author of The Bitcoin Standard. Essential reading for every sovereign.</p>
+                <div class="creator-links">
+                    <a href="https://twitter.com/saaboratilmand" target="_blank" class="creator-link"><i class="fab fa-x-twitter"></i> X</a>
+                    <a href="https://saifedean.com" target="_blank" class="creator-link shop"><i class="fas fa-book"></i> Books</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="creator-card" data-category="physical">
+            <div class="creator-banner">👕</div>
+            <div class="creator-content">
+                <div class="creator-type">Apparel</div>
+                <h3 class="creator-name">Bitcoin Magazine Store</h3>
+                <p class="creator-desc">Official Bitcoin Magazine merch. Conference exclusives and classics.</p>
+                <div class="creator-links">
+                    <a href="https://twitter.com/bitcoinmagazine" target="_blank" class="creator-link"><i class="fab fa-x-twitter"></i> X</a>
+                    <a href="https://store.bitcoinmagazine.com" target="_blank" class="creator-link shop"><i class="fas fa-store"></i> Shop</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="creator-card" data-category="visual">
+            <div class="creator-banner">🖌️</div>
+            <div class="creator-content">
+                <div class="creator-type">Comic Artist</div>
+                <h3 class="creator-name">Bitcoin Comics</h3>
+                <p class="creator-desc">Original Bitcoin-themed comics and graphic novels. Orange-pilling through art.</p>
+                <div class="creator-links">
+                    <a href="#" class="creator-link"><i class="fab fa-x-twitter"></i> X</a>
+                    <a href="#" class="creator-link shop"><i class="fas fa-book-open"></i> Read</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="creator-card" data-category="digital">
+            <div class="creator-banner">🎭</div>
+            <div class="creator-content">
+                <div class="creator-type">Meme Lord</div>
+                <h3 class="creator-name">Bitcoin Meme Hub</h3>
+                <p class="creator-desc">The finest Bitcoin memes. Humor that hits harder than a block reward.</p>
+                <div class="creator-links">
+                    <a href="#" class="creator-link"><i class="fab fa-x-twitter"></i> X</a>
+                    <a href="#" class="creator-link"><i class="fab fa-instagram"></i> Instagram</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="submit-section">
+        <div class="submit-card">
+            <h3 class="submit-title">Are You a Bitcoin Creator?</h3>
+            <p class="submit-desc">We're always looking to feature more sovereign artists and makers. Submit your work to be included.</p>
+            <a href="mailto:creators@protocolpulse.ai" class="submit-btn"><i class="fas fa-palette"></i> Submit Your Work</a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        const category = this.dataset.category;
+        document.querySelectorAll('.creator-card').forEach(card => {
+            if (category === 'all' || card.dataset.category === category) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

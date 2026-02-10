@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Intel Not Found | Protocol Pulse{% endblock %}
+{% block content %}
+<div class="container py-5" style="min-height: 70vh; padding-top: 100px !important;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <p class="mb-2" style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--pp-accent, #dc2626);">Error 404</p>
+            <h1 class="display-4 fw-bold text-white mb-3" style="font-family: 'Outfit', sans-serif;">Intel not found</h1>
+            <p class="lead text-muted mb-4">This coordinate is off the map. The page may have moved or the link is broken.</p>
+            <div class="d-flex flex-wrap gap-3 justify-content-center">
+                <a href="{{ url_for('index') }}" class="btn btn-outline-light px-4"><i class="fas fa-home me-2"></i>Back to base</a>
+                <a href="{{ url_for('dossier') }}" class="btn btn-danger px-4"><i class="fas fa-folder-open me-2"></i>The Dossier</a>
+                <a href="{{ url_for('articles') }}" class="btn btn-outline-light px-4"><i class="fas fa-bolt me-2"></i>Latest Intel</a>
+                <a href="{{ url_for('live_terminal') }}" class="btn btn-outline-light px-4"><i class="fas fa-satellite-dish me-2"></i>Live Terminal</a>
+                <a href="{{ url_for('donate_bitcoin') }}" class="btn btn-outline-warning px-4"><i class="fas fa-heart me-2"></i>Support the signal</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

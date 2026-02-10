@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Signal Restoring | Protocol Pulse{% endblock %}
+{% block content %}
+<div class="container py-5" style="min-height: 70vh; padding-top: 100px !important;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <p class="mb-2" style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--pp-accent, #dc2626);">Error 500</p>
+            <h1 class="display-4 fw-bold text-white mb-3" style="font-family: 'Outfit', sans-serif;">We're restoring the signal</h1>
+            <p class="lead text-muted mb-4">Something went wrong on our side. We've been notified. Please try again in a moment.</p>
+            <div class="d-flex flex-wrap gap-3 justify-content-center">
+                <a href="{{ url_for('index') }}" class="btn btn-danger px-4"><i class="fas fa-home me-2"></i>Go home</a>
+                <a href="javascript:window.location.reload()" class="btn btn-outline-light px-4"><i class="fas fa-sync me-2"></i>Try again</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

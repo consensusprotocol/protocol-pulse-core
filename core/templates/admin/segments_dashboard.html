@@ -1,0 +1,382 @@
+{% extends "base.html" %}
+
+{% block title %}Audience Segments - Protocol Pulse{% endblock %}
+
+{% block content %}
+<style>
+    .segment-card {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        transition: all 0.3s;
+        overflow: hidden;
+    }
+    .segment-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+    .segment-sovereign {
+        border-color: rgba(59, 130, 246, 0.5);
+    }
+    .segment-miners {
+        border-color: rgba(245, 158, 11, 0.5);
+    }
+    .segment-institutional {
+        border-color: rgba(16, 185, 129, 0.5);
+    }
+    .segment-header {
+        padding: 20px;
+        margin: -1px -1px 0 -1px;
+    }
+    .sovereign-header {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.1) 100%);
+    }
+    .miners-header {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0.1) 100%);
+    }
+    .institutional-header {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.1) 100%);
+    }
+    .segment-size {
+        font-size: 3rem;
+        font-weight: 700;
+    }
+    .behavior-tag {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 5px 12px;
+        font-size: 0.8rem;
+        display: inline-block;
+        margin: 3px;
+    }
+    .content-pref {
+        background: rgba(220, 38, 38, 0.1);
+        border: 1px solid rgba(220, 38, 38, 0.3);
+        border-radius: 6px;
+        padding: 3px 10px;
+        font-size: 0.75rem;
+        display: inline-block;
+        margin: 2px;
+    }
+    .train-btn {
+        background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+        border: none;
+        padding: 15px 40px;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    .train-btn:hover:not(:disabled) {
+        transform: scale(1.05);
+        box-shadow: 0 8px 30px rgba(220, 38, 38, 0.4);
+    }
+    .cluster-viz {
+        background: #0d0d1a;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 30px;
+        position: relative;
+        min-height: 300px;
+    }
+    .cluster-dot {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+    .cluster-sovereign {
+        background: #3b82f6;
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+    }
+    .cluster-miners {
+        background: #f59e0b;
+        box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+    }
+    .cluster-institutional {
+        background: #10b981;
+        box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
+    .sponsor-card {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: 12px;
+    }
+</style>
+
+<div class="container-fluid mt-5 pt-4">
+    <div class="row">
+        <div class="col-lg-2">
+            <div class="position-sticky pt-3">
+                <h5 class="text-warning mb-3">
+                    <i class="fas fa-users"></i> Segments
+                </h5>
+                <ul class="nav nav-pills flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/supervisor">
+                            <i class="fas fa-brain"></i> Supervisor
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/segments">
+                            <i class="fas fa-users"></i> Segments
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/analytics">
+                            <i class="fas fa-chart-bar"></i> Analytics
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-chart-pie text-warning me-2"></i>
+                        Audience Segmentation
+                    </h2>
+                    <p class="text-muted mb-0">K-Means clustering: Sovereign Nodes, Miners, Institutional Transactors</p>
+                </div>
+                <div>
+                    <button id="train-btn" class="btn train-btn">
+                        <i class="fas fa-brain me-2"></i>Train Model
+                    </button>
+                </div>
+            </div>
+
+            {% if not is_trained %}
+            <div class="alert alert-warning mb-4">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Model not trained.</strong> Click "Train Model" to run K-Means clustering on engagement data.
+            </div>
+            {% endif %}
+
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="segment-card p-3 text-center">
+                        <div class="text-muted small mb-1">TOTAL USERS</div>
+                        <div class="h2 mb-0">{{ total_users }}</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="segment-card p-3 text-center">
+                        <div class="text-muted small mb-1">SEGMENTS</div>
+                        <div class="h2 mb-0">{{ segments | length }}</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="segment-card p-3 text-center">
+                        <div class="text-muted small mb-1">MODEL STATUS</div>
+                        <div class="h2 mb-0">
+                            {% if is_trained %}
+                            <span class="badge bg-success">Trained</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Untrained</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="segment-card p-3 text-center">
+                        <div class="text-muted small mb-1">ALGORITHM</div>
+                        <div class="h2 mb-0">K-Means</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                {% for segment in segments %}
+                <div class="col-md-4 mb-4">
+                    <div class="segment-card h-100 {% if 'Sovereign' in segment.name %}segment-sovereign{% elif 'Miner' in segment.name %}segment-miners{% else %}segment-institutional{% endif %}">
+                        <div class="segment-header {% if 'Sovereign' in segment.name %}sovereign-header{% elif 'Miner' in segment.name %}miners-header{% else %}institutional-header{% endif %}">
+                            <h5 class="mb-0">
+                                {% if 'Sovereign' in segment.name %}
+                                <i class="fas fa-server me-2 text-primary"></i>
+                                {% elif 'Miner' in segment.name %}
+                                <i class="fas fa-microchip me-2 text-warning"></i>
+                                {% else %}
+                                <i class="fas fa-building me-2 text-success"></i>
+                                {% endif %}
+                                {{ segment.name }}
+                            </h5>
+                        </div>
+                        <div class="p-4">
+                            <div class="text-center mb-3">
+                                <div class="segment-size {% if 'Sovereign' in segment.name %}text-primary{% elif 'Miner' in segment.name %}text-warning{% else %}text-success{% endif %}">
+                                    {{ segment.percentage }}%
+                                </div>
+                                <div class="text-muted">{{ segment.size }} users</div>
+                            </div>
+
+                            <p class="small text-muted mb-3">{{ segment.description }}</p>
+
+                            <div class="mb-3">
+                                <div class="text-muted small mb-2">KEY BEHAVIORS:</div>
+                                {% for behavior in segment.key_behaviors %}
+                                <span class="behavior-tag">{{ behavior }}</span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="text-muted small mb-2">CONTENT PREFERENCES:</div>
+                                {% for pref in segment.preferred_content[:5] %}
+                                <span class="content-pref">{{ pref }}</span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="h5 mb-0">{{ segment.engagement_rate }}%</div>
+                                    <div class="text-muted small">Engagement</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="h5 mb-0">{{ segment.avg_grok_score }}</div>
+                                    <div class="text-muted small">Avg Grok</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12">
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-users fa-3x mb-3 opacity-25"></i>
+                        <p>No segments available. Train the model to cluster your audience.</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="segment-card p-4">
+                        <h5 class="mb-4"><i class="fas fa-bullseye me-2 text-danger"></i>Targeting Recommendation</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <input type="text" id="topic-input" class="form-control bg-dark text-light border-secondary"
+                                       placeholder="Enter topic to get targeting recommendation...">
+                            </div>
+                            <div class="col-md-4">
+                                <button id="recommend-btn" class="btn btn-outline-danger w-100">
+                                    <i class="fas fa-magic me-2"></i>Get Recommendation
+                                </button>
+                            </div>
+                        </div>
+                        <div id="recommendation-output" class="p-3 bg-dark rounded" style="min-height: 100px;">
+                            <div class="text-muted text-center py-3">
+                                Enter a topic above to get AI-powered segment targeting recommendation.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="sponsor-card p-4 h-100">
+                        <h5 class="mb-3"><i class="fas fa-gem me-2 text-success"></i>Sponsor Pitch</h5>
+                        <p class="small text-muted mb-3">
+                            Tell sponsors exactly who Alex and Sarah are targeting today.
+                        </p>
+                        {% if segments %}
+                        <div class="mb-3">
+                            {% for segment in segments %}
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>{{ segment.name }}</span>
+                                <strong>{{ segment.percentage }}%</strong>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <p class="small text-success mb-0">
+                            <i class="fas fa-check-circle me-1"></i>
+                            "We have a {{ segments[0].percentage }}% segment of {{ segments[0].name }} that Alex and Sarah are targeting today."
+                        </p>
+                        {% else %}
+                        <p class="text-muted small">Train the model to generate sponsor-ready segment data.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('train-btn').addEventListener('click', async function() {
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Training...';
+
+        try {
+            const response = await fetch('/api/segments/train', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ days: 30 })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert(`Model trained successfully!\n\nUsers: ${result.user_count}\nSilhouette Score: ${result.silhouette_score}`);
+                location.reload();
+            } else {
+                alert('Training failed: ' + (result.error || 'Unknown error'));
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-brain me-2"></i>Train Model';
+    });
+
+    document.getElementById('recommend-btn').addEventListener('click', async function() {
+        const topic = document.getElementById('topic-input').value;
+        const outputDiv = document.getElementById('recommendation-output');
+
+        if (!topic) {
+            outputDiv.innerHTML = '<div class="text-warning">Please enter a topic.</div>';
+            return;
+        }
+
+        outputDiv.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Analyzing...</div>';
+
+        try {
+            const response = await fetch('/api/segments/recommend', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ topic: topic })
+            });
+
+            const result = await response.json();
+
+            outputDiv.innerHTML = `
+                <div class="row">
+                    <div class="col-6">
+                        <div class="h5 text-warning">${result.recommended_segment}</div>
+                        <div class="text-muted small">Recommended Segment</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="h5">${Math.round(result.confidence * 100)}%</div>
+                        <div class="text-muted small">Confidence</div>
+                    </div>
+                </div>
+                <hr class="my-3" style="border-color: rgba(255,255,255,0.1);">
+                <div class="small text-muted">${result.copy_guidelines || 'No guidelines available'}</div>
+            `;
+        } catch (error) {
+            outputDiv.innerHTML = '<div class="text-danger">Error: ' + error.message + '</div>';
+        }
+    });
+});
+</script>
+{% endblock %}

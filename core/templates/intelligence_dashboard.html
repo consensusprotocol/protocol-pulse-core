@@ -1,0 +1,484 @@
+{% extends "base.html" %}
+
+{% block title %}Intelligence Dashboard | Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+body { background: var(--pp-bg-primary) !important; }
+.intel-page {
+    min-height: 100vh;
+    background: var(--pp-bg-primary);
+    padding: 100px 24px 60px;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.intel-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.intel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.intel-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.intel-title i {
+    color: var(--pp-accent);
+}
+
+.quick-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.quick-btn {
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.quick-btn:hover {
+    border-color: var(--pp-accent);
+    color: #fff;
+}
+
+.quick-btn.primary {
+    background: var(--pp-accent);
+    border-color: var(--pp-accent);
+    color: #fff;
+}
+
+.quick-btn.primary:hover {
+    opacity: 0.95;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.metric-card {
+    background: var(--pp-bg-card);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: var(--pp-radius-lg);
+    padding: 20px;
+    text-align: center;
+}
+
+.metric-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.metric-value.highlight {
+    color: var(--pp-accent);
+}
+
+.metric-value.success {
+    color: #22c55e;
+}
+
+.metric-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+@media (max-width: 992px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.dash-panel {
+    background: var(--pp-bg-card);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: var(--pp-radius-lg);
+    padding: 25px;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.panel-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.panel-title i {
+    color: var(--pp-accent);
+}
+
+.panel-badge {
+    background: var(--pp-accent-soft);
+    color: var(--pp-accent);
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+}
+
+.sequence-list, .alert-list, .squad-list {
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.sequence-item, .alert-item, .squad-item {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+.sequence-item:hover, .alert-item:hover, .squad-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.item-type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--pp-accent);
+    text-transform: uppercase;
+}
+
+.item-status {
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+}
+
+.status-draft { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.6); }
+.status-approved { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+.status-pending { background: rgba(234, 179, 8, 0.2); color: #eab308; }
+
+.item-content {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.5;
+}
+
+.item-content a {
+    color: var(--pp-accent);
+    text-decoration: none;
+}
+
+.nostr-status {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.relay-status {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.relay-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.relay-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.2rem;
+    color: #fff;
+}
+
+.relay-value.online {
+    color: #22c55e;
+}
+
+.relay-list {
+    margin-top: 15px;
+}
+
+.relay-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.relay-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+}
+
+.squad-handle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--pp-accent);
+    font-weight: 600;
+}
+
+.squad-category {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.squad-engagements {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: #22c55e;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+    transition: color 0.3s ease;
+}
+
+.back-link:hover {
+    color: var(--pp-accent);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 30px;
+    color: rgba(255, 255, 255, 0.4);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="intel-page">
+    <div class="intel-container">
+        <a href="/admin" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Admin
+        </a>
+        
+        <div class="intel-header">
+            <h1 class="intel-title">
+                <i class="fas fa-satellite-dish"></i>
+                Intelligence Dashboard
+            </h1>
+            <div class="quick-actions">
+                <a href="/admin/launch-sequences" class="quick-btn">
+                    <i class="fas fa-rocket"></i> Launch Sequences
+                </a>
+                <a href="/admin/target-alerts" class="quick-btn">
+                    <i class="fas fa-crosshairs"></i> Target Alerts
+                </a>
+                <a href="/admin/nostr" class="quick-btn">
+                    <i class="fas fa-broadcast-tower"></i> Nostr
+                </a>
+                <a href="/admin/launch-sequence/create" class="quick-btn primary">
+                    <i class="fas fa-plus"></i> New Launch
+                </a>
+            </div>
+        </div>
+        
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value">{{ articles_count }}</div>
+                <div class="metric-label">Published Articles</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">{{ podcasts_count }}</div>
+                <div class="metric-label">Episodes</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value highlight">{{ pending_sequences }}</div>
+                <div class="metric-label">Pending Launches</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value highlight">{{ pending_alerts }}</div>
+                <div class="metric-label">Target Alerts</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value success">{{ nostr_events }}</div>
+                <div class="metric-label">Nostr Notes</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value success">{{ total_zaps|int }}</div>
+                <div class="metric-label">Total Zaps (sats)</div>
+            </div>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="dash-panel">
+                <div class="panel-header">
+                    <span class="panel-title"><i class="fas fa-rocket"></i> Launch Sequences</span>
+                    <span class="panel-badge">{{ pending_sequences }} pending</span>
+                </div>
+                
+                <div class="sequence-list">
+                    {% if launch_sequences %}
+                        {% for seq in launch_sequences %}
+                        <div class="sequence-item">
+                            <div class="item-header">
+                                <span class="item-type">{{ seq.content_type or 'Content' }}</span>
+                                <span class="item-status status-{{ seq.status }}">{{ seq.status }}</span>
+                            </div>
+                            <div class="item-content">
+                                <a href="/admin/launch-sequence/{{ seq.id }}">{{ seq.primary_post_copy[:100] if seq.primary_post_copy else 'No content' }}...</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="empty-state">No launch sequences yet</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="dash-panel">
+                <div class="panel-header">
+                    <span class="panel-title"><i class="fas fa-crosshairs"></i> Target Alerts</span>
+                    <span class="panel-badge">{{ pending_alerts }} pending</span>
+                </div>
+                
+                <div class="alert-list">
+                    {% if target_alerts %}
+                        {% for alert in target_alerts %}
+                        <div class="alert-item">
+                            <div class="item-header">
+                                <span class="item-type">{{ alert.source_account }}</span>
+                                <span class="item-status status-{{ alert.status }}">{{ alert.status }}</span>
+                            </div>
+                            <div class="item-content">
+                                {{ alert.content_snippet[:120] if alert.content_snippet else 'No content' }}...
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="empty-state">No pending alerts</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="dash-panel">
+                <div class="panel-header">
+                    <span class="panel-title"><i class="fas fa-broadcast-tower"></i> Nostr Network</span>
+                </div>
+                
+                <div class="nostr-status">
+                    <div class="relay-status">
+                        <div class="relay-label">Relays Configured</div>
+                        <div class="relay-value online">{{ nostr_status.configured }}</div>
+                    </div>
+                    <div class="relay-status">
+                        <div class="relay-label">Status</div>
+                        <div class="relay-value {% if nostr_status.ready %}online{% endif %}">
+                            {% if nostr_status.ready %}READY{% else %}NOT CONFIGURED{% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="relay-list">
+                    {% for relay in nostr_status.relays[:5] %}
+                    <div class="relay-item">
+                        <span class="relay-dot"></span>
+                        {{ relay }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="dash-panel">
+                <div class="panel-header">
+                    <span class="panel-title"><i class="fas fa-users"></i> Reply Squad</span>
+                    <a href="/admin/reply-squad" class="quick-btn" style="padding: 6px 12px; font-size: 0.7rem;">Manage</a>
+                </div>
+                
+                <div class="squad-list">
+                    {% if reply_squad %}
+                        {% for member in reply_squad %}
+                        <div class="squad-item">
+                            <div class="item-header">
+                                <span class="squad-handle">{{ member.handle }}</span>
+                                <span class="squad-engagements">{{ member.reciprocal_engagements }} engagements</span>
+                            </div>
+                            <div class="squad-category">{{ member.category or 'General' }}</div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="empty-state">
+                        <p>No reply squad configured</p>
+                        <form action="/admin/reply-squad/init" method="POST" style="margin-top: 15px;">
+                            <button type="submit" class="quick-btn primary">Initialize Default Squad</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

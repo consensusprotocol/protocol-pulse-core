@@ -1,5 +1,6 @@
-# Environment and secrets
+# Environment and secrets – never commit
 .env
+core/.env
 *.env
 !.env.example
 
@@ -12,19 +13,10 @@ venv/
 dist/
 build/
 
-# Local DB and instance data
-instance/
-*.db
-*.sqlite
-*.sqlite3
-
 # IDE / OS
 .idea/
 .vscode/
 .DS_Store
 
-# Large media (excluded so GitHub push succeeds; use CDN or LFS for production)
-static/video/*.mp4
-static/audio/*.mp3
-static/audio/*.mp4
-static/audio/pulse-bed.mp3
+# Project-specific
+_replit_import/

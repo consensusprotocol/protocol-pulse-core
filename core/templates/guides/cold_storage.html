@@ -1,0 +1,1299 @@
+{% extends "base.html" %}
+
+{% block title %}Sovereign Custody Manual | Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+:root {
+    --sovereign-purple: #a855f7;
+    --sovereign-purple-dark: #7c3aed;
+    --fortress-gold: #f59e0b;
+    --danger-red: #dc2626;
+}
+
+.custody-hero {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(15, 15, 15, 0.98) 50%, rgba(220, 38, 38, 0.1) 100%);
+    padding: 4rem 0;
+    border-bottom: 2px solid var(--sovereign-purple);
+    position: relative;
+    overflow: hidden;
+}
+
+.custody-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23a855f7' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.5;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(168, 85, 247, 0.2);
+    border: 1px solid var(--sovereign-purple);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: var(--sovereign-purple);
+    margin-bottom: 1.5rem;
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #fff 0%, var(--sovereign-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: #9ca3af;
+    max-width: 600px;
+}
+
+.seed-warning {
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.2) 0%, rgba(220, 38, 38, 0.1) 100%);
+    border: 2px solid var(--danger-red);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.seed-warning-icon {
+    font-size: 2rem;
+    color: var(--danger-red);
+    animation: pulse-warning 2s infinite;
+}
+
+@keyframes pulse-warning {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.seed-warning h4 {
+    color: var(--danger-red);
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.seed-warning p {
+    color: #fca5a5;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.device-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.device-card {
+    background: rgba(26, 26, 26, 0.95);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 2rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+}
+
+.device-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--sovereign-purple), var(--fortress-gold));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.device-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--sovereign-purple);
+    box-shadow: 0 20px 40px rgba(168, 85, 247, 0.2);
+}
+
+.device-card:hover::before {
+    opacity: 1;
+}
+
+.device-card.selected {
+    border-color: var(--sovereign-purple);
+    background: rgba(168, 85, 247, 0.1);
+}
+
+.device-card.selected::before {
+    opacity: 1;
+}
+
+.device-tier {
+    display: inline-block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}
+
+.tier-intermediate {
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.tier-fortress {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.tier-precision {
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.device-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.device-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.device-desc {
+    font-size: 0.9rem;
+    color: #9ca3af;
+    line-height: 1.5;
+}
+
+.amazon-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 153, 0, 0.15);
+    border: 1px solid rgba(255, 153, 0, 0.3);
+    border-radius: 8px;
+    color: #ff9900;
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.amazon-link:hover {
+    background: rgba(255, 153, 0, 0.25);
+    color: #ffb84d;
+}
+
+.guide-container {
+    display: none;
+    margin-top: 3rem;
+}
+
+.guide-container.active {
+    display: block;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.guide-layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 2rem;
+}
+
+@media (max-width: 1024px) {
+    .guide-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.video-container {
+    background: #000;
+    border-radius: 16px;
+    overflow: hidden;
+    aspect-ratio: 16/9;
+    position: relative;
+}
+
+.video-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.checklist-panel {
+    background: rgba(26, 26, 26, 0.98);
+    border: 2px solid rgba(168, 85, 247, 0.3);
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: sticky;
+    top: 100px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
+.checklist-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.checklist-header i {
+    font-size: 1.5rem;
+    color: var(--sovereign-purple);
+}
+
+.checklist-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.checklist-phase {
+    margin-bottom: 1.5rem;
+}
+
+.phase-title {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--sovereign-purple);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.phase-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--sovereign-purple), transparent);
+}
+
+.checklist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.02);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.checklist-item:hover {
+    background: rgba(168, 85, 247, 0.1);
+}
+
+.checklist-item.completed {
+    background: rgba(34, 197, 94, 0.1);
+}
+
+.checklist-item.completed .check-box {
+    background: #22c55e;
+    border-color: #22c55e;
+}
+
+.checklist-item.completed .check-box i {
+    opacity: 1;
+}
+
+.check-box {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.check-box i {
+    font-size: 0.75rem;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.check-text {
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.check-text strong {
+    color: #fff;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.check-text span {
+    color: #9ca3af;
+    font-size: 0.8rem;
+}
+
+.progress-bar {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    margin-top: 1.5rem;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--sovereign-purple), #22c55e);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+    width: 0%;
+}
+
+.progress-text {
+    font-size: 0.85rem;
+    color: #9ca3af;
+    margin-top: 0.5rem;
+    text-align: center;
+}
+
+.phase-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin: 3rem 0;
+}
+
+@media (max-width: 768px) {
+    .phase-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .hero-title {
+        font-size: 2rem;
+    }
+}
+
+.phase-card {
+    background: rgba(26, 26, 26, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    position: relative;
+}
+
+.phase-number {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 30px;
+    background: var(--sovereign-purple);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.phase-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--sovereign-purple), var(--fortress-gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.phase-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+}
+
+.phase-card p {
+    font-size: 0.9rem;
+    color: #9ca3af;
+    margin: 0;
+}
+
+.sovereign-active .custody-hero {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(15, 15, 15, 0.98) 50%, rgba(168, 85, 247, 0.15) 100%);
+}
+
+.sovereign-active .device-card {
+    border-color: rgba(168, 85, 247, 0.3);
+}
+
+.sovereign-active .checklist-panel {
+    border-color: var(--sovereign-purple);
+    box-shadow: 0 0 30px rgba(168, 85, 247, 0.2);
+}
+
+.btc-sessions-credit {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(220, 38, 38, 0.1);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.btc-sessions-credit img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+.btc-sessions-credit .credit-text {
+    font-size: 0.9rem;
+}
+
+.btc-sessions-credit .credit-text strong {
+    color: #fff;
+    display: block;
+}
+
+.btc-sessions-credit .credit-text span {
+    color: #9ca3af;
+}
+
+.steel-backup-section {
+    background: rgba(245, 158, 11, 0.1);
+    border: 2px solid rgba(245, 158, 11, 0.3);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 3rem 0;
+}
+
+.steel-backup-section h3 {
+    color: var(--fortress-gold);
+    margin-bottom: 1rem;
+}
+
+.vendor-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .vendor-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.vendor-card {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.vendor-card .vendor-number {
+    background: var(--fortress-gold);
+    color: #000;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin: 0 auto 1rem;
+}
+
+.vendor-card h4 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.vendor-card p {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin-bottom: 1rem;
+}
+
+.ai-chat-fab {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--sovereign-purple), var(--sovereign-purple-dark));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);
+    z-index: 1000;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.ai-chat-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(168, 85, 247, 0.6);
+}
+
+.ai-chat-fab i {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.ai-chat-panel {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 380px;
+    max-height: 500px;
+    background: rgba(15, 15, 15, 0.98);
+    border: 2px solid var(--sovereign-purple);
+    border-radius: 16px;
+    display: none;
+    flex-direction: column;
+    z-index: 1001;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.ai-chat-panel.active {
+    display: flex;
+}
+
+.chat-header {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.chat-header img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--sovereign-purple);
+}
+
+.chat-header-info h4 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.chat-header-info span {
+    font-size: 0.75rem;
+    color: #22c55e;
+}
+
+.chat-close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    font-size: 1.25rem;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    max-height: 300px;
+}
+
+.chat-message {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.chat-message.ai .msg-avatar {
+    width: 32px;
+    height: 32px;
+    background: var(--sovereign-purple);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+.chat-message .msg-content {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    max-width: 80%;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.chat-message.user {
+    flex-direction: row-reverse;
+}
+
+.chat-message.user .msg-content {
+    background: rgba(168, 85, 247, 0.2);
+}
+
+.chat-input-area {
+    padding: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    gap: 0.5rem;
+}
+
+.chat-input-area input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.75rem;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.chat-input-area input::placeholder {
+    color: #6b7280;
+}
+
+.chat-input-area button {
+    background: var(--sovereign-purple);
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.chat-input-area button:hover {
+    background: var(--sovereign-purple-dark);
+}
+
+.upload-btn {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+@media (max-width: 480px) {
+    .ai-chat-panel {
+        width: calc(100% - 40px);
+        right: 20px;
+        bottom: 90px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <section class="custody-hero">
+        <div class="container">
+            <div class="hero-badge">
+                <i class="fas fa-shield-alt"></i>
+                SOVEREIGN CUSTODY PROTOCOL
+            </div>
+            <h1 class="hero-title">The Sovereign Custody Manual</h1>
+            <p class="hero-subtitle">
+                Your technical roadmap from exchange-dependence to true financial sovereignty. 
+                Verify, don't trust. Air-gap when possible. Never share your seed.
+            </p>
+        </div>
+    </section>
+
+    <div class="container py-5">
+        <div class="seed-warning">
+            <div class="seed-warning-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div>
+                <h4><i class="fas fa-skull-crossbones me-2"></i>PROTOCOL PULSE SECURITY WARNING</h4>
+                <p>
+                    <strong>We will NEVER ask for your seed phrase.</strong> If you see any field asking for your 12 or 24 words, 
+                    you are being phished. Abort mission immediately. Your seed is your wealth—guard it with your life.
+                </p>
+            </div>
+        </div>
+
+        <div class="phase-cards">
+            <div class="phase-card">
+                <div class="phase-number">1</div>
+                <div class="phase-icon"><i class="fas fa-microchip"></i></div>
+                <h3>Initialized Defense</h3>
+                <p>Select your hardware wallet based on your security needs and technical comfort level.</p>
+            </div>
+            <div class="phase-card">
+                <div class="phase-number">2</div>
+                <div class="phase-icon"><i class="fas fa-key"></i></div>
+                <h3>Onboarding Sequence</h3>
+                <p>Verify seals, generate entropy, backup your seed on steel, and test your recovery.</p>
+            </div>
+            <div class="phase-card">
+                <div class="phase-number">3</div>
+                <div class="phase-icon"><i class="fas fa-handshake"></i></div>
+                <h3>Sovereign Handshake</h3>
+                <p>Connect to Sparrow Wallet for watch-only access without exposing private keys.</p>
+            </div>
+        </div>
+
+        <h2 class="text-center mb-4">
+            <i class="fas fa-shield-alt me-2" style="color: var(--sovereign-purple);"></i>
+            Phase 1: Select Your Hardware
+        </h2>
+
+        <div class="device-grid">
+            <div class="device-card" data-device="jade" data-video="d4S8B7qG_1Y">
+                <span class="device-tier tier-intermediate">Intermediate Shield</span>
+                <div class="device-icon">🟢</div>
+                <div class="device-name">Blockstream Jade</div>
+                <div class="device-desc">
+                    Perfect for transitioning from mobile wallets. Features "Stateless" mode ensuring no data persists on device. 
+                    Air-gapped via camera for maximum security.
+                </div>
+                <a href="https://www.amazon.com/s?k=Blockstream+Jade&tag=protocolpulse-20" target="_blank" class="amazon-link">
+                    <i class="fab fa-amazon"></i> Buy on Amazon
+                </a>
+            </div>
+
+            <div class="device-card" data-device="trezor" data-video="Zhla0oXchPc">
+                <span class="device-tier tier-intermediate">Intermediate Shield</span>
+                <div class="device-icon">⚫</div>
+                <div class="device-name">Trezor Safe 3</div>
+                <div class="device-desc">
+                    Open-source firmware with secure element. Easy setup with Trezor Suite. 
+                    Great balance of security and usability for intermediate users.
+                </div>
+                <a href="https://www.amazon.com/s?k=Trezor+Safe+3&tag=protocolpulse-20" target="_blank" class="amazon-link">
+                    <i class="fab fa-amazon"></i> Buy on Amazon
+                </a>
+            </div>
+
+            <div class="device-card" data-device="coldcard" data-video="FAYmE5-40PQ">
+                <span class="device-tier tier-fortress">Technical Fortress</span>
+                <div class="device-icon">🔶</div>
+                <div class="device-name">Coldcard Mk4 / Q</div>
+                <div class="device-desc">
+                    The gold standard for air-gapped security. No USB, no Bluetooth—only SD card "handshakes" 
+                    for transaction signing. Dice roll entropy for paranoid-level randomness.
+                </div>
+                <a href="https://www.amazon.com/s?k=Coldcard+wallet&tag=protocolpulse-20" target="_blank" class="amazon-link">
+                    <i class="fab fa-amazon"></i> Buy on Amazon
+                </a>
+            </div>
+
+            <div class="device-card" data-device="bitbox" data-video="4NyBysjDMvw">
+                <span class="device-tier tier-precision">European Precision</span>
+                <div class="device-icon">⬜</div>
+                <div class="device-name">BitBox02 Bitcoin-only</div>
+                <div class="device-desc">
+                    Minimalist Swiss design with secure chip. "Plug and Play" simplicity without 
+                    compromising on open-source auditability. Bitcoin-only firmware available.
+                </div>
+                <a href="https://www.amazon.com/s?k=BitBox02&tag=protocolpulse-20" target="_blank" class="amazon-link">
+                    <i class="fab fa-amazon"></i> Buy on Amazon
+                </a>
+            </div>
+
+            <div class="device-card" data-device="ledger" data-video="6W9to-GSjvs">
+                <span class="device-tier tier-intermediate">Intermediate Shield</span>
+                <div class="device-icon">🔵</div>
+                <div class="device-name">Ledger Nano X/S+</div>
+                <div class="device-desc">
+                    Most popular hardware wallet worldwide. Secure element chip with Ledger Live integration. 
+                    Bluetooth connectivity for mobile use.
+                </div>
+                <a href="https://www.amazon.com/s?k=Ledger+Nano+X&tag=protocolpulse-20" target="_blank" class="amazon-link">
+                    <i class="fab fa-amazon"></i> Buy on Amazon
+                </a>
+            </div>
+
+            <div class="device-card" data-device="sparrow" data-video="_EVDtos8ZgI">
+                <span class="device-tier tier-fortress">Software Fortress</span>
+                <div class="device-icon">🐦</div>
+                <div class="device-name">Sparrow Wallet</div>
+                <div class="device-desc">
+                    The "Pro" coordinator wallet. Connect any hardware wallet, create multisig, 
+                    and manage UTXOs with full coin control. Essential for sovereignty.
+                </div>
+                <a href="https://sparrowwallet.com" target="_blank" class="amazon-link" style="background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.3); color: #60a5fa;">
+                    <i class="fas fa-download"></i> Download Free
+                </a>
+            </div>
+        </div>
+
+        <div class="steel-backup-section">
+            <h3><i class="fas fa-shield-alt me-2"></i>Steel Seed Backup Options</h3>
+            <p style="color: #d1d5db;">
+                <strong>Fire & Flood-Proof Your Wealth:</strong> Paper backups can be destroyed by fire, water, or time. 
+                These DIY steel backup kits let you stamp or assemble your seed phrase onto indestructible metal plates 
+                in the privacy of your own home. Your words never leave your hands.
+            </p>
+            <div class="vendor-grid">
+                <div class="vendor-card">
+                    <div class="vendor-number"><i class="fas fa-capsules"></i></div>
+                    <h4>Cryptosteel Capsule</h4>
+                    <p>Premium titanium capsule - assembles like a puzzle</p>
+                    <a href="https://www.amazon.com/s?k=Cryptosteel+Capsule&tag=protocolpulse-20" target="_blank" class="amazon-link">
+                        <i class="fab fa-amazon"></i> View on Amazon
+                    </a>
+                </div>
+                <div class="vendor-card">
+                    <div class="vendor-number"><i class="fas fa-grip-lines"></i></div>
+                    <h4>Billfodl</h4>
+                    <p>Stainless steel plates with sliding letter tiles</p>
+                    <a href="https://www.amazon.com/s?k=Billfodl+steel+backup&tag=protocolpulse-20" target="_blank" class="amazon-link">
+                        <i class="fab fa-amazon"></i> View on Amazon
+                    </a>
+                </div>
+                <div class="vendor-card">
+                    <div class="vendor-number"><i class="fas fa-hammer"></i></div>
+                    <h4>Blockplate</h4>
+                    <p>Thick steel plate - stamp your own letters</p>
+                    <a href="https://www.amazon.com/s?k=Blockplate+bitcoin&tag=protocolpulse-20" target="_blank" class="amazon-link">
+                        <i class="fab fa-amazon"></i> View on Amazon
+                    </a>
+                </div>
+            </div>
+            <p style="color: #9ca3af; margin-top: 1.5rem; font-size: 0.85rem;">
+                <i class="fas fa-info-circle me-1"></i>
+                Store your steel backup in a secure location: home safe, bank safety deposit box, or fireproof lockbox.
+            </p>
+        </div>
+
+        <!-- Recovery Drill Callout -->
+        <div style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(15, 15, 15, 0.98) 50%, rgba(34, 197, 94, 0.08) 100%); border: 2px solid rgba(34, 197, 94, 0.5); border-radius: 16px; padding: 2rem; margin: 2.5rem 0; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: 0; right: 0; width: 150px; height: 150px; background: radial-gradient(circle, rgba(34, 197, 94, 0.2) 0%, transparent 70%); pointer-events: none;"></div>
+            <div style="display: flex; align-items: flex-start; gap: 1.5rem; flex-wrap: wrap;">
+                <div style="width: 70px; height: 70px; background: linear-gradient(135deg, rgba(34, 197, 94, 0.3) 0%, rgba(34, 197, 94, 0.1) 100%); border: 2px solid rgba(34, 197, 94, 0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i class="fas fa-brain" style="font-size: 1.8rem; color: #22c55e;"></i>
+                </div>
+                <div style="flex: 1; min-width: 250px;">
+                    <h3 style="color: #22c55e; font-size: 1.4rem; font-weight: 700; margin: 0 0 0.75rem 0; text-transform: uppercase; letter-spacing: 1px;">
+                        <i class="fas fa-dumbbell me-2"></i>Recovery Drill
+                    </h3>
+                    <p style="color: #d1d5db; font-size: 1rem; line-height: 1.7; margin-bottom: 1.25rem;">
+                        <strong style="color: #22c55e;">Practice your seed phrase backup</strong> using safe, non-BIP39 words before trusting your real fortune to memory. 
+                        This 6-step wizard tests your memory palace, sabotage resistance, and word order reconstruction.
+                    </p>
+                    <a href="{{ url_for('recovery_drill') }}" style="display: inline-flex; align-items: center; gap: 0.75rem; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #000; padding: 0.875rem 1.5rem; border-radius: 8px; font-weight: 700; text-decoration: none; transition: all 0.3s; font-size: 0.95rem;">
+                        <i class="fas fa-play-circle"></i>
+                        Start Recovery Drill
+                        <i class="fas fa-arrow-right" style="font-size: 0.85rem;"></i>
+                    </a>
+                    <p style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 1rem;">
+                        <i class="fas fa-shield-alt me-1"></i> Uses fake words only - your real seed phrase is never at risk
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="guide-container" id="guideContainer">
+            <div class="guide-layout">
+                <div class="video-section">
+                    <h3 class="mb-3">
+                        <i class="fab fa-youtube me-2" style="color: #dc2626;"></i>
+                        <span id="videoTitle">Setup Walkthrough</span>
+                    </h3>
+                    <div class="video-container">
+                        <iframe id="videoPlayer" 
+                                src="" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    
+                    <div class="btc-sessions-credit">
+                        <img src="https://yt3.googleusercontent.com/ytc/AIdro_nz_KZqN27ZFnJ14L8q8JUuEFoHLMYC_yEBK-LX8bPH5Q=s176-c-k-c0x00ffffff-no-rj" alt="BTC Sessions">
+                        <div class="credit-text">
+                            <strong>Powered by BTC Sessions</strong>
+                            <span>The most trusted voice in Bitcoin education. Subscribe for more sovereign tutorials.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-panel" id="checklistPanel">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<button class="ai-chat-fab" id="chatFab" title="Need help? Ask your Sovereign Guide!">
+    <i class="fas fa-robot"></i>
+</button>
+
+<div class="ai-chat-panel" id="chatPanel">
+    <div class="chat-header">
+        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=sovereign" alt="AI Guide">
+        <div class="chat-header-info">
+            <h4>Sovereign Guide</h4>
+            <span><i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>Online - Ready to Help</span>
+        </div>
+        <button class="chat-close" id="chatClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+        <div class="chat-message ai">
+            <div class="msg-avatar"><i class="fas fa-robot"></i></div>
+            <div class="msg-content">
+                Hey! I'm your Sovereign Guide. I'm here to help you set up your hardware wallet step by step. 
+                <strong>There are NO bad questions.</strong> I guarantee we'll complete this together. 
+                Stuck on a step? Send me a screenshot and I'll walk you through it!
+            </div>
+        </div>
+    </div>
+    <div class="chat-input-area">
+        <button class="upload-btn" id="uploadBtn" title="Upload screenshot"><i class="fas fa-image"></i></button>
+        <input type="text" id="chatInput" placeholder="Ask anything about setup...">
+        <button id="chatSend"><i class="fas fa-paper-plane"></i></button>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const DEVICE_CHECKLISTS = {
+    jade: {
+        title: 'Blockstream Jade Checklist',
+        steps: [
+            { phase: 'Unboxing', title: 'Verify Package Seal', desc: 'Check holographic seal is intact' },
+            { phase: 'Unboxing', title: 'Download Green Wallet', desc: 'Get Blockstream Green app on mobile' },
+            { phase: 'Unboxing', title: 'Connect via Bluetooth/USB', desc: 'Pair Jade with Green wallet' },
+            { phase: 'Setup', title: 'Set Up as New Wallet', desc: 'Choose to create new wallet' },
+            { phase: 'Setup', title: 'Generate 12-Word Seed', desc: 'Device generates your recovery words' },
+            { phase: 'Setup', title: 'Enable Stateless Mode', desc: 'No seed stored on device for max security' },
+            { phase: 'Backup', title: 'Write Words on Paper', desc: 'NEVER photograph or type digitally' },
+            { phase: 'Backup', title: 'Stamp on Steel Plates', desc: 'Use 3-vendor backup strategy' },
+            { phase: 'Backup', title: 'Store in Secure Locations', desc: 'Different locations for each third' },
+            { phase: 'Verify', title: 'Verify Seed on Device', desc: 'Jade will quiz you on your words' },
+            { phase: 'Verify', title: 'Receive Test Transaction', desc: 'Send small amount to verify setup' },
+            { phase: 'Sparrow', title: 'Install Sparrow Wallet', desc: 'Download from sparrowwallet.com' },
+            { phase: 'Sparrow', title: 'Export XPUB via QR', desc: 'Scan with Sparrow for watch-only' }
+        ]
+    },
+    trezor: {
+        title: 'Trezor Safe 3 Checklist',
+        steps: [
+            { phase: 'Unboxing', title: 'Verify Holographic Seal', desc: 'Check package seal matches Trezor.io' },
+            { phase: 'Unboxing', title: 'Download Trezor Suite', desc: 'Only from trezor.io/start' },
+            { phase: 'Unboxing', title: 'Connect via USB-C', desc: 'Use included cable' },
+            { phase: 'Setup', title: 'Update Firmware', desc: 'Install latest firmware via Suite' },
+            { phase: 'Setup', title: 'Create New Wallet', desc: 'Generate fresh seed on device' },
+            { phase: 'Setup', title: 'Set Strong PIN', desc: 'Use 6+ digits, avoid patterns' },
+            { phase: 'Setup', title: 'Enable Passphrase (Optional)', desc: 'Extra security layer - hidden wallet' },
+            { phase: 'Backup', title: 'Write 12/24 Words', desc: 'Use included recovery card' },
+            { phase: 'Backup', title: 'Create Steel Backup', desc: 'Stamp/assemble full seed on fireproof steel' },
+            { phase: 'Backup', title: 'Test Recovery Words', desc: 'Verify all words are readable on steel' },
+            { phase: 'Verify', title: 'Verify Backup in Suite', desc: 'Confirm seed was written correctly' },
+            { phase: 'Verify', title: 'Send Test Transaction', desc: 'Receive & send small amount' },
+            { phase: 'Sparrow', title: 'Connect to Sparrow', desc: 'File > New Wallet > Trezor' }
+        ]
+    },
+    coldcard: {
+        title: 'Coldcard Mk4/Q Checklist',
+        steps: [
+            { phase: 'Unboxing', title: 'Verify Bag Number', desc: 'Match bag# on coldcard.com/verify' },
+            { phase: 'Unboxing', title: 'Check Anti-Tampering', desc: 'Inspect for physical modifications' },
+            { phase: 'Setup', title: 'Power via Battery/USB', desc: 'Use power-only cable for air-gap' },
+            { phase: 'Setup', title: 'Upgrade Firmware', desc: 'Download from coldcard.com via SD' },
+            { phase: 'Setup', title: 'Set Dual-PIN', desc: 'Main PIN + Duress PIN for plausible deniability' },
+            { phase: 'Setup', title: 'Generate Seed with Dice', desc: 'Roll 99 dice for true randomness' },
+            { phase: 'Backup', title: 'Write 24 Words', desc: 'Use included seed cards' },
+            { phase: 'Backup', title: '3-Vendor Steel Split', desc: 'Each third to different manufacturer' },
+            { phase: 'Backup', title: 'Create Encrypted Backup', desc: 'Save to SD card with password' },
+            { phase: 'Verify', title: 'Restore from SD Backup', desc: 'Verify encrypted backup works' },
+            { phase: 'Verify', title: 'Test Address Verification', desc: 'Export address and verify on device' },
+            { phase: 'Sparrow', title: 'Export XPUB via SD Card', desc: 'Settings > Export > Sparrow' },
+            { phase: 'Sparrow', title: 'Import to Sparrow', desc: 'Create watch-only wallet' },
+            { phase: 'Sparrow', title: 'Sign PSBT Air-Gapped', desc: 'Transfer via SD card only' }
+        ]
+    },
+    bitbox: {
+        title: 'BitBox02 Checklist',
+        steps: [
+            { phase: 'Unboxing', title: 'Verify Vacuum Seal', desc: 'Package should be vacuum sealed' },
+            { phase: 'Unboxing', title: 'Download BitBoxApp', desc: 'Only from shiftcrypto.ch' },
+            { phase: 'Unboxing', title: 'Connect via USB-C', desc: 'Use included cable' },
+            { phase: 'Setup', title: 'Set Device Password', desc: 'Touch gestures on device' },
+            { phase: 'Setup', title: 'Create New Wallet', desc: 'Device generates 24-word seed' },
+            { phase: 'Setup', title: 'Create microSD Backup', desc: 'Encrypted backup on included SD' },
+            { phase: 'Backup', title: 'Write Seed on Paper', desc: 'Never rely solely on SD backup' },
+            { phase: 'Backup', title: '3-Vendor Steel Split', desc: 'Distribute across manufacturers' },
+            { phase: 'Verify', title: 'Verify via BitBoxApp', desc: 'Confirm recovery words' },
+            { phase: 'Verify', title: 'Send Test Transaction', desc: 'Verify signing works' },
+            { phase: 'Sparrow', title: 'Install Sparrow Wallet', desc: 'Download from official site' },
+            { phase: 'Sparrow', title: 'Connect BitBox02', desc: 'File > New Wallet > BitBox02' }
+        ]
+    },
+    ledger: {
+        title: 'Ledger Nano Checklist',
+        steps: [
+            { phase: 'Unboxing', title: 'Verify Shrink Wrap', desc: 'Check factory seal intact' },
+            { phase: 'Unboxing', title: 'Download Ledger Live', desc: 'Only from ledger.com' },
+            { phase: 'Unboxing', title: 'Connect Device', desc: 'USB-C or Bluetooth for Nano X' },
+            { phase: 'Setup', title: 'Set Up as New Device', desc: 'Never use pre-configured device' },
+            { phase: 'Setup', title: 'Create PIN Code', desc: '4-8 digit PIN, avoid patterns' },
+            { phase: 'Setup', title: 'Generate 24-Word Seed', desc: 'Device displays words one at a time' },
+            { phase: 'Backup', title: 'Write on Recovery Sheet', desc: 'Use included paper or steel' },
+            { phase: 'Backup', title: 'Steel Backup Strategy', desc: 'Split across 3 vendors' },
+            { phase: 'Verify', title: 'Confirm Recovery Phrase', desc: 'Ledger will quiz you' },
+            { phase: 'Verify', title: 'Install Bitcoin App', desc: 'Via Ledger Live Manager' },
+            { phase: 'Verify', title: 'Create Bitcoin Account', desc: 'Generate receive address' },
+            { phase: 'Sparrow', title: 'Connect to Sparrow', desc: 'File > New Wallet > Ledger' },
+            { phase: 'Sparrow', title: 'Verify Address on Device', desc: 'Always confirm on hardware' }
+        ]
+    },
+    sparrow: {
+        title: 'Sparrow Wallet Setup',
+        steps: [
+            { phase: 'Download', title: 'Download Sparrow', desc: 'From sparrowwallet.com only' },
+            { phase: 'Download', title: 'Verify GPG Signature', desc: 'Check download authenticity' },
+            { phase: 'Download', title: 'Install Application', desc: 'Run installer for your OS' },
+            { phase: 'Connect', title: 'Choose Server Type', desc: 'Public, Private, or Bitcoin Core' },
+            { phase: 'Connect', title: 'Connect to Server', desc: 'Wait for sync to complete' },
+            { phase: 'Wallet', title: 'Create New Wallet', desc: 'File > New Wallet' },
+            { phase: 'Wallet', title: 'Choose Script Type', desc: 'Native SegWit (bc1q) recommended' },
+            { phase: 'Wallet', title: 'Connect Hardware Wallet', desc: 'Scan or USB connect your device' },
+            { phase: 'Wallet', title: 'Import XPUB', desc: 'Creates watch-only wallet' },
+            { phase: 'Verify', title: 'Verify First Address', desc: 'Confirm matches hardware display' },
+            { phase: 'Verify', title: 'Label Your UTXOs', desc: 'Privacy through coin control' },
+            { phase: 'Advanced', title: 'Enable Tor (Optional)', desc: 'Privacy for network requests' },
+            { phase: 'Advanced', title: 'Set Up Multisig', desc: 'Multiple devices for max security' }
+        ]
+    }
+};
+
+const videoTitles = {
+    'jade': 'Blockstream Jade Complete Setup',
+    'trezor': 'Trezor Safe 3 Setup Guide',
+    'coldcard': 'Coldcard Mk4 Air-Gapped Setup',
+    'bitbox': 'BitBox02 Bitcoin-Only Tutorial',
+    'ledger': 'Ledger Nano Setup Guide',
+    'sparrow': 'Sparrow Wallet Masterclass'
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    const deviceCards = document.querySelectorAll('.device-card');
+    const guideContainer = document.getElementById('guideContainer');
+    const videoPlayer = document.getElementById('videoPlayer');
+    const videoTitle = document.getElementById('videoTitle');
+    const checklistPanel = document.getElementById('checklistPanel');
+    
+    let currentDevice = null;
+    let completedSteps = JSON.parse(localStorage.getItem('custodyProgress') || '{}');
+    
+    function renderChecklist(device) {
+        const config = DEVICE_CHECKLISTS[device];
+        if (!config) return;
+        
+        const phases = {};
+        config.steps.forEach((step, idx) => {
+            if (!phases[step.phase]) phases[step.phase] = [];
+            phases[step.phase].push({ ...step, idx });
+        });
+        
+        let html = `
+            <div class="checklist-header">
+                <i class="fas fa-tasks"></i>
+                <h3>${config.title}</h3>
+            </div>
+        `;
+        
+        const deviceCompleted = completedSteps[device] || [];
+        
+        Object.entries(phases).forEach(([phase, steps]) => {
+            html += `
+                <div class="checklist-phase">
+                    <div class="phase-title">
+                        <i class="fas fa-chevron-right"></i> ${phase}
+                    </div>
+            `;
+            steps.forEach(step => {
+                const isCompleted = deviceCompleted.includes(step.idx);
+                html += `
+                    <div class="checklist-item ${isCompleted ? 'completed' : ''}" data-step="${step.idx}">
+                        <div class="check-box"><i class="fas fa-check"></i></div>
+                        <div class="check-text">
+                            <strong>${step.title}</strong>
+                            <span>${step.desc}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+        });
+        
+        const totalSteps = config.steps.length;
+        const completedCount = deviceCompleted.length;
+        const percent = (completedCount / totalSteps) * 100;
+        
+        html += `
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: ${percent}%"></div>
+            </div>
+            <div class="progress-text">${completedCount} of ${totalSteps} steps completed</div>
+        `;
+        
+        checklistPanel.innerHTML = html;
+        
+        checklistPanel.querySelectorAll('.checklist-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const stepIdx = parseInt(this.dataset.step);
+                let deviceProgress = completedSteps[device] || [];
+                
+                if (deviceProgress.includes(stepIdx)) {
+                    deviceProgress = deviceProgress.filter(s => s !== stepIdx);
+                } else {
+                    deviceProgress.push(stepIdx);
+                }
+                
+                completedSteps[device] = deviceProgress;
+                localStorage.setItem('custodyProgress', JSON.stringify(completedSteps));
+                renderChecklist(device);
+            });
+        });
+    }
+    
+    deviceCards.forEach(card => {
+        card.addEventListener('click', function() {
+            deviceCards.forEach(c => c.classList.remove('selected'));
+            this.classList.add('selected');
+            
+            const videoId = this.dataset.video;
+            const device = this.dataset.device;
+            currentDevice = device;
+            
+            videoPlayer.src = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1`;
+            videoTitle.textContent = videoTitles[device] || 'Setup Walkthrough';
+            
+            renderChecklist(device);
+            guideContainer.classList.add('active');
+            
+            setTimeout(() => {
+                guideContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        });
+    });
+    
+    const chatFab = document.getElementById('chatFab');
+    const chatPanel = document.getElementById('chatPanel');
+    const chatClose = document.getElementById('chatClose');
+    const chatInput = document.getElementById('chatInput');
+    const chatSend = document.getElementById('chatSend');
+    const chatMessages = document.getElementById('chatMessages');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const fileInput = document.getElementById('fileInput');
+    
+    chatFab.addEventListener('click', () => {
+        chatPanel.classList.toggle('active');
+    });
+    
+    chatClose.addEventListener('click', () => {
+        chatPanel.classList.remove('active');
+    });
+    
+    function addMessage(content, isUser = false) {
+        const msg = document.createElement('div');
+        msg.className = `chat-message ${isUser ? 'user' : 'ai'}`;
+        msg.innerHTML = isUser ? 
+            `<div class="msg-content">${content}</div>` :
+            `<div class="msg-avatar"><i class="fas fa-robot"></i></div><div class="msg-content">${content}</div>`;
+        chatMessages.appendChild(msg);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    async function sendToAI(message) {
+        addMessage(message, true);
+        
+        const device = currentDevice || 'hardware wallet';
+        const systemPrompt = `You are a friendly Bitcoin hardware wallet setup expert. The user is setting up a ${device}. 
+        Be encouraging, patient, and thorough. There are NO bad questions. 
+        If they seem stuck, offer step-by-step guidance. Keep responses concise but helpful.`;
+        
+        try {
+            const response = await fetch('/api/chat/ask', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    question: message,
+                    context: `User is setting up ${device}. Help them complete their hardware wallet setup.`
+                })
+            });
+            
+            const data = await response.json();
+            addMessage(data.response || "I'm here to help! Can you tell me more about where you're stuck?");
+        } catch (error) {
+            addMessage("I'm having trouble connecting right now, but don't worry - just describe your issue and I'll do my best to help!");
+        }
+    }
+    
+    chatSend.addEventListener('click', () => {
+        const msg = chatInput.value.trim();
+        if (msg) {
+            sendToAI(msg);
+            chatInput.value = '';
+        }
+    });
+    
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const msg = chatInput.value.trim();
+            if (msg) {
+                sendToAI(msg);
+                chatInput.value = '';
+            }
+        }
+    });
+    
+    uploadBtn.addEventListener('click', () => fileInput.click());
+    
+    fileInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const file = this.files[0];
+            addMessage(`📷 Uploaded: ${file.name}`, true);
+            addMessage("Thanks for the screenshot! Let me take a look... Can you describe what step you're on and what's confusing you? I'll walk you through it step by step.");
+        }
+    });
+    
+    if (localStorage.getItem('sovereignMode') === 'enabled') {
+        document.body.classList.add('sovereign-active');
+    }
+});
+</script>
+{% endblock %}

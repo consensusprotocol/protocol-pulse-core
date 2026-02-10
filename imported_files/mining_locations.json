@@ -1,0 +1,665 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2025-02-10",
+  "data_sources": {
+    "electricity": "EIA, CBECI, Local utility data",
+    "political": "World Bank Governance Indicators, Freedom House",
+    "hashrate": "Cambridge Bitcoin Electricity Consumption Index",
+    "infrastructure": "World Bank Infrastructure Index"
+  },
+  "risk_weights": {
+    "political": 0.30,
+    "economic": 0.35,
+    "operational": 0.35
+  },
+  "locations": [
+    {
+      "id": "us_texas",
+      "name": "Texas, USA",
+      "country": "United States",
+      "region": "North America",
+      "coordinates": {"lat": 31.9686, "lng": -99.9018},
+      "scores": {
+        "political": {
+          "regulatory_stance": 95,
+          "seizure_risk": 95,
+          "policy_stability": 85,
+          "legal_clarity": 90
+        },
+        "economic": {
+          "electricity_cost": 75,
+          "currency_stability": 95,
+          "tax_regime": 80,
+          "banking_access": 90
+        },
+        "operational": {
+          "grid_reliability": 65,
+          "climate_suitability": 50,
+          "infrastructure": 95,
+          "labor_market": 90,
+          "stranded_energy": 85
+        }
+      },
+      "real_time_data": {
+        "avg_electricity_rate_usd": 0.068,
+        "current_hashrate_share": 0.289,
+        "active_facilities": 58,
+        "recent_policy_changes": [],
+        "grid_alerts": ["ERCOT summer peak risk"]
+      },
+      "notes": "Pro-mining legislation. ERCOT grid volatility. Large flared gas opportunities in Permian Basin."
+    },
+    {
+      "id": "us_wyoming",
+      "name": "Wyoming, USA",
+      "country": "United States",
+      "region": "North America",
+      "coordinates": {"lat": 43.0760, "lng": -107.2903},
+      "scores": {
+        "political": {
+          "regulatory_stance": 98,
+          "seizure_risk": 95,
+          "policy_stability": 92,
+          "legal_clarity": 95
+        },
+        "economic": {
+          "electricity_cost": 70,
+          "currency_stability": 95,
+          "tax_regime": 90,
+          "banking_access": 85
+        },
+        "operational": {
+          "grid_reliability": 85,
+          "climate_suitability": 75,
+          "infrastructure": 70,
+          "labor_market": 60,
+          "stranded_energy": 80
+        }
+      },
+      "real_time_data": {
+        "avg_electricity_rate_usd": 0.058,
+        "current_hashrate_share": 0.032,
+        "active_facilities": 12,
+        "recent_policy_changes": ["2024: Enhanced mining protections"],
+        "grid_alerts": []
+      },
+      "notes": "Most Bitcoin-friendly state. DAO legislation. Cold climate favorable. Limited labor pool."
+    },
+    {
+      "id": "us_georgia",
+      "name": "Georgia, USA",
+      "country": "United States",
+      "region": "North America",
+      "coordinates": {"lat": 32.1656, "lng": -82.9001},
+      "scores": {
+        "political": {
+          "regulatory_stance": 80,
+          "seizure_risk": 92,
+          "policy_stability": 82,
+          "legal_clarity": 78
+        },
+        "economic": {
+          "electricity_cost": 78,
+          "currency_stability": 95,
+          "tax_regime": 75,
+          "banking_access": 88
+        },
+        "operational": {
+          "grid_reliability": 85,
+          "climate_suitability": 55,
+          "infrastructure": 88,
+          "labor_market": 82,
+          "stranded_energy": 45
+        }
+      },
+      "real_time_data": {
+        "avg_electricity_rate_usd": 0.072,
+        "current_hashrate_share": 0.048,
+        "active_facilities": 18,
+        "recent_policy_changes": [],
+        "grid_alerts": []
+      },
+      "notes": "Growing mining hub. Nuclear power access. Hot summers increase cooling costs."
+    },
+    {
+      "id": "canada_alberta",
+      "name": "Alberta, Canada",
+      "country": "Canada",
+      "region": "North America",
+      "coordinates": {"lat": 53.9333, "lng": -116.5765},
+      "scores": {
+        "political": {
+          "regulatory_stance": 82,
+          "seizure_risk": 90,
+          "policy_stability": 78,
+          "legal_clarity": 80
+        },
+        "economic": {
+          "electricity_cost": 80,
+          "currency_stability": 88,
+          "tax_regime": 72,
+          "banking_access": 75
+        },
+        "operational": {
+          "grid_reliability": 88,
+          "climate_suitability": 90,
+          "infrastructure": 82,
+          "labor_market": 78,
+          "stranded_energy": 92
+        }
+      },
+      "real_time_data": {
+        "avg_electricity_rate_usd": 0.048,
+        "current_hashrate_share": 0.065,
+        "active_facilities": 22,
+        "recent_policy_changes": [],
+        "grid_alerts": []
+      },
+      "notes": "Abundant natural gas. Excellent cooling climate. Stranded gas monetization opportunities."
+    },
+    {
+      "id": "canada_quebec",
+      "name": "Quebec, Canada",
+      "country": "Canada",
+      "region": "North America",
+      "coordinates": {"lat": 46.8139, "lng": -71.2082},
+      "scores": {
+        "political": {
+          "regulatory_stance": 55,
+          "seizure_risk": 88,
+          "policy_stability": 60,
+          "legal_clarity": 65
+        },
+        "economic": {
+          "electricity_cost": 92,
+          "currency_stability": 88,
+          "tax_regime": 68,
+          "banking_access": 75
+        },
+        "operational": {
+          "grid_reliability": 95,
+          "climate_suitability": 92,
+          "infrastructure": 85,
+          "labor_market": 80,
+          "stranded_energy": 70
+        }
+      },
+      "real_time_data": {
+        "avg_electricity_rate_usd": 0.035,
+        "current_hashrate_share": 0.028,
+        "active_facilities": 8,
+        "recent_policy_changes": ["Hydro-Quebec rate restrictions ongoing"],
+        "grid_alerts": []
+      },
+      "notes": "Cheapest hydro power. Regulatory uncertainty with Hydro-Quebec. Moratorium risks."
+    },
+    {
+      "id": "paraguay",
+      "name": "Paraguay",
+      "country": "Paraguay",
+      "region": "South America",
+      "coordinates": {"lat": -23.4425, "lng": -58.4438},
+      "scores": {
+        "political": {
+          "regulatory_stance": 70,
+          "seizure_risk": 65,
+          "policy_stability": 60,
+          "legal_clarity": 50
+        },
+        "economic": {
+          "electricity_cost": 98,
+          "currency_stability": 55,
+          "tax_regime": 80,
+          "banking_access": 45
+        },
+        "operational": {
+          "grid_reliability": 80,
+          "climate_suitability": 60,
+          "infrastructure": 50,
+          "labor_market": 40,
+          "stranded_energy": 95
+        }
+      },
+      "real_time_data": {
+        "avg_electricity_rate_usd": 0.022,
+        "current_hashrate_share": 0.018,
+        "active_facilities": 15,
+        "recent_policy_changes": ["2024: Mining registration requirements"],
+        "grid_alerts": []
+      },
+      "notes": "Itaipu Dam excess capacity. Ultra-cheap power. Regulatory framework evolving. Banking challenges."
+    },
+    {
+      "id": "el_salvador",
+      "name": "El Salvador",
+      "country": "El Salvador",
+      "region": "Central America",
+      "coordinates": {"lat": 13.7942, "lng": -88.8965},
+      "scores": {
+        "political": {
+          "regulatory_stance": 98,
+          "seizure_risk": 75,
+          "policy_stability": 65,
+          "legal_clarity": 80
+        },
+        "economic": {
+          "electricity_cost": 60,
+          "currency_stability": 90,
+          "tax_regime": 95,
+          "banking_access": 70
+        },
+        "operational": {
+          "grid_reliability": 70,
+          "climate_suitability": 45,
+          "infrastructure": 55,
+          "labor_market": 50,
+          "stranded_energy": 75
+        }
+      },
+      "real_time_data": {
+        "avg_electricity_rate_usd": 0.095,
+        "current_hashrate_share": 0.003,
+        "active_facilities": 3,
+        "recent_policy_changes": ["Bitcoin legal tender"],
+        "grid_alerts": ["Limited grid capacity"]
+      },
+      "notes": "Bitcoin legal tender. Volcano energy project. Small scale. Strong political support."
+    },
+    {
+      "id": "iceland",
+      "name": "Iceland",
+      "country": "Iceland",
+      "region": "Europe",
+      "coordinates": {"lat": 64.9631, "lng": -19.0208},
+      "scores": {
+        "political": {
+          "regulatory_stance": 70,
+          "seizure_risk": 95,
+          "policy_stability": 88,
+          "legal_clarity": 82
+        },
+        "economic": {
+          "electricity_cost": 85,
+          "currency_stability": 80,
+          "tax_regime": 65,
+          "banking_access": 85
+        },
+        "operational": {
+          "grid_reliability": 98,
+          "climate_suitability": 98,
+          "infrastructure": 85,
+          "labor_market": 60,
+          "stranded_energy": 90
+        }
+      },
+      "real_time_data": {
+        "avg_electricity_rate_usd": 0.042,
+        "current_hashrate_share": 0.008,
+        "active_facilities": 5,
+        "recent_policy_changes": [],
+        "grid_alerts": []
+      },
+      "notes": "100% renewable geothermal/hydro. Excellent cooling. Limited expansion capacity. Remote location."
+    },
+    {
+      "id": "norway",
+      "name": "Norway",
+      "country": "Norway",
+      "region": "Europe",
+      "coordinates": {"lat": 60.4720, "lng": 8.4689},
+      "scores": {
+        "political": {
+          "regulatory_stance": 65,
+          "seizure_risk": 95,
+          "policy_stability": 90,
+          "legal_clarity": 80
+        },
+        "economic": {
+          "electricity_cost": 78,
+          "currency_stability": 85,
+          "tax_regime": 55,
+          "banking_access": 90
+        },
+        "operational": {
+          "grid_reliability": 98,
+          "climate_suitability": 95,
+          "infrastructure": 92,
+          "labor_market": 75,
+          "stranded_energy": 85
+        }
+      },
+      "real_time_data": {
+        "avg_electricity_rate_usd": 0.055,
+        "current_hashrate_share": 0.012,
+        "active_facilities": 8,
+        "recent_policy_changes": ["Mining tax discussions"],
+        "grid_alerts": []
+      },
+      "notes": "Cheap hydro. Cold climate. Potential mining tax legislation. Strong infrastructure."
+    },
+    {
+      "id": "uae_abudhabi",
+      "name": "Abu Dhabi, UAE",
+      "country": "United Arab Emirates",
+      "region": "Middle East",
+      "coordinates": {"lat": 24.4539, "lng": 54.3773},
+      "scores": {
+        "political": {
+          "regulatory_stance": 85,
+          "seizure_risk": 80,
+          "policy_stability": 88,
+          "legal_clarity": 75
+        },
+        "economic": {
+          "electricity_cost": 70,
+          "currency_stability": 95,
+          "tax_regime": 95,
+          "banking_access": 80
+        },
+        "operational": {
+          "grid_reliability": 95,
+          "climate_suitability": 20,
+          "infrastructure": 95,
+          "labor_market": 70,
+          "stranded_energy": 60
+        }
+      },
+      "real_time_data": {
+        "avg_electricity_rate_usd": 0.078,
+        "current_hashrate_share": 0.025,
+        "active_facilities": 6,
+        "recent_policy_changes": ["ADGM crypto framework"],
+        "grid_alerts": []
+      },
+      "notes": "Zero taxes. Hot climate requires immersion cooling. Strong financial infrastructure."
+    },
+    {
+      "id": "oman",
+      "name": "Oman",
+      "country": "Oman",
+      "region": "Middle East",
+      "coordinates": {"lat": 21.4735, "lng": 55.9754},
+      "scores": {
+        "political": {
+          "regulatory_stance": 78,
+          "seizure_risk": 82,
+          "policy_stability": 85,
+          "legal_clarity": 68
+        },
+        "economic": {
+          "electricity_cost": 75,
+          "currency_stability": 90,
+          "tax_regime": 90,
+          "banking_access": 72
+        },
+        "operational": {
+          "grid_reliability": 88,
+          "climate_suitability": 25,
+          "infrastructure": 78,
+          "labor_market": 55,
+          "stranded_energy": 80
+        }
+      },
+      "real_time_data": {
+        "avg_electricity_rate_usd": 0.065,
+        "current_hashrate_share": 0.015,
+        "active_facilities": 4,
+        "recent_policy_changes": ["Mining pilot programs"],
+        "grid_alerts": []
+      },
+      "notes": "Emerging mining destination. Flared gas opportunities. Government interest in diversification."
+    },
+    {
+      "id": "russia_siberia",
+      "name": "Siberia, Russia",
+      "country": "Russia",
+      "region": "Asia",
+      "coordinates": {"lat": 56.0153, "lng": 92.8932},
+      "scores": {
+        "political": {
+          "regulatory_stance": 60,
+          "seizure_risk": 40,
+          "policy_stability": 50,
+          "legal_clarity": 45
+        },
+        "economic": {
+          "electricity_cost": 95,
+          "currency_stability": 40,
+          "tax_regime": 55,
+          "banking_access": 25
+        },
+        "operational": {
+          "grid_reliability": 75,
+          "climate_suitability": 95,
+          "infrastructure": 55,
+          "labor_market": 50,
+          "stranded_energy": 90
+        }
+      },
+      "real_time_data": {
+        "avg_electricity_rate_usd": 0.028,
+        "current_hashrate_share": 0.115,
+        "active_facilities": 35,
+        "recent_policy_changes": ["Sanctions impact", "Mining regulation uncertainty"],
+        "grid_alerts": []
+      },
+      "notes": "Extremely cheap power. Excellent cooling. Sanctions risk. Banking isolation. Policy uncertainty."
+    },
+    {
+      "id": "kazakhstan",
+      "name": "Kazakhstan",
+      "country": "Kazakhstan",
+      "region": "Central Asia",
+      "coordinates": {"lat": 48.0196, "lng": 66.9237},
+      "scores": {
+        "political": {
+          "regulatory_stance": 55,
+          "seizure_risk": 55,
+          "policy_stability": 50,
+          "legal_clarity": 45
+        },
+        "economic": {
+          "electricity_cost": 90,
+          "currency_stability": 50,
+          "tax_regime": 60,
+          "banking_access": 40
+        },
+        "operational": {
+          "grid_reliability": 60,
+          "climate_suitability": 85,
+          "infrastructure": 55,
+          "labor_market": 55,
+          "stranded_energy": 75
+        }
+      },
+      "real_time_data": {
+        "avg_electricity_rate_usd": 0.032,
+        "current_hashrate_share": 0.068,
+        "active_facilities": 28,
+        "recent_policy_changes": ["2024: Increased mining taxes", "Grid stability measures"],
+        "grid_alerts": ["Grid capacity constraints"]
+      },
+      "notes": "Post-China migration hub. Cheap coal power. Grid instability issues. Increasing taxes."
+    },
+    {
+      "id": "ethiopia",
+      "name": "Ethiopia",
+      "country": "Ethiopia",
+      "region": "Africa",
+      "coordinates": {"lat": 9.1450, "lng": 40.4897},
+      "scores": {
+        "political": {
+          "regulatory_stance": 65,
+          "seizure_risk": 50,
+          "policy_stability": 45,
+          "legal_clarity": 40
+        },
+        "economic": {
+          "electricity_cost": 98,
+          "currency_stability": 35,
+          "tax_regime": 70,
+          "banking_access": 30
+        },
+        "operational": {
+          "grid_reliability": 55,
+          "climate_suitability": 70,
+          "infrastructure": 40,
+          "labor_market": 45,
+          "stranded_energy": 95
+        }
+      },
+      "real_time_data": {
+        "avg_electricity_rate_usd": 0.018,
+        "current_hashrate_share": 0.008,
+        "active_facilities": 6,
+        "recent_policy_changes": ["Grand Ethiopian Renaissance Dam expansion"],
+        "grid_alerts": ["Grid capacity limitations"]
+      },
+      "notes": "Ultra-cheap hydro from GERD. Emerging market. Banking challenges. Currency controls."
+    },
+    {
+      "id": "argentina",
+      "name": "Argentina",
+      "country": "Argentina",
+      "region": "South America",
+      "coordinates": {"lat": -38.4161, "lng": -63.6167},
+      "scores": {
+        "political": {
+          "regulatory_stance": 72,
+          "seizure_risk": 60,
+          "policy_stability": 45,
+          "legal_clarity": 55
+        },
+        "economic": {
+          "electricity_cost": 85,
+          "currency_stability": 20,
+          "tax_regime": 50,
+          "banking_access": 55
+        },
+        "operational": {
+          "grid_reliability": 70,
+          "climate_suitability": 75,
+          "infrastructure": 68,
+          "labor_market": 70,
+          "stranded_energy": 80
+        }
+      },
+      "real_time_data": {
+        "avg_electricity_rate_usd": 0.038,
+        "current_hashrate_share": 0.012,
+        "active_facilities": 10,
+        "recent_policy_changes": ["Milei administration pro-Bitcoin"],
+        "grid_alerts": []
+      },
+      "notes": "New pro-Bitcoin government. Currency instability creates arbitrage. Vaca Muerta gas opportunities."
+    },
+    {
+      "id": "bhutan",
+      "name": "Bhutan",
+      "country": "Bhutan",
+      "region": "Asia",
+      "coordinates": {"lat": 27.5142, "lng": 90.4336},
+      "scores": {
+        "political": {
+          "regulatory_stance": 85,
+          "seizure_risk": 80,
+          "policy_stability": 82,
+          "legal_clarity": 65
+        },
+        "economic": {
+          "electricity_cost": 95,
+          "currency_stability": 70,
+          "tax_regime": 80,
+          "banking_access": 50
+        },
+        "operational": {
+          "grid_reliability": 78,
+          "climate_suitability": 80,
+          "infrastructure": 45,
+          "labor_market": 35,
+          "stranded_energy": 90
+        }
+      },
+      "real_time_data": {
+        "avg_electricity_rate_usd": 0.025,
+        "current_hashrate_share": 0.005,
+        "active_facilities": 3,
+        "recent_policy_changes": ["Government mining program expansion"],
+        "grid_alerts": []
+      },
+      "notes": "Government-backed mining. Excess hydro capacity. Limited infrastructure. Unique opportunity."
+    },
+    {
+      "id": "finland",
+      "name": "Finland",
+      "country": "Finland",
+      "region": "Europe",
+      "coordinates": {"lat": 61.9241, "lng": 25.7482},
+      "scores": {
+        "political": {
+          "regulatory_stance": 70,
+          "seizure_risk": 95,
+          "policy_stability": 92,
+          "legal_clarity": 85
+        },
+        "economic": {
+          "electricity_cost": 72,
+          "currency_stability": 90,
+          "tax_regime": 60,
+          "banking_access": 92
+        },
+        "operational": {
+          "grid_reliability": 98,
+          "climate_suitability": 95,
+          "infrastructure": 95,
+          "labor_market": 85,
+          "stranded_energy": 70
+        }
+      },
+      "real_time_data": {
+        "avg_electricity_rate_usd": 0.068,
+        "current_hashrate_share": 0.006,
+        "active_facilities": 4,
+        "recent_policy_changes": [],
+        "grid_alerts": []
+      },
+      "notes": "Nordic model. Excellent infrastructure. Cold climate. Heat reuse opportunities. High taxes."
+    },
+    {
+      "id": "malaysia",
+      "name": "Malaysia",
+      "country": "Malaysia",
+      "region": "Southeast Asia",
+      "coordinates": {"lat": 4.2105, "lng": 101.9758},
+      "scores": {
+        "political": {
+          "regulatory_stance": 50,
+          "seizure_risk": 60,
+          "policy_stability": 65,
+          "legal_clarity": 45
+        },
+        "economic": {
+          "electricity_cost": 80,
+          "currency_stability": 72,
+          "tax_regime": 70,
+          "banking_access": 68
+        },
+        "operational": {
+          "grid_reliability": 85,
+          "climate_suitability": 35,
+          "infrastructure": 80,
+          "labor_market": 75,
+          "stranded_energy": 55
+        }
+      },
+      "real_time_data": {
+        "avg_electricity_rate_usd": 0.045,
+        "current_hashrate_share": 0.022,
+        "active_facilities": 12,
+        "recent_policy_changes": ["Crackdown on illegal mining"],
+        "grid_alerts": []
+      },
+      "notes": "Cheap power but regulatory crackdowns on unlicensed operations. Hot climate."
+    }
+  ]
+}

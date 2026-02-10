@@ -1,0 +1,511 @@
+{% extends "base.html" %}
+
+{% block title %}Nostr Broadcaster | Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+:root {
+    --pp-red: #dc2626;
+    --pp-dark: #0a0a0a;
+    --pp-glass: rgba(10, 10, 10, 0.95);
+    --nostr-purple: #8b5cf6;
+}
+
+.nostr-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0505 100%);
+    padding: 100px 20px 60px;
+}
+
+.nostr-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+    transition: color 0.3s ease;
+}
+
+.back-link:hover {
+    color: var(--nostr-purple);
+}
+
+.nostr-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.nostr-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.nostr-title i {
+    color: var(--nostr-purple);
+}
+
+.test-btn {
+    background: var(--nostr-purple);
+    border: none;
+    border-radius: 10px;
+    padding: 14px 28px;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.test-btn:hover {
+    background: #7c3aed;
+    transform: translateY(-2px);
+}
+
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.status-card {
+    background: var(--pp-glass);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 16px;
+    padding: 25px;
+}
+
+.status-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.status-header i {
+    color: var(--nostr-purple);
+    font-size: 1.2rem;
+}
+
+.status-header h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+.relay-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.relay-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.relay-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #22c55e;
+}
+
+.relay-dot.offline {
+    background: #ef4444;
+}
+
+.relay-url {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.pubkey-display {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.pubkey-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.pubkey-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--nostr-purple);
+    word-break: break-all;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+}
+
+.indicator-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.indicator-dot.ready {
+    background: #22c55e;
+}
+
+.indicator-dot.not-ready {
+    background: #ef4444;
+    animation: none;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.indicator-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: #fff;
+}
+
+.broadcast-section {
+    background: var(--pp-glass);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.broadcast-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.broadcast-header i {
+    color: var(--nostr-purple);
+}
+
+.broadcast-header h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    color: #fff;
+    margin: 0;
+}
+
+.broadcast-form {
+    display: grid;
+    gap: 15px;
+}
+
+.broadcast-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    resize: vertical;
+}
+
+.broadcast-textarea:focus {
+    outline: none;
+    border-color: var(--nostr-purple);
+}
+
+.broadcast-btn {
+    background: var(--nostr-purple);
+    border: none;
+    border-radius: 10px;
+    padding: 15px 30px;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    justify-self: start;
+}
+
+.broadcast-btn:hover {
+    background: #7c3aed;
+}
+
+.events-section {
+    background: var(--pp-glass);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 16px;
+    padding: 25px;
+}
+
+.events-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.events-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.events-title i {
+    color: var(--nostr-purple);
+}
+
+.events-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.event-item {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+.event-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.event-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--nostr-purple);
+}
+
+.event-type {
+    padding: 3px 10px;
+    background: rgba(139, 92, 246, 0.2);
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--nostr-purple);
+}
+
+.event-relays {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.event-relays span {
+    color: #22c55e;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: rgba(255, 255, 255, 0.4);
+    font-family: 'JetBrains Mono', monospace;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="nostr-page">
+    <div class="nostr-container">
+        <a href="/admin/intelligence" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Intelligence
+        </a>
+        
+        <div class="nostr-header">
+            <h1 class="nostr-title">
+                <i class="fas fa-broadcast-tower"></i>
+                Nostr Broadcaster
+            </h1>
+            <button class="test-btn" onclick="testConnection()">
+                <i class="fas fa-satellite"></i> Test Connection
+            </button>
+        </div>
+        
+        <div class="status-grid">
+            <div class="status-card">
+                <div class="status-header">
+                    <i class="fas fa-server"></i>
+                    <h3>Relay Status</h3>
+                </div>
+                <div class="relay-list">
+                    {% for relay in status.relays %}
+                    <div class="relay-item">
+                        <span class="relay-dot"></span>
+                        <span class="relay-url">{{ relay }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="status-card">
+                <div class="status-header">
+                    <i class="fas fa-key"></i>
+                    <h3>Identity</h3>
+                </div>
+                
+                {% if status.public_key %}
+                <div class="pubkey-display">
+                    <div class="pubkey-label">Public Key (hex)</div>
+                    <div class="pubkey-value">{{ status.public_key[:32] }}...</div>
+                </div>
+                {% endif %}
+                
+                <div class="status-indicator">
+                    <span class="indicator-dot {% if status.ready %}ready{% else %}not-ready{% endif %}"></span>
+                    <span class="indicator-text">
+                        {% if status.ready %}Ready to Broadcast{% else %}Not Configured{% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="broadcast-section">
+            <div class="broadcast-header">
+                <i class="fas fa-paper-plane"></i>
+                <h3>Manual Broadcast</h3>
+            </div>
+            
+            <form class="broadcast-form" id="broadcast-form">
+                <textarea class="broadcast-textarea" id="broadcast-content" placeholder="Enter your note content here... It will be signed with your nsec and broadcast to all configured relays."></textarea>
+                <button type="submit" class="broadcast-btn">
+                    <i class="fas fa-bolt"></i> Broadcast to Nostr
+                </button>
+            </form>
+        </div>
+        
+        <div class="events-section">
+            <div class="events-header">
+                <span class="events-title">
+                    <i class="fas fa-history"></i>
+                    Recent Broadcasts
+                </span>
+            </div>
+            
+            <div class="events-list">
+                {% if events %}
+                    {% for event in events %}
+                    <div class="event-item">
+                        <div class="event-header">
+                            <span class="event-id">{{ event.event_id[:24] if event.event_id else 'N/A' }}...</span>
+                            <span class="event-type">{{ event.content_type }}</span>
+                        </div>
+                        <div class="event-relays">
+                            Relays: <span>{{ event.relays_success | from_json | length if event.relays_success else 0 }}</span> success
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="empty-state">No broadcasts yet</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function testConnection() {
+    fetch('/admin/nostr/test', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Connection test successful! Event ID: ' + data.event_id.substring(0, 16) + '...');
+            } else if (data.simulated) {
+                alert('Simulated broadcast (no private key configured). Set NOSTR_PRIVATE_KEY to enable real broadcasts.');
+            } else {
+                alert('Connection test failed. Check relay configuration.');
+            }
+        })
+        .catch(error => {
+            alert('Error testing connection: ' + error);
+        });
+}
+
+document.getElementById('broadcast-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const content = document.getElementById('broadcast-content').value;
+    if (!content.trim()) {
+        alert('Please enter content to broadcast');
+        return;
+    }
+    
+    fetch('/admin/nostr/broadcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: content, type: 'note' })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Broadcast successful!');
+            document.getElementById('broadcast-content').value = '';
+            location.reload();
+        } else if (data.simulated) {
+            alert('Simulated broadcast (no private key configured).');
+        } else {
+            alert('Broadcast failed: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        alert('Error broadcasting: ' + error);
+    });
+});
+</script>
+{% endblock %}

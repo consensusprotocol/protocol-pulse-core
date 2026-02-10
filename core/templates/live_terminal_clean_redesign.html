@@ -1,0 +1,914 @@
+{% extends "base.html" %}
+
+{% block title %}Sovereign Settlement Terminal | Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+:root {
+    --pp-bitcoin: #f7931a;
+    --pp-red: #dc2626;
+    --pp-dark: #000000;
+    --pp-glass: rgba(10, 10, 10, 0.85);
+    --pp-border: rgba(255, 255, 255, 0.1);
+}
+
+/* 1. CRITICAL LAYOUT & BUFFER FIXES */
+body, html {
+    background: #000 !important;
+    margin: 0; padding: 0;
+    overflow-x: hidden;
+}
+
+/* BREATHING ROOM - Tiered spacing for visual hierarchy */
+.module-buffer {
+    margin-bottom: 80px !important;
+}
+
+.module-buffer-hero {
+    margin-bottom: 120px !important;
+}
+
+.module-buffer-compact {
+    margin-bottom: 50px !important;
+}
+
+#live-terminal-wrapper {
+    height: 100vh !important;
+    min-height: 100vh !important;
+    position: relative;
+    overflow: hidden;
+    background: #000;
+}
+
+/* Scroll indicator */
+.scroll-indicator {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    text-align: center;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-10px); }
+}
+
+/* 2. COLLAPSIBLE LOGIC - Viral "Clean View" */
+.collapsible-section .module-content {
+    max-height: 2000px;
+    overflow: hidden;
+    transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+}
+
+.collapsible-section.collapsed .module-content {
+    max-height: 0;
+    opacity: 0;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.collapsible-toggle {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--pp-border);
+    color: rgba(255,255,255,0.6);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.3s;
+}
+
+.collapsible-toggle:hover {
+    border-color: var(--pp-red);
+    color: #fff;
+    background: rgba(220, 38, 38, 0.1);
+}
+
+/* 3. TIMECHAIN CLOCK FIX - SYNCED RADIALS */
+.clock-face {
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    border: 2px solid rgba(247, 147, 26, 0.4);
+    position: relative;
+    background: radial-gradient(circle, rgba(20,20,20,1) 0%, rgba(0,0,0,1) 100%);
+    box-shadow: 0 0 30px rgba(247, 147, 26, 0.1);
+}
+
+.clock-marker {
+    position: absolute;
+    width: 2px;
+    height: 12px;
+    background: rgba(255,255,255,0.2);
+    left: 50%;
+    top: 10px;
+    /* FIX: Pivot from exact center of the 280px circle (140px) */
+    transform-origin: 50% 130px; 
+    margin-left: -1px;
+}
+
+.clock-marker.major {
+    height: 18px;
+    width: 3px;
+    background: var(--pp-bitcoin);
+}
+
+.clock-hand.blocks {
+    position: absolute;
+    width: 4px; 
+    height: 90px;
+    transform-origin: bottom center;
+    bottom: 50%; 
+    left: 50%; 
+    margin-left: -2px;
+    background: var(--pp-bitcoin);
+    box-shadow: 0 0 15px var(--pp-bitcoin);
+    z-index: 5;
+    border-radius: 2px;
+}
+
+.clock-center {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: var(--pp-bitcoin);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    box-shadow: 0 0 20px var(--pp-bitcoin);
+}
+
+/* 4. CTA BUTTON BLEED FIX */
+.cta-email-form {
+    display: flex;
+    width: 100%;
+    gap: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--pp-border);
+}
+
+.cta-email-input {
+    flex: 1;
+    background: rgba(0,0,0,0.5);
+    border: none;
+    padding: 12px 15px;
+    color: #fff;
+    min-width: 0;
+}
+
+.cta-email-btn {
+    background: var(--pp-red);
+    color: #fff;
+    border: none;
+    padding: 0 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.cta-email-btn:hover {
+    background: #b91c1c;
+}
+
+/* 5. GENESIS IMAGE - CHANCELLOR SEPIA EFFECT */
+.genesis-headline img {
+    width: 140px;
+    height: auto;
+    filter: sepia(1) saturate(0.5) contrast(1.2);
+    border: 1px solid var(--pp-bitcoin);
+    transition: 0.5s;
+}
+
+.genesis-headline img:hover {
+    filter: none;
+    transform: scale(1.1);
+}
+
+/* 6. GLASS MODULE STYLING */
+.glass-module {
+    background: var(--pp-glass);
+    border: 1px solid var(--pp-border);
+    border-radius: 16px;
+    padding: 24px;
+    backdrop-filter: blur(10px);
+}
+
+.module-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.module-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(247, 147, 26, 0.1);
+    border-radius: 10px;
+    color: var(--pp-bitcoin);
+    font-size: 1.2rem;
+}
+
+.module-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* 7. STATUS BAR */
+.sovereign-status-bar {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.status-metric {
+    text-align: center;
+}
+
+.status-label {
+    display: block;
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.status-value {
+    display: block;
+    font-size: 1.1rem;
+    color: #fff;
+    font-weight: bold;
+}
+
+.status-value.highlight {
+    color: var(--pp-bitcoin);
+}
+
+.rec-indicator {
+    position: relative;
+}
+
+.rec-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--pp-red);
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: pulse-dot 1.5s infinite;
+}
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* 8. SOVEREIGN HEALTH HUD */
+.pulse-heartbeat {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.heartbeat-visual {
+    width: 80px;
+    height: 80px;
+    position: relative;
+}
+
+.heartbeat-core {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, var(--pp-bitcoin) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: heartbeat 1s infinite;
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.1); opacity: 1; }
+}
+
+.heartbeat-label {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+}
+
+.heartbeat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--pp-bitcoin);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.fee-scale {
+    display: flex;
+    gap: 20px;
+}
+
+.fee-tier {
+    flex: 1;
+    text-align: center;
+    padding: 15px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+}
+
+.fee-tier-label {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.fee-tier-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.fee-tier-value.urgent { color: var(--pp-red); }
+.fee-tier-value.medium { color: var(--pp-bitcoin); }
+
+/* 9. GENESIS SHRINE */
+.genesis-shrine {
+    background: linear-gradient(135deg, rgba(247, 147, 26, 0.05) 0%, rgba(0,0,0,0.9) 100%);
+    border: 1px solid rgba(247, 147, 26, 0.3);
+    border-radius: 16px;
+    padding: 30px;
+}
+
+.genesis-content {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.genesis-info p {
+    font-style: italic;
+    font-size: 1.1rem;
+    margin: 10px 0 0 0;
+}
+
+/* 10. DIGITAL CLOCK DISPLAY */
+.clock-digital {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.clock-block-height {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--pp-bitcoin);
+    letter-spacing: 2px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    #live-terminal-wrapper {
+        height: 100vh !important;
+        min-height: 100vh !important;
+    }
+    
+    .genesis-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .fee-scale {
+        flex-direction: column;
+    }
+    
+    .clock-face {
+        width: 220px;
+        height: 220px;
+    }
+    
+    .clock-marker {
+        transform-origin: 50% 100px;
+    }
+    
+    .clock-hand.blocks {
+        height: 70px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="live-terminal-wrapper">
+    <video autoplay muted loop playsinline id="pulse-bg-video" 
+           style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; filter: brightness(0.4);">
+        <source src="/static/video/pulse-bg.mp4" type="video/mp4">
+    </video>
+    
+    <div class="sovereign-status-bar" style="position: absolute; width: 100%; z-index: 10; background: linear-gradient(to bottom, black, transparent);">
+        <div class="container d-flex justify-content-around py-3">
+            <div class="status-metric"><span class="status-label">Sats/vB</span><span class="status-value highlight" id="status-fee-rate">--</span></div>
+            <div class="status-metric rec-indicator"><span class="rec-dot"></span><span class="status-label">Hashrate</span><span class="status-value" id="status-hashrate">--</span></div>
+            <div class="status-metric"><span class="status-label">Retarget</span><span class="status-value" id="status-retarget">--</span></div>
+        </div>
+    </div>
+
+    <div id="visualizer-container" style="position: absolute; width: 100%; height: 100%; z-index: 1;">
+        <canvas id="visualizer-canvas"></canvas>
+    </div>
+    
+    <!-- SCROLL INDICATOR -->
+    <div class="scroll-indicator">
+        <p class="text-muted mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px;">Scroll for Intelligence</p>
+        <i class="fas fa-chevron-down" style="color: #f7931a; font-size: 1.5rem;"></i>
+    </div>
+</div>
+
+<!-- SOVEREIGN HEALTH -->
+<section class="container module-buffer" style="margin-top: -40px; position: relative; z-index: 20;">
+    <div class="glass-module sovereign-health-hud">
+        <div class="module-header">
+            <div class="module-icon"><i class="fas fa-heartbeat"></i></div>
+            <h3 class="module-title">Sovereign Health</h3>
+        </div>
+        <div class="row align-items-center">
+            <div class="col-md-5">
+                <div class="pulse-heartbeat">
+                    <div class="heartbeat-visual"><div class="heartbeat-core"></div></div>
+                    <div class="heartbeat-info">
+                        <div class="heartbeat-label">Protocol Pulse</div>
+                        <div class="heartbeat-value" id="health-block-time">0:00</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <div class="fee-friction-calc">
+                    <div class="fee-scale">
+                        <div class="fee-tier"><div class="fee-tier-label">Next Block</div><div class="fee-tier-value urgent" id="fee-urgent">--</div></div>
+                        <div class="fee-tier"><div class="fee-tier-label">Standard</div><div class="fee-tier-value medium" id="fee-standard">--</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- NODE GLOBE -->
+<section class="container module-buffer">
+    <div class="node-globe-showcase glass-module" style="border-color: #3b82f6;">
+        <div class="module-header">
+            <div class="module-icon" style="color: #3b82f6; background: rgba(59, 130, 246, 0.1);"><i class="fas fa-globe-americas"></i></div>
+            <h3 class="module-title" style="color: #3b82f6;">Decentralized Nervous System</h3>
+        </div>
+        <div id="node-globe" style="height: 400px; width: 100%;"></div>
+        
+        <!-- ROTATING AD BANNER -->
+        <div class="ad-banner-container" style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.4); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+            <div id="ad-slot-1" class="ad-slot active" style="text-align: center;">
+                <a href="https://bitaxe.org" target="_blank" style="display: inline-block;">
+                    <img src="/static/ads/CUrated_ad_92b6d00265774c62ae666607abf5ebcb.jpeg" alt="Mining Partner" style="max-width: 100%; max-height: 120px; border-radius: 8px; opacity: 0.9; transition: 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.9'">
+                </a>
+                <p class="text-muted mt-2 mb-0" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Curated Mining Partner</p>
+            </div>
+            <div id="ad-slot-2" class="ad-slot" style="display: none; text-align: center;">
+                <div style="padding: 20px;">
+                    <i class="fas fa-bolt" style="font-size: 2rem; color: #f7931a; margin-bottom: 10px;"></i>
+                    <h4 style="color: #fff; margin: 10px 0; font-size: 1rem;">Support Protocol Pulse</h4>
+                    <p class="text-muted mb-3" style="font-size: 0.85rem;">Help us stay sovereign and ad-free</p>
+                    <a href="/donate" class="btn" style="background: linear-gradient(135deg, #f7931a, #dc2626); color: #fff; padding: 10px 25px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+                        <i class="fas fa-heart me-2"></i>Donate Sats
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SOVEREIGNTY CALCULATOR - COLLAPSIBLE -->
+<section class="container module-buffer">
+    <div class="glass-module collapsible-section collapsed">
+        <div class="module-header d-flex justify-content-between align-items-center" style="cursor: pointer;" onclick="toggleSection(this.parentElement)">
+            <div class="d-flex align-items-center gap-3">
+                <div class="module-icon"><i class="fas fa-calculator"></i></div>
+                <h3 class="module-title">Sovereignty Calculator</h3>
+            </div>
+            <button class="collapsible-toggle" onclick="event.stopPropagation(); toggleSection(this.closest('.collapsible-section'))">Expand Intel</button>
+        </div>
+        <div class="module-content mt-4">
+            <div id="stack-chart-container" style="height: 250px;">
+                <canvas id="stack-chart"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PURCHASING POWER DECAY -->
+<section class="container module-buffer">
+    <div class="glass-module" style="border-color: var(--pp-red);">
+        <div class="module-header">
+            <div class="module-icon" style="color: var(--pp-red); background: rgba(220, 38, 38, 0.1);"><i class="fas fa-chart-area"></i></div>
+            <h3 class="module-title">Purchasing Power Decay</h3>
+        </div>
+        <canvas id="purchasing-power-chart" style="height: 300px; width: 100%;"></canvas>
+    </div>
+</section>
+
+<!-- TIMECHAIN CLOCK - COLLAPSIBLE -->
+<section class="container module-buffer-compact">
+    <div class="glass-module collapsible-section collapsed">
+        <div class="module-header d-flex justify-content-between align-items-center" style="cursor: pointer;" onclick="toggleSection(this.parentElement)">
+            <div class="d-flex align-items-center gap-3 justify-content-center" style="flex: 1;">
+                <div class="module-icon"><i class="fas fa-clock"></i></div>
+                <h3 class="module-title">Satoshi Timechain</h3>
+            </div>
+            <button class="collapsible-toggle" onclick="event.stopPropagation(); toggleSection(this.closest('.collapsible-section'))">Expand Intel</button>
+        </div>
+        <div class="module-content">
+            <div class="timechain-clock-container d-flex flex-column align-items-center mt-4">
+                <div class="clock-face" id="timechain-clock">
+                    <div class="clock-markers" id="clock-markers-layer"></div>
+                    <div class="clock-hand blocks" id="clock-block-hand"></div>
+                    <div class="clock-center"></div>
+                </div>
+                <div class="clock-digital mt-4 text-center">
+                    <div class="clock-block-height" id="clock-block-height">#879,241</div>
+                    <p class="text-muted mb-0">BLOCK HEIGHT</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- GENESIS SHRINE -->
+<section class="container module-buffer">
+    <div class="genesis-shrine">
+        <div class="genesis-content">
+            <div class="genesis-headline">
+                <a href="https://www.thetimes.co.uk/archive/article/2009-01-03/1/1.html" target="_blank">
+                    <img src="https://upload.wikimedia.org/wikipedia/en/4/42/The_Times_3_January_2009.jpg" alt="The Times - January 3, 2009" style="width: 120px;" onerror="this.style.display='none'">
+                </a>
+            </div>
+            <div class="genesis-info">
+                <h2 class="module-title" style="color: var(--pp-bitcoin);">THE GENESIS BLOCK</h2>
+                <p class="text-white">"Chancellor on brink of second bailout for banks"</p>
+                <p class="text-muted mb-0" style="font-size: 0.8rem;">January 3, 2009 - Block #0</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PROTOCOL ROADMAP - CORE VS KNOTS -->
+<section class="container module-buffer">
+    <div class="glass-module collapsible-section collapsed" style="border-color: #22c55e;">
+        <div class="module-header d-flex justify-content-between align-items-center" style="cursor: pointer;" onclick="toggleSection(this.parentElement)">
+            <div class="d-flex align-items-center gap-3">
+                <div class="module-icon" style="color: #22c55e; background: rgba(34, 197, 94, 0.1);"><i class="fas fa-code-branch"></i></div>
+                <h3 class="module-title" style="color: #22c55e;">Protocol Roadmap</h3>
+            </div>
+            <button class="collapsible-toggle" onclick="event.stopPropagation(); toggleSection(this.closest('.collapsible-section'))">Expand Intel</button>
+        </div>
+        <div class="module-content mt-4">
+            <!-- Core vs Knots Explainer -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div style="background: rgba(0,0,0,0.4); padding: 20px; border-radius: 12px; border-left: 3px solid #f7931a;">
+                        <h5 style="color: #f7931a; margin-bottom: 10px;"><i class="fas fa-info-circle me-2"></i>The Core vs Knots Debate</h5>
+                        <p class="text-muted mb-2" style="font-size: 0.9rem;">Bitcoin Core and Bitcoin Knots are both full node implementations. Core is the reference implementation maintained by Bitcoin Core developers. Knots, maintained by Luke Dashjr, includes additional features and stricter policy defaults (like OP_RETURN limits and Ordinals filtering).</p>
+                        <p class="text-muted mb-0" style="font-size: 0.85rem;"><strong style="color: #fff;">Key difference:</strong> Knots enforces tighter spam filters by default, while Core maintains a more permissive approach. This reflects a philosophical divide about what belongs on the Bitcoin blockchain.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Adoption Metrics -->
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <div style="background: rgba(34, 197, 94, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(34, 197, 94, 0.3); text-align: center;">
+                        <h6 style="color: #22c55e; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px;">Bitcoin Core</h6>
+                        <div style="font-size: 2.5rem; font-weight: bold; color: #22c55e;" id="core-adoption">~96%</div>
+                        <p class="text-muted mb-0" style="font-size: 0.75rem;">Estimated Node Share</p>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div style="background: rgba(139, 92, 246, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(139, 92, 246, 0.3); text-align: center;">
+                        <h6 style="color: #8b5cf6; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px;">Bitcoin Knots</h6>
+                        <div style="font-size: 2.5rem; font-weight: bold; color: #8b5cf6;" id="knots-adoption">~4%</div>
+                        <p class="text-muted mb-0" style="font-size: 0.75rem;">Estimated Node Share</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Live Commits Feed -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
+                        <h6 style="color: #22c55e; margin-bottom: 15px;"><i class="fab fa-github me-2"></i>Bitcoin Core Latest</h6>
+                        <div id="core-commits">
+                            <div class="commit-item" style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <code style="color: #22c55e; font-size: 0.75rem;">bitcoin/bitcoin@a1b2c3d</code>
+                                <p style="margin: 5px 0 0; font-size: 0.8rem; color: #fff;">wallet: Improve coin selection for high-fee environments</p>
+                                <span class="text-muted" style="font-size: 0.7rem;">2 hours ago</span>
+                            </div>
+                            <div class="commit-item" style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <code style="color: #22c55e; font-size: 0.75rem;">bitcoin/bitcoin@e4f5g6h</code>
+                                <p style="margin: 5px 0 0; font-size: 0.8rem; color: #fff;">p2p: Add support for v2 transport protocol</p>
+                                <span class="text-muted" style="font-size: 0.7rem;">5 hours ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
+                        <h6 style="color: #8b5cf6; margin-bottom: 15px;"><i class="fab fa-github me-2"></i>Bitcoin Knots Latest</h6>
+                        <div id="knots-commits">
+                            <div class="commit-item" style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <code style="color: #8b5cf6; font-size: 0.75rem;">bitcoinknots/bitcoin@x1y2z3</code>
+                                <p style="margin: 5px 0 0; font-size: 0.8rem; color: #fff;">policy: Tighten datacarrier limits for spam prevention</p>
+                                <span class="text-muted" style="font-size: 0.7rem;">8 hours ago</span>
+                            </div>
+                            <div class="commit-item" style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <code style="color: #8b5cf6; font-size: 0.75rem;">bitcoinknots/bitcoin@w4v5u6</code>
+                                <p style="margin: 5px 0 0; font-size: 0.8rem; color: #fff;">Merge upstream: Bitcoin Core v27.0 base</p>
+                                <span class="text-muted" style="font-size: 0.7rem;">1 day ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SUBSCRIBE CTA -->
+<section class="container module-buffer">
+    <div class="cta-section text-center p-5 glass-module">
+        <h3 class="module-title mb-4">Join the Sovereign Network</h3>
+        <p class="text-muted mb-4">Daily intelligence briefings for the decentralized future</p>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <form class="cta-email-form">
+                    <input type="email" class="cta-email-input" placeholder="operative@protocolpulse.ai">
+                    <button type="submit" class="cta-email-btn">SUBSCRIBE</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/static/js/visualizer.js"></script>
+<script>
+// CLOCK MARKER GENERATION - 60-POINT SYSTEM
+function generateClockMarkers() {
+    const layer = document.getElementById('clock-markers-layer');
+    if(!layer) return;
+    layer.innerHTML = '';
+    for (let i = 0; i < 60; i++) {
+        const marker = document.createElement('div');
+        marker.className = 'clock-marker' + (i % 5 === 0 ? ' major' : '');
+        marker.style.transform = `translateX(-50%) rotate(${i * 6}deg)`;
+        layer.appendChild(marker);
+    }
+}
+
+// COLLAPSIBLE SECTION TOGGLE
+function toggleSection(element) {
+    element.classList.toggle('collapsed');
+    const btn = element.querySelector('.collapsible-toggle');
+    if (btn) {
+        btn.innerText = element.classList.contains('collapsed') ? 'Expand Intel' : 'Collapse';
+    }
+}
+
+// LIVE DATA FETCHING
+async function fetchMempoolData() {
+    try {
+        const [fees, blocks, hashrate] = await Promise.all([
+            fetch('https://mempool.space/api/v1/fees/recommended').then(r => r.json()),
+            fetch('https://mempool.space/api/blocks').then(r => r.json()),
+            fetch('https://mempool.space/api/v1/mining/hashrate/3d').then(r => r.json())
+        ]);
+        
+        // Update fee display
+        document.getElementById('status-fee-rate').textContent = fees.fastestFee + ' sat/vB';
+        document.getElementById('fee-urgent').textContent = fees.fastestFee + ' sat/vB';
+        document.getElementById('fee-standard').textContent = fees.halfHourFee + ' sat/vB';
+        
+        // Update block height
+        if (blocks && blocks[0]) {
+            const height = blocks[0].height;
+            document.getElementById('clock-block-height').textContent = '#' + height.toLocaleString();
+            
+            // Rotate clock hand based on block position in difficulty period
+            const blockInPeriod = height % 2016;
+            const rotation = (blockInPeriod / 2016) * 360;
+            const hand = document.getElementById('clock-block-hand');
+            if (hand) {
+                hand.style.transform = `rotate(${rotation}deg)`;
+            }
+            
+            // Calculate time since last block
+            const timeSince = Math.floor((Date.now() / 1000) - blocks[0].timestamp);
+            const minutes = Math.floor(timeSince / 60);
+            const seconds = timeSince % 60;
+            document.getElementById('health-block-time').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        // Update hashrate
+        if (hashrate && hashrate.currentHashrate) {
+            const ehps = (hashrate.currentHashrate / 1e18).toFixed(1);
+            document.getElementById('status-hashrate').textContent = ehps + ' EH/s';
+        }
+        
+        // Update retarget
+        if (blocks && blocks[0]) {
+            const blocksUntilRetarget = 2016 - (blocks[0].height % 2016);
+            document.getElementById('status-retarget').textContent = blocksUntilRetarget + ' blocks';
+        }
+        
+    } catch (err) {
+        console.log('Mempool fetch error:', err);
+    }
+}
+
+// NODE GLOBE INITIALIZATION
+function initNodeGlobe() {
+    const container = document.getElementById('node-globe');
+    if (!container || typeof THREE === 'undefined') return;
+    
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setClearColor(0x000000, 0);
+    container.appendChild(renderer.domElement);
+    
+    // Create globe
+    const geometry = new THREE.SphereGeometry(5, 32, 32);
+    const material = new THREE.MeshBasicMaterial({
+        color: 0x3b82f6,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.3
+    });
+    const globe = new THREE.Mesh(geometry, material);
+    scene.add(globe);
+    
+    // Add node points
+    const nodeGeometry = new THREE.BufferGeometry();
+    const nodeCount = 200;
+    const positions = new Float32Array(nodeCount * 3);
+    
+    for (let i = 0; i < nodeCount; i++) {
+        const phi = Math.acos(-1 + (2 * i) / nodeCount);
+        const theta = Math.sqrt(nodeCount * Math.PI) * phi;
+        
+        positions[i * 3] = 5.1 * Math.cos(theta) * Math.sin(phi);
+        positions[i * 3 + 1] = 5.1 * Math.sin(theta) * Math.sin(phi);
+        positions[i * 3 + 2] = 5.1 * Math.cos(phi);
+    }
+    
+    nodeGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const nodeMaterial = new THREE.PointsMaterial({ color: 0xf7931a, size: 0.15 });
+    const nodes = new THREE.Points(nodeGeometry, nodeMaterial);
+    scene.add(nodes);
+    
+    camera.position.z = 12;
+    
+    function animate() {
+        requestAnimationFrame(animate);
+        globe.rotation.y += 0.002;
+        nodes.rotation.y += 0.002;
+        renderer.render(scene, camera);
+    }
+    animate();
+    
+    // Handle resize
+    window.addEventListener('resize', () => {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+}
+
+// PURCHASING POWER CHART
+function initPurchasingPowerChart() {
+    const ctx = document.getElementById('purchasing-power-chart');
+    if (!ctx) return;
+    
+    const years = [];
+    const usdValues = [];
+    const btcValues = [];
+    
+    for (let year = 1971; year <= 2024; year++) {
+        years.push(year);
+        // USD loses ~3.5% per year on average
+        usdValues.push(100 * Math.pow(0.965, year - 1971));
+        // BTC gains (simplified model from 2009)
+        if (year < 2009) {
+            btcValues.push(null);
+        } else {
+            btcValues.push(100 * Math.pow(1.8, year - 2009));
+        }
+    }
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: years,
+            datasets: [{
+                label: 'USD Purchasing Power',
+                data: usdValues,
+                borderColor: '#dc2626',
+                backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                fill: true,
+                tension: 0.4
+            }, {
+                label: 'BTC Value (Log Scale)',
+                data: btcValues,
+                borderColor: '#f7931a',
+                backgroundColor: 'rgba(247, 147, 26, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: { color: '#fff' }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: 'rgba(255,255,255,0.5)' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                },
+                y: {
+                    type: 'logarithmic',
+                    ticks: { color: 'rgba(255,255,255,0.5)' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                }
+            }
+        }
+    });
+}
+
+// AD BANNER ROTATION
+function initAdRotation() {
+    const slot1 = document.getElementById('ad-slot-1');
+    const slot2 = document.getElementById('ad-slot-2');
+    if (!slot1 || !slot2) return;
+    
+    let showingSlot1 = true;
+    setInterval(() => {
+        if (showingSlot1) {
+            slot1.style.display = 'none';
+            slot2.style.display = 'block';
+        } else {
+            slot2.style.display = 'none';
+            slot1.style.display = 'block';
+        }
+        showingSlot1 = !showingSlot1;
+    }, 8000); // Rotate every 8 seconds
+}
+
+// INITIALIZATION
+document.addEventListener('DOMContentLoaded', () => {
+    generateClockMarkers();
+    fetchMempoolData();
+    setInterval(fetchMempoolData, 30000);
+    
+    // Initialize ad rotation
+    initAdRotation();
+    
+    // Initialize visualizer
+    if (typeof initVisualizer === 'function') {
+        initVisualizer();
+    }
+    
+    // Initialize globe after Three.js loads
+    setTimeout(initNodeGlobe, 500);
+    
+    // Initialize chart after Chart.js loads
+    setTimeout(initPurchasingPowerChart, 500);
+});
+</script>
+{% endblock %}

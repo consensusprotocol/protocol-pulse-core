@@ -1,0 +1,3021 @@
+{% extends "base.html" %}
+
+{% block title %}Media Intelligence Terminal - Protocol Pulse{% endblock %}
+
+{% block extra_head %}
+<!-- Apex Media Hub v3.0 Typography -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=uncut-sans@400,500,600,700,800&display=swap" rel="stylesheet">
+<!-- Three.js for 3D Carousel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- Vanilla Tilt for physical reactivity -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
+
+<style>
+:root {
+    --deep-space: #010101;
+    --panel-bg: rgba(5, 5, 8, 0.85);
+    --glass-border: rgba(220, 38, 38, 0.12);
+    --glass-border-hover: rgba(220, 38, 38, 0.5);
+    --accent-red: #dc2626;
+    --accent-red-glow: rgba(220, 38, 38, 0.4);
+    --bitcoin-gold: #f7931a;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --text-muted: rgba(255, 255, 255, 0.4);
+    --signal-green: #00ff88;
+    --glass-blur: blur(80px) saturate(160%);
+    --ambient-gradient: radial-gradient(ellipse at 50% 0%, rgba(220, 38, 38, 0.08) 0%, transparent 50%);
+}
+
+* { box-sizing: border-box; }
+
+.media-terminal {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--deep-space);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* ===== APEX V3.0: CINEMATIC BLACK BOX AESTHETIC ===== */
+.media-terminal::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: var(--ambient-gradient);
+    pointer-events: none;
+    z-index: 0;
+    transition: background 0.8s ease;
+}
+
+/* Dynamic ambient shift based on focused series */
+.media-terminal.ambient-gold::before {
+    background: radial-gradient(ellipse at 50% 0%, rgba(247, 147, 26, 0.1) 0%, transparent 50%);
+}
+.media-terminal.ambient-crimson::before {
+    background: radial-gradient(ellipse at 50% 0%, rgba(220, 38, 38, 0.12) 0%, transparent 50%);
+}
+.media-terminal.ambient-purple::before {
+    background: radial-gradient(ellipse at 50% 0%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+}
+
+/* ===== SVG NOISE GRAIN OVERLAY (FILM TEXTURE) ===== */
+.noise-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.04;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+}
+
+/* ===== AMBIENT GLOW ORBS ===== */
+.ambient-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+}
+.orb-1 { width: 800px; height: 800px; background: rgba(220, 38, 38, 0.06); top: -300px; right: -200px; animation: orbFloat 25s ease-in-out infinite; }
+.orb-2 { width: 600px; height: 600px; background: rgba(247, 147, 26, 0.04); bottom: -200px; left: -150px; animation: orbFloat 30s ease-in-out infinite reverse; }
+.orb-3 { width: 400px; height: 400px; background: rgba(220, 38, 38, 0.03); top: 50%; left: 30%; animation: orbFloat 20s ease-in-out infinite; }
+
+@keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(40px, -40px) scale(1.05); }
+    66% { transform: translate(-30px, 30px) scale(0.95); }
+}
+
+/* ===== TACTICAL TELEMETRY STRIP - GLASSMORPHISM 3.0 ===== */
+.telemetry-strip {
+    position: fixed;
+    top: 65px;
+    left: 0;
+    right: 0;
+    height: 52px;
+    background: var(--panel-bg);
+    border-bottom: 1.5px solid transparent;
+    border-image: linear-gradient(90deg, transparent, var(--glass-border-hover), var(--bitcoin-gold), var(--glass-border-hover), transparent) 1;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    z-index: 100;
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+/* Mempool Particle Canvas */
+#mempoolCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.telemetry-metrics {
+    display: flex;
+    gap: 32px;
+}
+
+.metric-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+}
+
+.metric-label {
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.metric-value {
+    color: var(--accent-red);
+    font-weight: 600;
+}
+
+.metric-value.green { color: var(--signal-green); }
+.metric-value.gold { color: var(--bitcoin-gold); }
+
+/* ===== HOLOGRAPHIC SENTIMENT GAUGE ===== */
+.sentiment-dial {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+}
+
+.dial-container {
+    width: 90px;
+    height: 45px;
+    position: relative;
+}
+
+.dial-svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 8px rgba(220, 38, 38, 0.3));
+}
+
+/* Holographic needle with glow and weighted inertia */
+.dial-needle,
+#dialNeedle {
+    fill: #ffffff;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8));
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); /* Weighted inertia */
+    transform-origin: 45px 40px;
+}
+
+.dial-state {
+    font-family: 'Uncut Sans', 'Inter', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--accent-red);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    text-shadow: 0 0 10px var(--accent-red-glow);
+}
+
+/* ===== MAIN CONTENT AREA ===== */
+.terminal-content {
+    margin-top: 113px;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    min-height: calc(100vh - 113px);
+    position: relative;
+    z-index: 10;
+}
+
+@media (max-width: 1200px) {
+    .terminal-content {
+        grid-template-columns: 1fr;
+    }
+    .intel-sidebar { display: none; }
+}
+
+/* ===== HOLOGRAPHIC 3D SERIES CAROUSEL ===== */
+.series-rail {
+    padding: 40px 40px 30px;
+    border-bottom: 1.5px solid transparent;
+    border-image: linear-gradient(90deg, transparent, var(--glass-border), transparent) 1;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 3D Carousel Container */
+#carousel3D {
+    width: 100%;
+    height: 280px;
+    position: relative;
+    perspective: 1200px;
+    margin-top: 20px;
+}
+
+.carousel-stage {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    animation: carouselSpin 60s linear infinite;
+    animation-play-state: paused;
+}
+
+.carousel-stage:hover {
+    animation-play-state: running;
+}
+
+@keyframes carouselSpin {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(360deg); }
+}
+
+.rail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.rail-title {
+    font-family: 'Uncut Sans', 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--accent-red);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-shadow: 0 0 15px var(--accent-red-glow);
+}
+
+/* Uncut Sans for ALL tactical headers */
+.grid-title,
+.assets-title,
+.sidebar-title,
+.operative-title,
+.briefing-label,
+.series-badge-mini,
+.episode-show,
+.episode-hud-label {
+    font-family: 'Uncut Sans', 'Inter', sans-serif;
+    font-weight: 700;
+}
+
+/* ===== INTEL STREAM STYLES ===== */
+.intel-stream-section {
+    margin-bottom: 20px;
+}
+
+.stream-interval {
+    font-size: 0.6rem;
+    padding: 2px 6px;
+    background: rgba(220, 38, 38, 0.2);
+    border: 1px solid rgba(220, 38, 38, 0.4);
+    border-radius: 4px;
+    color: var(--accent-red);
+    font-weight: 600;
+}
+
+.intel-stream-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.intel-post {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.2));
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 14px;
+    transition: all 0.3s ease;
+}
+
+.intel-post:hover {
+    border-color: var(--glass-border-hover);
+    transform: translateX(4px);
+}
+
+.intel-post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.intel-persona {
+    font-family: 'Uncut Sans', 'Inter', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.intel-persona.alex {
+    color: #3b82f6;
+}
+
+.intel-persona.sarah {
+    color: #a855f7;
+}
+
+.intel-time {
+    font-size: 0.65rem;
+    color: var(--text-tertiary);
+}
+
+.intel-post-content {
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+
+.intel-partner-tag {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 8px;
+}
+
+.intel-view-link {
+    font-size: 0.7rem;
+    color: var(--accent-red);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s;
+}
+
+.intel-view-link:hover {
+    color: #ffffff;
+}
+
+.intel-post-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    color: var(--text-tertiary);
+    text-align: center;
+    gap: 8px;
+}
+
+.intel-post-empty i {
+    font-size: 1.5rem;
+    color: var(--accent-red);
+    opacity: 0.5;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.intel-subtext {
+    font-size: 0.65rem;
+    opacity: 0.6;
+}
+
+/* ===== SIGNAL CONTENT MODAL ===== */
+.signal-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 10000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    animation: modalFadeIn 0.2s ease-out;
+}
+
+.signal-modal-overlay.active {
+    display: flex;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.signal-modal {
+    background: linear-gradient(135deg, rgba(30, 20, 15, 0.98), rgba(15, 10, 8, 0.98));
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6),
+                0 0 40px rgba(220, 38, 38, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px) scale(0.95); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
+    }
+}
+
+.signal-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--glass-border);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.signal-modal-source {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.source-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.source-icon.twitter {
+    background: rgba(29, 161, 242, 0.2);
+    color: #1da1f2;
+}
+
+.source-icon.nostr {
+    background: rgba(138, 43, 226, 0.2);
+    color: #8a2be2;
+}
+
+.source-icon.intel {
+    background: rgba(220, 38, 38, 0.2);
+    color: var(--accent-red);
+}
+
+.source-icon.value-stream {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+}
+
+.source-name {
+    font-family: 'Uncut Sans', 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+}
+
+.signal-modal-close {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.signal-modal-close:hover {
+    background: rgba(220, 38, 38, 0.2);
+    border-color: var(--accent-red);
+    color: var(--accent-red);
+}
+
+.signal-modal-content {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-tweet-card {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.modal-tweet-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.modal-tweet-avatar {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--accent-red), #f97316);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.modal-tweet-author {
+    flex: 1;
+}
+
+.modal-tweet-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.modal-tweet-handle {
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+}
+
+.modal-tweet-time {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+.modal-tweet-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+.modal-tweet-metrics {
+    display: flex;
+    gap: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--glass-border);
+}
+
+.modal-metric {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: var(--text-tertiary);
+}
+
+.modal-metric i {
+    font-size: 1rem;
+}
+
+.modal-intel-card {
+    padding: 20px;
+}
+
+.modal-intel-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.modal-intel-persona {
+    font-family: 'Uncut Sans', 'Inter', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.modal-intel-persona.alex {
+    background: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+}
+
+.modal-intel-persona.sarah {
+    background: rgba(168, 85, 247, 0.2);
+    color: #a855f7;
+}
+
+.modal-intel-text {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    white-space: pre-wrap;
+}
+
+.modal-intel-partner {
+    display: inline-block;
+    padding: 8px 14px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+}
+
+.signal-modal-actions {
+    padding: 16px 20px;
+    border-top: 1px solid var(--glass-border);
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.modal-external-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: rgba(220, 38, 38, 0.15);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    border-radius: 8px;
+    color: var(--accent-red);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.modal-external-link:hover {
+    background: rgba(220, 38, 38, 0.25);
+    border-color: var(--accent-red);
+}
+
+/* Make feed items clickable */
+.tweet-card,
+.intel-post,
+.intel-packet {
+    cursor: pointer;
+}
+
+.tweet-card:hover,
+.intel-post:hover,
+.intel-packet:hover {
+    transform: translateX(4px);
+}
+
+.rail-title::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--accent-red);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+    box-shadow: 0 0 10px var(--accent-red);
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.series-scroll {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding-bottom: 16px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-red) transparent;
+}
+
+.series-scroll::-webkit-scrollbar { height: 4px; }
+.series-scroll::-webkit-scrollbar-thumb { background: var(--accent-red); border-radius: 2px; }
+
+/* Series Card - Holographic Glass with Vanilla Tilt */
+.series-card-holo {
+    flex: 0 0 280px;
+    background: var(--panel-bg);
+    border: 1.5px solid var(--glass-border);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    position: relative;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    transform-style: preserve-3d;
+}
+
+/* Glassmorphism 3.0 gradient border */
+.series-card-holo::before {
+    content: '';
+    position: absolute;
+    inset: -1.5px;
+    border-radius: 17px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 40%, transparent 60%, rgba(220,38,38,0.2) 100%);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.series-card-holo::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-red), var(--bitcoin-gold), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.series-card-holo:hover {
+    border-color: var(--glass-border-hover);
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7), 0 0 50px rgba(220, 38, 38, 0.2);
+}
+
+.series-card-holo:hover::before,
+.series-card-holo:hover::after {
+    opacity: 1;
+}
+
+.series-card-holo:hover::after {
+    animation: glowSweep 2s ease-in-out infinite;
+}
+
+@keyframes glowSweep {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
+/* Series ambient color data attributes */
+.series-card-holo[data-ambient="gold"]:hover ~ .media-terminal { --ambient-hue: gold; }
+.series-card-holo[data-ambient="crimson"]:hover ~ .media-terminal { --ambient-hue: crimson; }
+
+.series-thumb {
+    aspect-ratio: 16/9;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.series-thumb::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.9));
+}
+
+.series-play-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 56px;
+    height: 56px;
+    background: rgba(220, 38, 38, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 5;
+}
+
+.series-card-holo:hover .series-play-icon {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+.series-play-icon i {
+    color: white;
+    font-size: 1.25rem;
+    margin-left: 3px;
+}
+
+.series-meta {
+    padding: 16px 18px;
+}
+
+.series-badge-mini {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent-red);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+}
+
+.series-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    line-height: 1.3;
+}
+
+.series-mission {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+/* ===== MEDIA GRID - INTELLIGENCE ASSETS ===== */
+.media-grid-section {
+    padding: 30px 40px 60px;
+}
+
+.grid-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.grid-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+}
+
+.grid-filters {
+    display: flex;
+    gap: 8px;
+}
+
+.filter-chip {
+    padding: 6px 14px;
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-chip:hover, .filter-chip.active {
+    border-color: var(--accent-red);
+    color: var(--accent-red);
+    background: rgba(220, 38, 38, 0.1);
+}
+
+/* Episode Cards - Mission Console Style with Glassmorphism */
+.media-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+@media (max-width: 1400px) {
+    .media-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 900px) {
+    .media-grid { grid-template-columns: 1fr; }
+}
+
+.episode-card {
+    background: var(--panel-bg);
+    border: 1.5px solid var(--glass-border);
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+}
+
+/* Top-lighting gradient border */
+.episode-card::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 15px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 50%);
+    z-index: -1;
+    pointer-events: none;
+}
+
+.episode-card:hover {
+    border-color: var(--glass-border-hover);
+    transform: translateY(-6px);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(220, 38, 38, 0.15);
+}
+
+/* Breathing Glow Animation */
+.episode-card.featured::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent-red), transparent, var(--bitcoin-gold));
+    z-index: -1;
+    animation: breathingGlow 3s ease-in-out infinite;
+}
+
+@keyframes breathingGlow {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+}
+
+.episode-thumb {
+    aspect-ratio: 16/9;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.episode-hud-label {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--accent-red);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+.episode-duration {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.9);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+.episode-content {
+    padding: 16px 18px;
+}
+
+.episode-show {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent-red);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+}
+
+.episode-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.4;
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.episode-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.episode-signal {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--bitcoin-gold);
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+.episode-context {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--glass-border);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.context-badge {
+    background: rgba(220, 38, 38, 0.1);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--accent-red);
+}
+
+/* ===== OPERATIVE_COMMS INTEL SIDEBAR ===== */
+.intel-sidebar {
+    background: var(--panel-bg);
+    border-left: 1.5px solid transparent;
+    border-image: linear-gradient(180deg, var(--glass-border-hover), var(--glass-border), transparent) 1;
+    padding: 24px 20px;
+    overflow-y: auto;
+    height: calc(100vh - 113px);
+    position: sticky;
+    top: 113px;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+}
+
+/* OPERATIVE_COMMS HUD Header */
+.operative-hud {
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(0, 0, 0, 0.4));
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.operative-hud::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-red), transparent);
+    animation: scanLine 3s linear infinite;
+}
+
+@keyframes scanLine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.operative-title {
+    font-family: 'Uncut Sans', 'Inter', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--accent-red);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.operative-status {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--signal-green);
+}
+
+/* Tactical Briefing Card */
+.tactical-briefing {
+    background: linear-gradient(135deg, rgba(247, 147, 26, 0.08), rgba(0, 0, 0, 0.4));
+    border: 1px solid rgba(247, 147, 26, 0.2);
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 12px;
+}
+
+.briefing-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--bitcoin-gold);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.briefing-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    font-style: italic;
+}
+
+.sidebar-section {
+    margin-bottom: 28px;
+}
+
+.sidebar-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sidebar-title i {
+    color: var(--accent-red);
+}
+
+/* Live Intel Stream */
+.intel-packet {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
+}
+
+.intel-packet:hover {
+    border-color: var(--accent-red);
+    background: rgba(220, 38, 38, 0.05);
+}
+
+.intel-source {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--accent-red);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+}
+
+.intel-title {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    line-height: 1.4;
+    margin-bottom: 6px;
+}
+
+.intel-time {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+/* Sarah's Note */
+.sarah-note {
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(247, 147, 26, 0.05));
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.sarah-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.sarah-avatar {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--accent-red), var(--bitcoin-gold));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.sarah-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent-red);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.sarah-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-style: italic;
+}
+
+/* ===== OSCILLOSCOPE AUDIO BAR - APEX v3.0 ===== */
+.audio-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 76px;
+    background: var(--panel-bg);
+    border-top: 1.5px solid transparent;
+    border-image: linear-gradient(90deg, transparent, var(--glass-border-hover), var(--accent-red), var(--glass-border-hover), transparent) 1;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 20px;
+    z-index: 200;
+}
+
+/* Oscilloscope Waveform Canvas */
+.oscilloscope-container {
+    width: 160px;
+    height: 50px;
+    position: relative;
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    border-radius: 4px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+#oscilloscopeCanvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* Fallback bar visualizer */
+.audio-visualizer {
+    width: 120px;
+    height: 40px;
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    display: none; /* Hidden when oscilloscope active */
+}
+
+.viz-bar {
+    flex: 1;
+    background: var(--accent-red);
+    border-radius: 1px 1px 0 0;
+    transition: height 0.1s ease;
+    min-height: 3px;
+}
+
+.audio-info {
+    flex: 1;
+}
+
+.audio-now-playing {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent-red);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+}
+
+.audio-title {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.audio-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.audio-btn {
+    width: 44px;
+    height: 44px;
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    border-radius: 50%;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.audio-btn:hover {
+    border-color: var(--accent-red);
+    color: var(--accent-red);
+}
+
+.audio-btn.play-btn {
+    width: 52px;
+    height: 52px;
+    background: var(--accent-red);
+    border-color: var(--accent-red);
+    color: white;
+}
+
+.audio-btn.play-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px var(--accent-red-glow);
+}
+
+.audio-progress {
+    width: 200px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    width: 35%;
+    height: 100%;
+    background: var(--accent-red);
+    border-radius: 2px;
+}
+
+.progress-time {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* ===== BOOKS & MERCH SECTION ===== */
+.assets-section {
+    padding: 40px 40px 100px;
+    border-top: 1px solid var(--glass-border);
+}
+
+.assets-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.assets-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+}
+
+.assets-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+@media (max-width: 1200px) {
+    .assets-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+    .assets-grid { grid-template-columns: 1fr; }
+}
+
+/* 3D Tilt Card */
+.tilt-card {
+    background: var(--panel-bg);
+    border: 1.5px solid var(--glass-border);
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    text-decoration: none;
+    display: block;
+}
+
+.tilt-card:hover {
+    border-color: var(--glass-border-hover);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(220, 38, 38, 0.1);
+}
+
+.tilt-card-inner {
+    transform-style: preserve-3d;
+    transition: transform 0.4s ease;
+}
+
+.tilt-card:hover .tilt-card-inner {
+    transform: rotateY(-5deg) rotateX(5deg) translateZ(20px);
+}
+
+.tilt-cover {
+    aspect-ratio: 2/3;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.tilt-cover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.9));
+}
+
+.tilt-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--bitcoin-gold);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border: 1px solid rgba(247, 147, 26, 0.3);
+}
+
+.tilt-content {
+    padding: 16px;
+}
+
+.tilt-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    line-height: 1.3;
+}
+
+.tilt-author {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.tilt-cta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent-red);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Utility */
+.container-fluid {
+    max-width: 1800px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ===== LIVE TWEETS SECTION ===== */
+.live-indicator {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.6rem;
+    color: var(--signal-green);
+}
+
+.live-indicator.offline {
+    color: var(--accent-red);
+}
+
+.live-indicator.demo {
+    color: var(--bitcoin-gold);
+}
+
+.live-indicator.demo .live-dot {
+    background: var(--bitcoin-gold);
+}
+
+.live-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--signal-green);
+    border-radius: 50%;
+    animation: livePulse 1.5s ease-in-out infinite;
+}
+
+.live-indicator.offline .live-dot {
+    background: var(--accent-red);
+    animation: none;
+}
+
+@keyframes livePulse {
+    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
+    50% { opacity: 0.7; transform: scale(1.2); box-shadow: 0 0 10px 3px rgba(0, 255, 136, 0.2); }
+}
+
+.tweet-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    gap: 12px;
+}
+
+.tweet-pulse {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--accent-red);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Tweet Card */
+.tweet-card {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+    animation: tweetSlideIn 0.4s ease-out;
+    cursor: pointer;
+}
+
+.tweet-card:hover {
+    border-color: rgba(29, 161, 242, 0.5);
+    background: rgba(29, 161, 242, 0.05);
+    transform: translateX(4px);
+}
+
+@keyframes tweetSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tweet-card.new-tweet {
+    animation: tweetHighlight 2s ease-out;
+}
+
+@keyframes tweetHighlight {
+    0% { border-color: var(--signal-green); box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); }
+    100% { border-color: var(--glass-border); box-shadow: none; }
+}
+
+.tweet-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.tweet-avatar {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #1da1f2, #0d8ecf);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+}
+
+.tweet-author {
+    flex: 1;
+}
+
+.tweet-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tweet-verified {
+    color: #1da1f2;
+    font-size: 0.7rem;
+}
+
+.tweet-handle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+.tweet-time {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+}
+
+.tweet-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.tweet-metrics {
+    display: flex;
+    gap: 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+.tweet-metric {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tweet-metric i {
+    font-size: 0.7rem;
+}
+
+.tweet-metric:hover {
+    color: var(--accent-red);
+}
+
+/* Refresh indicator */
+.tweets-refresh-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--glass-border);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+}
+
+.tweets-count {
+    color: var(--accent-red);
+}
+
+/* ===== MOBILE ADAPTIVE: BOTTOM-DOCKED INTELLIGENCE HUB ===== */
+@media (max-width: 1000px) {
+    .terminal-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .intel-sidebar {
+        display: none;
+        position: fixed;
+        bottom: 76px;
+        left: 0;
+        right: 0;
+        height: 50vh;
+        max-height: 400px;
+        z-index: 150;
+        border-left: none;
+        border-top: 1.5px solid var(--accent-red);
+        border-radius: 20px 20px 0 0;
+        transform: translateY(100%);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .intel-sidebar.mobile-open {
+        display: block;
+        transform: translateY(0);
+    }
+    
+    /* Mobile Intel Hub Toggle Badge */
+    .mobile-intel-toggle {
+        display: flex;
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        width: 56px;
+        height: 56px;
+        background: var(--accent-red);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        z-index: 160;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 20px rgba(220, 38, 38, 0.5);
+        animation: pulseGlow 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulseGlow {
+        0%, 100% { box-shadow: 0 4px 20px rgba(220, 38, 38, 0.5); }
+        50% { box-shadow: 0 4px 30px rgba(220, 38, 38, 0.8); }
+    }
+    
+    .mobile-intel-toggle.active {
+        background: var(--bitcoin-gold);
+        animation: none;
+    }
+    
+    .series-rail { padding: 20px; }
+    .media-grid-section { padding: 20px; }
+    .assets-section { padding: 20px 20px 100px; }
+}
+
+@media (min-width: 1001px) {
+    .mobile-intel-toggle { display: none; }
+}
+
+/* Kinetic Typography - subtle data-driven movement */
+.kinetic-text {
+    display: inline-block;
+    animation: kineticShift 4s ease-in-out infinite;
+}
+
+@keyframes kineticShift {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-1px); }
+}
+
+/* Whale Alert Flash */
+.whale-flash {
+    animation: whaleFlash 0.5s ease-out;
+}
+
+@keyframes whaleFlash {
+    0% { background: rgba(255, 255, 255, 0.8); }
+    100% { background: transparent; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="media-terminal">
+    <!-- Ambient Effects -->
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+    <div class="noise-overlay"></div>
+    
+    <!-- Tactical Telemetry Strip with Mempool Particle Stream -->
+    <div class="telemetry-strip">
+        <canvas id="mempoolCanvas"></canvas>
+        <div class="telemetry-metrics">
+            <div class="metric-item">
+                <span class="metric-label">MEMPOOL</span>
+                <span class="metric-value kinetic-text" id="mempoolSize">{{ mempool_size or '45 MB' }}</span>
+            </div>
+            <div class="metric-item">
+                <span class="metric-label">PENDING TXS</span>
+                <span class="metric-value gold kinetic-text" id="pendingTxs">{{ pending_txs or '128,432' }}</span>
+            </div>
+            <div class="metric-item">
+                <span class="metric-label">FEE</span>
+                <span class="metric-value green kinetic-text" id="feeRate">{{ fee_rate or '12 sat/vB' }}</span>
+            </div>
+            <div class="metric-item">
+                <span class="metric-label">HASHRATE</span>
+                <span class="metric-value kinetic-text" id="hashrate">{{ hashrate or '720 EH/s' }}</span>
+            </div>
+        </div>
+        
+        <!-- Holographic Sentiment Gauge -->
+        <div class="sentiment-dial">
+            <div class="dial-container">
+                <svg class="dial-svg" viewBox="0 0 90 45" id="sentimentSvg">
+                    <!-- Background arc -->
+                    <path d="M 5 40 A 40 40 0 0 1 85 40" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="5"/>
+                    <!-- Gradient arc -->
+                    <path d="M 5 40 A 40 40 0 0 1 85 40" fill="none" stroke="url(#dialGradient)" stroke-width="5" stroke-linecap="round" stroke-dasharray="126" id="dialArc"/>
+                    <defs>
+                        <linearGradient id="dialGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#dc2626"/>
+                            <stop offset="50%" stop-color="#f7931a"/>
+                            <stop offset="100%" stop-color="#00ff88"/>
+                        </linearGradient>
+                        <filter id="glowFilter">
+                            <feGaussianBlur stdDeviation="2" result="glow"/>
+                            <feMerge>
+                                <feMergeNode in="glow"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    <!-- Holographic needle with glow -->
+                    <g id="dialNeedle" filter="url(#glowFilter)">
+                        <line x1="45" y1="40" x2="45" y2="10" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="45" cy="40" r="4" fill="#ffffff"/>
+                    </g>
+                </svg>
+            </div>
+            <span class="dial-state" id="dialStateText">{{ sentiment_state or 'EQUILIBRIUM' }}</span>
+        </div>
+    </div>
+    
+    <!-- Main Content Grid -->
+    <div class="terminal-content">
+        <div class="main-content">
+            <!-- Holographic Series Rail -->
+            <section class="series-rail">
+                <div class="rail-header">
+                    <span class="rail-title">ORIGINAL INTELLIGENCE SERIES</span>
+                </div>
+                
+                <div class="series-scroll">
+                    {% for series in original_series or [] %}
+                    <div class="series-card-holo" data-series="{{ series.key }}" onclick="openSeries('{{ series.key }}')">
+                        <div class="series-thumb" style="background-image: url('{{ series.thumbnail }}')">
+                            <div class="series-play-icon">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        </div>
+                        <div class="series-meta">
+                            <div class="series-badge-mini">{{ series.badge or 'EXCLUSIVE' }}</div>
+                            <div class="series-name">{{ series.title }}</div>
+                            <div class="series-mission">{{ series.mission }}</div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="series-card-holo" onclick="openSeries('cypherpunkd')">
+                        <div class="series-thumb" style="background-image: url('/static/images/series-cypherpunkd.jpg')">
+                            <div class="series-play-icon"><i class="fas fa-play"></i></div>
+                        </div>
+                        <div class="series-meta">
+                            <div class="series-badge-mini">EXCLUSIVE</div>
+                            <div class="series-name">Cypherpunk'd</div>
+                            <div class="series-mission">Sovereignty in the digital age</div>
+                        </div>
+                    </div>
+                    <div class="series-card-holo" onclick="openSeries('bigprint')">
+                        <div class="series-thumb" style="background-image: url('/static/images/series-bigprint.jpg')">
+                            <div class="series-play-icon"><i class="fas fa-play"></i></div>
+                        </div>
+                        <div class="series-meta">
+                            <div class="series-badge-mini">MACRO INTEL</div>
+                            <div class="series-name">The Big Print</div>
+                            <div class="series-mission">Where macro meets Bitcoin</div>
+                        </div>
+                    </div>
+                    <div class="series-card-holo" onclick="openSeries('21million')">
+                        <div class="series-thumb" style="background-image: url('/static/images/series-21m.jpg')">
+                            <div class="series-play-icon"><i class="fas fa-play"></i></div>
+                        </div>
+                        <div class="series-meta">
+                            <div class="series-badge-mini">WEEKLY BRIEF</div>
+                            <div class="series-name">21 Million</div>
+                            <div class="series-mission">Bitcoin news, distilled</div>
+                        </div>
+                    </div>
+                    <div class="series-card-holo" onclick="openSeries('pulse')">
+                        <div class="series-thumb" style="background-image: url('/static/images/series-pulse.jpg')">
+                            <div class="series-play-icon"><i class="fas fa-play"></i></div>
+                        </div>
+                        <div class="series-meta">
+                            <div class="series-badge-mini">FLAGSHIP</div>
+                            <div class="series-name">Protocol Pulse</div>
+                            <div class="series-mission">Leaders speak truth</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            
+            <!-- Media Grid -->
+            <section class="media-grid-section">
+                <div class="grid-header">
+                    <span class="grid-title">INTELLIGENCE ASSETS</span>
+                    <div class="grid-filters">
+                        <span class="filter-chip active" data-filter="all">ALL</span>
+                        <span class="filter-chip" data-filter="episode">EPISODES</span>
+                        <span class="filter-chip" data-filter="clip">CLIPS</span>
+                        <span class="filter-chip" data-filter="briefing">BRIEFINGS</span>
+                    </div>
+                </div>
+                
+                <div class="media-grid" id="mediaGrid">
+                    {% for episode in episodes or [] %}
+                    <div class="episode-card {% if loop.first %}featured{% endif %}" data-type="{{ episode.type or 'episode' }}" {% if episode.audio_url %}data-audio-url="{{ episode.audio_url }}"{% endif %}>
+                        <div class="episode-thumb" style="background-image: url('{{ episode.thumbnail }}')">
+                            <span class="episode-hud-label">[{{ episode.type|upper or 'EPISODE' }}]</span>
+                            <span class="episode-duration">{{ episode.duration or '45:00' }}</span>
+                        </div>
+                        <div class="episode-content">
+                            <div class="episode-show">{{ episode.show or 'Protocol Pulse' }}</div>
+                            <div class="episode-title">{{ episode.title }}</div>
+                            <div class="episode-meta">
+                                <span>{{ episode.date or 'Jan 28, 2026' }}</span>
+                                {% if episode.signal_score %}
+                                <span class="episode-signal"><i class="fas fa-fire"></i> High Signal</span>
+                                {% endif %}
+                            </div>
+                            {% if episode.context_tag %}
+                            <div class="episode-context">
+                                <span class="context-badge">{{ episode.context_tag }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <!-- Sample Episodes with Web Audio API audio sources -->
+                    <div class="episode-card featured" data-type="episode" data-audio-url="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">
+                        <div class="episode-thumb" style="background: linear-gradient(135deg, #1a0505, #0a0505)">
+                            <span class="episode-hud-label">[EPISODE]</span>
+                            <span class="episode-duration">52:14</span>
+                        </div>
+                        <div class="episode-content">
+                            <div class="episode-show">Protocol Pulse</div>
+                            <div class="episode-title">Bitcoin's Institutional Moment: ETF Flows and What They Signal</div>
+                            <div class="episode-meta">
+                                <span>Jan 28, 2026</span>
+                                <span class="episode-signal"><i class="fas fa-fire"></i> High Signal</span>
+                            </div>
+                            <div class="episode-context">
+                                <span class="context-badge">ETF</span>
+                                <span class="context-badge">MACRO</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="episode-card" data-type="briefing" data-audio-url="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3">
+                        <div class="episode-thumb" style="background: linear-gradient(135deg, #050a0a, #050505)">
+                            <span class="episode-hud-label">[INTEL BRIEF]</span>
+                            <span class="episode-duration">8:45</span>
+                        </div>
+                        <div class="episode-content">
+                            <div class="episode-show">Daily Brief</div>
+                            <div class="episode-title">Network State: Hashrate ATH, Fee Environment Optimal</div>
+                            <div class="episode-meta">
+                                <span>Jan 28, 2026</span>
+                            </div>
+                            <div class="episode-context">
+                                <span class="context-badge">MINING</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="episode-card" data-type="clip" data-audio-url="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3">
+                        <div class="episode-thumb" style="background: linear-gradient(135deg, #0a0505, #050505)">
+                            <span class="episode-hud-label">[QUICK HIT]</span>
+                            <span class="episode-duration">1:23</span>
+                        </div>
+                        <div class="episode-content">
+                            <div class="episode-show">Signal Clips</div>
+                            <div class="episode-title">Michael Saylor: "Bitcoin is Digital Property"</div>
+                            <div class="episode-meta">
+                                <span>Jan 27, 2026</span>
+                                <span class="episode-signal"><i class="fas fa-bolt"></i> Viral</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="episode-card" data-type="episode" data-audio-url="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3">
+                        <div class="episode-thumb" style="background: linear-gradient(135deg, #0a0808, #050505)">
+                            <span class="episode-hud-label">[EPISODE]</span>
+                            <span class="episode-duration">1:12:30</span>
+                        </div>
+                        <div class="episode-content">
+                            <div class="episode-show">The Big Print</div>
+                            <div class="episode-title">Lawrence Lepard on Sound Money and the Coming Reset</div>
+                            <div class="episode-meta">
+                                <span>Jan 26, 2026</span>
+                            </div>
+                            <div class="episode-context">
+                                <span class="context-badge">MACRO</span>
+                                <span class="context-badge">GOLD</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="episode-card" data-type="episode" data-audio-url="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3">
+                        <div class="episode-thumb" style="background: linear-gradient(135deg, #050508, #050505)">
+                            <span class="episode-hud-label">[EPISODE]</span>
+                            <span class="episode-duration">48:22</span>
+                        </div>
+                        <div class="episode-content">
+                            <div class="episode-show">Cypherpunk'd</div>
+                            <div class="episode-title">Self-Custody Deep Dive: Hardware Wallets Compared</div>
+                            <div class="episode-meta">
+                                <span>Jan 25, 2026</span>
+                            </div>
+                            <div class="episode-context">
+                                <span class="context-badge">CUSTODY</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="episode-card" data-type="briefing" data-audio-url="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3">
+                        <div class="episode-thumb" style="background: linear-gradient(135deg, #080505, #050505)">
+                            <span class="episode-hud-label">[INTEL BRIEF]</span>
+                            <span class="episode-duration">12:08</span>
+                        </div>
+                        <div class="episode-content">
+                            <div class="episode-show">Weekly Roundup</div>
+                            <div class="episode-title">Week in Bitcoin: Lightning Adoption Accelerates</div>
+                            <div class="episode-meta">
+                                <span>Jan 24, 2026</span>
+                            </div>
+                            <div class="episode-context">
+                                <span class="context-badge">LIGHTNING</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            
+            <!-- Books & Merch: Sovereign Assets -->
+            <section class="assets-section">
+                <div class="assets-header">
+                    <span class="assets-title"><i class="fas fa-book"></i> SOVEREIGN LIBRARY</span>
+                </div>
+                
+                <div class="assets-grid">
+                    <a href="https://www.amazon.com/dp/9916697191?tag=protocolpulse-20" target="_blank" rel="noopener" class="tilt-card">
+                        <div class="tilt-card-inner">
+                            <div class="tilt-cover" style="background-image: url('/static/images/books/everything_21m.jpg')">
+                                <span class="tilt-badge">Featured Read</span>
+                            </div>
+                            <div class="tilt-content">
+                                <div class="tilt-title">Everything Divided by 21 Million</div>
+                                <div class="tilt-author">Knut Svanholm</div>
+                                <div class="tilt-cta">Acquire <i class="fas fa-arrow-right"></i></div>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a href="https://www.amazon.com/dp/B0DVTCVX8J?tag=protocolpulse-20" target="_blank" rel="noopener" class="tilt-card">
+                        <div class="tilt-card-inner">
+                            <div class="tilt-cover" style="background-image: url('/static/images/books/big_print.jpg')">
+                                <span class="tilt-badge">Macro Intel</span>
+                            </div>
+                            <div class="tilt-content">
+                                <div class="tilt-title">The Big Print</div>
+                                <div class="tilt-author">Lawrence Lepard</div>
+                                <div class="tilt-cta">Acquire <i class="fas fa-arrow-right"></i></div>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a href="https://www.amazon.com/dp/B004ZUOFIG?tag=protocolpulse-20" target="_blank" rel="noopener" class="tilt-card">
+                        <div class="tilt-card-inner">
+                            <div class="tilt-cover" style="background-image: url('/static/images/books/bitcoin_standard.jpg')">
+                                <span class="tilt-badge">Essential</span>
+                            </div>
+                            <div class="tilt-content">
+                                <div class="tilt-title">The Bitcoin Standard</div>
+                                <div class="tilt-author">Saifedean Ammous</div>
+                                <div class="tilt-cta">Acquire <i class="fas fa-arrow-right"></i></div>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a href="https://www.amazon.com/dp/1119473861?tag=protocolpulse-20" target="_blank" rel="noopener" class="tilt-card">
+                        <div class="tilt-card-inner">
+                            <div class="tilt-cover" style="background-image: url('/static/images/books/mastering_bitcoin.jpg')">
+                                <span class="tilt-badge">Technical</span>
+                            </div>
+                            <div class="tilt-content">
+                                <div class="tilt-title">Mastering Bitcoin</div>
+                                <div class="tilt-author">Andreas Antonopoulos</div>
+                                <div class="tilt-cta">Acquire <i class="fas fa-arrow-right"></i></div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="assets-header" style="margin-top: 40px;">
+                    <span class="assets-title"><i class="fas fa-tshirt"></i> SIGNAL MERCH</span>
+                </div>
+                
+                <div class="assets-grid">
+                    <a href="/merch" class="tilt-card">
+                        <div class="tilt-card-inner">
+                            <div class="tilt-cover" style="background: linear-gradient(135deg, #0a0a0a, #1a1a1a); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-tshirt" style="font-size: 3rem; color: var(--bitcoin-gold); opacity: 0.6;"></i>
+                            </div>
+                            <div class="tilt-content">
+                                <div class="tilt-title">Protocol Pulse Collection</div>
+                                <div class="tilt-author">Premium Bitcoin Apparel</div>
+                                <div class="tilt-cta">Browse <i class="fas fa-arrow-right"></i></div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </section>
+        </div>
+        
+        <!-- Mobile Intel Toggle Badge -->
+        <button class="mobile-intel-toggle" id="mobileIntelToggle" aria-label="Toggle Intelligence Hub">
+            <i class="fas fa-satellite-dish"></i>
+        </button>
+        
+        <!-- OPERATIVE_COMMS Intel Sidebar -->
+        <aside class="intel-sidebar" id="intelSidebar">
+            <!-- OPERATIVE_COMMS HUD -->
+            <div class="operative-hud">
+                <div class="operative-title">
+                    <i class="fas fa-broadcast-tower"></i> OPERATIVE_COMMS
+                </div>
+                <div class="operative-status">STATUS: ACTIVE | SIGNAL: HIGH</div>
+                
+                <!-- Tactical Briefing - Sarah's auto-generated summary -->
+                <div class="tactical-briefing" id="tacticalBriefing">
+                    <div class="briefing-label">
+                        <i class="fas fa-crosshairs"></i> TACTICAL BRIEFING
+                    </div>
+                    <div class="briefing-text" id="briefingText">
+                        Current content signals high-value intel on institutional adoption. Fee environment optimal for accumulation. Network security at ATH.
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Intelligence Stream - Alex/Sarah Value Posts -->
+            <div class="sidebar-section intel-stream-section">
+                <div class="sidebar-title">
+                    <i class="fas fa-satellite-dish"></i> INTEL STREAM
+                    <span class="stream-interval">3H CYCLE</span>
+                </div>
+                
+                <div class="intel-stream-feed">
+                    {% if intel_posts %}
+                        {% for post in intel_posts %}
+                        <div class="intel-post" data-persona="{{ post.persona }}"
+                             onclick="openSignalModal('intel', {persona: '{{ post.persona }}', primary_tweet: '{{ post.primary_tweet|replace("'", "\\'")|replace("\n", " ") }}', partner_handle: '{{ post.partner_handle or '' }}', time_ago: '{{ post.time_ago }}', x_url: '{{ post.x_url or '' }}'})">
+                            <div class="intel-post-header">
+                                <span class="intel-persona {% if post.persona == 'Sarah' %}sarah{% else %}alex{% endif %}">
+                                    <i class="fas {% if post.persona == 'Sarah' %}fa-globe{% else %}fa-chart-line{% endif %}"></i>
+                                    {{ post.persona|upper }}
+                                </span>
+                                <span class="intel-time">{{ post.time_ago }}</span>
+                            </div>
+                            <div class="intel-post-content">
+                                {{ post.primary_tweet|truncate(180) }}
+                            </div>
+                            {% if post.partner_handle %}
+                            <div class="intel-partner-tag">
+                                Reacting to {{ post.partner_handle }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="intel-post-empty">
+                            <i class="fas fa-broadcast-tower"></i>
+                            <span>Next intel drop loading...</span>
+                            <span class="intel-subtext">Alex & Sarah review partner content every 3 hours</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Live Sovereign Broadcast -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">
+                    <i class="fab fa-twitter"></i> SOVEREIGN BROADCAST
+                    <span class="live-indicator demo" id="tweetConnectionStatus">
+                        <span class="live-dot"></span> DEMO
+                    </span>
+                </div>
+                
+                <div id="liveTweetsContainer">
+                    <div class="tweet-loading">
+                        <div class="tweet-pulse"></div>
+                        <span>Scanning feeds...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Value Stream Intel -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">
+                    <i class="fas fa-satellite-dish"></i> VALUE STREAM
+                </div>
+                
+                {% for item in value_stream_items or [] %}
+                <div class="intel-packet"
+                     onclick="openSignalModal('value-stream', {platform: '{{ item.platform }}', title: '{{ item.title|replace("'", "\\'")|replace("\n", " ") }}', time_ago: '{{ item.time_ago }}', url: '{{ item.url or '' }}'})">
+                    <div class="intel-source">{{ item.platform }}</div>
+                    <div class="intel-title">{{ item.title }}</div>
+                    <div class="intel-time">{{ item.time_ago }}</div>
+                </div>
+                {% else %}
+                <div class="intel-packet"
+                     onclick="openSignalModal('value-stream', {platform: 'NOSTR', title: 'Decentralized social gaining momentum', time_ago: '2h ago', url: ''})">
+                    <div class="intel-source">NOSTR</div>
+                    <div class="intel-title">Decentralized social gaining momentum</div>
+                    <div class="intel-time">2h ago</div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Sarah's Note -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">
+                    <i class="fas fa-brain"></i> SARAH'S TACTICAL NOTE
+                </div>
+                
+                <div class="sarah-note">
+                    <div class="sarah-header">
+                        <div class="sarah-avatar">S</div>
+                        <span class="sarah-label">AI Analyst</span>
+                    </div>
+                    <div class="sarah-text">
+                        {{ sarah_note or "Network congestion is currently low. Optimal window for UTXO consolidation. Fee environment suggests accumulation phase behavior. Act accordingly." }}
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+    
+    <!-- SIGNAL CONTENT MODAL - Expands content inline without leaving page -->
+    <div class="signal-modal-overlay" id="signalModalOverlay">
+        <div class="signal-modal">
+            <div class="signal-modal-header">
+                <div class="signal-modal-source">
+                    <span class="source-icon" id="modalSourceIcon"><i class="fab fa-twitter"></i></span>
+                    <span class="source-name" id="modalSourceName">SOVEREIGN BROADCAST</span>
+                </div>
+                <button class="signal-modal-close" id="modalClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="signal-modal-content" id="modalContent">
+                <!-- Dynamic content loads here -->
+            </div>
+            
+            <div class="signal-modal-actions" id="modalActions">
+                <a href="#" target="_blank" class="modal-external-link" id="modalExternalLink">
+                    <i class="fas fa-external-link-alt"></i> View Original Source
+                </a>
+            </div>
+        </div>
+    </div>
+
+<!-- Audio Bar - Oscilloscope + Web Audio API powered visualizer -->
+    <audio id="podcastAudio" crossorigin="anonymous" style="display: none;"></audio>
+    <div class="audio-bar" id="audioBar" style="display: none;">
+        <!-- Oscilloscope Waveform Visualizer -->
+        <div class="oscilloscope-container">
+            <canvas id="oscilloscopeCanvas"></canvas>
+        </div>
+        
+        <!-- Fallback bar visualizer (hidden by default) -->
+        <div class="audio-visualizer" id="audioVisualizer">
+            {% for i in range(20) %}
+            <div class="viz-bar" style="height: {{ 10 + (i % 5) * 8 }}px"></div>
+            {% endfor %}
+        </div>
+        
+        <div class="audio-info">
+            <div class="audio-now-playing">NOW PLAYING</div>
+            <div class="audio-title" id="audioTitle">Episode Title</div>
+        </div>
+        
+        <div class="audio-controls">
+            <button class="audio-btn" id="prevBtn"><i class="fas fa-step-backward"></i></button>
+            <button class="audio-btn play-btn" id="playPauseBtn"><i class="fas fa-play"></i></button>
+            <button class="audio-btn" id="nextBtn"><i class="fas fa-step-forward"></i></button>
+        </div>
+        
+        <div class="audio-progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-time">
+                <span id="currentTime">0:00</span>
+                <span id="totalTime">0:00</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ===== APEX v3.0: DIEGETIC AUDIO FEEDBACK =====
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playRelayClick() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.05);
+        
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+        
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + 0.1);
+    }
+    
+    // ===== APEX v3.0: MEMPOOL PARTICLE STREAM (DATA-DRIVEN) =====
+    const mempoolCanvas = document.getElementById('mempoolCanvas');
+    if (mempoolCanvas) {
+        const ctx = mempoolCanvas.getContext('2d');
+        const particles = [];
+        let currentFeeRate = 12; // Updated from network data
+        let whaleThresholdBTC = 500;
+        
+        function resizeMempoolCanvas() {
+            const strip = mempoolCanvas.parentElement;
+            mempoolCanvas.width = strip.offsetWidth;
+            mempoolCanvas.height = strip.offsetHeight;
+        }
+        resizeMempoolCanvas();
+        window.addEventListener('resize', resizeMempoolCanvas);
+        
+        // Fetch real fee rate from network
+        async function updateFeeRate() {
+            try {
+                const res = await fetch('/api/network-stats');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.fee_rate) {
+                        currentFeeRate = parseInt(data.fee_rate) || 12;
+                    }
+                }
+            } catch (e) { /* Use default */ }
+        }
+        updateFeeRate();
+        setInterval(updateFeeRate, 30000);
+        
+        class Particle {
+            constructor(isWhale = false, btcValue = 0) {
+                this.x = Math.random() * mempoolCanvas.width;
+                this.y = -10;
+                this.size = isWhale ? Math.min(8, 3 + btcValue / 200) : Math.random() * 2 + 1;
+                // Speed tied to current fee rate from network
+                this.speed = (currentFeeRate / 15) * (Math.random() * 1.5 + 0.5);
+                this.isWhale = isWhale;
+                this.btcValue = btcValue;
+                this.opacity = isWhale ? 1 : Math.random() * 0.6 + 0.2;
+            }
+            
+            update() {
+                this.y += this.speed;
+                if (this.y > mempoolCanvas.height + 10) return false;
+                return true;
+            }
+            
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                if (this.isWhale) {
+                    // White-hot flash for whale moves (>500 BTC)
+                    ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                    ctx.shadowBlur = 20;
+                    ctx.shadowColor = '#ffffff';
+                } else {
+                    ctx.fillStyle = `rgba(220, 38, 38, ${this.opacity})`;
+                    ctx.shadowBlur = 0;
+                }
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+        
+        // Simulate transaction stream (in production, connect to mempool.space WebSocket)
+        function simulateTransaction() {
+            // Simulate realistic BTC transaction distribution
+            const btcValue = Math.random() < 0.005 ? 
+                whaleThresholdBTC + Math.random() * 1000 : // 0.5% chance of whale (>500 BTC)
+                Math.random() * 10; // Normal transactions
+            
+            const isWhale = btcValue >= whaleThresholdBTC;
+            particles.push(new Particle(isWhale, btcValue));
+            
+            if (isWhale) {
+                // Whale alert flash
+                mempoolCanvas.parentElement.classList.add('whale-flash');
+                setTimeout(() => mempoolCanvas.parentElement.classList.remove('whale-flash'), 500);
+                console.log(`[WHALE ALERT] ${btcValue.toFixed(2)} BTC transaction detected`);
+            }
+        }
+        
+        function animateMempool() {
+            ctx.clearRect(0, 0, mempoolCanvas.width, mempoolCanvas.height);
+            
+            // Add new particles based on network activity
+            if (Math.random() < 0.25) {
+                simulateTransaction();
+            }
+            
+            // Update and draw particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                if (!particles[i].update()) {
+                    particles.splice(i, 1);
+                } else {
+                    particles[i].draw();
+                }
+            }
+            
+            requestAnimationFrame(animateMempool);
+        }
+        animateMempool();
+    }
+    
+    // ===== APEX v3.0: HOLOGRAPHIC SENTIMENT NEEDLE (CSS TRANSITION) =====
+    const dialNeedle = document.getElementById('dialNeedle');
+    const dialStateText = document.getElementById('dialStateText');
+    let targetSentiment = 65;
+    
+    function updateSentimentNeedle(sentiment) {
+        if (!dialNeedle) return;
+        
+        // Calculate needle rotation (-90 to 90 degrees)
+        const rotation = (sentiment / 100) * 180 - 90;
+        
+        // Apply rotation with CSS transition (weighted inertia via cubic-bezier)
+        dialNeedle.style.transform = `rotate(${rotation}deg)`;
+        
+        // Update state text
+        if (sentiment < 35) dialStateText.textContent = 'FEAR';
+        else if (sentiment < 50) dialStateText.textContent = 'CAUTION';
+        else if (sentiment < 65) dialStateText.textContent = 'EQUILIBRIUM';
+        else if (sentiment < 80) dialStateText.textContent = 'OPTIMISM';
+        else dialStateText.textContent = 'EUPHORIA';
+    }
+    
+    // Initialize
+    updateSentimentNeedle(targetSentiment);
+    
+    // Update sentiment from API or simulate realistic changes
+    async function fetchSentiment() {
+        try {
+            const res = await fetch('/api/network-stats');
+            if (res.ok) {
+                const data = await res.json();
+                // Derive sentiment from network conditions
+                if (data.fee_rate) {
+                    const fee = parseInt(data.fee_rate) || 12;
+                    // Low fees = optimism, high fees = caution
+                    targetSentiment = Math.max(20, Math.min(85, 70 - fee * 0.5 + Math.random() * 10));
+                }
+            }
+        } catch (e) {
+            // Simulate sentiment drift
+            targetSentiment = Math.max(25, Math.min(80, targetSentiment + (Math.random() - 0.5) * 8));
+        }
+        updateSentimentNeedle(targetSentiment);
+    }
+    
+    fetchSentiment();
+    setInterval(fetchSentiment, 5000);
+    
+    // ===== APEX v3.0: VANILLA TILT INITIALIZATION =====
+    if (typeof VanillaTilt !== 'undefined') {
+        VanillaTilt.init(document.querySelectorAll('.series-card-holo'), {
+            max: 8,
+            speed: 400,
+            glare: true,
+            'max-glare': 0.15,
+            scale: 1.02
+        });
+        
+        VanillaTilt.init(document.querySelectorAll('.tilt-card'), {
+            max: 12,
+            speed: 400,
+            glare: true,
+            'max-glare': 0.2,
+            scale: 1.03
+        });
+    }
+    
+    // ===== APEX v3.0: AMBIENT COLOR SHIFTING =====
+    const mediaTerminal = document.querySelector('.media-terminal');
+    const seriesAmbientMap = {
+        'cypherpunkd': 'ambient-crimson',
+        'bigprint': 'ambient-gold',
+        '21million': 'ambient-purple',
+        'pulse': 'ambient-crimson'
+    };
+    
+    document.querySelectorAll('.series-card-holo').forEach(card => {
+        const series = card.dataset.series;
+        const ambientClass = seriesAmbientMap[series] || 'ambient-crimson';
+        
+        card.addEventListener('mouseenter', () => {
+            Object.values(seriesAmbientMap).forEach(c => mediaTerminal.classList.remove(c));
+            mediaTerminal.classList.add(ambientClass);
+            playRelayClick();
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            Object.values(seriesAmbientMap).forEach(c => mediaTerminal.classList.remove(c));
+        });
+    });
+    
+    // ===== MOBILE INTEL HUB TOGGLE =====
+    const mobileToggle = document.getElementById('mobileIntelToggle');
+    const intelSidebar = document.getElementById('intelSidebar');
+    
+    if (mobileToggle && intelSidebar) {
+        mobileToggle.addEventListener('click', () => {
+            intelSidebar.classList.toggle('mobile-open');
+            mobileToggle.classList.toggle('active');
+            playRelayClick();
+        });
+    }
+    
+    // Filter chips
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', function() {
+            playRelayClick();
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            
+            const filter = this.dataset.filter;
+            document.querySelectorAll('.episode-card').forEach(card => {
+                if (filter === 'all' || card.dataset.type === filter) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+    
+    // Series card hover effects - no longer needed, handled above
+    document.querySelectorAll('.series-card-holo').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            // Ambient shift handled above
+        });
+    });
+    
+    // Episode card click - wire to audio player with diegetic feedback
+    document.querySelectorAll('.episode-card').forEach(card => {
+        card.addEventListener('click', function() {
+            playRelayClick(); // Diegetic audio feedback
+            
+            const audioBar = document.getElementById('audioBar');
+            const audioTitle = document.getElementById('audioTitle');
+            const podcastAudio = document.getElementById('podcastAudio');
+            
+            audioBar.style.display = 'flex';
+            audioTitle.textContent = this.querySelector('.episode-title').textContent;
+            
+            // Update tactical briefing based on episode
+            const briefingText = document.getElementById('briefingText');
+            if (briefingText) {
+                const episodeTitle = this.querySelector('.episode-title').textContent;
+                const contextBadges = this.querySelectorAll('.context-badge');
+                let topics = [];
+                contextBadges.forEach(b => topics.push(b.textContent));
+                
+                const briefings = [
+                    `High-signal content detected. ${topics.length ? topics.join(' + ') + ' analysis' : 'Deep-dive intel'} for sovereign operators.`,
+                    `This asset contains actionable intelligence on ${topics[0] || 'Bitcoin'} dynamics. Attention recommended.`,
+                    `Network data suggests this content correlates with macro shifts. Briefing priority: HIGH.`
+                ];
+                briefingText.textContent = briefings[Math.floor(Math.random() * briefings.length)];
+            }
+            
+            // Get audio URL from data attribute if available
+            const audioUrl = this.dataset.audioUrl;
+            if (audioUrl && podcastAudio) {
+                podcastAudio.src = audioUrl;
+                podcastAudio.load();
+                
+                // Initialize Web Audio API context
+                initAudioContext();
+                
+                // Reset play state
+                isPlaying = false;
+                document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
+                document.getElementById('progressFill').style.width = '0%';
+                document.getElementById('currentTime').textContent = '0:00';
+            }
+        });
+    });
+    
+    // Fetch live network data
+    async function updateTelemetry() {
+        try {
+            const res = await fetch('/api/network-stats');
+            if (res.ok) {
+                const data = await res.json();
+                if (data.mempool_size) document.getElementById('mempoolSize').textContent = data.mempool_size;
+                if (data.pending_txs) document.getElementById('pendingTxs').textContent = data.pending_txs.toLocaleString();
+                if (data.fee_rate) document.getElementById('feeRate').textContent = data.fee_rate + ' sat/vB';
+                if (data.hashrate) document.getElementById('hashrate').textContent = data.hashrate;
+            }
+        } catch (e) {
+            console.log('Telemetry fetch error:', e);
+        }
+    }
+    
+    // Update every 60 seconds
+    updateTelemetry();
+    setInterval(updateTelemetry, 60000);
+    
+    // ===== LIVE TWEETS SYSTEM =====
+    const tweetsContainer = document.getElementById('liveTweetsContainer');
+    const connectionStatus = document.getElementById('tweetConnectionStatus');
+    let previousTweetIds = new Set();
+    
+    function formatNumber(num) {
+        if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+        return num.toString();
+    }
+    
+    function renderTweet(tweet, isNew = false) {
+        const tweetData = JSON.stringify(tweet).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        return `
+            <div class="tweet-card ${isNew ? 'new-tweet' : ''}" 
+                 onclick="openSignalModal('tweet', ${tweetData})" 
+                 title="Click to expand">
+                <div class="tweet-header">
+                    <div class="tweet-avatar">${tweet.avatar || '🟠'}</div>
+                    <div class="tweet-author">
+                        <div class="tweet-name">
+                            ${tweet.name}
+                            ${tweet.verified ? '<i class="fas fa-check-circle tweet-verified"></i>' : ''}
+                        </div>
+                        <div class="tweet-handle">${tweet.handle}</div>
+                    </div>
+                    <div class="tweet-time">${tweet.time_ago}</div>
+                </div>
+                <div class="tweet-text">${tweet.text}</div>
+                <div class="tweet-metrics">
+                    <span class="tweet-metric"><i class="far fa-heart"></i> ${formatNumber(tweet.metrics?.likes || 0)}</span>
+                    <span class="tweet-metric"><i class="fas fa-retweet"></i> ${formatNumber(tweet.metrics?.retweets || 0)}</span>
+                    <span class="tweet-metric"><i class="far fa-comment"></i> ${formatNumber(tweet.metrics?.replies || 0)}</span>
+                </div>
+            </div>
+        `;
+    }
+    
+    async function fetchLiveTweets() {
+        try {
+            const res = await fetch('/api/live-tweets');
+            if (res.ok) {
+                const data = await res.json();
+                
+                if (data.success && data.tweets.length > 0) {
+                    // Update connection status based on API response
+                    const statusText = data.is_demo ? 'DEMO' : 'LIVE';
+                    connectionStatus.innerHTML = '<span class="live-dot"></span> ' + statusText;
+                    connectionStatus.classList.remove('offline');
+                    if (data.is_demo) {
+                        connectionStatus.classList.add('demo');
+                    } else {
+                        connectionStatus.classList.remove('demo');
+                    }
+                    
+                    // Render tweets
+                    let html = `
+                        <div class="tweets-refresh-bar">
+                            <span class="tweets-count">${data.tweets.length} SOVEREIGN${data.tweets.length !== 1 ? 'S' : ''}</span>
+                            <span>Auto-refresh 30s</span>
+                        </div>
+                    `;
+                    
+                    data.tweets.forEach(tweet => {
+                        const isNew = !previousTweetIds.has(tweet.id);
+                        html += renderTweet(tweet, isNew && previousTweetIds.size > 0);
+                    });
+                    
+                    tweetsContainer.innerHTML = html;
+                    
+                    // Update previous IDs
+                    previousTweetIds = new Set(data.tweets.map(t => t.id));
+                } else {
+                    throw new Error('No tweets');
+                }
+            } else {
+                throw new Error('API error');
+            }
+        } catch (e) {
+            console.log('Tweet fetch error:', e);
+            connectionStatus.innerHTML = '<span class="live-dot"></span> OFFLINE';
+            connectionStatus.classList.add('offline');
+            
+            // Show error state
+            tweetsContainer.innerHTML = `
+                <div class="tweet-loading">
+                    <i class="fab fa-twitter" style="font-size: 1.5rem; color: var(--text-muted);"></i>
+                    <span>Feed temporarily unavailable</span>
+                </div>
+            `;
+        }
+    }
+    
+    // Initial fetch + auto-refresh every 30 seconds
+    fetchLiveTweets();
+    setInterval(fetchLiveTweets, 30000);
+    
+    // ===== APEX v3.0: OSCILLOSCOPE WAVEFORM VISUALIZER =====
+    let audioContext = null;
+    let analyser = null;
+    let audioSource = null;
+    let oscilloscopeAnimId = null;
+    const audioElement = document.getElementById('podcastAudio');
+    const oscilloscopeCanvas = document.getElementById('oscilloscopeCanvas');
+    const oscCtx = oscilloscopeCanvas ? oscilloscopeCanvas.getContext('2d') : null;
+    
+    function initAudioContext() {
+        if (!audioContext && audioElement) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 2048;
+            analyser.smoothingTimeConstant = 0.85;
+            
+            audioSource = audioContext.createMediaElementSource(audioElement);
+            audioSource.connect(analyser);
+            analyser.connect(audioContext.destination);
+        }
+    }
+    
+    function resizeOscilloscope() {
+        if (oscilloscopeCanvas) {
+            const container = oscilloscopeCanvas.parentElement;
+            oscilloscopeCanvas.width = container.offsetWidth;
+            oscilloscopeCanvas.height = container.offsetHeight;
+        }
+    }
+    resizeOscilloscope();
+    window.addEventListener('resize', resizeOscilloscope);
+    
+    function drawOscilloscope() {
+        if (!oscilloscopeCanvas || !oscCtx) return;
+        
+        const width = oscilloscopeCanvas.width;
+        const height = oscilloscopeCanvas.height;
+        
+        oscCtx.clearRect(0, 0, width, height);
+        
+        // Draw waveform
+        oscCtx.beginPath();
+        oscCtx.strokeStyle = '#dc2626';
+        oscCtx.lineWidth = 1.5;
+        oscCtx.shadowBlur = 8;
+        oscCtx.shadowColor = '#dc2626';
+        
+        if (analyser) {
+            const dataArray = new Uint8Array(analyser.fftSize);
+            analyser.getByteTimeDomainData(dataArray);
+            
+            const sliceWidth = width / dataArray.length;
+            let x = 0;
+            
+            for (let i = 0; i < dataArray.length; i++) {
+                const v = dataArray[i] / 128.0;
+                const y = (v * height) / 2;
+                
+                if (i === 0) {
+                    oscCtx.moveTo(x, y);
+                } else {
+                    oscCtx.lineTo(x, y);
+                }
+                x += sliceWidth;
+            }
+        } else {
+            // Demo waveform when no audio
+            const time = Date.now() / 1000;
+            for (let x = 0; x < width; x++) {
+                const y = height / 2 + Math.sin(x * 0.05 + time * 3) * (height / 4) * Math.sin(time * 0.5);
+                if (x === 0) oscCtx.moveTo(x, y);
+                else oscCtx.lineTo(x, y);
+            }
+        }
+        
+        oscCtx.stroke();
+        oscCtx.shadowBlur = 0;
+        
+        // Draw center line
+        oscCtx.beginPath();
+        oscCtx.strokeStyle = 'rgba(220, 38, 38, 0.2)';
+        oscCtx.lineWidth = 1;
+        oscCtx.moveTo(0, height / 2);
+        oscCtx.lineTo(width, height / 2);
+        oscCtx.stroke();
+        
+        oscilloscopeAnimId = requestAnimationFrame(drawOscilloscope);
+    }
+    
+    function stopOscilloscope() {
+        if (oscilloscopeAnimId) {
+            cancelAnimationFrame(oscilloscopeAnimId);
+            oscilloscopeAnimId = null;
+        }
+        if (oscCtx && oscilloscopeCanvas) {
+            oscCtx.clearRect(0, 0, oscilloscopeCanvas.width, oscilloscopeCanvas.height);
+        }
+    }
+    
+    // Start visualizer when audio plays
+    const playBtn = document.getElementById('playPauseBtn');
+    let isPlaying = false;
+    
+    playBtn?.addEventListener('click', function() {
+        playRelayClick(); // Diegetic feedback
+        isPlaying = !isPlaying;
+        this.innerHTML = isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+        
+        if (audioElement && audioElement.src) {
+            initAudioContext();
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            if (isPlaying) {
+                audioElement.play();
+                drawOscilloscope();
+            } else {
+                audioElement.pause();
+                stopOscilloscope();
+            }
+        } else {
+            // Demo mode: show animated oscilloscope without audio
+            if (isPlaying) {
+                drawOscilloscope();
+            } else {
+                stopOscilloscope();
+            }
+        }
+    });
+    
+    // Update progress bar from audio element
+    if (audioElement) {
+        audioElement.addEventListener('timeupdate', function() {
+            const progress = (audioElement.currentTime / audioElement.duration) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('currentTime').textContent = formatTime(audioElement.currentTime);
+        });
+        
+        audioElement.addEventListener('loadedmetadata', function() {
+            document.getElementById('totalTime').textContent = formatTime(audioElement.duration);
+        });
+        
+        audioElement.addEventListener('ended', function() {
+            isPlaying = false;
+            playBtn.innerHTML = '<i class="fas fa-play"></i>';
+            stopVisualizer();
+        });
+    }
+    
+    function formatTime(seconds) {
+        const m = Math.floor(seconds / 60);
+        const s = Math.floor(seconds % 60);
+        return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+});
+
+function openSeries(seriesKey) {
+    // Navigate to series or open terminal
+    window.location.href = '/series-guide/' + seriesKey;
+}
+
+// ===== SIGNAL CONTENT MODAL SYSTEM =====
+const signalModalOverlay = document.getElementById('signalModalOverlay');
+const modalSourceIcon = document.getElementById('modalSourceIcon');
+const modalSourceName = document.getElementById('modalSourceName');
+const modalContent = document.getElementById('modalContent');
+const modalExternalLink = document.getElementById('modalExternalLink');
+const modalClose = document.getElementById('modalClose');
+
+function openSignalModal(type, data) {
+    let iconClass = 'twitter';
+    let iconHtml = '<i class="fab fa-twitter"></i>';
+    let sourceName = 'SOVEREIGN BROADCAST';
+    let contentHtml = '';
+    let externalUrl = '#';
+    
+    if (type === 'tweet') {
+        iconClass = 'twitter';
+        iconHtml = '<i class="fab fa-x-twitter"></i>';
+        sourceName = 'SOVEREIGN BROADCAST';
+        externalUrl = data.url || `https://x.com/${(data.handle || '').replace('@', '')}`;
+        
+        contentHtml = `
+            <div class="modal-tweet-card">
+                <div class="modal-tweet-header">
+                    <div class="modal-tweet-avatar">${data.avatar || '🟠'}</div>
+                    <div class="modal-tweet-author">
+                        <div class="modal-tweet-name">
+                            ${data.name || 'Sovereign'}
+                            ${data.verified ? '<i class="fas fa-check-circle tweet-verified"></i>' : ''}
+                        </div>
+                        <div class="modal-tweet-handle">${data.handle || ''}</div>
+                    </div>
+                    <div class="modal-tweet-time">${data.time_ago || ''}</div>
+                </div>
+                <div class="modal-tweet-text">${data.text || ''}</div>
+                <div class="modal-tweet-metrics">
+                    <span class="modal-metric"><i class="far fa-heart"></i> ${data.metrics?.likes || 0}</span>
+                    <span class="modal-metric"><i class="fas fa-retweet"></i> ${data.metrics?.retweets || 0}</span>
+                    <span class="modal-metric"><i class="far fa-comment"></i> ${data.metrics?.replies || 0}</span>
+                </div>
+            </div>
+        `;
+    } else if (type === 'intel') {
+        iconClass = 'intel';
+        iconHtml = '<i class="fas fa-satellite-dish"></i>';
+        sourceName = 'INTEL STREAM';
+        externalUrl = data.x_url || '#';
+        
+        const personaClass = (data.persona || 'alex').toLowerCase();
+        contentHtml = `
+            <div class="modal-intel-card">
+                <div class="modal-intel-header">
+                    <span class="modal-intel-persona ${personaClass}">
+                        <i class="fas ${personaClass === 'sarah' ? 'fa-globe' : 'fa-chart-line'}"></i>
+                        ${(data.persona || 'Alex').toUpperCase()}
+                    </span>
+                    <span class="modal-tweet-time">${data.time_ago || ''}</span>
+                </div>
+                <div class="modal-intel-text">${data.primary_tweet || data.content || ''}</div>
+                ${data.partner_handle ? `<div class="modal-intel-partner">Reacting to ${data.partner_handle}</div>` : ''}
+            </div>
+        `;
+    } else if (type === 'value-stream') {
+        iconClass = 'value-stream';
+        iconHtml = '<i class="fas fa-signal"></i>';
+        sourceName = 'VALUE STREAM';
+        externalUrl = data.url || '#';
+        
+        contentHtml = `
+            <div class="modal-intel-card">
+                <div class="modal-intel-header">
+                    <span class="modal-intel-persona alex">${data.platform || 'NOSTR'}</span>
+                    <span class="modal-tweet-time">${data.time_ago || ''}</span>
+                </div>
+                <div class="modal-intel-text">${data.title || data.content || ''}</div>
+            </div>
+        `;
+    }
+    
+    modalSourceIcon.className = 'source-icon ' + iconClass;
+    modalSourceIcon.innerHTML = iconHtml;
+    modalSourceName.textContent = sourceName;
+    modalContent.innerHTML = contentHtml;
+    modalExternalLink.href = externalUrl;
+    
+    if (externalUrl === '#') {
+        modalExternalLink.style.display = 'none';
+    } else {
+        modalExternalLink.style.display = 'flex';
+    }
+    
+    signalModalOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSignalModal() {
+    signalModalOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// Close modal on overlay click
+if (signalModalOverlay) {
+    signalModalOverlay.addEventListener('click', function(e) {
+        if (e.target === signalModalOverlay) {
+            closeSignalModal();
+        }
+    });
+}
+
+// Close modal on button click
+if (modalClose) {
+    modalClose.addEventListener('click', closeSignalModal);
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && signalModalOverlay.classList.contains('active')) {
+        closeSignalModal();
+    }
+});
+</script>
+{% endblock %}

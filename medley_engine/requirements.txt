@@ -1,0 +1,7 @@
+# Protocol Pulse — YouTube Medley Engine (4090)
+yt-dlp>=2024.1.0
+faster-whisper>=1.0.0
+torch
+torchaudio
+ffmpeg-python>=0.2.0
+PyYAML>=6.0

@@ -1,0 +1,616 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title if article else 'Intel Brief' }} | Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+:root {
+    --pp-red: #dc2626;
+    --pp-dark: #0a0a0a;
+    --sovereign-purple: #a855f7;
+}
+
+.article-master {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #0a0a0a 0%, #111 100%);
+    padding-top: 80px;
+}
+
+.article-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+@media (max-width: 1024px) {
+    .article-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .alex-sidebar {
+        position: relative !important;
+        top: 0 !important;
+    }
+}
+
+.video-hero {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(220, 38, 38, 0.1));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    aspect-ratio: 16/9;
+    max-height: 400px;
+}
+
+.video-hero iframe,
+.video-hero video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.video-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+    color: var(--sovereign-purple);
+    font-size: 3rem;
+}
+
+.article-content {
+    background: rgba(15, 15, 15, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 2.5rem;
+}
+
+.article-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.article-category {
+    background: var(--pp-red);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.article-date {
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+.article-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, #fff 0%, #9ca3af 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.sarah-analysis {
+    background: rgba(168, 85, 247, 0.08);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    position: relative;
+}
+
+.sarah-analysis::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--sovereign-purple), transparent);
+}
+
+.sarah-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.sarah-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--sovereign-purple), #7c3aed);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.sarah-name {
+    font-weight: 600;
+    color: var(--sovereign-purple);
+}
+
+.sarah-title {
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.sarah-content {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #d1d5db;
+    font-style: italic;
+}
+
+.article-body {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #d1d5db;
+}
+
+.article-body h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 2rem 0 1rem;
+    padding-left: 1rem;
+    border-left: 4px solid var(--pp-red);
+}
+
+.article-body h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 1.5rem 0 0.75rem;
+}
+
+.article-body p {
+    margin-bottom: 1.25rem;
+}
+
+.article-body blockquote {
+    background: rgba(220, 38, 38, 0.1);
+    border-left: 4px solid var(--pp-red);
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    border-radius: 0 8px 8px 0;
+}
+
+.alex-sidebar {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+.alex-widget {
+    background: rgba(15, 15, 15, 0.98);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.alex-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.alex-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--pp-red), #991b1b);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.alex-name {
+    font-weight: 600;
+}
+
+.alex-title {
+    font-size: 0.7rem;
+    color: var(--pp-red);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.network-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.network-stat:last-child {
+    border-bottom: none;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    color: var(--pp-red);
+    font-weight: 600;
+}
+
+.milestone-widget {
+    background: rgba(15, 15, 15, 0.98);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 16px;
+    padding: 1.5rem;
+}
+
+.milestone-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.milestone-header i {
+    color: #22c55e;
+    font-size: 1.25rem;
+}
+
+.milestone-header h4 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.milestone-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    cursor: pointer;
+}
+
+.milestone-check {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.milestone-item.completed .milestone-check {
+    background: #22c55e;
+    border-color: #22c55e;
+}
+
+.milestone-item.completed .milestone-check i {
+    color: white;
+    font-size: 0.65rem;
+}
+
+.milestone-text {
+    font-size: 0.85rem;
+    color: #9ca3af;
+    line-height: 1.4;
+}
+
+.milestone-item.completed .milestone-text {
+    color: #22c55e;
+    text-decoration: line-through;
+}
+
+.milestone-progress {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    margin-top: 1rem;
+    overflow: hidden;
+}
+
+.milestone-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+.og-preview {
+    background: linear-gradient(135deg, var(--pp-red), #991b1b);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.og-preview h5 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+    opacity: 0.8;
+}
+
+.og-preview .share-buttons {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.og-preview .share-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.og-preview .share-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="article-master">
+    <div class="article-layout">
+        <main class="article-main">
+            <div class="video-hero">
+                {% if article and article.video_url %}
+                <iframe src="{{ article.video_url }}" frameborder="0" allowfullscreen></iframe>
+                {% else %}
+                <div class="video-placeholder">
+                    <i class="fas fa-play-circle"></i>
+                </div>
+                {% endif %}
+            </div>
+
+            <article class="article-content">
+                <div class="article-meta">
+                    <span class="article-category">{{ article.category if article else 'INTEL BRIEF' }}</span>
+                    <span class="article-date">
+                        <i class="far fa-clock me-1"></i>
+                        {{ article.published_at.strftime('%B %d, %Y') if article and article.published_at else 'Today' }}
+                    </span>
+                </div>
+
+                <h1 class="article-title">{{ article.title if article else 'Protocol Pulse Intel Brief' }}</h1>
+
+                <div class="sarah-analysis">
+                    <div class="sarah-header">
+                        <div class="sarah-avatar">S</div>
+                        <div>
+                            <div class="sarah-name">Sarah Chen</div>
+                            <div class="sarah-title">Macro Strategist</div>
+                        </div>
+                    </div>
+                    <div class="sarah-content">
+                        {{ article.sarah_take if article and article.sarah_take else 
+                           "This development signals a significant shift in market dynamics. Watch for institutional response in the coming 48-72 hours." }}
+                    </div>
+                </div>
+
+                <div class="article-body">
+                    {{ article.content | safe if article else '<p>Article content will be displayed here with full formatting support.</p>' }}
+                </div>
+            </article>
+        </main>
+
+        <aside class="alex-sidebar">
+            <div class="alex-widget">
+                <div class="alex-header">
+                    <div class="alex-avatar">A</div>
+                    <div>
+                        <div class="alex-name">Alex Rivera</div>
+                        <div class="alex-title">Quant Analyst</div>
+                    </div>
+                </div>
+                
+                <div class="network-stats" id="alexNetworkStats">
+                    <div class="network-stat">
+                        <span class="stat-label">Hashrate</span>
+                        <span class="stat-value" id="hashrate">Loading...</span>
+                    </div>
+                    <div class="network-stat">
+                        <span class="stat-label">Difficulty</span>
+                        <span class="stat-value" id="difficulty">Loading...</span>
+                    </div>
+                    <div class="network-stat">
+                        <span class="stat-label">Block Height</span>
+                        <span class="stat-value" id="blockHeight">Loading...</span>
+                    </div>
+                    <div class="network-stat">
+                        <span class="stat-label">Mempool Size</span>
+                        <span class="stat-value" id="mempoolSize">Loading...</span>
+                    </div>
+                    <div class="network-stat">
+                        <span class="stat-label">Priority Fee</span>
+                        <span class="stat-value" id="priorityFee">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="milestone-widget">
+                <div class="milestone-header">
+                    <i class="fas fa-tasks"></i>
+                    <h4>Your Progress</h4>
+                </div>
+                <div class="milestone-list" id="milestoneList">
+                    <div class="milestone-item" data-id="read">
+                        <div class="milestone-check"><i class="fas fa-check"></i></div>
+                        <span class="milestone-text">Read the full brief</span>
+                    </div>
+                    <div class="milestone-item" data-id="understand">
+                        <div class="milestone-check"><i class="fas fa-check"></i></div>
+                        <span class="milestone-text">Understand the implications</span>
+                    </div>
+                    <div class="milestone-item" data-id="share">
+                        <div class="milestone-check"><i class="fas fa-check"></i></div>
+                        <span class="milestone-text">Share with your network</span>
+                    </div>
+                    <div class="milestone-item" data-id="action">
+                        <div class="milestone-check"><i class="fas fa-check"></i></div>
+                        <span class="milestone-text">Take sovereign action</span>
+                    </div>
+                </div>
+                <div class="milestone-progress">
+                    <div class="milestone-progress-fill" id="milestoneProgress" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="og-preview">
+                <h5>Share This Intel</h5>
+                <div class="share-buttons">
+                    <button class="share-btn" onclick="shareToX()"><i class="fab fa-x-twitter"></i></button>
+                    <button class="share-btn" onclick="shareToTelegram()"><i class="fab fa-telegram"></i></button>
+                    <button class="share-btn" onclick="shareToNostr()"><i class="fas fa-bolt"></i></button>
+                    <button class="share-btn" onclick="copyLink()"><i class="fas fa-link"></i></button>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function loadNetworkStats() {
+    try {
+        const [hashrate, fees, tip] = await Promise.all([
+            fetch('https://mempool.space/api/v1/mining/hashrate/1d').then(r => r.json()),
+            fetch('https://mempool.space/api/v1/fees/recommended').then(r => r.json()),
+            fetch('https://mempool.space/api/blocks/tip/height').then(r => r.text())
+        ]);
+        
+        document.getElementById('hashrate').textContent = 
+            (hashrate.currentHashrate / 1e18).toFixed(2) + ' EH/s';
+        document.getElementById('difficulty').textContent = 
+            (hashrate.currentDifficulty / 1e12).toFixed(2) + ' T';
+        document.getElementById('blockHeight').textContent = tip;
+        document.getElementById('priorityFee').textContent = fees.fastestFee + ' sat/vB';
+        
+        const mempoolResp = await fetch('https://mempool.space/api/mempool');
+        const mempool = await mempoolResp.json();
+        document.getElementById('mempoolSize').textContent = 
+            (mempool.vsize / 1e6).toFixed(2) + ' vMB';
+    } catch (e) {
+        console.error('Failed to load network stats:', e);
+    }
+}
+
+const articleId = '{{ article.id if article else "default" }}';
+let completedMilestones = JSON.parse(localStorage.getItem(`milestones_${articleId}`) || '[]');
+
+function initMilestones() {
+    document.querySelectorAll('.milestone-item').forEach(item => {
+        const id = item.dataset.id;
+        if (completedMilestones.includes(id)) {
+            item.classList.add('completed');
+        }
+        
+        item.addEventListener('click', () => {
+            if (completedMilestones.includes(id)) {
+                completedMilestones = completedMilestones.filter(m => m !== id);
+                item.classList.remove('completed');
+            } else {
+                completedMilestones.push(id);
+                item.classList.add('completed');
+            }
+            localStorage.setItem(`milestones_${articleId}`, JSON.stringify(completedMilestones));
+            updateProgress();
+            syncToGHL();
+        });
+    });
+    updateProgress();
+}
+
+function updateProgress() {
+    const total = document.querySelectorAll('.milestone-item').length;
+    const completed = completedMilestones.length;
+    const percent = (completed / total) * 100;
+    document.getElementById('milestoneProgress').style.width = percent + '%';
+}
+
+async function syncToGHL() {
+    try {
+        await fetch('/api/ghl/milestone', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                article_id: articleId,
+                milestones: completedMilestones,
+                sovereign_active: completedMilestones.length >= 3
+            })
+        });
+    } catch (e) {
+        console.log('GHL sync skipped');
+    }
+}
+
+function shareToX() {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(document.querySelector('.article-title').textContent);
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+}
+
+function shareToTelegram() {
+    const url = encodeURIComponent(window.location.href);
+    window.open(`https://t.me/share/url?url=${url}`, '_blank');
+}
+
+function shareToNostr() {
+    alert('Nostr sharing coming soon!');
+}
+
+function copyLink() {
+    navigator.clipboard.writeText(window.location.href);
+    alert('Link copied to clipboard!');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadNetworkStats();
+    initMilestones();
+    setInterval(loadNetworkStats, 60000);
+});
+</script>
+{% endblock %}

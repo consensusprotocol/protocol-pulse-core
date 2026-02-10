@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}Support Protocol Pulse | Donate{% endblock %}
+
+{% block head %}
+<style>
+body { background: var(--pp-bg-primary) !important; }
+.donate-page {
+    min-height: 100vh;
+    padding: 100px 24px 80px;
+    font-family: 'DM Sans', sans-serif;
+}
+.donate-container { max-width: 560px; margin: 0 auto; }
+.donate-hero {
+    text-align: center;
+    margin-bottom: 40px;
+}
+.donate-hero h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    font-weight: 700;
+    color: var(--pp-text-primary);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.donate-hero h1 i { color: var(--pp-accent); }
+.donate-hero p {
+    color: var(--pp-text-secondary);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+.donate-why {
+    background: var(--pp-accent-soft);
+    border: 1px solid rgba(229,72,72,0.25);
+    border-radius: var(--pp-radius-lg);
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    font-size: 0.9rem;
+    color: var(--pp-text-secondary);
+    line-height: 1.55;
+}
+.donate-why strong { color: var(--pp-text-primary); }
+.donate-card {
+    background: var(--pp-bg-card);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: var(--pp-radius-xl);
+    padding: 32px;
+}
+.amount-selector {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+}
+.amount-btn {
+    padding: 14px;
+    background: var(--pp-bg-elevated);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: var(--pp-radius-md);
+    color: var(--pp-text-primary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: border-color 0.25s var(--pp-ease), background 0.25s var(--pp-ease), color 0.25s var(--pp-ease);
+}
+.amount-btn:hover,
+.amount-btn.selected {
+    border-color: var(--pp-bitcoin);
+    background: rgba(247,147,26,0.1);
+    color: var(--pp-bitcoin);
+}
+.form-group { margin-bottom: 20px; }
+.form-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--pp-text-secondary);
+    margin-bottom: 8px;
+}
+.donate-page .form-input,
+.donate-page .form-textarea {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--pp-bg-elevated);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: var(--pp-radius-md);
+    color: var(--pp-text-primary);
+    font-size: 0.95rem;
+}
+.donate-page .form-input:focus,
+.donate-page .form-textarea:focus {
+    outline: none;
+    border-color: var(--pp-accent);
+    box-shadow: 0 0 0 2px var(--pp-accent-soft);
+}
+.donate-page .form-textarea { min-height: 100px; resize: vertical; }
+.donate-btn {
+    width: 100%;
+    padding: 16px 24px;
+    background: var(--pp-bitcoin);
+    border: none;
+    border-radius: var(--pp-radius-md);
+    color: #000;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s var(--pp-ease);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 28px;
+}
+.donate-btn:hover { opacity: 0.95; color: #000; }
+.lightning-section {
+    margin-top: 28px;
+    padding-top: 28px;
+    border-top: 1px solid var(--pp-border-subtle);
+    text-align: center;
+}
+.lightning-title {
+    font-size: 0.9rem;
+    color: var(--pp-text-muted);
+    margin-bottom: 14px;
+}
+.donate-btc-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 24px;
+    background: rgba(247,147,26,0.15);
+    border: 1px solid rgba(247,147,26,0.4);
+    border-radius: var(--pp-radius-md);
+    color: var(--pp-bitcoin);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    text-decoration: none;
+    margin-bottom: 14px;
+    transition: background 0.2s var(--pp-ease);
+}
+.donate-btc-link:hover { background: rgba(247,147,26,0.25); color: var(--pp-bitcoin); }
+.lightning-address {
+    background: var(--pp-bg-elevated);
+    padding: 14px 20px;
+    border-radius: var(--pp-radius-md);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--pp-bitcoin);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    border: 1px solid var(--pp-border-subtle);
+    transition: border-color 0.2s var(--pp-ease);
+}
+.lightning-address:hover { border-color: var(--pp-bitcoin); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="donate-page pp-page">
+    <div class="donate-container">
+        <div class="donate-hero">
+            <h1><i class="fas fa-heart"></i> Support sovereign intel</h1>
+            <p>Your contribution keeps Protocol Pulse independent and ad-light. Every satoshi goes to briefs, series, and infrastructure.</p>
+        </div>
+
+        <div class="donate-why">
+            <strong>What your support does:</strong> Funds intel briefs, original series, and the Sovereign Library. No middlemen—direct to the team.
+        </div>
+
+        <div class="donate-card">
+            <form method="POST" action="{{ url_for('donate') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <div class="amount-selector">
+                    <button type="button" class="amount-btn" data-amount="21">$21</button>
+                    <button type="button" class="amount-btn selected" data-amount="50">$50</button>
+                    <button type="button" class="amount-btn" data-amount="100">$100</button>
+                    <button type="button" class="amount-btn" data-amount="210">$210</button>
+                </div>
+                <input type="hidden" name="amount" id="amount-input" value="50">
+                <div class="form-group">
+                    <label class="form-label">Custom amount (USD)</label>
+                    <input type="number" class="form-input" id="custom-amount" min="1" placeholder="Optional">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email (for receipt)</label>
+                    <input type="email" name="email" class="form-input" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Message (optional)</label>
+                    <textarea name="message" class="form-textarea" placeholder="Leave a note..."></textarea>
+                </div>
+                <button type="submit" class="donate-btn">
+                    <i class="fas fa-bolt"></i> Donate now
+                </button>
+            </form>
+
+            <div class="lightning-section">
+                <div class="lightning-title">Or pay with Bitcoin</div>
+                <a href="/donate/bitcoin" class="donate-btc-link">
+                    <i class="fab fa-bitcoin"></i> Bitcoin / Lightning
+                </a>
+                <div class="lightning-address" onclick="copyLightning()" title="Copy">
+                    <i class="fas fa-bolt"></i>
+                    protocolpulse@getalby.com
+                    <i class="fas fa-copy"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.amount-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+        this.classList.add('selected');
+        document.getElementById('amount-input').value = this.dataset.amount;
+        document.getElementById('custom-amount').value = '';
+    });
+});
+document.getElementById('custom-amount').addEventListener('input', function() {
+    if (this.value) {
+        document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+        document.getElementById('amount-input').value = this.value;
+    }
+});
+function copyLightning() {
+    navigator.clipboard.writeText('protocolpulse@getalby.com');
+    alert('Lightning address copied!');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+
+{% block title %}{{ operative.username }} | Operative Profile | Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+:root {
+    --pp-red: #dc2626;
+    --pp-dark: #0a0a0a;
+    --btc-orange: #f7931a;
+    --rank-elite: #8b5cf6;
+    --rank-operative: #22c55e;
+    --rank-recruit: #6b7280;
+}
+
+.profile-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0505 100%);
+    padding-top: 100px;
+    padding-bottom: 80px;
+}
+
+.profile-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.profile-card {
+    background: rgba(10, 10, 10, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    overflow: hidden;
+    backdrop-filter: blur(40px);
+}
+
+{% if operative.operative_rank >= 3 %}
+.profile-card {
+    border-color: var(--rank-elite);
+    box-shadow: 0 0 60px rgba(139, 92, 246, 0.2);
+}
+{% endif %}
+
+.profile-banner {
+    height: 150px;
+    background: linear-gradient(135deg, 
+        {% if operative.operative_rank >= 3 %}
+        rgba(139, 92, 246, 0.3) 0%, rgba(139, 92, 246, 0.1) 100%
+        {% elif operative.operative_rank >= 2 %}
+        rgba(34, 197, 94, 0.3) 0%, rgba(34, 197, 94, 0.1) 100%
+        {% else %}
+        rgba(107, 114, 128, 0.3) 0%, rgba(107, 114, 128, 0.1) 100%
+        {% endif %}
+    );
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rank-icon {
+    font-size: 4rem;
+}
+
+.profile-content {
+    padding: 30px;
+    text-align: center;
+}
+
+.profile-username {
+    font-family: 'Crimson Pro', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 25px;
+    {% if operative.operative_rank >= 3 %}
+    background: rgba(139, 92, 246, 0.2);
+    border: 1px solid var(--rank-elite);
+    color: var(--rank-elite);
+    {% elif operative.operative_rank >= 2 %}
+    background: rgba(34, 197, 94, 0.2);
+    border: 1px solid var(--rank-operative);
+    color: var(--rank-operative);
+    {% else %}
+    background: rgba(107, 114, 128, 0.2);
+    border: 1px solid var(--rank-recruit);
+    color: var(--rank-recruit);
+    {% endif %}
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--btc-orange);
+}
+
+.stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 5px;
+}
+
+.member-since {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.share-section {
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.share-url {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 12px 15px;
+}
+
+.share-url input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    outline: none;
+}
+
+.copy-btn {
+    background: var(--btc-orange);
+    color: #000;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+    transform: scale(1.05);
+}
+
+.cta-section {
+    margin-top: 40px;
+    text-align: center;
+}
+
+.cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 28px;
+    background: var(--pp-red);
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(220, 38, 38, 0.3);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="profile-container">
+        <div class="profile-card">
+            <div class="profile-banner">
+                <span class="rank-icon">
+                    {% if operative.operative_rank >= 3 %}
+                    👑
+                    {% elif operative.operative_rank >= 2 %}
+                    ⚡
+                    {% else %}
+                    🔰
+                    {% endif %}
+                </span>
+            </div>
+            
+            <div class="profile-content">
+                <h1 class="profile-username">{{ operative.username }}</h1>
+                
+                <div class="rank-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    {{ operative.get_rank_name() }}
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value">{{ operative.drill_completions }}</div>
+                        <div class="stat-label">Drills</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">{{ operative.brief_clicks }}</div>
+                        <div class="stat-label">Briefs Read</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">{{ operative.operative_rank }}</div>
+                        <div class="stat-label">Rank Level</div>
+                    </div>
+                </div>
+                
+                <div class="member-since">
+                    Member since {{ operative.created_at.strftime('%B %Y') }}
+                </div>
+                
+                <div class="share-section">
+                    <div class="share-url">
+                        <input type="text" id="profile-url" value="{{ request.url }}" readonly>
+                        <button class="copy-btn" onclick="copyProfileUrl()"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="cta-section">
+            <a href="/drill" class="cta-btn"><i class="fas fa-crosshairs"></i> Start Your Own Drill</a>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyProfileUrl() {
+    const input = document.getElementById('profile-url');
+    input.select();
+    document.execCommand('copy');
+    
+    const btn = document.querySelector('.copy-btn');
+    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    setTimeout(() => {
+        btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+    }, 2000);
+}
+</script>
+{% endblock %}

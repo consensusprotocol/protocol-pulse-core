@@ -1,0 +1,42 @@
+# Protocol Pulse — Medley Engine config
+# Paths are relative to project root (~/protocol_pulse or medley_engine/)
+
+paths:
+  channels_dir: channels
+  clips_dir: clips
+  output_dir: output          # final renders
+  logs_dir: logs
+  branding_path: branding/tag.mp4
+  sponsors_slot_1: sponsors/slot_1   # mid-roll (after first 2 content clips)
+  sponsors_slot_2: sponsors/slot_2   # pre-outro (before tag.mp4)
+
+# News Oracle: free RSS feeds for trending keywords (no API key)
+news_rss_feeds:
+  - https://www.coindesk.com/arc/outboundfeeds/rss/
+  - https://bitcoinmagazine.com/.rss/full/
+
+# YouTube channels to monitor for new daily uploads
+channels:
+  - "https://www.youtube.com/@SomeBitcoinChannel"
+  - "https://www.youtube.com/@AnotherCryptoShow"
+  # Add your target channels here (one URL per line)
+
+# Bitcoin-related keywords for "Alpha" clip detection (transcript search)
+alpha_keywords:
+  - bitcoin
+  - btc
+  - satoshi
+  - sound money
+  - store of value
+  - halving
+  - mining
+  - lightning network
+  - self-custody
+  - sovereignty
+
+# Clip and medley settings
+clip_duration_seconds: 60
+cross_dissolve_duration: 1.5   # seconds between clips in medley
+whisper_device: "cuda"         # use GPU 0 by default
+whisper_model: "large-v3"      # or base/small/medium/large-v2
+max_clips_per_medley: 12       # cap number of clips in one medley

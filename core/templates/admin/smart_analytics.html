@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Smart Analytics - Protocol Pulse Admin{% endblock %}
+
+{% block head %}
+<style>
+.smart-analytics { background: var(--pp-bg-primary, #050508); min-height: 100vh; color: #fafafa; padding: 2rem 0; }
+.smart-analytics .card { background: var(--pp-bg-card, #0f0f14); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; }
+.smart-analytics .card-header { background: transparent; border-bottom: 1px solid rgba(255,255,255,0.06); font-weight: 600; }
+.smart-analytics .stat-big { font-size: 2rem; font-weight: 700; color: var(--pp-accent, #e54848); }
+.smart-analytics .stat-label { font-size: 0.8rem; color: rgba(255,255,255,0.5); text-transform: uppercase; }
+.smart-analytics table { color: #fafafa; }
+.smart-analytics th { border-color: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); font-size: 0.8rem; }
+.smart-analytics td { border-color: rgba(255,255,255,0.06); }
+.smart-analytics a { color: var(--pp-accent); }
+.smart-analytics .nav-pills .nav-link { background: rgba(255,255,255,0.06); color: #fafafa; border-radius: 10px; margin-right: 0.5rem; }
+.smart-analytics .nav-pills .nav-link.active { background: var(--pp-accent); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="smart-analytics pp-page">
+    <div class="container-fluid">
+        <h1 class="mb-4"><i class="fas fa-chart-line me-2"></i>Smart Analytics</h1>
+        <p class="text-muted mb-4">User preferences, traffic, affiliate performance, and revenue — data-driven targeting.</p>
+
+        <ul class="nav nav-pills mb-4">
+            <li class="nav-item"><a class="nav-link {% if days == 1 %}active{% endif %}" href="{{ url_for('admin_smart_analytics', days=1) }}">24h</a></li>
+            <li class="nav-item"><a class="nav-link {% if days == 7 %}active{% endif %}" href="{{ url_for('admin_smart_analytics', days=7) }}">7 days</a></li>
+            <li class="nav-item"><a class="nav-link {% if days == 14 %}active{% endif %}" href="{{ url_for('admin_smart_analytics', days=14) }}">14 days</a></li>
+            <li class="nav-item"><a class="nav-link {% if days == 30 %}active{% endif %}" href="{{ url_for('admin_smart_analytics', days=30) }}">30 days</a></li>
+        </ul>
+
+        {% set overview = data.get('overview') or {} %}
+        {% set revenue = revenue or {} %}
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="stat-big">{{ overview.get('page_views', 0) }}</div>
+                        <div class="stat-label">Page views</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="stat-big">{{ overview.get('unique_sessions', 0) }}</div>
+                        <div class="stat-label">Unique sessions</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="stat-big">{{ overview.get('affiliate_clicks', 0) }}</div>
+                        <div class="stat-label">Affiliate clicks</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="stat-big">{{ overview.get('premium_subscribers', 0) }}</div>
+                        <div class="stat-label">Premium subscribers</div>
+                        <div class="mt-1 small text-muted">MRR ${{ revenue.get('mrr', 0) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">Top pages (user preference)</div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead><tr><th>Path</th><th>Category</th><th>Views</th><th>Sessions</th></tr></thead>
+                                <tbody>
+                                    {% for p in (data.get('top_pages') or [])[:10] %}
+                                    <tr>
+                                        <td><span title="{{ p.path }}">{{ p.title or p.path }}</span></td>
+                                        <td>{{ p.category or '—' }}</td>
+                                        <td>{{ p.views }}</td>
+                                        <td>{{ p.sessions }}</td>
+                                    </tr>
+                                    {% else %}
+                                    <tr><td colspan="4" class="text-muted">No data yet.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">Traffic by category (targeting)</div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead><tr><th>Category</th><th>Views</th><th>Sessions</th></tr></thead>
+                                <tbody>
+                                    {% for c in (data.get('user_preferences') or [])[:10] %}
+                                    <tr><td>{{ c.category }}</td><td>{{ c.views }}</td><td>{{ c.sessions }}</td></tr>
+                                    {% else %}
+                                    <tr><td colspan="3" class="text-muted">No data yet.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">Top referrers</div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            {% for r in (data.get('top_referrers') or [])[:8] %}
+                            <li class="list-group-item d-flex justify-content-between" style="background:transparent;border-color:rgba(255,255,255,0.06);">
+                                <span class="text-truncate" style="max-width:70%;" title="{{ r.referrer }}">{{ r.referrer[:60] }}{% if r.referrer|length > 60 %}...{% endif %}</span>
+                                <span class="text-primary">{{ r.count }}</span>
+                            </li>
+                            {% else %}
+                            <li class="list-group-item text-muted" style="background:transparent;border-color:rgba(255,255,255,0.06);">No referrer data yet.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">Affiliate performance (conversions)</div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead><tr><th>Product</th><th>Type</th><th>Clicks</th></tr></thead>
+                                <tbody>
+                                    {% for a in (data.get('affiliate_performance') or [])[:10] %}
+                                    <tr><td>{{ a.product_name }}</td><td>{{ a.link_type or '—' }}</td><td>{{ a.clicks }}</td></tr>
+                                    {% else %}
+                                    <tr><td colspan="3" class="text-muted">No affiliate clicks yet.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">Article performance (briefs)</div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead><tr><th>Article</th><th>Views</th><th>Sessions</th><th>Avg time (s)</th><th>Max scroll %</th></tr></thead>
+                                <tbody>
+                                    {% for a in (data.get('article_performance') or [])[:15] %}
+                                    <tr>
+                                        <td>{{ a.title or a.path }}</td>
+                                        <td>{{ a.views }}</td>
+                                        <td>{{ a.sessions }}</td>
+                                        <td>{{ a.avg_time_sec }}</td>
+                                        <td>{{ a.max_scroll }}</td>
+                                    </tr>
+                                    {% else %}
+                                    <tr><td colspan="5" class="text-muted">No article view data yet.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

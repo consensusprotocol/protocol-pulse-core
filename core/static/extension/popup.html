@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      width: 320px;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0a0a12;
+      color: #fff;
+    }
+    
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: linear-gradient(135deg, #1a0a2e, #0a0a12);
+      border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+    }
+    
+    .logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #f7931a, #ff6b00);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+    
+    .title {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+    
+    .subtitle {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.5);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+    }
+    
+    .content {
+      padding: 20px 16px;
+    }
+    
+    .page-info {
+      background: rgba(20, 20, 35, 0.8);
+      border: 1px solid rgba(138, 43, 226, 0.3);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+    
+    .page-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .page-platform {
+      display: inline-block;
+      padding: 2px 8px;
+      background: rgba(138, 43, 226, 0.3);
+      border-radius: 10px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+    }
+    
+    .amount-section {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    
+    .amount-label {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 8px;
+    }
+    
+    .amount-input {
+      width: 100%;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(138, 43, 226, 0.4);
+      color: #f7931a;
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .amount-input:focus {
+      outline: none;
+      border-color: #f7931a;
+    }
+    
+    .quick-amounts {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    
+    .quick-btn {
+      flex: 1;
+      padding: 8px;
+      background: rgba(138, 43, 226, 0.2);
+      border: 1px solid rgba(138, 43, 226, 0.4);
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+    
+    .quick-btn:hover {
+      background: rgba(247, 147, 26, 0.3);
+      border-color: #f7931a;
+    }
+    
+    .zap-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #f7931a, #ff6b00);
+      border: none;
+      color: #000;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    
+    .zap-btn:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 15px rgba(247, 147, 26, 0.4);
+    }
+    
+    .zap-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .splits {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      margin-top: 16px;
+      border-top: 1px solid rgba(138, 43, 226, 0.3);
+    }
+    
+    .split-item {
+      text-align: center;
+    }
+    
+    .split-percent {
+      font-weight: 700;
+      color: #f7931a;
+    }
+    
+    .split-label {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+    }
+    
+    .curate-btn {
+      width: 100%;
+      padding: 10px;
+      background: rgba(138, 43, 226, 0.2);
+      border: 1px solid rgba(138, 43, 226, 0.4);
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      margin-top: 12px;
+      transition: all 0.2s;
+    }
+    
+    .curate-btn:hover {
+      background: rgba(138, 43, 226, 0.4);
+    }
+    
+    .footer {
+      padding: 12px 16px;
+      border-top: 1px solid rgba(138, 43, 226, 0.2);
+      text-align: center;
+    }
+    
+    .footer a {
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      font-size: 0.75rem;
+    }
+    
+    .footer a:hover {
+      color: #f7931a;
+    }
+    
+    .status {
+      padding: 10px;
+      margin-bottom: 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+    
+    .status.success {
+      background: rgba(0, 255, 136, 0.2);
+      color: #00ff88;
+    }
+    
+    .status.error {
+      background: rgba(255, 0, 0, 0.2);
+      color: #ff4444;
+    }
+    
+    .no-wallet {
+      background: rgba(255, 150, 0, 0.2);
+      border: 1px solid rgba(255, 150, 0, 0.4);
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    
+    .no-wallet h4 {
+      margin-bottom: 8px;
+      color: #ff9600;
+    }
+    
+    .no-wallet p {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 12px;
+    }
+    
+    .wallet-links {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .wallet-link {
+      flex: 1;
+      padding: 8px;
+      background: rgba(255, 150, 0, 0.3);
+      border-radius: 6px;
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.8rem;
+      text-align: center;
+    }
+    
+    .wallet-link:hover {
+      background: rgba(255, 150, 0, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">⚡</div>
+    <div>
+      <div class="title">Pulse Zapper</div>
+      <div class="subtitle" id="current-url">Loading...</div>
+    </div>
+  </div>
+  
+  <div class="content">
+    <div id="status-container"></div>
+    
+    <div id="no-wallet" class="no-wallet" style="display: none;">
+      <h4>⚡ Wallet Required</h4>
+      <p>Install a WebLN-compatible wallet to zap content</p>
+      <div class="wallet-links">
+        <a href="https://getalby.com" target="_blank" class="wallet-link">Alby</a>
+        <a href="https://zeusln.app" target="_blank" class="wallet-link">Zeus</a>
+      </div>
+    </div>
+    
+    <div class="page-info" id="page-info">
+      <div class="page-title" id="page-title">Page Title</div>
+      <span class="page-platform" id="page-platform">website</span>
+    </div>
+    
+    <div class="amount-section">
+      <div class="amount-label">AMOUNT (SATS)</div>
+      <input type="number" class="amount-input" id="amount" value="1000" min="1">
+      <div class="quick-amounts">
+        <button class="quick-btn" data-amount="100">100</button>
+        <button class="quick-btn" data-amount="500">500</button>
+        <button class="quick-btn" data-amount="1000">1K</button>
+        <button class="quick-btn" data-amount="5000">5K</button>
+      </div>
+    </div>
+    
+    <button class="zap-btn" id="zap-btn">
+      ⚡ ZAP NOW
+    </button>
+    
+    <div class="splits">
+      <div class="split-item">
+        <div class="split-percent">85%</div>
+        <div class="split-label">Creator</div>
+      </div>
+      <div class="split-item">
+        <div class="split-percent">10%</div>
+        <div class="split-label">Curator</div>
+      </div>
+      <div class="split-item">
+        <div class="split-percent">5%</div>
+        <div class="split-label">Protocol</div>
+      </div>
+    </div>
+    
+    <button class="curate-btn" id="curate-btn">
+      📤 Curate to Value Stream
+    </button>
+  </div>
+  
+  <div class="footer">
+    <a href="https://protocolpulse.replit.app/value-stream" target="_blank">
+      Open Value Stream →
+    </a>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

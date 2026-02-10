@@ -1,0 +1,24 @@
+[Unit]
+Description=Protocol Pulse Media Engine (Gunicorn)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/protocol_pulse/core
+Environment="PYTHONUNBUFFERED=1"
+Environment="FLASK_ENV=production"
+ExecStart=/opt/protocol_pulse/.venv/bin/gunicorn -b 0.0.0.0:10000 app:app
+Restart=always
+RestartSec=5
+User=www-data
+Group=www-data
+
+[Install]
+WantedBy=multi-user.target
+
+# NOTE:
+# - Adjust WorkingDirectory, ExecStart path, and User/Group to match your server.
+# - Install with:
+#     sudo cp protocol_pulse.service /etc/systemd/system/
+#     sudo systemctl daemon-reload
+#     sudo systemctl enable --now protocol_pulse.service

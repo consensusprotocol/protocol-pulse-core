@@ -1,0 +1,372 @@
+{% extends "base.html" %}
+
+{% block title %}Launch Sequences | Admin | Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+:root {
+    --pp-red: #dc2626;
+    --pp-dark: #0a0a0a;
+    --pp-glass: rgba(10, 10, 10, 0.95);
+}
+
+.admin-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0505 100%);
+    padding: 100px 20px 60px;
+}
+
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.admin-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.admin-title i {
+    color: var(--pp-red);
+}
+
+.create-btn {
+    background: var(--pp-red);
+    border: none;
+    border-radius: 10px;
+    padding: 14px 28px;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.create-btn:hover {
+    background: #b91c1c;
+    transform: translateY(-2px);
+    color: #fff;
+}
+
+.sequences-grid {
+    display: grid;
+    gap: 20px;
+}
+
+.sequence-card {
+    background: var(--pp-glass);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 16px;
+    padding: 25px;
+    transition: all 0.3s ease;
+}
+
+.sequence-card:hover {
+    border-color: var(--pp-red);
+}
+
+.sequence-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    gap: 15px;
+}
+
+.sequence-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba(220, 38, 38, 0.2);
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--pp-red);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.sequence-status {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.status-draft {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.status-approved {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+}
+
+.status-published {
+    background: rgba(96, 165, 250, 0.2);
+    color: #60a5fa;
+}
+
+.status-analyzed {
+    background: rgba(168, 85, 247, 0.2);
+    color: #a855f7;
+}
+
+.sequence-content {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.sequence-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.meta-item i {
+    color: var(--pp-red);
+}
+
+.sequence-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.action-btn-primary {
+    background: var(--pp-red);
+    border: none;
+    color: #fff;
+}
+
+.action-btn-primary:hover {
+    background: #b91c1c;
+    color: #fff;
+}
+
+.action-btn-secondary {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.action-btn-secondary:hover {
+    border-color: var(--pp-red);
+    color: #fff;
+}
+
+.action-btn-success {
+    background: rgba(34, 197, 94, 0.2);
+    border: 1px solid #22c55e;
+    color: #22c55e;
+}
+
+.action-btn-success:hover {
+    background: #22c55e;
+    color: #fff;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--pp-glass);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 16px;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: rgba(255, 255, 255, 0.2);
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    font-family: 'JetBrains Mono', monospace;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    font-family: 'JetBrains Mono', monospace;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+}
+
+.velocity-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    background: rgba(234, 179, 8, 0.2);
+    border-radius: 15px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: #eab308;
+}
+
+.velocity-badge.high {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+    transition: color 0.3s ease;
+}
+
+.back-link:hover {
+    color: var(--pp-red);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="admin-container">
+        <a href="/admin" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Admin
+        </a>
+        
+        <div class="admin-header">
+            <h1 class="admin-title">
+                <i class="fas fa-rocket"></i>
+                Launch Sequences
+            </h1>
+            <a href="/admin/launch-sequence/create" class="create-btn">
+                <i class="fas fa-plus"></i> New Sequence
+            </a>
+        </div>
+        
+        <div class="sequences-grid">
+            {% if sequences %}
+                {% for seq in sequences %}
+                <div class="sequence-card">
+                    <div class="sequence-header">
+                        <div>
+                            <span class="sequence-type">
+                                <i class="fas fa-{% if seq.content_type == 'episode' %}podcast{% elif seq.content_type == 'article' %}newspaper{% else %}bolt{% endif %}"></i>
+                                {{ seq.content_type or 'Content' }}
+                            </span>
+                            {% if seq.velocity_prediction %}
+                            <span class="velocity-badge {% if seq.velocity_prediction >= 70 %}high{% endif %}">
+                                <i class="fas fa-chart-line"></i> {{ seq.velocity_prediction|int }}% velocity
+                            </span>
+                            {% endif %}
+                        </div>
+                        <span class="sequence-status status-{{ seq.status }}">{{ seq.status }}</span>
+                    </div>
+                    
+                    <div class="sequence-content">
+                        {{ seq.primary_post_copy or 'No content generated yet' }}
+                    </div>
+                    
+                    <div class="sequence-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-calendar"></i>
+                            {{ seq.created_at.strftime('%b %d, %Y %H:%M') if seq.created_at else 'Unknown' }}
+                        </div>
+                        {% if seq.posting_time %}
+                        <div class="meta-item">
+                            <i class="fas fa-clock"></i>
+                            Optimal: {{ seq.posting_time }}
+                        </div>
+                        {% endif %}
+                        {% if seq.hashtags %}
+                        <div class="meta-item">
+                            <i class="fas fa-hashtag"></i>
+                            {{ seq.hashtags[:50] }}...
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="sequence-actions">
+                        {% if seq.status == 'draft' %}
+                        <a href="/admin/launch-sequence/{{ seq.id }}/approve" class="action-btn action-btn-success">
+                            <i class="fas fa-check"></i> Approve
+                        </a>
+                        {% endif %}
+                        {% if seq.status == 'approved' %}
+                        <a href="/launch-console/{{ seq.id }}" class="action-btn action-btn-primary">
+                            <i class="fas fa-rocket"></i> Launch Console
+                        </a>
+                        {% endif %}
+                        <a href="/admin/launch-sequence/{{ seq.id }}" class="action-btn action-btn-secondary">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                        <a href="/admin/launch-sequence/{{ seq.id }}/regenerate" class="action-btn action-btn-secondary">
+                            <i class="fas fa-sync"></i> Regenerate
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-rocket"></i>
+                <h3>No Launch Sequences Yet</h3>
+                <p>Create your first launch sequence to optimize content distribution.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

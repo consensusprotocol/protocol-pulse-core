@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+{% block title %}Infrastructure Index | Protocol Pulse{% endblock %}
+{% block description %}Transparency disclosure of infrastructure partners. This page exists for disclosure compliance, not promotion.{% endblock %}
+
+{% block content %}
+<style>
+.index-page {
+    background: #0a0a0a;
+    min-height: 100vh;
+    padding: 120px 0 80px;
+}
+
+.index-header {
+    max-width: 680px;
+    margin: 0 auto 60px;
+    text-align: center;
+}
+
+.index-classification {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 6px 14px;
+    border-radius: 2px;
+    margin-bottom: 24px;
+}
+
+.index-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.8);
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+}
+
+.index-subtitle {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.35);
+    line-height: 1.7;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.index-notice {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    padding: 16px 20px;
+    max-width: 680px;
+    margin: 0 auto 60px;
+}
+
+.index-notice-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.4);
+    line-height: 1.6;
+}
+
+.index-table {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.table-section {
+    margin-bottom: 40px;
+}
+
+.table-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(255, 255, 255, 0.25);
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    margin-bottom: 0;
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: 180px 1fr 140px 100px;
+    gap: 20px;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    align-items: center;
+    transition: background 0.2s ease;
+}
+
+.table-row:hover {
+    background: rgba(255, 255, 255, 0.01);
+}
+
+.row-entity {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+}
+
+.row-purpose {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+    line-height: 1.5;
+}
+
+.row-relationship {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.row-link {
+    text-align: right;
+}
+
+.row-link a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: color 0.2s ease;
+}
+
+.row-link a:hover {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.row-link .pending {
+    color: rgba(255, 255, 255, 0.2);
+    cursor: default;
+}
+
+.index-footer {
+    max-width: 680px;
+    margin: 60px auto 0;
+    padding-top: 40px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.footer-disclosure {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.25);
+    line-height: 1.8;
+    text-align: center;
+}
+
+.footer-disclosure strong {
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 500;
+}
+
+.index-timestamp {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.2);
+    text-align: center;
+    margin-top: 24px;
+}
+
+@media (max-width: 768px) {
+    .index-page {
+        padding: 100px 20px 60px;
+    }
+    
+    .table-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 20px 0;
+    }
+    
+    .row-entity {
+        font-size: 1rem;
+    }
+    
+    .row-link {
+        text-align: left;
+    }
+    
+    .table-header {
+        display: none;
+    }
+}
+</style>
+
+<div class="index-page">
+    <div class="container">
+        <div class="index-header">
+            <span class="index-classification">Disclosure Document</span>
+            <h1 class="index-title">Infrastructure Index</h1>
+            <p class="index-subtitle">This page exists for transparency. Protocol Pulse maintains commercial relationships with the infrastructure providers listed below.</p>
+        </div>
+        
+        <div class="index-notice">
+            <p class="index-notice-text">
+                Infrastructure references appear contextually within Protocol Pulse intelligence materials when operationally relevant. This index serves as a compliance disclosure, not a recommendation engine. Editorial accuracy gates remain unaffected by commercial relationships.
+            </p>
+        </div>
+        
+        <div class="index-table">
+            {% if manifest.insurance %}
+            <div class="table-section">
+                <div class="table-header">Generational Security</div>
+                {% for key, partner in manifest.insurance.items() %}
+                <div class="table-row">
+                    <div class="row-entity">{{ partner.name }}</div>
+                    <div class="row-purpose">{{ partner.description }}</div>
+                    <div class="row-relationship">Referral</div>
+                    <div class="row-link">
+                        {% if partner.url and partner.url != '#' %}
+                        <a href="/go/{{ key }}">Visit &rarr;</a>
+                        {% else %}
+                        <span class="pending">Pending</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% if manifest.exchanges %}
+            <div class="table-section">
+                <div class="table-header">Liquidity Infrastructure</div>
+                {% for key, partner in manifest.exchanges.items() %}
+                <div class="table-row">
+                    <div class="row-entity">{{ partner.name }}</div>
+                    <div class="row-purpose">{{ partner.description }}</div>
+                    <div class="row-relationship">Referral</div>
+                    <div class="row-link">
+                        {% if partner.url and partner.url != '#' %}
+                        <a href="/go/{{ key }}">Visit &rarr;</a>
+                        {% else %}
+                        <span class="pending">Pending</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% if manifest.onramps %}
+            <div class="table-section">
+                <div class="table-header">Fiat Gateways</div>
+                {% for key, partner in manifest.onramps.items() %}
+                <div class="table-row">
+                    <div class="row-entity">{{ partner.name }}</div>
+                    <div class="row-purpose">{{ partner.description }}</div>
+                    <div class="row-relationship">Referral</div>
+                    <div class="row-link">
+                        {% if partner.url and partner.url != '#' %}
+                        <a href="/go/{{ key }}">Visit &rarr;</a>
+                        {% else %}
+                        <span class="pending">Pending</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="table-section">
+                <div class="table-header">Mining &amp; Deployment Intel</div>
+                <div class="table-row">
+                    <div class="row-entity">Mining Risk by Geography</div>
+                    <div class="row-purpose">Risk factor by location for deploying Bitcoin mining. Real-time network metrics and composite risk scores (regulatory, energy, stability).</div>
+                    <div class="row-relationship">Tool</div>
+                    <div class="row-link"><a href="/mining-risk">Open &rarr;</a></div>
+                </div>
+            </div>
+            {% if manifest.hardware %}
+            <div class="table-section">
+                <div class="table-header">Mining Infrastructure</div>
+                {% for key, partner in manifest.hardware.items() %}
+                <div class="table-row">
+                    <div class="row-entity">{{ partner.name }}</div>
+                    <div class="row-purpose">{{ partner.description }}</div>
+                    <div class="row-relationship">Referral</div>
+                    <div class="row-link">
+                        {% if partner.url and partner.url != '#' %}
+                        <a href="/go/{{ key }}">Visit &rarr;</a>
+                        {% else %}
+                        <span class="pending">Pending</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="index-footer">
+            <p class="footer-disclosure">
+                <strong>Disclosure:</strong> Protocol Pulse may receive compensation when readers use infrastructure links. All relationships are disclosed here. Commercial partnerships do not influence editorial content, article selection, or analytical conclusions. Intelligence accuracy is non-negotiable.
+            </p>
+            <p class="index-timestamp">Last updated: {{ now.strftime('%Y-%m-%d') if now else '2026-01-29' }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

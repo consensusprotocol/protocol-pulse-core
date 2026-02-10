@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+
+{% block title %}Create Launch Sequence | Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+:root {
+    --pp-red: #dc2626;
+    --pp-dark: #0a0a0a;
+    --pp-glass: rgba(10, 10, 10, 0.95);
+}
+
+.create-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0505 100%);
+    padding: 100px 20px 60px;
+}
+
+.create-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+    transition: color 0.3s ease;
+}
+
+.back-link:hover {
+    color: var(--pp-red);
+}
+
+.create-header {
+    margin-bottom: 30px;
+}
+
+.create-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.create-title i {
+    color: var(--pp-red);
+}
+
+.create-form {
+    background: var(--pp-glass);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 16px;
+    padding: 30px;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-label {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 10px;
+}
+
+.form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+    outline: none;
+    border-color: var(--pp-red);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.form-textarea {
+    min-height: 200px;
+    resize: vertical;
+}
+
+.form-select option {
+    background: #0a0a0a;
+    color: #fff;
+}
+
+.content-selector {
+    display: grid;
+    gap: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 10px;
+}
+
+.content-option {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.content-option:hover {
+    border-color: rgba(220, 38, 38, 0.5);
+}
+
+.content-option.selected {
+    border-color: var(--pp-red);
+    background: rgba(220, 38, 38, 0.1);
+}
+
+.content-option input {
+    display: none;
+}
+
+.content-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.content-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 18px;
+    background: var(--pp-red);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.submit-btn:hover {
+    background: #b91c1c;
+    transform: translateY(-2px);
+}
+
+.or-divider {
+    text-align: center;
+    padding: 20px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="create-page">
+    <div class="create-container">
+        <a href="/admin/launch-sequences" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Launch Sequences
+        </a>
+        
+        <div class="create-header">
+            <h1 class="create-title">
+                <i class="fas fa-rocket"></i>
+                Create Launch Sequence
+            </h1>
+        </div>
+        
+        <form class="create-form" method="POST" action="/admin/launch-sequence/create">
+            <div class="form-group">
+                <label class="form-label">Content Type</label>
+                <select class="form-select" name="content_type" id="content-type">
+                    <option value="article">Article</option>
+                    <option value="episode">Podcast Episode</option>
+                    <option value="brief">Intel Brief</option>
+                    <option value="clip">Video Clip</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="article-selector">
+                <label class="form-label">Select Article (Optional)</label>
+                <div class="content-selector">
+                    {% for article in articles %}
+                    <label class="content-option">
+                        <input type="radio" name="content_id" value="{{ article.id }}">
+                        <div class="content-title">{{ article.title }}</div>
+                        <div class="content-meta">{{ article.created_at.strftime('%b %d, %Y') }} - {{ article.category }}</div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="form-group" id="podcast-selector" style="display: none;">
+                <label class="form-label">Select Episode (Optional)</label>
+                <div class="content-selector">
+                    {% for podcast in podcasts %}
+                    <label class="content-option">
+                        <input type="radio" name="content_id" value="{{ podcast.id }}">
+                        <div class="content-title">{{ podcast.title }}</div>
+                        <div class="content-meta">Episode {{ podcast.episode_number or '-' }}</div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="or-divider">- OR -</div>
+            
+            <div class="form-group">
+                <label class="form-label">Custom Content</label>
+                <textarea class="form-textarea" name="content" placeholder="Paste your content here to generate an optimized launch sequence. Include the main points, key insights, and any controversial or thought-provoking elements..."></textarea>
+            </div>
+            
+            <button type="submit" class="submit-btn">
+                <i class="fas fa-magic"></i> Generate Launch Sequence
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.content-option').forEach(option => {
+    option.addEventListener('click', function() {
+        document.querySelectorAll('.content-option').forEach(o => o.classList.remove('selected'));
+        this.classList.add('selected');
+    });
+});
+
+document.getElementById('content-type').addEventListener('change', function() {
+    const articleSelector = document.getElementById('article-selector');
+    const podcastSelector = document.getElementById('podcast-selector');
+    
+    if (this.value === 'episode') {
+        articleSelector.style.display = 'none';
+        podcastSelector.style.display = 'block';
+    } else {
+        articleSelector.style.display = 'block';
+        podcastSelector.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}
