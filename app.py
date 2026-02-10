@@ -147,16 +147,6 @@ with app.app_context():
     # 2. Create the tables before routes register handlers that hit DB-backed objects
     db.create_all()
 
-# Diagnose: confirm / and /debug-routes are registered (debug 404)
-try:
-    rules = [r.rule for r in app.url_map.iter_rules()]
-    has_root = "/" in rules
-    logging.info("Routes registered: %s ... (/) present: %s", len(rules), has_root)
-    if not has_root:
-        logging.warning("Missing '/' route! Sample rules: %s", rules[:20])
-except Exception as e:
-    logging.warning("Could not list routes: %s", e)
-
 def _run_dev_server():
     port = 5000
     host = "0.0.0.0"
@@ -166,6 +156,16 @@ def _run_dev_server():
 
 # Keep routes import near the very bottom so the app object and extensions are fully initialized first.
 import routes
+
+# Diagnose after routes import so startup logs reflect the real routing table.
+try:
+    rules = [r.rule for r in app.url_map.iter_rules()]
+    has_root = "/" in rules
+    logging.info("Routes registered: %s ... (/) present: %s", len(rules), has_root)
+    if not has_root:
+        logging.warning("Missing '/' route! Sample rules: %s", rules[:20])
+except Exception as e:
+    logging.warning("Could not list routes: %s", e)
 
 if __name__ == "__main__":
     _run_dev_server()
