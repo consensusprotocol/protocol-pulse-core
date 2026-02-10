@@ -68,3 +68,32 @@ Then from **Mac or Desktop Cursor**: Connect to Host → **ultron**, and **Open 
 | You from Desktop (editing on Ultron) | Edit on Ultron, then from Ultron terminal: `git add -A && git commit -m "..." && git push origin main`. Then on Mac: `git pull origin main`. |
 
 So: **one repo on GitHub** = single source of truth. Mac, Desktop, and Ultron stay in sync by **pull** (and **push** when you make changes on that machine).
+
+---
+
+## Force sync (everything matches GitHub exactly)
+
+If the site or code looks different on desktop/Ultron, force everyone to match the MacBook/GitHub version.
+
+**1. On Ultron** (SSH in, then run):
+
+```bash
+cd /home/ultron/protocol_pulse
+git fetch origin
+git reset --hard origin/main
+git clean -fd
+```
+
+This discards any local changes on Ultron and makes the folder identical to `main` on GitHub.
+
+**2. On Desktop**
+
+- **If you open the project via Remote-SSH (Ultron):** After running step 1 on Ultron, close and reopen the folder in Cursor (**File → Open Folder** → `/home/ultron/protocol_pulse`) or reload the window. You're now seeing the forced copy.
+- **If you have a local clone on Windows:** In PowerShell/CMD in that repo folder:
+  ```bash
+  git fetch origin
+  git reset --hard origin/main
+  git clean -fd
+  ```
+
+**3. Browser cache:** If the *site* still looks wrong in the browser, do a hard refresh (e.g. Ctrl+Shift+R or Cmd+Shift+R) or open the site in a private/incognito window. Sometimes the browser is serving old CSS/JS from cache.
