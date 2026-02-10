@@ -144,10 +144,8 @@ if __name__ == "__main__":
 with app.app_context():
     # 1. Load the models into memory first
     import models
-    # 2. Create the tables
+    # 2. Create the tables before routes register handlers that hit DB-backed objects
     db.create_all()
-    # 3. ONLY NOW load the routes
-    import routes
 
 # Diagnose: confirm / and /debug-routes are registered (debug 404)
 try:
@@ -159,8 +157,15 @@ try:
 except Exception as e:
     logging.warning("Could not list routes: %s", e)
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    print(f"Starting Protocol Pulse → http://127.0.0.1:{port}/ (debug routes: http://127.0.0.1:{port}/debug-routes)")
+def _run_dev_server():
+    port = 5000
+    host = "0.0.0.0"
+    print(f"Starting Protocol Pulse -> http://127.0.0.1:{port}/ (debug routes: http://127.0.0.1:{port}/debug-routes)")
     # Disable reloader so the process that binds the port is the same one that loaded routes (avoids 404 from reloader child)
-    app.run(host="0.0.0.0", port=port, debug=True, use_reloader=False)
+    app.run(host=host, port=port, debug=True, use_reloader=False)
+
+# Keep routes import near the very bottom so the app object and extensions are fully initialized first.
+import routes
+
+if __name__ == "__main__":
+    _run_dev_server()
