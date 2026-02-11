@@ -126,6 +126,46 @@ If you open a **local** folder (e.g. `/Users/pbe/ProtocolPulse` on the Mac), the
 
 ---
 
+## Connect from a different WiFi (MacBook not on same network as Ultron)
+
+**192.168.1.175** is a *local* IP. It only works when your MacBook is on the **same LAN** as the 4090s (same home WiFi). From another network (e.g. coffee shop, office), SSH will **time out** because that address isn’t routable.
+
+To use Ultron from anywhere:
+
+### Option 1: Tailscale (recommended)
+
+1. **On your MacBook:** Install [Tailscale](https://tailscale.com/download) and sign in.
+2. **On Ultron** (when you’re at home and can SSH or sit at the machine): Install Tailscale and sign in with the same account.
+3. **On Ultron**, get its Tailscale IP:
+   ```bash
+   tailscale ip -4
+   ```
+   Example: `100.101.102.103`
+4. **On your MacBook**, add a second host to `~/.ssh/config`:
+   ```
+   Host ultron
+       HostName 192.168.1.175
+       User ultron
+       ServerAliveInterval 60
+
+   Host ultron-ts
+       HostName 100.x.x.x
+       User ultron
+       ServerAliveInterval 60
+   ```
+   Replace `100.x.x.x` with the output of `tailscale ip -4` on Ultron.
+5. When you’re **away from home**, in Cursor use **Remote-SSH: Connect to Host** → **ultron-ts** instead of **ultron**. When you’re **on the same WiFi** as Ultron, keep using **ultron** (faster, no Tailscale hop).
+
+### Option 2: VPN into your home network
+
+If your router or a machine at home runs a VPN (WireGuard, OpenVPN, etc.), connect the MacBook to that VPN when away. Then 192.168.1.175 is reachable and **ultron** in SSH config works as usual.
+
+### Option 3: Same WiFi only
+
+Use Ultron only when the MacBook is on the same WiFi as the 4090s. When on a different network, work on the **local** clone (e.g. `/Users/pbe/ProtocolPulse`) and push/pull via GitHub to sync later.
+
+---
+
 ## Quick reference
 
 | Step              | Action                                      |
