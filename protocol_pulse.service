@@ -1,24 +1,20 @@
 [Unit]
-Description=Protocol Pulse Media Engine (Gunicorn)
-After=network.target
+Description=Protocol Pulse Flask Server (Gunicorn)
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=/opt/protocol_pulse/core
-Environment="PYTHONUNBUFFERED=1"
-Environment="FLASK_ENV=production"
-ExecStart=/opt/protocol_pulse/.venv/bin/gunicorn -b 0.0.0.0:10000 app:app
+WorkingDirectory=/home/ultron/protocol_pulse
+Environment=PYTHONUNBUFFERED=1
+Environment=FLASK_ENV=production
+Environment=ENABLE_SELF_CHECK_BYPASS=true
+EnvironmentFile=-/home/ultron/protocol_pulse/.env
+ExecStart=/home/ultron/protocol_pulse/venv/bin/gunicorn -w 1 -k gthread --threads 8 -b 0.0.0.0:5000 app:app
 Restart=always
 RestartSec=5
-User=www-data
-Group=www-data
+StandardOutput=append:/home/ultron/protocol_pulse/logs/app.log
+StandardError=append:/home/ultron/protocol_pulse/logs/app.log
 
 [Install]
-WantedBy=multi-user.target
-
-# NOTE:
-# - Adjust WorkingDirectory, ExecStart path, and User/Group to match your server.
-# - Install with:
-#     sudo cp protocol_pulse.service /etc/systemd/system/
-#     sudo systemctl daemon-reload
-#     sudo systemctl enable --now protocol_pulse.service
+WantedBy=default.target

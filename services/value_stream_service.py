@@ -7,6 +7,7 @@ import logging
 import re
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
+from urllib.parse import urlunparse
 
 logger = logging.getLogger(__name__)
 
@@ -15,30 +16,198 @@ CURATOR_SPLIT = 0.10
 CREATOR_SPLIT = 0.90
 
 
-def fetch_metadata(url):
-    """Scrape og:title, og:description, og:image from URL. Returns dict or None."""
+def _extract_meta(soup):
+    """Extract metadata across OG/Twitter tags."""
+    title = None
+    description = None
+    image = None
+
+    title_selectors = [
+        ("meta", {"property": "og:title"}),
+        ("meta", {"name": "twitter:title"}),
+    ]
+    desc_selectors = [
+        ("meta", {"property": "og:description"}),
+        ("meta", {"name": "twitter:description"}),
+        ("meta", {"name": "description"}),
+    ]
+    image_selectors = [
+        ("meta", {"property": "og:image"}),
+        ("meta", {"name": "twitter:image"}),
+    ]
+
+    for tag_name, attrs in title_selectors:
+        tag = soup.find(tag_name, attrs=attrs)
+        if tag and tag.get("content"):
+            title = tag.get("content")
+            break
+    if not title and soup.title and soup.title.string:
+        title = soup.title.string
+
+    for tag_name, attrs in desc_selectors:
+        tag = soup.find(tag_name, attrs=attrs)
+        if tag and tag.get("content"):
+            description = tag.get("content")
+            break
+
+    for tag_name, attrs in image_selectors:
+        tag = soup.find(tag_name, attrs=attrs)
+        if tag and tag.get("content"):
+            image = tag.get("content")
+            break
+
+    title = (title or "").strip()[:500] or None
+    description = (description or "").strip()[:1000] or None
+    image = (image or "").strip()[:500] or None
+    if image and image.startswith("//"):
+        image = "https:" + image
+
+    return {"title": title, "description": description, "image": image}
+
+
+def _fetch_html(url, timeout=8):
+    import requests
+    headers = {
+        "User-Agent": "Mozilla/5.0 (compatible; ProtocolPulse/1.0)",
+        "Accept-Language": "en-US,en;q=0.9",
+    }
+    resp = requests.get(url, timeout=timeout, headers=headers, allow_redirects=True)
+    if not resp.text:
+        return None
+    return resp.text
+
+
+def _tweet_id_from_url(url):
+    if not url:
+        return None
+    m = re.search(r"(?:twitter\.com|x\.com)/\w+/status/(\d+)", url, re.I)
+    return m.group(1) if m else None
+
+
+def _large_twitter_image(url):
+    """Promote twitter CDN image URLs to large variant where possible."""
+    if not url:
+        return None
+    if "pbs.twimg.com" not in url:
+        return url
+    if "name=" in url:
+        return re.sub(r"name=\w+", "name=large", url)
+    return url + ("&name=large" if "?" in url else "?name=large")
+
+
+def _fetch_x_api_metadata(tweet_id):
+    """Fetch text/media for X posts from fx/vx API mirrors."""
     try:
         import requests
+        resp = requests.get(f"https://api.fxtwitter.com/status/{tweet_id}", timeout=8)
+        if resp.ok:
+            data = resp.json() or {}
+            tweet = data.get("tweet") or {}
+            text = (tweet.get("text") or tweet.get("raw_text") or "").strip()
+            author = ((tweet.get("author") or {}).get("name") or "").strip()
+            media = tweet.get("media") or {}
+            media_all = media.get("all") or []
+            image = None
+            for item in media_all:
+                if not isinstance(item, dict):
+                    continue
+                thumb = item.get("thumbnail_url")
+                url = item.get("url")
+                image = _large_twitter_image(thumb or url)
+                if image:
+                    break
+            title = f"Post by {author}" if author else "X post"
+            if text or image:
+                return {"title": title[:500], "description": text[:1000] or None, "image": image}
+    except Exception:
+        pass
+
+    try:
+        import requests
+        resp = requests.get(f"https://api.vxtwitter.com/Twitter/status/{tweet_id}", timeout=8)
+        if resp.ok:
+            data = resp.json() or {}
+            text = (data.get("text") or "").strip()
+            author = (data.get("user_name") or data.get("user_screen_name") or "").strip()
+            image = None
+            for item in (data.get("media_extended") or []):
+                if not isinstance(item, dict):
+                    continue
+                thumb = item.get("thumbnail_url")
+                url = item.get("url")
+                image = _large_twitter_image(thumb or url)
+                if image:
+                    break
+            title = f"Post by {author}" if author else "X post"
+            if text or image:
+                return {"title": title[:500], "description": text[:1000] or None, "image": image}
+    except Exception:
+        pass
+    return None
+
+
+def fetch_metadata(url):
+    """Scrape metadata from URL with X/Twitter fallback domains. Returns dict or None."""
+    try:
         from bs4 import BeautifulSoup
-        headers = {"User-Agent": "Mozilla/5.0 (compatible; ProtocolPulse/1.0)"}
-        r = requests.get(url, timeout=5, headers=headers)
-        r.raise_for_status()
-        soup = BeautifulSoup(r.text, "html.parser")
-        title_tag = soup.find("meta", property="og:title")
-        desc_tag = soup.find("meta", property="og:description")
-        img_tag = soup.find("meta", property="og:image")
-        title = title_tag.get("content") if title_tag and title_tag.get("content") else None
-        if not title and soup.title:
-            title = soup.title.string
-        title = (title or "").strip()[:500]
-        description = (desc_tag.get("content") or "").strip()[:1000]
-        image = (img_tag.get("content") or "").strip()[:500]
-        if image and image.startswith("//"):
-            image = "https:" + image
-        return {"title": title or None, "description": description or None, "image": image or None}
+        parsed = urlparse(url)
+
+        html = _fetch_html(url)
+        if html:
+            primary = _extract_meta(BeautifulSoup(html, "html.parser"))
+            if primary.get("title") or primary.get("description") or primary.get("image"):
+                return primary
+
+        # X/Twitter often blocks OG for server-side requests. Try metadata mirrors.
+        host = (parsed.netloc or "").lower()
+        if "x.com" in host or "twitter.com" in host:
+            tweet_id = _tweet_id_from_url(url)
+            if tweet_id:
+                api_meta = _fetch_x_api_metadata(tweet_id)
+                if api_meta and (api_meta.get("title") or api_meta.get("description") or api_meta.get("image")):
+                    return api_meta
+
+            path_with_query = urlunparse(("", "", parsed.path or "", parsed.params or "", parsed.query or "", ""))
+            for alt_base in ("https://vxtwitter.com", "https://fxtwitter.com"):
+                alt_url = f"{alt_base}{path_with_query}"
+                try:
+                    alt_html = _fetch_html(alt_url)
+                    if not alt_html:
+                        continue
+                    alt_meta = _extract_meta(BeautifulSoup(alt_html, "html.parser"))
+                    if alt_meta.get("title") or alt_meta.get("description") or alt_meta.get("image"):
+                        return alt_meta
+                except Exception:
+                    continue
+
+            # Fallback: Twitter/X oEmbed still returns text when OG tags are unavailable.
+            try:
+                import requests
+                from bs4 import BeautifulSoup
+                resp = requests.get(
+                    "https://publish.twitter.com/oembed",
+                    params={"url": url, "omit_script": "1", "dnt": "true"},
+                    timeout=8,
+                )
+                if resp.ok:
+                    data = resp.json()
+                    html_snippet = data.get("html") or ""
+                    soup = BeautifulSoup(html_snippet, "html.parser")
+                    p = soup.find("p")
+                    text = (p.get_text(" ", strip=True) if p else "").strip()
+                    author = (data.get("author_name") or "").strip()
+                    title = f"Post by {author}" if author else "X post"
+                    if text:
+                        return {
+                            "title": title[:500],
+                            "description": text[:1000],
+                            "image": None,
+                        }
+            except Exception:
+                pass
     except Exception as e:
         logger.warning("fetch_metadata failed for %s: %s", url[:80], e)
-        return None
+    return None
 
 
 def _platform_from_url(url):
@@ -137,6 +306,31 @@ def submit_content(url, curator_id, title):
             url = "https://" + url
         existing = models.CuratedPost.query.filter_by(original_url=url).first()
         if existing:
+            # If older row was created before metadata parser worked, backfill now.
+            if (existing.thumbnail_url or "").startswith("https://www.google.com/s2/favicons"):
+                existing.thumbnail_url = None
+                db.session.commit()
+            needs_backfill = (
+                not existing.content_preview
+                or not existing.thumbnail_url
+                or not existing.title
+                or existing.title == existing.original_url
+            )
+            if needs_backfill:
+                meta = fetch_metadata(url)
+                changed = False
+                if meta:
+                    if (not existing.title or existing.title == existing.original_url) and meta.get("title"):
+                        existing.title = meta["title"]
+                        changed = True
+                    if not existing.content_preview and meta.get("description"):
+                        existing.content_preview = meta["description"]
+                        changed = True
+                    if not existing.thumbnail_url and meta.get("image"):
+                        existing.thumbnail_url = meta["image"]
+                        changed = True
+                    if changed:
+                        db.session.commit()
             return {"success": True, "id": existing.id, "existing": True}
         meta = fetch_metadata(url)
         platform = _platform_from_url(url)
@@ -174,12 +368,15 @@ def submit_content(url, curator_id, title):
 
 def process_zap(post_id, sender_id, amount, payment_hash):
     """Record a zap and update post totals. Returns {success, ...}."""
+    import os
     db = _db()
     models = _models()
     try:
         post = models.CuratedPost.query.get(post_id)
         if not post:
             return {"success": False, "error": "Post not found"}
+        require_verify = str(os.environ.get("VERIFY_ZAP_PAYMENT", "true")).strip().lower() in {"1", "true", "yes", "on"}
+        verified = bool(payment_hash) or not require_verify
         curator_share_sats = int(amount * CURATOR_SPLIT)
         creator_share_sats = amount - curator_share_sats
         zap = models.ZapEvent(
@@ -190,37 +387,37 @@ def process_zap(post_id, sender_id, amount, payment_hash):
             creator_share=creator_share_sats,
             platform_share=0,
             payment_hash=payment_hash or "",
-            status="settled",
+            status="settled" if verified else "pending",
         )
         db.session.add(zap)
         db.session.flush()
         zap_id = zap.id
-        post.total_sats = (post.total_sats or 0) + amount
-        post.zap_count = (post.zap_count or 0) + 1
-        post.last_zap_at = datetime.utcnow()
-        post.calculate_signal_score()
-        if post.curator_id:
-            curator = models.ValueCreator.query.get(post.curator_id)
-            if curator:
-                curator.total_sats_received = (curator.total_sats_received or 0) + curator_share_sats
-                curator.total_zaps = (curator.total_zaps or 0) + 1
-        if post.creator_id:
-            creator = models.ValueCreator.query.get(post.creator_id)
-            if creator:
-                creator.total_sats_received = (creator.total_sats_received or 0) + creator_share_sats
+        if verified:
+            post.total_sats = (post.total_sats or 0) + amount
+            post.zap_count = (post.zap_count or 0) + 1
+            post.last_zap_at = datetime.utcnow()
+            post.calculate_signal_score()
+            if post.curator_id:
+                curator = models.ValueCreator.query.get(post.curator_id)
+                if curator:
+                    curator.total_sats_received = (curator.total_sats_received or 0) + curator_share_sats
+                    curator.total_zaps = (curator.total_zaps or 0) + 1
+            if post.creator_id:
+                creator = models.ValueCreator.query.get(post.creator_id)
+                if creator:
+                    creator.total_sats_received = (creator.total_sats_received or 0) + creator_share_sats
         db.session.commit()
-        return {"success": True, "post_id": post_id, "zap_id": zap_id, "amount_sats": amount}
+        return {
+            "success": True,
+            "post_id": post_id,
+            "zap_id": zap_id,
+            "amount_sats": amount,
+            "status": "settled" if verified else "pending",
+        }
     except Exception as e:
         logger.exception("process_zap failed")
         db.session.rollback()
         return {"success": False, "error": str(e)}
-
-
-def _tweet_id_from_url(url):
-    if not url:
-        return None
-    m = re.search(r"(?:twitter\.com|x\.com)/\w+/status/(\d+)", url, re.I)
-    return m.group(1) if m else None
 
 
 def post_zap_comment(post_id, zap_id, amount_sats, base_url=None):

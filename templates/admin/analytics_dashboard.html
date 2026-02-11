@@ -1,464 +1,110 @@
 {% extends "base.html" %}
 
-{% block title %}Sovereign Analytics - Protocol Pulse{% endblock %}
+{% block title %}Core Analytics - Protocol Pulse{% endblock %}
 
 {% block content %}
-<style>
-    .analytics-card {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        border: 1px solid rgba(220, 38, 38, 0.3);
-        border-radius: 12px;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .analytics-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(220, 38, 38, 0.2);
-    }
-    .velocity-score {
-        font-size: 2.5rem;
-        font-weight: bold;
-        background: linear-gradient(135deg, #f59e0b 0%, #dc2626 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-    .grok-badge {
-        background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: bold;
-    }
-    .persona-alex {
-        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    }
-    .persona-sarah {
-        background: linear-gradient(135deg, #10b981 0%, #047857 100%);
-    }
-    .progress-velocity {
-        height: 8px;
-        background: rgba(255,255,255,0.1);
-        border-radius: 4px;
-    }
-    .progress-velocity .progress-bar {
-        background: linear-gradient(90deg, #f59e0b 0%, #dc2626 100%);
-    }
-    .metric-large {
-        font-size: 3rem;
-        font-weight: 700;
-        color: #dc2626;
-    }
-    .metric-label {
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: #9ca3af;
-    }
-    .window-badge {
-        animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.6; }
-    }
-    .strategy-row:hover {
-        background: rgba(220, 38, 38, 0.1);
-    }
-    .hourly-bar {
-        width: 100%;
-        height: 40px;
-        background: rgba(255,255,255,0.05);
-        border-radius: 4px;
-        position: relative;
-    }
-    .hourly-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #dc2626 0%, #f59e0b 100%);
-        border-radius: 4px;
-        transition: width 0.3s;
-    }
-    .export-btn {
-        background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-weight: 600;
-    }
-    .export-btn:hover {
-        transform: scale(1.02);
-        box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
-    }
-</style>
-
-<div class="container-fluid mt-5 pt-4">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-lg-2">
-            <div class="position-sticky pt-3">
-                <h5 class="text-primary mb-3">
-                    <i class="fas fa-chart-line"></i> Analytics
-                </h5>
-                <ul class="nav nav-pills flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin">
-                            <i class="fas fa-tachometer-alt"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/admin/analytics">
-                            <i class="fas fa-chart-bar"></i> Analytics
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/launch-console">
-                            <i class="fas fa-rocket"></i> Launch Console
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/target-monitor">
-                            <i class="fas fa-crosshairs"></i> Target Monitor
-                        </a>
-                    </li>
-                </ul>
-                
-                <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
-                
-                <h6 class="text-muted mb-2">EXPORT DATA</h6>
-                <a href="/api/analytics/export/csv" class="btn export-btn btn-sm w-100 mb-2">
-                    <i class="fas fa-file-csv me-2"></i> Export CSV
-                </a>
-                <a href="/api/analytics/export/json" class="btn btn-outline-secondary btn-sm w-100">
-                    <i class="fas fa-file-code me-2"></i> Export JSON
-                </a>
-            </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="col-lg-10">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="mb-1">
-                        <i class="fas fa-satellite-dish text-danger me-2"></i>
-                        Sovereign Analytics Engine
-                    </h2>
-                    <p class="text-muted mb-0">Self-learning intelligence metrics for premium sponsor pitches</p>
-                </div>
-                <div class="window-badge badge bg-danger fs-6 px-3 py-2">
-                    <i class="fas fa-bolt me-1"></i> 30-MIN WINDOW ACTIVE
-                </div>
-            </div>
-
-            <!-- Top Row: Key Metrics -->
-            <div class="row mb-4">
-                <div class="col-md-3">
-                    <div class="analytics-card p-4 text-center h-100">
-                        <div class="metric-label mb-2">Total Engagements</div>
-                        <div class="metric-large">{{ sponsor_metrics.total_engagements | default(0) }}</div>
-                        <small class="text-muted">Last 30 days</small>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="analytics-card p-4 text-center h-100">
-                        <div class="metric-label mb-2">Avg Grok Score</div>
-                        <div class="metric-large">{{ sponsor_metrics.avg_grok_per_post | default(0) }}</div>
-                        <small class="text-muted">Per post</small>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="analytics-card p-4 text-center h-100">
-                        <div class="metric-label mb-2">Profile Visits</div>
-                        <div class="metric-large">{{ sponsor_metrics.profile_visits | default(0) }}</div>
-                        <small class="text-success"><i class="fas fa-arrow-up me-1"></i>+12 multiplier</small>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="analytics-card p-4 text-center h-100">
-                        <div class="metric-label mb-2">For You Reach</div>
-                        <div class="metric-large">{{ sponsor_metrics.for_you_reach_rate | default(0) }}%</div>
-                        <small class="text-muted">Algorithm success</small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 30-Minute Window Stats -->
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <div class="analytics-card p-4 h-100">
-                        <h5 class="mb-3">
-                            <i class="fas fa-stopwatch text-warning me-2"></i>
-                            Critical 30-Minute Window
-                        </h5>
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="text-center p-3 rounded" style="background: rgba(245, 158, 11, 0.1);">
-                                    <div class="h3 mb-0 text-warning">{{ window_stats.events_in_window | default(0) }}</div>
-                                    <small class="text-muted">Events in Window</small>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="text-center p-3 rounded" style="background: rgba(220, 38, 38, 0.1);">
-                                    <div class="h3 mb-0 text-danger">{{ window_stats.window_grok_score | default(0) }}</div>
-                                    <small class="text-muted">Window Grok Score</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span>Window Capture Rate</span>
-                                <span class="text-warning">{{ window_stats.window_percentage | default(0) }}%</span>
-                            </div>
-                            <div class="progress-velocity">
-                                <div class="progress-bar" style="width: {{ window_stats.window_percentage | default(0) }}%;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Persona A/B Test -->
-                <div class="col-md-6">
-                    <div class="analytics-card p-4 h-100">
-                        <h5 class="mb-3">
-                            <i class="fas fa-vials text-info me-2"></i>
-                            Persona A/B Test: Alex vs Sarah
-                        </h5>
-                        <div class="row mb-3">
-                            <div class="col-6">
-                                <div class="text-center p-3 rounded persona-alex">
-                                    <div class="h4 mb-0">{{ persona_comparison.alex_engagements | default(0) }}</div>
-                                    <small>ALEX</small>
-                                    <div class="mt-2 badge bg-dark">{{ persona_comparison.alex_percentage | default(50) }}%</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="text-center p-3 rounded persona-sarah">
-                                    <div class="h4 mb-0">{{ persona_comparison.sarah_engagements | default(0) }}</div>
-                                    <small>SARAH</small>
-                                    <div class="mt-2 badge bg-dark">{{ persona_comparison.sarah_percentage | default(50) }}%</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="text-center">
-                            <span class="badge {% if persona_comparison.winner == 'alex' %}bg-primary{% elif persona_comparison.winner == 'sarah' %}bg-success{% else %}bg-secondary{% endif %} fs-6 px-3 py-2">
-                                {% if persona_comparison.winner == 'tie' %}
-                                    <i class="fas fa-equals me-1"></i> TIE
-                                {% else %}
-                                    <i class="fas fa-trophy me-1"></i> {{ persona_comparison.winner | upper }} WINS
-                                {% endif %}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Velocity Leaders -->
-            <div class="row mb-4">
-                <div class="col-md-8">
-                    <div class="analytics-card p-4">
-                        <h5 class="mb-3">
-                            <i class="fas fa-fire-alt text-danger me-2"></i>
-                            Velocity Leaders (Last 24h)
-                        </h5>
-                        {% if velocity_leaders %}
-                        <div class="table-responsive">
-                            <table class="table table-dark table-hover mb-0">
-                                <thead>
-                                    <tr class="text-muted">
-                                        <th>Content</th>
-                                        <th class="text-center">Velocity</th>
-                                        <th class="text-center">Grok</th>
-                                        <th class="text-center">Profile Visits</th>
-                                        <th class="text-center">For You</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for leader in velocity_leaders %}
-                                    <tr>
-                                        <td>
-                                            <span class="badge bg-secondary me-2">{{ leader.content_type }}</span>
-                                            {{ leader.title[:40] }}{% if leader.title|length > 40 %}...{% endif %}
-                                        </td>
-                                        <td class="text-center">
-                                            <span class="velocity-score" style="font-size: 1.2rem;">{{ leader.velocity_score }}</span>
-                                        </td>
-                                        <td class="text-center">
-                                            <span class="grok-badge">{{ leader.grok_score }}</span>
-                                        </td>
-                                        <td class="text-center">{{ leader.profile_visits }}</td>
-                                        <td class="text-center">
-                                            {% if leader.reached_for_you %}
-                                            <i class="fas fa-check-circle text-success"></i>
-                                            {% else %}
-                                            <i class="fas fa-times-circle text-muted"></i>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                        {% else %}
-                        <div class="text-center text-muted py-4">
-                            <i class="fas fa-chart-line fa-3x mb-3 opacity-25"></i>
-                            <p>No velocity data yet. Start tracking engagements!</p>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <!-- Strategy Effectiveness -->
-                <div class="col-md-4">
-                    <div class="analytics-card p-4 h-100">
-                        <h5 class="mb-3">
-                            <i class="fas fa-chess text-primary me-2"></i>
-                            Strategy Effectiveness
-                        </h5>
-                        {% if strategy_effectiveness %}
-                        <div class="list-group list-group-flush bg-transparent">
-                            {% for strategy in strategy_effectiveness[:5] %}
-                            <div class="list-group-item bg-transparent border-0 strategy-row px-2 py-3 rounded">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <strong class="text-light">{{ strategy.strategy | replace('_', ' ') | title }}</strong>
-                                        <br><small class="text-muted">{{ strategy.total_events }} events</small>
-                                    </div>
-                                    <span class="grok-badge">+{{ strategy.total_grok_score }}</span>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% else %}
-                        <div class="text-center text-muted py-4">
-                            <i class="fas fa-chess-knight fa-2x mb-2 opacity-25"></i>
-                            <p class="small">No strategy data yet</p>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Hourly Performance -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="analytics-card p-4">
-                        <h5 class="mb-4">
-                            <i class="fas fa-clock text-warning me-2"></i>
-                            Hourly Engagement Pattern (UTC)
-                        </h5>
-                        {% if hourly_performance %}
-                        <div class="row">
-                            {% set max_score = hourly_performance | map(attribute='grok_score') | max %}
-                            {% for hour in hourly_performance %}
-                            <div class="col" style="min-width: 40px;">
-                                <div class="hourly-bar">
-                                    <div class="hourly-fill" style="width: {{ (hour.grok_score / max_score * 100) if max_score > 0 else 0 }}%;"></div>
-                                </div>
-                                <div class="text-center mt-1">
-                                    <small class="text-muted">{{ '%02d' | format(hour.hour) }}</small>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        <div class="text-center mt-3">
-                            <small class="text-muted">Higher bars = more Grok score generated at that hour</small>
-                        </div>
-                        {% else %}
-                        <div class="text-center text-muted py-4">
-                            <i class="fas fa-clock fa-3x mb-3 opacity-25"></i>
-                            <p>No hourly data yet. Collect more engagement events!</p>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sponsor Value Card -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="analytics-card p-4" style="border-color: rgba(34, 197, 94, 0.5);">
-                        <div class="row align-items-center">
-                            <div class="col-md-8">
-                                <h5 class="mb-2">
-                                    <i class="fas fa-gem text-success me-2"></i>
-                                    Sponsor Value Estimate
-                                </h5>
-                                <p class="text-muted mb-0">
-                                    Based on {{ sponsor_metrics.total_impressions | default(0) }} impressions and 
-                                    {{ sponsor_metrics.engagement_rate | default(0) }}% engagement rate over 30 days.
-                                    <strong class="text-success">Bitcoin-verified sovereign audience.</strong>
-                                </p>
-                            </div>
-                            <div class="col-md-4 text-end">
-                                <div class="h2 mb-0 text-success">
-                                    ${{ sponsor_metrics.estimated_monthly_value | default(0) | round(2) }}
-                                </div>
-                                <small class="text-muted">Est. Monthly Value</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Events Feed -->
-            <div class="row">
-                <div class="col-12">
-                    <div class="analytics-card p-4">
-                        <h5 class="mb-3">
-                            <i class="fas fa-stream text-info me-2"></i>
-                            Recent Engagement Events
-                        </h5>
-                        {% if recent_events %}
-                        <div class="table-responsive">
-                            <table class="table table-dark table-sm mb-0">
-                                <thead>
-                                    <tr class="text-muted">
-                                        <th>Time</th>
-                                        <th>Event</th>
-                                        <th>Content</th>
-                                        <th>Platform</th>
-                                        <th>Persona</th>
-                                        <th class="text-center">Grok</th>
-                                        <th class="text-center">30-Min</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for event in recent_events %}
-                                    <tr>
-                                        <td class="text-muted">{{ event.created_at.strftime('%H:%M') }}</td>
-                                        <td>
-                                            <span class="badge {% if event.event_type == 'reply' %}bg-success{% elif event.event_type == 'profile_visit' %}bg-warning{% elif event.event_type == 'retweet' %}bg-info{% else %}bg-secondary{% endif %}">
-                                                {{ event.event_type }}
-                                            </span>
-                                        </td>
-                                        <td>{{ event.content_type }}:{{ event.content_id }}</td>
-                                        <td>{{ event.source_platform or 'website' }}</td>
-                                        <td>{{ event.persona or '-' }}</td>
-                                        <td class="text-center">
-                                            <span class="{% if event.grok_score_contribution >= 10 %}text-success{% else %}text-muted{% endif %}">
-                                                +{{ event.grok_score_contribution }}
-                                            </span>
-                                        </td>
-                                        <td class="text-center">
-                                            {% if event.is_30min_window %}
-                                            <i class="fas fa-bolt text-warning"></i>
-                                            {% else %}
-                                            <span class="text-muted">-</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                        {% else %}
-                        <div class="text-center text-muted py-4">
-                            <i class="fas fa-inbox fa-3x mb-3 opacity-25"></i>
-                            <p>No events recorded yet. Track your first engagement!</p>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-        </div>
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">Core Analytics</h2>
+      <p class="text-muted mb-0">Recent engagement events and top content performance.</p>
     </div>
+    <a class="btn btn-outline-secondary" href="/admin/realtime-analytics">Realtime Analytics</a>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card bg-dark text-light border-secondary h-100">
+        <div class="card-body">
+          <div class="text-muted small">Recent Events Loaded</div>
+          <div class="display-6">{{ recent_events|length }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card bg-dark text-light border-secondary h-100">
+        <div class="card-body">
+          <div class="text-muted small">Top Performers Loaded</div>
+          <div class="display-6">{{ top_performers|length }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card bg-dark text-light border-secondary h-100">
+        <div class="card-body">
+          <div class="text-muted small">Summary Rows</div>
+          <div class="display-6">{{ summary_rows|length }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card bg-dark text-light border-secondary mb-4">
+    <div class="card-header">Top Content Performance</div>
+    <div class="card-body p-0">
+      <div class="table-responsive mb-0">
+        <table class="table table-dark table-striped table-sm mb-0">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Type</th>
+              <th>Views</th>
+              <th>Clicks</th>
+              <th>Replies</th>
+              <th>Likes</th>
+              <th>Velocity</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in top_performers %}
+            <tr>
+              <td>{{ p.content_title or ('Content #' ~ p.content_id) }}</td>
+              <td>{{ p.content_type }}</td>
+              <td>{{ p.total_views or 0 }}</td>
+              <td>{{ p.total_clicks or 0 }}</td>
+              <td>{{ p.total_replies or 0 }}</td>
+              <td>{{ p.total_likes or 0 }}</td>
+              <td>{{ p.velocity_score or 0 }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="text-center text-muted py-3">No performance data yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card bg-dark text-light border-secondary">
+    <div class="card-header">Recent Engagement Events</div>
+    <div class="card-body p-0">
+      <div class="table-responsive mb-0">
+        <table class="table table-dark table-striped table-sm mb-0">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Event</th>
+              <th>Content</th>
+              <th>Source</th>
+              <th>URL</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for e in recent_events %}
+            <tr>
+              <td>{{ e.created_at.strftime('%Y-%m-%d %H:%M:%S') if e.created_at else '-' }}</td>
+              <td>{{ e.event_type }}</td>
+              <td>{{ e.content_type or '-' }}{% if e.content_id %}:{{ e.content_id }}{% endif %}</td>
+              <td>{{ e.source_platform or '-' }}</td>
+              <td class="text-truncate" style="max-width: 280px;">{{ e.source_url or '-' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center text-muted py-3">No engagement events yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

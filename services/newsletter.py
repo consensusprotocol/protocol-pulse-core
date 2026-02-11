@@ -52,10 +52,6 @@ class NewsletterService:
 
     def subscribe_user(self, email: str, name: str = None) -> bool:
         """Subscribe user to newsletter and save to database"""
-        if not self.enabled:
-            logging.warning("Newsletter service not enabled - SENDGRID_API_KEY missing")
-            return False
-            
         try:
             # Save to database
             existing_user = models.User.query.filter_by(email=email).first()
@@ -72,8 +68,12 @@ class NewsletterService:
                 db.session.commit()
                 logging.info(f"Existing user resubscribed: {email}")
             
-            # Send welcome email
-            return self.send_welcome_email(email, name)
+            # Send welcome email only when provider is enabled; never block local subscription.
+            if self.enabled:
+                self.send_welcome_email(email, name)
+            else:
+                logging.info("Newsletter provider disabled; local subscription stored without email send.")
+            return True
             
         except Exception as e:
             logging.error(f"Newsletter subscription error: {e}")

@@ -15,13 +15,21 @@ from flask_login import LoginManager
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 try:
+    from flask_socketio import SocketIO
+except ImportError:
+    SocketIO = None
+try:
     from flask_caching import Cache
     _cache = Cache(config={"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 60})
 except ImportError:
     _cache = None
 
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)
+# Configure logging (default info; keep noisy transport libs quiet).
+logging.basicConfig(level=logging.INFO)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
+logging.getLogger("requests").setLevel(logging.WARNING)
+logging.getLogger("werkzeug").setLevel(logging.INFO)
 
 class Base(DeclarativeBase):
     pass
@@ -37,6 +45,14 @@ app = Flask(__name__, template_folder=str(_core_dir / "templates"), static_folde
 # Security: Uses .env secret, but provides a fallback for local dev
 app.secret_key = os.environ.get("SESSION_SECRET", "dev_secret_key_protocol_pulse_2026")
 
+# Public network endpoints (local by default, cloudflared-ready when set in .env)
+app.config["PUBLIC_HUB_URL"] = os.environ.get("PUBLIC_HUB_URL", "http://127.0.0.1:5000").rstrip("/")
+app.config["PUBLIC_AI_URL"] = os.environ.get("PUBLIC_AI_URL", "http://127.0.0.1:11434").rstrip("/")
+app.config["PUBLIC_SSH_HOST"] = os.environ.get("PUBLIC_SSH_HOST", "").strip()
+app.config["USE_DOUBLE_PIPE"] = os.environ.get("USE_DOUBLE_PIPE", "false").strip().lower() in {
+    "1", "true", "yes", "on"
+}
+
 # Configure the database
 database_url = os.environ.get("DATABASE_URL", "sqlite:///protocol_pulse.db")
 if database_url.startswith("sqlite:"):
@@ -49,6 +65,21 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
 }
+
+# Startup env diagnostics (warnings only; never hard-crash startup).
+_required_env = ["SESSION_SECRET", "DATABASE_URL"]
+_recommended_env = [
+    "TWITTER_API_KEY",
+    "TWITTER_API_SECRET",
+    "TWITTER_ACCESS_TOKEN",
+    "TWITTER_ACCESS_TOKEN_SECRET",
+]
+for _name in _required_env:
+    if not os.environ.get(_name):
+        logging.warning("%s missing; using fallback/default where available.", _name)
+for _name in _recommended_env:
+    if not os.environ.get(_name):
+        logging.info("%s not configured (related integration stays degraded/off).", _name)
 
 # 3. Initialize extensions
 db.init_app(app)
@@ -71,12 +102,23 @@ else:
             return decorator
     cache = _NullCache()
 
+if SocketIO is not None:
+    socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
+else:
+    socketio = None
+
 @app.context_processor
 def inject_csrf():
     """Inject CSRF token for forms. Generate once per session."""
     if "csrf_token" not in session:
         session["csrf_token"] = os.urandom(32).hex()
-    return {"csrf_token": session.get("csrf_token")}
+    return {
+        "csrf_token": session.get("csrf_token"),
+        "public_hub_url": app.config.get("PUBLIC_HUB_URL"),
+        "public_ai_url": app.config.get("PUBLIC_AI_URL"),
+        "public_ssh_host": app.config.get("PUBLIC_SSH_HOST"),
+        "use_double_pipe": app.config.get("USE_DOUBLE_PIPE", False),
+    }
 
 
 @app.after_request
@@ -101,7 +143,7 @@ def inject_ads(content):
         ad_html = f'''
         <div class="native-ad-unit my-4 p-3 border-start border-danger bg-dark rounded">
             <small class="text-muted d-block mb-2 text-uppercase" style="letter-spacing: 1px; font-size: 0.7rem;">Protocol Partner</small>
-            <a href="{ad.target_url}" target="_blank" rel="noopener" class="text-decoration-none">
+            <a href="/ads/go/{ad.id}" rel="noopener" class="text-decoration-none">
                 <img src="{ad.image_url}" class="img-fluid mb-2 rounded" style="max-height: 150px;" alt="{ad.name}">
                 <p class="mb-0 text-white fw-bold">{ad.name}</p>
             </a>
@@ -144,15 +186,21 @@ if __name__ == "__main__":
 with app.app_context():
     # 1. Load the models into memory first
     import models
-    # 2. Create the tables before routes register handlers that hit DB-backed objects
-    db.create_all()
+    # Runtime create_all is disabled in production; use Flask-Migrate:
+    #   flask db upgrade
+    if os.environ.get("ENABLE_RUNTIME_DB_CREATE_ALL", "false").strip().lower() in {"1", "true", "yes", "on"}:
+        db.create_all()
+        logging.warning("ENABLE_RUNTIME_DB_CREATE_ALL=true used; migration workflow is recommended.")
 
 def _run_dev_server():
     port = 5000
     host = "0.0.0.0"
     print(f"Starting Protocol Pulse -> http://127.0.0.1:{port}/ (debug routes: http://127.0.0.1:{port}/debug-routes)")
     # Disable reloader so the process that binds the port is the same one that loaded routes (avoids 404 from reloader child)
-    app.run(host=host, port=port, debug=True, use_reloader=False)
+    if socketio is not None:
+        socketio.run(app, host=host, port=port, debug=False, use_reloader=False, allow_unsafe_werkzeug=True)
+    else:
+        app.run(host=host, port=port, debug=False, use_reloader=False)
 
 # Keep routes import near the very bottom so the app object and extensions are fully initialized first.
 import routes
