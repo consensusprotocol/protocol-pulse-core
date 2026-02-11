@@ -385,7 +385,7 @@
 }
 @media (max-width: 900px) { .vs-main { grid-template-columns: 1fr; } }
 
-/* Command Log - KOL Pulse (Matrix-style) */
+/* Command Log - Alpha Relay (Matrix-style) */
 .vs-command-log {
     position: sticky;
     top: 24px;
@@ -423,10 +423,11 @@
     padding: 10px;
 }
 .vs-pulse-line {
+    position: relative;
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    padding: 8px 10px;
+    padding: 8px 86px 8px 10px;
     margin-bottom: 6px;
     background: rgba(255, 255, 255, 0.02);
     border-radius: 4px;
@@ -446,6 +447,29 @@
 .vs-pulse-line-content a { color: var(--vs-green); text-decoration: none; }
 .vs-pulse-line-content a:hover { color: #00ff88; }
 .vs-pulse-line-meta { color: var(--vs-text-40); font-size: 0.65rem; margin-top: 4px; }
+.vs-pulse-zap {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 1px solid rgba(247, 147, 26, 0.45);
+    background: linear-gradient(135deg, rgba(247, 147, 26, 0.96), rgba(247, 147, 26, 0.78));
+    color: #000;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    border-radius: 6px;
+    padding: 4px 8px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.vs-pulse-line:hover .vs-pulse-zap {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(-50%) scale(1.02);
+}
 
 /* Glitch for high-zap cards (>10K sats) */
 .vs-card.vs-card-glitch:hover {
@@ -1085,8 +1109,8 @@
 </section>
 
 <main class="vs-main">
-    <aside class="vs-command-log" aria-label="KOL Live Feed">
-        <div class="vs-command-log-header">KOL Pulse</div>
+    <aside class="vs-command-log" aria-label="Alpha Relay Feed">
+        <div class="vs-command-log-header">Alpha Relay</div>
         <div class="vs-command-log-scroll" id="command-log-scroll">
             <div class="vs-pulse-line platform-x">
                 <span class="vs-pulse-line-icon"><span class="vs-pf-icon vs-pf-x"></span></span>
@@ -1430,20 +1454,26 @@
     (function loadCommandLog() {
         var scrollEl = document.getElementById('command-log-scroll');
         if (!scrollEl) return;
+        var pulsePostMap = {};
+        {% for post in posts %}
+        pulsePostMap[{{ (post.original_url or '')|tojson }}] = {{ post.id }};
+        {% endfor %}
         function render(items) {
             if (!items || items.length === 0) {
-                scrollEl.innerHTML = '<div class="vs-pulse-line platform-x"><span class="vs-pulse-line-icon"><span class="vs-pf-icon vs-pf-x"></span></span><div class="vs-pulse-line-content">No KOL pulse yet. Run ingest or add sources.</div></div>';
+                scrollEl.innerHTML = '<div class="vs-pulse-line platform-x"><span class="vs-pulse-line-icon"><span class="vs-pf-icon vs-pf-x"></span></span><div class="vs-pulse-line-content">No alpha relay signal yet. Run ingest or add sources.</div></div>';
                 return;
             }
             var icons = { x: '<span class="vs-pf-icon vs-pf-x"></span>', nostr: '<span class="vs-pf-icon vs-pf-bolt"></span>', youtube: '<span class="vs-pf-icon vs-pf-youtube"></span>' };
             scrollEl.innerHTML = items.map(function(it) {
                 var platform = (it.platform || 'x');
                 var icon = icons[platform] || '<i class="fas fa-circle"></i>';
-                var content = (it.content || '').substring(0, 120);
-                if ((it.content || '').length > 120) content += '…';
+                var content = (it.content || '').substring(0, 210);
+                if ((it.content || '').length > 210) content += '…';
                 var link = it.url ? ('<a href="' + it.url.replace(/"/g, '&quot;') + '" target="_blank" rel="noopener">' + content.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</a>') : content.replace(/</g, '&lt;').replace(/>/g, '&gt;');
                 var meta = (it.author_handle || '') + (it.created_at ? ' · ' + new Date(it.created_at).toLocaleTimeString() : '');
-                return '<div class="vs-pulse-line platform-' + platform + '"><span class="vs-pulse-line-icon">' + icon + '</span><div class="vs-pulse-line-content">' + link + '<div class="vs-pulse-line-meta">' + meta.replace(/</g, '&lt;') + '</div></div></div>';
+                var postId = it.url ? pulsePostMap[it.url] : null;
+                var zapBtn = postId ? ('<button type="button" class="vs-pulse-zap" data-post-id="' + postId + '" title="Zap this signal">⚡ ZAP</button>') : '';
+                return '<div class="vs-pulse-line platform-' + platform + '"><span class="vs-pulse-line-icon">' + icon + '</span><div class="vs-pulse-line-content">' + link + '<div class="vs-pulse-line-meta">' + meta.replace(/</g, '&lt;') + '</div></div>' + zapBtn + '</div>';
             }).join('');
         }
         fetch('/api/value-stream/pulse?limit=50&ingest=1').then(function(r) { return r.json(); }).then(function(data) {
@@ -1456,6 +1486,15 @@
                 if (data && data.items && data.items.length) render(data.items);
             }).catch(function() {});
         }, 60000);
+
+        scrollEl.addEventListener('click', async function(evt) {
+            var btn = evt.target.closest('.vs-pulse-zap');
+            if (!btn) return;
+            evt.preventDefault();
+            var postId = btn.getAttribute('data-post-id');
+            if (!postId) return;
+            await sendZap(postId, 1000);
+        });
     })();
 
     (function sse() {

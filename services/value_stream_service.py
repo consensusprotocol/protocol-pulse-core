@@ -242,6 +242,11 @@ def _models():
 
 def get_value_stream(limit=50, platform=None):
     """Return list of post dicts with at least 'id' for CuratedPost.query.get."""
+    from flask import has_app_context
+    if not has_app_context():
+        from app import app
+        with app.app_context():
+            return get_value_stream(limit=limit, platform=platform)
     db = _db()
     models = _models()
     q = models.CuratedPost.query.order_by(db.func.coalesce(models.CuratedPost.signal_score, 0).desc())
@@ -256,6 +261,11 @@ def get_value_stream(limit=50, platform=None):
 
 def get_top_curators(limit=10):
     """Return list of curator dicts with at least 'id' for ValueCreator.query.get."""
+    from flask import has_app_context
+    if not has_app_context():
+        from app import app
+        with app.app_context():
+            return get_top_curators(limit=limit)
     db = _db()
     models = _models()
     curators = (

@@ -1,302 +1,891 @@
 {% extends "base.html" %}
 
-{% block title %}Premium Hub | Protocol Pulse{% endblock %}
+{% block title %}Commander Hub | Protocol Pulse{% endblock %}
 
 {% block head %}
+<link rel="stylesheet" href="/static/css/style.css?v=1.4">
+<link rel="stylesheet" href="/static/css/protocol-pulse-tokens.css?v=1.1">
 <style>
-body { background: var(--pp-bg-primary, #050508) !important; }
-.hub-page {
+body { background: #050508 !important; }
+.hub-root {
     min-height: 100vh;
-    padding: 100px 24px 60px;
-    font-family: 'DM Sans', sans-serif;
-    color: var(--pp-text-primary, #fafafa);
+    padding: 92px 18px 48px;
+    color: #f7f7f7;
+    background: radial-gradient(circle at 20% 0%, rgba(220, 38, 38, 0.12), transparent 45%), #050508;
+    position: relative;
+    overflow: hidden;
 }
-.hub-title { font-family: 'Outfit', sans-serif; font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; }
-.hub-badge {
-    display: inline-block;
-    background: var(--pp-accent, #e54848);
-    color: #fff;
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 9999px;
-    margin-bottom: 1rem;
+.hub-root::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.02) 0px,
+        rgba(255,255,255,0.02) 1px,
+        transparent 2px,
+        transparent 4px
+    );
+    mix-blend-mode: soft-light;
+    opacity: 0.35;
 }
-.hub-badge.operator { background: #3b82f6; }
-.hub-badge.commander { background: #f59e0b; }
-.hub-badge.sovereign { background: linear-gradient(135deg, #8b5cf6, #a855f7); }
-.hub-grid {
+.hub-layout {
+    max-width: 1400px;
+    margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.25rem;
-    margin-bottom: 2rem;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 18px;
 }
-.hub-card {
-    background: var(--pp-bg-card, #0f0f14);
-    border: 1px solid var(--pp-border-subtle, rgba(255,255,255,0.06));
-    border-radius: var(--pp-radius-lg, 20px);
-    padding: 1.5rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
+.hub-sidebar, .hub-panel {
+    background: rgba(10, 10, 14, 0.72);
+    border: 1px solid rgba(220, 38, 38, 0.35);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.03);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
 }
-.hub-card:hover {
-    border-color: var(--pp-accent);
-    box-shadow: 0 0 30px rgba(229, 72, 72, 0.1);
+.hub-sidebar {
+    padding: 18px;
+    height: fit-content;
+    position: sticky;
+    top: 92px;
 }
-.hub-card-label {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--pp-text-muted, rgba(255,255,255,0.45));
-    margin-bottom: 0.5rem;
-}
-.hub-card-value {
+.hub-side-title {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--pp-accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #dc2626;
+    font-size: 0.76rem;
+    margin-bottom: 10px;
 }
-.hub-card-value.btc { color: var(--pp-bitcoin, #f7931a); }
-.hub-card-sub { font-size: 0.85rem; color: var(--pp-text-secondary); margin-top: 0.25rem; }
-.hub-section-title {
-    font-family: 'Outfit', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
+.hub-side-text {
+    color: rgba(255,255,255,0.75);
+    font-size: 0.9rem;
+    margin-bottom: 14px;
+}
+.hub-side-link {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-}
-.hub-brief-list { list-style: none; padding: 0; margin: 0; }
-.hub-brief-list li { border-bottom: 1px solid var(--pp-border-subtle); padding: 0.75rem 0; }
-.hub-brief-list li:last-child { border-bottom: none; }
-.hub-brief-list a { color: var(--pp-text-primary); text-decoration: none; font-weight: 500; }
-.hub-brief-list a:hover { color: var(--pp-accent); }
-.hub-cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: var(--pp-accent);
-    color: #fff;
-    padding: 0.75rem 1.25rem;
-    border-radius: var(--pp-radius-md, 14px);
-    font-weight: 600;
+    gap: 10px;
     text-decoration: none;
-    margin-top: 0.5rem;
-    transition: opacity 0.2s;
+    color: rgba(255,255,255,0.9);
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 8px;
 }
-.hub-cta:hover { color: #fff; opacity: 0.95; }
-.hub-cta.secondary {
-    background: var(--pp-bg-elevated);
-    border: 1px solid var(--pp-border-subtle);
-    color: var(--pp-text-primary);
+.hub-side-link:hover { color: #fff; border-color: rgba(220, 38, 38, 0.8); }
+.hub-main { display: grid; gap: 16px; }
+.hub-hero {
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(220,38,38,0.12), rgba(10,10,14,0.65));
 }
-.hub-cta.secondary:hover { color: var(--pp-accent); }
-.live-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; animation: hub-pulse 2s infinite; }
-@keyframes hub-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
-/* Whale feed in hub */
-.hub-whale-list { list-style: none; padding: 0; margin: 0; max-height: 320px; overflow-y: auto; }
-.hub-whale-list li {
+.hub-badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fff;
+    background: #dc2626;
+    border-radius: 999px;
+    padding: 4px 10px;
+    margin-bottom: 8px;
+}
+.hub-hero h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    margin: 0 0 6px 0;
+    text-transform: lowercase;
+}
+.hub-hero p {
+    margin: 0;
+    color: rgba(255,255,255,0.8);
+    font-size: 0.95rem;
+    text-transform: lowercase;
+}
+.hub-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 12px;
+}
+.hub-metric {
+    padding: 14px;
+}
+.hub-k {
+    color: rgba(255,255,255,0.62);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+.hub-v {
+    font-family: 'JetBrains Mono', monospace;
+    color: #dc2626;
+    font-weight: 700;
+    font-size: 1.3rem;
+}
+.hub-v.btc { color: #f7931a; }
+.hub-partner-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 10px;
+}
+.partner-card {
+    border: 1px solid rgba(220,38,38,0.32);
+    border-radius: 12px;
+    background: rgba(5,5,8,0.75);
+    padding: 10px;
+}
+.partner-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.6rem 0;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    font-size: 0.85rem;
+    margin-bottom: 6px;
 }
-.hub-whale-list li:last-child { border-bottom: none; }
-.hub-whale-list .whale-btc { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--pp-bitcoin, #f7931a); }
-.hub-whale-list .whale-mega .whale-btc { color: #dc2626; }
-.hub-whale-list .whale-usd { color: var(--pp-text-muted); }
-.hub-whale-list a { color: var(--pp-text-secondary); text-decoration: none; }
-.hub-whale-list a:hover { color: var(--pp-accent); }
-
-/* Sovereign Elite */
-.hub-elite { border-left: 3px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); }
-.hub-ask-form textarea { width: 100%; min-height: 100px; padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-family: inherit; resize: vertical; }
-.hub-ask-form button { margin-top: 10px; padding: 10px 20px; background: #8b5cf6; color: #fff; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
-.hub-ask-form button:disabled { opacity: 0.5; cursor: not-allowed; }
-.hub-ask-status { font-size: 0.9rem; color: var(--pp-text-secondary); margin-top: 8px; }
-.hub-ask-status.answered { color: #22c55e; }
-.hub-upsell { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 1rem; margin-top: 1rem; font-size: 0.9rem; }
+.partner-name {
+    font-family: 'JetBrains Mono', monospace;
+    color: #fff;
+    font-size: 0.88rem;
+    text-transform: lowercase;
+}
+.partner-cat {
+    font-size: 0.68rem;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 999px;
+    padding: 2px 6px;
+    color: rgba(255,255,255,0.78);
+    text-transform: lowercase;
+}
+.partner-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 7px 0;
+}
+.partner-tags span {
+    border: 1px solid rgba(255,255,255,0.16);
+    color: rgba(255,255,255,0.78);
+    font-size: 0.7rem;
+    border-radius: 999px;
+    padding: 2px 7px;
+}
+.partner-copy {
+    color: rgba(255,255,255,0.8);
+    font-size: 0.79rem;
+    text-transform: lowercase;
+}
+.partner-disclaimer {
+    margin-top: 10px;
+    color: rgba(255,255,255,0.62);
+    font-size: 0.78rem;
+    text-transform: lowercase;
+}
+.hub-two {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 12px;
+}
+.hub-terminal {
+    padding: 14px;
+}
+.log-shell {
+    background: #030304;
+    border: 1px solid rgba(220,38,38,0.35);
+    border-radius: 12px;
+    height: 320px;
+    overflow-y: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: #fca5a5;
+    padding: 10px;
+    white-space: pre-wrap;
+    line-height: 1.35;
+    position: relative;
+    animation: crtFlicker 6s infinite;
+}
+.log-shell::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.03) 0px,
+        rgba(255,255,255,0.03) 1px,
+        transparent 2px,
+        transparent 3px
+    );
+    mix-blend-mode: soft-light;
+    opacity: 0.32;
+}
+@keyframes crtFlicker {
+    0%, 96%, 100% { opacity: 1; }
+    97% { opacity: 0.86; }
+    98% { opacity: 0.92; }
+    99% { opacity: 0.88; }
+}
+.hub-three {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+.hub-tile {
+    padding: 14px;
+}
+.hub-sentry-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+}
+.hub-sentry-list li {
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 8px;
+    font-size: 0.8rem;
+}
+.hub-sentry-meta {
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 4px;
+}
+.hub-sentry-body {
+    color: rgba(255,255,255,0.88);
+    margin-bottom: 6px;
+}
+.hub-pill {
+    display: inline-block;
+    border: 1px solid rgba(220,38,38,0.5);
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 0.72rem;
+    color: #fca5a5;
+}
+.hub-progress {
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    overflow: hidden;
+    margin-top: 8px;
+}
+.hub-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #dc2626, #f97316);
+    transition: width 0.25s ease;
+}
+.hub-medley-status {
+    margin-top: 8px;
+    color: rgba(255,255,255,0.78);
+    font-size: 0.82rem;
+}
+.hub-oracle-brief {
+    margin-top: 10px;
+    border: 1px solid rgba(220,38,38,0.35);
+    background: rgba(0,0,0,0.35);
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 0.84rem;
+    color: rgba(255,255,255,0.86);
+}
+.hub-oracle-brief strong {
+    color: #fca5a5;
+    text-transform: lowercase;
+    font-family: 'JetBrains Mono', monospace;
+}
+.hub-whale-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 320px;
+    overflow-y: auto;
+}
+.hub-whale-list li {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    gap: 10px;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding: 9px 0;
+    font-size: 0.84rem;
+}
+.hub-whale-list .wbtc { color: #f7931a; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+.hub-whale-list .wmega { color: #dc2626; }
+.hub-whale-list a { color: rgba(255,255,255,0.78); text-decoration: none; }
+.hub-whale-list a:hover { color: #fff; }
+.hub-oracle {
+    padding: 14px;
+}
+#riskOracleGlobe {
+    width: 100%;
+    height: 360px;
+    border-radius: 12px;
+    background: radial-gradient(circle at 50% 30%, rgba(220,38,38,0.18), rgba(0,0,0,0.85));
+    border: 1px solid rgba(220,38,38,0.35);
+}
+.hub-oracle-meta {
+    margin-top: 10px;
+    color: rgba(255,255,255,0.78);
+    font-size: 0.85rem;
+    text-transform: lowercase;
+}
+.hub-oracle-stats {
+    margin-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 10px;
+}
+.hub-oracle-stats ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 6px;
+}
+.hub-oracle-stats li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.84rem;
+    color: rgba(255,255,255,0.82);
+}
+.hub-oracle-stats .oracle-share {
+    font-family: 'JetBrains Mono', monospace;
+    color: #f97316;
+}
+.hub-action-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+.hub-action-row a, .hub-action-row button {
+    border-radius: 10px;
+    border: 1px solid rgba(220,38,38,0.45);
+    background: rgba(220,38,38,0.12);
+    color: #fff;
+    padding: 8px 12px;
+    font-size: 0.84rem;
+    text-decoration: none;
+}
+.hub-tile > button {
+    border-radius: 10px;
+    border: 1px solid rgba(220,38,38,0.55);
+    background: linear-gradient(135deg, rgba(220,38,38,0.95), rgba(220,38,38,0.75));
+    color: #fff;
+    padding: 10px 12px;
+    font-size: 0.86rem;
+    font-family: 'JetBrains Mono', monospace;
+    width: 100%;
+    text-transform: lowercase;
+}
+.hub-tile > button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+.hub-action-row a:hover { background: rgba(220,38,38,0.22); color: #fff; }
+.red-glitch {
+    animation: redFlicker 2s ease-in-out;
+}
+@keyframes redFlicker {
+    0% { filter: none; transform: translateX(0); }
+    8% { filter: hue-rotate(-20deg) saturate(1.8); transform: translateX(-1px); }
+    16% { filter: contrast(1.35) brightness(1.12); transform: translateX(2px); }
+    24% { filter: none; transform: translateX(0); }
+    34% { filter: hue-rotate(-40deg) saturate(2); transform: translateX(-2px); }
+    46% { filter: none; transform: translateX(0); }
+    58% { filter: contrast(1.4) brightness(1.15); transform: translateX(1px); }
+    100% { filter: none; transform: translateX(0); }
+}
+@media (max-width: 1080px) {
+    .hub-layout { grid-template-columns: 1fr; }
+    .hub-sidebar { position: static; }
+    .hub-two { grid-template-columns: 1fr; }
+    .hub-three { grid-template-columns: 1fr; }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="hub-page pp-page">
-    <div class="container-fluid" style="max-width: 1200px;">
-        {% if tier == 'sovereign' %}
-        <span class="hub-badge sovereign">SOVEREIGN ELITE</span>
-        {% elif tier == 'commander' %}
-        <span class="hub-badge commander">COMMANDER</span>
-        {% else %}
-        <span class="hub-badge operator">PULSE OPERATOR</span>
-        {% endif %}
-        <h1 class="hub-title">Premium Intel Command Center</h1>
-        <p class="text-muted mb-4">
-            {% if tier == 'sovereign' %}Full access: network intel, whale feed, Pro Briefs, monthly ask & 1-on-1.
-            {% elif tier == 'commander' %}Real-time network data, whale feed, Pro Briefs, and live tools.
-            {% else %}Network snapshot and live tools. Upgrade to Commander for whale feed and Pro Briefs.
+<div class="hub-root" id="hubRoot">
+    <div class="hub-layout">
+        <aside class="hub-sidebar">
+            <div class="hub-side-title">sovereign nav</div>
+            <div class="hub-side-text">jump direct to signal lanes. no noise, only actionable intel.</div>
+            {% for item in sovereign_nav %}
+            <a class="hub-side-link" href="{{ item.href }}">
+                <i class="fas {{ item.icon }}"></i>
+                <span>{{ item.label }}</span>
+            </a>
+            {% endfor %}
+            <div class="hub-side-title" style="margin-top: 14px;">tier status</div>
+            <div class="hub-side-text">{{ tier|lower }} access is live.</div>
+            {% if current_user.is_admin %}
+            <a class="hub-side-link" href="/admin/partner-ramp">
+                <i class="fas fa-chart-bar"></i>
+                <span>partner ramp admin</span>
+            </a>
             {% endif %}
-        </p>
+        </aside>
 
-        <div class="hub-grid">
-            <div class="hub-card">
-                <div class="hub-card-label"><span class="live-dot me-1"></span> Block height</div>
-                <div class="hub-card-value">{{ network.get('height', '—') }}</div>
-                <div class="hub-card-sub">Chain tip · {{ network.get('status', 'LIVE') }}</div>
-            </div>
-            <div class="hub-card">
-                <div class="hub-card-label">Hashrate</div>
-                <div class="hub-card-value">{{ network.get('hashrate', '—') }}</div>
-                <div class="hub-card-sub">3-day rolling</div>
-            </div>
-            <div class="hub-card">
-                <div class="hub-card-label">Difficulty progress</div>
-                <div class="hub-card-value">{{ network.get('difficulty_progress', '—') }}</div>
-                <div class="hub-card-sub">{{ network.get('remaining_blocks', '—') }} blocks to next adjustment</div>
-            </div>
-            {% set fees = (mempool_data or {}).get('fees') or {} %}
-            <div class="hub-card">
-                <div class="hub-card-label">Mempool · Fee (sat/vB)</div>
-                <div class="hub-card-value">1h: {{ fees.get('hour', '—') }} · 30m: {{ fees.get('half_hour', '—') }}</div>
-                <div class="hub-card-sub">{{ (mempool_data or {}).get('count', 0) }} tx in mempool</div>
-            </div>
-            <div class="hub-card">
-                <div class="hub-card-label">BTC/USD</div>
-                <div class="hub-card-value btc">${{ "%.2f"|format((prices or {}).get('btc', 0) or 0) }}</div>
-                <div class="hub-card-sub">Spot</div>
-            </div>
-        </div>
+        <main class="hub-main">
+            <section class="hub-panel hub-hero">
+                <span class="hub-badge">commander hub</span>
+                <h1>signal is hot. heartbeat is live.</h1>
+                <p>this is your bunker feed: live automation thumps, whale shock alerts, and risk-oracle geo posture.</p>
+            </section>
 
-        {% if tier in ['commander', 'sovereign'] %}
-        <div class="row g-4 mb-4">
-            <div class="col-lg-6">
-                <div class="hub-section-title"><i class="fas fa-chart-line" style="color: #dc2626;"></i> Alert summary</div>
-                <div class="hub-card">
-                    <div class="hub-card-value">24h: {{ whale_count_24h }} whales · {{ mega_count_24h }} mega</div>
-                    <div class="hub-card-sub">7d: {{ whale_count_7d }} whales · {{ mega_count_7d }} mega (≥1000 BTC). Mega may trigger SMS.</div>
-                    <div class="hub-card-sub mt-1"><strong>24h volume (USD):</strong> ${{ "{:,.0f}".format(whale_volume_usd_24h or 0) }}</div>
-                    <form method="post" action="{{ url_for('hub_alerts_preference') }}" class="mt-2">
-                        <label class="d-flex align-items-center gap-2" style="cursor: pointer;">
-                            <input type="checkbox" name="mega_whale_email" value="on" {{ 'checked' if mega_whale_alerts_enabled else '' }}>
-                            <span class="hub-card-sub mb-0">Email me when a mega whale (≥1000 BTC) moves</span>
-                        </label>
-                        <button type="submit" class="btn btn-sm btn-outline-light mt-1">Save</button>
-                    </form>
-                    <a href="/whale-watcher" class="hub-cta secondary mt-2"><i class="fas fa-water"></i> Full Whale Watcher</a>
+            <section class="hub-grid">
+                <div class="hub-panel hub-metric"><div class="hub-k">block height</div><div class="hub-v">{{ network.get('height', '—') }}</div></div>
+                <div class="hub-panel hub-metric"><div class="hub-k">hashrate</div><div class="hub-v">{{ network.get('hashrate', '—') }}</div></div>
+                <div class="hub-panel hub-metric"><div class="hub-k">difficulty progress</div><div class="hub-v">{{ network.get('difficulty_progress', '—') }}</div></div>
+                <div class="hub-panel hub-metric"><div class="hub-k">mega whales 24h</div><div class="hub-v">{{ mega_count_24h }}</div></div>
+                <div class="hub-panel hub-metric"><div class="hub-k">whale volume 24h usd</div><div class="hub-v">${{ "{:,.0f}".format(whale_volume_usd_24h or 0) }}</div></div>
+                <div class="hub-panel hub-metric"><div class="hub-k">btc spot</div><div class="hub-v btc">${{ "%.2f"|format((prices or {}).get('btc', 0) or 0) }}</div></div>
+            </section>
+
+            <section class="hub-panel hub-terminal" id="bitcoin-services">
+                <div class="hub-k">bitcoin services · partner ramp</div>
+                <div class="hub-partner-grid">
+                    {% for category in partner_categories %}
+                        {% for partner in category.partners %}
+                        <article class="partner-card">
+                            <div class="partner-head">
+                                <span class="partner-name">{{ partner.name|lower }}</span>
+                                <span class="partner-cat">{{ category.label|lower }}</span>
+                            </div>
+                            <div class="partner-copy">{{ partner.what_it_is|lower }}</div>
+                            <div class="partner-tags">
+                                {% for t in partner.eligibility_tags or [] %}
+                                <span>{{ t|lower }}</span>
+                                {% endfor %}
+                            </div>
+                            <div class="partner-copy"><strong>why:</strong> {{ partner.why_use|lower }}</div>
+                            <div class="hub-action-row">
+                                <a class="partner-cta"
+                                   data-partner="{{ partner.slug|lower }}"
+                                   href="/hub/partners/go/{{ partner.slug|lower }}?ref={{ partner.referral_code|lower }}">
+                                   {{ partner.cta_label|lower }}
+                                </a>
+                            </div>
+                        </article>
+                        {% endfor %}
+                    {% endfor %}
                 </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="hub-section-title"><i class="fas fa-water" style="color: #f7931a;"></i> Whale feed (last 24h)</div>
-                <div class="hub-card">
-                    <ul class="hub-whale-list">
+                <div class="partner-disclaimer">
+                    {{ partner_disclaimer|lower }}
+                </div>
+            </section>
+
+            <section class="hub-three">
+                <div class="hub-panel hub-tile">
+                    <div class="hub-k">sentry queue · matty drafts</div>
+                    <ul class="hub-sentry-list" id="hubSentryList">
+                        {% for alert in pending_sentry_alerts %}
+                        <li id="sentry-{{ alert.id }}">
+                            <div class="hub-sentry-meta">@{{ alert.source_account or 'unknown' }} · {{ alert.created_at.strftime('%H:%M') if alert.created_at else 'pending' }}</div>
+                            <div class="hub-sentry-body">{{ (alert.content_snippet or 'no snippet').lower()[:120] }}</div>
+                            {% if current_user.is_admin %}
+                            <button class="hub-pill" data-sentry-id="{{ alert.id }}">approve</button>
+                            {% else %}
+                            <span class="hub-pill">awaiting command deck approval</span>
+                            {% endif %}
+                        </li>
+                        {% else %}
+                        <li><span class="hub-pill">queue is clean. no drafts pending.</span></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="hub-panel hub-tile">
+                    <div class="hub-k">network heat · sat/vb</div>
+                    <div class="hub-v">{{ fee_fast if fee_fast is not none else '—' }}<span style="font-size:0.75rem;color:#fca5a5;"> sat/vb fast</span></div>
+                    <div class="hub-oracle-meta">half-hour: {{ fee_half if fee_half is not none else '—' }} sat/vb · hour: {{ fee_hour if fee_hour is not none else '—' }} sat/vb</div>
+                    <div class="hub-action-row">
+                        <a href="https://mempool.space/" target="_blank" rel="noopener"><i class="fas fa-chart-line"></i> mempool live</a>
+                    </div>
+                </div>
+                <div class="hub-panel hub-tile">
+                    <div class="hub-k">medley director · gpu 1</div>
+                    <button id="engageMedleyBtn"><i class="fas fa-bolt"></i> engage medley director</button>
+                    <div class="hub-progress"><div class="hub-progress-fill" id="medleyProgressFill"></div></div>
+                    <div class="hub-medley-status" id="medleyStatusText">status: {{ (medley_state.get('status') or 'idle')|lower }}</div>
+                    <div class="hub-action-row">
+                        <a id="medleyOutputLink" href="{{ medley_state.get('output_url') or '/api/hub/medley/output' }}" target="_blank" rel="noopener" {% if not medley_state.get('output_url') %}style="pointer-events:none;opacity:0.55;"{% endif %}>open latest brief</a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="hub-two">
+                <div class="hub-panel hub-terminal">
+                    <div class="hub-k">live pulse terminal · automation.log</div>
+                    <div class="log-shell" id="automationLog"></div>
+                    <div class="hub-action-row">
+                        <a href="/live"><i class="fas fa-terminal"></i> open media terminal</a>
+                        <a href="/signal-terminal"><i class="fas fa-wave-square"></i> open intelligence feed</a>
+                    </div>
+                </div>
+                <div class="hub-panel hub-terminal">
+                    <div class="hub-k">whale watcher feed</div>
+                    <ul class="hub-whale-list" id="hubWhaleList">
                         {% for w in hub_whales %}
-                        <li class="{{ 'whale-mega' if w.is_mega else '' }}">
-                            <span class="whale-btc">{{ "%.2f"|format(w.btc_amount) }} BTC</span>
-                            <span class="whale-usd">${{ "{:,.0f}".format(w.usd_value or w.btc_amount * 100000) }}</span>
+                        <li>
+                            <span class="wbtc {{ 'wmega' if w.is_mega else '' }}">{{ "%.2f"|format(w.btc_amount) }} btc</span>
+                            <span>${{ "{:,.0f}".format(w.usd_value or 0) }}</span>
                             <a href="https://mempool.space/tx/{{ w.txid }}" target="_blank" rel="noopener">{{ w.txid[:12] }}…</a>
                         </li>
                         {% else %}
-                        <li class="text-muted">No whale tx in last 24h.</li>
+                        <li>no whales in the current 24h window.</li>
                         {% endfor %}
                     </ul>
+                    <div class="hub-action-row">
+                        <a href="/whale-watcher"><i class="fas fa-water"></i> whale watcher</a>
+                        <a href="/live"><i class="fas fa-terminal"></i> media terminal</a>
+                    </div>
                 </div>
-            </div>
-        </div>
-        {% else %}
-        <div class="hub-upsell">
-            <strong>Upgrade to Commander</strong> for the live whale feed, 24h alert summary, and Pro Briefs (early + exclusive signals).
-            <a href="/premium" class="hub-cta secondary ms-2"><i class="fas fa-arrow-up"></i> See tiers</a>
-        </div>
-        {% endif %}
+            </section>
 
-        <div class="row g-4">
-            <div class="col-lg-6">
-                <div class="hub-section-title"><i class="fas fa-bolt"></i> Live tools</div>
-                <div class="hub-card">
-                    <a href="/live" class="hub-cta"><i class="fas fa-atom"></i> Live Terminal</a>
-                    <p class="hub-card-sub mt-2 mb-2">Block-by-block settlement view</p>
-                    <a href="/whale-watcher" class="hub-cta secondary"><i class="fas fa-water"></i> Whale Watcher</a>
-                    <p class="hub-card-sub mt-2 mb-2">Large transaction alerts</p>
-                    <a href="/bitfeed-live" class="hub-cta secondary"><i class="fas fa-heartbeat"></i> Bitfeed Live</a>
+            <section class="hub-panel hub-oracle">
+                <div class="hub-k">risk oracle · 3d globe</div>
+                <div id="riskOracleGlobe"></div>
+                <div class="hub-oracle-meta">
+                    centered on latest mining snapshot: {{ risk_oracle_center.name }}
+                    ({{ "%.4f"|format(risk_oracle_center.lat) }}, {{ "%.4f"|format(risk_oracle_center.lng) }}) ·
+                    updated {{ risk_oracle_center.last_updated }}
                 </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="hub-section-title"><i class="fas fa-file-alt"></i> Latest briefs</div>
-                <div class="hub-card">
-                    <ul class="hub-brief-list">
-                        {% for a in latest_briefs %}
-                        <li><a href="{{ url_for('article_detail', article_id=a.id) }}">{{ a.title }}</a></li>
+                <div class="hub-oracle-brief" id="oracleBrief">
+                    <strong>tactical brief</strong><br>
+                    location: {{ risk_oracle_center.name }}<br>
+                    grid load: monitor<br>
+                    sentiment: watchlist<br>
+                    action: click a node to pull live jurisdiction intel.
+                </div>
+                <div class="hub-oracle-stats">
+                    <div class="hub-k">hotspot share map</div>
+                    <ul>
+                        {% for loc in risk_oracle_hotspots %}
+                        <li><span>{{ loc.name }}</span><span class="oracle-share">{{ "%.2f"|format((loc.hashrate_share or 0) * 100) }}%</span></li>
                         {% else %}
-                        <li class="text-muted">No briefs yet.</li>
+                        <li><span>no hotspot data loaded</span><span class="oracle-share">0.00%</span></li>
                         {% endfor %}
                     </ul>
-                    <a href="/articles" class="hub-cta secondary">All briefs</a>
                 </div>
-            </div>
-        </div>
-
-        {% if tier in ['commander', 'sovereign'] %}
-        {% if brief_of_the_week %}
-        <div class="row g-4 mt-2">
-            <div class="col-12">
-                <div class="hub-section-title"><i class="fas fa-star" style="color: #f59e0b;"></i> Brief of the week</div>
-                <div class="hub-card" style="border-color: rgba(245, 158, 11, 0.4);">
-                    <a href="{{ url_for('article_detail', article_id=brief_of_the_week.id) }}" class="hub-card-value" style="font-size: 1.1rem; display: block; margin-bottom: 0.5rem;">{{ brief_of_the_week.title }}</a>
-                    <p class="hub-card-sub mb-0">This week's featured Pro Brief — early access.</p>
+                <div class="hub-action-row">
+                    <a href="/mining-risk"><i class="fas fa-globe-americas"></i> open mining risk oracle</a>
+                    <a href="/api/mining-risk" target="_blank" rel="noopener"><i class="fas fa-database"></i> open oracle data api</a>
                 </div>
-            </div>
-        </div>
-        {% endif %}
-        <div class="row g-4 mt-2">
-            <div class="col-12">
-                <div class="hub-section-title"><i class="fas fa-star" style="color: #f59e0b;"></i> Pro Briefs (Commander exclusive)</div>
-                <div class="hub-card">
-                    <ul class="hub-brief-list">
-                        {% for a in commander_briefs %}
-                        <li><a href="{{ url_for('article_detail', article_id=a.id) }}">{{ a.title }}</a> <span class="text-muted" style="font-size: 0.75rem;">Pro</span></li>
-                        {% else %}
-                        <li class="text-muted">No Pro Briefs yet. Featured and premium briefs appear here.</li>
-                        {% endfor %}
-                    </ul>
-                    <a href="/articles" class="hub-cta secondary">All briefs</a>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        {% if tier == 'sovereign' %}
-        <div class="row g-4 mt-2">
-            <div class="col-12">
-                <div class="hub-section-title"><i class="fas fa-crown" style="color: #8b5cf6;"></i> Sovereign Elite</div>
-                <div class="hub-card hub-elite">
-                    <p class="hub-card-sub mb-3">One monthly research ask: we answer with a brief or direct reply. 1-on-1 strategy sessions can be booked separately.</p>
-                    {% if sovereign_asks_this_month >= 1 and (not sovereign_ask or sovereign_ask.status == 'pending') %}
-                    <p class="hub-ask-status">This month: ask submitted. We’ll respond via email or here.</p>
-                    {% if sovereign_ask %}
-                    <p class="hub-card-sub mt-1"><strong>Your question:</strong> {{ sovereign_ask.question_text[:200] }}{% if sovereign_ask.question_text|length > 200 %}…{% endif %}</p>
-                    {% endif %}
-                    {% elif sovereign_ask and sovereign_ask.status == 'answered' %}
-                    <p class="hub-ask-status answered">Answered</p>
-                    {% if sovereign_ask.answer_text %}
-                    <p class="hub-card-sub mt-1">{{ sovereign_ask.answer_text[:500] }}{% if sovereign_ask.answer_text|length > 500 %}…{% endif %}</p>
-                    {% endif %}
-                    {% if sovereign_ask.answer_url %}
-                    <a href="{{ sovereign_ask.answer_url }}" class="hub-cta secondary mt-2" target="_blank" rel="noopener">Read full response</a>
-                    {% endif %}
-                    {% else %}
-                    <form class="hub-ask-form" method="post" action="{{ url_for('hub_submit_ask') }}">
-                        <textarea name="question" placeholder="Your monthly ask (e.g. “How should I think about allocation given the current macro regime?”)" maxlength="2000" required></textarea>
-                        <button type="submit">Submit monthly ask</button>
-                    </form>
-                    <p class="hub-ask-status">1 ask per month. Resets at the start of each month.</p>
-                    {% endif %}
-                    <a href="/contact" class="hub-cta secondary mt-3"><i class="fas fa-calendar-check"></i> Book 1-on-1 strategy session</a>
-                </div>
-            </div>
-        </div>
-        {% endif %}
+            </section>
+        </main>
     </div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
+<script>
+(function () {
+    const hubRoot = document.getElementById('hubRoot');
+    const logBox = document.getElementById('automationLog');
+    const oracleBrief = document.getElementById('oracleBrief');
+    const sentryList = document.getElementById('hubSentryList');
+    const medleyBtn = document.getElementById('engageMedleyBtn');
+    const medleyFill = document.getElementById('medleyProgressFill');
+    const medleyStatusText = document.getElementById('medleyStatusText');
+    const medleyOutputLink = document.getElementById('medleyOutputLink');
+    const initialLines = {{ (initial_log_lines or []) | tojson }};
+    const riskCenterSeed = {{ (risk_oracle_center or {}) | tojson }};
+    const riskLocationsSeed = {{ (risk_oracle_locations or []) | tojson }};
+    const medleyInitialState = {{ (medley_state or {}) | tojson }};
+    const noiseMarkers = [
+        'DEBUG:urllib3.connectionpool',
+        'GET /api/block/',
+        'GET /api/blocks',
+        'GET /api/mempool/recent',
+        'UserWarning:'
+    ];
+
+    function isSignalLine(line) {
+        if (!line) return false;
+        for (const marker of noiseMarkers) {
+            if (line.indexOf(marker) !== -1) return false;
+        }
+        const lower = line.toLowerCase();
+        return lower.indexOf('[signal]') !== -1 || lower.indexOf('[sentry]') !== -1 || lower.indexOf('[whale]') !== -1;
+    }
+
+    function appendLogLine(line) {
+        if (!isSignalLine(line) || !logBox) return;
+        logBox.textContent += line + "\n";
+        const rows = logBox.textContent.split("\n");
+        if (rows.length > 120) {
+            logBox.textContent = rows.slice(rows.length - 120).join("\n");
+        }
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function flashRedGlitch(meta) {
+        hubRoot.classList.remove('red-glitch');
+        void hubRoot.offsetWidth;
+        hubRoot.classList.add('red-glitch');
+        appendLogLine('[whale glitch] mega whale detected ' + (meta && meta.btc ? meta.btc : 'unknown') + ' btc');
+    }
+
+    (initialLines || []).forEach(appendLogLine);
+
+    if (window.io) {
+        const socket = io('/hub', { transports: ['websocket', 'polling'] });
+        socket.on('connect', function () {
+            appendLogLine('[socket] connected to live heartbeat stream');
+        });
+        socket.on('automation_bootstrap', function (payload) {
+            const lines = (payload && payload.lines) || [];
+            if (lines.length) {
+                logBox.textContent = '';
+                lines.forEach(appendLogLine);
+            }
+        });
+        socket.on('automation_log_line', function (payload) {
+            appendLogLine((payload && payload.line) || '');
+        });
+        socket.on('whale_alert', function (payload) {
+            flashRedGlitch(payload || {});
+        });
+    } else {
+        appendLogLine('[socket] unavailable, polling fallback active');
+        setInterval(function () {
+            fetch('/api/hub/automation-log').then(function (r) { return r.json(); }).then(function (payload) {
+                const lines = (payload && payload.lines) || [];
+                if (!lines.length) return;
+                logBox.textContent = '';
+                lines.forEach(appendLogLine);
+            }).catch(function () {});
+        }, 4000);
+    }
+
+    function bindSentryActions() {
+        if (!sentryList) return;
+        sentryList.querySelectorAll('button[data-sentry-id]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const id = btn.getAttribute('data-sentry-id');
+                if (!id) return;
+                btn.disabled = true;
+                fetch('/api/hub/sentry/' + id + '/approve', { method: 'POST' })
+                    .then(function (r) { return r.json(); })
+                    .then(function (payload) {
+                        if (payload && payload.ok) {
+                            const row = document.getElementById('sentry-' + id);
+                            if (row) row.remove();
+                            appendLogLine('[sentry] draft approved #' + id + ' | released to queue.');
+                        } else {
+                            btn.disabled = false;
+                        }
+                    })
+                    .catch(function () { btn.disabled = false; });
+            });
+        });
+    }
+
+    function setMedleyState(state) {
+        if (!state) return;
+        const pct = Math.max(0, Math.min(100, Number(state.progress || 0)));
+        if (medleyFill) medleyFill.style.width = pct + '%';
+        if (medleyStatusText) medleyStatusText.textContent = 'status: ' + (state.message || state.status || 'idle');
+        if (medleyBtn) medleyBtn.disabled = !!state.running;
+        if (medleyOutputLink) {
+            if (state.output_url) {
+                medleyOutputLink.href = state.output_url;
+                medleyOutputLink.style.pointerEvents = 'auto';
+                medleyOutputLink.style.opacity = '1';
+            } else {
+                medleyOutputLink.href = '#';
+                medleyOutputLink.style.pointerEvents = 'none';
+                medleyOutputLink.style.opacity = '0.55';
+            }
+        }
+    }
+
+    function pollMedleyStatus() {
+        fetch('/api/hub/medley/status')
+            .then(function (r) { return r.json(); })
+            .then(function (payload) {
+                const state = (payload && payload.state) || {};
+                setMedleyState(state);
+            })
+            .catch(function () {});
+    }
+
+    function openLatestBrief(event) {
+        if (event) event.preventDefault();
+        fetch('/api/hub/medley/status')
+            .then(function (r) { return r.json(); })
+            .then(function (payload) {
+                const state = (payload && payload.state) || {};
+                const url = (state.output_url || '/api/hub/medley/output') + '?t=' + Date.now();
+                window.open(url, '_blank');
+            })
+            .catch(function () {
+                window.open('/api/hub/medley/output?t=' + Date.now(), '_blank');
+            });
+    }
+
+    if (medleyBtn) {
+        medleyBtn.addEventListener('click', function () {
+            medleyBtn.disabled = true;
+            fetch('/api/hub/medley/start', { method: 'POST' })
+                .then(function (r) { return r.json(); })
+                .then(function (payload) {
+                    setMedleyState((payload && payload.state) || {});
+                    appendLogLine('[signal] medley director engaged on gpu 1 | rendering intelligence brief...');
+                })
+                .catch(function () {
+                    medleyBtn.disabled = false;
+                });
+        });
+        setMedleyState(medleyInitialState || {});
+        setInterval(pollMedleyStatus, 2000);
+    }
+    if (medleyOutputLink) {
+        medleyOutputLink.addEventListener('click', openLatestBrief);
+    }
+
+    function latLngToVec(lat, lng, radius) {
+        const phi = (90 - lat) * (Math.PI / 180);
+        const theta = (lng + 180) * (Math.PI / 180);
+        const x = -(radius * Math.sin(phi) * Math.cos(theta));
+        const z = (radius * Math.sin(phi) * Math.sin(theta));
+        const y = (radius * Math.cos(phi));
+        return new THREE.Vector3(x, y, z);
+    }
+
+    function riskColor(score) {
+        if (score < 40) return 0x00ffcc;
+        if (score <= 70) return 0xfacc15;
+        return 0xdc2626;
+    }
+
+    function updateOracleBrief(loc) {
+        if (!oracleBrief || !loc) return;
+        const name = (loc.name || 'unknown zone').toLowerCase();
+        const grid = (loc.grid_load != null ? loc.grid_load : 'n/a');
+        const sentiment = (loc.sentiment || 'monitor').toLowerCase();
+        const details = (loc.details || 'intel sparse. keep this zone under watch.').toLowerCase();
+        oracleBrief.innerHTML =
+            '<strong>tactical brief</strong><br>' +
+            'location: ' + name + '<br>' +
+            'grid load: ' + grid + '% (' + (Number(grid) >= 85 ? 'critical' : 'stable') + ')<br>' +
+            'sentiment: ' + sentiment + '<br>' +
+            'action: monitor hashrate fluctuations.<br>' +
+            'notes: ' + details;
+    }
+
+    function initRiskOracle(riskCenter, riskLocations) {
+        const container = document.getElementById('riskOracleGlobe');
+        if (!container || !window.THREE) return;
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+
+        const globeGeom = new THREE.SphereGeometry(1.45, 48, 48);
+        const globeMat = new THREE.MeshStandardMaterial({
+            color: 0x111118,
+            emissive: 0x320808,
+            metalness: 0.35,
+            roughness: 0.55,
+            wireframe: false
+        });
+        const globe = new THREE.Mesh(globeGeom, globeMat);
+        scene.add(globe);
+
+        const wire = new THREE.Mesh(
+            new THREE.SphereGeometry(1.465, 28, 28),
+            new THREE.MeshBasicMaterial({ color: 0xdc2626, wireframe: true, transparent: true, opacity: 0.26 })
+        );
+        scene.add(wire);
+
+        const ambient = new THREE.AmbientLight(0xffd5d5, 0.45);
+        scene.add(ambient);
+        const redLight = new THREE.PointLight(0xdc2626, 1.3, 20);
+        redLight.position.set(3, 2, 4);
+        scene.add(redLight);
+
+        const markerRegistry = [];
+        (riskLocations || []).slice(0, 180).forEach(function (loc) {
+            const score = Number(loc.risk_score || 50);
+            const share = Number(loc.hashrate_share || 0);
+            const size = 0.018 + (share * 0.15) + (score / 3000);
+            const color = riskColor(score);
+            const marker = new THREE.Mesh(
+                new THREE.SphereGeometry(size, 10, 10),
+                new THREE.MeshBasicMaterial({ color: color })
+            );
+            marker.position.copy(latLngToVec(loc.lat, loc.lng, 1.49));
+            scene.add(marker);
+            markerRegistry.push({
+                mesh: marker,
+                pulse: 0.004 + (score / 15000),
+                base: size,
+                loc: loc
+            });
+        });
+
+        if (riskCenter && typeof riskCenter.lat === 'number' && typeof riskCenter.lng === 'number') {
+            const centerPin = new THREE.Mesh(
+                new THREE.SphereGeometry(0.05, 12, 12),
+                new THREE.MeshBasicMaterial({ color: 0xdc2626 })
+            );
+            centerPin.position.copy(latLngToVec(riskCenter.lat, riskCenter.lng, 1.53));
+            scene.add(centerPin);
+        }
+
+        camera.position.z = 3.6;
+        updateOracleBrief(riskCenter || (riskLocations || [])[0]);
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        renderer.domElement.addEventListener('click', function (evt) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((evt.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((evt.clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            const hits = raycaster.intersectObjects(markerRegistry.map(function (m) { return m.mesh; }));
+            if (!hits.length) return;
+            const match = markerRegistry.find(function (m) { return m.mesh === hits[0].object; });
+            if (match && match.loc) updateOracleBrief(match.loc);
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            globe.rotation.y += 0.0024;
+            wire.rotation.y += 0.0027;
+            markerRegistry.forEach(function (m, i) {
+                const scale = 1 + (Math.sin((Date.now() * m.pulse) + i) * 0.16);
+                m.mesh.scale.set(scale, scale, scale);
+            });
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', function () {
+            if (!container.clientWidth || !container.clientHeight) return;
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+    }
+
+    bindSentryActions();
+
+    fetch('/api/risk-data')
+        .then(function (r) { return r.json(); })
+        .then(function (payload) {
+            const center = (payload && payload.center) || riskCenterSeed || {};
+            const locations = (payload && payload.jurisdictions) || riskLocationsSeed || [];
+            initRiskOracle(center, locations);
+        })
+        .catch(function () {
+            initRiskOracle(riskCenterSeed || {}, riskLocationsSeed || []);
+        });
+})();
+</script>
 {% endblock %}

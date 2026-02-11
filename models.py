@@ -479,6 +479,29 @@ class AffiliateClick(db.Model):
     user_agent = db.Column(db.String(500))
     clicked_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+
+class PartnerClick(db.Model):
+    """Hub partner-ramp click tracking (thin-slice V1)."""
+    __tablename__ = 'partner_click'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    partner_id = db.Column(db.Integer, db.ForeignKey('affiliate_partner.id'), nullable=True)
+    partner_slug = db.Column(db.String(80), nullable=False, index=True)
+    session_id = db.Column(db.String(64), nullable=False, index=True)
+    referral_code = db.Column(db.String(120))
+    source_page = db.Column(db.String(500))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+
+
+class PartnerConversionNote(db.Model):
+    """Admin notes for partner performance and conversion context."""
+    __tablename__ = 'partner_conversion_note'
+    id = db.Column(db.Integer, primary_key=True)
+    partner_slug = db.Column(db.String(80), nullable=False, index=True)
+    note = db.Column(db.Text, nullable=False)
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+
 class FeedItem(db.Model):
     __tablename__ = 'feed_item'
     id = db.Column(db.Integer, primary_key=True)

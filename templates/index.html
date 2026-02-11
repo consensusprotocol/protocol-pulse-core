@@ -858,6 +858,96 @@
     gap: 25px;
 }
 
+.mining-risk-inline {
+    margin-top: 30px;
+    background: var(--pulse-glass);
+    border: 1px solid var(--pulse-border);
+    border-radius: 16px;
+    padding: 22px;
+}
+
+.mr-inline-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.mr-inline-title {
+    font-family: var(--terminal-font);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.mr-inline-sub {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.55);
+}
+
+.mr-inline-layout {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 18px;
+}
+
+.mr-inline-chart {
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 12px;
+    min-height: 290px;
+}
+
+.mr-inline-table-wrap {
+    max-height: 290px;
+    overflow-y: auto;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+}
+
+.mr-inline-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+}
+
+.mr-inline-table th,
+.mr-inline-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.85);
+    vertical-align: top;
+}
+
+.mr-inline-table th {
+    font-family: var(--terminal-font);
+    color: rgba(255,255,255,0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.65rem;
+}
+
+.mr-inline-table .num {
+    font-family: var(--terminal-font);
+    text-align: right;
+}
+
+.mr-inline-badge {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 3px 8px;
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+.mr-inline-badge.vhigh { background: rgba(239,68,68,0.2); color: #f87171; }
+.mr-inline-badge.high { background: rgba(249,115,22,0.2); color: #fb923c; }
+.mr-inline-badge.med { background: rgba(234,179,8,0.2); color: #facc15; }
+.mr-inline-badge.low { background: rgba(34,197,94,0.2); color: #4ade80; }
+.mr-inline-badge.vlow { background: rgba(34,197,94,0.15); color: #86efac; }
+
 .chart-panel {
     background: var(--pulse-glass);
     border: 1px solid var(--pulse-border);
@@ -1416,6 +1506,10 @@
     .charts-row {
         grid-template-columns: 1fr;
     }
+
+    .mr-inline-layout {
+        grid-template-columns: 1fr;
+    }
     
     .terminal-embed-wrapper {
         grid-template-columns: 1fr;
@@ -1659,6 +1753,38 @@
                             <span class="gauge-value" id="diff-change">--%</span>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="mining-intel-risk" class="mining-risk-inline">
+            <div class="mr-inline-header">
+                <div>
+                    <div class="mr-inline-title"><i class="fas fa-globe-americas text-warning me-2"></i>mining risk intel overlay</div>
+                    <div class="mr-inline-sub">geographic deployment risk now embedded into main intelligence lane.</div>
+                </div>
+                <a href="/mining-risk" class="cta-secondary" style="padding: 10px 16px; font-size: 0.8rem;">
+                    <i class="fas fa-expand-alt"></i>
+                    open full mining risk page
+                </a>
+            </div>
+            <div class="mr-inline-layout">
+                <div class="mr-inline-chart">
+                    <canvas id="homeMiningRiskChart" height="230"></canvas>
+                </div>
+                <div class="mr-inline-table-wrap">
+                    <table class="mr-inline-table">
+                        <thead>
+                            <tr>
+                                <th>location</th>
+                                <th class="num">risk</th>
+                                <th>label</th>
+                            </tr>
+                        </thead>
+                        <tbody id="homeMiningRiskTableBody">
+                            <tr><td colspan="3" style="color: rgba(255,255,255,0.5); text-align:center;">loading mining risk data...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -2114,6 +2240,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let largestTx = 0;
     let hashrateChart = null;
     let difficultyGauge = null;
+    let homeMiningRiskChart = null;
     
     // Fetch all network data from server API (avoids CORS issues)
     async function fetchAllNetworkData() {
@@ -2358,6 +2485,94 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
+
+    function miningRiskColor(score) {
+        if (score >= 70) return '#ef4444';
+        if (score >= 55) return '#f97316';
+        if (score >= 40) return '#eab308';
+        if (score >= 25) return '#4ade80';
+        return '#22c55e';
+    }
+
+    function miningRiskBadgeClass(score) {
+        if (score >= 70) return 'vhigh';
+        if (score >= 55) return 'high';
+        if (score >= 40) return 'med';
+        if (score >= 25) return 'low';
+        return 'vlow';
+    }
+
+    function updateHomeMiningRisk(regions) {
+        const tableBody = document.getElementById('homeMiningRiskTableBody');
+        if (!regions || !regions.length) {
+            if (tableBody) {
+                tableBody.innerHTML = '<tr><td colspan="3" style="color: rgba(255,255,255,0.5); text-align:center;">no mining risk data available.</td></tr>';
+            }
+            return;
+        }
+
+        const top = regions.slice(0, 8);
+        if (tableBody) {
+            tableBody.innerHTML = top.map(function (r) {
+                const score = Number(r.composite_risk || 0);
+                return '<tr>' +
+                    '<td>' + (r.name || 'unknown') + '</td>' +
+                    '<td class="num"><strong>' + score + '</strong></td>' +
+                    '<td><span class="mr-inline-badge ' + miningRiskBadgeClass(score) + '">' + (r.risk_label || '—') + '</span></td>' +
+                    '</tr>';
+            }).join('');
+        }
+
+        const chartEl = document.getElementById('homeMiningRiskChart');
+        if (!chartEl) return;
+        const labels = top.map(function (r) { return r.name; });
+        const values = top.map(function (r) { return Number(r.composite_risk || 0); });
+        const colors = values.map(miningRiskColor);
+
+        if (homeMiningRiskChart) homeMiningRiskChart.destroy();
+        homeMiningRiskChart = new Chart(chartEl, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'composite risk',
+                    data: values,
+                    backgroundColor: colors,
+                    borderColor: colors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: {
+                        min: 0,
+                        max: 100,
+                        grid: { color: 'rgba(255,255,255,0.06)' },
+                        ticks: { color: 'rgba(255,255,255,0.55)' }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { color: 'rgba(255,255,255,0.85)' }
+                    }
+                }
+            }
+        });
+    }
+
+    async function fetchHomeMiningRiskData() {
+        try {
+            const response = await fetch('/api/mining-risk');
+            if (!response.ok) return;
+            const payload = await response.json();
+            updateHomeMiningRisk((payload && payload.regions) || []);
+        } catch (e) {
+            console.log('Mining risk home fetch error:', e);
+        }
+    }
     
     // Whale Watcher Functions
     async function fetchWhaleTransactions() {
@@ -2527,10 +2742,12 @@ document.addEventListener('DOMContentLoaded', function() {
     fetchHashrateData();
     initDifficultyGauge();
     fetchWhaleTransactions();
+    fetchHomeMiningRiskData();
     
     // Refresh intervals
     setInterval(fetchAllNetworkData, 15000);
     setInterval(fetchWhaleTransactions, 30000);
+    setInterval(fetchHomeMiningRiskData, 60000);
     
     // Newsletter form
     const form = document.getElementById('newsletter-form');

@@ -621,6 +621,16 @@ def health():
     return jsonify(payload), code
 
 
+@app.route('/api/health')
+def api_health():
+    """Compatibility alias for health checks expected by external monitors/scripts."""
+    response, code = health()
+    data = response.get_json(silent=True) or {}
+    if data.get("status") == "ok":
+        data["status"] = "healthy"
+    return jsonify(data), code
+
+
 @app.route('/ready')
 def ready():
     """Readiness: app and DB are responsive. Used by orchestrators before sending traffic."""
@@ -1887,6 +1897,36 @@ def api_mining_risk():
     except Exception as e:
         logging.error(f"Mining risk API error: {e}")
         return jsonify({'regions': [], 'network': {}, 'error': str(e)}), 500
+
+
+@app.route('/api/mining/risk/<string:location_id>')
+def api_mining_risk_location(location_id):
+    """Compatibility endpoint for per-location mining risk details."""
+    try:
+        from services.mining_risk_oracle import oracle
+        item = oracle.get_location_risk(location_id)
+        if not item:
+            return jsonify({"success": False, "error": "location not found"}), 404
+        return jsonify({"success": True, "location": item})
+    except Exception as e:
+        logging.error("Mining risk location API error: %s", e)
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/mining/rankings')
+def api_mining_rankings():
+    """Compatibility endpoint returning ranked mining risk locations."""
+    try:
+        from services.mining_risk_oracle import oracle
+        locations = sorted(
+            oracle.get_all_locations(),
+            key=lambda x: int(x.get("overall_score") or 0),
+            reverse=True,
+        )
+        return jsonify({"success": True, "rankings": locations})
+    except Exception as e:
+        logging.error("Mining rankings API error: %s", e)
+        return jsonify({"success": False, "rankings": [], "error": str(e)}), 500
 
 
 @app.route('/api/solo-blocks')

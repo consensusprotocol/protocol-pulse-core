@@ -7,15 +7,23 @@ from typing import List, Dict
 class RedditService:
     def __init__(self):
         self.reddit = None
+        client_id = os.environ.get('REDDIT_CLIENT_ID')
+        client_secret = os.environ.get('REDDIT_CLIENT_SECRET')
+        user_agent = os.environ.get('REDDIT_USER_AGENT')
+        if not (client_id and client_secret and user_agent):
+            logging.warning("Reddit PRAW disabled: missing REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET/REDDIT_USER_AGENT")
+            self.use_api = False
+            self.base_url = "https://www.reddit.com"
+            return
         try:
             self.reddit = praw.Reddit(
-                client_id=os.environ.get('REDDIT_CLIENT_ID'),
-                client_secret=os.environ.get('REDDIT_CLIENT_SECRET'),
-                user_agent=os.environ.get('REDDIT_USER_AGENT')
+                client_id=client_id,
+                client_secret=client_secret,
+                user_agent=user_agent
             )
             logging.info("Reddit PRAW service initialized successfully")
         except Exception as e:
-            logging.error(f"Failed to initialize PRAW: {e}")
+            logging.warning("Failed to initialize PRAW; reddit features degraded: %s", e)
         self.use_api = bool(self.reddit)
         self.base_url = "https://www.reddit.com"
 

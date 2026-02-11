@@ -436,9 +436,10 @@ async function sendHeartbeat() {
 async function checkWhales() {
     log('Scanning for mega-whales (1000+ BTC)...');
     try {
-        const response = await fetch('/api/whale-watcher');
+        const response = await fetch('/api/whales/live');
         const data = await response.json();
-        log(`Whale scan complete - ${data.transactions?.length || 0} transactions detected`);
+        const count = (data && data.whales && data.whales.length) || 0;
+        log(`Whale scan complete - ${count} transactions detected`);
     } catch (e) {
         log('ERROR: ' + e.message);
     }

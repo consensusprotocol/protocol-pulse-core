@@ -200,7 +200,8 @@
                     <a href="/dossier" class="nav-dropdown-item"><i class="fas fa-folder-open" style="color: #dc2626;"></i>The Dossier <span style="font-size: 0.6rem; color: #dc2626; letter-spacing: 0.05em;">DECLASSIFIED</span></a>
                     <a href="/live" class="nav-dropdown-item"><i class="fas fa-atom" style="color: #dc2626;"></i>Live Terminal</a>
                     <a href="/whale-watcher" class="nav-dropdown-item"><i class="fas fa-water" style="color: #3b82f6;"></i>Whale Watcher</a>
-                    <a href="/mining-risk" class="nav-dropdown-item"><i class="fas fa-microchip" style="color: #f97316;"></i>Mining Intel</a>
+                    <a href="/#mining-intel-risk" class="nav-dropdown-item"><i class="fas fa-microchip" style="color: #f97316;"></i>Mining Intel</a>
+                    <a href="/mining-risk" class="nav-dropdown-item"><i class="fas fa-globe-americas" style="color: #f97316;"></i>Mining Risk</a>
                     <a href="/hud" class="nav-dropdown-item"><i class="fas fa-broadcast-tower" style="color: #22c55e;"></i>Predictive HUD</a>
                     <div class="nav-dropdown-divider"></div>
                     <a href="/value-stream" class="nav-dropdown-item"><i class="fas fa-bolt" style="color: #f7931a;"></i>Value Stream <span style="background: linear-gradient(135deg, #8b5cf6, #a855f7); color: #fff; font-size: 0.6rem; padding: 2px 6px; border-radius: 8px; margin-left: 6px; font-weight: 700;">NEW</span></a>
@@ -827,7 +828,7 @@
     
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/static/sw.js')
+            navigator.serviceWorker.register('/static/sw.js?v=4')
                 .then(reg => console.log('SW registered:', reg.scope))
                 .catch(err => console.log('SW registration failed:', err));
         });

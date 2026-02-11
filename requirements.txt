@@ -5,6 +5,7 @@ gunicorn
 flask_migrate
 flask_login
 flask_limiter
+flask-socketio
 sqlalchemy
 python-dotenv
 openai

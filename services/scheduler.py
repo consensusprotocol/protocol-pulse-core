@@ -16,6 +16,7 @@ from datetime import datetime
 from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
+_scheduler_started_at: Optional[datetime] = None
 
 TASKS = {
     "cypherpunk_loop": {"interval_minutes": 360, "description": "Article generation from trending (every 6h)"},
@@ -99,3 +100,24 @@ def run_all_due() -> List[Dict]:
         except Exception as e:
             results.append({"task": task_name, "success": False, "message": str(e), "result": None})
     return results
+
+
+def initialize_scheduler() -> Dict:
+    """
+    Compatibility shim for admin command deck.
+    We use systemd + endpoint-triggered tasks; this marks scheduler as active.
+    """
+    global _scheduler_started_at
+    _scheduler_started_at = datetime.utcnow()
+    return {"success": True, "started_at": _scheduler_started_at.isoformat()}
+
+
+def get_scheduler_status() -> Dict:
+    """Compatibility status payload expected by command deck UI."""
+    jobs = [{"name": name, **meta} for name, meta in TASKS.items()]
+    return {
+        "running": _scheduler_started_at is not None,
+        "started_at": _scheduler_started_at.isoformat() if _scheduler_started_at else None,
+        "jobs": jobs,
+        "mode": "systemd+manual",
+    }

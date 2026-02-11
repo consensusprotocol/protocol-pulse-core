@@ -234,6 +234,84 @@
         outline: none;
         border-color: #f7931a;
     }
+
+    .alpha-relay {
+        background: rgba(20, 20, 35, 0.9);
+        border: 1px solid rgba(138, 43, 226, 0.3);
+        border-radius: 12px;
+        padding: 18px;
+        margin-bottom: 22px;
+    }
+
+    .alpha-relay-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #00ffb2;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.95rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 14px;
+    }
+
+    .relay-list {
+        display: grid;
+        gap: 10px;
+        max-height: 340px;
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+
+    .relay-item {
+        position: relative;
+        background: rgba(5, 8, 20, 0.88);
+        border: 1px solid rgba(0, 220, 255, 0.24);
+        border-left: 3px solid #00b8ff;
+        border-radius: 10px;
+        padding: 12px 12px 44px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .relay-item:hover {
+        border-color: rgba(247, 147, 26, 0.65);
+        box-shadow: 0 8px 24px rgba(247, 147, 26, 0.15);
+    }
+
+    .relay-text {
+        color: #ccfff1;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.9rem;
+        line-height: 1.35;
+        margin-bottom: 8px;
+    }
+
+    .relay-meta {
+        color: rgba(255,255,255,0.55);
+        font-size: 0.8rem;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .relay-zap {
+        position: absolute;
+        right: 10px;
+        bottom: 10px;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(6px);
+        transition: all 0.2s ease;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+    }
+
+    .relay-item:hover .relay-zap {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+    }
 </style>
 {% endblock %}
 
@@ -262,6 +340,34 @@
 <div class="container py-5">
     <div class="row">
         <div class="col-lg-8">
+            <div class="alpha-relay">
+                <div class="alpha-relay-title">
+                    <i class="fas fa-satellite-dish"></i> Alpha Relay
+                </div>
+                <div class="relay-list">
+                    {% if posts %}
+                        {% for post in posts[:12] %}
+                        <div class="relay-item">
+                            <div class="relay-text">
+                                {{ (post.content_preview or post.title or 'Signal captured. Open source to inspect full context.')[:190] }}
+                            </div>
+                            <div class="relay-meta">
+                                <span>{{ post.curator.display_name if post.curator else (post.platform or 'source') }}</span>
+                                <span>{{ post.submitted_at.strftime('%-I:%M %p') if post.submitted_at else 'now' }}</span>
+                            </div>
+                            <button class="zap-btn zap-content-btn relay-zap" data-post-id="{{ post.id }}">
+                                <i class="fas fa-bolt"></i> ZAP
+                            </button>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="relay-item">
+                            <div class="relay-text">No signals in relay yet. Curate the first high-signal post.</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
             <div class="submit-form">
                 <h5 class="text-white mb-3"><i class="fas fa-plus-circle text-warning"></i> Curate Content</h5>
                 <form id="submit-content-form" class="d-flex gap-3">

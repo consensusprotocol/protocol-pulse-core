@@ -1,4 +1,4 @@
-const CACHE_NAME = 'protocol-pulse-v2';
+const CACHE_NAME = 'protocol-pulse-v4';
 const OFFLINE_URL = '/offline';
 
 const STATIC_ASSETS = [
