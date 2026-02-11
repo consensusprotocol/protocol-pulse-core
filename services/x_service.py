@@ -120,6 +120,26 @@ class XService:
             'can_post_video': self.client is not None
         }
 
+    def post_reply(self, tweet_id, text):
+        """
+        Post a reply to a tweet (for Zap-Comment / Diplomat bridge).
+        Returns reply tweet id or None.
+        """
+        text = _strip_hashtags(text)
+        if len(text) > 280:
+            text = text[:277] + "..."
+        try:
+            if self.client_v2:
+                r = self.client_v2.create_tweet(text=text, in_reply_to_tweet_id=str(tweet_id))
+                if r and r.data and getattr(r.data, "id", None):
+                    return str(r.data.id)
+            if self.client:
+                resp = self.client.update_status(status=text, in_reply_to_status_id=str(tweet_id))
+                return str(resp.id) if resp else None
+        except Exception as e:
+            logging.error("post_reply failed: %s", e)
+        return None
+
     def _get_branded_pulse_path(self):
         """Path to Protocol Pulse branded logo (cover + pulse). Fallback to main logo if brand asset missing."""
         base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

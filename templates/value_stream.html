@@ -2,472 +2,1487 @@
 
 {% block title %}Value Stream - Protocol Pulse{% endblock %}
 
-{% block extra_head %}
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-    .value-stream-hero {
-        background: linear-gradient(135deg, #0a0a12 0%, #1a0a2e 50%, #0a0a12 100%);
-        padding: 60px 0;
-        border-bottom: 1px solid rgba(138, 43, 226, 0.3);
-    }
-    
-    .stream-title {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 2.5rem;
-        color: #f7931a;
-        text-shadow: 0 0 30px rgba(247, 147, 26, 0.5);
-    }
-    
-    .stream-subtitle {
-        color: rgba(255,255,255,0.7);
-        font-size: 1.1rem;
-        max-width: 600px;
-        margin: 0 auto;
-    }
-    
-    .platform-filters {
-        display: flex;
-        gap: 12px;
-        justify-content: center;
-        flex-wrap: wrap;
-        margin: 30px 0;
-    }
-    
-    .platform-btn {
-        background: rgba(138, 43, 226, 0.2);
-        border: 1px solid rgba(138, 43, 226, 0.4);
-        color: #fff;
-        padding: 8px 20px;
-        border-radius: 20px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.85rem;
-    }
-    
-    .platform-btn:hover, .platform-btn.active {
-        background: rgba(247, 147, 26, 0.3);
-        border-color: #f7931a;
-        color: #f7931a;
-    }
-    
-    .content-card {
-        background: rgba(20, 20, 35, 0.9);
-        border: 1px solid rgba(138, 43, 226, 0.3);
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 20px;
-        transition: all 0.3s ease;
-    }
-    
-    .content-card:hover {
-        border-color: #f7931a;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 30px rgba(247, 147, 26, 0.15);
-    }
-    
-    .content-card.featured {
-        border-color: #f7931a;
-        background: linear-gradient(135deg, rgba(247, 147, 26, 0.1), rgba(20, 20, 35, 0.9));
-    }
-    
-    .platform-badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-family: 'JetBrains Mono', monospace;
-    }
-    
-    .platform-twitter { background: rgba(29, 161, 242, 0.2); color: #1da1f2; }
-    .platform-youtube { background: rgba(255, 0, 0, 0.2); color: #ff0000; }
-    .platform-reddit { background: rgba(255, 69, 0, 0.2); color: #ff4500; }
-    .platform-nostr { background: rgba(138, 43, 226, 0.2); color: #8a2be2; }
-    .platform-stacker_news { background: rgba(247, 147, 26, 0.2); color: #f7931a; }
-    
-    .signal-score {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 1.5rem;
-        color: #00ff88;
-        text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
-    }
-    
-    .sats-count {
-        color: #f7931a;
-        font-weight: 600;
-    }
-    
-    .zap-count {
-        color: rgba(255,255,255,0.6);
-    }
-    
-    .curator-badge {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 6px 12px;
-        background: rgba(138, 43, 226, 0.2);
-        border-radius: 20px;
-        font-size: 0.85rem;
-    }
-    
-    .curator-badge.verified::after {
-        content: "✓";
-        color: #00ff88;
-        margin-left: 4px;
-    }
-    
-    .zap-btn {
-        background: linear-gradient(135deg, #f7931a, #ff6b00);
-        border: none;
-        color: #000;
-        padding: 10px 24px;
-        border-radius: 8px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-family: 'JetBrains Mono', monospace;
-    }
-    
-    .zap-btn:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 20px rgba(247, 147, 26, 0.4);
-    }
-    
-    .curator-leaderboard {
-        background: rgba(20, 20, 35, 0.9);
-        border: 1px solid rgba(138, 43, 226, 0.3);
-        border-radius: 12px;
-        padding: 20px;
-    }
-    
-    .curator-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 12px 0;
-        border-bottom: 1px solid rgba(138, 43, 226, 0.2);
-    }
-    
-    .curator-row:last-child {
-        border-bottom: none;
-    }
-    
-    .curator-rank {
-        width: 30px;
-        font-family: 'JetBrains Mono', monospace;
-        color: #f7931a;
-    }
-    
-    .extension-promo {
-        background: linear-gradient(135deg, rgba(247, 147, 26, 0.2), rgba(138, 43, 226, 0.2));
-        border: 1px solid rgba(247, 147, 26, 0.4);
-        border-radius: 16px;
-        padding: 30px;
-        text-align: center;
-        margin: 40px 0;
-    }
-    
-    .extension-btn {
-        background: linear-gradient(135deg, #8a2be2, #6b1fa9);
-        border: none;
-        color: #fff;
-        padding: 14px 32px;
-        border-radius: 8px;
-        font-weight: 700;
-        cursor: pointer;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-    }
-    
-    .extension-btn:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 20px rgba(138, 43, 226, 0.4);
-    }
-    
-    .how-it-works {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 24px;
-        margin: 40px 0;
-    }
-    
-    .how-card {
-        background: rgba(20, 20, 35, 0.8);
-        border: 1px solid rgba(138, 43, 226, 0.3);
-        border-radius: 12px;
-        padding: 24px;
-        text-align: center;
-    }
-    
-    .how-icon {
-        font-size: 2.5rem;
-        margin-bottom: 16px;
-    }
-    
-    .empty-stream {
-        text-align: center;
-        padding: 60px;
-        color: rgba(255,255,255,0.5);
-    }
-    
-    .submit-form {
-        background: rgba(20, 20, 35, 0.9);
-        border: 1px solid rgba(138, 43, 226, 0.3);
-        border-radius: 12px;
-        padding: 24px;
-        margin-bottom: 30px;
-    }
-    
-    .submit-input {
-        background: rgba(0,0,0,0.3);
-        border: 1px solid rgba(138, 43, 226, 0.4);
-        color: #fff;
-        padding: 12px 16px;
-        border-radius: 8px;
-        width: 100%;
-        font-family: 'JetBrains Mono', monospace;
-    }
-    
-    .submit-input:focus {
-        outline: none;
-        border-color: #f7931a;
-    }
+/* ============================================
+   VALUE STREAM - SOVEREIGN INTELLIGENCE MARKET
+   Protocol Pulse × Terminal × High-Voltage
+   ============================================ */
+
+:root {
+    --vs-void: #000000;
+    --vs-abyss: #030305;
+    --vs-deep: #0a0a0f;
+    --vs-surface: #111118;
+    --vs-elevated: #18181f;
+    --vs-card: rgba(14, 14, 20, 0.92);
+    --vs-btc: #f7931a;
+    --vs-btc-light: #ffa940;
+    --vs-btc-dark: #e07800;
+    --vs-btc-glow: rgba(247, 147, 26, 0.4);
+    --vs-btc-subtle: rgba(247, 147, 26, 0.08);
+    --vs-purple: #8b5cf6;
+    --vs-purple-glow: rgba(139, 92, 246, 0.3);
+    --vs-green: #10b981;
+    --vs-green-glow: rgba(16, 185, 129, 0.4);
+    --vs-red: #ef4444;
+    --vs-border: rgba(255, 255, 255, 0.06);
+    --vs-border-hover: rgba(255, 255, 255, 0.12);
+    --vs-border-active: rgba(247, 147, 26, 0.5);
+    --vs-text-100: rgba(255, 255, 255, 0.97);
+    --vs-text-80: rgba(255, 255, 255, 0.8);
+    --vs-text-60: rgba(255, 255, 255, 0.6);
+    --vs-text-40: rgba(255, 255, 255, 0.4);
+    --vs-text-20: rgba(255, 255, 255, 0.2);
+    --vs-shadow-lg: 0 16px 64px rgba(0, 0, 0, 0.5);
+    --vs-ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Stealth Terminal: full-bleed dark */
+.value-stream-page { background: var(--vs-void); min-height: 100vh; }
+.main-content:has(.value-stream-page) { background: #000 !important; padding: 0 !important; }
+.content-wrapper:has(.value-stream-page) { background: #000 !important; max-width: none !important; }
+.value-stream-page .vs-background { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
+.value-stream-page .vs-background::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background:
+        radial-gradient(ellipse 80% 50% at 20% 40%, rgba(247, 147, 26, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 80% 20%, rgba(139, 92, 246, 0.04) 0%, transparent 50%);
+    animation: cosmicDrift 30s ease-in-out infinite;
+}
+@keyframes cosmicDrift {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(2%, -3%) rotate(2deg); }
+    66% { transform: translate(-2%, 2%) rotate(-1deg); }
+}
+.vs-grid-pattern {
+    position: absolute; inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black, transparent);
+}
+
+/* Hero */
+.vs-hero {
+    position: relative;
+    padding: 80px 24px 60px;
+    text-align: center;
+    overflow: hidden;
+}
+.vs-hero::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--vs-btc), transparent);
+    opacity: 0.3;
+}
+.vs-hero-orb {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -60%);
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, var(--vs-btc-glow) 0%, transparent 70%);
+    filter: blur(80px);
+    animation: orbPulse 4s ease-in-out infinite;
+    pointer-events: none;
+}
+@keyframes orbPulse {
+    0%, 100% { opacity: 0.4; transform: translate(-50%, -60%) scale(1); }
+    50% { opacity: 0.6; transform: translate(-50%, -60%) scale(1.1); }
+}
+.vs-hero-content { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; }
+
+.vs-title {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    margin-bottom: 16px;
+}
+.vs-title-lightning {
+    display: inline-block;
+    color: var(--vs-btc);
+    filter: drop-shadow(0 0 30px var(--vs-btc-glow));
+    animation: lightningFlicker 3s ease-in-out infinite;
+}
+@keyframes lightningFlicker {
+    0%, 90%, 100% { opacity: 1; }
+    92%, 94%, 96% { opacity: 0.7; }
+}
+.vs-title-text {
+    background: linear-gradient(135deg, #fff 0%, var(--vs-btc) 50%, #fff 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: titleShimmer 4s ease-in-out infinite;
+}
+@keyframes titleShimmer {
+    0%, 100% { background-position: 0% center; }
+    50% { background-position: 200% center; }
+}
+.vs-subtitle {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--vs-text-60);
+    max-width: 620px;
+    margin: 0 auto 32px;
+}
+.vs-subtitle strong { color: var(--vs-btc); font-weight: 600; }
+
+/* Live Stats */
+.vs-live-stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+.vs-stat-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.vs-stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--vs-text-100);
+}
+.vs-stat-value.sats { color: var(--vs-btc); text-shadow: 0 0 20px var(--vs-btc-glow); }
+.vs-stat-value.live {
+    color: var(--vs-green);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.vs-stat-value.live::before {
+    content: '';
+    width: 8px; height: 8px;
+    background: var(--vs-green);
+    border-radius: 50%;
+    animation: livePulse 2s ease-in-out infinite;
+}
+@keyframes livePulse {
+    0%, 100% { box-shadow: 0 0 0 0 var(--vs-green-glow); }
+    50% { box-shadow: 0 0 0 8px transparent; }
+}
+/* Market Pulse gauge - Economic Sentiment Index */
+.vs-market-pulse {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--vs-border);
+    border-radius: 100px;
+}
+.vs-market-pulse-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--vs-text-40);
+}
+.vs-market-pulse-bar {
+    width: 80px;
+    height: 8px;
+    background: var(--vs-surface);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.vs-market-pulse-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s var(--vs-ease);
+}
+.vs-market-pulse-fill.noise { background: var(--vs-text-40); }
+.vs-market-pulse-fill.neutral { background: var(--vs-btc); }
+.vs-market-pulse-fill.signal { background: var(--vs-green); }
+.vs-market-pulse-fill.hyper { background: linear-gradient(90deg, var(--vs-green), #00ff88); box-shadow: 0 0 12px var(--vs-green-glow); }
+.vs-market-pulse-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    min-width: 2.5em;
+}
+.vs-market-pulse-value.hyper { color: #00ff88; }
+.vs-market-pulse-value.signal { color: var(--vs-green); }
+.vs-market-pulse-value.neutral { color: var(--vs-btc); }
+.vs-market-pulse-value.noise { color: var(--vs-text-60); }
+.vs-stat-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--vs-text-40);
+}
+
+/* Live Pulse Ticker */
+.vs-ticker {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--vs-border);
+    border-radius: 10px;
+    padding: 12px 20px;
+    margin-bottom: 32px;
+}
+.vs-ticker-inner { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.vs-ticker-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #ef4444;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.vs-ticker-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: #ef4444;
+    border-radius: 50%;
+    animation: tickerPulse 1.5s ease-in-out infinite;
+}
+@keyframes tickerPulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(239,68,68,0.5); }
+    50% { opacity: 0.8; box-shadow: 0 0 0 6px transparent; }
+}
+#ticker-items {
+    display: inline-flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+    color: var(--vs-text-80);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Filter bar */
+.vs-filter-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.vs-platform-filters {
+    display: flex;
+    gap: 6px;
+    padding: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--vs-border);
+    border-radius: 100px;
+}
+.vs-platform-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: transparent;
+    border: none;
+    border-radius: 100px;
+    color: var(--vs-text-60);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s var(--vs-ease);
+}
+.vs-platform-btn:hover { color: var(--vs-text-80); background: rgba(255, 255, 255, 0.05); }
+.vs-platform-btn.active {
+    background: var(--vs-btc);
+    color: #000;
+    box-shadow: 0 4px 16px var(--vs-btc-glow);
+}
+.vs-platform-btn .vs-pf-icon {
+    width: 1.1em;
+    height: 1.1em;
+    display: inline-block;
+    vertical-align: -0.2em;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.vs-pf-globe { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z'/%3E%3C/svg%3E"); }
+.vs-pf-x { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z'/%3E%3C/svg%3E"); }
+.vs-pf-youtube { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff0000'%3E%3Cpath d='M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z'/%3E%3C/svg%3E"); }
+.vs-pf-bolt { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z'/%3E%3C/svg%3E"); }
+.vs-pf-reddit { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff4500'%3E%3Cpath d='M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.88-7.004 4.88-3.874 0-7.004-2.186-7.004-4.88 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484 1.05 3.64 1.05 1.157 0 2.798-.208 3.64-1.05a.33.33 0 0 0 0-.463.33.33 0 0 0-.463 0c-.655.655-1.892.88-2.932.88-1.04 0-2.277-.225-2.932-.88a.326.326 0 0 0-.232-.094z'/%3E%3C/svg%3E"); }
+.vs-pf-stacker { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z'/%3E%3C/svg%3E"); }
+.vs-sort-dropdown { position: relative; }
+.vs-sort-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--vs-border);
+    border-radius: 8px;
+    color: var(--vs-text-60);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s var(--vs-ease);
+}
+.vs-sort-btn:hover { border-color: var(--vs-border-hover); color: var(--vs-text-80); }
+.vs-sort-menu {
+    position: absolute;
+    top: 100%; right: 0;
+    margin-top: 8px;
+    min-width: 180px;
+    background: var(--vs-elevated);
+    border: 1px solid var(--vs-border);
+    border-radius: 12px;
+    padding: 8px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s var(--vs-ease);
+    z-index: 100;
+}
+.vs-sort-dropdown:hover .vs-sort-menu,
+.vs-sort-dropdown:focus-within .vs-sort-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+.vs-sort-option {
+    display: block;
+    width: 100%;
+    padding: 10px 14px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: var(--vs-text-60);
+    font-size: 0.85rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s var(--vs-ease);
+}
+.vs-sort-option:hover { background: rgba(255, 255, 255, 0.05); color: var(--vs-text-100); }
+.vs-sort-option.active { background: var(--vs-btc-subtle); color: var(--vs-btc); }
+
+/* Main layout */
+.vs-main {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    display: grid;
+    grid-template-columns: 280px 1fr 380px;
+    gap: 24px;
+}
+@media (max-width: 1200px) {
+    .vs-main { grid-template-columns: 1fr 380px; }
+    .vs-command-log { display: none; }
+}
+@media (max-width: 900px) { .vs-main { grid-template-columns: 1fr; } }
+
+/* Command Log - KOL Pulse (Matrix-style) */
+.vs-command-log {
+    position: sticky;
+    top: 24px;
+    height: min(80vh, 900px);
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--vs-border);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.vs-command-log-header {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--vs-border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--vs-green);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.vs-command-log-header::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--vs-green);
+    border-radius: 50%;
+    animation: livePulse 2s ease-in-out infinite;
+}
+.vs-command-log-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+.vs-pulse-line {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 4px;
+    border-left: 3px solid transparent;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    line-height: 1.4;
+    color: var(--vs-text-80);
+    transition: all 0.2s var(--vs-ease);
+}
+.vs-pulse-line:hover { background: rgba(255, 255, 255, 0.05); }
+.vs-pulse-line.platform-x { border-left-color: #1da1f2; }
+.vs-pulse-line.platform-nostr { border-left-color: var(--vs-purple); }
+.vs-pulse-line.platform-youtube { border-left-color: #ff0000; }
+.vs-pulse-line-icon { flex-shrink: 0; width: 18px; text-align: center; color: var(--vs-text-40); }
+.vs-pulse-line-content { flex: 1; min-width: 0; word-break: break-word; }
+.vs-pulse-line-content a { color: var(--vs-green); text-decoration: none; }
+.vs-pulse-line-content a:hover { color: #00ff88; }
+.vs-pulse-line-meta { color: var(--vs-text-40); font-size: 0.65rem; margin-top: 4px; }
+
+/* Glitch for high-zap cards (>10K sats) */
+.vs-card.vs-card-glitch:hover {
+    animation: vs-glitch 0.4s ease-out;
+}
+@keyframes vs-glitch {
+    0%, 100% { filter: none; transform: translateX(0); }
+    15% { filter: hue-rotate(-5deg); transform: translateX(-2px) translateY(1px); }
+    30% { filter: hue-rotate(5deg); transform: translateX(2px) translateY(-1px); }
+    45% { filter: hue-rotate(-3deg); transform: translateX(-1px) translateY(2px); }
+    60% { filter: hue-rotate(3deg); transform: translateX(1px) translateY(-2px); }
+    75% { filter: none; transform: translateX(0); }
+}
+.vs-card.vs-card-glitch { border-left-color: var(--vs-red); }
+.vs-card.vs-card-glitch::before { background: linear-gradient(135deg, transparent 0%, rgba(220, 38, 38, 0.06) 100%); }
+
+/* Submit card */
+.vs-submit-card {
+    position: relative;
+    background: var(--vs-card);
+    border: 1px solid var(--vs-border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 28px;
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+}
+.vs-submit-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--vs-btc), var(--vs-purple), var(--vs-btc));
+    background-size: 200% auto;
+    animation: gradientSlide 3s linear infinite;
+}
+@keyframes gradientSlide {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+}
+.vs-submit-header { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+.vs-submit-icon {
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--vs-btc-subtle), var(--vs-purple-glow));
+    border-radius: 12px;
+    font-size: 1.1rem;
+    color: var(--vs-btc);
+}
+.vs-submit-title { font-size: 1.05rem; font-weight: 700; color: var(--vs-text-100); }
+.vs-submit-desc { font-size: 0.78rem; color: var(--vs-text-40); }
+.vs-submit-form { display: flex; gap: 12px; }
+.vs-submit-input-wrap { flex: 1; position: relative; }
+.vs-submit-input {
+    width: 100%;
+    padding: 14px 18px;
+    padding-left: 44px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--vs-border);
+    border-radius: 10px;
+    color: var(--vs-text-100);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    transition: all 0.2s var(--vs-ease);
+}
+.vs-submit-input::placeholder { color: var(--vs-text-40); }
+.vs-submit-input:focus {
+    outline: none;
+    border-color: var(--vs-btc);
+    box-shadow: 0 0 0 3px var(--vs-btc-subtle);
+}
+.vs-submit-input-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--vs-text-40);
+    font-size: 1rem;
+}
+.vs-submit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, var(--vs-btc) 0%, var(--vs-btc-dark) 100%);
+    border: none;
+    border-radius: 10px;
+    color: #000;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s var(--vs-ease);
+    white-space: nowrap;
+}
+.vs-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--vs-btc-glow);
+}
+.vs-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.vs-submit-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    font-size: 0.72rem;
+    color: var(--vs-text-40);
+}
+.vs-submit-hint i { color: var(--vs-green); }
+
+/* Feed */
+.vs-feed { display: flex; flex-direction: column; gap: 14px; }
+
+/* Content card - glassmorphic terminal */
+.vs-card {
+    position: relative;
+    background: var(--vs-card);
+    border: 1px solid var(--vs-border);
+    border-left: 4px solid var(--vs-border);
+    border-radius: 4px;
+    overflow: hidden;
+    transition: all 0.25s var(--vs-ease);
+    backdrop-filter: blur(12px);
+}
+.vs-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 0%, rgba(247, 147, 26, 0.02) 100%);
+    opacity: 0;
+    transition: opacity 0.3s var(--vs-ease);
+}
+.vs-card:hover {
+    border-left-color: var(--vs-btc);
+    background: rgba(25, 25, 35, 0.95);
+    transform: translateX(6px);
+    box-shadow: var(--vs-shadow-lg), 0 0 40px rgba(247, 147, 26, 0.06);
+}
+.vs-card:hover::before { opacity: 1; }
+.vs-card.featured { border-left-color: var(--vs-btc); }
+.vs-card.featured::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--vs-btc), var(--vs-btc-light));
+}
+
+/* Signal meter - progress bar per card */
+.vs-signal-meter {
+    height: 4px;
+    background: var(--vs-surface);
+    border-radius: 2px;
+    margin-top: 12px;
+    overflow: hidden;
+}
+.vs-signal-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--vs-green), var(--vs-btc));
+    box-shadow: 0 0 10px var(--vs-green-glow);
+    transition: width 0.5s var(--vs-ease);
+}
+
+.vs-card-media { display: grid; grid-template-columns: 160px 1fr; }
+.vs-card-thumbnail {
+    width: 100%;
+    height: 100%;
+    min-height: 120px;
+    object-fit: cover;
+    background: var(--vs-deep);
+}
+.vs-card-thumbnail-placeholder {
+    width: 100%;
+    height: 100%;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--vs-deep), var(--vs-surface));
+    color: var(--vs-text-20);
+    font-size: 1.5rem;
+}
+.vs-card-body { position: relative; padding: 20px; z-index: 1; }
+
+.vs-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.vs-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.vs-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 100px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+.vs-badge.x { background: rgba(0,0,0,0.9); color: #fff; border: 1px solid rgba(255,255,255,0.15); }
+.vs-badge.youtube { background: rgba(255,0,0,0.12); color: #ff4444; }
+.vs-badge.nostr { background: rgba(139,92,246,0.12); color: var(--vs-purple); }
+.vs-badge.reddit { background: rgba(255,69,0,0.12); color: #ff6b35; }
+.vs-badge.stacker, .vs-badge.stacker_news { background: var(--vs-btc-subtle); color: var(--vs-btc); }
+.vs-badge.web { background: rgba(255,255,255,0.05); color: var(--vs-text-60); }
+.vs-badge.featured { background: var(--vs-btc); color: #000; }
+
+.vs-signal { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.vs-signal-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+.vs-signal-value.high { color: var(--vs-green); text-shadow: 0 0 16px var(--vs-green-glow); }
+.vs-signal-value.medium { color: var(--vs-btc); text-shadow: 0 0 16px var(--vs-btc-glow); }
+.vs-signal-value.low { color: var(--vs-text-60); }
+.vs-signal-label { font-size: 0.58rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--vs-text-40); }
+
+.vs-card-title { font-size: 1rem; font-weight: 600; line-height: 1.4; margin-bottom: 8px; }
+.vs-card-title a { color: var(--vs-text-100); text-decoration: none; transition: color 0.2s var(--vs-ease); }
+.vs-card-title a:hover { color: var(--vs-btc); }
+.vs-card-title .external { display: inline-block; margin-left: 6px; font-size: 0.65rem; color: var(--vs-text-40); }
+.vs-card-title a:hover .external { color: var(--vs-btc); }
+.vs-card-preview {
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: var(--vs-text-60);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 14px;
+}
+.vs-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 14px;
+    border-top: 1px solid var(--vs-border);
+}
+.vs-stats { display: flex; gap: 18px; }
+.vs-stat { display: flex; align-items: center; gap: 6px; }
+.vs-stat-icon.sats { color: var(--vs-btc); }
+.vs-stat-num { font-family: 'JetBrains Mono', monospace; font-size: 0.88rem; font-weight: 600; }
+.vs-stat-num.sats { color: var(--vs-btc); }
+.vs-stat-label { font-size: 0.72rem; color: var(--vs-text-40); }
+
+.vs-card-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.vs-curator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(139, 92, 246, 0.08);
+    border-radius: 100px;
+    font-size: 0.78rem;
+    color: var(--vs-text-60);
+}
+.vs-curator-avatar {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--vs-purple), var(--vs-btc));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; color: #fff; font-weight: 700;
+}
+.vs-curator.verified .vs-curator-name::after { content: ' ✓'; color: var(--vs-green); font-size: 0.7rem; }
+
+.vs-zap-amounts { display: flex; gap: 4px; }
+.vs-zap-amount {
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--vs-border);
+    border-radius: 6px;
+    color: var(--vs-text-60);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    cursor: pointer;
+    transition: all 0.15s var(--vs-ease);
+}
+.vs-zap-amount:hover, .vs-zap-amount.active {
+    background: var(--vs-btc-subtle);
+    border-color: var(--vs-btc);
+    color: var(--vs-btc);
+}
+.vs-zap-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: linear-gradient(135deg, var(--vs-btc) 0%, var(--vs-btc-dark) 100%);
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s var(--vs-ease);
+}
+.vs-zap-btn:hover { transform: scale(1.04); box-shadow: 0 6px 20px var(--vs-btc-glow); }
+.vs-zap-btn:active { transform: scale(0.98); }
+.vs-zap-btn.zap-animation { animation: zap-flash 0.5s ease-out; }
+.vs-card.zap-animation { animation: zap-flash-card 0.6s ease-out; }
+@keyframes zap-flash {
+    0% { box-shadow: 0 0 0 var(--vs-btc); }
+    50% { box-shadow: 0 0 28px var(--vs-btc); background: rgba(247, 147, 26, 0.25); }
+    100% { box-shadow: 0 0 0 var(--vs-btc); }
+}
+@keyframes zap-flash-card {
+    0% { box-shadow: 0 0 0 rgba(247, 147, 26, 0); }
+    40% { box-shadow: 0 0 50px var(--vs-btc-glow), 0 0 80px rgba(247, 147, 26, 0.2); }
+    100% { box-shadow: 0 0 0 rgba(247, 147, 26, 0); }
+}
+
+/* Sidebar */
+.vs-sidebar { display: flex; flex-direction: column; gap: 22px; }
+.vs-promo {
+    position: relative;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(247, 147, 26, 0.12) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    border-radius: 16px;
+    padding: 28px;
+    text-align: center;
+    overflow: hidden;
+}
+.vs-promo-content { position: relative; z-index: 1; }
+.vs-promo-icon {
+    width: 56px; height: 56px;
+    margin: 0 auto 16px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--vs-purple), var(--vs-btc));
+    border-radius: 14px;
+    font-size: 1.3rem;
+    color: #fff;
+}
+.vs-promo-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+.vs-promo-desc { font-size: 0.85rem; color: var(--vs-text-60); line-height: 1.55; margin-bottom: 20px; }
+.vs-promo-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, var(--vs-purple) 0%, #7c3aed 100%);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s var(--vs-ease);
+}
+.vs-promo-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--vs-purple-glow); color: #fff; }
+
+.vs-leaderboard {
+    background: var(--vs-card);
+    border: 1px solid var(--vs-border);
+    border-radius: 16px;
+    padding: 20px;
+    backdrop-filter: blur(20px);
+}
+.vs-leaderboard-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.vs-leaderboard-title { display: flex; align-items: center; gap: 8px; font-size: 0.95rem; font-weight: 700; }
+.vs-leaderboard-title i { color: var(--vs-btc); }
+.vs-leaderboard-period { font-size: 0.65rem; color: var(--vs-text-40); text-transform: uppercase; letter-spacing: 0.1em; }
+.vs-curator-list { display: flex; flex-direction: column; gap: 4px; }
+.vs-curator-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: transparent;
+    border-radius: 10px;
+    transition: all 0.2s var(--vs-ease);
+}
+.vs-curator-row:hover { background: rgba(255, 255, 255, 0.03); }
+.vs-curator-rank { width: 26px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 700; color: var(--vs-text-40); }
+.vs-curator-row:nth-child(1) .vs-curator-rank { color: var(--vs-btc); }
+.vs-curator-row:nth-child(2) .vs-curator-rank { color: #c0c0c0; }
+.vs-curator-row:nth-child(3) .vs-curator-rank { color: #cd7f32; }
+.vs-curator-avatar-lg {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--vs-purple), var(--vs-btc));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; font-weight: 700; color: #fff;
+}
+.vs-curator-info { flex: 1; min-width: 0; }
+.vs-curator-name-lg { font-size: 0.85rem; font-weight: 600; color: var(--vs-text-100); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vs-curator-name-lg.verified::after { content: ' ✓'; color: var(--vs-green); font-size: 0.7rem; }
+.vs-curator-score-text { font-size: 0.65rem; color: var(--vs-text-40); }
+.vs-curator-earnings { text-align: right; }
+.vs-curator-sats { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 600; color: var(--vs-btc); }
+.vs-curator-zaps { font-size: 0.6rem; color: var(--vs-text-40); }
+
+.vs-how {
+    background: var(--vs-card);
+    border: 1px solid var(--vs-border);
+    border-radius: 16px;
+    padding: 20px;
+    backdrop-filter: blur(20px);
+}
+.vs-how-title { display: flex; align-items: center; gap: 8px; font-size: 0.95rem; font-weight: 700; margin-bottom: 16px; }
+.vs-how-title i { color: var(--vs-purple); }
+.vs-how-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.vs-how-step {
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--vs-border);
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.2s var(--vs-ease);
+}
+.vs-how-step:hover { border-color: var(--vs-border-hover); background: rgba(255, 255, 255, 0.04); }
+.vs-how-icon { font-size: 1.6rem; margin-bottom: 10px; }
+.vs-how-step-title { font-size: 0.8rem; font-weight: 700; margin-bottom: 4px; }
+.vs-how-step-desc { font-size: 0.7rem; color: var(--vs-text-40); line-height: 1.4; }
+
+/* Empty state */
+.vs-empty {
+    text-align: center;
+    padding: 60px 32px;
+    background: var(--vs-card);
+    border: 1px dashed var(--vs-border);
+    border-radius: 16px;
+}
+.vs-empty-icon { font-size: 3rem; color: var(--vs-text-20); margin-bottom: 20px; }
+.vs-empty-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+.vs-empty-desc { font-size: 0.9rem; color: var(--vs-text-60); max-width: 300px; margin: 0 auto; }
+
+/* Toast */
+.vs-toast-container { position: fixed; top: 24px; right: 24px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
+.vs-toast {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: var(--vs-elevated);
+    border: 1px solid var(--vs-border);
+    border-radius: 12px;
+    box-shadow: var(--vs-shadow-lg);
+    transform: translateX(120%);
+    transition: transform 0.3s var(--vs-ease);
+}
+.vs-toast.show { transform: translateX(0); }
+.vs-toast.success { border-color: var(--vs-green); }
+.vs-toast.success .vs-toast-icon { color: var(--vs-green); }
+.vs-toast.error { border-color: var(--vs-red); }
+.vs-toast.error .vs-toast-icon { color: var(--vs-red); }
+.vs-toast-icon { font-size: 1.1rem; }
+.vs-toast-text { font-size: 0.88rem; color: var(--vs-text-100); }
+
+/* Zap modal */
+.vs-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s var(--vs-ease);
+}
+.vs-modal-overlay.active { opacity: 1; visibility: visible; }
+.vs-modal {
+    width: 100%;
+    max-width: 400px;
+    background: var(--vs-elevated);
+    border: 1px solid var(--vs-border);
+    border-radius: 20px;
+    padding: 28px;
+    transform: scale(0.92) translateY(16px);
+    transition: transform 0.3s var(--vs-ease);
+}
+.vs-modal-overlay.active .vs-modal { transform: scale(1) translateY(0); }
+.vs-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.vs-modal-title { font-size: 1.1rem; font-weight: 700; }
+.vs-modal-close {
+    width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    border-radius: 50%;
+    color: var(--vs-text-60);
+    cursor: pointer;
+    transition: all 0.2s var(--vs-ease);
+}
+.vs-modal-close:hover { background: rgba(255, 255, 255, 0.1); color: var(--vs-text-100); }
+.vs-zap-amounts-modal {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.vs-zap-amount-btn {
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--vs-border);
+    border-radius: 10px;
+    color: var(--vs-text-80);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s var(--vs-ease);
+}
+.vs-zap-amount-btn:hover { background: var(--vs-btc-subtle); border-color: var(--vs-btc); color: var(--vs-btc); }
+.vs-zap-amount-btn.selected { background: var(--vs-btc); border-color: var(--vs-btc); color: #000; }
+.vs-zap-custom { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.vs-zap-custom-input {
+    flex: 1;
+    padding: 12px 14px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--vs-border);
+    border-radius: 8px;
+    color: var(--vs-text-100);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    text-align: center;
+}
+.vs-zap-custom-input:focus { outline: none; border-color: var(--vs-btc); }
+.vs-zap-custom-label { font-size: 0.85rem; color: var(--vs-text-40); }
+.vs-zap-send-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--vs-btc) 0%, var(--vs-btc-dark) 100%);
+    border: none;
+    border-radius: 12px;
+    color: #000;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s var(--vs-ease);
+}
+.vs-zap-send-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--vs-btc-glow); }
+
+@media (max-width: 768px) {
+    .vs-hero { padding: 50px 16px 40px; }
+    .vs-title { font-size: 2rem; }
+    .vs-main { padding: 24px 16px 60px; }
+    .vs-submit-form { flex-direction: column; }
+    .vs-card-media { grid-template-columns: 1fr; }
+    .vs-card-thumbnail, .vs-card-thumbnail-placeholder { min-height: 160px; }
+    .vs-card-footer { flex-direction: column; gap: 14px; align-items: flex-start; }
+    .vs-card-actions { width: 100%; justify-content: space-between; }
+    .vs-how-grid { grid-template-columns: 1fr; }
+    .vs-zap-amounts-modal { grid-template-columns: repeat(2, 1fr); }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="value-stream-hero text-center">
-    <div class="container">
-        <h1 class="stream-title">
-            <i class="fas fa-bolt"></i> VALUE STREAM
-        </h1>
-        <p class="stream-subtitle">
-            Decentralized content curation powered by sats. The best content rises based on 
-            real economic signals, not engagement farming. Zap to signal value.
-        </p>
-        
-        <div class="platform-filters">
-            <button class="platform-btn active" data-platform="all">ALL PLATFORMS</button>
-            <button class="platform-btn" data-platform="twitter">X/TWITTER</button>
-            <button class="platform-btn" data-platform="youtube">YOUTUBE</button>
-            <button class="platform-btn" data-platform="nostr">NOSTR</button>
-            <button class="platform-btn" data-platform="reddit">REDDIT</button>
-            <button class="platform-btn" data-platform="stacker_news">STACKER NEWS</button>
-        </div>
-    </div>
+<div class="value-stream-page">
+<div class="vs-background">
+    <div class="vs-grid-pattern"></div>
 </div>
 
-<div class="container py-5">
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="submit-form">
-                <h5 class="text-white mb-3"><i class="fas fa-plus-circle text-warning"></i> Curate Content</h5>
-                <form id="submit-content-form" class="d-flex gap-3">
-                    <input type="url" class="submit-input flex-grow-1" id="content-url" 
-                           placeholder="Paste URL from any platform..." required>
-                    <button type="submit" class="zap-btn">
-                        <i class="fas fa-paper-plane"></i> SUBMIT
-                    </button>
-                </form>
-                <small class="text-muted mt-2 d-block">Share valuable content and earn curator splits when others zap</small>
+<section class="vs-hero">
+    <div class="vs-hero-orb"></div>
+    <div class="vs-hero-content">
+        <h1 class="vs-title">
+            <span class="vs-title-lightning">⚡</span>
+            <span class="vs-title-text">VALUE STREAM</span>
+        </h1>
+        <p class="vs-subtitle">
+            The <strong>Sovereign Intelligence Market</strong>. Content rises by economic signal—sats, not engagement farming. Zap to signal value. Curate to earn.
+        </p>
+
+        <div class="vs-live-stats">
+            <div class="vs-stat-item">
+                <div class="vs-stat-value sats" id="total-sats">{{ "{:,}".format(total_sats|default(0)) }}</div>
+                <div class="vs-stat-label">Total Sats Flowed</div>
             </div>
-            
-            <div id="value-stream-feed">
-                {% if posts %}
-                    {% for post in posts %}
-                    <div class="content-card {% if post.is_featured %}featured{% endif %}">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div>
-                                <span class="platform-badge platform-{{ post.platform }}">
+            <div class="vs-stat-item">
+                <div class="vs-stat-value">{{ posts|length if posts else 0 }}</div>
+                <div class="vs-stat-label">Curated Items</div>
+            </div>
+            <div class="vs-stat-item">
+                <div class="vs-stat-value">{{ curators|length if curators else 0 }}</div>
+                <div class="vs-stat-label">Active Curators</div>
+            </div>
+            <div class="vs-stat-item">
+                <div class="vs-stat-value live" id="sats-per-hour">{{ "{:,}".format(sats_per_hour|default(0)) }}</div>
+                <div class="vs-stat-label">Sats / Hour</div>
+            </div>
+            <div class="vs-stat-item">
+                {% set _mp = market_pulse|default({}) %}
+                {% set mp_val = (_mp.value|default(0))|int %}
+                {% set mp_class = 'hyper' if mp_val >= 75 else ('signal' if mp_val >= 50 else ('neutral' if mp_val >= 25 else 'noise')) %}
+                <div class="vs-market-pulse" id="market-pulse-gauge">
+                    <span class="vs-market-pulse-label">Market Pulse</span>
+                    <div class="vs-market-pulse-bar">
+                        <div class="vs-market-pulse-fill {{ mp_class }}" id="market-pulse-fill" style="width: {{ mp_val }}%;"></div>
+                    </div>
+                    <span class="vs-market-pulse-value {{ mp_class }}" id="market-pulse-value">{{ mp_val }}</span>
+                    <span class="vs-market-pulse-label" id="market-pulse-label">{{ _mp.label|default('Neutral') }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="vs-ticker">
+            <div class="vs-ticker-inner">
+                <span class="vs-ticker-badge">Live</span>
+                <div id="ticker-items">
+                    <span style="color: var(--vs-text-40);">Waiting for signal...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="vs-filter-bar">
+            <div class="vs-platform-filters">
+                <button type="button" class="vs-platform-btn {% if not selected_platform %}active{% endif %}" data-platform="all"><span class="vs-pf-icon vs-pf-globe"></span> All</button>
+                <button type="button" class="vs-platform-btn {% if selected_platform == 'x' %}active{% endif %}" data-platform="x"><span class="vs-pf-icon vs-pf-x" aria-label="X"></span> X</button>
+                <button type="button" class="vs-platform-btn {% if selected_platform == 'youtube' %}active{% endif %}" data-platform="youtube"><span class="vs-pf-icon vs-pf-youtube" aria-label="YouTube"></span> YouTube</button>
+                <button type="button" class="vs-platform-btn {% if selected_platform == 'nostr' %}active{% endif %}" data-platform="nostr"><span class="vs-pf-icon vs-pf-bolt"></span> Nostr</button>
+                <button type="button" class="vs-platform-btn {% if selected_platform == 'reddit' %}active{% endif %}" data-platform="reddit"><span class="vs-pf-icon vs-pf-reddit" aria-label="Reddit"></span> Reddit</button>
+                <button type="button" class="vs-platform-btn {% if selected_platform == 'stacker' %}active{% endif %}" data-platform="stacker"><span class="vs-pf-icon vs-pf-stacker"></span> Stacker</button>
+            </div>
+            <div class="vs-sort-dropdown">
+                <button type="button" class="vs-sort-btn"><i class="fas fa-sort-amount-down"></i> <span id="current-sort">Top Signal</span> <i class="fas fa-chevron-down"></i></button>
+                <div class="vs-sort-menu">
+                    <button type="button" class="vs-sort-option active" data-sort="signal"><i class="fas fa-chart-line"></i> Top Signal</button>
+                    <button type="button" class="vs-sort-option" data-sort="trending"><i class="fas fa-fire"></i> Trending</button>
+                    <button type="button" class="vs-sort-option" data-sort="recent"><i class="fas fa-clock"></i> Recent</button>
+                    <button type="button" class="vs-sort-option" data-sort="sats"><i class="fas fa-bolt"></i> Most Sats</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<main class="vs-main">
+    <aside class="vs-command-log" aria-label="KOL Live Feed">
+        <div class="vs-command-log-header">KOL Pulse</div>
+        <div class="vs-command-log-scroll" id="command-log-scroll">
+            <div class="vs-pulse-line platform-x">
+                <span class="vs-pulse-line-icon"><span class="vs-pf-icon vs-pf-x"></span></span>
+                <div class="vs-pulse-line-content">Loading signal...</div>
+            </div>
+        </div>
+    </aside>
+    <div class="vs-feed-column">
+        <div class="vs-submit-card">
+            <div class="vs-submit-header">
+                <div class="vs-submit-icon"><i class="fas fa-plus"></i></div>
+                <div>
+                    <div class="vs-submit-title">Curate Content</div>
+                    <div class="vs-submit-desc">Share valuable content and earn 10% when others zap</div>
+                </div>
+            </div>
+            <form class="vs-submit-form" id="submit-form">
+                <div class="vs-submit-input-wrap">
+                    <i class="fas fa-link vs-submit-input-icon"></i>
+                    <input type="url" class="vs-submit-input" id="content-url" placeholder="Paste any URL to curate..." required>
+                </div>
+                <button type="submit" class="vs-submit-btn" id="submit-btn"><i class="fas fa-paper-plane"></i> <span>Curate</span></button>
+            </form>
+            <div class="vs-submit-hint"><i class="fas fa-coins"></i> <span>OG title, description & image are fetched automatically</span></div>
+        </div>
+
+        <div class="vs-feed" id="vs-feed">
+            {% if posts %}
+                {% for post in posts %}
+                {% set _score = post.signal_score or 0 %}
+                {% set signal_pct = [100, (_score * 2)|int]|min %}
+                <article class="vs-card {% if post.is_featured %}featured{% endif %} {% if (post.total_sats or 0) >= 10000 %}vs-card-glitch{% endif %}" data-post-id="{{ post.id }}">
+                    {% if post.thumbnail_url %}
+                    <div class="vs-card-media">
+                        <img src="{{ post.thumbnail_url }}" alt="" class="vs-card-thumbnail" loading="lazy">
+                        <div class="vs-card-body">
+                    {% else %}
+                    <div class="vs-card-body">
+                    {% endif %}
+                        <div class="vs-card-header">
+                            <div class="vs-card-meta">
+                                <span class="vs-badge {{ post.platform }}">
+                                    {% if post.platform == 'x' %}<span class="vs-pf-icon vs-pf-x"></span>{% endif %}
+                                    {% if post.platform == 'youtube' %}<span class="vs-pf-icon vs-pf-youtube"></span>{% endif %}
+                                    {% if post.platform == 'nostr' %}<span class="vs-pf-icon vs-pf-bolt"></span>{% endif %}
+                                    {% if post.platform == 'reddit' %}<span class="vs-pf-icon vs-pf-reddit"></span>{% endif %}
+                                    {% if post.platform == 'stacker' or post.platform == 'stacker_news' %}<span class="vs-pf-icon vs-pf-stacker"></span>{% endif %}
+                                    {% if post.platform == 'web' %}<span class="vs-pf-icon vs-pf-globe"></span>{% endif %}
                                     {{ post.platform }}
                                 </span>
-                                {% if post.is_featured %}
-                                <span class="badge bg-warning text-dark ms-2">FEATURED</span>
-                                {% endif %}
+                                {% if post.is_featured %}<span class="vs-badge featured"><i class="fas fa-fire"></i> Featured</span>{% endif %}
                             </div>
-                            <div class="signal-score" title="Signal Score">
-                                {{ "%.1f"|format(post.signal_score) }}
+                            <div class="vs-signal">
+                                <span class="vs-signal-value {% if (post.signal_score or 0) > 50 %}high{% elif (post.signal_score or 0) > 20 %}medium{% else %}low{% endif %}">{{ "%.1f"|format(post.signal_score or 0) }}</span>
+                                <span class="vs-signal-label">Signal</span>
                             </div>
                         </div>
-                        
-                        <h5 class="text-white mb-2">
-                            <a href="{{ post.original_url }}" target="_blank" class="text-decoration-none text-white">
-                                {{ post.title or 'Untitled Content' }}
-                                <i class="fas fa-external-link-alt fa-xs ms-2 text-muted"></i>
-                            </a>
-                        </h5>
-                        
+                        <h3 class="vs-card-title">
+                            <a href="{{ post.original_url }}" target="_blank" rel="noopener">{{ post.title or 'Untitled Content' }} <i class="fas fa-external-link-alt external"></i></a>
+                        </h3>
                         {% if post.content_preview %}
-                        <p class="text-muted mb-3">{{ post.content_preview[:200] }}...</p>
+                        <p class="vs-card-preview">{{ post.content_preview[:180] }}{% if post.content_preview|length > 180 %}...{% endif %}</p>
                         {% endif %}
-                        
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <div class="d-flex gap-4">
-                                <span class="sats-count">
-                                    <i class="fas fa-bolt"></i> {{ "{:,}".format(post.total_sats) }} sats
-                                </span>
-                                <span class="zap-count">
-                                    {{ post.zap_count }} zaps
-                                </span>
+                        <div class="vs-signal-meter">
+                            <div class="vs-signal-fill" style="width: {{ signal_pct }}%;"></div>
+                        </div>
+                        <div class="vs-card-footer">
+                            <div class="vs-stats">
+                                <div class="vs-stat">
+                                    <i class="fas fa-bolt vs-stat-icon sats"></i>
+                                    <span class="vs-stat-num sats">{{ "{:,}".format(post.total_sats or 0) }}</span>
+                                    <span class="vs-stat-label">sats</span>
+                                </div>
+                                <div class="vs-stat">
+                                    <span class="vs-stat-num">{{ post.zap_count or 0 }}</span>
+                                    <span class="vs-stat-label">zaps</span>
+                                </div>
                             </div>
-                            
-                            <div class="d-flex align-items-center gap-3">
+                            <div class="vs-card-actions">
                                 {% if post.curator %}
-                                <div class="curator-badge {% if post.curator.verified %}verified{% endif %}">
-                                    <i class="fas fa-user-check"></i>
-                                    {{ post.curator.display_name }}
+                                <div class="vs-curator {% if post.curator.verified %}verified{% endif %}">
+                                    <div class="vs-curator-avatar">{{ (post.curator.display_name or '?')[:1]|upper }}</div>
+                                    <span class="vs-curator-name">{{ post.curator.display_name }}</span>
                                 </div>
                                 {% endif %}
-                                
-                                <button class="zap-btn zap-content-btn" data-post-id="{{ post.id }}">
-                                    <i class="fas fa-bolt"></i> ZAP
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="empty-stream">
-                        <i class="fas fa-stream fa-3x mb-3"></i>
-                        <h4>No Curated Content Yet</h4>
-                        <p>Be the first to curate valuable content and earn sats when others zap!</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-        
-        <div class="col-lg-4">
-            <div class="extension-promo mb-4">
-                <h4 class="text-white mb-3">
-                    <i class="fas fa-puzzle-piece"></i> Browser Extension
-                </h4>
-                <p class="text-muted mb-4">
-                    Zap content anywhere on the web. Curate from any site. 
-                    Connect your Lightning wallet.
-                </p>
-                <a href="/extension" class="extension-btn text-decoration-none">
-                    <i class="fas fa-download me-2"></i> GET EXTENSION
-                </a>
-            </div>
-            
-            <div class="curator-leaderboard">
-                <h5 class="text-white mb-3">
-                    <i class="fas fa-trophy text-warning"></i> Top Curators
-                </h5>
-                
-                {% if curators %}
-                    {% for curator in curators[:10] %}
-                    <div class="curator-row">
-                        <div class="d-flex align-items-center gap-3">
-                            <span class="curator-rank">#{{ loop.index }}</span>
-                            <div>
-                                <div class="text-white">
-                                    {{ curator.display_name }}
-                                    {% if curator.verified %}
-                                    <i class="fas fa-check-circle text-success fa-xs"></i>
-                                    {% endif %}
+                                <div class="vs-zap-amounts">
+                                    <button type="button" class="vs-zap-amount" data-amount="100">100</button>
+                                    <button type="button" class="vs-zap-amount" data-amount="1000">1K</button>
+                                    <button type="button" class="vs-zap-amount" data-amount="10000">10K</button>
                                 </div>
-                                <small class="text-muted">Score: {{ curator.curator_score }}</small>
+                                <button type="button" class="vs-zap-btn" data-post-id="{{ post.id }}"><i class="fas fa-bolt"></i> Zap</button>
                             </div>
                         </div>
-                        <div class="text-end">
-                            <div class="sats-count small">{{ "{:,}".format(curator.total_sats_received) }}</div>
-                            <small class="text-muted">{{ curator.total_zaps }} zaps</small>
-                        </div>
                     </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="text-muted text-center py-3">No curators yet</p>
-                {% endif %}
-            </div>
-            
-            <div class="how-it-works mt-4">
-                <div class="how-card">
-                    <div class="how-icon">🔗</div>
-                    <h6 class="text-white">1. Curate</h6>
-                    <p class="text-muted small mb-0">Share valuable content from any platform</p>
+                    {% if post.thumbnail_url %}</div>{% endif %}
+                </article>
+                {% endfor %}
+            {% else %}
+                <div class="vs-empty">
+                    <div class="vs-empty-icon"><i class="fas fa-stream"></i></div>
+                    <h3 class="vs-empty-title">No Content Yet</h3>
+                    <p class="vs-empty-desc">Be the first to curate. Paste any URL above and start earning sats.</p>
                 </div>
-                <div class="how-card">
-                    <div class="how-icon">⚡</div>
-                    <h6 class="text-white">2. Zap</h6>
-                    <p class="text-muted small mb-0">Send sats to signal content value</p>
-                </div>
-                <div class="how-card">
-                    <div class="how-icon">📈</div>
-                    <h6 class="text-white">3. Rise</h6>
-                    <p class="text-muted small mb-0">Best content surfaces via economic signal</p>
-                </div>
-                <div class="how-card">
-                    <div class="how-icon">💰</div>
-                    <h6 class="text-white">4. Earn</h6>
-                    <p class="text-muted small mb-0">Curators get 10% of zaps to content they share</p>
-                </div>
-            </div>
+            {% endif %}
         </div>
     </div>
+
+    <aside class="vs-sidebar">
+        <div class="vs-promo">
+            <div class="vs-promo-content">
+                <div class="vs-promo-icon"><i class="fas fa-puzzle-piece"></i></div>
+                <h3 class="vs-promo-title">Browser Extension</h3>
+                <p class="vs-promo-desc">Zap content anywhere. Curate with one click. Connect your Lightning wallet.</p>
+                <a href="/extension" class="vs-promo-btn"><i class="fas fa-download"></i> Get Extension</a>
+            </div>
+        </div>
+        <div class="vs-leaderboard">
+            <div class="vs-leaderboard-header">
+                <h3 class="vs-leaderboard-title"><i class="fas fa-trophy"></i> Top Curators</h3>
+                <span class="vs-leaderboard-period">All Time</span>
+            </div>
+            <div class="vs-curator-list">
+                {% if curators %}
+                    {% for curator in curators[:10] %}
+                    <div class="vs-curator-row">
+                        <span class="vs-curator-rank">#{{ loop.index }}</span>
+                        <div class="vs-curator-avatar-lg">{{ (curator.display_name or '?')[:1]|upper }}</div>
+                        <div class="vs-curator-info">
+                            <div class="vs-curator-name-lg {% if curator.verified %}verified{% endif %}">{{ curator.display_name }}</div>
+                            <div class="vs-curator-score-text">Score: {{ "%.1f"|format(curator.curator_score or 0) }}</div>
+                        </div>
+                        <div class="vs-curator-earnings">
+                            <div class="vs-curator-sats">{{ "{:,}".format(curator.total_sats_received or 0) }}</div>
+                            <div class="vs-curator-zaps">{{ curator.total_zaps or 0 }} zaps</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="text-align: center; color: var(--vs-text-40); padding: 20px; font-size: 0.85rem;">No curators yet. Be the first!</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="vs-how">
+            <h3 class="vs-how-title"><i class="fas fa-lightbulb"></i> How It Works</h3>
+            <div class="vs-how-grid">
+                <div class="vs-how-step">
+                    <div class="vs-how-icon">🔗</div>
+                    <div class="vs-how-step-title">1. Curate</div>
+                    <div class="vs-how-step-desc">Share content from any platform</div>
+                </div>
+                <div class="vs-how-step">
+                    <div class="vs-how-icon">⚡</div>
+                    <div class="vs-how-step-title">2. Zap</div>
+                    <div class="vs-how-step-desc">Send sats to signal value</div>
+                </div>
+                <div class="vs-how-step">
+                    <div class="vs-how-icon">📈</div>
+                    <div class="vs-how-step-title">3. Rise</div>
+                    <div class="vs-how-step-desc">Best content surfaces by signal</div>
+                </div>
+                <div class="vs-how-step">
+                    <div class="vs-how-icon">💰</div>
+                    <div class="vs-how-step-title">4. Earn</div>
+                    <div class="vs-how-step-desc">Curators earn 10% of zaps</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+</main>
+
+<div class="vs-toast-container" id="toast-container"></div>
+
+<div class="vs-modal-overlay" id="zap-modal">
+    <div class="vs-modal">
+        <div class="vs-modal-header">
+            <h3 class="vs-modal-title">⚡ Send Zap</h3>
+            <button type="button" class="vs-modal-close" id="modal-close"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="vs-zap-amounts-modal">
+            <button type="button" class="vs-zap-amount-btn" data-amount="100">100</button>
+            <button type="button" class="vs-zap-amount-btn" data-amount="500">500</button>
+            <button type="button" class="vs-zap-amount-btn selected" data-amount="1000">1K</button>
+            <button type="button" class="vs-zap-amount-btn" data-amount="5000">5K</button>
+            <button type="button" class="vs-zap-amount-btn" data-amount="10000">10K</button>
+            <button type="button" class="vs-zap-amount-btn" data-amount="21000">21K</button>
+        </div>
+        <div class="vs-zap-custom">
+            <input type="number" class="vs-zap-custom-input" id="zap-custom-amount" placeholder="Custom" min="1">
+            <span class="vs-zap-custom-label">sats</span>
+        </div>
+        <button type="button" class="vs-zap-send-btn" id="zap-send-btn"><i class="fas fa-bolt"></i> Send Zap</button>
+    </div>
+</div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 <script>
-document.querySelectorAll('.platform-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        const platform = this.dataset.platform;
-        window.location.href = platform === 'all' ? '/value-stream' : `/value-stream?platform=${platform}`;
-    });
-});
+(function() {
+    'use strict';
+    let currentPostId = null;
+    let selectedAmount = 1000;
 
-document.getElementById('submit-content-form')?.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const url = document.getElementById('content-url').value;
-    
-    try {
-        const response = await fetch('/api/value-stream/submit', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({url: url})
+    document.querySelectorAll('.vs-platform-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const platform = this.dataset.platform;
+            window.location.href = platform === 'all' ? '/value-stream' : '/value-stream?platform=' + platform;
         });
-        const data = await response.json();
-        
-        if (data.success) {
-            alert('Content curated successfully!');
-            window.location.reload();
-        } else {
-            alert(data.error || 'Failed to curate content');
-        }
-    } catch (err) {
-        alert('Error submitting content');
-    }
-});
+    });
 
-document.querySelectorAll('.zap-content-btn').forEach(btn => {
-    btn.addEventListener('click', async function() {
-        const postId = this.dataset.postId;
-        
-        if (typeof webln !== 'undefined') {
-            try {
-                await webln.enable();
-                const response = await fetch(`/api/value-stream/invoice/${postId}`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({amount_sats: 1000})
-                });
-                const data = await response.json();
-                
-                if (data.invoice) {
-                    const result = await webln.sendPayment(data.invoice);
-                    alert('Zap sent! Thank you for signaling value.');
-                    window.location.reload();
-                }
-            } catch (err) {
-                alert('WebLN payment failed: ' + err.message);
+    document.querySelectorAll('.vs-sort-option').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.vs-sort-option').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('current-sort').textContent = this.textContent.trim().replace(/\s+/g, ' ');
+        });
+    });
+
+    document.getElementById('submit-form')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const urlInput = document.getElementById('content-url');
+        const submitBtn = document.getElementById('submit-btn');
+        const url = urlInput.value.trim();
+        if (!url) return;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Submitting...</span>';
+        try {
+            const res = await fetch('/api/value-stream/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: url }) });
+            const data = await res.json().catch(() => ({}));
+            if (data.success) {
+                showToast('Content curated successfully! ⚡', 'success');
+                urlInput.value = '';
+                setTimeout(() => window.location.reload(), 1400);
+            } else {
+                showToast(data.error || 'Failed to submit', 'error');
             }
-        } else {
-            alert('Please install a WebLN-compatible wallet extension (Alby, etc.)');
+        } catch (err) {
+            showToast('Network error. Try again.', 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>Curate</span>';
         }
     });
-});
+
+    const modal = document.getElementById('zap-modal');
+    const modalClose = document.getElementById('modal-close');
+    document.querySelectorAll('.vs-zap-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            currentPostId = this.dataset.postId;
+            modal.classList.add('active');
+        });
+    });
+    document.querySelectorAll('.vs-zap-amount').forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+            e.stopPropagation();
+            const amount = parseInt(this.dataset.amount, 10);
+            const card = this.closest('.vs-card');
+            const postId = card && card.dataset.postId;
+            if (postId) await sendZap(postId, amount);
+        });
+    });
+    modalClose?.addEventListener('click', () => modal.classList.remove('active'));
+    modal?.addEventListener('click', function(e) { if (e.target === modal) modal.classList.remove('active'); });
+    document.querySelectorAll('.vs-zap-amount-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.vs-zap-amount-btn').forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedAmount = parseInt(this.dataset.amount, 10);
+            document.getElementById('zap-custom-amount').value = '';
+        });
+    });
+    document.getElementById('zap-custom-amount')?.addEventListener('input', function() {
+        if (this.value) {
+            document.querySelectorAll('.vs-zap-amount-btn').forEach(b => b.classList.remove('selected'));
+            selectedAmount = parseInt(this.value, 10) || 1000;
+        }
+    });
+    document.getElementById('zap-send-btn')?.addEventListener('click', async function() {
+        const custom = document.getElementById('zap-custom-amount').value;
+        const amount = custom ? parseInt(custom, 10) : selectedAmount;
+        if (currentPostId && amount) {
+            await sendZap(currentPostId, amount);
+            modal.classList.remove('active');
+        }
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal && modal.classList.contains('active')) modal.classList.remove('active');
+    });
+
+    async function sendZap(postId, amount) {
+        if (typeof webln === 'undefined') {
+            showToast('Install a WebLN wallet (e.g. Alby)', 'error');
+            return;
+        }
+        try {
+            await webln.enable();
+            const res = await fetch('/api/value-stream/invoice/' + postId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount_sats: amount })
+            });
+            const data = await res.json();
+            if (data.invoice) {
+                await webln.sendPayment(data.invoice);
+                showToast('⚡ Zapped ' + (amount).toLocaleString() + ' sats!', 'success');
+                if (amount >= 10000 && typeof confetti === 'function') {
+                    confetti({ particleCount: 80, spread: 70, origin: { y: 0.7 }, colors: ['#f7931a', '#ffa940', '#10b981'] });
+                }
+                const card = document.querySelector('[data-post-id="' + postId + '"]');
+                if (card) {
+                    const satsEl = card.querySelector('.vs-stat-num.sats');
+                    if (satsEl) {
+                        const current = parseInt(satsEl.textContent.replace(/,/g, ''), 10) || 0;
+                        satsEl.textContent = (current + amount).toLocaleString();
+                    }
+                    card.classList.add('zap-animation');
+                    card.style.boxShadow = '0 0 40px rgba(247, 147, 26, 0.4)';
+                    setTimeout(function() { card.classList.remove('zap-animation'); card.style.boxShadow = ''; }, 600);
+                }
+            } else {
+                showToast('Could not create invoice', 'error');
+            }
+        } catch (err) {
+            showToast(err.message && err.message.indexOf('reject') !== -1 ? 'Payment cancelled' : 'Payment failed', 'error');
+        }
+    }
+
+    function showToast(message, type) {
+        var container = document.getElementById('toast-container');
+        if (!container) return;
+        var toast = document.createElement('div');
+        toast.className = 'vs-toast ' + (type || 'success');
+        toast.innerHTML = '<i class="vs-toast-icon fas fa-' + (type === 'success' ? 'check-circle' : 'exclamation-circle') + '"></i><span class="vs-toast-text">' + (message || '').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>';
+        container.appendChild(toast);
+        requestAnimationFrame(function() { toast.classList.add('show'); });
+        setTimeout(function() {
+            toast.classList.remove('show');
+            setTimeout(function() { toast.remove(); }, 300);
+        }, 4000);
+    }
+
+    (function loadCommandLog() {
+        var scrollEl = document.getElementById('command-log-scroll');
+        if (!scrollEl) return;
+        function render(items) {
+            if (!items || items.length === 0) {
+                scrollEl.innerHTML = '<div class="vs-pulse-line platform-x"><span class="vs-pulse-line-icon"><span class="vs-pf-icon vs-pf-x"></span></span><div class="vs-pulse-line-content">No KOL pulse yet. Run ingest or add sources.</div></div>';
+                return;
+            }
+            var icons = { x: '<span class="vs-pf-icon vs-pf-x"></span>', nostr: '<span class="vs-pf-icon vs-pf-bolt"></span>', youtube: '<span class="vs-pf-icon vs-pf-youtube"></span>' };
+            scrollEl.innerHTML = items.map(function(it) {
+                var platform = (it.platform || 'x');
+                var icon = icons[platform] || '<i class="fas fa-circle"></i>';
+                var content = (it.content || '').substring(0, 120);
+                if ((it.content || '').length > 120) content += '…';
+                var link = it.url ? ('<a href="' + it.url.replace(/"/g, '&quot;') + '" target="_blank" rel="noopener">' + content.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</a>') : content.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                var meta = (it.author_handle || '') + (it.created_at ? ' · ' + new Date(it.created_at).toLocaleTimeString() : '');
+                return '<div class="vs-pulse-line platform-' + platform + '"><span class="vs-pulse-line-icon">' + icon + '</span><div class="vs-pulse-line-content">' + link + '<div class="vs-pulse-line-meta">' + meta.replace(/</g, '&lt;') + '</div></div></div>';
+            }).join('');
+        }
+        fetch('/api/value-stream/pulse?limit=50&ingest=1').then(function(r) { return r.json(); }).then(function(data) {
+            if (data && data.items) render(data.items);
+        }).catch(function() {
+            scrollEl.innerHTML = '<div class="vs-pulse-line platform-x"><span class="vs-pulse-line-icon"><i class="fas fa-wifi"></i></span><div class="vs-pulse-line-content">Pulse unavailable.</div></div>';
+        });
+        setInterval(function() {
+            fetch('/api/value-stream/pulse?limit=50').then(function(r) { return r.json(); }).then(function(data) {
+                if (data && data.items && data.items.length) render(data.items);
+            }).catch(function() {});
+        }, 60000);
+    })();
+
+    (function sse() {
+        var tickerEl = document.getElementById('ticker-items');
+        var totalEl = document.getElementById('total-sats');
+        var hourEl = document.getElementById('sats-per-hour');
+        var items = [];
+        var maxItems = 8;
+        try {
+            var es = new EventSource('/api/value-stream/stream');
+            es.onmessage = function(e) {
+                var data;
+                try { data = JSON.parse(e.data); } catch (err) { return; }
+                if (data.type === 'new_post') {
+                    items.unshift('New: ' + (data.title || 'Untitled') + ' · ' + (data.total_sats || 0) + ' sats');
+                } else if (data.type === 'new_zap') {
+                    items.unshift('Zap: ' + (data.amount || 0).toLocaleString() + ' sats → ' + (data.title || 'post'));
+                } else if (data.type === 'stats') {
+                    if (totalEl && data.total_sats != null) totalEl.textContent = (data.total_sats || 0).toLocaleString();
+                    if (hourEl && data.sats_per_hour != null) hourEl.textContent = (data.sats_per_hour || 0).toLocaleString();
+                }
+                while (items.length > maxItems) items.pop();
+                if (tickerEl) tickerEl.innerHTML = items.length ? items.map(function(t) { return '<span>' + t.replace(/</g, '&lt;') + '</span>'; }).join('') : '<span style="color: var(--vs-text-40);">Waiting for signal...</span>';
+            };
+            es.onerror = function() { es.close(); };
+        } catch (err) {}
+    })();
+})();
 </script>
 {% endblock %}

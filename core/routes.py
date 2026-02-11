@@ -419,30 +419,54 @@ def bitfeed_ultimate():
 
 @app.route('/value-stream')
 def value_stream():
-    """Value Stream - Content curated by economic signals"""
-    from services.value_stream_service import value_stream_service
+    """Value Stream - Sovereign Intelligence Market"""
+    default_pulse = {'value': 0, 'label': 'Neutral', 'zap_volume_24h': 0, 'posts_with_zaps_24h': 0, 'ratio': 0}
+    try:
+        from services.value_stream_service import value_stream_service
 
-    platform = request.args.get('platform')
-    
-    posts = value_stream_service.get_value_stream(limit=50, platform=platform)
-    curators = value_stream_service.get_top_curators(limit=10)
-    
-    post_objects = []
-    for p in posts:
-        post = models.CuratedPost.query.get(p['id'])
-        if post:
-            post_objects.append(post)
-    
-    curator_objects = []
-    for c in curators:
-        curator = models.ValueCreator.query.get(c['id'])
-        if curator:
-            curator_objects.append(curator)
-    
-    return render_template('value_stream.html', 
-                          posts=post_objects,
-                          curators=curator_objects,
-                          selected_platform=platform)
+        platform = request.args.get('platform')
+        posts = value_stream_service.get_value_stream(limit=50, platform=platform)
+        curators = value_stream_service.get_top_curators(limit=10)
+
+        post_objects = []
+        for p in posts:
+            post = models.CuratedPost.query.get(p['id'])
+            if post:
+                post_objects.append(post)
+
+        curator_objects = []
+        for c in curators:
+            curator = models.ValueCreator.query.get(c['id'])
+            if curator:
+                curator_objects.append(curator)
+
+        total_sats = db.session.query(db.func.coalesce(db.func.sum(models.CuratedPost.total_sats), 0)).scalar() or 0
+        sats_per_hour = db.session.query(db.func.coalesce(db.func.sum(models.ZapEvent.amount_sats), 0)).filter(
+            models.ZapEvent.created_at >= datetime.utcnow() - timedelta(hours=1)
+        ).scalar() or 0
+
+        try:
+            from services.pulse_nexus_service import compute_market_pulse
+            market_pulse = compute_market_pulse()
+        except Exception:
+            market_pulse = default_pulse
+
+        return render_template('value_stream.html',
+                              posts=post_objects,
+                              curators=curator_objects,
+                              selected_platform=platform,
+                              total_sats=int(total_sats),
+                              sats_per_hour=int(sats_per_hour),
+                              market_pulse=market_pulse)
+    except Exception as e:
+        logging.exception("value_stream route failed: %s", e)
+        return render_template('value_stream.html',
+                              posts=[],
+                              curators=[],
+                              selected_platform=request.args.get('platform'),
+                              total_sats=0,
+                              sats_per_hour=0,
+                              market_pulse=default_pulse)
 
 @app.route('/signal-terminal')
 def signal_terminal():

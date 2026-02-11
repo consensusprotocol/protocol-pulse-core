@@ -1,9 +1,18 @@
-const API_BASE = 'https://protocolpulse.replit.app';
+const DEFAULT_ORIGIN = 'https://protocolpulse.com';
 
 let currentTab = null;
 let hasWebLN = false;
+let API_BASE = DEFAULT_ORIGIN;
 
 document.addEventListener('DOMContentLoaded', async () => {
+  chrome.storage.local.get(['pp_origin'], (r) => {
+    API_BASE = (r.pp_origin || DEFAULT_ORIGIN).replace(/\/$/, '');
+    const el = document.getElementById('backend-url');
+    if (el) el.value = API_BASE;
+    const link = document.getElementById('value-stream-link');
+    if (link) link.href = API_BASE + '/value-stream';
+  });
+
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   currentTab = tab;
   
@@ -23,6 +32,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   document.getElementById('zap-btn').addEventListener('click', handleZap);
   document.getElementById('curate-btn').addEventListener('click', handleCurate);
+  const saveOrigin = document.getElementById('save-origin');
+  if (saveOrigin) saveOrigin.addEventListener('click', saveBackendUrl);
 });
 
 function detectPlatform(url) {
@@ -80,25 +91,15 @@ async function handleZap() {
     
     const data = await response.json();
     
-    if (data.success || data.post_id) {
-      const postId = data.post_id;
-      
-      chrome.tabs.sendMessage(currentTab.id, { 
-        action: 'triggerZap', 
+    const postId = data.id || data.post_id;
+    if (data.success && postId) {
+      chrome.tabs.sendMessage(currentTab.id, {
+        action: 'triggerZap',
         amount: amount,
-        postId: postId 
-      }, response => {
+        postId: postId
+      }, (response) => {
         if (response?.success) {
           showStatus(`⚡ Zapped ${amount} sats!`, 'success');
-          
-          fetch(`${API_BASE}/api/value-stream/zap/${postId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              amount_sats: amount,
-              payment_hash: response.paymentHash
-            })
-          });
         } else {
           showStatus(response?.error || 'Zap failed', 'error');
         }
@@ -153,4 +154,15 @@ function showStatus(message, type) {
   setTimeout(() => {
     container.innerHTML = '';
   }, 4000);
+}
+
+function saveBackendUrl() {
+  const el = document.getElementById('backend-url');
+  if (!el) return;
+  const url = (el.value || '').trim().replace(/\/$/, '');
+  if (!url) return;
+  chrome.storage.local.set({ pp_origin: url }, () => {
+    API_BASE = url;
+    showStatus('Backend URL saved.', 'success');
+  });
 }

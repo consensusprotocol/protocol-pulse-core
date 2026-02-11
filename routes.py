@@ -419,30 +419,54 @@ def bitfeed_ultimate():
 
 @app.route('/value-stream')
 def value_stream():
-    """Value Stream - Content curated by economic signals"""
-    from services.value_stream_service import value_stream_service
+    """Value Stream - Sovereign Intelligence Market"""
+    default_pulse = {'value': 0, 'label': 'Neutral', 'zap_volume_24h': 0, 'posts_with_zaps_24h': 0, 'ratio': 0}
+    try:
+        from services.value_stream_service import value_stream_service
 
-    platform = request.args.get('platform')
-    
-    posts = value_stream_service.get_value_stream(limit=50, platform=platform)
-    curators = value_stream_service.get_top_curators(limit=10)
-    
-    post_objects = []
-    for p in posts:
-        post = models.CuratedPost.query.get(p['id'])
-        if post:
-            post_objects.append(post)
-    
-    curator_objects = []
-    for c in curators:
-        curator = models.ValueCreator.query.get(c['id'])
-        if curator:
-            curator_objects.append(curator)
-    
-    return render_template('value_stream.html', 
-                          posts=post_objects,
-                          curators=curator_objects,
-                          selected_platform=platform)
+        platform = request.args.get('platform')
+        posts = value_stream_service.get_value_stream(limit=50, platform=platform)
+        curators = value_stream_service.get_top_curators(limit=10)
+
+        post_objects = []
+        for p in posts:
+            post = models.CuratedPost.query.get(p['id'])
+            if post:
+                post_objects.append(post)
+
+        curator_objects = []
+        for c in curators:
+            curator = models.ValueCreator.query.get(c['id'])
+            if curator:
+                curator_objects.append(curator)
+
+        total_sats = db.session.query(db.func.coalesce(db.func.sum(models.CuratedPost.total_sats), 0)).scalar() or 0
+        sats_per_hour = db.session.query(db.func.coalesce(db.func.sum(models.ZapEvent.amount_sats), 0)).filter(
+            models.ZapEvent.created_at >= datetime.utcnow() - timedelta(hours=1)
+        ).scalar() or 0
+
+        try:
+            from services.pulse_nexus_service import compute_market_pulse
+            market_pulse = compute_market_pulse()
+        except Exception:
+            market_pulse = default_pulse
+
+        return render_template('value_stream.html',
+                              posts=post_objects,
+                              curators=curator_objects,
+                              selected_platform=platform,
+                              total_sats=int(total_sats),
+                              sats_per_hour=int(sats_per_hour),
+                              market_pulse=market_pulse)
+    except Exception as e:
+        logging.exception("value_stream route failed: %s", e)
+        return render_template('value_stream.html',
+                              posts=[],
+                              curators=[],
+                              selected_platform=request.args.get('platform'),
+                              total_sats=0,
+                              sats_per_hour=0,
+                              market_pulse=default_pulse)
 
 @app.route('/signal-terminal')
 def signal_terminal():
@@ -480,7 +504,8 @@ def api_get_post_details(post_id):
     if not post:
         return jsonify({'success': False, 'error': 'Post not found'})
     
-    hours_ago = (datetime.utcnow() - post.submitted_at).total_seconds() / 3600
+    submitted_at = post.submitted_at or datetime.utcnow()
+    hours_ago = (datetime.utcnow() - submitted_at).total_seconds() / 3600
     if hours_ago < 1:
         age_display = f"{int(hours_ago * 60)}m ago"
     elif hours_ago < 24:
@@ -588,6 +613,135 @@ def signal_terminal_stream():
     return Response(generate(), mimetype='text/event-stream',
                     headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no', 'Connection': 'keep-alive'})
 
+
+@app.route('/api/value-stream/stream')
+def api_value_stream_stream():
+    """SSE endpoint for Value Stream live pulse (new posts + zaps)."""
+    import time
+
+    def generate():
+        last_check = datetime.utcnow()
+        start_time = time.time()
+        max_runtime = 300
+        while time.time() - start_time < max_runtime:
+            try:
+                with app.app_context():
+                    new_posts = models.CuratedPost.query.filter(
+                        models.CuratedPost.submitted_at > last_check
+                    ).order_by(models.CuratedPost.submitted_at.desc()).limit(10).all()
+                    new_zaps = models.ZapEvent.query.filter(
+                        models.ZapEvent.created_at > last_check
+                    ).order_by(models.ZapEvent.created_at.desc()).limit(20).all()
+                    for post in new_posts:
+                        yield f"data: {json.dumps({'type': 'new_post', 'id': post.id, 'title': (post.title or 'Untitled')[:80], 'platform': post.platform or 'web', 'total_sats': post.total_sats or 0})}\n\n"
+                    for zap in new_zaps:
+                        post = models.CuratedPost.query.get(zap.post_id)
+                        title = (post.title or 'Untitled')[:50] if post else 'Unknown'
+                        yield f"data: {json.dumps({'type': 'new_zap', 'post_id': zap.post_id, 'amount': zap.amount_sats, 'title': title})}\n\n"
+                    last_check = datetime.utcnow()
+                    if new_posts or new_zaps:
+                        total_sats = db.session.query(db.func.coalesce(db.func.sum(models.CuratedPost.total_sats), 0)).scalar() or 0
+                        sats_per_hour = db.session.query(db.func.coalesce(db.func.sum(models.ZapEvent.amount_sats), 0)).filter(
+                            models.ZapEvent.created_at >= datetime.utcnow() - timedelta(hours=1)
+                        ).scalar() or 0
+                        yield f"data: {json.dumps({'type': 'stats', 'total_sats': int(total_sats), 'sats_per_hour': int(sats_per_hour)})}\n\n"
+                yield ": heartbeat\n\n"
+                time.sleep(5)
+            except Exception as e:
+                yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+                break
+        yield f"data: {json.dumps({'type': 'reconnect', 'reason': 'timeout'})}\n\n"
+
+    return Response(generate(), mimetype='text/event-stream',
+                    headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no', 'Connection': 'keep-alive'})
+
+
+def _normalize_tweet_url(url):
+    """Normalize X/twitter status URL for lookup."""
+    if not url or not isinstance(url, str):
+        return None
+    url = url.strip().split('?')[0]
+    import re
+    m = re.search(r'(https?://(?:www\.)?(?:twitter|x)\.com/\w+/status/(\d+))', url, re.I)
+    if m:
+        return m.group(1)
+    return url if ('twitter.com' in url or 'x.com' in url) else None
+
+
+@app.route('/api/value-stream/signal-check')
+def api_value_stream_signal_check():
+    """Ghost extension: check if a tweet/post URL is in Value Stream and return zap stats."""
+    url = request.args.get('url', '').strip()
+    if not url:
+        return jsonify({'in_stream': False})
+    norm = _normalize_tweet_url(url)
+    if not norm:
+        return jsonify({'in_stream': False})
+    candidates = [norm, url, norm.rstrip('/'), url.rstrip('/')]
+    post = models.CuratedPost.query.filter(models.CuratedPost.original_url.in_(candidates)).first()
+    if not post:
+        return jsonify({'in_stream': False})
+    return jsonify({
+        'in_stream': True,
+        'post_id': post.id,
+        'zap_count': post.zap_count or 0,
+        'total_sats': post.total_sats or 0,
+    })
+
+
+@app.route('/api/value-stream/kol-list')
+def api_value_stream_kol_list():
+    """Ghost extension: return Alpha list (X handles) for overlay detection."""
+    try:
+        from services.pulse_nexus_service import load_kol_list
+        kol = load_kol_list()
+        handles = list(kol.get('x_handles', []))
+        return jsonify({'success': True, 'handles': [h.lstrip('@').lower() for h in handles]})
+    except Exception as e:
+        logging.warning("kol_list: %s", e)
+        return jsonify({'success': True, 'handles': []})
+
+
+@app.route('/api/value-stream/pulse')
+def api_value_stream_pulse():
+    """KOL Pulse feed for Command Log. Optionally run ingest (throttled)."""
+    from services.pulse_nexus_service import get_pulse_feed, ingest_pulse
+    limit = min(int(request.args.get('limit', 80)), 100)
+    if request.args.get('ingest') == '1':
+        try:
+            ingest_pulse()
+        except Exception as e:
+            logging.warning("pulse ingest: %s", e)
+    try:
+        items = get_pulse_feed(limit=limit)
+    except Exception as e:
+        logging.warning("get_pulse_feed: %s", e)
+        items = []
+    return jsonify({'success': True, 'items': items})
+
+
+@app.route('/api/value-stream/confirm-zap', methods=['POST'])
+def api_confirm_zap():
+    """Confirm a zap after payment (frontend calls after webln.sendPayment). Records zap and posts X reply (Diplomat)."""
+    from services.value_stream_service import value_stream_service
+    data = request.get_json() or {}
+    post_id = data.get('post_id')
+    amount_sats = int(data.get('amount_sats') or 0)
+    payment_hash = (data.get('payment_hash') or '').strip() or None
+    if not post_id or amount_sats <= 0:
+        return jsonify({'success': False, 'error': 'post_id and amount_sats required'})
+    result = value_stream_service.process_zap(post_id, None, amount_sats, payment_hash)
+    if not result.get('success'):
+        return jsonify(result)
+    zap_id = result.get('zap_id')
+    base_url = request.url_root.rstrip('/') if request else None
+    try:
+        value_stream_service.post_zap_comment(post_id, zap_id, amount_sats, base_url=base_url)
+    except Exception as e:
+        logging.warning("post_zap_comment: %s", e)
+    return jsonify(result)
+
+
 @app.route('/api/value-stream/submit', methods=['POST'])
 def api_submit_content():
     """API endpoint for submitting curated content"""
@@ -600,10 +754,7 @@ def api_submit_content():
     
     if not url:
         return jsonify({'success': False, 'error': 'URL required'})
-    
-    if not re.match(r'^https?://', url):
-        return jsonify({'success': False, 'error': 'Invalid URL format'})
-    
+    # Allow URL without scheme; value_stream_service will add https://
     if len(url) > 2000:
         return jsonify({'success': False, 'error': 'URL too long'})
     
@@ -623,8 +774,12 @@ def api_submit_content():
             db.session.commit()
             curator_id = new_creator.id
     
-    result = value_stream_service.submit_content(url, curator_id, title)
-    return jsonify(result)
+    try:
+        result = value_stream_service.submit_content(url, curator_id, title)
+        return jsonify(result)
+    except Exception as e:
+        logging.exception("api_submit_content failed")
+        return jsonify({'success': False, 'error': str(e)}), 400
 
 @app.route('/api/value-stream/zap/<int:post_id>', methods=['POST'])
 def api_zap_content(post_id):
@@ -714,6 +869,61 @@ def api_register_creator():
         nip05=nip05
     )
     return jsonify(result)
+
+
+@app.route('/value-stream/claim')
+def value_stream_claim_page():
+    """Sovereign Claim Portal: NIP-07 auth + Lightning payout."""
+    return render_template('value_stream_claim.html')
+
+
+@app.route('/api/value-stream/claim/balance')
+def api_claim_balance():
+    """Get claimable balance for a Nostr pubkey. Query param: pubkey=."""
+    from services.value_stream_service import value_stream_service
+    try:
+        pubkey = request.args.get('pubkey', '').strip()
+        if not pubkey:
+            return jsonify({'success': False, 'error': 'pubkey required'})
+        creator = value_stream_service.get_creator_by_pubkey(pubkey)
+        if not creator:
+            return jsonify({'success': True, 'balance_sats': 0, 'can_claim': False, 'linked': False})
+        balance = value_stream_service.get_claimable_balance(creator.id)
+        can_claim = value_stream_service.can_claim_again(pubkey) and balance > 0
+        return jsonify({
+            'success': True,
+            'balance_sats': balance,
+            'can_claim': can_claim,
+            'linked': True,
+            'display_name': creator.display_name or 'Creator',
+        })
+    except Exception as e:
+        logging.exception("api_claim_balance failed: %s", e)
+        return jsonify({'success': True, 'balance_sats': 0, 'can_claim': False, 'linked': False})
+
+
+@app.route('/api/value-stream/claim', methods=['POST'])
+def api_claim_submit():
+    """Submit a claim: verify Nostr sig, rate limit, pay to Lightning Address."""
+    from services.value_stream_service import value_stream_service
+    try:
+        data = request.get_json() or {}
+        pubkey = (data.get('pubkey') or '').strip()
+        signature = data.get('signature') or ''
+        signed_message = data.get('signed_message') or ''
+        lightning_address = (data.get('lightning_address') or '').strip()
+        result = value_stream_service.process_claim(
+            pubkey=pubkey,
+            signature=signature,
+            signed_message=signed_message,
+            lightning_address=lightning_address,
+        )
+        status = 200 if result.get('success') else 400
+        return jsonify(result), status
+    except Exception as e:
+        logging.exception("api_claim_submit failed")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 
 @app.route('/api/nostr/latest/<pubkey>')
 def api_nostr_latest(pubkey):

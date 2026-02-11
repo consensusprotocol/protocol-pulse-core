@@ -1,37 +1,22 @@
 {
   "manifest_version": 3,
-  "name": "Pulse Zapper",
-  "version": "1.0.0",
-  "description": "Zap content anywhere on the web. Part of the Protocol Pulse Value Stream.",
-  "permissions": [
-    "activeTab",
-    "storage"
-  ],
-  "host_permissions": [
-    "https://*/*",
-    "http://*/*"
-  ],
+  "name": "Protocol Pulse — Ghost Curation",
+  "version": "2.0.0",
+  "description": "Overlay Value Stream onto X. See Alpha signals, zap from the timeline, leave the noise for the giants.",
+  "permissions": ["activeTab", "storage"],
+  "host_permissions": ["https://*/*", "http://localhost/*", "http://127.0.0.1/*"],
   "action": {
     "default_popup": "popup.html",
-    "default_icon": {
-      "16": "icons/icon16.svg",
-      "48": "icons/icon48.svg",
-      "128": "icons/icon128.svg"
-    }
+    "default_icon": { "16": "icons/icon16.svg", "48": "icons/icon48.svg", "128": "icons/icon128.svg" }
   },
-  "icons": {
-    "16": "icons/icon16.svg",
-    "48": "icons/icon48.svg",
-    "128": "icons/icon128.svg"
-  },
+  "icons": { "16": "icons/icon16.svg", "48": "icons/icon48.svg", "128": "icons/icon128.svg" },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": ["*://twitter.com/*", "*://x.com/*"],
       "js": ["content.js"],
-      "css": ["content.css"]
+      "css": ["content.css"],
+      "run_at": "document_idle"
     }
   ],
-  "background": {
-    "service_worker": "background.js"
-  }
+  "background": { "service_worker": "background.js" }
 }

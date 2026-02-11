@@ -9,6 +9,7 @@ sqlalchemy
 python-dotenv
 openai
 requests
+beautifulsoup4
 praw
 feedparser
 tweepy

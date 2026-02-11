@@ -336,9 +336,11 @@
   </div>
   
   <div class="footer">
-    <a href="https://protocolpulse.replit.app/value-stream" target="_blank">
-      Open Value Stream →
-    </a>
+    <div style="margin-bottom:8px;">
+      <input type="url" id="backend-url" placeholder="https://yoursite.com" style="width:100%; padding:8px; background:rgba(0,0,0,0.3); border:1px solid rgba(138,43,226,0.4); border-radius:6px; color:#fff; font-size:0.8rem;">
+      <button type="button" id="save-origin" style="margin-top:6px; padding:6px 12px; background:rgba(138,43,226,0.3); border:1px solid rgba(138,43,226,0.5); color:#fff; border-radius:6px; font-size:0.75rem; cursor:pointer;">Save backend URL</button>
+    </div>
+    <a href="#" id="value-stream-link" target="_blank">Open Value Stream →</a>
   </div>
   
   <script src="popup.js"></script>

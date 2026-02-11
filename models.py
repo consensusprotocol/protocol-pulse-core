@@ -654,10 +654,12 @@ class CuratedPost(db.Model):
     last_zap_at = db.Column(db.DateTime)
     
     def calculate_signal_score(self):
+        if self.submitted_at is None:
+            self.submitted_at = datetime.utcnow()
         age_hours = (datetime.utcnow() - self.submitted_at).total_seconds() / 3600
         time_decay = max(0.1, 1 - (age_hours / 168))
-        raw_score = (self.total_sats * 0.001) + (self.zap_count * 10)
-        self.signal_score = raw_score * time_decay * self.decay_factor
+        raw_score = (self.total_sats or 0) * 0.001 + (self.zap_count or 0) * 10
+        self.signal_score = raw_score * time_decay * (self.decay_factor or 1.0)
         return self.signal_score
 
 class ZapEvent(db.Model):
@@ -677,6 +679,69 @@ class ZapEvent(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     settled_at = db.Column(db.DateTime)
     post = db.relationship('CuratedPost', backref=db.backref('zaps', lazy='dynamic'))
+
+
+class ClaimPayout(db.Model):
+    """Sovereign Claim Portal: payout history to prevent double-spend and enforce rate limit."""
+    __tablename__ = 'claim_payout'
+    id = db.Column(db.Integer, primary_key=True)
+    creator_id = db.Column(db.Integer, db.ForeignKey('value_creator.id'), nullable=False)
+    amount_sats = db.Column(db.BigInteger, nullable=False)
+    lightning_address = db.Column(db.String(200))
+    claimed_by_pubkey = db.Column(db.String(128), nullable=False, index=True)  # Nostr pubkey who claimed
+    status = db.Column(db.String(20), default='pending')  # pending, sent, failed
+    payment_hash = db.Column(db.String(128))
+    error_message = db.Column(db.String(500))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    settled_at = db.Column(db.DateTime)
+    creator = db.relationship('ValueCreator', backref=db.backref('claim_payouts', lazy='dynamic'))
+
+
+# =====================================
+# SOVEREIGN INTELLIGENCE NEXUS
+# =====================================
+
+class KOLPulseItem(db.Model):
+    """Live feed item from KOLs: X, Nostr, YouTube. Command Log / Pulse stream."""
+    __tablename__ = 'kol_pulse_item'
+    id = db.Column(db.Integer, primary_key=True)
+    platform = db.Column(db.String(20), nullable=False, index=True)  # x, nostr, youtube
+    author_handle = db.Column(db.String(100), nullable=False, index=True)
+    author_name = db.Column(db.String(200))
+    content = db.Column(db.Text)
+    url = db.Column(db.String(1000))
+    external_id = db.Column(db.String(128), unique=True, nullable=False, index=True)  # tweet_id, note_id, video_id
+    raw_json = db.Column(db.Text)
+    fetched_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+
+
+class ZapCommentLog(db.Model):
+    """Log of automated X/Nostr replies posted after a zap (Diplomat bridge)."""
+    __tablename__ = 'zap_comment_log'
+    id = db.Column(db.Integer, primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey('curated_post.id'), nullable=False)
+    zap_event_id = db.Column(db.Integer, db.ForeignKey('zap_event.id'))
+    platform = db.Column(db.String(20), nullable=False)  # x, nostr
+    external_id = db.Column(db.String(128))  # tweet_id or note_id we replied to
+    reply_id = db.Column(db.String(128))  # our reply tweet/note id
+    message = db.Column(db.Text)
+    claim_url = db.Column(db.String(500))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    post = db.relationship('CuratedPost', backref=db.backref('zap_comments', lazy='dynamic'))
+
+
+class DailyMedley(db.Model):
+    """Pinned Daily Value Medley: top-zapped clips spliced + narrated. Featured at top of stream."""
+    __tablename__ = 'daily_medley'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(300), nullable=False)
+    description = db.Column(db.Text)
+    media_url = db.Column(db.String(500))  # uploaded video URL
+    source_post_ids = db.Column(db.Text)  # JSON array of curated_post ids
+    published_at = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 class TrustEdge(db.Model):
     __tablename__ = 'trust_edge'

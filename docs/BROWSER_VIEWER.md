@@ -2,49 +2,45 @@
 
 Use this when working **locally** (MacBook or desktop with the repo open) to see the site in Cursor’s browser or your system browser.
 
+**The app runs on port 5001** (so it doesn’t conflict with macOS AirPlay on 5000).
+
 ---
 
 ## 1. Start the server
 
-In a terminal (Cursor’s integrated terminal or system terminal), from the **project root** (`ProtocolPulse`):
+**In Cursor’s terminal** (`` Ctrl+` `` or View → Terminal), from the **project root**:
 
 ```bash
-# From project root – uses core/app and run_server
-python run_server.py
+python3 run_server.py
 ```
 
-Or from the `core/` directory with a venv:
+Leave that terminal open. When you see `Running on http://127.0.0.1:5001`, the server is ready.
 
-```bash
-cd core
-.venv/bin/python app.py
-```
-
-The app will listen on **http://127.0.0.1:5000** (or the port shown in the terminal).
+**Or use the task (if you have .vscode/tasks.json):** **Cmd+Shift+P** → **Tasks: Run Task** → **Start Protocol Pulse (browser on :5001)**.
 
 ---
 
 ## 2. Open the browser viewer
 
-**Option A – Cursor Simple Browser**
+**Option A – Cursor Simple Browser (recommended)**
 
-1. **View → Open View…** (or **Cmd+Shift+P** / **Ctrl+Shift+P**).
-2. Type **Simple Browser** and run **“Simple Browser: Show”**.
-3. Enter: **http://127.0.0.1:5000**
-4. The Protocol Pulse site opens inside Cursor.
+1. **Cmd+Shift+P** (Mac) or **Ctrl+Shift+P** (Windows).
+2. Type **Simple Browser** and choose **“Simple Browser: Show”**.
+3. When asked for the URL, enter exactly: **http://127.0.0.1:5001**
+4. Press Enter. The Protocol Pulse site should load inside Cursor.
 
 **Option B – System browser**
 
-- Open Chrome/Safari/Firefox and go to: **http://127.0.0.1:5000**
+- Open Safari/Chrome/Firefox and go to: **http://127.0.0.1:5001**
 
 ---
 
 ## 3. If the viewer is blank or “not working”
 
-- Confirm the server is running (you should see log lines in the terminal).
-- Use exactly **http://127.0.0.1:5000** (or the port the server prints).
-- If you changed the port (e.g. `PORT=5001 python run_server.py`), use that port in the URL.
-- Hard refresh: **Cmd+Shift+R** (Mac) or **Ctrl+Shift+R** (Windows).
+- **Server must be running first.** In the terminal you should see `Running on http://127.0.0.1:5001`. If not, run `python3 run_server.py` from the project root.
+- **Use port 5001.** The URL must be **http://127.0.0.1:5001** (not 5000).
+- **Hard refresh:** **Cmd+Shift+R** (Mac) or **Ctrl+Shift+R** (Windows).
+- If port 5001 is in use, run `PORT=5002 python3 run_server.py` and open **http://127.0.0.1:5002** in the browser.
 
 ---
 
