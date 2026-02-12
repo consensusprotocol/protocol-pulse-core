@@ -254,6 +254,49 @@ def _filter_signal_lines(lines, limit: int = 50):
     return filtered[-limit:]
 
 
+def _watchtower_gpu_stats():
+    cmd = [
+        "nvidia-smi",
+        "--query-gpu=index,name,temperature.gpu,memory.used,memory.total,power.draw",
+        "--format=csv,noheader,nounits",
+    ]
+    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=4)
+    if proc.returncode != 0:
+        return []
+    rows = []
+    for line in (proc.stdout or "").splitlines():
+        parts = [p.strip() for p in line.split(",")]
+        if len(parts) < 6:
+            continue
+        rows.append(
+            {
+                "index": int(parts[0]),
+                "name": parts[1],
+                "temp_c": float(parts[2]),
+                "vram_used_mib": float(parts[3]),
+                "vram_total_mib": float(parts[4]),
+                "power_w": float(parts[5]),
+            }
+        )
+    return rows
+
+
+def _watchtower_service_status(name: str):
+    checks = [
+        ["systemctl", "--user", "is-active", name],
+        ["systemctl", "is-active", name],
+    ]
+    for cmd in checks:
+        try:
+            p = subprocess.run(cmd, capture_output=True, text=True, timeout=4)
+            state = (p.stdout or "").strip() or "unknown"
+            if p.returncode == 0:
+                return {"name": name, "state": state, "scope": "user" if "--user" in cmd else "system"}
+        except Exception:
+            continue
+    return {"name": name, "state": "failed", "scope": "unknown"}
+
+
 def _load_mining_oracle_data():
     default_center = {"lat": 31.9686, "lng": -99.9018, "name": "texas, usa", "last_updated": "unknown"}
     try:
@@ -756,11 +799,13 @@ def debug_routes():
 
 @app.route('/health')
 def health():
-    """Core health with DB, runtime job timestamps, and lightweight GPU snapshot."""
+    """Authoritative health with DB, lane timestamps, and lightweight GPU snapshot."""
     from services.runtime_status import get_status
+    lanes_path = Path("/home/ultron/protocol_pulse/logs/health_lanes.json")
     payload = {
         "app": "ok",
         "service": "protocol-pulse",
+        "authoritative": True,
         "db": "ok",
         "last_heartbeat": None,
         "jobs": {
@@ -769,6 +814,7 @@ def health():
             "risk_last_update": None,
             "medley_last_run": None,
         },
+        "lanes": {},
         "gpu": [],
     }
     code = 200
@@ -791,6 +837,13 @@ def health():
         payload["jobs"]["medley_last_run"] = medley.get("last_run")
     except Exception:
         pass
+    try:
+        if lanes_path.exists():
+            lane_data = json.loads(lanes_path.read_text(encoding="utf-8"))
+            payload["lanes"] = lane_data.get("lanes") or {}
+            payload["lanes_updated_at"] = lane_data.get("updated_at")
+    except Exception:
+        payload["lanes"] = {}
     try:
         cmd = [
             "nvidia-smi",
@@ -5854,6 +5907,73 @@ def api_admin_sentinel_status():
     )
 
 
+@app.route('/admin/watchtower')
+@login_required
+@admin_required
+def admin_watchtower():
+    """Dense operator dashboard for hardware + service status + live logs."""
+    return render_template("admin/watchtower.html")
+
+
+@app.route('/api/admin/watchtower/status')
+@login_required
+@admin_required
+def api_admin_watchtower_status():
+    svc_names = [
+        "pulse.service",
+        "pulse_web.service",
+        "pulse_intel.service",
+        "pulse_medley.service",
+        "medley_daily.service",
+    ]
+    statuses = [_watchtower_service_status(n) for n in svc_names]
+    lines = _tail_file_lines(AUTOMATION_LOG_PATH, limit=20)
+    return jsonify(
+        {
+            "ok": True,
+            "ts": datetime.utcnow().isoformat(),
+            "gpu": _watchtower_gpu_stats(),
+            "services": statuses,
+            "log_tail": lines[-20:],
+        }
+    )
+
+
+@app.route('/api/admin/watchtower/log-stream')
+@login_required
+@admin_required
+def api_admin_watchtower_log_stream():
+    """SSE log tail stream for automation.log."""
+    def generate():
+        for line in _tail_file_lines(AUTOMATION_LOG_PATH, limit=20):
+            yield f"data: {json.dumps({'line': line})}\n\n"
+        offset = AUTOMATION_LOG_PATH.stat().st_size if AUTOMATION_LOG_PATH.exists() else 0
+        while True:
+            time.sleep(1.0)
+            if not AUTOMATION_LOG_PATH.exists():
+                yield ": heartbeat\n\n"
+                continue
+            with AUTOMATION_LOG_PATH.open("r", encoding="utf-8", errors="ignore") as f:
+                f.seek(offset)
+                chunk = f.read()
+                offset = f.tell()
+            if chunk:
+                for line in chunk.splitlines():
+                    yield f"data: {json.dumps({'line': line})}\n\n"
+            else:
+                yield ": heartbeat\n\n"
+
+    return Response(
+        generate(),
+        mimetype="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
 @app.route('/admin/video/partner-reels')
 @login_required
 @admin_required
@@ -6252,6 +6372,36 @@ def premium_page():
 
     tiers = monetization_service.get_subscription_tiers()
     return render_template('premium.html', tiers=tiers)
+
+
+@app.route('/upgrade')
+@login_required
+def upgrade_page():
+    btcpay_checkout_url = (os.environ.get("BTCPAY_COMMANDER_CHECKOUT_URL") or "").strip()
+    stripe_checkout_url = (os.environ.get("STRIPE_COMMANDER_CHECKOUT_URL") or "").strip()
+    return render_template(
+        "upgrade.html",
+        btcpay_checkout_url=btcpay_checkout_url,
+        stripe_checkout_url=stripe_checkout_url,
+    )
+
+
+@app.route('/api/upgrade/confirm', methods=['POST'])
+@login_required
+def api_upgrade_confirm():
+    """Post-payment entitlement sync for commander gate (Stripe/BTCPay callbacks or manual confirm)."""
+    _require_csrf()
+    payload = request.get_json(silent=True) or {}
+    provider = str(payload.get("provider") or "manual").strip().lower()
+    reference = str(payload.get("reference") or payload.get("txid") or payload.get("session_id") or "").strip()
+    from services.gatekeeper import gatekeeper_service
+
+    out = gatekeeper_service.confirm_commander_upgrade(
+        user_id=current_user.id,
+        provider=provider,
+        reference=reference,
+    )
+    return jsonify(out), (200 if out.get("ok") else 400)
 
 
 @app.route('/hub')
@@ -8576,6 +8726,64 @@ def api_media_sources():
     except Exception as e:
         logging.error(f"Failed to load sources: {e}")
         return jsonify({})
+
+
+def _run_pulse_drop_rebuild(hours_back: int = 24):
+    from services.channel_monitor import channel_monitor_service
+    from services.highlight_extractor import highlight_extractor_service
+    from services.commentary_generator import commentary_generator_service
+    from services.global_relay import global_relay_service
+    h = channel_monitor_service.run_harvest(hours_back=hours_back)
+    x = highlight_extractor_service.run(hours_back=hours_back)
+    c = commentary_generator_service.run(hours_back=hours_back)
+    segs = (
+        models.PulseSegment.query.order_by(models.PulseSegment.priority.desc(), models.PulseSegment.created_at.desc())
+        .limit(8)
+        .all()
+    )
+    relay = global_relay_service.broadcast_pulse_drop(
+        reel_link="https://protocolpulse.io/pulse-drop",
+        segments=[{"label": s.label, "start_sec": s.start_sec, "video_id": s.video_id} for s in segs],
+    )
+    return {"harvest": h, "extract": x, "commentary": c, "relay": relay}
+
+
+@app.route('/pulse-drop')
+def pulse_drop():
+    """Narrative-driven best-moments terminal with timestamped embeds."""
+    from datetime import datetime, timedelta
+    cutoff = datetime.utcnow() - timedelta(hours=36)
+    segments = (
+        models.PulseSegment.query.join(models.PartnerVideo, models.PulseSegment.partner_video_id == models.PartnerVideo.id)
+        .filter(models.PulseSegment.created_at >= cutoff)
+        .order_by(models.PulseSegment.priority.desc(), models.PulseSegment.created_at.desc())
+        .limit(40)
+        .all()
+    )
+    return render_template("pulse_drop.html", segments=segments)
+
+
+@app.route('/api/pulse-drop/rebuild', methods=['POST'])
+def api_pulse_drop_rebuild():
+    """
+    Daily rebuild endpoint for pulse drop.
+    Supports admin session auth OR bearer token (PULSE_DROP_API_KEY).
+    """
+    session_admin = bool(getattr(current_user, "is_authenticated", False) and getattr(current_user, "is_admin", False))
+    if session_admin:
+        _require_csrf()
+    else:
+        token = (request.headers.get("Authorization") or "").replace("Bearer ", "").strip()
+        expected = (os.environ.get("PULSE_DROP_API_KEY") or "").strip()
+        if not expected:
+            return jsonify({"ok": False, "error": "pulse drop api key not configured"}), 503
+        if token != expected:
+            return jsonify({"ok": False, "error": "unauthorized"}), 401
+
+    payload = request.get_json(silent=True) or {}
+    hours_back = int(payload.get("hours_back") or 24)
+    result = _run_pulse_drop_rebuild(hours_back=hours_back)
+    return jsonify({"ok": True, "result": result, "daily_drop_mode": "draft_only_review"})
 
 
 @app.route('/admin/autopost')

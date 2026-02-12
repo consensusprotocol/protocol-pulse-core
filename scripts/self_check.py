@@ -12,6 +12,7 @@ import os
 import subprocess
 import sys
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
@@ -24,6 +25,35 @@ SELF_CHECK_HEADERS = {"X-Self-Check": "1"}
 EVENTS_PATH = PROJECT_ROOT / "data" / "pulse_events.jsonl"
 RUNTIME_STATUS_PATH = PROJECT_ROOT / "logs" / "runtime_status.json"
 STATUS_REPORT_PATH = PROJECT_ROOT / "docs" / "STATUS_REPORT.md"
+HEALTH_LANES_PATH = PROJECT_ROOT / "logs" / "health_lanes.json"
+
+
+def _iso_now() -> str:
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def _load_json(path: Path, default):
+    try:
+        if path.exists():
+            return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+    return default
+
+
+def _append_pulse_event(lane: str, severity: str, title: str, detail: str, meta: dict | None = None) -> None:
+    EVENTS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    event = {
+        "ts": _iso_now(),
+        "lane": lane,
+        "severity": severity,
+        "title": title,
+        "detail": detail,
+        "meta": meta or {},
+        "tag": "watchdog",
+    }
+    with EVENTS_PATH.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(event, ensure_ascii=True) + "\n")
 
 
 def _print(status: str, gate: str, detail: str = "") -> None:
@@ -310,6 +340,51 @@ def _write_status_report(results: list[tuple[str, bool, str]]) -> None:
     STATUS_REPORT_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def _lane_for_gate(name: str) -> str:
+    n = name.lower()
+    if "whale" in n:
+        return "whale"
+    if "sentry" in n:
+        return "sentry"
+    if "risk" in n:
+        return "risk"
+    if "medley" in n:
+        return "medley"
+    if "stream" in n:
+        return "stream"
+    return "system"
+
+
+def _write_health_lanes(results: list[tuple[str, bool, str]]) -> None:
+    state = _load_json(
+        HEALTH_LANES_PATH,
+        {
+            "updated_at": None,
+            "lanes": {
+                "system": {"last_ok": None, "last_fail": None},
+                "stream": {"last_ok": None, "last_fail": None},
+                "whale": {"last_ok": None, "last_fail": None},
+                "sentry": {"last_ok": None, "last_fail": None},
+                "risk": {"last_ok": None, "last_fail": None},
+                "medley": {"last_ok": None, "last_fail": None},
+            },
+        },
+    )
+    now = _iso_now()
+    state["updated_at"] = now
+    for gate, ok, detail in results:
+        lane = _lane_for_gate(gate)
+        lanes = state.setdefault("lanes", {})
+        lane_state = lanes.setdefault(lane, {"last_ok": None, "last_fail": None})
+        if ok:
+            lane_state["last_ok"] = now
+        else:
+            lane_state["last_fail"] = now
+            lane_state["last_error"] = detail[:300]
+    HEALTH_LANES_PATH.parent.mkdir(parents=True, exist_ok=True)
+    HEALTH_LANES_PATH.write_text(json.dumps(state, ensure_ascii=True, indent=2) + "\n", encoding="utf-8")
+
+
 def main() -> int:
     gates = [
         ("GATE A (routes)", gate_a_routes),
@@ -334,6 +409,14 @@ def main() -> int:
         if not ok:
             all_ok = False
     _write_status_report(results)
+    _write_health_lanes(results)
+    if all_ok:
+        _append_pulse_event("system", "info", "WATCHDOG GREEN", "all self-check gates passed")
+        print("ALL GREEN")
+    else:
+        failed = [f"{name}: {detail}" for name, ok, detail in results if not ok]
+        _append_pulse_event("system", "crit", "WATCHDOG RED", "; ".join(failed)[:700])
+        print("FAILURES: " + " | ".join(failed))
     return 0 if all_ok else 1
 
 
