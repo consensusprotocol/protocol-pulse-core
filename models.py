@@ -483,13 +483,21 @@ class AffiliateClick(db.Model):
 class PartnerClick(db.Model):
     """Hub partner-ramp click tracking (thin-slice V1)."""
     __tablename__ = 'partner_click'
+    __table_args__ = (
+        db.Index('idx_partner_click_slug_time', 'partner_slug', 'created_at'),
+        db.Index('idx_partner_click_session_token', 'session_token'),
+    )
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     partner_id = db.Column(db.Integer, db.ForeignKey('affiliate_partner.id'), nullable=True)
     partner_slug = db.Column(db.String(80), nullable=False, index=True)
     session_id = db.Column(db.String(64), nullable=False, index=True)
+    # Unified alias for cross-device analytics and attribution joins.
+    session_token = db.Column(db.String(64), index=True)
     referral_code = db.Column(db.String(120))
     source_page = db.Column(db.String(500))
+    conversion_status = db.Column(db.String(30), default='pending', index=True)
+    converted_at = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
 
 
@@ -500,6 +508,48 @@ class PartnerConversionNote(db.Model):
     partner_slug = db.Column(db.String(80), nullable=False, index=True)
     note = db.Column(db.Text, nullable=False)
     created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+
+
+class Lead(db.Model):
+    """Sovereign Intake lead profile used by onboarding funnel and CRM export."""
+    __tablename__ = 'lead'
+    __table_args__ = (
+        db.Index('idx_lead_interest_capacity', 'interest_level', 'capacity_score'),
+        db.Index('idx_lead_created', 'created_at'),
+    )
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    email = db.Column(db.String(150), index=True)
+    name = db.Column(db.String(120))
+    interest_level = db.Column(db.String(40), default='unknown', index=True)
+    capacity_score = db.Column(db.Float, default=0.0, index=True)
+    btc_profile = db.Column(db.String(60), default='off-zero', index=True)  # off-zero, sovereign-builder, autism-maxxer
+    newsletter_opt_in = db.Column(db.Boolean, default=False, index=True)
+    funnel_stage = db.Column(db.String(40), default='attention', index=True)
+    source = db.Column(db.String(80), default='onboarding')
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class SentryQueue(db.Model):
+    """Outbound social queue for Sentry Hub orchestration (DRY_RUN aware)."""
+    __tablename__ = 'sentry_queue'
+    __table_args__ = (
+        db.Index('idx_sentry_queue_status_schedule', 'status', 'scheduled_at'),
+        db.Index('idx_sentry_queue_created', 'created_at'),
+    )
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    platforms_json = db.Column(db.Text, nullable=False)  # e.g. ["x","nostr"]
+    scheduled_at = db.Column(db.DateTime, index=True)
+    status = db.Column(db.String(20), default='pending', index=True)  # pending, draft, posted, failed
+    dry_run = db.Column(db.Boolean, default=True, index=True)
+    source = db.Column(db.String(80), default='sentry_hub')
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    posted_at = db.Column(db.DateTime)
+    error = db.Column(db.String(500))
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
 
 class FeedItem(db.Model):

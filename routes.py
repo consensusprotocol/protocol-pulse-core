@@ -69,6 +69,7 @@ from services.transcript_service import get_space_transcript, summarize_for_twee
 AUTOMATION_LOG_PATH = Path("/home/ultron/protocol_pulse/logs/automation.log")
 MINING_LOCATIONS_PATH = Path(__file__).resolve().parent / "config" / "mining_locations.json"
 PARTNER_RAMP_PATH = Path(__file__).resolve().parent / "config" / "partner_ramp.json"
+AFFILIATES_PATH = Path(__file__).resolve().parent / "config" / "affiliates.json"
 _hub_stream_thread = None
 _hub_stream_lock = threading.Lock()
 _hub_last_mega_id = None
@@ -185,6 +186,52 @@ def _seed_affiliate_partners_from_catalog(partners):
         changed = True
     if changed:
         db.session.commit()
+
+
+def _load_affiliates_catalog():
+    try:
+        if not AFFILIATES_PATH.exists():
+            return []
+        payload = json.loads(AFFILIATES_PATH.read_text(encoding="utf-8"))
+        rows = payload.get("catalog") or []
+        if not isinstance(rows, list):
+            return []
+        return rows
+    except Exception:
+        return []
+
+
+def _alpha_suggestions(limit: int = 3):
+    posts = (
+        models.CuratedPost.query.order_by(models.CuratedPost.signal_score.desc(), models.CuratedPost.created_at.desc())
+        .limit(6)
+        .all()
+    )
+    suggestions = []
+    for post in posts:
+        title = (post.title or "signal").strip().lower()
+        if not title:
+            continue
+        suggestions.append(f"alpha pulse: {title[:120]} | what's your edge before next candle?")
+        if len(suggestions) >= limit:
+            break
+    if not suggestions:
+        suggestions = [
+            "btc liquidity is moving. map risk before retail notices.",
+            "mempool pressure changed. don't chase noise, chase structure.",
+            "signal > sentiment. pick one edge and execute with size discipline.",
+        ]
+    return suggestions[:limit]
+
+
+def _parse_iso8601(ts: str):
+    raw = (ts or "").strip()
+    if not raw:
+        return None
+    try:
+        return datetime.fromisoformat(raw.replace("Z", "+00:00")).replace(tzinfo=None)
+    except Exception:
+        return None
 
 
 def _tail_file_lines(path: Path, limit: int = 50):
@@ -2551,6 +2598,28 @@ def podcast_rss():
     except Exception as e:
         logging.error(f"Error generating podcast RSS: {e}")
         return "Error generating RSS feed", 500
+
+
+@app.route('/feed.xml')
+def podcast_feed_xml():
+    """Apple-compatible feed endpoint for podcast clients."""
+    from services.podcast_engine import podcast_engine
+
+    try:
+        xml = podcast_engine.generate_feed_xml()
+        return app.response_class(xml, mimetype='application/rss+xml')
+    except Exception as e:
+        logging.error("feed.xml generation failed: %s", e)
+        return "feed generation failed", 500
+
+
+@app.route('/media/daily-beat.mp4')
+def media_daily_beat():
+    """Public medley artifact for RSS enclosure consumers."""
+    fpath = Path("/home/ultron/protocol_pulse/logs/medley_daily_beat.mp4")
+    if not fpath.exists():
+        abort(404)
+    return send_file(str(fpath), mimetype='video/mp4', as_attachment=False)
 
 @app.route('/media-terminal')
 def media_terminal():
@@ -5508,6 +5577,75 @@ def broadcast_to_nostr():
 # INTELLIGENCE DASHBOARD
 # ============================================
 
+@app.route('/admin/sentry')
+@login_required
+@admin_required
+def admin_sentry_hub():
+    """Operator flight deck for queue-first social orchestration."""
+    queue_rows = (
+        models.SentryQueue.query.order_by(models.SentryQueue.created_at.desc())
+        .limit(20)
+        .all()
+    )
+    queue_count = models.SentryQueue.query.filter(
+        models.SentryQueue.status.in_(["pending", "draft"])
+    ).count()
+    return render_template(
+        'admin/sentry.html',
+        queue_rows=queue_rows,
+        queue_count=queue_count,
+        suggestions=_alpha_suggestions(limit=3),
+    )
+
+
+@app.route('/api/extension/schedule', methods=['POST'])
+def api_extension_schedule():
+    """Accept browser-extension drafts into sentry queue."""
+    payload = request.get_json(silent=True) or {}
+    content = str(payload.get("content") or "").strip()
+    if not content:
+        return jsonify({"ok": False, "error": "content is required"}), 400
+
+    # Allow admin session auth or bearer token integration.
+    token = (request.headers.get("Authorization") or "").replace("Bearer ", "").strip()
+    expected = (os.environ.get("EXTENSION_API_KEY") or "").strip()
+    session_admin = bool(getattr(current_user, "is_authenticated", False) and getattr(current_user, "is_admin", False))
+    if not session_admin:
+        if not expected:
+            return jsonify({"ok": False, "error": "extension api key not configured"}), 503
+        if token != expected:
+            return jsonify({"ok": False, "error": "unauthorized"}), 401
+
+    if session_admin:
+        _require_csrf()
+
+    platforms = payload.get("platforms") or payload.get("platforms_json") or ["x", "nostr"]
+    if isinstance(platforms, str):
+        try:
+            platforms = json.loads(platforms)
+        except Exception:
+            platforms = [platforms]
+    if not isinstance(platforms, list):
+        platforms = ["x", "nostr"]
+    clean_platforms = [str(p).lower().strip() for p in platforms if str(p).strip()]
+    if not clean_platforms:
+        clean_platforms = ["x", "nostr"]
+
+    scheduled_at = _parse_iso8601(str(payload.get("scheduled_at") or ""))
+    row = models.SentryQueue(
+        content=content[:3000],
+        platforms_json=json.dumps(clean_platforms),
+        scheduled_at=scheduled_at,
+        status="draft",
+        dry_run=(str(os.environ.get("SAFE_MODE", "true")).lower() == "true"),
+        source="browser_extension",
+        created_by=(getattr(current_user, "id", None) if session_admin else None),
+    )
+    db.session.add(row)
+    db.session.commit()
+    return jsonify({"ok": True, "id": row.id, "status": row.status})
+
+
 @app.route('/admin/intelligence')
 @login_required
 @admin_required
@@ -5745,6 +5883,81 @@ def api_merchant_search():
         return jsonify({'merchants': results})
     
     return jsonify({'merchants': []})
+
+# ============================================
+# SOVEREIGN INTAKE (ONBOARDING)
+# ============================================
+
+@app.route('/onboarding', methods=['GET'])
+def onboarding():
+    from services.onboarding_service import onboarding_progress, next_prompt_for_stage, build_urgency_copy
+
+    stage = (request.args.get("stage") or "attention").strip().lower()
+    progress = onboarding_progress(stage)
+    since_24h = datetime.utcnow() - timedelta(hours=24)
+    whale_24h = models.WhaleTransaction.query.filter(models.WhaleTransaction.detected_at >= since_24h).count()
+    mega_24h = models.WhaleTransaction.query.filter(
+        models.WhaleTransaction.detected_at >= since_24h,
+        models.WhaleTransaction.is_mega.is_(True),
+    ).count()
+    urgency_copy = build_urgency_copy(whale_24h, mega_24h)
+    next_prompt = next_prompt_for_stage(progress["stage"], "off-zero")
+    return render_template(
+        'onboarding.html',
+        progress=progress,
+        urgency_copy=urgency_copy,
+        next_prompt=next_prompt,
+    )
+
+
+@app.route('/onboarding', methods=['POST'])
+def onboarding_submit():
+    _require_csrf()
+    from services.onboarding_service import run_aida_step, onboarding_progress, upsert_lead
+
+    stage = (request.form.get("stage") or "attention").strip().lower()
+    response_text = (request.form.get("response_text") or "").strip()
+    if not response_text:
+        flash("response is required to continue onboarding.")
+        return redirect(url_for("onboarding", stage=stage))
+    annual_income = None
+    try:
+        annual_income = float((request.form.get("annual_income") or "").strip() or 0.0) or None
+    except Exception:
+        annual_income = None
+    newsletter_opt_in = request.form.get("newsletter_opt_in") in ("1", "on", "true")
+    since_24h = datetime.utcnow() - timedelta(hours=24)
+    whale_24h = models.WhaleTransaction.query.filter(models.WhaleTransaction.detected_at >= since_24h).count()
+    mega_24h = models.WhaleTransaction.query.filter(
+        models.WhaleTransaction.detected_at >= since_24h,
+        models.WhaleTransaction.is_mega.is_(True),
+    ).count()
+    out = run_aida_step(
+        stage=stage,
+        user_text=response_text,
+        whale_24h=whale_24h,
+        mega_24h=mega_24h,
+        annual_income=annual_income,
+    )
+    upsert_lead(
+        user_id=(getattr(current_user, "id", None) if getattr(current_user, "is_authenticated", False) else None),
+        email=(getattr(current_user, "email", None) if getattr(current_user, "is_authenticated", False) else None),
+        name=(getattr(current_user, "username", None) if getattr(current_user, "is_authenticated", False) else None),
+        stage=out.stage,
+        profile=out.profile,
+        interest_level=out.interest_level,
+        capacity_score=out.capacity_score,
+        newsletter_opt_in=newsletter_opt_in,
+        notes=response_text,
+    )
+    progress = onboarding_progress(out.stage)
+    return render_template(
+        'onboarding.html',
+        progress=progress,
+        urgency_copy=out.urgency_copy,
+        next_prompt=out.next_prompt,
+    )
+
 
 # ============================================
 # MONETIZATION & PREMIUM ROUTES

@@ -23,6 +23,7 @@ BASE_URL = os.environ.get("SELF_CHECK_BASE_URL", "http://127.0.0.1:5000").rstrip
 SELF_CHECK_HEADERS = {"X-Self-Check": "1"}
 EVENTS_PATH = PROJECT_ROOT / "data" / "pulse_events.jsonl"
 RUNTIME_STATUS_PATH = PROJECT_ROOT / "logs" / "runtime_status.json"
+STATUS_REPORT_PATH = PROJECT_ROOT / "docs" / "STATUS_REPORT.md"
 
 
 def _print(status: str, gate: str, detail: str = "") -> None:
@@ -36,6 +37,8 @@ def gate_a_routes() -> tuple[bool, str]:
         ("/value-stream", {}),
         ("/signal-terminal", {}),
         ("/mining-risk", {}),
+        ("/onboarding", {}),
+        ("/feed.xml", {}),
     ]
     failed = []
     for path, headers in routes:
@@ -220,6 +223,81 @@ def gate_g_medley() -> tuple[bool, str]:
     return True, f"medley smoke artifact ok size={out.stat().st_size}"
 
 
+def gate_h_sentry_queue_api() -> tuple[bool, str]:
+    from app import app, db
+    import models
+
+    with app.app_context():
+        row = models.SentryQueue(
+            content="self-check draft queue write",
+            platforms_json='["x","nostr"]',
+            status="draft",
+            dry_run=True,
+            source="self_check",
+        )
+        db.session.add(row)
+        db.session.commit()
+        row_id = row.id
+        db.session.delete(row)
+        db.session.commit()
+    if not row_id:
+        return False, "failed to insert sentry_queue row"
+    return True, f"sentry_queue write/read ok id={row_id}"
+
+
+def gate_i_local_brain() -> tuple[bool, str]:
+    # Ollama latency probe
+    t0 = time.time()
+    r = requests.get("http://127.0.0.1:11434/api/tags", timeout=12)
+    if r.status_code != 200:
+        return False, f"ollama /api/tags status {r.status_code}"
+    elapsed_ms = int((time.time() - t0) * 1000)
+    if elapsed_ms > 5000:
+        return False, f"ollama latency too high {elapsed_ms}ms"
+
+    # GPU temp quick check
+    try:
+        proc = subprocess.run(
+            ["nvidia-smi", "--query-gpu=index,temperature.gpu", "--format=csv,noheader,nounits"],
+            capture_output=True,
+            text=True,
+            timeout=8,
+            check=True,
+        )
+    except Exception as e:
+        return False, f"nvidia-smi probe failed: {e}"
+    rows = [ln.strip() for ln in (proc.stdout or "").splitlines() if ln.strip()]
+    if not rows:
+        return False, "nvidia-smi returned no gpu rows"
+    return True, f"ollama_latency_ms={elapsed_ms} gpu_temps={';'.join(rows)}"
+
+
+def _write_status_report(results: list[tuple[str, bool, str]]) -> None:
+    STATUS_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    ts = time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())
+    ok_count = sum(1 for _, ok, _ in results if ok)
+    total = len(results)
+    lines = [
+        "# STATUS REPORT",
+        "",
+        f"- Generated: {ts}",
+        f"- Passing gates: {ok_count}/{total}",
+        "",
+        "## Gate Results",
+        "",
+    ]
+    for name, ok, detail in results:
+        lines.append(f"- {'PASS' if ok else 'FAIL'} | {name} | {detail}")
+    lines += [
+        "",
+        "## Morning Attention",
+        "",
+        "- Ensure external API keys are configured for non-dry-run posting/payout flows.",
+        "- Validate production DNS/CDN cache if frontend appears stale after deploy.",
+    ]
+    STATUS_REPORT_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
 def main() -> int:
     gates = [
         ("GATE A (routes)", gate_a_routes),
@@ -229,16 +307,21 @@ def main() -> int:
         ("GATE E (x-sentry dry)", gate_e_sentry_dry),
         ("GATE F (risk oracle)", gate_f_risk),
         ("GATE G (medley smoke)", gate_g_medley),
+        ("GATE H (sentry queue)", gate_h_sentry_queue_api),
+        ("GATE I (local brain + gpu probe)", gate_i_local_brain),
     ]
     all_ok = True
+    results: list[tuple[str, bool, str]] = []
     for name, fn in gates:
         try:
             ok, detail = fn()
         except Exception as e:
             ok, detail = False, f"exception: {e}"
         _print("PASS" if ok else "FAIL", name, detail)
+        results.append((name, ok, detail))
         if not ok:
             all_ok = False
+    _write_status_report(results)
     return 0 if all_ok else 1
 
 

@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Sentry Command Hub{% endblock %}
+
+{% block content %}
+<section class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">sentry command hub</h2>
+    <span class="badge text-bg-dark">queue: {{ queue_count }}</span>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">markdown composer</h5>
+          <form id="sentryComposeForm">
+            <input type="hidden" id="csrf_token" value="{{ session.get('csrf_token', '') }}">
+            <div class="mb-2">
+              <textarea id="composerText" class="form-control" rows="7" placeholder="write payload for x + nostr..." required></textarea>
+            </div>
+            <div class="row g-2">
+              <div class="col-md-4">
+                <label class="form-label">platforms</label>
+                <select id="platforms" class="form-select" multiple>
+                  <option value="x" selected>x</option>
+                  <option value="nostr" selected>nostr</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">schedule (utc)</label>
+                <input id="scheduledAt" type="datetime-local" class="form-control">
+              </div>
+              <div class="col-md-4 d-flex align-items-end">
+                <button class="btn btn-danger w-100" type="submit">queue draft</button>
+              </div>
+            </div>
+          </form>
+          <hr>
+          <h6>shadow preview</h6>
+          <pre id="shadowPreview" class="p-3 rounded bg-dark text-light small mb-0"></pre>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+          <h5 class="card-title">alpha suggestion engine</h5>
+          <div class="list-group">
+            {% for s in suggestions %}
+            <button type="button" class="list-group-item list-group-item-action suggestion-item">{{ s }}</button>
+            {% else %}
+            <div class="text-muted small">no suggestions yet</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">queue (latest)</h5>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead><tr><th>status</th><th>scheduled</th><th>content</th></tr></thead>
+              <tbody>
+              {% for q in queue_rows %}
+                <tr>
+                  <td><span class="badge text-bg-secondary">{{ q.status }}</span></td>
+                  <td>{{ q.scheduled_at or "-" }}</td>
+                  <td>{{ q.content[:80] }}{% if q.content|length > 80 %}...{% endif %}</td>
+                </tr>
+              {% else %}
+                <tr><td colspan="3" class="text-muted">empty</td></tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const composer = document.getElementById('composerText');
+  const preview = document.getElementById('shadowPreview');
+  const form = document.getElementById('sentryComposeForm');
+  const suggestionButtons = document.querySelectorAll('.suggestion-item');
+
+  function renderPreview() {
+    const txt = composer.value || '';
+    preview.textContent = `x preview:\n${txt.slice(0, 280)}\n\nnostr preview:\n${txt}`;
+  }
+  composer.addEventListener('input', renderPreview);
+  renderPreview();
+
+  suggestionButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      composer.value = btn.textContent.trim();
+      renderPreview();
+    });
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const platformSelect = document.getElementById('platforms');
+    const selected = Array.from(platformSelect.selectedOptions).map(o => o.value);
+    const scheduled = document.getElementById('scheduledAt').value;
+    const csrf = document.getElementById('csrf_token').value;
+    const resp = await fetch('/api/extension/schedule', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+      body: JSON.stringify({
+        content: composer.value,
+        platforms: selected,
+        scheduled_at: scheduled ? new Date(scheduled).toISOString() : null
+      })
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.ok) {
+      alert(data.error || 'queue write failed');
+      return;
+    }
+    window.location.reload();
+  });
+</script>
+{% endblock %}

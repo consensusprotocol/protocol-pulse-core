@@ -1,0 +1,21 @@
+{
+  "version": "1.0",
+  "updated_at": "2026-02-12T00:00:00Z",
+  "catalog": [
+    { "name": "River", "slug": "river", "category": "exchange", "url": "https://river.com/", "region": "us" },
+    { "name": "Swan Bitcoin", "slug": "swan", "category": "savings", "url": "https://www.swanbitcoin.com/", "region": "us" },
+    { "name": "Strike", "slug": "strike", "category": "payments", "url": "https://strike.me/", "region": "global" },
+    { "name": "Unchained", "slug": "unchained", "category": "custody", "url": "https://unchained.com/", "region": "us" },
+    { "name": "Casa", "slug": "casa", "category": "custody", "url": "https://keys.casa/", "region": "global" },
+    { "name": "Trezor", "slug": "trezor", "category": "hardware-wallet", "url": "https://trezor.io/", "region": "global" },
+    { "name": "Ledger", "slug": "ledger", "category": "hardware-wallet", "url": "https://www.ledger.com/", "region": "global" },
+    { "name": "Blockstream Jade", "slug": "jade", "category": "hardware-wallet", "url": "https://blockstream.com/jade/", "region": "global" },
+    { "name": "Satscard", "slug": "satscard", "category": "self-custody", "url": "https://coinkite.com/", "region": "global" },
+    { "name": "Hodl Hodl", "slug": "hodlhodl", "category": "lending", "url": "https://hodlhodl.com/", "region": "global" },
+    { "name": "Meanwhile", "slug": "meanwhile", "category": "insurance", "url": "https://meanwhile.bm/", "region": "selected" },
+    { "name": "OpenNode", "slug": "opennode", "category": "merchant", "url": "https://www.opennode.com/", "region": "global" },
+    { "name": "BTCPay Server", "slug": "btcpay", "category": "merchant", "url": "https://btcpayserver.org/", "region": "global" },
+    { "name": "Voltage", "slug": "voltage", "category": "infrastructure", "url": "https://voltage.cloud/", "region": "global" },
+    { "name": "Amboss", "slug": "amboss", "category": "lightning", "url": "https://amboss.space/", "region": "global" }
+  ]
+}
