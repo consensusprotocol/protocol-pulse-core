@@ -5735,6 +5735,179 @@ def intelligence_dashboard():
         reply_squad=reply_squad
     )
 
+
+def _sentinel_gpu_stats():
+    rows = []
+    try:
+        proc = subprocess.run(
+            [
+                "nvidia-smi",
+                "--query-gpu=index,temperature.gpu,utilization.gpu,memory.used,memory.total",
+                "--format=csv,noheader,nounits",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=6,
+        )
+        if proc.returncode != 0:
+            return rows
+        for line in (proc.stdout or "").strip().splitlines():
+            parts = [p.strip() for p in line.split(",")]
+            if len(parts) < 5:
+                continue
+            rows.append(
+                {
+                    "gpu": parts[0],
+                    "temp_c": parts[1],
+                    "util_pct": parts[2],
+                    "mem_used_mb": parts[3],
+                    "mem_total_mb": parts[4],
+                }
+            )
+    except Exception:
+        return []
+    return rows
+
+
+def _sentinel_ingestion_rate_per_hour():
+    path = Path("/home/ultron/protocol_pulse/data/pulse_events.jsonl")
+    if not path.exists():
+        return 0
+    cutoff = datetime.utcnow() - timedelta(hours=1)
+    count = 0
+    try:
+        with path.open("r", encoding="utf-8") as fp:
+            for line in fp:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    row = json.loads(line)
+                except Exception:
+                    continue
+                ts = str(row.get("ts") or "")
+                try:
+                    dt = datetime.fromisoformat(ts)
+                except Exception:
+                    continue
+                if dt >= cutoff:
+                    count += 1
+    except Exception:
+        return 0
+    return count
+
+
+def _sentinel_narrative_focus():
+    path = Path("/home/ultron/protocol_pulse/data/daily_briefs.json")
+    if not path.exists():
+        return "awaiting first sovereign brief"
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        briefs = payload.get("briefs") or []
+        if not briefs:
+            return "awaiting first sovereign brief"
+        latest = briefs[-1]
+        urgent = latest.get("urgent_events") or []
+        if urgent:
+            return str(urgent[0])[:240]
+        summary = str(latest.get("summary") or "").splitlines()
+        for line in summary:
+            line = line.strip()
+            if line:
+                return line[:240]
+    except Exception:
+        pass
+    return "focus unavailable"
+
+
+@app.route('/admin/sentinel-status')
+@login_required
+@admin_required
+def admin_sentinel_status():
+    gpu_rows = _sentinel_gpu_stats()
+    ingestion_rate = _sentinel_ingestion_rate_per_hour()
+    focus = _sentinel_narrative_focus()
+    log_lines = _tail_file_lines(AUTOMATION_LOG_PATH, limit=50)
+    return render_template(
+        'admin/sentinel_status.html',
+        gpu_rows=gpu_rows,
+        ingestion_rate=ingestion_rate,
+        narrative_focus=focus,
+        log_lines=log_lines,
+        refreshed_at=datetime.utcnow().isoformat(),
+    )
+
+
+@app.route('/api/admin/sentinel-status')
+@login_required
+@admin_required
+def api_admin_sentinel_status():
+    return jsonify(
+        {
+            "ok": True,
+            "gpu_rows": _sentinel_gpu_stats(),
+            "ingestion_rate": _sentinel_ingestion_rate_per_hour(),
+            "narrative_focus": _sentinel_narrative_focus(),
+            "log_lines": _tail_file_lines(AUTOMATION_LOG_PATH, limit=50),
+            "refreshed_at": datetime.utcnow().isoformat(),
+        }
+    )
+
+
+@app.route('/admin/video/partner-reels')
+@login_required
+@admin_required
+def admin_partner_reels():
+    reels = (
+        models.PartnerHighlightReel.query.order_by(
+            models.PartnerHighlightReel.date.desc(),
+            models.PartnerHighlightReel.created_at.desc(),
+        )
+        .limit(120)
+        .all()
+    )
+    return render_template('admin/partner_reels.html', reels=reels)
+
+
+@app.route('/admin/video/partner-reels/<int:reel_id>')
+@login_required
+@admin_required
+def admin_partner_reel_detail(reel_id):
+    reel = models.PartnerHighlightReel.query.get_or_404(reel_id)
+    story = []
+    try:
+        story = json.loads(reel.story_json or "[]")
+    except Exception:
+        story = []
+    return render_template('admin/partner_reel_detail.html', reel=reel, story=story)
+
+
+@app.route('/admin/video/partner-reel-build', methods=['POST'])
+@login_required
+@admin_required
+def admin_partner_reel_build():
+    _require_csrf()
+    from services.partnerreel import partner_reel_service
+
+    reel = partner_reel_service.build_daily_partner_reel(max_videos_per_channel=2)
+    if not reel:
+        return jsonify({"success": False, "error": "no reel built (insufficient source videos/clips)"}), 400
+    segments = []
+    try:
+        segments = json.loads(reel.story_json or "[]")
+    except Exception:
+        segments = []
+    return jsonify(
+        {
+            "success": True,
+            "reel_id": reel.id,
+            "video_path": reel.video_path,
+            "segments_count": len(segments),
+            "status": reel.status,
+            "draft_only": True,
+        }
+    )
+
 @app.route('/admin/reply-squad')
 @login_required
 @admin_required

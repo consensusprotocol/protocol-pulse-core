@@ -468,6 +468,29 @@ class YouTubeService:
         except Exception:
             return "Transcript unavailable"
 
+    def get_transcript_segments(self, video_id: str) -> list:
+        """
+        Return transcript with timestamps as raw segments:
+        [{ "start": float, "duration": float, "text": str }, ...]
+        Uses YouTubeTranscriptApi directly; if unavailable, returns [].
+        """
+        if YouTubeTranscriptApi is None:
+            return []
+        try:
+            rows = YouTubeTranscriptApi.get_transcript(video_id)
+            out = []
+            for row in rows or []:
+                out.append(
+                    {
+                        "start": float(row.get("start", 0.0) or 0.0),
+                        "duration": float(row.get("duration", 0.0) or 0.0),
+                        "text": str(row.get("text") or "").strip(),
+                    }
+                )
+            return out
+        except Exception:
+            return []
+
     def draft_reactionary_article(self, video_data: dict) -> str:
         """
         Transcribes designated show and drafts a complementary review.
@@ -645,6 +668,10 @@ class YouTubeService:
                 continue
         
         return new_videos
+
+    # Compatibility alias (legacy prompt/spec naming).
+    def checkpartnerchannelsfornewvideos(self, hoursback: int = 12) -> list:
+        return self.check_partner_channels_for_new_videos(hours_back=hoursback)
     
     def auto_process_new_partner_videos(self) -> dict:
         """

@@ -902,6 +902,39 @@ class DailyMedley(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
+class PartnerHighlightReel(db.Model):
+    """
+    Draft-only partner highlight reels for manual review.
+
+    story_json format:
+    [
+      {
+        "channel": "Coin Bureau",
+        "video_id": "...",
+        "video_title": "...",
+        "start": 320.0,
+        "end": 380.0,
+        "topic": "ETF flows",
+        "role": "setup",
+        "pre_commentary_audio": "path/to/pre_intro.mp3",
+        "clip_video": "path/to/raw_clip.mp4",
+        "post_commentary_audio": "path/to/post_outro.mp3"
+      }
+    ]
+    """
+    __tablename__ = 'partner_highlight_reel'
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.Date, nullable=False, index=True)
+    theme = db.Column(db.String(200))
+    story_json = db.Column(db.Text)
+    video_path = db.Column(db.String(500))
+    audio_path = db.Column(db.String(500))
+    clips_json = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    source_summary = db.Column(db.Text)
+    status = db.Column(db.String(50), default="draft")
+
+
 class TrustEdge(db.Model):
     __tablename__ = 'trust_edge'
     id = db.Column(db.Integer, primary_key=True)
