@@ -86,6 +86,15 @@ class User(UserMixin, db.Model):
         tier = getattr(self, 'subscription_tier', None)
         return tier in ('commander', 'sovereign')
 
+
+class UserProfile(db.Model):
+    __tablename__ = "user_profile"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), unique=True, nullable=False, index=True)
+    profile_json = db.Column(db.Text, default="{}")
+    behavior_json = db.Column(db.Text, default="{}")
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, index=True)
+
 # =====================================
 # CONTENT & INTELLIGENCE MODELS
 # =====================================
@@ -546,6 +555,7 @@ class Lead(db.Model):
     btc_profile = db.Column(db.String(60), default='off-zero', index=True)  # off-zero, sovereign-builder, autism-maxxer
     newsletter_opt_in = db.Column(db.Boolean, default=False, index=True)
     funnel_stage = db.Column(db.String(40), default='attention', index=True)
+    status = db.Column(db.String(40), default='prospect', index=True)  # prospect|commander
     source = db.Column(db.String(80), default='onboarding')
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
@@ -933,6 +943,35 @@ class PartnerHighlightReel(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     source_summary = db.Column(db.Text)
     status = db.Column(db.String(50), default="draft")
+
+
+class PartnerVideo(db.Model):
+    """Harvested partner video metadata used by Pulse Drop timestamp extraction."""
+    __tablename__ = 'partner_video'
+    id = db.Column(db.Integer, primary_key=True)
+    channel_name = db.Column(db.String(200), index=True)
+    channel_id = db.Column(db.String(80), index=True)
+    video_id = db.Column(db.String(30), unique=True, nullable=False, index=True)
+    title = db.Column(db.String(500))
+    description = db.Column(db.Text)
+    thumbnail = db.Column(db.String(1000))
+    published_at = db.Column(db.DateTime, index=True)
+    harvested_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+
+
+class PulseSegment(db.Model):
+    """Narrative-ready timestamp segment from partner video descriptions."""
+    __tablename__ = 'pulse_segment'
+    id = db.Column(db.Integer, primary_key=True)
+    partner_video_id = db.Column(db.Integer, db.ForeignKey('partner_video.id'), nullable=False, index=True)
+    video_id = db.Column(db.String(30), nullable=False, index=True)
+    start_sec = db.Column(db.Integer, nullable=False)
+    label = db.Column(db.String(300))
+    priority = db.Column(db.Float, default=0.0, index=True)
+    intelligence_brief = db.Column(db.Text)
+    commentary_audio = db.Column(db.String(500))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    partner_video = db.relationship('PartnerVideo', backref=db.backref('pulse_segments', lazy='dynamic'))
 
 
 class TrustEdge(db.Model):

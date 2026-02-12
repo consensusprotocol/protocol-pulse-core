@@ -29,3 +29,9 @@
 - event bus: integrated
 - memory layer: integrated
 - gates: /api/events + /api/events/stream + hub event lines OK
+
+## Intelligence Core Pack 2
+- scoring engine: active for sentry suggestions
+- personalization engine: user profile + dynamic value stream ranking
+- command center: /command live executive view
+- gate: two users produce different value stream ordering

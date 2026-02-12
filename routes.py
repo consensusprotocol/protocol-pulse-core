@@ -203,19 +203,24 @@ def _load_affiliates_catalog():
 
 
 def _alpha_suggestions(limit: int = 3):
+    from core.scoring_engine import score_sentry_draft
     posts = (
         models.CuratedPost.query.order_by(models.CuratedPost.signal_score.desc(), models.CuratedPost.created_at.desc())
         .limit(6)
         .all()
     )
-    suggestions = []
+    scored = []
     for post in posts:
         title = (post.title or "signal").strip().lower()
         if not title:
             continue
-        suggestions.append(f"alpha pulse: {title[:120]} | what's your edge before next candle?")
-        if len(suggestions) >= limit:
+        candidate = f"alpha pulse: {title[:120]} | what's your edge before next candle?"
+        score = score_sentry_draft(candidate)
+        scored.append((candidate, score))
+        if len(scored) >= (limit * 2):
             break
+    scored.sort(key=lambda x: (x[1].get("signal_density", 0), x[1].get("clarity", 0)), reverse=True)
+    suggestions = [f"{txt} [score={score.get('signal_density',0):.2f}/{score.get('clarity',0):.2f}]" for txt, score in scored[:limit]]
     if not suggestions:
         suggestions = [
             "btc liquidity is moving. map risk before retail notices.",
@@ -1278,6 +1283,30 @@ def value_stream():
                 models.ValueCreator.curator_score.desc(),
                 models.ValueCreator.total_sats_received.desc()
             ).limit(10).all()
+
+        if getattr(current_user, "is_authenticated", False):
+            try:
+                from core.personalization import build_user_profile
+                profile = build_user_profile(current_user)
+                pref = set(profile.get("content_preferences") or [])
+
+                def _rank_post(p):
+                    score = float(getattr(p, "signal_score", 0.0) or 0.0)
+                    platform_key = str(getattr(p, "platform", "") or "").lower()
+                    if platform_key in pref:
+                        score += 5.0
+                    if profile.get("risk_appetite") == "high":
+                        score += float(getattr(p, "total_sats", 0) or 0) / 2000.0
+                        score += float(getattr(p, "id", 0) or 0) * 0.02
+                    elif profile.get("risk_appetite") == "low":
+                        score += float(getattr(p, "signal_score", 0) or 0) / 12.0
+                        score -= float(getattr(p, "total_sats", 0) or 0) / 5000.0
+                        score -= float(getattr(p, "id", 0) or 0) * 0.02
+                    return score
+
+                post_objects = sorted(post_objects, key=_rank_post, reverse=True)
+            except Exception:
+                pass
 
         total_sats = db.session.query(db.func.coalesce(db.func.sum(models.CuratedPost.total_sats), 0)).scalar() or 0
         sats_per_hour = db.session.query(db.func.coalesce(db.func.sum(models.ZapEvent.amount_sats), 0)).filter(
@@ -6241,6 +6270,7 @@ def _onboarding_signal_snapshot():
 
 def _run_onboarding_step(stage: str, response_text: str, annual_income, newsletter_opt_in: bool):
     from services.onboarding_service import run_aida_step, onboarding_progress, upsert_lead
+    from core.personalization import build_user_profile, save_user_profile, recommend_next_action
 
     whale_24h, mega_24h = _onboarding_signal_snapshot()
     out = run_aida_step(
@@ -6262,7 +6292,12 @@ def _run_onboarding_step(stage: str, response_text: str, annual_income, newslett
         notes=response_text,
     )
     progress = onboarding_progress(out.stage)
-    return out, progress, lead, whale_24h, mega_24h
+    next_action = None
+    if getattr(current_user, "is_authenticated", False):
+        profile = build_user_profile(current_user)
+        save_user_profile(current_user.id, profile=profile, behavior={"last_stage": out.stage})
+        next_action = recommend_next_action(profile)
+    return out, progress, lead, whale_24h, mega_24h, next_action
 
 
 @app.route('/onboarding', methods=['GET'])
@@ -6303,7 +6338,7 @@ def onboarding_submit():
     except Exception:
         annual_income = None
     newsletter_opt_in = request.form.get("newsletter_opt_in") in ("1", "on", "true")
-    out, progress, _, whale_24h, mega_24h = _run_onboarding_step(
+    out, progress, _, whale_24h, mega_24h, _next_action = _run_onboarding_step(
         stage=stage,
         response_text=response_text,
         annual_income=annual_income,
@@ -6338,7 +6373,7 @@ def onboarding_step_api():
     newsletter_opt_in = bool(payload.get("newsletter_opt_in"))
 
     t0 = time.perf_counter()
-    out, progress, lead, whale_24h, mega_24h = _run_onboarding_step(
+    out, progress, lead, whale_24h, mega_24h, next_action = _run_onboarding_step(
         stage=stage,
         response_text=response_text,
         annual_income=annual_income,
@@ -6370,6 +6405,7 @@ def onboarding_step_api():
             "whale_24h": whale_24h,
             "mega_24h": mega_24h,
             "latency_ms": elapsed_ms,
+            "next_action": next_action,
         }
     )
 
@@ -6549,6 +6585,35 @@ def premium_hub():
                          medley_state=_medley_state,
                          initial_log_lines=initial_log_lines,
                          sovereign_nav=sovereign_nav)
+
+
+@app.route('/command')
+@login_required
+@premium_hub_required
+def command_center():
+    from core.personalization import build_user_profile, recommend_next_action
+    from core.event_bus import read_events
+    since_24h = datetime.utcnow() - timedelta(hours=24)
+    whales_24h = models.WhaleTransaction.query.filter(models.WhaleTransaction.detected_at >= since_24h).count()
+    risk_escalations = len([e for e in read_events(limit=200, lane="risk") if str(e.get("severity")) in {"warn", "crit"}])
+    sentry_pending = models.TargetAlert.query.filter_by(status="pending").count()
+    medley_runs = len(read_events(limit=300, lane="medley"))
+    onboarding_conversions = models.Lead.query.filter(models.Lead.funnel_stage.in_(["action", "activation"])).count()
+    gpu_rows = _watchtower_gpu_stats()
+    events = read_events(limit=20)
+    profile = build_user_profile(current_user)
+    next_action = recommend_next_action(profile)
+    return render_template(
+        "command.html",
+        whales_24h=whales_24h,
+        risk_escalations=risk_escalations,
+        sentry_pending=sentry_pending,
+        medley_runs=medley_runs,
+        onboarding_conversions=onboarding_conversions,
+        gpu_rows=gpu_rows,
+        events=events,
+        next_action=next_action,
+    )
 
 
 @app.route('/api/hub/automation-log')

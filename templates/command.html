@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Command Center{% endblock %}
+{% block head %}
+<style>
+  .cmd-wrap{padding:88px 14px 24px;min-height:100vh;background:#050507;color:#f5f5f5}
+  .cmd-grid{max-width:1500px;margin:0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .cmd-card{background:#0b0b10;border:1px solid rgba(220,38,38,.35);border-radius:12px;padding:12px}
+  .cmd-k{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:#fca5a5;text-transform:uppercase}
+  .cmd-v{font-family:'JetBrains Mono',monospace;font-size:1.35rem;color:#fff;margin-top:4px}
+  .cmd-wide{grid-column:span 2}
+  .cmd-log{max-height:44vh;overflow:auto;font-family:'JetBrains Mono',monospace;font-size:.78rem;white-space:pre-wrap}
+  @media(max-width:1100px){.cmd-grid{grid-template-columns:1fr}.cmd-wide{grid-column:span 1}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="cmd-wrap">
+  <div class="cmd-grid">
+    <div class="cmd-card"><div class="cmd-k">24h whale flow count</div><div class="cmd-v">{{ whales_24h }}</div></div>
+    <div class="cmd-card"><div class="cmd-k">risk escalations</div><div class="cmd-v">{{ risk_escalations }}</div></div>
+    <div class="cmd-card"><div class="cmd-k">sentry queue health</div><div class="cmd-v">{{ sentry_pending }} pending</div></div>
+    <div class="cmd-card"><div class="cmd-k">medley runs observed</div><div class="cmd-v">{{ medley_runs }}</div></div>
+    <div class="cmd-card"><div class="cmd-k">onboarding conversions</div><div class="cmd-v">{{ onboarding_conversions }}</div></div>
+    <div class="cmd-card cmd-wide"><div class="cmd-k">next best action</div><div class="cmd-v" style="font-size:1rem;">{{ next_action }}</div></div>
+    <div class="cmd-card cmd-wide">
+      <div class="cmd-k">gpu utilization</div>
+      <div class="cmd-log">{% for g in gpu_rows %}gpu{{ g.index }} | {{ g.temp_c }}c | {{ g.vram_used_mib }}/{{ g.vram_total_mib }} mib | {{ g.power_w }}w
+{% else %}nvidia-smi unavailable{% endfor %}</div>
+    </div>
+    <div class="cmd-card cmd-wide">
+      <div class="cmd-k">last 20 pulse events</div>
+      <div class="cmd-log">{% for e in events %}[{{ e.ts }}] [{{ e.lane }}/{{ e.severity }}] {{ e.title }} :: {{ e.detail }}
+{% else %}no events yet{% endfor %}</div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
