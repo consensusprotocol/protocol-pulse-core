@@ -1477,6 +1477,53 @@ def api_value_stream_stream():
                     headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no', 'Connection': 'keep-alive'})
 
 
+@app.route('/api/signal-terminal/recent')
+def signal_terminal_recent():
+    """Recent signal events for offline replay (last 100)."""
+    from datetime import datetime, timedelta
+    events = []
+    since = datetime.utcnow() - timedelta(hours=12)
+    posts = (
+        models.CuratedPost.query
+        .filter(models.CuratedPost.submitted_at >= since)
+        .order_by(models.CuratedPost.submitted_at.desc())
+        .limit(100)
+        .all()
+    )
+    for p in posts:
+        events.append(
+            {
+                'type': 'new_post',
+                'id': p.id,
+                'title': p.title or 'Untitled Signal',
+                'platform': _canonical_platform(p.platform),
+                'total_sats': int(p.total_sats or 0),
+                'zap_count': int(p.zap_count or 0),
+                'signal_score': round(float(p.signal_score or 0), 2),
+                'velocity': 0,
+                'ts': (p.submitted_at.isoformat() if p.submitted_at else ''),
+            }
+        )
+    zaps = (
+        models.ZapEvent.query
+        .filter(models.ZapEvent.created_at >= since)
+        .order_by(models.ZapEvent.created_at.desc())
+        .limit(100)
+        .all()
+    )
+    for z in zaps:
+        events.append(
+            {
+                'type': 'new_zap',
+                'post_id': z.post_id,
+                'amount': int(z.amount_sats or 0),
+                'ts': (z.created_at.isoformat() if z.created_at else ''),
+            }
+        )
+    events.sort(key=lambda x: x.get('ts', ''), reverse=True)
+    return jsonify({'events': events[:100]})
+
+
 def _normalize_tweet_url(url):
     """Normalize X/twitter status URL for lookup."""
     if not url or not isinstance(url, str):
@@ -6173,8 +6220,49 @@ def premium_hub():
 @premium_hub_required
 def hub_automation_log():
     """Fallback log endpoint for hub live terminal."""
-    lines = _filter_signal_lines(_tail_file_lines(AUTOMATION_LOG_PATH, limit=300), limit=50)
+    lines = _filter_signal_lines(_tail_file_lines(AUTOMATION_LOG_PATH, limit=500), limit=100)
     return jsonify({"lines": lines})
+
+
+@app.route('/api/oracle/search', methods=['POST'])
+@login_required
+@premium_hub_required
+def api_oracle_search():
+    """Deep-search oracle over local Value Stream, Daily Brief, and Sentry Queue."""
+    payload = request.get_json(silent=True) or {}
+    question = str(payload.get("q") or payload.get("query") or "").strip()
+    if not question:
+        return jsonify({"ok": False, "error": "query required"}), 400
+    from services.oracle_search_service import semantic_search
+
+    out = semantic_search(question=question, limit=8)
+    return jsonify({"ok": True, **out})
+
+
+@app.route('/api/notifications/subscribe', methods=['POST'])
+@login_required
+def api_notifications_subscribe():
+    """Store browser push subscription for current user."""
+    _require_csrf()
+    payload = request.get_json(silent=True) or {}
+    subscription = payload.get("subscription") or {}
+    from services.web_push_service import web_push_service
+
+    out = web_push_service.save_subscription(
+        user_id=current_user.id,
+        subscription=subscription,
+        tier=getattr(current_user, "subscription_tier", "free"),
+    )
+    return jsonify(out), (200 if out.get("ok") else 400)
+
+
+@app.route('/api/notifications/vapid-public-key')
+@login_required
+def api_notifications_vapid_public_key():
+    key = (os.environ.get("WEB_PUSH_VAPID_PUBLIC_KEY") or "").strip()
+    if not key:
+        return jsonify({"ok": False, "error": "vapid public key not configured"}), 503
+    return jsonify({"ok": True, "public_key": key})
 
 
 @app.route('/api/risk-data')
@@ -6192,6 +6280,17 @@ def api_risk_data():
         "jurisdictions": locations,
         "updated_at": center.get("last_updated"),
     })
+
+
+@app.route('/admin/monetization/run', methods=['POST'])
+@login_required
+@admin_required
+def admin_run_monetization_engine():
+    _require_csrf()
+    from services.monetization_engine import monetization_engine
+
+    report = monetization_engine.run()
+    return jsonify({"ok": True, "report": report})
 
 
 @app.route('/api/hub/medley/start', methods=['POST'])

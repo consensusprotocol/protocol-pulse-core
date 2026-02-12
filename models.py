@@ -294,6 +294,25 @@ class PremiumAsk(db.Model):
     user = db.relationship('User', backref=db.backref('premium_asks', lazy='dynamic'))
 
 
+class PushSubscription(db.Model):
+    """Web-push subscription details for whale and system notifications."""
+    __tablename__ = 'push_subscription'
+    __table_args__ = (
+        db.Index('idx_push_subscription_user_active', 'user_id', 'is_active'),
+        db.Index('idx_push_subscription_tier', 'tier'),
+    )
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    endpoint = db.Column(db.String(1024), nullable=False, unique=True)
+    p256dh = db.Column(db.String(255))
+    auth = db.Column(db.String(255))
+    tier = db.Column(db.String(30), default='free')
+    is_active = db.Column(db.Boolean, default=True, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    user = db.relationship('User', backref=db.backref('push_subscriptions', lazy='dynamic'))
+
+
 class BitcoinDonation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     payment_id = db.Column(db.String(100))

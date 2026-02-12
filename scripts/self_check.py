@@ -288,7 +288,19 @@ def _write_status_report(results: list[tuple[str, bool, str]]) -> None:
     ]
     for name, ok, detail in results:
         lines.append(f"- {'PASS' if ok else 'FAIL'} | {name} | {detail}")
+    try:
+        from app import app
+        from services.monetization_engine import monetization_engine
+        with app.app_context():
+            m = monetization_engine.metrics_snapshot()
+    except Exception:
+        m = {}
     lines += [
+        "",
+        "## Monetization Engine",
+        "",
+        f"- Injection rate: {m.get('injection_rate_pct', 0)}% ({m.get('injected', 0)}/{m.get('scanned', 0)})",
+        f"- Click rate vs injected: {m.get('click_rate_vs_injected_pct', 0)}% (clicks_7d={m.get('clicks_7d', 0)})",
         "",
         "## Morning Attention",
         "",

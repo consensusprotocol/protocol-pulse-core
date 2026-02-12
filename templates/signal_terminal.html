@@ -1235,6 +1235,18 @@
 <script>
 // Signal Terminal JavaScript
 document.addEventListener('DOMContentLoaded', function() {
+    function cachePulseEvent(channel, payload) {
+        try {
+            if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({
+                    type: 'CACHE_EVENT',
+                    channel: channel,
+                    payload: payload
+                });
+            }
+        } catch (e) {}
+    }
+
     const feedItems = document.querySelectorAll('.signal-card');
     const inspectorEmpty = document.getElementById('inspectorEmpty');
     const inspectorContent = document.getElementById('inspectorContent');
@@ -1477,6 +1489,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             if (data.type === 'new_post') {
+                cachePulseEvent('signal-terminal', data);
                 const feedContainer = document.getElementById('feedItems');
                 if (!feedContainer) return;
                 
@@ -1517,6 +1530,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             if (data.type === 'new_zap') {
+                cachePulseEvent('signal-terminal', data);
                 const card = document.querySelector(`.signal-card[data-post-id="${data.post_id}"]`);
                 if (card) {
                     const satsEl = card.querySelector('.stat-item.sats');
@@ -1538,6 +1552,12 @@ document.addEventListener('DOMContentLoaded', function() {
         eventSource.onerror = function() {
             console.log('SSE connection lost, reconnecting in 5s...');
             eventSource.close();
+            fetch('/api/signal-terminal/recent')
+                .then(r => r.json())
+                .then(payload => {
+                    (payload.events || []).forEach(evt => cachePulseEvent('signal-terminal', evt));
+                })
+                .catch(() => {});
             setTimeout(connectSSE, 5000);
         };
     }

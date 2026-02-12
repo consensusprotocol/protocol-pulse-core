@@ -1,49 +1,108 @@
-# Protocol Pulse Audit (Ultron)
+# API Route Audit
 
-## Scope
-- Run reliability on Ultron (dev + prod flow)
-- Architecture visibility (entrypoints, routes, services, jobs)
-- Highest-risk paths: auth, payments, webhooks, posting automation, partner links, migrations
-- Logging/error handling and performance foot-guns
-- Security basics (secrets, sessions, CORS, admin protection)
+Total routes audited: 309
 
-## Entry Points / Runtime Map
-- **App boot:** `app.py` (Flask app + extension init + `db.create_all()` + route import)
-- **Server entrypoint:** `run_server.py` (`0.0.0.0:5000`, no reloader)
-- **Web app routes:** `routes.py` (core route surface, admin APIs, hub APIs, payments/webhooks)
-- **Background jobs:** `scripts/intelligence_loop.py` (5-min loop), launched by `pulse_intel.service`
-- **Media render job:** `medley_director.py` (GPU 1 render, progress file tracked by hub APIs)
-- **System services in use:** `protocol-pulse.service`, `pulse_intel.service` (user-level systemd)
-
-## Red (Must Fix Before Premium Push)
-1. **Default secret fallback is hardcoded** (`app.py`): app still runs if `SESSION_SECRET` is missing, using a static dev key. This is session compromise risk.
-2. **Werkzeug dev server is serving production traffic** (`run_server.py` / service logs): no gunicorn/uwsgi front layer yet; weaker resilience and request handling under load.
-3. **No migration discipline at runtime** (`app.py` uses `db.create_all()` on startup): schema drift and silent prod divergence risk for premium features.
-4. **Socket transport allows wildcard origins** (`app.py` SocketIO `cors_allowed_origins="*"`): broad cross-origin surface for authenticated realtime channels.
-5. **Auth post-login flow is role-unsafe for premium users** (`routes.py` login currently redirects all success cases to `/admin`): non-admin paid users can hit dead/loop behavior.
-
-## Yellow (Fix Soon)
-1. **CSRF coverage is inconsistent**: `_require_csrf()` exists, but many POST endpoints do not enforce it.
-2. **Blocking network calls in request thread** (`routes.py` has many `requests.get/post` paths with multi-second timeouts): can stall responses during upstream latency.
-3. **Large monolithic route file** (`routes.py`): broad blast radius and hard-to-test changes.
-4. **Noise-heavy startup logs**: optional service/key failures are logged loudly at boot, diluting operational signal.
-5. **CTR metric quality depends on pageview tracking completeness**: pageview-based denominators can undercount if tracking JS is blocked.
-
-## Green (Working / Acceptable)
-1. **Hub + premium gates are active** (`@login_required` + `@premium_hub_required` on `/hub` and related APIs).
-2. **Background automation persistence exists** (`pulse_intel.service` active with restart behavior).
-3. **Signal stream now humanized** (`[signal]/[sentry]/[whale]` style log lines, noisy transport logs filtered from hub).
-4. **Partner link floor is now present** (`data/referrals.json` added; `/go/<partner_key>` no longer relies on missing file).
-5. **Thin-slice partner ramp shipped in hub** (catalog-driven cards, click tracking, admin analytics view).
-
-## Stabilization Checklist (Next 10 Changes)
-1. Enforce `SESSION_SECRET` at startup (fail fast if missing in non-dev mode).
-2. Move production web serving to gunicorn + systemd unit; keep Flask dev server for local only.
-3. Remove `db.create_all()` from runtime path; require explicit Alembic migration apply during deploy.
-4. Lock SocketIO CORS to known app origins only.
-5. Fix login redirect flow: honor `next`, then route non-admin users to `/hub`.
-6. Add global CSRF policy for authenticated POST endpoints (except signature-verified webhooks).
-7. Validate webhook signatures for all webhook endpoints (Stripe strict; Printful/GHL equivalent).
-8. Split `routes.py` into blueprints (`auth`, `hub`, `admin`, `billing`, `webhooks`) to reduce blast radius.
-9. Add request-timeout + retry/circuit strategy for external APIs and move expensive pulls off request thread.
-10. Add uptime/error observability baseline: structured logs + central error capture + service health checks.
+| Route | Methods | Status | Endpoint |
+|---|---|---|---|
+| `/api/active-ads` | `GET` | Live | `api_active_ads` |
+| `/api/activity-heatmap` | `GET` | Live | `api_activity_heatmap` |
+| `/api/add-ad` | `POST` | Live | `api_add_ad` |
+| `/api/analytics/export/<format>` | `GET` | Live | `export_analytics` |
+| `/api/analytics/persona-comparison` | `GET` | Live | `api_persona_comparison` |
+| `/api/analytics/sponsor-metrics` | `GET` | Live | `api_sponsor_metrics` |
+| `/api/analytics/strategy-effectiveness` | `GET` | Live | `api_strategy_effectiveness` |
+| `/api/analytics/track` | `POST` | Live | `track_engagement` |
+| `/api/analytics/velocity-leaders` | `GET` | Live | `api_velocity_leaders` |
+| `/api/chat/ask` | `POST` | Live | `chat_ask_alex` |
+| `/api/crm/callback` | `POST` | Live | `crm_webhook_callback` |
+| `/api/cypherpunk-dossier` | `GET` | Live | `api_cypherpunk_dossier` |
+| `/api/delete-ad/<int:ad_id>` | `DELETE` | Live | `api_delete_ad` |
+| `/api/donate/lightning` | `POST` | Live | `create_lightning_invoice` |
+| `/api/episodes/<show_id>` | `GET` | Live | `get_show_episodes` |
+| `/api/episodes/search` | `GET` | Live | `search_episodes` |
+| `/api/extension/schedule` | `POST` | Live | `api_extension_schedule` |
+| `/api/generate-article` | `POST` | Live | `api_generate_article` |
+| `/api/health` | `GET` | Live | `api_health` |
+| `/api/hot-ticker` | `GET` | Live | `api_hot_ticker` |
+| `/api/hub/automation-log` | `GET` | Live | `hub_automation_log` |
+| `/api/hub/medley/output` | `GET` | Live | `hub_medley_output` |
+| `/api/hub/medley/start` | `POST` | Live | `hub_medley_start` |
+| `/api/hub/medley/status` | `GET` | Live | `hub_medley_status` |
+| `/api/hub/partner-click` | `POST` | Live | `hub_partner_click` |
+| `/api/hub/sentry/<int:alert_id>/approve` | `POST` | Live | `hub_sentry_approve` |
+| `/api/latest-articles` | `GET` | Live | `latest_articles` |
+| `/api/latest-episodes` | `GET` | Live | `get_latest_episodes` |
+| `/api/live-tweets` | `GET` | Live | `api_live_tweets` |
+| `/api/logs-stream` | `GET` | Live | `api_logs_stream` |
+| `/api/media/feed` | `GET` | Live | `api_media_feed` |
+| `/api/media/ingest` | `POST` | Live | `trigger_feed_ingest` |
+| `/api/media/sentiment` | `GET` | Live | `api_media_sentiment` |
+| `/api/media/sources` | `GET` | Live | `api_media_sources` |
+| `/api/media/trending-links` | `GET` | Live | `api_media_trending_links` |
+| `/api/merch/checkout` | `POST` | Live | `merch_checkout` |
+| `/api/merch/product/<int:product_id>` | `GET` | Live | `get_product_details` |
+| `/api/merchants` | `GET` | Live | `api_merchants` |
+| `/api/merchants/search` | `GET` | Live | `api_merchant_search` |
+| `/api/mining-compare` | `GET` | Live | `api_mining_compare` |
+| `/api/mining-risk` | `GET` | Live | `api_mining_risk` |
+| `/api/mining-risk/<string:location_id>` | `GET` | Live | `api_mining_risk_location_v2` |
+| `/api/mining/rankings` | `GET` | Live | `api_mining_rankings` |
+| `/api/mining/risk/<string:location_id>` | `GET` | Live | `api_mining_risk_location` |
+| `/api/network-data` | `GET` | Live | `api_network_data` |
+| `/api/network-stats` | `GET` | Live | `api_network_stats` |
+| `/api/nostr/latest/<pubkey>` | `GET` | Live | `api_nostr_latest` |
+| `/api/notifications/subscribe` | `POST` | Beta | `api_notifications_subscribe` |
+| `/api/notifications/vapid-public-key` | `GET` | Beta | `api_notifications_vapid_public_key` |
+| `/api/onboarding/step` | `POST` | Beta | `onboarding_step_api` |
+| `/api/oracle/search` | `POST` | Beta | `api_oracle_search` |
+| `/api/podcast/<int:podcast_id>` | `GET` | Live | `get_podcast_api` |
+| `/api/podcasts/<path:rss_source>` | `GET` | Live | `get_more_podcasts_api` |
+| `/api/podcasts/channels` | `GET` | Live | `api_podcasts_channels` |
+| `/api/prediction-oracle` | `GET` | Live | `api_prediction_oracle` |
+| `/api/publish-article/<int:article_id>` | `POST` | Live | `api_publish_article` |
+| `/api/rank/get-brief-token` | `POST` | Live | `get_brief_token` |
+| `/api/rank/get-drill-token` | `POST` | Live | `get_drill_token` |
+| `/api/rank/increment-brief` | `POST` | Live | `increment_brief_click` |
+| `/api/rank/increment-drill` | `POST` | Live | `increment_drill_completion` |
+| `/api/reddit-trends` | `GET` | Live | `api_reddit_trends` |
+| `/api/risk-data` | `GET` | Live | `api_risk_data` |
+| `/api/rss/refresh` | `GET` | Live | `refresh_rss_feeds` |
+| `/api/rtsa/foundational` | `GET` | Live | `api_rtsa_foundational` |
+| `/api/rtsa/products` | `GET` | Live | `api_rtsa_products` |
+| `/api/sarah-briefing/check-flash` | `POST` | Live | `api_check_emergency_flash` |
+| `/api/sarah-briefing/generate` | `POST` | Live | `api_generate_sarah_briefing` |
+| `/api/segments/recommend` | `POST` | Live | `recommend_segment` |
+| `/api/segments/summary` | `GET` | Live | `get_segment_summary` |
+| `/api/segments/train` | `POST` | Live | `train_segmentation` |
+| `/api/sentiment/generate` | `POST` | Live | `api_generate_sentiment` |
+| `/api/sentry-stream` | `GET` | Live | `api_sentry_stream` |
+| `/api/series/teaser` | `POST` | Live | `get_series_teaser` |
+| `/api/signal-terminal/recent` | `GET` | Live | `signal_terminal_recent` |
+| `/api/signal-terminal/stream` | `GET` | Live | `signal_terminal_stream` |
+| `/api/solo-blocks` | `GET` | Live | `api_solo_blocks` |
+| `/api/subscribe` | `POST` | Live | `subscribe` |
+| `/api/supervisor/auto-assign` | `POST` | Live | `auto_assign_tasks` |
+| `/api/supervisor/auto-publish` | `POST` | Live | `supervisor_auto_publish` |
+| `/api/supervisor/run-task` | `POST` | Live | `run_supervisor_task` |
+| `/api/toggle-ad/<int:ad_id>` | `POST` | Live | `api_toggle_ad` |
+| `/api/track/event` | `POST` | Live | `api_track_event` |
+| `/api/track/pageview` | `POST` | Live | `api_track_pageview` |
+| `/api/trigger-automation` | `GET,POST` | Live | `trigger_automation` |
+| `/api/value-stream/claim` | `POST` | Live | `api_claim_submit` |
+| `/api/value-stream/claim/balance` | `GET` | Live | `api_claim_balance` |
+| `/api/value-stream/confirm-zap` | `POST` | Live | `api_confirm_zap` |
+| `/api/value-stream/curators` | `GET` | Live | `api_get_curators` |
+| `/api/value-stream/invoice/<int:post_id>` | `POST` | Live | `api_create_zap_invoice` |
+| `/api/value-stream/kol-list` | `GET` | Live | `api_value_stream_kol_list` |
+| `/api/value-stream/post/<int:post_id>` | `GET` | Live | `api_get_post_details` |
+| `/api/value-stream/pulse` | `GET` | Live | `api_value_stream_pulse` |
+| `/api/value-stream/register` | `POST` | Live | `api_register_creator` |
+| `/api/value-stream/signal-check` | `GET` | Live | `api_value_stream_signal_check` |
+| `/api/value-stream/stream` | `GET` | Live | `api_value_stream_stream` |
+| `/api/value-stream/submit` | `POST` | Live | `api_submit_content` |
+| `/api/value-stream/zap/<int:post_id>` | `POST` | Live | `api_zap_content` |
+| `/api/verified-signals` | `GET` | Live | `get_verified_signals_public` |
+| `/api/whale-watcher` | `GET` | Live | `api_whale_watcher_compat` |
+| `/api/whales` | `GET` | Live | `api_whales` |
+| `/api/whales/live` | `GET` | Live | `api_whales_live` |
+| `/api/whales/save` | `POST` | Live | `api_save_whale` |

@@ -38,6 +38,7 @@ TASKS = {
     "emergency_flash_check": {"interval_minutes": 5, "description": "Emergency flash check (40%+ drift)"},
     "daily_distribution_brief_9am_est": {"cron_est": "09:00", "description": "Sentry auto-poster daily brief dispatch (09:00 EST)"},
     "daily_medley_gpu1": {"cron_est": "09:10", "description": "Daily Beat medley render (GPU 1, 60s)"},
+    "monetization_injector": {"interval_minutes": 30, "description": "Smart-link injector scan for briefs + x drafts"},
 }
 
 
@@ -163,6 +164,17 @@ def run_task(name: str) -> Dict:
             logger.warning("daily_medley_gpu1: %s", e)
             return {"success": False, "message": str(e), "result": None}
 
+    if name == "monetization_injector":
+        try:
+            from app import app
+            from services.monetization_engine import monetization_engine
+            with app.app_context():
+                report = monetization_engine.run()
+            return {"success": True, "message": "Monetization injector scan complete", "result": report}
+        except Exception as e:
+            logger.warning("monetization_injector: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
     return {"success": False, "message": f"Unknown task: {name}", "result": None}
 
 
@@ -192,6 +204,7 @@ def initialize_scheduler() -> Dict:
         _apscheduler.add_job(lambda: run_task("x_engagement_cycle"), trigger=IntervalTrigger(minutes=5), id="x_engagement_cycle", replace_existing=True)
         _apscheduler.add_job(lambda: run_task("mining_snapshot_hourly"), trigger=IntervalTrigger(hours=1), id="mining_snapshot_hourly", replace_existing=True)
         _apscheduler.add_job(lambda: run_task("daily_medley_gpu1"), trigger=CronTrigger(hour=23, minute=0), id="daily_medley_gpu1", replace_existing=True)
+        _apscheduler.add_job(lambda: run_task("monetization_injector"), trigger=IntervalTrigger(minutes=30), id="monetization_injector", replace_existing=True)
         _apscheduler.start()
         _scheduler_started_at = datetime.utcnow()
     return {"success": True, "started_at": _scheduler_started_at.isoformat(), "mode": "apscheduler"}

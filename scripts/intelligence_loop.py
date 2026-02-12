@@ -375,6 +375,26 @@ def main() -> None:
                 except Exception:
                     logging.exception("distribution dispatch failed")
                 try:
+                    mega_events = w_result.get("mega_events") or []
+                    if mega_events:
+                        from services.web_push_service import web_push_service
+                        for event in mega_events:
+                            usd = float(event.get("usd_value") or 0)
+                            btc = float(event.get("btc_amount") or 0)
+                            if usd >= 100_000_000 or btc >= 2500:
+                                msg = (
+                                    f"Whale Move Detected: {btc:,.0f} BTC moved to cold storage. "
+                                    "the exit window is narrowing."
+                                )
+                                push_result = web_push_service.notify_sovereign_whale(
+                                    btc_amount=btc,
+                                    message=msg,
+                                    txid=(event.get("txid") or ""),
+                                )
+                                logging.info("whale push dispatch: %s", push_result)
+                except Exception:
+                    logging.exception("whale web-push dispatch failed")
+                try:
                     from services.matty_ice_engagement import matty_ice_agent
 
                     if is_enabled("ENABLE_MATTY_ICE_ENGAGEMENT"):

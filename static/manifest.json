@@ -1,11 +1,13 @@
 {
-  "name": "Protocol Pulse",
+  "name": "Protocol Pulse Nexus",
   "short_name": "Pulse",
-  "description": "Bitcoin Intelligence Hub - Real-time network data, sovereign insights, and AI-powered analysis",
-  "start_url": "/",
+  "description": "High-contrast sovereign command OS for Bitcoin intelligence and monetization.",
+  "id": "/hub",
+  "start_url": "/hub",
   "display": "standalone",
-  "background_color": "#0a0a0a",
+  "background_color": "#050508",
   "theme_color": "#dc2626",
+  "scope": "/",
   "orientation": "portrait-primary",
   "icons": [
     {
@@ -60,10 +62,17 @@
   "categories": ["news", "finance", "business"],
   "shortcuts": [
     {
+      "name": "Commander Hub",
+      "short_name": "Hub",
+      "description": "Launch commander control deck",
+      "url": "/hub",
+      "icons": [{"src": "/static/icons/icon-96.png", "sizes": "96x96"}]
+    },
+    {
       "name": "Live Terminal",
       "short_name": "Terminal",
       "description": "Real-time Bitcoin settlement visualization",
-      "url": "/live",
+      "url": "/signal-terminal",
       "icons": [{"src": "/static/icons/icon-96.png", "sizes": "96x96"}]
     },
     {
@@ -79,6 +88,15 @@
       "description": "Latest Bitcoin intelligence",
       "url": "/articles",
       "icons": [{"src": "/static/icons/icon-96.png", "sizes": "96x96"}]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/static/screenshots/test_b98c1ae16de243ae85678aabce69af05.png",
+      "sizes": "412x915",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Pulse mobile command view"
     }
   ],
   "related_applications": [],

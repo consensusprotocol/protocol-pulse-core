@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <meta name="theme-color" content="#dc2626">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -142,6 +143,24 @@
         filter: none !important;
         position: relative;
         z-index: 10;
+    }
+    @media (max-width: 768px) {
+        /* Mobile sovereignty: collapse glass-like panels and tables into vertical lanes. */
+        .hub-panel, .ob-card, .card, [class*="glass"], [class*="panel"] {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        table, .table {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
     }
     </style>
 </head>
@@ -828,11 +847,33 @@
     
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/static/sw.js?v=4')
+            navigator.serviceWorker.register('/static/sw.js?v=6')
                 .then(reg => console.log('SW registered:', reg.scope))
                 .catch(err => console.log('SW registration failed:', err));
         });
     }
+
+    // PWA Add-to-Home-Screen prompt (Android); iOS uses Safari share sheet install.
+    let deferredInstallPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        const installBtn = document.createElement('button');
+        installBtn.textContent = 'Install Pulse';
+        installBtn.className = 'btn btn-danger btn-sm';
+        installBtn.style.position = 'fixed';
+        installBtn.style.bottom = '16px';
+        installBtn.style.right = '16px';
+        installBtn.style.zIndex = '99999';
+        installBtn.onclick = async function () {
+            if (!deferredInstallPrompt) return;
+            deferredInstallPrompt.prompt();
+            await deferredInstallPrompt.userChoice;
+            deferredInstallPrompt = null;
+            installBtn.remove();
+        };
+        document.body.appendChild(installBtn);
+    });
     
     // Command Palette Functions
     function openCommandPalette() {
