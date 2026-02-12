@@ -25,15 +25,18 @@ logger = logging.getLogger(__name__)
 
 
 def _load_config() -> Dict[str, Any]:
-    """Load core/config/command_center_config.json if present."""
+    """Load config/twitter_engagement.json first, fallback to core/config/command_center_config.json."""
     try:
-        base = Path(__file__).resolve().parents[1]
-        cfg_path = base / "config" / "command_center_config.json"
-        if not cfg_path.exists():
-            logger.debug("X Sentry config missing at %s", cfg_path)
-            return {}
-        with cfg_path.open("r", encoding="utf-8") as f:
-            return json.load(f)
+        repo_root = Path(__file__).resolve().parents[2]
+        preferred = repo_root / "config" / "twitter_engagement.json"
+        legacy = Path(__file__).resolve().parents[1] / "config" / "command_center_config.json"
+        for cfg_path in (preferred, legacy):
+            if not cfg_path.exists():
+                continue
+            with cfg_path.open("r", encoding="utf-8") as f:
+                return json.load(f)
+        logger.debug("X Sentry config missing at %s and %s", preferred, legacy)
+        return {}
     except Exception as e:  # pragma: no cover
         logger.warning("Failed to load X Sentry config: %s", e)
         return {}

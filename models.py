@@ -626,6 +626,73 @@ class AutoTweet(db.Model):
     post_url = db.Column(db.String(500))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+
+# =====================================
+# X ENGAGEMENT SENTRY MODELS
+# =====================================
+
+class XInboxTweet(db.Model):
+    __tablename__ = 'x_inbox_tweet'
+    __table_args__ = (db.Index('idx_x_inbox_status_created', 'status', 'created_at'),)
+
+    id = db.Column(db.Integer, primary_key=True)
+    tweet_id = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    author_handle = db.Column(db.String(50), nullable=False, index=True)
+    author_name = db.Column(db.String(100))
+    tweet_text = db.Column(db.Text, nullable=False)
+    tweet_url = db.Column(db.String(500))
+    tweet_created_at = db.Column(db.DateTime)
+    status = db.Column(db.String(20), default='new', index=True)
+    tier = db.Column(db.String(30))
+    style = db.Column(db.String(30))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+
+
+class XReplyDraft(db.Model):
+    __tablename__ = 'x_reply_draft'
+    __table_args__ = (db.Index('idx_x_reply_draft_confidence', 'confidence'),)
+
+    id = db.Column(db.Integer, primary_key=True)
+    inbox_id = db.Column(db.Integer, db.ForeignKey('x_inbox_tweet.id'), nullable=False, index=True)
+    draft_text = db.Column(db.String(300), nullable=False)
+    confidence = db.Column(db.Float)
+    reasoning = db.Column(db.Text)
+    style_used = db.Column(db.String(30))
+    risk_flags = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+
+    inbox = db.relationship('XInboxTweet', backref=db.backref('drafts', lazy='dynamic'))
+
+
+class XReplyPost(db.Model):
+    __tablename__ = 'x_reply_post'
+    __table_args__ = (db.Index('idx_x_reply_post_posted_at', 'posted_at'),)
+
+    id = db.Column(db.Integer, primary_key=True)
+    inbox_id = db.Column(db.Integer, db.ForeignKey('x_inbox_tweet.id'), nullable=False, index=True)
+    draft_id = db.Column(db.Integer, db.ForeignKey('x_reply_draft.id'))
+    reply_tweet_id = db.Column(db.String(64), index=True)
+    posted_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    response_payload = db.Column(db.Text)
+
+    inbox = db.relationship('XInboxTweet', backref=db.backref('posted_reply', uselist=False))
+    draft = db.relationship('XReplyDraft', backref=db.backref('post', uselist=False))
+
+
+class MiningSnapshot(db.Model):
+    __tablename__ = 'mining_snapshot'
+    __table_args__ = (db.Index('idx_mining_snapshot_location_captured', 'location_id', 'captured_at'),)
+
+    id = db.Column(db.Integer, primary_key=True)
+    location_id = db.Column(db.String(80), nullable=False, index=True)
+    location_name = db.Column(db.String(120))
+    overall_score = db.Column(db.Float, nullable=False)
+    political_score = db.Column(db.Float, default=0)
+    economic_score = db.Column(db.Float, default=0)
+    operational_score = db.Column(db.Float, default=0)
+    factors_json = db.Column(db.Text)
+    captured_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
+
 # =====================================
 # VALUE STREAM MODELS
 # =====================================

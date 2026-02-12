@@ -422,6 +422,8 @@ def process_zap(post_id, sender_id, amount, payment_hash):
             "post_id": post_id,
             "zap_id": zap_id,
             "amount_sats": amount,
+            "curator_share_sats": curator_share_sats,
+            "creator_share_sats": creator_share_sats,
             "status": "settled" if verified else "pending",
         }
     except Exception as e:

@@ -129,7 +129,7 @@
     50% { background-position: 200% center; }
 }
 .vs-subtitle {
-    font-size: 1.1rem;
+        font-size: 1.1rem;
     line-height: 1.7;
     color: var(--vs-text-60);
     max-width: 620px;
@@ -139,15 +139,15 @@
 
 /* Live Stats */
 .vs-live-stats {
-    display: flex;
-    justify-content: center;
+        display: flex;
+        justify-content: center;
     gap: 40px;
     margin-bottom: 24px;
-    flex-wrap: wrap;
+        flex-wrap: wrap;
 }
 .vs-stat-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .vs-stat-value {
-    font-family: 'JetBrains Mono', monospace;
+        font-family: 'JetBrains Mono', monospace;
     font-size: 1.6rem;
     font-weight: 700;
     color: var(--vs-text-100);
@@ -183,7 +183,7 @@
 .vs-market-pulse-label {
     font-size: 0.65rem;
     font-weight: 700;
-    text-transform: uppercase;
+        text-transform: uppercase;
     letter-spacing: 0.12em;
     color: var(--vs-text-40);
 }
@@ -204,7 +204,7 @@
 .vs-market-pulse-fill.signal { background: var(--vs-green); }
 .vs-market-pulse-fill.hyper { background: linear-gradient(90deg, var(--vs-green), #00ff88); box-shadow: 0 0 12px var(--vs-green-glow); }
 .vs-market-pulse-value {
-    font-family: 'JetBrains Mono', monospace;
+        font-family: 'JetBrains Mono', monospace;
     font-size: 0.9rem;
     font-weight: 700;
     min-width: 2.5em;
@@ -261,7 +261,7 @@
     flex-wrap: wrap;
     font-size: 0.85rem;
     color: var(--vs-text-80);
-    font-family: 'JetBrains Mono', monospace;
+        font-family: 'JetBrains Mono', monospace;
 }
 
 /* Filter bar */
@@ -291,7 +291,7 @@
     color: var(--vs-text-60);
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.75rem;
-    font-weight: 600;
+        font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     cursor: pointer;
@@ -406,9 +406,9 @@
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--vs-green);
-    display: flex;
-    align-items: center;
-    gap: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
 }
 .vs-command-log-header::before {
     content: '';
@@ -556,15 +556,15 @@
     gap: 8px;
     padding: 14px 28px;
     background: linear-gradient(135deg, var(--vs-btc) 0%, var(--vs-btc-dark) 100%);
-    border: none;
+        border: none;
     border-radius: 10px;
-    color: #000;
+        color: #000;
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.82rem;
-    font-weight: 700;
+        font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    cursor: pointer;
+        cursor: pointer;
     transition: all 0.2s var(--vs-ease);
     white-space: nowrap;
 }
@@ -648,8 +648,8 @@
     width: 100%;
     height: 100%;
     min-height: 120px;
-    display: flex;
-    align-items: center;
+        display: flex;
+        align-items: center;
     justify-content: center;
     background: linear-gradient(135deg, var(--vs-deep), var(--vs-surface));
     color: var(--vs-text-20);
@@ -681,7 +681,7 @@
 
 .vs-signal { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
 .vs-signal-value {
-    font-family: 'JetBrains Mono', monospace;
+        font-family: 'JetBrains Mono', monospace;
     font-size: 1.5rem;
     font-weight: 700;
     line-height: 1;
@@ -701,10 +701,30 @@
     line-height: 1.55;
     color: var(--vs-text-60);
     display: -webkit-box;
+    line-clamp: 2;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     margin-bottom: 14px;
+}
+.vs-quote-preview {
+    margin-bottom: 14px;
+    padding: 12px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-left: 3px solid var(--vs-btc);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+}
+.vs-quote-text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--vs-text-80);
+    margin: 0;
+    display: -webkit-box;
+    line-clamp: 4;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 .vs-card-footer {
     display: flex;
@@ -763,13 +783,13 @@
     gap: 8px;
     padding: 10px 18px;
     background: linear-gradient(135deg, var(--vs-btc) 0%, var(--vs-btc-dark) 100%);
-    border: none;
-    border-radius: 8px;
+        border: none;
+        border-radius: 8px;
     color: #000;
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.78rem;
-    font-weight: 700;
-    cursor: pointer;
+        font-weight: 700;
+        cursor: pointer;
     transition: all 0.2s var(--vs-ease);
 }
 .vs-zap-btn:hover { transform: scale(1.04); box-shadow: 0 6px 20px var(--vs-btc-glow); }
@@ -882,8 +902,8 @@
     padding: 16px;
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid var(--vs-border);
-    border-radius: 12px;
-    text-align: center;
+        border-radius: 12px;
+        text-align: center;
     transition: all 0.2s var(--vs-ease);
 }
 .vs-how-step:hover { border-color: var(--vs-border-hover); background: rgba(255, 255, 255, 0.04); }
@@ -893,7 +913,7 @@
 
 /* Empty state */
 .vs-empty {
-    text-align: center;
+        text-align: center;
     padding: 60px 32px;
     background: var(--vs-card);
     border: 1px dashed var(--vs-border);
@@ -912,7 +932,7 @@
     padding: 14px 18px;
     background: var(--vs-elevated);
     border: 1px solid var(--vs-border);
-    border-radius: 12px;
+        border-radius: 12px;
     box-shadow: var(--vs-shadow-lg);
     transform: translateX(120%);
     transition: transform 0.3s var(--vs-ease);
@@ -990,7 +1010,7 @@
     padding: 12px 14px;
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid var(--vs-border);
-    border-radius: 8px;
+        border-radius: 8px;
     color: var(--vs-text-100);
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.95rem;
@@ -999,13 +1019,13 @@
 .vs-zap-custom-input:focus { outline: none; border-color: var(--vs-btc); }
 .vs-zap-custom-label { font-size: 0.85rem; color: var(--vs-text-40); }
 .vs-zap-send-btn {
-    width: 100%;
+        width: 100%;
     padding: 16px;
     background: linear-gradient(135deg, var(--vs-btc) 0%, var(--vs-btc-dark) 100%);
     border: none;
     border-radius: 12px;
     color: #000;
-    font-family: 'JetBrains Mono', monospace;
+        font-family: 'JetBrains Mono', monospace;
     font-size: 0.95rem;
     font-weight: 700;
     cursor: pointer;
@@ -1024,7 +1044,7 @@
     .vs-card-actions { width: 100%; justify-content: space-between; }
     .vs-how-grid { grid-template-columns: 1fr; }
     .vs-zap-amounts-modal { grid-template-columns: repeat(2, 1fr); }
-}
+    }
 </style>
 {% endblock %}
 
@@ -1049,7 +1069,7 @@
             <div class="vs-stat-item">
                 <div class="vs-stat-value sats" id="total-sats">{{ "{:,}".format(total_sats|default(0)) }}</div>
                 <div class="vs-stat-label">Total Sats Flowed</div>
-            </div>
+        </div>
             <div class="vs-stat-item">
                 <div class="vs-stat-value">{{ posts|length if posts else 0 }}</div>
                 <div class="vs-stat-label">Curated Items</div>
@@ -1074,8 +1094,8 @@
                     <span class="vs-market-pulse-value {{ mp_class }}" id="market-pulse-value">{{ mp_val }}</span>
                     <span class="vs-market-pulse-label" id="market-pulse-label">{{ _mp.label|default('Neutral') }}</span>
                 </div>
-            </div>
-        </div>
+    </div>
+</div>
 
         <div class="vs-ticker">
             <div class="vs-ticker-inner">
@@ -1133,13 +1153,13 @@
                     <input type="url" class="vs-submit-input" id="content-url" placeholder="Paste any URL to curate..." required>
                 </div>
                 <button type="submit" class="vs-submit-btn" id="submit-btn"><i class="fas fa-paper-plane"></i> <span>Curate</span></button>
-            </form>
+                </form>
             <div class="vs-submit-hint"><i class="fas fa-coins"></i> <span>OG title, description & image are fetched automatically</span></div>
-        </div>
-
+            </div>
+            
         <div class="vs-feed" id="vs-feed">
-            {% if posts %}
-                {% for post in posts %}
+                {% if posts %}
+                    {% for post in posts %}
                 {% set _score = post.signal_score or 0 %}
                 {% set signal_pct = [100, (_score * 2)|int]|min %}
                 <article class="vs-card {% if post.is_featured %}featured{% endif %} {% if (post.total_sats or 0) >= 10000 %}vs-card-glitch{% endif %}" data-post-id="{{ post.id }}">
@@ -1172,11 +1192,17 @@
                             <a href="{{ post.original_url }}" target="_blank" rel="noopener">{{ post.title or 'Untitled Content' }} <i class="fas fa-external-link-alt external"></i></a>
                         </h3>
                         {% if post.content_preview %}
-                        <p class="vs-card-preview">{{ post.content_preview[:180] }}{% if post.content_preview|length > 180 %}...{% endif %}</p>
+                            {% if post.platform == 'x' and not post.thumbnail_url %}
+                            <div class="vs-quote-preview">
+                                <p class="vs-quote-text">"{{ post.content_preview[:360] }}{% if post.content_preview|length > 360 %}...{% endif %}"</p>
+                            </div>
+                            {% else %}
+                            <p class="vs-card-preview">{{ post.content_preview[:180] }}{% if post.content_preview|length > 180 %}...{% endif %}</p>
+                        {% endif %}
                         {% endif %}
                         <div class="vs-signal-meter">
                             <div class="vs-signal-fill" style="width: {{ signal_pct }}%;"></div>
-                        </div>
+                            </div>
                         <div class="vs-card-footer">
                             <div class="vs-stats">
                                 <div class="vs-stat">
@@ -1200,24 +1226,24 @@
                                     <button type="button" class="vs-zap-amount" data-amount="100">100</button>
                                     <button type="button" class="vs-zap-amount" data-amount="1000">1K</button>
                                     <button type="button" class="vs-zap-amount" data-amount="10000">10K</button>
-                                </div>
-                                <button type="button" class="vs-zap-btn" data-post-id="{{ post.id }}"><i class="fas fa-bolt"></i> Zap</button>
                             </div>
+                                <button type="button" class="vs-zap-btn" data-post-id="{{ post.id }}"><i class="fas fa-bolt"></i> Zap</button>
                         </div>
+                    </div>
                     </div>
                     {% if post.thumbnail_url %}</div>{% endif %}
                 </article>
-                {% endfor %}
-            {% else %}
+                    {% endfor %}
+                {% else %}
                 <div class="vs-empty">
                     <div class="vs-empty-icon"><i class="fas fa-stream"></i></div>
                     <h3 class="vs-empty-title">No Content Yet</h3>
                     <p class="vs-empty-desc">Be the first to curate. Paste any URL above and start earning sats.</p>
-                </div>
-            {% endif %}
+                    </div>
+                {% endif %}
+            </div>
         </div>
-    </div>
-
+        
     <aside class="vs-sidebar">
         <div class="vs-promo">
             <div class="vs-promo-content">
@@ -1241,7 +1267,7 @@
                         <div class="vs-curator-info">
                             <div class="vs-curator-name-lg {% if curator.verified %}verified{% endif %}">{{ curator.display_name }}</div>
                             <div class="vs-curator-score-text">Score: {{ "%.1f"|format(curator.curator_score or 0) }}</div>
-                        </div>
+                                </div>
                         <div class="vs-curator-earnings">
                             <div class="vs-curator-sats">{{ "{:,}".format(curator.total_sats_received or 0) }}</div>
                             <div class="vs-curator-zaps">{{ curator.total_zaps or 0 }} zaps</div>
@@ -1252,7 +1278,7 @@
                     <p style="text-align: center; color: var(--vs-text-40); padding: 20px; font-size: 0.85rem;">No curators yet. Be the first!</p>
                 {% endif %}
             </div>
-        </div>
+                </div>
         <div class="vs-how">
             <h3 class="vs-how-title"><i class="fas fa-lightbulb"></i> How It Works</h3>
             <div class="vs-how-grid">
@@ -1275,7 +1301,7 @@
                     <div class="vs-how-icon">💰</div>
                     <div class="vs-how-step-title">4. Earn</div>
                     <div class="vs-how-step-desc">Curators earn 10% of zaps</div>
-                </div>
+            </div>
             </div>
         </div>
     </aside>
@@ -1302,8 +1328,8 @@
             <span class="vs-zap-custom-label">sats</span>
         </div>
         <button type="button" class="vs-zap-send-btn" id="zap-send-btn"><i class="fas fa-bolt"></i> Send Zap</button>
+        </div>
     </div>
-</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
@@ -1314,11 +1340,11 @@
     let selectedAmount = 1000;
 
     document.querySelectorAll('.vs-platform-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const platform = this.dataset.platform;
+    btn.addEventListener('click', function() {
+        const platform = this.dataset.platform;
             window.location.href = platform === 'all' ? '/value-stream' : '/value-stream?platform=' + platform;
-        });
     });
+});
 
     document.querySelectorAll('.vs-sort-option').forEach(btn => {
         btn.addEventListener('click', function() {
@@ -1339,14 +1365,14 @@
         try {
             const res = await fetch('/api/value-stream/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: url }) });
             const data = await res.json().catch(() => ({}));
-            if (data.success) {
+        if (data.success) {
                 showToast('Content curated successfully! ⚡', 'success');
                 urlInput.value = '';
                 setTimeout(() => window.location.reload(), 1400);
-            } else {
+        } else {
                 showToast(data.error || 'Failed to submit', 'error');
-            }
-        } catch (err) {
+        }
+    } catch (err) {
             showToast('Network error. Try again.', 'error');
         } finally {
             submitBtn.disabled = false;
@@ -1404,15 +1430,15 @@
             showToast('Install a WebLN wallet (e.g. Alby)', 'error');
             return;
         }
-        try {
-            await webln.enable();
+            try {
+                await webln.enable();
             const res = await fetch('/api/value-stream/invoice/' + postId, {
-                method: 'POST',
+                    method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ amount_sats: amount })
-            });
+                });
             const data = await res.json();
-            if (data.invoice) {
+                if (data.invoice) {
                 await webln.sendPayment(data.invoice);
                 showToast('⚡ Zapped ' + (amount).toLocaleString() + ' sats!', 'success');
                 if (amount >= 10000 && typeof confetti === 'function') {
@@ -1428,8 +1454,8 @@
                     card.classList.add('zap-animation');
                     card.style.boxShadow = '0 0 40px rgba(247, 147, 26, 0.4)';
                     setTimeout(function() { card.classList.remove('zap-animation'); card.style.boxShadow = ''; }, 600);
-                }
-            } else {
+            }
+        } else {
                 showToast('Could not create invoice', 'error');
             }
         } catch (err) {
@@ -1455,9 +1481,20 @@
         var scrollEl = document.getElementById('command-log-scroll');
         if (!scrollEl) return;
         var pulsePostMap = {};
-        {% for post in posts %}
-        pulsePostMap[{{ (post.original_url or '')|tojson }}] = {{ post.id }};
-        {% endfor %}
+        var seenPulseIds = new Set();
+        var liveItems = [];
+        document.querySelectorAll('.vs-card[data-post-id]').forEach(function(card) {
+            var postId = card.getAttribute('data-post-id');
+            var anchor = card.querySelector('.vs-card-title a');
+            if (!postId || !anchor) return;
+            var href = anchor.getAttribute('href') || '';
+            if (href) {
+                pulsePostMap[href] = postId;
+                try {
+                    pulsePostMap[new URL(href, window.location.origin).href] = postId;
+                } catch (err) {}
+            }
+        });
         function render(items) {
             if (!items || items.length === 0) {
                 scrollEl.innerHTML = '<div class="vs-pulse-line platform-x"><span class="vs-pulse-line-icon"><span class="vs-pf-icon vs-pf-x"></span></span><div class="vs-pulse-line-content">No alpha relay signal yet. Run ingest or add sources.</div></div>';
@@ -1476,16 +1513,44 @@
                 return '<div class="vs-pulse-line platform-' + platform + '"><span class="vs-pulse-line-icon">' + icon + '</span><div class="vs-pulse-line-content">' + link + '<div class="vs-pulse-line-meta">' + meta.replace(/</g, '&lt;') + '</div></div>' + zapBtn + '</div>';
             }).join('');
         }
-        fetch('/api/value-stream/pulse?limit=50&ingest=1').then(function(r) { return r.json(); }).then(function(data) {
-            if (data && data.items) render(data.items);
+        function itemKey(it) {
+            return String((it && (it.external_id || it.id || it.url || (it.platform + ':' + it.content))) || '');
+        }
+        function mergeLive(items) {
+            if (!items || !items.length) return false;
+            var inserted = false;
+            if (!liveItems.length) {
+                liveItems = items.slice(0, 50);
+                liveItems.forEach(function(it) { seenPulseIds.add(itemKey(it)); });
+                return true;
+            }
+            // Newest-first stream: prepend unseen items as they arrive.
+            for (var i = items.length - 1; i >= 0; i--) {
+                var it = items[i];
+                var key = itemKey(it);
+                if (!key || seenPulseIds.has(key)) continue;
+                seenPulseIds.add(key);
+                liveItems.unshift(it);
+                inserted = true;
+            }
+            if (liveItems.length > 50) liveItems = liveItems.slice(0, 50);
+            return inserted;
+        }
+        fetch('/api/value-stream/pulse?limit=50&ingest=1&t=' + Date.now()).then(function(r) { return r.json(); }).then(function(data) {
+            if (data && data.items) {
+                mergeLive(data.items);
+                render(liveItems);
+            }
         }).catch(function() {
             scrollEl.innerHTML = '<div class="vs-pulse-line platform-x"><span class="vs-pulse-line-icon"><i class="fas fa-wifi"></i></span><div class="vs-pulse-line-content">Pulse unavailable.</div></div>';
         });
         setInterval(function() {
-            fetch('/api/value-stream/pulse?limit=50').then(function(r) { return r.json(); }).then(function(data) {
-                if (data && data.items && data.items.length) render(data.items);
+            fetch('/api/value-stream/pulse?limit=50&ingest=1&t=' + Date.now()).then(function(r) { return r.json(); }).then(function(data) {
+                if (data && data.items && data.items.length) {
+                    if (mergeLive(data.items)) render(liveItems);
+                }
             }).catch(function() {});
-        }, 60000);
+        }, 20000);
 
         scrollEl.addEventListener('click', async function(evt) {
             var btn = evt.target.closest('.vs-pulse-zap');

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}X Engagement Sentry · Reply Queue{% endblock %}
+
+{% block content %}
+<div class="pp-page" style="padding: 32px 24px; max-width: 1080px; margin: 0 auto;">
+    <h1 class="mb-3" style="font-size: 1.6rem;">X Engagement Sentry</h1>
+    <p class="text-muted mb-4" style="max-width: 720px;">
+        Sovereign Sentry reply queue. These drafts were generated against monitored Bitcoin accounts.
+        Review, edit if needed, then approve to post. Nothing goes live without your click.
+    </p>
+
+    {% if pending|length == 0 %}
+        <div class="alert alert-secondary" role="alert" style="background: rgba(148,163,184,0.08); border-color: rgba(148,163,184,0.4);">
+            No pending replies. The sentry will queue new drafts as monitored accounts post.
+        </div>
+    {% endif %}
+
+    {% for inbox in pending %}
+        <div class="card mb-3" style="background: #020617; border: 1px solid rgba(148,163,184,0.3);">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <strong>@{{ inbox.author_handle }}</strong>
+                        {% if inbox.tier %}
+                            <span class="badge bg-danger ms-2" style="text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.6rem;">
+                                {{ inbox.tier }}
+                            </span>
+                        {% endif %}
+                        {% if inbox.style %}
+                            <span class="badge bg-secondary ms-1" style="font-size: 0.6rem;">
+                                {{ inbox.style }}
+                            </span>
+                        {% endif %}
+                    </div>
+                    <small class="text-muted">
+                        {{ inbox.tweet_created_at or inbox.created_at }}
+                    </small>
+                </div>
+
+                <p style="white-space: pre-wrap; font-size: 0.9rem;">{{ inbox.tweet_text }}</p>
+                <p class="mb-2">
+                    <a href="{{ inbox.tweet_url }}" target="_blank" class="text-decoration-none text-info" style="font-size: 0.8rem;">
+                        open on x ↗
+                    </a>
+                </p>
+
+                {% set draft = inbox.drafts|first %}
+                {% if draft %}
+                    <hr class="my-3" style="border-color: rgba(148,163,184,0.4);">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8;">
+                            sovereign sentry draft
+                        </span>
+                        <span>
+                            <span class="badge {% if draft.confidence >= 0.85 %}bg-success{% elif draft.confidence >= 0.7 %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                                {{ (draft.confidence or 0) | round(2) }}
+                            </span>
+                        </span>
+                    </div>
+                    <form method="post" action="/admin/x-replies/{{ inbox.id }}/approve">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <textarea name="draft_text" class="form-control mb-2" rows="2" style="font-size: 0.9rem;">{{ draft.draft_text }}</textarea>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                approve &amp; post
+                            </button>
+                            <a href="#" onclick="event.preventDefault(); document.getElementById('reject-{{ inbox.id }}').submit();" class="btn btn-sm btn-outline-secondary">
+                                reject
+                            </a>
+                        </div>
+                    </form>
+                    <form id="reject-{{ inbox.id }}" method="post" action="/admin/x-replies/{{ inbox.id }}/reject" style="display:none;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    </form>
+                    {% if draft.reasoning %}
+                        <p class="mt-2 mb-0 text-muted" style="font-size: 0.75rem;">
+                            {{ draft.reasoning }}
+                        </p>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-warning mt-3 mb-0" style="font-size: 0.8rem;">
+                        No draft attached yet. The next sentry cycle will attempt to generate one.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
+

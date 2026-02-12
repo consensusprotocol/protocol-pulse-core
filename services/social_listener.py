@@ -7,6 +7,9 @@ for engagement. (Image generation requires Imagen API; reply can use OpenAI/Clau
 
 import logging
 from typing import Dict, Optional, List
+import os
+
+from services.ollama_runtime import generate as ollama_generate
 
 logger = logging.getLogger(__name__)
 
@@ -39,15 +42,24 @@ class SocialListener:
 
     def generate_reply_one_liner(self, tweet_text: str, author_handle: str) -> str:
         """Generate a Walter Cronkite-style one-liner reply (authoritative, thoughtful, under 280 chars)."""
-        try:
-            from services.ai_service import AIService
-            ai = AIService()
-            prompt = f"""You are Protocol Pulse's social voice: Walter Cronkite style — authoritative, thoughtful, journalistic.
+        prompt = f"""You are Protocol Pulse's social voice: Walter Cronkite style — authoritative, thoughtful, journalistic.
 
 TWEET from @{author_handle}:
 {tweet_text}
 
 Write a single reply that adds value (insight or context). One sentence, max 280 chars. No hashtags, no emojis. Do not start with @handle."""
+        preferred = os.environ.get("SOCIAL_LISTENER_MODEL", "llama3.3").strip()
+        local = ollama_generate(
+            prompt=prompt,
+            preferred_model=preferred,
+            options={"temperature": 0.5, "num_predict": 90},
+            timeout=60,
+        )
+        if local:
+            return local.splitlines()[0].strip()[:280]
+        try:
+            from services.ai_service import AIService
+            ai = AIService()
             return (ai.generate_content_openai(prompt) or "").strip()[:280]
         except Exception as e:
             logger.warning("generate_reply_one_liner failed: %s", e)

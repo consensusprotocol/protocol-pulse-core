@@ -1,0 +1,117 @@
+{
+  "categories": [
+    {
+      "key": "earn",
+      "label": "earn",
+      "partners": [
+        {
+          "slug": "river",
+          "name": "river",
+          "url": "https://river.com/",
+          "what_it_is": "bitcoin accumulation and recurring buys for long-horizon stackers.",
+          "eligibility_tags": ["us", "kyc", "retail"],
+          "why_use": "simple auto-dca flow with a bitcoin-first product lane.",
+          "cta_label": "apply",
+          "referral_code": "river_pp_hub"
+        }
+      ]
+    },
+    {
+      "key": "borrow",
+      "label": "borrow",
+      "partners": [
+        {
+          "slug": "hodlhodl",
+          "name": "hodlhodl",
+          "url": "https://hodlhodl.com/",
+          "what_it_is": "peer-to-peer bitcoin-backed lending marketplace.",
+          "eligibility_tags": ["global", "p2p", "experienced"],
+          "why_use": "unlock liquidity without immediate sale pressure.",
+          "cta_label": "learn",
+          "referral_code": "hodlhodl_pp_hub"
+        }
+      ]
+    },
+    {
+      "key": "insure",
+      "label": "insure",
+      "partners": [
+        {
+          "slug": "meanwhile",
+          "name": "meanwhile",
+          "url": "https://meanwhile.bm/",
+          "what_it_is": "bitcoin-denominated life insurance and long-term protection products.",
+          "eligibility_tags": ["selected regions", "high-net-worth", "btc-native"],
+          "why_use": "hedge fiat drag with policy rails aligned to bitcoin treasury goals.",
+          "cta_label": "get quote",
+          "referral_code": "meanwhile_pp_hub"
+        }
+      ]
+    },
+    {
+      "key": "spend",
+      "label": "spend",
+      "partners": [
+        {
+          "slug": "strike",
+          "name": "strike",
+          "url": "https://strike.me/",
+          "what_it_is": "payments rail for sending and spending bitcoin with lightning support.",
+          "eligibility_tags": ["us", "global corridors", "mobile"],
+          "why_use": "fast settlement for day-to-day bitcoin utility.",
+          "cta_label": "apply",
+          "referral_code": "strike_pp_hub"
+        }
+      ]
+    },
+    {
+      "key": "save",
+      "label": "save",
+      "partners": [
+        {
+          "slug": "swan",
+          "name": "swan",
+          "url": "https://www.swanbitcoin.com/",
+          "what_it_is": "long-term bitcoin savings plans and guided onboarding.",
+          "eligibility_tags": ["us", "dca", "beginner-friendly"],
+          "why_use": "reduce emotion-driven entries with recurring schedule discipline.",
+          "cta_label": "learn",
+          "referral_code": "swan_pp_hub"
+        }
+      ]
+    },
+    {
+      "key": "self-custody",
+      "label": "self-custody",
+      "partners": [
+        {
+          "slug": "trezor",
+          "name": "trezor",
+          "url": "https://trezor.io/",
+          "what_it_is": "hardware wallet stack for private key custody.",
+          "eligibility_tags": ["global", "hardware", "self-custody"],
+          "why_use": "pull coins off exchange risk and lock key control to operator workflow.",
+          "cta_label": "apply",
+          "referral_code": "trezor_pp_hub"
+        }
+      ]
+    },
+    {
+      "key": "business",
+      "label": "business",
+      "partners": [
+        {
+          "slug": "opennode",
+          "name": "opennode",
+          "url": "https://www.opennode.com/",
+          "what_it_is": "merchant bitcoin payment stack for invoices and checkout integration.",
+          "eligibility_tags": ["business", "global", "api"],
+          "why_use": "add bitcoin revenue rails without rebuilding your commerce stack.",
+          "cta_label": "apply",
+          "referral_code": "opennode_pp_hub"
+        }
+      ]
+    }
+  ],
+  "disclaimer": "protocol pulse may receive partner compensation when links are used. this is not financial advice. do your own diligence before committing capital."
+}

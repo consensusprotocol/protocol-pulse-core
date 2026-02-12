@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -86,6 +87,154 @@ def _build_brief_lines() -> List[str]:
     return [ln.lower() for ln in lines]
 
 
+def _top_zapped_partner_urls(limit: int = 3) -> List[str]:
+    urls: List[str] = []
+    with app.app_context():
+        posts = (
+            models.CuratedPost.query.filter(
+                models.CuratedPost.source_url.isnot(None),
+                models.CuratedPost.source_url != "",
+            )
+            .order_by(models.CuratedPost.zaps_received.desc(), models.CuratedPost.signal_score.desc())
+            .limit(max(10, limit * 3))
+            .all()
+        )
+    for post in posts:
+        u = str(post.source_url or "").strip()
+        if not u:
+            continue
+        host = u.lower()
+        if "youtube.com" in host or "youtu.be" in host:
+            urls.append(u)
+        if len(urls) >= limit:
+            break
+    return urls
+
+
+def _download_partner_clips(urls: List[str], tmp: Path, clip_seconds: int = 20) -> List[Path]:
+    clips: List[Path] = []
+    for i, url in enumerate(urls, start=1):
+        out = tmp / f"clip_{i:02d}.mp4"
+        cmd = [
+            "yt-dlp",
+            "--no-playlist",
+            "-f",
+            "bv*[height<=1080]+ba/b[height<=1080]/best",
+            "--download-sections",
+            f"*0-{clip_seconds}",
+            "--merge-output-format",
+            "mp4",
+            "-o",
+            str(out),
+            url,
+        ]
+        try:
+            subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=180)
+            if out.exists() and out.stat().st_size > 0:
+                clips.append(out)
+        except Exception:
+            continue
+    return clips
+
+
+def _build_elevenlabs_voiceover(lines: List[str], out_mp3: Path) -> bool:
+    key = (os.environ.get("ELEVENLABS_API_KEY") or "").strip()
+    if not key:
+        return False
+    try:
+        import requests
+        voice_id = (os.environ.get("ELEVENLABS_VOICE_ID") or "EXAVITQu4vr4xnSDxMaL").strip()
+        text = " ".join(lines[:8]).strip()[:1400]
+        r = requests.post(
+            f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
+            headers={
+                "xi-api-key": key,
+                "Accept": "audio/mpeg",
+                "Content-Type": "application/json",
+            },
+            json={
+                "text": text,
+                "model_id": os.environ.get("ELEVENLABS_MODEL_ID", "eleven_multilingual_v2"),
+                "voice_settings": {"stability": 0.35, "similarity_boost": 0.6},
+            },
+            timeout=45,
+        )
+        if not r.ok or not r.content:
+            return False
+        out_mp3.write_bytes(r.content)
+        return out_mp3.exists() and out_mp3.stat().st_size > 0
+    except Exception:
+        return False
+
+
+def _render_media_pipeline(output: Path, lines: List[str], duration_sec: int) -> bool:
+    """Attempt yt-dlp + moviepy assembly first; return False to use fallback renderer."""
+    try:
+        from moviepy.editor import AudioFileClip, VideoFileClip, concatenate_videoclips
+    except Exception:
+        return False
+
+    with tempfile.TemporaryDirectory(prefix="medley-media-") as td:
+        tmp = Path(td)
+        urls = _top_zapped_partner_urls(limit=3)
+        if not urls:
+            return False
+        clips = _download_partner_clips(urls, tmp, clip_seconds=max(12, duration_sec // 3))
+        if not clips:
+            return False
+
+        video_clips = []
+        for path in clips:
+            try:
+                c = VideoFileClip(str(path))
+                if c.duration > 0:
+                    video_clips.append(c)
+            except Exception:
+                continue
+        if not video_clips:
+            return False
+
+        final = concatenate_videoclips(video_clips, method="compose")
+        final = final.subclip(0, min(duration_sec, max(1, int(final.duration))))
+
+        voice_mp3 = tmp / "voice.mp3"
+        if _build_elevenlabs_voiceover(lines, voice_mp3):
+            try:
+                audio = AudioFileClip(str(voice_mp3))
+                final = final.set_audio(audio.subclip(0, min(final.duration, audio.duration)))
+            except Exception:
+                pass
+
+        output.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            final.write_videofile(
+                str(output),
+                codec="h264_nvenc",
+                audio_codec="aac",
+                fps=30,
+                threads=4,
+                ffmpeg_params=["-preset", "p4", "-pix_fmt", "yuv420p"],
+                logger=None,
+            )
+        except Exception:
+            final.write_videofile(
+                str(output),
+                codec="libx264",
+                audio_codec="aac",
+                fps=30,
+                threads=4,
+                ffmpeg_params=["-pix_fmt", "yuv420p"],
+                logger=None,
+            )
+        try:
+            final.close()
+            for c in video_clips:
+                c.close()
+        except Exception:
+            pass
+        return output.exists() and output.stat().st_size > 0
+
+
 def _write_srt(lines: List[str], srt_path: Path, duration_sec: int = 60) -> None:
     usable = lines[:12] if lines else ["signal missing"]
     segment = max(3.5, duration_sec / max(1, len(usable)))
@@ -155,8 +304,10 @@ def main() -> None:
     with tempfile.TemporaryDirectory(prefix="medley-director-") as td:
         srt_file = Path(td) / "brief.srt"
         duration_sec = max(4, int(args.duration or 60))
-        _write_srt(lines, srt_file, duration_sec=duration_sec)
-        _render(output, progress_file, srt_file, duration_sec=duration_sec)
+        used_media_pipeline = _render_media_pipeline(output, lines, duration_sec=duration_sec)
+        if not used_media_pipeline:
+            _write_srt(lines, srt_file, duration_sec=duration_sec)
+            _render(output, progress_file, srt_file, duration_sec=duration_sec)
 
     report = {
         "started_at": started,
@@ -164,6 +315,7 @@ def main() -> None:
         "output": str(output),
         "line_count": len(lines),
         "gpu_hint": "cuda_visible_devices=1 expected",
+        "pipeline": "yt-dlp+moviepy+elevenlabs" if 'used_media_pipeline' in locals() and used_media_pipeline else "ffmpeg_nvenc_fallback",
     }
     report_file.write_text(json.dumps(report, indent=2), encoding="utf-8")
 

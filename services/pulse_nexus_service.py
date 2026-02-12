@@ -6,8 +6,11 @@ import json
 import logging
 import os
 import re
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
+from urllib.parse import urlparse
+import websocket
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +45,69 @@ def _tweet_id_from_url(url):
     return m.group(1) if m else None
 
 
+def _valid_url(url):
+    try:
+        p = urlparse((url or "").strip())
+        return p.scheme in ("http", "https") and bool(p.netloc)
+    except Exception:
+        return False
+
+
+def _is_placeholder_item(item):
+    content = (item.get("content") or "").lower()
+    url = (item.get("url") or "").lower()
+    external_id = (item.get("external_id") or "").lower()
+    if "mock" in external_id:
+        return True
+    if "/status/mock" in url or "watch?v=mock" in url:
+        return True
+    generic_markers = (
+        "bitcoin alpha flows here",
+        "bitcoin signal on nostr",
+        "new content from partner channel",
+    )
+    return any(marker in content for marker in generic_markers)
+
+
+def _load_collected_signal_feed(limit=80):
+    """
+    Pull recent verified X/Nostr signals from CollectedSignal.
+    This is the same live signal well used by media intel pipelines.
+    """
+    models = _models()
+    rows = (
+        models.CollectedSignal.query
+        .filter(
+            models.CollectedSignal.is_verified == True,  # noqa: E712
+            models.CollectedSignal.platform.in_(["x", "nostr"]),
+            models.CollectedSignal.collected_at >= datetime.utcnow() - timedelta(hours=72),
+        )
+        .order_by(models.CollectedSignal.collected_at.desc())
+        .limit(max(limit * 2, 120))
+        .all()
+    )
+    out = []
+    for r in rows:
+        item = {
+            "id": f"sig_{r.id}",
+            "platform": r.platform,
+            "author_handle": r.author_handle,
+            "author_name": r.author_name or r.author_handle,
+            "content": (r.content or "")[:260],
+            "url": r.url,
+            "external_id": f"signal_{r.platform}_{r.post_id}",
+            "created_at": (r.posted_at or r.collected_at).isoformat() if (r.posted_at or r.collected_at) else None,
+        }
+        if _is_placeholder_item(item):
+            continue
+        if not _valid_url(item.get("url")):
+            continue
+        if not item.get("content"):
+            continue
+        out.append(item)
+    return out[:limit]
+
+
 def fetch_pulse_x(handles, limit_per_user=3):
     """Fetch recent tweets from KOL X handles. Returns list of dicts {platform, author_handle, author_name, content, url, external_id}."""
     if not handles:
@@ -51,7 +117,7 @@ def fetch_pulse_x(handles, limit_per_user=3):
         from services.x_service import XService
         svc = XService()
         if not getattr(svc, "client_v2", None):
-            return _mock_pulse_x(handles, limit_per_user)
+            return []
         for handle in handles[:20]:
             try:
                 # v2: users/by/username, then tweets
@@ -88,7 +154,7 @@ def fetch_pulse_x(handles, limit_per_user=3):
                 logger.debug("fetch_pulse_x handle %s: %s", handle, e)
     except Exception as e:
         logger.warning("fetch_pulse_x: %s", e)
-        return _mock_pulse_x(handles, limit_per_user)
+        return []
     return out
 
 
@@ -111,28 +177,77 @@ def _mock_pulse_x(handles, limit_per_user):
 
 def fetch_pulse_nostr(pubkeys, limit_total=20):
     """Fetch kind:1 notes from Nostr pubkeys. Returns list of dicts (same shape as X)."""
-    if not pubkeys:
-        return []
     out = []
-    try:
-        import subprocess
-        # Use ncli or nostr-sdk if available; otherwise mock
-        # Stub: return mock items so UI works
-        for i, pk in enumerate(pubkeys[:5]):
-            if not pk or not pk.startswith("npub"):
-                continue
-            external_id = f"nostr_{pk[-12:]}_{i}"
-            out.append({
-                "platform": "nostr",
-                "author_handle": pk[:16] + "…",
-                "author_name": "Nostr KOL",
-                "content": "Bitcoin signal on Nostr. Zap to amplify.",
-                "url": f"https://njump.me/{pk}",
-                "external_id": external_id,
-            })
-    except Exception as e:
-        logger.warning("fetch_pulse_nostr: %s", e)
-    return out
+    now_ts = int(time.time())
+    seen_ids = set()
+    # Pull from major relays directly so this still works when third-party APIs are flaky.
+    relays = [
+        "wss://relay.damus.io",
+        "wss://relay.primal.net",
+        "wss://nos.lol",
+    ]
+    if not pubkeys:
+        pubkeys = []
+    tracked_suffixes = {pk[-16:] for pk in pubkeys if isinstance(pk, str) and pk.startswith("npub")}
+    btc_words = ("bitcoin", "btc", "sats", "lightning", "mempool", "hashrate", "mining")
+
+    for relay in relays:
+        ws = None
+        sub_id = f"pp-{int(time.time() * 1000)}"
+        try:
+            ws = websocket.create_connection(relay, timeout=6)
+            filt = {"kinds": [1], "limit": 35, "since": now_ts - 7200}
+            ws.send(json.dumps(["REQ", sub_id, filt], separators=(",", ":")))
+            ws.settimeout(1.2)
+            # Read a short burst so route stays snappy.
+            for _ in range(80):
+                raw = ws.recv()
+                if not raw:
+                    continue
+                msg = json.loads(raw)
+                if not isinstance(msg, list) or len(msg) < 2:
+                    continue
+                mtype = msg[0]
+                if mtype == "EOSE":
+                    break
+                if mtype != "EVENT" or len(msg) < 3:
+                    continue
+                event = msg[2] or {}
+                event_id = str(event.get("id") or "").strip()
+                content = (event.get("content") or "").strip()
+                pubkey = str(event.get("pubkey") or "").strip()
+                if not event_id or not content or event_id in seen_ids:
+                    continue
+                low = content.lower()
+                if not any(w in low for w in btc_words):
+                    continue
+                # If configured npubs exist, lightly bias toward matching pubkey suffix when possible.
+                if tracked_suffixes and pubkey and not any(pubkey.endswith(sfx) for sfx in tracked_suffixes):
+                    if len(out) >= (limit_total // 2):
+                        continue
+                seen_ids.add(event_id)
+                out.append({
+                    "platform": "nostr",
+                    "author_handle": pubkey[:16] + "…",
+                    "author_name": "Nostr",
+                    "content": content[:500],
+                    "url": f"https://primal.net/e/{event_id}",
+                    "external_id": f"nostr_{event_id}",
+                })
+                if len(out) >= limit_total:
+                    break
+        except Exception as e:
+            logger.debug("fetch_pulse_nostr relay %s failed: %s", relay, e)
+        finally:
+            try:
+                if ws:
+                    ws.send(json.dumps(["CLOSE", sub_id]))
+                    ws.close()
+            except Exception:
+                pass
+        if len(out) >= limit_total:
+            break
+    return out[:limit_total]
 
 
 def fetch_pulse_youtube(channel_ids, limit_per_channel=2):
@@ -145,7 +260,7 @@ def fetch_pulse_youtube(channel_ids, limit_per_channel=2):
         yt = YouTubeService()
         api = getattr(yt, "youtube", None) or (getattr(yt, "get_api", None) and yt.get_api())
         if not api:
-            return _mock_pulse_youtube(channel_ids, limit_per_channel)
+            return []
         for cid in channel_ids[:15]:
             try:
                 req = api.search().list(
@@ -176,7 +291,7 @@ def fetch_pulse_youtube(channel_ids, limit_per_channel=2):
                 logger.debug("fetch_pulse_youtube channel %s: %s", cid, e)
     except Exception as e:
         logger.warning("fetch_pulse_youtube: %s", e)
-        return _mock_pulse_youtube(channel_ids, limit_per_channel)
+        return []
     return out
 
 
@@ -207,6 +322,12 @@ def ingest_pulse():
     inserted = 0
     try:
         for item in all_items:
+            if _is_placeholder_item(item):
+                continue
+            if not _valid_url(item.get("url")):
+                continue
+            if not (item.get("content") or "").strip():
+                continue
             existing = models.KOLPulseItem.query.filter_by(external_id=item["external_id"]).first()
             if existing:
                 continue
@@ -229,16 +350,19 @@ def ingest_pulse():
 
 
 def get_pulse_feed(limit=80):
-    """Return latest pulse items for Command Log. Newest first."""
+    """Return latest pulse items for Command Log. Newest first, no placeholders."""
     models = _models()
     rows = (
         models.KOLPulseItem.query
         .order_by(models.KOLPulseItem.created_at.desc())
-        .limit(limit)
+        .limit(max(limit * 2, 120))
         .all()
     )
-    return [
-        {
+
+    feed = []
+    seen_urls = set()
+    for r in rows:
+        item = {
             "id": r.id,
             "platform": r.platform,
             "author_handle": r.author_handle,
@@ -248,8 +372,76 @@ def get_pulse_feed(limit=80):
             "external_id": r.external_id,
             "created_at": r.created_at.isoformat() if r.created_at else None,
         }
-        for r in rows
-    ]
+        if _is_placeholder_item(item):
+            continue
+        if not _valid_url(item.get("url")):
+            continue
+        if not item.get("content"):
+            continue
+        if item["url"] in seen_urls:
+            continue
+        seen_urls.add(item["url"])
+        feed.append(item)
+        if len(feed) >= limit:
+            return feed
+
+    # Prefer real-time verified signal pipeline (X + Nostr) over synthetic/fallback content.
+    try:
+        signal_feed = _load_collected_signal_feed(limit=limit)
+        for item in signal_feed:
+            if item["url"] in seen_urls:
+                continue
+            seen_urls.add(item["url"])
+            feed.append(item)
+            if len(feed) >= limit:
+                return feed
+    except Exception as e:
+        logger.warning("get_pulse_feed collected_signal fallback: %s", e)
+
+    # Fallback: if external APIs are unavailable, show real curated posts instead of fake placeholders.
+    try:
+        post_rows = (
+            models.CuratedPost.query
+            .order_by(models.CuratedPost.submitted_at.desc())
+            .limit(max(limit * 2, 120))
+            .all()
+        )
+        for p in post_rows:
+            if not _valid_url(p.original_url):
+                continue
+            raw_title = (p.title or "").strip()
+            raw_preview = (p.content_preview or "").strip()
+            if not raw_preview and (not raw_title or raw_title == p.original_url):
+                # Skip URL-only rows that were ingested without metadata.
+                continue
+            content = ((raw_preview or raw_title)[:220]).strip()
+            if not content:
+                continue
+            if content.lower().startswith("http://") or content.lower().startswith("https://"):
+                continue
+            if p.original_url in seen_urls:
+                continue
+            seen_urls.add(p.original_url)
+            curator_name = None
+            try:
+                curator_name = p.curator.display_name if p.curator else None
+            except Exception:
+                curator_name = None
+            feed.append({
+                "id": p.id,
+                "platform": p.platform or "web",
+                "author_handle": curator_name or (p.platform or "source"),
+                "author_name": curator_name or (p.platform or "source"),
+                "content": content,
+                "url": p.original_url,
+                "external_id": f"curated_{p.id}",
+                "created_at": p.submitted_at.isoformat() if p.submitted_at else None,
+            })
+            if len(feed) >= limit:
+                break
+    except Exception as e:
+        logger.warning("get_pulse_feed curated fallback: %s", e)
+    return feed[:limit]
 
 
 def compute_market_pulse():

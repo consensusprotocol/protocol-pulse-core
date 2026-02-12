@@ -205,6 +205,15 @@ def _run_dev_server():
 # Keep routes import near the very bottom so the app object and extensions are fully initialized first.
 import routes
 
+# Start background APScheduler only when explicitly enabled for this process.
+if os.environ.get("ENABLE_APSCHEDULER", "false").strip().lower() in {"1", "true", "yes", "on"}:
+    try:
+        from services.scheduler import initialize_scheduler
+        _sch = initialize_scheduler()
+        logging.info("Scheduler initialized: %s", _sch)
+    except Exception as _e:
+        logging.warning("Scheduler init skipped: %s", _e)
+
 # Diagnose after routes import so startup logs reflect the real routing table.
 try:
     rules = [r.rule for r in app.url_map.iter_rules()]

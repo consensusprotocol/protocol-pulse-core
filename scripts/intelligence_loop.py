@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
 Sovereign Heartbeat loop:
-- Runs X-Sentry engagement cycle (fetch + draft replies)
+- Runs Sentry engagement cycle (X + Nostr fetch + draft replies)
 - Runs WhaleWatcher ingest cycle
-- Sleeps 5 minutes between cycles
+- Sleeps 120 seconds between cycles (configurable)
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ import time
 import json
 from pathlib import Path
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 # Ensure project root is importable when running as /path/to/scripts/intelligence_loop.py
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -29,9 +29,10 @@ from services.feature_flags import is_enabled
 from services.runtime_status import update_status
 
 
-LOOP_SECONDS = int(os.environ.get("INTEL_LOOP_SECONDS", "300"))  # default: 5 minutes
+LOOP_SECONDS = int(os.environ.get("INTEL_LOOP_SECONDS", "120"))  # default: 120s
 STOP_REQUESTED = False
 PULSE_EVENTS_PATH = Path("/home/ultron/protocol_pulse/data/pulse_events.jsonl")
+SOCIAL_TARGETS_PATH = Path("/home/ultron/protocol_pulse/config/social_targets.json")
 
 
 class SignalLogger:
@@ -135,7 +136,27 @@ def _extract_response_json(response: Any) -> Dict[str, Any]:
     return data if isinstance(data, dict) else {}
 
 
-def run_x_sentry_cycle(dry_run: bool = False, seed_posts: Any = None) -> Dict[str, Any]:
+def _load_bol_handles(limit: int = 30) -> List[str]:
+    try:
+        data = json.loads(SOCIAL_TARGETS_PATH.read_text(encoding="utf-8"))
+        handles = []
+        for row in data.get("targets", []):
+            handle = str((row or {}).get("handle") or "").strip().lstrip("@").lower()
+            if handle:
+                handles.append(handle)
+        if handles:
+            return handles[:limit]
+    except Exception:
+        pass
+    return [
+        "saylor", "elonmusk", "jackmallers", "lynaldencontact", "jack",
+        "lopp", "saifedean", "adam3us", "jeffbooth", "prestonpysh",
+        "martybent", "pierre_rochard", "natbrunell", "documentingbtc",
+        "bitcoinmagazine", "nvk", "woonomic", "coryklippsten",
+    ][:limit]
+
+
+def run_x_sentry_cycle(dry_run: bool = False, seed_posts: Any = None, handles: List[str] | None = None) -> Dict[str, Any]:
     """
     X-Sentry cycle:
     - fetch fresh high-signal X posts
@@ -145,7 +166,7 @@ def run_x_sentry_cycle(dry_run: bool = False, seed_posts: Any = None) -> Dict[st
     from services.target_monitor import target_monitor
     from services.social_listener import social_listener
 
-    posts = list(seed_posts or target_monitor.get_new_x_posts(hours_back=2))
+    posts = list(seed_posts or target_monitor.get_new_x_posts(hours_back=2, handles=handles or _load_bol_handles()))
     fetched = len(posts)
     drafted = 0
     handles = []
@@ -190,17 +211,72 @@ def run_x_sentry_cycle(dry_run: bool = False, seed_posts: Any = None) -> Dict[st
     return result
 
 
+def run_nostr_sentry_cycle(dry_run: bool = False) -> Dict[str, Any]:
+    """
+    Nostr sentry cycle:
+    - fetch high-signal Nostr notes
+    - draft one-line replies
+    - persist drafts to TargetAlert for review/automation
+    """
+    from services.sentiment_tracker_service import SentimentTrackerService
+    from services.social_listener import social_listener
+
+    tracker = SentimentTrackerService()
+    notes = tracker.fetch_nostr_notes(hours_back=2, limit=50)
+    fetched = len(notes)
+    drafted = 0
+    handles = []
+
+    for note in notes:
+        post_id = (note.get("post_id") or "").strip()
+        text = (note.get("content") or "").strip()
+        source_url = (note.get("url") or "").strip()
+        handle = (note.get("author_handle") or "nostr").strip()
+        if not post_id or not text:
+            continue
+        if not source_url:
+            source_url = f"https://primal.net/e/{post_id.replace('nostr_', '')}"
+
+        existing = TargetAlert.query.filter_by(source_url=source_url).first()
+        if existing:
+            continue
+
+        draft = social_listener.generate_reply_one_liner(tweet_text=text, author_handle=handle)
+        if not draft:
+            draft = "signal noted. context added."
+
+        if not dry_run:
+            alert = TargetAlert(
+                trigger_type="nostr_sentry",
+                source_url=source_url,
+                source_account=handle,
+                content_snippet=text[:500],
+                strategy_suggested="auto_reply_draft",
+                draft_replies=json.dumps([{"style": "default", "reply": draft}]),
+                status="pending",
+            )
+            db.session.add(alert)
+        drafted += 1
+        handles.append(handle)
+
+    if drafted and not dry_run:
+        db.session.commit()
+    result = {"fetched": fetched, "drafted": drafted, "handles": handles[:5], "dry_run": dry_run}
+    try:
+        update_status("nostr_sentry", {"last_run": datetime.utcnow().isoformat(), **result})
+    except Exception:
+        pass
+    return result
+
+
 def run_whale_watcher_cycle() -> Dict[str, Any]:
     """
     Pull live whale data using existing route logic and persist new tx rows.
     Returns simple counters for observability in logs.
     """
-    from routes import api_whales_live
+    from services.whale_watcher import whale_watcher
 
-    with app.test_request_context("/api/whales/live?min_btc=10"):
-        payload = _extract_response_json(api_whales_live())
-
-    whales = payload.get("whales", []) if isinstance(payload, dict) else []
+    whales = whale_watcher.fetch_live_whales(min_btc=10.0)
     scanned = 0
     inserted = 0
     fee_samples = []
@@ -274,7 +350,11 @@ def main() -> None:
             with app.app_context():
                 update_status("heartbeat", {"last_heartbeat": datetime.utcnow().isoformat()})
                 if is_enabled("ENABLE_SOCIAL_LISTENER"):
-                    x_result = run_x_sentry_cycle()
+                    bol_handles = _load_bol_handles()
+                    x_result = run_x_sentry_cycle(handles=bol_handles)
+                    n_result = run_nostr_sentry_cycle()
+                    x_result["nostr_fetched"] = int(n_result.get("fetched", 0))
+                    x_result["nostr_drafted"] = int(n_result.get("drafted", 0))
                 else:
                     x_result = {"fetched": 0, "drafted": 0, "handles": []}
                 if is_enabled("ENABLE_WHALE_HEARTBEAT"):

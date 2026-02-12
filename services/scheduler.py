@@ -12,23 +12,58 @@ Tasks:
 """
 
 import logging
+import os
+import subprocess
 from datetime import datetime
 from typing import Dict, List, Optional
+from threading import Lock
+
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.interval import IntervalTrigger
 
 logger = logging.getLogger(__name__)
 _scheduler_started_at: Optional[datetime] = None
+_apscheduler: Optional[BackgroundScheduler] = None
+_scheduler_lock = Lock()
 
 TASKS = {
+    "x_engagement_cycle": {"interval_minutes": 5, "description": "X Engagement Sentry cycle (every 5m)"},
+    "mining_snapshot_hourly": {"interval_minutes": 60, "description": "Mining risk snapshot_all (hourly)"},
     "cypherpunk_loop": {"interval_minutes": 360, "description": "Article generation from trending (every 6h)"},
     "social_guard": {"interval_minutes": 10, "description": "Social listening / reply checks"},
     "sarah_brief_prep": {"cron": "05:45", "description": "Sarah daily brief prep (05:45 UTC)"},
     "sarah_intelligence_briefing": {"cron": "06:00", "description": "Sarah daily intelligence briefing (06:00 UTC)"},
     "sentiment_buffer_update": {"interval_minutes": 5, "description": "Rolling sentiment buffer update"},
     "emergency_flash_check": {"interval_minutes": 5, "description": "Emergency flash check (40%+ drift)"},
+    "daily_distribution_brief_9am_est": {"cron_est": "09:00", "description": "Sentry auto-poster daily brief dispatch (09:00 EST)"},
+    "daily_medley_gpu1": {"cron_est": "09:10", "description": "Daily Beat medley render (GPU 1, 60s)"},
 }
 
 
 def run_task(name: str) -> Dict:
+    if name == "x_engagement_cycle":
+        try:
+            from app import app
+            from core.services.x_engagement_sentry import run_cycle
+            with app.app_context():
+                out = run_cycle()
+            return {"success": bool(out.get("success")), "message": "X engagement cycle run", "result": out}
+        except Exception as e:
+            logger.warning("x_engagement_cycle failed: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
+    if name == "mining_snapshot_hourly":
+        try:
+            from app import app
+            from services.mining_risk_service import snapshot_all
+            with app.app_context():
+                out = snapshot_all()
+            return {"success": bool(out.get("success")), "message": "Mining snapshot captured", "result": out}
+        except Exception as e:
+            logger.warning("mining_snapshot_hourly failed: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
     """
     Run a single named task. Returns { success, message, result }.
     """
@@ -87,6 +122,47 @@ def run_task(name: str) -> Dict:
             logger.warning("emergency_flash_check: %s", e)
             return {"success": False, "message": str(e), "result": None}
 
+    if name == "daily_distribution_brief_9am_est":
+        try:
+            from services.distribution_manager import distribution_manager
+            result = distribution_manager.dispatch_daily_brief()
+            return {"success": bool(result.get("success")), "message": "Daily distribution brief dispatch attempted", "result": result}
+        except Exception as e:
+            logger.warning("daily_distribution_brief_9am_est: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
+    if name == "daily_medley_gpu1":
+        try:
+            root = "/home/ultron/protocol_pulse"
+            out = f"{root}/logs/medley_daily_beat.mp4"
+            prog = f"{root}/logs/medley_daily_beat.progress"
+            rep = f"{root}/logs/medley_daily_beat.report.json"
+            env = os.environ.copy()
+            env["CUDA_VISIBLE_DEVICES"] = "1"
+            cmd = [
+                f"{root}/venv/bin/python",
+                f"{root}/medley_director.py",
+                "--output", out,
+                "--progress-file", prog,
+                "--report-file", rep,
+                "--duration", "60",
+            ]
+            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=900, env=env)
+            ok = proc.returncode == 0
+            return {
+                "success": ok,
+                "message": "Daily medley render attempted on GPU 1",
+                "result": {
+                    "returncode": proc.returncode,
+                    "output": out,
+                    "report": rep,
+                    "stderr_tail": (proc.stderr or "")[-300:],
+                },
+            }
+        except Exception as e:
+            logger.warning("daily_medley_gpu1: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
     return {"success": False, "message": f"Unknown task: {name}", "result": None}
 
 
@@ -107,17 +183,26 @@ def initialize_scheduler() -> Dict:
     Compatibility shim for admin command deck.
     We use systemd + endpoint-triggered tasks; this marks scheduler as active.
     """
-    global _scheduler_started_at
-    _scheduler_started_at = datetime.utcnow()
-    return {"success": True, "started_at": _scheduler_started_at.isoformat()}
+    global _scheduler_started_at, _apscheduler
+    with _scheduler_lock:
+        if _apscheduler and _apscheduler.running:
+            return {"success": True, "started_at": _scheduler_started_at.isoformat() if _scheduler_started_at else None, "already_running": True}
+
+        _apscheduler = BackgroundScheduler(timezone="UTC")
+        _apscheduler.add_job(lambda: run_task("x_engagement_cycle"), trigger=IntervalTrigger(minutes=5), id="x_engagement_cycle", replace_existing=True)
+        _apscheduler.add_job(lambda: run_task("mining_snapshot_hourly"), trigger=IntervalTrigger(hours=1), id="mining_snapshot_hourly", replace_existing=True)
+        _apscheduler.add_job(lambda: run_task("daily_medley_gpu1"), trigger=CronTrigger(hour=23, minute=0), id="daily_medley_gpu1", replace_existing=True)
+        _apscheduler.start()
+        _scheduler_started_at = datetime.utcnow()
+    return {"success": True, "started_at": _scheduler_started_at.isoformat(), "mode": "apscheduler"}
 
 
 def get_scheduler_status() -> Dict:
     """Compatibility status payload expected by command deck UI."""
     jobs = [{"name": name, **meta} for name, meta in TASKS.items()]
     return {
-        "running": _scheduler_started_at is not None,
+        "running": bool(_apscheduler and _apscheduler.running),
         "started_at": _scheduler_started_at.isoformat() if _scheduler_started_at else None,
         "jobs": jobs,
-        "mode": "systemd+manual",
+        "mode": "apscheduler+systemd",
     }

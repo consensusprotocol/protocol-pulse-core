@@ -93,11 +93,11 @@ class TargetMonitor:
         try:
             from services.sentiment_tracker_service import SentimentTrackerService
             tracker = SentimentTrackerService()
-            # Use legendary list if no handles provided
-            h = handles or list(
-                {"saylor", "lynaldencontact", "saifedean", "jack", "lopp", "natbrunell"}
-            )
-            posts = tracker.fetch_x_posts(hours_back=hours_back)
+            # Use provided handles when present; fallback to a compact sovereign core.
+            h = [str(x).strip().lstrip("@").lower() for x in (handles or []) if str(x).strip()]
+            if not h:
+                h = ["saylor", "lynaldencontact", "saifedean", "jack", "lopp", "natbrunell"]
+            posts = tracker.fetch_x_posts(hours_back=hours_back, max_per_user=3, handles=h)
             return [
                 {
                     "handle": p.get("author_handle"),
@@ -106,6 +106,7 @@ class TargetMonitor:
                     "posted_at": p.get("posted_at"),
                 }
                 for p in posts
+                if (p.get("author_handle") or "").strip().lower() in h
             ]
         except Exception as e:
             logger.warning("TargetMonitor X posts: %s", e)

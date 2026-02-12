@@ -127,11 +127,16 @@ for monitored tweets using the shared AIService abstraction.
 
 import json
 import logging
+import os
 from typing import Dict, Any
 
 from .ai_service import AIService
 from models import SentimentSnapshot
-from config.response_prompt import SOVEREIGN_SENTRY_SYSTEM_PROMPT
+try:
+    from core.config.response_prompt import SOVEREIGN_SENTRY_SYSTEM_PROMPT
+except Exception:
+    from config.response_prompt import SOVEREIGN_SENTRY_SYSTEM_PROMPT
+from services.ollama_runtime import generate as ollama_generate
 
 logger = logging.getLogger(__name__)
 
@@ -172,7 +177,6 @@ def generate_reply(
     - skip (bool)
     - reason (optional, when skip is true)
     """
-    ai = AIService()
     sentiment = _get_latest_sentiment()
 
     # Build user prompt; system prompt already encodes rules + JSON schema.
@@ -192,23 +196,56 @@ def generate_reply(
     )
 
     try:
-        # Prefer OpenAI structured JSON; fall back to Anthropic/plain text if needed.
-        result = ai.generate_structured_content(
-            prompt=prompt,
-            system_prompt=SOVEREIGN_SENTRY_SYSTEM_PROMPT,
-            provider="openai",
-        )
+        data = None
+        use_local = str(os.environ.get("USE_LOCAL_GPU", "true")).strip().lower() in {"1", "true", "yes", "on"}
+        if use_local:
+            model = os.environ.get("OLLAMA_MODEL") or os.environ.get("MATTY_ICE_MODEL") or "llama3.2:3b"
+            local_prompt = (
+                f"{SOVEREIGN_SENTRY_SYSTEM_PROMPT}\n\n"
+                "Return ONLY JSON with keys: response, confidence, reasoning, style_used, skip.\n"
+                f"Input JSON:\n{json.dumps(payload, ensure_ascii=False)}"
+            )
+            local_raw = ollama_generate(
+                prompt=local_prompt,
+                preferred_model=model,
+                options={"temperature": 0.35, "num_predict": 220},
+                timeout=90,
+            )
+            if local_raw:
+                try:
+                    start = local_raw.find("{")
+                    end = local_raw.rfind("}")
+                    if start >= 0 and end > start:
+                        data = json.loads(local_raw[start : end + 1])
+                except Exception:
+                    data = None
+                if data is None:
+                    # Accept plain-text local responses and normalize to schema.
+                    plain = local_raw.strip().splitlines()[0].strip()
+                    if plain:
+                        data = {
+                            "response": plain,
+                            "confidence": 0.75,
+                            "reasoning": "local_ollama_plaintext_fallback",
+                            "style_used": style_hint or "default",
+                            "skip": False,
+                        }
 
-        # generate_structured_content may return dict or string; normalize.
-        if isinstance(result, dict):
-            data = result
-        else:
-            # Try to parse as JSON; if that fails, skip.
-            try:
-                data = json.loads(str(result))
-            except Exception:
-                logger.warning("x_reply_writer: non-JSON response, skipping.")
-                return {"skip": True, "reason": "non_json_response"}
+        if data is None:
+            ai = AIService()
+            result = ai.generate_structured_content(
+                prompt=prompt,
+                system_prompt=SOVEREIGN_SENTRY_SYSTEM_PROMPT,
+                provider="openai",
+            )
+            if isinstance(result, dict):
+                data = result
+            else:
+                try:
+                    data = json.loads(str(result))
+                except Exception:
+                    logger.warning("x_reply_writer: non-JSON response, skipping.")
+                    return {"skip": True, "reason": "non_json_response"}
 
         # Ensure core keys
         if data.get("skip") is True:

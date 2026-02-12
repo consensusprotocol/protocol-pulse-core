@@ -147,3 +147,87 @@ def get_live_network_metrics() -> Dict[str, Any]:
             "updated_at": datetime.utcnow().isoformat() + "Z",
             "error": str(e),
         }
+
+
+def get_location_risk(location_id: str) -> Optional[Dict[str, Any]]:
+    key = (location_id or "").strip().lower()
+    if not key:
+        return None
+    for region in get_regions_with_risk():
+        code = str(region.get("code") or "").lower()
+        name = str(region.get("name") or "").lower().replace(" ", "_")
+        rid = f"{code}_{name}".strip("_")
+        if key in {code, rid, name}:
+            return region
+    if key == "us_texas":
+        return next((r for r in get_regions_with_risk() if str(r.get("code") or "").upper() == "US"), None)
+    return None
+
+
+def compare_locations(location_ids: List[str]) -> List[Dict[str, Any]]:
+    out: List[Dict[str, Any]] = []
+    for lid in location_ids or []:
+        row = get_location_risk(lid)
+        if row:
+            out.append(row)
+    return out
+
+
+def get_external_risk_signals() -> Dict[str, Any]:
+    """
+    Best-effort external telemetry map.
+    Falls back to mock/degraded fields when providers or keys are unavailable.
+    """
+    import requests
+
+    signals: Dict[str, Any] = {"status": "ok", "sources": {}}
+    try:
+        # Public CBECI country map (Bitcoin mining share estimates)
+        cbeci = requests.get("https://ccaf.io/cbeci/api/v1/data/country", timeout=12)
+        signals["sources"]["cbeci"] = {"ok": cbeci.ok, "status_code": cbeci.status_code}
+    except Exception as e:
+        signals["sources"]["cbeci"] = {"ok": False, "error": str(e)}
+
+    try:
+        # GDACS public RSS as geopolitical alert proxy.
+        gdacs = requests.get("https://www.gdacs.org/xml/rss.xml", timeout=12)
+        signals["sources"]["gdacs"] = {"ok": gdacs.ok, "status_code": gdacs.status_code}
+    except Exception as e:
+        signals["sources"]["gdacs"] = {"ok": False, "error": str(e)}
+
+    # EIA/World Bank APIs can require specific tokens or schemas; expose degraded mode explicitly.
+    signals["sources"]["eia"] = {"ok": False, "mocked": True, "reason": "api key not configured"}
+    signals["sources"]["world_bank"] = {"ok": False, "mocked": True, "reason": "api key not configured"}
+    if any(not (src or {}).get("ok", False) for src in signals["sources"].values()):
+        signals["status"] = "degraded"
+    signals["updated_at"] = datetime.utcnow().isoformat() + "Z"
+    return signals
+
+
+def snapshot_all() -> Dict[str, Any]:
+    """
+    Persist one risk snapshot row per location to `mining_snapshot`.
+    """
+    from app import db
+    import models
+
+    inserted = 0
+    now = datetime.utcnow()
+    for region in get_regions_with_risk():
+        code = str(region.get("code") or "").lower()
+        name = str(region.get("name") or "").lower().replace(" ", "_")
+        rid = f"{code}_{name}".strip("_")
+        row = models.MiningSnapshot(
+            location_id=rid,
+            location_name=region.get("name"),
+            overall_score=float(region.get("composite_risk") or 0),
+            political_score=float(region.get("regulatory_risk") or 0),
+            economic_score=float(region.get("energy_cost_risk") or 0),
+            operational_score=float(region.get("stability_risk") or 0),
+            factors_json=str(region),
+            captured_at=now,
+        )
+        db.session.add(row)
+        inserted += 1
+    db.session.commit()
+    return {"success": True, "inserted": inserted, "captured_at": now.isoformat()}

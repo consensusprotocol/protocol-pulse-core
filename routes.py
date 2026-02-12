@@ -465,11 +465,160 @@ def premium_hub_required(f):
         if not current_user.is_authenticated:
             flash('Sign in to access the Premium Hub.')
             return redirect(url_for('login') + '?next=' + request.path)
+        if getattr(current_user, 'is_admin', False):
+            return f(*args, **kwargs)
         if not getattr(current_user, 'has_premium', lambda: False)():
             flash('Premium Hub requires a paid subscription (Operator $21/mo or higher).')
             return redirect(url_for('premium_page'))
         return f(*args, **kwargs)
     return decorated_function
+
+
+# Commander gate alias for compatibility with prior specs/routes.
+commander_required = premium_hub_required
+
+
+@app.route('/admin/x-replies')
+@login_required
+@admin_required
+def admin_x_replies():
+    """Admin queue for X sentry drafts."""
+    pending = (
+        models.XInboxTweet.query.filter_by(status='drafted')
+        .order_by(models.XInboxTweet.created_at.desc())
+        .limit(50)
+        .all()
+    )
+    return render_template('admin/x_replies.html', pending=pending)
+
+
+@app.route('/admin/x-replies/<int:inbox_id>/approve', methods=['POST'])
+@login_required
+@admin_required
+def admin_x_reply_approve(inbox_id):
+    _require_csrf()
+    from core.services.x_client import XClient
+
+    inbox = models.XInboxTweet.query.get_or_404(inbox_id)
+    draft = inbox.drafts.order_by(models.XReplyDraft.created_at.desc()).first()
+    if not draft:
+        flash('No draft available for this tweet.')
+        return redirect('/admin/x-replies')
+
+    new_text = (request.form.get('draft_text') or '').strip()
+    if new_text:
+        draft.draft_text = new_text[:280]
+
+    result = XClient().post_reply(in_reply_to_tweet_id=inbox.tweet_id, text=draft.draft_text)
+    post = models.XReplyPost(
+        inbox_id=inbox.id,
+        draft_id=draft.id,
+        reply_tweet_id=result.get('tweet_id'),
+        response_payload=json.dumps(result.get('raw', {})),
+    )
+    inbox.status = 'posted' if result.get('success') else 'error'
+    db.session.add(post)
+    db.session.add(inbox)
+    db.session.commit()
+    flash('Reply posted to X.' if result.get('success') else 'Reply failed to post; see logs.')
+    return redirect('/admin/x-replies')
+
+
+@app.route('/admin/x-replies/<int:inbox_id>/reject', methods=['POST'])
+@login_required
+@admin_required
+def admin_x_reply_reject(inbox_id):
+    _require_csrf()
+    inbox = models.XInboxTweet.query.get_or_404(inbox_id)
+    inbox.status = 'rejected'
+    db.session.add(inbox)
+    db.session.commit()
+    flash('Draft rejected.')
+    return redirect('/admin/x-replies')
+
+
+@app.route('/admin/x-replies/run-cycle', methods=['POST'])
+@login_required
+@admin_required
+def admin_x_reply_run_cycle():
+    _require_csrf()
+    from core.services.x_engagement_sentry import run_cycle
+    result = run_cycle()
+    return jsonify({"success": True, "result": result})
+
+
+@app.route('/api/sentry-stream')
+@login_required
+@admin_required
+def api_sentry_stream():
+    """SSE stream for draft queue updates."""
+    import time
+
+    def generate():
+        last_seen = 0
+        started = time.time()
+        while time.time() - started < 300:
+            try:
+                latest = (
+                    models.XReplyDraft.query.order_by(models.XReplyDraft.id.desc()).first()
+                )
+                if latest and latest.id > last_seen:
+                    last_seen = latest.id
+                    payload = {
+                        "type": "new_draft",
+                        "draft_id": latest.id,
+                        "inbox_id": latest.inbox_id,
+                        "confidence": float(latest.confidence or 0),
+                        "preview": (latest.draft_text or "")[:180],
+                    }
+                    yield f"data: {json.dumps(payload)}\n\n"
+                yield ": heartbeat\n\n"
+                time.sleep(3)
+            except GeneratorExit:
+                break
+            except Exception as e:
+                yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+                break
+
+    return Response(generate(), mimetype='text/event-stream',
+                    headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no', 'Connection': 'keep-alive'})
+
+
+@app.route('/api/logs-stream')
+@login_required
+@premium_hub_required
+def api_logs_stream():
+    """SSE stream for automation terminal tail in Commander Hub."""
+    import time
+
+    def generate():
+        log_path = Path('/home/ultron/protocol_pulse/logs/automation.log')
+        offset = log_path.stat().st_size if log_path.exists() else 0
+        started = time.time()
+        while time.time() - started < 300:
+            try:
+                if log_path.exists():
+                    size = log_path.stat().st_size
+                    if offset > size:
+                        offset = 0
+                    with log_path.open('r', encoding='utf-8', errors='ignore') as fp:
+                        fp.seek(offset)
+                        lines = fp.readlines()
+                        offset = fp.tell()
+                    for line in lines[-50:]:
+                        line = line.rstrip('\n')
+                        if line:
+                            yield f"data: {json.dumps({'type': 'line', 'line': line})}\n\n"
+                yield ": heartbeat\n\n"
+                time.sleep(2)
+            except GeneratorExit:
+                break
+            except Exception as e:
+                yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+                break
+
+    return Response(generate(), mimetype='text/event-stream',
+                    headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no', 'Connection': 'keep-alive'})
 
 @app.template_filter('clean_preview')
 def clean_preview_filter(content, max_length=150):
@@ -1897,6 +2046,36 @@ def api_mining_risk():
     except Exception as e:
         logging.error(f"Mining risk API error: {e}")
         return jsonify({'regions': [], 'network': {}, 'error': str(e)}), 500
+
+
+@app.route('/api/mining-risk/<string:location_id>')
+def api_mining_risk_location_v2(location_id):
+    """API: return one location's risk profile by location id/code."""
+    try:
+        from services.mining_risk_service import get_location_risk, get_external_risk_signals
+        row = get_location_risk(location_id)
+        if not row:
+            return jsonify({'success': False, 'error': 'location not found'}), 404
+        return jsonify({'success': True, 'location': row, 'signals': get_external_risk_signals()})
+    except Exception as e:
+        logging.error("Mining risk location API error: %s", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/mining-compare')
+def api_mining_compare():
+    """API: compare multiple locations by ids. Query: ids=us_texas,ca_canada"""
+    try:
+        from services.mining_risk_service import compare_locations
+        raw = (request.args.get('ids') or '').strip()
+        ids = [x.strip() for x in raw.split(',') if x.strip()]
+        if len(ids) < 2:
+            return jsonify({'success': False, 'error': 'provide at least two ids'}), 400
+        rows = compare_locations(ids)
+        return jsonify({'success': True, 'count': len(rows), 'locations': rows})
+    except Exception as e:
+        logging.error("Mining compare API error: %s", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/api/mining/risk/<string:location_id>')

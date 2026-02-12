@@ -45,12 +45,15 @@ class SentimentTrackerService:
         except Exception as e:
             logger.warning("SentimentTracker: X API not available: %s", e)
 
-    def fetch_x_posts(self, hours_back=24, max_per_user=5):
+    def fetch_x_posts(self, hours_back=24, max_per_user=5, handles=None):
         """Fetch recent posts from legendary/monitored X handles. Returns list of dicts (not yet saved to DB)."""
         if not self._x_client:
             return []
         out = []
-        handles = list(LEGENDARY_HANDLES)[:15]
+        if handles:
+            handles = [str(h).strip().lstrip("@") for h in handles if str(h).strip()]
+        else:
+            handles = list(LEGENDARY_HANDLES)[:15]
         for handle in handles:
             try:
                 user = self._x_client.get_user(screen_name=handle)
