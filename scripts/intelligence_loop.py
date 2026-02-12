@@ -24,15 +24,19 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from app import app, db
-from models import WhaleTransaction, TargetAlert
+from models import WhaleTransaction, TargetAlert, CuratedPost, SentryQueue, XInboxTweet
 from services.feature_flags import is_enabled
 from services.runtime_status import update_status
+from services import ollama_runtime
+from core.event_bus import emit_event
 
 
 LOOP_SECONDS = int(os.environ.get("INTEL_LOOP_SECONDS", "120"))  # default: 120s
 STOP_REQUESTED = False
 PULSE_EVENTS_PATH = Path("/home/ultron/protocol_pulse/data/pulse_events.jsonl")
 SOCIAL_TARGETS_PATH = Path("/home/ultron/protocol_pulse/config/social_targets.json")
+DAILY_BRIEFS_PATH = Path("/home/ultron/protocol_pulse/data/daily_briefs.json")
+SENTINEL_STATE_PATH = Path("/home/ultron/protocol_pulse/logs/sentinel_state.json")
 
 
 class SignalLogger:
@@ -47,14 +51,15 @@ class SignalLogger:
         self._log.info("[%s] %s", tag, msg)
         # Structured event stream for UI/testing (separate from raw logs).
         try:
-            PULSE_EVENTS_PATH.parent.mkdir(parents=True, exist_ok=True)
-            event = {
-                "ts": datetime.utcnow().isoformat(),
-                "tag": tag,
-                "message": msg,
-            }
-            with PULSE_EVENTS_PATH.open("a", encoding="utf-8") as fp:
-                fp.write(json.dumps(event, ensure_ascii=True) + "\n")
+            emit_event(
+                event_type=f"{tag}_signal",
+                source="intelligence_loop",
+                lane=tag if tag in {"whale", "sentry", "risk", "medley"} else "system",
+                severity="info",
+                title=tag,
+                detail=msg,
+                payload={"tag": tag, "message": msg},
+            )
         except Exception:
             pass
 
@@ -336,6 +341,215 @@ def run_whale_watcher_cycle() -> Dict[str, Any]:
     return result
 
 
+def _load_json(path: Path, fallback: Dict[str, Any]) -> Dict[str, Any]:
+    try:
+        if path.exists():
+            data = json.loads(path.read_text(encoding="utf-8"))
+            if isinstance(data, dict):
+                return data
+    except Exception:
+        pass
+    return fallback
+
+
+def _save_json(path: Path, payload: Dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, ensure_ascii=True, indent=2), encoding="utf-8")
+
+
+def _extract_urgent_events(posts: List[CuratedPost], whales: Dict[str, Any]) -> List[str]:
+    events: List[str] = []
+    mega = int(whales.get("mega_inserted", 0))
+    if mega > 0:
+        events.append(f"massive btc outflow cluster detected: {mega} mega-whale movements.")
+    threat_keywords = [
+        "bank failure", "bank collapse", "insolvency", "liquidity crunch",
+        "regulatory crackdown", "sec action", "ban", "sanction",
+        "exchange freeze", "capital controls",
+    ]
+    for p in posts:
+        text = f"{(p.title or '')} {(p.content_preview or '')}".lower()
+        if any(k in text for k in threat_keywords):
+            events.append(f"urgent narrative shift from value stream: {(p.title or 'untitled signal')[:120]}.")
+            if len(events) >= 3:
+                break
+    return events
+
+
+def run_deep_context_scan(whale_result: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Build a 5-bullet sovereign brief from the latest 100 Value Stream entries,
+    detect urgent narrative shifts, and persist to data/daily_briefs.json.
+    """
+    posts = (
+        CuratedPost.query.order_by(CuratedPost.submitted_at.desc())
+        .limit(100)
+        .all()
+    )
+    if not posts:
+        return {"ok": False, "error": "no_value_stream_entries"}
+
+    lines = []
+    for p in posts[:100]:
+        lines.append(
+            f"- title: {(p.title or 'untitled')[:140]} | sats={int(p.total_sats or 0)} | zaps={int(p.zap_count or 0)} | platform={p.platform or 'n/a'}"
+        )
+    digest = "\n".join(lines)
+    prompt = (
+        "you are sovereign intelligence director. summarize context into exactly 5 bullets.\n"
+        "style: lowercase, sharp, tactical, no emojis.\n"
+        "include where narrative momentum is rising/falling.\n"
+        "if clear threat signals exist, mention urgency.\n\n"
+        f"value stream sample:\n{digest[:12000]}"
+    )
+    summary = ollama_runtime.generate(
+        prompt=prompt,
+        preferred_model="llama3.1",
+        options={"temperature": 0.25, "num_predict": 260},
+        timeout=12,
+    )
+    if not summary:
+        # deterministic fallback if model unavailable
+        top = posts[:5]
+        summary = "\n".join(
+            [f"- {(p.title or 'untitled signal')[:100]} (sats {int(p.total_sats or 0)})" for p in top]
+        )
+    urgent_events = _extract_urgent_events(posts, whale_result)
+
+    store = _load_json(DAILY_BRIEFS_PATH, {"briefs": []})
+    briefs = list(store.get("briefs") or [])
+    row = {
+        "ts": datetime.utcnow().isoformat(),
+        "type": "sovereign_brief",
+        "source_count": len(posts),
+        "summary": summary.strip(),
+        "urgent_events": urgent_events,
+    }
+    briefs.append(row)
+    store["briefs"] = briefs[-200:]
+    _save_json(DAILY_BRIEFS_PATH, store)
+    try:
+        update_status(
+            "sentinel_brief",
+            {
+                "last_run": row["ts"],
+                "source_count": len(posts),
+                "urgent_count": len(urgent_events),
+                "focus": (urgent_events[0] if urgent_events else "market structure and flows"),
+            },
+        )
+    except Exception:
+        pass
+    return {"ok": True, "brief": row}
+
+
+def _is_high_engagement(post: Dict[str, Any]) -> bool:
+    # Use engagement fields when available; otherwise keep traffic by default.
+    score = 0
+    for key in ("likes", "like_count", "retweets", "reposts", "reply_count", "views"):
+        val = post.get(key)
+        if isinstance(val, (int, float)):
+            score += float(val)
+    if score > 0:
+        return score >= 150
+    text_len = len(str(post.get("text") or ""))
+    return text_len >= 50
+
+
+def run_ghostwriter_autodraft(handles: List[str], max_drafts: int = 60) -> Dict[str, Any]:
+    """
+    Scan target-list X posts and write sovereign witty draft replies into SentryQueue.
+    """
+    from services.target_monitor import target_monitor
+
+    posts = target_monitor.get_new_x_posts(hours_back=2, handles=handles or _load_bol_handles())
+    if not posts:
+        fallback_alerts = (
+            TargetAlert.query.filter(TargetAlert.source_account.isnot(None))
+            .order_by(TargetAlert.created_at.desc())
+            .limit(120)
+            .all()
+        )
+        for a in fallback_alerts:
+            source = str(a.source_url or "")
+            if "/status/" not in source:
+                continue
+            post_id = source.rsplit("/status/", 1)[-1].split("?", 1)[0].strip()
+            posts.append(
+                {
+                    "handle": str(a.source_account or "").strip().lstrip("@").lower(),
+                    "post_id": post_id,
+                    "text": str(a.content_snippet or "")[:500],
+                }
+            )
+    if not posts:
+        inbox_rows = (
+            XInboxTweet.query
+            .order_by(XInboxTweet.created_at.desc())
+            .limit(200)
+            .all()
+        )
+        for row in inbox_rows:
+            if not row.tweet_id or not row.author_handle:
+                continue
+            posts.append(
+                {
+                    "handle": str(row.author_handle).strip().lstrip("@").lower(),
+                    "post_id": str(row.tweet_id).strip(),
+                    "text": str(row.tweet_text or "")[:500],
+                }
+            )
+    created = 0
+    scanned = len(posts)
+    for post in posts:
+        if created >= max_drafts:
+            break
+        if not _is_high_engagement(post):
+            continue
+        handle = str(post.get("handle") or "").strip().lstrip("@").lower()
+        post_id = str(post.get("post_id") or "").strip()
+        text = str(post.get("text") or "").strip()
+        if not handle or not post_id or not text:
+            continue
+        source_key = f"ghostwriter:{handle}:{post_id}"
+        exists = SentryQueue.query.filter_by(source=source_key).first()
+        if exists:
+            continue
+
+        prompt = (
+            "draft one x reply.\n"
+            "rules: sovereign-aligned, witty/sharp, lowercase, <= 260 chars, subtle cta to protocol pulse, no emojis.\n"
+            f"target @{handle}\n"
+            f"post: {text[:500]}"
+        )
+        draft = ollama_runtime.generate(
+            prompt=prompt,
+            preferred_model="llama3.1",
+            options={"temperature": 0.55, "num_predict": 120},
+            timeout=9,
+        )
+        if not draft:
+            draft = "strong signal. market reads this wrong. protocol pulse has the cleaner map."
+        payload = f"@{handle} {draft.strip()}"
+        row = SentryQueue(
+            content=payload[:3000],
+            platforms_json=json.dumps(["x"]),
+            status="draft",
+            dry_run=True,
+            source=source_key,
+            created_by=None,
+        )
+        db.session.add(row)
+        created += 1
+    if created:
+        db.session.commit()
+    try:
+        update_status("ghostwriter", {"last_run": datetime.utcnow().isoformat(), "scanned": scanned, "drafted": created})
+    except Exception:
+        pass
+    return {"scanned": scanned, "drafted": created}
+
+
 def main() -> None:
     _setup_logging()
     signal_logger = SignalLogger()
@@ -404,6 +618,33 @@ def main() -> None:
                             logging.info("matty-ice cycle result: %s", matty_result)
                 except Exception:
                     logging.exception("matty-ice cycle failed")
+                try:
+                    sentinel_brief = run_deep_context_scan(w_result)
+                    brief_row = sentinel_brief.get("brief") or {}
+                    focus = ((brief_row.get("urgent_events") or [])[:1] or ["market structure"])[0]
+                    signal_logger.emit("signal", f"sentinel brief refreshed | focus: {focus[:120]}")
+                except Exception:
+                    logging.exception("sentinel deep context scan failed")
+                try:
+                    gw_result = run_ghostwriter_autodraft(handles=_load_bol_handles(), max_drafts=60)
+                    if int(gw_result.get("drafted", 0)) > 0:
+                        signal_logger.emit("sentry", f"ghostwriter queued {int(gw_result.get('drafted', 0))} sharp drafts.")
+                except Exception:
+                    logging.exception("ghostwriter autodraft failed")
+                try:
+                    from services.media_generator import media_generator
+                    media_result = media_generator.maybe_render_from_latest_brief()
+                    if media_result.get("rendered"):
+                        signal_logger.emit("signal", "media factory shipped daily pulse render on gpu 1.")
+                except Exception:
+                    logging.exception("media generator run failed")
+                try:
+                    from services.nostr_broadcaster import nostr_broadcaster
+                    retry_result = nostr_broadcaster.retry_pending()
+                    if int(retry_result.get("retried", 0)) > 0:
+                        signal_logger.emit("signal", f"nostr retry sweep completed | retried={retry_result.get('retried')}.")
+                except Exception:
+                    logging.exception("nostr retry sweep failed")
             signal_logger.sentry_update(x_result)
             signal_logger.whale_update(w_result)
             signal_logger.cycle_close(x_result, w_result)

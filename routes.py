@@ -45,6 +45,7 @@ from services.youtube_service import YouTubeService
 from services.node_service import NodeService
 from services.ghl_service import ghl_service
 from services.feature_flags import is_enabled
+from core.event_bus import emit_event, read_events, iter_events_since
 
 # Initialize services
 ai_service = AIService()
@@ -6344,6 +6345,18 @@ def onboarding_step_api():
         newsletter_opt_in=newsletter_opt_in,
     )
     elapsed_ms = int((time.perf_counter() - t0) * 1000)
+    try:
+        emit_event(
+            event_type="onboarding_step",
+            source="onboarding_api",
+            lane="system",
+            severity="info",
+            title="onboarding step completed",
+            detail=f"stage={progress.get('stage')} profile={out.profile} lead_id={lead.id}",
+            payload={"stage": progress.get("stage"), "profile": out.profile, "lead_id": lead.id},
+        )
+    except Exception:
+        pass
     return jsonify(
         {
             "ok": True,
@@ -6542,9 +6555,58 @@ def premium_hub():
 @login_required
 @premium_hub_required
 def hub_automation_log():
-    """Fallback log endpoint for hub live terminal."""
-    lines = _filter_signal_lines(_tail_file_lines(AUTOMATION_LOG_PATH, limit=500), limit=100)
+    """Hub terminal now runs on structured event bus lines."""
+    rows = read_events(limit=120)
+    lines = []
+    for r in rows[-100:]:
+        ts = str(r.get("ts") or "")[11:19]
+        lane = str(r.get("lane") or "system")
+        sev = str(r.get("severity") or "info")
+        title = str(r.get("title") or "")
+        detail = str(r.get("detail") or "")
+        lines.append(f"{ts} [{lane}/{sev}] {title} :: {detail}".strip())
     return jsonify({"lines": lines})
+
+
+@app.route('/api/events')
+@login_required
+@premium_hub_required
+def api_events():
+    limit = max(1, min(300, int(request.args.get("limit", 100))))
+    lane = (request.args.get("lane") or "").strip() or None
+    return jsonify({"ok": True, "events": read_events(limit=limit, lane=lane)})
+
+
+@app.route('/api/events/stream')
+@login_required
+@premium_hub_required
+def api_events_stream():
+    def generate():
+        for r in read_events(limit=20):
+            yield f"data: {json.dumps(r, ensure_ascii=True)}\n\n"
+        offset = 0
+        try:
+            from core.event_bus import EVENTS_PATH
+            offset = EVENTS_PATH.stat().st_size if EVENTS_PATH.exists() else 0
+        except Exception:
+            offset = 0
+        while True:
+            time.sleep(1.0)
+            try:
+                offset, rows = iter_events_since(offset)
+            except Exception:
+                rows = []
+            if rows:
+                for row in rows:
+                    yield f"data: {json.dumps(row, ensure_ascii=True)}\n\n"
+            else:
+                yield ": heartbeat\n\n"
+
+    return Response(
+        generate(),
+        mimetype="text/event-stream",
+        headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"},
+    )
 
 
 @app.route('/api/oracle/search', methods=['POST'])
@@ -6596,6 +6658,15 @@ def api_risk_data():
     center, locations = _load_mining_oracle_data()
     try:
         update_status("risk", {"last_update": datetime.utcnow().isoformat(), "locations": len(locations or [])})
+        emit_event(
+            event_type="risk_snapshot",
+            source="api_risk_data",
+            lane="risk",
+            severity="info",
+            title="risk oracle refreshed",
+            detail=f"locations={len(locations or [])}",
+            payload={"locations": len(locations or []), "updated_at": datetime.utcnow().isoformat()},
+        )
     except Exception:
         pass
     return jsonify({
@@ -6638,6 +6709,18 @@ def hub_medley_start():
             "finished_at": None,
             "output_url": None,
         })
+        try:
+            emit_event(
+                event_type="medley_start",
+                source="hub_medley_start",
+                lane="medley",
+                severity="info",
+                title="medley run started",
+                detail="gpu1 render initiated from hub",
+                payload={"started_at": _medley_state.get("started_at")},
+            )
+        except Exception:
+            pass
         try:
             from services.runtime_status import update_status
             update_status("medley", {"last_run": datetime.utcnow().isoformat(), "status": "started"})

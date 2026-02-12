@@ -24,3 +24,8 @@
 
 - Ensure external API keys are configured for non-dry-run posting/payout flows.
 - Validate production DNS/CDN cache if frontend appears stale after deploy.
+
+## Intelligence Core Pack 1
+- event bus: integrated
+- memory layer: integrated
+- gates: /api/events + /api/events/stream + hub event lines OK
