@@ -5888,18 +5888,49 @@ def api_merchant_search():
 # SOVEREIGN INTAKE (ONBOARDING)
 # ============================================
 
-@app.route('/onboarding', methods=['GET'])
-def onboarding():
-    from services.onboarding_service import onboarding_progress, next_prompt_for_stage, build_urgency_copy
-
-    stage = (request.args.get("stage") or "attention").strip().lower()
-    progress = onboarding_progress(stage)
+def _onboarding_signal_snapshot():
     since_24h = datetime.utcnow() - timedelta(hours=24)
     whale_24h = models.WhaleTransaction.query.filter(models.WhaleTransaction.detected_at >= since_24h).count()
     mega_24h = models.WhaleTransaction.query.filter(
         models.WhaleTransaction.detected_at >= since_24h,
         models.WhaleTransaction.is_mega.is_(True),
     ).count()
+    return whale_24h, mega_24h
+
+
+def _run_onboarding_step(stage: str, response_text: str, annual_income, newsletter_opt_in: bool):
+    from services.onboarding_service import run_aida_step, onboarding_progress, upsert_lead
+
+    whale_24h, mega_24h = _onboarding_signal_snapshot()
+    out = run_aida_step(
+        stage=stage,
+        user_text=response_text,
+        whale_24h=whale_24h,
+        mega_24h=mega_24h,
+        annual_income=annual_income,
+    )
+    lead = upsert_lead(
+        user_id=(getattr(current_user, "id", None) if getattr(current_user, "is_authenticated", False) else None),
+        email=(getattr(current_user, "email", None) if getattr(current_user, "is_authenticated", False) else None),
+        name=(getattr(current_user, "username", None) if getattr(current_user, "is_authenticated", False) else None),
+        stage=out.stage,
+        profile=out.profile,
+        interest_level=out.interest_level,
+        capacity_score=out.capacity_score,
+        newsletter_opt_in=newsletter_opt_in,
+        notes=response_text,
+    )
+    progress = onboarding_progress(out.stage)
+    return out, progress, lead, whale_24h, mega_24h
+
+
+@app.route('/onboarding', methods=['GET'])
+def onboarding():
+    from services.onboarding_service import onboarding_progress, next_prompt_for_stage, build_urgency_copy
+
+    stage = (request.args.get("stage") or "attention").strip().lower()
+    progress = onboarding_progress(stage)
+    whale_24h, mega_24h = _onboarding_signal_snapshot()
     urgency_copy = build_urgency_copy(whale_24h, mega_24h)
     next_prompt = next_prompt_for_stage(progress["stage"], "off-zero")
     return render_template(
@@ -5907,6 +5938,11 @@ def onboarding():
         progress=progress,
         urgency_copy=urgency_copy,
         next_prompt=next_prompt,
+        whale_24h=whale_24h,
+        mega_24h=mega_24h,
+        onboarding_profile="off-zero",
+        onboarding_capacity=0,
+        onboarding_interest="early",
     )
 
 
@@ -5926,36 +5962,62 @@ def onboarding_submit():
     except Exception:
         annual_income = None
     newsletter_opt_in = request.form.get("newsletter_opt_in") in ("1", "on", "true")
-    since_24h = datetime.utcnow() - timedelta(hours=24)
-    whale_24h = models.WhaleTransaction.query.filter(models.WhaleTransaction.detected_at >= since_24h).count()
-    mega_24h = models.WhaleTransaction.query.filter(
-        models.WhaleTransaction.detected_at >= since_24h,
-        models.WhaleTransaction.is_mega.is_(True),
-    ).count()
-    out = run_aida_step(
+    out, progress, _, whale_24h, mega_24h = _run_onboarding_step(
         stage=stage,
-        user_text=response_text,
-        whale_24h=whale_24h,
-        mega_24h=mega_24h,
+        response_text=response_text,
         annual_income=annual_income,
-    )
-    upsert_lead(
-        user_id=(getattr(current_user, "id", None) if getattr(current_user, "is_authenticated", False) else None),
-        email=(getattr(current_user, "email", None) if getattr(current_user, "is_authenticated", False) else None),
-        name=(getattr(current_user, "username", None) if getattr(current_user, "is_authenticated", False) else None),
-        stage=out.stage,
-        profile=out.profile,
-        interest_level=out.interest_level,
-        capacity_score=out.capacity_score,
         newsletter_opt_in=newsletter_opt_in,
-        notes=response_text,
     )
-    progress = onboarding_progress(out.stage)
     return render_template(
         'onboarding.html',
         progress=progress,
         urgency_copy=out.urgency_copy,
         next_prompt=out.next_prompt,
+        whale_24h=whale_24h,
+        mega_24h=mega_24h,
+        onboarding_profile=out.profile,
+        onboarding_capacity=out.capacity_score,
+        onboarding_interest=out.interest_level,
+    )
+
+
+@app.route('/api/onboarding/step', methods=['POST'])
+def onboarding_step_api():
+    _require_csrf()
+    payload = request.get_json(silent=True) or {}
+    stage = (payload.get("stage") or "attention").strip().lower()
+    response_text = (payload.get("response_text") or "").strip()
+    if not response_text:
+        return jsonify({"ok": False, "error": "response_text required"}), 400
+    annual_income = None
+    try:
+        annual_income = float(str(payload.get("annual_income") or "").strip() or 0.0) or None
+    except Exception:
+        annual_income = None
+    newsletter_opt_in = bool(payload.get("newsletter_opt_in"))
+
+    t0 = time.perf_counter()
+    out, progress, lead, whale_24h, mega_24h = _run_onboarding_step(
+        stage=stage,
+        response_text=response_text,
+        annual_income=annual_income,
+        newsletter_opt_in=newsletter_opt_in,
+    )
+    elapsed_ms = int((time.perf_counter() - t0) * 1000)
+    return jsonify(
+        {
+            "ok": True,
+            "progress": progress,
+            "next_prompt": out.next_prompt,
+            "urgency_copy": out.urgency_copy,
+            "profile": out.profile,
+            "capacity_score": out.capacity_score,
+            "interest_level": out.interest_level,
+            "lead_id": lead.id,
+            "whale_24h": whale_24h,
+            "mega_24h": mega_24h,
+            "latency_ms": elapsed_ms,
+        }
     )
 
 

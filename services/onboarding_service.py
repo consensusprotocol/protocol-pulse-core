@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
+import os
 from typing import Dict, List
 
 from app import db
@@ -37,25 +38,31 @@ def classify_profile(raw_text: str) -> str:
     text = (raw_text or "").strip()
     if not text:
         return "off-zero"
+
+    # Fast path first: keep UX snappy even if local model is cold or unavailable.
+    heur = text.lower()
+    if any(k in heur for k in ("multisig", "utxo", "node", "liquidity routing", "taproot")):
+        heuristic_profile = "autism-maxxer"
+    elif any(k in heur for k in ("business", "family office", "capital", "treasury", "allocation")):
+        heuristic_profile = "sovereign-builder"
+    else:
+        heuristic_profile = "off-zero"
+
+    if str(os.environ.get("ONBOARDING_USE_OLLAMA", "false")).lower() != "true":
+        return heuristic_profile
+
     prompt = (
         "classify this user into one label only: off-zero, sovereign-builder, autism-maxxer.\n"
         "return only label, lowercase, no punctuation.\n\n"
-        f"user_text:\n{text[:1400]}"
+        f"user_text:\n{text[:1200]}"
     )
     out = ollama_runtime.generate(
         prompt,
-        preferred_model="llama3.2:3b",
-        options={"temperature": 0.1, "num_predict": 10},
-        timeout=20,
+        preferred_model=os.environ.get("ONBOARDING_OLLAMA_MODEL", "llama3.2:3b"),
+        options={"temperature": 0.1, "num_predict": 8},
+        timeout=3,
     ).strip().lower()
-    if out in PROFILE_CLASSES:
-        return out
-    heur = text.lower()
-    if any(k in heur for k in ("multisig", "utxo", "node", "liquidity routing", "taproot")):
-        return "autism-maxxer"
-    if any(k in heur for k in ("business", "family office", "capital", "treasury", "allocation")):
-        return "sovereign-builder"
-    return "off-zero"
+    return out if out in PROFILE_CLASSES else heuristic_profile
 
 
 def compute_capacity_score(raw_text: str, annual_income: float | None = None) -> float:

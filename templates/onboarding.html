@@ -2,53 +2,257 @@
 {% block title %}Sovereign Intake | Protocol Pulse{% endblock %}
 
 {% block content %}
-<section class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-9">
-      <div class="card shadow-lg border-0" style="background: linear-gradient(135deg, rgba(20,20,20,0.95), rgba(60,0,0,0.9)); color: #f5f5f5; border-radius: 18px;">
-        <div class="card-body p-4 p-md-5">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="mb-0">sovereign intake engine</h2>
-            <span class="badge bg-danger-subtle text-danger-emphasis">stage: {{ progress.stage }}</span>
-          </div>
-          <p class="mb-3 text-light-emphasis">{{ urgency_copy }}</p>
-          <div class="progress mb-4" style="height: 12px; background: rgba(255,255,255,0.08);">
-            <div class="progress-bar bg-danger" role="progressbar" style="width: {{ progress.percent }}%"></div>
-          </div>
-          <div class="d-flex flex-wrap gap-2 mb-4">
-            {% for s in progress.steps %}
-              <span class="badge {% if s.active %}text-bg-danger{% else %}text-bg-dark{% endif %}">{{ s.label }}</span>
-            {% endfor %}
+<style>
+  .ob-wrap {
+    position: relative;
+    overflow: hidden;
+    border-radius: 28px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background:
+      radial-gradient(1200px 500px at -10% -20%, rgba(255,0,85,0.20), transparent 55%),
+      radial-gradient(1000px 500px at 110% 120%, rgba(255,149,0,0.20), transparent 55%),
+      linear-gradient(145deg, rgba(18,19,24,0.96), rgba(11,12,16,0.96));
+    backdrop-filter: blur(10px);
+    box-shadow: 0 20px 55px rgba(0,0,0,0.45);
+  }
+  .ob-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 22px; }
+  .ob-card {
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    background: linear-gradient(160deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.09);
+  }
+  .ob-field, .ob-area {
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 14px;
+    background: rgba(0,0,0,0.28);
+    color: #fff;
+  }
+  .ob-field:focus, .ob-area:focus {
+    border-color: rgba(255,66,86,0.85);
+    box-shadow: 0 0 0 0.22rem rgba(255,66,86,0.22);
+    background: rgba(0,0,0,0.35);
+    color: #fff;
+  }
+  .ob-chip {
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #d2d6df;
+    background: rgba(255,255,255,0.03);
+  }
+  .ob-chip.active {
+    color: #fff;
+    border-color: rgba(255,84,103,0.85);
+    background: linear-gradient(135deg, rgba(255,84,103,0.24), rgba(255,142,0,0.24));
+  }
+  .ob-progress {
+    height: 12px; border-radius: 999px; overflow: hidden;
+    background: rgba(255,255,255,0.08);
+  }
+  .ob-progress > span {
+    display:block; height:100%;
+    background: linear-gradient(90deg, #ff315d, #ff7b00);
+    transition: width .25s ease;
+  }
+  .ob-metric { font-size: 0.9rem; color: #d4d8e2; }
+  .ob-metric strong { color: #fff; font-weight: 700; }
+  .ob-cta {
+    border: 0; border-radius: 14px; padding: 12px 16px; font-weight: 700;
+    background: linear-gradient(120deg, #ff315d, #ff7b00);
+    color:#fff; width:100%;
+  }
+  .ob-ghost {
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 14px; padding: 11px 14px;
+    color:#fff; background: rgba(255,255,255,0.03);
+    width:100%;
+  }
+  .ob-note {
+    border-left: 3px solid rgba(255,84,103,0.9);
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+  }
+  .ob-latency-fast { color: #22c55e; }
+  .ob-latency-mid { color: #f59e0b; }
+  .ob-latency-slow { color: #ef4444; }
+  @media (max-width: 991px) { .ob-grid { grid-template-columns: 1fr; } }
+</style>
+
+<section class="container py-4 py-md-5">
+  <div class="ob-wrap p-3 p-md-4 p-lg-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h1 class="h3 mb-1 text-white">sovereign intake engine</h1>
+        <div class="text-light-emphasis small">2026 interactive onboarding rail</div>
+      </div>
+      <span id="stageBadge" class="badge text-bg-danger">stage: {{ progress.stage }}</span>
+    </div>
+
+    <div class="ob-progress mb-3">
+      <span id="progressBar" style="width: {{ progress.percent }}%"></span>
+    </div>
+    <div id="stepChips" class="d-flex flex-wrap gap-2 mb-4">
+      {% for s in progress.steps %}
+      <span class="ob-chip {% if s.active %}active{% endif %}" data-step="{{ s.key }}">{{ s.label }}</span>
+      {% endfor %}
+    </div>
+
+    <div class="ob-grid">
+      <div class="ob-card p-3 p-md-4">
+        <form id="onboardingForm" method="POST" action="{{ url_for('onboarding_submit') }}">
+          <input type="hidden" id="csrfToken" name="csrf_token" value="{{ session.get('csrf_token', '') }}">
+          <input type="hidden" id="stageInput" name="stage" value="{{ progress.stage }}">
+
+          <label class="form-label text-white">your call</label>
+          <textarea id="responseInput" class="form-control ob-area mb-3" name="response_text" rows="5" placeholder="drop your current position, goals, and pressure points..." required></textarea>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label text-white">annual income (optional)</label>
+              <input id="incomeInput" class="form-control ob-field" type="number" name="annual_income" min="0" step="1000" placeholder="120000">
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="newsletter_opt_in" id="newsletterInput" value="1">
+                <label class="form-check-label text-light" for="newsletterInput">get intel drops by email</label>
+              </div>
+            </div>
           </div>
 
-          <form method="POST" action="{{ url_for('onboarding_submit') }}">
-            <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token', '') }}">
-            <input type="hidden" name="stage" value="{{ progress.stage }}">
-            <div class="mb-3">
-              <label class="form-label">your call</label>
-              <textarea class="form-control" name="response_text" rows="4" placeholder="drop your current position, goals, and pressure points..." required></textarea>
+          <div class="ob-note p-3 mb-4">
+            <div class="small text-uppercase text-light-emphasis mb-1">next prompt</div>
+            <div id="nextPrompt" class="text-white">{{ next_prompt }}</div>
+          </div>
+
+          <div class="row g-2">
+            <div class="col-md-4">
+              <button id="backBtn" type="button" class="ob-ghost">back step</button>
             </div>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">annual income (optional)</label>
-                <input class="form-control" type="number" name="annual_income" min="0" step="1000" placeholder="120000">
-              </div>
-              <div class="col-md-6 d-flex align-items-end">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" name="newsletter_opt_in" id="nl" value="1">
-                  <label class="form-check-label" for="nl">get intel drops by email</label>
-                </div>
-              </div>
+            <div class="col-md-8">
+              <button id="advanceBtn" type="submit" class="ob-cta">advance</button>
             </div>
-            <div class="mt-4 p-3 rounded" style="background: rgba(255,255,255,0.06);">
-              <div class="small text-uppercase text-light-emphasis mb-1">next prompt</div>
-              <div>{{ next_prompt }}</div>
-            </div>
-            <button type="submit" class="btn btn-danger mt-4 w-100">advance</button>
-          </form>
+          </div>
+        </form>
+      </div>
+
+      <div class="ob-card p-3 p-md-4">
+        <h2 class="h6 text-uppercase text-light-emphasis mb-3">live diagnostics</h2>
+        <div class="ob-metric mb-2">urgency: <strong id="urgencyLine">{{ urgency_copy }}</strong></div>
+        <div class="ob-metric mb-2">whales / 24h: <strong id="whaleCount">{{ whale_24h }}</strong></div>
+        <div class="ob-metric mb-2">mega prints / 24h: <strong id="megaCount">{{ mega_24h }}</strong></div>
+        <hr class="border-secondary-subtle">
+        <div class="ob-metric mb-2">profile: <strong id="profileLine">{{ onboarding_profile }}</strong></div>
+        <div class="ob-metric mb-2">interest: <strong id="interestLine">{{ onboarding_interest }}</strong></div>
+        <div class="ob-metric mb-2">capacity score: <strong id="capacityLine">{{ onboarding_capacity }}</strong></div>
+        <hr class="border-secondary-subtle">
+        <div class="ob-metric">
+          response latency:
+          <strong id="latencyLine" class="ob-latency-fast">ready</strong>
         </div>
       </div>
     </div>
   </div>
 </section>
+
+<script>
+  const STEPS = ["attention", "interest", "desire", "action", "activation"];
+  const form = document.getElementById("onboardingForm");
+  const stageInput = document.getElementById("stageInput");
+  const csrfToken = document.getElementById("csrfToken");
+  const responseInput = document.getElementById("responseInput");
+  const incomeInput = document.getElementById("incomeInput");
+  const newsletterInput = document.getElementById("newsletterInput");
+  const advanceBtn = document.getElementById("advanceBtn");
+  const backBtn = document.getElementById("backBtn");
+
+  const progressBar = document.getElementById("progressBar");
+  const stageBadge = document.getElementById("stageBadge");
+  const stepChips = document.getElementById("stepChips");
+  const nextPrompt = document.getElementById("nextPrompt");
+  const urgencyLine = document.getElementById("urgencyLine");
+  const profileLine = document.getElementById("profileLine");
+  const interestLine = document.getElementById("interestLine");
+  const capacityLine = document.getElementById("capacityLine");
+  const whaleCount = document.getElementById("whaleCount");
+  const megaCount = document.getElementById("megaCount");
+  const latencyLine = document.getElementById("latencyLine");
+
+  function renderStep(step) {
+    const idx = Math.max(0, STEPS.indexOf(step));
+    const percent = Math.round(((idx + 1) / STEPS.length) * 100);
+    progressBar.style.width = `${percent}%`;
+    stageBadge.textContent = `stage: ${step}`;
+    stageInput.value = step;
+    for (const chip of stepChips.querySelectorAll(".ob-chip")) {
+      const chipIdx = STEPS.indexOf(chip.dataset.step);
+      chip.classList.toggle("active", chipIdx <= idx);
+    }
+  }
+
+  function setLatency(ms) {
+    latencyLine.textContent = `${ms} ms`;
+    latencyLine.classList.remove("ob-latency-fast", "ob-latency-mid", "ob-latency-slow");
+    if (ms < 700) latencyLine.classList.add("ob-latency-fast");
+    else if (ms < 1600) latencyLine.classList.add("ob-latency-mid");
+    else latencyLine.classList.add("ob-latency-slow");
+  }
+
+  backBtn.addEventListener("click", () => {
+    const idx = Math.max(0, STEPS.indexOf(stageInput.value));
+    const next = STEPS[Math.max(0, idx - 1)];
+    renderStep(next);
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const responseText = (responseInput.value || "").trim();
+    if (!responseText) return;
+
+    advanceBtn.disabled = true;
+    advanceBtn.textContent = "advancing...";
+    const startedAt = performance.now();
+
+    try {
+      const r = await fetch("/api/onboarding/step", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken.value
+        },
+        body: JSON.stringify({
+          stage: stageInput.value,
+          response_text: responseText,
+          annual_income: incomeInput.value || null,
+          newsletter_opt_in: newsletterInput.checked
+        })
+      });
+      const data = await r.json();
+      if (!r.ok || !data.ok) {
+        throw new Error(data.error || "request failed");
+      }
+      renderStep((data.progress || {}).stage || "attention");
+      nextPrompt.textContent = data.next_prompt || "";
+      urgencyLine.textContent = data.urgency_copy || "";
+      profileLine.textContent = data.profile || "off-zero";
+      interestLine.textContent = data.interest_level || "intermediate";
+      capacityLine.textContent = `${data.capacity_score ?? 0}`;
+      whaleCount.textContent = `${data.whale_24h ?? 0}`;
+      megaCount.textContent = `${data.mega_24h ?? 0}`;
+      setLatency(data.latency_ms || Math.round(performance.now() - startedAt));
+      responseInput.value = "";
+    } catch (err) {
+      latencyLine.textContent = "error";
+      latencyLine.classList.remove("ob-latency-fast", "ob-latency-mid");
+      latencyLine.classList.add("ob-latency-slow");
+      alert(`onboarding step failed: ${err.message}`);
+    } finally {
+      advanceBtn.disabled = false;
+      advanceBtn.textContent = "advance";
+    }
+  });
+</script>
 {% endblock %}
