@@ -39,6 +39,7 @@ TASKS = {
     "daily_distribution_brief_9am_est": {"cron_est": "09:00", "description": "Sentry auto-poster daily brief dispatch (09:00 EST)"},
     "daily_medley_gpu1": {"cron_est": "09:10", "description": "Daily Beat medley render (GPU 1, 60s)"},
     "monetization_injector": {"interval_minutes": 30, "description": "Smart-link injector scan for briefs + x drafts"},
+    "pulse_drop_rebuild_5am": {"cron_est": "05:00", "description": "Pulse Drop daily rebuild (05:00 EST)"},
 }
 
 
@@ -175,6 +176,21 @@ def run_task(name: str) -> Dict:
             logger.warning("monetization_injector: %s", e)
             return {"success": False, "message": str(e), "result": None}
 
+    if name == "pulse_drop_rebuild_5am":
+        try:
+            from app import app
+            from services.channel_monitor import channel_monitor_service
+            from services.highlight_extractor import highlight_extractor_service
+            from services.commentary_generator import commentary_generator_service
+            with app.app_context():
+                h = channel_monitor_service.run_harvest(hours_back=24)
+                x = highlight_extractor_service.run(hours_back=24)
+                c = commentary_generator_service.run(hours_back=24)
+            return {"success": True, "message": "Pulse Drop rebuild complete", "result": {"harvest": h, "extract": x, "commentary": c}}
+        except Exception as e:
+            logger.warning("pulse_drop_rebuild_5am: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
     return {"success": False, "message": f"Unknown task: {name}", "result": None}
 
 
@@ -205,6 +221,7 @@ def initialize_scheduler() -> Dict:
         _apscheduler.add_job(lambda: run_task("mining_snapshot_hourly"), trigger=IntervalTrigger(hours=1), id="mining_snapshot_hourly", replace_existing=True)
         _apscheduler.add_job(lambda: run_task("daily_medley_gpu1"), trigger=CronTrigger(hour=23, minute=0), id="daily_medley_gpu1", replace_existing=True)
         _apscheduler.add_job(lambda: run_task("monetization_injector"), trigger=IntervalTrigger(minutes=30), id="monetization_injector", replace_existing=True)
+        _apscheduler.add_job(lambda: run_task("pulse_drop_rebuild_5am"), trigger=CronTrigger(hour=10, minute=0), id="pulse_drop_rebuild_5am", replace_existing=True)
         _apscheduler.start()
         _scheduler_started_at = datetime.utcnow()
     return {"success": True, "started_at": _scheduler_started_at.isoformat(), "mode": "apscheduler"}

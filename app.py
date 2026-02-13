@@ -204,6 +204,8 @@ def _run_dev_server():
 
 # Keep routes import near the very bottom so the app object and extensions are fully initialized first.
 import routes
+from onboarding_routes import onboarding_bp
+app.register_blueprint(onboarding_bp)
 
 # Start background APScheduler only when explicitly enabled for this process.
 if os.environ.get("ENABLE_APSCHEDULER", "false").strip().lower() in {"1", "true", "yes", "on"}:

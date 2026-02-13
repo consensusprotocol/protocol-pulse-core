@@ -238,6 +238,85 @@
     font-weight: 500;
 }
 
+.status-hud {
+    margin: 22px auto 0;
+    max-width: 980px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(160deg, rgba(22, 22, 28, 0.92), rgba(12, 12, 16, 0.92));
+    box-shadow: var(--shadow-sm);
+    padding: 16px 18px;
+}
+
+.status-hud-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.status-hud-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.status-hud-signal {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.status-hud-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.status-hud-metric {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    min-height: 74px;
+}
+
+.status-hud-label {
+    display: block;
+    font-size: 0.64rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+.status-hud-value {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.status-hud-sub {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.status-hud-sub.pos { color: var(--success); }
+.status-hud-sub.neg { color: var(--accent); }
+
+.hub-link-disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
 /* ========== NAVIGATION TABS ========== */
 .hub-nav {
     display: flex;
@@ -1544,6 +1623,7 @@
     .hub-stats { gap: 16px; }
     .hub-stat { min-width: 100px; padding: 16px 20px; }
     .hub-stat-value { font-size: 1.5rem; }
+    .status-hud-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .hub-nav { gap: 8px; margin-left: -20px; margin-right: -20px; padding-left: 20px; padding-right: 20px; }
     .hub-tab { padding: 10px 16px; font-size: 0.8rem; }
     .modal-overlay { padding: 16px; }
@@ -1593,6 +1673,34 @@
                         <div class="hub-stat-label">Intel Briefs</div>
                     </div>
                 </div>
+                <section class="status-hud" id="statusHud">
+                    <div class="status-hud-header">
+                        <span class="status-hud-title">Status HUD</span>
+                        <span class="status-hud-signal" id="statusHudSignal">Scanning Network...</span>
+                    </div>
+                    <div class="status-hud-grid">
+                        <div class="status-hud-metric">
+                            <span class="status-hud-label">BTC Price</span>
+                            <span class="status-hud-value" id="hudBtcPrice">Scanning Network...</span>
+                            <span class="status-hud-sub" id="hudBtcChange">Scanning Network...</span>
+                        </div>
+                        <div class="status-hud-metric">
+                            <span class="status-hud-label">Mempool Size</span>
+                            <span class="status-hud-value" id="hudMempoolCount">Scanning Network...</span>
+                            <span class="status-hud-sub">Pending Transactions</span>
+                        </div>
+                        <div class="status-hud-metric">
+                            <span class="status-hud-label">Current Fee</span>
+                            <span class="status-hud-value" id="hudFee">Scanning Network...</span>
+                            <span class="status-hud-sub">sat/vB</span>
+                        </div>
+                        <div class="status-hud-metric">
+                            <span class="status-hud-label">Hashrate</span>
+                            <span class="status-hud-value" id="hudHashrate">Scanning Network...</span>
+                            <span class="status-hud-sub">Network Power</span>
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
 
@@ -1731,7 +1839,7 @@
             <div class="intel-on-feed">
                 <div class="books-on-feed-header">
                     <span class="books-on-feed-title"><i class="fas fa-bolt"></i> Latest Intel</span>
-                    <a href="/intelligence" class="books-on-feed-more" style="text-decoration: none; color: inherit;">All intel <i class="fas fa-arrow-right"></i></a>
+                    <span class="books-on-feed-more hub-link-disabled" aria-disabled="true">Coming Soon <i class="fas fa-hourglass-half"></i></span>
                 </div>
                 <p class="books-on-feed-sub">Recent briefs and key insights from the Protocol Pulse intelligence stream.</p>
                 <ul class="intel-feed-list">
@@ -2473,6 +2581,94 @@ function updateContinueWatchingBar() {
         wrap.addEventListener('mouseenter', onEnter);
         wrap.addEventListener('mouseleave', onLeave);
     });
+})();
+
+(function() {
+    var signalEl = document.getElementById('statusHudSignal');
+    var priceEl = document.getElementById('hudBtcPrice');
+    var changeEl = document.getElementById('hudBtcChange');
+    var mempoolEl = document.getElementById('hudMempoolCount');
+    var feeEl = document.getElementById('hudFee');
+    var hashrateEl = document.getElementById('hudHashrate');
+
+    if (!signalEl || !priceEl || !changeEl || !mempoolEl || !feeEl || !hashrateEl) return;
+
+    function setScanning() {
+        signalEl.textContent = 'Scanning Network...';
+        priceEl.textContent = 'Scanning Network...';
+        changeEl.textContent = 'Scanning Network...';
+        mempoolEl.textContent = 'Scanning Network...';
+        feeEl.textContent = 'Scanning Network...';
+        hashrateEl.textContent = 'Scanning Network...';
+        changeEl.classList.remove('pos', 'neg');
+    }
+
+    function formatUsd(value) {
+        if (typeof value !== 'number' || !isFinite(value) || value <= 0) return null;
+        return '$' + Math.round(value).toLocaleString();
+    }
+
+    function formatCount(value) {
+        if (typeof value !== 'number' || !isFinite(value) || value < 0) return null;
+        return Math.round(value).toLocaleString();
+    }
+
+    function formatHashrate(value) {
+        if (typeof value !== 'number' || !isFinite(value) || value <= 0) return null;
+        return value.toFixed(2) + ' EH/s';
+    }
+
+    function renderHud(data) {
+        var bitcoin = data && data.bitcoin ? data.bitcoin : {};
+        var mempool = data && data.mempool ? data.mempool : {};
+        var fees = data && data.fees ? data.fees : {};
+        var network = data && data.network ? data.network : {};
+
+        var price = formatUsd(Number(bitcoin.price));
+        var change = Number(bitcoin.change_24h);
+        var mempoolCount = formatCount(Number(mempool.count));
+        var fee = Number(fees.fastest) || Number(fees.halfHourFee) || Number(fees.hourFee) || 0;
+        var hashrate = formatHashrate(Number(network.hashrate));
+
+        priceEl.textContent = price || 'Scanning Network...';
+        mempoolEl.textContent = mempoolCount || 'Scanning Network...';
+        feeEl.textContent = fee > 0 ? (Math.round(fee) + ' sat/vB') : 'Scanning Network...';
+        hashrateEl.textContent = hashrate || 'Scanning Network...';
+
+        if (isFinite(change) && change !== 0) {
+            var sign = change > 0 ? '+' : '';
+            changeEl.textContent = sign + change.toFixed(2) + '% (24h)';
+            changeEl.classList.toggle('pos', change > 0);
+            changeEl.classList.toggle('neg', change < 0);
+        } else {
+            changeEl.textContent = 'Scanning Network...';
+            changeEl.classList.remove('pos', 'neg');
+        }
+
+        signalEl.textContent = data && data.success ? 'Network Synced' : 'Scanning Network...';
+    }
+
+    function loadHud() {
+        fetch('/api/network-data')
+            .then(function(resp) {
+                if (!resp.ok) throw new Error('network-data status ' + resp.status);
+                return resp.json();
+            })
+            .then(function(payload) {
+                if (!payload || !payload.success) {
+                    setScanning();
+                    return;
+                }
+                renderHud(payload);
+            })
+            .catch(function() {
+                setScanning();
+            });
+    }
+
+    setScanning();
+    loadHud();
+    setInterval(loadHud, 30000);
 })();
 
 </script>

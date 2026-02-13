@@ -1,0 +1,1302 @@
+Traceback (most recent call last):
+  File "/home/ultron/protocol_pulse/scripts/sentry_worker.py", line 17, in <module>
+    from app import app
+ModuleNotFoundError: No module named 'app'
+Traceback (most recent call last):
+  File "/home/ultron/protocol_pulse/scripts/sentry_worker.py", line 17, in <module>
+    from app import app
+ModuleNotFoundError: No module named 'app'
+Traceback (most recent call last):
+  File "/home/ultron/protocol_pulse/scripts/sentry_worker.py", line 17, in <module>
+    from app import app
+ModuleNotFoundError: No module named 'app'
+Traceback (most recent call last):
+  File "/home/ultron/protocol_pulse/scripts/sentry_worker.py", line 17, in <module>
+    from app import app
+ModuleNotFoundError: No module named 'app'
+Traceback (most recent call last):
+  File "/home/ultron/protocol_pulse/scripts/sentry_worker.py", line 17, in <module>
+    from app import app
+ModuleNotFoundError: No module named 'app'
+Traceback (most recent call last):
+  File "/home/ultron/protocol_pulse/scripts/sentry_worker.py", line 17, in <module>
+    from app import app
+ModuleNotFoundError: No module named 'app'
+Traceback (most recent call last):
+  File "/home/ultron/protocol_pulse/scripts/sentry_worker.py", line 17, in <module>
+    from app import app
+ModuleNotFoundError: No module named 'app'
+Traceback (most recent call last):
+  File "/home/ultron/protocol_pulse/scripts/sentry_worker.py", line 17, in <module>
+    from app import app
+ModuleNotFoundError: No module named 'app'
+Traceback (most recent call last):
+  File "/home/ultron/protocol_pulse/scripts/sentry_worker.py", line 17, in <module>
+    from app import app
+ModuleNotFoundError: No module named 'app'
+Traceback (most recent call last):
+  File "/home/ultron/protocol_pulse/scripts/sentry_worker.py", line 17, in <module>
+    from app import app
+ModuleNotFoundError: No module named 'app'
+Traceback (most recent call last):
+  File "/home/ultron/protocol_pulse/scripts/sentry_worker.py", line 17, in <module>
+    from app import app
+ModuleNotFoundError: No module named 'app'
+INFO:root:TWITTER_API_KEY not configured (related integration stays degraded/off).
+INFO:root:TWITTER_API_SECRET not configured (related integration stays degraded/off).
+INFO:root:TWITTER_ACCESS_TOKEN not configured (related integration stays degraded/off).
+INFO:root:TWITTER_ACCESS_TOKEN_SECRET not configured (related integration stays degraded/off).
+/home/ultron/protocol_pulse/venv/lib/python3.10/site-packages/flask_limiter/_extension.py:364: UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
+  warnings.warn(
+WARNING:root:XAI_API_KEY missing. Grok narrative intelligence offline.
+WARNING:root:GEMINI_API_KEY missing. Narrative intelligence offline.
+WARNING:root:OPENAI_API_KEY missing - image generation disabled. Header images will use defaults.
+WARNING:root:Substack service not available (module not found)
+INFO:root:Content Engine initialized
+WARNING:root:sendgrid package not installed - newsletter functionality disabled
+WARNING:root:SendGrid package not available - newsletter disabled
+WARNING:services.printful_service:PRINTFUL_API_KEY not configured - merch functionality disabled
+INFO:root:Price service initialized
+/home/ultron/protocol_pulse/venv/lib/python3.10/site-packages/google/api_core/_python_version_support.py:275: FutureWarning: You are using a Python version (3.10.12) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+WARNING:root:youtube_transcript_api not installed - transcript fetching disabled
+WARNING:root:GHL service not configured - missing GHL_API_KEY or GHL_LOCATION_ID
+WARNING:root:Reddit PRAW disabled: missing REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET/REDDIT_USER_AGENT
+WARNING:root:Reddit PRAW disabled: missing REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET/REDDIT_USER_AGENT
+WARNING:root:Substack service not available (module not found)
+INFO:root:Content Engine initialized
+WARNING:root:Substack service not available (module not found)
+WARNING:services.printful_service:PRINTFUL_API_KEY not configured - merch functionality disabled
+WARNING:root:routes_social not loaded - social monitoring blueprint not registered: No module named 'selenium'
+INFO:apscheduler.scheduler:Adding job tentatively -- it will be properly scheduled when the scheduler starts
+INFO:apscheduler.scheduler:Adding job tentatively -- it will be properly scheduled when the scheduler starts
+INFO:apscheduler.scheduler:Adding job tentatively -- it will be properly scheduled when the scheduler starts
+INFO:apscheduler.scheduler:Added job "initialize_scheduler.<locals>.<lambda>" to job store "default"
+INFO:apscheduler.scheduler:Added job "initialize_scheduler.<locals>.<lambda>" to job store "default"
+INFO:apscheduler.scheduler:Added job "initialize_scheduler.<locals>.<lambda>" to job store "default"
+INFO:apscheduler.scheduler:Scheduler started
+INFO:root:Scheduler initialized: {'success': True, 'started_at': '2026-02-11T23:10:18.863755', 'mode': 'apscheduler'}
+INFO:root:Routes registered: 298 ... (/) present: True
+2026-02-11 18:10:18,867 | INFO | sentry_worker started at 2026-02-11T23:10:18.867773
+2026-02-11 18:10:18,871 | WARNING | XAI_API_KEY missing. Grok narrative intelligence offline.
+2026-02-11 18:10:18,872 | WARNING | GEMINI_API_KEY missing. Narrative intelligence offline.
+2026-02-11 18:10:18,874 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 18:10:19,079 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 18:10:19,080 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 18:10:22,068 | INFO | sentry_worker received signal 15, stopping
+2026-02-11 18:10:22,082 | INFO | sentry_worker stopped
+INFO:root:TWITTER_API_KEY not configured (related integration stays degraded/off).
+INFO:root:TWITTER_API_SECRET not configured (related integration stays degraded/off).
+INFO:root:TWITTER_ACCESS_TOKEN not configured (related integration stays degraded/off).
+INFO:root:TWITTER_ACCESS_TOKEN_SECRET not configured (related integration stays degraded/off).
+/home/ultron/protocol_pulse/venv/lib/python3.10/site-packages/flask_limiter/_extension.py:364: UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
+  warnings.warn(
+WARNING:root:XAI_API_KEY missing. Grok narrative intelligence offline.
+WARNING:root:GEMINI_API_KEY missing. Narrative intelligence offline.
+WARNING:root:OPENAI_API_KEY missing - image generation disabled. Header images will use defaults.
+WARNING:root:Substack service not available (module not found)
+INFO:root:Content Engine initialized
+WARNING:root:sendgrid package not installed - newsletter functionality disabled
+WARNING:root:SendGrid package not available - newsletter disabled
+WARNING:services.printful_service:PRINTFUL_API_KEY not configured - merch functionality disabled
+INFO:root:Price service initialized
+/home/ultron/protocol_pulse/venv/lib/python3.10/site-packages/google/api_core/_python_version_support.py:275: FutureWarning: You are using a Python version (3.10.12) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+WARNING:root:youtube_transcript_api not installed - transcript fetching disabled
+WARNING:root:GHL service not configured - missing GHL_API_KEY or GHL_LOCATION_ID
+WARNING:root:Reddit PRAW disabled: missing REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET/REDDIT_USER_AGENT
+WARNING:root:Reddit PRAW disabled: missing REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET/REDDIT_USER_AGENT
+WARNING:root:Substack service not available (module not found)
+INFO:root:Content Engine initialized
+WARNING:root:Substack service not available (module not found)
+WARNING:services.printful_service:PRINTFUL_API_KEY not configured - merch functionality disabled
+WARNING:root:routes_social not loaded - social monitoring blueprint not registered: No module named 'selenium'
+INFO:apscheduler.scheduler:Adding job tentatively -- it will be properly scheduled when the scheduler starts
+INFO:apscheduler.scheduler:Adding job tentatively -- it will be properly scheduled when the scheduler starts
+INFO:apscheduler.scheduler:Adding job tentatively -- it will be properly scheduled when the scheduler starts
+INFO:apscheduler.scheduler:Added job "initialize_scheduler.<locals>.<lambda>" to job store "default"
+INFO:apscheduler.scheduler:Added job "initialize_scheduler.<locals>.<lambda>" to job store "default"
+INFO:apscheduler.scheduler:Added job "initialize_scheduler.<locals>.<lambda>" to job store "default"
+INFO:apscheduler.scheduler:Scheduler started
+INFO:root:Scheduler initialized: {'success': True, 'started_at': '2026-02-11T23:10:26.957724', 'mode': 'apscheduler'}
+INFO:root:Routes registered: 298 ... (/) present: True
+2026-02-11 18:10:26,961 | INFO | sentry_worker started at 2026-02-11T23:10:26.961734
+2026-02-11 18:10:26,965 | WARNING | XAI_API_KEY missing. Grok narrative intelligence offline.
+2026-02-11 18:10:26,966 | WARNING | GEMINI_API_KEY missing. Narrative intelligence offline.
+2026-02-11 18:10:26,968 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 18:10:27,175 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 18:10:27,176 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 18:11:02,714 | INFO | sentry_worker received signal 15, stopping
+2026-02-11 18:11:03,210 | INFO | sentry_worker stopped
+INFO:root:TWITTER_API_KEY not configured (related integration stays degraded/off).
+INFO:root:TWITTER_API_SECRET not configured (related integration stays degraded/off).
+INFO:root:TWITTER_ACCESS_TOKEN not configured (related integration stays degraded/off).
+INFO:root:TWITTER_ACCESS_TOKEN_SECRET not configured (related integration stays degraded/off).
+/home/ultron/protocol_pulse/venv/lib/python3.10/site-packages/flask_limiter/_extension.py:364: UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
+  warnings.warn(
+WARNING:root:XAI_API_KEY missing. Grok narrative intelligence offline.
+WARNING:root:GEMINI_API_KEY missing. Narrative intelligence offline.
+WARNING:root:OPENAI_API_KEY missing - image generation disabled. Header images will use defaults.
+WARNING:root:Substack service not available (module not found)
+INFO:root:Content Engine initialized
+WARNING:root:sendgrid package not installed - newsletter functionality disabled
+WARNING:root:SendGrid package not available - newsletter disabled
+WARNING:services.printful_service:PRINTFUL_API_KEY not configured - merch functionality disabled
+INFO:root:Price service initialized
+/home/ultron/protocol_pulse/venv/lib/python3.10/site-packages/google/api_core/_python_version_support.py:275: FutureWarning: You are using a Python version (3.10.12) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+WARNING:root:youtube_transcript_api not installed - transcript fetching disabled
+WARNING:root:GHL service not configured - missing GHL_API_KEY or GHL_LOCATION_ID
+WARNING:root:Reddit PRAW disabled: missing REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET/REDDIT_USER_AGENT
+WARNING:root:Reddit PRAW disabled: missing REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET/REDDIT_USER_AGENT
+WARNING:root:Substack service not available (module not found)
+INFO:root:Content Engine initialized
+WARNING:root:Substack service not available (module not found)
+WARNING:services.printful_service:PRINTFUL_API_KEY not configured - merch functionality disabled
+WARNING:root:routes_social not loaded - social monitoring blueprint not registered: No module named 'selenium'
+INFO:root:Routes registered: 298 ... (/) present: True
+2026-02-11 18:11:08,118 | INFO | sentry_worker started at 2026-02-11T23:11:08.118145
+2026-02-11 18:11:08,122 | WARNING | XAI_API_KEY missing. Grok narrative intelligence offline.
+2026-02-11 18:11:08,123 | WARNING | GEMINI_API_KEY missing. Narrative intelligence offline.
+2026-02-11 18:11:08,125 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 18:11:08,334 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 18:11:08,334 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 18:11:42,012 | INFO | sentry_worker received signal 15, stopping
+2026-02-11 18:11:42,366 | INFO | sentry_worker stopped
+INFO:root:TWITTER_API_KEY not configured (related integration stays degraded/off).
+INFO:root:TWITTER_API_SECRET not configured (related integration stays degraded/off).
+INFO:root:TWITTER_ACCESS_TOKEN not configured (related integration stays degraded/off).
+INFO:root:TWITTER_ACCESS_TOKEN_SECRET not configured (related integration stays degraded/off).
+/home/ultron/protocol_pulse/venv/lib/python3.10/site-packages/flask_limiter/_extension.py:364: UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
+  warnings.warn(
+WARNING:root:XAI_API_KEY missing. Grok narrative intelligence offline.
+WARNING:root:GEMINI_API_KEY missing. Narrative intelligence offline.
+WARNING:root:OPENAI_API_KEY missing - image generation disabled. Header images will use defaults.
+WARNING:root:Substack service not available (module not found)
+INFO:root:Content Engine initialized
+WARNING:root:sendgrid package not installed - newsletter functionality disabled
+WARNING:root:SendGrid package not available - newsletter disabled
+WARNING:services.printful_service:PRINTFUL_API_KEY not configured - merch functionality disabled
+INFO:root:Price service initialized
+/home/ultron/protocol_pulse/venv/lib/python3.10/site-packages/google/api_core/_python_version_support.py:275: FutureWarning: You are using a Python version (3.10.12) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+WARNING:root:youtube_transcript_api not installed - transcript fetching disabled
+WARNING:root:GHL service not configured - missing GHL_API_KEY or GHL_LOCATION_ID
+WARNING:root:Reddit PRAW disabled: missing REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET/REDDIT_USER_AGENT
+WARNING:root:Reddit PRAW disabled: missing REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET/REDDIT_USER_AGENT
+WARNING:root:Substack service not available (module not found)
+INFO:root:Content Engine initialized
+WARNING:root:Substack service not available (module not found)
+WARNING:services.printful_service:PRINTFUL_API_KEY not configured - merch functionality disabled
+WARNING:root:routes_social not loaded - social monitoring blueprint not registered: No module named 'selenium'
+INFO:root:Routes registered: 298 ... (/) present: True
+2026-02-11 18:11:47,330 | INFO | sentry_worker started at 2026-02-11T23:11:47.330561
+2026-02-11 18:11:47,334 | WARNING | XAI_API_KEY missing. Grok narrative intelligence offline.
+2026-02-11 18:11:47,335 | WARNING | GEMINI_API_KEY missing. Narrative intelligence offline.
+2026-02-11 18:11:47,337 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 18:11:47,547 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 18:11:47,547 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 18:16:47,844 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 18:16:47,861 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 18:16:47,862 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 18:18:40,135 | INFO | sentry_worker received signal 15, stopping
+2026-02-11 18:18:40,974 | INFO | sentry_worker stopped
+INFO:root:TWITTER_API_KEY not configured (related integration stays degraded/off).
+INFO:root:TWITTER_API_SECRET not configured (related integration stays degraded/off).
+INFO:root:TWITTER_ACCESS_TOKEN not configured (related integration stays degraded/off).
+INFO:root:TWITTER_ACCESS_TOKEN_SECRET not configured (related integration stays degraded/off).
+/home/ultron/protocol_pulse/venv/lib/python3.10/site-packages/flask_limiter/_extension.py:364: UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
+  warnings.warn(
+WARNING:root:XAI_API_KEY missing. Grok narrative intelligence offline.
+WARNING:root:GEMINI_API_KEY missing. Narrative intelligence offline.
+WARNING:root:OPENAI_API_KEY missing - image generation disabled. Header images will use defaults.
+WARNING:root:Substack service not available (module not found)
+INFO:root:Content Engine initialized
+WARNING:root:sendgrid package not installed - newsletter functionality disabled
+WARNING:root:SendGrid package not available - newsletter disabled
+WARNING:services.printful_service:PRINTFUL_API_KEY not configured - merch functionality disabled
+INFO:root:Price service initialized
+/home/ultron/protocol_pulse/venv/lib/python3.10/site-packages/google/api_core/_python_version_support.py:275: FutureWarning: You are using a Python version (3.10.12) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+WARNING:root:youtube_transcript_api not installed - transcript fetching disabled
+WARNING:root:GHL service not configured - missing GHL_API_KEY or GHL_LOCATION_ID
+WARNING:root:Reddit PRAW disabled: missing REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET/REDDIT_USER_AGENT
+WARNING:root:Reddit PRAW disabled: missing REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET/REDDIT_USER_AGENT
+WARNING:root:Substack service not available (module not found)
+INFO:root:Content Engine initialized
+WARNING:root:Substack service not available (module not found)
+WARNING:services.printful_service:PRINTFUL_API_KEY not configured - merch functionality disabled
+WARNING:root:routes_social not loaded - social monitoring blueprint not registered: No module named 'selenium'
+INFO:root:Routes registered: 298 ... (/) present: True
+2026-02-11 18:18:46,140 | INFO | sentry_worker started at 2026-02-11T23:18:46.140213
+2026-02-11 18:18:46,144 | WARNING | XAI_API_KEY missing. Grok narrative intelligence offline.
+2026-02-11 18:18:46,145 | WARNING | GEMINI_API_KEY missing. Narrative intelligence offline.
+2026-02-11 18:18:46,147 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 18:18:46,353 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 18:18:46,354 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 18:23:46,643 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 18:23:46,675 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 18:23:46,676 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 18:28:46,956 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 18:28:46,970 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 18:28:46,971 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 18:33:47,261 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 18:33:47,288 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 18:33:47,289 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 18:38:47,575 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 18:38:47,589 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 18:38:47,589 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 18:43:47,868 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 18:43:47,882 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 18:43:47,883 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 18:48:48,159 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 18:48:48,173 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 18:48:48,174 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 18:53:48,460 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 18:53:48,474 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 18:53:48,475 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 18:58:48,773 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 18:58:48,787 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 18:58:48,788 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 19:03:49,064 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 19:03:49,078 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 19:03:49,079 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 19:08:49,377 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 19:08:49,404 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 19:08:49,405 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 19:13:49,700 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 19:13:49,727 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 19:13:49,728 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 19:18:50,027 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 19:18:50,041 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 19:18:50,042 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 19:23:50,336 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 19:23:50,350 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 19:23:50,351 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 19:28:50,647 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 19:28:50,661 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 19:28:50,662 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 19:33:50,952 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 19:33:50,966 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 19:33:50,966 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 19:38:51,252 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 19:38:51,279 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 19:38:51,280 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 19:43:51,575 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 19:43:51,602 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 19:43:51,603 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 19:48:51,896 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 19:48:51,923 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 19:48:51,924 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 19:53:52,210 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 19:53:52,224 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 19:53:52,225 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 19:58:52,512 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 19:58:52,527 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 19:58:52,527 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 20:03:52,818 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 20:03:52,845 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 20:03:52,846 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 20:08:53,139 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 20:08:53,166 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 20:08:53,167 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 20:13:53,445 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 20:13:53,459 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 20:13:53,459 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 20:18:53,743 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 20:18:53,754 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 20:18:53,754 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 20:23:54,046 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 20:23:54,057 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 20:23:54,057 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 20:28:54,357 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 20:28:54,372 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 20:28:54,372 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 20:33:54,660 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 20:33:54,674 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 20:33:54,675 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 20:38:54,972 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 20:38:54,999 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 20:38:55,000 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 20:43:55,300 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 20:43:55,314 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 20:43:55,315 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 20:48:55,622 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 20:48:55,633 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 20:48:55,633 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 20:53:55,926 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 20:53:55,952 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 20:53:55,953 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 20:58:56,232 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 20:58:56,246 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 20:58:56,247 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 21:03:56,524 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 21:03:56,551 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 21:03:56,552 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 21:08:56,840 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 21:08:56,868 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 21:08:56,869 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 21:13:57,150 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 21:13:57,164 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 21:13:57,165 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 21:18:57,440 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 21:18:57,467 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 21:18:57,468 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 21:23:57,747 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 21:23:57,758 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 21:23:57,759 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 21:28:58,039 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 21:28:58,053 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 21:28:58,054 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 21:33:58,333 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 21:33:58,347 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 21:33:58,348 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 21:38:58,624 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 21:38:58,639 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 21:38:58,639 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 21:43:58,919 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 21:43:58,933 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 21:43:58,934 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 21:48:59,223 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 21:48:59,237 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 21:48:59,238 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 21:53:59,516 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 21:53:59,543 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 21:53:59,544 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 21:58:59,824 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 21:58:59,839 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 21:58:59,839 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 22:04:00,137 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 22:04:00,164 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 22:04:00,165 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 22:09:00,471 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 22:09:00,482 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 22:09:00,482 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 22:14:00,782 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 22:14:00,796 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 22:14:00,797 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 22:19:01,089 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 22:19:01,116 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 22:19:01,117 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 22:24:01,393 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 22:24:01,407 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 22:24:01,408 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 22:29:01,709 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 22:29:01,737 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 22:29:01,738 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 22:34:02,042 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 22:34:02,069 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 22:34:02,070 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 22:39:02,375 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 22:39:02,402 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 22:39:02,403 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 22:44:02,719 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 22:44:02,746 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 22:44:02,747 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 22:49:03,063 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 22:49:03,077 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 22:49:03,078 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 22:54:03,398 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 22:54:03,425 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 22:54:03,426 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 22:59:03,745 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 22:59:03,772 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 22:59:03,773 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 23:04:04,081 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 23:04:04,108 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 23:04:04,109 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 23:09:04,403 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 23:09:04,431 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 23:09:04,432 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 23:14:04,737 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 23:14:04,763 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 23:14:04,769 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 23:19:05,085 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 23:19:05,124 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 23:19:05,124 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 23:24:05,440 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 23:24:05,467 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 23:24:05,468 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 23:29:05,771 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 23:29:05,798 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 23:29:05,799 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 23:34:06,099 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 23:34:06,127 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 23:34:06,128 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 23:39:06,405 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 23:39:06,416 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 23:39:06,417 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 23:44:06,699 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 23:44:06,726 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 23:44:06,727 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 23:49:07,014 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 23:49:07,040 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 23:49:07,041 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 23:54:07,319 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 23:54:07,346 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 23:54:07,347 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-11 23:59:07,640 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-11 23:59:07,654 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-11 23:59:07,655 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 00:04:07,957 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 00:04:07,992 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 00:04:07,993 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 00:09:08,293 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 00:09:08,307 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 00:09:08,308 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 00:14:08,607 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 00:14:08,621 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 00:14:08,621 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 00:19:08,915 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 00:19:08,942 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 00:19:08,943 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 00:24:09,228 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 00:24:09,255 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 00:24:09,256 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 00:29:09,560 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 00:29:09,586 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 00:29:09,587 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 00:34:09,896 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 00:34:09,923 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 00:34:09,924 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 00:39:10,213 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 00:39:10,240 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 00:39:10,241 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 00:44:10,538 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 00:44:10,565 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 00:44:10,566 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 00:49:10,870 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 00:49:10,897 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 00:49:10,898 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 00:54:11,209 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 00:54:11,236 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 00:54:11,237 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 00:59:11,535 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 00:59:11,550 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 00:59:11,550 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 01:04:11,854 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 01:04:11,880 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 01:04:11,882 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 01:09:12,163 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 01:09:12,177 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 01:09:12,178 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 01:14:12,468 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 01:14:12,482 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 01:14:12,482 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 01:19:12,766 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 01:19:12,783 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 01:19:12,783 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 01:24:13,070 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 01:24:13,097 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 01:24:13,098 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 01:29:13,375 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 01:29:13,389 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 01:29:13,390 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 01:34:13,669 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 01:34:13,683 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 01:34:13,684 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 01:39:13,962 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 01:39:13,989 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 01:39:13,990 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 01:44:14,274 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 01:44:14,300 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 01:44:14,301 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 01:49:14,587 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 01:49:14,601 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 01:49:14,601 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 01:54:14,879 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 01:54:14,906 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 01:54:14,907 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 01:59:15,189 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 01:59:15,216 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 01:59:15,217 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 02:04:15,511 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 02:04:15,525 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 02:04:15,526 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 02:09:15,806 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 02:09:15,833 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 02:09:15,834 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 02:14:16,118 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 02:14:16,132 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 02:14:16,133 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 02:19:16,425 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 02:19:16,439 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 02:19:16,439 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 02:24:16,729 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 02:24:16,743 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 02:24:16,743 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 02:29:17,031 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 02:29:17,057 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 02:29:17,058 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 02:34:17,360 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 02:34:17,385 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 02:34:17,386 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 02:36:22,888 | INFO | sentry_worker received signal 15, stopping
+2026-02-12 02:36:23,510 | INFO | sentry_worker stopped
+INFO:root:TWITTER_API_KEY not configured (related integration stays degraded/off).
+INFO:root:TWITTER_API_SECRET not configured (related integration stays degraded/off).
+INFO:root:TWITTER_ACCESS_TOKEN not configured (related integration stays degraded/off).
+INFO:root:TWITTER_ACCESS_TOKEN_SECRET not configured (related integration stays degraded/off).
+/home/ultron/protocol_pulse/venv/lib/python3.10/site-packages/flask_limiter/_extension.py:364: UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
+  warnings.warn(
+WARNING:root:XAI_API_KEY missing. Grok narrative intelligence offline.
+WARNING:root:GEMINI_API_KEY missing. Narrative intelligence offline.
+WARNING:root:OPENAI_API_KEY missing - image generation disabled. Header images will use defaults.
+WARNING:root:Substack service not available (module not found)
+INFO:root:Content Engine initialized
+WARNING:root:sendgrid package not installed - newsletter functionality disabled
+WARNING:root:SendGrid package not available - newsletter disabled
+WARNING:services.printful_service:PRINTFUL_API_KEY not configured - merch functionality disabled
+INFO:root:Price service initialized
+/home/ultron/protocol_pulse/venv/lib/python3.10/site-packages/google/api_core/_python_version_support.py:275: FutureWarning: You are using a Python version (3.10.12) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+WARNING:root:youtube_transcript_api not installed - transcript fetching disabled
+WARNING:root:GHL service not configured - missing GHL_API_KEY or GHL_LOCATION_ID
+WARNING:root:Reddit PRAW disabled: missing REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET/REDDIT_USER_AGENT
+WARNING:root:Reddit PRAW disabled: missing REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET/REDDIT_USER_AGENT
+WARNING:root:Substack service not available (module not found)
+INFO:root:Content Engine initialized
+WARNING:root:Substack service not available (module not found)
+WARNING:services.printful_service:PRINTFUL_API_KEY not configured - merch functionality disabled
+WARNING:root:routes_social not loaded - social monitoring blueprint not registered: No module named 'selenium'
+INFO:root:Routes registered: 298 ... (/) present: True
+2026-02-12 02:36:28,665 | INFO | sentry_worker started at 2026-02-12T07:36:28.665793
+2026-02-12 02:36:28,678 | WARNING | XAI_API_KEY missing. Grok narrative intelligence offline.
+2026-02-12 02:36:28,679 | WARNING | GEMINI_API_KEY missing. Narrative intelligence offline.
+2026-02-12 02:36:28,681 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 02:36:28,902 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 02:36:28,902 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 02:41:29,195 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 02:41:29,227 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 02:41:29,228 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 02:46:29,535 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 02:46:29,567 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 02:46:29,568 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 02:51:29,873 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 02:51:29,903 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 02:51:29,905 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 02:56:30,199 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 02:56:30,230 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 02:56:30,232 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 03:01:30,531 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 03:01:30,568 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 03:01:30,569 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 03:06:30,876 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 03:06:30,905 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 03:06:30,906 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 03:11:31,221 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 03:11:31,248 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 03:11:31,249 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 03:16:31,555 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 03:16:31,570 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 03:16:31,571 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 03:21:31,889 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 03:21:31,928 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 03:21:31,930 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 03:26:32,244 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 03:26:32,273 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 03:26:32,274 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 03:31:32,585 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 03:31:32,611 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 03:31:32,612 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 03:36:32,929 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 03:36:32,956 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 03:36:32,957 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 03:41:33,271 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 03:41:33,298 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 03:41:33,299 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 03:46:33,613 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 03:46:33,640 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 03:46:33,641 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 03:51:33,950 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 03:51:33,992 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 03:51:33,994 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 03:56:34,302 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 03:56:34,329 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 03:56:34,331 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 04:01:34,638 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 04:01:34,665 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 04:01:34,666 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 04:06:34,985 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 04:06:35,023 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 04:06:35,024 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 04:11:35,330 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 04:11:35,357 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 04:11:35,358 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 04:16:35,670 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 04:16:35,698 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 04:16:35,700 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 04:17:09,722 | INFO | sentry_worker received signal 15, stopping
+2026-02-12 04:17:09,734 | INFO | sentry_worker stopped
+INFO:root:TWITTER_API_KEY not configured (related integration stays degraded/off).
+INFO:root:TWITTER_API_SECRET not configured (related integration stays degraded/off).
+INFO:root:TWITTER_ACCESS_TOKEN not configured (related integration stays degraded/off).
+INFO:root:TWITTER_ACCESS_TOKEN_SECRET not configured (related integration stays degraded/off).
+/home/ultron/protocol_pulse/venv/lib/python3.10/site-packages/flask_limiter/_extension.py:364: UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
+  warnings.warn(
+WARNING:root:XAI_API_KEY missing. Grok narrative intelligence offline.
+WARNING:root:GEMINI_API_KEY missing. Narrative intelligence offline.
+WARNING:root:OPENAI_API_KEY missing - image generation disabled. Header images will use defaults.
+WARNING:root:Substack service not available (module not found)
+INFO:root:Content Engine initialized
+WARNING:root:sendgrid package not installed - newsletter functionality disabled
+WARNING:root:SendGrid package not available - newsletter disabled
+WARNING:services.printful_service:PRINTFUL_API_KEY not configured - merch functionality disabled
+INFO:root:Price service initialized
+/home/ultron/protocol_pulse/venv/lib/python3.10/site-packages/google/api_core/_python_version_support.py:275: FutureWarning: You are using a Python version (3.10.12) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+WARNING:root:youtube_transcript_api not installed - transcript fetching disabled
+WARNING:root:GHL service not configured - missing GHL_API_KEY or GHL_LOCATION_ID
+WARNING:root:Reddit PRAW disabled: missing REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET/REDDIT_USER_AGENT
+WARNING:root:Reddit PRAW disabled: missing REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET/REDDIT_USER_AGENT
+WARNING:root:Substack service not available (module not found)
+INFO:root:Content Engine initialized
+WARNING:root:Substack service not available (module not found)
+WARNING:services.printful_service:PRINTFUL_API_KEY not configured - merch functionality disabled
+WARNING:root:routes_social not loaded - social monitoring blueprint not registered: No module named 'selenium'
+INFO:root:Routes registered: 304 ... (/) present: True
+2026-02-12 04:17:14,893 | INFO | sentry_worker started at 2026-02-12T09:17:14.893222
+2026-02-12 04:17:14,896 | WARNING | XAI_API_KEY missing. Grok narrative intelligence offline.
+2026-02-12 04:17:14,897 | WARNING | GEMINI_API_KEY missing. Narrative intelligence offline.
+2026-02-12 04:17:14,900 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 04:17:15,106 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 04:17:15,107 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 04:22:15,403 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 04:22:15,431 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 04:22:15,432 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 04:27:15,736 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 04:27:15,763 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 04:27:15,764 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 04:32:16,070 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 04:32:16,097 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 04:32:16,098 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 04:37:16,400 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 04:37:16,427 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 04:37:16,428 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 04:42:16,720 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 04:42:16,746 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 04:42:16,747 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 04:47:17,040 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 04:47:17,066 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 04:47:17,067 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 04:49:51,243 | INFO | sentry_worker received signal 15, stopping
+2026-02-12 04:49:52,214 | INFO | sentry_worker stopped
+INFO:root:TWITTER_API_KEY not configured (related integration stays degraded/off).
+INFO:root:TWITTER_API_SECRET not configured (related integration stays degraded/off).
+INFO:root:TWITTER_ACCESS_TOKEN not configured (related integration stays degraded/off).
+INFO:root:TWITTER_ACCESS_TOKEN_SECRET not configured (related integration stays degraded/off).
+/home/ultron/protocol_pulse/venv/lib/python3.10/site-packages/flask_limiter/_extension.py:364: UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
+  warnings.warn(
+WARNING:root:XAI_API_KEY missing. Grok narrative intelligence offline.
+WARNING:root:GEMINI_API_KEY missing. Narrative intelligence offline.
+WARNING:root:OPENAI_API_KEY missing - image generation disabled. Header images will use defaults.
+WARNING:root:Substack service not available (module not found)
+INFO:root:Content Engine initialized
+WARNING:root:sendgrid package not installed - newsletter functionality disabled
+WARNING:root:SendGrid package not available - newsletter disabled
+WARNING:services.printful_service:PRINTFUL_API_KEY not configured - merch functionality disabled
+INFO:root:Price service initialized
+/home/ultron/protocol_pulse/venv/lib/python3.10/site-packages/google/api_core/_python_version_support.py:275: FutureWarning: You are using a Python version (3.10.12) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+WARNING:root:youtube_transcript_api not installed - transcript fetching disabled
+WARNING:root:GHL service not configured - missing GHL_API_KEY or GHL_LOCATION_ID
+WARNING:root:Reddit PRAW disabled: missing REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET/REDDIT_USER_AGENT
+WARNING:root:Reddit PRAW disabled: missing REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET/REDDIT_USER_AGENT
+WARNING:root:Substack service not available (module not found)
+INFO:root:Content Engine initialized
+WARNING:root:Substack service not available (module not found)
+WARNING:services.printful_service:PRINTFUL_API_KEY not configured - merch functionality disabled
+WARNING:root:routes_social not loaded - social monitoring blueprint not registered: No module named 'selenium'
+INFO:root:Routes registered: 310 ... (/) present: True
+2026-02-12 04:49:57,225 | INFO | sentry_worker started at 2026-02-12T09:49:57.225307
+2026-02-12 04:49:57,231 | WARNING | XAI_API_KEY missing. Grok narrative intelligence offline.
+2026-02-12 04:49:57,231 | WARNING | GEMINI_API_KEY missing. Narrative intelligence offline.
+2026-02-12 04:49:57,234 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 04:49:57,452 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 04:49:57,452 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 04:53:18,576 | INFO | sentry_worker received signal 15, stopping
+2026-02-12 04:53:18,651 | INFO | sentry_worker stopped
+INFO:root:TWITTER_API_KEY not configured (related integration stays degraded/off).
+INFO:root:TWITTER_API_SECRET not configured (related integration stays degraded/off).
+INFO:root:TWITTER_ACCESS_TOKEN not configured (related integration stays degraded/off).
+INFO:root:TWITTER_ACCESS_TOKEN_SECRET not configured (related integration stays degraded/off).
+/home/ultron/protocol_pulse/venv/lib/python3.10/site-packages/flask_limiter/_extension.py:364: UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
+  warnings.warn(
+WARNING:root:XAI_API_KEY missing. Grok narrative intelligence offline.
+WARNING:root:GEMINI_API_KEY missing. Narrative intelligence offline.
+WARNING:root:OPENAI_API_KEY missing - image generation disabled. Header images will use defaults.
+WARNING:root:Substack service not available (module not found)
+INFO:root:Content Engine initialized
+WARNING:root:sendgrid package not installed - newsletter functionality disabled
+WARNING:root:SendGrid package not available - newsletter disabled
+WARNING:services.printful_service:PRINTFUL_API_KEY not configured - merch functionality disabled
+INFO:root:Price service initialized
+/home/ultron/protocol_pulse/venv/lib/python3.10/site-packages/google/api_core/_python_version_support.py:275: FutureWarning: You are using a Python version (3.10.12) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+WARNING:root:youtube_transcript_api not installed - transcript fetching disabled
+WARNING:root:GHL service not configured - missing GHL_API_KEY or GHL_LOCATION_ID
+WARNING:root:Reddit PRAW disabled: missing REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET/REDDIT_USER_AGENT
+WARNING:root:Reddit PRAW disabled: missing REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET/REDDIT_USER_AGENT
+WARNING:root:Substack service not available (module not found)
+INFO:root:Content Engine initialized
+WARNING:root:Substack service not available (module not found)
+WARNING:services.printful_service:PRINTFUL_API_KEY not configured - merch functionality disabled
+WARNING:root:routes_social not loaded - social monitoring blueprint not registered: No module named 'selenium'
+INFO:root:Routes registered: 310 ... (/) present: True
+2026-02-12 04:53:23,650 | INFO | sentry_worker started at 2026-02-12T09:53:23.650067
+2026-02-12 04:53:23,654 | WARNING | XAI_API_KEY missing. Grok narrative intelligence offline.
+2026-02-12 04:53:23,654 | WARNING | GEMINI_API_KEY missing. Narrative intelligence offline.
+2026-02-12 04:53:23,657 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 04:53:23,873 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 04:53:23,874 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 04:58:24,176 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 04:58:24,204 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 04:58:24,205 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 05:00:10,027 | INFO | sentry_worker received signal 15, stopping
+2026-02-12 05:00:10,308 | INFO | sentry_worker stopped
+INFO:root:TWITTER_API_KEY not configured (related integration stays degraded/off).
+INFO:root:TWITTER_API_SECRET not configured (related integration stays degraded/off).
+INFO:root:TWITTER_ACCESS_TOKEN not configured (related integration stays degraded/off).
+INFO:root:TWITTER_ACCESS_TOKEN_SECRET not configured (related integration stays degraded/off).
+/home/ultron/protocol_pulse/venv/lib/python3.10/site-packages/flask_limiter/_extension.py:364: UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
+  warnings.warn(
+WARNING:root:XAI_API_KEY missing. Grok narrative intelligence offline.
+WARNING:root:GEMINI_API_KEY missing. Narrative intelligence offline.
+WARNING:root:OPENAI_API_KEY missing - image generation disabled. Header images will use defaults.
+WARNING:root:Substack service not available (module not found)
+INFO:root:Content Engine initialized
+WARNING:root:sendgrid package not installed - newsletter functionality disabled
+WARNING:root:SendGrid package not available - newsletter disabled
+WARNING:services.printful_service:PRINTFUL_API_KEY not configured - merch functionality disabled
+INFO:root:Price service initialized
+/home/ultron/protocol_pulse/venv/lib/python3.10/site-packages/google/api_core/_python_version_support.py:275: FutureWarning: You are using a Python version (3.10.12) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+WARNING:root:youtube_transcript_api not installed - transcript fetching disabled
+WARNING:root:GHL service not configured - missing GHL_API_KEY or GHL_LOCATION_ID
+WARNING:root:Reddit PRAW disabled: missing REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET/REDDIT_USER_AGENT
+WARNING:root:Reddit PRAW disabled: missing REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET/REDDIT_USER_AGENT
+WARNING:root:Substack service not available (module not found)
+INFO:root:Content Engine initialized
+WARNING:root:Substack service not available (module not found)
+WARNING:services.printful_service:PRINTFUL_API_KEY not configured - merch functionality disabled
+WARNING:root:routes_social not loaded - social monitoring blueprint not registered: No module named 'selenium'
+INFO:root:Routes registered: 312 ... (/) present: True
+2026-02-12 05:00:15,241 | INFO | sentry_worker started at 2026-02-12T10:00:15.241013
+2026-02-12 05:00:15,244 | WARNING | XAI_API_KEY missing. Grok narrative intelligence offline.
+2026-02-12 05:00:15,245 | WARNING | GEMINI_API_KEY missing. Narrative intelligence offline.
+2026-02-12 05:00:15,247 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 05:00:15,461 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 05:00:15,461 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 05:05:15,754 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 05:05:15,781 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 05:05:15,782 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 05:10:16,076 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 05:10:16,104 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 05:10:16,105 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 05:15:16,417 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 05:15:16,446 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 05:15:16,447 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 05:20:16,754 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 05:20:16,781 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 05:20:16,782 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 05:25:17,086 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 05:25:17,104 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 05:25:17,105 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 05:30:17,411 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 05:30:17,439 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 05:30:17,440 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 05:35:17,748 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 05:35:17,769 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 05:35:17,770 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 05:40:18,074 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 05:40:18,103 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 05:40:18,104 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 05:45:18,398 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 05:45:18,425 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 05:45:18,426 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 05:50:18,721 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 05:50:18,760 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 05:50:18,761 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 05:55:19,053 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 05:55:19,081 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 05:55:19,082 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 06:00:19,368 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 06:00:19,396 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 06:00:19,397 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 06:05:19,704 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 06:05:19,732 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 06:05:19,733 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 06:10:20,025 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 06:10:20,053 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 06:10:20,054 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 06:15:20,363 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 06:15:20,390 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 06:15:20,392 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 06:20:20,694 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 06:20:20,722 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 06:20:20,723 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 06:25:21,029 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 06:25:21,069 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 06:25:21,070 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 06:30:21,368 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 06:30:21,395 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 06:30:21,396 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 06:35:21,685 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 06:35:21,709 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 06:35:21,710 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 06:40:21,994 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 06:40:22,022 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 06:40:22,023 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 06:45:22,304 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 06:45:22,331 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 06:45:22,332 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 06:50:22,622 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 06:50:22,649 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 06:50:22,650 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 06:55:22,943 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 06:55:22,970 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 06:55:22,971 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 07:00:23,261 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 07:00:23,289 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 07:00:23,290 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 07:05:23,595 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 07:05:23,623 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 07:05:23,625 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 07:10:23,919 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 07:10:23,956 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 07:10:23,957 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 07:15:24,254 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 07:15:24,282 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 07:15:24,283 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 07:20:24,579 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 07:20:24,607 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 07:20:24,608 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 07:25:24,895 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 07:25:24,922 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 07:25:24,924 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 07:30:25,214 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 07:30:25,241 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 07:30:25,242 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 07:35:25,542 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 07:35:25,576 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 07:35:25,577 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 07:40:25,873 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 07:40:25,901 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 07:40:25,902 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 07:45:26,190 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 07:45:26,218 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 07:45:26,219 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 07:50:26,513 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 07:50:26,527 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 07:50:26,528 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 07:55:26,825 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 07:55:26,853 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 07:55:26,854 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 08:00:27,143 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 08:00:27,171 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 08:00:27,172 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 08:05:27,471 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 08:05:27,499 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 08:05:27,500 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 08:10:27,798 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 08:10:27,826 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 08:10:27,827 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 08:15:28,115 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 08:15:28,143 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 08:15:28,144 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 08:20:28,432 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 08:20:28,460 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 08:20:28,461 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 08:25:28,756 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 08:25:28,770 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 08:25:28,771 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 08:30:29,062 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 08:30:29,090 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 08:30:29,092 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 08:35:29,403 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 08:35:29,430 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 08:35:29,432 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 08:40:29,744 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 08:40:29,759 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 08:40:29,760 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 08:45:30,055 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 08:45:30,084 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 08:45:30,085 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 08:50:30,384 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 08:50:30,399 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 08:50:30,399 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 08:55:30,702 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 08:55:30,729 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 08:55:30,730 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 09:00:31,021 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 09:00:31,045 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 09:00:31,046 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 09:05:31,332 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 09:05:31,359 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 09:05:31,360 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 09:10:31,653 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 09:10:31,680 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 09:10:31,681 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 09:15:31,969 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 09:15:31,997 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 09:15:31,998 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 09:20:32,291 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 09:20:32,318 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 09:20:32,319 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 09:25:32,617 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 09:25:32,645 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 09:25:32,646 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 09:30:32,950 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 09:30:32,977 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 09:30:32,978 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 09:35:33,274 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 09:35:33,302 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 09:35:33,303 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 09:40:33,596 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 09:40:33,623 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 09:40:33,624 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 09:45:33,912 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 09:45:33,927 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 09:45:33,927 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 09:50:34,218 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 09:50:34,245 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 09:50:34,246 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 09:55:34,538 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 09:55:34,565 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 09:55:34,566 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 10:00:34,865 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 10:00:34,893 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 10:00:34,894 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 10:05:35,187 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 10:05:35,215 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 10:05:35,216 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 10:10:35,501 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 10:10:35,529 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 10:10:35,530 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 10:15:35,825 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 10:15:35,852 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 10:15:35,853 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 10:20:36,153 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 10:20:36,180 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 10:20:36,182 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 10:25:36,477 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 10:25:36,504 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 10:25:36,505 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 10:30:36,794 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 10:30:36,822 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 10:30:36,823 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 10:35:37,111 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 10:35:37,139 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 10:35:37,140 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 10:40:37,424 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 10:40:37,452 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 10:40:37,454 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 10:45:37,748 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 10:45:37,775 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 10:45:37,776 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 10:50:38,071 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 10:50:38,099 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 10:50:38,100 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 10:55:38,385 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 10:55:38,412 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 10:55:38,413 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 11:00:38,705 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 11:00:38,732 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 11:00:38,733 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 11:05:39,026 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 11:05:39,054 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 11:05:39,055 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 11:10:39,341 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 11:10:39,370 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 11:10:39,371 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 11:15:39,659 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 11:15:39,686 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 11:15:39,687 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 11:20:39,973 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 11:20:40,000 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 11:20:40,001 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 11:25:40,284 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 11:25:40,312 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 11:25:40,313 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 11:30:40,602 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 11:30:40,630 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 11:30:40,631 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 11:35:40,934 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 11:35:40,961 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 11:35:40,962 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 11:40:41,265 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 11:40:41,293 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 11:40:41,294 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 11:45:41,586 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 11:45:41,613 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 11:45:41,614 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 11:50:41,909 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 11:50:41,937 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 11:50:41,938 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 11:55:42,231 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 11:55:42,258 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 11:55:42,259 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 12:00:42,556 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 12:00:42,584 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 12:00:42,585 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 12:05:42,880 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 12:05:42,908 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 12:05:42,909 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 12:10:43,200 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 12:10:43,228 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 12:10:43,229 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 12:15:43,518 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 12:15:43,546 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 12:15:43,547 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 12:20:43,843 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 12:20:43,870 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 12:20:43,871 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 12:25:44,161 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 12:25:44,190 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 12:25:44,191 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 12:30:44,479 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 12:30:44,503 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 12:30:44,504 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 12:35:44,804 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 12:35:44,831 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 12:35:44,832 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 12:40:45,125 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 12:40:45,167 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 12:40:45,169 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 12:45:45,454 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 12:45:45,482 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 12:45:45,483 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 12:50:45,775 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 12:50:45,790 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 12:50:45,791 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 12:55:46,082 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 12:55:46,110 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 12:55:46,111 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 13:00:46,403 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 13:00:46,430 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 13:00:46,431 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 13:05:46,724 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 13:05:46,751 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 13:05:46,752 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 13:10:47,041 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 13:10:47,069 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 13:10:47,070 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 13:15:47,354 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 13:15:47,381 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 13:15:47,382 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 13:20:47,675 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 13:20:47,703 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 13:20:47,704 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 13:25:47,988 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 13:25:48,015 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 13:25:48,016 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 13:30:48,300 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 13:30:48,328 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 13:30:48,329 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 13:35:48,619 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 13:35:48,646 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 13:35:48,647 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 13:40:48,933 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 13:40:48,961 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 13:40:48,962 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 13:45:49,247 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 13:45:49,275 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 13:45:49,276 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 13:50:49,570 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 13:50:49,597 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 13:50:49,598 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 13:55:49,892 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 13:55:49,920 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 13:55:49,921 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 14:00:50,214 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 14:00:50,238 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 14:00:50,239 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 14:05:50,534 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 14:05:50,562 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 14:05:50,563 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 14:10:50,857 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 14:10:50,884 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 14:10:50,885 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 14:15:51,180 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 14:15:51,208 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 14:15:51,209 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 14:20:51,507 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 14:20:51,534 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 14:20:51,535 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 14:25:51,829 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 14:25:51,856 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 14:25:51,857 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 14:30:52,154 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 14:30:52,195 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 14:30:52,196 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 14:35:52,501 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 14:35:52,528 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 14:35:52,529 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 14:40:52,827 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 14:40:52,854 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 14:40:52,855 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 14:45:53,139 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 14:45:53,167 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 14:45:53,168 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 14:50:53,461 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 14:50:53,488 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 14:50:53,489 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 14:55:53,788 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 14:55:53,811 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 14:55:53,812 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 15:00:54,103 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 15:00:54,130 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 15:00:54,131 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 15:05:54,425 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 15:05:54,452 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 15:05:54,453 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 15:10:54,742 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 15:10:54,769 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 15:10:54,771 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 15:15:55,063 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 15:15:55,090 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 15:15:55,091 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 15:20:55,382 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 15:20:55,409 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 15:20:55,410 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 15:25:55,711 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 15:25:55,739 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 15:25:55,740 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 15:30:56,026 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 15:30:56,053 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 15:30:56,054 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 15:35:56,355 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 15:35:56,383 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 15:35:56,384 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 15:40:56,695 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 15:40:56,722 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 15:40:56,723 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 15:45:57,021 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 15:45:57,048 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 15:45:57,049 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 15:50:57,346 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 15:50:57,374 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 15:50:57,375 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 15:55:57,672 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 15:55:57,700 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 15:55:57,701 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 16:00:57,995 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 16:00:58,022 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 16:00:58,023 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 16:05:58,315 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 16:05:58,343 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 16:05:58,344 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 16:10:58,643 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 16:10:58,670 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 16:10:58,672 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 16:15:58,966 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 16:15:58,993 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 16:15:58,994 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 16:20:59,292 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 16:20:59,321 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 16:20:59,322 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 16:25:59,616 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 16:25:59,644 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 16:25:59,645 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 16:30:59,934 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 16:30:59,961 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 16:30:59,962 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 16:36:00,253 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 16:36:00,281 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 16:36:00,282 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 16:41:00,571 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 16:41:00,599 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 16:41:00,600 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 16:46:00,888 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 16:46:00,916 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 16:46:00,917 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 16:51:01,214 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 16:51:01,241 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 16:51:01,242 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 16:56:01,536 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 16:56:01,559 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 16:56:01,560 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 17:01:01,856 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 17:01:01,887 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 17:01:01,888 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 17:06:02,179 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 17:06:02,194 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 17:06:02,195 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 17:11:02,499 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 17:11:02,534 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 17:11:02,535 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 17:16:02,846 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 17:16:02,873 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 17:16:02,874 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 17:21:03,168 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 17:21:03,195 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 17:21:03,196 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 17:26:03,502 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 17:26:03,529 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 17:26:03,530 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 17:31:03,829 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 17:31:03,856 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 17:31:03,857 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 17:36:04,145 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 17:36:04,172 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 17:36:04,173 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 17:41:04,469 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 17:41:04,497 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 17:41:04,498 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 17:46:04,791 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 17:46:04,818 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 17:46:04,819 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 17:51:05,107 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 17:51:05,134 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 17:51:05,135 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 17:56:05,427 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 17:56:05,454 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 17:56:05,455 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 18:01:05,753 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 18:01:05,779 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 18:01:05,780 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 18:06:06,072 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 18:06:06,099 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 18:06:06,100 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 18:11:06,391 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 18:11:06,418 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 18:11:06,419 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 18:16:06,712 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 18:16:06,753 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 18:16:06,754 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 18:21:07,044 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 18:21:07,071 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 18:21:07,072 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 18:26:07,360 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 18:26:07,392 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 18:26:07,393 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 18:31:07,684 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 18:31:07,711 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 18:31:07,712 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 18:36:08,005 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 18:36:08,033 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 18:36:08,034 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 18:41:08,321 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 18:41:08,349 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 18:41:08,350 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 18:46:08,641 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 18:46:08,668 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 18:46:08,669 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 18:51:08,963 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 18:51:08,990 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 18:51:08,991 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 18:56:09,287 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 18:56:09,315 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 18:56:09,316 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 19:01:09,609 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 19:01:09,636 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 19:01:09,637 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 19:06:09,942 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 19:06:09,969 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 19:06:09,970 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 19:11:10,256 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 19:11:10,284 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 19:11:10,285 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}
+2026-02-12 19:16:10,569 | WARNING | XClient: missing X/Twitter env vars; operating in dry-run mode.
+2026-02-12 19:16:10,596 | INFO | X Sentry cycle complete: ingested=0, drafts=0
+2026-02-12 19:16:10,597 | INFO | x_sentry_worker cycle: {'success': True, 'ingested': 0, 'drafts': 0}

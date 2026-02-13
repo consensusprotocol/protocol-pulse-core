@@ -46,6 +46,68 @@ def _ffmpeg_subtitles_path(path: Path) -> str:
     return p
 
 
+def _local_background_image() -> Path | None:
+    candidates = [
+        PROJECT_ROOT / "static" / "img" / "terminal_bg.png",
+        PROJECT_ROOT / "static" / "img" / "starfield_deep.png",
+        PROJECT_ROOT / "static" / "background.jpg",
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def _validate_rendered_mp4(path: Path) -> tuple[bool, str]:
+    if not path.exists():
+        return False, "output missing"
+    size = int(path.stat().st_size)
+    if size < 10 * 1024:
+        try:
+            path.unlink()
+        except Exception:
+            pass
+        return False, f"output too small ({size} bytes)"
+    try:
+        head = path.read_bytes()[:8192].lower()
+        if b"<html" in head or b"<!doctype html" in head:
+            try:
+                path.unlink()
+            except Exception:
+                pass
+            return False, "html payload detected in output"
+    except Exception as e:
+        return False, f"header read failed: {e}"
+
+    probe = subprocess.run(
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-show_entries",
+            "stream=codec_type,codec_name:format=duration,size",
+            "-of",
+            "json",
+            str(path),
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if probe.returncode != 0:
+        return False, "ffprobe failed"
+    try:
+        payload = json.loads(probe.stdout or "{}")
+        streams = payload.get("streams") or []
+        has_video = any((s or {}).get("codec_type") == "video" for s in streams)
+        duration = float((payload.get("format") or {}).get("duration") or 0.0)
+        if not has_video or duration <= 0:
+            return False, "invalid ffprobe stream metadata"
+        print(f"VIDEO VALIDATION OK | file={path} | size={size} | duration={duration:.2f}s")
+        return True, "ok"
+    except Exception as e:
+        return False, f"ffprobe parse failed: {e}"
+
+
 def _build_brief_lines() -> List[str]:
     lines: List[str] = [
         "protocol pulse // commander brief",
@@ -167,74 +229,6 @@ def _build_elevenlabs_voiceover(lines: List[str], out_mp3: Path) -> bool:
         return False
 
 
-def _render_media_pipeline(output: Path, lines: List[str], duration_sec: int) -> bool:
-    """Attempt yt-dlp + moviepy assembly first; return False to use fallback renderer."""
-    try:
-        from moviepy.editor import AudioFileClip, VideoFileClip, concatenate_videoclips
-    except Exception:
-        return False
-
-    with tempfile.TemporaryDirectory(prefix="medley-media-") as td:
-        tmp = Path(td)
-        urls = _top_zapped_partner_urls(limit=3)
-        if not urls:
-            return False
-        clips = _download_partner_clips(urls, tmp, clip_seconds=max(12, duration_sec // 3))
-        if not clips:
-            return False
-
-        video_clips = []
-        for path in clips:
-            try:
-                c = VideoFileClip(str(path))
-                if c.duration > 0:
-                    video_clips.append(c)
-            except Exception:
-                continue
-        if not video_clips:
-            return False
-
-        final = concatenate_videoclips(video_clips, method="compose")
-        final = final.subclip(0, min(duration_sec, max(1, int(final.duration))))
-
-        voice_mp3 = tmp / "voice.mp3"
-        if _build_elevenlabs_voiceover(lines, voice_mp3):
-            try:
-                audio = AudioFileClip(str(voice_mp3))
-                final = final.set_audio(audio.subclip(0, min(final.duration, audio.duration)))
-            except Exception:
-                pass
-
-        output.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            final.write_videofile(
-                str(output),
-                codec="h264_nvenc",
-                audio_codec="aac",
-                fps=30,
-                threads=4,
-                ffmpeg_params=["-preset", "p4", "-pix_fmt", "yuv420p"],
-                logger=None,
-            )
-        except Exception:
-            final.write_videofile(
-                str(output),
-                codec="libx264",
-                audio_codec="aac",
-                fps=30,
-                threads=4,
-                ffmpeg_params=["-pix_fmt", "yuv420p"],
-                logger=None,
-            )
-        try:
-            final.close()
-            for c in video_clips:
-                c.close()
-        except Exception:
-            pass
-        return output.exists() and output.stat().st_size > 0
-
-
 def _write_srt(lines: List[str], srt_path: Path, duration_sec: int = 60) -> None:
     usable = lines[:12] if lines else ["signal missing"]
     segment = max(3.5, duration_sec / max(1, len(usable)))
@@ -252,22 +246,28 @@ def _write_srt(lines: List[str], srt_path: Path, duration_sec: int = 60) -> None
     srt_path.write_text("\n".join(chunks), encoding="utf-8")
 
 
-def _render(output: Path, progress_file: Path, srt_file: Path, duration_sec: int = 60) -> None:
+def _render(output: Path, progress_file: Path, text_file: Path, duration_sec: int = 60) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     progress_file.parent.mkdir(parents=True, exist_ok=True)
+    bg = _local_background_image()
+    if bg is None:
+        raise RuntimeError("ERROR: MISSING ASSET (background image in static/img)")
     vf = (
-        f"subtitles='{_ffmpeg_subtitles_path(srt_file)}':"
-        "force_style='FontName=JetBrains Mono,Fontsize=34,"
-        "PrimaryColour=&H00FFFFFF,OutlineColour=&H002626DC,"
-        "BorderStyle=3,Outline=1,Shadow=0,Alignment=2,MarginV=90'"
+        "scale=1920:1080,"
+        "drawbox=x=80:y=120:w=1760:h=840:color=black@0.55:t=fill,"
+        "drawbox=x=80:y=120:w=1760:h=4:color=#DC2626@0.95:t=fill,"
+        "drawtext=font='JetBrains Mono':text='protocol pulse // commander brief':fontcolor=#DC2626:fontsize=34:x=(w-text_w)/2:y=170,"
+        f"drawtext=font='JetBrains Mono':textfile='{_ffmpeg_subtitles_path(text_file)}':fontcolor=white:fontsize=30:line_spacing=12:x=140:y=260"
     )
     cmd = [
         "ffmpeg",
         "-y",
-        "-f",
-        "lavfi",
+        "-loop",
+        "1",
         "-i",
-        f"color=c=0x050508:s=1920x1080:d={int(duration_sec)}",
+        str(bg),
+        "-t",
+        str(int(duration_sec)),
         "-vf",
         vf,
         "-c:v",
@@ -303,11 +303,16 @@ def main() -> None:
     lines = _build_brief_lines()
     with tempfile.TemporaryDirectory(prefix="medley-director-") as td:
         srt_file = Path(td) / "brief.srt"
+        text_file = Path(td) / "brief.txt"
         duration_sec = max(4, int(args.duration or 60))
-        used_media_pipeline = _render_media_pipeline(output, lines, duration_sec=duration_sec)
-        if not used_media_pipeline:
-            _write_srt(lines, srt_file, duration_sec=duration_sec)
-            _render(output, progress_file, srt_file, duration_sec=duration_sec)
+        # Local-only rendering: no web screenshots/downloaded URL frames.
+        _write_srt(lines, srt_file, duration_sec=duration_sec)
+        text_file.write_text("\n".join(lines[:10]), encoding="utf-8")
+        _render(output, progress_file, text_file, duration_sec=duration_sec)
+
+    valid, validation_msg = _validate_rendered_mp4(output)
+    if not valid:
+        raise RuntimeError(f"media validation failed: {validation_msg}")
 
     report = {
         "started_at": started,
@@ -315,7 +320,8 @@ def main() -> None:
         "output": str(output),
         "line_count": len(lines),
         "gpu_hint": "cuda_visible_devices=1 expected",
-        "pipeline": "yt-dlp+moviepy+elevenlabs" if 'used_media_pipeline' in locals() and used_media_pipeline else "ffmpeg_nvenc_fallback",
+        "pipeline": "ffmpeg_local_background_drawtext",
+        "validation": validation_msg,
     }
     report_file.write_text(json.dumps(report, indent=2), encoding="utf-8")
 

@@ -1,0 +1,8 @@
+{
+  "started_at": "2026-02-12T19:14:24.561592",
+  "finished_at": "2026-02-12T19:14:44.592897",
+  "output": "/home/ultron/protocol_pulse/logs/medley_intel_brief.mp4",
+  "line_count": 15,
+  "gpu_hint": "cuda_visible_devices=1 expected",
+  "pipeline": "ffmpeg_nvenc_fallback"
+}

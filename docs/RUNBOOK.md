@@ -24,6 +24,12 @@ Commands:
 - `systemctl --user status protocol-pulse.service`
 - `systemctl --user status pulse_intel.service`
 
+Restart commands:
+- `systemctl --user restart protocol-pulse.service`
+- `systemctl --user restart pulse_intel.service`
+- `systemctl --user restart protocol-pulse.service pulse_intel.service`
+- `systemctl --user daemon-reload && systemctl --user restart protocol-pulse.service pulse_intel.service`
+
 If using systemd user services after reboot/login-less sessions:
 - `sudo loginctl enable-linger ultron`
 

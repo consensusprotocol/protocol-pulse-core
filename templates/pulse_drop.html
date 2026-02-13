@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Pulse Drop{% endblock %}
+
+{% block head %}
+<style>
+.pd-root{padding:88px 14px 24px;background:radial-gradient(circle at top left, rgba(220,38,38,.16), transparent 42%), #050508;min-height:100vh;color:#fff}
+.pd-grid{display:grid;grid-template-columns:320px minmax(0,1fr) 360px;gap:12px;max-width:1600px;margin:0 auto}
+.pd-card{background:rgba(10,10,14,.72);border:1px solid rgba(220,38,38,.35);backdrop-filter:blur(12px);border-radius:14px;box-shadow:0 8px 40px rgba(0,0,0,.45)}
+.pd-head{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.08);font-family:'JetBrains Mono',monospace;color:#fca5a5;text-transform:uppercase;font-size:.75rem;letter-spacing:.08em}
+.pd-log{max-height:72vh;overflow:auto;padding:8px}
+.pd-item{padding:10px;border:1px solid rgba(255,255,255,.08);border-radius:10px;margin-bottom:8px;cursor:pointer}
+.pd-item.active{border-color:rgba(220,38,38,.9);background:rgba(220,38,38,.12)}
+.pd-item .t{font-size:.75rem;color:#fca5a5;font-family:'JetBrains Mono',monospace}
+.pd-item .l{font-size:.88rem;color:#fff}
+.pd-center{padding:12px}
+.pd-right{padding:12px}
+.pd-yt{width:100%;aspect-ratio:16/9;border-radius:12px;border:1px solid rgba(220,38,38,.35);background:#000}
+.pd-audio{width:100%;margin:10px 0}
+.pd-brief{line-height:1.5;color:rgba(255,255,255,.9);font-size:.92rem}
+@media (max-width: 1100px){.pd-grid{grid-template-columns:1fr}.pd-log{max-height:38vh}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pd-root">
+  <div class="pd-grid">
+    <section class="pd-card">
+      <div class="pd-head">mission log</div>
+      <div class="pd-log" id="missionLog">
+        {% for s in segments %}
+        <div class="pd-item{% if loop.first %} active{% endif %}"
+             data-video="{{ s.video_id }}"
+             data-start="{{ s.start_sec }}"
+             data-audio="{{ s.commentary_audio or '' }}"
+             data-brief="{{ (s.intelligence_brief or s.label or '')|e }}"
+             data-channel="{{ (s.partner_video.channel_name if s.partner_video else 'partner')|e }}"
+             data-title="{{ (s.partner_video.title if s.partner_video else s.video_id)|e }}">
+          <div class="t">{{ (s.partner_video.channel_name if s.partner_video else 'partner') }} • t+{{ s.start_sec }}s • p={{ "%.2f"|format(s.priority or 0) }}</div>
+          <div class="l">{{ s.label or 'signal segment' }}</div>
+        </div>
+        {% else %}
+        <div class="pd-item">no segments yet. run /api/pulse-drop/rebuild.</div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="pd-card pd-center">
+      <div class="pd-head">show runner</div>
+      <iframe id="ytEmbed" class="pd-yt" src="" allowfullscreen></iframe>
+      <audio id="commAudio" class="pd-audio" controls></audio>
+    </section>
+
+    <section class="pd-card pd-right">
+      <div class="pd-head">why this matters</div>
+      <div id="whyTitle" style="font-family:'JetBrains Mono',monospace;color:#fca5a5;margin-bottom:8px;">intelligence brief</div>
+      <div id="whyBrief" class="pd-brief">select a mission log segment to load contextual commentary and timestamped source embed.</div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function(){
+  const items=[...document.querySelectorAll('.pd-item[data-video]')];
+  const yt=document.getElementById('ytEmbed');
+  const audio=document.getElementById('commAudio');
+  const whyTitle=document.getElementById('whyTitle');
+  const whyBrief=document.getElementById('whyBrief');
+  function select(item){
+    items.forEach(i=>i.classList.remove('active'));
+    item.classList.add('active');
+    const video=item.dataset.video||'';
+    const start=item.dataset.start||'0';
+    const audioPath=item.dataset.audio||'';
+    const channel=item.dataset.channel||'partner';
+    const title=item.dataset.title||video;
+    const brief=item.dataset.brief||'';
+    yt.src='https://www.youtube.com/embed/'+video+'?start='+start+'&autoplay=0&modestbranding=1&rel=0';
+    if(audioPath){
+      const p=audioPath.startsWith('/home/ultron/protocol_pulse')?audioPath.replace('/home/ultron/protocol_pulse',''):audioPath;
+      audio.src=p;
+    }else{
+      audio.removeAttribute('src');
+      audio.load();
+    }
+    whyTitle.textContent=channel+' // '+title;
+    whyBrief.textContent=brief||'segment context pending.';
+  }
+  items.forEach(i=>i.addEventListener('click',()=>select(i)));
+  if(items.length) select(items[0]);
+})();
+</script>
+{% endblock %}
+

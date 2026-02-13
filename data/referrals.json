@@ -1,0 +1,35 @@
+{
+  "insurance": {
+    "meanwhile": {
+      "name": "Meanwhile",
+      "description": "bitcoin-native life insurance rails for long-horizon capital protection.",
+      "url": "https://meanwhile.bm/"
+    }
+  },
+  "exchanges": {
+    "mexc": {
+      "name": "MEXC",
+      "description": "global exchange access for liquidity and market execution.",
+      "url": "https://www.mexc.com/"
+    }
+  },
+  "onramps": {
+    "river": {
+      "name": "River",
+      "description": "bitcoin-first accumulation and recurring buys.",
+      "url": "https://river.com/"
+    }
+  },
+  "hardware": {
+    "bitaxe": {
+      "name": "Bitaxe",
+      "description": "open-source solo mining hardware for home operators.",
+      "url": "https://bitaxe.org/"
+    },
+    "trezor": {
+      "name": "Trezor",
+      "description": "hardware wallet custody stack for long-term bitcoin storage.",
+      "url": "https://trezor.io/"
+    }
+  }
+}

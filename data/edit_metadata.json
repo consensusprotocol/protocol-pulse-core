@@ -1,0 +1,153 @@
+{
+  "ts": "2026-02-12T10:34:28.550695",
+  "videos_analyzed": 4,
+  "topic_histogram": {
+    "macro": 12
+  },
+  "clips": [
+    {
+      "video_id": "fallback_2026-02-12_1",
+      "channel": "Michael Saylor",
+      "video_title": "Michael Saylor daily signal montage",
+      "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/michael_saylor_fallback_2026-02-12_1.mp4",
+      "start": 8.0,
+      "end": 42.0,
+      "role": "hook",
+      "topic": "macro",
+      "score": 0.55,
+      "transcript": "Michael Saylor daily signal montage"
+    },
+    {
+      "video_id": "fallback_2026-02-12_1",
+      "channel": "Michael Saylor",
+      "video_title": "Michael Saylor daily signal montage",
+      "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/michael_saylor_fallback_2026-02-12_1.mp4",
+      "start": 44.0,
+      "end": 78.0,
+      "role": "meat",
+      "topic": "macro",
+      "score": 0.52,
+      "transcript": "Michael Saylor daily signal montage"
+    },
+    {
+      "video_id": "fallback_2026-02-12_1",
+      "channel": "Michael Saylor",
+      "video_title": "Michael Saylor daily signal montage",
+      "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/michael_saylor_fallback_2026-02-12_1.mp4",
+      "start": 80.0,
+      "end": 110.0,
+      "role": "outro",
+      "topic": "macro",
+      "score": 0.5,
+      "transcript": "Michael Saylor daily signal montage"
+    },
+    {
+      "video_id": "fallback_2026-02-12_2",
+      "channel": "Lyn Alden",
+      "video_title": "Lyn Alden daily signal montage",
+      "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/lyn_alden_fallback_2026-02-12_2.mp4",
+      "start": 8.0,
+      "end": 42.0,
+      "role": "hook",
+      "topic": "macro",
+      "score": 0.55,
+      "transcript": "Lyn Alden daily signal montage"
+    },
+    {
+      "video_id": "fallback_2026-02-12_2",
+      "channel": "Lyn Alden",
+      "video_title": "Lyn Alden daily signal montage",
+      "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/lyn_alden_fallback_2026-02-12_2.mp4",
+      "start": 44.0,
+      "end": 78.0,
+      "role": "meat",
+      "topic": "macro",
+      "score": 0.52,
+      "transcript": "Lyn Alden daily signal montage"
+    },
+    {
+      "video_id": "fallback_2026-02-12_2",
+      "channel": "Lyn Alden",
+      "video_title": "Lyn Alden daily signal montage",
+      "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/lyn_alden_fallback_2026-02-12_2.mp4",
+      "start": 80.0,
+      "end": 110.0,
+      "role": "outro",
+      "topic": "macro",
+      "score": 0.5,
+      "transcript": "Lyn Alden daily signal montage"
+    },
+    {
+      "video_id": "fallback_2026-02-12_3",
+      "channel": "Preston Pysh",
+      "video_title": "Preston Pysh daily signal montage",
+      "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/preston_pysh_fallback_2026-02-12_3.mp4",
+      "start": 8.0,
+      "end": 42.0,
+      "role": "hook",
+      "topic": "macro",
+      "score": 0.55,
+      "transcript": "Preston Pysh daily signal montage"
+    },
+    {
+      "video_id": "fallback_2026-02-12_3",
+      "channel": "Preston Pysh",
+      "video_title": "Preston Pysh daily signal montage",
+      "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/preston_pysh_fallback_2026-02-12_3.mp4",
+      "start": 44.0,
+      "end": 78.0,
+      "role": "meat",
+      "topic": "macro",
+      "score": 0.52,
+      "transcript": "Preston Pysh daily signal montage"
+    },
+    {
+      "video_id": "fallback_2026-02-12_3",
+      "channel": "Preston Pysh",
+      "video_title": "Preston Pysh daily signal montage",
+      "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/preston_pysh_fallback_2026-02-12_3.mp4",
+      "start": 80.0,
+      "end": 110.0,
+      "role": "outro",
+      "topic": "macro",
+      "score": 0.5,
+      "transcript": "Preston Pysh daily signal montage"
+    },
+    {
+      "video_id": "fallback_2026-02-12_4",
+      "channel": "Natalie Brunell",
+      "video_title": "Natalie Brunell daily signal montage",
+      "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/natalie_brunell_fallback_2026-02-12_4.mp4",
+      "start": 8.0,
+      "end": 42.0,
+      "role": "hook",
+      "topic": "macro",
+      "score": 0.55,
+      "transcript": "Natalie Brunell daily signal montage"
+    },
+    {
+      "video_id": "fallback_2026-02-12_4",
+      "channel": "Natalie Brunell",
+      "video_title": "Natalie Brunell daily signal montage",
+      "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/natalie_brunell_fallback_2026-02-12_4.mp4",
+      "start": 44.0,
+      "end": 78.0,
+      "role": "meat",
+      "topic": "macro",
+      "score": 0.52,
+      "transcript": "Natalie Brunell daily signal montage"
+    },
+    {
+      "video_id": "fallback_2026-02-12_4",
+      "channel": "Natalie Brunell",
+      "video_title": "Natalie Brunell daily signal montage",
+      "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/natalie_brunell_fallback_2026-02-12_4.mp4",
+      "start": 80.0,
+      "end": 110.0,
+      "role": "outro",
+      "topic": "macro",
+      "score": 0.5,
+      "transcript": "Natalie Brunell daily signal montage"
+    }
+  ]
+}

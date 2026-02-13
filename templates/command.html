@@ -7,6 +7,13 @@
   .cmd-card{background:#0b0b10;border:1px solid rgba(220,38,38,.35);border-radius:12px;padding:12px}
   .cmd-k{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:#fca5a5;text-transform:uppercase}
   .cmd-v{font-family:'JetBrains Mono',monospace;font-size:1.35rem;color:#fff;margin-top:4px}
+  .cmd-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .cmd-btn{background:#111319;border:1px solid rgba(220,38,38,.45);color:#f5f5f5;border-radius:8px;padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:.74rem;cursor:pointer}
+  .cmd-btn:hover{border-color:rgba(220,38,38,.75)}
+  .cmd-btn[disabled]{opacity:.6;cursor:not-allowed}
+  .cmd-notice{margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:.74rem;padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);display:none}
+  .cmd-notice.ok{display:block;border-color:rgba(34,197,94,.5);color:#86efac}
+  .cmd-notice.err{display:block;border-color:rgba(220,38,38,.5);color:#fca5a5}
   .cmd-wide{grid-column:span 2}
   .cmd-log{max-height:44vh;overflow:auto;font-family:'JetBrains Mono',monospace;font-size:.78rem;white-space:pre-wrap}
   @media(max-width:1100px){.cmd-grid{grid-template-columns:1fr}.cmd-wide{grid-column:span 1}}
@@ -20,7 +27,17 @@
     <div class="cmd-card"><div class="cmd-k">sentry queue health</div><div class="cmd-v">{{ sentry_pending }} pending</div></div>
     <div class="cmd-card"><div class="cmd-k">medley runs observed</div><div class="cmd-v">{{ medley_runs }}</div></div>
     <div class="cmd-card"><div class="cmd-k">onboarding conversions</div><div class="cmd-v">{{ onboarding_conversions }}</div></div>
-    <div class="cmd-card cmd-wide"><div class="cmd-k">next best action</div><div class="cmd-v" style="font-size:1rem;">{{ next_action }}</div></div>
+    <div class="cmd-card cmd-wide">
+      <div class="cmd-k">next best action</div>
+      <div class="cmd-v" style="font-size:1rem;">{{ next_action }}</div>
+      <div class="cmd-actions">
+        <button id="cmd-refresh-rss" class="cmd-btn" data-command="refresh-rss">Refresh RSS</button>
+        <button id="cmd-whale-check" class="cmd-btn" data-command="whale-check">Whale Check</button>
+        <button id="cmd-rebuild-cache" class="cmd-btn" data-command="rebuild-cache">Rebuild Hub Cache</button>
+        <button id="cmd-generate-podcast" class="cmd-btn" data-command="generate-podcast">Generate Podcast</button>
+      </div>
+      <div id="cmdNotice" class="cmd-notice" role="status" aria-live="polite"></div>
+    </div>
     <div class="cmd-card cmd-wide">
       <div class="cmd-k">gpu utilization</div>
       <div class="cmd-log">{% for g in gpu_rows %}gpu{{ g.index }} | {{ g.temp_c }}c | {{ g.vram_used_mib }}/{{ g.vram_total_mib }} mib | {{ g.power_w }}w
@@ -33,5 +50,58 @@
     </div>
   </div>
 </div>
+{% endblock %}
+{% block scripts %}
+<script>
+(function() {
+  var buttons = document.querySelectorAll('[data-command]');
+  var notice = document.getElementById('cmdNotice');
+
+  function setNotice(kind, text) {
+    if (!notice) return;
+    notice.className = 'cmd-notice ' + kind;
+    notice.textContent = text;
+  }
+
+  function setButtonBusy(btn, busy) {
+    if (!btn) return;
+    if (busy) {
+      btn.dataset.originalText = btn.textContent;
+      btn.textContent = 'Processing...';
+      btn.disabled = true;
+      return;
+    }
+    btn.textContent = btn.dataset.originalText || btn.textContent;
+    btn.disabled = false;
+  }
+
+  async function runCommand(btn) {
+    var action = btn.getAttribute('data-command');
+    if (!action) return;
+    setButtonBusy(btn, true);
+    setNotice('ok', 'Processing...');
+    try {
+      var response = await fetch('/api/command/' + encodeURIComponent(action), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+      var data = await response.json().catch(function() { return {}; });
+      if (!response.ok || data.status !== 'success') {
+        throw new Error((data && data.message) || ('Request failed (' + response.status + ')'));
+      }
+      setNotice('ok', 'Success: ' + (data.message || 'Action started'));
+    } catch (error) {
+      setNotice('err', 'Error: ' + (error && error.message ? error.message : 'Request failed'));
+    } finally {
+      setButtonBusy(btn, false);
+    }
+  }
+
+  buttons.forEach(function(btn) {
+    btn.addEventListener('click', function() { runCommand(btn); });
+  });
+})();
+</script>
 {% endblock %}
 

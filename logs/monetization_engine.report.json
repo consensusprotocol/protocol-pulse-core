@@ -1,0 +1,22 @@
+{
+  "finished_at": "2026-02-13T00:14:01.381736",
+  "briefs": {
+    "scanned": 0,
+    "injected": 0
+  },
+  "x_drafts": {
+    "scanned": 1,
+    "injected": 0
+  },
+  "totals": {
+    "scanned": 1,
+    "injected": 0
+  },
+  "metrics": {
+    "scanned": 1,
+    "injected": 0,
+    "injection_rate_pct": 0.0,
+    "clicks_7d": 1,
+    "click_rate_vs_injected_pct": 0.0
+  }
+}

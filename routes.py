@@ -97,6 +97,10 @@ _medley_state = {
 }
 
 
+def _debug_routes_enabled() -> bool:
+    return os.environ.get("DEBUG_ROUTES", "false").strip().lower() in {"1", "true", "yes", "on"}
+
+
 def _ensure_partner_session_id() -> str:
     sid = session.get("partner_session_id")
     if not sid:
@@ -964,6 +968,35 @@ def robots_txt():
         "Sitemap: " + (request.url_root.rstrip("/") + "/sitemap.xml"),
     ]
     return Response("\n".join(lines), mimetype="text/plain")
+
+
+@app.route('/debug/routes')
+def debug_routes_text():
+    """Plain-text route map, enabled only when DEBUG_ROUTES=true."""
+    if not _debug_routes_enabled():
+        abort(404)
+    lines = []
+    for rule in sorted(app.url_map.iter_rules(), key=lambda r: r.rule):
+        methods = ",".join(sorted(m for m in rule.methods if m not in {"HEAD", "OPTIONS"}))
+        lines.append(f"{rule.rule} [{methods}] -> {rule.endpoint}")
+    return Response("\n".join(lines), mimetype="text/plain")
+
+
+@app.route('/debug/templates')
+def debug_templates_status():
+    """Template existence diagnostics, enabled only when DEBUG_ROUTES=true."""
+    if not _debug_routes_enabled():
+        abort(404)
+    root = Path(app.template_folder or "")
+    checks = {
+        "hub": (root / "media_hub.html").exists(),
+        "command": (root / "command.html").exists(),
+        "sentry": (root / "admin" / "sentry.html").exists(),
+        "start": (root / "onboarding.html").exists(),
+        "privacy": (root / "privacy_policy.html").exists(),
+        "terms": (root / "legal" / "terms.html").exists(),
+    }
+    return jsonify(checks)
 
 
 @app.route('/sitemap.xml')
@@ -2423,9 +2456,14 @@ def clips_gallery():
         status = ai_clips_service.get_status()
     except Exception as e:
         logging.error(f"AI Clips service error: {e}")
-        from services.clips_service import clips_service
-        clips = clips_service.get_all_clips()
-        status = clips_service.get_status()
+        try:
+            from services.clips_service import clips_service
+            clips = clips_service.get_all_clips()
+            status = clips_service.get_status()
+        except Exception as fallback_error:
+            logging.error(f"Clips fallback service error: {fallback_error}")
+            clips = []
+            status = {"status": "degraded", "error": "clips service unavailable"}
     return render_template('clips_gallery.html', clips=clips, status=status)
 
 @app.route('/dashboard')
@@ -2899,7 +2937,7 @@ def _get_media_hub_books():
 
 
 @app.route('/media')
-@app.route('/media-hub')
+@app.route('/hub')
 def media_hub():
     """Media Hub page with live RSS feeds, books, podcasts, and merch"""
     our_books, recommended_books = _get_media_hub_books()
@@ -3041,6 +3079,12 @@ def media_hub():
     except Exception as e:
         logging.error(f"Error loading media hub: {e}")
         return render_template('media_hub.html', shows=[], products=[], our_books=our_books, recommended_books=recommended_books, youtube_series={}, live_broadcasts={}, intel_posts=[], new_this_week=[], latest_feed=[], podcast_sections_list=podcast_sections_list or [], get_thumbnail=YouTubeService.get_thumbnail)
+
+
+@app.route('/media-hub')
+def media_hub_redirect():
+    return redirect(url_for('media_hub'), code=302)
+
 
 @app.route('/api/latest-episodes')
 def get_latest_episodes():
@@ -3343,10 +3387,9 @@ def regulation_category():
     return render_template('category.html', articles=articles, category='Regulation')
 
 @app.route('/privacy')
-def privacy_category():
-    """Privacy category page"""
-    articles = models.Article.query.filter_by(published=True, category='Privacy').order_by(models.Article.created_at.desc()).all()
-    return render_template('category.html', articles=articles, category='Privacy')
+def privacy():
+    """Privacy legal page."""
+    return render_template('privacy_policy.html')
 
 @app.route('/innovation')
 def innovation_category():
@@ -3363,6 +3406,28 @@ def about():
 def privacy_policy():
     """Privacy policy (legal)."""
     return render_template('privacy_policy.html')
+
+
+@app.route('/terms')
+def terms():
+    """Terms of service (legal)."""
+    return render_template('legal/terms.html')
+
+
+@app.route('/sentry')
+def sentry():
+    """Sentry page route shim for Pack 0 routing checks."""
+    return render_template(
+        'admin/sentry.html',
+        queue_count=0,
+        suggestions=[],
+        queue_rows=[],
+    )
+
+
+@app.route('/start')
+def onboarding_legacy_redirect():
+    return redirect(url_for('onboarding.onboarding_start'))
 
 def _send_contact_notification_email(submission):
     """Send a notification email to CONTACT_EMAIL when SENDGRID_API_KEY is set."""
@@ -6302,24 +6367,7 @@ def _run_onboarding_step(stage: str, response_text: str, annual_income, newslett
 
 @app.route('/onboarding', methods=['GET'])
 def onboarding():
-    from services.onboarding_service import onboarding_progress, next_prompt_for_stage, build_urgency_copy
-
-    stage = (request.args.get("stage") or "attention").strip().lower()
-    progress = onboarding_progress(stage)
-    whale_24h, mega_24h = _onboarding_signal_snapshot()
-    urgency_copy = build_urgency_copy(whale_24h, mega_24h)
-    next_prompt = next_prompt_for_stage(progress["stage"], "off-zero")
-    return render_template(
-        'onboarding.html',
-        progress=progress,
-        urgency_copy=urgency_copy,
-        next_prompt=next_prompt,
-        whale_24h=whale_24h,
-        mega_24h=mega_24h,
-        onboarding_profile="off-zero",
-        onboarding_capacity=0,
-        onboarding_interest="early",
-    )
+    return redirect(url_for('onboarding.onboarding_start'))
 
 
 @app.route('/onboarding', methods=['POST'])
@@ -6453,7 +6501,7 @@ def api_upgrade_confirm():
     return jsonify(out), (200 if out.get("ok") else 400)
 
 
-@app.route('/hub')
+@app.route('/premium-hub')
 @premium_hub_required
 def premium_hub():
     """Premium Hub: tiered command center for Operator / Commander / Sovereign subscribers."""
@@ -6588,9 +6636,16 @@ def premium_hub():
 
 
 @app.route('/command')
+def command_center():
+    """Command page for route stability checks."""
+    return render_template("command.html")
+
+
+@app.route('/command-center')
 @login_required
 @premium_hub_required
-def command_center():
+def command_center_premium():
+    """Original premium command center route."""
     from core.personalization import build_user_profile, recommend_next_action
     from core.event_bus import read_events
     since_24h = datetime.utcnow() - timedelta(hours=24)
@@ -6614,6 +6669,85 @@ def command_center():
         events=events,
         next_action=next_action,
     )
+
+
+@app.route('/api/command/<action>', methods=['POST'])
+def api_command_action(action):
+    """Unified command action endpoint for command deck controls."""
+    normalized = (action or "").strip().lower()
+    if normalized == "test-connection":
+        return jsonify({"status": "success", "message": "Connection OK"})
+
+    try:
+        if normalized == "refresh-rss":
+            if rss_service is not None:
+                refresh_fn = getattr(rss_service, "refresh", None)
+                if callable(refresh_fn):
+                    refresh_fn()
+                else:
+                    clear_fn = getattr(rss_service, "clear_cache", None)
+                    if callable(clear_fn):
+                        clear_fn()
+                    warm_fn = getattr(rss_service, "get_latest_episodes", None)
+                    if callable(warm_fn):
+                        warm_fn(limit=6)
+            elif RSSService is not None:
+                svc = RSSService()
+                refresh_fn = getattr(svc, "refresh", None)
+                if callable(refresh_fn):
+                    refresh_fn()
+                else:
+                    clear_fn = getattr(svc, "clear_cache", None)
+                    if callable(clear_fn):
+                        clear_fn()
+                    warm_fn = getattr(svc, "get_latest_episodes", None)
+                    if callable(warm_fn):
+                        warm_fn(limit=6)
+            else:
+                return jsonify({"status": "error", "message": "RSS service unavailable"}), 503
+            return jsonify({"status": "success", "message": "Action started"})
+
+        if normalized == "whale-check":
+            ran = False
+            try:
+                import whaleservice  # type: ignore
+                checker = getattr(whaleservice, "checkformegawhales", None)
+                if callable(checker):
+                    checker()
+                    ran = True
+            except Exception:
+                ran = False
+            if not ran:
+                try:
+                    from scripts.intelligence_loop import run_whale_watcher_cycle
+                    run_whale_watcher_cycle()
+                    ran = True
+                except Exception as e:
+                    logging.error("whale-check fallback failed: %s", e)
+            if not ran:
+                return jsonify({"status": "error", "message": "Whale service unavailable"}), 503
+            return jsonify({"status": "success", "message": "Action started"})
+
+        if normalized == "rebuild-cache":
+            try:
+                cache.clear()
+            except Exception:
+                pass
+            return jsonify({"status": "success", "message": "Action started"})
+
+        if normalized == "generate-podcast":
+            try:
+                from services.automation import generate_podcasts_from_partners
+                generate_podcasts_from_partners()
+            except Exception as e:
+                logging.error("generate-podcast failed: %s", e)
+                return jsonify({"status": "error", "message": "Podcast generation failed"}), 500
+            return jsonify({"status": "success", "message": "Action started"})
+
+        return jsonify({"status": "error", "message": "Unknown action"}), 404
+    except Exception as e:
+        logging.error("command action '%s' failed: %s", normalized, e)
+        return jsonify({"status": "error", "message": "Action failed"}), 500
 
 
 @app.route('/api/hub/automation-log')

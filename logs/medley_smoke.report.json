@@ -1,0 +1,8 @@
+{
+  "started_at": "2026-02-12T19:44:33.770599",
+  "finished_at": "2026-02-12T19:44:37.714623",
+  "output": "/home/ultron/protocol_pulse/logs/medley_smoke.mp4",
+  "line_count": 15,
+  "gpu_hint": "cuda_visible_devices=1 expected",
+  "pipeline": "ffmpeg_nvenc_fallback"
+}

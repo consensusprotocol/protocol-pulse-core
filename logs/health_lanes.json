@@ -1,0 +1,30 @@
+{
+  "updated_at": "2026-02-12T19:44:38.527444Z",
+  "lanes": {
+    "system": {
+      "last_ok": "2026-02-12T19:44:38.527444Z",
+      "last_fail": "2026-02-12T19:44:38.527444Z",
+      "last_error": "/command status 404"
+    },
+    "stream": {
+      "last_ok": "2026-02-12T19:44:38.527444Z",
+      "last_fail": null
+    },
+    "whale": {
+      "last_ok": "2026-02-12T19:44:38.527444Z",
+      "last_fail": null
+    },
+    "sentry": {
+      "last_ok": "2026-02-12T19:44:38.527444Z",
+      "last_fail": null
+    },
+    "risk": {
+      "last_ok": "2026-02-12T19:44:38.527444Z",
+      "last_fail": null
+    },
+    "medley": {
+      "last_ok": "2026-02-12T19:44:38.527444Z",
+      "last_fail": null
+    }
+  }
+}

@@ -29,6 +29,7 @@ from services.feature_flags import is_enabled
 from services.runtime_status import update_status
 from services import ollama_runtime
 from core.event_bus import emit_event
+from core.governance import check_and_consume
 
 
 LOOP_SECONDS = int(os.environ.get("INTEL_LOOP_SECONDS", "120"))  # default: 120s
@@ -188,7 +189,11 @@ def run_x_sentry_cycle(dry_run: bool = False, seed_posts: Any = None, handles: L
         if existing:
             continue
 
-        draft = social_listener.generate_reply_one_liner(tweet_text=text, author_handle=handle)
+        gov = check_and_consume("sentry_generation", units=1)
+        if not gov.get("ok"):
+            draft = "governance cap reached. draft lane paused."
+        else:
+            draft = social_listener.generate_reply_one_liner(tweet_text=text, author_handle=handle)
         if not draft:
             draft = "signal noted. context added."
 
@@ -522,12 +527,16 @@ def run_ghostwriter_autodraft(handles: List[str], max_drafts: int = 60) -> Dict[
             f"target @{handle}\n"
             f"post: {text[:500]}"
         )
-        draft = ollama_runtime.generate(
-            prompt=prompt,
-            preferred_model="llama3.1",
-            options={"temperature": 0.55, "num_predict": 120},
-            timeout=9,
-        )
+        gov = check_and_consume("sentry_generation", units=1)
+        if not gov.get("ok"):
+            draft = "governance cap reached. queue this for next cycle."
+        else:
+            draft = ollama_runtime.generate(
+                prompt=prompt,
+                preferred_model="llama3.1",
+                options={"temperature": 0.55, "num_predict": 120},
+                timeout=9,
+            )
         if not draft:
             draft = "strong signal. market reads this wrong. protocol pulse has the cleaner map."
         payload = f"@{handle} {draft.strip()}"
@@ -575,6 +584,11 @@ def main() -> None:
                     w_result = run_whale_watcher_cycle()
                 else:
                     w_result = {"scanned": 0, "inserted": 0, "mega_inserted": 0, "avg_fee_btc": 0.0, "mega_events": []}
+                try:
+                    from core.orchestration import emit_cycle_summary
+                    emit_cycle_summary(x_result=x_result, n_result=n_result if 'n_result' in locals() else {"fetched": 0, "drafted": 0}, w_result=w_result)
+                except Exception:
+                    logging.exception("orchestration summary emit failed")
                 try:
                     from services.distribution_manager import distribution_manager
 
