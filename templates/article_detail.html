@@ -1,536 +1,65 @@
 {% extends "base.html" %}
+{% block title %}{{ article.title }} — Protocol Pulse{% endblock %}
 
-{% block title %}{{ article.title }} - Protocol Pulse{% endblock %}
-
-{% block meta_description %}{{ article.summary if article.summary else article.content[:150] }}{% endblock %}
-
-{% block head %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/articles-terminal.css') }}?v=terminal3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>
-body { background: var(--pp-bg-primary) !important; }
-.article-digest-cta {
-    background: var(--pp-bg-glass);
-    border: 1px solid var(--pp-border-subtle);
-    border-radius: var(--pp-radius-lg);
-    padding: 20px 24px;
-    margin: 2rem 0;
-    text-align: center;
-}
-.article-digest-cta p { margin: 0 0 12px; color: var(--pp-text-secondary); font-size: 0.95rem; }
-.article-digest-cta a {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    background: var(--pp-accent);
-    color: #fff;
-    border-radius: var(--pp-radius-md);
-    font-weight: 600;
-    text-decoration: none;
-}
-.article-digest-cta a:hover { opacity: 0.95; color: #fff; }
+  body { background: #0A0A0A !important; }
 </style>
-<!-- Open Graph meta tags for social media sharing -->
-<meta property="og:title" content="{{ article.title }}">
-<meta property="og:description" content="{{ article.content[:200] }}...">
-<meta property="og:image" content="{{ article.header_image_url or url_for('dynamic_og_image', og_type='article', id=article.id) }}">
-<meta property="og:url" content="{{ request.url }}">
-<meta property="og:type" content="article">
-<meta property="og:site_name" content="Protocol Pulse">
-
-<!-- Twitter Card meta tags -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@protocolpulse">
-<meta name="twitter:title" content="{{ article.title }}">
-<meta name="twitter:description" content="{{ article.content[:200] }}...">
-<meta name="twitter:image" content="{{ article.header_image_url or url_for('dynamic_og_image', og_type='article', id=article.id) }}">
-
-<!-- SEO meta tags -->
-<meta name="description" content="{{ article.seo_description or article.summary }}">
-<meta name="keywords" content="{{ article.tags }}, Bitcoin, DeFi, Protocol Pulse">
-<link rel="canonical" href="{{ request.url }}">
 {% endblock %}
 
 {% block content %}
-<div class="reading-progress"></div>
-
-<article class="py-5">
-    <div class="container">
-        <!-- Article Header -->
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="mb-4">
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ url_for('index') }}" class="text-primary">Home</a></li>
-                            <li class="breadcrumb-item"><a href="{{ url_for('articles') }}" class="text-primary">News</a></li>
-                            <li class="breadcrumb-item active text-muted" aria-current="page">{{ article.title[:50] }}...</li>
-                        </ol>
-                    </nav>
-                </div>
-
-                <header class="article-header-professional">
-                    <!-- Category Badge -->
-                    <div class="category-section mb-4">
-                        <span class="category-badge">{{ article.category }}</span>
-                        {% if article.premium_tier in ['commander', 'sovereign'] %}
-                        <span class="badge bg-warning text-dark ms-2" style="font-size: 0.7rem;">Pro</span>
-                        {% endif %}
-                    </div>
-
-                    <!-- Article Title -->
-                    <h1 class="article-title-professional">{{ article.title }}</h1>
-                    
-                    <!-- Author and Date -->
-                    <div class="article-meta-professional mb-4">
-                        <div class="meta-item">
-                            <span class="meta-label">By</span>
-                            <span class="meta-value">{{ article.author }}</span>
-                        </div>
-                        <div class="meta-divider">•</div>
-                        <div class="meta-item">
-                            <span class="meta-value">{{ article.created_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
-                        </div>
-                        <div class="meta-divider">•</div>
-                        <div class="meta-item">
-                            <span class="meta-value">{{ ((article.content | length) / 1000 * 3) | round | int }} min read</span>
-                        </div>
-                    </div>
-
-                    {% if article.header_image_url %}
-                    <!-- Hero Image -->
-                    <div class="article-image-hero mb-4">
-                        <img src="{{ article.header_image_url }}" alt="{{ article.title }}" class="img-fluid w-100">
-                    </div>
-                    {% endif %}
-
-                    <!-- Share Buttons -->
-                    <div class="share-social-section">
-                        <div class="share-buttons-container">
-                            <span class="share-label">Share this story</span>
-                            <div class="social-buttons">
-                                <button class="social-btn twitter-btn" onclick="shareOnTwitter()">
-                                    <i class="fab fa-twitter"></i>
-                                    <span>Twitter</span>
-                                </button>
-                                <button class="social-btn linkedin-btn" onclick="shareOnLinkedIn()">
-                                    <i class="fab fa-linkedin"></i>
-                                    <span>LinkedIn</span>
-                                </button>
-                                <button class="social-btn copy-btn" onclick="copyToClipboard()">
-                                    <i class="fas fa-link"></i>
-                                    <span>Copy Link</span>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="reading-time">
-                            <i class="fas fa-clock"></i>
-                            <span>{{ ((article.content | length) / 1000 * 3) | round | int }} min read</span>
-                        </div>
-                    </div>
-                </header>
-
-                {% if article.summary %}
-                <div class="alert alert-dark border-secondary mb-4" style="background: rgba(10,10,10,0.9);">
-                    <strong class="d-block mb-2" style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--pp-accent);">TL;DR</strong>
-                    <p class="mb-0 text-white-50">{{ article.summary }}</p>
-                </div>
-                {% endif %}
-
-                <!-- Article Content -->
-                <div class="article-content">
-                    {% if article.video_url %}<iframe src="{{ article.video_url }}" width="100%" height="315" frameborder="0" allowfullscreen></iframe>{% endif %}
-                    {% if article.screenshot_url %}<img src="{{ article.screenshot_url }}" alt="Source screenshot" class="screenshot">{% endif %}
-                    {% if article.audio_url %}<audio controls src="{{ article.audio_url }}"></audio>{% endif %}
-                    {% if article.transcript_text %}<p class="transcript">Transcript Overview: {{ article.transcript_text[:500] }}...</p>{% endif %}
-                    {{ article.content | safe }}
-                </div>
-
-                <!-- Next read + More intel -->
-                {% if related_articles %}
-                <div class="mb-4">
-                    <p class="mb-2" style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: rgba(255,255,255,0.5);">Next read</p>
-                    <a href="{{ url_for('article_detail', article_id=related_articles[0].id) }}" class="d-block p-3 rounded border border-secondary text-decoration-none" style="background: rgba(255,255,255,0.03); color: var(--pp-text-primary);">
-                        <strong>{{ related_articles[0].title }}</strong>
-                        <span class="d-block small text-muted mt-1">{{ related_articles[0].category }} · {{ ((related_articles[0].content | length) / 1000 * 3) | round | int }} min</span>
-                    </a>
-                    <a href="{{ url_for('articles') }}" class="small text-muted mt-2 d-inline-block">More in Latest Intel <i class="fas fa-arrow-right ms-1"></i></a>
-                </div>
-                {% endif %}
-
-                <!-- Digest CTA -->
-                <div class="article-digest-cta">
-                    <p>Get the weekly intel digest — new briefs and reads in your inbox.</p>
-                    <a href="/media#newsletter-cta"><i class="fas fa-envelope"></i> Subscribe</a>
-                </div>
-
-                <!-- Tip Jar - Support sovereign journalism with sats or dollars -->
-                <div class="tip-jar-section mt-5 pt-4 border-top border-secondary">
-                    <div class="tip-jar-container">
-                        <div class="tip-header">
-                            <span class="tip-title">Value this Intelligence Brief?</span>
-                            <p class="tip-description">Support freedom tech journalism. Every sat and dollar funds the signal.</p>
-                        </div>
-                        
-                        <!-- Lightning Tips (Sats) -->
-                        <div class="tip-row">
-                            <div class="tip-label"><i class="fas fa-bolt text-warning"></i> Tip with Sats</div>
-                            <div class="zapper-buttons">
-                                <button class="zapper-btn" onclick="zapSats(1000)">
-                                    <i class="fas fa-bolt"></i> 1K
-                                </button>
-                                <button class="zapper-btn" onclick="zapSats(5000)">
-                                    <i class="fas fa-bolt"></i> 5K
-                                </button>
-                                <button class="zapper-btn zapper-btn-featured" onclick="zapSats(21000)">
-                                    <i class="fas fa-bolt"></i> 21K
-                                </button>
-                                <button class="zapper-btn zapper-btn-custom" onclick="zapCustom()">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Stripe Tips (Dollars) -->
-                        <div class="tip-row">
-                            <div class="tip-label"><i class="fas fa-credit-card text-success"></i> Tip with Dollars</div>
-                            <div class="stripe-buttons">
-                                <a href="{{ url_for('tip_checkout', amount=5, article_id=article.id) }}" class="stripe-btn">$5</a>
-                                <a href="{{ url_for('tip_checkout', amount=10, article_id=article.id) }}" class="stripe-btn">$10</a>
-                                <a href="{{ url_for('tip_checkout', amount=21, article_id=article.id) }}" class="stripe-btn stripe-btn-featured">$21</a>
-                                <a href="{{ url_for('tip_checkout', amount=50, article_id=article.id) }}" class="stripe-btn">$50</a>
-                            </div>
-                        </div>
-                        
-                        <div class="zapper-fallback mt-3" id="zapper-fallback" style="display: none;">
-                            <p class="text-muted small mb-2">WebLN not detected. Scan to tip:</p>
-                            <div class="qr-placeholder">
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=lnurl1dp68gurn8ghj7ampd3kx2ar0veekzar0wd5xjtnrdakj7tnhv4kxctttdehhwm30d3h82unvwqhkxmmww3jk6amfw35k7m30vs3xvdnpwylhgct884kx7emfdch82enpv9jxvem9x5mrjce5v93r2dfs893rxveex5cxvve3x4jkycmp8ycnvvt8xcknhghj6mnyv4ezudt5wqmhudmhvfez" alt="Lightning QR" class="qr-code">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <style>
-                .tip-jar-section {
-                    background: rgba(10, 10, 10, 0.85);
-                    backdrop-filter: blur(12px);
-                    -webkit-backdrop-filter: blur(12px);
-                    border: 1px solid rgba(220, 38, 38, 0.2);
-                    border-radius: 8px;
-                    padding: 30px;
-                    box-shadow: 
-                        inset 0 0 15px rgba(220, 38, 38, 0.05),
-                        0 10px 30px rgba(0, 0, 0, 0.5);
-                }
-                .tip-jar-container {
-                    max-width: 500px;
-                    margin: 0 auto;
-                }
-                .tip-header {
-                    text-align: center;
-                    margin-bottom: 25px;
-                }
-                .tip-title {
-                    font-family: 'JetBrains Mono', monospace;
-                    font-size: 1.2rem;
-                    color: #fff;
-                    font-weight: 700;
-                    display: block;
-                    margin-bottom: 8px;
-                }
-                .tip-description {
-                    color: rgba(255, 255, 255, 0.6);
-                    font-size: 0.9rem;
-                    margin: 0;
-                }
-                .tip-row {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    gap: 15px;
-                    padding: 15px 0;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-                }
-                .tip-row:last-of-type {
-                    border-bottom: none;
-                }
-                .tip-label {
-                    font-family: 'JetBrains Mono', monospace;
-                    font-size: 0.85rem;
-                    color: rgba(255, 255, 255, 0.8);
-                    white-space: nowrap;
-                }
-                .tip-label i {
-                    margin-right: 8px;
-                }
-                .zapper-description {
-                    color: rgba(255, 255, 255, 0.6);
-                    font-size: 0.85rem;
-                    margin-bottom: 20px;
-                }
-                .zapper-buttons {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 10px;
-                    justify-content: center;
-                }
-                .zapper-btn {
-                    background: rgba(234, 179, 8, 0.2);
-                    border: 1px solid rgba(234, 179, 8, 0.5);
-                    color: #eab308;
-                    padding: 10px 18px;
-                    border-radius: 25px;
-                    font-family: 'JetBrains Mono', monospace;
-                    font-size: 0.8rem;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                }
-                .zapper-btn:hover {
-                    background: rgba(234, 179, 8, 0.4);
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 15px rgba(234, 179, 8, 0.3);
-                }
-                .zapper-btn-featured {
-                    background: linear-gradient(135deg, #eab308 0%, #f59e0b 100%);
-                    color: #000;
-                    font-weight: 600;
-                }
-                .zapper-btn-featured:hover {
-                    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-                }
-                .zapper-btn-custom {
-                    background: rgba(255, 255, 255, 0.05);
-                    border-color: rgba(255, 255, 255, 0.2);
-                    color: rgba(255, 255, 255, 0.7);
-                }
-                .stripe-buttons {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 10px;
-                    justify-content: center;
-                }
-                .stripe-btn {
-                    background: rgba(34, 197, 94, 0.2);
-                    border: 1px solid rgba(34, 197, 94, 0.5);
-                    color: #22c55e;
-                    padding: 10px 18px;
-                    border-radius: 25px;
-                    font-family: 'JetBrains Mono', monospace;
-                    font-size: 0.8rem;
-                    cursor: pointer;
-                    text-decoration: none;
-                    transition: all 0.3s ease;
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 6px;
-                }
-                .stripe-btn:hover {
-                    background: rgba(34, 197, 94, 0.4);
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
-                    color: #22c55e;
-                    text-decoration: none;
-                }
-                .stripe-btn-featured {
-                    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-                    color: #000;
-                    font-weight: 600;
-                }
-                .stripe-btn-featured:hover {
-                    background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
-                    color: #000;
-                }
-                .qr-placeholder {
-                    display: inline-block;
-                    padding: 10px;
-                    background: #fff;
-                    border-radius: 8px;
-                }
-                .qr-code {
-                    display: block;
-                }
-                @media (max-width: 576px) {
-                    .tip-row {
-                        flex-direction: column;
-                        align-items: flex-start;
-                    }
-                    .zapper-buttons, .stripe-buttons {
-                        width: 100%;
-                        justify-content: flex-start;
-                    }
-                }
-                </style>
-
-                <!-- Tags -->
-                {% if article.tags %}
-                <div class="article-tags mt-5 pt-4 border-top border-secondary">
-                    <h6 class="text-primary mb-3">Tags:</h6>
-                    {% for tag in article.tags.split(',') %}
-                        <span class="badge bg-outline-primary me-2 mb-2">{{ tag.strip() }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Related Articles -->
-        {% if related_articles %}
-        <div class="row mt-5">
-            <div class="col-12">
-                <h3 class="text-primary mb-4">Related Articles</h3>
-                <div class="row g-4">
-                    {% for related in related_articles %}
-                    <div class="col-md-4">
-                        <div class="card bg-secondary border-0 h-100">
-                            <div class="card-body">
-                                <span class="badge bg-outline-primary mb-2">{{ related.category }}</span>
-                                <h6 class="card-title">
-                                    <a href="{{ url_for('article_detail', article_id=related.id) }}" 
-                                       class="text-decoration-none text-light">
-                                        {{ related.title[:60] }}{% if related.title|length > 60 %}...{% endif %}
-                                    </a>
-                                </h6>
-                                <p class="card-text text-muted small">
-                                    {{ related.content | clean_preview(80) }}
-                                </p>
-                                <small class="text-muted">
-                                    <i class="fas fa-clock me-1"></i>
-                                    {{ related.created_at.strftime('%b %d') }}
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Back to Articles -->
-        <div class="row mt-5">
-            <div class="col-12 text-center">
-                <a href="{{ url_for('articles') }}" class="btn btn-outline-primary">
-                    <i class="fas fa-arrow-left me-2"></i>Back to All Articles
-                </a>
-            </div>
-        </div>
+<article class="article-detail-terminal">
+  <!-- Header image with red/black overlay (brand cohesion) -->
+  <header class="article-detail-header">
+    <div class="article-detail-header-bg intel-image-overlay" style="background-image: url({{ header_image_url or article.header_image_url or 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200' }});"></div>
+    <div class="article-detail-header-overlay"></div>
+    <div class="article-detail-header-content">
+      <h1 class="article-detail-title">{{ article.title }}</h1>
+      <p class="article-detail-meta">
+        {{ article.created_at.strftime('%B %d, %Y') if article.created_at else '—' }}
+        {% if article.author %} · {{ article.author }}{% endif %}
+        {% if article.category %} · <span class="article-detail-category">{{ article.category }}</span>{% endif %}
+      </p>
     </div>
+  </header>
+
+  <!-- Key Takeaways: one summary box, red border, bullet points (no duplicate TL;DR) -->
+  <div class="key-takeaways">
+    <h3>Key Takeaways</h3>
+    {% if key_takeaways_bullets and key_takeaways_bullets|length > 0 %}
+    <ul>
+      {% for point in key_takeaways_bullets %}
+      <li>{{ point }}</li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>{{ key_takeaways_text or 'Key points from this analysis.' }}</p>
+    {% endif %}
+  </div>
+
+  <!-- Body: full article (summary in Key Takeaways above). Generator uses <div class="tldr-section"> for TL;DR. -->
+  <div class="article-body-serif">
+    {% if body_html %}
+    {{ body_html|safe }}
+    {% else %}
+    <p class="text-muted" style="font-size: 0.95rem;">Full analysis is summarized in Key Takeaways above.</p>
+    {% endif %}
+  </div>
+
+  <!-- Share Intelligence (terminal-style buttons) -->
+  <div class="mt-5 pt-4 article-detail-share">
+    <p class="share-intel-label">Share Intelligence</p>
+    <a href="https://twitter.com/intent/tweet?text={{ (article.title + ' ' + request.url)|urlencode }}" target="_blank" rel="noopener" class="share-intel-btn">$ share x</a>
+    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.url|urlencode }}" target="_blank" rel="noopener" class="share-intel-btn">$ share linkedin</a>
+    <button type="button" class="share-intel-btn" onclick="navigator.clipboard.writeText('{{ request.url }}'); this.textContent='$ copied'; setTimeout(() => { this.textContent='$ copy link'; }, 1500);">$ copy link</button>
+  </div>
+
+  <div class="mt-4">
+    <a href="{{ url_for('articles') }}" class="share-intel-btn" style="text-decoration: none;">← Back to Terminal</a>
+  </div>
 </article>
-{% endblock %}
-
-{% block extra_scripts %}
-<script>
-// Reading progress
-window.addEventListener('scroll', () => {
-    const article = document.querySelector('.article-content');
-    const progress = document.querySelector('.reading-progress');
-    
-    if (article && progress) {
-        const articleTop = article.offsetTop;
-        const articleHeight = article.offsetHeight;
-        const windowTop = window.pageYOffset;
-        const windowHeight = window.innerHeight;
-        
-        const scrolled = ((windowTop - articleTop + windowHeight) / articleHeight) * 100;
-        const progressWidth = Math.min(100, Math.max(0, scrolled));
-        
-        progress.style.width = progressWidth + '%';
-    }
-});
-
-// Share functions
-function shareOnTwitter() {
-    const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent('{{ article.title | replace("'", "\\'") }} via @ProtocolPulse');
-    const shareUrl = `https://x.com/intent/tweet?url=${url}&text=${text}`;
-    window.open(shareUrl, '_blank', 'width=600,height=400,scrollbars=yes');
-}
-
-function shareOnLinkedIn() {
-    const url = encodeURIComponent(window.location.href);
-    const title = encodeURIComponent('{{ article.title | replace("'", "\\'") }}');
-    const shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
-    window.open(shareUrl, '_blank', 'width=600,height=500,scrollbars=yes');
-}
-
-function copyToClipboard() {
-    const copyBtn = document.querySelector('.copy-btn');
-    const originalText = copyBtn ? copyBtn.innerHTML : '';
-    
-    navigator.clipboard.writeText(window.location.href).then(() => {
-        if (copyBtn) {
-            copyBtn.innerHTML = '<i class="fas fa-check"></i><span>Copied!</span>';
-            copyBtn.style.background = 'rgba(34, 197, 94, 0.3)';
-            copyBtn.style.borderColor = '#22c55e';
-            setTimeout(() => {
-                copyBtn.innerHTML = originalText;
-                copyBtn.style.background = '';
-                copyBtn.style.borderColor = '';
-            }, 2000);
-        }
-    }).catch(() => {
-        const textArea = document.createElement('textarea');
-        textArea.value = window.location.href;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        if (copyBtn) {
-            copyBtn.innerHTML = '<i class="fas fa-check"></i><span>Copied!</span>';
-            setTimeout(() => { copyBtn.innerHTML = originalText; }, 2000);
-        }
-    });
-}
-
-function shareByEmail() {
-    const subject = encodeURIComponent('{{ article.title }} - Protocol Pulse');
-    const body = encodeURIComponent(`Check out this article: ${window.location.href}`);
-    window.location.href = `mailto:?subject=${subject}&body=${body}`;
-}
-
-// Lightning Zapper - WebLN Integration
-async function zapSats(amount) {
-    if (typeof window.webln !== 'undefined') {
-        try {
-            await window.webln.enable();
-            const invoice = await window.webln.makeInvoice({
-                amount: amount,
-                defaultMemo: `Protocol Pulse tip for: {{ article.title[:50] }}`
-            });
-            console.log('Invoice created:', invoice);
-            alert(`Zapped ${amount} sats! Thank you for supporting freedom tech journalism.`);
-        } catch (error) {
-            console.error('WebLN error:', error);
-            showZapperFallback();
-        }
-    } else {
-        showZapperFallback();
-    }
-}
-
-async function zapCustom() {
-    const amount = prompt('Enter amount in sats:', '2100');
-    if (amount && !isNaN(amount)) {
-        await zapSats(parseInt(amount));
-    }
-}
-
-function showZapperFallback() {
-    document.getElementById('zapper-fallback').style.display = 'block';
-}
-
-// Check for WebLN on load
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof window.webln === 'undefined') {
-        // Add subtle indicator that WebLN is not available
-        const zapperBtns = document.querySelectorAll('.zapper-btn');
-        zapperBtns.forEach(btn => {
-            btn.title = 'Install a WebLN-compatible wallet like Alby for instant zaps';
-        });
-    }
-});
-</script>
 {% endblock %}

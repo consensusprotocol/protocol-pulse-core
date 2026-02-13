@@ -1,754 +1,178 @@
 {% extends "base.html" %}
+{% block title %}Intelligence Terminal — Protocol Pulse{% endblock %}
 
-{% block title %}Latest Intelligence - Protocol Pulse{% endblock %}
-
-{% block head %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/articles-terminal.css') }}?v=terminal2">
 <style>
-    /* Use Protocol Pulse design tokens */
-    #news-pulse-container { --btc-gold: var(--pp-bitcoin); --btc-gold-glow: rgba(247,147,26,0.25); --dark-bg: var(--pp-bg-primary); --card-bg: var(--pp-bg-card); --card-hover: var(--pp-bg-elevated); --text-main: var(--pp-text-primary); --text-muted: var(--pp-text-muted); --border-dim: var(--pp-border-subtle); --accent-red: var(--pp-accent); --accent-red-glow: var(--pp-accent-glow); }
-    body { background: var(--pp-bg-primary) !important; color: var(--pp-text-primary); }
-
-    #news-pulse-container {
-        background: 
-            linear-gradient(180deg, rgba(10, 10, 10, 0.98) 0%, rgba(5, 5, 5, 1) 100%),
-            url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNMCAwaDYwdjYwSDBWeiIvPjxwYXRoIGQ9Ik0wIDYwaDYwIiBzdHJva2U9InJnYmEoMjIwLDM4LDM4LDAuMDMpIiBzdHJva2Utd2lkdGg9IjEiLz48cGF0aCBkPSJNNjAgMHY2MCIgc3Ryb2tlPSJyZ2JhKDIyMCwzOCwzOCwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9nPjwvc3ZnPg==');
-        background-attachment: fixed;
-        position: relative;
-        min-height: 100vh;
-        padding-bottom: 4rem;
-    }
-
-    #news-pulse-container::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: repeating-linear-gradient(
-            0deg,
-            transparent,
-            transparent 2px,
-            rgba(0, 0, 0, 0.03) 2px,
-            rgba(0, 0, 0, 0.03) 4px
-        );
-        pointer-events: none;
-        z-index: 1;
-    }
-
-    #news-pulse-container::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 3px;
-        background: linear-gradient(90deg, transparent, var(--accent-red), transparent);
-        box-shadow: 0 0 30px var(--accent-red);
-        animation: scanline 12s linear infinite;
-        pointer-events: none;
-        z-index: 10;
-    }
-
-    @keyframes scanline {
-        0% { top: 0; opacity: 0.6; }
-        50% { opacity: 1; }
-        100% { top: 100%; opacity: 0.6; }
-    }
-
-    .content-layer {
-        position: relative;
-        z-index: 2;
-    }
-
-    .zone-label {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.65rem;
-        text-transform: uppercase;
-        letter-spacing: 0.3em;
-        color: var(--accent-red);
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .zone-label::before {
-        content: '';
-        width: 6px;
-        height: 6px;
-        background: var(--accent-red);
-        border-radius: 50%;
-        animation: pulse-dot 2s infinite;
-        box-shadow: 0 0 12px var(--accent-red);
-    }
-
-    @keyframes pulse-dot {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.4; }
-    }
-
-    .timestamp {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.65rem;
-        color: var(--accent-red);
-        font-weight: 500;
-        letter-spacing: 0.05em;
-    }
-
-    .page-title {
-        font-family: 'Crimson Pro', Georgia, serif;
-        font-size: 3rem;
-        font-weight: 800;
-        color: #ffffff;
-        letter-spacing: -0.02em;
-        line-height: 1;
-    }
-
-    .section-header {
-        font-family: 'Crimson Pro', Georgia, serif;
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #ffffff;
-        margin-bottom: 1.25rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 1px solid var(--border-dim);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .section-header i {
-        color: var(--accent-red);
-        font-size: 0.9rem;
-    }
-
-    .bento-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    @media (max-width: 992px) {
-        .bento-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-        .bento-hero-card {
-            grid-column: span 2 !important;
-            grid-row: span 1 !important;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .bento-grid {
-            grid-template-columns: 1fr;
-        }
-        .bento-hero-card {
-            grid-column: span 1 !important;
-        }
-    }
-
-    .bento-card {
-        background: rgba(10, 10, 10, 0.85);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(220, 38, 38, 0.2);
-        border-radius: 8px;
-        padding: 1.5rem;
-        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-        position: relative;
-        overflow: hidden;
-        box-shadow: 
-            inset 0 0 15px rgba(220, 38, 38, 0.05),
-            0 10px 30px rgba(0, 0, 0, 0.5);
-    }
-
-    .bento-card::before {
-        display: none;
-    }
-
-    .bento-card:hover {
-        border-color: rgba(220, 38, 38, 0.8);
-        box-shadow: 
-            0 0 25px rgba(220, 38, 38, 0.2),
-            inset 0 0 20px rgba(220, 38, 38, 0.1);
-        transform: translateY(-2px);
-    }
-
-    .bento-card:hover::before {
-        display: none;
-    }
-
-    .bento-hero-card {
-        grid-column: span 2;
-        grid-row: span 2;
-        padding: 2.5rem;
-        background: linear-gradient(145deg, #0c0c0c 0%, #080808 100%);
-    }
-
-    .bento-hero-card::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, var(--accent-red), var(--btc-gold));
-    }
-
-    .headline-hero {
-        font-family: 'Crimson Pro', Georgia, serif;
-        font-size: 2.5rem;
-        font-weight: 800;
-        line-height: 1.1;
-        color: #ffffff !important;
-        letter-spacing: -0.02em;
-        transition: color 0.3s ease;
-    }
-
-    .headline-hero:hover {
-        color: var(--accent-red) !important;
-    }
-
-    .headline-secondary {
-        font-family: 'Crimson Pro', Georgia, serif;
-        font-size: 1.2rem;
-        font-weight: 700;
-        line-height: 1.3;
-        color: #ffffff !important;
-        transition: color 0.3s ease;
-    }
-
-    .headline-secondary:hover {
-        color: var(--accent-red) !important;
-    }
-
-    .body-text {
-        font-family: 'DM Sans', -apple-system, sans-serif;
-        font-size: 1rem;
-        line-height: 1.75;
-        color: #999999;
-    }
-
-    .meta-mono {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.7rem;
-        color: var(--text-muted);
-        letter-spacing: 0.02em;
-    }
-
-    .badge-breaking {
-        background: var(--accent-red);
-        color: white;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.6rem;
-        font-weight: 600;
-        padding: 4px 10px;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        border-radius: 3px;
-        box-shadow: 0 0 20px rgba(220, 38, 38, 0.5);
-        animation: pulse-badge 2s infinite;
-    }
-
-    @keyframes pulse-badge {
-        0%, 100% { box-shadow: 0 0 20px rgba(220, 38, 38, 0.5); }
-        50% { box-shadow: 0 0 30px rgba(220, 38, 38, 0.7); }
-    }
-
-    .badge-category {
-        background: rgba(255, 255, 255, 0.06);
-        color: #aaaaaa;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.6rem;
-        font-weight: 500;
-        padding: 4px 10px;
-        border-radius: 3px;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .terminal-list {
-        background: rgba(5, 5, 5, 0.6);
-        border: 1px solid var(--border-dim);
-        border-radius: 8px;
-        padding: 0.5rem 1.5rem;
-    }
-
-    .terminal-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 1.25rem;
-        padding: 1.25rem 0;
-        border-bottom: 1px solid var(--accent-red);
-        border-bottom-style: solid;
-        border-bottom-width: 1px;
-        border-image: linear-gradient(90deg, var(--accent-red), transparent) 1;
-        transition: all 0.2s ease;
-    }
-
-    .terminal-item:last-child {
-        border-bottom: none;
-    }
-
-    .terminal-item:hover {
-        background: rgba(220, 38, 38, 0.02);
-        margin: 0 -1.5rem;
-        padding: 1.25rem 1.5rem;
-    }
-
-    .terminal-thumb {
-        width: 100px;
-        height: 75px;
-        background: linear-gradient(135deg, #111 0%, #080808 100%);
-        border: 1px solid var(--accent-red);
-        border-radius: 6px;
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--accent-red);
-        font-size: 1.25rem;
-        opacity: 0.8;
-    }
-
-    .terminal-headline {
-        font-family: 'Crimson Pro', Georgia, serif;
-        font-size: 1.05rem;
-        font-weight: 600;
-        line-height: 1.4;
-        color: #ffffff !important;
-        transition: color 0.2s ease;
-        margin-bottom: 0.5rem;
-    }
-
-    .terminal-headline:hover {
-        color: var(--accent-red) !important;
-    }
-
-    .terminal-meta {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.65rem;
-        color: var(--text-muted);
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .archive-btn {
-        background: transparent;
-        border: 1px solid var(--border-dim);
-        color: var(--text-muted);
-        font-family: 'JetBrains Mono', monospace;
-        padding: 1rem 2rem;
-        border-radius: 6px;
-        font-weight: 500;
-        font-size: 0.75rem;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        transition: all 0.3s ease;
-        width: 100%;
-    }
-
-    .archive-btn:hover {
-        border-color: var(--accent-red);
-        color: var(--accent-red);
-        background: rgba(220, 38, 38, 0.05);
-        box-shadow: 0 0 20px var(--accent-red-glow);
-    }
-
-    .archive-zone {
-        display: none;
-        margin-top: 1.5rem;
-    }
-
-    .archive-zone.show {
-        display: block;
-        animation: fadeIn 0.4s ease;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .sidebar-sticky { 
-        position: sticky; 
-        top: 1.5rem; 
-    }
-    
-    .sidebar-module {
-        background: var(--card-bg);
-        border: 1px solid var(--border-dim);
-        padding: 1.25rem;
-        border-radius: 10px;
-        margin-bottom: 1rem;
-    }
-
-    .sidebar-module-title {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.7rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.15em;
-        color: #ffffff;
-        margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid var(--border-dim);
-    }
-
-    .ticker-row {
-        padding: 10px 0;
-        border-bottom: 1px solid var(--border-dim);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .ticker-row:last-child {
-        border-bottom: none;
-    }
-    
-    .ticker-symbol { 
-        font-family: 'JetBrains Mono', monospace;
-        font-weight: 600; 
-        color: var(--text-muted); 
-        font-size: 0.75rem;
-        letter-spacing: 0.02em;
-    }
-    
-    .ticker-price { 
-        font-family: 'JetBrains Mono', monospace; 
-        font-weight: 600;
-        font-size: 0.85rem;
-    }
-
-    .nav-link-item {
-        display: block;
-        padding: 0.6rem 0;
-        color: var(--text-muted);
-        text-decoration: none;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.85rem;
-        border-bottom: 1px solid var(--border-dim);
-        transition: all 0.2s ease;
-    }
-
-    .nav-link-item:hover {
-        color: var(--btc-gold);
-        padding-left: 8px;
-    }
-
-    .nav-link-item:last-child {
-        border-bottom: none;
-    }
-
-    .subscribe-field {
-        background: #000 !important;
-        border: 1px solid var(--border-dim) !important;
-        color: white !important;
-        font-family: 'DM Sans', sans-serif;
-        border-radius: 5px;
-        padding: 10px 12px;
-        font-size: 0.85rem;
-    }
-
-    .subscribe-field:focus {
-        border-color: var(--btc-gold) !important;
-        box-shadow: 0 0 0 2px rgba(247, 147, 26, 0.15);
-    }
-
-    .subscribe-btn {
-        background: var(--btc-gold);
-        color: #000;
-        font-family: 'JetBrains Mono', monospace;
-        font-weight: 600;
-        border: none;
-        width: 100%;
-        padding: 10px;
-        border-radius: 5px;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        font-size: 0.7rem;
-        transition: all 0.3s ease;
-    }
-
-    .subscribe-btn:hover {
-        background: #ffffff;
-        box-shadow: 0 0 25px var(--btc-gold-glow);
-    }
-
-    .read-link {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.7rem;
-        font-weight: 500;
-        color: var(--accent-red);
-        text-decoration: none;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        transition: all 0.2s ease;
-    }
-
-    .read-link:hover {
-        color: #ffffff;
-    }
-
-    .read-link i {
-        transition: transform 0.2s ease;
-    }
-
-    .read-link:hover i {
-        transform: translateX(4px);
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        color: var(--text-muted);
-        border: 1px dashed var(--border-dim);
-        border-radius: 12px;
-        font-family: 'DM Sans', sans-serif;
-    }
+  body { background: #0A0A0A !important; }
+  .intel-category-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0.75rem 1rem; border-bottom: 1px solid rgba(220,38,38,0.2); margin-bottom: 0.5rem; }
+  .intel-category-pill { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.65); text-decoration: none; padding: 0.4rem 0.85rem; border: 1px solid rgba(220,38,38,0.2); border-radius: 4px; }
+  .intel-category-pill.active { background: #DC2626; border-color: #DC2626; color: #fff; }
+  .intel-terminal-wrap { display: grid; grid-template-columns: 1fr 320px; gap: 1.25rem; max-width: 1400px; margin: 0 auto; padding: 1rem; }
+  .intel-bento-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div id="news-pulse-container">
-    <div class="content-layer">
-        <div class="container py-4">
-            <div class="row g-4">
-                <div class="col-lg-8">
-                    <header class="mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="zone-label">Live Feed</span>
-                            <span class="timestamp">{{ last_updated.strftime('%H:%M:%S') }} UTC</span>
-                        </div>
-                        <h1 class="page-title">The Report</h1>
-                        <p class="mb-0 mt-2" style="font-size: 0.9rem; color: var(--pp-text-muted);">
-                            New to sovereignty? Start with <a href="/dossier" style="color: var(--pp-accent); text-decoration: none; font-weight: 600;">The Dossier</a> — The Sovereign 7: seven definitive chapters on why Bitcoin wins.
-                        </p>
-                        <p class="mb-0 mt-1" style="font-size: 0.85rem; color: var(--pp-text-muted);">
-                            <a href="/media#newsletter-cta" style="color: var(--pp-accent); text-decoration: none;">Get the weekly digest</a> — new briefs in your inbox.
-                        </p>
-                    </header>
+{% set articles = (today_articles or []) + (yesterday_articles or []) + (archive_articles or []) %}
+{% set default_img = default_header_url or 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200' %}
 
-                    {% if today_articles %}
-                    <section class="mb-5">
-                        <h2 class="section-header">
-                            <i class="fas fa-bolt"></i>The 24-Hour Pulse
-                        </h2>
-
-                        <div class="bento-grid">
-                            {% if today_articles|length > 0 %}
-                            <a href="{{ url_for('article_detail', article_id=today_articles[0].id) }}" class="text-decoration-none bento-hero-card bento-card">
-                                <div class="d-flex align-items-center gap-2 mb-3">
-                                    {% if today_articles[0].is_pressing %}
-                                    <span class="badge-breaking">Breaking</span>
-                                    {% endif %}
-                                    <span class="badge-category">{{ today_articles[0].category }}</span>
-                                    {% if today_articles[0].featured or (today_articles[0].premium_tier and today_articles[0].premium_tier in ['commander', 'sovereign']) %}
-                                    <span class="badge bg-warning text-dark" style="font-size: 0.6rem;">Pro</span>
-                                    {% endif %}
-                                    <span class="meta-mono ms-2">{{ today_articles[0].created_at.strftime('%H:%M') }} UTC</span>
-                                </div>
-                                <h2 class="headline-hero mb-4">{{ today_articles[0].title }}</h2>
-                                <p class="body-text mb-4">{{ today_articles[0].content | clean_preview(300) }}</p>
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <span class="read-link">Read Full Report <i class="fas fa-arrow-right ms-2"></i></span>
-                                    <span class="meta-mono">{{ today_articles[0].author or 'Protocol Pulse' }}</span>
-                                </div>
-                            </a>
-                            {% endif %}
-
-                            {% for article in today_articles[1:5] %}
-                            <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none bento-card">
-                                <div class="d-flex align-items-center gap-2 mb-2">
-                                    {% if article.is_pressing %}
-                                    <span class="badge-breaking" style="font-size: 0.5rem; padding: 3px 7px;">Breaking</span>
-                                    {% endif %}
-                                    <span class="badge-category">{{ article.category }}</span>
-                                    {% if article.featured or (article.premium_tier and article.premium_tier in ['commander', 'sovereign']) %}
-                                    <span class="badge bg-warning text-dark" style="font-size: 0.55rem;">Pro</span>
-                                    {% endif %}
-                                </div>
-                                <h3 class="headline-secondary mb-3">{{ article.title }}</h3>
-                                <p class="body-text mb-3" style="font-size: 0.9rem; line-height: 1.6;">{{ article.content | clean_preview(100) }}</p>
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <span class="meta-mono">{{ article.created_at.strftime('%H:%M') }} UTC</span>
-                                    <span class="read-link" style="font-size: 0.6rem;">Read <i class="fas fa-chevron-right ms-1"></i></span>
-                                </div>
-                            </a>
-                            {% endfor %}
-                        </div>
-
-                        {% if today_articles|length > 5 %}
-                        <div class="bento-grid" style="grid-template-columns: repeat(2, 1fr);">
-                            {% for article in today_articles[5:] %}
-                            <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none bento-card">
-                                <div class="d-flex align-items-center gap-2 mb-2">
-                                    <span class="badge-category">{{ article.category }}</span>
-                                    {% if article.featured or (article.premium_tier and article.premium_tier in ['commander', 'sovereign']) %}
-                                    <span class="badge bg-warning text-dark" style="font-size: 0.55rem;">Pro</span>
-                                    {% endif %}
-                                </div>
-                                <h3 class="headline-secondary mb-2">{{ article.title }}</h3>
-                                <span class="meta-mono">{{ article.created_at.strftime('%H:%M') }} UTC</span>
-                            </a>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                    </section>
-                    {% else %}
-                    <div class="empty-state mb-5">
-                        <i class="fas fa-satellite-dish mb-3" style="font-size: 2.5rem; color: var(--accent-red);"></i>
-                        <p class="mb-0">Scanning networks for intelligence...</p>
-                    </div>
-                    {% endif %}
-
-                    {% if yesterday_articles %}
-                    <section class="mb-5">
-                        <h2 class="section-header">
-                            <i class="fas fa-history"></i>The Morning After
-                        </h2>
-                        <div class="terminal-list">
-                            {% for article in yesterday_articles %}
-                            <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none">
-                                <div class="terminal-item">
-                                    <div class="terminal-thumb">
-                                        <i class="fas fa-file-alt"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h4 class="terminal-headline">{{ article.title }}</h4>
-                                        <div class="terminal-meta">
-                                            <span class="badge-category">{{ article.category }}</span>
-                                            {% if article.featured or (article.premium_tier and article.premium_tier in ['commander', 'sovereign']) %}
-                                            <span class="badge bg-warning text-dark" style="font-size: 0.55rem;">Pro</span>
-                                            {% endif %}
-                                            <span>{{ article.created_at.strftime('%H:%M:%S') }}</span>
-                                            <span>{{ article.created_at.strftime('%Y-%m-%d') }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                            {% endfor %}
-                        </div>
-                    </section>
-                    {% endif %}
-
-                    {% if archive_articles %}
-                    <section class="mb-5">
-                        <button class="archive-btn" onclick="toggleArchive()">
-                            <i class="fas fa-archive me-2"></i>Load Archive // {{ archive_articles|length }}+ Reports
-                        </button>
-                        
-                        <div id="archive-content" class="archive-zone">
-                            <h2 class="section-header">
-                                <i class="fas fa-database"></i>The Vault
-                            </h2>
-                            <div class="terminal-list">
-                                {% for article in archive_articles %}
-                                <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none">
-                                    <div class="terminal-item">
-                                        <div class="terminal-thumb">
-                                            <i class="fas fa-file-alt"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h4 class="terminal-headline">{{ article.title }}</h4>
-                                            <div class="terminal-meta">
-                                                <span>{{ article.created_at.strftime('%Y-%m-%d') }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </section>
-                    {% endif %}
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="sidebar-sticky">
-                        
-                        <div class="sidebar-module" style="border-top: 2px solid var(--btc-gold);">
-                            <h5 class="sidebar-module-title">Market Pulse</h5>
-                            <div id="price-ticker">
-                                {% if prices %}
-                                <div class="ticker-row">
-                                    <span class="ticker-symbol">BTC/USD</span>
-                                    <span class="ticker-price {{ 'text-success' if prices.get('bitcoin', {}).get('usd_24h_change', 0) >= 0 else 'text-danger' }}">
-                                        {{ price_service.format_price(prices.get('bitcoin', {}).get('usd', 0)) }}
-                                    </span>
-                                </div>
-                                <div class="ticker-row">
-                                    <span class="ticker-symbol">ETH/USD</span>
-                                    <span class="ticker-price {{ 'text-success' if prices.get('ethereum', {}).get('usd_24h_change', 0) >= 0 else 'text-danger' }}">
-                                        {{ price_service.format_price(prices.get('ethereum', {}).get('usd', 0)) }}
-                                    </span>
-                                </div>
-                                <div class="ticker-row">
-                                    <span class="ticker-symbol">SOL/USD</span>
-                                    <span class="ticker-price {{ 'text-success' if prices.get('solana', {}).get('usd_24h_change', 0) >= 0 else 'text-danger' }}">
-                                        {{ price_service.format_price(prices.get('solana', {}).get('usd', 0)) }}
-                                    </span>
-                                </div>
-                                {% else %}
-                                <div class="ticker-row">
-                                    <span class="meta-mono">Loading...</span>
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <div class="sidebar-module">
-                            <h5 class="sidebar-module-title">Deep Dive</h5>
-                            {% for category in categories %}
-                            <a href="/{{ category|lower }}" class="nav-link-item">
-                                <i class="fas fa-chevron-right me-2" style="font-size: 0.6rem; color: var(--accent-red);"></i>{{ category }}
-                            </a>
-                            {% endfor %}
-                        </div>
-
-                        <div class="sidebar-module" style="border-top: 2px solid var(--accent-red);">
-                            <h5 class="sidebar-module-title">Protocol Dispatch</h5>
-                            <p class="meta-mono mb-3" style="font-size: 0.75rem; color: #888;">Daily Bitcoin intelligence.</p>
-                            <form action="{{ url_for('subscribe') }}" method="POST">
-                                <input type="email" name="email" class="form-control subscribe-field mb-2" placeholder="your@email.com" required>
-                                <button type="submit" class="subscribe-btn">Subscribe</button>
-                            </form>
-                        </div>
-
-                        {% if active_ads %}
-                        <div class="sidebar-module bg-transparent border-0 p-0">
-                            <span class="meta-mono d-block mb-2" style="font-size: 0.6rem; letter-spacing: 0.15em;">Partner</span>
-                            {% for ad in active_ads %}
-                            <div class="mt-2">
-                                <a href="{{ ad.target_url }}" target="_blank">
-                                    <img src="{{ ad.image_url }}" alt="Partner" class="img-fluid rounded" style="border: 1px solid var(--accent-red); opacity: 0.9;">
-                                </a>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- Breaking News Ticker (last 5) -->
+<section class="intel-ticker-wrap">
+  <div class="container-fluid d-flex align-items-center">
+    <span class="intel-ticker-label">Breaking Intelligence</span>
+    <div class="intel-ticker">
+      {% for title in (ticker_titles or []) %}
+      <span>{{ title }}</span>
+      {% endfor %}
+      {% for title in (ticker_titles or []) %}
+      <span>{{ title }}</span>
+      {% endfor %}
     </div>
-</div>
+  </div>
+</section>
 
+<!-- Intelligence Zones (Bloomberg-style tabs) -->
+<nav class="intel-category-bar intel-zones" role="tablist" aria-label="Intelligence Zones">
+  <button type="button" class="intel-category-pill intel-zone-tab active" data-zone="all" aria-selected="true">All</button>
+  <button type="button" class="intel-category-pill intel-zone-tab" data-zone="bitcoin">Bitcoin</button>
+  <button type="button" class="intel-category-pill intel-zone-tab" data-zone="macro">Macro</button>
+  <button type="button" class="intel-category-pill intel-zone-tab" data-zone="privacy">Privacy</button>
+  <button type="button" class="intel-category-pill intel-zone-tab" data-zone="mining">Mining</button>
+  {% for cat in (categories or []) %}
+  {% if cat not in ['Bitcoin', 'Macro', 'Privacy', 'Mining'] %}
+  <a href="{{ url_for('category_articles', category=cat) }}" class="intel-category-pill">{{ cat }}</a>
+  {% endif %}
+  {% endfor %}
+</nav>
+
+<div class="intel-terminal-wrap">
+  <div class="intel-bento-main">
+    {% if latest_article %}
+    <section class="intel-hero-zone" data-intel-zone="{{ ((latest_article.category or '')|lower|replace(' ', '-')) or 'all' }}">
+      <div class="intel-hero-card">
+        <div class="intel-hero-bg intel-image-overlay" style="background-image: url({{ latest_article.header_image_url or default_img }});"></div>
+        <div class="intel-hero-content">
+          <span class="intel-hero-tag intel-hero-tag-breaking">BREAKING SIGNAL</span>
+          <a href="{{ url_for('article_detail', article_id=latest_article.id) }}" class="intel-hero-link">
+            <h2 class="intel-hero-title">{{ latest_article.title }}</h2>
+          </a>
+          <div class="intel-hero-meta">
+            <span class="intel-hero-cat">{{ latest_article.category or 'Intel' }}</span>
+            <span>{{ (((latest_article.content or '')|striptags).split()|length / 200)|int or 1 }} min read</span>
+            {% if latest_article.created_at %}<span>{{ latest_article.created_at.strftime('%b %d, %Y') }}</span>{% endif %}
+          </div>
+        </div>
+      </div>
+    </section>
+    {% endif %}
+
+    <h2 class="intel-grid-section-title">Intelligence Feed</h2>
+    <div class="intel-bento-grid">
+      {% for article in (grid_articles or []) %}
+      {% set word_count = ((article.content or '')|striptags).split()|length %}
+      {% set read_mins = ((word_count / 200)|int) if (word_count / 200)|int >= 1 else 1 %}
+      {% set signal_pct = (100 - loop.index0 * 2) if (100 - loop.index0 * 2) >= 40 else 40 %}
+      <article class="intel-card" data-intel-zone="{{ ((article.category or '')|lower|replace(' ', '-')) or 'all' }}">
+        <div class="intel-card-signal">
+          <div class="intel-card-signal-bar" style="--signal-pct: {{ signal_pct }}%;"></div>
+        </div>
+        <span class="intel-card-time">{{ read_mins }} min read</span>
+        <h3 class="intel-card-title">
+          <a href="{{ url_for('article_detail', article_id=article.id) }}">{{ article.title }}</a>
+        </h3>
+        <p class="intel-card-preview">{{ article.content|striptags|truncate(120) }}</p>
+        <a href="{{ url_for('article_detail', article_id=article.id) }}" class="intel-card-link">Read intel →</a>
+      </article>
+      {% endfor %}
+    </div>
+    {% if not (grid_articles or []) and (total_count or 0) == 0 %}
+    <p class="text-muted">No articles yet.</p>
+    {% endif %}
+
+    <!-- Pagination: all articles accessible (1,370+ supported) -->
+    {% if (total_pages or 1) > 1 %}
+    <nav class="intel-pagination" aria-label="Articles pages">
+      <div class="intel-pagination-inner">
+        {% if page and page > 1 %}
+        <a href="{{ url_for('articles', page=page - 1) }}" class="intel-pagination-btn">← Prev</a>
+        {% endif %}
+        <span class="intel-pagination-info">Page {{ page or 1 }} of {{ total_pages or 1 }} ({{ total_count or 0 }} intel)</span>
+        {% if page and total_pages and page < total_pages %}
+        <a href="{{ url_for('articles', page=page + 1) }}" class="intel-pagination-btn">Next →</a>
+        {% endif %}
+      </div>
+      <div class="intel-pagination-jump">
+        <a href="{{ url_for('articles', page=1) }}" class="intel-pagination-num {% if (page or 1) == 1 %}active{% endif %}">1</a>
+        {% if (page or 1) > 3 %}<span class="intel-pagination-ellipsis">…</span>{% endif %}
+        {% for p in range([2, (page or 1) - 2]|max, [(total_pages or 1) - 1, (page or 1) + 2]|min + 1) %}
+        <a href="{{ url_for('articles', page=p) }}" class="intel-pagination-num {% if p == (page or 1) %}active{% endif %}">{{ p }}</a>
+        {% endfor %}
+        {% if total_pages and (page or 1) < (total_pages or 1) - 2 %}<span class="intel-pagination-ellipsis">…</span>{% endif %}
+        {% if (total_pages or 1) > 1 %}
+        <a href="{{ url_for('articles', page=total_pages or 1) }}" class="intel-pagination-num {% if (page or 1) == (total_pages or 1) %}active{% endif %}">{{ total_pages or 1 }}</a>
+        {% endif %}
+      </div>
+    </nav>
+    {% endif %}
+  </div>
+
+  <!-- Sidebar HUD: live financial stats (sticky) -->
+  <aside class="intel-sidebar">
+    <h2 class="intel-sidebar-title">Live HUD</h2>
+    <div class="intel-sidebar-row">
+      <span class="intel-sidebar-label">BTC</span>
+      <span class="intel-sidebar-value">
+        {% if prices and (prices.get('bitcoin') or {}).get('price') %}
+        ${{ "{:,.0f}".format((prices.get('bitcoin') or {}).get('price', 0)) }}
+        {% else %}
+        —
+        {% endif %}
+      </span>
+    </div>
+    <div class="intel-sidebar-row">
+      <span class="intel-sidebar-label">Hashrate</span>
+      <span class="intel-sidebar-value">{{ (network_stats or {}).get('hashrate', (mempool_data or {}).get('current_hashrate')) or '—' }}</span>
+    </div>
+    <div class="intel-sidebar-row">
+      <span class="intel-sidebar-label">Mempool</span>
+      <span class="intel-sidebar-value">{{ (mempool_data or {}).get('count', '—') }} tx</span>
+    </div>
+    {% if mempool_data and mempool_data.get('fees') %}
+    <div class="intel-sidebar-row">
+      <span class="intel-sidebar-label">Fee (fast)</span>
+      <span class="intel-sidebar-value">{{ mempool_data.fees.get('fastest', mempool_data.fees.get('fastestFee', '—')) }} sat/vB</span>
+    </div>
+    {% endif %}
+    {% if network_stats and network_stats.get('difficulty') %}
+    <div class="intel-sidebar-row">
+      <span class="intel-sidebar-label">Difficulty</span>
+      <span class="intel-sidebar-value">{{ network_stats.difficulty }}</span>
+    </div>
+    {% endif %}
+  </aside>
+</div>
 <script>
-function toggleArchive() {
-    const archive = document.getElementById('archive-content');
-    archive.classList.toggle('show');
-    const btn = event.target.closest('button');
-    if (archive.classList.contains('show')) {
-        btn.innerHTML = '<i class="fas fa-times me-2"></i>Close Archive';
-    } else {
-        btn.innerHTML = '<i class="fas fa-archive me-2"></i>Load Archive // {{ archive_articles|length }}+ Reports';
-    }
-}
+(function() {
+  var zoneMap = { bitcoin: ['bitcoin'], macro: ['macro', 'regulation', 'economy', 'defi'], privacy: ['privacy', 'cypherpunk'], mining: ['mining'] };
+  var tabs = document.querySelectorAll('.intel-zone-tab');
+  var cards = document.querySelectorAll('.intel-card, .intel-hero-zone');
+  function filterZone(zone) {
+    var match = zone === 'all';
+    var keys = match ? [] : (zoneMap[zone] || [zone]);
+    cards.forEach(function(el) {
+      var z = (el.getAttribute('data-intel-zone') || '').toLowerCase().replace(/\s+/g, '-');
+      var show = match || keys.some(function(k) { return z.indexOf(k) !== -1; });
+      el.style.display = show ? '' : 'none';
+    });
+    tabs.forEach(function(t) {
+      t.classList.toggle('active', t.getAttribute('data-zone') === zone);
+      t.setAttribute('aria-selected', t.getAttribute('data-zone') === zone ? 'true' : 'false');
+    });
+  }
+  tabs.forEach(function(t) {
+    t.addEventListener('click', function() { filterZone(t.getAttribute('data-zone')); });
+  });
+})();
 </script>
 {% endblock %}

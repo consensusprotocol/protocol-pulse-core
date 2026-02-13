@@ -6,6 +6,11 @@ from datetime import datetime
 from app import db
 import models
 from services.ai_service import AIService
+from services.gemini_service import gemini_service
+try:
+    from services.grok_service import grok_service
+except Exception:
+    grok_service = None
 try:
     from services.substack_service import SubstackService
 except ModuleNotFoundError:
@@ -63,6 +68,12 @@ IF WRITING ABOUT BITCOIN NETWORK METRICS:
 
 Hallucinating record highs when the network is experiencing miner stress is STRICTLY PROHIBITED and will result in content rejection.
 """
+
+    REVIEW_PROMPT_LIVE_FACT = (
+        "Review this article for accuracy, depth, and Bitcoin facts. "
+        "Verify against current data: block reward is 3.125 BTC in 2026 (post-halving), not 6.25. "
+        "Decision: APPROVE or REJECT. Reason: detailed. Score: 1-10."
+    )
     
     def __init__(self):
         self.ai_service = AIService()
@@ -88,59 +99,103 @@ Hallucinating record highs when the network is experiencing miner stress is STRI
                 logging.warning("HeyGen service initialization failed: %s", e)
         logging.info("Content Engine initialized")
 
-    def review_article_with_gemini(self, title: str, content: str) -> Dict:
-        """
-        Use Gemini as Editor-in-Chief for automated quality control
-        Returns AI review decision: APPROVE or REJECT with reasoning
-        """
+    def _single_review_openai(self, title: str, content: str, topic: str) -> Dict:
+        """One reviewer via OpenAI. Returns {decision, reason, score}."""
+        import json
         try:
-            from services.ai_service import AIService
-            
-            review_prompt = f"""
-You are the Editor-in-Chief for Protocol Pulse, a professional Bitcoin and DeFi media network.
-
-Review this article for publication quality:
+            prompt = f"""{self.REVIEW_PROMPT_LIVE_FACT}
 
 TITLE: {title}
+TOPIC: {topic}
+CONTENT (excerpt): {(content or '')[:4000]}
 
-CONTENT: {content}
-
-Evaluate on these criteria:
-1. Factual accuracy and credibility
-2. Writing clarity and professionalism  
-3. Relevance to Bitcoin/DeFi audience
-4. Completeness and depth of analysis
-5. Freedom from errors or inconsistencies
-
-Respond with JSON only:
-{{"decision": "APPROVE" or "REJECT", "reason": "brief explanation", "score": 1-10}}
-
-APPROVE if score >= 7, REJECT if score < 7.
-"""
-            
-            ai_service = AIService()
-            response = ai_service.generate_content_openai(review_prompt)
-            
-            # Parse AI review response
-            import json
-            try:
-                review_data = json.loads(response)
-                return {
-                    "decision": review_data.get("decision", "REJECT"),
-                    "reason": review_data.get("reason", "No reason provided"),
-                    "score": review_data.get("score", 0)
-                }
-            except json.JSONDecodeError:
-                # Fallback if JSON parsing fails
-                if "APPROVE" in response.upper():
-                    return {"decision": "APPROVE", "reason": "AI approved content", "score": 8}
-                else:
-                    return {"decision": "REJECT", "reason": "AI rejected content", "score": 5}
-                    
+Respond with JSON only: {{"decision": "APPROVE" or "REJECT", "reason": "...", "score": N}}"""
+            response = self.ai_service.generate_content_openai(prompt)
+            data = json.loads(response)
+            return {
+                "decision": (data.get("decision") or "REJECT").upper()[:7],
+                "reason": data.get("reason", ""),
+                "score": int(data.get("score", 0)),
+                "provider": "openai",
+            }
         except Exception as e:
-            logging.error(f"Gemini review failed: {e}")
-            # Default to approval if review system fails
-            return {"decision": "APPROVE", "reason": "Review system unavailable", "score": 7}
+            logging.warning("OpenAI review failed: %s", e)
+            return {"decision": "REJECT", "reason": str(e), "score": 0, "provider": "openai"}
+
+    def _single_review_anthropic(self, title: str, content: str, topic: str) -> Dict:
+        """One reviewer via Anthropic. Returns {decision, reason, score}."""
+        import json
+        try:
+            prompt = f"""{self.REVIEW_PROMPT_LIVE_FACT}
+
+TITLE: {title}
+TOPIC: {topic}
+CONTENT (excerpt): {(content or '')[:4000]}
+
+Respond with JSON only: {{"decision": "APPROVE" or "REJECT", "reason": "...", "score": N}}"""
+            response = self.ai_service.generate_content_anthropic(prompt)
+            data = json.loads(response)
+            return {
+                "decision": (data.get("decision") or "REJECT").upper()[:7],
+                "reason": data.get("reason", ""),
+                "score": int(data.get("score", 0)),
+                "provider": "anthropic",
+            }
+        except Exception as e:
+            logging.warning("Anthropic review failed: %s", e)
+            return {"decision": "REJECT", "reason": str(e), "score": 0, "provider": "anthropic"}
+
+    def multi_ai_review(self, title: str, content: str, topic: str = "") -> Dict:
+        """
+        Chain reviews from multiple models; majority vote. Optional human QC gate remains external.
+        Returns {decision, reason, score, reviews: [{decision, reason, score, provider}, ...]}.
+        """
+        reviews: List[Dict] = []
+        if getattr(self.ai_service, "openai_client", None):
+            reviews.append(self._single_review_openai(title, content, topic))
+        if getattr(self.ai_service, "anthropic_client", None):
+            reviews.append(self._single_review_anthropic(title, content, topic))
+        if gemini_service and getattr(gemini_service, "client", None):
+            r = gemini_service.review_article(title, content, topic)
+            r["provider"] = "gemini"
+            reviews.append(r)
+        if grok_service and getattr(grok_service, "client", None):
+            r = grok_service.review_article(title, content, topic)
+            r["provider"] = "grok"
+            reviews.append(r)
+        if not reviews:
+            return {
+                "decision": "APPROVE",
+                "reason": "No reviewers available; default approve",
+                "score": 7,
+                "reviews": [],
+            }
+        approve_count = sum(1 for r in reviews if (r.get("decision") or "").upper() == "APPROVE")
+        avg_score = sum(r.get("score", 0) for r in reviews) / len(reviews)
+        if approve_count >= 2 or (approve_count >= 1 and avg_score >= 7):
+            decision = "APPROVE"
+            reason = f"Multi-AI: {approve_count}/{len(reviews)} approve, avg score {avg_score:.1f}"
+        else:
+            decision = "REJECT"
+            reason = f"Multi-AI: {approve_count}/{len(reviews)} approve, avg score {avg_score:.1f}; " + (reviews[0].get("reason", "") or "insufficient quality")[:200]
+        return {
+            "decision": decision,
+            "reason": reason,
+            "score": int(avg_score),
+            "reviews": reviews,
+        }
+
+    def review_article_with_gemini(self, title: str, content: str) -> Dict:
+        """
+        Single-review path (backward compatible). Prefer multi_ai_review for QC.
+        Returns AI review decision: APPROVE or REJECT with reasoning
+        """
+        result = self.multi_ai_review(title, content, topic="")
+        return {
+            "decision": result["decision"],
+            "reason": result["reason"],
+            "score": result["score"],
+        }
 
     def approve_and_publish_article(self, article_id: int) -> Dict:
         """
@@ -161,10 +216,9 @@ APPROVE if score >= 7, REJECT if score < 7.
                 result["errors"].append("Article not found")
                 return result
             
-            # AI Review with Gemini (Editor-in-Chief)
-            review = self.review_article_with_gemini(article.title, article.content)
-            result["review"] = review
-            
+            review = self.multi_ai_review(article.title, article.content, topic="")
+            result["review"] = {"decision": review["decision"], "reason": review["reason"], "score": review["score"]}
+            result["reviews"] = review.get("reviews", [])
             if review.get("decision") == "APPROVE":
                 # Save to DB (mark as approved)
                 article.published = True
@@ -272,13 +326,16 @@ APPROVE if score >= 7, REJECT if score < 7.
                 except Exception as e:
                     result["errors"].append(f"Video generation failed: {e}")
             
-            # Step 4: AI Review and Auto-Publishing Pipeline
+            # Step 4: Multi-AI Review and Auto-Publishing Pipeline
             if auto_publish and self.substack_service:
                 try:
-                    # AI Review with Gemini Editor-in-Chief
-                    review = self.review_article_with_gemini(article_data["title"], article_data["content"])
-                    result["review"] = review
-                    
+                    review = self.multi_ai_review(
+                        article_data["title"],
+                        article_data["content"],
+                        topic or "",
+                    )
+                    result["review"] = {"decision": review["decision"], "reason": review["reason"], "score": review["score"]}
+                    result["reviews"] = review.get("reviews", [])
                     if review.get("decision") == "APPROVE":
                         # AI approved - publish to Substack
                         image_path = None  # No header images - user preference
@@ -511,6 +568,9 @@ APPROVE if score >= 7, REJECT if score < 7.
                     return text.encode('utf-8', errors='ignore').decode('utf-8').strip()
                 return text
             
+            # Default header image (branded overlay in templates) so every article has a header
+            default_header = "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200"
+            header_url = (article_data.get("header_image_url") or "").strip() or default_header
             article = models.Article(
                 title=clean_text(article_data["title"], is_title=True),
                 content=clean_text(article_data["content"]),
@@ -521,7 +581,8 @@ APPROVE if score >= 7, REJECT if score < 7.
                 seo_description=clean_text(article_data["seo_description"]),
                 source_type="ai_generated",
                 published=False,  # Require manual approval by default
-                author="Al Ingle"
+                author="Al Ingle",
+                header_image_url=header_url,
             )
             
             db.session.add(article)

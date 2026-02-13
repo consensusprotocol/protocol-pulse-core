@@ -2580,54 +2580,126 @@ def api_network_data():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/articles')
-@cache.cached(timeout=60, key_prefix="articles_list")
 def articles():
-    """Articles listing page with simple, reliable chronological layout."""
+    """Intelligence Terminal: Bento layout with hero, grid, Network Health sidebar. Paginated so all articles load."""
     now = datetime.utcnow()
-    # Always show the most recent articles, even if nothing is marked published yet.
-    # Prefer published ones; if none exist, fall back to all.
+    per_page = 40
+    page = request.args.get('page', 1, type=int)
+    if page < 1:
+        page = 1
+
+    # Prefer published; if none, fall back to all (so articles are never "gone")
     base_q = models.Article.query.filter(models.Article.published.is_(True)).order_by(
         models.Article.created_at.desc()
     )
-    recent = base_q.limit(40).all()
-    if not recent:
-        logging.info("No published articles found; falling back to all articles by created_at.")
+    total_count = base_q.count()
+    if total_count == 0:
+        logging.info("No published articles; falling back to all articles.")
         base_q = models.Article.query.order_by(models.Article.created_at.desc())
-        recent = base_q.limit(40).all()
+        total_count = base_q.count()
 
-    # Slice recent articles into zones: first 10 = today, next 10 = yesterday, rest = archive
+    total_pages = max(1, (total_count + per_page - 1) // per_page)
+    if page > total_pages:
+        page = total_pages
+    offset = (page - 1) * per_page
+    recent = base_q.offset(offset).limit(per_page).all()
+
+    # Ticker: always last 5 article titles (from first page of results)
+    ticker_q = models.Article.query.filter(models.Article.published.is_(True)).order_by(
+        models.Article.created_at.desc()
+    ).limit(5)
+    if total_count == 0:
+        ticker_q = models.Article.query.order_by(models.Article.created_at.desc()).limit(5)
+    ticker_titles = [a.title for a in ticker_q.all()]
+
+    # Hero only on page 1; grid = rest on page 1, or all on page 2+
+    latest_article = recent[0] if (page == 1 and recent) else None
+    grid_articles = recent[1:] if (page == 1 and len(recent) > 1) else recent
+
     today_articles = recent[:10]
-    yesterday_articles = recent[10:20]
-    archive_articles = recent[20:40]
-    
-    # Add pressing status to today's articles
+    yesterday_articles = recent[10:20] if len(recent) > 10 else []
+    archive_articles = recent[20:40] if len(recent) > 20 else []
     for article in today_articles:
         time_diff = (now - article.created_at).total_seconds() / 3600
         article.is_pressing = time_diff < 1
-    
-    # Get all categories for filter (simple + robust)
-    categories = db.session.query(models.Article.category).distinct().all()
-    categories = [cat[0] for cat in categories if cat[0]]
-    
-    # Get active advertisements
+
+    categories = [cat[0] for cat in db.session.query(models.Article.category).distinct().all() if cat[0]]
+    # Category counts for filter pills (published only; fallback to all if none published)
+    use_published = total_count > 0
+    category_counts = {}
+    for c in categories:
+        q = models.Article.query.filter(models.Article.category == c)
+        if use_published:
+            q = q.filter(models.Article.published.is_(True))
+        category_counts[c] = q.count()
     active_ads = models.Advertisement.query.filter_by(is_active=True).all()
-    
-    # Fetch live cryptocurrency prices for sidebar
     prices = price_service.get_prices()
-    
-    return render_template('articles.html', 
+    network_stats = None
+    mempool_data = {}
+    try:
+        network_stats = NodeService.get_network_stats()
+    except Exception:
+        pass
+    try:
+        mempool_data = fetch_mempool_data()
+    except Exception:
+        pass
+    # Default header image for any article without one (branded overlay in CSS)
+    default_header_url = "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200"
+
+    return render_template('articles.html',
                          today_articles=today_articles,
                          yesterday_articles=yesterday_articles,
                          archive_articles=archive_articles,
+                         latest_article=latest_article,
+                         grid_articles=grid_articles,
+                         ticker_titles=ticker_titles,
                          categories=categories,
+                         category_counts=category_counts,
                          active_ads=active_ads,
                          prices=prices,
                          price_service=price_service,
-                         last_updated=now)
+                         network_stats=network_stats,
+                         mempool_data=mempool_data,
+                         last_updated=now,
+                         page=page,
+                         total_pages=total_pages,
+                         total_count=total_count,
+                         per_page=per_page,
+                         default_header_url=default_header_url)
+
+def _article_body_without_tldr(content):
+    """Delete ALL text before the first <h2> tag to prevent double-summaries (TL;DR/summary only in Key Takeaways)."""
+    if not content:
+        return ""
+    first_h2 = re.search(r'<h2[\s>]', content, re.IGNORECASE)
+    if first_h2:
+        return content[first_h2.start():].strip()
+    return content.strip()
+
+
+def _article_key_takeaways(article):
+    """Extract key takeaways: use summary, or TL;DR from content, or first 400 chars. Never duplicate with body."""
+    summary = (article.summary or "").strip()
+    content = (article.content or "")
+    if summary:
+        return summary
+    # Extract TL;DR from content (plain text for the callout)
+    tldr_match = re.search(
+        r'<div\s+class="tldr-section"[^>]*>\s*(?:<[^>]+>)*\s*TL;DR:\s*([^<]+)',
+        content,
+        re.DOTALL | re.IGNORECASE
+    )
+    if tldr_match:
+        text = re.sub(r"<[^>]+>", "", tldr_match.group(1)).strip()
+        return text[:500] + ("…" if len(text) > 500 else "")
+    plain = re.sub(r"<[^>]+>", "", content).strip()
+    return plain[:400] + ("…" if len(plain) > 400 else "") if plain else ""
+
 
 @app.route('/articles/<int:article_id>')
 def article_detail(article_id):
-    """Individual article page"""
+    """Individual article page. Key Takeaways and body are never duplicated (TL;DR shown once)."""
     article = models.Article.query.get_or_404(article_id)
     try:
         related_articles = models.Article.query.filter(
@@ -2643,8 +2715,28 @@ def article_detail(article_id):
         content_id=article.id,
         source_url=request.path,
     )
-    
-    return render_template('article_detail.html', article=article, related_articles=related_articles)
+    key_takeaways_text = _article_key_takeaways(article)
+    # Bullet list: split on sentence boundaries for Key Takeaways box
+    key_takeaways_bullets = []
+    if key_takeaways_text:
+        for part in re.split(r"\.\s+", key_takeaways_text):
+            part = part.strip().strip(".")
+            if part and len(part) > 10:
+                key_takeaways_bullets.append(part + ("." if not part.endswith(".") else ""))
+    if not key_takeaways_bullets and key_takeaways_text:
+        key_takeaways_bullets = [key_takeaways_text]
+    body_html = _article_body_without_tldr(article.content or "")
+    # Default header image (Bitcoin abstract); red/black overlay in CSS
+    header_image_url = article.header_image_url or "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200"
+    return render_template(
+        "article_detail.html",
+        article=article,
+        related_articles=related_articles,
+        key_takeaways_text=key_takeaways_text,
+        key_takeaways_bullets=key_takeaways_bullets,
+        body_html=body_html,
+        header_image_url=header_image_url,
+    )
 
 @app.route('/category/<category>')
 def category_articles(category):
@@ -3416,12 +3508,25 @@ def terms():
 
 @app.route('/sentry')
 def sentry():
-    """Sentry page route shim for Pack 0 routing checks."""
+    """Sentry Megaphone: list social drafts (SentryJob) and legacy queue."""
+    try:
+        sentry_jobs = models.SentryJob.query.order_by(models.SentryJob.created_at.desc()).limit(50).all()
+    except Exception:
+        sentry_jobs = []
+    try:
+        queue_rows = models.SentryQueue.query.order_by(models.SentryQueue.created_at.desc()).limit(20).all()
+        queue_count = models.SentryQueue.query.filter(
+            models.SentryQueue.status.in_(["pending", "draft"])
+        ).count()
+    except Exception:
+        queue_rows = []
+        queue_count = 0
     return render_template(
         'admin/sentry.html',
-        queue_count=0,
+        sentry_jobs=sentry_jobs,
+        queue_count=queue_count,
         suggestions=[],
-        queue_rows=[],
+        queue_rows=queue_rows,
     )
 
 
@@ -5777,16 +5882,25 @@ def broadcast_to_nostr():
 @admin_required
 def admin_sentry_hub():
     """Operator flight deck for queue-first social orchestration."""
-    queue_rows = (
-        models.SentryQueue.query.order_by(models.SentryQueue.created_at.desc())
-        .limit(20)
-        .all()
-    )
-    queue_count = models.SentryQueue.query.filter(
-        models.SentryQueue.status.in_(["pending", "draft"])
-    ).count()
+    try:
+        sentry_jobs = models.SentryJob.query.order_by(models.SentryJob.created_at.desc()).limit(50).all()
+    except Exception:
+        sentry_jobs = []
+    try:
+        queue_rows = (
+            models.SentryQueue.query.order_by(models.SentryQueue.created_at.desc())
+            .limit(20)
+            .all()
+        )
+        queue_count = models.SentryQueue.query.filter(
+            models.SentryQueue.status.in_(["pending", "draft"])
+        ).count()
+    except Exception:
+        queue_rows = []
+        queue_count = 0
     return render_template(
         'admin/sentry.html',
+        sentry_jobs=sentry_jobs,
         queue_rows=queue_rows,
         queue_count=queue_count,
         suggestions=_alpha_suggestions(limit=3),
@@ -5837,8 +5951,29 @@ def api_extension_schedule():
         created_by=(getattr(current_user, "id", None) if session_admin else None),
     )
     db.session.add(row)
+    # Megaphone V1: also create SentryJob (Draft) when table exists
+    platform_label = ",".join(p.capitalize() for p in clean_platforms)
+    try:
+        job = models.SentryJob(content=content[:3000], platform=platform_label or "X,Nostr", status="Draft")
+        db.session.add(job)
+        db.session.commit()
+        return jsonify({"ok": True, "id": row.id, "status": row.status, "sentry_job_id": job.id})
+    except Exception:
+        db.session.rollback()
+        db.session.add(row)
+        db.session.commit()
+        return jsonify({"ok": True, "id": row.id, "status": row.status})
+
+
+@app.route('/api/sentry-job/<int:job_id>/queue', methods=['POST'])
+def api_sentry_job_queue(job_id):
+    """Set SentryJob status to Queued so the megaphone worker will write it to pulseevents.jsonl."""
+    job = models.SentryJob.query.get_or_404(job_id)
+    if job.status != 'Draft':
+        return jsonify({"ok": False, "error": "only Draft jobs can be queued"}), 400
+    job.status = 'Queued'
     db.session.commit()
-    return jsonify({"ok": True, "id": row.id, "status": row.status})
+    return jsonify({"ok": True, "id": job.id, "status": job.status})
 
 
 @app.route('/admin/intelligence')
@@ -8382,6 +8517,73 @@ def recommend_segment():
     except Exception as e:
         logging.error(f"Segment recommendation error: {e}")
         return jsonify({'error': str(e)}), 500
+
+
+# Real-Time Sponsorship Deck (Wallet)
+@app.route('/admin/deck')
+@login_required
+@admin_required
+def admin_deck():
+    """Real-Time Sponsorship Deck: live views and impressions for sponsor conversations."""
+    from services.sponsorship_metrics_service import get_sponsorship_metrics
+    from pathlib import Path
+    data_dir = Path(app.root_path) / "data"
+    metrics = get_sponsorship_metrics(data_dir=data_dir, db_session=db.session, days_back=30)
+    return render_template('admin/sponsorship_deck.html', metrics=metrics)
+
+
+@app.route('/admin/deck/export-pdf')
+@login_required
+@admin_required
+def admin_deck_export_pdf():
+    """Generate Red/Black/White PDF summary of sponsorship metrics."""
+    from services.sponsorship_metrics_service import get_sponsorship_metrics
+    from pathlib import Path
+    from io import BytesIO
+    data_dir = Path(app.root_path) / "data"
+    metrics = get_sponsorship_metrics(data_dir=data_dir, db_session=db.session, days_back=30)
+    try:
+        from reportlab.lib import colors
+        from reportlab.lib.pagesizes import letter
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.units import inch
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    except ImportError:
+        return "reportlab not installed. pip install reportlab", 503
+    buf = BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=letter, rightMargin=inch, leftMargin=inch, topMargin=inch, bottomMargin=inch)
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(name="DeckTitle", parent=styles["Heading1"], textColor=colors.HexColor("#dc2626"), fontName="Helvetica-Bold", fontSize=18)
+    body_style = ParagraphStyle(name="DeckBody", parent=styles["Normal"], textColor=colors.white, fontName="Helvetica", fontSize=10)
+    white = colors.HexColor("#ffffff")
+    red = colors.HexColor("#dc2626")
+    black = colors.HexColor("#0a0a0a")
+    story = []
+    story.append(Paragraph("PROTOCOL PULSE — SPONSORSHIP METRICS", title_style))
+    story.append(Spacer(1, 0.3 * inch))
+    story.append(Paragraph(f"Period: last {metrics['period_days']} days. Generated: {metrics['generated_at'][:19]} UTC.", body_style))
+    story.append(Spacer(1, 0.4 * inch))
+    data = [
+        ["Metric", "Value", "Source"],
+        ["YouTube views", str(metrics.get("youtube_views", 0)), metrics.get("youtube_source", "—")],
+        ["Website unique visits", str(metrics.get("website_unique_visits", 0)), metrics.get("website_source", "—")],
+        ["Social impressions (X)", str(metrics.get("social_impressions", 0)), metrics.get("social_source", "—")],
+    ]
+    t = Table(data, colWidths=[2.2 * inch, 1.5 * inch, 1.5 * inch])
+    t.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), red),
+        ("TEXTCOLOR", (0, 0), (-1, 0), white),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, 0), 10),
+        ("BACKGROUND", (0, 1), (-1, -1), black),
+        ("TEXTCOLOR", (0, 1), (-1, -1), white),
+        ("GRID", (0, 0), (-1, -1), 0.5, red),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [black, colors.HexColor("#1a1a1a")]),
+    ]))
+    story.append(t)
+    doc.build(story)
+    buf.seek(0)
+    return send_file(buf, mimetype="application/pdf", as_attachment=True, download_name="protocol_pulse_sponsorship_deck.pdf")
 
 
 # Sovereign Command Deck Routes

@@ -211,6 +211,37 @@ class GeminiService:
             logging.error(f"Gemini content generation error: {e}")
             return None
 
+    def review_article(self, title, content, topic):
+        """Review article for accuracy, depth, Bitcoin facts. Returns {decision, reason, score}."""
+        if not self.client:
+            return {"decision": "REJECT", "reason": "Gemini unavailable", "score": 0}
+        try:
+            prompt = f"""Review this article for accuracy, depth, and Bitcoin facts. Verify against current data: block reward is 3.125 BTC in 2026 (post-halving), not 6.25.
+
+TITLE: {title}
+TOPIC: {topic}
+CONTENT (excerpt): {(content or '')[:3000]}
+
+Decision: APPROVE or REJECT. Reason: detailed. Score: 1-10.
+Respond with JSON only: {{"decision": "APPROVE" or "REJECT", "reason": "...", "score": N}}"""
+            response = self.client.models.generate_content(
+                model=self.text_model,
+                contents=prompt,
+                config=types.GenerateContentConfig(max_output_tokens=500)
+            )
+            raw = response.text if response else None
+            if not raw:
+                return {"decision": "REJECT", "reason": "Empty response", "score": 0}
+            data = json.loads(raw)
+            return {
+                "decision": (data.get("decision") or "REJECT").upper()[:7],
+                "reason": data.get("reason", ""),
+                "score": int(data.get("score", 0)),
+            }
+        except Exception as e:
+            logging.error("Gemini review failed: %s", e)
+            return {"decision": "REJECT", "reason": str(e), "score": 0}
+
     def test_connection(self):
         """Test the Gemini API connection"""
         if not self.client:

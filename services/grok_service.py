@@ -154,6 +154,37 @@ class GrokService:
             logging.error(f"Podcast script error: {e}")
             return f"Error generating podcast script: {str(e)}"
 
+    def review_article(self, title, content, topic):
+        """Review article for accuracy, depth, Bitcoin facts. Returns {decision, reason, score}."""
+        if not self.client:
+            return {"decision": "REJECT", "reason": "Grok unavailable", "score": 0}
+        try:
+            prompt = f"""Review this article for accuracy, depth, and Bitcoin facts. Verify against current data: block reward is 3.125 BTC in 2026 (post-halving), not 6.25.
+
+TITLE: {title}
+TOPIC: {topic}
+CONTENT (excerpt): {(content or '')[:3000]}
+
+Decision: APPROVE or REJECT. Reason: detailed. Score: 1-10.
+Respond with JSON only: {{"decision": "APPROVE" or "REJECT", "reason": "...", "score": N}}"""
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=500,
+            )
+            raw = response.choices[0].message.content if response and response.choices else None
+            if not raw:
+                return {"decision": "REJECT", "reason": "Empty response", "score": 0}
+            data = json.loads(raw)
+            return {
+                "decision": (data.get("decision") or "REJECT").upper()[:7],
+                "reason": data.get("reason", ""),
+                "score": int(data.get("score", 0)),
+            }
+        except Exception as e:
+            logging.error("Grok review failed: %s", e)
+            return {"decision": "REJECT", "reason": str(e), "score": 0}
+
     def test_connection(self):
         """Test the Grok API connection"""
         if not self.client:
@@ -164,15 +195,12 @@ class GrokService:
                 messages=[{"role": "user", "content": "Say 'Grok API connection successful!' in exactly those words."}],
                 max_tokens=50
             )
-            
             content = response.choices[0].message.content
             if content:
-                result = content.strip()
-                return "Grok API connection successful!" in result
+                return "Grok API connection successful!" in content.strip()
             return False
-            
         except Exception as e:
-            logging.error(f"Connection test failed: {e}")
+            logging.error("Connection test failed: %s", e)
             return False
 
 # Initialize the service (key optional - never crash app)
