@@ -325,7 +325,8 @@
 }
 
 .leaflet-tile {
-    filter: saturate(0) brightness(0.8) contrast(1.2);
+    /* Brighter, higher-contrast tiles (was too dark) */
+    filter: saturate(0.65) brightness(1.12) contrast(1.12);
 }
 
 .btc-marker {
@@ -359,7 +360,8 @@
 }
 
 .marker-cluster-small, .marker-cluster-medium, .marker-cluster-large {
-    background: rgba(220, 38, 38, 0.4);
+    /* Slightly brighter cluster halo for visibility on dark tiles */
+    background: rgba(255, 64, 92, 0.55);
 }
 
 .marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div {

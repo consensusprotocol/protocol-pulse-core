@@ -1,0 +1,30 @@
+{
+  "description": "Partner YouTube channels for Viral Moments monitoring (RSS -> transcript -> segments).",
+  "update_interval_minutes": 60,
+  "youtube_channels": [
+    {"name": "Michael Saylor", "channel_id": "UCjpkLzNLkZJGQvVQw7hFnSg"},
+    {"name": "Lyn Alden", "channel_id": "UCN49rFQFZuiUHpE8NR7mttQ"},
+    {"name": "Preston Pysh", "channel_id": "UCmvn0Cgun-7O7L8GeFeyxdA"},
+    {"name": "Natalie Brunell", "channel_id": "UCv-_bq3fB7y_wGmRqNGbCrw"},
+    {"name": "Peter McCormack", "channel_id": "UCbVWZ3m6gxu0gXY5n1P9f6Q"},
+    {"name": "Robert Breedlove", "channel_id": "UC23sHrD-23HJcxMqGy-p9Uw"},
+    {"name": "Marty Bent", "channel_id": "UCZoB2BkHn6EB13_UE_o6dCQ"},
+    {"name": "Saifedean Ammous", "channel_id": "UCtxQJhOA5WCxnKZ8Y9eQ5kg"},
+    {"name": "BTC Sessions", "channel_id": "UCQvhxHvJSQr-xPWKuqT2e7w"},
+    {"name": "Simply Bitcoin", "channel_id": "UCxu0RQ-f4R6FbLVzAjS-49Q"},
+    {"name": "Bitcoin Magazine", "channel_id": "UCwdB8sCl5w9fLOTxrpJoVtA"},
+    {"name": "Swan Bitcoin", "channel_id": "UCMf25RLfLSMGM5s6LGaP-Rw"},
+    {"name": "Bitcoin Audible", "channel_id": "UC-qcqWPQ6rjZJwH8mZIRD3g"},
+    {"name": "Matt Odell", "channel_id": "UCp7fPC-rUYPqEyGP5OL3a6g"},
+    {"name": "Anthony Pompliano", "channel_id": "UCq_eqvpFWZOcxJQ0fLNIJSg"},
+    {"name": "Coin Bureau", "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw"},
+    {"name": "The Bitcoin Layer", "channel_id": "UCt8Wjn4H5FdLNdQ9FxQYMTg"},
+    {"name": "Bitcoin Rapid-Fire", "channel_id": "UCp_P3vpQUcDpE8g5u5F9dJw"},
+    {"name": "Stephan Livera", "channel_id": "UCp4zWYGBZeqQ-ZLYgDCaLCw"},
+    {"name": "River", "channel_id": "UCxq8WMg4CmJvU1sQQz_3Cjw"},
+    {"name": "Unchained", "channel_id": "UC8oRRfHG4kDp5gS5JhAVIuw"},
+
+    {"name": "Test Channel (required by Batch 2 spec)", "channel_id": "UC9ZM3N0ybRtp44-WLqsW3iQ"}
+  ]
+}
+

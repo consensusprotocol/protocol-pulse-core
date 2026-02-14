@@ -1,6 +1,7 @@
-import os
 import json
 import logging
+import os
+import re
 try:
     from openai import OpenAI
 except ImportError:
@@ -185,23 +186,54 @@ Respond with JSON only: {{"decision": "APPROVE" or "REJECT", "reason": "...", "s
             logging.error("Grok review failed: %s", e)
             return {"decision": "REJECT", "reason": str(e), "score": 0}
 
-    def test_connection(self):
-        """Test the Grok API connection"""
+    def generate_reel_narration_script(
+        self,
+        *,
+        channel_name: str = "Partner",
+        segments_summary: str = "",
+        num_clips: int = 3,
+    ) -> dict:
+        """Generate Bloomberg-style news brief script for viral reel voiceover.
+        Returns JSON: {intro, insights[], cta1, cta2} – each 10–20s spoken (smooth, professional).
+        """
         if not self.client:
-            return False
+            return {"error": "Grok unavailable (no API key)."}
         try:
+            prompt = f"""Generate a smooth news brief script for a short-form video reel, Bloomberg style, professional narrator.
+Channel/source: {channel_name or 'Partner'}.
+Segment context: {segments_summary[:800] if segments_summary else 'Bitcoin and market insights.'}
+Number of clip insights to write: {max(1, min(num_clips, 5))}.
+
+Output valid JSON only, no markdown, with these exact keys:
+- "intro": one short paragraph (10–20 seconds when read aloud), sets the tone as a crisp news brief.
+- "insights": array of {max(1, min(num_clips, 5))} strings; each 1–2 sentences (10–20s per clip), insight per clip.
+- "cta1": one short line urging viewers to subscribe (5–10s).
+- "cta2": one short line directing to protocolpulsehq.com (5–10s).
+
+Style: authoritative, concise, no filler. Professional narrator. Two CTAs to subscribe and protocolpulsehq.com."""
             response = self.client.chat.completions.create(
                 model=self.model,
-                messages=[{"role": "user", "content": "Say 'Grok API connection successful!' in exactly those words."}],
-                max_tokens=50
+                messages=[
+                    {"role": "system", "content": "You output only valid JSON. No markdown code fences, no extra text."},
+                    {"role": "user", "content": prompt},
+                ],
+                max_tokens=1200,
+                temperature=0.5,
             )
-            content = response.choices[0].message.content
-            if content:
-                return "Grok API connection successful!" in content.strip()
-            return False
+            raw = (response.choices[0].message.content or "").strip()
+            if not raw:
+                return {"error": "Empty response"}
+            # Strip markdown code block if present
+            if raw.startswith("```"):
+                raw = re.sub(r"^```(?:json)?\s*", "", raw)
+                raw = re.sub(r"\s*```$", "", raw)
+            return json.loads(raw)
+        except json.JSONDecodeError as e:
+            logging.warning("Grok narration JSON parse failed: %s", e)
+            return {"error": f"Invalid JSON: {e}"}
         except Exception as e:
-            logging.error("Connection test failed: %s", e)
-            return False
+            logging.error("Grok reel script error: %s", e)
+            return {"error": str(e)}
 
 # Initialize the service (key optional - never crash app)
 try:

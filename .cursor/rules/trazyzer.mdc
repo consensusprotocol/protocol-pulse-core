@@ -1,0 +1,10 @@
+---
+description: "Reviewer logic for the Media Bureau and Article Generator"
+globs: "services/clip_service.py, services/viralmoments.py, services/content_generator.py"
+alwaysApply: true
+---
+# TRAZYZER QUALITY CONTROL
+1. [VALIDATION]: Every Batch must pass a non-zero check. 0-byte MP4s = FAIL.
+2. [TEMPORAL]: If Block Reward != 3.125 BTC, FAIL and report hallucination.
+3. [GPU]: If rendering, ensure '-hwaccel nvdec -c:v h264_nvenc' is present.
+4. [ROBUSTNESS]: Every FFmpeg call must have a pre-check for directory existence:

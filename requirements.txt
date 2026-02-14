@@ -25,4 +25,12 @@ pillow
 werkzeug
 anthropic
 google-cloud-secret-manager
+reportlab
 # google-genai  # optional: requires Python 3.9+; install separately if needed
+
+# Viral moments / clip compilation
+moviepy
+pydub
+elevenlabs
+yt-dlp
+youtube-transcript-api

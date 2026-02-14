@@ -215,6 +215,23 @@ Respond with JSON only: {{"decision": "APPROVE" or "REJECT", "reason": "...", "s
             if not article:
                 result["errors"].append("Article not found")
                 return result
+
+            # Hard freeze: block *any* publish when flag is off.
+            from services.content_generator import auto_publish_enabled, validate_article_for_publish
+            if not auto_publish_enabled():
+                article.published = False
+                db.session.commit()
+                result["errors"].append("Auto-publish disabled by ENABLE_AUTO_PUBLISH flag")
+                result["message"] = "Publish blocked (ENABLE_AUTO_PUBLISH=false)"
+                return result
+
+            ok, validation_errors = validate_article_for_publish(article)
+            if not ok:
+                article.published = False
+                db.session.commit()
+                result["errors"].extend(validation_errors)
+                result["message"] = "Publish rejected by validation gate"
+                return result
             
             review = self.multi_ai_review(article.title, article.content, topic="")
             result["review"] = {"decision": review["decision"], "reason": review["reason"], "score": review["score"]}
@@ -327,6 +344,40 @@ Respond with JSON only: {{"decision": "APPROVE" or "REJECT", "reason": "...", "s
                     result["errors"].append(f"Video generation failed: {e}")
             
             # Step 4: Multi-AI Review and Auto-Publishing Pipeline
+            from services.content_generator import auto_publish_enabled, validate_article_for_publish
+            if auto_publish and not auto_publish_enabled():
+                result["status"] = "draft"
+                result["message"] = "Auto-publish frozen by ENABLE_AUTO_PUBLISH=false"
+                result["success"] = True
+                return result
+
+            ok, validation_errors = validate_article_for_publish(article_data)
+            if not ok:
+                # Save exists already, but never publish invalid content.
+                try:
+                    article.published = False
+                    db.session.commit()
+                except Exception:
+                    pass
+                result["status"] = "rejected"
+                result["errors"].extend(validation_errors)
+                result["message"] = "Article rejected by validation gate"
+                result["success"] = True
+                return result
+
+            # Draft gate: body (after strip_duplicate_tldr) < 3000 words -> must stay draft
+            try:
+                from services.content_generator import should_article_be_draft_by_word_count
+                if should_article_be_draft_by_word_count(article_data.get("content") or ""):
+                    article.published = False
+                    db.session.commit()
+                    result["status"] = "draft"
+                    result["message"] = "Article saved as draft (body < 3000 words)"
+                    result["success"] = True
+                    return result
+            except Exception:
+                pass
+
             if auto_publish and self.substack_service:
                 try:
                     review = self.multi_ai_review(
@@ -337,24 +388,31 @@ Respond with JSON only: {{"decision": "APPROVE" or "REJECT", "reason": "...", "s
                     result["review"] = {"decision": review["decision"], "reason": review["reason"], "score": review["score"]}
                     result["reviews"] = review.get("reviews", [])
                     if review.get("decision") == "APPROVE":
-                        # AI approved - publish to Substack
-                        image_path = None  # No header images - user preference
-                        substack_url = self.publish_to_substack(
-                            title=article_data["title"], 
-                            body_markdown=article_data["content"], 
-                            image_path=image_path
-                        )
-                        
-                        if substack_url:
-                            article.substack_url = substack_url
-                            article.published = True
+                        # Enforce validate_article_for_publish before setting published=True
+                        from services.content_generator import validate_article_for_publish
+                        ok, val_errs = validate_article_for_publish(article)
+                        if not ok:
+                            article.published = False
                             db.session.commit()
-                            
-                            result["substack_url"] = substack_url
-                            result["message"] = f"AI approved and published (Score: {review.get('score')}/10)"
-                            logging.info(f"AI approved and published: {substack_url}")
+                            result["errors"].extend(val_errs)
+                            result["message"] = "Publish rejected by validation gate (full body required)"
                         else:
-                            result["errors"].append("Substack publishing failed")
+                            # AI approved - publish to Substack
+                            image_path = None  # No header images - user preference
+                            substack_url = self.publish_to_substack(
+                                title=article_data["title"],
+                                body_markdown=article_data["content"],
+                                image_path=image_path
+                            )
+                            if substack_url:
+                                article.substack_url = substack_url
+                                article.published = True
+                                db.session.commit()
+                                result["substack_url"] = substack_url
+                                result["message"] = f"AI approved and published (Score: {review.get('score')}/10)"
+                                logging.info(f"AI approved and published: {substack_url}")
+                            else:
+                                result["errors"].append("Substack publishing failed")
                     else:
                         # AI rejected - save as draft
                         article.published = False
@@ -568,8 +626,9 @@ Respond with JSON only: {{"decision": "APPROVE" or "REJECT", "reason": "...", "s
                     return text.encode('utf-8', errors='ignore').decode('utf-8').strip()
                 return text
             
-            # Default header image (branded overlay in templates) so every article has a header
-            default_header = "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200"
+            # Distinct header image per article (from pool by title) so we don't reuse the same image
+            from services.content_generator import get_article_header_url
+            default_header = get_article_header_url(article_data.get("title") or "")
             header_url = (article_data.get("header_image_url") or "").strip() or default_header
             article = models.Article(
                 title=clean_text(article_data["title"], is_title=True),

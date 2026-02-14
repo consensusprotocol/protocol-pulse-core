@@ -67,6 +67,19 @@
                         <div class="meta-item">
                             <span class="meta-value">{{ ((article.content | length) / 1000 * 3) | round | int }} min read</span>
                         </div>
+                        <div class="meta-divider">•</div>
+                        <div class="meta-item">
+                            <span class="meta-label">Source</span>
+                            {% set src_url = (article.source_url or '')|trim %}
+                            {% set src_type = (article.source_type or '')|trim %}
+                            {% if src_url %}
+                                <a class="meta-value" href="{{ src_url }}" target="_blank" rel="noopener" style="text-decoration: none; border-bottom: 1px dotted rgba(220,38,38,0.45);">
+                                    {{ src_type if src_type else "Link" }}
+                                </a>
+                            {% else %}
+                                <span class="meta-value">{{ src_type if src_type else "Protocol Pulse AI" }}</span>
+                            {% endif %}
+                        </div>
                     </div>
 
                     {% if article.header_image_url %}

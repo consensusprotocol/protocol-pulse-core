@@ -528,6 +528,30 @@ class PartnerClick(db.Model):
     converted_at = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
 
+class ClipJob(db.Model):
+    __tablename__ = 'clip_job'
+    # NOTE: This model started life as the "Batch 1" clip planner with
+    # timestamps_json + narrative_context. We keep those columns for backwards
+    # compatibility, and add the V2 fields used by the Viral Clip Compilation tool.
+    id = db.Column(db.Integer, primary_key=True)
+    video_id = db.Column(db.String(100), nullable=False, index=True)
+
+    # Legacy planner payload: JSON list of {start,end,context} and a narrative blurb.
+    # These are NOT NULL in the existing SQLite schema, so new writers should still
+    # populate them even if they primarily use the V2 fields.
+    timestamps_json = db.Column(db.Text, nullable=False)
+    narrative_context = db.Column(db.Text, nullable=False)
+
+    # V2 fields (nullable so existing DB rows remain valid after migration).
+    channel_name = db.Column(db.String(200), nullable=True, index=True)
+    segments_json = db.Column(db.Text, nullable=True)  # JSON list of segments for reel compilation
+    narration_path = db.Column(db.String(1000), nullable=True)
+    output_path = db.Column(db.String(1000), nullable=True)
+    metadata_json = db.Column(db.Text, nullable=True)  # JSON dict for engine metadata
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+
+    status = db.Column(db.String(20), default='Planned', index=True)  # Planned/Processing/Completed/Failed
+
 
 class PartnerConversionNote(db.Model):
     """Admin notes for partner performance and conversion context."""
@@ -560,6 +584,17 @@ class Lead(db.Model):
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class SentryJob(db.Model):
+    """Megaphone (Sentry V1): single social draft/queued post for DRY-RUN logging."""
+    __tablename__ = 'sentry_job'
+    __table_args__ = (db.Index('idx_sentry_job_status', 'status'),)
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    platform = db.Column(db.String(50), nullable=False)  # X, Nostr, or X,Nostr
+    status = db.Column(db.String(20), default='Draft', index=True)  # Draft | Queued | Written
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 class SentryQueue(db.Model):

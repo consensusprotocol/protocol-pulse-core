@@ -409,9 +409,7 @@
             <div class="col-lg-8">
                 <div class="d-flex align-items-center gap-4 mb-4">
                     <div class="category-icon">
-                        {% if category == 'DeFi' %}
-                            <i class="fas fa-coins"></i>
-                        {% elif category == 'Bitcoin' %}
+                        {% if category == 'Bitcoin' %}
                             <i class="fab fa-bitcoin"></i>
                         {% elif category == 'Innovation' %}
                             <i class="fas fa-lightbulb"></i>
@@ -437,7 +435,6 @@
                 
                 <div class="related-categories">
                     <a href="/category/Bitcoin" class="related-category-link {% if category == 'Bitcoin' %}active{% endif %}">Bitcoin</a>
-                    <a href="/category/DeFi" class="related-category-link {% if category == 'DeFi' %}active{% endif %}">DeFi</a>
                     <a href="/category/Innovation" class="related-category-link {% if category == 'Innovation' %}active{% endif %}">Innovation</a>
                     <a href="/category/Privacy" class="related-category-link {% if category == 'Privacy' %}active{% endif %}">Privacy</a>
                     <a href="/category/Regulation" class="related-category-link {% if category == 'Regulation' %}active{% endif %}">Regulation</a>
@@ -472,13 +469,7 @@
         <div class="featured-article mb-5">
             <div class="row g-0">
                 <div class="col-md-6">
-                    {% if articles[0].header_image_url %}
-                    <img src="{{ articles[0].header_image_url }}" alt="{{ articles[0].title }}" style="width: 100%; height: 320px; object-fit: cover;">
-                    {% else %}
-                    <div style="width: 100%; height: 320px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(30, 30, 40, 0.5) 100%);">
-                        <i class="fas fa-newspaper" style="font-size: 64px; color: rgba(255, 107, 53, 0.3);"></i>
-                    </div>
-                    {% endif %}
+                    <img src="{{ articles[0]|article_header_display }}" alt="{{ articles[0].title }}" style="width: 100%; height: 320px; object-fit: cover;">
                 </div>
                 <div class="col-md-6 d-flex flex-column justify-content-center p-4 p-lg-5">
                     <div class="featured-badge mb-3">
@@ -518,13 +509,7 @@
             {% for article in articles[1:] %}
             <article class="article-card" data-date="{{ article.created_at.strftime('%Y-%m-%d') }}">
                 <div class="article-image">
-                    {% if article.header_image_url %}
-                    <img src="{{ article.header_image_url }}" alt="{{ article.title }}">
-                    {% else %}
-                    <div class="article-image-placeholder">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                    {% endif %}
+                    <img src="{{ article|article_header_display }}" alt="{{ article.title }}">
                     <span class="article-number">{{ loop.index + 1 }}</span>
                 </div>
                 <div class="article-content">

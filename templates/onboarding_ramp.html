@@ -1,19 +1,251 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Your Bitcoin Journey - Protocol Pulse</title>
-    <style>
-        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; }
-        .ramp-card { background: #111; border: 1px solid #dc2626; padding: 40px; margin: 50px auto; max-width: 600px; border-radius: 20px; }
-        .btc-orange { color: #f7931a; }
-    </style>
-</head>
-<body>
-    <div class="ramp-card">
-        <h1 class="btc-orange">Your Bitcoin Journey Starts Here</h1>
-        <p>Answer a few questions to get your Sovereign roadmap.</p>
-        <button onclick="alert('Starting...')">Begin Assessment</button>
+{% extends "base.html" %}
+{% block title %}Your Bitcoin Journey - Protocol Pulse{% endblock %}
+
+{% block content %}
+<style>
+  .ramp-shell { max-width: 920px; margin: 0 auto; }
+  .ramp-card {
+    background: linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+    border: 1px solid rgba(220,38,38,0.55);
+    padding: 32px;
+    border-radius: 22px;
+    color: #fff;
+  }
+  .btc-orange { color: #f7931a; }
+  .ramp-muted { color: rgba(255,255,255,0.72); }
+  .ramp-btn {
+    border: 0;
+    border-radius: 14px;
+    padding: 12px 16px;
+    font-weight: 800;
+    background: linear-gradient(120deg, #ff315d, #ff7b00);
+    color: #fff;
+  }
+  .ramp-field {
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 14px;
+    background: rgba(0,0,0,0.28);
+    color: #fff;
+  }
+  .ramp-field:focus {
+    border-color: rgba(255,66,86,0.85);
+    box-shadow: 0 0 0 0.22rem rgba(255,66,86,0.22);
+    background: rgba(0,0,0,0.35);
+    color: #fff;
+  }
+  .ramp-progress {
+    height: 10px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.08);
+  }
+  .ramp-progress > span {
+    display: block;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #ff315d, #ff7b00);
+    transition: width .25s ease;
+  }
+  .ramp-alert {
+    display: none;
+    border: 1px solid rgba(255,255,255,0.14);
+    border-left: 3px solid rgba(255,84,103,0.95);
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 10px 12px;
+    color: rgba(255,255,255,0.86);
+  }
+</style>
+
+<section class="container py-4 py-md-5">
+  <div class="ramp-shell">
+    <div id="landing-section" class="ramp-card text-center">
+      <h1 class="btc-orange mb-2">Your Bitcoin Journey Starts Here</h1>
+      <p class="ramp-muted mb-4">Answer a few prompts to generate your sovereign roadmap.</p>
+      <button id="beginBtn" type="button" class="ramp-btn">Begin Assessment</button>
     </div>
-</body>
-</html>
+
+    <div id="questions-section" class="ramp-card" style="display:none;">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <div>
+          <div class="small text-uppercase ramp-muted">stage</div>
+          <div id="stageLine" class="fw-bold">attention</div>
+        </div>
+        <div class="text-end">
+          <div class="small text-uppercase ramp-muted">progress</div>
+          <div id="stepLine" class="fw-bold">1 / 5</div>
+        </div>
+      </div>
+
+      <div class="ramp-progress mb-3"><span id="progressBar"></span></div>
+
+      <div class="mb-3">
+        <div class="small text-uppercase ramp-muted mb-1">prompt</div>
+        <div id="questionPrompt" class="fw-semibold">Loading first prompt...</div>
+      </div>
+
+      <div id="uiAlert" class="ramp-alert mb-3"></div>
+
+      <label class="form-label">your response</label>
+      <textarea id="responseInput" class="form-control ramp-field mb-3" rows="5" placeholder="type your answer..." required></textarea>
+
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <label class="form-label">annual income (optional)</label>
+          <input id="incomeInput" class="form-control ramp-field" type="number" min="0" step="1000" placeholder="120000">
+        </div>
+        <div class="col-md-6 d-flex align-items-end">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="newsletterInput" value="1">
+            <label class="form-check-label ramp-muted" for="newsletterInput">get intel drops by email</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button id="backBtn" type="button" class="btn btn-outline-light">Back</button>
+        <button id="nextBtn" type="button" class="ramp-btn flex-grow-1">Continue</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const STEPS = ["attention", "interest", "desire", "action", "activation"];
+  const DEFAULT_PROMPTS = {
+    attention: "Where are you in Bitcoin right now? (holdings, goals, constraints)",
+    interest: "What triggered your interest today, and what are you trying to solve first?",
+    desire: "What would a 'win' look like in the next 90 days? (security, yield, sovereignty)",
+    action: "What is your biggest blocker to taking the next step?",
+    activation: "How do you want Protocol Pulse to support you going forward?"
+  };
+
+  const landing = document.getElementById("landing-section");
+  const questions = document.getElementById("questions-section");
+  const beginBtn = document.getElementById("beginBtn");
+
+  const stageLine = document.getElementById("stageLine");
+  const stepLine = document.getElementById("stepLine");
+  const progressBar = document.getElementById("progressBar");
+  const questionPrompt = document.getElementById("questionPrompt");
+  const uiAlert = document.getElementById("uiAlert");
+
+  const responseInput = document.getElementById("responseInput");
+  const incomeInput = document.getElementById("incomeInput");
+  const newsletterInput = document.getElementById("newsletterInput");
+  const backBtn = document.getElementById("backBtn");
+  const nextBtn = document.getElementById("nextBtn");
+
+  let currentStepIdx = 0;
+  let currentStage = STEPS[0];
+  let csrfTokenFromSession = "";
+
+  function csrfToken() {
+    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || csrfTokenFromSession || "";
+  }
+
+  function showAlert(msg) {
+    uiAlert.textContent = msg || "";
+    uiAlert.style.display = msg ? "block" : "none";
+  }
+
+  function renderStep() {
+    currentStage = STEPS[Math.max(0, Math.min(currentStepIdx, STEPS.length - 1))];
+    stageLine.textContent = currentStage;
+    stepLine.textContent = `${currentStepIdx + 1} / ${STEPS.length}`;
+    progressBar.style.width = `${Math.round(((currentStepIdx + 1) / STEPS.length) * 100)}%`;
+    questionPrompt.textContent = DEFAULT_PROMPTS[currentStage] || "Answer the prompt to continue.";
+    showAlert("");
+  }
+
+  async function startFlow() {
+    // Hide landing section
+    landing.style.display = "none";
+    // Show questions section
+    questions.style.display = "block";
+
+    // Ensure session and CSRF token (use response token if meta tag was missing)
+    try {
+      const r = await fetch("/onboarding/api/session", { method: "POST", credentials: "same-origin" });
+      const j = await r.json().catch(() => ({}));
+      if (j.csrf_token) csrfTokenFromSession = j.csrf_token;
+    } catch (e) { /* noop */ }
+
+    currentStepIdx = 0;
+    renderStep();
+    responseInput.focus();
+  }
+
+  async function submitAnswer() {
+    const text = (responseInput.value || "").trim();
+    if (!text) {
+      showAlert("Response required to continue.");
+      responseInput.focus();
+      return;
+    }
+
+    nextBtn.disabled = true;
+    backBtn.disabled = true;
+    const oldText = nextBtn.textContent;
+    nextBtn.textContent = "Loading...";
+    showAlert("");
+
+    try {
+      const csrf = csrfToken();
+      if (!csrf) {
+        showAlert("Session missing. Please refresh the page and click Begin again.");
+        return;
+      }
+      const r = await fetch("/api/onboarding/step", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrf
+        },
+        body: JSON.stringify({
+          stage: currentStage,
+          response_text: text,
+          annual_income: incomeInput.value || null,
+          newsletter_opt_in: !!newsletterInput.checked
+        })
+      });
+      let data;
+      const ct = r.headers.get("Content-Type") || "";
+      try {
+        data = ct.includes("json") ? await r.json() : { ok: false, error: r.statusText || "Request failed" };
+      } catch (_) {
+        data = { ok: false, error: "Server returned an invalid response. Please refresh and try again." };
+      }
+      if (!r.ok || !data.ok) throw new Error(data.error || "request failed");
+
+      // Prefer backend-driven stage/prompt if available.
+      const nextStage = (data.progress || {}).stage;
+      if (nextStage && STEPS.includes(nextStage)) {
+        currentStepIdx = STEPS.indexOf(nextStage);
+      } else {
+        currentStepIdx = Math.min(STEPS.length - 1, currentStepIdx + 1);
+      }
+      stageLine.textContent = STEPS[currentStepIdx];
+      stepLine.textContent = `${currentStepIdx + 1} / ${STEPS.length}`;
+      progressBar.style.width = `${Math.round(((currentStepIdx + 1) / STEPS.length) * 100)}%`;
+      questionPrompt.textContent = data.next_prompt || DEFAULT_PROMPTS[STEPS[currentStepIdx]] || "Continue.";
+
+      responseInput.value = "";
+      responseInput.focus();
+    } catch (err) {
+      showAlert(`Unable to load next question: ${err.message}`);
+    } finally {
+      nextBtn.disabled = false;
+      backBtn.disabled = false;
+      nextBtn.textContent = oldText;
+    }
+  }
+
+  beginBtn.addEventListener("click", startFlow);
+  backBtn.addEventListener("click", () => {
+    currentStepIdx = Math.max(0, currentStepIdx - 1);
+    renderStep();
+  });
+  nextBtn.addEventListener("click", submitAnswer);
+</script>
+{% endblock %}

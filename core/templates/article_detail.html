@@ -1,65 +1,500 @@
 {% extends "base.html" %}
-{% block title %}{{ article.title }} — Protocol Pulse{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/articles-terminal.css') }}?v=terminal3">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-<style>
-  body { background: #0A0A0A !important; }
-</style>
+{% block title %}{{ article.title }} - Protocol Pulse{% endblock %}
+
+{% block meta_description %}{{ article.summary if article.summary else article.content[:150] }}{% endblock %}
+
+{% block head %}
+<!-- Open Graph meta tags for social media sharing -->
+<meta property="og:title" content="{{ article.title }}">
+<meta property="og:description" content="{{ article.content[:200] }}...">
+<meta property="og:image" content="{{ article.header_image_url or url_for('dynamic_og_image', og_type='article', id=article.id) }}">
+<meta property="og:url" content="{{ request.url }}">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Protocol Pulse">
+
+<!-- Twitter Card meta tags -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@protocolpulse">
+<meta name="twitter:title" content="{{ article.title }}">
+<meta name="twitter:description" content="{{ article.content[:200] }}...">
+<meta name="twitter:image" content="{{ article.header_image_url or url_for('dynamic_og_image', og_type='article', id=article.id) }}">
+
+<!-- SEO meta tags -->
+<meta name="description" content="{{ article.seo_description or article.summary }}">
+<meta name="keywords" content="{{ article.tags }}, Bitcoin, DeFi, Protocol Pulse">
+<link rel="canonical" href="{{ request.url }}">
 {% endblock %}
 
 {% block content %}
-<article class="article-detail-terminal">
-  <!-- Header image with red/black overlay (brand cohesion) -->
-  <header class="article-detail-header">
-    <div class="article-detail-header-bg intel-image-overlay" style="background-image: url({{ header_image_url or article.header_image_url or 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200' }});"></div>
-    <div class="article-detail-header-overlay"></div>
-    <div class="article-detail-header-content">
-      <h1 class="article-detail-title">{{ article.title }}</h1>
-      <p class="article-detail-meta">
-        {{ article.created_at.strftime('%B %d, %Y') if article.created_at else '—' }}
-        {% if article.author %} · {{ article.author }}{% endif %}
-        {% if article.category %} · <span class="article-detail-category">{{ article.category }}</span>{% endif %}
-      </p>
+<div class="reading-progress"></div>
+
+<article class="py-5">
+    <div class="container">
+        <!-- Article Header -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="mb-4">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{{ url_for('index') }}" class="text-primary">Home</a></li>
+                            <li class="breadcrumb-item"><a href="{{ url_for('articles') }}" class="text-primary">News</a></li>
+                            <li class="breadcrumb-item active text-muted" aria-current="page">{{ article.title[:50] }}...</li>
+                        </ol>
+                    </nav>
+                </div>
+
+                <header class="article-header-professional">
+                    <!-- Category Badge -->
+                    <div class="category-section mb-4">
+                        <span class="category-badge">{{ article.category }}</span>
+                    </div>
+
+                    <!-- Article Title -->
+                    <h1 class="article-title-professional">{{ article.title }}</h1>
+
+                    <!-- Author and Date -->
+                    <div class="article-meta-professional mb-4">
+                        <div class="meta-item">
+                            <span class="meta-label">By</span>
+                            <span class="meta-value">{{ article.author }}</span>
+                        </div>
+                        <div class="meta-divider">•</div>
+                        <div class="meta-item">
+                            <span class="meta-value">{{ article.created_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
+                        </div>
+                        <div class="meta-divider">•</div>
+                        <div class="meta-item">
+                            <span class="meta-value">{{ ((article.content | length) / 1000 * 3) | round | int }} min read</span>
+                        </div>
+                        <div class="meta-divider">•</div>
+                        <div class="meta-item">
+                            <span class="meta-label">Source</span>
+                            {% set src_url = (article.source_url or '')|trim %}
+                            {% set src_type = (article.source_type or '')|trim %}
+                            {% if src_url %}
+                                <a class="meta-value" href="{{ src_url }}" target="_blank" rel="noopener" style="text-decoration: none; border-bottom: 1px dotted rgba(220,38,38,0.45);">
+                                    {{ src_type if src_type else "Link" }}
+                                </a>
+                            {% else %}
+                                <span class="meta-value">{{ src_type if src_type else "Protocol Pulse AI" }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if article.header_image_url %}
+                    <!-- Hero Image -->
+                    <div class="article-image-hero mb-4">
+                        <img src="{{ article.header_image_url }}" alt="{{ article.title }}" class="img-fluid w-100">
+                    </div>
+                    {% endif %}
+
+                    <!-- Share Buttons -->
+                    <div class="share-social-section">
+                        <div class="share-label">Share:</div>
+                        <div class="share-buttons">
+                            <a href="https://twitter.com/intent/tweet?text={{ article.title | urlencode }}&url={{ request.url | urlencode }}"
+                               target="_blank" class="share-btn twitter" title="Share on Twitter">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.url | urlencode }}"
+                               target="_blank" class="share-btn linkedin" title="Share on LinkedIn">
+                                <i class="fab fa-linkedin"></i>
+                            </a>
+                            <a href="mailto:?subject={{ article.title | urlencode }}&body={{ request.url | urlencode }}"
+                               class="share-btn email" title="Share via Email">
+                                <i class="fas fa-envelope"></i>
+                            </a>
+                            <button onclick="copyToClipboard('{{ request.url }}')" class="share-btn copy" title="Copy Link">
+                                <i class="fas fa-link"></i>
+                            </button>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Article Content -->
+                <div class="article-content-professional">
+                    {% if key_takeaways_bullets %}
+                    <!-- Key Takeaways Section -->
+                    <div class="key-takeaways-section mb-5">
+                        <h3 class="section-title">Key Takeaways</h3>
+                        <ul class="takeaways-list">
+                            {% for bullet in key_takeaways_bullets %}
+                            <li>{{ bullet }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <!-- Main Content -->
+                    <div class="article-body">
+                        {{ article.content | safe }}
+                    </div>
+                </div>
+
+                <!-- Article Footer -->
+                <footer class="article-footer-professional mt-5 pt-4">
+                    <div class="footer-section">
+                        <h4 class="footer-title">About Protocol Pulse</h4>
+                        <p class="footer-text">Protocol Pulse delivers real-time intelligence for Bitcoin transactors. Technical storytelling, verified data, zero fabrication.</p>
+                    </div>
+
+                    <div class="footer-section">
+                        <h4 class="footer-title">Stay Updated</h4>
+                        <p class="footer-text mb-3">Get daily intelligence briefings delivered to your inbox.</p>
+                        <form action="{{ url_for('newsletter_subscribe') }}" method="POST" class="footer-subscribe-form">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <div class="input-group">
+                                <input type="email" name="email" class="form-control" placeholder="Enter your email" required>
+                                <button type="submit" class="btn btn-primary">Subscribe</button>
+                            </div>
+                        </form>
+                    </div>
+                </footer>
+            </div>
+        </div>
+
+        <!-- Related Articles -->
+        {% if related_articles %}
+        <section class="related-articles-section mt-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <h3 class="section-title mb-4">Related Intelligence</h3>
+                    <div class="row g-4">
+                        {% for related in related_articles %}
+                        <div class="col-md-4">
+                            <a href="{{ url_for('article_detail', article_id=related.id) }}" class="related-article-card">
+                                {% if related.header_image_url %}
+                                <div class="related-image">
+                                    <img src="{{ related.header_image_url }}" alt="{{ related.title }}" class="img-fluid">
+                                </div>
+                                {% endif %}
+                                <div class="related-content">
+                                    <div class="related-category">{{ related.category }}</div>
+                                    <h4 class="related-title">{{ related.title }}</h4>
+                                    <div class="related-date">{{ related.created_at.strftime('%b %d, %Y') }}</div>
+                                </div>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </section>
+        {% endif %}
     </div>
-  </header>
-
-  <!-- Key Takeaways: one summary box, red border, bullet points (no duplicate TL;DR) -->
-  <div class="key-takeaways">
-    <h3>Key Takeaways</h3>
-    {% if key_takeaways_bullets and key_takeaways_bullets|length > 0 %}
-    <ul>
-      {% for point in key_takeaways_bullets %}
-      <li>{{ point }}</li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <p>{{ key_takeaways_text or 'Key points from this analysis.' }}</p>
-    {% endif %}
-  </div>
-
-  <!-- Body: full article without the TL;DR block (WSJ-style serif). Never repeat Key Takeaways here. -->
-  <div class="article-body-serif">
-    {% if body_html %}
-    {{ body_html|safe }}
-    {% else %}
-    <p class="text-muted" style="font-size: 0.95rem;">Full analysis is summarized in Key Takeaways above.</p>
-    {% endif %}
-  </div>
-
-  <!-- Share Intelligence (terminal-style buttons) -->
-  <div class="mt-5 pt-4 article-detail-share">
-    <p class="share-intel-label">Share Intelligence</p>
-    <a href="https://twitter.com/intent/tweet?text={{ (article.title + ' ' + request.url)|urlencode }}" target="_blank" rel="noopener" class="share-intel-btn">$ share x</a>
-    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.url|urlencode }}" target="_blank" rel="noopener" class="share-intel-btn">$ share linkedin</a>
-    <button type="button" class="share-intel-btn" onclick="navigator.clipboard.writeText('{{ request.url }}'); this.textContent='$ copied'; setTimeout(() => { this.textContent='$ copy link'; }, 1500);">$ copy link</button>
-  </div>
-
-  <div class="mt-4">
-    <a href="{{ url_for('articles') }}" class="share-intel-btn" style="text-decoration: none;">← Back to Terminal</a>
-  </div>
 </article>
+
+<!-- Copy to Clipboard Toast -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="copyToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-body">
+            Link copied to clipboard!
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Reading progress bar */
+    .reading-progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 0%;
+        height: 3px;
+        background: linear-gradient(90deg, #dc2626 0%, #f7931a 100%);
+        z-index: 9999;
+        transition: width 0.1s ease;
+    }
+
+    /* Professional article header styles */
+    .article-header-professional {
+        margin-bottom: 3rem;
+    }
+
+    .category-badge {
+        display: inline-block;
+        background: rgba(220, 38, 38, 0.1);
+        color: #dc2626;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .article-title-professional {
+        font-size: 2.75rem;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 1.5rem;
+        color: #fff;
+        font-family: 'Crimson Pro', serif;
+    }
+
+    .article-meta-professional {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.95rem;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .meta-label {
+        font-weight: 500;
+    }
+
+    .meta-value {
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .meta-divider {
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    .article-image-hero {
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .article-image-hero img {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+    }
+
+    /* Share buttons */
+    .share-social-section {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .share-label {
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .share-buttons {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .share-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 1.1rem;
+    }
+
+    .share-btn.twitter {
+        background: rgba(29, 161, 242, 0.1);
+        color: #1da1f2;
+    }
+
+    .share-btn.linkedin {
+        background: rgba(0, 119, 181, 0.1);
+        color: #0077b5;
+    }
+
+    .share-btn.email {
+        background: rgba(220, 38, 38, 0.1);
+        color: #dc2626;
+    }
+
+    .share-btn.copy {
+        background: rgba(247, 147, 26, 0.1);
+        color: #f7931a;
+    }
+
+    .share-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        color: #fff;
+    }
+
+    /* Article content */
+    .article-content-professional {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: rgba(255, 255, 255, 0.85);
+        font-family: 'DM Sans', sans-serif;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: #fff;
+        font-family: 'Crimson Pro', serif;
+    }
+
+    .key-takeaways-section {
+        background: rgba(220, 38, 38, 0.05);
+        border: 1px solid rgba(220, 38, 38, 0.15);
+        border-radius: 16px;
+        padding: 2rem;
+    }
+
+    .takeaways-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .takeaways-list li {
+        padding: 0.75rem 0;
+        padding-left: 2rem;
+        position: relative;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .takeaways-list li:last-child {
+        border-bottom: none;
+    }
+
+    .takeaways-list li::before {
+        content: '→';
+        position: absolute;
+        left: 0;
+        color: #dc2626;
+        font-weight: bold;
+    }
+
+    /* Footer */
+    .article-footer-professional {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+    }
+
+    .footer-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 1rem;
+    }
+
+    .footer-text {
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.6;
+    }
+
+    /* Related articles */
+    .related-article-card {
+        display: block;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        overflow: hidden;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .related-article-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(220, 38, 38, 0.3);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .related-image {
+        height: 160px;
+        overflow: hidden;
+    }
+
+    .related-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .related-article-card:hover .related-image img {
+        transform: scale(1.05);
+    }
+
+    .related-content {
+        padding: 1.5rem;
+    }
+
+    .related-category {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #dc2626;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.75rem;
+    }
+
+    .related-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 1rem;
+        line-height: 1.3;
+    }
+
+    .related-date {
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    @media (max-width: 768px) {
+        .article-title-professional {
+            font-size: 2rem;
+        }
+
+        .article-footer-professional {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .share-social-section {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+
+<script>
+    // Reading progress bar
+    window.addEventListener('scroll', function() {
+        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        document.querySelector('.reading-progress').style.width = scrolled + '%';
+    });
+
+    // Copy to clipboard functionality
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(function() {
+            const toast = new bootstrap.Toast(document.getElementById('copyToast'));
+            toast.show();
+        });
+    }
+</script>
 {% endblock %}
+

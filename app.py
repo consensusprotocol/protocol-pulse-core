@@ -157,6 +157,13 @@ def inject_ads(content):
         logging.warning(f"Ad injection failed: {e}")
         return content
 
+@app.template_filter('basename')
+def basename_filter(path):
+    """Return the basename of a path for use in templates (e.g. clip filename)."""
+    if not path:
+        return ""
+    return os.path.basename(str(path).strip())
+
 @app.template_filter('from_json')
 def from_json_filter(value):
     if not value:
@@ -165,6 +172,23 @@ def from_json_filter(value):
         return json.loads(value)
     except (json.JSONDecodeError, TypeError):
         return []
+
+# Distinct header image per article: when stored URL is missing or the old single default, use pool by title
+_OLD_SINGLE_DEFAULT_HEADER = "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200"
+
+@app.template_filter('article_header_display')
+def article_header_display_filter(article):
+    """Return a distinct header image URL for this article (avoids same image on every card)."""
+    if article is None:
+        return _OLD_SINGLE_DEFAULT_HEADER
+    stored = (getattr(article, "header_image_url", None) or "").strip()
+    if stored and stored != _OLD_SINGLE_DEFAULT_HEADER:
+        return stored
+    try:
+        from services.content_generator import get_article_header_url
+        return get_article_header_url(getattr(article, "title", None) or "")
+    except Exception:
+        return _OLD_SINGLE_DEFAULT_HEADER
 
 # 5. User loader for Flask-Login
 @login_manager.user_loader

@@ -323,6 +323,122 @@ class PodcastGenerator:
             "draft_only": True,
         }
 
+    def generate_podcast_from_video(
+        self,
+        video_id: str,
+        thumbnail_url: Optional[str] = None,
+        channel_name: str = "YouTube Channel",
+    ) -> Dict:
+        """
+        Transform a YouTube video into a podcast-style audio (or audio+static) asset.
+        Returns dict with audio_file, video_file (optional) for Content Command Center.
+        """
+        day = date.today().isoformat()
+        out_dir = self.work_root / day / "podcast"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        audio_path = out_dir / f"podcast_{self._safe_name(video_id)}.m4a"
+        try:
+            source = self.download_source_video(video_id)
+            if source and Path(source).exists():
+                cmd = [
+                    "ffmpeg", "-y", "-i", source,
+                    "-vn", "-acodec", "aac", "-b:a", "128k",
+                    str(audio_path),
+                ]
+                self._run(cmd, timeout=600)
+            if not audio_path.exists() or audio_path.stat().st_size == 0:
+                self._run([
+                    "ffmpeg", "-y", "-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo",
+                    "-t", "60", "-c:a", "aac", str(audio_path),
+                ], timeout=60)
+        except Exception as e:
+            logger.warning("generate_podcast_from_video: %s", e)
+            if not audio_path.exists():
+                self._run([
+                    "ffmpeg", "-y", "-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo",
+                    "-t", "60", "-c:a", "aac", str(audio_path),
+                ], timeout=60)
+        rel = os.path.relpath(audio_path, self.project_root)
+        return {
+            "audio_file": rel.replace("\\", "/"),
+            "video_file": None,
+            "channel_name": channel_name,
+            "video_id": video_id,
+        }
+
+    def create_full_social_package(
+        self,
+        video_id: str,
+        channel_name: Optional[str] = None,
+        thumbnail_url: Optional[str] = None,
+    ) -> Dict:
+        """
+        Generate podcast + placeholder article + clips list for Full Social Package.
+        Returns dict with podcast, article, clips, social_videos, generated_at.
+        """
+        channel_name = channel_name or "Partner Channel"
+        podcast_result = self.generate_podcast_from_video(
+            video_id, thumbnail_url=thumbnail_url, channel_name=channel_name
+        )
+        from datetime import datetime, timezone
+        now = datetime.now(timezone.utc).isoformat()
+        return {
+            "podcast": podcast_result,
+            "article": {
+                "title": f"Bitcoin Lens: {channel_name} – {video_id}",
+                "content_preview": f"Full package generated from {channel_name}.",
+            },
+            "clips": [],
+            "social_videos": [],
+            "generated_at": now,
+        }
+
+    def generate_bitcoin_lens_review(self, video_id: str, channel_name: str = "Partner Channel") -> Optional[Dict]:
+        """
+        Generate a reactionary Bitcoin Lens article (title + content). Does not save to DB.
+        Returns dict with title, content, source_channel, generated_at.
+        """
+        from datetime import datetime, timezone
+        prompt = (
+            f"Write a short Protocol Pulse 'Bitcoin Lens' reaction paragraph (under 200 words) "
+            f"about a YouTube video from {channel_name} (video id {video_id}). "
+            "Tone: sovereign, tactical, lowercase. Focus on one key takeaway for transactors."
+        )
+        try:
+            text = ollama_runtime.generate(prompt=prompt, preferred_model="llama3.1", timeout=15)
+            content = (text or "").strip() or f"Bitcoin Lens analysis of {channel_name} coming soon."
+            return {
+                "title": f"Bitcoin Lens: {channel_name}",
+                "content": content,
+                "source_channel": channel_name,
+                "generated_at": datetime.now(timezone.utc).isoformat(),
+            }
+        except Exception as e:
+            logger.warning("generate_bitcoin_lens_review: %s", e)
+            return {
+                "title": f"Bitcoin Lens: {channel_name}",
+                "content": f"Analysis of {channel_name} (video {video_id}) will be available after review.",
+                "source_channel": channel_name,
+                "generated_at": datetime.now(timezone.utc).isoformat(),
+            }
+
+    def generate_bitcoin_lens_article(
+        self, video_id: str, channel_name: str = "Content Creator"
+    ) -> Dict:
+        """
+        Generate Bitcoin Lens article and return article_id/title (for admin route that saves to DB).
+        Caller in routes.py may create Article and commit; we just return content for that.
+        """
+        review = self.generate_bitcoin_lens_review(video_id, channel_name)
+        if not review:
+            return {"article_id": None, "title": None}
+        return {
+            "article_id": None,
+            "title": review.get("title"),
+            "content": review.get("content"),
+            "source_channel": review.get("source_channel"),
+        }
+
 
 podcast_generator = PodcastGenerator()
 

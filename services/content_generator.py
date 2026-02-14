@@ -1,4 +1,9 @@
 import logging
+import hashlib
+from pathlib import Path
+import json
+import re
+from urllib.parse import urlparse, urljoin
 from datetime import datetime, timedelta
 from app import app, db
 from models import ContentPrompt, Article
@@ -10,6 +15,151 @@ from services.image_service import image_service
 from services.gemini_service import gemini_service
 from services.node_service import NodeService
 from services.fact_checker import fact_checker, verify_article_before_publish
+
+
+def _get_local_header_image_pool() -> list[str]:
+    """Build a pool of local header images served from /static/images/headers/.
+
+    This avoids relying on external CDNs (Unsplash) and guarantees the UI can always show a header image.
+    """
+    try:
+        project_root = Path(__file__).resolve().parents[1]
+        headers_dir = project_root / "core" / "static" / "images" / "headers"
+        if not headers_dir.exists():
+            return ["/static/images/default-header.png"]
+        names = sorted([p.name for p in headers_dir.iterdir() if p.is_file() and p.suffix.lower() in {".png", ".jpg", ".jpeg"}])
+        urls = [f"/static/images/headers/{n}" for n in names]
+        # Always include the generic fallback first.
+        return ["/static/images/default-header.png"] + urls
+    except Exception:
+        return ["/static/images/default-header.png"]
+
+
+# Cached at import time; safe to use across requests.
+ARTICLE_HEADER_IMAGE_POOL = _get_local_header_image_pool()
+
+
+def get_article_header_url(seed: str) -> str:
+    """Deterministically pick a header image URL from the local pool."""
+    pool = ARTICLE_HEADER_IMAGE_POOL or ["/static/images/default-header.png"]
+    s = (seed or "").strip().encode("utf-8", errors="ignore")
+    h = hashlib.sha256(s).hexdigest()
+    idx = int(h[:8], 16) % len(pool)
+    return pool[idx]
+
+
+def _load_allowed_news_domains() -> set[str]:
+    """Load allowlisted source domains from config/allowed_news_domains.json."""
+    try:
+        project_root = Path(__file__).resolve().parents[1]
+        p = project_root / "config" / "allowed_news_domains.json"
+        data = json.loads(p.read_text(encoding="utf-8"))
+        domains = data.get("domains") or []
+        return {str(d).strip().lower().lstrip(".") for d in domains if str(d).strip()}
+    except Exception:
+        return set()
+
+
+ALLOWED_NEWS_DOMAINS = _load_allowed_news_domains()
+
+
+def _hostname(url: str) -> str:
+    try:
+        return (urlparse(url).hostname or "").lower().strip(".")
+    except Exception:
+        return ""
+
+
+def is_allowed_source_url(url: str) -> bool:
+    """True if url's hostname is allowlisted (suffix match; subdomains allowed)."""
+    host = _hostname(url)
+    if not host:
+        return False
+    for d in (ALLOWED_NEWS_DOMAINS or set()):
+        if host == d or host.endswith("." + d):
+            return True
+    return False
+
+
+def infer_source_type(url: str) -> str:
+    """Return a short source label from a URL hostname."""
+    host = _hostname(url)
+    if not host:
+        return ""
+    for d in sorted(ALLOWED_NEWS_DOMAINS or set(), key=len, reverse=True):
+        if host == d or host.endswith("." + d):
+            return d
+    return host
+
+
+def _extract_urls_from_html(html: str) -> list[str]:
+    if not html:
+        return []
+    hrefs = re.findall(r'href=[\'"]([^\'"]+)[\'"]', html, flags=re.I)
+    bare = re.findall(r'https?://[^\s<>"\']+', html, flags=re.I)
+    out: list[str] = []
+    for u in hrefs + bare:
+        u = (u or "").strip()
+        if u.startswith("http://") or u.startswith("https://"):
+            out.append(u)
+    seen = set()
+    uniq: list[str] = []
+    for u in out:
+        if u not in seen:
+            uniq.append(u)
+            seen.add(u)
+    return uniq
+
+
+def pick_primary_source_url(article_html: str) -> str:
+    """Pick the first allowlisted URL mentioned in the article content."""
+    urls = _extract_urls_from_html(article_html)
+    for u in urls:
+        if is_allowed_source_url(u):
+            return u
+    return urls[0] if urls else ""
+
+
+def _extract_og_image(source_url: str) -> str:
+    """Return og:image (or twitter:image) from a source page, if available."""
+    if not source_url or not is_allowed_source_url(source_url):
+        return ""
+    try:
+        import requests
+        r = requests.get(
+            source_url,
+            timeout=6,
+            headers={"User-Agent": "ProtocolPulseBot/1.0 (+https://protocolpulse.io)"},
+        )
+        if r.status_code >= 400:
+            return ""
+        html = r.text or ""
+        for pat in [
+            r'<meta[^>]+property=[\'"]og:image[\'"][^>]+content=[\'"]([^\'"]+)[\'"]',
+            r'<meta[^>]+name=[\'"]twitter:image[\'"][^>]+content=[\'"]([^\'"]+)[\'"]',
+        ]:
+            m = re.search(pat, html, flags=re.I)
+            if m:
+                img = (m.group(1) or "").strip()
+                if img:
+                    return urljoin(source_url, img)
+        return ""
+    except Exception:
+        return ""
+
+
+def resolve_header_image_url(title: str, article_html: str) -> tuple[str, str, str]:
+    """Return (header_image_url, source_url, source_type) for a generated article.
+
+    - Prefer an allowlisted primary source URL extracted from the article (Sources section or links).
+    - If allowlisted, use that page's og:image as the header image.
+    - Fall back to deterministic local header pool so cards never render without images.
+    """
+    src_url = pick_primary_source_url(article_html)
+    src_type = infer_source_type(src_url) if src_url else ""
+    og_img = _extract_og_image(src_url) if src_url else ""
+    header = (og_img or "").strip() or get_article_header_url(title or src_url or "Protocol Pulse")
+    return header, (src_url or ""), (src_type or "")
 
 
 def is_topic_duplicate_via_gemini(proposed_topic):
@@ -234,7 +384,12 @@ around them. The numbers are the starting point, not the entire article.
             3. Exclusive Data Analysis - On-chain metrics, historical comparisons, UNIQUE insights (300+ words)
             4. The Bitcoin Lens - Philosophy + expert perspectives from thought leaders (400+ words)
             5. Transactor Intelligence - Specific, actionable advice with concrete steps (250+ words)
-            6. Sources - At least 5 credible sources
+            6. Sources - At least 5 credible sources (WITH FULL URLs)
+
+            SOURCES REQUIREMENTS (CRITICAL):
+            - Each source must be a FULL https:// URL (not just a publication name)
+            - Prefer mainstream/major outlets; do not invent sources
+            - Use only high-quality outlets (CoinDesk, Reuters, FT, Bloomberg, WSJ, etc.)
             
             HIGH-VALUE REQUIREMENTS:
             - Include ON-CHAIN METRICS not covered by mainstream (UTXO age, realized cap, SOPR, MVRV)
@@ -248,7 +403,7 @@ around them. The numbers are the starting point, not the entire article.
             - Use <h2 class="article-header"> for main section headers
             - Use <h3 class="article-subheader"> for sub-section headers  
             - Use <p class="article-paragraph"> for all paragraphs
-            - End with Sources section: <h2 class="article-header">Sources</h2> followed by <ul class="sources-list"><li>source 1</li><li>source 2</li></ul>
+            - End with Sources section: <h2 class="article-header">Sources</h2> followed by <ul class="sources-list"><li>https://example.com/article</li><li>https://example.com/article2</li></ul>
             - NO MARKDOWN SYNTAX - ONLY CLEAN HTML
             
             Target length: 1200-1800 words
@@ -265,7 +420,11 @@ around them. The numbers are the starting point, not the entire article.
             3. Exclusive Data Analysis - Deep on-chain intelligence with SPECIFIC metrics (400+ words)
             4. The Bitcoin Lens - Expert perspectives and philosophical grounding (500+ words)
             5. Transactor Intelligence - Actionable strategy with risk/reward analysis (300+ words)
-            6. Sources - 6+ credible sources including on-chain data providers
+            6. Sources - 6+ credible sources including on-chain data providers (WITH FULL URLs)
+
+            SOURCES REQUIREMENTS (CRITICAL):
+            - Each source must be a FULL https:// URL (not just a publication name)
+            - Include at least 1 on-chain data provider URL (Glassnode, CryptoQuant, etc.) if mentioned
             
             EXCLUSIVE VALUE REQUIREMENTS:
             - Reference specific on-chain data (Glassnode, CryptoQuant metrics)
@@ -278,7 +437,7 @@ around them. The numbers are the starting point, not the entire article.
             - Use <h2 class="article-header"> for main section headers
             - Use <h3 class="article-subheader"> for sub-section headers  
             - Use <p class="article-paragraph"> for all paragraphs
-            - End with Sources section: <h2 class="article-header">Sources</h2> followed by <ul class="sources-list"><li>source 1</li><li>source 2</li></ul>
+            - End with Sources section: <h2 class="article-header">Sources</h2> followed by <ul class="sources-list"><li>https://example.com/article</li><li>https://example.com/article2</li></ul>
             - NO MARKDOWN SYNTAX - ONLY CLEAN HTML
             
             Target length: 1500-2500 words
@@ -295,13 +454,17 @@ around them. The numbers are the starting point, not the entire article.
             3. Exclusive Data Analysis - Rapid on-chain response metrics (200+ words)
             4. The Bitcoin Lens - Expert quick-take perspectives (250+ words)
             5. Transactor Intelligence - IMMEDIATE actions to take (200+ words)
-            6. Sources - Credible sources only
+            6. Sources - Credible sources only (WITH FULL URLs)
+
+            SOURCES REQUIREMENTS (CRITICAL):
+            - Each source must be a FULL https:// URL (not just a publication name)
+            - Prefer mainstream/major outlets; do not invent sources
             
             """ + """CRITICAL FORMATTING - CLEAN HTML ONLY:
             - Start with TL;DR: <div class="tldr-section"><em><strong>TL;DR: [summary]</strong></em></div>
             - Use <h2 class="article-header"> for section headers
             - Use <p class="article-paragraph"> for paragraphs
-            - End with Sources: <ul class="sources-list"><li>sources</li></ul>
+            - End with Sources: <ul class="sources-list"><li>https://example.com/article</li></ul>
             
             Target length: 800-1000 words
             """
@@ -555,8 +718,10 @@ Focus on qualitative analysis only. No fabricated numbers allowed.
             # Determine category
             category = self._determine_category(topic, content)
             
-            # No header images - user preference is to only include tweet screenshots inside articles
-            header_image_url = None
+            # Header image + structured source:
+            # - Prefer allowlisted sources cited in the article's Sources section
+            # - Use that publisher page's OG image if available
+            header_image_url, source_url, source_label = resolve_header_image_url(title, content)
             
             # POST-PROCESSING: Verify headline matches requested style
             title = self._enforce_headline_style(title, headline_style, topic)
@@ -585,6 +750,9 @@ Focus on qualitative analysis only. No fabricated numbers allowed.
                 'seo_title': seo_data.get('seo_title', title),
                 'seo_description': seo_data.get('seo_description', title[:150]),
                 'header_image_url': header_image_url,
+                'source_url': source_url,
+                # Use allowlist domain suffix as a compact label; fallback to the generation source_type.
+                'source_type': source_label or source_type,
                 'fact_check': fact_check_result,
                 'fact_check_warnings': fact_check_warnings,
                 'fact_check_passed': len(fact_check_warnings) == 0

@@ -195,6 +195,59 @@
         display: none;
     }
 
+    /* Card header images + source pills (always visible even if external CDNs are blocked) */
+    .bento-thumb {
+        height: 132px;
+        border-radius: 12px;
+        overflow: hidden;
+        background: rgba(0,0,0,0.35);
+        border: 1px solid rgba(220,38,38,0.12);
+        margin-bottom: 1rem;
+        position: relative;
+    }
+
+    .bento-thumb-hero { height: 240px; }
+
+    .bento-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        opacity: 0.95;
+        transform: scale(1.01);
+    }
+
+    .bento-thumb::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.55) 100%);
+        pointer-events: none;
+    }
+
+    .source-link {
+        color: rgba(255,255,255,0.7);
+        text-decoration: none;
+        border-bottom: 1px dotted rgba(220,38,38,0.35);
+    }
+
+    .source-link:hover { color: #fff; border-bottom-color: rgba(247,147,26,0.55); }
+
+    .source-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.6rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.72);
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+
     .bento-hero-card {
         grid-column: span 2;
         grid-row: span 2;
@@ -326,6 +379,15 @@
         color: var(--accent-red);
         font-size: 1.25rem;
         opacity: 0.8;
+        overflow: hidden;
+    }
+
+    .terminal-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        opacity: 0.95;
     }
 
     .terminal-headline {
@@ -529,6 +591,8 @@
 {% endblock %}
 
 {% block content %}
+{% set default_img = default_header_url|default('/static/images/default-header.png') %}
+{% set image_urls = article_image_urls|default({}) %}
 <div id="news-pulse-container">
     <div class="content-layer">
         <div class="container py-4">
@@ -550,30 +614,57 @@
 
                         <div class="bento-grid">
                             {% if today_articles|length > 0 %}
-                            <a href="{{ url_for('article_detail', article_id=today_articles[0].id) }}" class="text-decoration-none bento-hero-card bento-card">
+                            {% set hero = today_articles[0] %}
+                            {% set hero_img = image_urls.get(hero.id, default_img) %}
+                            <a href="{{ url_for('article_detail', article_id=hero.id) }}" class="text-decoration-none bento-hero-card bento-card">
                                 <div class="d-flex align-items-center gap-2 mb-3">
-                                    {% if today_articles[0].is_pressing %}
+                                    {% if hero.is_pressing %}
                                     <span class="badge-breaking">Breaking</span>
                                     {% endif %}
-                                    <span class="badge-category">{{ today_articles[0].category }}</span>
-                                    <span class="meta-mono ms-2">{{ today_articles[0].created_at.strftime('%H:%M') }} UTC</span>
+                                    <span class="badge-category">{{ hero.category }}</span>
+                                    <span class="meta-mono ms-2">{{ hero.created_at.strftime('%H:%M') }} UTC</span>
+                                    {% set src_url = (hero.source_url or '')|trim %}
+                                    {% set src_type = (hero.source_type or '')|trim %}
+                                    {% if src_url %}
+                                      <a class="source-link meta-mono ms-auto" href="{{ src_url }}" target="_blank" rel="noopener">Source</a>
+                                    {% elif src_type %}
+                                      <span class="source-pill ms-auto">{{ src_type }}</span>
+                                    {% else %}
+                                      <span class="source-pill ms-auto">Protocol Pulse AI</span>
+                                    {% endif %}
                                 </div>
-                                <h2 class="headline-hero mb-4">{{ today_articles[0].title }}</h2>
-                                <p class="body-text mb-4">{{ today_articles[0].content | clean_preview(300) }}</p>
+                                <div class="bento-thumb bento-thumb-hero">
+                                    <img src="{{ hero_img }}" alt="{{ hero.title }}" loading="eager" onerror="this.onerror=null;this.src='{{ default_img }}';">
+                                </div>
+                                <h2 class="headline-hero mb-4">{{ hero.title }}</h2>
+                                <p class="body-text mb-4">{{ hero.content | clean_preview(300) }}</p>
                                 <div class="d-flex align-items-center justify-content-between">
                                     <span class="read-link">Read Full Report <i class="fas fa-arrow-right ms-2"></i></span>
-                                    <span class="meta-mono">{{ today_articles[0].author or 'Protocol Pulse' }}</span>
+                                    <span class="meta-mono">{{ hero.author or 'Protocol Pulse' }}</span>
                                 </div>
                             </a>
                             {% endif %}
 
                             {% for article in today_articles[1:5] %}
+                            {% set card_img = image_urls.get(article.id, default_img) %}
                             <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none bento-card">
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     {% if article.is_pressing %}
                                     <span class="badge-breaking" style="font-size: 0.5rem; padding: 3px 7px;">Breaking</span>
                                     {% endif %}
                                     <span class="badge-category">{{ article.category }}</span>
+                                    {% set src_url = (article.source_url or '')|trim %}
+                                    {% set src_type = (article.source_type or '')|trim %}
+                                    {% if src_url %}
+                                      <a class="source-link meta-mono ms-auto" href="{{ src_url }}" target="_blank" rel="noopener">Source</a>
+                                    {% elif src_type %}
+                                      <span class="source-pill ms-auto">{{ src_type }}</span>
+                                    {% else %}
+                                      <span class="source-pill ms-auto">Protocol Pulse AI</span>
+                                    {% endif %}
+                                </div>
+                                <div class="bento-thumb">
+                                    <img src="{{ card_img }}" alt="{{ article.title }}" loading="lazy" onerror="this.onerror=null;this.src='{{ default_img }}';">
                                 </div>
                                 <h3 class="headline-secondary mb-3">{{ article.title }}</h3>
                                 <p class="body-text mb-3" style="font-size: 0.9rem; line-height: 1.6;">{{ article.content | clean_preview(100) }}</p>
@@ -591,6 +682,19 @@
                             <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none bento-card">
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     <span class="badge-category">{{ article.category }}</span>
+                                    {% set src_url = (article.source_url or '')|trim %}
+                                    {% set src_type = (article.source_type or '')|trim %}
+                                    {% if src_url %}
+                                      <a class="source-link meta-mono ms-auto" href="{{ src_url }}" target="_blank" rel="noopener">Source</a>
+                                    {% elif src_type %}
+                                      <span class="source-pill ms-auto">{{ src_type }}</span>
+                                    {% else %}
+                                      <span class="source-pill ms-auto">Protocol Pulse AI</span>
+                                    {% endif %}
+                                </div>
+                                {% set card_img = image_urls.get(article.id, default_img) %}
+                                <div class="bento-thumb">
+                                    <img src="{{ card_img }}" alt="{{ article.title }}" loading="lazy" onerror="this.onerror=null;this.src='{{ default_img }}';">
                                 </div>
                                 <h3 class="headline-secondary mb-2">{{ article.title }}</h3>
                                 <span class="meta-mono">{{ article.created_at.strftime('%H:%M') }} UTC</span>
@@ -613,10 +717,11 @@
                         </h2>
                         <div class="terminal-list">
                             {% for article in yesterday_articles %}
+                            {% set card_img = image_urls.get(article.id, default_img) %}
                             <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none">
                                 <div class="terminal-item">
                                     <div class="terminal-thumb">
-                                        <i class="fas fa-file-alt"></i>
+                                        <img src="{{ card_img }}" alt="{{ article.title }}" loading="lazy" onerror="this.onerror=null;this.src='{{ default_img }}';">
                                     </div>
                                     <div class="flex-grow-1">
                                         <h4 class="terminal-headline">{{ article.title }}</h4>
@@ -624,6 +729,15 @@
                                             <span class="badge-category">{{ article.category }}</span>
                                             <span>{{ article.created_at.strftime('%H:%M:%S') }}</span>
                                             <span>{{ article.created_at.strftime('%Y-%m-%d') }}</span>
+                                            {% set src_url = (article.source_url or '')|trim %}
+                                            {% set src_type = (article.source_type or '')|trim %}
+                                            {% if src_url %}
+                                              <a class="source-link" href="{{ src_url }}" target="_blank" rel="noopener">Source</a>
+                                            {% elif src_type %}
+                                              <span class="source-pill">{{ src_type }}</span>
+                                            {% else %}
+                                              <span class="source-pill">Protocol Pulse AI</span>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
@@ -635,8 +749,8 @@
 
                     {% if archive_articles %}
                     <section class="mb-5">
-                        <button class="archive-btn" onclick="toggleArchive()">
-                            <i class="fas fa-archive me-2"></i>Load Archive // {{ archive_articles|length }}+ Reports
+                        <button class="archive-btn" onclick="toggleArchive(event)">
+                            <i class="fas fa-archive me-2"></i>Load Archive // {{ archive_total_count or (archive_articles|length) }}+ Reports
                         </button>
                         
                         <div id="archive-content" class="archive-zone">
@@ -645,15 +759,26 @@
                             </h2>
                             <div class="terminal-list">
                                 {% for article in archive_articles %}
+                                {% set card_img = image_urls.get(article.id, default_img) %}
                                 <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none">
                                     <div class="terminal-item">
                                         <div class="terminal-thumb">
-                                            <i class="fas fa-file-alt"></i>
+                                            <img src="{{ card_img }}" alt="{{ article.title }}" loading="lazy" onerror="this.onerror=null;this.src='{{ default_img }}';">
                                         </div>
                                         <div class="flex-grow-1">
                                             <h4 class="terminal-headline">{{ article.title }}</h4>
                                             <div class="terminal-meta">
                                                 <span>{{ article.created_at.strftime('%Y-%m-%d') }}</span>
+                                                {% if article.category %}<span class="badge-category">{{ article.category }}</span>{% endif %}
+                                                {% set src_url = (article.source_url or '')|trim %}
+                                                {% set src_type = (article.source_type or '')|trim %}
+                                                {% if src_url %}
+                                                  <a class="source-link" href="{{ src_url }}" target="_blank" rel="noopener">Source</a>
+                                                {% elif src_type %}
+                                                  <span class="source-pill">{{ src_type }}</span>
+                                                {% else %}
+                                                  <span class="source-pill">Protocol Pulse AI</span>
+                                                {% endif %}
                                             </div>
                                         </div>
                                     </div>
@@ -672,22 +797,25 @@
                             <h5 class="sidebar-module-title">Market Pulse</h5>
                             <div id="price-ticker">
                                 {% if prices %}
+                                {% set btc = (prices or {}).get('bitcoin', {}) %}
+                                {% set eth = (prices or {}).get('ethereum', {}) %}
+                                {% set sol = (prices or {}).get('solana', {}) %}
                                 <div class="ticker-row">
                                     <span class="ticker-symbol">BTC/USD</span>
-                                    <span class="ticker-price {{ 'text-success' if prices.get('bitcoin', {}).get('usd_24h_change', 0) >= 0 else 'text-danger' }}">
-                                        {{ price_service.format_price(prices.get('bitcoin', {}).get('usd', 0)) }}
+                                    <span class="ticker-price {{ 'text-success' if (btc.get('change_24h', 0) or 0) >= 0 else 'text-danger' }}">
+                                        {{ price_service.format_price(btc.get('price', 0) or 0) }}
                                     </span>
                                 </div>
                                 <div class="ticker-row">
                                     <span class="ticker-symbol">ETH/USD</span>
-                                    <span class="ticker-price {{ 'text-success' if prices.get('ethereum', {}).get('usd_24h_change', 0) >= 0 else 'text-danger' }}">
-                                        {{ price_service.format_price(prices.get('ethereum', {}).get('usd', 0)) }}
+                                    <span class="ticker-price {{ 'text-success' if (eth.get('change_24h', 0) or 0) >= 0 else 'text-danger' }}">
+                                        {{ price_service.format_price(eth.get('price', 0) or 0) }}
                                     </span>
                                 </div>
                                 <div class="ticker-row">
                                     <span class="ticker-symbol">SOL/USD</span>
-                                    <span class="ticker-price {{ 'text-success' if prices.get('solana', {}).get('usd_24h_change', 0) >= 0 else 'text-danger' }}">
-                                        {{ price_service.format_price(prices.get('solana', {}).get('usd', 0)) }}
+                                    <span class="ticker-price {{ 'text-success' if (sol.get('change_24h', 0) or 0) >= 0 else 'text-danger' }}">
+                                        {{ price_service.format_price(sol.get('price', 0) or 0) }}
                                     </span>
                                 </div>
                                 {% else %}
@@ -710,7 +838,8 @@
                         <div class="sidebar-module" style="border-top: 2px solid var(--accent-red);">
                             <h5 class="sidebar-module-title">Protocol Dispatch</h5>
                             <p class="meta-mono mb-3" style="font-size: 0.75rem; color: #888;">Daily Bitcoin intelligence.</p>
-                            <form action="{{ url_for('subscribe') }}" method="POST">
+                            <form action="{{ url_for('newsletter_subscribe') }}" method="POST">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                                 <input type="email" name="email" class="form-control subscribe-field mb-2" placeholder="your@email.com" required>
                                 <button type="submit" class="subscribe-btn">Subscribe</button>
                             </form>
@@ -737,14 +866,15 @@
 </div>
 
 <script>
-function toggleArchive() {
+function toggleArchive(evt) {
     const archive = document.getElementById('archive-content');
     archive.classList.toggle('show');
-    const btn = event.target.closest('button');
+    const btn = (evt && evt.target) ? evt.target.closest('button') : null;
+    if (!btn) return;
     if (archive.classList.contains('show')) {
         btn.innerHTML = '<i class="fas fa-times me-2"></i>Close Archive';
     } else {
-        btn.innerHTML = '<i class="fas fa-archive me-2"></i>Load Archive // {{ archive_articles|length }}+ Reports';
+        btn.innerHTML = '<i class="fas fa-archive me-2"></i>Load Archive // {{ archive_total_count or (archive_articles|length) }}+ Reports';
     }
 }
 </script>

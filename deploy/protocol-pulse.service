@@ -1,3 +1,9 @@
+# Install to /etc/systemd/system/protocol-pulse.service
+#   sudo cp deploy/protocol-pulse.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now protocol-pulse.service
+# Set ENABLE_LIVE_POSTING=true in .env to allow viral reel auto-job to post to X/Telegram.
+
 [Unit]
 Description=Protocol Pulse Flask Server (Gunicorn)
 After=network-online.target
@@ -9,7 +15,6 @@ WorkingDirectory=/home/ultron/protocol_pulse
 Environment=PYTHONUNBUFFERED=1
 Environment=FLASK_ENV=production
 Environment=ENABLE_SELF_CHECK_BYPASS=true
-# Batch 6: Viral reel auto-job can publish to X/Telegram when true (override in .env)
 Environment=ENABLE_LIVE_POSTING=false
 EnvironmentFile=-/home/ultron/protocol_pulse/.env
 ExecStart=/home/ultron/protocol_pulse/venv/bin/gunicorn -w 1 -k gthread --threads 8 -b 0.0.0.0:5000 app:app
@@ -19,4 +24,4 @@ StandardOutput=append:/home/ultron/protocol_pulse/logs/app.log
 StandardError=append:/home/ultron/protocol_pulse/logs/app.log
 
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target

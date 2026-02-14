@@ -24,6 +24,9 @@ import requests
 import os
 import re
 import uuid
+import subprocess
+from pathlib import Path
+import models
 from datetime import datetime, timedelta
 
 # Initialize services
@@ -50,6 +53,228 @@ def admin_required(f):
             return redirect('/login')
         return f(*args, **kwargs)
     return decorated_function
+
+@app.route('/admin/viral-moments', methods=['POST'])
+@login_required
+@admin_required
+def admin_create_viral_moments_job():
+    """Create a ClipJob for the Viral Moments reel pipeline.
+
+    Expects JSON: {"video_id": "...", "channel_name": "..."}
+    Returns: {"success": true, "job_id": <int>}
+    """
+    import json
+
+    data = request.get_json(silent=True) or {}
+    video_id = str(data.get('video_id') or '').strip()
+    channel_name = str(data.get('channel_name') or '').strip()
+
+    if not video_id:
+        return jsonify({"success": False, "error": "video_id is required"}), 400
+
+    # Local import to avoid circular import issues during app boot.
+    from app import db
+    import models
+
+    job = models.ClipJob(
+        video_id=video_id,
+        channel_name=channel_name or None,
+        # Legacy columns are NOT NULL in the current schema; populate them even if V2 fields are used.
+        timestamps_json=json.dumps([]),
+        narrative_context="",
+        # V2 fields
+        segments_json=json.dumps([]),
+        status="Planned",
+        metadata_json=json.dumps({"source": "admin/viral-moments"}),
+    )
+    db.session.add(job)
+    db.session.commit()
+
+    return jsonify({"success": True, "job_id": int(job.id)})
+
+
+def premium_required(f):
+    """Require Commander ($99/mo) or higher for premium hub access."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            flash('Sign in to access the Premium Hub.')
+            return redirect(url_for('login') + '?next=' + request.path)
+        if not getattr(current_user, 'has_commander_tier', lambda: False)():
+            flash('Premium Hub requires a Commander ($99/mo) subscription.')
+            return redirect(url_for('premium_page'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def premium_hub_required(f):
+    """Require any paid tier (Operator / Commander / Sovereign) for hub access."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        remote = str(request.remote_addr or "")
+        if (
+            is_enabled("ENABLE_SELF_CHECK_BYPASS")
+            and request.headers.get("X-Self-Check") == "1"
+            and ("127.0.0.1" in remote or remote in ("::1", "localhost"))
+        ):
+            return f(*args, **kwargs)
+        if not current_user.is_authenticated:
+            flash('Sign in to access the Premium Hub.')
+            return redirect(url_for('login') + '?next=' + request.path)
+        if getattr(current_user, 'is_admin', False):
+            return f(*args, **kwargs)
+        if not getattr(current_user, 'has_premium', lambda: False)():
+            flash('Premium Hub requires a paid subscription (Operator $21/mo or higher).')
+            return redirect(url_for('premium_page'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+# Commander gate alias for compatibility with prior specs/routes.
+commander_required = premium_hub_required
+
+
+@app.route('/admin/x-replies')
+@login_required
+@admin_required
+def admin_x_replies():
+    """Admin queue for X sentry drafts."""
+    pending = (
+        models.XInboxTweet.query.filter_by(status='drafted')
+        .order_by(models.XInboxTweet.created_at.desc())
+        .limit(50)
+        .all()
+    )
+    return render_template('admin/x_replies.html', pending=pending)
+
+
+@app.route('/admin/x-replies/<int:inbox_id>/approve', methods=['POST'])
+@login_required
+@admin_required
+def admin_x_reply_approve(inbox_id):
+    _require_csrf()
+    from core.services.x_client import XClient
+
+    inbox = models.XInboxTweet.query.get_or_404(inbox_id)
+    draft = inbox.drafts.order_by(models.XReplyDraft.created_at.desc()).first()
+    if not draft:
+        flash('No draft available for this tweet.')
+        return redirect('/admin/x-replies')
+
+    new_text = (request.form.get('draft_text') or '').strip()
+    if new_text:
+        draft.draft_text = new_text[:280]
+
+    result = XClient().post_reply(in_reply_to_tweet_id=inbox.tweet_id, text=draft.draft_text)
+    post = models.XReplyPost(
+        inbox_id=inbox.id,
+        draft_id=draft.id,
+        reply_tweet_id=result.get('tweet_id'),
+        response_payload=json.dumps(result.get('raw', {})),
+    )
+    inbox.status = 'posted' if result.get('success') else 'error'
+    db.session.add(post)
+    db.session.add(inbox)
+    db.session.commit()
+    flash('Reply posted to X.' if result.get('success') else 'Reply failed to post; see logs.')
+    return redirect('/admin/x-replies')
+
+
+@app.route('/admin/x-replies/<int:inbox_id>/reject', methods=['POST'])
+@login_required
+@admin_required
+def admin_x_reply_reject(inbox_id):
+    _require_csrf()
+    inbox = models.XInboxTweet.query.get_or_404(inbox_id)
+    inbox.status = 'rejected'
+    db.session.add(inbox)
+    db.session.commit()
+    flash('Draft rejected.')
+    return redirect('/admin/x-replies')
+
+
+@app.route('/admin/x-replies/run-cycle', methods=['POST'])
+@login_required
+@admin_required
+def admin_x_reply_run_cycle():
+    _require_csrf()
+    from core.services.x_engagement_sentry import run_cycle
+    result = run_cycle()
+    return jsonify({"success": True, "result": result})
+
+
+@app.route('/api/sentry-stream')
+@login_required
+@admin_required
+def api_sentry_stream():
+    """SSE stream for draft queue updates."""
+    import time
+
+    def generate():
+        last_seen = 0
+        started = time.time()
+        while time.time() - started < 300:
+            try:
+                latest = (
+                    models.XReplyDraft.query.order_by(models.XReplyDraft.id.desc()).first()
+                )
+                if latest and latest.id > last_seen:
+                    last_seen = latest.id
+                    payload = {
+                        "type": "new_draft",
+                        "draft_id": latest.id,
+                        "inbox_id": latest.inbox_id,
+                        "confidence": float(latest.confidence or 0),
+                        "preview": (latest.draft_text or "")[:180],
+                    }
+                    yield f"data: {json.dumps(payload)}\n\n"
+                yield ": heartbeat\n\n"
+                time.sleep(3)
+            except GeneratorExit:
+                break
+            except Exception as e:
+                yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+                break
+
+    return Response(generate(), mimetype='text/event-stream',
+                    headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no', 'Connection': 'keep-alive'})
+
+
+@app.route('/api/logs-stream')
+@login_required
+@premium_hub_required
+def api_logs_stream():
+    """SSE stream for automation terminal tail in Commander Hub."""
+    import time
+
+    def generate():
+        log_path = Path('/home/ultron/protocol_pulse/logs/automation.log')
+        offset = log_path.stat().st_size if log_path.exists() else 0
+        started = time.time()
+        while time.time() - started < 300:
+            try:
+                if log_path.exists():
+                    size = log_path.stat().st_size
+                    if offset > size:
+                        offset = 0
+                    with log_path.open('r', encoding='utf-8', errors='ignore') as fp:
+                        fp.seek(offset)
+                        lines = fp.readlines()
+                        offset = fp.tell()
+                    for line in lines[-50:]:
+                        line = line.rstrip('\n')
+                        if line:
+                            yield f"data: {json.dumps({'type': 'line', 'line': line})}\n\n"
+                yield ": heartbeat\n\n"
+                time.sleep(2)
+            except GeneratorExit:
+                break
+            except Exception as e:
+                yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+                break
+
+    return Response(generate(), mimetype='text/event-stream',
+                    headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no', 'Connection': 'keep-alive'})
 
 @app.template_filter('clean_preview')
 def clean_preview_filter(content, max_length=150):
@@ -762,17 +987,46 @@ USER QUESTION: {question}"""
 
 @app.route('/clips')
 def clips_gallery():
-    """Signal Clips Gallery - Viral short-form content"""
+    """Signal Clips Gallery - Viral reel feed with embeds and play."""
+    clip_jobs = []
+    clips = []
+    status = {"status": "ok", "ffmpeg_available": False, "ytdlp_available": False, "openai_configured": False, "clips_count": 0}
     try:
         from services.ai_clips_service import ai_clips_service
         clips = ai_clips_service.get_all_clips()
         status = ai_clips_service.get_status()
     except Exception as e:
-        logging.error(f"AI Clips service error: {e}")
-        from services.clips_service import clips_service
-        clips = clips_service.get_all_clips()
-        status = clips_service.get_status()
-    return render_template('clips_gallery.html', clips=clips, status=status)
+        logging.warning("AI Clips service: %s", e)
+        # Fallback to the legacy clips_service if present.
+        try:
+            from services.clips_service import clips_service
+            clips = clips_service.get_all_clips()
+            status = clips_service.get_status()
+        except Exception:
+            status["status"] = "degraded"
+            status["error"] = str(e)
+    try:
+        jobs = (
+            models.ClipJob.query
+            .order_by(models.ClipJob.id.desc())
+            .limit(100)
+            .all()
+        )
+        for j in jobs:
+            reel_url = None
+            if j.output_path:
+                p = (j.output_path or "").strip()
+                if p.startswith("static/"):
+                    reel_url = url_for("static", filename=p[7:])
+                elif p.startswith("/"):
+                    reel_url = p
+                else:
+                    reel_url = url_for("static", filename=p)
+            setattr(j, "reel_url", reel_url)
+        clip_jobs = jobs
+    except Exception as e:
+        logging.warning("ClipJob list: %s", e)
+    return render_template("clips.html", clip_jobs=clip_jobs or [], clips=clips or [], status=status)
 
 @app.route('/dashboard')
 def dashboard():
@@ -889,71 +1143,206 @@ def api_network_data():
 
 @app.route('/articles')
 def articles():
-    """Articles listing page with chronological Edition layout"""
+    """Articles page (Replit-style): 3 time windows + archive button.
+
+    Zones:
+    - The 24-Hour Pulse: created within last 24h
+    - The Morning After: created 24–48h ago
+    - The Vault: older than 48h (show 20 behind a button)
+    """
     now = datetime.utcnow()
-    cutoff_24h = now - timedelta(hours=24)
-    cutoff_48h = now - timedelta(hours=48)
-    
-    today_articles = Article.query.filter(
-        Article.published == True,
-        Article.created_at >= cutoff_24h
-    ).order_by(Article.created_at.desc()).all()
-    
-    yesterday_articles = Article.query.filter(
-        Article.published == True,
-        Article.created_at >= cutoff_48h,
-        Article.created_at < cutoff_24h
-    ).order_by(Article.created_at.desc()).all()
-    
-    if not today_articles and not yesterday_articles:
-        all_recent = Article.query.filter(
-            Article.published == True
-        ).order_by(Article.created_at.desc()).limit(50).all()
-        
-        today_articles = all_recent[:10]
-        yesterday_articles = all_recent[10:20]
-        archive_articles = all_recent[20:]
-    else:
-        archive_articles = Article.query.filter(
-            Article.published == True,
-            Article.created_at < cutoff_48h
-        ).order_by(Article.created_at.desc()).limit(20).all()
-    
+
+    # Prefer published; if none, fall back to all (so articles are never "gone")
+    base_q = models.Article.query.filter(models.Article.published.is_(True)).order_by(models.Article.created_at.desc())
+    total_count = base_q.count()
+    if total_count == 0:
+        logging.info("No published articles; falling back to all articles.")
+        base_q = models.Article.query.order_by(models.Article.created_at.desc())
+        total_count = base_q.count()
+
+    # Time windows
+    since_24h = now - timedelta(hours=24)
+    since_48h = now - timedelta(hours=48)
+
+    # Limits to keep the page snappy
+    today_articles = base_q.filter(models.Article.created_at >= since_24h).limit(10).all()
+    yesterday_articles = base_q.filter(models.Article.created_at < since_24h, models.Article.created_at >= since_48h).limit(10).all()
+
+    archive_q = base_q.filter(models.Article.created_at < since_48h)
+    archive_total_count = archive_q.count()
+    archive_articles = archive_q.limit(20).all()
+
     for article in today_articles:
-        time_diff = (now - article.created_at).total_seconds() / 3600
-        article.is_pressing = time_diff < 1
-    
-    # Get all categories for filter
-    categories = db.session.query(Article.category).filter_by(published=True).distinct().all()
-    categories = [cat[0] for cat in categories if cat[0]]
-    
-    # Get active advertisements
-    active_ads = Advertisement.query.filter_by(is_active=True).all()
-    
-    # Fetch live cryptocurrency prices for sidebar
+        try:
+            time_diff = (now - (article.created_at or now)).total_seconds() / 3600
+            article.is_pressing = time_diff < 1
+        except Exception:
+            article.is_pressing = False
+
+    # Ticker: always last 5 article titles
+    try:
+        ticker_titles = [a.title for a in base_q.limit(5).all()]
+    except Exception:
+        ticker_titles = []
+
+    # Categories for sidebar navigation; DeFi excluded
+    categories = [cat[0] for cat in db.session.query(models.Article.category).distinct().all() if cat[0]]
+    categories = [c for c in categories if c != 'DeFi']
+
+    # Legacy variables kept for template compatibility (older layouts/admin views)
+    per_page = 40
+    page = request.args.get('page', 1, type=int) or 1
+    total_pages = 1
+    latest_article = today_articles[0] if today_articles else None
+    recent = (today_articles + yesterday_articles + archive_articles)
+    grid_articles = recent
+    spotlight_articles = []
+    sectioned = {}
+    latest_grid = []
+    more_articles = []
+
+    # Category counts for filter pills (published only; fallback to all if none published)
+    use_published = total_count > 0
+    category_counts = {}
+    for c in categories:
+        q = models.Article.query.filter(models.Article.category == c)
+        if use_published:
+            q = q.filter(models.Article.published.is_(True))
+        category_counts[c] = q.count()
+    active_ads = models.Advertisement.query.filter_by(is_active=True).all()
     prices = price_service.get_prices()
-    
-    return render_template('articles.html', 
-                         today_articles=today_articles,
-                         yesterday_articles=yesterday_articles,
-                         archive_articles=archive_articles,
-                         categories=categories,
-                         active_ads=active_ads,
-                         prices=prices,
-                         price_service=price_service,
-                         last_updated=now)
+    network_stats = None
+    mempool_data = {}
+    try:
+        network_stats = NodeService.get_network_stats()
+    except Exception:
+        pass
+    try:
+        mempool_data = fetch_mempool_data()
+    except Exception:
+        pass
+    # Use a local default image so cards never appear "imageless" even if external CDNs are blocked.
+    default_header_url = "/static/images/default-header.png"
+    # Guaranteed unique image URL per article (no template filter dependency)
+    try:
+        from services.content_generator import get_article_header_url
+        article_image_urls = {}
+        # Only need images for items actually rendered on the page.
+        for a in (today_articles + yesterday_articles + archive_articles):
+            url = (getattr(a, "header_image_url", None) or "").strip()
+            if not url or url == default_header_url:
+                url = get_article_header_url((a.title or "") or str(a.id))
+            article_image_urls[a.id] = url
+    except Exception:
+        article_image_urls = {}
+        for a in (today_articles + yesterday_articles + archive_articles):
+            article_image_urls[a.id] = default_header_url
+
+    return render_template(
+        "articles.html",
+        today_articles=today_articles,
+        yesterday_articles=yesterday_articles,
+        archive_articles=archive_articles,
+        archive_total_count=archive_total_count,
+        latest_article=latest_article,
+        grid_articles=grid_articles,
+        spotlight_articles=spotlight_articles,
+        sectioned=sectioned,
+        latest_grid=latest_grid,
+        more_articles=more_articles,
+        ticker_titles=ticker_titles,
+        categories=categories,
+        active_ads=active_ads,
+        prices=prices,
+        price_service=price_service,
+        network_stats=network_stats,
+        mempool_data=mempool_data,
+        last_updated=now,
+        page=page,
+        total_pages=total_pages,
+        total_count=total_count,
+        per_page=per_page,
+        default_header_url=default_header_url,
+        article_image_urls=article_image_urls,
+    )
+
+def _article_body_without_tldr(content):
+    """Body HTML for display: strip duplicate TL;DR (single source of truth from content_generator)."""
+    try:
+        from services.content_generator import strip_duplicate_tldr
+        return strip_duplicate_tldr(content or "")
+    except Exception:
+        pass
+    if not content:
+        return ""
+    first_h2 = re.search(r'<h2[\s>]', content, re.IGNORECASE)
+    if first_h2:
+        return content[first_h2.start():].strip()
+    if re.search(r'tldr-section', content, re.IGNORECASE) or re.search(r'tl;dr', content, re.IGNORECASE):
+        return ""
+    return content.strip()
+
+
+def _article_key_takeaways(article):
+    """Extract key takeaways: use summary, or TL;DR from content, or first 400 chars. Never duplicate with body."""
+    summary = (article.summary or "").strip()
+    content = (article.content or "")
+    if summary:
+        return summary
+    # Extract TL;DR from content (plain text for the callout)
+    tldr_match = re.search(
+        r'<div\s+class="tldr-section"[^>]*>\s*(?:<[^>]+>)*\s*TL;DR:\s*([^<]+)',
+        content,
+        re.DOTALL | re.IGNORECASE
+    )
+    if tldr_match:
+        text = re.sub(r"<[^>]+>", "", tldr_match.group(1)).strip()
+        return text[:500] + ("…" if len(text) > 500 else "")
+    plain = re.sub(r"<[^>]+>", "", content).strip()
+    return plain[:400] + ("…" if len(plain) > 400 else "") if plain else ""
+
 
 @app.route('/articles/<int:article_id>')
 def article_detail(article_id):
-    """Individual article page"""
-    article = Article.query.get_or_404(article_id)
-    related_articles = Article.query.filter(
-        Article.id != article_id,
-        Article.published == True,
-        Article.category == article.category
-    ).limit(3).all()
-    
-    return render_template('article_detail.html', article=article, related_articles=related_articles)
+    """Individual article page. Key Takeaways and body are never duplicated (TL;DR shown once)."""
+    article = models.Article.query.get_or_404(article_id)
+    try:
+        related_articles = models.Article.query.filter(
+            models.Article.id != article_id,
+            models.Article.published == True,
+            models.Article.category == article.category
+        ).limit(3).all()
+    except Exception:
+        related_articles = []
+    _log_engagement_event(
+        event_type="article_view",
+        content_type="article",
+        content_id=article.id,
+        source_url=request.path,
+    )
+    key_takeaways_text = _article_key_takeaways(article)
+    # Bullet list: split on sentence boundaries for Key Takeaways box
+    key_takeaways_bullets = []
+    if key_takeaways_text:
+        for part in re.split(r"\.\s+", key_takeaways_text):
+            part = part.strip().strip(".")
+            if part and len(part) > 10:
+                key_takeaways_bullets.append(part + ("." if not part.endswith(".") else ""))
+    if not key_takeaways_bullets and key_takeaways_text:
+        key_takeaways_bullets = [key_takeaways_text]
+    # Full body for display (duplicate TL;DR stripped so only Key Takeaways box shows it once)
+    body_html = _article_body_without_tldr(article.content or "")
+    from services.content_generator import get_article_header_url
+    header_image_url = (article.header_image_url or "").strip() or get_article_header_url(article.title or "")
+    return render_template(
+        "article_detail.html",
+        article=article,
+        related_articles=related_articles,
+        key_takeaways_text=key_takeaways_text,
+        key_takeaways_bullets=key_takeaways_bullets,
+        body_html=body_html,
+        header_image_url=header_image_url,
+    )
 
 @app.route('/category/<category>')
 def category_articles(category):
@@ -1527,10 +1916,9 @@ def bitcoin_category():
     return render_template('category.html', articles=articles, category='Bitcoin')
 
 @app.route('/defi')
-def defi_category():
-    """DeFi category page"""
-    articles = Article.query.filter_by(published=True, category='DeFi').order_by(Article.created_at.desc()).all()
-    return render_template('category.html', articles=articles, category='DeFi')
+def defi_redirect():
+    """DeFi section removed; redirect to intelligence feed."""
+    return redirect(url_for('articles'))
 
 @app.route('/regulation')
 def regulation_category():
@@ -1787,6 +2175,7 @@ def api_generate_article():
     - None/omitted: Randomly select between question and statement styles
     """
     try:
+        from services.content_generator import auto_publish_enabled, validate_article_for_publish, get_article_header_url
         data = request.get_json()
         topic = data.get('topic', '').strip().replace('<', '&lt;').replace('>', '&gt;')
         source_type = data.get('source_type', 'ai_generated')
@@ -1808,6 +2197,35 @@ def api_generate_article():
         
         if not article_data:
             return jsonify({'error': 'Failed to generate article'}), 500
+
+        ok, validation_errors = validate_article_for_publish(article_data)
+        header_url = (article_data.get('header_image_url') or '').strip() or get_article_header_url(article_data.get('title', '') or 'Untitled')
+        if not ok:
+            # Save as draft for review; never publish invalid content.
+            article = models.Article(
+                title=article_data.get('title', 'Untitled'),
+                content=article_data.get('content', ''),
+                summary="",
+                category=article_data.get('category', 'Web3'),
+                tags=article_data.get('tags', ''),
+                source_type=source_type,
+                author="Al Ingle",
+                seo_title=article_data.get('seo_title', article_data.get('title', '')[:200]),
+                seo_description=article_data.get('seo_description', (article_data.get('title', '') or '')[:150]),
+                published=False,
+                header_image_url=header_url,
+            )
+            db.session.add(article)
+            db.session.commit()
+            return jsonify({
+                "success": False,
+                "article_id": article.id,
+                "title": article.title,
+                "published": False,
+                "status": "rejected",
+                "reasons": validation_errors,
+                "message": "Article rejected by validation gate (saved as draft).",
+            }), 422
         
         # FACT-CHECK GATE: Block auto-publishing if fact-check failed
         fact_check_warnings = article_data.get('fact_check_warnings', [])
@@ -1827,7 +2245,8 @@ def api_generate_article():
                 author="Al Ingle",
                 seo_title=article_data.get('seo_title', article_data['title']),
                 seo_description=article_data.get('seo_description', article_data['title'][:150]),
-                published=False  # BLOCKED - saved as draft for review
+                published=False,  # BLOCKED - saved as draft for review
+                header_image_url=header_url,
             )
             db.session.add(article)
             db.session.commit()
@@ -1843,8 +2262,9 @@ def api_generate_article():
                 'action_required': 'Review fact-check errors and manually approve or regenerate'
             }), 422
         
-        # Fact-check passed - proceed with auto-publishing
-        article = Article(
+        # Fact-check passed - proceed with publish (unless frozen by flag)
+        publish_allowed = auto_publish_enabled()
+        article = models.Article(
             title=article_data['title'],
             content=article_data['content'],
             summary="",  # No summary - TL;DR is embedded in content
@@ -1854,15 +2274,16 @@ def api_generate_article():
             author="Al Ingle",
             seo_title=article_data.get('seo_title', article_data['title']),
             seo_description=article_data.get('seo_description', article_data['title'][:150]),
-            published=True  # Fact-check passed - auto-approved
+            published=bool(publish_allowed),  # Auto-publish is frozen unless ENABLE_AUTO_PUBLISH=true
+            header_image_url=header_url,
         )
         
         db.session.add(article)
         db.session.commit()
         
-        # Immediately publish to Substack (hands-off workflow)
+        # Immediately publish to Substack only when auto-publish is enabled
         substack_url = None
-        if substack_service:
+        if publish_allowed and substack_service:
             try:
                 # Determine content type from category
                 category = article.category.lower()
@@ -1900,9 +2321,9 @@ def api_generate_article():
             'success': True,
             'article_id': article.id,
             'title': article.title,
-            'published': True,
+            'published': bool(publish_allowed),
             'substack_url': substack_url,
-            'message': 'Article auto-approved and published' + (f' to Substack: {substack_url}' if substack_url else ''),
+            'message': ('Article auto-approved and published' if publish_allowed else 'Article saved as DRAFT (ENABLE_AUTO_PUBLISH=false)') + (f' to Substack: {substack_url}' if substack_url else ''),
             'fact_check_passed': True,
             'fact_check_warnings': []
         })
@@ -1917,18 +2338,25 @@ def api_generate_article():
 def api_publish_article(article_id):
     """API endpoint to publish articles"""
     try:
-        article = Article.query.get_or_404(article_id)
+        from services.content_generator import auto_publish_enabled, validate_article_for_publish
+        if not auto_publish_enabled():
+            return jsonify({'error': 'Publishing frozen (ENABLE_AUTO_PUBLISH=false)'}), 403
+
+        article = models.Article.query.get_or_404(article_id)
+
+        ok, validation_errors = validate_article_for_publish(article)
+        if not ok:
+            article.published = False
+            db.session.commit()
+            return jsonify({'error': 'Publish rejected by validation gate', 'reasons': validation_errors}), 422
         
         # Use AI review and approval workflow BEFORE setting published=True
         approval_result = content_engine.approve_and_publish_article(article_id)
         if not approval_result["success"]:
             return jsonify({'error': f'AI review failed: {approval_result.get("errors", ["Unknown error"])}'}, 500)
-        
-        # Only set published after AI approval
-        article.published = True
-        db.session.commit()
-        
-        return jsonify({'success': True, 'message': 'Article published successfully'})
+
+        # approve_and_publish_article handles published=True and Substack publish.
+        return jsonify({'success': True, 'message': 'Article published successfully', 'substack_url': approval_result.get('substack_url')})
         
     except Exception as e:
         logging.error(f"Error publishing article: {str(e)}")
@@ -1940,10 +2368,20 @@ def api_publish_article(article_id):
 def publish_to_substack(article_id):
     """Publish existing article to Substack using python-substack"""
     try:
+        from services.content_generator import auto_publish_enabled, validate_article_for_publish
+        if not auto_publish_enabled():
+            return jsonify({'success': False, 'error': 'Publishing frozen (ENABLE_AUTO_PUBLISH=false)'}), 403
+
         if not substack_service:
             return jsonify({'success': False, 'error': 'Substack service not available'})
             
-        article = Article.query.get_or_404(article_id)
+        article = models.Article.query.get_or_404(article_id)
+
+        ok, validation_errors = validate_article_for_publish(article)
+        if not ok:
+            article.published = False
+            db.session.commit()
+            return jsonify({'success': False, 'error': 'Publish rejected by validation gate', 'reasons': validation_errors}), 422
         
         # Determine content type from category
         category = article.category.lower()
@@ -2198,14 +2636,22 @@ def generate_podcast():
         )
         
         if result and result.get('audio_file'):
-            article = Article(
+            from services.content_generator import auto_publish_enabled, validate_article_for_publish
+            publish_allowed = auto_publish_enabled()
+            article = models.Article(
                 title=f"Audio Deep Dive: {channel_name} Analysis",
                 summary=f"Deep-dive audio analysis featuring expert commentary",
                 content=f'<p class="article-paragraph">Listen to our AI-hosted podcast breakdown.</p><audio controls src="/{result["audio_file"]}" style="width:100%; margin-top: 1rem;"></audio>',
                 category='Podcast',
-                image_url=thumbnail_url,
-                published=True
+                # Article model field is header_image_url (image_url is ignored). Keep but don't fail.
+                header_image_url=thumbnail_url,
+                published=False
             )
+            ok, errs = validate_article_for_publish(article)
+            from services.content_generator import should_article_be_draft_by_word_count
+            draft_by_words = should_article_be_draft_by_word_count(article.content or "")
+            if publish_allowed and ok and not draft_by_words:
+                article.published = True
             db.session.add(article)
             db.session.commit()
             
@@ -2252,11 +2698,12 @@ def api_extract_clips():
             return jsonify({'success': False, 'error': 'Video ID required'})
         
         result = ai_clips_service.process_video(video_id, max_clips=num_clips)
-        
+        # result is a list of clip dicts, not a dict with 'clips' key
+        clips_list = result if isinstance(result, list) else (result.get('clips', []) if isinstance(result, dict) else [])
         return jsonify({
             'success': True,
-            'message': f"Extracted {len(result.get('clips', []))} clips from video",
-            'clips': result.get('clips', [])
+            'message': f"Extracted {len(clips_list)} clips from video",
+            'clips': clips_list
         })
     except Exception as e:
         logging.error(f"Clip extraction failed: {e}")
@@ -2394,12 +2841,25 @@ def admin_generate_bitcoin_lens():
             video_id=video_id,
             channel_name=channel_name
         )
-        
+        title = result.get('title')
+        content = result.get('content') or ''
+        article_id = result.get('article_id')
+        if title and content and not article_id:
+            article = models.Article(
+                title=title,
+                summary=f"Bitcoin Lens reaction: {channel_name}",
+                content=f'<div class="article-paragraph">{content.replace(chr(10), "<br>")}</div>',
+                category='Bitcoin Lens',
+                published=False,
+            )
+            db.session.add(article)
+            db.session.commit()
+            article_id = article.id
         return jsonify({
             'success': True,
             'message': f"Bitcoin Lens article generated for {channel_name}",
-            'article_id': result.get('article_id'),
-            'title': result.get('title')
+            'article_id': article_id,
+            'title': title
         })
     except Exception as e:
         logging.error(f"Bitcoin Lens generation failed: {e}")
@@ -2719,8 +3179,16 @@ app.register_blueprint(social)
 def admin_write_article():
     """Admin page for writing manual articles"""
     if request.method == 'POST':
+        from services.content_generator import (
+            auto_publish_enabled,
+            validate_article_for_publish,
+            strip_duplicate_tldr,
+            article_body_word_count,
+        )
         title = request.form.get('title', '').strip()
-        content = request.form.get('content', '').strip()
+        raw_content = request.form.get('content', '').strip()
+        # Article integrity gate: strip text before first <h2> to prevent double-summaries
+        content = strip_duplicate_tldr(raw_content) or raw_content
         category = request.form.get('category', 'Bitcoin')
         author = request.form.get('author', current_user.username)
         seo_description = request.form.get('seo_description', '')
@@ -2732,7 +3200,21 @@ def admin_write_article():
             flash('Title and content are required.')
             return redirect('/admin/write')
         
-        article = Article(
+        # Enforce: if body (after strip) < 3000 words, must be draft
+        word_count = article_body_word_count(content)
+        published = False
+        if action == 'publish' and word_count >= 3000 and auto_publish_enabled():
+            ok, _errs = validate_article_for_publish({"title": title, "content": content, "published": True})
+            if ok:
+                published = True
+            elif action == 'publish':
+                flash("Publish rejected: " + "; ".join(_errs))
+        elif action == 'publish' and word_count < 3000:
+            flash(f'Article saved as draft (body < 3000 words: {word_count}).')
+        
+        if action == 'publish' and not published and word_count >= 3000 and not auto_publish_enabled():
+            flash('Publishing frozen (ENABLE_AUTO_PUBLISH=false). Saved as draft.')
+        article = models.Article(
             title=title,
             content=content,
             category=category,
@@ -2742,12 +3224,12 @@ def admin_write_article():
             tags=tags,
             is_pressing=is_pressing,
             source_type='manual',
-            published=(action == 'publish')
+            published=published,
         )
         db.session.add(article)
         db.session.commit()
         
-        if action == 'publish':
+        if article.published:
             flash(f'Article "{title}" published successfully!')
         else:
             flash(f'Article "{title}" saved as draft.')
@@ -2764,8 +3246,16 @@ def admin_edit_article(article_id):
     article = Article.query.get_or_404(article_id)
     
     if request.method == 'POST':
+        from services.content_generator import (
+            auto_publish_enabled,
+            validate_article_for_publish,
+            strip_duplicate_tldr,
+            article_body_word_count,
+        )
         article.title = request.form.get('title', '').strip()
-        article.content = request.form.get('content', '').strip()
+        raw_content = request.form.get('content', '').strip()
+        # Article integrity gate: strip text before first <h2> to prevent double-summaries
+        article.content = strip_duplicate_tldr(raw_content) or raw_content
         article.category = request.form.get('category', 'Bitcoin')
         article.author = request.form.get('author', current_user.username)
         article.seo_description = request.form.get('seo_description', '') or article.title[:155]
@@ -2778,10 +3268,23 @@ def admin_edit_article(article_id):
             flash('Title and content are required.')
             return redirect(f'/admin/edit/{article_id}')
         
-        article.published = (action == 'publish')
+        # Enforce: if body (after strip) < 3000 words, mark as draft
+        word_count = article_body_word_count(article.content)
+        article.published = False
+        if action == 'publish':
+            if word_count < 3000:
+                flash(f'Article saved as draft (body < 3000 words: {word_count}).')
+            elif not auto_publish_enabled():
+                flash('Publishing frozen (ENABLE_AUTO_PUBLISH=false). Saved as draft.')
+            else:
+                ok, errs = validate_article_for_publish(article)
+                if ok:
+                    article.published = True
+                else:
+                    flash("Publish rejected: " + "; ".join(errs))
         db.session.commit()
         
-        if action == 'publish':
+        if article.published:
             flash(f'Article "{article.title}" updated and published!')
         else:
             flash(f'Article "{article.title}" saved as draft.')
@@ -2806,6 +3309,86 @@ def admin_delete_article(article_id):
         logging.error(f"Error deleting article {article_id}: {e}")
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route("/admin/articles-broken", methods=["GET"])
+@login_required
+@admin_required
+def admin_articles_broken():
+    """Admin panel: list published articles that fail purge criteria (validation, <1200 words, or 6.25 BTC)."""
+    from services.content_generator import is_article_broken_for_purge
+
+    published = models.Article.query.filter(models.Article.published.is_(True)).order_by(models.Article.created_at.desc()).limit(500).all()
+    broken_rows = []
+    for a in published:
+        is_broken, reasons = is_article_broken_for_purge(a)
+        if is_broken:
+            broken_rows.append({"article": a, "reasons": reasons})
+
+    return render_template(
+        "articles.html",
+        broken_admin_view=True,
+        broken_articles=broken_rows,
+        broken_count=len(broken_rows),
+        latest_article=None,
+        grid_articles=[],
+        ticker_titles=[],
+        categories=[],
+        category_counts={},
+        total_pages=1,
+        page=1,
+        total_count=0,
+        per_page=0,
+        default_header_url="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200",
+        article_image_urls={},
+        prices={},
+        network_stats=None,
+        mempool_data={},
+    )
+
+
+@app.route("/admin/article/<int:article_id>/unpublish", methods=["POST"])
+@login_required
+@admin_required
+def admin_article_unpublish(article_id: int):
+    _require_csrf()
+    article = models.Article.query.get_or_404(article_id)
+    article.published = False
+    db.session.commit()
+    flash(f'Unpublished "{article.title}"')
+    return redirect(url_for("admin_articles_broken"))
+
+
+@app.route("/admin/articles-broken/bulk-unpublish", methods=["POST"])
+@login_required
+@admin_required
+def admin_articles_broken_bulk_unpublish():
+    """Set published=False for all published articles that fail purge criteria (<1200 words, 6.25 BTC, or validation)."""
+    _require_csrf()
+    from services.content_generator import is_article_broken_for_purge
+    published = models.Article.query.filter(models.Article.published.is_(True)).order_by(models.Article.created_at.desc()).limit(1000).all()
+    count = 0
+    for a in published:
+        is_broken, _ = is_article_broken_for_purge(a)
+        if is_broken:
+            a.published = False
+            count += 1
+    db.session.commit()
+    flash(f"Bulk unpublish: {count} broken article(s) set to draft.")
+    return redirect(url_for("admin_articles_broken"))
+
+
+@app.route("/admin/article/<int:article_id>/delete", methods=["POST"])
+@login_required
+@admin_required
+def admin_article_delete(article_id: int):
+    _require_csrf()
+    article = models.Article.query.get_or_404(article_id)
+    title = article.title
+    db.session.delete(article)
+    db.session.commit()
+    flash(f'Deleted "{title}"')
+    return redirect(url_for("admin_articles_broken"))
 
 @app.route('/admin/ads')
 @login_required
@@ -3714,6 +4297,264 @@ def intelligence_dashboard():
         reply_squad=reply_squad
     )
 
+def _sentinel_gpu_stats():
+    rows = []
+    try:
+        proc = subprocess.run(
+            [
+                "nvidia-smi",
+                "--query-gpu=index,temperature.gpu,utilization.gpu,memory.used,memory.total",
+                "--format=csv,noheader,nounits",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=6,
+        )
+        if proc.returncode != 0:
+            return rows
+        for line in (proc.stdout or "").strip().splitlines():
+            parts = [p.strip() for p in line.split(",")]
+            if len(parts) < 5:
+                continue
+            rows.append(
+                {
+                    "gpu": parts[0],
+                    "temp_c": parts[1],
+                    "util_pct": parts[2],
+                    "mem_used_mb": parts[3],
+                    "mem_total_mb": parts[4],
+                }
+            )
+    except Exception:
+        return []
+    return rows
+
+
+def _sentinel_ingestion_rate_per_hour():
+    path = Path("/home/ultron/protocol_pulse/data/pulse_events.jsonl")
+    if not path.exists():
+        return 0
+    cutoff = datetime.utcnow() - timedelta(hours=1)
+    count = 0
+    try:
+        with path.open("r", encoding="utf-8") as fp:
+            for line in fp:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    row = json.loads(line)
+                except Exception:
+                    continue
+                ts = str(row.get("ts") or "")
+                try:
+                    dt = datetime.fromisoformat(ts)
+                except Exception:
+                    continue
+                if dt >= cutoff:
+                    count += 1
+    except Exception:
+        return 0
+    return count
+
+
+def _sentinel_narrative_focus():
+    path = Path("/home/ultron/protocol_pulse/data/daily_briefs.json")
+    if not path.exists():
+        return "awaiting first sovereign brief"
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        briefs = payload.get("briefs") or []
+        if not briefs:
+            return "awaiting first sovereign brief"
+        latest = briefs[-1]
+        urgent = latest.get("urgent_events") or []
+        if urgent:
+            return str(urgent[0])[:240]
+        summary = str(latest.get("summary") or "").splitlines()
+        for line in summary:
+            line = line.strip()
+            if line:
+                return line[:240]
+    except Exception:
+        pass
+    return "focus unavailable"
+
+
+@app.route('/admin/sentinel-status')
+@login_required
+@admin_required
+def admin_sentinel_status():
+    gpu_rows = _sentinel_gpu_stats()
+    ingestion_rate = _sentinel_ingestion_rate_per_hour()
+    focus = _sentinel_narrative_focus()
+    log_lines = _tail_file_lines(AUTOMATION_LOG_PATH, limit=50)
+    return render_template(
+        'admin/sentinel_status.html',
+        gpu_rows=gpu_rows,
+        ingestion_rate=ingestion_rate,
+        narrative_focus=focus,
+        log_lines=log_lines,
+        refreshed_at=datetime.utcnow().isoformat(),
+    )
+
+
+@app.route('/api/admin/sentinel-status')
+@login_required
+@admin_required
+def api_admin_sentinel_status():
+    return jsonify(
+        {
+            "ok": True,
+            "gpu_rows": _sentinel_gpu_stats(),
+            "ingestion_rate": _sentinel_ingestion_rate_per_hour(),
+            "narrative_focus": _sentinel_narrative_focus(),
+            "log_lines": _tail_file_lines(AUTOMATION_LOG_PATH, limit=50),
+            "refreshed_at": datetime.utcnow().isoformat(),
+        }
+    )
+
+
+@app.route('/admin/watchtower')
+@login_required
+@admin_required
+def admin_watchtower():
+    """Dense operator dashboard for hardware + service status + live logs."""
+    return render_template("admin/watchtower.html")
+
+
+@app.route('/api/admin/watchtower/status')
+@login_required
+@admin_required
+def api_admin_watchtower_status():
+    svc_names = [
+        "pulse.service",
+        "pulse_web.service",
+        "pulse_intel.service",
+        "pulse_medley.service",
+        "medley_daily.service",
+    ]
+    statuses = [_watchtower_service_status(n) for n in svc_names]
+    lines = _tail_file_lines(AUTOMATION_LOG_PATH, limit=20)
+    return jsonify(
+        {
+            "ok": True,
+            "ts": datetime.utcnow().isoformat(),
+            "gpu": _watchtower_gpu_stats(),
+            "services": statuses,
+            "log_tail": lines[-20:],
+        }
+    )
+
+
+@app.route('/api/admin/watchtower/log-stream')
+@login_required
+@admin_required
+def api_admin_watchtower_log_stream():
+    """SSE log tail stream for automation.log."""
+    def generate():
+        for line in _tail_file_lines(AUTOMATION_LOG_PATH, limit=20):
+            yield f"data: {json.dumps({'line': line})}\n\n"
+        offset = AUTOMATION_LOG_PATH.stat().st_size if AUTOMATION_LOG_PATH.exists() else 0
+        while True:
+            time.sleep(1.0)
+            if not AUTOMATION_LOG_PATH.exists():
+                yield ": heartbeat\n\n"
+                continue
+            with AUTOMATION_LOG_PATH.open("r", encoding="utf-8", errors="ignore") as f:
+                f.seek(offset)
+                chunk = f.read()
+                offset = f.tell()
+            if chunk:
+                for line in chunk.splitlines():
+                    yield f"data: {json.dumps({'line': line})}\n\n"
+            else:
+                yield ": heartbeat\n\n"
+
+    return Response(
+        generate(),
+        mimetype="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+@app.route('/admin/video/partner-reels')
+@login_required
+@admin_required
+def admin_partner_reels():
+    reels = (
+        models.PartnerHighlightReel.query.order_by(
+            models.PartnerHighlightReel.date.desc(),
+            models.PartnerHighlightReel.created_at.desc(),
+        )
+        .limit(120)
+        .all()
+    )
+    return render_template('admin/partner_reels.html', reels=reels)
+
+
+@app.route('/admin/video/partner-reels/<int:reel_id>')
+@login_required
+@admin_required
+def admin_partner_reel_detail(reel_id):
+    reel = models.PartnerHighlightReel.query.get_or_404(reel_id)
+    story = []
+    try:
+        story = json.loads(reel.story_json or "[]")
+    except Exception:
+        story = []
+    return render_template('admin/partner_reel_detail.html', reel=reel, story=story)
+
+
+@app.route('/admin/video/partner-reel-build', methods=['POST'])
+@login_required
+@admin_required
+def admin_partner_reel_build():
+    _require_csrf()
+    from services.partnerreel import partner_reel_service
+
+    reel = partner_reel_service.build_daily_partner_reel(max_videos_per_channel=2)
+    if not reel:
+        return jsonify({"success": False, "error": "no reel built (insufficient source videos/clips)"}), 400
+    segments = []
+    try:
+        segments = json.loads(reel.story_json or "[]")
+    except Exception:
+        segments = []
+    return jsonify(
+        {
+            "success": True,
+            "reel_id": reel.id,
+            "video_path": reel.video_path,
+            "segments_count": len(segments),
+            "status": reel.status,
+            "draft_only": True,
+        }
+    )
+
+
+@app.route('/admin/video/build-medley', methods=['POST'])
+@login_required
+@admin_required
+def admin_build_medley():
+    """Build Intel Briefing reel for a video (validator: e.g. yD0b2PXuwNI). Output in data/clips/."""
+    _require_csrf()
+    data = request.get_json(silent=True) or request.form or {}
+    video_id = (data.get("video_id") or "").strip()
+    channel_name = (data.get("channel_name") or "").strip() or None
+    if not video_id:
+        return jsonify({"ok": False, "error": "video_id required"}), 400
+    from services.viralmoments import ViralMomentsReelEngine
+    engine = ViralMomentsReelEngine()
+    result = engine.build_medley_reel(video_id, channel_name=channel_name)
+    if not result.get("ok"):
+        return jsonify(result), 400
+    return jsonify(result)
+
 @app.route('/admin/reply-squad')
 @login_required
 @admin_required
@@ -3909,6 +4750,148 @@ def api_merchant_search():
         return jsonify({'merchants': results})
     
     return jsonify({'merchants': []})
+
+# ============================================
+# SOVEREIGN INTAKE (ONBOARDING)
+# ============================================
+
+def _onboarding_signal_snapshot():
+    since_24h = datetime.utcnow() - timedelta(hours=24)
+    whale_24h = models.WhaleTransaction.query.filter(models.WhaleTransaction.detected_at >= since_24h).count()
+    mega_24h = models.WhaleTransaction.query.filter(
+        models.WhaleTransaction.detected_at >= since_24h,
+        models.WhaleTransaction.is_mega.is_(True),
+    ).count()
+    return whale_24h, mega_24h
+
+
+def _run_onboarding_step(stage: str, response_text: str, annual_income, newsletter_opt_in: bool):
+    from services.onboarding_service import run_aida_step, onboarding_progress, upsert_lead
+    from core.personalization import build_user_profile, save_user_profile, recommend_next_action
+
+    whale_24h, mega_24h = _onboarding_signal_snapshot()
+    out = run_aida_step(
+        stage=stage,
+        user_text=response_text,
+        whale_24h=whale_24h,
+        mega_24h=mega_24h,
+        annual_income=annual_income,
+    )
+    lead = upsert_lead(
+        user_id=(getattr(current_user, "id", None) if getattr(current_user, "is_authenticated", False) else None),
+        email=(getattr(current_user, "email", None) if getattr(current_user, "is_authenticated", False) else None),
+        name=(getattr(current_user, "username", None) if getattr(current_user, "is_authenticated", False) else None),
+        stage=out.stage,
+        profile=out.profile,
+        interest_level=out.interest_level,
+        capacity_score=out.capacity_score,
+        newsletter_opt_in=newsletter_opt_in,
+        notes=response_text,
+    )
+    progress = onboarding_progress(out.stage)
+    next_action = None
+    if getattr(current_user, "is_authenticated", False):
+        profile = build_user_profile(current_user)
+        save_user_profile(current_user.id, profile=profile, behavior={"last_stage": out.stage})
+        next_action = recommend_next_action(profile)
+    return out, progress, lead, whale_24h, mega_24h, next_action
+
+
+@app.route('/onboarding', methods=['GET'])
+def onboarding():
+    return redirect(url_for('onboarding.onboarding_start'))
+
+
+@app.route('/onboarding', methods=['POST'])
+def onboarding_submit():
+    _require_csrf()
+    from services.onboarding_service import run_aida_step, onboarding_progress, upsert_lead
+
+    stage = (request.form.get("stage") or "attention").strip().lower()
+    response_text = (request.form.get("response_text") or "").strip()
+    if not response_text:
+        flash("response is required to continue onboarding.")
+        return redirect(url_for("onboarding", stage=stage))
+    annual_income = None
+    try:
+        annual_income = float((request.form.get("annual_income") or "").strip() or 0.0) or None
+    except Exception:
+        annual_income = None
+    newsletter_opt_in = request.form.get("newsletter_opt_in") in ("1", "on", "true")
+    out, progress, _, whale_24h, mega_24h, _next_action = _run_onboarding_step(
+        stage=stage,
+        response_text=response_text,
+        annual_income=annual_income,
+        newsletter_opt_in=newsletter_opt_in,
+    )
+    return render_template(
+        'onboarding.html',
+        progress=progress,
+        urgency_copy=out.urgency_copy,
+        next_prompt=out.next_prompt,
+        whale_24h=whale_24h,
+        mega_24h=mega_24h,
+        onboarding_profile=out.profile,
+        onboarding_capacity=out.capacity_score,
+        onboarding_interest=out.interest_level,
+    )
+
+
+@app.route('/api/onboarding/step', methods=['POST'])
+def onboarding_step_api():
+    # CSRF check with JSON response so client never gets HTML (avoids "Unexpected token '<'" on parse)
+    token = request.form.get("csrf_token") or request.headers.get("X-CSRF-Token")
+    if not token or not session.get("csrf_token") or token != session.get("csrf_token"):
+        return jsonify({"ok": False, "error": "Invalid or missing CSRF token. Please refresh the page and try again."}), 400
+    payload = request.get_json(silent=True) or {}
+    stage = (payload.get("stage") or "attention").strip().lower()
+    response_text = (payload.get("response_text") or "").strip()
+    if not response_text:
+        return jsonify({"ok": False, "error": "response_text required"}), 400
+    annual_income = None
+    try:
+        annual_income = float(str(payload.get("annual_income") or "").strip() or 0.0) or None
+    except Exception:
+        annual_income = None
+    newsletter_opt_in = bool(payload.get("newsletter_opt_in"))
+
+    t0 = time.perf_counter()
+    out, progress, lead, whale_24h, mega_24h, next_action = _run_onboarding_step(
+        stage=stage,
+        response_text=response_text,
+        annual_income=annual_income,
+        newsletter_opt_in=newsletter_opt_in,
+    )
+    elapsed_ms = int((time.perf_counter() - t0) * 1000)
+    try:
+        emit_event(
+            event_type="onboarding_step",
+            source="onboarding_api",
+            lane="system",
+            severity="info",
+            title="onboarding step completed",
+            detail=f"stage={progress.get('stage')} profile={out.profile} lead_id={lead.id}",
+            payload={"stage": progress.get("stage"), "profile": out.profile, "lead_id": lead.id},
+        )
+    except Exception:
+        pass
+    return jsonify(
+        {
+            "ok": True,
+            "progress": progress,
+            "next_prompt": out.next_prompt,
+            "urgency_copy": out.urgency_copy,
+            "profile": out.profile,
+            "capacity_score": out.capacity_score,
+            "interest_level": out.interest_level,
+            "lead_id": lead.id,
+            "whale_24h": whale_24h,
+            "mega_24h": mega_24h,
+            "latency_ms": elapsed_ms,
+            "next_action": next_action,
+        }
+    )
+
 
 # ============================================
 # MONETIZATION & PREMIUM ROUTES
@@ -5134,6 +6117,34 @@ def get_system_status_api():
         return jsonify(get_system_status())
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+# Search order: data/clips, static/clips/reels, static/clips (so reels and legacy clips both resolve)
+_PROJECT_ROOT = Path(__file__).resolve().parent
+_CLIP_SEARCH_DIRS = [
+    _PROJECT_ROOT / "data" / "clips",
+    _PROJECT_ROOT / "static" / "clips" / "reels",
+    _PROJECT_ROOT / "static" / "clips",
+]
+
+
+@app.route('/api/clips/file/<path:filename>')
+def serve_clip_file(filename):
+    """Serve MP4 from data/clips, static/clips/reels, or static/clips (first found, >0 bytes)."""
+    from werkzeug.utils import secure_filename
+    safe = secure_filename(os.path.basename(filename))
+    if not safe or not safe.lower().endswith(".mp4"):
+        logging.warning("serve_clip_file: invalid filename=%s", filename)
+        return jsonify({"error": "invalid filename"}), 400
+    for root in _CLIP_SEARCH_DIRS:
+        if not root.exists():
+            continue
+        path = root / safe
+        if path.is_file() and path.stat().st_size > 0:
+            logging.info("Serving MP4 from [%s]", str(path))
+            return send_file(str(path), mimetype="video/mp4", as_attachment=False)
+    logging.warning("404 for [%s] (searched %s)", safe, [str(d) for d in _CLIP_SEARCH_DIRS])
+    return jsonify({"error": "file not found"}), 404
 
 
 @app.route('/admin/api/clips/status')

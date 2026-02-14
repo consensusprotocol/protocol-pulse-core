@@ -1203,6 +1203,19 @@ def articles():
 
     latest_article = recent[0] if (page == 1 and recent) else None
     grid_articles = recent[1:] if (page == 1 and len(recent) > 1) else recent
+    categories = [cat[0] for cat in db.session.query(models.Article.category).distinct().all() if cat[0]]
+    categories = [c for c in categories if c != 'DeFi']
+    spotlight_articles = recent[1:4] if (page == 1 and len(recent) > 1) else []
+    rest_for_sections = recent[4:24] if (page == 1 and len(recent) > 4) else []
+    sectioned = {}
+    for c in categories:
+        sectioned[c] = [a for a in rest_for_sections if a.category == c][:4]
+    shown_in_sections = set()
+    for arts in sectioned.values():
+        for a in arts:
+            shown_in_sections.add(a.id)
+    latest_grid = [a for a in rest_for_sections if a.id not in shown_in_sections]
+    more_articles = recent[24:40] if (page == 1 and len(recent) > 24) else []
 
     today_articles = recent[:10]
     yesterday_articles = recent[10:20] if len(recent) > 10 else []
@@ -1211,7 +1224,6 @@ def articles():
         time_diff = (now - article.created_at).total_seconds() / 3600
         article.is_pressing = time_diff < 1
 
-    categories = [cat[0] for cat in db.session.query(models.Article.category).distinct().all() if cat[0]]
     use_published = total_count > 0
     category_counts = {}
     for c in categories:
@@ -1232,6 +1244,16 @@ def articles():
     except Exception:
         pass
     default_header_url = "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200"
+    try:
+        from services.content_generator import get_article_header_url
+        article_image_urls = {}
+        for a in recent:
+            url = (getattr(a, "header_image_url", None) or "").strip()
+            if not url or url == default_header_url:
+                url = get_article_header_url((a.title or "") or str(a.id))
+            article_image_urls[a.id] = url
+    except Exception:
+        article_image_urls = {a.id: default_header_url for a in recent}
 
     return render_template('articles.html',
                          today_articles=today_articles,
@@ -1239,6 +1261,10 @@ def articles():
                          archive_articles=archive_articles,
                          latest_article=latest_article,
                          grid_articles=grid_articles,
+                         spotlight_articles=spotlight_articles,
+                         sectioned=sectioned,
+                         latest_grid=latest_grid,
+                         more_articles=more_articles,
                          ticker_titles=ticker_titles,
                          categories=categories,
                          category_counts=category_counts,
@@ -1252,7 +1278,8 @@ def articles():
                          total_pages=total_pages,
                          total_count=total_count,
                          per_page=per_page,
-                         default_header_url=default_header_url)
+                         default_header_url=default_header_url,
+                         article_image_urls=article_image_urls)
 
 
 def _article_body_without_tldr(content):
