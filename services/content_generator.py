@@ -1,12 +1,7 @@
 import logging
-import os
 from datetime import datetime, timedelta
-
-# --- THE FIX: MODULE IMPORT ONLY ---
-import models 
-# ------------------------------------
-
 from app import app, db
+from models import ContentPrompt, Article
 from services.ai_service import AIService
 from services.reddit_service import RedditService
 from services.x_service import get_social_feedback
@@ -15,30 +10,7 @@ from services.image_service import image_service
 from services.gemini_service import gemini_service
 from services.node_service import NodeService
 from services.fact_checker import fact_checker, verify_article_before_publish
-from services.supported_sources_loader import get_partner_youtube_channels, load_supported_sources
 
-try:
-    from services.grok_service import grok_service
-except Exception:
-    grok_service = None
-
-# Live Bitcoin facts for fact-check (post-2024 halving: block reward 3.125 BTC)
-def _get_live_bitcoin_facts():
-    """Return current Bitcoin metrics for fact-check. Block reward 3.125 BTC as of 2024 halving."""
-    facts = {
-        "block_reward_btc": 3.125,
-        "block_reward_legacy_btc": 6.25,
-        "halving_2024_done": True,
-    }
-    try:
-        stats = NodeService.get_network_stats()
-        if stats:
-            facts["hashrate"] = stats.get("hashrate")
-            facts["difficulty"] = stats.get("difficulty")
-            facts["height"] = stats.get("height")
-    except Exception:
-        pass
-    return facts
 
 def is_topic_duplicate_via_gemini(proposed_topic):
     """
@@ -48,8 +20,8 @@ def is_topic_duplicate_via_gemini(proposed_topic):
     try:
         with app.app_context():
             # Fetch last 10 published article titles
-            recent_articles = models.Article.query.filter_by(published=True).order_by(
-                models.Article.created_at.desc()
+            recent_articles = Article.query.filter_by(published=True).order_by(
+                Article.created_at.desc()
             ).limit(10).all()
             
             if not recent_articles:
@@ -91,18 +63,14 @@ class ContentGenerator:
         self.ai_service = AIService()
         self.reddit_service = RedditService()
         self.gemini_service = gemini_service
-
-        # Partner sources: single source of truth from core/config/supported_sources.json
-        self._supported_sources = None
-
-        # EDITORIAL ACCURACY MANDATE - Applied to all content types (January 23, 2026 Ground Truth)
+        
+        # EDITORIAL ACCURACY MANDATE - Applied to all content types
         self.accuracy_mandate = """
 === EDITORIAL ACCURACY MANDATE - ZERO TOLERANCE FOR FABRICATION ===
 
-JANUARY 23, 2026 GROUND TRUTH (use these figures only):
+GROUND TRUTH DATA LOCKDOWN (January 23, 2026):
 - Bitcoin Difficulty: 146.47 T (NOT an all-time high - below November 2025 peak of 155.9 T)
-- Network Hashrate: ~977 EH/s
-- November 2025 difficulty peak: 155.9 T - only use "record" if current exceeds this
+- Network Hashrate: ~977 EH/s (approximately 1042 EH/s in some readings)
 - These figures are CURRENT and VERIFIED - use them when discussing network security
 
 RECORD HIGH PROHIBITION:
@@ -184,12 +152,9 @@ NEVER:
         self.locked_structure_mandate = """
 === INTELLIGENCE OFFICER DIRECTIVE - LOCKED OUTPUT STRUCTURE ===
 
-OUTPUT MUST BE ONLY CLEAN HTML. No Markdown (no **, ##, ###, or other markdown). Only the tags specified below.
-
 YOU ARE FORBIDDEN FROM RETURNING AN ARTICLE UNLESS IT CONTAINS ALL SIX SECTIONS:
 
 1. <div class="tldr-section">: A punchy, 3-sentence summary of why today's specific metrics matter for sovereignty.
-   - MUST use exactly: <div class="tldr-section"><em><strong>TL;DR: [summary here]</strong></em></div>
    - Use the ground truth data as FOUNDATION, then BUILD A NARRATIVE around it
    - Do NOT just repeat the numbers - explain their SIGNIFICANCE
    
@@ -341,86 +306,7 @@ around them. The numbers are the starting point, not the entire article.
             Target length: 800-1000 words
             """
         }
-
-    def fact_check_with_live_data(self, content: str) -> str:
-        """Correct outdated Bitcoin facts using live data. E.g. replace 6.25 BTC block reward with 3.125."""
-        if not content:
-            return content
-        facts = _get_live_bitcoin_facts()
-        corrected = content
-        if "6.25 BTC" in corrected:
-            corrected = corrected.replace("6.25 BTC", "3.125 BTC")
-            logging.info("Live fact-check: corrected block reward 6.25 -> 3.125 BTC in content")
-        return corrected
-
-    def generate_article_variants(self, formatted_prompt: str, system_prompt: str) -> list:
-        """Draft from 2-3 models; return list of (content, provider_name)."""
-        variants = []
-        if getattr(self.ai_service, "openai_client", None):
-            try:
-                c = self.ai_service.generate_content_openai(formatted_prompt, system_prompt)
-                if c:
-                    variants.append((c, "openai"))
-            except Exception as e:
-                logging.warning("OpenAI variant failed: %s", e)
-        if self.gemini_service and getattr(self.gemini_service, "client", None):
-            try:
-                c = self.gemini_service.generate_content(formatted_prompt, system_prompt)
-                if c:
-                    variants.append((c, "gemini"))
-            except Exception as e:
-                logging.warning("Gemini variant failed: %s", e)
-        if getattr(self.ai_service, "anthropic_client", None):
-            try:
-                c = self.ai_service.generate_content_anthropic(formatted_prompt, system_prompt)
-                if c:
-                    variants.append((c, "anthropic"))
-            except Exception as e:
-                logging.warning("Anthropic variant failed: %s", e)
-        if grok_service and getattr(grok_service, "client", None):
-            try:
-                messages = [{"role": "user", "content": formatted_prompt}]
-                if system_prompt:
-                    messages.insert(0, {"role": "system", "content": system_prompt})
-                r = grok_service.client.chat.completions.create(
-                    model=grok_service.model,
-                    messages=messages,
-                    max_tokens=4000,
-                    temperature=0.7,
-                )
-                c = r.choices[0].message.content if r and r.choices else None
-                if c:
-                    variants.append((c, "grok"))
-            except Exception as e:
-                logging.warning("Grok variant failed: %s", e)
-        return variants
-
-    def select_best_variant(self, variants: list, topic: str):
-        """Arbitrage: use Claude to score each variant; return best content."""
-        if not variants:
-            return None
-        if len(variants) == 1:
-            return variants[0][0]
-        import json
-        prompt = "You are an editor selecting the best article draft. Topic: " + topic[:300] + "\n\n"
-        prompt += "We have " + str(len(variants)) + " drafts. Score each on accuracy (facts, no hallucination), depth, originality. Block reward is 3.125 BTC (2026), not 6.25.\n\nDRAFTS:\n"
-        for i, (content, provider) in enumerate(variants, 1):
-            excerpt = (content or "")[:2200] + "..." if len(content or "") > 2200 else (content or "")
-            prompt += "\n--- DRAFT " + str(i) + " (" + provider + ") ---\n" + excerpt + "\n"
-        prompt += '\nRespond with JSON only: {"best": 1, "scores": [{"draft": 1, "total": N}, ...]}. best is draft number (1-based).'
-        try:
-            raw = self.ai_service.generate_content_anthropic(prompt)
-            if not raw:
-                return variants[0][0]
-            data = json.loads(raw)
-            idx = data.get("best", 1)
-            if 1 <= idx <= len(variants):
-                logging.info("Arbitrage selected variant %s (%s)", idx, variants[idx - 1][1])
-                return variants[idx - 1][0]
-        except Exception as e:
-            logging.warning("Select best variant failed: %s", e)
-        return variants[0][0]
-
+    
     def generate_article(self, topic, prompt_id=None, content_type='news_article', source_type='ai_generated', headline_style=None):
         """
         Generate a complete article based on topic and prompt
@@ -513,9 +399,9 @@ Your headline MUST be a factual statement. Start with a noun (Bitcoin, Lightning
             lens where Bitcoin is money, the only truly decentralized currency, and foundation 
             of freedom and sovereignty.
             
-            You MUST use the LOCKED 6-SECTION structure defined in this prompt (TL;DR, The Report, 
-            Exclusive Data Analysis, The Bitcoin Lens, Transactor Intelligence, Sources) with the 
-            stated word minimums per section and 1,200+ words total. Do not reduce to fewer sections.
+            Structure as two distinct sections:
+            1. 'The Report' - Factual news account with context and analysis
+            2. 'The Bitcoin Lens' - Bitcoin-focused commentary and philosophical perspective
             
             Make it engaging, authoritative, and educational while orange-pilling readers 
             about Bitcoin's unique importance to humanity.
@@ -588,7 +474,14 @@ Focus on qualitative analysis only. No fabricated numbers allowed.
             When other crypto projects are mentioned, they should be framed as secondary, never rivaling 
             Bitcoin's role. 
             
-            The LOCKED STRUCTURE above (6 sections, 1,200+ words) is mandatory. Do not substitute a shorter structure.
+            MANDATORY 5-SECTION STRUCTURE:
+            1. TL;DR (punchy 3-sentence summary)
+            2. 'The Report' (factual news reporting - 300+ words)
+            3. 'The Bitcoin Lens' (philosophical analysis - 300+ words)
+            4. 'Transactor Intelligence' (actionable advice for miners and users - 200+ words)
+            5. 'Sources' (formatted list of data sources)
+            
+            This reinforces the separation between unbiased news, philosophical commentary, and actionable intelligence.
             
             CRITICAL: OUTPUT ONLY CLEAN HTML - NO MARKDOWN SYNTAX ALLOWED.
             Use <div class="tldr-section"><em><strong>TL;DR: content</strong></em></div> for summaries.
@@ -597,39 +490,39 @@ Focus on qualitative analysis only. No fabricated numbers allowed.
             Use <p class="article-paragraph"> for all paragraphs.
             Never use **, ***, ##, ### or any markdown syntax - only HTML tags.
             
-            MINIMUM: 1,200 words total. Build the full narrative around the ground truth metrics.
+            MINIMUM: 800 words total. Build the full narrative around the ground truth metrics.
             """
             
-            # Generate the main content: arbitrage (2-3 models + select best) or single-model with fallbacks
+            # Generate the main content using OpenAI (primary for better structure compliance) with fallbacks
+            # With auto-retry for validation failures
             content = None
             max_retries = 2
-            use_arbitrage = os.environ.get("USE_ARBITRAGE", "false").strip().lower() in ("true", "1", "yes")
             
             for attempt in range(max_retries + 1):
-                if use_arbitrage and attempt == 0:
-                    variants = self.generate_article_variants(formatted_prompt, system_prompt)
-                    if variants:
-                        content = self.select_best_variant(variants, topic)
-                    if content:
-                        content = self.fact_check_with_live_data(content)
+                # Try OpenAI first (better at following structured output requirements)
+                try:
+                    content = self.ai_service.generate_content_openai(formatted_prompt, system_prompt)
+                except Exception as e:
+                    logging.warning(f"OpenAI generation failed: {e}")
+                
+                # Fallback to Gemini if OpenAI fails
                 if not content:
                     try:
-                        content = self.ai_service.generate_content_openai(formatted_prompt, system_prompt)
+                        content = self.gemini_service.generate_content(formatted_prompt, system_prompt)
                     except Exception as e:
-                        logging.warning("OpenAI generation failed: %s", e)
-                    if not content and self.gemini_service:
-                        try:
-                            content = self.gemini_service.generate_content(formatted_prompt, system_prompt)
-                        except Exception as e:
-                            logging.warning("Gemini generation failed: %s", e)
-                    if not content:
-                        try:
-                            content = self.ai_service.generate_content_anthropic(formatted_prompt, system_prompt)
-                        except Exception as e:
-                            logging.warning("Anthropic generation failed: %s", e)
+                        logging.warning(f"Gemini generation failed: {e}")
+                
+                # Fallback to Anthropic if available
+                if not content:
+                    try:
+                        content = self.ai_service.generate_content_anthropic(formatted_prompt, system_prompt)
+                    except Exception as e:
+                        logging.warning(f"Anthropic generation failed: {e}")
+                
                 if not content:
                     raise Exception("Failed to generate content with any AI service")
-                content = self.fact_check_with_live_data(content)
+                
+                # VALIDATION: Check for mandatory 5-section structure and minimum length
                 validation_result = self._validate_article_structure(content)
                 
                 if validation_result['valid']:
@@ -639,7 +532,7 @@ Focus on qualitative analysis only. No fabricated numbers allowed.
                     if attempt < max_retries:
                         logging.warning(f"Article validation failed (attempt {attempt + 1}): {validation_result['errors']}. Retrying...")
                         # Add retry instruction to prompt
-                        formatted_prompt += f"\n\nPREVIOUS ATTEMPT FAILED VALIDATION: {', '.join(validation_result['errors'])}. You MUST include all 6 sections and write at least 1200 words. If word count was too low, expand 'Exclusive Data Analysis' (UTXO age bands, MVRV, realized cap, specific numbers) and 'The Bitcoin Lens' (expert perspectives from thought leaders) with deeper analysis."
+                        formatted_prompt += f"\n\nPREVIOUS ATTEMPT FAILED VALIDATION: {', '.join(validation_result['errors'])}. You MUST include all 6 sections (TL;DR, The Report, Exclusive Data Analysis, The Bitcoin Lens, Transactor Intelligence, Sources) and write at least 1200 words."
                         content = None  # Reset for retry
                     else:
                         logging.warning(f"Article validation failed after {max_retries + 1} attempts: {validation_result['errors']}")
@@ -674,7 +567,7 @@ Focus on qualitative analysis only. No fabricated numbers allowed.
             try:
                 is_verified, verification_report = verify_article_before_publish(content)
                 fact_check_result = verification_report
-
+                
                 if not is_verified:
                     fact_check_warnings = verification_report.get('errors', [])
                     logging.warning(f"FACT-CHECK WARNINGS for article '{title[:50]}': {fact_check_warnings}")
@@ -723,17 +616,13 @@ Focus on qualitative analysis only. No fabricated numbers allowed.
         except Exception as e:
             logging.error(f"Error generating article from Reddit trend: {str(e)}")
             return None
-
-    def get_partner_youtube_channel_ids(self, featured_only=False):
-        """Prioritize partner YouTube channels from core/config/supported_sources.json."""
-        return [c["channel_id"] for c in get_partner_youtube_channels(featured_only=featured_only)]
-
+    
     def _get_prompt_template(self, prompt_id, content_type):
         """Get prompt template from database or use default"""
         if prompt_id:
             try:
                 with app.app_context():
-                    custom_prompt = models.ContentPrompt.query.get(prompt_id)
+                    custom_prompt = ContentPrompt.query.get(prompt_id)
                     if custom_prompt and custom_prompt.active:
                         return custom_prompt.prompt_text
             except Exception as e:
@@ -743,20 +632,16 @@ Focus on qualitative analysis only. No fabricated numbers allowed.
     
     def _enforce_headline_style(self, title: str, headline_style: str, topic: str) -> str:
         """
-        Post-process headline to match requested style.
-        Statement: MUST start with a noun, MUST NOT end with '?'.
-        Question: MUST end with '?'.
+        Post-process headline to ensure it matches the requested style.
+        If headline is wrong style, use AI to rewrite it.
         """
         if not title or not headline_style:
             return title
         
-        headline_style = (headline_style or "").strip().lower()
-        title_stripped = title.strip()
-        is_question = title_stripped.endswith('?')
-        first_word = (title_stripped.split() or [''])[0].strip('"\':;,').lower() if title_stripped else ''
-        question_starters = ('is', 'are', 'was', 'were', 'do', 'does', 'did', 'will', 'would', 'can', 'could', 'should', 'how', 'what', 'why', 'when', 'where', 'which', 'who', 'whom', 'has', 'have', 'had', 'may', 'might', 'must')
-        statement_starts_with_noun = first_word and first_word not in question_starters
-        if headline_style == 'statement' and (is_question or not statement_starts_with_noun):
+        is_question = title.strip().endswith('?')
+        
+        # Check if headline matches requested style
+        if headline_style == 'statement' and is_question:
             logging.info(f"🔄 Headline mismatch: Got question '{title[:50]}...' but need statement - rewriting")
             try:
                 rewrite_prompt = f"""Rewrite this headline as a factual STATEMENT, NOT a question.
@@ -876,12 +761,6 @@ Return ONLY the new headline, nothing else."""
             if marker not in content:
                 errors.append(f"Missing {name}")
         
-        # Reject markdown: output must be clean HTML only
-        if re.search(r'^\s*#{1,6}\s+', content, re.MULTILINE):
-            errors.append("Contains markdown headers (##); use <h2 class=\"article-header\"> only")
-        if re.search(r'\*\*[^*]+\*\*', content):
-            errors.append("Contains markdown bold (**); use <strong> or <em> only")
-        
         # Count words (strip HTML tags first)
         clean_text = re.sub(r'<[^>]+>', ' ', content)
         clean_text = re.sub(r'\s+', ' ', clean_text).strip()
@@ -995,4 +874,5 @@ RULES:
         # Return category with highest score, default to Web3
         if category_scores:
             return max(category_scores.keys(), key=lambda x: category_scores[x])
+        
         return 'Web3'
