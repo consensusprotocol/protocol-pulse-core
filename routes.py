@@ -1,530 +1,45 @@
-from flask import render_template, request, jsonify, redirect, url_for, flash, make_response, session, Response, abort, send_file
+from flask import render_template, request, jsonify, redirect, url_for, flash, make_response, session
 from flask_login import login_required, login_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from app import app, db, limiter, cache, socketio
-
-# --- CIRCULAR IMPORT FIX ---
-# Instead of 'from models import ...', we import the module itself.
-import models 
-
+from app import app, db
+from models import Article, Podcast, ContentPrompt, User, Advertisement, AutomationRun, LaunchSequence, TargetAlert, NostrEvent, ReplySquadMember, EngagementEvent, ContentPerformance, AnalyticsSummary, UserSegment, Sponsor, CreditAccount, PredictionOracle, WhaleTransaction, AffiliatePartner, AffiliateClick, FeedItem, SentimentSnapshot, PulseEvent, AutoPostDraft, DailyBrief
 import hashlib
 import json
-import logging
-import requests
-import os
-import re
-import uuid
-import threading
-import time
-import subprocess
-from urllib.parse import urlparse
-from collections import deque
-from pathlib import Path
 from functools import wraps
-from datetime import datetime, timedelta
-
-# Import services
-# Note: Ensure these services are also using relative imports if they cause loops
 from services.ai_service import AIService
 from services.reddit_service import RedditService
 from services.content_generator import ContentGenerator
 from services.content_engine import ContentEngine
-try:
-    from services.substack_service import SubstackService
-except ModuleNotFoundError:
-    SubstackService = None
+from services.substack_service import SubstackService
 from services.newsletter import newsletter_service
-try:
-    from services.rss_service import RSSService
-except ModuleNotFoundError:
-    RSSService = None
+from services.rss_service import RSSService
 from services.printful_service import PrintfulService
 from services.price_service import price_service
 from services.youtube_service import YouTubeService
 from services.node_service import NodeService
 from services.ghl_service import ghl_service
-from services.feature_flags import is_enabled
-from core.event_bus import emit_event, read_events, iter_events_since
+import logging
+import requests
+import os
+import re
+import uuid
+from datetime import datetime, timedelta
 
 # Initialize services
 ai_service = AIService()
 reddit_service = RedditService()
 content_generator = ContentGenerator()
 content_engine = ContentEngine()
-if SubstackService is not None:
-    try:
-        substack_service = SubstackService()
-    except Exception as e:
-        logging.warning("Substack service initialization failed: %s", e)
-        substack_service = None
-else:
+try:
+    substack_service = SubstackService()
+except Exception as e:
+    logging.warning(f"Substack service initialization failed: {e}")
     substack_service = None
-    logging.warning("Substack service not available (module not found)")
 
-rss_service = RSSService() if RSSService is not None else None
+# Initialize RSS and Printful services
+rss_service = RSSService()
 printful_service = PrintfulService()
-
-from services.transcript_service import get_space_transcript, summarize_for_tweet
-
-AUTOMATION_LOG_PATH = Path("/home/ultron/protocol_pulse/logs/automation.log")
-MINING_LOCATIONS_PATH = Path(__file__).resolve().parent / "config" / "mining_locations.json"
-PARTNER_RAMP_PATH = Path(__file__).resolve().parent / "config" / "partner_ramp.json"
-AFFILIATES_PATH = Path(__file__).resolve().parent / "config" / "affiliates.json"
-_hub_stream_thread = None
-_hub_stream_lock = threading.Lock()
-_hub_last_mega_id = None
-_hub_log_offset = 0
-_hub_noise_markers = (
-    "DEBUG:urllib3.connectionpool",
-    "GET /api/block/",
-    "GET /api/blocks",
-    "GET /api/mempool/recent",
-)
-MEDLEY_PROGRESS_PATH = Path("/home/ultron/protocol_pulse/logs/medley_progress.txt")
-MEDLEY_OUTPUT_PATH = Path("/home/ultron/protocol_pulse/logs/medley_intel_brief.mp4")
-MEDLEY_REPORT_PATH = Path("/home/ultron/protocol_pulse/logs/medley_report.json")
-_medley_lock = threading.Lock()
-_medley_state = {
-    "running": False,
-    "status": "idle",
-    "progress": 0,
-    "message": "ready",
-    "started_at": None,
-    "finished_at": None,
-    "output_url": None,
-    "pid": None,
-}
-
-
-def _debug_routes_enabled() -> bool:
-    return os.environ.get("DEBUG_ROUTES", "false").strip().lower() in {"1", "true", "yes", "on"}
-
-
-def _ensure_partner_session_id() -> str:
-    sid = session.get("partner_session_id")
-    if not sid:
-        sid = uuid.uuid4().hex
-        session["partner_session_id"] = sid
-    return sid
-
-
-def _default_partner_ramp_catalog():
-    return {
-        "categories": [
-            {
-                "key": "self-custody",
-                "label": "self-custody",
-                "partners": [
-                    {
-                        "slug": "trezor",
-                        "name": "trezor",
-                        "url": "https://trezor.io/",
-                        "what_it_is": "hardware wallet stack for private key custody.",
-                        "eligibility_tags": ["global", "hardware", "self-custody"],
-                        "why_use": "pull coins off exchange risk and keep key control in-house.",
-                        "cta_label": "apply",
-                        "referral_code": "trezor_pp_hub",
-                    }
-                ],
-            }
-        ],
-        "disclaimer": "protocol pulse may receive partner compensation when links are used. this is not financial advice.",
-    }
-
-
-def _load_partner_ramp_catalog():
-    try:
-        if not PARTNER_RAMP_PATH.exists():
-            return _default_partner_ramp_catalog()
-        payload = json.loads(PARTNER_RAMP_PATH.read_text(encoding="utf-8"))
-        categories = payload.get("categories")
-        if not isinstance(categories, list) or not categories:
-            return _default_partner_ramp_catalog()
-        return payload
-    except Exception as e:
-        logging.warning("partner ramp catalog load failed: %s", e)
-        return _default_partner_ramp_catalog()
-
-
-def _flatten_partner_entries(catalog):
-    out = []
-    for cat in (catalog.get("categories") or []):
-        ckey = str(cat.get("key") or "").lower().strip()
-        clabel = str(cat.get("label") or ckey or "general").lower().strip()
-        for p in (cat.get("partners") or []):
-            slug = str(p.get("slug") or "").strip().lower()
-            if not slug:
-                continue
-            out.append(
-                {
-                    "slug": slug,
-                    "name": str(p.get("name") or slug).lower(),
-                    "url": str(p.get("url") or "#").strip(),
-                    "category": clabel or ckey,
-                    "what_it_is": str(p.get("what_it_is") or "").lower(),
-                    "eligibility_tags": [str(t).lower() for t in (p.get("eligibility_tags") or [])][:6],
-                    "why_use": str(p.get("why_use") or "").lower(),
-                    "cta_label": str(p.get("cta_label") or "learn").lower(),
-                    "referral_code": str(p.get("referral_code") or f"{slug}_pp_hub").lower(),
-                }
-            )
-    return out
-
-
-def _seed_affiliate_partners_from_catalog(partners):
-    changed = False
-    for p in partners:
-        row = models.AffiliatePartner.query.filter_by(slug=p["slug"]).first()
-        if row:
-            continue
-        db.session.add(
-            models.AffiliatePartner(
-                name=p["name"],
-                slug=p["slug"],
-                category=p["category"],
-                url=p["url"],
-                benefit=(p["why_use"] or "")[:200],
-                is_active=True,
-            )
-        )
-        changed = True
-    if changed:
-        db.session.commit()
-
-
-def _load_affiliates_catalog():
-    try:
-        if not AFFILIATES_PATH.exists():
-            return []
-        payload = json.loads(AFFILIATES_PATH.read_text(encoding="utf-8"))
-        rows = payload.get("catalog") or []
-        if not isinstance(rows, list):
-            return []
-        return rows
-    except Exception:
-        return []
-
-
-def _alpha_suggestions(limit: int = 3):
-    from core.scoring_engine import score_sentry_draft
-    posts = (
-        models.CuratedPost.query.order_by(models.CuratedPost.signal_score.desc(), models.CuratedPost.created_at.desc())
-        .limit(6)
-        .all()
-    )
-    scored = []
-    for post in posts:
-        title = (post.title or "signal").strip().lower()
-        if not title:
-            continue
-        candidate = f"alpha pulse: {title[:120]} | what's your edge before next candle?"
-        score = score_sentry_draft(candidate)
-        scored.append((candidate, score))
-        if len(scored) >= (limit * 2):
-            break
-    scored.sort(key=lambda x: (x[1].get("signal_density", 0), x[1].get("clarity", 0)), reverse=True)
-    suggestions = [f"{txt} [score={score.get('signal_density',0):.2f}/{score.get('clarity',0):.2f}]" for txt, score in scored[:limit]]
-    if not suggestions:
-        suggestions = [
-            "btc liquidity is moving. map risk before retail notices.",
-            "mempool pressure changed. don't chase noise, chase structure.",
-            "signal > sentiment. pick one edge and execute with size discipline.",
-        ]
-    return suggestions[:limit]
-
-
-def _parse_iso8601(ts: str):
-    raw = (ts or "").strip()
-    if not raw:
-        return None
-    try:
-        return datetime.fromisoformat(raw.replace("Z", "+00:00")).replace(tzinfo=None)
-    except Exception:
-        return None
-
-
-def _tail_file_lines(path: Path, limit: int = 50):
-    if not path.exists():
-        return []
-    with path.open("r", encoding="utf-8", errors="ignore") as fp:
-        return [line.rstrip("\n") for line in deque(fp, maxlen=limit)]
-
-
-def _is_signal_log_line(line: str) -> bool:
-    if not line:
-        return False
-    if any(marker in line for marker in _hub_noise_markers):
-        return False
-    return any(token in line.lower() for token in ("[signal]", "[sentry]", "[whale]"))
-
-
-def _filter_signal_lines(lines, limit: int = 50):
-    filtered = [ln for ln in lines if _is_signal_log_line(ln)]
-    return filtered[-limit:]
-
-
-def _watchtower_gpu_stats():
-    cmd = [
-        "nvidia-smi",
-        "--query-gpu=index,name,temperature.gpu,memory.used,memory.total,power.draw",
-        "--format=csv,noheader,nounits",
-    ]
-    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=4)
-    if proc.returncode != 0:
-        return []
-    rows = []
-    for line in (proc.stdout or "").splitlines():
-        parts = [p.strip() for p in line.split(",")]
-        if len(parts) < 6:
-            continue
-        rows.append(
-            {
-                "index": int(parts[0]),
-                "name": parts[1],
-                "temp_c": float(parts[2]),
-                "vram_used_mib": float(parts[3]),
-                "vram_total_mib": float(parts[4]),
-                "power_w": float(parts[5]),
-            }
-        )
-    return rows
-
-
-def _watchtower_service_status(name: str):
-    checks = [
-        ["systemctl", "--user", "is-active", name],
-        ["systemctl", "is-active", name],
-    ]
-    for cmd in checks:
-        try:
-            p = subprocess.run(cmd, capture_output=True, text=True, timeout=4)
-            state = (p.stdout or "").strip() or "unknown"
-            if p.returncode == 0:
-                return {"name": name, "state": state, "scope": "user" if "--user" in cmd else "system"}
-        except Exception:
-            continue
-    return {"name": name, "state": "failed", "scope": "unknown"}
-
-
-def _load_mining_oracle_data():
-    default_center = {"lat": 31.9686, "lng": -99.9018, "name": "texas, usa", "last_updated": "unknown"}
-    try:
-        if not MINING_LOCATIONS_PATH.exists():
-            return default_center, []
-        payload = json.loads(MINING_LOCATIONS_PATH.read_text(encoding="utf-8"))
-        locations = payload.get("jurisdictions") or payload.get("locations") or []
-        normalized = []
-        for loc in locations:
-            coords = loc.get("coordinates") or {}
-            if not coords and loc.get("coords"):
-                c = loc.get("coords") or [None, None]
-                coords = {"lat": c[0], "lng": c[1]}
-            lat = coords.get("lat")
-            lng = coords.get("lng")
-            if lat is None or lng is None:
-                continue
-            sentiment = (loc.get("sentiment") or "").lower()
-            risk_score = loc.get("risk_score")
-            if risk_score is None:
-                scores = loc.get("scores") or {}
-                p = scores.get("political") or {}
-                e = scores.get("economic") or {}
-                o = scores.get("operational") or {}
-                flat = [
-                    p.get("regulatory_stance"),
-                    p.get("seizure_risk"),
-                    p.get("policy_stability"),
-                    p.get("legal_clarity"),
-                    e.get("electricity_cost"),
-                    e.get("currency_stability"),
-                    e.get("tax_regime"),
-                    e.get("banking_access"),
-                    o.get("grid_reliability"),
-                    o.get("climate_suitability"),
-                    o.get("infrastructure"),
-                ]
-                vals = [float(v) for v in flat if isinstance(v, (int, float))]
-                # Existing data has higher=better; convert to risk scale where higher=worse.
-                risk_score = int(round(100 - (sum(vals) / len(vals)))) if vals else 50
-            risk_score = max(0, min(100, int(risk_score)))
-            if not sentiment:
-                if risk_score > 70:
-                    sentiment = "high-risk"
-                elif risk_score >= 40:
-                    sentiment = "monitor"
-                else:
-                    sentiment = "sovereign"
-            grid_load = loc.get("grid_load")
-            if grid_load is None:
-                rel = (((loc.get("scores") or {}).get("operational") or {}).get("grid_reliability"))
-                if isinstance(rel, (int, float)):
-                    grid_load = int(max(0, min(100, 100 - rel + 20)))
-                else:
-                    grid_load = 50
-            normalized.append(
-                {
-                    "name": (loc.get("name") or "unknown").lower(),
-                    "id": (loc.get("id") or f"loc-{len(normalized)+1}").lower(),
-                    "lat": float(lat),
-                    "lng": float(lng),
-                    "hashrate_share": float((loc.get("real_time_data") or {}).get("current_hashrate_share") or 0),
-                    "risk_score": risk_score,
-                    "sentiment": sentiment,
-                    "details": ((loc.get("details") or loc.get("notes") or "intel sparse. keep this zone under watch.").strip()).lower(),
-                    "tags": [str(t).lower() for t in (loc.get("tags") or [])][:5],
-                    "grid_load": int(grid_load),
-                }
-            )
-        if not normalized:
-            return default_center, []
-        leader = max(normalized, key=lambda x: x["hashrate_share"])
-        center = {
-            "lat": leader["lat"],
-            "lng": leader["lng"],
-            "name": leader["name"],
-            "last_updated": str(payload.get("last_updated") or "unknown"),
-        }
-        return center, normalized
-    except Exception as e:
-        logging.warning("mining oracle load failed: %s", e)
-        return default_center, []
-
-
-def _medley_progress_percent():
-    if not MEDLEY_PROGRESS_PATH.exists():
-        return 0
-    try:
-        raw = MEDLEY_PROGRESS_PATH.read_text(encoding="utf-8", errors="ignore")
-        out_time_ms = 0
-        finished = False
-        for ln in raw.splitlines():
-            if ln.startswith("out_time_ms="):
-                out_time_ms = int(ln.split("=", 1)[1].strip() or "0")
-            elif ln.startswith("progress=") and ln.endswith("end"):
-                finished = True
-        duration_ms = 60_000_000  # 60s summary target
-        pct = int(max(0, min(100, round((out_time_ms / duration_ms) * 100)))) if out_time_ms else 0
-        if finished:
-            pct = 100
-        return pct
-    except Exception:
-        return 0
-
-
-def _medley_worker():
-    cmd = [
-        "/home/ultron/protocol_pulse/venv/bin/python",
-        "/home/ultron/protocol_pulse/medley_director.py",
-        "--output",
-        str(MEDLEY_OUTPUT_PATH),
-        "--progress-file",
-        str(MEDLEY_PROGRESS_PATH),
-        "--report-file",
-        str(MEDLEY_REPORT_PATH),
-    ]
-    env = os.environ.copy()
-    env["CUDA_VISIBLE_DEVICES"] = "1"
-    env["PYTHONUNBUFFERED"] = "1"
-    proc = None
-    try:
-        proc = subprocess.Popen(cmd, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        _medley_state["pid"] = proc.pid
-        while proc.poll() is None:
-            _medley_state["progress"] = _medley_progress_percent()
-            _medley_state["message"] = "rendering medley on gpu 1..."
-            time.sleep(1)
-        rc = proc.returncode
-        _medley_state["progress"] = _medley_progress_percent()
-        if rc == 0:
-            _medley_state["status"] = "done"
-            _medley_state["progress"] = 100
-            _medley_state["message"] = "medley brief is rendered."
-            _medley_state["output_url"] = "/api/hub/medley/output"
-        else:
-            _medley_state["status"] = "failed"
-            _medley_state["message"] = f"medley render failed (exit {rc})."
-    except Exception as e:
-        _medley_state["status"] = "failed"
-        _medley_state["message"] = f"medley render error: {e}"
-    finally:
-        _medley_state["running"] = False
-        _medley_state["finished_at"] = datetime.utcnow().isoformat()
-        _medley_state["pid"] = None
-
-
-def _emit_hub_recent_logs():
-    if socketio is None:
-        return
-    lines = _filter_signal_lines(_tail_file_lines(AUTOMATION_LOG_PATH, limit=300), limit=50)
-    socketio.emit("automation_bootstrap", {"lines": lines}, namespace="/hub")
-
-
-def _hub_stream_loop():
-    global _hub_last_mega_id, _hub_log_offset
-    while True:
-        try:
-            if AUTOMATION_LOG_PATH.exists():
-                file_size = AUTOMATION_LOG_PATH.stat().st_size
-                if _hub_log_offset > file_size:
-                    _hub_log_offset = 0
-                with AUTOMATION_LOG_PATH.open("r", encoding="utf-8", errors="ignore") as fp:
-                    fp.seek(_hub_log_offset)
-                    fresh = fp.readlines()
-                    _hub_log_offset = fp.tell()
-                for line in fresh:
-                    line = line.rstrip("\n")
-                    if _is_signal_log_line(line):
-                        socketio.emit("automation_log_line", {"line": line}, namespace="/hub")
-
-            with app.app_context():
-                latest_mega = (
-                    models.WhaleTransaction.query.filter_by(is_mega=True)
-                    .order_by(models.WhaleTransaction.detected_at.desc())
-                    .first()
-                )
-                if latest_mega and latest_mega.id != _hub_last_mega_id:
-                    _hub_last_mega_id = latest_mega.id
-                    socketio.emit(
-                        "whale_alert",
-                        {"btc": latest_mega.btc_amount, "txid": latest_mega.txid},
-                        namespace="/hub",
-                    )
-        except Exception as e:
-            logging.debug("hub stream loop warning: %s", e)
-        time.sleep(2)
-
-
-def _ensure_hub_stream_started():
-    global _hub_stream_thread, _hub_log_offset
-    if socketio is None:
-        return
-    with _hub_stream_lock:
-        if _hub_stream_thread and _hub_stream_thread.is_alive():
-            return
-        if AUTOMATION_LOG_PATH.exists():
-            _hub_log_offset = AUTOMATION_LOG_PATH.stat().st_size
-        else:
-            _hub_log_offset = 0
-        _hub_stream_thread = threading.Thread(target=_hub_stream_loop, daemon=True)
-        _hub_stream_thread.start()
-
-
-if socketio is not None:
-    @socketio.on("connect", namespace="/hub")
-    def hub_socket_connect():
-        remote = str(request.remote_addr or "")
-        if (
-            is_enabled("ENABLE_SELF_CHECK_BYPASS")
-            and ("127.0.0.1" in remote or remote in ("::1", "localhost"))
-        ):
-            _ensure_hub_stream_started()
-            _emit_hub_recent_logs()
-            return
-        if not current_user.is_authenticated:
-            return False
-        _ensure_hub_stream_started()
-        _emit_hub_recent_logs()
 
 def admin_required(f):
     """Decorator to enforce admin role-based access control"""
@@ -535,190 +50,6 @@ def admin_required(f):
             return redirect('/login')
         return f(*args, **kwargs)
     return decorated_function
-
-
-def premium_required(f):
-    """Require Commander ($99/mo) or higher for premium hub access."""
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated:
-            flash('Sign in to access the Premium Hub.')
-            return redirect(url_for('login') + '?next=' + request.path)
-        if not getattr(current_user, 'has_commander_tier', lambda: False)():
-            flash('Premium Hub requires a Commander ($99/mo) subscription.')
-            return redirect(url_for('premium_page'))
-        return f(*args, **kwargs)
-    return decorated_function
-
-
-def premium_hub_required(f):
-    """Require any paid tier (Operator / Commander / Sovereign) for hub access."""
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        remote = str(request.remote_addr or "")
-        if (
-            is_enabled("ENABLE_SELF_CHECK_BYPASS")
-            and request.headers.get("X-Self-Check") == "1"
-            and ("127.0.0.1" in remote or remote in ("::1", "localhost"))
-        ):
-            return f(*args, **kwargs)
-        if not current_user.is_authenticated:
-            flash('Sign in to access the Premium Hub.')
-            return redirect(url_for('login') + '?next=' + request.path)
-        if getattr(current_user, 'is_admin', False):
-            return f(*args, **kwargs)
-        if not getattr(current_user, 'has_premium', lambda: False)():
-            flash('Premium Hub requires a paid subscription (Operator $21/mo or higher).')
-            return redirect(url_for('premium_page'))
-        return f(*args, **kwargs)
-    return decorated_function
-
-
-# Commander gate alias for compatibility with prior specs/routes.
-commander_required = premium_hub_required
-
-
-@app.route('/admin/x-replies')
-@login_required
-@admin_required
-def admin_x_replies():
-    """Admin queue for X sentry drafts."""
-    pending = (
-        models.XInboxTweet.query.filter_by(status='drafted')
-        .order_by(models.XInboxTweet.created_at.desc())
-        .limit(50)
-        .all()
-    )
-    return render_template('admin/x_replies.html', pending=pending)
-
-
-@app.route('/admin/x-replies/<int:inbox_id>/approve', methods=['POST'])
-@login_required
-@admin_required
-def admin_x_reply_approve(inbox_id):
-    _require_csrf()
-    from core.services.x_client import XClient
-
-    inbox = models.XInboxTweet.query.get_or_404(inbox_id)
-    draft = inbox.drafts.order_by(models.XReplyDraft.created_at.desc()).first()
-    if not draft:
-        flash('No draft available for this tweet.')
-        return redirect('/admin/x-replies')
-
-    new_text = (request.form.get('draft_text') or '').strip()
-    if new_text:
-        draft.draft_text = new_text[:280]
-
-    result = XClient().post_reply(in_reply_to_tweet_id=inbox.tweet_id, text=draft.draft_text)
-    post = models.XReplyPost(
-        inbox_id=inbox.id,
-        draft_id=draft.id,
-        reply_tweet_id=result.get('tweet_id'),
-        response_payload=json.dumps(result.get('raw', {})),
-    )
-    inbox.status = 'posted' if result.get('success') else 'error'
-    db.session.add(post)
-    db.session.add(inbox)
-    db.session.commit()
-    flash('Reply posted to X.' if result.get('success') else 'Reply failed to post; see logs.')
-    return redirect('/admin/x-replies')
-
-
-@app.route('/admin/x-replies/<int:inbox_id>/reject', methods=['POST'])
-@login_required
-@admin_required
-def admin_x_reply_reject(inbox_id):
-    _require_csrf()
-    inbox = models.XInboxTweet.query.get_or_404(inbox_id)
-    inbox.status = 'rejected'
-    db.session.add(inbox)
-    db.session.commit()
-    flash('Draft rejected.')
-    return redirect('/admin/x-replies')
-
-
-@app.route('/admin/x-replies/run-cycle', methods=['POST'])
-@login_required
-@admin_required
-def admin_x_reply_run_cycle():
-    _require_csrf()
-    from core.services.x_engagement_sentry import run_cycle
-    result = run_cycle()
-    return jsonify({"success": True, "result": result})
-
-
-@app.route('/api/sentry-stream')
-@login_required
-@admin_required
-def api_sentry_stream():
-    """SSE stream for draft queue updates."""
-    import time
-
-    def generate():
-        last_seen = 0
-        started = time.time()
-        while time.time() - started < 300:
-            try:
-                latest = (
-                    models.XReplyDraft.query.order_by(models.XReplyDraft.id.desc()).first()
-                )
-                if latest and latest.id > last_seen:
-                    last_seen = latest.id
-                    payload = {
-                        "type": "new_draft",
-                        "draft_id": latest.id,
-                        "inbox_id": latest.inbox_id,
-                        "confidence": float(latest.confidence or 0),
-                        "preview": (latest.draft_text or "")[:180],
-                    }
-                    yield f"data: {json.dumps(payload)}\n\n"
-                yield ": heartbeat\n\n"
-                time.sleep(3)
-            except GeneratorExit:
-                break
-            except Exception as e:
-                yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
-                break
-
-    return Response(generate(), mimetype='text/event-stream',
-                    headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no', 'Connection': 'keep-alive'})
-
-
-@app.route('/api/logs-stream')
-@login_required
-@premium_hub_required
-def api_logs_stream():
-    """SSE stream for automation terminal tail in Commander Hub."""
-    import time
-
-    def generate():
-        log_path = Path('/home/ultron/protocol_pulse/logs/automation.log')
-        offset = log_path.stat().st_size if log_path.exists() else 0
-        started = time.time()
-        while time.time() - started < 300:
-            try:
-                if log_path.exists():
-                    size = log_path.stat().st_size
-                    if offset > size:
-                        offset = 0
-                    with log_path.open('r', encoding='utf-8', errors='ignore') as fp:
-                        fp.seek(offset)
-                        lines = fp.readlines()
-                        offset = fp.tell()
-                    for line in lines[-50:]:
-                        line = line.rstrip('\n')
-                        if line:
-                            yield f"data: {json.dumps({'type': 'line', 'line': line})}\n\n"
-                yield ": heartbeat\n\n"
-                time.sleep(2)
-            except GeneratorExit:
-                break
-            except Exception as e:
-                yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
-                break
-
-    return Response(generate(), mimetype='text/event-stream',
-                    headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no', 'Connection': 'keep-alive'})
 
 @app.template_filter('clean_preview')
 def clean_preview_filter(content, max_length=150):
@@ -743,319 +74,12 @@ def clean_preview_filter(content, max_length=150):
     # Return truncated clean text
     return clean_text[:max_length] + ("..." if len(clean_text) > max_length else "")
 
-
-def _require_csrf():
-    """Abort 400 if POST CSRF token is missing or does not match session."""
-    if request.method != "POST":
-        return
-    token = request.form.get("csrf_token") or request.headers.get("X-CSRF-Token")
-    if not token or not session.get("csrf_token") or token != session.get("csrf_token"):
-        abort(400, "Invalid or missing CSRF token")
-
-
-def _safe_internal_next(candidate: str) -> str:
-    if not candidate:
-        return ""
-    parsed = urlparse(candidate)
-    if parsed.netloc:
-        return ""
-    if not candidate.startswith("/"):
-        return ""
-    return candidate
-
-
-def _canonical_platform(value: str) -> str:
-    p = (value or "").strip().lower()
-    if p in ("twitter", "x.com"):
-        return "x"
-    if p in ("stacker_news", "stackernews", "sn"):
-        return "stacker"
-    return p or "web"
-
-
-def _log_engagement_event(
-    event_type: str,
-    content_type: str = None,
-    content_id: int = None,
-    source_url: str = None,
-    source_platform: str = "website",
-):
-    """Best-effort EngagementEvent logging that never breaks user flows."""
-    try:
-        row = models.EngagementEvent(
-            event_type=(event_type or "")[:50],
-            content_type=(content_type or "")[:50] or None,
-            content_id=content_id,
-            source_platform=(source_platform or "website")[:50],
-            source_url=(source_url or request.path or "")[:500],
-            user_agent=(request.headers.get("User-Agent", "")[:300] if request else None),
-            referrer=(request.referrer[:500] if request and request.referrer else None),
-            created_at=datetime.utcnow(),
-        )
-        db.session.add(row)
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        logging.debug("engagement event skipped: %s", e)
-
-
-@app.route('/debug-routes')
-def debug_routes():
-    """List all registered URL rules (for 404 debugging: confirm / is in the app that is actually running)."""
-    rules = [{"rule": r.rule, "endpoint": r.endpoint, "methods": list(r.methods - {"HEAD", "OPTIONS"})}
-             for r in app.url_map.iter_rules()]
-    return jsonify({"app": "Protocol Pulse", "rules": sorted(rules, key=lambda x: x["rule"])})
-
-
-@app.route('/health')
-def health():
-    """Authoritative health with DB, lane timestamps, and lightweight GPU snapshot."""
-    from services.runtime_status import get_status
-    lanes_path = Path("/home/ultron/protocol_pulse/logs/health_lanes.json")
-    payload = {
-        "app": "ok",
-        "service": "protocol-pulse",
-        "authoritative": True,
-        "db": "ok",
-        "last_heartbeat": None,
-        "jobs": {
-            "sentry_last_run": None,
-            "whale_last_run": None,
-            "risk_last_update": None,
-            "medley_last_run": None,
-        },
-        "lanes": {},
-        "gpu": [],
-    }
-    code = 200
-    try:
-        db.session.execute(db.text("SELECT 1"))
-    except Exception as e:
-        payload["db"] = f"error: {str(e)[:160]}"
-        code = 503
-    try:
-        status = get_status()
-        hb = status.get("heartbeat") or {}
-        sentry = status.get("sentry") or {}
-        whale = status.get("whale") or {}
-        risk = status.get("risk") or {}
-        medley = status.get("medley") or {}
-        payload["last_heartbeat"] = hb.get("last_heartbeat")
-        payload["jobs"]["sentry_last_run"] = sentry.get("last_run")
-        payload["jobs"]["whale_last_run"] = whale.get("last_run")
-        payload["jobs"]["risk_last_update"] = risk.get("last_update")
-        payload["jobs"]["medley_last_run"] = medley.get("last_run")
-    except Exception:
-        pass
-    try:
-        if lanes_path.exists():
-            lane_data = json.loads(lanes_path.read_text(encoding="utf-8"))
-            payload["lanes"] = lane_data.get("lanes") or {}
-            payload["lanes_updated_at"] = lane_data.get("updated_at")
-    except Exception:
-        payload["lanes"] = {}
-    try:
-        cmd = [
-            "nvidia-smi",
-            "--query-gpu=index,name,utilization.gpu,memory.used,memory.total",
-            "--format=csv,noheader,nounits",
-        ]
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=2)
-        if proc.returncode == 0:
-            for line in (proc.stdout or "").splitlines():
-                parts = [p.strip() for p in line.split(",")]
-                if len(parts) >= 5:
-                    payload["gpu"].append(
-                        {
-                            "index": int(parts[0]),
-                            "name": parts[1],
-                            "utilization_gpu_pct": int(parts[2]),
-                            "memory_used_mib": int(parts[3]),
-                            "memory_total_mib": int(parts[4]),
-                        }
-                    )
-    except Exception:
-        payload["gpu"] = []
-    payload["status"] = "ok" if code == 200 else "degraded"
-    return jsonify(payload), code
-
-
-@app.route('/api/health')
-def api_health():
-    """Compatibility alias for health checks expected by external monitors/scripts."""
-    response, code = health()
-    data = response.get_json(silent=True) or {}
-    if data.get("status") == "ok":
-        data["status"] = "healthy"
-    return jsonify(data), code
-
-
-@app.route('/ready')
-def ready():
-    """Readiness: app and DB are responsive. Used by orchestrators before sending traffic."""
-    try:
-        db.session.execute(db.text("SELECT 1"))
-        return jsonify({"status": "ready", "db": "ok"}), 200
-    except Exception as e:
-        logging.warning("Ready check failed: %s", e)
-        return jsonify({"status": "not_ready", "db": "error"}), 503
-
-
-@app.route('/health/status')
-def health_status():
-    """
-    Extended core health snapshot.
-    Reports service state as ok/degraded without crashing the app.
-    """
-    checks = {}
-    overall = "ok"
-    try:
-        db.session.execute(db.text("SELECT 1"))
-        checks["database"] = {"status": "ok"}
-    except Exception as e:
-        checks["database"] = {"status": "error", "detail": str(e)[:180]}
-        overall = "degraded"
-
-    try:
-        _ = NodeService.get_network_stats()
-        checks["node_service"] = {"status": "ok"}
-    except Exception as e:
-        checks["node_service"] = {"status": "degraded", "detail": str(e)[:180]}
-        overall = "degraded"
-
-    try:
-        _ = price_service.get_prices()
-        checks["price_service"] = {"status": "ok"}
-    except Exception as e:
-        checks["price_service"] = {"status": "degraded", "detail": str(e)[:180]}
-        overall = "degraded"
-
-    try:
-        if rss_service is None:
-            checks["rss_service"] = {"status": "degraded", "detail": "rss service not installed"}
-            overall = "degraded"
-        else:
-            _ = rss_service.get_latest_episodes(limit=1)
-            checks["rss_service"] = {"status": "ok"}
-    except Exception as e:
-        checks["rss_service"] = {"status": "degraded", "detail": str(e)[:180]}
-        overall = "degraded"
-
-    try:
-        yt = YouTubeService()
-        checks["youtube_service"] = {"status": "ok" if yt else "degraded"}
-        if not yt:
-            overall = "degraded"
-    except Exception as e:
-        checks["youtube_service"] = {"status": "degraded", "detail": str(e)[:180]}
-        overall = "degraded"
-
-    return jsonify({"status": overall, "checks": checks, "timestamp": datetime.utcnow().isoformat()}), 200
-
-
-@app.route('/robots.txt')
-def robots_txt():
-    """Search engine crawler instructions."""
-    lines = [
-        "User-agent: *",
-        "Allow: /",
-        "Disallow: /admin",
-        "Disallow: /api/",
-        "Disallow: /hub",
-        "Disallow: /login",
-        "Disallow: /signup",
-        "",
-        "Sitemap: " + (request.url_root.rstrip("/") + "/sitemap.xml"),
-    ]
-    return Response("\n".join(lines), mimetype="text/plain")
-
-
-@app.route('/debug/routes')
-def debug_routes_text():
-    """Plain-text route map, enabled only when DEBUG_ROUTES=true."""
-    if not _debug_routes_enabled():
-        abort(404)
-    lines = []
-    for rule in sorted(app.url_map.iter_rules(), key=lambda r: r.rule):
-        methods = ",".join(sorted(m for m in rule.methods if m not in {"HEAD", "OPTIONS"}))
-        lines.append(f"{rule.rule} [{methods}] -> {rule.endpoint}")
-    return Response("\n".join(lines), mimetype="text/plain")
-
-
-@app.route('/debug/templates')
-def debug_templates_status():
-    """Template existence diagnostics, enabled only when DEBUG_ROUTES=true."""
-    if not _debug_routes_enabled():
-        abort(404)
-    root = Path(app.template_folder or "")
-    checks = {
-        "hub": (root / "media_hub.html").exists(),
-        "command": (root / "command.html").exists(),
-        "sentry": (root / "admin" / "sentry.html").exists(),
-        "start": (root / "onboarding.html").exists(),
-        "privacy": (root / "privacy_policy.html").exists(),
-        "terms": (root / "legal" / "terms.html").exists(),
-    }
-    return jsonify(checks)
-
-
-@app.route('/sitemap.xml')
-def sitemap_xml():
-    """Simple sitemap for SEO: home, articles, key public pages."""
-    base = request.url_root.rstrip("/")
-    pages = [
-        ("/", "daily", "1.0"),
-        ("/articles", "daily", "0.9"),
-        ("/dossier", "weekly", "0.9"),
-        ("/live", "daily", "0.8"),
-        ("/whale-watcher", "daily", "0.8"),
-        ("/map", "weekly", "0.7"),
-        ("/about", "monthly", "0.5"),
-        ("/contact", "monthly", "0.5"),
-        ("/donate", "monthly", "0.5"),
-        ("/donate/bitcoin", "monthly", "0.5"),
-        ("/premium", "monthly", "0.6"),
-        ("/privacy-policy", "monthly", "0.3"),
-    ]
-    try:
-        articles = models.Article.query.filter_by(published=True).order_by(models.Article.updated_at.desc()).limit(500).all()
-    except Exception:
-        articles = []
-    out = ['<?xml version="1.0" encoding="UTF-8"?>']
-    out.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
-    for path, changefreq, priority in pages:
-        out.append(f"  <url><loc>{base}{path}</loc><changefreq>{changefreq}</changefreq><priority>{priority}</priority></url>")
-    for a in articles:
-        lastmod = getattr(a, "updated_at", None) or getattr(a, "created_at", None)
-        lastmod_str = lastmod.strftime("%Y-%m-%d") if lastmod else ""
-        out.append(f"  <url><loc>{base}/articles/{a.id}</loc><changefreq>weekly</changefreq><priority>0.7</priority><lastmod>{lastmod_str}</lastmod></url>")
-    out.append("</urlset>")
-    return Response("\n".join(out), mimetype="application/xml")
-
-def _index_cache_key():
-    from flask_login import current_user
-    return "index_" + (str(current_user.id) if current_user.is_authenticated else "anon")
-
-
 @app.route('/')
-@cache.cached(timeout=60, key_prefix=_index_cache_key)
 def index():
     """Homepage with featured articles, segment-based Bento-box ranking"""
-    try:
-        featured_articles = models.Article.query.filter_by(published=True, featured=True).order_by(models.Article.created_at.desc()).limit(3).all()
-    except Exception as e:
-        logging.warning("index featured_articles fallback: %s", e)
-        featured_articles = []
-    try:
-        recent_articles = models.Article.query.filter_by(published=True).order_by(models.Article.created_at.desc()).limit(6).all()
-    except Exception as e:
-        logging.warning("index recent_articles fallback: %s", e)
-        recent_articles = []
-    try:
-        featured_podcasts = models.Podcast.query.filter_by(featured=True).order_by(models.Podcast.published_date.desc()).limit(3).all()
-    except Exception as e:
-        logging.warning("index featured_podcasts fallback: %s", e)
-        featured_podcasts = []
+    featured_articles = Article.query.filter_by(published=True, featured=True).order_by(Article.created_at.desc()).limit(3).all()
+    recent_articles = Article.query.filter_by(published=True).order_by(Article.created_at.desc()).limit(6).all()
+    featured_podcasts = Podcast.query.filter_by(featured=True).order_by(Podcast.published_date.desc()).limit(3).all()
     
     # Fetch live cryptocurrency prices
     prices = price_service.get_prices()
@@ -1067,7 +91,7 @@ def index():
     user_segment = 'general'
     bento_categories = []
     if current_user.is_authenticated:
-        segment = models.UserSegment.query.filter_by(user_id=current_user.id).first()
+        segment = UserSegment.query.filter_by(user_id=current_user.id).first()
         if segment:
             user_segment = segment.segment_type
             # Miners prioritize hashrate/mining content
@@ -1087,10 +111,10 @@ def index():
     bento_articles = []
     if bento_categories:
         for category in bento_categories[:2]:
-            cat_articles = models.Article.query.filter(
-                models.Article.published == True,
-                models.Article.category.ilike(f'%{category}%')
-            ).order_by(models.Article.created_at.desc()).limit(2).all()
+            cat_articles = Article.query.filter(
+                Article.published == True,
+                Article.category.ilike(f'%{category}%')
+            ).order_by(Article.created_at.desc()).limit(2).all()
             bento_articles.extend(cat_articles)
     
     return render_template('index.html', 
@@ -1167,9 +191,9 @@ def whale_watcher():
     import requests
     
     # Fetch last 5 high-value transactions (>10 BTC) from database
-    initial_whales = models.WhaleTransaction.query.filter(
-        models.WhaleTransaction.btc_amount >= 10
-    ).order_by(models.WhaleTransaction.detected_at.desc()).limit(5).all()
+    initial_whales = WhaleTransaction.query.filter(
+        WhaleTransaction.btc_amount >= 10
+    ).order_by(WhaleTransaction.detected_at.desc()).limit(5).all()
     
     whale_data = [{
         'txid': w.txid,
@@ -1256,178 +280,58 @@ def bitfeed_ultimate():
 # VALUE STREAM - Decentralized Social Aggregator
 # =====================================
 
-def _get_value_stream_service():
-    """Best-effort import so Value Stream pages still render without optional service module."""
-    try:
-        from services.value_stream_service import value_stream_service
-        return value_stream_service
-    except Exception as e:
-        logging.warning("value_stream_service unavailable, using DB fallback: %s", e)
-        return None
-
-
-def _infer_platform_from_url(url: str) -> str:
-    parsed = urlparse(url or "")
-    host = (parsed.netloc or "").lower()
-    if "x.com" in host or "twitter.com" in host:
-        return "x"
-    if "nostr" in host or "primal.net" in host or "damus.io" in host:
-        return "nostr"
-    if "youtube.com" in host or "youtu.be" in host:
-        return "youtube"
-    if "reddit.com" in host:
-        return "reddit"
-    if "stacker.news" in host:
-        return "stacker"
-    return "web"
-
 @app.route('/value-stream')
 def value_stream():
-    """Value Stream - Sovereign Intelligence Market."""
-    default_pulse = {'value': 0, 'label': 'Neutral', 'zap_volume_24h': 0, 'posts_with_zaps_24h': 0, 'ratio': 0}
+    """Value Stream - Content curated by economic signals"""
+    from services.value_stream_service import value_stream_service
+    from models import CuratedPost, ValueCreator
+    
     platform = request.args.get('platform')
-    value_stream_service = _get_value_stream_service()
-
-    try:
-        if value_stream_service is not None:
-            posts = value_stream_service.get_value_stream(limit=50, platform=platform)
-            curators = value_stream_service.get_top_curators(limit=10)
-
-            post_objects = []
-            for p in posts:
-                post = models.CuratedPost.query.get(p['id'])
-                if post:
-                    post_objects.append(post)
-
-            curator_objects = []
-            for c in curators:
-                curator = models.ValueCreator.query.get(c['id'])
-                if curator:
-                    curator_objects.append(curator)
-        else:
-            post_query = models.CuratedPost.query
-            if platform:
-                post_query = post_query.filter(models.CuratedPost.platform == platform)
-            post_objects = post_query.order_by(
-                models.CuratedPost.signal_score.desc(),
-                models.CuratedPost.submitted_at.desc()
-            ).limit(50).all()
-            curator_objects = models.ValueCreator.query.order_by(
-                models.ValueCreator.curator_score.desc(),
-                models.ValueCreator.total_sats_received.desc()
-            ).limit(10).all()
-
-        if getattr(current_user, "is_authenticated", False):
-            try:
-                from core.personalization import build_user_profile
-                profile = build_user_profile(current_user)
-                pref = set(profile.get("content_preferences") or [])
-
-                def _rank_post(p):
-                    score = float(getattr(p, "signal_score", 0.0) or 0.0)
-                    platform_key = str(getattr(p, "platform", "") or "").lower()
-                    if platform_key in pref:
-                        score += 5.0
-                    if profile.get("risk_appetite") == "high":
-                        score += float(getattr(p, "total_sats", 0) or 0) / 2000.0
-                        score += float(getattr(p, "id", 0) or 0) * 0.02
-                    elif profile.get("risk_appetite") == "low":
-                        score += float(getattr(p, "signal_score", 0) or 0) / 12.0
-                        score -= float(getattr(p, "total_sats", 0) or 0) / 5000.0
-                        score -= float(getattr(p, "id", 0) or 0) * 0.02
-                    return score
-
-                post_objects = sorted(post_objects, key=_rank_post, reverse=True)
-            except Exception:
-                pass
-
-        total_sats = db.session.query(db.func.coalesce(db.func.sum(models.CuratedPost.total_sats), 0)).scalar() or 0
-        sats_per_hour = db.session.query(db.func.coalesce(db.func.sum(models.ZapEvent.amount_sats), 0)).filter(
-            models.ZapEvent.created_at >= datetime.utcnow() - timedelta(hours=1)
-        ).scalar() or 0
-
-        try:
-            from services.pulse_nexus_service import compute_market_pulse
-            market_pulse = compute_market_pulse()
-        except Exception:
-            market_pulse = default_pulse
-
-        return render_template(
-            'value_stream.html',
-            posts=post_objects,
-            curators=curator_objects,
-            selected_platform=platform,
-            total_sats=int(total_sats),
-            sats_per_hour=int(sats_per_hour),
-            market_pulse=market_pulse,
-        )
-    except Exception as e:
-        logging.exception("value_stream route failed: %s", e)
-        return render_template(
-            'value_stream.html',
-            posts=[],
-            curators=[],
-            selected_platform=platform,
-            total_sats=0,
-            sats_per_hour=0,
-            market_pulse=default_pulse,
-        )
+    
+    posts = value_stream_service.get_value_stream(limit=50, platform=platform)
+    curators = value_stream_service.get_top_curators(limit=10)
+    
+    post_objects = []
+    for p in posts:
+        post = CuratedPost.query.get(p['id'])
+        if post:
+            post_objects.append(post)
+    
+    curator_objects = []
+    for c in curators:
+        curator = ValueCreator.query.get(c['id'])
+        if curator:
+            curator_objects.append(curator)
+    
+    return render_template('value_stream.html', 
+                          posts=post_objects,
+                          curators=curator_objects,
+                          selected_platform=platform)
 
 @app.route('/signal-terminal')
 def signal_terminal():
     """Signal Terminal - Premium 3-panel value stream interface"""
-    value_stream_service = _get_value_stream_service()
+    from services.value_stream_service import value_stream_service
+    from models import CuratedPost, ValueCreator, ZapEvent
     from datetime import datetime, timedelta
-
-    if value_stream_service is not None:
-        posts = value_stream_service.get_value_stream_enhanced(limit=50)
-        curators = value_stream_service.get_top_curators(limit=10)
-        curator_objects = []
-        for c in curators:
-            curator = models.ValueCreator.query.get(c['id'])
-            if curator:
-                curator_objects.append(curator)
-    else:
-        posts = models.CuratedPost.query.order_by(
-            models.CuratedPost.signal_score.desc(),
-            models.CuratedPost.submitted_at.desc()
-        ).limit(50).all()
-        curator_objects = models.ValueCreator.query.order_by(
-            models.ValueCreator.curator_score.desc(),
-            models.ValueCreator.total_sats_received.desc()
-        ).limit(10).all()
-    # Normalize post payload shape for template stability (dict or model object).
-    from types import SimpleNamespace
-    normalized_posts = []
-    for post in posts:
-        if isinstance(post, dict):
-            p = dict(post)
-            p["platform"] = _canonical_platform(p.get("platform"))
-            p.setdefault("velocity", 0)
-            p.setdefault("total_sats", 0)
-            p.setdefault("zap_count", 0)
-            p.setdefault("heat_level", 50)
-            p.setdefault("age_display", "now")
-            normalized_posts.append(SimpleNamespace(**p))
-        else:
-            try:
-                post.platform = _canonical_platform(getattr(post, "platform", ""))
-                if not hasattr(post, "velocity"):
-                    setattr(post, "velocity", 0)
-                if not hasattr(post, "heat_level"):
-                    setattr(post, "heat_level", 50)
-                normalized_posts.append(post)
-            except Exception:
-                normalized_posts.append(post)
     
-    sats_hour = db.session.query(db.func.sum(models.ZapEvent.amount_sats)).filter(
-        models.ZapEvent.created_at >= datetime.utcnow() - timedelta(hours=1)
+    posts = value_stream_service.get_value_stream_enhanced(limit=50)
+    curators = value_stream_service.get_top_curators(limit=10)
+    
+    curator_objects = []
+    for c in curators:
+        curator = ValueCreator.query.get(c['id'])
+        if curator:
+            curator_objects.append(curator)
+    
+    sats_hour = db.session.query(db.func.sum(ZapEvent.amount_sats)).filter(
+        ZapEvent.created_at >= datetime.utcnow() - timedelta(hours=1)
     ).scalar() or 0
     
     hot_topics = ['Bitcoin', 'Lightning', 'Nostr', 'ETF', 'Self-Custody', 'Mining', 'Layer 2']
     
     return render_template('signal_terminal.html',
-                          posts=normalized_posts,
+                          posts=posts,
                           curators=curator_objects,
                           sats_flow=sats_hour,
                           hot_topics=hot_topics)
@@ -1435,14 +339,14 @@ def signal_terminal():
 @app.route('/api/value-stream/post/<int:post_id>')
 def api_get_post_details(post_id):
     """Get detailed post info for Signal Terminal inspector"""
+    from models import CuratedPost, ZapEvent
     from datetime import datetime, timedelta
     
-    post = models.CuratedPost.query.get(post_id)
+    post = CuratedPost.query.get(post_id)
     if not post:
         return jsonify({'success': False, 'error': 'Post not found'})
     
-    submitted_at = post.submitted_at or datetime.utcnow()
-    hours_ago = (datetime.utcnow() - submitted_at).total_seconds() / 3600
+    hours_ago = (datetime.utcnow() - post.submitted_at).total_seconds() / 3600
     if hours_ago < 1:
         age_display = f"{int(hours_ago * 60)}m ago"
     elif hours_ago < 24:
@@ -1451,9 +355,9 @@ def api_get_post_details(post_id):
         age_display = f"{int(hours_ago / 24)}d ago"
     
     velocity = 0
-    recent_zaps = models.ZapEvent.query.filter(
-        models.ZapEvent.post_id == post_id,
-        models.ZapEvent.created_at >= datetime.utcnow() - timedelta(hours=1)
+    recent_zaps = ZapEvent.query.filter(
+        ZapEvent.post_id == post_id,
+        ZapEvent.created_at >= datetime.utcnow() - timedelta(hours=1)
     ).count()
     velocity = recent_zaps
     
@@ -1466,7 +370,7 @@ def api_get_post_details(post_id):
         'post': {
             'id': post.id,
             'title': post.title or 'Untitled Signal',
-            'platform': _canonical_platform(post.platform),
+            'platform': post.platform,
             'original_url': post.original_url,
             'original_id': post.original_id,
             'total_sats': post.total_sats or 0,
@@ -1484,6 +388,7 @@ def api_get_post_details(post_id):
 @app.route('/api/signal-terminal/stream')
 def signal_terminal_stream():
     """SSE endpoint for real-time Signal Terminal updates with heartbeat"""
+    from models import CuratedPost, ZapEvent
     from datetime import datetime, timedelta
     import time
     import json
@@ -1497,19 +402,19 @@ def signal_terminal_stream():
         while time.time() - start_time < max_runtime:
             try:
                 with app.app_context():
-                    new_posts = models.CuratedPost.query.filter(
-                        models.CuratedPost.submitted_at > last_check
-                    ).order_by(models.CuratedPost.signal_score.desc()).limit(10).all()
+                    new_posts = CuratedPost.query.filter(
+                        CuratedPost.submitted_at > last_check
+                    ).order_by(CuratedPost.signal_score.desc()).limit(10).all()
                     
-                    new_zaps = models.ZapEvent.query.filter(
-                        models.ZapEvent.created_at > last_check
-                    ).order_by(models.ZapEvent.created_at.desc()).limit(20).all()
+                    new_zaps = ZapEvent.query.filter(
+                        ZapEvent.created_at > last_check
+                    ).order_by(ZapEvent.created_at.desc()).limit(20).all()
                     
                     if new_posts:
                         for post in new_posts:
-                            velocity = models.ZapEvent.query.filter(
-                                models.ZapEvent.post_id == post.id,
-                                models.ZapEvent.created_at >= datetime.utcnow() - timedelta(hours=1)
+                            velocity = ZapEvent.query.filter(
+                                ZapEvent.post_id == post.id,
+                                ZapEvent.created_at >= datetime.utcnow() - timedelta(hours=1)
                             ).count()
                             
                             post_data = {
@@ -1550,198 +455,12 @@ def signal_terminal_stream():
     return Response(generate(), mimetype='text/event-stream',
                     headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no', 'Connection': 'keep-alive'})
 
-
-@app.route('/api/value-stream/stream')
-def api_value_stream_stream():
-    """SSE endpoint for Value Stream live pulse (new posts + zaps)."""
-    import time
-
-    def generate():
-        last_check = datetime.utcnow()
-        start_time = time.time()
-        max_runtime = 300
-        while time.time() - start_time < max_runtime:
-            try:
-                with app.app_context():
-                    new_posts = models.CuratedPost.query.filter(
-                        models.CuratedPost.submitted_at > last_check
-                    ).order_by(models.CuratedPost.submitted_at.desc()).limit(10).all()
-                    new_zaps = models.ZapEvent.query.filter(
-                        models.ZapEvent.created_at > last_check
-                    ).order_by(models.ZapEvent.created_at.desc()).limit(20).all()
-                    for post in new_posts:
-                        yield f"data: {json.dumps({'type': 'new_post', 'id': post.id, 'title': (post.title or 'Untitled')[:80], 'platform': post.platform or 'web', 'total_sats': post.total_sats or 0})}\n\n"
-                    for zap in new_zaps:
-                        post = models.CuratedPost.query.get(zap.post_id)
-                        title = (post.title or 'Untitled')[:50] if post else 'Unknown'
-                        yield f"data: {json.dumps({'type': 'new_zap', 'post_id': zap.post_id, 'amount': zap.amount_sats, 'title': title})}\n\n"
-                    last_check = datetime.utcnow()
-                    if new_posts or new_zaps:
-                        total_sats = db.session.query(db.func.coalesce(db.func.sum(models.CuratedPost.total_sats), 0)).scalar() or 0
-                        sats_per_hour = db.session.query(db.func.coalesce(db.func.sum(models.ZapEvent.amount_sats), 0)).filter(
-                            models.ZapEvent.created_at >= datetime.utcnow() - timedelta(hours=1)
-                        ).scalar() or 0
-                        yield f"data: {json.dumps({'type': 'stats', 'total_sats': int(total_sats), 'sats_per_hour': int(sats_per_hour)})}\n\n"
-                yield ": heartbeat\n\n"
-                time.sleep(5)
-            except Exception as e:
-                yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
-                break
-        yield f"data: {json.dumps({'type': 'reconnect', 'reason': 'timeout'})}\n\n"
-
-    return Response(generate(), mimetype='text/event-stream',
-                    headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no', 'Connection': 'keep-alive'})
-
-
-@app.route('/api/signal-terminal/recent')
-def signal_terminal_recent():
-    """Recent signal events for offline replay (last 100)."""
-    from datetime import datetime, timedelta
-    events = []
-    since = datetime.utcnow() - timedelta(hours=12)
-    posts = (
-        models.CuratedPost.query
-        .filter(models.CuratedPost.submitted_at >= since)
-        .order_by(models.CuratedPost.submitted_at.desc())
-        .limit(100)
-        .all()
-    )
-    for p in posts:
-        events.append(
-            {
-                'type': 'new_post',
-                'id': p.id,
-                'title': p.title or 'Untitled Signal',
-                'platform': _canonical_platform(p.platform),
-                'total_sats': int(p.total_sats or 0),
-                'zap_count': int(p.zap_count or 0),
-                'signal_score': round(float(p.signal_score or 0), 2),
-                'velocity': 0,
-                'ts': (p.submitted_at.isoformat() if p.submitted_at else ''),
-            }
-        )
-    zaps = (
-        models.ZapEvent.query
-        .filter(models.ZapEvent.created_at >= since)
-        .order_by(models.ZapEvent.created_at.desc())
-        .limit(100)
-        .all()
-    )
-    for z in zaps:
-        events.append(
-            {
-                'type': 'new_zap',
-                'post_id': z.post_id,
-                'amount': int(z.amount_sats or 0),
-                'ts': (z.created_at.isoformat() if z.created_at else ''),
-            }
-        )
-    events.sort(key=lambda x: x.get('ts', ''), reverse=True)
-    return jsonify({'events': events[:100]})
-
-
-def _normalize_tweet_url(url):
-    """Normalize X/twitter status URL for lookup."""
-    if not url or not isinstance(url, str):
-        return None
-    url = url.strip().split('?')[0]
-    import re
-    m = re.search(r'(https?://(?:www\.)?(?:twitter|x)\.com/\w+/status/(\d+))', url, re.I)
-    if m:
-        return m.group(1)
-    return url if ('twitter.com' in url or 'x.com' in url) else None
-
-
-@app.route('/api/value-stream/signal-check')
-def api_value_stream_signal_check():
-    """Ghost extension: check if a tweet/post URL is in Value Stream and return zap stats."""
-    url = request.args.get('url', '').strip()
-    if not url:
-        return jsonify({'in_stream': False})
-    norm = _normalize_tweet_url(url)
-    if not norm:
-        return jsonify({'in_stream': False})
-    candidates = [norm, url, norm.rstrip('/'), url.rstrip('/')]
-    post = models.CuratedPost.query.filter(models.CuratedPost.original_url.in_(candidates)).first()
-    if not post:
-        return jsonify({'in_stream': False})
-    return jsonify({
-        'in_stream': True,
-        'post_id': post.id,
-        'zap_count': post.zap_count or 0,
-        'total_sats': post.total_sats or 0,
-    })
-
-
-@app.route('/api/value-stream/kol-list')
-def api_value_stream_kol_list():
-    """Ghost extension: return Alpha list (X handles) for overlay detection."""
-    try:
-        from services.pulse_nexus_service import load_kol_list
-        kol = load_kol_list()
-        handles = list(kol.get('x_handles', []))
-        return jsonify({'success': True, 'handles': [h.lstrip('@').lower() for h in handles]})
-    except Exception as e:
-        logging.warning("kol_list: %s", e)
-        return jsonify({'success': True, 'handles': []})
-
-
-@app.route('/api/value-stream/pulse')
-def api_value_stream_pulse():
-    """KOL Pulse feed for Command Log. Optionally run ingest (throttled)."""
-    from services.pulse_nexus_service import get_pulse_feed, ingest_pulse
-    limit = min(int(request.args.get('limit', 80)), 100)
-    if request.args.get('ingest') == '1':
-        try:
-            ingest_pulse()
-            # Also refresh the live verified signal table (X + Nostr) on a throttle.
-            import time as _time
-            now_ts = _time.time()
-            last_ts = getattr(api_value_stream_pulse, "_last_signal_collect_ts", 0)
-            if now_ts - last_ts >= 90:
-                from services.sentiment_tracker_service import SentimentTrackerService
-                tracker = SentimentTrackerService()
-                x_posts = tracker.fetch_x_posts(hours_back=3, max_per_user=2)
-                nostr_notes = tracker.fetch_nostr_notes(hours_back=3, limit=20)
-                tracker.save_signals_to_db(x_posts + nostr_notes)
-                setattr(api_value_stream_pulse, "_last_signal_collect_ts", now_ts)
-        except Exception as e:
-            logging.warning("pulse ingest: %s", e)
-    try:
-        items = get_pulse_feed(limit=limit)
-    except Exception as e:
-        logging.warning("get_pulse_feed: %s", e)
-        items = []
-    return jsonify({'success': True, 'items': items})
-
-
-@app.route('/api/value-stream/confirm-zap', methods=['POST'])
-def api_confirm_zap():
-    """Confirm a zap after payment (frontend calls after webln.sendPayment). Records zap and posts X reply (Diplomat)."""
-    from services.value_stream_service import value_stream_service
-    data = request.get_json() or {}
-    post_id = data.get('post_id')
-    amount_sats = int(data.get('amount_sats') or 0)
-    payment_hash = (data.get('payment_hash') or '').strip() or None
-    if not post_id or amount_sats <= 0:
-        return jsonify({'success': False, 'error': 'post_id and amount_sats required'})
-    result = value_stream_service.process_zap(post_id, None, amount_sats, payment_hash)
-    if not result.get('success'):
-        return jsonify(result)
-    zap_id = result.get('zap_id')
-    base_url = request.url_root.rstrip('/') if request else None
-    try:
-        value_stream_service.post_zap_comment(post_id, zap_id, amount_sats, base_url=base_url)
-    except Exception as e:
-        logging.warning("post_zap_comment: %s", e)
-    return jsonify(result)
-
-
 @app.route('/api/value-stream/submit', methods=['POST'])
 def api_submit_content():
     """API endpoint for submitting curated content"""
-    value_stream_service = _get_value_stream_service()
-    from urllib.parse import urlparse
+    from services.value_stream_service import value_stream_service
+    from models import ValueCreator
+    import re
     
     data = request.get_json() or {}
     url = data.get('url', '').strip()
@@ -1749,25 +468,22 @@ def api_submit_content():
     
     if not url:
         return jsonify({'success': False, 'error': 'URL required'})
-    # Allow URL without scheme; value_stream_service will add https://
+    
+    if not re.match(r'^https?://', url):
+        return jsonify({'success': False, 'error': 'Invalid URL format'})
+    
     if len(url) > 2000:
         return jsonify({'success': False, 'error': 'URL too long'})
-    candidate = url if "://" in url else f"https://{url}"
-    parsed = urlparse(candidate)
-    host = parsed.netloc or ""
-    host_ok = ("." in host) or host.startswith("localhost") or bool(re.match(r"^\\d+\\.\\d+\\.\\d+\\.\\d+$", host))
-    if parsed.scheme not in ("http", "https") or not host or not host_ok:
-        return jsonify({'success': False, 'error': 'Valid URL required'}), 400
     
     curator_id = None
     if current_user.is_authenticated:
-        creator = models.ValueCreator.query.filter_by(
+        creator = ValueCreator.query.filter_by(
             twitter_handle=current_user.username
         ).first()
         if creator:
             curator_id = creator.id
         else:
-            new_creator = models.ValueCreator(
+            new_creator = ValueCreator(
                 display_name=current_user.username,
                 twitter_handle=current_user.username
             )
@@ -1775,74 +491,33 @@ def api_submit_content():
             db.session.commit()
             curator_id = new_creator.id
     
-    if value_stream_service is not None:
-        try:
-            result = value_stream_service.submit_content(url, curator_id, title)
-            return jsonify(result)
-        except Exception as e:
-            logging.exception("api_submit_content failed")
-            return jsonify({'success': False, 'error': str(e)}), 400
-
-    existing = models.CuratedPost.query.filter_by(original_url=url).first()
-    if existing:
-        return jsonify({'success': True, 'post_id': existing.id, 'message': 'already indexed'})
-
-    post = models.CuratedPost(
-        platform=_infer_platform_from_url(url),
-        original_url=url,
-        title=title or url,
-        content_preview='queued from fallback ingest',
-        curator_id=curator_id,
-        total_sats=0,
-        zap_count=0,
-        signal_score=0,
-    )
-    db.session.add(post)
-    db.session.commit()
-    return jsonify({'success': True, 'post_id': post.id, 'message': 'content submitted'})
+    result = value_stream_service.submit_content(url, curator_id, title)
+    return jsonify(result)
 
 @app.route('/api/value-stream/zap/<int:post_id>', methods=['POST'])
 def api_zap_content(post_id):
     """API endpoint for zapping content"""
-    value_stream_service = _get_value_stream_service()
+    from services.value_stream_service import value_stream_service
     
     data = request.get_json() or {}
     amount = data.get('amount_sats', 1000)
     payment_hash = data.get('payment_hash')
     sender_id = data.get('sender_id')
     
-    if value_stream_service is not None:
-        result = value_stream_service.process_zap(post_id, sender_id, amount, payment_hash)
-        return jsonify(result)
-
-    post = models.CuratedPost.query.get(post_id)
-    if not post:
-        return jsonify({'success': False, 'error': 'Post not found'}), 404
-
-    post.total_sats = (post.total_sats or 0) + int(amount)
-    post.zap_count = (post.zap_count or 0) + 1
-    post.calculate_signal_score()
-    db.session.add(models.ZapEvent(
-        post_id=post_id,
-        sender_id=sender_id,
-        amount_sats=int(amount),
-        payment_hash=payment_hash,
-        status='settled',
-        source='fallback',
-    ))
-    db.session.commit()
-    return jsonify({'success': True, 'post_id': post_id, 'amount_sats': int(amount)})
+    result = value_stream_service.process_zap(post_id, sender_id, amount, payment_hash)
+    return jsonify(result)
 
 @app.route('/api/value-stream/invoice/<int:post_id>', methods=['POST'])
 def api_create_zap_invoice(post_id):
     """Create Lightning invoice for zapping content via LNURL"""
+    from models import CuratedPost
     import requests as req
     
     data = request.get_json() or {}
     amount_sats = data.get('amount_sats', 1000)
     amount_msats = amount_sats * 1000
     
-    post = models.CuratedPost.query.get(post_id)
+    post = CuratedPost.query.get(post_id)
     if not post:
         return jsonify({'success': False, 'error': 'Post not found'})
     
@@ -1882,31 +557,15 @@ def api_create_zap_invoice(post_id):
 @app.route('/api/value-stream/curators')
 def api_get_curators():
     """Get top curators for the leaderboard"""
-    value_stream_service = _get_value_stream_service()
-    if value_stream_service is not None:
-        curators = value_stream_service.get_top_curators(limit=20)
-        return jsonify({'success': True, 'curators': curators})
-
-    curators = models.ValueCreator.query.order_by(
-        models.ValueCreator.curator_score.desc(),
-        models.ValueCreator.total_sats_received.desc()
-    ).limit(20).all()
-    return jsonify({
-        'success': True,
-        'curators': [{
-            'id': c.id,
-            'display_name': c.display_name,
-            'verified': bool(c.verified),
-            'curator_score': c.curator_score or 0,
-            'total_sats_received': c.total_sats_received or 0,
-            'total_zaps': c.total_zaps or 0,
-        } for c in curators]
-    })
+    from services.value_stream_service import value_stream_service
+    
+    curators = value_stream_service.get_top_curators(limit=20)
+    return jsonify({'success': True, 'curators': curators})
 
 @app.route('/api/value-stream/register', methods=['POST'])
 def api_register_creator():
     """Register as a creator/curator"""
-    value_stream_service = _get_value_stream_service()
+    from services.value_stream_service import value_stream_service
     
     data = request.get_json() or {}
     display_name = data.get('display_name')
@@ -1917,93 +576,19 @@ def api_register_creator():
     if not display_name:
         return jsonify({'success': False, 'error': 'Display name required'})
     
-    if value_stream_service is not None:
-        result = value_stream_service.register_creator(
-            display_name=display_name,
-            nostr_pubkey=nostr_pubkey,
-            lightning_address=lightning_address,
-            nip05=nip05
-        )
-        return jsonify(result)
-
-    existing = None
-    if nostr_pubkey:
-        existing = models.ValueCreator.query.filter_by(nostr_pubkey=nostr_pubkey).first()
-    if not existing:
-        existing = models.ValueCreator.query.filter_by(display_name=display_name).first()
-    if existing:
-        return jsonify({'success': True, 'creator_id': existing.id, 'message': 'creator already registered'})
-
-    creator = models.ValueCreator(
+    result = value_stream_service.register_creator(
         display_name=display_name,
         nostr_pubkey=nostr_pubkey,
         lightning_address=lightning_address,
-        nip05=nip05,
+        nip05=nip05
     )
-    db.session.add(creator)
-    db.session.commit()
-    return jsonify({'success': True, 'creator_id': creator.id})
-
-
-@app.route('/value-stream/claim')
-def value_stream_claim_page():
-    """Sovereign Claim Portal: NIP-07 auth + Lightning payout."""
-    return render_template('value_stream_claim.html')
-
-
-@app.route('/api/value-stream/claim/balance')
-def api_claim_balance():
-    """Get claimable balance for a Nostr pubkey. Query param: pubkey=."""
-    from services.value_stream_service import value_stream_service
-    try:
-        pubkey = request.args.get('pubkey', '').strip()
-        if not pubkey:
-            return jsonify({'success': False, 'error': 'pubkey required'})
-        creator = value_stream_service.get_creator_by_pubkey(pubkey)
-        if not creator:
-            return jsonify({'success': True, 'balance_sats': 0, 'can_claim': False, 'linked': False})
-        balance = value_stream_service.get_claimable_balance(creator.id)
-        can_claim = value_stream_service.can_claim_again(pubkey) and balance > 0
-        return jsonify({
-            'success': True,
-            'balance_sats': balance,
-            'can_claim': can_claim,
-            'linked': True,
-            'display_name': creator.display_name or 'Creator',
-        })
-    except Exception as e:
-        logging.exception("api_claim_balance failed: %s", e)
-        return jsonify({'success': True, 'balance_sats': 0, 'can_claim': False, 'linked': False})
-
-
-@app.route('/api/value-stream/claim', methods=['POST'])
-def api_claim_submit():
-    """Submit a claim: verify Nostr sig, rate limit, pay to Lightning Address."""
-    from services.value_stream_service import value_stream_service
-    try:
-        data = request.get_json() or {}
-        pubkey = (data.get('pubkey') or '').strip()
-        signature = data.get('signature') or ''
-        signed_message = data.get('signed_message') or ''
-        lightning_address = (data.get('lightning_address') or '').strip()
-        result = value_stream_service.process_claim(
-            pubkey=pubkey,
-            signature=signature,
-            signed_message=signed_message,
-            lightning_address=lightning_address,
-        )
-        status = 200 if result.get('success') else 400
-        return jsonify(result), status
-    except Exception as e:
-        logging.exception("api_claim_submit failed")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
+    return jsonify(result)
 
 @app.route('/api/nostr/latest/<pubkey>')
 def api_nostr_latest(pubkey):
     """Get latest Nostr post for a given pubkey"""
     try:
-        event = models.NostrEvent.query.filter_by(pubkey=pubkey).order_by(models.NostrEvent.created_at.desc()).first()
+        event = NostrEvent.query.filter_by(pubkey=pubkey).order_by(NostrEvent.created_at.desc()).first()
         if event:
             return jsonify({
                 'success': True,
@@ -2072,297 +657,25 @@ def operator_costs():
 @app.route('/solo-slayers')
 def solo_slayers():
     """Solo Miner Tracker - Celebrates independent miners who find blocks"""
-    def _fallback_solo_payload():
-        solo_blocks = [
-            {
-                'height': 887212,
-                'pool_name': 'solo ckpool',
-                'reward': 3.125,
-                'tx_count': 3124,
-                'date': '2026-02-02',
-                'hashrate': '500 TH/s',
-                'odds': '1 in 6,000',
-                'device': 'bitaxe + lottery rig',
-                'verified': True,
-                'mempool_url': 'https://mempool.space/block/000000000000000000003ec3d1f7d949339df57b7d17c6dc4149246d42ba13bc',
-                'story': 'independent miner hit the block race against industrial farms.',
-                'usd_value': '$190,000',
-            },
-            {
-                'height': 886941,
-                'pool_name': 'solo miner',
-                'reward': 3.125,
-                'tx_count': 2987,
-                'date': '2026-01-28',
-                'hashrate': '120 TH/s',
-                'odds': '1 in 25,000',
-                'device': 'single s19',
-                'verified': True,
-                'mempool_url': 'https://mempool.space/block/00000000000000000000167083c93b082672ffea44ba6a5c1e0a683f51dd28a7',
-                'story': 'single-rig miner landed a high-signal jackpot block.',
-                'usd_value': '$188,000',
-            },
-        ]
-        total_rewards = sum(float(b.get('reward', 0) or 0) for b in solo_blocks)
-        stats = {
-            'total_solo_blocks': len(solo_blocks),
-            'total_rewards': total_rewards,
-            'avg_reward': (total_rewards / len(solo_blocks)) if solo_blocks else 0,
-            'latest_solo_block': {'height': solo_blocks[0]['height']} if solo_blocks else {'height': '--'},
-        }
-        leaderboard = [
-            {'name': 'solo ckpool', 'blocks': 1, 'total_reward': 3.125},
-            {'name': 'solo miner', 'blocks': 1, 'total_reward': 3.125},
-        ]
-        return stats, leaderboard, solo_blocks
-
-    try:
-        from services.solo_tracker import solo_tracker
-        stats = solo_tracker.get_stats()
-        leaderboard = solo_tracker.get_leaderboard()
-        solo_blocks = solo_tracker.solo_blocks[:50]
-    except Exception as e:
-        logging.warning("solo_tracker unavailable, using fallback payload: %s", e)
-        stats, leaderboard, solo_blocks = _fallback_solo_payload()
+    from services.solo_tracker import solo_tracker
+    
+    stats = solo_tracker.get_stats()
+    leaderboard = solo_tracker.get_leaderboard()
+    solo_blocks = solo_tracker.solo_blocks[:50]
     
     return render_template('solo_slayers.html',
                          stats=stats,
                          leaderboard=leaderboard,
                          solo_blocks=solo_blocks)
 
-
-def _dossier_manifest_path():
-    """Resolve dossier manifest path from the core package dir (works with any cwd or gunicorn core.app:app)."""
-    core_dir = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(core_dir, 'static', 'data', 'dossier_manifest.json')
-
-
-def _sovereign7_manifest_path():
-    """Sovereign 7 condensed dossier manifest (7 chapters)."""
-    core_dir = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(core_dir, 'static', 'data', 'sovereign7_manifest.json')
-
-
-# Built-in Sovereign 7 chapters so /dossier always works even if JSON is missing (e.g. wrong cwd or deploy).
-SOVEREIGN7_CHAPTERS_FALLBACK = [
-    {"id": 1, "title": "The Infinite Printing Press", "subtitle": "The Problem",
-     "narrative": "Modern money isn't earned; it's printed. When they add a zero to the supply, they subtract a year of your life.",
-     "image_path": "/static/images/dossier/sovereign7/01_infinite_printing.png",
-     "deep_dive": {"key_metric": "M2 Money Supply Expansion vs. Purchasing Power",
-                  "math": "Since 1913, the USD has lost over 96% of its value. Since 2020, over 40% of all USD in existence was printed.",
-                  "technical_insight": "The Cantillon Effect: newly printed money benefits banks and government first, while dilution (inflation) hits the average citizen last."}},
-    {"id": 2, "title": "The Nixon Shock", "subtitle": "The Point of No Return",
-     "narrative": "In 1971, the world lost its anchor. We moved from \"Money backed by Gold\" to \"Money backed by Promises.\"",
-     "image_path": "/static/images/dossier/sovereign7/02_nixon_shock.png",
-     "deep_dive": {"key_metric": "Real Wages vs. Productivity Gap",
-                  "math": "Post-1971, productivity continued to rise, but real wages decoupled and stayed flat.",
-                  "technical_insight": "Transition from Commodity-Backed Money to Debt-Based Fiat. \"Fiat\" is Latin for \"by decree\"—value only because the government says so, backed by nothing but tax collection and military force."}},
-    {"id": 3, "title": "The Scarcity Wall", "subtitle": "The Solution",
-     "narrative": "For the first time in human history, we have an asset where the supply is mathematically fixed. There will only ever be 21 million.",
-     "image_path": "/static/images/dossier/sovereign7/03_scarcity_wall.png",
-     "deep_dive": {"key_metric": "Absolute Scarcity vs. Stock-to-Flow",
-                  "math": "Total Supply = Σ (n=0 to 32) of 210,000 × (50 / 2^n)",
-                  "technical_insight": "Bitcoin is the first un-inflatable asset. Unlike gold (higher price → more mining), Bitcoin's supply is inelastic. No matter how high the price, the issuance schedule stays identical."}},
-    {"id": 4, "title": "The Difficulty Adjustment", "subtitle": "The Heartbeat",
-     "narrative": "Bitcoin breathes. Every two weeks, the network adjusts to ensure it can never be killed, cheated, or rushed. It is the only machine that manages itself.",
-     "image_path": "/static/images/dossier/sovereign7/04_difficulty_adjustment.png",
-     "deep_dive": {"key_metric": "The 2016 Block Target (Approx. 2 weeks)",
-                  "math": "If blocks are found too fast (<10 min), difficulty increases. If too slow (>10 min), it decreases.",
-                  "technical_insight": "The most important Satoshi discovery. Ensures Bitcoin's issuance cannot be rushed by more powerful hardware. The network is a living, self-correcting biological machine."}},
-    {"id": 5, "title": "The Energy Shield", "subtitle": "The Security",
-     "narrative": "Bitcoin isn't backed by nothing. It's backed by the laws of physics. Every block is a wall of pure energy that makes the network unhackable.",
-     "image_path": "/static/images/dossier/sovereign7/05_energy_shield.png",
-     "deep_dive": {"key_metric": "Terahashes per Second (TH/s) & Exahashes",
-                  "math": "To rewrite a block, an attacker must control >51% of total network hashrate—costing billions in hardware and electricity.",
-                  "technical_insight": "Thermodynamic Security. Bitcoin converts raw energy into a digital wall that protects wealth. The only digital asset that is expensive to create, preventing the Infinite Printing problem of fiat."}},
-    {"id": 6, "title": "The S-Curve", "subtitle": "The Inevitability",
-     "narrative": "Adoption isn't a straight line; it's a tidal wave. We are currently at the \"Early Majority\" stage. The shift to a Bitcoin Standard is a mathematical certainty.",
-     "image_path": "/static/images/dossier/sovereign7/06_scurve.png",
-     "deep_dive": {"key_metric": "Metcalfe's Law (V ∝ n²)",
-                  "math": "The value of a network is proportional to the square of its users.",
-                  "technical_insight": "Bitcoin's adoption curve parallels the Internet, the Smartphone, and the Automobile. We are in the Early Majority phase. As the network grows, utility and liquidity increase exponentially—making it harder for any other coin to catch up."}},
-    {"id": 7, "title": "Sovereign Custody", "subtitle": "The Freedom",
-     "narrative": "If you don't hold the keys, you don't hold the coins. Sovereignty starts with your own private vault.",
-     "image_path": "/static/images/dossier/sovereign7/07_sovereign_custody.png",
-     "deep_dive": {"key_metric": "256-bit ECDSA Encryption",
-                  "math": "There are 2^256 possible private keys—more than the number of atoms in the observable universe.",
-                  "technical_insight": "Holding your own keys means you are your own central bank. No customer service to freeze your account. You move from Permissioned Finance (asking to use your money) to Permissionless Sovereignty."}},
-]
-
-
-def _load_json_manifest(path):
-    """Load JSON manifest; return [] on any error."""
-    try:
-        with open(path, encoding='utf-8') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        logging.warning("Manifest not found at %s", path)
-        return []
-    except json.JSONDecodeError as e:
-        logging.warning("Manifest invalid JSON: %s", e)
-        return []
-    except Exception as e:
-        logging.warning("Manifest error: %s", e)
-        return []
-
-
-def _get_sovereign7_chapters():
-    """Return Sovereign 7 chapters from JSON file, or built-in fallback so /dossier always has content."""
-    path = _sovereign7_manifest_path()
-    chapters = _load_json_manifest(path)
-    if chapters and len(chapters) >= 7:
-        return chapters
-    logging.warning("Using built-in Sovereign 7 chapters (file missing or invalid at %s)", path)
-    return SOVEREIGN7_CHAPTERS_FALLBACK
-
-
-@app.route('/dossier')
-def dossier():
-    """The Protocol Pulse Dossier — Sovereign 7 (7 chapters). Main dossier template is dossier.html."""
-    chapters = _get_sovereign7_chapters()
-    resp = make_response(render_template('dossier.html', chapters=chapters))
-    resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-    resp.headers["Pragma"] = "no-cache"
-    resp.headers["Expires"] = "0"
-    return resp
-
-
-@app.route('/dossier/classic')
-def dossier_classic():
-    """The Protocol Pulse Dossier — full 32-slide version."""
-    manifest_path = _dossier_manifest_path()
-    manifest = _load_json_manifest(manifest_path)
-    return render_template('dossier_classic.html', manifest=manifest)
-
-
-@app.route('/mining-risk')
-def mining_risk():
-    """Mining Risk by Geography — risk factor by deployment location with real-time metrics"""
-    return render_template('mining_risk.html')
-
-
-@app.route('/api/mining-risk')
-def api_mining_risk():
-    """API: regions with risk scores + live network metrics for Mining Risk page"""
-    try:
-        from services.mining_risk_service import get_regions_with_risk, get_live_network_metrics
-        regions = get_regions_with_risk()
-        network = get_live_network_metrics()
-        return jsonify({
-            'regions': regions,
-            'network': network,
-            'updated_at': network.get('updated_at'),
-        })
-    except Exception as e:
-        logging.error(f"Mining risk API error: {e}")
-        return jsonify({'regions': [], 'network': {}, 'error': str(e)}), 500
-
-
-@app.route('/api/mining-risk/<string:location_id>')
-def api_mining_risk_location_v2(location_id):
-    """API: return one location's risk profile by location id/code."""
-    try:
-        from services.mining_risk_service import get_location_risk, get_external_risk_signals
-        row = get_location_risk(location_id)
-        if not row:
-            return jsonify({'success': False, 'error': 'location not found'}), 404
-        return jsonify({'success': True, 'location': row, 'signals': get_external_risk_signals()})
-    except Exception as e:
-        logging.error("Mining risk location API error: %s", e)
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/mining-compare')
-def api_mining_compare():
-    """API: compare multiple locations by ids. Query: ids=us_texas,ca_canada"""
-    try:
-        from services.mining_risk_service import compare_locations
-        raw = (request.args.get('ids') or '').strip()
-        ids = [x.strip() for x in raw.split(',') if x.strip()]
-        if len(ids) < 2:
-            return jsonify({'success': False, 'error': 'provide at least two ids'}), 400
-        rows = compare_locations(ids)
-        return jsonify({'success': True, 'count': len(rows), 'locations': rows})
-    except Exception as e:
-        logging.error("Mining compare API error: %s", e)
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/mining/risk/<string:location_id>')
-def api_mining_risk_location(location_id):
-    """Compatibility endpoint for per-location mining risk details."""
-    try:
-        from services.mining_risk_oracle import oracle
-        item = oracle.get_location_risk(location_id)
-        if not item:
-            return jsonify({"success": False, "error": "location not found"}), 404
-        return jsonify({"success": True, "location": item})
-    except Exception as e:
-        logging.error("Mining risk location API error: %s", e)
-        return jsonify({"success": False, "error": str(e)}), 500
-
-
-@app.route('/api/mining/rankings')
-def api_mining_rankings():
-    """Compatibility endpoint returning ranked mining risk locations."""
-    try:
-        from services.mining_risk_oracle import oracle
-        locations = sorted(
-            oracle.get_all_locations(),
-            key=lambda x: int(x.get("overall_score") or 0),
-            reverse=True,
-        )
-        return jsonify({"success": True, "rankings": locations})
-    except Exception as e:
-        logging.error("Mining rankings API error: %s", e)
-        return jsonify({"success": False, "rankings": [], "error": str(e)}), 500
-
-
 @app.route('/api/solo-blocks')
 def api_solo_blocks():
     """API endpoint for solo block data"""
-    try:
-        from services.solo_tracker import solo_tracker
-        stats = solo_tracker.get_stats()
-        leaderboard = solo_tracker.get_leaderboard()
-        blocks = solo_tracker.solo_blocks[:100]
-    except Exception as e:
-        logging.warning("solo_tracker unavailable for api_solo_blocks: %s", e)
-        blocks = [
-            {
-                'height': 887212,
-                'pool_name': 'solo ckpool',
-                'reward': 3.125,
-                'tx_count': 3124,
-                'date': '2026-02-02',
-                'hashrate': '500 TH/s',
-                'odds': '1 in 6,000',
-                'device': 'bitaxe + lottery rig',
-                'verified': True,
-            },
-            {
-                'height': 886941,
-                'pool_name': 'solo miner',
-                'reward': 3.125,
-                'tx_count': 2987,
-                'date': '2026-01-28',
-                'hashrate': '120 TH/s',
-                'odds': '1 in 25,000',
-                'device': 'single s19',
-                'verified': True,
-            },
-        ]
-        total_rewards = sum(float(b.get('reward', 0) or 0) for b in blocks)
-        stats = {
-            'total_solo_blocks': len(blocks),
-            'total_rewards': total_rewards,
-            'avg_reward': (total_rewards / len(blocks)) if blocks else 0,
-            'latest_solo_block': {'height': blocks[0]['height']} if blocks else {'height': '--'},
-        }
-        leaderboard = [
-            {'name': 'solo ckpool', 'blocks': 1, 'total_reward': 3.125},
-            {'name': 'solo miner', 'blocks': 1, 'total_reward': 3.125},
-        ]
+    from services.solo_tracker import solo_tracker
+    
+    stats = solo_tracker.get_stats()
+    leaderboard = solo_tracker.get_leaderboard()
+    blocks = solo_tracker.solo_blocks[:100]
     
     return jsonify({
         'success': True,
@@ -2456,14 +769,9 @@ def clips_gallery():
         status = ai_clips_service.get_status()
     except Exception as e:
         logging.error(f"AI Clips service error: {e}")
-        try:
-            from services.clips_service import clips_service
-            clips = clips_service.get_all_clips()
-            status = clips_service.get_status()
-        except Exception as fallback_error:
-            logging.error(f"Clips fallback service error: {fallback_error}")
-            clips = []
-            status = {"status": "degraded", "error": "clips service unavailable"}
+        from services.clips_service import clips_service
+        clips = clips_service.get_all_clips()
+        status = clips_service.get_status()
     return render_template('clips_gallery.html', clips=clips, status=status)
 
 @app.route('/dashboard')
@@ -2581,215 +889,119 @@ def api_network_data():
 
 @app.route('/articles')
 def articles():
-    """Intelligence Terminal: Bento layout with hero, grid, Network Health sidebar. Paginated so all articles load."""
+    """Articles listing page with chronological Edition layout"""
     now = datetime.utcnow()
-    per_page = 40
-    page = request.args.get('page', 1, type=int)
-    if page < 1:
-        page = 1
-
-    # Prefer published; if none, fall back to all (so articles are never "gone")
-    base_q = models.Article.query.filter(models.Article.published.is_(True)).order_by(
-        models.Article.created_at.desc()
-    )
-    total_count = base_q.count()
-    if total_count == 0:
-        logging.info("No published articles; falling back to all articles.")
-        base_q = models.Article.query.order_by(models.Article.created_at.desc())
-        total_count = base_q.count()
-
-    total_pages = max(1, (total_count + per_page - 1) // per_page)
-    if page > total_pages:
-        page = total_pages
-    offset = (page - 1) * per_page
-    recent = base_q.offset(offset).limit(per_page).all()
-
-    # Ticker: always last 5 article titles (from first page of results)
-    ticker_q = models.Article.query.filter(models.Article.published.is_(True)).order_by(
-        models.Article.created_at.desc()
-    ).limit(5)
-    if total_count == 0:
-        ticker_q = models.Article.query.order_by(models.Article.created_at.desc()).limit(5)
-    ticker_titles = [a.title for a in ticker_q.all()]
-
-    # Hero only on page 1; grid = rest on page 1, or all on page 2+
-    latest_article = recent[0] if (page == 1 and recent) else None
-    grid_articles = recent[1:] if (page == 1 and len(recent) > 1) else recent
-
-    today_articles = recent[:10]
-    yesterday_articles = recent[10:20] if len(recent) > 10 else []
-    archive_articles = recent[20:40] if len(recent) > 20 else []
+    cutoff_24h = now - timedelta(hours=24)
+    cutoff_48h = now - timedelta(hours=48)
+    
+    today_articles = Article.query.filter(
+        Article.published == True,
+        Article.created_at >= cutoff_24h
+    ).order_by(Article.created_at.desc()).all()
+    
+    yesterday_articles = Article.query.filter(
+        Article.published == True,
+        Article.created_at >= cutoff_48h,
+        Article.created_at < cutoff_24h
+    ).order_by(Article.created_at.desc()).all()
+    
+    if not today_articles and not yesterday_articles:
+        all_recent = Article.query.filter(
+            Article.published == True
+        ).order_by(Article.created_at.desc()).limit(50).all()
+        
+        today_articles = all_recent[:10]
+        yesterday_articles = all_recent[10:20]
+        archive_articles = all_recent[20:]
+    else:
+        archive_articles = Article.query.filter(
+            Article.published == True,
+            Article.created_at < cutoff_48h
+        ).order_by(Article.created_at.desc()).limit(20).all()
+    
     for article in today_articles:
         time_diff = (now - article.created_at).total_seconds() / 3600
         article.is_pressing = time_diff < 1
-
-    categories = [cat[0] for cat in db.session.query(models.Article.category).distinct().all() if cat[0]]
-    # Category counts for filter pills (published only; fallback to all if none published)
-    use_published = total_count > 0
-    category_counts = {}
-    for c in categories:
-        q = models.Article.query.filter(models.Article.category == c)
-        if use_published:
-            q = q.filter(models.Article.published.is_(True))
-        category_counts[c] = q.count()
-    active_ads = models.Advertisement.query.filter_by(is_active=True).all()
+    
+    # Get all categories for filter
+    categories = db.session.query(Article.category).filter_by(published=True).distinct().all()
+    categories = [cat[0] for cat in categories if cat[0]]
+    
+    # Get active advertisements
+    active_ads = Advertisement.query.filter_by(is_active=True).all()
+    
+    # Fetch live cryptocurrency prices for sidebar
     prices = price_service.get_prices()
-    network_stats = None
-    mempool_data = {}
-    try:
-        network_stats = NodeService.get_network_stats()
-    except Exception:
-        pass
-    try:
-        mempool_data = fetch_mempool_data()
-    except Exception:
-        pass
-    # Default header image for any article without one (branded overlay in CSS)
-    default_header_url = "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200"
-
-    return render_template('articles.html',
+    
+    return render_template('articles.html', 
                          today_articles=today_articles,
                          yesterday_articles=yesterday_articles,
                          archive_articles=archive_articles,
-                         latest_article=latest_article,
-                         grid_articles=grid_articles,
-                         ticker_titles=ticker_titles,
                          categories=categories,
-                         category_counts=category_counts,
                          active_ads=active_ads,
                          prices=prices,
                          price_service=price_service,
-                         network_stats=network_stats,
-                         mempool_data=mempool_data,
-                         last_updated=now,
-                         page=page,
-                         total_pages=total_pages,
-                         total_count=total_count,
-                         per_page=per_page,
-                         default_header_url=default_header_url)
-
-def _article_body_without_tldr(content):
-    """Delete ALL text before the first <h2> tag to prevent double-summaries (TL;DR/summary only in Key Takeaways)."""
-    if not content:
-        return ""
-    first_h2 = re.search(r'<h2[\s>]', content, re.IGNORECASE)
-    if first_h2:
-        return content[first_h2.start():].strip()
-    return content.strip()
-
-
-def _article_key_takeaways(article):
-    """Extract key takeaways: use summary, or TL;DR from content, or first 400 chars. Never duplicate with body."""
-    summary = (article.summary or "").strip()
-    content = (article.content or "")
-    if summary:
-        return summary
-    # Extract TL;DR from content (plain text for the callout)
-    tldr_match = re.search(
-        r'<div\s+class="tldr-section"[^>]*>\s*(?:<[^>]+>)*\s*TL;DR:\s*([^<]+)',
-        content,
-        re.DOTALL | re.IGNORECASE
-    )
-    if tldr_match:
-        text = re.sub(r"<[^>]+>", "", tldr_match.group(1)).strip()
-        return text[:500] + ("…" if len(text) > 500 else "")
-    plain = re.sub(r"<[^>]+>", "", content).strip()
-    return plain[:400] + ("…" if len(plain) > 400 else "") if plain else ""
-
+                         last_updated=now)
 
 @app.route('/articles/<int:article_id>')
 def article_detail(article_id):
-    """Individual article page. Key Takeaways and body are never duplicated (TL;DR shown once)."""
-    article = models.Article.query.get_or_404(article_id)
-    try:
-        related_articles = models.Article.query.filter(
-            models.Article.id != article_id,
-            models.Article.published == True,
-            models.Article.category == article.category
-        ).limit(3).all()
-    except Exception:
-        related_articles = []
-    _log_engagement_event(
-        event_type="article_view",
-        content_type="article",
-        content_id=article.id,
-        source_url=request.path,
-    )
-    key_takeaways_text = _article_key_takeaways(article)
-    # Bullet list: split on sentence boundaries for Key Takeaways box
-    key_takeaways_bullets = []
-    if key_takeaways_text:
-        for part in re.split(r"\.\s+", key_takeaways_text):
-            part = part.strip().strip(".")
-            if part and len(part) > 10:
-                key_takeaways_bullets.append(part + ("." if not part.endswith(".") else ""))
-    if not key_takeaways_bullets and key_takeaways_text:
-        key_takeaways_bullets = [key_takeaways_text]
-    body_html = _article_body_without_tldr(article.content or "")
-    # Default header image (Bitcoin abstract); red/black overlay in CSS
-    header_image_url = article.header_image_url or "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200"
-    return render_template(
-        "article_detail.html",
-        article=article,
-        related_articles=related_articles,
-        key_takeaways_text=key_takeaways_text,
-        key_takeaways_bullets=key_takeaways_bullets,
-        body_html=body_html,
-        header_image_url=header_image_url,
-    )
+    """Individual article page"""
+    article = Article.query.get_or_404(article_id)
+    related_articles = Article.query.filter(
+        Article.id != article_id,
+        Article.published == True,
+        Article.category == article.category
+    ).limit(3).all()
+    
+    return render_template('article_detail.html', article=article, related_articles=related_articles)
 
 @app.route('/category/<category>')
 def category_articles(category):
     """Category-filtered article listing with premium design"""
-    articles = models.Article.query.filter(
-        models.Article.published == True,
-        models.Article.category == category
-    ).order_by(models.Article.created_at.desc()).limit(50).all()
+    articles = Article.query.filter(
+        Article.published == True,
+        Article.category == category
+    ).order_by(Article.created_at.desc()).limit(50).all()
     
     return render_template('category.html', category=category, articles=articles)
 
-def _slugify_section(name):
-    """Safe HTML id from section name (alphanumeric and dashes only)."""
-    if not name:
-        return "general"
-    import re
-    s = re.sub(r'[^\w\s-]', '', str(name)).strip().lower()
-    return re.sub(r'[-\s]+', '-', s) or "general"
-
-
-def _get_podcast_sections(per_section=6):
-    """Build podcast sections list (Protocol Pulse, Cypherpunk'd, etc.) for Media Hub."""
-    sections_list = []
-    seen_slugs = set()
-    sources = db.session.query(models.Podcast.rss_source).distinct().all()
-    for (source,) in sources:
-        source_name = source if source else "General"
-        slug = _slugify_section(source_name)
-        if slug in seen_slugs:
-            continue
-        seen_slugs.add(slug)
-        recent = models.Podcast.query.filter_by(rss_source=source).order_by(
-            models.Podcast.published_date.desc()
-        ).limit(per_section).all()
-        if recent:
-            sections_list.append({
-                "name": source_name,
-                "slug": slug,
-                "podcasts": recent,
-            })
-    return sections_list
-
-
 @app.route('/podcasts')
 def podcasts():
-    """Redirect to Media Hub Podcasts section."""
-    return redirect(url_for('media_hub') + '#section-podcasts')
+    """Podcasts listing page with RSS feed sections"""
+    # Group podcasts by RSS source, showing only 3 most recent per section
+    podcast_sections = {}
+    
+    # Get distinct RSS sources
+    sources = db.session.query(Podcast.rss_source).filter(Podcast.rss_source.isnot(None)).distinct().all()
+    
+    for source_tuple in sources:
+        source = source_tuple[0] or 'General'
+        # Get only the 3 most recent episodes for initial display
+        recent_episodes = Podcast.query.filter_by(rss_source=source).order_by(Podcast.published_date.desc()).limit(3).all()
+        if recent_episodes:
+            podcast_sections[source] = recent_episodes
+    
+    # Generate smart playlist based on user segment
+    smart_playlist = None
+    try:
+        if current_user.is_authenticated:
+            user_segment = UserSegment.query.filter_by(user_id=current_user.id).first()
+            segment_type = user_segment.segment_type if user_segment else 'institution'
+        else:
+            segment_type = 'institution'
+        
+        from services.content_engine import content_engine
+        smart_playlist = content_engine.get_smart_playlist(segment_type)
+    except Exception as e:
+        logging.warning(f"Smart playlist generation failed: {e}")
+    
+    return render_template('podcasts.html', podcast_sections=podcast_sections, smart_playlist=smart_playlist)
 
 @app.route('/api/podcast/<int:podcast_id>')
 def get_podcast_api(podcast_id):
     """API endpoint to get podcast data for player"""
     try:
-        podcast = models.Podcast.query.get_or_404(podcast_id)
+        podcast = Podcast.query.get_or_404(podcast_id)
         return jsonify({
             'id': podcast.id,
             'title': podcast.title,
@@ -2805,23 +1017,20 @@ def get_podcast_api(podcast_id):
         logging.error(f"Error fetching podcast {podcast_id}: {e}")
         return jsonify({'error': 'Podcast not found'}), 404
 
-@app.route('/api/podcasts/<path:rss_source>')
+@app.route('/api/podcasts/<rss_source>')
 def get_more_podcasts_api(rss_source):
-    """API endpoint to load more episodes for a specific RSS source (use 'General' for null source)."""
+    """API endpoint to load more episodes for a specific RSS source"""
     try:
-        from urllib.parse import unquote
-        rss_source = unquote(rss_source)
-        source_filter = None if rss_source == "General" else rss_source
         offset = request.args.get('offset', 0, type=int)
         limit = request.args.get('limit', 3, type=int)
-
-        base = models.Podcast.query
-        if source_filter is None:
-            base = base.filter(models.Podcast.rss_source.is_(None))
-        else:
-            base = base.filter(models.Podcast.rss_source == source_filter)
-        total_count = base.count()
-        podcasts = base.order_by(models.Podcast.published_date.desc()).offset(offset).limit(limit).all()
+        
+        # Get podcasts for this RSS source with pagination
+        podcasts = Podcast.query.filter_by(rss_source=rss_source).order_by(
+            Podcast.published_date.desc()
+        ).offset(offset).limit(limit).all()
+        
+        # Get total count for this source
+        total_count = Podcast.query.filter_by(rss_source=rss_source).count()
         
         podcast_list = []
         for podcast in podcasts:
@@ -2849,8 +1058,6 @@ def get_more_podcasts_api(rss_source):
 @app.route('/rss/podcasts.xml')
 def podcast_rss():
     """Generate RSS feed for podcasts"""
-    if not rss_service:
-        return "RSS service not available", 503
     try:
         rss_xml = rss_service.generate_rss_feed()
         response = app.response_class(rss_xml, mimetype='application/rss+xml')
@@ -2859,183 +1066,15 @@ def podcast_rss():
         logging.error(f"Error generating podcast RSS: {e}")
         return "Error generating RSS feed", 500
 
-
-@app.route('/feed.xml')
-def podcast_feed_xml():
-    """Apple-compatible feed endpoint for podcast clients."""
-    from services.podcast_engine import podcast_engine
-
-    try:
-        xml = podcast_engine.generate_feed_xml()
-        return app.response_class(xml, mimetype='application/rss+xml')
-    except Exception as e:
-        logging.error("feed.xml generation failed: %s", e)
-        return "feed generation failed", 500
-
-
-@app.route('/media/daily-beat.mp4')
-def media_daily_beat():
-    """Public medley artifact for RSS enclosure consumers."""
-    fpath = Path("/home/ultron/protocol_pulse/logs/medley_daily_beat.mp4")
-    if not fpath.exists():
-        abort(404)
-    return send_file(str(fpath), mimetype='video/mp4', as_attachment=False)
-
 @app.route('/media-terminal')
 def media_terminal():
     """Redirect media-terminal to the unified media hub"""
     return redirect(url_for('media_hub'))
 
-def _get_media_hub_books():
-    """Build our_books and recommended_books for Media Hub. Always available (no RSS/API dependency)."""
-    affiliate_tag = os.environ.get('AMAZON_AFFILIATE_TAG', 'protocolpulse-20')
-    our_books = [
-        {
-            'title': 'Everything Divided by 21 Million',
-            'author': 'Knut Svanholm',
-            'description': 'A philosophical deep dive into Bitcoin\'s relationship to time, money, freedom, and human progress through mathematical scarcity.',
-            'cover_url': '/static/images/books/everything_21m.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/9916697191?tag={affiliate_tag}'
-        },
-        {
-            'title': 'The Big Print',
-            'author': 'Lawrence Lepard',
-            'description': 'An exposé revealing how the Federal Reserve and financial elites engineered wealth extraction through monetary policy.',
-            'cover_url': '/static/images/books/big_print.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/B0DVTCVX8J?tag={affiliate_tag}'
-        },
-        {
-            'title': 'Daylight Robbery',
-            'author': 'Dominic Frisby',
-            'description': 'The hidden history of how taxation has shaped human civilization from ancient empires to modern governments.',
-            'cover_url': '/static/images/books/daylight_robbery.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/0241360846?tag={affiliate_tag}'
-        },
-        {
-            'title': 'The Genesis Book',
-            'author': 'Aaron van Wirdum',
-            'description': 'The definitive history of Bitcoin\'s ideological origins — from Austrian economics to the cypherpunk movement.',
-            'cover_url': '/static/images/books/genesis_book.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/B0CQLMQRH7?tag={affiliate_tag}'
-        }
-    ]
-    recommended_books = [
-        {
-            'title': 'The Bitcoin Standard',
-            'author': 'Saifedean Ammous',
-            'description': 'The essential guide to understanding Bitcoin as sound money and the history of monetary systems.',
-            'cover_url': '/static/images/books/bitcoin_standard.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/1119473861?tag={affiliate_tag}',
-            'bestseller': True
-        },
-        {
-            'title': 'Broken Money',
-            'author': 'Lyn Alden',
-            'description': 'A comprehensive analysis of the global monetary system and why Bitcoin matters.',
-            'cover_url': '/static/images/books/broken_money.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/B0CG8985FR?tag={affiliate_tag}',
-            'bestseller': True
-        },
-        {
-            'title': 'Mastering Bitcoin',
-            'author': 'Andreas Antonopoulos & David Harding',
-            'description': 'The technical guide to understanding and programming Bitcoin at a deep level. Third Edition.',
-            'cover_url': '/static/images/books/mastering_bitcoin.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/1098150090?tag={affiliate_tag}',
-            'bestseller': True
-        },
-        {
-            'title': 'The Fiat Standard',
-            'author': 'Saifedean Ammous',
-            'description': 'A companion to The Bitcoin Standard examining our current fiat monetary system.',
-            'cover_url': 'https://covers.openlibrary.org/b/isbn/9781544526478-L.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/1544526474?tag={affiliate_tag}',
-            'bestseller': True
-        },
-        {
-            'title': 'The Price of Tomorrow',
-            'author': 'Jeff Booth',
-            'description': 'Why deflation is the key to an abundant future in a technologically advancing world.',
-            'cover_url': 'https://covers.openlibrary.org/b/isbn/9781999257408-L.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/1999257405?tag={affiliate_tag}',
-            'bestseller': False
-        },
-        {
-            'title': '21 Lessons',
-            'author': 'Gigi',
-            'description': 'What falling down the Bitcoin rabbit hole taught one developer about philosophy, economics, and technology.',
-            'cover_url': 'https://covers.openlibrary.org/b/isbn/9781697526349-L.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/1697526349?tag={affiliate_tag}',
-            'bestseller': False
-        },
-        {
-            'title': 'The Sovereign Individual',
-            'author': 'James Dale Davidson & Lord William Rees-Mogg',
-            'description': 'A prescient 1997 book predicting the rise of digital money and the transformation of society.',
-            'cover_url': 'https://covers.openlibrary.org/b/isbn/9780684832722-L.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/0684832720?tag={affiliate_tag}',
-            'bestseller': True
-        },
-        {
-            'title': 'Layered Money',
-            'author': 'Nik Bhatia',
-            'description': 'An accessible introduction to how money works in layers, from gold to Bitcoin.',
-            'cover_url': 'https://covers.openlibrary.org/b/isbn/9781736110515-L.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/1736110519?tag={affiliate_tag}',
-            'bestseller': False
-        },
-        {
-            'title': 'Inventing Bitcoin',
-            'author': 'Yan Pritzker',
-            'description': 'A concise technical and economic introduction to how Bitcoin works and why it matters.',
-            'cover_url': 'https://covers.openlibrary.org/b/isbn/9781097476922-L.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/1097476922?tag={affiliate_tag}',
-            'bestseller': True
-        },
-        {
-            'title': 'Thank God for Bitcoin',
-            'author': 'Jimmy Song et al.',
-            'description': 'A faith-oriented perspective on Bitcoin as a tool for freedom and stewardship.',
-            'cover_url': 'https://covers.openlibrary.org/b/isbn/9781642790622-L.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/1642790622?tag={affiliate_tag}',
-            'bestseller': False
-        },
-        {
-            'title': 'The Blocksize War',
-            'author': 'Jonathan Bier',
-            'description': 'The inside story of the battle over Bitcoin\'s block size and the future of the protocol.',
-            'cover_url': 'https://covers.openlibrary.org/b/isbn/9781916294212-L.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/1916294216?tag={affiliate_tag}',
-            'bestseller': False
-        },
-        {
-            'title': 'Softwar',
-            'author': 'Larry Ellison',
-            'description': 'Oracle and the rise of cloud computing — context on tech and power that resonates with Bitcoin\'s story.',
-            'cover_url': 'https://covers.openlibrary.org/b/isbn/9781416532190-L.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/1416532194?tag={affiliate_tag}',
-            'bestseller': False
-        },
-        {
-            'title': 'The Truth About Money',
-            'author': 'Richard Duncan',
-            'description': 'How fiat money creation drives inequality and instability — essential macro context for Bitcoin.',
-            'cover_url': 'https://covers.openlibrary.org/b/isbn/9780470181553-L.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/0470181552?tag={affiliate_tag}',
-            'bestseller': False
-        },
-    ]
-    return our_books, recommended_books
-
-
 @app.route('/media')
-@app.route('/hub')
+@app.route('/media-hub')
 def media_hub():
-    """Media Hub page with live RSS feeds, books, podcasts, and merch"""
-    our_books, recommended_books = _get_media_hub_books()
-    podcast_sections_list = _get_podcast_sections(per_section=6)
-    if not rss_service:
-        return render_template('media_hub.html', shows=[], products=[], our_books=our_books, recommended_books=recommended_books, youtube_series={}, live_broadcasts={}, intel_posts=[], new_this_week=[], latest_feed=[], podcast_sections_list=podcast_sections_list, get_thumbnail=YouTubeService.get_thumbnail)
+    """Media Hub page with live RSS feeds, books, and merch"""
     try:
         shows = rss_service.get_show_info()
         products = []
@@ -3044,6 +1083,109 @@ def media_hub():
             products = [printful_service.format_product_for_display(p) for p in products if not printful_service.format_product_for_display(p).get('is_ignored', True)]
         except Exception as e:
             logging.warning(f"Could not load merch products: {e}")
+        
+        # Get Amazon affiliate tag from environment (set yours in Secrets)
+        affiliate_tag = os.environ.get('AMAZON_AFFILIATE_TAG', 'protocolpulse-20')
+        
+        # Our Book Series - books featured on the Protocol Pulse podcast
+        our_books = [
+            {
+                'title': 'Everything Divided by 21 Million',
+                'author': 'Knut Svanholm',
+                'description': 'A philosophical deep dive into Bitcoin\'s relationship to time, money, freedom, and human progress through mathematical scarcity.',
+                'cover_url': '/static/images/books/everything_21m.jpg',
+                'amazon_url': f'https://www.amazon.com/dp/9916697191?tag={affiliate_tag}'
+            },
+            {
+                'title': 'The Big Print',
+                'author': 'Lawrence Lepard',
+                'description': 'An exposé revealing how the Federal Reserve and financial elites engineered wealth extraction through monetary policy.',
+                'cover_url': '/static/images/books/big_print.jpg',
+                'amazon_url': f'https://www.amazon.com/dp/B0DVTCVX8J?tag={affiliate_tag}'
+            },
+            {
+                'title': 'Daylight Robbery',
+                'author': 'Dominic Frisby',
+                'description': 'The hidden history of how taxation has shaped human civilization from ancient empires to modern governments.',
+                'cover_url': '/static/images/books/daylight_robbery.jpg',
+                'amazon_url': f'https://www.amazon.com/dp/0241360846?tag={affiliate_tag}'
+            },
+            {
+                'title': 'The Genesis Book',
+                'author': 'Aaron van Wirdum',
+                'description': 'The definitive history of Bitcoin\'s ideological origins — from Austrian economics to the cypherpunk movement.',
+                'cover_url': '/static/images/books/genesis_book.jpg',
+                'amazon_url': f'https://www.amazon.com/dp/B0CQLMQRH7?tag={affiliate_tag}'
+            }
+        ]
+        
+        # Recommended Bitcoin Books - bestsellers and essentials
+        recommended_books = [
+            {
+                'title': 'The Bitcoin Standard',
+                'author': 'Saifedean Ammous',
+                'description': 'The essential guide to understanding Bitcoin as sound money and the history of monetary systems.',
+                'cover_url': '/static/images/books/bitcoin_standard.jpg',
+                'amazon_url': f'https://www.amazon.com/dp/1119473861?tag={affiliate_tag}',
+                'bestseller': True
+            },
+            {
+                'title': 'Broken Money',
+                'author': 'Lyn Alden',
+                'description': 'A comprehensive analysis of the global monetary system and why Bitcoin matters.',
+                'cover_url': '/static/images/books/broken_money.jpg',
+                'amazon_url': f'https://www.amazon.com/dp/B0CG8985FR?tag={affiliate_tag}',
+                'bestseller': True
+            },
+            {
+                'title': 'Mastering Bitcoin',
+                'author': 'Andreas Antonopoulos & David Harding',
+                'description': 'The technical guide to understanding and programming Bitcoin at a deep level. Third Edition.',
+                'cover_url': '/static/images/books/mastering_bitcoin.jpg',
+                'amazon_url': f'https://www.amazon.com/dp/1098150090?tag={affiliate_tag}',
+                'bestseller': True
+            },
+            {
+                'title': 'The Fiat Standard',
+                'author': 'Saifedean Ammous',
+                'description': 'A companion to The Bitcoin Standard examining our current fiat monetary system.',
+                'cover_url': 'https://covers.openlibrary.org/b/isbn/9781544526478-L.jpg',
+                'amazon_url': f'https://www.amazon.com/dp/1544526474?tag={affiliate_tag}',
+                'bestseller': True
+            },
+            {
+                'title': 'The Price of Tomorrow',
+                'author': 'Jeff Booth',
+                'description': 'Why deflation is the key to an abundant future in a technologically advancing world.',
+                'cover_url': 'https://covers.openlibrary.org/b/isbn/9781999257408-L.jpg',
+                'amazon_url': f'https://www.amazon.com/dp/1999257405?tag={affiliate_tag}',
+                'bestseller': False
+            },
+            {
+                'title': '21 Lessons',
+                'author': 'Gigi',
+                'description': 'What falling down the Bitcoin rabbit hole taught one developer about philosophy, economics, and technology.',
+                'cover_url': 'https://covers.openlibrary.org/b/isbn/9781697526349-L.jpg',
+                'amazon_url': f'https://www.amazon.com/dp/1697526349?tag={affiliate_tag}',
+                'bestseller': False
+            },
+            {
+                'title': 'The Sovereign Individual',
+                'author': 'James Dale Davidson',
+                'description': 'A prescient 1997 book predicting the rise of digital money and the transformation of society.',
+                'cover_url': 'https://covers.openlibrary.org/b/isbn/9780684832722-L.jpg',
+                'amazon_url': f'https://www.amazon.com/dp/0684832720?tag={affiliate_tag}',
+                'bestseller': True
+            },
+            {
+                'title': 'Layered Money',
+                'author': 'Nik Bhatia',
+                'description': 'An accessible introduction to how money works in layers, from gold to Bitcoin.',
+                'cover_url': 'https://covers.openlibrary.org/b/isbn/9781736110515-L.jpg',
+                'amazon_url': f'https://www.amazon.com/dp/1736110519?tag={affiliate_tag}',
+                'bestseller': False
+            }
+        ]
         
         # Get YouTube series data for Terminal Player (with dynamic API fetching if available)
         youtube_service_instance = YouTubeService()
@@ -3065,13 +1207,14 @@ def media_hub():
             logging.warning(f"Failed to fetch dynamic Coin Bureau video: {e}")
         
         # Get active advertisements for sponsor rotation
-        active_ads = models.Advertisement.query.filter_by(is_active=True).all()
+        active_ads = Advertisement.query.filter_by(is_active=True).all()
         
         # Get intel posts for the Intelligence Stream section
         intel_posts = []
         try:
-            recent_intel = models.IntelligencePost.query.order_by(
-                models.IntelligencePost.published_at.desc()
+            from models import IntelligencePost
+            recent_intel = IntelligencePost.query.order_by(
+                IntelligencePost.published_at.desc()
             ).limit(5).all()
             for post in recent_intel:
                 hours_ago = 1
@@ -3092,69 +1235,6 @@ def media_hub():
         except Exception as e:
             logging.warning(f"Could not load intel posts for media hub: {e}")
         
-        # New this week: 2 intel, 1 latest episode, 1 featured book
-        new_this_week = []
-        for post in intel_posts[:2]:
-            new_this_week.append({
-                'type': 'intel',
-                'title': (post.get('key_insight') or post.get('primary_tweet') or 'Intel brief')[:80],
-                'url': post.get('x_url') or '#',
-                'meta': post.get('time_ago', '') + ' · ' + (post.get('persona') or ''),
-                'description': post.get('key_insight') or '',
-            })
-        lb = live_broadcasts.get('cypherpunkd') or {}
-        if lb:
-            new_this_week.append({
-                'type': 'episode',
-                'title': lb.get('title', "Cypherpunk'd // Intel Briefing"),
-                'url': '#section-series',
-                'meta': 'Latest episode',
-                'video_id': lb.get('latest_id'),
-                'series_id': 'everything_21m',
-                'description': lb.get('description', '')[:120],
-            })
-        if our_books:
-            b = our_books[0]
-            new_this_week.append({
-                'type': 'book',
-                'title': b.get('title', ''),
-                'url': b.get('amazon_url', '#'),
-                'meta': 'Featured',
-                'description': (b.get('description') or '')[:100],
-                'cover_url': b.get('cover_url'),
-            })
-        
-        # Unified latest feed (intel + one episode + one book) for "Latest" section
-        latest_feed = []
-        for post in intel_posts:
-            latest_feed.append({
-                'type': 'intel',
-                'title': (post.get('key_insight') or post.get('primary_tweet') or 'Intel brief')[:80],
-                'url': post.get('x_url') or '#',
-                'meta': post.get('time_ago', '') + ' · ' + (post.get('persona') or ''),
-                'description': post.get('key_insight') or '',
-            })
-        if lb and not any(x.get('type') == 'episode' for x in latest_feed):
-            latest_feed.append({
-                'type': 'episode',
-                'title': lb.get('title', "Cypherpunk'd"),
-                'url': '#section-series',
-                'meta': 'Latest',
-                'video_id': lb.get('latest_id'),
-                'series_id': 'everything_21m',
-                'description': lb.get('description', '')[:120],
-            })
-        if our_books:
-            b = our_books[0]
-            latest_feed.append({
-                'type': 'book',
-                'title': b.get('title', ''),
-                'url': b.get('amazon_url', '#'),
-                'meta': 'Sovereign Library',
-                'description': (b.get('description') or '')[:100],
-                'cover_url': b.get('cover_url'),
-            })
-        
         return render_template('media_hub.html', 
                                shows=shows, 
                                products=products,
@@ -3164,25 +1244,14 @@ def media_hub():
                                live_broadcasts=live_broadcasts,
                                active_ads=active_ads,
                                intel_posts=intel_posts,
-                               new_this_week=new_this_week,
-                               latest_feed=latest_feed,
-                               podcast_sections_list=podcast_sections_list,
                                get_thumbnail=YouTubeService.get_thumbnail)
     except Exception as e:
         logging.error(f"Error loading media hub: {e}")
-        return render_template('media_hub.html', shows=[], products=[], our_books=our_books, recommended_books=recommended_books, youtube_series={}, live_broadcasts={}, intel_posts=[], new_this_week=[], latest_feed=[], podcast_sections_list=podcast_sections_list or [], get_thumbnail=YouTubeService.get_thumbnail)
-
-
-@app.route('/media-hub')
-def media_hub_redirect():
-    return redirect(url_for('media_hub'), code=302)
-
+        return render_template('media_hub.html', shows=[], products=[], our_books=[], recommended_books=[], youtube_series={}, live_broadcasts={}, intel_posts=[], get_thumbnail=YouTubeService.get_thumbnail)
 
 @app.route('/api/latest-episodes')
 def get_latest_episodes():
     """API endpoint to get latest podcast episodes from RSS feeds"""
-    if not rss_service:
-        return jsonify({'episodes': [], 'error': 'RSS service not available'}), 503
     try:
         limit = request.args.get('limit', 6, type=int)
         offset = request.args.get('offset', 0, type=int)
@@ -3220,8 +1289,6 @@ def get_latest_episodes():
 @app.route('/api/episodes/<show_id>')
 def get_show_episodes(show_id):
     """API endpoint to get episodes for a specific show"""
-    if not rss_service:
-        return jsonify({'episodes': [], 'error': 'RSS service not available'}), 503
     try:
         limit = request.args.get('limit', 10, type=int)
         episodes = rss_service.get_episodes_by_show(show_id, limit=limit)
@@ -3249,8 +1316,6 @@ def get_show_episodes(show_id):
 @app.route('/api/episodes/search')
 def search_episodes():
     """API endpoint to search episodes"""
-    if not rss_service:
-        return jsonify({'episodes': [], 'error': 'RSS service not available'}), 503
     try:
         query = request.args.get('q', '')
         limit = request.args.get('limit', 10, type=int)
@@ -3280,8 +1345,6 @@ def search_episodes():
 @app.route('/api/rss/refresh')
 def refresh_rss_feeds():
     """API endpoint to manually refresh RSS feeds (admin use)"""
-    if not rss_service:
-        return jsonify({'success': False, 'error': 'RSS service not available'}), 503
     try:
         rss_service.clear_cache()
         episodes = rss_service.get_latest_episodes(limit=20)
@@ -3298,9 +1361,6 @@ def refresh_rss_feeds():
 @admin_required
 def sync_podcasts():
     """Sync all podcast RSS feeds"""
-    if not rss_service:
-        flash('RSS service not available (install feedparser)')
-        return redirect('/admin/podcasts')
     try:
         results = rss_service.sync_all_feeds()
         flash(f'Podcast sync completed: {results}')
@@ -3463,30 +1523,31 @@ def printful_webhook():
 @app.route('/bitcoin')
 def bitcoin_category():
     """Bitcoin category page"""
-    articles = models.Article.query.filter_by(published=True, category='Bitcoin').order_by(models.Article.created_at.desc()).all()
+    articles = Article.query.filter_by(published=True, category='Bitcoin').order_by(Article.created_at.desc()).all()
     return render_template('category.html', articles=articles, category='Bitcoin')
 
 @app.route('/defi')
 def defi_category():
     """DeFi category page"""
-    articles = models.Article.query.filter_by(published=True, category='DeFi').order_by(models.Article.created_at.desc()).all()
+    articles = Article.query.filter_by(published=True, category='DeFi').order_by(Article.created_at.desc()).all()
     return render_template('category.html', articles=articles, category='DeFi')
 
 @app.route('/regulation')
 def regulation_category():
     """Regulation category page"""
-    articles = models.Article.query.filter_by(published=True, category='Regulation').order_by(models.Article.created_at.desc()).all()
+    articles = Article.query.filter_by(published=True, category='Regulation').order_by(Article.created_at.desc()).all()
     return render_template('category.html', articles=articles, category='Regulation')
 
 @app.route('/privacy')
-def privacy():
-    """Privacy legal page."""
-    return render_template('privacy_policy.html')
+def privacy_category():
+    """Privacy category page"""
+    articles = Article.query.filter_by(published=True, category='Privacy').order_by(Article.created_at.desc()).all()
+    return render_template('category.html', articles=articles, category='Privacy')
 
 @app.route('/innovation')
 def innovation_category():
     """Innovation category page"""
-    articles = models.Article.query.filter_by(published=True, category='Innovation').order_by(models.Article.created_at.desc()).all()
+    articles = Article.query.filter_by(published=True, category='Innovation').order_by(Article.created_at.desc()).all()
     return render_template('category.html', articles=articles, category='Innovation')
 
 @app.route('/about')
@@ -3494,124 +1555,22 @@ def about():
     """About page"""
     return render_template('about.html')
 
-@app.route('/privacy-policy')
-def privacy_policy():
-    """Privacy policy (legal)."""
-    return render_template('privacy_policy.html')
-
-
-@app.route('/terms')
-def terms():
-    """Terms of service (legal)."""
-    return render_template('legal/terms.html')
-
-
-@app.route('/sentry')
-def sentry():
-    """Sentry Megaphone: list social drafts (SentryJob) and legacy queue."""
-    try:
-        sentry_jobs = models.SentryJob.query.order_by(models.SentryJob.created_at.desc()).limit(50).all()
-    except Exception:
-        sentry_jobs = []
-    try:
-        queue_rows = models.SentryQueue.query.order_by(models.SentryQueue.created_at.desc()).limit(20).all()
-        queue_count = models.SentryQueue.query.filter(
-            models.SentryQueue.status.in_(["pending", "draft"])
-        ).count()
-    except Exception:
-        queue_rows = []
-        queue_count = 0
-    return render_template(
-        'admin/sentry.html',
-        sentry_jobs=sentry_jobs,
-        queue_count=queue_count,
-        suggestions=[],
-        queue_rows=queue_rows,
-    )
-
-
-@app.route('/start')
-def onboarding_legacy_redirect():
-    return redirect(url_for('onboarding.onboarding_start'))
-
-def _send_contact_notification_email(submission):
-    """Send a notification email to CONTACT_EMAIL when SENDGRID_API_KEY is set."""
-    to_email = os.environ.get("CONTACT_EMAIL") or os.environ.get("SENDGRID_FROM_EMAIL")
-    if not to_email:
-        return False
-    try:
-        from sendgrid import SendGridAPIClient
-        from sendgrid.helpers.mail import Mail, Email, To, Content
-    except ImportError:
-        return False
-    api_key = os.environ.get("SENDGRID_API_KEY")
-    if not api_key:
-        return False
-    from_email = os.environ.get("SENDGRID_FROM_EMAIL", "noreply@protocolpulse.io")
-    subject = f"[Protocol Pulse Contact] {submission.subject} — {submission.name}"
-    body = f"Name: {submission.name}\nEmail: {submission.email}\nSubject: {submission.subject}\n\n{submission.message}"
-    message = Mail(
-        from_email=Email(from_email, "Protocol Pulse"),
-        to_emails=To(to_email),
-        subject=subject,
-        plain_text_content=Content("text/plain", body),
-    )
-    try:
-        SendGridAPIClient(api_key).send(message)
-        return True
-    except Exception as e:
-        logging.warning("Contact notification email failed: %s", e)
-        return False
-
-
-@app.route('/contact', methods=['GET', 'POST'])
-@limiter.limit("3 per minute")
+@app.route('/contact')
 def contact():
-    """Contact page: GET shows form; POST saves submission and optionally emails."""
-    if request.method == 'POST':
-        _require_csrf()
-        name = (request.form.get("name") or "").strip()[:200]
-        email = (request.form.get("email") or "").strip()[:200]
-        subject = (request.form.get("subject") or "general").strip()[:100]
-        message = (request.form.get("message") or "").strip()[:10000]
-        if not name or not email or not message:
-            flash("Please fill in name, email, and message.", "error")
-            return render_template("contact.html")
-        submission = models.ContactSubmission(
-            name=name,
-            email=email,
-            subject=subject or "general",
-            message=message,
-            ip_address=request.remote_addr,
-        )
-        try:
-            db.session.add(submission)
-            db.session.commit()
-            _send_contact_notification_email(submission)
-            flash("Signal received. We'll respond within 24–48 hours.", "success")
-        except Exception as e:
-            logging.exception("Contact form save failed: %s", e)
-            db.session.rollback()
-            flash("Something went wrong. Please try again or email us directly.", "error")
-            return render_template("contact.html")
-        return redirect(url_for("contact"))
+    """Contact page"""
     return render_template('contact.html')
 
 @app.route('/newsletter/subscribe', methods=['POST'])
 def newsletter_subscribe():
     """Handle newsletter subscription requests"""
     try:
-        email = (request.form.get('email') or '').strip().lower()
+        email = request.form.get('email')
         if not email:
             flash('Email address is required.', 'error')
-            return redirect(url_for('index'))
-        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
-            flash('Please enter a valid email address.', 'error')
             return redirect(url_for('index'))
         
         success = newsletter_service.subscribe_user(email)
         if success:
-            _log_engagement_event(event_type="newsletter_submit", content_type="newsletter", source_url=request.path)
             flash('Successfully subscribed to Protocol Pulse newsletter!', 'success')
         else:
             flash('Newsletter subscription failed. Please try again.', 'error')
@@ -3621,37 +1580,21 @@ def newsletter_subscribe():
     
     return redirect(url_for('index'))
 
-
-@app.route('/newslettersubscribe', methods=['POST'])
-def newsletter_subscribe_legacy():
-    """Legacy compatibility path for older forms/scripts."""
-    return newsletter_subscribe()
-
 @app.route('/login', methods=['GET', 'POST'])
-@limiter.limit("5 per minute")
 def login():
     if request.method == 'POST':
-        _require_csrf()
         login_input = request.form.get('username', '').strip()
         password = request.form.get('password', '')
-        user = models.User.query.filter_by(username=login_input).first()
+        user = User.query.filter_by(username=login_input).first()
         if not user:
-            user = models.User.query.filter_by(email=login_input).first()
-        if user and user.password_hash and user.check_password(password):
+            user = User.query.filter_by(email=login_input).first()
+        if user and check_password_hash(user.password_hash, password):
             login_user(user)
-            next_url = _safe_internal_next(
-                request.form.get("next") or session.pop("post_login_next", "") or request.args.get("next", "")
-            )
-            if next_url:
-                return redirect(next_url)
-            return redirect('/admin' if getattr(user, "is_admin", False) else '/hub')
+            return redirect('/admin')
         else:
             flash('Invalid username or password')
             return render_template('login.html')
-    next_url = _safe_internal_next(request.args.get("next", ""))
-    if next_url:
-        session["post_login_next"] = next_url
-    return render_template('login.html', next_url=next_url)
+    return render_template('login.html')
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -3664,10 +1607,10 @@ def signup():
 @admin_required
 def admin_dashboard():
     """Admin dashboard"""
-    total_articles = models.Article.query.count()
-    published_articles = models.Article.query.filter_by(published=True).count()
-    total_podcasts = models.Podcast.query.count()
-    recent_articles = models.Article.query.order_by(models.Article.created_at.desc()).limit(5).all()
+    total_articles = Article.query.count()
+    published_articles = Article.query.filter_by(published=True).count()
+    total_podcasts = Podcast.query.count()
+    recent_articles = Article.query.order_by(Article.created_at.desc()).limit(5).all()
     
     return render_template('admin/dashboard.html',
                          total_articles=total_articles,
@@ -3808,49 +1751,15 @@ def admin_x_status():
     x_service = XService()
     return jsonify(x_service.get_upload_status())
 
-@app.route('/admin/api/dry-run-dual-image-news', methods=['GET', 'POST'])
-@login_required
-@admin_required
-def admin_dry_run_dual_image_news():
-    """
-    Dry-run breaking news dual-image post: draft text + cover + branded asset, no actual post.
-    Query/body: article_id (int). Uses article title and header_image_url; returns what would be posted.
-    """
-    article_id = request.args.get('article_id') or (request.get_json(silent=True) or {}).get('article_id')
-    if article_id is None or article_id == '':
-        return jsonify({'success': False, 'error': 'article_id required'}), 400
-    try:
-        article_id = int(article_id)
-    except (TypeError, ValueError):
-        return jsonify({'success': False, 'error': 'article_id must be an integer'}), 400
-    article = models.Article.query.get(article_id)
-    if not article:
-        return jsonify({'success': False, 'error': 'Article not found'}), 404
-    base_url = request.host_url.rstrip('/')
-    article_url = f"{base_url}/articles/{article.id}"
-    draft_text = (article.title[:200] + "..." if len(article.title) > 200 else article.title) + "\n\n" + article_url
-    if len(draft_text) > 280:
-        draft_text = draft_text[:277] + "..."
-    cover_url = article.header_image_url or None
-    if not cover_url:
-        cover_url = f"{base_url}/static/images/default-header.png"
-    from services.x_service import XService
-    x_service = XService()
-    result = x_service.post_dual_image_news(draft_text, cover_url, dry_run=True)
-    result['article_id'] = article_id
-    result['article_title'] = article.title
-    result['cover_url_resolved'] = cover_url
-    return jsonify({'success': True, 'dry_run': result})
-
 @app.route('/admin/generate')
 @login_required
 @admin_required
 def admin_generate():
     """Content Command Center - All content generation tools"""
-    prompts = models.ContentPrompt.query.filter_by(active=True).all()
-    total_articles = models.Article.query.count()
-    published_articles = models.Article.query.filter_by(published=True).count()
-    total_podcasts = models.Podcast.query.count()
+    prompts = ContentPrompt.query.filter_by(active=True).all()
+    total_articles = Article.query.count()
+    published_articles = Article.query.filter_by(published=True).count()
+    total_podcasts = Podcast.query.count()
     
     # Count clips
     try:
@@ -3908,7 +1817,7 @@ def api_generate_article():
             # Save as DRAFT for human review - do NOT auto-publish
             logging.warning(f"FACT-CHECK BLOCKED: Article '{article_data['title'][:50]}' has verification errors: {fact_check_warnings}")
             
-            article = models.Article(
+            article = Article(
                 title=article_data['title'],
                 content=article_data['content'],
                 summary="",
@@ -3935,7 +1844,7 @@ def api_generate_article():
             }), 422
         
         # Fact-check passed - proceed with auto-publishing
-        article = models.Article(
+        article = Article(
             title=article_data['title'],
             content=article_data['content'],
             summary="",  # No summary - TL;DR is embedded in content
@@ -4008,7 +1917,7 @@ def api_generate_article():
 def api_publish_article(article_id):
     """API endpoint to publish articles"""
     try:
-        article = models.Article.query.get_or_404(article_id)
+        article = Article.query.get_or_404(article_id)
         
         # Use AI review and approval workflow BEFORE setting published=True
         approval_result = content_engine.approve_and_publish_article(article_id)
@@ -4034,7 +1943,7 @@ def publish_to_substack(article_id):
         if not substack_service:
             return jsonify({'success': False, 'error': 'Substack service not available'})
             
-        article = models.Article.query.get_or_404(article_id)
+        article = Article.query.get_or_404(article_id)
         
         # Determine content type from category
         category = article.category.lower()
@@ -4082,7 +1991,7 @@ def share_to_reddit(article_id):
     try:
         from services.reddit_service import RedditService
         
-        article = models.Article.query.get_or_404(article_id)
+        article = Article.query.get_or_404(article_id)
         
         # Get target subreddit from request (default to 'bitcoin')
         request_data = request.get_json() or {}
@@ -4166,6 +2075,7 @@ def generate_content():
 @admin_required
 def admin_sentiment_report():
     """View and trigger daily sentiment reports"""
+    from models import SentimentReport, Article
     
     if request.method == 'POST':
         try:
@@ -4179,7 +2089,7 @@ def admin_sentiment_report():
             flash(f'Error generating report: {str(e)}', 'error')
         return redirect(url_for('admin_sentiment_report'))
     
-    reports = models.SentimentReport.query.order_by(models.SentimentReport.report_date.desc()).limit(30).all()
+    reports = SentimentReport.query.order_by(SentimentReport.report_date.desc()).limit(30).all()
     return render_template('admin/sentiment_reports.html', reports=reports)
 
 
@@ -4199,13 +2109,14 @@ def api_generate_sentiment():
 @app.route('/sentiment')
 def sentiment_dashboard():
     """Public sentiment reports dashboard"""
+    from models import SentimentReport, Article
     
-    reports = models.SentimentReport.query.order_by(models.SentimentReport.report_date.desc()).limit(14).all()
+    reports = SentimentReport.query.order_by(SentimentReport.report_date.desc()).limit(14).all()
     
     latest_report = reports[0] if reports else None
     latest_article = None
     if latest_report and latest_report.article_id:
-        latest_article = models.Article.query.get(latest_report.article_id)
+        latest_article = Article.query.get(latest_report.article_id)
     
     return render_template('sentiment_dashboard.html', 
                           reports=reports, 
@@ -4216,14 +2127,15 @@ def sentiment_dashboard():
 @app.route('/sarah-briefing')
 def sarah_briefing():
     """Sarah's Daily Intelligence Briefing page"""
+    from models import SarahBrief, EmergencyFlash
     
-    latest_brief = models.SarahBrief.query.order_by(models.SarahBrief.brief_date.desc()).first()
+    latest_brief = SarahBrief.query.order_by(SarahBrief.brief_date.desc()).first()
     
-    past_briefs = models.SarahBrief.query.order_by(models.SarahBrief.brief_date.desc()).offset(1).limit(7).all()
+    past_briefs = SarahBrief.query.order_by(SarahBrief.brief_date.desc()).offset(1).limit(7).all()
     
-    emergency_flash = models.EmergencyFlash.query.filter(
-        models.EmergencyFlash.acknowledged == False
-    ).order_by(models.EmergencyFlash.triggered_at.desc()).first()
+    emergency_flash = EmergencyFlash.query.filter(
+        EmergencyFlash.acknowledged == False
+    ).order_by(EmergencyFlash.triggered_at.desc()).first()
     
     return render_template('sarah_briefing.html',
                           latest_brief=latest_brief,
@@ -4286,7 +2198,7 @@ def generate_podcast():
         )
         
         if result and result.get('audio_file'):
-            article = models.Article(
+            article = Article(
                 title=f"Audio Deep Dive: {channel_name} Analysis",
                 summary=f"Deep-dive audio analysis featuring expert commentary",
                 content=f'<p class="article-paragraph">Listen to our AI-hosted podcast breakdown.</p><audio controls src="/{result["audio_file"]}" style="width:100%; margin-top: 1rem;"></audio>',
@@ -4318,75 +2230,11 @@ def generate_podcasts_batch():
     from services.automation import generate_podcasts_from_partners
     
     try:
-        result = generate_podcasts_from_partners()
-        return jsonify({
-            'success': True,
-            'message': 'Partner podcast generation completed',
-            'videos_found': result.get('videos_found'),
-            'articles_generated': len(result.get('articles_generated', [])),
-            'podcasts_generated': len(result.get('podcasts_generated', [])),
-        })
+        generate_podcasts_from_partners()
+        return jsonify({'success': True, 'message': 'Podcast generation started for all monitored channels'})
     except Exception as e:
         logging.error(f"Batch podcast generation failed: {e}")
         return jsonify({'success': False, 'error': str(e)})
-
-
-@app.route('/admin/spaces/recap', methods=['POST'])
-@login_required
-@admin_required
-def admin_space_recap():
-    """
-    Generate a post-Space recap tweet from a transcript and optionally post to X.
-    Body: JSON with keys:
-      - space_id (optional, used if transcript_text is empty)
-      - transcript_text (optional; if omitted we call get_space_transcript)
-      - provider (optional, default 'xspacestream')
-      - auto_post (bool, default True)
-    """
-    data = request.get_json(force=True, silent=True) or {}
-    space_id = data.get('space_id') or ''
-    transcript_text = (data.get('transcript_text') or '').strip()
-    provider = data.get('provider') or 'xspacestream'
-    auto_post = bool(data.get('auto_post', True))
-
-    if not transcript_text and not space_id:
-        return jsonify({'success': False, 'error': 'space_id or transcript_text required'}), 400
-
-    try:
-        if not transcript_text and space_id:
-            space_data = get_space_transcript(space_id=space_id, provider=provider)
-            transcript_text = (space_data or {}).get('transcript_text', '') or ''
-
-        recap = summarize_for_tweet(transcript_text)
-        tweet_text = (recap.get('tweet_text') or '').strip()
-        if not tweet_text:
-            return jsonify({'success': False, 'error': 'No recap text could be generated'}), 500
-
-        tweet_id = None
-        x_status = "not_posted"
-        if auto_post:
-            try:
-                from services.x_service import XService
-                x = XService()
-                if x.client:
-                    tweet_id = x.client.update_status(tweet_text).id
-                    x_status = "posted"
-                else:
-                    x_status = "skipped_no_client"
-            except Exception as e:
-                logging.error("Space recap X post failed: %s", e)
-                x_status = "error"
-
-        return jsonify({
-            'success': True,
-            'recap': recap,
-            'tweet_text': tweet_text,
-            'tweet_id': tweet_id,
-            'x_status': x_status,
-        })
-    except Exception as e:
-        logging.error("admin_space_recap failed: %s", e)
-        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/admin/api/extract-clips', methods=['POST'])
 @login_required
@@ -4748,14 +2596,9 @@ def admin_ghl_sync():
 @admin_required
 def admin_social_listener():
     """Get Social Intelligence Listener status and recent findings"""
-    if not is_enabled("ENABLE_SOCIAL_LISTENER"):
-        return jsonify({'success': True, 'status': {'enabled': False, 'message': 'disabled by flag'}})
     try:
         from services.social_listener import social_listener
-        if hasattr(social_listener, "get_status"):
-            status = social_listener.get_status()
-        else:
-            status = {"enabled": True, "message": "status endpoint not implemented"}
+        status = social_listener.get_status()
         return jsonify({
             'success': True,
             'status': status
@@ -4769,12 +2612,10 @@ def admin_social_listener():
 @admin_required
 def admin_social_listener_scan():
     """Manually trigger a social listener scan"""
-    if not is_enabled("ENABLE_SOCIAL_LISTENER"):
-        return jsonify({'success': False, 'error': 'Social listener disabled by ENABLE_SOCIAL_LISTENER=false'}), 403
     try:
         from services.social_listener import social_listener
-        if not hasattr(social_listener, "scan_all_targets"):
-            return jsonify({'success': False, 'error': 'Social Listener scan API not available'}), 501
+        if not social_listener.initialized:
+            return jsonify({'success': False, 'error': 'Social Listener not initialized - check Twitter API credentials'})
         
         results = social_listener.scan_all_targets()
         logging.info(f"Social Listener manual scan: {results.get('scanned')} handles, {len(results.get('new_tweets', []))} new tweets")
@@ -4851,7 +2692,7 @@ def ai_review_article(article_id):
 
 @app.route('/api/latest-articles')
 def latest_articles():
-    articles = models.Article.query.filter_by(published=True).order_by(models.Article.created_at.desc()).limit(10).all()
+    articles = Article.query.filter_by(published=True).order_by(Article.created_at.desc()).limit(10).all()
     return jsonify([{'id': a.id, 'title': a.title, 'summary': a.summary, 'header_image_url': a.header_image_url or '/static/images/placeholder.jpg'} for a in articles])
 
 @app.route('/api/reddit-trends', methods=['GET'])
@@ -4868,12 +2709,9 @@ def api_reddit_trends():
         logging.error(f"Error fetching Reddit trends: {str(e)}")
         return jsonify({'error': f'Failed to fetch trends: {str(e)}'}), 500
 
-# Register social monitoring blueprint (optional)
-try:
-    from routes_social import social
-    app.register_blueprint(social)
-except (ModuleNotFoundError, ImportError) as e:
-    logging.warning("routes_social not loaded - social monitoring blueprint not registered: %s", e)
+# Register social monitoring blueprint
+from routes_social import social
+app.register_blueprint(social)
 
 @app.route('/admin/write', methods=['GET', 'POST'])
 @login_required
@@ -4894,7 +2732,7 @@ def admin_write_article():
             flash('Title and content are required.')
             return redirect('/admin/write')
         
-        article = models.Article(
+        article = Article(
             title=title,
             content=content,
             category=category,
@@ -4923,7 +2761,7 @@ def admin_write_article():
 @admin_required
 def admin_edit_article(article_id):
     """Admin page for editing existing articles"""
-    article = models.Article.query.get_or_404(article_id)
+    article = Article.query.get_or_404(article_id)
     
     if request.method == 'POST':
         article.title = request.form.get('title', '').strip()
@@ -4952,15 +2790,13 @@ def admin_edit_article(article_id):
     
     return render_template('admin/edit_article.html', article=article)
 
-@app.route('/admin/delete/<int:article_id>', methods=['DELETE', 'POST'])
+@app.route('/admin/delete/<int:article_id>', methods=['DELETE'])
 @login_required
 @admin_required
 def admin_delete_article(article_id):
     """Admin endpoint to delete an article"""
     try:
-        if request.method == 'POST':
-            _require_csrf()
-        article = models.Article.query.get_or_404(article_id)
+        article = Article.query.get_or_404(article_id)
         title = article.title
         db.session.delete(article)
         db.session.commit()
@@ -4976,7 +2812,7 @@ def admin_delete_article(article_id):
 @admin_required
 def admin_ads():
     """Admin page for managing advertisements"""
-    ads = models.Advertisement.query.all()
+    ads = Advertisement.query.all()
     return render_template('admin/ads.html', ads=ads)
 
 @app.route('/api/add-ad', methods=['POST'])
@@ -5047,7 +2883,7 @@ def api_add_ad():
             image_url = f"/static/ads/{unique_filename}"
         
         # Create and save advertisement
-        ad = models.Advertisement(
+        ad = Advertisement(
             name=name,
             image_url=image_url,
             target_url=target_url,
@@ -5074,7 +2910,7 @@ def api_add_ad():
 def api_toggle_ad(ad_id):
     """API endpoint to toggle advertisement active status"""
     try:
-        ad = models.Advertisement.query.get_or_404(ad_id)
+        ad = Advertisement.query.get_or_404(ad_id)
         ad.is_active = not ad.is_active
         db.session.commit()
         
@@ -5095,7 +2931,7 @@ def api_toggle_ad(ad_id):
 def api_delete_ad(ad_id):
     """API endpoint to delete an advertisement"""
     try:
-        ad = models.Advertisement.query.get_or_404(ad_id)
+        ad = Advertisement.query.get_or_404(ad_id)
         
         # Delete image files if they exist
         try:
@@ -5124,7 +2960,7 @@ def api_delete_ad(ad_id):
 def api_active_ads():
     """API endpoint to get active advertisements for cycling"""
     try:
-        active_ads = models.Advertisement.query.filter_by(is_active=True).all()
+        active_ads = Advertisement.query.filter_by(is_active=True).all()
         
         ads_data = []
         for ad in active_ads:
@@ -5145,19 +2981,6 @@ def api_active_ads():
     except Exception as e:
         logging.error(f"Error fetching active ads: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/ads/go/<int:ad_id>')
-def ad_redirect(ad_id):
-    """Track ad/sponsor click and redirect to target URL."""
-    ad = models.Advertisement.query.get_or_404(ad_id)
-    _log_engagement_event(
-        event_type="sponsor_click",
-        content_type="advertisement",
-        content_id=ad.id,
-        source_url=request.path,
-    )
-    return redirect(ad.target_url, code=302)
 
 @app.route('/api/network-stats')
 def api_network_stats():
@@ -5264,28 +3087,18 @@ def api_live_tweets():
 
 @app.route('/api/subscribe', methods=['POST'])
 def subscribe():
-    payload = request.get_json(silent=True) or {}
-    email = (payload.get('email') or '').strip().lower()
-    first_name = (payload.get('first_name') or '').strip()
+    email = request.json.get('email')
+    first_name = request.json.get('first_name', '')
     if not email:
         return jsonify({'error': 'Email required'}), 400
-    if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
-        return jsonify({'error': 'Valid email required'}), 400
     
     # Save to local database via newsletter service
-    local_ok = False
-    try:
-        local_ok = bool(newsletter_service.subscribe_user(email, first_name))
-    except Exception as e:
-        logging.warning("Local newsletter subscribe failed: %s", e)
+    newsletter_service.subscribe_user(email, first_name)
     
     # Push to GHL (HighLevel) CRM
-    try:
-        ghl_result = ghl_service.push_to_ghl(email, first_name, 'Protocol_Pulse_Subscriber')
-        if ghl_result.get('success'):
-            logging.info(f"GHL sync successful for {email}")
-    except Exception as e:
-        logging.warning("GHL sync skipped: %s", e)
+    ghl_result = ghl_service.push_to_ghl(email, first_name, 'Protocol_Pulse_Subscriber')
+    if ghl_result.get('success'):
+        logging.info(f"GHL sync successful for {email}")
     
     # Also try ConvertKit if configured
     api_key = os.environ.get('CONVERTKIT_API_KEY')
@@ -5295,14 +3108,11 @@ def subscribe():
         try:
             url = f"https://api.convertkit.com/v3/forms/{form_id}/subscribe"
             data = {'api_key': api_key, 'email': email, 'first_name': first_name}
-            requests.post(url, json=data, timeout=8)
+            requests.post(url, json=data)
         except Exception as e:
             logging.warning(f"ConvertKit sync failed: {e}")
-
-    if local_ok:
-        _log_engagement_event(event_type="newsletter_submit", content_type="newsletter", source_url=request.path)
-        return jsonify({'success': True})
-    return jsonify({'success': False, 'error': 'Could not store subscription'}), 500
+    
+    return jsonify({'success': True})
 
 
 # ==========================================
@@ -5451,27 +3261,16 @@ def get_series_teaser():
 
 @app.route('/api/trigger-automation', methods=['POST', 'GET'])
 def trigger_automation():
-    """Webhook endpoint to trigger article generation (cron or admin). Use ?force=1 with POST when logged in as admin to skip cooldown."""
-    if not is_enabled("ENABLE_AUTOMATION_ARTICLES"):
-        return jsonify({"status": "disabled", "message": "Automation disabled by ENABLE_AUTOMATION_ARTICLES=false"}), 200
+    """Webhook endpoint to trigger article generation from Scheduled Deployment"""
     from services.automation import generate_article_with_tracking
-
-    force = request.args.get("force") in ("1", "true", "yes")
-    if force and request.method == "POST":
-        if not current_user.is_authenticated or not getattr(current_user, "is_admin", False):
-            return jsonify({"status": "error", "message": "Admin required to use force=1"}), 403
-    result = generate_article_with_tracking(force=force)
+    
+    result = generate_article_with_tracking()
     
     if result.get('success'):
-        msg = f"Article generated: {result.get('title')}"
-        if result.get('stub'):
-            msg += " (stub — add OPENAI_API_KEY or GEMINI_API_KEY or ANTHROPIC_API_KEY to enable real drafting)"
         return jsonify({
             'status': 'success',
-            'message': msg,
-            'article_id': result.get('article_id'),
-            'stub': result.get('stub'),
-            'error': result.get('error'),
+            'message': f"Article generated: {result.get('title')}",
+            'article_id': result.get('article_id')
         }), 200
     elif result.get('skipped'):
         return jsonify({
@@ -5532,7 +3331,7 @@ def automation_health():
 @admin_required
 def admin_launch_sequences():
     """View all launch sequences"""
-    sequences = models.LaunchSequence.query.order_by(models.LaunchSequence.created_at.desc()).all()
+    sequences = LaunchSequence.query.order_by(LaunchSequence.created_at.desc()).all()
     return render_template('admin_launch_sequences.html', sequences=sequences)
 
 @app.route('/admin/launch-sequence/create', methods=['GET', 'POST'])
@@ -5553,7 +3352,7 @@ def create_launch_sequence():
             content_id=int(content_id) if content_id else None
         )
         
-        seq = models.LaunchSequence(
+        seq = LaunchSequence(
             content_id=result.get('content_id'),
             content_type=result.get('content_type'),
             primary_post_copy=result.get('primary_post_copy'),
@@ -5573,8 +3372,8 @@ def create_launch_sequence():
         flash('Launch sequence created successfully!')
         return redirect(url_for('admin_launch_sequences'))
     
-    articles = models.Article.query.filter_by(published=True).order_by(models.Article.created_at.desc()).limit(20).all()
-    podcasts = models.Podcast.query.order_by(models.Podcast.published_date.desc()).limit(20).all()
+    articles = Article.query.filter_by(published=True).order_by(Article.created_at.desc()).limit(20).all()
+    podcasts = Podcast.query.order_by(Podcast.published_date.desc()).limit(20).all()
     return render_template('create_launch_sequence.html', articles=articles, podcasts=podcasts)
 
 @app.route('/admin/launch-sequence/<int:seq_id>')
@@ -5583,7 +3382,7 @@ def create_launch_sequence():
 def view_launch_sequence(seq_id):
     """View a specific launch sequence"""
     import json
-    seq = models.LaunchSequence.query.get_or_404(seq_id)
+    seq = LaunchSequence.query.get_or_404(seq_id)
     drafts = []
     if seq.reply_drafts:
         try:
@@ -5597,7 +3396,7 @@ def view_launch_sequence(seq_id):
 @admin_required
 def approve_launch_sequence(seq_id):
     """Approve a launch sequence for use"""
-    seq = models.LaunchSequence.query.get_or_404(seq_id)
+    seq = LaunchSequence.query.get_or_404(seq_id)
     seq.status = 'approved'
     seq.approved_at = datetime.utcnow()
     db.session.commit()
@@ -5611,11 +3410,11 @@ def regenerate_launch_sequence(seq_id):
     """Regenerate a launch sequence with new content"""
     from services.launch_sequence import launch_sequence_service
     
-    seq = models.LaunchSequence.query.get_or_404(seq_id)
+    seq = LaunchSequence.query.get_or_404(seq_id)
     
     content = seq.primary_post_copy or ""
     if seq.content_id and seq.content_type == 'article':
-        article = models.Article.query.get(seq.content_id)
+        article = Article.query.get(seq.content_id)
         if article:
             content = f"{article.title}\n\n{article.summary or article.content[:500]}"
     
@@ -5643,7 +3442,7 @@ def regenerate_launch_sequence(seq_id):
 def launch_console(seq_id):
     """Open the launch console for an approved sequence"""
     import json
-    seq = models.LaunchSequence.query.get_or_404(seq_id)
+    seq = LaunchSequence.query.get_or_404(seq_id)
     
     drafts = []
     if seq.reply_drafts:
@@ -5659,7 +3458,7 @@ def launch_console(seq_id):
 @admin_required
 def complete_launch(seq_id):
     """Complete a launch and record metrics"""
-    seq = models.LaunchSequence.query.get_or_404(seq_id)
+    seq = LaunchSequence.query.get_or_404(seq_id)
     
     data = request.get_json() or {}
     seq.status = 'analyzed'
@@ -5679,7 +3478,7 @@ def get_launch_replies(seq_id):
     """Get real-time replies for the launch console"""
     from services.x_service import XService
     
-    seq = models.LaunchSequence.query.get_or_404(seq_id)
+    seq = LaunchSequence.query.get_or_404(seq_id)
     x_service = XService()
     
     twitter_handle = seq.twitter_handle if hasattr(seq, 'twitter_handle') else 'ProtocolPulseIO'
@@ -5707,7 +3506,7 @@ def generate_reply_draft(seq_id):
     """Generate a new reply draft for a specific incoming reply"""
     from services.launch_sequence import launch_sequence_service
     
-    seq = models.LaunchSequence.query.get_or_404(seq_id)
+    seq = LaunchSequence.query.get_or_404(seq_id)
     data = request.get_json() or {}
     incoming_text = data.get('incoming_text', '')
     strategy = data.get('strategy', 'Technical')
@@ -5748,7 +3547,7 @@ Add value to the conversation. Reference Bitcoin/crypto context when relevant.""
 @admin_required
 def admin_target_alerts():
     """View all target alerts"""
-    alerts = models.TargetAlert.query.order_by(models.TargetAlert.created_at.desc()).limit(50).all()
+    alerts = TargetAlert.query.order_by(TargetAlert.created_at.desc()).limit(50).all()
     return render_template('admin_target_alerts.html', alerts=alerts)
 
 @app.route('/admin/target-alerts/scan', methods=['POST'])
@@ -5766,7 +3565,7 @@ def scan_targets():
             alert_data['content_snippet']
         )
         
-        alert = models.TargetAlert(
+        alert = TargetAlert(
             trigger_type=alert_data['trigger_type'],
             source_url=alert_data['source_url'],
             source_account=alert_data['source_account'],
@@ -5787,7 +3586,7 @@ def scan_targets():
 @admin_required
 def approve_alert(alert_id):
     """Approve an alert for posting"""
-    alert = models.TargetAlert.query.get_or_404(alert_id)
+    alert = TargetAlert.query.get_or_404(alert_id)
     alert.status = 'approved'
     db.session.commit()
     return jsonify({'success': True})
@@ -5797,7 +3596,7 @@ def approve_alert(alert_id):
 @admin_required
 def skip_alert(alert_id):
     """Skip an alert"""
-    alert = models.TargetAlert.query.get_or_404(alert_id)
+    alert = TargetAlert.query.get_or_404(alert_id)
     alert.status = 'skipped'
     db.session.commit()
     return jsonify({'success': True})
@@ -5814,7 +3613,7 @@ def admin_nostr():
     from services.nostr_broadcaster import nostr_broadcaster
     
     status = nostr_broadcaster.get_relay_status()
-    events = models.NostrEvent.query.order_by(models.NostrEvent.created_at.desc()).limit(50).all()
+    events = NostrEvent.query.order_by(NostrEvent.created_at.desc()).limit(50).all()
     
     return render_template('admin_nostr.html', status=status, events=events)
 
@@ -5823,14 +3622,12 @@ def admin_nostr():
 @admin_required
 def test_nostr():
     """Test Nostr broadcast"""
-    if not is_enabled("ENABLE_NOSTR_POSTING"):
-        return jsonify({'success': False, 'error': 'Nostr posting disabled by flag'}), 403
     from services.nostr_broadcaster import nostr_broadcaster
     
     result = nostr_broadcaster.test_connection()
     
     if result.get('success'):
-        event = models.NostrEvent(
+        event = NostrEvent(
             event_id=result.get('event_id'),
             content_type='test',
             relays_success=json.dumps(result.get('relays_success', [])),
@@ -5846,8 +3643,6 @@ def test_nostr():
 @admin_required
 def broadcast_to_nostr():
     """Broadcast content to Nostr"""
-    if not is_enabled("ENABLE_NOSTR_POSTING"):
-        return jsonify({'success': False, 'error': 'Nostr posting disabled by flag'}), 403
     from services.nostr_broadcaster import nostr_broadcaster
     
     data = request.get_json() or {}
@@ -5861,7 +3656,7 @@ def broadcast_to_nostr():
     result = nostr_broadcaster.broadcast_note(content)
     
     if result.get('success') or result.get('simulated'):
-        event = models.NostrEvent(
+        event = NostrEvent(
             event_id=result.get('event_id'),
             content_type=content_type,
             content_id=content_id,
@@ -5877,105 +3672,6 @@ def broadcast_to_nostr():
 # INTELLIGENCE DASHBOARD
 # ============================================
 
-@app.route('/admin/sentry')
-@login_required
-@admin_required
-def admin_sentry_hub():
-    """Operator flight deck for queue-first social orchestration."""
-    try:
-        sentry_jobs = models.SentryJob.query.order_by(models.SentryJob.created_at.desc()).limit(50).all()
-    except Exception:
-        sentry_jobs = []
-    try:
-        queue_rows = (
-            models.SentryQueue.query.order_by(models.SentryQueue.created_at.desc())
-            .limit(20)
-            .all()
-        )
-        queue_count = models.SentryQueue.query.filter(
-            models.SentryQueue.status.in_(["pending", "draft"])
-        ).count()
-    except Exception:
-        queue_rows = []
-        queue_count = 0
-    return render_template(
-        'admin/sentry.html',
-        sentry_jobs=sentry_jobs,
-        queue_rows=queue_rows,
-        queue_count=queue_count,
-        suggestions=_alpha_suggestions(limit=3),
-    )
-
-
-@app.route('/api/extension/schedule', methods=['POST'])
-def api_extension_schedule():
-    """Accept browser-extension drafts into sentry queue."""
-    payload = request.get_json(silent=True) or {}
-    content = str(payload.get("content") or "").strip()
-    if not content:
-        return jsonify({"ok": False, "error": "content is required"}), 400
-
-    # Allow admin session auth or bearer token integration.
-    token = (request.headers.get("Authorization") or "").replace("Bearer ", "").strip()
-    expected = (os.environ.get("EXTENSION_API_KEY") or "").strip()
-    session_admin = bool(getattr(current_user, "is_authenticated", False) and getattr(current_user, "is_admin", False))
-    if not session_admin:
-        if not expected:
-            return jsonify({"ok": False, "error": "extension api key not configured"}), 503
-        if token != expected:
-            return jsonify({"ok": False, "error": "unauthorized"}), 401
-
-    if session_admin:
-        _require_csrf()
-
-    platforms = payload.get("platforms") or payload.get("platforms_json") or ["x", "nostr"]
-    if isinstance(platforms, str):
-        try:
-            platforms = json.loads(platforms)
-        except Exception:
-            platforms = [platforms]
-    if not isinstance(platforms, list):
-        platforms = ["x", "nostr"]
-    clean_platforms = [str(p).lower().strip() for p in platforms if str(p).strip()]
-    if not clean_platforms:
-        clean_platforms = ["x", "nostr"]
-
-    scheduled_at = _parse_iso8601(str(payload.get("scheduled_at") or ""))
-    row = models.SentryQueue(
-        content=content[:3000],
-        platforms_json=json.dumps(clean_platforms),
-        scheduled_at=scheduled_at,
-        status="draft",
-        dry_run=(str(os.environ.get("SAFE_MODE", "true")).lower() == "true"),
-        source="browser_extension",
-        created_by=(getattr(current_user, "id", None) if session_admin else None),
-    )
-    db.session.add(row)
-    # Megaphone V1: also create SentryJob (Draft) when table exists
-    platform_label = ",".join(p.capitalize() for p in clean_platforms)
-    try:
-        job = models.SentryJob(content=content[:3000], platform=platform_label or "X,Nostr", status="Draft")
-        db.session.add(job)
-        db.session.commit()
-        return jsonify({"ok": True, "id": row.id, "status": row.status, "sentry_job_id": job.id})
-    except Exception:
-        db.session.rollback()
-        db.session.add(row)
-        db.session.commit()
-        return jsonify({"ok": True, "id": row.id, "status": row.status})
-
-
-@app.route('/api/sentry-job/<int:job_id>/queue', methods=['POST'])
-def api_sentry_job_queue(job_id):
-    """Set SentryJob status to Queued so the megaphone worker will write it to pulseevents.jsonl."""
-    job = models.SentryJob.query.get_or_404(job_id)
-    if job.status != 'Draft':
-        return jsonify({"ok": False, "error": "only Draft jobs can be queued"}), 400
-    job.status = 'Queued'
-    db.session.commit()
-    return jsonify({"ok": True, "id": job.id, "status": job.status})
-
-
 @app.route('/admin/intelligence')
 @login_required
 @admin_required
@@ -5983,25 +3679,25 @@ def intelligence_dashboard():
     """Main intelligence dashboard with all metrics"""
     from services.nostr_broadcaster import nostr_broadcaster
     
-    articles_count = models.Article.query.filter_by(published=True).count()
-    podcasts_count = models.Podcast.query.count()
+    articles_count = Article.query.filter_by(published=True).count()
+    podcasts_count = Podcast.query.count()
     
-    launch_sequences = models.LaunchSequence.query.order_by(models.LaunchSequence.created_at.desc()).limit(5).all()
-    pending_sequences = models.LaunchSequence.query.filter_by(status='draft').count()
+    launch_sequences = LaunchSequence.query.order_by(LaunchSequence.created_at.desc()).limit(5).all()
+    pending_sequences = LaunchSequence.query.filter_by(status='draft').count()
     
-    target_alerts = models.TargetAlert.query.filter_by(status='pending').order_by(models.TargetAlert.created_at.desc()).limit(5).all()
-    pending_alerts = models.TargetAlert.query.filter_by(status='pending').count()
+    target_alerts = TargetAlert.query.filter_by(status='pending').order_by(TargetAlert.created_at.desc()).limit(5).all()
+    pending_alerts = TargetAlert.query.filter_by(status='pending').count()
     
     nostr_status = nostr_broadcaster.get_relay_status()
-    nostr_events = models.NostrEvent.query.count()
-    total_zaps = db.session.query(db.func.sum(models.NostrEvent.zaps_amount_sats)).scalar() or 0
+    nostr_events = NostrEvent.query.count()
+    total_zaps = db.session.query(db.func.sum(NostrEvent.zaps_amount_sats)).scalar() or 0
     
-    avg_velocity = db.session.query(db.func.avg(models.LaunchSequence.actual_velocity_score)).filter(
-        models.LaunchSequence.actual_velocity_score.isnot(None)
+    avg_velocity = db.session.query(db.func.avg(LaunchSequence.actual_velocity_score)).filter(
+        LaunchSequence.actual_velocity_score.isnot(None)
     ).scalar() or 0
     
-    reply_squad = models.ReplySquadMember.query.filter_by(active=True).order_by(
-        models.ReplySquadMember.reciprocal_engagements.desc()
+    reply_squad = ReplySquadMember.query.filter_by(active=True).order_by(
+        ReplySquadMember.reciprocal_engagements.desc()
     ).limit(10).all()
     
     return render_template('intelligence_dashboard.html',
@@ -6018,252 +3714,12 @@ def intelligence_dashboard():
         reply_squad=reply_squad
     )
 
-
-def _sentinel_gpu_stats():
-    rows = []
-    try:
-        proc = subprocess.run(
-            [
-                "nvidia-smi",
-                "--query-gpu=index,temperature.gpu,utilization.gpu,memory.used,memory.total",
-                "--format=csv,noheader,nounits",
-            ],
-            capture_output=True,
-            text=True,
-            timeout=6,
-        )
-        if proc.returncode != 0:
-            return rows
-        for line in (proc.stdout or "").strip().splitlines():
-            parts = [p.strip() for p in line.split(",")]
-            if len(parts) < 5:
-                continue
-            rows.append(
-                {
-                    "gpu": parts[0],
-                    "temp_c": parts[1],
-                    "util_pct": parts[2],
-                    "mem_used_mb": parts[3],
-                    "mem_total_mb": parts[4],
-                }
-            )
-    except Exception:
-        return []
-    return rows
-
-
-def _sentinel_ingestion_rate_per_hour():
-    path = Path("/home/ultron/protocol_pulse/data/pulse_events.jsonl")
-    if not path.exists():
-        return 0
-    cutoff = datetime.utcnow() - timedelta(hours=1)
-    count = 0
-    try:
-        with path.open("r", encoding="utf-8") as fp:
-            for line in fp:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    row = json.loads(line)
-                except Exception:
-                    continue
-                ts = str(row.get("ts") or "")
-                try:
-                    dt = datetime.fromisoformat(ts)
-                except Exception:
-                    continue
-                if dt >= cutoff:
-                    count += 1
-    except Exception:
-        return 0
-    return count
-
-
-def _sentinel_narrative_focus():
-    path = Path("/home/ultron/protocol_pulse/data/daily_briefs.json")
-    if not path.exists():
-        return "awaiting first sovereign brief"
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-        briefs = payload.get("briefs") or []
-        if not briefs:
-            return "awaiting first sovereign brief"
-        latest = briefs[-1]
-        urgent = latest.get("urgent_events") or []
-        if urgent:
-            return str(urgent[0])[:240]
-        summary = str(latest.get("summary") or "").splitlines()
-        for line in summary:
-            line = line.strip()
-            if line:
-                return line[:240]
-    except Exception:
-        pass
-    return "focus unavailable"
-
-
-@app.route('/admin/sentinel-status')
-@login_required
-@admin_required
-def admin_sentinel_status():
-    gpu_rows = _sentinel_gpu_stats()
-    ingestion_rate = _sentinel_ingestion_rate_per_hour()
-    focus = _sentinel_narrative_focus()
-    log_lines = _tail_file_lines(AUTOMATION_LOG_PATH, limit=50)
-    return render_template(
-        'admin/sentinel_status.html',
-        gpu_rows=gpu_rows,
-        ingestion_rate=ingestion_rate,
-        narrative_focus=focus,
-        log_lines=log_lines,
-        refreshed_at=datetime.utcnow().isoformat(),
-    )
-
-
-@app.route('/api/admin/sentinel-status')
-@login_required
-@admin_required
-def api_admin_sentinel_status():
-    return jsonify(
-        {
-            "ok": True,
-            "gpu_rows": _sentinel_gpu_stats(),
-            "ingestion_rate": _sentinel_ingestion_rate_per_hour(),
-            "narrative_focus": _sentinel_narrative_focus(),
-            "log_lines": _tail_file_lines(AUTOMATION_LOG_PATH, limit=50),
-            "refreshed_at": datetime.utcnow().isoformat(),
-        }
-    )
-
-
-@app.route('/admin/watchtower')
-@login_required
-@admin_required
-def admin_watchtower():
-    """Dense operator dashboard for hardware + service status + live logs."""
-    return render_template("admin/watchtower.html")
-
-
-@app.route('/api/admin/watchtower/status')
-@login_required
-@admin_required
-def api_admin_watchtower_status():
-    svc_names = [
-        "pulse.service",
-        "pulse_web.service",
-        "pulse_intel.service",
-        "pulse_medley.service",
-        "medley_daily.service",
-    ]
-    statuses = [_watchtower_service_status(n) for n in svc_names]
-    lines = _tail_file_lines(AUTOMATION_LOG_PATH, limit=20)
-    return jsonify(
-        {
-            "ok": True,
-            "ts": datetime.utcnow().isoformat(),
-            "gpu": _watchtower_gpu_stats(),
-            "services": statuses,
-            "log_tail": lines[-20:],
-        }
-    )
-
-
-@app.route('/api/admin/watchtower/log-stream')
-@login_required
-@admin_required
-def api_admin_watchtower_log_stream():
-    """SSE log tail stream for automation.log."""
-    def generate():
-        for line in _tail_file_lines(AUTOMATION_LOG_PATH, limit=20):
-            yield f"data: {json.dumps({'line': line})}\n\n"
-        offset = AUTOMATION_LOG_PATH.stat().st_size if AUTOMATION_LOG_PATH.exists() else 0
-        while True:
-            time.sleep(1.0)
-            if not AUTOMATION_LOG_PATH.exists():
-                yield ": heartbeat\n\n"
-                continue
-            with AUTOMATION_LOG_PATH.open("r", encoding="utf-8", errors="ignore") as f:
-                f.seek(offset)
-                chunk = f.read()
-                offset = f.tell()
-            if chunk:
-                for line in chunk.splitlines():
-                    yield f"data: {json.dumps({'line': line})}\n\n"
-            else:
-                yield ": heartbeat\n\n"
-
-    return Response(
-        generate(),
-        mimetype="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",
-        },
-    )
-
-
-@app.route('/admin/video/partner-reels')
-@login_required
-@admin_required
-def admin_partner_reels():
-    reels = (
-        models.PartnerHighlightReel.query.order_by(
-            models.PartnerHighlightReel.date.desc(),
-            models.PartnerHighlightReel.created_at.desc(),
-        )
-        .limit(120)
-        .all()
-    )
-    return render_template('admin/partner_reels.html', reels=reels)
-
-
-@app.route('/admin/video/partner-reels/<int:reel_id>')
-@login_required
-@admin_required
-def admin_partner_reel_detail(reel_id):
-    reel = models.PartnerHighlightReel.query.get_or_404(reel_id)
-    story = []
-    try:
-        story = json.loads(reel.story_json or "[]")
-    except Exception:
-        story = []
-    return render_template('admin/partner_reel_detail.html', reel=reel, story=story)
-
-
-@app.route('/admin/video/partner-reel-build', methods=['POST'])
-@login_required
-@admin_required
-def admin_partner_reel_build():
-    _require_csrf()
-    from services.partnerreel import partner_reel_service
-
-    reel = partner_reel_service.build_daily_partner_reel(max_videos_per_channel=2)
-    if not reel:
-        return jsonify({"success": False, "error": "no reel built (insufficient source videos/clips)"}), 400
-    segments = []
-    try:
-        segments = json.loads(reel.story_json or "[]")
-    except Exception:
-        segments = []
-    return jsonify(
-        {
-            "success": True,
-            "reel_id": reel.id,
-            "video_path": reel.video_path,
-            "segments_count": len(segments),
-            "status": reel.status,
-            "draft_only": True,
-        }
-    )
-
 @app.route('/admin/reply-squad')
 @login_required
 @admin_required
 def admin_reply_squad():
     """Manage reply squad members"""
-    members = models.ReplySquadMember.query.order_by(models.ReplySquadMember.priority, models.ReplySquadMember.handle).all()
+    members = ReplySquadMember.query.order_by(ReplySquadMember.priority, ReplySquadMember.handle).all()
     return render_template('admin_reply_squad.html', members=members)
 
 @app.route('/admin/reply-squad/add', methods=['POST'])
@@ -6273,7 +3729,7 @@ def add_reply_squad_member():
     """Add a new reply squad member"""
     data = request.get_json() or request.form
     
-    member = models.ReplySquadMember(
+    member = ReplySquadMember(
         handle=data.get('handle', ''),
         display_name=data.get('display_name', ''),
         category=data.get('category', 'general'),
@@ -6296,9 +3752,9 @@ def init_reply_squad():
     from services.target_monitor import REPLY_SQUAD
     
     for member_data in REPLY_SQUAD:
-        existing = models.ReplySquadMember.query.filter_by(handle=member_data['handle']).first()
+        existing = ReplySquadMember.query.filter_by(handle=member_data['handle']).first()
         if not existing:
-            member = models.ReplySquadMember(
+            member = ReplySquadMember(
                 handle=member_data['handle'],
                 display_name=member_data.get('name', ''),
                 category=member_data.get('category', 'general'),
@@ -6366,11 +3822,11 @@ def admin_auth_cleanup():
         purged_count = 0
         
         # Clean up articles with Orange Is The New Jill content
-        articles = models.Article.query.filter(
+        articles = Article.query.filter(
             db.or_(
-                models.Article.title.ilike('%orange is the new jill%'),
-                models.Article.title.ilike('%orange is the nw jill%'),
-                models.Article.content.ilike('%orange is the new jill%')
+                Article.title.ilike('%orange is the new jill%'),
+                Article.title.ilike('%orange is the nw jill%'),
+                Article.content.ilike('%orange is the new jill%')
             )
         ).all()
         
@@ -6379,11 +3835,11 @@ def admin_auth_cleanup():
             purged_count += 1
         
         # Clean up podcasts with Orange Is The New Jill content
-        podcasts = models.Podcast.query.filter(
+        podcasts = Podcast.query.filter(
             db.or_(
-                models.Podcast.title.ilike('%orange is the new jill%'),
-                models.Podcast.title.ilike('%orange is the nw jill%'),
-                models.Podcast.description.ilike('%orange is the new jill%')
+                Podcast.title.ilike('%orange is the new jill%'),
+                Podcast.title.ilike('%orange is the nw jill%'),
+                Podcast.description.ilike('%orange is the new jill%')
             )
         ).all()
         
@@ -6455,145 +3911,6 @@ def api_merchant_search():
     return jsonify({'merchants': []})
 
 # ============================================
-# SOVEREIGN INTAKE (ONBOARDING)
-# ============================================
-
-def _onboarding_signal_snapshot():
-    since_24h = datetime.utcnow() - timedelta(hours=24)
-    whale_24h = models.WhaleTransaction.query.filter(models.WhaleTransaction.detected_at >= since_24h).count()
-    mega_24h = models.WhaleTransaction.query.filter(
-        models.WhaleTransaction.detected_at >= since_24h,
-        models.WhaleTransaction.is_mega.is_(True),
-    ).count()
-    return whale_24h, mega_24h
-
-
-def _run_onboarding_step(stage: str, response_text: str, annual_income, newsletter_opt_in: bool):
-    from services.onboarding_service import run_aida_step, onboarding_progress, upsert_lead
-    from core.personalization import build_user_profile, save_user_profile, recommend_next_action
-
-    whale_24h, mega_24h = _onboarding_signal_snapshot()
-    out = run_aida_step(
-        stage=stage,
-        user_text=response_text,
-        whale_24h=whale_24h,
-        mega_24h=mega_24h,
-        annual_income=annual_income,
-    )
-    lead = upsert_lead(
-        user_id=(getattr(current_user, "id", None) if getattr(current_user, "is_authenticated", False) else None),
-        email=(getattr(current_user, "email", None) if getattr(current_user, "is_authenticated", False) else None),
-        name=(getattr(current_user, "username", None) if getattr(current_user, "is_authenticated", False) else None),
-        stage=out.stage,
-        profile=out.profile,
-        interest_level=out.interest_level,
-        capacity_score=out.capacity_score,
-        newsletter_opt_in=newsletter_opt_in,
-        notes=response_text,
-    )
-    progress = onboarding_progress(out.stage)
-    next_action = None
-    if getattr(current_user, "is_authenticated", False):
-        profile = build_user_profile(current_user)
-        save_user_profile(current_user.id, profile=profile, behavior={"last_stage": out.stage})
-        next_action = recommend_next_action(profile)
-    return out, progress, lead, whale_24h, mega_24h, next_action
-
-
-@app.route('/onboarding', methods=['GET'])
-def onboarding():
-    return redirect(url_for('onboarding.onboarding_start'))
-
-
-@app.route('/onboarding', methods=['POST'])
-def onboarding_submit():
-    _require_csrf()
-    from services.onboarding_service import run_aida_step, onboarding_progress, upsert_lead
-
-    stage = (request.form.get("stage") or "attention").strip().lower()
-    response_text = (request.form.get("response_text") or "").strip()
-    if not response_text:
-        flash("response is required to continue onboarding.")
-        return redirect(url_for("onboarding", stage=stage))
-    annual_income = None
-    try:
-        annual_income = float((request.form.get("annual_income") or "").strip() or 0.0) or None
-    except Exception:
-        annual_income = None
-    newsletter_opt_in = request.form.get("newsletter_opt_in") in ("1", "on", "true")
-    out, progress, _, whale_24h, mega_24h, _next_action = _run_onboarding_step(
-        stage=stage,
-        response_text=response_text,
-        annual_income=annual_income,
-        newsletter_opt_in=newsletter_opt_in,
-    )
-    return render_template(
-        'onboarding.html',
-        progress=progress,
-        urgency_copy=out.urgency_copy,
-        next_prompt=out.next_prompt,
-        whale_24h=whale_24h,
-        mega_24h=mega_24h,
-        onboarding_profile=out.profile,
-        onboarding_capacity=out.capacity_score,
-        onboarding_interest=out.interest_level,
-    )
-
-
-@app.route('/api/onboarding/step', methods=['POST'])
-def onboarding_step_api():
-    _require_csrf()
-    payload = request.get_json(silent=True) or {}
-    stage = (payload.get("stage") or "attention").strip().lower()
-    response_text = (payload.get("response_text") or "").strip()
-    if not response_text:
-        return jsonify({"ok": False, "error": "response_text required"}), 400
-    annual_income = None
-    try:
-        annual_income = float(str(payload.get("annual_income") or "").strip() or 0.0) or None
-    except Exception:
-        annual_income = None
-    newsletter_opt_in = bool(payload.get("newsletter_opt_in"))
-
-    t0 = time.perf_counter()
-    out, progress, lead, whale_24h, mega_24h, next_action = _run_onboarding_step(
-        stage=stage,
-        response_text=response_text,
-        annual_income=annual_income,
-        newsletter_opt_in=newsletter_opt_in,
-    )
-    elapsed_ms = int((time.perf_counter() - t0) * 1000)
-    try:
-        emit_event(
-            event_type="onboarding_step",
-            source="onboarding_api",
-            lane="system",
-            severity="info",
-            title="onboarding step completed",
-            detail=f"stage={progress.get('stage')} profile={out.profile} lead_id={lead.id}",
-            payload={"stage": progress.get("stage"), "profile": out.profile, "lead_id": lead.id},
-        )
-    except Exception:
-        pass
-    return jsonify(
-        {
-            "ok": True,
-            "progress": progress,
-            "next_prompt": out.next_prompt,
-            "urgency_copy": out.urgency_copy,
-            "profile": out.profile,
-            "capacity_score": out.capacity_score,
-            "interest_level": out.interest_level,
-            "lead_id": lead.id,
-            "whale_24h": whale_24h,
-            "mega_24h": mega_24h,
-            "latency_ms": elapsed_ms,
-            "next_action": next_action,
-        }
-    )
-
-
-# ============================================
 # MONETIZATION & PREMIUM ROUTES
 # ============================================
 
@@ -6601,696 +3918,9 @@ def onboarding_step_api():
 def premium_page():
     """Premium subscription pricing page"""
     from services.monetization_service import monetization_service
-
+    
     tiers = monetization_service.get_subscription_tiers()
     return render_template('premium.html', tiers=tiers)
-
-
-@app.route('/upgrade')
-@login_required
-def upgrade_page():
-    btcpay_checkout_url = (os.environ.get("BTCPAY_COMMANDER_CHECKOUT_URL") or "").strip()
-    stripe_checkout_url = (os.environ.get("STRIPE_COMMANDER_CHECKOUT_URL") or "").strip()
-    return render_template(
-        "upgrade.html",
-        btcpay_checkout_url=btcpay_checkout_url,
-        stripe_checkout_url=stripe_checkout_url,
-    )
-
-
-@app.route('/api/upgrade/confirm', methods=['POST'])
-@login_required
-def api_upgrade_confirm():
-    """Post-payment entitlement sync for commander gate (Stripe/BTCPay callbacks or manual confirm)."""
-    _require_csrf()
-    payload = request.get_json(silent=True) or {}
-    provider = str(payload.get("provider") or "manual").strip().lower()
-    reference = str(payload.get("reference") or payload.get("txid") or payload.get("session_id") or "").strip()
-    from services.gatekeeper import gatekeeper_service
-
-    out = gatekeeper_service.confirm_commander_upgrade(
-        user_id=current_user.id,
-        provider=provider,
-        reference=reference,
-    )
-    return jsonify(out), (200 if out.get("ok") else 400)
-
-
-@app.route('/premium-hub')
-@premium_hub_required
-def premium_hub():
-    """Premium Hub: tiered command center for Operator / Commander / Sovereign subscribers."""
-    from datetime import datetime, timedelta
-    try:
-        network = NodeService.get_network_stats()
-    except Exception:
-        network = {}
-    try:
-        mempool_data = fetch_mempool_data()
-    except Exception:
-        mempool_data = {}
-    try:
-        prices = price_service.get_prices()
-    except Exception:
-        prices = {}
-    # Latest briefs (all subs)
-    latest_briefs = models.Article.query.filter_by(published=True).order_by(models.Article.updated_at.desc()).limit(5).all()
-    # Commander+ only: Pro Briefs (premium_tier commander/sovereign or featured)
-    try:
-        commander_briefs = models.Article.query.filter(
-            models.Article.published.is_(True),
-            db.or_(
-                models.Article.premium_tier.in_(['commander', 'sovereign']),
-                models.Article.featured.is_(True)
-            )
-        ).order_by(models.Article.updated_at.desc()).limit(5).all()
-    except Exception:
-        commander_briefs = models.Article.query.filter_by(
-            published=True, featured=True
-        ).order_by(models.Article.updated_at.desc()).limit(5).all()
-    # Whale feed (last 24h) and alert summary — Commander+
-    since_24h = datetime.utcnow() - timedelta(hours=24)
-    since_7d = datetime.utcnow() - timedelta(days=7)
-    hub_whales = models.WhaleTransaction.query.filter(
-        models.WhaleTransaction.detected_at >= since_24h
-    ).order_by(models.WhaleTransaction.detected_at.desc()).limit(20).all()
-    whale_count_24h = models.WhaleTransaction.query.filter(
-        models.WhaleTransaction.detected_at >= since_24h
-    ).count()
-    mega_count_24h = models.WhaleTransaction.query.filter(
-        models.WhaleTransaction.detected_at >= since_24h,
-        models.WhaleTransaction.is_mega.is_(True)
-    ).count()
-    whale_count_7d = models.WhaleTransaction.query.filter(
-        models.WhaleTransaction.detected_at >= since_7d
-    ).count()
-    mega_count_7d = models.WhaleTransaction.query.filter(
-        models.WhaleTransaction.detected_at >= since_7d,
-        models.WhaleTransaction.is_mega.is_(True)
-    ).count()
-    # 24h whale volume in USD (for premium metric card)
-    btc_price = (prices or {}).get('btc') or 0
-    whale_volume_usd_24h = sum((w.usd_value or (w.btc_amount * btc_price) or 0) for w in hub_whales)
-    # Pro Brief of the week (single highlighted for Commander+)
-    brief_of_the_week = (commander_briefs[0] if commander_briefs else None)
-    # Sovereign: monthly ask status
-    sovereign_ask = None
-    sovereign_asks_this_month = 0
-    if getattr(current_user, 'subscription_tier', None) == 'sovereign':
-        try:
-            month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-            sovereign_asks_this_month = models.PremiumAsk.query.filter(
-                models.PremiumAsk.user_id == current_user.id,
-                models.PremiumAsk.created_at >= month_start
-            ).count()
-            sovereign_ask = models.PremiumAsk.query.filter_by(
-                user_id=current_user.id
-            ).order_by(models.PremiumAsk.created_at.desc()).first()
-        except Exception:
-            pass
-    tier = getattr(current_user, 'subscription_tier', 'free')
-    mega_whale_alerts_enabled = getattr(current_user, 'mega_whale_email_alerts', False)
-    risk_oracle_center, risk_oracle_locations = _load_mining_oracle_data()
-    risk_oracle_hotspots = sorted(
-        [loc for loc in risk_oracle_locations if (loc.get("hashrate_share") or 0) > 0],
-        key=lambda x: x.get("hashrate_share", 0),
-        reverse=True,
-    )[:6]
-    pending_sentry_alerts = (
-        models.TargetAlert.query.filter_by(status='pending')
-        .order_by(models.TargetAlert.created_at.desc())
-        .limit(5)
-        .all()
-    )
-    fee_fast = mempool_data.get("fastestFee") if isinstance(mempool_data, dict) else None
-    fee_half = mempool_data.get("halfHourFee") if isinstance(mempool_data, dict) else None
-    fee_hour = mempool_data.get("hourFee") if isinstance(mempool_data, dict) else None
-    partner_catalog = _load_partner_ramp_catalog()
-    partner_cards = _flatten_partner_entries(partner_catalog)
-    _seed_affiliate_partners_from_catalog(partner_cards)
-    initial_log_lines = _filter_signal_lines(_tail_file_lines(AUTOMATION_LOG_PATH, limit=300), limit=50)
-    sovereign_nav = [
-        {"label": "media terminal", "href": "/media-terminal", "icon": "fa-broadcast-tower"},
-        {"label": "intelligence feed", "href": "/signal-terminal", "icon": "fa-wave-square"},
-        {"label": "bitcoin services", "href": "#bitcoin-services", "icon": "fa-handshake"},
-        {
-            "label": "sentry queue",
-            "href": "/admin/target-alerts" if getattr(current_user, "is_admin", False) else "/signal-terminal",
-            "icon": "fa-crosshairs",
-        },
-    ]
-    return render_template('premium_hub.html',
-                         network=network,
-                         mempool_data=mempool_data,
-                         prices=prices,
-                         latest_briefs=latest_briefs,
-                         commander_briefs=commander_briefs,
-                         brief_of_the_week=brief_of_the_week,
-                         hub_whales=hub_whales,
-                         whale_count_24h=whale_count_24h,
-                         mega_count_24h=mega_count_24h,
-                         whale_count_7d=whale_count_7d,
-                         mega_count_7d=mega_count_7d,
-                         whale_volume_usd_24h=whale_volume_usd_24h,
-                         sovereign_ask=sovereign_ask,
-                         sovereign_asks_this_month=sovereign_asks_this_month,
-                         tier=tier,
-                         mega_whale_alerts_enabled=mega_whale_alerts_enabled,
-                         risk_oracle_center=risk_oracle_center,
-                         risk_oracle_locations=risk_oracle_locations,
-                         risk_oracle_hotspots=risk_oracle_hotspots,
-                         pending_sentry_alerts=pending_sentry_alerts,
-                         fee_fast=fee_fast,
-                         fee_half=fee_half,
-                         fee_hour=fee_hour,
-                         partner_categories=(partner_catalog.get("categories") or []),
-                         partner_disclaimer=(partner_catalog.get("disclaimer") or ""),
-                         medley_state=_medley_state,
-                         initial_log_lines=initial_log_lines,
-                         sovereign_nav=sovereign_nav)
-
-
-@app.route('/command')
-def command_center():
-    """Command page for route stability checks."""
-    return render_template("command.html")
-
-
-@app.route('/command-center')
-@login_required
-@premium_hub_required
-def command_center_premium():
-    """Original premium command center route."""
-    from core.personalization import build_user_profile, recommend_next_action
-    from core.event_bus import read_events
-    since_24h = datetime.utcnow() - timedelta(hours=24)
-    whales_24h = models.WhaleTransaction.query.filter(models.WhaleTransaction.detected_at >= since_24h).count()
-    risk_escalations = len([e for e in read_events(limit=200, lane="risk") if str(e.get("severity")) in {"warn", "crit"}])
-    sentry_pending = models.TargetAlert.query.filter_by(status="pending").count()
-    medley_runs = len(read_events(limit=300, lane="medley"))
-    onboarding_conversions = models.Lead.query.filter(models.Lead.funnel_stage.in_(["action", "activation"])).count()
-    gpu_rows = _watchtower_gpu_stats()
-    events = read_events(limit=20)
-    profile = build_user_profile(current_user)
-    next_action = recommend_next_action(profile)
-    return render_template(
-        "command.html",
-        whales_24h=whales_24h,
-        risk_escalations=risk_escalations,
-        sentry_pending=sentry_pending,
-        medley_runs=medley_runs,
-        onboarding_conversions=onboarding_conversions,
-        gpu_rows=gpu_rows,
-        events=events,
-        next_action=next_action,
-    )
-
-
-@app.route('/api/command/<action>', methods=['POST'])
-def api_command_action(action):
-    """Unified command action endpoint for command deck controls."""
-    normalized = (action or "").strip().lower()
-    if normalized == "test-connection":
-        return jsonify({"status": "success", "message": "Connection OK"})
-
-    try:
-        if normalized == "refresh-rss":
-            if rss_service is not None:
-                refresh_fn = getattr(rss_service, "refresh", None)
-                if callable(refresh_fn):
-                    refresh_fn()
-                else:
-                    clear_fn = getattr(rss_service, "clear_cache", None)
-                    if callable(clear_fn):
-                        clear_fn()
-                    warm_fn = getattr(rss_service, "get_latest_episodes", None)
-                    if callable(warm_fn):
-                        warm_fn(limit=6)
-            elif RSSService is not None:
-                svc = RSSService()
-                refresh_fn = getattr(svc, "refresh", None)
-                if callable(refresh_fn):
-                    refresh_fn()
-                else:
-                    clear_fn = getattr(svc, "clear_cache", None)
-                    if callable(clear_fn):
-                        clear_fn()
-                    warm_fn = getattr(svc, "get_latest_episodes", None)
-                    if callable(warm_fn):
-                        warm_fn(limit=6)
-            else:
-                return jsonify({"status": "error", "message": "RSS service unavailable"}), 503
-            return jsonify({"status": "success", "message": "Action started"})
-
-        if normalized == "whale-check":
-            ran = False
-            try:
-                import whaleservice  # type: ignore
-                checker = getattr(whaleservice, "checkformegawhales", None)
-                if callable(checker):
-                    checker()
-                    ran = True
-            except Exception:
-                ran = False
-            if not ran:
-                try:
-                    from scripts.intelligence_loop import run_whale_watcher_cycle
-                    run_whale_watcher_cycle()
-                    ran = True
-                except Exception as e:
-                    logging.error("whale-check fallback failed: %s", e)
-            if not ran:
-                return jsonify({"status": "error", "message": "Whale service unavailable"}), 503
-            return jsonify({"status": "success", "message": "Action started"})
-
-        if normalized == "rebuild-cache":
-            try:
-                cache.clear()
-            except Exception:
-                pass
-            return jsonify({"status": "success", "message": "Action started"})
-
-        if normalized == "generate-podcast":
-            try:
-                from services.automation import generate_podcasts_from_partners
-                generate_podcasts_from_partners()
-            except Exception as e:
-                logging.error("generate-podcast failed: %s", e)
-                return jsonify({"status": "error", "message": "Podcast generation failed"}), 500
-            return jsonify({"status": "success", "message": "Action started"})
-
-        return jsonify({"status": "error", "message": "Unknown action"}), 404
-    except Exception as e:
-        logging.error("command action '%s' failed: %s", normalized, e)
-        return jsonify({"status": "error", "message": "Action failed"}), 500
-
-
-@app.route('/api/hub/automation-log')
-@login_required
-@premium_hub_required
-def hub_automation_log():
-    """Hub terminal now runs on structured event bus lines."""
-    rows = read_events(limit=120)
-    lines = []
-    for r in rows[-100:]:
-        ts = str(r.get("ts") or "")[11:19]
-        lane = str(r.get("lane") or "system")
-        sev = str(r.get("severity") or "info")
-        title = str(r.get("title") or "")
-        detail = str(r.get("detail") or "")
-        lines.append(f"{ts} [{lane}/{sev}] {title} :: {detail}".strip())
-    return jsonify({"lines": lines})
-
-
-@app.route('/api/events')
-@login_required
-@premium_hub_required
-def api_events():
-    limit = max(1, min(300, int(request.args.get("limit", 100))))
-    lane = (request.args.get("lane") or "").strip() or None
-    return jsonify({"ok": True, "events": read_events(limit=limit, lane=lane)})
-
-
-@app.route('/api/events/stream')
-@login_required
-@premium_hub_required
-def api_events_stream():
-    def generate():
-        for r in read_events(limit=20):
-            yield f"data: {json.dumps(r, ensure_ascii=True)}\n\n"
-        offset = 0
-        try:
-            from core.event_bus import EVENTS_PATH
-            offset = EVENTS_PATH.stat().st_size if EVENTS_PATH.exists() else 0
-        except Exception:
-            offset = 0
-        while True:
-            time.sleep(1.0)
-            try:
-                offset, rows = iter_events_since(offset)
-            except Exception:
-                rows = []
-            if rows:
-                for row in rows:
-                    yield f"data: {json.dumps(row, ensure_ascii=True)}\n\n"
-            else:
-                yield ": heartbeat\n\n"
-
-    return Response(
-        generate(),
-        mimetype="text/event-stream",
-        headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"},
-    )
-
-
-@app.route('/api/oracle/search', methods=['POST'])
-@login_required
-@premium_hub_required
-def api_oracle_search():
-    """Deep-search oracle over local Value Stream, Daily Brief, and Sentry Queue."""
-    payload = request.get_json(silent=True) or {}
-    question = str(payload.get("q") or payload.get("query") or "").strip()
-    if not question:
-        return jsonify({"ok": False, "error": "query required"}), 400
-    from services.oracle_search_service import semantic_search
-
-    out = semantic_search(question=question, limit=8)
-    return jsonify({"ok": True, **out})
-
-
-@app.route('/api/notifications/subscribe', methods=['POST'])
-@login_required
-def api_notifications_subscribe():
-    """Store browser push subscription for current user."""
-    _require_csrf()
-    payload = request.get_json(silent=True) or {}
-    subscription = payload.get("subscription") or {}
-    from services.web_push_service import web_push_service
-
-    out = web_push_service.save_subscription(
-        user_id=current_user.id,
-        subscription=subscription,
-        tier=getattr(current_user, "subscription_tier", "free"),
-    )
-    return jsonify(out), (200 if out.get("ok") else 400)
-
-
-@app.route('/api/notifications/vapid-public-key')
-@login_required
-def api_notifications_vapid_public_key():
-    key = (os.environ.get("WEB_PUSH_VAPID_PUBLIC_KEY") or "").strip()
-    if not key:
-        return jsonify({"ok": False, "error": "vapid public key not configured"}), 503
-    return jsonify({"ok": True, "public_key": key})
-
-
-@app.route('/api/risk-data')
-@premium_hub_required
-def api_risk_data():
-    """Serve risk-oracle POIs for the globe."""
-    from services.runtime_status import update_status
-    center, locations = _load_mining_oracle_data()
-    try:
-        update_status("risk", {"last_update": datetime.utcnow().isoformat(), "locations": len(locations or [])})
-        emit_event(
-            event_type="risk_snapshot",
-            source="api_risk_data",
-            lane="risk",
-            severity="info",
-            title="risk oracle refreshed",
-            detail=f"locations={len(locations or [])}",
-            payload={"locations": len(locations or []), "updated_at": datetime.utcnow().isoformat()},
-        )
-    except Exception:
-        pass
-    return jsonify({
-        "center": center,
-        "jurisdictions": locations,
-        "updated_at": center.get("last_updated"),
-    })
-
-
-@app.route('/admin/monetization/run', methods=['POST'])
-@login_required
-@admin_required
-def admin_run_monetization_engine():
-    _require_csrf()
-    from services.monetization_engine import monetization_engine
-
-    report = monetization_engine.run()
-    return jsonify({"ok": True, "report": report})
-
-
-@app.route('/api/hub/medley/start', methods=['POST'])
-@login_required
-@premium_hub_required
-def hub_medley_start():
-    """Trigger GPU-1 medley director render job."""
-    with _medley_lock:
-        if _medley_state.get("running"):
-            return jsonify({"ok": True, "state": _medley_state})
-        for path in (MEDLEY_PROGRESS_PATH, MEDLEY_REPORT_PATH):
-            try:
-                path.unlink(missing_ok=True)
-            except Exception:
-                pass
-        _medley_state.update({
-            "running": True,
-            "status": "running",
-            "progress": 0,
-            "message": "launching medley director on gpu 1...",
-            "started_at": datetime.utcnow().isoformat(),
-            "finished_at": None,
-            "output_url": None,
-        })
-        try:
-            emit_event(
-                event_type="medley_start",
-                source="hub_medley_start",
-                lane="medley",
-                severity="info",
-                title="medley run started",
-                detail="gpu1 render initiated from hub",
-                payload={"started_at": _medley_state.get("started_at")},
-            )
-        except Exception:
-            pass
-        try:
-            from services.runtime_status import update_status
-            update_status("medley", {"last_run": datetime.utcnow().isoformat(), "status": "started"})
-        except Exception:
-            pass
-        threading.Thread(target=_medley_worker, daemon=True).start()
-    return jsonify({"ok": True, "state": _medley_state})
-
-
-@app.route('/api/hub/medley/status')
-@login_required
-@premium_hub_required
-def hub_medley_status():
-    """Return current medley render status + ffmpeg NVENC progress."""
-    if _medley_state.get("running"):
-        _medley_state["progress"] = _medley_progress_percent()
-    # Recovery fallback: if process state reset but output exists, keep output reachable.
-    if MEDLEY_OUTPUT_PATH.exists() and not _medley_state.get("output_url"):
-        _medley_state["output_url"] = "/api/hub/medley/output"
-        if not _medley_state.get("running") and _medley_state.get("status") in (None, "", "idle"):
-            _medley_state["status"] = "done"
-            _medley_state["message"] = "latest medley brief is ready."
-            _medley_state["progress"] = max(int(_medley_state.get("progress") or 0), 100)
-    try:
-        from services.runtime_status import update_status
-        update_status("medley", {"last_run": datetime.utcnow().isoformat(), "status": _medley_state.get("status"), "running": bool(_medley_state.get("running"))})
-    except Exception:
-        pass
-    return jsonify({"ok": True, "state": _medley_state})
-
-
-@app.route('/api/hub/medley/output')
-@login_required
-@premium_hub_required
-def hub_medley_output():
-    if not MEDLEY_OUTPUT_PATH.exists():
-        return jsonify({"ok": False, "error": "medley output not ready"}), 404
-    return send_file(MEDLEY_OUTPUT_PATH, mimetype="video/mp4", as_attachment=False)
-
-
-@app.route('/api/hub/sentry/<int:alert_id>/approve', methods=['POST'])
-@login_required
-@admin_required
-def hub_sentry_approve(alert_id):
-    """One-click approve for sentry queue tile."""
-    alert = models.TargetAlert.query.get_or_404(alert_id)
-    alert.status = "approved"
-    db.session.commit()
-    return jsonify({"ok": True, "id": alert.id, "status": alert.status})
-
-
-@app.route('/hub/partners/go/<string:partner_slug>')
-@login_required
-@premium_hub_required
-def hub_partner_go(partner_slug):
-    """Track partner click then redirect out."""
-    catalog = _load_partner_ramp_catalog()
-    entries = _flatten_partner_entries(catalog)
-    match = next((p for p in entries if p["slug"] == (partner_slug or "").lower()), None)
-    if not match or not match.get("url") or match.get("url") == "#":
-        flash("partner link is not configured yet.")
-        return redirect(url_for('premium_hub'))
-
-    _ensure_partner_session_id()
-    db_partner = models.AffiliatePartner.query.filter_by(slug=match["slug"]).first()
-    click = models.PartnerClick(
-        user_id=getattr(current_user, "id", None),
-        partner_id=(db_partner.id if db_partner else None),
-        partner_slug=match["slug"],
-        session_id=session.get("partner_session_id"),
-        referral_code=(request.args.get("ref") or match.get("referral_code")),
-        source_page="/hub",
-    )
-    db.session.add(click)
-    db.session.commit()
-    return redirect(match["url"], code=302)
-
-
-@app.route('/api/hub/partner-click', methods=['POST'])
-@login_required
-@premium_hub_required
-def hub_partner_click():
-    """XHR click tracker for partner ramp cards."""
-    payload = request.get_json(silent=True) or {}
-    slug = str(payload.get("partner_slug") or "").lower().strip()
-    if not slug:
-        return jsonify({"ok": False, "error": "missing partner_slug"}), 400
-    catalog = _load_partner_ramp_catalog()
-    entries = _flatten_partner_entries(catalog)
-    match = next((p for p in entries if p["slug"] == slug), None)
-    if not match:
-        return jsonify({"ok": False, "error": "unknown partner"}), 404
-
-    _ensure_partner_session_id()
-    db_partner = models.AffiliatePartner.query.filter_by(slug=slug).first()
-    click = models.PartnerClick(
-        user_id=getattr(current_user, "id", None),
-        partner_id=(db_partner.id if db_partner else None),
-        partner_slug=slug,
-        session_id=session.get("partner_session_id"),
-        referral_code=(payload.get("referral_code") or match.get("referral_code")),
-        source_page=(payload.get("source_page") or "/hub"),
-    )
-    db.session.add(click)
-    db.session.commit()
-    return jsonify({"ok": True, "url": match.get("url")})
-
-
-@app.route('/admin/partner-ramp')
-@login_required
-@admin_required
-def admin_partner_ramp():
-    """Thin-slice partner ramp analytics and conversion notes."""
-    since = datetime.utcnow() - timedelta(days=30)
-    catalog = _load_partner_ramp_catalog()
-    entries = _flatten_partner_entries(catalog)
-    slugs = [p["slug"] for p in entries]
-    view_count = models.PageView.query.filter(
-        models.PageView.page_path == "/hub",
-        models.PageView.created_at >= since,
-    ).count()
-    total_clicks = models.PartnerClick.query.filter(models.PartnerClick.created_at >= since).count()
-
-    click_rows = (
-        db.session.query(models.PartnerClick.partner_slug, db.func.count(models.PartnerClick.id))
-        .filter(models.PartnerClick.created_at >= since)
-        .group_by(models.PartnerClick.partner_slug)
-        .all()
-    )
-    click_map = {slug: int(cnt) for slug, cnt in click_rows}
-    note_rows = (
-        models.PartnerConversionNote.query
-        .filter(models.PartnerConversionNote.partner_slug.in_(slugs) if slugs else False)
-        .order_by(models.PartnerConversionNote.created_at.desc())
-        .all()
-    )
-    notes_by_slug = {}
-    for row in note_rows:
-        notes_by_slug.setdefault(row.partner_slug, []).append(row)
-
-    stats = []
-    for p in entries:
-        clicks = click_map.get(p["slug"], 0)
-        ctr = round((clicks / view_count) * 100, 2) if view_count else 0.0
-        stats.append(
-            {
-                "slug": p["slug"],
-                "name": p["name"],
-                "category": p["category"],
-                "clicks_30d": clicks,
-                "ctr_30d": ctr,
-                "notes": notes_by_slug.get(p["slug"], [])[:5],
-            }
-        )
-    stats.sort(key=lambda x: x["clicks_30d"], reverse=True)
-
-    return render_template(
-        "admin_partner_ramp.html",
-        stats=stats,
-        view_count=view_count,
-        total_clicks=total_clicks,
-        since=since,
-    )
-
-
-@app.route('/admin/api/partner-ramp/note', methods=['POST'])
-@login_required
-@admin_required
-def admin_partner_ramp_note():
-    payload = request.get_json(silent=True) or {}
-    slug = str(payload.get("partner_slug") or "").strip().lower()
-    note = str(payload.get("note") or "").strip()
-    if not slug or not note:
-        return jsonify({"ok": False, "error": "partner_slug and note required"}), 400
-    row = models.PartnerConversionNote(
-        partner_slug=slug,
-        note=note[:1200],
-        created_by=getattr(current_user, "id", None),
-    )
-    db.session.add(row)
-    db.session.commit()
-    return jsonify({"ok": True})
-
-
-@app.route('/hub/ask', methods=['POST'])
-@login_required
-def hub_submit_ask():
-    """Sovereign Elite: submit monthly research ask (1 per month)."""
-    if getattr(current_user, 'subscription_tier', None) != 'sovereign':
-        flash('Monthly ask is available for Sovereign Elite only.')
-        return redirect(url_for('premium_hub'))
-    from datetime import datetime
-    month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    used = models.PremiumAsk.query.filter(
-        models.PremiumAsk.user_id == current_user.id,
-        models.PremiumAsk.created_at >= month_start
-    ).count()
-    if used >= 1:
-        flash('You have already used your monthly ask this month. Next resets at month start.')
-        return redirect(url_for('premium_hub'))
-    question = (request.form.get('question') or '').strip()
-    if not question or len(question) < 10:
-        flash('Please submit a question of at least 10 characters.')
-        return redirect(url_for('premium_hub'))
-    try:
-        ask = models.PremiumAsk(user_id=current_user.id, question_text=question[:2000], status='pending')
-        db.session.add(ask)
-        db.session.commit()
-        flash('Your monthly ask has been submitted. The team will respond via email or in this hub.')
-    except Exception as e:
-        logging.warning("PremiumAsk submit failed (table may not exist): %s", e)
-        flash('Submit temporarily unavailable. Please try again or contact support.')
-    return redirect(url_for('premium_hub'))
-
-
-@app.route('/hub/alerts', methods=['POST'])
-@login_required
-@premium_hub_required
-def hub_alerts_preference():
-    """Commander+: toggle mega whale email alerts preference."""
-    if not getattr(current_user, 'has_commander_tier', lambda: False)():
-        flash('Mega whale alerts are for Commander tier and above.')
-        return redirect(url_for('premium_hub'))
-    enabled = request.form.get('mega_whale_email') == 'on'
-    try:
-        current_user.mega_whale_email_alerts = enabled
-        db.session.commit()
-        flash('Mega whale email alerts ' + ('enabled' if enabled else 'disabled') + '.')
-    except Exception as e:
-        if getattr(current_user, 'mega_whale_email_alerts', None) is None:
-            flash('Alert preference not available yet. Try again after a refresh.')
-        else:
-            flash('Could not save preference.')
-        logging.warning("Hub alerts preference save failed: %s", e)
-    return redirect(url_for('premium_hub'))
-
 
 @app.route('/subscribe/premium/<tier>')
 @login_required
@@ -7298,7 +3928,7 @@ def subscribe_premium(tier):
     """Initiate premium subscription checkout"""
     from services.monetization_service import monetization_service
     
-    if tier not in ['operator', 'commander', 'sovereign']:
+    if tier not in ['operator', 'sovereign']:
         flash('Invalid subscription tier')
         return redirect(url_for('premium_page'))
     
@@ -7326,13 +3956,11 @@ def subscription_success():
     return render_template('subscription_success.html', session_id=session_id)
 
 @app.route('/donate', methods=['GET', 'POST'])
-@limiter.limit("10 per minute")
 def donate():
     """One-time donation page"""
     from services.monetization_service import monetization_service
-
+    
     if request.method == 'POST':
-        _require_csrf()
         amount = int(request.form.get('amount', 21))
         email = request.form.get('email', '')
         message = request.form.get('message', '')
@@ -7414,28 +4042,15 @@ def stripe_webhook():
             event = stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
             
             if event['type'] == 'checkout.session.completed':
-                session_obj = event['data']['object']
-                metadata = session_obj.get('metadata', {})
-
-                # Subscription: set user tier by email
-                tier = metadata.get('tier')
-                if tier in ('operator', 'commander', 'sovereign'):
-                    email = session_obj.get('customer_email') or (session_obj.get('customer_details') or {}).get('email')
-                    if email:
-                        user = models.User.query.filter_by(email=email).first()
-                        if user:
-                            user.subscription_tier = tier
-                            user.stripe_customer_id = session_obj.get('customer')
-                            user.stripe_subscription_id = session_obj.get('subscription')
-                            db.session.commit()
-                            logging.info(f"Subscription tier set: {email} -> {tier}")
-
+                session = event['data']['object']
+                metadata = session.get('metadata', {})
+                
                 # Handle merch orders - submit to Printful
                 if metadata.get('type') == 'merch_order':
                     try:
                         printful_items_json = metadata.get('printful_items', '[]')
                         printful_items = json.loads(printful_items_json)
-                        shipping = session_obj.get('shipping_details', {})
+                        shipping = session.get('shipping_details', {})
                         address = shipping.get('address', {})
                         
                         # Create Printful order
@@ -7448,7 +4063,7 @@ def stripe_webhook():
                                 'state_code': address.get('state', ''),
                                 'country_code': address.get('country', 'US'),
                                 'zip': address.get('postal_code', ''),
-                                'email': session_obj.get('customer_details', {}).get('email', '')
+                                'email': session.get('customer_details', {}).get('email', '')
                             },
                             'items': printful_items
                         }
@@ -7485,68 +4100,6 @@ def admin_revenue():
     
     stats = monetization_service.get_revenue_stats()
     return render_template('admin_revenue.html', stats=stats)
-
-
-@app.route('/admin/contact-submissions')
-@login_required
-@admin_required
-def admin_contact_submissions():
-    """List contact form submissions; filter by read/unread."""
-    read_filter = request.args.get('read', '')
-    q = models.ContactSubmission.query
-    if read_filter == 'read':
-        q = q.filter_by(read=True)
-    elif read_filter == 'unread':
-        q = q.filter_by(read=False)
-    submissions = q.order_by(models.ContactSubmission.created_at.desc()).limit(200).all()
-    unread_count = models.ContactSubmission.query.filter_by(read=False).count()
-    return render_template('admin/contact_submissions.html', submissions=submissions, read_filter=read_filter, unread_count=unread_count)
-
-
-@app.route('/admin/contact-submissions/<int:sub_id>/read', methods=['POST'])
-@login_required
-@admin_required
-def admin_contact_submission_mark_read(sub_id):
-    """Mark a contact submission as read."""
-    _require_csrf()
-    sub = models.ContactSubmission.query.get_or_404(sub_id)
-    sub.read = True
-    db.session.commit()
-    flash('Marked as read.', 'success')
-    return redirect(url_for('admin_contact_submissions'))
-
-
-@app.route('/admin/premium-asks')
-@login_required
-@admin_required
-def admin_premium_asks():
-    """List Sovereign Elite monthly asks; filter by status."""
-    status_filter = request.args.get('status', '')
-    q = models.PremiumAsk.query
-    if status_filter in ('pending', 'answered'):
-        q = q.filter_by(status=status_filter)
-    asks = q.order_by(models.PremiumAsk.created_at.desc()).limit(100).all()
-    pending_count = models.PremiumAsk.query.filter_by(status='pending').count()
-    return render_template('admin/premium_asks.html', asks=asks, status_filter=status_filter, pending_count=pending_count)
-
-
-@app.route('/admin/premium-asks/<int:ask_id>/answer', methods=['POST'])
-@login_required
-@admin_required
-def admin_premium_ask_answer(ask_id):
-    """Mark a PremiumAsk as answered with optional text and URL."""
-    from datetime import datetime
-    ask = models.PremiumAsk.query.get_or_404(ask_id)
-    answer_text = (request.form.get('answer_text') or '').strip()
-    answer_url = (request.form.get('answer_url') or '').strip()[:500]
-    ask.answer_text = answer_text or None
-    ask.answer_url = answer_url or None
-    ask.status = 'answered'
-    ask.answered_at = datetime.utcnow()
-    db.session.commit()
-    flash('Ask marked as answered.')
-    return redirect(url_for('admin_premium_asks'))
-
 
 # ============================================
 # CAPTIONS.AI VIDEO GENERATION
@@ -7653,10 +4206,10 @@ CYPHERPUNKS = [
 @app.route('/cypherpunks')
 def cypherpunks():
     """Cypherpunks category - honoring the pioneers"""
-    articles = models.Article.query.filter(
-        models.Article.published == True,
-        models.Article.category.ilike('%cypherpunk%')
-    ).order_by(models.Article.created_at.desc()).limit(20).all()
+    articles = Article.query.filter(
+        Article.published == True,
+        Article.category.ilike('%cypherpunk%')
+    ).order_by(Article.created_at.desc()).limit(20).all()
     
     return render_template('cypherpunks.html', 
                           articles=articles,
@@ -7741,8 +4294,9 @@ def api_cypherpunk_dossier():
 @app.route('/api/whales')
 def api_whales():
     """Get stored whale transactions"""
+    from models import WhaleTransaction
     
-    whales = models.WhaleTransaction.query.order_by(models.WhaleTransaction.detected_at.desc()).limit(50).all()
+    whales = WhaleTransaction.query.order_by(WhaleTransaction.detected_at.desc()).limit(50).all()
     
     return jsonify({
         'whales': [{
@@ -7830,33 +4384,23 @@ def api_whales_live():
     
     return jsonify({'whales': whales, 'min_btc': min_btc, 'count': len(whales)})
 
-
-@app.route('/api/whale-watcher')
-def api_whale_watcher_compat():
-    """Compatibility alias for older Command Deck clients."""
-    payload = api_whales_live()
-    if isinstance(payload, tuple):
-        payload = payload[0]
-    data = payload.get_json(silent=True) or {}
-    whales = data.get('whales', [])
-    return jsonify({'success': True, 'transactions': whales, 'count': len(whales)})
-
 @app.route('/api/whales/save', methods=['POST'])
 def api_save_whale():
     """Save a whale transaction to database"""
+    from models import WhaleTransaction
     
     data = request.get_json()
     if not data or 'txid' not in data:
         return jsonify({'error': 'Missing txid'}), 400
     
-    existing = models.WhaleTransaction.query.filter_by(txid=data['txid']).first()
+    existing = WhaleTransaction.query.filter_by(txid=data['txid']).first()
     if existing:
         return jsonify({'status': 'exists', 'id': existing.id})
     
     btc_amount = data.get('btc', 0)
     is_mega = btc_amount >= 1000
     
-    whale = models.WhaleTransaction(
+    whale = WhaleTransaction(
         txid=data['txid'],
         btc_amount=btc_amount,
         usd_value=data.get('usd'),
@@ -7893,13 +4437,14 @@ def donate_bitcoin():
 @app.route('/api/donate/lightning', methods=['POST'])
 def create_lightning_invoice():
     """Create a Lightning invoice for donation"""
+    from models import BitcoinDonation
     
     data = request.get_json() or {}
     amount_sats = data.get('amount_sats', 21000)
     message = data.get('message', '')
     email = data.get('email', '')
     
-    donation = models.BitcoinDonation(
+    donation = BitcoinDonation(
         amount_sats=amount_sats,
         donor_email=email,
         message=message,
@@ -7971,7 +4516,7 @@ def dynamic_og_image(og_type):
         article_title = "Breaking Bitcoin Intel"
         if article_id:
             try:
-                article = models.Article.query.get(int(article_id))
+                article = Article.query.get(int(article_id))
                 if article:
                     article_title = article.title[:60] + "..." if len(article.title) > 60 else article.title
             except:
@@ -7995,38 +4540,39 @@ def dynamic_og_image(og_type):
 # ==================== SOVEREIGN ANALYTICS ENGINE ====================
 
 @app.route('/admin/analytics')
-@login_required
 @admin_required
 def analytics_dashboard():
-    """Core analytics view: recent events + top content performance."""
-    try:
-        recent_events = models.EngagementEvent.query.order_by(
-            models.EngagementEvent.created_at.desc()
-        ).limit(100).all()
-    except Exception as e:
-        logging.warning("analytics recent_events failed: %s", e)
-        recent_events = []
-
-    try:
-        top_performers = models.ContentPerformance.query.order_by(
-            (models.ContentPerformance.total_views + models.ContentPerformance.total_clicks).desc()
-        ).limit(10).all()
-    except Exception as e:
-        logging.warning("analytics top_performers failed: %s", e)
-        top_performers = []
-
-    try:
-        summary_rows = models.AnalyticsSummary.query.order_by(
-            models.AnalyticsSummary.created_at.desc()
-        ).limit(10).all()
-    except Exception:
-        summary_rows = []
-
-    return render_template(
-        'admin/analytics_dashboard.html',
+    """Sovereign Analytics Dashboard - Self-learning intelligence metrics."""
+    from services.analytics_service import analytics_service
+    from models import EngagementEvent, ContentPerformance, AnalyticsSummary
+    
+    # Get key metrics
+    velocity_leaders = analytics_service.get_velocity_leaders(hours=24, limit=10)
+    persona_comparison = analytics_service.get_persona_comparison(days=7)
+    strategy_effectiveness = analytics_service.get_strategy_effectiveness(days=7)
+    hourly_performance = analytics_service.get_hourly_performance(days=7)
+    window_stats = analytics_service.get_30min_window_stats(days=7)
+    sponsor_metrics = analytics_service.get_sponsor_metrics(days=30)
+    
+    # Recent events
+    recent_events = EngagementEvent.query.order_by(
+        EngagementEvent.created_at.desc()
+    ).limit(20).all()
+    
+    # Top performers all-time
+    top_performers = ContentPerformance.query.order_by(
+        ContentPerformance.grok_score_total.desc()
+    ).limit(5).all()
+    
+    return render_template('admin/analytics_dashboard.html',
+        velocity_leaders=velocity_leaders,
+        persona_comparison=persona_comparison,
+        strategy_effectiveness=strategy_effectiveness,
+        hourly_performance=hourly_performance,
+        window_stats=window_stats,
+        sponsor_metrics=sponsor_metrics,
         recent_events=recent_events,
-        top_performers=top_performers,
-        summary_rows=summary_rows,
+        top_performers=top_performers
     )
 
 
@@ -8240,12 +4786,13 @@ def track_operative_activity():
             page_path = '/'
         page_name = page_names.get(page_path, page_path.split('/')[-1].title() if page_path else 'Home')
         
-        models.RollingActivity.record_activity(page_path, page_name, session_hash)
+        from models import RollingActivity
+        RollingActivity.record_activity(page_path, page_name, session_hash)
         
         # Cleanup stale records every 100th request (probabilistic)
         import random
         if random.random() < 0.01:  # ~1% of requests trigger cleanup
-            models.RollingActivity.cleanup_stale()
+            RollingActivity.cleanup_stale()
     except Exception as e:
         logging.debug(f"Activity tracking error: {e}")
 
@@ -8254,7 +4801,8 @@ def track_operative_activity():
 def api_activity_heatmap():
     """Get real-time operative density across pages for What's Hot display"""
     try:
-        results = models.RollingActivity.get_operative_density(window_minutes=30, limit=8)
+        from models import RollingActivity
+        results = RollingActivity.get_operative_density(window_minutes=30, limit=8)
         
         heatmap = []
         max_count = max([r.operative_count for r in results], default=1)
@@ -8413,8 +4961,6 @@ def auto_assign_tasks():
 @admin_required
 def supervisor_auto_publish():
     """Auto-publish content via Multi-Agent Supervisor to Nostr and X."""
-    if not is_enabled("ENABLE_SUPERVISOR_AUTOPUBLISH"):
-        return jsonify({'success': False, 'error': 'Supervisor auto-publish disabled by flag'}), 403
     try:
         from services.launch_sequence import launch_sequence_service
         
@@ -8519,95 +5065,28 @@ def recommend_segment():
         return jsonify({'error': str(e)}), 500
 
 
-# Real-Time Sponsorship Deck (Wallet)
-@app.route('/admin/deck')
-@login_required
-@admin_required
-def admin_deck():
-    """Real-Time Sponsorship Deck: live views and impressions for sponsor conversations."""
-    from services.sponsorship_metrics_service import get_sponsorship_metrics
-    from pathlib import Path
-    data_dir = Path(app.root_path) / "data"
-    metrics = get_sponsorship_metrics(data_dir=data_dir, db_session=db.session, days_back=30)
-    return render_template('admin/sponsorship_deck.html', metrics=metrics)
-
-
-@app.route('/admin/deck/export-pdf')
-@login_required
-@admin_required
-def admin_deck_export_pdf():
-    """Generate Red/Black/White PDF summary of sponsorship metrics."""
-    from services.sponsorship_metrics_service import get_sponsorship_metrics
-    from pathlib import Path
-    from io import BytesIO
-    data_dir = Path(app.root_path) / "data"
-    metrics = get_sponsorship_metrics(data_dir=data_dir, db_session=db.session, days_back=30)
-    try:
-        from reportlab.lib import colors
-        from reportlab.lib.pagesizes import letter
-        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-        from reportlab.lib.units import inch
-        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-    except ImportError:
-        return "reportlab not installed. pip install reportlab", 503
-    buf = BytesIO()
-    doc = SimpleDocTemplate(buf, pagesize=letter, rightMargin=inch, leftMargin=inch, topMargin=inch, bottomMargin=inch)
-    styles = getSampleStyleSheet()
-    title_style = ParagraphStyle(name="DeckTitle", parent=styles["Heading1"], textColor=colors.HexColor("#dc2626"), fontName="Helvetica-Bold", fontSize=18)
-    body_style = ParagraphStyle(name="DeckBody", parent=styles["Normal"], textColor=colors.white, fontName="Helvetica", fontSize=10)
-    white = colors.HexColor("#ffffff")
-    red = colors.HexColor("#dc2626")
-    black = colors.HexColor("#0a0a0a")
-    story = []
-    story.append(Paragraph("PROTOCOL PULSE — SPONSORSHIP METRICS", title_style))
-    story.append(Spacer(1, 0.3 * inch))
-    story.append(Paragraph(f"Period: last {metrics['period_days']} days. Generated: {metrics['generated_at'][:19]} UTC.", body_style))
-    story.append(Spacer(1, 0.4 * inch))
-    data = [
-        ["Metric", "Value", "Source"],
-        ["YouTube views", str(metrics.get("youtube_views", 0)), metrics.get("youtube_source", "—")],
-        ["Website unique visits", str(metrics.get("website_unique_visits", 0)), metrics.get("website_source", "—")],
-        ["Social impressions (X)", str(metrics.get("social_impressions", 0)), metrics.get("social_source", "—")],
-    ]
-    t = Table(data, colWidths=[2.2 * inch, 1.5 * inch, 1.5 * inch])
-    t.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), red),
-        ("TEXTCOLOR", (0, 0), (-1, 0), white),
-        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-        ("FONTSIZE", (0, 0), (-1, 0), 10),
-        ("BACKGROUND", (0, 1), (-1, -1), black),
-        ("TEXTCOLOR", (0, 1), (-1, -1), white),
-        ("GRID", (0, 0), (-1, -1), 0.5, red),
-        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [black, colors.HexColor("#1a1a1a")]),
-    ]))
-    story.append(t)
-    doc.build(story)
-    buf.seek(0)
-    return send_file(buf, mimetype="application/pdf", as_attachment=True, download_name="protocol_pulse_sponsorship_deck.pdf")
-
-
 # Sovereign Command Deck Routes
 @app.route('/admin/command-deck')
 @admin_required
 def command_deck():
     """Sovereign Command Deck - System control center"""
-    scheduler_status = {'running': False, 'jobs': []}
-    telegram_status = {'initialized': False}
     try:
         from services.scheduler import get_scheduler_status
-        scheduler_status = get_scheduler_status()
-    except Exception as e:
-        logging.debug("Scheduler not available: %s", e)
-    try:
         from services.telegram_bot import pulse_operative
+        
+        scheduler_status = get_scheduler_status()
         telegram_status = pulse_operative.get_status()
-    except Exception:
-        pass  # telegram_bot optional
-    return render_template('admin/command_deck.html',
-        scheduler_status=scheduler_status,
-        telegram_status=telegram_status,
-        deck_time=datetime.utcnow()
-    )
+        
+        return render_template('admin/command_deck.html',
+            scheduler_status=scheduler_status,
+            telegram_status=telegram_status
+        )
+    except Exception as e:
+        logging.error(f"Command deck error: {e}")
+        return render_template('admin/command_deck.html',
+            scheduler_status={'running': False, 'jobs': []},
+            telegram_status={'initialized': False}
+        )
 
 
 @app.route('/admin/api/activate-scheduler', methods=['POST'])
@@ -8623,7 +5102,7 @@ def activate_scheduler():
         return jsonify({'success': True, 'status': status})
     except Exception as e:
         logging.error(f"Scheduler activation error: {e}")
-        return jsonify({'success': False, 'error': str(e)})
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/admin/api/send-heartbeat', methods=['POST'])
@@ -8643,7 +5122,7 @@ def send_heartbeat():
         })
     except Exception as e:
         logging.error(f"Heartbeat error: {e}")
-        return jsonify({'success': False, 'error': str(e)})
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/admin/api/system-status')
@@ -8726,8 +5205,6 @@ def get_clips_channels_api():
 @admin_required
 def collect_signals_api():
     """Trigger signal collection from X, Nostr, and Stacker News APIs"""
-    if not is_enabled("ENABLE_SOCIAL_LISTENER"):
-        return jsonify({'success': False, 'error': 'Signal collection disabled by ENABLE_SOCIAL_LISTENER=false'}), 403
     try:
         from services.sentiment_tracker_service import SentimentTrackerService
         tracker = SentimentTrackerService()
@@ -8735,8 +5212,7 @@ def collect_signals_api():
         x_posts = tracker.fetch_x_posts(hours_back=24)
         nostr_notes = tracker.fetch_nostr_notes(hours_back=24)
         stacker_posts = tracker.fetch_stacker_news(limit=15)
-        all_posts = x_posts + nostr_notes + stacker_posts
-        saved = tracker.save_signals_to_db(all_posts)
+        
         return jsonify({
             'success': True,
             'collected': {
@@ -8744,47 +5220,33 @@ def collect_signals_api():
                 'nostr_notes': len(nostr_notes),
                 'stacker_news': len(stacker_posts)
             },
-            'saved_to_db': saved,
-            'message': f'Collected {len(x_posts)} X, {len(nostr_notes)} Nostr, {len(stacker_posts)} Stacker News; saved {saved} new signals'
+            'message': f'Collected {len(x_posts)} X posts, {len(nostr_notes)} Nostr notes, {len(stacker_posts)} Stacker News posts'
         })
     except Exception as e:
         logging.error(f"Signal collection error: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/admin/api/matty-ice/run', methods=['POST'])
-@admin_required
-def run_matty_ice_cycle():
-    """Trigger one Matty Ice engagement cycle manually."""
-    try:
-        from services.matty_ice_engagement import matty_ice_agent
-        result = matty_ice_agent.run_cycle()
-        return jsonify({'success': True, 'result': result})
-    except Exception as e:
-        logging.error(f"Matty Ice cycle error: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
 
 @app.route('/admin/api/signals')
 @admin_required
 def get_collected_signals_api():
     """Get collected signals from database"""
     try:
+        from models import CollectedSignal
         
         limit = request.args.get('limit', 50, type=int)
         platform = request.args.get('platform', None)
         legendary_only = request.args.get('legendary', 'false').lower() == 'true'
         
-        query = models.CollectedSignal.query.filter(models.CollectedSignal.is_verified == True)
+        query = CollectedSignal.query.filter(CollectedSignal.is_verified == True)
         
         if platform:
-            query = query.filter(models.CollectedSignal.platform == platform)
+            query = query.filter(CollectedSignal.platform == platform)
         if legendary_only:
-            query = query.filter(models.CollectedSignal.is_legendary == True)
+            query = query.filter(CollectedSignal.is_legendary == True)
         
         signals = query.order_by(
-            models.CollectedSignal.is_legendary.desc(),
-            models.CollectedSignal.engagement_score.desc()
+            CollectedSignal.is_legendary.desc(),
+            CollectedSignal.engagement_score.desc()
         ).limit(limit).all()
         
         return jsonify({
@@ -8812,15 +5274,16 @@ def get_collected_signals_api():
 def get_verified_signals_public():
     """Public API endpoint for verified signals with proper citations"""
     try:
+        from models import CollectedSignal
         
         limit = min(request.args.get('limit', 20, type=int), 50)
         
-        signals = models.CollectedSignal.query.filter(
-            models.CollectedSignal.is_verified == True,
-            models.CollectedSignal.collected_at >= datetime.utcnow() - timedelta(hours=48)
+        signals = CollectedSignal.query.filter(
+            CollectedSignal.is_verified == True,
+            CollectedSignal.collected_at >= datetime.utcnow() - timedelta(hours=48)
         ).order_by(
-            models.CollectedSignal.is_legendary.desc(),
-            models.CollectedSignal.engagement_score.desc()
+            CollectedSignal.is_legendary.desc(),
+            CollectedSignal.engagement_score.desc()
         ).limit(limit).all()
         
         return jsonify({
@@ -8916,7 +5379,7 @@ def ghl_webhook_test():
         return jsonify(result)
     except Exception as e:
         logging.error(f"GHL webhook test error: {e}")
-        return jsonify({'success': False, 'error': str(e)})
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/admin/api/ghl-verify', methods=['GET'])
@@ -8940,7 +5403,7 @@ def trigger_sarah_welcome():
         return jsonify(result)
     except Exception as e:
         logging.error(f"Sarah Welcome error: {e}")
-        return jsonify({'success': False, 'error': str(e)})
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/admin/api/sms-test-pulse', methods=['POST'])
@@ -8961,7 +5424,7 @@ def sms_test_pulse():
         return jsonify(result)
     except Exception as e:
         logging.error(f"SMS test pulse error: {e}")
-        return jsonify({'success': False, 'error': str(e)})
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/admin/api/whale-sms-dispatch', methods=['POST'])
@@ -9017,9 +5480,9 @@ def affiliate_redirect(partner_key):
             return redirect(url_for('logistics'))
         
         # Log click for analytics
-        db_partner = models.AffiliatePartner.query.filter_by(slug=partner_key).first()
+        db_partner = AffiliatePartner.query.filter_by(slug=partner_key).first()
         if db_partner:
-            click = models.AffiliateClick(
+            click = AffiliateClick(
                 partner_id=db_partner.id,
                 source_page=request.referrer,
                 ip_hash=hashlib.sha256(request.remote_addr.encode()).hexdigest() if request.remote_addr else None,
@@ -9038,37 +5501,6 @@ def affiliate_redirect(partner_key):
 # MEDIA INTELLIGENCE TERMINAL API ROUTES
 # =============================================
 
-# Tag -> subreddits for trending links (public, no auth)
-TRENDING_TAG_SUBREDDITS = {
-    'bitcoin': ['bitcoin', 'bitcoindiscussion', 'cryptocurrency'],
-    'etf': ['bitcoin', 'cryptocurrency', 'ethereum'],
-    'lightning': ['lightningnetwork', 'bitcoin'],
-    'nostr': ['bitcoin', 'nostr', 'cryptocurrency'],
-    'mining': ['bitcoin', 'bitcoinmining', 'cryptocurrency'],
-    'halving': ['bitcoin', 'cryptocurrency'],
-}
-
-
-@app.route('/api/media/trending-links')
-def api_media_trending_links():
-    """Public API: top 5 links for a trending tag (e.g. ?tag=bitcoin). For hover popovers."""
-    tag = (request.args.get('tag') or '').strip().lower().replace('#', '')
-    if not tag:
-        return jsonify({'links': [], 'expand_url': None})
-    subreddits = TRENDING_TAG_SUBREDDITS.get(tag, ['bitcoin', 'cryptocurrency'])
-    try:
-        trends = reddit_service.get_trending_topics(subreddits, limit=5, time_period='day')
-        links = [
-            {'title': t.get('title', '')[:80] + ('…' if len(t.get('title', '')) > 80 else ''), 'url': t.get('permalink') or t.get('url', '#')}
-            for t in trends[:5]
-        ]
-        expand_url = f"https://www.reddit.com/search/?q={tag}&type=link" if tag else None
-        return jsonify({'links': links, 'expand_url': expand_url})
-    except Exception as e:
-        logging.warning("Trending links for %s: %s", tag, e)
-        return jsonify({'links': [], 'expand_url': f"https://www.reddit.com/r/bitcoin/search/?q={tag}"})
-
-
 @app.route('/api/media/feed')
 def api_media_feed():
     """Get aggregated feed items from all sources, with articles as fallback"""
@@ -9078,13 +5510,13 @@ def api_media_feed():
     
     result = []
     
-    query = models.FeedItem.query.order_by(models.FeedItem.published_at.desc())
+    query = FeedItem.query.order_by(FeedItem.published_at.desc())
     
     if tier and tier != 'all':
-        query = query.filter(models.FeedItem.tier == tier)
+        query = query.filter(FeedItem.tier == tier)
     
     if verified_only:
-        query = query.filter(models.FeedItem.verified == True)
+        query = query.filter(FeedItem.verified == True)
     
     items = query.limit(limit).all()
     
@@ -9105,7 +5537,7 @@ def api_media_feed():
     
     if len(result) < limit:
         remaining = limit - len(result)
-        article_query = models.Article.query.filter_by(published=True).order_by(models.Article.created_at.desc())
+        article_query = Article.query.filter_by(published=True).order_by(Article.created_at.desc())
         
         if tier and tier != 'all':
             tier_category_map = {
@@ -9116,7 +5548,7 @@ def api_media_feed():
             }
             categories = tier_category_map.get(tier, [])
             if categories:
-                article_query = article_query.filter(models.Article.category.in_(categories))
+                article_query = article_query.filter(Article.category.in_(categories))
         
         articles = article_query.limit(remaining).all()
         
@@ -9150,8 +5582,8 @@ def api_media_feed():
 @app.route('/api/media/sentiment')
 def api_media_sentiment():
     """Get latest sentiment snapshot with holographic dial data"""
-    snapshot = models.SentimentSnapshot.query.order_by(
-        models.SentimentSnapshot.created_at.desc()
+    snapshot = SentimentSnapshot.query.order_by(
+        SentimentSnapshot.created_at.desc()
     ).first()
     
     if snapshot:
@@ -9212,71 +5644,13 @@ def api_media_sources():
         return jsonify({})
 
 
-def _run_pulse_drop_rebuild(hours_back: int = 24):
-    from services.channel_monitor import channel_monitor_service
-    from services.highlight_extractor import highlight_extractor_service
-    from services.commentary_generator import commentary_generator_service
-    from services.global_relay import global_relay_service
-    h = channel_monitor_service.run_harvest(hours_back=hours_back)
-    x = highlight_extractor_service.run(hours_back=hours_back)
-    c = commentary_generator_service.run(hours_back=hours_back)
-    segs = (
-        models.PulseSegment.query.order_by(models.PulseSegment.priority.desc(), models.PulseSegment.created_at.desc())
-        .limit(8)
-        .all()
-    )
-    relay = global_relay_service.broadcast_pulse_drop(
-        reel_link="https://protocolpulse.io/pulse-drop",
-        segments=[{"label": s.label, "start_sec": s.start_sec, "video_id": s.video_id} for s in segs],
-    )
-    return {"harvest": h, "extract": x, "commentary": c, "relay": relay}
-
-
-@app.route('/pulse-drop')
-def pulse_drop():
-    """Narrative-driven best-moments terminal with timestamped embeds."""
-    from datetime import datetime, timedelta
-    cutoff = datetime.utcnow() - timedelta(hours=36)
-    segments = (
-        models.PulseSegment.query.join(models.PartnerVideo, models.PulseSegment.partner_video_id == models.PartnerVideo.id)
-        .filter(models.PulseSegment.created_at >= cutoff)
-        .order_by(models.PulseSegment.priority.desc(), models.PulseSegment.created_at.desc())
-        .limit(40)
-        .all()
-    )
-    return render_template("pulse_drop.html", segments=segments)
-
-
-@app.route('/api/pulse-drop/rebuild', methods=['POST'])
-def api_pulse_drop_rebuild():
-    """
-    Daily rebuild endpoint for pulse drop.
-    Supports admin session auth OR bearer token (PULSE_DROP_API_KEY).
-    """
-    session_admin = bool(getattr(current_user, "is_authenticated", False) and getattr(current_user, "is_admin", False))
-    if session_admin:
-        _require_csrf()
-    else:
-        token = (request.headers.get("Authorization") or "").replace("Bearer ", "").strip()
-        expected = (os.environ.get("PULSE_DROP_API_KEY") or "").strip()
-        if not expected:
-            return jsonify({"ok": False, "error": "pulse drop api key not configured"}), 503
-        if token != expected:
-            return jsonify({"ok": False, "error": "unauthorized"}), 401
-
-    payload = request.get_json(silent=True) or {}
-    hours_back = int(payload.get("hours_back") or 24)
-    result = _run_pulse_drop_rebuild(hours_back=hours_back)
-    return jsonify({"ok": True, "result": result, "daily_drop_mode": "draft_only_review"})
-
-
 @app.route('/admin/autopost')
 @login_required
 @admin_required
 def admin_autopost():
     """Admin UI for autopost drafts and daily briefs"""
-    drafts = models.AutoPostDraft.query.order_by(models.AutoPostDraft.created_at.desc()).limit(50).all()
-    daily_briefs = models.DailyBrief.query.order_by(models.DailyBrief.created_at.desc()).limit(10).all()
+    drafts = AutoPostDraft.query.order_by(AutoPostDraft.created_at.desc()).limit(50).all()
+    daily_briefs = DailyBrief.query.order_by(DailyBrief.created_at.desc()).limit(10).all()
     return render_template('admin/autopost.html', drafts=drafts, daily_briefs=daily_briefs)
 
 
@@ -9285,13 +5659,9 @@ def admin_autopost():
 @admin_required
 def approve_autopost(draft_id):
     """Approve an autopost draft"""
-    draft = models.AutoPostDraft.query.get_or_404(draft_id)
+    draft = AutoPostDraft.query.get_or_404(draft_id)
     
-    autopost_enabled = (
-        os.environ.get('AUTOPOST_X', 'false').lower() == 'true'
-        and is_enabled("ENABLE_AUTOPUBLISH")
-        and is_enabled("ENABLE_X_POSTING")
-    )
+    autopost_enabled = os.environ.get('AUTOPOST_X', 'false').lower() == 'true'
     
     if autopost_enabled:
         draft.status = 'posted'
@@ -9310,7 +5680,7 @@ def approve_autopost(draft_id):
 @admin_required
 def reject_autopost(draft_id):
     """Reject an autopost draft"""
-    draft = models.AutoPostDraft.query.get_or_404(draft_id)
+    draft = AutoPostDraft.query.get_or_404(draft_id)
     draft.status = 'rejected'
     db.session.commit()
     
@@ -9325,11 +5695,11 @@ def generate_daily_brief_api():
     try:
         from services.sarah_analyst import sarah_analyst
         
-        feed_items = models.FeedItem.query.order_by(models.FeedItem.created_at.desc()).limit(50).all()
+        feed_items = FeedItem.query.order_by(FeedItem.created_at.desc()).limit(50).all()
         
         top_signals = sarah_analyst.analyze_signals(feed_items, limit=3)
         
-        sentiment = models.SentimentSnapshot.query.order_by(models.SentimentSnapshot.created_at.desc()).first()
+        sentiment = SentimentSnapshot.query.order_by(SentimentSnapshot.created_at.desc()).first()
         sentiment_data = None
         if sentiment:
             sentiment_data = {'state': sentiment.state, 'score': sentiment.score}
@@ -9344,7 +5714,7 @@ def generate_daily_brief_api():
             'reasons': s['reasons']
         } for s in top_signals])
         
-        brief = models.DailyBrief(
+        brief = DailyBrief(
             headline=brief_data['headline'],
             body=brief_data['body'],
             signals_json=signals_json,
@@ -9364,7 +5734,7 @@ def generate_daily_brief_api():
 @admin_required
 def publish_daily_brief(brief_id):
     """Publish a daily brief"""
-    brief = models.DailyBrief.query.get_or_404(brief_id)
+    brief = DailyBrief.query.get_or_404(brief_id)
     
     if brief.status == 'published':
         return jsonify({'success': False, 'error': 'Brief already published'}), 400
@@ -9386,7 +5756,7 @@ def create_tweet_from_brief(brief_id):
     try:
         from services.sarah_analyst import sarah_analyst
         
-        brief = models.DailyBrief.query.get_or_404(brief_id)
+        brief = DailyBrief.query.get_or_404(brief_id)
         
         signals = json.loads(brief.signals_json) if brief.signals_json else []
         mock_signals = [{'item': type('obj', (object,), {'title': s.get('title', 'Signal'), 'source': s.get('source', 'Unknown')})(), 'sovereignty_impact': s.get('sovereignty_impact', 5)} for s in signals]
@@ -9394,7 +5764,7 @@ def create_tweet_from_brief(brief_id):
         tweet_body = sarah_analyst.generate_tweet_draft({'signals': mock_signals})
         tweet_body = tweet_body.replace('{link}', f'/briefs/{brief.id}')
         
-        draft = models.AutoPostDraft(
+        draft = AutoPostDraft(
             platform='x',
             body=tweet_body,
             reason=f'Daily Brief #{brief.id}',
@@ -9444,7 +5814,7 @@ def freedom_tech():
 @app.route('/operative/<slug>')
 def operative_profile(slug):
     """Public operative profile page"""
-    user = models.User.query.filter_by(operative_slug=slug).first_or_404()
+    user = User.query.filter_by(operative_slug=slug).first_or_404()
     return render_template('operative_profile.html', operative=user)
 
 @app.route('/api/rank/get-drill-token', methods=['POST'])
@@ -9707,7 +6077,7 @@ def crm_webhook_callback():
         
         if event_type in ['appointment_booked', 'call_scheduled', 'sovereign_call']:
             if contact_email:
-                user = models.User.query.filter_by(email=contact_email).first()
+                user = User.query.filter_by(email=contact_email).first()
                 if user:
                     user.operative_rank = 3
                     user.check_rank_progression()
@@ -9719,7 +6089,7 @@ def crm_webhook_callback():
             tag_name = data.get('tag', data.get('tagName', ''))
             if 'Alpha' in tag_name or 'Elite' in tag_name:
                 if contact_email:
-                    user = models.User.query.filter_by(email=contact_email).first()
+                    user = User.query.filter_by(email=contact_email).first()
                     if user:
                         user.operative_rank = 3
                         db.session.commit()
@@ -9733,8 +6103,7 @@ def crm_webhook_callback():
 
 
 # Real-Time Intelligence Dashboard & Tracking
-@app.route('/admin/realtime-analytics')
-@app.route('/admin/analytics/realtime')
+@app.route('/admin/analytics')
 @login_required
 @admin_required
 def realtime_analytics_dashboard():
@@ -9789,7 +6158,8 @@ def api_approve_tweet(tweet_id):
 def api_dismiss_tweet(tweet_id):
     """Dismiss a peak tweet draft"""
     try:
-        tweet = models.AutoTweet.query.get(tweet_id)
+        from models import AutoTweet
+        tweet = AutoTweet.query.get(tweet_id)
         if tweet:
             tweet.status = 'dismissed'
             db.session.commit()
@@ -9814,126 +6184,25 @@ def api_generate_suggestions():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-
-def _seed_affiliate_products_if_empty():
-    """Seed default affiliate products for cold wallets, seed plates, miners (only if none exist)."""
-    if models.AffiliateProduct.query.first():
-        return
-    from services.monetization_service import monetization_service
-    defaults = [
-        {'name': 'Trezor Model T', 'product_type': 'trezor', 'product_id': 'trezor-model-t', 'category': 'cold_wallet', 'short_description': 'Hardware wallet with touchscreen and passphrase support.'},
-        {'name': 'Trezor Safe 3', 'product_type': 'trezor', 'product_id': 'trezor-safe-3', 'category': 'cold_wallet', 'short_description': 'Secure hardware wallet for Bitcoin self-custody.'},
-        {'name': 'Ledger Nano X', 'product_type': 'amazon', 'product_id': 'B07S5JQ7M2', 'category': 'cold_wallet', 'short_description': 'Bluetooth hardware wallet (Amazon).'},
-        {'name': 'Cryptosteel Capsule', 'product_type': 'amazon', 'product_id': 'B09V2R9Q7K', 'category': 'seed_plate', 'short_description': 'Fire- and shock-resistant seed phrase backup.'},
-        {'name': 'Bitaxe Miner', 'product_type': 'amazon', 'product_id': 'B0B1XYZ', 'category': 'miner', 'short_description': 'DIY Bitcoin mining (use real ASIN when you have one).'},
-    ]
-    for d in defaults:
-        url = monetization_service.generate_affiliate_link(d['product_type'], d['product_id'])
-        p = models.AffiliateProduct(
-            name=d['name'],
-            product_type=d['product_type'],
-            product_id=d['product_id'],
-            category=d['category'],
-            short_description=d['short_description'],
-            affiliate_url=url or '',
-            active=True,
-        )
-        db.session.add(p)
-    db.session.commit()
-    logging.info("Seeded affiliate products.")
-
-
-@app.route('/admin/smart-analytics')
-@login_required
-@admin_required
-def admin_smart_analytics():
-    """Smart analytics dashboard: all metrics, user preferences, affiliate performance, revenue."""
-    try:
-        _seed_affiliate_products_if_empty()
-        from services.smart_analytics_service import smart_analytics_service
-        from services.monetization_service import monetization_service
-        days = request.args.get('days', 7, type=int)
-        if days not in (1, 7, 14, 30):
-            days = 7
-        data = smart_analytics_service.get_smart_dashboard_data(days=days)
-        revenue = monetization_service.get_revenue_stats()
-        return render_template('admin/smart_analytics.html',
-                             data=data,
-                             revenue=revenue,
-                             days=days)
-    except Exception as e:
-        logging.error(f"Smart analytics error: {e}")
-        return render_template('admin/smart_analytics.html',
-                             data={},
-                             revenue={},
-                             days=7)
-
-
-@app.route('/admin/generate-affiliate-article', methods=['POST'])
-@login_required
-@admin_required
-def admin_generate_affiliate_article():
-    """Generate one product-highlight article (draft) with affiliate link."""
-    from services.monetization_service import monetization_service
-    from services.content_engine import ContentEngine
-    import random
-    products = models.AffiliateProduct.query.filter_by(active=True).all()
-    product = random.choice(products) if products else None
-    if not product:
-        return jsonify({'success': False, 'error': 'No affiliate products. Add products in admin.'}), 400
-    affiliate_url = product.affiliate_url or monetization_service.generate_affiliate_link(product.product_type, product.product_id or '')
-    topic = (
-        f"Product highlight: {product.name}. "
-        f"For transactors who want the best in our niche. "
-        f"Write a practical, helpful article (not salesy). "
-        f"Include this referral link as the primary CTA for readers: {affiliate_url}. "
-        f"Product category: {product.category}. "
-        f"Short description: {product.short_description or ''}. "
-        f"Keep tone Protocol Pulse: intelligence for transactors."
-    )
-    try:
-        engine = ContentEngine()
-        result = engine.generate_and_publish_article(
-            topic, content_type="bitcoin_news", auto_publish=False
-        )
-        if result.get('success') and result.get('article_id'):
-            article = models.Article.query.get(result['article_id'])
-            if article and affiliate_url:
-                article.content = (article.content or '') + f"\n\n---\n[Get {product.name}]({affiliate_url})"
-                db.session.commit()
-            return jsonify({
-                'success': True,
-                'article_id': result['article_id'],
-                'title': result.get('title'),
-                'product': product.name,
-            })
-    except Exception as e:
-        logging.error(f"Affiliate article generation failed: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-    return jsonify({'success': False, 'error': 'Generation failed'}), 500
-
-
 @app.route('/api/track/pageview', methods=['POST'])
 def api_track_pageview():
-    """Track a page view for analytics (public endpoint). Accepts path, title, time_on_page, scroll_depth."""
+    """Track a page view for analytics (public endpoint)"""
     try:
         from services.realtime_intel import realtime_intel
         from flask_login import current_user
-
+        
         data = request.get_json() or {}
         page_path = data.get('path', request.referrer or '/')
         page_title = data.get('title', '')
-        time_on_page = data.get('time_on_page')
-        scroll_depth = data.get('scroll_depth')
-
+        
         session_id = session.get('session_id')
         if not session_id:
             import secrets
             session_id = secrets.token_urlsafe(16)
             session['session_id'] = session_id
-
+        
         user_id = current_user.id if current_user.is_authenticated else None
-
+        
         realtime_intel.track_page_view(
             page_path=page_path,
             page_title=page_title,
@@ -9941,82 +6210,12 @@ def api_track_pageview():
             ip_address=request.remote_addr,
             user_agent=request.user_agent.string if request.user_agent else None,
             referrer=request.referrer,
-            user_id=user_id,
-            time_on_page=time_on_page,
-            scroll_depth=scroll_depth,
+            user_id=user_id
         )
+        
         return jsonify({'success': True})
     except Exception as e:
         logging.error(f"Page view tracking error: {e}")
-        return jsonify({'success': False}), 500
-
-
-@app.route('/api/track/event', methods=['POST'])
-def api_track_event():
-    """Track engagement events: time_on_page, scroll_depth, affiliate_click."""
-    try:
-        from services.realtime_intel import realtime_intel
-        from flask_login import current_user
-
-        data = request.get_json() or {}
-        event_type = data.get('event_type')
-        session_id = session.get('session_id')
-        user_id = current_user.id if current_user.is_authenticated else None
-
-        if event_type == 'engagement':
-            page_path = data.get('page_path', '')
-            time_on_page = data.get('time_on_page', 0)
-            scroll_depth = data.get('scroll_depth', 0)
-            if session_id and page_path:
-                realtime_intel.update_page_view_engagement(
-                    session_id=session_id,
-                    page_path=page_path,
-                    time_on_page=int(time_on_page) if time_on_page is not None else None,
-                    scroll_depth=int(scroll_depth) if scroll_depth is not None else None,
-                )
-            _log_engagement_event(
-                event_type="page_engagement",
-                content_type="page",
-                source_url=page_path or request.path,
-            )
-        elif event_type == 'affiliate_click':
-            product_id = data.get('product_id')
-            try:
-                product_id = int(product_id) if product_id is not None else None
-            except Exception:
-                product_id = None
-            link_type = data.get('link_type', '')
-            page_path = data.get('page_path', '')
-            click = models.AffiliateProductClick(
-                product_id=product_id,
-                link_type=link_type or None,
-                page_path=page_path[:500] if page_path else None,
-                session_id=session_id,
-                user_id=user_id,
-            )
-            db.session.add(click)
-            db.session.commit()
-            _log_engagement_event(
-                event_type="sponsor_click",
-                content_type="affiliate_product",
-                content_id=product_id,
-                source_url=page_path or request.path,
-            )
-        elif event_type in ('merch_click', 'article_view', 'newsletter_submit', 'sponsor_click'):
-            content_id = data.get('content_id')
-            try:
-                content_id = int(content_id) if content_id is not None else None
-            except Exception:
-                content_id = None
-            _log_engagement_event(
-                event_type=event_type,
-                content_type=(data.get('content_type') or 'page'),
-                content_id=content_id,
-                source_url=(data.get('page_path') or request.path),
-            )
-        return jsonify({'success': True})
-    except Exception as e:
-        logging.error(f"Track event error: {e}")
         return jsonify({'success': False}), 500
 
 @app.route('/api/hot-ticker')
@@ -10044,6 +6243,7 @@ def api_hot_ticker():
 def admin_rtsa():
     """Admin dashboard for RTSA product management"""
     from services.rtsa_service import rtsa_service
+    from models import RealTimeProduct
     
     draft_products = rtsa_service.get_draft_products()
     approved_products = rtsa_service.get_approved_products(limit=20)
@@ -10118,8 +6318,9 @@ def admin_rtsa_reject(product_id):
 def admin_rtsa_broadcast(product_id):
     """Broadcast an approved RTSA product to social"""
     from services.rtsa_service import rtsa_service
+    from models import RealTimeProduct
     
-    product = models.RealTimeProduct.query.get(product_id)
+    product = RealTimeProduct.query.get(product_id)
     if not product or product.status != 'approved':
         return jsonify({'success': False, 'error': 'Product not found or not approved'}), 404
     
