@@ -1,0 +1,65 @@
+modules = ["postgresql-16", "python-3.11", "python3"]
+
+[nix]
+channel = "stable-25_05"
+packages = ["chromedriver", "chromium", "ffmpeg", "ffmpeg-full", "freetype", "geckodriver", "glibcLocales", "lcms2", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "nspr", "nss", "openjpeg", "openssl", "postgresql", "tcl", "tesseract", "tk", "zlib", "zip"]
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["sh", "-c", "ADMIN_EXEC_TOKEN=581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552 gunicorn --bind 0.0.0.0:$PORT main:app"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
+waitForPort = 5000
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 8000
+externalPort = 8000
+
+[[ports]]
+localPort = 8080
+externalPort = 8080
+
+[[ports]]
+localPort = 8081
+externalPort = 8081
+
+[[ports]]
+localPort = 8090
+externalPort = 3000
+
+[[ports]]
+localPort = 8092
+externalPort = 3001
+
+[agent]
+integrations = ["python_openai:1.0.0", "python_gemini:1.0.0", "python_xai:1.0.0", "python_anthropic:1.0.0", "python_slack:1.0.0", "web_scraper:1.0.0", "python_sendgrid:1.0.0"]
+expertMode = true
+
+[userenv]
+
+[userenv.shared]
+SITE_URL = "https://protocolpulse.io"
+AUTOPOST_X = "true"
+ENABLE_X_ENGAGE = "true"

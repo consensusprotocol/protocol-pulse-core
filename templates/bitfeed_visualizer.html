@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Kinetic Terminal | Protocol Pulse{% endblock %}
+
+{% block head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<style>
+.kinetic-container {
+    min-height: 100vh;
+    background: #000000;
+    padding: 40px 20px;
+}
+
+.kinetic-header {
+    max-width: 1800px;
+    margin: 0 auto 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.kinetic-header-left {
+    flex: 1;
+}
+
+.kinetic-header h1 {
+    font-size: 32px;
+    font-weight: 900;
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+.kinetic-header p {
+    font-size: 14px;
+    color: #888;
+}
+
+.sponsor-badge {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 12px 18px;
+    text-align: right;
+    backdrop-filter: blur(10px);
+}
+
+.sponsor-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+.sponsor-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.sponsor-name a {
+    color: #fff;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.sponsor-name a:hover {
+    color: #f97316;
+}
+
+.main-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 30px;
+    align-items: start;
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+.visualizer-container {
+    background: #000000;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+#bitfeed-canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    cursor: crosshair;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #888;
+    text-decoration: none;
+    font-size: 14px;
+    margin-bottom: 20px;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: #fff;
+}
+
+.embed-notice {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 10px;
+    color: #666;
+    backdrop-filter: blur(10px);
+}
+
+.embed-notice a {
+    color: #888;
+    text-decoration: none;
+}
+
+.embed-notice a:hover {
+    color: #fff;
+}
+
+@media (max-width: 1024px) {
+    .main-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .network-status-panel {
+        max-width: 100%;
+    }
+    
+    #bitfeed-canvas {
+        height: 400px;
+    }
+    
+    .kinetic-header {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .sponsor-badge {
+        text-align: left;
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="kinetic-container">
+    <div class="kinetic-header">
+        <div class="kinetic-header-left">
+            <a href="/live" class="back-link">
+                <i class="fas fa-arrow-left"></i>
+                Back to Live Terminal
+            </a>
+            <h1>Kinetic Terminal</h1>
+            <p>Bitcoin mempool physics - Blocks accumulate in the ₿ gravity well</p>
+        </div>
+        
+        <div class="sponsor-badge">
+            <div class="sponsor-label">Presented by</div>
+            <div class="sponsor-name">
+                <a href="https://protocolpulse.io" target="_blank">Protocol Pulse Intelligence</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-layout">
+        <div class="visualizer-container">
+            <canvas id="bitfeed-canvas"></canvas>
+            <div class="embed-notice">
+                <a href="https://protocolpulse.io/kinetic" target="_blank">⚡ Protocol Pulse</a>
+            </div>
+        </div>
+        
+        {% include 'includes/network_status_panel.html' %}
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/bitfeedlive.js') }}"></script>
+{% endblock %}

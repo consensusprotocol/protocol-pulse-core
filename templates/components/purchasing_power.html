@@ -1,0 +1,330 @@
+<!-- PURCHASING POWER REALITY CHECK -->
+<div class="purchasing-power-widget" id="purchasing-power">
+    <div class="pp-header">
+        <div class="pp-title">
+            <span class="pp-icon">💀</span>
+            <span>THE DOLLAR'S DEATH</span>
+        </div>
+        <div class="pp-subtitle">What $100 buys today vs. 1971 (Nixon ended gold standard)</div>
+    </div>
+    
+    <div class="pp-grid">
+        <div class="pp-item">
+            <div class="pp-emoji">🥩</div>
+            <div class="pp-label">Ribeye Steak</div>
+            <div class="pp-comparison">
+                <div class="pp-then">
+                    <span class="pp-year">1971</span>
+                    <span class="pp-amount">62 lbs</span>
+                </div>
+                <div class="pp-arrow">→</div>
+                <div class="pp-now">
+                    <span class="pp-year">2026</span>
+                    <span class="pp-amount bad">6 lbs</span>
+                </div>
+            </div>
+            <div class="pp-loss">-90% purchasing power</div>
+        </div>
+        
+        <div class="pp-item">
+            <div class="pp-emoji">🥚</div>
+            <div class="pp-label">Eggs (dozen)</div>
+            <div class="pp-comparison">
+                <div class="pp-then">
+                    <span class="pp-year">1971</span>
+                    <span class="pp-amount">196 doz</span>
+                </div>
+                <div class="pp-arrow">→</div>
+                <div class="pp-now">
+                    <span class="pp-year">2026</span>
+                    <span class="pp-amount bad">14 doz</span>
+                </div>
+            </div>
+            <div class="pp-loss">-93% purchasing power</div>
+        </div>
+        
+        <div class="pp-item">
+            <div class="pp-emoji">⛽</div>
+            <div class="pp-label">Gasoline</div>
+            <div class="pp-comparison">
+                <div class="pp-then">
+                    <span class="pp-year">1971</span>
+                    <span class="pp-amount">278 gal</span>
+                </div>
+                <div class="pp-arrow">→</div>
+                <div class="pp-now">
+                    <span class="pp-year">2026</span>
+                    <span class="pp-amount bad">28 gal</span>
+                </div>
+            </div>
+            <div class="pp-loss">-90% purchasing power</div>
+        </div>
+        
+        <div class="pp-item">
+            <div class="pp-emoji">🏠</div>
+            <div class="pp-label">Median Home</div>
+            <div class="pp-comparison">
+                <div class="pp-then">
+                    <span class="pp-year">1971</span>
+                    <span class="pp-amount">$23,400</span>
+                </div>
+                <div class="pp-arrow">→</div>
+                <div class="pp-now">
+                    <span class="pp-year">2026</span>
+                    <span class="pp-amount bad">$420,000</span>
+                </div>
+            </div>
+            <div class="pp-loss">18x more dollars needed</div>
+        </div>
+        
+        <div class="pp-item">
+            <div class="pp-emoji">🎓</div>
+            <div class="pp-label">College (4yr)</div>
+            <div class="pp-comparison">
+                <div class="pp-then">
+                    <span class="pp-year">1971</span>
+                    <span class="pp-amount">$1,410</span>
+                </div>
+                <div class="pp-arrow">→</div>
+                <div class="pp-now">
+                    <span class="pp-year">2026</span>
+                    <span class="pp-amount bad">$104,000</span>
+                </div>
+            </div>
+            <div class="pp-loss">74x more dollars needed</div>
+        </div>
+        
+        <div class="pp-item highlight">
+            <div class="pp-emoji">₿</div>
+            <div class="pp-label">Bitcoin</div>
+            <div class="pp-comparison">
+                <div class="pp-then">
+                    <span class="pp-year">2010</span>
+                    <span class="pp-amount">$100 = 1,667 BTC</span>
+                </div>
+                <div class="pp-arrow">→</div>
+                <div class="pp-now">
+                    <span class="pp-year">2026</span>
+                    <span class="pp-amount good">$100 = 0.0015 BTC</span>
+                </div>
+            </div>
+            <div class="pp-gain">Bitcoin appreciates vs. everything</div>
+        </div>
+    </div>
+    
+    <div class="pp-footer">
+        <div class="pp-quote">"If the American people ever allow private banks to control the issue of their currency... they will deprive the people of all property until their children wake up homeless."</div>
+        <div class="pp-attribution">— Thomas Jefferson</div>
+    </div>
+    
+    <div class="pp-cta">
+        <span class="pp-cta-text">The solution isn't more dollars. It's <strong>sound money</strong>.</span>
+    </div>
+</div>
+
+<style>
+.purchasing-power-widget {
+    background: linear-gradient(180deg, #0a0505 0%, #1a0a0a 100%);
+    border: 1px solid rgba(220, 38, 38, 0.4);
+    border-radius: 16px;
+    padding: 30px;
+    margin: 30px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.purchasing-power-widget::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #dc2626, #f59e0b, #dc2626);
+}
+
+.pp-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.pp-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #dc2626;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    letter-spacing: 0.1em;
+}
+
+.pp-icon {
+    font-size: 1.8rem;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.pp-subtitle {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+}
+
+.pp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.pp-item {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.pp-item:hover {
+    border-color: rgba(220, 38, 38, 0.5);
+    transform: translateY(-2px);
+}
+
+.pp-item.highlight {
+    background: rgba(247, 147, 26, 0.1);
+    border-color: rgba(247, 147, 26, 0.4);
+}
+
+.pp-emoji {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.pp-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.pp-comparison {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 12px;
+}
+
+.pp-then, .pp-now {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pp-year {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+}
+
+.pp-amount {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #22c55e;
+}
+
+.pp-amount.bad {
+    color: #ef4444;
+}
+
+.pp-amount.good {
+    color: #f7931a;
+}
+
+.pp-arrow {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 1.5rem;
+}
+
+.pp-loss {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: #ef4444;
+    font-weight: 600;
+    padding: 4px 10px;
+    background: rgba(239, 68, 68, 0.15);
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.pp-gain {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: #f7931a;
+    font-weight: 600;
+    padding: 4px 10px;
+    background: rgba(247, 147, 26, 0.15);
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.pp-footer {
+    text-align: center;
+    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 20px;
+}
+
+.pp-quote {
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto 10px;
+}
+
+.pp-attribution {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+}
+
+.pp-cta {
+    text-align: center;
+    padding-top: 15px;
+}
+
+.pp-cta-text {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1rem;
+}
+
+.pp-cta-text strong {
+    color: #f7931a;
+}
+
+@media (max-width: 768px) {
+    .pp-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .pp-title {
+        font-size: 1.2rem;
+    }
+    
+    .purchasing-power-widget {
+        padding: 20px;
+    }
+}
+</style>

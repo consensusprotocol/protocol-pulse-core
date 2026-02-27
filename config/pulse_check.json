@@ -1,0 +1,64 @@
+{
+  "partner_channels": [
+    {
+      "name": "Bitcoin Magazine",
+      "channel_id": "UCni7PAlyNS0_12H-26DJJ3w",
+      "youtube_handle": "@BitcoinMagazine",
+      "priority": 1,
+      "enabled": true
+    },
+    {
+      "name": "Simply Bitcoin",
+      "channel_id": "UCgYMrhLf9joZLfTx4WNUAUQ",
+      "youtube_handle": "@SimplyBitcoin",
+      "priority": 1,
+      "enabled": true
+    },
+    {
+      "name": "Swan Bitcoin",
+      "channel_id": "UCsXs2jVSqEWp3tI3GQBV7Wg",
+      "youtube_handle": "@SwanBitcoinOfficial",
+      "priority": 1,
+      "enabled": true
+    },
+    {
+      "name": "What Bitcoin Did",
+      "channel_id": "UCfl59StGFVCkJQgWmgYrKlA",
+      "youtube_handle": "@WhatBitcoinDidPodcast",
+      "priority": 2,
+      "enabled": true
+    },
+    {
+      "name": "The Bitcoin Layer",
+      "channel_id": "UCNsBjT9qsHk7w1K-5ZEMmXA",
+      "youtube_handle": "@TheBitcoinLayer",
+      "priority": 2,
+      "enabled": true
+    },
+    {
+      "name": "Coin Bureau",
+      "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+      "youtube_handle": "@CoinBureau",
+      "priority": 2,
+      "enabled": true
+    },
+    {
+      "name": "Anthony Pompliano",
+      "channel_id": "UCCl3sIl__eyPsQ52sCWZVYw",
+      "youtube_handle": "@AnthonyPompliano",
+      "priority": 2,
+      "enabled": true
+    }
+  ],
+  "daily_clip_count": 7,
+  "clip_min_duration": 30,
+  "clip_max_duration": 75,
+  "target_video_duration": 480,
+  "narrator_voice_id": "21m00Tcm4TlvDq8ikWAM",
+  "narrator_style": "professional_journalist",
+  "check_interval_hours": 4,
+  "last_check": null,
+  "clips_per_channel": 1,
+  "min_channels_required": 6,
+  "outro_video": "static/video/tag.mp4"
+}

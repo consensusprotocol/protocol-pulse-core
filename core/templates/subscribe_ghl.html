@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Get the weekly digest — Protocol Pulse{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style>
+body { background: var(--pp-bg-primary) !important; }
+.subscribe-hero {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 24px 60px;
+    font-family: 'DM Sans', sans-serif;
+}
+.subscribe-card {
+    background: var(--pp-bg-card);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: var(--pp-radius-xl);
+    padding: 40px 36px;
+    max-width: 440px;
+    width: 100%;
+    box-shadow: var(--pp-shadow-md);
+}
+.subscribe-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--pp-text-primary);
+    margin-bottom: 12px;
+}
+.subscribe-subtitle {
+    color: var(--pp-text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 28px;
+}
+.subscribe-hero .form-group { margin-bottom: 18px; }
+.subscribe-hero .form-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--pp-text-secondary);
+    margin-bottom: 6px;
+}
+.subscribe-hero .form-input {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--pp-bg-elevated);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: var(--pp-radius-md);
+    color: var(--pp-text-primary);
+    font-size: 1rem;
+}
+.subscribe-hero .form-input:focus {
+    outline: none;
+    border-color: var(--pp-accent);
+    box-shadow: 0 0 0 2px var(--pp-accent-soft);
+}
+.subscribe-hero .form-input::placeholder { color: var(--pp-text-muted); }
+.subscribe-hero .submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--pp-accent);
+    border: none;
+    border-radius: var(--pp-radius-md);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s var(--pp-ease);
+}
+.subscribe-hero .submit-btn:hover { opacity: 0.95; }
+.benefits-list {
+    margin-top: 28px;
+    padding-top: 28px;
+    border-top: 1px solid var(--pp-border-subtle);
+}
+.benefit-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    color: var(--pp-text-secondary);
+    font-size: 0.88rem;
+}
+.benefit-icon { color: var(--pp-accent); margin-right: 10px; font-size: 0.9rem; }
+.privacy-note {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.75rem;
+    color: var(--pp-text-muted);
+}
+.privacy-note a { color: var(--pp-accent); text-decoration: none; }
+.privacy-note a:hover { text-decoration: underline; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="subscribe-hero pp-page">
+    <div class="subscribe-card">
+        <h1 class="subscribe-title">Get the weekly digest</h1>
+        <p class="subscribe-subtitle">
+            New intel briefs, episodes, and reads in your inbox. No spam — one email a week.
+        </p>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST" action="{{ url_for('subscribe_ghl') }}">
+            <div class="form-group">
+                <label class="form-label">Your Name</label>
+                <input type="text" name="name" class="form-input" placeholder="Satoshi Nakamoto" autocomplete="name">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" name="email" class="form-input" placeholder="sovereign@example.com" required autocomplete="email">
+            </div>
+            
+            <input type="hidden" name="source" value="{{ request.args.get('source', 'website') }}">
+            
+            <button type="submit" class="submit-btn">
+                Subscribe
+            </button>
+        </form>
+        
+        <div class="benefits-list">
+            <div class="benefit-item">
+                <i class="fas fa-bolt benefit-icon"></i>
+                <span>Latest intel briefs</span>
+            </div>
+            <div class="benefit-item">
+                <i class="fas fa-play-circle benefit-icon"></i>
+                <span>New episodes & series</span>
+            </div>
+            <div class="benefit-item">
+                <i class="fas fa-book benefit-icon"></i>
+                <span>Sovereign Library picks</span>
+            </div>
+        </div>
+        
+        <p class="privacy-note">
+            We never share your email. <a href="/about">About Protocol Pulse</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

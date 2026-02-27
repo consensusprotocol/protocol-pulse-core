@@ -1,0 +1,507 @@
+{% extends "base.html" %}
+
+{% block title %}AI Avatar Videos - Captions.ai | Admin{% endblock %}
+
+{% block head %}
+<style>
+    .captions-dashboard {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a0505 100%);
+        padding: 100px 20px 40px;
+    }
+    
+    .dash-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .dash-header h1 {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 10px;
+    }
+    
+    .dash-header p {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 1.1rem;
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 50px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8rem;
+        margin-top: 15px;
+    }
+    
+    .status-badge.active {
+        background: rgba(34, 197, 94, 0.2);
+        border: 1px solid #22c55e;
+        color: #22c55e;
+    }
+    
+    .status-badge.inactive {
+        background: rgba(239, 68, 68, 0.2);
+        border: 1px solid #ef4444;
+        color: #ef4444;
+    }
+    
+    .avatar-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 30px;
+        max-width: 900px;
+        margin: 0 auto 40px;
+    }
+    
+    .avatar-card {
+        background: rgba(20, 20, 20, 0.9);
+        border: 1px solid rgba(220, 38, 38, 0.3);
+        border-radius: 16px;
+        padding: 30px;
+        backdrop-filter: blur(20px);
+    }
+    
+    .avatar-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .avatar-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #dc2626, #991b1b);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #fff;
+    }
+    
+    .avatar-info h3 {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.3rem;
+        color: #fff;
+        margin: 0;
+    }
+    
+    .avatar-info p {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.9rem;
+        margin: 5px 0 0;
+    }
+    
+    .avatar-style {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        color: #dc2626;
+        background: rgba(220, 38, 38, 0.1);
+        padding: 8px 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .generator-section {
+        max-width: 900px;
+        margin: 0 auto;
+        background: rgba(20, 20, 20, 0.9);
+        border: 1px solid rgba(220, 38, 38, 0.3);
+        border-radius: 16px;
+        padding: 40px;
+        backdrop-filter: blur(20px);
+    }
+    
+    .generator-section h2 {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.5rem;
+        color: #fff;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-group label {
+        display: block;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .form-control {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 15px;
+        color: #fff;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.95rem;
+        transition: border-color 0.3s;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #dc2626;
+    }
+    
+    textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+    }
+    
+    .char-counter {
+        text-align: right;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 5px;
+    }
+    
+    .char-counter.warning { color: #f59e0b; }
+    .char-counter.danger { color: #ef4444; }
+    
+    .avatar-selector {
+        display: flex;
+        gap: 15px;
+    }
+    
+    .avatar-option {
+        flex: 1;
+        padding: 15px;
+        background: rgba(0, 0, 0, 0.3);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.3s;
+    }
+    
+    .avatar-option:hover {
+        border-color: rgba(220, 38, 38, 0.5);
+    }
+    
+    .avatar-option.selected {
+        border-color: #dc2626;
+        background: rgba(220, 38, 38, 0.1);
+    }
+    
+    .avatar-option i {
+        font-size: 1.5rem;
+        color: #dc2626;
+        margin-bottom: 10px;
+    }
+    
+    .avatar-option span {
+        display: block;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.9rem;
+        color: #fff;
+    }
+    
+    .btn-generate {
+        width: 100%;
+        padding: 18px;
+        background: linear-gradient(135deg, #dc2626, #991b1b);
+        border: none;
+        border-radius: 12px;
+        color: #fff;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.3s;
+    }
+    
+    .btn-generate:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(220, 38, 38, 0.3);
+    }
+    
+    .btn-generate:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .result-panel {
+        margin-top: 30px;
+        padding: 25px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        display: none;
+    }
+    
+    .result-panel.show {
+        display: block;
+    }
+    
+    .result-panel h4 {
+        font-family: 'JetBrains Mono', monospace;
+        color: #22c55e;
+        margin-bottom: 15px;
+    }
+    
+    .result-detail {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85rem;
+    }
+    
+    .result-detail .label {
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .result-detail .value {
+        color: #fff;
+    }
+    
+    .quick-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+    
+    .btn-quick {
+        flex: 1;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        color: #fff;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .btn-quick:hover {
+        background: rgba(220, 38, 38, 0.2);
+        border-color: #dc2626;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="captions-dashboard">
+    <div class="dash-header">
+        <h1><i class="fas fa-video" style="color: #dc2626;"></i> AI Avatar Videos</h1>
+        <p>Generate talking-head videos with Alex & Sarah using Captions.ai</p>
+        {% if initialized %}
+        <div class="status-badge active">
+            <i class="fas fa-circle"></i> Captions.ai Connected
+        </div>
+        {% else %}
+        <div class="status-badge inactive">
+            <i class="fas fa-circle"></i> API Key Required
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="avatar-cards">
+        <div class="avatar-card">
+            <div class="avatar-header">
+                <div class="avatar-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="avatar-info">
+                    <h3>Alex</h3>
+                    <p>Quantitative Analyst</p>
+                </div>
+            </div>
+            <div class="avatar-style">
+                <i class="fas fa-quote-left"></i> Data-driven, technical, precise
+            </div>
+            <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.9rem;">
+                Alex breaks down on-chain metrics, network data, and technical analysis with Bloomberg-style precision.
+            </p>
+        </div>
+        
+        <div class="avatar-card">
+            <div class="avatar-header">
+                <div class="avatar-icon">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <div class="avatar-info">
+                    <h3>Sarah</h3>
+                    <p>Macro Strategist</p>
+                </div>
+            </div>
+            <div class="avatar-style">
+                <i class="fas fa-quote-left"></i> Contextual, geopolitical, institutional
+            </div>
+            <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.9rem;">
+                Sarah provides macro perspective on market dynamics, institutional trends, and global implications.
+            </p>
+        </div>
+    </div>
+    
+    <div class="generator-section">
+        <h2><i class="fas fa-magic"></i> Generate Video</h2>
+        
+        <div class="form-group">
+            <label>Select Avatar</label>
+            <div class="avatar-selector">
+                <div class="avatar-option selected" data-avatar="alex" onclick="selectAvatar('alex')">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Alex (Quant)</span>
+                </div>
+                <div class="avatar-option" data-avatar="sarah" onclick="selectAvatar('sarah')">
+                    <i class="fas fa-globe"></i>
+                    <span>Sarah (Macro)</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Script (max 800 characters for 1-minute video)</label>
+            <textarea class="form-control" id="script" placeholder="Enter your script for the AI avatar..." maxlength="800" oninput="updateCharCount()"></textarea>
+            <div class="char-counter" id="charCounter">0 / 800 characters</div>
+        </div>
+        
+        <button class="btn-generate" id="generateBtn" onclick="generateVideo()" {% if not initialized %}disabled{% endif %}>
+            <i class="fas fa-video"></i> Generate Video
+        </button>
+        
+        <div class="quick-actions">
+            <button class="btn-quick" onclick="generateDailyBrief('alex')">
+                <i class="fas fa-sun"></i> Alex Daily Brief
+            </button>
+            <button class="btn-quick" onclick="generateDailyBrief('sarah')">
+                <i class="fas fa-sun"></i> Sarah Daily Brief
+            </button>
+        </div>
+        
+        <div class="result-panel" id="resultPanel">
+            <h4><i class="fas fa-check-circle"></i> Video Generation Started</h4>
+            <div class="result-detail">
+                <span class="label">Video ID</span>
+                <span class="value" id="resultVideoId">-</span>
+            </div>
+            <div class="result-detail">
+                <span class="label">Status</span>
+                <span class="value" id="resultStatus">-</span>
+            </div>
+            <div class="result-detail">
+                <span class="label">Estimated Time</span>
+                <span class="value">~60 seconds</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedAvatar = 'alex';
+
+function selectAvatar(avatar) {
+    selectedAvatar = avatar;
+    document.querySelectorAll('.avatar-option').forEach(el => {
+        el.classList.remove('selected');
+    });
+    document.querySelector(`[data-avatar="${avatar}"]`).classList.add('selected');
+}
+
+function updateCharCount() {
+    const script = document.getElementById('script');
+    const counter = document.getElementById('charCounter');
+    const count = script.value.length;
+    
+    counter.textContent = `${count} / 800 characters`;
+    counter.className = 'char-counter';
+    
+    if (count > 750) {
+        counter.classList.add('danger');
+    } else if (count > 600) {
+        counter.classList.add('warning');
+    }
+}
+
+function generateVideo() {
+    const script = document.getElementById('script').value.trim();
+    const btn = document.getElementById('generateBtn');
+    
+    if (!script) {
+        alert('Please enter a script');
+        return;
+    }
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+    
+    fetch('/admin/api/captions/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ script: script, avatar: selectedAvatar })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('resultVideoId').textContent = data.video_id || 'Processing';
+            document.getElementById('resultStatus').textContent = data.status || 'Submitted';
+            document.getElementById('resultPanel').classList.add('show');
+        } else {
+            alert(data.error || 'Failed to generate video');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Error generating video');
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-video"></i> Generate Video';
+    });
+}
+
+function generateDailyBrief(avatar) {
+    const btn = event.target;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    
+    fetch('/admin/api/captions/daily-brief', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ avatar: avatar })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('resultVideoId').textContent = data.video_id || 'Processing';
+            document.getElementById('resultStatus').textContent = data.status || 'Submitted';
+            document.getElementById('resultPanel').classList.add('show');
+        } else {
+            alert(data.error || 'Failed to generate daily brief');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Error generating daily brief');
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = avatar === 'alex' ? '<i class="fas fa-sun"></i> Alex Daily Brief' : '<i class="fas fa-sun"></i> Sarah Daily Brief';
+    });
+}
+</script>
+{% endblock %}

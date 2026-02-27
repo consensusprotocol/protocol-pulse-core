@@ -1,0 +1,149 @@
+/**
+ * Protocol Pulse — shared design tokens
+ * Use on About, Contact, Donate, Intelligence, Articles, Subscribe, and any page that should feel like the Media Hub.
+ */
+:root {
+    --pp-bg-primary: #050508;
+    --pp-bg-secondary: #0c0c10;
+    --pp-bg-card: #0f0f14;
+    --pp-bg-elevated: #16161c;
+    --pp-bg-glass: rgba(255,255,255,0.02);
+    --pp-border-subtle: rgba(255,255,255,0.06);
+    --pp-border-hover: rgba(255,255,255,0.1);
+    --pp-border-focus: rgba(229,72,72,0.6);
+    --pp-text-primary: #fafafa;
+    --pp-text-secondary: rgba(255,255,255,0.78);
+    --pp-text-muted: rgba(255,255,255,0.45);
+    --pp-accent: #e54848;
+    --pp-accent-soft: rgba(229,72,72,0.12);
+    --pp-accent-glow: rgba(229,72,72,0.18);
+    --pp-bitcoin: #f7931a;
+    --pp-nostr: #a855f7;
+    --pp-success: #22c55e;
+    --pp-radius-sm: 10px;
+    --pp-radius-md: 14px;
+    --pp-radius-lg: 20px;
+    --pp-radius-xl: 28px;
+    --pp-radius-full: 9999px;
+    --pp-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --pp-shadow-sm: 0 2px 8px rgba(0,0,0,0.25);
+    --pp-shadow-md: 0 8px 32px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2);
+    --pp-shadow-glow: 0 0 40px rgba(229,72,72,0.15);
+}
+
+/* Optional: apply to body when page uses PP dark layout (e.g. .pp-page on a wrapper) */
+.pp-page,
+body.pp-dark {
+    background: var(--pp-bg-primary) !important;
+    color: var(--pp-text-primary) !important;
+    -webkit-font-smoothing: antialiased;
+}
+
+.pp-page .form-control,
+.pp-page .form-select {
+    background: var(--pp-bg-card);
+    border-color: var(--pp-border-subtle);
+    color: var(--pp-text-primary);
+}
+
+.pp-page .form-control:focus {
+    border-color: var(--pp-accent);
+    box-shadow: 0 0 0 2px var(--pp-accent-soft);
+}
+
+.pp-page .btn-primary,
+.pp-btn-primary {
+    background: var(--pp-accent);
+    border-color: var(--pp-accent);
+    color: #fff;
+}
+
+.pp-page .btn-primary:hover,
+.pp-btn-primary:hover {
+    background: #c73d3d;
+    border-color: #c73d3d;
+    color: #fff;
+}
+
+.pp-page .text-muted { color: var(--pp-text-muted) !important; }
+.pp-page .text-primary { color: var(--pp-accent) !important; }
+
+/* ============================================
+   Site-wide: nav and footer use PP tokens
+   ============================================ */
+
+.nav-command-bar {
+    background: rgba(5, 5, 8, 0.92);
+    border-bottom-color: var(--pp-border-subtle);
+}
+.nav-brand { color: var(--pp-text-primary); }
+.nav-brand:hover { color: var(--pp-accent); }
+.nav-item { color: var(--pp-text-secondary); }
+.nav-item:hover {
+    color: var(--pp-text-primary);
+    background: var(--pp-accent-soft);
+}
+.nav-item.active { color: var(--pp-accent); border-bottom-color: var(--pp-accent); }
+.nav-dropdown-menu {
+    background: var(--pp-bg-card);
+    border-color: var(--pp-border-subtle);
+}
+.nav-dropdown-item { color: var(--pp-text-secondary); }
+.nav-dropdown-item:hover {
+    background: var(--pp-accent-soft);
+    color: var(--pp-text-primary);
+}
+.nav-dropdown-divider { background: var(--pp-border-subtle); }
+.command-search {
+    background: var(--pp-bg-elevated);
+    border-color: var(--pp-border-subtle);
+    color: var(--pp-text-primary);
+}
+.command-search::placeholder { color: var(--pp-text-muted); }
+.command-search:focus {
+    border-color: var(--pp-accent);
+    box-shadow: 0 0 0 2px var(--pp-accent-soft);
+}
+
+footer {
+    background: var(--pp-bg-secondary) !important;
+    border-top: 1px solid var(--pp-border-subtle) !important;
+    color: var(--pp-text-primary) !important;
+}
+footer a { color: var(--pp-text-secondary) !important; }
+footer a:hover { color: var(--pp-accent) !important; }
+footer h5, footer h6 { color: var(--pp-text-primary) !important; }
+footer .text-muted { color: var(--pp-text-muted) !important; }
+footer .satoshi-clock {
+    background: var(--pp-bg-card);
+    border-color: var(--pp-border-subtle);
+}
+footer .clock-label { color: var(--pp-accent); }
+footer .clock-value { color: var(--pp-text-primary); }
+footer .clock-unit { color: var(--pp-text-muted); }
+footer .clock-separator { color: var(--pp-accent); }
+footer .clock-sublabel { color: var(--pp-text-muted); }
+footer .btn-outline-success {
+    border-color: var(--pp-success);
+    color: var(--pp-success);
+}
+footer .btn-outline-success:hover {
+    background: var(--pp-success);
+    color: #fff;
+}
+footer .btn-outline-warning {
+    border-color: var(--pp-bitcoin);
+    color: var(--pp-bitcoin);
+}
+footer .btn-outline-warning:hover {
+    background: var(--pp-bitcoin);
+    color: #000;
+}
+footer .btn-outline-danger {
+    border-color: var(--pp-accent);
+    color: var(--pp-accent);
+}
+footer .btn-outline-danger:hover {
+    background: var(--pp-accent);
+    color: #fff;
+}

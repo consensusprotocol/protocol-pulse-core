@@ -1,0 +1,44 @@
+{
+  "x_engagement_sentry": {
+    "enabled": true,
+    "monitored_accounts": [
+      { "handle": "saylor", "name": "Michael Saylor", "tier": "macro", "style": "respectful_amplification", "priority": 1 },
+      { "handle": "LynAldenContact", "name": "Lyn Alden", "tier": "macro", "style": "analytical_add", "priority": 1 },
+      { "handle": "JeffBooth", "name": "Jeff Booth", "tier": "philosophy", "style": "philosophical_extend", "priority": 1 },
+      { "handle": "natbrunell", "name": "Natalie Brunell", "tier": "media", "style": "supportive_amplify", "priority": 2 }
+    ],
+    "response_settings": {
+      "poll_interval_minutes": 5,
+      "min_delay_seconds": 90,
+      "max_delay_seconds": 420,
+      "max_response_length": 260
+    },
+    "confidence_thresholds": {
+      "auto_post": 0.85,
+      "queue_for_approval": 0.7,
+      "silent_skip": 0.7
+    },
+    "rate_limits": {
+      "max_per_hour": 6,
+      "max_per_day": 25
+    },
+    "approval_workflow": {
+      "require_human_approval": true,
+      "auto_post_enabled": false,
+      "queue_expiry_hours": 24
+    },
+    "blacklist_keywords": [
+      "sponsored",
+      "ad",
+      "giveaway",
+      "airdrop",
+      "promo code",
+      "free btc"
+    ],
+    "filters": {
+      "min_tweet_length": 50,
+      "skip_retweets": true,
+      "skip_replies": true
+    }
+  }
+}

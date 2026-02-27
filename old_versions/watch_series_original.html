@@ -1,0 +1,316 @@
+{% extends "base.html" %}
+
+{% block title %}{{ series.title }} - Episode {{ current_episode.id }} | Protocol Pulse{% endblock %}
+
+{% block extra_css %}
+<style>
+    .series-container {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 30px;
+        min-height: 80vh;
+    }
+    
+    @media (max-width: 992px) {
+        .series-container {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .video-main {
+        background: #0a0a0a;
+        border: 1px solid #1a1a1a;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .video-wrapper {
+        position: relative;
+        padding-bottom: 56.25%;
+        height: 0;
+        background: #000;
+    }
+    
+    .video-wrapper iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+    
+    .video-info {
+        padding: 25px;
+        border-top: 1px solid #1a1a1a;
+    }
+    
+    .video-info h1 {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.5rem;
+        color: #fff;
+        margin-bottom: 10px;
+    }
+    
+    .episode-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #ff6600, #ff8533);
+        color: #000;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+    }
+    
+    .series-sidebar {
+        background: #0d0d0d;
+        border: 1px solid #1a1a1a;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .sidebar-header {
+        background: linear-gradient(180deg, #1a1a1a, #0d0d0d);
+        padding: 20px;
+        border-bottom: 1px solid #1a1a1a;
+    }
+    
+    .sidebar-header h3 {
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        color: #00ff41;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .episode-list {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .episode-item {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        border-bottom: 1px solid #1a1a1a;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .episode-item:hover {
+        background: rgba(0, 255, 65, 0.05);
+    }
+    
+    .episode-item.active {
+        background: rgba(255, 102, 0, 0.1);
+        border-left: 3px solid #ff6600;
+    }
+    
+    .episode-number {
+        width: 32px;
+        height: 32px;
+        background: #1a1a1a;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85rem;
+        color: #888;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+    
+    .episode-item.active .episode-number {
+        background: #ff6600;
+        color: #000;
+    }
+    
+    .episode-details h4 {
+        font-size: 0.9rem;
+        color: #fff;
+        margin: 0 0 4px 0;
+    }
+    
+    .episode-details span {
+        font-size: 0.75rem;
+        color: #666;
+        font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .next-up-card {
+        background: linear-gradient(135deg, rgba(255, 102, 0, 0.1), rgba(255, 102, 0, 0.05));
+        border: 1px solid rgba(255, 102, 0, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 20px;
+        animation: pulse-glow 3s ease-in-out infinite;
+    }
+    
+    @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 10px rgba(255, 102, 0, 0.2); }
+        50% { box-shadow: 0 0 20px rgba(255, 102, 0, 0.4); }
+    }
+    
+    .next-up-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        color: #ff6600;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 10px;
+    }
+    
+    .next-up-title {
+        font-size: 1rem;
+        color: #fff;
+        margin-bottom: 12px;
+    }
+    
+    .next-up-teaser {
+        font-size: 0.85rem;
+        color: #aaa;
+        font-style: italic;
+        line-height: 1.5;
+        margin-bottom: 15px;
+    }
+    
+    .next-up-btn {
+        display: inline-block;
+        background: linear-gradient(135deg, #ff6600, #ff8533);
+        color: #000;
+        font-weight: 600;
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+    }
+    
+    .next-up-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(255, 102, 0, 0.4);
+        color: #000;
+    }
+    
+    .episode-transition {
+        animation: fadeSlideIn 0.5s ease-out;
+    }
+    
+    @keyframes fadeSlideIn {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    .subscribe-cta {
+        background: linear-gradient(135deg, rgba(0, 255, 65, 0.1), rgba(0, 255, 65, 0.05));
+        border: 1px solid rgba(0, 255, 65, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 20px;
+        text-align: center;
+    }
+    
+    .subscribe-cta h4 {
+        color: #00ff41;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+    
+    .subscribe-cta p {
+        color: #888;
+        font-size: 0.8rem;
+        margin-bottom: 15px;
+    }
+    
+    .subscribe-cta a {
+        display: inline-block;
+        background: #00ff41;
+        color: #000;
+        font-weight: 600;
+        padding: 8px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.85rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('media_hub') }}" style="color: #00ff41;">The Network</a></li>
+            <li class="breadcrumb-item active" style="color: #888;">{{ series.title }}</li>
+        </ol>
+    </nav>
+    
+    <div class="series-container">
+        <div class="video-main episode-transition">
+            <div class="video-wrapper">
+                <iframe 
+                    src="https://www.youtube.com/embed/{{ current_episode.video_id }}?autoplay=0&rel=0" 
+                    title="{{ current_episode.title }}"
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+            
+            <div class="video-info">
+                <span class="episode-badge">Episode {{ current_episode.id }} of {{ episodes|length }}</span>
+                <h1>{{ current_episode.title }}</h1>
+                <p style="color: #888; font-size: 0.9rem;">{{ series.description }}</p>
+            </div>
+        </div>
+        
+        <aside class="series-sidebar">
+            <div class="sidebar-header">
+                <h3>Series Guide</h3>
+            </div>
+            
+            <div class="episode-list">
+                {% for ep in episodes %}
+                <a href="{{ url_for('watch_series', series_slug=series_slug, episode=ep.id) }}" 
+                   class="episode-item {% if ep.id == current_episode.id %}active{% endif %}">
+                    <div class="episode-number">{{ ep.id }}</div>
+                    <div class="episode-details">
+                        <h4>{{ ep.title }}</h4>
+                        <span>{{ ep.duration }}</span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            
+            {% if next_episode %}
+            <div class="next-up-card">
+                <div class="next-up-label">Next Up</div>
+                <h4 class="next-up-title">{{ next_episode.title }}</h4>
+                {% if next_teaser %}
+                <p class="next-up-teaser">"{{ next_teaser }}"</p>
+                {% endif %}
+                <a href="{{ url_for('watch_series', series_slug=series_slug, episode=next_episode.id) }}" 
+                   class="next-up-btn">
+                    Continue Journey
+                </a>
+            </div>
+            {% endif %}
+            
+            <div class="subscribe-cta">
+                <h4>Get Intelligence Briefings</h4>
+                <p>Daily Bitcoin insights delivered to your inbox.</p>
+                <a href="{{ url_for('subscribe_ghl') }}?source=series">Join The Pulse</a>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}

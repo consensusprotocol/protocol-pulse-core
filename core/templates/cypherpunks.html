@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %}Cypherpunks | Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+:root {
+    --pp-red: #dc2626;
+    --pp-dark: #0a0a0a;
+    --cp-purple: #a855f7;
+}
+
+.cypherpunks-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0510 50%, #0a0a0a 100%);
+    padding: 100px 20px 60px;
+}
+
+.cp-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.cp-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2.5rem;
+    color: #fff;
+    margin-bottom: 15px;
+}
+
+.cp-title i {
+    color: var(--cp-purple);
+    margin-right: 15px;
+}
+
+.cp-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+.cp-quote {
+    background: rgba(168, 85, 247, 0.1);
+    border-left: 4px solid var(--cp-purple);
+    padding: 25px 30px;
+    margin: 40px auto;
+    max-width: 800px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-style: italic;
+}
+
+.cp-quote-author {
+    margin-top: 15px;
+    font-size: 0.85rem;
+    color: var(--cp-purple);
+    font-style: normal;
+}
+
+.pioneers-section {
+    max-width: 1200px;
+    margin: 0 auto 60px;
+}
+
+.section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--cp-purple);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pioneers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.pioneer-card {
+    background: rgba(10, 10, 10, 0.95);
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    border-radius: 16px;
+    padding: 25px;
+    transition: all 0.3s ease;
+}
+
+.pioneer-card:hover {
+    border-color: var(--cp-purple);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(168, 85, 247, 0.2);
+}
+
+.pioneer-card.expanded {
+    border-color: var(--cp-purple);
+}
+
+.dossier-btn {
+    margin-top: 12px;
+    padding: 8px 16px;
+    background: rgba(168, 85, 247, 0.1);
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 6px;
+    color: var(--cp-purple);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.dossier-btn:hover {
+    background: rgba(168, 85, 247, 0.2);
+    border-color: var(--cp-purple);
+}
+
+.dossier-content {
+    display: none;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.dossier-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.dossier-loading {
+    text-align: center;
+    padding: 20px;
+    color: var(--cp-purple);
+}
+
+.dossier-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.7;
+}
+
+.dossier-quote {
+    background: rgba(168, 85, 247, 0.1);
+    border-left: 3px solid var(--cp-purple);
+    padding: 12px 15px;
+    margin: 12px 0;
+    font-style: italic;
+    font-size: 0.8rem;
+}
+
+.pioneer-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    color: #fff;
+    margin-bottom: 8px;
+}
+
+.pioneer-role {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.pioneer-era {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--cp-purple);
+}
+
+.articles-section {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.article-card {
+    display: block;
+    background: rgba(10, 10, 10, 0.95);
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 20px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.article-card:hover {
+    border-color: var(--cp-purple);
+    transform: translateX(5px);
+}
+
+.article-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.2rem;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.article-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: var(--cp-purple);
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    font-size: 0.9rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cypherpunks-page">
+    <div class="container">
+        <div class="cp-header">
+            <h1 class="cp-title"><i class="fas fa-mask"></i>Cypherpunks</h1>
+            <p class="cp-subtitle">Honoring the visionaries who laid the cryptographic foundations for Bitcoin and digital freedom. Their code is law, their legacy is liberty.</p>
+        </div>
+        
+        <blockquote class="cp-quote">
+            "Privacy is necessary for an open society in the electronic age. Privacy is not secrecy. A private matter is something one doesn't want the whole world to know, but a secret matter is something one doesn't want anybody to know. Privacy is the power to selectively reveal oneself to the world."
+            <div class="cp-quote-author">— Eric Hughes, A Cypherpunk's Manifesto (1993)</div>
+        </blockquote>
+        
+        <div class="pioneers-section">
+            <div class="section-title"><i class="fas fa-users"></i> The Pioneers</div>
+            <div class="pioneers-grid">
+                {% for pioneer in pioneers %}
+                <div class="pioneer-card" data-pioneer="{{ pioneer.name }}">
+                    <div class="pioneer-name">{{ pioneer.name }}</div>
+                    <div class="pioneer-role">{{ pioneer.role }}</div>
+                    <div class="pioneer-era">{{ pioneer.era }}</div>
+                    <button class="dossier-btn" onclick="toggleDossier(this, '{{ pioneer.name }}')">
+                        <i class="fas fa-file-alt"></i> View Dossier
+                    </button>
+                    <div class="dossier-content"></div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="articles-section">
+            <div class="section-title"><i class="fas fa-newspaper"></i> Cypherpunk Articles</div>
+            
+            {% if articles %}
+                {% for article in articles %}
+                <a href="/article/{{ article.id }}" class="article-card">
+                    <div class="article-title">{{ article.title }}</div>
+                    <div class="article-meta">{{ article.created_at.strftime('%B %d, %Y') }} • {{ article.author }}</div>
+                </a>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-feather-alt"></i>
+                    <p>Cypherpunk articles are being written.<br>Check back soon for deep dives into the pioneers who made Bitcoin possible.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+const dossierCache = {};
+
+async function toggleDossier(btn, name) {
+    const card = btn.closest('.pioneer-card');
+    const content = card.querySelector('.dossier-content');
+    
+    if (content.classList.contains('active')) {
+        content.classList.remove('active');
+        card.classList.remove('expanded');
+        btn.innerHTML = '<i class="fas fa-file-alt"></i> View Dossier';
+        return;
+    }
+    
+    card.classList.add('expanded');
+    btn.innerHTML = '<i class="fas fa-times"></i> Close Dossier';
+    
+    if (dossierCache[name]) {
+        content.innerHTML = dossierCache[name];
+        content.classList.add('active');
+        return;
+    }
+    
+    content.innerHTML = '<div class="dossier-loading"><i class="fas fa-spinner fa-spin"></i> Loading dossier...</div>';
+    content.classList.add('active');
+    
+    try {
+        const res = await fetch('/api/cypherpunk-dossier?name=' + encodeURIComponent(name));
+        const data = await res.json();
+        
+        if (data.success) {
+            const html = `
+                <div class="dossier-text">${data.dossier.bio}</div>
+                ${data.dossier.quote ? `<div class="dossier-quote">"${data.dossier.quote}"</div>` : ''}
+                <div style="margin-top: 12px; font-size: 0.75rem; color: rgba(255,255,255,0.5);">
+                    <strong>Key Contributions:</strong> ${data.dossier.contributions.join(', ')}
+                </div>
+            `;
+            content.innerHTML = html;
+            dossierCache[name] = html;
+        } else {
+            content.innerHTML = '<div class="dossier-text" style="color: rgba(255,255,255,0.5);">Dossier unavailable.</div>';
+        }
+    } catch (e) {
+        content.innerHTML = '<div class="dossier-text" style="color: rgba(255,255,255,0.5);">Failed to load dossier.</div>';
+    }
+}
+</script>
+{% endblock %}

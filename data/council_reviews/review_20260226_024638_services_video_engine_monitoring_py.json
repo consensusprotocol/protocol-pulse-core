@@ -1,0 +1,43 @@
+{
+  "filepath": "services/video_engine/monitoring.py",
+  "feature": "Production monitoring with anomaly detection",
+  "stage": "post",
+  "timestamp": "2026-02-26T02:46:38.270687",
+  "local_analysis": {
+    "scores": {
+      "architecture": 6,
+      "error_handling": 6,
+      "edge_cases": 7,
+      "security": 4,
+      "performance": 6,
+      "maintainability": 7
+    },
+    "average_score": 6.0,
+    "issues": [
+      "CRITICAL: Possible SQL injection \u2014 use parameterized queries"
+    ],
+    "warnings": [
+      "File is 753 lines \u2014 consider splitting into smaller modules",
+      "4 broad 'except Exception' \u2014 consider narrower types",
+      "SELECT * usage \u2014 specify columns for better performance"
+    ],
+    "line_count": 753,
+    "class_count": 3,
+    "function_count": 25,
+    "production_ready": false
+  },
+  "llm_reviews": {},
+  "cross_review": null,
+  "consensus_score": 6.0,
+  "production_ready": false,
+  "issues": [
+    "CRITICAL: Possible SQL injection \u2014 use parameterized queries"
+  ],
+  "fix_list": [],
+  "warnings": [
+    "File is 753 lines \u2014 consider splitting into smaller modules",
+    "4 broad 'except Exception' \u2014 consider narrower types",
+    "SELECT * usage \u2014 specify columns for better performance"
+  ],
+  "verdict": "FIX_THEN_SHIP"
+}

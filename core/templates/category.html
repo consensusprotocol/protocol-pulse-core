@@ -1,0 +1,609 @@
+{% extends "base.html" %}
+{% block title %}{{ category }} Intelligence - Protocol Pulse{% endblock %}
+
+{% block extra_head %}
+<style>
+    .category-hero {
+        background: linear-gradient(135deg, rgba(20, 20, 25, 0.98) 0%, rgba(30, 30, 40, 0.95) 100%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .category-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 60%;
+        height: 200%;
+        background: radial-gradient(ellipse, rgba(255, 107, 53, 0.03) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    
+    .category-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        background: linear-gradient(135deg, rgba(255, 107, 53, 0.15) 0%, rgba(255, 107, 53, 0.05) 100%);
+        border: 1px solid rgba(255, 107, 53, 0.2);
+        color: #ff6b35;
+    }
+    
+    .category-stat {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .category-stat-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: #fff;
+        font-family: 'IBM Plex Mono', monospace;
+    }
+    
+    .category-stat-label {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .featured-article {
+        background: linear-gradient(135deg, rgba(255, 107, 53, 0.08) 0%, rgba(30, 30, 40, 0.5) 100%);
+        border: 1px solid rgba(255, 107, 53, 0.15);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .featured-article:hover {
+        border-color: rgba(255, 107, 53, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .featured-badge {
+        background: linear-gradient(135deg, #ff6b35 0%, #ff8c5a 100%);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 6px 12px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .article-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+    }
+    
+    @media (max-width: 992px) {
+        .article-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .article-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .article-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .article-card:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+        transform: translateY(-4px);
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.25);
+    }
+    
+    .article-card:hover .article-image img {
+        transform: scale(1.05);
+    }
+    
+    .article-image {
+        position: relative;
+        height: 180px;
+        overflow: hidden;
+        background: linear-gradient(135deg, rgba(30, 30, 40, 0.8) 0%, rgba(20, 20, 30, 0.9) 100%);
+    }
+    
+    .article-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+    
+    .article-image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(255, 107, 53, 0.05) 0%, rgba(30, 30, 40, 0.3) 100%);
+    }
+    
+    .article-image-placeholder i {
+        font-size: 36px;
+        color: rgba(255, 107, 53, 0.3);
+    }
+    
+    .article-number {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        width: 28px;
+        height: 28px;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(10px);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.7);
+        font-family: 'IBM Plex Mono', monospace;
+    }
+    
+    .article-content {
+        padding: 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .article-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+    
+    .article-date {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.4);
+        font-family: 'IBM Plex Mono', monospace;
+    }
+    
+    .article-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #fff;
+        line-height: 1.4;
+        margin-bottom: 12px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex: 1;
+    }
+    
+    .article-title a {
+        color: inherit;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+    
+    .article-title a:hover {
+        color: #ff6b35;
+    }
+    
+    .article-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        margin-top: auto;
+    }
+    
+    .read-time {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.4);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .read-link {
+        font-size: 12px;
+        color: #ff6b35;
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+    }
+    
+    .read-link:hover {
+        color: #ff8c5a;
+        gap: 10px;
+    }
+    
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 32px;
+    }
+    
+    .section-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .section-title::before {
+        content: '';
+        width: 4px;
+        height: 18px;
+        background: #ff6b35;
+        border-radius: 2px;
+    }
+    
+    .filter-tabs {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .filter-tab {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .filter-tab:hover, .filter-tab.active {
+        background: rgba(255, 107, 53, 0.1);
+        border-color: rgba(255, 107, 53, 0.3);
+        color: #ff6b35;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px dashed rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+    }
+    
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 24px;
+        border-radius: 50%;
+        background: rgba(255, 107, 53, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .empty-icon i {
+        font-size: 32px;
+        color: #ff6b35;
+    }
+    
+    .load-more-section {
+        text-align: center;
+        padding: 48px 0;
+    }
+    
+    .load-more-btn {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #fff;
+        padding: 14px 32px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .load-more-btn:hover {
+        background: rgba(255, 107, 53, 0.1);
+        border-color: #ff6b35;
+        color: #ff6b35;
+    }
+    
+    .breadcrumb-nav {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        margin-bottom: 24px;
+    }
+    
+    .breadcrumb-nav a {
+        color: rgba(255, 255, 255, 0.5);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+    
+    .breadcrumb-nav a:hover {
+        color: #ff6b35;
+    }
+    
+    .breadcrumb-nav span {
+        color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .breadcrumb-current {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+    
+    .related-categories {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+    }
+    
+    .related-category-link {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        padding: 8px 14px;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.6);
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .related-category-link:hover {
+        background: rgba(255, 107, 53, 0.1);
+        border-color: rgba(255, 107, 53, 0.3);
+        color: #ff6b35;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="category-hero py-5">
+    <div class="container">
+        <nav class="breadcrumb-nav">
+            <a href="/"><i class="fas fa-home"></i></a>
+            <span>/</span>
+            <a href="/articles">Intelligence</a>
+            <span>/</span>
+            <span class="breadcrumb-current">{{ category }}</span>
+        </nav>
+        
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center gap-4 mb-4">
+                    <div class="category-icon">
+                        {% if category == 'DeFi' %}
+                            <i class="fas fa-coins"></i>
+                        {% elif category == 'Bitcoin' %}
+                            <i class="fab fa-bitcoin"></i>
+                        {% elif category == 'Innovation' %}
+                            <i class="fas fa-lightbulb"></i>
+                        {% elif category == 'Privacy' %}
+                            <i class="fas fa-shield-alt"></i>
+                        {% elif category == 'Regulation' %}
+                            <i class="fas fa-balance-scale"></i>
+                        {% elif category == 'Mining' %}
+                            <i class="fas fa-microchip"></i>
+                        {% elif category == 'Markets' %}
+                            <i class="fas fa-chart-line"></i>
+                        {% elif category == 'Technology' %}
+                            <i class="fas fa-code"></i>
+                        {% else %}
+                            <i class="fas fa-newspaper"></i>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h1 class="mb-1" style="font-size: 32px; font-weight: 700;">{{ category }}</h1>
+                        <p class="mb-0" style="color: rgba(255,255,255,0.5); font-size: 15px;">Latest intelligence and analysis</p>
+                    </div>
+                </div>
+                
+                <div class="related-categories">
+                    <a href="/category/Bitcoin" class="related-category-link {% if category == 'Bitcoin' %}active{% endif %}">Bitcoin</a>
+                    <a href="/category/DeFi" class="related-category-link {% if category == 'DeFi' %}active{% endif %}">DeFi</a>
+                    <a href="/category/Innovation" class="related-category-link {% if category == 'Innovation' %}active{% endif %}">Innovation</a>
+                    <a href="/category/Privacy" class="related-category-link {% if category == 'Privacy' %}active{% endif %}">Privacy</a>
+                    <a href="/category/Regulation" class="related-category-link {% if category == 'Regulation' %}active{% endif %}">Regulation</a>
+                    <a href="/category/Mining" class="related-category-link {% if category == 'Mining' %}active{% endif %}">Mining</a>
+                </div>
+            </div>
+            <div class="col-lg-4 mt-4 mt-lg-0">
+                <div class="d-flex gap-3 justify-content-lg-end">
+                    <div class="category-stat">
+                        <div>
+                            <div class="category-stat-value">{{ articles|length }}</div>
+                            <div class="category-stat-label">Articles</div>
+                        </div>
+                    </div>
+                    {% if articles %}
+                    <div class="category-stat">
+                        <div>
+                            <div class="category-stat-value">{{ articles[0].created_at.strftime('%b %d') }}</div>
+                            <div class="category-stat-label">Latest</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    {% if articles %}
+        {% if articles|length > 0 %}
+        <div class="featured-article mb-5">
+            <div class="row g-0">
+                <div class="col-md-6">
+                    {% if articles[0].header_image_url %}
+                    <img src="{{ articles[0].header_image_url }}" alt="{{ articles[0].title }}" style="width: 100%; height: 320px; object-fit: cover;">
+                    {% else %}
+                    <div style="width: 100%; height: 320px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(30, 30, 40, 0.5) 100%);">
+                        <i class="fas fa-newspaper" style="font-size: 64px; color: rgba(255, 107, 53, 0.3);"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 d-flex flex-column justify-content-center p-4 p-lg-5">
+                    <div class="featured-badge mb-3">
+                        <i class="fas fa-bolt"></i>
+                        Latest in {{ category }}
+                    </div>
+                    <h2 style="font-size: 24px; font-weight: 700; line-height: 1.3; margin-bottom: 16px;">
+                        <a href="/articles/{{ articles[0].id }}" style="color: #fff; text-decoration: none;">{{ articles[0].title }}</a>
+                    </h2>
+                    <p style="color: rgba(255,255,255,0.6); font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
+                        {{ articles[0].content | clean_preview(180) }}...
+                    </p>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <span style="font-size: 13px; color: rgba(255,255,255,0.4); font-family: 'IBM Plex Mono', monospace;">
+                            {{ articles[0].created_at.strftime('%B %d, %Y') }}
+                        </span>
+                        <a href="/articles/{{ articles[0].id }}" class="read-link">
+                            Read Full Report <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if articles|length > 1 %}
+        <div class="section-header">
+            <h3 class="section-title">All {{ category }} Reports</h3>
+            <div class="filter-tabs d-none d-md-flex">
+                <button class="filter-tab active" data-filter="all">All</button>
+                <button class="filter-tab" data-filter="week">This Week</button>
+                <button class="filter-tab" data-filter="month">This Month</button>
+            </div>
+        </div>
+        
+        <div class="article-grid" id="articleGrid">
+            {% for article in articles[1:] %}
+            <article class="article-card" data-date="{{ article.created_at.strftime('%Y-%m-%d') }}">
+                <div class="article-image">
+                    {% if article.header_image_url %}
+                    <img src="{{ article.header_image_url }}" alt="{{ article.title }}">
+                    {% else %}
+                    <div class="article-image-placeholder">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    {% endif %}
+                    <span class="article-number">{{ loop.index + 1 }}</span>
+                </div>
+                <div class="article-content">
+                    <div class="article-meta">
+                        <span class="article-date">{{ article.created_at.strftime('%b %d, %Y') }}</span>
+                        {% if article.featured %}
+                        <span style="background: rgba(255, 193, 7, 0.15); color: #ffc107; font-size: 10px; padding: 3px 8px; border-radius: 4px; font-weight: 600;">FEATURED</span>
+                        {% endif %}
+                    </div>
+                    <h3 class="article-title">
+                        <a href="/articles/{{ article.id }}">{{ article.title }}</a>
+                    </h3>
+                    <div class="article-footer">
+                        <span class="read-time">
+                            <i class="far fa-clock"></i>
+                            {{ ((article.content|length) / 1200)|round|int }} min read
+                        </span>
+                        <a href="/articles/{{ article.id }}" class="read-link">
+                            Read <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        
+        {% if articles|length > 10 %}
+        <div class="load-more-section">
+            <button class="load-more-btn" id="loadMoreBtn">
+                <i class="fas fa-plus me-2"></i>
+                Load More Articles
+            </button>
+        </div>
+        {% endif %}
+        {% endif %}
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-inbox"></i>
+            </div>
+            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 12px;">No articles in {{ category }} yet</h3>
+            <p style="color: rgba(255,255,255,0.5); margin-bottom: 24px;">New intelligence reports are published regularly. Check back soon.</p>
+            <a href="/articles" class="load-more-btn" style="display: inline-block; text-decoration: none;">
+                <i class="fas fa-arrow-left me-2"></i>
+                Browse All Intelligence
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    const articles = document.querySelectorAll('.article-card');
+    
+    filterTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            filterTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            const filter = this.dataset.filter;
+            const now = new Date();
+            const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+            const monthAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
+            
+            articles.forEach(article => {
+                const articleDate = new Date(article.dataset.date);
+                let show = true;
+                
+                if (filter === 'week') {
+                    show = articleDate >= weekAgo;
+                } else if (filter === 'month') {
+                    show = articleDate >= monthAgo;
+                }
+                
+                article.style.display = show ? 'flex' : 'none';
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

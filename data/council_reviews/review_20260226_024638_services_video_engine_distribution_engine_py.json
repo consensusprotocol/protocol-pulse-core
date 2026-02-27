@@ -1,0 +1,37 @@
+{
+  "filepath": "services/video_engine/distribution_engine.py",
+  "feature": "7-platform distribution engine",
+  "stage": "post",
+  "timestamp": "2026-02-26T02:46:38.274646",
+  "local_analysis": {
+    "scores": {
+      "architecture": 6,
+      "error_handling": 6,
+      "edge_cases": 7,
+      "security": 7,
+      "performance": 7,
+      "maintainability": 7
+    },
+    "average_score": 6.7,
+    "issues": [],
+    "warnings": [
+      "File is 609 lines \u2014 consider splitting into smaller modules",
+      "6 broad 'except Exception' \u2014 consider narrower types"
+    ],
+    "line_count": 609,
+    "class_count": 2,
+    "function_count": 19,
+    "production_ready": false
+  },
+  "llm_reviews": {},
+  "cross_review": null,
+  "consensus_score": 6.7,
+  "production_ready": false,
+  "issues": [],
+  "fix_list": [],
+  "warnings": [
+    "File is 609 lines \u2014 consider splitting into smaller modules",
+    "6 broad 'except Exception' \u2014 consider narrower types"
+  ],
+  "verdict": "FIX_THEN_SHIP"
+}

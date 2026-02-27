@@ -1,0 +1,25 @@
+{
+  "posts": [
+    {
+      "timestamp": "2026-02-23T05:17:36.882085+00:00",
+      "tweet_id": "unknown",
+      "text": "is quiet accumulation the edge everyone's overlooking?",
+      "strategy": "original_viral",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-23T14:20:37.496105+00:00",
+      "tweet_id": "unknown",
+      "text": "quiet accumulation hints at a deeper shift in how value is stored, beyond the headlines",
+      "strategy": "original_viral",
+      "confidence": 0.87
+    },
+    {
+      "timestamp": "2026-02-27T06:39:29.883251+00:00",
+      "tweet_id": "unknown",
+      "text": "universities charging for degrees ai can obsolete overnight",
+      "strategy": "original_viral",
+      "confidence": 0.9
+    }
+  ]
+}

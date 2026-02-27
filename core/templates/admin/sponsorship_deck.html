@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Sponsorship Deck — Protocol Pulse{% endblock %}
+
+{% block extra_css %}
+<style>
+.deck-container { max-width: 900px; margin: 0 auto; padding: 2rem 1rem; }
+.deck-title { font-family: 'JetBrains Mono', monospace; color: #dc2626; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.5rem; }
+.deck-subtitle { color: rgba(255,255,255,0.6); font-size: 0.95rem; margin-bottom: 2rem; }
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+.metric-card { background: rgba(10,10,10,0.95); border: 1px solid rgba(220,38,38,0.35); border-radius: 12px; padding: 1.5rem; }
+.metric-card h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.6); margin-bottom: 0.5rem; }
+.metric-value { font-family: 'JetBrains Mono', monospace; font-size: 1.75rem; color: #fff; }
+.metric-value.accent { color: #dc2626; }
+.metric-source { font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-top: 0.35rem; }
+.export-row { margin-top: 2rem; }
+.btn-export { background: linear-gradient(135deg, #dc2626, #991b1b); border: none; color: #fff; padding: 12px 24px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; cursor: pointer; }
+.btn-export:hover { background: linear-gradient(135deg, #b91c1c, #7f1d1d); color: #fff; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="deck-container">
+  <h1 class="deck-title">Real-Time Sponsorship Deck</h1>
+  <p class="deck-subtitle">Live views and impressions for sponsor conversations. Last {{ metrics.period_days }} days.</p>
+
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <h3>YouTube views</h3>
+      <div class="metric-value accent">{{ metrics.youtube_views | default(0) }}</div>
+      <div class="metric-source">Source: {{ metrics.youtube_source }}</div>
+    </div>
+    <div class="metric-card">
+      <h3>Website unique visits</h3>
+      <div class="metric-value">{{ metrics.website_unique_visits | default(0) }}</div>
+      <div class="metric-source">Source: {{ metrics.website_source }}</div>
+    </div>
+    <div class="metric-card">
+      <h3>Social impressions (X)</h3>
+      <div class="metric-value accent">{{ metrics.social_impressions | default(0) }}</div>
+      <div class="metric-source">Source: {{ metrics.social_source }}</div>
+    </div>
+  </div>
+
+  <div class="export-row">
+    <a href="{{ url_for('admin_deck_export_pdf') }}" class="btn btn-export" download>
+      Export PDF summary
+    </a>
+  </div>
+</section>
+{% endblock %}

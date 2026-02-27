@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline | Protocol Pulse</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+        .offline-container { max-width: 420px; }
+        .offline-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid #00d4aa;
+            margin: 0 auto 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse-ring 2s ease-out infinite;
+        }
+        .offline-icon svg {
+            width: 32px;
+            height: 32px;
+            color: #00d4aa;
+        }
+        @keyframes pulse-ring {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0, 212, 170, 0.3); }
+            50% { box-shadow: 0 0 0 12px rgba(0, 212, 170, 0); }
+        }
+        .offline-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6875rem;
+            color: #00d4aa;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 8px;
+        }
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #ffffff;
+        }
+        p {
+            color: rgba(255,255,255,0.5);
+            line-height: 1.7;
+            margin-bottom: 28px;
+            font-size: 0.9375rem;
+        }
+        .retry-btn {
+            background: #00d4aa;
+            color: #0a0a0a;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .retry-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(0, 212, 170, 0.2);
+        }
+        .retry-btn:active { transform: translateY(0); }
+        .offline-note {
+            margin-top: 24px;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.25);
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636a9 9 0 010 12.728M15.536 8.464a5 5 0 010 7.072M3 3l18 18"/>
+            </svg>
+        </div>
+        <div class="offline-label">Signal Lost</div>
+        <h1>You're Offline</h1>
+        <p>The intelligence network will reconnect when your signal is restored. Previously cached articles may still be available.</p>
+        <button class="retry-btn" onclick="location.reload()">
+            Retry Connection
+        </button>
+        <div class="offline-note">Protocol Pulse</div>
+    </div>
+</body>
+</html>

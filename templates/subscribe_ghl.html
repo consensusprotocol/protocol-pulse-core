@@ -1,0 +1,370 @@
+{% extends "base.html" %}
+
+{% block title %}Join The Pulse — Sovereign Intelligence Network | Protocol Pulse{% endblock %}
+
+{% block meta_description %}Subscribe to Protocol Pulse for daily Bitcoin intelligence. Network analysis, market signals, and protocol updates delivered to your inbox.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="Join The Pulse — Bitcoin Intelligence Newsletter">
+<meta property="og:description" content="Daily AI-powered Bitcoin intelligence delivered to your inbox. Network analysis, market signals, and sovereign wealth strategies.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protocol Pulse">
+<meta property="og:image" content="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
+<meta property="og:url" content="{{ request.url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+{% endblock %}
+
+{% block head %}
+<style>
+/* ═══ SUBSCRIBE PAGE ═══ */
+.sub-hero {
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    background:
+        radial-gradient(ellipse at 30% 20%, rgba(0, 212, 170, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(245, 166, 35, 0.04) 0%, transparent 50%),
+        var(--pp-bg);
+}
+
+.sub-card {
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-lg);
+    padding: 48px 40px;
+    max-width: 520px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.sub-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--pp-teal), var(--pp-amber));
+}
+
+.sub-label {
+    font-family: var(--pp-font-mono);
+    font-size: 0.6875rem;
+    color: var(--pp-teal);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sub-label .pp-pulse-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--pp-teal);
+    border-radius: 50%;
+    animation: pp-pulse-live 2s infinite;
+}
+
+.sub-title {
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--pp-text);
+    margin-bottom: 12px;
+}
+
+.sub-desc {
+    color: var(--pp-text-secondary);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 28px;
+}
+
+/* Social proof */
+.sub-proof {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding: 12px 16px;
+    background: rgba(0, 212, 170, 0.04);
+    border: 1px solid rgba(0, 212, 170, 0.1);
+    border-radius: var(--pp-radius-md);
+}
+
+.sub-proof__avatars {
+    display: flex;
+}
+
+.sub-proof__avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--pp-surface-2);
+    border: 2px solid var(--pp-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.625rem;
+    color: var(--pp-teal);
+    margin-left: -8px;
+}
+
+.sub-proof__avatar:first-child { margin-left: 0; }
+
+.sub-proof__text {
+    font-size: 0.8125rem;
+    color: var(--pp-text-secondary);
+}
+
+.sub-proof__count {
+    color: var(--pp-teal);
+    font-weight: 600;
+    font-family: var(--pp-font-mono);
+}
+
+/* Form */
+.sub-form__group {
+    margin-bottom: 16px;
+}
+
+.sub-form__label {
+    display: block;
+    font-family: var(--pp-font-mono);
+    font-size: 0.6875rem;
+    color: var(--pp-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+}
+
+.sub-form__input {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--pp-bg);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-sm);
+    color: var(--pp-text);
+    font-family: var(--pp-font-body);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.sub-form__input:focus {
+    border-color: var(--pp-teal);
+    box-shadow: 0 0 0 3px var(--pp-teal-dim);
+}
+
+.sub-form__input::placeholder { color: var(--pp-text-muted); }
+
+.sub-form__submit {
+    width: 100%;
+    padding: 16px;
+    background: var(--pp-teal);
+    border: none;
+    border-radius: var(--pp-radius-sm);
+    color: var(--pp-black);
+    font-family: var(--pp-font-body);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.sub-form__submit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 30px rgba(0, 212, 170, 0.3);
+}
+
+.sub-form__submit:active { transform: translateY(0); }
+
+/* Benefits */
+.sub-benefits {
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--pp-border);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.sub-benefit {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.8125rem;
+    color: var(--pp-text-secondary);
+    line-height: 1.4;
+}
+
+.sub-benefit i {
+    color: var(--pp-teal);
+    font-size: 0.75rem;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+/* Privacy */
+.sub-privacy {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.6875rem;
+    color: var(--pp-text-muted);
+}
+
+.sub-privacy a {
+    color: var(--pp-teal);
+    text-decoration: none;
+}
+
+/* Testimonials */
+.sub-testimonials {
+    max-width: 520px;
+    width: 100%;
+    margin-top: 32px;
+}
+
+.sub-testimonial {
+    padding: 20px;
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-md);
+    margin-bottom: 12px;
+}
+
+.sub-testimonial__text {
+    font-size: 0.875rem;
+    color: var(--pp-text-secondary);
+    line-height: 1.6;
+    font-style: italic;
+    margin-bottom: 8px;
+}
+
+.sub-testimonial__author {
+    font-family: var(--pp-font-mono);
+    font-size: 0.6875rem;
+    color: var(--pp-text-muted);
+}
+
+@media (max-width: 640px) {
+    .sub-card { padding: 32px 24px; }
+    .sub-benefits { grid-template-columns: 1fr; }
+    .sub-hero { padding: 60px 16px; min-height: auto; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sub-hero">
+    <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="sub-card">
+            <div class="sub-label">
+                <span class="pp-pulse-dot"></span>
+                SECURE CHANNEL
+            </div>
+            <h1 class="sub-title">Join The Pulse</h1>
+            <p class="sub-desc">
+                Daily intelligence briefings on Bitcoin network status, mining economics,
+                and sovereign wealth strategies. Written for transactors, not tourists.
+            </p>
+
+            <!-- Social proof -->
+            <div class="sub-proof">
+                <div class="sub-proof__avatars">
+                    <div class="sub-proof__avatar"><i class="fas fa-user"></i></div>
+                    <div class="sub-proof__avatar"><i class="fas fa-user"></i></div>
+                    <div class="sub-proof__avatar"><i class="fas fa-user"></i></div>
+                    <div class="sub-proof__avatar"><i class="fas fa-user"></i></div>
+                </div>
+                <div class="sub-proof__text">
+                    <span class="sub-proof__count" id="subCount">---</span> transactors receiving daily intel
+                </div>
+            </div>
+
+            <form method="POST" action="{{ url_for('subscribe_ghl') }}">
+                <div class="sub-form__group">
+                    <label class="sub-form__label">Your Name</label>
+                    <input type="text" name="name" class="sub-form__input" placeholder="Satoshi Nakamoto" autocomplete="name">
+                </div>
+
+                <div class="sub-form__group">
+                    <label class="sub-form__label">Email Address</label>
+                    <input type="email" name="email" class="sub-form__input" placeholder="sovereign@example.com" required autocomplete="email">
+                </div>
+
+                <input type="hidden" name="source" value="{{ request.args.get('source', 'website') }}">
+
+                <button type="submit" class="sub-form__submit">
+                    <i class="fas fa-bolt" style="margin-right:6px;"></i> Activate Intelligence Feed
+                </button>
+            </form>
+
+            <div class="sub-benefits">
+                <div class="sub-benefit">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Daily hashrate & difficulty reports</span>
+                </div>
+                <div class="sub-benefit">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Mining economics & fee analysis</span>
+                </div>
+                <div class="sub-benefit">
+                    <i class="fas fa-lock"></i>
+                    <span>Self-custody security updates</span>
+                </div>
+                <div class="sub-benefit">
+                    <i class="fas fa-globe"></i>
+                    <span>Geopolitical BTC intelligence</span>
+                </div>
+            </div>
+
+            <p class="sub-privacy">
+                Your data is sovereign. We never share your information.
+                <a href="/privacy-policy">Privacy Policy</a>
+            </p>
+        </div>
+
+        <!-- Testimonials -->
+        <div class="sub-testimonials">
+            <div class="sub-testimonial">
+                <div class="sub-testimonial__text">
+                    "The only Bitcoin newsletter I read every single day. Protocol Pulse cuts through the noise with actual signal."
+                </div>
+                <div class="sub-testimonial__author">-- Bitcoin Node Operator</div>
+            </div>
+            <div class="sub-testimonial">
+                <div class="sub-testimonial__text">
+                    "Hashrate reports alone are worth subscribing for. Better than any paid service."
+                </div>
+                <div class="sub-testimonial__author">-- Mining Pool Operator</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    fetch('/api/subscriber-count')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var el = document.getElementById('subCount');
+            if (el && data.count) {
+                el.textContent = data.count.toLocaleString() + '+';
+            }
+        })
+        .catch(function() {});
+})();
+</script>
+{% endblock %}

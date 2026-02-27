@@ -1,0 +1,330 @@
+{% extends "base.html" %}
+{% block title %}Sovereign Claim Portal - Protocol Pulse{% endblock %}
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --vs-void: #000000;
+    --vs-btc: #f7931a;
+    --vs-btc-glow: rgba(247, 147, 26, 0.4);
+    --vs-surface: #111118;
+    --vs-card: rgba(14, 14, 20, 0.92);
+    --vs-border: rgba(255, 255, 255, 0.06);
+    --vs-text-100: rgba(255, 255, 255, 0.97);
+    --vs-text-60: rgba(255, 255, 255, 0.6);
+    --vs-green: #10b981;
+}
+.claim-page { background: var(--vs-void); min-height: 100vh; padding: 40px 20px; }
+.main-content:has(.claim-page) { background: #000 !important; padding: 0 !important; }
+.content-wrapper:has(.claim-page) { background: #000 !important; max-width: none !important; }
+.claim-page .claim-background {
+    position: fixed; inset: 0; z-index: -1;
+    background: radial-gradient(ellipse 80% 50% at 50% 30%, rgba(247, 147, 26, 0.06) 0%, transparent 50%);
+}
+.claim-container { max-width: 480px; margin: 0 auto; }
+.claim-card {
+    background: var(--vs-card);
+    border: 1px solid var(--vs-border);
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(20px);
+}
+.claim-card h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.25rem;
+    color: var(--vs-text-100);
+    margin-bottom: 8px;
+}
+.claim-card .subtitle {
+    color: var(--vs-text-60);
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+}
+.claim-balance-wrap {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--vs-border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+.claim-balance-label { color: var(--vs-text-60); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; }
+.claim-balance-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--vs-btc);
+    text-shadow: 0 0 24px var(--vs-btc-glow);
+}
+.claim-balance-value.live { animation: pulse-glow 2s ease-in-out infinite; }
+@keyframes pulse-glow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.85; }
+}
+.claim-form .form-group { margin-bottom: 16px; }
+.claim-form label {
+    display: block;
+    color: var(--vs-text-60);
+    font-size: 0.8rem;
+    margin-bottom: 6px;
+}
+.claim-form input {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--vs-border);
+    border-radius: 10px;
+    color: var(--vs-text-100);
+    font-family: 'JetBrains Mono', monospace;
+}
+.claim-form input::placeholder { color: var(--vs-text-60); opacity: 0.7; }
+.claim-form input:focus {
+    outline: none;
+    border-color: var(--vs-btc);
+    box-shadow: 0 0 0 2px rgba(247, 147, 26, 0.2);
+}
+.btn-nostr {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-nostr:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4); }
+.btn-claim {
+    width: 100%;
+    padding: 16px;
+    background: var(--vs-btc);
+    border: none;
+    border-radius: 10px;
+    color: #000;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-claim:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 32px var(--vs-btc-glow);
+}
+.btn-claim:disabled { opacity: 0.5; cursor: not-allowed; }
+.claim-success {
+    text-align: center;
+    padding: 24px 0;
+}
+.claim-success .sparks {
+    width: 120px; height: 120px;
+    margin: 0 auto 16px;
+    position: relative;
+}
+.claim-success .spark {
+    position: absolute;
+    width: 4px; height: 4px;
+    background: var(--vs-btc);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--vs-btc);
+    animation: spark-out 0.8s ease-out forwards;
+}
+@keyframes spark-out {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+}
+.claim-success h2 { color: var(--vs-green); font-size: 1.25rem; margin-bottom: 8px; }
+.claim-success p { color: var(--vs-text-60); font-size: 0.9rem; }
+.claim-error { color: #ef4444; font-size: 0.85rem; margin-top: 8px; }
+.claim-link-back { display: inline-block; margin-top: 24px; color: var(--vs-btc); text-decoration: none; font-size: 0.9rem; }
+.claim-link-back:hover { text-decoration: underline; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="claim-page">
+    <div class="claim-background"></div>
+    <div class="claim-container">
+        <div class="claim-card">
+            <h1>⚡ Sovereign Claim Portal</h1>
+            <p class="subtitle">Prove ownership with Nostr. Withdraw to your Lightning Address. No keys on our servers.</p>
+
+            <div id="claim-balance-wrap" class="claim-balance-wrap" style="display: none;">
+                <div class="claim-balance-label">Live balance</div>
+                <div id="claim-balance-value" class="claim-balance-value live">0</div>
+                <div class="claim-balance-label">sats</div>
+            </div>
+
+            <div id="claim-login-section">
+                <button type="button" id="btn-nostr" class="btn-nostr">
+                    <i class="fas fa-key"></i> Login with Nostr (NIP-07)
+                </button>
+                <p class="subtitle" style="margin-top: 12px; font-size: 0.8rem;">Use Alby, Nos2X, or any NIP-07 extension to sign in. We never see your private key.</p>
+            </div>
+
+            <div id="claim-form-section" style="display: none;">
+                <p class="subtitle" style="margin-bottom: 16px;"><span id="claim-display-name"></span> · <code id="claim-pubkey-short"></code></p>
+                <form id="claim-form" class="claim-form">
+                    <div class="form-group">
+                        <label for="lightning-address">Lightning Address</label>
+                        <input type="text" id="lightning-address" name="lightning_address" placeholder="you@getalby.com" required>
+                    </div>
+                    <button type="submit" id="btn-claim" class="btn-claim">Withdraw sats</button>
+                </form>
+                <p id="claim-form-error" class="claim-error" style="display: none;"></p>
+            </div>
+
+            <div id="claim-success-section" style="display: none;" class="claim-success">
+                <div id="claim-sparks" class="sparks"></div>
+                <h2>✓ Sats sent</h2>
+                <p id="claim-success-amount"></p>
+                <a href="/value-stream" class="claim-link-back">← Back to Value Stream</a>
+            </div>
+        </div>
+        <p style="text-align: center; margin-top: 20px;"><a href="/value-stream" class="claim-link-back">← Value Stream</a></p>
+    </div>
+</div>
+
+<script>
+(function() {
+    let pubkey = null;
+    const balanceEl = document.getElementById('claim-balance-wrap');
+    const balanceVal = document.getElementById('claim-balance-value');
+    const loginSection = document.getElementById('claim-login-section');
+    const formSection = document.getElementById('claim-form-section');
+    const formError = document.getElementById('claim-form-error');
+    const successSection = document.getElementById('claim-success-section');
+    const claimSuccessAmount = document.getElementById('claim-success-amount');
+    const sparksEl = document.getElementById('claim-sparks');
+
+    async function fetchBalance(pk) {
+        if (!pk) return { balance_sats: 0, can_claim: false, linked: false };
+        const r = await fetch('/api/value-stream/claim/balance?pubkey=' + encodeURIComponent(pk));
+        const d = await r.json();
+        return d;
+    }
+
+    function showError(msg) {
+        formError.textContent = msg || '';
+        formError.style.display = msg ? 'block' : 'none';
+    }
+
+    document.getElementById('btn-nostr').addEventListener('click', async function() {
+        if (!window.nostr) {
+            alert('Install a NIP-07 extension (e.g. Alby or Nos2X) to sign in.');
+            return;
+        }
+        try {
+            pubkey = await window.nostr.getPublicKey();
+            if (!pubkey) return;
+            const bal = await fetchBalance(pubkey);
+            balanceVal.textContent = (bal.balance_sats || 0).toLocaleString();
+            balanceEl.style.display = 'block';
+            loginSection.style.display = 'none';
+            formSection.style.display = 'block';
+            document.getElementById('claim-display-name').textContent = bal.display_name || 'Creator';
+            document.getElementById('claim-pubkey-short').textContent = pubkey.slice(0, 8) + '…' + pubkey.slice(-8);
+            document.getElementById('btn-claim').disabled = !bal.can_claim;
+            if (!bal.linked) {
+                showError('No account linked to this key. Register at Value Stream with this Nostr pubkey first.');
+            } else {
+                startBalancePoll();
+            }
+        } catch (e) {
+            alert('Nostr login failed: ' + (e.message || e));
+        }
+    });
+
+    // Poll balance when form visible
+    let balanceInterval = null;
+    function startBalancePoll() {
+        if (balanceInterval) return;
+        balanceInterval = setInterval(async () => {
+            if (!pubkey) return;
+            const bal = await fetchBalance(pubkey);
+            balanceVal.textContent = (bal.balance_sats || 0).toLocaleString();
+            document.getElementById('btn-claim').disabled = !bal.can_claim;
+        }, 8000);
+    }
+
+    document.getElementById('claim-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        if (!pubkey) return;
+        const lightningAddress = document.getElementById('lightning-address').value.trim();
+        if (!lightningAddress || !lightningAddress.includes('@')) {
+            showError('Enter a valid Lightning Address (e.g. you@getalby.com).');
+            return;
+        }
+        showError('');
+        const btn = document.getElementById('btn-claim');
+        btn.disabled = true;
+        btn.textContent = 'Sending…';
+        try {
+            let signature = '';
+            let signedMessage = '';
+            if (window.nostr && window.nostr.signEvent) {
+                const challenge = 'ProtocolPulse claim ' + new Date().toISOString().slice(0, 10);
+                const event = {
+                    kind: 1,
+                    created_at: Math.floor(Date.now() / 1000),
+                    tags: [],
+                    content: challenge,
+                };
+                const signed = await window.nostr.signEvent(event);
+                signedMessage = challenge;
+                signature = signed.sig || '';
+            }
+            const res = await fetch('/api/value-stream/claim', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    pubkey: pubkey,
+                    signature: signature,
+                    signed_message: signedMessage,
+                    lightning_address: lightningAddress,
+                }),
+            });
+            const raw = await res.text();
+            let data = {};
+            try { data = JSON.parse(raw); } catch (_) { data = { success: false, error: 'Server error' }; }
+            if (data.success) {
+                formSection.style.display = 'none';
+                claimSuccessAmount.textContent = data.amount_sats + ' sats sent to ' + lightningAddress;
+                successSection.style.display = 'block';
+                for (let i = 0; i < 24; i++) {
+                    const s = document.createElement('div');
+                    s.className = 'spark';
+                    const angle = (i / 24) * Math.PI * 2;
+                    const r = 50 + Math.random() * 40;
+                    const dx = Math.cos(angle) * r;
+                    const dy = Math.sin(angle) * r;
+                    s.style.setProperty('--dx', dx + 'px');
+                    s.style.setProperty('--dy', dy + 'px');
+                    s.style.left = '50%';
+                    s.style.top = '50%';
+                    s.style.animationDelay = (i * 0.02) + 's';
+                    sparksEl.appendChild(s);
+                }
+                if (balanceInterval) clearInterval(balanceInterval);
+            } else {
+                showError(data.error || 'Claim failed.');
+                btn.disabled = false;
+                btn.textContent = 'Withdraw sats';
+            }
+        } catch (err) {
+            showError('Network error. Try again.');
+            btn.disabled = false;
+            btn.textContent = 'Withdraw sats';
+        }
+    });
+
+    if (pubkey) startBalancePoll();
+})();
+</script>
+{% endblock %}

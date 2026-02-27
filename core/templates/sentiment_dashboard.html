@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Bitcoin Sentiment Intelligence | Protocol Pulse{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-black">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-3">
+                        <li class="breadcrumb-item"><a href="/" class="text-danger">Home</a></li>
+                        <li class="breadcrumb-item active text-white" aria-current="page">Sentiment Intelligence</li>
+                    </ol>
+                </nav>
+                <h1 class="display-4 fw-bold text-white mb-2">
+                    <i class="fas fa-chart-line text-danger me-3"></i>Bitcoin Sentiment Intelligence
+                </h1>
+                <p class="lead text-white-50">Daily analysis of Bitcoin discourse across X and Nostr with AI-powered insights</p>
+            </div>
+        </div>
+        
+        {% if latest_report %}
+        <div class="row mb-5">
+            <div class="col-lg-8">
+                <div class="card bg-dark border-danger h-100">
+                    <div class="card-header bg-danger bg-opacity-10 border-bottom border-danger d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 text-white">
+                            <i class="fas fa-pulse me-2"></i>Today's Pulse
+                        </h5>
+                        <span class="badge 
+                            {% if latest_report.overall_sentiment == 'bullish' %}bg-success
+                            {% elif latest_report.overall_sentiment == 'bearish' %}bg-danger
+                            {% else %}bg-secondary{% endif %}">
+                            {{ latest_report.overall_sentiment|upper if latest_report.overall_sentiment else 'NEUTRAL' }}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        {% if latest_article %}
+                        <h4 class="text-white mb-3">{{ latest_article.title }}</h4>
+                        <p class="text-white-50 mb-4">{{ latest_article.summary or 'Daily sentiment analysis from X and Nostr.' }}</p>
+                        <a href="{{ url_for('article_detail', article_id=latest_article.id) }}" class="btn btn-outline-danger">
+                            <i class="fas fa-book-open me-2"></i>Read Full Report
+                        </a>
+                        {% else %}
+                        <p class="text-white-50">Report generated for {{ latest_report.report_date }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card bg-dark border-secondary h-100">
+                    <div class="card-header bg-secondary bg-opacity-10 border-bottom border-secondary">
+                        <h6 class="mb-0 text-white"><i class="fas fa-analytics me-2"></i>Metrics</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-secondary">
+                            <span class="text-white-50">X Posts Analyzed</span>
+                            <span class="text-white fw-bold">{{ latest_report.x_posts_analyzed or 0 }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-secondary">
+                            <span class="text-white-50">Nostr Notes Analyzed</span>
+                            <span class="text-white fw-bold">{{ latest_report.nostr_notes_analyzed or 0 }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-secondary">
+                            <span class="text-white-50">Sentiment Score</span>
+                            <span class="text-white fw-bold">
+                                {% if latest_report.sentiment_score %}
+                                    {% if latest_report.sentiment_score > 0 %}+{% endif %}{{ "%.2f"|format(latest_report.sentiment_score) }}
+                                {% else %}0.00{% endif %}
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-white-50">Report Date</span>
+                            <span class="text-white fw-bold">{{ latest_report.report_date.strftime('%b %d') }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if latest_report.get_themes() %}
+        <div class="row mb-5">
+            <div class="col-12">
+                <h4 class="text-white mb-4"><i class="fas fa-hashtag text-danger me-2"></i>Top Themes Today</h4>
+                <div class="row g-3">
+                    {% for theme in latest_report.get_themes()[:6] %}
+                    <div class="col-md-4 col-lg-2">
+                        <div class="card bg-dark border-secondary text-center py-3">
+                            <span class="text-white fw-bold">{{ theme.theme if theme.theme else theme }}</span>
+                            {% if theme.mentions %}
+                            <small class="text-white-50">{{ theme.mentions }} mentions</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="card bg-dark border-secondary text-center py-5">
+                    <div class="card-body">
+                        <i class="fas fa-chart-bar fa-4x text-secondary mb-4"></i>
+                        <h4 class="text-white">No Sentiment Reports Yet</h4>
+                        <p class="text-white-50">The first daily sentiment report will be generated soon.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if reports and reports|length > 1 %}
+        <div class="row">
+            <div class="col-12">
+                <h4 class="text-white mb-4"><i class="fas fa-history text-danger me-2"></i>Recent Reports</h4>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                            <tr>
+                                <th class="text-white-50">Date</th>
+                                <th class="text-white-50">Sentiment</th>
+                                <th class="text-white-50">Score</th>
+                                <th class="text-white-50">X Posts</th>
+                                <th class="text-white-50">Nostr Notes</th>
+                                <th class="text-white-50">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for report in reports %}
+                            <tr>
+                                <td class="text-white">{{ report.report_date.strftime('%B %d, %Y') }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if report.overall_sentiment == 'bullish' %}bg-success
+                                        {% elif report.overall_sentiment == 'bearish' %}bg-danger
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ report.overall_sentiment|upper if report.overall_sentiment else 'NEUTRAL' }}
+                                    </span>
+                                </td>
+                                <td class="text-white">
+                                    {% if report.sentiment_score %}
+                                        {% if report.sentiment_score > 0 %}+{% endif %}{{ "%.2f"|format(report.sentiment_score) }}
+                                    {% else %}0.00{% endif %}
+                                </td>
+                                <td class="text-white-50">{{ report.x_posts_analyzed or 0 }}</td>
+                                <td class="text-white-50">{{ report.nostr_notes_analyzed or 0 }}</td>
+                                <td>
+                                    {% if report.article_id %}
+                                    <a href="{{ url_for('article_detail', article_id=report.article_id) }}" class="btn btn-sm btn-outline-danger">
+                                        Read
+                                    </a>
+                                    {% else %}
+                                    <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-body">
+                        <h5 class="text-white mb-3"><i class="fas fa-info-circle text-danger me-2"></i>About Sentiment Intelligence</h5>
+                        <p class="text-white-50 mb-0">
+                            Protocol Pulse aggregates and analyzes Bitcoin-related discourse from X (Twitter) and Nostr every 24 hours. 
+                            Our AI-powered system identifies key themes, narratives, and sentiment shifts from influential voices in the 
+                            Bitcoin ecosystem. Each report includes direct citations and links to the original posts for full transparency 
+                            and verification.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

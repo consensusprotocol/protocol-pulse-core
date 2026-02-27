@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}AutoPost Drafts - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4" style="background: #000; min-height: 100vh;">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 style="font-family: 'JetBrains Mono', monospace; color: #fff;">
+                    <i class="fas fa-robot text-danger me-2"></i>AutoPost & Daily Briefs
+                </h1>
+                <div>
+                    <button class="btn btn-outline-primary btn-sm me-2" onclick="generateDailyBrief()">
+                        <i class="fas fa-newspaper me-1"></i>Generate Daily Brief
+                    </button>
+                    <a href="/admin" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Admin
+                    </a>
+                </div>
+            </div>
+            
+            <div class="alert alert-dark border-danger mb-3" style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">
+                <i class="fas fa-info-circle text-danger me-2"></i>
+                AutoPost is currently <strong>{{ 'ENABLED' if config.get('AUTOPOST_X') == 'true' else 'DISABLED (Draft Only)' }}</strong>.
+                Approved posts will {% if config.get('AUTOPOST_X') != 'true' %}NOT {% endif %}be automatically published to X.
+            </div>
+            
+            {% if daily_briefs %}
+            <div class="card bg-dark border-secondary mb-4">
+                <div class="card-header border-secondary" style="font-family: 'JetBrains Mono', monospace;">
+                    <i class="fas fa-scroll text-primary me-2"></i>Recent Daily Briefs
+                </div>
+                <div class="card-body">
+                    {% for brief in daily_briefs %}
+                    <div class="mb-3 p-3 border border-secondary rounded" id="brief-{{ brief.id }}">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 style="font-family: 'Crimson Pro', serif; color: #dc2626;">{{ brief.headline }}</h5>
+                            <span class="badge {% if brief.status == 'draft' %}bg-warning text-dark{% elif brief.status == 'published' %}bg-success{% else %}bg-secondary{% endif %}">
+                                {{ brief.status|upper }}
+                            </span>
+                        </div>
+                        <div style="font-family: 'Crimson Pro', serif; font-size: 0.9rem; white-space: pre-wrap; max-height: 200px; overflow-y: auto; color: rgba(255,255,255,0.85);">{{ brief.body[:500] }}{% if brief.body|length > 500 %}...{% endif %}</div>
+                        <div class="mt-2 d-flex gap-2">
+                            {% if brief.status == 'draft' %}
+                            <button class="btn btn-sm btn-outline-success" onclick="publishBrief({{ brief.id }})">
+                                <i class="fas fa-check me-1"></i>Publish
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" onclick="createTweetFromBrief({{ brief.id }})">
+                                <i class="fab fa-x-twitter me-1"></i>Create Tweet
+                            </button>
+                            {% endif %}
+                            <span class="text-muted ms-auto" style="font-size: 0.75rem;">{{ brief.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="table-responsive">
+                <table class="table table-dark table-hover" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Platform</th>
+                            <th>Status</th>
+                            <th>Body</th>
+                            <th>Reason</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for draft in drafts %}
+                        <tr id="draft-{{ draft.id }}">
+                            <td>#{{ draft.id }}</td>
+                            <td>
+                                <span class="badge bg-dark border border-secondary">
+                                    <i class="fab fa-x-twitter me-1"></i>{{ draft.platform|upper }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if draft.status == 'draft' %}
+                                <span class="badge bg-warning text-dark">DRAFT</span>
+                                {% elif draft.status == 'approved' %}
+                                <span class="badge bg-info">APPROVED</span>
+                                {% elif draft.status == 'posted' %}
+                                <span class="badge bg-success">POSTED</span>
+                                {% elif draft.status == 'rejected' %}
+                                <span class="badge bg-danger">REJECTED</span>
+                                {% endif %}
+                            </td>
+                            <td style="max-width: 400px; white-space: pre-wrap;">{{ draft.body[:200] }}{% if draft.body|length > 200 %}...{% endif %}</td>
+                            <td class="text-muted">{{ draft.reason or '-' }}</td>
+                            <td>{{ draft.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                {% if draft.status == 'draft' %}
+                                <button class="btn btn-sm btn-outline-success me-1" onclick="approveDraft({{ draft.id }})">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="rejectDraft({{ draft.id }})">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">No drafts found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function approveDraft(id) {
+    if (!confirm('Approve this draft for posting?')) return;
+    
+    try {
+        const response = await fetch(`/admin/api/autopost/${id}/approve`, { method: 'POST' });
+        const data = await response.json();
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Failed to approve draft');
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+async function rejectDraft(id) {
+    if (!confirm('Reject this draft?')) return;
+    
+    try {
+        const response = await fetch(`/admin/api/autopost/${id}/reject`, { method: 'POST' });
+        const data = await response.json();
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Failed to reject draft');
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+async function generateDailyBrief() {
+    if (!confirm('Generate a new Daily Brief from Sarah?')) return;
+    
+    const btn = event.target;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Generating...';
+    
+    try {
+        const response = await fetch('/admin/api/generate-daily-brief', { method: 'POST' });
+        const data = await response.json();
+        if (data.success) {
+            alert('Daily Brief generated successfully!');
+            location.reload();
+        } else {
+            alert('Failed to generate brief: ' + (data.error || 'Unknown error'));
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-newspaper me-1"></i>Generate Daily Brief';
+    }
+}
+
+async function publishBrief(id) {
+    if (!confirm('Publish this Daily Brief?')) return;
+    
+    try {
+        const response = await fetch(`/admin/api/daily-brief/${id}/publish`, { method: 'POST' });
+        const data = await response.json();
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Failed to publish brief');
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+async function createTweetFromBrief(id) {
+    if (!confirm('Create a tweet draft from this brief?')) return;
+    
+    try {
+        const response = await fetch(`/admin/api/daily-brief/${id}/create-tweet`, { method: 'POST' });
+        const data = await response.json();
+        if (data.success) {
+            alert('Tweet draft created!');
+            location.reload();
+        } else {
+            alert('Failed to create tweet draft');
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+</script>
+{% endblock %}

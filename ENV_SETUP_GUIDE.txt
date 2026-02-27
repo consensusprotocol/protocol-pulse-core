@@ -1,0 +1,30 @@
+
+# ============================================================
+# PROTOCOL PULSE - REQUIRED ENVIRONMENT VARIABLES
+# ============================================================
+# Add these to Replit Secrets (Tools → Secrets)
+
+# === AI PROVIDERS (Required) ===
+ANTHROPIC_API_KEY=sk-ant-...          # Claude - Primary article generation
+GEMINI_API_KEY=...                     # Gemini - Backup & duplicate detection
+XAI_API_KEY=...                        # Grok - Article review & X sentiment
+
+# === AUTOMATION FLAGS (Required) ===
+ENABLE_ARTICLE_AUTOMATION_15M=true     # Enable 15-min article loop
+ENABLE_AUTO_PUBLISH=true               # Auto-publish approved articles
+
+# === X (TWITTER) API (Optional but recommended) ===
+TWITTER_API_KEY=...
+TWITTER_API_SECRET=...
+TWITTER_ACCESS_TOKEN=...
+TWITTER_ACCESS_TOKEN_SECRET=...
+TWITTER_BEARER_TOKEN=...
+AUTOPOST_X=false                       # Set to true to auto-post articles
+ENABLE_X_ENGAGE=false                  # Set to true for auto-engagement
+
+# === YOUTUBE (Optional) ===
+YOUTUBE_API_KEY=...                    # For sentiment monitoring
+
+# === OTHER (As needed) ===
+SITE_URL=https://protocolpulse.io
+SESSION_SECRET=your-random-secret-here

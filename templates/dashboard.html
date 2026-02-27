@@ -1,0 +1,663 @@
+{% extends "base.html" %}
+{% block title %}Mission Control — Protocol Pulse{% endblock %}
+
+{% block schema %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Bitcoin Intelligence Dashboard",
+    "description": "Real-time Bitcoin network metrics including difficulty, hashrate, mempool stats, and fee estimates."
+}
+</script>
+{% endblock %}
+
+{% block head %}
+<style>
+/* ═══ MISSION CONTROL ═══ */
+.mc-header {
+    padding: 32px 0 24px;
+    border-bottom: 1px solid var(--pp-border);
+}
+
+.mc-header__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.mc-header__title {
+    font-family: var(--pp-font-mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--pp-text);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.mc-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba(0, 230, 118, 0.08);
+    border: 1px solid rgba(0, 230, 118, 0.2);
+    border-radius: var(--pp-radius-full);
+    font-family: var(--pp-font-mono);
+    font-size: 0.75rem;
+    color: var(--pp-green);
+}
+
+.mc-status__dot {
+    width: 8px; height: 8px;
+    background: var(--pp-green);
+    border-radius: 50%;
+    animation: pp-pulse-live 2s ease-in-out infinite;
+}
+
+.mc-timestamp {
+    font-family: var(--pp-font-mono);
+    font-size: 0.75rem;
+    color: var(--pp-text-muted);
+}
+
+/* Metric cards */
+.mc-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 24px 0;
+}
+
+@media (min-width: 768px) {
+    .mc-metrics { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (min-width: 1200px) {
+    .mc-metrics { grid-template-columns: repeat(6, 1fr); }
+}
+
+.mc-metric {
+    padding: 20px;
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-md);
+    transition: all 0.25s var(--pp-ease);
+    position: relative;
+    overflow: hidden;
+}
+
+.mc-metric::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--pp-teal);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.mc-metric:hover::after { opacity: 1; }
+.mc-metric:hover { border-color: var(--pp-border-teal); }
+
+.mc-metric__label {
+    font-family: var(--pp-font-mono);
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--pp-text-muted);
+    margin-bottom: 8px;
+}
+
+.mc-metric__value {
+    font-family: var(--pp-font-mono);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--pp-text);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+}
+
+.mc-metric__value--teal { color: var(--pp-teal); }
+.mc-metric__value--amber { color: var(--pp-amber); }
+.mc-metric__value--green { color: var(--pp-green); }
+.mc-metric__value--red { color: var(--pp-red); }
+
+.mc-metric__sub {
+    font-family: var(--pp-font-mono);
+    font-size: 0.6875rem;
+    color: var(--pp-text-muted);
+    margin-top: 4px;
+}
+
+/* Panels */
+.mc-panels {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 24px 0;
+}
+
+@media (min-width: 1024px) {
+    .mc-panels { grid-template-columns: 1fr 1fr; }
+}
+
+.mc-panel {
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-md);
+    overflow: hidden;
+}
+
+.mc-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--pp-border);
+    background: rgba(255,255,255,0.01);
+}
+
+.mc-panel__title {
+    font-family: var(--pp-font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--pp-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mc-panel__body {
+    padding: 20px;
+}
+
+/* Fee table */
+.mc-fee-table {
+    width: 100%;
+    font-family: var(--pp-font-mono);
+    font-size: 0.8125rem;
+}
+
+.mc-fee-table tr { border-bottom: 1px solid var(--pp-border); }
+.mc-fee-table tr:last-child { border-bottom: none; }
+
+.mc-fee-table td {
+    padding: 10px 0;
+    color: var(--pp-text-secondary);
+}
+
+.mc-fee-table td:last-child {
+    text-align: right;
+    font-weight: 600;
+    color: var(--pp-text);
+}
+
+/* Pipeline status */
+.mc-pipeline-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--pp-border);
+}
+
+.mc-pipeline-item:last-child { border-bottom: none; }
+
+.mc-pipeline-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.mc-pipeline-dot--active { background: var(--pp-green); box-shadow: 0 0 8px rgba(0,230,118,0.4); }
+.mc-pipeline-dot--idle { background: var(--pp-amber); }
+.mc-pipeline-dot--error { background: var(--pp-red); box-shadow: 0 0 8px rgba(255,71,87,0.4); }
+.mc-pipeline-dot--off { background: var(--pp-text-dim); }
+
+.mc-pipeline-name {
+    font-size: 0.875rem;
+    color: var(--pp-text);
+    font-weight: 500;
+    flex: 1;
+}
+
+.mc-pipeline-status {
+    font-family: var(--pp-font-mono);
+    font-size: 0.6875rem;
+    color: var(--pp-text-muted);
+}
+
+/* Chart placeholder */
+.mc-chart-area {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mc-chart-area canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Full-width panel */
+.mc-panel--full {
+    grid-column: 1 / -1;
+}
+
+/* Auto-refresh indicator */
+.mc-refresh {
+    font-family: var(--pp-font-mono);
+    font-size: 0.6875rem;
+    color: var(--pp-text-dim);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mc-refresh__bar {
+    width: 60px;
+    height: 3px;
+    background: var(--pp-surface-2);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.mc-refresh__fill {
+    height: 100%;
+    background: var(--pp-teal);
+    border-radius: 2px;
+    animation: mc-countdown 30s linear infinite;
+}
+
+@keyframes mc-countdown {
+    0% { width: 100%; }
+    100% { width: 0%; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pp-container">
+    <!-- Header -->
+    <div class="mc-header">
+        <div class="mc-header__row">
+            <h1 class="mc-header__title">
+                <i class="fas fa-satellite-dish" style="color:var(--pp-teal);"></i>
+                Mission Control
+            </h1>
+            <div class="pp-flex pp-items-center pp-gap-md">
+                <div class="mc-status">
+                    <span class="mc-status__dot"></span>
+                    SYSTEMS NOMINAL
+                </div>
+                <div class="mc-refresh">
+                    <div class="mc-refresh__bar"><div class="mc-refresh__fill"></div></div>
+                    <span id="mcRefreshTimer">30s</span>
+                </div>
+            </div>
+        </div>
+        <div class="mc-timestamp" id="mcTimestamp"></div>
+    </div>
+
+    <!-- Primary Metrics -->
+    <div class="mc-metrics">
+        <div class="mc-metric">
+            <div class="mc-metric__label">BTC Price</div>
+            <div class="mc-metric__value mc-metric__value--teal" id="mcBtcPrice">
+                {% if prices and prices.get('bitcoin') %}${{ "{:,.0f}".format(prices['bitcoin'].get('usd', 0)) }}{% else %}--{% endif %}
+            </div>
+            <div class="mc-metric__sub" id="mcBtcChange">
+                {% if prices and prices.get('bitcoin') %}{{ "%.1f"|format(prices['bitcoin'].get('usd_24h_change', 0)) }}% 24h{% endif %}
+            </div>
+        </div>
+        <div class="mc-metric">
+            <div class="mc-metric__label">Hashrate</div>
+            <div class="mc-metric__value" id="mcHashrate">
+                {% if mempool_data and mempool_data.get('current_hashrate') %}
+                    {{ "%.0f"|format(mempool_data['current_hashrate'] / 1e18) }} EH/s
+                {% else %}-- EH/s{% endif %}
+            </div>
+            <div class="mc-metric__sub">Network Security</div>
+        </div>
+        <div class="mc-metric">
+            <div class="mc-metric__label">Difficulty</div>
+            <div class="mc-metric__value" id="mcDifficulty">
+                {% if mempool_data and mempool_data.get('current_difficulty') %}
+                    {{ "%.2f"|format(mempool_data['current_difficulty'] / 1e12) }} T
+                {% else %}-- T{% endif %}
+            </div>
+            <div class="mc-metric__sub">
+                {% if mempool_data and mempool_data.get('difficulty_adjustment') %}
+                    Next: {{ "%.1f"|format(mempool_data['difficulty_adjustment'].get('progressPercent', 0)) }}%
+                {% endif %}
+            </div>
+        </div>
+        <div class="mc-metric">
+            <div class="mc-metric__label">Mempool</div>
+            <div class="mc-metric__value mc-metric__value--amber" id="mcMempool">
+                {% if mempool_data and mempool_data.get('count') %}
+                    {{ "{:,}".format(mempool_data['count']) }}
+                {% else %}--{% endif %}
+            </div>
+            <div class="mc-metric__sub">Unconfirmed TXs</div>
+        </div>
+        <div class="mc-metric">
+            <div class="mc-metric__label">Fastest Fee</div>
+            <div class="mc-metric__value" id="mcFastFee">
+                {% if mempool_data and mempool_data.get('fees') %}
+                    {{ mempool_data['fees']['fastest'] }} sat/vB
+                {% else %}-- sat/vB{% endif %}
+            </div>
+            <div class="mc-metric__sub">Priority</div>
+        </div>
+        <div class="mc-metric">
+            <div class="mc-metric__label">Economy Fee</div>
+            <div class="mc-metric__value mc-metric__value--green" id="mcEconFee">
+                {% if mempool_data and mempool_data.get('fees') %}
+                    {{ mempool_data['fees']['economy'] }} sat/vB
+                {% else %}-- sat/vB{% endif %}
+            </div>
+            <div class="mc-metric__sub">Low Priority</div>
+        </div>
+    </div>
+
+    <!-- Panels -->
+    <div class="mc-panels">
+        <!-- Fee Estimates Panel -->
+        <div class="mc-panel">
+            <div class="mc-panel__header">
+                <div class="mc-panel__title">
+                    <i class="fas fa-tachometer-alt" style="color:var(--pp-amber);"></i>
+                    Fee Estimates
+                </div>
+            </div>
+            <div class="mc-panel__body">
+                <table class="mc-fee-table">
+                    <tr>
+                        <td>Fastest (next block)</td>
+                        <td id="mcFeeFastest">{{ mempool_data.fees.fastest if mempool_data and mempool_data.fees else '--' }} sat/vB</td>
+                    </tr>
+                    <tr>
+                        <td>30 minutes</td>
+                        <td id="mcFee30">{{ mempool_data.fees.half_hour if mempool_data and mempool_data.fees else '--' }} sat/vB</td>
+                    </tr>
+                    <tr>
+                        <td>1 hour</td>
+                        <td id="mcFee60">{{ mempool_data.fees.hour if mempool_data and mempool_data.fees else '--' }} sat/vB</td>
+                    </tr>
+                    <tr>
+                        <td>Economy</td>
+                        <td id="mcFeeEcon">{{ mempool_data.fees.economy if mempool_data and mempool_data.fees else '--' }} sat/vB</td>
+                    </tr>
+                    <tr>
+                        <td>Minimum relay</td>
+                        <td id="mcFeeMin">{{ mempool_data.fees.minimum if mempool_data and mempool_data.fees else '--' }} sat/vB</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pipeline Status -->
+        <div class="mc-panel">
+            <div class="mc-panel__header">
+                <div class="mc-panel__title">
+                    <i class="fas fa-cogs" style="color:var(--pp-teal);"></i>
+                    Pipeline Status
+                </div>
+            </div>
+            <div class="mc-panel__body">
+                <div class="mc-pipeline-item">
+                    <span class="mc-pipeline-dot mc-pipeline-dot--active"></span>
+                    <span class="mc-pipeline-name">Intelligence Pipeline</span>
+                    <span class="mc-pipeline-status">Running</span>
+                </div>
+                <div class="mc-pipeline-item">
+                    <span class="mc-pipeline-dot mc-pipeline-dot--active"></span>
+                    <span class="mc-pipeline-name">Article Generator</span>
+                    <span class="mc-pipeline-status">Idle</span>
+                </div>
+                <div class="mc-pipeline-item">
+                    <span class="mc-pipeline-dot mc-pipeline-dot--idle"></span>
+                    <span class="mc-pipeline-name">X Reply System</span>
+                    <span class="mc-pipeline-status">18/day cap</span>
+                </div>
+                <div class="mc-pipeline-item">
+                    <span class="mc-pipeline-dot mc-pipeline-dot--active"></span>
+                    <span class="mc-pipeline-name">Price Feed</span>
+                    <span class="mc-pipeline-status">Live</span>
+                </div>
+                <div class="mc-pipeline-item">
+                    <span class="mc-pipeline-dot mc-pipeline-dot--active"></span>
+                    <span class="mc-pipeline-name">Pulse Check Video</span>
+                    <span class="mc-pipeline-status">Daily</span>
+                </div>
+                <div class="mc-pipeline-item">
+                    <span class="mc-pipeline-dot mc-pipeline-dot--idle"></span>
+                    <span class="mc-pipeline-name">Newsletter Engine</span>
+                    <span class="mc-pipeline-status">Scheduled</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hashrate Chart -->
+        <div class="mc-panel mc-panel--full">
+            <div class="mc-panel__header">
+                <div class="mc-panel__title">
+                    <i class="fas fa-chart-line" style="color:var(--pp-teal);"></i>
+                    Hashrate (30 Day)
+                </div>
+            </div>
+            <div class="mc-panel__body">
+                <div class="mc-chart-area">
+                    <canvas id="mcHashrateChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Difficulty Adjustment -->
+        <div class="mc-panel">
+            <div class="mc-panel__header">
+                <div class="mc-panel__title">
+                    <i class="fas fa-adjust" style="color:var(--pp-amber);"></i>
+                    Difficulty Adjustment
+                </div>
+            </div>
+            <div class="mc-panel__body">
+                {% if mempool_data and mempool_data.get('difficulty_adjustment') %}
+                {% set da = mempool_data['difficulty_adjustment'] %}
+                <div style="margin-bottom:16px;">
+                    <div class="mc-metric__label">Progress</div>
+                    <div style="height:8px;background:var(--pp-surface-2);border-radius:4px;overflow:hidden;margin-top:8px;">
+                        <div style="height:100%;background:var(--pp-teal);border-radius:4px;width:{{ da.get('progressPercent', 0) }}%;transition:width 1s ease;"></div>
+                    </div>
+                    <div class="pp-tiny pp-text-muted pp-mt-1">{{ "%.1f"|format(da.get('progressPercent', 0)) }}% complete</div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                    <div>
+                        <div class="mc-metric__label">Estimated Change</div>
+                        <div class="mc-metric__value" style="font-size:1rem;{% if da.get('difficultyChange', 0) >= 0 %}color:var(--pp-green);{% else %}color:var(--pp-red);{% endif %}">
+                            {{ "%.2f"|format(da.get('difficultyChange', 0)) }}%
+                        </div>
+                    </div>
+                    <div>
+                        <div class="mc-metric__label">Blocks Remaining</div>
+                        <div class="mc-metric__value" style="font-size:1rem;">{{ da.get('remainingBlocks', '--') }}</div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="pp-text-muted pp-text-center pp-small">Loading difficulty data...</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="mc-panel">
+            <div class="mc-panel__header">
+                <div class="mc-panel__title">
+                    <i class="fas fa-link" style="color:var(--pp-teal);"></i>
+                    Quick Links
+                </div>
+            </div>
+            <div class="mc-panel__body">
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    <a href="/articles" class="pp-btn pp-btn--ghost pp-btn--sm" style="justify-content:flex-start;">
+                        <i class="fas fa-newspaper" style="width:20px;"></i> Intel Briefs
+                    </a>
+                    <a href="/live" class="pp-btn pp-btn--ghost pp-btn--sm" style="justify-content:flex-start;">
+                        <i class="fas fa-atom" style="width:20px;"></i> Live Terminal
+                    </a>
+                    <a href="/whale-watcher" class="pp-btn pp-btn--ghost pp-btn--sm" style="justify-content:flex-start;">
+                        <i class="fas fa-water" style="width:20px;"></i> Whale Watcher
+                    </a>
+                    {% if current_user.is_authenticated and current_user.is_admin %}
+                    <a href="/admin/command-deck" class="pp-btn pp-btn--ghost pp-btn--sm" style="justify-content:flex-start;color:var(--pp-amber);">
+                        <i class="fas fa-user-shield" style="width:20px;"></i> Admin Command Deck
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+/* ── Timestamp ── */
+function mcUpdateTime() {
+    var el = document.getElementById('mcTimestamp');
+    if (el) {
+        el.textContent = new Date().toLocaleString('en-US', {
+            timeZone: 'America/New_York',
+            weekday: 'short', month: 'short', day: 'numeric',
+            hour: '2-digit', minute: '2-digit', second: '2-digit',
+            hour12: true
+        }) + ' EST';
+    }
+}
+mcUpdateTime();
+setInterval(mcUpdateTime, 1000);
+
+/* ── Hashrate Chart ── */
+(function() {
+    var canvas = document.getElementById('mcHashrateChart');
+    if (!canvas) return;
+
+    {% if mempool_data and mempool_data.get('hashrate_history') %}
+    var rawData = {{ mempool_data['hashrate_history']|tojson }};
+    var labels = rawData.map(function(d) {
+        return new Date(d.timestamp * 1000).toLocaleDateString('en-US', {month:'short', day:'numeric'});
+    });
+    var values = rawData.map(function(d) { return d.avgHashrate / 1e18; });
+    {% else %}
+    var labels = [];
+    var values = [];
+    {% endif %}
+
+    if (labels.length > 0) {
+        new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'EH/s',
+                    data: values,
+                    borderColor: '#00d4aa',
+                    backgroundColor: 'rgba(0, 212, 170, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    borderWidth: 2,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255,255,255,0.04)' },
+                        ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 10, family: "'JetBrains Mono'" } }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.04)' },
+                        ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 10, family: "'JetBrains Mono'" },
+                            callback: function(v) { return v.toFixed(0) + ' EH/s'; }
+                        }
+                    }
+                },
+                interaction: { intersect: false, mode: 'index' }
+            }
+        });
+    } else {
+        canvas.parentElement.innerHTML = '<div class="pp-text-muted pp-text-center pp-small">No hashrate data available</div>';
+    }
+})();
+
+/* ── Auto-refresh every 30s ── */
+var mcRefreshInterval = 30;
+var mcRefreshCount = mcRefreshInterval;
+
+setInterval(function() {
+    mcRefreshCount--;
+    var el = document.getElementById('mcRefreshTimer');
+    if (el) el.textContent = mcRefreshCount + 's';
+    if (mcRefreshCount <= 0) {
+        mcRefreshCount = mcRefreshInterval;
+        mcRefreshData();
+    }
+}, 1000);
+
+function mcRefreshData() {
+    // Refresh mempool data
+    fetch('https://mempool.space/api/v1/fees/recommended')
+        .then(function(r) { return r.json(); })
+        .then(function(fees) {
+            var ff = document.getElementById('mcFeeFastest');
+            var f30 = document.getElementById('mcFee30');
+            var f60 = document.getElementById('mcFee60');
+            var fe = document.getElementById('mcFeeEcon');
+            var fm = document.getElementById('mcFeeMin');
+            if (ff) ff.textContent = fees.fastestFee + ' sat/vB';
+            if (f30) f30.textContent = fees.halfHourFee + ' sat/vB';
+            if (f60) f60.textContent = fees.hourFee + ' sat/vB';
+            if (fe) fe.textContent = fees.economyFee + ' sat/vB';
+            if (fm) fm.textContent = fees.minimumFee + ' sat/vB';
+            var mcFast = document.getElementById('mcFastFee');
+            var mcEcon = document.getElementById('mcEconFee');
+            if (mcFast) mcFast.textContent = fees.fastestFee + ' sat/vB';
+            if (mcEcon) mcEcon.textContent = fees.economyFee + ' sat/vB';
+        }).catch(function(){});
+
+    fetch('https://mempool.space/api/mempool')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var el = document.getElementById('mcMempool');
+            if (el) el.textContent = data.count.toLocaleString();
+        }).catch(function(){});
+
+    // Refresh BTC price
+    fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.bitcoin) {
+                var pEl = document.getElementById('mcBtcPrice');
+                var cEl = document.getElementById('mcBtcChange');
+                if (pEl) pEl.textContent = '$' + data.bitcoin.usd.toLocaleString('en-US', {maximumFractionDigits: 0});
+                if (cEl) cEl.textContent = data.bitcoin.usd_24h_change.toFixed(1) + '% 24h';
+            }
+        }).catch(function(){});
+}
+</script>
+{% endblock %}

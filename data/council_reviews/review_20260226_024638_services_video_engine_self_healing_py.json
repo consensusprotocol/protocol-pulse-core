@@ -1,0 +1,39 @@
+{
+  "filepath": "services/video_engine/self_healing.py",
+  "feature": "Self-healing pipeline with retry, checkpoint, DLQ",
+  "stage": "post",
+  "timestamp": "2026-02-26T02:46:38.268992",
+  "local_analysis": {
+    "scores": {
+      "architecture": 6,
+      "error_handling": 6,
+      "edge_cases": 7,
+      "security": 7,
+      "performance": 7,
+      "maintainability": 7
+    },
+    "average_score": 6.7,
+    "issues": [],
+    "warnings": [
+      "File is 917 lines \u2014 consider splitting into smaller modules",
+      "7 classes in one file \u2014 consider splitting",
+      "13 broad 'except Exception' \u2014 consider narrower types"
+    ],
+    "line_count": 917,
+    "class_count": 7,
+    "function_count": 47,
+    "production_ready": false
+  },
+  "llm_reviews": {},
+  "cross_review": null,
+  "consensus_score": 6.7,
+  "production_ready": false,
+  "issues": [],
+  "fix_list": [],
+  "warnings": [
+    "File is 917 lines \u2014 consider splitting into smaller modules",
+    "7 classes in one file \u2014 consider splitting",
+    "13 broad 'except Exception' \u2014 consider narrower types"
+  ],
+  "verdict": "FIX_THEN_SHIP"
+}

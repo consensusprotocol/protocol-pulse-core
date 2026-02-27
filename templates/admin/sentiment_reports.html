@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Sentiment Reports Admin | Protocol Pulse{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-black">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-3">
+                        <li class="breadcrumb-item"><a href="/admin" class="text-danger">Admin</a></li>
+                        <li class="breadcrumb-item active text-white" aria-current="page">Sentiment Reports</li>
+                    </ol>
+                </nav>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="display-5 fw-bold text-white mb-2">
+                            <i class="fas fa-chart-line text-danger me-3"></i>Sentiment Reports
+                        </h1>
+                        <p class="text-white-50">Manage daily Bitcoin sentiment analysis from X and Nostr</p>
+                    </div>
+                    <form method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-danger btn-lg">
+                            <i class="fas fa-play me-2"></i>Generate Now
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ 'success' if category == 'success' else 'danger' if category == 'error' else 'warning' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card bg-dark border-success text-center py-4">
+                    <i class="fas fa-thumbs-up fa-2x text-success mb-2"></i>
+                    <h3 class="text-white mb-0">{{ reports|selectattr('overall_sentiment', 'equalto', 'bullish')|list|length }}</h3>
+                    <small class="text-white-50">Bullish Days</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-dark border-secondary text-center py-4">
+                    <i class="fas fa-minus fa-2x text-secondary mb-2"></i>
+                    <h3 class="text-white mb-0">{{ reports|selectattr('overall_sentiment', 'equalto', 'neutral')|list|length }}</h3>
+                    <small class="text-white-50">Neutral Days</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-dark border-danger text-center py-4">
+                    <i class="fas fa-thumbs-down fa-2x text-danger mb-2"></i>
+                    <h3 class="text-white mb-0">{{ reports|selectattr('overall_sentiment', 'equalto', 'bearish')|list|length }}</h3>
+                    <small class="text-white-50">Bearish Days</small>
+                </div>
+            </div>
+        </div>
+        
+        {% if reports %}
+        <div class="card bg-dark border-secondary">
+            <div class="card-header bg-secondary bg-opacity-10 border-bottom border-secondary">
+                <h5 class="mb-0 text-white"><i class="fas fa-list me-2"></i>Report History</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th class="text-white-50">ID</th>
+                                <th class="text-white-50">Date</th>
+                                <th class="text-white-50">Sentiment</th>
+                                <th class="text-white-50">Score</th>
+                                <th class="text-white-50">X Posts</th>
+                                <th class="text-white-50">Nostr</th>
+                                <th class="text-white-50">Article</th>
+                                <th class="text-white-50">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for report in reports %}
+                            <tr>
+                                <td class="text-white">{{ report.id }}</td>
+                                <td class="text-white">{{ report.report_date.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if report.overall_sentiment == 'bullish' %}bg-success
+                                        {% elif report.overall_sentiment == 'bearish' %}bg-danger
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ report.overall_sentiment|upper if report.overall_sentiment else 'NEUTRAL' }}
+                                    </span>
+                                </td>
+                                <td class="text-white">
+                                    {% if report.sentiment_score %}
+                                        {% if report.sentiment_score > 0 %}<span class="text-success">+{% endif %}
+                                        {% if report.sentiment_score < 0 %}<span class="text-danger">{% endif %}
+                                        {{ "%.2f"|format(report.sentiment_score) }}
+                                        </span>
+                                    {% else %}0.00{% endif %}
+                                </td>
+                                <td class="text-white-50">{{ report.x_posts_analyzed or 0 }}</td>
+                                <td class="text-white-50">{{ report.nostr_notes_analyzed or 0 }}</td>
+                                <td>
+                                    {% if report.article_id %}
+                                    <a href="{{ url_for('article_detail', article_id=report.article_id) }}" class="text-danger" target="_blank">
+                                        #{{ report.article_id }}
+                                    </a>
+                                    {% else %}
+                                    <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if report.article_id %}
+                                    <a href="{{ url_for('article_detail', article_id=report.article_id) }}" class="btn btn-sm btn-outline-danger me-1" target="_blank">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="card bg-dark border-secondary text-center py-5">
+            <div class="card-body">
+                <i class="fas fa-chart-bar fa-4x text-secondary mb-4"></i>
+                <h4 class="text-white">No Sentiment Reports Yet</h4>
+                <p class="text-white-50 mb-4">Click "Generate Now" to create the first daily sentiment report.</p>
+                <form method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-play me-2"></i>Generate First Report
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-body">
+                        <h6 class="text-white mb-3"><i class="fas fa-cog text-danger me-2"></i>Configuration</h6>
+                        <ul class="list-unstyled text-white-50 mb-0">
+                            <li><i class="fas fa-clock text-secondary me-2"></i>Schedule: Every 24 hours (automatic)</li>
+                            <li><i class="fas fa-database text-secondary me-2"></i>Sources: X (Twitter) + Nostr</li>
+                            <li><i class="fas fa-brain text-secondary me-2"></i>AI Engine: GPT-4o for sentiment analysis</li>
+                            <li><i class="fas fa-link text-secondary me-2"></i>Citations: All referenced posts include direct links</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

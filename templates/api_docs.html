@@ -1,0 +1,685 @@
+{% extends "base.html" %}
+{% block title %}Developer Portal — Protocol Pulse API{% endblock %}
+{% block meta_description %}Protocol Pulse API documentation. Interactive API explorer, authentication, endpoints, and code examples for building on Bitcoin intelligence data.{% endblock %}
+
+{% block head %}
+<style>
+/* ── Developer Portal ── */
+.pp-docs { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - var(--pp-nav-height)); }
+
+/* Sidebar */
+.pp-docs__sidebar {
+    background: var(--pp-surface);
+    border-right: 1px solid var(--pp-border);
+    padding: 32px 0;
+    position: sticky;
+    top: var(--pp-nav-height);
+    height: calc(100vh - var(--pp-nav-height));
+    overflow-y: auto;
+}
+.pp-docs__sidebar-title {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--pp-text-muted);
+    padding: 0 24px;
+    margin-bottom: 12px;
+}
+.pp-docs__nav-item {
+    display: block;
+    padding: 8px 24px;
+    color: var(--pp-text-secondary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: all 0.15s ease;
+    border-left: 2px solid transparent;
+}
+.pp-docs__nav-item:hover { color: var(--pp-text); background: rgba(255,255,255,0.03); }
+.pp-docs__nav-item.active { color: var(--pp-teal); border-left-color: var(--pp-teal); background: var(--pp-teal-dim); }
+.pp-docs__nav-item--sub { padding-left: 40px; font-size: 0.8125rem; }
+.pp-docs__nav-divider { height: 1px; background: var(--pp-border); margin: 12px 24px; }
+
+/* Content */
+.pp-docs__content {
+    padding: 48px 56px 80px;
+    max-width: 960px;
+}
+.pp-docs__hero {
+    margin-bottom: 48px;
+}
+.pp-docs__hero-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin: 0 0 12px;
+    background: linear-gradient(135deg, var(--pp-text), var(--pp-teal));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.pp-docs__hero-sub {
+    font-size: 1.125rem;
+    color: var(--pp-text-secondary);
+    line-height: 1.6;
+    max-width: 640px;
+}
+.pp-docs__hero-badges {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+}
+.pp-docs__badge {
+    font-family: var(--pp-font-mono);
+    font-size: 0.75rem;
+    padding: 4px 12px;
+    border-radius: var(--pp-radius-full);
+    border: 1px solid var(--pp-border);
+    color: var(--pp-text-muted);
+}
+.pp-docs__badge--teal { border-color: var(--pp-border-teal); color: var(--pp-teal); background: var(--pp-teal-dim); }
+
+/* Section */
+.pp-docs__section {
+    margin-bottom: 56px;
+    scroll-margin-top: calc(var(--pp-nav-height) + 24px);
+}
+.pp-docs__section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--pp-border);
+}
+.pp-docs__text {
+    font-size: 0.9375rem;
+    color: var(--pp-text-secondary);
+    line-height: 1.7;
+    margin-bottom: 16px;
+}
+
+/* Endpoint Card */
+.pp-endpoint {
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-md);
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+.pp-endpoint__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+.pp-endpoint__header:hover { background: rgba(255,255,255,0.02); }
+.pp-endpoint__method {
+    font-family: var(--pp-font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: var(--pp-radius-xs);
+    text-transform: uppercase;
+    min-width: 52px;
+    text-align: center;
+}
+.pp-endpoint__method--get { background: rgba(0, 212, 170, 0.15); color: #00d4aa; }
+.pp-endpoint__method--post { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+.pp-endpoint__method--put { background: rgba(245, 166, 35, 0.15); color: #f5a623; }
+.pp-endpoint__method--delete { background: rgba(255, 71, 87, 0.15); color: #ff4757; }
+.pp-endpoint__path {
+    font-family: var(--pp-font-mono);
+    font-size: 0.9375rem;
+    color: var(--pp-text);
+}
+.pp-endpoint__desc {
+    font-size: 0.8125rem;
+    color: var(--pp-text-muted);
+    margin-left: auto;
+}
+.pp-endpoint__toggle {
+    color: var(--pp-text-muted);
+    transition: transform 0.25s ease;
+}
+.pp-endpoint.open .pp-endpoint__toggle { transform: rotate(180deg); }
+.pp-endpoint__body {
+    display: none;
+    padding: 0 20px 20px;
+    border-top: 1px solid var(--pp-border);
+}
+.pp-endpoint.open .pp-endpoint__body { display: block; }
+
+/* Code block */
+.pp-code-block {
+    background: var(--pp-black-deep);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-sm);
+    padding: 16px 20px;
+    font-family: var(--pp-font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    color: var(--pp-text-secondary);
+    position: relative;
+    margin: 12px 0;
+}
+.pp-code-block__copy {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--pp-surface-2);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-xs);
+    color: var(--pp-text-muted);
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 0.6875rem;
+    font-family: var(--pp-font-mono);
+    transition: all 0.15s ease;
+}
+.pp-code-block__copy:hover { color: var(--pp-teal); border-color: var(--pp-teal); }
+.pp-code-block__lang {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--pp-text-dim);
+}
+
+/* Syntax colors */
+.pp-syn-key { color: #7dd3fc; }
+.pp-syn-str { color: #86efac; }
+.pp-syn-num { color: #fbbf24; }
+.pp-syn-comment { color: rgba(255,255,255,0.3); font-style: italic; }
+
+/* Try It panel */
+.pp-try-it {
+    background: var(--pp-surface-2);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-sm);
+    padding: 16px;
+    margin-top: 16px;
+}
+.pp-try-it__label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--pp-text-muted);
+    margin-bottom: 8px;
+}
+.pp-try-it__url {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.pp-try-it__url-input {
+    flex: 1;
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-xs);
+    padding: 8px 12px;
+    color: var(--pp-text);
+    font-family: var(--pp-font-mono);
+    font-size: 0.8125rem;
+}
+.pp-try-it__response {
+    background: var(--pp-black-deep);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-xs);
+    padding: 12px 16px;
+    font-family: var(--pp-font-mono);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    max-height: 300px;
+    overflow-y: auto;
+    color: var(--pp-text-secondary);
+    white-space: pre-wrap;
+    display: none;
+}
+
+/* Rate limit table */
+.pp-rate-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+}
+.pp-rate-table th, .pp-rate-table td {
+    padding: 10px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--pp-border);
+    font-size: 0.875rem;
+}
+.pp-rate-table th {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--pp-text-muted);
+    font-weight: 600;
+    background: var(--pp-surface);
+}
+.pp-rate-table td { font-family: var(--pp-font-mono); font-size: 0.8125rem; }
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .pp-docs { grid-template-columns: 1fr; }
+    .pp-docs__sidebar { display: none; }
+    .pp-docs__content { padding: 32px 20px 64px; }
+}
+@media (max-width: 768px) {
+    .pp-docs__hero-title { font-size: 1.75rem; }
+    .pp-endpoint__desc { display: none; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pp-docs">
+    <!-- Sidebar -->
+    <aside class="pp-docs__sidebar">
+        <div class="pp-docs__sidebar-title">Getting Started</div>
+        <a href="#overview" class="pp-docs__nav-item active">Overview</a>
+        <a href="#authentication" class="pp-docs__nav-item">Authentication</a>
+        <a href="#rate-limits" class="pp-docs__nav-item">Rate Limits</a>
+        <div class="pp-docs__nav-divider"></div>
+        <div class="pp-docs__sidebar-title">Endpoints</div>
+        <a href="#market-data" class="pp-docs__nav-item">Market Data</a>
+        <a href="#articles" class="pp-docs__nav-item">Articles</a>
+        <a href="#search" class="pp-docs__nav-item">Search</a>
+        <a href="#analytics" class="pp-docs__nav-item">Analytics</a>
+        <a href="#feeds" class="pp-docs__nav-item">Feeds</a>
+        <a href="#recommendations" class="pp-docs__nav-item">Recommendations</a>
+        <a href="#webhooks" class="pp-docs__nav-item">Webhooks</a>
+        <div class="pp-docs__nav-divider"></div>
+        <div class="pp-docs__sidebar-title">Resources</div>
+        <a href="#code-examples" class="pp-docs__nav-item">Code Examples</a>
+        <a href="#errors" class="pp-docs__nav-item">Error Handling</a>
+    </aside>
+
+    <!-- Content -->
+    <div class="pp-docs__content">
+        <!-- Hero -->
+        <div class="pp-docs__hero" id="overview">
+            <h1 class="pp-docs__hero-title">Protocol Pulse API</h1>
+            <p class="pp-docs__hero-sub">
+                Access real-time Bitcoin market intelligence, articles, on-chain analytics, and more.
+                Build on top of the most comprehensive Bitcoin data platform.
+            </p>
+            <div class="pp-docs__hero-badges">
+                <span class="pp-docs__badge pp-docs__badge--teal">REST API</span>
+                <span class="pp-docs__badge">JSON Responses</span>
+                <span class="pp-docs__badge">Free Tier Available</span>
+                <span class="pp-docs__badge">v2.0</span>
+            </div>
+        </div>
+
+        <!-- Base URL -->
+        <div class="pp-docs__section">
+            <div class="pp-code-block">
+                <span class="pp-code-block__lang">Base URL</span>
+                <button class="pp-code-block__copy" onclick="copyCode(this)">Copy</button>
+                <br>https://protocolpulse.io/api
+            </div>
+        </div>
+
+        <!-- Authentication -->
+        <div class="pp-docs__section" id="authentication">
+            <h2 class="pp-docs__section-title">Authentication</h2>
+            <p class="pp-docs__text">
+                Public endpoints (market data, articles, search, feeds) require no authentication.
+                Admin endpoints require session authentication via the login flow.
+            </p>
+            <div class="pp-code-block">
+                <span class="pp-code-block__lang">curl</span>
+                <button class="pp-code-block__copy" onclick="copyCode(this)">Copy</button>
+<br><span class="pp-syn-comment"># Public endpoint — no auth needed</span>
+curl https://protocolpulse.io/api/btc-price
+
+<span class="pp-syn-comment"># Returns:</span>
+{
+  <span class="pp-syn-key">"price"</span>: <span class="pp-syn-num">97432</span>,
+  <span class="pp-syn-key">"change_24h"</span>: <span class="pp-syn-num">2.34</span>,
+  <span class="pp-syn-key">"volume_24h"</span>: <span class="pp-syn-num">28500000000</span>,
+  <span class="pp-syn-key">"market_cap"</span>: <span class="pp-syn-num">1920000000000</span>
+}
+            </div>
+        </div>
+
+        <!-- Rate Limits -->
+        <div class="pp-docs__section" id="rate-limits">
+            <h2 class="pp-docs__section-title">Rate Limits</h2>
+            <p class="pp-docs__text">
+                API requests are rate-limited per IP address. Exceeding limits returns HTTP 429.
+            </p>
+            <table class="pp-rate-table">
+                <thead>
+                    <tr><th>Tier</th><th>Limit</th><th>Window</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Public</td><td>200 requests</td><td>per day</td></tr>
+                    <tr><td>Authenticated</td><td>1,000 requests</td><td>per day</td></tr>
+                    <tr><td>Premium</td><td>10,000 requests</td><td>per day</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Market Data -->
+        <div class="pp-docs__section" id="market-data">
+            <h2 class="pp-docs__section-title">Market Data</h2>
+
+            <div class="pp-endpoint" onclick="toggleEndpoint(this)">
+                <div class="pp-endpoint__header">
+                    <span class="pp-endpoint__method pp-endpoint__method--get">GET</span>
+                    <span class="pp-endpoint__path">/api/btc-price</span>
+                    <span class="pp-endpoint__desc">Current BTC price</span>
+                    <i class="fas fa-chevron-down pp-endpoint__toggle"></i>
+                </div>
+                <div class="pp-endpoint__body">
+                    <p class="pp-docs__text">Returns the current Bitcoin price, 24h change, volume, and market cap. Updated every 30 seconds.</p>
+                    <div class="pp-code-block">
+                        <span class="pp-code-block__lang">Response</span>
+                        <button class="pp-code-block__copy" onclick="event.stopPropagation(); copyCode(this)">Copy</button>
+<br>{
+  <span class="pp-syn-key">"price"</span>: <span class="pp-syn-num">97432</span>,
+  <span class="pp-syn-key">"change_24h"</span>: <span class="pp-syn-num">2.34</span>,
+  <span class="pp-syn-key">"volume_24h"</span>: <span class="pp-syn-num">28500000000</span>,
+  <span class="pp-syn-key">"market_cap"</span>: <span class="pp-syn-num">1920000000000</span>,
+  <span class="pp-syn-key">"last_updated"</span>: <span class="pp-syn-str">"2026-02-25T22:30:00Z"</span>
+}
+                    </div>
+                    <div class="pp-try-it">
+                        <div class="pp-try-it__label">Try It</div>
+                        <div class="pp-try-it__url">
+                            <input type="text" class="pp-try-it__url-input" value="/api/btc-price" readonly>
+                            <button class="pp-btn pp-btn--primary pp-btn--sm" onclick="event.stopPropagation(); tryEndpoint(this, '/api/btc-price')">Send</button>
+                        </div>
+                        <div class="pp-try-it__response"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pp-endpoint" onclick="toggleEndpoint(this)">
+                <div class="pp-endpoint__header">
+                    <span class="pp-endpoint__method pp-endpoint__method--get">GET</span>
+                    <span class="pp-endpoint__path">/api/market-dashboard</span>
+                    <span class="pp-endpoint__desc">Full market intelligence</span>
+                    <i class="fas fa-chevron-down pp-endpoint__toggle"></i>
+                </div>
+                <div class="pp-endpoint__body">
+                    <p class="pp-docs__text">Complete market intelligence payload including BTC price, Fear & Greed Index, mempool stats, on-chain metrics, and trending coins.</p>
+                    <div class="pp-try-it">
+                        <div class="pp-try-it__label">Try It</div>
+                        <div class="pp-try-it__url">
+                            <input type="text" class="pp-try-it__url-input" value="/api/market-dashboard" readonly>
+                            <button class="pp-btn pp-btn--primary pp-btn--sm" onclick="event.stopPropagation(); tryEndpoint(this, '/api/market-dashboard')">Send</button>
+                        </div>
+                        <div class="pp-try-it__response"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pp-endpoint" onclick="toggleEndpoint(this)">
+                <div class="pp-endpoint__header">
+                    <span class="pp-endpoint__method pp-endpoint__method--get">GET</span>
+                    <span class="pp-endpoint__path">/api/market-dashboard/history</span>
+                    <span class="pp-endpoint__desc">Price history for charts</span>
+                    <i class="fas fa-chevron-down pp-endpoint__toggle"></i>
+                </div>
+                <div class="pp-endpoint__body">
+                    <p class="pp-docs__text">BTC price history for charting. Returns array of [timestamp_ms, price] pairs.</p>
+                    <p class="pp-docs__text"><strong>Parameters:</strong> <code>days</code> (int, 1-365, default 30)</p>
+                    <div class="pp-try-it">
+                        <div class="pp-try-it__label">Try It</div>
+                        <div class="pp-try-it__url">
+                            <input type="text" class="pp-try-it__url-input" value="/api/market-dashboard/history?days=7" readonly>
+                            <button class="pp-btn pp-btn--primary pp-btn--sm" onclick="event.stopPropagation(); tryEndpoint(this, '/api/market-dashboard/history?days=7')">Send</button>
+                        </div>
+                        <div class="pp-try-it__response"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Articles -->
+        <div class="pp-docs__section" id="articles">
+            <h2 class="pp-docs__section-title">Articles</h2>
+
+            <div class="pp-endpoint" onclick="toggleEndpoint(this)">
+                <div class="pp-endpoint__header">
+                    <span class="pp-endpoint__method pp-endpoint__method--get">GET</span>
+                    <span class="pp-endpoint__path">/api/latest-articles</span>
+                    <span class="pp-endpoint__desc">Latest published articles</span>
+                    <i class="fas fa-chevron-down pp-endpoint__toggle"></i>
+                </div>
+                <div class="pp-endpoint__body">
+                    <p class="pp-docs__text">Returns the latest published articles with title, summary, category, image, and publication date.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="pp-docs__section" id="search">
+            <h2 class="pp-docs__section-title">Search</h2>
+
+            <div class="pp-endpoint" onclick="toggleEndpoint(this)">
+                <div class="pp-endpoint__header">
+                    <span class="pp-endpoint__method pp-endpoint__method--get">GET</span>
+                    <span class="pp-endpoint__path">/api/search</span>
+                    <span class="pp-endpoint__desc">Full-text article search</span>
+                    <i class="fas fa-chevron-down pp-endpoint__toggle"></i>
+                </div>
+                <div class="pp-endpoint__body">
+                    <p class="pp-docs__text">Search articles with AI-enhanced ranking. Handles Bitcoin terminology and provides highlighted snippets.</p>
+                    <p class="pp-docs__text"><strong>Parameters:</strong> <code>q</code> (string, required) — <code>page</code> (int, default 1)</p>
+                    <div class="pp-try-it">
+                        <div class="pp-try-it__label">Try It</div>
+                        <div class="pp-try-it__url">
+                            <input type="text" class="pp-try-it__url-input" value="/api/search?q=bitcoin+etf">
+                            <button class="pp-btn pp-btn--primary pp-btn--sm" onclick="event.stopPropagation(); tryEndpoint(this, this.previousElementSibling.value)">Send</button>
+                        </div>
+                        <div class="pp-try-it__response"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pp-endpoint" onclick="toggleEndpoint(this)">
+                <div class="pp-endpoint__header">
+                    <span class="pp-endpoint__method pp-endpoint__method--get">GET</span>
+                    <span class="pp-endpoint__path">/api/search/autocomplete</span>
+                    <span class="pp-endpoint__desc">Search autocomplete</span>
+                    <i class="fas fa-chevron-down pp-endpoint__toggle"></i>
+                </div>
+                <div class="pp-endpoint__body">
+                    <p class="pp-docs__text"><strong>Parameters:</strong> <code>q</code> (string, min 2 chars)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feeds -->
+        <div class="pp-docs__section" id="feeds">
+            <h2 class="pp-docs__section-title">Feeds</h2>
+            <p class="pp-docs__text">Multiple feed formats available for syndication and podcast distribution.</p>
+            <table class="pp-rate-table">
+                <thead><tr><th>Format</th><th>URL</th><th>Content-Type</th></tr></thead>
+                <tbody>
+                    <tr><td>RSS 2.0</td><td><code>/feed/rss</code></td><td>application/rss+xml</td></tr>
+                    <tr><td>Atom</td><td><code>/feed/atom</code></td><td>application/atom+xml</td></tr>
+                    <tr><td>Podcast (iTunes)</td><td><code>/feed/podcast</code></td><td>application/rss+xml</td></tr>
+                    <tr><td>JSON Feed</td><td><code>/feed/json</code></td><td>application/json</td></tr>
+                    <tr><td>OPML Export</td><td><code>/feed/opml</code></td><td>text/x-opml</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="pp-docs__section" id="recommendations">
+            <h2 class="pp-docs__section-title">Recommendations</h2>
+
+            <div class="pp-endpoint" onclick="toggleEndpoint(this)">
+                <div class="pp-endpoint__header">
+                    <span class="pp-endpoint__method pp-endpoint__method--get">GET</span>
+                    <span class="pp-endpoint__path">/api/recommendations/{article_id}</span>
+                    <span class="pp-endpoint__desc">Related articles</span>
+                    <i class="fas fa-chevron-down pp-endpoint__toggle"></i>
+                </div>
+                <div class="pp-endpoint__body">
+                    <p class="pp-docs__text">Returns AI-powered related article recommendations using semantic similarity, topic clustering, and diversity enforcement.</p>
+                    <p class="pp-docs__text"><strong>Parameters:</strong> <code>limit</code> (int, default 6)</p>
+                </div>
+            </div>
+
+            <div class="pp-endpoint" onclick="toggleEndpoint(this)">
+                <div class="pp-endpoint__header">
+                    <span class="pp-endpoint__method pp-endpoint__method--get">GET</span>
+                    <span class="pp-endpoint__path">/api/trending-topics</span>
+                    <span class="pp-endpoint__desc">Trending topics</span>
+                    <i class="fas fa-chevron-down pp-endpoint__toggle"></i>
+                </div>
+                <div class="pp-endpoint__body">
+                    <p class="pp-docs__text">Returns currently trending topics across all articles, scored by recency and engagement.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Webhooks -->
+        <div class="pp-docs__section" id="webhooks">
+            <h2 class="pp-docs__section-title">Webhooks</h2>
+            <p class="pp-docs__text">Subscribe to real-time events from Protocol Pulse. Supports Discord, Telegram, Slack, and generic HTTP endpoints (Zapier-compatible).</p>
+            <p class="pp-docs__text"><strong>Events:</strong></p>
+            <table class="pp-rate-table">
+                <thead><tr><th>Event</th><th>Description</th><th>Payload</th></tr></thead>
+                <tbody>
+                    <tr><td>article.published</td><td>New article published</td><td>title, url, summary, category</td></tr>
+                    <tr><td>breaking_news</td><td>Breaking Bitcoin news</td><td>title, content, severity</td></tr>
+                    <tr><td>price_alert</td><td>Significant price movement</td><td>price, change_pct, direction</td></tr>
+                    <tr><td>whale_alert</td><td>Large BTC transaction</td><td>amount_btc, from, to, txid</td></tr>
+                    <tr><td>daily_summary</td><td>Daily intelligence digest</td><td>summary, top_articles, metrics</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Code Examples -->
+        <div class="pp-docs__section" id="code-examples">
+            <h2 class="pp-docs__section-title">Code Examples</h2>
+
+            <h3 style="font-size:1rem;margin-bottom:12px;color:var(--pp-text-secondary);">Python</h3>
+            <div class="pp-code-block">
+                <span class="pp-code-block__lang">Python</span>
+                <button class="pp-code-block__copy" onclick="copyCode(this)">Copy</button>
+<br><span class="pp-syn-key">import</span> requests
+
+<span class="pp-syn-comment"># Get current BTC price</span>
+resp = requests.get(<span class="pp-syn-str">"https://protocolpulse.io/api/btc-price"</span>)
+data = resp.json()
+<span class="pp-syn-key">print</span>(f<span class="pp-syn-str">"BTC: ${data['price']:,.0f} ({data['change_24h']:+.1f}%)"</span>)
+
+<span class="pp-syn-comment"># Search articles</span>
+resp = requests.get(<span class="pp-syn-str">"https://protocolpulse.io/api/search"</span>, params={<span class="pp-syn-str">"q"</span>: <span class="pp-syn-str">"bitcoin etf"</span>})
+<span class="pp-syn-key">for</span> article <span class="pp-syn-key">in</span> resp.json()[<span class="pp-syn-str">"results"</span>]:
+    <span class="pp-syn-key">print</span>(f<span class="pp-syn-str">"  - {article['title']}"</span>)
+
+<span class="pp-syn-comment"># Get full market dashboard</span>
+dashboard = requests.get(<span class="pp-syn-str">"https://protocolpulse.io/api/market-dashboard"</span>).json()
+<span class="pp-syn-key">print</span>(f<span class="pp-syn-str">"Fear & Greed: {dashboard['fear_greed']['value']} ({dashboard['fear_greed']['label']})"</span>)
+            </div>
+
+            <h3 style="font-size:1rem;margin:24px 0 12px;color:var(--pp-text-secondary);">JavaScript</h3>
+            <div class="pp-code-block">
+                <span class="pp-code-block__lang">JavaScript</span>
+                <button class="pp-code-block__copy" onclick="copyCode(this)">Copy</button>
+<br><span class="pp-syn-comment">// Get current BTC price</span>
+<span class="pp-syn-key">const</span> resp = <span class="pp-syn-key">await</span> fetch(<span class="pp-syn-str">'https://protocolpulse.io/api/btc-price'</span>);
+<span class="pp-syn-key">const</span> { price, change_24h } = <span class="pp-syn-key">await</span> resp.json();
+console.log(`BTC: $${price.toLocaleString()} (${change_24h > <span class="pp-syn-num">0</span> ? <span class="pp-syn-str">'+'</span> : <span class="pp-syn-str">''</span>}${change_24h.toFixed(<span class="pp-syn-num">1</span>)}%)`);
+
+<span class="pp-syn-comment">// Real-time price updates (poll every 30s)</span>
+setInterval(<span class="pp-syn-key">async</span> () => {
+    <span class="pp-syn-key">const</span> data = <span class="pp-syn-key">await</span> fetch(<span class="pp-syn-str">'/api/btc-price'</span>).then(r => r.json());
+    document.getElementById(<span class="pp-syn-str">'price'</span>).textContent = `$${data.price.toLocaleString()}`;
+}, <span class="pp-syn-num">30000</span>);
+            </div>
+        </div>
+
+        <!-- Errors -->
+        <div class="pp-docs__section" id="errors">
+            <h2 class="pp-docs__section-title">Error Handling</h2>
+            <p class="pp-docs__text">All errors return JSON with an <code>error</code> key.</p>
+            <table class="pp-rate-table">
+                <thead><tr><th>Code</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td>400</td><td>Bad request — missing or invalid parameters</td></tr>
+                    <tr><td>401</td><td>Unauthorized — authentication required</td></tr>
+                    <tr><td>403</td><td>Forbidden — insufficient permissions</td></tr>
+                    <tr><td>404</td><td>Not found — resource does not exist</td></tr>
+                    <tr><td>429</td><td>Too many requests — rate limit exceeded</td></tr>
+                    <tr><td>500</td><td>Internal server error</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleEndpoint(el) {
+    el.classList.toggle('open');
+}
+
+function copyCode(btn) {
+    var block = btn.closest('.pp-code-block');
+    var text = block.textContent.replace('Copy', '').replace(block.querySelector('.pp-code-block__lang').textContent, '').trim();
+    navigator.clipboard.writeText(text).then(function() {
+        btn.textContent = 'Copied!';
+        setTimeout(function() { btn.textContent = 'Copy'; }, 1500);
+    });
+}
+
+function tryEndpoint(btn, url) {
+    var panel = btn.closest('.pp-try-it');
+    var respEl = panel.querySelector('.pp-try-it__response');
+    respEl.style.display = 'block';
+    respEl.textContent = 'Loading...';
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    fetch(url)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            respEl.textContent = JSON.stringify(data, null, 2);
+            btn.disabled = false;
+            btn.textContent = 'Send';
+        })
+        .catch(function(err) {
+            respEl.textContent = 'Error: ' + err.message;
+            btn.disabled = false;
+            btn.textContent = 'Send';
+        });
+}
+
+/* Sidebar active state */
+(function() {
+    var sections = document.querySelectorAll('.pp-docs__section');
+    var navItems = document.querySelectorAll('.pp-docs__nav-item');
+    if (!sections.length) return;
+
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                navItems.forEach(function(item) { item.classList.remove('active'); });
+                var target = document.querySelector('.pp-docs__nav-item[href="#' + entry.target.id + '"]');
+                if (target) target.classList.add('active');
+            }
+        });
+    }, { rootMargin: '-20% 0px -80% 0px' });
+
+    sections.forEach(function(s) { observer.observe(s); });
+})();
+</script>
+{% endblock %}

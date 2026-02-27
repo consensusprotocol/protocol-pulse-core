@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pulse Check — Intelligence Dashboard</title>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --surface: #141414;
+            --border: #222;
+            --text: #e0e0e0;
+            --text-dim: #777;
+            --red: #dc2626;
+            --red-dim: #991b1b;
+            --green: #16a34a;
+            --yellow: #ca8a04;
+            --blue: #2563eb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        .header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--red);
+        }
+
+        .header .status {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        .status-dot.online { background: var(--green); }
+        .status-dot.offline { background: var(--red); }
+        .status-dot.running { background: var(--yellow); animation: pulse 1.5s infinite; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 16px;
+            padding: 24px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .card h3 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+
+        .card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .card .sub {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+            padding: 0 24px 24px;
+        }
+
+        .section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .section h2 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            text-align: left;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-dim);
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge.complete { background: rgba(22, 163, 74, 0.15); color: var(--green); }
+        .badge.running { background: rgba(202, 138, 4, 0.15); color: var(--yellow); }
+        .badge.failed { background: rgba(220, 38, 38, 0.15); color: var(--red); }
+        .badge.pending { background: rgba(37, 99, 235, 0.15); color: var(--blue); }
+
+        .score-bar {
+            height: 6px;
+            background: #1a1a1a;
+            border-radius: 3px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .score-bar .fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .score-high { background: var(--green); }
+        .score-mid { background: var(--yellow); }
+        .score-low { background: var(--red); }
+
+        .channel-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .channel-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            background: #0e0e0e;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .channel-item .priority {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .priority.high { background: rgba(220, 38, 38, 0.15); color: var(--red); }
+        .priority.medium { background: rgba(202, 138, 4, 0.15); color: var(--yellow); }
+
+        .btn {
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            cursor: pointer;
+            font-size: 12px;
+            font-family: inherit;
+        }
+
+        .btn:hover { border-color: var(--red); }
+
+        .btn.primary {
+            background: var(--red);
+            border-color: var(--red);
+            color: white;
+        }
+
+        .refresh-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 24px;
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        #last-updated { color: var(--text-dim); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>PULSE CHECK // INTELLIGENCE DASHBOARD</h1>
+        <div class="status">
+            <span>
+                <span class="status-dot" id="ultron-dot"></span>
+                Ultron: <span id="ultron-status">checking...</span>
+            </span>
+            <span>
+                <span class="status-dot" id="pipeline-dot"></span>
+                Pipeline: <span id="pipeline-status">{{ stats.stage if stats.stage else 'idle' }}</span>
+            </span>
+            <span>{{ today }}</span>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <h3>Channels Monitored</h3>
+            <div class="value">{{ channels|length }}</div>
+            <div class="sub">{{ channels|selectattr('priority', 'equalto', 'high')|list|length }} high priority</div>
+        </div>
+        <div class="card">
+            <h3>Channels Scanned Today</h3>
+            <div class="value">{{ stats.channels_scanned or 0 }}</div>
+            <div class="sub">of {{ channels|length }} enabled</div>
+        </div>
+        <div class="card">
+            <h3>Highlights Found</h3>
+            <div class="value">{{ stats.highlights_total or 0 }}</div>
+            <div class="sub">avg score: {{ stats.avg_score or '—' }}</div>
+        </div>
+        <div class="card">
+            <h3>Top Score</h3>
+            <div class="value">{{ stats.max_score or '—' }}</div>
+            <div class="sub">threshold: {{ settings.min_hook_score }}</div>
+        </div>
+    </div>
+
+    <div class="main-grid">
+        <div class="section">
+            <h2>Recent Pipeline Runs</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Run ID</th>
+                        <th>Date</th>
+                        <th>Stage</th>
+                        <th>Channels</th>
+                        <th>Highlights</th>
+                        <th>Clips</th>
+                        <th>Shorts</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for run in runs %}
+                    <tr>
+                        <td style="font-size: 11px; color: var(--text-dim)">{{ run.run_id[:20] }}</td>
+                        <td>{{ run.date }}</td>
+                        <td>
+                            <span class="badge {{ 'complete' if run.stage == 'complete' else 'failed' if run.stage == 'failed' else 'running' }}">
+                                {{ run.stage }}
+                            </span>
+                        </td>
+                        <td>{{ run.channels_scanned or 0 }}/{{ run.channels_total }}</td>
+                        <td>{{ run.highlights_found or 0 }}</td>
+                        <td>{{ run.clips_selected or 0 }}</td>
+                        <td>{{ run.shorts_produced or 0 }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% if not runs %}
+                    <tr><td colspan="7" style="text-align: center; color: var(--text-dim); padding: 24px;">No pipeline runs yet</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Partner Channels ({{ channels|length }})</h2>
+            <div class="channel-list">
+                {% for ch in channels %}
+                <div class="channel-item">
+                    <div>
+                        <div>{{ ch.name }}</div>
+                        <div style="font-size: 11px; color: var(--text-dim)">{{ ch.handle }}</div>
+                    </div>
+                    <span class="priority {{ ch.priority }}">{{ ch.priority }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="refresh-bar">
+        <span id="last-updated">Last updated: loading...</span>
+        <button class="btn" onclick="refreshStatus()">Refresh Status</button>
+    </div>
+
+    <script>
+        async function refreshStatus() {
+            try {
+                const resp = await fetch('/dashboard/api/status');
+                const data = await resp.json();
+
+                // Update Ultron status
+                const ultronDot = document.getElementById('ultron-dot');
+                const ultronStatus = document.getElementById('ultron-status');
+                if (data.ultron && data.ultron.status === 'ok') {
+                    ultronDot.className = 'status-dot online';
+                    ultronStatus.textContent = `online (${data.ultron.gpu_count} GPUs)`;
+                } else {
+                    ultronDot.className = 'status-dot offline';
+                    ultronStatus.textContent = 'offline';
+                }
+
+                // Update pipeline status
+                const pipelineDot = document.getElementById('pipeline-dot');
+                const pipelineStatus = document.getElementById('pipeline-status');
+                const stage = data.pipeline ? data.pipeline.stage : 'idle';
+                pipelineDot.className = 'status-dot ' +
+                    (stage === 'complete' ? 'online' :
+                     stage === 'no_run' || stage === 'idle' ? '' : 'running');
+                pipelineStatus.textContent = stage;
+
+                document.getElementById('last-updated').textContent =
+                    'Last updated: ' + new Date().toLocaleTimeString();
+            } catch (e) {
+                console.error('Status refresh failed:', e);
+            }
+        }
+
+        // Initial load
+        refreshStatus();
+        // Auto-refresh every 30 seconds
+        setInterval(refreshStatus, 30000);
+    </script>
+</body>
+</html>

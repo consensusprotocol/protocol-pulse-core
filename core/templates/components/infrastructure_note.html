@@ -1,0 +1,93 @@
+{% macro infrastructure_note(category, text, partner_key=None, button_text=None) %}
+<div class="operator-infrastructure-note">
+    <div class="note-header">
+        <span class="note-classification"><i class="fas fa-microchip"></i> Operator Infrastructure Note</span>
+    </div>
+    <p class="note-content">{{ text }}</p>
+    {% if partner_key and button_text %}
+    <a href="/go/{{ partner_key }}" class="note-action">{{ button_text }} &rarr;</a>
+    {% endif %}
+</div>
+
+<style>
+.operator-infrastructure-note {
+    background: rgba(255, 255, 255, 0.02);
+    border-left: 2px solid rgba(255, 255, 255, 0.1);
+    padding: 16px 20px;
+    margin: 24px 0;
+    border-radius: 0 6px 6px 0;
+}
+
+.note-header {
+    margin-bottom: 10px;
+}
+
+.note-classification {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.note-classification i {
+    margin-right: 6px;
+    color: rgba(255, 255, 255, 0.25);
+}
+
+.note-content {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.65;
+    margin: 0;
+}
+
+.note-action {
+    display: inline-block;
+    margin-top: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.4);
+    text-decoration: none;
+    padding: 8px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.note-action:hover {
+    color: rgba(255, 255, 255, 0.7);
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.02);
+}
+</style>
+{% endmacro %}
+
+{% macro mining_infra_note() %}
+{{ infrastructure_note(
+    category="mining",
+    text="This analysis assumes access to sovereign-grade solo mining hardware. Operators running open-source ASICs maintain full validation authority and censorship resistance.",
+    partner_key="bitaxe",
+    button_text="Establish Mining Infra"
+) }}
+{% endmacro %}
+
+{% macro insurance_note() %}
+{{ infrastructure_note(
+    category="insurance",
+    text="Generational wealth transfer remains the most underappreciated attack surface in Bitcoin-native households. BTC-denominated whole life policies eliminate fiat exposure risk.",
+    partner_key="meanwhile",
+    button_text="Explore Coverage"
+) }}
+{% endmacro %}
+
+{% macro liquidity_note() %}
+{{ infrastructure_note(
+    category="liquidity",
+    text="Operators using high-performance liquidity rails report smoother execution during volatility events. Infrastructure choice affects trade slippage and settlement speed.",
+    partner_key="mexc",
+    button_text="Access Liquidity"
+) }}
+{% endmacro %}

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Sentinel Status{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Sentinel Status</h2>
+    <div class="text-muted small">refreshed {{ refreshed_at }}</div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-md-4">
+      <div class="card bg-dark border-danger">
+        <div class="card-body">
+          <div class="text-uppercase small text-danger">Ingestion Rate</div>
+          <div class="display-6">{{ ingestion_rate }}</div>
+          <div class="small text-muted">events/hour</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-8">
+      <div class="card bg-dark border-danger">
+        <div class="card-body">
+          <div class="text-uppercase small text-danger">Narrative Focus</div>
+          <div id="narrativeFocus">{{ narrative_focus }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card bg-dark border-danger mb-3">
+    <div class="card-header">GPU Heat / Usage</div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-dark table-striped mb-0">
+          <thead>
+            <tr>
+              <th>GPU</th>
+              <th>Temp (C)</th>
+              <th>Util (%)</th>
+              <th>Memory Used (MB)</th>
+              <th>Memory Total (MB)</th>
+            </tr>
+          </thead>
+          <tbody id="gpuRows">
+            {% for row in gpu_rows %}
+            <tr>
+              <td>{{ row.gpu }}</td>
+              <td>{{ row.temp_c }}</td>
+              <td>{{ row.util_pct }}</td>
+              <td>{{ row.mem_used_mb }}</td>
+              <td>{{ row.mem_total_mb }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5">nvidia-smi unavailable</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card bg-dark border-danger">
+    <div class="card-header">Error Logs (last 50)</div>
+    <div class="card-body">
+      <pre id="logTail" style="max-height: 420px; overflow:auto; white-space: pre-wrap;">{% for ln in log_lines %}{{ ln }}
+{% endfor %}</pre>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  function renderGpu(rows) {
+    const body = document.getElementById('gpuRows');
+    if (!body) return;
+    if (!rows || !rows.length) {
+      body.innerHTML = '<tr><td colspan="5">nvidia-smi unavailable</td></tr>';
+      return;
+    }
+    body.innerHTML = rows.map(r =>
+      '<tr><td>' + r.gpu + '</td><td>' + r.temp_c + '</td><td>' + r.util_pct +
+      '</td><td>' + r.mem_used_mb + '</td><td>' + r.mem_total_mb + '</td></tr>'
+    ).join('');
+  }
+
+  function poll() {
+    fetch('/api/admin/sentinel-status')
+      .then(r => r.json())
+      .then(data => {
+        if (!data || !data.ok) return;
+        renderGpu(data.gpu_rows || []);
+        const focus = document.getElementById('narrativeFocus');
+        if (focus) focus.textContent = data.narrative_focus || '';
+        const logTail = document.getElementById('logTail');
+        if (logTail) logTail.textContent = (data.log_lines || []).join('\n');
+      })
+      .catch(() => {});
+  }
+
+  setInterval(poll, 10000);
+})();
+</script>
+{% endblock %}
+

@@ -1,0 +1,2479 @@
+{% extends "base.html" %}
+
+{% block title %}Protocol Pulse Media – Shows, Books & Intel{% endblock %}
+
+{% block head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg-primary: #050508;
+    --bg-secondary: #0c0c10;
+    --bg-card: #0f0f14;
+    --bg-elevated: #16161c;
+    --bg-glass: rgba(255,255,255,0.02);
+    --border-subtle: rgba(255,255,255,0.06);
+    --border-hover: rgba(255,255,255,0.1);
+    --border-focus: rgba(229,72,72,0.6);
+    --text-primary: #fafafa;
+    --text-secondary: rgba(255,255,255,0.78);
+    --text-muted: rgba(255,255,255,0.45);
+    --accent: #e54848;
+    --accent-soft: rgba(229,72,72,0.12);
+    --accent-glow: rgba(229,72,72,0.18);
+    --bitcoin: #f7931a;
+    --nostr-purple: #a855f7;
+    --x-blue: #1d9bf0;
+    --youtube-red: #ff0000;
+    --success: #22c55e;
+    --warning: #eab308;
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+    --radius-2xl: 36px;
+    --radius-full: 9999px;
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.25);
+    --shadow-md: 0 8px 32px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2);
+    --shadow-lg: 0 24px 64px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.25);
+    --shadow-glow: 0 0 40px rgba(229,72,72,0.15);
+}
+
+* { box-sizing: border-box; }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+.media-hub {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding-top: 80px;
+    -webkit-font-smoothing: antialiased;
+}
+
+.hub-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 28px;
+}
+
+/* ========== ANIMATED HERO HEADER ========== */
+.hub-hero {
+    position: relative;
+    padding: 88px 0 72px;
+    text-align: center;
+    overflow: hidden;
+}
+
+.hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.hero-gradient {
+    position: absolute;
+    inset: 0;
+    background: 
+        radial-gradient(ellipse 85% 55% at 50% -15%, rgba(229,72,72,0.12) 0%, transparent 52%),
+        radial-gradient(ellipse 55% 35% at 85% 45%, rgba(168,85,247,0.08) 0%, transparent 45%),
+        radial-gradient(ellipse 55% 35% at 15% 55%, rgba(247,147,26,0.06) 0%, transparent 45%);
+}
+
+.hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 25%, transparent 72%);
+    animation: gridPulse 10s ease-in-out infinite;
+}
+
+@keyframes gridPulse {
+    0%, 100% { opacity: 0.35; }
+    50% { opacity: 0.65; }
+}
+
+.hero-particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--accent);
+    border-radius: 50%;
+    opacity: 0;
+    animation: particleFloat 12s ease-in-out infinite;
+}
+
+.particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+.particle:nth-child(2) { left: 25%; animation-delay: 2s; }
+.particle:nth-child(3) { left: 40%; animation-delay: 4s; }
+.particle:nth-child(4) { left: 55%; animation-delay: 1s; }
+.particle:nth-child(5) { left: 70%; animation-delay: 3s; }
+.particle:nth-child(6) { left: 85%; animation-delay: 5s; }
+.particle:nth-child(7) { left: 15%; animation-delay: 6s; background: var(--nostr-purple); }
+.particle:nth-child(8) { left: 60%; animation-delay: 7s; background: var(--bitcoin); }
+.particle:nth-child(9) { left: 35%; animation-delay: 8s; background: var(--accent); }
+.particle:nth-child(10) { left: 75%; animation-delay: 9s; background: var(--youtube-red); }
+
+@keyframes particleFloat {
+    0% { bottom: -10%; opacity: 0; transform: translateX(0) scale(1); }
+    10% { opacity: 0.8; }
+    90% { opacity: 0.8; }
+    100% { bottom: 110%; opacity: 0; transform: translateX(100px) scale(0.5); }
+}
+
+.hero-glow {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(229,72,72,0.08) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: glowPulse 6s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+}
+
+.hero-scanline {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(229,72,72,0.45), transparent);
+    top: 0;
+    animation: scanline 4s linear infinite;
+}
+
+@keyframes scanline {
+    0% { top: 0; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.hub-hero h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(2.75rem, 7vw, 4.25rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1.08;
+    margin-bottom: 20px;
+    background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.82) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hub-hero .subtitle {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    max-width: 580px;
+    margin: 0 auto 40px;
+    line-height: 1.65;
+    font-weight: 400;
+}
+
+.hub-stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.hub-stat {
+    text-align: center;
+    background: var(--bg-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 20px 28px;
+    min-width: 120px;
+    transition: border-color 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+}
+
+.hub-stat:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-sm);
+}
+
+.hub-stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    display: block;
+}
+
+.hub-stat-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-top: 6px;
+    font-weight: 500;
+}
+
+/* ========== NAVIGATION TABS ========== */
+.hub-nav {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 70px;
+    z-index: 100;
+    background: rgba(5,5,8,0.82);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 18px 0;
+    margin-left: -28px;
+    margin-right: -28px;
+    padding-left: 28px;
+    padding-right: 28px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.hub-nav .hub-tab {
+    flex-shrink: 0;
+    min-width: 0;
+}
+
+.hub-tab {
+    font-family: 'Outfit', sans-serif;
+    padding: 12px 22px;
+    background: var(--bg-glass);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-full);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.25s var(--ease-out), border-color 0.25s var(--ease-out), color 0.25s var(--ease-out), transform 0.2s var(--ease-out);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+}
+
+.hub-tab:hover {
+    background: var(--bg-elevated);
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+}
+
+.hub-tab:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
+}
+
+.hub-tab.active {
+    background: var(--text-primary);
+    color: var(--bg-primary);
+    border-color: var(--text-primary);
+}
+
+/* ========== TRENDING TOPICS ========== */
+.trending-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 24px;
+    background: var(--bg-glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    margin-bottom: 28px;
+    overflow-x: auto;
+    scrollbar-color: var(--border-hover) var(--bg-secondary);
+}
+.trending-bar::-webkit-scrollbar { height: 6px; }
+.trending-bar::-webkit-scrollbar-track { background: var(--bg-secondary); }
+.trending-bar::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 3px; }
+.trending-bar::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+.trending-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.trending-label i { color: var(--accent); }
+
+.trending-topics {
+    display: flex;
+    gap: 10px;
+    flex-wrap: nowrap;
+}
+
+.trending-topic {
+    padding: 8px 16px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-full);
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: border-color 0.25s var(--ease-out), color 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out), transform 0.2s var(--ease-out);
+}
+
+.trending-topic:hover {
+    border-color: rgba(229,72,72,0.4);
+    color: var(--accent);
+    box-shadow: 0 0 0 1px rgba(229,72,72,0.15);
+}
+
+.trending-topic .count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-left: 6px;
+}
+
+/* Trending hover popover */
+.trending-topic-wrap { position: relative; display: inline-block; }
+.trending-popover {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(100% + 12px);
+    min-width: 300px;
+    max-width: 380px;
+    background: rgba(22,22,28,0.96);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255,255,255,0.04);
+    padding: 14px 0;
+    z-index: 200;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s var(--ease-out), visibility 0.2s var(--ease-out), transform 0.2s var(--ease-out);
+}
+.trending-topic-wrap:hover .trending-popover,
+.trending-popover.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+.trending-popover-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0 16px 10px;
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 8px;
+}
+.trending-popover-links { list-style: none; margin: 0; padding: 0; }
+.trending-popover-links a {
+    display: block;
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background 0.2s var(--ease-out), color 0.2s var(--ease-out);
+}
+.trending-popover-links a:hover { background: var(--bg-card); color: var(--accent); }
+.trending-popover-links a:focus-visible { outline: 2px solid var(--border-focus); outline-offset: -2px; }
+.trending-popover-expand {
+    display: block;
+    padding: 12px 16px;
+    margin-top: 8px;
+    border-top: 1px solid var(--border-subtle);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+    transition: background 0.2s var(--ease-out);
+}
+.trending-popover-expand:hover { background: var(--accent-soft); }
+.trending-popover-expand:focus-visible { outline: 2px solid var(--border-focus); outline-offset: -2px; }
+.trending-popover-loading { padding: 14px 16px; font-size: 0.85rem; color: var(--text-muted); }
+.trending-popover-loading i { margin-right: 8px; }
+
+.trending-sources {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.trending-sources span { opacity: 0.85; }
+
+/* Start here block */
+.start-here-block {
+    background: linear-gradient(135deg, var(--accent-soft) 0%, rgba(229,72,72,0.04) 100%);
+    border: 1px solid rgba(229,72,72,0.25);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 28px;
+    position: relative;
+}
+.start-here-block h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+.start-here-block p { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.5; }
+.start-here-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.start-here-actions a, .start-here-actions button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s var(--ease-out), color 0.2s var(--ease-out);
+    border: 1px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    font-family: inherit;
+}
+.start-here-actions a:hover, .start-here-actions button:hover { background: var(--accent); color: #fff; }
+.start-here-dismiss {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+}
+.start-here-dismiss:hover { color: var(--text-primary); }
+
+/* New this week */
+.new-this-week { margin-bottom: 28px; }
+.new-this-week .section-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.ntw-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+}
+.ntw-card-wrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.ntw-card-wrap .btn-save-for-later { align-self: flex-start; margin-top: 0.25rem; }
+.ntw-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1.1rem 1.25rem;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    transition: border-color 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+}
+.ntw-card:hover { border-color: var(--border-hover); box-shadow: var(--shadow-sm); }
+.ntw-card-type {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+.ntw-card-title { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.35rem; line-height: 1.35; }
+.ntw-card-meta { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem; }
+.ntw-card-desc { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45; }
+.ntw-card-cover { width: 56px; height: 80px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: var(--bg-elevated); }
+.ntw-card-episode .ntw-card-cta { margin-top: 8px; font-size: 0.8rem; color: var(--accent); font-weight: 600; }
+
+/* Latest feed (unified) */
+.latest-feed { margin-bottom: 28px; }
+.latest-feed .section-label { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.75rem; }
+.latest-feed-list { list-style: none; margin: 0; padding: 0; }
+.latest-feed-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.2s var(--ease-out);
+}
+.latest-feed-item:hover { background: var(--bg-card); }
+.latest-feed-type {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    min-width: 56px;
+}
+.latest-feed-item .latest-feed-title { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); flex: 1; }
+.latest-feed-item .latest-feed-meta { font-size: 0.75rem; color: var(--text-muted); }
+
+/* Newsletter CTA */
+.newsletter-cta {
+    background: var(--bg-glass);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    padding: 1.75rem 2rem;
+    margin-bottom: 28px;
+    text-align: center;
+}
+.newsletter-cta h3 { font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary); }
+.newsletter-cta p { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1.25rem; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.5; }
+.newsletter-cta-form { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; max-width: 420px; margin: 0 auto; }
+.newsletter-cta-form input[type="email"] {
+    flex: 1;
+    min-width: 200px;
+    padding: 12px 16px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+.newsletter-cta-form input[type="email"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-soft);
+}
+.newsletter-cta-form button {
+    padding: 12px 20px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s var(--ease-out);
+}
+.newsletter-cta-form button:hover { opacity: 0.95; }
+.newsletter-cta-form button:disabled { opacity: 0.6; cursor: not-allowed; }
+.newsletter-cta-success { font-size: 0.9rem; color: var(--success); font-weight: 600; display: none; }
+.newsletter-cta-success.show { display: block; }
+
+/* Continue watching */
+.continue-watching-bar {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--accent-soft);
+    border: 1px solid rgba(229,72,72,0.25);
+    border-radius: var(--radius-md);
+    margin-bottom: 20px;
+}
+.continue-watching-bar.show { display: flex; flex-wrap: wrap; }
+.continue-watching-bar span { font-size: 0.85rem; color: var(--text-secondary); flex: 1; }
+.continue-watching-bar a {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+}
+.continue-watching-bar a:hover { text-decoration: underline; }
+
+/* Your saved (save for later) */
+.your-saved { margin-bottom: 24px; }
+.your-saved .section-label { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.75rem; }
+.saved-list { list-style: none; margin: 0; padding: 0; }
+.saved-list li { padding: 8px 0; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.saved-list li a { color: var(--text-primary); text-decoration: none; font-size: 0.9rem; }
+.saved-list li a:hover { color: var(--accent); }
+.saved-list-empty { font-size: 0.9rem; color: var(--text-muted); padding: 12px 0; }
+.btn-save-for-later {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+}
+.btn-save-for-later:hover { color: var(--accent); }
+.btn-save-for-later.saved { color: var(--accent); }
+
+/* ========== PODCASTS SECTION (Media Hub) ========== */
+.podcasts-hub-intro { margin-bottom: 2rem; }
+.podcasts-hub-sub { font-size: 1rem; color: var(--text-secondary); max-width: 640px; margin: 0; line-height: 1.6; }
+.podcasts-empty-state { text-align: center; padding: 4rem 2rem; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); }
+.podcasts-empty-icon { font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem; }
+.podcasts-empty-state h3 { font-family: 'Outfit', sans-serif; font-size: 1.35rem; margin-bottom: 0.5rem; color: var(--text-primary); }
+.podcasts-empty-state p { color: var(--text-secondary); font-size: 0.95rem; max-width: 420px; margin: 0 auto; }
+.podcast-section-block { margin-bottom: 3rem; }
+.podcast-section-name { font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 10px; }
+.podcast-section-name i { color: var(--nostr-purple); }
+.podcast-bento { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+.podcast-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); overflow: hidden; transition: border-color 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out), transform 0.25s var(--ease-out); display: flex; flex-direction: column; }
+.podcast-card:hover { border-color: rgba(168,85,247,0.4); box-shadow: var(--shadow-md); transform: translateY(-4px); }
+.podcast-card-cover { position: relative; aspect-ratio: 1; background: var(--bg-elevated); overflow: hidden; }
+.podcast-card-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.podcast-card-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-secondary) 100%); color: var(--nostr-purple); font-size: 2.5rem; opacity: 0.5; }
+.podcast-play-btn { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.4); border: none; color: #fff; font-size: 2rem; cursor: pointer; opacity: 0; transition: opacity 0.25s var(--ease-out); }
+.podcast-card:hover .podcast-play-btn { opacity: 1; }
+.podcast-play-btn:hover { background: rgba(168,85,247,0.5); color: #fff; }
+.podcast-play-btn i { filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5)); }
+.podcast-card-body { padding: 1.25rem; flex: 1; display: flex; flex-direction: column; }
+.podcast-card-meta { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 0.5rem; }
+.podcast-card-title { font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700; color: var(--text-primary); margin: 0 0 0.5rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.podcast-card-desc { font-size: 0.85rem; color: var(--text-secondary); margin: 0 0 0.75rem; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1; }
+.podcast-card-footer { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem; display: flex; justify-content: space-between; gap: 8px; }
+.podcast-card-cta { width: 100%; padding: 10px 16px; background: var(--nostr-purple); color: #fff; border: none; border-radius: var(--radius-md); font-size: 0.9rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.2s var(--ease-out); }
+.podcast-card-cta:hover { opacity: 0.95; }
+.podcast-load-more-wrap { text-align: center; margin-top: 1.5rem; }
+.podcast-load-more { padding: 12px 24px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-full); color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: border-color 0.2s var(--ease-out), color 0.2s var(--ease-out); }
+.podcast-load-more:hover { border-color: var(--nostr-purple); color: var(--nostr-purple); }
+.media-hub-podcast-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: rgba(15,15,20,0.96); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border-subtle); padding: 12px 0; }
+.podcast-bar-inner { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.podcast-bar-art { width: 48px; height: 48px; min-width: 48px; background: var(--bg-elevated); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: var(--nostr-purple); font-size: 1.25rem; overflow: hidden; }
+.podcast-bar-art img { width: 100%; height: 100%; object-fit: cover; }
+.podcast-bar-info { min-width: 0; flex: 0 1 200px; }
+.podcast-bar-title { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.podcast-bar-meta { font-size: 0.75rem; color: var(--text-muted); }
+.podcast-bar-controls { display: flex; align-items: center; gap: 8px; }
+.podcast-bar-btn { background: none; border: none; color: var(--text-muted); font-size: 1rem; cursor: pointer; padding: 8px; transition: color 0.2s var(--ease-out); }
+.podcast-bar-btn:hover { color: var(--accent); }
+.podcast-bar-play { width: 44px; height: 44px; border-radius: 50%; background: var(--nostr-purple); border: none; color: #fff; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: opacity 0.2s var(--ease-out); }
+.podcast-bar-play:hover { opacity: 0.9; }
+.podcast-bar-progress-wrap { flex: 1; min-width: 120px; display: flex; align-items: center; gap: 10px; }
+.podcast-bar-time { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); min-width: 36px; }
+.podcast-bar-track { flex: 1; height: 6px; background: var(--bg-elevated); border-radius: 3px; cursor: pointer; overflow: hidden; }
+.podcast-bar-fill { height: 100%; width: 0%; background: var(--nostr-purple); border-radius: 3px; transition: width 0.1s linear; }
+.podcast-bar-close { background: none; border: none; color: var(--text-muted); font-size: 1rem; cursor: pointer; padding: 8px; transition: color 0.2s var(--ease-out); }
+.podcast-bar-close:hover { color: var(--text-primary); }
+
+/* ========== SECTIONS ========== */
+.hub-section {
+    margin-bottom: 64px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.section-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.section-title::before {
+    content: '';
+    width: 4px;
+    height: 26px;
+    background: var(--accent);
+    border-radius: 2px;
+}
+
+/* ========== BOOKS SECTION (Sovereign Library + Recommended Reading) ========== */
+.books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+}
+
+.book-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+    position: relative;
+    box-shadow: var(--shadow-sm);
+}
+
+.book-card:hover {
+    border-color: rgba(229,72,72,0.35);
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-md), var(--shadow-glow);
+}
+
+.book-card:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+
+.book-cover {
+    height: 200px;
+    min-height: 200px;
+    background: var(--bg-elevated);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+.book-cover img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+}
+
+.book-info {
+    padding: 1.25rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.book-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: var(--bitcoin);
+    color: #000;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.book-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    color: var(--text-primary);
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+}
+
+.book-author {
+    font-size: 0.82rem;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 0.5rem;
+}
+
+.book-desc {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin-bottom: 0.75rem;
+    flex: 1;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    display: -webkit-box;
+}
+
+.book-cta {
+    font-size: 0.8rem;
+    color: var(--accent);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.book-card:hover .book-cta { color: #fff; }
+
+/* Latest Intel on Live Feed */
+.intel-on-feed {
+    margin-bottom: 2rem;
+    padding: 1.75rem 0;
+    border-top: 1px solid var(--border-subtle);
+}
+.intel-feed-list { list-style: none; margin: 0; padding: 0; }
+.intel-feed-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 0.85rem;
+    transition: border-color 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+}
+.intel-feed-item:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-sm);
+}
+.intel-feed-meta {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+.intel-feed-insight {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin: 0.5rem 0 0.6rem;
+    line-height: 1.55;
+}
+.intel-feed-link {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+    transition: color 0.2s var(--ease-out);
+}
+.intel-feed-link:hover { color: var(--text-primary); }
+.intel-feed-link:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+
+/* Books strip on Live Feed */
+.books-on-feed {
+    margin-top: 2.25rem;
+    padding: 1.75rem 0;
+    border-top: 1px solid var(--border-subtle);
+}
+.books-on-feed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+}
+.books-on-feed-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+.books-on-feed-title i { color: var(--accent); }
+.books-on-feed-more {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.25s var(--ease-out), color 0.25s var(--ease-out), border-color 0.25s var(--ease-out);
+}
+.books-on-feed-more:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+.books-on-feed-more:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+.books-on-feed-sub {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 1.35rem;
+    line-height: 1.5;
+}
+.books-on-feed-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+}
+.book-card-inline .book-cover { height: 160px; min-height: 160px; }
+.book-card-inline .book-cover img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; object-position: center; display: block; }
+.book-card-inline .book-info { padding: 0.75rem; }
+.book-card-inline .book-title { font-size: 0.9rem; }
+.book-card-inline .book-desc { display: none; }
+@media (max-width: 768px) {
+    .books-on-feed-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; }
+    .book-card-inline .book-cover { height: 140px; }
+}
+
+@media (max-width: 768px) {
+    .books-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .book-cover { height: 160px; min-height: 160px; }
+    .book-info { padding: 1rem; }
+}
+
+/* ========== SERIES SHOWCASE ========== */
+.series-showcase {
+    padding: 3.5rem 0;
+    background: radial-gradient(ellipse at 20% 80%, rgba(229,72,72,0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(229,72,72,0.04) 0%, transparent 45%);
+    position: relative;
+    overflow: hidden;
+}
+
+.series-showcase::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(229,72,72,0.25), transparent);
+}
+
+.showcase-header {
+    text-align: center;
+    margin-bottom: 2.75rem;
+}
+
+.showcase-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--accent-soft);
+    border: 1px solid rgba(229,72,72,0.25);
+    padding: 0.65rem 1.6rem;
+    border-radius: var(--radius-full);
+    margin-bottom: 1.25rem;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.showcase-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    margin-bottom: 0.6rem;
+    background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.82) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.showcase-subtitle {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.series-carousel {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+}
+
+#section-series .series-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out), transform 0.35s var(--ease-out);
+    position: relative;
+    box-shadow: var(--shadow-sm);
+}
+
+#section-series .series-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s var(--ease-out);
+}
+
+#section-series .series-card:hover {
+    transform: translateY(-10px);
+    border-color: rgba(229,72,72,0.4);
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+
+#section-series .series-card:hover::before {
+    opacity: 1;
+}
+
+#section-series .series-card:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+
+.series-thumbnail {
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.series-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+#section-series .series-card:hover .series-overlay {
+    opacity: 1;
+}
+
+.play-ring {
+    width: 72px;
+    height: 72px;
+    border: 2px solid rgba(255,255,255,0.85);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    transform: scale(0.88);
+    transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out);
+    box-shadow: 0 12px 40px rgba(229,72,72,0.45);
+}
+
+#section-series .series-card:hover .play-ring {
+    transform: scale(1);
+    box-shadow: 0 14px 48px rgba(229,72,72,0.5);
+}
+
+.play-ring i {
+    color: white;
+    font-size: 1.5rem;
+    margin-left: 4px;
+}
+
+.series-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(12px);
+    padding: 0.45rem 0.9rem;
+    border-radius: var(--radius-full);
+    font-size: 0.7rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    color: var(--accent);
+    border: 1px solid rgba(229,72,72,0.3);
+    letter-spacing: 0.08em;
+}
+
+.series-info {
+    padding: 1.5rem;
+}
+
+.series-info h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+}
+
+.series-author {
+    font-size: 0.8rem;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 0.75rem;
+}
+
+#section-series .series-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+    display: block;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+@media (max-width: 1200px) {
+    .series-carousel { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .series-carousel { grid-template-columns: 1fr; gap: 1.25rem; }
+    .series-showcase { padding: 2rem 0; }
+    .showcase-header { margin-bottom: 1.5rem; }
+}
+
+/* ========== NOSTR SECTION ========== */
+.nostr-section {
+    background: var(--bg-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(168,85,247,0.2);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+}
+
+.nostr-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.nostr-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nostr-title i { color: var(--nostr-purple); }
+
+.nostr-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nostr-badge {
+    background: rgba(168,85,247,0.15);
+    border: 1px solid rgba(168,85,247,0.3);
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    color: var(--nostr-purple);
+    font-family: 'JetBrains Mono', monospace;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.live-indicator {
+    width: 8px;
+    height: 8px;
+    background: var(--success);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.sovereign-toggle {
+    background: rgba(168,85,247,0.1);
+    border: 1px solid rgba(168,85,247,0.3);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    transition: all 0.2s;
+}
+
+.sovereign-toggle:hover, .sovereign-toggle.active {
+    background: rgba(168,85,247,0.2);
+    border-color: var(--nostr-purple);
+    color: var(--nostr-purple);
+}
+
+#nostrFeed {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.nostr-post {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(168,85,247,0.15);
+    border-left: 3px solid var(--nostr-purple);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    transition: all 0.3s ease;
+}
+
+.nostr-post:hover {
+    border-color: rgba(168,85,247,0.4);
+    transform: translateX(4px);
+}
+
+.nostr-post.slide-in { animation: slideIn 0.4s ease-out; }
+
+.nostr-post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.nostr-author {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.author-name { font-weight: 600; font-size: 0.9rem; }
+
+.sovereign-badge {
+    background: rgba(168,85,247,0.2);
+    border: 1px solid var(--nostr-purple);
+    color: var(--nostr-purple);
+    font-size: 0.55rem;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.nip05-handle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.nostr-time {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.nostr-content {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    word-break: break-word;
+}
+
+.nostr-content a { color: var(--nostr-purple); text-decoration: none; }
+.nostr-content a:hover { text-decoration: underline; }
+.nostr-hashtag { color: var(--accent); }
+
+.nostr-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.zap-counter {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+}
+
+.zap-icon { color: var(--bitcoin); }
+.zap-count { color: var(--bitcoin); font-weight: 600; }
+
+.view-on-nostr {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.view-on-nostr:hover { color: var(--nostr-purple); }
+
+.nostr-loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+}
+
+/* ========== MODAL ========== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.95);
+    z-index: 9999;
+    display: none;
+    padding: 40px;
+    overflow-y: auto;
+}
+
+.modal-overlay.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-close {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 50%;
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    cursor: pointer;
+    z-index: 10001;
+    transition: all 0.2s;
+}
+
+.modal-close:hover { background: var(--accent); }
+
+.modal-content { max-width: 1200px; margin: 0 auto; }
+
+.modal-video {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.modal-video iframe {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border: none;
+}
+
+.modal-info {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 32px;
+}
+
+@media (max-width: 900px) { .modal-info { grid-template-columns: 1fr; } }
+
+.modal-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 12px; }
+.modal-description { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; }
+
+/* Episode Intel Card (TL;DR, Key Quote, Fun Fact, Topics) */
+.episode-guide-panel {
+    background: linear-gradient(135deg, rgba(20,20,25,0.98) 0%, rgba(30,30,35,0.95) 100%);
+    border: 1px solid rgba(229,72,72,0.3);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin: 1rem 0;
+    position: relative;
+    animation: guideSlideIn 0.3s ease-out;
+}
+@keyframes guideSlideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.guide-badge {
+    background: linear-gradient(135deg, var(--accent) 0%, #b91c1c 100%);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.guide-episode-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    line-height: 1.3;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 0.75rem;
+}
+.guide-section { margin-bottom: 1rem; }
+.guide-section:last-child { margin-bottom: 0; }
+.guide-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 0.4rem;
+    font-family: 'JetBrains Mono', monospace;
+}
+.guide-content { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin: 0; }
+.guide-quote {
+    font-size: 0.85rem;
+    color: var(--bitcoin);
+    font-style: italic;
+    line-height: 1.5;
+    margin: 0;
+    padding-left: 0.75rem;
+    border-left: 2px solid var(--accent);
+}
+.guide-topics { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.guide-topic-tag {
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 0.65rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid rgba(229,72,72,0.3);
+}
+
+.episode-list {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.episode-list-title {
+    padding: 16px 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-subtle);
+    position: sticky;
+    top: 0;
+    background: var(--bg-card);
+}
+
+.episode-item {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.episode-item:hover { background: var(--bg-elevated); }
+
+.episode-item.active {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+}
+
+.episode-num {
+    width: 28px;
+    height: 28px;
+    background: var(--bg-elevated);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.episode-item.active .episode-num { background: var(--accent); }
+.episode-title { font-size: 0.85rem; }
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+    .hub-container { padding: 0 20px; }
+    .hub-hero { padding: 56px 0 40px; }
+    .hub-hero h1 { font-size: 2rem; }
+    .hub-stats { gap: 16px; }
+    .hub-stat { min-width: 100px; padding: 16px 20px; }
+    .hub-stat-value { font-size: 1.5rem; }
+    .hub-nav { gap: 8px; margin-left: -20px; margin-right: -20px; padding-left: 20px; padding-right: 20px; }
+    .hub-tab { padding: 10px 16px; font-size: 0.8rem; }
+    .modal-overlay { padding: 16px; }
+    .trending-bar { padding: 14px 18px; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 3px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="media-hub">
+    <div class="hub-container">
+        
+        <!-- Animated Hero -->
+        <div class="hub-hero">
+            <div class="hero-bg">
+                <div class="hero-gradient"></div>
+                <div class="hero-grid"></div>
+                <div class="hero-glow"></div>
+                <div class="hero-scanline"></div>
+                <div class="hero-particles">
+                    <div class="particle"></div><div class="particle"></div>
+                    <div class="particle"></div><div class="particle"></div>
+                    <div class="particle"></div><div class="particle"></div>
+                    <div class="particle"></div><div class="particle"></div>
+                    <div class="particle"></div><div class="particle"></div>
+                </div>
+            </div>
+            <div class="hero-content">
+                <h1>Protocol Pulse Media</h1>
+                <p class="subtitle">Shows, books, and intel from the Bitcoin ecosystem. Deep dives, reading lists, and the Sovereign Library.</p>
+                <div class="hub-stats">
+                    <div class="hub-stat">
+                        <div class="hub-stat-value" id="hubStatSeries">{{ youtube_series|length if youtube_series else 0 }}</div>
+                        <div class="hub-stat-label">Series</div>
+                    </div>
+                    <div class="hub-stat">
+                        <div class="hub-stat-value" id="hubStatBooks">{{ (our_books|length) + (recommended_books|length) }}</div>
+                        <div class="hub-stat-label">Books</div>
+                    </div>
+                    <div class="hub-stat">
+                        <div class="hub-stat-value" id="hubStatIntel">{{ intel_posts|length if intel_posts else 0 }}</div>
+                        <div class="hub-stat-label">Intel Briefs</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation: Live Feed | Books | Series | Nostr (all 4 must be visible) -->
+        <nav class="hub-nav" id="hub-nav" role="tablist" aria-label="Media hub sections">
+            <button type="button" class="hub-tab active" id="hub-tab-channels" role="tab" aria-selected="true" onclick="showSection('channels')">
+                <i class="fas fa-satellite-dish"></i> Live Feed
+            </button>
+            <button type="button" class="hub-tab" id="hub-tab-books" role="tab" aria-selected="false" onclick="showSection('books')">
+                <i class="fas fa-book"></i> Books
+            </button>
+            <button type="button" class="hub-tab" onclick="showSection('series')">
+                <i class="fas fa-play-circle"></i> Series
+            </button>
+            <button type="button" class="hub-tab" id="hub-tab-podcasts" onclick="showSection('podcasts')">
+                <i class="fas fa-podcast"></i> Podcasts
+            </button>
+            <button type="button" class="hub-tab" onclick="showSection('nostr')">
+                <i class="fas fa-bolt"></i> Nostr
+            </button>
+        </nav>
+
+        <!-- LIVE FEED SECTION -->
+        <div id="section-channels" class="hub-section">
+            
+            <!-- Start here (dismissible) -->
+            <div class="start-here-block" id="startHereBlock">
+                <button type="button" class="start-here-dismiss" id="startHereDismiss" aria-label="Dismiss">I've been here before</button>
+                <h3>New to Protocol Pulse?</h3>
+                <p>Start with a series, grab a book from the Sovereign Library, and get the weekly intel digest in your inbox.</p>
+                <div class="start-here-actions">
+                    <a href="#section-series" onclick="showSection('series'); return true;">Watch a series <i class="fas fa-play"></i></a>
+                    <a href="#section-books" onclick="showSection('books'); return true;">Sovereign Library <i class="fas fa-book"></i></a>
+                    <a href="#newsletter-cta">Get the digest <i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+
+            <!-- Newsletter CTA -->
+            <div class="newsletter-cta" id="newsletter-cta">
+                <h3>Get the weekly intel digest</h3>
+                <p>New episodes, briefs, and curated reads in your inbox. No spam.</p>
+                <form class="newsletter-cta-form" id="newsletterCtaForm">
+                    <input type="email" name="email" placeholder="you@example.com" required aria-label="Email address">
+                    <button type="submit" id="newsletterCtaSubmit">Subscribe</button>
+                </form>
+                <p class="newsletter-cta-success" id="newsletterCtaSuccess">Thanks — check your inbox to confirm.</p>
+            </div>
+            
+            <!-- Trending Topics Bar -->
+            <div class="trending-bar">
+                <div class="trending-label"><i class="fas fa-fire"></i> Trending</div>
+                <div class="trending-topics" id="trendingTopics">
+                    <div class="trending-topic-wrap"><span class="trending-topic" data-tag="bitcoin">#Bitcoin <span class="count">127</span></span><div class="trending-popover" id="popover-bitcoin" role="tooltip"><div class="trending-popover-title">Top discussions</div><div class="trending-popover-content"><div class="trending-popover-loading"><i class="fas fa-spinner fa-spin"></i>Loading…</div></div><a href="#" class="trending-popover-expand" target="_blank" rel="noopener">Expand to see all →</a></div></div>
+                    <div class="trending-topic-wrap"><span class="trending-topic" data-tag="etf">#ETF <span class="count">84</span></span><div class="trending-popover" id="popover-etf" role="tooltip"><div class="trending-popover-title">Top discussions</div><div class="trending-popover-content"><div class="trending-popover-loading"><i class="fas fa-spinner fa-spin"></i>Loading…</div></div><a href="#" class="trending-popover-expand" target="_blank" rel="noopener">Expand to see all →</a></div></div>
+                    <div class="trending-topic-wrap"><span class="trending-topic" data-tag="lightning">#Lightning <span class="count">52</span></span><div class="trending-popover" id="popover-lightning" role="tooltip"><div class="trending-popover-title">Top discussions</div><div class="trending-popover-content"><div class="trending-popover-loading"><i class="fas fa-spinner fa-spin"></i>Loading…</div></div><a href="#" class="trending-popover-expand" target="_blank" rel="noopener">Expand to see all →</a></div></div>
+                    <div class="trending-topic-wrap"><span class="trending-topic" data-tag="nostr">#Nostr <span class="count">41</span></span><div class="trending-popover" id="popover-nostr" role="tooltip"><div class="trending-popover-title">Top discussions</div><div class="trending-popover-content"><div class="trending-popover-loading"><i class="fas fa-spinner fa-spin"></i>Loading…</div></div><a href="#" class="trending-popover-expand" target="_blank" rel="noopener">Expand to see all →</a></div></div>
+                    <div class="trending-topic-wrap"><span class="trending-topic" data-tag="mining">#Mining <span class="count">33</span></span><div class="trending-popover" id="popover-mining" role="tooltip"><div class="trending-popover-title">Top discussions</div><div class="trending-popover-content"><div class="trending-popover-loading"><i class="fas fa-spinner fa-spin"></i>Loading…</div></div><a href="#" class="trending-popover-expand" target="_blank" rel="noopener">Expand to see all →</a></div></div>
+                    <div class="trending-topic-wrap"><span class="trending-topic" data-tag="halving">#Halving <span class="count">28</span></span><div class="trending-popover" id="popover-halving" role="tooltip"><div class="trending-popover-title">Top discussions</div><div class="trending-popover-content"><div class="trending-popover-loading"><i class="fas fa-spinner fa-spin"></i>Loading…</div></div><a href="#" class="trending-popover-expand" target="_blank" rel="noopener">Expand to see all →</a></div></div>
+                </div>
+            </div>
+            <p class="trending-sources"><span>Sources: Reddit r/bitcoin, r/cryptocurrency</span><span id="trendingUpdated"> · Live</span></p>
+
+            <!-- Continue watching (filled by JS from localStorage) -->
+            <div class="continue-watching-bar" id="continueWatchingBar">
+                <span id="continueWatchingText"></span>
+                <a href="#" id="continueWatchingLink">Continue</a>
+            </div>
+
+            <!-- New this week -->
+            {% if new_this_week and new_this_week|length > 0 %}
+            <div class="new-this-week">
+                <div class="section-label"><i class="fas fa-sparkles"></i> New this week</div>
+                <div class="ntw-grid">
+                    {% for item in new_this_week %}
+                    <div class="ntw-card-wrap">
+                    {% if item.type == 'intel' %}
+                    <a href="{{ item.url }}" target="_blank" rel="noopener" class="ntw-card">
+                        <span class="ntw-card-type">Intel</span>
+                        <div>
+                            <div class="ntw-card-meta">{{ item.meta }}</div>
+                            <div class="ntw-card-title">{{ item.title }}</div>
+                            {% if item.description %}<div class="ntw-card-desc">{{ item.description[:80] }}{% if item.description|length > 80 %}…{% endif %}</div>{% endif %}
+                        </div>
+                    </a>
+                    <button type="button" class="btn-save-for-later" data-save-id="ntw-intel-{{ loop.index }}" data-save-title="{{ item.title|e }}" data-save-url="{{ item.url }}">Save for later</button>
+                    {% elif item.type == 'episode' %}
+                    <a href="{{ item.url }}" class="ntw-card ntw-card-episode" onclick="showSection('series'); if (typeof openSeries === 'function') openSeries('{{ item.series_id }}'); return true;">
+                        <span class="ntw-card-type">Episode</span>
+                        <div>
+                            <div class="ntw-card-meta">{{ item.meta }}</div>
+                            <div class="ntw-card-title">{{ item.title }}</div>
+                            <span class="ntw-card-cta">Watch <i class="fas fa-play" style="font-size: 0.7rem;"></i></span>
+                        </div>
+                    </a>
+                    <button type="button" class="btn-save-for-later" data-save-id="ntw-ep-{{ loop.index }}" data-save-title="{{ item.title|e }}" data-save-url="#section-series">Save for later</button>
+                    {% elif item.type == 'book' %}
+                    <a href="{{ item.url }}" target="_blank" rel="noopener" class="ntw-card">
+                        {% if item.cover_url %}<img src="{{ item.cover_url }}" alt="" class="ntw-card-cover">{% endif %}
+                        <div>
+                            <span class="ntw-card-type">Book</span>
+                            <div class="ntw-card-title">{{ item.title }}</div>
+                            {% if item.description %}<div class="ntw-card-desc">{{ item.description }}…</div>{% endif %}
+                        </div>
+                    </a>
+                    <button type="button" class="btn-save-for-later" data-save-id="ntw-book-{{ loop.index }}" data-save-title="{{ item.title|e }}" data-save-url="{{ item.url }}">Save for later</button>
+                    {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Unified Latest feed -->
+            {% if latest_feed and latest_feed|length > 0 %}
+            <div class="latest-feed">
+                <div class="section-label">Latest — intel, episodes &amp; books</div>
+                <ul class="latest-feed-list">
+                    {% for item in latest_feed %}
+                    <a href="{{ item.url }}" class="latest-feed-item" {% if item.type == 'episode' %}onclick="showSection('series'); if (typeof openSeries === 'function') openSeries('{{ item.series_id }}'); return true;"{% elif item.url.startswith('http') %}target="_blank" rel="noopener"{% endif %}>
+                        <span class="latest-feed-type">{% if item.type == 'intel' %}Intel{% elif item.type == 'episode' %}Episode{% else %}Book{% endif %}</span>
+                        <span class="latest-feed-title">{{ item.title }}</span>
+                        <span class="latest-feed-meta">{{ item.meta }}</span>
+                    </a>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <!-- Your saved (populated by JS from localStorage) -->
+            <div class="your-saved" id="yourSavedSection" style="display: none;">
+                <div class="section-label">Your saved for later</div>
+                <ul class="saved-list" id="savedList"></ul>
+            </div>
+
+            {% if intel_posts and intel_posts|length > 0 %}
+            <div class="intel-on-feed">
+                <div class="books-on-feed-header">
+                    <span class="books-on-feed-title"><i class="fas fa-bolt"></i> Latest Intel</span>
+                    <a href="/intelligence" class="books-on-feed-more" style="text-decoration: none; color: inherit;">All intel <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <p class="books-on-feed-sub">Recent briefs and key insights from the Protocol Pulse intelligence stream.</p>
+                <ul class="intel-feed-list">
+                    {% for post in intel_posts[:5] %}
+                    <li class="intel-feed-item">
+                        <span class="intel-feed-meta">{{ post.time_ago }} · {{ post.persona }}</span>
+                        <p class="intel-feed-insight">{{ post.key_insight or post.primary_tweet or '—' }}</p>
+                        {% if post.x_url %}<a href="{{ post.x_url }}" target="_blank" rel="noopener" class="intel-feed-link">Read on X →</a>{% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <!-- Sovereign Library: books visible on default /media view -->
+            <div class="books-on-feed">
+                <div class="books-on-feed-header">
+                    <span class="books-on-feed-title"><i class="fas fa-book"></i> Sovereign Library</span>
+                    <button type="button" class="books-on-feed-more" onclick="showSection('books');">
+                        All books &amp; Amazon links <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+                <p class="books-on-feed-sub">Featured on the show + recommended reading. Support authors with our affiliate links.</p>
+                <div class="books-on-feed-grid">
+                    {% for book in our_books %}
+                    <a href="{{ book.amazon_url }}" target="_blank" rel="noopener" class="book-card book-card-inline">
+                        <div class="book-cover"><img src="{{ book.cover_url }}" alt="{{ book.title }}" loading="lazy" onerror="this.src='/static/images/book-placeholder.svg'; this.onerror=null;"></div>
+                        <div class="book-info">
+                            <h3 class="book-title">{{ book.title }}</h3>
+                            <p class="book-author">{{ book.author }}</p>
+                            <span class="book-cta"><i class="fab fa-amazon"></i> Amazon</span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                    {% for book in recommended_books[:6] %}
+                    <a href="{{ book.amazon_url }}" target="_blank" rel="noopener" class="book-card book-card-inline {% if book.bestseller %}bestseller{% endif %}">
+                        <div class="book-cover"><img src="{{ book.cover_url }}" alt="{{ book.title }}" loading="lazy" onerror="this.src='/static/images/book-placeholder.svg'; this.onerror=null;"></div>
+                        <div class="book-info">
+                            {% if book.bestseller %}<span class="book-badge">Bestseller</span>{% endif %}
+                            <h3 class="book-title">{{ book.title }}</h3>
+                            <p class="book-author">{{ book.author }}</p>
+                            <span class="book-cta"><i class="fab fa-amazon"></i> Amazon</span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- BOOKS SECTION: Featured + Recommended Reading with Amazon links -->
+        <div id="section-books" class="hub-section" style="display: none;">
+            <div class="series-showcase">
+                <div class="showcase-header">
+                    <div class="showcase-badge">
+                        <i class="fas fa-book" style="font-size: 1.25em;"></i>
+                        <span>SOVEREIGN LIBRARY</span>
+                    </div>
+                    <h2 class="showcase-title">Featured on the Show</h2>
+                    <p class="showcase-subtitle">Books we've broken down episode by episode. Get the physical copy and support the authors.</p>
+                </div>
+                <div class="books-grid">
+                    {% for book in our_books %}
+                    <a href="{{ book.amazon_url }}" target="_blank" rel="noopener" class="book-card">
+                        <div class="book-cover"><img src="{{ book.cover_url }}" alt="{{ book.title }}" loading="lazy" onerror="this.src='/static/images/book-placeholder.svg'; this.onerror=null;"></div>
+                        <div class="book-info">
+                            <h3 class="book-title">{{ book.title }}</h3>
+                            <p class="book-author">{{ book.author }}</p>
+                            <p class="book-desc">{{ book.description[:120] }}{% if book.description|length > 120 %}...{% endif %}</p>
+                            <span class="book-cta"><i class="fab fa-amazon"></i> Get on Amazon</span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                <div class="showcase-header" style="margin-top: 3rem;">
+                    <h2 class="showcase-title">Recommended Reading</h2>
+                    <p class="showcase-subtitle">Essential Bitcoin and sound-money books. Bestsellers and deep dives for every level.</p>
+                </div>
+                <div class="books-grid">
+                    {% for book in recommended_books %}
+                    <a href="{{ book.amazon_url }}" target="_blank" rel="noopener" class="book-card {% if book.bestseller %}bestseller{% endif %}">
+                        <div class="book-cover"><img src="{{ book.cover_url }}" alt="{{ book.title }}" loading="lazy" onerror="this.src='/static/images/book-placeholder.svg'; this.onerror=null;"></div>
+                        <div class="book-info">
+                            {% if book.bestseller %}<span class="book-badge">Bestseller</span>{% endif %}
+                            <h3 class="book-title">{{ book.title }}</h3>
+                            <p class="book-author">{{ book.author }}</p>
+                            <p class="book-desc">{{ book.description[:120] }}{% if book.description|length > 120 %}...{% endif %}</p>
+                            <span class="book-cta"><i class="fab fa-amazon"></i> Get on Amazon</span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- SERIES SECTION (original interactive series guide with carousel & cards) -->
+        <div id="section-series" class="hub-section" style="display: none;">
+            <div class="series-showcase">
+                <div class="showcase-header">
+                    <div class="showcase-badge">
+                        <i class="fab fa-bitcoin" style="font-size: 1.25em;"></i>
+                        <span>SIGNATURE SERIES</span>
+                    </div>
+                    <h2 class="showcase-title">Original Book Series</h2>
+                    <p class="showcase-subtitle">Cinematic deep dives with the world's leading Bitcoin authors. Each series breaks down essential ideas episode by episode.</p>
+                </div>
+                
+                <div class="series-carousel">
+                    <div class="series-card" onclick="openSeries('everything_21m')">
+                        <div class="series-thumbnail" style="background-image: url('https://i.ytimg.com/vi/FA8tvWEydcA/maxresdefault.jpg');">
+                            <div class="series-overlay">
+                                <div class="play-ring"><i class="fas fa-play"></i></div>
+                            </div>
+                            <div class="series-badge">11 Episodes</div>
+                        </div>
+                        <div class="series-info">
+                            <h3>Everything Divided by 21 Million</h3>
+                            <p class="series-author"><i class="fas fa-user" style="margin-right: 0.35rem;"></i>Matty Ice & Knut Svanholm</p>
+                            <p class="series-desc">Bitcoin's relationship to time, money, freedom, and human progress.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="series-card" onclick="openSeries('big_print')">
+                        <div class="series-thumbnail" style="background-image: url('https://i.ytimg.com/vi/W09CNU_q6Yo/maxresdefault.jpg');">
+                            <div class="series-overlay">
+                                <div class="play-ring"><i class="fas fa-play"></i></div>
+                            </div>
+                            <div class="series-badge">12 Episodes</div>
+                        </div>
+                        <div class="series-info">
+                            <h3>The Big Print</h3>
+                            <p class="series-author"><i class="fas fa-user" style="margin-right: 0.35rem;"></i>Matty Ice & Lawrence Lepard</p>
+                            <p class="series-desc">How the Fed engineered the most devastating wealth extraction in history.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="series-card" onclick="openSeries('daylight_robbery')">
+                        <div class="series-thumbnail" style="background-image: url('https://i.ytimg.com/vi/ZCc78wvwd6U/maxresdefault.jpg');">
+                            <div class="series-overlay">
+                                <div class="play-ring"><i class="fas fa-play"></i></div>
+                            </div>
+                            <div class="series-badge">13 Episodes</div>
+                        </div>
+                        <div class="series-info">
+                            <h3>Daylight Robbery</h3>
+                            <p class="series-author"><i class="fas fa-user" style="margin-right: 0.35rem;"></i>Matty Ice & Dominic Frisby</p>
+                            <p class="series-desc">The hidden story of how taxation shaped human civilization.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="series-card" onclick="openSeries('genesis_book')">
+                        <div class="series-thumbnail" style="background-image: url('https://i.ytimg.com/vi/3TslgynKeaA/maxresdefault.jpg');">
+                            <div class="series-overlay">
+                                <div class="play-ring"><i class="fas fa-play"></i></div>
+                            </div>
+                            <div class="series-badge">10 Episodes</div>
+                        </div>
+                        <div class="series-info">
+                            <h3>The Genesis Book</h3>
+                            <p class="series-author"><i class="fas fa-user" style="margin-right: 0.35rem;"></i>Matty Ice & Aaron van Wirdum</p>
+                            <p class="series-desc">Austrian economics and the revolutionary origins of Bitcoin.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PODCASTS SECTION: Protocol Pulse & Cypherpunk'd -->
+        <div id="section-podcasts" class="hub-section" style="display: none;">
+            <div class="podcasts-hub-intro">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-podcast" style="color: var(--nostr-purple);"></i> Protocol Pulse & Cypherpunk'd Podcasts</h2>
+                </div>
+                <p class="podcasts-hub-sub">Listen to our shows and partner intelligence. Play any episode below — the player stays with you as you browse.</p>
+            </div>
+            {% set plist = podcast_sections_list|default([]) %}
+            {% if not plist %}
+            <div class="podcasts-empty-state">
+                <div class="podcasts-empty-icon"><i class="fas fa-microphone"></i></div>
+                <h3>Podcasts coming soon</h3>
+                <p>From the Command Deck, run <strong>Generate podcasts from all partners</strong> to populate episodes from Protocol Pulse and Cypherpunk'd channels.</p>
+            </div>
+            {% else %}
+            {% for section in plist %}
+            <div class="podcast-section-block">
+                <h3 class="podcast-section-name"><i class="fas fa-rss"></i> {{ section.name }}</h3>
+                <div class="podcast-bento">
+                    {% for podcast in section.podcasts %}
+                    <article class="podcast-card">
+                        <div class="podcast-card-cover">
+                            {% if podcast.cover_image_url %}
+                            <img src="{{ podcast.cover_image_url }}" alt="{{ podcast.title }}" loading="lazy">
+                            {% else %}
+                            <div class="podcast-card-placeholder"><i class="fas fa-microphone"></i></div>
+                            {% endif %}
+                            <button type="button" class="podcast-play-btn" onclick="mediaHubPlayPodcast({{ podcast.id }})" aria-label="Play {{ podcast.title }}">
+                                <i class="fas fa-play"></i>
+                            </button>
+                        </div>
+                        <div class="podcast-card-body">
+                            <span class="podcast-card-meta">Ep {{ podcast.episode_number or '—' }}{% if podcast.duration %} · {{ podcast.duration }}{% endif %}</span>
+                            <h4 class="podcast-card-title">{{ podcast.title }}</h4>
+                            <p class="podcast-card-desc">{{ (podcast.description[:100] + '…') if podcast.description and podcast.description|length > 100 else (podcast.description or '') }}</p>
+                            <div class="podcast-card-footer">
+                                <span><i class="fas fa-user"></i> {{ podcast.host or 'Protocol Pulse' }}</span>
+                                <span>{{ podcast.published_date.strftime('%b %d, %Y') if podcast.published_date else '' }}</span>
+                            </div>
+                            <button type="button" class="podcast-card-cta" onclick="mediaHubPlayPodcast({{ podcast.id }})"><i class="fas fa-play"></i> Play</button>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+                <div class="podcast-load-more-wrap">
+                    <button type="button" class="podcast-load-more" data-section="{{ section.name }}" data-slug="{{ section.slug }}" onclick="mediaHubLoadMoreEpisodes(this)">
+                        <i class="fas fa-chevron-down"></i> More {{ section.name }}
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+
+        <!-- NOSTR SECTION -->
+        <div id="section-nostr" class="hub-section" style="display: none;">
+            <div class="nostr-section">
+                <div class="nostr-header">
+                    <h3 class="nostr-title"><i class="fas fa-bolt"></i> Sovereign Relay</h3>
+                    <div class="nostr-controls">
+                        <span class="nostr-badge"><span class="live-indicator"></span> LIVE</span>
+                        <button class="sovereign-toggle" onclick="toggleSovereignOnly(this)">
+                            <i class="fas fa-shield-alt"></i> Verified Only
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="nostrFeed">
+                    <div class="nostr-loading">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 16px; display: block;"></i>
+                        Connecting to Nostr relays...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Global Podcast Player (sticky) -->
+<div id="mediaHubPodcastBar" class="media-hub-podcast-bar" style="display: none;">
+    <div class="hub-container">
+        <div class="podcast-bar-inner">
+            <div class="podcast-bar-art" id="podcastBarArt"><i class="fas fa-podcast"></i></div>
+            <div class="podcast-bar-info">
+                <div class="podcast-bar-title" id="podcastBarTitle">Episode</div>
+                <div class="podcast-bar-meta" id="podcastBarMeta">Protocol Pulse</div>
+            </div>
+            <div class="podcast-bar-controls">
+                <button type="button" class="podcast-bar-btn" onclick="mediaHubSeekBack()" aria-label="Back 15s"><i class="fas fa-backward"></i></button>
+                <button type="button" class="podcast-bar-play" id="podcastBarPlayBtn" onclick="mediaHubTogglePlay()" aria-label="Play/Pause"><i class="fas fa-play"></i></button>
+                <button type="button" class="podcast-bar-btn" onclick="mediaHubSeekFwd()" aria-label="Forward 15s"><i class="fas fa-forward"></i></button>
+            </div>
+            <div class="podcast-bar-progress-wrap">
+                <span class="podcast-bar-time" id="podcastBarCur">0:00</span>
+                <div class="podcast-bar-track" id="podcastBarTrack" onclick="mediaHubSeekTo(event)"><div class="podcast-bar-fill" id="podcastBarFill"></div></div>
+                <span class="podcast-bar-time" id="podcastBarDur">0:00</span>
+            </div>
+            <button type="button" class="podcast-bar-close" onclick="mediaHubClosePlayer()" aria-label="Close"><i class="fas fa-times"></i></button>
+        </div>
+    </div>
+    <audio id="mediaHubAudio" preload="metadata"></audio>
+</div>
+
+<!-- Video Player Modal -->
+<div id="playerModal" class="modal-overlay">
+    <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    <div class="modal-content">
+        <div class="modal-video">
+            <iframe id="modalVideo" src="" allowfullscreen></iframe>
+        </div>
+        <div class="modal-info">
+            <div>
+                <h2 class="modal-title" id="modalTitle">Episode Title</h2>
+                <p class="modal-description" id="modalDesc">Episode description...</p>
+                <!-- Episode Intel Card (TL;DR, Key Quote, Fun Fact, Topics) -->
+                <div id="episodeGuidePanel" class="episode-guide-panel" style="display: none;">
+                    <div class="guide-header">
+                        <span class="guide-badge"><i class="fas fa-book-open"></i> EPISODE INTEL</span>
+                    </div>
+                    <h4 class="guide-episode-title" id="guideEpTitle">Episode Title</h4>
+                    <div class="guide-section">
+                        <div class="guide-label"><i class="fas fa-bolt"></i> TL;DR</div>
+                        <p class="guide-content" id="guideTldr">—</p>
+                    </div>
+                    <div class="guide-section">
+                        <div class="guide-label"><i class="fas fa-quote-left"></i> KEY QUOTE</div>
+                        <p class="guide-quote" id="guideQuote">—</p>
+                    </div>
+                    <div class="guide-section">
+                        <div class="guide-label"><i class="fas fa-lightbulb"></i> FUN FACT</div>
+                        <p class="guide-content" id="guideFunFact">—</p>
+                    </div>
+                    <div class="guide-section">
+                        <div class="guide-label"><i class="fas fa-tags"></i> TOPICS</div>
+                        <div class="guide-topics" id="guideTopics"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="episode-list" id="episodeList">
+                <div class="episode-list-title">Episodes</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/nostr_relay.js') }}"></script>
+<script>
+// Section Navigation
+function showSection(section) {
+    document.querySelectorAll('.hub-section').forEach(s => { s.style.display = 'none'; });
+    document.querySelectorAll('.hub-tab').forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+    });
+    var sectionEl = document.getElementById('section-' + section);
+    if (sectionEl) sectionEl.style.display = 'block';
+    var tab = (typeof event !== 'undefined' && event.target) ? event.target.closest('.hub-tab') : document.getElementById('hub-tab-' + section);
+    if (tab) {
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
+    }
+    if (section === 'nostr' && !window.nostrInitialized) {
+        initNostr();
+    }
+}
+// Open Podcasts section when URL hash is #section-podcasts
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.location.hash === '#section-podcasts') {
+        showSection('podcasts');
+    }
+});
+
+// ——— Media Hub Podcast Player ———
+let mediaHubCurrentPodcast = null;
+function mediaHubPlayPodcast(id) {
+    fetch('/api/podcast/' + id).then(function(r) { return r.json(); }).then(function(p) {
+        if (!p.audio_url) { alert('Audio not available for this episode yet.'); return; }
+        mediaHubCurrentPodcast = p;
+        document.getElementById('podcastBarTitle').textContent = p.title;
+        document.getElementById('podcastBarMeta').textContent = p.host || 'Protocol Pulse';
+        var art = document.getElementById('podcastBarArt');
+        if (p.cover_image_url) { art.innerHTML = '<img src="' + p.cover_image_url + '" alt="">'; } else { art.innerHTML = '<i class="fas fa-podcast"></i>'; }
+        document.getElementById('mediaHubPodcastBar').style.display = 'block';
+        var audio = document.getElementById('mediaHubAudio');
+        audio.src = p.audio_url;
+        audio.play();
+        document.getElementById('podcastBarPlayBtn').querySelector('i').className = 'fas fa-pause';
+    }).catch(function() { alert('Unable to load podcast.'); });
+}
+function mediaHubTogglePlay() {
+    var audio = document.getElementById('mediaHubAudio');
+    var icon = document.getElementById('podcastBarPlayBtn').querySelector('i');
+    if (audio.paused) { audio.play(); icon.className = 'fas fa-pause'; } else { audio.pause(); icon.className = 'fas fa-play'; }
+}
+function mediaHubSeekBack() { var a = document.getElementById('mediaHubAudio'); a.currentTime = Math.max(0, a.currentTime - 15); }
+function mediaHubSeekFwd() { var a = document.getElementById('mediaHubAudio'); a.currentTime = Math.min(a.duration || 0, a.currentTime + 15); }
+function mediaHubSeekTo(ev) {
+    var track = document.getElementById('podcastBarTrack');
+    var rect = track.getBoundingClientRect();
+    var pct = (ev.clientX - rect.left) / rect.width;
+    var audio = document.getElementById('mediaHubAudio');
+    if (audio.duration) { audio.currentTime = pct * audio.duration; }
+}
+function mediaHubClosePlayer() {
+    document.getElementById('mediaHubAudio').pause(); document.getElementById('mediaHubPodcastBar').style.display = 'none';
+}
+var mediaHubAudioEl = document.getElementById('mediaHubAudio');
+if (mediaHubAudioEl) {
+    mediaHubAudioEl.addEventListener('timeupdate', function() {
+        var cur = document.getElementById('podcastBarCur'); var dur = document.getElementById('podcastBarDur'); var fill = document.getElementById('podcastBarFill');
+        if (cur) cur.textContent = formatTime(mediaHubAudioEl.currentTime);
+        if (dur) dur.textContent = formatTime(mediaHubAudioEl.duration || 0);
+        if (fill && mediaHubAudioEl.duration) fill.style.width = (100 * mediaHubAudioEl.currentTime / mediaHubAudioEl.duration) + '%';
+    });
+    mediaHubAudioEl.addEventListener('play', function() { var i = document.getElementById('podcastBarPlayBtn'); if (i) i.querySelector('i').className = 'fas fa-pause'; });
+    mediaHubAudioEl.addEventListener('pause', function() { var i = document.getElementById('podcastBarPlayBtn'); if (i) i.querySelector('i').className = 'fas fa-play'; });
+    mediaHubAudioEl.addEventListener('loadedmetadata', function() { document.getElementById('podcastBarDur').textContent = formatTime(mediaHubAudioEl.duration || 0); });
+}
+function formatTime(s) { var m = Math.floor(s / 60); var sec = Math.floor(s % 60); return m + ':' + (sec < 10 ? '0' : '') + sec; }
+function mediaHubLoadMoreEpisodes(btn) {
+    var sectionName = btn.getAttribute('data-section'); var slug = btn.getAttribute('data-slug');
+    var block = btn.closest('.podcast-section-block');
+    var offset = block ? block.querySelectorAll('.podcast-card').length : 0;
+    fetch('/api/podcasts/' + encodeURIComponent(sectionName) + '?offset=' + offset + '&limit=6').then(function(r) { return r.json(); }).then(function(data) {
+        if (!data.podcasts || data.podcasts.length === 0) { btn.style.display = 'none'; return; }
+        var wrap = document.createElement('div'); wrap.className = 'podcast-bento'; wrap.style.marginTop = '1rem';
+        data.podcasts.forEach(function(p) {
+            var card = document.createElement('article'); card.className = 'podcast-card';
+            card.innerHTML = '<div class="podcast-card-cover">' + (p.cover_image_url ? '<img src="' + p.cover_image_url + '" alt="" loading="lazy">' : '<div class="podcast-card-placeholder"><i class="fas fa-microphone"></i></div>') + '<button type="button" class="podcast-play-btn" onclick="mediaHubPlayPodcast(' + p.id + ')" aria-label="Play"><i class="fas fa-play"></i></button></div><div class="podcast-card-body"><span class="podcast-card-meta">Ep ' + (p.episode_number || '—') + (p.duration ? ' · ' + p.duration : '') + '</span><h4 class="podcast-card-title">' + (p.title || '').replace(/</g,'&lt;') + '</h4><p class="podcast-card-desc">' + (p.description || '').replace(/</g,'&lt;').substring(0,100) + '</p><div class="podcast-card-footer"><span><i class="fas fa-user"></i> ' + (p.host || 'Protocol Pulse') + '</span><span>' + (p.published_date || '') + '</span></div><button type="button" class="podcast-card-cta" onclick="mediaHubPlayPodcast(' + p.id + ')"><i class="fas fa-play"></i> Play</button></div>';
+            wrap.appendChild(card);
+        });
+        btn.parentElement.insertBefore(wrap, btn);
+        if (!data.has_more) btn.style.display = 'none';
+    }).catch(function() { btn.textContent = 'Failed to load'; });
+}
+
+// Nostr Integration
+let nostrInitialized = false;
+
+function initNostr() {
+    if (window.SovereignNostrRelay) {
+        window.SovereignNostrRelay.init('nostrFeed');
+        nostrInitialized = true;
+    } else {
+        setTimeout(initNostr, 500);
+    }
+}
+
+function toggleSovereignOnly(btn) {
+    btn.classList.toggle('active');
+    if (window.SovereignNostrRelay) {
+        window.SovereignNostrRelay.filterSovereignOnly(btn.classList.contains('active'));
+    }
+}
+
+// Series Data (with episode intel: tldr, keyQuote, funFact, topics)
+const seriesData = {
+    'everything_21m': {
+        title: 'Everything Divided by 21 Million',
+        description: 'A full 12-episode cinematic exploration of Knut Svanholm\'s book.',
+        episodes: [
+            { id: 'FA8tvWEydcA', title: 'Time | Episode 1', tldr: 'Time is the ultimate scarce resource. Bitcoin is the first technology that allows us to store the value of our time indefinitely.', keyQuote: '"Your time is your life energy. Every hour you work, you trade a piece of your finite existence."', funFact: 'The average person will work 90,000 hours in their lifetime — Bitcoin lets you preserve that value.', topics: ['Time preference', 'Delayed gratification', 'Store of value'] },
+            { id: 'VDordtHAJhg', title: 'Alchemy | Episode 2', tldr: 'Central banks are modern alchemists — creating money from nothing while Bitcoin maintains absolute scarcity.', keyQuote: '"Fiat currency is the greatest magic trick ever performed — making something from nothing."', funFact: 'The Federal Reserve has created more dollars since 2020 than in the previous 100 years combined.', topics: ['Money printing', 'Scarcity', 'Sound money'] },
+            { id: 'yKbQq66AInU', title: 'Ownership | Episode 3', tldr: 'True ownership requires proof of work. Bitcoin is the first asset that cannot be confiscated by force.', keyQuote: '"If you can\'t hold it in your mind, you don\'t truly own it."', funFact: 'A 12-word seed phrase can store unlimited value in your memory — the ultimate bearer instrument.', topics: ['Self-custody', 'Property rights', 'Seizure resistance'] },
+            { id: 'rkTbEpAOADI', title: 'Energy | Episode 4', tldr: 'Bitcoin mining converts stranded and wasted energy into monetary value, creating the most efficient energy market ever.', keyQuote: '"Bitcoin doesn\'t waste energy — it monetizes energy that would otherwise be wasted."', funFact: 'Over 50% of Bitcoin mining now uses renewable energy sources, making it greener than traditional banking.', topics: ['Proof of work', 'Energy markets', 'Thermodynamics'] },
+            { id: 'qG2xYvTVkw0', title: 'Morality | Episode 5', tldr: 'Inflation is theft. Bitcoin restores moral accountability to money by removing the ability to silently steal.', keyQuote: '"When you can\'t print money, you can\'t fund endless wars."', funFact: 'Every 1% of inflation effectively steals 1% of purchasing power from every saver in the economy.', topics: ['Cantillon effect', 'Monetary ethics', 'Wealth redistribution'] },
+            { id: 'v7xZPqcXyLk', title: 'Memetics | Episode 6', tldr: 'Ideas spread like viruses. Bitcoin is the most powerful monetary meme in human history.', keyQuote: '"The orange pill is the ultimate mind virus — once you see it, you can\'t unsee it."', funFact: 'The term "hodl" originated from a typo in a 2013 Bitcoin forum post and became a global movement.', topics: ['Viral ideas', 'Cultural evolution', 'Network effects'] },
+            { id: 'RZv_1Qcqik4', title: 'Symbiosis | Episode 7', tldr: 'Bitcoin and humanity co-evolve. The network gets stronger as more humans join, and humans get freer as the network grows.', keyQuote: '"We shape Bitcoin, and then Bitcoin shapes us."', funFact: 'Bitcoin has survived over 400 "deaths" according to mainstream media — each time coming back stronger.', topics: ['Network effects', 'Antifragility', 'Co-evolution'] },
+            { id: 'UlYSv9SwQGk', title: 'Violence | Episode 8', tldr: 'All fiat money ultimately relies on state violence. Bitcoin offers the first peaceful exit from coercive monetary systems.', keyQuote: '"Violence is the last refuge of the incompetent."', funFact: 'Throughout history, every fiat currency has eventually failed — usually within 40-50 years.', topics: ['State coercion', 'Peaceful revolution', 'Opt-out'] },
+            { id: '_ygND311kVE', title: 'Deflation | Episode 9', tldr: 'Deflation rewards savers and punishes speculation. A deflationary currency encourages sustainable economics.', keyQuote: '"In a Bitcoin world, prices naturally fall as technology improves."', funFact: 'The price of TVs fell 99% over 50 years due to technology — that\'s natural deflation at work.', topics: ['Purchasing power', 'Savings culture', 'Economic sustainability'] },
+            { id: 'Nf0LtAk4VBs', title: 'Adoption | Episode 10', tldr: 'Bitcoin adoption follows an S-curve. We are still in the early majority phase — the opportunity is now.', keyQuote: '"You\'re not late, you\'re early. Most people still don\'t understand what Bitcoin is."', funFact: 'Less than 2% of the global population currently owns Bitcoin — similar to internet adoption in 1997.', topics: ['S-curve adoption', 'Network growth', 'First-mover advantage'] },
+            { id: 'Gt8ycm3-NV8', title: 'Transition | Episode 11', tldr: 'The shift from fiat to Bitcoin is a generational transition. Early adopters lead the way.', keyQuote: '"The best time to stack was yesterday. The second best is today."', funFact: 'Bitcoin\'s network has never been taken offline — 99.98%+ uptime since 2009.', topics: ['Transition', 'Stacking', 'Network resilience'] }
+        ]
+    },
+    'big_print': {
+        title: 'The Big Print',
+        description: 'An explosive 12-part deep dive into the Federal Reserve.',
+        episodes: [
+            { id: 'W09CNU_q6Yo', title: 'Why Fixing the Money is the Only Way | Episode 1', tldr: 'The monetary system is the root cause of most societal problems. Fix the money, fix the world.', keyQuote: '"Money is the operating system of civilization — and ours is corrupted."', funFact: 'Lawrence Lepard manages over $500M in assets and went all-in on sound money after 2008.', topics: ['Monetary reform', 'Systemic corruption', 'First principles'] },
+            { id: 'tnthM3uaHbI', title: 'How Govt Stole 98.5% Since 1971 | Episode 2', tldr: 'Since Nixon closed the gold window in 1971, the dollar has lost over 98% of its purchasing power.', keyQuote: '"1971 was the biggest heist in human history — and nobody talks about it."', funFact: 'A house that cost $25,000 in 1971 now costs over $400,000 — that\'s the silent theft in action.', topics: ['Nixon shock', 'Currency debasement', 'WTFhappenedin1971'] },
+            { id: 'FRH5w_joMP0', title: 'How Inflation Steals Your Life | Episode 3', tldr: 'Inflation is a hidden tax that steals your productive hours. Every dollar printed dilutes your savings.', keyQuote: '"Inflation is taxation without legislation."', funFact: 'A minimum wage worker in 1971 could buy more goods than a worker earning $20/hour today.', topics: ['Hidden taxation', 'Purchasing power erosion', 'Working class impact'] },
+            { id: 'JLjG8jAJxbw', title: 'The Path to Pure Fiat | Episode 4', tldr: 'The journey from gold-backed money to pure fiat was a deliberate process of financial enslavement.', keyQuote: '"The Fed was designed to fail the people and enrich the elite."', funFact: 'The Federal Reserve was created on Jekyll Island in 1910 by six men representing 25% of world wealth.', topics: ['Fed history', 'Gold standard abandonment', 'Financial elite'] },
+            { id: 'tq_ZYhpW4Vw', title: 'How Powell & Yellen Broke It | Episode 5', tldr: 'Recent Fed policies have accelerated the destruction of the dollar at an unprecedented rate.', keyQuote: '"The Fed printed more money in 2020 than in the previous 200 years of US history."', funFact: 'The Fed\'s balance sheet grew from $4T to $9T in just two years during COVID.', topics: ['Quantitative easing', 'Monetary policy', 'System fragility'] },
+            { id: 'Sjp-Kaic2CE', title: 'Austrian vs Keynesian | Episode 6', tldr: 'Austrian economics explains why Keynesian policies always fail — and why Bitcoin aligns with Austrian principles.', keyQuote: '"Keynes gave politicians the intellectual cover to print money."', funFact: 'Keynes himself said "In the long run we are all dead" — the ultimate short-term thinking.', topics: ['Economic schools', 'Sound money theory', 'Policy implications'] },
+            { id: 'n6Bi8Kf6ar0', title: 'The Sovereign Currency Bubble | Episode 7', tldr: 'Government bonds are the largest bubble in history. When it pops, Bitcoin will be the escape valve.', keyQuote: '"The bond market is a $130 trillion house of cards."', funFact: 'Over $18 trillion in bonds traded at negative yields in 2021 — paying to lend money.', topics: ['Bond markets', 'Debt crisis', 'Safe haven assets'] },
+            { id: 'M3M61rLBTl0', title: 'Bitcoin is God\'s Gift | Episode 8', tldr: 'Bitcoin arrived at exactly the right moment to save humanity from financial enslavement.', keyQuote: '"Bitcoin is the peaceful revolution we\'ve been waiting for."', funFact: 'Satoshi mined the genesis block on Jan 3, 2009, embedding a newspaper headline about bank bailouts.', topics: ['Divine timing', 'Financial freedom', 'Peaceful revolution'] },
+            { id: 'uzUEJZ38RV8', title: 'Bitcoin & Real Estate | Episode 9', tldr: 'Real estate became a store of value because money failed. Bitcoin returns that function to money itself.', keyQuote: '"Housing shouldn\'t be an investment — it should be a home."', funFact: 'Millennials own 5% of US wealth at age 35 — Boomers owned 21% at the same age.', topics: ['Asset inflation', 'Wealth inequality', 'Generational divide'] },
+            { id: 'y9snxWoEkaU', title: 'End of Centralized Power | Episode 10', tldr: 'Centralized control of money enables centralized control of everything. Bitcoin breaks this cycle.', keyQuote: '"Control the money, control the world."', funFact: 'The Federal Reserve is owned by private banks, not the US government.', topics: ['Power structures', 'Decentralization', 'Financial sovereignty'] },
+            { id: 'hKa8lRDwIos', title: 'Digital Scarcity | Episode 11', tldr: 'Before Bitcoin, digital things could be infinitely copied. Satoshi solved the double-spend problem.', keyQuote: '"Bitcoin is the first truly scarce digital asset in human history."', funFact: 'There will only ever be 21 million Bitcoin — less than 0.003 BTC per person globally.', topics: ['Digital scarcity', 'Double-spend problem', 'Mathematical certainty'] },
+            { id: 'FyMWELymqAM', title: 'Fix the Money, Fix the World | Episode 12', tldr: 'When money is honest, society becomes honest. Bitcoin is the foundation for a better civilization.', keyQuote: '"Hard money creates hard men. Soft money creates soft men."', funFact: 'Countries with sound money historically have lower crime, higher trust, and greater prosperity.', topics: ['Social transformation', 'Moral hazard', 'Civilizational change'] }
+        ]
+    },
+    'daylight_robbery': {
+        title: 'Daylight Robbery',
+        description: 'A riveting 13-part series on taxation through history.',
+        episodes: [
+            { id: 'ZCc78wvwd6U', title: 'The Hidden History of Taxation | Episode 1', tldr: 'Taxation has been the primary mechanism of wealth extraction throughout human history.', keyQuote: '"Taxation is the price we pay for failing to build a civilized society."', funFact: 'The word "tax" comes from Latin "taxare" meaning to censure, charge, or assess.', topics: ['Tax origins', 'Historical perspective', 'Wealth extraction'] },
+            { id: 'j_V3fjvEuS0', title: 'How Taxes Shaped Civilization | Episode 2', tldr: 'The rise and fall of empires can be traced through their tax policies.', keyQuote: '"Every empire that overtaxed its citizens collapsed."', funFact: 'The Roman Empire fell partly because tax rates exceeded 50% of income.', topics: ['Empire cycles', 'Tax burden', 'Civilizational collapse'] },
+            { id: 'W_TNwftaVMk', title: 'Death, Taxes, or Islam | Episode 3', tldr: 'Medieval taxation created religious and political divides that still shape our world today.', keyQuote: '"The Jizya tax created a two-tier society that echoes through history."', funFact: 'The Islamic Golden Age had lower tax rates than Christian Europe at the same time.', topics: ['Religious taxation', 'Medieval economics', 'Social stratification'] },
+            { id: '3VDVbbSZYPc', title: 'The Peasants\' Revolt | Episode 4', tldr: 'The 1381 Peasants Revolt was sparked by a poll tax — proving taxes ignite revolutions.', keyQuote: '"When Adam delved and Eve span, who was then the gentleman?"', funFact: 'The poll tax was only 4 pence per person — but it sparked the first major English uprising.', topics: ['Popular uprising', 'Tax resistance', 'Class warfare'] },
+            { id: 'brho571r5rY', title: 'Tax Wars That Created Nations | Episode 5', tldr: 'Many nations were born from tax rebellions — including the United States.', keyQuote: '"No taxation without representation!"', funFact: 'The American Revolution began over a 3% tax on tea — today we accept 40%+ tax rates.', topics: ['American Revolution', 'Tax rebellion', 'National identity'] },
+            { id: 'zltb_tXZiWI', title: 'How the Richest Controlled Nations | Episode 6', tldr: 'Banking families like the Rothschilds gained power by financing wars and collecting taxes.', keyQuote: '"Give me control of a nation\'s money and I care not who makes its laws."', funFact: 'The Rothschild family was worth an estimated $350 billion at their peak in the 1800s.', topics: ['Banking dynasties', 'War financing', 'Power concentration'] },
+            { id: '0MDv0d-3t_k', title: 'How Tariffs Caused Civil War | Episode 7', tldr: 'The American Civil War was as much about tariffs and taxation as it was about slavery.', keyQuote: '"The tariff question was the real cause of sectional conflict."', funFact: 'The Morrill Tariff of 1861 increased import duties by 70% — devastating the Southern economy.', topics: ['Tariff wars', 'Economic conflict', 'Civil War causes'] },
+            { id: 'Ym5W3t9WvB8', title: 'The Birth of Big Government | Episode 8', tldr: 'World War I created the income tax and the modern surveillance state.', keyQuote: '"War is the health of the state."', funFact: 'The US income tax was introduced in 1913 at 1% — a "temporary" war measure.', topics: ['Income tax origins', 'War expansion', 'Government growth'] },
+            { id: 'YUHM88mtRxU', title: 'Hitler, Banks & Nations | Episode 9', tldr: 'World War II was fundamentally a war over economic resources and monetary control.', keyQuote: '"All wars are bankers\' wars."', funFact: 'The Nazi regime confiscated $230 million in Jewish property through special taxes.', topics: ['War economics', 'Confiscation', 'Financial warfare'] },
+            { id: 'LcIT9Tgbkm8', title: 'How Govts Silently Rob You | Episode 10', tldr: 'Inflation is the hidden tax that requires no legislation and leaves no fingerprints.', keyQuote: '"The art of taxation is plucking the goose to get the most feathers with the least hissing."', funFact: 'The average person loses 2-3 months of salary annually to invisible inflation taxes.', topics: ['Inflation tax', 'Hidden extraction', 'Financial suppression'] },
+            { id: 'VRSXUD4L2eA', title: 'Digital Nomads & Borderless Money | Episode 11', tldr: 'Digital technology is making geographical tax jurisdictions obsolete.', keyQuote: '"The internet routes around censorship, and Bitcoin routes around taxation."', funFact: 'Over 35 million Americans now work remotely — many from lower-tax jurisdictions.', topics: ['Remote work', 'Tax arbitrage', 'Digital freedom'] },
+            { id: '1OAn6QDSsJs', title: 'How Data & AI Reshape Taxation | Episode 12', tldr: 'Governments are using AI to track and tax every transaction in real-time.', keyQuote: '"Big data is the biggest threat to financial privacy in history."', funFact: 'The IRS now uses machine learning to detect unreported income with 90%+ accuracy.', topics: ['Surveillance', 'AI taxation', 'Privacy erosion'] },
+            { id: 'xPPbMsz8qso', title: 'The Perfect Tax System | Episode 13', tldr: 'What would an ideal tax system look like? Dominic Frisby presents a radical alternative.', keyQuote: '"A land value tax is the least harmful way to fund public services."', funFact: 'Singapore uses land value taxation and has one of the world\'s most efficient economies.', topics: ['Land value tax', 'Tax reform', 'Optimal policy'] }
+        ]
+    },
+    'genesis_book': {
+        title: 'The Genesis Book',
+        description: 'Exploring the origins of Bitcoin with Aaron van Wirdum.',
+        episodes: [
+            { id: '3TslgynKeaA', title: 'Austrian Economics & Money | Episode 1', tldr: 'Austrian economics provides the theoretical foundation for understanding why Bitcoin matters.', keyQuote: '"The Austrian school predicted the failure of fiat money decades before Bitcoin."', funFact: 'Carl Menger founded Austrian economics in 1871 — 137 years before Bitcoin.', topics: ['Austrian economics', 'Monetary theory', 'Menger\'s origins'] },
+            { id: 'PFi6no-0wSE', title: 'Neutral Money & Denationalization | Episode 2', tldr: 'Hayek proposed private competing currencies in 1976 — Bitcoin fulfills his vision.', keyQuote: '"The denationalization of money is the most important reform we can make."', funFact: 'Hayek won the Nobel Prize in 1974, two years before writing "Denationalization of Money."', topics: ['Hayek', 'Private money', 'Currency competition'] },
+            { id: 'PLWhV1JBfCA', title: 'Free and Open Source Software | Episode 3', tldr: 'The open-source movement created the culture and tools that made Bitcoin possible.', keyQuote: '"Free software is about liberty, not price."', funFact: 'Linux, the open-source operating system, runs 96% of the world\'s top web servers.', topics: ['Open source', 'Linux', 'Collaborative development'] },
+            { id: 'J5b24c0QzCE', title: 'Cryptography & Spies | Episode 4', tldr: 'Cryptography evolved from a military secret to a tool for individual freedom.', keyQuote: '"Strong cryptography is the best defense against tyranny."', funFact: 'The NSA tried to ban public cryptography in the 1990s during the "Crypto Wars."', topics: ['Cryptography history', 'Privacy tools', 'Government opposition'] },
+            { id: 'FzrKToH9AT0', title: 'eCash & Timestamps | Episode 5', tldr: 'David Chaum invented digital cash in the 1980s — Bitcoin built on his work.', keyQuote: '"DigiCash was ahead of its time — it had everything except decentralization."', funFact: 'DigiCash filed for bankruptcy in 1998, just 10 years before Bitcoin launched.', topics: ['DigiCash', 'David Chaum', 'Digital cash pioneers'] },
+            { id: 'c3Nafsnts-Q', title: 'The Extropians & High Tech Hayekians | Episode 6', tldr: 'The Extropian movement envisioned a future of technological abundance and individual sovereignty.', keyQuote: '"We are the first generation that could live forever — if we choose."', funFact: 'Many early Bitcoiners were active in Extropian mailing lists in the 1990s.', topics: ['Extropianism', 'Transhumanism', 'Technological optimism'] },
+            { id: 'wDUePxNsgLs', title: 'The Rise of the Cypherpunks | Episode 7', tldr: 'The Cypherpunks believed privacy was essential for freedom — and they wrote code to prove it.', keyQuote: '"Cypherpunks write code. Privacy is not something you request — you take it."', funFact: 'The Cypherpunk mailing list included Tim May, Eric Hughes, and a young Satoshi Nakamoto.', topics: ['Cypherpunks', 'Privacy activism', 'Code as protest'] },
+            { id: 'WB5-IR5xrAE', title: 'Hashcash + Bit Gold | Episode 8', tldr: 'Adam Back\'s Hashcash and Nick Szabo\'s Bit Gold were the direct ancestors of Bitcoin.', keyQuote: '"Bit Gold was 90% of the way to Bitcoin — it just lacked the finishing touches."', funFact: 'Adam Back\'s Hashcash is the only prior technology directly cited in the Bitcoin whitepaper.', topics: ['Hashcash', 'Bit Gold', 'Proof of work origins'] },
+            { id: 'vydVrF07QGA', title: 'B-money and RPOW | Episode 9', tldr: 'Wei Dai\'s B-money and Hal Finney\'s RPOW were the final precursors before Bitcoin.', keyQuote: '"B-money proposed almost every element of Bitcoin — except the blockchain."', funFact: 'Hal Finney received the first ever Bitcoin transaction from Satoshi Nakamoto.', topics: ['B-money', 'RPOW', 'Hal Finney'] },
+            { id: 'VDdc67_HnVE', title: 'Bitcoin\'s Revolutionary Origins | Episode 10', tldr: 'Satoshi combined 30 years of cryptographic research into the first working cryptocurrency.', keyQuote: '"Bitcoin is not just a currency — it\'s a breakthrough in computer science."', funFact: 'Satoshi Nakamoto has never been identified and holds ~1 million untouched BTC.', topics: ['Bitcoin genesis', 'Satoshi mystery', 'Technical breakthrough'] }
+        ]
+    }
+};
+
+let currentSeries = null;
+let currentSeriesKey = null;
+
+function openSeries(seriesKey) {
+    currentSeriesKey = seriesKey;
+    currentSeries = seriesData[seriesKey];
+    if (!currentSeries || !currentSeries.episodes.length) return;
+    
+    const firstEp = currentSeries.episodes[0];
+    try {
+        localStorage.setItem('media_continue_watching', JSON.stringify({ seriesKey: seriesKey, episodeIndex: 0, title: firstEp.title }));
+        updateContinueWatchingBar();
+    } catch (e) {}
+    document.getElementById('modalVideo').src = `https://www.youtube.com/embed/${firstEp.id}?autoplay=1`;
+    document.getElementById('modalTitle').textContent = firstEp.title;
+    document.getElementById('modalDesc').textContent = currentSeries.description;
+    
+    const list = document.getElementById('episodeList');
+    list.innerHTML = '<div class="episode-list-title">Episodes</div>';
+    
+    currentSeries.episodes.forEach((ep, i) => {
+        const item = document.createElement('div');
+        item.className = 'episode-item' + (i === 0 ? ' active' : '');
+        item.innerHTML = `<span class="episode-num">${i + 1}</span><span class="episode-title">${ep.title}</span>`;
+        item.onclick = () => switchEpisode(ep, i);
+        list.appendChild(item);
+    });
+    
+    const guidePanel = document.getElementById('episodeGuidePanel');
+    guidePanel.style.display = 'block';
+    fillEpisodeGuide(firstEp);
+    
+    document.getElementById('playerModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function fillEpisodeGuide(ep) {
+    document.getElementById('guideEpTitle').textContent = ep.title;
+    document.getElementById('guideTldr').textContent = ep.tldr || '—';
+    document.getElementById('guideQuote').textContent = ep.keyQuote || '—';
+    document.getElementById('guideFunFact').textContent = ep.funFact || '—';
+    const topicsEl = document.getElementById('guideTopics');
+    if (ep.topics && ep.topics.length) {
+        topicsEl.innerHTML = ep.topics.map(t => `<span class="guide-topic-tag">${t}</span>`).join('');
+    } else {
+        topicsEl.innerHTML = '';
+    }
+}
+
+function switchEpisode(ep, index) {
+    document.getElementById('modalVideo').src = `https://www.youtube.com/embed/${ep.id}?autoplay=1`;
+    document.getElementById('modalTitle').textContent = ep.title;
+    fillEpisodeGuide(ep);
+    document.querySelectorAll('.episode-item').forEach((item, i) => {
+        item.classList.toggle('active', i === index);
+    });
+    try {
+        if (currentSeriesKey) {
+            localStorage.setItem('media_continue_watching', JSON.stringify({ seriesKey: currentSeriesKey, episodeIndex: index, title: ep.title }));
+            updateContinueWatchingBar();
+        }
+    } catch (e) {}
+}
+
+function closeModal() {
+    document.getElementById('modalVideo').src = '';
+    document.getElementById('episodeGuidePanel').style.display = 'none';
+    document.getElementById('playerModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function updateContinueWatchingBar() {
+    try {
+        var raw = localStorage.getItem('media_continue_watching');
+        if (!raw) { document.getElementById('continueWatchingBar').classList.remove('show'); return; }
+        var data = JSON.parse(raw);
+        var seriesTitle = (seriesData[data.seriesKey] && seriesData[data.seriesKey].title) ? seriesData[data.seriesKey].title : data.seriesKey;
+        document.getElementById('continueWatchingText').textContent = 'Continue: ' + seriesTitle + ' — ' + (data.title || 'Episode ' + (data.episodeIndex + 1));
+        var link = document.getElementById('continueWatchingLink');
+        link.href = '#section-series';
+        link.onclick = function() {
+            showSection('series');
+            if (data.seriesKey && typeof openSeries === 'function') {
+                openSeries(data.seriesKey);
+                if (currentSeries && currentSeries.episodes[data.episodeIndex]) {
+                    setTimeout(function() { switchEpisode(currentSeries.episodes[data.episodeIndex], data.episodeIndex); }, 100);
+                }
+            }
+            return false;
+        };
+        document.getElementById('continueWatchingBar').classList.add('show');
+    } catch (e) { document.getElementById('continueWatchingBar').classList.remove('show'); }
+}
+
+(function() {
+    if (localStorage.getItem('media_start_here_seen')) {
+        var block = document.getElementById('startHereBlock');
+        if (block) block.style.display = 'none';
+    }
+    var dismissBtn = document.getElementById('startHereDismiss');
+    if (dismissBtn) {
+        dismissBtn.addEventListener('click', function() {
+            try { localStorage.setItem('media_start_here_seen', '1'); } catch (e) {}
+            var block = document.getElementById('startHereBlock');
+            if (block) block.style.display = 'none';
+        });
+    }
+    var form = document.getElementById('newsletterCtaForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var email = (form.querySelector('input[name="email"]') || {}).value;
+            if (!email) return;
+            var submitBtn = document.getElementById('newsletterCtaSubmit');
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Subscribing…'; }
+            fetch('/api/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, first_name: '' })
+            }).then(function(r) { return r.json(); }).then(function(data) {
+                document.getElementById('newsletterCtaSuccess').classList.add('show');
+                form.style.display = 'none';
+            }).catch(function() {
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Subscribe'; }
+            });
+        });
+    }
+    updateContinueWatchingBar();
+})();
+
+(function() {
+    var SAVED_KEY = 'media_saved';
+    function getSaved() {
+        try {
+            var raw = localStorage.getItem(SAVED_KEY);
+            return raw ? JSON.parse(raw) : [];
+        } catch (e) { return []; }
+    }
+    function setSaved(arr) {
+        try { localStorage.setItem(SAVED_KEY, JSON.stringify(arr)); } catch (e) {}
+    }
+    function renderSavedList() {
+        var list = document.getElementById('savedList');
+        var section = document.getElementById('yourSavedSection');
+        if (!list || !section) return;
+        var saved = getSaved();
+        if (saved.length === 0) {
+            section.style.display = 'none';
+            return;
+        }
+        section.style.display = 'block';
+        list.innerHTML = saved.map(function(item) {
+            return '<li><a href="' + (item.url || '#') + '"' + (item.url && item.url.indexOf('http') === 0 ? ' target="_blank" rel="noopener"' : '') + '>' + (item.title || 'Saved item') + '</a> <button type="button" class="btn-save-for-later saved" data-remove-id="' + (item.id || '') + '" aria-label="Remove">×</button></li>';
+        }).join('');
+        list.querySelectorAll('[data-remove-id]').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var id = btn.getAttribute('data-remove-id');
+                var arr = getSaved().filter(function(x) { return x.id !== id; });
+                setSaved(arr);
+                renderSavedList();
+            });
+        });
+    }
+    function saveForLater(id, title, url) {
+        var saved = getSaved();
+        var i = saved.findIndex(function(x) { return x.id === id; });
+        if (i >= 0) {
+            saved.splice(i, 1);
+        } else {
+            saved.push({ id: id, title: title, url: url || '#' });
+        }
+        setSaved(saved);
+        renderSavedList();
+    }
+    window.saveForLater = saveForLater;
+    renderSavedList();
+    document.querySelectorAll('[data-save-id][data-save-title]').forEach(function(btn) {
+        var id = btn.getAttribute('data-save-id');
+        var title = btn.getAttribute('data-save-title');
+        var url = btn.getAttribute('data-save-url') || '#';
+        var saved = getSaved();
+        var isSaved = saved.some(function(x) { return x.id === id; });
+        btn.textContent = isSaved ? 'Saved' : 'Save for later';
+        btn.classList.toggle('saved', isSaved);
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            saveForLater(id, title, url);
+            btn.textContent = getSaved().some(function(x) { return x.id === id; }) ? 'Saved' : 'Save for later';
+            btn.classList.toggle('saved', getSaved().some(function(x) { return x.id === id; }));
+        });
+    });
+})();
+
+(function() {
+    var popoverCache = {};
+    function loadTrendingLinks(tag, popoverEl) {
+        var content = popoverEl.querySelector('.trending-popover-content');
+        var expandLink = popoverEl.querySelector('.trending-popover-expand');
+        if (popoverCache[tag]) {
+            renderLinks(content, expandLink, popoverCache[tag]);
+            return;
+        }
+        content.innerHTML = '<div class="trending-popover-loading"><i class="fas fa-spinner fa-spin"></i>Loading…</div>';
+        fetch('/api/media/trending-links?tag=' + encodeURIComponent(tag))
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                popoverCache[tag] = data;
+                renderLinks(content, expandLink, data);
+            })
+            .catch(function() {
+                content.innerHTML = '<div class="trending-popover-loading">Could not load links.</div>';
+            });
+    }
+    function renderLinks(content, expandLink, data) {
+        if (data.links && data.links.length) {
+            content.innerHTML = '<ul class="trending-popover-links">' +
+                data.links.map(function(l) { return '<li><a href="' + (l.url || '#') + '" target="_blank" rel="noopener">' + (l.title || 'Link') + '</a></li>'; }).join('') +
+                '</ul>';
+        } else {
+            content.innerHTML = '<div class="trending-popover-loading">No links right now.</div>';
+        }
+        if (expandLink && data.expand_url) { expandLink.href = data.expand_url; expandLink.style.display = 'block'; }
+        else if (expandLink) { expandLink.style.display = 'none'; }
+    }
+    document.querySelectorAll('.trending-topic-wrap').forEach(function(wrap) {
+        var topic = wrap.querySelector('.trending-topic');
+        var popover = wrap.querySelector('.trending-popover');
+        var tag = topic && topic.getAttribute('data-tag');
+        if (!tag || !popover) return;
+        var onEnter = function() {
+            popover.classList.add('is-open');
+            loadTrendingLinks(tag, popover);
+        };
+        var onLeave = function() {
+            popover.classList.remove('is-open');
+        };
+        wrap.addEventListener('mouseenter', onEnter);
+        wrap.addEventListener('mouseleave', onLeave);
+    });
+})();
+
+</script>
+{% endblock %}

@@ -1,0 +1,43 @@
+# Core Flask
+SESSION_SECRET=change-me
+DATABASE_URL=sqlite:///protocol_pulse.db
+FLASK_ENV=production
+
+# Public URLs
+PUBLIC_HUB_URL=http://127.0.0.1:5000
+PUBLIC_AI_URL=http://127.0.0.1:11434
+PUBLIC_SSH_HOST=
+USE_DOUBLE_PIPE=false
+
+# Newsletter / CRM (best-effort integrations)
+GHL_API_KEY=
+GHL_LOCATION_ID=
+CONVERTKIT_API_KEY=
+CONVERTKIT_FORM_ID=
+SENDGRID_API_KEY=
+
+# X/Twitter (required only if posting/listening is enabled)
+TWITTER_API_KEY=
+TWITTER_API_SECRET=
+TWITTER_ACCESS_TOKEN=
+TWITTER_ACCESS_TOKEN_SECRET=
+TWITTER_BEARER_TOKEN=
+
+# Nostr (required only if posting is enabled)
+NOSTR_PRIVATE_KEY=
+NOSTR_RELAYS=wss://relay.damus.io,wss://relay.primal.net,wss://nos.lol
+
+# Automation safety flags (OFF by default)
+ENABLE_AUTOMATION_ARTICLES=false
+ENABLE_SOCIAL_LISTENER=false
+ENABLE_SUPERVISOR_AUTOPUBLISH=false
+ENABLE_X_POSTING=false
+ENABLE_NOSTR_POSTING=false
+ENABLE_TELEGRAM_ALERTS=false
+ENABLE_DISTRIBUTION_ENGINE=false
+ENABLE_MATTY_ICE_ENGAGEMENT=false
+ENABLE_AUTOPUBLISH=false
+ENABLE_WHALE_HEARTBEAT=true
+
+# Loop tuning
+INTEL_LOOP_SECONDS=300

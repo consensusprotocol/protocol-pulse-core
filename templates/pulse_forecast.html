@@ -1,0 +1,564 @@
+{% extends "base.html" %}
+{% block title %}Pulse Forecast — Predictive Analytics — Protocol Pulse{% endblock %}
+{% block meta_description %}AI-powered predictive analytics for Bitcoin markets. Sentiment trends, topic forecasting, engagement predictions, and whale activity analysis.{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+.pp-forecast { padding: 32px 0 64px; }
+.pp-forecast__header { margin-bottom: 32px; }
+.pp-forecast__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 4px;
+}
+.pp-forecast__sub {
+    color: var(--pp-text-muted);
+    font-size: 0.875rem;
+    font-family: var(--pp-font-mono);
+}
+
+/* Summary card */
+.pp-forecast-summary {
+    background: linear-gradient(135deg, rgba(0, 212, 170, 0.06), rgba(245, 166, 35, 0.04));
+    border: 1px solid var(--pp-border-teal);
+    border-radius: var(--pp-radius-lg);
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+}
+.pp-forecast-summary::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--pp-teal), transparent);
+}
+.pp-forecast-summary__label {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--pp-teal);
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.pp-forecast-summary__text {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--pp-text-secondary);
+}
+
+/* Signal cards */
+.pp-signal-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.pp-signal {
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-md);
+    padding: 20px;
+    text-align: center;
+}
+.pp-signal__label {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--pp-text-muted);
+    margin-bottom: 10px;
+}
+.pp-signal__value {
+    font-family: var(--pp-font-mono);
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.pp-signal__trend {
+    font-family: var(--pp-font-mono);
+    font-size: 0.8125rem;
+    font-weight: 500;
+}
+
+/* Chart panels */
+.pp-forecast-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+.pp-forecast-panel {
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-lg);
+    padding: 24px;
+}
+.pp-forecast-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.pp-forecast-panel__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* Topic bars */
+.pp-topic-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--pp-border);
+}
+.pp-topic-bar:last-child { border-bottom: none; }
+.pp-topic-bar__name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    min-width: 120px;
+}
+.pp-topic-bar__fill-wrap {
+    flex: 1;
+    height: 8px;
+    background: var(--pp-surface-2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.pp-topic-bar__fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s var(--pp-ease);
+}
+.pp-topic-bar__growth {
+    font-family: var(--pp-font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    min-width: 50px;
+    text-align: right;
+}
+
+/* Engagement predictor */
+.pp-predictor {
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-lg);
+    padding: 24px;
+    margin-bottom: 24px;
+}
+.pp-predictor__input-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+.pp-predictor__input {
+    flex: 1;
+    padding: 12px 16px;
+    background: var(--pp-surface-2);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-sm);
+    color: var(--pp-text);
+    font-family: var(--pp-font-body);
+    font-size: 0.9375rem;
+    outline: none;
+}
+.pp-predictor__input:focus { border-color: var(--pp-teal); }
+.pp-predictor__input::placeholder { color: var(--pp-text-muted); }
+
+.pp-predictor__score {
+    text-align: center;
+    padding: 20px;
+    display: none;
+}
+.pp-predictor__score-value {
+    font-family: var(--pp-font-mono);
+    font-size: 3.5rem;
+    font-weight: 700;
+}
+.pp-predictor__score-label {
+    font-size: 0.875rem;
+    color: var(--pp-text-secondary);
+    margin-top: 4px;
+}
+.pp-predictor__factors {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px;
+    margin-top: 16px;
+}
+.pp-predictor__factor {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--pp-surface-2);
+    border-radius: var(--pp-radius-xs);
+    font-size: 0.8125rem;
+}
+
+.pp-up { color: var(--pp-green); }
+.pp-down { color: var(--pp-red); }
+.pp-neutral { color: var(--pp-amber); }
+
+@media (max-width: 1024px) {
+    .pp-forecast-split { grid-template-columns: 1fr; }
+    .pp-signal-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+@media (max-width: 768px) {
+    .pp-signal-grid { grid-template-columns: 1fr; }
+    .pp-predictor__input-row { flex-direction: column; }
+    .pp-signal__value { font-size: 1.5rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="pp-forecast">
+    <div class="pp-container">
+
+        <div class="pp-forecast__header">
+            <h1 class="pp-forecast__title">Pulse Forecast</h1>
+            <div class="pp-forecast__sub">AI-Powered Predictive Analytics</div>
+        </div>
+
+        <!-- Forecast Summary -->
+        <div class="pp-forecast-summary" id="forecastSummary">
+            <div class="pp-forecast-summary__label">
+                <i class="fas fa-brain"></i> AI FORECAST
+            </div>
+            <div class="pp-forecast-summary__text" id="summaryText">
+                Analyzing market signals and content data...
+            </div>
+        </div>
+
+        <!-- Signal Cards -->
+        <div class="pp-signal-grid">
+            <div class="pp-signal">
+                <div class="pp-signal__label">Sentiment Trend</div>
+                <div class="pp-signal__value" id="sigSentiment">--</div>
+                <div class="pp-signal__trend" id="sigSentimentTrend">--</div>
+            </div>
+            <div class="pp-signal">
+                <div class="pp-signal__label">Content Velocity</div>
+                <div class="pp-signal__value" id="sigVelocity">--</div>
+                <div class="pp-signal__trend" id="sigVelocityTrend">articles/day</div>
+            </div>
+            <div class="pp-signal">
+                <div class="pp-signal__label">Whale Activity</div>
+                <div class="pp-signal__value" id="sigWhales">--</div>
+                <div class="pp-signal__trend" id="sigWhaleTrend">--</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="pp-forecast-split">
+            <!-- Sentiment Timeline -->
+            <div class="pp-forecast-panel">
+                <div class="pp-forecast-panel__header">
+                    <span class="pp-forecast-panel__title">Sentiment Timeline</span>
+                    <span class="pp-mono pp-tiny pp-text-muted">30 days</span>
+                </div>
+                <div style="height:240px;"><canvas id="sentimentChart"></canvas></div>
+            </div>
+
+            <!-- Topic Forecast -->
+            <div class="pp-forecast-panel">
+                <div class="pp-forecast-panel__header">
+                    <span class="pp-forecast-panel__title">Trending Topics</span>
+                    <span class="pp-mono pp-tiny pp-text-muted">Forecasted</span>
+                </div>
+                <div id="topicForecast">
+                    <div class="pp-skel pp-skel--line" style="height:16px;margin-bottom:16px;"></div>
+                    <div class="pp-skel pp-skel--line" style="height:16px;width:80%;margin-bottom:16px;"></div>
+                    <div class="pp-skel pp-skel--line" style="height:16px;width:60%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Velocity -->
+        <div class="pp-forecast-split">
+            <div class="pp-forecast-panel">
+                <div class="pp-forecast-panel__header">
+                    <span class="pp-forecast-panel__title">Content Velocity by Category</span>
+                </div>
+                <div style="height:240px;"><canvas id="velocityChart"></canvas></div>
+            </div>
+
+            <!-- Whale Activity -->
+            <div class="pp-forecast-panel">
+                <div class="pp-forecast-panel__header">
+                    <span class="pp-forecast-panel__title">Whale Activity</span>
+                </div>
+                <div id="whaleStats">
+                    <div class="pp-stat-row">
+                        <span class="pp-stat-row__label">24h Transactions</span>
+                        <span class="pp-stat-row__value pp-mono" id="whale24h">--</span>
+                    </div>
+                    <div class="pp-stat-row">
+                        <span class="pp-stat-row__label">7d Average (daily)</span>
+                        <span class="pp-stat-row__value pp-mono" id="whale7d">--</span>
+                    </div>
+                    <div class="pp-stat-row">
+                        <span class="pp-stat-row__label">30d Average (daily)</span>
+                        <span class="pp-stat-row__value pp-mono" id="whale30d">--</span>
+                    </div>
+                    <div class="pp-stat-row">
+                        <span class="pp-stat-row__label">Avg Transaction Size</span>
+                        <span class="pp-stat-row__value pp-mono" id="whaleAvgSize">--</span>
+                    </div>
+                    <div class="pp-stat-row">
+                        <span class="pp-stat-row__label">Activity Trend</span>
+                        <span class="pp-stat-row__value pp-mono" id="whaleActivityTrend">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Engagement Predictor -->
+        {% if current_user.is_authenticated and current_user.is_admin %}
+        <div class="pp-predictor">
+            <div class="pp-forecast-panel__header">
+                <span class="pp-forecast-panel__title">Engagement Predictor</span>
+                <span class="pp-mono pp-tiny pp-text-muted">Admin Only</span>
+            </div>
+            <div class="pp-predictor__input-row">
+                <input type="text" class="pp-predictor__input" id="predTitle" placeholder="Article title...">
+                <input type="text" class="pp-predictor__input" id="predCategory" placeholder="Category" style="max-width:160px;">
+                <input type="text" class="pp-predictor__input" id="predTags" placeholder="Tags (comma-separated)" style="max-width:200px;">
+                <button class="pp-btn pp-btn--primary" onclick="predictEngagement()">Predict</button>
+            </div>
+            <div class="pp-predictor__score" id="predResult"></div>
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    'use strict';
+
+    var sentimentChart = null;
+    var velocityChart = null;
+
+    function fmtPct(n) { return n >= 0 ? '+' + n.toFixed(1) + '%' : n.toFixed(1) + '%'; }
+    function cls(n) { return n >= 0 ? 'pp-up' : 'pp-down'; }
+
+    function updateForecast(data) {
+        // Summary
+        var summaryEl = document.getElementById('summaryText');
+        if (summaryEl && data.forecast_summary) {
+            summaryEl.textContent = data.forecast_summary;
+        }
+
+        // Sentiment signal
+        var st = data.sentiment_trend || {};
+        var sigSent = document.getElementById('sigSentiment');
+        if (sigSent && st.current_label) {
+            sigSent.textContent = st.current_label;
+            sigSent.className = 'pp-signal__value ' + (st.trend === 'BULLISH' ? 'pp-up' : st.trend === 'BEARISH' ? 'pp-down' : 'pp-neutral');
+        }
+        var sigSentTrend = document.getElementById('sigSentimentTrend');
+        if (sigSentTrend && st.trend) {
+            sigSentTrend.textContent = st.trend;
+            sigSentTrend.className = 'pp-signal__trend ' + (st.trend === 'BULLISH' ? 'pp-up' : st.trend === 'BEARISH' ? 'pp-down' : 'pp-neutral');
+        }
+
+        // Velocity signal
+        var cv = data.content_velocity || {};
+        var sigVel = document.getElementById('sigVelocity');
+        if (sigVel && cv.total_7d_rate != null) {
+            sigVel.textContent = cv.total_7d_rate.toFixed(1);
+        }
+
+        // Whale signal
+        var wa = data.whale_activity_trend || {};
+        var sigWhale = document.getElementById('sigWhales');
+        if (sigWhale && wa.count_24h != null) {
+            sigWhale.textContent = wa.count_24h;
+        }
+        var sigWhaleTrend = document.getElementById('sigWhaleTrend');
+        if (sigWhaleTrend && wa.trend) {
+            sigWhaleTrend.textContent = wa.trend;
+            sigWhaleTrend.className = 'pp-signal__trend ' + (wa.trend === 'INCREASING' ? 'pp-up' : wa.trend === 'DECREASING' ? 'pp-down' : 'pp-neutral');
+        }
+
+        // Sentiment chart
+        if (st.sparkline && st.sparkline.length) {
+            initSentimentChart(st.sparkline);
+        }
+
+        // Topic forecast
+        var tf = data.topic_forecast || [];
+        var topicEl = document.getElementById('topicForecast');
+        if (topicEl && tf.length) {
+            var maxScore = Math.max.apply(null, tf.map(function(t) { return t.growth_rate || t.score || 1; }));
+            topicEl.innerHTML = tf.map(function(topic) {
+                var pct = ((topic.growth_rate || topic.score || 0) / maxScore * 100).toFixed(0);
+                var color = pct > 66 ? 'var(--pp-teal)' : pct > 33 ? 'var(--pp-amber)' : 'var(--pp-text-muted)';
+                var growth = topic.growth_rate != null ? (topic.growth_rate >= 0 ? '+' : '') + topic.growth_rate.toFixed(0) + '%' : '--';
+                return '<div class="pp-topic-bar">' +
+                    '<span class="pp-topic-bar__name">' + topic.topic + '</span>' +
+                    '<div class="pp-topic-bar__fill-wrap"><div class="pp-topic-bar__fill" style="width:' + pct + '%;background:' + color + ';"></div></div>' +
+                    '<span class="pp-topic-bar__growth ' + (topic.growth_rate >= 0 ? 'pp-up' : 'pp-down') + '">' + growth + '</span>' +
+                    '</div>';
+            }).join('');
+        }
+
+        // Content velocity chart
+        if (cv.categories) {
+            initVelocityChart(cv.categories);
+        }
+
+        // Whale stats
+        setText('whale24h', wa.count_24h || '0');
+        setText('whale7d', wa.avg_daily_7d != null ? wa.avg_daily_7d.toFixed(1) : '--');
+        setText('whale30d', wa.avg_daily_30d != null ? wa.avg_daily_30d.toFixed(1) : '--');
+        setText('whaleAvgSize', wa.avg_size_btc != null ? wa.avg_size_btc.toFixed(1) + ' BTC' : '--');
+        var waTrendEl = document.getElementById('whaleActivityTrend');
+        if (waTrendEl && wa.trend) {
+            waTrendEl.textContent = wa.trend;
+            waTrendEl.className = 'pp-stat-row__value pp-mono ' + (wa.trend === 'INCREASING' ? 'pp-up' : wa.trend === 'DECREASING' ? 'pp-down' : 'pp-neutral');
+        }
+    }
+
+    function setText(id, val) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = val;
+    }
+
+    function initSentimentChart(sparkline) {
+        var ctx = document.getElementById('sentimentChart');
+        if (!ctx) return;
+        if (sentimentChart) sentimentChart.destroy();
+
+        var labels = sparkline.map(function(d) { return d.date || ''; });
+        var scores = sparkline.map(function(d) { return d.score || 0; });
+        var ma7d = sparkline.map(function(d) { return d.ma_7d || null; });
+
+        sentimentChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Sentiment',
+                        data: scores,
+                        borderColor: 'rgba(0, 212, 170, 0.5)',
+                        backgroundColor: 'rgba(0, 212, 170, 0.05)',
+                        fill: true, borderWidth: 1.5, pointRadius: 0, tension: 0.4,
+                    },
+                    {
+                        label: '7-Day MA',
+                        data: ma7d,
+                        borderColor: 'var(--pp-amber)',
+                        borderWidth: 2, pointRadius: 0, tension: 0.4, borderDash: [4, 4],
+                    }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: true, labels: { color: 'rgba(255,255,255,0.4)', font: { size: 10 } } } },
+                scales: {
+                    x: { ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 9, family: "'JetBrains Mono'" }, maxTicksLimit: 10 }, grid: { display: false }, border: { display: false } },
+                    y: { min: -1, max: 1, ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 9, family: "'JetBrains Mono'" }, stepSize: 0.5 }, grid: { color: 'rgba(255,255,255,0.04)' }, border: { display: false } }
+                }
+            }
+        });
+    }
+
+    function initVelocityChart(categories) {
+        var ctx = document.getElementById('velocityChart');
+        if (!ctx) return;
+        if (velocityChart) velocityChart.destroy();
+
+        var labels = Object.keys(categories);
+        var data7d = labels.map(function(k) { return categories[k].rate_7d || 0; });
+        var data30d = labels.map(function(k) { return categories[k].rate_30d || 0; });
+
+        velocityChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: '7-Day', data: data7d, backgroundColor: 'rgba(0, 212, 170, 0.6)', borderRadius: 3 },
+                    { label: '30-Day', data: data30d, backgroundColor: 'rgba(245, 166, 35, 0.4)', borderRadius: 3 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: 'rgba(255,255,255,0.4)', font: { size: 10 } } } },
+                scales: {
+                    x: { ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 9 } }, grid: { display: false }, border: { display: false } },
+                    y: { ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.04)' }, border: { display: false }, title: { display: true, text: 'articles/day', color: 'rgba(255,255,255,0.3)', font: { size: 9 } } }
+                }
+            }
+        });
+    }
+
+    // Engagement predictor
+    window.predictEngagement = function() {
+        var title = document.getElementById('predTitle').value;
+        var category = document.getElementById('predCategory').value;
+        var tags = document.getElementById('predTags').value;
+        if (!title) return;
+
+        fetch('/api/pulse-forecast/predict-engagement', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: title, category: category, tags: tags })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var el = document.getElementById('predResult');
+            if (!el) return;
+            el.style.display = 'block';
+
+            var scoreColor = data.score >= 70 ? 'pp-up' : data.score >= 40 ? 'pp-neutral' : 'pp-down';
+            var html = '<div class="pp-predictor__score-value ' + scoreColor + '">' + data.score + '</div>';
+            html += '<div class="pp-predictor__score-label">Predicted Engagement Score</div>';
+
+            if (data.factors && data.factors.length) {
+                html += '<div class="pp-predictor__factors">';
+                data.factors.forEach(function(f) {
+                    html += '<div class="pp-predictor__factor"><span>' + f.name + '</span><span class="' + (f.impact > 0 ? 'pp-up' : f.impact < 0 ? 'pp-down' : '') + '">' + (f.impact > 0 ? '+' : '') + f.impact + '</span></div>';
+                });
+                html += '</div>';
+            }
+
+            if (data.suggestions && data.suggestions.length) {
+                html += '<div style="margin-top:16px;text-align:left;">';
+                html += '<div class="pp-tiny pp-text-muted" style="margin-bottom:6px;text-transform:uppercase;letter-spacing:0.08em;">Suggestions</div>';
+                data.suggestions.forEach(function(s) {
+                    html += '<div style="font-size:0.8125rem;color:var(--pp-text-secondary);padding:2px 0;">• ' + s + '</div>';
+                });
+                html += '</div>';
+            }
+
+            el.innerHTML = html;
+        })
+        .catch(function() {
+            var el = document.getElementById('predResult');
+            if (el) { el.style.display = 'block'; el.innerHTML = '<div class="pp-down">Prediction unavailable</div>'; }
+        });
+    };
+
+    // Fetch data
+    fetch('/api/pulse-forecast')
+        .then(function(r) { return r.json(); })
+        .then(updateForecast)
+        .catch(function() {
+            document.getElementById('summaryText').textContent = 'Forecast data unavailable. Check back later.';
+        });
+})();
+</script>
+{% endblock %}

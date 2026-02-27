@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+
+{% block title %}Sarah's Daily Intelligence Briefing | Protocol Pulse{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+    .sarah-briefing {
+        font-family: 'Crimson Pro', Georgia, serif;
+        line-height: 1.8;
+    }
+    
+    .sarah-header {
+        background: linear-gradient(135deg, rgba(10, 10, 10, 0.95), rgba(20, 10, 15, 0.95));
+        border: 1px solid rgba(220, 38, 38, 0.2);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        backdrop-filter: blur(10px);
+    }
+    
+    .sarah-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #dc2626, #991b1b);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: white;
+        border: 2px solid rgba(220, 38, 38, 0.5);
+    }
+    
+    .sarah-name {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #fff;
+    }
+    
+    .sarah-title {
+        color: rgba(220, 38, 38, 0.8);
+        font-size: 0.9rem;
+        letter-spacing: 0.05em;
+    }
+    
+    .brief-date {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .glass-panel {
+        background: rgba(10, 10, 10, 0.7);
+        border: 1px solid rgba(220, 38, 38, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        backdrop-filter: blur(10px);
+    }
+    
+    .section-title {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .section-title::before {
+        content: '';
+        width: 4px;
+        height: 20px;
+        background: #dc2626;
+        border-radius: 2px;
+    }
+    
+    .macro-state {
+        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .signal-card {
+        background: rgba(15, 15, 15, 0.8);
+        border: 1px solid rgba(220, 38, 38, 0.15);
+        border-radius: 8px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .signal-card:hover {
+        border-color: rgba(220, 38, 38, 0.4);
+        transform: translateX(4px);
+    }
+    
+    .signal-number {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        color: rgba(220, 38, 38, 0.7);
+        letter-spacing: 0.1em;
+        margin-bottom: 0.5rem;
+    }
+    
+    .signal-quote {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.05rem;
+        color: rgba(255, 255, 255, 0.95);
+        font-style: italic;
+        margin-bottom: 0.75rem;
+        border-left: 2px solid rgba(220, 38, 38, 0.4);
+        padding-left: 1rem;
+    }
+    
+    .signal-source {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8rem;
+    }
+    
+    .signal-source a {
+        color: rgba(220, 38, 38, 0.9);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+    
+    .signal-source a:hover {
+        color: #dc2626;
+        text-decoration: underline;
+    }
+    
+    .impact-score {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        background: rgba(220, 38, 38, 0.15);
+        color: rgba(220, 38, 38, 0.9);
+    }
+    
+    .network-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+    
+    .metric-card {
+        background: rgba(20, 20, 20, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+    }
+    
+    .metric-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.5);
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+    
+    .metric-value {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.1rem;
+        color: #fff;
+        font-weight: 500;
+    }
+    
+    .calibration-text {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.85);
+    }
+    
+    .emergency-flash {
+        background: linear-gradient(135deg, rgba(127, 29, 29, 0.3), rgba(10, 10, 10, 0.9));
+        border: 2px solid rgba(220, 38, 38, 0.6);
+        animation: pulse-border 2s infinite;
+    }
+    
+    @keyframes pulse-border {
+        0%, 100% { border-color: rgba(220, 38, 38, 0.6); }
+        50% { border-color: rgba(220, 38, 38, 1); }
+    }
+    
+    .flash-badge {
+        background: #dc2626;
+        color: white;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        letter-spacing: 0.1em;
+        animation: blink 1s infinite;
+    }
+    
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    
+    .no-briefings {
+        text-align: center;
+        padding: 3rem;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .briefing-list {
+        margin-top: 2rem;
+    }
+    
+    .briefing-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        background: rgba(15, 15, 15, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        transition: all 0.2s ease;
+    }
+    
+    .briefing-item:hover {
+        border-color: rgba(220, 38, 38, 0.3);
+        background: rgba(20, 20, 20, 0.7);
+    }
+    
+    .briefing-item a {
+        color: #fff;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5 sarah-briefing">
+    <div class="sarah-header">
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="sarah-avatar">S</div>
+            <div>
+                <div class="sarah-name">Sarah Chen</div>
+                <div class="sarah-title">MACRO ANALYST | PROTOCOL PULSE INTELLIGENCE</div>
+            </div>
+        </div>
+        <p class="mb-0 text-white-50" style="font-size: 0.95rem;">
+            Daily intelligence briefings powered by AI analysis of the Master Operative Relay. 
+            Tracking 20+ legendary voices in the Bitcoin ecosystem.
+        </p>
+    </div>
+
+    {% if latest_brief %}
+    <div class="glass-panel">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="section-title mb-0">The Macro State</h2>
+            <span class="brief-date">{{ latest_brief.brief_date.strftime('%B %d, %Y') }} | 06:00 UTC</span>
+        </div>
+        <p class="macro-state">{{ latest_brief.macro_state }}</p>
+    </div>
+
+    <div class="glass-panel">
+        <h2 class="section-title">Top 3 Intercepted Signals</h2>
+        
+        {% set signals = latest_brief.get_signals() %}
+        {% for signal in signals %}
+        <div class="signal-card">
+            <div class="signal-number">SIGNAL {{ '%02d' | format(loop.index) }}</div>
+            <div class="signal-quote">"{{ signal.title }}"</div>
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="signal-source">
+                    <a href="{{ signal.url }}" target="_blank" rel="noopener">{{ signal.source }}</a>
+                </div>
+                <span class="impact-score">Impact: {{ '%.0f' | format(signal.impact) }}/100</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="glass-panel">
+        <h2 class="section-title">Network Calibration</h2>
+        <p class="calibration-text">{{ latest_brief.network_calibration }}</p>
+        
+        <div class="network-metrics mt-4">
+            <div class="metric-card">
+                <div class="metric-label">MEMPOOL STATE</div>
+                <div class="metric-value">{{ latest_brief.mempool_state or 'N/A' }}</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">HASHRATE</div>
+                <div class="metric-value">{{ latest_brief.hashrate_state or 'N/A' }}</div>
+            </div>
+        </div>
+    </div>
+
+    {% if latest_brief.article_id %}
+    <div class="text-center mt-4">
+        <a href="{{ url_for('article_detail', article_id=latest_brief.article_id) }}" class="btn btn-outline-danger">
+            Read Full Briefing Article
+        </a>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="glass-panel no-briefings">
+        <i class="bi bi-broadcast" style="font-size: 3rem; opacity: 0.3;"></i>
+        <h3 class="mt-3">No Briefings Yet</h3>
+        <p class="text-white-50">Sarah's first daily intelligence briefing will be published at 06:00 UTC.</p>
+    </div>
+    {% endif %}
+
+    {% if emergency_flash %}
+    <div class="glass-panel emergency-flash mt-4">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="flash-badge">EMERGENCY FLASH</span>
+            <span class="text-white-50" style="font-size: 0.8rem;">{{ emergency_flash.triggered_at.strftime('%H:%M UTC') }}</span>
+        </div>
+        <h4 class="text-white mb-2">{{ emergency_flash.direction|upper }} Sentiment Shift Detected</h4>
+        <p class="text-white-50 mb-2">
+            Drift magnitude: {{ '%.0f' | format(emergency_flash.drift_magnitude * 100) }}% in 60 minutes
+        </p>
+        {% if emergency_flash.article_id %}
+        <a href="{{ url_for('article_detail', article_id=emergency_flash.article_id) }}" class="btn btn-danger btn-sm">
+            View Full Alert
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if past_briefs %}
+    <div class="briefing-list">
+        <h3 class="section-title">Previous Briefings</h3>
+        {% for brief in past_briefs %}
+        <div class="briefing-item">
+            <div>
+                <a href="{{ url_for('article_detail', article_id=brief.article_id) }}">
+                    <strong>{{ brief.brief_date.strftime('%B %d, %Y') }}</strong>
+                </a>
+                <div class="text-white-50" style="font-size: 0.85rem;">{{ brief.macro_state[:100] }}...</div>
+            </div>
+            <span class="brief-date">{{ brief.brief_date.strftime('%a') }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

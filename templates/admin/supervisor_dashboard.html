@@ -1,0 +1,498 @@
+{% extends "base.html" %}
+
+{% block title %}Multi-Agent Supervisor - Protocol Pulse{% endblock %}
+
+{% block content %}
+<style>
+    .agent-card {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        border: 2px solid rgba(59, 130, 246, 0.3);
+        border-radius: 16px;
+        transition: all 0.3s;
+    }
+    .agent-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(59, 130, 246, 0.2);
+    }
+    .agent-alex {
+        border-color: rgba(59, 130, 246, 0.5);
+    }
+    .agent-sarah {
+        border-color: rgba(16, 185, 129, 0.5);
+    }
+    .agent-supervisor {
+        border-color: rgba(220, 38, 38, 0.5);
+        background: linear-gradient(135deg, #1f1f3a 0%, #1a1a2e 100%);
+    }
+    .agent-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: bold;
+    }
+    .alex-avatar {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    }
+    .sarah-avatar {
+        background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+    }
+    .supervisor-avatar {
+        background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    }
+    .task-type-btn {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 12px 20px;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    .task-type-btn:hover {
+        background: rgba(220, 38, 38, 0.2);
+        border-color: rgba(220, 38, 38, 0.5);
+    }
+    .task-type-btn.active {
+        background: rgba(220, 38, 38, 0.3);
+        border-color: #dc2626;
+    }
+    .output-panel {
+        background: #0d0d1a;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 12px;
+        font-family: 'JetBrains Mono', monospace;
+        min-height: 400px;
+    }
+    .state-flow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        padding: 20px;
+    }
+    .state-node {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 3px solid rgba(255,255,255,0.2);
+        transition: all 0.3s;
+    }
+    .state-node.active {
+        border-color: #f59e0b;
+        box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+        animation: pulse-state 1.5s infinite;
+    }
+    .state-node.complete {
+        border-color: #10b981;
+        background: rgba(16, 185, 129, 0.2);
+    }
+    .state-arrow {
+        color: rgba(255,255,255,0.3);
+        font-size: 1.5rem;
+    }
+    @keyframes pulse-state {
+        0%, 100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
+        50% { box-shadow: 0 0 30px rgba(245, 158, 11, 0.6); }
+    }
+    .metric-badge {
+        background: linear-gradient(135deg, #1a1a2e 0%, #0d0d1a 100%);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 15px;
+    }
+    .run-btn {
+        background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+        border: none;
+        padding: 15px 40px;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    .run-btn:hover:not(:disabled) {
+        transform: scale(1.05);
+        box-shadow: 0 8px 30px rgba(220, 38, 38, 0.4);
+    }
+    .run-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    .conversation-entry {
+        border-left: 3px solid;
+        padding-left: 15px;
+        margin-bottom: 20px;
+    }
+    .conversation-alex {
+        border-color: #3b82f6;
+    }
+    .conversation-sarah {
+        border-color: #10b981;
+    }
+</style>
+
+<div class="container-fluid mt-5 pt-4">
+    <div class="row">
+        <div class="col-lg-2">
+            <div class="position-sticky pt-3">
+                <h5 class="text-danger mb-3">
+                    <i class="fas fa-robot"></i> Supervisor
+                </h5>
+                <ul class="nav nav-pills flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/supervisor">
+                            <i class="fas fa-brain"></i> Supervisor
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/segments">
+                            <i class="fas fa-users"></i> Segments
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/analytics">
+                            <i class="fas fa-chart-bar"></i> Analytics
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-network-wired text-danger me-2"></i>
+                        Multi-Agent Supervisor
+                    </h2>
+                    <p class="text-muted mb-0">Alex (The Quant) + Sarah (The Macro) orchestrated by Pulse Supervisor</p>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="agent-card agent-alex p-4 h-100">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="agent-avatar alex-avatar me-3">A</div>
+                            <div>
+                                <h5 class="mb-0 text-primary">Alex (The Quant)</h5>
+                                <small class="text-muted">On-Chain Analyst</small>
+                            </div>
+                        </div>
+                        <p class="text-light small mb-2">
+                            <strong>Tools:</strong> NodeService, FactChecker
+                        </p>
+                        <p class="text-muted small mb-0">
+                            Provides Ground Truth with verifiable on-chain data. Cites block heights, hashrate, difficulty adjustments.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="agent-card agent-sarah p-4 h-100">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="agent-avatar sarah-avatar me-3">S</div>
+                            <div>
+                                <h5 class="mb-0 text-success">Sarah (The Macro)</h5>
+                                <small class="text-muted">Macro Strategist</small>
+                            </div>
+                        </div>
+                        <p class="text-light small mb-2">
+                            <strong>Tools:</strong> AnalyticsEngine, Historical Content
+                        </p>
+                        <p class="text-muted small mb-0">
+                            Develops Strategy using Austrian economics framework, historical parallels, and audience segmentation.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="agent-card agent-supervisor p-4 h-100">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="agent-avatar supervisor-avatar me-3">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-0 text-danger">Pulse Supervisor</h5>
+                                <small class="text-muted">Orchestrator</small>
+                            </div>
+                        </div>
+                        <p class="text-light small mb-2">
+                            <strong>Role:</strong> Task Assignment, State Management
+                        </p>
+                        <p class="text-muted small mb-0">
+                            Monitors insights, coordinates Alex+Sarah, compiles final output with shared context.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="state-flow mb-4">
+                <div class="state-node" id="state-init">
+                    <i class="fas fa-play"></i>
+                </div>
+                <div class="state-arrow"><i class="fas fa-arrow-right"></i></div>
+                <div class="state-node" id="state-alex">
+                    <span class="text-primary">A</span>
+                </div>
+                <div class="state-arrow"><i class="fas fa-arrow-right"></i></div>
+                <div class="state-node" id="state-sarah">
+                    <span class="text-success">S</span>
+                </div>
+                <div class="state-arrow"><i class="fas fa-arrow-right"></i></div>
+                <div class="state-node" id="state-compile">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="state-arrow"><i class="fas fa-arrow-right"></i></div>
+                <div class="state-node" id="state-done">
+                    <i class="fas fa-check"></i>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="agent-card p-4">
+                        <h5 class="mb-3"><i class="fas fa-cogs me-2"></i>Task Configuration</h5>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label class="form-label">Topic / Content to Analyze</label>
+                                <input type="text" id="topic-input" class="form-control bg-dark text-light border-secondary" 
+                                       placeholder="e.g., Bitcoin hashrate reaches 800 EH/s milestone" 
+                                       value="Bitcoin network hashrate reaches new all-time high">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Target Segment (Optional)</label>
+                                <select id="segment-select" class="form-select bg-dark text-light border-secondary">
+                                    <option value="">Auto-detect</option>
+                                    <option value="Sovereign Nodes">Sovereign Nodes</option>
+                                    <option value="Miners">Miners</option>
+                                    <option value="Institutional Transactors">Institutional Transactors</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Task Type</label>
+                            <div class="d-flex gap-3 flex-wrap">
+                                <div class="task-type-btn active" data-type="ground_truth">
+                                    <i class="fas fa-database me-2"></i>Ground Truth
+                                </div>
+                                <div class="task-type-btn" data-type="deep_dive_research">
+                                    <i class="fas fa-microscope me-2"></i>Deep Dive Research
+                                </div>
+                                <div class="task-type-btn" data-type="viral_hook">
+                                    <i class="fas fa-fire-alt me-2"></i>Viral Hook
+                                </div>
+                                <div class="task-type-btn" data-type="macro_analysis">
+                                    <i class="fas fa-globe me-2"></i>Macro Analysis
+                                </div>
+                                <div class="task-type-btn" data-type="segment_targeting">
+                                    <i class="fas fa-bullseye me-2"></i>Segment Targeting
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <button id="run-task-btn" class="btn run-btn me-3">
+                                <i class="fas fa-rocket me-2"></i>Execute Multi-Agent Task
+                            </button>
+                            <button id="auto-publish-btn" class="btn btn-success">
+                                <i class="fas fa-broadcast-tower me-2"></i>Auto-Publish to Nostr + X
+                            </button>
+                        </div>
+                        <p class="text-center text-muted small mt-3">
+                            <i class="fas fa-clock me-1"></i>Auto-publishing runs every 2 hours. Content is published to Nostr relays and X/Twitter without hashtags.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="output-panel p-4">
+                        <h5 class="mb-3"><i class="fas fa-terminal me-2 text-warning"></i>Agent Output</h5>
+                        <div id="output-content">
+                            <div class="text-center text-muted py-5">
+                                <i class="fas fa-robot fa-3x mb-3 opacity-25"></i>
+                                <p>Configure task above and click Execute to run the multi-agent workflow.</p>
+                                <p class="small">Alex will establish Ground Truth → Sarah will develop Strategy → Supervisor compiles output</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let selectedTaskType = 'ground_truth';
+
+    document.querySelectorAll('.task-type-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.task-type-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            selectedTaskType = this.dataset.type;
+        });
+    });
+
+    document.getElementById('run-task-btn').addEventListener('click', async function() {
+        const btn = this;
+        const topic = document.getElementById('topic-input').value;
+        const segment = document.getElementById('segment-select').value;
+        const outputDiv = document.getElementById('output-content');
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Running...';
+
+        document.querySelectorAll('.state-node').forEach(n => n.classList.remove('active', 'complete'));
+        document.getElementById('state-init').classList.add('complete');
+        document.getElementById('state-alex').classList.add('active');
+
+        outputDiv.innerHTML = `
+            <div class="conversation-entry conversation-alex">
+                <h6 class="text-primary"><i class="fas fa-user me-2"></i>Alex (The Quant)</h6>
+                <p class="text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Fetching Ground Truth from NodeService...</p>
+            </div>
+        `;
+
+        try {
+            const response = await fetch('/api/supervisor/run-task', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    topic: topic,
+                    task_type: selectedTaskType,
+                    audience_segment: segment || null
+                })
+            });
+
+            const result = await response.json();
+
+            document.querySelectorAll('.state-node').forEach(n => {
+                n.classList.remove('active');
+                n.classList.add('complete');
+            });
+
+            if (result.success) {
+                let output = `
+                    <div class="conversation-entry conversation-alex mb-4">
+                        <h6 class="text-primary mb-3"><i class="fas fa-user me-2"></i>Alex (The Quant) - Ground Truth</h6>
+                        <div class="bg-dark p-3 rounded" style="white-space: pre-wrap;">${result.alex_analysis || 'No analysis'}</div>
+                    </div>
+                    <div class="conversation-entry conversation-sarah mb-4">
+                        <h6 class="text-success mb-3"><i class="fas fa-user me-2"></i>Sarah (The Macro) - Strategy</h6>
+                        <div class="bg-dark p-3 rounded" style="white-space: pre-wrap;">${result.sarah_strategy || 'No strategy'}</div>
+                    </div>
+                `;
+
+                if (result.final_output) {
+                    output += `
+                        <div class="mt-4 p-4 rounded" style="background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3);">
+                            <h6 class="text-danger mb-3"><i class="fas fa-crown me-2"></i>Supervisor - Final Output</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-2"><strong>Headline:</strong></p>
+                                    <div class="bg-dark p-2 rounded mb-3">${result.final_output.headline || 'N/A'}</div>
+                                    <p class="mb-2"><strong>Target Segment:</strong> <span class="badge bg-warning text-dark">${result.final_output.target_segment || 'N/A'}</span></p>
+                                    <p class="mb-2"><strong>Block Height:</strong> ${result.final_output.block_height || 'N/A'}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-2"><strong>Viral Hook:</strong></p>
+                                    <div class="bg-dark p-2 rounded mb-3">${result.final_output.viral_hook || 'N/A'}</div>
+                                    <p class="mb-2"><strong>Confidence:</strong> ${Math.round((result.final_output.confidence_score || 0) * 100)}%</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                outputDiv.innerHTML = output;
+            } else {
+                outputDiv.innerHTML = `<div class="alert alert-danger">${result.error || 'Task failed'}</div>`;
+            }
+
+        } catch (error) {
+            outputDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+        }
+
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-rocket me-2"></i>Execute Multi-Agent Task';
+    });
+
+    document.getElementById('auto-publish-btn').addEventListener('click', async function() {
+        const btn = this;
+        const topic = document.getElementById('topic-input').value;
+        const outputDiv = document.getElementById('output-content');
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Publishing...';
+
+        outputDiv.innerHTML = `
+            <div class="text-center py-4">
+                <i class="fas fa-broadcast-tower fa-3x mb-3 text-success"></i>
+                <p class="mb-2">Auto-publishing via Multi-Agent Supervisor...</p>
+                <p class="small text-muted">Alex → Sarah → Compile → Nostr + X</p>
+            </div>
+        `;
+
+        try {
+            const response = await fetch('/api/supervisor/auto-publish', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ topic: topic })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                let nostrStatus = result.nostr_result?.success ? 
+                    '<span class="text-success"><i class="fas fa-check me-1"></i>Published</span>' : 
+                    '<span class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>Failed</span>';
+                let xStatus = result.x_result?.success ? 
+                    '<span class="text-success"><i class="fas fa-check me-1"></i>Posted</span>' : 
+                    '<span class="text-muted"><i class="fas fa-minus me-1"></i>Not configured</span>';
+
+                outputDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <h5 class="mb-3"><i class="fas fa-check-circle me-2"></i>Auto-Publish Complete</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Nostr:</strong> ${nostrStatus}</p>
+                                <p><strong>X/Twitter:</strong> ${xStatus}</p>
+                                <p><strong>Target Segment:</strong> ${result.supervisor_output?.target_segment || 'General'}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Launch Sequence ID:</strong> ${result.launch_sequence_id || 'N/A'}</p>
+                                <p><strong>Generated By:</strong> ${result.supervisor_output?.generated_by || 'auto_publish'}</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <p class="mb-1"><strong>Published Content:</strong></p>
+                        <div class="bg-dark p-3 rounded">${result.supervisor_output?.primary_post_copy || 'N/A'}</div>
+                    </div>
+                `;
+            } else {
+                outputDiv.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle me-2"></i>${result.error || 'Auto-publish failed'}</div>`;
+            }
+
+        } catch (error) {
+            outputDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+        }
+
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-broadcast-tower me-2"></i>Auto-Publish to Nostr + X';
+    });
+});
+</script>
+{% endblock %}

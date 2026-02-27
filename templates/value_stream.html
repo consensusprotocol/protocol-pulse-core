@@ -1,0 +1,473 @@
+{% extends "base.html" %}
+
+{% block title %}Value Stream - Protocol Pulse{% endblock %}
+
+{% block extra_head %}
+<style>
+    .value-stream-hero {
+        background: linear-gradient(135deg, #0a0a12 0%, #1a0a2e 50%, #0a0a12 100%);
+        padding: 60px 0;
+        border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+    }
+    
+    .stream-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 2.5rem;
+        color: #f7931a;
+        text-shadow: 0 0 30px rgba(247, 147, 26, 0.5);
+    }
+    
+    .stream-subtitle {
+        color: rgba(255,255,255,0.7);
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .platform-filters {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin: 30px 0;
+    }
+    
+    .platform-btn {
+        background: rgba(138, 43, 226, 0.2);
+        border: 1px solid rgba(138, 43, 226, 0.4);
+        color: #fff;
+        padding: 8px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85rem;
+    }
+    
+    .platform-btn:hover, .platform-btn.active {
+        background: rgba(247, 147, 26, 0.3);
+        border-color: #f7931a;
+        color: #f7931a;
+    }
+    
+    .content-card {
+        background: rgba(20, 20, 35, 0.9);
+        border: 1px solid rgba(138, 43, 226, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .content-card:hover {
+        border-color: #f7931a;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(247, 147, 26, 0.15);
+    }
+    
+    .content-card.featured {
+        border-color: #f7931a;
+        background: linear-gradient(135deg, rgba(247, 147, 26, 0.1), rgba(20, 20, 35, 0.9));
+    }
+    
+    .platform-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .platform-twitter { background: rgba(29, 161, 242, 0.2); color: #1da1f2; }
+    .platform-youtube { background: rgba(255, 0, 0, 0.2); color: #ff0000; }
+    .platform-reddit { background: rgba(255, 69, 0, 0.2); color: #ff4500; }
+    .platform-nostr { background: rgba(138, 43, 226, 0.2); color: #8a2be2; }
+    .platform-stacker_news { background: rgba(247, 147, 26, 0.2); color: #f7931a; }
+    
+    .signal-score {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.5rem;
+        color: #00ff88;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+    }
+    
+    .sats-count {
+        color: #f7931a;
+        font-weight: 600;
+    }
+    
+    .zap-count {
+        color: rgba(255,255,255,0.6);
+    }
+    
+    .curator-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        background: rgba(138, 43, 226, 0.2);
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+    
+    .curator-badge.verified::after {
+        content: "✓";
+        color: #00ff88;
+        margin-left: 4px;
+    }
+    
+    .zap-btn {
+        background: linear-gradient(135deg, #f7931a, #ff6b00);
+        border: none;
+        color: #000;
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .zap-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 20px rgba(247, 147, 26, 0.4);
+    }
+    
+    .curator-leaderboard {
+        background: rgba(20, 20, 35, 0.9);
+        border: 1px solid rgba(138, 43, 226, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+    }
+    
+    .curator-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+    }
+    
+    .curator-row:last-child {
+        border-bottom: none;
+    }
+    
+    .curator-rank {
+        width: 30px;
+        font-family: 'JetBrains Mono', monospace;
+        color: #f7931a;
+    }
+    
+    .extension-promo {
+        background: linear-gradient(135deg, rgba(247, 147, 26, 0.2), rgba(138, 43, 226, 0.2));
+        border: 1px solid rgba(247, 147, 26, 0.4);
+        border-radius: 16px;
+        padding: 30px;
+        text-align: center;
+        margin: 40px 0;
+    }
+    
+    .extension-btn {
+        background: linear-gradient(135deg, #8a2be2, #6b1fa9);
+        border: none;
+        color: #fff;
+        padding: 14px 32px;
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .extension-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 20px rgba(138, 43, 226, 0.4);
+    }
+    
+    .how-it-works {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 24px;
+        margin: 40px 0;
+    }
+    
+    .how-card {
+        background: rgba(20, 20, 35, 0.8);
+        border: 1px solid rgba(138, 43, 226, 0.3);
+        border-radius: 12px;
+        padding: 24px;
+        text-align: center;
+    }
+    
+    .how-icon {
+        font-size: 2.5rem;
+        margin-bottom: 16px;
+    }
+    
+    .empty-stream {
+        text-align: center;
+        padding: 60px;
+        color: rgba(255,255,255,0.5);
+    }
+    
+    .submit-form {
+        background: rgba(20, 20, 35, 0.9);
+        border: 1px solid rgba(138, 43, 226, 0.3);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 30px;
+    }
+    
+    .submit-input {
+        background: rgba(0,0,0,0.3);
+        border: 1px solid rgba(138, 43, 226, 0.4);
+        color: #fff;
+        padding: 12px 16px;
+        border-radius: 8px;
+        width: 100%;
+        font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .submit-input:focus {
+        outline: none;
+        border-color: #f7931a;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="value-stream-hero text-center">
+    <div class="container">
+        <h1 class="stream-title">
+            <i class="fas fa-bolt"></i> VALUE STREAM
+        </h1>
+        <p class="stream-subtitle">
+            Decentralized content curation powered by sats. The best content rises based on 
+            real economic signals, not engagement farming. Zap to signal value.
+        </p>
+        
+        <div class="platform-filters">
+            <button class="platform-btn active" data-platform="all">ALL PLATFORMS</button>
+            <button class="platform-btn" data-platform="twitter">X/TWITTER</button>
+            <button class="platform-btn" data-platform="youtube">YOUTUBE</button>
+            <button class="platform-btn" data-platform="nostr">NOSTR</button>
+            <button class="platform-btn" data-platform="reddit">REDDIT</button>
+            <button class="platform-btn" data-platform="stacker_news">STACKER NEWS</button>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="submit-form">
+                <h5 class="text-white mb-3"><i class="fas fa-plus-circle text-warning"></i> Curate Content</h5>
+                <form id="submit-content-form" class="d-flex gap-3">
+                    <input type="url" class="submit-input flex-grow-1" id="content-url" 
+                           placeholder="Paste URL from any platform..." required>
+                    <button type="submit" class="zap-btn">
+                        <i class="fas fa-paper-plane"></i> SUBMIT
+                    </button>
+                </form>
+                <small class="text-muted mt-2 d-block">Share valuable content and earn curator splits when others zap</small>
+            </div>
+            
+            <div id="value-stream-feed">
+                {% if posts %}
+                    {% for post in posts %}
+                    <div class="content-card {% if post.is_featured %}featured{% endif %}">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <span class="platform-badge platform-{{ post.platform }}">
+                                    {{ post.platform }}
+                                </span>
+                                {% if post.is_featured %}
+                                <span class="badge bg-warning text-dark ms-2">FEATURED</span>
+                                {% endif %}
+                            </div>
+                            <div class="signal-score" title="Signal Score">
+                                {{ "%.1f"|format(post.signal_score) }}
+                            </div>
+                        </div>
+                        
+                        <h5 class="text-white mb-2">
+                            <a href="{{ post.original_url }}" target="_blank" class="text-decoration-none text-white">
+                                {{ post.title or 'Untitled Content' }}
+                                <i class="fas fa-external-link-alt fa-xs ms-2 text-muted"></i>
+                            </a>
+                        </h5>
+                        
+                        {% if post.content_preview %}
+                        <p class="text-muted mb-3">{{ post.content_preview[:200] }}...</p>
+                        {% endif %}
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="d-flex gap-4">
+                                <span class="sats-count">
+                                    <i class="fas fa-bolt"></i> {{ "{:,}".format(post.total_sats) }} sats
+                                </span>
+                                <span class="zap-count">
+                                    {{ post.zap_count }} zaps
+                                </span>
+                            </div>
+                            
+                            <div class="d-flex align-items-center gap-3">
+                                {% if post.curator %}
+                                <div class="curator-badge {% if post.curator.verified %}verified{% endif %}">
+                                    <i class="fas fa-user-check"></i>
+                                    {{ post.curator.display_name }}
+                                </div>
+                                {% endif %}
+                                
+                                <button class="zap-btn zap-content-btn" data-post-id="{{ post.id }}">
+                                    <i class="fas fa-bolt"></i> ZAP
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-stream">
+                        <i class="fas fa-stream fa-3x mb-3"></i>
+                        <h4>No Curated Content Yet</h4>
+                        <p>Be the first to curate valuable content and earn sats when others zap!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="extension-promo mb-4">
+                <h4 class="text-white mb-3">
+                    <i class="fas fa-puzzle-piece"></i> Browser Extension
+                </h4>
+                <p class="text-muted mb-4">
+                    Zap content anywhere on the web. Curate from any site. 
+                    Connect your Lightning wallet.
+                </p>
+                <a href="/extension" class="extension-btn text-decoration-none">
+                    <i class="fas fa-download me-2"></i> GET EXTENSION
+                </a>
+            </div>
+            
+            <div class="curator-leaderboard">
+                <h5 class="text-white mb-3">
+                    <i class="fas fa-trophy text-warning"></i> Top Curators
+                </h5>
+                
+                {% if curators %}
+                    {% for curator in curators[:10] %}
+                    <div class="curator-row">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="curator-rank">#{{ loop.index }}</span>
+                            <div>
+                                <div class="text-white">
+                                    {{ curator.display_name }}
+                                    {% if curator.verified %}
+                                    <i class="fas fa-check-circle text-success fa-xs"></i>
+                                    {% endif %}
+                                </div>
+                                <small class="text-muted">Score: {{ curator.curator_score }}</small>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="sats-count small">{{ "{:,}".format(curator.total_sats_received) }}</div>
+                            <small class="text-muted">{{ curator.total_zaps }} zaps</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center py-3">No curators yet</p>
+                {% endif %}
+            </div>
+            
+            <div class="how-it-works mt-4">
+                <div class="how-card">
+                    <div class="how-icon">🔗</div>
+                    <h6 class="text-white">1. Curate</h6>
+                    <p class="text-muted small mb-0">Share valuable content from any platform</p>
+                </div>
+                <div class="how-card">
+                    <div class="how-icon">⚡</div>
+                    <h6 class="text-white">2. Zap</h6>
+                    <p class="text-muted small mb-0">Send sats to signal content value</p>
+                </div>
+                <div class="how-card">
+                    <div class="how-icon">📈</div>
+                    <h6 class="text-white">3. Rise</h6>
+                    <p class="text-muted small mb-0">Best content surfaces via economic signal</p>
+                </div>
+                <div class="how-card">
+                    <div class="how-icon">💰</div>
+                    <h6 class="text-white">4. Earn</h6>
+                    <p class="text-muted small mb-0">Curators get 10% of zaps to content they share</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.platform-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const platform = this.dataset.platform;
+        window.location.href = platform === 'all' ? '/value-stream' : `/value-stream?platform=${platform}`;
+    });
+});
+
+document.getElementById('submit-content-form')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const url = document.getElementById('content-url').value;
+    
+    try {
+        const response = await fetch('/api/value-stream/submit', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({url: url})
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Content curated successfully!');
+            window.location.reload();
+        } else {
+            alert(data.error || 'Failed to curate content');
+        }
+    } catch (err) {
+        alert('Error submitting content');
+    }
+});
+
+document.querySelectorAll('.zap-content-btn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        const postId = this.dataset.postId;
+        
+        if (typeof webln !== 'undefined') {
+            try {
+                await webln.enable();
+                const response = await fetch(`/api/value-stream/invoice/${postId}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({amount_sats: 1000})
+                });
+                const data = await response.json();
+                
+                if (data.invoice) {
+                    const result = await webln.sendPayment(data.invoice);
+                    alert('Zap sent! Thank you for signaling value.');
+                    window.location.reload();
+                }
+            } catch (err) {
+                alert('WebLN payment failed: ' + err.message);
+            }
+        } else {
+            alert('Please install a WebLN-compatible wallet extension (Alby, etc.)');
+        }
+    });
+});
+</script>
+{% endblock %}

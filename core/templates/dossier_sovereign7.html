@@ -1,0 +1,574 @@
+<!-- Protocol Pulse Dossier: Sovereign 7 (7 chapters) - new condensed walkthrough -->
+{% extends "base.html" %}
+{% block title %}The Sovereign 7 | Protocol Pulse Dossier{% endblock %}
+{% block extra_css %}
+<style>
+:root {
+  --s7-bg: #000000;
+  --s7-white: #ffffff;
+  --s7-red: #dc2626;
+  --s7-red-glow: rgba(220, 38, 38, 0.25);
+}
+.s7-wrap {
+  background: var(--s7-bg);
+  min-height: 100vh;
+  padding-top: 56px;
+  overflow: hidden;
+}
+/* Sovereignty Tracker HUD */
+.s7-hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 56px;
+  background: rgba(0,0,0,0.95);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+.s7-hud-back {
+  color: var(--s7-white);
+  text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+.s7-hud-back:hover { color: var(--s7-red); opacity: 1; }
+.s7-hud-pulse {
+  width: 20px;
+  height: 20px;
+  background: var(--s7-red);
+  border-radius: 50%;
+  animation: s7-pulse 1.5s ease-in-out infinite;
+}
+@keyframes s7-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--s7-red-glow); }
+  50% { opacity: 0.9; box-shadow: 0 0 10px 3px var(--s7-red-glow); }
+}
+.s7-hud-tracker {
+  flex: 1;
+  max-width: 220px;
+  margin: 0 12px;
+}
+.s7-hud-tracker-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 4px;
+}
+.s7-hud-fill {
+  height: 6px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.s7-hud-fill-bar {
+  height: 100%;
+  background: var(--s7-red);
+  border-radius: 3px;
+  width: 0%;
+  transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.s7-hud-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.7);
+  min-width: 48px;
+  text-align: right;
+}
+.s7-hud-classic {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.5);
+  margin-left: 12px;
+  text-decoration: none;
+}
+.s7-hud-classic:hover { color: var(--s7-red); }
+/* Horizontal scroll — smooth, touch-friendly */
+.s7-scroll {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  height: calc(100vh - 56px);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  touch-action: pan-x;
+}
+.s7-scroll::-webkit-scrollbar { display: none; }
+/* Section */
+.s7-section {
+  flex: 0 0 100%;
+  min-width: 100%;
+  width: 100%;
+  scroll-snap-align: center;
+  scroll-snap-stop: normal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px 80px;
+  box-sizing: border-box;
+}
+.s7-section-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  max-width: 1100px;
+  width: 100%;
+}
+.s7-img-wrap {
+  position: relative;
+  flex-shrink: 0;
+  max-width: 50%;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+.s7-img-wrap img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 70vh;
+  object-fit: contain;
+  vertical-align: middle;
+}
+.s7-content {
+  flex: 1;
+  min-width: 280px;
+  max-width: 420px;
+}
+.s7-subtitle {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--s7-red);
+  margin-bottom: 8px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.s7-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--s7-white);
+  margin-bottom: 16px;
+  line-height: 1.25;
+}
+.s7-narrative {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.82);
+  line-height: 1.65;
+  margin-bottom: 20px;
+}
+.s7-btn-deep {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: transparent;
+  border: 1px solid var(--s7-red);
+  border-radius: 8px;
+  color: var(--s7-white);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.s7-btn-deep:hover {
+  background: rgba(220, 38, 38, 0.2);
+  box-shadow: 0 0 14px var(--s7-red-glow);
+}
+/* Modal: terminal-style Deep Dive */
+.s7-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1999;
+  background: rgba(0,0,0,0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+}
+.s7-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+.s7-modal[aria-hidden="false"] { pointer-events: auto; }
+.s7-modal-panel {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow: auto;
+  background: #0a0a0a;
+  border: 1px solid var(--s7-red);
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 24px 60px rgba(0,0,0,0.7), 0 0 40px var(--s7-red-glow);
+  pointer-events: auto;
+}
+.s7-modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.s7-modal-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--s7-red);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.s7-modal-close {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(255,255,255,0.08);
+  color: var(--s7-white);
+  font-size: 1.4rem;
+  line-height: 1;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.s7-modal-close:hover { background: var(--s7-red); }
+.s7-modal-body {
+  padding: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.9);
+}
+.s7-modal-row { margin-bottom: 18px; }
+.s7-modal-row:last-child { margin-bottom: 0; }
+.s7-modal-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--s7-red);
+  margin-bottom: 6px;
+}
+.s7-modal-value { color: rgba(255,255,255,0.92); }
+.s7-modal-math {
+  background: rgba(255,255,255,0.04);
+  border-left: 3px solid var(--s7-red);
+  padding: 10px 12px;
+  margin-top: 6px;
+  color: rgba(255,255,255,0.88);
+  overflow-x: auto;
+}
+/* Nav arrows */
+.s7-nav {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 100;
+  pointer-events: none;
+  padding: 0 8px;
+}
+.s7-nav-btn {
+  pointer-events: auto;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: var(--s7-white);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s, opacity 0.2s;
+}
+.s7-nav-btn:hover {
+  background: rgba(220, 38, 38, 0.3);
+  border-color: var(--s7-red);
+}
+.s7-nav-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.s7-nav-btn.prev { left: 8px; }
+.s7-nav-btn.next { right: 8px; }
+/* Dot nav */
+.s7-dots {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.s7-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.s7-dot:hover { background: rgba(255,255,255,0.5); }
+.s7-dot.active {
+  background: var(--s7-red);
+  transform: scale(1.2);
+  box-shadow: 0 0 10px var(--s7-red-glow);
+}
+/* Mobile */
+@media (max-width: 768px) {
+  .s7-section-inner { flex-direction: column; gap: 24px; }
+  .s7-img-wrap { max-width: 100%; }
+  .s7-content { max-width: 100%; }
+  .s7-title { font-size: 1.2rem; }
+  .s7-hud-tracker { max-width: 140px; }
+  .s7-nav-btn { width: 40px; height: 40px; font-size: 1rem; }
+  .s7-nav-btn.prev { left: 4px; }
+  .s7-nav-btn.next { right: 4px; }
+  .s7-dots { bottom: 12px; gap: 8px; padding: 6px 10px; }
+  .s7-dot { width: 6px; height: 6px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="s7-wrap">
+  <header class="s7-hud">
+    <a href="/" class="s7-hud-back"><i class="fas fa-arrow-left me-2"></i>Protocol Pulse</a>
+    <div class="s7-hud-pulse" title="Pulse"></div>
+    <div class="s7-hud-tracker">
+      <div class="s7-hud-tracker-label">Sovereignty Tracker</div>
+      <div class="s7-hud-fill">
+        <div class="s7-hud-fill-bar" id="s7ProgressBar"></div>
+      </div>
+    </div>
+    <span class="s7-hud-score" id="s7Score">0 / 7</span>
+    <a href="/dossier/classic" class="s7-hud-classic" title="Full 32-slide Dossier">Classic</a>
+  </header>
+
+  <div class="s7-scroll" id="s7Scroll">
+    {% for chapter in chapters or [] %}
+    {% set dd = chapter.deep_dive or {} %}
+    <section class="s7-section" data-chapter-id="{{ chapter.id }}" data-index="{{ loop.index0 }}">
+      <div class="s7-section-inner">
+        <div class="s7-img-wrap">
+          <img src="{{ chapter.image_path or '' }}" alt="{{ chapter.title or 'Chapter' }}" loading="lazy">
+        </div>
+        <div class="s7-content">
+          <div class="s7-subtitle">{{ chapter.subtitle or '' }}</div>
+          <h2 class="s7-title">{{ chapter.title or 'Chapter' }}</h2>
+          <p class="s7-narrative">{{ chapter.narrative or '' }}</p>
+          <button type="button" class="s7-btn-deep s7-deep-dive" data-chapter-id="{{ chapter.id }}"
+            data-title="{{ chapter.title or '' }}" data-subtitle="{{ chapter.subtitle or '' }}"
+            data-key-metric="{{ dd.key_metric or '' }}"
+            data-math="{{ dd.math or '' }}"
+            data-technical-insight="{{ dd.technical_insight or '' }}">
+            <i class="fas fa-terminal me-1"></i>Deep Dive
+          </button>
+        </div>
+      </div>
+    </section>
+    {% endfor %}
+  </div>
+
+  <!-- Navigation -->
+  <nav class="s7-nav" aria-label="Dossier navigation">
+    <button type="button" class="s7-nav-btn prev" id="s7Prev" aria-label="Previous chapter"><i class="fas fa-chevron-left"></i></button>
+    <button type="button" class="s7-nav-btn next" id="s7Next" aria-label="Next chapter"><i class="fas fa-chevron-right"></i></button>
+  </nav>
+  <div class="s7-dots" id="s7Dots" role="tablist" aria-label="Jump to chapter"></div>
+</div>
+
+<!-- Deep Dive Modal (terminal-style) -->
+<div class="s7-modal-backdrop" id="s7ModalBackdrop" aria-hidden="true"></div>
+<div class="s7-modal" id="s7Modal" role="dialog" aria-hidden="true">
+  <div class="s7-modal-panel">
+    <div class="s7-modal-header">
+      <span class="s7-modal-title" id="s7ModalTitle">Technical Intel</span>
+      <button type="button" class="s7-modal-close" id="s7ModalClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="s7-modal-body">
+      <div class="s7-modal-row">
+        <div class="s7-modal-label">Key metric</div>
+        <div class="s7-modal-value" id="s7ModalKeyMetric"></div>
+      </div>
+      <div class="s7-modal-row">
+        <div class="s7-modal-label">The math</div>
+        <div class="s7-modal-math" id="s7ModalMath"></div>
+      </div>
+      <div class="s7-modal-row">
+        <div class="s7-modal-label">Technical insight</div>
+        <div class="s7-modal-value" id="s7ModalInsight"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var scrollEl = document.getElementById('s7Scroll');
+  var progressBar = document.getElementById('s7ProgressBar');
+  var scoreEl = document.getElementById('s7Score');
+  var sections = scrollEl.querySelectorAll('.s7-section');
+  var total = sections.length;
+  var sectionWidth = 0;
+  var ticking = false;
+  var currentIndex = 0;
+
+  function getSectionWidth() {
+    return scrollEl.clientWidth;
+  }
+  function scrollToIndex(index) {
+    index = Math.max(0, Math.min(total - 1, index));
+    var w = getSectionWidth();
+    scrollEl.scrollTo({ left: index * w, behavior: 'smooth' });
+  }
+  function getCurrentIndex() {
+    var w = getSectionWidth();
+    if (w <= 0) return 0;
+    var scrollLeft = scrollEl.scrollLeft;
+    return Math.min(total - 1, Math.round(scrollLeft / w));
+  }
+  function updateUI() {
+    currentIndex = getCurrentIndex();
+    var pct = total > 1 ? (currentIndex / (total - 1)) * 100 : 100;
+    progressBar.style.width = pct + '%';
+    scoreEl.textContent = (currentIndex + 1) + ' / ' + total;
+    var prevBtn = document.getElementById('s7Prev');
+    var nextBtn = document.getElementById('s7Next');
+    if (prevBtn) prevBtn.disabled = currentIndex === 0;
+    if (nextBtn) nextBtn.disabled = currentIndex === total - 1;
+    var dots = document.querySelectorAll('.s7-dot');
+    dots.forEach(function(dot, i) {
+      dot.classList.toggle('active', i === currentIndex);
+      dot.setAttribute('aria-selected', i === currentIndex);
+    });
+  }
+  function onScroll() {
+    if (!ticking) {
+      requestAnimationFrame(function() {
+        updateUI();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }
+
+  sectionWidth = getSectionWidth();
+  scrollEl.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', function() {
+    sectionWidth = getSectionWidth();
+    updateUI();
+  });
+  updateUI();
+
+  // Prev/Next buttons
+  document.getElementById('s7Prev').addEventListener('click', function() {
+    if (currentIndex > 0) scrollToIndex(currentIndex - 1);
+  });
+  document.getElementById('s7Next').addEventListener('click', function() {
+    if (currentIndex < total - 1) scrollToIndex(currentIndex + 1);
+  });
+
+  // Dot nav
+  var dotsEl = document.getElementById('s7Dots');
+  for (var i = 0; i < total; i++) {
+    var dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 's7-dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', 'Chapter ' + (i + 1));
+    dot.setAttribute('role', 'tab');
+    dot.setAttribute('aria-selected', i === 0);
+    (function(idx) {
+      dot.addEventListener('click', function() { scrollToIndex(idx); });
+    })(i);
+    dotsEl.appendChild(dot);
+  }
+
+  // Keyboard
+  document.addEventListener('keydown', function(e) {
+    if (modal.getAttribute('aria-hidden') === 'false') return;
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      if (currentIndex > 0) scrollToIndex(currentIndex - 1);
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      if (currentIndex < total - 1) scrollToIndex(currentIndex + 1);
+    }
+  });
+
+  // Deep Dive modal
+  var modal = document.getElementById('s7Modal');
+  var backdrop = document.getElementById('s7ModalBackdrop');
+  var modalTitle = document.getElementById('s7ModalTitle');
+  var keyMetricEl = document.getElementById('s7ModalKeyMetric');
+  var mathEl = document.getElementById('s7ModalMath');
+  var insightEl = document.getElementById('s7ModalInsight');
+  var modalClose = document.getElementById('s7ModalClose');
+
+  function openDeepDive(title, subtitle, keyMetric, math, technicalInsight) {
+    modalTitle.textContent = title + ' — ' + subtitle;
+    keyMetricEl.textContent = keyMetric;
+    mathEl.textContent = math;
+    insightEl.textContent = technicalInsight;
+    modal.setAttribute('aria-hidden', 'false');
+    backdrop.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDeepDive() {
+    modal.setAttribute('aria-hidden', 'true');
+    backdrop.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('.s7-deep-dive').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var title = btn.getAttribute('data-title') || '';
+      var subtitle = btn.getAttribute('data-subtitle') || '';
+      var keyMetric = btn.getAttribute('data-key-metric') || '';
+      var math = btn.getAttribute('data-math') || '';
+      var insight = btn.getAttribute('data-technical-insight') || '';
+      openDeepDive(title, subtitle, keyMetric, math, insight);
+    });
+  });
+  backdrop.addEventListener('click', closeDeepDive);
+  modalClose.addEventListener('click', closeDeepDive);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') closeDeepDive();
+  });
+})();
+</script>
+{% endblock %}

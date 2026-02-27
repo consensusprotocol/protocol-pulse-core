@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitfeed Ultimate | Protocol Pulse</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            color: #fff;
+            overflow: hidden;
+        }
+        
+        #container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #bitfeed-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .hud {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            min-width: 240px;
+        }
+        
+        .hud-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .hud-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #dc2626;
+            margin-bottom: 20px;
+        }
+        
+        .hud-progress {
+            width: 200px;
+            height: 4px;
+            background: #222;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .hud-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #dc2626, #ff3333);
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.5);
+            width: 0%;
+        }
+        
+        .hud-status {
+            font-size: 11px;
+            color: #888;
+        }
+        
+        .sovereign-toggle {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sovereign-toggle label {
+            font-size: 10px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #333;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background: #fff;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background: #a855f7;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+        
+        #block-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(220, 38, 38, 0.95);
+            border: 3px solid #fff;
+            border-radius: 16px;
+            padding: 40px 60px;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 0 80px rgba(220, 38, 38, 0.8);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        #block-notification.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        #block-notification h2 {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+        
+        #block-notification p {
+            font-size: 20px;
+            opacity: 0.9;
+        }
+        
+        .back-link {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #666;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .back-link:hover {
+            border-color: #dc2626;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <canvas id="bitfeed-canvas"></canvas>
+    </div>
+    
+    <div class="hud">
+        <div class="hud-label">Current Block</div>
+        <div class="hud-value" id="block-height">---</div>
+        
+        <div class="hud-label">Assembly Progress</div>
+        <div class="hud-progress">
+            <div class="hud-progress-bar" id="progress-bar"></div>
+        </div>
+        
+        <div class="hud-status" id="status">Initializing...</div>
+        
+        <div class="sovereign-toggle">
+            <label for="sovereign-toggle">Sovereign Mode</label>
+            <label class="toggle-switch">
+                <input type="checkbox" id="sovereign-toggle">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+    </div>
+    
+    <div id="block-notification">
+        <h2>NEW BLOCK MINED</h2>
+        <p id="notification-height">Block #---</p>
+    </div>
+    
+    <a href="/" class="back-link">← Back to Protocol Pulse</a>
+    
+    <script src="{{ url_for('static', filename='js/bitfeed_ultimate.js') }}?v={{ range(100000, 999999) | random }}"></script>
+</body>
+</html>

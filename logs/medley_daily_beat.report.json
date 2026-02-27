@@ -1,0 +1,8 @@
+{
+  "started_at": "2026-02-12T23:00:05.464002",
+  "finished_at": "2026-02-12T23:00:25.126432",
+  "output": "/home/ultron/protocol_pulse/logs/medley_daily_beat.mp4",
+  "line_count": 15,
+  "gpu_hint": "cuda_visible_devices=1 expected",
+  "pipeline": "ffmpeg_nvenc_fallback"
+}

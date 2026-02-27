@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+{% block title %}Pulse Check — Daily Bitcoin Intelligence | Protocol Pulse{% endblock %}
+
+{% block meta_description %}Daily AI-powered Bitcoin intelligence briefing. Watch the latest Pulse Check episode for network analysis, market signals, and protocol updates.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="Pulse Check — Daily Bitcoin Intelligence">
+<meta property="og:description" content="Daily AI-powered Bitcoin intelligence briefing by Protocol Pulse.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protocol Pulse">
+<meta property="og:image" content="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
+<meta property="og:url" content="{{ request.url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+{% endblock %}
+
+{% block head %}
+<style>
+/* ═══ PULSE CHECK PAGE ═══ */
+.pc-hero {
+    padding: 48px 0 32px;
+    border-bottom: 1px solid var(--pp-border);
+}
+
+.pc-hero__row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+}
+
+@media (min-width: 1024px) {
+    .pc-hero__row { grid-template-columns: 1.5fr 1fr; gap: 48px; }
+}
+
+.pc-hero__video {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%;
+    background: var(--pp-surface);
+    border-radius: var(--pp-radius-md);
+    overflow: hidden;
+    border: 1px solid var(--pp-border);
+}
+
+.pc-hero__video iframe,
+.pc-hero__video .pc-placeholder {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.pc-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: var(--pp-surface);
+    color: var(--pp-text-muted);
+}
+
+.pc-play-btn {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--pp-teal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s var(--pp-ease);
+    box-shadow: 0 0 30px rgba(0, 212, 170, 0.2);
+}
+
+.pc-play-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 50px rgba(0, 212, 170, 0.3);
+}
+
+.pc-play-btn i {
+    color: var(--pp-black);
+    font-size: 1.5rem;
+    margin-left: 4px;
+}
+
+.pc-hero__info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.pc-hero__title {
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.pc-hero__desc {
+    color: var(--pp-text-secondary);
+    line-height: 1.7;
+    margin-bottom: 24px;
+}
+
+.pc-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.pc-hero__meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--pp-font-mono);
+    font-size: 0.75rem;
+    color: var(--pp-text-muted);
+}
+
+.pc-hero__meta-item i { color: var(--pp-teal); }
+
+/* Episode list */
+.pc-episodes {
+    padding: 48px 0;
+}
+
+.pc-episode {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 20px;
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-md);
+    transition: all 0.25s var(--pp-ease);
+    text-decoration: none;
+    color: var(--pp-text);
+}
+
+@media (min-width: 640px) {
+    .pc-episode { grid-template-columns: 160px 1fr auto; align-items: center; }
+}
+
+.pc-episode:hover {
+    border-color: var(--pp-border-teal);
+    box-shadow: var(--pp-shadow-teal);
+    transform: translateY(-1px);
+    color: var(--pp-text);
+}
+
+.pc-episode__thumb {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: var(--pp-surface-2);
+    border-radius: var(--pp-radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+@media (min-width: 640px) {
+    .pc-episode__thumb { width: 160px; }
+}
+
+.pc-episode__thumb i {
+    font-size: 1.5rem;
+    color: var(--pp-teal);
+    opacity: 0.5;
+}
+
+.pc-episode__info { min-width: 0; }
+
+.pc-episode__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pc-episode__desc {
+    font-size: 0.8125rem;
+    color: var(--pp-text-secondary);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.pc-episode__date {
+    font-family: var(--pp-font-mono);
+    font-size: 0.75rem;
+    color: var(--pp-text-muted);
+    white-space: nowrap;
+}
+
+/* Stats */
+.pc-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 24px;
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-md);
+}
+
+@media (min-width: 640px) {
+    .pc-stats { grid-template-columns: repeat(4, 1fr); }
+}
+
+.pc-stats__item { text-align: center; }
+
+.pc-stats__value {
+    font-family: var(--pp-font-mono);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--pp-teal);
+}
+
+.pc-stats__label {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--pp-text-muted);
+    margin-top: 4px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pp-container">
+    <!-- Hero / Latest Episode -->
+    <section class="pc-hero">
+        <div class="pc-hero__row">
+            <div class="pc-hero__video">
+                {% if latest and latest.audio_url and 'youtube' in (latest.audio_url or '') %}
+                <iframe src="{{ latest.audio_url.replace('watch?v=', 'embed/') }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                {% else %}
+                <div class="pc-placeholder">
+                    <div class="pc-play-btn">
+                        <i class="fas fa-play"></i>
+                    </div>
+                    <span class="pp-small pp-text-muted">Latest episode</span>
+                </div>
+                {% endif %}
+            </div>
+            <div class="pc-hero__info">
+                <span class="pp-badge pp-badge--live pp-mb-2">Latest Episode</span>
+                <h1 class="pc-hero__title">
+                    {% if latest %}{{ latest.title }}{% else %}Pulse Check{% endif %}
+                </h1>
+                <p class="pc-hero__desc">
+                    {% if latest and latest.description %}
+                        {{ latest.description[:300] }}{% if latest.description|length > 300 %}...{% endif %}
+                    {% else %}
+                        Daily AI-powered Bitcoin intelligence briefing. Network analysis, market signals, and protocol-level insights delivered in under 5 minutes.
+                    {% endif %}
+                </p>
+                <div class="pc-hero__meta">
+                    {% if latest and latest.published_date %}
+                    <div class="pc-hero__meta-item">
+                        <i class="fas fa-calendar"></i>
+                        {{ latest.published_date.strftime('%B %d, %Y') }}
+                    </div>
+                    {% endif %}
+                    {% if latest and latest.duration %}
+                    <div class="pc-hero__meta-item">
+                        <i class="fas fa-clock"></i>
+                        {{ latest.duration }}
+                    </div>
+                    {% endif %}
+                    <div class="pc-hero__meta-item">
+                        <i class="fas fa-robot"></i>
+                        AI-Generated
+                    </div>
+                </div>
+                <div class="pp-flex pp-gap-sm">
+                    {% if latest and latest.audio_url %}
+                    <a href="{{ latest.audio_url }}" target="_blank" rel="noopener" class="pp-btn pp-btn--primary">
+                        <i class="fas fa-play"></i> Watch Episode
+                    </a>
+                    {% endif %}
+                    <a href="/podcasts" class="pp-btn pp-btn--ghost">
+                        <i class="fas fa-podcast"></i> All Podcasts
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Show Stats -->
+    <section class="pp-section" style="padding-bottom:0;">
+        <div class="pc-stats pp-reveal">
+            <div class="pc-stats__item">
+                <div class="pc-stats__value">{{ archive|length + 1 if latest else 0 }}</div>
+                <div class="pc-stats__label">Episodes</div>
+            </div>
+            <div class="pc-stats__item">
+                <div class="pc-stats__value">Daily</div>
+                <div class="pc-stats__label">Schedule</div>
+            </div>
+            <div class="pc-stats__item">
+                <div class="pc-stats__value">&lt;5m</div>
+                <div class="pc-stats__label">Avg Length</div>
+            </div>
+            <div class="pc-stats__item">
+                <div class="pc-stats__value">AI</div>
+                <div class="pc-stats__label">Generated</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Episode Archive -->
+    <section class="pc-episodes">
+        <div class="pp-section__title-bar pp-mb-4">
+            <div>
+                <h2 class="pp-section__title">Episode Archive</h2>
+                <p class="pp-section__subtitle">All Pulse Check episodes</p>
+            </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;" class="pp-stagger">
+            {% if archive %}
+                {% for episode in archive %}
+                <a href="{{ episode.audio_url or '/podcasts' }}" class="pc-episode" {% if episode.audio_url %}target="_blank" rel="noopener"{% endif %}>
+                    <div class="pc-episode__thumb">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                    <div class="pc-episode__info">
+                        <div class="pc-episode__title">{{ episode.title }}</div>
+                        <div class="pc-episode__desc">{{ episode.description[:150] if episode.description else '' }}{% if episode.description and episode.description|length > 150 %}...{% endif %}</div>
+                    </div>
+                    <div class="pc-episode__date">
+                        {{ episode.published_date.strftime('%b %d, %Y') if episode.published_date else '' }}
+                    </div>
+                </a>
+                {% endfor %}
+            {% else %}
+                <div class="pp-card" style="padding:40px;text-align:center;">
+                    <i class="fas fa-podcast" style="font-size:2rem;color:var(--pp-teal);opacity:0.3;margin-bottom:12px;"></i>
+                    <div class="pp-text-secondary">No archived episodes yet. Check back soon!</div>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Newsletter CTA -->
+    <section class="pp-section" style="padding-top:0;">
+        <div class="pp-newsletter pp-reveal">
+            <h2 class="pp-newsletter__title">Never Miss a Pulse Check</h2>
+            <p class="pp-newsletter__subtitle">Get daily Bitcoin intelligence delivered to your inbox.</p>
+            <form class="pp-newsletter__form" action="/subscribe" method="POST">
+                <input type="email" name="email" class="pp-input" placeholder="your@email.com" required aria-label="Email">
+                <button type="submit" class="pp-btn pp-btn--primary">Subscribe</button>
+            </form>
+        </div>
+    </section>
+</div>
+{% endblock %}

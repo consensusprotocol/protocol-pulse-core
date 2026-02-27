@@ -1,0 +1,49 @@
+{
+  "ts": "2026-02-12T10:29:31.600129",
+  "hours_back": 24,
+  "downloaded_count": 4,
+  "failed_count": 0,
+  "videos": [
+    {
+      "platform": "youtube",
+      "channel_name": "Michael Saylor",
+      "channel_id": "UCjpkLzNLkZJGQvVQw7hFnSg",
+      "video_id": "fallback_2026-02-12_1",
+      "title": "Michael Saylor daily signal montage",
+      "published_at": "2026-02-12T10:24:24.539966",
+      "local_video_path": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/michael_saylor_fallback_2026-02-12_1.mp4",
+      "downloaded": true
+    },
+    {
+      "platform": "youtube",
+      "channel_name": "Lyn Alden",
+      "channel_id": "UCN49rFQFZuiUHpE8NR7mttQ",
+      "video_id": "fallback_2026-02-12_2",
+      "title": "Lyn Alden daily signal montage",
+      "published_at": "2026-02-12T10:24:24.539987",
+      "local_video_path": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/lyn_alden_fallback_2026-02-12_2.mp4",
+      "downloaded": true
+    },
+    {
+      "platform": "youtube",
+      "channel_name": "Preston Pysh",
+      "channel_id": "UCmvn0Cgun-7O7L8GeFeyxdA",
+      "video_id": "fallback_2026-02-12_3",
+      "title": "Preston Pysh daily signal montage",
+      "published_at": "2026-02-12T10:24:24.540002",
+      "local_video_path": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/preston_pysh_fallback_2026-02-12_3.mp4",
+      "downloaded": true
+    },
+    {
+      "platform": "youtube",
+      "channel_name": "Natalie Brunell",
+      "channel_id": "UCv-_bq3fB7y_wGmRqNGbCrw",
+      "video_id": "fallback_2026-02-12_4",
+      "title": "Natalie Brunell daily signal montage",
+      "published_at": "2026-02-12T10:24:24.540015",
+      "local_video_path": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/natalie_brunell_fallback_2026-02-12_4.mp4",
+      "downloaded": true
+    }
+  ],
+  "failed": []
+}

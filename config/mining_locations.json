@@ -1,0 +1,32 @@
+{
+  "last_updated": "2026-02-11T00:00:00Z",
+  "jurisdictions": [
+    {
+      "name": "texas, usa",
+      "coordinates": { "lat": 31.9686, "lng": -99.9018 },
+      "risk_score": 48,
+      "sentiment": "monitor",
+      "grid_load": 74,
+      "action": "watch fee pressure and curtailment windows",
+      "notes": "large hashrate concentration; responsive ERCOT demand profile"
+    },
+    {
+      "name": "quebec, canada",
+      "coordinates": { "lat": 52.9399, "lng": -73.5491 },
+      "risk_score": 34,
+      "sentiment": "sovereign",
+      "grid_load": 46,
+      "action": "optimize long-cycle power contracts",
+      "notes": "hydro base offers relatively stable operating conditions"
+    },
+    {
+      "name": "kazakhstan",
+      "coordinates": { "lat": 48.0196, "lng": 66.9237 },
+      "risk_score": 71,
+      "sentiment": "high-risk",
+      "grid_load": 81,
+      "action": "reduce exposure and monitor policy drift",
+      "notes": "regulatory and power volatility remain elevated"
+    }
+  ]
+}

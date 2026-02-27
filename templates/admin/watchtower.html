@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Watchtower{% endblock %}
+{% block head %}
+<style>
+  .wt-wrap{padding:88px 14px 20px;min-height:100vh;background:#06080a;color:#d1fae5}
+  .wt-grid{max-width:1500px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1.1fr;gap:12px}
+  .wt-card{background:rgba(0,0,0,.7);border:1px solid rgba(16,185,129,.4);border-radius:12px;box-shadow:0 0 24px rgba(16,185,129,.12)}
+  .wt-head{padding:10px 12px;border-bottom:1px solid rgba(16,185,129,.25);font-family:'JetBrains Mono',monospace;font-size:.76rem;color:#86efac;text-transform:uppercase}
+  .wt-body{padding:12px}
+  .wt-log{height:62vh;overflow:auto;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.35;white-space:pre-wrap}
+  .wt-table{width:100%;font-family:'JetBrains Mono',monospace;font-size:.8rem}
+  .wt-table td{padding:6px;border-bottom:1px solid rgba(16,185,129,.12)}
+  .wt-ok{color:#4ade80}.wt-bad{color:#f87171}.wt-dim{color:#9ca3af}
+  @media(max-width:1100px){.wt-grid{grid-template-columns:1fr}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wt-wrap">
+  <div class="wt-grid">
+    <section class="wt-card">
+      <div class="wt-head">GPU Telemetry</div>
+      <div class="wt-body"><table class="wt-table" id="gpuTable"></table></div>
+    </section>
+    <section class="wt-card">
+      <div class="wt-head">Service Status</div>
+      <div class="wt-body"><table class="wt-table" id="svcTable"></table></div>
+    </section>
+    <section class="wt-card">
+      <div class="wt-head">Automation Log Tail (Live)</div>
+      <div class="wt-body wt-log" id="logBox">booting watchtower stream...</div>
+    </section>
+  </div>
+</div>
+<script>
+async function refreshWatchtower(){
+  const r=await fetch('/api/admin/watchtower/status',{credentials:'same-origin'});
+  const j=await r.json();
+  const g=document.getElementById('gpuTable');
+  const s=document.getElementById('svcTable');
+  g.innerHTML=(j.gpu||[]).map(x=>`<tr><td>GPU ${x.index}</td><td>${x.name}</td><td>${x.temp_c}C</td><td>${x.vram_used_mib}/${x.vram_total_mib} MiB</td><td>${x.power_w}W</td></tr>`).join('')||'<tr><td class="wt-dim">nvidia-smi unavailable</td></tr>';
+  s.innerHTML=(j.services||[]).map(x=>`<tr><td>${x.name}</td><td class="${x.state==='active'?'wt-ok':'wt-bad'}">${x.state}</td><td class="wt-dim">${x.scope}</td></tr>`).join('');
+}
+setInterval(refreshWatchtower, 4000); refreshWatchtower();
+const logBox=document.getElementById('logBox');
+const es=new EventSource('/api/admin/watchtower/log-stream');
+es.onmessage=(ev)=>{try{const d=JSON.parse(ev.data||'{}'); if(d.line){logBox.textContent += "\\n"+d.line; logBox.scrollTop=logBox.scrollHeight;}}catch(_e){}};
+</script>
+{% endblock %}
+

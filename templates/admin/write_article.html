@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Write Article - Admin{% endblock %}
+
+{% block extra_head %}
+<style>
+    .write-form {
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 2rem;
+    }
+    .form-label {
+        color: #f7931a;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    .form-control, .form-select {
+        background: #0a0a0a;
+        border: 1px solid #333;
+        color: #fff;
+        padding: 0.75rem 1rem;
+    }
+    .form-control:focus, .form-select:focus {
+        background: #0a0a0a;
+        border-color: #f7931a;
+        color: #fff;
+        box-shadow: 0 0 0 0.2rem rgba(247, 147, 26, 0.25);
+    }
+    .form-control::placeholder {
+        color: #666;
+    }
+    #content-editor {
+        min-height: 400px;
+        font-family: 'DM Sans', sans-serif;
+        line-height: 1.7;
+    }
+    .btn-publish {
+        background: #f7931a;
+        color: #000;
+        font-weight: 700;
+        padding: 0.75rem 2rem;
+        border: none;
+    }
+    .btn-publish:hover {
+        background: #ffa726;
+        color: #000;
+    }
+    .btn-draft {
+        background: transparent;
+        color: #f7931a;
+        border: 2px solid #f7931a;
+        font-weight: 600;
+        padding: 0.75rem 2rem;
+    }
+    .btn-draft:hover {
+        background: rgba(247, 147, 26, 0.1);
+        color: #f7931a;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-4">
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="position-sticky" style="top: 100px;">
+                <h5 class="text-primary mb-3">
+                    <i class="fas fa-cogs"></i> Admin Panel
+                </h5>
+                <ul class="nav nav-pills flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/generate">
+                            <i class="fas fa-robot"></i> AI Generate
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/write">
+                            <i class="fas fa-pen"></i> Write Article
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/ads">
+                            <i class="fas fa-ad"></i> Manage Ads
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/articles">
+                            <i class="fas fa-newspaper"></i> View Articles
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h2 text-white">
+                    <i class="fas fa-pen text-primary"></i> Write Article
+                </h1>
+            </div>
+            
+            <form action="/admin/write" method="POST" class="write-form">
+                <div class="mb-4">
+                    <label for="title" class="form-label">Article Title</label>
+                    <input type="text" class="form-control" id="title" name="title" 
+                           placeholder="Enter a compelling headline..." required>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category" name="category" required>
+                            <option value="Bitcoin">Bitcoin</option>
+                            <option value="DeFi">DeFi</option>
+                            <option value="Web3">Web3</option>
+                            <option value="Mining">Mining</option>
+                            <option value="Regulation">Regulation</option>
+                            <option value="Markets">Markets</option>
+                            <option value="Technology">Technology</option>
+                            <option value="Opinion">Opinion</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="author" class="form-label">Author Name</label>
+                        <input type="text" class="form-control" id="author" name="author" 
+                               placeholder="Your name or pen name" value="{{ current_user.username }}">
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="content" class="form-label">Article Content</label>
+                    <p class="text-muted small mb-2">You can use HTML for formatting. Use &lt;h2&gt; for headers, &lt;p&gt; for paragraphs, &lt;strong&gt; for bold.</p>
+                    <textarea class="form-control" id="content-editor" name="content" 
+                              placeholder="Write your article content here..." required></textarea>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="seo_description" class="form-label">SEO Description (optional)</label>
+                    <input type="text" class="form-control" id="seo_description" name="seo_description" 
+                           placeholder="Brief description for search engines (155 chars max)" maxlength="155">
+                </div>
+                
+                <div class="mb-4">
+                    <label for="tags" class="form-label">Tags (optional)</label>
+                    <input type="text" class="form-control" id="tags" name="tags" 
+                           placeholder="bitcoin, defi, lightning (comma separated)">
+                </div>
+                
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="checkbox" id="is_pressing" name="is_pressing">
+                    <label class="form-check-label text-white" for="is_pressing">
+                        <i class="fas fa-bolt text-danger"></i> Mark as Breaking News
+                    </label>
+                </div>
+                
+                <div class="d-flex gap-3">
+                    <button type="submit" name="action" value="publish" class="btn btn-publish">
+                        <i class="fas fa-paper-plane me-2"></i> Publish Now
+                    </button>
+                    <button type="submit" name="action" value="draft" class="btn btn-draft">
+                        <i class="fas fa-save me-2"></i> Save as Draft
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

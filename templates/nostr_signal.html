@@ -1,0 +1,1099 @@
+{% extends "base.html" %}
+{% block title %}Nostr Signal Feed — Bitcoin Intelligence Radar | Protocol Pulse{% endblock %}
+
+{% block meta_description %}Real-time Bitcoin intelligence radar tracking top OGs on Nostr. Signal confidence scoring, heat index, and alpha detection — 15-30 minutes before X.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="Nostr Signal Radar — Protocol Pulse">
+<meta property="og:description" content="Bitcoin OG intelligence: track the signal before it trends. Confidence-scored Nostr feed from 50+ top Bitcoin devs and analysts.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protocol Pulse">
+<meta property="og:image" content="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
+<meta property="og:url" content="{{ request.url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+{% endblock %}
+
+{% block head %}
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   NOSTR SIGNAL RADAR — Bitcoin Intelligence Terminal
+   Bloomberg Terminal × Nostr × Matrix
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+    --ns-bg:        #000000;
+    --ns-surface:   #0a0a0a;
+    --ns-surface2:  #0f0f0f;
+    --ns-border:    rgba(255,255,255,0.07);
+    --ns-teal:      #00d4aa;
+    --ns-amber:     #f5a623;
+    --ns-red:       #ff4757;
+    --ns-green:     #00e676;
+    --ns-blue:      #2196f3;
+    --ns-alpha:     #f5a623;   /* ALPHA = amber */
+    --ns-signal:    #00d4aa;   /* SIGNAL = teal */
+    --ns-watch:     #60a5fa;   /* WATCH = blue */
+    --ns-noise:     #4b5563;   /* NOISE = gray */
+    --ns-mono:      'JetBrains Mono', 'Courier New', monospace;
+}
+
+.ns-page {
+    background: var(--ns-bg);
+    min-height: 100vh;
+    padding: 28px 0 80px;
+}
+
+/* ── Page Header ── */
+.ns-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--ns-border);
+}
+
+.ns-header__left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.ns-header__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(245, 166, 35, 0.12);
+    border: 1px solid rgba(245, 166, 35, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: var(--ns-amber);
+}
+
+.ns-header__title {
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+.ns-header__sub {
+    font-family: var(--ns-mono);
+    font-size: 0.6875rem;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.04em;
+    margin-top: 3px;
+}
+
+.ns-live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 100px;
+    font-family: var(--ns-mono);
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    background: rgba(245, 166, 35, 0.1);
+    border: 1px solid rgba(245, 166, 35, 0.3);
+    color: var(--ns-amber);
+}
+
+.ns-live-badge--demo {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.4);
+}
+
+.ns-live-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: ns-blink 1.5s ease-in-out infinite;
+}
+
+@keyframes ns-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+}
+
+/* ── Stats Bar ── */
+.ns-stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.ns-stat {
+    background: var(--ns-surface);
+    border: 1px solid var(--ns-border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    position: relative;
+    overflow: hidden;
+}
+
+.ns-stat::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: 10px 10px 0 0;
+}
+
+.ns-stat--alpha::before { background: var(--ns-alpha); }
+.ns-stat--signal::before { background: var(--ns-signal); }
+.ns-stat--watch::before { background: var(--ns-watch); }
+.ns-stat--heat::before { background: linear-gradient(90deg, var(--ns-teal), var(--ns-amber)); }
+
+.ns-stat__val {
+    font-family: var(--ns-mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.ns-stat--alpha .ns-stat__val { color: var(--ns-alpha); }
+.ns-stat--signal .ns-stat__val { color: var(--ns-signal); }
+.ns-stat--watch .ns-stat__val { color: var(--ns-watch); }
+.ns-stat--heat .ns-stat__val { color: var(--ns-amber); }
+
+.ns-stat__label {
+    font-family: var(--ns-mono);
+    font-size: 0.5875rem;
+    letter-spacing: 0.07em;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+}
+
+/* ── Heat Index Bar ── */
+.ns-heat-bar {
+    background: var(--ns-surface);
+    border: 1px solid var(--ns-border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.ns-heat-bar__label {
+    font-family: var(--ns-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.07em;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.ns-heat-bar__track {
+    flex: 1;
+    min-width: 160px;
+    height: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.ns-heat-bar__fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--ns-teal) 0%, var(--ns-amber) 60%, var(--ns-red) 100%);
+    transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ns-heat-bar__val {
+    font-family: var(--ns-mono);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ns-amber);
+    min-width: 52px;
+}
+
+.ns-heat-bar__desc {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.5);
+}
+
+/* ── Filter Bar ── */
+.ns-filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.ns-filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 100px;
+    border: 1px solid var(--ns-border);
+    background: transparent;
+    color: rgba(255,255,255,0.5);
+    font-family: var(--ns-mono);
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.ns-filter-btn:hover {
+    border-color: rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.8);
+}
+
+.ns-filter-btn.active { border-color: currentColor; }
+.ns-filter-btn--alpha { color: var(--ns-alpha); }
+.ns-filter-btn--signal { color: var(--ns-signal); }
+.ns-filter-btn--watch { color: var(--ns-watch); }
+.ns-filter-btn--noise { color: var(--ns-noise); }
+.ns-filter-btn--all.active { border-color: rgba(255,255,255,0.4); color: rgba(255,255,255,0.8); }
+
+/* ── Signal Matrix ── */
+.ns-matrix {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ns-signal-row {
+    background: var(--ns-surface);
+    border: 1px solid var(--ns-border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: start;
+    transition: border-color 0.15s, transform 0.15s;
+    cursor: default;
+    animation: ns-row-in 0.3s ease-out both;
+}
+
+@keyframes ns-row-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.ns-signal-row:hover {
+    border-color: rgba(255,255,255,0.12);
+    transform: translateX(2px);
+}
+
+/* Classification left border */
+.ns-signal-row[data-class="ALPHA"]  { border-left: 2px solid var(--ns-alpha); }
+.ns-signal-row[data-class="SIGNAL"] { border-left: 2px solid var(--ns-signal); }
+.ns-signal-row[data-class="WATCH"]  { border-left: 2px solid var(--ns-watch); }
+.ns-signal-row[data-class="NOISE"]  { border-left: 2px solid var(--ns-noise); opacity: 0.6; }
+
+/* Author column */
+.ns-author {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 56px;
+    flex-shrink: 0;
+}
+
+.ns-author__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--ns-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--ns-mono);
+    font-size: 0.625rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
+    letter-spacing: 0;
+}
+
+/* Tier-based avatar colors */
+.ns-author__avatar[data-tier="1"] {
+    background: rgba(245, 166, 35, 0.1);
+    border-color: rgba(245, 166, 35, 0.25);
+    color: var(--ns-amber);
+}
+.ns-author__avatar[data-tier="2"] {
+    background: rgba(0, 212, 170, 0.08);
+    border-color: rgba(0, 212, 170, 0.2);
+    color: var(--ns-teal);
+}
+
+.ns-author__tier {
+    font-family: var(--ns-mono);
+    font-size: 0.5rem;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: 0.04em;
+}
+
+/* Content column */
+.ns-content__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.ns-author__name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+}
+
+.ns-class-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: var(--ns-mono);
+    font-size: 0.5625rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+}
+
+.ns-class-badge--ALPHA  { background: rgba(245,166,35,0.15); color: var(--ns-alpha); border: 1px solid rgba(245,166,35,0.3); }
+.ns-class-badge--SIGNAL { background: rgba(0,212,170,0.1);   color: var(--ns-signal); border: 1px solid rgba(0,212,170,0.25); }
+.ns-class-badge--WATCH  { background: rgba(96,165,250,0.1);  color: var(--ns-watch); border: 1px solid rgba(96,165,250,0.2); }
+.ns-class-badge--NOISE  { background: rgba(75,85,99,0.2);    color: var(--ns-noise); border: 1px solid rgba(75,85,99,0.3); }
+
+.ns-cat-badge {
+    display: inline-flex;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: var(--ns-mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.05em;
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.35);
+}
+
+.ns-content__text {
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: rgba(255,255,255,0.75);
+}
+
+[data-class="ALPHA"] .ns-content__text { color: rgba(255,255,255,0.9); }
+
+.ns-content__meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.ns-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--ns-mono);
+    font-size: 0.5625rem;
+    color: rgba(255,255,255,0.3);
+}
+
+.ns-meta-item i { font-size: 0.5rem; }
+
+/* Confidence column */
+.ns-confidence {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    flex-shrink: 0;
+    width: 52px;
+}
+
+.ns-conf-val {
+    font-family: var(--ns-mono);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.ns-conf-val--alpha  { color: var(--ns-alpha); }
+.ns-conf-val--signal { color: var(--ns-signal); }
+.ns-conf-val--watch  { color: var(--ns-watch); }
+.ns-conf-val--noise  { color: var(--ns-noise); }
+
+.ns-conf-bar {
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.ns-conf-bar__fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.8s ease;
+}
+
+.ns-conf-bar__fill--alpha  { background: var(--ns-alpha); }
+.ns-conf-bar__fill--signal { background: var(--ns-signal); }
+.ns-conf-bar__fill--watch  { background: var(--ns-watch); }
+.ns-conf-bar__fill--noise  { background: var(--ns-noise); }
+
+.ns-sentiment-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.ns-sentiment-dot--bull { background: var(--ns-green); }
+.ns-sentiment-dot--bear { background: var(--ns-red); }
+.ns-sentiment-dot--neut { background: rgba(255,255,255,0.2); }
+
+/* ── OG Roster Sidebar ── */
+.ns-layout {
+    display: grid;
+    grid-template-columns: 1fr 240px;
+    gap: 24px;
+    align-items: start;
+}
+
+.ns-sidebar {
+    position: sticky;
+    top: 80px;
+}
+
+.ns-sidebar-card {
+    background: var(--ns-surface);
+    border: 1px solid var(--ns-border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.ns-sidebar-card__head {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--ns-border);
+    font-family: var(--ns-mono);
+    font-size: 0.5875rem;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ns-og-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.12s;
+}
+
+.ns-og-item:last-child { border-bottom: none; }
+.ns-og-item:hover { background: rgba(255,255,255,0.02); }
+
+.ns-og-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--ns-mono);
+    font-size: 0.5625rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.ns-og-avatar[data-tier="1"] {
+    background: rgba(245, 166, 35, 0.12);
+    color: var(--ns-amber);
+    border: 1px solid rgba(245, 166, 35, 0.25);
+}
+.ns-og-avatar[data-tier="2"] {
+    background: rgba(0, 212, 170, 0.08);
+    color: var(--ns-teal);
+    border: 1px solid rgba(0, 212, 170, 0.2);
+}
+.ns-og-avatar[data-tier="3"] {
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.4);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.ns-og-name {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.75);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+}
+
+.ns-og-tier {
+    font-family: var(--ns-mono);
+    font-size: 0.5rem;
+    color: rgba(255,255,255,0.2);
+}
+
+/* ── Heat Sparkline ── */
+.ns-sparkline-wrap {
+    padding: 14px 16px 12px;
+}
+
+.ns-sparkline-canvas {
+    width: 100%;
+    height: 50px;
+    display: block;
+}
+
+/* ── Categories ── */
+.ns-trending-cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 12px 14px;
+}
+
+.ns-trending-cat {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    font-family: var(--ns-mono);
+    font-size: 0.5625rem;
+    color: rgba(255,255,255,0.5);
+    transition: all 0.15s;
+    cursor: pointer;
+}
+
+.ns-trending-cat:hover {
+    background: rgba(0,212,170,0.08);
+    border-color: rgba(0,212,170,0.2);
+    color: var(--ns-teal);
+}
+
+.ns-trending-cat__count {
+    color: var(--ns-teal);
+    font-weight: 700;
+}
+
+/* ── Loading / Empty ── */
+.ns-loading {
+    text-align: center;
+    padding: 48px;
+    color: rgba(255,255,255,0.3);
+    font-family: var(--ns-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+}
+
+/* ── Demo mode banner ── */
+.ns-demo-banner {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.45);
+}
+
+.ns-demo-banner i { color: rgba(255,255,255,0.25); }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .ns-layout { grid-template-columns: 1fr; }
+    .ns-sidebar { position: static; }
+    .ns-signal-row { grid-template-columns: auto 1fr; }
+    .ns-confidence { display: none; }
+    .ns-stats-bar { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ns-page">
+<div class="pp-container">
+
+    <!-- ── Header ── -->
+    <div class="ns-header">
+        <div class="ns-header__left">
+            <div class="ns-header__icon">
+                <i class="fas fa-radar" aria-hidden="true" title="Signal Radar"></i>
+            </div>
+            <div>
+                <h1 class="ns-header__title">Nostr Signal Radar</h1>
+                <div class="ns-header__sub">TRACKING {{ og_count }}+ BITCOIN OGs &mdash; CONFIDENCE-SCORED ALPHA FEED</div>
+            </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <span class="ns-live-badge" id="liveBadge">
+                <span class="ns-live-dot"></span>
+                <span id="liveBadgeText">LOADING...</span>
+            </span>
+            <button class="pp-btn pp-btn--ghost pp-btn--sm" onclick="refreshFeed()" title="Refresh signals">
+                <i class="fas fa-sync-alt" id="refreshIcon"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ── Stats Bar ── -->
+    <div class="ns-stats-bar" id="statsBar">
+        <div class="ns-stat ns-stat--alpha">
+            <div class="ns-stat__val" id="statAlpha">--</div>
+            <div class="ns-stat__label">&#9650; Alpha Signals</div>
+        </div>
+        <div class="ns-stat ns-stat--signal">
+            <div class="ns-stat__val" id="statSignal">--</div>
+            <div class="ns-stat__label">&#9670; Signal</div>
+        </div>
+        <div class="ns-stat ns-stat--watch">
+            <div class="ns-stat__val" id="statWatch">--</div>
+            <div class="ns-stat__label">&#9711; Watch</div>
+        </div>
+        <div class="ns-stat ns-stat--heat">
+            <div class="ns-stat__val" id="statSentiment">--</div>
+            <div class="ns-stat__label">Avg Sentiment</div>
+        </div>
+    </div>
+
+    <!-- ── Heat Index Bar ── -->
+    <div class="ns-heat-bar">
+        <div class="ns-heat-bar__label">Signal Heat Index</div>
+        <div class="ns-heat-bar__track">
+            <div class="ns-heat-bar__fill" id="heatBarFill" style="width:0%"></div>
+        </div>
+        <div class="ns-heat-bar__val" id="heatBarVal">--</div>
+        <div class="ns-heat-bar__desc" id="heatBarDesc">Calculating...</div>
+    </div>
+
+    <!-- ── Layout: Feed + Sidebar ── -->
+    <div class="ns-layout">
+        <!-- Main Feed -->
+        <div>
+            <!-- Demo banner (shown when not live) -->
+            <div class="ns-demo-banner" id="demoBanner" style="display:none;">
+                <i class="fas fa-info-circle"></i>
+                <span>Demo mode — showing representative signals. Live Nostr relay ingestion activates when relay keys are configured.</span>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="ns-filters">
+                <button class="ns-filter-btn ns-filter-btn--all active" data-filter="ALL" onclick="setFilter(this,'ALL')">
+                    All
+                </button>
+                <button class="ns-filter-btn ns-filter-btn--alpha" data-filter="ALPHA" onclick="setFilter(this,'ALPHA')">
+                    &#9650; Alpha
+                </button>
+                <button class="ns-filter-btn ns-filter-btn--signal" data-filter="SIGNAL" onclick="setFilter(this,'SIGNAL')">
+                    &#9670; Signal
+                </button>
+                <button class="ns-filter-btn ns-filter-btn--watch" data-filter="WATCH" onclick="setFilter(this,'WATCH')">
+                    &#9711; Watch
+                </button>
+                <button class="ns-filter-btn ns-filter-btn--noise" data-filter="NOISE" onclick="setFilter(this,'NOISE')">
+                    &#9675; Noise
+                </button>
+                <span style="margin-left:auto;font-family:var(--ns-mono);font-size:0.5875rem;color:rgba(255,255,255,0.3);" id="feedCount"></span>
+            </div>
+
+            <!-- Signal Matrix -->
+            <div class="ns-matrix" id="signalMatrix">
+                <div class="ns-loading">
+                    <i class="fas fa-circle-notch fa-spin" style="margin-bottom:12px;display:block;font-size:1.25rem;"></i>
+                    Scanning Nostr relays&hellip;
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="ns-sidebar">
+            <!-- Heat Sparkline -->
+            <div class="ns-sidebar-card">
+                <div class="ns-sidebar-card__head">
+                    <span>24h Heat History</span>
+                    <span id="sparklineStatus" style="color:rgba(255,255,255,0.2);">Demo</span>
+                </div>
+                <div class="ns-sparkline-wrap">
+                    <canvas class="ns-sparkline-canvas" id="heatSparkline" width="300" height="50"></canvas>
+                </div>
+            </div>
+
+            <!-- Trending Categories -->
+            <div class="ns-sidebar-card">
+                <div class="ns-sidebar-card__head">
+                    <span>Trending Topics</span>
+                    <span id="trendCount" style="color:rgba(255,255,255,0.2);">--</span>
+                </div>
+                <div class="ns-trending-cats" id="trendingCats">
+                    <div style="padding:8px;color:rgba(255,255,255,0.3);font-size:0.6875rem;">Loading&hellip;</div>
+                </div>
+            </div>
+
+            <!-- OG Roster -->
+            <div class="ns-sidebar-card">
+                <div class="ns-sidebar-card__head">
+                    <span>OG Roster</span>
+                    <span style="color:rgba(255,255,255,0.35);">{{ og_count }}</span>
+                </div>
+                {% for og in og_roster[:12] %}
+                <div class="ns-og-item">
+                    <div class="ns-og-avatar" data-tier="{{ og.tier }}">
+                        {{ og.name[:2].upper() }}
+                    </div>
+                    <div class="ns-og-name" title="{{ og.name }}">{{ og.name }}</div>
+                    <div class="ns-og-tier">T{{ og.tier }}</div>
+                </div>
+                {% endfor %}
+                <div style="padding:10px 14px;text-align:center;">
+                    <a href="/nostr-signal/roster" class="pp-btn pp-btn--ghost pp-btn--sm" style="font-size:0.625rem;">
+                        View All {{ og_count }} OGs
+                    </a>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="ns-sidebar-card">
+                <div class="ns-sidebar-card__head"><span>Intelligence Links</span></div>
+                <div style="padding:12px 14px;display:flex;flex-direction:column;gap:8px;">
+                    <a href="/stage" class="pp-btn pp-btn--ghost pp-btn--sm pp-btn--full">
+                        <i class="fas fa-broadcast-tower"></i> Live Avatar Stage
+                    </a>
+                    <a href="/network-health" class="pp-btn pp-btn--ghost pp-btn--sm pp-btn--full">
+                        <i class="fas fa-heartbeat"></i> Network Health
+                    </a>
+                    <a href="/live" class="pp-btn pp-btn--ghost pp-btn--sm pp-btn--full">
+                        <i class="fas fa-terminal"></i> Live Terminal
+                    </a>
+                    <a href="/whale-watcher" class="pp-btn pp-btn--ghost pp-btn--sm pp-btn--full">
+                        <i class="fas fa-water"></i> Whale Watcher
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /container -->
+</div><!-- /ns-page -->
+{% endblock %}
+
+{% block scripts %}
+<script>
+/* ═══════════════════════════════════════
+   NOSTR SIGNAL RADAR — Client Logic
+   ═══════════════════════════════════════ */
+(function() {
+'use strict';
+
+var _allSignals = [];
+var _activeFilter = 'ALL';
+var _refreshTimer = null;
+var _heatHistory = [];
+
+/* Classification order for rendering */
+var CLASS_ORDER = {ALPHA: 0, SIGNAL: 1, WATCH: 2, NOISE: 3};
+
+/* ── Fetch feed ── */
+function fetchFeed(filter) {
+    var url = '/api/nostr-signal/feed';
+    if (filter && filter !== 'ALL') url += '?classification=' + filter;
+    return fetch(url)
+        .then(function(r) {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+        });
+}
+
+/* ── Fetch heat history ── */
+function fetchHeatHistory() {
+    return fetch('/api/nostr-signal/heat-history')
+        .then(function(r) { return r.json(); })
+        .catch(function() { return {history: []}; });
+}
+
+/* ── Render signals ── */
+function renderSignals(signals, filter) {
+    var matrix = document.getElementById('signalMatrix');
+    if (!matrix) return;
+
+    var visible = filter === 'ALL' ? signals :
+        signals.filter(function(s) { return s.classification === filter; });
+
+    var feedCount = document.getElementById('feedCount');
+    if (feedCount) feedCount.textContent = visible.length + ' signal' + (visible.length !== 1 ? 's' : '');
+
+    if (!visible.length) {
+        matrix.innerHTML = '<div class="ns-loading">No ' + filter.toLowerCase() + ' signals in current window</div>';
+        return;
+    }
+
+    /* Sort: ALPHA first, then by confidence */
+    visible.sort(function(a, b) {
+        var oa = CLASS_ORDER[a.classification] || 3;
+        var ob = CLASS_ORDER[b.classification] || 3;
+        if (oa !== ob) return oa - ob;
+        return (b.confidence_score || 0) - (a.confidence_score || 0);
+    });
+
+    var html = '';
+    for (var i = 0; i < visible.length; i++) {
+        html += buildSignalRow(visible[i], i);
+    }
+    matrix.innerHTML = html;
+}
+
+function buildSignalRow(sig, idx) {
+    var cls = sig.classification || 'WATCH';
+    var clsLower = cls.toLowerCase();
+    var initials = (sig.og_name || 'UN').replace(/[^A-Za-z ]/g,'').split(' ').map(function(w){return w[0]||'';}).slice(0,2).join('').toUpperCase() || 'UN';
+    var conf = sig.confidence_score || 0;
+    var sent = sig.sentiment_score || 0;
+    var sentClass = sent > 0.1 ? 'bull' : (sent < -0.1 ? 'bear' : 'neut');
+
+    /* Escape HTML */
+    var content = (sig.content || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+    var catBadge = sig.category && sig.category !== 'general' ?
+        '<span class="ns-cat-badge">' + sig.category + '</span>' : '';
+
+    /* Sentiment label */
+    var sentLabel = sent > 0.1 ? '+' + sent.toFixed(2) : (sent < -0.1 ? sent.toFixed(2) : '0.00');
+
+    return [
+        '<div class="ns-signal-row" data-class="' + cls + '" style="animation-delay:' + (idx * 0.03) + 's">',
+        '  <div class="ns-author">',
+        '    <div class="ns-author__avatar" data-tier="' + (sig.og_tier || 3) + '">' + initials + '</div>',
+        '    <div class="ns-author__tier">T' + (sig.og_tier || 3) + '</div>',
+        '  </div>',
+        '  <div class="ns-content">',
+        '    <div class="ns-content__header">',
+        '      <span class="ns-author__name">' + (sig.og_name || 'Unknown').replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</span>',
+        '      <span class="ns-class-badge ns-class-badge--' + cls + '">' + classIcon(cls) + ' ' + cls + '</span>',
+        '      ' + catBadge,
+        '    </div>',
+        '    <p class="ns-content__text">' + content + '</p>',
+        '    <div class="ns-content__meta">',
+        '      <span class="ns-meta-item"><i class="fas fa-clock"></i>' + (sig.time_label || '') + '</span>',
+        '      <span class="ns-meta-item"><i class="fas fa-bolt"></i>' + (sig.zap_count || 0) + ' zaps</span>',
+        '      <span class="ns-meta-item"><span class="ns-sentiment-dot ns-sentiment-dot--' + sentClass + '"></span>' + sentLabel + '</span>',
+        '      ' + (sig.is_demo ? '<span class="ns-meta-item" style="color:rgba(255,255,255,0.18)">demo</span>' : ''),
+        '    </div>',
+        '  </div>',
+        '  <div class="ns-confidence">',
+        '    <div class="ns-conf-val ns-conf-val--' + clsLower + '">' + Math.round(conf) + '</div>',
+        '    <div style="font-family:var(--ns-mono);font-size:0.4375rem;color:rgba(255,255,255,0.25);letter-spacing:.05em;">CONF</div>',
+        '    <div class="ns-conf-bar"><div class="ns-conf-bar__fill ns-conf-bar__fill--' + clsLower + '" style="width:' + conf + '%"></div></div>',
+        '  </div>',
+        '</div>'
+    ].join('');
+}
+
+function classIcon(cls) {
+    return {ALPHA: '&#9650;', SIGNAL: '&#9670;', WATCH: '&#9711;', NOISE: '&#9675;'}[cls] || '&#9675;';
+}
+
+/* ── Update stats ── */
+function updateStats(stats, isLive) {
+    setText('statAlpha', stats.alpha || 0);
+    setText('statSignal', stats.signal || 0);
+    setText('statWatch', stats.watch || 0);
+    var sentVal = stats.avg_sentiment || 0;
+    setText('statSentiment', (sentVal >= 0 ? '+' : '') + sentVal.toFixed(2));
+
+    var heat = stats.heat_index || 0;
+    var fill = document.getElementById('heatBarFill');
+    var val  = document.getElementById('heatBarVal');
+    var desc = document.getElementById('heatBarDesc');
+    if (fill) fill.style.width = heat + '%';
+    if (val) val.textContent = heat.toFixed(1);
+    if (desc) {
+        var label = heat >= 75 ? 'Extremely Hot — Multiple alpha signals' :
+                    heat >= 55 ? 'Hot — Active signal window' :
+                    heat >= 35 ? 'Warm — Normal activity' : 'Cool — Low signal volume';
+        desc.textContent = label;
+    }
+
+    /* Live badge */
+    var badge = document.getElementById('liveBadge');
+    var badgeText = document.getElementById('liveBadgeText');
+    if (badge && badgeText) {
+        if (isLive) {
+            badge.classList.remove('ns-live-badge--demo');
+            badgeText.textContent = 'LIVE';
+        } else {
+            badge.classList.add('ns-live-badge--demo');
+            badgeText.textContent = 'DEMO MODE';
+        }
+    }
+
+    /* Demo banner */
+    var banner = document.getElementById('demoBanner');
+    if (banner) banner.style.display = isLive ? 'none' : 'flex';
+}
+
+/* ── Update trending categories ── */
+function updateTrending(cats) {
+    var el = document.getElementById('trendingCats');
+    var cnt = document.getElementById('trendCount');
+    if (!el) return;
+    if (cnt) cnt.textContent = cats.length;
+    if (!cats.length) { el.innerHTML = '<div style="padding:8px;color:rgba(255,255,255,0.3);font-size:.6875rem;">No data</div>'; return; }
+    el.innerHTML = cats.map(function(c) {
+        return '<div class="ns-trending-cat" onclick="filterByCategory(\'' + c.name + '\')">'
+            + c.name
+            + '<span class="ns-trending-cat__count">' + c.count + '</span>'
+            + '</div>';
+    }).join('');
+}
+
+/* ── Heat sparkline ── */
+function drawHeatSparkline(history) {
+    var canvas = document.getElementById('heatSparkline');
+    if (!canvas || !history.length) return;
+    var ctx = canvas.getContext('2d');
+    var w = canvas.offsetWidth || 208;
+    var h = 50;
+    canvas.width = w;
+    canvas.height = h;
+
+    var values = history.map(function(h) { return h.heat_index; });
+    var min = Math.min.apply(null, values);
+    var max = Math.max.apply(null, values);
+    var range = (max - min) || 1;
+    var pad = 4;
+
+    ctx.clearRect(0, 0, w, h);
+
+    /* Gradient fill */
+    var grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, 'rgba(245,166,35,0.3)');
+    grad.addColorStop(1, 'rgba(245,166,35,0)');
+
+    ctx.beginPath();
+    for (var i = 0; i < values.length; i++) {
+        var x = (i / (values.length - 1)) * (w - pad*2) + pad;
+        var y = h - pad - ((values[i] - min) / range) * (h - pad*2);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.lineTo(w - pad, h);
+    ctx.lineTo(pad, h);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    /* Line */
+    ctx.beginPath();
+    for (var j = 0; j < values.length; j++) {
+        var x2 = (j / (values.length - 1)) * (w - pad*2) + pad;
+        var y2 = h - pad - ((values[j] - min) / range) * (h - pad*2);
+        if (j === 0) ctx.moveTo(x2, y2); else ctx.lineTo(x2, y2);
+    }
+    ctx.strokeStyle = '#f5a623';
+    ctx.lineWidth = 1.5;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+}
+
+/* ── Helpers ── */
+function setText(id, val) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = val;
+}
+
+/* ── Filter ── */
+window.setFilter = function(btn, filter) {
+    document.querySelectorAll('.ns-filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    _activeFilter = filter;
+    renderSignals(_allSignals, filter);
+};
+
+window.filterByCategory = function(cat) {
+    /* Filter matrix by category */
+    var rows = document.querySelectorAll('.ns-signal-row');
+    rows.forEach(function(row) {
+        /* We'd need data-category on rows — simple text search instead */
+        row.style.display = 'grid';
+    });
+};
+
+/* ── Refresh ── */
+window.refreshFeed = function() {
+    var icon = document.getElementById('refreshIcon');
+    if (icon) icon.classList.add('fa-spin');
+    loadFeed().finally(function() {
+        if (icon) icon.classList.remove('fa-spin');
+    });
+};
+
+/* ── Main load ── */
+function loadFeed() {
+    return fetchFeed()
+        .then(function(data) {
+            _allSignals = data.signals || [];
+            updateStats(data.stats || {}, data.is_live);
+            updateTrending((data.stats || {}).trending_categories || []);
+            renderSignals(_allSignals, _activeFilter);
+        })
+        .catch(function(e) {
+            console.warn('Signal feed error:', e);
+            var matrix = document.getElementById('signalMatrix');
+            if (matrix) matrix.innerHTML = '<div class="ns-loading">Error loading signals. <a href="#" onclick="refreshFeed();return false;" style="color:var(--ns-teal);">Retry</a></div>';
+        });
+}
+
+function loadHeatHistory() {
+    fetchHeatHistory().then(function(data) {
+        _heatHistory = data.history || [];
+        drawHeatSparkline(_heatHistory);
+        var status = document.getElementById('sparklineStatus');
+        if (status) status.textContent = data.is_live ? 'Live' : 'Demo';
+    });
+}
+
+/* ── Auto-refresh every 90s ── */
+function startAutoRefresh() {
+    if (_refreshTimer) clearInterval(_refreshTimer);
+    _refreshTimer = setInterval(loadFeed, 90000);
+}
+
+/* ── Init ── */
+loadFeed();
+loadHeatHistory();
+startAutoRefresh();
+
+})();
+</script>
+{% endblock %}

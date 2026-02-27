@@ -1,0 +1,31 @@
+{
+  "filepath": "services/smart_scheduler.py",
+  "feature": "Volatility-aware smart scheduler",
+  "stage": "post",
+  "timestamp": "2026-02-26T02:46:38.276915",
+  "local_analysis": {
+    "scores": {
+      "architecture": 7,
+      "error_handling": 7,
+      "edge_cases": 7,
+      "security": 7,
+      "performance": 7,
+      "maintainability": 7
+    },
+    "average_score": 7.0,
+    "issues": [],
+    "warnings": [],
+    "line_count": 454,
+    "class_count": 3,
+    "function_count": 11,
+    "production_ready": true
+  },
+  "llm_reviews": {},
+  "cross_review": null,
+  "consensus_score": 7.0,
+  "production_ready": true,
+  "issues": [],
+  "fix_list": [],
+  "warnings": [],
+  "verdict": "SHIP"
+}

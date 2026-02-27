@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+
+{% block title %}Reply Squad | Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+:root {
+    --pp-red: #dc2626;
+    --pp-dark: #0a0a0a;
+    --pp-glass: rgba(10, 10, 10, 0.95);
+}
+
+.squad-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0505 100%);
+    padding: 100px 20px 60px;
+}
+
+.squad-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+    transition: color 0.3s ease;
+}
+
+.back-link:hover {
+    color: var(--pp-red);
+}
+
+.squad-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.squad-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.squad-title i {
+    color: var(--pp-red);
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+.init-btn {
+    background: var(--pp-red);
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.init-btn:hover {
+    background: #b91c1c;
+}
+
+.squad-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+.member-card {
+    background: var(--pp-glass);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 16px;
+    padding: 25px;
+    transition: all 0.3s ease;
+}
+
+.member-card:hover {
+    border-color: var(--pp-red);
+}
+
+.member-card.priority-1 {
+    border-left: 4px solid var(--pp-red);
+}
+
+.member-card.priority-2 {
+    border-left: 4px solid #eab308;
+}
+
+.member-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.member-handle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    color: var(--pp-red);
+    font-weight: 600;
+}
+
+.member-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 5px;
+}
+
+.priority-badge {
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+}
+
+.priority-1 .priority-badge {
+    background: rgba(220, 38, 38, 0.2);
+    color: var(--pp-red);
+}
+
+.priority-2 .priority-badge {
+    background: rgba(234, 179, 8, 0.2);
+    color: #eab308;
+}
+
+.member-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.stat-item {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    color: #fff;
+}
+
+.stat-value.highlight {
+    color: #22c55e;
+}
+
+.category-tag {
+    display: inline-block;
+    padding: 6px 14px;
+    background: rgba(96, 165, 250, 0.2);
+    border-radius: 15px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: #60a5fa;
+    text-transform: uppercase;
+}
+
+.add-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 200px;
+}
+
+.add-card:hover {
+    border-color: var(--pp-red);
+    background: rgba(220, 38, 38, 0.05);
+}
+
+.add-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.add-icon i {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 1.5rem;
+}
+
+.add-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--pp-glass);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 16px;
+    grid-column: 1 / -1;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: rgba(255, 255, 255, 0.2);
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    font-family: 'JetBrains Mono', monospace;
+    color: #fff;
+    margin-bottom: 15px;
+}
+
+.empty-state p {
+    font-family: 'JetBrains Mono', monospace;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="squad-page">
+    <div class="squad-container">
+        <a href="/admin/intelligence" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Intelligence
+        </a>
+        
+        <div class="squad-header">
+            <h1 class="squad-title">
+                <i class="fas fa-users"></i>
+                Reply Squad
+            </h1>
+            <div class="actions">
+                <form action="/admin/reply-squad/init" method="POST" style="display: inline;">
+                    <button type="submit" class="init-btn">
+                        <i class="fas fa-sync"></i> Initialize Default Squad
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="squad-grid">
+            {% if members %}
+                {% for member in members %}
+                <div class="member-card priority-{{ member.priority }}">
+                    <div class="member-header">
+                        <div>
+                            <div class="member-handle">{{ member.handle }}</div>
+                            <div class="member-name">{{ member.display_name or 'Unknown' }}</div>
+                        </div>
+                        <span class="priority-badge">P{{ member.priority }}</span>
+                    </div>
+                    
+                    <div class="member-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Engagements</div>
+                            <div class="stat-value highlight">{{ member.reciprocal_engagements }}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Last Active</div>
+                            <div class="stat-value">{{ member.last_engagement.strftime('%b %d') if member.last_engagement else 'Never' }}</div>
+                        </div>
+                    </div>
+                    
+                    <span class="category-tag">{{ member.category or 'General' }}</span>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <h3>No Reply Squad Members</h3>
+                <p>Initialize the default reply squad to get started with high-value account monitoring.</p>
+                <form action="/admin/reply-squad/init" method="POST">
+                    <button type="submit" class="init-btn">
+                        <i class="fas fa-bolt"></i> Initialize Default Squad
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+            
+            {% if members %}
+            <div class="add-card" onclick="alert('Add member form coming soon!')">
+                <div class="add-icon">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <span class="add-text">Add Member</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

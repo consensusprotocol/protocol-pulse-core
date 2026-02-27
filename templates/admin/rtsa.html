@@ -1,0 +1,432 @@
+{% extends "base.html" %}
+
+{% block title %}RTSA Control - Sovereign Apparel Forge{% endblock %}
+
+{% block head %}
+<style>
+    :root {
+        --glass: rgba(255, 255, 255, 0.03);
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --accent-red: #dc2626;
+        --pure-white: #ffffff;
+        --deep-black: #050505;
+    }
+
+    .rtsa-dashboard {
+        font-family: 'Uncut Sans', sans-serif;
+        background-color: var(--deep-black);
+        color: var(--pure-white);
+        min-height: 100vh;
+        padding-top: 80px;
+    }
+
+    .rtsa-header {
+        text-align: center;
+        padding: 3rem 0;
+        border-bottom: 1px solid var(--glass-border);
+        margin-bottom: 2rem;
+    }
+
+    .rtsa-header h1 {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.5rem;
+        color: var(--accent-red);
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        margin-bottom: 0.5rem;
+    }
+
+    .rtsa-header p {
+        color: rgba(255,255,255,0.6);
+        font-size: 0.9rem;
+    }
+
+    .section-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    .rtsa-section {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+
+    .section-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        color: var(--accent-red);
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title .badge {
+        background: var(--accent-red);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.65rem;
+    }
+
+    .forge-btn {
+        width: 100%;
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, var(--accent-red), #991b1b);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+    }
+
+    .forge-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(220, 38, 38, 0.3);
+    }
+
+    .forge-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .product-card {
+        background: rgba(0,0,0,0.5);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .product-card.hot {
+        border-color: var(--accent-red);
+        animation: hotPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes hotPulse {
+        0%, 100% { box-shadow: 0 0 10px rgba(220, 38, 38, 0.3); }
+        50% { box-shadow: 0 0 25px rgba(220, 38, 38, 0.6); }
+    }
+
+    .product-statement {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1rem;
+        color: var(--pure-white);
+        margin-bottom: 0.5rem;
+    }
+
+    .product-meta {
+        font-size: 0.75rem;
+        color: rgba(255,255,255,0.5);
+        margin-bottom: 0.75rem;
+    }
+
+    .product-meta span {
+        margin-right: 1rem;
+    }
+
+    .product-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-approve {
+        flex: 1;
+        padding: 0.5rem;
+        background: rgba(34, 197, 94, 0.2);
+        border: 1px solid rgba(34, 197, 94, 0.5);
+        border-radius: 4px;
+        color: #22c55e;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-approve:hover {
+        background: rgba(34, 197, 94, 0.4);
+    }
+
+    .btn-reject {
+        flex: 1;
+        padding: 0.5rem;
+        background: rgba(220, 38, 38, 0.2);
+        border: 1px solid rgba(220, 38, 38, 0.5);
+        border-radius: 4px;
+        color: var(--accent-red);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-reject:hover {
+        background: rgba(220, 38, 38, 0.4);
+    }
+
+    .btn-broadcast {
+        padding: 0.5rem;
+        background: rgba(59, 130, 246, 0.2);
+        border: 1px solid rgba(59, 130, 246, 0.5);
+        border-radius: 4px;
+        color: #3b82f6;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-broadcast:hover {
+        background: rgba(59, 130, 246, 0.4);
+    }
+
+    .sarah-note {
+        font-style: italic;
+        color: rgba(255,255,255,0.6);
+        font-size: 0.8rem;
+        padding: 0.75rem;
+        background: rgba(220, 38, 38, 0.05);
+        border-left: 2px solid var(--accent-red);
+        margin-top: 0.5rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: rgba(255,255,255,0.4);
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .status-draft { background: rgba(234, 179, 8, 0.2); color: #eab308; }
+    .status-approved { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+    .status-hot { background: rgba(220, 38, 38, 0.3); color: var(--accent-red); }
+
+    .heat-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        color: var(--accent-red);
+        font-size: 0.7rem;
+    }
+
+    .heat-indicator i {
+        animation: heatFlicker 0.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes heatFlicker {
+        0% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rtsa-dashboard">
+    <div class="rtsa-header">
+        <h1><i class="fas fa-bolt"></i> Sovereign Apparel Forge</h1>
+        <p>Real-Time Ethos Statement Generation & Approval</p>
+    </div>
+
+    <div class="section-grid">
+        <div class="rtsa-section">
+            <div class="section-title">
+                <i class="fas fa-hammer"></i> Forge Controls
+            </div>
+            
+            <button class="forge-btn" onclick="triggerForge()" id="forgeBtn">
+                <i class="fas fa-bolt me-2"></i> Forge New Statement
+            </button>
+            
+            <div class="section-title" style="margin-top: 2rem;">
+                <i class="fas fa-clock"></i> Drafts Pending Review
+                <span class="badge">{{ draft_products|length }}</span>
+            </div>
+            
+            {% if draft_products %}
+                {% for product in draft_products %}
+                <div class="product-card" data-id="{{ product.id }}">
+                    <div class="product-statement">"{{ product.statement_text }}"</div>
+                    <div class="product-meta">
+                        <span><i class="fas fa-tag"></i> {{ product.trigger_state }}</span>
+                        <span><i class="fas fa-chart-line"></i> {{ product.sentiment_score|round(1) }}%</span>
+                        <span class="status-badge status-draft">Draft</span>
+                    </div>
+                    {% if product.sarah_description %}
+                    <div class="sarah-note">
+                        <strong>Sarah:</strong> {{ product.sarah_description }}
+                    </div>
+                    {% endif %}
+                    <div class="product-actions">
+                        <button class="btn-approve" onclick="approveProduct({{ product.id }})">
+                            <i class="fas fa-check"></i> Approve
+                        </button>
+                        <button class="btn-reject" onclick="rejectProduct({{ product.id }})">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                    <p>No drafts pending review</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="rtsa-section">
+            <div class="section-title">
+                <i class="fas fa-fire"></i> Hot Products
+                <span class="badge">{{ hot_products|length }}</span>
+            </div>
+            
+            {% if hot_products %}
+                {% for product in hot_products %}
+                <div class="product-card hot" data-id="{{ product.id }}">
+                    <div class="product-statement">"{{ product.statement_text }}"</div>
+                    <div class="product-meta">
+                        <span><i class="fas fa-tag"></i> {{ product.trigger_state }}</span>
+                        <span class="status-badge status-hot">HOT</span>
+                        <span class="heat-indicator">
+                            <i class="fas fa-fire-alt"></i> {{ product.heat_multiplier }}x HEAT
+                        </span>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn-broadcast" onclick="broadcastProduct({{ product.id }})">
+                            <i class="fab fa-twitter"></i> Broadcast to X
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-temperature-low" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                    <p>No products in HEAT window</p>
+                </div>
+            {% endif %}
+
+            <div class="section-title" style="margin-top: 2rem;">
+                <i class="fas fa-check-circle"></i> Recently Approved
+            </div>
+            
+            {% if approved_products %}
+                {% for product in approved_products[:5] %}
+                <div class="product-card" data-id="{{ product.id }}">
+                    <div class="product-statement">"{{ product.statement_text }}"</div>
+                    <div class="product-meta">
+                        <span><i class="fas fa-calendar"></i> {{ product.approved_at.strftime('%Y-%m-%d') if product.approved_at else 'N/A' }}</span>
+                        <span class="status-badge status-approved">Approved</span>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <p>No approved products yet</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+async function triggerForge() {
+    const btn = document.getElementById('forgeBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Forging...';
+    
+    try {
+        const response = await fetch('/admin/api/rtsa/forge', { method: 'POST' });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert(`Statement forged: "${data.product.statement_text}"`);
+            location.reload();
+        } else {
+            alert('Forge failed: ' + (data.error || 'Unknown error'));
+        }
+    } catch (e) {
+        alert('Error: ' + e.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-bolt me-2"></i> Forge New Statement';
+    }
+}
+
+async function approveProduct(productId) {
+    if (!confirm('Approve this product for the merch store?')) return;
+    
+    try {
+        const response = await fetch(`/admin/api/rtsa/approve/${productId}`, { method: 'POST' });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Product approved! HEAT window active for 12 hours.');
+            location.reload();
+        } else {
+            alert('Approval failed: ' + (data.error || 'Unknown error'));
+        }
+    } catch (e) {
+        alert('Error: ' + e.message);
+    }
+}
+
+async function rejectProduct(productId) {
+    if (!confirm('Reject this product? This cannot be undone.')) return;
+    
+    try {
+        const response = await fetch(`/admin/api/rtsa/reject/${productId}`, { method: 'POST' });
+        const data = await response.json();
+        
+        if (data.success) {
+            document.querySelector(`[data-id="${productId}"]`).remove();
+        } else {
+            alert('Rejection failed');
+        }
+    } catch (e) {
+        alert('Error: ' + e.message);
+    }
+}
+
+async function broadcastProduct(productId) {
+    if (!confirm('Broadcast this product to X?')) return;
+    
+    try {
+        const response = await fetch(`/admin/api/rtsa/broadcast/${productId}`, { method: 'POST' });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Broadcast sent!');
+        } else {
+            alert('Broadcast failed');
+        }
+    } catch (e) {
+        alert('Error: ' + e.message);
+    }
+}
+</script>
+{% endblock %}

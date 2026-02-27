@@ -1,0 +1,124 @@
+{
+  "version": "2026-02-24",
+  "settings": {
+    "max_channels_per_run": 20,
+    "top_clips_for_video": 5,
+    "min_hook_score": 60,
+    "clip_duration_min": 15,
+    "clip_duration_max": 25
+  },
+  "channels": [
+    {
+      "name": "Bitcoin Magazine",
+      "channel_id": "UCni7PAlyNS0_12H-26DJJ3w",
+      "handle": "@BitcoinMagazine",
+      "priority": "high",
+      "enabled": true,
+      "tags": ["news", "mainstream"]
+    },
+    {
+      "name": "Simply Bitcoin",
+      "channel_id": "UCGVzBOpeNmwta_-3H5BXMTQ",
+      "handle": "@SimplyBitcoin",
+      "priority": "high",
+      "enabled": true,
+      "tags": ["daily", "commentary"]
+    },
+    {
+      "name": "The Bitcoin Layer",
+      "channel_id": "UCunzl2Fy5HXTK3UtW0srhEQ",
+      "handle": "@TheBitcoinLayer",
+      "priority": "high",
+      "enabled": true,
+      "tags": ["macro", "analysis"]
+    },
+    {
+      "name": "Coin Bureau",
+      "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+      "handle": "@CoinBureau",
+      "priority": "medium",
+      "enabled": true,
+      "tags": ["education", "news"]
+    },
+    {
+      "name": "Anthony Pompliano",
+      "channel_id": "UCcgOOeLdesqSxSGwn9Yf8kA",
+      "handle": "@AnthonyPompliano",
+      "priority": "high",
+      "enabled": true,
+      "tags": ["interviews", "macro"]
+    },
+    {
+      "name": "Swan Bitcoin",
+      "channel_id": "UCmUjsfd2EgLevH3s5J9FHWA",
+      "handle": "@swan",
+      "priority": "medium",
+      "enabled": true,
+      "tags": ["education", "adoption"]
+    },
+    {
+      "name": "Robert Breedlove",
+      "channel_id": "UC7FiJ4qN3BhKfG9If-jC3cQ",
+      "handle": "@Breedlove22",
+      "priority": "medium",
+      "enabled": true,
+      "tags": ["philosophy", "deep"]
+    },
+    {
+      "name": "Preston Pysh",
+      "channel_id": "UCY6Kx8GvMmQRhX8PZeFvPKg",
+      "handle": "@PrestonPysh",
+      "priority": "high",
+      "enabled": true,
+      "tags": ["macro", "investing"]
+    },
+    {
+      "name": "What Bitcoin Did",
+      "channel_id": "UCLnQ34ZBSjy2JQjeRudFEDw",
+      "handle": "@WhatBitcoinDid",
+      "priority": "high",
+      "enabled": true,
+      "tags": ["interviews", "news"]
+    },
+    {
+      "name": "Stephan Livera",
+      "channel_id": "UCpY4T6vkhWuOBnVkB9AjVpg",
+      "handle": "@StephanLivera",
+      "priority": "medium",
+      "enabled": true,
+      "tags": ["technical", "interviews"]
+    },
+    {
+      "name": "TFTC",
+      "channel_id": "UCM7YkvLyjhGd2MNBKBzTEPg",
+      "handle": "@TFTC",
+      "priority": "medium",
+      "enabled": true,
+      "tags": ["mining", "technical"]
+    },
+    {
+      "name": "Bitcoin Fundamentals",
+      "channel_id": "UCc4Rz_T9Sb1w5rqqo9pL1Og",
+      "handle": "@saborskis",
+      "priority": "medium",
+      "enabled": true,
+      "tags": ["education", "onboarding"]
+    },
+    {
+      "name": "Natalie Brunell",
+      "channel_id": "UCuH-a6rRVOOXWjMxR7U6eBA",
+      "handle": "@NatalieBrunell",
+      "priority": "medium",
+      "enabled": true,
+      "tags": ["interviews", "mainstream"]
+    },
+    {
+      "name": "BTC Sessions",
+      "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg",
+      "handle": "@BTCSessions",
+      "priority": "medium",
+      "enabled": true,
+      "tags": ["tutorials", "education"]
+    }
+  ]
+}

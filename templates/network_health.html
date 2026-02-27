@@ -1,0 +1,595 @@
+{% extends "base.html" %}
+{% block title %}Network Health — Bitcoin Vitals | Protocol Pulse{% endblock %}
+
+{% block meta_description %}Real-time Bitcoin network health dashboard. Monitor mempool, block times, difficulty adjustments, fee rates, and node connectivity.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="Bitcoin Network Health — Protocol Pulse">
+<meta property="og:description" content="Real-time Bitcoin network vitals: mempool, fees, blocks, difficulty, and more.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protocol Pulse">
+<meta property="og:image" content="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
+<meta property="og:url" content="{{ request.url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+{% endblock %}
+
+{% block head %}
+<style>
+/* ═══ NETWORK HEALTH ═══ */
+.nh-page { padding: 32px 0 64px; }
+
+.nh-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.nh-header__title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.nh-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: var(--pp-radius-full);
+    font-family: var(--pp-font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+
+.nh-status-badge--healthy {
+    background: rgba(0, 230, 118, 0.1);
+    border: 1px solid rgba(0, 230, 118, 0.2);
+    color: var(--pp-green);
+}
+
+.nh-status-badge__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: pp-pulse-live 2s infinite;
+}
+
+/* Metric cards */
+.nh-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+@media (min-width: 640px) { .nh-metrics { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1024px) { .nh-metrics { grid-template-columns: repeat(6, 1fr); } }
+
+.nh-metric {
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-md);
+    padding: 16px;
+    transition: border-color 0.25s ease;
+}
+
+.nh-metric:hover {
+    border-color: var(--pp-border-teal);
+}
+
+.nh-metric__label {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--pp-text-muted);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.nh-metric__label i { color: var(--pp-teal); font-size: 0.625rem; }
+
+.nh-metric__value {
+    font-family: var(--pp-font-mono);
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--pp-text);
+}
+
+.nh-metric__sub {
+    font-family: var(--pp-font-mono);
+    font-size: 0.6875rem;
+    color: var(--pp-text-muted);
+    margin-top: 2px;
+}
+
+/* Mempool visualization */
+.nh-mempool {
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-md);
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.nh-mempool__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nh-mempool__title i { color: var(--pp-teal); }
+
+.nh-mempool__bars {
+    display: flex;
+    gap: 3px;
+    height: 120px;
+    align-items: flex-end;
+}
+
+.nh-mempool__bar {
+    flex: 1;
+    border-radius: 2px 2px 0 0;
+    min-height: 4px;
+    transition: height 0.5s var(--pp-ease);
+    position: relative;
+}
+
+.nh-mempool__bar:hover::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 8px;
+    background: var(--pp-surface-2);
+    border: 1px solid var(--pp-border);
+    border-radius: 4px;
+    font-family: var(--pp-font-mono);
+    font-size: 0.625rem;
+    color: var(--pp-text);
+    white-space: nowrap;
+    pointer-events: none;
+    margin-bottom: 4px;
+}
+
+.nh-mempool__legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.nh-mempool__legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.6875rem;
+    color: var(--pp-text-muted);
+}
+
+.nh-mempool__legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+}
+
+/* Recent blocks */
+.nh-blocks {
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-md);
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.nh-blocks__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nh-blocks__title i { color: var(--pp-amber); }
+
+.nh-blocks__list {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+}
+
+.nh-block {
+    flex-shrink: 0;
+    width: 140px;
+    padding: 12px;
+    background: var(--pp-bg, var(--pp-black));
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-sm);
+    transition: border-color 0.2s ease;
+}
+
+.nh-block:hover { border-color: var(--pp-border-amber); }
+
+.nh-block__height {
+    font-family: var(--pp-font-mono);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--pp-amber);
+    margin-bottom: 4px;
+}
+
+.nh-block__detail {
+    font-size: 0.6875rem;
+    color: var(--pp-text-muted);
+    line-height: 1.6;
+}
+
+/* Difficulty section */
+.nh-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+@media (min-width: 768px) { .nh-grid { grid-template-columns: 1fr 1fr; } }
+
+.nh-card {
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-md);
+    padding: 24px;
+}
+
+.nh-card__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nh-card__title i { color: var(--pp-teal); }
+
+/* Progress bar */
+.nh-progress {
+    height: 8px;
+    background: var(--pp-surface-2);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.nh-progress__fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--pp-teal), var(--pp-amber));
+    border-radius: 4px;
+    transition: width 1s var(--pp-ease);
+}
+
+/* Refresh indicator */
+.nh-refresh {
+    font-family: var(--pp-font-mono);
+    font-size: 0.6875rem;
+    color: var(--pp-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.nh-refresh i { color: var(--pp-teal); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pp-container">
+    <section class="nh-page">
+        <div class="nh-header">
+            <h1 class="nh-header__title">Network Health</h1>
+            <div style="display:flex;align-items:center;gap:16px;">
+                <div class="nh-status-badge nh-status-badge--healthy" id="nhStatus">
+                    <span class="nh-status-badge__dot"></span>
+                    NETWORK HEALTHY
+                </div>
+                <div class="nh-refresh" id="nhRefresh">
+                    <i class="fas fa-sync-alt"></i>
+                    <span id="nhCountdown">30s</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Primary metrics -->
+        <div class="nh-metrics pp-reveal">
+            <div class="nh-metric">
+                <div class="nh-metric__label"><i class="fas fa-cube"></i> Block Height</div>
+                <div class="nh-metric__value" id="nhBlockHeight">---,---</div>
+            </div>
+            <div class="nh-metric">
+                <div class="nh-metric__label"><i class="fas fa-microchip"></i> Hashrate</div>
+                <div class="nh-metric__value" id="nhHashrate">---</div>
+                <div class="nh-metric__sub" id="nhHashrateSub">EH/s</div>
+            </div>
+            <div class="nh-metric">
+                <div class="nh-metric__label"><i class="fas fa-database"></i> Mempool</div>
+                <div class="nh-metric__value" id="nhMempoolSize">---</div>
+                <div class="nh-metric__sub" id="nhMempoolTxs">--- txs</div>
+            </div>
+            <div class="nh-metric">
+                <div class="nh-metric__label"><i class="fas fa-gas-pump"></i> Fastest Fee</div>
+                <div class="nh-metric__value" id="nhFastFee">---</div>
+                <div class="nh-metric__sub">sat/vB</div>
+            </div>
+            <div class="nh-metric">
+                <div class="nh-metric__label"><i class="fas fa-shield-alt"></i> Difficulty</div>
+                <div class="nh-metric__value" id="nhDifficulty">---</div>
+                <div class="nh-metric__sub" id="nhDiffSub">T</div>
+            </div>
+            <div class="nh-metric">
+                <div class="nh-metric__label"><i class="fas fa-clock"></i> Avg Block</div>
+                <div class="nh-metric__value" id="nhAvgBlock">---</div>
+                <div class="nh-metric__sub">minutes</div>
+            </div>
+        </div>
+
+        <!-- Mempool depth visualization -->
+        <div class="nh-mempool pp-reveal">
+            <div class="nh-mempool__title"><i class="fas fa-layer-group"></i> Mempool Fee Distribution</div>
+            <div class="nh-mempool__bars" id="nhMempoolBars">
+                <!-- Filled by JS -->
+            </div>
+            <div class="nh-mempool__legend">
+                <div class="nh-mempool__legend-item"><span class="nh-mempool__legend-dot" style="background:rgba(255,71,87,0.8);"></span> &gt;100 sat/vB</div>
+                <div class="nh-mempool__legend-item"><span class="nh-mempool__legend-dot" style="background:rgba(245,166,35,0.8);"></span> 50-100</div>
+                <div class="nh-mempool__legend-item"><span class="nh-mempool__legend-dot" style="background:rgba(0,212,170,0.8);"></span> 10-50</div>
+                <div class="nh-mempool__legend-item"><span class="nh-mempool__legend-dot" style="background:rgba(0,212,170,0.4);"></span> 1-10</div>
+            </div>
+        </div>
+
+        <!-- Recent blocks -->
+        <div class="nh-blocks pp-reveal">
+            <div class="nh-blocks__title"><i class="fas fa-cubes"></i> Recent Blocks</div>
+            <div class="nh-blocks__list" id="nhBlocksList">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+
+        <!-- Bottom grid -->
+        <div class="nh-grid">
+            <!-- Difficulty adjustment -->
+            <div class="nh-card pp-reveal">
+                <div class="nh-card__title"><i class="fas fa-adjust"></i> Next Difficulty Adjustment</div>
+                <div style="margin-bottom:12px;">
+                    <div class="nh-progress">
+                        <div class="nh-progress__fill" id="nhDiffProgress" style="width:0%;"></div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;">
+                        <span class="pp-mono pp-tiny pp-text-muted" id="nhDiffBlocks">--- / 2,016 blocks</span>
+                        <span class="pp-mono pp-tiny pp-text-muted" id="nhDiffEst">--- est. change</span>
+                    </div>
+                </div>
+                <div style="display:flex;gap:24px;">
+                    <div>
+                        <div class="pp-tiny pp-text-muted" style="text-transform:uppercase;letter-spacing:0.06em;">Remaining</div>
+                        <div class="pp-mono" style="font-weight:600;" id="nhDiffRemaining">--- blocks</div>
+                    </div>
+                    <div>
+                        <div class="pp-tiny pp-text-muted" style="text-transform:uppercase;letter-spacing:0.06em;">ETA</div>
+                        <div class="pp-mono" style="font-weight:600;" id="nhDiffEta">---</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fee estimates -->
+            <div class="nh-card pp-reveal">
+                <div class="nh-card__title"><i class="fas fa-receipt"></i> Fee Estimates</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                        <div class="pp-tiny pp-text-muted" style="text-transform:uppercase;letter-spacing:0.06em;">Next Block</div>
+                        <div class="pp-mono" style="font-weight:700;color:var(--pp-red);" id="nhFeeNext">---</div>
+                    </div>
+                    <div>
+                        <div class="pp-tiny pp-text-muted" style="text-transform:uppercase;letter-spacing:0.06em;">30 Min</div>
+                        <div class="pp-mono" style="font-weight:700;color:var(--pp-amber);" id="nhFee30">---</div>
+                    </div>
+                    <div>
+                        <div class="pp-tiny pp-text-muted" style="text-transform:uppercase;letter-spacing:0.06em;">1 Hour</div>
+                        <div class="pp-mono" style="font-weight:700;color:var(--pp-teal);" id="nhFee60">---</div>
+                    </div>
+                    <div>
+                        <div class="pp-tiny pp-text-muted" style="text-transform:uppercase;letter-spacing:0.06em;">Economy</div>
+                        <div class="pp-mono" style="font-weight:700;color:var(--pp-text-secondary);" id="nhFeeEco">---</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    'use strict';
+
+    var refreshInterval = 30;
+    var countdown = refreshInterval;
+
+    function formatNumber(n) {
+        return n.toLocaleString('en-US');
+    }
+
+    function formatBytes(bytes) {
+        if (bytes >= 1e9) return (bytes / 1e9).toFixed(2) + ' GB';
+        if (bytes >= 1e6) return (bytes / 1e6).toFixed(2) + ' MB';
+        return (bytes / 1e3).toFixed(1) + ' KB';
+    }
+
+    function timeAgo(seconds) {
+        if (seconds < 60) return seconds + 's ago';
+        if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+        return Math.floor(seconds / 3600) + 'h ago';
+    }
+
+    function fetchMempoolStats() {
+        fetch('https://mempool.space/api/mempool')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                document.getElementById('nhMempoolSize').textContent = formatBytes(data.vsize || 0);
+                document.getElementById('nhMempoolTxs').textContent = formatNumber(data.count || 0) + ' txs';
+
+                // Build fee distribution bars
+                var feeHist = data.fee_histogram || [];
+                renderMempoolBars(feeHist);
+            })
+            .catch(function() {});
+    }
+
+    function renderMempoolBars(histogram) {
+        var container = document.getElementById('nhMempoolBars');
+        if (!container || !histogram.length) return;
+
+        var maxVsize = 0;
+        histogram.forEach(function(h) { if (h[1] > maxVsize) maxVsize = h[1]; });
+
+        var html = '';
+        histogram.slice(0, 40).forEach(function(h) {
+            var feeRate = h[0];
+            var vsize = h[1];
+            var pct = maxVsize > 0 ? (vsize / maxVsize) * 100 : 5;
+            var color;
+            if (feeRate > 100) color = 'rgba(255,71,87,0.8)';
+            else if (feeRate > 50) color = 'rgba(245,166,35,0.8)';
+            else if (feeRate > 10) color = 'rgba(0,212,170,0.8)';
+            else color = 'rgba(0,212,170,0.4)';
+
+            html += '<div class="nh-mempool__bar" style="height:' + Math.max(4, pct) + '%;background:' + color + ';" data-label="' + feeRate + ' sat/vB: ' + formatBytes(vsize) + '"></div>';
+        });
+        container.innerHTML = html;
+    }
+
+    function fetchFees() {
+        fetch('https://mempool.space/api/v1/fees/recommended')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                document.getElementById('nhFastFee').textContent = data.fastestFee;
+                document.getElementById('nhFeeNext').textContent = data.fastestFee + ' sat/vB';
+                document.getElementById('nhFee30').textContent = data.halfHourFee + ' sat/vB';
+                document.getElementById('nhFee60').textContent = data.hourFee + ' sat/vB';
+                document.getElementById('nhFeeEco').textContent = data.economyFee + ' sat/vB';
+            })
+            .catch(function() {});
+    }
+
+    function fetchBlocks() {
+        fetch('https://mempool.space/api/v1/blocks')
+            .then(function(r) { return r.json(); })
+            .then(function(blocks) {
+                if (!blocks || !blocks.length) return;
+
+                // Block height
+                document.getElementById('nhBlockHeight').textContent = formatNumber(blocks[0].height);
+
+                // Recent blocks
+                var html = '';
+                var now = Date.now() / 1000;
+                blocks.slice(0, 8).forEach(function(b) {
+                    var ago = timeAgo(Math.floor(now - b.timestamp));
+                    html += '<div class="nh-block">' +
+                        '<div class="nh-block__height">#' + formatNumber(b.height) + '</div>' +
+                        '<div class="nh-block__detail">' +
+                        formatNumber(b.tx_count) + ' txs<br>' +
+                        formatBytes(b.size) + '<br>' +
+                        ago +
+                        '</div></div>';
+                });
+                document.getElementById('nhBlocksList').innerHTML = html;
+
+                // Avg block time from last 6 blocks
+                if (blocks.length >= 7) {
+                    var totalTime = blocks[0].timestamp - blocks[6].timestamp;
+                    var avgMin = (totalTime / 6 / 60).toFixed(1);
+                    document.getElementById('nhAvgBlock').textContent = avgMin;
+                }
+            })
+            .catch(function() {});
+    }
+
+    function fetchDifficulty() {
+        fetch('https://mempool.space/api/v1/difficulty-adjustment')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var progress = data.progressPercent || 0;
+                document.getElementById('nhDiffProgress').style.width = progress.toFixed(1) + '%';
+
+                var blocksIn = Math.floor(2016 * progress / 100);
+                var remaining = 2016 - blocksIn;
+                document.getElementById('nhDiffBlocks').textContent = formatNumber(blocksIn) + ' / 2,016 blocks';
+                document.getElementById('nhDiffRemaining').textContent = formatNumber(remaining) + ' blocks';
+
+                var change = data.difficultyChange || 0;
+                document.getElementById('nhDiffEst').textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '% est.';
+
+                // Current difficulty
+                if (data.currentDifficulty) {
+                    document.getElementById('nhDifficulty').textContent = (data.currentDifficulty / 1e12).toFixed(2);
+                }
+
+                // ETA
+                if (data.remainingTime) {
+                    var days = Math.floor(data.remainingTime / 86400000);
+                    var hours = Math.floor((data.remainingTime % 86400000) / 3600000);
+                    document.getElementById('nhDiffEta').textContent = days + 'd ' + hours + 'h';
+                }
+            })
+            .catch(function() {});
+    }
+
+    function fetchHashrate() {
+        fetch('https://mempool.space/api/v1/mining/hashrate/1m')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var hr = data.currentHashrate;
+                if (hr) {
+                    var ehps = hr / 1e18;
+                    document.getElementById('nhHashrate').textContent = ehps.toFixed(1);
+                }
+            })
+            .catch(function() {});
+    }
+
+    function refreshAll() {
+        fetchMempoolStats();
+        fetchFees();
+        fetchBlocks();
+        fetchDifficulty();
+        fetchHashrate();
+    }
+
+    // Countdown
+    setInterval(function() {
+        countdown--;
+        if (countdown <= 0) {
+            countdown = refreshInterval;
+            refreshAll();
+        }
+        document.getElementById('nhCountdown').textContent = countdown + 's';
+    }, 1000);
+
+    // Init
+    refreshAll();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,818 @@
+{% extends "base.html" %}
+
+{% block title %}Bitcoin Meetups Worldwide | Protocol Pulse{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+:root {
+    --pp-red: #dc2626;
+    --pp-dark: #0a0a0a;
+    --pp-glass: rgba(10, 10, 10, 0.95);
+    --btc-orange: #f7931a;
+}
+
+.map-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0505 100%);
+    padding-top: 80px;
+}
+
+.map-header {
+    padding: 30px 20px;
+    text-align: center;
+}
+
+.map-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.map-title i {
+    color: var(--btc-orange);
+}
+
+.map-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 20px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--btc-orange);
+}
+
+.stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.map-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px 40px;
+}
+
+.map-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 20px;
+}
+
+@media (max-width: 992px) {
+    .map-wrapper {
+        grid-template-columns: 1fr;
+    }
+}
+
+#bitcoin-map {
+    height: 600px;
+    border-radius: 16px;
+    border: 1px solid rgba(247, 147, 26, 0.3);
+    overflow: hidden;
+}
+
+.leaflet-container {
+    background: #1a1a1a;
+}
+
+.sidebar {
+    background: rgba(10, 10, 10, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(247, 147, 26, 0.2);
+    border-radius: 8px;
+    padding: 20px;
+    max-height: 600px;
+    overflow-y: auto;
+    box-shadow: 
+        inset 0 0 15px rgba(247, 147, 26, 0.05),
+        0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.sidebar i,
+.sidebar img {
+    filter: none !important;
+    box-shadow: none !important;
+}
+
+.sidebar-section {
+    margin-bottom: 25px;
+}
+
+.section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--btc-orange);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.meetup-list {
+    display: grid;
+    gap: 12px;
+}
+
+.meetup-card {
+    background: rgba(10, 10, 10, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(247, 147, 26, 0.15);
+    border-radius: 8px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.meetup-card:hover {
+    border-color: rgba(247, 147, 26, 0.6);
+    box-shadow: 
+        0 0 20px rgba(247, 147, 26, 0.15),
+        inset 0 0 15px rgba(247, 147, 26, 0.08);
+    transform: translateY(-2px);
+}
+
+.meetup-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: #fff;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.meetup-city {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 8px;
+}
+
+.meetup-meta {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.meta-item i {
+    color: var(--btc-orange);
+}
+
+.legend {
+    display: grid;
+    gap: 10px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.legend-dot.meetup {
+    background: var(--btc-orange);
+}
+
+.legend-dot.merchant {
+    background: #22c55e;
+}
+
+.legend-dot.atm {
+    background: #60a5fa;
+}
+
+.search-box {
+    width: 100%;
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    margin-bottom: 15px;
+}
+
+.search-box:focus {
+    outline: none;
+    border-color: var(--btc-orange);
+}
+
+.search-box::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.btc-marker {
+    background: var(--btc-orange);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font-weight: bold;
+    font-size: 14px;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 10px rgba(247, 147, 26, 0.5);
+}
+
+.merchant-marker {
+    background: #22c55e;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.5);
+}
+
+.leaflet-popup-content-wrapper {
+    background: rgba(10, 10, 10, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(247, 147, 26, 0.2);
+    border-radius: 8px;
+    color: #fff;
+    box-shadow: 
+        inset 0 0 15px rgba(247, 147, 26, 0.05),
+        0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.leaflet-popup-tip {
+    background: rgba(10, 10, 10, 0.85);
+}
+
+.leaflet-popup-content-wrapper i,
+.leaflet-popup-content-wrapper img {
+    filter: none !important;
+    box-shadow: none !important;
+}
+
+.popup-content {
+    padding: 5px;
+}
+
+.popup-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--btc-orange);
+    margin-bottom: 8px;
+}
+
+.popup-info {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.5;
+}
+
+.popup-link {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 6px 12px;
+    background: var(--btc-orange);
+    color: #000;
+    text-decoration: none;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.popup-link:hover {
+    background: #e8820f;
+    color: #000;
+}
+
+.region-filter {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 20px 30px;
+    flex-wrap: wrap;
+}
+
+.region-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(247, 147, 26, 0.2);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 10px 18px;
+    border-radius: 25px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.region-btn:hover {
+    background: rgba(247, 147, 26, 0.15);
+    border-color: var(--btc-orange);
+    color: #fff;
+}
+
+.region-btn.active {
+    background: var(--btc-orange);
+    border-color: var(--btc-orange);
+    color: #000;
+    font-weight: 600;
+}
+
+.back-nav {
+    position: fixed;
+    top: 80px;
+    left: 20px;
+    z-index: 1000;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--pp-glass);
+    border: 1px solid rgba(247, 147, 26, 0.3);
+    border-radius: 12px;
+    padding: 12px 20px;
+    color: #fff;
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    backdrop-filter: blur(20px);
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    background: rgba(247, 147, 26, 0.2);
+    border-color: var(--btc-orange);
+    color: #fff;
+}
+
+.meetup-region {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--btc-orange);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 5px;
+}
+
+#bitcoin-map {
+    height: 650px;
+}
+
+@media (max-width: 768px) {
+    .region-filter {
+        gap: 6px;
+        padding: 0 10px 20px;
+    }
+    .region-btn {
+        padding: 8px 12px;
+        font-size: 0.65rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<nav class="back-nav">
+    <a href="/" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back to Home</span>
+    </a>
+</nav>
+
+<div class="map-page">
+    <div class="map-header">
+        <h1 class="map-title">
+            <i class="fas fa-users"></i>
+            Bitcoin Meetups Worldwide
+        </h1>
+        <p class="map-subtitle">Connect with Bitcoiners IRL - Local meetups, conferences, and freedom-oriented events</p>
+    </div>
+    
+    <div class="stats-bar">
+        <div class="stat-item">
+            <div class="stat-value">{{ meetups | length }}</div>
+            <div class="stat-label">Active Meetups</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="conference-count">12+</div>
+            <div class="stat-label">Major Conferences</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">6</div>
+            <div class="stat-label">Continents</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="countries-count">50+</div>
+            <div class="stat-label">Countries</div>
+        </div>
+    </div>
+    
+    <div class="region-filter">
+        <button class="region-btn active" onclick="filterRegion(null, this)">All Regions</button>
+        <button class="region-btn" onclick="filterRegion('North America', this)">North America</button>
+        <button class="region-btn" onclick="filterRegion('Latin America', this)">Latin America</button>
+        <button class="region-btn" onclick="filterRegion('Europe', this)">Europe</button>
+        <button class="region-btn" onclick="filterRegion('Asia', this)">Asia</button>
+        <button class="region-btn" onclick="filterRegion('Africa', this)">Africa</button>
+        <button class="region-btn" onclick="filterRegion('Oceania', this)">Oceania</button>
+        <button class="region-btn" onclick="filterRegion('Middle East', this)">Middle East</button>
+    </div>
+    
+    <div class="map-container">
+        <div class="map-wrapper">
+            <div id="bitcoin-map"></div>
+            
+            <div class="sidebar">
+                <input type="text" class="search-box" placeholder="Search cities or meetups..." id="search-input">
+                
+                <div class="sidebar-section">
+                    <div class="section-title">
+                        <i class="fas fa-users"></i> Bitcoin Meetups
+                    </div>
+                    <div class="meetup-list" id="meetup-list">
+                        {% for meetup in meetups %}
+                        <div class="meetup-card" onclick="flyToMeetup({{ meetup.lat }}, {{ meetup.lon }}, '{{ meetup.name }}')">
+                            <div class="meetup-name">{{ meetup.name }}</div>
+                            <div class="meetup-city">{{ meetup.city }}</div>
+                            <div class="meetup-meta">
+                                <span class="meta-item">
+                                    <i class="fas fa-calendar"></i> {{ meetup.frequency }}
+                                </span>
+                                <span class="meta-item">
+                                    <i class="fas fa-users"></i> {{ meetup.members | default(0) | int }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="section-title">
+                        <i class="fas fa-info-circle"></i> Legend
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <span class="legend-dot meetup"></span>
+                            Local Meetup
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot conference" style="background: #8b5cf6 !important;"></span>
+                            Major Conference
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot festival" style="background: #22c55e !important;"></span>
+                            Bitcoin Festival
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="section-title">
+                        <i class="fas fa-calendar-alt"></i> Upcoming Conferences
+                    </div>
+                    <div class="conference-list" id="conference-list">
+                        <div class="meetup-card" onclick="flyToMeetup(30.2672, -97.7431, 'Bitcoin Conference 2026')">
+                            <div class="meetup-name">Bitcoin Conference 2026</div>
+                            <div class="meetup-city">Austin, Texas</div>
+                            <div class="meetup-meta">
+                                <span class="meta-item"><i class="fas fa-calendar"></i> May 2026</span>
+                                <span class="meta-item" style="color: #8b5cf6;"><i class="fas fa-star"></i> Flagship</span>
+                            </div>
+                        </div>
+                        <div class="meetup-card" onclick="flyToMeetup(48.1351, 11.5820, 'BTC Prague')">
+                            <div class="meetup-name">BTC Prague</div>
+                            <div class="meetup-city">Prague, Czech Republic</div>
+                            <div class="meetup-meta">
+                                <span class="meta-item"><i class="fas fa-calendar"></i> June 2026</span>
+                                <span class="meta-item" style="color: #22c55e;"><i class="fas fa-bolt"></i> Lightning Focus</span>
+                            </div>
+                        </div>
+                        <div class="meetup-card" onclick="flyToMeetup(25.7617, -80.1918, 'Bitcoin Miami')">
+                            <div class="meetup-name">Bitcoin Miami</div>
+                            <div class="meetup-city">Miami, Florida</div>
+                            <div class="meetup-meta">
+                                <span class="meta-item"><i class="fas fa-calendar"></i> TBD 2026</span>
+                            </div>
+                        </div>
+                        <div class="meetup-card" onclick="flyToMeetup(52.5200, 13.4050, 'Baltic Honeybadger')">
+                            <div class="meetup-name">Baltic Honeybadger</div>
+                            <div class="meetup-city">Riga, Latvia</div>
+                            <div class="meetup-meta">
+                                <span class="meta-item"><i class="fas fa-calendar"></i> September 2026</span>
+                                <span class="meta-item" style="color: #f7931a;"><i class="fas fa-shield-alt"></i> Cypherpunk</span>
+                            </div>
+                        </div>
+                        <div class="meetup-card" onclick="flyToMeetup(1.3521, 103.8198, 'Bitcoin Asia')">
+                            <div class="meetup-name">Bitcoin Asia</div>
+                            <div class="meetup-city">Singapore</div>
+                            <div class="meetup-meta">
+                                <span class="meta-item"><i class="fas fa-calendar"></i> 2026</span>
+                            </div>
+                        </div>
+                        <div class="meetup-card" onclick="flyToMeetup(-23.5505, -46.6333, 'Satsconf')">
+                            <div class="meetup-name">Satsconf</div>
+                            <div class="meetup-city">Sao Paulo, Brazil</div>
+                            <div class="meetup-meta">
+                                <span class="meta-item"><i class="fas fa-calendar"></i> November 2026</span>
+                                <span class="meta-item" style="color: #22c55e;"><i class="fas fa-globe-americas"></i> LATAM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+<script>
+const meetups = {{ meetups | tojson | safe }};
+let markers = [];
+let markerCluster;
+let currentFilter = null;
+
+const map = L.map('bitcoin-map').setView([25, 0], 2);
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://carto.com/">CartoDB</a>',
+    maxZoom: 19
+}).addTo(map);
+
+const btcIcon = L.divIcon({
+    className: 'btc-marker-wrapper',
+    html: '<div class="btc-marker">₿</div>',
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -15]
+});
+
+const eventIcon = L.divIcon({
+    className: 'event-marker-wrapper',
+    html: '<div class="event-marker" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); border: 2px solid #fff; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 0 15px rgba(139, 92, 246, 0.6);">⭐</div>',
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    popupAnchor: [0, -16]
+});
+
+function initMarkers(filterRegion = null) {
+    if (markerCluster) {
+        map.removeLayer(markerCluster);
+    }
+    markers = [];
+    markerCluster = L.markerClusterGroup({
+        maxClusterRadius: 50,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        iconCreateFunction: function(cluster) {
+            const count = cluster.getChildCount();
+            return L.divIcon({
+                html: `<div class="cluster-marker">${count}</div>`,
+                className: 'btc-cluster',
+                iconSize: [40, 40]
+            });
+        }
+    });
+    
+    const filteredMeetups = filterRegion 
+        ? meetups.filter(m => m.region === filterRegion)
+        : meetups;
+    
+    filteredMeetups.forEach(meetup => {
+        const isEvent = meetup.event_type === 'Conference' || meetup.event_type === 'Event';
+        const popup = `
+            <div class="popup-content" ${isEvent ? 'style="border-color: #8b5cf6;"' : ''}>
+                <div class="popup-title" ${isEvent ? 'style="color: #8b5cf6;"' : ''}>${meetup.name}</div>
+                ${isEvent ? '<div style="color: #8b5cf6; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">⭐ Special Event</div>' : ''}
+                <div class="popup-info">
+                    <strong>Location:</strong> ${meetup.city}<br>
+                    ${meetup.venue ? `<strong>Venue:</strong> ${meetup.venue}<br>` : ''}
+                    <strong>Region:</strong> ${meetup.region || 'Unknown'}<br>
+                    <strong>${isEvent ? 'Date' : 'Schedule'}:</strong> ${meetup.next_event || meetup.frequency}<br>
+                    <strong>${isEvent ? 'Expected Attendees' : 'Members'}:</strong> ${meetup.members ? meetup.members.toLocaleString() : 'Unknown'}
+                </div>
+                ${meetup.url ? `<a href="${meetup.url}" target="_blank" class="popup-link" ${isEvent ? 'style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);"' : ''}>${isEvent ? 'Visit Event Site' : 'Join Meetup'}</a>` : ''}
+            </div>
+        `;
+        
+        const markerIcon = isEvent ? eventIcon : btcIcon;
+        const marker = L.marker([meetup.lat, meetup.lon], { icon: markerIcon })
+            .bindPopup(popup);
+        markers.push({ marker, meetup });
+        markerCluster.addLayer(marker);
+    });
+    
+    map.addLayer(markerCluster);
+    updateMeetupList(filterRegion);
+}
+
+function updateMeetupList(filterRegion = null) {
+    const listEl = document.getElementById('meetup-list');
+    const filteredMeetups = filterRegion 
+        ? meetups.filter(m => m.region === filterRegion)
+        : meetups;
+    
+    const sortedMeetups = [...filteredMeetups].sort((a, b) => (b.members || 0) - (a.members || 0));
+    
+    listEl.innerHTML = sortedMeetups.slice(0, 20).map(meetup => `
+        <div class="meetup-card" onclick="flyToMeetup(${meetup.lat}, ${meetup.lon}, '${meetup.name.replace(/'/g, "\\'")}')">
+            <div class="meetup-name">${meetup.name}</div>
+            <div class="meetup-city">${meetup.city}</div>
+            <div class="meetup-meta">
+                <span class="meta-item">
+                    <i class="fas fa-calendar"></i> ${meetup.frequency}
+                </span>
+                <span class="meta-item">
+                    <i class="fas fa-users"></i> ${meetup.members ? meetup.members.toLocaleString() : 0}
+                </span>
+            </div>
+            <div class="meetup-region">${meetup.region || ''}</div>
+        </div>
+    `).join('');
+}
+
+function filterRegion(region, btn) {
+    currentFilter = region;
+    
+    document.querySelectorAll('.region-btn').forEach(b => {
+        b.classList.remove('active');
+    });
+    if (btn) btn.classList.add('active');
+    
+    initMarkers(region);
+    
+    if (region) {
+        const regionCenters = {
+            'North America': [40, -100],
+            'Latin America': [-15, -60],
+            'Europe': [50, 10],
+            'Asia': [30, 105],
+            'Africa': [0, 20],
+            'Oceania': [-25, 140],
+            'Middle East': [28, 45]
+        };
+        const center = regionCenters[region] || [25, 0];
+        map.flyTo(center, 3, { duration: 1 });
+    } else {
+        map.flyTo([25, 0], 2, { duration: 1 });
+    }
+}
+
+function flyToMeetup(lat, lon, name) {
+    map.flyTo([lat, lon], 12, {
+        duration: 1.5
+    });
+    
+    markers.forEach(({ marker, meetup }) => {
+        if (meetup.name === name) {
+            setTimeout(() => marker.openPopup(), 1600);
+        }
+    });
+}
+
+document.getElementById('search-input').addEventListener('input', function(e) {
+    const query = e.target.value.toLowerCase();
+    const cards = document.querySelectorAll('.meetup-card');
+    
+    cards.forEach(card => {
+        const name = card.querySelector('.meetup-name').textContent.toLowerCase();
+        const city = card.querySelector('.meetup-city').textContent.toLowerCase();
+        
+        if (name.includes(query) || city.includes(query)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = query ? 'none' : 'block';
+        }
+    });
+});
+
+// Add conference markers to map
+function addConferenceMarkers() {
+    const conferences = [
+        { name: 'Bitcoin Conference 2026', lat: 30.2672, lon: -97.7431, date: 'May 28-30, 2026', city: 'Austin, TX', url: 'https://b.tc/conference' },
+        { name: 'BTC Prague', lat: 50.0755, lon: 14.4378, date: 'June 12-14, 2026', city: 'Prague, CZ', url: 'https://btcprague.com' },
+        { name: 'Bitcoin Miami', lat: 25.7617, lon: -80.1918, date: 'March 2026', city: 'Miami, FL', url: 'https://b.tc/conference' },
+        { name: 'Baltic Honeybadger', lat: 56.9496, lon: 24.1052, date: 'Sept 5-6, 2026', city: 'Riga, Latvia', url: 'https://baltichoneybadger.com' },
+        { name: 'Bitcoin Asia', lat: 1.3521, lon: 103.8198, date: 'August 2026', city: 'Singapore', url: 'https://bitcoin.asia' },
+        { name: 'Satsconf', lat: -23.5505, lon: -46.6333, date: 'Nov 7-8, 2026', city: 'Sao Paulo, BR', url: 'https://satsconf.com.br' },
+        { name: 'Adopting Bitcoin', lat: 13.6929, lon: -89.2182, date: 'Nov 2026', city: 'El Salvador', url: 'https://adoptingbitcoin.org' },
+        { name: 'Bitcoin Amsterdam', lat: 52.3676, lon: 4.9041, date: 'Oct 2026', city: 'Amsterdam, NL', url: 'https://b.tc/conference/amsterdam' },
+        { name: 'TABConf', lat: 33.7490, lon: -84.3880, date: 'Oct 23-26, 2026', city: 'Atlanta, GA', url: 'https://tabconf.com' },
+        { name: 'Bitcoin Nashville', lat: 36.1627, lon: -86.7816, date: 'July 2026', city: 'Nashville, TN', url: 'https://b.tc/conference' },
+        { name: 'Pacific Bitcoin', lat: 21.3069, lon: -157.8583, date: 'Nov 2026', city: 'Honolulu, HI', url: 'https://pacificbitcoin.com' },
+        { name: 'Bitcoin Atlantis', lat: 35.9375, lon: 14.3754, date: 'March 2026', city: 'Malta', url: 'https://bitcoinatlantis.com' },
+        { name: 'Nostriga', lat: 56.9496, lon: 24.1052, date: 'Sept 4, 2026', city: 'Riga, Latvia', url: 'https://nostriga.com' },
+        { name: 'Plan B Forum', lat: 47.3769, lon: 8.5417, date: 'Oct 2026', city: 'Lugano, CH', url: 'https://planb.lugano.ch' },
+        { name: 'Bitcoin Oasis', lat: 25.2048, lon: 55.2708, date: 'Dec 2026', city: 'Dubai, UAE', url: 'https://bitcoinoasis.info' }
+    ];
+    
+    const confIcon = L.divIcon({
+        className: 'conf-marker-wrapper',
+        html: '<div class="conf-marker" style="background: #8b5cf6; border: 2px solid #fff; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px;">⭐</div>',
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+        popupAnchor: [0, -12]
+    });
+    
+    conferences.forEach(conf => {
+        const popup = `
+            <div class="popup-content">
+                <div class="popup-title" style="color: #8b5cf6;">${conf.name}</div>
+                <div class="popup-info">
+                    <strong>Location:</strong> ${conf.city}<br>
+                    <strong>Date:</strong> ${conf.date}<br>
+                    <strong>Type:</strong> Major Conference<br>
+                    <a href="${conf.url}" target="_blank" rel="noopener" style="color: #8b5cf6; text-decoration: none; display: inline-block; margin-top: 8px; font-weight: 600;">
+                        <i class="fas fa-external-link-alt"></i> Visit Website
+                    </a>
+                </div>
+            </div>
+        `;
+        L.marker([conf.lat, conf.lon], { icon: confIcon })
+            .addTo(map)
+            .bindPopup(popup);
+    });
+}
+
+initMarkers();
+addConferenceMarkers();
+</script>
+<style>
+.btc-cluster {
+    background: transparent;
+}
+.cluster-marker {
+    background: var(--btc-orange);
+    color: #000;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: bold;
+    font-size: 0.85rem;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 10px rgba(247, 147, 26, 0.5);
+}
+.leaflet-marker-icon.marker-cluster {
+    background: transparent !important;
+}
+</style>
+{% endblock %}

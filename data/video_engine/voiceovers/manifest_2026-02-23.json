@@ -1,0 +1,33 @@
+{
+  "date": "2026-02-23",
+  "intro_voiceover": "data/video_engine/voiceovers/pulse_2026-02-23_intro.mp3",
+  "segments": [
+    {
+      "voiceover": "data/video_engine/voiceovers/pulse_2026-02-23_trans_0.mp3",
+      "clip": "/home/ultron/video_engine/clips/pulse_2026-02-23_Bitcoin_Magazine.mp4",
+      "channel": "Bitcoin Magazine"
+    },
+    {
+      "voiceover": "data/video_engine/voiceovers/pulse_2026-02-23_trans_1.mp3",
+      "clip": "/home/ultron/video_engine/clips/pulse_2026-02-23_Simply_Bitcoin.mp4",
+      "channel": "Simply Bitcoin"
+    },
+    {
+      "voiceover": "data/video_engine/voiceovers/pulse_2026-02-23_trans_2.mp3",
+      "clip": "/home/ultron/video_engine/clips/pulse_2026-02-23_The_Bitcoin_Layer.mp4",
+      "channel": "The Bitcoin Layer"
+    },
+    {
+      "voiceover": "data/video_engine/voiceovers/pulse_2026-02-23_trans_3.mp3",
+      "clip": "/home/ultron/video_engine/clips/pulse_2026-02-23_Coin_Bureau.mp4",
+      "channel": "Coin Bureau"
+    },
+    {
+      "voiceover": "data/video_engine/voiceovers/pulse_2026-02-23_trans_4.mp3",
+      "clip": "/home/ultron/video_engine/clips/pulse_2026-02-23_Anthony_Pompliano.mp4",
+      "channel": "Anthony Pompliano"
+    }
+  ],
+  "outro_voiceover": "data/video_engine/voiceovers/pulse_2026-02-23_outro.mp3",
+  "output_name": "pulse_check_2026-02-23.mp4"
+}

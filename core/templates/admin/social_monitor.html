@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Social Monitor{% endblock %}
+{% block content %}
+<h2>Social Media Monitoring</h2>
+<form method="post" action="/admin/social-monitor">
+    <label>X Handles (comma-separated)</label>
+    <input name="x_handles" value="CaitlinLong_,lopp,adam3us,woonomic,bitschmidty,LawrenceLepard,maxkeiser,jackmallers,TheBTCTherapist">
+    <label>Subreddits</label>
+    <input name="subreddits" value="cryptocurrency,bitcoin,ethtrader,satoshistreetbets,cryptomarkets,cryptotechnology,defi,altcoin">
+    <label>Websites</label>
+    <input name="websites" value="https://www.coindesk.com">
+    <label>YouTube Handles (comma-separated)</label>
+    <input name="youtube_handles" value="BitcoinMagazine,nataliebrunell,bytefederal,BTCSessions,SimplyBitcoin,CoinBureau,thejackmallersshow,RobertBreedlove22">
+    <button>Update Sources</button>
+</form>
+<button onclick="fetch('/api/monitor-content').then(res => res.json()).then(data => { document.getElementById('trends').innerHTML = data.trends.map(t => `<p>${t.type}: ${t.title} <img src='${t.screenshot}'><br>OCR: ${t.screenshot_text}</p>`).join(''); })">Run Monitor</button>
+<h3>Recent Trends</h3>
+<div id="trends"></div>
+{% endblock %}

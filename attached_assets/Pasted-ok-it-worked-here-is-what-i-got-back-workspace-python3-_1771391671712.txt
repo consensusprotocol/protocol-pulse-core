@@ -1,0 +1,179 @@
+ok it worked. here is what i got back (~/workspace$ python3 << 'EOF'
+import sys
+sys.path.insert(0, '.')
+
+from services.newsletter_digest import NewsletterDigestService
+from services.pulse_intelligence import pulse_intelligence
+
+print("🔍 Gathering intelligence...")
+pulse = pulse_intelligence.run_daily_pulse()
+breakdowns = pulse.get("breakdowns", [])
+
+print(f"📊 Processing {len(breakdowns)} sources...\n")
+
+ns = NewsletterDigestService()
+result = ns.generate_weekly_digest(breakdowns)
+
+if result.get("error"):
+    print(f"❌ Error: {result['error']}")
+else:
+    digest = result["digest"]
+    
+    # Check for FROM THE SOURCE section
+    if "FROM THE SOURCE" in digest:
+        print("✅ FROM THE SOURCE section included!\n")
+    else:
+        print("⚠️ FROM THE SOURCE section missing\n")
+    
+    print("=" * 70)
+    print(digest[:6000])
+    print("=" * 70)
+    print(f"\n📊 Stats:")
+    print(f"   Length: {len(digest)} chars")
+    print(f"   Sources: {result.get('sources_count')}")
+    print(f"   Channels: {result.get('channels_covered')}")
+EOF
+INFO:PulseIntelligence:Pulse Intelligence initialized with 14 YouTube channels
+🔍 Gathering intelligence...
+INFO:PulseIntelligence:Running daily pulse intelligence...
+WARNING:PulseIntelligence:API error for Bitcoin Infinity Show: 403
+INFO:PulseIntelligence:Found 40 recent videos
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:PulseIntelligence:Generated breakdown for: Bitcoin and AI Are About to Unlock Africa in 2026
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:PulseIntelligence:Generated breakdown for: Tom Luongo Exposes The MAJOR Difference Between Go
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:PulseIntelligence:Generated breakdown for: Retail Panics And Institutions Wait #bitcoin #bitc
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:PulseIntelligence:Generated breakdown for: Bitcoin is long term Freedom, not short term Price
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:PulseIntelligence:Generated breakdown for: Light is medicine
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+ERROR:services.telegram_service:Telegram API error: 400 - {"ok":false,"error_code":400,"description":"Bad Request: chat not found"}
+INFO:PulseIntelligence:Sent Telegram briefing
+📊 Processing 5 sources...
+
+INFO:SovereignSignal:[PASS 1] Normalized 5 sources from 5 channels
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:SovereignSignal:[PASS 2] Structured intel extracted
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:SovereignSignal:[PASS 3] Brief rendered (3797 chars)
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:SovereignSignal:[PASS 4] Brief tightened (3645 chars)
+⚠️ FROM THE SOURCE section missing
+
+======================================================================
+```markdown
+SUBJECT: Africa's Bitcoin Boom: 2026's Game Changer?  
+TEASER: Explore how Bitcoin and AI could transform Africa, and why light therapy might be the next blockchain frontier.
+
+---
+
+# 🔴 PROTOCOL PULSE | WEEKLY INTELLIGENCE BRIEF
+*February 18, 2026 • 5 thought leaders monitored*
+
+---
+
+## EXECUTIVE SUMMARY
+
+This week examines Africa's economic potential via Bitcoin and AI, the strategic differences between Bitcoin and gold, and new intersections in health-tech and blockchain. These insights highlight opportunities in underexplored markets, positioning investors ahead of major trends.
+
+---
+
+## 🎯 ACTIONABLE ALPHA
+
+- **Africa's Bitcoin and AI Revolution** — Africa's tech-savvy youth could leverage Bitcoin and AI to bypass traditional economic barriers. *Invest in African tech and Bitcoin initiatives to capitalize on this growth.* *(Source: Bitcoin Magazine — Bitcoin and AI Are About to Unlock Africa in 2026)*
+
+---
+
+## 🔮 THE QUIET SIGNAL
+*The contrarian take most are missing*
+
+Light therapy's integration with blockchain could pioneer new health-tech markets, utilizing decentralized data storage and DAOs for research funding.
+
+This intersection offers unique investment opportunities as health-tech evolves with blockchain's transparency and security.
+
+> "Light therapy and blockchain could redefine health-tech investment landscapes."
+
+— *Efrat Fenigson*
+
+---
+
+## 📊 SENTIMENT MATRIX
+
+| Source           | Stance | Key Signal                                           |
+|------------------|--------|------------------------------------------------------|
+| Bitcoin Magazine | 🟢 Bullish | Africa poised for economic surge via Bitcoin and AI |
+| BTC Sessions     | 🟢 Bullish | Bitcoin as a hedge against political crises         |
+| Scott Melker     | 🟡 Neutral | Retail panic creates opportunities for patient investors |
+| Robin Seyr       | 🟢 Bullish | Bitcoin fosters long-term financial freedom         |
+| Efrat Fenigson   | 🟢 Bullish | Light therapy could drive blockchain health-tech    |
+
+**Aggregate Read:** Bullish (High confidence) — Bitcoin's transformative potential in geopolitical shifts and emerging tech markets is evident.
+
+---
+
+## 🔬 DEEP SIGNAL
+
+- **Tom Luongo Exposes The MAJOR Difference Between Gold & Bitcoin Only 1% See** (BTC Sessions) — Understand Bitcoin's unique role in future geopolitical landscapes. [Link](https://www.youtube.com/watch?v=xSKh_YFbyfs)
+
+  Tom Luongo argues that Bitcoin's value lies in its ability to maintain sovereignty and freedom amid rising geopolitical tensions, suggesting Bitcoin could redefine power structures beyond financial stability.
+
+---
+
+## 📡 ON THE RADAR
+
+- **Bitcoin adoption in Africa** — Economic transformation through tech-savvy youth and digital currencies. *Watch:* 2026
+
+---
+
+## THE PROTOCOL PULSE TAKE
+
+Protocol Pulse sees Bitcoin disrupting traditional power dynamics and fostering economic growth in underdeveloped regions. The intersection of health-tech and blockchain presents untapped opportunities for innovation.
+
+**The question:** How can investors strategically position themselves to benefit from these emerging trends?
+
+> "Bitcoin and blockchain are not just financial tools; they're catalysts for global change."
+
+---
+
+*You need to read this because it uncovers hidden opportunities in Bitcoin and health-tech.*
+
+---
+
+**Protocol Pulse** monitors 5 thought leaders so you don't have to.  
+This is your edge. Guard it.
+
+[Website](https://protocolpulse.io) • [Twitter](https://twitter.com/ProtocolPulse) • [Telegram](https://t.me/protocolpulseHQ)
+
+*You're receiving this because you want the signal. Unsubscribe if you prefer the noise.*
+```
+======================================================================
+
+📊 Stats:
+   Length: 3645 chars
+   Sources: 5
+   Channels: 5
+~/workspace$ )
+
+
+anything else we need to do to make it go fully live? do i need to connect replit to our ultron 4090s? do i need to make an api key for the 4090s to be utilized from replit?  
+
+if we are prepared to tackle more things, next after we finish all this i'd like to fo the following: 
+
+
+let's go ahead and change all the other articles that have not yet been updated, let's update them with this new real image api solution. should go fast, no? 
+
+
+let's optimize our site for speed. need this thing to load faster than people can blink.
+
+
+also i want to do this, i want to remove the SOL ticker from the /articles page. only display bitcoin price, and price of GOLD to USD. those two pls. and make sure they are live and accurate. 
+
+also i want to include in our article rotation, a segment for Bitcoin Events, and also Bitcoin Artists, like write about all the interesting things and features on our site, and always link back to them. but for the bitcoin events, really do those justice and go above and beyond in encouraging people in those regions to attend, and maybe consider traveling, have it be supportive of those events but also not overdoing it. bitcoin conference in vegas is coming up so we definitely need a few articles per weeek starting now until their event happens. we will actually get a affiliate link for ticket sales, so once i get that i will update you to link it properly. 
+
+
+
+also please tell me every individual podcasters thumbnail png image i need to upload for accuracy and consistent quality content?

@@ -1,0 +1,115 @@
+~/workspace$ # Check the article_automation service
+cat services/article_automation.py 2>/dev/null | head -100 || echo "File not found"
+
+"""
+Article Automation Service
+==========================
+Replaces the broken automation.py with a working version.
+Uses Claude + Grok pipeline.
+"""
+
+import os
+import logging
+from datetime import datetime, timedelta
+from typing import Dict, Optional
+import random
+
+logger = logging.getLogger(__name__)
+
+# Topic pool - diverse Bitcoin topics
+TOPICS = [
+    "Bitcoin mining difficulty reaches new all-time high as hash rate surges",
+    "Lightning Network payment volume breaks monthly records",
+    "Major institutional investors allocate billions to Bitcoin treasury reserves",
+    "Central banks accelerate CBDC development in response to Bitcoin adoption",
+    "Bitcoin ETF inflows surge as retail and institutional demand grows",
+    "Layer 2 scaling solutions see unprecedented adoption rates",
+    "Bitcoin node count reaches new highs as decentralization strengthens",
+    "Nostr protocol adoption grows as censorship-resistant social media expands",
+    "Bitcoin self-custody solutions see record downloads amid banking concerns",
+    "Hardware wallet manufacturers report surge in demand",
+    "Bitcoin development activity increases with new BIP proposals",
+    "Countries explore strategic Bitcoin reserve policies",
+    "Bitcoin privacy improvements proposed in new protocol upgrades",
+    "Cross-border Bitcoin payments reduce remittance costs globally",
+    "Bitcoin ordinals and inscriptions drive on-chain activity surge",
+    "Renewable energy Bitcoin mining initiatives expand globally",
+    "Bitcoin's role in protecting financial sovereignty examined",
+    "Lightning Network capacity reaches new milestone",
+    "Bitcoin education initiatives gain momentum in developing nations",
+    "Institutional custody solutions mature as Bitcoin adoption grows",
+]
+
+def get_unique_topic() -> Optional[str]:
+    """
+    Get a topic that hasn't been used recently.
+    Checks against last 48 hours of articles.
+    """
+    try:
+        from app import app
+        from models import Article
+        
+        with app.app_context():
+            # Get recent article titles
+            cutoff = datetime.utcnow() - timedelta(hours=48)
+            recent = Article.query.filter(
+                Article.created_at >= cutoff
+            ).all()
+            
+            recent_titles = [a.title.lower() for a in recent if a.title]
+            
+            # Shuffle topics
+            available = list(TOPICS)
+            random.shuffle(available)
+            
+            # Find one not similar to recent
+            for topic in available:
+                topic_words = set(topic.lower().split())
+                is_duplicate = False
+                
+                for title in recent_titles:
+                    title_words = set(title.split())
+                    overlap = len(topic_words & title_words)
+                    if overlap >= 3:  # Too similar
+                        is_duplicate = True
+                        break
+                
+                if not is_duplicate:
+                    return topic
+            
+            # Fallback: generate a timely topic
+            return f"Bitcoin market analysis for {datetime.utcnow().strftime('%B %d, %Y')}"
+            
+    except Exception as e:
+        logger.error(f"get_unique_topic error: {e}")
+        return random.choice(TOPICS)
+
+
+def generate_article_with_review() -> Dict:
+    """
+    Generate a new article using Claude, review with Grok, save to database.
+    
+    Returns:
+        {
+            "success": bool,
+            "article_id": int or None,
+            "title": str,
+            "published": bool,
+            "grok_score": int,
+            "error": str or None
+        }
+    """
+    try:
+~/workspace$ # Find article_automation
+find . -name "*article*automation*" -o -name "*article*" | grep -v __pycache__ | head -10
+./services/claude_article_service.py
+./services/article_automation.py
+./services/affiliate_article_generator.py
+./templates/admin/generate_article.html
+./templates/admin/write_article.html
+./templates/admin/edit_article.html
+./templates/article_master.html
+./templates/article_detail.html
+./templates/articles.html
+./static/css/articles-terminal.css
+~/workspace$ 

@@ -1,0 +1,373 @@
+"""
+Pulse Check Pipeline - Ultron GPU Edition
+Generates daily Bitcoin news highlight reels from partner channels.
+
+Clips shortened to 15-25 seconds each for X/Twitter compliance (2 min max).
+With 5 clips (~20s each) + transitions + 3.5s tag = ~1:45-2:00 total.
+"""
+
+import os
+import json
+import time
+import logging
+import requests
+from datetime import datetime, timedelta
+from services.video_engine.ultron_client import UltronClient
+from services.video_engine.assemble_pulse import generate_voiceovers
+from services.video_engine.pulse_distributor import PulseDistributor
+
+logger = logging.getLogger(__name__)
+
+# ── Partner Channels ──────────────────────────────────────────────
+PARTNER_CHANNELS = [
+    {
+        "name": "Bitcoin Magazine",
+        "handle": "@BitcoinMagazine",
+        "youtube_channel_id": "UCni7PAlyNS0_12H-26DJJ3w",
+    },
+    {
+        "name": "Simply Bitcoin",
+        "handle": "@SimplyBitcoin",
+        "youtube_channel_id": "UCEbyOaYhPkMmIbGR2MhAAHg",
+    },
+    {
+        "name": "The Bitcoin Layer",
+        "handle": "@TheBitcoinLayer",
+        "youtube_channel_id": "UCwO2JcGAvqWTH0vMpNMfmNw",
+    },
+    {
+        "name": "Coin Bureau",
+        "handle": "@CoinBureau",
+        "youtube_channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+    },
+    {
+        "name": "Anthony Pompliano",
+        "handle": "@AnthonyPompliano",
+        "youtube_channel_id": "UCevXpeL8cBtDnYYpMHvbOug",
+    },
+]
+
+# ── Clip Duration Config ──────────────────────────────────────────
+# UPDATED: 15-25 seconds per clip (was 45-75)
+# This keeps final video under 2 minutes for X/Twitter
+CLIP_DURATION_MIN = 15
+CLIP_DURATION_MAX = 25
+TARGET_TOTAL_DURATION = 110  # ~1:50 target (leaves room for tag)
+
+# ── Grok Prompt ───────────────────────────────────────────────────
+CLIP_SELECTION_PROMPT = """You are a Bitcoin news editor for "Pulse Check" - a daily highlight reel.
+
+Analyze this transcript from {channel_name} and find the SINGLE BEST clip segment.
+
+Requirements:
+- Clip must be {min_dur}-{max_dur} seconds long (STRICTLY enforced)
+- Pick the most newsworthy, impactful, or insightful moment
+- Must start and end at natural speech boundaries
+- Prefer segments with clear, quotable statements
+- Avoid intros, outros, sponsor reads, and filler
+
+Transcript (with timestamps):
+{transcript}
+
+Respond in JSON format ONLY:
+{{
+    "start_time": <float seconds>,
+    "end_time": <float seconds>,
+    "duration": <float seconds>,
+    "headline": "<short headline for this clip>",
+    "summary": "<1 sentence describing what's said>",
+    "relevance_score": <1-10>
+}}
+"""
+
+
+def get_latest_video_url(channel_id: str) -> str | None:
+    """Get the latest video URL from a YouTube channel (last 24 hours)."""
+    try:
+        # Use YouTube RSS feed (no API key needed)
+        feed_url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
+        resp = requests.get(feed_url, timeout=15)
+        if resp.status_code != 200:
+            return None
+
+        # Parse the feed for the latest video
+        import xml.etree.ElementTree as ET
+        root = ET.fromstring(resp.text)
+        ns = {
+            "atom": "http://www.w3.org/2005/Atom",
+            "yt": "http://www.youtube.com/xml/schemas/2015",
+        }
+        entries = root.findall("atom:entry", ns)
+        if not entries:
+            return None
+
+        # Get the latest entry
+        video_id = entries[0].find("yt:videoId", ns)
+        if video_id is not None:
+            return f"https://www.youtube.com/watch?v={video_id.text}"
+        return None
+
+    except Exception as e:
+        logger.error(f"Error fetching latest video for {channel_id}: {e}")
+        return None
+
+
+def select_clip_segment(transcript: dict, channel_name: str) -> dict | None:
+    """Use Grok-3 to analyze transcript and select the best clip segment."""
+    try:
+        xai_key = os.environ.get("XAI_API_KEY")
+        if not xai_key:
+            logger.error("XAI_API_KEY not configured")
+            return None
+
+        # Format transcript with timestamps
+        formatted = ""
+        for seg in transcript.get("segments", []):
+            start = seg.get("start", 0)
+            end = seg.get("end", 0)
+            text = seg.get("text", "").strip()
+            formatted += f"[{start:.1f}s - {end:.1f}s] {text}\n"
+
+        prompt = CLIP_SELECTION_PROMPT.format(
+            channel_name=channel_name,
+            min_dur=CLIP_DURATION_MIN,
+            max_dur=CLIP_DURATION_MAX,
+            transcript=formatted[:12000],  # Truncate if needed
+        )
+
+        resp = requests.post(
+            "https://api.x.ai/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {xai_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": "grok-3",
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0.3,
+            },
+            timeout=60,
+        )
+
+        if resp.status_code != 200:
+            logger.error(f"Grok API error: {resp.status_code} - {resp.text}")
+            return None
+
+        content = resp.json()["choices"][0]["message"]["content"]
+
+        # Extract JSON from response (handle markdown code blocks)
+        if "```json" in content:
+            content = content.split("```json")[1].split("```")[0]
+        elif "```" in content:
+            content = content.split("```")[1].split("```")[0]
+
+        result = json.loads(content.strip())
+
+        # Validate duration
+        duration = result.get("duration", 0)
+        if duration < CLIP_DURATION_MIN or duration > CLIP_DURATION_MAX + 5:
+            logger.warning(
+                f"Clip duration {duration}s outside target range, adjusting..."
+            )
+            # Adjust end_time to fit within range
+            result["end_time"] = result["start_time"] + CLIP_DURATION_MAX
+            result["duration"] = CLIP_DURATION_MAX
+
+        return result
+
+    except Exception as e:
+        logger.error(f"Error selecting clip: {e}")
+        return None
+
+
+def run_pulse_check(date_str: str = None) -> dict:
+    """
+    Run the full Pulse Check pipeline.
+
+    Returns dict with:
+        - success: bool
+        - video_file: filename on Ultron
+        - clips: list of clip info
+        - errors: list of errors
+    """
+    if date_str is None:
+        date_str = datetime.now().strftime("%Y-%m-%d")
+
+    logger.info(f"═══ Starting Pulse Check for {date_str} ═══")
+
+    ultron = UltronClient()
+    results = {
+        "success": False,
+        "date": date_str,
+        "video_file": None,
+        "clips": [],
+        "errors": [],
+    }
+
+    # Check Ultron health
+    if not ultron.health_check():
+        results["errors"].append("Ultron server not reachable")
+        logger.error("Ultron health check failed!")
+        return results
+
+    logger.info("✓ Ultron is online")
+
+    # ── Process each partner channel ────────────────────────────
+    clip_files = []
+
+    for channel in PARTNER_CHANNELS:
+        channel_name = channel["name"]
+        logger.info(f"\n── Processing: {channel_name} ──")
+
+        try:
+            # Step 1: Get latest video
+            video_url = get_latest_video_url(channel["youtube_channel_id"])
+            if not video_url:
+                logger.warning(f"No recent video found for {channel_name}")
+                results["errors"].append(f"No video: {channel_name}")
+                continue
+
+            logger.info(f"  Found video: {video_url}")
+
+            # Step 2: Download video on Ultron
+            video_id = video_url.split("v=")[-1].split("&")[0]
+            dl_result = ultron.download_video(video_url)
+            if not dl_result or not dl_result.get("success"):
+                logger.warning(f"  Download failed for {channel_name}")
+                results["errors"].append(f"Download failed: {channel_name}")
+                continue
+
+            logger.info(f"  ✓ Downloaded: {dl_result.get('filename', 'unknown')}")
+
+            # Step 3: Transcribe
+            trans_result = ultron.transcribe_async(video_id)
+            if not trans_result:
+                results["errors"].append(f"Transcription start failed: {channel_name}")
+                continue
+
+            # Poll for transcription completion
+            for attempt in range(60):  # 5 minute timeout
+                status = ultron.transcribe_status(video_id)
+                if status and status.get("status") == "completed":
+                    break
+                if status and status.get("status") == "error":
+                    raise Exception(f"Transcription error: {status.get('error')}")
+                time.sleep(5)
+            else:
+                results["errors"].append(f"Transcription timeout: {channel_name}")
+                continue
+
+            logger.info(f"  ✓ Transcribed")
+
+            # Step 4: Get transcript and select clip
+            transcript = ultron.get_transcript(video_id)
+            if not transcript:
+                results["errors"].append(f"Transcript fetch failed: {channel_name}")
+                continue
+
+            clip_info = select_clip_segment(transcript, channel_name)
+            if not clip_info:
+                results["errors"].append(f"Clip selection failed: {channel_name}")
+                continue
+
+            logger.info(
+                f"  ✓ Selected: {clip_info['headline']} "
+                f"({clip_info['duration']:.0f}s)"
+            )
+
+            # Step 5: Extract clip on Ultron
+            clip_filename = f"pulse_{date_str}_{channel_name.lower().replace(' ', '_')}.mp4"
+            extract_result = ultron.extract_clip(
+                video_id=video_id,
+                start_time=clip_info["start_time"],
+                end_time=clip_info["end_time"],
+                output_filename=clip_filename,
+            )
+
+            if not extract_result or not extract_result.get("success"):
+                results["errors"].append(f"Clip extraction failed: {channel_name}")
+                continue
+
+            logger.info(
+                f"  ✓ Extracted: {clip_filename} "
+                f"({extract_result.get('size_mb', '?')} MB)"
+            )
+
+            clip_files.append(clip_filename)
+            results["clips"].append(
+                {
+                    "channel": channel_name,
+                    "handle": channel["handle"],
+                    "headline": clip_info["headline"],
+                    "summary": clip_info["summary"],
+                    "duration": clip_info["duration"],
+                    "filename": clip_filename,
+                    "video_url": video_url,
+                }
+            )
+
+        except Exception as e:
+            logger.error(f"  Error processing {channel_name}: {e}")
+            results["errors"].append(f"Error {channel_name}: {str(e)}")
+            continue
+
+    # ── Assemble final video ────────────────────────────────────
+    if len(clip_files) < 2:
+        logger.error("Not enough clips to assemble (need at least 2)")
+        results["errors"].append("Insufficient clips for assembly")
+        return results
+
+    logger.info(f"\n── Assembling {len(clip_files)} clips ──")
+
+    output_filename = f"pulse_check_{date_str}.mp4"
+    assemble_result = ultron.assemble_video(
+        clip_files=clip_files,
+        output_filename=output_filename,
+        include_tag=True,
+    )
+
+    if assemble_result and assemble_result.get("success"):
+        results["success"] = True
+        results["video_file"] = output_filename
+        logger.info(
+            f"✓ Final video: {output_filename} "
+            f"({assemble_result.get('size_mb', '?')} MB, "
+            f"{assemble_result.get('duration', '?')}s)"
+        )
+    else:
+        results["errors"].append("Assembly failed")
+        logger.error("Final assembly failed!")
+
+    return results
+
+
+def run_and_distribute(date_str: str = None) -> dict:
+    """Run Pulse Check and distribute to all platforms."""
+    # Run the pipeline
+    result = run_pulse_check(date_str)
+
+    if not result["success"]:
+        logger.error(f"Pipeline failed: {result['errors']}")
+        return result
+
+    # Generate voiceovers (if needed)
+    try:
+        generate_voiceovers(result["clips"])
+    except Exception as e:
+        logger.warning(f"Voiceover generation failed (non-fatal): {e}")
+
+    # Distribute to all platforms
+    distributor = PulseDistributor()
+    dist_result = distributor.distribute_all(result)
+    result["distribution"] = dist_result
+
+    return result
+
+
+if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+    )
+    result = run_and_distribute()
+    print(json.dumps(result, indent=2))

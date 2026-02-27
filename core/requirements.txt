@@ -1,0 +1,24 @@
+flask
+flask_sqlalchemy
+flask_caching
+gunicorn
+flask_migrate
+flask_login
+flask_limiter
+sqlalchemy
+python-dotenv
+openai
+requests
+praw
+feedparser
+tweepy
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client
+stripe
+pillow
+werkzeug
+anthropic
+google-cloud-secret-manager
+# google-genai  # optional: requires Python 3.9+; install separately if needed

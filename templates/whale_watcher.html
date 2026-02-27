@@ -1,0 +1,515 @@
+{% extends "base.html" %}
+
+{% block title %}Whale Watcher | Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+:root {
+    --pp-red: #dc2626;
+    --pp-dark: #0a0a0a;
+    --pp-glass: rgba(10, 10, 10, 0.95);
+}
+
+.whale-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0505 100%);
+    padding: 100px 20px 40px;
+}
+
+.whale-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.back-nav {
+    position: fixed;
+    top: 80px;
+    left: 20px;
+    z-index: 1000;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--pp-glass);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    border-radius: 12px;
+    padding: 12px 20px;
+    color: #fff;
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    backdrop-filter: blur(20px);
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    background: rgba(220, 38, 38, 0.2);
+    border-color: var(--pp-red);
+    color: #fff;
+    transform: translateX(-3px);
+}
+
+.back-btn i {
+    color: var(--pp-red);
+}
+
+.whale-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.whale-title i {
+    color: var(--pp-red);
+    margin-right: 15px;
+}
+
+.whale-subtitle {
+    color: rgba(255, 255, 255, 0.5);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.whale-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    max-width: 800px;
+    margin: 0 auto 40px;
+}
+
+.whale-stat {
+    background: var(--pp-glass);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    backdrop-filter: blur(20px);
+}
+
+.stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    color: #fff;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.stat-value.red { color: var(--pp-red); }
+.stat-value.green { color: #22c55e; }
+
+.whale-feed {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.feed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 10px;
+}
+
+.feed-title {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--pp-red);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.feed-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: #22c55e;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: #22c55e;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.whale-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.whale-tx {
+    background: var(--pp-glass);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 12px;
+    padding: 20px 25px;
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 20px;
+    align-items: center;
+    backdrop-filter: blur(20px);
+    transition: all 0.3s ease;
+    animation: slideIn 0.5s ease;
+    border-left: 3px solid var(--pp-red);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.whale-tx:hover {
+    border-color: var(--pp-red);
+    transform: translateX(5px);
+}
+
+.whale-tx.mega {
+    border-color: #eab308;
+    border-left-color: #eab308;
+    background: rgba(234, 179, 8, 0.05);
+}
+
+.tx-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(220, 38, 38, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.tx-icon.mega {
+    background: rgba(234, 179, 8, 0.2);
+}
+
+.tx-icon i {
+    color: var(--pp-red);
+}
+
+.tx-icon.mega i {
+    color: #eab308;
+}
+
+.tx-info {
+    overflow: hidden;
+}
+
+.tx-amount {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.tx-hash {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tx-hash a {
+    color: rgba(255, 255, 255, 0.4);
+    text-decoration: none;
+}
+
+.tx-hash a:hover {
+    color: var(--pp-red);
+}
+
+.tx-usd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    color: #22c55e;
+    text-align: right;
+}
+
+.tx-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-align: right;
+    min-width: 80px;
+}
+
+.loading-indicator {
+    text-align: center;
+    padding: 60px;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: rgba(255, 255, 255, 0.4);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+.last-updated {
+    text-align: center;
+    margin-top: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 768px) {
+    .whale-tx {
+        grid-template-columns: auto 1fr;
+        gap: 15px;
+    }
+    .tx-usd, .tx-time {
+        display: none;
+    }
+    .whale-title {
+        font-size: 1.8rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<nav class="back-nav">
+    <a href="/" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back to Home</span>
+    </a>
+</nav>
+
+<div class="whale-page">
+    <div class="whale-header">
+        <h1 class="whale-title"><i class="fas fa-water"></i>Whale Watcher</h1>
+        <p class="whale-subtitle">Top 3 largest recent Bitcoin transactions</p>
+    </div>
+
+    <div class="whale-stats">
+        <div class="whale-stat">
+            <div class="stat-label">Combined Volume</div>
+            <div class="stat-value" id="total-volume">--</div>
+        </div>
+        <div class="whale-stat">
+            <div class="stat-label">Largest TX</div>
+            <div class="stat-value red" id="largest-tx">--</div>
+        </div>
+        <div class="whale-stat">
+            <div class="stat-label">BTC Price</div>
+            <div class="stat-value" id="btc-price">--</div>
+        </div>
+    </div>
+
+    <div class="whale-feed">
+        <div class="feed-header">
+            <div class="feed-title"><i class="fas fa-rss me-2"></i>Live Feed - Largest Transactions</div>
+            <div class="feed-status">
+                <span class="status-dot"></span>
+                <span>Monitoring Blockchain</span>
+            </div>
+        </div>
+
+        <div class="whale-list" id="whale-list">
+            {% if initial_whales %}
+            {% for tx in initial_whales %}
+            <div class="whale-tx {% if tx.btc >= 500 %}mega{% endif %}" style="border-left-color: {% if tx.btc >= 500 %}#eab308{% else %}var(--pp-red){% endif %};">
+                <div class="tx-icon {% if tx.btc >= 500 %}mega{% endif %}">
+                    <i class="fas {% if tx.btc >= 500 %}fa-crown{% else %}fa-water{% endif %}" style="color: {% if tx.btc >= 500 %}#eab308{% else %}var(--pp-red){% endif %};"></i>
+                </div>
+                <div class="tx-info">
+                    <div class="tx-amount">{{ "%.2f"|format(tx.btc) }} BTC</div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="background: {% if tx.btc >= 500 %}#eab30830{% else %}#dc262630{% endif %}; color: {% if tx.btc >= 500 %}#eab308{% else %}#dc2626{% endif %}; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase;">{% if tx.btc >= 500 %}MEGA WHALE{% else %}WHALE{% endif %}</span>
+                        <div class="tx-hash">
+                            <a href="https://mempool.space/tx/{{ tx.txid }}" target="_blank">{{ tx.txid[:16] }}...</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="tx-usd">${{ "%.2f"|format(tx.btc * 67000 / 1000000) }}M</div>
+                <div class="tx-time" title="Block #{{ tx.block or '?' }}">recent</div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="loading-indicator">
+                <i class="fas fa-circle-notch fa-spin me-2"></i>
+                Scanning for large transactions...
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="last-updated" id="last-updated"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let btcPrice = 0;
+let whales = {{ initial_whales | tojson | safe }};
+
+if (whales.length > 0) {
+    updateStats();
+}
+
+function updateStats() {
+    const totalVol = whales.reduce((s, w) => s + w.btc, 0);
+    const largest = Math.max(...whales.map(w => w.btc));
+    document.getElementById('total-volume').textContent =
+        totalVol.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' BTC';
+    document.getElementById('largest-tx').textContent =
+        largest.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' BTC';
+}
+
+async function fetchBtcPrice() {
+    try {
+        const resp = await fetch('https://mempool.space/api/v1/prices');
+        const data = await resp.json();
+        btcPrice = data.USD || 0;
+        document.getElementById('btc-price').textContent = '$' + btcPrice.toLocaleString();
+    } catch (e) {
+        try {
+            const resp2 = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+            const data2 = await resp2.json();
+            btcPrice = data2.bitcoin.usd;
+            document.getElementById('btc-price').textContent = '$' + btcPrice.toLocaleString();
+        } catch (e2) {
+            console.error('Price fetch error:', e2);
+        }
+    }
+}
+
+async function fetchWhales() {
+    try {
+        const resp = await fetch('/api/whales/live');
+        const data = await resp.json();
+
+        if (data.whales && data.whales.length > 0) {
+            whales = data.whales.slice(0, 3);
+            renderWhales();
+        } else {
+            showEmpty();
+        }
+
+        document.getElementById('last-updated').textContent =
+            'Last updated: ' + new Date().toLocaleTimeString();
+    } catch (e) {
+        console.error('Whale fetch error:', e);
+        showEmpty();
+    }
+}
+
+function renderWhales() {
+    const listEl = document.getElementById('whale-list');
+
+    const totalVol = whales.reduce((s, w) => s + w.btc, 0);
+    const largest = Math.max(...whales.map(w => w.btc));
+
+    document.getElementById('total-volume').textContent =
+        totalVol.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' BTC';
+    document.getElementById('largest-tx').textContent =
+        largest.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' BTC';
+
+    listEl.innerHTML = whales.map(tx => {
+        const usdValue = tx.btc * (btcPrice || 67000);
+        const isMega = tx.btc >= 500;
+        const timeAgo = getTimeAgo(tx.time);
+        const iconClass = isMega ? 'fa-crown' : 'fa-water';
+        const iconColor = isMega ? '#eab308' : 'var(--pp-red)';
+        const label = isMega ? 'MEGA WHALE' : 'WHALE';
+        const labelColor = isMega ? '#eab308' : '#dc2626';
+
+        let usdStr;
+        if (usdValue >= 1e9) {
+            usdStr = '$' + (usdValue / 1e9).toFixed(2) + 'B';
+        } else {
+            usdStr = '$' + (usdValue / 1e6).toFixed(2) + 'M';
+        }
+
+        return `
+            <div class="whale-tx ${isMega ? 'mega' : ''}" style="border-left-color: ${iconColor};">
+                <div class="tx-icon ${isMega ? 'mega' : ''}">
+                    <i class="fas ${iconClass}" style="color: ${iconColor};"></i>
+                </div>
+                <div class="tx-info">
+                    <div class="tx-amount">${tx.btc.toLocaleString(undefined, {maximumFractionDigits: 2})} BTC</div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="background: ${labelColor}30; color: ${labelColor}; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase;">${label}</span>
+                        <div class="tx-hash">
+                            <a href="https://mempool.space/tx/${tx.txid}" target="_blank">${tx.txid.substring(0, 16)}...</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="tx-usd">${usdStr}</div>
+                <div class="tx-time" title="Block #${tx.block || '?'}">${timeAgo}</div>
+            </div>
+        `;
+    }).join('');
+}
+
+function showEmpty() {
+    document.getElementById('whale-list').innerHTML = `
+        <div class="empty-state">
+            <i class="fas fa-water"></i>
+            <p>Scanning recent blocks for 100+ BTC transactions...<br>Data refreshes every 30 seconds.</p>
+        </div>
+    `;
+}
+
+function getTimeAgo(timestamp) {
+    let ts = timestamp;
+    if (ts && ts < 1e12) ts = ts * 1000;
+    if (!ts) return 'recent';
+
+    const seconds = Math.floor((Date.now() - ts) / 1000);
+    if (seconds < 0) return 'just now';
+    if (seconds < 60) return seconds + 's ago';
+    if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+    if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+    return Math.floor(seconds / 86400) + 'd ago';
+}
+
+fetchBtcPrice();
+fetchWhales();
+
+setInterval(fetchBtcPrice, 60000);
+setInterval(fetchWhales, 30000);
+</script>
+{% endblock %}

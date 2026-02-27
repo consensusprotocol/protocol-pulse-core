@@ -1,0 +1,35 @@
+{
+  "filepath": "services/video_engine/quality_scorer.py",
+  "feature": "Multi-LLM quality judging",
+  "stage": "post",
+  "timestamp": "2026-02-26T02:46:38.272843",
+  "local_analysis": {
+    "scores": {
+      "architecture": 7,
+      "error_handling": 6,
+      "edge_cases": 7,
+      "security": 7,
+      "performance": 7,
+      "maintainability": 7
+    },
+    "average_score": 6.8,
+    "issues": [],
+    "warnings": [
+      "6 broad 'except Exception' \u2014 consider narrower types"
+    ],
+    "line_count": 462,
+    "class_count": 2,
+    "function_count": 12,
+    "production_ready": false
+  },
+  "llm_reviews": {},
+  "cross_review": null,
+  "consensus_score": 6.8,
+  "production_ready": false,
+  "issues": [],
+  "fix_list": [],
+  "warnings": [
+    "6 broad 'except Exception' \u2014 consider narrower types"
+  ],
+  "verdict": "FIX_THEN_SHIP"
+}

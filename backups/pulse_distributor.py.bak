@@ -1,0 +1,308 @@
+"""
+Pulse Distributor - Multi-Platform Video Distribution
+Distributes Pulse Check videos to X/Twitter, YouTube, TikTok, and Instagram.
+"""
+
+import os
+import json
+import logging
+import tweepy
+import requests
+import time
+from datetime import datetime
+from services.video_engine.ultron_client import UltronClient
+from services.youtube_service import YouTubeService
+from services.video_engine.shorts_creator import ShortsCreator
+
+logger = logging.getLogger(__name__)
+
+
+class PulseDistributor:
+    """Distributes Pulse Check content across all platforms."""
+
+    def __init__(self):
+        self.ultron = UltronClient()
+        self._twitter_api = None
+        self._youtube_service = None
+        self._shorts_creator = None
+
+    # ── Twitter/X ─────────────────────────────────────────────────
+
+    def _get_twitter_api(self) -> tweepy.Client | None:
+        """Initialize Twitter API v2 client."""
+        if self._twitter_api:
+            return self._twitter_api
+
+        try:
+            api_key = os.environ.get("TWITTER_API_KEY")
+            api_secret = os.environ.get("TWITTER_API_SECRET")
+            access_token = os.environ.get("TWITTER_ACCESS_TOKEN")
+            access_secret = os.environ.get("TWITTER_ACCESS_TOKEN_SECRET")
+
+            if not all([api_key, api_secret, access_token, access_secret]):
+                logger.error("Twitter credentials not fully configured")
+                return None
+
+            # v1.1 API for media upload
+            auth = tweepy.OAuth1UserHandler(
+                api_key, api_secret, access_token, access_secret
+            )
+            self._twitter_v1 = tweepy.API(auth)
+
+            # v2 API for posting tweets
+            self._twitter_api = tweepy.Client(
+                consumer_key=api_key,
+                consumer_secret=api_secret,
+                access_token=access_token,
+                access_token_secret=access_secret,
+            )
+
+            return self._twitter_api
+
+        except Exception as e:
+            logger.error(f"Twitter init error: {e}")
+            return None
+
+    def post_to_twitter(
+        self,
+        video_path: str,
+        text: str,
+    ) -> dict | None:
+        """
+        Upload video and post to X/Twitter.
+
+        Args:
+            video_path: Local path to video file
+            text: Tweet text (max 280 chars)
+
+        Returns:
+            dict with tweet_id, url, etc.
+        """
+        if os.environ.get("ENABLE_TWEETS", "").lower() != "true":
+            logger.info("Twitter posting disabled (ENABLE_TWEETS != true)")
+            return {"success": False, "reason": "disabled"}
+
+        client = self._get_twitter_api()
+        if not client:
+            return None
+
+        try:
+            # Check file size (X limit: 512MB, but 2 min for standard)
+            file_size = os.path.getsize(video_path)
+            logger.info(f"Uploading to X: {file_size / 1024 / 1024:.1f} MB")
+
+            # Upload video via v1.1 chunked upload
+            media = self._twitter_v1.media_upload(
+                video_path,
+                media_category="tweet_video",
+                chunked=True,
+            )
+
+            # Wait for processing
+            if hasattr(media, "processing_info"):
+                self._wait_for_media_processing(media.media_id)
+
+            # Post tweet with media
+            response = client.create_tweet(
+                text=text[:280],
+                media_ids=[str(media.media_id)],
+            )
+
+            tweet_id = response.data["id"]
+            tweet_url = f"https://x.com/ProtocolPulse/status/{tweet_id}"
+
+            logger.info(f"✓ Posted to X: {tweet_url}")
+            return {
+                "success": True,
+                "tweet_id": tweet_id,
+                "url": tweet_url,
+                "platform": "twitter",
+            }
+
+        except Exception as e:
+            logger.error(f"Twitter post error: {e}")
+            return {"success": False, "error": str(e), "platform": "twitter"}
+
+    def _wait_for_media_processing(self, media_id: int, max_wait: int = 120):
+        """Wait for Twitter media processing to complete."""
+        for _ in range(max_wait // 5):
+            status = self._twitter_v1.get_media_upload_status(media_id)
+            state = status.processing_info.get("state", "")
+
+            if state == "succeeded":
+                return
+            elif state == "failed":
+                error = status.processing_info.get("error", {})
+                raise Exception(f"Media processing failed: {error}")
+
+            wait = status.processing_info.get("check_after_secs", 5)
+            time.sleep(min(wait, 10))
+
+    # ── YouTube ───────────────────────────────────────────────────
+
+    def _get_youtube(self) -> YouTubeService:
+        if not self._youtube_service:
+            self._youtube_service = YouTubeService()
+        return self._youtube_service
+
+    def post_to_youtube(self, video_path: str, pipeline_result: dict) -> dict | None:
+        """Upload Pulse Check to YouTube with auto-generated metadata."""
+        try:
+            yt = self._get_youtube()
+            result = yt.upload_pulse_check(pipeline_result, video_path)
+
+            if result and result.get("success"):
+                logger.info(f"✓ Posted to YouTube: {result['url']}")
+            return result
+
+        except Exception as e:
+            logger.error(f"YouTube upload error: {e}")
+            return {"success": False, "error": str(e), "platform": "youtube"}
+
+    # ── Shorts (TikTok / Instagram) ───────────────────────────────
+
+    def _get_shorts_creator(self) -> ShortsCreator:
+        if not self._shorts_creator:
+            self._shorts_creator = ShortsCreator()
+        return self._shorts_creator
+
+    def create_and_post_shorts(self, pipeline_result: dict) -> dict:
+        """
+        Create vertical shorts and prepare for TikTok/IG distribution.
+
+        Note: TikTok and Instagram don't have simple upload APIs.
+        This creates the shorts and saves them locally for manual upload
+        or future automation via their respective APIs.
+        """
+        results = {
+            "shorts_created": [],
+            "tiktok": {"status": "manual_upload_required"},
+            "instagram": {"status": "manual_upload_required"},
+        }
+
+        try:
+            sc = self._get_shorts_creator()
+
+            # Create vertical shorts on Ultron
+            shorts = sc.create_all_shorts(pipeline_result)
+            results["shorts_created"] = shorts
+
+            # Download to local for manual upload / future API integration
+            local_files = sc.download_shorts(shorts)
+            results["local_files"] = local_files
+
+            logger.info(
+                f"✓ Created {len(shorts)} shorts, "
+                f"downloaded {len(local_files)} locally"
+            )
+
+        except Exception as e:
+            logger.error(f"Shorts creation error: {e}")
+            results["error"] = str(e)
+
+        return results
+
+    # ── Main Distribution ─────────────────────────────────────────
+
+    def distribute_all(self, pipeline_result: dict) -> dict:
+        """
+        Distribute Pulse Check to all platforms.
+
+        Args:
+            pipeline_result: Result from run_pulse_check()
+
+        Returns:
+            Distribution results for each platform
+        """
+        results = {
+            "date": pipeline_result.get("date"),
+            "twitter": None,
+            "youtube": None,
+            "shorts": None,
+        }
+
+        video_file = pipeline_result.get("video_file")
+        if not video_file:
+            logger.error("No video file in pipeline result")
+            return results
+
+        clips = pipeline_result.get("clips", [])
+        date_str = pipeline_result.get("date", "")
+
+        # Download final video from Ultron
+        local_video_path = f"data/video_engine/output/{video_file}"
+        os.makedirs("data/video_engine/output", exist_ok=True)
+
+        try:
+            video_data = self.ultron.download_file(video_file)
+            if video_data:
+                with open(local_video_path, "wb") as f:
+                    f.write(video_data)
+                logger.info(
+                    f"Downloaded: {local_video_path} "
+                    f"({len(video_data) / 1024 / 1024:.1f} MB)"
+                )
+            else:
+                logger.error("Failed to download video from Ultron")
+                return results
+        except Exception as e:
+            logger.error(f"Video download error: {e}")
+            return results
+
+        # ── 1. Post to X/Twitter ──────────────────────────────────
+        tweet_text = self._build_tweet(clips, date_str)
+        results["twitter"] = self.post_to_twitter(local_video_path, tweet_text)
+
+        # ── 2. Upload to YouTube ──────────────────────────────────
+        results["youtube"] = self.post_to_youtube(local_video_path, pipeline_result)
+
+        # ── 3. Create & distribute shorts ─────────────────────────
+        results["shorts"] = self.create_and_post_shorts(pipeline_result)
+
+        # Summary
+        platforms_ok = sum(
+            1 for k in ["twitter", "youtube"]
+            if results.get(k, {}).get("success")
+        )
+        shorts_count = len(results.get("shorts", {}).get("shorts_created", []))
+
+        logger.info(
+            f"═══ Distribution Complete ═══\n"
+            f"  Platforms posted: {platforms_ok}/2\n"
+            f"  Shorts created: {shorts_count}\n"
+        )
+
+        return results
+
+    def _build_tweet(self, clips: list[dict], date_str: str) -> str:
+        """Build tweet text with headlines and channel credits."""
+        lines = [f"🔴 Pulse Check | {date_str}", ""]
+
+        for clip in clips[:5]:
+            lines.append(f"⚡ {clip['headline']}")
+
+        lines.append("")
+
+        # Credit channels
+        handles = [clip["handle"] for clip in clips[:5]]
+        lines.append(f"📡 {' '.join(handles)}")
+        lines.append("")
+        lines.append("#Bitcoin #BTC #PulseCheck")
+
+        text = "\n".join(lines)
+
+        # Trim to 280 chars if needed
+        if len(text) > 280:
+            lines_short = [f"🔴 Pulse Check | {date_str}", ""]
+            for clip in clips[:3]:
+                lines_short.append(f"⚡ {clip['headline']}")
+            lines_short.append("")
+            lines_short.append("#Bitcoin #BTC #PulseCheck")
+            text = "\n".join(lines_short)
+
+        return text[:280]
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    print("PulseDistributor - use via run_and_distribute() in pulse_check_ultron.py")

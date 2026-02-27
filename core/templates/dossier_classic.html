@@ -1,0 +1,557 @@
+{% extends "base.html" %}
+{% block title %}The Dossier | Protocol Pulse{% endblock %}
+{% block extra_css %}
+<style>
+:root {
+  --dossier-bg: #000000;
+  --dossier-white: #ffffff;
+  --dossier-red: #dc2626;
+  --dossier-red-glow: rgba(220, 38, 38, 0.25);
+}
+.dossier-wrap {
+  background: var(--dossier-bg);
+  min-height: 100vh;
+  padding-top: 56px;
+  overflow: hidden;
+}
+/* Sovereignty HUD */
+.dossier-hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 56px;
+  background: rgba(0,0,0,0.92);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+.dossier-hud-back {
+  color: var(--dossier-white);
+  text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+.dossier-hud-back:hover { color: var(--dossier-red); opacity: 1; }
+.dossier-hud-pulse {
+  width: 24px;
+  height: 24px;
+  background: var(--dossier-red);
+  border-radius: 50%;
+  animation: dossier-pulse 1.5s ease-in-out infinite;
+}
+@keyframes dossier-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--dossier-red-glow); }
+  50% { opacity: 0.9; box-shadow: 0 0 12px 4px var(--dossier-red-glow); }
+}
+.dossier-hud-progress {
+  flex: 1;
+  max-width: 200px;
+  height: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+  margin: 0 16px;
+  overflow: hidden;
+}
+.dossier-hud-fill {
+  height: 100%;
+  background: var(--dossier-red);
+  border-radius: 3px;
+  width: 0%;
+  transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dossier-hud-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.6);
+}
+/* Horizontal scroll container */
+.dossier-scroll {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  height: calc(100vh - 56px);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.dossier-scroll::-webkit-scrollbar { display: none; }
+/* Each slide */
+.dossier-slide {
+  flex: 0 0 100vw;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 40px 20px 80px;
+  box-sizing: border-box;
+}
+.dossier-slide-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  max-width: 1200px;
+  width: 100%;
+}
+/* Act I glitch / scanline */
+.dossier-slide[data-act="The Great Debasement"] .dossier-img-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none;
+}
+.dossier-img-wrap {
+  position: relative;
+  flex-shrink: 0;
+  max-width: 55%;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dossier-img-wrap:hover { transform: scale(1.02); }
+.dossier-img-wrap img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 75vh;
+  object-fit: contain;
+  vertical-align: middle;
+  cursor: pointer;
+}
+.dossier-declassified {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.15em;
+}
+/* Tactical Overlay */
+.dossier-overlay {
+  flex: 1;
+  min-width: 280px;
+  max-width: 420px;
+  padding: 24px;
+  background: rgba(15,15,20,0.9);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  border-left: 3px solid var(--dossier-red);
+}
+.dossier-overlay-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--dossier-white);
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+.dossier-overlay-narrative {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.78);
+  line-height: 1.6;
+}
+.dossier-overlay-act {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--dossier-red);
+  margin-bottom: 8px;
+}
+.dossier-overlay-actions { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 10px; }
+.dossier-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.06);
+  color: var(--dossier-white);
+  transition: background 0.2s, border-color 0.2s;
+}
+.dossier-btn:hover { background: rgba(255,255,255,0.12); border-color: var(--dossier-red); }
+.dossier-btn-deep:hover { box-shadow: 0 0 12px var(--dossier-red-glow); }
+.dossier-btn-share:hover { box-shadow: 0 0 12px var(--dossier-red-glow); }
+/* Quiz slide */
+.dossier-quiz-slide {
+  flex-direction: column;
+  padding: 60px 24px;
+}
+.dossier-quiz-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--dossier-white);
+  margin-bottom: 24px;
+  text-align: center;
+}
+.dossier-quiz-questions {
+  max-width: 520px;
+  width: 100%;
+}
+.dossier-quiz-q {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+}
+.dossier-quiz-q label {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 10px;
+}
+.dossier-quiz-q input[type="radio"] {
+  margin-right: 10px;
+}
+.dossier-quiz-q span.option {
+  display: block;
+  padding: 8px 0;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+}
+.dossier-quiz-submit {
+  margin-top: 24px;
+  padding: 14px 32px;
+  background: var(--dossier-red);
+  border: none;
+  border-radius: 10px;
+  color: var(--dossier-white);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.dossier-quiz-submit:hover { opacity: 0.95; }
+/* Donation terminal */
+.dossier-donate-slide {
+  flex-direction: column;
+  text-align: center;
+  padding: 60px 24px;
+}
+.dossier-donate-grade {
+  font-family: 'Outfit', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--dossier-red);
+  margin-bottom: 12px;
+}
+.dossier-donate-copy {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.78);
+  max-width: 480px;
+  margin: 0 auto 32px;
+  line-height: 1.7;
+}
+.dossier-donate-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 28px;
+  background: rgba(220, 38, 38, 0.2);
+  border: 1px solid var(--dossier-red);
+  border-radius: 12px;
+  color: var(--dossier-white);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  text-decoration: none;
+  margin-bottom: 24px;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.dossier-donate-cta:hover {
+  background: rgba(220, 38, 38, 0.3);
+  box-shadow: 0 0 24px var(--dossier-red-glow);
+  color: var(--dossier-white);
+}
+.dossier-donate-address {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.5);
+  word-break: break-all;
+  max-width: 400px;
+  margin: 0 auto;
+}
+@media (max-width: 900px) {
+  .dossier-slide-inner { flex-direction: column; gap: 24px; }
+  .dossier-img-wrap { max-width: 95%; }
+  .dossier-overlay { max-width: 95%; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dossier-wrap">
+  <!-- Sovereignty HUD -->
+  <header class="dossier-hud">
+    <a href="/" class="dossier-hud-back"><i class="fas fa-arrow-left me-2"></i>Protocol Pulse</a>
+    <div class="dossier-hud-pulse" title="The Pulse"></div>
+    <div class="dossier-hud-progress">
+      <div class="dossier-hud-fill" id="dossierProgressFill"></div>
+    </div>
+    <span class="dossier-hud-score" id="dossierScore">0 / 32</span>
+  </header>
+
+  <div class="dossier-scroll" id="dossierScroll">
+    {% for item in manifest %}
+    <section class="dossier-slide act-{{ item.act|replace(' ', '-')|lower|replace('the-', '') }}" data-id="{{ item.id }}" data-act="{{ item.act }}">
+      <div class="dossier-slide-inner">
+        <div class="dossier-img-wrap">
+          <img src="{{ item.image_path }}" alt="{{ item.title }}" loading="lazy" data-deep-dive data-src="{{ item.image_path }}" data-title="{{ item.title }}" data-narrative="{{ item.narrative_overlay }}">
+          <span class="dossier-declassified">DECLASSIFIED</span>
+        </div>
+        <div class="dossier-overlay">
+          <div class="dossier-overlay-act">{{ item.act }}</div>
+          <h2 class="dossier-overlay-title">{{ item.title }}</h2>
+          <p class="dossier-overlay-narrative">{{ item.narrative_overlay }}</p>
+          <div class="dossier-overlay-actions">
+            <button type="button" class="dossier-btn dossier-btn-deep" data-deep-dive data-src="{{ item.image_path }}" data-title="{{ item.title }}" data-narrative="{{ item.narrative_overlay }}"><i class="fas fa-search-plus me-1"></i>Deep Dive</button>
+            <button type="button" class="dossier-btn dossier-btn-share" data-share-intel data-title="{{ item.title }}" data-narrative="{{ item.narrative_overlay }}"><i class="fas fa-share-alt me-1"></i>Share Intel</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    {% endfor %}
+
+    <!-- Sovereignty Check (Quiz) -->
+    <section class="dossier-slide" id="dossierQuizSlide" data-quiz>
+      <div class="dossier-quiz-slide">
+        <h2 class="dossier-quiz-title">Sovereignty Check</h2>
+        <p class="dossier-overlay-narrative" style="margin-bottom: 24px;">Five questions. No tricks. Prove you've absorbed the intel.</p>
+        <form class="dossier-quiz-questions" id="dossierQuizForm">
+          <div class="dossier-quiz-q">
+            <label>1. What is the only commodity with a supply that cannot be inflated by demand?</label>
+            <label><input type="radio" name="q1" value="c"> (A) Gold &nbsp; (B) Real Estate &nbsp; (C) Bitcoin</label>
+          </div>
+          <div class="dossier-quiz-q">
+            <label>2. The value transfer layer in the "Fifth Layer" model refers to:</label>
+            <label><input type="radio" name="q2" value="c"> (A) TCP/IP &nbsp; (B) The Application Layer &nbsp; (C) Bitcoin</label>
+          </div>
+          <div class="dossier-quiz-q">
+            <label>3. Digital scarcity was introduced to the world in:</label>
+            <label><input type="radio" name="q3" value="b"> (A) 1948 &nbsp; (B) 2009 &nbsp; (C) 2017</label>
+          </div>
+          <div class="dossier-quiz-q">
+            <label>4. Bitcoin's fixed supply is enforced by:</label>
+            <label><input type="radio" name="q4" value="c"> (A) Central banks &nbsp; (B) Miners voting &nbsp; (C) The protocol (halving)</label>
+          </div>
+          <div class="dossier-quiz-q">
+            <label>5. "Value-for-value" in this context means:</label>
+            <label><input type="radio" name="q5" value="b"> (A) Paywall access &nbsp; (B) Voluntary support for free intel &nbsp; (C) Subscription tier</label>
+          </div>
+          <button type="submit" class="dossier-quiz-submit">Grade My Sovereignty</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Donation Terminal -->
+    <section class="dossier-slide" id="dossierDonateSlide" data-donate style="display: none;">
+      <div class="dossier-donate-slide">
+        <div class="dossier-donate-grade" id="dossierGrade">—% Sovereign-Ready</div>
+        <p class="dossier-donate-copy">This intelligence is free because sovereignty is a human right. If this Dossier has provided you with value, consider supporting the Protocol Pulse mission with a value-for-value donation. Help us keep the signal strong.</p>
+        <a href="/donate/bitcoin" class="dossier-donate-cta"><i class="fab fa-bitcoin"></i> Donate with Bitcoin</a>
+        <p class="dossier-donate-address">Lightning and on-chain options available on the donate page.</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Deep Dive Modal -->
+<div class="dossier-modal" id="dossierDeepModal" role="dialog" aria-hidden="true">
+  <div class="dossier-modal-backdrop" id="dossierModalBackdrop"></div>
+  <div class="dossier-modal-content">
+    <button type="button" class="dossier-modal-close" id="dossierModalClose" aria-label="Close">&times;</button>
+    <img class="dossier-modal-img" id="dossierModalImg" src="" alt="">
+    <div class="dossier-modal-body">
+      <h3 class="dossier-modal-title" id="dossierModalTitle"></h3>
+      <p class="dossier-modal-narrative" id="dossierModalNarrative"></p>
+    </div>
+  </div>
+</div>
+
+<style>
+.dossier-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.dossier-modal[aria-hidden="false"] { display: flex; }
+.dossier-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  cursor: pointer;
+}
+.dossier-modal-content {
+  position: relative;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow: auto;
+  background: #0a0a0a;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+}
+.dossier-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 1.5rem;
+  line-height: 1;
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 1;
+}
+.dossier-modal-close:hover { background: var(--dossier-red); }
+.dossier-modal-img { width: 100%; height: auto; display: block; vertical-align: middle; }
+.dossier-modal-body { padding: 24px; }
+.dossier-modal-title { font-family: 'Outfit', sans-serif; font-size: 1.25rem; color: #fff; margin-bottom: 12px; }
+.dossier-modal-narrative { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: rgba(255,255,255,0.8); line-height: 1.6; }
+</style>
+
+<script>
+(function() {
+  var scrollEl = document.getElementById('dossierScroll');
+  var progressFill = document.getElementById('dossierProgressFill');
+  var scoreEl = document.getElementById('dossierScore');
+  var slides = scrollEl.querySelectorAll('.dossier-slide[data-id]');
+  var total = slides.length;
+  var quizSlide = document.getElementById('dossierQuizSlide');
+  var donateSlide = document.getElementById('dossierDonateSlide');
+  var quizForm = document.getElementById('dossierQuizForm');
+
+  function updateHUD() {
+    var scrollLeft = scrollEl.scrollLeft;
+    var width = scrollEl.scrollWidth - scrollEl.clientWidth;
+    if (width <= 0) return;
+    var pct = Math.min(100, (scrollLeft / width) * 100);
+    progressFill.style.width = pct + '%';
+    var slideIndex = Math.round((scrollLeft / scrollEl.clientWidth));
+    if (slideIndex < total) {
+      scoreEl.textContent = (slideIndex + 1) + ' / ' + total;
+    } else if (scrollEl.contains(quizSlide) && slideIndex === total) {
+      scoreEl.textContent = 'Sovereignty Check';
+    } else {
+      scoreEl.textContent = 'Complete';
+    }
+  }
+
+  scrollEl.addEventListener('scroll', updateHUD);
+  window.addEventListener('resize', updateHUD);
+  updateHUD();
+
+  quizForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var q1 = document.querySelector('input[name="q1"]:checked');
+    var q2 = document.querySelector('input[name="q2"]:checked');
+    var q3 = document.querySelector('input[name="q3"]:checked');
+    var q4 = document.querySelector('input[name="q4"]:checked');
+    var q5 = document.querySelector('input[name="q5"]:checked');
+    var correct = 0;
+    if (q1 && q1.value === 'c') correct++;
+    if (q2 && q2.value === 'c') correct++;
+    if (q3 && q3.value === 'b') correct++;
+    if (q4 && q4.value === 'c') correct++;
+    if (q5 && q5.value === 'b') correct++;
+    var pct = Math.round((correct / 5) * 100);
+    document.getElementById('dossierGrade').textContent = pct + '% Sovereign-Ready';
+    donateSlide.style.display = 'flex';
+    donateSlide.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+  });
+
+  // Deep Dive modal
+  var modal = document.getElementById('dossierDeepModal');
+  var modalImg = document.getElementById('dossierModalImg');
+  var modalTitle = document.getElementById('dossierModalTitle');
+  var modalNarrative = document.getElementById('dossierModalNarrative');
+  var modalBackdrop = document.getElementById('dossierModalBackdrop');
+  var modalClose = document.getElementById('dossierModalClose');
+
+  function openDeepDive(src, title, narrative) {
+    modalImg.src = src;
+    modalImg.alt = title;
+    modalTitle.textContent = title;
+    modalNarrative.textContent = narrative;
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDeepDive() {
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('[data-deep-dive]').forEach(function(el) {
+    el.addEventListener('click', function() {
+      var src = el.getAttribute('data-src') || el.src;
+      var title = el.getAttribute('data-title');
+      var narrative = el.getAttribute('data-narrative');
+      if (src && title !== null) openDeepDive(src, title, narrative || '');
+    });
+  });
+  if (modalBackdrop) modalBackdrop.addEventListener('click', closeDeepDive);
+  if (modalClose) modalClose.addEventListener('click', closeDeepDive);
+
+  // Share Intel
+  document.querySelectorAll('[data-share-intel]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var title = btn.getAttribute('data-title') || '';
+      var narrative = btn.getAttribute('data-narrative') || '';
+      var text = 'Protocol Pulse Dossier — ' + title + '\n\n' + (narrative.length > 200 ? narrative.slice(0, 197) + '...' : narrative) + '\n\n#Bitcoin #Sovereignty\n\n' + window.location.origin + '/dossier';
+      try {
+        if (navigator.share) {
+          navigator.share({ title: 'Protocol Pulse Intel', text: text, url: window.location.href }).catch(function() { copyShare(text); });
+        } else {
+          copyShare(text);
+        }
+      } catch (e) {
+        copyShare(text);
+      }
+    });
+  });
+  function copyShare(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function() { alert('Intel copied. Paste to X or Nostr.'); });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      alert('Intel copied. Paste to X or Nostr.');
+    }
+  }
+})();
+</script>
+{% endblock %}

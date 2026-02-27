@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}500 — Chain Fork Detected | Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+.pp-error {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 48px 20px;
+}
+.pp-error__code {
+    font-family: var(--pp-font-mono);
+    font-size: clamp(5rem, 15vw, 8rem);
+    font-weight: 700;
+    color: var(--pp-red);
+    line-height: 1;
+    margin-bottom: 8px;
+    animation: pp-glitch 3s infinite;
+}
+@keyframes pp-glitch {
+    0%, 95%, 100% { opacity: 1; }
+    96% { opacity: 0.8; transform: translateX(-2px); }
+    97% { opacity: 1; transform: translateX(2px); }
+    98% { opacity: 0.8; transform: translateX(-1px); }
+}
+.pp-error__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--pp-text);
+    margin-bottom: 8px;
+}
+.pp-error__desc {
+    color: var(--pp-text-secondary);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    max-width: 400px;
+}
+.pp-error__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(255, 71, 87, 0.08);
+    border: 1px solid rgba(255, 71, 87, 0.2);
+    border-radius: var(--pp-radius-full);
+    font-family: var(--pp-font-mono);
+    font-size: 0.6875rem;
+    color: var(--pp-red);
+    margin-bottom: 24px;
+}
+.pp-error__actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pp-error" role="main">
+    <div>
+        <div class="pp-error__code">500</div>
+        <h1 class="pp-error__title">Chain Fork Detected</h1>
+        <div class="pp-error__status">
+            <span style="width:6px;height:6px;background:var(--pp-red);border-radius:50;display:inline-block;"></span>
+            NODE EXPERIENCING ISSUES
+        </div>
+        <p class="pp-error__desc">
+            The node encountered an unexpected fork. Our engineers have been notified and are working on consensus resolution.
+        </p>
+        <div class="pp-error__actions">
+            <a href="/" class="pp-btn pp-btn--primary">
+                <i class="fas fa-home"></i> Return to Base
+            </a>
+            <button onclick="location.reload()" class="pp-btn pp-btn--ghost">
+                <i class="fas fa-sync-alt"></i> Retry
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

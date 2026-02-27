@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+
+{% block title %}Premium Hub | Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+body { background: var(--pp-bg-primary, #050508) !important; }
+.hub-page {
+    min-height: 100vh;
+    padding: 100px 24px 60px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--pp-text-primary, #fafafa);
+}
+.hub-title { font-family: 'Outfit', sans-serif; font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; }
+.hub-badge {
+    display: inline-block;
+    background: var(--pp-accent, #e54848);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    margin-bottom: 1rem;
+}
+.hub-badge.operator { background: #3b82f6; }
+.hub-badge.commander { background: #f59e0b; }
+.hub-badge.sovereign { background: linear-gradient(135deg, #8b5cf6, #a855f7); }
+.hub-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+.hub-card {
+    background: var(--pp-bg-card, #0f0f14);
+    border: 1px solid var(--pp-border-subtle, rgba(255,255,255,0.06));
+    border-radius: var(--pp-radius-lg, 20px);
+    padding: 1.5rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.hub-card:hover {
+    border-color: var(--pp-accent);
+    box-shadow: 0 0 30px rgba(229, 72, 72, 0.1);
+}
+.hub-card-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--pp-text-muted, rgba(255,255,255,0.45));
+    margin-bottom: 0.5rem;
+}
+.hub-card-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--pp-accent);
+}
+.hub-card-value.btc { color: var(--pp-bitcoin, #f7931a); }
+.hub-card-sub { font-size: 0.85rem; color: var(--pp-text-secondary); margin-top: 0.25rem; }
+.hub-section-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.hub-brief-list { list-style: none; padding: 0; margin: 0; }
+.hub-brief-list li { border-bottom: 1px solid var(--pp-border-subtle); padding: 0.75rem 0; }
+.hub-brief-list li:last-child { border-bottom: none; }
+.hub-brief-list a { color: var(--pp-text-primary); text-decoration: none; font-weight: 500; }
+.hub-brief-list a:hover { color: var(--pp-accent); }
+.hub-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--pp-accent);
+    color: #fff;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--pp-radius-md, 14px);
+    font-weight: 600;
+    text-decoration: none;
+    margin-top: 0.5rem;
+    transition: opacity 0.2s;
+}
+.hub-cta:hover { color: #fff; opacity: 0.95; }
+.hub-cta.secondary {
+    background: var(--pp-bg-elevated);
+    border: 1px solid var(--pp-border-subtle);
+    color: var(--pp-text-primary);
+}
+.hub-cta.secondary:hover { color: var(--pp-accent); }
+.live-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; animation: hub-pulse 2s infinite; }
+@keyframes hub-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+/* Whale feed in hub */
+.hub-whale-list { list-style: none; padding: 0; margin: 0; max-height: 320px; overflow-y: auto; }
+.hub-whale-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 0.85rem;
+}
+.hub-whale-list li:last-child { border-bottom: none; }
+.hub-whale-list .whale-btc { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--pp-bitcoin, #f7931a); }
+.hub-whale-list .whale-mega .whale-btc { color: #dc2626; }
+.hub-whale-list .whale-usd { color: var(--pp-text-muted); }
+.hub-whale-list a { color: var(--pp-text-secondary); text-decoration: none; }
+.hub-whale-list a:hover { color: var(--pp-accent); }
+
+/* Sovereign Elite */
+.hub-elite { border-left: 3px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); }
+.hub-ask-form textarea { width: 100%; min-height: 100px; padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-family: inherit; resize: vertical; }
+.hub-ask-form button { margin-top: 10px; padding: 10px 20px; background: #8b5cf6; color: #fff; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+.hub-ask-form button:disabled { opacity: 0.5; cursor: not-allowed; }
+.hub-ask-status { font-size: 0.9rem; color: var(--pp-text-secondary); margin-top: 8px; }
+.hub-ask-status.answered { color: #22c55e; }
+.hub-upsell { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 1rem; margin-top: 1rem; font-size: 0.9rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hub-page pp-page">
+    <div class="container-fluid" style="max-width: 1200px;">
+        {% if tier == 'sovereign' %}
+        <span class="hub-badge sovereign">SOVEREIGN ELITE</span>
+        {% elif tier == 'commander' %}
+        <span class="hub-badge commander">COMMANDER</span>
+        {% else %}
+        <span class="hub-badge operator">PULSE OPERATOR</span>
+        {% endif %}
+        <h1 class="hub-title">Premium Intel Command Center</h1>
+        <p class="text-muted mb-4">
+            {% if tier == 'sovereign' %}Full access: network intel, whale feed, Pro Briefs, monthly ask & 1-on-1.
+            {% elif tier == 'commander' %}Real-time network data, whale feed, Pro Briefs, and live tools.
+            {% else %}Network snapshot and live tools. Upgrade to Commander for whale feed and Pro Briefs.
+            {% endif %}
+        </p>
+
+        <div class="hub-grid">
+            <div class="hub-card">
+                <div class="hub-card-label"><span class="live-dot me-1"></span> Block height</div>
+                <div class="hub-card-value">{{ network.get('height', '—') }}</div>
+                <div class="hub-card-sub">Chain tip · {{ network.get('status', 'LIVE') }}</div>
+            </div>
+            <div class="hub-card">
+                <div class="hub-card-label">Hashrate</div>
+                <div class="hub-card-value">{{ network.get('hashrate', '—') }}</div>
+                <div class="hub-card-sub">3-day rolling</div>
+            </div>
+            <div class="hub-card">
+                <div class="hub-card-label">Difficulty progress</div>
+                <div class="hub-card-value">{{ network.get('difficulty_progress', '—') }}</div>
+                <div class="hub-card-sub">{{ network.get('remaining_blocks', '—') }} blocks to next adjustment</div>
+            </div>
+            {% set fees = (mempool_data or {}).get('fees') or {} %}
+            <div class="hub-card">
+                <div class="hub-card-label">Mempool · Fee (sat/vB)</div>
+                <div class="hub-card-value">1h: {{ fees.get('hour', '—') }} · 30m: {{ fees.get('half_hour', '—') }}</div>
+                <div class="hub-card-sub">{{ (mempool_data or {}).get('count', 0) }} tx in mempool</div>
+            </div>
+            <div class="hub-card">
+                <div class="hub-card-label">BTC/USD</div>
+                <div class="hub-card-value btc">${{ "%.2f"|format((prices or {}).get('btc', 0) or 0) }}</div>
+                <div class="hub-card-sub">Spot</div>
+            </div>
+        </div>
+
+        {% if tier in ['commander', 'sovereign'] %}
+        <div class="row g-4 mb-4">
+            <div class="col-lg-6">
+                <div class="hub-section-title"><i class="fas fa-chart-line" style="color: #dc2626;"></i> Alert summary</div>
+                <div class="hub-card">
+                    <div class="hub-card-value">24h: {{ whale_count_24h }} whales · {{ mega_count_24h }} mega</div>
+                    <div class="hub-card-sub">7d: {{ whale_count_7d }} whales · {{ mega_count_7d }} mega (≥1000 BTC). Mega may trigger SMS.</div>
+                    <div class="hub-card-sub mt-1"><strong>24h volume (USD):</strong> ${{ "{:,.0f}".format(whale_volume_usd_24h or 0) }}</div>
+                    <form method="post" action="{{ url_for('hub_alerts_preference') }}" class="mt-2">
+                        <label class="d-flex align-items-center gap-2" style="cursor: pointer;">
+                            <input type="checkbox" name="mega_whale_email" value="on" {{ 'checked' if mega_whale_alerts_enabled else '' }}>
+                            <span class="hub-card-sub mb-0">Email me when a mega whale (≥1000 BTC) moves</span>
+                        </label>
+                        <button type="submit" class="btn btn-sm btn-outline-light mt-1">Save</button>
+                    </form>
+                    <a href="/whale-watcher" class="hub-cta secondary mt-2"><i class="fas fa-water"></i> Full Whale Watcher</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hub-section-title"><i class="fas fa-water" style="color: #f7931a;"></i> Whale feed (last 24h)</div>
+                <div class="hub-card">
+                    <ul class="hub-whale-list">
+                        {% for w in hub_whales %}
+                        <li class="{{ 'whale-mega' if w.is_mega else '' }}">
+                            <span class="whale-btc">{{ "%.2f"|format(w.btc_amount) }} BTC</span>
+                            <span class="whale-usd">${{ "{:,.0f}".format(w.usd_value or w.btc_amount * 100000) }}</span>
+                            <a href="https://mempool.space/tx/{{ w.txid }}" target="_blank" rel="noopener">{{ w.txid[:12] }}…</a>
+                        </li>
+                        {% else %}
+                        <li class="text-muted">No whale tx in last 24h.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="hub-upsell">
+            <strong>Upgrade to Commander</strong> for the live whale feed, 24h alert summary, and Pro Briefs (early + exclusive signals).
+            <a href="/premium" class="hub-cta secondary ms-2"><i class="fas fa-arrow-up"></i> See tiers</a>
+        </div>
+        {% endif %}
+
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="hub-section-title"><i class="fas fa-bolt"></i> Live tools</div>
+                <div class="hub-card">
+                    <a href="/live" class="hub-cta"><i class="fas fa-atom"></i> Live Terminal</a>
+                    <p class="hub-card-sub mt-2 mb-2">Block-by-block settlement view</p>
+                    <a href="/whale-watcher" class="hub-cta secondary"><i class="fas fa-water"></i> Whale Watcher</a>
+                    <p class="hub-card-sub mt-2 mb-2">Large transaction alerts</p>
+                    <a href="/bitfeed-live" class="hub-cta secondary"><i class="fas fa-heartbeat"></i> Bitfeed Live</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hub-section-title"><i class="fas fa-file-alt"></i> Latest briefs</div>
+                <div class="hub-card">
+                    <ul class="hub-brief-list">
+                        {% for a in latest_briefs %}
+                        <li><a href="{{ url_for('article_detail', article_id=a.id) }}">{{ a.title }}</a></li>
+                        {% else %}
+                        <li class="text-muted">No briefs yet.</li>
+                        {% endfor %}
+                    </ul>
+                    <a href="/articles" class="hub-cta secondary">All briefs</a>
+                </div>
+            </div>
+        </div>
+
+        {% if tier in ['commander', 'sovereign'] %}
+        {% if brief_of_the_week %}
+        <div class="row g-4 mt-2">
+            <div class="col-12">
+                <div class="hub-section-title"><i class="fas fa-star" style="color: #f59e0b;"></i> Brief of the week</div>
+                <div class="hub-card" style="border-color: rgba(245, 158, 11, 0.4);">
+                    <a href="{{ url_for('article_detail', article_id=brief_of_the_week.id) }}" class="hub-card-value" style="font-size: 1.1rem; display: block; margin-bottom: 0.5rem;">{{ brief_of_the_week.title }}</a>
+                    <p class="hub-card-sub mb-0">This week's featured Pro Brief — early access.</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <div class="row g-4 mt-2">
+            <div class="col-12">
+                <div class="hub-section-title"><i class="fas fa-star" style="color: #f59e0b;"></i> Pro Briefs (Commander exclusive)</div>
+                <div class="hub-card">
+                    <ul class="hub-brief-list">
+                        {% for a in commander_briefs %}
+                        <li><a href="{{ url_for('article_detail', article_id=a.id) }}">{{ a.title }}</a> <span class="text-muted" style="font-size: 0.75rem;">Pro</span></li>
+                        {% else %}
+                        <li class="text-muted">No Pro Briefs yet. Featured and premium briefs appear here.</li>
+                        {% endfor %}
+                    </ul>
+                    <a href="/articles" class="hub-cta secondary">All briefs</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if tier == 'sovereign' %}
+        <div class="row g-4 mt-2">
+            <div class="col-12">
+                <div class="hub-section-title"><i class="fas fa-crown" style="color: #8b5cf6;"></i> Sovereign Elite</div>
+                <div class="hub-card hub-elite">
+                    <p class="hub-card-sub mb-3">One monthly research ask: we answer with a brief or direct reply. 1-on-1 strategy sessions can be booked separately.</p>
+                    {% if sovereign_asks_this_month >= 1 and (not sovereign_ask or sovereign_ask.status == 'pending') %}
+                    <p class="hub-ask-status">This month: ask submitted. We’ll respond via email or here.</p>
+                    {% if sovereign_ask %}
+                    <p class="hub-card-sub mt-1"><strong>Your question:</strong> {{ sovereign_ask.question_text[:200] }}{% if sovereign_ask.question_text|length > 200 %}…{% endif %}</p>
+                    {% endif %}
+                    {% elif sovereign_ask and sovereign_ask.status == 'answered' %}
+                    <p class="hub-ask-status answered">Answered</p>
+                    {% if sovereign_ask.answer_text %}
+                    <p class="hub-card-sub mt-1">{{ sovereign_ask.answer_text[:500] }}{% if sovereign_ask.answer_text|length > 500 %}…{% endif %}</p>
+                    {% endif %}
+                    {% if sovereign_ask.answer_url %}
+                    <a href="{{ sovereign_ask.answer_url }}" class="hub-cta secondary mt-2" target="_blank" rel="noopener">Read full response</a>
+                    {% endif %}
+                    {% else %}
+                    <form class="hub-ask-form" method="post" action="{{ url_for('hub_submit_ask') }}">
+                        <textarea name="question" placeholder="Your monthly ask (e.g. “How should I think about allocation given the current macro regime?”)" maxlength="2000" required></textarea>
+                        <button type="submit">Submit monthly ask</button>
+                    </form>
+                    <p class="hub-ask-status">1 ask per month. Resets at the start of each month.</p>
+                    {% endif %}
+                    <a href="/contact" class="hub-cta secondary mt-3"><i class="fas fa-calendar-check"></i> Book 1-on-1 strategy session</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

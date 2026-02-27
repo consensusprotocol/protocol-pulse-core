@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Partner Ramp Admin | Protocol Pulse{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="margin-top:80px;">
+    <h1 class="mb-2" style="text-transform: lowercase;">partner ramp analytics</h1>
+    <p class="text-muted mb-4">30d window · hub views: {{ view_count }} · total clicks: {{ total_clicks }}</p>
+
+    <div class="table-responsive mb-4">
+        <table class="table table-dark table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>partner</th>
+                    <th>category</th>
+                    <th>clicks (30d)</th>
+                    <th>ctr vs /hub views</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in stats %}
+                <tr>
+                    <td>{{ row.name }}</td>
+                    <td>{{ row.category }}</td>
+                    <td>{{ row.clicks_30d }}</td>
+                    <td>{{ "%.2f"|format(row.ctr_30d) }}%</td>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        <div class="small text-muted mb-1">conversion notes</div>
+                        <ul class="mb-2">
+                            {% for note in row.notes %}
+                            <li>{{ note.note }} <span class="text-muted">({{ note.created_at.strftime('%Y-%m-%d %H:%M') if note.created_at else '' }})</span></li>
+                            {% else %}
+                            <li class="text-muted">no notes yet.</li>
+                            {% endfor %}
+                        </ul>
+                        <form class="partner-note-form d-flex gap-2" data-partner="{{ row.slug }}">
+                            <input class="form-control form-control-sm" name="note" placeholder="add conversion note for {{ row.slug }}..." required>
+                            <button class="btn btn-sm btn-danger" type="submit">save note</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="4" class="text-muted">no partner stats yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+(function () {
+    document.querySelectorAll('.partner-note-form').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            const slug = form.getAttribute('data-partner');
+            const field = form.querySelector('input[name="note"]');
+            const note = (field && field.value || '').trim();
+            if (!slug || !note) return;
+            fetch('/admin/api/partner-ramp/note', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({partner_slug: slug, note: note})
+            }).then(function (r) { return r.json(); }).then(function (payload) {
+                if (payload && payload.ok) {
+                    window.location.reload();
+                }
+            }).catch(function () {});
+        });
+    });
+})();
+</script>
+{% endblock %}

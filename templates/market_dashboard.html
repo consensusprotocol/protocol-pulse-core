@@ -1,0 +1,944 @@
+{% extends "base.html" %}
+{% block title %}Market Intelligence — Protocol Pulse{% endblock %}
+{% block meta_description %}Real-time Bitcoin market intelligence dashboard. Live price, Fear & Greed Index, on-chain metrics, mempool stats, and network health — updated every 30 seconds.{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ── Market Dashboard ── */
+.pp-mkt { padding: 32px 0 64px; }
+.pp-mkt__header { margin-bottom: 32px; }
+.pp-mkt__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 4px;
+}
+.pp-mkt__subtitle {
+    color: var(--pp-text-muted);
+    font-size: 0.875rem;
+    font-family: var(--pp-font-mono);
+}
+.pp-mkt__live-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--pp-green);
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: pp-pulse-dot 2s ease-in-out infinite;
+}
+
+/* ── Hero Price Card ── */
+.pp-price-hero {
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-lg);
+    padding: 32px;
+    margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    position: relative;
+    overflow: hidden;
+}
+.pp-price-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--pp-teal), var(--pp-amber), var(--pp-teal));
+    background-size: 200% 100%;
+    animation: pp-gradient-shift 3s ease infinite;
+}
+@keyframes pp-gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+.pp-price-hero__left { display: flex; flex-direction: column; justify-content: center; }
+.pp-price-hero__label {
+    font-family: var(--pp-font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--pp-text-muted);
+    margin-bottom: 8px;
+}
+.pp-price-hero__value {
+    font-family: var(--pp-font-mono);
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    transition: color 0.3s ease;
+}
+.pp-price-hero__change {
+    font-family: var(--pp-font-mono);
+    font-size: 1.125rem;
+    margin-top: 8px;
+}
+.pp-price-hero__meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+.pp-price-hero__meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.pp-price-hero__meta-label {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--pp-text-muted);
+}
+.pp-price-hero__meta-val {
+    font-family: var(--pp-font-mono);
+    font-size: 0.9375rem;
+    font-weight: 500;
+}
+.pp-price-hero__right {
+    min-height: 160px;
+    position: relative;
+}
+.pp-price-hero__chart { width: 100%; height: 100%; }
+
+/* ── Stats Grid ── */
+.pp-mkt-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+/* ── Metric Card ── */
+.pp-metric {
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-md);
+    padding: 20px;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.pp-metric:hover {
+    border-color: var(--pp-border-hover);
+    box-shadow: var(--pp-shadow-sm);
+}
+.pp-metric__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+.pp-metric__label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--pp-text-muted);
+}
+.pp-metric__icon {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: var(--pp-radius-sm);
+    font-size: 0.875rem;
+}
+.pp-metric__icon--teal { background: var(--pp-teal-dim); color: var(--pp-teal); }
+.pp-metric__icon--amber { background: var(--pp-amber-dim); color: var(--pp-amber); }
+.pp-metric__icon--green { background: rgba(0, 230, 118, 0.12); color: var(--pp-green); }
+.pp-metric__icon--red { background: rgba(255, 71, 87, 0.12); color: var(--pp-red); }
+.pp-metric__value {
+    font-family: var(--pp-font-mono);
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+.pp-metric__sub {
+    font-size: 0.8125rem;
+    color: var(--pp-text-secondary);
+    margin-top: 4px;
+}
+.pp-metric__change {
+    font-family: var(--pp-font-mono);
+    font-size: 0.8125rem;
+    font-weight: 500;
+}
+
+/* ── Fear & Greed Gauge ── */
+.pp-fng {
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-lg);
+    padding: 24px;
+}
+.pp-fng__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.pp-fng__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+.pp-fng__gauge-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin-bottom: 16px;
+}
+.pp-fng__score {
+    font-family: var(--pp-font-mono);
+    font-size: 4rem;
+    font-weight: 700;
+    line-height: 1;
+}
+.pp-fng__label {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+.pp-fng__bar {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #ff4757, #ffa502, #2ed573, #00d4aa);
+    position: relative;
+    margin-top: 16px;
+}
+.pp-fng__needle {
+    position: absolute;
+    top: -4px;
+    width: 16px; height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(0,0,0,0.5);
+    transform: translateX(-50%);
+    transition: left 1s var(--pp-ease);
+}
+
+/* ── Two-Column Layout ── */
+.pp-mkt-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+/* ── Panel (reusable container) ── */
+.pp-panel {
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-lg);
+    padding: 24px;
+}
+.pp-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.pp-panel__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* ── Fee Table ── */
+.pp-fee-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.pp-fee-table th, .pp-fee-table td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--pp-border);
+    font-size: 0.875rem;
+}
+.pp-fee-table th {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--pp-text-muted);
+    font-weight: 600;
+}
+.pp-fee-table td {
+    font-family: var(--pp-font-mono);
+}
+.pp-fee-table tr:last-child td { border-bottom: none; }
+
+/* ── Stat Row (key-value pair) ── */
+.pp-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--pp-border);
+}
+.pp-stat-row:last-child { border-bottom: none; }
+.pp-stat-row__label {
+    font-size: 0.8125rem;
+    color: var(--pp-text-secondary);
+}
+.pp-stat-row__value {
+    font-family: var(--pp-font-mono);
+    font-size: 0.9375rem;
+    font-weight: 500;
+}
+
+/* ── Color helpers ── */
+.pp-up { color: var(--pp-green); }
+.pp-down { color: var(--pp-red); }
+.pp-fng--extreme-fear { color: #ff4757; }
+.pp-fng--fear { color: #ff6b81; }
+.pp-fng--neutral { color: #ffa502; }
+.pp-fng--greed { color: #2ed573; }
+.pp-fng--extreme-greed { color: #00d4aa; }
+
+/* ── Trending Coins ── */
+.pp-trending-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--pp-border);
+}
+.pp-trending-item:last-child { border-bottom: none; }
+.pp-trending-item__rank {
+    font-family: var(--pp-font-mono);
+    font-size: 0.75rem;
+    color: var(--pp-text-muted);
+    width: 24px;
+    text-align: center;
+}
+.pp-trending-item__icon {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--pp-surface-2);
+}
+.pp-trending-item__name { font-weight: 500; font-size: 0.9375rem; }
+.pp-trending-item__symbol {
+    font-family: var(--pp-font-mono);
+    font-size: 0.75rem;
+    color: var(--pp-text-muted);
+    margin-left: 6px;
+}
+
+/* ── Skeleton loading ── */
+.pp-skel {
+    background: linear-gradient(90deg, var(--pp-surface-2) 25%, var(--pp-surface-3) 50%, var(--pp-surface-2) 75%);
+    background-size: 200% 100%;
+    animation: pp-skel-shimmer 1.5s ease-in-out infinite;
+    border-radius: var(--pp-radius-xs);
+}
+@keyframes pp-skel-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+.pp-skel--line { height: 20px; width: 60%; margin-bottom: 8px; }
+.pp-skel--lg { height: 48px; width: 40%; }
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+    .pp-mkt-grid { grid-template-columns: repeat(2, 1fr); }
+    .pp-mkt-split { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+    .pp-price-hero { grid-template-columns: 1fr; gap: 20px; padding: 24px; }
+    .pp-price-hero__value { font-size: 2.25rem; }
+    .pp-fng__score { font-size: 3rem; }
+    .pp-mkt-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .pp-metric { padding: 16px; }
+    .pp-metric__value { font-size: 1.25rem; }
+}
+@media (max-width: 375px) {
+    .pp-mkt-grid { grid-template-columns: 1fr; }
+    .pp-price-hero__meta { gap: 16px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="pp-mkt">
+    <div class="pp-container">
+
+        <!-- Header -->
+        <div class="pp-mkt__header">
+            <h1 class="pp-mkt__title">Market Intelligence</h1>
+            <div class="pp-mkt__subtitle">
+                <span class="pp-mkt__live-dot"></span>
+                LIVE — Updated <span id="mktLastUpdate">--</span>
+            </div>
+        </div>
+
+        <!-- ════════ Hero Price Card ════════ -->
+        <div class="pp-price-hero" id="priceHero">
+            <div class="pp-price-hero__left">
+                <div class="pp-price-hero__label">BTC / USD</div>
+                <div class="pp-price-hero__value" id="heroPrice">
+                    <span class="pp-skel pp-skel--lg">&nbsp;</span>
+                </div>
+                <div class="pp-price-hero__change" id="heroChange">--</div>
+                <div class="pp-price-hero__meta">
+                    <div class="pp-price-hero__meta-item">
+                        <span class="pp-price-hero__meta-label">24h High</span>
+                        <span class="pp-price-hero__meta-val" id="heroHigh">--</span>
+                    </div>
+                    <div class="pp-price-hero__meta-item">
+                        <span class="pp-price-hero__meta-label">24h Low</span>
+                        <span class="pp-price-hero__meta-val" id="heroLow">--</span>
+                    </div>
+                    <div class="pp-price-hero__meta-item">
+                        <span class="pp-price-hero__meta-label">24h Volume</span>
+                        <span class="pp-price-hero__meta-val" id="heroVol">--</span>
+                    </div>
+                    <div class="pp-price-hero__meta-item">
+                        <span class="pp-price-hero__meta-label">Market Cap</span>
+                        <span class="pp-price-hero__meta-val" id="heroCap">--</span>
+                    </div>
+                </div>
+            </div>
+            <div class="pp-price-hero__right">
+                <canvas class="pp-price-hero__chart" id="sparklineChart"></canvas>
+            </div>
+        </div>
+
+        <!-- ════════ Quick Stats Grid ════════ -->
+        <div class="pp-mkt-grid" id="statsGrid">
+            <!-- BTC Dominance -->
+            <div class="pp-metric">
+                <div class="pp-metric__header">
+                    <span class="pp-metric__label">BTC Dominance</span>
+                    <span class="pp-metric__icon pp-metric__icon--amber"><i class="fas fa-crown"></i></span>
+                </div>
+                <div class="pp-metric__value" id="metricDominance">--</div>
+                <div class="pp-metric__sub">of total crypto market</div>
+            </div>
+            <!-- Mempool TX Count -->
+            <div class="pp-metric">
+                <div class="pp-metric__header">
+                    <span class="pp-metric__label">Mempool</span>
+                    <span class="pp-metric__icon pp-metric__icon--teal"><i class="fas fa-layer-group"></i></span>
+                </div>
+                <div class="pp-metric__value" id="metricMempool">--</div>
+                <div class="pp-metric__sub">unconfirmed transactions</div>
+            </div>
+            <!-- Hashrate -->
+            <div class="pp-metric">
+                <div class="pp-metric__header">
+                    <span class="pp-metric__label">Network Hashrate</span>
+                    <span class="pp-metric__icon pp-metric__icon--green"><i class="fas fa-microchip"></i></span>
+                </div>
+                <div class="pp-metric__value" id="metricHashrate">--</div>
+                <div class="pp-metric__sub">exahashes per second</div>
+            </div>
+            <!-- Next Fee -->
+            <div class="pp-metric">
+                <div class="pp-metric__header">
+                    <span class="pp-metric__label">Priority Fee</span>
+                    <span class="pp-metric__icon pp-metric__icon--amber"><i class="fas fa-bolt"></i></span>
+                </div>
+                <div class="pp-metric__value" id="metricFee">--</div>
+                <div class="pp-metric__sub">sat/vB (next block)</div>
+            </div>
+        </div>
+
+        <!-- ════════ Two-Column: Fear & Greed + On-Chain ════════ -->
+        <div class="pp-mkt-split">
+            <!-- Fear & Greed -->
+            <div class="pp-fng" id="fngPanel">
+                <div class="pp-fng__header">
+                    <span class="pp-fng__title">Fear & Greed Index</span>
+                    <span class="pp-mono pp-tiny pp-text-muted">alternative.me</span>
+                </div>
+                <div class="pp-fng__gauge-wrap">
+                    <div class="pp-fng__score" id="fngScore">--</div>
+                    <div class="pp-fng__label" id="fngLabel">Loading...</div>
+                </div>
+                <div class="pp-fng__bar">
+                    <div class="pp-fng__needle" id="fngNeedle" style="left:50%;"></div>
+                </div>
+                <div style="margin-top:24px;">
+                    <canvas id="fngChart" height="120"></canvas>
+                </div>
+            </div>
+
+            <!-- On-Chain Metrics -->
+            <div class="pp-panel" id="onchainPanel">
+                <div class="pp-panel__header">
+                    <span class="pp-panel__title">On-Chain Metrics</span>
+                    <span class="pp-mono pp-tiny pp-text-muted">blockchain.com</span>
+                </div>
+                <div id="onchainStats">
+                    <div class="pp-stat-row">
+                        <span class="pp-stat-row__label">Transactions (24h)</span>
+                        <span class="pp-stat-row__value" id="ocTx24h">--</span>
+                    </div>
+                    <div class="pp-stat-row">
+                        <span class="pp-stat-row__label">Blocks Mined (24h)</span>
+                        <span class="pp-stat-row__value" id="ocBlocks24h">--</span>
+                    </div>
+                    <div class="pp-stat-row">
+                        <span class="pp-stat-row__label">Avg Block Time</span>
+                        <span class="pp-stat-row__value" id="ocBlockTime">--</span>
+                    </div>
+                    <div class="pp-stat-row">
+                        <span class="pp-stat-row__label">BTC Sent (24h)</span>
+                        <span class="pp-stat-row__value" id="ocSent24h">--</span>
+                    </div>
+                    <div class="pp-stat-row">
+                        <span class="pp-stat-row__label">Miner Revenue</span>
+                        <span class="pp-stat-row__value" id="ocMinerRev">--</span>
+                    </div>
+                    <div class="pp-stat-row">
+                        <span class="pp-stat-row__label">Difficulty</span>
+                        <span class="pp-stat-row__value" id="ocDifficulty">--</span>
+                    </div>
+                    <div class="pp-stat-row">
+                        <span class="pp-stat-row__label">Blockchain Size</span>
+                        <span class="pp-stat-row__value" id="ocSize">--</span>
+                    </div>
+                    <div class="pp-stat-row">
+                        <span class="pp-stat-row__label">Circulating Supply</span>
+                        <span class="pp-stat-row__value" id="ocSupply">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════ Two-Column: Fees + Trending ════════ -->
+        <div class="pp-mkt-split">
+            <!-- Fee Estimates -->
+            <div class="pp-panel">
+                <div class="pp-panel__header">
+                    <span class="pp-panel__title">Fee Estimates</span>
+                    <span class="pp-mono pp-tiny pp-text-muted">mempool.space</span>
+                </div>
+                <table class="pp-fee-table">
+                    <thead>
+                        <tr>
+                            <th>Priority</th>
+                            <th>Fee (sat/vB)</th>
+                            <th>Est. Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="feeTableBody">
+                        <tr><td>Fastest</td><td id="feeFastest">--</td><td>~10 min</td></tr>
+                        <tr><td>Half Hour</td><td id="feeHalf">--</td><td>~30 min</td></tr>
+                        <tr><td>Hour</td><td id="feeHour">--</td><td>~60 min</td></tr>
+                        <tr><td>Economy</td><td id="feeEcon">--</td><td>1-2 hrs</td></tr>
+                        <tr><td>Minimum</td><td id="feeMin">--</td><td>Variable</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Trending -->
+            <div class="pp-panel">
+                <div class="pp-panel__header">
+                    <span class="pp-panel__title">Trending</span>
+                    <span class="pp-mono pp-tiny pp-text-muted">coingecko</span>
+                </div>
+                <div id="trendingList">
+                    <div class="pp-skel pp-skel--line"></div>
+                    <div class="pp-skel pp-skel--line" style="width:80%"></div>
+                    <div class="pp-skel pp-skel--line" style="width:70%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════ 30-Day Price Chart ════════ -->
+        <div class="pp-panel" style="margin-bottom:24px;">
+            <div class="pp-panel__header">
+                <span class="pp-panel__title">BTC Price — 30 Days</span>
+                <div style="display:flex;gap:8px;">
+                    <button class="pp-btn pp-btn--ghost pp-btn--sm pp-chart-range active" data-days="7">7D</button>
+                    <button class="pp-btn pp-btn--ghost pp-btn--sm pp-chart-range" data-days="30">30D</button>
+                    <button class="pp-btn pp-btn--ghost pp-btn--sm pp-chart-range" data-days="90">90D</button>
+                    <button class="pp-btn pp-btn--ghost pp-btn--sm pp-chart-range" data-days="365">1Y</button>
+                </div>
+            </div>
+            <div style="height:320px;position:relative;">
+                <canvas id="priceHistoryChart"></canvas>
+            </div>
+        </div>
+
+        <!-- ════════ Global Market Stats Row ════════ -->
+        <div class="pp-mkt-grid" style="margin-bottom:0;">
+            <div class="pp-metric">
+                <div class="pp-metric__header">
+                    <span class="pp-metric__label">Total Crypto Market</span>
+                </div>
+                <div class="pp-metric__value" id="metricTotalMkt">--</div>
+            </div>
+            <div class="pp-metric">
+                <div class="pp-metric__header">
+                    <span class="pp-metric__label">24h Volume (Global)</span>
+                </div>
+                <div class="pp-metric__value" id="metricGlobalVol">--</div>
+            </div>
+            <div class="pp-metric">
+                <div class="pp-metric__header">
+                    <span class="pp-metric__label">Active Cryptos</span>
+                </div>
+                <div class="pp-metric__value" id="metricActiveCryptos">--</div>
+            </div>
+            <div class="pp-metric">
+                <div class="pp-metric__header">
+                    <span class="pp-metric__label">Market Change 24h</span>
+                </div>
+                <div class="pp-metric__value" id="metricMktChange">--</div>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    'use strict';
+
+    /* ── Formatters ── */
+    function fmtUSD(n) {
+        if (!n || n === 0) return '$--';
+        if (n >= 1e12) return '$' + (n / 1e12).toFixed(2) + 'T';
+        if (n >= 1e9) return '$' + (n / 1e9).toFixed(1) + 'B';
+        if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
+        return '$' + n.toLocaleString('en-US', {maximumFractionDigits: 0});
+    }
+    function fmtBTC(n) {
+        if (!n || n === 0) return '--';
+        if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M BTC';
+        if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K BTC';
+        return n.toFixed(2) + ' BTC';
+    }
+    function fmtNum(n) {
+        if (!n && n !== 0) return '--';
+        return n.toLocaleString('en-US');
+    }
+    function fmtPct(n) {
+        if (n == null) return '--';
+        var s = n >= 0 ? '+' : '';
+        return s + n.toFixed(2) + '%';
+    }
+    function pctClass(n) { return n >= 0 ? 'pp-up' : 'pp-down'; }
+
+    function fngColorClass(val) {
+        if (val <= 20) return 'pp-fng--extreme-fear';
+        if (val <= 40) return 'pp-fng--fear';
+        if (val <= 60) return 'pp-fng--neutral';
+        if (val <= 80) return 'pp-fng--greed';
+        return 'pp-fng--extreme-greed';
+    }
+
+    /* ── Chart instances ── */
+    var sparklineChart = null;
+    var fngChart = null;
+    var priceHistoryChart = null;
+
+    function initSparkline(prices) {
+        var ctx = document.getElementById('sparklineChart');
+        if (!ctx) return;
+        if (sparklineChart) sparklineChart.destroy();
+
+        var color = prices.length > 1 && prices[prices.length - 1] >= prices[0]
+            ? 'rgba(0, 230, 118, 1)' : 'rgba(255, 71, 87, 1)';
+        var fillColor = prices.length > 1 && prices[prices.length - 1] >= prices[0]
+            ? 'rgba(0, 230, 118, 0.08)' : 'rgba(255, 71, 87, 0.08)';
+
+        sparklineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: prices.map(function(_, i) { return i; }),
+                datasets: [{
+                    data: prices,
+                    borderColor: color,
+                    backgroundColor: fillColor,
+                    fill: true,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                scales: {
+                    x: { display: false },
+                    y: { display: false }
+                },
+                animation: { duration: 800 }
+            }
+        });
+    }
+
+    function initFngChart(history) {
+        var ctx = document.getElementById('fngChart');
+        if (!ctx || !history || !history.length) return;
+        if (fngChart) fngChart.destroy();
+
+        var labels = history.map(function(d) {
+            var dt = new Date(d.timestamp * 1000);
+            return (dt.getMonth() + 1) + '/' + dt.getDate();
+        }).reverse();
+        var values = history.map(function(d) { return d.value; }).reverse();
+        var colors = values.map(function(v) {
+            if (v <= 25) return '#ff4757';
+            if (v <= 45) return '#ff6b81';
+            if (v <= 55) return '#ffa502';
+            if (v <= 75) return '#2ed573';
+            return '#00d4aa';
+        });
+
+        fngChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: colors,
+                    borderRadius: 2,
+                    barPercentage: 0.7,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: {
+                    callbacks: {
+                        label: function(ctx) { return 'Score: ' + ctx.parsed.y; }
+                    }
+                }},
+                scales: {
+                    x: {
+                        ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 9, family: "'JetBrains Mono'" }, maxRotation: 0, maxTicksLimit: 10 },
+                        grid: { display: false },
+                        border: { display: false }
+                    },
+                    y: {
+                        min: 0, max: 100,
+                        ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 9, family: "'JetBrains Mono'" }, stepSize: 25 },
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        border: { display: false }
+                    }
+                },
+                animation: { duration: 600 }
+            }
+        });
+    }
+
+    function initPriceHistory(prices) {
+        var ctx = document.getElementById('priceHistoryChart');
+        if (!ctx || !prices || !prices.length) return;
+        if (priceHistoryChart) priceHistoryChart.destroy();
+
+        var labels = prices.map(function(p) {
+            var dt = new Date(p[0]);
+            return (dt.getMonth() + 1) + '/' + dt.getDate();
+        });
+        var values = prices.map(function(p) { return p[1]; });
+        var up = values[values.length - 1] >= values[0];
+
+        priceHistoryChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'BTC Price',
+                    data: values,
+                    borderColor: up ? '#00d4aa' : '#ff4757',
+                    backgroundColor: up ? 'rgba(0, 212, 170, 0.06)' : 'rgba(255, 71, 87, 0.06)',
+                    fill: true,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    tension: 0.3,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { intersect: false, mode: 'index' },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1a1a1a',
+                        titleColor: '#f0f0f0',
+                        bodyColor: '#f0f0f0',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(ctx) { return fmtUSD(ctx.parsed.y); }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10, family: "'JetBrains Mono'" }, maxTicksLimit: 12, maxRotation: 0 },
+                        grid: { display: false },
+                        border: { display: false }
+                    },
+                    y: {
+                        ticks: {
+                            color: 'rgba(255,255,255,0.3)',
+                            font: { size: 10, family: "'JetBrains Mono'" },
+                            callback: function(val) { return fmtUSD(val); }
+                        },
+                        grid: { color: 'rgba(255,255,255,0.04)' },
+                        border: { display: false }
+                    }
+                },
+                animation: { duration: 800 }
+            }
+        });
+    }
+
+    /* ── Data update ── */
+    function updateDashboard(data) {
+        var btc = data.btc || {};
+        var gm = data.global_market || {};
+        var fg = data.fear_greed || {};
+        var mp = data.mempool || {};
+        var bc = data.blockchain || {};
+        var trending = data.trending || [];
+
+        // Hero price
+        var priceEl = document.getElementById('heroPrice');
+        if (priceEl && btc.price_usd) {
+            priceEl.textContent = '$' + btc.price_usd.toLocaleString('en-US', {maximumFractionDigits: 0});
+            priceEl.className = 'pp-price-hero__value';
+        }
+        var changeEl = document.getElementById('heroChange');
+        if (changeEl && btc.change_24h != null) {
+            changeEl.innerHTML = '<span class="' + pctClass(btc.change_24h) + '">' + fmtPct(btc.change_24h) + ' (24h)</span>';
+            var ch1h = btc.change_1h != null ? ' &nbsp; <span class="' + pctClass(btc.change_1h) + '" style="font-size:0.875rem;">' + fmtPct(btc.change_1h) + ' (1h)</span>' : '';
+            var ch7d = btc.change_7d != null ? ' &nbsp; <span class="' + pctClass(btc.change_7d) + '" style="font-size:0.875rem;">' + fmtPct(btc.change_7d) + ' (7d)</span>' : '';
+            changeEl.innerHTML += ch1h + ch7d;
+        }
+
+        setText('heroHigh', fmtUSD(btc.high_24h));
+        setText('heroLow', fmtUSD(btc.low_24h));
+        setText('heroVol', fmtUSD(btc.total_volume_24h));
+        setText('heroCap', fmtUSD(btc.market_cap));
+
+        // Sparkline
+        if (btc.sparkline_7d && btc.sparkline_7d.length) {
+            initSparkline(btc.sparkline_7d);
+        }
+
+        // Stats grid
+        setText('metricDominance', gm.btc_dominance ? gm.btc_dominance.toFixed(1) + '%' : '--');
+        var mpTx = (mp.mempool || {}).tx_count;
+        setText('metricMempool', mpTx ? fmtNum(mpTx) : '--');
+        var hr = (mp.mining || {}).hashrate_eh;
+        setText('metricHashrate', hr ? hr + ' EH/s' : '--');
+        var fee = (mp.fees || {}).fastest;
+        setText('metricFee', fee ? fee + ' sat/vB' : '--');
+
+        // Fear & Greed
+        if (fg.value != null) {
+            var scoreEl = document.getElementById('fngScore');
+            var labelEl = document.getElementById('fngLabel');
+            var needleEl = document.getElementById('fngNeedle');
+            if (scoreEl) {
+                scoreEl.textContent = fg.value;
+                scoreEl.className = 'pp-fng__score ' + fngColorClass(fg.value);
+            }
+            if (labelEl) {
+                labelEl.textContent = fg.label;
+                labelEl.className = 'pp-fng__label ' + fngColorClass(fg.value);
+            }
+            if (needleEl) needleEl.style.left = fg.value + '%';
+        }
+        if (fg.history_30d) initFngChart(fg.history_30d);
+
+        // On-chain
+        setText('ocTx24h', fmtNum(bc.n_tx_24h));
+        setText('ocBlocks24h', bc.n_blocks_mined_24h || '--');
+        setText('ocBlockTime', bc.minutes_between_blocks ? bc.minutes_between_blocks.toFixed(1) + ' min' : '--');
+        setText('ocSent24h', fmtBTC(bc.estimated_btc_sent_24h));
+        setText('ocMinerRev', fmtBTC(bc.miners_revenue_btc));
+        setText('ocDifficulty', bc.difficulty ? (bc.difficulty / 1e12).toFixed(2) + 'T' : '--');
+        setText('ocSize', bc.blockchain_size_gb ? bc.blockchain_size_gb + ' GB' : '--');
+        setText('ocSupply', btc.circulating_supply ? fmtNum(Math.floor(btc.circulating_supply)) + ' BTC' : '--');
+
+        // Fees
+        var fees = mp.fees || {};
+        setText('feeFastest', fees.fastest || '--');
+        setText('feeHalf', fees.half_hour || '--');
+        setText('feeHour', fees.hour || '--');
+        setText('feeEcon', fees.economy || '--');
+        setText('feeMin', fees.minimum || '--');
+
+        // Trending
+        var trendEl = document.getElementById('trendingList');
+        if (trendEl && trending.length) {
+            trendEl.innerHTML = trending.map(function(coin, i) {
+                var img = coin.thumb ? '<img src="' + coin.thumb + '" class="pp-trending-item__icon" alt="' + coin.symbol + '">' : '<div class="pp-trending-item__icon"></div>';
+                return '<div class="pp-trending-item">' +
+                    '<span class="pp-trending-item__rank">' + (i + 1) + '</span>' +
+                    img +
+                    '<span class="pp-trending-item__name">' + coin.name +
+                    '<span class="pp-trending-item__symbol">' + coin.symbol.toUpperCase() + '</span></span>' +
+                    '</div>';
+            }).join('');
+        }
+
+        // Global
+        setText('metricTotalMkt', fmtUSD(gm.total_market_cap_usd));
+        setText('metricGlobalVol', fmtUSD(gm.total_volume_24h));
+        setText('metricActiveCryptos', fmtNum(gm.active_cryptocurrencies));
+        var mktChange = document.getElementById('metricMktChange');
+        if (mktChange && gm.market_cap_change_24h != null) {
+            mktChange.textContent = fmtPct(gm.market_cap_change_24h);
+            mktChange.className = 'pp-metric__value ' + pctClass(gm.market_cap_change_24h);
+        }
+
+        // Timestamp
+        setText('mktLastUpdate', new Date().toLocaleTimeString());
+    }
+
+    function setText(id, val) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = val;
+    }
+
+    /* ── Data fetch ── */
+    function fetchDashboard() {
+        fetch('/api/market-dashboard')
+            .then(function(r) { return r.json(); })
+            .then(function(data) { updateDashboard(data); })
+            .catch(function(err) { console.warn('Dashboard fetch failed:', err); });
+    }
+
+    function fetchPriceHistory(days) {
+        fetch('/api/market-dashboard/history?days=' + days)
+            .then(function(r) { return r.json(); })
+            .then(function(data) { if (data.prices) initPriceHistory(data.prices); })
+            .catch(function() {});
+    }
+
+    /* ── Chart range buttons ── */
+    document.querySelectorAll('.pp-chart-range').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.pp-chart-range').forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            fetchPriceHistory(parseInt(btn.dataset.days));
+        });
+    });
+
+    /* ── Init ── */
+    fetchDashboard();
+    fetchPriceHistory(7);
+    setInterval(fetchDashboard, 45000);
+})();
+</script>
+{% endblock %}

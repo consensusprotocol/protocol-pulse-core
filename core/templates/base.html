@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#dc2626">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Protocol Pulse">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+    <title>{% block title %}Protocol Pulse{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+    <link rel="preload" href="{{ url_for('static', filename='css/style.css') }}?v=1.3" as="style">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=1.3">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/coindesk-style.css') }}?v=1.1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/protocol-pulse-tokens.css') }}?v=1.0">
+    {% if current_user.is_authenticated and current_user.operative_rank >= 3 %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stealth-alpha.css') }}?v=1.0">
+    {% endif %}
+    
+    <!-- JSON-LD Schema Markup for AI Agent Ingestion (ChatGPT/Gemini) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "NewsMediaOrganization",
+        "name": "Protocol Pulse",
+        "url": "{{ request.url_root }}",
+        "logo": "{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}",
+        "description": "World-Class Bitcoin Intelligence Hub delivering peer-to-peer briefings for transactors. Real-time network metrics, expert analysis, and sound money philosophy.",
+        "sameAs": [
+            "https://twitter.com/ProtocolPulse"
+        ],
+        "foundingDate": "2025",
+        "knowsAbout": ["Bitcoin", "Cryptocurrency", "Blockchain", "Sound Money", "Mining", "Network Security"],
+        "publishingPrinciples": "Technical Storytelling for transactors, not tourists. All content verified against ground truth network data.",
+        "slogan": "Intelligence for Transactors"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Protocol Pulse",
+        "url": "{{ request.url_root }}",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "{{ request.url_root }}search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        },
+        "about": {
+            "@type": "Thing",
+            "name": "Bitcoin Network Intelligence",
+            "description": "Real-time Bitcoin network metrics including difficulty (146.47 T), hashrate (~977 EH/s), and mining economics analysis."
+        }
+    }
+    </script>
+    {% block schema %}{% endblock %}
+    {% block head %}{% endblock %}
+    {% block extra_css %}{% endblock %}
+    
+    <!-- Phase 4: High-Voltage Lightning Discharge SVG Filter -->
+    <svg class="pp-filters-svg" style="position:absolute;width:0;height:0;">
+        <defs>
+            <filter id="pp-discharge" x="-50%" y="-50%" width="200%" height="200%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" result="noise" seed="1">
+                    <animate attributeName="seed" values="1;100;1" dur="180ms" repeatCount="1" begin="indefinite"/>
+                </feTurbulence>
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="G" result="displaced">
+                    <animate attributeName="scale" values="0;12;0" dur="180ms" repeatCount="1" begin="indefinite"/>
+                </feDisplacementMap>
+                <feGaussianBlur in="displaced" stdDeviation="0.5" result="blurred"/>
+                <feMerge>
+                    <feMergeNode in="blurred"/>
+                    <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+            </filter>
+            
+            <filter id="pp-chromatic" x="-10%" y="-10%" width="120%" height="120%">
+                <feOffset in="SourceGraphic" dx="-2" dy="0" result="red">
+                    <animate attributeName="dx" values="0;-3;0" dur="200ms" repeatCount="1" begin="indefinite"/>
+                </feOffset>
+                <feColorMatrix in="red" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="redChannel"/>
+                <feOffset in="SourceGraphic" dx="2" dy="0" result="white">
+                    <animate attributeName="dx" values="0;3;0" dur="200ms" repeatCount="1" begin="indefinite"/>
+                </feOffset>
+                <feMerge>
+                    <feMergeNode in="redChannel"/>
+                    <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+            </filter>
+        </defs>
+    </svg>
+    
+    <style>
+    /* Phase 4: Lightning Pulse Effects */
+    .pp-zap {
+        animation: pp-pulse-chase 300ms ease-out;
+    }
+    @keyframes pp-pulse-chase {
+        0% { box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0); }
+        25% { box-shadow: inset 2px 0 0 2px rgba(255, 255, 255, 0.9), 0 0 15px rgba(255, 255, 255, 0.3); }
+        50% { box-shadow: inset 0 2px 0 2px rgba(255, 255, 255, 0.9), 0 0 15px rgba(255, 255, 255, 0.3); }
+        75% { box-shadow: inset -2px 0 0 2px rgba(255, 255, 255, 0.9), 0 0 15px rgba(255, 255, 255, 0.3); }
+        100% { box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0); }
+    }
+    .pp-discharge-active {
+        position: relative;
+        z-index: 0;
+    }
+    .pp-discharge {
+        animation: pp-discharge-bloom 200ms ease-out forwards;
+    }
+    @keyframes pp-discharge-bloom {
+        0% { box-shadow: 0 0 0 rgba(247, 147, 26, 0); transform: scale(1); }
+        15% { box-shadow: 0 0 30px rgba(247, 147, 26, 0.9), 0 0 60px rgba(255, 255, 255, 0.5), inset 0 0 20px rgba(247, 147, 26, 0.3); transform: scale(1.01); }
+        30% { box-shadow: 0 0 50px rgba(247, 147, 26, 0.7), 0 0 100px rgba(255, 255, 255, 0.3); transform: scale(1.005); }
+        100% { box-shadow: 0 0 0 rgba(247, 147, 26, 0); transform: scale(1); }
+    }
+    .pp-discharge-active::before {
+        content: '';
+        position: absolute;
+        inset: -3px;
+        border-radius: inherit;
+        background: linear-gradient(90deg, rgba(220, 38, 38, 0.5) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(220, 38, 38, 0.5) 100%);
+        background-size: 200% 100%;
+        animation: pp-chromatic-sweep 200ms ease-out forwards;
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0;
+    }
+    @keyframes pp-chromatic-sweep {
+        0% { opacity: 0; background-position: 0% 50%; }
+        20% { opacity: 0.9; background-position: 30% 50%; }
+        100% { opacity: 0; background-position: 100% 50%; }
+    }
+    .pp-discharge .metric-value, .pp-discharge .stat-value, .pp-discharge h3, .pp-discharge .data-text {
+        filter: none !important;
+        position: relative;
+        z-index: 10;
+    }
+    </style>
+</head>
+<body{% if current_user.is_authenticated and current_user.operative_rank >= 3 %} class="rank-3-active"{% endif %}>
+    
+    <!-- Master Architect Navigation - Glassmorphic Command Bar -->
+    <nav class="nav-command-bar">
+        <div class="nav-link-cluster primary">
+            <a href="/" class="nav-brand">
+                <img src="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png') }}" alt="Protocol Pulse">
+                <span class="d-none d-xl-inline">Protocol Pulse</span>
+            </a>
+            <a href="/#intelligence-dashboard" class="nav-item"><i class="fas fa-satellite"></i><span class="d-none d-lg-inline">Intel</span></a>
+            <a href="/articles" class="nav-item"><i class="fas fa-terminal"></i><span class="d-none d-lg-inline">Briefs</span></a>
+            <div class="nav-dropdown">
+                <a href="#" class="nav-item"><i class="fas fa-play-circle"></i><span class="d-none d-lg-inline">Media</span><i class="fas fa-chevron-down ms-1" style="font-size: 0.6rem;"></i></a>
+                <div class="nav-dropdown-menu">
+                    <a href="/media" class="nav-dropdown-item"><i class="fas fa-broadcast-tower" style="color: #f7931a;"></i>Media Hub</a>
+                    <a href="/media#section-podcasts" class="nav-dropdown-item"><i class="fas fa-podcast" style="color: #a855f7;"></i>Podcasts</a>
+                    <a href="/clips" class="nav-dropdown-item"><i class="fas fa-film" style="color: #3b82f6;"></i>Signal Clips</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="#" class="nav-item"><i class="fas fa-map-marked-alt"></i><span class="d-none d-lg-inline">Maps</span><i class="fas fa-chevron-down ms-1" style="font-size: 0.6rem;"></i></a>
+                <div class="nav-dropdown-menu">
+                    <a href="/map" class="nav-dropdown-item"><i class="fas fa-store text-warning"></i>Sovereign Merchants</a>
+                    <a href="/meetup-map" class="nav-dropdown-item"><i class="fas fa-users text-info"></i>Bitcoin Meetups</a>
+                </div>
+            </div>
+            <a href="/bitfeed-live" class="nav-item"><i class="fas fa-heartbeat"></i><span class="d-none d-lg-inline">Pulse</span></a>
+            <a href="/merch" class="nav-item"><i class="fas fa-tshirt"></i><span class="d-none d-lg-inline">Merch</span></a>
+            <a href="/logistics" class="nav-item"><i class="fas fa-folder-open"></i><span class="d-none d-lg-inline">Index</span></a>
+            <div class="nav-dropdown">
+                <a href="#" class="nav-item"><i class="fas fa-layer-group"></i><span class="d-none d-lg-inline">Topics</span><i class="fas fa-chevron-down ms-1" style="font-size: 0.6rem;"></i></a>
+                <div class="nav-dropdown-menu">
+                    <a href="/bitcoin" class="nav-dropdown-item"><i class="fab fa-bitcoin text-warning"></i>Bitcoin</a>
+                    <a href="/defi" class="nav-dropdown-item"><i class="fas fa-coins text-info"></i>DeFi</a>
+                    <a href="/regulation" class="nav-dropdown-item"><i class="fas fa-gavel text-danger"></i>Regulation</a>
+                    <a href="/privacy-policy" class="nav-dropdown-item"><i class="fas fa-user-secret text-success"></i>Privacy</a>
+                    <div class="nav-dropdown-divider"></div>
+                    <a href="/sovereign-custody" class="nav-dropdown-item"><i class="fas fa-shield-alt" style="color: #a855f7;"></i>Sovereign Custody</a>
+                    <a href="/cypherpunks" class="nav-dropdown-item"><i class="fas fa-mask" style="color: #a855f7;"></i>Cypherpunks</a>
+                    <a href="/freedom-tech" class="nav-dropdown-item"><i class="fas fa-key" style="color: #8b5cf6;"></i>Freedom Tech</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="#" class="nav-item"><i class="fas fa-palette"></i><span class="d-none d-lg-inline">Culture</span><i class="fas fa-chevron-down ms-1" style="font-size: 0.6rem;"></i></a>
+                <div class="nav-dropdown-menu">
+                    <a href="/bitcoin-music" class="nav-dropdown-item"><i class="fas fa-music" style="color: #f59e0b;"></i>Bitcoin Music</a>
+                    <a href="/bitcoin-artists" class="nav-dropdown-item"><i class="fas fa-paint-brush" style="color: #ec4899;"></i>Artists & Creators</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="#" class="nav-item"><i class="fas fa-tools"></i><span class="d-none d-lg-inline">Tools</span><i class="fas fa-chevron-down ms-1" style="font-size: 0.6rem;"></i></a>
+                <div class="nav-dropdown-menu">
+                    <a href="/dossier" class="nav-dropdown-item"><i class="fas fa-folder-open" style="color: #dc2626;"></i>The Dossier <span style="font-size: 0.6rem; color: #dc2626; letter-spacing: 0.05em;">DECLASSIFIED</span></a>
+                    <a href="/live" class="nav-dropdown-item"><i class="fas fa-atom" style="color: #dc2626;"></i>Live Terminal</a>
+                    <a href="/whale-watcher" class="nav-dropdown-item"><i class="fas fa-water" style="color: #3b82f6;"></i>Whale Watcher</a>
+                    <a href="/live#intel-mining" class="nav-dropdown-item"><i class="fas fa-microchip" style="color: #f97316;"></i>Mining Intel</a>
+                    <a href="/mining-risk" class="nav-dropdown-item"><i class="fas fa-globe-americas" style="color: #f97316;"></i>Mining Risk</a>
+                    <a href="/hud" class="nav-dropdown-item"><i class="fas fa-broadcast-tower" style="color: #22c55e;"></i>Predictive HUD</a>
+                    <div class="nav-dropdown-divider"></div>
+                    <a href="/value-stream" class="nav-dropdown-item"><i class="fas fa-bolt" style="color: #f7931a;"></i>Value Stream <span style="background: linear-gradient(135deg, #8b5cf6, #a855f7); color: #fff; font-size: 0.6rem; padding: 2px 6px; border-radius: 8px; margin-left: 6px; font-weight: 700;">NEW</span></a>
+                    <a href="/solo-slayers" class="nav-dropdown-item"><i class="fas fa-hammer" style="color: #fbbf24;"></i>Solo Slayers <span style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; font-size: 0.6rem; padding: 2px 6px; border-radius: 8px; margin-left: 6px; font-weight: 700;">HOT</span></a>
+                    <a href="/chat" class="nav-dropdown-item"><i class="fas fa-robot" style="color: #3b82f6;"></i>Ask Alex</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-link-cluster">
+            <div class="command-search-wrap">
+                <i class="fas fa-search command-search-icon"></i>
+                <input type="text" class="command-search" id="commandSearchInput" placeholder="Search..." onclick="openCommandPalette()">
+                <span class="command-shortcut">⌘K</span>
+            </div>
+            
+            <div class="sovereign-mode-toggle">
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                <a href="/admin/command-deck" class="btn btn-outline-success btn-sm sovereign-btn" id="commandDeckNavBtn">
+                    <i class="fas fa-user-shield"></i>
+                    <span class="d-none d-lg-inline">Command Deck</span>
+                </a>
+                {% else %}
+                <button class="btn btn-outline-success btn-sm sovereign-btn" id="sovereignModeBtn" onclick="toggleSovereignMode()">
+                    <i class="fas fa-user-shield"></i>
+                    <span class="d-none d-lg-inline">Sovereign</span>
+                </button>
+                {% endif %}
+                {% if not current_user.is_authenticated or not current_user.is_admin %}
+                <div class="sovereign-explainer">
+                    <div class="sovereign-explainer-header">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>SOVEREIGN MODE</span>
+                    </div>
+                    <div class="sovereign-explainer-body">
+                        Initialize a hardened browsing state. Protocol Pulse blocks third-party trackers and obfuscates your session. Your data stays yours.
+                    </div>
+                    <div class="sovereign-status-grid">
+                        <div class="sovereign-status-item">
+                            <div class="sovereign-status-icon">🚫</div>
+                            <div class="sovereign-status-label">Tracking</div>
+                        </div>
+                        <div class="sovereign-status-item">
+                            <div class="sovereign-status-icon">🕵️</div>
+                            <div class="sovereign-status-label">Identity</div>
+                        </div>
+                        <div class="sovereign-status-item">
+                            <div class="sovereign-status-icon">🟣</div>
+                            <div class="sovereign-status-label">Shield</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if current_user.is_authenticated %}
+                {% if current_user.is_admin %}
+                <a href="/admin/command-deck" class="nav-item" style="color: #fbbf24;"><i class="fas fa-user-shield"></i><span class="d-none d-lg-inline">Admin</span></a>
+                {% endif %}
+                {% if current_user.has_premium() %}
+                <a href="/hub" class="nav-item" style="color: var(--pp-accent);"><i class="fas fa-gem"></i><span class="d-none d-lg-inline">Hub</span></a>
+                {% endif %}
+                <a href="/logout" class="nav-item"><i class="fas fa-sign-out-alt"></i></a>
+            {% else %}
+                <a href="/login" class="nav-item"><i class="fas fa-user"></i><span class="d-none d-lg-inline">Login</span></a>
+            {% endif %}
+            
+            <button class="nav-mobile-toggle" id="mobileNavToggle" onclick="toggleMobileNav()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Command Palette Modal -->
+    <div class="command-palette-overlay" id="commandPalette">
+        <div class="command-palette">
+            <input type="text" class="command-palette-input" id="commandPaletteInput" placeholder="Type a command or search..." autofocus>
+            <div class="command-palette-results" id="commandResults">
+                <div class="command-section-header">Quick Actions</div>
+                <div class="command-item" onclick="navigateTo('/')">
+                    <div class="command-item-icon"><i class="fas fa-home"></i></div>
+                    <div class="command-item-text">
+                        <div class="command-item-title">Home</div>
+                        <div class="command-item-desc">Return to dashboard</div>
+                    </div>
+                </div>
+                <div class="command-item" onclick="navigateTo('/articles')">
+                    <div class="command-item-icon"><i class="fas fa-newspaper"></i></div>
+                    <div class="command-item-text">
+                        <div class="command-item-title">Intel Briefs</div>
+                        <div class="command-item-desc">Latest Bitcoin intelligence</div>
+                    </div>
+                </div>
+                <div class="command-item" onclick="navigateTo('/bitfeed-live')">
+                    <div class="command-item-icon"><i class="fas fa-heartbeat"></i></div>
+                    <div class="command-item-text">
+                        <div class="command-item-title">Bitfeed Live</div>
+                        <div class="command-item-desc">Real-time mempool visualizer</div>
+                    </div>
+                </div>
+                <div class="command-section-header">Tools</div>
+                <div class="command-item" onclick="navigateTo('/whale-watcher')">
+                    <div class="command-item-icon"><i class="fas fa-water"></i></div>
+                    <div class="command-item-text">
+                        <div class="command-item-title">Whale Watcher</div>
+                        <div class="command-item-desc">Monitor large transactions</div>
+                    </div>
+                </div>
+                <div class="command-item" onclick="navigateTo('/live')">
+                    <div class="command-item-icon"><i class="fas fa-atom"></i></div>
+                    <div class="command-item-text">
+                        <div class="command-item-title">Live Terminal</div>
+                        <div class="command-item-desc">Blockchain visualizer</div>
+                    </div>
+                </div>
+                <div class="command-item" onclick="navigateTo('/map')">
+                    <div class="command-item-icon"><i class="fas fa-map-marked-alt"></i></div>
+                    <div class="command-item-text">
+                        <div class="command-item-title">Merchant Map</div>
+                        <div class="command-item-desc">Bitcoin-accepting businesses</div>
+                    </div>
+                </div>
+                <div class="command-item" onclick="navigateTo('/sovereign-custody')">
+                    <div class="command-item-icon" style="color: #a855f7;"><i class="fas fa-shield-alt"></i></div>
+                    <div class="command-item-text">
+                        <div class="command-item-title">Sovereign Custody</div>
+                        <div class="command-item-desc">Hardware wallet setup guides</div>
+                    </div>
+                </div>
+                <div class="command-item" onclick="navigateTo('/solo-slayers')">
+                    <div class="command-item-icon" style="color: #fbbf24;"><i class="fas fa-hammer"></i></div>
+                    <div class="command-item-text">
+                        <div class="command-item-title">Solo Slayers</div>
+                        <div class="command-item-desc">Lottery miners who beat the odds</div>
+                    </div>
+                </div>
+                <div class="command-item" onclick="navigateTo('/dossier')">
+                    <div class="command-item-icon" style="color: #dc2626;"><i class="fas fa-folder-open"></i></div>
+                    <div class="command-item-text">
+                        <div class="command-item-title">The Dossier</div>
+                        <div class="command-item-desc">32-image sovereign manifesto</div>
+                    </div>
+                </div>
+                <div class="command-item" onclick="navigateTo('/mining-risk')">
+                    <div class="command-item-icon" style="color: #f97316;"><i class="fas fa-globe-americas"></i></div>
+                    <div class="command-item-text">
+                        <div class="command-item-title">Mining Risk</div>
+                        <div class="command-item-desc">Deployment risk by geography</div>
+                    </div>
+                </div>
+                <div class="command-item" onclick="navigateTo('/chat')">
+                    <div class="command-item-icon"><i class="fas fa-robot"></i></div>
+                    <div class="command-item-text">
+                        <div class="command-item-title">Ask Alex</div>
+                        <div class="command-item-desc">AI-powered Bitcoin analyst</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div class="mobile-nav-overlay" id="mobileNavOverlay" onclick="closeMobileNav()"></div>
+    <div class="mobile-nav-drawer" id="mobileNavDrawer">
+        <button class="mobile-nav-close" onclick="closeMobileNav()"><i class="fas fa-times"></i></button>
+        <a href="/" class="mobile-nav-item"><i class="fas fa-home"></i>Home</a>
+        <a href="/#intelligence-dashboard" class="mobile-nav-item"><i class="fas fa-satellite"></i>Intel Dashboard</a>
+        <a href="/articles" class="mobile-nav-item"><i class="fas fa-terminal"></i>Briefs</a>
+        <a href="/media" class="mobile-nav-item"><i class="fas fa-broadcast-tower" style="color: #f7931a;"></i>Media Hub</a>
+        <a href="/media#section-podcasts" class="mobile-nav-item"><i class="fas fa-podcast" style="color: #a855f7;"></i>Podcasts</a>
+        <a href="/clips" class="mobile-nav-item"><i class="fas fa-film" style="color: #3b82f6;"></i>Signal Clips</a>
+        <a href="/bitfeed-live" class="mobile-nav-item"><i class="fas fa-heartbeat"></i>Pulse</a>
+        <a href="/map" class="mobile-nav-item"><i class="fas fa-map-marked-alt"></i>Merchant Map</a>
+        <a href="/merch" class="mobile-nav-item"><i class="fas fa-tshirt"></i>Merch</a>
+        <a href="/logistics" class="mobile-nav-item"><i class="fas fa-folder-open"></i>Infrastructure Index</a>
+        <a href="/whale-watcher" class="mobile-nav-item"><i class="fas fa-water"></i>Whale Watcher</a>
+        <a href="/solo-slayers" class="mobile-nav-item"><i class="fas fa-hammer" style="color: #fbbf24;"></i>Solo Slayers</a>
+        <a href="/mining-risk" class="mobile-nav-item"><i class="fas fa-globe-americas" style="color: #f97316;"></i>Mining Risk</a>
+        <a href="/dossier" class="mobile-nav-item"><i class="fas fa-folder-open" style="color: #dc2626;"></i>The Dossier</a>
+        <a href="/live" class="mobile-nav-item"><i class="fas fa-atom"></i>Live Terminal</a>
+        <a href="/sovereign-custody" class="mobile-nav-item"><i class="fas fa-shield-alt"></i>Sovereign Custody</a>
+        <a href="/chat" class="mobile-nav-item"><i class="fas fa-robot"></i>Ask Alex</a>
+        {% if current_user.is_authenticated %}
+            {% if current_user.is_admin %}
+            <a href="/admin/command-deck" class="mobile-nav-item" style="color: #fbbf24;"><i class="fas fa-user-shield"></i>Admin</a>
+            {% endif %}
+            <a href="/logout" class="mobile-nav-item"><i class="fas fa-sign-out-alt"></i>Logout</a>
+        {% else %}
+            <a href="/login" class="mobile-nav-item"><i class="fas fa-user"></i>Login</a>
+        {% endif %}
+    </div>
+    
+    <!-- Hot Now Ticker -->
+    <div id="hot-ticker" class="hot-ticker-bar" style="display: none;">
+        <div class="container">
+            <div class="hot-ticker-content">
+                <span class="hot-ticker-label"><i class="fas fa-fire"></i> HOT NOW</span>
+                <div class="hot-ticker-items" id="hot-ticker-items"></div>
+            </div>
+        </div>
+    </div>
+    <style>
+        .hot-ticker-bar {
+            background: linear-gradient(90deg, rgba(255, 107, 53, 0.15), rgba(247, 147, 26, 0.1), rgba(255, 107, 53, 0.15));
+            border-bottom: 1px solid rgba(255, 107, 53, 0.3);
+            padding: 8px 0;
+            font-size: 0.85rem;
+            position: relative;
+            z-index: 100;
+        }
+        .hot-ticker-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            overflow: hidden;
+        }
+        .hot-ticker-label {
+            background: linear-gradient(135deg, #ff6b35, #f7931a);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .hot-ticker-items {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .hot-ticker-items::-webkit-scrollbar { display: none; }
+        .hot-ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            color: #f5f5f5;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .hot-ticker-item:hover {
+            color: #ff6b35;
+        }
+        .hot-ticker-heat {
+            color: #ff6b35;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+        .hot-ticker-title {
+            color: #ccc;
+        }
+        .hot-ticker-views {
+            color: #888;
+            font-size: 0.75rem;
+        }
+    </style>
+    
+    <main class="content-wrapper main-content">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <h5>Protocol Pulse</h5>
+                    <p>Bitcoin Intelligence for Transactors.</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Command Center</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/#intelligence-dashboard">Dashboard</a></li>
+                        <li><a href="/#terminal">Live Terminal</a></li>
+                        <li><a href="/#whale-watcher">Whale Watcher</a></li>
+                        <li><a href="/map">Merchant Map</a></li>
+                        <li><a href="/scorecard">Sovereign Scorecard</a></li>
+                        <li><a href="/solo-slayers">Solo Slayers</a></li>
+                        <li><a href="/clips">Signal Clips</a></li>
+                        <li><a href="/logistics" style="color: rgba(255,255,255,0.5);"><i class="fas fa-folder-open me-1" style="font-size: 0.7rem;"></i>Infrastructure Index</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Categories</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/bitcoin">Bitcoin</a></li>
+                        <li><a href="/defi">DeFi</a></li>
+                    </ul>
+                    <div class="mt-3">
+                        <h6 class="text-muted mb-2"><i class="fas fa-heart me-1"></i> Support the Signal</h6>
+                        <a href="/donate" class="btn btn-sm btn-outline-success me-1 mb-1">Tip $</a>
+                        <a href="/donate/bitcoin" class="btn btn-sm btn-outline-warning mb-1"><i class="fas fa-bolt"></i> Tip Sats</a>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="satoshi-clock">
+                        <div class="clock-label">NETWORK TIME (EST)</div>
+                        <div class="clock-display" id="est-clock" style="font-size: 1.3rem; margin-bottom: 10px;">
+                            <span class="clock-value" id="est-time">--:--:--</span>
+                            <span class="clock-unit" style="margin-left: 5px;">EST</span>
+                        </div>
+                        <div class="clock-label" style="margin-top: 8px;">2028 HALVING</div>
+                        <div class="clock-display" id="halving-clock" style="font-size: 1.1rem;">
+                            <span class="clock-segment"><span class="clock-value" id="halving-days">---</span><span class="clock-unit">D</span></span>
+                            <span class="clock-separator">:</span>
+                            <span class="clock-segment"><span class="clock-value" id="halving-hours">--</span><span class="clock-unit">H</span></span>
+                            <span class="clock-separator">:</span>
+                            <span class="clock-segment"><span class="clock-value" id="halving-mins">--</span><span class="clock-unit">M</span></span>
+                        </div>
+                        <div class="clock-sublabel">Block 1,050,000</div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <p class="mb-0">&copy; 2026 Protocol Pulse &nbsp; <a href="/privacy-policy" class="text-white-50 text-decoration-none">Privacy</a></p>
+                <div class="gas-alert-toggle">
+                    <button class="btn btn-sm btn-outline-danger" onclick="toggleGasAlerts()" id="gas-alert-btn">
+                        <i class="fas fa-bell me-1"></i>
+                        <span id="gas-alert-status">Enable Fee Alerts</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <style>
+    .satoshi-clock {
+        text-align: center;
+        padding: 15px;
+        background: rgba(220, 38, 38, 0.1);
+        border: 1px solid rgba(220, 38, 38, 0.3);
+        border-radius: 12px;
+    }
+    .clock-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        color: #dc2626;
+        letter-spacing: 2px;
+        margin-bottom: 8px;
+    }
+    .clock-display {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.5rem;
+        color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: baseline;
+        gap: 2px;
+    }
+    .clock-segment {
+        display: inline-flex;
+        align-items: baseline;
+    }
+    .clock-value {
+        font-weight: 700;
+    }
+    .clock-unit {
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.5);
+        margin-left: 2px;
+    }
+    .clock-separator {
+        color: #dc2626;
+        font-weight: 300;
+    }
+    .clock-sublabel {
+        font-size: 0.6rem;
+        color: rgba(255,255,255,0.4);
+        margin-top: 5px;
+        font-family: 'JetBrains Mono', monospace;
+    }
+    .gas-alert-toggle .btn {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+    }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/coindesk.js') }}" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var navbarCollapse = document.getElementById('navbarNav');
+            if (navbarCollapse) {
+                var navLinks = navbarCollapse.querySelectorAll('.nav-link, .btn');
+                navLinks.forEach(function(link) {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth < 992) {
+                            var bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
+                            if (bsCollapse) {
+                                bsCollapse.hide();
+                            }
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+    <script>
+    // EST Time Display
+    function updateESTClock() {
+        const now = new Date();
+        const estTime = now.toLocaleString('en-US', {
+            timeZone: 'America/New_York',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+        });
+        const estEl = document.getElementById('est-time');
+        if (estEl) estEl.textContent = estTime;
+    }
+    
+    // Satoshi Clock - 2028 Halving Countdown
+    function updateHalvingClock() {
+        // Estimated halving date: April 2028 (block 1,050,000)
+        const halvingDate = new Date('2028-04-15T00:00:00Z');
+        const now = new Date();
+        const diff = halvingDate - now;
+        
+        if (diff > 0) {
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            
+            document.getElementById('halving-days').textContent = days.toString().padStart(3, '0');
+            document.getElementById('halving-hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('halving-mins').textContent = mins.toString().padStart(2, '0');
+        }
+        
+        updateESTClock();
+    }
+    
+    // Sovereign Mode - Privacy-First Browsing
+    let sovereignModeEnabled = localStorage.getItem('sovereignMode') === 'true';
+    
+    function toggleSovereignMode() {
+        sovereignModeEnabled = !sovereignModeEnabled;
+        localStorage.setItem('sovereignMode', sovereignModeEnabled);
+        updateSovereignModeUI();
+        
+        if (sovereignModeEnabled) {
+            document.body.classList.add('sovereign-active');
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.controller?.postMessage({ type: 'SOVEREIGN_MODE', enabled: true });
+            }
+            console.log('[Sovereign Mode] Privacy mode activated - Purple Shield engaged');
+            alert('Sovereign Mode Engaged: CDNs Blocked. Identity Masked.');
+        } else {
+            document.body.classList.remove('sovereign-active');
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.controller?.postMessage({ type: 'SOVEREIGN_MODE', enabled: false });
+            }
+            console.log('[Sovereign Mode] Standard mode restored');
+        }
+    }
+    
+    function updateSovereignModeUI() {
+        const btn = document.getElementById('sovereignModeBtn');
+        if (!btn) return;
+        
+        if (sovereignModeEnabled) {
+            btn.classList.remove('btn-outline-success');
+            btn.classList.add('btn-success');
+            btn.title = 'Sovereign Mode ACTIVE - Purple Shield Engaged';
+        } else {
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-outline-success');
+            btn.title = 'Enable Sovereign Mode - Privacy-First Browsing';
+        }
+    }
+    
+    // Initialize Sovereign Mode on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateSovereignModeUI();
+        if (sovereignModeEnabled) {
+            document.body.classList.add('sovereign-active');
+        }
+        
+        // MOBILE ACCORDION DROPDOWN FIX - Complete Bootstrap Override
+        function initMobileDropdowns() {
+            if (window.innerWidth >= 992) return;
+            
+            // Remove Bootstrap's dropdown toggle data attributes on mobile to prevent interference
+            document.querySelectorAll('.navbar-nav .dropdown-toggle').forEach(function(toggle) {
+                toggle.removeAttribute('data-bs-toggle');
+                
+                // Clone and replace to remove all Bootstrap event listeners
+                var newToggle = toggle.cloneNode(true);
+                toggle.parentNode.replaceChild(newToggle, toggle);
+                
+                // Add our custom click handler
+                newToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    
+                    var parent = this.closest('.dropdown');
+                    var menu = parent.querySelector('.dropdown-menu');
+                    if (!parent || !menu) return;
+                    
+                    var isOpen = parent.classList.contains('show');
+                    
+                    // Close all other dropdowns first (accordion behavior)
+                    document.querySelectorAll('.navbar-nav .dropdown').forEach(function(dd) {
+                        if (dd !== parent) {
+                            dd.classList.remove('show');
+                            var ddMenu = dd.querySelector('.dropdown-menu');
+                            if (ddMenu) ddMenu.classList.remove('show');
+                        }
+                    });
+                    
+                    // Toggle current dropdown
+                    if (isOpen) {
+                        parent.classList.remove('show');
+                        menu.classList.remove('show');
+                    } else {
+                        parent.classList.add('show');
+                        menu.classList.add('show');
+                    }
+                });
+            });
+            
+            // Ensure dropdown items still navigate properly
+            document.querySelectorAll('.navbar-nav .dropdown-item').forEach(function(item) {
+                item.addEventListener('click', function(e) {
+                    // Allow normal navigation - don't prevent default
+                    var href = this.getAttribute('href');
+                    if (href && href !== '#') {
+                        window.location.href = href;
+                    }
+                });
+            });
+        }
+        
+        // Run after a brief delay to ensure Bootstrap has initialized
+        setTimeout(initMobileDropdowns, 100);
+        
+        // Re-init on resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth < 992) {
+                setTimeout(initMobileDropdowns, 100);
+            }
+        });
+    });
+    
+    // Gas Alert System
+    let gasAlertsEnabled = localStorage.getItem('gasAlerts') === 'true';
+    
+    function updateGasAlertUI() {
+        const btn = document.getElementById('gas-alert-btn');
+        const status = document.getElementById('gas-alert-status');
+        if (gasAlertsEnabled) {
+            btn.classList.remove('btn-outline-danger');
+            btn.classList.add('btn-danger');
+            status.textContent = 'Fee Alerts ON';
+        } else {
+            btn.classList.remove('btn-danger');
+            btn.classList.add('btn-outline-danger');
+            status.textContent = 'Enable Fee Alerts';
+        }
+    }
+    
+    function toggleGasAlerts() {
+        if (!('Notification' in window)) {
+            alert('Browser notifications not supported');
+            return;
+        }
+        
+        if (Notification.permission === 'denied') {
+            alert('Notifications blocked. Please enable in browser settings.');
+            return;
+        }
+        
+        if (Notification.permission === 'default') {
+            Notification.requestPermission().then(perm => {
+                if (perm === 'granted') {
+                    gasAlertsEnabled = true;
+                    localStorage.setItem('gasAlerts', 'true');
+                    updateGasAlertUI();
+                    checkFeeAlert();
+                }
+            });
+        } else {
+            gasAlertsEnabled = !gasAlertsEnabled;
+            localStorage.setItem('gasAlerts', gasAlertsEnabled.toString());
+            updateGasAlertUI();
+            if (gasAlertsEnabled) checkFeeAlert();
+        }
+    }
+    
+    async function checkFeeAlert() {
+        if (!gasAlertsEnabled) return;
+        
+        try {
+            const res = await fetch('https://mempool.space/api/v1/fees/recommended');
+            const fees = await res.json();
+            
+            if (fees.hourFee <= 5) {
+                const lastAlert = localStorage.getItem('lastFeeAlert');
+                const now = Date.now();
+                
+                if (!lastAlert || now - parseInt(lastAlert) > 1800000) {
+                    new Notification('Protocol Pulse: Low Fee Window', {
+                        body: `Network fees at ${fees.hourFee} sat/vB. Optimal transacting conditions.`,
+                        icon: '/static/images/protocol-pulse-logo-transparent.png',
+                        tag: 'fee-alert'
+                    });
+                    localStorage.setItem('lastFeeAlert', now.toString());
+                }
+            }
+        } catch (e) {
+            console.error('Fee check failed:', e);
+        }
+    }
+    
+    updateHalvingClock();
+    setInterval(updateHalvingClock, 60000);
+    updateGasAlertUI();
+    if (gasAlertsEnabled) setInterval(checkFeeAlert, 300000);
+    
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/static/sw.js')
+                .then(reg => console.log('SW registered:', reg.scope))
+                .catch(err => console.log('SW registration failed:', err));
+        });
+    }
+    
+    // Command Palette Functions
+    function openCommandPalette() {
+        const palette = document.getElementById('commandPalette');
+        if (palette) {
+            palette.classList.add('active');
+            setTimeout(() => {
+                const input = document.getElementById('commandPaletteInput');
+                if (input) input.focus();
+            }, 100);
+        }
+    }
+    
+    function closeCommandPalette() {
+        const palette = document.getElementById('commandPalette');
+        if (palette) palette.classList.remove('active');
+    }
+    
+    function navigateTo(url) {
+        closeCommandPalette();
+        window.location.href = url;
+    }
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // ⌘K or Ctrl+K to open command palette
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+            e.preventDefault();
+            openCommandPalette();
+        }
+        // Escape to close command palette
+        if (e.key === 'Escape') {
+            closeCommandPalette();
+            closeMobileNav();
+        }
+    });
+    
+    // Click outside to close command palette
+    const commandPaletteEl = document.getElementById('commandPalette');
+    if (commandPaletteEl) {
+        commandPaletteEl.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCommandPalette();
+            }
+        });
+    }
+    
+    // Command palette search/filter
+    const commandInput = document.getElementById('commandPaletteInput');
+    if (commandInput) {
+        commandInput.addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            document.querySelectorAll('.command-item').forEach(function(item) {
+                const titleEl = item.querySelector('.command-item-title');
+                const descEl = item.querySelector('.command-item-desc');
+                const title = titleEl ? titleEl.textContent.toLowerCase() : '';
+                const desc = descEl ? descEl.textContent.toLowerCase() : '';
+                if (title.includes(query) || desc.includes(query)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // Mobile Navigation Functions
+    function toggleMobileNav() {
+        const drawer = document.getElementById('mobileNavDrawer');
+        const overlay = document.getElementById('mobileNavOverlay');
+        if (drawer) drawer.classList.toggle('open');
+        if (overlay) overlay.classList.toggle('open');
+    }
+    
+    function closeMobileNav() {
+        const drawer = document.getElementById('mobileNavDrawer');
+        const overlay = document.getElementById('mobileNavOverlay');
+        if (drawer) drawer.classList.remove('open');
+        if (overlay) overlay.classList.remove('open');
+    }
+    </script>
+    
+    <!-- Real-Time Analytics Tracking -->
+    <script>
+    (function() {
+        var pageLoadTime = Date.now();
+        var maxScroll = 0;
+
+        function trackPageView() {
+            fetch('/api/track/pageview', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    path: window.location.pathname,
+                    title: document.title
+                })
+            }).catch(function() {});
+        }
+
+        function trackEngagement() {
+            var timeOnPage = Math.round((Date.now() - pageLoadTime) / 1000);
+            var scrollPct = Math.round(maxScroll);
+            fetch('/api/track/event', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    event_type: 'engagement',
+                    page_path: window.location.pathname,
+                    time_on_page: timeOnPage,
+                    scroll_depth: scrollPct
+                })
+            }).catch(function() {});
+        }
+
+        function onScroll() {
+            var h = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            if (h > 0) {
+                var pct = Math.round((window.scrollY / h) * 100);
+                if (pct > maxScroll) maxScroll = pct;
+            }
+        }
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        setInterval(trackEngagement, 30000);
+        window.addEventListener('beforeunload', trackEngagement);
+
+        function loadHotTicker() {
+            fetch('/api/hot-ticker')
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.success && data.hot_pages && data.hot_pages.length > 0) {
+                        var ticker = document.getElementById('hot-ticker');
+                        var items = document.getElementById('hot-ticker-items');
+                        if (ticker && items) {
+                            items.innerHTML = '';
+                            data.hot_pages.forEach(function(page) {
+                                if (page.heat_score > 1) {
+                                    var item = document.createElement('a');
+                                    item.href = page.path;
+                                    item.className = 'hot-ticker-item';
+                                    item.innerHTML = '<span class="hot-ticker-heat">' + page.heat_score + '°</span>' +
+                                        '<span class="hot-ticker-title">' + page.title + '</span>' +
+                                        '<span class="hot-ticker-views">(' + page.views + ' views)</span>';
+                                    items.appendChild(item);
+                                }
+                            });
+                            if (items.children.length > 0) {
+                                ticker.style.display = 'block';
+                            }
+                        }
+                    }
+                })
+                .catch(function() {});
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                trackPageView();
+                loadHotTicker();
+            });
+        } else {
+            trackPageView();
+            loadHotTicker();
+        }
+        
+        setInterval(loadHotTicker, 60000);
+    })();
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

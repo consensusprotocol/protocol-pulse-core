@@ -1,0 +1,2022 @@
+{% extends "base.html" %}
+
+{% block title %}The Network - Protocol Pulse Media{% endblock %}
+
+{% block head %}
+<link href="https://fonts.googleapis.com/css2?family=Uncut+Sans:wght@300;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "PodcastSeries",
+  "name": "Protocol Pulse",
+  "description": "Where Bitcoin leaders speak truth. Unfiltered conversations with pioneers in the Bitcoin and Web3 space.",
+  "url": "{{ url_for('media_hub', _external=True) }}",
+  "genre": ["Bitcoin", "Cryptocurrency", "Technology", "Finance"],
+  "inLanguage": "en",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Protocol Pulse",
+    "url": "{{ url_for('index', _external=True) }}"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Bitcoin Essential Reading",
+  "description": "Curated collection of essential Bitcoin and sound money literature",
+  "itemListElement": [
+    {% for book in recommended_books[:5] %}
+    {
+      "@type": "ListItem",
+      "position": {{ loop.index }},
+      "item": {
+        "@type": "Book",
+        "name": "{{ book.title }}",
+        "author": {"@type": "Person", "name": "{{ book.author }}"},
+        "description": "{{ book.description }}",
+        "image": "{{ book.cover_url }}"
+      }
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+
+<style>
+    :root {
+        --glass: rgba(255, 255, 255, 0.03);
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --accent-red: #dc2626;
+        --pure-white: #ffffff;
+        --deep-black: #050505;
+    }
+
+    .media-hub {
+        font-family: 'Uncut Sans', sans-serif;
+        background-color: var(--deep-black);
+        color: var(--pure-white);
+    }
+
+    /* Cinematic Hero */
+    .hero-media {
+        padding: 8rem 0 4rem;
+        background: radial-gradient(circle at 0% 0%, #1a0505 0%, var(--deep-black) 50%);
+        text-align: left;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-media::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 40%;
+        height: 100%;
+        background: radial-gradient(ellipse at 100% 0%, rgba(220, 38, 38, 0.15) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    .hero-media h1 {
+        font-size: clamp(3rem, 8vw, 6rem);
+        font-weight: 700;
+        letter-spacing: -3px;
+        line-height: 0.9;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+    }
+
+    .hero-media .accent-text {
+        color: var(--accent-red);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        display: block;
+        margin-bottom: 1rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.25rem;
+        font-weight: 300;
+        color: var(--pure-white);
+        max-width: 500px;
+    }
+
+    /* The Bento Grid Architecture */
+    .bento-section {
+        padding: 4rem 0;
+        background: var(--deep-black);
+    }
+
+    .section-label {
+        color: var(--accent-red);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        margin-bottom: 2rem;
+        display: block;
+    }
+
+    .bento-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-auto-rows: 240px;
+        gap: 1.5rem;
+        margin-bottom: 4rem;
+    }
+
+    .bento-item {
+        background: var(--glass);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid var(--glass-border);
+        border-radius: 32px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .bento-item:hover {
+        border-color: var(--accent-red);
+        background: rgba(220, 38, 38, 0.05);
+        transform: scale(1.02);
+    }
+
+    /* Spanning logic for spectacular look */
+    .item-large { grid-column: span 2; grid-row: span 2; }
+    .item-tall { grid-row: span 2; }
+    .item-wide { grid-column: span 2; }
+
+    /* Cinematic Card Backgrounds - YouTube Thumbnails */
+    .bento-item.has-bg {
+        background-size: cover;
+        background-position: center;
+        border: none;
+    }
+
+    .bento-item.has-bg::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.95) 15%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.2) 100%);
+        z-index: 1;
+        border-radius: 32px;
+    }
+
+    .bento-content {
+        position: relative;
+        z-index: 2;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
+    .bento-content .show-title {
+        text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+    }
+
+    /* Terminal Player Overlay */
+    .player-terminal {
+        position: fixed;
+        inset: 0;
+        background: rgba(5,5,5,0.98);
+        z-index: 9999;
+        display: none;
+        padding: 2rem 4rem;
+        backdrop-filter: blur(20px);
+        overflow-y: auto;
+    }
+
+    .player-terminal.active {
+        display: block;
+        animation: terminalOpen 0.4s ease-out;
+    }
+
+    @keyframes terminalOpen {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    .terminal-header {
+        border-bottom: 1px solid var(--accent-red);
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .terminal-title {
+        font-size: 0.9rem;
+        color: rgba(255,255,255,0.7);
+        letter-spacing: 3px;
+    }
+
+    .btn-close-terminal {
+        background: transparent;
+        border: 1px solid var(--glass-border);
+        color: var(--pure-white);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-size: 1.25rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-close-terminal:hover {
+        background: var(--accent-red);
+        border-color: var(--accent-red);
+    }
+
+    .video-wrapper {
+        border: 1px solid var(--accent-red);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 40px 80px rgba(220,38,38,0.2);
+    }
+
+    .playlist-scroll {
+        max-height: 60vh;
+        overflow-y: auto;
+        padding-right: 1rem;
+    }
+
+    .playlist-scroll::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .playlist-scroll::-webkit-scrollbar-track {
+        background: rgba(255,255,255,0.05);
+    }
+
+    .playlist-scroll::-webkit-scrollbar-thumb {
+        background: var(--accent-red);
+        border-radius: 2px;
+    }
+
+    .playlist-item {
+        padding: 1.25rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border-radius: 12px;
+        margin-bottom: 0.5rem;
+    }
+
+    .playlist-item:hover {
+        background: rgba(220,38,38,0.15);
+        padding-left: 1.75rem;
+    }
+
+    .playlist-item.active {
+        background: rgba(220,38,38,0.2);
+        border-left: 3px solid var(--accent-red);
+    }
+
+    .playlist-item i {
+        color: var(--accent-red);
+        font-size: 1.1rem;
+    }
+
+    .playlist-item span {
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .series-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--pure-white);
+        margin-bottom: 1.5rem;
+        font-family: 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+    }
+
+    /* Button variants for Terminal */
+    .btn-series {
+        background: var(--accent-red);
+        color: var(--pure-white);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-series:hover {
+        background: var(--pure-white);
+        color: var(--deep-black);
+        transform: translateY(-2px);
+    }
+
+    .btn-audio-only {
+        background: transparent;
+        border: 1px solid var(--glass-border);
+        color: var(--pure-white);
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-audio-only:hover {
+        border-color: var(--accent-red);
+        color: var(--accent-red);
+    }
+
+    .now-broadcasting {
+        color: var(--accent-red);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .now-broadcasting::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        background: var(--accent-red);
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+    }
+
+    /* Protocol Heartbeat Node Tracker */
+    .node-tracker-card {
+        background: linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(20,20,20,1) 100%);
+        position: relative;
+        border-left: 3px solid var(--accent-red) !important;
+    }
+
+    .block-number {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--pure-white);
+        letter-spacing: -1px;
+    }
+
+    .status-indicator {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.6rem;
+        letter-spacing: 1px;
+        padding: 2px 6px;
+        border: 1px solid currentColor;
+        border-radius: 3px;
+    }
+
+    .node-bg-effect {
+        position: absolute;
+        bottom: -20%;
+        right: -10%;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, rgba(220, 38, 38, 0.15) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    @keyframes blockFlash {
+        0% { color: var(--accent-red); transform: scale(1.1); text-shadow: 0 0 20px var(--accent-red); }
+        100% { color: var(--pure-white); transform: scale(1); text-shadow: none; }
+    }
+
+    .block-flash {
+        animation: blockFlash 1s ease-out;
+    }
+
+    .x-small {
+        font-size: 0.6rem;
+    }
+
+    /* Terminal Intel Briefing Sidebar */
+    .terminal-sidebar {
+        background: rgba(10, 10, 10, 0.5);
+        border-left: 1px solid rgba(220, 38, 38, 0.2);
+        height: 70vh;
+        display: flex;
+        flex-direction: column;
+        padding: 1.5rem;
+        border-radius: 16px;
+    }
+
+    .status-pill {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 4px;
+    }
+
+    .terminal-text {
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--accent-red);
+        opacity: 0.8;
+    }
+
+    #guideBody {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Terminal Ad Unit */
+    .terminal-ad-unit {
+        padding-top: 1.5rem;
+        margin-top: auto;
+        position: relative;
+        transition: opacity 0.3s ease;
+    }
+
+    .ad-perimeter {
+        border: 1px solid rgba(220, 38, 38, 0.3);
+        padding: 1rem;
+        background: linear-gradient(180deg, rgba(220, 38, 38, 0.05) 0%, transparent 100%);
+        border-radius: 12px;
+    }
+
+    .ad-content-wrapper {
+        position: relative;
+        overflow: hidden;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #terminalAdImage {
+        max-height: 80px;
+        transition: transform 0.5s ease;
+        filter: grayscale(100%) contrast(120%) brightness(80%);
+    }
+
+    .ad-perimeter:hover #terminalAdImage {
+        filter: grayscale(0%) contrast(100%) brightness(100%);
+        transform: scale(1.05);
+    }
+
+    .pulse-dot {
+        width: 6px;
+        height: 6px;
+        background: #22c55e;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #22c55e;
+        animation: pulse 2s infinite;
+    }
+
+    .glitch-active #terminalAdImage {
+        animation: glitch 0.4s steps(2) infinite;
+        opacity: 0.5;
+    }
+
+    @keyframes glitch {
+        0% { transform: translate(0); }
+        20% { transform: translate(-5px, 5px); }
+        40% { transform: translate(5px, -5px); }
+        100% { transform: translate(0); }
+    }
+
+    /* Luxurious Book Cards */
+    .book-card-luxury {
+        background: linear-gradient(145deg, rgba(15,15,15,1) 0%, rgba(25,25,25,1) 100%);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 24px;
+        overflow: hidden;
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        position: relative;
+    }
+
+    .book-card-luxury:hover {
+        border-color: var(--accent-red);
+        transform: translateY(-8px);
+        box-shadow: 0 30px 60px rgba(220, 38, 38, 0.15);
+    }
+
+    .book-cover-luxury {
+        height: 320px;
+        background: linear-gradient(180deg, #0a0a0a 0%, #151515 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding: 2rem;
+        overflow: hidden;
+        perspective: 1200px;
+        transform-style: preserve-3d;
+    }
+
+    .book-cover-luxury::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 50% 0%, rgba(220, 38, 38, 0.1) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    .book-cover-luxury img {
+        max-height: 280px;
+        max-width: 180px;
+        object-fit: contain;
+        filter: drop-shadow(0 30px 50px rgba(0, 0, 0, 0.8));
+        transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.4s ease;
+    }
+
+    .book-card-luxury:hover .book-cover-luxury img {
+        transform: scale(1.12) rotateY(-8deg) rotateX(3deg) translateZ(30px);
+        filter: drop-shadow(0 40px 70px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 25px rgba(220, 38, 38, 0.2));
+    }
+
+    .book-body-luxury {
+        padding: 1.75rem;
+    }
+
+    .book-title-luxury {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin-bottom: 0.35rem;
+        line-height: 1.3;
+        letter-spacing: -0.5px;
+    }
+
+    .book-author-luxury {
+        font-size: 0.85rem;
+        color: var(--accent-red);
+        margin-bottom: 0.75rem;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .book-description-luxury {
+        font-size: 0.8rem;
+        color: var(--pure-white);
+        line-height: 1.5;
+        margin-bottom: 1.25rem;
+    }
+
+    .btn-amazon-luxury {
+        background: transparent;
+        border: 1px solid var(--glass-border);
+        color: var(--pure-white);
+        padding: 0.85rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .btn-amazon-luxury:hover {
+        background: #ff9900;
+        color: var(--deep-black);
+        border-color: #ff9900;
+    }
+
+    .badge-luxury {
+        position: absolute;
+        top: 1.25rem;
+        left: 1.25rem;
+        background: var(--accent-red);
+        color: var(--pure-white);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.6rem;
+        font-weight: 700;
+        padding: 0.4rem 0.85rem;
+        border-radius: 50px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        z-index: 2;
+    }
+
+    .badge-bestseller {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    /* Live Visualizer */
+    .live-visualizer {
+        display: flex;
+        align-items: flex-end;
+        gap: 3px;
+        height: 24px;
+        margin-bottom: 1rem;
+    }
+
+    .bar {
+        width: 4px;
+        background: var(--accent-red);
+        border-radius: 2px;
+        animation: equalize 0.8s infinite ease-in-out alternate;
+    }
+
+    .bar:nth-child(1) { animation-delay: 0.0s; }
+    .bar:nth-child(2) { animation-delay: 0.15s; }
+    .bar:nth-child(3) { animation-delay: 0.3s; }
+    .bar:nth-child(4) { animation-delay: 0.45s; }
+    .bar:nth-child(5) { animation-delay: 0.6s; }
+
+    @keyframes equalize {
+        from { height: 6px; }
+        to { height: 24px; }
+    }
+
+    .show-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1.1;
+        margin-bottom: 1rem;
+        letter-spacing: -1px;
+    }
+
+    .show-meta {
+        font-size: 0.8rem;
+        color: var(--pure-white);
+        margin-top: auto;
+    }
+
+    .btn-play-bento {
+        background: var(--pure-white);
+        color: var(--deep-black);
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        text-decoration: none;
+        position: absolute;
+        bottom: 2rem;
+        right: 2rem;
+        transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-play-bento:hover {
+        background: var(--accent-red);
+        color: var(--pure-white);
+        transform: rotate(15deg) scale(1.1);
+    }
+
+    .btn-play-bento.small {
+        width: 48px;
+        height: 48px;
+        font-size: 1rem;
+    }
+
+    /* Episode Cards in Bento */
+    .episode-bento {
+        padding: 1.5rem;
+    }
+
+    .episode-tag {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--accent-red);
+        margin-bottom: 0.75rem;
+    }
+
+    .episode-title-bento {
+        font-size: 1.3rem;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 0.5rem;
+        color: var(--pure-white);
+    }
+
+    .episode-desc {
+        font-size: 0.85rem;
+        color: var(--pure-white);
+        line-height: 1.5;
+    }
+
+    /* Stats Card */
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--pure-white);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--pure-white);
+    }
+
+    /* CTA Card */
+    .cta-card h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .cta-card p {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-cta {
+        background: var(--accent-red);
+        color: var(--pure-white);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cta:hover {
+        background: #ef4444;
+        transform: translateY(-2px);
+        color: var(--pure-white);
+    }
+
+    /* Books Section - Bento Style */
+    .books-section {
+        padding: 6rem 0;
+        background: linear-gradient(180deg, var(--deep-black) 0%, #0a0a0a 100%);
+    }
+
+    .books-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+    }
+
+    .book-card-bento {
+        background: var(--glass);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .book-card-bento:hover {
+        border-color: var(--accent-red);
+        transform: translateY(-8px);
+    }
+
+    .book-cover-bento {
+        height: 280px;
+        background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding: 2rem;
+    }
+
+    .book-cover-bento img {
+        max-height: 240px;
+        max-width: 160px;
+        object-fit: contain;
+        filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.5));
+        transition: transform 0.4s ease;
+    }
+
+    .book-card-bento:hover .book-cover-bento img {
+        transform: scale(1.05) rotate(-2deg);
+    }
+
+    .book-badge {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: var(--accent-red);
+        color: var(--pure-white);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 0.35rem 0.75rem;
+        border-radius: 50px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .book-body-bento {
+        padding: 1.5rem;
+    }
+
+    .book-title-bento {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        line-height: 1.3;
+    }
+
+    .book-author-bento {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.5);
+        margin-bottom: 1rem;
+    }
+
+    .btn-amazon {
+        background: transparent;
+        border: 1px solid var(--glass-border);
+        color: var(--pure-white);
+        padding: 0.75rem 1.25rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .btn-amazon:hover {
+        background: var(--pure-white);
+        color: var(--deep-black);
+        border-color: var(--pure-white);
+    }
+
+    /* Tactile Merch Section - High Contrast */
+    .merch-section {
+        background: var(--pure-white);
+        color: var(--deep-black);
+        padding: 8rem 0;
+        border-radius: 60px 60px 0 0;
+        margin-top: 4rem;
+    }
+
+    .merch-title {
+        font-size: clamp(2.5rem, 6vw, 4rem);
+        font-weight: 700;
+        letter-spacing: -2px;
+        margin-bottom: 4rem;
+        color: var(--deep-black);
+        line-height: 1;
+    }
+
+    .merch-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+    }
+
+    .merch-card-bento {
+        background: #f5f5f5;
+        border-radius: 24px;
+        padding: 1.5rem;
+        border: none;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .merch-card-bento:hover {
+        background: #eeeeee;
+        transform: translateY(-10px);
+    }
+
+    .merch-img-wrapper {
+        background: #fff;
+        border-radius: 20px;
+        height: 280px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+
+    .merch-img-wrapper img {
+        max-width: 80%;
+        max-height: 80%;
+        object-fit: contain;
+        transition: transform 0.4s ease;
+    }
+
+    .merch-card-bento:hover .merch-img-wrapper img {
+        transform: scale(1.1);
+    }
+
+    .merch-name {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        color: var(--deep-black);
+    }
+
+    .merch-price {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 700;
+        color: var(--accent-red);
+        font-size: 1.25rem;
+    }
+
+    .btn-buy {
+        background: var(--deep-black);
+        color: var(--pure-white);
+        border: none;
+        padding: 0.6rem 1.25rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-buy:hover {
+        background: var(--accent-red);
+        color: var(--pure-white);
+    }
+
+    /* Audio Player - Cyberpunk Style */
+    .audio-player-bento {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(5, 5, 5, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid var(--glass-border);
+        padding: 1rem 0;
+        z-index: 1000;
+        display: none;
+    }
+
+    .player-content {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .player-controls {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .btn-player {
+        background: var(--accent-red);
+        border: none;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--pure-white);
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-player:hover {
+        transform: scale(1.1);
+    }
+
+    .player-info {
+        flex: 1;
+    }
+
+    .player-title {
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .player-show {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .player-progress {
+        flex: 2;
+    }
+
+    .progress-bar-container {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        cursor: pointer;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: var(--accent-red);
+        border-radius: 2px;
+        width: 0%;
+        transition: width 0.1s linear;
+    }
+
+    .time-display {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 0.5rem;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .player-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .btn-speed {
+        background: transparent;
+        border: 1px solid var(--glass-border);
+        color: var(--pure-white);
+        padding: 0.4rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-family: 'JetBrains Mono', monospace;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-speed:hover {
+        border-color: var(--accent-red);
+    }
+
+    .btn-close-player {
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 1.25rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-close-player:hover {
+        color: var(--pure-white);
+    }
+
+    /* Book Series Grid - Desktop 4 columns, responsive on smaller screens */
+    .book-series-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .bento-grid, .books-grid, .merch-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .book-series-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .item-large { grid-column: span 2; }
+    }
+
+    @media (max-width: 768px) {
+        .hero-media {
+            padding: 6rem 0 3rem;
+        }
+
+        .hero-media h1 {
+            font-size: 2.5rem;
+            letter-spacing: -1px;
+        }
+
+        .bento-grid, .books-grid, .merch-grid, .book-series-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .item-large, .item-wide, .item-tall {
+            grid-column: span 1;
+            grid-row: span 1;
+        }
+
+        .item-large {
+            grid-row: span 2;
+        }
+
+        .bento-grid {
+            grid-auto-rows: auto;
+        }
+
+        .bento-item {
+            min-height: 200px;
+        }
+
+        .book-series-grid .bento-item {
+            min-height: 260px;
+        }
+
+        .merch-section {
+            border-radius: 40px 40px 0 0;
+            padding: 4rem 0;
+        }
+
+        .player-content {
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .player-progress {
+            order: 3;
+            flex-basis: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .book-series-grid .bento-item {
+            min-height: 240px;
+        }
+
+        .book-series-grid .show-title {
+            font-size: 1.1rem !important;
+        }
+
+        .book-series-grid .btn-series {
+            padding: 0.6rem 1rem;
+            font-size: 0.75rem;
+        }
+    }
+
+    /* Loading State */
+    .loading-bento {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 200px;
+    }
+
+    .loader-ring {
+        width: 40px;
+        height: 40px;
+        border: 3px solid var(--glass-border);
+        border-top-color: var(--accent-red);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="media-hub">
+    <!-- Cinematic Hero -->
+    <section class="hero-media">
+        <div class="container">
+            <span class="accent-text">Network Operations // 2026</span>
+            <h1 style="color: #ffffff;">The Signal Behind<br>the Noise.</h1>
+            <p class="hero-subtitle">Dive deep into Bitcoin, privacy, and the future of decentralized finance with our premium podcast network.</p>
+        </div>
+    </section>
+
+    <!-- Podcast Bento Grid -->
+    <section class="bento-section">
+        <div class="container">
+            <span class="section-label">Live Broadcasts</span>
+            
+            <div class="bento-grid" id="podcast-bento">
+                <!-- Cypherpunk'd - Primary Show with Embedded Playlist -->
+                <div class="bento-item item-large" style="padding: 0; overflow: hidden;">
+                    <div class="video-embed-wrapper" style="position: relative; width: 100%; height: 100%;">
+                        <iframe 
+                            src="https://www.youtube.com/embed/videoseries?list=PLQ4MjCv9Oedpb79dWlGmJ4PUMYexx9Whd&modestbranding=1&rel=0" 
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 16px;"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="bento-content" style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.9)); padding: 1.5rem; pointer-events: none;">
+                        <div class="now-broadcasting">Now Broadcasting</div>
+                        <h2 class="show-title" style="margin: 0;">Cypherpunk'd</h2>
+                    </div>
+                </div>
+                
+                <!-- Protocol Pulse (Coin Bureau) - Secondary Show with Embedded Video -->
+                <div class="bento-item item-wide" style="padding: 0; overflow: hidden;">
+                    <div class="video-embed-wrapper" style="position: relative; width: 100%; height: 100%;">
+                        {% if live_broadcasts and live_broadcasts.protocol_pulse and live_broadcasts.protocol_pulse.latest_id %}
+                        <iframe 
+                            src="https://www.youtube.com/embed/{{ live_broadcasts.protocol_pulse.latest_id }}?modestbranding=1&rel=0" 
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 16px;"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                        {% else %}
+                        <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(20,20,20,1); border-radius: 16px;">
+                            <span style="color: rgba(255,255,255,0.5); font-family: 'JetBrains Mono', monospace;">Loading latest episode...</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="bento-content" style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.9)); padding: 1rem; pointer-events: none;">
+                        <span class="episode-tag">Featured Show</span>
+                        <h2 class="show-title" style="font-size: 1.5rem; margin: 0;">Coin Bureau</h2>
+                    </div>
+                </div>
+                
+                <!-- Additional Shows from Database -->
+                {% for show in shows %}
+                {% if 'orange is the new' not in show.name|lower and 'cypherpunk' not in show.name|lower and 'protocol pulse' not in show.name|lower %}
+                <div class="bento-item">
+                    <span class="episode-tag">{{ show.category }}</span>
+                    <h3 class="show-title" style="font-size: 1.3rem;">{{ show.name }}</h3>
+                    <p class="show-meta"><i class="fas fa-headphones me-2"></i>{{ show.episode_count }} episodes</p>
+                    <button class="btn-play-bento small" onclick="loadShowEpisodes('{{ show.id }}')">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </div>
+                {% endif %}
+                {% endfor %}
+
+                <!-- Protocol Heartbeat - Live Node Tracker -->
+                <div class="bento-item node-tracker-card" id="nodeTracker">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="episode-tag">Protocol_Telemetry</span>
+                        <span id="nodeStatus" class="status-indicator text-success">LOADING</span>
+                    </div>
+                    
+                    <div class="tracker-main">
+                        <label class="x-small opacity-50 font-monospace">BLOCK_HEIGHT</label>
+                        <div id="liveHeight" class="block-number">#---,---</div>
+                    </div>
+
+                    <div class="tracker-footer mt-3 pt-2 border-top border-secondary">
+                        <div class="row g-0">
+                            <div class="col-12">
+                                <label class="x-small opacity-50 font-monospace d-block">GLOBAL_HASHRATE</label>
+                                <span id="liveHashrate" class="fw-bold" style="color: var(--accent-red);">---.-- EH/s</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="node-bg-effect"></div>
+                </div>
+
+                <!-- Stats Card -->
+                <div class="bento-item">
+                    <span class="episode-tag">Network Status</span>
+                    <div class="stat-value" id="episode-count">{{ shows|sum(attribute='episode_count') }}</div>
+                    <div class="stat-label">Total Episodes</div>
+                </div>
+
+                <!-- CTA Card -->
+                <div class="bento-item cta-card">
+                    <h3>Get the Alpha.</h3>
+                    <p>Join the network of informed Bitcoiners.</p>
+                    <a href="/newsletter" class="btn-cta">Subscribe</a>
+                </div>
+            </div>
+
+            <!-- Book Series Guide -->
+            <span class="section-label" style="margin-top: 3rem;">Book Series Guide</span>
+            <p style="color: rgba(255,255,255,0.6); margin-bottom: 2rem; max-width: 700px;">Explore our complete book series — cinematic deep dives with the authors themselves, breaking down the most important ideas in Bitcoin.</p>
+            
+            <div class="bento-grid book-series-grid">
+                <!-- Everything Divided by 21 Million -->
+                <div class="bento-item has-bg" style="background-image: url('https://i.ytimg.com/vi/FA8tvWEydcA/maxresdefault.jpg'); min-height: 280px;">
+                    <div class="bento-content">
+                        <span class="episode-tag">10 Episodes</span>
+                        <h3 class="show-title" style="font-size: 1.3rem; margin: 0.5rem 0;">Everything Divided by 21 Million</h3>
+                        <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 1rem;">Knut Svanholm</p>
+                        <button class="btn-series" onclick="openTerminal('everything_21m')">
+                            <i class="fas fa-play me-1"></i>Watch Series
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- The Big Print -->
+                <div class="bento-item has-bg" style="background-image: url('https://i.ytimg.com/vi/W09CNU_q6Yo/maxresdefault.jpg'); min-height: 280px;">
+                    <div class="bento-content">
+                        <span class="episode-tag">12 Episodes</span>
+                        <h3 class="show-title" style="font-size: 1.3rem; margin: 0.5rem 0;">The Big Print</h3>
+                        <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 1rem;">Lawrence Lepard</p>
+                        <button class="btn-series" onclick="openTerminal('big_print')">
+                            <i class="fas fa-play me-1"></i>Watch Series
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Daylight Robbery -->
+                <div class="bento-item has-bg" style="background-image: url('https://i.ytimg.com/vi/ZCc78wvwd6U/maxresdefault.jpg'); min-height: 280px;">
+                    <div class="bento-content">
+                        <span class="episode-tag">13 Episodes</span>
+                        <h3 class="show-title" style="font-size: 1.3rem; margin: 0.5rem 0;">Daylight Robbery</h3>
+                        <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 1rem;">Dominic Frisby</p>
+                        <button class="btn-series" onclick="openTerminal('daylight_robbery')">
+                            <i class="fas fa-play me-1"></i>Watch Series
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- The Genesis Book -->
+                <div class="bento-item has-bg" style="background-image: url('https://i.ytimg.com/vi/3TslgynKeaA/maxresdefault.jpg'); min-height: 280px;">
+                    <div class="bento-content">
+                        <span class="episode-tag">10 Episodes</span>
+                        <h3 class="show-title" style="font-size: 1.3rem; margin: 0.5rem 0;">The Genesis Book</h3>
+                        <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 1rem;">Aaron van Wirdum</p>
+                        <button class="btn-series" onclick="openTerminal('genesis_book')">
+                            <i class="fas fa-play me-1"></i>Watch Series
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Latest Episodes -->
+            <span class="section-label" style="margin-top: 3rem;">Latest Episodes</span>
+            <div class="bento-grid" id="episodes-container" style="grid-auto-rows: auto;">
+                <div class="bento-item loading-bento" style="grid-column: span 4;">
+                    <div class="loader-ring"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Books Section -->
+    <section class="books-section">
+        <div class="container">
+            <span class="section-label">Essential Reading</span>
+            <h2 style="font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; letter-spacing: -1px; margin-bottom: 3rem;">Our Book Series</h2>
+            
+            <div class="books-grid">
+                {% for book in our_books %}
+                <div class="book-card-luxury">
+                    <div class="book-cover-luxury">
+                        <span class="badge-luxury">Featured</span>
+                        {% if book.cover_url %}
+                        <img src="{{ book.cover_url }}" alt="{{ book.title }}" loading="lazy" onerror="this.onerror=null; this.src='/static/images/book-placeholder.svg';">
+                        {% else %}
+                        <img src="/static/images/book-placeholder.svg" alt="{{ book.title }}" loading="lazy">
+                        {% endif %}
+                    </div>
+                    <div class="book-body-luxury">
+                        <h5 class="book-title-luxury">{{ book.title }}</h5>
+                        <p class="book-author-luxury">{{ book.author }}</p>
+                        <p class="book-description-luxury">{{ book.description[:100] }}...</p>
+                        <a href="{{ book.amazon_url }}" target="_blank" rel="noopener" class="btn-amazon-luxury">
+                            <i class="fab fa-amazon"></i>Get on Amazon
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <h2 style="font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; letter-spacing: -1px; margin: 4rem 0 3rem;">Recommended Reading</h2>
+            
+            <div class="books-grid">
+                {% for book in recommended_books %}
+                <div class="book-card-luxury">
+                    <div class="book-cover-luxury">
+                        {% if book.bestseller %}
+                        <span class="badge-luxury badge-bestseller">Bestseller</span>
+                        {% endif %}
+                        {% if book.cover_url %}
+                        <img src="{{ book.cover_url }}" alt="{{ book.title }}" loading="lazy" onerror="this.onerror=null; this.src='/static/images/book-placeholder.svg';">
+                        {% else %}
+                        <img src="/static/images/book-placeholder.svg" alt="{{ book.title }}" loading="lazy">
+                        {% endif %}
+                    </div>
+                    <div class="book-body-luxury">
+                        <h5 class="book-title-luxury">{{ book.title }}</h5>
+                        <p class="book-author-luxury">{{ book.author }}</p>
+                        <p class="book-description-luxury">{{ book.description[:100] }}...</p>
+                        <a href="{{ book.amazon_url }}" target="_blank" rel="noopener" class="btn-amazon-luxury">
+                            <i class="fab fa-amazon"></i>Get on Amazon
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Tactile Merch Section -->
+    <section class="merch-section">
+        <div class="container">
+            <h2 class="merch-title">Equip the<br>Movement.</h2>
+            
+            <div class="merch-grid">
+                {% if products %}
+                {% for product in products[:4] %}
+                <div class="merch-card-bento">
+                    <div class="merch-img-wrapper">
+                        {% if product.thumbnail or product.main_image %}
+                        <img src="{{ product.thumbnail or product.main_image }}" alt="{{ product.name }}">
+                        {% else %}
+                        <i class="fas fa-tshirt" style="font-size: 4rem; color: #ccc;"></i>
+                        {% endif %}
+                    </div>
+                    <h5 class="merch-name">{{ product.name }}</h5>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="merch-price">${{ product.variants[0].price if product.variants else '0.00' }}</span>
+                        <a href="/merch" class="btn-buy">Buy</a>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="merch-card-bento" style="grid-column: span 4; text-align: center; padding: 4rem;">
+                    <p style="color: #666; margin-bottom: 1.5rem;">Merch coming soon!</p>
+                    <a href="/merch" class="btn-buy">View Store</a>
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if products and products|length > 4 %}
+            <div class="text-center mt-5">
+                <a href="/merch" class="btn-buy" style="padding: 1rem 2rem; font-size: 1rem;">View All Merch</a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+
+<!-- Cyberpunk Audio Player -->
+<div id="audioPlayer" class="audio-player-bento">
+    <div class="container">
+        <div class="player-content">
+            <div class="player-controls">
+                <button class="btn-player" onclick="togglePlayPause()">
+                    <i id="playPauseIcon" class="fas fa-play"></i>
+                </button>
+            </div>
+            <div class="player-info">
+                <div id="currentTitle" class="player-title">Now Playing</div>
+                <div id="currentShow" class="player-show">Podcast Show</div>
+            </div>
+            <div class="player-progress">
+                <div class="progress-bar-container" onclick="seekAudio(event)">
+                    <div id="progressBar" class="progress-bar-fill"></div>
+                </div>
+                <div class="time-display">
+                    <span id="currentTime">0:00</span>
+                    <span id="totalTime">0:00</span>
+                </div>
+            </div>
+            <div class="player-actions">
+                <button class="btn-speed" onclick="adjustSpeed()">
+                    <span id="speedLabel">1x</span>
+                </button>
+                <button class="btn-close-player" onclick="closePlayer()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <audio id="audioElement" style="display: none;"></audio>
+</div>
+
+<!-- YouTube Terminal Player Overlay -->
+<div id="mediaTerminal" class="player-terminal">
+    <div class="container-fluid">
+        <div class="terminal-header">
+            <span class="terminal-title">PROTOCOL PULSE // MEDIA_TERMINAL_v1.0</span>
+            <button onclick="closeTerminal()" class="btn-close-terminal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="row">
+            <div class="col-lg-8 mb-4">
+                <div class="video-wrapper">
+                    <div class="ratio ratio-16x9">
+                        <iframe id="terminalIframe" src="" allowfullscreen allow="autoplay"></iframe>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 terminal-sidebar">
+                <div class="briefing-header mb-4">
+                    <span class="status-pill"><i class="fas fa-circle me-1"></i> SYSTEM_ONLINE</span>
+                    <h3 class="accent-text mt-2" id="seriesTitle">INTEL_BRIEFING</h3>
+                </div>
+
+                <div id="seriesDescription" class="mb-4">
+                    <p class="terminal-text small">
+                        // AUTHORIZATION: PROTOCOL_LEVEL_4<br>
+                        // SUBJECT: DECENTRALIZED_INTEL
+                    </p>
+                    <p id="guideBody">
+                        Loading mission parameters...
+                    </p>
+                </div>
+
+                <h5 class="text-uppercase small tracking-widest opacity-50 mb-3" style="letter-spacing: 2px;">Transmission Archive</h5>
+                <div class="playlist-scroll" id="playlistContent">
+                </div>
+
+                <div class="mt-4 pt-3 border-top border-secondary">
+                    <div class="row g-0 text-center">
+                        <div class="col-6 border-end border-secondary">
+                            <span class="d-block x-small opacity-50">EPISODES</span>
+                            <span class="fw-bold" id="epCount">--</span>
+                        </div>
+                        <div class="col-6">
+                            <span class="d-block x-small opacity-50">NETWORK_LOAD</span>
+                            <span class="fw-bold text-success">OPTIMAL</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sponsor Node -->
+                <div class="terminal-ad-unit" id="terminalAdContainer" style="display: none;">
+                    <div class="ad-perimeter">
+                        <div class="ad-header d-flex justify-content-between align-items-center">
+                            <span class="x-small font-monospace text-uppercase" style="letter-spacing: 2px; color: var(--accent-red);">Protocol_Partner</span>
+                            <div class="pulse-dot"></div>
+                        </div>
+                        <a id="terminalAdLink" href="#" target="_blank" rel="noopener">
+                            <div class="ad-content-wrapper mt-2">
+                                <img id="terminalAdImage" src="" alt="Sponsor" class="img-fluid rounded">
+                            </div>
+                        </a>
+                        <div class="ad-footer mt-2 d-flex justify-content-between">
+                            <span id="terminalAdName" class="x-small font-monospace opacity-50">SCANNING...</span>
+                            <span class="x-small font-monospace opacity-50">NODE_ID: 0x<span id="adNodeId">000</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentEpisode = null;
+let playbackSpeeds = [0.75, 1, 1.25, 1.5, 2];
+let currentSpeedIndex = 1;
+let loadedEpisodes = 0;
+const EPISODES_PER_LOAD = 6;
+
+// Protocol Pulse Book Series - Our original YouTube playlists
+const seriesData = {
+    'everything_21m': {
+        title: "EVERYTHING DIVIDED BY 21 MILLION",
+        epCount: '10',
+        host: 'Matty Ice & Knut Svanholm',
+        description: 'A full 12-episode cinematic exploration of Knut Svanholm\'s book — breaking down Bitcoin\'s relationship to time, money, freedom, human progress, and the fundamental laws shaping our species.',
+        playlistId: 'PLQ4MjCv9Oedo-k8zCLu3VKW8W98KgbOlb',
+        playlist: [
+            { id: 'FA8tvWEydcA', title: 'Time | Episode 1 of 12' },
+            { id: 'VDordtHAJhg', title: 'Alchemy | Episode 2 of 12' },
+            { id: 'yKbQq66AInU', title: 'Ownership | Episode 3 of 12' },
+            { id: 'rkTbEpAOADI', title: 'Energy | Episode 4 of 12' },
+            { id: 'qG2xYvTVkw0', title: 'Morality | Episode 5 of 12' },
+            { id: 'v7xZPqcXyLk', title: 'Memetics | Episode 6 of 12' },
+            { id: 'RZv_1Qcqik4', title: 'Symbiosis | Episode 7 of 12' },
+            { id: 'UlYSv9SwQGk', title: 'Violence | Episode 8 of 12' },
+            { id: '_ygND311kVE', title: 'Deflation | Episode 9 of 12' },
+            { id: 'Nf0LtAk4VBs', title: 'Adoption | Episode 10 of 12' }
+        ]
+    },
+    'big_print': {
+        title: "THE BIG PRINT SERIES",
+        epCount: '12',
+        host: 'Matty Ice & Lawrence Lepard',
+        description: 'An explosive 12-part deep dive revealing how the Federal Reserve and financial elites engineered the most devastating wealth extraction scheme in human history.',
+        playlistId: 'PLQ4MjCv9OedoQphIMpfvUrsgIIMUim2P9',
+        playlist: [
+            { id: 'W09CNU_q6Yo', title: 'Why Fixing the Money is the Only Way | Episode 1' },
+            { id: 'tnthM3uaHbI', title: 'How Govt Has Been Stealing 98.5% Since 1971 | Episode 2' },
+            { id: 'FRH5w_joMP0', title: 'How Inflation Steals Your Life Energy | Episode 3' },
+            { id: 'JLjG8jAJxbw', title: 'The Path to Pure Fiat | Episode 4' },
+            { id: 'tq_ZYhpW4Vw', title: 'How Powell & Yellen Broke the System | Episode 5' },
+            { id: 'Sjp-Kaic2CE', title: 'Austrian vs Keynesian Schools | Episode 6' },
+            { id: 'n6Bi8Kf6ar0', title: 'The Sovereign Currency Bubble | Episode 7' },
+            { id: 'M3M61rLBTl0', title: 'Bitcoin is God\'s Gift to Humanity | Episode 8' },
+            { id: 'uzUEJZ38RV8', title: 'Bitcoin, Real Estate, Generational Wealth | Episode 9' },
+            { id: 'y9snxWoEkaU', title: 'Decentralization & End of Centralized Power | Episode 10' },
+            { id: 'hKa8lRDwIos', title: 'Why Digital Scarcity Changed Everything | Episode 11' },
+            { id: 'FyMWELymqAM', title: 'Fix the Money, Fix the World | Episode 12' }
+        ]
+    },
+    'daylight_robbery': {
+        title: "DAYLIGHT ROBBERY SERIES",
+        epCount: '13',
+        host: 'Matty Ice & Dominic Frisby',
+        description: 'A riveting 13-part series that exposes the hidden story of how taxation has shaped human civilization — from ancient empires to modern governments.',
+        playlistId: 'PLQ4MjCv9OedrNl9t_fzsUy5rrDeifm_Uj',
+        playlist: [
+            { id: 'ZCc78wvwd6U', title: 'The Hidden History of Taxation | Episode 1' },
+            { id: 'j_V3fjvEuS0', title: 'How Taxes Shaped Civilization | Episode 2' },
+            { id: 'W_TNwftaVMk', title: 'Death, Taxes, or Islam | Episode 3' },
+            { id: '3VDVbbSZYPc', title: 'The Peasants\' Revolt | Episode 4' },
+            { id: 'brho571r5rY', title: 'Tax Wars That Created Nations | Episode 5' },
+            { id: 'zltb_tXZiWI', title: 'How the Richest Families Controlled Nations | Episode 6' },
+            { id: '0MDv0d-3t_k', title: 'How Tariffs Caused the Civil War | Episode 7' },
+            { id: 'Ym5W3t9WvB8', title: 'The Birth of Big Government | Episode 8' },
+            { id: 'YUHM88mtRxU', title: 'Hitler, Banks & Nations Fought for Wealth | Episode 9' },
+            { id: 'LcIT9Tgbkm8', title: 'How Governments Silently Rob You | Episode 10' },
+            { id: 'VRSXUD4L2eA', title: 'Digital Nomads & Borderless Money | Episode 11' },
+            { id: '1OAn6QDSsJs', title: 'How Data & AI Are Reshaping Taxation | Episode 12' },
+            { id: 'xPPbMsz8qso', title: 'The Perfect Tax System | Episode 13' }
+        ]
+    },
+    'genesis_book': {
+        title: "THE GENESIS BOOK SERIES",
+        epCount: '10',
+        host: 'Matty Ice & Aaron van Wirdum',
+        description: 'A thought-provoking 10-part series exploring the groundbreaking ideas in Aaron van Wirdum\'s seminal work on Austrian economics and the origins of Bitcoin.',
+        playlistId: 'PLQ4MjCv9OedqhL5At0WQs06GShfVkgPvT',
+        playlist: [
+            { id: '3TslgynKeaA', title: 'Austrian Economics & Money | Episode 1' },
+            { id: 'PFi6no-0wSE', title: 'Neutral Money & Denationalization | Episode 2' },
+            { id: 'PLWhV1JBfCA', title: 'Free and Open Source Software | Episode 3' },
+            { id: 'J5b24c0QzCE', title: 'Cryptography & Spies | Episode 4' },
+            { id: 'FzrKToH9AT0', title: 'eCash & Timestamps | Episode 5' },
+            { id: 'c3Nafsnts-Q', title: 'The Extropians & High Tech Hayekians | Episode 6' },
+            { id: 'wDUePxNsgLs', title: 'The Rise of the Cypherpunks | Episode 7' },
+            { id: 'WB5-IR5xrAE', title: 'Hashcash + Bit Gold | Episode 8' },
+            { id: 'vydVrF07QGA', title: 'B-money and RPOW | Episode 9' },
+            { id: 'VDdc67_HnVE', title: 'Bitcoin\'s Revolutionary Origins | Episode 10' }
+        ]
+    }
+};
+
+// Sponsor Ads Data - Loaded from API
+let terminalAds = [];
+let currentAdIndex = 0;
+
+// Load sponsors for terminal
+async function loadTerminalAds() {
+    try {
+        const response = await fetch('/api/active-ads');
+        const data = await response.json();
+        if (data.success && data.ads.length > 0) {
+            terminalAds = data.ads;
+            displayTerminalAd();
+            document.getElementById('terminalAdContainer').style.display = 'block';
+        }
+    } catch (error) {
+        console.log('No sponsors available');
+    }
+}
+
+function displayTerminalAd() {
+    if (terminalAds.length === 0) return;
+    
+    const ad = terminalAds[currentAdIndex];
+    document.getElementById('terminalAdImage').src = ad.image_url;
+    document.getElementById('terminalAdLink').href = ad.target_url;
+    document.getElementById('terminalAdName').textContent = ad.name.toUpperCase().replace(/ /g, '_');
+    document.getElementById('adNodeId').textContent = ad.id.toString(16).toUpperCase().padStart(3, '0');
+}
+
+function rotateTerminalAds() {
+    if (terminalAds.length <= 1) return;
+    
+    const adUnit = document.querySelector('.terminal-ad-unit');
+    adUnit.classList.add('glitch-active');
+    
+    setTimeout(() => {
+        currentAdIndex = (currentAdIndex + 1) % terminalAds.length;
+        displayTerminalAd();
+        adUnit.classList.remove('glitch-active');
+    }, 400);
+}
+
+// Rotate ads every 20 seconds when terminal is open
+setInterval(() => {
+    if (document.getElementById('mediaTerminal').classList.contains('active')) {
+        rotateTerminalAds();
+    }
+}, 20000);
+
+// Terminal Player Functions
+function openTerminal(seriesKey) {
+    const data = seriesData[seriesKey];
+    if (!data || !data.playlist || data.playlist.length === 0) {
+        console.error('No series data found for:', seriesKey);
+        return;
+    }
+    
+    const iframe = document.getElementById('terminalIframe');
+    const list = document.getElementById('playlistContent');
+    const title = document.getElementById('seriesTitle');
+    const guideBody = document.getElementById('guideBody');
+    const epCount = document.getElementById('epCount');
+    
+    // Update Intel Briefing content
+    title.textContent = data.title;
+    guideBody.textContent = data.description;
+    epCount.textContent = data.epCount || data.playlist.length;
+    
+    // Set first video
+    iframe.src = `https://www.youtube.com/embed/${data.playlist[0].id}?autoplay=1&modestbranding=1&rel=0`;
+    
+    // Build Playlist with episode numbers
+    list.innerHTML = data.playlist.map((video, index) => `
+        <div class="playlist-item d-flex align-items-center ${index === 0 ? 'active' : ''}" onclick="changeVideo('${video.id}', this)">
+            <span class="me-3 opacity-30 font-monospace" style="font-size: 0.75rem;">${(index + 1).toString().padStart(2, '0')}</span>
+            <div class="flex-grow-1">
+                <span>${video.title}</span>
+            </div>
+            <i class="fas fa-play-circle ms-2" style="color: var(--accent-red);"></i>
+        </div>
+    `).join('');
+
+    document.getElementById('mediaTerminal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Load sponsors when terminal opens
+    loadTerminalAds();
+}
+
+function changeVideo(id, element) {
+    document.getElementById('terminalIframe').src = `https://www.youtube.com/embed/${id}?autoplay=1&modestbranding=1&rel=0`;
+    
+    // Update active state
+    document.querySelectorAll('.playlist-item').forEach(item => item.classList.remove('active'));
+    if (element) {
+        element.classList.add('active');
+    }
+}
+
+function closeTerminal() {
+    document.getElementById('terminalIframe').src = '';
+    document.getElementById('mediaTerminal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// Close terminal on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeTerminal();
+    }
+});
+
+// Protocol Heartbeat - Live Network Stats
+async function updateNodeTracker() {
+    try {
+        const response = await fetch('/api/network-stats');
+        const data = await response.json();
+        
+        const heightEl = document.getElementById('liveHeight');
+        const hashrateEl = document.getElementById('liveHashrate');
+        const statusEl = document.getElementById('nodeStatus');
+
+        // Check if block changed to trigger animation
+        if (heightEl.textContent !== `#${data.height}`) {
+            heightEl.classList.add('block-flash');
+            setTimeout(() => heightEl.classList.remove('block-flash'), 1000);
+        }
+
+        heightEl.textContent = `#${data.height}`;
+        hashrateEl.textContent = data.hashrate;
+        statusEl.textContent = data.status;
+        
+        // Update status color
+        if (data.status === 'OPERATIONAL') {
+            statusEl.classList.remove('text-warning', 'text-danger');
+            statusEl.classList.add('text-success');
+        } else if (data.status === 'RECONNECTING' || data.status === 'TIMEOUT') {
+            statusEl.classList.remove('text-success', 'text-danger');
+            statusEl.classList.add('text-warning');
+        } else {
+            statusEl.classList.remove('text-success', 'text-warning');
+            statusEl.classList.add('text-danger');
+        }
+        
+    } catch (error) {
+        console.error("Telemetry Link Error:", error);
+        document.getElementById('nodeStatus').textContent = 'OFFLINE';
+        document.getElementById('nodeStatus').classList.remove('text-success');
+        document.getElementById('nodeStatus').classList.add('text-danger');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadEpisodes();
+    
+    // Initialize Protocol Heartbeat
+    updateNodeTracker();
+    setInterval(updateNodeTracker, 60000); // Update every 60 seconds
+});
+
+function loadEpisodes() {
+    const container = document.getElementById('episodes-container');
+    
+    fetch(`/api/latest-episodes?limit=${EPISODES_PER_LOAD}&offset=${loadedEpisodes}`)
+        .then(response => response.json())
+        .then(data => {
+            if (loadedEpisodes === 0) {
+                container.innerHTML = '';
+            }
+            
+            if (data.episodes && data.episodes.length > 0) {
+                data.episodes.forEach((episode, index) => {
+                    const card = createEpisodeCard(episode, index);
+                    container.insertAdjacentHTML('beforeend', card);
+                });
+                loadedEpisodes += data.episodes.length;
+                
+                // Add load more button if there are more episodes
+                if (data.has_more) {
+                    const existingBtn = document.getElementById('load-more-btn');
+                    if (!existingBtn) {
+                        container.insertAdjacentHTML('afterend', `
+                            <div class="text-center mt-4" id="load-more-container">
+                                <button id="load-more-btn" class="btn-cta" onclick="loadMoreEpisodes()" style="background: transparent; border: 1px solid var(--glass-border); color: var(--pure-white);">
+                                    <i class="fas fa-plus me-2"></i>Load More
+                                </button>
+                            </div>
+                        `);
+                    }
+                }
+            } else if (loadedEpisodes === 0) {
+                container.innerHTML = '<div class="bento-item" style="grid-column: span 4; text-align: center;"><p style="color: rgba(255,255,255,0.5);">No episodes available yet.</p></div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading episodes:', error);
+            if (loadedEpisodes === 0) {
+                container.innerHTML = '<div class="bento-item" style="grid-column: span 4; text-align: center;"><p style="color: rgba(255,255,255,0.5);">Unable to load episodes.</p></div>';
+            }
+        });
+}
+
+function loadMoreEpisodes() {
+    loadEpisodes();
+}
+
+// Global store for loaded episodes to reference by index
+let loadedEpisodeData = [];
+
+function createEpisodeCard(episode, index) {
+    const date = new Date(episode.published_date).toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric'
+    });
+    
+    // Store episode data globally and reference by index
+    const episodeIndex = loadedEpisodeData.length;
+    loadedEpisodeData.push(episode);
+    
+    // Vary card sizes for visual interest
+    let sizeClass = '';
+    if (index === 0) sizeClass = 'item-wide';
+    
+    return `
+        <div class="bento-item ${sizeClass}" style="min-height: 180px;">
+            <span class="episode-tag">${escapeHtml(episode.show_name)}</span>
+            <h4 class="episode-title-bento">${escapeHtml(episode.title)}</h4>
+            <div class="d-flex align-items-center justify-content-between mt-auto">
+                <span style="font-size: 0.8rem; color: rgba(255,255,255,0.5);">
+                    <i class="fas fa-clock me-1"></i>${episode.duration || 'N/A'}
+                    <span class="ms-3"><i class="fas fa-calendar me-1"></i>${date}</span>
+                </span>
+                <button class="btn-play-bento small" onclick="playEpisodeByIndex(${episodeIndex})">
+                    <i class="fas fa-play"></i>
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function playEpisodeByIndex(index) {
+    const episode = loadedEpisodeData[index];
+    if (episode) {
+        playEpisode(episode);
+    }
+}
+
+function loadShowEpisodes(showId) {
+    fetch(`/api/episodes/${showId}?limit=10`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.episodes && data.episodes.length > 0) {
+                playEpisode(data.episodes[0]);
+            }
+        })
+        .catch(error => console.error('Error loading show episodes:', error));
+}
+
+function playEpisode(episode) {
+    console.log('Attempting to play:', episode.audio_url);
+    console.log('Full episode data:', episode);
+    
+    if (!episode.audio_url) {
+        console.error('No audio_url found in episode:', episode);
+        alert('Audio not available for this episode.');
+        return;
+    }
+    
+    currentEpisode = episode;
+    document.getElementById('currentTitle').textContent = episode.title;
+    document.getElementById('currentShow').textContent = episode.show_name;
+    document.getElementById('audioPlayer').style.display = 'block';
+    
+    const audioElement = document.getElementById('audioElement');
+    audioElement.src = episode.audio_url;
+    console.log('Audio element src set to:', audioElement.src);
+    audioElement.play();
+    
+    updatePlayPauseIcon(true);
+}
+
+function togglePlayPause() {
+    const audioElement = document.getElementById('audioElement');
+    if (audioElement.paused) {
+        audioElement.play();
+        updatePlayPauseIcon(true);
+    } else {
+        audioElement.pause();
+        updatePlayPauseIcon(false);
+    }
+}
+
+function updatePlayPauseIcon(isPlaying) {
+    const icon = document.getElementById('playPauseIcon');
+    icon.className = isPlaying ? 'fas fa-pause' : 'fas fa-play';
+}
+
+function adjustSpeed() {
+    const audioElement = document.getElementById('audioElement');
+    currentSpeedIndex = (currentSpeedIndex + 1) % playbackSpeeds.length;
+    const newSpeed = playbackSpeeds[currentSpeedIndex];
+    audioElement.playbackRate = newSpeed;
+    document.getElementById('speedLabel').textContent = newSpeed + 'x';
+}
+
+function closePlayer() {
+    const audioElement = document.getElementById('audioElement');
+    audioElement.pause();
+    audioElement.currentTime = 0;
+    document.getElementById('audioPlayer').style.display = 'none';
+}
+
+function seekAudio(event) {
+    const audioElement = document.getElementById('audioElement');
+    const progressBar = event.currentTarget;
+    const rect = progressBar.getBoundingClientRect();
+    const percent = (event.clientX - rect.left) / rect.width;
+    audioElement.currentTime = percent * audioElement.duration;
+}
+
+document.getElementById('audioElement').addEventListener('timeupdate', function() {
+    const audio = this;
+    const progressBar = document.getElementById('progressBar');
+    const currentTime = document.getElementById('currentTime');
+    const totalTime = document.getElementById('totalTime');
+    
+    if (audio.duration) {
+        const progress = (audio.currentTime / audio.duration) * 100;
+        progressBar.style.width = progress + '%';
+        
+        currentTime.textContent = formatTime(audio.currentTime);
+        totalTime.textContent = formatTime(audio.duration);
+    }
+});
+
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return minutes + ':' + (remainingSeconds < 10 ? '0' : '') + remainingSeconds;
+}
+</script>
+{% endblock %}

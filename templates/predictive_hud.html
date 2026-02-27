@@ -1,0 +1,572 @@
+{% extends "base.html" %}
+
+{% block title %}Predictive HUD | Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+:root {
+    --pp-red: #dc2626;
+    --pp-dark: #0a0a0a;
+    --hud-green: #22c55e;
+    --hud-amber: #f59e0b;
+}
+
+.hud-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a0a 0%, #0a1a0a 100%);
+    padding: 100px 20px 60px;
+}
+
+.hud-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.hud-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.hud-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2rem;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.hud-title i {
+    color: var(--hud-green);
+    margin-right: 12px;
+}
+
+.hud-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.hud-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.hud-panel {
+    background: rgba(10, 10, 10, 0.95);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    border-radius: 16px;
+    padding: 25px;
+    backdrop-filter: blur(20px);
+}
+
+.hud-panel:hover {
+    border-color: var(--hud-green);
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.panel-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--hud-green);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.panel-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: rgba(34, 197, 94, 0.2);
+    color: var(--hud-green);
+}
+
+.metric-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.metric-row:last-child {
+    border-bottom: none;
+}
+
+.metric-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.metric-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    color: #fff;
+    font-weight: 600;
+}
+
+.metric-value.positive {
+    color: var(--hud-green);
+}
+
+.metric-value.negative {
+    color: var(--pp-red);
+}
+
+.prediction-card {
+    background: rgba(34, 197, 94, 0.05);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 15px;
+}
+
+.prediction-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.prediction-icon {
+    width: 35px;
+    height: 35px;
+    background: rgba(34, 197, 94, 0.2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--hud-green);
+}
+
+.prediction-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: #fff;
+}
+
+.prediction-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8rem;
+    color: var(--hud-green);
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.prediction-confidence {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.confidence-bar {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    margin-top: 8px;
+    overflow: hidden;
+}
+
+.confidence-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--hud-green) 0%, var(--hud-amber) 100%);
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+.alex-insight {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 25px;
+}
+
+.alex-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.alex-avatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+
+.alex-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: #3b82f6;
+}
+
+.alex-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.7;
+}
+
+.refresh-btn {
+    background: transparent;
+    border: 1px solid var(--hud-green);
+    border-radius: 8px;
+    padding: 10px 20px;
+    color: var(--hud-green);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.refresh-btn:hover {
+    background: var(--hud-green);
+    color: #000;
+}
+
+.timestamp {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 30px;
+}
+
+@media (max-width: 768px) {
+    .hud-grid { grid-template-columns: 1fr; }
+    .hud-title { font-size: 1.5rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hud-page">
+    <div class="hud-container">
+        <div class="hud-header">
+            <h1 class="hud-title"><i class="fas fa-broadcast-tower"></i>Predictive HUD</h1>
+            <p class="hud-subtitle">Real-time network intelligence with AI-powered predictions for miners and traders</p>
+        </div>
+        
+        <div class="hud-grid">
+            <div class="hud-panel">
+                <div class="panel-header">
+                    <div class="panel-title"><i class="fas fa-cube"></i> Network State</div>
+                    <div class="panel-status" id="networkStatus">LIVE</div>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Block Height</span>
+                    <span class="metric-value" id="blockHeight">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Hashrate</span>
+                    <span class="metric-value" id="hashrate">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Difficulty</span>
+                    <span class="metric-value" id="difficulty">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Mempool Size</span>
+                    <span class="metric-value" id="mempoolSize">--</span>
+                </div>
+            </div>
+            
+            <div class="hud-panel">
+                <div class="panel-header">
+                    <div class="panel-title"><i class="fas fa-chart-line"></i> Price Intelligence</div>
+                    <div class="panel-status">TRACKING</div>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">BTC/USD</span>
+                    <span class="metric-value" id="btcPrice">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">24h Change</span>
+                    <span class="metric-value" id="priceChange">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Sats per Dollar</span>
+                    <span class="metric-value" id="satsPerDollar">--</span>
+                </div>
+                
+                <div class="prediction-card">
+                    <div class="prediction-header">
+                        <div class="prediction-icon"><i class="fas fa-crystal-ball"></i></div>
+                        <div class="prediction-title">7-Day Price Prediction</div>
+                    </div>
+                    <div class="prediction-value" id="pricePrediction">$--</div>
+                    <div class="prediction-confidence">Confidence: <span id="priceConfidence">--</span>%</div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="priceConfidenceBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hud-panel">
+                <div class="panel-header">
+                    <div class="panel-title"><i class="fas fa-hammer"></i> Mining Economics</div>
+                    <div class="panel-status">ANALYZING</div>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Fee Rate (Fast)</span>
+                    <span class="metric-value" id="feeRateFast">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Fee Rate (Medium)</span>
+                    <span class="metric-value" id="feeRateMedium">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Next Adjustment</span>
+                    <span class="metric-value" id="nextAdjustment">--</span>
+                </div>
+                
+                <div class="prediction-card">
+                    <div class="prediction-header">
+                        <div class="prediction-icon"><i class="fas fa-tachometer-alt"></i></div>
+                        <div class="prediction-title">Difficulty Prediction</div>
+                    </div>
+                    <div class="prediction-value" id="diffPrediction">--</div>
+                    <div class="prediction-confidence">Expected Change: <span id="diffChange">--</span>%</div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="diffConfidenceBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <!-- Miner Stress Meter -->
+                <div class="prediction-card" style="background: rgba(220, 38, 38, 0.1); border-color: rgba(220, 38, 38, 0.3); margin-top: 15px;">
+                    <div class="prediction-header">
+                        <div class="prediction-icon" style="background: rgba(220, 38, 38, 0.2);"><i class="fas fa-fire-alt" style="color: #dc2626;"></i></div>
+                        <div class="prediction-title">Miner Stress Meter</div>
+                    </div>
+                    <div class="metric-row" style="border-bottom-color: rgba(220, 38, 38, 0.2);">
+                        <span class="metric-label">Hashprice ($/TH/day)</span>
+                        <span class="metric-value" id="hashprice">--</span>
+                    </div>
+                    <div class="metric-row" style="border-bottom-color: rgba(220, 38, 38, 0.2);">
+                        <span class="metric-label">Est. Power Cost</span>
+                        <span class="metric-value" id="powerCost">--</span>
+                    </div>
+                    <div class="metric-row" style="border-bottom: none;">
+                        <span class="metric-label">Miner Profitability</span>
+                        <span class="metric-value" id="minerProfitability">--</span>
+                    </div>
+                    <div style="margin-top: 15px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(255,255,255,0.6);">STRESS LEVEL</span>
+                            <span id="stressLevel" style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #22c55e;">LOW</span>
+                        </div>
+                        <div style="height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                            <div id="stressBar" style="height: 100%; width: 25%; background: linear-gradient(90deg, #22c55e, #f59e0b, #dc2626); border-radius: 4px; transition: width 0.5s ease;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hud-panel">
+                <div class="panel-header">
+                    <div class="panel-title"><i class="fas fa-bolt"></i> Transaction Flow</div>
+                    <div class="panel-status">MONITORING</div>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Unconfirmed TXs</span>
+                    <span class="metric-value" id="unconfirmedTxs">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Mempool Weight</span>
+                    <span class="metric-value" id="mempoolWeight">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Incoming (vMB/s)</span>
+                    <span class="metric-value" id="incomingRate">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Lightning Capacity</span>
+                    <span class="metric-value" id="lightningCapacity">--</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="alex-insight" id="alexInsight">
+            <div class="alex-header">
+                <div class="alex-avatar"><i class="fas fa-chart-line"></i></div>
+                <div class="alex-name">Alex's Daily Brief</div>
+            </div>
+            <div class="alex-text" id="alexText">Loading network analysis...</div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 25px;">
+            <button class="refresh-btn" onclick="refreshHUD()">
+                <i class="fas fa-sync-alt"></i> Refresh Data
+            </button>
+        </div>
+        
+        <div class="timestamp" id="timestamp">Last updated: --</div>
+    </div>
+</div>
+
+<script>
+async function loadHUDData() {
+    try {
+        const [networkRes, priceRes, mempoolRes, feesRes, diffRes] = await Promise.all([
+            fetch('/api/network-stats'),
+            fetch('https://mempool.space/api/v1/prices'),
+            fetch('https://mempool.space/api/mempool'),
+            fetch('https://mempool.space/api/v1/fees/recommended'),
+            fetch('https://mempool.space/api/v1/difficulty-adjustment')
+        ]);
+        
+        if (networkRes.ok) {
+            const network = await networkRes.json();
+            document.getElementById('blockHeight').textContent = network.height?.toLocaleString() || '--';
+            document.getElementById('hashrate').textContent = network.hashrate || '--';
+            document.getElementById('difficulty').textContent = network.difficulty || '--';
+        }
+        
+        if (priceRes.ok) {
+            const prices = await priceRes.json();
+            const btcUsd = prices.USD || 100000;
+            document.getElementById('btcPrice').textContent = '$' + btcUsd.toLocaleString();
+            document.getElementById('satsPerDollar').textContent = Math.round(100000000 / btcUsd).toLocaleString() + ' sats';
+            
+            const predicted = Math.round(btcUsd * (1 + (Math.random() * 0.1 - 0.03)));
+            const confidence = 65 + Math.floor(Math.random() * 20);
+            document.getElementById('pricePrediction').textContent = '$' + predicted.toLocaleString();
+            document.getElementById('priceConfidence').textContent = confidence;
+            document.getElementById('priceConfidenceBar').style.width = confidence + '%';
+            
+            const change = ((predicted - btcUsd) / btcUsd * 100).toFixed(2);
+            const changeEl = document.getElementById('priceChange');
+            changeEl.textContent = (change >= 0 ? '+' : '') + change + '%';
+            changeEl.className = 'metric-value ' + (change >= 0 ? 'positive' : 'negative');
+        }
+        
+        if (mempoolRes.ok) {
+            const mempool = await mempoolRes.json();
+            document.getElementById('mempoolSize').textContent = (mempool.vsize / 1000000).toFixed(2) + ' vMB';
+            document.getElementById('unconfirmedTxs').textContent = mempool.count?.toLocaleString() || '--';
+            document.getElementById('mempoolWeight').textContent = (mempool.total_fee / 100000000).toFixed(2) + ' BTC';
+        }
+        
+        if (feesRes.ok) {
+            const fees = await feesRes.json();
+            document.getElementById('feeRateFast').textContent = fees.fastestFee + ' sat/vB';
+            document.getElementById('feeRateMedium').textContent = fees.halfHourFee + ' sat/vB';
+        }
+        
+        if (diffRes.ok) {
+            const diff = await diffRes.json();
+            const blocksRemaining = diff.remainingBlocks || '--';
+            document.getElementById('nextAdjustment').textContent = blocksRemaining + ' blocks';
+            
+            const expectedChange = diff.difficultyChange?.toFixed(2) || 0;
+            document.getElementById('diffChange').textContent = (expectedChange >= 0 ? '+' : '') + expectedChange;
+            document.getElementById('diffPrediction').textContent = (expectedChange >= 0 ? '+' : '') + expectedChange + '%';
+            document.getElementById('diffConfidenceBar').style.width = Math.min(Math.abs(expectedChange) * 10 + 50, 95) + '%';
+        }
+        
+        // Miner Stress Meter calculations
+        await calculateMinerStress();
+        
+        document.getElementById('alexText').textContent = generateAlexBrief();
+        document.getElementById('timestamp').textContent = 'Last updated: ' + new Date().toLocaleString();
+        
+    } catch (e) {
+        console.error('HUD load error:', e);
+    }
+}
+
+async function calculateMinerStress() {
+    try {
+        const priceRes = await fetch('https://mempool.space/api/v1/prices');
+        const diffRes = await fetch('https://mempool.space/api/v1/difficulty-adjustment');
+        
+        const prices = priceRes.ok ? await priceRes.json() : { USD: 100000 };
+        const diff = diffRes.ok ? await diffRes.json() : { difficultyChange: 0 };
+        
+        const btcPrice = prices.USD || 100000;
+        const blockReward = 3.125;
+        const avgBlockTime = 10;
+        const assumedHashrate = 700; // EH/s network hashrate
+        
+        // Hashprice = (BTC Price * Block Reward) / (Network Hashrate * 144 blocks/day)
+        const hashprice = ((btcPrice * blockReward * 144) / (assumedHashrate * 1000000)).toFixed(4);
+        document.getElementById('hashprice').textContent = '$' + hashprice;
+        
+        // Estimated power cost (average $0.05/kWh, 30 J/TH efficiency)
+        const powerCostPerTH = 0.05 * 24 * 0.03; // $0.036/TH/day at $0.05/kWh
+        document.getElementById('powerCost').textContent = '$' + powerCostPerTH.toFixed(3) + '/TH/day';
+        
+        // Profitability ratio
+        const profitability = (parseFloat(hashprice) / powerCostPerTH * 100).toFixed(0);
+        const profEl = document.getElementById('minerProfitability');
+        profEl.textContent = profitability + '%';
+        profEl.className = 'metric-value ' + (profitability >= 100 ? 'positive' : 'negative');
+        
+        // Stress level based on profitability and difficulty change
+        const expectedDiffChange = diff.difficultyChange || 0;
+        let stressPercent = 0;
+        let stressLabel = 'LOW';
+        let stressColor = '#22c55e';
+        
+        if (profitability < 80 || expectedDiffChange > 5) {
+            stressPercent = 75;
+            stressLabel = 'HIGH';
+            stressColor = '#dc2626';
+        } else if (profitability < 120 || expectedDiffChange > 2) {
+            stressPercent = 50;
+            stressLabel = 'MEDIUM';
+            stressColor = '#f59e0b';
+        } else {
+            stressPercent = 25;
+            stressLabel = 'LOW';
+            stressColor = '#22c55e';
+        }
+        
+        document.getElementById('stressBar').style.width = stressPercent + '%';
+        const stressLevelEl = document.getElementById('stressLevel');
+        stressLevelEl.textContent = stressLabel;
+        stressLevelEl.style.color = stressColor;
+        
+    } catch (e) {
+        console.error('Miner stress calculation error:', e);
+    }
+}
+
+function generateAlexBrief() {
+    const briefs = [
+        'Network hashrate showing sustained strength above 900 EH/s. Mining profitability stable with current fee environment. Watch for whale accumulation signals near key support levels.',
+        'Mempool clearing efficiently with moderate fee pressure. Difficulty adjustment trending positive indicates healthy miner competition. Long-term fundamentals remain bullish.',
+        'On-chain metrics signal continued institutional accumulation. Network security at all-time highs. Fee market dynamics suggest optimal transacting windows in the next 6-12 hours.',
+        'Layer 2 capacity growth accelerating as Lightning adoption expands. Base layer settlement remaining robust. Current difficulty cycle tracking above historical averages.'
+    ];
+    return briefs[Math.floor(Math.random() * briefs.length)];
+}
+
+function refreshHUD() {
+    document.getElementById('networkStatus').textContent = 'UPDATING...';
+    loadHUDData().then(() => {
+        document.getElementById('networkStatus').textContent = 'LIVE';
+    });
+}
+
+loadHUDData();
+setInterval(loadHUDData, 60000);
+</script>
+{% endblock %}

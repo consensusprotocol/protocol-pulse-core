@@ -1,0 +1,223 @@
+[
+  {
+    "user_id": null,
+    "email": null,
+    "name": null,
+    "stage": "interest",
+    "profile": {
+      "intent": "protect",
+      "wealth_tier": "affluent",
+      "stage": "attention",
+      "response_summary": "want to protect my savings long term"
+    },
+    "interest_level": 0.2,
+    "capacity_score": 0.8,
+    "newsletter_opt_in": false,
+    "notes": "test",
+    "updated_at": "2026-02-23T21:56:40.111727"
+  },
+  {
+    "user_id": null,
+    "email": null,
+    "name": null,
+    "stage": "interest",
+    "profile": {
+      "intent": "default",
+      "wealth_tier": "whale",
+      "stage": "attention",
+      "response_summary": "savings"
+    },
+    "interest_level": 0.2,
+    "capacity_score": 1.0,
+    "newsletter_opt_in": false,
+    "notes": "savings",
+    "updated_at": "2026-02-23T22:19:27.412932"
+  },
+  {
+    "user_id": null,
+    "email": null,
+    "name": null,
+    "stage": "interest",
+    "profile": {
+      "intent": "protect",
+      "wealth_tier": "builder",
+      "stage": "attention",
+      "response_summary": "protect savings"
+    },
+    "interest_level": 0.2,
+    "capacity_score": 0.4,
+    "newsletter_opt_in": false,
+    "notes": "protect savings",
+    "updated_at": "2026-02-24T07:50:35.524004"
+  },
+  {
+    "user_id": null,
+    "email": null,
+    "name": null,
+    "stage": "interest",
+    "profile": {
+      "intent": "protect",
+      "wealth_tier": "builder",
+      "stage": "attention",
+      "response_summary": "protect savings"
+    },
+    "interest_level": 0.2,
+    "capacity_score": 0.4,
+    "newsletter_opt_in": false,
+    "notes": "protect savings",
+    "updated_at": "2026-02-24T07:52:41.550759"
+  },
+  {
+    "user_id": null,
+    "email": null,
+    "name": null,
+    "stage": "interest",
+    "profile": {
+      "intent": "protect",
+      "wealth_tier": "builder",
+      "stage": "attention",
+      "response_summary": "protect savings"
+    },
+    "interest_level": 0.2,
+    "capacity_score": 0.4,
+    "newsletter_opt_in": false,
+    "notes": "protect savings",
+    "updated_at": "2026-02-24T07:54:57.166260"
+  },
+  {
+    "user_id": null,
+    "email": null,
+    "name": null,
+    "stage": "interest",
+    "profile": {
+      "intent": "default",
+      "wealth_tier": "whale",
+      "stage": "attention",
+      "response_summary": "want to have long term savings plan"
+    },
+    "interest_level": 0.2,
+    "capacity_score": 1.0,
+    "newsletter_opt_in": false,
+    "notes": "want to have long term savings plan",
+    "updated_at": "2026-02-24T08:16:39.735129"
+  },
+  {
+    "user_id": null,
+    "email": null,
+    "name": null,
+    "stage": "interest",
+    "profile": {
+      "intent": "default",
+      "wealth_tier": "whale",
+      "stage": "attention",
+      "response_summary": "all the above"
+    },
+    "interest_level": 0.2,
+    "capacity_score": 1.0,
+    "newsletter_opt_in": false,
+    "notes": "all the above",
+    "updated_at": "2026-02-24T08:16:49.462085"
+  },
+  {
+    "user_id": null,
+    "email": null,
+    "name": null,
+    "stage": "interest",
+    "profile": {
+      "intent": "default",
+      "wealth_tier": "whale",
+      "stage": "attention",
+      "response_summary": "all the above"
+    },
+    "interest_level": 0.2,
+    "capacity_score": 1.0,
+    "newsletter_opt_in": false,
+    "notes": "all the above",
+    "updated_at": "2026-02-24T08:17:03.683631"
+  },
+  {
+    "user_id": null,
+    "email": null,
+    "name": null,
+    "stage": "interest",
+    "profile": {
+      "intent": "default",
+      "wealth_tier": "whale",
+      "stage": "attention",
+      "response_summary": "all the above"
+    },
+    "interest_level": 0.2,
+    "capacity_score": 1.0,
+    "newsletter_opt_in": false,
+    "notes": "all the above",
+    "updated_at": "2026-02-24T08:17:13.892899"
+  },
+  {
+    "user_id": null,
+    "email": null,
+    "name": null,
+    "stage": "interest",
+    "profile": {
+      "intent": "protect",
+      "wealth_tier": "whale",
+      "stage": "attention",
+      "response_summary": "What matters most to you: growing wealth, protecting it, or passing it to family?"
+    },
+    "interest_level": 0.2,
+    "capacity_score": 1.0,
+    "newsletter_opt_in": false,
+    "notes": "What matters most to you: growing wealth, protecting it, or passing it to family?",
+    "updated_at": "2026-02-24T08:17:21.116452"
+  },
+  {
+    "user_id": null,
+    "email": null,
+    "name": null,
+    "stage": "interest",
+    "profile": {
+      "intent": "default",
+      "wealth_tier": "whale",
+      "stage": "attention",
+      "response_summary": "all the above"
+    },
+    "interest_level": 0.2,
+    "capacity_score": 1.0,
+    "newsletter_opt_in": false,
+    "notes": "all the above",
+    "updated_at": "2026-02-24T08:17:29.441925"
+  },
+  {
+    "user_id": null,
+    "email": null,
+    "name": null,
+    "stage": "interest",
+    "profile": {
+      "intent": "default",
+      "wealth_tier": "whale",
+      "stage": "attention",
+      "response_summary": "all the above"
+    },
+    "interest_level": 0.2,
+    "capacity_score": 1.0,
+    "newsletter_opt_in": false,
+    "notes": "all the above",
+    "updated_at": "2026-02-24T08:17:35.957865"
+  },
+  {
+    "user_id": null,
+    "email": null,
+    "name": null,
+    "stage": "interest",
+    "profile": {
+      "intent": "family",
+      "wealth_tier": "whale",
+      "stage": "attention",
+      "response_summary": "passing to family"
+    },
+    "interest_level": 0.2,
+    "capacity_score": 1.0,
+    "newsletter_opt_in": false,
+    "notes": "passing to family",
+    "updated_at": "2026-02-24T08:17:44.825759"
+  }
+]

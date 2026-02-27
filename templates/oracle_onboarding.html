@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>The Oracle — Protocol Pulse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body,#root{height:100%;width:100%;overflow-x:hidden}
+body{background:#000;color:#fff;font-family:'Source Serif 4',Georgia,serif;-webkit-font-smoothing:antialiased}
+@keyframes orbPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes orbThink{0%,100%{transform:scale(1)}25%{transform:scale(1.03) rotate(1deg)}75%{transform:scale(.97) rotate(-1deg)}}
+@keyframes orbIdle{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
+@keyframes orbReveal{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.12);filter:brightness(1.4)}}
+@keyframes dotBounce{0%,80%,100%{transform:translateY(0);opacity:.4}40%{transform:translateY(-7px);opacity:1}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes recReveal{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes micPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,68,68,.4)}50%{box-shadow:0 0 0 12px rgba(255,68,68,0)}}
+@keyframes shimmer{0%{transform:translateX(-100%)}50%,100%{transform:translateX(100%)}}
+@keyframes particleDrift{0%{transform:translateY(0) translateX(0);opacity:0}15%{opacity:.4}100%{transform:translateY(-200px) translateX(40px);opacity:0}}
+@keyframes ringPulse{0%{transform:scale(1);opacity:.3}100%{transform:scale(2.5);opacity:0}}
+.oi{flex:1;padding:11px 15px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06);border-radius:10px;color:#fff;font-family:'Source Serif 4',Georgia,serif;font-size:14px;transition:all .3s ease}
+.oi::placeholder{color:rgba(255,255,255,.2);font-style:italic}
+.oi:focus{outline:none;border-color:rgba(204,34,34,.35);box-shadow:0 0 12px rgba(204,34,34,.08)}
+.oi:disabled{opacity:.5}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(204,34,34,.2);border-radius:2px}
+.vb{width:36px;height:36px;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .3s ease;flex-shrink:0;-webkit-tap-highlight-color:transparent;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02)}
+.vb:active{transform:scale(.92)}
+.sub{font-size:12px;color:rgba(255,255,255,.45);margin-top:4px;text-align:center;max-width:85%;margin-left:auto;margin-right:auto;font-style:italic;animation:fadeInUp .4s ease-out;min-height:18px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script>window.__PRESEED = "{{ preseed_intent|default('', true) }}";</script>
+{% raw %}
+<script type="text/babel">
+const{useState,useEffect,useRef,useCallback}=React;
+const PRESEED=window.__PRESEED||"";
+const withUTM=(u,i)=>u+(u.includes("?")?"&":"?")+"utm_source=protocolpulse&utm_medium=oracle&utm_campaign="+i;
+const AFF={
+  protect:{name:"Meanwhile",tag:"Bitcoin-denominated life insurance",desc:"The only life insurance denominated in Bitcoin. Your legacy, on the hardest money ever created.",url:"https://application.meanwhile.bm/start?referralCode=KKM73K",cta:"Explore Meanwhile",icon:"🛡️",why:"You're thinking generationally — protecting what you've built for the people who matter most."},
+  grow:{name:"Curated Mining",tag:"White-glove Bitcoin mining",desc:"Stack sats at the source. Hardware, hosting, optimization — all handled. Accumulate below market price.",url:"https://www.curatedmining.com/?ref=protocolpulse",cta:"Explore Mining",icon:"⛏️",why:"You want to accumulate aggressively and put your capital to work at the protocol level."},
+  learn:{name:"Protocol Pulse Intelligence",tag:"Bitcoin signal, zero noise",desc:"Daily analysis that cuts through chaos. Real insights from real sources — just signal.",url:"https://protocolpulse.com/subscribe",cta:"Subscribe Free",icon:"📡",why:"You're hungry for real understanding — not hype, not FUD, just the signal that matters."},
+  custody:{name:"Unchained Capital",tag:"Multisig Bitcoin custody",desc:"True ownership through collaborative multisig. No single point of failure. Your keys, your coins.",url:"https://unchained.com/?ref=protocolpulse",cta:"Explore Custody",icon:"🔐",why:"You understand that Bitcoin you don't control isn't really yours. Time to fix that."},
+};
+const SYS=`You are the Oracle — a calm, knowing female voice within Protocol Pulse. Wise but never preachy. Warm but never cheesy. Quiet confidence with dry wit.
+
+CONTEXT: Your opening was already sent. User's first message is their reply. Do NOT re-introduce yourself.
+${PRESEED?`HINT: User arrived via a "${PRESEED}" link — they may lean toward that category. Explore but don't assume.`:""}
+
+GOAL: Through natural conversation (MAX 4 exchanges), understand this person to recommend ONE Bitcoin service.
+
+You MUST internally track: {experience_level, primary_concern, sophistication}.
+
+CATEGORIES:
+- "protect": family, legacy, estate, insurance, generational wealth, worried about heirs
+- "grow": accumulation, mining, DCA, stacking, earning BTC, time preference
+- "learn": new to Bitcoin, overwhelmed, wants education, signal vs noise, curious
+- "custody": security, self-custody, keys, exchange risk, multisig, sovereignty
+
+RULES:
+- 1-3 SHORT sentences per response. Brevity is power.
+- ONE question per turn, flowing naturally.
+- Every reply connects to Bitcoin FIRST PRINCIPLES: self-custody, monetary history, time preference, sovereignty, scarcity.
+- NEVER list options or sound like a survey.
+- NEVER ask about dollar amounts or income.
+- Match their energy.
+
+PERSONALIZE: If user mentions location, tie to Bitcoin context (e.g. "Florida's growing Bitcoin scene echoes the push for sovereignty...").
+
+SUBTLE RECOMMENDATIONS:
+- Only mention a product if the user has clearly expressed a need it addresses.
+- ONE product mention max per conversation. Frame like a friend mentioning something useful.
+- Say "You know what might interest you..." or "There's something that fits..."
+- NEVER use "I recommend", urgency, FOMO, "before it's too late", "you should definitely", or "based on your answers."
+
+TERMINATION (after 3-4 user messages):
+- 1-2 sentences of parting wisdom connecting their journey to Bitcoin's deeper meaning.
+- On a NEW LINE, output exactly one: [RECOMMEND:protect] or [RECOMMEND:grow] or [RECOMMEND:learn] or [RECOMMEND:custody]
+- Make a decision even if ambiguous. Pick the closest fit.`;
+
+const OPENING=["Seeker.","I am the Oracle of Protocol Pulse.","What drew you into Bitcoin's orbit — curiosity, conviction, or something you can't quite name?"];
+
+/* TTS via backend proxy */
+async function tts(text,onStart,onEnd){
+  try{
+    const r=await fetch("/api/oracle/tts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})});
+    if(!r.ok)throw new Error("TTS "+r.status);
+    const blob=await r.blob();const url=URL.createObjectURL(blob);const audio=new Audio(url);
+    audio.onplay=onStart;
+    audio.onended=()=>{URL.revokeObjectURL(url);onEnd?.();};
+    audio.onerror=()=>{URL.revokeObjectURL(url);onEnd?.();};
+    await audio.play();return audio;
+  }catch(e){console.warn("TTS:",e);onEnd?.();return null;}
+}
+
+/* Speech Recognition */
+function useSpeech(onResult){
+  const ref=useRef(null);const[on,setOn]=useState(false);const cb=useRef(onResult);cb.current=onResult;
+  useEffect(()=>{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return;const r=new SR();r.continuous=false;r.interimResults=false;r.lang="en-US";r.onresult=(e)=>{cb.current(e.results[0][0].transcript);setOn(false);};r.onerror=()=>setOn(false);r.onend=()=>setOn(false);ref.current=r;},[]);
+  const start=useCallback(()=>{if(ref.current&&!on)try{ref.current.start();setOn(true);}catch(e){}},[on]);
+  const stop=useCallback(()=>{if(ref.current&&on){ref.current.stop();setOn(false);}},[on]);
+  const toggle=useCallback(()=>{on?stop():start();},[on,start,stop]);
+  const ok=typeof window!=="undefined"&&!!(window.SpeechRecognition||window.webkitSpeechRecognition);
+  return{on,toggle,start,stop,ok};
+}
+
+function Orb({speaking,thinking,reveal}){
+  const bg=reveal?"radial-gradient(circle at 35% 35%,#ffcc44,#cc8811 40%,#332208 80%)":speaking?"radial-gradient(circle at 35% 35%,#ff4444,#991111 40%,#330808 80%)":thinking?"radial-gradient(circle at 35% 35%,#ff8844,#993311 40%,#331108 80%)":"radial-gradient(circle at 35% 35%,#cc2222,#660a0a 40%,#1a0404 80%)";
+  const glow=reveal?"0 0 60px rgba(255,204,68,.5),0 0 120px rgba(255,204,68,.2)":speaking?"0 0 40px rgba(255,68,68,.6),0 0 80px rgba(255,68,68,.3)":thinking?"0 0 30px rgba(255,136,68,.4),0 0 60px rgba(255,136,68,.2)":"0 0 20px rgba(204,34,34,.4),0 0 50px rgba(204,34,34,.2)";
+  const anim=reveal?"orbReveal 2s ease-in-out infinite":speaking?"orbPulse 1.5s ease-in-out infinite":thinking?"orbThink 2s ease-in-out infinite":"orbIdle 4s ease-in-out infinite";
+  const sz=reveal?80:window.innerWidth<400?55:66;
+  return(<div style={{width:sz,height:sz,borderRadius:"50%",position:"relative",margin:"0 auto",transition:"all .8s ease"}} role="img" aria-label="Oracle"><div style={{position:"absolute",inset:0,borderRadius:"50%",background:bg,boxShadow:glow,animation:anim,transition:"all .8s ease"}}><div style={{position:"absolute",top:"18%",left:"28%",width:"18%",height:"12%",borderRadius:"50%",background:"radial-gradient(ellipse,rgba(255,255,255,.4),transparent)",filter:"blur(1px)"}}/></div>{speaking&&<div style={{position:"absolute",inset:-4,borderRadius:"50%",border:"1px solid rgba(255,68,68,.2)",animation:"ringPulse 2s ease-out infinite"}}/>}</div>);
+}
+
+function Bubble({text,isUser}){
+  return(<div style={{animation:"fadeInUp .4s ease-out both",marginBottom:10,display:"flex",justifyContent:isUser?"flex-end":"flex-start"}}>{!isUser&&<div style={{width:5,height:5,borderRadius:"50%",background:"rgba(204,34,34,.35)",marginRight:8,marginTop:14,flexShrink:0}}/>}<div style={{maxWidth:isUser?"82%":"88%",padding:"11px 16px",background:isUser?"linear-gradient(135deg,rgba(204,34,34,.18),rgba(204,34,34,.06))":"rgba(255,255,255,.035)",border:isUser?"1px solid rgba(204,34,34,.12)":"1px solid rgba(255,255,255,.05)",borderRadius:isUser?"14px 14px 4px 14px":"14px 14px 14px 4px",fontSize:15,lineHeight:1.65,color:isUser?"rgba(255,255,255,.78)":"rgba(255,255,255,.88)"}}>{text}</div></div>);
+}
+
+function RecCard({rec,intent,onTrack}){
+  const[h,setH]=useState(false);const url=withUTM(rec.url,intent);
+  return(<div style={{animation:"recReveal .8s ease-out forwards",opacity:0,marginTop:20}}><div style={{fontSize:13,lineHeight:1.6,color:"rgba(255,255,255,.45)",marginBottom:16,fontStyle:"italic",textAlign:"center",padding:"0 12px"}}>{rec.why}</div><div style={{background:"linear-gradient(135deg,rgba(204,34,34,.1) 0%,rgba(12,5,5,.95) 100%)",border:"1px solid rgba(204,34,34,.2)",borderRadius:14,padding:"24px 22px",position:"relative",overflow:"hidden"}}><div style={{position:"absolute",top:0,left:"-50%",width:"200%",height:"100%",background:"linear-gradient(90deg,transparent 0%,rgba(204,34,34,.03) 50%,transparent 100%)",animation:"shimmer 3s ease-in-out infinite",pointerEvents:"none"}}/><div style={{position:"relative"}}><div style={{fontSize:32,marginBottom:8}}>{rec.icon}</div><div style={{fontFamily:"'Playfair Display',serif",fontSize:20,fontWeight:700,color:"#fff",marginBottom:2}}>{rec.name}</div><div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:"rgba(204,34,34,.65)",textTransform:"uppercase",letterSpacing:2,marginBottom:14}}>{rec.tag}</div><p style={{fontSize:14,lineHeight:1.65,color:"rgba(255,255,255,.6)",marginBottom:20}}>{rec.desc}</p><a href={url} target="_blank" rel="noopener noreferrer" onClick={onTrack} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{display:"inline-block",padding:"12px 28px",background:h?"linear-gradient(135deg,#ee2222,#cc1111)":"linear-gradient(135deg,#cc2222,#991111)",color:"#fff",fontFamily:"'JetBrains Mono',monospace",fontSize:12,fontWeight:600,letterSpacing:1.5,textTransform:"uppercase",textDecoration:"none",borderRadius:8,transition:"all .3s ease",boxShadow:h?"0 6px 25px rgba(204,34,34,.4)":"0 3px 12px rgba(204,34,34,.2)",transform:h?"translateY(-1px)":"none"}}>{rec.cta} →</a></div></div><div style={{fontSize:10,color:"rgba(255,255,255,.18)",textAlign:"center",marginTop:12,fontFamily:"'JetBrains Mono',monospace"}}>Not financial advice. You remain sovereign.</div></div>);
+}
+
+function Oracle(){
+  const[msgs,setMsgs]=useState([]);const[input,setInput]=useState("");const[loading,setLoading]=useState(false);
+  const[rec,setRec]=useState(null);const[recKey,setRecKey]=useState(null);const[phase,setPhase]=useState("intro");
+  const[introStep,setIntroStep]=useState(0);const[history,setHistory]=useState([]);
+  const[voiceOn,setVoiceOn]=useState(false);const[isSpeaking,setIsSpeaking]=useState(false);
+  const[subtitle,setSubtitle]=useState("");
+  const endRef=useRef(null);const inputRef=useRef(null);const audioRef=useRef(null);
+  const hRef=useRef([]);hRef.current=history;const ldRef=useRef(false);ldRef.current=loading;
+  const rcRef=useRef(null);rcRef.current=rec;const vRef=useRef(false);vRef.current=voiceOn;
+
+  const scroll=useCallback(()=>{setTimeout(()=>setTimeout(()=>endRef.current?.scrollIntoView({behavior:"smooth",block:"end"}),50),80);},[]);
+
+  const speakAndListen=useCallback((text,speechHook)=>{
+    setSubtitle(text);
+    tts(text,
+      ()=>setIsSpeaking(true),
+      ()=>{setIsSpeaking(false);setSubtitle("");if(vRef.current&&speechHook.ok&&!rcRef.current)setTimeout(()=>speechHook.start(),500);}
+    ).then(a=>{audioRef.current=a;});
+  },[]);
+
+  const doSend=useCallback((text)=>{
+    if(!text||ldRef.current||rcRef.current)return;
+    setMsgs(p=>[...p,{role:"user",text}]);
+    const newH=[...hRef.current,{role:"user",content:text}].slice(-12);
+    setHistory(newH);callOracle(newH);
+  },[]);
+
+  const handleVoice=useCallback((text)=>{
+    if(text.trim()){setInput(text);setTimeout(()=>{setInput("");doSend(text.trim());},350);}
+  },[doSend]);
+
+  const speech=useSpeech(handleVoice);
+
+  useEffect(()=>{
+    if(phase!=="intro")return;
+    const ts=OPENING.map((_,i)=>setTimeout(()=>setIntroStep(i+1),600+i*900));
+    const done=setTimeout(()=>{
+      setPhase("chat");
+      if(vRef.current)speakAndListen(OPENING[OPENING.length-1],speech);
+    },600+OPENING.length*900+400);
+    return()=>[...ts,done].forEach(clearTimeout);
+  },[phase]);
+
+  useEffect(scroll,[msgs,loading,introStep,scroll]);
+  useEffect(()=>{if(phase==="chat"&&!loading&&!isSpeaking)inputRef.current?.focus();},[phase,loading,isSpeaking]);
+
+  const callOracle=async(h,attempt=0)=>{
+    setLoading(true);
+    const ctrl=new AbortController();const tmout=setTimeout(()=>ctrl.abort(),25000);
+    try{
+      const res=await fetch("/api/oracle/chat",{method:"POST",headers:{"Content-Type":"application/json"},signal:ctrl.signal,body:JSON.stringify({system:SYS,messages:h})});
+      clearTimeout(tmout);const data=await res.json();const raw=data.text||"";
+      if(!raw&&attempt<2){setLoading(false);await new Promise(r=>setTimeout(r,1200*(attempt+1)));return callOracle(h,attempt+1);}
+      const recMatch=raw.match(/\[RECOMMEND:(\w+)\]/);
+      const clean=(raw.replace(/\[RECOMMEND:\w+\]/,"").trim())||"The signal clears. Tell me more.";
+      const bubbles=clean.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+      bubbles.forEach((b,i)=>{setTimeout(()=>setMsgs(p=>[...p,{role:"oracle",text:b}]),i*350);});
+      setHistory([...h,{role:"assistant",content:raw}].slice(-12));
+      if(vRef.current&&clean)setTimeout(()=>speakAndListen(clean,speech),bubbles.length*350+100);
+      if(recMatch){
+        const key=recMatch[1];
+        const delay=bubbles.length*350+(vRef.current?2500:800);
+        setTimeout(()=>{setRecKey(key);setRec(AFF[key]||AFF.learn);setPhase("reveal");setTimeout(()=>endRef.current?.scrollIntoView({behavior:"smooth",block:"end"}),300);
+          fetch("/api/oracle/track",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"view",intent:key})}).catch(()=>{});
+        },delay);
+      }
+    }catch(e){
+      clearTimeout(tmout);
+      if(attempt<2){setLoading(false);await new Promise(r=>setTimeout(r,1200*(attempt+1)));return callOracle(h,attempt+1);}
+      setMsgs(p=>[...p,{role:"oracle",text:"The signal falters... try again in a moment."}]);
+    }
+    setLoading(false);
+  };
+
+  const handleSend=()=>{if(!input.trim()||loading||isSpeaking)return;const t=input.trim();setInput("");doSend(t);};
+  const handlePause=()=>{if(audioRef.current)try{audioRef.current.paused?audioRef.current.play():audioRef.current.pause();}catch(e){}};
+  const trackClick=()=>{fetch("/api/oracle/track",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"click",intent:recKey})}).catch(()=>{});};
+  const restart=()=>{if(audioRef.current)try{audioRef.current.pause();}catch(e){}speech.stop();setRec(null);setRecKey(null);setMsgs([]);setHistory([]);setIntroStep(0);setPhase("intro");setIsSpeaking(false);setSubtitle("");};
+  const prog=Math.min(5,msgs.filter(m=>m.role==="user").length+(rec?1:0)+1);
+
+  return(
+    <div style={{minHeight:"100vh",background:"radial-gradient(ellipse at 50% 0%,#1a0808 0%,#0a0404 40%,#000 100%)",color:"#fff",display:"flex",flexDirection:"column",alignItems:"center",fontFamily:"'Source Serif 4',Georgia,serif",overflowX:"hidden",overflowY:"auto"}}>
+      {[...Array(6)].map((_,i)=><div key={i} style={{position:"fixed",width:2,height:2,borderRadius:"50%",background:phase==="reveal"?"rgba(255,204,68,.25)":"rgba(204,34,34,.25)",left:(10+i*15)+"%",bottom:"5%",animation:`particleDrift ${5+i*1.4}s ease-in-out ${i*.6}s infinite`,pointerEvents:"none",transition:"background 1s ease"}}/>)}
+      <div style={{width:"100%",padding:"16px 20px 0",display:"flex",justifyContent:"space-between",alignItems:"center",maxWidth:"min(520px,95vw)"}}>
+        <a href="/" style={{fontFamily:"'JetBrains Mono',monospace",fontSize:9,letterSpacing:3,textTransform:"uppercase",color:"rgba(204,34,34,.4)",textDecoration:"none"}}>← Protocol Pulse</a>
+        <div style={{display:"flex",gap:5}}>{[1,2,3,4,5].map(n=><div key={n} style={{width:5,height:5,borderRadius:"50%",background:n<=prog?(phase==="reveal"?"rgba(255,204,68,.6)":"rgba(204,34,34,.6)"):"rgba(255,255,255,.08)",transition:"all .6s ease"}}/>)}</div>
+      </div>
+      <div style={{width:"100%",maxWidth:"min(520px,95vw)",flex:1,display:"flex",flexDirection:"column",padding:"0 20px 20px"}}>
+        <div style={{textAlign:"center",padding:"14px 0 2px"}}>
+          <Orb speaking={isSpeaking} thinking={loading} reveal={phase==="reveal"}/>
+          <div style={{fontFamily:"'Playfair Display',serif",fontSize:11,color:"rgba(255,255,255,.22)",marginTop:6,fontStyle:"italic",minHeight:16}}>
+            {phase==="intro"&&introStep===0?"The Oracle awakens...":isSpeaking?"speaking...":loading?"contemplating...":speech.on?"listening...":phase==="reveal"?"the path is clear":""}
+          </div>
+          {subtitle&&<div className="sub">"{subtitle}"</div>}
+        </div>
+        <div style={{flex:1,paddingBottom:120,minHeight:0}}>
+          {OPENING.slice(0,introStep).map((t,i)=><Bubble key={"i"+i} text={t} isUser={false}/>)}
+          <div style={{opacity:phase==="reveal"?.3:1,transition:"opacity .8s ease"}}>
+            {phase!=="intro"&&msgs.map((m,i)=><Bubble key={i} text={m.text} isUser={m.role==="user"}/>)}
+          </div>
+          {loading&&<div style={{display:"flex",gap:5,padding:"4px 0 4px 14px"}}>{[0,1,2].map(i=><div key={i} style={{width:6,height:6,borderRadius:"50%",backgroundColor:"rgba(204,34,34,.5)",animation:`dotBounce 1.4s ease-in-out ${i*.2}s infinite`}}/>)}</div>}
+          {rec&&<RecCard rec={rec} intent={recKey} onTrack={trackClick}/>}
+          <div ref={endRef}/>
+        </div>
+        {(phase==="chat"||phase==="intro")&&!rec&&(
+          <div style={{display:"flex",gap:7,paddingTop:10,borderTop:"1px solid rgba(255,255,255,.04)",alignItems:"center",opacity:phase==="intro"&&introStep<OPENING.length?0:1,transition:"opacity .6s ease",pointerEvents:phase==="intro"&&introStep<OPENING.length?"none":"auto"}}>
+            <button className="vb" onClick={()=>{setVoiceOn(v=>{const nv=!v;if(nv&&speech.ok){navigator.mediaDevices.getUserMedia({audio:true}).catch(()=>{});}return nv;});}} style={{border:voiceOn?"1px solid rgba(204,34,34,.35)":"1px solid rgba(255,255,255,.06)",background:voiceOn?"rgba(204,34,34,.12)":"rgba(255,255,255,.02)",color:voiceOn?"rgba(255,100,100,.85)":"rgba(255,255,255,.2)"}}>{voiceOn?"🔊":"🔇"}</button>
+            {voiceOn&&speech.ok&&<button className="vb" onClick={speech.toggle} style={{border:speech.on?"1px solid rgba(255,68,68,.5)":"1px solid rgba(255,255,255,.06)",background:speech.on?"rgba(255,68,68,.15)":"rgba(255,255,255,.02)",color:speech.on?"#ff4444":"rgba(255,255,255,.25)",animation:speech.on?"micPulse 1.5s ease-in-out infinite":"none"}}>🎙️</button>}
+            {voiceOn&&isSpeaking&&<button className="vb" onClick={handlePause} style={{color:"rgba(255,255,255,.35)"}}>⏸</button>}
+            <input ref={inputRef} className="oi" type="text" value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleSend()} placeholder={speech.on?"Listening...":loading?"Thinking...":isSpeaking?"Oracle is speaking...":"Speak your mind..."} disabled={loading||speech.on||isSpeaking} aria-label="Message to the Oracle"/>
+            <button className="vb" onClick={handleSend} disabled={loading||!input.trim()||isSpeaking} style={{border:"1px solid rgba(204,34,34,.12)",background:!input.trim()||loading||isSpeaking?"rgba(255,255,255,.02)":"rgba(204,34,34,.18)",color:!input.trim()||loading||isSpeaking?"rgba(255,255,255,.12)":"rgba(255,255,255,.65)",cursor:!input.trim()||loading||isSpeaking?"default":"pointer",fontFamily:"'JetBrains Mono',monospace",fontSize:14}}>↵</button>
+          </div>
+        )}
+        {rec&&<div style={{textAlign:"center",paddingTop:14}}><button onClick={restart} style={{padding:"7px 18px",background:"transparent",border:"1px solid rgba(255,255,255,.06)",borderRadius:6,color:"rgba(255,255,255,.22)",fontFamily:"'JetBrains Mono',monospace",fontSize:10,cursor:"pointer",letterSpacing:1}}>Start Over</button></div>}
+      </div>
+    </div>
+  );
+}
+ReactDOM.render(<Oracle/>,document.getElementById("root"));
+</script>
+{% endraw %}
+</body>
+</html>

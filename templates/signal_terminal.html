@@ -1,0 +1,1581 @@
+{% extends "base.html" %}
+
+{% block title %}Signal Terminal - Protocol Pulse{% endblock %}
+
+{% block extra_head %}
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --deep-space: #050507;
+    --panel-bg: rgba(8, 8, 12, 0.95);
+    --glass-border: rgba(255, 255, 255, 0.06);
+    --signal-orange: #f7931a;
+    --signal-green: #00ff88;
+    --signal-red: #ff3366;
+    --velocity-blue: #00d4ff;
+    --nostr-purple: #8a2be2;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.6);
+    --text-muted: rgba(255, 255, 255, 0.35);
+}
+
+* { box-sizing: border-box; }
+
+.signal-terminal {
+    font-family: 'Outfit', sans-serif;
+    background: var(--deep-space);
+    min-height: 100vh;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Animated Background Orbs */
+.bg-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(100px);
+    pointer-events: none;
+    z-index: 0;
+}
+.orb-1 { width: 600px; height: 600px; background: rgba(247, 147, 26, 0.08); top: -200px; right: -200px; animation: orbFloat 20s ease-in-out infinite; }
+.orb-2 { width: 400px; height: 400px; background: rgba(138, 43, 226, 0.06); bottom: -100px; left: -100px; animation: orbFloat 25s ease-in-out infinite reverse; }
+.orb-3 { width: 300px; height: 300px; background: rgba(0, 212, 255, 0.04); top: 50%; left: 50%; animation: orbFloat 30s ease-in-out infinite; }
+
+@keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -30px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+/* SVG Noise Grain Overlay */
+.noise-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.03;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* Command Bar */
+.command-bar {
+    position: fixed;
+    top: 65px;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: var(--panel-bg);
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 16px;
+    z-index: 100;
+    backdrop-filter: blur(20px);
+}
+
+.command-input-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 0 16px;
+    transition: all 0.3s ease;
+}
+
+.command-input-wrapper:focus-within {
+    border-color: var(--signal-orange);
+    box-shadow: 0 0 20px rgba(247, 147, 26, 0.2);
+}
+
+.command-prefix {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--signal-orange);
+    font-size: 0.85rem;
+    margin-right: 8px;
+}
+
+.command-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    padding: 12px 0;
+    outline: none;
+}
+
+.command-input::placeholder {
+    color: var(--text-muted);
+}
+
+.mode-toggle {
+    display: flex;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 4px;
+    border-radius: 6px;
+}
+
+.mode-btn {
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.mode-btn.active {
+    background: var(--signal-orange);
+    color: #000;
+}
+
+.live-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--signal-green);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+}
+
+.live-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--signal-green);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* 3-Panel Layout */
+.terminal-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr 320px;
+    height: calc(100vh - 121px);
+    margin-top: 121px;
+    position: relative;
+    z-index: 10;
+}
+
+@media (max-width: 1400px) {
+    .terminal-grid {
+        grid-template-columns: 340px 1fr 280px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .terminal-grid {
+        grid-template-columns: 1fr 300px;
+    }
+    .feed-rail { display: none; }
+}
+
+@media (max-width: 900px) {
+    .terminal-grid {
+        grid-template-columns: 1fr;
+    }
+    .signal-sidebar { display: none; }
+}
+
+/* Feed Rail (Left Panel) */
+.feed-rail {
+    background: var(--panel-bg);
+    border-right: 1px solid var(--glass-border);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--signal-orange) transparent;
+}
+
+.feed-rail::-webkit-scrollbar { width: 4px; }
+.feed-rail::-webkit-scrollbar-thumb { background: var(--signal-orange); border-radius: 2px; }
+
+.rail-header {
+    position: sticky;
+    top: 0;
+    background: var(--panel-bg);
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--glass-border);
+    z-index: 10;
+}
+
+.rail-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+}
+
+.rail-filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.filter-chip {
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-chip:hover, .filter-chip.active {
+    background: rgba(247, 147, 26, 0.15);
+    border-color: var(--signal-orange);
+    color: var(--signal-orange);
+}
+
+/* Signal Card */
+.signal-card {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--glass-border);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.signal-card:hover {
+    background: rgba(247, 147, 26, 0.05);
+}
+
+.signal-card.active {
+    background: rgba(247, 147, 26, 0.1);
+    border-left: 3px solid var(--signal-orange);
+}
+
+.signal-card.hot::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--signal-orange), var(--signal-red));
+    animation: hotPulse 2s ease-in-out infinite;
+}
+
+@keyframes hotPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+.signal-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.platform-icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+}
+
+.platform-icon.twitter { color: #1da1f2; }
+.platform-icon.youtube { color: #ff0000; }
+.platform-icon.nostr { color: #8a2be2; }
+.platform-icon.reddit { color: #ff4500; }
+.platform-icon.stacker_news { color: #f7931a; }
+
+.signal-age {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.velocity-badge {
+    margin-left: auto;
+    padding: 2px 8px;
+    background: rgba(0, 212, 255, 0.15);
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--velocity-blue);
+}
+
+.velocity-badge.high {
+    background: rgba(247, 147, 26, 0.2);
+    color: var(--signal-orange);
+}
+
+.signal-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.4;
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.signal-stats {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+}
+
+.stat-item.sats { color: var(--signal-orange); }
+.stat-item.zaps { color: var(--text-muted); }
+
+.cooling-meter {
+    width: 40px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-left: auto;
+}
+
+.cooling-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--signal-green), var(--signal-orange));
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+.curator-tag {
+    font-size: 0.7rem;
+    color: var(--nostr-purple);
+    margin-top: 8px;
+}
+
+/* Inspector (Center Panel) */
+.inspector {
+    background: var(--deep-space);
+    overflow-y: auto;
+    padding: 24px;
+    scrollbar-width: thin;
+}
+
+.inspector-empty {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 40px;
+}
+
+.inspector-empty i {
+    font-size: 4rem;
+    margin-bottom: 24px;
+    opacity: 0.3;
+}
+
+.inspector-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.embed-container {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.embed-container iframe {
+    width: 100%;
+    height: 400px;
+    border: none;
+}
+
+.embed-placeholder {
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(247, 147, 26, 0.1), rgba(138, 43, 226, 0.1));
+}
+
+.inspector-header {
+    margin-bottom: 24px;
+}
+
+.inspector-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+    margin-bottom: 16px;
+}
+
+.inspector-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+}
+
+.meta-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+/* Economic Breakdown Panel */
+.econ-panel {
+    background: var(--panel-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.econ-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+}
+
+.econ-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.econ-stat {
+    text-align: center;
+}
+
+.econ-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--signal-orange);
+}
+
+.econ-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.splits-bar {
+    display: flex;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.split-segment {
+    height: 100%;
+}
+
+.split-creator { background: var(--signal-green); }
+.split-curator { background: var(--nostr-purple); }
+.split-platform { background: var(--velocity-blue); }
+
+.splits-legend {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 12px;
+    font-size: 0.75rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+}
+
+.legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+/* Why Surfaced Panel */
+.why-panel {
+    background: rgba(0, 212, 255, 0.05);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.why-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--velocity-blue);
+    margin-bottom: 12px;
+}
+
+.why-factors {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.factor-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.factor-icon {
+    width: 20px;
+    text-align: center;
+    color: var(--velocity-blue);
+}
+
+/* Zap Actions */
+.zap-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.zap-btn-primary {
+    flex: 1;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, var(--signal-orange), #ff6b00);
+    border: none;
+    border-radius: 10px;
+    color: #000;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.zap-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(247, 147, 26, 0.4);
+}
+
+.boost-btn {
+    padding: 16px 24px;
+    background: rgba(138, 43, 226, 0.2);
+    border: 1px solid var(--nostr-purple);
+    border-radius: 10px;
+    color: var(--nostr-purple);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.boost-btn:hover {
+    background: rgba(138, 43, 226, 0.3);
+}
+
+/* Signal Sidebar (Right Panel) */
+.signal-sidebar {
+    background: var(--panel-bg);
+    border-left: 1px solid var(--glass-border);
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.sidebar-section {
+    margin-bottom: 28px;
+}
+
+.sidebar-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sidebar-title i {
+    color: var(--signal-orange);
+}
+
+/* Curators List */
+.curator-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.curator-item:last-child { border-bottom: none; }
+
+.curator-rank {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--signal-orange);
+    width: 24px;
+}
+
+.curator-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--nostr-purple), var(--signal-orange));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.curator-info {
+    flex: 1;
+}
+
+.curator-name {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.curator-stats {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.curator-trend {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+}
+
+.curator-trend.up { color: var(--signal-green); }
+.curator-trend.down { color: var(--signal-red); }
+
+/* Hot Topics */
+.topic-tag {
+    display: inline-block;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.topic-tag:hover {
+    border-color: var(--signal-orange);
+    color: var(--signal-orange);
+}
+
+/* Sats Flow Ticker */
+.sats-ticker {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.ticker-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    color: var(--signal-orange);
+    margin-bottom: 4px;
+}
+
+.ticker-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.ticker-chart {
+    height: 40px;
+    margin-top: 12px;
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.ticker-bar {
+    flex: 1;
+    background: linear-gradient(to top, var(--signal-orange), rgba(247, 147, 26, 0.3));
+    border-radius: 2px 2px 0 0;
+    transition: height 0.3s ease;
+}
+
+/* Zap Modal */
+.zap-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.zap-modal-overlay.active { display: flex; }
+
+.zap-modal {
+    background: var(--panel-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 32px;
+    width: 100%;
+    max-width: 420px;
+    position: relative;
+}
+
+.zap-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+.zap-modal-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.zap-modal-subtitle {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+}
+
+.zap-presets {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.zap-preset {
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.zap-preset:hover, .zap-preset.active {
+    border-color: var(--signal-orange);
+    background: rgba(247, 147, 26, 0.1);
+}
+
+.zap-preset-amount {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    color: var(--signal-orange);
+}
+
+.zap-preset-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.zap-custom {
+    margin-bottom: 24px;
+}
+
+.zap-custom-input {
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.zap-custom-input:focus {
+    outline: none;
+    border-color: var(--signal-orange);
+}
+
+.zap-splits-preview {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 24px;
+}
+
+.zap-splits-title {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.zap-split-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.zap-split-row:last-child { border-bottom: none; }
+
+.zap-split-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.zap-split-amount {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--signal-orange);
+}
+
+.zap-confirm-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--signal-orange), #ff6b00);
+    border: none;
+    border-radius: 10px;
+    color: #000;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.zap-confirm-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(247, 147, 26, 0.4);
+}
+
+.wallet-status {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 0.8rem;
+}
+
+.wallet-status.connected { color: var(--signal-green); }
+.wallet-status.disconnected { color: var(--text-muted); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="signal-terminal">
+    <!-- Background Effects -->
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+    <div class="noise-overlay"></div>
+    
+    <!-- Command Bar -->
+    <div class="command-bar">
+        <div class="command-input-wrapper">
+            <span class="command-prefix">[SIGNAL]:</span>
+            <input type="text" class="command-input" id="commandInput" 
+                   placeholder="Paste URL to curate • platform:youtube last:24h min_sats:5000 • boost 10000">
+        </div>
+        
+        <div class="mode-toggle">
+            <button class="mode-btn active" data-mode="compact">COMPACT</button>
+            <button class="mode-btn" data-mode="normal">NORMAL</button>
+            <button class="mode-btn" data-mode="cinematic">CINEMATIC</button>
+        </div>
+        
+        <div class="live-indicator">
+            <div class="live-dot"></div>
+            <span>LIVE</span>
+        </div>
+    </div>
+    
+    <!-- 3-Panel Grid -->
+    <div class="terminal-grid">
+        <!-- Left: Feed Rail -->
+        <div class="feed-rail">
+            <div class="rail-header">
+                <div class="rail-title">Signal Feed</div>
+                <div class="rail-filters">
+                    <span class="filter-chip active" data-sort="signal">SIGNAL</span>
+                    <span class="filter-chip" data-sort="new">NEW</span>
+                    <span class="filter-chip" data-sort="velocity">VELOCITY</span>
+                    <span class="filter-chip" data-sort="zapped">MOST ZAPPED</span>
+                </div>
+            </div>
+            
+            <div id="feedItems">
+                {% if posts %}
+                    {% for post in posts %}
+                    <div class="signal-card {% if loop.first %}active{% endif %} {% if post.velocity > 10 %}hot{% endif %}" 
+                         data-post-id="{{ post.id }}">
+                        <div class="signal-meta">
+                            <span class="platform-icon {{ post.platform }}">
+                                {% if post.platform == 'twitter' %}<i class="fab fa-twitter"></i>
+                                {% elif post.platform == 'youtube' %}<i class="fab fa-youtube"></i>
+                                {% elif post.platform == 'nostr' %}<i class="fas fa-bolt"></i>
+                                {% elif post.platform == 'reddit' %}<i class="fab fa-reddit"></i>
+                                {% else %}<i class="fas fa-globe"></i>{% endif %}
+                            </span>
+                            <span class="signal-age">{{ post.age_display or '2h' }}</span>
+                            {% if post.velocity %}
+                            <span class="velocity-badge {% if post.velocity > 5 %}high{% endif %}">
+                                <i class="fas fa-arrow-up"></i> {{ "%.1f"|format(post.velocity) }}/h
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="signal-title">{{ post.title or 'Untitled Signal' }}</div>
+                        <div class="signal-stats">
+                            <span class="stat-item sats">
+                                <i class="fas fa-bolt"></i> {{ "{:,}".format(post.total_sats or 0) }}
+                            </span>
+                            <span class="stat-item zaps">
+                                {{ post.zap_count or 0 }} zaps
+                            </span>
+                            <div class="cooling-meter">
+                                <div class="cooling-fill" style="width: {{ post.heat_level or 50 }}%"></div>
+                            </div>
+                        </div>
+                        {% if post.curator %}
+                        <div class="curator-tag">
+                            <i class="fas fa-user-check"></i> {{ post.curator.display_name }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="signal-card">
+                        <div class="signal-title" style="color: var(--text-muted);">
+                            No signals yet. Curate content to populate the feed.
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Center: Inspector -->
+        <div class="inspector">
+            <div class="inspector-empty" id="inspectorEmpty">
+                <i class="fas fa-satellite-dish"></i>
+                <h3>Select a Signal</h3>
+                <p>Click on any item in the feed to inspect its full details, economic breakdown, and trust path.</p>
+            </div>
+            
+            <div class="inspector-content" id="inspectorContent" style="display: none;">
+                <div class="embed-container" id="embedContainer">
+                    <div class="embed-placeholder">
+                        <i class="fas fa-play-circle fa-4x" style="color: var(--signal-orange); opacity: 0.5;"></i>
+                    </div>
+                </div>
+                
+                <div class="inspector-header">
+                    <h1 class="inspector-title" id="inspectorTitle">Signal Title</h1>
+                    <div class="inspector-meta">
+                        <div class="meta-badge">
+                            <i class="fab fa-youtube" style="color: #ff0000;"></i>
+                            <span id="inspectorPlatform">YouTube</span>
+                        </div>
+                        <div class="meta-badge">
+                            <i class="fas fa-clock"></i>
+                            <span id="inspectorAge">2 hours ago</span>
+                        </div>
+                        <div class="meta-badge">
+                            <i class="fas fa-user-check" style="color: var(--nostr-purple);"></i>
+                            <span id="inspectorCurator">Anonymous</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="econ-panel">
+                    <div class="econ-header">Economic Breakdown</div>
+                    <div class="econ-grid">
+                        <div class="econ-stat">
+                            <div class="econ-value" id="econTotalSats">0</div>
+                            <div class="econ-label">Total Sats</div>
+                        </div>
+                        <div class="econ-stat">
+                            <div class="econ-value" id="econZapCount">0</div>
+                            <div class="econ-label">Zaps</div>
+                        </div>
+                        <div class="econ-stat">
+                            <div class="econ-value" id="econBoosts">0</div>
+                            <div class="econ-label">Boost Sats</div>
+                        </div>
+                    </div>
+                    <div class="splits-bar">
+                        <div class="split-segment split-creator" style="width: 85%"></div>
+                        <div class="split-segment split-curator" style="width: 10%"></div>
+                        <div class="split-segment split-platform" style="width: 5%"></div>
+                    </div>
+                    <div class="splits-legend">
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background: var(--signal-green);"></div>
+                            <span>Creator 85%</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background: var(--nostr-purple);"></div>
+                            <span>Curator 10%</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background: var(--velocity-blue);"></div>
+                            <span>Platform 5%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="why-panel">
+                    <div class="why-header">
+                        <i class="fas fa-info-circle"></i>
+                        WHY THIS SURFACED
+                    </div>
+                    <div class="why-factors" id="whyFactors">
+                        <div class="factor-item">
+                            <span class="factor-icon"><i class="fas fa-bolt"></i></span>
+                            <span>Boosted by 25,000 sats</span>
+                        </div>
+                        <div class="factor-item">
+                            <span class="factor-icon"><i class="fas fa-users"></i></span>
+                            <span>Zapped by 3 top-trust curators</span>
+                        </div>
+                        <div class="factor-item">
+                            <span class="factor-icon"><i class="fas fa-chart-line"></i></span>
+                            <span>Velocity spike in last hour</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="zap-actions">
+                    <button class="zap-btn-primary" id="openZapModal">
+                        <i class="fas fa-bolt"></i> ZAP THIS SIGNAL
+                    </button>
+                    <button class="boost-btn">
+                        <i class="fas fa-rocket"></i> BOOST
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right: Signal Sidebar -->
+        <div class="signal-sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">
+                    <i class="fas fa-trophy"></i> TOP CURATORS (24H)
+                </div>
+                {% if curators %}
+                    {% for curator in curators[:5] %}
+                    <div class="curator-item">
+                        <span class="curator-rank">{{ loop.index }}</span>
+                        <div class="curator-avatar">{{ curator.display_name[:2]|upper }}</div>
+                        <div class="curator-info">
+                            <div class="curator-name">{{ curator.display_name }}</div>
+                            <div class="curator-stats">{{ "{:,}".format(curator.total_earnings or 0) }} sats earned</div>
+                        </div>
+                        <span class="curator-trend up"><i class="fas fa-arrow-up"></i></span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="color: var(--text-muted); font-size: 0.85rem;">No curator data yet</div>
+                {% endif %}
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">
+                    <i class="fas fa-fire"></i> HOT TOPICS
+                </div>
+                <div class="topic-tags">
+                    {% for topic in hot_topics or ['Bitcoin', 'Lightning', 'Nostr', 'ETF', 'Custody'] %}
+                    <span class="topic-tag">{{ topic }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">
+                    <i class="fas fa-chart-area"></i> SATS FLOW (60 MIN)
+                </div>
+                <div class="sats-ticker">
+                    <div class="ticker-value" id="satsFlowValue">{{ "{:,}".format(sats_flow or 0) }}</div>
+                    <div class="ticker-label">sats in last hour</div>
+                    <div class="ticker-chart" id="tickerChart">
+                        {% for i in range(12) %}
+                        <div class="ticker-bar" style="height: {{ 20 + (i * 5) }}%"></div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">
+                    <i class="fas fa-puzzle-piece"></i> EXTENSION
+                </div>
+                <a href="/extension/download" class="boost-btn" style="display: block; text-align: center; text-decoration: none;">
+                    <i class="fas fa-download"></i> GET EXTENSION
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Zap Modal -->
+<div class="zap-modal-overlay" id="zapModalOverlay">
+    <div class="zap-modal">
+        <button class="zap-modal-close" id="closeZapModal"><i class="fas fa-times"></i></button>
+        <div class="zap-modal-title">Zap This Signal</div>
+        <div class="zap-modal-subtitle">Your sats power the value layer</div>
+        
+        <div class="zap-presets">
+            <div class="zap-preset active" data-amount="100">
+                <div class="zap-preset-amount">100</div>
+                <div class="zap-preset-label">tip</div>
+            </div>
+            <div class="zap-preset" data-amount="500">
+                <div class="zap-preset-amount">500</div>
+                <div class="zap-preset-label">coffee</div>
+            </div>
+            <div class="zap-preset" data-amount="1000">
+                <div class="zap-preset-amount">1K</div>
+                <div class="zap-preset-label">signal</div>
+            </div>
+            <div class="zap-preset" data-amount="5000">
+                <div class="zap-preset-amount">5K</div>
+                <div class="zap-preset-label">boost</div>
+            </div>
+        </div>
+        
+        <div class="zap-custom">
+            <input type="number" class="zap-custom-input" id="zapCustomAmount" placeholder="Custom amount" min="1">
+        </div>
+        
+        <div class="zap-splits-preview">
+            <div class="zap-splits-title">SPLIT PREVIEW</div>
+            <div class="zap-split-row">
+                <span class="zap-split-label">Creator (85%)</span>
+                <span class="zap-split-amount" id="splitCreator">85 sats</span>
+            </div>
+            <div class="zap-split-row">
+                <span class="zap-split-label">Curator (10%)</span>
+                <span class="zap-split-amount" id="splitCurator">10 sats</span>
+            </div>
+            <div class="zap-split-row">
+                <span class="zap-split-label">Platform (5%)</span>
+                <span class="zap-split-amount" id="splitPlatform">5 sats</span>
+            </div>
+        </div>
+        
+        <button class="zap-confirm-btn" id="confirmZap">
+            <i class="fas fa-bolt"></i> CONFIRM ZAP
+        </button>
+        
+        <div class="wallet-status disconnected" id="walletStatus">
+            <i class="fas fa-wallet"></i> Connect Lightning wallet to zap
+        </div>
+    </div>
+</div>
+
+<script>
+// Signal Terminal JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    const feedItems = document.querySelectorAll('.signal-card');
+    const inspectorEmpty = document.getElementById('inspectorEmpty');
+    const inspectorContent = document.getElementById('inspectorContent');
+    const zapModalOverlay = document.getElementById('zapModalOverlay');
+    let currentPost = null;
+    let selectedAmount = 100;
+    
+    // Feed item selection
+    feedItems.forEach(card => {
+        card.addEventListener('click', function() {
+            feedItems.forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            
+            const postId = this.dataset.postId;
+            loadInspector(postId);
+        });
+    });
+    
+    function loadInspector(postId) {
+        inspectorEmpty.style.display = 'none';
+        inspectorContent.style.display = 'block';
+        
+        // Fetch post details via API
+        fetch(`/api/value-stream/post/${postId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    updateInspector(data.post);
+                    currentPost = data.post;
+                }
+            })
+            .catch(err => {
+                console.error('Error loading post:', err);
+            });
+    }
+    
+    function updateInspector(post) {
+        document.getElementById('inspectorTitle').textContent = post.title || 'Untitled Signal';
+        document.getElementById('inspectorPlatform').textContent = post.platform;
+        document.getElementById('inspectorCurator').textContent = post.curator_name || 'Anonymous';
+        document.getElementById('inspectorAge').textContent = post.age_display || 'Just now';
+        document.getElementById('econTotalSats').textContent = (post.total_sats || 0).toLocaleString();
+        document.getElementById('econZapCount').textContent = post.zap_count || 0;
+        document.getElementById('econBoosts').textContent = (post.boost_sats || 0).toLocaleString();
+        
+        // Update embed if YouTube
+        const embedContainer = document.getElementById('embedContainer');
+        if (post.platform === 'youtube' && post.original_id) {
+            embedContainer.innerHTML = `<iframe src="https://www.youtube.com/embed/${post.original_id}" allowfullscreen></iframe>`;
+        } else {
+            embedContainer.innerHTML = `<div class="embed-placeholder"><a href="${post.original_url}" target="_blank" style="color: var(--signal-orange);"><i class="fas fa-external-link-alt fa-3x"></i><p style="margin-top: 16px;">View on ${post.platform}</p></a></div>`;
+        }
+    }
+    
+    // Zap Modal
+    document.getElementById('openZapModal').addEventListener('click', () => {
+        zapModalOverlay.classList.add('active');
+    });
+    
+    document.getElementById('closeZapModal').addEventListener('click', () => {
+        zapModalOverlay.classList.remove('active');
+    });
+    
+    zapModalOverlay.addEventListener('click', (e) => {
+        if (e.target === zapModalOverlay) {
+            zapModalOverlay.classList.remove('active');
+        }
+    });
+    
+    // Zap presets
+    document.querySelectorAll('.zap-preset').forEach(preset => {
+        preset.addEventListener('click', function() {
+            document.querySelectorAll('.zap-preset').forEach(p => p.classList.remove('active'));
+            this.classList.add('active');
+            selectedAmount = parseInt(this.dataset.amount);
+            updateSplitPreview(selectedAmount);
+        });
+    });
+    
+    document.getElementById('zapCustomAmount').addEventListener('input', function() {
+        const amount = parseInt(this.value) || 0;
+        selectedAmount = amount;
+        document.querySelectorAll('.zap-preset').forEach(p => p.classList.remove('active'));
+        updateSplitPreview(amount);
+    });
+    
+    function updateSplitPreview(amount) {
+        document.getElementById('splitCreator').textContent = Math.floor(amount * 0.85).toLocaleString() + ' sats';
+        document.getElementById('splitCurator').textContent = Math.floor(amount * 0.10).toLocaleString() + ' sats';
+        document.getElementById('splitPlatform').textContent = Math.floor(amount * 0.05).toLocaleString() + ' sats';
+    }
+    
+    // WebLN Detection
+    if (typeof window.webln !== 'undefined') {
+        document.getElementById('walletStatus').innerHTML = '<i class="fas fa-check-circle"></i> Wallet detected';
+        document.getElementById('walletStatus').classList.remove('disconnected');
+        document.getElementById('walletStatus').classList.add('connected');
+    }
+    
+    // Confirm Zap
+    document.getElementById('confirmZap').addEventListener('click', async function() {
+        if (!currentPost) return;
+        
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        this.disabled = true;
+        
+        try {
+            // Request invoice from backend
+            const invoiceRes = await fetch('/api/value-stream/invoice', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    post_id: currentPost.id,
+                    amount: selectedAmount
+                })
+            });
+            
+            const invoiceData = await invoiceRes.json();
+            
+            if (invoiceData.success && window.webln) {
+                await window.webln.enable();
+                await window.webln.sendPayment(invoiceData.invoice);
+                
+                zapModalOverlay.classList.remove('active');
+                showToast('Zap sent successfully!', 'success');
+                
+                // Update UI
+                const satsEl = document.getElementById('econTotalSats');
+                satsEl.textContent = (parseInt(satsEl.textContent.replace(/,/g, '')) + selectedAmount).toLocaleString();
+            } else if (!window.webln) {
+                showToast('Please install a WebLN wallet (Alby, Zeus, etc.)', 'warning');
+            }
+        } catch (err) {
+            console.error('Zap error:', err);
+            showToast('Zap failed: ' + err.message, 'error');
+        }
+        
+        this.innerHTML = '<i class="fas fa-bolt"></i> CONFIRM ZAP';
+        this.disabled = false;
+    });
+    
+    function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed; bottom: 24px; right: 24px; padding: 16px 24px;
+            background: ${type === 'success' ? 'var(--signal-green)' : type === 'error' ? 'var(--signal-red)' : 'var(--signal-orange)'};
+            color: #000; border-radius: 8px; font-weight: 600; z-index: 2000;
+            animation: slideIn 0.3s ease;
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    // Command bar handling
+    document.getElementById('commandInput').addEventListener('keypress', async function(e) {
+        if (e.key === 'Enter') {
+            const value = this.value.trim();
+            
+            if (value.startsWith('http')) {
+                // Submit URL
+                const res = await fetch('/api/value-stream/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: value })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('Content curated!', 'success');
+                    this.value = '';
+                    location.reload();
+                } else {
+                    showToast(data.error || 'Failed to curate', 'error');
+                }
+            } else if (value.includes(':')) {
+                // Filter command
+                applyFilters(value);
+            }
+        }
+    });
+    
+    function applyFilters(query) {
+        // Parse filter commands like "platform:youtube last:24h"
+        console.log('Applying filters:', query);
+        // TODO: Implement filter logic
+    }
+    
+    // Mode toggle
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            const mode = this.dataset.mode;
+            document.body.dataset.displayMode = mode;
+        });
+    });
+    
+    // Filter chips
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', function() {
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            
+            const sort = this.dataset.sort;
+            // TODO: Re-sort feed based on selection
+            console.log('Sorting by:', sort);
+        });
+    });
+    
+    // Auto-select first item if exists
+    if (feedItems.length > 0) {
+        feedItems[0].click();
+    }
+    
+    // Real-time SSE connection with browser compatibility check
+    let eventSource = null;
+    
+    function connectSSE() {
+        if (typeof EventSource === 'undefined') {
+            console.warn('SSE not supported in this browser');
+            return;
+        }
+        
+        eventSource = new EventSource('/api/signal-terminal/stream');
+        
+        eventSource.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            
+            if (data.type === 'reconnect') {
+                console.log('Server requested reconnect:', data.reason);
+                eventSource.close();
+                setTimeout(connectSSE, 1000);
+                return;
+            }
+            
+            if (data.type === 'error') {
+                console.error('SSE error:', data.message);
+                return;
+            }
+            
+            if (data.type === 'new_post') {
+                const feedContainer = document.getElementById('feedItems');
+                if (!feedContainer) return;
+                
+                const newCard = document.createElement('div');
+                newCard.className = 'signal-card hot';
+                newCard.dataset.postId = data.id;
+                newCard.dataset.signalScore = data.signal_score || 0;
+                newCard.dataset.velocity = data.velocity || 0;
+                newCard.innerHTML = `
+                    <div class="signal-meta">
+                        <span class="platform-icon ${data.platform}">
+                            <i class="fab fa-${data.platform === 'twitter' ? 'twitter' : data.platform === 'youtube' ? 'youtube' : 'globe'}"></i>
+                        </span>
+                        <span class="signal-age">just now</span>
+                        <span class="velocity-badge ${data.velocity > 5 ? 'high' : ''}">
+                            <i class="fas fa-arrow-up"></i> ${data.velocity}/h
+                        </span>
+                    </div>
+                    <div class="signal-title">${data.title}</div>
+                    <div class="signal-stats">
+                        <span class="stat-item sats"><i class="fas fa-bolt"></i> ${data.total_sats.toLocaleString()}</span>
+                        <span class="stat-item zaps">${data.zap_count} zaps</span>
+                        <div class="cooling-meter"><div class="cooling-fill" style="width: 100%"></div></div>
+                    </div>
+                `;
+                newCard.style.animation = 'slideIn 0.3s ease';
+                
+                // Insert based on signal score for proper ranking
+                insertCardByScore(feedContainer, newCard, data.signal_score || 0);
+                
+                newCard.addEventListener('click', function() {
+                    document.querySelectorAll('.signal-card').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    loadInspector(data.id);
+                });
+                
+                showToast(`New signal: ${data.title.substring(0, 30)}...`, 'success');
+            }
+            
+            if (data.type === 'new_zap') {
+                const card = document.querySelector(`.signal-card[data-post-id="${data.post_id}"]`);
+                if (card) {
+                    const satsEl = card.querySelector('.stat-item.sats');
+                    if (satsEl) {
+                        const currentSats = parseInt(satsEl.textContent.replace(/[^0-9]/g, '')) || 0;
+                        satsEl.innerHTML = `<i class="fas fa-bolt"></i> ${(currentSats + data.amount).toLocaleString()}`;
+                        satsEl.style.animation = 'pulse 0.5s ease';
+                    }
+                }
+                
+                const tickerEl = document.getElementById('satsFlowValue');
+                if (tickerEl) {
+                    const currentFlow = parseInt(tickerEl.textContent.replace(/[^0-9]/g, '')) || 0;
+                    tickerEl.textContent = (currentFlow + data.amount).toLocaleString();
+                }
+            }
+        };
+        
+        eventSource.onerror = function() {
+            console.log('SSE connection lost, reconnecting in 5s...');
+            eventSource.close();
+            setTimeout(connectSSE, 5000);
+        };
+    }
+    
+    function insertCardByScore(container, newCard, score) {
+        const cards = container.querySelectorAll('.signal-card');
+        let inserted = false;
+        
+        for (let card of cards) {
+            const cardScore = parseFloat(card.dataset.signalScore) || 0;
+            if (score > cardScore) {
+                container.insertBefore(newCard, card);
+                inserted = true;
+                break;
+            }
+        }
+        
+        if (!inserted) {
+            container.appendChild(newCard);
+        }
+    }
+    
+    // Start SSE connection
+    connectSSE();
+    
+    window.addEventListener('beforeunload', function() {
+        if (eventSource) eventSource.close();
+    });
+});
+
+// CSS animation for new items
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

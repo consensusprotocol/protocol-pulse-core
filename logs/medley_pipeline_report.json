@@ -1,0 +1,251 @@
+{
+  "ts": "2026-02-12T10:39:06.081660",
+  "stage1_ingest": {
+    "ts": "2026-02-12T10:29:31.600129",
+    "hours_back": 24,
+    "downloaded_count": 4,
+    "failed_count": 0,
+    "videos": [
+      {
+        "platform": "youtube",
+        "channel_name": "Michael Saylor",
+        "channel_id": "UCjpkLzNLkZJGQvVQw7hFnSg",
+        "video_id": "fallback_2026-02-12_1",
+        "title": "Michael Saylor daily signal montage",
+        "published_at": "2026-02-12T10:24:24.539966",
+        "local_video_path": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/michael_saylor_fallback_2026-02-12_1.mp4",
+        "downloaded": true
+      },
+      {
+        "platform": "youtube",
+        "channel_name": "Lyn Alden",
+        "channel_id": "UCN49rFQFZuiUHpE8NR7mttQ",
+        "video_id": "fallback_2026-02-12_2",
+        "title": "Lyn Alden daily signal montage",
+        "published_at": "2026-02-12T10:24:24.539987",
+        "local_video_path": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/lyn_alden_fallback_2026-02-12_2.mp4",
+        "downloaded": true
+      },
+      {
+        "platform": "youtube",
+        "channel_name": "Preston Pysh",
+        "channel_id": "UCmvn0Cgun-7O7L8GeFeyxdA",
+        "video_id": "fallback_2026-02-12_3",
+        "title": "Preston Pysh daily signal montage",
+        "published_at": "2026-02-12T10:24:24.540002",
+        "local_video_path": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/preston_pysh_fallback_2026-02-12_3.mp4",
+        "downloaded": true
+      },
+      {
+        "platform": "youtube",
+        "channel_name": "Natalie Brunell",
+        "channel_id": "UCv-_bq3fB7y_wGmRqNGbCrw",
+        "video_id": "fallback_2026-02-12_4",
+        "title": "Natalie Brunell daily signal montage",
+        "published_at": "2026-02-12T10:24:24.540015",
+        "local_video_path": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/natalie_brunell_fallback_2026-02-12_4.mp4",
+        "downloaded": true
+      }
+    ],
+    "failed": []
+  },
+  "stage2_analyst": {
+    "ok": true,
+    "ts": "2026-02-12T10:34:28.550695",
+    "videos_analyzed": 4,
+    "topic_histogram": {
+      "macro": 12
+    },
+    "clips": [
+      {
+        "video_id": "fallback_2026-02-12_1",
+        "channel": "Michael Saylor",
+        "video_title": "Michael Saylor daily signal montage",
+        "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/michael_saylor_fallback_2026-02-12_1.mp4",
+        "start": 8.0,
+        "end": 42.0,
+        "role": "hook",
+        "topic": "macro",
+        "score": 0.55,
+        "transcript": "Michael Saylor daily signal montage"
+      },
+      {
+        "video_id": "fallback_2026-02-12_1",
+        "channel": "Michael Saylor",
+        "video_title": "Michael Saylor daily signal montage",
+        "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/michael_saylor_fallback_2026-02-12_1.mp4",
+        "start": 44.0,
+        "end": 78.0,
+        "role": "meat",
+        "topic": "macro",
+        "score": 0.52,
+        "transcript": "Michael Saylor daily signal montage"
+      },
+      {
+        "video_id": "fallback_2026-02-12_1",
+        "channel": "Michael Saylor",
+        "video_title": "Michael Saylor daily signal montage",
+        "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/michael_saylor_fallback_2026-02-12_1.mp4",
+        "start": 80.0,
+        "end": 110.0,
+        "role": "outro",
+        "topic": "macro",
+        "score": 0.5,
+        "transcript": "Michael Saylor daily signal montage"
+      },
+      {
+        "video_id": "fallback_2026-02-12_2",
+        "channel": "Lyn Alden",
+        "video_title": "Lyn Alden daily signal montage",
+        "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/lyn_alden_fallback_2026-02-12_2.mp4",
+        "start": 8.0,
+        "end": 42.0,
+        "role": "hook",
+        "topic": "macro",
+        "score": 0.55,
+        "transcript": "Lyn Alden daily signal montage"
+      },
+      {
+        "video_id": "fallback_2026-02-12_2",
+        "channel": "Lyn Alden",
+        "video_title": "Lyn Alden daily signal montage",
+        "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/lyn_alden_fallback_2026-02-12_2.mp4",
+        "start": 44.0,
+        "end": 78.0,
+        "role": "meat",
+        "topic": "macro",
+        "score": 0.52,
+        "transcript": "Lyn Alden daily signal montage"
+      },
+      {
+        "video_id": "fallback_2026-02-12_2",
+        "channel": "Lyn Alden",
+        "video_title": "Lyn Alden daily signal montage",
+        "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/lyn_alden_fallback_2026-02-12_2.mp4",
+        "start": 80.0,
+        "end": 110.0,
+        "role": "outro",
+        "topic": "macro",
+        "score": 0.5,
+        "transcript": "Lyn Alden daily signal montage"
+      },
+      {
+        "video_id": "fallback_2026-02-12_3",
+        "channel": "Preston Pysh",
+        "video_title": "Preston Pysh daily signal montage",
+        "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/preston_pysh_fallback_2026-02-12_3.mp4",
+        "start": 8.0,
+        "end": 42.0,
+        "role": "hook",
+        "topic": "macro",
+        "score": 0.55,
+        "transcript": "Preston Pysh daily signal montage"
+      },
+      {
+        "video_id": "fallback_2026-02-12_3",
+        "channel": "Preston Pysh",
+        "video_title": "Preston Pysh daily signal montage",
+        "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/preston_pysh_fallback_2026-02-12_3.mp4",
+        "start": 44.0,
+        "end": 78.0,
+        "role": "meat",
+        "topic": "macro",
+        "score": 0.52,
+        "transcript": "Preston Pysh daily signal montage"
+      },
+      {
+        "video_id": "fallback_2026-02-12_3",
+        "channel": "Preston Pysh",
+        "video_title": "Preston Pysh daily signal montage",
+        "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/preston_pysh_fallback_2026-02-12_3.mp4",
+        "start": 80.0,
+        "end": 110.0,
+        "role": "outro",
+        "topic": "macro",
+        "score": 0.5,
+        "transcript": "Preston Pysh daily signal montage"
+      },
+      {
+        "video_id": "fallback_2026-02-12_4",
+        "channel": "Natalie Brunell",
+        "video_title": "Natalie Brunell daily signal montage",
+        "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/natalie_brunell_fallback_2026-02-12_4.mp4",
+        "start": 8.0,
+        "end": 42.0,
+        "role": "hook",
+        "topic": "macro",
+        "score": 0.55,
+        "transcript": "Natalie Brunell daily signal montage"
+      },
+      {
+        "video_id": "fallback_2026-02-12_4",
+        "channel": "Natalie Brunell",
+        "video_title": "Natalie Brunell daily signal montage",
+        "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/natalie_brunell_fallback_2026-02-12_4.mp4",
+        "start": 44.0,
+        "end": 78.0,
+        "role": "meat",
+        "topic": "macro",
+        "score": 0.52,
+        "transcript": "Natalie Brunell daily signal montage"
+      },
+      {
+        "video_id": "fallback_2026-02-12_4",
+        "channel": "Natalie Brunell",
+        "video_title": "Natalie Brunell daily signal montage",
+        "source_video": "/home/ultron/protocol_pulse/data/raw_footage/2026-02-12/natalie_brunell_fallback_2026-02-12_4.mp4",
+        "start": 80.0,
+        "end": 110.0,
+        "role": "outro",
+        "topic": "macro",
+        "score": 0.5,
+        "transcript": "Natalie Brunell daily signal montage"
+      }
+    ]
+  },
+  "stage3_voice": {
+    "ok": true,
+    "ts": "2026-02-12T10:34:40.447977",
+    "script_blocks": {
+      "context": "context: the signal map tightened overnight. watch this first clip for the key setup.",
+      "bridge": "bridge: that framing sets up the next angle where pressure meets opportunity.",
+      "synthesis": "synthesis: together these clips point to sovereign positioning over short-term noise.",
+      "outro": "outro: lock in the signal, ignore the fog, and move with conviction."
+    },
+    "audio_blocks": {
+      "context": "/home/ultron/protocol_pulse/data/voice/20260212_103438_context.m4a",
+      "bridge": "/home/ultron/protocol_pulse/data/voice/20260212_103438_bridge.m4a",
+      "synthesis": "/home/ultron/protocol_pulse/data/voice/20260212_103438_synthesis.m4a",
+      "outro": "/home/ultron/protocol_pulse/data/voice/20260212_103438_outro.m4a"
+    }
+  },
+  "stage4_assembly": {
+    "ok": true,
+    "output": "/home/ultron/protocol_pulse/static/media/medley_daily_FINAL.mp4",
+    "timeline_count": 20,
+    "ts": "2026-02-12T10:39:06.080803",
+    "timeline": [
+      "/home/ultron/protocol_pulse/logs/medley_assembler/2026-02-12/voice_00_context.mp4",
+      "/home/ultron/protocol_pulse/logs/medley_assembler/2026-02-12/clip_01.mp4",
+      "/home/ultron/protocol_pulse/logs/medley_assembler/2026-02-12/voice_01_bridge.mp4",
+      "/home/ultron/protocol_pulse/logs/medley_assembler/2026-02-12/transition_01.mp4",
+      "/home/ultron/protocol_pulse/logs/medley_assembler/2026-02-12/clip_02.mp4",
+      "/home/ultron/protocol_pulse/logs/medley_assembler/2026-02-12/voice_02_synthesis.mp4",
+      "/home/ultron/protocol_pulse/logs/medley_assembler/2026-02-12/transition_02.mp4",
+      "/home/ultron/protocol_pulse/logs/medley_assembler/2026-02-12/clip_03.mp4",
+      "/home/ultron/protocol_pulse/logs/medley_assembler/2026-02-12/transition_03.mp4",
+      "/home/ultron/protocol_pulse/logs/medley_assembler/2026-02-12/clip_04.mp4",
+      "/home/ultron/protocol_pulse/logs/medley_assembler/2026-02-12/transition_04.mp4",
+      "/home/ultron/protocol_pulse/logs/medley_assembler/2026-02-12/clip_05.mp4",
+      "/home/ultron/protocol_pulse/logs/medley_assembler/2026-02-12/transition_05.mp4",
+      "/home/ultron/protocol_pulse/logs/medley_assembler/2026-02-12/clip_06.mp4",
+      "/home/ultron/protocol_pulse/logs/medley_assembler/2026-02-12/transition_06.mp4",
+      "/home/ultron/protocol_pulse/logs/medley_assembler/2026-02-12/clip_07.mp4",
+      "/home/ultron/protocol_pulse/logs/medley_assembler/2026-02-12/transition_07.mp4",
+      "/home/ultron/protocol_pulse/logs/medley_assembler/2026-02-12/clip_08.mp4",
+      "/home/ultron/protocol_pulse/logs/medley_assembler/2026-02-12/voice_99_outro.mp4",
+      "/home/ultron/protocol_pulse/medley_engine/branding/tag.mp4"
+    ]
+  },
+  "ok": true
+}

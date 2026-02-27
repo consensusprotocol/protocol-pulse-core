@@ -1,0 +1,538 @@
+{% extends "base.html" %}
+
+{% block title %}Pulse Zapper Extension - Protocol Pulse{% endblock %}
+
+{% block extra_head %}
+<style>
+    .extension-hero {
+        background: linear-gradient(135deg, #0a0a12 0%, #1a0a2e 50%, #0a0a12 100%);
+        padding: 80px 0;
+        text-align: center;
+        border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+    }
+    
+    .extension-logo {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #f7931a, #ff6b00);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 30px;
+        font-size: 3rem;
+        box-shadow: 0 10px 40px rgba(247, 147, 26, 0.4);
+    }
+    
+    .extension-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 2.5rem;
+        color: #f7931a;
+        text-shadow: 0 0 30px rgba(247, 147, 26, 0.5);
+        margin-bottom: 20px;
+    }
+    
+    .extension-subtitle {
+        color: rgba(255,255,255,0.7);
+        font-size: 1.2rem;
+        max-width: 600px;
+        margin: 0 auto 40px;
+    }
+    
+    .download-buttons {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .browser-btn {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 32px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .chrome-btn {
+        background: linear-gradient(135deg, #4285f4, #3367d6);
+        color: #fff;
+    }
+    
+    .firefox-btn {
+        background: linear-gradient(135deg, #ff9500, #e66000);
+        color: #fff;
+    }
+    
+    .brave-btn {
+        background: linear-gradient(135deg, #fb542b, #a330c9);
+        color: #fff;
+    }
+    
+    .browser-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        color: #fff;
+    }
+    
+    .features-section {
+        padding: 80px 0;
+        background: rgba(10, 10, 18, 0.95);
+    }
+    
+    .feature-card {
+        background: rgba(20, 20, 35, 0.9);
+        border: 1px solid rgba(138, 43, 226, 0.3);
+        border-radius: 16px;
+        padding: 30px;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .feature-card:hover {
+        border-color: #f7931a;
+        transform: translateY(-5px);
+    }
+    
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, rgba(247, 147, 26, 0.2), rgba(138, 43, 226, 0.2));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+    
+    .feature-title {
+        color: #fff;
+        font-size: 1.25rem;
+        margin-bottom: 12px;
+    }
+    
+    .feature-desc {
+        color: rgba(255,255,255,0.6);
+        font-size: 0.95rem;
+    }
+    
+    .how-section {
+        padding: 80px 0;
+        background: linear-gradient(180deg, rgba(10, 10, 18, 0.95), rgba(26, 10, 46, 0.3));
+    }
+    
+    .step-number {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #f7931a, #ff6b00);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: #000;
+        margin: 0 auto 20px;
+    }
+    
+    .demo-section {
+        padding: 60px 0;
+        background: rgba(20, 20, 35, 0.5);
+    }
+    
+    .demo-mockup {
+        background: rgba(10, 10, 18, 0.9);
+        border: 1px solid rgba(138, 43, 226, 0.4);
+        border-radius: 12px;
+        padding: 20px;
+        max-width: 350px;
+        margin: 0 auto;
+    }
+    
+    .mockup-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+        margin-bottom: 15px;
+    }
+    
+    .mockup-logo {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #f7931a, #ff6b00);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .mockup-content {
+        padding: 10px 0;
+    }
+    
+    .mockup-input {
+        background: rgba(0,0,0,0.3);
+        border: 1px solid rgba(138, 43, 226, 0.4);
+        color: #fff;
+        padding: 12px;
+        border-radius: 8px;
+        width: 100%;
+        text-align: center;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+    
+    .mockup-btn {
+        background: linear-gradient(135deg, #f7931a, #ff6b00);
+        border: none;
+        color: #000;
+        padding: 14px;
+        border-radius: 8px;
+        width: 100%;
+        font-weight: 700;
+        cursor: pointer;
+    }
+    
+    .split-preview {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 0;
+        border-top: 1px solid rgba(138, 43, 226, 0.3);
+        margin-top: 15px;
+    }
+    
+    .split-item {
+        text-align: center;
+    }
+    
+    .split-percent {
+        font-family: 'JetBrains Mono', monospace;
+        color: #f7931a;
+        font-weight: 700;
+    }
+    
+    .split-label {
+        font-size: 0.75rem;
+        color: rgba(255,255,255,0.5);
+    }
+    
+    .source-section {
+        padding: 60px 0;
+        text-align: center;
+    }
+    
+    .github-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: #24292e;
+        color: #fff;
+        padding: 14px 28px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .github-btn:hover {
+        background: #3a3f44;
+        color: #fff;
+        transform: translateY(-2px);
+    }
+    
+    .wallets-section {
+        padding: 60px 0;
+        background: rgba(10, 10, 18, 0.9);
+    }
+    
+    .wallet-card {
+        background: rgba(20, 20, 35, 0.8);
+        border: 1px solid rgba(138, 43, 226, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .wallet-card:hover {
+        border-color: #f7931a;
+    }
+    
+    .wallet-logo {
+        height: 50px;
+        margin-bottom: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="extension-hero">
+    <div class="extension-logo">
+        <i class="fas fa-bolt"></i>
+    </div>
+    <h1 class="extension-title">PULSE ZAPPER</h1>
+    <p class="extension-subtitle">
+        Zap content anywhere on the web. Send sats to creators and curators directly from 
+        your browser. Part of the Value Stream decentralized social network.
+    </p>
+    <div class="download-buttons">
+        <a href="/extension/download" class="browser-btn chrome-btn">
+            <i class="fab fa-chrome fa-lg"></i>
+            <span>Chrome / Edge</span>
+        </a>
+        <a href="/extension/download" class="browser-btn firefox-btn">
+            <i class="fab fa-firefox fa-lg"></i>
+            <span>Firefox</span>
+        </a>
+        <a href="/extension/download" class="browser-btn brave-btn">
+            <i class="fab fa-brave fa-lg"></i>
+            <span>Brave</span>
+        </a>
+    </div>
+    <p class="text-muted mt-4">
+        <i class="fas fa-download"></i> Download and load as unpacked extension in developer mode
+    </p>
+</div>
+
+<section class="features-section">
+    <div class="container">
+        <h2 class="text-center text-white mb-5">Why Use Pulse Zapper?</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-globe text-warning"></i>
+                    </div>
+                    <h4 class="feature-title">Zap Anywhere</h4>
+                    <p class="feature-desc">
+                        See valuable content on Twitter, YouTube, Reddit, or any site? 
+                        Zap it directly without leaving the page. One-click value transfer.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-share-alt text-warning"></i>
+                    </div>
+                    <h4 class="feature-title">Curate & Earn</h4>
+                    <p class="feature-desc">
+                        Share content you find valuable. When others zap it, you earn 
+                        10% as the curator. Build reputation through successful curation.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-network-wired text-warning"></i>
+                    </div>
+                    <h4 class="feature-title">Web of Trust</h4>
+                    <p class="feature-desc">
+                        Follow curators whose taste you trust. See content through their 
+                        lens. Your trust network becomes your personalized filter.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-key text-warning"></i>
+                    </div>
+                    <h4 class="feature-title">Nostr Identity</h4>
+                    <p class="feature-desc">
+                        Log in with your Nostr key. Portable identity across all sites. 
+                        Your reputation follows you everywhere.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt text-warning"></i>
+                    </div>
+                    <h4 class="feature-title">Lightning Native</h4>
+                    <p class="feature-desc">
+                        Works with any WebLN wallet (Alby, Zeus, etc). Instant 
+                        micropayments. No fees to corporate middlemen.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line text-warning"></i>
+                    </div>
+                    <h4 class="feature-title">Signal, Not Noise</h4>
+                    <p class="feature-desc">
+                        Content rises based on real economic signals, not engagement 
+                        farming. Proof-of-value beats proof-of-virality.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="how-section">
+    <div class="container">
+        <h2 class="text-center text-white mb-5">How It Works</h2>
+        <div class="row g-4">
+            <div class="col-md-3 text-center">
+                <div class="step-number">1</div>
+                <h5 class="text-white mb-2">Install Extension</h5>
+                <p class="text-muted">Add Pulse Zapper to your browser. Connect your Lightning wallet.</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="step-number">2</div>
+                <h5 class="text-white mb-2">Browse Normally</h5>
+                <p class="text-muted">Visit Twitter, YouTube, Reddit - anywhere you find content.</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="step-number">3</div>
+                <h5 class="text-white mb-2">Zap or Curate</h5>
+                <p class="text-muted">See something valuable? Click to zap. Share to the Value Stream.</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="step-number">4</div>
+                <h5 class="text-white mb-2">Earn Splits</h5>
+                <p class="text-muted">Creators get 85%, curators 10%, platform 5%. Everyone wins.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="demo-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h2 class="text-white mb-4">Simple, Instant Zaps</h2>
+                <p class="text-muted mb-4">
+                    The extension popup shows the current page's content info. Enter an amount, 
+                    click zap, and your wallet handles the rest. Sats flow directly to the creator 
+                    and curator - no middleman.
+                </p>
+                <ul class="list-unstyled">
+                    <li class="mb-2 text-muted">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Automatic creator detection via Lightning addresses
+                    </li>
+                    <li class="mb-2 text-muted">
+                        <i class="fas fa-check text-success me-2"></i>
+                        NIP-05 verification for trusted creators
+                    </li>
+                    <li class="mb-2 text-muted">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Track your zap history and curator earnings
+                    </li>
+                    <li class="mb-2 text-muted">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Optional anonymous zapping for privacy
+                    </li>
+                </ul>
+            </div>
+            <div class="col-lg-6">
+                <div class="demo-mockup">
+                    <div class="mockup-header">
+                        <div class="mockup-logo">
+                            <i class="fas fa-bolt text-dark"></i>
+                        </div>
+                        <div>
+                            <div class="text-white fw-bold">Pulse Zapper</div>
+                            <small class="text-muted">x.com/saylor</small>
+                        </div>
+                    </div>
+                    <div class="mockup-content">
+                        <div class="text-center mb-3">
+                            <div class="text-muted small mb-1">AMOUNT (SATS)</div>
+                            <input type="text" class="mockup-input" value="1,000" readonly>
+                        </div>
+                        <button class="mockup-btn">
+                            <i class="fas fa-bolt me-2"></i> ZAP NOW
+                        </button>
+                        <div class="split-preview">
+                            <div class="split-item">
+                                <div class="split-percent">85%</div>
+                                <div class="split-label">Creator</div>
+                            </div>
+                            <div class="split-item">
+                                <div class="split-percent">10%</div>
+                                <div class="split-label">Curator</div>
+                            </div>
+                            <div class="split-item">
+                                <div class="split-percent">5%</div>
+                                <div class="split-label">Protocol</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="wallets-section">
+    <div class="container">
+        <h2 class="text-center text-white mb-5">Compatible Wallets</h2>
+        <div class="row g-4 justify-content-center">
+            <div class="col-6 col-md-3">
+                <div class="wallet-card">
+                    <div class="text-warning fs-2 mb-2"><i class="fas fa-wallet"></i></div>
+                    <h5 class="text-white">Alby</h5>
+                    <small class="text-muted">Browser extension</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="wallet-card">
+                    <div class="text-warning fs-2 mb-2"><i class="fas fa-bolt"></i></div>
+                    <h5 class="text-white">Zeus</h5>
+                    <small class="text-muted">Mobile + desktop</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="wallet-card">
+                    <div class="text-warning fs-2 mb-2"><i class="fas fa-mobile-alt"></i></div>
+                    <h5 class="text-white">Mutiny</h5>
+                    <small class="text-muted">Web wallet</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="wallet-card">
+                    <div class="text-warning fs-2 mb-2"><i class="fas fa-coins"></i></div>
+                    <h5 class="text-white">Phoenix</h5>
+                    <small class="text-muted">Mobile Lightning</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="source-section">
+    <div class="container">
+        <h2 class="text-white mb-4">Open Source</h2>
+        <p class="text-muted mb-4">
+            Pulse Zapper is fully open source. Audit the code, contribute, or fork it for your own community.
+        </p>
+        <a href="https://github.com/protocolpulse/zapper" target="_blank" class="github-btn">
+            <i class="fab fa-github fa-lg"></i>
+            <span>View on GitHub</span>
+        </a>
+    </div>
+</section>
+
+<div class="container py-5 text-center">
+    <h3 class="text-white mb-3">Join the Value Stream</h3>
+    <p class="text-muted mb-4">Start curating valuable content today. No extension needed to browse the stream.</p>
+    <a href="/value-stream" class="btn btn-lg btn-warning">
+        <i class="fas fa-stream me-2"></i> Browse Value Stream
+    </a>
+</div>
+{% endblock %}

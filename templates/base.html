@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#00d4aa">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Protocol Pulse">
+    <meta name="description" content="{% block meta_description %}World-class Bitcoin intelligence. Real-time analysis, market signals, and investigative reporting for transactors.{% endblock %}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+    <link rel="canonical" href="{{ request.url }}">
+    <title>{% block title %}Protocol Pulse{% endblock %}</title>
+
+    <!-- Crawl optimization -->
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <meta name="googlebot" content="index, follow">
+
+    <!-- Default Open Graph (overridden by child templates) -->
+    {% block og_meta %}
+    <meta property="og:title" content="Protocol Pulse — Bitcoin Intelligence">
+    <meta property="og:description" content="World-class Bitcoin intelligence. Real-time analysis, market signals, and investigative reporting for transactors.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Protocol Pulse">
+    <meta property="og:image" content="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@ProtocolPulse">
+    {% endblock %}
+
+    <!-- DNS prefetch + preconnect for external resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://api.coingecko.com">
+    <link rel="dns-prefetch" href="https://mempool.space">
+
+    <!-- Fonts: Inter (body) + JetBrains Mono (data) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Preload critical CSS -->
+    <link rel="preload" href="{{ url_for('static', filename='css/pulse.css') }}?v=2.0" as="style">
+
+    <!-- Bootstrap (backward compat for existing templates) + Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Protocol Pulse Design System -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pulse.css') }}?v=2.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=1.3">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/coindesk-style.css') }}?v=1.1">
+    {% if current_user.is_authenticated and current_user.operative_rank >= 3 %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stealth-alpha.css') }}?v=1.0">
+    {% endif %}
+
+    <!-- JSON-LD Schema Markup -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "NewsMediaOrganization",
+        "name": "Protocol Pulse",
+        "url": "{{ request.url_root }}",
+        "logo": "{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}",
+        "description": "World-class Bitcoin intelligence hub delivering peer-to-peer briefings for transactors.",
+        "sameAs": ["https://twitter.com/ProtocolPulse"],
+        "foundingDate": "2025",
+        "knowsAbout": ["Bitcoin", "Cryptocurrency", "Blockchain", "Sound Money", "Mining", "Network Security"],
+        "publishingPrinciples": "Technical storytelling for transactors, not tourists.",
+        "slogan": "Intelligence for Transactors"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Protocol Pulse",
+        "url": "{{ request.url_root }}",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "{{ request.url_root }}search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
+    {% block schema %}{% endblock %}
+
+    <!-- Feed discovery -->
+    <link rel="alternate" type="application/rss+xml" title="Protocol Pulse RSS" href="/feed/rss">
+    <link rel="alternate" type="application/atom+xml" title="Protocol Pulse Atom" href="/feed/atom">
+    <link rel="alternate" type="application/feed+json" title="Protocol Pulse JSON Feed" href="/feed/json">
+
+    {% block head %}{% endblock %}
+</head>
+<body class="pp-body{% if current_user.is_authenticated and current_user.operative_rank >= 3 %} rank-3-active{% endif %}{% block body_class %}{% endblock %}">
+
+    <!-- Skip to main content (accessibility) -->
+    <a href="#ppMainContent" class="pp-sr-only" style="position:absolute;top:-40px;left:0;padding:8px 16px;background:var(--pp-teal);color:var(--pp-black);z-index:9999;transition:top 0.2s;" onfocus="this.style.top='0'" onblur="this.style.top='-40px'">Skip to main content</a>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         NAVIGATION — Glassmorphism Command Bar
+         ═══════════════════════════════════════════════════════════════ -->
+    <nav class="pp-nav" id="ppNav" role="navigation" aria-label="Main navigation">
+        <div class="pp-nav__inner">
+            <!-- Brand -->
+            <a href="/" class="pp-nav__brand">
+                <img src="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png') }}" alt="Protocol Pulse" class="pp-nav__logo">
+                <span class="pp-nav__brand-text">Protocol<span>Pulse</span></span>
+            </a>
+
+            <!-- Live BTC Ticker -->
+            <div class="pp-nav__ticker" id="ppBtcTicker">
+                <svg class="pp-nav__ticker-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M11.5 11.5v-3h1.25c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5H11.5zm0 1h1.75c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5H11.5v-3zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.75 14.5H11.5V18h-1v-1.5H9v-1h1.5v-7H9v-1h1.5V6h1v1.5h2.25c1.38 0 2.5 1.12 2.5 2.5 0 .82-.4 1.54-1.01 2 .81.56 1.35 1.49 1.35 2.55 0 1.66-1.34 2.95-2.84 2.95z"/>
+                </svg>
+                <span class="pp-nav__ticker-price" id="ppBtcPrice">---.---</span>
+                <span class="pp-nav__ticker-change" id="ppBtcChange">--%</span>
+                <span class="pp-pulse-dot"></span>
+            </div>
+
+            <!-- Desktop Nav Links -->
+            <div class="pp-nav__links">
+                <a href="/articles" class="pp-nav__link">Intel</a>
+                <a href="/media" class="pp-nav__link">Media</a>
+                <a href="/podcasts" class="pp-nav__link">Podcasts</a>
+                <a href="/market" class="pp-nav__link">Markets</a>
+                <a href="/charts" class="pp-nav__link">Charts</a>
+                <a href="/bitfeed-live" class="pp-nav__link">Live Pulse</a>
+                <a href="/stage" class="pp-nav__link" style="color:var(--pp-teal);">Stage ⚡</a>
+                <a href="/map" class="pp-nav__link">Maps</a>
+                <a href="/merch" class="pp-nav__link">Merch</a>
+                <a href="/live" class="pp-nav__link">Terminal</a>
+                {% if current_user.is_authenticated %}
+                    {% if current_user.is_admin %}
+                    <a href="/admin/command-deck" class="pp-nav__link pp-text-amber">Admin</a>
+                    {% endif %}
+                    <a href="/logout" class="pp-nav__link">Logout</a>
+                {% else %}
+                    <a href="/login" class="pp-nav__link">Login</a>
+                {% endif %}
+            </div>
+
+            <!-- Theme toggle -->
+            <button class="pp-btn pp-btn--ghost pp-btn--sm" onclick="ppToggleTheme()" aria-label="Toggle light/dark mode" style="margin-left:auto;" id="ppThemeToggle">
+                <i class="fas fa-moon" id="ppThemeIcon"></i>
+            </button>
+
+            <!-- Search trigger -->
+            <button class="pp-btn pp-btn--ghost pp-btn--sm pp-hidden-mobile" onclick="ppOpenSearch()" aria-label="Search">
+                <i class="fas fa-search"></i>
+                <span class="pp-hidden-mobile pp-tiny pp-text-muted" style="margin-left:4px;">&#8984;K</span>
+            </button>
+
+            <!-- Mobile toggle -->
+            <button class="pp-nav__toggle" id="ppMobileToggle" onclick="ppToggleMobile()" aria-label="Menu">
+                <span style="display:flex;flex-direction:column;gap:4px;">
+                    <span class="pp-nav__toggle-bar"></span>
+                    <span class="pp-nav__toggle-bar"></span>
+                    <span class="pp-nav__toggle-bar"></span>
+                </span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation -->
+    <div class="pp-nav__mobile" id="ppMobileNav">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:0 8px;">
+            <span class="pp-pulse-dot"></span>
+            <span class="pp-mono pp-tiny pp-text-muted">NAVIGATION</span>
+        </div>
+        <a href="/" class="pp-nav__link"><i class="fas fa-home" style="width:20px;"></i> Home</a>
+        <a href="/articles" class="pp-nav__link"><i class="fas fa-terminal" style="width:20px;"></i> Intel Briefs</a>
+        <a href="/media" class="pp-nav__link"><i class="fas fa-broadcast-tower" style="width:20px;"></i> Media Hub</a>
+        <a href="/podcasts" class="pp-nav__link"><i class="fas fa-podcast" style="width:20px;"></i> Podcasts</a>
+        <a href="/clips" class="pp-nav__link"><i class="fas fa-film" style="width:20px;"></i> Signal Clips</a>
+        <a href="/market" class="pp-nav__link"><i class="fas fa-chart-line" style="width:20px;"></i> Markets</a>
+        <a href="/pulse-forecast" class="pp-nav__link"><i class="fas fa-brain" style="width:20px;"></i> Forecast</a>
+        <a href="/bitfeed-live" class="pp-nav__link"><i class="fas fa-heartbeat" style="width:20px;"></i> Live Pulse</a>
+        <a href="/stage" class="pp-nav__link" style="color:var(--pp-teal);"><i class="fas fa-broadcast-tower" style="width:20px;"></i> Avatar Stage</a>
+        <a href="/nostr-signal" class="pp-nav__link"><i class="fas fa-satellite-dish" style="width:20px;"></i> Nostr Signal</a>
+        <a href="/map" class="pp-nav__link"><i class="fas fa-map-marked-alt" style="width:20px;"></i> Merchant Map</a>
+        <a href="/meetup-map" class="pp-nav__link"><i class="fas fa-users" style="width:20px;"></i> Meetups</a>
+        <a href="/live" class="pp-nav__link"><i class="fas fa-atom" style="width:20px;"></i> Live Terminal</a>
+        <a href="/whale-watcher" class="pp-nav__link"><i class="fas fa-water" style="width:20px;"></i> Whale Watcher</a>
+        <a href="/solo-slayers" class="pp-nav__link"><i class="fas fa-hammer" style="width:20px;"></i> Solo Slayers</a>
+        <a href="/value-stream" class="pp-nav__link"><i class="fas fa-bolt" style="width:20px;"></i> Value Stream</a>
+        <a href="/merch" class="pp-nav__link"><i class="fas fa-tshirt" style="width:20px;"></i> Merch</a>
+        <a href="/chat" class="pp-nav__link"><i class="fas fa-robot" style="width:20px;"></i> Ask Alex</a>
+        <a href="/logistics" class="pp-nav__link"><i class="fas fa-folder-open" style="width:20px;"></i> Index</a>
+        <hr class="pp-divider" style="margin:8px 0;">
+        {% if current_user.is_authenticated %}
+            {% if current_user.is_admin %}
+            <a href="/admin/command-deck" class="pp-nav__link pp-text-amber"><i class="fas fa-user-shield" style="width:20px;"></i> Admin</a>
+            {% endif %}
+            <a href="/logout" class="pp-nav__link"><i class="fas fa-sign-out-alt" style="width:20px;"></i> Logout</a>
+        {% else %}
+            <a href="/login" class="pp-nav__link"><i class="fas fa-user" style="width:20px;"></i> Login</a>
+        {% endif %}
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         COMMAND PALETTE (Ctrl+K / Cmd+K)
+         ═══════════════════════════════════════════════════════════════ -->
+    <div class="pp-search-overlay" id="ppSearchOverlay" style="display:none;">
+        <div class="pp-search-modal">
+            <div class="pp-search-input-wrap">
+                <i class="fas fa-search" style="color:var(--pp-text-muted);"></i>
+                <input type="text" class="pp-search-input" id="ppSearchInput" placeholder="Search articles, tools, pages..." autocomplete="off">
+                <kbd class="pp-search-kbd">ESC</kbd>
+            </div>
+            <div class="pp-search-results" id="ppSearchResults">
+                <div class="pp-search-group-label">Quick Navigation</div>
+                <a href="/" class="pp-search-item" data-search="home dashboard">
+                    <i class="fas fa-home"></i><span>Home</span>
+                </a>
+                <a href="/articles" class="pp-search-item" data-search="articles intel briefs news">
+                    <i class="fas fa-newspaper"></i><span>Intel Briefs</span>
+                </a>
+                <a href="/bitfeed-live" class="pp-search-item" data-search="bitfeed live pulse mempool">
+                    <i class="fas fa-heartbeat"></i><span>Bitfeed Live</span>
+                </a>
+                <a href="/live" class="pp-search-item" data-search="terminal blockchain visualizer">
+                    <i class="fas fa-atom"></i><span>Live Terminal</span>
+                </a>
+                <a href="/whale-watcher" class="pp-search-item" data-search="whale watcher large transactions">
+                    <i class="fas fa-water"></i><span>Whale Watcher</span>
+                </a>
+                <a href="/map" class="pp-search-item" data-search="merchant map bitcoin businesses">
+                    <i class="fas fa-map-marked-alt"></i><span>Merchant Map</span>
+                </a>
+                <a href="/solo-slayers" class="pp-search-item" data-search="solo slayers mining lottery">
+                    <i class="fas fa-hammer"></i><span>Solo Slayers</span>
+                </a>
+                <a href="/chat" class="pp-search-item" data-search="ask alex ai chat bitcoin analyst">
+                    <i class="fas fa-robot"></i><span>Ask Alex — AI Analyst</span>
+                </a>
+                <a href="/market" class="pp-search-item" data-search="market dashboard intelligence btc price fear greed">
+                    <i class="fas fa-chart-line"></i><span>Market Intelligence</span>
+                </a>
+                <a href="/search" class="pp-search-item" data-search="search articles full text">
+                    <i class="fas fa-search"></i><span>Search Intelligence</span>
+                </a>
+                <a href="/developers" class="pp-search-item" data-search="api docs developer portal documentation">
+                    <i class="fas fa-code"></i><span>Developer Portal</span>
+                </a>
+                <a href="/sovereign-custody" class="pp-search-item" data-search="sovereign custody hardware wallet security">
+                    <i class="fas fa-shield-alt"></i><span>Sovereign Custody</span>
+                </a>
+                <a href="/media" class="pp-search-item" data-search="media hub video">
+                    <i class="fas fa-broadcast-tower"></i><span>Media Hub</span>
+                </a>
+                <a href="/podcasts" class="pp-search-item" data-search="podcast audio episodes">
+                    <i class="fas fa-podcast"></i><span>Podcasts</span>
+                </a>
+                <a href="/value-stream" class="pp-search-item" data-search="value stream lightning payments">
+                    <i class="fas fa-bolt"></i><span>Value Stream</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         MAIN CONTENT
+         ═══════════════════════════════════════════════════════════════ -->
+    <main class="pp-main" id="ppMainContent" role="main">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="pp-container" style="padding-top:16px;">
+            {% for category, message in messages %}
+            <div class="pp-flash pp-flash--{{ category }}" role="alert">
+                {{ message }}
+                <button onclick="this.parentElement.remove()" class="pp-flash__close" aria-label="Close">&times;</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         FOOTER
+         ═══════════════════════════════════════════════════════════════ -->
+    <footer class="pp-footer" role="contentinfo">
+        <div class="pp-container">
+            <div class="pp-footer__grid">
+                <!-- Brand -->
+                <div class="pp-footer__brand">
+                    <a href="/" class="pp-nav__brand" style="display:inline-flex;">
+                        <img src="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png') }}" alt="Protocol Pulse" class="pp-footer__brand-logo">
+                        <span class="pp-nav__brand-text">Protocol<span>Pulse</span></span>
+                    </a>
+                    <p class="pp-footer__brand-text">
+                        World-class Bitcoin intelligence. Real-time analysis, market signals, and investigative reporting for transactors, not tourists.
+                    </p>
+                    <!-- Halving Countdown -->
+                    <div class="pp-halving-clock">
+                        <div class="pp-label" style="margin-bottom:6px;">NEXT HALVING</div>
+                        <div class="pp-halving-clock__display">
+                            <span class="pp-halving-clock__segment"><span class="pp-price" id="halving-days">---</span><span class="pp-tiny pp-text-muted">D</span></span>
+                            <span class="pp-text-teal">:</span>
+                            <span class="pp-halving-clock__segment"><span class="pp-price" id="halving-hours">--</span><span class="pp-tiny pp-text-muted">H</span></span>
+                            <span class="pp-text-teal">:</span>
+                            <span class="pp-halving-clock__segment"><span class="pp-price" id="halving-mins">--</span><span class="pp-tiny pp-text-muted">M</span></span>
+                        </div>
+                        <div class="pp-tiny pp-text-muted" style="margin-top:4px;">Block 1,050,000</div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div>
+                    <h6 class="pp-footer__heading">Intelligence</h6>
+                    <ul class="pp-footer__links">
+                        <li><a href="/articles" class="pp-footer__link">Intel Briefs</a></li>
+                        <li><a href="/media" class="pp-footer__link">Media Hub</a></li>
+                        <li><a href="/podcasts" class="pp-footer__link">Podcasts</a></li>
+                        <li><a href="/clips" class="pp-footer__link">Signal Clips</a></li>
+                        <li><a href="/bitfeed-live" class="pp-footer__link">Live Pulse</a></li>
+                        <li><a href="/stage" class="pp-footer__link" style="color:var(--pp-teal);">Avatar Stage ⚡</a></li>
+                        <li><a href="/nostr-signal" class="pp-footer__link">Nostr Signal</a></li>
+                    </ul>
+                </div>
+
+                <!-- Tools -->
+                <div>
+                    <h6 class="pp-footer__heading">Tools</h6>
+                    <ul class="pp-footer__links">
+                        <li><a href="/live" class="pp-footer__link">Live Terminal</a></li>
+                        <li><a href="/whale-watcher" class="pp-footer__link">Whale Watcher</a></li>
+                        <li><a href="/map" class="pp-footer__link">Merchant Map</a></li>
+                        <li><a href="/solo-slayers" class="pp-footer__link">Solo Slayers</a></li>
+                        <li><a href="/value-stream" class="pp-footer__link">Value Stream</a></li>
+                    </ul>
+                </div>
+
+                <!-- About -->
+                <div>
+                    <h6 class="pp-footer__heading">Protocol Pulse</h6>
+                    <ul class="pp-footer__links">
+                        <li><a href="/about" class="pp-footer__link">About</a></li>
+                        <li><a href="/contact" class="pp-footer__link">Contact</a></li>
+                        <li><a href="/donate" class="pp-footer__link">Support Us</a></li>
+                        <li><a href="/merch" class="pp-footer__link">Merch</a></li>
+                        <li><a href="/privacy-policy" class="pp-footer__link">Privacy</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom bar -->
+            <div class="pp-footer__bottom">
+                <span>&copy; 2026 Protocol Pulse — Intelligence for Transactors</span>
+                <div class="pp-footer__social">
+                    <a href="https://twitter.com/ProtocolPulse" class="pp-footer__social-link" target="_blank" rel="noopener" aria-label="X/Twitter">
+                        <i class="fab fa-x-twitter"></i>
+                    </a>
+                    <a href="https://github.com/protocolpulse" class="pp-footer__social-link" target="_blank" rel="noopener" aria-label="GitHub">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="/feed" class="pp-footer__social-link" aria-label="RSS Feed">
+                        <i class="fas fa-rss"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to top -->
+    <button class="pp-back-to-top" id="ppBackToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         SCRIPTS
+         ═══════════════════════════════════════════════════════════════ -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/pulse-chat.js') }}" defer></script>
+
+    <!-- Inline theme init to prevent FOUC -->
+    <script>
+    (function() {
+        var saved = localStorage.getItem('pp-theme');
+        var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.setAttribute('data-theme', theme);
+        // Sync icon on load
+        var icon = document.getElementById('ppThemeIcon');
+        if (icon) icon.className = theme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+    })();
+    </script>
+
+    <script>
+    /* ── Theme toggle ── */
+    function ppToggleTheme() {
+        var current = document.documentElement.getAttribute('data-theme') || 'dark';
+        var next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('pp-theme', next);
+        var icon = document.getElementById('ppThemeIcon');
+        if (icon) icon.className = next === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    /* ── Nav scroll effect ── */
+    (function() {
+        var nav = document.getElementById('ppNav');
+        var lastScroll = 0;
+        window.addEventListener('scroll', function() {
+            var st = window.pageYOffset || document.documentElement.scrollTop;
+            if (st > 20) {
+                nav.classList.add('pp-nav--scrolled');
+            } else {
+                nav.classList.remove('pp-nav--scrolled');
+            }
+            lastScroll = st;
+        }, {passive: true});
+    })();
+
+    /* ── Mobile nav ── */
+    function ppToggleMobile() {
+        var menu = document.getElementById('ppMobileNav');
+        var toggle = document.getElementById('ppMobileToggle');
+        menu.classList.toggle('pp-nav__mobile--open');
+        toggle.classList.toggle('pp-nav__toggle--open');
+        document.body.style.overflow = menu.classList.contains('pp-nav__mobile--open') ? 'hidden' : '';
+    }
+
+    function ppCloseMobile() {
+        var menu = document.getElementById('ppMobileNav');
+        var toggle = document.getElementById('ppMobileToggle');
+        menu.classList.remove('pp-nav__mobile--open');
+        toggle.classList.remove('pp-nav__toggle--open');
+        document.body.style.overflow = '';
+    }
+
+    /* ── Command palette / search ── */
+    function ppOpenSearch() {
+        var overlay = document.getElementById('ppSearchOverlay');
+        overlay.style.display = 'flex';
+        setTimeout(function() {
+            document.getElementById('ppSearchInput').focus();
+        }, 50);
+    }
+
+    function ppCloseSearch() {
+        document.getElementById('ppSearchOverlay').style.display = 'none';
+        document.getElementById('ppSearchInput').value = '';
+        // Reset visibility
+        var items = document.querySelectorAll('.pp-search-item');
+        for (var i = 0; i < items.length; i++) items[i].style.display = '';
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+            e.preventDefault();
+            ppOpenSearch();
+        }
+        if (e.key === 'Escape') {
+            ppCloseSearch();
+            ppCloseMobile();
+        }
+    });
+
+    var searchOverlay = document.getElementById('ppSearchOverlay');
+    if (searchOverlay) {
+        searchOverlay.addEventListener('click', function(e) {
+            if (e.target === this) ppCloseSearch();
+        });
+    }
+
+    var searchInput = document.getElementById('ppSearchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            var q = e.target.value.toLowerCase().trim();
+            var items = document.querySelectorAll('.pp-search-item');
+            for (var i = 0; i < items.length; i++) {
+                var data = (items[i].getAttribute('data-search') || '') + ' ' + items[i].textContent.toLowerCase();
+                items[i].style.display = (!q || data.indexOf(q) !== -1) ? '' : 'none';
+            }
+        });
+    }
+
+    /* ── BTC Price Ticker ── */
+    function ppUpdateBtcPrice() {
+        fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.bitcoin) {
+                    var price = data.bitcoin.usd;
+                    var change = data.bitcoin.usd_24h_change;
+                    var priceEl = document.getElementById('ppBtcPrice');
+                    var changeEl = document.getElementById('ppBtcChange');
+                    if (priceEl) priceEl.textContent = '$' + price.toLocaleString('en-US', {maximumFractionDigits: 0});
+                    if (changeEl) {
+                        var pct = change.toFixed(1);
+                        changeEl.textContent = (change >= 0 ? '+' : '') + pct + '%';
+                        changeEl.className = 'pp-nav__ticker-change pp-nav__ticker-change--' + (change >= 0 ? 'up' : 'down');
+                    }
+                }
+            })
+            .catch(function() {});
+    }
+    ppUpdateBtcPrice();
+    setInterval(ppUpdateBtcPrice, 60000);
+
+    /* ── Halving countdown ── */
+    function ppUpdateHalving() {
+        var halvingDate = new Date('2028-04-15T00:00:00Z');
+        var now = new Date();
+        var diff = halvingDate - now;
+        if (diff > 0) {
+            var days = Math.floor(diff / 86400000);
+            var hours = Math.floor((diff % 86400000) / 3600000);
+            var mins = Math.floor((diff % 3600000) / 60000);
+            var dEl = document.getElementById('halving-days');
+            var hEl = document.getElementById('halving-hours');
+            var mEl = document.getElementById('halving-mins');
+            if (dEl) dEl.textContent = days.toString().padStart(3, '0');
+            if (hEl) hEl.textContent = hours.toString().padStart(2, '0');
+            if (mEl) mEl.textContent = mins.toString().padStart(2, '0');
+        }
+    }
+    ppUpdateHalving();
+    setInterval(ppUpdateHalving, 60000);
+
+    /* ── Back to top button ── */
+    (function() {
+        var btn = document.getElementById('ppBackToTop');
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 600) {
+                btn.classList.add('pp-back-to-top--visible');
+            } else {
+                btn.classList.remove('pp-back-to-top--visible');
+            }
+        }, {passive: true});
+    })();
+
+    /* ── Scroll-reveal (IntersectionObserver) ── */
+    (function() {
+        if (!('IntersectionObserver' in window)) return;
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('pp-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+        document.querySelectorAll('.pp-reveal').forEach(function(el) {
+            observer.observe(el);
+        });
+    })();
+
+    /* ── Service Worker ── */
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/static/sw.js')
+                .then(function(reg) { console.log('SW registered:', reg.scope); })
+                .catch(function(err) { console.log('SW registration failed:', err); });
+        });
+    }
+
+    /* ── Analytics ── */
+    (function() {
+        function trackPageView() {
+            fetch('/api/track/pageview', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ path: window.location.pathname, title: document.title })
+            }).catch(function() {});
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', trackPageView);
+        } else {
+            trackPageView();
+        }
+    })();
+    </script>
+
+    <!-- Additional inline styles for components not in pulse.css -->
+    <style>
+    /* Search overlay */
+    .pp-search-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 2000;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding-top: min(20vh, 160px);
+    }
+    .pp-search-modal {
+        width: 100%;
+        max-width: 580px;
+        background: var(--pp-surface);
+        border: 1px solid var(--pp-border);
+        border-radius: var(--pp-radius-lg);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        overflow: hidden;
+        margin: 0 16px;
+    }
+    .pp-search-input-wrap {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--pp-border);
+    }
+    .pp-search-input {
+        flex: 1;
+        background: none;
+        border: none;
+        outline: none;
+        color: var(--pp-text);
+        font-family: var(--pp-font-body);
+        font-size: 1rem;
+    }
+    .pp-search-input::placeholder { color: var(--pp-text-muted); }
+    .pp-search-kbd {
+        font-family: var(--pp-font-mono);
+        font-size: 0.6875rem;
+        padding: 2px 8px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid var(--pp-border);
+        border-radius: 4px;
+        color: var(--pp-text-muted);
+    }
+    .pp-search-results {
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 8px;
+    }
+    .pp-search-group-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--pp-text-muted);
+        padding: 8px 12px 4px;
+    }
+    .pp-search-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: var(--pp-radius-sm);
+        color: var(--pp-text-secondary);
+        text-decoration: none;
+        transition: all 0.15s ease;
+        font-size: 0.9375rem;
+    }
+    .pp-search-item:hover {
+        background: var(--pp-teal-dim);
+        color: var(--pp-text);
+    }
+    .pp-search-item i { width: 20px; text-align: center; font-size: 0.875rem; }
+
+    /* Flash messages */
+    .pp-flash {
+        padding: 12px 16px;
+        border-radius: var(--pp-radius-sm);
+        border: 1px solid var(--pp-border);
+        background: var(--pp-surface);
+        color: var(--pp-text);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 8px;
+        font-size: 0.9375rem;
+        animation: pp-slide-down 0.3s var(--pp-ease);
+    }
+    .pp-flash--success { border-color: rgba(0, 230, 118, 0.3); background: rgba(0, 230, 118, 0.08); }
+    .pp-flash--error, .pp-flash--danger { border-color: rgba(255, 71, 87, 0.3); background: rgba(255, 71, 87, 0.08); }
+    .pp-flash--warning { border-color: rgba(245, 166, 35, 0.3); background: rgba(245, 166, 35, 0.08); }
+    .pp-flash--info { border-color: rgba(0, 212, 170, 0.3); background: rgba(0, 212, 170, 0.08); }
+    .pp-flash__close {
+        background: none;
+        border: none;
+        color: var(--pp-text-muted);
+        cursor: pointer;
+        font-size: 1.25rem;
+        line-height: 1;
+        padding: 0 4px;
+    }
+
+    /* Halving clock */
+    .pp-halving-clock {
+        padding: 16px;
+        background: rgba(0, 212, 170, 0.06);
+        border: 1px solid rgba(0, 212, 170, 0.15);
+        border-radius: var(--pp-radius-md);
+        text-align: center;
+        max-width: 240px;
+    }
+    .pp-halving-clock__display {
+        font-family: var(--pp-font-mono);
+        font-size: 1.5rem;
+        display: flex;
+        justify-content: center;
+        align-items: baseline;
+        gap: 2px;
+    }
+
+    /* Back to top */
+    .pp-back-to-top {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        width: 44px;
+        height: 44px;
+        background: var(--pp-surface);
+        border: 1px solid var(--pp-border);
+        border-radius: var(--pp-radius-sm);
+        color: var(--pp-text-secondary);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: all 0.3s var(--pp-ease);
+        z-index: 500;
+    }
+    .pp-back-to-top--visible {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    .pp-back-to-top:hover {
+        border-color: var(--pp-teal);
+        color: var(--pp-teal);
+        background: var(--pp-teal-dim);
+    }
+    </style>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

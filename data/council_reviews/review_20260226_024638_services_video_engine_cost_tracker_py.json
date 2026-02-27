@@ -1,0 +1,39 @@
+{
+  "filepath": "services/video_engine/cost_tracker.py",
+  "feature": "Per-stage cost tracking with budgets",
+  "stage": "post",
+  "timestamp": "2026-02-26T02:46:38.271953",
+  "local_analysis": {
+    "scores": {
+      "architecture": 7,
+      "error_handling": 7,
+      "edge_cases": 7,
+      "security": 4,
+      "performance": 6,
+      "maintainability": 7
+    },
+    "average_score": 6.3,
+    "issues": [
+      "CRITICAL: Possible SQL injection \u2014 use parameterized queries"
+    ],
+    "warnings": [
+      "SELECT * usage \u2014 specify columns for better performance"
+    ],
+    "line_count": 433,
+    "class_count": 2,
+    "function_count": 13,
+    "production_ready": false
+  },
+  "llm_reviews": {},
+  "cross_review": null,
+  "consensus_score": 6.3,
+  "production_ready": false,
+  "issues": [
+    "CRITICAL: Possible SQL injection \u2014 use parameterized queries"
+  ],
+  "fix_list": [],
+  "warnings": [
+    "SELECT * usage \u2014 specify columns for better performance"
+  ],
+  "verdict": "FIX_THEN_SHIP"
+}

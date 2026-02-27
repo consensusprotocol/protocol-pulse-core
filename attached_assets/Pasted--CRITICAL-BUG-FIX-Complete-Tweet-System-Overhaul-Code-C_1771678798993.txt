@@ -1,0 +1,325 @@
+# CRITICAL BUG FIX: Complete Tweet System Overhaul + Code Cleanup
+
+Tweets are posting with old AI-sounding prompts despite file-level code changes. The running server uses cached/old code. This prompt fixes EVERYTHING in one pass.
+
+-----
+
+## PHASE 1: KILL ALL TWEETS IMMEDIATELY (credentials approach)
+
+Go to Secrets and temporarily RENAME these secrets by adding “_OFF” to the end of each key name:
+
+- X_API_KEY → X_API_KEY_OFF
+- X_API_SECRET → X_API_SECRET_OFF
+- X_ACCESS_TOKEN → X_ACCESS_TOKEN_OFF
+- X_ACCESS_TOKEN_SECRET → X_ACCESS_TOKEN_SECRET_OFF
+- X_BEARER_TOKEN → X_BEARER_TOKEN_OFF
+- XAI_API_KEY → XAI_API_KEY_OFF
+
+Check for any variations like TWITTER_API_KEY, TWITTER_BEARER_TOKEN, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET and rename those too.
+
+This IMMEDIATELY kills all tweet posting because the X client objects will fail to initialize with no credentials. Do NOT proceed to Phase 2 until this is done.
+
+-----
+
+## PHASE 2: FIX THE _DISABLED METHOD NAMES
+
+Previous debugging renamed tweet methods to prevent posting. These need to be reverted. In ALL of these files, find/replace `.create_tweet_DISABLED(` back to `.create_tweet(` and `.update_status_DISABLED(` back to `.update_status(`:
+
+- services/x_automation_service.py
+- services/x_service.py
+- services/launch_sequence.py
+- services/intelligence_stream_service.py
+- services/distribution_manager.py
+- services/scheduler.py
+- routes.py
+
+Verify by running: `grep -rn "_DISABLED(" services/ routes.py --include="*.py" | grep -v __pycache__`
+Result should be ZERO matches.
+
+-----
+
+## PHASE 3: UPGRADE ALL TWEET GENERATION PROMPTS
+
+There are TWO files that generate tweet text via LLM. BOTH must be updated.
+
+### File 1: services/post_quality_gate.py
+
+Find the `generate_organic_tweet` method. Replace the system message and user prompt.
+
+**Replace the system message** (in the messages array, the role: “system” content) with EXACTLY:
+
+```
+You are the social media voice of Protocol Pulse — a Bitcoin-native intelligence outlet. Your voice: the sharpest person at the Bitcoin conference who also runs a fund. Lyn Alden composure, Saylor conviction, deadpan humor. You write tweets people screenshot. NEVER sound like a brand account, AI, or content strategist. One punchy line. Suggestive over declarative — let the reader complete the thought. No rhetorical questions unless genuinely sharp. No emojis. No hashtags.
+```
+
+**Replace the user prompt** (the f-string that starts with something like “Generate a tweet for this Bitcoin article”) with EXACTLY:
+
+```python
+prompt = f"""Write ONE tweet about this article. The tweet must make someone stop scrolling.
+
+ARTICLE:
+Title: {article_title}
+Summary: {article_summary[:300]}
+
+RULES:
+1. MAX 180 characters. Shorter is better. Under 120 is elite.
+2. ONE concrete fact, number, or insight from the article. No vibes.
+3. Suggestive over declarative — let the reader complete the thought.
+4. NO emojis. NO hashtags. NO ALL CAPS words.
+5. NO rhetorical questions like "Have you considered..." or "Did you know..."
+6. Lowercase starts are fine. Fragments are fine. Missing periods are fine.
+7. Sound like a fund manager sharing alpha between meetings, not a content account.
+
+BANNED (instant rejection):
+- "In Bitcoin's volatile world" or any "In [X]'s [adjective] world" opener
+- "Have you considered" / "Did you know" / "Are you ready"
+- "Share your thoughts" / "What do you think" / "Drop your take"
+- "Don't miss" / "Check out" / "Must read" / "BREAKING"
+- "Game-changer" / "paradigm" / "landscape" / "ecosystem"
+- "While everyone obsesses" / "the real revolution" / "reshaping"
+- Any sentence ending with both ? and !
+- More than one question in the tweet
+- More than one sentence (two max if the second is very short)
+
+GOOD:
+- "Cash App quietly has the best BTC pricing of any major app. Block is going all in."
+- "87 countries exploring CBDCs. tell me again how Bitcoin isn't winning."
+- "Sternlicht tokenizing $50B in real estate. TradFi gets it before most of crypto Twitter does."
+- "self-custody or permission. pick one."
+- "11 public companies added BTC to their balance sheet this quarter. the stampede is quiet."
+
+BAD:
+- "In Bitcoin's volatile world, securing your wealth requires more than digital savvy!"
+- "🚨 BREAKING: New analysis on Bitcoin security! Must read! 🔥"
+- "Have you considered how hash rate protects against physical threats? Share your thoughts!"
+
+Return ONLY the tweet. No quotes. No explanation. No preamble."""
+```
+
+### File 2: services/unified_post_gate.py
+
+Find the `_generate_organic_tweet` method. Apply the EXACT same system message and user prompt as above (adjust variable names if needed — this file may use `title` and `summary` instead of `article_title` and `article_summary`).
+
+-----
+
+## PHASE 4: REMOVE EMOJI HOOKS FROM ARTICLE POSTING
+
+In services/x_automation_service.py, find the `post_article` method. There is an array of emoji hooks like:
+
+```python
+hooks = [
+    "🚨 BREAKING:",
+    "📊 NEW ANALYSIS:",
+    "⚡ INTEL BRIEF:",
+    "🔍 DEEP DIVE:",
+    "💡 INSIGHT:",
+    "🎯 SIGNAL:",
+]
+hook = random.choice(hooks)
+```
+
+Replace that entire block with:
+
+```python
+hook = ""
+```
+
+-----
+
+## PHASE 5: MAKE x_service.py ROUTE THROUGH QUALITY GATE
+
+In services/x_service.py, find the `post_article_tweet` method. It currently just posts the raw article title as a tweet. Replace the entire method with:
+
+```python
+def post_article_tweet(self, article, base_url=''):
+    """Route article tweets through unified quality gate."""
+    if not self.client and not self.client_v2:
+        logging.warning("Twitter API not configured - skipping tweet")
+        return None
+    try:
+        from services.unified_post_gate import unified_post_gate
+        result = unified_post_gate.process_article_post(
+            article.id,
+            article.title,
+            getattr(article, 'summary', '') or ''
+        )
+        if result.get("approved") and result.get("tweet_text"):
+            tweet_text = result["tweet_text"][:280]
+            if self.client_v2:
+                r = self.client_v2.create_tweet(text=tweet_text)
+                return str(r.data["id"]) if r and r.data else None
+            elif self.client:
+                response = self.client.update_status(tweet_text)
+                return response.id
+        else:
+            logging.info(f"Tweet rejected by quality gate: {result.get('rejection_reason', 'unknown')}")
+            return None
+    except Exception as e:
+        logging.error(f"Failed to post tweet: {e}")
+        return None
+```
+
+-----
+
+## PHASE 6: ADD ARTICLE DEDUPLICATION
+
+Articles with nearly identical titles keep getting published (e.g., three articles all titled “Bitcoin’s Quiet Revolution: Network Resilience…”).
+
+### In services/content_engine.py:
+
+Add this method to the ContentEngine class (before `_save_article_to_db`):
+
+```python
+def _is_duplicate(self, title, hours=48):
+    """Check if a similar article was published recently."""
+    from datetime import datetime, timedelta
+    from app import db
+    import models
+    
+    cutoff = datetime.utcnow() - timedelta(hours=hours)
+    recent = models.Article.query.filter(
+        models.Article.created_at > cutoff,
+        models.Article.published == True
+    ).all()
+    
+    new_words = set(title.lower().split())
+    
+    for article in recent:
+        existing_words = set(article.title.lower().split())
+        if not existing_words:
+            continue
+        overlap = len(new_words & existing_words) / max(len(new_words | existing_words), 1)
+        if overlap > 0.45:
+            return True, article.title
+        
+        new_start = ' '.join(title.lower().split()[:4])
+        existing_start = ' '.join(article.title.lower().split()[:4])
+        if new_start == existing_start and len(new_start) > 15:
+            return True, article.title
+    
+    return False, None
+```
+
+Then at the TOP of the `_save_article_to_db` method, after the docstring, add:
+
+```python
+title = article_data.get("title", "")
+is_dup, dup_title = self._is_duplicate(title)
+if is_dup:
+    self.logger.warning(f"DEDUP: Rejected '{title[:50]}' - too similar to '{dup_title[:50]}'")
+    return None
+```
+
+-----
+
+## PHASE 7: PURGE ALL CACHES
+
+Run these commands:
+
+```bash
+find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null
+find . -name "*.pyc" -delete 2>/dev/null
+```
+
+-----
+
+## PHASE 8: VERIFY EVERYTHING
+
+Run this verification script:
+
+```python
+import os, sys
+
+print("=== VERIFICATION ===")
+errors = 0
+
+# Check no _DISABLED methods remain
+for root, dirs, files in os.walk('services'):
+    if '__pycache__' in root: continue
+    for fn in files:
+        if fn.endswith('.py'):
+            code = open(os.path.join(root, fn)).read()
+            if '_DISABLED(' in code:
+                print(f"ERROR: {fn} still has _DISABLED methods")
+                errors += 1
+
+code = open('routes.py').read()
+if '_DISABLED(' in code:
+    print("ERROR: routes.py still has _DISABLED methods")
+    errors += 1
+
+# Check V3 prompts in both generators
+for f in ['services/post_quality_gate.py', 'services/unified_post_gate.py']:
+    code = open(f).read()
+    if 'fund manager' not in code:
+        print(f"ERROR: {f} missing V3 prompt")
+        errors += 1
+    else:
+        print(f"OK: {f} has V3 prompt")
+
+# Check emoji hooks removed
+code = open('services/x_automation_service.py').read()
+if '🚨 BREAKING:' in code:
+    print("ERROR: emoji hooks still in x_automation_service.py")
+    errors += 1
+else:
+    print("OK: emoji hooks removed")
+
+# Check dedup exists
+code = open('services/content_engine.py').read()
+if '_is_duplicate' in code:
+    print("OK: dedup guard in content_engine.py")
+else:
+    print("ERROR: dedup guard missing from content_engine.py")
+    errors += 1
+
+# Check no __pycache__
+cache_count = 0
+for root, dirs, files in os.walk('.'):
+    if '__pycache__' in dirs:
+        cache_count += 1
+if cache_count > 0:
+    print(f"WARNING: {cache_count} __pycache__ dirs remain")
+else:
+    print("OK: all __pycache__ purged")
+
+print(f"\n{'ALL CHECKS PASSED' if errors == 0 else f'{errors} ERRORS FOUND'}")
+```
+
+ALL checks must pass before proceeding.
+
+-----
+
+## PHASE 9: DEPLOY
+
+Do a full redeploy. Wait for it to complete successfully. Verify the deployment is live.
+
+-----
+
+## PHASE 10: RESTORE API CREDENTIALS
+
+After deploy is confirmed successful:
+
+1. Rename secrets back to original names (remove “_OFF” suffix):
+- X_API_KEY_OFF → X_API_KEY
+- X_API_SECRET_OFF → X_API_SECRET
+- X_ACCESS_TOKEN_OFF → X_ACCESS_TOKEN
+- X_ACCESS_TOKEN_SECRET_OFF → X_ACCESS_TOKEN_SECRET
+- X_BEARER_TOKEN_OFF → X_BEARER_TOKEN
+- XAI_API_KEY_OFF → XAI_API_KEY
+- (and any TWITTER_ variants)
+1. Add one NEW secret: `ENABLE_TWEETS` = `true`
+1. Redeploy one final time.
+
+-----
+
+## SUMMARY OF CHANGES
+
+1. ✅ All tweet API methods restored from _DISABLED state
+1. ✅ V3 “fund manager” tweet prompt in BOTH post_quality_gate.py and unified_post_gate.py
+1. ✅ Emoji hooks (🚨 BREAKING, ⚡ INTEL BRIEF, etc.) removed
+1. ✅ x_service.py post_article_tweet routes through quality gate
+1. ✅ Article deduplication prevents near-identical titles from publishing
+1. ✅ All **pycache** purged to prevent stale compiled code
+1. ✅ Credentials approach guarantees zero tweets during code changes
+1. ✅ ENABLE_TWEETS env var provides master on/off switch for future

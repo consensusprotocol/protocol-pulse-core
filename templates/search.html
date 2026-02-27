@@ -1,0 +1,379 @@
+{% extends "base.html" %}
+{% block title %}Search{% if query %} — {{ query }}{% endif %} — Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+.pp-search-page { padding: 48px 0 64px; }
+.pp-search-page__title {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 24px;
+    text-align: center;
+}
+/* Search input */
+.pp-search-box {
+    max-width: 680px;
+    margin: 0 auto 40px;
+    position: relative;
+}
+.pp-search-box__input {
+    width: 100%;
+    padding: 16px 56px 16px 48px;
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-lg);
+    color: var(--pp-text);
+    font-family: var(--pp-font-body);
+    font-size: 1.0625rem;
+    outline: none;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.pp-search-box__input:focus {
+    border-color: var(--pp-teal);
+    box-shadow: 0 0 0 3px var(--pp-teal-dim);
+}
+.pp-search-box__input::placeholder { color: var(--pp-text-muted); }
+.pp-search-box__icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--pp-text-muted);
+    font-size: 1rem;
+    pointer-events: none;
+}
+.pp-search-box__clear {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--pp-text-muted);
+    cursor: pointer;
+    font-size: 1.125rem;
+    display: none;
+    padding: 4px 8px;
+}
+.pp-search-box__clear:hover { color: var(--pp-text); }
+
+/* Autocomplete dropdown */
+.pp-autocomplete {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0; right: 0;
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-md);
+    box-shadow: var(--pp-shadow-lg);
+    z-index: 100;
+    display: none;
+    max-height: 320px;
+    overflow-y: auto;
+}
+.pp-autocomplete__item {
+    display: block;
+    padding: 12px 16px;
+    color: var(--pp-text-secondary);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    border-bottom: 1px solid var(--pp-border);
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+.pp-autocomplete__item:last-child { border-bottom: none; }
+.pp-autocomplete__item:hover, .pp-autocomplete__item--active {
+    background: var(--pp-teal-dim);
+    color: var(--pp-text);
+}
+.pp-autocomplete__item i {
+    margin-right: 8px;
+    color: var(--pp-text-muted);
+    width: 16px;
+    text-align: center;
+}
+
+/* Results */
+.pp-search-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-size: 0.875rem;
+    color: var(--pp-text-muted);
+}
+.pp-search-results { max-width: 800px; margin: 0 auto; }
+.pp-search-result {
+    display: block;
+    padding: 20px 24px;
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-md);
+    margin-bottom: 12px;
+    text-decoration: none;
+    color: var(--pp-text);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.pp-search-result:hover {
+    border-color: var(--pp-border-hover);
+    box-shadow: var(--pp-shadow-sm);
+}
+.pp-search-result__title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--pp-text);
+}
+.pp-search-result__snippet {
+    font-size: 0.9375rem;
+    color: var(--pp-text-secondary);
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+.pp-search-result__snippet mark {
+    background: var(--pp-teal-dim);
+    color: var(--pp-teal);
+    padding: 1px 3px;
+    border-radius: 2px;
+}
+.pp-search-result__meta {
+    display: flex;
+    gap: 16px;
+    font-size: 0.75rem;
+    font-family: var(--pp-font-mono);
+    color: var(--pp-text-muted);
+}
+.pp-search-result__tag {
+    background: var(--pp-teal-dim);
+    color: var(--pp-teal);
+    padding: 2px 8px;
+    border-radius: var(--pp-radius-full);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Empty state */
+.pp-search-empty {
+    text-align: center;
+    padding: 64px 20px;
+}
+.pp-search-empty__icon {
+    font-size: 3rem;
+    color: var(--pp-text-dim);
+    margin-bottom: 16px;
+}
+.pp-search-empty__text {
+    font-size: 1.125rem;
+    color: var(--pp-text-secondary);
+    margin-bottom: 8px;
+}
+.pp-search-empty__hint {
+    font-size: 0.875rem;
+    color: var(--pp-text-muted);
+}
+
+/* Pagination */
+.pp-search-pager {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 32px;
+}
+
+/* Loading */
+.pp-search-loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--pp-text-muted);
+    display: none;
+}
+.pp-search-loading.active { display: block; }
+
+@media (max-width: 768px) {
+    .pp-search-page__title { font-size: 1.5rem; }
+    .pp-search-result { padding: 16px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="pp-search-page">
+    <div class="pp-container">
+        <h1 class="pp-search-page__title">Search Intelligence</h1>
+
+        <!-- Search Box -->
+        <div class="pp-search-box" id="searchBox">
+            <i class="fas fa-search pp-search-box__icon"></i>
+            <input type="text"
+                   class="pp-search-box__input"
+                   id="searchInput"
+                   value="{{ query }}"
+                   placeholder="Search articles, topics, Bitcoin terminology..."
+                   autocomplete="off"
+                   autofocus>
+            <button class="pp-search-box__clear" id="searchClear" onclick="clearSearch()">&times;</button>
+            <div class="pp-autocomplete" id="autoComplete"></div>
+        </div>
+
+        <!-- Results -->
+        <div class="pp-search-results" id="searchResults">
+            <div class="pp-search-loading" id="searchLoading">
+                <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;"></i>
+                <div style="margin-top:8px;">Searching...</div>
+            </div>
+            <div id="searchResultsContent"></div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    'use strict';
+    var input = document.getElementById('searchInput');
+    var clearBtn = document.getElementById('searchClear');
+    var resultsContainer = document.getElementById('searchResultsContent');
+    var loadingEl = document.getElementById('searchLoading');
+    var acDropdown = document.getElementById('autoComplete');
+    var debounceTimer = null;
+    var acTimer = null;
+    var currentQuery = '';
+
+    function updateClearBtn() {
+        clearBtn.style.display = input.value.length > 0 ? 'block' : 'none';
+    }
+
+    window.clearSearch = function() {
+        input.value = '';
+        resultsContainer.innerHTML = '';
+        acDropdown.style.display = 'none';
+        updateClearBtn();
+        input.focus();
+        history.replaceState(null, '', '/search');
+    };
+
+    function doSearch(query) {
+        if (!query || query.length < 2) {
+            resultsContainer.innerHTML = '';
+            return;
+        }
+        currentQuery = query;
+        loadingEl.classList.add('active');
+        history.replaceState(null, '', '/search?q=' + encodeURIComponent(query));
+
+        fetch('/api/search?q=' + encodeURIComponent(query))
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                loadingEl.classList.remove('active');
+                renderResults(data);
+            })
+            .catch(function() {
+                loadingEl.classList.remove('active');
+                resultsContainer.innerHTML = '<div class="pp-search-empty"><div class="pp-search-empty__icon"><i class="fas fa-exclamation-triangle"></i></div><div class="pp-search-empty__text">Search unavailable</div></div>';
+            });
+    }
+
+    function renderResults(data) {
+        var results = data.results || [];
+        var total = data.total || 0;
+        var html = '';
+
+        if (total > 0) {
+            html += '<div class="pp-search-meta"><span>' + total + ' result' + (total !== 1 ? 's' : '') + ' for "' + escapeHtml(data.query) + '"</span></div>';
+        }
+
+        if (results.length === 0) {
+            html += '<div class="pp-search-empty">' +
+                '<div class="pp-search-empty__icon"><i class="fas fa-satellite-dish"></i></div>' +
+                '<div class="pp-search-empty__text">No signals found for "' + escapeHtml(data.query) + '"</div>' +
+                '<div class="pp-search-empty__hint">Try different keywords or browse our <a href="/articles" style="color:var(--pp-teal);">Intel Briefs</a></div>' +
+                '</div>';
+        } else {
+            results.forEach(function(r) {
+                var date = r.published_at ? new Date(r.published_at).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'}) : '';
+                var slug = r.slug || r.id;
+                html += '<a href="/articles/' + slug + '" class="pp-search-result">' +
+                    '<div class="pp-search-result__title">' + escapeHtml(r.title) + '</div>' +
+                    '<div class="pp-search-result__snippet">' + (r.snippet || escapeHtml(r.summary || '').substring(0, 200)) + '</div>' +
+                    '<div class="pp-search-result__meta">' +
+                    (r.category ? '<span class="pp-search-result__tag">' + escapeHtml(r.category) + '</span>' : '') +
+                    (date ? '<span>' + date + '</span>' : '') +
+                    '</div></a>';
+            });
+        }
+        resultsContainer.innerHTML = html;
+    }
+
+    function fetchAutocomplete(query) {
+        if (query.length < 2) {
+            acDropdown.style.display = 'none';
+            return;
+        }
+        fetch('/api/search/autocomplete?q=' + encodeURIComponent(query))
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var suggestions = data.suggestions || [];
+                if (suggestions.length === 0) {
+                    acDropdown.style.display = 'none';
+                    return;
+                }
+                acDropdown.innerHTML = suggestions.map(function(s) {
+                    return '<div class="pp-autocomplete__item" data-val="' + escapeHtml(s) + '"><i class="fas fa-search"></i>' + escapeHtml(s) + '</div>';
+                }).join('');
+                acDropdown.style.display = 'block';
+
+                acDropdown.querySelectorAll('.pp-autocomplete__item').forEach(function(item) {
+                    item.addEventListener('click', function() {
+                        input.value = this.dataset.val;
+                        acDropdown.style.display = 'none';
+                        doSearch(input.value);
+                    });
+                });
+            })
+            .catch(function() { acDropdown.style.display = 'none'; });
+    }
+
+    function escapeHtml(s) {
+        if (!s) return '';
+        var d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+    }
+
+    input.addEventListener('input', function() {
+        updateClearBtn();
+        var q = input.value.trim();
+        clearTimeout(debounceTimer);
+        clearTimeout(acTimer);
+        acTimer = setTimeout(function() { fetchAutocomplete(q); }, 150);
+        debounceTimer = setTimeout(function() { doSearch(q); }, 400);
+    });
+
+    input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            acDropdown.style.display = 'none';
+            clearTimeout(debounceTimer);
+            doSearch(input.value.trim());
+        }
+        if (e.key === 'Escape') {
+            acDropdown.style.display = 'none';
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!document.getElementById('searchBox').contains(e.target)) {
+            acDropdown.style.display = 'none';
+        }
+    });
+
+    // Initial search if query provided
+    updateClearBtn();
+    var initQ = '{{ query }}'.trim();
+    if (initQ) doSearch(initQ);
+})();
+</script>
+{% endblock %}

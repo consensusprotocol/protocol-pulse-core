@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+
+{% block title %}Bitcoin Music | Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+:root {
+    --pp-red: #dc2626;
+    --pp-dark: #0a0a0a;
+    --btc-orange: #f7931a;
+    --pp-glass: rgba(10, 10, 10, 0.85);
+}
+
+.music-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0505 50%, #0a0a0a 100%);
+    padding-top: 100px;
+    padding-bottom: 80px;
+}
+
+.music-header {
+    text-align: center;
+    padding: 40px 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.music-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 20px;
+    line-height: 1.1;
+}
+
+.music-title span {
+    color: var(--btc-orange);
+}
+
+.music-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.artists-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 30px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.artist-card {
+    background: var(--pp-glass);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(40px);
+}
+
+.artist-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--btc-orange);
+    box-shadow: 0 20px 60px rgba(247, 147, 26, 0.15);
+}
+
+.artist-image {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, rgba(247, 147, 26, 0.2) 0%, rgba(0,0,0,0.8) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    position: relative;
+    overflow: hidden;
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Emoji text rendering fix */
+.artist-image {
+    text-shadow: none;
+    -webkit-text-fill-color: initial;
+    -webkit-background-clip: unset;
+}
+
+.artist-image::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(247, 147, 26, 0.1), transparent);
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 200%; }
+}
+
+.artist-content {
+    padding: 1.5rem;
+}
+
+.artist-name {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+}
+
+.artist-genre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--btc-orange);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+}
+
+.artist-bio {
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.artist-links {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.artist-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.8);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.artist-link:hover {
+    background: var(--btc-orange);
+    color: #000;
+    border-color: var(--btc-orange);
+}
+
+.featured-playlist {
+    max-width: 1000px;
+    margin: 60px auto;
+    padding: 0 20px;
+}
+
+.playlist-card {
+    background: linear-gradient(135deg, rgba(247, 147, 26, 0.1) 0%, var(--pp-glass) 100%);
+    border: 1px solid rgba(247, 147, 26, 0.3);
+    border-radius: 24px;
+    padding: 40px;
+    text-align: center;
+}
+
+.playlist-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--btc-orange);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 15px;
+}
+
+.playlist-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 2.5rem;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.playlist-desc {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.6);
+    max-width: 600px;
+    margin: 0 auto 30px;
+    line-height: 1.6;
+}
+
+.playlist-embed {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.section-divider {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.divider-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 4px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="music-page">
+    <div class="music-header">
+        <h1 class="music-title">The Sound of <span>Sovereignty</span></h1>
+        <p class="music-subtitle">Music from the Bitcoin community. Artists who understand that sound money deserves sound art.</p>
+    </div>
+    
+    <div class="featured-playlist">
+        <div class="playlist-card">
+            <div class="playlist-label">Featured Playlist</div>
+            <h2 class="playlist-title">Bitcoin Anthems</h2>
+            <p class="playlist-desc">A curated collection of Bitcoin-inspired music. From cypherpunk electronica to sovereign hip-hop.</p>
+            <div class="playlist-embed">
+                <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DX5trt9i14X7j?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section-divider">
+        <span class="divider-text">Featured Bitcoin Artists</span>
+    </div>
+    
+    <div class="artists-grid">
+        <div class="artist-card">
+            <div class="artist-image">🎸</div>
+            <div class="artist-content">
+                <h3 class="artist-name">Fifty Shades of Fiat</h3>
+                <div class="artist-genre">Hip-Hop / Conscious Rap</div>
+                <p class="artist-bio">Sharp lyrics about monetary policy, Fed printing, and the path to financial freedom. Every track is a red pill.</p>
+                <div class="artist-links">
+                    <a href="https://twitter.com/50shadesoffiat" target="_blank" class="artist-link"><i class="fab fa-x-twitter"></i> X</a>
+                    <a href="#" class="artist-link"><i class="fab fa-spotify"></i> Spotify</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="artist-card">
+            <div class="artist-image">🎹</div>
+            <div class="artist-content">
+                <h3 class="artist-name">Satoshi Sound</h3>
+                <div class="artist-genre">Electronic / Ambient</div>
+                <p class="artist-bio">Ethereal soundscapes inspired by the blockchain. Generative music that evolves like the network itself.</p>
+                <div class="artist-links">
+                    <a href="#" class="artist-link"><i class="fab fa-soundcloud"></i> SoundCloud</a>
+                    <a href="#" class="artist-link"><i class="fab fa-youtube"></i> YouTube</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="artist-card">
+            <div class="artist-image">🎤</div>
+            <div class="artist-content">
+                <h3 class="artist-name">Rock Komodo</h3>
+                <div class="artist-genre">Rock / Alternative</div>
+                <p class="artist-bio">Raw, unfiltered rock anthems about sovereignty, privacy, and building outside the system.</p>
+                <div class="artist-links">
+                    <a href="#" class="artist-link"><i class="fab fa-bandcamp"></i> Bandcamp</a>
+                    <a href="#" class="artist-link"><i class="fab fa-instagram"></i> Instagram</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="artist-card">
+            <div class="artist-image">🎺</div>
+            <div class="artist-content">
+                <h3 class="artist-name">Ainsley Costello</h3>
+                <div class="artist-genre">Folk / Acoustic</div>
+                <p class="artist-bio">Beautiful acoustic songs about hope, freedom, and the Bitcoin revolution. Pure and authentic.</p>
+                <div class="artist-links">
+                    <a href="https://twitter.com/AinsleyCostello" target="_blank" class="artist-link"><i class="fab fa-x-twitter"></i> X</a>
+                    <a href="#" class="artist-link"><i class="fab fa-spotify"></i> Spotify</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="artist-card">
+            <div class="artist-image">🎧</div>
+            <div class="artist-content">
+                <h3 class="artist-name">Mandrik</h3>
+                <div class="artist-genre">Electronic / Synthwave</div>
+                <p class="artist-bio">Retro-futuristic beats with a cypherpunk edge. Music for running nodes at midnight.</p>
+                <div class="artist-links">
+                    <a href="#" class="artist-link"><i class="fab fa-spotify"></i> Spotify</a>
+                    <a href="#" class="artist-link"><i class="fab fa-youtube"></i> YouTube</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="artist-card">
+            <div class="artist-image">🎻</div>
+            <div class="artist-content">
+                <h3 class="artist-name">Brekkie von Bitcoin</h3>
+                <div class="artist-genre">Parody / Comedy</div>
+                <p class="artist-bio">Hilarious Bitcoin parodies of popular songs. Making orange-pilling fun since 2020.</p>
+                <div class="artist-links">
+                    <a href="https://twitter.com/BrekkievonBTC" target="_blank" class="artist-link"><i class="fab fa-x-twitter"></i> X</a>
+                    <a href="#" class="artist-link"><i class="fab fa-youtube"></i> YouTube</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section-divider">
+        <span class="divider-text">Submit Your Music</span>
+    </div>
+    
+    <div class="featured-playlist">
+        <div class="playlist-card" style="background: linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, var(--pp-glass) 100%); border-color: rgba(220, 38, 38, 0.3);">
+            <div class="playlist-label" style="color: var(--pp-red);">For Artists</div>
+            <h2 class="playlist-title">Get Featured</h2>
+            <p class="playlist-desc">Are you a Bitcoin musician? We want to hear from you. Submit your music to be featured on Protocol Pulse.</p>
+            <a href="mailto:music@protocolpulse.ai" class="artist-link" style="display: inline-flex; padding: 12px 24px; font-size: 0.9rem; background: var(--pp-red); border-color: var(--pp-red); color: #fff;">
+                <i class="fas fa-envelope"></i> Submit Your Music
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

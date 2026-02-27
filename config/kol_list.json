@@ -1,0 +1,40 @@
+{
+  "x_handles": [
+    "saylor",
+    "lynalden",
+    "peterMcCormack",
+    "martybent",
+    "APompliano",
+    "Breedlove22",
+    "saifedean",
+    "MattOdell",
+    "nvk",
+    "starkness",
+    "DocumentingBTC",
+    "BitcoinMagazine",
+    "SwanBitcoin",
+    "stephanlivera",
+    "nic__carter",
+    "hasufl",
+    "el33th4xor",
+    "pablotech",
+    "jimmysong"
+  ],
+  "nostr_pubkeys": [
+    "npub1sg6plzptd64u62a878hep2kev88swjh3tw00gjsfl8f237lmu63q0uf63m",
+    "npub1xtscya34g58k0etzywc3j3r4lqzzg2wy2r2w0m2q8jf7k4v6m3eq2q3m4x"
+  ],
+  "youtube_channel_ids": [
+    "UCjpkLzNLkZJGQvVQw7hFnSg",
+    "UCN49rFQFZuiUHpE8NR7mttQ",
+    "UCmvn0Cgun-7O7L8GeFeyxdA",
+    "UCv-_bq3fB7y_wGmRqNGbCrw",
+    "UCbVWZ3m6gxu0gXY5n1P9f6Q",
+    "UC23sHrD-23HJcxMqGy-p9Uw",
+    "UCZoB2BkHn6EB13_UE_o6dCQ",
+    "UCtxQJhOA5WCxnKZ8Y9eQ5kg",
+    "UCQvhxHvJSQr-xPWKuqT2e7w",
+    "UCwdB8sCl5w9fLOTxrpJoVtA"
+  ],
+  "comment": "KOL list for Sovereign Intelligence Nexus Pulse feed. X = handle without @. Nostr = npub. YouTube = channel ID from supported_sources or here."
+}

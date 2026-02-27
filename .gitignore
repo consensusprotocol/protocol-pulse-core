@@ -1,0 +1,48 @@
+# Environment and secrets – never commit
+.env
+core/.env
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Project-specific
+_replit_import/
+# Large Archives
+*.zip
+*.tar.gz
+*.iso
+
+# Google OAuth Secrets (PURGED)
+youtube_token.json
+client_secrets.json
+
+# Local Environment / System
+.env
+venv/
+.DS_Store
+__pycache__/
+*.log
+
+# Generated data — episodes, caches, logs, headers
+data/episodes/
+data/video_engine/cache/
+data/video_engine/logs/
+data/articles/
+static/images/headers/
+
+# Backup files
+*.bak.*
+*.backup_*

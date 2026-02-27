@@ -1,0 +1,428 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Real-Time Intelligence - Protocol Pulse{% endblock %}
+
+{% block extra_css %}
+<style>
+    .intel-dashboard {
+        background: linear-gradient(135deg, rgba(20, 15, 30, 0.98), rgba(10, 8, 15, 0.99));
+        min-height: 100vh;
+    }
+    
+    .sarah-brief {
+        background: linear-gradient(135deg, rgba(138, 43, 226, 0.15), rgba(75, 0, 130, 0.1));
+        border-left: 3px solid #8a2be2;
+        padding: 1.25rem;
+        margin-bottom: 2rem;
+        border-radius: 0 8px 8px 0;
+        font-style: italic;
+        color: #c9a0ff;
+    }
+    
+    .stat-card {
+        background: rgba(30, 25, 45, 0.8);
+        border: 1px solid rgba(138, 43, 226, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        border-color: #8a2be2;
+        box-shadow: 0 0 20px rgba(138, 43, 226, 0.2);
+    }
+    
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #8a2be2;
+        line-height: 1;
+    }
+    
+    .stat-label {
+        font-size: 0.85rem;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 0.5rem;
+    }
+    
+    .stat-sublabel {
+        font-size: 0.75rem;
+        color: #666;
+    }
+    
+    .hot-page-item {
+        background: rgba(20, 15, 30, 0.8);
+        border: 1px solid rgba(138, 43, 226, 0.15);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: all 0.3s ease;
+    }
+    
+    .hot-page-item:hover {
+        border-color: #8a2be2;
+        background: rgba(30, 25, 45, 0.9);
+    }
+    
+    .hot-page-item.is-hot {
+        border-color: #ff6b35;
+        background: rgba(255, 107, 53, 0.1);
+    }
+    
+    .heat-badge {
+        background: linear-gradient(135deg, #ff6b35, #f7931a);
+        color: white;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .heat-badge.cold {
+        background: linear-gradient(135deg, #4a5568, #2d3748);
+    }
+    
+    .suggestion-card {
+        background: rgba(20, 15, 30, 0.9);
+        border: 1px solid rgba(138, 43, 226, 0.2);
+        border-radius: 10px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    .suggestion-type {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .suggestion-type.article { background: #4299e1; color: white; }
+    .suggestion-type.podcast { background: #9f7aea; color: white; }
+    .suggestion-type.guide { background: #48bb78; color: white; }
+    .suggestion-type.marketing { background: #ed8936; color: white; }
+    
+    .tweet-card {
+        background: rgba(20, 15, 30, 0.9);
+        border: 1px solid rgba(29, 161, 242, 0.3);
+        border-radius: 10px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    .tweet-content {
+        font-size: 1rem;
+        color: #f5f5f5;
+        line-height: 1.5;
+        white-space: pre-wrap;
+    }
+    
+    .tweet-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .confidence-bar {
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 0.5rem;
+    }
+    
+    .confidence-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #8a2be2, #f7931a);
+        border-radius: 3px;
+        transition: width 0.5s ease;
+    }
+    
+    .section-title {
+        color: #f5f5f5;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .live-indicator {
+        width: 8px;
+        height: 8px;
+        background: #28a745;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.2); }
+    }
+    
+    .referrer-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .referrer-item:last-child {
+        border-bottom: none;
+    }
+    
+    .btn-approve {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        color: white;
+        padding: 6px 16px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-approve:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-dismiss {
+        background: transparent;
+        border: 1px solid #666;
+        color: #888;
+        padding: 6px 16px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        cursor: pointer;
+    }
+    
+    .refresh-btn {
+        background: rgba(138, 43, 226, 0.2);
+        border: 1px solid #8a2be2;
+        color: #c9a0ff;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .refresh-btn:hover {
+        background: rgba(138, 43, 226, 0.3);
+    }
+    
+    .auto-refresh {
+        font-size: 0.8rem;
+        color: #666;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="intel-dashboard">
+    <div class="container-fluid py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 style="color: #f5f5f5;">
+                <i class="fas fa-satellite me-2" style="color: #8a2be2;"></i>
+                Real-Time Intelligence Dashboard
+            </h2>
+            <div>
+                <button class="refresh-btn" onclick="refreshData()">
+                    <i class="fas fa-sync-alt me-2"></i>Refresh
+                </button>
+                <span class="auto-refresh ms-2">Auto-refreshes every 30s</span>
+            </div>
+        </div>
+        
+        <div class="sarah-brief">
+            <strong>SARAH (The Macro):</strong> "Operative, this dashboard provides real-time visibility into Protocol Pulse activity. Monitor traffic spikes, identify content opportunities, and deploy engagement when the network signals peak interest. Intelligence without action is merely data."
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-value" id="views-15min">{{ stats.views_15min or 0 }}</div>
+                    <div class="stat-label">Views (15 min)</div>
+                    <div class="stat-sublabel"><span class="live-indicator d-inline-block me-1"></span> Live</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-value" id="views-1h">{{ stats.views_1h or 0 }}</div>
+                    <div class="stat-label">Views (1 hour)</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-value" id="views-24h">{{ stats.views_24h or 0 }}</div>
+                    <div class="stat-label">Views (24 hours)</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-value" id="active-sessions">{{ stats.active_sessions or 0 }}</div>
+                    <div class="stat-label">Active Sessions</div>
+                    <div class="stat-sublabel">Last 15 minutes</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="section-title">
+                    <i class="fas fa-fire" style="color: #ff6b35;"></i>
+                    Hot Pages Now
+                    <span class="live-indicator ms-2"></span>
+                </div>
+                <div id="hot-pages-list">
+                    {% for page in hot_pages %}
+                    <div class="hot-page-item {% if page.is_hot %}is-hot{% endif %}">
+                        <div>
+                            <div style="color: #f5f5f5; font-weight: 500;">{{ page.title }}</div>
+                            <div style="color: #666; font-size: 0.85rem;">{{ page.path }}</div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="text-align: right;">
+                                <div style="color: #8a2be2; font-weight: 600;">{{ page.views }} views</div>
+                                <div style="color: #666; font-size: 0.8rem;">{{ page.unique_visitors }} unique</div>
+                            </div>
+                            <span class="heat-badge {% if not page.is_hot %}cold{% endif %}">
+                                {{ page.heat_score }}°
+                            </span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="hot-page-item">
+                        <span style="color: #666;">No recent page views tracked. Tracking will begin as users visit the site.</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="section-title mt-4">
+                    <i class="fas fa-external-link-alt" style="color: #4299e1;"></i>
+                    Top Referrers (24h)
+                </div>
+                <div id="referrers-list">
+                    {% for ref in stats.top_referrers or [] %}
+                    <div class="referrer-item">
+                        <span style="color: #aaa; font-size: 0.9rem;">{{ ref.referrer[:50] }}{% if ref.referrer|length > 50 %}...{% endif %}</span>
+                        <span style="color: #8a2be2; font-weight: 600;">{{ ref.count }}</span>
+                    </div>
+                    {% else %}
+                    <div style="color: #666; padding: 1rem 0;">No referrer data yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="section-title">
+                    <i class="fas fa-lightbulb" style="color: #f7931a;"></i>
+                    Content Suggestions
+                </div>
+                <div id="suggestions-list">
+                    {% for suggestion in suggestions %}
+                    <div class="suggestion-card">
+                        <span class="suggestion-type {{ suggestion.type }}">{{ suggestion.type }}</span>
+                        <h5 style="color: #f5f5f5; margin: 0.5rem 0;">{{ suggestion.title }}</h5>
+                        <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 0.5rem;">{{ suggestion.description }}</p>
+                        <div style="color: #666; font-size: 0.8rem;">
+                            <i class="fas fa-brain me-1"></i>{{ suggestion.reasoning }}
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: {{ suggestion.confidence }}%;"></div>
+                        </div>
+                        <div style="font-size: 0.75rem; color: #666; margin-top: 0.25rem;">
+                            Confidence: {{ suggestion.confidence }}%
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="suggestion-card">
+                        <span style="color: #666;">No content suggestions yet. Suggestions will appear as traffic patterns emerge.</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="section-title mt-4">
+                    <i class="fab fa-twitter" style="color: #1da1f2;"></i>
+                    Peak Tweet Drafts
+                </div>
+                <div id="tweets-list">
+                    {% for tweet in pending_tweets %}
+                    <div class="tweet-card">
+                        <div class="tweet-content">{{ tweet.content }}</div>
+                        <div class="tweet-meta">
+                            <span style="color: #666; font-size: 0.8rem;">
+                                <i class="fas fa-fire me-1" style="color: #ff6b35;"></i>
+                                Heat: {{ tweet.heat_score }}° | {{ tweet.trigger_page }}
+                            </span>
+                            <div class="ms-auto">
+                                <button class="btn-approve" onclick="approveTweet({{ tweet.id }})">
+                                    <i class="fas fa-check me-1"></i>Approve
+                                </button>
+                                <button class="btn-dismiss ms-2" onclick="dismissTweet({{ tweet.id }})">
+                                    Dismiss
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="tweet-card">
+                        <span style="color: #666;">No peak tweets generated yet. Tweets are drafted when traffic spikes significantly.</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function refreshData() {
+    fetch('/admin/api/realtime-stats')
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('views-15min').textContent = data.views_15min || 0;
+            document.getElementById('views-1h').textContent = data.views_1h || 0;
+            document.getElementById('views-24h').textContent = data.views_24h || 0;
+            document.getElementById('active-sessions').textContent = data.active_sessions || 0;
+        })
+        .catch(err => console.error('Refresh failed:', err));
+}
+
+function approveTweet(tweetId) {
+    fetch(`/admin/api/approve-tweet/${tweetId}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+}
+
+function dismissTweet(tweetId) {
+    fetch(`/admin/api/dismiss-tweet/${tweetId}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+}
+
+setInterval(refreshData, 30000);
+</script>
+{% endblock %}

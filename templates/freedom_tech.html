@@ -1,0 +1,441 @@
+{% extends "base.html" %}
+
+{% block title %}Freedom Tech | Beyond Money | Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+:root {
+    --pp-red: #dc2626;
+    --pp-dark: #0a0a0a;
+    --btc-orange: #f7931a;
+    --freedom-purple: #8b5cf6;
+    --pp-glass: rgba(10, 10, 10, 0.85);
+}
+
+.freedom-page {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #0a0a0a 0%, #0f0a1a 50%, #0a0a0a 100%);
+    padding-top: 100px;
+    padding-bottom: 80px;
+}
+
+.freedom-hero {
+    text-align: center;
+    padding: 60px 20px 80px;
+    max-width: 1000px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.freedom-hero::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 600px;
+    height: 600px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.hero-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--freedom-purple);
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    margin-bottom: 20px;
+}
+
+.freedom-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 4rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 30px;
+    line-height: 1.1;
+}
+
+.freedom-title span {
+    background: linear-gradient(135deg, var(--btc-orange), var(--freedom-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.freedom-subtitle {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.4rem;
+    color: rgba(255, 255, 255, 0.7);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+.manifesto-section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 20px;
+}
+
+.manifesto-card {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, var(--pp-glass) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 24px;
+    padding: 50px;
+}
+
+.manifesto-text {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.3rem;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.9;
+    text-align: center;
+}
+
+.manifesto-text strong {
+    color: var(--btc-orange);
+}
+
+.categories-section {
+    padding: 60px 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--freedom-purple);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 15px;
+}
+
+.section-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 2.5rem;
+    color: #fff;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 30px;
+}
+
+.category-card {
+    background: var(--pp-glass);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 35px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.category-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--btc-orange), var(--freedom-purple));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(139, 92, 246, 0.3);
+    box-shadow: 0 20px 60px rgba(139, 92, 246, 0.1);
+}
+
+.category-card:hover::before {
+    opacity: 1;
+}
+
+.category-icon {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.category-name {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 12px;
+}
+
+.category-desc {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.project-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.project-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.project-item:hover {
+    background: rgba(139, 92, 246, 0.1);
+    border-color: rgba(139, 92, 246, 0.3);
+}
+
+.project-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: #fff;
+}
+
+.project-link {
+    color: var(--freedom-purple);
+    font-size: 0.8rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.project-link:hover {
+    color: #fff;
+}
+
+.cta-section {
+    text-align: center;
+    padding: 80px 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.cta-card {
+    background: linear-gradient(135deg, rgba(247, 147, 26, 0.1) 0%, var(--pp-glass) 100%);
+    border: 1px solid rgba(247, 147, 26, 0.3);
+    border-radius: 24px;
+    padding: 50px;
+}
+
+.cta-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 2rem;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.cta-text {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 30px;
+    line-height: 1.7;
+}
+
+.cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 30px;
+    background: var(--btc-orange);
+    color: #000;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(247, 147, 26, 0.3);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="freedom-page">
+    <div class="freedom-hero">
+        <div class="hero-label">Beyond Money</div>
+        <h1 class="freedom-title">Freedom <span>Technology</span></h1>
+        <p class="freedom-subtitle">Bitcoin decentralized money. Now we apply the same ethos to decentralize everything. The free market knows best.</p>
+    </div>
+    
+    <div class="manifesto-section">
+        <div class="manifesto-card">
+            <p class="manifesto-text">
+                The Bitcoin protocol proved that <strong>trustless, permissionless systems</strong> can replace centralized gatekeepers. 
+                This isn't just about money. It's about reclaiming sovereignty over our data, our health, our communication, and our lives. 
+                The same cryptographic principles that secure your sats can secure your <strong>entire digital existence</strong>.
+            </p>
+        </div>
+    </div>
+    
+    <div class="categories-section">
+        <div class="section-header">
+            <div class="section-label">Sovereign Stack</div>
+            <h2 class="section-title">Freedom Technologies</h2>
+        </div>
+        
+        <div class="category-grid">
+            <div class="category-card">
+                <div class="category-icon">🔐</div>
+                <h3 class="category-name">Privacy & Communication</h3>
+                <p class="category-desc">Encrypted messaging, private email, and secure communication tools that keep your conversations yours.</p>
+                <div class="project-list">
+                    <div class="project-item">
+                        <span class="project-name">Signal</span>
+                        <a href="https://signal.org" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                    <div class="project-item">
+                        <span class="project-name">ProtonMail</span>
+                        <a href="https://proton.me" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                    <div class="project-item">
+                        <span class="project-name">SimpleX Chat</span>
+                        <a href="https://simplex.chat" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                    <div class="project-item">
+                        <span class="project-name">Nostr</span>
+                        <a href="https://nostr.com" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="category-card">
+                <div class="category-icon">🌐</div>
+                <h3 class="category-name">Decentralized Internet</h3>
+                <p class="category-desc">Break free from Big Tech. Self-host, use mesh networks, and own your digital presence.</p>
+                <div class="project-list">
+                    <div class="project-item">
+                        <span class="project-name">Tor Project</span>
+                        <a href="https://torproject.org" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                    <div class="project-item">
+                        <span class="project-name">IPFS</span>
+                        <a href="https://ipfs.tech" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                    <div class="project-item">
+                        <span class="project-name">Umbrel</span>
+                        <a href="https://umbrel.com" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                    <div class="project-item">
+                        <span class="project-name">Start9</span>
+                        <a href="https://start9.com" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="category-card">
+                <div class="category-icon">🏥</div>
+                <h3 class="category-name">Healthcare Sovereignty</h3>
+                <p class="category-desc">Own your health data. Direct primary care, health sharing, and medical freedom resources.</p>
+                <div class="project-list">
+                    <div class="project-item">
+                        <span class="project-name">CrowdHealth</span>
+                        <a href="https://joincrowdhealth.com" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                    <div class="project-item">
+                        <span class="project-name">Sedera</span>
+                        <a href="https://sedera.com" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                    <div class="project-item">
+                        <span class="project-name">Direct Primary Care</span>
+                        <a href="https://dpcfrontier.com" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="category-card">
+                <div class="category-icon">📚</div>
+                <h3 class="category-name">Education & Knowledge</h3>
+                <p class="category-desc">Uncensorable information, alternative education, and knowledge preservation.</p>
+                <div class="project-list">
+                    <div class="project-item">
+                        <span class="project-name">Bitcoin Academy</span>
+                        <a href="https://learn.saylor.org" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                    <div class="project-item">
+                        <span class="project-name">Primal School</span>
+                        <a href="https://primalschool.com" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                    <div class="project-item">
+                        <span class="project-name">Wikileaks</span>
+                        <a href="https://wikileaks.org" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="category-card">
+                <div class="category-icon">🏠</div>
+                <h3 class="category-name">Property & Land</h3>
+                <p class="category-desc">Sovereign citizenship, property rights, and freedom communities.</p>
+                <div class="project-list">
+                    <div class="project-item">
+                        <span class="project-name">Prospera</span>
+                        <a href="https://prospera.hn" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                    <div class="project-item">
+                        <span class="project-name">Free Cities Foundation</span>
+                        <a href="https://freecitiesfoundation.org" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                    <div class="project-item">
+                        <span class="project-name">Bitcoin Citadels</span>
+                        <a href="#" class="project-link">Explore <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="category-card">
+                <div class="category-icon">⚡</div>
+                <h3 class="category-name">Energy Independence</h3>
+                <p class="category-desc">Off-grid power, renewable energy, and energy sovereignty projects.</p>
+                <div class="project-list">
+                    <div class="project-item">
+                        <span class="project-name">Solar + Mining</span>
+                        <a href="#" class="project-link">Learn <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                    <div class="project-item">
+                        <span class="project-name">Gridless</span>
+                        <a href="https://gridlesscompute.com" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                    <div class="project-item">
+                        <span class="project-name">Cathedra Bitcoin</span>
+                        <a href="https://cathedra.com" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="cta-section">
+        <div class="cta-card">
+            <h3 class="cta-title">Build Your Sovereign Stack</h3>
+            <p class="cta-text">Start with Bitcoin. Then expand to control your communication, your data, your health records, and your digital identity. Every tool you self-host is a step toward true sovereignty.</p>
+            <a href="/drill" class="cta-btn"><i class="fas fa-shield-alt"></i> Start Recovery Drill</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

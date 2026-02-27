@@ -1,0 +1,610 @@
+{% extends "base.html" %}
+
+{% block title %}Signal Clips | Protocol Pulse{% endblock %}
+
+{% block head %}
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --pp-red: #dc2626;
+    --pp-black: #000000;
+    --pp-glass: rgba(0, 0, 0, 0.75);
+    --pp-glass-border: rgba(255, 255, 255, 0.08);
+    --pp-blur: 45px;
+}
+
+.clips-page {
+    min-height: 100vh;
+    background: var(--pp-black);
+    padding: 100px 20px 60px;
+    position: relative;
+}
+
+.clips-page::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(ellipse at 20% 0%, rgba(220, 38, 38, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 100%, rgba(220, 38, 38, 0.04) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.clips-page > * {
+    position: relative;
+    z-index: 1;
+}
+
+.clips-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.back-nav {
+    position: fixed;
+    top: 80px;
+    left: 20px;
+    z-index: 1000;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--pp-glass);
+    border: 1px solid var(--pp-glass-border);
+    border-radius: 12px;
+    padding: 12px 20px;
+    color: #fff;
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    backdrop-filter: blur(var(--pp-blur));
+    -webkit-backdrop-filter: blur(var(--pp-blur));
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    background: rgba(220, 38, 38, 0.2);
+    border-color: var(--pp-red);
+    color: #fff;
+    transform: translateX(-3px);
+}
+
+.back-btn i {
+    color: var(--pp-red);
+}
+
+.clips-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 15px;
+    letter-spacing: -1px;
+}
+
+.clips-title i {
+    color: var(--pp-red);
+    margin-right: 15px;
+}
+
+.clips-subtitle {
+    color: rgba(255, 255, 255, 0.5);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+.clips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.clip-card {
+    background: var(--pp-glass);
+    border: 1px solid var(--pp-glass-border);
+    border-radius: 20px;
+    overflow: hidden;
+    backdrop-filter: blur(var(--pp-blur));
+    -webkit-backdrop-filter: blur(var(--pp-blur));
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.clip-card:hover {
+    border-color: var(--pp-red);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 40px rgba(220, 38, 38, 0.2);
+}
+
+.clip-video-container {
+    position: relative;
+    padding-top: 177.78%;
+    background: #000;
+}
+
+.clip-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.clip-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%);
+    display: flex;
+    align-items: flex-end;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.clip-card:hover .clip-overlay {
+    opacity: 1;
+}
+
+.play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70px;
+    height: 70px;
+    background: rgba(220, 38, 38, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.play-btn:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+    background: var(--pp-red);
+}
+
+.clip-info {
+    padding: 20px;
+}
+
+.clip-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    color: #fff;
+    margin-bottom: 10px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.clip-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.clip-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.clip-badge {
+    background: rgba(220, 38, 38, 0.2);
+    color: var(--pp-red);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.clip-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.clip-action-btn {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.clip-action-btn:hover {
+    background: rgba(220, 38, 38, 0.2);
+    border-color: var(--pp-red);
+    color: #fff;
+}
+
+.clip-publish-btn {
+    flex: 0 0 auto;
+    padding: 10px 12px;
+}
+
+.clip-publish-btn:hover {
+    transform: scale(1.1);
+}
+
+.clip-publish-btn i.fa-x-twitter {
+    color: #fff;
+}
+
+.clip-publish-btn i.fa-youtube {
+    color: #ff0000;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 100px 20px;
+    color: rgba(255, 255, 255, 0.4);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.empty-state i {
+    font-size: 5rem;
+    margin-bottom: 25px;
+    opacity: 0.2;
+}
+
+.empty-state h3 {
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 15px;
+}
+
+.clips-status {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.status-badge.active {
+    border-color: rgba(34, 197, 94, 0.4);
+    color: #22c55e;
+}
+
+.status-badge.inactive {
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+}
+
+.admin-controls {
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-btn {
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.2) 0%, rgba(220, 38, 38, 0.1) 100%);
+    border: 1px solid rgba(220, 38, 38, 0.4);
+    border-radius: 10px;
+    padding: 14px 28px;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-btn:hover {
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.3) 0%, rgba(220, 38, 38, 0.2) 100%);
+    border-color: var(--pp-red);
+    transform: translateY(-2px);
+}
+
+.admin-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.admin-btn.loading i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.admin-note {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.3);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+@media (max-width: 768px) {
+    .clips-title {
+        font-size: 1.8rem;
+    }
+    .clips-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 15px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<nav class="back-nav">
+    <a href="/" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back to Home</span>
+    </a>
+</nav>
+
+<div class="clips-page">
+    <div class="clips-header">
+        <h1 class="clips-title"><i class="fas fa-film"></i>Signal Clips</h1>
+        <p class="clips-subtitle">High-signal moments extracted from the noise</p>
+        
+        {% if status %}
+        <div class="clips-status">
+            <span class="status-badge {{ 'active' if status.ffmpeg_available else 'inactive' }}">
+                <i class="fas fa-check-circle"></i> FFmpeg
+            </span>
+            <span class="status-badge {{ 'active' if status.ytdlp_available else 'inactive' }}">
+                <i class="fas fa-check-circle"></i> yt-dlp
+            </span>
+            <span class="status-badge {{ 'active' if status.openai_configured else 'inactive' }}">
+                <i class="fas fa-brain"></i> AI
+            </span>
+            <span class="status-badge">
+                <i class="fas fa-video"></i> {{ status.clips_count }} clips
+            </span>
+        </div>
+        {% endif %}
+        
+        {% if current_user.is_authenticated and current_user.is_admin %}
+        <div class="admin-controls">
+            <button class="admin-btn" onclick="generateClips()" id="generate-btn">
+                <i class="fas fa-magic"></i> Generate Daily Clips
+            </button>
+            <span class="admin-note">Pulls from Protocol Pulse + partner channels</span>
+        </div>
+        {% endif %}
+    </div>
+    
+    {% if clips %}
+    <div class="clips-grid">
+        {% for clip in clips %}
+        <div class="clip-card">
+            <div class="clip-video-container">
+                <video class="clip-video" poster="" preload="metadata" muted>
+                    <source src="{{ clip.url }}" type="video/mp4">
+                </video>
+                <div class="play-btn" onclick="playClip(this)">
+                    <i class="fas fa-play"></i>
+                </div>
+            </div>
+            <div class="clip-info">
+                <div class="clip-title">{{ clip.filename | replace('_', ' ') | replace('.mp4', '') | truncate(40) }}</div>
+                <div class="clip-meta">
+                    <span class="clip-date">{{ clip.created[:10] }}</span>
+                    {% if clip.is_final %}
+                    <span class="clip-badge">BRANDED</span>
+                    {% endif %}
+                </div>
+                <div class="clip-actions">
+                    <a href="{{ clip.url }}" download class="clip-action-btn">
+                        <i class="fas fa-download"></i> Download
+                    </a>
+                    <button class="clip-action-btn" onclick="shareClip('{{ clip.url }}')">
+                        <i class="fas fa-share"></i> Share
+                    </button>
+                    {% if current_user.is_authenticated and current_user.is_admin %}
+                    <button class="clip-action-btn clip-publish-btn" onclick="publishToX('{{ clip.filepath }}', '{{ clip.filename | replace('_', ' ') | replace('.mp4', '') }}')" title="Post to X">
+                        <i class="fab fa-x-twitter"></i>
+                    </button>
+                    <button class="clip-action-btn clip-publish-btn" onclick="publishToYouTube('{{ clip.filepath }}', '{{ clip.filename | replace('_', ' ') | replace('.mp4', '') }}')" title="Upload to YouTube">
+                        <i class="fab fa-youtube" style="color: #ff0000;"></i>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-video-slash"></i>
+        <h3>No Clips Yet</h3>
+        <p>Signal clips from partner channels will appear here once processed.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function playClip(btn) {
+    const video = btn.parentElement.querySelector('video');
+    if (video.paused) {
+        document.querySelectorAll('.clip-video').forEach(v => {
+            v.pause();
+            v.parentElement.querySelector('.play-btn i').className = 'fas fa-play';
+        });
+        video.muted = false;
+        video.play();
+        btn.querySelector('i').className = 'fas fa-pause';
+    } else {
+        video.pause();
+        btn.querySelector('i').className = 'fas fa-play';
+    }
+}
+
+function shareClip(url) {
+    const fullUrl = window.location.origin + url;
+    if (navigator.share) {
+        navigator.share({
+            title: 'Protocol Pulse Signal Clip',
+            text: 'Check out this Bitcoin intelligence clip',
+            url: fullUrl
+        });
+    } else {
+        navigator.clipboard.writeText(fullUrl).then(() => {
+            alert('Link copied to clipboard!');
+        });
+    }
+}
+
+document.querySelectorAll('.clip-video').forEach(video => {
+    video.addEventListener('ended', () => {
+        video.parentElement.querySelector('.play-btn i').className = 'fas fa-play';
+    });
+});
+
+async function generateClips() {
+    const btn = document.getElementById('generate-btn');
+    if (!btn) return;
+    
+    btn.disabled = true;
+    btn.classList.add('loading');
+    btn.innerHTML = '<i class="fas fa-spinner"></i> Generating...';
+    
+    try {
+        const response = await fetch('/admin/api/clips/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const data = await response.json();
+        
+        if (data.clips_created > 0) {
+            alert(`Generated ${data.clips_created} new clips! Refreshing page...`);
+            window.location.reload();
+        } else if (data.errors && data.errors.length > 0) {
+            alert('Some errors occurred. Check console for details.');
+            console.log('Clip generation errors:', data.errors);
+        } else {
+            alert('No new clips generated. Daily limits may have been reached or no new videos available.');
+        }
+    } catch (error) {
+        console.error('Generate clips error:', error);
+        alert('Error generating clips. Check console for details.');
+    } finally {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        btn.innerHTML = '<i class="fas fa-magic"></i> Generate Daily Clips';
+    }
+}
+
+async function publishToX(clipPath, title) {
+    const caption = prompt('Enter caption for X post:', title);
+    if (!caption) return;
+    
+    const btn = event.target.closest('button');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    
+    try {
+        const response = await fetch('/admin/api/post-to-x', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                clip_path: clipPath,
+                caption: caption
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Posted to X! View: ' + data.tweet_url);
+            window.open(data.tweet_url, '_blank');
+        } else {
+            alert('Error: ' + (data.error || 'Failed to post'));
+        }
+    } catch (error) {
+        console.error('X post error:', error);
+        alert('Error posting to X. Check console for details.');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fab fa-x-twitter"></i>';
+    }
+}
+
+async function publishToYouTube(clipPath, title) {
+    const shortTitle = prompt('Enter title for YouTube Short:', title + ' #shorts #bitcoin');
+    if (!shortTitle) return;
+    
+    const btn = event.target.closest('button');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    
+    try {
+        const response = await fetch('/admin/api/upload-short', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                clip_path: clipPath,
+                title: shortTitle,
+                description: 'Daily Bitcoin intelligence from Protocol Pulse',
+                tags: ['bitcoin', 'crypto', 'shorts', 'btc'],
+                privacy: 'private'
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Uploaded to YouTube (as private)! Video ID: ' + data.video_id);
+        } else {
+            alert('Error: ' + (data.error || 'Failed to upload'));
+        }
+    } catch (error) {
+        console.error('YouTube upload error:', error);
+        alert('Error uploading to YouTube. Check console for details.');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fab fa-youtube" style="color: #ff0000;"></i>';
+    }
+}
+</script>
+{% endblock %}

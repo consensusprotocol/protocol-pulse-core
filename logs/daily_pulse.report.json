@@ -1,0 +1,9 @@
+{
+  "started_at": "2026-02-13T00:08:49.636634",
+  "finished_at": "2026-02-13T00:10:03.308510",
+  "output": "/home/ultron/protocol_pulse/static/media/daily_pulse.mp4",
+  "line_count": 15,
+  "gpu_hint": "cuda_visible_devices=1 expected",
+  "pipeline": "ffmpeg_local_background_drawtext",
+  "validation": "ok"
+}

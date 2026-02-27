@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Contact Submissions | Admin | Protocol Pulse{% endblock %}
+{% block content %}
+<div class="container-fluid mt-5 pt-4">
+    <h1 class="h2 text-white mb-4"><i class="fas fa-envelope text-info"></i> Contact Submissions</h1>
+    <p class="text-muted">Messages from the contact form. Optional notification email sent when CONTACT_EMAIL and SENDGRID_API_KEY are set.</p>
+
+    <div class="mb-3">
+        <a href="{{ url_for('admin_contact_submissions') }}" class="btn btn-outline-light btn-sm {{ 'active' if read_filter == '' else '' }}">All</a>
+        <a href="{{ url_for('admin_contact_submissions', read='unread') }}" class="btn btn-outline-warning btn-sm {{ 'active' if read_filter == 'unread' else '' }}">Unread ({{ unread_count }})</a>
+        <a href="{{ url_for('admin_contact_submissions', read='read') }}" class="btn btn-outline-success btn-sm {{ 'active' if read_filter == 'read' else '' }}">Read</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-dark table-hover">
+            <thead>
+                <tr>
+                    <th>Name / Email</th>
+                    <th>Subject</th>
+                    <th>Message</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sub in submissions %}
+                <tr class="{{ 'table-secondary' if sub.read else '' }}">
+                    <td>
+                        <strong>{{ sub.name }}</strong><br>
+                        <small class="text-muted"><a href="mailto:{{ sub.email }}" class="text-info">{{ sub.email }}</a></small>
+                    </td>
+                    <td>{{ sub.subject }}</td>
+                    <td style="max-width: 320px;">{{ sub.message[:200] }}{% if sub.message|length > 200 %}…{% endif %}</td>
+                    <td>{{ sub.created_at.strftime('%Y-%m-%d %H:%M') if sub.created_at else '—' }}</td>
+                    <td>
+                        {% if not sub.read %}
+                        <form method="post" action="{{ url_for('admin_contact_submission_mark_read', sub_id=sub.id) }}" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <button type="submit" class="btn btn-sm btn-outline-success">Mark read</button>
+                        </form>
+                        {% else %}
+                        <span class="text-muted">Read</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr class="{{ 'table-secondary' if sub.read else '' }}">
+                    <td colspan="5" class="small text-muted pb-3">
+                        <strong>Full message:</strong> {{ sub.message }}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" class="text-muted">No submissions yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

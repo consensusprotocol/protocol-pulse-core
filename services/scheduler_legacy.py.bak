@@ -1,0 +1,264 @@
+import schedule
+import time
+import random
+from datetime import datetime, timedelta
+from app import app, db
+from models import Article
+from services.content_generator import ContentGenerator
+import logging
+
+generator = ContentGenerator()
+
+# Diverse breaking news topics for automated generation
+BREAKING_TOPICS = [
+    "Bitcoin mining difficulty reaches new all-time high as hash rate surges",
+    "Major institutional investors allocate billions to Bitcoin treasury reserves", 
+    "Lightning Network payment volume breaks monthly records",
+    "DeFi protocols implement revolutionary new yield farming mechanisms",
+    "Central banks accelerate CBDC development in response to Bitcoin adoption",
+    "Major corporations announce Bitcoin payment integration plans",
+    "Renewable energy Bitcoin mining initiatives expand globally",
+    "DeFi total value locked reaches new milestone despite market volatility",
+    "Bitcoin ETF inflows surge as retail and institutional demand grows",
+    "Layer 2 scaling solutions see unprecedented adoption rates",
+    "Bitcoin reaches new adoption milestone in emerging markets",
+    "DeFi lending protocols revolutionize traditional banking models"
+]
+
+def generate_scheduled_article():
+    """Generate fresh breaking news articles automatically"""
+    with app.app_context():
+        try:
+            # Select random topic for variety
+            topic = random.choice(BREAKING_TOPICS)
+            
+            # Generate the article with breaking news focus
+            article_data = generator.generate_article(
+                topic=topic,
+                content_type='breaking_news',
+                source_type='ai_generated'
+            )
+            
+            if article_data:
+                article = Article()
+                article.title = article_data['title']
+                article.content = article_data['content']
+                article.summary = ""  # TL;DR embedded in content
+                article.category = article_data.get('category', 'Bitcoin')
+                article.tags = article_data.get('tags', 'bitcoin,breaking,news')
+                article.author = "Al Ingle"
+                article.seo_title = article_data.get('seo_title', article_data['title'])
+                article.seo_description = article_data.get('seo_description', article_data['title'][:150])
+                article.header_image_url = article_data.get('header_image_url')
+                article.published = True  # Auto-publish breaking news
+                article.featured = True   # Mark as featured for homepage visibility
+                db.session.add(article)
+                db.session.commit()
+                
+                logging.info(f"✅ Auto-generated breaking news: {article.title}")
+                
+                # Immediately publish to Substack (hands-off workflow)
+                try:
+                    from services.substack_service import SubstackService
+                    substack_service = SubstackService()
+                    
+                    # Format content for newsletter
+                    newsletter_content = substack_service.format_content_for_newsletter(
+                        article.content, 'bitcoin'
+                    )
+                    
+                    # Publish to Substack
+                    substack_url = substack_service.publish_to_substack(
+                        article.title,
+                        newsletter_content,
+                        article.header_image_url
+                    )
+                    
+                    if substack_url:
+                        # Update article with Substack URL
+                        article.substack_url = substack_url
+                        db.session.commit()
+                        logging.info(f"🚀 Auto-published to Substack: {substack_url}")
+                    else:
+                        logging.warning(f"⚠️ Failed to auto-publish '{article.title}' to Substack")
+                        
+                except Exception as e:
+                    logging.error(f"❌ Auto-publish to Substack failed: {e}")
+                
+                # Archive older articles to keep homepage fresh
+                archive_old_articles()
+                
+            else:
+                logging.error("❌ Failed to generate scheduled article content")
+                
+        except Exception as e:
+            logging.error(f"❌ Error in scheduled article generation: {str(e)}")
+
+def archive_old_articles():
+    """Archive articles older than 7 days to keep homepage fresh"""
+    with app.app_context():
+        try:
+            # Find articles older than 7 days that are still featured
+            archive_date = datetime.utcnow() - timedelta(days=7)
+            old_featured = Article.query.filter(
+                Article.featured == True,
+                Article.created_at < archive_date
+            ).all()
+            
+            archived_count = 0
+            for article in old_featured:
+                article.featured = False  # Remove from featured to archive
+                archived_count += 1
+            
+            if archived_count > 0:
+                db.session.commit()
+                logging.info(f"📁 Archived {archived_count} older featured articles")
+                
+        except Exception as e:
+            logging.error(f"❌ Error archiving articles: {str(e)}")
+
+def maintain_featured_count():
+    """Ensure we always have 3-6 featured articles on homepage"""
+    with app.app_context():
+        try:
+            featured_count = Article.query.filter_by(published=True, featured=True).count()
+            
+            # If we have too few featured articles, promote recent ones
+            if featured_count < 3:
+                recent_articles = Article.query.filter_by(
+                    published=True, 
+                    featured=False
+                ).order_by(Article.created_at.desc()).limit(3 - featured_count).all()
+                
+                for article in recent_articles:
+                    article.featured = True
+                
+                if recent_articles:
+                    db.session.commit()
+                    logging.info(f"📈 Promoted {len(recent_articles)} articles to featured")
+                    
+        except Exception as e:
+            logging.error(f"❌ Error maintaining featured count: {str(e)}")
+
+def run_social_monitoring():
+    """Run automated social media monitoring"""
+    with app.app_context():
+        try:
+            from services.reddit_service import RedditService
+            from services.x_service import XService
+            from services.youtube_service import YouTubeService
+            from services.ai_service import AIService
+            
+            reddit = RedditService()
+            x_service = XService()
+            youtube = YouTubeService()
+            ai = AIService()
+            trends = []
+            
+            # Monitor X handles for new posts
+            x_handles = ['CaitlinLong_', 'lopp', 'adam3us', 'woonomic', 'bitschmidty', 'LawrenceLepard', 'maxkeiser', 'jackmallers', 'TheBTCTherapist']
+            for handle in x_handles:
+                tweets = x_service.get_feedback(handle)
+                for tweet in tweets:
+                    from routes_social import take_screenshot, extract_screenshot_text
+                    screenshot = take_screenshot(f"https://x.com/{handle}/status/{tweet['id']}")
+                    screenshot_text = extract_screenshot_text(screenshot)
+                    trends.append({
+                        'type': 'x', 
+                        'title': tweet['text'], 
+                        'content': tweet['text'], 
+                        'screenshot': screenshot, 
+                        'screenshot_text': screenshot_text, 
+                        'topic': tweet['topic'], 
+                        'nuance': tweet['nuance'],
+                        'source_url': f"https://x.com/{handle}/status/{tweet['id']}"
+                    })
+            
+            # Monitor YouTube channels for new videos
+            videos = youtube.get_recent_videos()
+            for video in videos:
+                from routes_social import take_screenshot, extract_screenshot_text
+                screenshot = take_screenshot(f"https://www.youtube.com/watch?v={video['id']}")
+                screenshot_text = extract_screenshot_text(screenshot)
+                trends.append({
+                    'type': 'youtube', 
+                    'title': video['title'], 
+                    'content': video['transcript'], 
+                    'screenshot': screenshot, 
+                    'screenshot_text': screenshot_text, 
+                    'video_url': f"https://www.youtube.com/embed/{video['id']}", 
+                    'topic': video['topic'], 
+                    'nuance': video['nuance'],
+                    'source_url': f"https://www.youtube.com/watch?v={video['id']}"
+                })
+            
+            # Generate articles with auto-approval and immediate Substack publishing
+            published_count = 0
+            for trend in trends:
+                prompt = f"Write a speculative article on '{trend['title']}': Discuss implications with a sharp, provocative, investigative tone, acknowledging potential inaccuracy but exploring Web3/Bitcoin impact. Incorporate screenshot context: {trend['screenshot_text']}."
+                article_data = ai.generate_content_openai(prompt, system_prompt="You are an investigative journalist for Protocol Pulse, crafting bold, nuanced Web3 pieces.")
+                
+                # Create hyperlinked content that opens in new window
+                content_with_link = f'<p><a href="{trend["source_url"]}" target="_blank" rel="noopener">🔗 View Original Post</a></p>\n{article_data}'
+                
+                article = Article()
+                article.title = trend['title']
+                article.content = content_with_link
+                article.screenshot_url = trend['screenshot']
+                article.video_url = trend.get('video_url')
+                article.source_type = trend['type']
+                article.source_url = trend['source_url']
+                article.published = True  # Auto-approved
+                article.category = 'Web3'
+                article.author = "Al Ingle"
+                article.featured = False  # Social content not auto-featured
+                db.session.add(article)
+                db.session.commit()
+                
+                # Auto-publish to Substack
+                try:
+                    from services.substack_service import SubstackService
+                    substack_service = SubstackService()
+                    newsletter_content = substack_service.format_content_for_newsletter(article.content, 'article')
+                    substack_url = substack_service.publish_to_substack(article.title, newsletter_content, article.screenshot_url)
+                    
+                    if substack_url:
+                        article.substack_url = substack_url
+                        db.session.commit()
+                        published_count += 1
+                        logging.info(f"🚀 Auto-published social trend '{article.title}' to Substack: {substack_url}")
+                except Exception as e:
+                    logging.error(f"❌ Substack publishing failed for '{article.title}': {e}")
+            
+            logging.info(f"📱 Social monitoring completed: {len(trends)} trends found, {published_count} published to Substack")
+            
+        except Exception as e:
+            logging.error(f"❌ Social monitoring error: {str(e)}")
+
+# Schedule automated content generation
+schedule.every(15).minutes.do(generate_scheduled_article)  # Generate breaking news every 15 minutes for testing
+schedule.every(2).hours.do(run_social_monitoring)        # Monitor X/YouTube every 2 hours
+schedule.every(6).hours.do(maintain_featured_count)     # Maintain homepage freshness
+schedule.every(1).days.do(archive_old_articles)        # Daily archiving
+
+def run_scheduler():
+    """Main scheduler loop for automated content generation"""
+    logging.info("🚀 Protocol Pulse Content Scheduler Started")
+    logging.info("📰 Breaking news generation: Every 15 minutes")
+    logging.info("📱 Social monitoring (X/YouTube): Every 2 hours")
+    logging.info("📁 Article archiving: Daily")
+    logging.info("🔄 Homepage maintenance: Every 6 hours")
+    
+    while True:
+        try:
+            schedule.run_pending()
+            time.sleep(60)  # Check every minute
+        except KeyboardInterrupt:
+            logging.info("⏹️  Scheduler stopped by user")
+            break
+        except Exception as e:
+            logging.error(f"❌ Scheduler error: {str(e)}")
+            time.sleep(300)  # Wait 5 minutes before retrying
+
+if __name__ == '__main__':
+    run_scheduler()

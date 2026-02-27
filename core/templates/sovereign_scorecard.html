@@ -1,0 +1,1475 @@
+{% extends "base.html" %}
+
+{% block title %}Sovereign Scorecard | Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+:root {
+    --pp-red: #dc2626;
+    --pp-dark: #0a0a0a;
+    --pp-glass: rgba(10, 10, 10, 0.95);
+}
+
+.scorecard-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0505 100%);
+    padding: 100px 20px 60px;
+}
+
+.scorecard-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.scorecard-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.back-nav {
+    position: fixed;
+    top: 80px;
+    left: 20px;
+    z-index: 1000;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--pp-glass);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    border-radius: 12px;
+    padding: 12px 20px;
+    color: #fff;
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    backdrop-filter: blur(20px);
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    background: rgba(220, 38, 38, 0.2);
+    border-color: var(--pp-red);
+    color: #fff;
+    transform: translateX(-3px);
+}
+
+.back-btn i {
+    color: var(--pp-red);
+}
+
+.scorecard-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 15px;
+}
+
+.scorecard-title i {
+    color: var(--pp-red);
+    margin-right: 15px;
+}
+
+.scorecard-subtitle {
+    color: rgba(255, 255, 255, 0.5);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.quiz-section {
+    background: var(--pp-glass);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(20px);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.section-icon {
+    width: 45px;
+    height: 45px;
+    background: rgba(220, 38, 38, 0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--pp-red);
+    font-size: 1.2rem;
+}
+
+.section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    color: #fff;
+    font-weight: 600;
+}
+
+.quiz-question {
+    margin-bottom: 25px;
+}
+
+.question-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 12px;
+}
+
+.question-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.option-wrapper {
+    position: relative;
+    flex: 1;
+    min-width: 140px;
+}
+
+.option-btn {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 14px 20px;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.option-btn:hover {
+    background: rgba(220, 38, 38, 0.2);
+    border-color: var(--pp-red);
+    color: #fff;
+}
+
+.option-btn.selected {
+    background: var(--pp-red);
+    border-color: var(--pp-red);
+    color: #fff;
+}
+
+.option-btn.selected.green {
+    background: #22c55e;
+    border-color: #22c55e;
+}
+
+.option-btn.selected.yellow {
+    background: #eab308;
+    border-color: #eab308;
+}
+
+.info-icon {
+    font-size: 0.7rem;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+}
+
+.option-btn:hover .info-icon {
+    opacity: 1;
+}
+
+.tooltip-popup {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a1a1a;
+    border: 1px solid var(--pp-red);
+    border-radius: 12px;
+    padding: 15px 18px;
+    width: 280px;
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.tooltip-popup.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.tooltip-popup::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-top-color: var(--pp-red);
+}
+
+.tooltip-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--pp-red);
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.tooltip-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.tooltip-examples {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 8px;
+}
+
+.tooltip-examples strong {
+    color: #22c55e;
+}
+
+.submit-section {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.submit-btn {
+    background: var(--pp-red);
+    border: none;
+    border-radius: 10px;
+    padding: 18px 50px;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+    background: #b91c1c;
+    transform: translateY(-2px);
+}
+
+.submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.results-section {
+    display: none;
+}
+
+.score-display {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.score-circle {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.score-circle::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    padding: 6px;
+    background: conic-gradient(var(--score-color) calc(var(--score-percent) * 3.6deg), rgba(255,255,255,0.1) 0);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+}
+
+.score-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 3rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.score-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.score-grade {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.score-message {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+    max-width: 500px;
+    margin: 0 auto 30px;
+}
+
+.action-plan {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    border-radius: 16px;
+    padding: 25px;
+    margin-top: 25px;
+    text-align: left;
+}
+
+.action-plan-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.action-plan-header i {
+    color: var(--pp-red);
+    font-size: 1.2rem;
+}
+
+.action-plan-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    color: #fff;
+    font-weight: 600;
+}
+
+.action-category {
+    margin-bottom: 25px;
+}
+
+.action-category:last-child {
+    margin-bottom: 0;
+}
+
+.action-category-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.priority-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.priority-critical {
+    background: rgba(220, 38, 38, 0.3);
+    color: #dc2626;
+}
+
+.priority-important {
+    background: rgba(234, 179, 8, 0.3);
+    color: #eab308;
+}
+
+.priority-recommended {
+    background: rgba(34, 197, 94, 0.3);
+    color: #22c55e;
+}
+
+.action-category-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.action-item {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 12px;
+}
+
+.action-item:last-child {
+    margin-bottom: 0;
+}
+
+.action-item-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.action-item-header i {
+    color: var(--pp-red);
+    margin-top: 3px;
+}
+
+.action-item-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: #fff;
+    font-weight: 600;
+}
+
+.action-item-desc {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+    margin-bottom: 12px;
+    padding-left: 28px;
+}
+
+.action-steps {
+    padding-left: 28px;
+}
+
+.action-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.action-step-num {
+    background: var(--pp-red);
+    color: #fff;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.product-recs {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+    margin-left: 28px;
+}
+
+.product-recs-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: #22c55e;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.product-list {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.product-list span {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin: 3px 4px 3px 0;
+}
+
+.retake-btn {
+    background: transparent;
+    border: 1px solid var(--pp-red);
+    border-radius: 8px;
+    padding: 12px 30px;
+    color: var(--pp-red);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 25px;
+}
+
+.retake-btn:hover {
+    background: var(--pp-red);
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    .scorecard-title {
+        font-size: 1.6rem;
+    }
+    .quiz-section {
+        padding: 20px;
+    }
+    .option-wrapper {
+        min-width: 100%;
+    }
+    .tooltip-popup {
+        width: 250px;
+        left: 0;
+        transform: none;
+    }
+    .tooltip-popup::after {
+        left: 20%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<nav class="back-nav">
+    <a href="/" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back to Home</span>
+    </a>
+</nav>
+
+<div class="scorecard-page">
+    <div class="scorecard-container">
+        <div class="scorecard-header">
+            <h1 class="scorecard-title"><i class="fas fa-shield-halved"></i>Sovereign Scorecard</h1>
+            <p class="scorecard-subtitle">Assess your Bitcoin security posture. Hover over any option for more information. Answer honestly to receive personalized recommendations and a step-by-step action plan.</p>
+        </div>
+        
+        <div id="sovereign-calc" class="quiz-section" style="margin-bottom: 30px;">
+            <div class="section-header">
+                <div class="section-icon" style="background: rgba(34, 197, 94, 0.2);"><i class="fas fa-calculator" style="color: #22c55e;"></i></div>
+                <div class="section-title">Sovereign Calculator</div>
+            </div>
+            <p style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-bottom: 20px;">5-year fiat decay vs sat preservation analysis. See how monetary inflation erodes purchasing power while Bitcoin preserves value.</p>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 200px;">
+                    <label style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(255,255,255,0.5); display: block; margin-bottom: 8px;">BTC Amount</label>
+                    <input type="number" id="calc-btc-amount" step="0.00000001" min="0" placeholder="0.00000000" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; padding: 12px; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;">
+                </div>
+                <div style="flex: 1; min-width: 200px;">
+                    <label style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(255,255,255,0.5); display: block; margin-bottom: 8px;">USD Savings Amount</label>
+                    <input type="number" id="calc-fiat-amount" step="1" min="0" placeholder="10000" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; padding: 12px; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;">
+                </div>
+                <div style="flex: 1; min-width: 200px;">
+                    <label style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(255,255,255,0.5); display: block; margin-bottom: 8px;">Inflation Rate (%)</label>
+                    <input type="number" id="calc-inflation-rate" step="0.1" min="0" max="50" value="7" placeholder="7" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(220, 38, 38, 0.3); border-radius: 8px; padding: 12px; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;">
+                </div>
+            </div>
+            <div id="calc-result"></div>
+            <div id="decay-projection" style="margin-top: 20px;"></div>
+        </div>
+        
+        <div id="quiz-form">
+            <div class="quiz-section">
+                <div class="section-header">
+                    <div class="section-icon"><i class="fas fa-key"></i></div>
+                    <div class="section-title">Key Management</div>
+                </div>
+                
+                <div class="quiz-question" data-category="keys" data-question="custody">
+                    <div class="question-text">How do you store your Bitcoin?</div>
+                    <div class="question-options">
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="0" data-color="red">
+                                Exchange only <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup" data-tooltip="exchange">
+                                <div class="tooltip-title">Exchange Custody</div>
+                                <div class="tooltip-text">Your Bitcoin is held by a third party (like Coinbase, Kraken, or Binance). You don't control the private keys - the exchange does. If the exchange gets hacked, goes bankrupt, or freezes your account, you could lose access to your funds.</div>
+                                <div class="tooltip-examples"><strong>Risk:</strong> "Not your keys, not your coins" - exchanges have failed before (Mt. Gox, FTX)</div>
+                            </div>
+                        </div>
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="5" data-color="yellow">
+                                Hot wallet <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup" data-tooltip="hotwallet">
+                                <div class="tooltip-title">Hot Wallet</div>
+                                <div class="tooltip-text">A wallet app on your phone or computer that's connected to the internet. You control the keys, but since it's online, it's more vulnerable to hackers and malware. Good for small amounts you spend regularly.</div>
+                                <div class="tooltip-examples"><strong>Examples:</strong> BlueWallet, Muun, Phoenix, Electrum mobile</div>
+                            </div>
+                        </div>
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="8" data-color="yellow">
+                                Hardware wallet <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup" data-tooltip="hardware">
+                                <div class="tooltip-title">Hardware Wallet</div>
+                                <div class="tooltip-text">A dedicated physical device that stores your private keys offline (cold storage). Your keys never touch the internet, making it extremely secure. Required to physically press buttons on the device to approve transactions.</div>
+                                <div class="tooltip-examples"><strong>Examples:</strong> Trezor, Ledger, Coldcard, BitBox02, Foundation Passport</div>
+                            </div>
+                        </div>
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="10" data-color="green">
+                                Multisig <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup" data-tooltip="multisig">
+                                <div class="tooltip-title">Multi-Signature (Multisig)</div>
+                                <div class="tooltip-text">Requires multiple keys (e.g., 2-of-3 or 3-of-5) to authorize a transaction. Even if one key is compromised or lost, your Bitcoin remains safe. The gold standard for securing significant amounts.</div>
+                                <div class="tooltip-examples"><strong>Services:</strong> Unchained Capital, Casa, Nunchuk, Sparrow Wallet (self-custody)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="quiz-question" data-category="keys" data-question="backup">
+                    <div class="question-text">How is your seed phrase backed up?</div>
+                    <div class="question-options">
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="0" data-color="red">
+                                Not backed up <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">No Backup</div>
+                                <div class="tooltip-text">Without a backup of your 12 or 24-word seed phrase, if your wallet device is lost, stolen, or breaks, your Bitcoin is gone forever. There is no recovery option without the seed phrase.</div>
+                                <div class="tooltip-examples"><strong>Critical:</strong> An estimated 20% of all Bitcoin is lost forever due to lost keys</div>
+                            </div>
+                        </div>
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="3" data-color="red">
+                                Digital file <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">Digital Backup</div>
+                                <div class="tooltip-text">Storing your seed phrase in a text file, notes app, email, or cloud storage. While convenient, this is highly vulnerable - your computer can be hacked, cloud accounts can be breached, and photos can sync to compromised services.</div>
+                                <div class="tooltip-examples"><strong>Warning:</strong> Never take a photo of your seed phrase or store it digitally</div>
+                            </div>
+                        </div>
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="7" data-color="yellow">
+                                Paper backup <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">Paper Backup</div>
+                                <div class="tooltip-text">Writing your seed phrase on paper and storing it securely. Better than digital, but paper can be destroyed by fire, water, or fade over time. Consider laminating and storing in multiple secure locations.</div>
+                                <div class="tooltip-examples"><strong>Tip:</strong> Use a fireproof safe and consider multiple copies in different locations</div>
+                            </div>
+                        </div>
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="10" data-color="green">
+                                Metal backup <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">Metal Backup</div>
+                                <div class="tooltip-text">Stamping or engraving your seed phrase onto stainless steel or titanium plates. Survives fire (up to 1500°C), floods, and decades of storage. The most durable backup method available.</div>
+                                <div class="tooltip-examples"><strong>Products:</strong> Cryptosteel, Billfodl, Blockplate, Seedplate, ColdTI</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="quiz-section">
+                <div class="section-header">
+                    <div class="section-icon"><i class="fas fa-lock"></i></div>
+                    <div class="section-title">Access Security</div>
+                </div>
+                
+                <div class="quiz-question" data-category="access" data-question="2fa">
+                    <div class="question-text">Do you use 2FA on exchange accounts?</div>
+                    <div class="question-options">
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="0" data-color="red">
+                                No 2FA <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">No Two-Factor Authentication</div>
+                                <div class="tooltip-text">Using only a password to protect your account. If your password is leaked in a data breach or guessed, attackers have full access to your account and can steal your funds immediately.</div>
+                                <div class="tooltip-examples"><strong>Stat:</strong> 80% of hacking-related breaches involve stolen or weak credentials</div>
+                            </div>
+                        </div>
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="5" data-color="yellow">
+                                SMS 2FA <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">SMS Two-Factor Authentication</div>
+                                <div class="tooltip-text">Receiving a code via text message. Better than nothing, but vulnerable to SIM swap attacks where criminals convince your phone carrier to transfer your number to their SIM card, intercepting all your codes.</div>
+                                <div class="tooltip-examples"><strong>Risk:</strong> SIM swaps have resulted in millions of dollars in crypto theft</div>
+                            </div>
+                        </div>
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="8" data-color="yellow">
+                                Authenticator app <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">Authenticator App</div>
+                                <div class="tooltip-text">Apps that generate time-based codes (TOTP) on your phone. Much more secure than SMS since codes are generated locally and can't be intercepted. Make sure to back up your authenticator seeds.</div>
+                                <div class="tooltip-examples"><strong>Apps:</strong> Google Authenticator, Authy, Microsoft Authenticator, Aegis (open source)</div>
+                            </div>
+                        </div>
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="10" data-color="green">
+                                Hardware key <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">Hardware Security Key</div>
+                                <div class="tooltip-text">A physical USB or NFC device that you must physically plug in or tap to authenticate. Phishing-resistant because it cryptographically verifies the website is legitimate. The most secure 2FA method available.</div>
+                                <div class="tooltip-examples"><strong>Products:</strong> YubiKey, Thetis, SoloKeys, Nitrokey</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="quiz-question" data-category="access" data-question="password">
+                    <div class="question-text">How do you manage passwords?</div>
+                    <div class="question-options">
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="0" data-color="red">
+                                Same password <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">Password Reuse</div>
+                                <div class="tooltip-text">Using the same password across multiple sites. When any one site is breached (which happens constantly), attackers automatically try your credentials on crypto exchanges and financial sites.</div>
+                                <div class="tooltip-examples"><strong>Check:</strong> Visit haveibeenpwned.com to see if your emails appear in breaches</div>
+                            </div>
+                        </div>
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="4" data-color="yellow">
+                                Unique passwords <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">Unique Passwords (Memorized)</div>
+                                <div class="tooltip-text">Using different passwords for each site but trying to remember them all. Better than reusing, but leads to weak passwords or writing them down insecurely. A password manager is strongly recommended.</div>
+                                <div class="tooltip-examples"><strong>Tip:</strong> Humans can't reliably remember truly random, strong passwords for dozens of accounts</div>
+                            </div>
+                        </div>
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="10" data-color="green">
+                                Password manager <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">Password Manager</div>
+                                <div class="tooltip-text">Software that generates and securely stores unique, strong passwords for every account. You only need to remember one master password. Most security experts consider this essential for everyone.</div>
+                                <div class="tooltip-examples"><strong>Options:</strong> Bitwarden (free), 1Password, KeePassXC (offline), Proton Pass</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="quiz-section">
+                <div class="section-header">
+                    <div class="section-icon"><i class="fas fa-network-wired"></i></div>
+                    <div class="section-title">Network Sovereignty</div>
+                </div>
+                
+                <div class="quiz-question" data-category="network" data-question="node">
+                    <div class="question-text">Do you run your own Bitcoin node?</div>
+                    <div class="question-options">
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="0" data-color="red">
+                                No <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">No Personal Node</div>
+                                <div class="tooltip-text">You rely on third-party servers to verify your transactions and check your balance. This means trusting that they're showing you accurate information and not tracking your activity. Works, but isn't sovereign.</div>
+                                <div class="tooltip-examples"><strong>Privacy:</strong> Third-party servers can see which addresses you're checking</div>
+                            </div>
+                        </div>
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="5" data-color="yellow">
+                                Planning to <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">Planning to Run a Node</div>
+                                <div class="tooltip-text">You understand the importance and are considering setting one up. Modern node solutions have made this much easier than before - many are plug-and-play devices or simple software installations.</div>
+                                <div class="tooltip-examples"><strong>Getting started:</strong> Start, Umbrel, RaspiBlitz, MyNode, or Bitcoin Core on any computer</div>
+                            </div>
+                        </div>
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="10" data-color="green">
+                                Yes, full node <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">Running a Full Node</div>
+                                <div class="tooltip-text">You verify every transaction and block yourself, trusting no third party. You're contributing to Bitcoin's decentralization and security. Your wallet connects directly to your node for maximum privacy.</div>
+                                <div class="tooltip-examples"><strong>Solutions:</strong> Umbrel, RaspiBlitz, Start9, MyNode, Nodl, Bitcoin Core</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="quiz-question" data-category="network" data-question="privacy">
+                    <div class="question-text">How do you handle transaction privacy?</div>
+                    <div class="question-options">
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="0" data-color="red">
+                                No measures <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">No Privacy Measures</div>
+                                <div class="tooltip-text">All your transactions are fully traceable on the public blockchain. Chain analysis companies can link your purchases, income, and holdings. This data is sold to governments and corporations.</div>
+                                <div class="tooltip-examples"><strong>Reality:</strong> Bitcoin is pseudonymous, not anonymous - all transactions are public</div>
+                            </div>
+                        </div>
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="5" data-color="yellow">
+                                New addresses <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">New Address Per Transaction</div>
+                                <div class="tooltip-text">Using a fresh receiving address for each transaction. This is basic privacy hygiene that prevents casual observers from tracking all your transactions. Most modern wallets do this automatically.</div>
+                                <div class="tooltip-examples"><strong>Good practice:</strong> Never share the same address twice - most wallets auto-generate new ones</div>
+                            </div>
+                        </div>
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="8" data-color="yellow">
+                                VPN/Tor <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">VPN or Tor Network</div>
+                                <div class="tooltip-text">Hiding your IP address when broadcasting transactions or checking balances. Prevents your internet provider and network observers from knowing you use Bitcoin. Tor is stronger than VPN for this purpose.</div>
+                                <div class="tooltip-examples"><strong>Tools:</strong> Tor Browser, Mullvad VPN, running your node over Tor</div>
+                            </div>
+                        </div>
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="10" data-color="green">
+                                Coinjoin <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">CoinJoin</div>
+                                <div class="tooltip-text">A technique where multiple users combine their transactions, making it difficult to trace which inputs correspond to which outputs. Breaks the chain of transaction history for improved on-chain privacy.</div>
+                                <div class="tooltip-examples"><strong>Tools:</strong> Wasabi Wallet, Sparrow Wallet (Whirlpool), JoinMarket</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="quiz-section">
+                <div class="section-header">
+                    <div class="section-icon"><i class="fas fa-brain"></i></div>
+                    <div class="section-title">OPSEC Awareness</div>
+                </div>
+                
+                <div class="quiz-question" data-category="opsec" data-question="disclosure">
+                    <div class="question-text">How many people know you own Bitcoin?</div>
+                    <div class="question-options">
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="10" data-color="green">
+                                Nobody <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">Complete Discretion</div>
+                                <div class="tooltip-text">You don't discuss your Bitcoin holdings with anyone. This is the strongest operational security (OPSEC) position, eliminating social engineering and physical attack vectors entirely.</div>
+                                <div class="tooltip-examples"><strong>Principle:</strong> You can't be targeted for what people don't know you have</div>
+                            </div>
+                        </div>
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="7" data-color="yellow">
+                                Close family <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">Trusted Family Only</div>
+                                <div class="tooltip-text">Only your spouse or immediate family knows. This is reasonable for inheritance planning purposes, but ensure they understand the importance of discretion and have the knowledge to access funds if needed.</div>
+                                <div class="tooltip-examples"><strong>Important:</strong> Family members should know not to mention your holdings to others</div>
+                            </div>
+                        </div>
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="3" data-color="yellow">
+                                Friends <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">Friends Know</div>
+                                <div class="tooltip-text">Friends or acquaintances know you hold Bitcoin. Information spreads - friends tell other friends, and social dynamics change if they perceive you as wealthy. This increases your attack surface.</div>
+                                <div class="tooltip-examples"><strong>Risk:</strong> Information spreads through social networks unpredictably</div>
+                            </div>
+                        </div>
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="0" data-color="red">
+                                Public <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">Publicly Known</div>
+                                <div class="tooltip-text">You've posted about your holdings on social media, at work, or in public forums. This makes you a potential target for sophisticated phishing, social engineering, SIM swap attacks, and even physical threats.</div>
+                                <div class="tooltip-examples"><strong>Warning:</strong> "$5 wrench attacks" target known Bitcoin holders</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="quiz-question" data-category="opsec" data-question="inheritance">
+                    <div class="question-text">Do you have an inheritance plan?</div>
+                    <div class="question-options">
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="0" data-color="red">
+                                No plan <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">No Inheritance Plan</div>
+                                <div class="tooltip-text">If something happens to you, your Bitcoin could be lost forever. Unlike bank accounts, there's no institution to recover Bitcoin - if no one knows your keys, the coins are gone permanently.</div>
+                                <div class="tooltip-examples"><strong>Reality:</strong> Millions of BTC are estimated to be permanently lost</div>
+                            </div>
+                        </div>
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="5" data-color="yellow">
+                                Verbal only <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">Verbal Instructions Only</div>
+                                <div class="tooltip-text">You've told someone about your Bitcoin verbally but haven't documented anything. People forget details, especially under stress. Written documentation with clear steps is essential for heirs to actually recover funds.</div>
+                                <div class="tooltip-examples"><strong>Issue:</strong> Technical details are easily forgotten or misremembered</div>
+                            </div>
+                        </div>
+                        <div class="option-wrapper">
+                            <button class="option-btn" data-value="10" data-color="green">
+                                Documented <i class="fas fa-info-circle info-icon"></i>
+                            </button>
+                            <div class="tooltip-popup">
+                                <div class="tooltip-title">Documented Inheritance Plan</div>
+                                <div class="tooltip-text">You have written instructions, potentially with a lawyer or in a secure location, explaining how to access your Bitcoin. This may include seed phrase locations, wallet instructions, and step-by-step recovery procedures.</div>
+                                <div class="tooltip-examples"><strong>Solutions:</strong> Casa inheritance, Unchained inheritance, lawyer letters, detailed written guides</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="submit-section">
+                <button class="submit-btn" onclick="calculateScore()" disabled>Calculate My Score</button>
+            </div>
+        </div>
+        
+        <div class="results-section" id="results-section">
+            <div class="quiz-section">
+                <div class="score-display">
+                    <div class="score-circle" id="score-circle">
+                        <span class="score-value" id="score-value">0</span>
+                        <span class="score-label">/ 80</span>
+                    </div>
+                    <div class="score-grade" id="score-grade">--</div>
+                    <div class="score-message" id="score-message"></div>
+                </div>
+                
+                <div class="action-plan" id="action-plan"></div>
+                
+                <div style="text-align: center;">
+                    <button class="retake-btn" onclick="retakeQuiz()">
+                        <i class="fas fa-redo me-2"></i>Retake Assessment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const answers = {};
+let totalQuestions = 0;
+let activeTooltip = null;
+
+document.querySelectorAll('.quiz-question').forEach(q => {
+    totalQuestions++;
+    q.querySelectorAll('.option-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            if (e.target.classList.contains('info-icon')) return;
+            
+            q.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected', 'green', 'yellow'));
+            btn.classList.add('selected', btn.dataset.color);
+            
+            const question = q.dataset.question;
+            answers[question] = {
+                value: parseInt(btn.dataset.value),
+                text: btn.textContent.replace(/\s+/g, ' ').trim(),
+                color: btn.dataset.color
+            };
+            
+            checkAllAnswered();
+        });
+        
+        const wrapper = btn.closest('.option-wrapper');
+        const tooltip = wrapper.querySelector('.tooltip-popup');
+        
+        if (tooltip) {
+            let hoverTimeout;
+            
+            wrapper.addEventListener('mouseenter', () => {
+                hoverTimeout = setTimeout(() => {
+                    if (activeTooltip && activeTooltip !== tooltip) {
+                        activeTooltip.classList.remove('active');
+                    }
+                    tooltip.classList.add('active');
+                    activeTooltip = tooltip;
+                }, 300);
+            });
+            
+            wrapper.addEventListener('mouseleave', () => {
+                clearTimeout(hoverTimeout);
+                tooltip.classList.remove('active');
+                if (activeTooltip === tooltip) activeTooltip = null;
+            });
+            
+            tooltip.addEventListener('click', (e) => {
+                e.stopPropagation();
+                tooltip.classList.remove('active');
+                activeTooltip = null;
+            });
+        }
+    });
+});
+
+document.addEventListener('scroll', () => {
+    if (activeTooltip) {
+        activeTooltip.classList.remove('active');
+        activeTooltip = null;
+    }
+});
+
+function checkAllAnswered() {
+    const answered = Object.keys(answers).length;
+    document.querySelector('.submit-btn').disabled = answered < totalQuestions;
+}
+
+function calculateScore() {
+    let total = 0;
+    Object.values(answers).forEach(a => total += a.value);
+    
+    const maxScore = 80;
+    const percent = (total / maxScore) * 100;
+    
+    let grade, message, color;
+    if (percent >= 90) {
+        grade = 'SOVEREIGN';
+        message = 'Outstanding security posture. You embody true self-custody principles and are well-protected against most attack vectors.';
+        color = '#22c55e';
+    } else if (percent >= 70) {
+        grade = 'PROTECTED';
+        message = 'Good security practices. You\'ve taken important steps but there\'s room for improvement in some areas.';
+        color = '#22c55e';
+    } else if (percent >= 50) {
+        grade = 'DEVELOPING';
+        message = 'Basic security in place. Several critical areas need attention to properly protect your Bitcoin.';
+        color = '#eab308';
+    } else if (percent >= 30) {
+        grade = 'AT RISK';
+        message = 'Significant security gaps detected. Your Bitcoin is vulnerable to common attack vectors.';
+        color = '#f97316';
+    } else {
+        grade = 'CRITICAL';
+        message = 'Urgent action required. Your current setup provides minimal protection for your Bitcoin.';
+        color = '#dc2626';
+    }
+    
+    document.getElementById('quiz-form').style.display = 'none';
+    document.getElementById('results-section').style.display = 'block';
+    
+    const circle = document.getElementById('score-circle');
+    circle.style.setProperty('--score-percent', percent);
+    circle.style.setProperty('--score-color', color);
+    
+    document.getElementById('score-value').textContent = total;
+    document.getElementById('score-grade').textContent = grade;
+    document.getElementById('score-grade').style.color = color;
+    document.getElementById('score-message').textContent = message;
+    
+    generateActionPlan();
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function generateActionPlan() {
+    const critical = [];
+    const important = [];
+    const recommended = [];
+    
+    if (answers.custody?.value === 0) {
+        critical.push({
+            title: 'Move Bitcoin Off Exchanges Immediately',
+            desc: 'Keeping Bitcoin on an exchange means you don\'t truly own it. Exchange failures (Mt. Gox, FTX) have caused billions in losses.',
+            steps: [
+                'Purchase a hardware wallet (Trezor Model T ~$180, Ledger Nano X ~$150, or Coldcard ~$150)',
+                'Set up the device following official instructions - NEVER buy used or pre-configured',
+                'Write down your 24-word seed phrase on paper, verify it, then back up to metal',
+                'Send a small test transaction from the exchange to your new wallet',
+                'Once confirmed, transfer remaining balance in batches',
+                'Enable withdrawal address whitelisting on exchanges you still use'
+            ],
+            products: ['Trezor Model T', 'Ledger Nano X', 'Coldcard Mk4', 'BitBox02', 'Foundation Passport']
+        });
+    } else if (answers.custody?.value === 5) {
+        important.push({
+            title: 'Upgrade from Hot Wallet to Hardware Wallet',
+            desc: 'Hot wallets are vulnerable to malware and phone theft. Hardware wallets keep keys offline.',
+            steps: [
+                'Research hardware wallets - Trezor for beginners, Coldcard for advanced users',
+                'Order directly from manufacturer (never Amazon or eBay)',
+                'Generate new seed on the hardware device - don\'t import hot wallet seed',
+                'Back up new seed phrase to metal plate',
+                'Transfer funds from hot wallet to new hardware wallet addresses'
+            ],
+            products: ['Trezor Safe 3', 'Ledger Nano S Plus', 'Coldcard Q', 'Jade (open source)']
+        });
+    } else if (answers.custody?.value === 8) {
+        recommended.push({
+            title: 'Consider Upgrading to Multisig',
+            desc: 'For significant holdings, multisig provides redundancy - no single point of failure.',
+            steps: [
+                'Learn about 2-of-3 multisig setups (you control 2 keys, company holds 1)',
+                'Evaluate services: Unchained Capital, Casa, or self-custody with Sparrow',
+                'For DIY: get 3 different hardware wallets from different manufacturers',
+                'Use Sparrow Wallet or Electrum to coordinate multisig setup',
+                'Distribute keys geographically (home safe, bank box, trusted family)'
+            ],
+            products: ['Unchained Capital', 'Casa', 'Nunchuk', 'Sparrow Wallet (free)']
+        });
+    }
+    
+    if (answers.backup?.value <= 3) {
+        critical.push({
+            title: 'Create Proper Seed Phrase Backups',
+            desc: 'Your seed phrase is the ONLY way to recover your Bitcoin. Digital backups are hackable; paper burns.',
+            steps: [
+                'Purchase a metal seed storage device ($20-80)',
+                'Stamp or engrave your 24 words into the metal plate',
+                'Verify every word is correct by checking against your wallet',
+                'Store in a fireproof safe or safety deposit box',
+                'Consider creating a second backup in a different geographic location',
+                'Never store digitally - delete any photos or text files with your seed'
+            ],
+            products: ['Cryptosteel Capsule (~$80)', 'Billfodl (~$60)', 'Blockplate (~$100)', 'Seedplate (~$30)']
+        });
+    } else if (answers.backup?.value === 7) {
+        important.push({
+            title: 'Upgrade Paper Backup to Metal',
+            desc: 'Paper degrades, burns, and can be destroyed by water. Metal survives disasters.',
+            steps: [
+                'Order a metal backup device (steel or titanium)',
+                'Carefully stamp or slide your existing seed words into the device',
+                'Triple-check every word matches your paper backup',
+                'Store the metal backup in a secure location',
+                'Optionally keep paper as secondary backup in different location'
+            ],
+            products: ['Cryptosteel', 'Billfodl', 'SeedSigner (DIY)', 'ColdTI (titanium)']
+        });
+    }
+    
+    if (answers['2fa']?.value <= 5) {
+        critical.push({
+            title: 'Enable Strong 2FA on All Crypto Accounts',
+            desc: 'SMS 2FA is vulnerable to SIM swap attacks. Authenticator apps or hardware keys are essential.',
+            steps: [
+                'Download an authenticator app: Authy or Google Authenticator',
+                'Log into each exchange and enable TOTP (authenticator) 2FA',
+                'Save the backup codes in your password manager',
+                'For maximum security, purchase a YubiKey (~$50) for FIDO2/WebAuthn',
+                'Register the hardware key on exchanges that support it (Coinbase, Kraken, Gemini)',
+                'Disable SMS 2FA after setting up stronger alternatives'
+            ],
+            products: ['YubiKey 5 NFC (~$50)', 'Thetis FIDO2 (~$25)', 'Google Titan (~$35)']
+        });
+    }
+    
+    if (answers.password?.value < 10) {
+        important.push({
+            title: 'Start Using a Password Manager',
+            desc: 'Reusing passwords or trying to remember them leads to weak security. Password managers are essential.',
+            steps: [
+                'Choose a password manager: Bitwarden (free) or 1Password (paid)',
+                'Install browser extension and mobile app',
+                'Create a strong master password - 4+ random words you can remember',
+                'Start saving existing passwords as you log into sites',
+                'Use the generator to create new random passwords (16+ characters)',
+                'Enable 2FA on your password manager account'
+            ],
+            products: ['Bitwarden (free)', '1Password ($3/mo)', 'KeePassXC (offline, free)', 'Proton Pass']
+        });
+    }
+    
+    if (answers.node?.value < 10) {
+        recommended.push({
+            title: 'Run Your Own Bitcoin Node',
+            desc: 'Verify transactions yourself instead of trusting third parties. Protects privacy and supports the network.',
+            steps: [
+                'Choose your approach: dedicated device or personal computer',
+                'Easiest: Buy a pre-built node (Start9, Nodl) or Raspberry Pi kit (Umbrel)',
+                'DIY: Install Umbrel or RaspiBlitz on a Raspberry Pi 4 with 1TB SSD (~$200 total)',
+                'Alternative: Run Bitcoin Core on any computer with 500GB+ free space',
+                'Initial sync takes 1-7 days depending on hardware',
+                'Connect your wallet (Sparrow, Electrum) to your node for private balance checks'
+            ],
+            products: ['Umbrel (free software)', 'Start9 ($600 pre-built)', 'RaspiBlitz (DIY ~$200)', 'MyNode ($300)']
+        });
+    }
+    
+    if (answers.privacy?.value < 8) {
+        recommended.push({
+            title: 'Improve Transaction Privacy',
+            desc: 'Bitcoin transactions are public. Basic privacy measures prevent tracking of your financial activity.',
+            steps: [
+                'Configure your wallet to always generate new receiving addresses',
+                'Download Tor Browser for any Bitcoin-related web browsing',
+                'Run your Bitcoin node over Tor (most node software supports this)',
+                'For advanced privacy: Learn about CoinJoin with Wasabi or Sparrow Wallet',
+                'Avoid linking your identity to addresses (no social media posts)',
+                'Consider non-KYC Bitcoin acquisition methods for new purchases'
+            ],
+            products: ['Tor Browser (free)', 'Mullvad VPN ($5/mo)', 'Wasabi Wallet (free)', 'Sparrow Wallet (free)']
+        });
+    }
+    
+    if (answers.inheritance?.value < 10) {
+        important.push({
+            title: 'Create an Inheritance Plan',
+            desc: 'Without a plan, your Bitcoin dies with you. Document everything your heirs need to recover funds.',
+            steps: [
+                'Write down which wallets/devices hold your Bitcoin',
+                'Document exact steps to access each wallet (include PINs if using passphrase)',
+                'Explain where seed phrase backups are located',
+                'Consider multisig where heirs control one key',
+                'Store instructions in a sealed envelope with your will or lawyer',
+                'Test the plan: Could someone unfamiliar with Bitcoin follow your instructions?',
+                'Review and update annually'
+            ],
+            products: ['Casa Inheritance', 'Unchained Inheritance', 'Stamped steel plate letters', 'Lawyer consultation']
+        });
+    }
+    
+    if (answers.disclosure?.value <= 3) {
+        important.push({
+            title: 'Reduce Your Public Bitcoin Profile',
+            desc: 'Public knowledge of your holdings makes you a target for scams, hacks, and physical attacks.',
+            steps: [
+                'Audit your social media for Bitcoin-related posts',
+                'Delete or make private any posts mentioning holdings or gains',
+                'Stop discussing specific amounts with friends or online',
+                'Use pseudonymous accounts for Bitcoin community participation',
+                'Be vague if asked: "I have some crypto exposure" rather than specifics',
+                'Remember: Information spreads. Tell no one who doesn\'t need to know'
+            ],
+            products: ['N/A - behavioral change required']
+        });
+    }
+    
+    let html = '<div class="action-plan-header"><i class="fas fa-clipboard-list"></i><div class="action-plan-title">Your Personal Action Plan</div></div>';
+    
+    if (critical.length > 0) {
+        html += '<div class="action-category">';
+        html += '<div class="action-category-header"><span class="priority-badge priority-critical">Critical Priority</span><span class="action-category-title">Address These First</span></div>';
+        critical.forEach(item => {
+            html += generateActionItemHTML(item);
+        });
+        html += '</div>';
+    }
+    
+    if (important.length > 0) {
+        html += '<div class="action-category">';
+        html += '<div class="action-category-header"><span class="priority-badge priority-important">Important</span><span class="action-category-title">Address Soon</span></div>';
+        important.forEach(item => {
+            html += generateActionItemHTML(item);
+        });
+        html += '</div>';
+    }
+    
+    if (recommended.length > 0) {
+        html += '<div class="action-category">';
+        html += '<div class="action-category-header"><span class="priority-badge priority-recommended">Recommended</span><span class="action-category-title">When Ready</span></div>';
+        recommended.forEach(item => {
+            html += generateActionItemHTML(item);
+        });
+        html += '</div>';
+    }
+    
+    if (critical.length === 0 && important.length === 0 && recommended.length === 0) {
+        html += `
+            <div class="action-item" style="text-align: center; padding: 30px;">
+                <i class="fas fa-trophy" style="font-size: 3rem; color: #22c55e; margin-bottom: 15px;"></i>
+                <div class="action-item-title" style="font-size: 1.1rem; margin-bottom: 10px;">Excellent Security Posture!</div>
+                <div class="action-item-desc" style="padding-left: 0; max-width: 400px; margin: 0 auto;">
+                    You've implemented best practices across all categories. Continue staying informed about new threats and security developments. Consider helping others in the Bitcoin community level up their security.
+                </div>
+            </div>
+        `;
+    }
+    
+    document.getElementById('action-plan').innerHTML = html;
+}
+
+function generateActionItemHTML(item) {
+    let stepsHtml = '';
+    item.steps.forEach((step, i) => {
+        stepsHtml += `<div class="action-step"><span class="action-step-num">${i + 1}</span><span>${step}</span></div>`;
+    });
+    
+    let productsHtml = '';
+    if (item.products && item.products[0] !== 'N/A - behavioral change required') {
+        productsHtml = `
+            <div class="product-recs">
+                <div class="product-recs-title">Recommended Products/Services</div>
+                <div class="product-list">${item.products.map(p => `<span>${p}</span>`).join('')}</div>
+            </div>
+        `;
+    }
+    
+    return `
+        <div class="action-item">
+            <div class="action-item-header">
+                <i class="fas fa-arrow-right"></i>
+                <div class="action-item-title">${item.title}</div>
+            </div>
+            <div class="action-item-desc">${item.desc}</div>
+            <div class="action-steps">${stepsHtml}</div>
+            ${productsHtml}
+        </div>
+    `;
+}
+
+function retakeQuiz() {
+    Object.keys(answers).forEach(k => delete answers[k]);
+    document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected', 'green', 'yellow'));
+    document.querySelector('.submit-btn').disabled = true;
+    document.getElementById('quiz-form').style.display = 'block';
+    document.getElementById('results-section').style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Sovereign Calculator - 5-year fiat decay vs sat preservation
+function initSovereignCalculator() {
+    const calcContainer = document.getElementById('sovereign-calc');
+    if (!calcContainer) return;
+    
+    const btcInput = document.getElementById('calc-btc-amount');
+    const fiatInput = document.getElementById('calc-fiat-amount');
+    const inflationInput = document.getElementById('calc-inflation-rate');
+    const resultDiv = document.getElementById('calc-result');
+    const projectionDiv = document.getElementById('decay-projection');
+    
+    async function fetchBTCPrice() {
+        try {
+            const res = await fetch('https://mempool.space/api/v1/prices');
+            const data = await res.json();
+            return data.USD || 100000;
+        } catch {
+            return 100000;
+        }
+    }
+    
+    async function calculateStack() {
+        const btcPrice = await fetchBTCPrice();
+        const btcAmount = parseFloat(btcInput.value) || 0;
+        const fiatAmount = parseFloat(fiatInput.value) || 10000;
+        const inflationRate = parseFloat(inflationInput.value) || 7;
+        
+        const satsFromBTC = Math.round(btcAmount * 100000000);
+        const satsFromFiat = Math.round((fiatAmount / btcPrice) * 100000000);
+        const totalSats = satsFromBTC + satsFromFiat;
+        const totalBTC = totalSats / 100000000;
+        const fiatValue = totalBTC * btcPrice;
+        
+        resultDiv.innerHTML = `
+            <div style="margin-top: 15px; padding: 15px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px;">
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: rgba(255,255,255,0.7);">
+                    <strong style="color: #22c55e;">Stack Summary:</strong><br>
+                    Total: <strong>${totalSats.toLocaleString()}</strong> sats (${totalBTC.toFixed(8)} BTC)<br>
+                    Current Value: <strong>$${fiatValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong><br>
+                    <span style="font-size: 0.75rem; opacity: 0.7;">BTC/USD: $${btcPrice.toLocaleString()}</span>
+                </div>
+            </div>
+        `;
+        
+        // 5-year fiat decay projection
+        const years = [1, 2, 3, 4, 5];
+        let projectionHTML = `
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                    <strong style="color: #dc2626;">5-Year Fiat Decay Analysis</strong>
+                    <span style="font-size: 0.7rem; color: rgba(255,255,255,0.5);">(${inflationRate}% annual inflation)</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; text-align: center;">
+        `;
+        
+        let fiatRemaining = fiatAmount;
+        let satsPreserved = totalSats;
+        
+        years.forEach(year => {
+            fiatRemaining = fiatRemaining * (1 - inflationRate / 100);
+            const purchasingPowerLost = fiatAmount - fiatRemaining;
+            const lossPercent = ((fiatAmount - fiatRemaining) / fiatAmount * 100).toFixed(1);
+            
+            projectionHTML += `
+                <div style="background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); border-radius: 8px; padding: 12px;">
+                    <div style="font-size: 0.7rem; color: rgba(255,255,255,0.5);">Year ${year}</div>
+                    <div style="font-size: 1rem; color: #dc2626; font-weight: bold;">-${lossPercent}%</div>
+                    <div style="font-size: 0.65rem; color: rgba(255,255,255,0.4);">$${fiatRemaining.toLocaleString('en-US', {maximumFractionDigits: 0})}</div>
+                </div>
+            `;
+        });
+        
+        projectionHTML += `</div>`;
+        
+        const totalFiatLoss = fiatAmount - fiatRemaining;
+        const fiatLossPercent = ((totalFiatLoss / fiatAmount) * 100).toFixed(1);
+        
+        projectionHTML += `
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+                <div style="background: rgba(220, 38, 38, 0.15); border: 1px solid rgba(220, 38, 38, 0.4); border-radius: 10px; padding: 18px; text-align: center;">
+                    <div style="font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-bottom: 8px;">USD Purchasing Power Lost</div>
+                    <div style="font-size: 1.8rem; color: #dc2626; font-weight: bold;">-$${totalFiatLoss.toLocaleString('en-US', {maximumFractionDigits: 0})}</div>
+                    <div style="font-size: 0.7rem; color: rgba(255,255,255,0.4);">${fiatLossPercent}% destroyed by inflation</div>
+                </div>
+                <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 10px; padding: 18px; text-align: center;">
+                    <div style="font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-bottom: 8px;">Sats Preserved Forever</div>
+                    <div style="font-size: 1.8rem; color: #22c55e; font-weight: bold;">${satsPreserved.toLocaleString()}</div>
+                    <div style="font-size: 0.7rem; color: rgba(255,255,255,0.4);">100% preserved, finite supply</div>
+                </div>
+            </div>
+            <div style="margin-top: 15px; padding: 12px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; text-align: center;">
+                <span style="font-size: 0.75rem; color: #f59e0b;"><i class="fas fa-lightbulb"></i> Your ${satsPreserved.toLocaleString()} sats will still be ${satsPreserved.toLocaleString()} sats in 5 years. Only 21M BTC will ever exist.</span>
+            </div>
+        </div>`;
+        
+        projectionDiv.innerHTML = projectionHTML;
+    }
+    
+    if (btcInput) btcInput.addEventListener('input', calculateStack);
+    if (fiatInput) fiatInput.addEventListener('input', calculateStack);
+    if (inflationInput) inflationInput.addEventListener('input', calculateStack);
+    
+    // Initial calculation
+    calculateStack();
+}
+
+document.addEventListener('DOMContentLoaded', initSovereignCalculator);
+</script>
+{% endblock %}
