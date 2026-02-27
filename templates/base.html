@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#00d4aa">
+    <meta name="theme-color" content="#CC2222">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Protocol Pulse">
@@ -253,7 +253,6 @@
                 <a href="/podcasts" class="pp-search-item" data-search="podcast audio episodes">
                     <i class="fas fa-podcast"></i><span>Podcasts</span>
                 </a>
-                <a href="/value-stream" class="pp-search-item" data-search="value stream lightning payments">
                     <i class="fas fa-bolt"></i><span>Value Stream</span>
                 </a>
             </div>
@@ -382,7 +381,7 @@
     <script>
     (function() {
         var saved = localStorage.getItem('pp-theme');
-        var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        var theme = saved || 'dark';
         document.documentElement.setAttribute('data-theme', theme);
         // Sync icon on load
         var icon = document.getElementById('ppThemeIcon');
