@@ -131,7 +131,6 @@
                 <a href="/stage" class="pp-nav__link" style="color:var(--pp-teal);">Stage ⚡</a>
                 <a href="/map" class="pp-nav__link">Maps</a>
                 <a href="/merch" class="pp-nav__link">Merch</a>
-                <a href="/live" class="pp-nav__link">Live Pulse</a>
                 {% if current_user.is_authenticated %}
                     {% if current_user.is_admin %}
                     <a href="/admin/command-deck" class="pp-nav__link pp-text-amber">Admin</a>
@@ -182,7 +181,6 @@
         <a href="/nostr-signal" class="pp-nav__link"><i class="fas fa-satellite-dish" style="width:20px;"></i> Nostr Signal</a>
         <a href="/map" class="pp-nav__link"><i class="fas fa-map-marked-alt" style="width:20px;"></i> Merchant Map</a>
         <a href="/meetup-map" class="pp-nav__link"><i class="fas fa-users" style="width:20px;"></i> Meetups</a>
-        <a href="/live" class="pp-nav__link"><i class="fas fa-atom" style="width:20px;"></i> Live Pulse</a>
         <a href="/whale-watcher" class="pp-nav__link"><i class="fas fa-water" style="width:20px;"></i> Whale Watcher</a>
         <a href="/solo-slayers" class="pp-nav__link"><i class="fas fa-hammer" style="width:20px;"></i> Solo Slayers</a>
         <a href="/value-stream" class="pp-nav__link"><i class="fas fa-bolt" style="width:20px;"></i> Value Stream</a>
@@ -220,9 +218,6 @@
                 </a>
                 <a href="/bitfeed-live" class="pp-search-item" data-search="bitfeed live pulse mempool">
                     <i class="fas fa-heartbeat"></i><span>Bitfeed Live</span>
-                </a>
-                <a href="/live" class="pp-search-item" data-search="terminal blockchain visualizer">
-                    <i class="fas fa-atom"></i><span>Live Pulse</span>
                 </a>
                 <a href="/whale-watcher" class="pp-search-item" data-search="whale watcher large transactions">
                     <i class="fas fa-water"></i><span>Whale Watcher</span>
@@ -327,7 +322,6 @@
                 <div>
                     <h6 class="pp-footer__heading">Tools</h6>
                     <ul class="pp-footer__links">
-                        <li><a href="/live" class="pp-footer__link">Live Pulse</a></li>
                         <li><a href="/whale-watcher" class="pp-footer__link">Whale Watcher</a></li>
                         <li><a href="/map" class="pp-footer__link">Merchant Map</a></li>
                         <li><a href="/solo-slayers" class="pp-footer__link">Solo Slayers</a></li>
