@@ -112,6 +112,10 @@ class PriceService:
             logging.error(f"Error calculating Silver price: {e}")
         
         # Update cache
+        # Add alias keys for template compatibility
+        for _k in ["bitcoin", "gold", "silver"]:
+            prices[_k]["usd"] = prices[_k]["price"]
+            prices[_k]["usd_24h_change"] = prices[_k]["change_24h"]
         self.cache = prices
         self.last_fetch = now
         
