@@ -8343,3 +8343,22 @@ def not_found_error(error):
 def internal_error(error):
     db.session.rollback()
     return render_template('500.html'), 500
+
+# --- Dossier and Library routes (re-added) ---
+@app.route('/dossier')
+def dossier_page():
+    try:
+        return render_template('dossier.html')
+    except Exception:
+        return redirect(url_for('index'))
+
+@app.route('/dossier/classic')
+def dossier_classic():
+    try:
+        return render_template('dossier_classic.html')
+    except Exception:
+        return redirect(url_for('dossier_page'))
+
+@app.route('/library')
+def library_page():
+    return redirect('/media#books')
