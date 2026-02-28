@@ -36,8 +36,8 @@
 
     /* Accent colors */
     --pp-teal: #CC2222;
-    --pp-teal-dim: rgba(0, 212, 170, 0.15);
-    --pp-teal-glow: rgba(0, 212, 170, 0.25);
+    --pp-teal-dim: rgba(204, 34, 34, 0.15);
+    --pp-teal-glow: rgba(204, 34, 34, 0.25);
     --pp-teal-bright: #00f5c4;
     --pp-amber: #f5a623;
     --pp-amber-dim: rgba(245, 166, 35, 0.15);
@@ -52,7 +52,7 @@
     /* Borders */
     --pp-border: rgba(255, 255, 255, 0.08);
     --pp-border-hover: rgba(255, 255, 255, 0.15);
-    --pp-border-teal: rgba(0, 212, 170, 0.3);
+    --pp-border-teal: rgba(204, 34, 34, 0.3);
     --pp-border-amber: rgba(245, 166, 35, 0.3);
 
     /* Text */
@@ -77,9 +77,9 @@
     --pp-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
     --pp-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
     --pp-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
-    --pp-shadow-teal: 0 0 20px rgba(0, 212, 170, 0.15);
+    --pp-shadow-teal: 0 0 20px rgba(204, 34, 34, 0.15);
     --pp-shadow-amber: 0 0 20px rgba(245, 166, 35, 0.15);
-    --pp-shadow-glow: 0 0 40px rgba(0, 212, 170, 0.1), 0 0 80px rgba(0, 212, 170, 0.05);
+    --pp-shadow-glow: 0 0 40px rgba(204, 34, 34, 0.1), 0 0 80px rgba(204, 34, 34, 0.05);
 
     /* Motion */
     --pp-ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -104,16 +104,16 @@
     --pp-surface-3: #d5d8dc;
     --pp-surface-glass: rgba(255, 255, 255, 0.85);
 
-    --pp-teal: #00a88a;
-    --pp-teal-dim: rgba(0, 168, 138, 0.1);
-    --pp-teal-glow: rgba(0, 168, 138, 0.15);
-    --pp-teal-bright: #00c4a0;
+    --pp-teal: #CC2222;
+    --pp-teal-dim: rgba(204, 34, 34, 0.1);
+    --pp-teal-glow: rgba(204, 34, 34, 0.15);
+    --pp-teal-bright: #E03333;
     --pp-amber: #d48c1a;
     --pp-amber-dim: rgba(212, 140, 26, 0.1);
 
     --pp-border: rgba(0, 0, 0, 0.1);
     --pp-border-hover: rgba(0, 0, 0, 0.2);
-    --pp-border-teal: rgba(0, 168, 138, 0.3);
+    --pp-border-teal: rgba(204, 34, 34, 0.3);
     --pp-border-amber: rgba(212, 140, 26, 0.3);
 
     --pp-text: #1a1a2e;
@@ -124,9 +124,9 @@
     --pp-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
     --pp-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
     --pp-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
-    --pp-shadow-teal: 0 0 20px rgba(0, 168, 138, 0.1);
+    --pp-shadow-teal: 0 0 20px rgba(204, 34, 34, 0.1);
     --pp-shadow-amber: 0 0 20px rgba(212, 140, 26, 0.1);
-    --pp-shadow-glow: 0 0 40px rgba(0, 168, 138, 0.08);
+    --pp-shadow-glow: 0 0 40px rgba(204, 34, 34, 0.08);
 }
 
 /* ==========================================================================
@@ -162,7 +162,7 @@ body.pp-body::before {
     right: 0;
     bottom: 0;
     background:
-        radial-gradient(ellipse at 20% 0%, rgba(0, 212, 170, 0.03) 0%, transparent 50%),
+        radial-gradient(ellipse at 20% 0%, rgba(204, 34, 34, 0.03) 0%, transparent 50%),
         radial-gradient(ellipse at 80% 100%, rgba(245, 166, 35, 0.02) 0%, transparent 50%);
     pointer-events: none;
     z-index: 0;
@@ -521,7 +521,7 @@ img { max-width: 100%; height: auto; }
 }
 
 .pp-nav__mobile .pp-nav__link:hover {
-    background: rgba(0, 212, 170, 0.08);
+    background: rgba(204, 34, 34, 0.08);
 }
 
 /* Live pulse dot */
@@ -535,8 +535,8 @@ img { max-width: 100%; height: auto; }
 }
 
 @keyframes pp-pulse-live {
-    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0, 212, 170, 0.4); }
-    50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(0, 212, 170, 0); }
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(204, 34, 34, 0.4); }
+    50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(204, 34, 34, 0); }
 }
 
 /* ==========================================================================
@@ -559,7 +559,7 @@ img { max-width: 100%; height: auto; }
     border-radius: inherit;
     opacity: 0;
     transition: opacity var(--pp-duration-normal) ease;
-    background: linear-gradient(135deg, rgba(0, 212, 170, 0.05), transparent 60%);
+    background: linear-gradient(135deg, rgba(204, 34, 34, 0.05), transparent 60%);
     pointer-events: none;
     z-index: 0;
 }
@@ -739,7 +739,7 @@ img { max-width: 100%; height: auto; }
 .pp-btn--primary:hover {
     background: var(--pp-teal-bright);
     border-color: var(--pp-teal-bright);
-    box-shadow: 0 0 20px rgba(0, 212, 170, 0.3);
+    box-shadow: 0 0 20px rgba(204, 34, 34, 0.3);
     color: var(--pp-black);
 }
 
@@ -1471,7 +1471,7 @@ html {
 /* Tap highlight for touch devices */
 @media (hover: none) {
     .pp-card, .pp-btn, .pp-nav__link, .pp-tag {
-        -webkit-tap-highlight-color: rgba(0, 212, 170, 0.1);
+        -webkit-tap-highlight-color: rgba(204, 34, 34, 0.1);
     }
 }
 

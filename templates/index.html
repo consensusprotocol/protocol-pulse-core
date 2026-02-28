@@ -508,6 +508,10 @@
     .pp-hero__price-value { font-size: 1.5rem; }
     .pp-support-bar__text { display: none; }
 }
+[data-theme="light"] .pp-hero__title { color: #000; }
+[data-theme="light"] .pp-hero__subtitle { color: #333; }
+[data-theme="light"] .pp-hero__title-accent { color: #CC2222; }
+[data-theme="light"] .pp-hero { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); }
 </style>
 {% endblock %}
 
@@ -549,7 +553,7 @@
                 <a href="/bitfeed-live" class="pp-btn pp-btn--ghost pp-btn--lg">
                     <i class="fas fa-heartbeat"></i> Live Pulse
                 </a>
-                <a href="/stage" class="pp-btn pp-btn--ghost pp-btn--lg" style="border-color:rgba(0,212,170,0.3);color:var(--pp-teal);">
+                <a href="/stage" class="pp-btn pp-btn--ghost pp-btn--lg" style="border-color:rgba(0,212,170,0.3);color:var(--pp-red, #CC2222);">
                     <i class="fas fa-broadcast-tower"></i> Stage ⚡
                 </a>
             </div>
@@ -560,7 +564,7 @@
                 <span class="pp-hero__new-here-text">
                     Start with <a href="/dossier" class="pp-hero__new-here-link">The Dossier</a> — 32 intelligence briefs on why Bitcoin wins.
                     <span class="pp-hero__new-here-sep">·</span>
-                    <a href="/stage" class="pp-hero__new-here-link" style="color:var(--pp-teal);opacity:0.8;">Watch the Avatar Stage ⚡</a>
+                    <a href="/stage" class="pp-hero__new-here-link" style="color:var(--pp-red, #CC2222);opacity:0.8;">Watch the Avatar Stage ⚡</a>
                 </span>
             </div>
 
@@ -747,7 +751,7 @@
                     {% for podcast in featured_podcasts[:3] %}
                     <a href="/podcasts" class="pp-card pp-mb-2" style="display:flex;gap:12px;padding:14px;">
                         <div style="flex-shrink:0;width:48px;height:48px;background:var(--pp-teal-dim);border-radius:var(--pp-radius-sm);display:flex;align-items:center;justify-content:center;">
-                            <i class="fas fa-microphone" style="color:var(--pp-teal);"></i>
+                            <i class="fas fa-microphone" style="color:var(--pp-red, #CC2222);"></i>
                         </div>
                         <div style="min-width:0;">
                             <div class="pp-small" style="font-weight:600;color:var(--pp-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ podcast.title }}</div>
@@ -781,7 +785,7 @@
         <div class="pp-grid pp-grid-3 pp-stagger">
             <a href="/live" class="pp-card pp-card--stat">
                 <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-atom" style="color:var(--pp-teal);"></i>
+                    <i class="fas fa-atom" style="color:var(--pp-red, #CC2222);"></i>
                 </div>
                 <h3 class="pp-h5 pp-mb-1">Live Terminal</h3>
                 <p class="pp-small pp-text-secondary">Real-time blockchain data visualization with network stats, mempool activity, and mining metrics.</p>
@@ -795,7 +799,7 @@
             </a>
             <a href="/map" class="pp-card pp-card--stat">
                 <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-map-marked-alt" style="color:var(--pp-teal);"></i>
+                    <i class="fas fa-map-marked-alt" style="color:var(--pp-red, #CC2222);"></i>
                 </div>
                 <h3 class="pp-h5 pp-mb-1">Merchant Map</h3>
                 <p class="pp-small pp-text-secondary">Discover Bitcoin-accepting businesses worldwide. Circular economy, visualized.</p>
@@ -809,7 +813,7 @@
             </a>
             <a href="/value-stream" class="pp-card pp-card--stat">
                 <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-bolt" style="color:var(--pp-teal);"></i>
+                    <i class="fas fa-bolt" style="color:var(--pp-red, #CC2222);"></i>
                 </div>
                 <h3 class="pp-h5 pp-mb-1">Value Stream</h3>
                 <p class="pp-small pp-text-secondary">Lightning Network value flows and micro-transaction intelligence. The speed layer, analyzed.</p>
@@ -830,7 +834,7 @@
             </a>
             <a href="/network-health" class="pp-card pp-card--stat">
                 <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-heartbeat" style="color:var(--pp-teal);"></i>
+                    <i class="fas fa-heartbeat" style="color:var(--pp-red, #CC2222);"></i>
                 </div>
                 <h3 class="pp-h5 pp-mb-1">Network Health</h3>
                 <p class="pp-small pp-text-secondary">Real-time Bitcoin network vitals: mempool depth, fee rates, hashrate, difficulty, and block times.</p>
@@ -844,7 +848,7 @@
             </a>
             <a href="/stage" class="pp-card pp-card--stat" style="border-color:rgba(0,212,170,0.15);">
                 <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-broadcast-tower" style="color:var(--pp-teal);"></i>
+                    <i class="fas fa-broadcast-tower" style="color:var(--pp-red, #CC2222);"></i>
                 </div>
                 <h3 class="pp-h5 pp-mb-1">Avatar Stage</h3>
                 <p class="pp-small pp-text-secondary">24/7 Bitcoin intelligence from the AI avatar. Live sentiment, real-time transcript, partner tracking.</p>
@@ -954,7 +958,7 @@ function ppLoadVideo(el) {
     container.innerHTML = '<iframe src="https://www.youtube.com/embed?listType=playlist&list=UU_CHANNEL_ID&index=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
     // Fallback: just show a message
     if (!container.querySelector('iframe[src*="youtube"]') || true) {
-        container.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;"><i class="fas fa-podcast" style="font-size:2rem;color:var(--pp-teal);"></i><div class="pp-small pp-text-muted">Visit <a href="/podcasts" style="color:var(--pp-teal);">Podcasts</a> for the latest episodes</div></div>';
+        container.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;"><i class="fas fa-podcast" style="font-size:2rem;color:var(--pp-red, #CC2222);"></i><div class="pp-small pp-text-muted">Visit <a href="/podcasts" style="color:var(--pp-red, #CC2222);">Podcasts</a> for the latest episodes</div></div>';
     }
 }
 
