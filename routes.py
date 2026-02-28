@@ -369,17 +369,21 @@ def index():
     import os as _os
     article_image_urls = {}
     for a in (featured_articles + recent_articles + bento_articles):
-        url = (getattr(a, "header_image_url", None) or "").strip()
-        if url and url != "/static/images/default-header.png":
-            filepath = url.lstrip("/")
-            if _os.path.exists(filepath):
-                mtime = int(_os.path.getmtime(filepath))
-                url = f"{url}?v={mtime}"
-            else:
-                url = "/static/images/default-header.png"
+        ciu = (getattr(a, "cover_image_url", None) or "").strip()
+        if ciu and ciu.startswith("http"):
+            article_image_urls[a.id] = ciu
         else:
-            url = "/static/images/default-header.png"
-        article_image_urls[a.id] = url
+            url = (getattr(a, "header_image_url", None) or "").strip()
+            if url and url.startswith("http"):
+                article_image_urls[a.id] = url
+            elif url and url != "/static/images/default-header.png":
+                filepath = url.lstrip("/")
+                if _os.path.exists(filepath):
+                    article_image_urls[a.id] = url
+                else:
+                    article_image_urls[a.id] = "/static/images/default-header.png"
+            else:
+                article_image_urls[a.id] = "/static/images/default-header.png"
 
     return render_template('index.html',
                          featured_articles=featured_articles,
@@ -1270,17 +1274,21 @@ def articles():
     import os as _os
     article_image_urls = {}
     for a in (today_articles + yesterday_articles + archive_articles):
-        url = (getattr(a, "header_image_url", None) or "").strip()
-        if url and url != "/static/images/default-header.png":
-            filepath = url.lstrip("/")
-            if _os.path.exists(filepath):
-                mtime = int(_os.path.getmtime(filepath))
-                url = f"{url}?v={mtime}"
-            else:
-                url = "/static/images/default-header.png"
+        ciu = (getattr(a, "cover_image_url", None) or "").strip()
+        if ciu and ciu.startswith("http"):
+            article_image_urls[a.id] = ciu
         else:
-            url = "/static/images/default-header.png"
-        article_image_urls[a.id] = url
+            url = (getattr(a, "header_image_url", None) or "").strip()
+            if url and url.startswith("http"):
+                article_image_urls[a.id] = url
+            elif url and url != "/static/images/default-header.png":
+                filepath = url.lstrip("/")
+                if _os.path.exists(filepath):
+                    article_image_urls[a.id] = url
+                else:
+                    article_image_urls[a.id] = "/static/images/default-header.png"
+            else:
+                article_image_urls[a.id] = "/static/images/default-header.png"
 
     return render_template(
         "articles.html",
@@ -1372,15 +1380,10 @@ def article_detail(article_id):
     # Full body for display (duplicate TL;DR stripped so only Key Takeaways box shows it once)
     body_html = _article_body_without_tldr(article.content or "")
     import os as _os
-    header_image_url = (article.header_image_url or "").strip()
-    if header_image_url and header_image_url != "/static/images/default-header.png":
-        filepath = header_image_url.lstrip("/")
-        if _os.path.exists(filepath):
-            mtime = int(_os.path.getmtime(filepath))
-            header_image_url = f"{header_image_url}?v={mtime}"
-        else:
-            header_image_url = "/static/images/default-header.png"
-    else:
+    header_image_url = (getattr(article, "cover_image_url", None) or "").strip()
+    if not header_image_url or not header_image_url.startswith("http"):
+        header_image_url = (article.header_image_url or "").strip()
+    if not header_image_url or not header_image_url.startswith("http"):
         header_image_url = "/static/images/default-header.png"
     return render_template(
         "article_detail.html",
@@ -2249,7 +2252,11 @@ def api_generate_article():
             return jsonify({'error': 'Failed to generate article'}), 500
 
         ok, validation_errors = validate_article_for_publish(article_data)
-        header_url = (article_data.get('header_image_url') or '').strip() or '/static/images/default-header.png'
+        header_url = (article_data.get('cover_image_url') or '').strip()
+                if not header_url or not header_url.startswith('http'):
+                    header_url = (article_data.get('header_image_url') or '').strip()
+                if not header_url or not header_url.startswith('http'):
+                    header_url = '/static/images/default-header.png'
         if not ok:
             # Save as draft for review; never publish invalid content.
             article = models.Article(
