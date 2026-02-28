@@ -91,6 +91,7 @@ class User(UserMixin, db.Model):
 # =====================================
 
 class Article(db.Model):
+    __tablename__ = "articles"
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
@@ -209,7 +210,7 @@ class LaunchSequence(db.Model):
     dispatch_timezone = db.Column(db.String(50), default='America/New_York')
     persona_debate = db.Column(db.Text)
     is_autonomous = db.Column(db.Boolean, default=False)
-    article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
+    article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
     ground_truth = db.Column(db.Text)
     target_segment = db.Column(db.String(100))
     generated_by = db.Column(db.String(50))
@@ -846,7 +847,7 @@ class IntelligencePost(db.Model):
 
 class SentimentReport(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
+    article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
     report_date = db.Column(db.Date, nullable=False, unique=True)
     overall_sentiment = db.Column(db.String(20))
     sentiment_score = db.Column(db.Float)
@@ -862,7 +863,7 @@ class SentimentReport(db.Model):
 class SarahBrief(db.Model):
     __tablename__ = 'sarah_brief'
     id = db.Column(db.Integer, primary_key=True)
-    article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
+    article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
     brief_date = db.Column(db.Date, nullable=False, unique=True)
     macro_state = db.Column(db.Text)
     network_calibration = db.Column(db.Text)
@@ -901,7 +902,7 @@ class EmergencyFlash(db.Model):
     trigger_reason = db.Column(db.Text)
     top_signal_url = db.Column(db.String(500))
     top_signal_author = db.Column(db.String(200))
-    article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
+    article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
     acknowledged = db.Column(db.Boolean, default=False)
     acknowledged_at = db.Column(db.DateTime)
     article = db.relationship('Article', backref='emergency_flash', lazy=True)
