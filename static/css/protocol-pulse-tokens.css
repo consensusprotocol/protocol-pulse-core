@@ -1,6 +1,6 @@
 /**
  * Protocol Pulse — shared design tokens (v2)
- * Palette: #0a0a0a black, #00d4aa teal, #f5a623 amber
+ * Palette: #0a0a0a black, #CC2222 teal, #f5a623 amber
  * Use on About, Contact, Donate, Intelligence, Articles, Subscribe, and any page that should feel like the Media Hub.
  */
 :root {
@@ -15,7 +15,7 @@
     --pp-text-primary: #f0f0f0;
     --pp-text-secondary: rgba(255,255,255,0.65);
     --pp-text-muted: rgba(255,255,255,0.4);
-    --pp-accent: #00d4aa;
+    --pp-accent: #CC2222;
     --pp-accent-soft: rgba(0,212,170,0.12);
     --pp-accent-glow: rgba(0,212,170,0.18);
     --pp-bitcoin: #f7931a;

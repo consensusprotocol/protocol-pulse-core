@@ -189,7 +189,7 @@
             right: 24px;
             width: 56px;
             height: 56px;
-            background: var(--pp-teal, #00d4aa);
+            background: var(--pp-teal, #CC2222);
             border: none;
             border-radius: 50%;
             color: #0a0a0a;
@@ -250,7 +250,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--pp-teal, #00d4aa);
+            color: var(--pp-teal, #CC2222);
         }
         .pp-chat-panel__name {
             font-weight: 600;
@@ -303,7 +303,7 @@
             word-wrap: break-word;
         }
         .pp-chat-msg--user .pp-chat-msg__content {
-            background: var(--pp-teal, #00d4aa);
+            background: var(--pp-teal, #CC2222);
             color: #0a0a0a;
             border-bottom-right-radius: 4px;
         }
@@ -320,7 +320,7 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.8125rem;
         }
-        .pp-chat-msg__content a { color: var(--pp-teal, #00d4aa); text-decoration: underline; }
+        .pp-chat-msg__content a { color: var(--pp-teal, #CC2222); text-decoration: underline; }
         .pp-chat-msg--user .pp-chat-msg__content a { color: #0a0a0a; }
 
         .pp-chat-sources {
@@ -339,7 +339,7 @@
         .pp-chat-sources__link {
             display: block;
             font-size: 0.75rem;
-            color: var(--pp-teal, #00d4aa) !important;
+            color: var(--pp-teal, #CC2222) !important;
             text-decoration: none !important;
             padding: 2px 0;
             overflow: hidden;
@@ -382,13 +382,13 @@
             transition: border-color 0.2s ease;
         }
         .pp-chat-panel__input:focus {
-            border-color: var(--pp-teal, #00d4aa);
+            border-color: var(--pp-teal, #CC2222);
         }
         .pp-chat-panel__input::placeholder {
             color: var(--pp-text-muted, rgba(255,255,255,0.4));
         }
         .pp-chat-panel__send {
-            background: var(--pp-teal, #00d4aa);
+            background: var(--pp-teal, #CC2222);
             border: none;
             border-radius: 8px;
             color: #0a0a0a;
