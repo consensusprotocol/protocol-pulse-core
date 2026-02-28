@@ -121,6 +121,7 @@ class Article(db.Model):
     seo_description = db.Column(db.String(300))
     substack_url = db.Column(db.String(500))
     header_image_url = db.Column(db.String(500))
+    cover_image_url = db.Column(db.String(500))
     image_status = db.Column(db.String(30), default="ok")       # ok | needs_regen | banned | duplicate
     image_phash = db.Column(db.String(64))                      # perceptual hash hex string
     screenshot_url = db.Column(db.String(500))

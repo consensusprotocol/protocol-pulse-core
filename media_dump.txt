@@ -1,0 +1,194 @@
+===ROUTE===
+1536:@app.route('/media-terminal')
+1537:def media_terminal():
+1541:@app.route('/media')
+1542:@app.route('/media-hub')
+1543:def media_hub():
+6707:@app.route('/api/media/feed')
+6708:def api_media_feed():
+6785:@app.route('/api/media/sentiment')
+6786:def api_media_sentiment():
+6839:@app.route('/api/media/sources')
+6840:def api_media_sources():
+6985:@app.route('/api/media/ingest', methods=['POST'])
+===ROUTE_CODE===
+1536: @app.route('/media-terminal')
+1537: def media_terminal():
+1538:     """Redirect media-terminal to the unified media hub"""
+1539:     return redirect(url_for('media_hub'))
+1540: 
+1541: @app.route('/media')
+1542: @app.route('/media-hub')
+1543: def media_hub():
+1544:     """Media Hub — cinematic dark layout with real data"""
+1545:     try:
+1546:         from models import Podcast
+1547:         from services.youtube_service import YouTubeService
+1548:         import copy
+1549:         
+1550:         # ── YouTube Series ──
+1551:         youtube_service_instance = YouTubeService()
+1552:         
+1553:         series_config = {
+1554:             'everything_21m': {
+1555:                 'key': 'everything_21m',
+1556:                 'title': 'Everything Divided by 21 Million',
+1557:                 'host': 'Matty Ice & Knut Svanholm',
+1558:                 'description': 'A cinematic exploration of Bitcoin\'s relationship to time, money, freedom, and human progress.',
+1559:                 'episodes': [
+1560:                     {'id': 'FA8tvWEydcA', 'title': 'Time | Episode 1'},
+1561:                     {'id': 'VDordtHAJhg', 'title': 'Alchemy | Episode 2'},
+1562:                     {'id': 'yKbQq66AInU', 'title': 'Ownership | Episode 3'},
+1563:                     {'id': 'rkTbEpAOADI', 'title': 'Energy | Episode 4'},
+1564:                     {'id': 'qG2xYvTVkw0', 'title': 'Morality | Episode 5'},
+1565:                     {'id': 'v7xZPqcXyLk', 'title': 'Memetics | Episode 6'},
+1566:                     {'id': 'RZv_1Qcqik4', 'title': 'Symbiosis | Episode 7'},
+1567:                     {'id': 'UlYSv9SwQGk', 'title': 'Violence | Episode 8'},
+1568:                     {'id': '_ygND311kVE', 'title': 'Deflation | Episode 9'},
+1569:                     {'id': 'Nf0LtAk4VBs', 'title': 'Adoption | Episode 10'},
+1570:                     {'id': 'Gt8ycm3-NV8', 'title': 'Transition | Episode 11'},
+1571:                 ]
+1572:             },
+1573:             'big_print': {
+1574:                 'key': 'big_print',
+1575:                 'title': 'The Big Print',
+1576:                 'host': 'Matty Ice & Lawrence Lepard',
+1577:                 'description': 'How the Federal Reserve engineered the most devastating wealth extraction scheme in history.',
+1578:                 'episodes': [
+1579:                     {'id': 'W09CNU_q6Yo', 'title': 'Why Fixing the Money is the Only Way | Episode 1'},
+1580:                     {'id': 'tnthM3uaHbI', 'title': 'How Govt Stole 98.5% Since 1971 | Episode 2'},
+1581:                     {'id': 'FRH5w_joMP0', 'title': 'How Inflation Steals Your Life | Episode 3'},
+1582:                     {'id': 'JLjG8jAJxbw', 'title': 'The Path to Pure Fiat | Episode 4'},
+1583:                     {'id': 'tq_ZYhpW4Vw', 'title': 'How Powell & Yellen Broke It | Episode 5'},
+1584:                     {'id': 'Sjp-Kaic2CE', 'title': 'Austrian vs Keynesian | Episode 6'},
+1585:                     {'id': 'n6Bi8Kf6ar0', 'title': 'The Sovereign Currency Bubble | Episode 7'},
+1586:                     {'id': 'M3M61rLBTl0', 'title': 'Bitcoin is God\'s Gift | Episode 8'},
+1587:                     {'id': 'uzUEJZ38RV8', 'title': 'Bitcoin & Real Estate | Episode 9'},
+1588:                     {'id': 'y9snxWoEkaU', 'title': 'End of Centralized Power | Episode 10'},
+1589:                     {'id': 'hKa8lRDwIos', 'title': 'Digital Scarcity | Episode 11'},
+1590:                     {'id': 'FyMWELymqAM', 'title': 'Fix the Money, Fix the World | Episode 12'},
+1591:                 ]
+1592:             },
+1593:             'daylight_robbery': {
+1594:                 'key': 'daylight_robbery',
+1595:                 'title': 'Daylight Robbery',
+1596:                 'host': 'Matty Ice & Dominic Frisby',
+1597:                 'description': 'The hidden story of how taxation shaped human civilization from ancient empires to modern governments.',
+1598:                 'episodes': [
+1599:                     {'id': 'ZCc78wvwd6U', 'title': 'The Hidden History of Taxation | Episode 1'},
+1600:                     {'id': 'j_V3fjvEuS0', 'title': 'How Taxes Shaped Civilization | Episode 2'},
+1601:                     {'id': 'W_TNwftaVMk', 'title': 'Death, Taxes, or Islam | Episode 3'},
+1602:                     {'id': '3VDVbbSZYPc', 'title': 'The Peasants\' Revolt | Episode 4'},
+1603:                     {'id': 'brho571r5rY', 'title': 'Tax Wars That Created Nations | Episode 5'},
+1604:                     {'id': 'zltb_tXZiWI', 'title': 'How the Richest Controlled Nations | Episode 6'},
+1605:                     {'id': '0MDv0d-3t_k', 'title': 'How Tariffs Caused Civil War | Episode 7'},
+1606:                     {'id': 'Ym5W3t9WvB8', 'title': 'The Birth of Big Government | Episode 8'},
+1607:                     {'id': 'YUHM88mtRxU', 'title': 'Hitler, Banks & Nations | Episode 9'},
+1608:                     {'id': 'LcIT9Tgbkm8', 'title': 'How Govts Silently Rob You | Episode 10'},
+1609:                     {'id': 'VRSXUD4L2eA', 'title': 'Digital Nomads & Borderless Money | Episode 11'},
+1610:                     {'id': '1OAn6QDSsJs', 'title': 'How Data & AI Reshape Taxation | Episode 12'},
+1611:                     {'id': 'xPPbMsz8qso', 'title': 'The Perfect Tax System | Episode 13'},
+1612:                 ]
+1613:             },
+1614:             'genesis_book': {
+1615:                 'key': 'genesis_book',
+1616:                 'title': 'The Genesis Book',
+1617:                 'host': 'Matty Ice & Aaron van Wirdum',
+1618:                 'description': 'Exploring the origins of Bitcoin through Aaron van Wirdum\'s seminal work on Austrian economics and the cypherpunk movement.',
+1619:                 'episodes': [
+1620:                     {'id': 'y7KBeC4jfbo', 'title': 'Origins of Digital Cash | Episode 1'},
+1621:                     {'id': 'LNEsJjYZ57o', 'title': 'The Cypherpunks | Episode 2'},
+1622:                     {'id': 'KcTVg0b7kDw', 'title': 'Hash Cash & Digital Gold | Episode 3'},
+1623:                     {'id': 'TwkR0ncLh0Y', 'title': 'Satoshi\'s Vision | Episode 4'},
+1624:                     {'id': 'mAe_F5G6gUE', 'title': 'The Genesis Block | Episode 5'},
+1625:                 ]
+1626:             },
+1627:         }
+1628:         
+1629:         # Build series list for template
+1630:         series_list = []
+1631:         for key, s in series_config.items():
+1632:             series_list.append({
+1633:                 'key': key,
+1634:                 'title': s['title'],
+1635:                 'host': s['host'],
+1636:                 'description': s['description'],
+1637:                 'first_id': s['episodes'][0]['id'] if s['episodes'] else '',
+1638:                 'ep_count': len(s['episodes']),
+1639:             })
+1640:         
+1641:         # ── Podcast Episodes ──
+1642:         latest_episodes = Podcast.query.order_by(Podcast.published_date.desc()).limit(12).all()
+1643:         podcast_count = Podcast.query.count()
+1644:         
+1645:         # ── Books ──
+1646:         affiliate_tag = os.environ.get('AMAZON_AFFILIATE_TAG', 'protocolpulse-20')
+1647:         
+1648:         all_books = [
+1649:             {'title': 'Everything Divided by 21 Million', 'author': 'Knut Svanholm', 'amazon_url': f'https://www.amazon.com/dp/9916697191?tag={affiliate_tag}', 'featured': True, 'category': 'series', 'color': '#dc2626'},
+1650:             {'title': 'The Big Print', 'author': 'Lawrence Lepard', 'amazon_url': f'https://www.amazon.com/dp/B0DVTCVX8J?tag={affiliate_tag}', 'featured': True, 'category': 'series', 'color': '#f59e0b'},
+1651:             {'title': 'Daylight Robbery', 'author': 'Dominic Frisby', 'amazon_url': f'https://www.amazon.com/dp/0241360846?tag={affiliate_tag}', 'featured': True, 'category': 'series', 'color': '#ef4444'},
+1652:             {'title': 'The Genesis Book', 'author': 'Aaron van Wirdum', 'amazon_url': f'https://www.amazon.com/dp/B0CQLMQRH7?tag={affiliate_tag}', 'featured': True, 'category': 'series', 'color': '#8b5cf6'},
+1653:             {'title': 'The Bitcoin Standard', 'author': 'Saifedean Ammous', 'amazon_url': f'https://www.amazon.com/dp/1119473861?tag={affiliate_tag}', 'category': 'essential', 'color': '#f7931a'},
+1654:             {'title': 'Broken Money', 'author': 'Lyn Alden', 'amazon_url': f'https://www.amazon.com/dp/B0CG8985FR?tag={affiliate_tag}', 'category': 'essential', 'color': '#3b82f6'},
+1655:             {'title': 'The Fiat Standard', 'author': 'Saifedean Ammous', 'amazon_url': f'https://www.amazon.com/dp/1544526474?tag={affiliate_tag}', 'category': 'essential', 'color': '#6366f1'},
+1656:             {'title': 'Mastering Bitcoin', 'author': 'Andreas Antonopoulos', 'amazon_url': f'https://www.amazon.com/dp/1098150090?tag={affiliate_tag}', 'category': 'essential', 'color': '#f59e0b'},
+1657:             {'title': 'The Price of Tomorrow', 'author': 'Jeff Booth', 'amazon_url': f'https://www.amazon.com/dp/1999257405?tag={affiliate_tag}', 'category': 'essential', 'color': '#10b981'},
+1658:             {'title': 'Softwar', 'author': 'Jason Lowery', 'amazon_url': f'https://www.amazon.com/dp/B0BW3MTQG6?tag={affiliate_tag}', 'category': 'essential', 'color': '#ef4444'},
+1659:             {'title': 'Thank God for Bitcoin', 'author': 'Jimmy Song et al.', 'amazon_url': f'https://www.amazon.com/dp/1641991216?tag={affiliate_tag}', 'category': 'essential', 'color': '#f7931a'},
+1660:             {'title': 'The Sovereign Individual', 'author': 'Davidson & Rees-Mogg', 'amazon_url': f'https://www.amazon.com/dp/0684832720?tag={affiliate_tag}', 'category': 'essential', 'color': '#8b5cf6'},
+1661:             {'title': 'Bitcoin Billionaires', 'author': 'Ben Mezrich', 'amazon_url': f'https://www.amazon.com/dp/1250217768?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#f59e0b'},
+1662:             {'title': 'The Blocksize War', 'author': 'Jonathan Bier', 'amazon_url': f'https://www.amazon.com/dp/B08YQMC2WM?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#dc2626'},
+1663:             {'title': 'Inventing Bitcoin', 'author': 'Yan Pritzker', 'amazon_url': f'https://www.amazon.com/dp/B07MWXRWNB?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#f7931a'},
+1664:             {'title': 'The Book of Satoshi', 'author': 'Phil Champagne', 'amazon_url': f'https://www.amazon.com/dp/0996061312?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#6366f1'},
+1665:             {'title': 'Digital Gold', 'author': 'Nathaniel Popper', 'amazon_url': f'https://www.amazon.com/dp/006236250X?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#f59e0b'},
+1666:             {'title': 'Resistance Money', 'author': 'Andrew Bailey et al.', 'amazon_url': f'https://www.amazon.com/dp/1032609710?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#10b981'},
+1667:             {'title': 'Check Your Financial Privilege', 'author': 'Alex Gladstein', 'amazon_url': f'https://www.amazon.com/dp/B09V2NM9VJ?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#3b82f6'},
+1668:             {'title': 'Bitcoin is Venice', 'author': 'Allen Farrington', 'amazon_url': f'https://www.amazon.com/dp/B09TKNKFRS?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#8b5cf6'},
+1669:             {'title': 'Economics in One Lesson', 'author': 'Henry Hazlitt', 'amazon_url': f'https://www.amazon.com/dp/0517548232?tag={affiliate_tag}', 'category': 'economics', 'color': '#22c55e'},
+1670:             {'title': 'Human Action', 'author': 'Ludwig von Mises', 'amazon_url': f'https://www.amazon.com/dp/1610167317?tag={affiliate_tag}', 'category': 'economics', 'color': '#22c55e'},
+1671:             {'title': 'What Has Government Done to Our Money?', 'author': 'Murray Rothbard', 'amazon_url': f'https://www.amazon.com/dp/1610166450?tag={affiliate_tag}', 'category': 'economics', 'color': '#22c55e'},
+1672:             {'title': 'The Ethics of Money Production', 'author': 'Jorg Guido Hulsmann', 'amazon_url': f'https://www.amazon.com/dp/1610166817?tag={affiliate_tag}', 'category': 'economics', 'color': '#22c55e'},
+1673:         ]
+1674:         
+1675:         return render_template('media_hub.html',
+1676:             series_list=series_list,
+1677:             series_data=series_config,
+1678:             series_count=len(series_config),
+1679:             latest_episodes=latest_episodes,
+1680:             podcast_count=podcast_count,
+1681:             voice_count=30,
+1682:             all_books=all_books,
+1683:         )
+1684:         
+1685:     except Exception as e:
+1686:         logging.error(f"Error loading media hub: {e}")
+1687:         import traceback
+1688:         traceback.print_exc()
+1689:         return render_template('media_hub.html',
+1690:             series_list=[], series_data={}, series_count=0,
+1691:             latest_episodes=[], podcast_count=0, voice_count=0, all_books=[])
+1692: 
+1693: 
+1694: @app.route('/api/latest-episodes')
+1695: def get_latest_episodes():
+===JS===
+===CSS===
+===APIS===
+648:@app.route('/api/signal-terminal/stream')
+770:@app.route('/api/value-stream/invoice/<int:post_id>', methods=['POST'])
+847:@app.route('/api/nostr/latest/<pubkey>')
+6324:@app.route('/admin/api/collect-signals', methods=['POST'])
+6349:@app.route('/admin/api/signals')
+6393:@app.route('/api/verified-signals')
+6707:@app.route('/api/media/feed')
+6708:def api_media_feed():
+6785:@app.route('/api/media/sentiment')
+6786:def api_media_sentiment():
+6839:@app.route('/api/media/sources')
+6840:def api_media_sources():
+6985:@app.route('/api/media/ingest', methods=['POST'])
+8297:@app.route('/api/nostr-signal/feed')
+8310:@app.route('/api/nostr-signal/heat-history')
+8331:@app.route('/api/nostr-signal/ingest', methods=['POST'])
+===LINES===
