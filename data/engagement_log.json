@@ -20,6 +20,13 @@
       "text": "universities charging for degrees ai can obsolete overnight",
       "strategy": "original_viral",
       "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-03-01T19:50:15.981910+00:00",
+      "tweet_id": "unknown",
+      "text": "Courage whispers in the storm. https://x.com/MartyBent/status/2028129870954328351",
+      "strategy": "quote_tweet",
+      "confidence": 0.8
     }
   ]
 }

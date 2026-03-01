@@ -1,6 +1,201 @@
 {
   "drafts": [
     {
+      "id": "radar_1772398206_369",
+      "timestamp": "2026-03-01T20:50:06.748241+00:00",
+      "status": "post_failed",
+      "source_post_id": "2028126542455267360",
+      "source_author": "BitcoinMagazine",
+      "source_text": "JUST IN: Michael Saylor hints at buying more Bitcoin \ud83d\ude80 https://t.co/YMAoyMd1My",
+      "source_url": "https://x.com/BitcoinMagazine/status/2028126542455267360",
+      "velocity": 345.1,
+      "crowd_thesis": "Saylor's Bitcoin buying is relentless and predictable",
+      "counterpoint": "some speculate on price impact or question how much is enough",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "is there a single week where saylor isn\u2019t hinting at stacking more?",
+          "tweet_raw": "is there a single week where saylor isn\u2019t hinting at stacking more?",
+          "reply_or_quote": "reply",
+          "confidence": 0.9,
+          "radar_score": 86.8,
+          "reasoning": "captures predictability angle"
+        }
+      ],
+      "selected": {
+        "voice": "sharp",
+        "tweet": "is there a single week where saylor isn\u2019t hinting at stacking more?",
+        "radar_score": 86.8,
+        "reply_or_quote": "reply"
+      }
+    },
+    {
+      "id": "radar_1772398202_385",
+      "timestamp": "2026-03-01T20:50:02.366115+00:00",
+      "status": "post_failed",
+      "source_post_id": "2028187048197157167",
+      "source_author": "LynAldenContact",
+      "source_text": "People here are sharing the most obvious AI-generated content and video game footage as though it's real.\n\nCountless accounts here just peddle this stuff and uninformed people eat it up.\n\nCheck things before believing it or sharing it.",
+      "source_url": "https://x.com/LynAldenContact/status/2028187048197157167",
+      "velocity": 957.8,
+      "crowd_thesis": "agreement on the prevalence of fake content and need for skepticism",
+      "counterpoint": "none, comments align with original post or use humor",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "how many 'real' stories have you bought this week without a second glance?",
+          "tweet_raw": "how many 'real' stories have you bought this week without a second glance?",
+          "reply_or_quote": "reply",
+          "confidence": 0.9,
+          "radar_score": 94.5,
+          "reasoning": "provokes reflection"
+        }
+      ],
+      "selected": {
+        "voice": "sharp",
+        "tweet": "how many 'real' stories have you bought this week without a second glance?",
+        "radar_score": 94.5,
+        "reply_or_quote": "reply"
+      }
+    },
+    {
+      "id": "radar_1772398197_362",
+      "timestamp": "2026-03-01T20:49:57.825108+00:00",
+      "status": "post_failed",
+      "source_post_id": "2028126442211668329",
+      "source_author": "saylor",
+      "source_text": "The Turn of the Century. https://t.co/6xiyuZrzVk",
+      "source_url": "https://x.com/saylor/status/2028126442211668329",
+      "velocity": 3059.3,
+      "crowd_thesis": "saylor's Bitcoin purchases signal strength for MSTR and BTC",
+      "counterpoint": "some doubt if he's actually buying or suggest unrelated assets",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "how many centuries can one man turn before the market catches up?",
+          "tweet_raw": "how many centuries can one man turn before the market catches up?",
+          "reply_or_quote": "reply",
+          "confidence": 0.9,
+          "radar_score": 94.5,
+          "reasoning": "witty specific jab"
+        }
+      ],
+      "selected": {
+        "voice": "sharp",
+        "tweet": "how many centuries can one man turn before the market catches up?",
+        "radar_score": 94.5,
+        "reply_or_quote": "reply"
+      }
+    },
+    {
+      "id": "radar_1772376610_199",
+      "timestamp": "2026-03-01T14:50:10.266914+00:00",
+      "status": "below_threshold",
+      "source_post_id": "2028085743168438506",
+      "source_author": "PeterMcCormack",
+      "source_text": "Tice tied up in knots here.\nVery good questioning from @lewis_goodall https://t.co/lu9rrkzvJr",
+      "source_url": "https://x.com/PeterMcCormack/status/2028085743168438506",
+      "velocity": 146.4,
+      "crowd_thesis": "Lewis Goodall's questioning is sharp and effective.",
+      "counterpoint": "none",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "is this the kind of grilling we\u2019ve been missing in political interviews?",
+          "tweet_raw": "is this the kind of grilling we\u2019ve been missing in political interviews?",
+          "reply_or_quote": "reply",
+          "confidence": 0.9,
+          "radar_score": 76.8,
+          "reasoning": "provokes thought"
+        }
+      ],
+      "selected": null
+    },
+    {
+      "id": "radar_1772376606_941",
+      "timestamp": "2026-03-01T14:50:06.627909+00:00",
+      "status": "below_threshold",
+      "source_post_id": "2027928728131514670",
+      "source_author": "BitcoinMagazine",
+      "source_text": "JUST IN: Bitcoin climbs back to $68,084 after crashing to $63,178 earlier today \ud83d\ude80 https://t.co/ZkQvW9Fm53",
+      "source_url": "https://x.com/BitcoinMagazine/status/2027928728131514670",
+      "velocity": 155.1,
+      "crowd_thesis": "optimism about a potential bull run",
+      "counterpoint": "none",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "68k already? are we skipping the foreplay this time?",
+          "tweet_raw": "68k already? are we skipping the foreplay this time?",
+          "reply_or_quote": "reply",
+          "confidence": 0.9,
+          "radar_score": 77.3,
+          "reasoning": "witty angle"
+        }
+      ],
+      "selected": null
+    },
+    {
+      "id": "radar_1772376602_635",
+      "timestamp": "2026-03-01T14:50:02.948434+00:00",
+      "status": "below_threshold",
+      "source_post_id": "2028079878608744752",
+      "source_author": "PeterMcCormack",
+      "source_text": "Very odd, I provided @Femi_sorry with some free legal advice and he blocked me.\n\nWhat a strange man. https://t.co/7UvdPw7OWR",
+      "source_url": "https://x.com/PeterMcCormack/status/2028079878608744752",
+      "velocity": 162.2,
+      "crowd_thesis": "Femi blocked Peter out of fear or inability to handle the advice.",
+      "counterpoint": "none",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "did the legal advice hit a little too close to home for femi to handle?",
+          "tweet_raw": "did the legal advice hit a little too close to home for femi to handle?",
+          "reply_or_quote": "reply",
+          "confidence": 0.9,
+          "radar_score": 77.6,
+          "reasoning": "probes motive slyly"
+        }
+      ],
+      "selected": null
+    },
+    {
+      "id": "radar_1772376597_948",
+      "timestamp": "2026-03-01T14:49:57.390562+00:00",
+      "status": "post_failed",
+      "source_post_id": "2027911708770242669",
+      "source_author": "saylor",
+      "source_text": "Stretch Dividend Rate increased by 25 bps to 11.50% for March 2026. $STRC https://t.co/G52tLsypsH",
+      "source_url": "https://x.com/saylor/status/2027911708770242669",
+      "velocity": 679.4,
+      "crowd_thesis": "Mixed reactions; many see 11.5% yield as attractive, others question necessity or sustainability",
+      "counterpoint": "Some call it unnecessary or a potential Ponzi scheme",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "11.5% yield on a nasdaq ticker? how long until the yield hunters turn this into a volatility trap?",
+          "tweet_raw": "11.5% yield on a nasdaq ticker? how long until the yield hunters turn this into a volatility trap?",
+          "reply_or_quote": "reply",
+          "confidence": 0.88,
+          "radar_score": 93.4,
+          "reasoning": "questions sustainability"
+        }
+      ],
+      "selected": {
+        "voice": "sharp",
+        "tweet": "11.5% yield on a nasdaq ticker? how long until the yield hunters turn this into a volatility trap?",
+        "radar_score": 93.4,
+        "reply_or_quote": "reply"
+      }
+    },
+    {
       "id": "radar_1772267191_298",
       "timestamp": "2026-02-28T08:26:31.829235+00:00",
       "status": "outside_hours",
