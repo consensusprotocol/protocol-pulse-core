@@ -1,0 +1,83 @@
+# REPLIT AGENT TASK: Permanently Fix Article Images
+
+## THE PROBLEM
+All articles show a dark placeholder image (default-header.png) instead of unique cover images. This has been "fixed" multiple times but keeps breaking. I need you to find the root cause, fix it permanently, and show me exactly what code was causing it.
+
+## CRITICAL CONTEXT
+- Database table is `articles` (NOT `article` — there's an orphan `article` table with 2 rows, IGNORE IT)
+- The `articles` table has 1,587 rows and these image-related columns:
+  - `header_image_url` — contains LOCAL filesystem paths like `/static/images/headers/header_Bitcoin_...` (these break every time Replit restarts because the filesystem is ephemeral)
+  - `cover_image` — also contains local filesystem paths (same problem)
+  - `cover_image_url` — NEW column, supposed to hold external Pexels URLs that survive restarts. Some rows have been populated but most are still NULL.
+
+## WHAT YOU NEED TO DO
+
+### Step 1: AUDIT — Show me every line of code that references article images
+Search the entire codebase for:
+- `header_image_url`
+- `cover_image`
+- `cover_image_url`
+- `default-header`
+- `default_header`
+
+Show me every file and line number. I need to see the full picture of what's broken.
+
+### Step 2: FIX THE IMAGE SELECTION LOGIC
+In routes.py, there are 3-4 places where article image URLs are built for templates. The logic currently:
+1. Reads `header_image_url` (local path)
+2. Checks if the LOCAL FILE exists on disk (it never does after restart)
+3. Falls back to default-header.png
+
+Change ALL of these to:
+1. First check `cover_image_url` — if it starts with `http`, use it directly (external URL, no disk check)
+2. Then check `cover_image` — same logic
+3. Then check `header_image_url` — same logic
+4. Last resort: default-header.png
+
+This must be fixed in:
+- Homepage route (article_image_urls dict builder for featured/recent articles)
+- Articles listing route (article_image_urls dict builder for today/yesterday/archive)
+- Article detail route (single article view)
+- Any API endpoint that returns article JSON
+- Any template that directly references article image fields
+
+### Step 3: FIX THE MODEL
+In models.py, the Article model must have `cover_image_url` as an attribute mapped to the DB column. Verify it exists. If not, add it.
+
+### Step 4: BACKFILL MISSING IMAGES
+Write a script that:
+1. Queries: SELECT count(*) FROM articles WHERE cover_image_url IS NULL OR cover_image_url = ''
+2. For each article missing cover_image_url:
+   - Extract 2-3 keywords from the title
+   - Call Pexels API: GET https://api.pexels.com/v1/search?query=KEYWORDS&per_page=1 with header Authorization: (use PEXELS_API_KEY from env)
+   - Update cover_image_url with photos[0].src.large
+   - Sleep 0.4s between calls (rate limit)
+3. Run until all articles have cover_image_url
+
+### Step 5: ADD A GUARD — PREVENT FUTURE DEFAULT-HEADER.PNG
+Add middleware or a post-save hook that:
+- BLOCKS any new article from being saved with header_image_url = '/static/images/default-header.png'
+- If no proper cover_image_url is set during article creation, auto-fetch a Pexels image
+- Log any attempt to use the banned default image
+
+### Step 6: VERIFY
+After all fixes:
+- Load /articles — every article card must show a unique Pexels photo
+- Load any individual article — header image must be a Pexels photo
+- Load homepage — featured articles must show Pexels photos
+- grep the codebase for "default-header" — should only appear as the absolute last fallback, never as the primary source
+- Run: SELECT count(*) FROM articles WHERE cover_image_url IS NULL — must return 0
+
+### Step 7: SHOW ME THE ROOT CAUSE
+After fixing, write a brief summary explaining:
+1. Exactly which files and line numbers had the broken logic
+2. What the old code was doing wrong
+3. What you changed and why
+4. How the guard prevents this from recurring
+
+## RULES
+- The `articles` table is the real one (1,587 rows). NOT `article`.
+- External URLs (https://...) are the ONLY reliable image source. Local filesystem paths WILL break.
+- PEXELS_API_KEY is in Replit Secrets
+- After changes, reload workers: kill -HUP $(pgrep -f gunicorn | head -1)
+- Test EVERYTHING before claiming done

@@ -1,6 +1,151 @@
 {
   "drafts": [
     {
+      "id": "radar_1772267191_298",
+      "timestamp": "2026-02-28T08:26:31.829235+00:00",
+      "status": "outside_hours",
+      "source_post_id": "2027502743254945836",
+      "source_author": "BitcoinMagazine",
+      "source_text": "JUST IN: Morgan Stanley applies for national trust bank charter to allow the Wall Street bank to custody Bitcoin and crypto assets \u2014 Bloomberg \ud83d\ude80",
+      "source_url": "https://x.com/BitcoinMagazine/status/2027502743254945836",
+      "velocity": 180.5,
+      "crowd_thesis": "Wall Street's involvement signals Bitcoin's integration into mainstream finance",
+      "counterpoint": "Misleading headline; Bloomberg didn't specifically mention Bitcoin",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "so morgan stanley wants to custody crypto. when did wall street become the rebellion\u2019s storage unit?",
+          "tweet_raw": "so morgan stanley wants to custody crypto. when did wall street become the rebellion\u2019s storage unit?",
+          "reply_or_quote": "reply",
+          "confidence": 0.9,
+          "radar_score": 78.5,
+          "reasoning": "witty irony"
+        }
+      ],
+      "selected": {
+        "voice": "sharp",
+        "tweet": "so morgan stanley wants to custody crypto. when did wall street become the rebellion\u2019s storage unit?",
+        "radar_score": 78.5,
+        "reply_or_quote": "reply"
+      }
+    },
+    {
+      "id": "radar_1772267187_497",
+      "timestamp": "2026-02-28T08:26:27.894073+00:00",
+      "status": "below_threshold",
+      "source_post_id": "2027410352762151061",
+      "source_author": "BitcoinMagazine",
+      "source_text": "JUST IN: Historically, Bitcoin has always bottomed ~23 months after its previous all time high.\n\nWe are now at 23 months since the last ATH \ud83d\udc40\n\nBullish! \ud83d\ude80 https://t.co/8ytXXVoZqN",
+      "source_url": "https://x.com/BitcoinMagazine/status/2027410352762151061",
+      "velocity": 192.9,
+      "crowd_thesis": "disagreement on the last ATH date and data accuracy",
+      "counterpoint": "some still see bullish signals despite the debate",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "so which ath are we counting from? october's 126k or something else? data's only as good as the starting line",
+          "tweet_raw": "so which ath are we counting from? october's 126k or something else? data's only as good as the starting line.",
+          "reply_or_quote": "reply",
+          "confidence": 0.9,
+          "radar_score": 76.1,
+          "reasoning": "questions accuracy directly"
+        }
+      ],
+      "selected": null
+    },
+    {
+      "id": "radar_1772267183_642",
+      "timestamp": "2026-02-28T08:26:23.796595+00:00",
+      "status": "outside_hours",
+      "source_post_id": "2027322079251480694",
+      "source_author": "PeterMcCormack",
+      "source_text": "Reform is finished.\nThey had their chance and blew it.\n\nDefeat in Gorton will see them swing more left, more establishment.\n\nThere will be only one anti-establishment, freedom based movement at the next general election.\n\nRupert will win.",
+      "source_url": "https://x.com/PeterMcCormack/status/2027322079251480694",
+      "velocity": 298.6,
+      "crowd_thesis": "Reform doubled votes in a Labour stronghold, showing strength despite loss.",
+      "counterpoint": "Peter predicts Reform will swing left, establishment.",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "doubling votes in a red fortress is a loss? curious how you define winning then.",
+          "tweet_raw": "doubling votes in a red fortress is a loss? curious how you define winning then.",
+          "reply_or_quote": "reply",
+          "confidence": 0.9,
+          "radar_score": 84.4,
+          "reasoning": "challenges narrative"
+        }
+      ],
+      "selected": {
+        "voice": "sharp",
+        "tweet": "doubling votes in a red fortress is a loss? curious how you define winning then.",
+        "radar_score": 84.4,
+        "reply_or_quote": "reply"
+      }
+    },
+    {
+      "id": "radar_1772267179_103",
+      "timestamp": "2026-02-28T08:26:19.678638+00:00",
+      "status": "outside_hours",
+      "source_post_id": "2027407947069010174",
+      "source_author": "saylor",
+      "source_text": "Probably Nothing. $STRC https://t.co/baJkksX9fC",
+      "source_url": "https://x.com/saylor/status/2027407947069010174",
+      "velocity": 633.3,
+      "crowd_thesis": "mixed reactions - some see $STRC as irrelevant, others as promising",
+      "counterpoint": "concerns about $MSTR equity value at certain BTC prices",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "is $STRC just noise or the next big pivot? saylor\u2019s got us guessing",
+          "tweet_raw": "is $STRC just noise or the next big pivot? saylor\u2019s got us guessing.",
+          "reply_or_quote": "reply",
+          "confidence": 0.87,
+          "radar_score": 92.8,
+          "reasoning": "probes intent"
+        }
+      ],
+      "selected": {
+        "voice": "sharp",
+        "tweet": "is $STRC just noise or the next big pivot? saylor\u2019s got us guessing",
+        "radar_score": 92.8,
+        "reply_or_quote": "reply"
+      }
+    },
+    {
+      "id": "radar_1772267175_130",
+      "timestamp": "2026-02-28T08:26:15.337146+00:00",
+      "status": "outside_hours",
+      "source_post_id": "2027497043833590191",
+      "source_author": "saylor",
+      "source_text": "$STRC closed at par \u2014 $100.00. https://t.co/rQdGLJzEj6",
+      "source_url": "https://x.com/saylor/status/2027497043833590191",
+      "velocity": 663.5,
+      "crowd_thesis": "Closing at $100 reflects stability and confidence in $STRC.",
+      "counterpoint": "Some see it as overvalued or a pump and dump.",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "hitting $100 isn\u2019t just a number\u2014it\u2019s a signal. how many assets can claim this kind of trust right now?",
+          "tweet_raw": "hitting $100 isn\u2019t just a number\u2014it\u2019s a signal. how many assets can claim this kind of trust right now?",
+          "reply_or_quote": "reply",
+          "confidence": 0.9,
+          "radar_score": 91.5,
+          "reasoning": "adds depth"
+        }
+      ],
+      "selected": {
+        "voice": "sharp",
+        "tweet": "hitting $100 isn\u2019t just a number\u2014it\u2019s a signal. how many assets can claim this kind of trust right now?",
+        "radar_score": 91.5,
+        "reply_or_quote": "reply"
+      }
+    },
+    {
       "id": "radar_1772170741_247",
       "timestamp": "2026-02-27T05:39:01.412293+00:00",
       "status": "below_threshold",
