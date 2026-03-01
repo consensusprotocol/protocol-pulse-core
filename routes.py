@@ -28,6 +28,7 @@ from pathlib import Path
 import models
 from datetime import datetime, timedelta
 
+
 # Initialize services
 ai_service = AIService()
 reddit_service = RedditService()
@@ -574,6 +575,7 @@ def signal_terminal():
     from services.value_stream_service import value_stream_service
     from models import CuratedPost, ValueCreator, ZapEvent
     from datetime import datetime, timedelta
+
     
     posts = value_stream_service.get_value_stream_enhanced(limit=50)
     curators = value_stream_service.get_top_curators(limit=10)
@@ -601,6 +603,7 @@ def api_get_post_details(post_id):
     """Get detailed post info for Signal Terminal inspector"""
     from models import CuratedPost, ZapEvent
     from datetime import datetime, timedelta
+
     
     post = CuratedPost.query.get(post_id)
     if not post:
@@ -650,6 +653,7 @@ def signal_terminal_stream():
     """SSE endpoint for real-time Signal Terminal updates with heartbeat"""
     from models import CuratedPost, ZapEvent
     from datetime import datetime, timedelta
+
     import time
     import json
     
@@ -2253,10 +2257,10 @@ def api_generate_article():
 
         ok, validation_errors = validate_article_for_publish(article_data)
         header_url = (article_data.get('cover_image_url') or '').strip()
-                if not header_url or not header_url.startswith('http'):
-                    header_url = (article_data.get('header_image_url') or '').strip()
-                if not header_url or not header_url.startswith('http'):
-                    header_url = '/static/images/default-header.png'
+        if not header_url or not header_url.startswith('http'):
+            header_url = (article_data.get('header_image_url') or '').strip()
+        if not header_url or not header_url.startswith('http'):
+            header_url = '/static/images/default-header.png'
         if not ok:
             # Save as draft for review; never publish invalid content.
             article = models.Article(
@@ -3648,6 +3652,7 @@ def api_network_stats():
 def api_live_tweets():
     """API endpoint to get live tweets from designated Bitcoin thought leaders"""
     from datetime import datetime, timedelta
+
     import random
     
     sovereign_handles = [
@@ -3942,6 +3947,7 @@ def automation_health():
     """Health check endpoint for automation monitoring"""
     from services.automation import get_last_run_status
     from datetime import datetime, timedelta
+
     
     status = get_last_run_status()
     
