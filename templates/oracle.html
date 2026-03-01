@@ -2,456 +2,276 @@
 {% block title %}The Oracle — Protocol Pulse{% endblock %}
 {% block head %}
 <meta name="description" content="The Oracle - Bitcoin AI Intelligence by Protocol Pulse">
-{% endblock %}
-{% block content %}
 <style>
 :root{--oracle-bg:#0a0a0a;--oracle-surface:#111;--oracle-border:#1a1a1a;--oracle-red:#dc2626;--oracle-red-dim:#991b1b;--oracle-text:#e5e5e5;--oracle-muted:#888;--oracle-glass:rgba(20,20,20,0.85)}
 *{box-sizing:border-box}
 .oracle-page{min-height:100vh;background:var(--oracle-bg);color:var(--oracle-text);font-family:'JetBrains Mono',monospace;display:flex;flex-direction:column;align-items:center;padding:1rem}
-.oracle-header{text-align:center;margin:1rem 0 0.5rem}
-.oracle-header h1{font-size:1.5rem;font-weight:700;letter-spacing:2px;color:#fff}
-.oracle-header h1 span{color:var(--oracle-red)}
-.oracle-header p{font-size:0.75rem;color:var(--oracle-muted);margin-top:0.25rem;letter-spacing:1px}
-.oracle-main{display:flex;flex-direction:column;align-items:center;width:100%;max-width:700px;flex:1}
-.avatar-container{position:relative;width:280px;height:280px;margin:1rem auto;border-radius:50%;overflow:hidden;border:2px solid var(--oracle-red-dim);box-shadow:0 0 40px rgba(220,38,38,0.15)}
-.avatar-container.thinking{animation:oracle-pulse 1.5s ease-in-out infinite}
-.avatar-container.speaking{border-color:var(--oracle-red);box-shadow:0 0 60px rgba(220,38,38,0.3)}
-@keyframes oracle-pulse{0%,100%{box-shadow:0 0 40px rgba(220,38,38,0.15)}50%{box-shadow:0 0 80px rgba(220,38,38,0.4)}}
-@keyframes oracle-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.008)}}
-#oracle-canvas{width:100%;height:100%;display:block}
-.avatar-status{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:0.6rem;color:var(--oracle-red);letter-spacing:2px;text-transform:uppercase;opacity:0;transition:opacity 0.3s}
-.avatar-container.thinking .avatar-status,.avatar-container.speaking .avatar-status{opacity:1}
-.chat-area{width:100%;flex:1;display:flex;flex-direction:column;margin-top:0.5rem}
-.messages{flex:1;overflow-y:auto;max-height:40vh;padding:0.5rem;display:flex;flex-direction:column;gap:0.75rem;scrollbar-width:thin;scrollbar-color:var(--oracle-red-dim) transparent}
-.messages::-webkit-scrollbar{width:4px}
-.messages::-webkit-scrollbar-thumb{background:var(--oracle-red-dim);border-radius:2px}
-.msg{max-width:85%;padding:0.75rem 1rem;border-radius:12px;font-size:0.85rem;line-height:1.5;animation:msg-in 0.3s ease-out}
-@keyframes msg-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.msg-user{align-self:flex-end;background:var(--oracle-red-dim);color:#fff;border-bottom-right-radius:4px}
-.msg-oracle{align-self:flex-start;background:var(--oracle-glass);border:1px solid var(--oracle-border);color:var(--oracle-text);border-bottom-left-radius:4px;backdrop-filter:blur(8px)}
-.msg-oracle .oracle-label{font-size:0.65rem;color:var(--oracle-red);margin-bottom:0.25rem;letter-spacing:1px}
-.typing-indicator{align-self:flex-start;display:none;padding:0.75rem 1rem;background:var(--oracle-glass);border:1px solid var(--oracle-border);border-radius:12px;border-bottom-left-radius:4px}
-.typing-indicator.active{display:flex;gap:4px;align-items:center}
-.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--oracle-red);animation:typing 1.4s infinite}
-.typing-dot:nth-child(2){animation-delay:0.2s}
-.typing-dot:nth-child(3){animation-delay:0.4s}
-@keyframes typing{0%,60%,100%{opacity:0.3;transform:scale(0.8)}30%{opacity:1;transform:scale(1)}}
-.input-area{display:flex;gap:0.5rem;padding:0.75rem 0;position:relative}
-#oracle-input{flex:1;background:var(--oracle-surface);border:1px solid var(--oracle-border);color:#fff;padding:0.75rem 1rem;border-radius:8px;font-family:inherit;font-size:0.85rem;outline:none;transition:border-color 0.2s}
-#oracle-input:focus{border-color:var(--oracle-red)}
-#oracle-input::placeholder{color:var(--oracle-muted)}
-#oracle-send{background:var(--oracle-red);color:#fff;border:none;padding:0.75rem 1.25rem;border-radius:8px;font-family:inherit;font-size:0.85rem;cursor:pointer;transition:all 0.2s;letter-spacing:1px}
-#oracle-send:hover{background:#ef4444;box-shadow:0 0 20px rgba(220,38,38,0.3)}
-#oracle-send:disabled{opacity:0.5;cursor:not-allowed}
-.quick-replies{display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;margin-bottom:0.75rem}
-.quick-reply{background:transparent;border:1px solid var(--oracle-border);color:var(--oracle-muted);padding:0.4rem 0.75rem;border-radius:20px;font-family:inherit;font-size:0.7rem;cursor:pointer;transition:all 0.2s}
-.quick-reply:hover{border-color:var(--oracle-red);color:var(--oracle-red)}
-.audio-controls{display:flex;align-items:center;gap:0.75rem;justify-content:center;margin:0.25rem 0}
-.audio-controls button{background:transparent;border:1px solid var(--oracle-border);color:var(--oracle-muted);width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-size:0.75rem}
-.audio-controls button:hover{border-color:var(--oracle-red);color:var(--oracle-red)}
-.audio-controls button.active{background:var(--oracle-red);color:#fff;border-color:var(--oracle-red)}
-.volume-slider{-webkit-appearance:none;width:80px;height:3px;background:var(--oracle-border);border-radius:2px;outline:none}
-.volume-slider::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--oracle-red);cursor:pointer}
-@media(max-width:600px){.oracle-page{padding:0.5rem}.avatar-container{width:200px;height:200px}.messages{max-height:35vh}.quick-replies{gap:0.3rem}.quick-reply{font-size:0.65rem;padding:0.3rem 0.6rem}}
+.oracle-title{font-size:1.1rem;letter-spacing:4px;text-transform:uppercase;color:var(--oracle-red);margin:1.5rem 0 0.5rem;font-weight:700}
+.oracle-subtitle{font-size:0.75rem;color:var(--oracle-muted);letter-spacing:2px;margin-bottom:1.5rem}
+
+/* Avatar container */
+.avatar-wrap{position:relative;width:280px;height:280px;margin:0 auto 1rem}
+.avatar-ring{position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--oracle-red-dim);transition:box-shadow 0.4s}
+.avatar-ring.thinking{box-shadow:0 0 25px rgba(220,38,38,0.4);animation:pulse-ring 1.5s ease-in-out infinite}
+.avatar-ring.speaking{box-shadow:0 0 35px rgba(220,38,38,0.6);animation:pulse-ring 0.8s ease-in-out infinite}
+@keyframes pulse-ring{0%,100%{box-shadow:0 0 20px rgba(220,38,38,0.3)}50%{box-shadow:0 0 40px rgba(220,38,38,0.7)}}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.008)}}
+
+.avatar-inner{width:280px;height:280px;border-radius:50%;overflow:hidden;position:relative;background:#000}
+.avatar-img{width:100%;height:100%;object-fit:cover;animation:breathe 4s ease-in-out infinite}
+.avatar-video{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.3s;z-index:2;border-radius:50%}
+.avatar-video.active{opacity:1}
+
+.avatar-status{text-align:center;font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:var(--oracle-muted);height:1.2rem;margin-top:0.5rem;transition:color 0.3s}
+.avatar-status.speaking{color:var(--oracle-red);font-weight:700}
+
+/* Chat area */
+.chat-container{width:100%;max-width:600px;flex:1;display:flex;flex-direction:column;margin-top:0.5rem}
+.chat-messages{flex:1;overflow-y:auto;padding:1rem 0;max-height:40vh;min-height:120px}
+.chat-msg{margin-bottom:1rem;padding:0.75rem 1rem;border-radius:12px;max-width:85%;line-height:1.5;font-size:0.85rem}
+.chat-msg.user{background:var(--oracle-red-dim);color:#fff;margin-left:auto;border-bottom-right-radius:4px}
+.chat-msg.oracle{background:var(--oracle-surface);border:1px solid var(--oracle-border);border-bottom-left-radius:4px}
+.chat-msg.oracle .label{font-size:0.6rem;letter-spacing:2px;color:var(--oracle-red);text-transform:uppercase;margin-bottom:0.3rem}
+.typing-indicator{display:none;padding:0.75rem 1rem;color:var(--oracle-muted);font-size:0.8rem}
+.typing-indicator.show{display:block}
+.typing-indicator span{animation:blink 1.4s infinite both}
+.typing-indicator span:nth-child(2){animation-delay:0.2s}
+.typing-indicator span:nth-child(3){animation-delay:0.4s}
+@keyframes blink{0%,80%,100%{opacity:0}40%{opacity:1}}
+
+/* Input */
+.chat-input-wrap{display:flex;gap:0.5rem;padding:1rem 0;border-top:1px solid var(--oracle-border)}
+.chat-input{flex:1;background:var(--oracle-surface);border:1px solid var(--oracle-border);color:var(--oracle-text);padding:0.75rem 1rem;border-radius:8px;font-family:inherit;font-size:0.85rem;outline:none;transition:border-color 0.2s}
+.chat-input:focus{border-color:var(--oracle-red)}
+.chat-input::placeholder{color:var(--oracle-muted)}
+.chat-send{background:var(--oracle-red);color:#fff;border:none;padding:0.75rem 1.2rem;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:700;font-size:0.8rem;letter-spacing:1px;text-transform:uppercase;transition:background 0.2s}
+.chat-send:hover{background:#ef4444}
+.chat-send:disabled{background:var(--oracle-red-dim);cursor:not-allowed;opacity:0.6}
+
+/* Scrollbar */
+.chat-messages::-webkit-scrollbar{width:4px}
+.chat-messages::-webkit-scrollbar-track{background:var(--oracle-bg)}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--oracle-red-dim);border-radius:2px}
+
+@media(max-width:600px){
+.oracle-page{padding:0.5rem}
+.avatar-wrap{width:200px;height:200px}
+.avatar-inner{width:200px;height:200px}
+.chat-msg{max-width:92%}
+}
 </style>
+{% endblock %}
 
-<div class="oracle-page" id="oraclePage">
-  <div class="oracle-header">
-    <h1>THE <span>ORACLE</span></h1>
-    <p>SOVEREIGN BITCOIN INTELLIGENCE</p>
+{% block content %}
+<div class="oracle-page">
+  <div class="oracle-title">The Oracle</div>
+  <div class="oracle-subtitle">Sovereign Bitcoin Intelligence</div>
+
+  <div class="avatar-wrap">
+    <div class="avatar-ring" id="avatarRing"></div>
+    <div class="avatar-inner">
+      <img class="avatar-img" id="avatarImg" src="/static/images/oracle_analyst_dark.png" alt="The Oracle">
+      <video class="avatar-video" id="avatarVideo" muted playsinline></video>
+    </div>
   </div>
+  <div class="avatar-status" id="avatarStatus">awaiting query</div>
 
-  <div class="oracle-main">
-    <div class="avatar-container" id="avatarContainer">
-      <canvas id="oracle-canvas" width="560" height="560"></canvas>
-      <div class="avatar-status" id="avatarStatus">LISTENING</div>
+  <div class="chat-container">
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg oracle">
+        <div class="label">The Oracle</div>
+        I am The Oracle — sovereign Bitcoin intelligence. Ask me anything about Bitcoin, monetary history, or freedom technology.
+      </div>
     </div>
-
-    <div class="audio-controls">
-      <button id="muteBtn" title="Mute">&#x1f50a;</button>
-      <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.1" value="0.8">
+    <div class="typing-indicator" id="typingIndicator">
+      <span>●</span><span>●</span><span>●</span> The Oracle is thinking...
     </div>
-
-    <div class="chat-area">
-      <div class="messages" id="messages">
-        <div class="msg msg-oracle">
-          <div class="oracle-label">THE ORACLE</div>
-          I see you've found your way here. The signal cuts through the noise for those who seek it. Ask me about Bitcoin — the protocol, the economics, the revolution. I don't do small talk.
-        </div>
-      </div>
-      <div class="typing-indicator" id="typingIndicator">
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-      </div>
-
-      <div class="quick-replies" id="quickReplies">
-        <button class="quick-reply" onclick="sendQuick(this)">What's Bitcoin's current outlook?</button>
-        <button class="quick-reply" onclick="sendQuick(this)">Explain the difficulty adjustment</button>
-        <button class="quick-reply" onclick="sendQuick(this)">Why does hash rate matter?</button>
-        <button class="quick-reply" onclick="sendQuick(this)">What would Satoshi think today?</button>
-      </div>
-
-      <div class="input-area">
-        <input type="text" id="oracle-input" placeholder="Ask The Oracle..." autocomplete="off" maxlength="500">
-        <button id="oracle-send" onclick="sendMessage()">ASK</button>
-      </div>
+    <div class="chat-input-wrap">
+      <input class="chat-input" id="chatInput" type="text" placeholder="Ask The Oracle..." autocomplete="off" maxlength="500">
+      <button class="chat-send" id="chatSend">Ask</button>
     </div>
   </div>
 </div>
 
+{% raw %}
 <script>
 (function(){
 'use strict';
 
-/* ===== CONFIG ===== */
-const AVATAR_URL = 'data:image/jpeg;base64,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';
-const API_URL = '/api/oracle/chat';
+const SPEAK_URL = '/api/oracle/speak';
+const avatarImg = document.getElementById('avatarImg');
+const avatarVideo = document.getElementById('avatarVideo');
+const avatarRing = document.getElementById('avatarRing');
+const avatarStatus = document.getElementById('avatarStatus');
+const chatMessages = document.getElementById('chatMessages');
+const typingIndicator = document.getElementById('typingIndicator');
+const chatInput = document.getElementById('chatInput');
+const chatSend = document.getElementById('chatSend');
 
-/* ===== STATE ===== */
-let chatHistory = [];
 let isProcessing = false;
-let isMuted = false;
-let volume = 0.8;
-let audioCtx = null;
 let currentAudio = null;
-let analyserNode = null;
-let avatarImg = null;
-let mouthOpen = 0;
-let targetMouthOpen = 0;
-let blinkTimer = 0;
-let blinkState = 0; // 0=open, 1=closing, 2=closed, 3=opening
-let breathPhase = 0;
-let isSpeaking = false;
 
-/* ===== AVATAR CANVAS ===== */
-const canvas = document.getElementById('oracle-canvas');
-const ctx = canvas.getContext('2d');
-const container = document.getElementById('avatarContainer');
-
-// Load avatar image
-avatarImg = new Image();
-avatarImg.crossOrigin = 'anonymous';
-avatarImg.onload = function() {
-  requestAnimationFrame(renderLoop);
-};
-avatarImg.src = AVATAR_URL;
-
-/* ===== MOUTH SHAPES (simple overlay approach) ===== */
-// We draw a subtle dark overlay + mouth shape over the avatar's mouth region
-// The mouth region is approximately at: y=58-68% of image, x=35-65% of image
-const MOUTH_CX = 0.50;  // center x (fraction of canvas)
-const MOUTH_CY = 0.64;  // center y
-const MOUTH_W = 0.12;   // max width
-const MOUTH_H = 0.04;   // max height when fully open
-
-function drawMouth(openness, width) {
-  if (openness < 0.02) return; // mouth closed, don't draw anything
-  const cw = canvas.width;
-  const ch = canvas.height;
-  const cx = cw * MOUTH_CX;
-  const cy = ch * MOUTH_CY;
-  const w = cw * MOUTH_W * (0.6 + width * 0.4);
-  const h = ch * MOUTH_H * openness;
-
-  ctx.save();
-  // Dark interior
-  ctx.beginPath();
-  ctx.ellipse(cx, cy, w * 0.5, h * 0.5, 0, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(30, 10, 10, 0.7)';
-  ctx.fill();
-
-  // Lip outline
-  ctx.beginPath();
-  ctx.ellipse(cx, cy, w * 0.5 + 1, h * 0.5 + 1, 0, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(180, 100, 100, 0.3)';
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-
-  // Teeth hint when mouth is open enough
-  if (openness > 0.4) {
-    ctx.beginPath();
-    ctx.ellipse(cx, cy - h * 0.15, w * 0.35, h * 0.2, 0, 0, Math.PI);
-    ctx.fillStyle = 'rgba(240, 240, 240, 0.15)';
-    ctx.fill();
-  }
-  ctx.restore();
-}
-
-function drawBlink(state) {
-  if (state <= 0) return;
-  const cw = canvas.width;
-  const ch = canvas.height;
-  // Eye regions - approximate positions
-  const eyes = [
-    {x: 0.38, y: 0.44, w: 0.08, h: 0.03},  // left eye
-    {x: 0.58, y: 0.44, w: 0.08, h: 0.03}   // right eye
-  ];
-
-  ctx.save();
-  for (const eye of eyes) {
-    const ex = cw * eye.x;
-    const ey = ch * eye.y;
-    const ew = cw * eye.w;
-    const eh = ch * eye.h * state;
-    ctx.beginPath();
-    ctx.ellipse(ex, ey, ew, eh, 0, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(30, 25, 25, 0.85)';
-    ctx.fill();
-  }
-  ctx.restore();
-}
-
-/* ===== RENDER LOOP ===== */
-function renderLoop() {
-  if (!avatarImg.complete) { requestAnimationFrame(renderLoop); return; }
-
-  const cw = canvas.width;
-  const ch = canvas.height;
-
-  // Breathing animation
-  breathPhase += 0.015;
-  const breathScale = 1 + Math.sin(breathPhase) * 0.003;
-  const breathOffsetY = Math.sin(breathPhase) * 1.5;
-
-  // Smooth mouth animation
-  mouthOpen += (targetMouthOpen - mouthOpen) * 0.25;
-
-  // Blink logic
-  blinkTimer--;
-  if (blinkTimer <= 0) {
-    if (blinkState === 0) { blinkState = 1; blinkTimer = 4; }
-    else if (blinkState === 1) { blinkState = 2; blinkTimer = 3; }
-    else if (blinkState === 2) { blinkState = 3; blinkTimer = 4; }
-    else { blinkState = 0; blinkTimer = 100 + Math.random() * 200; }
-  }
-  let blinkAmount = 0;
-  if (blinkState === 1) blinkAmount = (4 - blinkTimer) / 4;
-  else if (blinkState === 2) blinkAmount = 1;
-  else if (blinkState === 3) blinkAmount = blinkTimer / 4;
-
-  // Clear and draw
-  ctx.clearRect(0, 0, cw, ch);
-  ctx.save();
-  ctx.translate(cw / 2, ch / 2);
-  ctx.scale(breathScale, breathScale);
-  ctx.translate(-cw / 2, -ch / 2 + breathOffsetY);
-  ctx.drawImage(avatarImg, 0, 0, cw, ch);
-  ctx.restore();
-
-  // Overlays
-  drawMouth(mouthOpen, 0.7);
-  drawBlink(blinkAmount);
-
-  requestAnimationFrame(renderLoop);
-}
-
-/* ===== AUDIO ANALYSIS (frequency-based lip sync) ===== */
-function initAudioContext() {
-  if (audioCtx) return;
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  analyserNode = audioCtx.createAnalyser();
-  analyserNode.fftSize = 256;
-  analyserNode.smoothingTimeConstant = 0.4;
-}
-
-function analyzeAudio() {
-  if (!analyserNode || !isSpeaking) {
-    targetMouthOpen = 0;
-    return;
-  }
-  const data = new Uint8Array(analyserNode.frequencyBinCount);
-  analyserNode.getByteFrequencyData(data);
-
-  // Focus on speech frequencies (85-3000 Hz range, mapped to FFT bins)
-  const sampleRate = audioCtx.sampleRate;
-  const binSize = sampleRate / analyserNode.fftSize;
-  const lowBin = Math.floor(85 / binSize);
-  const highBin = Math.min(Math.floor(3000 / binSize), data.length - 1);
-
-  let sum = 0;
-  let count = 0;
-  for (let i = lowBin; i <= highBin; i++) {
-    sum += data[i];
-    count++;
-  }
-  const avg = count > 0 ? sum / count : 0;
-
-  // Map to mouth openness (0-1)
-  // Typical speech averages 40-120 in this range
-  const normalized = Math.max(0, Math.min(1, (avg - 20) / 100));
-  targetMouthOpen = normalized * normalized; // quadratic for more natural feel
-
-  requestAnimationFrame(analyzeAudio);
-}
-
-/* ===== PLAY AUDIO WITH LIP SYNC ===== */
-function playAudioWithLipSync(audioBase64) {
-  return new Promise((resolve) => {
-    initAudioContext();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-
-    const audioData = atob(audioBase64);
-    const arrayBuffer = new ArrayBuffer(audioData.length);
-    const view = new Uint8Array(arrayBuffer);
-    for (let i = 0; i < audioData.length; i++) view[i] = audioData.charCodeAt(i);
-
-    audioCtx.decodeAudioData(arrayBuffer.slice(0), (buffer) => {
-      const source = audioCtx.createBufferSource();
-      const gainNode = audioCtx.createGain();
-      gainNode.gain.value = isMuted ? 0 : volume;
-
-      source.buffer = buffer;
-      source.connect(analyserNode);
-      analyserNode.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
-
-      currentAudio = { source, gainNode };
-      isSpeaking = true;
-      container.classList.add('speaking');
-      container.classList.remove('thinking');
-      document.getElementById('avatarStatus').textContent = 'SPEAKING';
-
-      analyzeAudio();
-
-      source.onended = () => {
-        isSpeaking = false;
-        targetMouthOpen = 0;
-        container.classList.remove('speaking');
-        document.getElementById('avatarStatus').textContent = '';
-        currentAudio = null;
-        resolve();
-      };
-
-      source.start(0);
-    }, (err) => {
-      console.error('Audio decode error:', err);
-      resolve();
-    });
-  });
-}
-
-/* ===== CHAT LOGIC ===== */
-const messagesEl = document.getElementById('messages');
-const inputEl = document.getElementById('oracle-input');
-const sendBtn = document.getElementById('oracle-send');
-const typingEl = document.getElementById('typingIndicator');
-const quickRepliesEl = document.getElementById('quickReplies');
-
-function addMessage(text, isUser) {
+function addMessage(text, role) {
   const div = document.createElement('div');
-  div.className = `msg ${isUser ? 'msg-user' : 'msg-oracle'}`;
-  if (!isUser) {
-    div.innerHTML = '<div class="oracle-label">THE ORACLE</div>' + escapeHtml(text);
+  div.className = 'chat-msg ' + role;
+  if (role === 'oracle') {
+    div.innerHTML = '<div class="label">The Oracle</div>' + escapeHtml(text);
   } else {
     div.textContent = text;
   }
-  messagesEl.appendChild(div);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
 }
 
-async function sendMessage(text) {
-  if (isProcessing) return;
-  const msg = text || inputEl.value.trim();
-  if (!msg) return;
+function setStatus(state) {
+  avatarRing.className = 'avatar-ring ' + state;
+  if (state === 'thinking') {
+    avatarStatus.textContent = 'processing query...';
+    avatarStatus.className = 'avatar-status';
+  } else if (state === 'speaking') {
+    avatarStatus.textContent = '● SPEAKING';
+    avatarStatus.className = 'avatar-status speaking';
+  } else {
+    avatarStatus.textContent = 'awaiting query';
+    avatarStatus.className = 'avatar-status';
+  }
+}
 
-  inputEl.value = '';
-  inputEl.disabled = true;
-  sendBtn.disabled = true;
+function stopSpeaking() {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio = null;
+  }
+  avatarVideo.classList.remove('active');
+  avatarVideo.pause();
+  avatarImg.style.animation = 'breathe 4s ease-in-out infinite';
+  setStatus('');
+}
+
+async function sendMessage() {
+  const msg = chatInput.value.trim();
+  if (!msg || isProcessing) return;
+
   isProcessing = true;
+  chatSend.disabled = true;
+  chatInput.value = '';
+  stopSpeaking();
 
-  // Hide quick replies after first message
-  quickRepliesEl.style.display = 'none';
-
-  // Show user message
-  addMessage(msg, true);
-  chatHistory.push({role: 'user', content: msg});
-
-  // Show thinking state
-  typingEl.classList.add('active');
-  container.classList.add('thinking');
-  document.getElementById('avatarStatus').textContent = 'THINKING';
+  addMessage(msg, 'user');
+  typingIndicator.classList.add('show');
+  setStatus('thinking');
 
   try {
-    const resp = await fetch(API_URL, {
+    const resp = await fetch(SPEAK_URL, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        message: msg,
-        history: chatHistory.slice(-6)
-      })
+      body: JSON.stringify({message: msg})
     });
 
-    if (resp.status === 429) {
-      typingEl.classList.remove('active');
-      addMessage('Patience. The signal needs a moment to stabilize.', false);
+    typingIndicator.classList.remove('show');
+
+    if (!resp.ok) {
+      addMessage('Connection disrupted. Try again.', 'oracle');
+      setStatus('');
       return;
     }
 
     const data = await resp.json();
-    typingEl.classList.remove('active');
 
-    if (data.error) {
-      addMessage(data.error, false);
-      return;
+    // Show text response
+    if (data.response) {
+      addMessage(data.response, 'oracle');
     }
 
-    // Show Oracle response
-    addMessage(data.response, false);
-    chatHistory.push({role: 'assistant', content: data.response});
+    // Play video lip-sync if available
+    if (data.video_base64) {
+      try {
+        const videoBlob = _b64ToBlob(data.video_base64, 'video/mp4');
+        const videoUrl = URL.createObjectURL(videoBlob);
+        avatarVideo.src = videoUrl;
+        avatarVideo.classList.add('active');
+        avatarImg.style.animation = 'none';
+        setStatus('speaking');
 
-    // Play audio with lip sync
-    if (data.audio) {
-      await playAudioWithLipSync(data.audio);
+        avatarVideo.onended = function() {
+          URL.revokeObjectURL(videoUrl);
+          stopSpeaking();
+        };
+
+        avatarVideo.play().catch(function(e) {
+          console.warn('Video play failed:', e);
+          stopSpeaking();
+        });
+      } catch(e) {
+        console.warn('Video setup failed:', e);
+      }
     }
-  } catch (err) {
-    typingEl.classList.remove('active');
-    container.classList.remove('thinking');
-    addMessage('The signal is disrupted. Try again.', false);
-    console.error('Oracle error:', err);
+
+    // Play audio (separately — video is muted, audio comes from TTS)
+    if (data.audio_base64) {
+      try {
+        const audioBlob = _b64ToBlob(data.audio_base64, 'audio/mpeg');
+        const audioUrl = URL.createObjectURL(audioBlob);
+        currentAudio = new Audio(audioUrl);
+
+        if (!data.video_base64) {
+          setStatus('speaking');
+        }
+
+        currentAudio.onended = function() {
+          URL.revokeObjectURL(audioUrl);
+          if (!data.video_base64) {
+            stopSpeaking();
+          }
+        };
+
+        currentAudio.play().catch(function(e) {
+          console.warn('Audio play failed:', e);
+        });
+      } catch(e) {
+        console.warn('Audio setup failed:', e);
+      }
+    }
+
+    if (!data.video_base64 && !data.audio_base64) {
+      setStatus('');
+    }
+
+  } catch(err) {
+    typingIndicator.classList.remove('show');
+    addMessage('Signal lost. The protocol endures.', 'oracle');
+    setStatus('');
   } finally {
     isProcessing = false;
-    inputEl.disabled = false;
-    sendBtn.disabled = false;
-    inputEl.focus();
+    chatSend.disabled = false;
+    chatInput.focus();
   }
 }
 
-window.sendQuick = function(btn) {
-  sendMessage(btn.textContent);
-};
+function _b64ToBlob(b64, mime) {
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], {type: mime});
+}
 
-// Enter key to send
-inputEl.addEventListener('keydown', (e) => {
+// Event listeners
+chatSend.addEventListener('click', sendMessage);
+chatInput.addEventListener('keydown', function(e) {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
     sendMessage();
   }
 });
 
-// Audio controls
-document.getElementById('muteBtn').addEventListener('click', function() {
-  isMuted = !isMuted;
-  this.classList.toggle('active', isMuted);
-  this.innerHTML = isMuted ? '&#x1f507;' : '&#x1f50a;';
-  if (currentAudio) {
-    currentAudio.gainNode.gain.value = isMuted ? 0 : volume;
-  }
-});
-
-document.getElementById('volumeSlider').addEventListener('input', function() {
-  volume = parseFloat(this.value);
-  if (currentAudio && !isMuted) {
-    currentAudio.gainNode.gain.value = volume;
-  }
-});
-
+chatInput.focus();
 })();
 </script>
+{% endraw %}
 {% endblock %}
