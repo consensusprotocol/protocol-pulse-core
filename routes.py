@@ -6830,6 +6830,66 @@ def api_media_sentiment():
     })
 
 
+@app.route('/api/media/reddit')
+def api_media_reddit():
+    """Proxy r/bitcoin hot posts via PRAW - cached 5min"""
+    cache_key = '_reddit_btc_cache'
+    cache_ts_key = '_reddit_btc_ts'
+    import time as _time
+    now = _time.time()
+    cached = getattr(app, cache_key, None)
+    cached_ts = getattr(app, cache_ts_key, 0)
+    if cached and now - cached_ts < 300:
+        return jsonify(cached)
+    try:
+        raw = reddit_service.get_trending_posts('bitcoin', limit=10)
+        posts = []
+        for p in raw:
+            posts.append({
+                'title': p.get('title', ''),
+                'author': p.get('author', ''),
+                'score': p.get('score', 0),
+                'comments': p.get('num_comments', 0),
+                'url': p.get('permalink', ''),
+                'created': p.get('created_utc', 0),
+                'flair': ''
+            })
+        setattr(app, cache_key, posts)
+        setattr(app, cache_ts_key, now)
+        return jsonify(posts)
+    except Exception as e:
+        logging.error(f"Reddit API error: {e}")
+        return jsonify(getattr(app, cache_key, []))
+
+
+@app.route('/api/media/partner-videos')
+def api_media_partner_videos():
+    """Get recent uploads from partner channels"""
+    try:
+        from datetime import date
+        today = date.today()
+        recent = Podcast.query.filter(
+            Podcast.published_date >= datetime.combine(today, datetime.min.time())
+        ).order_by(Podcast.published_date.desc()).limit(20).all()
+        videos = []
+        for ep in recent:
+            vid_id = ''
+            if ep.audio_url and 'v=' in ep.audio_url:
+                vid_id = ep.audio_url.split('v=')[-1].split('&')[0]
+            videos.append({
+                'title': ep.title,
+                'video_id': vid_id,
+                'thumbnail': f'https://img.youtube.com/vi/{vid_id}/mqdefault.jpg' if vid_id else '',
+                'published': ep.published_date.isoformat() if ep.published_date else None,
+                'host': ep.host or '',
+                'channel': ep.rss_source or ''
+            })
+        return jsonify(videos)
+    except Exception as e:
+        logging.error(f"Partner videos error: {e}")
+        return jsonify([])
+
+
 @app.route('/api/podcasts/channels')
 def api_podcasts_channels():
     """Get YouTube channel cards with stats"""
