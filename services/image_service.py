@@ -1,341 +1,497 @@
 # Protocol Pulse Editorial Image Service
-# GPT-4o native image generation with red/black brand overlay
-import os, re, time, base64, logging, requests
+# 90% Pexels stock photos, 10% Grok hyper-realistic (top articles with named people/brands only)
+# Red/black brand overlay on all images for cohesive look
+
+import os
+import re
+import time
+import logging
+import requests
+import hashlib
 from pathlib import Path
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 from io import BytesIO
 
 logger = logging.getLogger(__name__)
+
 HEADERS_DIR = Path("static/images/headers")
 HEADERS_DIR.mkdir(parents=True, exist_ok=True)
 
-# NO MORE TOPIC_VISUALS — every image is unique, generated from the headline itself
+# Target size: 1200x630 (OpenGraph standard, works for SEO, Substack, social)
+TARGET_WIDTH = 1200
+TARGET_HEIGHT = 630
 
-def _match_visual(title):
-    """Generate a unique visual concept from the article title.
-    NEVER returns a generic Bitcoin coin image. Instead, interprets
-    the STORY behind the headline as a cinematic editorial scene."""
-    
-    import hashlib
-    h = hashlib.md5(title.encode()).hexdigest()
-    
-    # Extract the core story from the title
-    title_lower = title.lower()
-    
-    # Map story themes to SCENES (not objects)
-    # The key insight: show the METAPHOR, not the literal subject
-    
-    scenes = []
-    
-    # Mining/hashrate stories → industrial, labor, machinery
-    if any(w in title_lower for w in ["mining", "hashrate", "hash rate", "miner", "difficulty"]):
-        scenes = [
-            "abandoned industrial factory floor with single shaft of light through broken ceiling, dust particles floating, photojournalistic",
-            "lone figure standing before massive wall of blinking server lights in dark warehouse, silhouette editorial",
-            "heavy machinery gears grinding to halt with sparks flying, dramatic macro photography",
-            "aerial shot of industrial landscape transitioning from active to dormant, golden hour editorial",
-            "close-up of calloused hands adjusting heavy equipment dials, dramatic side lighting, documentary style",
-            "vast empty warehouse where machines once hummed, single overhead light swinging, cinematic noir",
-            "power plant cooling towers releasing steam against dramatic stormy sky, wide angle editorial",
-            "worker walking away from facility at dawn, long shadow stretching behind, editorial portrait",
-        ]
-    
-    # Network/resilience stories → infrastructure, systems, connectivity
-    elif any(w in title_lower for w in ["network", "resilience", "node", "protocol"]):
-        scenes = [
-            "vast underground cable tunnel stretching to vanishing point, emergency lighting casting red glow",
-            "massive bridge structure enduring violent storm, long exposure showing motion blur of waves",
-            "spider web covered in morning dew catching golden light, extreme macro showing structural perfection",
-            "electrical grid substation at blue hour with all connections illuminated, industrial editorial",
-            "roots of ancient tree exposed showing massive underground network, cross-section nature photography",
-            "air traffic control room with multiple screens glowing in darkness, cinematic documentary",
-            "massive dam holding back turbulent water, shot from below looking up, dramatic wide angle",
-            "telephone wires converging at horizon against dramatic sunset, minimalist editorial landscape",
-        ]
-    
-    # Price/market stories → tension, pressure, movement
-    elif any(w in title_lower for w in ["price", "market", "rally", "crash", "correction", "floor", "bull", "bear"]):
-        scenes = [
-            "tightrope walker silhouette between two skyscrapers at dusk, dramatic editorial photography",
-            "pressure gauge needle in red zone with steam escaping, industrial macro photography",
-            "ocean wave frozen at peak moment before breaking, dramatic high-speed photography",
-            "chess pieces mid-game with dramatic raking light across the board, editorial still life",
-            "fault line in cracked earth with light emerging from below, dramatic landscape editorial",
-            "boxing ring ropes with sweat droplets frozen mid-air, dramatic sports editorial",
-            "pendulum at apex of swing, motion blur trails, scientific photography style",
-            "sand dune ridge line with wind sculpting patterns, aerial desert photography",
-        ]
-    
-    # Regulation/government stories → power, institutions, authority
-    elif any(w in title_lower for w in ["regulation", "sec", "fed", "congress", "law", "policy", "ban", "government"]):
-        scenes = [
-            "grand marble corridor with light streaming through distant doorway, architectural editorial",
-            "massive gavel shadow cast across documents on desk, dramatic overhead lighting",
-            "iron gates slowly closing with light narrowing between them, cinematic noir",
-            "scales of justice with one side tipping, dramatic chiaroscuro studio photography",
-            "labyrinthine bureaucratic filing system stretching endlessly, wide angle editorial",
-            "single red pen on stack of white papers, minimalist editorial still life",
-            "grand staircase in government building with figure ascending, editorial portrait",
-            "heavy curtains being drawn back revealing bright window, theatrical editorial",
-        ]
-    
-    # Wall Street/institutional stories → suits, power, finance
-    elif any(w in title_lower for w in ["institution", "wall street", "etf", "fund", "invest", "bank"]):
-        scenes = [
-            "empty trading floor after hours with screens still glowing, editorial architectural",
-            "glass and steel corporate canyon looking straight up, dramatic architectural photography",
-            "briefcase left on park bench in financial district at dawn, editorial still life",
-            "elevator doors closing in marble lobby reflecting golden light, cinematic moment",
-            "rooftop view of financial district at twilight with office lights creating grid pattern",
-            "vintage stock ticker machine collecting dust next to modern screen, editorial contrast",
-            "revolving door of major bank with blurred figures entering and exiting, long exposure",
-            "safety deposit box vault corridor with one box pulled open, dramatic editorial",
-        ]
-    
-    # Exodus/movement stories → departure, migration, journey
-    elif any(w in title_lower for w in ["exodus", "flee", "leaving", "migration", "shift", "transition"]):
-        scenes = [
-            "empty chairs around boardroom table with one still warm coffee cup, editorial still life",
-            "highway stretching to horizon at dawn with single vehicle, dramatic landscape editorial",
-            "birds taking flight from industrial rooftop at golden hour, nature meets urban editorial",
-            "last light turned off in office building seen from outside, urban night editorial",
-            "footprints in sand being slowly erased by incoming tide, nature metaphor photography",
-            "train platform with departed train visible in distance, lonely editorial moment",
-            "moving boxes stacked in empty industrial space, documentary photography style",
-            "bridge at golden hour with fog obscuring the far end, atmospheric landscape editorial",
-        ]
-    
-    # Default: generate from title directly — NO COINS
-    else:
-        scenes = [
-            "dramatic editorial photograph of an abstract concept: tension between old and new systems, dark moody cinematic",
-            "solitary figure at crossroads under dramatic sky, editorial portrait photography",
-            "massive clock mechanism exposed showing intricate gears, dramatic macro photography",
-            "lighthouse beam cutting through thick fog at night, dramatic landscape editorial",
-            "crack in massive concrete wall with light streaming through, architectural metaphor",
-            "vintage compass on worn map with dramatic side lighting, editorial still life",
-            "glass prism splitting single beam into spectrum, scientific photography noir style",
-            "ancient tree standing alone in vast field under storm clouds, dramatic landscape",
-        ]
-    
-    # Pick scene deterministically from title hash
-    idx = int(h[:4], 16) % len(scenes)
-    return scenes[idx]
+# Keywords that indicate a "top article" worthy of Grok generation
+TOP_ARTICLE_INDICATORS = [
+    'michael saylor',
+    'elon musk',
+    'trump',
+    'biden',
+    'powell',
+    'gensler',
+    'blackrock',
+    'fidelity',
+    'jpmorgan',
+    'goldman sachs',
+    'sec ',
+    'fed ',
+    'federal reserve',
+    'congress',
+    'senate',
+    'white house',
+    'breaking:',
+    'exclusive:',
+    'just in:',
+]
 
-
-
-def build_editorial_prompt(title):
-    """Build a noir cinematic editorial image prompt from the article title."""
-    visual = _match_visual(title)
-
-    return f"""Cinematic noir editorial photography. Dramatic lighting, high contrast, moody atmosphere. Scene depicting: {visual}. Professional photojournalism aesthetic. No text, no logos. 16:9.
-
-ABSOLUTE REQUIREMENTS:
-- ZERO TEXT IN THE IMAGE. No titles, no headlines, no words, no letters, no numbers, no captions, no watermarks, no logos.
-- NO Bitcoin coins, tokens, or cryptocurrency symbols
-- NO generic stock photo aesthetic
-- NO digital screens showing charts or graphs
-- Dark, moody atmosphere with masterful use of shadow and light
-- If people appear, they should be anonymous (silhouettes, partial views, hands only)"""
-
-def _apply_brand_overlay(img):
-    overlay = Image.new("RGBA", img.size, (0, 0, 0, 0))
-    draw = ImageDraw.Draw(overlay)
-    w, h = img.size
-    # Bottom gradient: black fading up
-    for y in range(h // 3, h):
-        progress = (y - h // 3) / (h - h // 3)
-        alpha = int(progress * 160)
-        draw.line([(0, y), (w, y)], fill=(0, 0, 0, alpha))
-    # Top-left: subtle red accent glow
-    for y in range(h // 4):
-        progress = 1 - (y / (h // 4))
-        alpha = int(progress * 50)
-        draw.line([(0, y), (w // 3, y)], fill=(180, 20, 20, alpha))
-    # Right edge vignette
-    for x in range(w * 3 // 4, w):
-        progress = (x - w * 3 // 4) / (w - w * 3 // 4)
-        alpha = int(progress * 80)
-        for y in range(h):
-            px = overlay.getpixel((x, y))
-            new_alpha = min(255, px[3] + alpha)
-            overlay.putpixel((x, y), (0, 0, 0, new_alpha))
-    if img.mode != "RGBA":
-        img = img.convert("RGBA")
-    return Image.alpha_composite(img, overlay).convert("RGB")
-
-def generate_article_header_image(title, prompt_override=None):
-    api_key = os.environ.get("OPENAI_API_KEY")
-    if not api_key:
-        logger.error("No OpenAI API key for image generation")
-        return None
-    prompt = prompt_override if prompt_override else build_editorial_prompt(title)
-    safe_title = re.sub(r"[^a-zA-Z0-9]", "_", title)[:60]
-    timestamp = time.strftime("%Y%m%d_%H%M%S")
-    filename = f"header_{safe_title}_{timestamp}.jpg"
-    filepath = HEADERS_DIR / filename
-    try:
-        resp = requests.post("https://api.openai.com/v1/images/generations",
-            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-            json={"model": "gpt-image-1", "prompt": prompt, "n": 1, "size": "1536x1024", "quality": "high"},
-            timeout=90)
-        img_bytes = None
-        if resp.status_code == 200:
-            data = resp.json()
-            if data.get("data") and data["data"][0].get("b64_json"):
-                img_bytes = base64.b64decode(data["data"][0]["b64_json"])
-            elif data.get("data") and data["data"][0].get("url"):
-                img_bytes = requests.get(data["data"][0]["url"], timeout=30).content
-        if not img_bytes:
-            logger.info("gpt-image-1 unavailable, trying dall-e-3")
-            resp2 = requests.post("https://api.openai.com/v1/images/generations",
-                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-                json={"model": "dall-e-3", "prompt": prompt, "n": 1, "size": "1792x1024", "quality": "hd"},
-                timeout=90)
-            if resp2.status_code == 200:
-                url = resp2.json()["data"][0]["url"]
-                img_bytes = requests.get(url, timeout=30).content
-        if not img_bytes:
-            logger.error(f"All image gen failed for: {title[:50]}")
-            return None
-        img = Image.open(BytesIO(img_bytes))
-        img = img.resize((1200, 630), Image.LANCZOS)
-        img = _apply_brand_overlay(img)
-        img.save(str(filepath), "JPEG", quality=92)
-        logger.info(f"Generated editorial image: {filename}")
-        filepath_check = f"static/images/headers/{filename}"
-        if os.path.exists(filepath_check) and os.path.getsize(filepath_check) > 1000:
-            return f"/static/images/headers/{filename}"
-        else:
-            logger.error(f"Image file not found after save: {filepath_check}")
-            return "/static/images/default-header.png"
-    except Exception as e:
-        logger.error(f"Image gen error for \'{title[:40]}\': {e}")
-        return None
 
 class ImageGenerationService:
-    def __init__(self):
-        self.openai_key = os.environ.get("OPENAI_API_KEY")
-        if self.openai_key:
-            logging.info("Image service initialized with GPT-4o editorial generation")
-        else:
-            logging.warning("No OpenAI key - image generation disabled")
-    def generate_article_header_image(self, title, prompt_override=None):
-        return generate_article_header_image(title, prompt_override=prompt_override)
-    def _extract_keywords(self, title):
-        return title
-    def get_article_image(self, title):
-        return generate_article_header_image(title)
+    """Pexels-first image service with Grok fallback for premium articles."""
 
-# Module-level instance for backward compatibility
+    def __init__(self):
+        self.pexels_key = os.environ.get("PEXELS_API_KEY", "")
+        self.xai_key = os.environ.get("XAI_API_KEY", "")
+        self.openai_key = os.environ.get("OPENAI_API_KEY", "")
+
+        if self.pexels_key:
+            logger.info("Image service initialized with Pexels (primary)")
+        else:
+            logger.warning(
+                "PEXELS_API_KEY not set — image service will use fallbacks only"
+            )
+
+        if self.xai_key:
+            logger.info(
+                "Grok image generation available (secondary, top articles only)"
+            )
+
+    # ─── PUBLIC API ────────────────────────────────────────────────
+
+    def generate_article_header_image(self,
+                                      title,
+                                      category=None,
+                                      force_grok=False):
+        """Generate a header image for an article.
+        Returns: path string like '/static/images/headers/header_xxx.jpg'
+        """
+        safe_title = _safe_filename(title)
+        timestamp = time.strftime("%Y%m%d_%H%M%S")
+        filename = f"header_{safe_title}_{timestamp}.jpg"
+        filepath = HEADERS_DIR / filename
+
+        # Decide: Grok (10%) or Pexels (90%)
+        use_grok = force_grok or _is_top_article(title)
+
+        image = None
+
+        if use_grok and self.xai_key:
+            logger.info(f"Top article detected, using Grok: {title[:50]}")
+            image = self._generate_grok_image(title)
+
+        if image is None and self.pexels_key:
+            logger.info(f"Using Pexels stock photo for: {title[:50]}")
+            image = self._fetch_pexels_image(title, category)
+
+        if image is None and self.openai_key:
+            logger.info(
+                f"Pexels failed, falling back to OpenAI for: {title[:50]}")
+            image = self._generate_openai_image(title)
+
+        if image is None:
+            logger.warning(f"All image sources failed for: {title[:50]}")
+            image = self._generate_fallback_image(title)
+
+        # Apply brand overlay and save
+        image = _resize_and_crop(image, TARGET_WIDTH, TARGET_HEIGHT)
+        image = _apply_brand_overlay(image)
+        image.save(str(filepath), "JPEG", quality=85, optimize=True)
+
+        result_path = f"/static/images/headers/{filename}"
+        size_kb = filepath.stat().st_size // 1024
+        logger.info(f"Saved header image: {result_path} ({size_kb}KB)")
+        return result_path
+
+    # ─── PEXELS (PRIMARY — 90% of articles) ────────────────────────
+
+    def _fetch_pexels_image(self, title, category=None):
+        """Search Pexels for a relevant stock photo."""
+        queries = _build_pexels_queries(title, category)
+
+        for query in queries:
+            try:
+                resp = requests.get(
+                    "https://api.pexels.com/v1/search",
+                    headers={"Authorization": self.pexels_key},
+                    params={
+                        "query": query,
+                        "per_page": 10,
+                        "orientation": "landscape",
+                        "size": "large",
+                    },
+                    timeout=10,
+                )
+                if resp.status_code != 200:
+                    logger.warning(
+                        f"Pexels returned {resp.status_code} for '{query}'")
+                    continue
+
+                photos = resp.json().get("photos", [])
+                if not photos:
+                    logger.info(
+                        f"No Pexels results for '{query}', trying next query")
+                    continue
+
+                # Pick a photo deterministically based on title hash (avoids same photo)
+                idx = int(hashlib.md5(title.encode()).hexdigest()[:8],
+                          16) % len(photos)
+                photo = photos[idx]
+                img_url = photo.get("src", {}).get("landscape") or photo.get(
+                    "src", {}).get("large2x")
+
+                if not img_url:
+                    continue
+
+                img_resp = requests.get(img_url, timeout=15)
+                if img_resp.status_code == 200:
+                    img = Image.open(BytesIO(img_resp.content)).convert("RGB")
+                    logger.info(
+                        f"Pexels hit: '{query}' → {photo.get('photographer', 'unknown')}"
+                    )
+                    return img
+
+            except Exception as e:
+                logger.error(f"Pexels error for '{query}': {e}")
+                continue
+
+        return None
+
+    # ─── GROK (SECONDARY — top articles with named entities only) ───
+
+    def _generate_grok_image(self, title):
+        """Use Grok/xAI for hyper-realistic editorial images on premium articles."""
+        prompt = _build_grok_prompt(title)
+
+        try:
+            resp = requests.post(
+                "https://api.x.ai/v1/images/generations",
+                headers={
+                    "Authorization": f"Bearer {self.xai_key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": "grok-2-image",
+                    "prompt": prompt,
+                    "n": 1,
+                    "size": "1344x768",
+                    "response_format": "b64_json",
+                },
+                timeout=60,
+            )
+
+            if resp.status_code != 200:
+                logger.warning(
+                    f"Grok image API returned {resp.status_code}: {resp.text[:200]}"
+                )
+                return None
+
+            data = resp.json()
+            b64 = data.get("data", [{}])[0].get("b64_json")
+            if not b64:
+                logger.warning("No b64_json in Grok response")
+                return None
+
+            import base64
+            img = Image.open(BytesIO(base64.b64decode(b64))).convert("RGB")
+            logger.info(f"Grok image generated: {img.size}")
+            return img
+
+        except Exception as e:
+            logger.error(f"Grok image generation failed: {e}")
+            return None
+
+    # ─── OPENAI FALLBACK ────────────────────────────────────────────
+
+    def _generate_openai_image(self, title):
+        """Last resort: OpenAI DALL-E (no white frames, better prompt)."""
+        prompt = (
+            f"Editorial photograph for news article: {title[:100]}. "
+            "Cinematic, dramatic lighting, dark moody tones with deep reds and blacks. "
+            "Photojournalism style. NO text, NO logos, NO borders, NO frames, NO watermarks. "
+            "Full bleed image, edge to edge. Hyper-realistic photography.")
+
+        try:
+            resp = requests.post(
+                "https://api.openai.com/v1/images/generations",
+                headers={
+                    "Authorization": f"Bearer {self.openai_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "gpt-image-1",
+                    "prompt": prompt,
+                    "n": 1,
+                    "size": "1536x1024"
+                },
+                timeout=60,
+            )
+
+            if resp.status_code != 200:
+                # Try DALL-E 3
+                resp = requests.post(
+                    "https://api.openai.com/v1/images/generations",
+                    headers={
+                        "Authorization": f"Bearer {self.openai_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "model": "dall-e-3",
+                        "prompt": prompt,
+                        "n": 1,
+                        "size": "1792x1024",
+                        "quality": "hd"
+                    },
+                    timeout=60,
+                )
+
+            if resp.status_code == 200:
+                data = resp.json()
+                # Handle both URL and b64 responses
+                item = data.get("data", [{}])[0]
+                if "b64_json" in item:
+                    import base64
+                    return Image.open(
+                        BytesIO(base64.b64decode(
+                            item["b64_json"]))).convert("RGB")
+                elif "url" in item:
+                    img_resp = requests.get(item["url"], timeout=15)
+                    if img_resp.status_code == 200:
+                        return Image.open(BytesIO(
+                            img_resp.content)).convert("RGB")
+
+        except Exception as e:
+            logger.error(f"OpenAI image generation failed: {e}")
+
+        return None
+
+    # ─── PURE FALLBACK (no API needed) ──────────────────────────────
+
+    def _generate_fallback_image(self, title):
+        """Generate a branded placeholder if all APIs fail."""
+        img = Image.new("RGB", (TARGET_WIDTH, TARGET_HEIGHT), (10, 10, 10))
+        draw = ImageDraw.Draw(img)
+
+        # Red gradient bar at bottom
+        for y in range(TARGET_HEIGHT - 80, TARGET_HEIGHT):
+            alpha = (y - (TARGET_HEIGHT - 80)) / 80.0
+            r = int(180 * alpha)
+            draw.line([(0, y), (TARGET_WIDTH, y)], fill=(r, 0, 0))
+
+        # Red accent line
+        draw.line([(50, TARGET_HEIGHT - 90),
+                   (TARGET_WIDTH - 50, TARGET_HEIGHT - 90)],
+                  fill=(220, 38, 38),
+                  width=2)
+
+        return img
+
+
+# ─── HELPER FUNCTIONS ──────────────────────────────────────────────
+
+
+def _safe_filename(title):
+    """Convert title to safe filename."""
+    safe = re.sub(r'[^\w\s-]', '', title)
+    safe = re.sub(r'\s+', '_', safe).strip('_')
+    return safe[:80]
+
+
+def _is_top_article(title):
+    """Check if article deserves Grok generation (named people/brands)."""
+    lower = title.lower()
+    return any(indicator in lower for indicator in TOP_ARTICLE_INDICATORS)
+
+
+def _build_pexels_queries(title, category=None):
+    """Build search queries from article title, most specific to most general."""
+    queries = []
+
+    # Extract key concepts
+    lower = title.lower()
+
+    # Topic-specific mappings
+    topic_queries = {
+        'mining': [
+            'bitcoin mining facility', 'data center servers',
+            'industrial computing'
+        ],
+        'etf': [
+            'stock market trading floor', 'wall street financial',
+            'investment portfolio'
+        ],
+        'regulation': [
+            'government capitol building', 'legal gavel courtroom',
+            'legislative chamber'
+        ],
+        'lightning': [
+            'digital network connections', 'fiber optic cables',
+            'electronic circuit board'
+        ],
+        'defi': [
+            'blockchain technology abstract', 'digital finance network',
+            'futuristic banking'
+        ],
+        'whale':
+        ['ocean deep water', 'financial trading screens', 'stock market data'],
+        'fed': [
+            'federal reserve building', 'monetary policy finance',
+            'central banking'
+        ],
+        'inflation': [
+            'economic charts data', 'currency money finance',
+            'financial markets'
+        ],
+        'adoption': [
+            'global technology innovation', 'digital transformation',
+            'modern city technology'
+        ],
+        'security': [
+            'cybersecurity digital lock', 'encrypted data protection',
+            'secure vault'
+        ],
+        'energy': [
+            'renewable energy solar', 'power grid electricity',
+            'industrial energy'
+        ],
+        'ai': [
+            'artificial intelligence technology', 'futuristic computer',
+            'neural network'
+        ],
+        'quantum': [
+            'quantum computing technology', 'advanced processor chip',
+            'scientific research lab'
+        ],
+        'cbdc': [
+            'central bank digital', 'government finance technology',
+            'monetary system'
+        ],
+        'halving':
+        ['bitcoin gold scarcity', 'precious metals vault', 'digital gold'],
+    }
+
+    for keyword, pexels_queries in topic_queries.items():
+        if keyword in lower:
+            queries.extend(pexels_queries[:2])
+
+    # Generic financial/tech queries based on category
+    if category:
+        cat_lower = category.lower()
+        if cat_lower in ('bitcoin', 'breakingbitcoin'):
+            queries.append('cryptocurrency technology dark')
+        elif cat_lower == 'opinion':
+            queries.append('editorial newspaper desk')
+        elif cat_lower == 'macro':
+            queries.append('global economy financial markets')
+
+    # Fallback generic queries
+    queries.extend([
+        'financial technology dark',
+        'digital economy abstract',
+        'modern technology dark background',
+    ])
+
+    # Deduplicate while preserving order
+    seen = set()
+    unique = []
+    for q in queries:
+        if q not in seen:
+            seen.add(q)
+            unique.append(q)
+
+    return unique[:5]  # Max 5 queries to avoid rate limits
+
+
+def _build_grok_prompt(title):
+    """Build a cinematic prompt for Grok image generation."""
+    return (
+        f"Hyper-realistic editorial photograph for the headline: '{title}'. "
+        "Shot on a Canon EOS R5 with a 35mm lens. Dramatic cinematic lighting. "
+        "Color palette: deep blacks, dark crimson reds, with touches of amber. "
+        "Style: photojournalism meets film noir. "
+        "NO text, NO typography, NO logos, NO coins, NO Bitcoin symbols. "
+        "NO borders, NO frames, NO watermarks. Full bleed edge-to-edge. "
+        "The image should tell the STORY behind the headline through visual metaphor. "
+        "Mood: sophisticated, authoritative, like a TIME magazine cover photo."
+    )
+
+
+def _resize_and_crop(img, target_w, target_h):
+    """Resize and center-crop to exact dimensions."""
+    # Calculate aspect ratios
+    img_ratio = img.width / img.height
+    target_ratio = target_w / target_h
+
+    if img_ratio > target_ratio:
+        # Image is wider — fit height, crop width
+        new_h = target_h
+        new_w = int(target_h * img_ratio)
+    else:
+        # Image is taller — fit width, crop height
+        new_w = target_w
+        new_h = int(target_w / img_ratio)
+
+    img = img.resize((new_w, new_h), Image.LANCZOS)
+
+    # Center crop
+    left = (new_w - target_w) // 2
+    top = (new_h - target_h) // 2
+    img = img.crop((left, top, left + target_w, top + target_h))
+
+    return img
+
+
+def _apply_brand_overlay(img):
+    """Apply subtle red/black brand overlay for cohesive look."""
+    # Slightly darken the image
+    enhancer = ImageEnhance.Brightness(img)
+    img = enhancer.enhance(0.75)
+
+    # Boost contrast slightly
+    enhancer = ImageEnhance.Contrast(img)
+    img = enhancer.enhance(1.15)
+
+    # Add subtle red tint via overlay
+    overlay = Image.new("RGB", img.size, (40, 0, 0))
+    img = Image.blend(img, overlay, alpha=0.08)
+
+    # Add gradient vignette (darker edges)
+    vignette = Image.new("L", img.size, 255)
+    draw = ImageDraw.Draw(vignette)
+    w, h = img.size
+    for i in range(40):
+        opacity = int(255 * (1 - i / 40.0) * 0.4)
+        draw.rectangle([i, i, w - i - 1, h - i - 1], outline=opacity)
+
+    # Apply vignette
+    img_array = img.copy()
+    r, g, b = img_array.split()
+    r = Image.composite(r, Image.new("L", img.size, 0), vignette)
+    g = Image.composite(g, Image.new("L", img.size, 0), vignette)
+    b = Image.composite(b, Image.new("L", img.size, 0), vignette)
+    img = Image.merge("RGB", (r, g, b))
+
+    # Add thin red accent line at bottom
+    draw = ImageDraw.Draw(img)
+    draw.line([(0, h - 3), (w, h - 3)], fill=(220, 38, 38), width=2)
+
+    return img
+
+# Singleton instance (imported by other modules)
 image_service = ImageGenerationService()
 
 
+# Standalone function aliases (imported by other modules)
+def generate_article_header_image(title, category=None):
+    return image_service.generate_article_header_image(title, category)
 
-# ============================================================
-
-
-def _generate_and_save_image(title, prompt):
-    """Shared image generation and save logic."""
-    import os, hashlib, logging, re
-    from datetime import datetime
-    logger = logging.getLogger("services.image_service")
-    
-    try:
-        from openai import OpenAI
-        client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-        
-        response = client.images.generate(
-            model="dall-e-3",
-
-
-            prompt=prompt + " unique composition " + __import__("hashlib").sha256((str(title) + str(__import__("time").time())).encode()).hexdigest()[:12] + ", cinematic lighting",
-            size="1792x1024",
-            quality="hd",
-            n=1,
-        )
-        
-        image_url = response.data[0].url
-        
-        import requests
-        img_resp = requests.get(image_url, timeout=30)
-        img_resp.raise_for_status()
-        
-        safe_title = re.sub(r'[^a-zA-Z0-9_]', '_', title[:60])
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"header_{safe_title}_{timestamp}.jpg"
-        
-        os.makedirs("static/images/headers", exist_ok=True)
-        filepath = f"static/images/headers/{filename}"
-        
-        with open(filepath, "wb") as f:
-            f.write(img_resp.content)
-        
-        if os.path.exists(filepath) and os.path.getsize(filepath) > 1000:
-            logger.info(f"Generated editorial image: {filename}")
-            return f"/static/images/headers/{filename}"
-        else:
-            logger.error(f"Image file not found after save: {filepath}")
-            return "/static/images/default-header.png"
-            
-    except Exception as e:
-        logger.error(f"Image generation failed: {e}")
-        return "/static/images/default-header.png"
-
-
-# OPINION COLUMN IMAGE STYLE — noir photojournalism
-# ============================================================
-OPINION_SCENES = [
-    "lone figure reading newspaper in dimly lit bar, film noir lighting, smoke curling in shaft of light",
-    "typewriter on oak desk with scattered papers, single desk lamp, dramatic chiaroscuro lighting",
-    "silhouette of journalist against rain-streaked window at night, city lights blurred below",
-    "stack of classified folders on brushed steel desk, shallow focus, moody blue-grey tones",
-    "empty press room with single glowing monitor, overhead fluorescent creating harsh shadows",
-    "hand holding redacted document, dramatic side lighting, vintage photojournalism aesthetic",
-    "whiskey glass beside open notebook with handwritten notes, warm tungsten light spilling across",
-    "figure walking through fog under streetlamp, trenchcoat silhouette, 1970s thriller aesthetic",
-    "closeup of hands on laptop keyboard in dark room, screen glow illuminating face partially",
-    "abandoned newsroom at 3am, scattered coffee cups, one desk lamp still on, cinematic desolation",
-    "vintage rotary phone beside ashtray on mahogany desk, Dutch angle, noir detective atmosphere",
-    "shadow of window blinds falling across wall of pinned documents and red string connections",
-]
-
-def generate_opinion_header_image(title):
-    """Generate a noir photojournalism header for opinion columns."""
-    import hashlib
-    title_hash = int(hashlib.md5(title.encode()).hexdigest(), 16)
-    scene = OPINION_SCENES[title_hash % len(OPINION_SCENES)]
-    
-    perspectives = [
-        "low angle looking up", "eye-level intimate", "overhead looking down",
-        "Dutch angle 15 degrees", "extreme close-up detail", "wide establishing shot",
-    ]
-    perspective = perspectives[title_hash % len(perspectives)]
-    
-    gradings = [
-        "desaturated with single warm accent color", "high contrast black and white with deep blacks",
-        "cold blue-steel monochrome", "warm sepia undertones with crushed blacks",
-        "Fincher-style teal shadows and amber highlights", "Gordon Willis underexposed darkness",
-    ]
-    grading = gradings[(title_hash >> 4) % len(gradings)]
-    
-    prompt = f"""Create a cinematic photograph for an investigative journalism column.
-
-SCENE: {scene}
-
-CINEMATOGRAPHY:
-- {perspective}
-- Color grading: {grading}
-- Shallow depth of field, grain visible, shot on 35mm film or Leica M
-- Atmosphere: secretive, informed, late-night intelligence
-
-ABSOLUTE REQUIREMENTS:
-- NO Bitcoin, cryptocurrency, coins, tokens, or tech symbols
-- NO logos, text, watermarks, charts
-- NO generic stock photo aesthetic
-- Must feel like a film still from All the President's Men or The Insider
-- Dark, moody, atmospheric — this is serious journalism
-- If people appear: anonymous, partial views, silhouettes only"""
-
-    from services.image_service import _generate_and_save_image
-    return _generate_and_save_image(title, prompt)
+def generate_opinion_header_image(title, category=None):
+    return image_service.generate_article_header_image(title, category)
