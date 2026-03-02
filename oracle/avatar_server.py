@@ -538,6 +538,25 @@ def vision_guide():
     return jsonify(result)
 
 
+@app.route("/vision/status")
+def vision_status():
+    """Check if vision features are enabled."""
+    gemini_key = os.environ.get("GEMINI_API_KEY", "")
+    enabled = bool(gemini_key)
+    if enabled:
+        return jsonify({
+            "status": "enabled",
+            "model": "gemini-2.5-flash",
+            "endpoints": ["/vision/analyze", "/vision/guide", "/vision/sessions"],
+        })
+    else:
+        return jsonify({
+            "status": "disabled",
+            "reason": "GEMINI_API_KEY not configured",
+            "setup_url": "https://aistudio.google.com/apikey",
+        })
+
+
 @app.route("/vision/sessions")
 def vision_sessions():
     """List active vision guide sessions."""
@@ -573,5 +592,31 @@ if __name__ == "__main__":
         logger.error("No face detected in avatar. Exiting.")
         sys.exit(1)
 
+    # ── Auto-warmup: prime CUDA kernels with a test generation ─────
+    logger.info("[WARMUP] Running pipeline warmup...")
+    warmup_start = time.time()
+    try:
+        import wave
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+            with wave.open(tmp.name, "w") as wf:
+                wf.setnchannels(1)
+                wf.setsampwidth(2)
+                wf.setframerate(16000)
+                wf.writeframes(b"\x00\x00" * 8000)  # 0.5s silence
+            warmup_wav = tmp.name
+        frames = wav2lip_generate(warmup_wav)
+        if frames:
+            frames = post_process_frames(frames[:5], 25.0)
+        os.unlink(warmup_wav)
+        logger.info(
+            f"[WARMUP] Pipeline ready in {time.time()-warmup_start:.1f}s "
+            f"({len(frames)} frames)"
+        )
+    except Exception as e:
+        logger.warning(f"[WARMUP] Failed (non-fatal): {e}")
+
+    logger.info(
+        f"[WARMUP] GPU 0 VRAM: {torch.cuda.memory_allocated(0)/1024**3:.1f}GB used"
+    )
     logger.info(f"Avatar server ready on port {PORT}")
     app.run(host="0.0.0.0", port=PORT, threaded=True)
