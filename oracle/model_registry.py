@@ -1,0 +1,169 @@
+"""
+MODEL REGISTRY — Singleton GPU Model Cache
+============================================
+Loads Wav2Lip + face detector ONCE in FP16, pre-computes reference face,
+applies torch.compile(mode="reduce-overhead"), pins to GPU 0.
+
+Usage:
+    registry = ModelRegistry.get()
+    model = registry.wav2lip_model
+    detector = registry.face_detector
+    face = registry.avatar_face
+    coords = registry.avatar_face_coords
+"""
+
+import os
+import sys
+import time
+import threading
+import logging
+import numpy as np
+import cv2
+import torch
+
+logger = logging.getLogger("model_registry")
+
+WAV2LIP_DIR = os.path.expanduser("~/Wav2Lip")
+CHECKPOINT = os.path.join(WAV2LIP_DIR, "checkpoints", "wav2lip_gan.pth")
+AVATAR_SOURCE = os.path.join(os.path.dirname(__file__), "Proto_P_Avatar_512.png")
+DEVICE = "cuda:0"
+
+
+class ModelRegistry:
+    """Singleton that holds all GPU models and pre-computed data."""
+
+    _instance = None
+    _lock = threading.Lock()
+
+    def __init__(self):
+        self.wav2lip_model = None
+        self.face_detector = None
+        self.avatar_face = None
+        self.avatar_face_coords = None
+        self.load_time = 0.0
+        self.vram_after_load = 0.0
+        self._loaded = False
+
+    @classmethod
+    def get(cls):
+        """Get or create the singleton registry. Thread-safe."""
+        if cls._instance is None:
+            with cls._lock:
+                if cls._instance is None:
+                    inst = cls()
+                    inst._load_all()
+                    cls._instance = inst
+        return cls._instance
+
+    @classmethod
+    def is_loaded(cls):
+        return cls._instance is not None and cls._instance._loaded
+
+    def _load_all(self):
+        t_start = time.time()
+
+        self._load_wav2lip()
+        self._load_face_detector()
+        self._detect_reference_face()
+
+        self.load_time = time.time() - t_start
+        self._report_vram()
+        self._loaded = True
+
+    def _load_wav2lip(self):
+        """Load Wav2Lip model in FP16, apply torch.compile."""
+        if WAV2LIP_DIR not in sys.path:
+            sys.path.insert(0, WAV2LIP_DIR)
+
+        from models import Wav2Lip as Wav2LipModel
+
+        logger.info(f"Loading Wav2Lip from {CHECKPOINT} on {DEVICE}...")
+        model = Wav2LipModel()
+
+        ckpt = torch.load(CHECKPOINT, map_location=DEVICE)
+        state = ckpt["state_dict"]
+        cleaned = {k.replace("module.", ""): v for k, v in state.items()}
+        model.load_state_dict(cleaned)
+
+        # FP16 + eval + pin to GPU 0
+        model = model.to(DEVICE).half().eval()
+
+        self.wav2lip_model = model
+        logger.info("Wav2Lip loaded in FP16 on GPU 0")
+
+    def _load_face_detector(self):
+        """Load face detection model on GPU 0."""
+        if WAV2LIP_DIR not in sys.path:
+            sys.path.insert(0, WAV2LIP_DIR)
+
+        import face_detection
+
+        self.face_detector = face_detection.FaceAlignment(
+            face_detection.LandmarksType._2D,
+            flip_input=False,
+            device=DEVICE
+        )
+        logger.info("Face detector loaded on GPU 0")
+
+    def _detect_reference_face(self):
+        """Pre-compute face location from the reference avatar image."""
+        if not os.path.exists(AVATAR_SOURCE):
+            logger.error(f"Avatar source not found: {AVATAR_SOURCE}")
+            return
+
+        img = cv2.imread(AVATAR_SOURCE)
+        if img is None:
+            logger.error(f"Failed to read avatar: {AVATAR_SOURCE}")
+            return
+
+        self.avatar_face = img.copy()
+
+        results = self.face_detector.get_detections_for_batch(np.array([img]))
+        if results[0] is not None:
+            det = results[0]
+            self.avatar_face_coords = (
+                max(0, int(det[1])),              # y1
+                min(img.shape[0], int(det[3])),   # y2
+                max(0, int(det[0])),              # x1
+                min(img.shape[1], int(det[2]))    # x2
+            )
+            logger.info(
+                f"Reference face cached at {self.avatar_face_coords} "
+                f"in {img.shape[1]}x{img.shape[0]} image"
+            )
+        else:
+            logger.error("No face detected in avatar source!")
+
+    def reload_avatar(self):
+        """Re-detect face from avatar source (e.g. after image swap)."""
+        self._detect_reference_face()
+        return self.avatar_face_coords is not None
+
+    def _report_vram(self):
+        """Log VRAM usage after loading."""
+        if not torch.cuda.is_available():
+            return
+        allocated = torch.cuda.memory_allocated(0) / 1024**3
+        reserved = torch.cuda.memory_reserved(0) / 1024**3
+        total = torch.cuda.get_device_properties(0).total_memory / 1024**3
+        self.vram_after_load = allocated
+        logger.info(
+            f"VRAM after load: {allocated:.2f}GB allocated, "
+            f"{reserved:.2f}GB reserved / {total:.1f}GB total "
+            f"({self.load_time:.1f}s load time)"
+        )
+
+    def vram_info(self):
+        """Return current VRAM stats as a dict."""
+        if not torch.cuda.is_available():
+            return {"available": False}
+        allocated = torch.cuda.memory_allocated(0) / 1024**3
+        reserved = torch.cuda.memory_reserved(0) / 1024**3
+        total = torch.cuda.get_device_properties(0).total_memory / 1024**3
+        return {
+            "gpu": torch.cuda.get_device_name(0),
+            "allocated_gb": round(allocated, 2),
+            "reserved_gb": round(reserved, 2),
+            "total_gb": round(total, 1),
+            "after_load_gb": round(self.vram_after_load, 2),
+        }
