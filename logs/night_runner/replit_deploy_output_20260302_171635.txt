@@ -1,0 +1,524 @@
+  ```bash
+  curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+    -H "Content-Type: application/json" \
+    -d '{"cmd": "cd /home/runner/workspace && cp
+  media_reforge/templates/media_unified.html templates/media_unified.html
+  && cp media_reforge/static/css/media_unified.css
+  static/css/media_unified.css && cp
+  media_reforge/static/js/media_unified.js static/js/media_unified.js &&
+  echo MEDIA_DEPLOYED && wc -l templates/media_unified.html
+  static/css/media_unified.css static/js/media_unified.js"}'
+  ```
+
+  ## TASK 3: Ensure Routes Are Updated
+
+  Check if routes.py serves /media-unified and /media correctly:
+
+  ```bash
+  curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+    -H "Content-Type: application/json" \
+    -d '{"cmd": "cd /home/runner/workspace && grep -n
+  \"media_unified\\|media-unified\\|media_hub\" routes.py | head -10"}'
+  ```
+
+  If /media doesn't serve media_unified.html yet, patch it:
+  ```bash
+  curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+    -H "Content-Type: application/json" \
+    -d '{"cmd": "cd /home/runner/workspace && python3 -c
+  \"r=open('"'"'routes.py'"'"').read();
+  r=r.replace('"'"'media_hub.html'"'"', '"'"'media_unified.html'"'"') if
+  '"'"'media_hub.html'"'"' in r else r;
+  open('"'"'routes.py'"'"','"'"'w'"'"').write(r);
+  print('"'"'PATCHED'"'"')\""}'
+  ```
+
+  ## TASK 4: Restart Replit App
+
+  ```bash
+  curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+    -H "Content-Type: application/json" \
+    -d '{"cmd": "cd /home/runner/workspace && touch main.py && echo
+  RESTARTING"}'
+  ```
+
+  ## TASK 5: Verify Live Site
+
+  ```bash
+  # Check home page
+  curl -s -o /dev/null -w "%{http_code}"
+  "https://protocolpulse.replit.app/"
+
+  # Check media page
+  curl -s -o /dev/null -w "%{http_code}"
+  "https://protocolpulse.replit.app/media-unified"
+
+  # Check articles API
+  curl -s "https://protocolpulse.replit.app/api/articles/latest" | python3
+  -c "import json,sys;d=json.load(sys.stdin);print(f'Articles: {len(d) if
+  isinstance(d,list) else \"check format\"}')"
+
+  # Check if Mining Intel article published
+  curl -s "https://protocolpulse.replit.app/api/articles/latest" | python3
+  -c "
+  import json,sys
+  d=json.load(sys.stdin)
+  if isinstance(d,list):
+      for a in d[:5]:
+          cat = a.get('category','')
+          title = a.get('title','')[:60]
+          print(f'[{cat}] {title}')
+  "
+  ```
+
+  ## TASK 6: Verify Key Pages Load
+
+  Check these routes return 200:
+  - / (home)
+  - /articles
+  - /media-unified (or /media)
+  - /stage
+  - /dossier
+
+  ```bash
+  for path in / /articles /media-unified /stage /dossier; do
+      code=$(curl -s -o /dev/null -w "%{http_code}"
+  "https://protocolpulse.replit.app${path}")
+      echo "$path → $code"
+  done
+  ```
+
+  ## GIT (on Ultron side — push any route fixes)
+  ```bash
+  cd ~/protocol_pulse && git add -A && git commit -m "ops: deploy to Replit
+   — media phase 3, route fixes" && git push origin main
+  ```
+
+  Report: all HTTP status codes, article counts, any errors.
+
+  START EXECUTING NOW.
+
+
+
+● Executing deployment now. Starting with git pull and status check on Replit.
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "",
+     … +4 lines (ctrl+o to expand)
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 128,
+       "stderr": "fatal: not a git repository (or any of the parent directo
+     … +3 lines (ctrl+o to expand)
+
+● Not a git repo at /home/runner/workspace. Let me find the actual repo location
+   on Replit.
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "",
+     … +2 lines (ctrl+o to expand)
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "",
+     … +29 lines (ctrl+o to expand)
+
+● No .git — the Replit workspace isn't a git repo. Need to initialize git and
+  pull, or push files directly. Let me check if there's a git remote configured
+  anywhere and also check what's in the local repo to determine the best
+  approach.
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "hint: Using 'master' as the name for the initial branch.
+     … +12 lines (ctrl+o to expand)
+  ⎿  (timeout 30s)
+
+● Bash(cd ~/protocol_pulse && ls media_reforge/templates/
+      media_reforge/static/css/ media_reforge/static/js/ 2>/dev/null; echo
+      "---"; ls templates/media_unified.html s…)
+  ⎿  media_reforge/static/css/:
+     media_unified.css
+     … +9 lines (ctrl+o to expand)
+
+● Git initialized but doing a full pull would conflict with existing files.
+  Switching to direct file push approach — more reliable. Let me push the media
+  files directly.
+
+● Bash(cd ~/protocol_pulse && wc -l media_reforge/templates/media_unified.html
+      media_reforge/static/css/media_unified.css
+      media_reforge/static/js/media_unified.js)
+  ⎿     439 media_reforge/templates/media_unified.html
+       1945 media_reforge/static/css/media_unified.css
+       1229 media_reforge/static/js/media_unified.js
+       3613 total
+
+● Bash(cd ~/protocol_pulse && git log --oneline -10)
+  ⎿  71da01c phase2: activate_systems [auto]
+     09e0aa9 ops: activate backfill, mining intel, spaces scraper, cron job
+     s
+     … +11 lines (ctrl+o to expand)
+
+● Now pushing all 3 media files via base64. Let me also try a git fetch approach
+   first since it's cleaner — if it works it brings everything at once.
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "hint: Using 'master' as the name for the initial branch.
+     … +12 lines (ctrl+o to expand)
+  ⎿  (timeout 1m)
+
+● Fetch succeeded. Now checkout the files we need from the fetched main branch.
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "",
+     … +2 lines (ctrl+o to expand)
+
+● Files checked out. Let me verify they're in place and check the routes.
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "",
+     … +12 lines (ctrl+o to expand)
+
+● Wait — the git checkout replaced routes.py entirely. Let me verify the relay
+  endpoint is still there (critical — we'd lose access otherwise).
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "",
+     … +4 lines (ctrl+o to expand)
+
+● Relay endpoint intact. 8464 lines, all good. Now let me also pull any other
+  changed files that might be needed — let me check what the recent commits
+  changed.
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "",
+     … +2 lines (ctrl+o to expand)
+
+● Good — commits are synced. The git diff is empty because there's no local HEAD
+   commit yet. Let me also sync all templates and static files from the git repo
+   to ensure everything's up to date.
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "",
+     … +14 lines (ctrl+o to expand)
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "",
+     … +18 lines (ctrl+o to expand)
+
+● Let me checkout ALL templates and static files from the repo to ensure
+  everything's synced.
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "",
+     … +2 lines (ctrl+o to expand)
+
+● All files synced. Now let me mark task 1 done, update task 2, and verify the
+  routes.
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {"returncode":0,"stderr":"","stdout":"1541:def media_terminal():\n1548
+     :def media_hub():\n---\n@app.route('/media-unified')\ndef media_hub():
+     \n    \"\"\"Media Hub \u2014 cinematic dark layout with real data\"\"\
+     … +2 lines (ctrl+o to expand)
+
+● Routes are correctly serving /media, /media-hub, and /media-unified — all
+  pointing to media_hub() which renders media_unified.html. Task 2 done.
+
+● Now restart and verify.
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "",
+     … +2 lines (ctrl+o to expand)
+
+● Waiting a few seconds for the app to restart, then verifying all pages.
+
+● Bash(sleep 15 && for path in / /articles /media-unified /media /stage /dossier
+       /sponsors /events /disruption-tracker; do
+          code=$(curl -s -o /dev/null -w "%{http_c…)
+  ⎿  / → 200
+     /articles → 200
+     /media-unified → 404
+     … +6 lines (ctrl+o to expand)
+  ⎿  (timeout 1m)
+
+● /media works (200) but /media-unified is 404. Also /sponsors, /events,
+  /disruption-tracker are 404. Let me investigate.
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "",
+     … +4 lines (ctrl+o to expand)
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "",
+     … +3 lines (ctrl+o to expand)
+
+● Routes and templates all exist. The 404s might be from a stale gunicorn that
+  hasn't fully reloaded yet. Let me check if the app is actually using the
+  updated routes.py.
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {"returncode":0,"stderr":"","stdout":"def library_page():\n    return
+     redirect('/media')\n\n\n# === ALL-IN PLAYBOOK ROUTES (Session 3) ===\n
+     \n@app.route('/sponsors')\n@app.route('/advertise')\n@app.route('/medi
+     … +10 lines (ctrl+o to expand)
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {"returncode":0,"stderr":"","stdout":"\n@app.route('/media')\n@app.rou
+     te('/media-hub')\n@app.route('/media-unified')\ndef media_hub():\n
+     \"\"\"Media Hub \u2014 cinematic dark layout with real data\"\"\"\n
+     … +6 lines (ctrl+o to expand)
+
+● Routes look correct in the file. The app may not have reloaded properly. Let
+  me force a proper restart by killing gunicorn.
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "",
+     … +18 lines (ctrl+o to expand)
+
+● Gunicorn master is PID 27, worker PID 174. Sending HUP to gracefully reload
+  workers (picks up file changes without killing the relay).
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "",
+     … +2 lines (ctrl+o to expand)
+
+● Bash(sleep 12 && for path in / /articles /media-unified /media /stage /dossier
+       /sponsors /events /disruption-tracker; do
+          code=$(curl -s -o /dev/null -w "%{http_c…)
+  ⎿  / → 200
+     /articles → 200
+     /media-unified → 200
+     … +6 lines (ctrl+o to expand)
+  ⎿  (timeout 1m)
+
+● All pages returning 200. Now let me check the articles API and media page
+  content.
+
+● Bash(curl -s "https://protocolpulse.replit.app/api/articles/latest" | python3
+      -c "
+      import json,sys…)
+  ⎿  Error: Exit code 1
+     Traceback (most recent call last):
+       File "<string>", line 3, in <module>
+       File "/usr/lib/python3.10/json/__init__.py", line 293, in load
+         return loads(fp.read(),
+       File "/usr/lib/python3.10/json/__init__.py", line 346, in loads
+         return _default_decoder.decode(s)
+       File "/usr/lib/python3.10/json/decoder.py", line 337, in decode
+         obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+       File "/usr/lib/python3.10/json/decoder.py", line 355, in raw_decode
+     … +14 lines (ctrl+o to see all)
+
+● Bash(curl -s "https://protocolpulse.replit.app/media-unified" | head -c 500)
+  ⎿  Error: Sibling tool call errored
+
+● Bash(curl -s "https://protocolpulse.replit.app/api/articles/latest" | head -c
+      300)
+  ⎿  <!DOCTYPE html>
+     <html lang="en">
+     <head>
+     … +6 lines (ctrl+o to expand)
+
+● Bash(curl -s "https://protocolpulse.replit.app/media-unified" | head -c 500)
+  ⎿  <!DOCTYPE html>
+     <html lang="en">
+     <head>
+     … +10 lines (ctrl+o to expand)
+
+● /media-unified is rendering properly. The articles API returned HTML instead
+  of JSON — that means /api/articles/latest might be redirecting to the
+  homepage. Let me check.
+
+● Bash(curl -s -o /dev/null -w "%{http_code}"
+      "https://protocolpulse.replit.app/api/articles/latest" && echo "" && curl
+      -s "https://protocolpulse.replit.app/api/articl…)
+  ⎿  404
+     <!DOCTYPE html>
+     <html lang="en">
+     … +6 lines (ctrl+o to expand)
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "",
+     … +2 lines (ctrl+o to expand)
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "",
+     … +2 lines (ctrl+o to expand)
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "",
+     … +12 lines (ctrl+o to expand)
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
+        -H "Content-Type: application/json" \…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "",
+     … +12 lines (ctrl+o to expand)
+
+● The correct endpoint is /api/latest-articles (line 3216), not
+  /api/articles/latest. Let me check it.
+
+● Bash(curl -s "https://protocolpulse.replit.app/api/latest-articles" | python3
+      -c "
+      import json,sys…)
+  ⎿  Total articles: 6
+       []  Saylor's Bitcoin Buy Fuels Crypto Trading Boom
+       []  1056 EH/s and Climbing: Network Hits ATH Hashrate as Fear Pe
+     … +3 lines (ctrl+o to expand)
+
+● Bash(curl -s "https://protocolpulse.replit.app/api/media/feed" | python3 -c "
+      import json,sys…)
+  ⎿  Media feed items: 50
+       URSF-110: A POC using "invalidateblock" to reject BIP110 - @
+       BART's tall fare gates increase revenues by $10 million, red
+       Mapped: Where Food Inflation Will Hit Hardest in 2026
+
+● Everything is working. Let me do a final comprehensive check.
+
+● Bash(echo "=== DEPLOYMENT STATUS REPORT ==="
+      echo ""…)
+  ⎿  === DEPLOYMENT STATUS REPORT ===
+
+     --- PAGE STATUS CODES ---
+     … +19 lines (ctrl+o to expand)
+  ⎿  (timeout 1m)
+
+● DEPLOYMENT COMPLETE
+
+  Page Status — All 200
+
+  ┌─────────────────────┬────────┐
+  │        Route        │ Status │
+  ├─────────────────────┼────────┤
+  │ /                   │ 200    │
+  ├─────────────────────┼────────┤
+  │ /articles           │ 200    │
+  ├─────────────────────┼────────┤
+  │ /media-unified      │ 200    │
+  ├─────────────────────┼────────┤
+  │ /media              │ 200    │
+  ├─────────────────────┼────────┤
+  │ /stage              │ 200    │
+  ├─────────────────────┼────────┤
+  │ /dossier            │ 200    │
+  ├─────────────────────┼────────┤
+  │ /sponsors           │ 200    │
+  ├─────────────────────┼────────┤
+  │ /events             │ 200    │
+  ├─────────────────────┼────────┤
+  │ /disruption-tracker │ 200    │
+  ├─────────────────────┼────────┤
+  │ /donate             │ 200    │
+  ├─────────────────────┼────────┤
+  │ /about              │ 200    │
+  ├─────────────────────┼────────┤
+  │ /charts             │ 200    │
+  └─────────────────────┴────────┘
+
+  API Endpoints — All 200
+
+  ┌──────────────────────┬──────────────────┐
+  │       Endpoint       │      Status      │
+  ├──────────────────────┼──────────────────┤
+  │ /api/latest-articles │ 200 (6 articles) │
+  ├──────────────────────┼──────────────────┤
+  │ /api/media/feed      │ 200 (50 items)   │
+  ├──────────────────────┼──────────────────┤
+  │ /api/media/sentiment │ 200              │
+  ├──────────────────────┼──────────────────┤
+  │ /api/latest-episodes │ 200              │
+  ├──────────────────────┼──────────────────┤
+  │ /api/network-data    │ 200              │
+  └──────────────────────┴──────────────────┘
+
+  What was deployed:
+
+  1. Git fetch from consensusprotocol/protocol-pulse-core main branch to Replit
+  2. Checked out all templates/, static/, routes.py, app.py, core/ from latest
+  main
+  3. Media Phase 3: media_unified.html (401 lines), media_unified.css (1475
+  lines), media_unified.js (947 lines)
+  4. Routes confirmed: /media, /media-hub, /media-unified all serve
+  media_unified.html
+  5. Gunicorn reloaded via SIGHUP (no downtime)
+
+  Articles on site:
+
+  - Saylor's Bitcoin Buy Fuels Crypto Trading Boom
+  - 1056 EH/s and Climbing: Network Hits ATH Hashrate
+  - Bitcoin's Network Shrugs Off Price Volatility
+  - Bitcoin's Mining Exodus Accelerates
+  - Inflation Undermines Tech's True Gains
+
+✻ Sautéed for 4m 25s
+
+────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────
+  ⏵⏵ bypass permissions on (shift+tab to cycle)
+
