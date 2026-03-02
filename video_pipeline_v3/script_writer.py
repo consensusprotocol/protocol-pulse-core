@@ -57,7 +57,7 @@ def generate_script_claude(stories: list[dict]) -> dict:
         for i, s in enumerate(stories[:7])
     )
     resp = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-sonnet-4-6",
         max_tokens=4000,
         messages=[{"role": "user", "content": NARRATION_PROMPT.format(stories=stories_text)}]
     )

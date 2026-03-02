@@ -10,21 +10,27 @@ def _load():
             _cfg = yaml.safe_load(f)
     return _cfg
 
-def run(cmd: str, timeout: int = 15) -> str:
+def run(cmd: str, timeout: int = 25) -> str:
     """Execute a command on Replit via relay and return stdout."""
     c = _load()["relay"]
-    try:
-        r = requests.post(c["url"], json={"token": c["token"], "cmd": cmd}, timeout=timeout)
-        if r.status_code == 200:
-            data = r.json()
-            return data.get("stdout", "").strip()
-        return ""
-    except Exception as e:
-        print(f"[relay] error: {e}")
-        return ""
+    for attempt in range(2):
+        try:
+            r = requests.post(c["url"], json={"token": c["token"], "cmd": cmd},
+                              timeout=timeout)
+            if r.status_code == 200:
+                data = r.json()
+                return data.get("stdout", "").strip()
+            return ""
+        except requests.exceptions.Timeout:
+            if attempt == 0:
+                pass  # retry once
+        except Exception as e:
+            print(f"[relay] error: {e}")
+            break
+    return ""
 
 def get_key(name: str) -> str:
-    """Get an API key from Replit env, falling back to local env."""
+    """Get an API key from local env first, then Replit relay."""
     local = os.environ.get(name, "")
     if local:
         return local

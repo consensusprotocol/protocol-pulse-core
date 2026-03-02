@@ -25,13 +25,13 @@ shorts:
   fps: 30
 
 tts:
-  voice_id: "1m00Tcm4TlvDq8ikWAM"
+  voice_id: "cgSgspJ2msm6clMCkdW9"  # Jessica
   model_id: "eleven_turbo_v2_5"
   stability: 0.55
   similarity_boost: 0.85
   style: 0.50
   use_speaker_boost: true
-  fallback: "gtts"  # gTTS when ElevenLabs unavailable
+  fallback: null    # No fallback — ElevenLabs or fail
 
 assets:
   font_mono: "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
