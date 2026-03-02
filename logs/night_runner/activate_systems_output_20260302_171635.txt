@@ -1,0 +1,524 @@
+  If the test looks good, do a REAL publish:
+  ```bash
+  python3 mining_intel_scheduler.py --force
+  ```
+
+  Check if it appeared in the article database.
+
+  ## TASK 3: Activate X Spaces Scraper
+
+  The spaces_scraper was fully built. It needs:
+
+  1. Check if the API server runs:
+  ```bash
+  cd ~/protocol_pulse/spaces_scraper
+  python3 api_server.py &
+  sleep 3
+  curl -s http://localhost:8210/ | python3 -m json.tool
+  kill %1
+  ```
+
+  2. Set up as a persistent tmux service:
+  ```bash
+  tmux new-session -d -s spaces
+  tmux send-keys -t spaces 'cd ~/protocol_pulse/spaces_scraper && python3
+  main.py' Enter
+  ```
+
+  3. For Cloudflare tunnel (needs config update — just prepare the config,
+  don't run sudo):
+  ```bash
+  cat > /tmp/spaces_tunnel.yml << EOF
+  tunnel: $(grep tunnel /etc/cloudflared/config.yml | head -1 | awk '{print
+   $2}')
+  credentials-file: /home/ultron/.cloudflared/$(grep credentials
+  /etc/cloudflared/config.yml | awk -F/ '{print $NF}')
+
+  ingress:
+    - hostname: spaces.protocolpulse.io
+      service: http://localhost:8210
+    - hostname: avatar.protocolpulse.io
+      service: http://localhost:8200
+    - hostname: relay.protocolpulse.io
+      service: http://localhost:8201
+    - service: http_status:404
+  EOF
+  echo "Tunnel config ready at /tmp/spaces_tunnel.yml"
+  echo "To activate: sudo cp /tmp/spaces_tunnel.yml
+  /etc/cloudflared/config.yml && sudo systemctl reload cloudflared"
+  echo "Also need CNAME: spaces.protocolpulse.io in Cloudflare DNS"
+  ```
+
+  ## TASK 4: Set Up Cron Jobs for All Automated Systems
+
+  ```bash
+  # Show current crontab
+  crontab -l 2>/dev/null || echo "No crontab"
+
+  # Add all scheduled tasks
+  (crontab -l 2>/dev/null; cat << 'CRON'
+  # Mining Intel — Twice weekly (Wed + Sun 10 AM EST)
+  0 10 * * 3,0 cd /home/ultron/protocol_pulse/mining_intel && python3
+  mining_intel_scheduler.py >> ~/protocol_pulse/logs/mining_intel.log 2>&1
+
+  # Oracle Briefing — Daily 7 AM EST
+  0 7 * * * cd /home/ultron/protocol_pulse/oracle_briefing && python3
+  briefing_producer.py >> ~/protocol_pulse/logs/oracle_briefing.log 2>&1
+
+  # Pulse Check — Daily 9 AM EST
+  0 9 * * * cd /home/ultron/protocol_pulse/video_pipeline_v3 && python3
+  daily_producer.py >> ~/protocol_pulse/logs/pulse_check.log 2>&1
+
+  # Image Backfill — Weekly Sunday midnight (catch new articles)
+  0 0 * * 0 cd /home/ultron/protocol_pulse && python3
+  scripts/image_backfill_pexels.py >>
+  ~/protocol_pulse/logs/image_backfill.log 2>&1
+  CRON
+  ) | sort -u | crontab -
+
+  # Verify
+  crontab -l
+  ```
+
+  ## TASK 5: Verify All Services Running
+
+  ```bash
+  echo "=== TMUX SESSIONS ==="
+  tmux ls
+
+  echo "=== LISTENING PORTS ==="
+  ss -tlnp | grep -E "8200|8201|8210"
+
+  echo "=== GPU USAGE ==="
+  nvidia-smi --query-gpu=memory.used,memory.total,utilization.gpu
+  --format=csv,noheader
+
+  echo "=== DISK ==="
+  df -h / | tail -1
+
+  echo "=== CRONTAB ==="
+  crontab -l
+
+  echo "=== RECENT GIT ==="
+  cd ~/protocol_pulse && git log --oneline -5
+  ```
+
+  ## GIT
+  ```bash
+  cd ~/protocol_pulse && git add -A && git commit -m "ops: activate
+  backfill, mining intel, spaces scraper, cron jobs" && git push origin
+  main
+  ```
+
+  Report everything: backfill count, mining intel article sample, spaces
+  API response, cron jobs installed, service status.
+
+  START EXECUTING NOW.
+
+
+● Starting execution now. Let me run initial checks in parallel.
+
+● Bash(cd ~/protocol_pulse && ls scripts/image_backfill_pexels.py 2>/dev/null &&
+       head -80 scripts/image_backfill_pexels.py)
+  ⎿  scripts/image_backfill_pexels.py
+     #!/usr/bin/env python3
+     """
+     … +51 lines (ctrl+o to expand)
+
+● Bash(cd ~/protocol_pulse && ls -la mining_intel/ 2>/dev/null && ls -la
+      mining_intel/output/ 2>/dev/null)
+  ⎿  total 100
+     drwxrwxr-x  5 ultron ultron  4096 Mar  2 14:50 .
+     drwxrwxr-x 37 ultron ultron 12288 Mar  2 17:42 ..
+     … +15 lines (ctrl+o to expand)
+
+● Bash(cd ~/protocol_pulse && ls -la spaces_scraper/ 2>/dev/null && ls
+      spaces_scraper/*.py 2>/dev/null)
+  ⎿  total 116
+     drwxrwxr-x  3 ultron ultron  4096 Mar  2 02:52 .
+     drwxrwxr-x 37 ultron ultron 12288 Mar  2 17:42 ..
+     … +14 lines (ctrl+o to expand)
+
+● Bash(echo "=== TMUX SESSIONS ===" && tmux ls 2>/dev/null || echo "No tmux
+      sessions" && echo "=== LISTENING PORTS ===" && ss -tlnp | grep -E
+      "8200|8201|8210" && echo…)
+  ⎿  === TMUX SESSIONS ===
+     argos: 1 windows (created Mon Mar  2 13:46:23 2026)
+     avatar: 1 windows (created Sun Mar  1 19:42:46 2026)
+     … +17 lines (ctrl+o to expand)
+
+● Good. Services already running: avatar (8200), relay (8201), spaces (8210).
+  Let me execute all tasks in parallel.
+
+● Bash(cd ~/protocol_pulse && cat
+      mining_intel/output/test_mining_intel_20260302_195201.json | python3 -m
+      json.tool | head -60)
+  ⎿  {
+         "title": "1056 EH/s and Extreme Fear: Why Miners Aren't Blinking",
+         "subtitle": "Network hashrate holds near all-time highs while reta
+     … +196 lines (ctrl+o to expand)
+
+● Bash(curl -s http://localhost:8210/ | python3 -m json.tool 2>/dev/null || curl
+       -s http://localhost:8210/health | python3 -m json.tool 2>/dev/null ||
+      echo "Trying /ap…)
+  ⎿  {
+         "service": "spaces-scraper",
+         "status": "running",
+     … +8 lines (ctrl+o to expand)
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" -H
+      "Content-Type: application/json" -d
+      '{"token":"581b1076ca6d8a8809997d24f0869431ffd75c64de9e…)
+  ⎿  {
+       "returncode": 1,
+       "stderr": "/home/runner/workspace/.pythonlibs/lib/python3.11/site-pa
+     … +46 lines (ctrl+o to expand)
+
+● Read 1 file (ctrl+o to expand)
+
+● Mining intel test output is excellent — 1300 words, punchy title,
+  fact-checked. Spaces scraper already running on 8210. Now executing the actual
+   tasks.
+
+● Bash(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" -H
+      "Content-Type: application/json" -d
+      '{"token":"581b1076ca6d8a8809997d24f0869431ffd75c64de9e…)
+  ⎿  Error: Exit code 3
+     {"error":"unauthorized"}
+
+     {"error":"unauthorized"}
+
+● Bash(cd ~/protocol_pulse && python3 scripts/image_backfill_pexels.py 2>&1)
+  ⎿  Error: Sibling tool call errored
+
+● Bash(cd ~/protocol_pulse/mining_intel && python3 mining_intel_scheduler.py
+      --test --force 2>&1)
+  ⎿  Error: Sibling tool call errored
+
+● Searched for 1 pattern (ctrl+o to expand)
+
+● Relay query had quoting issues. Let me fix and re-run everything.
+
+● Bash(cd ~/protocol_pulse && python3 -c "
+      import requests, json…)
+  ⎿  {
+       "returncode": 1,
+       "stderr": "  File \"<string>\", line 1\n    from app import app, db;
+     … +8 lines (ctrl+o to expand)
+
+● Searched for 1 pattern (ctrl+o to expand)
+
+● Bash(cd ~/protocol_pulse && python3 -c "
+      import requests, json…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "/home/runner/workspace/.pythonlibs/lib/python3.11/site-pa
+     … +27 lines (ctrl+o to expand)
+
+● Bash(cd ~/protocol_pulse && python3 scripts/image_backfill_pexels.py 2>&1)
+  ⎿  Running in the background (↓ to manage)
+
+● Bash(cd ~/protocol_pulse/mining_intel && python3 mining_intel_scheduler.py
+      --test --force 2>&1)
+  ⎿  Running in the background (↓ to manage)
+
+● 1650 total articles, only 2 need images — nearly all already backfilled! Both
+  background tasks running. Now setting up tunnel config and cron jobs.
+
+● Read 1 file (ctrl+o to expand)
+
+● Bash(crontab -l 2>/dev/null)
+  ⎿  0 13 * * * LD_LIBRARY_PATH="/usr/local/lib/ollama/cuda_v12:/usr/local/
+     cuda/lib64" /home/ultron/protocol_pulse/medley_engine_v2/daily_run.sh
+     >> /tmp/medley_daily.log 2>&1
+     … +2 lines (ctrl+o to expand)
+
+● The tunnel config needs to merge with existing entries, not replace them. Let
+  me fix that and set up cron jobs.
+
+● Read 1 file (ctrl+o to expand)
+
+● Bash(# Build new crontab preserving existing entries and adding new ones
+      (crontab -l 2>/dev/null; cat << 'CRON'…)
+  ⎿  Crontab installed:
+
+     0 12 * * * /usr/bin/python3 briefing_producer.py >> /home/ultron/proto
+     … +14 lines (ctrl+o to expand)
+
+● Background command "Run image backfill script" completed (exit code 0)
+
+● Cron jobs installed. Image backfill completed. Let me check the results.
+
+● Read 1 file (ctrl+o to expand)
+
+● Task Output(non-blocking) bwta1nn6n
+  ⎿  2026-03-02 17:52:20,279 [mining_intel] INFO ==========================
+     ==================================
+     2026-03-02 17:52:20,279 [mining_intel] INFO Mining Intel Pipeline — 20
+     … +22 lines (ctrl+o to expand)
+
+● Image backfill: DONE — 2/2 articles updated, 0 failures, 16.5s total. Mining
+  intel test still generating article. Let me wait for it.
+
+● Task Output bwta1nn6n
+  ⎿  2026-03-02 17:52:20,279 [mining_intel] INFO ==========================
+     ==================================
+     2026-03-02 17:52:20,279 [mining_intel] INFO Mining Intel Pipeline — 20
+     … +87 lines (ctrl+o to expand)
+
+● Background command "Run fresh mining intel test" completed (exit code 0)
+
+● Mining intel test is excellent — "1056 EH/s and Rising: Miners Aren't Blinking
+   at $69K", 1353 words, fact-check APPROVED (85/100), 96s pipeline. Now doing a
+   real publish and final status check.
+
+● Bash(cd ~/protocol_pulse/mining_intel && python3 mining_intel_scheduler.py
+      --force 2>&1)
+  ⎿  Running in the background (↓ to manage)
+
+● Bash(echo "=== TMUX SESSIONS ===" && tmux ls && echo "" && echo "=== LISTENING
+       PORTS ===" && ss -tlnp | grep -E "8200|8201|8210" && echo "" && echo "===
+       GPU USAGE ==…)
+  ⎿  === TMUX SESSIONS ===
+     argos: 1 windows (created Mon Mar  2 13:46:23 2026)
+     avatar: 1 windows (created Sun Mar  1 19:42:46 2026)
+     … +30 lines (ctrl+o to expand)
+
+● All services green. Waiting for the real mining intel publish to complete.
+
+● Task Output blzev2xnm
+  ⎿  2026-03-02 17:54:04,628 [mining_intel] INFO ==========================
+     ==================================
+     2026-03-02 17:54:04,628 [mining_intel] INFO Mining Intel Pipeline — 20
+     … +37 lines (ctrl+o to expand)
+
+● Background command "Publish mining intel article for real" completed (exit
+code 0)
+
+● Article generated and approved but publish failed — empty relay response. Let
+  me investigate and fix.
+
+● Bash(cd ~/protocol_pulse/mining_intel && grep -n "def publish" publisher.py |
+      head -5)
+  ⎿  179:def publish_article(article: dict) -> dict:
+
+● Bash(cd ~/protocol_pulse/mining_intel && cat
+      output/failed_publish_20260302_225539.json | python3 -c "import json,sys;
+      d=json.load(sys.stdin); print('Title:', d.get(…)
+  ⎿  Title: 1056 EH/s and Climbing: Network Hits ATH Hashrate as Fear Peaks
+     Words: 1430
+     Decision: APPROVE
+
+● Read 2 files (ctrl+o to expand)
+
+● The publisher script is missing the app context push. Let me fix it and
+  publish the saved article directly.
+
+● Update(publisher.py)
+  ⎿  Added 3 lines, removed 2 lines
+      207          script = f"""
+      208  import json, sys
+      209  sys.path.insert(0, '.')
+      210 -from app import db
+      210 +from app import app, db
+      211  from models import Article
+      212  from datetime import datetime
+      213
+      214 -a = Article(
+      214 +with app.app_context():
+      215 + a = Article(
+      216      title={json.dumps(article.get('title', ''))},
+      217      content={json.dumps(article.get('body_html', ''))},
+      218      summary={json.dumps(article.get('subtitle', ''))},
+
+● Read 1 file (ctrl+o to expand)
+
+● The indentation in the generated script is wrong — the
+  db.session.add/commit/print lines need to be inside the with block too. Let me
+   fix this properly.
+
+● Update(publisher.py)
+  ⎿  Added 17 lines, removed 17 lines
+      212  from datetime import datetime
+      213
+      214  with app.app_context():
+      215 - a = Article(
+      216 -    title={json.dumps(article.get('title', ''))},
+      217 -    content={json.dumps(article.get('body_html', ''))},
+      218 -    summary={json.dumps(article.get('subtitle', ''))},
+      219 -    author="Protocol Pulse Intelligence",
+      220 -    category="Mining Intel",
+      221 -    tags={json.dumps(tags)},
+      222 -    source_type="mining_intel",
+      223 -    published=True,
+      224 -    published_at=datetime.utcnow(),
+      225 -
+          -cover_image_url={json.dumps(article.get('cover_image_url',
+          -''))},
+      226 -    seo_title={json.dumps(seo_title.replace("''", "'"))},
+      227 -    seo_description={json.dumps(seo_desc.replace("''", "'"))}
+      228 -)
+      229 -db.session.add(a)
+      230 -db.session.commit()
+      231 -print(json.dumps({{"id": a.id, "title": a.title, "published":
+          -True}}))
+      215 +    a = Article(
+      216 +        title={json.dumps(article.get('title', ''))},
+      217 +        content={json.dumps(article.get('body_html', ''))},
+      218 +        summary={json.dumps(article.get('subtitle', ''))},
+      219 +        author="Protocol Pulse Intelligence",
+      220 +        category="Mining Intel",
+      221 +        tags={json.dumps(tags)},
+      222 +        source_type="mining_intel",
+      223 +        published=True,
+      224 +        published_at=datetime.utcnow(),
+      225 +
+          +cover_image_url={json.dumps(article.get('cover_image_url',
+          +''))},
+      226 +        seo_title={json.dumps(seo_title.replace("''", "'"))},
+      227 +
+          +seo_description={json.dumps(seo_desc.replace("''", "'"))}
+      228 +    )
+      229 +    db.session.add(a)
+      230 +    db.session.commit()
+      231 +
+          +print(json.dumps({{"id": a.id, "title": a.title, "published":
+          +True}}))
+      232  """
+      233          script_b64 =
+           base64.b64encode(script.encode()).decode()
+      234          cmd = f"python3 -c \"import
+           base64;exec(base64.b64decode('{script_b64}').decode())\""
+
+● Now let me retry publishing the failed article directly.
+
+● Bash(cd ~/protocol_pulse/mining_intel && python3 -c "
+      import json, sys…)
+  ⎿  Publishing: 1056 EH/s and Climbing: Network Hits ATH Hashrate as Fear
+     Peaks
+     Result: {
+     … +9 lines (ctrl+o to expand)
+  ⎿  (timeout 1m)
+
+● Published! Article #1825 is live. Now let me do the git commit and final
+  verification.
+
+● Bash(cd ~/protocol_pulse && curl -s -X POST
+      "https://protocolpulse.replit.app/api/admin/exec" -H "Content-Type:
+      application/json" -d '{"token":"581b1076ca6d8a8809997…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "/home/runner/workspace/.pythonlibs/lib/python3.11/site-pa
+     … +33 lines (ctrl+o to expand)
+
+● Bash(cd ~/protocol_pulse && git status --short)
+  ⎿   M data/pulse_events.jsonl
+      M instance/protocol_pulse.db
+      M logs/image_backfill_report.json
+     … +6 lines (ctrl+o to expand)
+
+● Article #1825 confirmed live in DB: "1056 EH/s and Climbing: Network Hits ATH
+  Hashrate as Fear Peaks | Mining Intel | True". Now committing.
+
+● Bash(cd ~/protocol_pulse && git add mining_intel/publisher.py
+      mining_intel/newsletters/ mining_intel/output/
+      logs/image_backfill_report.json data/pulse_events.jsonl…)
+  ⎿  [main 09e0aa9] ops: activate backfill, mining intel, spaces scraper, c
+     ron jobs
+      8 files changed, 191 insertions(+), 37 deletions(-)
+     … +5 lines (ctrl+o to expand)
+
+● Bash(cd ~/protocol_pulse && git push origin main 2>&1)
+  ⎿  To github.com:consensusprotocol/protocol-pulse-core.git
+        90a03ee..09e0aa9  main -> main
+
+● Pushed. Here's the full status report:
+
+  ---
+  EXECUTION REPORT
+
+  TASK 1: Image Backfill
+
+  - Total articles: 1650
+  - Needed images: 2 (1648 already had images from prior runs)
+  - Updated: 2/2 (100% success)
+  - Article 1823: "Bitcoin's Mining Exodus Accelerates..." →
+  pexels-photo-8358046.jpeg
+  - Article 1824: "Bitcoin's Network Shrugs Off Price Volatility..." →
+  pexels-photo-5980926.jpeg
+  - Time: 16.5s
+
+  TASK 2: Mining Intel Pipeline
+
+  - Test run: PASSED — "1056 EH/s and Rising: Miners Aren't Blinking at $69K"
+  (1353 words, fact-check 85/100 APPROVED)
+  - Live publish: Initially failed (missing app context in publisher.py) — FIXED
+   and retried
+  - Published: Article #1825 — "1056 EH/s and Climbing: Network Hits ATH
+  Hashrate as Fear Peaks" (1430 words)
+  - Pipeline time: ~95s per run
+  - Bug fixed: publisher.py — added app.app_context() wrapper for Replit relay
+  script
+
+  TASK 3: X Spaces Scraper
+
+  - Status: Already running in tmux spaces session since Mar 2 14:31
+  - Port 8210: Listening, API responding
+  - API response: {"service":"spaces-scraper","status":"running","uptime_seconds
+  ":11992,"active_spaces":0}
+  - Tunnel config: Prepared at /tmp/spaces_tunnel.yml (merged with existing
+  hub/brain/ssh/video entries)
+  - To activate: sudo cp /tmp/spaces_tunnel.yml /etc/cloudflared/config.yml &&
+  sudo systemctl reload cloudflared + CNAME in Cloudflare DNS
+
+  TASK 4: Cron Jobs
+
+  5 jobs installed:
+
+  ┌──────────────────────────────┬─────────────────┐
+  │           Schedule           │       Job       │
+  ├──────────────────────────────┼─────────────────┤
+  │ Daily 12:00 UTC (7AM EST)    │ Oracle Briefing │
+  ├──────────────────────────────┼─────────────────┤
+  │ Daily 13:00 UTC (8AM EST)    │ Medley Engine   │
+  ├──────────────────────────────┼─────────────────┤
+  │ Daily 14:00 UTC (9AM EST)    │ Pulse Check V4  │
+  ├──────────────────────────────┼─────────────────┤
+  │ Wed+Sun 15:00 UTC (10AM EST) │ Mining Intel    │
+  ├──────────────────────────────┼─────────────────┤
+  │ Sun 05:00 UTC (midnight EST) │ Image Backfill  │
+  └──────────────────────────────┴─────────────────┘
+
+  TASK 5: Service Status
+
+  ┌────────────────┬──────┬────────────────────────┐
+  │    Service     │ Port │         Status         │
+  ├────────────────┼──────┼────────────────────────┤
+  │ Avatar Server  │ 8200 │ Running (PID 10448)    │
+  ├────────────────┼──────┼────────────────────────┤
+  │ Ultron Relay   │ 8201 │ Running (PID 3469891)  │
+  ├────────────────┼──────┼────────────────────────┤
+  │ Spaces Scraper │ 8210 │ Running (PID 4119582)  │
+  ├────────────────┼──────┼────────────────────────┤
+  │ GPU            │ —    │ 747 MiB / 24.5 GB (3%) │
+  ├────────────────┼──────┼────────────────────────┤
+  │ Disk           │ —    │ 238 GB / 1.8 TB (14%)  │
+  └────────────────┴──────┴────────────────────────┘
+
+  Git
+
+  - Commit: 09e0aa9 pushed to main
+
+  Pending (needs sudo)
+
+  - Cloudflare tunnel: sudo cp /tmp/spaces_tunnel.yml
+  /etc/cloudflared/config.yml && sudo systemctl reload cloudflared
+  - Cloudflare DNS: Add CNAME spaces.protocolpulse.io → tunnel
+
+✻ Baked for 6m 21s
+
+────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────
+  ⏵⏵ bypass permissions on (shift+tab to cycle)
+
