@@ -157,6 +157,10 @@ def embed_ffmpeg_chapters(video_path: str, chapters_path: str,
     return video_path
 
 
+# Alias for compatibility with verification imports
+generate_chapters_txt = generate_chapters
+
+
 if __name__ == "__main__":
     sample = {
         "chapters": [
