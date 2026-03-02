@@ -207,27 +207,28 @@ def publish_article(article: dict) -> dict:
         script = f"""
 import json, sys
 sys.path.insert(0, '.')
-from app import db
+from app import app, db
 from models import Article
 from datetime import datetime
 
-a = Article(
-    title={json.dumps(article.get('title', ''))},
-    content={json.dumps(article.get('body_html', ''))},
-    summary={json.dumps(article.get('subtitle', ''))},
-    author="Protocol Pulse Intelligence",
-    category="Mining Intel",
-    tags={json.dumps(tags)},
-    source_type="mining_intel",
-    published=True,
-    published_at=datetime.utcnow(),
-    cover_image_url={json.dumps(article.get('cover_image_url', ''))},
-    seo_title={json.dumps(seo_title.replace("''", "'"))},
-    seo_description={json.dumps(seo_desc.replace("''", "'"))}
-)
-db.session.add(a)
-db.session.commit()
-print(json.dumps({{"id": a.id, "title": a.title, "published": True}}))
+with app.app_context():
+    a = Article(
+        title={json.dumps(article.get('title', ''))},
+        content={json.dumps(article.get('body_html', ''))},
+        summary={json.dumps(article.get('subtitle', ''))},
+        author="Protocol Pulse Intelligence",
+        category="Mining Intel",
+        tags={json.dumps(tags)},
+        source_type="mining_intel",
+        published=True,
+        published_at=datetime.utcnow(),
+        cover_image_url={json.dumps(article.get('cover_image_url', ''))},
+        seo_title={json.dumps(seo_title.replace("''", "'"))},
+        seo_description={json.dumps(seo_desc.replace("''", "'"))}
+    )
+    db.session.add(a)
+    db.session.commit()
+    print(json.dumps({{"id": a.id, "title": a.title, "published": True}}))
 """
         script_b64 = base64.b64encode(script.encode()).decode()
         cmd = f"python3 -c \"import base64;exec(base64.b64decode('{script_b64}').decode())\""
