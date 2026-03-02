@@ -1,0 +1,52 @@
+# Oracle Briefing Pipeline Configuration
+branding:
+  name: "ORACLE BRIEFING"
+  subtitle: "Protocol Pulse Intelligence"
+  signoff: "Stay sovereign. Stay informed."
+  color_primary: "#CC0000"
+  color_dark: "#0A0A0A"
+  color_light: "#FFFFFF"
+  color_accent: "#FF3333"
+
+video:
+  width: 1920
+  height: 1080
+  fps: 30
+  crf: 20
+  codec: libx264
+  audio_codec: aac
+  audio_rate: 44100
+  audio_bitrate: "192k"
+
+shorts:
+  width: 1080
+  height: 1920
+  fps: 30
+
+tts:
+  voice_id: "cgSgspJ2msm6clMCkdW9"  # Jessica
+  model_id: "eleven_turbo_v2_5"
+  stability: 0.55
+  similarity_boost: 0.85
+  style: 0.45
+  use_speaker_boost: true
+
+avatar:
+  url: "http://localhost:8200"
+  static_image: "../oracle/Proto_P_Avatar_512.png"
+  fps: 30
+  enable_blinks: true
+  enable_head_movement: true
+
+assets:
+  font_mono: "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
+  font_bold: "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+  font_regular: "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+
+paths:
+  output: "output"
+  overlays: "overlays"
+
+relay:
+  url: "https://protocolpulse.replit.app/api/admin/exec"
+  token: "581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552"
