@@ -1,22 +1,32 @@
 #!/bin/bash
+# PROTOCOL PULSE — NIGHT RUNNER v3 (PHASE 2)
+# FIX: Added MIN_TASK_TIME — no idle check until 15min elapsed
+# This prevents false "completed" when Claude Code pauses to think
+
 set -euo pipefail
+
 LOG_DIR="$HOME/protocol_pulse/logs/night_runner"
 PROMPT_DIR="$HOME/protocol_pulse/night_prompts"
 WORK_DIR="$HOME/protocol_pulse"
 SESSION_NAME="night_build"
 CHECK_INTERVAL=60
 MAX_WAIT=7200
+MIN_TASK_TIME=900  # Don't check for idle until 15 minutes have passed
+
 mkdir -p "$LOG_DIR" "$PROMPT_DIR"
+
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 MASTER_LOG="$LOG_DIR/night_run_${TIMESTAMP}.log"
+
 TASKS=(
-    "avatar_gpu_cache|PHASE2_01_AVATAR_GPU_CACHE.md"
+    "avatar_overhaul|PHASE2_01_AVATAR_OVERHAUL.md"
     "pulse_check_v4|PHASE2_02_PULSE_CHECK_V4.md"
     "oracle_briefing|PHASE2_03_ORACLE_BRIEFING.md"
-    "activate_systems|PHASE2_04_ACTIVATE_BACKFILL.md"
-    "replit_deploy|PHASE2_05_REPLIT_DEPLOY.md"
+    "activate_all|PHASE2_04_ACTIVATE_ALL.md"
 )
+
 log() { echo "[$(date "+%Y-%m-%d %H:%M:%S")] $1" | tee -a "$MASTER_LOG"; }
+
 wait_for_claude_ready() {
     local elapsed=0
     log "Waiting for Claude Code ready..."
@@ -27,59 +37,71 @@ wait_for_claude_ready() {
         fi
         [ $((elapsed % 30)) -eq 0 ] && log "  ...still waiting (${elapsed}s)"
     done
-    log "TIMEOUT waiting for Claude Code"; return 1
-}
-handle_plan_menu() {
-    local pane=$(tmux capture-pane -t "$SESSION_NAME" -p 2>/dev/null)
-    if echo "$pane" | grep -q "Would you like to proceed"; then
-        log "  Plan menu detected — auto-accepting..."
-        tmux send-keys -t "$SESSION_NAME" "1" Enter
-        sleep 5; return 0
-    fi
+    log "TIMEOUT waiting for Claude Code"
+    tmux capture-pane -t "$SESSION_NAME" -p 2>/dev/null | tail -20 >> "$MASTER_LOG"
     return 1
 }
+
 wait_for_task_completion() {
     local task_name="$1" elapsed=0
-    log "Monitoring: $task_name (max $((MAX_WAIT/60))min)"
+    log "Monitoring: $task_name (min ${MIN_TASK_TIME}s before idle check, max $((MAX_WAIT/60))min)"
+
     while [ $elapsed -lt $MAX_WAIT ]; do
         sleep "$CHECK_INTERVAL"; elapsed=$((elapsed + CHECK_INTERVAL))
-        handle_plan_menu || true
+
+        # CRITICAL FIX: Skip idle detection until minimum time has passed
+        if [ $elapsed -lt $MIN_TASK_TIME ]; then
+            [ $((elapsed % 300)) -eq 0 ] && log "  BUILDING (${elapsed}s / min ${MIN_TASK_TIME}s): $(tmux capture-pane -t "$SESSION_NAME" -p 2>/dev/null | grep -v '^$' | tail -1 | head -c 100)"
+            continue
+        fi
+
         local pane=$(tmux capture-pane -t "$SESSION_NAME" -p 2>/dev/null | tail -15)
         if echo "$pane" | grep -q "bypass permissions"; then
-            if ! echo "$pane" | grep -qiE "thinking|crunching|reading|writing|running|bash|creating|editing|searching|Churned|tokens|Would you like"; then
-                sleep 30; elapsed=$((elapsed + 30))
-                handle_plan_menu || true
+            if ! echo "$pane" | grep -qiE "thinking|crunching|reading|writing|running|bash|creating|editing|searching|envisioning|Churned|tokens|Installing"; then
+                sleep 45; elapsed=$((elapsed + 45))
                 pane=$(tmux capture-pane -t "$SESSION_NAME" -p 2>/dev/null | tail -15)
-                if echo "$pane" | grep -q "bypass permissions" && ! echo "$pane" | grep -qiE "thinking|crunching|reading|writing|running|bash|creating|editing|searching|Churned|tokens|Would you like"; then
+                if echo "$pane" | grep -q "bypass permissions" && ! echo "$pane" | grep -qiE "thinking|crunching|reading|writing|running|bash|creating|editing|searching|envisioning|Churned|tokens|Installing"; then
                     log "COMPLETED: $task_name (${elapsed}s)"
-                    tmux capture-pane -t "$SESSION_NAME" -p -S -500 > "$LOG_DIR/${task_name}_output_${TIMESTAMP}.txt" 2>/dev/null
+                    tmux capture-pane -t "$SESSION_NAME" -p -S -1000 > "$LOG_DIR/${task_name}_output_${TIMESTAMP}.txt" 2>/dev/null
                     return 0
                 fi
             fi
         fi
+
         [ $((elapsed % 300)) -eq 0 ] && log "  WORKING (${elapsed}s): $(tmux capture-pane -t "$SESSION_NAME" -p 2>/dev/null | grep -v '^$' | tail -1 | head -c 100)"
     done
-    log "TIMEOUT: $task_name"; tmux capture-pane -t "$SESSION_NAME" -p -S -500 > "$LOG_DIR/${task_name}_timeout_${TIMESTAMP}.txt" 2>/dev/null; return 1
+
+    log "TIMEOUT: $task_name (${MAX_WAIT}s)"
+    tmux capture-pane -t "$SESSION_NAME" -p -S -1000 > "$LOG_DIR/${task_name}_timeout_${TIMESTAMP}.txt" 2>/dev/null
+    return 1
 }
+
 start_claude_session() {
     tmux kill-session -t "$SESSION_NAME" 2>/dev/null || true; sleep 3
-    tmux new-session -d -s "$SESSION_NAME"; sleep 1
+    tmux new-session -d -s "$SESSION_NAME"
+    sleep 1
     tmux send-keys -t "$SESSION_NAME" "cd $WORK_DIR && unset ANTHROPIC_API_KEY && claude --dangerously-skip-permissions" Enter
-    log "Started tmux: $SESSION_NAME"; wait_for_claude_ready
+    log "Started tmux: $SESSION_NAME"
+    wait_for_claude_ready
 }
+
 send_prompt() {
     [ ! -f "$1" ] && { log "ERROR: $1 not found"; return 1; }
     tmux load-buffer "$1" \; paste-buffer -t "$SESSION_NAME"
     sleep 3; tmux send-keys -t "$SESSION_NAME" Enter
     log "Prompt sent ($(wc -c < "$1") bytes)"; sleep 10; return 0
 }
+
 git_checkpoint() {
     cd "$WORK_DIR"; git add -A 2>/dev/null || true
     local c=$(git diff --cached --stat 2>/dev/null | tail -1)
     [ -n "$c" ] && { git commit -m "phase2: $1 [auto]" 2>/dev/null || true; git push origin main 2>/dev/null || true; log "Git: $1 — $c"; } || log "Git: no changes"
 }
+
 log "==============================================================="
-log "NIGHT RUNNER v3 PHASE 2 | Tasks: ${#TASKS[@]} | Plan auto-accept: ON"
+log "NIGHT RUNNER v3 (PHASE 2) | Tasks: ${#TASKS[@]}"
+log "Min task time: ${MIN_TASK_TIME}s (${MIN_TASK_TIME}/60 min)"
+log "Max per task: $((MAX_WAIT/60))min"
 log "==============================================================="
 for i in "${!TASKS[@]}"; do IFS="|" read -r n f <<< "${TASKS[$i]}"; log "  $((i+1)). $n"; done
 COMPLETED=0; FAILED=0; TOTAL=${#TASKS[@]}
@@ -93,7 +115,7 @@ for i in "${!TASKS[@]}"; do
     sleep 10
 done
 log "==============================================================="
-log "PHASE 2 COMPLETE: $COMPLETED/$TOTAL"
+log "PHASE 2 COMPLETE: $COMPLETED/$TOTAL succeeded"
 log "==============================================================="
 tmux kill-session -t "$SESSION_NAME" 2>/dev/null || true
 cd "$WORK_DIR"; git add -A 2>/dev/null || true
