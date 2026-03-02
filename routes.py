@@ -8429,6 +8429,29 @@ def dossier_classic():
 def library_page():
     return redirect('/media')
 
+
+# === ALL-IN PLAYBOOK ROUTES (Session 3) ===
+
+@app.route('/sponsors')
+@app.route('/advertise')
+@app.route('/media-kit')
+def sponsors_page():
+    """Media kit and sponsorship landing page."""
+    return render_template('sponsors.html')
+
+@app.route('/disruption-tracker')
+@app.route('/ai-tracker')
+@app.route('/kill-list')
+def disruption_tracker():
+    """AI Disruption Tracker — the Claude Kill List."""
+    return render_template('disruption_tracker.html')
+
+@app.route('/events')
+def events_page():
+    """Events hub — BitcoinDay Naples + BTC in DC."""
+    return render_template('events.html')
+
+
 # Error handlers
 @app.errorhandler(404)
 def not_found_error(error):

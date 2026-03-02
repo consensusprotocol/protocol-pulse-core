@@ -1,0 +1,652 @@
+{% extends "base.html" %}
+{% block title %}Events — BitcoinDay Naples & BTC in DC | Protocol Pulse{% endblock %}
+{% block meta_description %}Protocol Pulse live events. BitcoinDay Naples and BTC at the Kennedy Center in Washington DC. Bitcoin-first conferences for builders, investors, and operators.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="Protocol Pulse Events — BitcoinDay & BTC in DC">
+<meta property="og:description" content="Live Bitcoin events curated by Protocol Pulse. BitcoinDay Naples and BTC at the Kennedy Center. Sponsor our events.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protocol Pulse">
+<meta property="og:url" content="{{ request.url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+  --ev-bg: #000000;
+  --ev-surface: #0a0a0a;
+  --ev-border: rgba(255,255,255,0.07);
+  --ev-red: #dc2626;
+  --ev-red-dim: rgba(220,38,38,0.12);
+  --ev-white: #ffffff;
+  --ev-muted: rgba(255,255,255,0.45);
+  --ev-mono: 'JetBrains Mono', monospace;
+  --ev-sans: 'Inter', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+.ev-wrap {
+  background: var(--ev-bg);
+  min-height: 100vh;
+  color: var(--ev-white);
+  font-family: var(--ev-sans);
+}
+
+/* ── HERO ── */
+.ev-hero {
+  position: relative;
+  padding: 110px 24px 70px;
+  text-align: center;
+  overflow: hidden;
+}
+.ev-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -5%, rgba(220,38,38,0.1) 0%, transparent 60%),
+    repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(255,255,255,0.015) 60px),
+    repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(255,255,255,0.015) 60px);
+  pointer-events: none;
+}
+.ev-hero-badge {
+  display: inline-block;
+  font-family: var(--ev-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ev-red);
+  border: 1px solid var(--ev-red);
+  padding: 4px 12px;
+  border-radius: 2px;
+  margin-bottom: 22px;
+}
+.ev-hero h1 {
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0 0 20px;
+  max-width: 800px;
+  margin-inline: auto;
+}
+.ev-hero h1 em { color: var(--ev-red); font-style: normal; }
+.ev-hero-sub {
+  font-size: clamp(0.95rem, 2vw, 1.15rem);
+  color: rgba(255,255,255,0.6);
+  max-width: 580px;
+  margin: 0 auto 40px;
+  line-height: 1.65;
+}
+.ev-hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.ev-btn-red {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--ev-red); color: #fff;
+  padding: 13px 28px; border-radius: 4px;
+  font-weight: 600; font-size: 0.95rem;
+  text-decoration: none; border: none; cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.ev-btn-red:hover { opacity: 0.85; color: #fff; transform: translateY(-1px); }
+.ev-btn-ghost {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: transparent; color: rgba(255,255,255,0.8);
+  padding: 13px 28px; border-radius: 4px;
+  font-weight: 500; font-size: 0.95rem;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,0.18);
+  transition: border-color 0.2s, color 0.2s;
+}
+.ev-btn-ghost:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+
+/* ── COUNTDOWN STRIP ── */
+.ev-countdown-strip {
+  background: var(--ev-surface);
+  border-top: 1px solid var(--ev-border);
+  border-bottom: 1px solid var(--ev-border);
+  padding: 28px 24px;
+}
+.ev-countdown-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; gap: 40px; align-items: center; flex-wrap: wrap;
+}
+.ev-countdown-label {
+  font-family: var(--ev-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ev-muted);
+  margin-bottom: 4px;
+}
+.ev-countdown-val {
+  font-family: var(--ev-mono);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--ev-red);
+}
+.ev-countdown-name {
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.7);
+  margin-top: 2px;
+}
+.ev-cd-divider {
+  width: 1px; height: 48px;
+  background: var(--ev-border);
+}
+
+/* ── SECTION ── */
+.ev-section {
+  max-width: 1100px; margin: 0 auto; padding: 80px 24px;
+}
+.ev-section-label {
+  font-family: var(--ev-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ev-red);
+  margin-bottom: 12px;
+}
+.ev-section h2 {
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 700;
+  margin: 0 0 16px;
+  letter-spacing: -0.02em;
+}
+.ev-section-desc {
+  color: rgba(255,255,255,0.55);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  max-width: 580px;
+  margin-bottom: 48px;
+}
+
+/* ── EVENT CARDS ── */
+.ev-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+@media (max-width: 820px) { .ev-cards { grid-template-columns: 1fr; } }
+
+.ev-card {
+  background: var(--ev-surface);
+  border: 1px solid var(--ev-border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s;
+  position: relative;
+}
+.ev-card:hover { border-color: rgba(220,38,38,0.45); transform: translateY(-2px); }
+
+.ev-card-hero {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  display: flex; align-items: flex-end;
+}
+.ev-card-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.35);
+  transition: transform 0.4s;
+}
+.ev-card:hover .ev-card-bg { transform: scale(1.03); }
+.ev-naples-bg {
+  background: linear-gradient(135deg, #1a1a1a 0%, #0d1117 50%, #1a0000 100%);
+}
+.ev-dc-bg {
+  background: linear-gradient(135deg, #0d0d1a 0%, #0a0a0a 50%, #001a1a 100%);
+}
+.ev-card-overlay {
+  position: relative;
+  z-index: 1;
+  padding: 20px 24px;
+  width: 100%;
+  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+}
+.ev-card-location {
+  font-family: var(--ev-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ev-red);
+  margin-bottom: 6px;
+}
+.ev-card-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+}
+.ev-card-date {
+  font-family: var(--ev-mono);
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.5);
+  margin-top: 4px;
+}
+
+.ev-card-body { padding: 24px; }
+.ev-card-tagline {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.ev-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.ev-detail {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--ev-border);
+  border-radius: 4px;
+  padding: 12px;
+}
+.ev-detail-icon { font-size: 1.1rem; margin-bottom: 6px; }
+.ev-detail-label {
+  font-family: var(--ev-mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ev-muted);
+  margin-bottom: 3px;
+}
+.ev-detail-val {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+}
+
+.ev-perks {
+  list-style: none; padding: 0; margin: 0 0 24px;
+}
+.ev-perks li {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.65);
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex; gap: 8px; align-items: flex-start;
+  line-height: 1.4;
+}
+.ev-perks li:last-child { border-bottom: none; }
+.ev-perks li::before { content: '→'; color: var(--ev-red); font-family: var(--ev-mono); font-size: 0.8rem; flex-shrink: 0; margin-top: 2px; }
+
+.ev-card-actions {
+  display: flex; gap: 10px; flex-wrap: wrap;
+}
+.ev-card-cta-primary {
+  flex: 1;
+  display: block; text-align: center;
+  background: var(--ev-red); color: #fff;
+  border-radius: 4px; padding: 11px 16px;
+  font-weight: 600; font-size: 0.88rem;
+  text-decoration: none;
+  transition: background 0.2s;
+  min-width: 140px;
+}
+.ev-card-cta-primary:hover { background: #b91c1c; color: #fff; }
+.ev-card-cta-ghost {
+  flex: 1;
+  display: block; text-align: center;
+  background: transparent; color: rgba(255,255,255,0.7);
+  border: 1px solid rgba(255,255,255,0.14); border-radius: 4px; padding: 11px 16px;
+  font-weight: 500; font-size: 0.88rem;
+  text-decoration: none;
+  transition: all 0.2s;
+  min-width: 120px;
+}
+.ev-card-cta-ghost:hover { border-color: rgba(255,255,255,0.3); color: #fff; }
+
+/* ── DIVIDER ── */
+.ev-divider {
+  height: 1px; background: var(--ev-border);
+  max-width: 1100px; margin: 0 auto;
+}
+
+/* ── WHY SPONSOR ── */
+.ev-why-section {
+  background: var(--ev-surface);
+  border-top: 1px solid var(--ev-border);
+  border-bottom: 1px solid var(--ev-border);
+  padding: 70px 24px;
+}
+.ev-why-inner { max-width: 1100px; margin: 0 auto; }
+.ev-why-inner h2 {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 700; margin: 0 0 48px;
+  letter-spacing: -0.02em;
+}
+.ev-why-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+.ev-why-card {
+  padding: 24px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--ev-border);
+  border-radius: 6px;
+}
+.ev-why-icon { font-size: 1.4rem; margin-bottom: 12px; }
+.ev-why-card h4 { font-size: 0.95rem; font-weight: 600; margin: 0 0 8px; }
+.ev-why-card p {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.5);
+  margin: 0; line-height: 1.6;
+}
+
+/* ── PAST EVENTS GALLERY ── */
+.ev-past-section {
+  max-width: 1100px; margin: 0 auto; padding: 70px 24px;
+}
+.ev-past-section h2 {
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  font-weight: 700; margin: 0 0 36px;
+  letter-spacing: -0.02em;
+}
+.ev-gallery-placeholder {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+@media (max-width: 640px) { .ev-gallery-placeholder { grid-template-columns: 1fr 1fr; } }
+.ev-gallery-item {
+  aspect-ratio: 16/9;
+  background: var(--ev-surface);
+  border: 1px dashed rgba(255,255,255,0.1);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 8px;
+  color: rgba(255,255,255,0.2);
+  font-family: var(--ev-mono);
+  font-size: 0.7rem;
+  text-align: center;
+  padding: 16px;
+}
+.ev-gallery-item i { font-size: 1.5rem; opacity: 0.3; }
+
+/* ── SPONSOR CTA ── */
+.ev-sponsor-cta {
+  text-align: center;
+  padding: 80px 24px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+.ev-sponsor-cta h2 {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 700; margin: 0 0 16px;
+  letter-spacing: -0.02em;
+}
+.ev-sponsor-cta p {
+  color: rgba(255,255,255,0.55);
+  font-size: 1rem; line-height: 1.7;
+  margin: 0 0 36px;
+}
+.ev-sponsor-cta-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+@media (max-width: 768px) {
+  .ev-hero { padding: 90px 16px 56px; }
+  .ev-section { padding: 56px 16px; }
+  .ev-why-section { padding: 56px 16px; }
+  .ev-past-section { padding: 56px 16px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ev-wrap">
+
+  <!-- ── HERO ── -->
+  <section class="ev-hero">
+    <div class="ev-hero-badge">// Live Events · 2025–2026</div>
+    <h1>Bitcoin in the <em>Real World</em></h1>
+    <p class="ev-hero-sub">Protocol Pulse brings the Bitcoin-first community together at world-class venues. Two flagship events. One mission: make Bitcoin the standard.</p>
+    <div class="ev-hero-actions">
+      <a href="#events" class="ev-btn-red"><i class="fas fa-calendar"></i> View Events</a>
+      <a href="mailto:sponsors@protocolpulse.io?subject=Event Sponsorship Inquiry" class="ev-btn-ghost"><i class="fas fa-handshake"></i> Sponsor an Event</a>
+    </div>
+  </section>
+
+  <!-- ── COUNTDOWN STRIP ── -->
+  <div class="ev-countdown-strip">
+    <div class="ev-countdown-inner">
+      <div>
+        <div class="ev-countdown-label">// Next Event</div>
+        <div class="ev-countdown-val" id="cdVal1">TBD</div>
+        <div class="ev-countdown-name">BitcoinDay Naples</div>
+      </div>
+      <div class="ev-cd-divider"></div>
+      <div>
+        <div class="ev-countdown-label">// Coming Next</div>
+        <div class="ev-countdown-val" id="cdVal2">TBD</div>
+        <div class="ev-countdown-name">BTC in DC — Kennedy Center</div>
+      </div>
+      <div class="ev-cd-divider"></div>
+      <div>
+        <div class="ev-countdown-label">// Audience Reach</div>
+        <div class="ev-countdown-val">10K+</div>
+        <div class="ev-countdown-name">Across all event platforms</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MAIN EVENTS ── -->
+  <section class="ev-section" id="events">
+    <div class="ev-section-label">// Flagship Events</div>
+    <h2>Where Bitcoin Leaders Meet</h2>
+    <p class="ev-section-desc">Premium Bitcoin conferences designed for high-signal networking, keynote learning, and real deal-making.</p>
+
+    <div class="ev-cards">
+
+      <!-- BitcoinDay Naples -->
+      <div class="ev-card">
+        <div class="ev-card-hero">
+          <div class="ev-card-bg ev-naples-bg" style="background: linear-gradient(135deg, #0a0505 0%, #1a0000 40%, #0a0a0a 100%);"></div>
+          <div class="ev-card-overlay">
+            <div class="ev-card-location">📍 Naples, Florida</div>
+            <div class="ev-card-title">BitcoinDay Naples</div>
+            <div class="ev-card-date">Date TBD — 2025</div>
+          </div>
+        </div>
+        <div class="ev-card-body">
+          <p class="ev-card-tagline">A full-day immersive Bitcoin event in one of America's most affluent cities. Builders, investors, and operators converge in Naples for the signal — not the noise.</p>
+
+          <div class="ev-detail-grid">
+            <div class="ev-detail">
+              <div class="ev-detail-icon">📍</div>
+              <div class="ev-detail-label">Location</div>
+              <div class="ev-detail-val">Naples, FL</div>
+            </div>
+            <div class="ev-detail">
+              <div class="ev-detail-icon">📅</div>
+              <div class="ev-detail-label">Date</div>
+              <div class="ev-detail-val">TBD 2025</div>
+            </div>
+            <div class="ev-detail">
+              <div class="ev-detail-icon">👥</div>
+              <div class="ev-detail-label">Capacity</div>
+              <div class="ev-detail-val">300–500 Attendees</div>
+            </div>
+            <div class="ev-detail">
+              <div class="ev-detail-icon">🎯</div>
+              <div class="ev-detail-label">Format</div>
+              <div class="ev-detail-val">Full Day + Evening</div>
+            </div>
+          </div>
+
+          <ul class="ev-perks">
+            <li>Keynote stage for top Bitcoin operators and investors</li>
+            <li>Breakout panels: mining, Lightning, macro, sovereign tech</li>
+            <li>VIP networking dinner — invitation only</li>
+            <li>Protocol Pulse editorial team on-site for full coverage</li>
+            <li>Sponsor booth and branding throughout venue</li>
+            <li>Post-event content across all Protocol Pulse channels</li>
+          </ul>
+
+          <div class="ev-card-actions">
+            <a href="mailto:sponsors@protocolpulse.io?subject=BitcoinDay Naples — Sponsorship" class="ev-card-cta-primary">Sponsor This Event</a>
+            <a href="mailto:team@protocolpulse.io?subject=BitcoinDay Naples — Attendee Interest" class="ev-card-cta-ghost">Get Notified →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- BTC in DC -->
+      <div class="ev-card">
+        <div class="ev-card-hero">
+          <div class="ev-card-bg ev-dc-bg" style="background: linear-gradient(135deg, #000a0a 0%, #000d1a 40%, #0a0a0a 100%);"></div>
+          <div class="ev-card-overlay">
+            <div class="ev-card-location">📍 Washington, D.C.</div>
+            <div class="ev-card-title">BTC in DC</div>
+            <div class="ev-card-date">Kennedy Center — Date TBD</div>
+          </div>
+        </div>
+        <div class="ev-card-body">
+          <p class="ev-card-tagline">Bitcoin meets policy. Operators meet legislators. At the Kennedy Center — America's most iconic venue — Protocol Pulse brings the Bitcoin standard to Washington.</p>
+
+          <div class="ev-detail-grid">
+            <div class="ev-detail">
+              <div class="ev-detail-icon">🏛️</div>
+              <div class="ev-detail-label">Venue</div>
+              <div class="ev-detail-val">Kennedy Center</div>
+            </div>
+            <div class="ev-detail">
+              <div class="ev-detail-icon">📅</div>
+              <div class="ev-detail-label">Date</div>
+              <div class="ev-detail-val">TBD 2025</div>
+            </div>
+            <div class="ev-detail">
+              <div class="ev-detail-icon">👥</div>
+              <div class="ev-detail-label">Audience</div>
+              <div class="ev-detail-val">Policy + Industry</div>
+            </div>
+            <div class="ev-detail">
+              <div class="ev-detail-icon">🎯</div>
+              <div class="ev-detail-label">Focus</div>
+              <div class="ev-detail-val">Policy + Adoption</div>
+            </div>
+          </div>
+
+          <ul class="ev-perks">
+            <li>Kennedy Center's prestige elevates the Bitcoin brand nationally</li>
+            <li>Policy makers, senators, and regulatory officials in attendance</li>
+            <li>Institutional and sovereign adoption panels</li>
+            <li>White House and Capitol Hill outreach embedded in programming</li>
+            <li>Sponsor positions your brand at the highest level of Bitcoin advocacy</li>
+            <li>Protocol Pulse exclusive interviews and media coverage</li>
+          </ul>
+
+          <div class="ev-card-actions">
+            <a href="mailto:sponsors@protocolpulse.io?subject=BTC in DC — Sponsorship" class="ev-card-cta-primary">Sponsor This Event</a>
+            <a href="mailto:team@protocolpulse.io?subject=BTC in DC — Attendee Interest" class="ev-card-cta-ghost">Get Notified →</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── WHY SPONSOR ── -->
+  <section class="ev-why-section">
+    <div class="ev-why-inner">
+      <div style="font-family:var(--ev-mono);font-size:0.68rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--ev-red);margin-bottom:12px;">// Sponsor Benefits</div>
+      <h2>Why Sponsor Our Events</h2>
+
+      <div class="ev-why-grid">
+        <div class="ev-why-card">
+          <div class="ev-why-icon">💰</div>
+          <h4>High-Net-Worth Access</h4>
+          <p>Direct access to a Bitcoin-first audience with $100K+ income, real capital allocation authority, and long-term investment horizon.</p>
+        </div>
+        <div class="ev-why-card">
+          <div class="ev-why-icon">🎤</div>
+          <h4>Stage Time</h4>
+          <p>Keynote opportunities and panel moderation. Position your brand as a thought leader in front of the most engaged Bitcoin audience in the country.</p>
+        </div>
+        <div class="ev-why-card">
+          <div class="ev-why-icon">🎬</div>
+          <h4>Content Creation</h4>
+          <p>Protocol Pulse covers every event with podcast interviews, video features, and long-form articles. Your sponsorship lives on across all channels.</p>
+        </div>
+        <div class="ev-why-card">
+          <div class="ev-why-icon">🤝</div>
+          <h4>VIP Networking</h4>
+          <p>Exclusive access to evening dinners and private sessions with Bitcoin industry leaders, policymakers, and institutional investors.</p>
+        </div>
+        <div class="ev-why-card">
+          <div class="ev-why-icon">📡</div>
+          <h4>Multi-Channel Amplification</h4>
+          <p>Your event sponsorship is promoted across Protocol Pulse articles, podcast, newsletter, and video — before, during, and after the event.</p>
+        </div>
+        <div class="ev-why-card">
+          <div class="ev-why-icon">⚡</div>
+          <h4>Bitcoin-Native Community</h4>
+          <p>Not crypto-curious. Bitcoin-first. Operators, miners, devs, and capital allocators who have already made the commitment. Your ideal customer is in the room.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PAST EVENTS GALLERY ── -->
+  <section class="ev-past-section">
+    <div class="ev-section-label">// Coverage Gallery</div>
+    <h2>Event Coverage Coming Soon</h2>
+
+    <div class="ev-gallery-placeholder">
+      <div class="ev-gallery-item">
+        <i class="fas fa-image"></i>
+        <span>Event Photo</span>
+      </div>
+      <div class="ev-gallery-item">
+        <i class="fas fa-image"></i>
+        <span>Keynote Stage</span>
+      </div>
+      <div class="ev-gallery-item">
+        <i class="fas fa-image"></i>
+        <span>Networking</span>
+      </div>
+      <div class="ev-gallery-item">
+        <i class="fas fa-image"></i>
+        <span>Panel Session</span>
+      </div>
+      <div class="ev-gallery-item">
+        <i class="fas fa-image"></i>
+        <span>VIP Dinner</span>
+      </div>
+      <div class="ev-gallery-item">
+        <i class="fas fa-image"></i>
+        <span>Sponsor Booth</span>
+      </div>
+    </div>
+    <p style="text-align:center;color:rgba(255,255,255,0.35);font-size:0.82rem;margin-top:24px;font-family:var(--ev-mono);">Content from our events reaches [X] people across all platforms</p>
+  </section>
+
+  <!-- ── SPONSOR CTA ── -->
+  <section class="ev-sponsor-cta">
+    <div style="font-family:var(--ev-mono);font-size:0.68rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--ev-red);margin-bottom:16px;">// Ready?</div>
+    <h2>Be Part of the Story</h2>
+    <p>Event sponsorships are limited. Founding sponsors lock in the best rates and the highest-visibility placements. The Bitcoin economy is moving fast. Be at the table.</p>
+    <div class="ev-sponsor-cta-actions">
+      <a href="mailto:sponsors@protocolpulse.io?subject=Event Sponsorship Inquiry" class="ev-btn-red"><i class="fas fa-envelope"></i> Contact Sponsorship Team</a>
+      <a href="/sponsors" class="ev-btn-ghost">View Full Media Kit →</a>
+    </div>
+  </section>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Simple "TBD" display — update when dates confirmed
+  document.getElementById('cdVal1').textContent = 'TBD';
+  document.getElementById('cdVal2').textContent = 'TBD';
+});
+</script>
+{% endblock %}

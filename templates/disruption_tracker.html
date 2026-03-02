@@ -1,0 +1,826 @@
+{% extends "base.html" %}
+{% block title %}AI Disruption Tracker — The Claude Kill List | Protocol Pulse{% endblock %}
+{% block meta_description %}Track AI announcements destroying legacy cash flows in real time. The When vs If disruption framework — every company on notice.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="AI Disruption Tracker — Protocol Pulse">
+<meta property="og:description" content="The market is no longer debating when. It's debating if. Track every AI disruption event and its Bitcoin signal.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protocol Pulse">
+<meta property="og:url" content="{{ request.url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+  --dt-bg: #000000;
+  --dt-surface: #0a0a0a;
+  --dt-border: rgba(255,255,255,0.07);
+  --dt-red: #dc2626;
+  --dt-red-dim: rgba(220,38,38,0.12);
+  --dt-orange: #f97316;
+  --dt-green: #22c55e;
+  --dt-yellow: #eab308;
+  --dt-white: #ffffff;
+  --dt-muted: rgba(255,255,255,0.45);
+  --dt-mono: 'JetBrains Mono', monospace;
+  --dt-sans: 'Inter', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+.dt-wrap {
+  background: var(--dt-bg);
+  min-height: 100vh;
+  color: var(--dt-white);
+  font-family: var(--dt-sans);
+}
+
+/* ── HERO ── */
+.dt-hero {
+  position: relative;
+  padding: 100px 24px 60px;
+  overflow: hidden;
+}
+.dt-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% -10%, rgba(220,38,38,0.1) 0%, transparent 65%),
+    repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.015) 40px),
+    repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.015) 40px);
+  pointer-events: none;
+}
+.dt-hero-inner { max-width: 1100px; margin: 0 auto; position: relative; }
+.dt-hero-badge {
+  display: inline-block;
+  font-family: var(--dt-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--dt-red);
+  border: 1px solid var(--dt-red);
+  padding: 4px 12px;
+  border-radius: 2px;
+  margin-bottom: 20px;
+}
+.dt-hero h1 {
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0 0 20px;
+}
+.dt-hero h1 em { color: var(--dt-red); font-style: normal; }
+.dt-hero-sub {
+  font-size: clamp(0.95rem, 2vw, 1.15rem);
+  color: rgba(255,255,255,0.6);
+  max-width: 620px;
+  line-height: 1.65;
+  margin: 0 0 36px;
+}
+.dt-hero-tagline {
+  font-family: var(--dt-mono);
+  font-size: 0.82rem;
+  color: var(--dt-red);
+  border-left: 2px solid var(--dt-red);
+  padding-left: 14px;
+  line-height: 1.5;
+  max-width: 550px;
+}
+
+/* ── WHEN vs IF FRAMEWORK ── */
+.dt-framework {
+  background: var(--dt-surface);
+  border-top: 1px solid var(--dt-border);
+  border-bottom: 1px solid var(--dt-border);
+  padding: 60px 24px;
+}
+.dt-framework-inner { max-width: 1100px; margin: 0 auto; }
+.dt-framework-label {
+  font-family: var(--dt-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--dt-red);
+  margin-bottom: 12px;
+}
+.dt-framework-inner h2 {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 700;
+  margin: 0 0 36px;
+  letter-spacing: -0.02em;
+}
+.dt-shift {
+  display: grid;
+  grid-template-columns: 1fr 80px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 700px) {
+  .dt-shift { grid-template-columns: 1fr; }
+  .dt-shift-arrow { display: none; }
+}
+.dt-shift-col {
+  padding: 28px;
+  border-radius: 6px;
+}
+.dt-shift-old {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.dt-shift-new {
+  background: rgba(220,38,38,0.08);
+  border: 1px solid rgba(220,38,38,0.25);
+}
+.dt-shift-era {
+  font-family: var(--dt-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.dt-shift-old .dt-shift-era { color: rgba(255,255,255,0.4); }
+.dt-shift-new .dt-shift-era { color: var(--dt-red); }
+.dt-shift-col h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 16px;
+  line-height: 1.3;
+}
+.dt-shift-col ul {
+  list-style: none; padding: 0; margin: 0;
+}
+.dt-shift-col li {
+  font-size: 0.84rem;
+  color: rgba(255,255,255,0.65);
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex; gap: 8px; align-items: flex-start;
+  line-height: 1.4;
+}
+.dt-shift-col li::before { content: '·'; flex-shrink: 0; }
+.dt-shift-old li::before { color: rgba(255,255,255,0.3); }
+.dt-shift-new li::before { color: var(--dt-red); }
+.dt-shift-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 60px;
+  font-family: var(--dt-mono);
+  font-size: 1.8rem;
+  color: var(--dt-red);
+}
+.dt-quote-box {
+  margin-top: 36px;
+  border-left: 3px solid var(--dt-red);
+  padding: 16px 20px;
+  background: rgba(220,38,38,0.06);
+  border-radius: 0 4px 4px 0;
+}
+.dt-quote-box blockquote {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  font-style: italic;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.6;
+}
+.dt-quote-box cite {
+  font-family: var(--dt-mono);
+  font-size: 0.7rem;
+  color: var(--dt-red);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-style: normal;
+}
+
+/* ── DISRUPTION METRICS STRIP ── */
+.dt-metrics {
+  border-bottom: 1px solid var(--dt-border);
+  padding: 32px 24px;
+}
+.dt-metrics-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; gap: 32px; flex-wrap: wrap; align-items: center;
+}
+.dt-metric {
+  display: flex; flex-direction: column; align-items: flex-start;
+}
+.dt-metric-val {
+  font-family: var(--dt-mono);
+  font-size: 1.6rem; font-weight: 700;
+}
+.dt-metric-red { color: var(--dt-red); }
+.dt-metric-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--dt-muted);
+  margin-top: 2px;
+}
+.dt-live-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  background: var(--dt-red);
+  border-radius: 50%;
+  margin-right: 6px;
+  animation: blink 1.5s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* ── TIMELINE ── */
+.dt-timeline-section {
+  max-width: 1100px; margin: 0 auto; padding: 60px 24px;
+}
+.dt-tl-header {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 40px; flex-wrap: wrap; gap: 16px;
+}
+.dt-tl-header h2 {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+.dt-filter-tabs {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.dt-filter-tab {
+  font-family: var(--dt-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 2px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: transparent;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.dt-filter-tab:hover, .dt-filter-tab.active {
+  background: var(--dt-red); border-color: var(--dt-red); color: #fff;
+}
+
+/* Timeline track */
+.dt-tl { position: relative; }
+.dt-tl::before {
+  content: '';
+  position: absolute;
+  left: 140px;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, rgba(220,38,38,0.5), rgba(220,38,38,0.1));
+}
+@media (max-width: 640px) { .dt-tl::before { left: 20px; } }
+
+.dt-event {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 0 32px;
+  margin-bottom: 40px;
+  position: relative;
+}
+@media (max-width: 640px) {
+  .dt-event { grid-template-columns: 1fr; padding-left: 40px; }
+}
+.dt-event-date {
+  text-align: right;
+  padding-top: 4px;
+  padding-right: 32px;
+}
+.dt-event-date-val {
+  font-family: var(--dt-mono);
+  font-size: 0.75rem;
+  color: var(--dt-muted);
+  line-height: 1.4;
+}
+.dt-event-date-val strong { display: block; color: var(--dt-white); font-size: 0.85rem; }
+
+/* Timeline dot */
+.dt-event::after {
+  content: '';
+  position: absolute;
+  left: 132px;
+  top: 8px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--dt-red);
+  background: var(--dt-bg);
+  z-index: 1;
+}
+@media (max-width: 640px) {
+  .dt-event::after { left: 12px; }
+}
+
+.dt-event-card {
+  background: var(--dt-surface);
+  border: 1px solid var(--dt-border);
+  border-radius: 6px;
+  padding: 20px 24px;
+  transition: border-color 0.2s;
+}
+.dt-event-card:hover { border-color: rgba(220,38,38,0.35); }
+.dt-event-header { margin-bottom: 12px; }
+.dt-event-company {
+  font-family: var(--dt-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dt-red);
+  margin-bottom: 6px;
+}
+.dt-event-title {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0;
+}
+.dt-impact-row {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin: 12px 0;
+}
+.dt-impact-chip {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(220,38,38,0.08);
+  border: 1px solid rgba(220,38,38,0.2);
+  border-radius: 3px;
+  padding: 3px 10px;
+  font-family: var(--dt-mono);
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.8);
+}
+.dt-impact-chip .drop { color: var(--dt-red); font-weight: 700; }
+.dt-btc-signal {
+  margin-top: 14px;
+  padding: 10px 14px;
+  background: rgba(247,147,26,0.06);
+  border-left: 2px solid #f7931a;
+  border-radius: 0 3px 3px 0;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.5;
+}
+.dt-btc-signal strong { color: #f7931a; }
+
+/* ── JEVONS PARADOX SIDEBAR ── */
+.dt-jevons-section {
+  background: var(--dt-surface);
+  border-top: 1px solid var(--dt-border);
+  border-bottom: 1px solid var(--dt-border);
+  padding: 60px 24px;
+}
+.dt-jevons-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start;
+}
+@media (max-width: 768px) { .dt-jevons-inner { grid-template-columns: 1fr; } }
+.dt-jevons-left h2 {
+  font-size: clamp(1.4rem, 2.5vw, 1.9rem);
+  font-weight: 700; margin: 0 0 16px;
+  letter-spacing: -0.02em;
+}
+.dt-jevons-left p {
+  font-size: 0.92rem;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.7;
+  margin: 0 0 16px;
+}
+.dt-jevons-stat {
+  font-family: var(--dt-mono);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--dt-red);
+  display: block;
+  margin-bottom: 4px;
+}
+.dt-jevons-stat-label {
+  font-size: 0.78rem;
+  color: var(--dt-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.dt-jevons-right {
+  display: flex; flex-direction: column; gap: 16px;
+}
+.dt-jevons-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--dt-border);
+  border-radius: 6px;
+  padding: 20px;
+}
+.dt-jevons-card h4 {
+  font-family: var(--dt-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dt-red);
+  margin: 0 0 10px;
+}
+.dt-jevons-card p {
+  font-size: 0.86rem;
+  color: rgba(255,255,255,0.6);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ── SUBMIT FORM ── */
+.dt-submit-section {
+  max-width: 1100px; margin: 0 auto; padding: 60px 24px;
+}
+.dt-submit-section h2 {
+  font-size: clamp(1.4rem, 2.5vw, 1.9rem);
+  font-weight: 700; margin: 0 0 12px;
+  letter-spacing: -0.02em;
+}
+.dt-submit-desc {
+  color: rgba(255,255,255,0.55);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0 0 32px;
+  max-width: 500px;
+}
+.dt-submit-form {
+  background: var(--dt-surface);
+  border: 1px solid var(--dt-border);
+  border-radius: 6px;
+  padding: 32px;
+  max-width: 640px;
+}
+.dt-field { margin-bottom: 16px; }
+.dt-field label {
+  display: block;
+  font-family: var(--dt-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dt-muted);
+  margin-bottom: 7px;
+}
+.dt-field input,
+.dt-field textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 3px;
+  padding: 9px 12px;
+  color: var(--dt-white);
+  font-size: 0.88rem;
+  font-family: var(--dt-sans);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.dt-field input:focus, .dt-field textarea:focus { border-color: var(--dt-red); }
+.dt-field textarea { resize: vertical; min-height: 80px; }
+.dt-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 500px) { .dt-form-row { grid-template-columns: 1fr; } }
+.dt-submit-btn {
+  background: var(--dt-red); color: #fff;
+  border: none; border-radius: 3px;
+  padding: 11px 28px; font-size: 0.9rem; font-weight: 600;
+  cursor: pointer; width: 100%; margin-top: 4px;
+  font-family: var(--dt-sans);
+  transition: background 0.2s;
+}
+.dt-submit-btn:hover { background: #b91c1c; }
+
+@media (max-width: 768px) {
+  .dt-hero { padding: 80px 16px 48px; }
+  .dt-timeline-section { padding: 48px 16px; }
+  .dt-jevons-section { padding: 48px 16px; }
+  .dt-submit-section { padding: 48px 16px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dt-wrap">
+
+  <!-- ── HERO ── -->
+  <section class="dt-hero">
+    <div class="dt-hero-inner">
+      <div class="dt-hero-badge"><span class="dt-live-dot"></span>Live Tracking</div>
+      <h1>The <em>AI Disruption</em> Tracker</h1>
+      <p class="dt-hero-sub">Every AI announcement. Every market reaction. Every Bitcoin signal. We track the companies being killed by AI in real time — and what it means for sound money.</p>
+      <div class="dt-hero-tagline">
+        "Markets have shifted from asking WHEN cash flows get disrupted to IF they survive at all."<br>
+        — Protocol Pulse Editorial Framework
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WHEN vs IF FRAMEWORK ── -->
+  <section class="dt-framework">
+    <div class="dt-framework-inner">
+      <div class="dt-framework-label">// The Chamath "When vs If" Framework</div>
+      <h2>The Shift That Changes Everything</h2>
+
+      <div class="dt-shift">
+        <div class="dt-shift-col dt-shift-old">
+          <div class="dt-shift-era">// The Old World</div>
+          <h3>"WHEN will disruption happen?"</h3>
+          <ul>
+            <li>PE multiples remain steady — growth priced in at 40–80×</li>
+            <li>SaaS ARR is the north star metric</li>
+            <li>Revenue multiples compress slowly over decades</li>
+            <li>WACC expansion is incremental</li>
+            <li>Analysts debate timing, not survival</li>
+            <li>Legacy software enjoys sticky customers</li>
+          </ul>
+        </div>
+
+        <div class="dt-shift-arrow">→</div>
+
+        <div class="dt-shift-col dt-shift-new">
+          <div class="dt-shift-era">// The New World</div>
+          <h3>"WILL these cash flows survive at all?"</h3>
+          <ul>
+            <li>Massive de-risking — PE compression from 40× to 8× overnight</li>
+            <li>Revenue multiples collapsing across SaaS, legal, finance verticals</li>
+            <li>WACCs exploding as existential risk is priced in</li>
+            <li>AI replaces entire business categories, not just roles</li>
+            <li>Barriers to entry collapse — what took teams now takes tokens</li>
+            <li>Every monopoly is temporary. Every moat is fillable.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="dt-quote-box">
+        <blockquote>"The market is no longer debating when. It's debating if." — adapted from All-In analysis</blockquote>
+        <cite>Protocol Pulse · Editorial Framework · Chamath Palihapitiya Model</cite>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── METRICS STRIP ── -->
+  <section class="dt-metrics">
+    <div class="dt-metrics-inner">
+      <div class="dt-metric">
+        <span class="dt-metric-val dt-metric-red">7</span>
+        <span class="dt-metric-label">Events Tracked</span>
+      </div>
+      <div class="dt-metric">
+        <span class="dt-metric-val dt-metric-red">$280B+</span>
+        <span class="dt-metric-label">Market Cap Destroyed</span>
+      </div>
+      <div class="dt-metric">
+        <span class="dt-metric-val">12</span>
+        <span class="dt-metric-label">Sectors Under Threat</span>
+      </div>
+      <div class="dt-metric">
+        <span class="dt-metric-val dt-metric-red">↑</span>
+        <span class="dt-metric-label">Bitcoin Signal: Bullish</span>
+      </div>
+      <div style="margin-left:auto;">
+        <a href="#submit" class="sp-btn-ghost" style="display:inline-flex;align-items:center;gap:8px;background:transparent;color:rgba(255,255,255,0.7);padding:10px 20px;border-radius:4px;font-weight:500;font-size:0.85rem;text-decoration:none;border:1px solid rgba(255,255,255,0.15);">+ Submit an Event</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TIMELINE ── -->
+  <section class="dt-timeline-section">
+    <div class="dt-tl-header">
+      <div>
+        <div style="font-family:var(--dt-mono);font-size:0.68rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--dt-red);margin-bottom:8px;">// Disruption Log</div>
+        <h2>AI Kill Events — Chronological</h2>
+      </div>
+      <div class="dt-filter-tabs">
+        <button class="dt-filter-tab active" onclick="filterEvents('all', this)">All</button>
+        <button class="dt-filter-tab" onclick="filterEvents('legal', this)">Legal</button>
+        <button class="dt-filter-tab" onclick="filterEvents('finance', this)">Finance</button>
+        <button class="dt-filter-tab" onclick="filterEvents('tech', this)">Tech</button>
+      </div>
+    </div>
+
+    <div class="dt-tl" id="eventTimeline">
+
+      <!-- Event 1 -->
+      <div class="dt-event" data-sector="legal">
+        <div class="dt-event-date">
+          <div class="dt-event-date-val">
+            <strong>Feb 3</strong>
+            2025
+          </div>
+        </div>
+        <div class="dt-event-card">
+          <div class="dt-event-header">
+            <div class="dt-event-company">Anthropic</div>
+            <div class="dt-event-title">Claude Legal Plugin — AI-Powered Legal Research</div>
+          </div>
+          <div class="dt-impact-row">
+            <div class="dt-impact-chip">Thomson Reuters <span class="drop">−10%</span></div>
+            <div class="dt-impact-chip">LexisNexis <span class="drop">−10%</span></div>
+            <div class="dt-impact-chip">LegalZoom <span class="drop">−10%</span></div>
+          </div>
+          <p style="font-size:0.84rem;color:rgba(255,255,255,0.6);margin:0;line-height:1.6;">Legal research subscriptions at $300–800/month replaced by Claude at $20/month. The entire Thomson Reuters / LexisNexis moat — decades of content lock-in — compressed in a single announcement.</p>
+          <div class="dt-btc-signal"><strong>Bitcoin Signal:</strong> Lawyers and legal ops saved $1000s/month. The savings flow toward hard assets. Legal compliance costs on Bitcoin businesses collapse.</div>
+        </div>
+      </div>
+
+      <!-- Event 2 -->
+      <div class="dt-event" data-sector="finance">
+        <div class="dt-event-date">
+          <div class="dt-event-date-val">
+            <strong>Jan 27</strong>
+            2025
+          </div>
+        </div>
+        <div class="dt-event-card">
+          <div class="dt-event-header">
+            <div class="dt-event-company">DeepSeek</div>
+            <div class="dt-event-title">DeepSeek R1 — Open Source Model Matches GPT-4</div>
+          </div>
+          <div class="dt-impact-row">
+            <div class="dt-impact-chip">NVIDIA <span class="drop">−17%</span></div>
+            <div class="dt-impact-chip">$593B Market Cap Destroyed</div>
+          </div>
+          <p style="font-size:0.84rem;color:rgba(255,255,255,0.6);margin:0;line-height:1.6;">Chinese lab trains frontier model at 1/10th the cost of US labs. Entire AI infrastructure thesis questioned. H100 demand narrative shattered overnight. Jevons Paradox immediately invoked.</p>
+          <div class="dt-btc-signal"><strong>Bitcoin Signal:</strong> AI compute costs collapsing → more enterprises can afford AI → productivity explosion → sound money becomes the accounting unit for the new economy.</div>
+        </div>
+      </div>
+
+      <!-- Event 3 -->
+      <div class="dt-event" data-sector="tech">
+        <div class="dt-event-date">
+          <div class="dt-event-date-val">
+            <strong>Mar 2025</strong>
+            2025
+          </div>
+        </div>
+        <div class="dt-event-card">
+          <div class="dt-event-header">
+            <div class="dt-event-company">OpenAI / Anthropic / Google</div>
+            <div class="dt-event-title">AI Coding Assistants Reach 80%+ Code Authorship</div>
+          </div>
+          <div class="dt-impact-row">
+            <div class="dt-impact-chip">Traditional SaaS <span class="drop">Existential Threat</span></div>
+            <div class="dt-impact-chip">Offshore Dev Agencies <span class="drop">Model Broken</span></div>
+          </div>
+          <p style="font-size:0.84rem;color:rgba(255,255,255,0.6);margin:0;line-height:1.6;">Software engineering productivity multiplies 10–100×. Fortune 500 IT spend at 5% of revenue should be 50%. Aaron Levie's insight: every company is becoming a software company — with or without software engineers.</p>
+          <div class="dt-btc-signal"><strong>Bitcoin Signal:</strong> Software barriers collapse → Bitcoin protocol companies can now build at 100× speed → Lightning app development democratized → trustless settlement becomes default.</div>
+        </div>
+      </div>
+
+      <!-- Event 4 -->
+      <div class="dt-event" data-sector="finance">
+        <div class="dt-event-date">
+          <div class="dt-event-date-val">
+            <strong>Feb 2025</strong>
+            2025
+          </div>
+        </div>
+        <div class="dt-event-card">
+          <div class="dt-event-header">
+            <div class="dt-event-company">Multiple AI Labs</div>
+            <div class="dt-event-title">AI Financial Advisors Reach Fiduciary Grade</div>
+          </div>
+          <div class="dt-impact-row">
+            <div class="dt-impact-chip">Wealth Mgmt Sector <span class="drop">−15–25% AUM</span></div>
+            <div class="dt-impact-chip">LPL Financial <span class="drop">−8%</span></div>
+          </div>
+          <p style="font-size:0.84rem;color:rgba(255,255,255,0.6);margin:0;line-height:1.6;">AI advisory services at $20/month compete with $10K+ AUM fees. The financial advice moat — relationships, licenses, meetings — bypassed entirely. Democratized access changes who can get real financial guidance.</p>
+          <div class="dt-btc-signal"><strong>Bitcoin Signal:</strong> Democratized financial advice → more people understand inflation-adjusted returns → Bitcoin thesis reaches mass market → treasury adoption accelerates.</div>
+        </div>
+      </div>
+
+      <!-- Event 5 -->
+      <div class="dt-event" data-sector="tech">
+        <div class="dt-event-date">
+          <div class="dt-event-date-val">
+            <strong>2025</strong>
+            Ongoing
+          </div>
+        </div>
+        <div class="dt-event-card">
+          <div class="dt-event-header">
+            <div class="dt-event-company">AI Agent Ecosystems</div>
+            <div class="dt-event-title">Autonomous Agents Replace $50B/yr BPO Industry</div>
+          </div>
+          <div class="dt-impact-row">
+            <div class="dt-impact-chip">Accenture <span class="drop">Threat</span></div>
+            <div class="dt-impact-chip">Infosys <span class="drop">Threat</span></div>
+            <div class="dt-impact-chip">Wipro <span class="drop">Threat</span></div>
+          </div>
+          <p style="font-size:0.84rem;color:rgba(255,255,255,0.6);margin:0;line-height:1.6;">Elon's framing: companies are cybernetic organisms, part software, part human. AI shifts the ratio dramatically. BPO and outsourcing built on human arbitrage is structurally challenged. The organism evolves.</p>
+          <div class="dt-btc-signal"><strong>Bitcoin Signal:</strong> Agent-to-agent payments need trustless settlement. Lightning Network micropayments become the payment layer for the AI agent economy.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── JEVONS PARADOX ── -->
+  <section class="dt-jevons-section">
+    <div class="dt-jevons-inner">
+      <div class="dt-jevons-left">
+        <div style="font-family:var(--dt-mono);font-size:0.68rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--dt-red);margin-bottom:12px;">// Jevons Paradox</div>
+        <h2>Lower Cost = Exploding Demand</h2>
+        <p>When you lower the cost of something that is supply-constrained, demand doesn't stay the same. It explodes. William Stanley Jevons noticed this with coal in 1865. The same dynamic is playing out with AI today.</p>
+        <p>Software engineering used to cost $200K/year per engineer. At $20/month for Claude, the demand for software doesn't fall — it multiplies by 100×. Fortune 500 IT spend at 5% of revenue should be 50%.</p>
+        <div style="margin-top:32px;">
+          <span class="dt-jevons-stat">5%</span>
+          <span class="dt-jevons-stat-label">Fortune 500 IT Spend (Current)</span>
+        </div>
+        <div style="margin-top:20px;">
+          <span class="dt-jevons-stat" style="color:var(--dt-green);">50%</span>
+          <span class="dt-jevons-stat-label">Where IT Spend Should Go (With AI)</span>
+        </div>
+      </div>
+      <div class="dt-jevons-right">
+        <div class="dt-jevons-card">
+          <h4>// Aaron Levie (Box CEO)</h4>
+          <p>"Software engineering was supply-constrained. At 1/100th the cost, every company becomes a 10× software company. The constraint was price. Remove the constraint — demand explodes."</p>
+        </div>
+        <div class="dt-jevons-card">
+          <h4>// Elon Musk</h4>
+          <p>"Companies are cybernetic organisms — part software, part human. AI doesn't just help the human part. It rewrites the entire organism. The ratio shifts dramatically toward software."</p>
+        </div>
+        <div class="dt-jevons-card">
+          <h4>// The Bitcoin Connection</h4>
+          <p>As AI destroys the cost of cognitive labor, demand for it explodes. This creates a productivity bonanza. Sound money becomes the accounting unit for the surplus. Bitcoin is the savings vehicle for the AI age.</p>
+        </div>
+        <div class="dt-jevons-card">
+          <h4>// The If Question</h4>
+          <p>The question for every legacy SaaS, every BPO, every consulting firm: not WHEN will AI change us — but IF we survive the transition at all. PE multiples compress from 40× to 8× overnight when IF is priced in.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SUBMIT FORM ── -->
+  <section class="dt-submit-section" id="submit">
+    <div style="font-family:var(--dt-mono);font-size:0.68rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--dt-red);margin-bottom:12px;">// Contribute</div>
+    <h2>Submit a Disruption Event</h2>
+    <p class="dt-submit-desc">Help us track the revolution. Submit an AI announcement that disrupted a legacy industry.</p>
+
+    <div class="dt-submit-form">
+      <form id="dtForm" onsubmit="handleDtForm(event)">
+        <div class="dt-form-row">
+          <div class="dt-field">
+            <label>Date</label>
+            <input type="date" name="date" required>
+          </div>
+          <div class="dt-field">
+            <label>AI Company</label>
+            <input type="text" name="ai_company" placeholder="OpenAI, Anthropic..." required>
+          </div>
+        </div>
+        <div class="dt-field">
+          <label>Announcement</label>
+          <input type="text" name="announcement" placeholder="What did they announce?" required>
+        </div>
+        <div class="dt-field">
+          <label>Affected Companies / Sectors</label>
+          <input type="text" name="affected" placeholder="Company A (−X%), Sector B..." required>
+        </div>
+        <div class="dt-field">
+          <label>Source URL</label>
+          <input type="url" name="source_url" placeholder="https://...">
+        </div>
+        <div class="dt-field">
+          <label>Bitcoin Signal (Optional)</label>
+          <textarea name="btc_signal" placeholder="How does this connect to the Bitcoin thesis?"></textarea>
+        </div>
+        <button type="submit" class="dt-submit-btn">Submit Event →</button>
+      </form>
+      <div id="dtSuccess" style="display:none;text-align:center;padding:24px 0;">
+        <div style="font-size:1.6rem;margin-bottom:10px;">⚡</div>
+        <div style="font-weight:600;margin-bottom:6px;">Submitted. Thank you.</div>
+        <div style="color:var(--dt-muted);font-size:0.84rem;">We'll review and add it to the tracker.</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filterEvents(sector, btn) {
+  document.querySelectorAll('.dt-filter-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.dt-event').forEach(ev => {
+    if (sector === 'all' || ev.dataset.sector === sector) {
+      ev.style.display = 'grid';
+    } else {
+      ev.style.display = 'none';
+    }
+  });
+}
+
+function handleDtForm(e) {
+  e.preventDefault();
+  const data = new FormData(e.target);
+  const sub = encodeURIComponent(`Disruption Event Submission: ${data.get('ai_company')} — ${data.get('announcement')}`);
+  const body = encodeURIComponent(
+    `Date: ${data.get('date')}\nAI Company: ${data.get('ai_company')}\nAnnouncement: ${data.get('announcement')}\nAffected: ${data.get('affected')}\nSource: ${data.get('source_url')}\nBTC Signal: ${data.get('btc_signal')}`
+  );
+  window.location.href = `mailto:team@protocolpulse.io?subject=${sub}&body=${body}`;
+  e.target.style.display = 'none';
+  document.getElementById('dtSuccess').style.display = 'block';
+}
+</script>
+{% endblock %}
