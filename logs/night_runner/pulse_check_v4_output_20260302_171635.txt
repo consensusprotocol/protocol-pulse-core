@@ -1,0 +1,524 @@
+          +generation) ─────────
+      109 +    print("\n[STEP 3/14] SELECT (integrated with script
+          +generation)")
+      110 +    timing["3_select"] = 0.0
+      111 +
+      112 +    # ── Step 4: DOWNLOAD YouTube clips
+          +────────────────────────────────────
+      113 +    # (We need the script first to know which clips to fetch,
+          + so we
+      114 +    #  generate the script first, then fetch clips)
+      115 +
+      116 +    # ── Step 6: SCRIPT — generate dual-host dialogue
+          +─────────────────────
+      117 +    print("\n[STEP 6/14] GENERATING DUAL-HOST SCRIPT...")
+      118      t0 = time.time()
+      119 -    script = generate_script(stories=stories if stories else
+          -None, style=style)
+      119 +    script = generate_script(stories=stories if stories else
+          +None,
+      120 +                             style=style,
+          +btc_price=btc_price)
+      121      if test_mode:
+      122 -        script = truncate_script_for_test(script,
+          -max_segments=3)
+      123 -        print(f"  [test] Script truncated to {len(script['
+          -segments'])} segments")
+      122 +        script = truncate_for_test(script, max_lines=8)
+      123 +        print(f"  [test] Dialogue truncated to {len(script['
+          +dialogue'])} lines")
+      124
+      125      print(f"  Title: {script.get('episode_title',
+           'Untitled')}")
+      126 -    print(f"  Segments: {len(script.get('segments', []))}")
+      126 +    print(f"  Dialogue lines: {len(script.get('dialogue
+          +', []))}")
+      127      print(f"  Est. duration:
+           {script.get('total_estimated_duration_seconds', 0)}s")
+      128 -    timing["script_gen"] = round(time.time() - t0, 2)
+      128 +    timing["6_script"] = round(time.time() - t0, 2)
+      129
+      130 -    # Save script.json to run dir
+      130 +    # Save script.json
+      131      script_path = os.path.join(run_dir, "script.json")
+      132      with open(script_path, "w") as f:
+      133          json.dump(script, f, indent=2)
+      134 +    print(f"  script.json saved")
+      135
+      136 -    # ── Step 3: Generate Narration (ElevenLabs Jessica)
+          -─────────────────────
+      137 -    print("\n[STEP 3/6] GENERATING NARRATION (ElevenLabs
+          -Jessica)...")
+      136 +    # ── Step 4 (cont): DOWNLOAD YouTube clips based on
+          +script ────────────
+      137 +    print("\n[STEP 4/14] FETCHING CLIPS (YouTube +
+          +Pexels)...")
+      138      t0 = time.time()
+      139 -    audio_dir = os.path.join(run_dir, "audio")
+      140 -    audio_paths = generate_all_audio(script, audio_dir)
+      141 -    seg_count = sum(1 for s in audio_paths.get("segments",
+          -[]) if s and os.path.exists(s))
+      142 -    print(f"  Segment audio:
+          -{seg_count}/{len(script.get('segments', []))}")
+      143 -    timing["tts_gen"] = round(time.time() - t0, 2)
+      139 +    clip_dir = os.path.join(run_dir, "clips")
+      140 +    clip_data = fetch_all_clips(script, clip_dir)
+      141 +    yt_count = len(clip_data.get("yt_clips", {}))
+      142 +    broll_count = len(clip_data.get("broll", []))
+      143 +    print(f"  YouTube clips: {yt_count} | Pexels B-roll:
+          +{broll_count}")
+      144 +    timing["4_download"] = round(time.time() - t0, 2)
+      145
+      146 -    # Export full narration as narration.wav for reference
+      147 -    if audio_paths.get("full") and
+          -os.path.exists(audio_paths["full"]):
+      148 -        narration_wav = os.path.join(run_dir,
+          -"narration.wav")
+      149 -        subprocess.run(
+      150 -            ["ffmpeg", "-y", "-i", audio_paths["full"],
+      151 -             "-c:a", "pcm_s16le", "-ar", "44100",
+          -narration_wav],
+      152 -            capture_output=True, text=True
+      153 -        )
+      154 -        if os.path.exists(narration_wav):
+      155 -            dur = float(subprocess.run(
+      156 -                ["ffprobe", "-v", "error", "-show_entries",
+          -"format=duration",
+      157 -                 "-of", "csv=p=0", narration_wav],
+      158 -                capture_output=True, text=True
+      159 -            ).stdout.strip() or "0")
+      160 -            print(f"  narration.wav: {dur:.1f}s exported")
+      146 +    # ── Step 5: SCREENSHOT (placeholder for article
+          +screenshots) ──────────
+      147 +    print("\n[STEP 5/14] SCREENSHOT (skipped — not needed for
+          + test)")
+      148 +    timing["5_screenshot"] = 0.0
+      149
+      150 -    # ── Step 4: Fetch B-roll (Pexels)
+          -───────────────────────────────────────
+      151 -    print("\n[STEP 4/6] FETCHING PEXELS B-ROLL...")
+      150 +    # ── Step 7: TTS — dual-host dialogue audio
+          +───────────────────────────
+      151 +    print("\n[STEP 7/14] GENERATING DUAL-HOST AUDIO
+          +(ElevenLabs)...")
+      152      t0 = time.time()
+      153 -    clip_dir = os.path.join(run_dir, "clips")
+      154 -    clip_data = fetch_all_clips(script, clip_dir)
+      155 -    total_clips = sum(len(s.get("clips", [])) for s in
+          -clip_data.get("segments", []))
+      156 -    print(f"  Clips fetched: {total_clips} across
+          -{len(clip_data.get('segments', []))} segments")
+      157 -    timing["pexels_fetch"] = round(time.time() - t0, 2)
+      153 +    audio_dir = os.path.join(run_dir, "audio")
+      154 +    audio_data = generate_dialogue_audio(script["dialogue"],
+          +audio_dir)
+      155 +    successful = sum(1 for l in audio_data.get("lines", [])
+      156 +                     if l.get("path") and
+          +os.path.exists(l.get("path", "")))
+      157 +    total_lines = len(script["dialogue"])
+      158 +    print(f"  Audio lines: {successful}/{total_lines}")
+      159 +    print(f"  Total duration:
+          +{audio_data.get('total_duration', 0):.1f}s")
+      160 +    timing["7_tts"] = round(time.time() - t0, 2)
+      161
+      162 -    # ── Step 5: Assemble Video
+          -──────────────────────────────────────────────
+      163 -    print("\n[STEP 5/6] ASSEMBLING VIDEO (xfade transitions)
+          -...")
+      162 +    # ── Step 8: ASSEMBLE — build the video
+          +───────────────────────────────
+      163 +    print("\n[STEP 8/14] ASSEMBLING VIDEO...")
+      164      t0 = time.time()
+      165 -    result = assemble_episode(script, audio_paths
+          -, clip_data, final_video)
+      166 -    timing["assembly"] = round(time.time() - t0, 2)
+      165 +    result = assemble_episode(script, audio_data
+          +, clip_data, final_video,
+      166 +                              btc_price=btc_price)
+      167 +    timing["8_assemble"] = round(time.time() - t0, 2)
+      168
+      169      if not result or not os.path.exists(final_video):
+      170          print("\n  [FAIL] Assembly failed — aborting")
+      171          _write_timing_report(run_dir, timing,
+           t_pipeline_start, success=False)
+      172          return False
+      173
+      174 -    # ── Step 6: Verify + Generate Shorts
+          - ───────────────────────────────────
+      175 -    print("\n[STEP 6/6] VERIFYING + GENERATING SHORTS...")
+      174 +    # ── Step 9: SHORTS — vertical cuts
+          + ───────────────────────────────────
+      175 +    print("\n[STEP 9/14] GENERATING SHORTS...")
+      176      t0 = time.time()
+      177 -    passed = verify_video(final_video)
+      178 -
+      179 -    # Generate shorts directly in the run dir (not in a
+          -subdirectory)
+      177      work_dir = os.path.join(run_dir, "work")
+      178 -    shorts = generate_shorts(work_dir, script, run_dir)
+      179 -    timing["verify_shorts"] = round(time.time() - t0, 2)
+      180 -
+      181 -    # Rename shorts to short_1.mp4, short_2.mp4, etc.
+      182 -    for i, s in enumerate(shorts):
+      183 -        dest = os.path.join(run_dir, f"short_{i+1}.mp4")
+      184 -        if os.path.exists(s) and s != dest:
+      185 -            shutil.move(s, dest)
+      178 +    shorts = generate_shorts(work_dir, script, run_dir
+          +, max_shorts=3)
+      179      print(f"  Shorts generated: {len(shorts)}")
+      180 +    timing["9_shorts"] = round(time.time() - t0, 2)
+      181
+      182 -    # ── Summary
+          -─────────────────────────────────────────────────────────────
+      182 +    # ── Step 10: THUMBNAIL
+          +───────────────────────────────────────────────
+      183 +    print("\n[STEP 10/14] GENERATING THUMBNAIL...")
+      184 +    t0 = time.time()
+      185 +    thumb_data = script.get("thumbnail", {})
+      186 +    thumb_path = os.path.join(run_dir, "thumbnail.png")
+      187 +    generate_thumbnail(
+      188 +        thumb_data.get("headline",
+          +script.get("episode_title", "PULSE CHECK")),
+      189 +        thumb_data.get("subtext", ""),
+      190 +        thumb_path,
+      191 +    )
+      192 +    timing["10_thumbnail"] = round(time.time() - t0, 2)
+      193 +
+      194 +    # ── Step 11: CHAPTERS
+          +────────────────────────────────────────────────
+      195 +    print("\n[STEP 11/14] GENERATING CHAPTERS...")
+      196 +    t0 = time.time()
+      197 +    chapters_path = os.path.join(run_dir, "chapters.txt")
+      198 +    generate_chapters(script, audio_data, chapters_path)
+      199 +    timing["11_chapters"] = round(time.time() - t0, 2)
+      200 +
+      201 +    # ── Step 12: PODCAST — extract audio MP3
+          +─────────────────────────────
+      202 +    print("\n[STEP 12/14] EXTRACTING PODCAST AUDIO...")
+      203 +    t0 = time.time()
+      204 +    podcast_path = os.path.join(run_dir, "podcast.mp3")
+      205 +    extract_podcast_audio(final_video, podcast_path)
+      206 +    timing["12_podcast"] = round(time.time() - t0, 2)
+      207 +
+      208 +    # ── Step 13: NEWSLETTER — generate email HTML
+          +────────────────────────
+      209 +    print("\n[STEP 13/14] GENERATING NEWSLETTER...")
+      210 +    t0 = time.time()
+      211 +    email_html = generate_email_html(
+      212 +        script.get("episode_title", "Pulse Check"),
+      213 +        segments_summary=script.get("segments_summary", []),
+      214 +        btc_price=btc_price,
+      215 +    )
+      216 +    newsletter_path = os.path.join(run_dir,
+          +"newsletter.html")
+      217 +    save_newsletter_html(email_html, newsletter_path)
+      218 +    timing["13_newsletter"] = round(time.time() - t0, 2)
+      219 +
+      220 +    # ── Step 14: OUTPUT — verify + summarize
+          +─────────────────────────────
+      221 +    print("\n[STEP 14/14] VERIFYING OUTPUT...")
+      222 +    t0 = time.time()
+      223 +    passed = verify_video(final_video)
+      224 +    timing["14_verify"] = round(time.time() - t0, 2)
+      225 +
+      226 +    # ── Summary
+          +──────────────────────────────────────────────────────────
+      227      timing["total"] = round(time.time() - t_pipeline_start,
+           2)
+      228
+      229 -    # Always capture video stats for report
+      229 +    # Video stats
+      230      r = subprocess.run(
+      231          ["ffprobe", "-v", "quiet", "-print_format", "json",
+      232           "-show_format", "-show_streams", final_video],
+      233 -        capture_output=True, text=True
+      233 +        capture_output=True, text=True,
+      234      )
+      235      try:
+      236          info = json.loads(r.stdout)
+     ...
+      204          vid, aud, dur, sz = {}, {}, 0, 0
+      205
+      206      print("\n" + "=" * 70)
+      207 -    if passed:
+      208 -        print(f"  SUCCESS: {final_video}")
+      209 -        print(f"  Video:
+          -{vid.get('width')}x{vid.get('height')}
+          -{vid.get('codec_name')} {dur:.1f}s")
+      210 -        print(f"  Audio: {aud.get('codec_name')}
+          -{aud.get('sample_rate')}Hz")
+      211 -        print(f"  Size: {sz:.1f}MB")
+      212 -    else:
+      213 -        print(f"  WARNING: Verification had minor failures —
+          -video is usable")
+      207 +    print(f"  PULSE CHECK V4 — {'SUCCESS' if passed else
+          +'COMPLETE (warnings)'}")
+      208 +    print(f"  Video: {vid.get('width')}x{vid.get('height')}
+          +{vid.get('codec_name')} {dur:.1f}s")
+      209 +    print(f"  Audio: {aud.get('codec_name')}
+          +{aud.get('sample_rate')}Hz")
+      210 +    print(f"  Size:  {sz:.1f}MB")
+      211
+      212 -    print(f"\n  TIMING BREAKDOWN:")
+      212 +    # Output manifest
+      213 +    outputs = {
+      214 +        "video": final_video,
+      215 +        "shorts": [os.path.join(run_dir, f"short_{i+1}.mp4")
+          +for i in range(len(shorts))],
+      216 +        "thumbnail": thumb_path,
+      217 +        "chapters": chapters_path,
+      218 +        "podcast": podcast_path,
+      219 +        "newsletter": newsletter_path,
+      220 +        "script": script_path,
+      221 +    }
+      222 +
+      223 +    print(f"\n  OUTPUT FILES:")
+      224 +    for name, path in outputs.items():
+      225 +        if isinstance(path, list):
+      226 +            for p in path:
+      227 +                exists = "✓" if os.path.exists(p) else "✗"
+      228 +                print(f"    {exists} {os.path.basename(p)}")
+      229 +        else:
+      230 +            exists = "✓" if os.path.exists(path) else "✗"
+      231 +            print(f"    {exists} {os.path.basename(path)}")
+      232 +
+      233 +    print(f"\n  TIMING:")
+      234      for step, secs in timing.items():
+      235          if step not in ("video_duration", "video_size_mb"):
+      236              print(f"    {step:20s}: {secs:.1f}s")
+      237 -    print(f"\n  Output directory: {run_dir}")
+      237 +    print(f"\n  Output: {run_dir}")
+      238      print("=" * 70)
+      239
+      240      _write_timing_report(run_dir, timing, t_pipeline_start,
+           success=passed)
+      241 +
+      242 +    # Save output manifest
+      243 +    manifest_path = os.path.join(run_dir, "manifest.json")
+      244 +    manifest = {
+      245 +        "version": "v4",
+      246 +        "episode_title": script.get("episode_title", ""),
+      247 +        "btc_price": btc_price,
+      248 +        "test_mode": test_mode,
+      249 +        "timestamp": time_str,
+      250 +        "outputs": {k: (v if isinstance(v, list) else [v])
+          +for k, v in outputs.items()},
+      251 +        "timing": timing,
+      252 +        "success": passed,
+      253 +    }
+      254 +    with open(manifest_path, "w") as f:
+      255 +        json.dump(manifest, f, indent=2)
+      256 +
+      257      return passed
+      258
+      259
+      260  def _write_timing_report(run_dir: str, timing: dict, t_start:
+            float, success: bool):
+      261 -    """Write a timing_report.txt to the run directory."""
+      261      report_path = os.path.join(run_dir, "timing_report.txt")
+      262      ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+      263      lines = [
+      264 -        f"PULSE CHECK VIDEO PIPELINE — Timing Report",
+      264 +        "PULSE CHECK V4 — Timing Report",
+      265          f"Generated: {ts}",
+      266          f"Status: {'SUCCESS' if success else 'FAILED'}",
+      267          "",
+     ...
+      244          f"  video_duration_s     :
+           {timing.get('video_duration', 'N/A')}",
+      245          f"  video_size_mb        :
+           {timing.get('video_size_mb', 'N/A')}",
+      246          f"  total_wall_time_s    : {time.time() -
+           t_start:.1f}",
+      247 -        "",
+      248 -        f"Output directory: {run_dir}",
+      247      ]
+      248      with open(report_path, "w") as f:
+      249          f.write("\n".join(lines) + "\n")
+      250 -    print(f"  timing_report.txt written")
+      250
+      251
+      252  # ───────────────────────────────────────────────────────────
+           ───────────────────
+      253 -# CLI entry point
+      253 +# CLI
+      254  # ───────────────────────────────────────────────────────────
+           ───────────────────
+      255
+      256  def main():
+      257 -    parser = argparse.ArgumentParser(description="Pulse Check
+          -Daily Video Producer")
+      257 +    parser = argparse.ArgumentParser(description="Pulse Check
+          +V4 — Dual Host Video Producer")
+      258      parser.add_argument("--test", action="store_true",
+      259 -                        help="Test mode: 2-3 segments, output
+          -to test_YYYYMMDD_HHMMSS/")
+      259 +                        help="Test mode: truncated dialogue,
+          +test output dir")
+      260      parser.add_argument("--style", "-s", default="default",
+      261                          choices=["default", "breaking"],
+      262                          help="Script style (default |
+           breaking)")
+      263      args = parser.parse_args()
+      264 -
+      264      success = run_pipeline(test_mode=args.test,
+           style=args.style)
+      265      sys.exit(0 if success else 1)
+      266
+
+● All files written. Let me verify Pillow is installed and then run the test:
+
+● Bash(python3 -c "from PIL import Image; print('Pillow OK')" && python3 -c
+      "import anthropic; print('Anthropic OK')" && python3 -c "import requests;
+      print('Requests O…)
+  ⎿  Pillow OK
+     Anthropic OK
+     Requests OK
+     PyYAML OK
+
+● All deps ready. Running the test:
+
+● Bash(python3 daily_producer.py --test 2>&1)
+  ⎿  ======================================================================
+       PULSE CHECK V4 — DUAL HOST PIPELINE
+       TEST Run 20260302_173741 | Style: default
+     … +66 lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● Pipeline passes. One issue to fix — the clip visual FFmpeg command has the -f
+  lavfi silent audio input in the wrong position. Let me fix that:
+
+● Read 1 file (ctrl+o to expand)
+
+● The problem is -f lavfi -i anullsrc is in the output_args, but
+  run_ffmpeg_filtergraph puts output args after the filter_complex_script. Need
+  to add silent audio as an input instead:
+
+● Update(assembler.py)
+  ⎿  Added 5 lines, removed 5 lines
+      193          f"format=yuv420p[outv]"
+      194      )
+      195
+      196 -    # Generate silent audio for clip
+      196 +    # Generate silent audio as second input
+      197      ok = run_ffmpeg_filtergraph(
+      198 -        [clip_path],
+      199 -        fg, ["[outv]"],
+      200 -        ["-f", "lavfi", "-i", f"anullsrc=r=44100:cl=stereo",
+      201 -         "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+      198 +        [clip_path,
+      199 +         ["-f", "lavfi", "-i",
+          +f"anullsrc=r=44100:cl=stereo"]],
+      200 +        fg, ["[outv]", "1:a"],
+      201 +        ["-c:v", "libx264", "-crf", "20", "-preset", "fast",
+      202           "-c:a", "aac", "-ar", "44100", "-b:a", "192k",
+      203           "-t", str(use_dur), "-shortest"],
+      204          output_path, f"clip visual ({safe_source})",
+
+● Now let me re-run the test to confirm the clip visual fix works:
+
+● Bash(python3 daily_producer.py --test 2>&1)
+  ⎿  ======================================================================
+       PULSE CHECK V4 — DUAL HOST PIPELINE
+       TEST Run 20260302_173958 | Style: default
+     … +60 lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● All 14 steps pass. All 9 output files generated. Let me verify the outputs:
+
+● Read 2 files (ctrl+o to expand)
+
+● All outputs verified. Now commit and push:
+
+● Bash(cd /home/ultron/protocol_pulse && git status)
+  ⎿  On branch main
+     Your branch is up to date with 'origin/main'.
+     … +20 lines (ctrl+o to expand)
+
+● Bash(git diff --stat)
+  ⎿   data/pulse_events.jsonl              |  68 +++++
+      instance/protocol_pulse.db           | Bin 1462272 -> 1511424 bytes
+      logs/monetization_engine.report.json |   2 +-
+     … +9 lines (ctrl+o to expand)
+
+● Bash(git log --oneline -3)
+  ⎿  283c077 phase2: avatar_gpu_cache [auto]
+     4546475 feat(oracle): GPU model cache + FP16 inference + vision guide
+     endpoints
+     4520763 night-runner: batch (6/6)
+
+● Bash(git add video_pipeline_v3/assembler.py video_pipeline_v3/clip_fetcher.py
+      video_pipeline_v3/daily_producer.py video_pipeline_v3/script_writer.py
+      video_pipeline_v…)
+  ⎿  (No output)
+
+● Bash(git commit -m "$(cat <<'EOF'
+      feat(video): Pulse Check V4 — dual-host, YouTube clips, thumbnails,
+      chapters, podcast…)
+  ⎿  [main a27e0c4] feat(video): Pulse Check V4 — dual-host, YouTube clips,
+      thumbnails, chapters, podcast
+      10 files changed, 1935 insertions(+), 1348 deletions(-)
+     … +7 lines (ctrl+o to expand)
+
+● Bash(git push origin main)
+  ⎿  To github.com:consensusprotocol/protocol-pulse-core.git
+        283c077..a27e0c4  main -> main
+
+● Done. Pulse Check V4 is live. Here's the summary:
+
+  V4 Pipeline — Complete
+
+  14-step dual-host pipeline in 73s test run:
+
+  ┌────────────────┬───────────────────────────────────┬────────┐
+  │      Step      │             Component             │ Status │
+  ├────────────────┼───────────────────────────────────┼────────┤
+  │ 1. GATHER      │ Intel + BTC price ($69,309)       │ Pass   │
+  ├────────────────┼───────────────────────────────────┼────────┤
+  │ 2. TRANSCRIBE  │ Placeholder for Spaces            │ Skip   │
+  ├────────────────┼───────────────────────────────────┼────────┤
+  │ 3. SELECT      │ Integrated w/ script              │ Skip   │
+  ├────────────────┼───────────────────────────────────┼────────┤
+  │ 4. DOWNLOAD    │ 1 YT clip + 4 Pexels B-roll       │ Pass   │
+  ├────────────────┼───────────────────────────────────┼────────┤
+  │ 5. SCREENSHOT  │ Placeholder                       │ Skip   │
+  ├────────────────┼───────────────────────────────────┼────────┤
+  │ 6. SCRIPT      │ Dual-host dialogue (8 lines test) │ Pass   │
+  ├────────────────┼───────────────────────────────────┼────────┤
+  │ 7. TTS         │ Jessica + Chris, 62.3s audio      │ Pass   │
+  ├────────────────┼───────────────────────────────────┼────────┤
+  │ 8. ASSEMBLE    │ 12 parts → 87s video              │ Pass   │
+  ├────────────────┼───────────────────────────────────┼────────┤
+  │ 9. SHORTS      │ 3 vertical shorts                 │ Pass   │
+  ├────────────────┼───────────────────────────────────┼────────┤
+  │ 10. THUMBNAIL  │ 1280x720, 34KB                    │ Pass   │
+  ├────────────────┼───────────────────────────────────┼────────┤
+  │ 11. CHAPTERS   │ 6 YouTube chapters                │ Pass   │
+  ├────────────────┼───────────────────────────────────┼────────┤
+  │ 12. PODCAST    │ 85.5s MP3, 937KB                  │ Pass   │
+  ├────────────────┼───────────────────────────────────┼────────┤
+  │ 13. NEWSLETTER │ HTML email saved                  │ Pass   │
+  ├────────────────┼───────────────────────────────────┼────────┤
+  │ 14. VERIFY     │ All 6 checks PASS                 │ Pass   │
+  └────────────────┴───────────────────────────────────┴────────┘
+
+  All 9 output files generated:
+  - pulse_check_20260302.mp4 — 87s, 82MB, 1920x1080 h264/aac
+  - short_1.mp4, short_2.mp4, short_3.mp4 — vertical shorts
+  - thumbnail.png — 1280x720
+  - chapters.txt — YouTube timestamps
+  - podcast.mp3 — audio-only
+  - newsletter.html — email embed
+  - script.json — dialogue arrays
+
+  Voices: Jessica (cgSgspJ2msm6clMCkdW9) + Chris (iP95p4xoKVk53GoZ742B)
+
+  Pushed to main as a27e0c4.
+
+✻ Cogitated for 12m 0s
+
+────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────
+  ⏵⏵ bypass permissions on (shift+tab to cycle)
+
