@@ -26,7 +26,8 @@ import yaml
 # Add parent for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from briefing_writer import generate_script, fetch_all_data, SAMPLE_DATA
+from data_gatherer import gather_all, SAMPLE_DATA
+from briefing_writer import generate_script
 from overlay_engine import generate_all_overlays
 from relay import get_key
 
@@ -392,84 +393,9 @@ def add_intro_outro(video_path: str, output_path: str) -> str:
 # ---------------------------------------------------------------------------
 
 def generate_thumbnail(script: dict, output_path: str) -> bool:
-    """Generate 1280x720 thumbnail with avatar face + headline + BTC price."""
-    from PIL import Image, ImageDraw, ImageFont
-
-    W, H = 1280, 720
-
-    # Create dark background
-    img = Image.new("RGB", (W, H), color=(10, 10, 10))
-    draw = ImageDraw.Draw(img)
-
-    # Load fonts
-    try:
-        font_big = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 56)
-        font_med = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 36)
-        font_sm = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf", 28)
-    except Exception:
-        font_big = ImageFont.load_default()
-        font_med = font_big
-        font_sm = font_big
-
-    # Try to load avatar
-    avatar_path = os.path.join(os.path.dirname(__file__), "..", "oracle", "Proto_P_Avatar_512.png")
-    if os.path.exists(avatar_path):
-        try:
-            avatar = Image.open(avatar_path).convert("RGBA")
-            avatar = avatar.resize((360, 360), Image.LANCZOS)
-            # Place avatar on left
-            img.paste(avatar, (40, (H - 360) // 2), avatar)
-        except Exception as e:
-            print(f"[thumb] Avatar load error: {e}")
-
-    # Red accent bar
-    draw.rectangle([(430, 140), (436, 580)], fill=(204, 0, 0))
-
-    # Headline text
-    headline = script.get("thumbnail_headline", "ORACLE BRIEFING")
-    # Word-wrap headline
-    words = headline.split()
-    lines = []
-    current = ""
-    for w in words:
-        test = f"{current} {w}".strip()
-        bbox = draw.textbbox((0, 0), test, font=font_big)
-        if bbox[2] - bbox[0] > 760:
-            if current:
-                lines.append(current)
-            current = w
-        else:
-            current = test
-    if current:
-        lines.append(current)
-
-    y = 160
-    for line in lines[:3]:
-        draw.text((460, y), line.upper(), fill=(255, 255, 255), font=font_big)
-        y += 70
-
-    # BTC price
-    btc_data = script.get("data", {}).get("btc", {})
-    price = btc_data.get("price", 0)
-    change = btc_data.get("change_24h", 0)
-    if price > 0:
-        price_str = f"BTC ${price:,.0f}"
-        change_color = (0, 204, 102) if change >= 0 else (255, 51, 51)
-        change_str = f"{change:+.1f}%"
-        draw.text((460, y + 30), price_str, fill=(255, 255, 255), font=font_med)
-        draw.text((460 + draw.textlength(price_str, font=font_med) + 20, y + 35),
-                  change_str, fill=change_color, font=font_sm)
-
-    # "ORACLE BRIEFING" badge
-    draw.rectangle([(460, y + 100), (730, y + 140)], fill=(204, 0, 0))
-    draw.text((470, y + 105), "ORACLE BRIEFING", fill=(255, 255, 255), font=font_sm)
-
-    # Bottom branding
-    draw.text((W - 300, H - 40), "PROTOCOL PULSE", fill=(102, 102, 102), font=font_sm)
-
-    img.save(output_path, "JPEG", quality=92)
-    print(f"[thumb] Thumbnail: {output_path}")
-    return True
+    """Generate 1280x720 thumbnail — delegates to thumbnail_gen module."""
+    from thumbnail_gen import generate_briefing_thumbnail
+    return generate_briefing_thumbnail(script, output_path)
 
 
 # ---------------------------------------------------------------------------
@@ -527,7 +453,7 @@ def run_pipeline(test: bool = False, no_avatar: bool = False):
         data = SAMPLE_DATA
         print("  Using sample data (test mode)")
     else:
-        data = fetch_all_data()
+        data = gather_all()
 
     # ---------------------------------------------------------------
     # Step 2: Generate script

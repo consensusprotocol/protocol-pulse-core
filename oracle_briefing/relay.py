@@ -30,10 +30,18 @@ def run(cmd: str, timeout: int = 25) -> str:
     return ""
 
 def get_key(name: str) -> str:
-    """Get an API key from local env first, then Replit relay."""
+    """Get an API key from local env, .env file, or Replit relay."""
     local = os.environ.get(name, "")
     if local:
         return local
+    # Check .env file
+    env_path = os.path.join(os.path.dirname(__file__), ".env")
+    if os.path.exists(env_path):
+        with open(env_path) as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith(f"{name}="):
+                    return line.split("=", 1)[1].strip()
     return run(f"echo ${name}")
 
 def query_db(sql: str) -> str:

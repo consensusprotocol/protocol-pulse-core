@@ -227,11 +227,13 @@ Return ONLY valid JSON (no markdown fences):
 
 def generate_script(data: dict = None, test: bool = False) -> dict:
     """Generate Oracle Briefing script using Claude."""
-    if test:
+    if test and data is None:
+        from data_gatherer import SAMPLE_DATA
         data = SAMPLE_DATA
 
     if data is None:
-        data = fetch_all_data()
+        from data_gatherer import gather_all
+        data = gather_all()
 
     btc = data["btc"]
     mem = data["mempool"]
@@ -272,7 +274,7 @@ def generate_script(data: dict = None, test: bool = False) -> dict:
                 "content-type": "application/json",
             },
             json={
-                "model": "claude-sonnet-4-6",
+                "model": "claude-sonnet-4-20250514",
                 "max_tokens": 1024,
                 "system": SYSTEM_PROMPT,
                 "messages": [{"role": "user", "content": user_prompt}],
