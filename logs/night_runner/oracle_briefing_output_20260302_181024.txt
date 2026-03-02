@@ -1,0 +1,1024 @@
+      voice_id = "cgSgspJ2msm6clMCkdW9"  # Jessica
+
+      resp = requests.post(
+          f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
+          headers={"xi-api-key": api_key, "Content-Type":
+  "application/json"},
+          json={"text": text, "model_id": "eleven_turbo_v2_5",
+                "voice_settings": {"stability": 0.6, "similarity_boost":
+  0.85}},
+          timeout=60
+      )
+      with open(output_path, 'wb') as f:
+          f.write(resp.content)
+      return output_path
+
+  def generate_avatar(audio_path, output_path):
+      """Send audio to avatar server for lip-synced video."""
+      import requests
+      # POST audio to avatar server
+      # The avatar server at localhost:8200 should accept audio and return
+  video
+      # Check the actual endpoint format:
+      # curl http://localhost:8200/health
+      pass
+
+  def composite_video(avatar_path, overlay_paths, script, output_path):
+      """Composite avatar video with data overlays using FFmpeg."""
+      # Layout: Avatar on left (40%), overlay on right (60%)
+      # Or: Avatar full-screen with semi-transparent overlay
+      # Add intro (2s) and outro (3s)
+      # Use FFmpeg filter_complex for compositing
+      pass
+
+  if __name__ == '__main__':
+      parser = argparse.ArgumentParser()
+      parser.add_argument('--test', action='store_true')
+      args = parser.parse_args()
+      produce_briefing(test=args.test)
+  ```
+
+  ### 5. `thumbnail_gen.py` (~80 lines) — Oracle-specific thumbnails
+
+  Similar to Pulse Check but Oracle-branded:
+  - Proto_P avatar face on left
+  - Headline + metric on right
+  - "ORACLE BRIEFING" branding
+
+  ## TEST RUN
+
+  ```bash
+  mkdir -p ~/protocol_pulse/oracle_briefing/output
+  cd ~/protocol_pulse/oracle_briefing
+  python3 briefing_producer.py --test
+  ```
+
+  Expected output:
+  ```
+  output/test_oracle_YYYYMMDD_XXXX/
+  ├── oracle_briefing_YYYYMMDD.mp4  (60-90s, avatar + overlays)
+  ├── thumbnail.jpg                 (1280x720)
+  ├── script.json
+  ├── data.json
+  ├── narration.wav
+  ├── avatar_raw.mp4
+  ├── overlay_0.png
+  ├── overlay_1.png
+  ├── overlay_2.png
+  └── timing_report.txt
+  ```
+
+  ## VERIFICATION
+
+  ```bash
+  # Files exist:
+  ls ~/protocol_pulse/oracle_briefing/*.py | wc -l  # Should be 5
+  # Imports work:
+  cd ~/protocol_pulse/oracle_briefing
+  python3 -c "from data_gatherer import gather_all; d=gather_all();
+  print(f'BTC: ${d[\"btc\"][\"price\"]:,.0f}')"
+  python3 -c "from overlay_engine import generate_overlay; print('OK')"
+  # Test run produces output:
+  python3 briefing_producer.py --test
+  ls -la output/test_oracle_*/
+  ```
+
+  ## SUCCESS CRITERIA
+  - [ ] 5 .py files created in `~/protocol_pulse/oracle_briefing/`
+  - [ ] `data_gatherer.py` fetches live BTC, mempool, hashrate, FNG data
+  - [ ] `briefing_writer.py` generates script via Claude API
+  - [ ] `overlay_engine.py` generates at least stat_card overlays
+  - [ ] `briefing_producer.py --test` runs without crashing
+  - [ ] At least script.json + data.json produced in test output
+
+  ## RULES
+  - Work on `main` branch
+  - Create the `oracle_briefing/` directory from scratch
+  - All API calls have timeout and error handling
+  - matplotlib: Agg backend
+  - Git add + commit + push when done
+  - DO NOT just explore and quit. CREATE ALL 5 FILES.
+
+
+● I'll build the entire Oracle Briefing pipeline from scratch. Let me start by
+  checking existing infrastructure and then create all 5 files.
+
+● Bash(mkdir -p ~/protocol_pulse/oracle_briefing/output)
+  ⎿  Done
+
+● Explore(Check avatar server API)
+  ⎿  Done (9 tool uses · 50.6k tokens · 30s)
+  (ctrl+o to expand)
+
+● Bash(curl -s http://localhost:8200/health 2>/dev/null | python3 -m json.tool
+      2>/dev/null || echo "Avatar server not responding")
+  ⎿  {
+         "avatar_loaded": true,
+         "avatar_size": "512x512",
+     … +31 lines (ctrl+o to expand)
+
+● Bash(curl -s "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_cur
+      rencies=usd&include_24hr_change=true" 2>/dev/null | python3 -m json.tool)
+  ⎿  {
+         "bitcoin": {
+             "usd": 68846,
+     … +3 lines (ctrl+o to expand)
+
+● Bash(curl -s "https://mempool.space/api/v1/fees/recommended" 2>/dev/null |
+      python3 -m json.tool)
+  ⎿  {
+         "fastestFee": 1,
+         "halfHourFee": 1,
+     … +4 lines (ctrl+o to expand)
+
+● Good - avatar server is running, APIs are working. Let me check remaining APIs
+   and look at how keys are fetched.
+
+● Bash(curl -s "https://mempool.space/api/v1/mining/hashrate/1w" 2>/dev/null |
+      python3 -c "import json,sys; d=json.load(sys.stdin); print(f'Hashrate:
+      {d[\"currentHashr…)
+  ⎿  Hashrate: 1052.6 EH/s, Difficulty: 144.40T
+
+● Bash(curl -s "https://api.alternative.me/fng/" 2>/dev/null | python3 -c
+      "import json,sys; d=json.load(sys.stdin); print(d['data'][0])"
+      2>/dev/null)
+  ⎿  {'value': '10', 'value_classification': 'Extreme Fear', 'timestamp': '
+     1772409600', 'time_until_update': '953'}
+
+● Bash(curl -s "https://mempool.space/api/blocks/tip/height" 2>/dev/null)
+  ⎿  939063
+
+● Bash(curl -s "https://mempool.space/api/mempool" 2>/dev/null | python3 -m
+      json.tool)
+  ⎿  {
+         "count": 29181,
+         "vsize": 16397364,
+     … +63 lines (ctrl+o to expand)
+
+● Bash(curl -s "https://protocolpulse.replit.app/api/articles/latest"
+      2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin);
+      [print(a.get('title','?')[:80]…)
+  ⎿  Articles API error
+
+● Bash(echo "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:0:10}..." && echo
+      "ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY:0:10}...")
+  ⎿  ANTHROPIC_API_KEY=...
+     ELEVENLABS_API_KEY=...
+
+● Keys aren't in local env. Let me check how to fetch them and fix the articles
+  API call.
+
+● Bash(curl -s "https://protocolpulse.replit.app/api/articles/latest"
+      2>/dev/null | python3 -c "import json,sys; d=sys.stdin.read();
+      print(d[:500])" 2>/dev/null)
+  ⎿  <!DOCTYPE html>
+     <html lang="en">
+     <head>
+     … +10 lines (ctrl+o to expand)
+
+● Bash(REPLIT_URL="https://protocolpulse.replit.app/api/admin/exec"
+      TOKEN="581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552"…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "",
+     … +2 lines (ctrl+o to expand)
+
+● Bash(REPLIT_URL="https://protocolpulse.replit.app/api/admin/exec"
+      TOKEN="581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552"…)
+  ⎿  {
+       "returncode": 0,
+       "stderr": "",
+     … +2 lines (ctrl+o to expand)
+
+● Bash(python3 -c "import matplotlib; print(matplotlib.__version__)" && python3
+      -c "from PIL import Image; print('PIL OK')" && python3 -c "import
+      anthropic; print('ant…)
+  ⎿  3.9.0
+     PIL OK
+     anthropic OK
+     … +2 lines (ctrl+o to expand)
+
+● Bash(curl -s "https://protocolpulse.replit.app/api/articles" 2>/dev/null |
+      python3 -c "import json,sys; d=sys.stdin.read(); print(d[:500] if not
+      d.startswith('<!') e…)
+  ⎿  <!DOCTYPE html>
+     <html lang="en">
+     <head>
+     … +10 lines (ctrl+o to expand)
+
+● Bash(curl -s "https://protocolpulse.replit.app/api/pulse-data" 2>/dev/null |
+      python3 -c "import json,sys; d=sys.stdin.read(); print(d[:500] if not
+      d.startswith('<!')…)
+  ⎿  <!DOCTYPE html>
+     <html lang="en">
+     <head>
+     … +10 lines (ctrl+o to expand)
+
+● Bash(# Fetch full keys via relay
+      REPLIT_URL="https://protocolpulse.replit.app/api/admin/exec"…)
+  ⎿  Keys saved: 198 bytes
+
+● Bash(# Check for articles API via relay
+      REPLIT_URL="https://protocolpulse.replit.app/api/admin/exec"…)
+  ⎿  {
+         "returncode": 1,
+         "stderr": "Traceback (most recent call last):\n  File \"<string>\"
+     … +4 lines (ctrl+o to expand)
+
+● Bash(REPLIT_URL="https://protocolpulse.replit.app/api/admin/exec"
+      TOKEN="581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552"…)
+  ⎿  {
+         "returncode": 0,
+         "stderr": "",
+     … +2 lines (ctrl+o to expand)
+
+● Bash(head -5 ~/protocol_pulse/data/pulse_events.jsonl 2>/dev/null | python3 -c
+       "import json,sys; [print(json.loads(l).get('title','?')[:80]) for l in
+      sys.stdin]" 2>/…)
+  ⎿  ?
+     ?
+     ?
+     … +2 lines (ctrl+o to expand)
+
+● Bash(head -3 ~/protocol_pulse/data/pulse_events.jsonl 2>/dev/null | python3 -c
+       "import json,sys; [print(json.dumps(json.loads(l), indent=2)[:300]) for l
+       in sys.stdin…)
+  ⎿  {
+       "ts": "2026-02-11T22:06:40.131799",
+       "tag": "signal",
+     … +13 lines (ctrl+o to expand)
+
+● All infrastructure confirmed. Now I'll create all 5 files. Let me write them
+  all.
+
+● Write(oracle_briefing/data_gatherer.py)
+  ⎿  Wrote 174 lines to oracle_briefing/data_gatherer.py
+     """Gather live Bitcoin data for Oracle Briefing."""
+
+     import requests
+     import json
+     from datetime import datetime
+
+
+     def gather_all():
+         """Fetch all data sources, return structured dict."""
+         data = {}
+     … +164 lines (ctrl+o to expand)
+
+● Write(oracle_briefing/briefing_writer.py)
+  ⎿  Error writing file
+
+● Read 2 files (ctrl+o to expand)
+
+● The directory already has files from a previous session! Let me check what
+  exists before rebuilding.
+
+● Read 4 files (ctrl+o to expand)
+
+● There are already substantial files from a previous session. Let me check the
+  supporting files and see what actually works vs what's broken.
+
+● Read 3 files (ctrl+o to expand)
+
+● The pipeline is mostly built but has several issues preventing it from
+  running. Let me fix all the problems and add the missing thumbnail_gen.py.
+
+● Fix relay.py to load from .env file:
+
+● Update(oracle_briefing/relay.py)
+  ⎿  Added 9 lines, removed 1 line
+      30      return ""
+      31
+      32  def get_key(name: str) -> str:
+      33 -    """Get an API key from local env first, then
+         - Replit relay."""
+      33 +    """Get an API key from local env, .env file, or
+         + Replit relay."""
+      34      local = os.environ.get(name, "")
+      35      if local:
+      36          return local
+      37 +    # Check .env file
+      38 +    env_path = os.path.join(os.path.dirname(__file__), ".env")
+      39 +    if os.path.exists(env_path):
+      40 +        with open(env_path) as f:
+      41 +            for line in f:
+      42 +                line = line.strip()
+      43 +                if line.startswith(f"{name}="):
+      44 +                    return line.split("=", 1)[1].strip()
+      45      return run(f"echo ${name}")
+      46
+      47  def query_db(sql: str) -> str:
+
+● Fix model ID in briefing_writer.py:
+
+● Update(oracle_briefing/briefing_writer.py)
+  ⎿  Added 1 line, removed 1 line
+      272                  "content-type": "application/json",
+      273              },
+      274              json={
+      275 -                "model": "claude-sonnet-4-6",
+      275 +                "model": "claude-sonnet-4-20250514",
+      276                  "max_tokens": 1024,
+      277                  "system": SYSTEM_PROMPT,
+      278                  "messages": [{"role": "user", "content":
+           user_prompt}],
+
+● Now rewrite data_gatherer.py to match the pipeline's expected data format
+  (used by briefing_writer.py and overlay_engine.py):
+
+● Write(oracle_briefing/data_gatherer.py)
+  ⎿  Added 124 lines, removed 83 lines
+       1 -"""Gather live Bitcoin data for Oracle Briefing."""
+       1 +"""Gather live Bitcoin data for Oracle Briefing.
+       2
+       3 -import requests
+       3 +Returns data in the format expected by briefing_writer and
+         +overlay_engine:
+       4 +  btc:       {price, change_24h, market_cap}
+       5 +  btc_7d:    [[timestamp_ms, price], ...]
+       6 +  mempool:   {fastest_fee, half_hour_fee, hour_fee,
+         +economy_fee, tx_count, vsize}
+       7 +  fng:       {value, label}
+       8 +  hashrate:  {hashrate_eh, difficulty_epochs}
+       9 +  block_height: int
+      10 +  articles:  [{title, slug, summary}, ...]
+      11 +  timestamp: ISO string
+      12 +"""
+      13 +
+      14  import json
+      15 -from datetime import datetime
+      15 +import os
+      16 +import sys
+      17 +from datetime import datetime, timezone
+      18
+      19 +import requests
+      20
+      21 +from relay import get_key
+      22 +
+      23 +
+      24  def gather_all():
+      25 -    """Fetch all data sources, return structured dict."""
+      26 -    data = {}
+      27 -    data['btc'] = fetch_btc_price()
+      28 -    data['mempool'] = fetch_mempool()
+      29 -    data['mining'] = fetch_mining()
+      30 -    data['fng'] = fetch_fear_greed()
+      31 -    data['block_height'] = fetch_block_height()
+      32 -    data['articles'] = fetch_latest_articles()
+      33 -    data['timestamp'] = datetime.now().isoformat()
+      25 +    """Fetch all live data sources, return structured dict."""
+      26 +    print("[data] Fetching live data...")
+      27 +    btc = fetch_btc_price()
+      28 +    btc_7d = fetch_btc_7d()
+      29 +    mempool = fetch_mempool()
+      30 +    fng = fetch_fear_greed()
+      31 +    hashrate = fetch_hashrate()
+      32 +    block_height = fetch_block_height()
+      33 +    articles = fetch_latest_articles()
+      34 +
+      35 +    data = {
+      36 +        "btc": btc,
+      37 +        "btc_7d": btc_7d,
+      38 +        "mempool": mempool,
+      39 +        "fng": fng,
+      40 +        "hashrate": hashrate,
+      41 +        "block_height": block_height,
+      42 +        "articles": articles,
+      43 +        "timestamp": datetime.now(timezone.utc).isoformat(),
+      44 +    }
+      45 +    print(f"  BTC: ${btc['price']:,.0f}
+         +({btc['change_24h']:+.1f}%)")
+      46 +    print(f"  FNG: {fng['value']} ({fng['label']})")
+      47 +    print(f"  Mempool: {mempool['tx_count']:,} txs,
+         +{mempool['fastest_fee']} sat/vB fastest")
+      48 +    print(f"  Hashrate: {hashrate['hashrate_eh']} EH/s")
+      49 +    print(f"  Block: {block_height:,}")
+      50      return data
+      51
+      52
+     ...
+      36          d = r.json()["bitcoin"]
+      37          return {
+      38              "price": d["usd"],
+      39 -            "change_24h": d.get("usd_24h_change", 0),
+      39 +            "change_24h": round(d.get("usd_24h_change", 0), 2),
+      40              "market_cap": d.get("usd_market_cap", 0),
+      41              "volume_24h": d.get("usd_24h_vol", 0),
+      42          }
+      43      except Exception as e:
+      44 -        return {"price": 0, "change_24h": 0, "market_cap": 0,
+         -"volume_24h": 0, "error": str(e)}
+      44 +        print(f"  [data] BTC price error: {e}")
+      45 +        return {"price": 0, "change_24h": 0, "market_cap": 0,
+         +"volume_24h": 0}
+      46
+      47
+      48 +def fetch_btc_7d():
+      49 +    """Fetch 7-day BTC price history for overlay chart."""
+      50 +    try:
+      51 +        r = requests.get(
+      52 +
+         +"https://api.coingecko.com/api/v3/coins/bitcoin/market_chart",
+      53 +            params={"vs_currency": "usd", "days": "7"},
+      54 +            timeout=15,
+      55 +        )
+      56 +        r.raise_for_status()
+      57 +        return r.json().get("prices", [])
+      58 +    except Exception as e:
+      59 +        print(f"  [data] BTC 7d error: {e}")
+      60 +        return []
+      61 +
+      62 +
+      63  def fetch_mempool():
+      64      """Mempool fees and unconfirmed transaction count."""
+      65 -    result = {}
+      65 +    result = {
+      66 +        "fastest_fee": 0, "half_hour_fee": 0,
+      67 +        "hour_fee": 0, "economy_fee": 0,
+      68 +        "tx_count": 0, "vsize": 0,
+      69 +    }
+      70      try:
+      71          r =
+          requests.get("https://mempool.space/api/v1/fees/recommended",
+          timeout=10)
+      72          r.raise_for_status()
+     ...
+       56          result["hour_fee"] = fees.get("hourFee", 0)
+       57          result["economy_fee"] = fees.get("economyFee", 0)
+       58      except Exception as e:
+       59 -        result["error_fees"] = str(e)
+       59 +        print(f"  [data] Fees error: {e}")
+       60
+       61      try:
+       62          r = requests.get("https://mempool.space/api/mempool",
+            timeout=10)
+       63          r.raise_for_status()
+       64          mp = r.json()
+       65 -        result["count"] = mp.get("count", 0)
+       65 +        result["tx_count"] = mp.get("count", 0)
+       66          result["vsize"] = mp.get("vsize", 0)
+       67 -        result["total_fee_btc"] = mp.get("total_fee", 0) /
+          -1e8
+       67      except Exception as e:
+       68 -        result["error_mempool"] = str(e)
+       68 +        print(f"  [data] Mempool error: {e}")
+       69
+       70      return result
+       71
+       72
+       73 -def fetch_mining():
+       73 +def fetch_hashrate():
+       74      """Hashrate and difficulty from mempool.space."""
+       75      try:
+       76 -        r =
+          -requests.get("https://mempool.space/api/v1/mining/hashrate/1w
+          -", timeout=15)
+       76 +        r =
+          +requests.get("https://mempool.space/api/v1/mining/hashrate/3m
+          +", timeout=15)
+       77          r.raise_for_status()
+       78 -        d = r.json()
+       79 -        hashrate_eh = d["currentHashrate"] / 1e18
+       80 -        difficulty_t = d["currentDifficulty"] / 1e12
+       81 -
+       82 -        # Compute difficulty change from hashrate history if
+          -available
+       83 -        difficulty_change = None
+       84 -        hashrates = d.get("hashrates", [])
+       85 -        if len(hashrates) >= 2:
+       86 -            old = hashrates[0].get("avgHashrate", 0)
+       87 -            new = hashrates[-1].get("avgHashrate", 0)
+       88 -            if old > 0:
+       89 -                difficulty_change = f"{((new - old) / old) *
+          -100:+.1f}%"
+       90 -
+       78 +        data = r.json()
+       79 +        hr = data.get("hashrates", [])
+       80 +        diff = data.get("difficulty", [])
+       81 +        current_hr = hr[-1]["avgHashrate"] if hr else 0
+       82          return {
+       83 -            "hashrate": f"{hashrate_eh:.1f}",
+       84 -            "difficulty": f"{difficulty_t:.2f}T",
+       85 -            "difficulty_change": difficulty_change or "N/A",
+       83 +            "hashrate_eh": round(current_hr / 1e18, 1),
+       84 +            "difficulty_epochs": diff[-5:] if len(diff) >= 5
+          +else diff,
+       85          }
+       86      except Exception as e:
+       87 -        return {"hashrate": "?", "difficulty": "?",
+          -"difficulty_change": "?", "error": str(e)}
+       87 +        print(f"  [data] Hashrate error: {e}")
+       88 +        return {"hashrate_eh": 0, "difficulty_epochs": []}
+       89
+       90
+       91  def fetch_fear_greed():
+       92      """Fear & Greed Index from alternative.me."""
+       93      try:
+       94 -        r = requests.get("https://api.alternative.me/fng/
+          -", timeout=10)
+       94 +        r = requests.get("https://api.alternative.me/fng/
+          +?limit=1", timeout=10)
+       95          r.raise_for_status()
+       96          d = r.json()["data"][0]
+       97 -        return {
+       98 -            "value": int(d["value"]),
+       99 -            "classification": d["value_classification"],
+      100 -        }
+       97 +        return {"value": int(d["value"]), "label":
+          +d["value_classification"]}
+       98      except Exception as e:
+       99 -        return {"value": 50, "classification": "Neutral",
+          -"error": str(e)}
+       99 +        print(f"  [data] FNG error: {e}")
+      100 +        return {"value": 50, "label": "Neutral"}
+      101
+      102
+      103  def fetch_block_height():
+     ...
+      119          r.raise_for_status()
+      120          return int(r.text.strip())
+      121      except Exception as e:
+      122 +        print(f"  [data] Block height error: {e}")
+      123          return 0
+      124
+      125
+      126  def fetch_latest_articles():
+      127      """Fetch latest Protocol Pulse articles via Replit
+           relay."""
+      128 +    from relay import query_db
+      129      try:
+      130 -        replit_url =
+          -"https://protocolpulse.replit.app/api/admin/exec"
+      131 -        token = "581b1076ca6d8a8809997d24f0869431ffd75c64de9e
+          -a703b6ab0f3e39fbd552"
+      132 -        cmd = (
+      133 -            "python3 -c \""
+      134 -            "import sqlite3, json; "
+      135 -            "conn = sqlite3.connect('pulse.db'); "
+      136 -            "c = conn.cursor(); "
+      137 -            "tables = [r[0] for r in c.execute('SELECT name
+          -FROM sqlite_master WHERE type=\\\"table\\\"').fetchall()]; "
+      138 -            "results = []; "
+      139 -            "[results.extend([dict(zip([col[0] for col in
+          -c.description], row)) for row in c.execute(f'SELECT * FROM
+          -{t} ORDER BY rowid DESC LIMIT 5').fetchall()]) for t in
+          -tables if 'article' in t.lower()]; "
+      140 -            "print(json.dumps(results[:5]))"
+      141 -            "\""
+      130 +        raw = query_db(
+      131 +            "SELECT title, slug, summary FROM articles ORDER
+          +BY published_at DESC LIMIT 5"
+      132          )
+      133 -        r = requests.post(
+      134 -            replit_url,
+      135 -            json={"token": token, "cmd": cmd},
+      136 -            timeout=15,
+      137 -        )
+      138 -        r.raise_for_status()
+      139 -        stdout = r.json().get("stdout", "").strip()
+      140 -        if stdout and stdout != "[]":
+      141 -            return json.loads(stdout)
+      142 -    except Exception:
+      143 -        pass
+      144 -
+      145 -    # Fallback: return empty list (briefing will work without
+          - articles)
+      133 +        if raw:
+      134 +            return json.loads(raw)
+      135 +    except Exception as e:
+      136 +        print(f"  [data] Articles error: {e}")
+      137      return []
+      138
+      139
+      140 -def format_data_summary(data):
+      141 -    """Human-readable summary for debugging."""
+      142 -    lines = [
+      143 -        f"BTC: ${data['btc']['price']:,.0f}
+          -({data['btc']['change_24h']:+.1f}%)",
+      144 -        f"Mempool: {data['mempool'].get('count', '?')}
+          -unconfirmed, {data['mempool'].get('fastest_fee', '?')} sat/vB
+          - fastest",
+      145 -        f"Mining: {data['mining'].get('hashrate', '?')} EH/s,
+          - difficulty {data['mining'].get('difficulty', '?')}",
+      146 -        f"F&G: {data['fng'].get('value', '?')}
+          -({data['fng'].get('classification', '?')})",
+      147 -        f"Block: {data.get('block_height', '?')}",
+      148 -        f"Articles: {len(data.get('articles', []))}",
+      149 -    ]
+      150 -    return "\n".join(lines)
+      140 +# Sample data for test mode
+      141 +SAMPLE_DATA = {
+      142 +    "btc": {"price": 87432, "change_24h": 2.4, "market_cap":
+          +1720000000000, "volume_24h": 34000000000},
+      143 +    "btc_7d": [
+      144 +        [1709251200000, 84200], [1709337600000, 85100],
+      145 +        [1709424000000, 84800], [1709510400000, 86300],
+      146 +        [1709596800000, 85900], [1709683200000, 86700],
+      147 +        [1709769600000, 87432],
+      148 +    ],
+      149 +    "mempool": {
+      150 +        "fastest_fee": 12, "half_hour_fee": 8, "hour_fee": 5,
+      151 +        "economy_fee": 3, "tx_count": 42000, "vsize":
+          +180000000,
+      152 +    },
+      153 +    "fng": {"value": 72, "label": "Greed"},
+      154 +    "hashrate": {"hashrate_eh": 792.3, "difficulty_epochs":
+          +[]},
+      155 +    "block_height": 939063,
+      156 +    "articles": [
+      157 +        {"title": "Bitcoin Crosses $87K As Institutional
+          +Demand Surges",
+      158 +         "slug": "bitcoin-crosses-87k", "summary": "Bitcoin
+          +breaks above $87,000..."},
+      159 +        {"title": "Mining Difficulty Hits All-Time High",
+      160 +         "slug": "mining-difficulty-ath", "summary": "Network
+          + difficulty adjustment..."},
+      161 +    ],
+      162 +    "timestamp": datetime.now(timezone.utc).isoformat(),
+      163 +}
+      164
+      165
+      166  if __name__ == "__main__":
+      167 -    data = gather_all()
+      168 -    print(format_data_summary(data))
+      169 -    print(f"\nFull data:")
+      167 +    test_mode = "--test" in sys.argv
+      168 +    if test_mode:
+      169 +        data = SAMPLE_DATA
+      170 +        print("=== Data Gatherer (TEST — sample data) ===\n")
+      171 +    else:
+      172 +        print("=== Data Gatherer (LIVE) ===\n")
+      173 +        data = gather_all()
+      174 +
+      175      print(json.dumps(data, indent=2, default=str))
+
+● Now create thumbnail_gen.py as a standalone file:
+
+● Write(oracle_briefing/thumbnail_gen.py)
+  ⎿  Wrote 116 lines to oracle_briefing/thumbnail_gen.py
+     #!/usr/bin/env python3
+     """Oracle Briefing Thumbnail Generator.
+
+     Generates a 1280x720 thumbnail with:
+     - Proto_P avatar face on left
+     - Headline + BTC metric on right
+     - "ORACLE BRIEFING" branding badge
+     """
+
+     import os
+     … +106 lines (ctrl+o to expand)
+
+● Now update briefing_producer.py to import SAMPLE_DATA from data_gatherer
+  instead of briefing_writer, and use gather_all from data_gatherer:
+
+● Update(oracle_briefing/briefing_producer.py)
+  ⎿  Added 2 lines, removed 1 line
+      26  # Add parent for imports
+      27  sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+      28
+      29 -from briefing_writer import generate_script, fetch_all_data,
+         -SAMPLE_DATA
+      29 +from data_gatherer import gather_all, SAMPLE_DATA
+      30 +from briefing_writer import generate_script
+      31  from overlay_engine import generate_all_overlays
+      32  from relay import get_key
+      33
+
+● Now update the data fetch step in run_pipeline to use gather_all instead of
+  fetch_all_data:
+
+● Update(oracle_briefing/briefing_producer.py)
+  ⎿  Added 1 line, removed 1 line
+      528          data = SAMPLE_DATA
+      529          print("  Using sample data (test mode)")
+      530      else:
+      531 -        data = fetch_all_data()
+      531 +        data = gather_all()
+      532
+      533      # -------------------------------------------------------
+           --------
+      534      # Step 2: Generate script
+
+● Now update the thumbnail import in briefing_producer.py to use the new
+  standalone module:
+
+● Read 1 file (ctrl+o to expand)
+
+● Replace the inline thumbnail function with an import from the standalone
+  module:
+
+● Update(oracle_briefing/briefing_producer.py)
+  ⎿  Added 3 lines, removed 78 lines
+      393  # -----------------------------------------------------------
+           ----------------
+      394
+      395  def generate_thumbnail(script: dict, output_path: str) ->
+           bool:
+      396 -    """Generate 1280x720 thumbnail with avatar face +
+          -headline + BTC price."""
+      397 -    from PIL import Image, ImageDraw, ImageFont
+      396 +    """Generate 1280x720 thumbnail — delegates to
+          +thumbnail_gen module."""
+      397 +    from thumbnail_gen import generate_briefing_thumbnail
+      398 +    return generate_briefing_thumbnail(script, output_path)
+      399
+      400 -    W, H = 1280, 720
+      400
+      401 -    # Create dark background
+      402 -    img = Image.new("RGB", (W, H), color=(10, 10, 10))
+      403 -    draw = ImageDraw.Draw(img)
+      404 -
+      405 -    # Load fonts
+      406 -    try:
+      407 -        font_big = ImageFont.truetype("/usr/share/fonts/truet
+          -ype/dejavu/DejaVuSans-Bold.ttf", 56)
+      408 -        font_med = ImageFont.truetype("/usr/share/fonts/truet
+          -ype/dejavu/DejaVuSans-Bold.ttf", 36)
+      409 -        font_sm = ImageFont.truetype("/usr/share/fonts/truety
+          -pe/dejavu/DejaVuSansMono.ttf", 28)
+      410 -    except Exception:
+      411 -        font_big = ImageFont.load_default()
+      412 -        font_med = font_big
+      413 -        font_sm = font_big
+      414 -
+      415 -    # Try to load avatar
+      416 -    avatar_path = os.path.join(os.path.dirname(__file__),
+          -"..", "oracle", "Proto_P_Avatar_512.png")
+      417 -    if os.path.exists(avatar_path):
+      418 -        try:
+      419 -            avatar = Image.open(avatar_path).convert("RGBA")
+      420 -            avatar = avatar.resize((360, 360), Image.LANCZOS)
+      421 -            # Place avatar on left
+      422 -            img.paste(avatar, (40, (H - 360) // 2), avatar)
+      423 -        except Exception as e:
+      424 -            print(f"[thumb] Avatar load error: {e}")
+      425 -
+      426 -    # Red accent bar
+      427 -    draw.rectangle([(430, 140), (436, 580)], fill=(204, 0,
+          -0))
+      428 -
+      429 -    # Headline text
+      430 -    headline = script.get("thumbnail_headline", "ORACLE
+          -BRIEFING")
+      431 -    # Word-wrap headline
+      432 -    words = headline.split()
+      433 -    lines = []
+      434 -    current = ""
+      435 -    for w in words:
+      436 -        test = f"{current} {w}".strip()
+      437 -        bbox = draw.textbbox((0, 0), test, font=font_big)
+      438 -        if bbox[2] - bbox[0] > 760:
+      439 -            if current:
+      440 -                lines.append(current)
+      441 -            current = w
+      442 -        else:
+      443 -            current = test
+      444 -    if current:
+      445 -        lines.append(current)
+      446 -
+      447 -    y = 160
+      448 -    for line in lines[:3]:
+      449 -        draw.text((460, y), line.upper(), fill=(255, 255,
+          -255), font=font_big)
+      450 -        y += 70
+      451 -
+      452 -    # BTC price
+      453 -    btc_data = script.get("data", {}).get("btc", {})
+      454 -    price = btc_data.get("price", 0)
+      455 -    change = btc_data.get("change_24h", 0)
+      456 -    if price > 0:
+      457 -        price_str = f"BTC ${price:,.0f}"
+      458 -        change_color = (0, 204, 102) if change >= 0 else
+          -(255, 51, 51)
+      459 -        change_str = f"{change:+.1f}%"
+      460 -        draw.text((460, y + 30), price_str, fill=(255, 255,
+          -255), font=font_med)
+      461 -        draw.text((460 + draw.textlength(price_str,
+          -font=font_med) + 20, y + 35),
+      462 -                  change_str, fill=change_color,
+          -font=font_sm)
+      463 -
+      464 -    # "ORACLE BRIEFING" badge
+      465 -    draw.rectangle([(460, y + 100), (730, y + 140)],
+          -fill=(204, 0, 0))
+      466 -    draw.text((470, y + 105), "ORACLE BRIEFING", fill=(255,
+          -255, 255), font=font_sm)
+      467 -
+      468 -    # Bottom branding
+      469 -    draw.text((W - 300, H - 40), "PROTOCOL PULSE", fill=(102,
+          - 102, 102), font=font_sm)
+      470 -
+      471 -    img.save(output_path, "JPEG", quality=92)
+      472 -    print(f"[thumb] Thumbnail: {output_path}")
+      473 -    return True
+      474 -
+      475 -
+      401  # -----------------------------------------------------------
+           ----------------
+      402  # Vertical Short
+      403  # -----------------------------------------------------------
+           ----------------
+
+● Now update the briefing_writer.py to also support importing SAMPLE_DATA and
+  fetch_all_data from data_gatherer so the pipeline is coherent. The writer has
+  its own fetch_all_data and SAMPLE_DATA, but producer now imports from
+  data_gatherer. I need to update briefing_writer.py to delegate to
+  data_gatherer:
+
+● Update(oracle_briefing/briefing_writer.py)
+  ⎿  Added 4 lines, removed 2 lines
+      227
+      228  def generate_script(data: dict = None, test: bool = False) ->
+            dict:
+      229      """Generate Oracle Briefing script using Claude."""
+      230 -    if test:
+      230 +    if test and data is None:
+      231 +        from data_gatherer import SAMPLE_DATA
+      232          data = SAMPLE_DATA
+      233
+      234      if data is None:
+      235 -        data = fetch_all_data()
+      235 +        from data_gatherer import gather_all
+      236 +        data = gather_all()
+      237
+      238      btc = data["btc"]
+      239      mem = data["mempool"]
+
+● Now let me verify everything imports correctly and run tests:
+
+● Bash(cd ~/protocol_pulse/oracle_briefing && python3 -c "from data_gatherer
+      import gather_all, SAMPLE_DATA; print(f'BTC sample:
+      \${SAMPLE_DATA[\"btc\"][\"price\"]:,.0…)
+  ⎿  BTC sample: $87,432
+     data_gatherer OK
+
+● Bash(cd ~/protocol_pulse/oracle_briefing && python3 -c "from overlay_engine
+      import generate_all_overlays; print('overlay_engine OK')")
+  ⎿  overlay_engine OK
+
+● Bash(cd ~/protocol_pulse/oracle_briefing && python3 -c "from thumbnail_gen
+      import generate_briefing_thumbnail; print('thumbnail_gen OK')")
+  ⎿  thumbnail_gen OK
+
+● Bash(cd ~/protocol_pulse/oracle_briefing && python3 -c "from briefing_writer
+      import generate_script; print('briefing_writer OK')")
+  ⎿  briefing_writer OK
+
+● Bash(cd ~/protocol_pulse/oracle_briefing && python3 -c "from relay import
+      get_key; k = get_key('ANTHROPIC_API_KEY'); print(f'Key prefix:
+      {k[:15]}...')")
+  ⎿  Key prefix: sk-ant-api03-LM...
+
+● All imports work and keys load from .env. Now test the data gatherer with live
+   data:
+
+● Bash(cd ~/protocol_pulse/oracle_briefing && python3 data_gatherer.py 2>&1 |
+      head -30)
+  ⎿  === Data Gatherer (LIVE) ===
+
+     [data] Fetching live data...
+     … +27 lines (ctrl+o to expand)
+  ⎿  (timeout 30s)
+
+● Live data gathering works perfectly. Now let's run the full pipeline in test
+  mode:
+
+● Bash(cd ~/protocol_pulse/oracle_briefing && python3 briefing_producer.py
+      --test 2>&1)
+  ⎿  ============================================================
+       ORACLE BRIEFING PRODUCER — TEST MODE
+       2026-03-02 23:49:01 UTC
+     … +37 lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● The full pipeline ran successfully in 36.6 seconds! Let me verify the output
+  and check the script content:
+
+● Read 2 files (ctrl+o to expand)
+
+● Everything works. Let me verify the 5 .py files and run the verification
+  checks from the spec:
+
+● Bash(cd ~/protocol_pulse/oracle_briefing && ls *.py | wc -l && echo "---" &&
+      ls -la *.py)
+  ⎿  6
+     ---
+     -rw-rw-r-- 1 ultron ultron 23238 Mar  2 18:48 briefing_producer.py
+     … +5 lines (ctrl+o to expand)
+
+● 6 .py files (5 core + relay.py helper). Let me verify the video output:
+
+● Bash(ffprobe -v error -show_entries format=duration,size -show_entries
+      stream=codec_name,width,height -of default
+      ~/protocol_pulse/oracle_briefing/output/test_202603…)
+  ⎿  [STREAM]
+     codec_name=h264
+     width=1920
+     … +9 lines (ctrl+o to expand)
+
+● 68s video, 1920x1080, h264/aac. Now let me update tasks and do git commit:
+
+● Now git add + commit + push:
+
+● Bash(cd ~/protocol_pulse && git status -u oracle_briefing/)
+  ⎿  On branch main
+     Your branch is up to date with 'origin/main'.
+     … +19 lines (ctrl+o to expand)
+
+● Bash(cd ~/protocol_pulse && git log --oneline -5)
+  ⎿  734f4a4 phase2: pulse_check_v4 [auto]
+     b09978a feat(video): add dual_host_tts, visual_fetcher, package init f
+     or V4 pipeline
+     … +4 lines (ctrl+o to expand)
+
+● Bash(cd ~/protocol_pulse && git diff oracle_briefing/briefing_producer.py
+      oracle_briefing/briefing_writer.py oracle_briefing/relay.py)
+  ⎿  diff --git a/oracle_briefing/briefing_producer.py b/oracle_briefing/br
+     iefing_producer.py
+     index 1c2a365..49adebf 100644
+     … +88 lines (ctrl+o to expand)
+
+● Good. Let me add a .gitignore for the output directory and .env, then commit:
+
+● Read 1 file (ctrl+o to expand)
+
+● Write(oracle_briefing/.gitignore)
+  ⎿  Wrote 5 lines to oracle_briefing/.gitignore
+     output/
+     overlays/
+     __pycache__/
+     *.pyc
+     .env
+
+
+● Bash(cd ~/protocol_pulse && git add oracle_briefing/.gitignore
+      oracle_briefing/data_gatherer.py oracle_briefing/thumbnail_gen.py
+      oracle_briefing/briefing_producer.py…)
+  ⎿  (No output)
+
+● Bash(cd ~/protocol_pulse && git status)
+  ⎿  On branch main
+     Your branch is up to date with 'origin/main'.
+     … +20 lines (ctrl+o to expand)
+
+● Bash(cd ~/protocol_pulse && git commit -m "$(cat <<'EOF'
+      feat(oracle_briefing): complete pipeline — data, script, overlays, video,
+      thumbnails…)
+  ⎿  [main e43c4ba] feat(oracle_briefing): complete pipeline — data, script
+     , overlays, video, thumbnails
+      6 files changed, 356 insertions(+), 84 deletions(-)
+     … +3 lines (ctrl+o to expand)
+
+● Bash(cd ~/protocol_pulse && git push)
+  ⎿  To github.com:consensusprotocol/protocol-pulse-core.git
+        734f4a4..e43c4ba  main -> main
+
+● Oracle Briefing pipeline is complete and pushed. Here's the summary:
+
+  Oracle Briefing Pipeline — Complete
+
+  6 Python files in ~/protocol_pulse/oracle_briefing/:
+
+  ┌──────────────────────┬───────┬───────────────────────────────────────────┐
+  │         File         │ Lines │                  Purpose                  │
+  ├──────────────────────┼───────┼───────────────────────────────────────────┤
+  │ data_gatherer.py     │ 170   │ Live BTC, mempool, hashrate, FNG, block   │
+  │                      │       │ height from public APIs                   │
+  ├──────────────────────┼───────┼───────────────────────────────────────────┤
+  │ briefing_writer.py   │ 387   │ Claude-powered script generation          │
+  │                      │       │ (3-segment format)                        │
+  ├──────────────────────┼───────┼───────────────────────────────────────────┤
+  │ overlay_engine.py    │ 362   │ Price chart, mempool viz, hashrate, FNG   │
+  │                      │       │ gauge, article screenshots                │
+  ├──────────────────────┼───────┼───────────────────────────────────────────┤
+  │ briefing_producer.py │ 620   │ Full 8-step pipeline orchestrator         │
+  ├──────────────────────┼───────┼───────────────────────────────────────────┤
+  │ thumbnail_gen.py     │ 100   │ 1280x720 thumbnail with avatar + headline │
+  │                      │       │  + metrics                                │
+  ├──────────────────────┼───────┼───────────────────────────────────────────┤
+  │ relay.py             │ 50    │ Replit relay helper + .env key loading    │
+  └──────────────────────┴───────┴───────────────────────────────────────────┘
+
+  Bugs fixed from previous session:
+  - Model ID claude-sonnet-4-6 → claude-sonnet-4-20250514
+  - relay.get_key() now loads from .env file (keys weren't in system env)
+  - Pipeline imports wired up correctly (data_gatherer → briefing_writer →
+  briefing_producer)
+
+  Test run results (36.6s):
+  - oracle_briefing_20260302.mp4 — 68s, 1920x1080, h264/aac (2.5 MB)
+  - oracle_short.mp4 — 1080x1920 vertical short (2.0 MB)
+  - thumbnail.jpg — 1280x720 (78 KB)
+  - script.json — Claude-generated 3-segment briefing
+  - 5 data overlays (price chart, mempool, hashrate, FNG gauge, article)
+
+  Run: cd ~/protocol_pulse/oracle_briefing && python3 briefing_producer.py
+  --test
+
+✻ Cogitated for 7m 30s
+
+────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────
+  ⏵⏵ bypass permissions on (shift+tab to cycle)
+
