@@ -6,7 +6,7 @@
     "handles": [],
     "dry_run": false
   },
-  "updated_at": "2026-03-02T19:53:27.859905",
+  "updated_at": "2026-03-02T19:53:31.646097",
   "nostr_sentry": {
     "last_run": "2026-03-02T19:53:27.859723",
     "fetched": 0,
@@ -15,15 +15,15 @@
     "dry_run": false
   },
   "whale": {
-    "last_run": "2026-03-02T19:51:22.730771",
-    "scanned": 4,
+    "last_run": "2026-03-02T19:53:29.821042",
+    "scanned": 5,
     "inserted": 0,
     "mega_inserted": 0,
     "avg_fee_btc": 0.0,
     "mega_events": []
   },
   "ghostwriter": {
-    "last_run": "2026-03-02T19:51:24.969644",
+    "last_run": "2026-03-02T19:53:31.645972",
     "scanned": 0,
     "drafted": 0
   },
