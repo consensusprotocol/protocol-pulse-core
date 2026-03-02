@@ -1544,6 +1544,7 @@ def media_terminal():
 
 @app.route('/media')
 @app.route('/media-hub')
+@app.route('/media-unified')
 def media_hub():
     """Media Hub — cinematic dark layout with real data"""
     try:
@@ -1676,7 +1677,7 @@ def media_hub():
             {'title': 'The Ethics of Money Production', 'author': 'Jorg Guido Hulsmann', 'amazon_url': f'https://www.amazon.com/dp/1610166817?tag={affiliate_tag}', 'category': 'economics', 'color': '#22c55e'},
         ]
         
-        return render_template('media_hub.html',
+        return render_template('media_unified.html',
             series_list=series_list,
             series_data=series_config,
             series_count=len(series_config),
@@ -1690,7 +1691,7 @@ def media_hub():
         logging.error(f"Error loading media hub: {e}")
         import traceback
         traceback.print_exc()
-        return render_template('media_hub.html',
+        return render_template('media_unified.html',
             series_list=[], series_data={}, series_count=0,
             latest_episodes=[], podcast_count=0, voice_count=0, all_books=[])
 
