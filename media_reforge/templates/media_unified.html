@@ -1,12 +1,20 @@
 {% extends "base.html" %}
-{% block title %}Media Hub — Protocol Pulse Intelligence{% endblock %}
-{% block meta_description %}Live Bitcoin intelligence terminal. Nostr feeds, on-chain data, sentiment analysis, and original podcast content.{% endblock %}
+{% block title %}The Network — Protocol Pulse Media Hub{% endblock %}
+{% block meta_description %}Bitcoin intelligence network. Live Nostr feeds, on-chain data, sentiment analysis, original series, podcast, and curated library.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="The Network — Protocol Pulse">
+<meta property="og:description" content="Sovereign signal intelligence. Live feeds, original series, podcast, and curated library.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://protocolpulse.replit.app/media">
+<meta property="og:image" content="https://protocolpulse.replit.app/static/images/protocol-pulse-logo-transparent.png">
+{% endblock %}
 
 {% block head %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/css/media_unified.css?v=2.0">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/media_unified.css?v=3.0">
 {% endblock %}
 
 {% block body_class %}mu-page{% endblock %}
@@ -18,61 +26,41 @@
      ════════════════════════════════════════════════════ -->
 <div class="mu-telemetry" id="mu-telemetry">
   <div class="mu-telemetry-inner">
-    <!-- BTC Price -->
     <div class="mu-telem-metric">
       <span class="mu-telem-label">BTC</span>
       <span class="mu-telem-value mu-telem-btc" id="telem-btc-price">--</span>
       <canvas class="mu-sparkline" id="spark-btc" width="40" height="12"></canvas>
       <span class="mu-telem-change" id="telem-btc-change">--</span>
     </div>
-
     <div class="mu-telem-sep"></div>
-
-    <!-- Fee Rate -->
     <div class="mu-telem-metric">
-      <span class="mu-telem-value" id="telem-fees" data-metric="fees">--</span>
+      <span class="mu-telem-value" id="telem-fees">--</span>
       <canvas class="mu-sparkline" id="spark-fees" width="40" height="12"></canvas>
       <span class="mu-telem-label">sat/vB</span>
     </div>
-
     <div class="mu-telem-sep"></div>
-
-    <!-- Mempool -->
     <div class="mu-telem-metric">
-      <span class="mu-telem-value" id="telem-mempool" data-metric="mempool">--</span>
+      <span class="mu-telem-value" id="telem-mempool">--</span>
       <canvas class="mu-sparkline" id="spark-mempool" width="40" height="12"></canvas>
       <span class="mu-telem-label">MB</span>
     </div>
-
     <div class="mu-telem-sep"></div>
-
-    <!-- Hashrate -->
     <div class="mu-telem-metric">
-      <span class="mu-telem-value" id="telem-hashrate" data-metric="hashrate">--</span>
+      <span class="mu-telem-value" id="telem-hashrate">--</span>
       <canvas class="mu-sparkline" id="spark-hashrate" width="40" height="12"></canvas>
       <span class="mu-telem-label">EH/s</span>
     </div>
-
     <div class="mu-telem-sep"></div>
-
-    <!-- Block Height -->
     <div class="mu-telem-metric">
-      <span class="mu-telem-value mu-telem-btc" id="telem-block" data-metric="block">--</span>
+      <span class="mu-telem-value mu-telem-btc" id="telem-block">--</span>
       <span class="mu-telem-label">BLOCK</span>
     </div>
-
     <div class="mu-telem-sep"></div>
-
-    <!-- Signal Strength -->
     <div class="mu-telem-metric mu-telem-signal">
       <span class="mu-telem-label">SIGNAL</span>
       <span class="mu-telem-value" id="telem-signal">0</span>
-      <div class="mu-signal-bar">
-        <div class="mu-signal-fill" id="signal-fill"></div>
-      </div>
+      <div class="mu-signal-bar"><div class="mu-signal-fill" id="signal-fill"></div></div>
     </div>
-
-    <!-- Sentiment Track -->
     <div class="mu-sentiment-track-wrap">
       <span class="mu-sentiment-label-l">FEAR</span>
       <div class="mu-sentiment-track" id="sentiment-track">
@@ -81,335 +69,354 @@
       <span class="mu-sentiment-label-r">GREED</span>
       <span class="mu-sentiment-num" id="sentiment-num">--</span>
     </div>
-    <div class="mu-sentiment-why" id="sentiment-why"></div>
-
-    <!-- Health Dots -->
     <div class="mu-health">
       <div class="mu-health-dot loading" id="health-nostr" title="Nostr"></div>
       <div class="mu-health-dot loading" id="health-telemetry" title="Telemetry"></div>
       <div class="mu-health-dot loading" id="health-sentiment" title="Sentiment"></div>
     </div>
-
-    <!-- Cmd+K -->
     <div class="mu-cmdk-hint" id="cmd-k-hint">&#x2318;K</div>
   </div>
-
-  <!-- Thermal border -->
   <div class="mu-thermal-border" id="thermal-border"></div>
 </div>
 
 <!-- ════════════════════════════════════════════════════
-     HERO: Featured Media + Delta Card
+     HERO SECTION — Cinematic "The Network"
      ════════════════════════════════════════════════════ -->
-<section class="mu-hero">
-  <!-- Featured — text IS the hero -->
-  <div class="mu-featured" id="mu-featured">
-    <div class="mu-featured-text" id="hero-text">
-      <span class="mu-latest-label">LATEST</span>
-      {% if latest_episodes and latest_episodes|length > 0 %}
-        {% set ep = latest_episodes[0] %}
-        <h1 class="mu-hero-title">{{ ep.title }}</h1>
-        <div class="mu-hero-meta">
-          <span>EP {{ loop.index if loop is defined else podcast_count }}</span>
-          <span class="mu-hero-dot">&middot;</span>
-          <span>PROTOCOL PULSE</span>
-          <span class="mu-hero-dot">&middot;</span>
-          <span>{{ ep.published_date.strftime('%b %d') if ep.published_date else '' }}</span>
+<section class="mu-hero-section">
+  <div class="hero-bg">
+    <div class="hero-grid"></div>
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-orb hero-orb-3"></div>
+    <div class="hero-scanline"></div>
+    <div class="hero-vignette"></div>
+  </div>
+  <div class="mu-wrap">
+    <div class="hero-inner">
+      <div class="hero-tag">
+        <div class="hero-tag-dot"></div>
+        <span class="hero-tag-text">Intelligence Network Active</span>
+      </div>
+      <h1 class="hero-h">The <em>Network</em></h1>
+      <p class="hero-sub">Sovereign signal intelligence. Live feeds from Nostr relays, X propagation, and the voices shaping the ecosystem.</p>
+      <div class="hero-metrics">
+        <div class="hero-metric">
+          <div class="hero-metric-val">4</div>
+          <div class="hero-metric-lab">Series</div>
         </div>
-        <button class="mu-play-btn" id="hero-play"
-                data-vid="{{ ep.audio_url.split('v=')[-1].split('&')[0] if ep.audio_url and 'v=' in ep.audio_url else '' }}">
-          <span class="mu-play-icon">&#9654;</span>
-          <span>PLAY</span>
-        </button>
+        <div class="hero-metric">
+          <div class="hero-metric-val">{{ podcast_count|default(102) }}</div>
+          <div class="hero-metric-lab">Episodes</div>
+        </div>
+        <div class="hero-metric">
+          <div class="hero-metric-val">24</div>
+          <div class="hero-metric-lab">Books</div>
+        </div>
+        <div class="hero-metric">
+          <div class="hero-metric-val" id="liveN">0</div>
+          <div class="hero-metric-lab">Live Notes</div>
+        </div>
+      </div>
+      <div class="hero-status">
+        <div class="hero-status-item">
+          <div class="hero-status-dot live"></div>Nostr Relays
+        </div>
+        <div class="hero-status-item">
+          <div class="hero-status-dot sync"></div>X Propagation
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════
+     01 — LIVE INTELLIGENCE (Upgraded Phase 2 Grid)
+     ════════════════════════════════════════════════════ -->
+<section class="mu-section-wrap mu-reveal" id="mu-signals">
+  <div class="mu-wrap">
+    <div class="sec-lab">01 — Live Intelligence</div>
+    <h2 class="sec-h">Signal Dashboard</h2>
+    <p class="sec-desc">Three intelligence streams. Nostr notes, combined signal feed, and sentiment analysis.</p>
+  </div>
+  <div class="mu-intel-grid">
+
+    <!-- COL 1: NOSTR FEED (40%) -->
+    <div class="intel-col intel-col-nostr">
+      <div class="intel-col-header">
+        <span class="intel-col-icon nostr"><i class="fas fa-bolt"></i></span>
+        <span class="intel-col-title">NOSTR RELAY FEED</span>
+        <span class="intel-badge intel-badge-nostr">LIVE</span>
+        <div class="mu-health-dot loading" id="health-nostr-col" title="Nostr relay"></div>
+      </div>
+      <div class="intel-feed-scroll" id="nostr-feed">
+        <div class="mu-skeleton mu-skel-block"></div>
+        <div class="mu-skeleton mu-skel-block"></div>
+        <div class="mu-skeleton mu-skel-block"></div>
+      </div>
+      <div class="intel-col-count" id="nostr-count">connecting...</div>
+    </div>
+
+    <!-- COL 2: COMBINED SIGNAL FEED (35%) -->
+    <div class="intel-col intel-col-combined">
+      <div class="intel-col-header">
+        <span class="intel-col-title">SIGNAL FEED</span>
+        <div class="intel-filter-chips" id="feed-filters">
+          <button class="intel-chip active" data-filter="all">All</button>
+          <button class="intel-chip" data-filter="x">X</button>
+          <button class="intel-chip" data-filter="reddit">Reddit</button>
+          <button class="intel-chip" data-filter="rss">RSS</button>
+          <button class="intel-chip" data-filter="stacker">SN</button>
+        </div>
+      </div>
+      <div class="intel-feed-scroll" id="combined-feed">
+        <div class="mu-skeleton mu-skel-block"></div>
+        <div class="mu-skeleton mu-skel-block"></div>
+        <div class="mu-skeleton mu-skel-block"></div>
+      </div>
+    </div>
+
+    <!-- COL 3: VOICE INTEL (25%) -->
+    <div class="intel-col intel-col-voice">
+      <div class="intel-voice-section">
+        <div class="intel-voice-head">SENTIMENT GAUGE</div>
+        <div class="intel-gauge-wrap">
+          <canvas id="sentiment-gauge" width="160" height="90" aria-label="Sentiment gauge"></canvas>
+          <div class="intel-gauge-val" id="gauge-val">--</div>
+          <div class="intel-gauge-label" id="gauge-label">LOADING</div>
+        </div>
+      </div>
+      <div class="intel-voice-section">
+        <div class="intel-voice-head">TRENDING KEYWORDS</div>
+        <div class="intel-keywords" id="intel-keywords">
+          <div class="mu-skeleton" style="height:24px;width:90px;display:inline-block;border-radius:3px"></div>
+          <div class="mu-skeleton" style="height:24px;width:65px;display:inline-block;border-radius:3px"></div>
+          <div class="mu-skeleton" style="height:24px;width:75px;display:inline-block;border-radius:3px"></div>
+        </div>
+      </div>
+      <div class="intel-voice-section">
+        <div class="intel-voice-head">SPACES RADAR <span class="intel-radar-note">&middot; accounts to watch</span></div>
+        <div class="intel-spaces" id="intel-spaces"></div>
+      </div>
+      <div class="intel-voice-section">
+        <div class="intel-voice-head">SOURCE HEALTH</div>
+        <div class="intel-source-health" id="intel-health"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════
+     02 — ORIGINAL SERIES
+     ════════════════════════════════════════════════════ -->
+<section class="mu-section-wrap mu-reveal" id="mu-series">
+  <div class="mu-wrap">
+    <div class="sec-lab">02 — Original Series</div>
+    <h2 class="sec-h">Cinematic Deep Dives</h2>
+    <p class="sec-desc">Long-form explorations of the books and ideas reshaping monetary thinking.</p>
+
+    <div class="sg">
+      {% if series_list is defined and series_list|length > 0 %}
+        {% for s in series_list %}
+        <div class="sc" onclick="toggleSD('{{ s.slug|default(s.key|default('')) }}')">
+          <div class="sc-img-w">
+            <img class="sc-img" src="https://img.youtube.com/vi/{{ s.thumbnail_id|default(s.episodes[0].id if s.episodes else 'FA8tvWEydcA') }}/hqdefault.jpg" alt="{{ s.name|default(s.title|default('')) }}" loading="lazy">
+            <div class="sc-ov"></div>
+            <div class="sc-play"><i class="fas fa-play"></i></div>
+            <div class="sc-badge">{{ s.episode_count|default(s.episodes|length if s.episodes else 0) }} episodes</div>
+          </div>
+          <div class="sc-body">
+            <div class="sc-host">{{ s.host|default('') }}</div>
+            <h3 class="sc-name">{{ s.name|default(s.title|default('')) }}</h3>
+            <p class="sc-desc">{{ s.description|default('') }}</p>
+          </div>
+        </div>
+        {% endfor %}
       {% else %}
-        <h1 class="mu-hero-title">Protocol Pulse</h1>
-        <div class="mu-hero-meta">
-          <span>{{ podcast_count }} episodes</span>
+      <div class="sc" onclick="toggleSD('everything_21m')">
+        <div class="sc-img-w">
+          <img class="sc-img" src="https://img.youtube.com/vi/FA8tvWEydcA/hqdefault.jpg" alt="Everything Divided by 21 Million" loading="lazy">
+          <div class="sc-ov"></div><div class="sc-play"><i class="fas fa-play"></i></div>
+          <div class="sc-badge">11 episodes</div>
         </div>
+        <div class="sc-body"><div class="sc-host">Matty Ice &amp; Knut Svanholm</div><h3 class="sc-name">Everything Divided by 21 Million</h3><p class="sc-desc">A cinematic exploration of Bitcoin's relationship to time, money, freedom, and human progress.</p></div>
+      </div>
+      <div class="sc" onclick="toggleSD('big_print')">
+        <div class="sc-img-w">
+          <img class="sc-img" src="https://img.youtube.com/vi/W09CNU_q6Yo/hqdefault.jpg" alt="The Big Print" loading="lazy">
+          <div class="sc-ov"></div><div class="sc-play"><i class="fas fa-play"></i></div>
+          <div class="sc-badge">12 episodes</div>
+        </div>
+        <div class="sc-body"><div class="sc-host">Matty Ice &amp; Lawrence Lepard</div><h3 class="sc-name">The Big Print</h3><p class="sc-desc">How the Federal Reserve engineered the most devastating wealth extraction scheme in history.</p></div>
+      </div>
+      <div class="sc" onclick="toggleSD('daylight_robbery')">
+        <div class="sc-img-w">
+          <img class="sc-img" src="https://img.youtube.com/vi/ZCc78wvwd6U/hqdefault.jpg" alt="Daylight Robbery" loading="lazy">
+          <div class="sc-ov"></div><div class="sc-play"><i class="fas fa-play"></i></div>
+          <div class="sc-badge">13 episodes</div>
+        </div>
+        <div class="sc-body"><div class="sc-host">Matty Ice &amp; Dominic Frisby</div><h3 class="sc-name">Daylight Robbery</h3><p class="sc-desc">The hidden story of how taxation shaped human civilization from ancient empires to modern governments.</p></div>
+      </div>
+      <div class="sc" onclick="toggleSD('genesis_book')">
+        <div class="sc-img-w">
+          <img class="sc-img" src="https://img.youtube.com/vi/y7KBeC4jfbo/hqdefault.jpg" alt="The Genesis Book" loading="lazy">
+          <div class="sc-ov"></div><div class="sc-play"><i class="fas fa-play"></i></div>
+          <div class="sc-badge">5 episodes</div>
+        </div>
+        <div class="sc-body"><div class="sc-host">Matty Ice &amp; Aaron van Wirdum</div><h3 class="sc-name">The Genesis Book</h3><p class="sc-desc">Exploring the origins of Bitcoin through Aaron van Wirdum's seminal work on Austrian economics and the cypherpunk movement.</p></div>
+      </div>
       {% endif %}
     </div>
-    <!-- YouTube embed appears here on play click -->
-    <div class="mu-featured-embed" id="hero-embed"></div>
-  </div>
 
-  <!-- Since You Were Gone -->
-  <div class="mu-delta" id="mu-delta">
-    <div class="mu-delta-count" id="delta-count">...</div>
-    <div class="mu-delta-label" id="delta-label">Loading intelligence...</div>
-    <div class="mu-delta-items" id="delta-items"></div>
-    <button class="mu-delta-showme" id="delta-showme">&darr; SHOW ME</button>
+    <!-- Series Episode Panel (opens on card click) -->
+    <div id="sdPanel" class="sd">
+      <div class="sd-top">
+        <h3 class="sd-title" id="sdTitle"></h3>
+        <button class="sd-x" onclick="closeSD()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="sd-main">
+        <div class="sd-vid"><iframe id="sdIf" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>
+        <div class="sd-eps" id="sdEps"></div>
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- ════════════════════════════════════════════════════
-     INTELLIGENCE GRID: 3-column terminal layout
-     Col 1 (40%): Nostr Live Feed
-     Col 2 (35%): Combined Intelligence Feed
-     Col 3 (25%): Voice Intel & Sentiment
+     03 — CYPHERPUNK'D PODCAST
      ════════════════════════════════════════════════════ -->
-<section class="mu-intel-grid" id="mu-signals">
+<section class="mu-section-wrap mu-reveal" id="mu-podcasts">
+  <div class="mu-wrap">
+    <div class="sec-lab">03 — Cypherpunk'd Podcast</div>
+    <h2 class="sec-h">Latest Episodes</h2>
+    <p class="sec-desc">Conversations with builders, thinkers, and disruptors at the frontier of sound money.</p>
 
-  <!-- ── COL 1: NOSTR FEED ─────────────────────────────── -->
-  <div class="intel-col intel-col-nostr">
-    <div class="intel-col-header">
-      <span class="intel-col-title">NOSTR FEED</span>
-      <span class="intel-badge intel-badge-nostr">NOSTR</span>
-      <div class="mu-health-dot loading" id="health-nostr-col" title="Nostr relay"></div>
-    </div>
-    <div class="intel-feed-scroll" id="nostr-feed">
-      <div class="mu-skeleton mu-skel-block"></div>
-      <div class="mu-skeleton mu-skel-block"></div>
-      <div class="mu-skeleton mu-skel-block"></div>
-    </div>
-    <div class="intel-col-count" id="nostr-count">connecting...</div>
-  </div>
-
-  <!-- ── COL 2: COMBINED INTELLIGENCE FEED ─────────────── -->
-  <div class="intel-col intel-col-combined">
-    <div class="intel-col-header">
-      <span class="intel-col-title">INTELLIGENCE FEED</span>
-      <span class="intel-col-sub">live &middot; 60s refresh</span>
-    </div>
-    <div class="intel-feed-scroll" id="combined-feed">
-      <div class="mu-skeleton mu-skel-block"></div>
-      <div class="mu-skeleton mu-skel-block"></div>
-      <div class="mu-skeleton mu-skel-block"></div>
-    </div>
-  </div>
-
-  <!-- ── COL 3: VOICE INTEL ─────────────────────────────── -->
-  <div class="intel-col intel-col-voice">
-
-    <!-- Sentiment Gauge -->
-    <div class="intel-voice-section">
-      <div class="intel-voice-head">SENTIMENT GAUGE</div>
-      <div class="intel-gauge-wrap">
-        <canvas id="sentiment-gauge" width="160" height="90" aria-label="Sentiment gauge"></canvas>
-        <div class="intel-gauge-val" id="gauge-val">--</div>
-        <div class="intel-gauge-label" id="gauge-label">LOADING</div>
-      </div>
-    </div>
-
-    <!-- Trending Keywords -->
-    <div class="intel-voice-section">
-      <div class="intel-voice-head">TRENDING KEYWORDS</div>
-      <div class="intel-keywords" id="intel-keywords">
-        <div class="mu-skeleton" style="height:24px;width:90px;display:inline-block;border-radius:3px"></div>
-        <div class="mu-skeleton" style="height:24px;width:65px;display:inline-block;border-radius:3px"></div>
-        <div class="mu-skeleton" style="height:24px;width:75px;display:inline-block;border-radius:3px"></div>
-      </div>
-    </div>
-
-    <!-- X Spaces Radar -->
-    <div class="intel-voice-section">
-      <div class="intel-voice-head">
-        SPACES RADAR
-        <span class="intel-radar-note">&middot; accounts to watch</span>
-      </div>
-      <div class="intel-spaces" id="intel-spaces"></div>
-    </div>
-
-    <!-- Source Health -->
-    <div class="intel-voice-section">
-      <div class="intel-voice-head">SOURCE HEALTH</div>
-      <div class="intel-source-health" id="intel-health"></div>
-    </div>
-
-  </div><!-- /.intel-col-voice -->
-
-</section><!-- /#mu-signals -->
-
-<!-- ════════════════════════════════════════════════════
-     REDDIT PULSE
-     ════════════════════════════════════════════════════ -->
-<section class="mu-section" id="mu-reddit">
-  <div class="mu-section-head">
-    <h2 class="mu-section-title">REDDIT PULSE</h2>
-    <span class="mu-section-sub">r/bitcoin &middot; live</span>
-  </div>
-  <div class="mu-reddit-feed" id="reddit-feed"></div>
-</section>
-
-<!-- ════════════════════════════════════════════════════
-     PARTNER CHANNELS TODAY
-     ════════════════════════════════════════════════════ -->
-<section class="mu-section" id="mu-partners">
-  <div class="mu-section-head">
-    <h2 class="mu-section-title">PARTNER CHANNELS TODAY</h2>
-    <span class="mu-section-sub">{{ series_count }} channels tracked</span>
-  </div>
-  <div class="mu-partner-rail" id="partner-rail"></div>
-</section>
-
-<!-- ════════════════════════════════════════════════════
-     ORIGINAL SERIES
-     ════════════════════════════════════════════════════ -->
-<section class="mu-section" id="mu-series">
-  <div class="mu-section-head">
-    <h2 class="mu-section-title">ORIGINAL SERIES</h2>
-  </div>
-  <div class="mu-series-grid">
-    {% for s in series_list %}
-    <a class="mu-series-item" href="https://youtube.com/watch?v={{ s.first_id }}" target="_blank" rel="noopener"
-       data-thumb="https://img.youtube.com/vi/{{ s.first_id }}/maxresdefault.jpg">
-      <div class="mu-series-name">{{ s.title }}</div>
-      <div class="mu-series-sub">{{ s.description|upper if s.description else '' }}</div>
-      <div class="mu-series-count">{{ s.ep_count }} episodes</div>
-    </a>
-    {% endfor %}
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════════════
-     LATEST EPISODES
-     ════════════════════════════════════════════════════ -->
-<section class="mu-section" id="mu-episodes">
-  <div class="mu-section-head">
-    <h2 class="mu-section-title">LATEST EPISODES</h2>
-    <span class="mu-section-sub">{{ podcast_count }} episodes</span>
-  </div>
-  <div class="mu-ep-filters">
-    <button class="mu-chip active" data-filter="all">All</button>
-    <button class="mu-chip" data-filter="episodes">Episodes</button>
-    <button class="mu-chip" data-filter="clips">Clips</button>
-    <button class="mu-chip" data-filter="briefings">Briefings</button>
-  </div>
-  <div class="mu-ep-grid">
-    {% for ep in latest_episodes[:12] %}
-    {% set vid_id = ep.audio_url.split('v=')[-1].split('&')[0] if ep.audio_url and 'v=' in ep.audio_url else '' %}
-    <a class="mu-ep-item" href="https://youtube.com/watch?v={{ vid_id }}" target="_blank" rel="noopener">
-      <div class="mu-ep-thumb">
-        <img src="https://img.youtube.com/vi/{{ vid_id }}/mqdefault.jpg" alt="{{ ep.title }}" loading="lazy" width="320" height="180">
-      </div>
-      <div class="mu-ep-info">
-        <div class="mu-ep-title">{{ ep.title }}</div>
-        <div class="mu-ep-meta">
-          {{ ep.published_date.strftime('%b %d') if ep.published_date else '' }}
-          {% if ep.host %} &middot; {{ ep.host }}{% endif %}
+    <div class="pod-grid">
+      {% if latest_episodes is defined and latest_episodes|length > 0 %}
+        {% for ep in latest_episodes[:12] %}
+        {% set vid_url = ep.audio_url|default(ep.youtube_url|default('')) %}
+        {% set vid_id = vid_url.split('v=')[-1].split('&')[0] if vid_url and 'v=' in vid_url else '' %}
+        <div class="pod-card" onclick="playEp('https://www.youtube.com/watch?v={{ vid_id }}','{{ ep.title|replace("'","\\'")|replace('"','&quot;') }}')">
+          <div class="pod-num mono">{{ '%02d'|format(loop.index) }}</div>
+          <div class="pod-title">{{ ep.title }}</div>
+          <div class="pod-meta">
+            <span class="pod-dur mono">{{ ep.duration|default('') }}</span>
+            <div class="pod-play-btn"><i class="fas fa-play"></i></div>
+          </div>
         </div>
-      </div>
-    </a>
-    {% endfor %}
+        {% endfor %}
+      {% else %}
+      <div class="pod-card" onclick="playEp('https://www.youtube.com/watch?v=gTcGxwzAXjk','Bitcoin Is Under Attack From Within - Luke Dashjr')"><div class="pod-num mono">01</div><div class="pod-title">Bitcoin Is Under Attack From Within - Luke Dashjr on Core V30, Spam Crisis &amp; Ocean Mining's Mission</div><div class="pod-meta"><span class="pod-dur mono">1:15:29</span><div class="pod-play-btn"><i class="fas fa-play"></i></div></div></div>
+      <div class="pod-card" onclick="playEp('https://www.youtube.com/watch?v=-Pe6IAm7u4Q','Emmy-Winning Journalist Exposes Media Censorship | Natalie Brunell')"><div class="pod-num mono">02</div><div class="pod-title">Emmy-Winning Journalist Exposes Media Censorship &amp; Why She Quit CNN for Bitcoin | Natalie Brunell</div><div class="pod-meta"><span class="pod-dur mono">46:48</span><div class="pod-play-btn"><i class="fas fa-play"></i></div></div></div>
+      <div class="pod-card" onclick="playEp('https://www.youtube.com/watch?v=yxpn4Bh6ngI','Inevitable: Knut Svanholm | Ep 12')"><div class="pod-num mono">03</div><div class="pod-title">Inevitable: Knut Svanholm | Everything Divided By 21 Million | Episode 12 of 12</div><div class="pod-meta"><span class="pod-dur mono">24:35</span><div class="pod-play-btn"><i class="fas fa-play"></i></div></div></div>
+      <div class="pod-card" onclick="playEp('https://www.youtube.com/watch?v=Gt8ycm3-NV8','Transition: Knut Svanholm | Ep 11')"><div class="pod-num mono">04</div><div class="pod-title">Transition: Knut Svanholm | Everything Divided By 21 Million | Episode 11 of 12</div><div class="pod-meta"><span class="pod-dur mono">29:56</span><div class="pod-play-btn"><i class="fas fa-play"></i></div></div></div>
+      <div class="pod-card" onclick="playEp('https://www.youtube.com/watch?v=Nf0LtAk4VBs','Adoption: Knut Svanholm | Ep 10')"><div class="pod-num mono">05</div><div class="pod-title">Adoption: Knut Svanholm | Everything Divided By 21 Million | Episode 10 of 12</div><div class="pod-meta"><span class="pod-dur mono">23:23</span><div class="pod-play-btn"><i class="fas fa-play"></i></div></div></div>
+      <div class="pod-card" onclick="playEp('https://www.youtube.com/watch?v=_ygND311kVE','Deflation: Knut Svanholm | Ep 9')"><div class="pod-num mono">06</div><div class="pod-title">Deflation: Knut Svanholm | Everything Divided By 21 Million | Episode 9 of 12</div><div class="pod-meta"><span class="pod-dur mono">18:46</span><div class="pod-play-btn"><i class="fas fa-play"></i></div></div></div>
+      <div class="pod-card" onclick="playEp('https://www.youtube.com/watch?v=ghdz8flPkRQ','Venezuela After Maduro: Insider Update')"><div class="pod-num mono">07</div><div class="pod-title">Venezuela After Maduro: Insider Update on Operation Absolute Resolve &amp; The Future of Freedom</div><div class="pod-meta"><span class="pod-dur mono">54:43</span><div class="pod-play-btn"><i class="fas fa-play"></i></div></div></div>
+      <div class="pod-card" onclick="playEp('https://www.youtube.com/watch?v=UlYSv9SwQGk','Violence | Knut Svanholm | Ep 8')"><div class="pod-num mono">08</div><div class="pod-title">Violence | Knut Svanholm: Everything Divided By 21 Million | Episode 8 of 12</div><div class="pod-meta"><span class="pod-dur mono">27:02</span><div class="pod-play-btn"><i class="fas fa-play"></i></div></div></div>
+      <div class="pod-card" onclick="playEp('https://www.youtube.com/watch?v=RZv_1Qcqik4','Symbiosis | Knut Svanholm | Ep 7')"><div class="pod-num mono">09</div><div class="pod-title">Symbiosis | Knut Svanholm: Everything Divided By 21 Million | Episode 7 of 12</div><div class="pod-meta"><span class="pod-dur mono">31:57</span><div class="pod-play-btn"><i class="fas fa-play"></i></div></div></div>
+      <div class="pod-card" onclick="playEp('https://www.youtube.com/watch?v=v7xZPqcXyLk','Memetics | Knut Svanholm | Ep 6')"><div class="pod-num mono">10</div><div class="pod-title">Memetics | Knut Svanholm | Everything Divided By 21 Million | Episode 6 of 12</div><div class="pod-meta"><span class="pod-dur mono">20:48</span><div class="pod-play-btn"><i class="fas fa-play"></i></div></div></div>
+      <div class="pod-card" onclick="playEp('https://www.youtube.com/watch?v=qG2xYvTVkw0','Morality | Knut Svanholm | Ep 5')"><div class="pod-num mono">11</div><div class="pod-title">Morality | Knut Svanholm | Everything Divided By 21 Million | Episode 5 of 12</div><div class="pod-meta"><span class="pod-dur mono">26:52</span><div class="pod-play-btn"><i class="fas fa-play"></i></div></div></div>
+      <div class="pod-card" onclick="playEp('https://www.youtube.com/watch?v=mp_pnnwViS8','I Lost Six Figures Being Right | 33-Year Trading Veteran')"><div class="pod-num mono">12</div><div class="pod-title">I Lost Six Figures Being Right | 33-Year Trading Veteran on Bitcoin &amp; Discipline</div><div class="pod-meta"><span class="pod-dur mono">6:42</span><div class="pod-play-btn"><i class="fas fa-play"></i></div></div></div>
+      {% endif %}
+    </div>
+    <a href="/podcasts" class="pod-more">View all episodes <i class="fas fa-arrow-right"></i></a>
   </div>
 </section>
 
 <!-- ════════════════════════════════════════════════════
-     THE LIBRARY
+     04 — THE LIBRARY
      ════════════════════════════════════════════════════ -->
-<section class="mu-section" id="mu-library">
-  <div class="mu-section-head">
-    <h2 class="mu-section-title">THE LIBRARY</h2>
-    <span class="mu-section-sub">Curated reading for sovereign minds</span>
-  </div>
+<section class="mu-section-wrap mu-reveal" id="mu-library">
+  <div class="mu-wrap">
+    <div class="sec-lab">04 — Essential Reading</div>
+    <h2 class="sec-h">The Library</h2>
+    <p class="sec-desc">The books that shaped Cypherpunk'd. Every link supports Protocol Pulse.</p>
 
-  <!-- Leaderboard + Rising Stars -->
-  <div class="mu-lib-top">
-    <div class="mu-lib-leaderboard">
-      <div class="mu-lib-subtitle">LEADERBOARD</div>
-      <div class="mu-lb-item" data-rank="1">
-        <span class="mu-lb-rank">#1</span>
-        <span class="mu-lb-title">The Bitcoin Standard</span>
-        <span class="mu-lb-dot">&middot;</span>
-        <span class="mu-lb-author">Saifedean Ammous</span>
-        <div class="mu-lb-bar"><div class="mu-lb-fill" style="width:100%"></div></div>
-        <button class="mu-vote-btn" data-book="bitcoin-standard">&#128077;</button>
-        <span class="mu-vote-count" data-book="bitcoin-standard">0</span>
-      </div>
-      <div class="mu-lb-item" data-rank="2">
-        <span class="mu-lb-rank">#2</span>
-        <span class="mu-lb-title">Broken Money</span>
-        <span class="mu-lb-dot">&middot;</span>
-        <span class="mu-lb-author">Lyn Alden</span>
-        <div class="mu-lb-bar"><div class="mu-lb-fill" style="width:82%"></div></div>
-        <button class="mu-vote-btn" data-book="broken-money">&#128077;</button>
-        <span class="mu-vote-count" data-book="broken-money">0</span>
-      </div>
-      <div class="mu-lb-item" data-rank="3">
-        <span class="mu-lb-rank">#3</span>
-        <span class="mu-lb-title">The Sovereign Individual</span>
-        <span class="mu-lb-dot">&middot;</span>
-        <span class="mu-lb-author">Davidson &amp; Rees-Mogg</span>
-        <div class="mu-lb-bar"><div class="mu-lb-fill" style="width:68%"></div></div>
-        <button class="mu-vote-btn" data-book="sovereign-individual">&#128077;</button>
-        <span class="mu-vote-count" data-book="sovereign-individual">0</span>
-      </div>
-      <div class="mu-lb-item" data-rank="4">
-        <span class="mu-lb-rank">#4</span>
-        <span class="mu-lb-title">Mastering Bitcoin</span>
-        <span class="mu-lb-dot">&middot;</span>
-        <span class="mu-lb-author">Andreas Antonopoulos</span>
-        <div class="mu-lb-bar"><div class="mu-lb-fill" style="width:55%"></div></div>
-        <button class="mu-vote-btn" data-book="mastering-bitcoin">&#128077;</button>
-        <span class="mu-vote-count" data-book="mastering-bitcoin">0</span>
-      </div>
+    <!-- Featured on Podcast -->
+    <div class="bcat">Featured on Podcast</div>
+    <div class="bg">
+      <a href="https://www.amazon.com/dp/9916697191?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #dc262615, #dc262605)"><div class="bc-spine" style="background:#dc2626"></div><div class="bc-txt"><div class="bc-txt-t">Everything Divided by 21 Million</div><div class="bc-txt-a">Knut Svanholm</div></div></div><div class="bc-info"><div class="bc-badge">Series</div><div class="bc-name">Everything Divided by 21 Million</div><div class="bc-auth">Knut Svanholm</div></div></a>
+      <a href="https://www.amazon.com/dp/B0DVTCVX8J?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #f59e0b15, #f59e0b05)"><div class="bc-spine" style="background:#f59e0b"></div><div class="bc-txt"><div class="bc-txt-t">The Big Print</div><div class="bc-txt-a">Lawrence Lepard</div></div></div><div class="bc-info"><div class="bc-badge">Series</div><div class="bc-name">The Big Print</div><div class="bc-auth">Lawrence Lepard</div></div></a>
+      <a href="https://www.amazon.com/dp/0241360846?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #ef444415, #ef444405)"><div class="bc-spine" style="background:#ef4444"></div><div class="bc-txt"><div class="bc-txt-t">Daylight Robbery</div><div class="bc-txt-a">Dominic Frisby</div></div></div><div class="bc-info"><div class="bc-badge">Series</div><div class="bc-name">Daylight Robbery</div><div class="bc-auth">Dominic Frisby</div></div></a>
+      <a href="https://www.amazon.com/dp/B0CQLMQRH7?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #8b5cf615, #8b5cf605)"><div class="bc-spine" style="background:#8b5cf6"></div><div class="bc-txt"><div class="bc-txt-t">The Genesis Book</div><div class="bc-txt-a">Aaron van Wirdum</div></div></div><div class="bc-info"><div class="bc-badge">Series</div><div class="bc-name">The Genesis Book</div><div class="bc-auth">Aaron van Wirdum</div></div></a>
     </div>
 
-    <div class="mu-lib-rising">
-      <div class="mu-lib-subtitle">RISING STARS</div>
-      <div class="mu-rising-item"><span class="mu-rising-arrow">&uarr;</span> Resistance Money &middot; Andrew M. Bailey</div>
-      <div class="mu-rising-item"><span class="mu-rising-arrow">&uarr;</span> Bitcoin is Venice &middot; Allen Farrington</div>
-      <div class="mu-rising-item"><span class="mu-rising-arrow">&uarr;</span> Check Your Financial Privilege &middot; Alex Gladstein</div>
+    <!-- Bitcoin Essentials -->
+    <div class="bcat">Bitcoin Essentials</div>
+    <div class="bg">
+      <a href="https://www.amazon.com/dp/1119473861?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #f7931a15, #f7931a05)"><div class="bc-spine" style="background:#f7931a"></div><div class="bc-txt"><div class="bc-txt-t">The Bitcoin Standard</div><div class="bc-txt-a">Saifedean Ammous</div></div></div><div class="bc-info"><div class="bc-name">The Bitcoin Standard</div><div class="bc-auth">Saifedean Ammous</div></div></a>
+      <a href="https://www.amazon.com/dp/B0CG8985FR?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #3b82f615, #3b82f605)"><div class="bc-spine" style="background:#3b82f6"></div><div class="bc-txt"><div class="bc-txt-t">Broken Money</div><div class="bc-txt-a">Lyn Alden</div></div></div><div class="bc-info"><div class="bc-name">Broken Money</div><div class="bc-auth">Lyn Alden</div></div></a>
+      <a href="https://www.amazon.com/dp/1544526474?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #6366f115, #6366f105)"><div class="bc-spine" style="background:#6366f1"></div><div class="bc-txt"><div class="bc-txt-t">The Fiat Standard</div><div class="bc-txt-a">Saifedean Ammous</div></div></div><div class="bc-info"><div class="bc-name">The Fiat Standard</div><div class="bc-auth">Saifedean Ammous</div></div></a>
+      <a href="https://www.amazon.com/dp/1098150090?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #f59e0b15, #f59e0b05)"><div class="bc-spine" style="background:#f59e0b"></div><div class="bc-txt"><div class="bc-txt-t">Mastering Bitcoin</div><div class="bc-txt-a">Andreas Antonopoulos</div></div></div><div class="bc-info"><div class="bc-name">Mastering Bitcoin</div><div class="bc-auth">Andreas Antonopoulos</div></div></a>
+      <a href="https://www.amazon.com/dp/1999257405?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #10b98115, #10b98105)"><div class="bc-spine" style="background:#10b981"></div><div class="bc-txt"><div class="bc-txt-t">The Price of Tomorrow</div><div class="bc-txt-a">Jeff Booth</div></div></div><div class="bc-info"><div class="bc-name">The Price of Tomorrow</div><div class="bc-auth">Jeff Booth</div></div></a>
+      <a href="https://www.amazon.com/dp/B0BW3MTQG6?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #ef444415, #ef444405)"><div class="bc-spine" style="background:#ef4444"></div><div class="bc-txt"><div class="bc-txt-t">Softwar</div><div class="bc-txt-a">Jason Lowery</div></div></div><div class="bc-info"><div class="bc-name">Softwar</div><div class="bc-auth">Jason Lowery</div></div></a>
+      <a href="https://www.amazon.com/dp/1641991216?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #f7931a15, #f7931a05)"><div class="bc-spine" style="background:#f7931a"></div><div class="bc-txt"><div class="bc-txt-t">Thank God for Bitcoin</div><div class="bc-txt-a">Jimmy Song et al.</div></div></div><div class="bc-info"><div class="bc-name">Thank God for Bitcoin</div><div class="bc-auth">Jimmy Song et al.</div></div></a>
+      <a href="https://www.amazon.com/dp/0684832720?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #8b5cf615, #8b5cf605)"><div class="bc-spine" style="background:#8b5cf6"></div><div class="bc-txt"><div class="bc-txt-t">The Sovereign Individual</div><div class="bc-txt-a">Davidson &amp; Rees-Mogg</div></div></div><div class="bc-info"><div class="bc-name">The Sovereign Individual</div><div class="bc-auth">Davidson &amp; Rees-Mogg</div></div></a>
     </div>
-  </div>
 
-  <!-- Learning Paths -->
-  <div class="mu-lib-paths">
-    <div class="mu-lib-subtitle">LEARNING PATHS</div>
-    <div class="mu-paths-grid">
-      <div class="mu-path">
-        <div class="mu-path-name">UNDERSTAND MONEY</div>
-        <a class="mu-path-book" href="https://www.amazon.com/dp/1119473861" target="_blank" rel="noopener">The Bitcoin Standard <span class="mu-path-author">&middot; Saifedean Ammous</span></a>
-        <a class="mu-path-book" href="https://www.amazon.com/dp/1544526474" target="_blank" rel="noopener">The Fiat Standard <span class="mu-path-author">&middot; Saifedean Ammous</span></a>
-        <a class="mu-path-book" href="https://www.amazon.com/dp/B0CN14FKHF" target="_blank" rel="noopener">Broken Money <span class="mu-path-author">&middot; Lyn Alden</span></a>
-        <a class="mu-path-book" href="https://www.amazon.com/dp/1999257405" target="_blank" rel="noopener">The Price of Tomorrow <span class="mu-path-author">&middot; Jeff Booth</span></a>
-      </div>
-      <div class="mu-path">
-        <div class="mu-path-name">UNDERSTAND BITCOIN</div>
-        <a class="mu-path-book" href="https://www.amazon.com/dp/1098150090" target="_blank" rel="noopener">Mastering Bitcoin <span class="mu-path-author">&middot; Andreas Antonopoulos</span></a>
-        <a class="mu-path-book" href="https://www.amazon.com/dp/B07MWGP64R" target="_blank" rel="noopener">Inventing Bitcoin <span class="mu-path-author">&middot; Yan Pritzker</span></a>
-        <a class="mu-path-book" href="https://www.amazon.com/dp/B08YQMC2WM" target="_blank" rel="noopener">The Blocksize War <span class="mu-path-author">&middot; Jonathan Bier</span></a>
-        <a class="mu-path-book" href="https://www.amazon.com/dp/B0B3L61JYN" target="_blank" rel="noopener">The Genesis Book <span class="mu-path-author">&middot; Aaron van Wirdum</span></a>
-      </div>
-      <div class="mu-path">
-        <div class="mu-path-name">UNDERSTAND FREEDOM</div>
-        <a class="mu-path-book" href="https://www.amazon.com/dp/0684832720" target="_blank" rel="noopener">The Sovereign Individual <span class="mu-path-author">&middot; Davidson &amp; Rees-Mogg</span></a>
-        <a class="mu-path-book" href="https://www.amazon.com/dp/1544542895" target="_blank" rel="noopener">Softwar <span class="mu-path-author">&middot; Jason Lowery</span></a>
-        <a class="mu-path-book" href="https://www.amazon.com/dp/B09C4GLPYX" target="_blank" rel="noopener">Thank God for Bitcoin <span class="mu-path-author">&middot; Jimmy Song et al.</span></a>
-        <a class="mu-path-book" href="https://www.amazon.com/dp/B09KLPNBPC" target="_blank" rel="noopener">Bitcoin is Venice <span class="mu-path-author">&middot; Allen Farrington</span></a>
-      </div>
-    </div>
-  </div>
+    <!-- Show More toggle -->
+    <button class="btog" id="btog" onclick="togB()">
+      <i class="fas fa-chevron-down"></i>
+      <span>Show More &mdash; Bestsellers &amp; Economics</span>
+      <span class="mono" style="margin-left:auto;font-size:10px;color:rgba(255,255,255,0.25)">12 titles</span>
+    </button>
 
-  <!-- Full Library (collapsed by default) -->
-  <button class="mu-lib-toggle" id="lib-toggle">&darr; VIEW FULL LIBRARY</button>
-  <div class="mu-lib-full" id="lib-full">
-    <div class="mu-lib-grid">
-      {% for book in all_books %}
-      <a class="mu-lib-book" href="{{ book.amazon_url }}" target="_blank" rel="noopener">
-        <div class="mu-lib-cover" style="background:{{ book.color|default('#222') }}">
-          <span>{{ book.title[:40] }}</span>
-        </div>
-        <div class="mu-lib-book-title">{{ book.title }}</div>
-        <div class="mu-lib-book-author">{{ book.author }}</div>
-        <button class="mu-vote-btn" data-book="{{ book.title|lower|replace(' ','-') }}">&#128077;</button>
-        <span class="mu-vote-count" data-book="{{ book.title|lower|replace(' ','-') }}">0</span>
-      </a>
-      {% endfor %}
+    <div class="bhid" id="bmore">
+      <!-- Bitcoin Bestsellers -->
+      <div class="bcat" style="margin-top:20px">Bitcoin Bestsellers</div>
+      <div class="bg">
+        <a href="https://www.amazon.com/dp/1250217768?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #f59e0b15, #f59e0b05)"><div class="bc-spine" style="background:#f59e0b"></div><div class="bc-txt"><div class="bc-txt-t">Bitcoin Billionaires</div><div class="bc-txt-a">Ben Mezrich</div></div></div><div class="bc-info"><div class="bc-name">Bitcoin Billionaires</div><div class="bc-auth">Ben Mezrich</div></div></a>
+        <a href="https://www.amazon.com/dp/B08YQMC2WM?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #dc262615, #dc262605)"><div class="bc-spine" style="background:#dc2626"></div><div class="bc-txt"><div class="bc-txt-t">The Blocksize War</div><div class="bc-txt-a">Jonathan Bier</div></div></div><div class="bc-info"><div class="bc-name">The Blocksize War</div><div class="bc-auth">Jonathan Bier</div></div></a>
+        <a href="https://www.amazon.com/dp/B07MWXRWNB?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #f7931a15, #f7931a05)"><div class="bc-spine" style="background:#f7931a"></div><div class="bc-txt"><div class="bc-txt-t">Inventing Bitcoin</div><div class="bc-txt-a">Yan Pritzker</div></div></div><div class="bc-info"><div class="bc-name">Inventing Bitcoin</div><div class="bc-auth">Yan Pritzker</div></div></a>
+        <a href="https://www.amazon.com/dp/0996061312?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #6366f115, #6366f105)"><div class="bc-spine" style="background:#6366f1"></div><div class="bc-txt"><div class="bc-txt-t">The Book of Satoshi</div><div class="bc-txt-a">Phil Champagne</div></div></div><div class="bc-info"><div class="bc-name">The Book of Satoshi</div><div class="bc-auth">Phil Champagne</div></div></a>
+        <a href="https://www.amazon.com/dp/006236250X?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #f59e0b15, #f59e0b05)"><div class="bc-spine" style="background:#f59e0b"></div><div class="bc-txt"><div class="bc-txt-t">Digital Gold</div><div class="bc-txt-a">Nathaniel Popper</div></div></div><div class="bc-info"><div class="bc-name">Digital Gold</div><div class="bc-auth">Nathaniel Popper</div></div></a>
+        <a href="https://www.amazon.com/dp/1032609710?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #10b98115, #10b98105)"><div class="bc-spine" style="background:#10b981"></div><div class="bc-txt"><div class="bc-txt-t">Resistance Money</div><div class="bc-txt-a">Andrew Bailey et al.</div></div></div><div class="bc-info"><div class="bc-name">Resistance Money</div><div class="bc-auth">Andrew Bailey et al.</div></div></a>
+        <a href="https://www.amazon.com/dp/B09V2NM9VJ?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #3b82f615, #3b82f605)"><div class="bc-spine" style="background:#3b82f6"></div><div class="bc-txt"><div class="bc-txt-t">Check Your Financial Privilege</div><div class="bc-txt-a">Alex Gladstein</div></div></div><div class="bc-info"><div class="bc-name">Check Your Financial Privilege</div><div class="bc-auth">Alex Gladstein</div></div></a>
+        <a href="https://www.amazon.com/dp/B09TKNKFRS?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #8b5cf615, #8b5cf605)"><div class="bc-spine" style="background:#8b5cf6"></div><div class="bc-txt"><div class="bc-txt-t">Bitcoin is Venice</div><div class="bc-txt-a">Allen Farrington</div></div></div><div class="bc-info"><div class="bc-name">Bitcoin is Venice</div><div class="bc-auth">Allen Farrington</div></div></a>
+      </div>
+
+      <!-- Austrian Economics -->
+      <div class="bcat">Austrian Economics</div>
+      <div class="bg">
+        <a href="https://www.amazon.com/dp/0517548232?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #22c55e15, #22c55e05)"><div class="bc-spine" style="background:#22c55e"></div><div class="bc-txt"><div class="bc-txt-t">Economics in One Lesson</div><div class="bc-txt-a">Henry Hazlitt</div></div></div><div class="bc-info"><div class="bc-badge econ">Economics</div><div class="bc-name">Economics in One Lesson</div><div class="bc-auth">Henry Hazlitt</div></div></a>
+        <a href="https://www.amazon.com/dp/1610167317?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #22c55e15, #22c55e05)"><div class="bc-spine" style="background:#22c55e"></div><div class="bc-txt"><div class="bc-txt-t">Human Action</div><div class="bc-txt-a">Ludwig von Mises</div></div></div><div class="bc-info"><div class="bc-badge econ">Economics</div><div class="bc-name">Human Action</div><div class="bc-auth">Ludwig von Mises</div></div></a>
+        <a href="https://www.amazon.com/dp/1610166450?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #22c55e15, #22c55e05)"><div class="bc-spine" style="background:#22c55e"></div><div class="bc-txt"><div class="bc-txt-t">What Has Government Done to Our Money?</div><div class="bc-txt-a">Murray Rothbard</div></div></div><div class="bc-info"><div class="bc-badge econ">Economics</div><div class="bc-name">What Has Government Done to Our Money?</div><div class="bc-auth">Murray Rothbard</div></div></a>
+        <a href="https://www.amazon.com/dp/1610166817?tag=protocolpulse-20" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, #22c55e15, #22c55e05)"><div class="bc-spine" style="background:#22c55e"></div><div class="bc-txt"><div class="bc-txt-t">The Ethics of Money Production</div><div class="bc-txt-a">Jorg Guido Hulsmann</div></div></div><div class="bc-info"><div class="bc-badge econ">Economics</div><div class="bc-name">The Ethics of Money Production</div><div class="bc-auth">Jorg Guido Hulsmann</div></div></a>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- ════════════════════════════════════════════════════
-     NEWSLETTER CTA
+     NEWSLETTER SIGNUP
      ════════════════════════════════════════════════════ -->
-<section class="mu-newsletter" id="mu-newsletter">
-  <h2 class="mu-nl-title">Sovereign Intel Briefing</h2>
-  <p class="mu-nl-sub">Daily Bitcoin intelligence. No noise. No ads. Delivered before markets open.</p>
-  <div class="mu-nl-form">
-    <input type="email" placeholder="your@email.com" id="newsletter-email" autocomplete="email">
-    <button id="newsletter-submit">Subscribe</button>
+<section class="mu-section-wrap mu-reveal" id="mu-newsletter">
+  <div class="mu-wrap">
+    <div class="nl">
+      <h2 class="nl-h">The signal. Every morning.</h2>
+      <p class="nl-p">Daily intelligence brief + weekly premium digest.</p>
+      <form class="nl-f" action="/newsletter/subscribe" method="POST">
+        <input type="email" name="email" class="nl-i" placeholder="your@email.com" required>
+        <button type="submit" class="nl-b">Subscribe</button>
+      </form>
+    </div>
   </div>
 </section>
+
+<!-- ════════════════════════════════════════════════════
+     AUDIO PLAYER BAR (sticky bottom)
+     ════════════════════════════════════════════════════ -->
+<div id="abar" class="abar">
+  <button onclick="togA()" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:16px;cursor:pointer;padding:4px 8px">
+    <i id="aIcon" class="fas fa-pause"></i>
+  </button>
+  <div class="abar-now" id="aNow">Now Playing...</div>
+  <button onclick="stopA()" style="background:none;border:none;color:rgba(255,255,255,0.25);cursor:pointer;font-size:12px">
+    <i class="fas fa-times"></i>
+  </button>
+  <audio id="aEl"></audio>
+</div>
 
 <!-- ════════════════════════════════════════════════════
      COMMAND PALETTE (Cmd+K)
@@ -425,39 +432,8 @@
   </div>
 </div>
 
-<!-- ════════════════════════════════════════════════════
-     AUDIO BAR (floating, hidden until active)
-     ════════════════════════════════════════════════════ -->
-<div class="mu-audio-bar" id="audio-bar">
-  <button class="mu-ab-play" id="ab-play">&#9654;</button>
-  <span class="mu-ab-info" id="ab-info"></span>
-  <div class="mu-ab-progress">
-    <div class="mu-ab-track">
-      <div class="mu-ab-fill" id="ab-fill"></div>
-      <div class="mu-ab-dot" id="ab-dot"></div>
-    </div>
-  </div>
-  <span class="mu-ab-time" id="ab-time">0:00 / 0:00</span>
-  <button class="mu-ab-speed" id="ab-speed">1&times;</button>
-</div>
-
 {% endblock %}
 
-{% block scripts %}
-<script src="/static/js/media_unified.js?v=2.0"></script>
-<script>
-function subscribeNewsletter() {
-  const email = document.getElementById('newsletter-email').value;
-  if (!email || !email.includes('@')) { alert('Enter a valid email'); return; }
-  fetch('/api/newsletter/subscribe', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({email: email})
-  }).then(r => r.json()).then(d => {
-    if (d.success) alert('Subscribed! Check your inbox.');
-    else alert(d.message || 'Subscription failed');
-  }).catch(() => alert('Network error — try again'));
-}
-document.getElementById('newsletter-submit')?.addEventListener('click', subscribeNewsletter);
-</script>
+{% block extra_js %}
+<script src="/static/js/media_unified.js?v=3.0"></script>
 {% endblock %}
