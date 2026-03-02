@@ -1,0 +1,226 @@
+"""
+Sponsor Radar Agent
+====================
+Scans the Bitcoin/crypto podcast ecosystem for active sponsors.
+Identifies companies spending money on Bitcoin-adjacent audiences.
+Generates outreach intelligence for Protocol Pulse sales team.
+
+Run weekly. Output goes to SPONSOR_RADAR_REPORT.md
+"""
+
+import os
+import json
+import datetime
+import requests
+
+XAI_API_KEY = os.environ.get("XAI_API_KEY", "")
+RADAR_OUTPUT = os.path.join(os.path.dirname(__file__), "SPONSOR_RADAR_REPORT.md")
+
+# ── TARGET PODCAST ECOSYSTEM ──────────────────────────────────────────────────
+TARGET_PODCASTS = [
+    "All-In Podcast",
+    "What Bitcoin Did",
+    "Bitcoin Magazine Podcast",
+    "The Pomp Podcast",
+    "Bankless",
+    "Unchained",
+    "The Bitcoin Standard Podcast",
+    "TFTC - Tales from the Crypt",
+    "Stephan Livera Podcast",
+    "Bitcoin Audible",
+    "The Investor's Podcast - We Study Billionaires",
+    "Coin Stories with Natalie Brunell",
+    "Simply Bitcoin",
+    "Swan Signal",
+    "Preston Pysh - The Investor's Podcast",
+    "Bitcoin Rapid-Fire",
+    "Thriller Bitcoin",
+    "Bitcoin fixes this",
+    "The Mining Pod",
+    "Marty's Bent",
+]
+
+# ── RELEVANT SPONSOR CATEGORIES ───────────────────────────────────────────────
+RELEVANT_CATEGORIES = [
+    "Bitcoin hardware wallets (Ledger, Trezor, Coldcard, Passport)",
+    "Bitcoin exchanges and brokerages (Swan, River, Strike, Cash App)",
+    "Bitcoin ETFs and investment products",
+    "Bitcoin mining equipment and hosting",
+    "Lightning Network services",
+    "Financial services (retirement, IRAs, self-directed)",
+    "VPN and privacy tools",
+    "Cybersecurity software",
+    "Fintech and payment processors",
+    "Tech companies (SaaS, developer tools)",
+    "Commodities and precious metals",
+    "E-commerce brands targeting high-income males 25-55",
+    "Premium subscription services",
+    "Health and wellness (biohacking, longevity)",
+    "Real estate and alternative investments",
+]
+
+SCAN_PROMPT = """You are an intelligence analyst for Protocol Pulse, a premium Bitcoin media company.
+
+Scan your knowledge of these Bitcoin/crypto podcasts for their recent sponsors (2024-2025):
+{podcasts}
+
+For each sponsor you identify, provide:
+1. Company name
+2. Which podcast(s) they sponsor
+3. Estimated monthly ad spend (rough range)
+4. Product/service category
+5. Why they're relevant to our Bitcoin-first audience
+6. Contact approach (what angle to use in outreach)
+7. Opportunity signal (are they increasing/decreasing spend? Any intelligence on their marketing?)
+
+Focus on sponsors in these categories relevant to our Bitcoin audience:
+{categories}
+
+Return as a structured markdown report with sections:
+## Top Tier Prospects (spending $5K+/month on podcast ads)
+## Mid Tier Prospects ($1K-$5K/month)
+## Opportunistic Targets (smaller but relevant)
+## Companies to Monitor (not advertising yet but should be)
+
+For each prospect include a suggested outreach message angle (1-2 sentences).
+Be specific. Name real companies. Cite specific podcasts."""
+
+
+def scan_sponsors():
+    """Scan podcast ecosystem for active Bitcoin-adjacent sponsors."""
+    if not XAI_API_KEY:
+        print("[sponsor_radar] No XAI key configured.")
+        return
+
+    print(f"[sponsor_radar] Scanning {len(TARGET_PODCASTS)} podcasts for sponsor intelligence...")
+
+    prompt = SCAN_PROMPT.format(
+        podcasts="\n".join(f"- {p}" for p in TARGET_PODCASTS),
+        categories="\n".join(f"- {c}" for c in RELEVANT_CATEGORIES)
+    )
+
+    r = requests.post(
+        "https://api.x.ai/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {XAI_API_KEY}",
+            "Content-Type": "application/json"
+        },
+        json={
+            "model": "grok-3-latest",
+            "messages": [{"role": "user", "content": prompt}]
+        },
+        timeout=90
+    )
+
+    if r.status_code == 200:
+        content = r.json()["choices"][0]["message"]["content"]
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+
+        report = f"""# Sponsor Radar Report
+## Generated: {timestamp}
+## Protocol Pulse Advertising Intelligence
+
+---
+
+### Methodology
+Scanned {len(TARGET_PODCASTS)} podcasts for active sponsors.
+Filtered for relevance to Bitcoin-first audience.
+Categories analyzed: {len(RELEVANT_CATEGORIES)} verticals.
+
+---
+
+### Findings
+
+{content}
+
+---
+
+### Action Items
+1. Cross-reference against existing Sponsor table in DB
+2. Generate personalized outreach for top 10 prospects
+3. Highlight sponsors leaving other shows (opportunity signal)
+4. Track which sponsors appear across multiple shows (big spenders = proven budget)
+5. Build prospect list in CRM with podcast + spend data
+
+### Outreach Priority Queue
+Review findings above and rank by:
+- Budget signal (multi-show = larger budget)
+- Category fit (Bitcoin-adjacent = easier sell)
+- Audience overlap (their demographic = our demographic)
+
+---
+
+### Next Scan
+Schedule: Every Saturday at 09:00 UTC
+Previous scans archived in SPONSOR_RADAR_ARCHIVE/
+
+---
+*Generated by Sponsor Radar Agent — Protocol Pulse Intelligence*
+*Contact: sponsors@protocolpulse.io*
+"""
+
+        with open(RADAR_OUTPUT, "w") as f:
+            f.write(report)
+
+        print(f"[sponsor_radar] Report generated: {len(content)} chars → {RADAR_OUTPUT}")
+    else:
+        print(f"[sponsor_radar] Grok error: {r.status_code} — {r.text[:200]}")
+
+
+def generate_outreach_email(company: str, podcast: str, category: str) -> str:
+    """Generate a personalized outreach email for a sponsor prospect."""
+    if not XAI_API_KEY:
+        return "[sponsor_radar] No XAI key."
+
+    prompt = f"""Write a cold outreach email for Protocol Pulse to send to a potential sponsor.
+
+Company: {company}
+They currently sponsor: {podcast}
+Their category: {category}
+
+Protocol Pulse is:
+- The "ESPN SportsCenter for Bitcoin" — premium daily intelligence
+- Audience: Bitcoin-first builders, investors, operators (85% male, 25-55, high income)
+- Content: Daily articles, CypherPunk'd podcast, Pulse Check videos, newsletter
+- Events: BitcoinDay Naples, BTC in DC at the Kennedy Center
+
+Write a 4-paragraph cold email:
+1. Opening hook (reference their current podcast advertising, show you did your homework)
+2. Why Protocol Pulse audience is better fit than [podcast] for their product
+3. Specific package recommendation with pricing hint
+4. Clear CTA (15-minute call or email reply)
+
+Tone: Confident, peer-to-peer. Not desperate. We have a premium audience they want access to.
+Subject line: Also provide 3 subject line options (A/B/C)."""
+
+    r = requests.post(
+        "https://api.x.ai/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {XAI_API_KEY}",
+            "Content-Type": "application/json"
+        },
+        json={
+            "model": "grok-3-latest",
+            "messages": [{"role": "user", "content": prompt}]
+        },
+        timeout=45
+    )
+
+    if r.status_code == 200:
+        return r.json()["choices"][0]["message"]["content"]
+    else:
+        return f"[sponsor_radar] Error: {r.status_code}"
+
+
+def get_latest_report() -> str:
+    """Return the latest sponsor radar report."""
+    if not os.path.exists(RADAR_OUTPUT):
+        return "No report generated yet. Run scan_sponsors() first."
+    with open(RADAR_OUTPUT, "r") as f:
+        return f.read()
+
+
+if __name__ == "__main__":
+    print("[sponsor_radar] Starting sponsor scan...")
+    scan_sponsors()
+    print("[sponsor_radar] Done. Check SPONSOR_RADAR_REPORT.md")
