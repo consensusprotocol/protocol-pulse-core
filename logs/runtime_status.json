@@ -1,18 +1,18 @@
 {
   "heartbeat": {
-    "last_heartbeat": "2026-02-13T00:17:10.764347"
+    "last_heartbeat": "2026-03-02T08:25:18.699471"
   },
-  "updated_at": "2026-02-13T00:17:43.789832",
+  "updated_at": "2026-03-02T08:25:37.498957",
   "whale": {
-    "last_run": "2026-02-13T00:17:29.570094",
-    "scanned": 10,
+    "last_run": "2026-03-02T08:25:35.726217",
+    "scanned": 18,
     "inserted": 0,
     "mega_inserted": 0,
     "avg_fee_btc": 0.0,
     "mega_events": []
   },
   "sentry": {
-    "last_run": "2026-02-13T00:17:10.767039",
+    "last_run": "2026-03-02T08:25:18.700320",
     "fetched": 0,
     "drafted": 0,
     "handles": [],
@@ -23,7 +23,7 @@
     "locations": 3
   },
   "nostr_sentry": {
-    "last_run": "2026-02-13T00:17:25.802422",
+    "last_run": "2026-03-02T08:25:33.719098",
     "fetched": 0,
     "drafted": 0,
     "handles": [],
@@ -36,8 +36,8 @@
     "focus": "market structure and flows"
   },
   "ghostwriter": {
-    "last_run": "2026-02-13T00:17:43.789284",
-    "scanned": 1,
+    "last_run": "2026-03-02T08:25:37.498825",
+    "scanned": 0,
     "drafted": 0
   },
   "medley": {
