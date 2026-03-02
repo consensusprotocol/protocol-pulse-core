@@ -142,30 +142,82 @@
 </section>
 
 <!-- ════════════════════════════════════════════════════
-     SIGNAL DASHBOARD: 2 Columns
+     INTELLIGENCE GRID: 3-column terminal layout
+     Col 1 (40%): Nostr Live Feed
+     Col 2 (35%): Combined Intelligence Feed
+     Col 3 (25%): Voice Intel & Sentiment
      ════════════════════════════════════════════════════ -->
-<section class="mu-signals" id="mu-signals">
-  <!-- Left: Nostr + X Live -->
-  <div class="mu-col">
-    <div class="mu-col-header">
-      <span class="mu-col-title">NOSTR + X LIVE</span>
-      <span class="mu-col-source">relay.damus.io <span class="mu-health-dot connected" id="health-nostr-col"></span></span>
+<section class="mu-intel-grid" id="mu-signals">
+
+  <!-- ── COL 1: NOSTR FEED ─────────────────────────────── -->
+  <div class="intel-col intel-col-nostr">
+    <div class="intel-col-header">
+      <span class="intel-col-title">NOSTR FEED</span>
+      <span class="intel-badge intel-badge-nostr">NOSTR</span>
+      <div class="mu-health-dot loading" id="health-nostr-col" title="Nostr relay"></div>
     </div>
-    <div class="mu-col-feed" id="nostr-feed"></div>
-    <div class="mu-col-count" id="nostr-count">0 notes</div>
+    <div class="intel-feed-scroll" id="nostr-feed">
+      <div class="mu-skeleton mu-skel-block"></div>
+      <div class="mu-skeleton mu-skel-block"></div>
+      <div class="mu-skeleton mu-skel-block"></div>
+    </div>
+    <div class="intel-col-count" id="nostr-count">connecting...</div>
   </div>
 
-  <div class="mu-col-divider"></div>
-
-  <!-- Right: Verified Highlights -->
-  <div class="mu-col">
-    <div class="mu-col-header">
-      <span class="mu-col-title">VERIFIED HIGHLIGHTS</span>
-      <span class="mu-col-source">partner channels <span class="mu-health-dot connected" id="health-highlights-col"></span></span>
+  <!-- ── COL 2: COMBINED INTELLIGENCE FEED ─────────────── -->
+  <div class="intel-col intel-col-combined">
+    <div class="intel-col-header">
+      <span class="intel-col-title">INTELLIGENCE FEED</span>
+      <span class="intel-col-sub">live &middot; 60s refresh</span>
     </div>
-    <div class="mu-col-feed" id="highlights-feed"></div>
+    <div class="intel-feed-scroll" id="combined-feed">
+      <div class="mu-skeleton mu-skel-block"></div>
+      <div class="mu-skeleton mu-skel-block"></div>
+      <div class="mu-skeleton mu-skel-block"></div>
+    </div>
   </div>
-</section>
+
+  <!-- ── COL 3: VOICE INTEL ─────────────────────────────── -->
+  <div class="intel-col intel-col-voice">
+
+    <!-- Sentiment Gauge -->
+    <div class="intel-voice-section">
+      <div class="intel-voice-head">SENTIMENT GAUGE</div>
+      <div class="intel-gauge-wrap">
+        <canvas id="sentiment-gauge" width="160" height="90" aria-label="Sentiment gauge"></canvas>
+        <div class="intel-gauge-val" id="gauge-val">--</div>
+        <div class="intel-gauge-label" id="gauge-label">LOADING</div>
+      </div>
+    </div>
+
+    <!-- Trending Keywords -->
+    <div class="intel-voice-section">
+      <div class="intel-voice-head">TRENDING KEYWORDS</div>
+      <div class="intel-keywords" id="intel-keywords">
+        <div class="mu-skeleton" style="height:24px;width:90px;display:inline-block;border-radius:3px"></div>
+        <div class="mu-skeleton" style="height:24px;width:65px;display:inline-block;border-radius:3px"></div>
+        <div class="mu-skeleton" style="height:24px;width:75px;display:inline-block;border-radius:3px"></div>
+      </div>
+    </div>
+
+    <!-- X Spaces Radar -->
+    <div class="intel-voice-section">
+      <div class="intel-voice-head">
+        SPACES RADAR
+        <span class="intel-radar-note">&middot; accounts to watch</span>
+      </div>
+      <div class="intel-spaces" id="intel-spaces"></div>
+    </div>
+
+    <!-- Source Health -->
+    <div class="intel-voice-section">
+      <div class="intel-voice-head">SOURCE HEALTH</div>
+      <div class="intel-source-health" id="intel-health"></div>
+    </div>
+
+  </div><!-- /.intel-col-voice -->
+
+</section><!-- /#mu-signals -->
 
 <!-- ════════════════════════════════════════════════════
      REDDIT PULSE
