@@ -1,0 +1,524 @@
+  BAD: "Bitcoin's price has increased by 3.2% over the last 24 hours."
+  GOOD: "Ninety-seven thousand. That's where we are. But the price isn't
+  the signal today — the mempool is."
+
+  Given the following data, write an Oracle Briefing script:
+
+  BTC Price: {btc_price} ({btc_change_24h})
+  Mempool: {mempool_size} MB, {fee_rate} sat/vB median
+  Hashrate: {hashrate} EH/s
+  Block Height: {block_height}
+  Fear & Greed: {fng_value} ({fng_label})
+  Difficulty Adjustment: {difficulty_change}
+
+  Top articles from last 24h:
+  {articles}
+
+  Top YouTube clips from last 24h (transcripts):
+  {clip_summaries}
+
+  Generate a JSON script:
+  {{
+    "title": "Oracle Briefing — {date}",
+    "hook": "One sentence hook that makes people stop scrolling",
+    "segments": [
+      {{
+        "label": "THE NUMBER",
+        "narration": "45 words max. One key metric with context.",
+        "overlay": "price_chart" | "mempool_viz" | "hashrate_chart" |
+  "article_screenshot" | "tweet_screenshot",
+        "overlay_data": {{...}}
+      }},
+      {{
+        "label": "THE SIGNAL",
+        "narration": "50 words max. Most important development.",
+        "overlay": "...",
+        "overlay_data": {{...}}
+      }},
+      {{
+        "label": "THE TAKE",
+        "narration": "50 words max. Editorial opinion. What nobody else is
+  saying.",
+        "overlay": "...",
+        "overlay_data": {{...}}
+      }}
+    ],
+    "signoff": "That's your Oracle Briefing. [custom closing based on
+  today's vibe]",
+    "thumbnail": {{
+      "headline": "5 words max for thumbnail text",
+      "metric": "$97,000"
+    }}
+  }}
+  """
+  ```
+
+  ### 2. `briefing_producer.py` — Orchestrator
+
+  Full pipeline:
+
+  ```
+  1. DATA GATHER
+     - Fetch BTC price, mempool, hashrate, FNG from live APIs
+     - Fetch latest PP articles from /api/articles/latest
+     - Optionally: pull clip summaries from Pulse Check pipeline if
+  available
+
+  2. SCRIPT GENERATION
+     - Feed data to Claude API
+     - Parse JSON response
+     - Validate segment count and word limits
+
+  3. TTS GENERATION
+     - Concatenate all narration text with 0.5s pauses between segments
+     - Send to ElevenLabs Jessica voice
+     - Save as briefing_audio.wav
+
+  4. AVATAR GENERATION
+     - Send audio to avatar server at localhost:8200
+     - Receive lip-synced video of Proto_P
+     - CRITICAL: Fix the model reload issue FIRST (see below)
+
+  5. OVERLAY COMPOSITING
+     - Layer data overlays on top of/beside the avatar video
+     - Layout: Avatar on left (40%), data overlay on right (60%)
+     - Or: Avatar full-screen with semi-transparent data overlay
+     - Use FFmpeg for compositing
+
+  6. INTRO/OUTRO
+     - Prepend 2s glitch intro (pre-rendered, store in assets/)
+     - Append 3s outro with logo
+     - Create intro/outro once, reuse daily
+
+  7. THUMBNAIL
+     - Generate 1280×720 thumbnail with Pillow
+     - Proto_P avatar face + headline text + BTC price
+     - Dark cinematic style with red accent
+
+  8. OUTPUT
+     output/oracle_YYYYMMDD/
+     ├── oracle_briefing_20260302.mp4   (1080p, 60-90s)
+     ├── oracle_short.mp4               (vertical 1080×1920 for social)
+     ├── thumbnail.jpg                  (1280×720)
+     ├── script.json
+     └── timing_report.txt
+  ```
+
+  ### 3. `overlay_engine.py` — Data Visualization Overlays
+
+  Generates visual overlays for each segment type:
+
+  **price_chart:**
+  - Pull 7-day BTC price from CoinGecko
+  - Render with matplotlib: dark background, green/red line, key price
+  levels
+  - Semi-transparent PNG overlay (1920×1080)
+  - Animated reveal: line draws left-to-right over 3 seconds
+
+  **mempool_viz:**
+  - Pull mempool data from mempool.space API
+  - Render fee rate histogram or block weight visualization
+  - Color-coded: green (low fees) → red (congested)
+
+  **hashrate_chart:**
+  - Pull hashrate data from mempool.space
+  - Bar chart of recent difficulty epochs
+  - Highlight current vs previous
+
+  **article_screenshot:**
+  - Use playwright to screenshot a Protocol Pulse article URL
+  - Crop to headline + first paragraph
+  - Apply dark border + Protocol Pulse watermark
+
+  **tweet_screenshot:**
+  - Render a styled card with tweet text + author info
+  - Platform-colored accent (X=blue border)
+  - No need to screenshot real tweet — generate a styled version
+
+  ### 4. `avatar_optimizer.py` — Fix Model Reload Issue
+
+  The avatar server currently reloads the Wav2Lip model from disk on every
+  request (13s overhead). Fix this:
+
+  ```python
+  # In avatar_server.py, the model should load ONCE at startup:
+  #
+  # CURRENT (broken):
+  # def generate():
+  #     model = load_model('wav2lip.pth')  # 13s every time!
+  #     ...
+  #
+  # FIXED:
+  # MODEL = None
+  # def get_model():
+  #     global MODEL
+  #     if MODEL is None:
+  #         MODEL = load_model('wav2lip.pth')
+  #     return MODEL
+  #
+  # def generate():
+  #     model = get_model()  # instant after first call
+  #     ...
+
+  # Check current avatar_server.py for the pattern:
+  cat ~/protocol_pulse/oracle/avatar_server.py | grep -n
+  "load_model\|Wav2Lip\|checkpoint\|torch.load"
+  ```
+
+  After fixing, restart avatar server:
+  ```bash
+  tmux send-keys -t avatar C-c
+  sleep 2
+  tmux send-keys -t avatar 'cd ~/protocol_pulse/oracle && python3
+  avatar_server.py' Enter
+  ```
+
+  Verify: two requests back-to-back should show first request ~13s, second
+  request <2s.
+
+  ## STAGE PAGE INTEGRATION
+
+  After the Oracle Briefing pipeline works, the `/stage` page should:
+  - Auto-display the latest Oracle Briefing video
+  - Show an archive of past briefings
+  - Embed the video player with the thumbnail
+  - This is a FUTURE task — for now, just get the pipeline producing videos
+
+  ## SCHEDULING
+
+  Oracle Briefing runs daily at 7:00 AM EST (before markets open).
+  Add to crontab or systemd timer:
+  ```bash
+  # crontab -e
+  0 7 * * * cd /home/ultron/protocol_pulse/oracle_briefing && python3
+  briefing_producer.py >>
+  /home/ultron/protocol_pulse/logs/oracle_briefing.log 2>&1
+  ```
+
+  ## DEPENDENCIES
+
+  ```bash
+  # Check existing
+  which ffmpeg ffprobe playwright
+
+  # Install missing
+  pip install matplotlib Pillow feedgen playwright
+  playwright install chromium
+
+  # Verify ElevenLabs key
+  python3 -c "from video_pipeline_v3.relay import get_key;
+  k=get_key('ELEVENLABS_API_KEY'); print(f'Key: {k[:8]}...' if k else
+  'MISSING')"
+
+  # Verify avatar server
+  curl -s https://avatar.protocolpulse.io/health
+  ```
+
+  ## TEST RUN
+
+  ```bash
+  cd ~/protocol_pulse/oracle_briefing
+  python3 briefing_producer.py --test
+  ```
+
+  Test mode:
+  - Use cached/sample data (don't fetch all APIs)
+  - Generate shorter briefing (~45s)
+  - Skip avatar generation if server is down (use static image fallback)
+  - Output to `output/test_oracle_YYYYMMDD_HHMMSS/`
+
+  ## VERIFICATION
+
+  1. **Audio** — Jessica voice, clear, authoritative, no gTTS
+  2. **Avatar** — Lip-synced Proto_P, blinks, subtle head movement
+  3. **Overlays** — Data visualizations render correctly, not garbled
+  4. **Duration** — 60-90 seconds (not too long)
+  5. **Thumbnail** — Professional 1280×720 with headline + avatar
+  6. **Model fix** — Second avatar generation < 3s (not 13s)
+
+  ## EXECUTION ORDER
+
+  1. **FIRST:** Fix avatar model reload issue in `avatar_server.py`
+  2. **SECOND:** Build `overlay_engine.py` (data visualizations)
+  3. **THIRD:** Build `briefing_writer.py` (Claude script generation)
+  4. **FOURTH:** Build `briefing_producer.py` (orchestrator)
+  5. **FIFTH:** Build thumbnail generation
+  6. **LAST:** Test end-to-end with `--test`
+
+  ## RULES
+
+  - Work on `main` branch
+  - `claude --dangerously-skip-permissions` in tmux (interactive only, no
+  `-p`)
+  - Avatar server fix is CRITICAL — do it first, verify timing improvement
+  - All API keys accessed via relay.py get_key() or environment variables
+  - matplotlib: use `Agg` backend (no GUI): `import matplotlib;
+  matplotlib.use('Agg')`
+  - Playwright: use headless mode only
+  - Git commit + push when done
+  - Report: avatar timing before/after fix, overlay samples, file list,
+  timing breakdown
+
+
+● Entered plan mode
+  Claude is now exploring and designing an implementation approach.
+
+● I'll start by exploring the existing codebase in parallel to understand the
+  avatar server, video pipeline, and available APIs.
+
+● 3 Explore agents finished (ctrl+o to expand)
+   ├─ Explore avatar server code · 8 tool uses · 35.1k tokens
+   │  ⎿  Done
+   ├─ Explore video pipeline v3 · 14 tool uses · 49.7k tokens
+   │  ⎿  Done
+   └─ Explore existing APIs and stage · 40 tool uses · 40.1k tokens
+      ⎿  Done
+
+● Good exploration results. Let me verify a critical finding — the avatar server
+   model loading pattern — and read a few key files directly.
+
+● Read 3 files (ctrl+o to expand)
+
+● Important finding — the avatar model is already cached at startup (globals on
+  line 55-58, loaded once via load_wav2lip()). Let me check the generate
+  endpoint to see if there's any other bottleneck.
+
+● Read 2 files (ctrl+o to expand)
+
+● Now I have a thorough understanding. Let me design the implementation plan.
+
+● Plan(Design oracle briefing plan)
+  ⎿  Done (24 tool uses · 103.3k tokens · 4m 25s)
+  (ctrl+o to expand)
+
+● Now I have all the information needed. Let me write the final plan.
+
+● Updated plan
+  ⎿  /plan to preview
+
+────────────────────────────────────────────────────────────────────────────────
+ Ready to code?
+
+ Here is Claude's plan:
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+ Oracle Briefing Pipeline — Implementation Plan
+
+ Context
+
+ Build an automated daily video pipeline that generates 60-90 second "Oracle
+ Briefing" videos. The Proto_P avatar delivers authoritative Bitcoin
+ intelligence with lip-synced animation and data overlays. This is the second
+ video format alongside Pulse Check — single voice, editorial opinion,
+ data-driven.
+
+ Key finding: The avatar server (avatar_server.py:55-86) already caches the
+ Wav2Lip model at startup in globals. No model reload fix needed — the prompt's
+  assumption was incorrect. The model loads once via load_wav2lip() and stays
+ in GPU memory.
+
+ ---
+ Files to Create
+
+ All in ~/protocol_pulse/oracle_briefing/:
+
+ ┌─────┬──────────────────────┬───────────────────────────────────┬────────┐
+ │  #  │         File         │              Purpose              │ Lines  │
+ │     │                      │                                   │ (est)  │
+ ├─────┼──────────────────────┼───────────────────────────────────┼────────┤
+ │ 1   │ config.yaml          │ Relay, avatar, TTS, layout,       │ 70     │
+ │     │                      │ branding config                   │        │
+ ├─────┼──────────────────────┼───────────────────────────────────┼────────┤
+ │     │                      │ Copy of                           │        │
+ │ 2   │ relay.py             │ video_pipeline_v3/relay.py (reads │ 44     │
+ │     │                      │  local config.yaml)               │        │
+ ├─────┼──────────────────────┼───────────────────────────────────┼────────┤
+ │ 3   │ sample_data.json     │ Hardcoded realistic market data   │ 80     │
+ │     │                      │ for test mode                     │        │
+ ├─────┼──────────────────────┼───────────────────────────────────┼────────┤
+ │ 4   │ data_gatherer.py     │ Fetch BTC price, mempool,         │ 150    │
+ │     │                      │ hashrate, FNG, articles           │        │
+ ├─────┼──────────────────────┼───────────────────────────────────┼────────┤
+ │ 5   │ overlay_engine.py    │ matplotlib/Pillow data viz        │ 350    │
+ │     │                      │ overlays (1152x1080 PNGs)         │        │
+ ├─────┼──────────────────────┼───────────────────────────────────┼────────┤
+ │ 6   │ briefing_writer.py   │ Claude API script generator →     │ 200    │
+ │     │                      │ structured JSON                   │        │
+ ├─────┼──────────────────────┼───────────────────────────────────┼────────┤
+ │ 7   │ tts_engine.py        │ ElevenLabs Jessica TTS,           │ 200    │
+ │     │                      │ per-segment + concatenation       │        │
+ ├─────┼──────────────────────┼───────────────────────────────────┼────────┤
+ │ 8   │ compositor.py        │ FFmpeg: avatar + overlays + audio │ 250    │
+ │     │                      │  + intro/outro                    │        │
+ ├─────┼──────────────────────┼───────────────────────────────────┼────────┤
+ │ 9   │ thumbnail_gen.py     │ Pillow 1280x720 thumbnail         │ 100    │
+ ├─────┼──────────────────────┼───────────────────────────────────┼────────┤
+ │ 10  │ create_assets.py     │ One-time: generate intro.mp4,     │ 150    │
+ │     │                      │ outro.mp4 via FFmpeg              │        │
+ ├─────┼──────────────────────┼───────────────────────────────────┼────────┤
+ │ 11  │ briefing_producer.py │ Main orchestrator with --test     │ 200    │
+ │     │                      │ mode                              │        │
+ └─────┴──────────────────────┴───────────────────────────────────┴────────┘
+
+ ---
+ Pipeline Flow
+
+ Step 1: GATHER DATA       → data_gatherer.py → market_data dict
+ Step 2: GENERATE SCRIPT   → briefing_writer.py (Claude API) → script JSON
+ Step 3: GENERATE TTS      → tts_engine.py (ElevenLabs Jessica) → per-segment
+ .m4a + full .wav
+ Step 4: GENERATE AVATAR   → POST localhost:8200/generate (audio_base64) →
+ 512x512 mp4
+ Step 5: GENERATE OVERLAYS → overlay_engine.py (matplotlib) → per-segment
+ 1152x1080 PNGs
+ Step 6: COMPOSITE VIDEO   → compositor.py (FFmpeg) → avatar left 40% + overlay
+  right 60%
+ Step 7: THUMBNAIL          → thumbnail_gen.py (Pillow) → 1280x720 jpg
+ Step 8: VERTICAL SHORT    → FFmpeg crop center → 1080x1920 mp4
+
+ ---
+ Key Design Decisions
+
+ Layout: Split-screen
+
+ - Avatar: left 40% (768px) — 512x512 avatar scaled + centered on dark bg
+ - Data overlay: right 60% (1152px) — chart/card changes per segment
+ - Bottom 4px red accent bar across full width
+
+ Overlay types (per segment)
+
+ - price_chart — 7-day BTC line chart with gradient fill, large price metric
+ - mempool_viz — Fee tier bar chart + mempool gauge
+ - hashrate_chart — Hashrate area chart + difficulty progress bar
+ - article_card — Styled text card with PP branding
+ - metric_card — Generic large-number display (fallback)
+
+ Audio approach
+
+ - Generate TTS per-segment (hook, seg_0, seg_1, seg_2, signoff)
+ - Concatenate with 600ms silence gaps
+ - Convert full narration to 16kHz mono WAV for avatar server
+ - Individual segment durations drive overlay transition timing
+
+ Avatar interaction
+
+ - Send full narration WAV as base64 to POST localhost:8200/generate
+ - Returns 512x512 mp4 (no audio) with lip-sync + blinks + head movement
+ - Fallback if server down: loop static avatar image as video
+
+ ---
+ Reusable Patterns from Existing Code
+
+ ┌───────────────┬───────────────────────────────────────┬──────────────────┐
+ │    Pattern    │              Source File              │      Reuse       │
+ ├───────────────┼───────────────────────────────────────┼──────────────────┤
+ │ Relay key     │                                       │ Copy directly    │
+ │ fetching      │ video_pipeline_v3/relay.py            │ (reads local     │
+ │               │                                       │ config.yaml)     │
+ ├───────────────┼───────────────────────────────────────┼──────────────────┤
+ │ TTS chunking  │ video_pipeline_v3/tts_engine.py:55-80 │ Adapt (simpler:  │
+ │ + retry       │                                       │ 5 parts vs many) │
+ ├───────────────┼───────────────────────────────────────┼──────────────────┤
+ │ FFmpeg        │                                       │ Same pattern for │
+ │ filtergraph   │ video_pipeline_v3/assembler.py        │  compositor      │
+ │ via tempfile  │                                       │                  │
+ ├───────────────┼───────────────────────────────────────┼──────────────────┤
+ │ Xfade         │                                       │ For              │
+ │ concatenation │ video_pipeline_v3/assembler.py:271+   │ intro+body+outro │
+ │               │                                       │  join            │
+ ├───────────────┼───────────────────────────────────────┼──────────────────┤
+ │ Test mode +   │ video_pipeline_v3/daily_producer.py   │ Same CLI pattern │
+ │ timing report │                                       │                  │
+ ├───────────────┼───────────────────────────────────────┼──────────────────┤
+ │ Shorts        │ video_pipeline_v3/shorts_cutter.py    │ Adapt for Oracle │
+ │ cropping      │                                       │  branding        │
+ ├───────────────┼───────────────────────────────────────┼──────────────────┤
+ │ Asset         │ video_pipeline_v3/create_assets.py    │ Adapt with       │
+ │ generation    │                                       │ Oracle titles    │
+ ├───────────────┼───────────────────────────────────────┼──────────────────┤
+ │ Voice config  │ video_pipeline_v3/tts_engine.py:16-25 │ Same voice, same │
+ │ (Jessica)     │                                       │  model           │
+ └───────────────┴───────────────────────────────────────┴──────────────────┘
+
+ ---
+ Test Mode (--test)
+
+ - data_gatherer → returns sample_data.json (no API calls)
+ - briefing_writer → returns curated sample script (no Claude API)
+ - tts_engine → runs normally (ElevenLabs still called, ~5s)
+ - avatar → normal if server up, static image fallback if down
+ - overlays → generated normally (local, fast)
+ - Output → output/test_oracle_YYYYMMDD_HHMMSS/
+
+ ---
+ Output Structure
+
+ output/oracle_20260302/
+ ├── oracle_briefing_20260302.mp4   (1920x1080, 60-90s)
+ ├── oracle_short.mp4               (1080x1920, vertical)
+ ├── thumbnail.jpg                  (1280x720)
+ ├── script.json
+ ├── timing_report.txt
+ ├── audio/                         (per-segment + full)
+ ├── overlays/                      (per-segment PNGs)
+ └── work/                          (intermediate files)
+
+ ---
+ Implementation Order
+
+ 1. Config + relay — config.yaml, copy relay.py, create sample_data.json
+ 2. Data gatherer — data_gatherer.py with test mode
+ 3. Overlay engine — overlay_engine.py (test standalone with sample data)
+ 4. Briefing writer — briefing_writer.py (Claude script gen + sample fallback)
+ 5. TTS engine — tts_engine.py (adapted from video_pipeline_v3)
+ 6. Asset generation — create_assets.py → run once → assets/
+ 7. Compositor — compositor.py (FFmpeg split-screen compositing)
+ 8. Thumbnail — thumbnail_gen.py
+ 9. Orchestrator — briefing_producer.py (wire everything + shorts)
+ 10. End-to-end test — python3 briefing_producer.py --test
+
+ ---
+ Verification
+
+ 1. Audio — Jessica voice, clear, authoritative (no gTTS)
+ 2. Avatar — Lip-synced Proto_P with blinks + head movement (or static
+ fallback)
+ 3. Overlays — Charts render correctly with real data, dark theme, red accents
+ 4. Duration — 60-90 seconds total
+ 5. Thumbnail — 1280x720 with avatar face + headline + metric
+ 6. Short — 1080x1920 vertical crop, branding overlays
+ 7. Timing report — Step-by-step breakdown in timing_report.txt
+
+ ---
+ Estimated Timing (75s briefing)
+
+ ┌──────────────────────────┬───────────┐
+ │           Step           │ Est. Time │
+ ├──────────────────────────┼───────────┤
+ │ Data gather              │ 3-5s      │
+ ├──────────────────────────┼───────────┤
+ │ Script generation        │ 3-5s      │
+ ├──────────────────────────┼───────────┤
+ │ TTS (ElevenLabs)         │ 8-12s     │
+ ├──────────────────────────┼───────────┤
+ │ Avatar (Wav2Lip on 4090) │ 20-40s    │
+ ├──────────────────────────┼───────────┤
+ │ Overlays (matplotlib)    │ 2-4s      │
+ ├──────────────────────────┼───────────┤
+ │ Compositing (FFmpeg)     │ 15-25s    │
+ ├──────────────────────────┼───────────┤
+ │ Thumbnail + short        │ 5-10s     │
+ ├──────────────────────────┼───────────┤
+ │ Total                    │ ~60-100s  │
+ └──────────────────────────┴───────────┘
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+
+ Claude has written up a plan and is ready to execute. Would you like to
+ proceed?
+
+ ❯ 1. Yes, clear context (30% used) and bypass permissions
+   2. Yes, and bypass permissions
+   3. Yes, manually approve edits
+   4. Type here to tell Claude what to change
+
+ ctrl-g to edit in Vim · ~/.claude/plans/transient-greeting-cook.md
+
