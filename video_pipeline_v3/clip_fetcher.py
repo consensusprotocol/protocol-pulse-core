@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Step 6: Clip Fetcher — Pexels B-roll with disk cache.
-Production mode: Pexels or fail with clear error (no FFmpeg-generated backgrounds)."""
-import os, json, subprocess, hashlib
+"""Clip Fetcher V4 — Pexels B-roll + YouTube clip download via yt-dlp.
+Fetches real YouTube clips for CLIP markers in dialogue scripts."""
+import os, json, subprocess, hashlib, glob as globmod, time
 try:
     import requests
     HAS_REQUESTS = True
@@ -11,11 +11,11 @@ except ImportError:
 from relay import get_key
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-PEXELS_CACHE_DIR = os.path.join(BASE, "..", "downloads", "pexels_cache")
+PEXELS_CACHE_DIR = os.path.join(BASE, "downloads", "pexels_cache")
+YT_CACHE_DIR = os.path.join(BASE, "downloads", "yt_cache")
 FONT_BOLD = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 FONT_MONO = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 
-# Module-level key cache
 _KEY_CACHE: dict = {}
 
 
@@ -28,15 +28,20 @@ def _get_cached_key(name: str) -> str:
 
 
 def _cache_path(query: str, index: int) -> str:
-    """Stable cache file path for a given query + index."""
     os.makedirs(PEXELS_CACHE_DIR, exist_ok=True)
     key = f"{query.lower().strip()}_{index}"
     digest = hashlib.md5(key.encode()).hexdigest()[:16]
     return os.path.join(PEXELS_CACHE_DIR, f"px_{digest}.mp4")
 
 
+def _yt_cache_path(query: str) -> str:
+    os.makedirs(YT_CACHE_DIR, exist_ok=True)
+    digest = hashlib.md5(query.lower().strip().encode()).hexdigest()[:16]
+    return os.path.join(YT_CACHE_DIR, f"yt_{digest}.mp4")
+
+
 def _process_clip(raw_path: str, out_path: str, duration: float) -> bool:
-    """Trim, scale, Ken Burns pan + color-grade a raw Pexels clip."""
+    """Trim, scale, Ken Burns pan + color-grade a raw clip."""
     r = subprocess.run(
         ["ffmpeg", "-y", "-i", raw_path, "-t", str(duration),
          "-vf", (
@@ -47,14 +52,154 @@ def _process_clip(raw_path: str, out_path: str, duration: float) -> bool:
              "colorbalance=rs=0.05:gs=-0.02:bs=-0.02"
          ),
          "-c:v", "libx264", "-crf", "20", "-an", out_path],
-        capture_output=True, text=True, timeout=180
+        capture_output=True, text=True, timeout=180,
     )
     return r.returncode == 0 and os.path.exists(out_path)
 
 
+# ── YouTube clip fetching via yt-dlp ─────────────────────────────────────────
+
+def fetch_youtube_clip(query: str, output_dir: str, max_duration: int = 60,
+                       source: str = "") -> str:
+    """Search YouTube and download a short clip via yt-dlp.
+
+    Args:
+        query: Search terms (e.g., "bitcoin mining facility 2024")
+        output_dir: Directory to save the clip
+        max_duration: Max clip duration in seconds
+        source: Optional channel hint (e.g., "@BitcoinMagazine")
+
+    Returns:
+        Path to downloaded clip, or "" on failure.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Check cache
+    cache = _yt_cache_path(query)
+    if os.path.exists(cache) and os.path.getsize(cache) > 10_000:
+        dest = os.path.join(output_dir, os.path.basename(cache))
+        subprocess.run(["cp", cache, dest], capture_output=True)
+        if os.path.exists(dest):
+            print(f"  [yt] Cache hit: {query[:40]}")
+            return dest
+
+    search_query = query
+    if source and source.startswith("@"):
+        search_query = f"{source} {query}"
+
+    raw_path = cache + ".raw.mp4"
+
+    try:
+        # Search + download best quality up to 1080p, limit duration
+        cmd = [
+            "yt-dlp",
+            f"ytsearch1:{search_query}",
+            "-f", "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[height<=1080][ext=mp4]/best",
+            "--merge-output-format", "mp4",
+            "--max-filesize", "100M",
+            "--match-filter", f"duration<={max_duration * 3}",
+            "--no-playlist",
+            "--no-check-certificates",
+            "-o", raw_path,
+            "--quiet",
+            "--no-warnings",
+        ]
+
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+
+        if r.returncode != 0 or not os.path.exists(raw_path):
+            # Try simpler format selection
+            cmd2 = [
+                "yt-dlp",
+                f"ytsearch1:{search_query}",
+                "-f", "best[height<=1080]",
+                "--no-playlist",
+                "--no-check-certificates",
+                "-o", raw_path,
+                "--quiet",
+                "--no-warnings",
+            ]
+            r2 = subprocess.run(cmd2, capture_output=True, text=True, timeout=120)
+            if r2.returncode != 0 or not os.path.exists(raw_path):
+                print(f"  [yt] Download failed for: {query[:50]}")
+                return ""
+
+    except subprocess.TimeoutExpired:
+        print(f"  [yt] Timeout downloading: {query[:50]}")
+        return ""
+    except Exception as e:
+        print(f"  [yt] Error: {e}")
+        return ""
+
+    if not os.path.exists(raw_path) or os.path.getsize(raw_path) < 10_000:
+        print(f"  [yt] Bad download for: {query[:50]}")
+        return ""
+
+    # Process: trim to max_duration, scale to 1920x1080
+    if _process_clip(raw_path, cache, max_duration):
+        try:
+            os.remove(raw_path)
+        except Exception:
+            pass
+        dest = os.path.join(output_dir, os.path.basename(cache))
+        subprocess.run(["cp", cache, dest], capture_output=True)
+        if os.path.exists(dest):
+            print(f"  [yt] Downloaded + cached: {query[:40]}")
+            return dest
+    else:
+        # If processing fails, use raw file directly with simple trim
+        simple = os.path.join(output_dir, os.path.basename(cache))
+        r = subprocess.run(
+            ["ffmpeg", "-y", "-i", raw_path, "-t", str(max_duration),
+             "-vf", "scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080",
+             "-c:v", "libx264", "-crf", "22", "-an", simple],
+            capture_output=True, text=True, timeout=120,
+        )
+        try:
+            os.remove(raw_path)
+        except Exception:
+            pass
+        if r.returncode == 0 and os.path.exists(simple):
+            print(f"  [yt] Downloaded (simple): {query[:40]}")
+            return simple
+
+    return ""
+
+
+def fetch_dialogue_clips(dialogue: list, output_dir: str) -> dict:
+    """Fetch YouTube clips for all CLIP markers in the dialogue.
+
+    Returns:
+        {"clips": {line_index: clip_path, ...}, "count": int}
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    clips = {}
+    clip_dir = os.path.join(output_dir, "yt_clips")
+
+    for i, entry in enumerate(dialogue):
+        if entry.get("host") != "CLIP":
+            continue
+
+        query = entry.get("query", "")
+        source = entry.get("source", "")
+
+        if not query:
+            continue
+
+        clip_path = fetch_youtube_clip(query, clip_dir, max_duration=30, source=source)
+        if clip_path:
+            clips[i] = clip_path
+        else:
+            print(f"  [clip] No YT clip for line {i}, will use fallback visual")
+
+    return {"clips": clips, "count": len(clips)}
+
+
+# ── Pexels B-roll ────────────────────────────────────────────────────────────
+
 def fetch_pexels_clips(keywords: list, output_dir: str, duration: float = 15,
                        count: int = 2) -> list:
-    """Fetch video clips from Pexels API, using disk cache to avoid re-downloading."""
+    """Fetch B-roll from Pexels API with disk cache."""
     key = _get_cached_key("PEXELS_API_KEY")
     if not key or not HAS_REQUESTS:
         return []
@@ -69,18 +214,13 @@ def fetch_pexels_clips(keywords: list, output_dir: str, duration: float = 15,
             params={"query": query, "per_page": count + 2, "size": "medium",
                     "orientation": "landscape"},
             headers={"Authorization": key},
-            timeout=20
+            timeout=20,
         )
-        if r.status_code == 401:
-            print(f"  [pexels] Auth failed — check PEXELS_API_KEY")
-            return []
         if r.status_code != 200:
-            print(f"  [pexels] HTTP {r.status_code} for query '{query}'")
             return []
 
         videos = r.json().get("videos", [])
         if not videos:
-            print(f"  [pexels] No results for '{query}'")
             return []
 
         fetched = 0
@@ -88,11 +228,10 @@ def fetch_pexels_clips(keywords: list, output_dir: str, duration: float = 15,
             if fetched >= count:
                 break
             files = video.get("video_files", [])
-            # Prefer 1080p then 720p then any
             hd = (
-                next((f for f in files if f.get("height", 0) >= 1080), None) or
-                next((f for f in files if f.get("height", 0) >= 720), None) or
-                (files[0] if files else None)
+                next((f for f in files if f.get("height", 0) >= 1080), None)
+                or next((f for f in files if f.get("height", 0) >= 720), None)
+                or (files[0] if files else None)
             )
             if not hd:
                 continue
@@ -100,17 +239,13 @@ def fetch_pexels_clips(keywords: list, output_dir: str, duration: float = 15,
             cache = _cache_path(query, vi)
             clip_dest = os.path.join(output_dir, f"pexels_{fetched}.mp4")
 
-            # Check cache
             if os.path.exists(cache) and os.path.getsize(cache) > 10_000:
-                # Copy from cache to output_dir (so caller has a local reference)
                 subprocess.run(["cp", cache, clip_dest], capture_output=True)
                 if os.path.exists(clip_dest):
-                    print(f"  [pexels] Cache hit: {os.path.basename(cache)}")
                     clips.append(clip_dest)
                     fetched += 1
                     continue
 
-            # Download raw
             raw = cache + ".raw.mp4"
             try:
                 vid_r = requests.get(hd["link"], timeout=90, stream=True)
@@ -118,23 +253,19 @@ def fetch_pexels_clips(keywords: list, output_dir: str, duration: float = 15,
                     for chunk in vid_r.iter_content(chunk_size=65536):
                         fh.write(chunk)
             except Exception as e:
-                print(f"  [pexels] Download error for video {vi}: {e}")
+                print(f"  [pexels] Download error {vi}: {e}")
                 continue
 
             if not os.path.exists(raw) or os.path.getsize(raw) < 10_000:
-                print(f"  [pexels] Bad download for video {vi}")
                 continue
 
-            # Process → cache
             if _process_clip(raw, cache, duration):
                 os.remove(raw)
                 subprocess.run(["cp", cache, clip_dest], capture_output=True)
                 if os.path.exists(clip_dest):
-                    print(f"  [pexels] Downloaded + cached: '{query}' [{vi}]")
                     clips.append(clip_dest)
                     fetched += 1
             else:
-                print(f"  [pexels] Processing failed for video {vi}")
                 if os.path.exists(raw):
                     os.remove(raw)
 
@@ -144,79 +275,47 @@ def fetch_pexels_clips(keywords: list, output_dir: str, duration: float = 15,
     return clips
 
 
-def generate_broll_ffmpeg(keywords: list, output_path: str, duration: float = 15) -> str:
-    """Generate synthetic B-roll using FFmpeg (utility function — not used in production)."""
-    import tempfile
-    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
-    keyword_text = " | ".join(keywords[:3]).upper().replace("'", "").replace('"', '')
-    kw_main = (keywords[0].upper() if keywords else "BITCOIN").replace("'", "").replace('"', '')
-
-    fg = (
-        f"[0:v]drawgrid=w=60:h=60:t=1:c=0x1A1A1A@0.5,"
-        f"drawgrid=w=300:h=300:t=2:c=0x2A0000@0.3,"
-        f"colorbalance=rs=0.1:gs=0:bs=0,"
-        f"drawtext=fontfile={FONT_MONO}:text='{keyword_text}':"
-        f"fontcolor=0xCC0000@0.6:fontsize=28:x=100:y=100,"
-        f"drawtext=fontfile={FONT_BOLD}:text='{kw_main}':"
-        f"fontcolor=white@0.15:fontsize=160:x=(w-text_w)/2:y=(h-text_h)/2,"
-        f"drawbox=x=0:y=540:w=1920:h=2:c=0xCC0000@0.4:t=fill,"
-        f"noise=alls=5:allf=t,format=yuv420p[out]"
-    )
-    fd, fpath = tempfile.mkstemp(suffix=".txt")
-    try:
-        with os.fdopen(fd, "w") as f:
-            f.write(fg)
-        cmd = ["ffmpeg", "-y", "-f", "lavfi", "-i",
-               f"color=c=0x0A0A0A:s=1920x1080:d={duration}:r=30",
-               "-filter_complex_script", fpath, "-map", "[out]",
-               "-c:v", "libx264", "-crf", "22", output_path]
-        subprocess.run(cmd, capture_output=True, text=True, timeout=120)
-    finally:
-        os.unlink(fpath)
-    return output_path if os.path.exists(output_path) else ""
+def fetch_broll_for_dialogue(dialogue: list, output_dir: str) -> list:
+    """Fetch Pexels B-roll clips to use as background during host dialogue.
+    Returns list of clip paths."""
+    os.makedirs(output_dir, exist_ok=True)
+    # Use general Bitcoin/finance B-roll queries
+    queries = [
+        ["bitcoin", "cryptocurrency", "trading"],
+        ["stock market", "finance", "data"],
+        ["technology", "digital", "network"],
+        ["city", "skyline", "night"],
+    ]
+    all_clips = []
+    for qi, q in enumerate(queries):
+        seg_dir = os.path.join(output_dir, f"broll_{qi}")
+        clips = fetch_pexels_clips(q, seg_dir, duration=20, count=1)
+        all_clips.extend(clips)
+        if len(all_clips) >= 4:
+            break
+    return all_clips
 
 
 def fetch_all_clips(script: dict, output_dir: str) -> dict:
-    """Fetch all clips for the episode from Pexels.
-    Production mode: raises RuntimeError if Pexels returns no clips for a segment."""
+    """V4: Fetch both YouTube clips (for CLIP markers) and Pexels B-roll."""
     os.makedirs(output_dir, exist_ok=True)
-    clips = {"segments": []}
+    result = {"yt_clips": {}, "broll": [], "count": 0}
 
-    key = _get_cached_key("PEXELS_API_KEY")
-    if not key:
-        raise RuntimeError(
-            "PEXELS_API_KEY not available. Cannot fetch B-roll. "
-            "No generated backgrounds in production mode."
-        )
+    dialogue = script.get("dialogue", [])
 
-    for i, seg in enumerate(script["segments"]):
-        seg_dir = os.path.join(output_dir, f"seg_{i:02d}")
-        os.makedirs(seg_dir, exist_ok=True)
+    # 1. YouTube clips for CLIP markers
+    yt_data = fetch_dialogue_clips(dialogue, output_dir)
+    result["yt_clips"] = yt_data.get("clips", {})
+    result["count"] += yt_data.get("count", 0)
+    print(f"  [clip] YouTube clips: {yt_data.get('count', 0)}")
 
-        keywords = seg.get("keywords_for_visuals", ["bitcoin finance"])
-        duration = seg.get("duration_seconds", 20)
+    # 2. Pexels B-roll for dialogue background
+    broll = fetch_broll_for_dialogue(dialogue, output_dir)
+    result["broll"] = broll
+    result["count"] += len(broll)
+    print(f"  [clip] Pexels B-roll: {len(broll)}")
 
-        pexels = fetch_pexels_clips(keywords, seg_dir, duration, count=2)
-
-        if pexels:
-            clips["segments"].append({"type": "pexels", "clips": pexels})
-            print(f"  [clip] seg_{i:02d}: {len(pexels)} Pexels clips ({keywords[0]})")
-        else:
-            # Try a broader query fallback within Pexels
-            fallback_keywords = ["finance technology", "bitcoin", "digital money"]
-            print(f"  [clip] seg_{i:02d}: No results for {keywords}, trying fallback...")
-            pexels_fb = fetch_pexels_clips(fallback_keywords, seg_dir, duration, count=1)
-            if pexels_fb:
-                clips["segments"].append({"type": "pexels_fallback", "clips": pexels_fb})
-                print(f"  [clip] seg_{i:02d}: 1 Pexels fallback clip")
-            else:
-                raise RuntimeError(
-                    f"Pexels returned no clips for segment {i} (keywords={keywords}). "
-                    "Check PEXELS_API_KEY and network. "
-                    "No generated backgrounds in production mode."
-                )
-
-    return clips
+    return result
 
 
 if __name__ == "__main__":

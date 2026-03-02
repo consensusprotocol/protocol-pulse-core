@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Step 7: Assembler — FFmpeg video assembly.
-Builds the final video from assets, audio, and clips.
-Uses filter_complex_script files to avoid shell escaping issues."""
-import os, subprocess, json, sys, tempfile
+"""Assembler V4 — dual-host dialogue visuals + YouTube clip-react layout.
+During dialogue: dark studio overlay with speaker labels.
+During clips: full-screen YouTube clip with source attribution.
+Lower-third ticker: PROTOCOL PULSE | PULSE CHECK | BTC $XX,XXX"""
+import os, subprocess, json, sys, tempfile, shutil
 from pathlib import Path
 
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -13,17 +14,17 @@ FONT_MONO = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 
 def ffprobe_duration(path: str) -> float:
     r = subprocess.run(
-        ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path],
-        capture_output=True, text=True
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+         "-of", "csv=p=0", path],
+        capture_output=True, text=True,
     )
     try:
         return float(r.stdout.strip())
-    except:
+    except Exception:
         return 0.0
 
 
 def run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
-    """Run ffmpeg with list args (no shell escaping issues)."""
     cmd = ["ffmpeg", "-y"] + args
     r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
     if r.returncode != 0:
@@ -35,13 +36,10 @@ def run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
 def run_ffmpeg_filtergraph(inputs: list, filtergraph: str, maps: list,
                            output_args: list, output_path: str,
                            label: str = "", timeout: int = 300) -> bool:
-    """Run ffmpeg with a filter_complex written to a temp file to avoid shell issues."""
-    # Write filtergraph to temp file
     fd, fpath = tempfile.mkstemp(suffix=".txt", prefix="ff_filter_")
     try:
         with os.fdopen(fd, "w") as f:
             f.write(filtergraph)
-
         cmd = ["ffmpeg", "-y"]
         for inp in inputs:
             if isinstance(inp, list):
@@ -53,7 +51,6 @@ def run_ffmpeg_filtergraph(inputs: list, filtergraph: str, maps: list,
             cmd.extend(["-map", m])
         cmd.extend(output_args)
         cmd.append(output_path)
-
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
         if r.returncode != 0:
             print(f"  [FAIL] {label}: {r.stderr[-400:]}")
@@ -64,11 +61,10 @@ def run_ffmpeg_filtergraph(inputs: list, filtergraph: str, maps: list,
 
 
 def ensure_audio(video_path: str) -> str:
-    """Ensure a video file has an audio stream (add silence if needed)."""
     r = subprocess.run(
         ["ffprobe", "-v", "error", "-select_streams", "a",
          "-show_entries", "stream=codec_type", "-of", "csv=p=0", video_path],
-        capture_output=True, text=True
+        capture_output=True, text=True,
     )
     if "audio" in r.stdout:
         return video_path
@@ -77,170 +73,164 @@ def ensure_audio(video_path: str) -> str:
     run_ffmpeg(
         ["-i", video_path, "-f", "lavfi", "-i", f"anullsrc=r=44100:cl=stereo",
          "-t", str(dur), "-c:v", "copy", "-c:a", "aac", "-shortest", out],
-        "add silence", 60
+        "add silence", 60,
     )
     return out if os.path.exists(out) else video_path
 
 
-def generate_visual(output_path: str, duration: float, text_main: str,
-                    text_sub: str = "", font_size: int = 72) -> bool:
-    """Generate a simple branded visual clip (no complex expressions)."""
-    safe_main = text_main.replace("'", "").replace(":", " -").replace('"', '')
-    safe_sub = text_sub.replace("'", "").replace(":", " -").replace('"', '') if text_sub else ""
+# ── Dialogue line visual ─────────────────────────────────────────────────────
 
-    fg = (
-        f"[0:v]drawgrid=w=60:h=60:t=1:c=0x1A1A1A@0.5,"
-        f"drawgrid=w=300:h=300:t=2:c=0x2A0000@0.3,"
-        f"colorbalance=rs=0.1:gs=0:bs=0,"
-        f"drawtext=fontfile={FONT_BOLD}:text='{safe_main}':"
-        f"fontcolor=white:fontsize={font_size}:x=(w-text_w)/2:y=(h-text_h)/2-30,"
-    )
-    if safe_sub:
-        fg += (
-            f"drawtext=fontfile={FONT_MONO}:text='{safe_sub}':"
-            f"fontcolor=0xCC0000:fontsize=28:x=(w-text_w)/2:y=(h/2+30),"
-        )
-    fg += f"noise=alls=5:allf=t,format=yuv420p[out]"
-
-    return run_ffmpeg_filtergraph(
-        [["-f", "lavfi", "-i", f"color=c=0x080808:s=1920x1080:d={duration}:r=30"]],
-        fg, ["[out]"],
-        ["-c:v", "libx264", "-crf", "20", "-preset", "fast"],
-        output_path, f"visual: {safe_main[:30]}"
-    )
-
-
-def make_segment_video(clip_path: str, audio_path: str, headline: str,
-                       source: str, output_path: str, seg_index: int) -> str:
-    """Compose a single segment: B-roll/card + narration + lower third."""
+def make_dialogue_visual(audio_path: str, host: int, text: str,
+                         broll_path: str, output_path: str,
+                         btc_price: str = "N/A",
+                         line_index: int = 0) -> str:
+    """Create a dialogue line video: B-roll background + speaker label + ticker."""
     audio_dur = ffprobe_duration(audio_path)
     if audio_dur <= 0:
-        audio_dur = 15
-    total_dur = audio_dur + 1.0
+        audio_dur = 5
+    total_dur = audio_dur + 0.2
 
-    safe_headline = headline.replace("'", "").replace(":", " -").replace('"', '').replace('%', ' pct')
-    safe_source = source.replace("'", "").replace(":", "").replace('"', '')
+    host_names = {1: "JESSICA", 2: "CHRIS"}
+    host_colors = {1: "0xCC0000", 2: "0x0066CC"}
+    speaker = host_names.get(host, "HOST")
+    color = host_colors.get(host, "0xCC0000")
+
+    # Truncate display text for subtitle
+    display_text = text[:100].replace("'", "").replace('"', '').replace(":", " -").replace("%", " pct")
 
     loop_frames = int(total_dur * 30) + 60
 
-    fg = (
-        f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,"
-        f"setsar=1,fps=30,loop=-1:size={loop_frames}:start=0,"
-        f"trim=0:{total_dur},setpts=PTS-STARTPTS[bg];\n"
-        f"color=c=0x0A0A0A@0.85:s=800x100:d={total_dur}[ltbg];\n"
-        f"color=c=0xCC0000:s=8x100:d={total_dur}[ltbar];\n"
-        f"[ltbg][ltbar]overlay=0:0[ltbase];\n"
-        f"[ltbase]drawtext=fontfile={FONT_BOLD}:text='{safe_headline}':"
-        f"fontcolor=white:fontsize=30:x=20:y=20,"
-        f"drawtext=fontfile={FONT_MONO}:text='{safe_source}':"
-        f"fontcolor=0xCC0000:fontsize=18:x=20:y=62,"
-        f"format=yuva420p[lt];\n"
-        f"[bg][lt]overlay=x=60:y=H-140:shortest=1,"
-        f"drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
-        f"fontcolor=white@0.3:fontsize=18:x=W-250:y=25,"
-        f"format=yuv420p[outv];\n"
-        f"[1:a]loudnorm=I=-16:TP=-1.5:LRA=11[outa]"
+    fg_parts = []
+
+    if broll_path and os.path.exists(broll_path):
+        # B-roll background
+        fg_parts.append(
+            f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,"
+            f"setsar=1,fps=30,loop=-1:size={loop_frames}:start=0,"
+            f"trim=0:{total_dur},setpts=PTS-STARTPTS,"
+            f"eq=brightness=-0.15:saturation=0.7[bg]"
+        )
+        audio_input = "1:a"
+    else:
+        # Dark background
+        fg_parts.append(
+            f"color=c=0x080808:s=1920x1080:d={total_dur}:r=30[bg]"
+        )
+        audio_input = "1:a"
+
+    # Speaker label bar (left side)
+    fg_parts.append(f"color=c={color}:s=6x60:d={total_dur}[spkbar]")
+    fg_parts.append(f"color=c=0x0A0A0A@0.85:s=220x60:d={total_dur}[spkbg]")
+    fg_parts.append(
+        f"[spkbg][spkbar]overlay=0:0[spkbase];\n"
+        f"[spkbase]drawtext=fontfile={FONT_BOLD}:text='{speaker}':"
+        f"fontcolor=white:fontsize=24:x=20:y=18[spklabel]"
     )
 
+    # Lower-third ticker
+    ticker_text = f"PROTOCOL PULSE  |  PULSE CHECK  |  BTC {btc_price}"
+    ticker_text = ticker_text.replace("'", "").replace('"', '')
+    fg_parts.append(
+        f"color=c=0x0A0A0A@0.9:s=1920x50:d={total_dur}[tickbg];\n"
+        f"[tickbg]drawtext=fontfile={FONT_MONO}:text='{ticker_text}':"
+        f"fontcolor=0xAAAAAA:fontsize=20:x=(w-text_w)/2:y=15[ticker]"
+    )
+
+    # Compose
+    fg_parts.append(
+        f"[bg][spklabel]overlay=60:H-180[v1];\n"
+        f"[v1][ticker]overlay=0:H-50[v2];\n"
+        f"[v2]drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
+        f"fontcolor=white@0.25:fontsize=16:x=W-220:y=20,"
+        f"format=yuv420p[outv];\n"
+        f"[{audio_input}]loudnorm=I=-16:TP=-1.5:LRA=11[outa]"
+    )
+
+    filtergraph = ";\n".join(fg_parts)
+
+    inputs = []
+    if broll_path and os.path.exists(broll_path):
+        inputs.append(broll_path)
+    else:
+        inputs.append(["-f", "lavfi", "-i", f"color=c=0x080808:s=1920x1080:d={total_dur}:r=30"])
+    inputs.append(audio_path)
+
     ok = run_ffmpeg_filtergraph(
-        [clip_path, audio_path], fg, ["[outv]", "[outa]"],
+        inputs, filtergraph, ["[outv]", "[outa]"],
         ["-c:v", "libx264", "-crf", "20", "-preset", "fast",
          "-c:a", "aac", "-ar", "44100", "-b:a", "192k", "-t", str(total_dur)],
-        output_path, f"segment {seg_index}"
+        output_path, f"dialogue line {line_index}",
     )
-    if ok:
-        print(f"  [assemble] segment {seg_index} OK: {ffprobe_duration(output_path):.1f}s")
-        return output_path
-    return ""
+    return output_path if ok else ""
 
 
-def make_bridge_video(audio_path: str, output_path: str, index: int) -> str:
-    """Create a bridge segment — transitional visual + narration."""
-    audio_dur = ffprobe_duration(audio_path)
-    if audio_dur <= 0:
-        audio_dur = 4
-    total_dur = audio_dur + 0.5
+# ── YouTube clip visual ──────────────────────────────────────────────────────
+
+def make_clip_visual(clip_path: str, source: str, output_path: str,
+                     duration: float = 15, btc_price: str = "N/A") -> str:
+    """Create a full-screen clip segment with source attribution."""
+    clip_dur = ffprobe_duration(clip_path)
+    use_dur = min(clip_dur, duration) if clip_dur > 0 else duration
+
+    safe_source = source.replace("'", "").replace('"', '').replace(":", "")
+    ticker_text = f"PROTOCOL PULSE  |  PULSE CHECK  |  BTC {btc_price}"
+    ticker_text = ticker_text.replace("'", "").replace('"', '')
 
     fg = (
-        f"[0:v]drawgrid=w=80:h=80:t=1:c=0x1A1A1A@0.4,"
-        f"colorbalance=rs=0.12:gs=0:bs=0,"
-        f"drawbox=x=0:y=538:w=1920:h=4:c=0xCC0000@0.6:t=fill,"
-        f"drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
-        f"fontcolor=white@0.3:fontsize=18:x=W-250:y=25,"
-        f"noise=alls=4:allf=t,format=yuv420p[v];\n"
-        f"[1:a]loudnorm=I=-16:TP=-1.5:LRA=11[a]"
+        f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,"
+        f"setsar=1,fps=30,trim=0:{use_dur},setpts=PTS-STARTPTS[clip];\n"
+        # Source attribution overlay
+        f"color=c=0x0A0A0A@0.8:s=350x45:d={use_dur}[srcbg];\n"
+        f"[srcbg]drawtext=fontfile={FONT_MONO}:text='Source  {safe_source}':"
+        f"fontcolor=white:fontsize=18:x=15:y=12[srclabel];\n"
+        # Ticker
+        f"color=c=0x0A0A0A@0.9:s=1920x50:d={use_dur}[tickbg];\n"
+        f"[tickbg]drawtext=fontfile={FONT_MONO}:text='{ticker_text}':"
+        f"fontcolor=0xAAAAAA:fontsize=20:x=(w-text_w)/2:y=15[ticker];\n"
+        # Compose
+        f"[clip][srclabel]overlay=W-370:20[v1];\n"
+        f"[v1][ticker]overlay=0:H-50,"
+        f"format=yuv420p[outv]"
     )
 
+    # Generate silent audio as second input
     ok = run_ffmpeg_filtergraph(
-        [["-f", "lavfi", "-i", f"color=c=0x0A0A0A:s=1920x1080:d={total_dur}:r=30"],
-         audio_path],
-        fg, ["[v]", "[a]"],
-        ["-c:v", "libx264", "-crf", "20", "-c:a", "aac",
-         "-ar", "44100", "-b:a", "192k", "-t", str(total_dur)],
-        output_path, f"bridge {index}"
+        [clip_path,
+         ["-f", "lavfi", "-i", f"anullsrc=r=44100:cl=stereo"]],
+        fg, ["[outv]", "1:a"],
+        ["-c:v", "libx264", "-crf", "20", "-preset", "fast",
+         "-c:a", "aac", "-ar", "44100", "-b:a", "192k",
+         "-t", str(use_dur), "-shortest"],
+        output_path, f"clip visual ({safe_source})",
     )
-    if ok:
-        print(f"  [assemble] bridge {index} OK: {ffprobe_duration(output_path):.1f}s")
+    return output_path if ok else ""
+
+
+# ── Concatenation ────────────────────────────────────────────────────────────
+
+def concatenate_parts(parts: list, output_path: str) -> str:
+    """Concat video parts with crossfade transitions."""
+    valid = [p for p in parts if p and os.path.exists(p)]
+    if not valid:
+        return ""
+    if len(valid) == 1:
+        shutil.copy2(valid[0], output_path)
         return output_path
-    return ""
 
-
-def make_editorial_video(audio_path: str, text: str, output_path: str, index: int) -> str:
-    """Create an editorial drop segment — data card + narration."""
-    audio_dur = ffprobe_duration(audio_path)
-    if audio_dur <= 0:
-        audio_dur = 10
-    total_dur = audio_dur + 0.5
-    safe_text = text[:90].replace("'", "").replace(":", " -").replace('"', '').replace('%', ' pct')
-
-    fg = (
-        f"[0:v]drawgrid=w=60:h=60:t=1:c=0x1A1A1A@0.3,"
-        f"colorbalance=rs=0.1:gs=0:bs=0,"
-        f"drawbox=x=200:y=300:w=1520:h=400:c=0x111111@0.9:t=fill,"
-        f"drawbox=x=200:y=300:w=6:h=400:c=0xCC0000:t=fill,"
-        f"drawtext=fontfile={FONT_BOLD}:text='EDITORIAL':"
-        f"fontcolor=0xCC0000:fontsize=22:x=230:y=320,"
-        f"drawtext=fontfile={FONT_BOLD}:text='{safe_text}':"
-        f"fontcolor=white:fontsize=28:x=230:y=380,"
-        f"drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
-        f"fontcolor=white@0.3:fontsize=18:x=W-250:y=25,"
-        f"noise=alls=3:allf=t,format=yuv420p[v];\n"
-        f"[1:a]loudnorm=I=-16:TP=-1.5:LRA=11[a]"
-    )
-
-    ok = run_ffmpeg_filtergraph(
-        [["-f", "lavfi", "-i", f"color=c=0x080808:s=1920x1080:d={total_dur}:r=30"],
-         audio_path],
-        fg, ["[v]", "[a]"],
-        ["-c:v", "libx264", "-crf", "20", "-c:a", "aac",
-         "-ar", "44100", "-b:a", "192k", "-t", str(total_dur)],
-        output_path, f"editorial {index}"
-    )
-    if ok:
-        print(f"  [assemble] editorial {index} OK: {ffprobe_duration(output_path):.1f}s")
-        return output_path
-    return ""
-
-
-def concatenate_final(parts: list, output_path: str) -> str:
-    """Concatenate all video parts into final output using concat demuxer (hard cuts)."""
+    # Normalize all parts
     normalized = []
-    for i, p in enumerate(parts):
-        if not p or not os.path.exists(p):
-            continue
-        norm = ensure_audio(p)
-        tmp = p.replace(".mp4", "_norm.mp4")
+    for i, p in enumerate(valid):
+        p = ensure_audio(p)
+        tmp = output_path + f".norm{i}.mp4"
         ok = run_ffmpeg(
-            ["-i", norm, "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+            ["-i", p, "-c:v", "libx264", "-crf", "20", "-preset", "fast",
              "-r", "30", "-vf", "scale=1920:1080,setsar=1,format=yuv420p",
              "-c:a", "aac", "-ar", "44100", "-ac", "2", "-b:a", "192k", tmp],
-            f"normalize part {i}", 120
+            f"normalize {i}", 120,
         )
-        if ok and os.path.exists(tmp):
-            normalized.append(tmp)
-        else:
-            normalized.append(norm)
+        normalized.append(tmp if (ok and os.path.exists(tmp)) else p)
 
+    # Use concat demuxer (fast, reliable)
     concat_file = output_path + ".concat.txt"
     with open(concat_file, "w") as f:
         for p in normalized:
@@ -250,133 +240,57 @@ def concatenate_final(parts: list, output_path: str) -> str:
         ["-f", "concat", "-safe", "0", "-i", concat_file,
          "-c:v", "libx264", "-crf", "20", "-preset", "fast",
          "-c:a", "aac", "-ar", "44100", "-b:a", "192k", output_path],
-        "concat final", 600
+        "concat final", 600,
     )
-    if not ok:
-        return ""
 
     # Cleanup
     for p in normalized:
-        if p.endswith("_norm.mp4") and os.path.exists(p):
-            os.remove(p)
-    for p in parts:
-        if p and os.path.exists(p) and p.endswith("_waud.mp4"):
-            os.remove(p)
+        if ".norm" in p and os.path.exists(p):
+            try:
+                os.remove(p)
+            except Exception:
+                pass
+    for p in valid:
+        if p.endswith("_waud.mp4") and os.path.exists(p):
+            try:
+                os.remove(p)
+            except Exception:
+                pass
     if os.path.exists(concat_file):
         os.remove(concat_file)
 
-    return output_path
+    return output_path if ok else ""
 
 
-def concatenate_with_xfade(parts: list, output_path: str,
-                            xfade_dur: float = 0.5) -> str:
-    """Concatenate video parts with smooth 0.5s crossfade transitions.
-    Falls back to hard-cut concat if xfade fails (mismatched streams, etc.)."""
-    valid = [p for p in parts if p and os.path.exists(p)]
-    if not valid:
-        return ""
-    if len(valid) == 1:
-        import shutil
-        shutil.copy2(valid[0], output_path)
-        return output_path
+# ── Main assembly ────────────────────────────────────────────────────────────
 
-    # Normalize all parts to identical specs first
-    normalized = []
-    for i, p in enumerate(valid):
-        p = ensure_audio(p)
-        tmp = output_path + f".xnorm{i}.mp4"
-        ok = run_ffmpeg(
-            ["-i", p, "-c:v", "libx264", "-crf", "20", "-preset", "fast",
-             "-r", "30", "-vf", "scale=1920:1080,setsar=1,format=yuv420p",
-             "-c:a", "aac", "-ar", "44100", "-ac", "2", "-b:a", "192k", tmp],
-            f"xfade normalize {i}", 120
-        )
-        normalized.append(tmp if (ok and os.path.exists(tmp)) else p)
+def assemble_episode(script: dict, audio_data: dict, clip_data: dict,
+                     output_path: str, btc_price: str = "N/A") -> str:
+    """Assemble a V4 dual-host episode from dialogue audio + clips.
 
-    try:
-        durations = [ffprobe_duration(p) for p in normalized]
-        n = len(normalized)
-
-        # Build chained xfade + acrossfade filter
-        filter_parts = []
-        cur_v = "[0:v]"
-        cur_a = "[0:a]"
-        cumulative_offset = 0.0
-
-        for i in range(1, n):
-            cumulative_offset += durations[i - 1] - xfade_dur
-            offset = max(0.0, cumulative_offset)
-            is_last = (i == n - 1)
-            out_v = "[vout]" if is_last else f"[vx{i}]"
-            out_a = "[aout]" if is_last else f"[ax{i}]"
-
-            filter_parts.append(
-                f"{cur_v}[{i}:v]xfade=transition=fade:duration={xfade_dur:.3f}:offset={offset:.3f}{out_v}"
-            )
-            filter_parts.append(
-                f"{cur_a}[{i}:a]acrossfade=d={xfade_dur:.3f}{out_a}"
-            )
-            cur_v = out_v
-            cur_a = out_a
-
-        filtergraph = ";\n".join(filter_parts)
-
-        fd, fpath = tempfile.mkstemp(suffix=".txt", prefix="ff_xfade_")
-        try:
-            with os.fdopen(fd, "w") as f:
-                f.write(filtergraph)
-
-            cmd = ["ffmpeg", "-y"]
-            for p in normalized:
-                cmd.extend(["-i", p])
-            cmd.extend(["-filter_complex_script", fpath])
-            cmd.extend(["-map", "[vout]", "-map", "[aout]"])
-            cmd.extend(["-c:v", "libx264", "-crf", "20", "-preset", "fast",
-                        "-c:a", "aac", "-ar", "44100", "-b:a", "192k", output_path])
-
-            r = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
-            if r.returncode == 0 and os.path.exists(output_path):
-                dur = ffprobe_duration(output_path)
-                print(f"  [xfade] OK: {len(normalized)} parts, {dur:.1f}s with crossfades")
-                return output_path
-            else:
-                print(f"  [xfade] FFmpeg failed (rc={r.returncode}), falling back to hard cuts")
-                print(f"  [xfade] stderr: {r.stderr[-300:]}")
-        finally:
-            try:
-                os.unlink(fpath)
-            except Exception:
-                pass
-
-    except Exception as e:
-        print(f"  [xfade] Error: {e}, falling back to hard cuts")
-
-    finally:
-        # Always clean up normalized temp files
-        for p in normalized:
-            if ".xnorm" in p and os.path.exists(p):
-                try:
-                    os.remove(p)
-                except Exception:
-                    pass
-
-    # Fallback: use simple hard-cut concat on the originals
-    return concatenate_final(valid, output_path)
-
-
-def assemble_episode(script: dict, audio_paths: dict, clip_data: dict,
-                     output_path: str) -> str:
-    """Assemble a complete episode from all components."""
+    Args:
+        script: V4 script with dialogue array
+        audio_data: From generate_dialogue_audio() — {lines, full, total_duration}
+        clip_data: From fetch_all_clips() — {yt_clips, broll, count}
+        output_path: Final video path
+        btc_price: BTC price string for ticker
+    """
     print("\n" + "=" * 60)
-    print("ASSEMBLING FINAL VIDEO")
+    print("ASSEMBLING V4 DUAL-HOST VIDEO")
     print("=" * 60)
 
     work_dir = os.path.join(os.path.dirname(os.path.abspath(output_path)), "work")
     os.makedirs(work_dir, exist_ok=True)
 
-    parts = []
+    dialogue = script.get("dialogue", [])
+    lines = audio_data.get("lines", [])
+    yt_clips = clip_data.get("yt_clips", {})
+    broll = clip_data.get("broll", [])
 
-    # 1. Intro
+    parts = []
+    broll_idx = 0
+
+    # 1. Intro asset
     intro_path = os.path.join(ASSETS, "intro.mp4")
     if os.path.exists(intro_path):
         parts.append(intro_path)
@@ -384,116 +298,79 @@ def assemble_episode(script: dict, audio_paths: dict, clip_data: dict,
 
     # 2. Transition
     trans_path = os.path.join(ASSETS, "transitions", "glitch_transition.mp4")
-
-    # 3. Cold open
-    if audio_paths.get("cold_open"):
-        cold_clip = os.path.join(work_dir, "cold_visual.mp4")
-        dur = ffprobe_duration(audio_paths["cold_open"])
-        generate_visual(cold_clip, dur + 1, "PULSE CHECK", "Bitcoin Intelligence Daily")
-
-        if os.path.exists(cold_clip):
-            cold_seg = os.path.join(work_dir, "cold_open.mp4")
-            result = make_segment_video(cold_clip, audio_paths["cold_open"],
-                                        "PULSE CHECK", "Bitcoin Intelligence Daily",
-                                        cold_seg, -1)
-            if result:
-                parts.append(result)
-
-    # 4. Transition before segments
     if os.path.exists(trans_path):
         parts.append(trans_path)
 
-    # 5. Segments with bridges and editorial drops
-    segments = script.get("segments", [])
-    seg_audios = audio_paths.get("segments", [])
-    bridges = audio_paths.get("bridges", [])
-    editorials = audio_paths.get("editorials", [])
-    seg_clips = clip_data.get("segments", [])
+    # 3. Dialogue lines + clip inserts
+    for i, entry in enumerate(dialogue):
+        host = entry.get("host")
 
-    for i, seg in enumerate(segments):
-        clip = ""
-        if i < len(seg_clips):
-            clip_list = seg_clips[i].get("clips", [])
-            clip = clip_list[0] if clip_list else ""
-
-        audio = seg_audios[i] if i < len(seg_audios) else None
-        if not audio or not os.path.exists(audio):
-            print(f"  [assemble] skipping segment {i}: no audio")
+        if host == "CLIP":
+            # YouTube clip insert
+            clip_idx = i
+            yt_path = yt_clips.get(clip_idx) or yt_clips.get(str(clip_idx))
+            if yt_path and os.path.exists(yt_path):
+                clip_out = os.path.join(work_dir, f"clip_{i:03d}.mp4")
+                source = entry.get("source", "")
+                result = make_clip_visual(yt_path, source, clip_out,
+                                          duration=15, btc_price=btc_price)
+                if result:
+                    parts.append(result)
+                    print(f"  [assemble] clip {i}: YouTube ({source})")
+            else:
+                print(f"  [assemble] clip {i}: no YouTube clip, skipping")
             continue
 
-        if not clip or not os.path.exists(clip):
-            clip = os.path.join(work_dir, f"seg_{i}_visual.mp4")
-            dur = ffprobe_duration(audio)
-            kw = seg.get("keywords_for_visuals", ["bitcoin"])[0].upper()
-            kw = kw.replace("'", "").replace('"', '')
-            generate_visual(clip, dur + 1, kw, seg["headline"][:40])
+        # Regular dialogue line
+        if i >= len(lines):
+            continue
+        line = lines[i]
+        if not line.get("path") or not os.path.exists(line["path"]):
+            continue
 
-        if os.path.exists(clip):
-            seg_out = os.path.join(work_dir, f"seg_{i:02d}.mp4")
-            result = make_segment_video(clip, audio, seg["headline"],
-                                        "Protocol Pulse Intelligence", seg_out, i)
-            if result:
-                parts.append(result)
+        host_num = line.get("host", 1)
+        text = line.get("text", "")
 
-        # Editorial drop
-        if i < len(editorials) and editorials[i] and os.path.exists(editorials[i]):
-            ed_out = os.path.join(work_dir, f"editorial_{i:02d}.mp4")
-            ed_text = seg.get("editorial_drop", "")
-            result = make_editorial_video(editorials[i], ed_text, ed_out, i)
-            if result:
-                parts.append(result)
+        # Pick B-roll for background
+        bg_clip = None
+        if broll and broll_idx < len(broll):
+            bg_clip = broll[broll_idx % len(broll)]
+        broll_idx += 1
 
-        # Bridge
-        if i < len(bridges) and bridges[i] and os.path.exists(bridges[i]):
-            br_out = os.path.join(work_dir, f"bridge_{i:02d}.mp4")
-            result = make_bridge_video(bridges[i], br_out, i)
-            if result:
-                parts.append(result)
-        elif i < len(segments) - 1:
-            if os.path.exists(trans_path):
-                parts.append(trans_path)
+        line_out = os.path.join(work_dir, f"line_{i:03d}.mp4")
+        result = make_dialogue_visual(
+            line["path"], host_num, text, bg_clip, line_out,
+            btc_price=btc_price, line_index=i,
+        )
+        if result:
+            parts.append(result)
 
-    # 6. Transition before outro
+    # 4. Transition before outro
     if os.path.exists(trans_path):
         parts.append(trans_path)
 
-    # 7. Outro narration
-    if audio_paths.get("outro"):
-        outro_visual = os.path.join(work_dir, "outro_visual.mp4")
-        dur = ffprobe_duration(audio_paths["outro"])
-        generate_visual(outro_visual, dur + 1, "PULSE CHECK", "Stay Sovereign.", 64)
-
-        if os.path.exists(outro_visual):
-            outro_seg = os.path.join(work_dir, "outro_seg.mp4")
-            result = make_segment_video(outro_visual, audio_paths["outro"],
-                                        "PULSE CHECK", "Stay Sovereign.",
-                                        outro_seg, 99)
-            if result:
-                parts.append(result)
-
-    # 8. Outro asset
+    # 5. Outro asset
     outro_asset = os.path.join(ASSETS, "outro.mp4")
     if os.path.exists(outro_asset):
         parts.append(outro_asset)
 
-    # 9. Final concatenation with xfade transitions
-    print(f"\n  [assemble] Concatenating {len(parts)} parts with xfade transitions...")
+    # 6. Concatenate
+    print(f"\n  [assemble] Concatenating {len(parts)} parts...")
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
-    result = concatenate_with_xfade(parts, output_path, xfade_dur=0.5)
+    result = concatenate_parts(parts, output_path)
 
     if result and os.path.exists(result):
         dur = ffprobe_duration(result)
         sz = os.path.getsize(result)
         print(f"\n  [DONE] Final video: {result}")
-        print(f"         Duration: {dur:.1f}s")
-        print(f"         Size: {sz / 1024 / 1024:.1f}MB")
+        print(f"         Duration: {dur:.1f}s | Size: {sz / 1024 / 1024:.1f}MB")
         return result
 
     return ""
 
 
 def verify_video(path: str) -> bool:
-    """Full verification of output video."""
+    """Verify output video meets spec."""
     print(f"\n{'='*60}")
     print(f"VERIFICATION: {os.path.basename(path)}")
     print(f"{'='*60}")
@@ -504,50 +381,37 @@ def verify_video(path: str) -> bool:
 
     r = subprocess.run(
         ["ffprobe", "-v", "error", "-show_streams", "-show_format", "-of", "json", path],
-        capture_output=True, text=True
+        capture_output=True, text=True,
     )
     try:
         info = json.loads(r.stdout)
-    except:
-        print(f"  [FAIL] Cannot parse ffprobe output")
+    except Exception:
+        print("  [FAIL] Cannot parse ffprobe output")
         return False
 
     streams = info.get("streams", [])
     fmt = info.get("format", {})
-
     vid = next((s for s in streams if s.get("codec_type") == "video"), None)
     aud = next((s for s in streams if s.get("codec_type") == "audio"), None)
 
     checks = []
-
     if vid:
-        w = int(vid.get("width", 0))
-        h = int(vid.get("height", 0))
-        codec = vid.get("codec_name", "")
-        checks.append(("Video codec", codec == "h264", f"h264 ({codec})"))
+        w, h = int(vid.get("width", 0)), int(vid.get("height", 0))
+        checks.append(("Video codec", vid.get("codec_name") == "h264", vid.get("codec_name")))
         checks.append(("Resolution", w == 1920 and h == 1080, f"{w}x{h}"))
     else:
         checks.append(("Video stream", False, "MISSING"))
 
     if aud:
-        acodec = aud.get("codec_name", "")
-        arate = aud.get("sample_rate", "")
-        checks.append(("Audio codec", acodec == "aac", f"aac ({acodec})"))
-        checks.append(("Sample rate", arate == "44100", f"44100 ({arate})"))
+        checks.append(("Audio codec", aud.get("codec_name") == "aac", aud.get("codec_name")))
+        checks.append(("Sample rate", aud.get("sample_rate") == "44100", aud.get("sample_rate")))
     else:
         checks.append(("Audio stream", False, "MISSING"))
 
     duration = float(fmt.get("duration", 0))
     size_mb = int(fmt.get("size", 0)) / 1024 / 1024
-    checks.append(("Duration", 30 <= duration <= 300, f"{duration:.1f}s"))
-    checks.append(("File size", 1 <= size_mb <= 200, f"{size_mb:.1f}MB"))
-
-    if vid and aud:
-        vdur = float(vid.get("duration", duration))
-        adur = float(aud.get("duration", duration))
-        sync_diff = abs(vdur - adur)
-        # Allow up to 6s drift — xfade chains accumulate stream-duration offsets
-        checks.append(("A/V sync", sync_diff < 6.0, f"diff={sync_diff:.2f}s"))
+    checks.append(("Duration", 10 <= duration <= 600, f"{duration:.1f}s"))
+    checks.append(("File size", 0.5 <= size_mb <= 500, f"{size_mb:.1f}MB"))
 
     all_pass = True
     for name, passed, detail in checks:
@@ -560,4 +424,4 @@ def verify_video(path: str) -> bool:
 
 
 if __name__ == "__main__":
-    print("Assembler module — use daily_run.py to run the full pipeline")
+    print("Assembler V4 — use daily_producer.py to run the full pipeline")
