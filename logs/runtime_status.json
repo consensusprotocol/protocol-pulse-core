@@ -1,33 +1,33 @@
 {
   "sentry": {
-    "last_run": "2026-03-02T22:41:54.843710",
+    "last_run": "2026-03-02T22:50:31.217789",
     "fetched": 0,
     "drafted": 0,
     "handles": [],
     "dry_run": false
   },
-  "updated_at": "2026-03-02T22:41:59.362055",
+  "updated_at": "2026-03-02T22:50:31.217879",
   "nostr_sentry": {
-    "last_run": "2026-03-02T22:41:55.353182",
+    "last_run": "2026-03-02T22:49:37.753131",
     "fetched": 0,
     "drafted": 0,
     "handles": [],
     "dry_run": false
   },
   "whale": {
-    "last_run": "2026-03-02T22:41:57.463859",
-    "scanned": 11,
+    "last_run": "2026-03-02T22:49:39.927489",
+    "scanned": 8,
     "inserted": 0,
     "mega_inserted": 0,
     "avg_fee_btc": 0.0,
     "mega_events": []
   },
   "ghostwriter": {
-    "last_run": "2026-03-02T22:41:59.361931",
+    "last_run": "2026-03-02T22:49:42.198649",
     "scanned": 0,
     "drafted": 0
   },
   "heartbeat": {
-    "last_heartbeat": "2026-03-02T22:41:54.842970"
+    "last_heartbeat": "2026-03-02T22:50:31.217040"
   }
 }

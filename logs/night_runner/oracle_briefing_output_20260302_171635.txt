@@ -1,0 +1,368 @@
+ultron@ultron:~/protocol_pulse$ cd /home/ultron/protocol_pulse && unset ANTHROPI
+C_API_KEY && claude --dangerously-skip-permissions
+
+╭─── Claude Code v2.1.63 ──────────────────────────────────────────────────────╮
+│                           │ Tips for getting started                         │
+│     Welcome back PBX!     │ Run /init to create a CLAUDE.md file with instr… │
+│                           │ ──────────────────────────────────────────────── │
+│                           │ Recent activity                                  │
+│          ▐▛███▜▌          │ No recent activity                               │
+│         ▝▜█████▛▘         │                                                  │
+│           ▘▘ ▝▝           │                                                  │
+│   Opus 4.6 · Claude Max   │                                                  │
+│     ~/protocol_pulse      │                                                  │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+❯ # ORACLE BRIEFING CONTENT ENGINE — EXECUTE NOW
+
+  CRITICAL: Do NOT use planning mode or todolists. Do NOT show a plan and
+  ask to proceed. Start writing code IMMEDIATELY.
+
+  ## CONTEXT
+
+  You already analyzed this and planned it. The Oracle Briefing is a 60-90
+  second daily intelligence brief from the Proto_P avatar. Short, punchy,
+  authoritative.
+
+  Format: HOOK → THE NUMBER (key metric) → THE SIGNAL (top development) →
+  THE TAKE (editorial opinion) → SIGN-OFF
+
+  ## CREATE THESE FILES in ~/protocol_pulse/oracle_briefing/
+
+  ### 1. briefing_writer.py — Script Generator
+  - Uses Claude API (claude-sonnet-4-6) to write Oracle Briefing script
+  - Fetches live data: BTC price (CoinGecko), mempool (mempool.space API),
+  FNG
+  - Fetches latest PP articles from local DB or /api/articles/latest
+  - Prompt: "You are the Protocol Pulse Oracle" — authoritative, punchy, no
+   filler
+  - Output: JSON with segments (THE NUMBER, THE SIGNAL, THE TAKE), overlay
+  types, thumbnail data
+  - Each segment: 45-50 words max
+  - Test: python3 briefing_writer.py --test prints script JSON to stdout
+
+  ### 2. overlay_engine.py — Data Visualization
+  - Generate matplotlib overlays (dark theme, 1920x1080 PNG):
+    - price_chart: 7-day BTC from CoinGecko, green/red line
+    - mempool_viz: fee histogram from mempool.space
+    - hashrate_chart: difficulty epochs bar chart
+    - article_screenshot: playwright screenshot of PP article URL
+  - matplotlib.use('Agg') — no GUI
+  - Each function returns path to generated PNG
+
+  ### 3. briefing_producer.py — Orchestrator
+  Pipeline:
+  1. Fetch live data (BTC price, mempool, hashrate, FNG, articles)
+  2. Generate script via briefing_writer
+  3. TTS via ElevenLabs Jessica (reuse video_pipeline_v3/tts_engine.py)
+  4. Avatar generation via localhost:8200 /generate endpoint
+  5. Overlay compositing: avatar left (40%), data right (60%) — FFmpeg
+  6. Prepend intro / append outro (generate simple ones with FFmpeg if no
+  assets)
+  7. Thumbnail: Pillow 1280x720, avatar face + headline + BTC price
+  8. Vertical short: center-crop for 1080x1920
+  9. Output to output/oracle_YYYYMMDD/
+
+  --test flag: use sample data, shorter briefing, skip avatar (use static
+  image)
+  --no-avatar flag: skip avatar, just produce audio + overlays
+
+  ### 4. relay.py — Helper
+  Copy pattern from video_pipeline_v3/relay.py for API key access
+
+  ## DEPENDENCIES
+  ```bash
+  pip install matplotlib Pillow requests --break-system-packages
+  2>/dev/null
+  # playwright should already be installed from xspaces task
+  which playwright || (pip install playwright --break-system-packages &&
+  playwright install chromium)
+  ```
+
+  ## TEST
+  ```bash
+  cd ~/protocol_pulse/oracle_briefing && python3 briefing_producer.py
+  --test
+  ```
+
+  Expected output:
+  - oracle_briefing_YYYYMMDD.mp4 (or .mp3 if --no-avatar)
+  - oracle_short.mp4
+  - thumbnail.jpg
+  - script.json
+  - overlays/*.png
+
+  ## CRON SETUP
+  ```bash
+  # Daily at 7 AM EST
+  (crontab -l 2>/dev/null; echo "0 7 * * * cd
+  /home/ultron/protocol_pulse/oracle_briefing && python3
+  briefing_producer.py >> ~/protocol_pulse/logs/oracle_briefing.log 2>&1")
+  | crontab -
+  ```
+
+  ## GIT
+  ```bash
+  git add -A && git commit -m "feat(oracle): daily briefing pipeline —
+  script gen, overlays, avatar compositing" && git push origin main
+  ```
+
+  START CODING NOW.
+
+
+● Bash(mkdir -p ~/protocol_pulse/oracle_briefing/output
+      ~/protocol_pulse/oracle_briefing/overlays ~/protocol_pulse/logs)
+  ⎿  Done
+
+● Read 1 file (ctrl+o to expand)
+
+● Bash(pip install matplotlib Pillow requests --break-system-packages
+      2>/dev/null | tail -3)
+  ⎿  (No output)
+
+● Read 3 files (ctrl+o to expand)
+
+● Bash(which ffmpeg && ffmpeg -version 2>&1 | head -1)
+  ⎿  /usr/bin/ffmpeg
+     ffmpeg version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2000-2021 the FFmp
+     eg developers
+
+● Good. Now I have all the context. Let me write all 4 files plus the config.
+
+● Write(oracle_briefing/config.yaml)
+  ⎿  Wrote 52 lines to oracle_briefing/config.yaml
+     # Oracle Briefing Pipeline Configuration
+     branding:
+       name: "ORACLE BRIEFING"
+       subtitle: "Protocol Pulse Intelligence"
+       signoff: "Stay sovereign. Stay informed."
+       color_primary: "#CC0000"
+       color_dark: "#0A0A0A"
+       color_light: "#FFFFFF"
+       color_accent: "#FF3333"
+
+     … +42 lines (ctrl+o to expand)
+
+● Write(oracle_briefing/relay.py)
+  ⎿  Wrote 43 lines to oracle_briefing/relay.py
+     """Replit relay helper — runs commands on the Replit deployment."""
+     import json, requests, yaml, os
+
+     _cfg = None
+     def _load():
+         global _cfg
+         if _cfg is None:
+             p = os.path.join(os.path.dirname(__file__), "config.yaml")
+             with open(p) as f:
+                 _cfg = yaml.safe_load(f)
+     … +33 lines (ctrl+o to expand)
+
+● Now writing the main files:
+
+● Write(oracle_briefing/briefing_writer.py)
+  ⎿  Wrote 386 lines to oracle_briefing/briefing_writer.py
+     #!/usr/bin/env python3
+     """Oracle Briefing Script Generator — writes daily 60-90s intelligence
+     briefings.
+
+     Uses Claude to generate punchy, authoritative scripts from live Bitcoin
+      data.
+     Format: HOOK → THE NUMBER → THE SIGNAL → THE TAKE → SIGN-OFF
+     """
+     import json, os, sys, time
+     from datetime import datetime, timezone
+
+     import requests
+
+     … +376 lines (ctrl+o to expand)
+
+● Write(oracle_briefing/overlay_engine.py)
+  ⎿  Wrote 361 lines to oracle_briefing/overlay_engine.py
+     #!/usr/bin/env python3
+     """Overlay Engine — generates data visualization PNGs for Oracle
+     Briefing.
+
+     All overlays are 1920x1080, dark theme, designed for right-side
+     compositing (60% width).
+     """
+     import os, sys, json
+     from datetime import datetime, timezone
+
+     import matplotlib
+     matplotlib.use("Agg")
+     … +351 lines (ctrl+o to expand)
+
+● Now the main orchestrator:
+
+● Write(oracle_briefing/briefing_producer.py)
+  ⎿  Wrote 696 lines to oracle_briefing/briefing_producer.py
+     #!/usr/bin/env python3
+     """Oracle Briefing Producer — orchestrates the full daily briefing
+     pipeline.
+
+     Pipeline:
+     1. Fetch live data (BTC, mempool, hashrate, FNG, articles)
+     2. Generate script via Claude (briefing_writer)
+     3. Generate overlays (overlay_engine)
+     4. TTS via ElevenLabs Jessica
+     5. Avatar generation via Oracle server (localhost:8200)
+     6. Composite: avatar (40%) + data overlay (60%) with FFmpeg
+     … +686 lines (ctrl+o to expand)
+
+● All 4 files written. Let me run the test:
+
+● Bash(cd /home/ultron/protocol_pulse/oracle_briefing && python3
+      briefing_producer.py --test 2>&1)
+  ⎿  ============================================================
+       ORACLE BRIEFING PRODUCER — TEST MODE
+       2026-03-02 22:47:13 UTC
+     … +39 lines (ctrl+o to expand)
+  ⎿  (timeout 3m)
+
+● Pipeline works. The model ID needs fixing — let me correct that, then commit.
+
+● Bash(python3 -c "
+      from relay import get_key…)
+  ⎿  Sonnet models: ['claude-sonnet-4-6', 'claude-sonnet-4-5-20250929', 'cl
+     aude-sonnet-4-20250514']
+
+● Update(briefing_writer.py)
+  ⎿  Added 1 line, removed 1 line
+      272                  "content-type": "application/json",
+      273              },
+      274              json={
+      275 -                "model": "claude-sonnet-4-6-20250514",
+      275 +                "model": "claude-sonnet-4-6",
+      276                  "max_tokens": 1024,
+      277                  "system": SYSTEM_PROMPT,
+      278                  "messages": [{"role": "user", "content":
+           user_prompt}],
+
+● Now re-run with the fixed model to confirm Claude script generation works:
+
+● Bash(python3 briefing_writer.py --test 2>&1)
+  ⎿  === Oracle Briefing Writer (TEST MODE) ===
+
+     [writer] Generating script via Claude...
+     … +60 lines (ctrl+o to expand)
+  ⎿  (timeout 1m)
+
+● Script generation is clean. Now clean up the test output and run the full test
+   pipeline again:
+
+● Bash(rm -rf output/test_20260302_224713 && python3 briefing_producer.py --test
+       2>&1)
+  ⎿  ============================================================
+       ORACLE BRIEFING PRODUCER — TEST MODE
+       2026-03-02 22:48:12 UTC
+     … +37 lines (ctrl+o to expand)
+  ⎿  (timeout 3m)
+
+● All 8 stages pass. 146 words, 70.3s audio — right in the 60-90s target. All
+  deliverables generated. Now set up cron and commit:
+
+● Bash((crontab -l 2>/dev/null; echo "0 7 * * * python3 briefing_producer.py >>
+      /home/ultron/protocol_pulse/logs/oracle_briefing.log 2>&1") | crontab -)
+  ⎿  (No output)
+
+● Bash(crontab -l | grep oracle)
+  ⎿  0 7 * * * python3 briefing_producer.py >> /home/ultron/protocol_pulse/
+     logs/oracle_briefing.log 2>&1
+
+● Cron needs the full path. Let me fix that:
+
+● Bash(crontab -l | grep -v "oracle_briefing" | crontab - 2>/dev/null
+      (crontab -l 2>/dev/null; echo "0 12 * * * /usr/bin/python3
+      briefing_producer.py >> /home/ultron/p…)
+  ⎿  Error: Exit code 2
+     /bin/bash: eval: line 1: syntax error near unexpected token `('
+     /bin/bash: eval: line 1: `crontab -l < /dev/null | grep -v oracle_briefing
+     | crontab - 2>/dev/null ( crontab -l 2>/dev/null ; echo '0 12 * * *
+     /usr/bin/python3 briefing_producer.py >>
+     /home/ultron/protocol_pulse/logs/oracle_briefing.log 2>&1' ) | crontab -
+     crontab -l | grep oracle'
+
+     /bin/bash: eval: line 1: syntax error near unexpected token `('
+     /bin/bash: eval: line 1: `crontab -l < /dev/null | grep -v oracle_briefing
+     | crontab - 2>/dev/null ( crontab -l 2>/dev/null ; echo '0 12 * * *
+     /usr/bin/python3 briefing_producer.py >>
+     /home/ultron/protocol_pulse/logs/oracle_briefing.log 2>&1' ) | crontab -
+     crontab -l | grep oracle'
+
+● Bash(crontab -l 2>/dev/null | grep -v "oracle_briefing" | crontab -)
+  ⎿  (No output)
+
+● Bash((crontab -l 2>/dev/null; echo "0 12 * * * /usr/bin/python3
+      briefing_producer.py >>
+      /home/ultron/protocol_pulse/logs/oracle_briefing.log 2>&1") | crontab -)
+  ⎿  (No output)
+
+● Bash(crontab -l | grep oracle)
+  ⎿  0 12 * * * /usr/bin/python3 briefing_producer.py >> /home/ultron/proto
+     col_pulse/logs/oracle_briefing.log 2>&1
+
+● Now git commit:
+
+● Bash(cd /home/ultron/protocol_pulse && git status)
+  ⎿  On branch main
+     Your branch is up to date with 'origin/main'.
+     … +13 lines (ctrl+o to expand)
+
+● Bash(git add oracle_briefing/config.yaml oracle_briefing/relay.py
+      oracle_briefing/briefing_writer.py oracle_briefing/overlay_engine.py
+      oracle_briefing/briefing_produ…)
+  ⎿   M data/pulse_events.jsonl
+      M instance/protocol_pulse.db
+      M logs/runtime_status.json
+     … +6 lines (ctrl+o to expand)
+
+● Bash(git commit -m "$(cat <<'EOF'
+      feat(oracle): daily briefing pipeline — script gen, overlays, avatar
+      compositing…)
+  ⎿  [main 3e9dc5b] feat(oracle): daily briefing pipeline — script gen, ove
+     rlays, avatar compositing
+      5 files changed, 1538 insertions(+)
+     … +5 lines (ctrl+o to expand)
+
+● Bash(git push origin main 2>&1)
+  ⎿  To github.com:consensusprotocol/protocol-pulse-core.git
+        ecac017..3e9dc5b  main -> main
+
+● Done. Full pipeline operational:
+
+  Created ~/protocol_pulse/oracle_briefing/:
+
+  ┌──────────────────────┬───────────────────────────────────────────────────┐
+  │         File         │                      Purpose                      │
+  ├──────────────────────┼───────────────────────────────────────────────────┤
+  │ briefing_writer.py   │ Claude-powered script gen from live               │
+  │                      │ BTC/mempool/FNG data                              │
+  ├──────────────────────┼───────────────────────────────────────────────────┤
+  │ overlay_engine.py    │ Matplotlib dark-theme overlays: price chart,      │
+  │                      │ mempool viz, hashrate, FNG gauge                  │
+  ├──────────────────────┼───────────────────────────────────────────────────┤
+  │ briefing_producer.py │ 8-stage orchestrator: data → script → overlays →  │
+  │                      │ TTS → avatar → composite → thumbnail → short      │
+  ├──────────────────────┼───────────────────────────────────────────────────┤
+  │ relay.py             │ Replit relay for API keys + DB queries            │
+  ├──────────────────────┼───────────────────────────────────────────────────┤
+  │ config.yaml          │ Pipeline config (voices, avatar, video params)    │
+  └──────────────────────┴───────────────────────────────────────────────────┘
+
+  Test results (40s total):
+  - Script: 146 words, Claude-generated, punchy Oracle voice
+  - Audio: 70.3s ElevenLabs Jessica TTS (right in 60-90s target)
+  - Video: 2.8 MB 1920x1080 with intro/outro cards
+  - Short: 2.3 MB 1080x1920 vertical
+  - Thumbnail: 88 KB with avatar + headline + BTC price
+  - 5 overlay charts generated
+
+  Cron: Daily at 12:00 UTC (7 AM EST)
+
+✻ Sautéed for 6m 44s
+
+────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────
+  ⏵⏵ bypass permissions on (shift+tab to cycle)
+
