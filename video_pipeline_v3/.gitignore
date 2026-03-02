@@ -1,0 +1,16 @@
+# Exclude all generated output
+output/
+downloads/
+transcripts/
+logs/
+__pycache__/
+*.pyc
+*.pyo
+
+# Exclude large binary assets
+assets/backgrounds/
+assets/intro.mp4
+assets/outro.mp4
+assets/lower_third_template.mp4
+assets/tag_vertical.mp4
+assets/transitions/

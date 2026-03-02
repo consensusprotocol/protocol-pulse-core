@@ -1,0 +1,54 @@
+# Pulse Check Video Pipeline Configuration
+branding:
+  name: "PULSE CHECK"
+  subtitle: "Bitcoin Intelligence Daily"
+  signoff: "Stay sovereign."
+  watermark_text: "PROTOCOL PULSE"
+  color_primary: "#CC0000"
+  color_dark: "#0A0A0A"
+  color_light: "#FFFFFF"
+  color_accent: "#FF3333"
+
+video:
+  width: 1920
+  height: 1080
+  fps: 30
+  crf: 20
+  codec: libx264
+  audio_codec: aac
+  audio_rate: 44100
+  audio_bitrate: "192k"
+
+shorts:
+  width: 1080
+  height: 1920
+  fps: 30
+
+tts:
+  voice_id: "1m00Tcm4TlvDq8ikWAM"
+  model_id: "eleven_turbo_v2_5"
+  stability: 0.55
+  similarity_boost: 0.85
+  style: 0.50
+  use_speaker_boost: true
+  fallback: "gtts"  # gTTS when ElevenLabs unavailable
+
+assets:
+  font_mono: "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
+  font_bold: "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+  font_regular: "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+  tag_video: "assets/tag_vertical.mp4"
+  transition_duration: 0.5
+  intro_duration: 4
+  outro_duration: 5
+
+paths:
+  output: "output"
+  shorts: "output/shorts"
+  downloads: "downloads"
+  transcripts: "transcripts"
+  assets: "assets"
+
+relay:
+  url: "https://protocolpulse.replit.app/api/admin/exec"
+  token: "581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552"
