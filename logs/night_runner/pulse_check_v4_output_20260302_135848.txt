@@ -1,0 +1,523 @@
+  # Also check if there's a channels list elsewhere
+  find ~/protocol_pulse/video_pipeline_v3/ -name "*.py" -exec grep -l
+  "youtube\|channel" {} \;
+  ```
+
+  Target channels for highlight clips:
+  - Michael Saylor, Robert Breedlove, Natalie Brunell
+  - Bitcoin Magazine, Simply Bitcoin, Swan Bitcoin
+  - Preston Pysh, Peter McCormack, Lyn Alden
+  - Pomp (Anthony Pompliano), Marty Bent
+  - The Bitcoin Layer, What Bitcoin Did
+
+  For each channel:
+  1. Check for videos published in last 24 hours
+  2. Download and Whisper-transcribe them
+  3. Extract the most insightful/provocative 30-60 second segments
+  4. Feed transcripts to Claude to pick the top 3 clips for the episode
+
+  ### Script Generation (Claude API)
+
+  Rewrite `script_writer.py` to generate a dual-host conversation:
+
+  ```python
+  SCRIPT_PROMPT = """You are writing a script for "Pulse Check" — a daily
+  Bitcoin highlight reel with two hosts.
+
+  HOST 1 (JESSICA): The anchor. Warm, knowledgeable, keeps the flow. Think
+  Bloomberg anchor meets podcast host.
+  HOST 2 (ANALYST): The co-host. Enthusiastic, adds context, pushes back
+  sometimes. Think Joe Rogan's curiosity meets a sharp trader.
+
+  STYLE: Casual banter. They're two friends who are obsessed with Bitcoin
+  talking about the day's best content. NOT a news broadcast. NOT formal.
+  They interrupt each other, laugh, get excited.
+
+  Here are today's top clips and articles:
+  {clips_data}
+
+  Current BTC price: {btc_price}
+  24h change: {btc_change}
+  Fear & Greed: {fng}
+
+  Generate a script with this EXACT JSON structure:
+  {
+    "title": "Pulse Check — {date}",
+    "segments": [
+      {
+        "type": "clip_react",
+        "source_channel": "Michael Saylor",
+        "source_video_id": "abc123",
+        "clip_start": 145,
+        "clip_end": 175,
+        "clip_context": "Brief description of what happens in the clip",
+        "dialogue": [
+          {"host": 1, "text": "So Saylor just posted this incredible
+  breakdown..."},
+          {"host": 2, "text": "Roll the clip, let's hear it."},
+          {"host": "CLIP", "text": "[CLIP PLAYS — 30 seconds]"},
+          {"host": 2, "text": "Ok so here's what blows my mind about
+  this..."},
+          {"host": 1, "text": "Right, and if you think about it..."}
+        ],
+        "overlay_text": "SAYLOR: BTC $10M TARGET",
+        "duration_target": 75
+      }
+    ],
+    "cold_open": {"host": 1, "text": "Three clips you need to see
+  today..."},
+    "outro": {"host": 1, "text": "That's your Pulse Check. Stay
+  sovereign."},
+    "chapters": [
+      {"time": "0:00", "title": "Intro"},
+      {"time": "0:15", "title": "Saylor's $10M Bitcoin Target"},
+      {"time": "1:30", "title": "Lyn Alden on the Dollar Crisis"}
+    ],
+    "thumbnail": {
+      "headline": "SAYLOR: $10M BITCOIN",
+      "subtext": "+ Lyn Alden calls dollar crisis",
+      "style": "urgent"
+    }
+  }
+  """
+  ```
+
+  ### TTS Engine Updates
+
+  Update `tts_engine.py`:
+  - Add `generate_dialogue_audio(dialogue_list, output_dir)` function
+  - For each dialogue turn:
+    - host=1 → Jessica voice
+    - host=2 → Co-host voice (the male voice you selected)
+    - host="CLIP" → skip (clip audio plays here)
+  - Concatenate all audio turns with 0.3s silence gaps between speakers
+  - Add subtle audio processing: slight compression, normalize loudness
+  - Return timing markers so the assembler knows when each turn starts/ends
+
+  ### Assembler Updates
+
+  Update `assembler.py`:
+  - During dialogue sections: show a stylized "studio" overlay
+    - Dark background with subtle animated waveform
+    - Host name labels that highlight when speaking ("JESSICA" / "ANALYST")
+    - Or: show relevant article screenshot / chart behind the dialogue
+  - During clip sections: show the actual YouTube clip full-screen with
+  attribution
+  - Transitions: smooth crossfade between clips and commentary
+  - Lower-third persistent ticker: "PROTOCOL PULSE | PULSE CHECK | BTC
+  $XX,XXX"
+
+  ### NEW: Auto-Thumbnail Generation
+
+  Create `thumbnail_gen.py`:
+  - Generate a 1280×720 thumbnail for every episode
+  - Layout:
+    - Left: Main headline text (large, bold, white on dark)
+    - Right: Screenshot or face of the featured creator
+    - Bottom: "PULSE CHECK" branding + date
+    - Color accent: red (#cc0000) urgency bar
+  - Use PIL/Pillow for image generation
+  - Input: thumbnail data from script JSON
+  - Output: `output/YYYY-MM-DD/thumbnail.jpg`
+
+  ### NEW: YouTube Chapter Markers
+
+  Create `chapters.py`:
+  - Read chapter data from script JSON
+  - Output two formats:
+    1. `chapters.txt` — YouTube description format:
+       ```
+       0:00 Intro
+       0:15 Saylor's $10M Bitcoin Target
+       1:30 Lyn Alden on the Dollar Crisis
+       ```
+    2. FFmpeg chapter metadata embedded in the MP4
+
+  ### NEW: Newsletter Embed
+
+  Create `newsletter_embed.py`:
+  - After episode is produced, generate an HTML email snippet
+  - Includes: thumbnail image, title, brief description, "Watch Now" button
+   linking to YouTube
+  - Calls the Resend API to send to subscriber list
+  - Check for Resend config:
+  ```bash
+  grep -r "RESEND\|SENDGRID\|newsletter" ~/protocol_pulse/.env
+  ~/protocol_pulse/config*.py 2>/dev/null
+  ```
+
+  ### NEW: RSS Audio Podcast Feed
+
+  Create `podcast_feed.py`:
+  - Extract audio-only track from the episode: `ffmpeg -i episode.mp4 -vn
+  -c:a libmp3lame -q:a 2 episode.mp3`
+  - Generate/update an RSS XML feed at
+  `~/protocol_pulse/podcast_feed/feed.xml`
+  - Feed format: standard iTunes podcast RSS
+  - Each entry: title, date, duration, MP3 enclosure URL
+  - The MP3 files get served from a static directory on Replit
+
+  ## UPDATED DAILY PRODUCER
+
+  `daily_producer.py` orchestration flow:
+
+  ```
+  1. GATHER — Check all monitored YouTube channels for new videos (yt-dlp)
+  2. TRANSCRIBE — Whisper transcribe new videos on RTX 4090
+  3. SELECT — Claude picks top 3 clips from transcripts
+  4. DOWNLOAD — yt-dlp download the specific clip segments
+  5. SCREENSHOT — Playwright captures article/tweet screenshots
+  6. SCRIPT — Claude generates dual-host conversation script
+  7. TTS — ElevenLabs generates Host 1 + Host 2 audio
+  8. ASSEMBLE — FFmpeg composites clips + commentary + overlays
+  9. SHORTS — Generate 3 vertical shorts from best segments
+  10. THUMBNAIL — Generate 1280×720 thumbnail
+  11. CHAPTERS — Generate YouTube chapter file
+  12. PODCAST — Extract audio, update RSS feed
+  13. NEWSLETTER — Generate email embed (optional, triggered separately)
+  14. OUTPUT — Everything to output/YYYY-MM-DD/
+  ```
+
+  ## DEPENDENCIES
+
+  ```bash
+  # Check what's already installed
+  which yt-dlp playwright ffmpeg ffprobe
+
+  # Install missing
+  pip install yt-dlp playwright Pillow feedgen
+  playwright install chromium
+  ```
+
+  ## TEST RUN
+
+  ```bash
+  python3 daily_producer.py --test
+  ```
+
+  Test mode:
+  - Only process 1-2 clips (not all channels)
+  - Generate shorter episode (~90s)
+  - Skip newsletter send
+  - Output to `output/test_YYYYMMDD_HHMMSS/`
+
+  Expected output:
+  ```
+  output/test_20260302_XXXXXX/
+  ├── pulse_check_20260302.mp4      (1080p, ~90s, dual-host)
+  ├── short_1.mp4                   (1080×1920 vertical)
+  ├── short_2.mp4
+  ├── short_3.mp4
+  ├── thumbnail.jpg                 (1280×720)
+  ├── chapters.txt                  (YouTube chapter markers)
+  ├── pulse_check_audio.mp3         (podcast audio)
+  ├── script.json                   (full dialogue script)
+  ├── timing_report.txt
+  └── clips/                        (downloaded YouTube segments)
+  ```
+
+  ## VERIFICATION
+
+  1. Play main video — should hear TWO distinct voices having a
+  conversation
+  2. Visuals — should see actual YouTube clips, NOT stock footage
+  3. Thumbnail — should be a professional 1280×720 image
+  4. Chapters — should have timestamped segments
+  5. Audio MP3 — should play independently as podcast
+  6. Script JSON — should have `dialogue` arrays with host turns
+
+  ## RULES
+
+  - Work on `main` branch
+  - `claude --dangerously-skip-permissions` in tmux (interactive only, no
+  `-p`)
+  - yt-dlp downloads go in `downloads/yt_cache/` — cache aggressively
+  - Whisper model stays loaded in GPU memory between transcriptions
+  - Fair use: clips must be under 60 seconds each, with commentary
+  - Always attribute sources with on-screen overlay
+  - Two ElevenLabs voices — verify both work before full pipeline run
+  - Git commit + push when done
+  - Report: voice IDs used, clip sources, timing breakdown, file list
+
+
+● Entered plan mode
+  Claude is now exploring and designing an implementation approach.
+
+● Let me explore the existing V3 codebase, check dependencies, and understand
+  the current architecture.
+
+● 3 Explore agents finished (ctrl+o to expand)
+   ├─ Explore V3 pipeline codebase · 15 tool uses · 51.0k tokens
+   │  ⎿  Done
+   ├─ Check system dependencies · 23 tool uses · 30.8k tokens
+   │  ⎿  Done
+   └─ Explore project-wide patterns · 40 tool uses · 63.7k tokens
+      ⎿  Done
+
+● Good exploration. Let me read a few critical files directly to verify key
+  details before designing the plan.
+
+● Read 6 files (ctrl+o to expand)
+
+● Now I have a thorough understanding of the codebase. Let me design the
+  implementation plan.
+
+● Plan(Design V4 implementation plan)
+  ⎿  Done (24 tool uses · 75.3k tokens · 8m 9s)
+  (ctrl+o to expand)
+
+● Updated plan
+  ⎿  /plan to preview
+
+────────────────────────────────────────────────────────────────────────────────
+ Ready to code?
+
+ Here is Claude's plan:
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+ Pulse Check V4: Dual-Host Highlight Reel Pipeline
+
+ Context
+
+ V3 produces a single-narrator video over generic Pexels stock footage — it
+ looks corporate and doesn't leverage actual Bitcoin content. V4 transforms
+ this into a dual-host highlight reel where two hosts (Jessica + male co-host)
+ have casual Joe Rogan-style banter reacting to actual YouTube clips from
+ Bitcoin creators. This is the core differentiator: real clips, real
+ commentary, two voices.
+
+ Working directory: ~/protocol_pulse/video_pipeline_v3/ (in-place upgrade on
+ main branch)
+
+ ---
+ Implementation Steps
+
+ Step 0: Environment Setup + Voice Selection
+
+ - pip3 install feedgen
+ - Query ElevenLabs API for available male voices via relay
+ - Pick a natural American male voice (candidates: Josh, Adam, Sam)
+ - Generate a 10-second test TTS sample to verify quality
+ - Record chosen voice ID
+
+ Step 1: Extend config.yaml
+
+ Add V4 sections: tts_cohost (voice config), youtube (scan settings, cache dir,
+  fair-use limits), whisper (model/device/compute_type), screenshots,
+ thumbnail, podcast, dialogue (silence gaps between speakers)
+
+ Step 2: Create youtube_scanner.py (NEW — ~250 lines)
+
+ Core V4 differentiator. Functions:
+ - scan_channels() — yt-dlp --flat-playlist to list videos from partner
+ channels (last 24h)
+ - download_full_audio() — yt-dlp audio-only download for transcription
+ - transcribe_video() — faster-whisper (large-v3, cuda, float16) with singleton
+  model loader
+ - select_top_clips() — Claude API picks top 3 clips with timestamps from
+ transcripts
+ - download_clip_segment() — yt-dlp --download-sections for specific timestamps
+ - gather_youtube_content() — top-level orchestrator; returns empty in test
+ mode
+
+ Cache: downloads/yt_cache/{video_id}_transcript.json,
+ {video_id}_{start}_{end}.mp4
+ Fallback: pipeline continues with fewer/no YouTube clips; Pexels fills gaps
+
+ Step 3: Create screenshot_engine.py (NEW — ~150 lines)
+
+ - capture_article() — Playwright headless Chromium screenshot of article URLs
+ - capture_tweet() — Tweet embed screenshot with dark mode CSS injection
+ - create_btc_price_overlay() — Pillow-generated data card (black bg, red
+ accent)
+ - png_to_video() — Still image → video with Ken Burns via FFmpeg zoompan
+ - generate_visual_assets() — Top-level: screenshots for stories + price card
+
+ Step 4: Rewrite script_writer.py
+
+ Complete rewrite of prompt and JSON format for dual-host dialogue.
+
+ New script JSON structure:
+ {intro: {dialogue: [{host: 1, text}, {host: 2, text}]},
+  segments: [{type: "clip_react"|"story", headline,
+ dialogue/pre+post_clip_dialogue,
+              clip_marker: {host: "CLIP", duration}, ...}],
+  outro: {dialogue: [...]},
+  chapter_markers: [{time, title}]}
+
+ New Claude prompt: two hosts, conversational banter, clip_react segments
+ (intro → roll clip → react).
+ Curated sample script for --test mode with 2-3 dual-host segments (no YouTube
+ needed).
+
+ Step 5: Modify tts_engine.py
+
+ - tts_elevenlabs_voice(text, path, voice_config) — generic version accepting
+ any voice config
+ - Refactor existing tts_elevenlabs() as thin wrapper
+ - generate_silence(duration_ms, path) — FFmpeg silent audio
+ - generate_dialogue_audio(dialogue, output_dir) — iterates turns:
+ host=1→Jessica, host=2→co-host, host="CLIP"→silence placeholder. Inserts 300ms
+  silence between speakers. Returns timing markers + clip_markers for assembler
+ - generate_all_audio_v4(script, output_dir) — processes intro/segments/outro
+ dialogues
+ - verify_voices() — quick TTS test on both voices at pipeline start
+ - Keep existing generate_all_audio() intact for --v3 fallback
+
+ Step 6: Modify clip_fetcher.py
+
+ - process_youtube_clip() — normalize YouTube clip to 1920x1080 30fps (no Ken
+ Burns)
+ - add_source_attribution() — overlay "Source: @ChannelName" lower-right via
+ FFmpeg
+ - fetch_transition_broll() — single short Pexels clip for transitions
+ - fetch_all_clips_v4() — for clip_react: YouTube clip + attribution +
+ transition B-roll; for story: Pexels (existing)
+ - Keep existing fetch_all_clips() intact for --v3 fallback
+
+ Step 7: Modify assembler.py
+
+ - make_dialogue_visual() — dark studio bg with timed speaker labels
+ (JESSICA/ANALYST dim/bright based on who's talking), red accent, branded
+ ticker
+ - make_clip_react_segment() — pre-clip dialogue → xfade → YouTube clip
+ full-screen with attribution → xfade → post-clip dialogue
+ - make_story_segment() — dialogue audio over Pexels B-roll with speaker labels
+ - assemble_episode_v4() — intro asset → intro dialogue → segments (clip_react
+ or story) → transitions → outro dialogue → outro asset →
+ concatenate_with_xfade
+ - Keep existing assemble_episode() intact for --v3 fallback
+
+ Step 8: Create thumbnail_gen.py (NEW — ~100 lines)
+
+ - generate_thumbnail() — Pillow: dark gradient bg, large bold title, "PULSE
+ CHECK" branding, BTC price badge, red accent bar → 1280x720 PNG
+ - extract_frame_for_thumbnail() — ffmpeg frame extraction for background
+
+ Step 9: Create chapters.py (NEW — ~80 lines)
+
+ - generate_chapter_markers() — compute real timestamps from audio timing data
+ - format_youtube_description() — chapters + sources + BTC price + footer →
+ description.txt
+ - embed_chapters_metadata() — optional FFmpeg chapter metadata in MP4
+
+ Step 10: Create podcast_feed.py (NEW — ~80 lines)
+
+ - extract_podcast_audio() — ffmpeg: video → 128k MP3
+ - generate_feed() — feedgen: iTunes-compatible RSS XML
+ - update_podcast_feed() — top-level: extract + update feed
+
+ Step 11: Create newsletter_embed.py (NEW — ~60 lines)
+
+ - generate_email_snippet() — HTML with thumbnail, title, chapters, "Watch Now"
+  button
+ - send_via_resend() — optional Resend API call (skipped if no key configured)
+
+ Step 12: Rewrite daily_producer.py (Orchestrator)
+
+ 14-step pipeline:
+ 1. Verify voices (both ElevenLabs voices accessible)
+ 2. Gather intel (articles + BTC price — same as V3)
+ 3. Scan YouTube channels (yt-dlp, skipped in test mode)
+ 4. Transcribe videos (Whisper, integrated in scanner)
+ 5. Select top clips (Claude, integrated in scanner)
+ 6. Download clip segments (yt-dlp sections)
+ 7. Generate screenshots (Playwright + Pillow)
+ 8. Generate dual-host script (Claude or sample fallback)
+ 9. Generate TTS (both voices, dialogue concatenation)
+ 10. Process video clips (YouTube normalization + Pexels transitions)
+ 11. Assemble video (FFmpeg V4 assembly)
+ 12. Verify + generate shorts
+ 13. Generate thumbnail + chapters + description
+ 14. Podcast feed + newsletter (optional)
+
+ CLI: --test, --style, --v3 (legacy), --skip-youtube, --skip-podcast,
+ --skip-newsletter
+
+ Test mode: skips YouTube (steps 3-6), uses sample dual-host script, Pexels
+ B-roll only, still generates both voices. Expected ~90-120s.
+
+ Step 13: Update shorts_cutter.py
+
+ - generate_shorts_v4() — for clip_react segments, extract the YouTube clip
+ portion as the short (most engaging content); for story segments, use existing
+  cut_short()
+
+ Step 14: Housekeeping
+
+ - Add downloads/yt_cache/ to .gitignore
+ - Git commit + push
+
+ ---
+ Files Summary
+
+ CREATE (7 new):
+
+ ┌──────────────────────┬───────────┬──────────────────────────────────────┐
+ │         File         │  Lines    │               Purpose                │
+ │                      │   (est)   │                                      │
+ ├──────────────────────┼───────────┼──────────────────────────────────────┤
+ │ youtube_scanner.py   │ ~250      │ YouTube scanning, Whisper, Claude    │
+ │                      │           │ clip selection                       │
+ ├──────────────────────┼───────────┼──────────────────────────────────────┤
+ │ screenshot_engine.py │ ~150      │ Playwright screenshots, Pillow data  │
+ │                      │           │ cards                                │
+ ├──────────────────────┼───────────┼──────────────────────────────────────┤
+ │ thumbnail_gen.py     │ ~100      │ 1280x720 thumbnail generation        │
+ ├──────────────────────┼───────────┼──────────────────────────────────────┤
+ │ chapters.py          │ ~80       │ YouTube chapters + description       │
+ ├──────────────────────┼───────────┼──────────────────────────────────────┤
+ │ podcast_feed.py      │ ~80       │ Audio extraction + RSS feed          │
+ ├──────────────────────┼───────────┼──────────────────────────────────────┤
+ │ newsletter_embed.py  │ ~60       │ HTML email snippet                   │
+ ├──────────────────────┼───────────┼──────────────────────────────────────┤
+ │ voice_selector.py    │ ~30       │ One-time voice selection utility     │
+ └──────────────────────┴───────────┴──────────────────────────────────────┘
+
+ MODIFY (7 existing):
+
+ ┌───────────────────┬──────────────────────────────────────────────────────┐
+ │       File        │                        Scope                         │
+ ├───────────────────┼──────────────────────────────────────────────────────┤
+ │ config.yaml       │ Add V4 sections                                      │
+ ├───────────────────┼──────────────────────────────────────────────────────┤
+ │ script_writer.py  │ Full rewrite (new prompt + JSON format + sample      │
+ │                   │ scripts)                                             │
+ ├───────────────────┼──────────────────────────────────────────────────────┤
+ │ tts_engine.py     │ Add 2nd voice + dialogue audio generation            │
+ ├───────────────────┼──────────────────────────────────────────────────────┤
+ │ clip_fetcher.py   │ Add YouTube clip processing + V4 fetch               │
+ ├───────────────────┼──────────────────────────────────────────────────────┤
+ │ assembler.py      │ Add dialogue visuals + clip-react assembly + V4      │
+ │                   │ episode                                              │
+ ├───────────────────┼──────────────────────────────────────────────────────┤
+ │ daily_producer.py │ Rewrite to 14-step V4 pipeline                       │
+ ├───────────────────┼──────────────────────────────────────────────────────┤
+ │ shorts_cutter.py  │ Add V4 shorts generation                             │
+ └───────────────────┴──────────────────────────────────────────────────────┘
+
+ UNCHANGED: relay.py, create_assets.py, daily_run.py, all assets/
+
+ ---
+ Verification
+
+ 1. python3 daily_producer.py --test — hear TWO distinct voices in conversation
+ 2. Play main video — visuals match segment type (YouTube clips for clip_react,
+  Pexels for story/transitions)
+ 3. thumbnail.png exists, 1280x720, readable
+ 4. description.txt has timestamped chapters
+ 5. podcast.mp3 plays independently
+ 6. script.json has dialogue arrays with host turns
+ 7. Full pipeline: python3 daily_producer.py — real YouTube clips from partner
+ channels, dual-host commentary
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+
+ Claude has written up a plan and is ready to execute. Would you like to
+ proceed?
+
+ ❯ 1. Yes, clear context (45% used) and bypass permissions
+   2. Yes, and bypass permissions
+   3. Yes, manually approve edits
+   4. Type here to tell Claude what to change
+
+ ctrl-g to edit in Vim · ~/.claude/plans/snappy-stirring-ladybug.md
+
