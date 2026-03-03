@@ -33,6 +33,10 @@ EXIT_CODE=${PIPESTATUS[0]}
 
 if [ $EXIT_CODE -eq 0 ]; then
     echo "[$DATE] Pipeline completed successfully."
+    # Sync to Replit
+    echo "[$DATE] Syncing to Replit..."
+    python3 -m services.video_engine.distribution.replit_sync 2>&1 | tee -a "$LOG_DIR/pipeline.log"
+    echo "[$DATE] Sync complete."
 else
     echo "[$DATE] Pipeline failed with exit code $EXIT_CODE"
 fi
