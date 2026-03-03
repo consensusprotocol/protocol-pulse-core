@@ -33,7 +33,7 @@ channels:
     url: "https://www.youtube.com/@thebitcoinlayer"
     priority: 2
 
-  - handle: "@Blockworks"
+  - handle: "@BlockworksDLP"
     name: "Blockworks"
     url: "https://www.youtube.com/@Blockworks"
     priority: 2
