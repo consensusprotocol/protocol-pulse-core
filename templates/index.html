@@ -722,6 +722,136 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════════
+     THE ORACLE — AI INTELLIGENCE ANALYST
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="pp-section" style="padding-top:0;padding-bottom:48px;">
+    <div class="pp-container">
+        <div class="pp-reveal" style="
+            position:relative;
+            overflow:hidden;
+            border-radius:var(--pp-radius-lg);
+            border:1px solid rgba(245,166,35,0.2);
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(245,166,35,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 30%, rgba(220,38,38,0.06) 0%, transparent 50%),
+                linear-gradient(135deg, #0a0a0a 0%, #111 100%);
+        ">
+            <!-- Scan line overlay -->
+            <div style="
+                position:absolute;inset:0;pointer-events:none;
+                background:repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(245,166,35,0.015) 2px,
+                    rgba(245,166,35,0.015) 4px
+                );
+            "></div>
+
+            <div style="display:flex;align-items:center;gap:32px;padding:40px;flex-wrap:wrap;">
+                <!-- Avatar preview -->
+                <div style="
+                    flex-shrink:0;
+                    width:180px;height:180px;
+                    border-radius:50%;
+                    border:2px solid rgba(245,166,35,0.3);
+                    box-shadow:0 0 40px rgba(245,166,35,0.1), 0 0 80px rgba(220,38,38,0.05);
+                    overflow:hidden;
+                    background:#0a0a0a;
+                    position:relative;
+                ">
+                    <img src="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png') }}"
+                         alt="The Oracle"
+                         style="width:100%;height:100%;object-fit:cover;filter:contrast(1.1) brightness(1.05);"
+                         loading="lazy">
+                    <!-- Pulse ring animation -->
+                    <div style="
+                        position:absolute;inset:-4px;
+                        border-radius:50%;
+                        border:2px solid rgba(245,166,35,0.15);
+                        animation:pp-oracle-pulse 3s ease-in-out infinite;
+                    "></div>
+                </div>
+
+                <!-- Text content -->
+                <div style="flex:1;min-width:260px;">
+                    <div style="
+                        display:inline-flex;align-items:center;gap:6px;
+                        padding:4px 12px;
+                        background:rgba(245,166,35,0.08);
+                        border:1px solid rgba(245,166,35,0.2);
+                        border-radius:20px;
+                        font-family:var(--pp-font-mono);
+                        font-size:0.625rem;
+                        font-weight:700;
+                        color:var(--pp-amber);
+                        text-transform:uppercase;
+                        letter-spacing:0.08em;
+                        margin-bottom:16px;
+                    ">
+                        <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--pp-amber);animation:pp-pulse-dot-glow 2s infinite;"></span>
+                        AI INTELLIGENCE ANALYST
+                    </div>
+
+                    <h2 style="
+                        font-family:var(--pp-font-body);
+                        font-size:clamp(1.5rem,3vw,2rem);
+                        font-weight:700;
+                        color:var(--pp-text);
+                        line-height:1.2;
+                        margin-bottom:10px;
+                    ">
+                        Consult <span style="
+                            background:linear-gradient(135deg, var(--pp-amber) 0%, #ff6b35 50%, var(--pp-red, #CC2222) 100%);
+                            -webkit-background-clip:text;
+                            -webkit-text-fill-color:transparent;
+                            background-clip:text;
+                        ">The Oracle</span>
+                    </h2>
+
+                    <p style="
+                        font-size:0.9375rem;
+                        color:var(--pp-text-secondary);
+                        line-height:1.7;
+                        margin-bottom:20px;
+                        max-width:420px;
+                    ">
+                        Real-time Bitcoin intelligence from our AI analyst.
+                        Ask anything — market state, mining economics, protocol analysis.
+                        Lip-synced avatar delivers briefings in seconds.
+                    </p>
+
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        <a href="/stage" class="pp-btn pp-btn--primary pp-btn--lg" style="
+                            background:linear-gradient(135deg, var(--pp-amber), #ff6b35);
+                            border:none;
+                            color:#000;
+                            font-weight:700;
+                        ">
+                            <i class="fas fa-bolt"></i> Consult The Oracle
+                        </a>
+                        <a href="/oracle" class="pp-btn pp-btn--ghost pp-btn--lg" style="border-color:rgba(245,166,35,0.3);color:var(--pp-amber);">
+                            <i class="fas fa-microphone"></i> Ask a Question
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+@keyframes pp-oracle-pulse {
+    0%, 100% { transform:scale(1); opacity:0.5; }
+    50% { transform:scale(1.08); opacity:1; }
+}
+@keyframes pp-pulse-dot-glow {
+    0%, 100% { opacity:0.5; box-shadow:0 0 4px rgba(245,166,35,0.3); }
+    50% { opacity:1; box-shadow:0 0 8px rgba(245,166,35,0.6); }
+}
+</style>
+
+<!-- ═══════════════════════════════════════════════════════════════
      PULSE CHECK — LATEST VIDEO
      ═══════════════════════════════════════════════════════════════ -->
 <section class="pp-section" style="background: var(--pp-surface); border-top: 1px solid var(--pp-border); border-bottom: 1px solid var(--pp-border);">
