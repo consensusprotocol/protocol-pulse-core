@@ -188,8 +188,12 @@ class DailyDriver:
                 "status": "complete" if manifest else "failed"
             }
 
-            # Step 11: Ultron assembly
-            assembly_result = self._stage_assembly(manifest, shorts_manifests)
+            # Step 11: Assembly (local or Ultron)
+            assembly_result = self._stage_assembly(
+                manifest, shorts_manifests,
+                show_plan=show_plan, audio_map=audio_map,
+                clip_map=clip_map, tweet_images={}
+            )
             result["stages"]["assembly"] = assembly_result
 
             # Step 12: Post-assembly QA
@@ -268,8 +272,27 @@ class DailyDriver:
         market = MarketDataProvider()
         market_data = market.fetch(self.bundle_path)
 
-        # Spaces (skeleton)
-        spaces = fetch_recent_spaces(bundle_path=self.bundle_path)
+        # Spaces (soft dependency)
+        try:
+            spaces = fetch_recent_spaces(bundle_path=self.bundle_path)
+        except Exception:
+            spaces = []
+
+        # Nostr (soft dependency)
+        nostr_posts = []
+        try:
+            from services.video_engine.sources.nostr_capture import fetch_notable_nostr
+            nostr_posts = fetch_notable_nostr(hours=48, max_posts=5)
+        except Exception as e:
+            logger.debug(f"  Nostr capture: {e}")
+
+        # Spaces listener (soft dependency)
+        spaces_data = []
+        try:
+            from services.video_engine.sources.spaces_listener import find_recent_spaces as find_spaces
+            spaces_data = find_spaces()
+        except Exception as e:
+            logger.debug(f"  Spaces listener: {e}")
 
         # Assemble bundle
         assembler = SourceBundleAssembler(self.bundle_path, self.date_str)
@@ -344,7 +367,9 @@ class DailyDriver:
 
         from services.video_engine.editorial.clip_extractor import ClipExtractor
 
-        extractor = ClipExtractor(transcripts)
+        audio_dir = str(self.bundle_path / "audio") if self.bundle_path else None
+        clips_dir = str(self.bundle_path / "clips") if self.bundle_path else None
+        extractor = ClipExtractor(transcripts, audio_dir=audio_dir, clips_dir=clips_dir)
         return extractor.extract_all_clips(show_plan.dict(), self.bundle_path)
 
     def _stage_narration(self, show_plan):
@@ -378,25 +403,66 @@ class DailyDriver:
 
         return manifest, shorts
 
-    def _stage_assembly(self, manifest, shorts_manifests):
-        """Stage 11: Ultron assembly."""
-        logger.info(f"\n  STAGE: Ultron Assembly")
+    def _stage_assembly(self, manifest, shorts_manifests,
+                        show_plan=None, audio_map=None, clip_map=None,
+                        tweet_images=None):
+        """Stage 11: Local assembly via EpisodeBuilder."""
+        logger.info(f"\n  STAGE: Local Assembly")
 
+        from services.video_engine.ultron_client import is_local_mode
+
+        if is_local_mode() and show_plan and audio_map is not None:
+            # Use EpisodeBuilder for full local assembly
+            from services.video_engine.assembly.episode_builder import EpisodeBuilder
+            builder = EpisodeBuilder(
+                str(self.bundle_path), show_plan.dict(),
+                audio_map, clip_map or {},
+                tweet_images=tweet_images or {}
+            )
+            build_result = builder.build()
+            result = {
+                "horizontal": build_result.get("horizontal", {"status": "failed"}),
+                "shorts": [],
+                "podcast_audio": build_result.get("audio_path"),
+                "thumbnail": build_result.get("thumbnail_path"),
+            }
+
+            # Build shorts
+            if shorts_manifests:
+                from services.video_engine.assembly.shorts_builder import ShortsBuilder
+                shorts_dir = str(self.bundle_path / "shorts")
+                shorts_builder = ShortsBuilder(str(self.bundle_path / "work" / "shorts"))
+                shorts_results = shorts_builder.build_all_shorts(
+                    show_plan.dict(), audio_map, clip_map or {}, shorts_dir)
+                result["shorts"] = shorts_results
+
+            # Build teaser
+            try:
+                from services.video_engine.assembly.teaser_builder import build_teaser
+                teaser_path = str(self.bundle_path / "final" /
+                                  f"pulse_check_{self.date_str}_teaser.mp4")
+                teaser = build_teaser(show_plan.dict(), clip_map or {},
+                                      audio_map, teaser_path)
+                if teaser:
+                    result["teaser"] = teaser
+            except Exception as e:
+                logger.warning(f"  Teaser build failed: {e}")
+
+            return result
+
+        # Fallback: HTTP-based Ultron assembly
         from services.video_engine.assembly.ultron_assembler import UltronAssembler
 
         assembler = UltronAssembler()
         result = {"horizontal": {}, "shorts": []}
 
-        # Horizontal
         h_result = assembler.assemble_horizontal(manifest, self.bundle_path)
         result["horizontal"] = h_result or {"status": "failed"}
 
-        # Shorts
         if shorts_manifests:
             s_results = assembler.assemble_shorts(shorts_manifests, self.bundle_path)
             result["shorts"] = s_results
 
-        # Audio-only export
         if h_result and h_result.get("status") == "complete":
             video_path = self.bundle_path / "final" / manifest.output_name
             if video_path.exists():
