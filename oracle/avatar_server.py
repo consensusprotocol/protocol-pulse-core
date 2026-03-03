@@ -40,10 +40,10 @@ DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 BLINK_INTERVAL_MIN = 2.5
 BLINK_INTERVAL_MAX = 5.0
 BLINK_DURATION = 0.22  # ~5 frames at 25fps, visible but natural
-HEAD_ROTATION_AMPLITUDE = 2.0   # degrees — subtle news-anchor sway
-HEAD_TRANSLATION_X = 3.0        # pixels
-HEAD_TRANSLATION_Y = 1.5        # pixels
-HEAD_PERIOD = 4.0               # seconds per full cycle — slow and natural
+HEAD_ROTATION_AMPLITUDE = 0.8   # HeyGen-style subtle drift   # degrees — subtle news-anchor sway
+HEAD_TRANSLATION_X = 1.2        # Micro-drift only        # pixels
+HEAD_TRANSLATION_Y = 0.6        # Almost imperceptible vertical        # pixels
+HEAD_PERIOD = 6.0               # Slower = more natural               # seconds per full cycle — slow and natural
 
 # ─── Logging ──────────────────────────────────────────────────────────
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -210,7 +210,7 @@ def apply_head_movement(frame, frame_idx, fps):
         HEAD_TRANSLATION_Y * 0.2 * math.sin(2 * math.pi * t / (HEAD_PERIOD * 3.0))
     )
     # Subtle breathing: slight scale oscillation (~0.4%) at 1.5s period
-    breath_scale = 1.0 + 0.004 * math.sin(2 * math.pi * t / 1.5)
+    breath_scale = 1.0  # Disabled breathing: causes micro-jitter
     h, w = frame.shape[:2]
     center = (w / 2, h / 2)
     M = cv2.getRotationMatrix2D(center, rot_angle, breath_scale)
@@ -218,8 +218,8 @@ def apply_head_movement(frame, frame_idx, fps):
     M[1, 2] += ty
     result = cv2.warpAffine(frame, M, (w, h), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
     # Subtle ambient light variation — additive for uniform effect on dark backgrounds
-    ambient_add = 4.5 * math.sin(2 * math.pi * t / 1.2 + 0.7)
-    ambient_mul = 1.0 + 0.012 * math.sin(2 * math.pi * t / 2.3 + 1.3)
+    ambient_add = 0  # Disabled: looked unnatural
+    ambient_mul = 1.0  # Disabled: looked unnatural
     result = np.clip(result.astype(np.float32) * ambient_mul + ambient_add, 0, 255).astype(np.uint8)
     return result
 
@@ -228,7 +228,7 @@ def apply_head_movement(frame, frame_idx, fps):
 # POST-PROCESSING: COMBINED PIPELINE
 # ═══════════════════════════════════════════════════════════════════════
 
-def post_process_frames(frames, fps=25.0, enable_blinks=True, enable_head=True):
+def post_process_frames(frames, fps=25.0, enable_blinks=False, enable_head=True):
     """Apply eye blinks and head movement post-processing."""
     if len(frames) == 0:
         return frames
@@ -352,7 +352,7 @@ def health():
     return jsonify({
         "status": "ok",
         "engine": "wav2lip-gan-fp16",
-        "enhancements": ["eye_blinks", "fp16", "cached_face"],  # head_movement disabled
+        "enhancements": [# "eye_blinks",  # Disabled "fp16", "cached_face"],  # head_movement disabled
         "device": DEVICE,
         "model_loaded": reg is not None and reg.wav2lip_model is not None,
         "avatar_loaded": reg is not None and reg.avatar_face is not None,
@@ -431,7 +431,7 @@ def generate():
         return jsonify({"error": "JSON body required"}), 400
 
     enable_blinks = data.get("enable_blinks", False)
-    enable_head_movement = data.get("enable_head_movement", False)  # Disabled: warpAffine post-lip-sync breaks sync
+    enable_head_movement = data.get("enable_head_movement", True)  # Re-enabled with sync offset
     fps = float(data.get("fps", 25.0))
 
     t_start = time.time()
