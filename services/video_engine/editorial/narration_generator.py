@@ -27,9 +27,15 @@ VOICE_SETTINGS = {
 class NarrationGenerator:
     """Generate all voiceover audio from the show plan."""
 
+    # Daniel — "Steady Broadcaster" — deep British authority
+    DEFAULT_VOICE_ID = "onwK4e9ZLuTAKqWW03F9"
+    # Fast + high quality model
+    MODEL_ID = "eleven_turbo_v2_5"
+
     def __init__(self):
         self.api_key = os.environ.get("ELEVENLABS_API_KEY", "")
-        self.voice_id = os.environ.get("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")
+        self.voice_id = os.environ.get("ELEVENLABS_VOICE_ID", self.DEFAULT_VOICE_ID)
+        self.model_id = os.environ.get("ELEVENLABS_MODEL_ID", self.MODEL_ID)
         self.total_characters = 0
         self.generated_files = []
 
@@ -194,7 +200,7 @@ class NarrationGenerator:
             }
             payload = {
                 "text": text,
-                "model_id": "eleven_monolingual_v1",
+                "model_id": self.model_id,
                 "voice_settings": settings
             }
 
@@ -229,28 +235,15 @@ class NarrationGenerator:
 
     def _normalize_audio(self, input_path: Path, output_path: Path,
                           target_lufs: int = -16) -> bool:
-        """Normalize audio to broadcast standard using FFmpeg on Ultron."""
+        """Normalize audio to broadcast standard using local ffmpeg loudnorm."""
         try:
-            from services.video_engine.ultron_client import ultron
-
-            # Upload the audio to Ultron for normalization
-            # If Ultron is not available, try local ffmpeg
-            import subprocess
-
-            cmd = [
-                "ffmpeg", "-y", "-i", str(input_path),
-                "-af", f"loudnorm=I={target_lufs}:TP=-1.5:LRA=11",
-                str(output_path)
-            ]
-
-            result = subprocess.run(cmd, capture_output=True, timeout=30)
-            if result.returncode == 0 and output_path.exists():
+            from services.video_engine.assembly import ffmpeg_ops
+            ffmpeg_ops.loudnorm(str(input_path), str(output_path),
+                                target_i=target_lufs, target_tp=-1.5, target_lra=11)
+            if output_path.exists() and output_path.stat().st_size > 500:
                 return True
-
-        except FileNotFoundError:
-            pass  # ffmpeg not available locally
         except Exception as e:
-            logger.debug(f"  Local loudnorm failed: {e}")
+            logger.debug(f"  Loudnorm failed: {e}")
 
         # Fallback: just copy the file (unnormalized)
         try:
