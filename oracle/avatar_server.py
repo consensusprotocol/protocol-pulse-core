@@ -29,6 +29,8 @@ from flask import Flask, request, jsonify
 
 from model_registry import ModelRegistry, WAV2LIP_DIR, AVATAR_SOURCE
 
+import requests as http_requests  # ElevenLabs TTS
+
 # ─── Config ───────────────────────────────────────────────────────────
 PORT = 8200
 BATCH_SIZE = 48  # Optimal for RTX 4090
@@ -65,8 +67,8 @@ def _record_latency(seconds):
 # WAV2LIP INFERENCE (FP16)
 # ═══════════════════════════════════════════════════════════════════════
 
-def wav2lip_generate(audio_path):
-    """Run Wav2Lip inference in FP16. Returns list of BGR frames."""
+def wav2lip_generate(audio_path, fps=25.0):
+    """Run Wav2Lip inference in FP16. Returns list of BGR frames with duration matching."""
     reg = ModelRegistry.get()
     if reg.wav2lip_model is None or reg.avatar_face is None or reg.avatar_face_coords is None:
         raise RuntimeError("Model or avatar not loaded")
@@ -122,6 +124,21 @@ def wav2lip_generate(audio_path):
             full_frame[y1:y2, x1:x2] = p_resized
             frames.append(full_frame)
 
+    # Duration matching: align video frame count to audio length
+    audio_duration = len(wav) / 16000.0
+    video_duration = len(frames) / fps
+    logger.info(f"Audio: {audio_duration:.2f}s, Video: {video_duration:.2f}s ({len(frames)} frames)")
+
+    if video_duration < audio_duration - 0.1:
+        extra_frames = int((audio_duration - video_duration) * fps)
+        frames.extend([frames[-1].copy() for _ in range(extra_frames)])
+        logger.info(f"Extended video by {extra_frames} frames to match audio")
+
+    if video_duration > audio_duration + 0.5:
+        target_frames = int(audio_duration * fps) + 5
+        frames = frames[:target_frames]
+        logger.info(f"Trimmed video to {target_frames} frames to match audio")
+
     return frames
 
 
@@ -148,41 +165,27 @@ def generate_blink_schedule(num_frames, fps):
 
 
 def apply_blink(frame, intensity, face_coords):
-    if face_coords is None or intensity <= 0.01:
+    """Smooth gaussian-weighted darkening blink — no hard edges or rectangles."""
+    if intensity <= 0.01 or face_coords is None:
         return frame
+    result = frame.copy()
     y1, y2, x1, x2 = face_coords
     face_h = y2 - y1
     face_w = x2 - x1
-    eye_y1 = y1 + int(face_h * 0.22)
-    eye_y2 = y1 + int(face_h * 0.42)
-    eye_x1 = x1 + int(face_w * 0.08)
-    eye_x2 = x2 - int(face_w * 0.08)
-    h, w = frame.shape[:2]
-    eye_y1 = max(0, min(eye_y1, h - 1))
-    eye_y2 = max(eye_y1 + 1, min(eye_y2, h))
-    eye_x1 = max(0, min(eye_x1, w - 1))
-    eye_x2 = max(eye_x1 + 1, min(eye_x2, w))
-    result = frame.copy()
-    eye_region = result[eye_y1:eye_y2, eye_x1:eye_x2].copy()
-    skin_sample_y = max(0, eye_y1 - int(face_h * 0.05))
-    skin_sample = frame[skin_sample_y:eye_y1, eye_x1:eye_x2]
-    if skin_sample.size > 0:
-        skin_color = skin_sample.mean(axis=(0, 1)).astype(np.uint8)
-    else:
-        skin_color = np.array([140, 130, 125], dtype=np.uint8)
-    eyelid = np.full_like(eye_region, skin_color)
-    rows = eye_region.shape[0]
-    close_rows = int(rows * intensity * 0.7)
-    if close_rows > 0:
-        alpha_top = np.zeros((rows, 1, 1), dtype=np.float32)
-        for r in range(min(close_rows, rows)):
-            if r < close_rows - 2:
-                alpha_top[r] = intensity * 0.85
-            else:
-                alpha_top[r] = intensity * 0.4
-        blended = (eye_region.astype(np.float32) * (1 - alpha_top) +
-                    eyelid.astype(np.float32) * alpha_top)
-        result[eye_y1:eye_y2, eye_x1:eye_x2] = blended.clip(0, 255).astype(np.uint8)
+    eye_y1 = max(0, y1 + int(face_h * 0.28))
+    eye_y2 = min(frame.shape[0], y1 + int(face_h * 0.45))
+    eye_x1 = max(0, x1 + int(face_w * 0.1))
+    eye_x2 = min(frame.shape[1], x2 - int(face_w * 0.1))
+    if eye_y2 <= eye_y1 or eye_x2 <= eye_x1:
+        return frame
+    eye_region = result[eye_y1:eye_y2, eye_x1:eye_x2]
+    h, w = eye_region.shape[:2]
+    y_weights = np.exp(-0.5 * ((np.linspace(-1, 1, h)) ** 2) / 0.3)
+    x_weights = np.exp(-0.5 * ((np.linspace(-1, 1, w)) ** 2) / 0.5)
+    mask = np.outer(y_weights, x_weights)[:, :, np.newaxis]
+    skin_tone = np.mean(eye_region, axis=(0, 1), keepdims=True) * 0.7
+    darkened = eye_region * (1 - mask * intensity * 0.6) + skin_tone * (mask * intensity * 0.6)
+    result[eye_y1:eye_y2, eye_x1:eye_x2] = np.clip(darkened, 0, 255).astype(np.uint8)
     return result
 
 
@@ -238,7 +241,8 @@ def post_process_frames(frames, fps=25.0):
 # VIDEO ENCODING
 # ═══════════════════════════════════════════════════════════════════════
 
-def frames_to_video(frames, fps=25.0):
+def frames_to_video(frames, fps=25.0, audio_path=None):
+    """Encode frames to MP4, optionally muxing audio (audio as timing master)."""
     if not frames:
         return None
     with tempfile.NamedTemporaryFile(suffix=".avi", delete=False) as tmp_avi:
@@ -251,12 +255,29 @@ def frames_to_video(frames, fps=25.0):
         for frame in frames:
             writer.write(frame)
         writer.release()
-        os.system(
-            f"ffmpeg -y -loglevel error -i {avi_path} "
-            f"-c:v libx264 -preset ultrafast -crf 23 "
-            f"-pix_fmt yuv420p -movflags +faststart "
-            f"{mp4_path}"
-        )
+
+        if audio_path and os.path.exists(audio_path):
+            # Mux with audio as timing master
+            import subprocess
+            cmd = [
+                "ffmpeg", "-y", "-loglevel", "error",
+                "-i", audio_path, "-i", avi_path,
+                "-c:v", "libx264", "-preset", "fast", "-crf", "23",
+                "-c:a", "aac", "-b:a", "128k",
+                "-map", "0:a", "-map", "1:v", "-shortest",
+                "-pix_fmt", "yuv420p", "-movflags", "+faststart",
+                mp4_path,
+            ]
+            subprocess.run(cmd, check=True, capture_output=True)
+        else:
+            # Video only (warmup, etc.)
+            os.system(
+                f"ffmpeg -y -loglevel error -i {avi_path} "
+                f"-c:v libx264 -preset ultrafast -crf 23 "
+                f"-pix_fmt yuv420p -movflags +faststart "
+                f"{mp4_path}"
+            )
+
         if os.path.exists(mp4_path) and os.path.getsize(mp4_path) > 0:
             with open(mp4_path, "rb") as f:
                 return base64.b64encode(f.read()).decode()
@@ -269,6 +290,36 @@ def frames_to_video(frames, fps=25.0):
                 os.unlink(p)
             except OSError:
                 pass
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# ELEVENLABS TTS
+# ═══════════════════════════════════════════════════════════════════════
+
+def text_to_speech(text, voice_id="cgSgspJ2msm6clMCkdW9"):
+    """Call ElevenLabs TTS API. Returns raw audio bytes (mp3)."""
+    api_key = os.environ.get("ELEVENLABS_API_KEY", "")
+    if not api_key:
+        env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
+        if os.path.exists(env_path):
+            for line in open(env_path):
+                if line.startswith("ELEVENLABS_API_KEY="):
+                    api_key = line.strip().split("=", 1)[1].strip().strip("\"'")
+    if not api_key:
+        raise ValueError("ELEVENLABS_API_KEY not found in environment or .env")
+    resp = http_requests.post(
+        f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
+        headers={"xi-api-key": api_key, "Content-Type": "application/json"},
+        json={
+            "text": text,
+            "model_id": "eleven_turbo_v2_5",
+            "voice_settings": {"stability": 0.6, "similarity_boost": 0.85},
+        },
+        timeout=60,
+    )
+    if resp.status_code != 200:
+        raise Exception(f"ElevenLabs error {resp.status_code}: {resp.text[:200]}")
+    return resp.content
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -358,10 +409,15 @@ def warmup():
 
 @app.route("/generate", methods=["POST"])
 def generate():
-    """Generate lip-synced video with blinks and head movement (FP16)."""
+    """Generate lip-synced video with blinks and head movement (FP16).
+
+    Accepts two modes:
+      Mode A: {"text": "...", "voice_id": "..."} → ElevenLabs TTS → Wav2Lip → video
+      Mode B: {"audio_base64": "...", "content_type": "..."} → Wav2Lip → video
+    """
     data = request.get_json()
-    if not data or not data.get("audio_base64"):
-        return jsonify({"error": "audio_base64 required"}), 400
+    if not data:
+        return jsonify({"error": "JSON body required"}), 400
 
     enable_blinks = data.get("enable_blinks", True)
     enable_head_movement = data.get("enable_head_movement", True)
@@ -369,8 +425,24 @@ def generate():
 
     t_start = time.time()
 
-    audio_bytes = base64.b64decode(data["audio_base64"])
-    content_type = data.get("content_type", "audio/mpeg")
+    # Mode A: text + optional voice_id → ElevenLabs TTS
+    if "text" in data:
+        voice_id = data.get("voice_id", "cgSgspJ2msm6clMCkdW9")
+        try:
+            t_tts = time.time()
+            audio_bytes = text_to_speech(data["text"], voice_id)
+            logger.info(f"TTS: {len(audio_bytes)} bytes in {time.time()-t_tts:.2f}s")
+        except Exception as e:
+            logger.error(f"TTS error: {e}")
+            return jsonify({"error": f"TTS failed: {e}"}), 500
+        content_type = "audio/mpeg"
+    # Mode B: raw audio
+    elif "audio_base64" in data:
+        audio_bytes = base64.b64decode(data["audio_base64"])
+        content_type = data.get("content_type", "audio/mpeg")
+    else:
+        return jsonify({"error": "text or audio_base64 required"}), 400
+
     ext = ".mp3" if "mpeg" in content_type else ".wav"
 
     with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
@@ -384,7 +456,7 @@ def generate():
         reg = ModelRegistry.get()
         with _lock:
             t0 = time.time()
-            frames = wav2lip_generate(wav_path)
+            frames = wav2lip_generate(wav_path, fps)
             t_lip = time.time() - t0
             logger.info(f"Wav2Lip FP16: {len(frames)} frames in {t_lip:.2f}s")
 
@@ -404,7 +476,7 @@ def generate():
             logger.info(f"Post-processing: {t_post:.2f}s")
 
             t0 = time.time()
-            video_b64 = frames_to_video(frames, fps)
+            video_b64 = frames_to_video(frames, fps, audio_path=wav_path)
             t_encode = time.time() - t0
             logger.info(f"Encoding: {t_encode:.2f}s")
 
