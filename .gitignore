@@ -9,3 +9,8 @@ instance/
 test_*
 /tmp/
 .env
+venv/
+data/episodes/
+*.mp3
+*.png
+*.jpg
