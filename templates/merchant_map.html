@@ -325,7 +325,27 @@
 }
 
 .leaflet-tile {
-    filter: saturate(0) brightness(0.8) contrast(1.2);
+    filter: saturate(0.15) brightness(1.3) contrast(1.1);
+}
+
+.event-marker {
+    background: #CC2222;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    box-shadow: 0 3px 12px rgba(204, 34, 34, 0.8);
+    animation: eventPulse 2s ease-in-out infinite;
+}
+
+@keyframes eventPulse {
+    0%, 100% { box-shadow: 0 3px 12px rgba(204, 34, 34, 0.8); }
+    50% { box-shadow: 0 3px 20px rgba(204, 34, 34, 1), 0 0 30px rgba(204, 34, 34, 0.4); }
 }
 
 .btc-marker {
@@ -702,8 +722,36 @@ function initMap() {
     
     map.addLayer(markerCluster);
     map.on('moveend', updateMerchantList);
-    
+
     loadMerchants();
+    addEventMarkers();
+}
+
+function addEventMarkers() {
+    var eventIcon = L.divIcon({
+        className: 'event-marker-wrapper',
+        html: '<div class="event-marker"><i class="fas fa-calendar-alt"></i></div>',
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+    });
+
+    var events = [
+        { lat: 26.142, lon: -81.795, name: 'BitcoinDay Naples', date: '2026' },
+        { lat: 27.950, lon: -82.457, name: 'BitcoinDay Tampa', date: '2026' },
+        { lat: 38.907, lon: -77.037, name: 'BitcoinDay DC', date: '2026' },
+        { lat: 36.163, lon: -86.781, name: 'Bitcoin 2026', date: 'Nashville, TN' }
+    ];
+
+    events.forEach(function(evt) {
+        var marker = L.marker([evt.lat, evt.lon], { icon: eventIcon });
+        marker.bindPopup(
+            '<div class="popup-name">' + evt.name + '</div>' +
+            '<div class="popup-category">' + evt.date + '</div>' +
+            '<div class="popup-detail" style="margin-top:8px;"><i class="fas fa-info-circle"></i> Visit <a href="/events">Events page</a> for details</div>',
+            { className: 'merchant-popup', maxWidth: 250 }
+        );
+        marker.addTo(map);
+    });
 }
 
 async function loadMerchants() {

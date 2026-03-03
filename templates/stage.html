@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Live Stage — Bitcoin Avatar | Protocol Pulse{% endblock %}
+{% block title %}The Oracle — Bitcoin Intelligence | Protocol Pulse{% endblock %}
 
-{% block meta_description %}Watch the Protocol Pulse AI avatar deliver 24/7 Bitcoin intelligence. Live stream with real-time transcript and sentiment analysis.{% endblock %}
+{% block meta_description %}Ask the Protocol Pulse Oracle anything about Bitcoin. AI-powered intelligence with real-time voice and avatar responses.{% endblock %}
 
 {% block og_meta %}
-<meta property="og:title" content="Live Stage — Bitcoin Avatar | Protocol Pulse">
-<meta property="og:description" content="24/7 Bitcoin intelligence from the Protocol Pulse AI avatar. Real-time sentiment, live transcript, and partner source tracking.">
-<meta property="og:type" content="video.other">
+<meta property="og:title" content="The Oracle — Bitcoin Intelligence | Protocol Pulse">
+<meta property="og:description" content="Ask the Protocol Pulse Oracle anything about Bitcoin. AI-powered intelligence with real-time voice and avatar responses.">
+<meta property="og:type" content="website">
 <meta property="og:site_name" content="Protocol Pulse">
 <meta property="og:image" content="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
 <meta property="og:url" content="{{ request.url }}">
@@ -17,1260 +17,593 @@
 {% block head %}
 <style>
 /* ═══════════════════════════════════════════════
-   AVATAR CINEMA MODE — Protocol Pulse Stage
-   Bloomberg Terminal × Cinema × Intelligence
+   THE ORACLE — Broadcast Studio Aesthetic
    ═══════════════════════════════════════════════ */
 
-:root {
-    --stage-bg: #000000;
-    --stage-surface: #0a0a0a;
-    --stage-surface-2: #111111;
-    --stage-border: rgba(255,255,255,0.07);
-    --stage-border-hover: rgba(0,212,170,0.3);
-    --teal: #CC2222;
-    --teal-glow: rgba(0,212,170,0.15);
-    --teal-dim: rgba(0,212,170,0.4);
-    --amber: #f5a623;
-    --amber-glow: rgba(245,166,35,0.15);
-    --red: #ff453a;
-    --red-glow: rgba(255,69,58,0.15);
-    --green: #30d158;
-    --green-glow: rgba(48,209,88,0.15);
-    --font-body: 'Inter', sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
+.oracle-stage {
+    min-height: 100vh;
+    background: #000;
+    padding: 60px 20px 80px;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body.stage-mode {
-    background: var(--stage-bg);
-    overflow-x: hidden;
+.oracle-stage-inner {
+    max-width: 800px;
+    margin: 0 auto;
 }
 
-/* ─── TOP BAR ─────────────────────────────── */
-.stage-topbar {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    height: 48px;
-    background: rgba(0,0,0,0.92);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--stage-border);
+/* ─── Avatar Zone ─────────────────────────────── */
+.oracle-avatar-zone {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    gap: 12px;
+    margin-bottom: 48px;
 }
 
-.stage-topbar__brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-    flex-shrink: 0;
-}
-
-.stage-topbar__logo {
-    width: 22px;
-    height: 22px;
-    background: var(--teal);
-    border-radius: 4px;
+.oracle-avatar-ring {
+    position: relative;
+    width: 380px;
+    height: 380px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
-    font-weight: 800;
-    color: #000;
+    margin-bottom: 28px;
 }
 
-.stage-topbar__name {
-    font-family: var(--font-mono);
+.oracle-avatar-ring::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 2px solid rgba(220, 38, 38, 0.2);
+    transition: border-color 0.6s ease;
+}
+
+.oracle-avatar-ring.is-speaking::before {
+    border-color: rgba(220, 38, 38, 0.6);
+    box-shadow: 0 0 40px rgba(220, 38, 38, 0.15);
+}
+
+.oracle-avatar-ring.is-thinking::before {
+    border-color: rgba(247, 147, 26, 0.4);
+    animation: think-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes think-pulse {
+    0%, 100% { border-color: rgba(247, 147, 26, 0.2); }
+    50% { border-color: rgba(247, 147, 26, 0.5); }
+}
+
+.oracle-avatar-img {
+    width: 360px;
+    height: 360px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    animation: oracle-breathe 4s ease-in-out infinite;
+}
+
+@keyframes oracle-breathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.012); }
+}
+
+.oracle-avatar-video {
+    width: 360px;
+    height: 360px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: none;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+.oracle-avatar-video.active {
+    display: block;
+}
+
+.oracle-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+    height: 16px;
+    margin-bottom: 24px;
+    transition: color 0.3s ease;
+}
+
+.oracle-status.speaking { color: #dc2626; }
+.oracle-status.thinking { color: #f7931a; }
+
+.oracle-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.92);
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.oracle-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+/* ─── Input Zone ─────────────────────────────── */
+.oracle-input-zone {
+    margin-bottom: 48px;
+}
+
+.oracle-input-wrap {
+    display: flex;
+    gap: 0;
+    background: rgba(20, 20, 20, 0.8);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.3s ease;
+}
+
+.oracle-input-wrap:focus-within {
+    border-color: rgba(220, 38, 38, 0.3);
+}
+
+.oracle-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 16px 20px;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.9);
+}
+
+.oracle-input::placeholder {
+    color: rgba(255,255,255,0.2);
+}
+
+.oracle-send-btn {
+    padding: 16px 24px;
+    background: rgba(220, 38, 38, 0.15);
+    border: none;
+    border-left: 1px solid rgba(255,255,255,0.06);
+    color: #dc2626;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 0.75rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.oracle-send-btn:hover {
+    background: rgba(220, 38, 38, 0.25);
+}
+
+.oracle-send-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ─── Response Zone ──────────────────────────── */
+.oracle-response-zone {
+    margin-bottom: 56px;
+    min-height: 80px;
+}
+
+.oracle-response {
+    display: none;
+    background: rgba(20, 20, 20, 0.8);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.oracle-response.visible {
+    display: block;
+    animation: fade-up 0.4s ease-out;
+}
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.oracle-response-text {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.05rem;
+    line-height: 1.75;
     color: rgba(255,255,255,0.85);
-    text-transform: uppercase;
 }
 
-.stage-topbar__live-badge {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    background: rgba(255,69,58,0.12);
-    border: 1px solid rgba(255,69,58,0.25);
-    border-radius: 20px;
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    color: var(--red);
-    text-transform: uppercase;
-}
-
-.stage-topbar__live-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--red);
-    animation: live-pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes live-pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.8); }
-}
-
-.stage-topbar__meta {
+.oracle-response-meta {
     display: flex;
     align-items: center;
     gap: 16px;
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    color: rgba(255,255,255,0.4);
-    letter-spacing: 0.04em;
-}
-
-.stage-topbar__meta-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.stage-topbar__btc-price {
-    font-weight: 700;
-    color: var(--amber);
-}
-
-.stage-topbar__viewers {
-    color: var(--teal);
-}
-
-.stage-topbar__back {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--stage-border);
-    border-radius: 6px;
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    color: rgba(255,255,255,0.5);
-    text-decoration: none;
-    text-transform: uppercase;
-    transition: all 0.2s ease;
-}
-
-.stage-topbar__back:hover {
-    color: rgba(255,255,255,0.85);
-    border-color: rgba(255,255,255,0.15);
-    background: rgba(255,255,255,0.08);
-}
-
-/* ─── MAIN LAYOUT ─────────────────────────── */
-.stage-layout {
-    display: grid;
-    grid-template-columns: 1fr 360px;
-    grid-template-rows: 100vh;
-    padding-top: 48px;
-    height: 100vh;
-    overflow: hidden;
-}
-
-@media (max-width: 900px) {
-    .stage-layout {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto 1fr;
-        height: auto;
-        min-height: 100vh;
-        overflow-y: auto;
-    }
-}
-
-/* ─── LEFT: VIDEO ZONE ───────────────────── */
-.stage-video-zone {
-    position: relative;
-    background: #000;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.stage-player-wrapper {
-    flex: 1;
-    position: relative;
-    background: #000;
-}
-
-.stage-player-wrapper iframe {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    border: none;
-}
-
-/* Offline / placeholder state */
-.stage-player-offline {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 24px;
-    background: radial-gradient(ellipse at center, #0d0d0d 0%, #000 70%);
-}
-
-.stage-avatar-placeholder {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--teal-glow), rgba(0,0,0,0.5));
-    border: 2px solid rgba(0,212,170,0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: avatar-breathe 3s ease-in-out infinite;
-}
-
-@keyframes avatar-breathe {
-    0%, 100% { box-shadow: 0 0 20px rgba(0,212,170,0.2), 0 0 60px rgba(0,212,170,0.05); }
-    50% { box-shadow: 0 0 40px rgba(0,212,170,0.35), 0 0 100px rgba(0,212,170,0.1); }
-}
-
-.stage-avatar-icon {
-    font-size: 3rem;
-    color: var(--teal);
-    opacity: 0.8;
-}
-
-.stage-offline-title {
-    font-family: var(--font-mono);
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    color: rgba(255,255,255,0.7);
-    text-transform: uppercase;
-}
-
-.stage-offline-sub {
-    font-family: var(--font-body);
-    font-size: 0.8125rem;
-    color: rgba(255,255,255,0.35);
-    text-align: center;
-    max-width: 280px;
-    line-height: 1.5;
-}
-
-.stage-next-air-badge {
-    padding: 8px 16px;
-    background: rgba(0,212,170,0.08);
-    border: 1px solid rgba(0,212,170,0.2);
-    border-radius: 20px;
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    color: var(--teal);
-    letter-spacing: 0.04em;
-}
-
-/* ─── HEARTBEAT ZONE ────────────────────── */
-.stage-heartbeat-zone {
-    height: 80px;
-    background: rgba(0,0,0,0.9);
-    border-top: 1px solid var(--stage-border);
-    position: relative;
-    overflow: hidden;
-    flex-shrink: 0;
-}
-
-.stage-heartbeat-label {
-    position: absolute;
-    top: 10px;
-    left: 16px;
-    font-family: var(--font-mono);
-    font-size: 0.5625rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.3);
-    z-index: 2;
-}
-
-.stage-heartbeat-value {
-    position: absolute;
-    top: 10px;
-    right: 16px;
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    font-weight: 700;
-    z-index: 2;
-    transition: color 0.5s ease;
-}
-
-.stage-heartbeat-canvas {
-    position: absolute;
-    bottom: 0; left: 0;
-    width: 100%;
-    height: 100%;
-}
-
-/* ─── PARTNER SOURCE BUTTON ─────────────── */
-.stage-partner-btn {
-    position: absolute;
-    bottom: 90px;
-    right: 20px;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 16px;
-    background: rgba(0,0,0,0.85);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px;
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    color: rgba(255,255,255,0.35);
-    cursor: pointer;
-    backdrop-filter: blur(10px);
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    text-decoration: none;
-    transform: translateY(4px);
-    opacity: 0.6;
-}
-
-.stage-partner-btn.is-active {
-    background: rgba(245,166,35,0.12);
-    border-color: rgba(245,166,35,0.4);
-    color: var(--amber);
-    box-shadow: 0 0 24px rgba(245,166,35,0.2), 0 0 60px rgba(245,166,35,0.06);
-    transform: translateY(0);
-    opacity: 1;
-    animation: partner-glow 2s ease-in-out infinite;
-}
-
-@keyframes partner-glow {
-    0%, 100% { box-shadow: 0 0 24px rgba(245,166,35,0.2), 0 0 60px rgba(245,166,35,0.06); }
-    50% { box-shadow: 0 0 36px rgba(245,166,35,0.35), 0 0 80px rgba(245,166,35,0.12); }
-}
-
-.stage-partner-btn__avatar {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: rgba(245,166,35,0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8125rem;
-    flex-shrink: 0;
-    border: 1px solid rgba(245,166,35,0.3);
-}
-
-.stage-partner-btn__text {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-}
-
-.stage-partner-btn__label {
-    font-size: 0.5625rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    opacity: 0.7;
-}
-
-.stage-partner-btn__name {
-    font-size: 0.75rem;
-    letter-spacing: 0.02em;
-}
-
-.stage-partner-btn__icon {
-    margin-left: 4px;
-    font-size: 0.75rem;
-    opacity: 0.7;
-}
-
-/* ─── RIGHT: TRANSCRIPT PANEL ─────────────── */
-.stage-transcript-panel {
-    background: var(--stage-surface);
-    border-left: 1px solid var(--stage-border);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    height: 100%;
-}
-
-@media (max-width: 900px) {
-    .stage-transcript-panel {
-        height: 460px;
-        border-left: none;
-        border-top: 1px solid var(--stage-border);
-    }
-}
-
-.stage-transcript-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--stage-border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
-    background: rgba(0,0,0,0.3);
-}
-
-.stage-transcript-title {
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.45);
-}
-
-.stage-transcript-status {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-family: var(--font-mono);
-    font-size: 0.5625rem;
-    letter-spacing: 0.06em;
-    color: var(--teal);
-}
-
-.stage-transcript-dot {
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: var(--teal);
-    animation: live-pulse 2s infinite;
-}
-
-.stage-transcript-scroll {
-    flex: 1;
-    overflow-y: auto;
-    padding: 0;
-    scroll-behavior: smooth;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,0.08) transparent;
-}
-
-.stage-transcript-scroll::-webkit-scrollbar { width: 3px; }
-.stage-transcript-scroll::-webkit-scrollbar-track { background: transparent; }
-.stage-transcript-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
-
-/* Transcript entries */
-.stage-tx-entry {
-    padding: 14px 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    position: relative;
-    transition: background 0.2s ease;
-    cursor: default;
-}
-
-.stage-tx-entry:hover {
-    background: rgba(255,255,255,0.02);
-}
-
-.stage-tx-entry.is-new {
-    animation: tx-fade-in 0.5s ease-out;
-}
-
-@keyframes tx-fade-in {
-    from { opacity: 0; transform: translateY(-8px); background: rgba(0,212,170,0.05); }
-    to { opacity: 1; transform: translateY(0); background: transparent; }
-}
-
-.stage-tx-entry.is-active {
-    background: rgba(0,212,170,0.04);
-    border-left: 2px solid rgba(0,212,170,0.4);
-    padding-left: 18px;
-}
-
-.stage-tx-entry.is-positive { border-left: 2px solid rgba(48,209,88,0.3); }
-.stage-tx-entry.is-negative { border-left: 2px solid rgba(255,69,58,0.3); }
-.stage-tx-entry.is-neutral  { border-left: 2px solid transparent; }
-
-.stage-tx-meta {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 5px;
-}
-
-.stage-tx-time {
-    font-family: var(--font-mono);
-    font-size: 0.5625rem;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
     color: rgba(255,255,255,0.2);
     letter-spacing: 0.04em;
-    flex-shrink: 0;
 }
 
-.stage-tx-sentiment {
-    font-size: 0.5rem;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-family: var(--font-mono);
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-}
-
-.stage-tx-sentiment--bullish {
-    background: rgba(48,209,88,0.12);
-    color: var(--green);
-    border: 1px solid rgba(48,209,88,0.2);
-}
-.stage-tx-sentiment--bearish {
-    background: rgba(255,69,58,0.12);
-    color: var(--red);
-    border: 1px solid rgba(255,69,58,0.2);
-}
-.stage-tx-sentiment--neutral {
-    background: rgba(255,255,255,0.05);
-    color: rgba(255,255,255,0.3);
-    border: 1px solid rgba(255,255,255,0.08);
-}
-.stage-tx-sentiment--critical {
-    background: rgba(245,166,35,0.12);
-    color: var(--amber);
-    border: 1px solid rgba(245,166,35,0.2);
-}
-
-.stage-tx-text {
-    font-family: var(--font-body);
-    font-size: 0.8125rem;
-    line-height: 1.55;
-    color: rgba(255,255,255,0.75);
-}
-
-.stage-tx-text em {
-    color: var(--teal);
-    font-style: normal;
-    font-weight: 600;
-}
-
-/* Typing indicator */
-.stage-tx-typing {
-    padding: 12px 20px;
+/* ─── Quick Questions ────────────────────────── */
+.oracle-quick-questions {
     display: flex;
-    align-items: center;
     gap: 8px;
-    font-family: var(--font-mono);
-    font-size: 0.5625rem;
-    color: rgba(0,212,170,0.5);
-    letter-spacing: 0.06em;
-}
-
-.stage-tx-typing__dots {
-    display: flex;
-    gap: 3px;
-}
-
-.stage-tx-typing__dot {
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: var(--teal);
-    animation: typing-bounce 1.2s ease-in-out infinite;
-}
-
-.stage-tx-typing__dot:nth-child(2) { animation-delay: 0.2s; }
-.stage-tx-typing__dot:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes typing-bounce {
-    0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
-    40% { transform: translateY(-4px); opacity: 1; }
-}
-
-/* ─── SENTIMENT STATS STRIP ─────────────── */
-.stage-sentiment-strip {
-    padding: 12px 20px;
-    border-top: 1px solid var(--stage-border);
-    background: rgba(0,0,0,0.4);
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-    flex-shrink: 0;
-}
-
-.stage-sentiment-stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-}
-
-.stage-sentiment-stat__label {
-    font-family: var(--font-mono);
-    font-size: 0.5rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.25);
-}
-
-.stage-sentiment-stat__value {
-    font-family: var(--font-mono);
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1;
-}
-
-.stage-sentiment-stat__bar {
-    width: 100%;
-    height: 2px;
-    background: rgba(255,255,255,0.06);
-    border-radius: 1px;
-    overflow: hidden;
-    margin-top: 2px;
-}
-
-.stage-sentiment-stat__fill {
-    height: 100%;
-    border-radius: 1px;
-    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ─── TOPIC CHIPS ──────────────────────── */
-.stage-topics {
-    padding: 10px 20px;
-    border-top: 1px solid var(--stage-border);
-    display: flex;
-    align-items: center;
-    gap: 6px;
     flex-wrap: wrap;
-    flex-shrink: 0;
-    background: rgba(0,0,0,0.2);
+    justify-content: center;
+    margin-top: 16px;
 }
 
-.stage-topics__label {
-    font-family: var(--font-mono);
-    font-size: 0.5rem;
-    letter-spacing: 0.08em;
+.oracle-quick-btn {
+    padding: 8px 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.oracle-quick-btn:hover {
+    border-color: rgba(220, 38, 38, 0.3);
+    color: rgba(255,255,255,0.6);
+    background: rgba(220, 38, 38, 0.05);
+}
+
+/* ─── Divider ────────────────────────────────── */
+.oracle-divider {
+    width: 60px;
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+    margin: 0 auto 48px;
+}
+
+/* ─── Latest Intelligence ────────────────────── */
+.oracle-intel-section {
+    margin-bottom: 40px;
+}
+
+.oracle-intel-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: rgba(255,255,255,0.2);
-    margin-right: 2px;
+    margin-bottom: 20px;
+    text-align: center;
 }
 
-.stage-topic-chip {
-    padding: 3px 8px;
-    background: rgba(255,255,255,0.04);
+.oracle-intel-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+@media (max-width: 700px) {
+    .oracle-intel-grid {
+        grid-template-columns: 1fr;
+    }
+    .oracle-avatar-ring {
+        width: 280px;
+        height: 280px;
+    }
+    .oracle-avatar-img,
+    .oracle-avatar-video {
+        width: 260px;
+        height: 260px;
+    }
+    .oracle-title {
+        font-size: 1.6rem;
+    }
+}
+
+.oracle-intel-card {
+    background: rgba(20, 20, 20, 0.8);
     border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    font-family: var(--font-mono);
-    font-size: 0.5625rem;
-    color: rgba(255,255,255,0.4);
-    letter-spacing: 0.04em;
-    transition: all 0.2s ease;
-    cursor: default;
-}
-
-.stage-topic-chip.is-hot {
-    background: rgba(245,166,35,0.08);
-    border-color: rgba(245,166,35,0.2);
-    color: var(--amber);
-}
-
-/* ─── MOBILE VIDEO RATIO ──────────────── */
-@media (max-width: 900px) {
-    .stage-player-wrapper {
-        aspect-ratio: 16/9;
-        height: auto;
-        position: relative;
-    }
-
-    .stage-player-wrapper iframe {
-        position: absolute;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-    }
-
-    .stage-partner-btn {
-        bottom: 90px;
-        right: 12px;
-    }
-
-    .stage-video-zone {
-        height: auto;
-    }
-}
-
-/* ─── OFFLINE/UPCOMING BANNER ─────────── */
-.stage-upcoming-strip {
-    background: rgba(0,212,170,0.06);
-    border: 1px solid rgba(0,212,170,0.15);
     border-radius: 8px;
-    padding: 12px 20px;
-    margin: 0 20px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    color: rgba(0,212,170,0.8);
-    letter-spacing: 0.04em;
+    padding: 20px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: block;
 }
 
-/* Page-level padding on mobile */
-@media (max-width: 900px) {
-    .stage-layout {
-        padding-top: 48px;
-    }
+.oracle-intel-card:hover {
+    border-color: rgba(220, 38, 38, 0.2);
+    transform: translateY(-2px);
 }
 
-/* Fullscreen override for nav */
-body.stage-mode .pp-nav { display: none; }
-body.stage-mode .pp-footer { display: none; }
+.oracle-intel-card-img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    background: rgba(255,255,255,0.03);
+}
+
+.oracle-intel-card-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
 </style>
 {% endblock %}
 
-{% block body_class %}stage-mode{% endblock %}
-
 {% block content %}
-<!-- TOP BAR -->
-<header class="stage-topbar">
-    <a href="/" class="stage-topbar__brand">
-        <div class="stage-topbar__logo">PP</div>
-        <span class="stage-topbar__name">Protocol Pulse</span>
-    </a>
+<div class="oracle-stage">
+    <div class="oracle-stage-inner">
 
-    <div class="stage-topbar__live-badge">
-        <span class="stage-topbar__live-dot"></span>
-        <span id="liveStatusText">LIVE</span>
-    </div>
-
-    <div class="stage-topbar__meta">
-        <div class="stage-topbar__meta-item">
-            <span>BTC</span>
-            <span class="stage-topbar__btc-price" id="topbarBtcPrice">—</span>
-        </div>
-        <div class="stage-topbar__meta-item">
-            <i class="fas fa-eye" style="font-size:0.5rem; opacity:0.5;"></i>
-            <span class="stage-topbar__viewers" id="topbarViewers">—</span>
-        </div>
-        <div class="stage-topbar__meta-item" id="topbarTime">00:00:00</div>
-    </div>
-
-    <a href="/" class="stage-topbar__back">
-        <i class="fas fa-arrow-left" style="font-size:0.5rem;"></i>
-        Exit Stage
-    </a>
-</header>
-
-<!-- MAIN LAYOUT: video left / transcript right -->
-<div class="stage-layout">
-
-    <!-- ─── LEFT: VIDEO + HEARTBEAT ─── -->
-    <div class="stage-video-zone">
-
-        <!-- Partner Source Button -->
-        <a href="#" class="stage-partner-btn" id="partnerBtn" target="_blank" rel="noopener" style="display:none;">
-            <div class="stage-partner-btn__avatar" id="partnerAvatar">⚡</div>
-            <div class="stage-partner-btn__text">
-                <span class="stage-partner-btn__label">Watch Source</span>
-                <span class="stage-partner-btn__name" id="partnerName">—</span>
+        <!-- Avatar Zone -->
+        <div class="oracle-avatar-zone">
+            <div class="oracle-avatar-ring" id="avatarRing">
+                <img class="oracle-avatar-img" id="avatarImg"
+                     src="{{ url_for('static', filename='images/oracle_avatar_anime.png') }}"
+                     alt="The Oracle">
+                <video class="oracle-avatar-video" id="avatarVideo" muted playsinline></video>
             </div>
-            <i class="fas fa-external-link-alt stage-partner-btn__icon"></i>
-        </a>
+            <div class="oracle-status" id="oracleStatus"></div>
+            <h1 class="oracle-title">The Oracle</h1>
+            <p class="oracle-subtitle">Bitcoin Intelligence on Demand</p>
+        </div>
 
-        <!-- Player -->
-        <div class="stage-player-wrapper" id="playerWrapper">
-            {% if stream_url %}
-            <iframe
-                id="streamFrame"
-                src="{{ stream_url }}"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen
-                loading="lazy">
-            </iframe>
-            {% else %}
-            <!-- OFFLINE STATE -->
-            <div class="stage-player-offline" id="offlineState">
-                <div class="stage-avatar-placeholder">
-                    <span class="stage-avatar-icon">⚡</span>
-                </div>
-                <div class="stage-offline-title">SARAH — AI AVATAR</div>
-                <div class="stage-offline-sub">
-                    The Protocol Pulse avatar briefing stream is currently being prepared.
-                    Live drops daily with market-moving Bitcoin intelligence.
-                </div>
-                <div class="stage-next-air-badge" id="nextAirTime">
-                    <i class="fas fa-clock" style="margin-right:6px;"></i>
-                    Next briefing: calculating...
-                </div>
-                <a href="/subscribe" style="margin-top:8px; padding:10px 20px; background:var(--teal); color:#000; border-radius:8px; font-family:var(--font-mono); font-size:0.6875rem; font-weight:700; letter-spacing:0.06em; text-decoration:none; text-transform:uppercase;">
-                    Get Notified
-                </a>
+        <!-- Input Zone -->
+        <div class="oracle-input-zone">
+            <div class="oracle-input-wrap">
+                <input type="text" class="oracle-input" id="oracleInput"
+                       placeholder="Ask anything about Bitcoin..."
+                       autocomplete="off" maxlength="500">
+                <button class="oracle-send-btn" id="oracleSend">Ask</button>
             </div>
-            {% endif %}
-        </div>
-
-        <!-- Sentiment Heartbeat Line -->
-        <div class="stage-heartbeat-zone">
-            <div class="stage-heartbeat-label">SENTIMENT PULSE</div>
-            <div class="stage-heartbeat-value" id="heartbeatValue" style="color: var(--teal);">NEUTRAL</div>
-            <canvas class="stage-heartbeat-canvas" id="heartbeatCanvas"></canvas>
-        </div>
-    </div>
-
-    <!-- ─── RIGHT: TRANSCRIPT PANEL ─── -->
-    <div class="stage-transcript-panel">
-        <div class="stage-transcript-header">
-            <span class="stage-transcript-title">Live Intelligence Feed</span>
-            <div class="stage-transcript-status">
-                <div class="stage-transcript-dot"></div>
-                <span id="transcriptStatusText">Processing...</span>
+            <div class="oracle-quick-questions">
+                <button class="oracle-quick-btn" data-q="What is the current state of the Bitcoin network?">Network Status</button>
+                <button class="oracle-quick-btn" data-q="Why is Bitcoin valuable?">Why Bitcoin?</button>
+                <button class="oracle-quick-btn" data-q="What are the latest developments in Bitcoin?">Latest News</button>
+                <button class="oracle-quick-btn" data-q="Explain the Bitcoin halving and its impact on price">Halving Impact</button>
             </div>
         </div>
 
-        <!-- Topic chips -->
-        <div class="stage-topics" id="topicsStrip">
-            <span class="stage-topics__label">Now:</span>
-            <span class="stage-topic-chip is-hot" id="chip0">Bitcoin</span>
-            <span class="stage-topic-chip" id="chip1">Markets</span>
-            <span class="stage-topic-chip" id="chip2">Network</span>
-        </div>
-
-        <!-- Scrolling transcript -->
-        <div class="stage-transcript-scroll" id="transcriptScroll">
-            <div class="stage-tx-typing" id="typingIndicator">
-                <div class="stage-tx-typing__dots">
-                    <div class="stage-tx-typing__dot"></div>
-                    <div class="stage-tx-typing__dot"></div>
-                    <div class="stage-tx-typing__dot"></div>
+        <!-- Response Zone -->
+        <div class="oracle-response-zone">
+            <div class="oracle-response" id="oracleResponse">
+                <div class="oracle-response-text" id="oracleResponseText"></div>
+                <div class="oracle-response-meta">
+                    <span id="oraclePipeline"></span>
                 </div>
-                <span>Sarah is briefing...</span>
             </div>
         </div>
 
-        <!-- Sentiment stats strip -->
-        <div class="stage-sentiment-strip">
-            <div class="stage-sentiment-stat">
-                <span class="stage-sentiment-stat__label">Bullish</span>
-                <span class="stage-sentiment-stat__value" id="sentBullish" style="color: var(--green);">—%</span>
-                <div class="stage-sentiment-stat__bar">
-                    <div class="stage-sentiment-stat__fill" id="sentBullishBar" style="background: var(--green); width: 0%;"></div>
-                </div>
-            </div>
-            <div class="stage-sentiment-stat">
-                <span class="stage-sentiment-stat__label">Neutral</span>
-                <span class="stage-sentiment-stat__value" id="sentNeutral" style="color: rgba(255,255,255,0.4);">—%</span>
-                <div class="stage-sentiment-stat__bar">
-                    <div class="stage-sentiment-stat__fill" id="sentNeutralBar" style="background: rgba(255,255,255,0.25); width: 0%;"></div>
-                </div>
-            </div>
-            <div class="stage-sentiment-stat">
-                <span class="stage-sentiment-stat__label">Bearish</span>
-                <span class="stage-sentiment-stat__value" id="sentBearish" style="color: var(--red);">—%</span>
-                <div class="stage-sentiment-stat__bar">
-                    <div class="stage-sentiment-stat__fill" id="sentBearishBar" style="background: var(--red); width: 0%;"></div>
-                </div>
+        <!-- Divider -->
+        <div class="oracle-divider"></div>
+
+        <!-- Latest Intelligence -->
+        <div class="oracle-intel-section">
+            <div class="oracle-intel-label">Latest Intelligence</div>
+            <div class="oracle-intel-grid" id="intelGrid">
+                <!-- Populated by JS -->
             </div>
         </div>
+
     </div>
 </div>
+{% endblock %}
 
+{% block scripts %}
+{% raw %}
 <script>
-/* ═══════════════════════════════════════════════
-   PROTOCOL PULSE — CINEMA MODE RUNTIME
-   Avatar Stage Intelligence Engine
-   ═══════════════════════════════════════════════ */
+(function() {
+    'use strict';
 
-const PARTNERS = {
-    saylor:   { name: "Michael Saylor", emoji: "🟠", url: "https://twitter.com/saylor", topics: ["saylor","microstrategy","strategy","21 million"] },
-    alden:    { name: "Lyn Alden",      emoji: "📊", url: "https://twitter.com/lynaldencontact", topics: ["lyn alden","fiscal","monetary","macro"] },
-    breedlove:{ name: "Robert Breedlove", emoji: "♾️", url: "https://twitter.com/breedlove22", topics: ["breedlove","number zero","sat standard","freedom"] },
-    ammous:   { name: "Saifedean Ammous", emoji: "📖", url: "https://twitter.com/saifedean", topics: ["saifedean","bitcoin standard","austrian","hard money"] },
-    keiser:   { name: "Max Keiser",     emoji: "🔥", url: "https://twitter.com/maxkeiser", topics: ["keiser","hyperbitcoinization","orange pill","el salvador"] },
-};
+    const SPEAK_URL = '/api/oracle/speak';
+    const avatarImg = document.getElementById('avatarImg');
+    const avatarVideo = document.getElementById('avatarVideo');
+    const avatarRing = document.getElementById('avatarRing');
+    const statusEl = document.getElementById('oracleStatus');
+    const inputEl = document.getElementById('oracleInput');
+    const sendBtn = document.getElementById('oracleSend');
+    const responseBox = document.getElementById('oracleResponse');
+    const responseText = document.getElementById('oracleResponseText');
+    const pipelineEl = document.getElementById('oraclePipeline');
 
-// ─── State ─────────────────────────────────────
-let sentimentHistory = [];
-let transcriptEntries = [];
-let currentSentiment = 0;  // -1 (bearish) to 1 (bullish)
-let btcPrice = null;
-let viewerCount = Math.floor(Math.random() * 800) + 200;
-let activePartner = null;
-let updateInterval = null;
+    let isProcessing = false;
+    let currentAudio = null;
 
-// Heartbeat canvas
-const canvas = document.getElementById('heartbeatCanvas');
-const ctx = canvas.getContext('2d');
-let heartbeatPoints = [];
-const MAX_POINTS = 200;
+    function setStatus(state) {
+        statusEl.className = 'oracle-status ' + state;
+        avatarRing.className = 'oracle-avatar-ring' + (state ? ' is-' + state : '');
+        if (state === 'thinking') statusEl.textContent = 'Processing...';
+        else if (state === 'speaking') statusEl.textContent = 'Speaking';
+        else statusEl.textContent = '';
+    }
 
-// ─── Utilities ─────────────────────────────────
-function fmtTime(d) {
-    return d.toLocaleTimeString('en-US', { hour12: false, hour:'2-digit', minute:'2-digit', second:'2-digit' });
-}
-function fmtPrice(p) {
-    return '$' + Math.round(p).toLocaleString('en-US');
-}
-function lerp(a, b, t) { return a + (b - a) * t; }
-
-// ─── Clock ─────────────────────────────────────
-function updateClock() {
-    document.getElementById('topbarTime').textContent = fmtTime(new Date());
-}
-setInterval(updateClock, 1000);
-updateClock();
-
-// ─── BTC Price ─────────────────────────────────
-async function fetchBtcPrice() {
-    try {
-        const r = await fetch('/api/market-dashboard');
-        const d = await r.json();
-        if (d.bitcoin_price) {
-            btcPrice = d.bitcoin_price;
-            document.getElementById('topbarBtcPrice').textContent = fmtPrice(btcPrice);
+    function stopSpeaking() {
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio = null;
         }
-    } catch(e) {}
-}
-fetchBtcPrice();
-setInterval(fetchBtcPrice, 30000);
-
-// ─── Viewer Count (simulated) ──────────────────
-function updateViewers() {
-    const delta = Math.floor(Math.random() * 15) - 5;
-    viewerCount = Math.max(50, viewerCount + delta);
-    document.getElementById('topbarViewers').textContent = viewerCount.toLocaleString();
-}
-setInterval(updateViewers, 8000);
-updateViewers();
-
-// ─── Heartbeat Canvas ─────────────────────────
-function resizeCanvas() {
-    const rect = canvas.parentElement.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-}
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
-
-function getSentimentColor(s) {
-    if (s > 0.3)  return { r: 48,  g: 209, b: 88  };  // green
-    if (s < -0.3) return { r: 255, g: 69,  b: 58  };  // red
-    return              { r: 0,   g: 212, b: 170  };  // teal
-}
-
-function drawHeartbeat() {
-    if (!canvas.width) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    if (heartbeatPoints.length < 2) return;
-
-    const W = canvas.width;
-    const H = canvas.height;
-    const midY = H * 0.6;
-    const amp = H * 0.3;
-
-    // Draw filled area
-    ctx.beginPath();
-    const col = getSentimentColor(currentSentiment);
-    const grd = ctx.createLinearGradient(0, midY - amp, 0, H);
-    grd.addColorStop(0, `rgba(${col.r},${col.g},${col.b},0.25)`);
-    grd.addColorStop(1, `rgba(${col.r},${col.g},${col.b},0)`);
-
-    ctx.moveTo(0, H);
-    heartbeatPoints.forEach((pt, i) => {
-        const x = (i / (MAX_POINTS - 1)) * W;
-        const y = midY - pt * amp;
-        i === 0 ? ctx.moveTo(x, H) : null;
-        ctx.lineTo(x, y);
-    });
-    ctx.lineTo(W, H);
-    ctx.closePath();
-    ctx.fillStyle = grd;
-    ctx.fill();
-
-    // Draw line
-    ctx.beginPath();
-    ctx.strokeStyle = `rgba(${col.r},${col.g},${col.b},0.85)`;
-    ctx.lineWidth = 1.5;
-    ctx.lineJoin = 'round';
-
-    heartbeatPoints.forEach((pt, i) => {
-        const x = (i / (MAX_POINTS - 1)) * W;
-        const y = midY - pt * amp;
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    });
-    ctx.stroke();
-
-    // Leading dot
-    const lastPt = heartbeatPoints[heartbeatPoints.length - 1];
-    const dotX = W;
-    const dotY = midY - lastPt * amp;
-    ctx.beginPath();
-    ctx.arc(dotX - 2, dotY, 3, 0, Math.PI * 2);
-    ctx.fillStyle = `rgb(${col.r},${col.g},${col.b})`;
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(dotX - 2, dotY, 7, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(${col.r},${col.g},${col.b},0.2)`;
-    ctx.fill();
-}
-
-// Animate heartbeat
-let heartbeatPhase = 0;
-let heartbeatTarget = 0;
-
-function animateHeartbeat() {
-    heartbeatPhase += 0.04;
-    const noise = Math.sin(heartbeatPhase * 3.7) * 0.15 + Math.sin(heartbeatPhase * 1.3) * 0.08;
-    heartbeatTarget = lerp(heartbeatTarget, currentSentiment, 0.05) + noise;
-    heartbeatPoints.push(heartbeatTarget);
-    if (heartbeatPoints.length > MAX_POINTS) heartbeatPoints.shift();
-    drawHeartbeat();
-    requestAnimationFrame(animateHeartbeat);
-}
-animateHeartbeat();
-
-// ─── Sentiment Update ─────────────────────────
-function updateSentimentUI(score, label) {
-    const el = document.getElementById('heartbeatValue');
-    const col = getSentimentColor(score);
-    el.style.color = `rgb(${col.r},${col.g},${col.b})`;
-    el.textContent = label.toUpperCase();
-    currentSentiment = score;
-}
-
-function updateSentimentStats(bullish, neutral, bearish) {
-    document.getElementById('sentBullish').textContent  = bullish + '%';
-    document.getElementById('sentNeutral').textContent  = neutral + '%';
-    document.getElementById('sentBearish').textContent  = bearish + '%';
-    document.getElementById('sentBullishBar').style.width  = bullish + '%';
-    document.getElementById('sentNeutralBar').style.width  = neutral + '%';
-    document.getElementById('sentBearishBar').style.width  = bearish + '%';
-}
-
-// ─── Partner Detection ────────────────────────
-function checkForPartner(text) {
-    const lower = text.toLowerCase();
-    for (const [key, p] of Object.entries(PARTNERS)) {
-        if (p.topics.some(t => lower.includes(t))) {
-            return { key, ...p };
-        }
-    }
-    return null;
-}
-
-function showPartner(partner) {
-    if (activePartner === partner.key) return;
-    activePartner = partner.key;
-
-    const btn = document.getElementById('partnerBtn');
-    const avatar = document.getElementById('partnerAvatar');
-    const name = document.getElementById('partnerName');
-
-    btn.href = partner.url;
-    avatar.textContent = partner.emoji;
-    name.textContent = partner.name;
-
-    btn.style.display = 'flex';
-    setTimeout(() => btn.classList.add('is-active'), 50);
-}
-
-function hidePartner() {
-    if (!activePartner) return;
-    activePartner = null;
-    const btn = document.getElementById('partnerBtn');
-    btn.classList.remove('is-active');
-    setTimeout(() => btn.style.display = 'none', 400);
-}
-
-// ─── Transcript Rendering ─────────────────────
-function sentimentClass(score) {
-    if (score > 0.3) return 'is-positive';
-    if (score < -0.3) return 'is-negative';
-    return 'is-neutral';
-}
-
-function sentimentLabel(score) {
-    if (score > 0.5)  return '<span class="stage-tx-sentiment stage-tx-sentiment--bullish">Bullish</span>';
-    if (score > 0.2)  return '<span class="stage-tx-sentiment stage-tx-sentiment--bullish">Positive</span>';
-    if (score < -0.5) return '<span class="stage-tx-sentiment stage-tx-sentiment--bearish">Bearish</span>';
-    if (score < -0.2) return '<span class="stage-tx-sentiment stage-tx-sentiment--bearish">Caution</span>';
-    return '<span class="stage-tx-sentiment stage-tx-sentiment--neutral">Neutral</span>';
-}
-
-function addTranscriptEntry(text, score, timestamp, isNew = true) {
-    const scroll = document.getElementById('transcriptScroll');
-    const typing = document.getElementById('typingIndicator');
-
-    const div = document.createElement('div');
-    div.className = `stage-tx-entry ${sentimentClass(score)} ${isNew ? 'is-new' : ''}`;
-
-    // Highlight partner names
-    let displayText = text;
-    for (const p of Object.values(PARTNERS)) {
-        const re = new RegExp(`(${p.name.split(' ')[1]})`, 'gi');
-        displayText = displayText.replace(re, '<em>$1</em>');
-    }
-    // Highlight key terms
-    displayText = displayText.replace(/\b(Bitcoin|BTC|blockchain|mempool|hashrate|halving|lightning)\b/gi,
-        '<em>$1</em>');
-
-    div.innerHTML = `
-        <div class="stage-tx-meta">
-            <span class="stage-tx-time">${timestamp}</span>
-            ${sentimentLabel(score)}
-        </div>
-        <div class="stage-tx-text">${displayText}</div>
-    `;
-
-    // Insert before typing indicator
-    scroll.insertBefore(div, typing);
-
-    // Auto-scroll
-    const isNearBottom = scroll.scrollTop + scroll.clientHeight > scroll.scrollHeight - 100;
-    if (isNearBottom) {
-        scroll.scrollTop = scroll.scrollHeight;
+        avatarVideo.classList.remove('active');
+        avatarVideo.pause();
+        avatarImg.style.animation = 'oracle-breathe 4s ease-in-out infinite';
+        setStatus('');
     }
 
-    // Keep max 50 entries
-    const entries = scroll.querySelectorAll('.stage-tx-entry');
-    if (entries.length > 50) entries[0].remove();
-}
+    function b64ToBlob(b64, mime) {
+        var bin = atob(b64);
+        var arr = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        return new Blob([arr], { type: mime });
+    }
 
-// ─── Live Feed Polling ─────────────────────────
-async function fetchTranscript() {
-    try {
-        const r = await fetch('/api/stage/transcript');
-        const d = await r.json();
+    async function askOracle(msg) {
+        if (!msg || isProcessing) return;
 
-        if (d.entries && d.entries.length) {
-            d.entries.forEach(e => {
-                addTranscriptEntry(e.text, e.sentiment_score, e.timestamp);
+        isProcessing = true;
+        sendBtn.disabled = true;
+        stopSpeaking();
+        setStatus('thinking');
+
+        // Hide old response during processing
+        responseBox.classList.remove('visible');
+
+        try {
+            var resp = await fetch(SPEAK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: msg })
             });
 
-            const last = d.entries[d.entries.length - 1];
-            updateSentimentUI(last.sentiment_score, last.sentiment_label);
+            if (!resp.ok) {
+                responseText.textContent = 'Connection disrupted. Try again.';
+                responseBox.classList.add('visible');
+                setStatus('');
+                isProcessing = false;
+                sendBtn.disabled = false;
+                return;
+            }
 
-            const partner = checkForPartner(d.entries.map(e => e.text).join(' '));
-            partner ? showPartner(partner) : hidePartner();
-        }
+            var data = await resp.json();
 
-        if (d.stats) {
-            updateSentimentStats(d.stats.bullish, d.stats.neutral, d.stats.bearish);
-        }
+            // Show text response
+            if (data.response) {
+                responseText.textContent = data.response;
+                responseBox.classList.add('visible');
+            }
 
-        if (d.topics) {
-            const chips = ['chip0','chip1','chip2'];
-            d.topics.slice(0, 3).forEach((t, i) => {
-                const el = document.getElementById(chips[i]);
-                if (el) {
-                    el.textContent = t;
-                    el.className = 'stage-topic-chip' + (i === 0 ? ' is-hot' : '');
+            // Pipeline time
+            if (data.pipeline_time) {
+                pipelineEl.textContent = 'Generated in ' + data.pipeline_time.toFixed(1) + 's';
+            }
+
+            // Play video lip-sync
+            if (data.video_base64) {
+                try {
+                    var videoBlob = b64ToBlob(data.video_base64, 'video/mp4');
+                    var videoUrl = URL.createObjectURL(videoBlob);
+                    avatarVideo.src = videoUrl;
+                    avatarVideo.classList.add('active');
+                    avatarImg.style.animation = 'none';
+                    setStatus('speaking');
+
+                    avatarVideo.onended = function() {
+                        URL.revokeObjectURL(videoUrl);
+                        stopSpeaking();
+                    };
+
+                    avatarVideo.play().catch(function(e) {
+                        console.warn('Video play failed:', e);
+                        stopSpeaking();
+                    });
+                } catch (e) {
+                    console.warn('Video setup failed:', e);
                 }
-            });
+            }
+
+            // Play audio
+            if (data.audio_base64) {
+                try {
+                    var audioBlob = b64ToBlob(data.audio_base64, 'audio/mpeg');
+                    var audioUrl = URL.createObjectURL(audioBlob);
+                    currentAudio = new Audio(audioUrl);
+
+                    if (!data.video_base64) {
+                        setStatus('speaking');
+                    }
+
+                    currentAudio.onended = function() {
+                        URL.revokeObjectURL(audioUrl);
+                        if (!data.video_base64) {
+                            stopSpeaking();
+                        }
+                    };
+
+                    currentAudio.play().catch(function(e) {
+                        console.warn('Audio play failed:', e);
+                    });
+                } catch (e) {
+                    console.warn('Audio setup failed:', e);
+                }
+            }
+
+            if (!data.video_base64 && !data.audio_base64) {
+                setStatus('');
+            }
+
+        } catch (e) {
+            responseText.textContent = 'The Oracle is currently offline. Try again shortly.';
+            responseBox.classList.add('visible');
+            setStatus('');
         }
 
-        if (d.status) {
-            document.getElementById('transcriptStatusText').textContent = d.status;
-        }
-
-        if (d.is_live !== undefined) {
-            const badge = document.getElementById('liveStatusText');
-            badge.textContent = d.is_live ? 'LIVE' : 'REPLAY';
-        }
-
-    } catch(e) {
-        console.debug('Transcript fetch:', e.message);
+        isProcessing = false;
+        sendBtn.disabled = false;
     }
-}
 
-// ─── Demo seed data (shows while offline) ─────
-const SEED = [
-    { text: "Bitcoin is consolidating above the 200-day moving average. Historically this has been a bullish signal entering the post-halving cycle.", score: 0.62, label: "Bullish" },
-    { text: "Mempool clearing rapidly — 4,200 unconfirmed transactions. Fee pressure dropping to 8 sat/vB, which is ideal for normal transactions.", score: 0.15, label: "Neutral" },
-    { text: "Michael Saylor's Strategy just announced another Bitcoin acquisition. They now hold over 450,000 BTC on their balance sheet.", score: 0.85, label: "Bullish" },
-    { text: "Mining difficulty adjusted upward by 3.2% today. This reflects increasing hashrate and network security. Miners are expanding despite current prices.", score: 0.42, label: "Positive" },
-    { text: "Lightning Network capacity hits new all-time high. 5,800 BTC locked in payment channels — instant Bitcoin payments at near-zero fees.", score: 0.71, label: "Bullish" },
-    { text: "Fed minutes suggest rates may remain elevated through Q3. Dollar strength could create short-term headwinds for risk assets including Bitcoin.", score: -0.38, label: "Caution" },
-    { text: "On-chain data shows long-term holders accumulating heavily. The HODLer wave is growing — a classic signal before major price discovery phases.", score: 0.78, label: "Bullish" },
-    { text: "Whale alert: 2,000 BTC moved from cold storage to exchange. This could indicate selling pressure ahead. Watch the orderbook carefully.", score: -0.52, label: "Bearish" },
-];
-
-function seedDemo() {
-    const now = new Date();
-    SEED.forEach((entry, i) => {
-        const t = new Date(now - (SEED.length - i) * 45000);
-        addTranscriptEntry(entry.text, entry.score, fmtTime(t), false);
+    // Send button
+    sendBtn.addEventListener('click', function() {
+        askOracle(inputEl.value.trim());
+        inputEl.value = '';
     });
 
-    // Initial sentiment based on last seed
-    const lastSeed = SEED[SEED.length - 1];
-    currentSentiment = lastSeed.score;
-    updateSentimentUI(lastSeed.score, lastSeed.label);
-    updateSentimentStats(62, 22, 16);
-
-    document.getElementById('transcriptStatusText').textContent = 'Demo Mode';
-
-    // Scroll to bottom
-    const scroll = document.getElementById('transcriptScroll');
-    setTimeout(() => { scroll.scrollTop = scroll.scrollHeight; }, 100);
-}
-
-// ─── Live Update Simulation (no stream) ────────
-let demoIndex = 0;
-const DEMO_ADDITIONS = [
-    { text: "Lyn Alden weighs in on the macro setup: 'Bitcoin is the best performing asset over any 4-year window. The thesis remains intact.'", score: 0.74, label: "Bullish" },
-    { text: "Block time averaging 9.2 minutes over the last 2016 blocks. Slightly fast — next difficulty adjustment expected around +1.8%.", score: 0.1, label: "Neutral" },
-    { text: "Halving countdown: approximately 180 days until the next Bitcoin halving. Block subsidy drops to 1.5625 BTC.", score: 0.65, label: "Bullish" },
-    { text: "ETF inflows surge: spot Bitcoin ETFs recorded $420M in net inflows today. BlackRock's IBIT leads with $280M.", score: 0.88, label: "Bullish" },
-    { text: "Nostr activity spiking — Bitcoin developer discourse intensifying around a proposed soft fork. Community debate heating up.", score: 0.05, label: "Neutral" },
-];
-
-function addDemoUpdate() {
-    const entry = DEMO_ADDITIONS[demoIndex % DEMO_ADDITIONS.length];
-    demoIndex++;
-    addTranscriptEntry(entry.text, entry.score, fmtTime(new Date()), true);
-    updateSentimentUI(entry.score, entry.label);
-
-    const partner = checkForPartner(entry.text);
-    if (partner) {
-        showPartner(partner);
-        setTimeout(hidePartner, 10000);
-    }
-}
-
-// ─── Init ──────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-    // Seed demo transcript
-    seedDemo();
-
-    // Try to fetch live data, fall back to demo updates
-    fetchTranscript().then(() => {
-        // If we got real data, poll every 8s
-        updateInterval = setInterval(fetchTranscript, 8000);
-    }).catch(() => {
-        // Demo mode: add entries every 30s
-        setInterval(addDemoUpdate, 30000);
+    // Enter key
+    inputEl.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            askOracle(inputEl.value.trim());
+            inputEl.value = '';
+        }
     });
 
-    // Always set up demo additions as fallback
-    setTimeout(() => {
-        if (!updateInterval) setInterval(addDemoUpdate, 25000);
-    }, 3000);
+    // Quick question buttons
+    document.querySelectorAll('.oracle-quick-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var q = btn.getAttribute('data-q');
+            inputEl.value = q;
+            askOracle(q);
+            inputEl.value = '';
+        });
+    });
 
-    // Next air time calculation
-    const nextAir = document.getElementById('nextAirTime');
-    if (nextAir) {
-        const now = new Date();
-        const nextBriefing = new Date(now);
-        nextBriefing.setHours(9, 0, 0, 0);  // 9 AM daily
-        if (now >= nextBriefing) nextBriefing.setDate(nextBriefing.getDate() + 1);
-        const hours = Math.floor((nextBriefing - now) / 3600000);
-        const mins  = Math.floor((nextBriefing - now) % 3600000 / 60000);
-        nextAir.innerHTML = `<i class="fas fa-clock" style="margin-right:6px;"></i>Next briefing in ${hours}h ${mins}m`;
-    }
-});
+    // Fetch latest articles
+    fetch('/api/latest-articles')
+        .then(function(r) { return r.json(); })
+        .then(function(articles) {
+            var grid = document.getElementById('intelGrid');
+            var items = articles.slice(0, 3);
+            if (!items.length) {
+                grid.innerHTML = '<p style="color:rgba(255,255,255,0.2); font-size:0.8rem; text-align:center; grid-column:1/-1;">Intelligence feed loading...</p>';
+                return;
+            }
+            grid.innerHTML = items.map(function(a) {
+                return '<a href="/articles/' + a.id + '" class="oracle-intel-card">' +
+                    '<img class="oracle-intel-card-img" src="' + (a.header_image_url || '/static/images/default-header.png') + '" alt="" loading="lazy">' +
+                    '<div class="oracle-intel-card-title">' + a.title + '</div>' +
+                    '</a>';
+            }).join('');
+        })
+        .catch(function() {});
+})();
 </script>
+{% endraw %}
 {% endblock %}
