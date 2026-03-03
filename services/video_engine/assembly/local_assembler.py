@@ -253,9 +253,15 @@ class LocalAssembler:
         """Render branded intro/outro bumper."""
         duration = entry.duration_sec or 4
 
-        # Check if pre-rendered bumper exists
+        # Check if pre-rendered video bumper exists
+        source = entry.source_video_path or entry.visual
+        if source and Path(str(source)).exists() and str(source).endswith(".mp4"):
+            ffmpeg_ops.scale_and_pad(str(source), seg_path, w, h)
+            return seg_path
+
+        # Check if pre-rendered image exists
         if entry.visual and Path(str(entry.visual)).exists():
-            return ffmpeg_ops.scale_and_pad(str(entry.visual), seg_path, w, h)
+            return ffmpeg_ops.image_to_video(str(entry.visual), seg_path, duration=duration)
 
         # Generate placeholder color clip
         return ffmpeg_ops.generate_color_clip(
