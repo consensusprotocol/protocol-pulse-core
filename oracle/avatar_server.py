@@ -37,9 +37,9 @@ BATCH_SIZE = 48  # Optimal for RTX 4090
 DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 
 # Post-processing config
-BLINK_INTERVAL_MIN = 3.0
-BLINK_INTERVAL_MAX = 4.0
-BLINK_DURATION = 0.15
+BLINK_INTERVAL_MIN = 2.5
+BLINK_INTERVAL_MAX = 5.0
+BLINK_DURATION = 0.22  # ~5 frames at 25fps, visible but natural
 HEAD_ROTATION_AMPLITUDE = 2.0   # degrees — subtle news-anchor sway
 HEAD_TRANSLATION_X = 3.0        # pixels
 HEAD_TRANSLATION_Y = 1.5        # pixels
@@ -184,7 +184,7 @@ def apply_blink(frame, intensity, face_coords):
     x_weights = np.exp(-0.5 * ((np.linspace(-1, 1, w)) ** 2) / 0.5)
     mask = np.outer(y_weights, x_weights)[:, :, np.newaxis]
     skin_tone = np.mean(eye_region, axis=(0, 1), keepdims=True) * 0.7
-    darkened = eye_region * (1 - mask * intensity * 0.6) + skin_tone * (mask * intensity * 0.6)
+    darkened = eye_region * (1 - mask * intensity * 0.75) + skin_tone * (mask * intensity * 0.75)
     result[eye_y1:eye_y2, eye_x1:eye_x2] = np.clip(darkened, 0, 255).astype(np.uint8)
     return result
 
@@ -352,7 +352,7 @@ def health():
     return jsonify({
         "status": "ok",
         "engine": "wav2lip-gan-fp16",
-        "enhancements": ["eye_blinks", "head_movement", "fp16", "cached_face"],
+        "enhancements": ["eye_blinks", "fp16", "cached_face"],  # head_movement disabled
         "device": DEVICE,
         "model_loaded": reg is not None and reg.wav2lip_model is not None,
         "avatar_loaded": reg is not None and reg.avatar_face is not None,
@@ -399,7 +399,7 @@ def warmup():
         with _lock:
             frames = wav2lip_generate(wav_path)
             if frames:
-                frames = post_process_frames(frames[:5], 25.0, enable_blinks=True, enable_head=True)
+                frames = post_process_frames(frames[:5], 25.0, enable_blinks=True, enable_head=False)
         elapsed = time.time() - t0
         logger.info(f"Warmup complete: {len(frames)} frames in {elapsed:.2f}s")
         return jsonify({
@@ -431,7 +431,7 @@ def generate():
         return jsonify({"error": "JSON body required"}), 400
 
     enable_blinks = data.get("enable_blinks", True)
-    enable_head_movement = data.get("enable_head_movement", True)
+    enable_head_movement = data.get("enable_head_movement", False)  # Disabled: warpAffine post-lip-sync breaks sync
     fps = float(data.get("fps", 25.0))
 
     t_start = time.time()
@@ -957,7 +957,7 @@ if __name__ == "__main__":
             warmup_wav = tmp.name
         frames = wav2lip_generate(warmup_wav)
         if frames:
-            frames = post_process_frames(frames[:5], 25.0, enable_blinks=True, enable_head=True)
+            frames = post_process_frames(frames[:5], 25.0, enable_blinks=True, enable_head=False)
         os.unlink(warmup_wav)
         logger.info(
             f"[WARMUP] Pipeline ready in {time.time()-warmup_start:.1f}s "
