@@ -40,10 +40,10 @@ DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 BLINK_INTERVAL_MIN = 2.5
 BLINK_INTERVAL_MAX = 5.0
 BLINK_DURATION = 0.22  # ~5 frames at 25fps, visible but natural
-HEAD_ROTATION_AMPLITUDE = 0.8   # HeyGen-style subtle drift   # degrees — subtle news-anchor sway
-HEAD_TRANSLATION_X = 1.2        # Micro-drift only        # pixels
-HEAD_TRANSLATION_Y = 0.6        # Almost imperceptible vertical        # pixels
-HEAD_PERIOD = 6.0               # Slower = more natural               # seconds per full cycle — slow and natural
+HEAD_ROTATION_AMPLITUDE = 1.5   # Visible but natural   # HeyGen-style subtle drift   # degrees — subtle news-anchor sway
+HEAD_TRANSLATION_X = 2.0        # Visible sway        # Micro-drift only        # pixels
+HEAD_TRANSLATION_Y = 1.0        # Slight vertical        # Almost imperceptible vertical        # pixels
+HEAD_PERIOD = 5.0               # Natural pace               # Slower = more natural               # seconds per full cycle — slow and natural
 
 # ─── Logging ──────────────────────────────────────────────────────────
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -235,7 +235,7 @@ def post_process_frames(frames, fps=25.0, enable_blinks=False, enable_head=True)
 
     reg = ModelRegistry.get()
     blink_schedule = {}
-    if enable_blinks:
+    if False:  # BLINKS PERMANENTLY DISABLED
         blink_schedule = generate_blink_schedule(len(frames), fps)
 
     processed = []
@@ -399,7 +399,7 @@ def warmup():
         with _lock:
             frames = wav2lip_generate(wav_path)
             if frames:
-                frames = post_process_frames(frames[:5], 25.0, enable_blinks=True, enable_head=False)
+                frames = post_process_frames(frames[:5], 25.0, enable_blinks=False, enable_head=True)
         elapsed = time.time() - t0
         logger.info(f"Warmup complete: {len(frames)} frames in {elapsed:.2f}s")
         return jsonify({
@@ -735,7 +735,7 @@ def _generate_chunk(sentence, chunk_num, session_dir, fps=25.0):
         # Wav2Lip
         with _lock:
             frames = wav2lip_generate(wav_path, fps)
-            frames = post_process_frames(frames, fps, enable_blinks=True, enable_head=True)
+            frames = post_process_frames(frames, fps, enable_blinks=False, enable_head=True)
 
         # Encode
         video_path = os.path.join(session_dir, f"chunk_{chunk_num:03d}.mp4")
@@ -906,7 +906,7 @@ def generate_idle_loop():
     frames = [base_frame.copy() for _ in range(num_frames)]
 
     # Apply blinks + head movement
-    frames = post_process_frames(frames, fps, enable_blinks=True, enable_head=True)
+    frames = post_process_frames(frames, fps, enable_blinks=False, enable_head=True)
 
     # Encode to MP4 (no audio)
     video_path = frames_to_video(frames, fps, audio_path=None)
@@ -957,7 +957,7 @@ if __name__ == "__main__":
             warmup_wav = tmp.name
         frames = wav2lip_generate(warmup_wav)
         if frames:
-            frames = post_process_frames(frames[:5], 25.0, enable_blinks=True, enable_head=False)
+            frames = post_process_frames(frames[:5], 25.0, enable_blinks=False, enable_head=True)
         os.unlink(warmup_wav)
         logger.info(
             f"[WARMUP] Pipeline ready in {time.time()-warmup_start:.1f}s "
