@@ -1,0 +1,66 @@
+# Bitcoin YouTube channels to scan daily for best clips
+# These are the 14+ channels Protocol Pulse monitors
+# Handles verified working with yt-dlp as of 2026-03-03
+
+channels:
+  - handle: "@BitcoinMagazine"
+    name: "Bitcoin Magazine"
+    url: "https://www.youtube.com/@BitcoinMagazine"
+    priority: 1
+
+  - handle: "@SimplyBitcoin"
+    name: "Simply Bitcoin"
+    url: "https://www.youtube.com/@SimplyBitcoin"
+    priority: 1
+
+  - handle: "@WBDPodcast"
+    name: "What Bitcoin Did"
+    url: "https://www.youtube.com/@WBDPodcast"
+    priority: 1
+
+  - handle: "@TFTC"
+    name: "TFTC"
+    url: "https://www.youtube.com/@TFTC"
+    priority: 1
+
+  - handle: "@PrestonPysh"
+    name: "Preston Pysh"
+    url: "https://www.youtube.com/@PrestonPysh"
+    priority: 1
+
+  - handle: "@thebitcoinlayer"
+    name: "The Bitcoin Layer"
+    url: "https://www.youtube.com/@thebitcoinlayer"
+    priority: 2
+
+  - handle: "@Blockworks"
+    name: "Blockworks"
+    url: "https://www.youtube.com/@Blockworks"
+    priority: 2
+
+  - handle: "@nataliebrunell"
+    name: "Natalie Brunell"
+    url: "https://www.youtube.com/@nataliebrunell"
+    priority: 2
+
+  - handle: "@aantonop"
+    name: "Andreas Antonopoulos"
+    url: "https://www.youtube.com/@aantonop"
+    priority: 3
+
+  - handle: "@RobertBreedlove22"
+    name: "Robert Breedlove"
+    url: "https://www.youtube.com/@RobertBreedlove22"
+    priority: 3
+
+  - handle: "@BitcoinUnchained"
+    name: "Unchained"
+    url: "https://www.youtube.com/@BitcoinUnchained"
+    priority: 3
+
+# Scanning config
+scan:
+  max_age_hours: 48        # Only videos from last 48 hours
+  fallback_age_hours: 168  # Fall back to 7 days if zero results
+  max_videos_per_channel: 3
+  min_duration_seconds: 120  # Skip shorts under 2 min

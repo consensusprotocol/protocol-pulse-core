@@ -135,7 +135,21 @@ def wav2lip_generate(audio_path, fps=25.0):
         for p in pred:
             p_resized = cv2.resize(p.astype(np.uint8), (x2 - x1, y2 - y1))
             full_frame = reg.avatar_face.copy()
-            full_frame[y1:y2, x1:x2] = p_resized
+            # Feathered blend to eliminate face paste seam
+            mask = np.ones_like(p_resized, dtype=np.float32)
+            feather = 8  # pixels of blend
+            h_face, w_face = p_resized.shape[:2]
+            for j in range(min(feather, h_face)):
+                mask[j, :] = j / feather
+            for j in range(min(feather, h_face)):
+                mask[-(j+1), :] = j / feather
+            for j in range(min(feather, w_face)):
+                mask[:, j] *= j / feather
+            for j in range(min(feather, w_face)):
+                mask[:, -(j+1)] *= j / feather
+            full_frame[y1:y2, x1:x2] = (
+                p_resized * mask + full_frame[y1:y2, x1:x2] * (1 - mask)
+            ).astype(np.uint8)
             frames.append(full_frame)
 
     logger.info(f"Generated {len(frames)} frames for {audio_duration:.2f}s audio @ {fps}fps")

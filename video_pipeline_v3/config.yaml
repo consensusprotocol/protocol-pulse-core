@@ -39,7 +39,7 @@ assets:
   font_regular: "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
   tag_video: "assets/tag_vertical.mp4"
   transition_duration: 0.5
-  intro_duration: 4
+  intro_duration: 0     # No static intro — cold open starts immediately
   outro_duration: 5
 
 paths:
