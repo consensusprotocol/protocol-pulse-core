@@ -25,7 +25,7 @@ import numpy as np
 
 import cv2
 import torch
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file, after_this_request
 
 from model_registry import ModelRegistry, WAV2LIP_DIR, AVATAR_SOURCE
 
@@ -40,9 +40,9 @@ DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 BLINK_INTERVAL_MIN = 3.0
 BLINK_INTERVAL_MAX = 4.0
 BLINK_DURATION = 0.15
-HEAD_ROTATION_AMPLITUDE = 0.8   # degrees — very subtle
-HEAD_TRANSLATION_X = 1.5        # pixels
-HEAD_TRANSLATION_Y = 0.8        # pixels
+HEAD_ROTATION_AMPLITUDE = 2.0   # degrees — subtle news-anchor sway
+HEAD_TRANSLATION_X = 3.0        # pixels
+HEAD_TRANSLATION_Y = 1.5        # pixels
 HEAD_PERIOD = 4.0               # seconds per full cycle — slow and natural
 
 # ─── Logging ──────────────────────────────────────────────────────────
@@ -209,25 +209,42 @@ def apply_head_movement(frame, frame_idx, fps):
         HEAD_TRANSLATION_Y * 0.3 * math.sin(2 * math.pi * t / (HEAD_PERIOD * 1.6) + 0.3) +
         HEAD_TRANSLATION_Y * 0.2 * math.sin(2 * math.pi * t / (HEAD_PERIOD * 3.0))
     )
+    # Subtle breathing: slight scale oscillation (~0.4%) at 1.5s period
+    breath_scale = 1.0 + 0.004 * math.sin(2 * math.pi * t / 1.5)
     h, w = frame.shape[:2]
     center = (w / 2, h / 2)
-    M = cv2.getRotationMatrix2D(center, rot_angle, 1.0)
+    M = cv2.getRotationMatrix2D(center, rot_angle, breath_scale)
     M[0, 2] += tx
     M[1, 2] += ty
-    return cv2.warpAffine(frame, M, (w, h), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
+    result = cv2.warpAffine(frame, M, (w, h), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
+    # Subtle ambient light variation — additive for uniform effect on dark backgrounds
+    ambient_add = 4.5 * math.sin(2 * math.pi * t / 1.2 + 0.7)
+    ambient_mul = 1.0 + 0.012 * math.sin(2 * math.pi * t / 2.3 + 1.3)
+    result = np.clip(result.astype(np.float32) * ambient_mul + ambient_add, 0, 255).astype(np.uint8)
+    return result
 
 
 # ═══════════════════════════════════════════════════════════════════════
 # POST-PROCESSING: COMBINED PIPELINE
 # ═══════════════════════════════════════════════════════════════════════
 
-def post_process_frames(frames, fps=25.0):
-    """Apply head movement only. Blinks disabled — they look artificial on avatar."""
+def post_process_frames(frames, fps=25.0, enable_blinks=True, enable_head=True):
+    """Apply eye blinks and head movement post-processing."""
     if len(frames) == 0:
         return frames
+
+    reg = ModelRegistry.get()
+    blink_schedule = {}
+    if enable_blinks:
+        blink_schedule = generate_blink_schedule(len(frames), fps)
+
     processed = []
     for i, frame in enumerate(frames):
-        result = apply_head_movement(frame, i, fps)
+        result = frame
+        if enable_blinks and i in blink_schedule:
+            result = apply_blink(result, blink_schedule[i], reg.avatar_face_coords)
+        if enable_head:
+            result = apply_head_movement(result, i, fps)
         processed.append(result)
     return processed
 
@@ -237,7 +254,8 @@ def post_process_frames(frames, fps=25.0):
 # ═══════════════════════════════════════════════════════════════════════
 
 def frames_to_video(frames, fps=25.0, audio_path=None):
-    """Encode frames to MP4, optionally muxing audio (audio as timing master)."""
+    """Encode frames to MP4, optionally muxing audio (audio as timing master).
+    Returns the path to the output MP4 file (caller must clean up)."""
     if not frames:
         return None
     with tempfile.NamedTemporaryFile(suffix=".avi", delete=False) as tmp_avi:
@@ -274,17 +292,15 @@ def frames_to_video(frames, fps=25.0, audio_path=None):
             )
 
         if os.path.exists(mp4_path) and os.path.getsize(mp4_path) > 0:
-            with open(mp4_path, "rb") as f:
-                return base64.b64encode(f.read()).decode()
+            return mp4_path
         else:
             logger.error("ffmpeg failed to produce MP4")
             return None
     finally:
-        for p in [avi_path, mp4_path]:
-            try:
-                os.unlink(p)
-            except OSError:
-                pass
+        try:
+            os.unlink(avi_path)
+        except OSError:
+            pass
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -383,7 +399,7 @@ def warmup():
         with _lock:
             frames = wav2lip_generate(wav_path)
             if frames:
-                frames = post_process_frames(frames[:5], 25.0)
+                frames = post_process_frames(frames[:5], 25.0, enable_blinks=True, enable_head=True)
         elapsed = time.time() - t0
         logger.info(f"Warmup complete: {len(frames)} frames in {elapsed:.2f}s")
         return jsonify({
@@ -414,7 +430,7 @@ def generate():
     if not data:
         return jsonify({"error": "JSON body required"}), 400
 
-    enable_blinks = data.get("enable_blinks", False)  # Disabled — looks artificial
+    enable_blinks = data.get("enable_blinks", True)
     enable_head_movement = data.get("enable_head_movement", True)
     fps = float(data.get("fps", 25.0))
 
@@ -457,53 +473,64 @@ def generate():
 
             t0 = time.time()
             if enable_blinks or enable_head_movement:
-                if enable_blinks and enable_head_movement:
-                    frames = post_process_frames(frames, fps)
-                elif enable_blinks:
-                    blink_schedule = generate_blink_schedule(len(frames), fps)
-                    frames = [
-                        apply_blink(f, blink_schedule.get(i, 0), reg.avatar_face_coords)
-                        for i, f in enumerate(frames)
-                    ]
-                elif enable_head_movement:
-                    frames = [apply_head_movement(f, i, fps) for i, f in enumerate(frames)]
+                frames = post_process_frames(
+                    frames, fps,
+                    enable_blinks=enable_blinks,
+                    enable_head=enable_head_movement,
+                )
             t_post = time.time() - t0
             logger.info(f"Post-processing: {t_post:.2f}s")
 
             t0 = time.time()
-            video_b64 = frames_to_video(frames, fps, audio_path=wav_path)
+            video_path = frames_to_video(frames, fps, audio_path=wav_path)
             t_encode = time.time() - t0
             logger.info(f"Encoding: {t_encode:.2f}s")
 
-        if not video_b64:
+        if not video_path:
             return jsonify({"error": "Video encoding failed"}), 500
 
         t_total = time.time() - t_start
         _record_latency(t_total)
         duration = len(frames) / fps
+        num_frames = len(frames)
 
         logger.info(
-            f"Complete: {duration:.1f}s video, {len(frames)} frames, "
+            f"Complete: {duration:.1f}s video, {num_frames} frames, "
             f"lip={t_lip:.1f}s post={t_post:.1f}s enc={t_encode:.1f}s total={t_total:.1f}s"
         )
 
-        return jsonify({
-            "video_base64": video_b64,
-            "duration": round(duration, 2),
-            "frames": len(frames),
-            "processing_time": round(t_total, 2),
-            "timing": {
-                "wav2lip": round(t_lip, 2),
-                "post_processing": round(t_post, 2),
-                "encoding": round(t_encode, 2),
-                "total": round(t_total, 2)
-            }
-        })
+        # Clean up all temp files after response is sent
+        cleanup_paths = [audio_path, wav_path, video_path]
+
+        @after_this_request
+        def _cleanup(response):
+            for p in cleanup_paths:
+                try:
+                    if p and os.path.exists(p):
+                        os.unlink(p)
+                except OSError:
+                    pass
+            return response
+
+        response = send_file(
+            video_path,
+            mimetype="video/mp4",
+            as_attachment=True,
+            download_name="oracle.mp4",
+        )
+        response.headers["X-Duration"] = str(round(duration, 2))
+        response.headers["X-Frames"] = str(num_frames)
+        response.headers["X-Processing-Time"] = str(round(t_total, 2))
+        response.headers["X-Timing-Wav2Lip"] = str(round(t_lip, 2))
+        response.headers["X-Timing-PostProcess"] = str(round(t_post, 2))
+        response.headers["X-Timing-Encoding"] = str(round(t_encode, 2))
+        return response
 
     except Exception as e:
         logger.error(f"Generation error: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
     finally:
+        # Fallback cleanup for error paths (after_this_request handles success path)
         for p in [audio_path, wav_path]:
             try:
                 if os.path.exists(p):
@@ -634,6 +661,263 @@ def vision_sessions():
 
 
 # ═══════════════════════════════════════════════════════════════════════
+# STREAMING PIPELINE
+# ═══════════════════════════════════════════════════════════════════════
+
+import re
+import uuid
+import subprocess
+
+ORACLE_SYSTEM_PROMPT = (
+    "You are The Oracle, Protocol Pulse's AI intelligence analyst specializing in Bitcoin. "
+    "You deliver concise, authoritative briefings in a cyberpunk news anchor style. "
+    "Keep responses to 3-5 sentences max. Be direct, data-driven, and occasionally "
+    "philosophical about Bitcoin's role in financial sovereignty."
+)
+ORACLE_VOICE_ID = "cgSgspJ2msm6clMCkdW9"  # Jessica
+ORACLE_STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
+ORACLE_IDLE_PATH = os.path.join(ORACLE_STATIC_DIR, "oracle_idle.mp4")
+
+# In-memory session store for streaming
+_stream_sessions = {}
+_stream_lock = threading.Lock()
+
+
+def _get_anthropic_key():
+    """Get Anthropic API key from env or .env file."""
+    key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not key:
+        env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
+        if os.path.exists(env_path):
+            for line in open(env_path):
+                if line.startswith("ANTHROPIC_API_KEY="):
+                    key = line.strip().split("=", 1)[1].strip().strip("\"'")
+    if not key:
+        # Try fetching from Replit relay
+        try:
+            resp = http_requests.post(
+                "https://protocolpulse.replit.app/api/admin/exec",
+                json={
+                    "token": "581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552",
+                    "cmd": "echo $ANTHROPIC_API_KEY",
+                },
+                timeout=10,
+            )
+            if resp.status_code == 200:
+                key = resp.json().get("output", "").strip()
+        except Exception:
+            pass
+    return key
+
+
+def _split_sentences(text):
+    """Split text into sentences for chunked processing."""
+    sentences = re.split(r'(?<=[.!?])\s+', text.strip())
+    return [s for s in sentences if s.strip()]
+
+
+def _generate_chunk(sentence, chunk_num, session_dir, fps=25.0):
+    """Generate a single video chunk for a sentence: TTS → Wav2Lip → MP4."""
+    try:
+        # TTS
+        audio_bytes = text_to_speech(sentence, ORACLE_VOICE_ID)
+        audio_path = os.path.join(session_dir, f"chunk_{chunk_num:03d}.mp3")
+        with open(audio_path, "wb") as f:
+            f.write(audio_bytes)
+
+        # Convert to wav
+        wav_path = os.path.join(session_dir, f"chunk_{chunk_num:03d}_16k.wav")
+        subprocess.run(
+            ["ffmpeg", "-y", "-loglevel", "error", "-i", audio_path, "-ar", "16000", "-ac", "1", wav_path],
+            check=True, capture_output=True,
+        )
+
+        # Wav2Lip
+        with _lock:
+            frames = wav2lip_generate(wav_path, fps)
+            frames = post_process_frames(frames, fps, enable_blinks=True, enable_head=True)
+
+        # Encode
+        video_path = os.path.join(session_dir, f"chunk_{chunk_num:03d}.mp4")
+        tmp_path = frames_to_video(frames, fps, audio_path=wav_path)
+        if tmp_path:
+            os.rename(tmp_path, video_path)
+            return video_path
+        return None
+    except Exception as e:
+        logger.error(f"Chunk {chunk_num} generation error: {e}", exc_info=True)
+        return None
+
+
+def _stream_worker(session_id, text):
+    """Background worker: call Claude → split sentences → generate chunks."""
+    session = _stream_sessions.get(session_id)
+    if not session:
+        return
+
+    try:
+        # Get AI response
+        api_key = _get_anthropic_key()
+        if not api_key:
+            # Fallback: use the input text directly
+            logger.warning("No Anthropic key — using input text as-is")
+            ai_text = text
+        else:
+            resp = http_requests.post(
+                "https://api.anthropic.com/v1/messages",
+                headers={
+                    "x-api-key": api_key,
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json",
+                },
+                json={
+                    "model": "claude-sonnet-4-20250514",
+                    "max_tokens": 300,
+                    "system": ORACLE_SYSTEM_PROMPT,
+                    "messages": [{"role": "user", "content": text}],
+                },
+                timeout=30,
+            )
+            if resp.status_code == 200:
+                ai_text = resp.json()["content"][0]["text"]
+            else:
+                logger.error(f"Claude API error {resp.status_code}: {resp.text[:200]}")
+                ai_text = text  # fallback
+
+        session["ai_response"] = ai_text
+        sentences = _split_sentences(ai_text)
+        session["total_chunks"] = len(sentences)
+
+        session_dir = session["dir"]
+        for i, sentence in enumerate(sentences):
+            chunk_path = _generate_chunk(sentence, i, session_dir)
+            if chunk_path:
+                session["chunks_ready"].append(chunk_path)
+            else:
+                session["errors"].append(f"Chunk {i} failed")
+
+        session["status"] = "complete"
+
+    except Exception as e:
+        logger.error(f"Stream worker error: {e}", exc_info=True)
+        session["status"] = "error"
+        session["errors"].append(str(e))
+
+
+@app.route("/generate_stream", methods=["POST"])
+def generate_stream():
+    """Start streaming generation: text → Claude → sentence chunks → video chunks."""
+    data = request.get_json()
+    if not data or not data.get("text"):
+        return jsonify({"error": "text required"}), 400
+
+    session_id = str(uuid.uuid4())[:12]
+    session_dir = os.path.join(tempfile.gettempdir(), f"oracle_stream_{session_id}")
+    os.makedirs(session_dir, exist_ok=True)
+
+    session = {
+        "id": session_id,
+        "status": "processing",
+        "text": data["text"],
+        "ai_response": None,
+        "total_chunks": 0,
+        "chunks_ready": [],
+        "errors": [],
+        "dir": session_dir,
+        "created": time.time(),
+    }
+
+    with _stream_lock:
+        _stream_sessions[session_id] = session
+
+    thread = threading.Thread(target=_stream_worker, args=(session_id, data["text"]), daemon=True)
+    thread.start()
+
+    return jsonify({
+        "session_id": session_id,
+        "status": "processing",
+        "message": "Stream generation started. Poll /stream_status/{session_id} for progress.",
+    })
+
+
+@app.route("/stream_status/<session_id>")
+def stream_status(session_id):
+    """Poll for streaming generation progress."""
+    session = _stream_sessions.get(session_id)
+    if not session:
+        return jsonify({"error": "Session not found"}), 404
+
+    return jsonify({
+        "session_id": session_id,
+        "status": session["status"],
+        "ai_response": session.get("ai_response"),
+        "chunks_ready": len(session["chunks_ready"]),
+        "total_chunks": session["total_chunks"],
+        "total_estimated": max(session["total_chunks"], 3),
+        "errors": session["errors"],
+    })
+
+
+@app.route("/stream_chunk/<session_id>/<int:chunk_number>")
+def stream_chunk(session_id, chunk_number):
+    """Fetch a generated video chunk by number."""
+    session = _stream_sessions.get(session_id)
+    if not session:
+        return jsonify({"error": "Session not found"}), 404
+
+    if chunk_number >= len(session["chunks_ready"]):
+        return jsonify({"error": "Chunk not ready yet"}), 404
+
+    chunk_path = session["chunks_ready"][chunk_number]
+    if not os.path.exists(chunk_path):
+        return jsonify({"error": "Chunk file missing"}), 500
+
+    return send_file(chunk_path, mimetype="video/mp4", as_attachment=True,
+                     download_name=f"chunk_{chunk_number:03d}.mp4")
+
+
+@app.route("/oracle_idle")
+def oracle_idle():
+    """Serve the pre-rendered idle loop video."""
+    if os.path.exists(ORACLE_IDLE_PATH):
+        return send_file(ORACLE_IDLE_PATH, mimetype="video/mp4")
+    return jsonify({"error": "Idle video not generated yet"}), 404
+
+
+def generate_idle_loop():
+    """Generate a 4-second idle loop with blinks + head movement (no audio)."""
+    os.makedirs(ORACLE_STATIC_DIR, exist_ok=True)
+    if os.path.exists(ORACLE_IDLE_PATH):
+        logger.info("Idle loop already exists, skipping generation")
+        return
+
+    logger.info("Generating idle loop video...")
+    reg = ModelRegistry.get()
+    if reg.avatar_face is None:
+        logger.error("Cannot generate idle loop: no avatar loaded")
+        return
+
+    fps = 25.0
+    duration = 4.0
+    num_frames = int(duration * fps)
+
+    # Create static frames from the avatar face
+    base_frame = reg.avatar_face.copy()
+    frames = [base_frame.copy() for _ in range(num_frames)]
+
+    # Apply blinks + head movement
+    frames = post_process_frames(frames, fps, enable_blinks=True, enable_head=True)
+
+    # Encode to MP4 (no audio)
+    video_path = frames_to_video(frames, fps, audio_path=None)
+    if video_path:
+        os.rename(video_path, ORACLE_IDLE_PATH)
+        logger.info(f"Idle loop saved: {ORACLE_IDLE_PATH} ({num_frames} frames)")
+    else:
+        logger.error("Failed to generate idle loop")
+
+
+# ═══════════════════════════════════════════════════════════════════════
 # MAIN
 # ═══════════════════════════════════════════════════════════════════════
 
@@ -673,7 +957,7 @@ if __name__ == "__main__":
             warmup_wav = tmp.name
         frames = wav2lip_generate(warmup_wav)
         if frames:
-            frames = post_process_frames(frames[:5], 25.0)
+            frames = post_process_frames(frames[:5], 25.0, enable_blinks=True, enable_head=True)
         os.unlink(warmup_wav)
         logger.info(
             f"[WARMUP] Pipeline ready in {time.time()-warmup_start:.1f}s "
@@ -685,5 +969,9 @@ if __name__ == "__main__":
     logger.info(
         f"[WARMUP] GPU 0 VRAM: {torch.cuda.memory_allocated(0)/1024**3:.1f}GB used"
     )
+
+    # ── Generate idle loop if not already present ─────
+    generate_idle_loop()
+
     logger.info(f"Avatar server ready on port {PORT}")
     app.run(host="0.0.0.0", port=PORT, threaded=True)
