@@ -40,10 +40,10 @@ DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 BLINK_INTERVAL_MIN = 2.5
 BLINK_INTERVAL_MAX = 5.0
 BLINK_DURATION = 0.22  # ~5 frames at 25fps, visible but natural
-HEAD_ROTATION_AMPLITUDE = 1.5   # Visible but natural   # HeyGen-style subtle drift   # degrees — subtle news-anchor sway
-HEAD_TRANSLATION_X = 2.0        # Visible sway        # Micro-drift only        # pixels
-HEAD_TRANSLATION_Y = 1.0        # Slight vertical        # Almost imperceptible vertical        # pixels
-HEAD_PERIOD = 5.0               # Natural pace               # Slower = more natural               # seconds per full cycle — slow and natural
+HEAD_ROTATION_AMPLITUDE = 2.5   # degrees — visible news-anchor sway
+HEAD_TRANSLATION_X = 4.0        # pixels — visible horizontal drift
+HEAD_TRANSLATION_Y = 2.0        # pixels — visible vertical drift
+HEAD_PERIOD = 5.0               # seconds per full cycle — slow and natural
 
 # ─── Logging ──────────────────────────────────────────────────────────
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -165,28 +165,8 @@ def generate_blink_schedule(num_frames, fps):
 
 
 def apply_blink(frame, intensity, face_coords):
-    """Smooth gaussian-weighted darkening blink — no hard edges or rectangles."""
-    if intensity <= 0.01 or face_coords is None:
-        return frame
-    result = frame.copy()
-    y1, y2, x1, x2 = face_coords
-    face_h = y2 - y1
-    face_w = x2 - x1
-    eye_y1 = max(0, y1 + int(face_h * 0.28))
-    eye_y2 = min(frame.shape[0], y1 + int(face_h * 0.45))
-    eye_x1 = max(0, x1 + int(face_w * 0.1))
-    eye_x2 = min(frame.shape[1], x2 - int(face_w * 0.1))
-    if eye_y2 <= eye_y1 or eye_x2 <= eye_x1:
-        return frame
-    eye_region = result[eye_y1:eye_y2, eye_x1:eye_x2]
-    h, w = eye_region.shape[:2]
-    y_weights = np.exp(-0.5 * ((np.linspace(-1, 1, h)) ** 2) / 0.3)
-    x_weights = np.exp(-0.5 * ((np.linspace(-1, 1, w)) ** 2) / 0.5)
-    mask = np.outer(y_weights, x_weights)[:, :, np.newaxis]
-    skin_tone = np.mean(eye_region, axis=(0, 1), keepdims=True) * 0.7
-    darkened = eye_region * (1 - mask * intensity * 0.75) + skin_tone * (mask * intensity * 0.75)
-    result[eye_y1:eye_y2, eye_x1:eye_x2] = np.clip(darkened, 0, 255).astype(np.uint8)
-    return result
+    """DISABLED: Was causing rectangular/oval artifacts over eyes."""
+    return frame  # No-op — blink effect permanently disabled
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -352,7 +332,7 @@ def health():
     return jsonify({
         "status": "ok",
         "engine": "wav2lip-gan-fp16",
-        "enhancements": [# "eye_blinks",  # Disabled "fp16", "cached_face"],  # head_movement disabled
+        "enhancements": ["fp16", "cached_face", "head_movement"],
         "device": DEVICE,
         "model_loaded": reg is not None and reg.wav2lip_model is not None,
         "avatar_loaded": reg is not None and reg.avatar_face is not None,
