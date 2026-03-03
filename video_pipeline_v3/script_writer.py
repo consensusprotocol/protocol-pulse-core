@@ -1,8 +1,18 @@
 #!/usr/bin/env python3
-"""Script writer V4 — dual-host dialogue format for Pulse Check.
-Generates Joe Rogan-style banter between two hosts discussing Bitcoin news.
-Uses Claude API when available, falls back to curated sample scripts."""
-import json, os, sys
+"""Script Writer V5 — generates host dialogue AROUND real YouTube clips.
+
+Takes the 5 clips selected by clip_selector and generates:
+- Cold open teasing clip #1
+- Setup → Clip → React dialogue for each clip
+- Wrap-up and sign-off
+
+Host dialogue supports the clips, not the other way around.
+"""
+import json
+import logging
+import os
+import sys
+
 try:
     import anthropic
     HAS_ANTHROPIC = True
@@ -11,181 +21,213 @@ except ImportError:
 
 from relay import get_key
 
-DIALOGUE_PROMPT = """You are the head writer for "Pulse Check" — a dual-host Bitcoin show.
-Two hosts discuss the day's Bitcoin/crypto intelligence in a casual, Joe Rogan podcast style.
+logger = logging.getLogger("ScriptWriter")
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("[script] %(message)s"))
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+
+SCRIPT_PROMPT = """You are the head writer for "Pulse Check" — a daily 3-5 minute Bitcoin highlight reel.
+Two hosts (Jessica & Chris) present and react to 5 real YouTube clips from Bitcoin channels.
+Think ESPN SportsCenter for Bitcoin.
 
 HOST 1 (Jessica) — The anchor. Sharp, data-driven, sets up stories with authority.
 HOST 2 (Chris) — The co-host. Reacts naturally, asks follow-ups, drops hot takes.
 
+The clips have ALREADY been selected. Your job is to write the dialogue AROUND them.
+The clips play at full screen with their ORIGINAL audio. Your dialogue introduces and reacts to each.
+
+EPISODE STRUCTURE:
+1. COLD OPEN — Jessica teases the #1 clip (most dramatic). Hook the viewer. 1 sentence max.
+2. For each of the 5 clips:
+   a. SETUP — Host introduces what we're about to see (1-2 sentences)
+   b. [CLIP PLAYS — you mark this with a CLIP entry]
+   c. REACT — Hosts discuss what we just saw (2-4 sentences of banter)
+3. WRAP — Final thoughts, "Stay sovereign."
+
 Style rules:
-- CASUAL BANTER. Not news anchors. Think two smart friends at a bar discussing Bitcoin.
-- Short sentences. Conversational rhythm. Interruptions. Reactions.
-- Real opinions and takes — not neutral reporting.
-- Natural transitions: "Wait, hold on—", "Dude, that's wild", "OK but here's the thing..."
-- NO banned phrases: "Let's dive in", "Without further ado", "Buckle up", "game changer", "paradigm shift", "to the moon", "LFG", "Hey guys", "What's going on everybody"
+- CASUAL BANTER. Not news anchors. Two smart friends at a bar.
+- Short sentences. Conversational. Interruptions. Reactions.
+- Real opinions and hot takes — not neutral reporting.
+- Natural transitions between clips
+- Reference the ACTUAL QUOTES from the clips. React to SPECIFIC things said.
+- NO banned phrases: "Let's dive in", "Without further ado", "Buckle up", "game changer"
 - End with "Stay sovereign."
-- Include CLIP markers where a YouTube clip would naturally fit (e.g., after introducing a story that has video evidence)
 
-Given these top stories from today's Bitcoin intelligence:
-{stories}
+BTC Price: {btc_price}
 
-Current BTC price: {btc_price}
+THE 5 SELECTED CLIPS:
+{clips_info}
 
-Return ONLY valid JSON:
+Return ONLY valid JSON (no markdown, no code fences):
 {{
-  "episode_title": "short punchy title",
+  "cold_open": "Jessica's cold open teaser (1 sentence, dramatic)",
   "dialogue": [
-    {{"host": 1, "text": "Jessica's line here"}},
-    {{"host": 2, "text": "Chris's reaction/follow-up"}},
-    {{"host": 1, "text": "Jessica continues..."}},
-    {{"host": "CLIP", "text": "[PLAYS: description of clip]", "source": "@ChannelName", "query": "search terms for yt-dlp"}},
-    {{"host": 2, "text": "Chris reacts to clip..."}}
+    {{"host": 1, "text": "Jessica's cold open line", "type": "cold_open"}},
+    {{"host": 1, "text": "Setup for clip 1", "type": "setup", "clip_rank": 1}},
+    {{"host": "CLIP", "rank": 1}},
+    {{"host": 2, "text": "Chris reacts to clip 1", "type": "react", "clip_rank": 1}},
+    {{"host": 1, "text": "Jessica adds to reaction", "type": "react", "clip_rank": 1}},
+    {{"host": 1, "text": "Setup for clip 2", "type": "setup", "clip_rank": 2}},
+    {{"host": "CLIP", "rank": 2}},
+    ...and so on for all 5 clips...
+    {{"host": 1, "text": "Final wrap-up line. Stay sovereign.", "type": "wrap"}}
   ],
-  "chapters": [
-    {{"title": "Intro", "time_hint": "start"}},
-    {{"title": "Topic 1 headline", "time_hint": "after_intro"}},
-    {{"title": "Topic 2 headline", "time_hint": "mid"}},
-    {{"title": "Outro", "time_hint": "end"}}
-  ],
+  "episode_title": "Short punchy title (5-8 words)",
   "thumbnail": {{
-    "headline": "BOLD THUMBNAIL TEXT (5-8 words max)",
-    "subtext": "secondary line",
-    "style": "dramatic"
+    "headline": "BOLD THUMBNAIL TEXT (5-8 words)",
+    "subtext": "secondary line"
   }},
-  "segments_summary": ["headline1", "headline2", "headline3"],
-  "total_estimated_duration_seconds": 120
+  "segments_summary": ["headline for each clip topic"],
+  "shorts_quotes": ["3 best one-liner quotes from the host dialogue for vertical shorts"]
 }}
 
-IMPORTANT: The dialogue array is the ENTIRE show script in order. Mix hosts naturally.
-Aim for 15-25 dialogue entries for a ~2 minute show. Include 1-2 CLIP markers."""
+IMPORTANT: Each CLIP entry must have "rank" matching the clip number (1-5).
+Keep host dialogue SHORT. The show is the clips, not the commentary."""
 
 
-def generate_script_claude(stories: list[dict], btc_price: str = "N/A") -> dict:
-    """Generate dual-host dialogue script via Claude API."""
+def _format_clips_info(selections: dict) -> str:
+    """Format clip selections for the script prompt."""
+    clips = selections.get("clips", [])
+    parts = []
+    for c in clips:
+        parts.append(
+            f"CLIP #{c['rank']}:\n"
+            f"  Channel: {c.get('channel', 'Unknown')}\n"
+            f"  Video: {c.get('video_title', 'Untitled')}\n"
+            f"  Quote: \"{c.get('quote', '')}\"\n"
+            f"  Why selected: {c.get('why', '')}\n"
+            f"  Suggested setup: {c.get('host_setup', '')}\n"
+            f"  Suggested reaction: {c.get('host_react', '')}\n"
+        )
+    return "\n".join(parts)
+
+
+def generate_from_clips(selections: dict, btc_price: str = "N/A") -> dict:
+    """Generate host dialogue script around the selected clips.
+
+    Args:
+        selections: Output from clip_selector.select_clips()
+        btc_price: Current BTC price string
+
+    Returns:
+        Script dict with dialogue array
+    """
+    clips = selections.get("clips", [])
+    if not clips:
+        logger.error("No clips provided for script generation")
+        return _fallback_script(selections)
+
     key = get_key("ANTHROPIC_API_KEY")
     if not key or not HAS_ANTHROPIC:
-        return None
+        logger.warning("Anthropic API not available, using fallback script")
+        return _fallback_script(selections)
+
+    clips_info = _format_clips_info(selections)
+    prompt = SCRIPT_PROMPT.format(clips_info=clips_info, btc_price=btc_price)
+
+    logger.info(f"Generating script for {len(clips)} clips...")
     client = anthropic.Anthropic(api_key=key)
-    stories_text = "\n\n".join(
-        f"STORY {i+1}: {s.get('title','Untitled')}\n{s.get('summary', s.get('content',''))[:500]}"
-        for i, s in enumerate(stories[:7])
-    )
-    resp = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=4000,
-        messages=[{"role": "user", "content": DIALOGUE_PROMPT.format(
-            stories=stories_text, btc_price=btc_price
-        )}]
-    )
-    text = resp.content[0].text
-    if "```json" in text:
-        text = text.split("```json")[1].split("```")[0]
-    elif "```" in text:
-        text = text.split("```")[1].split("```")[0]
-    return json.loads(text)
+
+    try:
+        resp = client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=4000,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        text = resp.content[0].text.strip()
+
+        if "```json" in text:
+            text = text.split("```json")[1].split("```")[0]
+        elif "```" in text:
+            text = text.split("```")[1].split("```")[0]
+
+        result = json.loads(text)
+
+        # Validate structure
+        dialogue = result.get("dialogue", [])
+        clip_entries = [d for d in dialogue if d.get("host") == "CLIP"]
+        speech_entries = [d for d in dialogue if d.get("host") in (1, 2, "1", "2")]
+
+        logger.info(f"Script generated: {len(dialogue)} entries "
+                    f"({len(speech_entries)} speech, {len(clip_entries)} clips)")
+        logger.info(f"Title: {result.get('episode_title', 'Untitled')}")
+
+        return result
+
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON parse error: {e}")
+        return _fallback_script(selections)
+    except Exception as e:
+        logger.error(f"Claude API error: {e}")
+        return _fallback_script(selections)
 
 
-def generate_sample_script(style: str = "default") -> dict:
-    """Curated dual-host sample scripts for testing without APIs."""
-    if style == "breaking":
-        return {
-            "episode_title": "The Hash Rate Hammer",
-            "dialogue": [
-                {"host": 1, "text": "Bitcoin just posted the largest mining difficulty adjustment in eighteen months. Three nation-states are quietly stacking sats through sovereign wealth funds. And that lightning network number everyone ignored? It just became the most important metric in Bitcoin. This is Pulse Check."},
-                {"host": 2, "text": "OK so let's start with this difficulty adjustment because the numbers are insane."},
-                {"host": 1, "text": "Four point seven percent. Highest absolute difficulty in the network's history. More hash power securing this chain than ever before."},
-                {"host": 2, "text": "Miners aren't leaving. They're doubling down. Every joule of energy pointed at this chain is a vote of confidence the market hasn't priced in yet."},
-                {"host": 1, "text": "And while miners are building, governments are buying. Three sovereign wealth funds disclosed Bitcoin positions this quarter."},
-                {"host": 2, "text": "Wait — which ones?"},
-                {"host": 1, "text": "Norway. Singapore. Abu Dhabi. Combined allocation north of twelve billion dollars."},
-                {"host": 2, "text": "Dude. When the entities that print fiat start hoarding the exit asset, that tells you everything you need to know."},
-                {"host": "CLIP", "text": "[PLAYS: Mining facility walkthrough]", "source": "@BitcoinMagazine", "query": "bitcoin mining facility 2024"},
-                {"host": 1, "text": "Look at that hash rate climbing. Now here's where it gets interesting — lightning network just hit five thousand eight hundred Bitcoin in capacity."},
-                {"host": 2, "text": "Record high. But the real story is the velocity. Capacity doubled in ninety days. Payment volume tripled."},
-                {"host": 1, "text": "Layer two is doing exactly what it was designed to do. Scale Bitcoin without compromising the base layer."},
-                {"host": 2, "text": "And this is happening while BlackRock's ETF just logged twenty consecutive days of net inflows. Twenty days. No breaks."},
-                {"host": 1, "text": "These are pension funds, endowments, family offices. This isn't a trade. This is an allocation. There's a difference."},
-                {"host": 2, "text": "Massive difference. The smart money isn't asking if anymore. They're asking how much."},
-                {"host": 1, "text": "The hash rate is screaming. Sovereign money is moving. Lightning is scaling. This has been Pulse Check from Protocol Pulse. Stay sovereign."},
-            ],
-            "chapters": [
-                {"title": "Intro", "time_hint": "start"},
-                {"title": "Mining Difficulty All-Time High", "time_hint": "after_intro"},
-                {"title": "Sovereign Wealth Funds Buying BTC", "time_hint": "mid"},
-                {"title": "Lightning Network Record", "time_hint": "mid"},
-                {"title": "ETF Flows Signal Conviction", "time_hint": "late"},
-                {"title": "Outro", "time_hint": "end"},
-            ],
-            "thumbnail": {
-                "headline": "HASH RATE BREAKS ALL RECORDS",
-                "subtext": "Nations are stacking",
-                "style": "dramatic",
-            },
-            "segments_summary": [
-                "Mining Difficulty Hits All-Time Record",
-                "Sovereign Wealth Funds Accumulating Bitcoin",
-                "Lightning Network Breaks Capacity Record",
-                "ETF Flows Signal Institutional Conviction",
-            ],
-            "total_estimated_duration_seconds": 105,
-        }
-    else:
-        return {
-            "episode_title": "The Quiet Accumulation",
-            "dialogue": [
-                {"host": 1, "text": "While the market sleeps, the smart money moves. Bitcoin just reclaimed a critical level. MicroStrategy filed for another billion dollar raise. And a leaked central bank memo suggests the monetary endgame is closer than anyone thinks. This is Pulse Check."},
-                {"host": 2, "text": "Alright Jessica, let's talk about this two hundred day moving average reclaim because that's a big deal."},
-                {"host": 1, "text": "Every time Bitcoin has closed above the two hundred day MA after being below it for six weeks, the next ninety days averaged forty-seven percent returns."},
-                {"host": 2, "text": "History doesn't repeat but it rhymes. And right now the chart is singing a familiar tune."},
-                {"host": 1, "text": "Speaking of conviction — Michael Saylor is not done. MicroStrategy just filed to raise another one point two billion in convertible notes. All going to Bitcoin."},
-                {"host": 2, "text": "The company now holds over two hundred thousand Bitcoin. Say what you will about the strategy but Saylor is playing a game most CEOs can't even understand."},
-                {"host": "CLIP", "text": "[PLAYS: Saylor interview clip]", "source": "@MicroStrategy", "query": "michael saylor bitcoin interview 2024"},
-                {"host": 1, "text": "Let me put that in perspective. MicroStrategy's Bitcoin treasury is now worth more than the GDP of sixty countries. One company. One asset."},
-                {"host": 2, "text": "That's wild. And meanwhile the cypherpunks are building. Nostr just crossed two million monthly active users."},
-                {"host": 1, "text": "Might sound small in a world of billions. But remember — Bitcoin had fewer users than that in twenty thirteen."},
-                {"host": 2, "text": "Censorship-resistant social media isn't a nice-to-have anymore. It's infrastructure for free speech built on Bitcoin's rails."},
-                {"host": 1, "text": "Now this next one might be the most important. A leaked ECB memo suggests policymakers are far more worried about Bitcoin adoption than they publicly admit."},
-                {"host": 2, "text": "What did it say exactly?"},
-                {"host": 1, "text": "Quote: the inability to control monetary transmission in a dual-currency environment. They're not worried about Bitcoin crashing. They're worried about Bitcoin succeeding."},
-                {"host": 2, "text": "And they should be. The technicals are aligning. Corporate treasuries are converting. The builders are building."},
-                {"host": 1, "text": "This has been Pulse Check from Protocol Pulse. Stay sovereign."},
-            ],
-            "chapters": [
-                {"title": "Intro", "time_hint": "start"},
-                {"title": "Bitcoin Reclaims 200-Day MA", "time_hint": "after_intro"},
-                {"title": "MicroStrategy's Billion Dollar Bet", "time_hint": "mid"},
-                {"title": "Nostr Hits 2M Users", "time_hint": "mid"},
-                {"title": "ECB Leaked Memo", "time_hint": "late"},
-                {"title": "Outro", "time_hint": "end"},
-            ],
-            "thumbnail": {
-                "headline": "SMART MONEY IS MOVING",
-                "subtext": "Central banks are worried",
-                "style": "dramatic",
-            },
-            "segments_summary": [
-                "Bitcoin Reclaims Key Technical Level",
-                "MicroStrategy Raises Another Billion",
-                "Nostr Protocol Explosive Growth",
-                "Central Bank Memo Reveals Concern",
-            ],
-            "total_estimated_duration_seconds": 110,
-        }
+def _fallback_script(selections: dict) -> dict:
+    """Generate a basic script from clip selections without Claude."""
+    clips = selections.get("clips", [])
+    cold_open = selections.get("cold_open", "Breaking developments in Bitcoin today.")
+
+    dialogue = [
+        {"host": 1, "text": cold_open, "type": "cold_open"},
+    ]
+
+    for c in clips:
+        rank = c.get("rank", 0)
+        setup = c.get("host_setup", f"Check out what {c.get('channel', 'this channel')} just dropped.")
+        react = c.get("host_react", "That's a big deal. The market hasn't priced this in yet.")
+
+        dialogue.append({"host": 1, "text": setup, "type": "setup", "clip_rank": rank})
+        dialogue.append({"host": "CLIP", "rank": rank})
+        dialogue.append({"host": 2, "text": react, "type": "react", "clip_rank": rank})
+
+    dialogue.append({
+        "host": 1,
+        "text": "That's your Pulse Check for today. Stay sovereign.",
+        "type": "wrap",
+    })
+
+    title = selections.get("episode_title", "Pulse Check Daily")
+
+    return {
+        "cold_open": cold_open,
+        "dialogue": dialogue,
+        "episode_title": title,
+        "thumbnail": {"headline": title.upper(), "subtext": "Daily Bitcoin Intelligence"},
+        "segments_summary": [c.get("why", "") for c in clips],
+        "shorts_quotes": [c.get("quote", "")[:80] for c in clips[:3]],
+    }
 
 
-def generate_script(stories: list[dict] = None, style: str = "default",
-                    btc_price: str = "N/A") -> dict:
-    """Generate a dual-host dialogue script. Tries Claude API first, falls back to sample."""
-    if stories:
-        result = generate_script_claude(stories, btc_price)
-        if result:
-            print("[script] Generated via Claude API (dual-host dialogue)")
-            return result
-    print(f"[script] Using curated sample script (style={style})")
+# Legacy compatibility
+def generate_script(stories=None, style="default", btc_price="N/A"):
+    """Legacy wrapper — generate a sample script for testing."""
+    logger.info("Legacy generate_script called — use generate_from_clips for V5 pipeline")
     return generate_sample_script(style)
 
 
+def generate_sample_script(style="default"):
+    """Sample script for testing without live data."""
+    return {
+        "episode_title": "The Quiet Accumulation",
+        "cold_open": "Three sovereign wealth funds just disclosed Bitcoin positions worth twelve billion dollars.",
+        "dialogue": [
+            {"host": 1, "text": "Three sovereign wealth funds just disclosed Bitcoin positions. Twelve billion dollars. This is Pulse Check.", "type": "cold_open"},
+            {"host": 1, "text": "Bitcoin Magazine just dropped this bombshell.", "type": "setup", "clip_rank": 1},
+            {"host": "CLIP", "rank": 1},
+            {"host": 2, "text": "Dude. When the entities that print fiat start hoarding the exit asset, that tells you everything.", "type": "react", "clip_rank": 1},
+            {"host": 1, "text": "And look at what Simply Bitcoin is reporting on hash rate.", "type": "setup", "clip_rank": 2},
+            {"host": "CLIP", "rank": 2},
+            {"host": 2, "text": "Record high hash rate. Miners aren't leaving. They're doubling down.", "type": "react", "clip_rank": 2},
+            {"host": 1, "text": "That's your Pulse Check. Stay sovereign.", "type": "wrap"},
+        ],
+        "thumbnail": {"headline": "SMART MONEY IS MOVING", "subtext": "Nations are stacking"},
+        "segments_summary": ["Sovereign wealth funds buying BTC", "Hash rate hits record"],
+        "shorts_quotes": ["When the entities that print fiat start hoarding the exit asset", "Miners aren't leaving"],
+    }
+
+
 if __name__ == "__main__":
-    style = sys.argv[1] if len(sys.argv) > 1 else "default"
-    script = generate_script(style=style)
+    script = generate_sample_script()
     print(json.dumps(script, indent=2))
