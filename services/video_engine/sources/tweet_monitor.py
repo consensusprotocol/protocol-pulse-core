@@ -29,7 +29,8 @@ class TweetMonitor:
         self.accounts = accounts
         self.min_likes = min_likes
         self.hours = hours
-        self.bearer_token = os.environ.get("TWITTER_BEARER", "")
+        self.bearer_token = (os.environ.get("TWITTER_BEARER_TOKEN", "") or
+                              os.environ.get("TWITTER_BEARER", ""))
 
     @property
     def configured(self) -> bool:
