@@ -84,7 +84,7 @@ def wav2lip_generate(audio_path, fps=25.0):
 
     mel_step = 16
     audio_duration = len(wav) / 16000.0
-    num_frames = int(__import__('math').ceil(audio_duration * fps)) + 2  # FIXED: prevent audio cutoff
+    num_frames = int(audio_duration * fps)
     if num_frames < 1:
         num_frames = 1
 
@@ -274,10 +274,10 @@ def frames_to_video(frames, fps=25.0, audio_path=None):
             import subprocess
             cmd = [
                 "ffmpeg", "-y", "-loglevel", "error",
-                "-itsoffset", "0.08", "-i", audio_path, "-i", avi_path,
+                "-i", audio_path, "-i", avi_path,
                 "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28",
                 "-c:a", "aac", "-b:a", "128k",
-                "-map", "0:a", "-map", "1:v", # "-shortest",  # REMOVED: was clipping final audio
+                "-map", "0:a", "-map", "1:v", "-shortest",
                 "-pix_fmt", "yuv420p", "-movflags", "+faststart",
                 mp4_path,
             ]
