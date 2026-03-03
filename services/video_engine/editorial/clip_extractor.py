@@ -19,7 +19,9 @@ from pathlib import Path
 from difflib import SequenceMatcher
 from typing import Dict, List, Optional, Tuple
 
-from services.video_engine.ultron_client import ultron
+from services.video_engine.ultron_client import ultron, is_local_mode
+from services.video_engine.assembly import ffmpeg_ops
+from services.video_engine.local_whisper import download_audio
 
 logger = logging.getLogger("ClipExtractor")
 
@@ -30,12 +32,18 @@ SENTENCE_END = {'.', '?', '!'}
 class ClipExtractor:
     """Extract clips with sentence-level precision from source videos."""
 
-    def __init__(self, transcripts: Dict[str, dict]):
+    def __init__(self, transcripts: Dict[str, dict],
+                 audio_dir: str = None, clips_dir: str = None):
         """
         Args:
             transcripts: {video_id: {text, segments, words, ...}}
+            audio_dir: directory with downloaded audio files
+            clips_dir: directory to write extracted clips
         """
         self.transcripts = transcripts
+        self.audio_dir = Path(audio_dir) if audio_dir else Path("/tmp/yt_audio")
+        self.clips_dir = Path(clips_dir) if clips_dir else Path("/tmp/clips")
+        self.clips_dir.mkdir(parents=True, exist_ok=True)
         self.extraction_log = []
 
     def extract_all_clips(self, show_plan_dict: dict,
@@ -169,24 +177,64 @@ class ClipExtractor:
             end_sec = start_sec + 30
             duration = 30
 
-        # Step 4: Extract via Ultron
+        # Step 4: Extract clip (local ffmpeg or Ultron)
         filename = f"clip_{clip_index:02d}_{clip_id}.mp4"
 
+        if is_local_mode():
+            return self._extract_local(source_id, start_sec, end_sec,
+                                       filename, match_score, duration)
+        else:
+            try:
+                result = ultron.extract_clip(
+                    source_id, start_sec, end_sec, filename
+                )
+                if result and result.get("status") in ("complete", "success"):
+                    return {
+                        "filename": filename,
+                        "start_sec": start_sec,
+                        "end_sec": end_sec,
+                        "duration_sec": duration,
+                        "match_score": match_score,
+                    }
+            except Exception as e:
+                logger.error(f"    Ultron extraction failed: {e}")
+
+        return None
+
+    def _extract_local(self, source_id: str, start_sec: float, end_sec: float,
+                       filename: str, match_score: float, duration: float) -> Optional[dict]:
+        """Extract clip using local ffmpeg from downloaded audio/video."""
+        # Find source audio file
+        audio_path = None
+        for ext in ["wav", "m4a", "mp3", "webm"]:
+            candidate = self.audio_dir / f"{source_id}.{ext}"
+            if candidate.exists():
+                audio_path = str(candidate)
+                break
+
+        if not audio_path:
+            # Try downloading
+            logger.info(f"    Downloading audio for {source_id}...")
+            audio_path = download_audio(source_id, str(self.audio_dir))
+
+        if not audio_path:
+            logger.warning(f"    No audio available for {source_id}")
+            return None
+
+        output_path = str(self.clips_dir / filename)
+
         try:
-            result = ultron.extract_clip(
-                source_id, start_sec, end_sec, filename
-            )
-            if result.get("status") in ("complete", "success"):
+            ffmpeg_ops.trim_clip(audio_path, output_path, start_sec, end_sec, copy=False)
+            if Path(output_path).exists():
                 return {
-                    "filename": filename,
+                    "filename": output_path,
                     "start_sec": start_sec,
                     "end_sec": end_sec,
                     "duration_sec": duration,
                     "match_score": match_score,
                 }
         except Exception as e:
-            logger.error(f"    Ultron extraction failed: {e}")
-
+            logger.error(f"    Local extraction failed: {e}")
         return None
 
     def _find_word_level_boundaries(self, words: List[dict],
@@ -336,16 +384,21 @@ class ClipExtractor:
         if end_sec <= start_sec:
             end_sec = start_sec + 20
 
+        duration = end_sec - start_sec
         filename = f"clip_{clip_index:02d}_{clip_id}.mp4"
+
+        if is_local_mode():
+            return self._extract_local(source_id, start_sec, end_sec,
+                                       filename, 0.0, duration)
 
         try:
             result = ultron.extract_clip(source_id, start_sec, end_sec, filename)
-            if result.get("status") in ("complete", "success"):
+            if result and result.get("status") in ("complete", "success"):
                 return {
                     "filename": filename,
                     "start_sec": start_sec,
                     "end_sec": end_sec,
-                    "duration_sec": end_sec - start_sec,
+                    "duration_sec": duration,
                     "match_score": 0.0,
                 }
         except Exception as e:
