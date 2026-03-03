@@ -1,251 +1,716 @@
 {% extends "base.html" %}
-{% block title %}Your Bitcoin Journey - Protocol Pulse{% endblock %}
+{% block title %}Your Bitcoin Journey — Protocol Pulse{% endblock %}
+
+{% block head %}
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --pp-red: #CC2222;
+    --pp-surface: rgba(20, 20, 20, 0.8);
+    --pp-border: rgba(255, 255, 255, 0.08);
+}
+
+.ob-page {
+    min-height: 80vh;
+    padding-top: 40px;
+    padding-bottom: 80px;
+}
+
+.ob-container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Progress */
+.ob-progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 40px;
+}
+
+.ob-progress .bar {
+    flex: 1;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.ob-progress .bar .fill {
+    height: 100%;
+    background: var(--pp-red);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+}
+
+.ob-progress .step-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.3);
+    flex-shrink: 0;
+}
+
+/* Step container */
+.ob-step {
+    display: none;
+    animation: fadeIn 0.4s ease;
+}
+
+.ob-step.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ob-step h2 {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+.ob-step .ob-subtitle {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.45);
+    margin-bottom: 28px;
+}
+
+/* Multi-select options */
+.ob-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 32px;
+}
+
+.ob-option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.ob-option:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.ob-option.selected {
+    border-color: var(--pp-red);
+    background: rgba(204, 34, 34, 0.08);
+}
+
+.ob-option .check {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.ob-option.selected .check {
+    border-color: var(--pp-red);
+    background: var(--pp-red);
+}
+
+.ob-option.selected .check::after {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 10px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    margin-top: -2px;
+}
+
+.ob-option .label {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.ob-option.selected .label {
+    color: #fff;
+}
+
+/* Single-select cards (for journey level) */
+.ob-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.ob-card {
+    padding: 20px 16px;
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ob-card:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.ob-card.selected {
+    border-color: var(--pp-red);
+    background: rgba(204, 34, 34, 0.08);
+}
+
+.ob-card .card-icon {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.ob-card .card-label {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.ob-card.selected .card-label {
+    color: #fff;
+}
+
+.ob-card .card-desc {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.35);
+    line-height: 1.4;
+}
+
+/* Navigation */
+.ob-nav {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.ob-nav .btn-back {
+    padding: 10px 20px;
+    background: transparent;
+    border: 1px solid var(--pp-border);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ob-nav .btn-back:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.ob-nav .btn-next {
+    flex: 1;
+    padding: 12px 20px;
+    background: var(--pp-red);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.ob-nav .btn-next:hover {
+    background: #a81c1c;
+}
+
+.ob-nav .btn-next:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+/* Results */
+.ob-results {
+    display: none;
+    animation: fadeIn 0.5s ease;
+}
+
+.ob-results.active {
+    display: block;
+}
+
+.ob-results h2 {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+}
+
+.ob-results .results-sub {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.45);
+    margin-bottom: 32px;
+}
+
+.rec-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 18px;
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.rec-card:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.rec-card .rec-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: rgba(204, 34, 34, 0.1);
+    border: 1px solid rgba(204, 34, 34, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--pp-red);
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.rec-card .rec-info h4 {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.rec-card .rec-info p {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.45);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.rec-section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--pp-red);
+    margin-top: 28px;
+    margin-bottom: 14px;
+}
+
+.rec-section-label:first-of-type {
+    margin-top: 0;
+}
+
+.ob-restart {
+    text-align: center;
+    margin-top: 32px;
+}
+
+.ob-restart button {
+    padding: 8px 20px;
+    background: transparent;
+    border: 1px solid var(--pp-border);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.3);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    cursor: pointer;
+}
+
+@media (max-width: 480px) {
+    .ob-cards { grid-template-columns: 1fr; }
+    .ob-step h2 { font-size: 1.4rem; }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<style>
-  .ramp-shell { max-width: 920px; margin: 0 auto; }
-  .ramp-card {
-    background: linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-    border: 1px solid rgba(220,38,38,0.55);
-    padding: 32px;
-    border-radius: 22px;
-    color: #fff;
-  }
-  .btc-orange { color: #f7931a; }
-  .ramp-muted { color: rgba(255,255,255,0.72); }
-  .ramp-btn {
-    border: 0;
-    border-radius: 14px;
-    padding: 12px 16px;
-    font-weight: 800;
-    background: linear-gradient(120deg, #ff315d, #ff7b00);
-    color: #fff;
-  }
-  .ramp-field {
-    border: 1px solid rgba(255,255,255,0.18);
-    border-radius: 14px;
-    background: rgba(0,0,0,0.28);
-    color: #fff;
-  }
-  .ramp-field:focus {
-    border-color: rgba(255,66,86,0.85);
-    box-shadow: 0 0 0 0.22rem rgba(255,66,86,0.22);
-    background: rgba(0,0,0,0.35);
-    color: #fff;
-  }
-  .ramp-progress {
-    height: 10px;
-    border-radius: 999px;
-    overflow: hidden;
-    background: rgba(255,255,255,0.08);
-  }
-  .ramp-progress > span {
-    display: block;
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #ff315d, #ff7b00);
-    transition: width .25s ease;
-  }
-  .ramp-alert {
-    display: none;
-    border: 1px solid rgba(255,255,255,0.14);
-    border-left: 3px solid rgba(255,84,103,0.95);
-    background: rgba(255,255,255,0.04);
-    border-radius: 12px;
-    padding: 10px 12px;
-    color: rgba(255,255,255,0.86);
-  }
-</style>
+<section class="ob-page">
+    <div class="ob-container">
+        <!-- Progress Bar -->
+        <div class="ob-progress" id="progressWrap">
+            <div class="bar"><div class="fill" id="progressFill" style="width: 25%;"></div></div>
+            <span class="step-text" id="stepText">1 / 4</span>
+        </div>
 
-<section class="container py-4 py-md-5">
-  <div class="ramp-shell">
-    <div id="landing-section" class="ramp-card text-center">
-      <h1 class="btc-orange mb-2">Your Bitcoin Journey Starts Here</h1>
-      <p class="ramp-muted mb-4">Answer a few prompts to generate your sovereign roadmap.</p>
-      <button id="beginBtn" type="button" class="ramp-btn">Begin Assessment</button>
+        <!-- Step 1: What brought you to Bitcoin? -->
+        <div class="ob-step active" id="step1">
+            <h2>What brought you to Bitcoin?</h2>
+            <p class="ob-subtitle">Select all that apply.</p>
+            <div class="ob-options" data-step="1">
+                <div class="ob-option" data-value="investment" onclick="toggleOption(this)">
+                    <div class="check"></div>
+                    <span class="label">Investment opportunity</span>
+                </div>
+                <div class="ob-option" data-value="philosophy" onclick="toggleOption(this)">
+                    <div class="check"></div>
+                    <span class="label">Philosophy of sound money</span>
+                </div>
+                <div class="ob-option" data-value="technology" onclick="toggleOption(this)">
+                    <div class="check"></div>
+                    <span class="label">The technology fascinates me</span>
+                </div>
+                <div class="ob-option" data-value="privacy" onclick="toggleOption(this)">
+                    <div class="check"></div>
+                    <span class="label">Privacy and sovereignty</span>
+                </div>
+                <div class="ob-option" data-value="inflation" onclick="toggleOption(this)">
+                    <div class="check"></div>
+                    <span class="label">Inflation hedge</span>
+                </div>
+                <div class="ob-option" data-value="curiosity" onclick="toggleOption(this)">
+                    <div class="check"></div>
+                    <span class="label">Pure curiosity</span>
+                </div>
+            </div>
+            <div class="ob-nav">
+                <button class="btn-next" onclick="nextStep(1)" id="next1">Continue</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Where are you on your journey? -->
+        <div class="ob-step" id="step2">
+            <h2>Where are you on your journey?</h2>
+            <p class="ob-subtitle">Pick the one that fits best.</p>
+            <div class="ob-cards" data-step="2">
+                <div class="ob-card" data-value="beginner" onclick="selectCard(this)">
+                    <span class="card-icon"><i class="fas fa-seedling" style="color:#22c55e;"></i></span>
+                    <div class="card-label">Beginner</div>
+                    <div class="card-desc">Just getting started, still learning the basics</div>
+                </div>
+                <div class="ob-card" data-value="intermediate" onclick="selectCard(this)">
+                    <span class="card-icon"><i class="fas fa-chart-line" style="color:#3b82f6;"></i></span>
+                    <div class="card-label">Intermediate</div>
+                    <div class="card-desc">Own some BTC, understand the fundamentals</div>
+                </div>
+                <div class="ob-card" data-value="advanced" onclick="selectCard(this)">
+                    <span class="card-icon"><i class="fas fa-shield-alt" style="color:#a855f7;"></i></span>
+                    <div class="card-label">Advanced</div>
+                    <div class="card-desc">Self-custody, run a node, deep in the rabbit hole</div>
+                </div>
+                <div class="ob-card" data-value="og" onclick="selectCard(this)">
+                    <span class="card-icon"><i class="fas fa-crown" style="color:#f59e0b;"></i></span>
+                    <div class="card-label">OG</div>
+                    <div class="card-desc">Pre-2017, seen it all, here for the signal</div>
+                </div>
+            </div>
+            <div class="ob-nav">
+                <button class="btn-back" onclick="prevStep(2)"><i class="fas fa-arrow-left" style="margin-right:4px;"></i> Back</button>
+                <button class="btn-next" onclick="nextStep(2)" id="next2">Continue</button>
+            </div>
+        </div>
+
+        <!-- Step 3: What interests you most? -->
+        <div class="ob-step" id="step3">
+            <h2>What interests you most?</h2>
+            <p class="ob-subtitle">Select all that apply.</p>
+            <div class="ob-options" data-step="3">
+                <div class="ob-option" data-value="market" onclick="toggleOption(this)">
+                    <div class="check"></div>
+                    <span class="label">Market analysis and price action</span>
+                </div>
+                <div class="ob-option" data-value="deepdives" onclick="toggleOption(this)">
+                    <div class="check"></div>
+                    <span class="label">Deep dives and long-form content</span>
+                </div>
+                <div class="ob-option" data-value="network" onclick="toggleOption(this)">
+                    <div class="check"></div>
+                    <span class="label">Network stats and on-chain data</span>
+                </div>
+                <div class="ob-option" data-value="podcasts" onclick="toggleOption(this)">
+                    <div class="check"></div>
+                    <span class="label">Podcasts and audio content</span>
+                </div>
+                <div class="ob-option" data-value="community" onclick="toggleOption(this)">
+                    <div class="check"></div>
+                    <span class="label">Community and events</span>
+                </div>
+                <div class="ob-option" data-value="custody" onclick="toggleOption(this)">
+                    <div class="check"></div>
+                    <span class="label">Self-custody and security</span>
+                </div>
+                <div class="ob-option" data-value="mining" onclick="toggleOption(this)">
+                    <div class="check"></div>
+                    <span class="label">Mining and infrastructure</span>
+                </div>
+            </div>
+            <div class="ob-nav">
+                <button class="btn-back" onclick="prevStep(3)"><i class="fas fa-arrow-left" style="margin-right:4px;"></i> Back</button>
+                <button class="btn-next" onclick="nextStep(3)" id="next3">Continue</button>
+            </div>
+        </div>
+
+        <!-- Step 4: What are your goals? -->
+        <div class="ob-step" id="step4">
+            <h2>What are your goals?</h2>
+            <p class="ob-subtitle">Select all that apply.</p>
+            <div class="ob-options" data-step="4">
+                <div class="ob-option" data-value="stack" onclick="toggleOption(this)">
+                    <div class="check"></div>
+                    <span class="label">Build a Bitcoin stack</span>
+                </div>
+                <div class="ob-option" data-value="protect" onclick="toggleOption(this)">
+                    <div class="check"></div>
+                    <span class="label">Protect and preserve wealth</span>
+                </div>
+                <div class="ob-option" data-value="learn" onclick="toggleOption(this)">
+                    <div class="check"></div>
+                    <span class="label">Learn the technology deeply</span>
+                </div>
+                <div class="ob-option" data-value="informed" onclick="toggleOption(this)">
+                    <div class="check"></div>
+                    <span class="label">Stay informed on market and policy</span>
+                </div>
+                <div class="ob-option" data-value="findcommunity" onclick="toggleOption(this)">
+                    <div class="check"></div>
+                    <span class="label">Find my community</span>
+                </div>
+            </div>
+            <div class="ob-nav">
+                <button class="btn-back" onclick="prevStep(4)"><i class="fas fa-arrow-left" style="margin-right:4px;"></i> Back</button>
+                <button class="btn-next" onclick="showResults()">See My Recommendations</button>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="ob-results" id="resultsPanel">
+            <h2>Your Sovereign Roadmap</h2>
+            <p class="results-sub">Based on your answers, here's where to start.</p>
+
+            <div class="rec-section-label">Recommended for you</div>
+            <div id="recCards"></div>
+
+            <div id="toolsSection" style="display:none;">
+                <div class="rec-section-label">Tools to explore</div>
+                <div id="toolCards"></div>
+            </div>
+
+            <div class="ob-restart">
+                <button onclick="restart()"><i class="fas fa-redo" style="margin-right:4px;"></i> Start Over</button>
+            </div>
+        </div>
     </div>
-
-    <div id="questions-section" class="ramp-card" style="display:none;">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <div>
-          <div class="small text-uppercase ramp-muted">stage</div>
-          <div id="stageLine" class="fw-bold">attention</div>
-        </div>
-        <div class="text-end">
-          <div class="small text-uppercase ramp-muted">progress</div>
-          <div id="stepLine" class="fw-bold">1 / 5</div>
-        </div>
-      </div>
-
-      <div class="ramp-progress mb-3"><span id="progressBar"></span></div>
-
-      <div class="mb-3">
-        <div class="small text-uppercase ramp-muted mb-1">prompt</div>
-        <div id="questionPrompt" class="fw-semibold">Loading first prompt...</div>
-      </div>
-
-      <div id="uiAlert" class="ramp-alert mb-3"></div>
-
-      <label class="form-label">your response</label>
-      <textarea id="responseInput" class="form-control ramp-field mb-3" rows="5" placeholder="type your answer..." required></textarea>
-
-      <div class="row g-3 mb-3">
-        <div class="col-md-6">
-          <label class="form-label">annual income (optional)</label>
-          <input id="incomeInput" class="form-control ramp-field" type="number" min="0" step="1000" placeholder="120000">
-        </div>
-        <div class="col-md-6 d-flex align-items-end">
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="newsletterInput" value="1">
-            <label class="form-check-label ramp-muted" for="newsletterInput">get intel drops by email</label>
-          </div>
-        </div>
-      </div>
-
-      <div class="d-flex gap-2">
-        <button id="backBtn" type="button" class="btn btn-outline-light">Back</button>
-        <button id="nextBtn" type="button" class="ramp-btn flex-grow-1">Continue</button>
-      </div>
-    </div>
-  </div>
 </section>
+{% endblock %}
 
+{% block scripts %}
 <script>
-  const STEPS = ["attention", "interest", "desire", "action", "activation"];
-  const DEFAULT_PROMPTS = {
-    attention: "Where are you in Bitcoin right now? (holdings, goals, constraints)",
-    interest: "What triggered your interest today, and what are you trying to solve first?",
-    desire: "What would a 'win' look like in the next 90 days? (security, yield, sovereignty)",
-    action: "What is your biggest blocker to taking the next step?",
-    activation: "How do you want Protocol Pulse to support you going forward?"
-  };
+var answers = { step1: [], step2: '', step3: [], step4: [] };
+var currentStep = 1;
 
-  const landing = document.getElementById("landing-section");
-  const questions = document.getElementById("questions-section");
-  const beginBtn = document.getElementById("beginBtn");
+function toggleOption(el) {
+    el.classList.toggle('selected');
+}
 
-  const stageLine = document.getElementById("stageLine");
-  const stepLine = document.getElementById("stepLine");
-  const progressBar = document.getElementById("progressBar");
-  const questionPrompt = document.getElementById("questionPrompt");
-  const uiAlert = document.getElementById("uiAlert");
+function selectCard(el) {
+    el.parentElement.querySelectorAll('.ob-card').forEach(function(c) { c.classList.remove('selected'); });
+    el.classList.add('selected');
+}
 
-  const responseInput = document.getElementById("responseInput");
-  const incomeInput = document.getElementById("incomeInput");
-  const newsletterInput = document.getElementById("newsletterInput");
-  const backBtn = document.getElementById("backBtn");
-  const nextBtn = document.getElementById("nextBtn");
+function getSelected(stepNum) {
+    var container = document.querySelector('[data-step="' + stepNum + '"]');
+    if (!container) return [];
+    return Array.from(container.querySelectorAll('.selected')).map(function(el) {
+        return el.dataset.value;
+    });
+}
 
-  let currentStepIdx = 0;
-  let currentStage = STEPS[0];
-  let csrfTokenFromSession = "";
+function updateProgress(step) {
+    var pct = Math.round((step / 4) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('stepText').textContent = step + ' / 4';
+}
 
-  function csrfToken() {
-    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || csrfTokenFromSession || "";
-  }
+function showStep(n) {
+    for (var i = 1; i <= 4; i++) {
+        var el = document.getElementById('step' + i);
+        if (el) {
+            el.classList.remove('active');
+            el.style.display = 'none';
+        }
+    }
+    var target = document.getElementById('step' + n);
+    if (target) {
+        target.style.display = 'block';
+        // Force reflow for animation
+        void target.offsetWidth;
+        target.classList.add('active');
+    }
+    currentStep = n;
+    updateProgress(n);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-  function showAlert(msg) {
-    uiAlert.textContent = msg || "";
-    uiAlert.style.display = msg ? "block" : "none";
-  }
+function nextStep(from) {
+    var sel = getSelected(from);
+    if (from === 2 && sel.length === 0) return; // must select journey level
+    if (from === 1) answers.step1 = sel;
+    if (from === 2) answers.step2 = sel[0] || '';
+    if (from === 3) answers.step3 = sel;
+    showStep(from + 1);
+}
 
-  function renderStep() {
-    currentStage = STEPS[Math.max(0, Math.min(currentStepIdx, STEPS.length - 1))];
-    stageLine.textContent = currentStage;
-    stepLine.textContent = `${currentStepIdx + 1} / ${STEPS.length}`;
-    progressBar.style.width = `${Math.round(((currentStepIdx + 1) / STEPS.length) * 100)}%`;
-    questionPrompt.textContent = DEFAULT_PROMPTS[currentStage] || "Answer the prompt to continue.";
-    showAlert("");
-  }
+function prevStep(to) {
+    showStep(to - 1);
+}
 
-  async function startFlow() {
-    // Hide landing section
-    landing.style.display = "none";
-    // Show questions section
-    questions.style.display = "block";
+function showResults() {
+    answers.step4 = getSelected(4);
 
-    // Ensure session and CSRF token (use response token if meta tag was missing)
-    try {
-      const r = await fetch("/onboarding/api/session", { method: "POST", credentials: "same-origin" });
-      const j = await r.json().catch(() => ({}));
-      if (j.csrf_token) csrfTokenFromSession = j.csrf_token;
-    } catch (e) { /* noop */ }
+    // Hide steps and progress
+    for (var i = 1; i <= 4; i++) {
+        var el = document.getElementById('step' + i);
+        if (el) el.style.display = 'none';
+    }
+    document.getElementById('progressWrap').style.display = 'none';
 
-    currentStepIdx = 0;
-    renderStep();
-    responseInput.focus();
-  }
+    // Build recommendations
+    var recs = [];
+    var tools = [];
+    var level = answers.step2;
+    var interests = answers.step3;
+    var goals = answers.step4;
+    var reasons = answers.step1;
 
-  async function submitAnswer() {
-    const text = (responseInput.value || "").trim();
-    if (!text) {
-      showAlert("Response required to continue.");
-      responseInput.focus();
-      return;
+    // Always recommend: articles
+    recs.push({ icon: 'fa-newspaper', title: 'Daily Intelligence', desc: 'Start with our AI-generated articles for real-time Bitcoin analysis.', url: '/articles' });
+
+    // Beginner + market
+    if (level === 'beginner' && (interests.indexOf('market') >= 0 || goals.indexOf('informed') >= 0)) {
+        recs.push({ icon: 'fa-chart-bar', title: 'Live Pulse + Sovereign Dossier', desc: 'The market dashboard gives you real-time data. The Dossier will level you up.', url: '/market' });
+        recs.push({ icon: 'fa-shield-alt', title: 'The Sovereign Dossier', desc: 'An interactive journey through Bitcoin fundamentals — your personal rabbit hole.', url: '/dossier' });
     }
 
-    nextBtn.disabled = true;
-    backBtn.disabled = true;
-    const oldText = nextBtn.textContent;
-    nextBtn.textContent = "Loading...";
-    showAlert("");
-
-    try {
-      const csrf = csrfToken();
-      if (!csrf) {
-        showAlert("Session missing. Please refresh the page and click Begin again.");
-        return;
-      }
-      const r = await fetch("/api/onboarding/step", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-Token": csrf
-        },
-        body: JSON.stringify({
-          stage: currentStage,
-          response_text: text,
-          annual_income: incomeInput.value || null,
-          newsletter_opt_in: !!newsletterInput.checked
-        })
-      });
-      let data;
-      const ct = r.headers.get("Content-Type") || "";
-      try {
-        data = ct.includes("json") ? await r.json() : { ok: false, error: r.statusText || "Request failed" };
-      } catch (_) {
-        data = { ok: false, error: "Server returned an invalid response. Please refresh and try again." };
-      }
-      if (!r.ok || !data.ok) throw new Error(data.error || "request failed");
-
-      // Prefer backend-driven stage/prompt if available.
-      const nextStage = (data.progress || {}).stage;
-      if (nextStage && STEPS.includes(nextStage)) {
-        currentStepIdx = STEPS.indexOf(nextStage);
-      } else {
-        currentStepIdx = Math.min(STEPS.length - 1, currentStepIdx + 1);
-      }
-      stageLine.textContent = STEPS[currentStepIdx];
-      stepLine.textContent = `${currentStepIdx + 1} / ${STEPS.length}`;
-      progressBar.style.width = `${Math.round(((currentStepIdx + 1) / STEPS.length) * 100)}%`;
-      questionPrompt.textContent = data.next_prompt || DEFAULT_PROMPTS[STEPS[currentStepIdx]] || "Continue.";
-
-      responseInput.value = "";
-      responseInput.focus();
-    } catch (err) {
-      showAlert(`Unable to load next question: ${err.message}`);
-    } finally {
-      nextBtn.disabled = false;
-      backBtn.disabled = false;
-      nextBtn.textContent = oldText;
+    // Self-custody interest
+    if (interests.indexOf('custody') >= 0 || goals.indexOf('protect') >= 0) {
+        recs.push({ icon: 'fa-lock', title: 'Custody Resources', desc: 'Learn about self-custody, multisig, and protecting your Bitcoin.', url: '/articles' });
     }
-  }
 
-  beginBtn.addEventListener("click", startFlow);
-  backBtn.addEventListener("click", () => {
-    currentStepIdx = Math.max(0, currentStepIdx - 1);
-    renderStep();
-  });
-  nextBtn.addEventListener("click", submitAnswer);
+    // Market analysis interest
+    if (interests.indexOf('market') >= 0 || interests.indexOf('network') >= 0) {
+        recs.push({ icon: 'fa-chart-line', title: 'Live Pulse', desc: 'Real-time BTC price, network stats, hashrate, mempool data, and Fear & Greed index.', url: '/market' });
+    }
+
+    // Charts for data lovers
+    if (interests.indexOf('network') >= 0) {
+        recs.push({ icon: 'fa-chart-area', title: 'Charts', desc: 'Everything measured in Bitcoin — gold, silver, S&P 500, and more.', url: '/charts' });
+    }
+
+    // Podcasts interest
+    if (interests.indexOf('podcasts') >= 0) {
+        recs.push({ icon: 'fa-podcast', title: "Cypherpunk'd Podcast", desc: 'Conversations with Bitcoin builders, thinkers, and disruptors.', url: '/podcasts' });
+    }
+
+    // Community / events
+    if (interests.indexOf('community') >= 0 || goals.indexOf('findcommunity') >= 0) {
+        recs.push({ icon: 'fa-calendar', title: 'Bitcoin Events', desc: 'Find Bitcoin meetups, conferences, and community events near you.', url: '/events' });
+    }
+
+    // Ask The Oracle
+    if (level === 'beginner' || level === 'intermediate' || reasons.indexOf('curiosity') >= 0) {
+        recs.push({ icon: 'fa-bolt', title: 'Ask The Oracle', desc: 'Our AI Oracle can answer your Bitcoin questions in real-time.', url: '/oracle' });
+    }
+
+    // Mining interest
+    if (interests.indexOf('mining') >= 0) {
+        recs.push({ icon: 'fa-server', title: 'Network Health', desc: 'Monitor hashrate, difficulty adjustments, and mining economics.', url: '/network-health' });
+    }
+
+    // Deduplicate by URL
+    var seen = {};
+    recs = recs.filter(function(r) {
+        if (seen[r.url]) return false;
+        seen[r.url] = true;
+        return true;
+    });
+
+    // Tools (subtle, only if relevant)
+    if (goals.indexOf('protect') >= 0 || reasons.indexOf('inflation') >= 0) {
+        tools.push({ icon: 'fa-shield-alt', title: 'Legacy Planning', desc: 'Read about protecting generational wealth with Bitcoin.', url: '/articles/1838' });
+    }
+
+    // Render
+    var recHTML = '';
+    recs.forEach(function(r) {
+        recHTML += '<a href="' + r.url + '" class="rec-card">' +
+            '<div class="rec-icon"><i class="fas ' + r.icon + '"></i></div>' +
+            '<div class="rec-info"><h4>' + r.title + '</h4><p>' + r.desc + '</p></div>' +
+            '</a>';
+    });
+    document.getElementById('recCards').innerHTML = recHTML;
+
+    if (tools.length > 0) {
+        var toolHTML = '';
+        tools.forEach(function(t) {
+            toolHTML += '<a href="' + t.url + '" class="rec-card">' +
+                '<div class="rec-icon"><i class="fas ' + t.icon + '"></i></div>' +
+                '<div class="rec-info"><h4>' + t.title + '</h4><p>' + t.desc + '</p></div>' +
+                '</a>';
+        });
+        document.getElementById('toolCards').innerHTML = toolHTML;
+        document.getElementById('toolsSection').style.display = 'block';
+    }
+
+    document.getElementById('resultsPanel').classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Save to backend (fire-and-forget)
+    try {
+        fetch('/onboarding/api/session', { method: 'POST', credentials: 'same-origin' })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                var csrf = d.csrf_token || '';
+                fetch('/api/onboarding/step', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+                    body: JSON.stringify({
+                        stage: 'activation',
+                        response_text: JSON.stringify(answers),
+                        newsletter_opt_in: false
+                    })
+                }).catch(function() {});
+            }).catch(function() {});
+    } catch (e) {}
+}
+
+function restart() {
+    answers = { step1: [], step2: '', step3: [], step4: [] };
+    // Clear all selections
+    document.querySelectorAll('.ob-option, .ob-card').forEach(function(el) { el.classList.remove('selected'); });
+    document.getElementById('resultsPanel').classList.remove('active');
+    document.getElementById('progressWrap').style.display = 'flex';
+    document.getElementById('toolsSection').style.display = 'none';
+    showStep(1);
+}
 </script>
 {% endblock %}
