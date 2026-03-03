@@ -1,0 +1,15 @@
+{
+  "files.watcherExclude": {
+    "**/articles/**": true,
+    "**/logs/**": true,
+    "**/instance/**": true,
+    "**/venv/**": true,
+    "**/*.db": true,
+    "**/*.log": true,
+    "**/__pycache__/**": true,
+    "**/.pytest_cache/**": true,
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true
+  }
+}

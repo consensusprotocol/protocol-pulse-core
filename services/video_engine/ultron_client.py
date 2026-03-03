@@ -15,11 +15,14 @@ from typing import Dict, List, Optional
 
 logger = logging.getLogger("UltronClient")
 
-ULTRON_HOST = os.environ.get("ULTRON_HOST", "video.protocolpulse.io")
+ULTRON_HOST = os.environ.get("ULTRON_HOST", "")
 ULTRON_TOKEN = os.environ.get("ULTRON_API_TOKEN", "")
-ULTRON_BASE = f"https://{ULTRON_HOST}"
+ULTRON_BASE = f"https://{ULTRON_HOST}" if ULTRON_HOST else ""
 DEFAULT_TIMEOUT = 120
 MAX_RETRIES = 3
+
+# Local mode: use local ffmpeg/moviepy when ULTRON_HOST is empty or localhost
+LOCAL_MODE = not ULTRON_HOST or ULTRON_HOST in ("localhost", "127.0.0.1", "")
 
 
 class UltronClient:
@@ -294,3 +297,8 @@ class UltronClient:
 
 # Singleton instance
 ultron = UltronClient()
+
+# Export local mode flag so other modules can check
+def is_local_mode() -> bool:
+    """Returns True when pipeline should use local ffmpeg instead of HTTP API."""
+    return LOCAL_MODE
