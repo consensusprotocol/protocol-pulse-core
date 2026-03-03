@@ -40,10 +40,10 @@ DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 BLINK_INTERVAL_MIN = 3.0
 BLINK_INTERVAL_MAX = 4.0
 BLINK_DURATION = 0.15
-HEAD_ROTATION_AMPLITUDE = 1.0
-HEAD_TRANSLATION_X = 1.5
-HEAD_TRANSLATION_Y = 1.0
-HEAD_PERIOD = 4.0
+HEAD_ROTATION_AMPLITUDE = 0.8   # degrees — very subtle
+HEAD_TRANSLATION_X = 1.5        # pixels
+HEAD_TRANSLATION_Y = 0.8        # pixels
+HEAD_PERIOD = 4.0               # seconds per full cycle — slow and natural
 
 # ─── Logging ──────────────────────────────────────────────────────────
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -82,15 +82,29 @@ def wav2lip_generate(audio_path, fps=25.0):
     if mel.shape[1] == 0:
         raise ValueError("Empty audio")
 
-    mel_chunks = []
     mel_step = 16
-    i = 0
-    while i < mel.shape[1]:
-        chunk = mel[:, i:i + mel_step]
-        if chunk.shape[1] < mel_step:
-            chunk = np.pad(chunk, ((0, 0), (0, mel_step - chunk.shape[1])))
+    audio_duration = len(wav) / 16000.0
+    num_frames = int(audio_duration * fps)
+    if num_frames < 1:
+        num_frames = 1
+
+    # Map each VIDEO frame to its correct MEL position
+    # Mel has 80 columns per second of audio (16kHz / hop_size 200)
+    mel_idx_multiplier = 80.0 / fps  # ~3.2 for 25fps
+
+    mel_chunks = []
+    for frame_i in range(num_frames):
+        start_col = int(frame_i * mel_idx_multiplier)
+        end_col = start_col + mel_step
+        if end_col > mel.shape[1]:
+            chunk = mel[:, start_col:]
+            if chunk.shape[1] < mel_step:
+                chunk = np.pad(chunk, ((0, 0), (0, mel_step - chunk.shape[1])))
+        else:
+            chunk = mel[:, start_col:end_col]
         mel_chunks.append(chunk)
-        i += mel_step
+
+    logger.info(f"Mel: {mel.shape[1]} cols, {num_frames} frames @ {fps}fps, audio {audio_duration:.2f}s")
 
     y1, y2, x1, x2 = reg.avatar_face_coords
     face_crop = reg.avatar_face[y1:y2, x1:x2]
@@ -124,21 +138,7 @@ def wav2lip_generate(audio_path, fps=25.0):
             full_frame[y1:y2, x1:x2] = p_resized
             frames.append(full_frame)
 
-    # Duration matching: align video frame count to audio length
-    audio_duration = len(wav) / 16000.0
-    video_duration = len(frames) / fps
-    logger.info(f"Audio: {audio_duration:.2f}s, Video: {video_duration:.2f}s ({len(frames)} frames)")
-
-    if video_duration < audio_duration - 0.1:
-        extra_frames = int((audio_duration - video_duration) * fps)
-        frames.extend([frames[-1].copy() for _ in range(extra_frames)])
-        logger.info(f"Extended video by {extra_frames} frames to match audio")
-
-    if video_duration > audio_duration + 0.5:
-        target_frames = int(audio_duration * fps) + 5
-        frames = frames[:target_frames]
-        logger.info(f"Trimmed video to {target_frames} frames to match audio")
-
+    logger.info(f"Generated {len(frames)} frames for {audio_duration:.2f}s audio @ {fps}fps")
     return frames
 
 
@@ -222,17 +222,12 @@ def apply_head_movement(frame, frame_idx, fps):
 # ═══════════════════════════════════════════════════════════════════════
 
 def post_process_frames(frames, fps=25.0):
-    reg = ModelRegistry.get()
-    num_frames = len(frames)
-    if num_frames == 0:
+    """Apply head movement only. Blinks disabled — they look artificial on avatar."""
+    if len(frames) == 0:
         return frames
-    blink_schedule = generate_blink_schedule(num_frames, fps)
     processed = []
     for i, frame in enumerate(frames):
         result = apply_head_movement(frame, i, fps)
-        blink_intensity = blink_schedule.get(i, 0)
-        if blink_intensity > 0.01:
-            result = apply_blink(result, blink_intensity, reg.avatar_face_coords)
         processed.append(result)
     return processed
 
@@ -262,7 +257,7 @@ def frames_to_video(frames, fps=25.0, audio_path=None):
             cmd = [
                 "ffmpeg", "-y", "-loglevel", "error",
                 "-i", audio_path, "-i", avi_path,
-                "-c:v", "libx264", "-preset", "fast", "-crf", "23",
+                "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28",
                 "-c:a", "aac", "-b:a", "128k",
                 "-map", "0:a", "-map", "1:v", "-shortest",
                 "-pix_fmt", "yuv420p", "-movflags", "+faststart",
@@ -419,7 +414,7 @@ def generate():
     if not data:
         return jsonify({"error": "JSON body required"}), 400
 
-    enable_blinks = data.get("enable_blinks", True)
+    enable_blinks = data.get("enable_blinks", False)  # Disabled — looks artificial
     enable_head_movement = data.get("enable_head_movement", True)
     fps = float(data.get("fps", 25.0))
 
