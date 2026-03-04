@@ -541,3 +541,189 @@ def _draw_wrapped_text(draw: ImageDraw.ImageDraw, text: str,
         lh = bbox[3] - bbox[1]
         draw.text((center_x - lw // 2, y), line, font=font, fill=color)
         y += lh + line_spacing
+
+
+# ═══════════════════════════════════════════════════════════════
+# ANIMATED OVERLAYS — for host dialogue segments
+# ═══════════════════════════════════════════════════════════════
+
+def render_stat_overlay(stat_value: str, label: str, output_path: str,
+                        w: int = 500, h: int = 120) -> str:
+    """Render a stat card as transparent PNG.
+    Red accent bar left, big number, smaller label.
+    """
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(img)
+
+    # Semi-transparent dark background with rounded feel
+    draw.rounded_rectangle([0, 0, w - 1, h - 1], radius=8, fill=(10, 10, 10, 200))
+    # Red accent bar on left
+    draw.rectangle([0, 0, 6, h], fill=(204, 34, 34, 255))
+
+    font_big = _get_font(FONT_SANS_BOLD, 48)
+    font_small = _get_font(FONT_SANS, 20)
+
+    draw.text((20, 12), stat_value, font=font_big, fill=(255, 255, 255, 255))
+    draw.text((20, 72), label.upper(), font=font_small, fill=(160, 160, 160, 255))
+
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    img.save(output_path)
+    return output_path
+
+
+def render_quote_overlay(quote_text: str, attribution: str, output_path: str,
+                         w: int = 900, max_h: int = 300) -> str:
+    """Render a quote card as transparent PNG.
+    Italic-style text with attribution in red.
+    """
+    font_quote = _get_font(FONT_SANS, 28)
+    font_attr = _get_font(FONT_SANS_BOLD, 22)
+
+    # Pre-calculate height needed
+    import textwrap
+    wrapped = textwrap.fill(quote_text, width=50)
+    lines = wrapped.split("\n")
+    line_h = 36
+    needed_h = min(len(lines) * line_h + 80, max_h)
+
+    img = Image.new("RGBA", (w, needed_h), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(img)
+
+    # Semi-transparent dark background
+    draw.rounded_rectangle([0, 0, w - 1, needed_h - 1], radius=8, fill=(10, 10, 10, 210))
+    # Left red accent
+    draw.rectangle([0, 8, 4, needed_h - 8], fill=(204, 34, 34, 255))
+
+    # Quote text
+    y = 20
+    for line in lines:
+        draw.text((24, y), f"\u201c{line}\u201d" if line == lines[0] else line,
+                  font=font_quote, fill=(220, 220, 220, 255))
+        y += line_h
+
+    # Attribution
+    if attribution:
+        draw.text((w - 30 - len(attribution) * 10, y + 5),
+                  f"\u2014 {attribution}",
+                  font=font_attr, fill=(204, 34, 34, 255))
+
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    img.save(output_path)
+    return output_path
+
+
+def render_host_lower_third(name: str, title: str, output_path: str,
+                             w: int = W, h: int = 160) -> str:
+    """Render host lower third as transparent PNG at full frame width.
+    Red accent bar, name in bold white, title in gray.
+    """
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(img)
+
+    # Semi-transparent bar
+    bar = Image.new("RGBA", (500, h), (10, 10, 10, 200))
+    img.paste(bar, (0, 0), bar)
+
+    # Red accent line at left edge
+    draw.rectangle([0, 0, 5, h], fill=(204, 34, 34, 255))
+    # Red top line
+    draw.rectangle([0, 0, 500, 3], fill=(204, 34, 34, 255))
+
+    font_name = _get_font(FONT_SANS_BOLD, 40)
+    font_title = _get_font(FONT_SANS, 24)
+    font_brand = _get_font(FONT_MONO, 16)
+
+    draw.text((20, 20), name, font=font_name, fill=(255, 255, 255, 255))
+    draw.text((20, 70), title, font=font_title, fill=(160, 160, 160, 255))
+    draw.text((20, 110), "PROTOCOL PULSE", font=font_brand, fill=(100, 100, 100, 255))
+
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    img.save(output_path)
+    return output_path
+
+
+def render_topic_label(topic: str, output_path: str,
+                       max_w: int = 500, h: int = 50) -> str:
+    """Render topic label as transparent PNG for top-right corner."""
+    font = _get_font(FONT_SANS_BOLD, 22)
+    bbox = font.getbbox(topic.upper())
+    text_w = bbox[2] - bbox[0]
+    w = min(text_w + 40, max_w)
+
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(img)
+
+    # Dark semi-transparent background
+    draw.rounded_rectangle([0, 0, w - 1, h - 1], radius=4, fill=(10, 10, 10, 180))
+    # Red bottom line
+    draw.rectangle([0, h - 3, w, h], fill=(204, 34, 34, 255))
+
+    draw.text((20, 12), topic.upper()[:40], font=font, fill=(220, 220, 220, 255))
+
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    img.save(output_path)
+    return output_path
+
+
+def render_watermark_overlay(source_path: str, output_path: str,
+                              max_size: int = 80) -> str:
+    """Create a semi-transparent watermark PNG from source logo."""
+    try:
+        wm = Image.open(source_path).convert("RGBA")
+        # Scale to max_size maintaining aspect ratio
+        ratio = min(max_size / wm.width, max_size / wm.height)
+        new_w = int(wm.width * ratio)
+        new_h = int(wm.height * ratio)
+        wm = wm.resize((new_w, new_h), Image.LANCZOS)
+
+        # Make semi-transparent (40% opacity)
+        data = wm.getdata()
+        new_data = [(r, g, b, int(a * 0.4)) for r, g, b, a in data]
+        wm.putdata(new_data)
+
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        wm.save(output_path)
+        return output_path
+    except Exception as e:
+        logger.warning(f"  Watermark render failed: {e}")
+        return ""
+
+
+# ═══════════════════════════════════════════════════════════════
+# TEXT EXTRACTION — for overlay data
+# ═══════════════════════════════════════════════════════════════
+
+def extract_overlay_data(text: str) -> list:
+    """Extract numbers, percentages, dollar amounts, and quotes from dialogue text.
+    Returns list of overlay descriptors for rendering.
+    """
+    import re
+    overlays = []
+    if not text:
+        return overlays
+
+    # Dollar amounts: $97,500, $1.2 billion, $500M
+    dollars = re.findall(r'\$[\d,.]+\s*(?:billion|million|trillion|B|M|T|K)\b|\$[\d,.]+',
+                         text, re.IGNORECASE)
+    for d in dollars:
+        overlays.append({"type": "stat", "value": d.strip(), "label": "VALUE"})
+
+    # Percentages: 47%, 2.3%, -5%
+    pcts = re.findall(r'-?[\d.]+%', text)
+    for p in pcts:
+        if p not in [d for o in overlays for d in [o.get("value", "")]]:
+            overlays.append({"type": "stat", "value": p, "label": "CHANGE"})
+
+    # Large numbers: 2.1 million, 500,000
+    big_nums = re.findall(r'[\d,.]+\s*(?:billion|million|trillion)', text, re.IGNORECASE)
+    for n in big_nums:
+        val = n.strip()
+        if val not in [o.get("value", "") for o in overlays]:
+            overlays.append({"type": "stat", "value": val, "label": "FIGURE"})
+
+    # Quoted text (for quote overlays)
+    quotes = re.findall(r'"([^"]{10,})"', text)
+    for q in quotes[:1]:  # Max 1 quote per segment
+        overlays.append({"type": "quote", "value": q})
+
+    return overlays

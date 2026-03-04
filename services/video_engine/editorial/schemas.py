@@ -178,7 +178,7 @@ class QAReport(BaseModel):
 
 class TimelineEntry(BaseModel):
     entry_type: Literal["branded_intro", "voiceover", "clip", "tweet_overlay",
-                          "signal_vs_noise", "branded_outro"]
+                          "signal_vs_noise", "branded_outro", "transition"]
     audio_path: Optional[str] = None
     visual: Optional[str] = None       # "background_loop", "broll_mining", etc.
     source_video_path: Optional[str] = None
@@ -189,6 +189,10 @@ class TimelineEntry(BaseModel):
     image_path: Optional[str] = None   # for tweet overlays
     duration_sec: Optional[float] = None
     transition_in: Literal["cut", "crossfade_0.5s", "crossfade_1s"] = "cut"
+    # Metadata for overlays during host segments
+    dialogue_text: Optional[str] = None      # raw text for stat/quote extraction
+    host_name: Optional[str] = None          # for host lower third
+    topic_label: Optional[str] = None        # current topic display
 
 
 class AssemblyManifest(BaseModel):

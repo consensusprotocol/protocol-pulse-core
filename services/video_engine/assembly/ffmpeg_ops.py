@@ -362,6 +362,148 @@ def audio_over_image(image_path: str, audio_path: str, output_path: str,
     return output_path
 
 
+def audio_over_looping_video(video_bg_path: str, audio_path: str,
+                              output_path: str, bg_music_path: str = None,
+                              bg_music_vol: float = 0.125,
+                              w: int = 1920, h: int = 1080, fps: int = 30) -> str:
+    """Create video from looping background video + TTS audio + optional bg music.
+
+    Args:
+        video_bg_path: Short video to loop as background
+        audio_path: TTS audio (determines duration)
+        output_path: Output file
+        bg_music_path: Optional background music to mix at bg_music_vol
+        bg_music_vol: Volume for bg music (0.125 = ~-18dB)
+    """
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    audio_dur = get_duration(audio_path)
+
+    # Calculate loop count needed (ceil to ensure enough video)
+    bg_dur = get_duration(video_bg_path)
+    loop_count = max(0, int(audio_dur / bg_dur) + 1) if bg_dur > 0 else 10
+
+    if bg_music_path and os.path.exists(bg_music_path):
+        # Loop bg video + TTS audio + bg music mixed
+        # bg music fades in over 1s, fades out over 1s at end
+        fade_out_start = max(0, audio_dur - 1.0)
+        cmd = [
+            "ffmpeg", "-y",
+            "-stream_loop", str(loop_count), "-i", video_bg_path,  # [0] looping bg
+            "-i", audio_path,                                       # [1] TTS audio
+            "-i", bg_music_path,                                    # [2] bg music
+            "-filter_complex",
+            f"[0:v]scale={w}:{h}:force_original_aspect_ratio=decrease,"
+            f"pad={w}:{h}:(ow-iw)/2:(oh-ih)/2:color=black,fps={fps}[bg];"
+            f"[1:a]aformat=sample_rates=44100:channel_layouts=stereo[tts];"
+            f"[2:a]volume={bg_music_vol},"
+            f"afade=t=in:st=0:d=1,"
+            f"afade=t=out:st={fade_out_start}:d=1,"
+            f"aformat=sample_rates=44100:channel_layouts=stereo[music];"
+            f"[tts][music]amix=inputs=2:duration=first:dropout_transition=0[audio]",
+            "-map", "[bg]", "-map", "[audio]",
+            "-c:v", "libx264", "-preset", "fast", "-crf", "20",
+            "-c:a", "aac", "-b:a", "192k",
+            "-pix_fmt", "yuv420p",
+            "-t", str(audio_dur + 0.5),
+            "-movflags", "+faststart",
+            output_path
+        ]
+    else:
+        # Loop bg video + TTS audio only (no bg music)
+        cmd = [
+            "ffmpeg", "-y",
+            "-stream_loop", str(loop_count), "-i", video_bg_path,
+            "-i", audio_path,
+            "-filter_complex",
+            f"[0:v]scale={w}:{h}:force_original_aspect_ratio=decrease,"
+            f"pad={w}:{h}:(ow-iw)/2:(oh-ih)/2:color=black,fps={fps}[bg]",
+            "-map", "[bg]", "-map", "1:a",
+            "-c:v", "libx264", "-preset", "fast", "-crf", "20",
+            "-c:a", "aac", "-b:a", "192k",
+            "-pix_fmt", "yuv420p",
+            "-t", str(audio_dur + 0.5),
+            "-movflags", "+faststart",
+            output_path
+        ]
+
+    _run(cmd, timeout=120, label="audio_over_looping_video")
+    return output_path
+
+
+def overlay_png_timed(video_path: str, overlay_path: str, output_path: str,
+                      x: str = "W-w-20", y: str = "20",
+                      start: float = 0, end: float = None,
+                      fade_in: float = 0.3, fade_out: float = 0.3) -> str:
+    """Overlay a transparent PNG on video with fade in/out timing."""
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+
+    if end is None:
+        end = get_duration(video_path)
+
+    # Build overlay filter with alpha fade
+    fade_in_end = start + fade_in
+    fade_out_start = end - fade_out
+    enable = f"between(t,{start},{end})"
+
+    # Simple overlay with enable timing (no alpha animation for reliability)
+    cmd = [
+        "ffmpeg", "-y", "-i", video_path, "-i", overlay_path,
+        "-filter_complex",
+        f"[0:v][1:v]overlay={x}:{y}:enable='{enable}':format=auto[out]",
+        "-map", "[out]", "-map", "0:a?",
+        "-c:v", "libx264", "-preset", "fast", "-crf", "20",
+        "-c:a", "copy",
+        output_path
+    ]
+    _run(cmd, timeout=300, label="overlay_timed")
+    return output_path
+
+
+def multi_overlay(video_path: str, overlays: list, output_path: str) -> str:
+    """Apply multiple PNG overlays on video in a single ffmpeg call.
+
+    Args:
+        overlays: list of dicts with keys:
+            path: overlay PNG path
+            x: x position (ffmpeg expression)
+            y: y position (ffmpeg expression)
+            start: start time in seconds
+            end: end time in seconds
+    """
+    if not overlays:
+        import shutil
+        shutil.copy2(video_path, output_path)
+        return output_path
+
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+
+    inputs = ["-i", video_path]
+    for ov in overlays:
+        inputs += ["-i", ov["path"]]
+
+    # Build chain of overlays
+    filter_parts = []
+    prev = "0:v"
+    for i, ov in enumerate(overlays):
+        out_label = f"v{i}" if i < len(overlays) - 1 else "out"
+        enable = f"between(t,{ov['start']},{ov['end']})"
+        filter_parts.append(
+            f"[{prev}][{i+1}:v]overlay={ov['x']}:{ov['y']}:"
+            f"enable='{enable}':format=auto[{out_label}]"
+        )
+        prev = out_label
+
+    cmd = ["ffmpeg", "-y"] + inputs + [
+        "-filter_complex", ";".join(filter_parts),
+        "-map", "[out]", "-map", "0:a?",
+        "-c:v", "libx264", "-preset", "fast", "-crf", "20",
+        "-c:a", "copy",
+        output_path
+    ]
+    _run(cmd, timeout=300, label="multi_overlay")
+    return output_path
+
+
 def frames_to_video(frame_pattern: str, output_path: str,
                     fps: int = 30, audio_path: str = None) -> str:
     """Encode PNG frame sequence to video. frame_pattern like '/tmp/frames/frame_%04d.png'."""

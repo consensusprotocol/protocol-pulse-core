@@ -2,7 +2,7 @@
 Shorts Builder
 ===============
 Creates vertical (9:16, 1080x1920) short-form clips for TikTok/IG/YT Shorts.
-Each short: hook text → narrator setup → clip excerpt → takeaway → CTA.
+Each short: hook text → narrator setup → clip excerpt → takeaway → CTA → tag video.
 Under 60 seconds, branded top/bottom bars.
 """
 import logging
@@ -17,6 +17,10 @@ from PIL import Image, ImageDraw, ImageFont
 from services.video_engine.assembly import ffmpeg_ops
 
 logger = logging.getLogger("ShortsBuilder")
+
+# V3 pipeline assets
+ASSETS_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                          "video_pipeline_v3", "assets")
 
 W, H = 1080, 1920
 FPS = 30
@@ -122,6 +126,17 @@ class ShortsBuilder:
         if Path(cta_path).exists():
             segments.append(cta_path)
 
+        # Segment 4: Tag video (branded end tag, ~3.5s)
+        tag_path = os.path.join(ASSETS_DIR, "tag_vertical.mp4")
+        if os.path.exists(tag_path):
+            tag_scaled = str(self.work_dir / f"short{index}_tag.mp4")
+            try:
+                ffmpeg_ops.scale_and_pad(tag_path, tag_scaled, W, H)
+                if Path(tag_scaled).exists():
+                    segments.append(tag_scaled)
+            except Exception as e:
+                logger.warning(f"  Tag video failed: {e}")
+
         if not segments:
             return None
 
@@ -136,12 +151,12 @@ class ShortsBuilder:
             info = ffmpeg_ops.probe(output_path)
             duration = info.get("duration", 0)
 
-            # Trim to 60s max
-            if duration > 60:
+            # Trim to 60s max (tag doesn't count — allow slightly over)
+            if duration > 65:
                 trimmed = output_path.replace(".mp4", "_trim.mp4")
-                ffmpeg_ops.trim_clip(output_path, trimmed, 0, 59)
+                ffmpeg_ops.trim_clip(output_path, trimmed, 0, 60)
                 os.replace(trimmed, output_path)
-                duration = 59
+                duration = 60
 
             return {
                 "filename": filename,
