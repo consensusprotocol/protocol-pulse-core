@@ -11,7 +11,7 @@ HEYGEN_V1_BASE = "https://api.heygen.com/v1"
 
 # Avatar IDs
 SARAH_AVATAR_ID = "d259c335741f4fc0b061e04c59388b4e"  # Photo Avatar III — $1/min
-PBX_AVATAR_ID = "63665ff559264256993c9eb86929c2a0"     # pbx — custom avatar
+PBX_AVATAR_ID = "3be8ed14b0954b898f4127836c21f6cc"
 
 # Voice IDs (HeyGen built-in)
 SARAH_VOICE_ID = "5f745b3db0db43739f31499f4f0aedd6"  # Claire Lawson — Broadcaster
