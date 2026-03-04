@@ -73,11 +73,11 @@ class LocalAssembler:
             logger.error("  No segments rendered — assembly failed")
             return None
 
-        # Concatenate all segments
-        logger.info(f"\n  Concatenating {len(segment_clips)} segments...")
+        # Concatenate all segments with crossfade transitions (0.3s overlap)
+        logger.info(f"\n  Concatenating {len(segment_clips)} segments with 0.3s crossfades...")
         try:
             raw_output = str(self.work_dir / "raw_concat.mp4")
-            ffmpeg_ops.concat_clips(segment_clips, raw_output, copy_codec=False)
+            ffmpeg_ops.concat_with_crossfade(segment_clips, raw_output, xf_duration=0.3)
 
             # Final loudnorm pass
             logger.info("  Applying loudness normalization...")
@@ -238,10 +238,10 @@ class LocalAssembler:
 
     def _render_voiceover(self, entry: TimelineEntry, seg_path: str,
                           w: int, h: int) -> Optional[str]:
-        """Render voiceover audio over branded background with bg music + overlays.
+        """Render voiceover audio over rotating branded background with bg music + overlays.
 
         Enhanced flow:
-        1. Use looping tech_grid.mp4 background if available
+        1. Use per-entry background video (rotated from available backgrounds)
         2. Mix background music at -18dB under TTS
         3. Add stat/quote overlays if dialogue_text is provided
         4. Add host lower third
@@ -256,22 +256,26 @@ class LocalAssembler:
                 )
             return None
 
-        tech_grid = self._audio_settings.get("tech_grid_path")
         bg_music = self._audio_settings.get("bg_music_path")
         watermark = self._audio_settings.get("watermark_path")
 
-        # Step 1: Create base video — looping tech_grid bg OR static image
+        # Step 1: Create base video — per-entry background (rotated) or fallback
+        # Use source_video_path for the specific background assigned to this entry
+        bg_video = entry.source_video_path
+        if not bg_video or not Path(bg_video).exists():
+            bg_video = self._audio_settings.get("tech_grid_path")
+
         base_path = seg_path.replace(".mp4", "_base.mp4")
-        if tech_grid and os.path.exists(tech_grid):
+        if bg_video and os.path.exists(bg_video):
             try:
                 ffmpeg_ops.audio_over_looping_video(
-                    tech_grid, audio, base_path,
+                    bg_video, audio, base_path,
                     bg_music_path=bg_music,
                     bg_music_vol=0.125,  # ~-18dB
                     w=w, h=h
                 )
             except Exception as e:
-                logger.warning(f"  tech_grid bg failed ({e}), falling back to static")
+                logger.warning(f"  Background video failed ({e}), falling back to static")
                 base_path = self._fallback_voiceover(entry, base_path, audio, w, h)
         else:
             base_path = self._fallback_voiceover(entry, base_path, audio, w, h)

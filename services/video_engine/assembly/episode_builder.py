@@ -156,15 +156,23 @@ class EpisodeBuilder:
                 render_title_card, render_signal_noise_card, render_branded_bg
             )
 
-            # Intro — use custom video if available (has its own audio)
+            # Intro — use custom video + layer pp_intro.mp3 music on top
             custom_intro = os.path.join(ASSETS_DIR, "intro.mp4")
+            intro_music = os.path.join(ASSETS_DIR, "music", "pp_intro.mp3")
             if os.path.exists(custom_intro):
-                # Re-encode to match pipeline specs (30fps, 1920x1080)
-                intro_path = str(gfx_dir / "intro.mp4")
-                ffmpeg_ops.scale_and_pad(custom_intro, intro_path, 1920, 1080)
+                intro_scaled = str(gfx_dir / "intro_scaled.mp4")
+                ffmpeg_ops.scale_and_pad(custom_intro, intro_scaled, 1920, 1080)
+                # Mix intro music on top of intro video audio
+                if os.path.exists(intro_music):
+                    intro_path = str(gfx_dir / "intro.mp4")
+                    ffmpeg_ops.add_audio_mix(intro_scaled, intro_music, intro_path,
+                                             audio_volume=0.6, video_volume=1.0)
+                    logger.info("  + Intro: custom video + pp_intro.mp3 mixed")
+                else:
+                    intro_path = intro_scaled
+                    logger.info("  + Intro: custom video (no intro music found)")
                 gfx["intro"] = intro_path
                 gfx["intro_has_audio"] = True
-                logger.info("  + Intro: custom video (with audio)")
             else:
                 intro_path = str(gfx_dir / "intro.mp4")
                 generate_intro(intro_path)
@@ -172,14 +180,24 @@ class EpisodeBuilder:
                 gfx["intro_has_audio"] = False
                 logger.info("  + Intro: generated bumper")
 
-            # Outro — use custom video if available (has its own audio)
+            # Outro — use custom video + layer pp_outro.mp3 music on top
             custom_outro = os.path.join(ASSETS_DIR, "outro.mp4")
+            outro_music = os.path.join(ASSETS_DIR, "music", "pp_outro.mp3")
             if os.path.exists(custom_outro):
-                outro_path = str(gfx_dir / "outro.mp4")
-                ffmpeg_ops.scale_and_pad(custom_outro, outro_path, 1920, 1080)
+                outro_scaled = str(gfx_dir / "outro_scaled.mp4")
+                ffmpeg_ops.scale_and_pad(custom_outro, outro_scaled, 1920, 1080)
+                # Mix outro music on top, trimmed to match outro duration + fade out
+                if os.path.exists(outro_music):
+                    outro_path = str(gfx_dir / "outro.mp4")
+                    outro_dur = ffmpeg_ops.get_duration(outro_scaled)
+                    ffmpeg_ops.add_audio_mix(outro_scaled, outro_music, outro_path,
+                                             audio_volume=0.6, video_volume=1.0)
+                    logger.info(f"  + Outro: custom video + pp_outro.mp3 mixed ({outro_dur:.1f}s)")
+                else:
+                    outro_path = outro_scaled
+                    logger.info("  + Outro: custom video (no outro music found)")
                 gfx["outro"] = outro_path
                 gfx["outro_has_audio"] = True
-                logger.info("  + Outro: custom video (with audio)")
             else:
                 outro_path = str(gfx_dir / "outro.mp4")
                 generate_outro(outro_path)
@@ -233,11 +251,24 @@ class EpisodeBuilder:
             render_branded_bg(bg_path)
             gfx["branded_bg"] = bg_path
 
-            # Tech grid video background (for looping under host segments)
+            # Collect ALL video backgrounds for rotation per host segment
+            import glob as glob_mod
+            bg_dir = os.path.join(ASSETS_DIR, "backgrounds")
+            all_bgs = (glob_mod.glob(os.path.join(bg_dir, "*.mp4")) +
+                       glob_mod.glob(os.path.join(bg_dir, "*.mov")))
+            # Filter out tiny/broken files (< 100KB)
+            all_bgs = [b for b in all_bgs if os.path.getsize(b) > 100000]
+            if all_bgs:
+                gfx["backgrounds"] = all_bgs
+                logger.info(f"  + Backgrounds: {len(all_bgs)} videos for rotation")
+                for b in all_bgs:
+                    logger.info(f"    - {os.path.basename(b)}")
+            # Keep tech_grid as fallback
             tech_grid = os.path.join(ASSETS_DIR, "backgrounds", "tech_grid.mp4")
             if os.path.exists(tech_grid):
                 gfx["tech_grid_bg"] = tech_grid
-                logger.info("  + Background: tech_grid.mp4")
+                if not all_bgs:
+                    logger.info("  + Background: tech_grid.mp4 (only)")
 
             # Background music
             bg_music = os.path.join(ASSETS_DIR, "music", "pp_background.mp3")
@@ -257,14 +288,16 @@ class EpisodeBuilder:
         return gfx
 
     def _make_transition_entry(self, graphics: dict) -> Optional[TimelineEntry]:
-        """Create a transition timeline entry if glitch transition is available."""
+        """Create a transition timeline entry if glitch transition is available.
+        Uses glitch_transition_waud.mp4 (0.5s) — never pp_transition.mp3.
+        """
         trans = graphics.get("transition")
         if trans and Path(trans).exists():
             return TimelineEntry(
                 entry_type="transition",
                 source_video_path=trans,
                 visual=trans,
-                duration_sec=2.0,
+                duration_sec=0.5,
                 transition_in="cut"
             )
         return None
@@ -273,21 +306,29 @@ class EpisodeBuilder:
         """Build assembly manifest with real file paths for everything.
 
         Assembly order:
-        1. intro.mp4 (custom video with own audio)
-        2. Cold open voiceover (branded bg + bg music)
+        1. intro.mp4 (custom video with own audio, pp_intro.mp3 mixed)
+        2. Cold open voiceover (random bg + bg music)
         3. For each story:
            a. Title card
-           b. Narrator intro (branded bg + bg music)
+           b. Narrator intro (random bg + bg music)
            c. For each clip: glitch transition → clip → glitch transition
-           d. Narrator wrap (branded bg + bg music)
+           d. Narrator wrap (random bg + bg music)
         4. Quick hits, Signal vs Noise, Community Pulse
-        5. outro.mp4 (custom video with own audio)
+        5. outro.mp4 (custom video with own audio, pp_outro.mp3 mixed)
         """
+        import random
         timeline = []
         bg = graphics.get("branded_bg")
         tech_grid = graphics.get("tech_grid_bg")
         bg_music = graphics.get("bg_music")
         watermark = graphics.get("watermark")
+        backgrounds = graphics.get("backgrounds", [])
+
+        def pick_bg():
+            """Pick a random background video, fallback to tech_grid."""
+            if backgrounds:
+                return random.choice(backgrounds)
+            return tech_grid
 
         # Helper: voiceover visual source — prefer tech_grid video over static image
         vo_visual = tech_grid if tech_grid else bg
@@ -310,7 +351,8 @@ class EpisodeBuilder:
                 entry_type="voiceover",
                 audio_path=cold_audio,
                 image_path=bg,
-                visual="tech_grid" if tech_grid else "branded_bg",
+                source_video_path=pick_bg(),
+                visual="random_bg",
                 host_name="JESSICA",
                 transition_in="crossfade_0.5s"
             ))
@@ -340,7 +382,8 @@ class EpisodeBuilder:
                     entry_type="voiceover",
                     audio_path=intro_audio,
                     image_path=bg,
-                    visual="tech_grid" if tech_grid else "branded_bg",
+                    source_video_path=pick_bg(),
+                    visual="random_bg",
                     host_name="DANIEL",
                     topic_label=headline,
                     dialogue_text=intro_text,
@@ -359,7 +402,8 @@ class EpisodeBuilder:
                         entry_type="voiceover",
                         audio_path=clip_intro_audio,
                         image_path=bg,
-                        visual="tech_grid" if tech_grid else "branded_bg",
+                        source_video_path=pick_bg(),
+                        visual="random_bg",
                         host_name="DANIEL",
                         topic_label=headline,
                         dialogue_text=clip_intro_text,
@@ -408,7 +452,8 @@ class EpisodeBuilder:
                     entry_type="voiceover",
                     audio_path=wrap_audio,
                     image_path=bg,
-                    visual="tech_grid" if tech_grid else "branded_bg",
+                    source_video_path=pick_bg(),
+                    visual="random_bg",
                     host_name="JESSICA",
                     topic_label=headline,
                     dialogue_text=wrap_text,
@@ -424,7 +469,8 @@ class EpisodeBuilder:
                     entry_type="voiceover",
                     audio_path=intro_audio,
                     image_path=bg,
-                    visual="tech_grid" if tech_grid else "branded_bg",
+                    source_video_path=pick_bg(),
+                    visual="random_bg",
                     host_name="DANIEL",
                     dialogue_text=self._get_script_text(f"quickhit{sn}_intro"),
                     transition_in="cut"
@@ -435,7 +481,8 @@ class EpisodeBuilder:
                     entry_type="voiceover",
                     audio_path=wrap_audio,
                     image_path=bg,
-                    visual="tech_grid" if tech_grid else "branded_bg",
+                    source_video_path=pick_bg(),
+                    visual="random_bg",
                     host_name="JESSICA",
                     dialogue_text=self._get_script_text(f"quickhit{sn}_wrap"),
                     transition_in="cut"
@@ -462,7 +509,8 @@ class EpisodeBuilder:
                     entry_type="voiceover",
                     audio_path=cp_intro_audio,
                     image_path=bg,
-                    visual="tech_grid" if tech_grid else "branded_bg",
+                    source_video_path=pick_bg(),
+                    visual="random_bg",
                     host_name="JESSICA",
                     transition_in="crossfade_0.5s"
                 ))
@@ -484,7 +532,8 @@ class EpisodeBuilder:
                     entry_type="voiceover",
                     audio_path=hook_audio,
                     image_path=bg,
-                    visual="tech_grid" if tech_grid else "branded_bg",
+                    source_video_path=pick_bg(),
+                    visual="random_bg",
                     host_name="DANIEL",
                     transition_in="cut"
                 ))
@@ -496,7 +545,8 @@ class EpisodeBuilder:
                 entry_type="voiceover",
                 audio_path=outro_audio,
                 image_path=bg,
-                visual="tech_grid" if tech_grid else "branded_bg",
+                source_video_path=pick_bg(),
+                visual="random_bg",
                 host_name="JESSICA",
                 transition_in="crossfade_0.5s"
             ))
