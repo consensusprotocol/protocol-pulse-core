@@ -65,9 +65,28 @@ def run(test_mode: bool = False):
     logger.info(f"{'#'*70}\n")
 
     # ──────────────────────────────────────────────
-    # STEP 1: YouTube Scan
+    # STEP 0: GROK TREND SCOUT — discover what we might miss
     # ──────────────────────────────────────────────
     logger.info("=" * 60)
+    logger.info("STEP 0: Grok Trend Scout")
+    logger.info("=" * 60)
+
+    grok_clips = []
+    try:
+        from services.video_engine.editorial.trend_scout import scout_trends, search_discovery_clips
+        trends = scout_trends(date_str)
+        grok_clips = search_discovery_clips(trends.get("discoveries", []))
+        logger.info(f"  Discoveries: {len(trends.get('discoveries', []))}")
+        logger.info(f"  Searchable clips: {len(grok_clips)}")
+        if trends.get("top_story"):
+            logger.info(f"  Top story: {trends['top_story']}")
+    except Exception as e:
+        logger.info(f"  Trend scout skipped: {e}")
+
+    # ──────────────────────────────────────────────
+    # STEP 1: YouTube Scan
+    # ──────────────────────────────────────────────
+    logger.info("\n" + "=" * 60)
     logger.info("STEP 1: YouTube Scan + Transcription")
     logger.info("=" * 60)
 
@@ -164,7 +183,79 @@ def run(test_mode: bool = False):
             except Exception as e:
                 logger.warning(f"    Search failed: {e}")
 
-    logger.info(f"\n  Total videos found: {len(video_meta)}")
+    # ── STEP 1B: Mainstream Channel Scan (keyword-filtered) ──
+    logger.info("\n  Scanning mainstream channels (keyword-filtered)...")
+    try:
+        import yaml
+        channels_yaml = Path(__file__).resolve().parents[2] / "video_pipeline_v3" / "channels.yaml"
+        if channels_yaml.exists():
+            with open(channels_yaml) as f:
+                ch_config = yaml.safe_load(f)
+            mainstream_channels = ch_config.get("mainstream", [])
+            if test_mode:
+                mainstream_channels = mainstream_channels[:2]
+
+            mainstream_found = []
+            for mch in mainstream_channels:
+                url = mch.get("url", "")
+                keywords = mch.get("filter_keywords", [])
+                name = mch.get("name", "Unknown")
+                if not url:
+                    continue
+                logger.info(f"    Scanning mainstream: {name}...")
+                try:
+                    cmd = [
+                        "yt-dlp", "--flat-playlist", "--no-download",
+                        "--print", "%(id)s|||%(title)s|||%(duration)s",
+                        "--playlist-items", "1:3",
+                        f"{url}/videos"
+                    ]
+                    result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+
+                    for line in result.stdout.strip().split("\n"):
+                        if not line or "|||" not in line:
+                            continue
+                        parts = line.split("|||")
+                        if len(parts) < 2:
+                            continue
+                        vid_id = parts[0]
+                        title = parts[1]
+                        dur = int(float(parts[2])) if len(parts) > 2 and parts[2] not in ("NA", "") else 0
+
+                        if dur < 120 or dur > 7200:
+                            continue
+
+                        # Keyword filter: only include if title matches
+                        title_lower = title.lower()
+                        if any(kw.lower() in title_lower for kw in keywords):
+                            video_meta.append({
+                                "video_id": vid_id,
+                                "title": title,
+                                "duration": dur,
+                                "channel": name,
+                                "mainstream_match": True,
+                            })
+                            mainstream_found.append(title[:50])
+                            logger.info(f"      MATCH: {title[:60]} ({dur//60}m)")
+
+                except Exception as e:
+                    logger.warning(f"      Scan failed: {e}")
+
+            logger.info(f"  Mainstream matches: {len(mainstream_found)}")
+    except ImportError:
+        logger.info("  PyYAML not installed, skipping mainstream scan")
+    except Exception as e:
+        logger.info(f"  Mainstream scan skipped: {e}")
+
+    # ── STEP 1C: Add Grok discovery clips ──
+    for gc in grok_clips:
+        # Avoid duplicates
+        existing_ids = {vm["video_id"] for vm in video_meta}
+        if gc["video_id"] not in existing_ids:
+            video_meta.append(gc)
+
+    logger.info(f"\n  Total videos found: {len(video_meta)} "
+                f"(partner + mainstream + grok)")
 
     # Transcribe (first 5 minutes of each)
     max_vids = 3 if test_mode else 6

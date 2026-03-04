@@ -504,6 +504,94 @@ def multi_overlay(video_path: str, overlays: list, output_path: str) -> str:
     return output_path
 
 
+def concat_with_crossfade(clip_paths: list, output_path: str,
+                          xf_duration: float = 0.3) -> str:
+    """Concatenate clips with crossfade transitions between every pair.
+
+    Uses chained xfade (video) + acrossfade (audio) filters for seamless blending.
+    Falls back to simple concat if crossfade fails.
+    """
+    if not clip_paths:
+        raise ValueError("No clips to concatenate")
+
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+
+    n = len(clip_paths)
+    if n == 1:
+        import shutil
+        shutil.copy2(clip_paths[0], output_path)
+        return output_path
+
+    # For very large numbers of segments, process in batches to avoid
+    # ffmpeg filter_complex limits
+    if n > 25:
+        # Split into two halves, crossfade each, then crossfade the results
+        mid = n // 2
+        tmp1 = output_path + ".part1.mp4"
+        tmp2 = output_path + ".part2.mp4"
+        try:
+            concat_with_crossfade(clip_paths[:mid], tmp1, xf_duration)
+            concat_with_crossfade(clip_paths[mid:], tmp2, xf_duration)
+            crossfade(tmp1, tmp2, xf_duration, output_path)
+            return output_path
+        finally:
+            for f in [tmp1, tmp2]:
+                if os.path.exists(f):
+                    try:
+                        os.unlink(f)
+                    except Exception:
+                        pass
+
+    inputs = []
+    for p in clip_paths:
+        inputs += ["-i", str(p)]
+
+    durations = [get_duration(p) for p in clip_paths]
+
+    # Build chained xfade (video) and acrossfade (audio) filters
+    v_filters = []
+    a_filters = []
+
+    for i in range(n - 1):
+        # Input labels
+        v_in = "0:v" if i == 0 else f"xv{i-1}"
+        a_in = "0:a" if i == 0 else f"xa{i-1}"
+
+        # Output labels
+        v_out = "vout" if i == n - 2 else f"xv{i}"
+        a_out = "aout" if i == n - 2 else f"xa{i}"
+
+        # Video offset: cumulative duration minus cumulative crossfade overlaps
+        offset = sum(durations[:i+1]) - xf_duration * (i + 1)
+        offset = max(0, offset)
+
+        v_filters.append(
+            f"[{v_in}][{i+1}:v]xfade=transition=fade:duration={xf_duration}:offset={offset:.3f}[{v_out}]"
+        )
+        a_filters.append(
+            f"[{a_in}][{i+1}:a]acrossfade=d={xf_duration}:c1=tri:c2=tri[{a_out}]"
+        )
+
+    filter_complex = ";".join(v_filters + a_filters)
+
+    cmd = ["ffmpeg", "-y"] + inputs + [
+        "-filter_complex", filter_complex,
+        "-map", "[vout]", "-map", "[aout]",
+        "-c:v", "libx264", "-preset", "fast", "-crf", "20",
+        "-c:a", "aac", "-b:a", "192k",
+        "-movflags", "+faststart",
+        output_path
+    ]
+
+    try:
+        _run(cmd, timeout=900, label="concat_xfade")
+    except Exception as e:
+        logger.warning(f"  Crossfade concat failed ({e}), falling back to simple concat")
+        concat_clips(clip_paths, output_path, copy_codec=False)
+
+    return output_path
+
+
 def frames_to_video(frame_pattern: str, output_path: str,
                     fps: int = 30, audio_path: str = None) -> str:
     """Encode PNG frame sequence to video. frame_pattern like '/tmp/frames/frame_%04d.png'."""

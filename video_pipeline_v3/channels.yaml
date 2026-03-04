@@ -58,6 +58,50 @@ channels:
     url: "https://www.youtube.com/@BitcoinUnchained"
     priority: 3
 
+# Mainstream channels — scan for Bitcoin/crypto mentions only
+mainstream:
+  - handle: "@joerogan"
+    name: "Joe Rogan Experience"
+    url: "https://www.youtube.com/@joerogan"
+    priority: 3
+    filter_keywords: ["bitcoin", "btc", "crypto", "blockchain", "satoshi", "digital currency", "fed", "inflation", "sound money", "gold standard"]
+
+  - handle: "@lexfridman"
+    name: "Lex Fridman"
+    url: "https://www.youtube.com/@lexfridman"
+    priority: 3
+    filter_keywords: ["bitcoin", "btc", "crypto", "blockchain", "satoshi", "digital currency", "money", "economics"]
+
+  - handle: "@PBDPodcast"
+    name: "Patrick Bet-David"
+    url: "https://www.youtube.com/@PBDPodcast"
+    priority: 3
+    filter_keywords: ["bitcoin", "btc", "crypto", "digital", "inflation", "money"]
+
+  - handle: "@TuckerCarlson"
+    name: "Tucker Carlson"
+    url: "https://www.youtube.com/@TuckerCarlson"
+    priority: 3
+    filter_keywords: ["bitcoin", "btc", "crypto", "cbdc", "digital dollar", "surveillance", "privacy", "freedom"]
+
+  - handle: "@All-In-Podcast"
+    name: "All-In Podcast"
+    url: "https://www.youtube.com/@All-In-Podcast"
+    priority: 3
+    filter_keywords: ["bitcoin", "btc", "crypto", "blockchain", "web3"]
+
+  - handle: "@TheMegynKellyShow"
+    name: "Megyn Kelly Show"
+    url: "https://www.youtube.com/@TheMegynKellyShow"
+    priority: 3
+    filter_keywords: ["bitcoin", "btc", "crypto", "cbdc", "digital currency", "privacy"]
+
+  - handle: "@PowerfulJRE"
+    name: "JRE Clips"
+    url: "https://www.youtube.com/@PowerfulJRE"
+    priority: 3
+    filter_keywords: ["bitcoin", "btc", "crypto", "money", "inflation"]
+
 # Scanning config
 scan:
   max_age_hours: 48        # Only videos from last 48 hours
