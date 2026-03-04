@@ -39,7 +39,7 @@ import anthropic
 from services.heygen_client import generate_and_download, PBX_AVATAR_ID, SARAH_VOICE_ID
 
 # Voice for PBX — Thanos Broadcaster
-PBX_VOICE_ID = "054af44a167344d0af2722fdfef08d17"
+PBX_VOICE_ID = "74c81bbeaccc4fe5b883efd5e242d0b5"
 
 
 # ---------------------------------------------------------------------------
