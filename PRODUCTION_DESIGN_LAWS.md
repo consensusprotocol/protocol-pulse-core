@@ -297,3 +297,30 @@ even though the pipeline is autonomous.
 *This document replaces guessing with science.
 Every production decision should trace back to a rule in this document.
 Pair with: PIPELINE_LAWS.md, CONTENT_INTELLIGENCE_LAWS.md*
+
+
+---
+
+## ADDENDUM: LOGO USAGE RESTRAINT RULE
+
+The Protocol Pulse logo is a premium brand asset. Overuse dilutes its impact.
+
+### Where the logo APPEARS:
+- Title card intro (4 seconds, centered, prominent — this is its moment)
+- Corner watermark during partner clips ONLY (small, 60px, 40% opacity, top-right)
+- Outro video (already baked into the branded outro)
+
+### Where the logo DOES NOT appear:
+- Narration segments (let the cyberpunk background + waveform + PiP preview shine)
+- Social card segments (the tweet cards are the visual focus)
+- Data segments (charts and metrics are the focus)
+- Transitions (too fast, logo would flash meaninglessly)
+
+### The Rule:
+Logo visible in maximum 3 distinct segments per episode:
+1. Title card (intro)
+2. Partner clip watermark (subtle corner)
+3. Outro
+
+That's it. The Remotion visuals, the content, and the partner clips are the stars.
+The logo is the signature, not the centerpiece.
