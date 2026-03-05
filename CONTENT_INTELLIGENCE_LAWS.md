@@ -361,3 +361,70 @@ When the X Article and Substack cover the same topic:
 - Different header images (platform-specific dimensions)
 - Different opening hooks (X is more immediate, Substack more narrative)
 - Both link to protocolpulse.io for daily content
+
+
+---
+
+## ADDENDUM C: BITCOIN NODE MONITORING — "THE NODE PULSE"
+
+### Why this matters to the brand:
+Protocol Pulse's #1 content pillar is Network Security. Node count dropped
+from ~200K (2017) to ~100K (2026). This is the single most important metric
+for Bitcoin's decentralization health. Mining centralization + node decline +
+ETF hypothecation are the three existential threats. Monitoring and celebrating
+new nodes directly serves the sovereignty mission.
+
+### Data Source:
+- Bitnodes.io API: https://bitnodes.io/api/v1/snapshots/
+- Polls every 15 minutes
+- Compares current snapshot to previous: new IPs = new nodes
+- Also tracks: total reachable nodes, geographic distribution, client versions
+
+### Site Integration:
+- protocolpulse.io sidebar widget: "NODE PULSE" live counter
+  - Total reachable nodes (large number, updated every 15 min)
+  - Net change today: +12 / -5 (green/red)
+  - "Run a node. Secure the network." CTA linking to guide
+  - Sparkline chart: last 30 days of node count
+
+### Auto-Tweet on Milestone Events:
+Trigger an automated X post when:
+1. **Net positive day**: More nodes came online than went offline
+   Tweet: "Network grew today. {total} nodes securing the chain. [sparkline emoji] +{net_new}"
+2. **New round number**: Total crosses 100K, 105K, 110K, etc.
+   Tweet: "Bitcoin just crossed {milestone} reachable nodes. Decentralization is not a spectator sport."
+3. **Geographic milestone**: New country appears in the node map
+   Tweet: "{country} just came online. Bitcoin's network now spans {count} countries."
+4. **Weekly summary**: Every Monday
+   Tweet: "NODE PULSE: {total} nodes this week ({change} vs last). Top growth: {country_1}, {country_2}."
+
+### Tweet Voice for Node Posts:
+- Celebratory but not cheesy. Factual with subtle pride.
+- NEVER "OMG new node!" energy. Always measured, authoritative.
+- Data first: the number, then the implication.
+- Dry humor when appropriate: "Another sovereign individual chose violence today. Node #{total}."
+- Vary the format. Don't repeat the same template.
+
+### Implementation:
+- utils/node_monitor.py: Bitnodes API poller, snapshot diffing, milestone detection
+- Cron: every 15 minutes on Ultron
+- data/node_snapshots/: JSON files per snapshot
+- Telegram alert on milestones (reuse V18 Telegram infrastructure)
+- X auto-post on milestones (reuse X posting pipeline, human review first 50 posts)
+
+### Brand Integration:
+This feature reinforces Protocol Pulse as THE network health authority.
+Nobody else auto-tweets node milestones with context and data.
+Over time, the Node Pulse becomes a cited source — "According to Protocol Pulse's
+node tracker, Bitcoin's network grew by 3% this quarter."
+
+### Decentralization Dashboard (future, post-V30):
+Expand to a full /nodes page on protocolpulse.io:
+- Live map of reachable nodes by geography
+- Client version distribution (Bitcoin Core vs others)
+- Historical trend charts (node count over years)
+- Mining pool distribution (hashrate centralization risk)
+- ETF holdings as % of total supply (hypothecation risk metric)
+- Combined "Decentralization Health Score" (0-100)
+
+This positions Protocol Pulse as the definitive source for Bitcoin network health.
