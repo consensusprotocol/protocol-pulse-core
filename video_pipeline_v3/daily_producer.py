@@ -33,6 +33,7 @@ from chapters import generate_chapters
 from podcast_feed import extract_podcast_audio, generate_rss_item
 from newsletter_embed import generate_email_html, save_newsletter_html
 from music import ensure_music_dir, has_music, has_intro, has_outro
+from utils.feature_flags import is_enabled, load_all as load_flags
 
 # Setup logging
 logging.basicConfig(
@@ -72,6 +73,10 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False) -> bool:
 
     # Ensure music directory exists
     ensure_music_dir()
+
+    # Log feature flags at startup
+    flags = load_flags()
+    logger.info(f"Feature flags: {json.dumps(flags)}")
 
     print("\n" + "=" * 70)
     print(f"  PULSE CHECK V5 — CLIP-FIRST PIPELINE")
@@ -161,6 +166,47 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False) -> bool:
         _write_timing_report(run_dir, timing, t_pipeline_start, success=False)
         return False
 
+    # ── Step 4b: MOOD CLASSIFICATION + MUSIC SELECTION ──────────────────
+    import glob as _glob
+    import random as _random
+
+    def classify_episode_mood(script_text: str) -> str:
+        """Classify episode mood from clip quotes."""
+        moods = {"tense": 0, "confident": 0, "contemplative": 0, "upbeat": 0, "edge": 0}
+        lower = script_text.lower()
+        if any(w in lower for w in ["crash", "sell", "breaking", "emergency", "plunge", "war"]):
+            moods["tense"] += 3
+        if any(w in lower for w in ["bullish", "ath", "record", "buying", "accumul"]):
+            moods["confident"] += 3
+        if any(w in lower for w in ["philosoph", "long-term", "decade", "future", "think about"]):
+            moods["contemplative"] += 2
+        if any(w in lower for w in ["community", "fun", "meme", "laugh", "celebrate"]):
+            moods["upbeat"] += 2
+        if any(w in lower for w in ["controversial", "scam", "fraud", "attack", "fight"]):
+            moods["edge"] += 2
+        best = max(moods, key=moods.get)
+        return best if moods[best] > 0 else "confident"
+
+    def select_music_bed(mood: str, music_dir: str) -> str:
+        tracks = _glob.glob(os.path.join(music_dir, f"{mood}_*.mp3"))
+        if not tracks:
+            tracks = _glob.glob(os.path.join(music_dir, "confident_*.mp3"))
+        if not tracks:
+            tracks = _glob.glob(os.path.join(music_dir, "*.mp3"))
+        return _random.choice(tracks) if tracks else ""
+
+    def select_intro_music(music_dir: str) -> str:
+        tracks = _glob.glob(os.path.join(music_dir, "intro_*.mp3"))
+        return _random.choice(tracks) if tracks else ""
+
+    # Classify mood from clip quotes
+    clip_quotes = " ".join(c.get("quote", "") + " " + c.get("why", "") for c in clips)
+    episode_mood = classify_episode_mood(clip_quotes)
+    music_dir = os.path.join(BASE, "assets", "music")
+    music_bed = select_music_bed(episode_mood, music_dir)
+    intro_music = select_intro_music(music_dir)
+    print(f"  Mood: {episode_mood} | Music: {os.path.basename(music_bed) if music_bed else 'default'}")
+
     # ── Step 5: GENERATE SCRIPT ───────────────────────────────────────────
     print("\n[STEP 5/12] GENERATING HOST DIALOGUE (Claude)...")
     t0 = time.time()
@@ -192,7 +238,8 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False) -> bool:
     print("\n[STEP 7/12] ASSEMBLING VIDEO...")
     t0 = time.time()
     result = assemble_episode(script, audio_data, extracted_clips, final_video,
-                              btc_price=btc_price)
+                              btc_price=btc_price, music_bed=music_bed,
+                              intro_music=intro_music)
     timing["7_assemble"] = round(time.time() - t0, 2)
 
     if not result or not os.path.exists(final_video):
