@@ -292,3 +292,30 @@ When a partner channel clip plays, show a lower-third graphic:
 These visual specs are PERMANENT. Every Remotion component must match this design system.
 Remotion source files: remotion/src/compositions/
 Brand constants: remotion/src/brand.ts
+
+
+## SECTION 20: APPROVED VOICES (updated 2026-03-05)
+
+### Host 1 (Female): Eryn
+- Voice ID: kdnRe2koJdOK4Ovxn2DI
+- Model: eleven_turbo_v2_5
+- Description: Confident, clear, attractive mid-20s American female
+- Settings per voice mode:
+  - COLD_OPEN: stability 0.38, similarity 0.78, style 0.15, speed 1.12
+  - NARRATION: stability 0.75, similarity 0.75, style 0.10, speed 1.12
+  - AUTHORITY: stability 0.70, similarity 0.78, style 0.10, speed 1.10
+  - SOCIAL: stability 0.60, similarity 0.75, style 0.12, speed 1.12
+  - WARM: stability 0.60, similarity 0.72, style 0.20, speed 1.10
+
+### Host 2 (Male): Mark
+- Voice ID: 1SM7GgM6IMuvQlz2BwM3
+- Model: eleven_turbo_v2_5
+- Description: Wholesome, strong, warm male voice
+- Settings: stability 0.40, similarity 0.75, style 0.10, speed 1.10
+
+### BANNED voices (do not use under any circumstances):
+- Gigi (jBpfuIE2acCO8z3wKNLl) — too childish
+- Jessica (cgSgspJ2msm6clMCkdW9) — too British/old
+- Nicole (piTKgcLEGmPE4e6mEKli) — too breathy/whispery at any stability
+- Sarah (EXAVITQu4vr4xnSDxMaL) — still whispery
+- Matilda (XrExE9yKIg1WjnnlVkGX) — fallback only, not approved for production
