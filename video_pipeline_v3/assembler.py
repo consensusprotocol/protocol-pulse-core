@@ -671,13 +671,9 @@ def make_host_visual(audio_path: str, host: int, text: str,
         wrapped_text = "\\n".join(wrapped_lines)
 
         # --- Cyberpunk card design ---
-        # Scanline overlay (horizontal lines at low opacity)
-        fg += f"color=c=0x000000@0.03:s=1920x2:d={total_dur}:r=30[scanline];\n"
-        fg += f"color=c=0x000000@0.0:s=1920x4:d={total_dur}:r=30[scangap];\n"
-        fg += f"[scanline][scangap]vstack[scanpair];\n"
-        # Tile scanlines across the frame (180 pairs = 1080px)
-        fg += f"[scanpair]tile=1x180:overlap=0:init_padding=0[scantile];\n"
-        fg += f"[{last_v}][scantile]overlay=0:0[vscan];\n"
+        # Scanline effect via geq (subtle dark line every 4px)
+        fg += (f"[{last_v}]geq=lum='if(eq(mod(Y,4),0),lum(X,Y)*0.94,lum(X,Y))':"
+               f"cr='cr(X,Y)':cb='cb(X,Y)'[vscan];\n")
 
         # Red accent bar top (thicker for cyberpunk)
         fg += f"[vscan]drawbox=x=0:y=0:w=1920:h=6:color=0xCC0000:t=fill[vsoc_bar];\n"
@@ -823,12 +819,9 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
     fg += f"color=c=0x161616:s=1920x540:d={total_dur}:r=30[bglite];\n"
     fg += f"[bgdark][bglite]overlay=0:0[base];\n"
 
-    # Scanline overlay (1px lines every 4px at 5% opacity)
-    fg += f"color=c=0x000000@0.05:s=1920x1:d={total_dur}:r=30[scanline];\n"
-    fg += f"color=c=0x000000@0.0:s=1920x3:d={total_dur}:r=30[scangap];\n"
-    fg += f"[scanline][scangap]vstack[scanpair];\n"
-    fg += f"[scanpair]tile=1x270:overlap=0:init_padding=0[scantile];\n"
-    fg += f"[base][scantile]overlay=0:0[bgscan];\n"
+    # Scanline effect via geq (1px dark line every 4px at ~5% opacity)
+    fg += (f"[base]geq=lum='if(eq(mod(Y,4),0),lum(X,Y)*0.92,lum(X,Y))':"
+           f"cr='cr(X,Y)':cb='cb(X,Y)'[bgscan];\n")
 
     # Vignette corners (darker edges)
     fg += (f"[bgscan]drawbox=x=0:y=0:w=200:h=1080:color=0x000000@0.15:t=fill"
