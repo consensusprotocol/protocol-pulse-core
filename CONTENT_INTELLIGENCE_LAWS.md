@@ -428,3 +428,53 @@ Expand to a full /nodes page on protocolpulse.io:
 - Combined "Decentralization Health Score" (0-100)
 
 This positions Protocol Pulse as the definitive source for Bitcoin network health.
+
+
+---
+
+## ADDENDUM D: THE THREE THREATS — BRAND AWARENESS PILLARS
+
+Protocol Pulse recognizes three existential threats to Bitcoin's decentralization.
+These inform content priority, editorial angle, and campaign strategy.
+
+### Threat 1: Node Decline
+- 200K reachable nodes in 2017 → ~100K in 2026
+- Every node that goes offline is one less vote for consensus rules
+- Protocol Pulse position: run a node, verify don't trust
+- Content angle: celebrate new nodes, educate on why nodes matter,
+  make running a node feel like a sovereign act not a technical chore
+- Feature: Node Pulse widget + milestone tweets (Addendum C)
+
+### Threat 2: Mining Centralization
+- Top 3 pools control >50% of hashrate at times
+- Geographic concentration risk (energy policy changes = attack surface)
+- Protocol Pulse position: distributed mining is network security
+- Content angle: highlight independent miners, cover difficulty adjustments
+  as health signals, feature mining innovation (home mining, renewable mining)
+- Feature: Mining Intel article class (auto-generate from Blockware newsletter)
+
+### Threat 3: ETF Hypothecation / Custodial Concentration
+- Bitcoin held by Coinbase Custody, BlackRock's IBIT, and similar centralized entities
+  is NOT decentralized Bitcoin. It is an IOU.
+- As ETF holdings grow, the percentage of Bitcoin that's truly self-custodied shrinks
+- Protocol Pulse position: ETFs are a gateway, not the destination.
+  Use them to accumulate, then withdraw to self-custody.
+- Content angle: track custodial vs self-custody ratios (on-chain data),
+  celebrate self-custody milestones, educate on custody risks
+- NEVER anti-ETF (alienates institutional audience and sponsors).
+  ALWAYS frame as: "great that capital flows in, but the endgame is self-custody"
+
+### How this drives content:
+The sentiment engine should weight these three threats as PERMANENT high-priority topics.
+Even when velocity is low on mining or node count, at least 1 segment per week must
+address one of the three threats. This is the brand's public service mission.
+
+### Auto-generated awareness campaigns:
+When on-chain data shows:
+- Exchange balance spike (coins moving TO exchanges): alert tweet
+- Self-custody outflow (coins moving OFF exchanges): celebration tweet
+- Pool concentration above 40%: warning tweet
+- Node count drops below 100K: campaign activation
+
+These are the moments Protocol Pulse becomes essential. Not when ETFs are pumping,
+but when the network's immune system is being tested.
