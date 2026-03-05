@@ -219,3 +219,76 @@ Tag: [WARM]
 The script_writer SCRIPT_PROMPT includes instructions to tag each segment.
 tts_engine.py reads the tag prefix and selects the corresponding voice settings.
 If no tag is present, CLEAR mode is used (safe default).
+## SECTION 19: VISUAL DESIGN SYSTEM — BROADCAST QUALITY
+
+### 19A: Logo Usage
+- Official logo: assets/logo_protocol_pulse.png (800x800, 3D metallic with heartbeat)
+- Logo appears: bottom-right corner during narration segments (150px height, 80% opacity)
+- Logo appears: centered during intro sequence (400px height, full opacity)
+- Logo NEVER appears as plain text "PROTOCOL PULSE" in red courier font. Always use the logo image.
+- The title card may use stylized text alongside the logo, but the logo image is the brand anchor.
+
+### 19B: Narration Visual (Waveform + Backdrop)
+Current: Plain text title + thin red waveform on black. UNACCEPTABLE for broadcast quality.
+
+Target: Remotion-rendered animated composition:
+- Background: Dark gradient mesh (#0A0A0A to #0D0D0D), subtle animated noise texture
+- Logo: Centered, 300px, subtle pulse animation synced to audio amplitude
+- Waveform: Stylized heartbeat line (matching the logo's EKG line aesthetic)
+  - NOT a standard audio waveform. A DESIGNED waveform that looks like the logo's heartbeat
+  - Red (#CC0000) main line, darker red (#660000) mirror reflection below
+  - Smooth bezier curves, not jagged raw audio data
+  - Animated: line draws left-to-right synchronized with speech cadence
+  - Width: 960px, centered. Height: 80px main + 40px reflection
+  - Subtle glow effect on peaks (box-shadow style red glow)
+- Subtitle: Episode title below waveform, Inter font, 24px, #888888, tracking-wider
+- Corner elements: "PROTOCOL PULSE" small text top-right, date top-left, both #444444
+- Particle effects: Very subtle floating red dots (2-3 visible, slow drift, 15% opacity)
+
+### 19C: Alpha Channel Transitions (Luma Matte)
+Current: Hard-cut glitch_transition_waud.mp4 overlay. Functional but flat.
+
+Target: Remotion-rendered WebM with alpha transparency:
+- Style: Cyberpunk data-glitch. Red scan lines sweep across frame.
+- Duration: 0.7 seconds (current 0.5 is too abrupt)
+- Audio: Whoosh + digital glitch sound (generate or use royalty-free)
+- The transition OVERLAYS on the outgoing clip and REVEALS the incoming clip
+  through transparent areas. This creates a seamless blend, not a hard cut.
+- Brand colors only: red glitch artifacts (#CC0000), black sweep, white flash accents
+- Render as: WebM with alpha, or ProRes 4444 with alpha, or PNG sequence
+- FFmpeg composites the alpha transition between parts using overlay filter
+
+### 19D: Social Segment Cards (Cyberpunk Style)
+- Card: Glassmorphism container (bg rgba(10,10,10,0.85), backdrop-blur, border #CC0000)
+- Animated scanlines (horizontal, 1px, 3% opacity, slow scroll upward)
+- Pulsing red dot top-left (8x8px, 0.5s pulse cycle)
+- Handle text: #CC0000, JetBrains Mono font, 26px
+- Tweet text: #EDEDED, Inter font, 28px, max 3 lines
+- Like/RT counts: #FF4444 / #888888, bottom-right
+- Card enters: slide-up from bottom + fade-in (0.4s)
+- Card exits: fade-out (0.3s)
+- If tweet screenshot exists (Playwright): show the actual screenshot instead of text card
+
+### 19E: Title Card (Episode Intro)
+- Duration: 4 seconds
+- Logo: centered, 400px, fade-in over 1s
+- Below logo: Episode title in white, 36px, Inter bold, fade-in at 1.5s
+- Below title: Date + "PULSE CHECK" in #CC0000, 18px, fade-in at 2s
+- Background: Animated dark mesh gradient with subtle red accent light source
+- Red pulse line sweeps across bottom at 2.5s (like a heartbeat monitor flatline → pulse)
+- Audio: Low synth tone + heartbeat sound effect (2 beats matching the logo's EKG)
+
+### 19F: Lower Thirds (Speaker Identification)
+When a partner channel clip plays, show a lower-third graphic:
+- Position: bottom 120px of frame
+- Background: gradient from transparent to rgba(0,0,0,0.8)
+- Channel name: white, Inter bold, 24px
+- Speaker name (if detected via NER): #CC0000, Inter, 20px, below channel name
+- Small Protocol Pulse logo (50px) to the left of the text
+- Animates in: slide-right + fade (0.3s)
+- Animates out: fade (0.2s)
+- Duration: 5 seconds after clip starts
+
+These visual specs are PERMANENT. Every Remotion component must match this design system.
+Remotion source files: remotion/src/compositions/
+Brand constants: remotion/src/brand.ts
