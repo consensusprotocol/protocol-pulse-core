@@ -474,6 +474,25 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False) -> bool:
         json.dump(manifest, f, indent=2)
     timing["13_quality_gate"] = round(time.time() - t0, 2)
 
+    # Save episode performance data (V17)
+    try:
+        from utils.analytics_store import save_episode_performance
+        perf_data = {
+            "date": ts.strftime("%Y-%m-%d"),
+            "episode_title": script.get("episode_title", ""),
+            "channels_used": [c.get("channel", "") for c in manifest.get("clips_used", [])],
+            "quality_score": manifest.get("quality_score", 0),
+            "clips_count": len(manifest.get("clips_used", [])),
+            "duration_seconds": round(timing.get("video_duration", 0), 1),
+            "bitrate_mbps": round(timing.get("video_size_mb", 0) * 8 / max(timing.get("video_duration", 1), 1), 1),
+            "av_sync_offset": round(final_offset, 3),
+            "music_mood": episode_mood,
+            "test_mode": test_mode,
+        }
+        save_episode_performance(date_str, perf_data)
+    except Exception as e:
+        logger.warning(f"Performance data save failed: {e}")
+
     return passed
 
 
