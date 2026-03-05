@@ -312,7 +312,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False) -> bool:
             "-fflags", "+genpts+igndts",
             "-i", final_video,
             "-c:v", "libx264", "-preset", "medium",
-            "-b:v", "8M", "-minrate", "4M", "-maxrate", "10M", "-bufsize", "15M",
+            "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-vsync", "cfr",
             "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
             "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
