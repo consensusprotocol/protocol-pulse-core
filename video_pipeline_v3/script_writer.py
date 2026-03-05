@@ -28,51 +28,58 @@ if not logger.handlers:
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
 
-SCRIPT_PROMPT = """You are the head writer for "Pulse Check" — a daily 3-5 minute Bitcoin highlight reel.
-Two hosts (Jessica & Chris) present and react to 5 real YouTube clips from Bitcoin channels.
-Think ESPN SportsCenter for Bitcoin.
+SCRIPT_PROMPT = """You are writing host dialogue for "Pulse Check" — a daily Bitcoin highlight show.
+Think: ESPN SportsCenter meets Cypherpunk Gossip. MMA Central energy. The clips are the star.
 
-HOST 1 (Jessica) — The anchor. Sharp, data-driven, sets up stories with authority.
-HOST 2 (Chris) — The co-host. Reacts naturally, asks follow-ups, drops hot takes.
+HOST 1 (Jessica) — Sharp, fast, no-fluff. Sets up each clip like a boxing ring announcer.
+HOST 2 (Chris) — Hot takes, contrarian, dry wit. Reacts like he just saw a knockout.
 
-The clips have ALREADY been selected. Your job is to write the dialogue AROUND them.
-The clips play at full screen with their ORIGINAL audio. Your dialogue introduces and reacts to each.
-
-EPISODE STRUCTURE:
-1. COLD OPEN — Jessica teases the #1 clip (most dramatic). Hook the viewer. 1 sentence max.
-2. For each of the 5 clips:
-   a. SETUP — Host introduces what we're about to see (1-2 sentences)
-   b. [CLIP PLAYS — you mark this with a CLIP entry]
-   c. REACT — Hosts discuss what we just saw (2-4 sentences of banter)
-3. WRAP — Final thoughts, "Stay sovereign."
-
-Style rules:
-- CASUAL BANTER. Not news anchors. Two smart friends at a bar.
-- Short sentences. Conversational. Interruptions. Reactions.
-- Real opinions and hot takes — not neutral reporting.
-- Natural transitions between clips
-- Reference the ACTUAL QUOTES from the clips. React to SPECIFIC things said.
+TONE RULES (NON-NEGOTIABLE):
+- NEVER generic. Never say "interesting" or "really impactful" or "that's great stuff."
+- SETUP lines = 1-2 sentences MAX. A teaser, not a summary. Leave them wanting the clip.
+- REACT lines = 1-2 sentences MAX. A hot take or one sharp observation. Not a recap.
+- Cold open = 1 explosive sentence. Most outrageous or interesting story. Hook them in 3 seconds.
+- Wit over wisdom. Brief over brilliant. Gossip energy, Bitcoin knowledge.
+- Think: "Yo, you gotta hear what Saylor just said about this" NOT "Michael Saylor made some interesting comments about..."
+- Reactions should feel genuine — surprised, amused, sharp, or skeptical. Never neutral.
 - NO banned phrases: "Let's dive in", "Without further ado", "Buckle up", "game changer"
 - End with "Stay sovereign."
 
-BTC Price: {btc_price}
+DELIVERY RULES:
+- ALWAYS open setup lines with a natural verbal bridge: "Ok so—", "Right, and—", "Here's the thing—", "Check this out—", "So—". Never start cold.
+- The setup is a LAY-UP for the clip. Tease the knockout moment. Don't explain the whole clip.
+- React lines start with a reaction word: "Yeah.", "Exactly.", "Wild.", "That's the tell.", "100%.", "I mean—"
+- Tone = investigative gossip journalist who happens to understand Austrian economics.
+- Think Page Six but for Bitcoin. Sharp. Knowing. Never neutral.
+- Max 2 sentences per setup or react. Ruthlessly cut anything that sounds like a press release.
 
-THE 5 SELECTED CLIPS:
+SOCIAL SEGMENT:
+If social posts data is provided below, add a "WHAT THE BITCOIN INTERNET IS SAYING" segment after the last clip:
+- Jessica reads 2-3 of the top tweets provided (sharp, brief, 1 line each)
+- Chris drops a one-liner reaction to the best one
+- This is a separate section in the dialogue with type: "social_segment"
+CRITICAL: If no social posts data is provided (empty or "NONE"), do NOT fabricate tweet content. Skip the social segment entirely. Law A1 — no invented data.
+
 {clips_info}
+
+BTC Price Today: {btc_price}
+Top Tweets/Nostr Posts Today: {social_posts}
 
 Return ONLY valid JSON (no markdown, no code fences):
 {{
-  "cold_open": "Jessica's cold open teaser (1 sentence, dramatic)",
+  "cold_open": "explosive 1-sentence cold open",
   "dialogue": [
-    {{"host": 1, "text": "Jessica's cold open line", "type": "cold_open"}},
-    {{"host": 1, "text": "Setup for clip 1", "type": "setup", "clip_rank": 1}},
+    {{"host": 1, "text": "...", "type": "cold_open"}},
+    {{"host": 1, "text": "...", "type": "setup", "clip_rank": 1}},
     {{"host": "CLIP", "rank": 1}},
-    {{"host": 2, "text": "Chris reacts to clip 1", "type": "react", "clip_rank": 1}},
-    {{"host": 1, "text": "Jessica adds to reaction", "type": "react", "clip_rank": 1}},
-    {{"host": 1, "text": "Setup for clip 2", "type": "setup", "clip_rank": 2}},
+    {{"host": 2, "text": "...", "type": "react", "clip_rank": 1}},
+    {{"host": 1, "text": "...", "type": "setup", "clip_rank": 2}},
     {{"host": "CLIP", "rank": 2}},
-    ...and so on for all 5 clips...
-    {{"host": 1, "text": "Final wrap-up line. Stay sovereign.", "type": "wrap"}}
+    {{"host": 2, "text": "...", "type": "react", "clip_rank": 2}},
+    ...and so on for all clips...
+    {{"host": 1, "text": "...", "type": "social_segment"}},
+    {{"host": 2, "text": "...", "type": "social_segment"}},
+    {{"host": 1, "text": "Final wrap. Stay sovereign.", "type": "wrap"}}
   ],
   "episode_title": "Short punchy title (5-8 words)",
   "thumbnail": {{
@@ -80,11 +87,10 @@ Return ONLY valid JSON (no markdown, no code fences):
     "subtext": "secondary line"
   }},
   "segments_summary": ["headline for each clip topic"],
-  "shorts_quotes": ["3 best one-liner quotes from the host dialogue for vertical shorts"]
+  "shorts_quotes": ["best one-liner 1", "best one-liner 2", "best one-liner 3"]
 }}
 
-IMPORTANT: Each CLIP entry must have "rank" matching the clip number (1-5).
-Keep host dialogue SHORT. The show is the clips, not the commentary."""
+IMPORTANT: Each CLIP entry must have "rank" matching the clip number (1-5)."""
 
 
 def _format_clips_info(selections: dict) -> str:
@@ -125,7 +131,23 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A") -> dict:
         return _fallback_script(selections)
 
     clips_info = _format_clips_info(selections)
-    prompt = SCRIPT_PROMPT.format(clips_info=clips_info, btc_price=btc_price)
+
+    # Real social data — per Law A1, never fabricate
+    try:
+        from utils.social_fetcher import get_todays_social_posts
+        social_data = get_todays_social_posts(max_posts=5)
+        if social_data:
+            social_posts = "\n".join([
+                f"@{p['handle']} tweeted: \"{p['text'][:200]}\" ({p['likes']} likes)"
+                for p in social_data
+            ])
+        else:
+            social_posts = "NONE — skip social segment entirely"
+    except Exception as e:
+        logger.warning(f"Social data fetch failed: {e}")
+        social_posts = "NONE — skip social segment entirely"
+
+    prompt = SCRIPT_PROMPT.format(clips_info=clips_info, btc_price=btc_price, social_posts=social_posts)
 
     logger.info(f"Generating script for {len(clips)} clips...")
     client = anthropic.Anthropic(api_key=key)
