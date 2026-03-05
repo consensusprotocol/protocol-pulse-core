@@ -8,6 +8,7 @@ Usage:
   python3 daily_producer.py               # Full daily episode
   python3 daily_producer.py --test        # Test mode (fewer clips, truncated)
   python3 daily_producer.py --skip-scan   # Use cached transcripts only
+  python3 daily_producer.py --fast-test   # Fast test: no API calls, <3 min render
 """
 import argparse
 import json
@@ -61,7 +62,48 @@ def get_btc_price() -> str:
     return "$97,000"  # Fallback
 
 
-def run_pipeline(test_mode: bool = False, skip_scan: bool = False) -> bool:
+def _build_fast_test_script(clips_info: dict, btc_price: str) -> dict:
+    """Build a minimal hardcoded script for fast-test mode (no Claude API call)."""
+    dialogue = []
+    # Cold open
+    dialogue.append({
+        "host": 1, "type": "cold_open",
+        "text": f"Bitcoin at {btc_price}. Let's get into today's pulse check.",
+    })
+    # For each clip, add a setup + clip marker + react
+    for rank, info in sorted(clips_info.items()):
+        channel = info.get("channel", "Unknown")
+        dialogue.append({
+            "host": 1, "type": "setup",
+            "text": f"Here's what {channel} had to say.",
+        })
+        dialogue.append({
+            "host": "CLIP", "type": "clip",
+            "rank": rank, "source_id": info.get("video_id", ""),
+        })
+        dialogue.append({
+            "host": 2, "type": "react",
+            "text": "Interesting take. Let's keep moving.",
+        })
+    # Wrap
+    dialogue.append({
+        "host": 1, "type": "wrap",
+        "text": "That's the pulse check for today. Like, subscribe, and we'll see you next time.",
+    })
+    return {
+        "episode_title": f"Fast Test — {btc_price}",
+        "dialogue": dialogue,
+        "thumbnail": {"headline": "FAST TEST", "subtext": btc_price},
+    }
+
+
+def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
+                 fast_test: bool = False) -> bool:
+    # Fast test implies test + skip-scan
+    if fast_test:
+        test_mode = True
+        skip_scan = True
+
     ts = datetime.now()
     date_str = ts.strftime("%Y%m%d")
     time_str = ts.strftime("%Y%m%d_%H%M%S")
@@ -89,7 +131,8 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False) -> bool:
 
     print("\n" + "=" * 70)
     print(f"  PULSE CHECK V5 — CLIP-FIRST PIPELINE")
-    print(f"  {'TEST ' if test_mode else ''}Run {time_str}")
+    mode_label = "FAST TEST " if fast_test else ("TEST " if test_mode else "")
+    print(f"  {mode_label}Run {time_str}")
     print(f"  Output: {run_dir}")
     print(f"  Music: {'YES' if has_music() else 'no (skipped gracefully)'}")
     print("=" * 70)
@@ -137,14 +180,36 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False) -> bool:
         return False
 
     # ── Step 3: SELECT BEST CLIPS ─────────────────────────────────────────
-    print("\n[STEP 3/12] SELECTING BEST CLIPS (Claude)...")
-    t0 = time.time()
-    selections = select_clips(videos)
-    clips = selections.get("clips", [])
-    print(f"  Selected: {len(clips)} clips")
-    for c in clips:
-        print(f"    #{c['rank']}: [{c.get('channel','')}] {c.get('quote','')[:50]}...")
-    timing["3_select"] = round(time.time() - t0, 2)
+    if fast_test:
+        print("\n[STEP 3/12] SELECTING CLIPS (fast-test: first 2, no Claude)...")
+        t0 = time.time()
+        # Build minimal selections from cached videos without calling Claude
+        fast_clips = []
+        for i, v in enumerate(videos[:2], 1):
+            text = v.get("transcript_text", "")
+            fast_clips.append({
+                "rank": i,
+                "video_id": v["video_id"],
+                "channel": v.get("channel", ""),
+                "title": v.get("title", ""),
+                "quote": text[:100] if text else "No transcript",
+                "why": "fast-test auto-select",
+                "start_time": "00:01:00",
+                "end_time": "00:01:30",
+            })
+        selections = {"clips": fast_clips}
+        clips = fast_clips
+        print(f"  Auto-selected: {len(clips)} clips (no API call)")
+        timing["3_select"] = round(time.time() - t0, 2)
+    else:
+        print("\n[STEP 3/12] SELECTING BEST CLIPS (Claude)...")
+        t0 = time.time()
+        selections = select_clips(videos)
+        clips = selections.get("clips", [])
+        print(f"  Selected: {len(clips)} clips")
+        for c in clips:
+            print(f"    #{c['rank']}: [{c.get('channel','')}] {c.get('quote','')[:50]}...")
+        timing["3_select"] = round(time.time() - t0, 2)
 
     if not clips:
         print("\n  [FAIL] No clips selected — cannot produce episode")
@@ -154,7 +219,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False) -> bool:
         return False
 
     # In test mode, use only top 2 clips
-    if test_mode and len(clips) > 2:
+    if not fast_test and test_mode and len(clips) > 2:
         selections["clips"] = clips[:2]
         clips = selections["clips"]
         print(f"  [test] Truncated to {len(clips)} clips")
@@ -223,15 +288,26 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False) -> bool:
     print(f"  Mood: {episode_mood} | Music: {os.path.basename(music_bed) if music_bed else 'default'}")
 
     # ── Step 5: GENERATE SCRIPT ───────────────────────────────────────────
-    print("\n[STEP 5/12] GENERATING HOST DIALOGUE (Claude)...")
-    t0 = time.time()
-    script = generate_from_clips(selections, btc_price=btc_price)
-    dialogue = script.get("dialogue", [])
-    speech_lines = [d for d in dialogue if d.get("host") in (1, 2, "1", "2")]
-    clip_markers = [d for d in dialogue if d.get("host") == "CLIP"]
-    print(f"  Title: {script.get('episode_title', 'Untitled')}")
-    print(f"  Dialogue: {len(speech_lines)} speech + {len(clip_markers)} clips")
-    timing["5_script"] = round(time.time() - t0, 2)
+    if fast_test:
+        print("\n[STEP 5/12] GENERATING SCRIPT (fast-test: hardcoded, no Claude)...")
+        t0 = time.time()
+        script = _build_fast_test_script(extracted_clips, btc_price)
+        dialogue = script["dialogue"]
+        speech_lines = [d for d in dialogue if d.get("host") in (1, 2, "1", "2")]
+        clip_markers = [d for d in dialogue if d.get("host") == "CLIP"]
+        print(f"  Title: {script.get('episode_title', 'Untitled')}")
+        print(f"  Dialogue: {len(speech_lines)} speech + {len(clip_markers)} clips (hardcoded)")
+        timing["5_script"] = round(time.time() - t0, 2)
+    else:
+        print("\n[STEP 5/12] GENERATING HOST DIALOGUE (Claude)...")
+        t0 = time.time()
+        script = generate_from_clips(selections, btc_price=btc_price)
+        dialogue = script.get("dialogue", [])
+        speech_lines = [d for d in dialogue if d.get("host") in (1, 2, "1", "2")]
+        clip_markers = [d for d in dialogue if d.get("host") == "CLIP"]
+        print(f"  Title: {script.get('episode_title', 'Untitled')}")
+        print(f"  Dialogue: {len(speech_lines)} speech + {len(clip_markers)} clips")
+        timing["5_script"] = round(time.time() - t0, 2)
 
     # Save script
     script_path = os.path.join(run_dir, "script.json")
@@ -553,8 +629,11 @@ def main():
                         help="Test mode: fewer clips, truncated, test output dir")
     parser.add_argument("--skip-scan", action="store_true",
                         help="Skip channel scanning, use cached transcripts")
+    parser.add_argument("--fast-test", action="store_true",
+                        help="Fast test: no API calls (Claude/scan), hardcoded script, <3 min render")
     args = parser.parse_args()
-    success = run_pipeline(test_mode=args.test, skip_scan=args.skip_scan)
+    success = run_pipeline(test_mode=args.test, skip_scan=args.skip_scan,
+                           fast_test=args.fast_test)
     sys.exit(0 if success else 1)
 
 
