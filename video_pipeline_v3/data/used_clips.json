@@ -1,1 +1,35 @@
-{"episodes": []}
+{
+  "episodes": [
+    {
+      "date": "2026-03-05",
+      "video_ids": [
+        "aId0nDfdUiU",
+        "gij6bJkyH2w",
+        "bOzRI0Teei4"
+      ],
+      "channels": [
+        "Natalie Brunell",
+        "The Bitcoin Layer",
+        "Simply Bitcoin"
+      ]
+    },
+    {
+      "date": "2026-03-05",
+      "video_ids": [
+        "t53xIt47Pa0"
+      ],
+      "channels": [
+        "Bitcoin Magazine"
+      ]
+    },
+    {
+      "date": "2026-03-05",
+      "video_ids": [
+        "GnD7l7Pv_-Y"
+      ],
+      "channels": [
+        "Simply Bitcoin"
+      ]
+    }
+  ]
+}

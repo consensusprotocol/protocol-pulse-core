@@ -44,10 +44,10 @@ export const SocialCard: React.FC<SocialCardProps> = ({
     extrapolateRight: 'clamp',
   });
 
-  // Card exit: fade out (0.3s = 9 frames)
+  // Card exit: fade out over last 10 frames
   const exitOpacity = interpolate(
     frame,
-    [durationInFrames - 9, durationInFrames],
+    [durationInFrames - 10, durationInFrames],
     [1, 0],
     { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
   );
@@ -93,10 +93,10 @@ export const SocialCard: React.FC<SocialCardProps> = ({
   };
   const textLines = wrapText(text);
 
-  const cardWidth = 1200;
-  const cardHeight = 280;
+  const cardWidth = 1100;
+  const cardHeight = 260;
   const cardX = (1920 - cardWidth) / 2;
-  const cardY = 340;
+  const cardY = 360;
 
   return (
     <AbsoluteFill style={{ backgroundColor: BRAND.BLACK }}>
@@ -114,7 +114,7 @@ export const SocialCard: React.FC<SocialCardProps> = ({
         backgroundSize: '256px 256px',
       }} />
 
-      {/* Header text */}
+      {/* Header text — fade in at frame 0-10 */}
       <div style={{
         position: 'absolute',
         top: 40,
@@ -122,10 +122,14 @@ export const SocialCard: React.FC<SocialCardProps> = ({
         right: 0,
         textAlign: 'center',
         color: BRAND.RED,
-        fontSize: 28,
+        fontSize: 26,
         fontWeight: 700,
         fontFamily: FONTS.BODY,
         letterSpacing: 2,
+        opacity: interpolate(frame, [0, 10], [0, 1], {
+          extrapolateLeft: 'clamp',
+          extrapolateRight: 'clamp',
+        }),
       }}>
         WHAT THE BITCOIN INTERNET IS SAYING
       </div>

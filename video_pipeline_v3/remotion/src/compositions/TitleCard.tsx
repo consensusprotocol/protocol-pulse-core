@@ -43,36 +43,36 @@ export const TitleCard: React.FC<TitleCardProps> = ({
     extrapolateRight: 'clamp',
   });
 
-  // Logo: spring scale-in (frame 0-30)
+  // Logo: spring scale-in (frame 0-30) — 0.85→1.0 per spec
   const logoSpring = spring({
     frame,
     fps,
     config: { damping: 12, stiffness: 80, mass: 0.8 },
   });
-  const logoScale = interpolate(logoSpring, [0, 1], [0.8, 1]);
+  const logoScale = interpolate(logoSpring, [0, 1], [0.85, 1.0]);
   const logoOpacity = interpolate(frame, [0, 20], [0, 1], {
     extrapolateRight: 'clamp',
   });
 
-  // Title: fade in + slide at frame 45
-  const titleOpacity = interpolate(frame, [45, 60], [0, 1], {
+  // Title: fade in + slide at frame 40-60
+  const titleOpacity = interpolate(frame, [40, 60], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
-  const titleY = interpolate(frame, [45, 60], [20, 0], {
+  const titleY = interpolate(frame, [40, 60], [15, 0], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
     easing: Easing.out(Easing.cubic),
   });
 
-  // Date + PULSE CHECK: fade in at frame 60
-  const dateOpacity = interpolate(frame, [60, 75], [0, 1], {
+  // Date + PULSE CHECK: fade in at frame 65-80
+  const dateOpacity = interpolate(frame, [65, 80], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
 
-  // EKG pulse line sweep at frame 75
-  const ekgProgress = interpolate(frame, [75, 105], [0, 1], {
+  // EKG pulse line sweep at frame 80-110
+  const ekgProgress = interpolate(frame, [80, 110], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
     easing: Easing.out(Easing.quad),
@@ -151,7 +151,7 @@ export const TitleCard: React.FC<TitleCardProps> = ({
         <Img
           src={staticFile('logo_protocol_pulse.png')}
           style={{
-            height: 350,
+            height: 300,
             width: 'auto',
             filter: 'drop-shadow(0 0 40px rgba(204, 0, 0, 0.3))',
           }}
@@ -170,7 +170,7 @@ export const TitleCard: React.FC<TitleCardProps> = ({
       }}>
         <div style={{
           color: BRAND.WHITE,
-          fontSize: 34,
+          fontSize: 32,
           fontWeight: 700,
           fontFamily: FONTS.BODY,
           letterSpacing: 1,
@@ -191,7 +191,7 @@ export const TitleCard: React.FC<TitleCardProps> = ({
       }}>
         <span style={{
           color: BRAND.RED,
-          fontSize: 18,
+          fontSize: 16,
           fontFamily: FONTS.MONO,
           letterSpacing: 2,
         }}>

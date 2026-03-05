@@ -39,12 +39,13 @@ export const CyberpunkBackground: React.FC<CyberpunkBackgroundProps> = ({
     [35, 50],
   );
 
-  // Scanning line — sweeps top to bottom over 10 seconds, loops
-  const scanY = ((t * 108) % 1080);
+  // Scanning line — sweeps top to bottom over 8 seconds, loops seamlessly
+  const scanY = ((t * 135) % 1080);
 
-  // Grid perspective lines — vanishing point at center-top
-  const gridLines = Array.from({ length: 20 }).map((_, i) => {
-    const y = 200 + i * 50;
+  // Grid perspective lines — vanishing point at center-top, drifting forward
+  const gridDrift = (t * 10) % 50; // forward parallax motion
+  const gridLines = Array.from({ length: 22 }).map((_, i) => {
+    const y = 150 + i * 50 + gridDrift;
     return y;
   });
 

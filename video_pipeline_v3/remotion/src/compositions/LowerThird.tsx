@@ -31,13 +31,13 @@ export const LowerThird: React.FC<LowerThirdProps> = ({
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
 
-  // Slide in from left (0.3s = 9 frames)
-  const enterX = interpolate(frame, [0, 9], [-300, 0], {
+  // Slide in from left (0.33s = 10 frames)
+  const enterX = interpolate(frame, [0, 10], [-200, 0], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
     easing: Easing.out(Easing.cubic),
   });
-  const enterOpacity = interpolate(frame, [0, 9], [0, 1], {
+  const enterOpacity = interpolate(frame, [0, 10], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
@@ -52,61 +52,63 @@ export const LowerThird: React.FC<LowerThirdProps> = ({
 
   return (
     <AbsoluteFill style={{ backgroundColor: 'transparent' }}>
-      {/* Bottom 120px region */}
+      {/* Bottom 100px region */}
       <div style={{
         position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
-        height: 120,
-        background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.85) 100%)',
+        height: 100,
+        background: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.85) 100%)',
+        maxWidth: 600,
         opacity: enterOpacity * exitOpacity,
         transform: `translateX(${enterX}px)`,
       }}>
-        {/* Content container */}
+        {/* Small Protocol Pulse logo — 50px, 40% opacity, at x=30 */}
+        <Img
+          src={staticFile('logo_protocol_pulse.png')}
+          style={{
+            position: 'absolute',
+            left: 30,
+            bottom: 25,
+            height: 50,
+            width: 'auto',
+            opacity: 0.4,
+            filter: 'drop-shadow(0 0 8px rgba(204, 0, 0, 0.4))',
+          }}
+        />
+
+        {/* Text block at x=95 */}
         <div style={{
           position: 'absolute',
-          bottom: 20,
-          left: 40,
+          bottom: 22,
+          left: 95,
           display: 'flex',
-          alignItems: 'center',
-          gap: 16,
+          flexDirection: 'column',
+          gap: 2,
         }}>
-          {/* Small Protocol Pulse logo */}
-          <Img
-            src={staticFile('logo_protocol_pulse.png')}
-            style={{
-              height: 50,
-              width: 'auto',
-              filter: 'drop-shadow(0 0 8px rgba(204, 0, 0, 0.4))',
-            }}
-          />
-
-          {/* Text block */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {/* Channel name */}
-            <div style={{
-              color: BRAND.WHITE,
-              fontSize: 22,
-              fontWeight: 700,
-              fontFamily: FONTS.BODY,
-              textShadow: '0 2px 4px rgba(0,0,0,0.5)',
-            }}>
-              {channelName}
-            </div>
-
-            {/* Speaker name (if provided) */}
-            {speakerName && (
-              <div style={{
-                color: BRAND.RED,
-                fontSize: 18,
-                fontFamily: FONTS.BODY,
-                textShadow: '0 1px 3px rgba(0,0,0,0.5)',
-              }}>
-                {speakerName}
-              </div>
-            )}
+          {/* Channel name — white, 20px bold */}
+          <div style={{
+            color: BRAND.WHITE,
+            fontSize: 20,
+            fontWeight: 700,
+            fontFamily: FONTS.BODY,
+            textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+          }}>
+            {channelName}
           </div>
+
+          {/* Speaker name — BRAND.RED, 16px */}
+          {speakerName && (
+            <div style={{
+              color: BRAND.RED,
+              fontSize: 16,
+              fontFamily: FONTS.BODY,
+              textShadow: '0 1px 3px rgba(0,0,0,0.5)',
+            }}>
+              {speakerName}
+            </div>
+          )}
         </div>
       </div>
     </AbsoluteFill>

@@ -3,8 +3,6 @@ import {
   useCurrentFrame,
   useVideoConfig,
   AbsoluteFill,
-  Img,
-  staticFile,
   interpolate,
   Easing,
 } from 'remotion';
@@ -20,12 +18,14 @@ interface WaveformVisualizerProps {
 /**
  * Broadcast-quality waveform visualizer for narration segments.
  *
- * Matches PIPELINE_LAWS Section 19B:
- * - Dark gradient mesh background with noise texture
- * - Centered logo with subtle pulse animation
- * - Designed heartbeat-style waveform (not raw audio)
- * - Episode title, corner elements, gold bottom bar
- * - Floating red particle effects
+ * Per OVERNIGHT_BUILD_PROMPT:
+ * - NO LOGO (logo restraint rule — max 3 appearances per episode)
+ * - Transparent bg or renders with CyberpunkBackground
+ * - Designed heartbeat/EKG waveform (not raw audio)
+ * - Neon glow on the line
+ * - Traveling dot with trail effect
+ * - Mirror reflection below
+ * - Bottom gold info bar with BTC price
  */
 export const WaveformVisualizer: React.FC<WaveformVisualizerProps> = ({
   title,
@@ -36,13 +36,6 @@ export const WaveformVisualizer: React.FC<WaveformVisualizerProps> = ({
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
   const t = frame / fps;
-
-  // Logo pulse: scale oscillates 1.0 → 1.02 on a 3-second sine cycle
-  const logoScale = interpolate(
-    Math.sin((t / 3) * Math.PI * 2),
-    [-1, 1],
-    [1.0, 1.02],
-  );
 
   // Title fade-in at frame 15
   const titleOpacity = interpolate(frame, [15, 30], [0, 1], {
@@ -56,47 +49,40 @@ export const WaveformVisualizer: React.FC<WaveformVisualizerProps> = ({
   });
 
   // Generate heartbeat waveform path (EKG-style, not raw audio)
-  const waveWidth = 960;
-  const waveHeight = 60;
+  const waveWidth = 800;
+  const waveHeight = 50;
   const generateHeartbeatPath = (): string => {
     const points: string[] = [];
     const segments = 200;
-    const drawProgress = interpolate(frame, [0, 45], [0, 1], {
+    const drawProgress = interpolate(frame, [0, durationInFrames], [0, 1], {
       extrapolateRight: 'clamp',
       easing: Easing.out(Easing.quad),
     });
 
     for (let i = 0; i <= segments * drawProgress; i++) {
       const x = (i / segments) * waveWidth;
-      const phase = (i / segments) * Math.PI * 8 + t * 2;
 
       // Base flat line with periodic heartbeat spikes
       let y = waveHeight / 2;
       const beatPhase = ((i / segments) * 4 + t * 0.5) % 1;
 
       if (beatPhase > 0.35 && beatPhase < 0.45) {
-        // Sharp upward spike (P wave)
         const spike = Math.sin((beatPhase - 0.35) / 0.1 * Math.PI);
-        y -= spike * 15;
+        y -= spike * 12;
       } else if (beatPhase > 0.45 && beatPhase < 0.5) {
-        // Sharp downward (Q)
         const dip = Math.sin((beatPhase - 0.45) / 0.05 * Math.PI);
-        y += dip * 8;
+        y += dip * 6;
       } else if (beatPhase > 0.5 && beatPhase < 0.58) {
-        // Tall upward spike (QRS complex)
         const spike = Math.sin((beatPhase - 0.5) / 0.08 * Math.PI);
         y -= spike * (waveHeight * 0.8);
       } else if (beatPhase > 0.58 && beatPhase < 0.65) {
-        // Recovery dip (S wave)
         const dip = Math.sin((beatPhase - 0.58) / 0.07 * Math.PI);
-        y += dip * 12;
+        y += dip * 10;
       } else if (beatPhase > 0.7 && beatPhase < 0.8) {
-        // T wave (gentle bump)
         const bump = Math.sin((beatPhase - 0.7) / 0.1 * Math.PI);
-        y -= bump * 10;
+        y -= bump * 8;
       } else {
-        // Slight baseline wobble
-        y += Math.sin(phase * 0.5) * 1.5;
+        y += Math.sin(((i / segments) * Math.PI * 8 + t * 2) * 0.5) * 1.5;
       }
 
       points.push(`${i === 0 ? 'M' : 'L'} ${x} ${y}`);
@@ -107,7 +93,7 @@ export const WaveformVisualizer: React.FC<WaveformVisualizerProps> = ({
   const waveformPath = generateHeartbeatPath();
 
   // Trace dot position — follows the last drawn point on the waveform
-  const traceProgress = interpolate(frame, [0, 45], [0, 1], {
+  const traceProgress = interpolate(frame, [0, durationInFrames], [0, 1], {
     extrapolateRight: 'clamp',
     easing: Easing.out(Easing.quad),
   });
@@ -120,14 +106,18 @@ export const WaveformVisualizer: React.FC<WaveformVisualizerProps> = ({
     traceY -= spike * (waveHeight * 0.8);
   }
 
-  // Beat pulse — stroke width pulses on QRS peaks
-  const isNearPeak = traceBeatPhase > 0.48 && traceBeatPhase < 0.62;
-  const mainStrokeWidth = isNearPeak
-    ? interpolate(Math.sin((traceBeatPhase - 0.48) / 0.14 * Math.PI), [0, 1], [3, 5])
-    : 3;
-  const glowStrokeWidth = isNearPeak
-    ? interpolate(Math.sin((traceBeatPhase - 0.48) / 0.14 * Math.PI), [0, 1], [6, 10])
-    : 6;
+  // Trail dots (2-3 previous positions at decreasing opacity)
+  const trailDots = [1, 2, 3].map((offset) => {
+    const seg = Math.max(0, traceSegment - offset * 3);
+    const tx = (seg / 200) * waveWidth;
+    const tBeatPhase = ((seg / 200) * 4 + t * 0.5) % 1;
+    let ty = waveHeight / 2;
+    if (tBeatPhase > 0.5 && tBeatPhase < 0.58) {
+      const spike = Math.sin((tBeatPhase - 0.5) / 0.08 * Math.PI);
+      ty -= spike * (waveHeight * 0.8);
+    }
+    return { x: tx, y: ty, opacity: 0.6 - offset * 0.15 };
+  });
 
   // Floating red particles (3-5 dots)
   const particles = Array.from({ length: 4 }).map((_, i) => {
@@ -177,28 +167,14 @@ export const WaveformVisualizer: React.FC<WaveformVisualizerProps> = ({
         PROTOCOL PULSE
       </div>
 
-      {/* Centered logo with pulse animation */}
-      <div style={{
-        position: 'absolute',
-        top: 120,
-        left: '50%',
-        transform: `translateX(-50%) scale(${logoScale})`,
-      }}>
-        <Img
-          src={staticFile('logo_protocol_pulse.png')}
-          style={{
-            height: 250,
-            width: 'auto',
-            filter: 'drop-shadow(0 0 20px rgba(204, 0, 0, 0.3))',
-          }}
-        />
-      </div>
+      {/* NO LOGO — per logo restraint rule, max 3 appearances per episode.
+          Logo appears in: TitleCard, LowerThird, Outro only. */}
 
-      {/* Heartbeat waveform — main line */}
+      {/* Heartbeat waveform — main line, 800px centered */}
       <svg
         style={{
           position: 'absolute',
-          top: 480,
+          top: 490,
           left: (1920 - waveWidth) / 2,
           overflow: 'visible',
         }}
@@ -206,39 +182,50 @@ export const WaveformVisualizer: React.FC<WaveformVisualizerProps> = ({
         height={waveHeight}
         viewBox={`0 0 ${waveWidth} ${waveHeight}`}
       >
-        {/* Outer glow layer */}
+        {/* Neon glow layer (blur copy behind main line) */}
         <path
           d={waveformPath}
           fill="none"
           stroke={BRAND.RED}
-          strokeWidth={glowStrokeWidth}
+          strokeWidth={8}
           strokeLinecap="round"
           strokeLinejoin="round"
-          opacity={0.5}
-          filter="blur(4px)"
+          opacity={0.4}
+          style={{ filter: 'blur(6px)' }}
         />
-        {/* Main line with beat-reactive width */}
+        {/* Main crisp line */}
         <path
           d={waveformPath}
           fill="none"
           stroke={BRAND.RED}
-          strokeWidth={mainStrokeWidth}
+          strokeWidth={3}
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-        {/* Oscilloscope trace dot */}
+        {/* Trail dots */}
+        {traceProgress > 0.02 && trailDots.map((dot, i) => (
+          <circle
+            key={`trail-${i}`}
+            cx={dot.x}
+            cy={dot.y}
+            r={4 - i * 0.5}
+            fill={BRAND.WHITE}
+            opacity={dot.opacity}
+          />
+        ))}
+        {/* Traveling dot — white, 6px */}
         {traceProgress > 0 && traceProgress < 1 && (
           <circle
             cx={traceX}
             cy={traceY}
             r={6}
-            fill={BRAND.LIGHT_RED}
+            fill={BRAND.WHITE}
             opacity={0.9}
           />
         )}
       </svg>
 
-      {/* Mirror reflection waveform */}
+      {/* Mirror reflection waveform — below main, flipped, blurred */}
       <svg
         style={{
           position: 'absolute',
@@ -246,17 +233,17 @@ export const WaveformVisualizer: React.FC<WaveformVisualizerProps> = ({
           left: (1920 - waveWidth) / 2,
           overflow: 'visible',
           transform: 'scaleY(-1)',
-          opacity: 0.2,
-          filter: 'blur(1px)',
+          opacity: 0.15,
+          filter: 'blur(2px)',
         }}
         width={waveWidth}
-        height={30}
+        height={25}
         viewBox={`0 0 ${waveWidth} ${waveHeight}`}
       >
         <path
           d={waveformPath}
           fill="none"
-          stroke={BRAND.DARK_RED}
+          stroke={BRAND.RED}
           strokeWidth={2}
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -266,7 +253,7 @@ export const WaveformVisualizer: React.FC<WaveformVisualizerProps> = ({
       {/* Episode title below waveform */}
       <div style={{
         position: 'absolute',
-        top: 600,
+        top: 590,
         left: 0,
         right: 0,
         textAlign: 'center',
@@ -298,14 +285,14 @@ export const WaveformVisualizer: React.FC<WaveformVisualizerProps> = ({
         }} />
       ))}
 
-      {/* Bottom gold info bar */}
+      {/* Bottom gold info bar — 44px, full width */}
       <div style={{
         position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
-        height: 50,
-        backgroundColor: BRAND.BLACK,
+        height: 44,
+        backgroundColor: 'rgba(10,10,10,0.9)',
         borderTop: `1px solid ${BRAND.BORDER}`,
         display: 'flex',
         alignItems: 'center',
@@ -313,8 +300,9 @@ export const WaveformVisualizer: React.FC<WaveformVisualizerProps> = ({
       }}>
         <span style={{
           color: BRAND.GOLD,
-          fontSize: 14,
+          fontSize: 13,
           fontFamily: FONTS.MONO,
+          letterSpacing: 2,
           whiteSpace: 'nowrap',
           transform: `translateX(${tickerOffset}px)`,
         }}>

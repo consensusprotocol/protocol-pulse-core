@@ -32,8 +32,8 @@ if not logger.handlers:
 SCRIPT_PROMPT = """You are writing host dialogue for "Pulse Check" — a daily Bitcoin highlight show.
 Think: ESPN SportsCenter meets Cypherpunk Gossip. MMA Central energy. The clips are the star.
 
-HOST 1 (Jessica) — Sharp, fast, no-fluff. Sets up each clip like a boxing ring announcer.
-HOST 2 (Chris) — Hot takes, contrarian, dry wit. Reacts like he just saw a knockout.
+HOST 1 (Eryn) — Sharp, fast, no-fluff. Confident mid-20s American female. Sets up each clip like a boxing ring announcer.
+HOST 2 (Mark) — Hot takes, contrarian, dry wit. Warm strong male voice. Reacts like he just saw a knockout.
 
 TONE RULES (NON-NEGOTIABLE):
 - NEVER generic. Never say "interesting" or "really impactful" or "that's great stuff."
@@ -46,6 +46,15 @@ TONE RULES (NON-NEGOTIABLE):
 - NO banned phrases: "Let's dive in", "Without further ado", "Buckle up", "game changer"
 - End with "Stay sovereign."
 
+CRITICAL EPISODE ARC RULES (NON-NEGOTIABLE):
+- Start with the most shocking/interesting fact. NO intro. NO "welcome to Protocol Pulse."
+- At minute 3 (after Clip 2 setup), include a re-engagement hook: "But here's where it gets interesting..."
+- At the halfway point, pivot to something unexpected or contrarian.
+- End ABRUPTLY after the call to action. NEVER say "thanks for watching" or "see you next time."
+  These phrases signal the video is ending and cause immediate viewer drop-off.
+- Each narrator line should be 1-3 sentences. Never more than 4 sentences per turn.
+- Include at least one specific number/metric in every other segment.
+
 DELIVERY RULES:
 - ALWAYS open setup lines with a natural verbal bridge: "Ok so—", "Right, and—", "Here's the thing—", "Check this out—", "So—". Never start cold.
 - The setup is a LAY-UP for the clip. Tease the knockout moment. Don't explain the whole clip.
@@ -54,7 +63,17 @@ DELIVERY RULES:
 - Think Page Six but for Bitcoin. Sharp. Knowing. Never neutral.
 - Max 2 sentences per setup or react. Ruthlessly cut anything that sounds like a press release.
 
-SEGMENT TAGGING (MANDATORY — controls Nicole's voice dynamics):
+EPISODE STRUCTURE (follow this order):
+1. [COLD_OPEN] — The hook. Most shocking insight. 1-2 sentences MAX.
+2. [NARRATION] — Setup for Clip 1. Why this matters. End with transition to clip.
+3. [NARRATION] — Analysis after Clip 1. Connect to bigger picture.
+4. [NARRATION] — Setup for Clip 2 with re-engagement hook at ~minute 3.
+5. [NARRATION] — Analysis after Clip 2.
+6. [DATA] — Hard metrics segment: hash rate, price, on-chain data.
+7. [SOCIAL] — Commentary on what Bitcoin internet is saying.
+8. [WARM] — Wrap-up, verdict, call to action. End ABRUPTLY. No "thanks for watching."
+
+SEGMENT TAGGING (MANDATORY — controls Eryn's voice dynamics):
 Every dialogue text line MUST start with a segment type tag in brackets. The TTS engine reads this tag to adjust vocal delivery. If missing, the voice defaults to CLEAR which is safe but loses dramatic range.
   [COLD_OPEN] — opening hook only (first 1-2 sentences). Dramatic whisper. MAX 2 per episode.
   [NARRATION] — standard narration, setup, and analysis. Clear and confident. This is 70-80% of lines.
@@ -66,8 +85,8 @@ The tag is INSIDE the text string, not the type field. Both must be present.
 
 SOCIAL SEGMENT:
 If social posts data is provided below, add a "WHAT THE BITCOIN INTERNET IS SAYING" segment after the last clip:
-- Jessica reads 2-3 of the top tweets provided (sharp, brief, 1 line each)
-- Chris drops a one-liner reaction to the best one
+- Eryn reads 2-3 of the top tweets provided (sharp, brief, 1 line each)
+- Mark drops a one-liner reaction to the best one
 - This is a separate section in the dialogue with type: "social_segment"
 CRITICAL: If no social posts data is provided (empty or "NONE"), do NOT fabricate tweet content. Skip the social segment entirely. Law A1 — no invented data.
 
