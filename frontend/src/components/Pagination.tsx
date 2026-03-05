@@ -20,7 +20,6 @@ export default function Pagination({
     return `${basePath}?${params.toString()}`;
   }
 
-  // Show up to 5 page numbers centered on current
   const pages: number[] = [];
   const start = Math.max(1, page - 2);
   const end = Math.min(total_pages, start + 4);
@@ -33,12 +32,12 @@ export default function Pagination({
       {has_prev ? (
         <Link
           href={buildHref(page - 1)}
-          className="px-4 py-2 bg-[#141414] border border-[#1F1F1F] rounded text-[#EDEDED] text-sm transition-all duration-200 hover:border-[#CC0000]"
+          className="px-4 py-2 bg-[#141414] border border-[#1F1F1F] rounded-lg text-[#EDEDED] text-sm transition-all duration-200 hover:border-[#CC0000] hover:text-white"
         >
           Previous
         </Link>
       ) : (
-        <span className="px-4 py-2 bg-[#141414] border border-[#1F1F1F] rounded text-[#888888] text-sm cursor-not-allowed opacity-50">
+        <span className="px-4 py-2 bg-[#141414] border border-[#1F1F1F] rounded-lg text-[#888888] text-sm cursor-not-allowed opacity-50">
           Previous
         </span>
       )}
@@ -47,10 +46,10 @@ export default function Pagination({
         <Link
           key={p}
           href={buildHref(p)}
-          className={`px-3 py-2 rounded text-sm transition-all duration-200 ${
+          className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
             p === page
-              ? "bg-[#CC0000] text-white"
-              : "bg-[#141414] border border-[#1F1F1F] text-[#EDEDED] hover:border-[#CC0000]"
+              ? "bg-[#CC0000] text-white shadow-[0_0_15px_rgba(204,0,0,0.3)]"
+              : "bg-[#141414] border border-[#1F1F1F] text-[#EDEDED] hover:border-[#CC0000] hover:text-white"
           }`}
         >
           {p}
@@ -60,12 +59,12 @@ export default function Pagination({
       {has_next ? (
         <Link
           href={buildHref(page + 1)}
-          className="px-4 py-2 bg-[#141414] border border-[#1F1F1F] rounded text-[#EDEDED] text-sm transition-all duration-200 hover:border-[#CC0000]"
+          className="px-4 py-2 bg-[#141414] border border-[#1F1F1F] rounded-lg text-[#EDEDED] text-sm transition-all duration-200 hover:border-[#CC0000] hover:text-white"
         >
           Next
         </Link>
       ) : (
-        <span className="px-4 py-2 bg-[#141414] border border-[#1F1F1F] rounded text-[#888888] text-sm cursor-not-allowed opacity-50">
+        <span className="px-4 py-2 bg-[#141414] border border-[#1F1F1F] rounded-lg text-[#888888] text-sm cursor-not-allowed opacity-50">
           Next
         </span>
       )}

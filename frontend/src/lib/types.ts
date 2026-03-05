@@ -38,9 +38,22 @@ export interface CategoryInfo {
   slug: string;
 }
 
+export interface PriceInfo {
+  price: number;
+  usd: number;
+  change_24h: number;
+  usd_24h_change: number;
+  market_cap: number;
+}
+
 export interface PriceData {
-  btc_usd: number;
-  gold_usd: number;
-  silver_usd: number;
-  updated_at: string;
+  prices: {
+    bitcoin: PriceInfo;
+    gold: PriceInfo;
+    silver: PriceInfo;
+    last_updated: string;
+  };
+  meta: {
+    generated_at: string;
+  };
 }

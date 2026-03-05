@@ -9,50 +9,126 @@
   --color-pulse-red: #CC0000;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: #0A0A0A;
   color: #EDEDED;
 }
 
+::selection {
+  background: rgba(204, 0, 0, 0.4);
+  color: #EDEDED;
+}
+
+:focus-visible {
+  outline: 2px solid #CC0000;
+  outline-offset: 2px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0A0A0A;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CC0000;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #FF4444;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #CC0000 #0A0A0A;
+}
+
+/* Image hover zoom in overflow-hidden containers */
+.img-zoom {
+  transition: transform 0.5s ease;
+}
+
+.img-zoom:hover {
+  transform: scale(1.05);
+}
+
+/* Pulse animation for price updates */
+@keyframes price-pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.animate-price-pulse {
+  animation: price-pulse 0.6s ease-in-out;
+}
+
+/* Category pills horizontal scroll */
+.category-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.category-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 /* Article body typography */
 .article-body {
   font-size: 1.125rem;
-  line-height: 1.625;
+  line-height: 1.75;
 }
 
 @media (min-width: 768px) {
   .article-body {
     font-size: 1.125rem;
-    line-height: 1.7;
+    line-height: 1.8;
   }
 }
 
 .article-body p {
-  margin-bottom: 1.5em;
-  color: #EDEDED;
+  margin-bottom: 1.5rem;
+  color: #CCCCCC;
+  font-size: 1.125rem;
+  line-height: 1.75;
 }
 
 .article-body h2 {
   font-size: 1.5rem;
   font-weight: 700;
-  margin-top: 2em;
-  margin-bottom: 0.75em;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
   color: #EDEDED;
 }
 
 .article-body h3 {
   font-size: 1.25rem;
   font-weight: 600;
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
   color: #EDEDED;
 }
 
 .article-body ul,
 .article-body ol {
-  margin-bottom: 1.5em;
-  padding-left: 1.5em;
-  color: #EDEDED;
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+  color: #CCCCCC;
+}
+
+.article-body ul li,
+.article-body ol li {
+  margin-bottom: 0.5rem;
 }
 
 .article-body ul {
@@ -63,14 +139,10 @@ body {
   list-style-type: decimal;
 }
 
-.article-body li {
-  margin-bottom: 0.5em;
-}
-
 .article-body blockquote {
-  border-left: 3px solid #CC0000;
-  padding-left: 1em;
-  margin: 1.5em 0;
+  border-left: 4px solid #CC0000;
+  padding-left: 1.5rem;
+  margin: 1.5rem 0;
   color: #888888;
   font-style: italic;
 }
@@ -79,17 +151,18 @@ body {
   color: #CC0000;
   text-decoration: underline;
   text-underline-offset: 2px;
+  transition: color 0.2s;
 }
 
 .article-body a:hover {
-  color: #CC0000CC;
+  color: #FF4444;
 }
 
 .article-body img {
   max-width: 100%;
   height: auto;
   border-radius: 0.5rem;
-  margin: 1.5em 0;
+  margin: 1.5rem 0;
 }
 
 .article-body strong {
