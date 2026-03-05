@@ -35,6 +35,10 @@ from newsletter_embed import generate_email_html, save_newsletter_html
 from music import ensure_music_dir, has_music, has_intro, has_outro
 from utils.feature_flags import is_enabled, load_all as load_flags
 from utils.quality_gate import compute_quality_score, should_upload, format_score_report
+from utils.telegram_alerts import (
+    alert_pipeline_start, alert_pipeline_success,
+    alert_pipeline_failure, alert_quality_hold, alert_upload_success,
+)
 
 # Setup logging
 logging.basicConfig(
@@ -78,6 +82,10 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False) -> bool:
     # Log feature flags at startup
     flags = load_flags()
     logger.info(f"Feature flags: {json.dumps(flags)}")
+
+    # Telegram alert at pipeline start
+    if is_enabled("telegram_alerts"):
+        alert_pipeline_start(date_str, test_mode)
 
     print("\n" + "=" * 70)
     print(f"  PULSE CHECK V5 — CLIP-FIRST PIPELINE")
@@ -124,6 +132,8 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False) -> bool:
     if not videos:
         print("\n  [FAIL] No videos found — cannot produce episode")
         _write_timing_report(run_dir, timing, t_pipeline_start, success=False)
+        if is_enabled("telegram_alerts"):
+            alert_pipeline_failure(date_str, "scan", "No videos found")
         return False
 
     # ── Step 3: SELECT BEST CLIPS ─────────────────────────────────────────
@@ -139,6 +149,8 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False) -> bool:
     if not clips:
         print("\n  [FAIL] No clips selected — cannot produce episode")
         _write_timing_report(run_dir, timing, t_pipeline_start, success=False)
+        if is_enabled("telegram_alerts"):
+            alert_pipeline_failure(date_str, "select", "No clips selected")
         return False
 
     # In test mode, use only top 2 clips
@@ -165,6 +177,8 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False) -> bool:
     if not extracted_clips:
         print("\n  [FAIL] No clips extracted — cannot produce episode")
         _write_timing_report(run_dir, timing, t_pipeline_start, success=False)
+        if is_enabled("telegram_alerts"):
+            alert_pipeline_failure(date_str, "extract", "No clips extracted")
         return False
 
     # ── Step 4b: MOOD CLASSIFICATION + MUSIC SELECTION ──────────────────
@@ -246,6 +260,8 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False) -> bool:
     if not result or not os.path.exists(final_video):
         print("\n  [FAIL] Assembly failed")
         _write_timing_report(run_dir, timing, t_pipeline_start, success=False)
+        if is_enabled("telegram_alerts"):
+            alert_pipeline_failure(date_str, "assemble", "Video assembly failed")
         return False
 
     # ── Step 8: SHORTS ────────────────────────────────────────────────────
@@ -456,6 +472,8 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False) -> bool:
         if upload_result.get("url"):
             print(f"  URL: {upload_result['url']}")
         manifest["upload_result"] = upload_result
+        if is_enabled("telegram_alerts") and upload_result.get("url"):
+            alert_upload_success(date_str, upload_result["url"])
     elif quality_score < 85:
         logger.warning(f"QUALITY HOLD: Score {quality_score} < 85. Episode held for review.")
         hold_path = os.path.join(run_dir, "HOLD_FOR_REVIEW.txt")
@@ -466,6 +484,8 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False) -> bool:
             f.write(f"Episode: {script.get('episode_title', '')}\n")
             f.write(f"Video: {final_video}\n")
         manifest["held_for_review"] = True
+        if is_enabled("telegram_alerts"):
+            alert_quality_hold(date_str, quality_score)
     else:
         logger.info("YouTube auto-upload disabled in feature flags")
 
@@ -492,6 +512,11 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False) -> bool:
         save_episode_performance(date_str, perf_data)
     except Exception as e:
         logger.warning(f"Performance data save failed: {e}")
+
+    # Telegram success alert
+    if is_enabled("telegram_alerts") and passed:
+        alert_pipeline_success(date_str, quality_score,
+                               timing.get("video_duration", 0), final_video)
 
     return passed
 
