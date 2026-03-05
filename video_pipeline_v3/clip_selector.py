@@ -8,6 +8,7 @@ import json
 import logging
 import os
 import sys
+from datetime import datetime
 
 try:
     import anthropic
@@ -87,6 +88,47 @@ Return ONLY valid JSON (no markdown, no code fences):
 }}
 
 Return exactly 5 clips, ranked 1-5. If fewer than 5 good moments exist, return what you can."""
+
+
+USED_CLIPS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "used_clips.json")
+
+
+def _load_used_clips() -> dict:
+    """Load episode memory from data/used_clips.json."""
+    if not os.path.exists(USED_CLIPS_PATH):
+        return {"episodes": []}
+    try:
+        with open(USED_CLIPS_PATH) as f:
+            return json.load(f)
+    except Exception:
+        return {"episodes": []}
+
+
+def _get_recent_video_ids(max_episodes: int = 7) -> set:
+    """Get all video_ids used in the last N episodes."""
+    data = _load_used_clips()
+    recent = data.get("episodes", [])[-max_episodes:]
+    ids = set()
+    for ep in recent:
+        ids.update(ep.get("video_ids", []))
+    return ids
+
+
+def _record_episode(clips: list):
+    """Record this episode's video_ids to the memory file."""
+    data = _load_used_clips()
+    video_ids = [c.get("video_id", "") for c in clips if c.get("video_id")]
+    channels = [c.get("channel", "") for c in clips if c.get("channel")]
+    data["episodes"].append({
+        "date": datetime.utcnow().strftime("%Y-%m-%d"),
+        "video_ids": video_ids,
+        "channels": channels,
+    })
+    # Keep only last 30 episodes
+    data["episodes"] = data["episodes"][-30:]
+    os.makedirs(os.path.dirname(USED_CLIPS_PATH), exist_ok=True)
+    with open(USED_CLIPS_PATH, "w") as f:
+        json.dump(data, f, indent=2)
 
 
 AD_READ_PHRASES = [
@@ -202,11 +244,28 @@ def select_clips(videos: list) -> dict:
         clean_clips = deduped_clips
         result["clips"] = clean_clips
 
+        # Episode memory: drop clips from recently used videos
+        recent_ids = _get_recent_video_ids(max_episodes=7)
+        if recent_ids:
+            memory_filtered = []
+            for c in clean_clips:
+                vid = c.get("video_id", "")
+                if vid in recent_ids:
+                    logger.warning(f"EPISODE MEMORY: Dropped clip from video {vid} "
+                                   f"[{c.get('channel', '')}] — used in recent episode")
+                else:
+                    memory_filtered.append(c)
+            clean_clips = memory_filtered
+            result["clips"] = clean_clips
+
         logger.info(f"Claude selected {len(clips)} clips, {len(clean_clips)} passed ad+dedup filter:")
         for c in clean_clips:
             logger.info(f"  #{c['rank']}: [{c['channel']}] {c.get('video_title', '')[:40]} "
                         f"({c['start_seconds']}-{c['end_seconds']}s)")
             logger.info(f"    Quote: \"{c.get('quote', '')[:60]}...\"")
+
+        # Record this episode's clips to memory
+        _record_episode(clean_clips)
 
         return result
 
