@@ -1011,6 +1011,283 @@ def _make_remotion_glitch(output_path: str) -> str:
     return ""
 
 
+def _remotion_enabled() -> bool:
+    """Check if remotion_visuals feature flag is enabled."""
+    try:
+        from utils.feature_flags import is_enabled
+        return is_enabled("remotion_visuals")
+    except Exception:
+        return False
+
+
+def _render_remotion(comp_id: str, output_path: str, props: dict = None,
+                     timeout: int = 120) -> str:
+    """Render a Remotion composition. Returns path or '' on failure.
+
+    Args:
+        comp_id: Composition ID (e.g. 'WaveformVisualizer')
+        output_path: Where to write the rendered video
+        props: Optional input props as dict (passed via --props)
+        timeout: Render timeout in seconds
+    """
+    entry = os.path.join(REMOTION_DIR, "src", "index.tsx")
+    if not os.path.exists(entry):
+        return ""
+    try:
+        cmd = ["npx", "remotion", "render", entry, comp_id, output_path, "--log=error"]
+        if props:
+            cmd += ["--props", json.dumps(props)]
+        r = subprocess.run(cmd, cwd=REMOTION_DIR, timeout=timeout,
+                           capture_output=True, text=True)
+        if r.returncode == 0 and os.path.exists(output_path):
+            return output_path
+        logger.warning(f"Remotion {comp_id} render failed: {r.stderr[-300:]}")
+    except Exception as e:
+        logger.warning(f"Remotion {comp_id} error: {e}")
+    return ""
+
+
+def _remotion_with_audio(video_path: str, audio_path: str, output_path: str,
+                         bg_music: bool = True) -> str:
+    """Mux Remotion video (no audio) with TTS audio + optional background music.
+
+    Returns output_path on success, '' on failure.
+    """
+    dur = ffprobe_duration(audio_path)
+    if dur <= 0:
+        dur = 5
+    total_dur = dur + 0.3
+
+    has_bgm = bg_music and os.path.exists(BG_MUSIC)
+
+    if has_bgm:
+        ok = run_ffmpeg([
+            "-i", video_path,
+            "-i", audio_path,
+            "-stream_loop", "-1", "-i", BG_MUSIC,
+            "-filter_complex",
+            f"[0:v]trim=0:{total_dur},setpts=PTS-STARTPTS,loop=loop=-1:size={int(total_dur*30)}:start=0,trim=0:{total_dur},setpts=PTS-STARTPTS[v];"
+            f"[1:a]loudnorm=I=-16:TP=-1.5:LRA=11[tts];"
+            f"[2:a]volume=-18dB[bgm];"
+            f"[tts][bgm]amix=inputs=2:duration=first:weights=1 0.12[outa]",
+            "-map", "[v]", "-map", "[outa]",
+            "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+            "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+            "-t", str(total_dur), output_path,
+        ], f"remotion mux with bgm", 180)
+    else:
+        ok = run_ffmpeg([
+            "-i", video_path,
+            "-i", audio_path,
+            "-filter_complex",
+            f"[0:v]trim=0:{total_dur},setpts=PTS-STARTPTS,loop=loop=-1:size={int(total_dur*30)}:start=0,trim=0:{total_dur},setpts=PTS-STARTPTS[v];"
+            f"[1:a]loudnorm=I=-16:TP=-1.5:LRA=11[outa]",
+            "-map", "[v]", "-map", "[outa]",
+            "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+            "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+            "-t", str(total_dur), output_path,
+        ], f"remotion mux no bgm", 180)
+
+    return output_path if ok else ""
+
+
+def make_remotion_waveform(audio_path: str, output_path: str,
+                           title: str = "Pulse Check Daily",
+                           btc_price: str = "N/A",
+                           date: str = "") -> str:
+    """Render WaveformVisualizer via Remotion + mux with TTS audio.
+
+    Falls back to '' on failure (caller should use FFmpeg make_host_visual).
+    """
+    if not _remotion_enabled():
+        return ""
+    if not date:
+        from datetime import date as _d
+        date = _d.today().isoformat()
+
+    dur = ffprobe_duration(audio_path)
+    frames = max(int((dur + 0.3) * 30), 90)
+
+    raw_video = output_path + ".remotion_raw.mp4"
+    result = _render_remotion("WaveformVisualizer", raw_video, props={
+        "title": title,
+        "btcPrice": btc_price,
+        "date": date,
+        "durationInFrames": frames,
+    })
+    if not result:
+        return ""
+
+    muxed = _remotion_with_audio(raw_video, audio_path, output_path, bg_music=True)
+    if os.path.exists(raw_video):
+        try:
+            os.remove(raw_video)
+        except OSError:
+            pass
+    if muxed:
+        logger.info(f"  Remotion WaveformVisualizer: {ffprobe_duration(muxed):.1f}s")
+    return muxed
+
+
+def make_remotion_social_card(audio_path: str, posts: list, output_path: str,
+                              btc_price: str = "N/A") -> str:
+    """Render SocialCard via Remotion + mux with TTS audio.
+
+    Falls back to '' on failure (caller should use FFmpeg make_social_card_visual).
+    """
+    if not _remotion_enabled():
+        return ""
+
+    post = posts[0] if posts else {}
+    dur = ffprobe_duration(audio_path)
+    frames = max(int((dur + 0.3) * 30), 90)
+
+    raw_video = output_path + ".remotion_raw.mp4"
+    result = _render_remotion("SocialCard", raw_video, props={
+        "handle": post.get("handle", "ProtocolPulse"),
+        "text": post.get("text", "")[:200],
+        "likes": post.get("likes", 0),
+        "retweets": post.get("retweets", 0),
+        "durationInFrames": frames,
+    })
+    if not result:
+        return ""
+
+    muxed = _remotion_with_audio(raw_video, audio_path, output_path, bg_music=True)
+    if os.path.exists(raw_video):
+        try:
+            os.remove(raw_video)
+        except OSError:
+            pass
+    if muxed:
+        logger.info(f"  Remotion SocialCard: {ffprobe_duration(muxed):.1f}s")
+    return muxed
+
+
+def make_remotion_title_card(audio_path: str, output_path: str,
+                             title: str = "", date: str = "",
+                             btc_price: str = "N/A") -> str:
+    """Render TitleCard via Remotion + mux with TTS + jingle audio.
+
+    Falls back to '' on failure (caller should use FFmpeg make_intro_coldopen).
+    """
+    if not _remotion_enabled():
+        return ""
+    if not date:
+        from datetime import date as _d
+        date = _d.today().isoformat()
+
+    dur = ffprobe_duration(audio_path)
+    frames = max(int((dur + 1.0) * 30), 120)
+
+    raw_video = output_path + ".remotion_raw.mp4"
+    result = _render_remotion("TitleCard", raw_video, props={
+        "title": title or "Pulse Check Daily",
+        "date": date,
+        "durationInFrames": frames,
+    })
+    if not result:
+        return ""
+
+    # Mux with TTS + jingle (same audio chain as make_intro_coldopen)
+    import glob as _glob
+    jingle = os.path.join(ASSETS, "music", "pp_intro.mp3")
+    if not os.path.exists(jingle):
+        tracks = _glob.glob(os.path.join(ASSETS, "music", "intro_*.mp3"))
+        jingle = tracks[0] if tracks else ""
+
+    total_dur = max(dur + 1.0, 4.0)
+    has_jingle = bool(jingle and os.path.exists(jingle))
+
+    if has_jingle:
+        ok = run_ffmpeg([
+            "-i", raw_video,
+            "-i", audio_path,
+            "-i", jingle,
+            "-filter_complex",
+            f"[0:v]trim=0:{total_dur},setpts=PTS-STARTPTS,loop=loop=-1:size={int(total_dur*30)}:start=0,trim=0:{total_dur},setpts=PTS-STARTPTS[v];"
+            f"[1:a]volume=1.0[tts_a];"
+            f"[2:a]volume=0.35[jingle_a];"
+            f"[tts_a][jingle_a]amix=inputs=2:duration=first:weights=1 0.35[outa]",
+            "-map", "[v]", "-map", "[outa]",
+            "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+            "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+            "-t", str(total_dur), output_path,
+        ], "remotion title card + jingle", 120)
+    else:
+        muxed = _remotion_with_audio(raw_video, audio_path, output_path, bg_music=False)
+        ok = bool(muxed)
+
+    if os.path.exists(raw_video):
+        try:
+            os.remove(raw_video)
+        except OSError:
+            pass
+    if ok and os.path.exists(output_path):
+        logger.info(f"  Remotion TitleCard: {ffprobe_duration(output_path):.1f}s")
+        return output_path
+    return ""
+
+
+def make_remotion_lower_third(clip_path: str, source: str, output_path: str,
+                              btc_price: str = "N/A",
+                              speaker_name: str = "") -> str:
+    """Render LowerThird overlay via Remotion and composite onto clip.
+
+    Falls back to '' on failure (caller should use FFmpeg make_clip_visual).
+    """
+    if not _remotion_enabled():
+        return ""
+
+    clip_dur = ffprobe_duration(clip_path)
+    if clip_dur <= 0:
+        return ""
+
+    # Render LowerThird overlay (6 seconds max, shown near start of clip)
+    overlay_dur = min(6.0, clip_dur * 0.6)
+    frames = int(overlay_dur * 30)
+
+    raw_overlay = output_path + ".remotion_lt.mp4"
+    result = _render_remotion("LowerThird", raw_overlay, props={
+        "channelName": source.replace("@", ""),
+        "speakerName": speaker_name,
+        "durationInFrames": frames,
+    })
+    if not result:
+        return ""
+
+    # Composite LowerThird onto clip (overlay the rendered frames at bottom)
+    # LowerThird has transparent bg in Remotion but renders to opaque MP4.
+    # We overlay just the bottom 120px band from the LowerThird render.
+    ok = run_ffmpeg([
+        "-i", clip_path,
+        "-i", raw_overlay,
+        "-filter_complex",
+        f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,fps=30[clip];"
+        f"[1:v]crop=1920:120:0:960[ltband];"
+        f"[clip][ltband]overlay=0:960:enable='lte(t,{overlay_dur})',format=yuv420p[outv];"
+        f"[0:a]asetpts=PTS-STARTPTS,volume=1.0[outa]",
+        "-map", "[outv]", "-map", "[outa]",
+        "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+        "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+        "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+        output_path,
+    ], "remotion lower third composite", 180)
+
+    if os.path.exists(raw_overlay):
+        try:
+            os.remove(raw_overlay)
+        except OSError:
+            pass
+    if ok and os.path.exists(output_path):
+        logger.info(f"  Remotion LowerThird on clip: {ffprobe_duration(output_path):.1f}s")
+        return output_path
+    return ""
+
+
 def make_transition_visual(output_path: str, duration: float = 0.5) -> str:
     """Glitch transition — tries Remotion first, then asset file, then dark flash.
 
@@ -1254,7 +1531,18 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
 
     if cold_open_audio:
         intro_out = os.path.join(work_dir, f"part_{part_idx:03d}_intro_cold_open.mp4")
-        intro_result = make_intro_coldopen(cold_open_audio["path"], intro_out, btc_price=btc_price)
+        # Try Remotion TitleCard first, fall back to FFmpeg
+        intro_result = ""
+        try:
+            ep_title = script.get("title", "Pulse Check Daily")
+            intro_result = make_remotion_title_card(
+                cold_open_audio["path"], intro_out,
+                title=ep_title, btc_price=btc_price,
+            )
+        except Exception as e:
+            logger.warning(f"Remotion TitleCard failed: {e}")
+        if not intro_result:
+            intro_result = make_intro_coldopen(cold_open_audio["path"], intro_out, btc_price=btc_price)
         if intro_result:
             parts.append(intro_result)
             dur = ffprobe_duration(intro_result)
@@ -1315,11 +1603,21 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
                     logger.info(f"[{part_idx:03d}] GLITCH TRANSITION: {dur:.2f}s")
                     part_idx += 1
 
-                # The clip itself
+                # The clip itself — try Remotion LowerThird overlay, fall back to FFmpeg
                 clip_out = os.path.join(work_dir, f"part_{part_idx:03d}_clip_r{rank}.mp4")
                 channel = clip_info.get("channel", "")
                 handle = f"@{channel.replace(' ', '')}" if channel else "ProtocolPulse"
-                result = make_clip_visual(clip_path, handle, clip_out, btc_price=btc_price)
+                result = ""
+                try:
+                    result = make_remotion_lower_third(
+                        clip_path, handle, clip_out,
+                        btc_price=btc_price,
+                        speaker_name=clip_info.get("speaker", ""),
+                    )
+                except Exception as e:
+                    logger.warning(f"Remotion LowerThird failed: {e}")
+                if not result:
+                    result = make_clip_visual(clip_path, handle, clip_out, btc_price=btc_price)
                 if result:
                     parts.append(result)
                     dur = ffprobe_duration(result)
@@ -1366,9 +1664,18 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
             # Show 2 posts per card visual (or remaining)
             card_posts = tweet_card_posts[social_card_idx:social_card_idx + 2]
             social_card_idx += 2
-            result = make_social_card_visual(
-                audio_path, card_posts, line_out, btc_price=btc_price,
-            )
+            # Try Remotion SocialCard first
+            result = ""
+            try:
+                result = make_remotion_social_card(
+                    audio_path, card_posts, line_out, btc_price=btc_price,
+                )
+            except Exception as e:
+                logger.warning(f"Remotion SocialCard failed: {e}")
+            if not result:
+                result = make_social_card_visual(
+                    audio_path, card_posts, line_out, btc_price=btc_price,
+                )
             if not result:
                 # Fall back to standard host visual
                 result = make_host_visual(
@@ -1377,13 +1684,24 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
                     segment_type=entry_type,
                 )
         else:
-            result = make_host_visual(
-                audio_path, host_num, text, line_out,
-                btc_price=btc_price,
-                label=f"{entry_type} #{part_idx}",
-                thumbnail_path=thumb,
-                segment_type=entry_type,
-            )
+            # Try Remotion WaveformVisualizer for host segments
+            result = ""
+            try:
+                result = make_remotion_waveform(
+                    audio_path, line_out,
+                    title=text[:80] if text else "Pulse Check Daily",
+                    btc_price=btc_price,
+                )
+            except Exception as e:
+                logger.warning(f"Remotion WaveformVisualizer failed: {e}")
+            if not result:
+                result = make_host_visual(
+                    audio_path, host_num, text, line_out,
+                    btc_price=btc_price,
+                    label=f"{entry_type} #{part_idx}",
+                    thumbnail_path=thumb,
+                    segment_type=entry_type,
+                )
         if result:
             parts.append(result)
             dur = ffprobe_duration(result)
