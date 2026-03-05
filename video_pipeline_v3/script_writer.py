@@ -11,6 +11,7 @@ Host dialogue supports the clips, not the other way around.
 import json
 import logging
 import os
+import re
 import sys
 
 try:
@@ -53,6 +54,16 @@ DELIVERY RULES:
 - Think Page Six but for Bitcoin. Sharp. Knowing. Never neutral.
 - Max 2 sentences per setup or react. Ruthlessly cut anything that sounds like a press release.
 
+SEGMENT TAGGING (MANDATORY — controls Nicole's voice dynamics):
+Every dialogue text line MUST start with a segment type tag in brackets. The TTS engine reads this tag to adjust vocal delivery. If missing, the voice defaults to CLEAR which is safe but loses dramatic range.
+  [COLD_OPEN] — opening hook only (first 1-2 sentences). Dramatic whisper. MAX 2 per episode.
+  [NARRATION] — standard narration, setup, and analysis. Clear and confident. This is 70-80% of lines.
+  [DATA] — specific metrics, prices, hashrates, on-chain numbers. Authoritative.
+  [SOCIAL] — social segment commentary. Slightly warmer tone.
+  [WARM] — outros, calls to action, sign-offs. Inviting.
+Example: {{"host": 1, "text": "[NARRATION] Bitcoin miners are facing a squeeze as difficulty adjusts upward.", "type": "setup"}}
+The tag is INSIDE the text string, not the type field. Both must be present.
+
 SOCIAL SEGMENT:
 If social posts data is provided below, add a "WHAT THE BITCOIN INTERNET IS SAYING" segment after the last clip:
 - Jessica reads 2-3 of the top tweets provided (sharp, brief, 1 line each)
@@ -91,6 +102,37 @@ Return ONLY valid JSON (no markdown, no code fences):
 }}
 
 IMPORTANT: Each CLIP entry must have "rank" matching the clip number (1-5)."""
+
+
+# Maps bracket tags in text to segment types for TTS voice modes
+_TAG_TO_TYPE = {
+    "COLD_OPEN": "cold_open",
+    "NARRATION": "setup",
+    "DATA": "data",
+    "SOCIAL": "social_segment",
+    "WARM": "wrap",
+}
+
+_TAG_PATTERN = re.compile(r"^\[(" + "|".join(_TAG_TO_TYPE.keys()) + r")\]\s*")
+
+
+def _extract_segment_tags(result: dict) -> dict:
+    """Extract [TAG] prefixes from dialogue text and set entry type accordingly.
+
+    If a dialogue line starts with [NARRATION], [DATA], etc., strip the tag
+    from the text and set/override the type field for TTS voice mode selection.
+    """
+    dialogue = result.get("dialogue", [])
+    for entry in dialogue:
+        text = entry.get("text", "")
+        if not text:
+            continue
+        m = _TAG_PATTERN.match(text)
+        if m:
+            tag = m.group(1)
+            entry["text"] = text[m.end():]
+            entry["type"] = _TAG_TO_TYPE[tag]
+    return result
 
 
 def _format_clips_info(selections: dict) -> str:
@@ -166,6 +208,9 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A") -> dict:
             text = text.split("```")[1].split("```")[0]
 
         result = json.loads(text)
+
+        # Extract [TAG] prefixes from text and set type fields for TTS
+        result = _extract_segment_tags(result)
 
         # Validate structure
         dialogue = result.get("dialogue", [])
