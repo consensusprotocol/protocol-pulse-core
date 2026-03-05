@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pulse Terminal API Documentation</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui.css">
+  <style>
+    body { margin: 0; background: #0A0A0A; }
+    .swagger-ui .topbar { display: none; }
+    /* Dark theme overrides matching Protocol Pulse brand */
+    .swagger-ui { background: #0A0A0A; color: #EDEDED; }
+    .swagger-ui .info .title { color: #CC0000; font-family: 'JetBrains Mono', monospace; }
+    .swagger-ui .info .description p { color: #AAAAAA; }
+    .swagger-ui .opblock-tag { color: #EDEDED; border-bottom-color: #1F1F1F; }
+    .swagger-ui .opblock { border-color: #1F1F1F; background: #111; }
+    .swagger-ui .opblock .opblock-summary { border-color: #1F1F1F; }
+    .swagger-ui .opblock.opblock-get { border-color: #CC0000; background: rgba(204,0,0,0.05); }
+    .swagger-ui .opblock.opblock-get .opblock-summary-method { background: #CC0000; }
+    .swagger-ui .opblock.opblock-post { border-color: #666; background: rgba(102,102,102,0.05); }
+    .swagger-ui .opblock.opblock-post .opblock-summary-method { background: #555; }
+    .swagger-ui .opblock-description-wrapper p { color: #AAAAAA; }
+    .swagger-ui .opblock-body pre { background: #0D0D0D; color: #EDEDED; }
+    .swagger-ui .model-box { background: #111; }
+    .swagger-ui .model { color: #EDEDED; }
+    .swagger-ui table thead tr td, .swagger-ui table thead tr th { color: #888; border-bottom-color: #1F1F1F; }
+    .swagger-ui table tbody tr td { color: #EDEDED; border-bottom-color: #1F1F1F; }
+    .swagger-ui .parameter__name { color: #EDEDED; }
+    .swagger-ui .parameter__type { color: #888; }
+    .swagger-ui input[type=text] { background: #1A1A1A; color: #EDEDED; border-color: #333; }
+    .swagger-ui select { background: #1A1A1A; color: #EDEDED; border-color: #333; }
+    .swagger-ui .btn { border-color: #CC0000; color: #CC0000; }
+    .swagger-ui .btn.execute { background: #CC0000; color: white; border-color: #CC0000; }
+    .swagger-ui section.models { border-color: #1F1F1F; }
+    .swagger-ui section.models .model-container { background: #111; }
+    .swagger-ui .scheme-container { background: #0D0D0D; }
+    .swagger-ui .authorization__btn { border-color: #CC0000; }
+    /* Header bar */
+    .pp-header {
+      background: #0A0A0A;
+      border-bottom: 2px solid #CC0000;
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .pp-header h1 {
+      color: #CC0000;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      margin: 0;
+    }
+    .pp-header .pp-links a {
+      color: #888;
+      text-decoration: none;
+      margin-left: 20px;
+      font-size: 13px;
+    }
+    .pp-header .pp-links a:hover { color: #CC0000; }
+  </style>
+</head>
+<body>
+  <div class="pp-header">
+    <h1>PULSE TERMINAL API</h1>
+    <div class="pp-links">
+      <a href="https://protocolpulse.io">Home</a>
+      <a href="https://protocolpulse.io/terminal">Dashboard</a>
+      <a href="https://protocolpulse.io/terminal/pricing">Pricing</a>
+    </div>
+  </div>
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-bundle.js"></script>
+  <script>
+    SwaggerUIBundle({
+      url: '/openapi_terminal.yaml',
+      dom_id: '#swagger-ui',
+      deepLinking: true,
+      presets: [
+        SwaggerUIBundle.presets.apis,
+        SwaggerUIBundle.SwaggerUIStandalonePreset
+      ],
+      layout: 'BaseLayout',
+      defaultModelsExpandDepth: 1,
+      defaultModelExpandDepth: 1,
+      docExpansion: 'list',
+      filter: true,
+      tryItOutEnabled: true,
+    });
+  </script>
+</body>
+</html>
