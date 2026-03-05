@@ -258,6 +258,8 @@ def _run_dev_server():
 
 # Keep routes import near the very bottom so the app object and extensions are fully initialized first.
 import routes
+from routes_api_v2 import api_v2
+app.register_blueprint(api_v2)
 from onboarding_routes import onboarding_bp
 app.register_blueprint(onboarding_bp)
 
