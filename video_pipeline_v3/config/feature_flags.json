@@ -9,5 +9,6 @@
   "telegram_alerts": false,
   "analytics_feedback": false,
   "breaking_news_detector": false,
-  "sponsor_rotation": false
+  "sponsor_rotation": false,
+  "remotion_visuals": true
 }

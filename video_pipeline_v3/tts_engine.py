@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """TTS Engine V4 — dual-host dialogue with ElevenLabs.
-Host 1 (Nicole):  piTKgcLEGmPE4e6mEKli
+Host 1 (Sarah):   EXAVITQu4vr4xnSDxMaL
 Host 2 (Chris):   iP95p4xoKVk53GoZ742B
 Generates per-line audio with 0.3s silence gaps between speakers."""
 import os, sys, json, subprocess, tempfile, time, struct
@@ -16,8 +16,8 @@ from relay import get_key
 
 VOICES = {
     1: {
-        "voice_id": "piTKgcLEGmPE4e6mEKli",
-        "name": "Nicole",
+        "voice_id": "EXAVITQu4vr4xnSDxMaL",
+        "name": "Sarah",
         "model_id": "eleven_turbo_v2_5",
         "voice_settings": {
             "stability": 0.75,
@@ -39,7 +39,7 @@ VOICES = {
     },
 }
 
-# Hybrid voice settings per segment type (overrides for Nicole/Host 1 only)
+# Hybrid voice settings per segment type (overrides for Sarah/Host 1 only)
 # Cold open: whispery dramatic, classified briefing feel
 # Narration (setup/react): clear, confident, authoritative
 # Data callouts (wrap with price): slightly intense
@@ -121,7 +121,7 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
                    segment_type: str = "") -> bool:
     """Generate TTS for a single line using the specified host voice.
 
-    Applies hybrid voice settings based on segment_type for Host 1 (Nicole):
+    Applies hybrid voice settings based on segment_type for Host 1 (Sarah):
     - cold_open: dramatic whisper (stability 0.40, max 2/episode)
     - setup/react: clear, confident (stability 0.75)
     - social_segment/wrap: warm, inviting (stability 0.60)
