@@ -1,0 +1,310 @@
+{
+  "video_id": "gwABJO-kaM8",
+  "title": "Buying Bitcoin Using Dollar Cost Averaging & Avoiding Dust UTXO - Self Custody Series - Feb 2024",
+  "channel": "Andreas Antonopoulos",
+  "upload_date": "",
+  "duration": 390,
+  "transcript_text": "Stone door says, does the conventional wisdom of dollar cost averaging and don't reuse addresses need to change? People with many small UTXOs seem screwed as fees increase. So glad you asked that because this is a very, very critical issue that has gone unnoticed by many and is not being discussed. And as you say, the conventional wisdom has misled a lot of people is making this mistake. So dollar cost averaging means that it's best to buy your Bitcoin at regular time intervals regardless of price. So rather than putting in a lump sum or whatever you have now, putting in a bid at a time say investing every Monday afternoon regardless of what the price is doing will give you a better on average price, the dollar cost average, meaning your cost basis in dollars for the acquisition of that asset. And it's a technique that traders use in many, many different assets. Not reusing addresses has more to do with privacy and security than anything else, but often people combine these two things. The problem comes when people don't understand the next important step, which is just because you bought the Bitcoin every Monday doesn't mean you also withdraw it immediately. So the problem isn't combining DCA and don't reuse addresses. The problem is combining very small amounts DCA and address reuse advice with my advice of not your keys and not your points don't leave money on exchanges and instead what you do is you buy every Monday and then withdraw every Monday. And honestly, it doesn't matter if you withdraw to the same address or not because the problem of UTXOs exists whether they're in the same address or not. It doesn't really matter. Each withdrawal will be at least one possibly more, but hopefully just one UTXO. And if you're withdrawing every Monday, the tiny amount that you just DCAed, you're going to pay a fee for that withdrawal, but then you're also going to end up with a pretty small UTXO sitting in your address. Same address, different address doesn't matter. You still have a small UTXO. And so you end up with this fragmentation. You end up accumulating dust. And then when you try to spend that, you're like, oh great, I have a thousand dollars in my account. Yes, but what you don't realize is that you don't have a thousand dollars, you have 10,000 UTXOs. And to spend 10,000, 10,000 UTXOs, you need to make a transaction with 10,000 inputs. And that transaction is going to be a jumbo transaction, a whopper of a transaction. And the fees on that are going to be huge. And you're going to end up chewing up a significant percentage of your investment in paying for those fees. So how do we tweak this advice in a practical sense, right? Because that doesn't mean stop dollar cost averaging. And it doesn't mean leave all your money on an exchange. It's mean understanding the technical nuance and applying it correctly. And the way I would do it, and in fact the way I did do it, is if a dollar cost averaging small amounts, not in the hundreds or thousands of dollars, and I don't want to have UTXOs that are small, you know, under, I would say anything under 500 dollars in the current price environment in Bitcoin is a small UTXO. So if I don't want to have UTXOs that small, what would I do? Well, I can dollar cost average every Monday, but only was draw once the amounts that I have on the exchange is at a level, the balance that I have is big enough. Then when I was draw, that is sent to me as a single UTXO of the total amount that I've dollar cost that. I've still dollar cost average. My cost basis is still the every Monday price on average, you know, average down to over how many average, however many Mondays I've been doing this. So I've achieved the dollar cost average goal, which is to to smooth out rapid price fluctuations and volatility and get a good cost in dollars on average for your Bitcoin. So I've achieved dollar cost averaging. And if I was draw once my amount exceeds, my balance on the exchange exceeds 500, a thousand dollars, something like that, whatever the number is for you, the number that you wouldn't cry if you saw it disappear. But we'd also not create a UTXO that's too small and incurred to large fees. Well, then I was draw. So you have to find that balance. What is the balance for you, whether UTXO is not small enough to chew up everything in fees and but it's not so big in balance terms that if the exchange gets hacked, you're going to be losing all your savings, right? And so DCA and Don't Reuse addresses are still good advice and the not your keys, not your coins don't leave money on exchanges, so good advice. But no advice is perfect for all circumstances. And just because you have advice doesn't mean you take the maximal position of each statement and then combine them all to create the maximally best scenario. That's not how life works, right? There's nuance here and there's technical details you need to understand. So if you take DCA to the extreme and you take don't leave money on the exchange to the extreme and you take don't reuse addresses the extreme, you end up with a very messy wallet with tiny UTXOs for a lot of addresses and very high fees. Ethereum and the Internet of Money Series. If you'd like to support my mission of bringing education about Bitcoin and open blockchains to as many people as possible under open free creative commons licenses, please consider subscribing to my channel and supporting me on patreon.com slash A-A-N-T-O-N-O-P. Thank you.",
+  "timestamped_text": [
+    {
+      "start": 0.0,
+      "end": 4.24,
+      "text": "Stone door says, does the conventional wisdom of dollar cost averaging and don't reuse"
+    },
+    {
+      "start": 4.24,
+      "end": 9.92,
+      "text": "addresses need to change? People with many small UTXOs seem screwed as fees increase."
+    },
+    {
+      "start": 10.72,
+      "end": 18.48,
+      "text": "So glad you asked that because this is a very, very critical issue that has gone unnoticed by many"
+    },
+    {
+      "start": 18.48,
+      "end": 26.0,
+      "text": "and is not being discussed. And as you say, the conventional wisdom has misled a lot of people"
+    },
+    {
+      "start": 26.0,
+      "end": 32.88,
+      "text": "is making this mistake. So dollar cost averaging means that it's best to buy your Bitcoin"
+    },
+    {
+      "start": 33.76,
+      "end": 39.28,
+      "text": "at regular time intervals regardless of price. So rather than putting in a lump sum or whatever"
+    },
+    {
+      "start": 39.28,
+      "end": 44.24,
+      "text": "you have now, putting in a bid at a time say investing every Monday afternoon regardless"
+    },
+    {
+      "start": 44.24,
+      "end": 50.4,
+      "text": "of what the price is doing will give you a better on average price, the dollar cost average,"
+    },
+    {
+      "start": 50.4,
+      "end": 55.6,
+      "text": "meaning your cost basis in dollars for the acquisition of that asset. And it's a technique"
+    },
+    {
+      "start": 55.6,
+      "end": 65.34,
+      "text": "that traders use in many, many different assets. Not reusing addresses has more to do with privacy"
+    },
+    {
+      "start": 65.34,
+      "end": 74.77,
+      "text": "and security than anything else, but often people combine these two things. The problem comes when"
+    },
+    {
+      "start": 74.77,
+      "end": 80.53,
+      "text": "people don't understand the next important step, which is just because you bought the Bitcoin"
+    },
+    {
+      "start": 80.53,
+      "end": 85.49,
+      "text": "every Monday doesn't mean you also withdraw it immediately. So the problem isn't combining"
+    },
+    {
+      "start": 85.57,
+      "end": 93.09,
+      "text": "DCA and don't reuse addresses. The problem is combining very small amounts DCA and address"
+    },
+    {
+      "start": 93.09,
+      "end": 99.57,
+      "text": "reuse advice with my advice of not your keys and not your points don't leave money on exchanges"
+    },
+    {
+      "start": 99.57,
+      "end": 103.97,
+      "text": "and instead what you do is you buy every Monday and then withdraw every Monday."
+    },
+    {
+      "start": 105.9,
+      "end": 111.66,
+      "text": "And honestly, it doesn't matter if you withdraw to the same address or not because the problem of"
+    },
+    {
+      "start": 111.9,
+      "end": 119.18,
+      "text": "UTXOs exists whether they're in the same address or not. It doesn't really matter. Each withdrawal will"
+    },
+    {
+      "start": 119.18,
+      "end": 125.82,
+      "text": "be at least one possibly more, but hopefully just one UTXO. And if you're withdrawing every"
+    },
+    {
+      "start": 125.82,
+      "end": 133.18,
+      "text": "Monday, the tiny amount that you just DCAed, you're going to pay a fee for that withdrawal,"
+    },
+    {
+      "start": 133.18,
+      "end": 137.98,
+      "text": "but then you're also going to end up with a pretty small UTXO sitting in your address. Same"
+    },
+    {
+      "start": 137.98,
+      "end": 140.86,
+      "text": "address, different address doesn't matter. You still have a small UTXO."
+    },
+    {
+      "start": 142.53,
+      "end": 150.24,
+      "text": "And so you end up with this fragmentation. You end up accumulating dust. And then when you try to"
+    },
+    {
+      "start": 150.24,
+      "end": 155.44,
+      "text": "spend that, you're like, oh great, I have a thousand dollars in my account. Yes, but what you"
+    },
+    {
+      "start": 155.44,
+      "end": 166.88,
+      "text": "don't realize is that you don't have a thousand dollars, you have 10,000 UTXOs. And to spend 10,000,"
+    },
+    {
+      "start": 166.88,
+      "end": 172.32,
+      "text": "10,000 UTXOs, you need to make a transaction with 10,000 inputs. And that transaction is going to be"
+    },
+    {
+      "start": 172.32,
+      "end": 177.76,
+      "text": "a jumbo transaction, a whopper of a transaction. And the fees on that are going to be huge. And you're"
+    },
+    {
+      "start": 177.76,
+      "end": 184.72,
+      "text": "going to end up chewing up a significant percentage of your investment in paying for those fees."
+    },
+    {
+      "start": 184.72,
+      "end": 189.6,
+      "text": "So how do we tweak this advice in a practical sense, right? Because that doesn't mean stop dollar"
+    },
+    {
+      "start": 189.6,
+      "end": 194.64,
+      "text": "cost averaging. And it doesn't mean leave all your money on an exchange. It's mean understanding"
+    },
+    {
+      "start": 194.64,
+      "end": 200.3,
+      "text": "the technical nuance and applying it correctly. And the way I would do it, and in fact the way I"
+    },
+    {
+      "start": 200.3,
+      "end": 208.14,
+      "text": "did do it, is if a dollar cost averaging small amounts, not in the hundreds or thousands of dollars,"
+    },
+    {
+      "start": 208.86,
+      "end": 217.49,
+      "text": "and I don't want to have UTXOs that are small, you know, under, I would say anything under"
+    },
+    {
+      "start": 217.65,
+      "end": 229.44,
+      "text": "500 dollars in the current price environment in Bitcoin is a small UTXO. So if I don't want to have"
+    },
+    {
+      "start": 230.32,
+      "end": 237.6,
+      "text": "UTXOs that small, what would I do? Well, I can dollar cost average every Monday, but only was draw"
+    },
+    {
+      "start": 238.16,
+      "end": 246.32,
+      "text": "once the amounts that I have on the exchange is at a level, the balance that I have is big enough."
+    },
+    {
+      "start": 246.88,
+      "end": 252.64,
+      "text": "Then when I was draw, that is sent to me as a single UTXO of the total amount that I've dollar cost"
+    },
+    {
+      "start": 252.64,
+      "end": 258.16,
+      "text": "that. I've still dollar cost average. My cost basis is still the every Monday price on average,"
+    },
+    {
+      "start": 258.16,
+      "end": 264.08,
+      "text": "you know, average down to over how many average, however many Mondays I've been doing this. So I've"
+    },
+    {
+      "start": 264.08,
+      "end": 273.6,
+      "text": "achieved the dollar cost average goal, which is to to smooth out rapid price fluctuations and volatility"
+    },
+    {
+      "start": 274.4,
+      "end": 282.16,
+      "text": "and get a good cost in dollars on average for your Bitcoin. So I've achieved dollar cost averaging."
+    },
+    {
+      "start": 282.16,
+      "end": 288.08,
+      "text": "And if I was draw once my amount exceeds, my balance on the exchange exceeds 500,"
+    },
+    {
+      "start": 288.08,
+      "end": 293.44,
+      "text": "a thousand dollars, something like that, whatever the number is for you, the number that you wouldn't"
+    },
+    {
+      "start": 293.44,
+      "end": 302.8,
+      "text": "cry if you saw it disappear. But we'd also not create a UTXO that's too small and incurred to"
+    },
+    {
+      "start": 302.8,
+      "end": 307.52,
+      "text": "large fees. Well, then I was draw. So you have to find that balance. What is the balance for you,"
+    },
+    {
+      "start": 307.52,
+      "end": 314.72,
+      "text": "whether UTXO is not small enough to chew up everything in fees and but it's not so big in balance"
+    },
+    {
+      "start": 314.72,
+      "end": 320.4,
+      "text": "terms that if the exchange gets hacked, you're going to be losing all your savings, right?"
+    },
+    {
+      "start": 321.36,
+      "end": 327.92,
+      "text": "And so DCA and Don't Reuse addresses are still good advice and the not your keys,"
+    },
+    {
+      "start": 327.92,
+      "end": 333.68,
+      "text": "not your coins don't leave money on exchanges, so good advice. But no advice is perfect for all"
+    },
+    {
+      "start": 333.68,
+      "end": 341.44,
+      "text": "circumstances. And just because you have advice doesn't mean you take the maximal position of each"
+    },
+    {
+      "start": 341.44,
+      "end": 351.31,
+      "text": "statement and then combine them all to create the maximally best scenario. That's not how life works,"
+    },
+    {
+      "start": 351.31,
+      "end": 356.43,
+      "text": "right? There's nuance here and there's technical details you need to understand. So if you take DCA"
+    },
+    {
+      "start": 356.43,
+      "end": 361.15,
+      "text": "to the extreme and you take don't leave money on the exchange to the extreme and you take don't"
+    },
+    {
+      "start": 361.15,
+      "end": 368.11,
+      "text": "reuse addresses the extreme, you end up with a very messy wallet with tiny UTXOs for a lot of addresses"
+    },
+    {
+      "start": 368.11,
+      "end": 372.91,
+      "text": "and very high fees. Ethereum and the Internet of Money Series. If you'd like to support my"
+    },
+    {
+      "start": 372.91,
+      "end": 378.51,
+      "text": "mission of bringing education about Bitcoin and open blockchains to as many people as possible"
+    },
+    {
+      "start": 378.51,
+      "end": 384.19,
+      "text": "under open free creative commons licenses, please consider subscribing to my channel and supporting"
+    },
+    {
+      "start": 384.19,
+      "end": 392.43,
+      "text": "me on patreon.com slash A-A-N-T-O-N-O-P. Thank you."
+    }
+  ],
+  "topics": [
+    "price",
+    "regulation",
+    "lightning",
+    "self-custody",
+    "macro",
+    "privacy"
+  ],
+  "sentiment": "neutral",
+  "archived_at": "2026-03-05T17:35:58Z"
+}

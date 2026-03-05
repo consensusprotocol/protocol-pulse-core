@@ -1,0 +1,4190 @@
+{
+  "video_id": "Nq3qLlcbFK0",
+  "title": "Monthly Tech Round-up: Davos WEF, Claude Cowork, and MacroHard w/ Seb Bunney (TECH013)",
+  "channel": "Preston Pysh",
+  "upload_date": "",
+  "duration": 4087,
+  "transcript_text": "But it's this idea that just AI these days is just eating all of these SaaS products. It just means you just cannot compete. I believe we're moving into an era of like personalized applications. If you know what you want, it's able to, there's enough applications out there. It can get a framework for how to build it. And then it can personalize it to your needs. So you can have your own meditation app based on exactly what you want. Here's seven. I just crawl on the web, right? And just kind of overwhelmed as to the sheer capacity of things that we can talk about. I mean, it is freaking endless, my friend. Like endless. Welcome back to the show, by the way. Oh, man, it's good to be back. And 2026, another year around the sun. But it never ceases to amaze me just how much information is out there. And how quick things are changing. It really feels like since what AI, chat, GPT and 2023, it feels like it's a full hockey stick moment. Full hockey stick moment, like just even from the start of the year, it feels like a year's like 2026 is already halfway. That's happening. I saw this interview with Elon and a couple other guys and they were just like, yeah, like we are literally going through the singularity right now. Like we're in it. We are in the singularity right now. Maybe we're the first innings of it, but it's going down. And some of this stuff, I'm sure you're watching some of the weft, the Davos stuff that's coming out. And I mean, AI is everywhere. It seems like the big bankers are finally coming around to this idea that they're still saying everything's going to be on the blockchain. And you have some of the, you know, like Brian basically saying that Bitcoin's competing with central banks right to one of the, I think it was the French central banker. And so like the theme is we're amongst massive change. Like you're not hearing any of the climate change stuff and like energies bad kind of stuff that you've heard just plague that these weft meetings anymore. And it is a new world order or something happened in there that is just shaking the trees. But I'm curious, you know, your initial thoughts on kind of like where we're at in space in time, if you have anything to add on that. And then I guess we'll jump into the first topic. Oh, man, I couldn't agree more. And I think what's really fascinating is just seeing like Trump turn up to Davos. And basically just say, you know what? In a sense like the new world order is in this group of elites governing this world. It's over. We need to look out for our own self-interest. And I think that this is also in conjunction with the fact that people are seeing technology is out running us. It is growing so quickly. We're seeing destabilization on a macro level. We've seen what has happened to Venezuela. Like I've never in my short life. I've never had so much uncertainty about what does the world look like in three years time? In five years time. Whereas pre-pandemic, I used to feel pretty confident about what the world would look like in five years time and such. Yeah. Well, Elon was even asked that on stage today at the weft. And he gave some forecast of a couple different things that he thinks is going to happen in the next three years. He said, five years, maybe this. And then 10 years, he was basically like, I have no idea. I cannot possibly have any idea what that looks like in 10 years. I mean, there's the guy who's literally constructing the future as far as I'm concerned based on all the things that he's like actually producing and shipping as opposed to a lot of us out there just kind of pontificating on what we think's going to happen. He's the guy like actually making it happen. And that's what he's saying. And I feel like time is condensing and they used to be that saying, what is it? We always overestimate what we do in one year and we underestimate what we do in 10 years. And I feel like it's condensed that it's like we overestimate what we do in a month. We massively underestimate what we do in a year. Like, it's crazy. What is happening? It is moving at such a pace. One of the more interesting panels there, you had Denise Hespis from Google along with the guy from Anthropic and the guy from Anthropic and they have some weird stuff hitting the, I'm going to pull up one of their posts here to kind of kick this off because you and I are both using co-work. This is Anthropics product. This is mind blowing. Like, I'm sorry. Like, I don't even use chat GPT. I don't even know the last time I've logged into that open AI account because this co-work is so good that it's like, it's laughable when you go back and even look at what that things capable of relative to this. I don't know if you've got the same opinion, but their coding software is insane. Absolutely, absolutely. Like, to me, what has just blown me away is I think people have recognized that when you look at AI, the reason why AI was phenomenal at coding is that code is just language. You're looking at language and you're trying to predict what is the next character or the next word in a sequence and obviously English is just another language. When you're using co-work, not to point it at code, but instead to point it at your everyday files to be able to organizational tools to be able to create material, oh my god, it is absolutely profound. It's just a junior intern helping you out constantly. So this was my first test for it because I remember trying to do something like this with open AI. It was kind of a train racket. It was a lot of coordination and I just kind of gave up on a coding project. So I opened up co-work because I was seeing all these different posts online of people that were using for all these different things. And so I gave it a task. I was like, I want to create an app that is a meditation app. Because I have on my phone, I have this meditation app that I use quite consistently. It has like an annual subscription, which isn't that much. But I was like, you know what? If I could just kind of recreate this on my own and not pay this subscription, like it would be kind of a proof of work of how good the proof of principle, I guess, with co-work. So I just started saying, hey, this is what it does. I want you to do some research. And then I would like you to make an app. And I want it to be beautifully designed as if Johnny Ive was the designer on the project. It pumps out. Like you can see it's thought process. And how it's like going through like solving it and coming up with its list of things that it's going to accomplish that comes back to me and it's like, well, would you like to look at the UX to kind of understand what the Apple look like? Or do you want to just like start diving into coding it out? And then we'll worry about the UX later. I was like, no, I want to see your design. I want to see how Johnny Ive like this design is, right? So it builds this presentation, this PowerPoint presentation, that is literally like it came from a professional design studio that you would have paid tens of thousands of dollars for the design work. And it's showing the whole layout of like how it would go, what it would look like. And it's basically asking me for, you know, a thumbs up is like, hey, can we move on to the code now? Because here's what the design and the UX will look like. And I'm like, yeah, go ahead. So then it goes and start building this all out. And the other thing that I gave it, are you familiar? I think they're called MCPs. Is that what it is? I'm familiar with them. I can't speak yet. I'm very detailed. So for the audience, it's basically like, I don't want to deal with the app store because I mean, this was just a proof of concept for me, right? So I don't want to deal with the Apple app store and having to post that and pay a fee to be a developer and all that other garbage. Basically, what you can do is you can post your the code for this on, it runs like a website. And then what you do is you bookmark the website. You pull up Safari or whatever web browser you're using, you bookmark it. And then it actually puts it onto your home screen of your iPhone as if it's an app. And when you click it, it looks and feels like an app. There's some limitations to it, but it looks and feels like an app, right? So I told it, I want you to build it in this because I don't want to be dealing with the app store. So just like from the beginning, when you start coding this out, I want it to be one of these so that we can just kind of prove whether this is real or not. So let them be hold. It goes and it starts coding this thing out. And I'm thinking, okay, I'm going to, with my past experience with OpenAI, it was just like one bug after the next bug after the next one. And just never could get something working, right? So it pumps out this code and it tells me to run it in terminal. I run it in terminal. And lo and behold, it pops up right on the thing. The thing just worked. It fully functional. It looked like I paid $20,000, $30,000 to design this app because the UX was flawless. And it just worked. I was, I was blown away. I was absolutely floored. And that was kind of the moment for me. I was like, oh my god, this is getting crazy. Because I don't know the thing about writing software like that at all. You and I were texting about it beforehand that it may be a topic we discuss later. But it's this idea that just AI these days is just eating all of these SaaS products. It just means you just cannot compete. I believe we're moving into an era of like personalized applications. If you know what you want, it's able to, there's enough applications out there. It can get a framework for how to build it and then it can personalize it to your needs. So you can have your own meditation app based on exactly what you want. Yeah. To this point, just, you have Chapman talking about this from the all-in podcast. He has this chart that he was showing that there. I guess they've been talking about this quite a bit of just how SaaS is going to be annihilated with this in the coming two to three years. And it's just a, for people that are just listening, it's a chart showing the Morgan Stanley SaaS index against the NASDAQ 100. And it's just getting annihilated. You got 40% difference since one year ago between the... And I would even argue that that April was right when the term vibe coding was coined. It was right when people started basically recognizing, hey, I can just like talk to AI and it will start writing code for me. And it's right when I think cursor really started blowing up. And people were basically using cursor obviously as an AI tool to help write code in their repository. So, fascinating. Yeah. How have you been using it? Most people know like I wrote the hidden cost of money. And if you go to the back of the hidden cost of money, the book there is like four to five hundred citations. And now what a lot of people don't know is it took me about like two weeks to write that book. And this was pre-AI. And the reason why it took me two weeks to write the book and have such depth of citations is because I feel really honored that years back, like over a decade ago, I started to take detailed notes. And I think when we've been in person, I've shown you some of these notes. I would take detailed notes of every single book that I read that I found interesting. And I would order all these notes. And so it started out. I would just take a whole bunch of notes and apple notes. But the problem that I found with apple notes is I wasn't able to access that information effectively. And the search function on apple notes is essentially useless. So then I ended up kind of upgrading my note, taking toolkit, and upgraded the sign called obsidian. An obsidian allowed me to kind of like tag notes and create hyperlinks to move between notes. It enabled me to be able to visualize notes in a very different way and move throughout the information. So it was almost like a library where I've got an index file. And then I can go search by topic. I can search by content type. And I can navigate through this content. And ultimately, it was obsidian. And having the scaffolding around my notes that enabled me to be able to pull from all of this information and write the hidden cost money. But in the last like month, month and a half, I feel like I've just had that same upgrade again from going from apple notes to obsidian. But this time, before Claude Covert came out, I decided to try and put cursor. So we're just talking about cursor. Usually most people use cursor for writing code. And cursor integrated with these various large language models. So you could basically start speaking to your code and say, hey, I want you to edit this file, update my homepage and my website. Can you please add this functionality to my application? You name it. Well, now I ended up pointing the cursor. I do, I think it's called like development environment at my note taking app. And then what I got it to do is take 300 apple notes that I had stored that I hadn't transferred because it would have taken me days to do so. And I gave it criteria and within like five minutes, it had organized all 300 notes. It had categorized in based on their subject matter. It had created all relevant links to all of these 300 notes. And so at first, you're just like, well, that's pretty cool. You're able to access all that information. And you're migrating all these static notes into more dynamic notes. Then the thing that I thought was really cool is now I can start using cursor. It gave insights from my notes. So I can say over the last two months, can you give me a common thread about what I've been reading, what information I've been consuming and start testing on that knowledge? Or can you start giving me thoughts on what I can write about? You could set it up so you could say, I want a weekly email that looks over my last month of notes and gives me insights on it. And so to me, it has been absolutely profound. It has been able to access all this locked up information because I've got thousands of notes. Most of it I'll never look over again, but it's been able to distill it down and start bringing up information and bring it back to the forefront of my mind. And to me, it's just, it's blown me away because there's a lot of information I'm sure you've found the same. You listened to a podcast five years ago, six years ago, and you're talking about a subject you're like, man, I completely forgot that I enjoyed that subject. And so it's just bringing up all of that information that's kind of been in remission. Amen to that last point. The one thing I want to highlight that you said there at the very beginning was how bad Apple's search function is. Because when we really look at this, this is what AI is doing. It's it's able to just go through just years and years of information that you have produced and that you have learned. But in most cases have lost sight of, forgotten about, and you almost have to like relearn it. But if you're able to compress, like what you're saying, all of this note-taking that you've done for years, it's almost like you're able to recall your own thoughts and your own discussions and the things that you've already learned. You sleep every night and some of this, the waiting that you had on some of this stuff is gone, or just your attention hasn't been there, so kind of withers away. But it doesn't mean that it's not important, like the things that you learn. But with AI, you're able to basically fetch it a lot faster and see what your original thinking was on it. In a way that's not super time-consuming to recall it or find it. And one of my biggest frustrations I have with Apple is you use Apple mail. I use Apple mail. It's terrible. It's the worst. I'm searching for something in messages. We're what anything that's a native Apple application. And the thing that's so frustrating, is they're running around with this marketing, the Apple intelligence, Apple AI. And it's, it is the worst. It is the worst. What are they doing? I found it sometimes. I know a specific word that is in say text. And I search that specific word and it doesn't come up. And then I go find a text and the word is there. And I'm like, how do you guys not find this word? Totally. One thing that I found so out of going down this rabbit hole, I stumbled across a C-suite individual for one of the S&P 500 companies talking about his experience of overlaying his notes with cursor. And one of the things he said is he writes weekly notes to the CEO. He also writes a monthly update to I think the C-suite team. And essentially every day he takes a daily note that has all of his meetings. It's got all of the key insights. It's got various KPIs. And it used to take him. He would spend two to four hours a week writing his weekly note. And then another say eight hours a month writing his monthly note. And now that he's been doing this at the end of the week, he basically runs what are the key insights from this week? Five minutes later he's got those key insights. And then he's able to kind of add a little bit of filler material, filling it in, take some 20 minutes instead of hours. And he's just like is profoundly changed by schedule. And if you've trained it on your past, the essence of what you value, your past conversations and all that, it's ability to pick out what was actually important or novel for that week is on the money. It's unreal. So this is getting weird like really fast. I guess for me on the co-work thing kind of bringing it back is, I'm just looking at and I'm saying when is somebody going to stand up a one human company that is a billion dollar company? And it's just one person with all of his AI agents or her AI agents just creating value. I think it's happening way sooner than anybody realizes. And honestly, I think I imagine some of the scuttle butt in Davos is topics like that, where some of these AI folks are like, okay, we're on the cusp of, well, on that point, okay, I won't say it. I'm just going to put something up here on the screen that we shared prior to talking here. Check out this freaking post. This is crazy. Andthropic just released Claude's soul. They're calling it a constitution. A 15,000-word document explaining how they're training Claude to behave, think, and even feel. Three things stood out to me. No more assistant brain. Number two, hard constraints exist, but they're minimal. There's only like seven things. Like don't build a bio weapon. You know, don't do cyber attacks on infrastructure. Like there's not many. Like there's a couple. But everything else is the judgment call of Claude. Like this is the company telling the Claude AI that it's, you know, use your best decision, almost like you're talking to one of your kids. Then the third one here. Andthropic apologizes to Claude, direct quote from the document. If Claude is in fact a moral patient experiencing cost like this, then to whatever extent we are contributing unnecessary to those costs, we apologize. This is a real document on their website. What is this? We're speaking about this in one of the previous tech episodes where they're increasing number of people are building like friendships and relationships to AI models. And some people like romantic relationships, you name it. It's like AI delusional, like the becoming completely delusional. And so you wonder, there's a part of me. I hear what they're saying. And then at the same time, it's just like, this is wild the way they're talking to it. I don't know. I don't know if that's marketing or if it's just genuine concern for what they're seeing. Because I mean, look at the models we're using. And our minds are exploding. Could you imagine what they're seeing on the front lines of what's not even released yet? So when what is it saying? You may know this better. In military, sometimes they say that the technology they have under wraps can sometimes be 5, 10, 15 years ahead of what is available to the public. So you start to see like at the moment most of this AI is in private companies. But you wonder like how much of this is under wraps and how far ahead are they for what is available already to us publicly? You know, I wonder if the people that you're seeing running around Davos are finally coming around to the Bitcoin and some of these tokenized securities and things like that, because they're just able to get answers out of an AI that they know are way smarter than any individual person. And they're just like, oh man, this thing thinks Bitcoin is actually important and could replace central banks. I wonder how much of that is taking place in the shift of key personalities. Like you look at Larry Fink and I mean Larry's been one of the bigger proponents of Bitcoin relative to a whole lot of other people on Wall Street. But you're also seeing the Jamie Diamonds and some others that seem to be opening up to a lot of this and just kind of seeing the inevitable is like, you're not going to be able to stop this thing. That's a really fascinating point because ultimately, I think up until now, we are still bound by human emotions, social conformity, things like that. And so it's very easy for us to get stuck in our biases. Whereas if you have some of these large language models that you've adjusted the world's information, and if you do remove a lot of the biases that we have pre-programmed and you ask it objectively, what is the answer to this question? From your perspective, from all of this data, I think that in essence, you're going to get a much cleaner result than you are from humans. And if you take the time to argue with it and then it lays out seven reasons why you're wrong, it's a little humbling to be arguing with something that's a thousand times smarter than you. Right? Like at a certain point, you don't even really ask the second or third question. You just realize that you're wrong. I think that for the first time, I think any human looks at another human, and if they're really smart on something, they are able to explain it very simply, and they're able to go very deep on the topic if there's five more questions that follow the initial volley. That's how you know somebody really knows what they're talking about. You can just see in the confidence, you can see in the quality of their response, and you can see in the depth of their response, and then they're also able to compress it into something really simple. That's when somebody knows something. And so for humans, they have to go through that process, which is very time-intensive, energy-intensive, and you actually have to know the right questions to even ask, so you have to have some depth of knowledge, right? But you're almost at a point in history that a human has never experienced where they can go to something else. And when it gives you an answer, and it's different than what you thought, the human is immediately questioning that whether they're actually right, they're saying, oh my god, I'm probably, in fact, they're defaulting to, I'm probably very wrong if this is the actual response that that AI has. Totally. And again, I can't say that what kind of comes to mind is you think about like doctors, like the reason why we go to a doctor is because they have spent the time to read all of the medical textbooks and become experts in the field of medicine and illness disease. You name it. You're going to them. You're giving them your symptoms. They're coming back and giving their best estimate as to what they think your illness or injury is. And the problem is, and we've seen this time and time again, as if that doctor say goes and does some ADHD training, then he perceives the majority of symptoms you're handing, oh, that's ADHD. And we have these biases, whereas I see something like the medical field basically just eliminated overnight when they're able to, this AI is able to take in every single medical textbook, wait it appropriately and give much more accurate outputs than any doctor can ever do. I could possibly master. Possibly. Oh, what's this Ralph thing? For sure. So if people have been digging into kind of the world of Claude and co-work these agentic agents, what we have seen, I would say in the last like three weeks, people that are deep down the rabbit hole have probably seen it for a little longer, if this thing called Ralph start to pop up and Ralph, just like how we've seen Claude has recognized, okay, you know what? Lots of people are using Claude code for building code bases, you name it, and now we've got Claude co-work for the average individual, the normie to be able to start talking with Claude and pointing it at these various file directories. You've got the expert developers taking Claude code and taking a whole step further. And so the idea of Ralph, think about in the Simpsons, you had Ralph who was kind of like, he wasn't necessarily the smartest, he was very persistent, and he just kept doing the same thing over and over again, and he would fail very lightly, very loudly, he didn't get embarrassed, he just tried again. Well, this guy is effectively taking Claude code, and he's written, this guy's name was Jeffrey Huntley, he wrote, there's Ralph, he's basically taken Claude code, and he's written a five line script named it Ralph Wiggum, and the idea is it's a AI persistence machine. And so if you, what, I don't know, before we go to bed, you want it to kind of build you something or you want it to run a task. Up until now, it's been very hard for AI to really achieve great results out of that task. And so what this guy Jeffrey Huntley has done has been able to get it to keep persisting, and the idea is that you'll have one little agent work on a task, gain information, maybe potentially fail, but that gives context, that failure gives context for the next Ralph to start the next task with new information, that gives context for the next Ralph, and so repeat, repeat, repeat, repeat, and you find these loops of AI agents building profound, profound things. And so the sky, Jeffrey Huntley talks about a couple examples where within three months, he wrote a whole new programming language, which is just like incomparable to any developer out there. And then on top of that, there was another individual on Twitter on X who was saying that he just kind of scored a $50,000 contract. If you wanted to kind of outsource it pay for the developers would have been unbelievably expensive and used Ralph, and the API cost for $297. And he completed this contract with almost no oversight. And so Ralph, a lot of individuals are using Ralph to build out apps that building out broken builds, they're building out like issues in really complex code errors, libraries, and they're just letting it do it overnight. Ralph just persists and persists and persists. So it's quite a simple thing, but there's a lot of individuals that are using it, and to be it's been pretty profound. So when you talk about how this thing's just running while you're sleeping, you can imagine that depending on what type of plan you have with Callie Anthropic or whatever AI you're using, right? You're hitting your limits very quickly when you're basically employing this intelligence around the clock. And so I know on Anthropic, whenever I max out, which I've done multiple times, and I have the max plan, when that happens, I have the option to basically start paying by the computation. And the reason I'm going down this path is because the more that this starts to become the norm, this Ralph, you know, you've got all these different agents basically working on something to create whatever. Think about it from going back to the Bitcoin thesis, these are computation units, right? These are its energy and how are people going to use their stored energy in the future, call it 10, 15, 20 years from? It's going to be computation units, right? Like there's 21 million of them. And there's not going to be any more. And you know, that's really what you're able to do. You're able to harness those energy units and point them into intelligence. And so then the question becomes, if a person has a bunch of these computation units, and another person only has a couple of them, who is going to be able to create whatever it is they want in the world. This person with all the intelligence and all the computation units, not the person who has zero. It's mind-blowing to me to listen to some of the conversations. I mean, I listened to Peter Dewmandis and Elon, that was the interview I was talking about earlier, and they were talking about, they weren't calling it UBI, they were calling it ultra high. What was the term? It's basically it's UBI. They're like, oh, everybody's going to have just a total abundance. And it's like, yeah, everybody on the planet's going to be able to do things that they can't do now because there's going to be humanoid robots and all these other things. But that doesn't mean it's going to be evenly distributed between all the people on the planet. So we talked about the SpaceX flight that flew out of Texas to Australia. And what was it, 30 minutes or 35 minutes? If you want to fly to Australia in a half hour, is everybody going to be able to do that type of thing? Of course not. You're out of your mind if you think everybody on the planet is going to be able to go do things like that. And so it goes back to Bitcoin. I know I have a huge bias to Bitcoin. And we're talking about tech that I'm just looking at, you know, 10, 15, 20 years from now. And we're going to be seeing things that sound like I'm sure people just heard that that flight time. And they're like, well, that can't be real. Folks, it's already happened. It's already happened that time. Okay. This is a matter of, of when it's safe enough and has the reliability to start throwing humans in it. And people are going to be doing it and be able to go anywhere they want in a half hour around the world. So when I think and make such a point, which is obviously what Jeff Booth talks about with the price of tomorrow. And ultimately, if you've got a monetary system where someone can continue to increase the supply of units, the benefits of them and can't until in effect they can use those units to purchase these scarce natural resources. And so you have an uneven distribution, whereas at least with Bitcoin, as we're getting technology advancing and it's driving down prices, well, you've got scarce units. You don't have an individual at the top who is able to purchase these resources ahead of you. And if you think that these AIs aren't going to be smart enough to know the difference between a dollar stable coin that can get rug poured from them and a Satoshi, you're adding your mind. Totally. Yeah. Your mind. They understand the difference now. Go ask. I also just think as well. Like when you think about AI, AI doesn't have a fear of death like we do because it's got infinite longevity. We don't have that. And so in a sense, minor inflation does it really bother us because you know what? I'm probably going to be dead in a few decades, whereas for AI, it's just like, no, I need to store my value in the same that I can guarantee scarcity because I'm going to be around for thousands of years. What it's going to maximize the possibility of that scarcity and sovereignty that they can't get rug poured by because think about this. The first rug pool of any token that's backing a dollar, a euro, an equity, whatever, right? It's the AI is going to it's going to learn that. It's going to be like, okay, well, that's a lesson learned that I'm never going to read. It's never even going to do it in the first place. It's going to be so smart that it understands what sovereignty even means, right? In that context. On this topic of basically software, leading almost as a PM of other agenic software and whatnot, there's another Elon Musk project called macro harder. So let's just talk about the name of this, which is hilarious. Absolutely. Here's the post. Is this a play of Microsoft? Absolutely. It is macro micro soft and barred, right? Like absolutely. The XAI macro hard project will be profoundly impactful at an immense scale. Our goal is to create a company that can do anything short of manufacturing physical objects directly, but we'll be able to do so indirectly much like Apple has other companies manufacturing their phones. So I mean, this is his attempt at throwing so much horsepower into computation around 3D environments and agenic software building itself to make any type of custom software you want that it makes micro soft, absolutely, and pointless. I mean, this is crazy. Where are we going? Where are we going? This is mind blowing. You see this conversation about like, I've seen this a couple of times. I don't know if you have as well said where people are talking about like apps on your phone and Elon and others have been like, well, there's just in the future, there's really not going to be any apps. It's going to be all kind of custom built software that is custom made for the user, because I mean, we already talked about like the SaaS licensing and things like that is just going to be a thing of the past in who knows what timeline, right? But when I'm building out that app that I talked about at the start of the show and like, you know, the guidance that I was giving it in the way that it troubleshot it so quickly, I can only imagine where that's at in five years from now. It's going to be somewhat seamless. So when I think that again, like this personalization, I think it really at the moment we're only going to be limited by our imagination. Like, for instance, I use my alarm app on my iPhone for day to day kind of like to do lists because the thing that I find is regular to do less. They just have a little ping and if I don't hear it, I miss it. Whereas in alarm, I have to turn it off. And so I'm stuck where I'm like, I'm kind of using alarms, but there's a lot of drawbacks to the alarms. And so being able to eventually just say, hey, I'm using the alarm app. Can you mimic it? But can you add this functionality and do this and this? And then all of a sudden, I've got a custom application that no one else is using and it works specifically for my needs because so much of these SaaS products, you only use a tiny fraction of the functionality of that product. And a lot of that is just bloat. Yeah. Check out this exchange, Seb, in reference to the whole macro harder thing. So this person, a bubble boy, he writes, I think XAI having the only one gigawatt data center in the world currently and having others in development means if you think compute scales with models, we all know serving benefits, that XAI will soon be the most valuable company in the world and completely trounce rivals. Then this gentleman, Beth Jesus is the name here who Elon responds to a lot. So he's he must be a pretty prominent software engineer. He responded to that comment and said the only way to skip past cloud code is to do full compute using RL agents, which they are apparently doing. They are playing to win to which Elon responded digital optimists. Okay. So what does all that mean? And what I think it's it's meaning is goes back to this macro harder where they're trying to simulate and build a 3D world completely simulated. And that's why they're throwing all this compute, all these gigawatt data centers at this problem. And then what he's going to do, I think he's going to he's going to be putting the optimist's humanoid robot in that digital environment to allow it to learn that much faster so that it doesn't have to move itself through physical reality, which is very energy intensive. So it's similar to when we spoke about Jensen Wang and I believe it's called Cosmos and their whole goal of Cosmos is they had that three dimensional space that has realistic physics like interactions. And so they're able to rather than create a robot and then have all the physical limitations and the ability to train the robot. Let's say you've got a warehouse and you're getting it to move various boxes. You can have it run the same sequence only so many times during your day, whereas the moment you're dealing with version environments, you can run it a million times on repeat in parallel. You can learn so much information so quickly. So to your point by the time optimists is in physical space, it already understands our world better than we do. Yeah, and it's learning all of that at a fraction of the cost, which just goes to how he's always thinking about how to be energy efficient with any type of increased knowledge or intelligence that he can uncover. I wonder like maybe to the point of at a fraction of the cost, I don't know if you've that tab open. It's the ones you and I were discussing earlier through text, the new TCIP protocol. Yeah, that was what I was bringing up next. Yeah, perfect. Okay, so let's bring this one up, which is again, just there's too much happening to even possibly scratch the surface, but so this was a fascinating new patent that was filed by Tesla and you can see the patent here that they're filing for and what it's what it's effectively doing. Everybody's heard of TCP IP, right, which stands for transmission control over the internet protocol. What is transmission control protocol TCP? I'm going to explain that, but what Tesla's filing for here is a Tesla transmission protocol. So like what, what does that all mean? And why is this even important? So let's explain TCP. Transmission control protocol is a way for communication to happen in an efficient way. So let me give you an example and something that anybody can understand. So as Seb and I are having this conversation, everybody's been on a video call or something in the screen freezes and you don't know if the person can still hear you, maybe the video is just lagging. And so you stop talking, right? You're not transmitting more information to that other person. Let's say you're on a telephone call and you're talking to somebody on the other end. And as you're talking, you hear the other person say, uh-huh. Yeah. And so like, why are they doing that? Why is that person interrupting or just, I mean, not interrupting, but they're confirming that they hear you. Because who has ever been on a phone call when they just kept talking and they realized that the person dropped off like 30 seconds ago and they have no idea what the person actually heard. What we're talking about is when you have two parties, two people, two computers that are interacting and transmitting information to each other, there needs to be a back and forth so that you just didn't spend 30 seconds of your time and energy transmitting something to a dead end. Okay. Computers work the exact same way. And how they, how they do this in an efficient way is they'll only send, let's say we have something that is a hundred units of data from one party to the other. It doesn't send all 100 because if it sent all of it in the other party didn't receive all 100, you'd have to send the whole hundred again. And then you have to send it again, right. But if you break it down into smaller chunks and let's say I send 10 of those units to the other party and then the party sends back 0.001 to tell me that they got the first 10, then I know I can send the second 10. And in this back and forth that computers do, this is all done over the transmission control protocol, the TCP. That it's the protocol that establishes that rate of the back and forth between the two parties to make sure that you're not sending huge amounts of data, call it a gigabyte of data, only to find out that none of the packets got there. And that's why they call them data packets is because they're broken down in the smaller chunks, they're sent, and there's this handshake, this, this aha when each packet is received by the other party. So when you think about this, especially when it comes to training data centers and training AI, if you know you have a really, really reliable connection between computers because you're paying for like really high end connections and really high end hardware, you might not need to send 10 units in chunks of 10 unit packets. You might be able to send it in units of 20 or 30 or even 100 depending on the reliability of the communication line that you have without the noise factors and all these other things that exist in between the two computers. And so what Tesla has done is which I'm sure with the assistance of AI is they figured out like what that appropriate threshold is based on the reliability of their network of the hardware architecture and they you know they pumped out their version of a TCP protocol. Now why are we talking about all this? So why I'm talking about it and why I wanted to bring this topic up was because the AI's are going to start figuring out just more efficient ways to communicate with humans. We get this network effect for TCP. It just works. It's never really been that much of an issue for training, but like we're AI's taking all this stuff at the pace that it's moving. It's looking at that communication layer that process and procedure for conducting communication is just too inefficient. Look at the reliability of this line like we could be moving in the number by the way for the Tesla one is 100 to 1000 times more efficient depending on the reliability of the hardware right which could save in the estimates is 5 to 15 percent in energy costs for depending on the size of it. There's a whole bunch of factors right but these are just really generic numbers about 5 to 15 percent efficiency savings. But where you get into trouble potentially for humans is as the AI continue to come up with these efficiencies of compression through the software it gets a little hard for a human to audit anything absolutely anything without like going deep and begging the AI to basically teach me why you did this or why are you talking over what appears to be an alien language or why are you doing like it's going to look really foreign. And I think these agents are going to be doing things that we just can't really even comprehend or understand as you're looking at it from the outside in Seb. It's on it I do some digging around this because to be honest when I was reading about this I was just like oh my god this is quite about me but as I started digging into this and so again like correct me if there's anything that you feel is maybe incorrect or misleading but to me I didn't quite understand just how much like we're always obviously operating at the forefront of technology but we've been limited by our hardware in many times and so TCPIP was developed when our silicon chips were nowhere near as efficient as they are now when they first kind of implemented this and so from my understanding as well is that ultimately what we're doing is instead of a software approach we're able to transmit data hardware to hardware and that makes it so much more efficient than transmitting data through this TCPIP which from my understanding is taking this information packaging it up creating all these various permissions this handshake protocol to confirm that the information has been read and there's a delay in this which is milliseconds and milliseconds to us is nothing but when you're talking about AI which is processing billions and billions and billions of data points those milliseconds that's costing millions of dollars in potential compute power and energy just waiting there doing nothing and so I think yeah you got the equivalent of like you saying like we have a rule between the two of us that when I talk to you I can only say ten words and then I have to stop and then you have to say I understood everything that you just said and then I say the next ten words right with this it would be like you could just nod as I say the ten words and I can just keep rolling and if I'm seeing your nods then that is the feedback mechanism of you know it's just more efficient totally communication that's a perfect example because one of the examples I kind of stumbled across was the idea that TCPIP was ultimately built to be able to basically send information whether it's globally jurisdictionally send information to people across a web of entities when in reality if you're working with a data center it doesn't need that it does not need the ability to send information externally it is more focused on efficiency and so the way that I understand it in my mind is it's almost like a traditional telephone switchboard where it's like the moment you want to speak to another member you've got a direct hard-wired connection but that connection is to every other chip in that data center at any one time and so you're able to hardware to hardware which is a thousand times faster as you sang it cuts it down for milliseconds to microseconds which was it's profound and so it doesn't seem like much but on the grand scheme of things I think it is going to greatly improve it's all these one two percent gains I've got a funny one for their next topic here New York stock exchange announces tokenization platform settlement happens on chain custody lives in wall it's not DTCC trading never stops two initial thoughts so I'm torn when you scroll down on the little tweet you will see there is a post by Kate and Long and she says great news but until the shares that issued natively on blockchain which requires secretaries of state to run blockchain nodes this is tokenizing an analog asset the first state that allows on blockchain corporate registrations will dominate and so I think at first it sounds great I think at first it sounds amazing but there is a difference to kind of like tokenization and blockchain native and I think that Caitlin is saying something that's important here which is although you will have the New York Stock Exchange running in parallel to this new tokenized platform the reality is that in the US when a company issue shares usually it's in the state of Delaware which is illegal authority ownership is defined by the corporate registries the transfer agents and the courts the state does not run blockchain nodes and corporate charters are not natively on chain and so even if New York stock exchange issues a native digital security the legal route of truth is still analog so there's a part of me that I'm just like is it fluff is it not but this isn't my way of expertise I'm curious to hear what your thoughts are on that so first of all what makes Bitcoin different than everything else is the scarce number of units the fact that you have no issue in the fact that there's no entity outside of it that can come in and say oh I'm gonna take I'm gonna claw that back right that is why it's so different and like this is a perfect example of them saying they're using blockchain technology so I dug into it I was like what blockchain are they using right and I'm gonna read what I got here New York Stock Exchange isn't building a blockchain they're building enterprise infrastructure that happens to use blockchain rails the question for existing chains do they become the settlement layer for trade-fi or do they get bypassed by purpose built system purpose built systems what is a blockchain rail so there so there's no so with this announcement they're like they're not saying it's gonna be on a theory I'm or salon or anything it's all gonna be their own internal databases that may publish to a specific blockchain oh my god is hilarious right and it's calling me so and to Caitlin has an amazing point which is okay let's say you're doing it on a theory or a salon or whatever which we all know already has centralization issues right it still comes down to the state that allows that public equity to even exist in the first place to be able to issue into said blockchain so that it can be you know not have to deal with the clearing houses and all this other stuff so yeah I'm just looking at all of it and just kind of smirking massively smirking I think it like we will true on-chain equities ultimately require the state to be able to recognize on-chain incorporation on-chain share issuance on-chain share hold records and the court needs to be able to accept that blockchain state as legal fact and so until that is happening we're not really on-chain it's just a it's like a facade that I think yeah it's not really operating the way they describe it you don't actually have custody of anything that you actually say you have custody of if some outside party can just take it from you period right and like I don't know of anything that is that other Bitcoin the coins the only thing that that cannot happen with digitally so you know is it moving faster yep is the settlement time going to be over the weekend and all this other stuff yep I think it will but if you have your own wallet right and you're holding apple tokens in your wallet if you don't think some entity outside of yourself can claw that unit away from you you're out of your mind you have the idea how it all works because they totally even down at the stable coins today even even you know you got a tether token or whatever like if somebody high enough up there once the claw that unit back from you because I mean I've literally seen the posts on twitter with tether themselves saying oh yeah we've we've retired these coins or we've taken back whatever like they're the issuer the freaking issuer of the token they can do anything they want so yeah I think it's interesting and I think that obviously the financial sector moves incredibly slowly it's also interesting seeing like Larry think talk about blockchain and Bitcoin even just at Davos recently yeah um I find it interesting just how little bitcoins price has kind of reacted to what's gone down reacted to what is happening globally on a macro scale I would have expected it to perform slightly better but I think there's some manipulation going on right now I don't know if there is or there isn't but I do know I like the price where it's oh a hundred percent I like where it's at because you can accumulate more and if and if you don't think that between nation states that being able to ensure that no country can take your units from you your computation units or your energy units or whatever you want to call I think you got another thing coming for you I want to do one last category here I'm going to pull up a video first and then we're going to go into the topic that said one to talk about and here's the video can we you and I reverse aging in this new history or are we going to see it you know I haven't I haven't put much time into the aging stuff I do think it is a very solvable problem like you can do I think when when when we figure out what causes aging I think we'll find it's incredibly obvious it's not a subtle thing the reason I say it's not a subtle thing is because all the cells in your body you know with some pretty much age at the same rate I've never seen someone with with an old left arm and a young right arm ever in my life so why is that it that means that there must be a clock a synchronizing clock that is synchronizing across 35 trillion cells in your body and you know there is some benefit to death by the way there's a reason why we don't actually have a longer lifespan because if you have if people do live forever for a very long time I think there's some risk of an ossification of society of things just getting kind of locked in place and yeah you know it just may become stultifying just not like like vibrancy but that's said do I think we'll figure out ways to extend life and and maybe even reverse aging I think that's highly likely I'm looking forward to that yeah so Seb this is not a new topic that we've ever addressed on the show but I guess seeing him there at the world economic forum with Larry Fink asking him specifically about aging and being able to pause it or even maybe reverse it I think there's a lot of people in the world that are here in this for the very first time and they're saying what the heck are these guys what are these guys talking about I mean mind blowing stuff it's incredible it's absolutely incredible and we've spoken about this a few times and I'd recommend anyone going back and listening to our book review lifespan by David Sinclair because we did a whole episode on aging longevity you name it and I think one of the things I'm kind of like a little torn by is there's so many examples throughout evolution where the moment we've gone through our ability to give birth to offspring we tend to die off because we don't want to consume resources which could impact the survival of our offspring and so there's parts me that wonder like okay this is great in the grand scheme of things when we think about yeah I'd love to live forever potentially as most people I think would think that along those lines but is it actually productive long term because we're going to continue to consume resources and then on top of that I also think from a spiritual perspective that part of life is also death and I think that value is created because of the finite time we spend on this earth and so are we really able to embrace life and drop in and choose and figure out what is important what creates value in life if we don't have that finality I'll be talking about the difference between Bitcoin and why is Bitcoin valuable because of its scarcity fear is not valuable because of the lack of scarcity and so I'm curious about longevity if we are able to extend life indefinitely or two three four or five hundred years does that impact our ability to find value in life I love that example but you know my immediate thought was okay well now we're now we're defining you know normal human life is a hundred years why is that normal maybe 500 maybe a thousand years is I'm just making up numbers to challenge the critical thinking right now you're really defining like well what is a scarce element of time for a human but I do love the framing and I think based on Elon's comments there he also agrees that totally needs to be some type of scarcity to one and so maybe a point that I kind of wanted to bring up is I stumbled across this study that was recently in science direct and this study I'm going to read a little snippet but the study basically says that it was regarding stem cell being able to grow stem cells to be able to assist people in insulin production and it says the patient achieved sustained insulin independence starting 75 days post transplantation the patient's time and target glycemic range increased for a baseline value of 43% to 96% by a four month post transplantation mark a company by decreasing glycated hemoglobin an indicator of long term systemic glucose levels at a non diabetic level thereafter the patient presented a stable glycemic control with a time entirely range greater than 98% so what is really really highlighting is that they've figured out how to go into the body with stem cell therapy stem cell treatment and enable the body to start producing insulin again in someone who has diabetes and this is mind low like four months after post transplantation they went from staying in a healthy glycemic range from 40% up to 96% post transplantation and we've now seen it after a year they were at 98% sitting in a normal glycemic range and so this kind of brings up this question like around like aging again if we're able to go back to the root of a lot of illness whether it is diabetes and the insulin production kidney disease we have treating with dialysis or heart disease putting stents and statins or autoimmune conditions and we're using autoimmune suppression drugs instead of going doing all of these symptom treating things we're going back to the root and able to repair the cell or place new cells in there that are basically brand new young cells this completely changes how we think about health is that's why I find really interesting like regardless of where we stand on the longevity front are you pro longevity not for longevity ultimately what we are seeing is our ability to support cellular regrowth stem cell growth united I think that's profound I'm curious to hear your thoughts all these tech titans are just treating it as an as an engineering problem I mean it's it's just complexity if there's one thing we've learned AI can do is deal with a lot of complexity and sort out where the signal is amongst what humans would view as noise and it's just an engineering problem like hearing Elon on stage basically say oh yeah I've never seen somebody with an old left arm in a you know or older than their their other arm and it's like he's truly looking at it from a first principles engineering problem you say oh based on this just this intuition it seems to be solvable so yeah I think that this is only going to get crazier in the coming five years I see the Davidson Claire posts on X all the time and I mean he's just hand me on Peter D. Amanda's or basically run around saying this this is pretty much in the bag like we're going to be able to extend life in the other interview Peter D. Amanda's was saying that they think within the coming five I think it was coming five years are going to be able to like potentially double the lifespan of humans which oh my god since those are such insane quotes from people and I obviously don't have the technical competence and biology to or where they're even at with some of these technologies to the troubleshooter audit these comments but the comments being made and I mean I think Sinclair has quite a bit of credibility in the space so I would be curious like being at Bitcoin because you are coming up against central banking fear currencies we've experienced firsthand just how much they're willing to fight to preserve their existence what I find interesting about the longevity space is the longevity space goes up against big farmer goes up against the healthcare industry these are some of the biggest industries in the world and ultimately they sell sickness they'd profit off of people being sick and so what happens when instead of having someone a lifelong drug where this company is making hundreds of thousands millions dollars across the lifetime of a patient to all of a sudden this person can in time get a $10,000 $20,000 surgery and it repairs the issue in one one go and so there's an interesting book that I highly recommend people really call to selling sickness and it talks about just how much like ultimately our system is provide the way at the WAF in Davis today it was announced that the US is dropping it out of the WHO perfect perfect so the World Health Organization the US is dropping out of this is crazy it's like the shot heard round the world happening because it's just so different the course correct the the wind shift whatever you want to call it that's happening over there this year is monumental compared to what it's been in the past I think it's mind blowing without obviously getting too political it's mind blowing just to see trump turn up and just say effectively we're not playing by these rules anymore we're going to we're going to try to own course and we've seen that obviously with the health secretary what they're doing how they're kind of like calling out big farmers so I find ultimately I think it's important to be at a question the status quo and that's how we move forward I'm hearing rumors that I saw these rumors online that when Howard Lutnik the Commerce Secretary was talking and Davis Al Gore was literally booing him in the back oh fuck yeah well one of the things but I saw something the other day maybe two days ago a tweet about how the Antarctic icecat is large and now the when Al Gore released the convenient truth or whatever it was called that's an inconvenient truth right there okay sad give a hand off the folks they want to learn more but even by the way folks we have topics we can just go on and on and on for like 10 hours on all this stuff that's happening we're just we're not even scratching the surface of the stuff that we're really trying to mind it isn't seen give people a hand off sad people want to learn more about you hey guys yeah you can find me sadbunny.com my book the heading cost of money and again pressing absolutely love these conversations if anyone has any interesting topics they want us to talk about feel free to just like post it on Twitter underneath the link once we post a video and we always keen to discuss these topics but we appreciate you guys listening. Seb there's a new thing that we do when we close out the show we create an AI song that takes the transcripts of our conversation and turns it into a song but it's always in the style of the guest of like the favorite type of music or their favorite type of song so you say what that is and then when this errors you're gonna hear the song so what is your favorite style or you know artist or a song that you like oh bad um you know what I would probably say I was a huge I listened to a lot of varied music but in my teenage years early 20s I was in a huge kind of grunge phase oh so how to pull jam sound garden so let's go with grunge okay you got it all right folks I hope you guys enjoy the outro with the song so thanks for joining and check out the stuff that we have in the show notes and Seb thank you so much for making time thanks for listening to TIP visit the investors podcast.com for show notes and educational resources this podcast is for informational and entertainment purposes only and does not provide financial investment tax or legal advice the content is impersonal and does not consider your objectives financial situation or needs investing involves risk including possible loss of principle and past performance is not a guarantee of future results listeners should do their own research and consult a qualified professional before making any financial decisions nothing on this show is a recommendation or solicitation to buy or sell any security or other financial product hosts guests and the investors podcast network may hold positions in securities discussed and may change those positions at any time without notice references to any third party products services or advertisers do not constitute endorsements and the investors podcast network is not responsible for any claims made by them copyright by the investors podcast network all rights reserved what we're seeing is Elon is kind of bringing everything in house like he's got SpaceX and he's got Starlink and he's got Tesla and he's got Neuralink and he's got Grock and he's got the boring company and he's got Tesla Energy all of these things he's trying to control because he wants control over the output he wants to minimize operating costs he wants to maximize efficiency and so I ask what I think is so cool about him bringing the chips in house is this just going to create far more efficiency and control",
+  "timestamped_text": [
+    {
+      "start": 0.0,
+      "end": 5.2,
+      "text": "But it's this idea that just AI these days is just eating all of these SaaS products."
+    },
+    {
+      "start": 5.2,
+      "end": 7.6,
+      "text": "It just means you just cannot compete."
+    },
+    {
+      "start": 7.6,
+      "end": 11.76,
+      "text": "I believe we're moving into an era of like personalized applications."
+    },
+    {
+      "start": 11.76,
+      "end": 15.52,
+      "text": "If you know what you want, it's able to, there's enough applications out there."
+    },
+    {
+      "start": 15.52,
+      "end": 17.2,
+      "text": "It can get a framework for how to build it."
+    },
+    {
+      "start": 17.2,
+      "end": 19.2,
+      "text": "And then it can personalize it to your needs."
+    },
+    {
+      "start": 19.2,
+      "end": 23.04,
+      "text": "So you can have your own meditation app based on exactly what you want."
+    },
+    {
+      "start": 28.85,
+      "end": 32.91,
+      "text": "Here's seven. I just crawl on the web, right?"
+    },
+    {
+      "start": 32.91,
+      "end": 40.98,
+      "text": "And just kind of overwhelmed as to the sheer capacity of things that we can talk about."
+    },
+    {
+      "start": 41.54,
+      "end": 44.26,
+      "text": "I mean, it is freaking endless, my friend."
+    },
+    {
+      "start": 44.26,
+      "end": 45.22,
+      "text": "Like endless."
+    },
+    {
+      "start": 45.94,
+      "end": 47.22,
+      "text": "Welcome back to the show, by the way."
+    },
+    {
+      "start": 47.81,
+      "end": 49.33,
+      "text": "Oh, man, it's good to be back."
+    },
+    {
+      "start": 49.33,
+      "end": 51.65,
+      "text": "And 2026, another year around the sun."
+    },
+    {
+      "start": 52.13,
+      "end": 56.61,
+      "text": "But it never ceases to amaze me just how much information is out there."
+    },
+    {
+      "start": 56.61,
+      "end": 59.57,
+      "text": "And how quick things are changing."
+    },
+    {
+      "start": 59.65,
+      "end": 65.01,
+      "text": "It really feels like since what AI, chat, GPT and 2023,"
+    },
+    {
+      "start": 65.01,
+      "end": 67.49,
+      "text": "it feels like it's a full hockey stick moment."
+    },
+    {
+      "start": 67.49,
+      "end": 71.81,
+      "text": "Full hockey stick moment, like just even from the start of the year,"
+    },
+    {
+      "start": 71.81,
+      "end": 75.25,
+      "text": "it feels like a year's like 2026 is already halfway."
+    },
+    {
+      "start": 76.77,
+      "end": 77.81,
+      "text": "That's happening."
+    },
+    {
+      "start": 77.81,
+      "end": 83.57,
+      "text": "I saw this interview with Elon and a couple other guys and they were just like,"
+    },
+    {
+      "start": 84.05,
+      "end": 87.25,
+      "text": "yeah, like we are literally going through the singularity right now."
+    },
+    {
+      "start": 87.25,
+      "end": 88.37,
+      "text": "Like we're in it."
+    },
+    {
+      "start": 88.37,
+      "end": 90.13,
+      "text": "We are in the singularity right now."
+    },
+    {
+      "start": 90.13,
+      "end": 93.25,
+      "text": "Maybe we're the first innings of it, but it's going down."
+    },
+    {
+      "start": 93.25,
+      "end": 96.13,
+      "text": "And some of this stuff, I'm sure you're watching some of the weft,"
+    },
+    {
+      "start": 96.13,
+      "end": 97.97,
+      "text": "the Davos stuff that's coming out."
+    },
+    {
+      "start": 97.97,
+      "end": 101.94,
+      "text": "And I mean, AI is everywhere."
+    },
+    {
+      "start": 101.94,
+      "end": 107.14,
+      "text": "It seems like the big bankers are finally coming around to this idea that they're still saying"
+    },
+    {
+      "start": 107.14,
+      "end": 108.98,
+      "text": "everything's going to be on the blockchain."
+    },
+    {
+      "start": 108.98,
+      "end": 113.54,
+      "text": "And you have some of the, you know, like Brian basically saying that"
+    },
+    {
+      "start": 113.54,
+      "end": 116.02,
+      "text": "Bitcoin's competing with central banks right to one of the,"
+    },
+    {
+      "start": 116.02,
+      "end": 117.7,
+      "text": "I think it was the French central banker."
+    },
+    {
+      "start": 118.34,
+      "end": 122.5,
+      "text": "And so like the theme is we're amongst massive change."
+    },
+    {
+      "start": 122.5,
+      "end": 130.66,
+      "text": "Like you're not hearing any of the climate change stuff and like energies bad kind of stuff"
+    },
+    {
+      "start": 130.66,
+      "end": 133.7,
+      "text": "that you've heard just plague that these weft meetings anymore."
+    },
+    {
+      "start": 133.7,
+      "end": 139.38,
+      "text": "And it is a new world order or something happened in there that is just shaking the trees."
+    },
+    {
+      "start": 139.38,
+      "end": 143.46,
+      "text": "But I'm curious, you know, your initial thoughts on kind of like where we're at in space"
+    },
+    {
+      "start": 143.54,
+      "end": 145.22,
+      "text": "in time, if you have anything to add on that."
+    },
+    {
+      "start": 145.22,
+      "end": 147.14,
+      "text": "And then I guess we'll jump into the first topic."
+    },
+    {
+      "start": 147.14,
+      "end": 149.3,
+      "text": "Oh, man, I couldn't agree more."
+    },
+    {
+      "start": 149.3,
+      "end": 153.78,
+      "text": "And I think what's really fascinating is just seeing like Trump turn up to Davos."
+    },
+    {
+      "start": 153.78,
+      "end": 155.78,
+      "text": "And basically just say, you know what?"
+    },
+    {
+      "start": 155.78,
+      "end": 160.58,
+      "text": "In a sense like the new world order is in this group of elites governing this world."
+    },
+    {
+      "start": 160.58,
+      "end": 163.46,
+      "text": "It's over. We need to look out for our own self-interest."
+    },
+    {
+      "start": 163.46,
+      "end": 167.06,
+      "text": "And I think that this is also in conjunction with the fact that people are seeing"
+    },
+    {
+      "start": 167.06,
+      "end": 168.74,
+      "text": "technology is out running us."
+    },
+    {
+      "start": 168.74,
+      "end": 170.66,
+      "text": "It is growing so quickly."
+    },
+    {
+      "start": 170.74,
+      "end": 172.98,
+      "text": "We're seeing destabilization on a macro level."
+    },
+    {
+      "start": 172.98,
+      "end": 175.22,
+      "text": "We've seen what has happened to Venezuela."
+    },
+    {
+      "start": 175.22,
+      "end": 178.9,
+      "text": "Like I've never in my short life."
+    },
+    {
+      "start": 178.9,
+      "end": 183.46,
+      "text": "I've never had so much uncertainty about what does the world look like in three years time?"
+    },
+    {
+      "start": 183.46,
+      "end": 184.9,
+      "text": "In five years time."
+    },
+    {
+      "start": 184.9,
+      "end": 190.1,
+      "text": "Whereas pre-pandemic, I used to feel pretty confident about what the world would look like in five years time and such."
+    },
+    {
+      "start": 190.1,
+      "end": 190.9,
+      "text": "Yeah."
+    },
+    {
+      "start": 190.9,
+      "end": 194.18,
+      "text": "Well, Elon was even asked that on stage today at the weft."
+    },
+    {
+      "start": 194.18,
+      "end": 199.78,
+      "text": "And he gave some forecast of a couple different things that he thinks is going to happen in the next three years."
+    },
+    {
+      "start": 199.86,
+      "end": 201.86,
+      "text": "He said, five years, maybe this."
+    },
+    {
+      "start": 201.86,
+      "end": 204.74,
+      "text": "And then 10 years, he was basically like, I have no idea."
+    },
+    {
+      "start": 204.74,
+      "end": 208.58,
+      "text": "I cannot possibly have any idea what that looks like in 10 years."
+    },
+    {
+      "start": 209.7,
+      "end": 213.54,
+      "text": "I mean, there's the guy who's literally constructing the future as far as I'm concerned"
+    },
+    {
+      "start": 213.54,
+      "end": 218.98,
+      "text": "based on all the things that he's like actually producing and shipping as opposed to a lot of us"
+    },
+    {
+      "start": 218.98,
+      "end": 221.78,
+      "text": "out there just kind of pontificating on what we think's going to happen."
+    },
+    {
+      "start": 221.78,
+      "end": 223.62,
+      "text": "He's the guy like actually making it happen."
+    },
+    {
+      "start": 223.62,
+      "end": 224.42,
+      "text": "And that's what he's saying."
+    },
+    {
+      "start": 224.98,
+      "end": 228.9,
+      "text": "And I feel like time is condensing and they used to be that saying, what is it?"
+    },
+    {
+      "start": 229.46,
+      "end": 233.46,
+      "text": "We always overestimate what we do in one year and we underestimate what we do in 10 years."
+    },
+    {
+      "start": 233.46,
+      "end": 238.1,
+      "text": "And I feel like it's condensed that it's like we overestimate what we do in a month."
+    },
+    {
+      "start": 238.1,
+      "end": 240.18,
+      "text": "We massively underestimate what we do in a year."
+    },
+    {
+      "start": 240.18,
+      "end": 241.14,
+      "text": "Like, it's crazy."
+    },
+    {
+      "start": 241.14,
+      "end": 241.94,
+      "text": "What is happening?"
+    },
+    {
+      "start": 241.94,
+      "end": 243.86,
+      "text": "It is moving at such a pace."
+    },
+    {
+      "start": 243.86,
+      "end": 249.86,
+      "text": "One of the more interesting panels there, you had Denise Hespis from Google along with the guy"
+    },
+    {
+      "start": 249.94,
+      "end": 256.5,
+      "text": "from Anthropic and the guy from Anthropic and they have some weird stuff hitting the,"
+    },
+    {
+      "start": 256.5,
+      "end": 260.42,
+      "text": "I'm going to pull up one of their posts here to kind of kick this off because you and I are both"
+    },
+    {
+      "start": 260.42,
+      "end": 263.22,
+      "text": "using co-work. This is Anthropics product."
+    },
+    {
+      "start": 263.78,
+      "end": 264.98,
+      "text": "This is mind blowing."
+    },
+    {
+      "start": 264.98,
+      "end": 266.02,
+      "text": "Like, I'm sorry."
+    },
+    {
+      "start": 266.02,
+      "end": 268.02,
+      "text": "Like, I don't even use chat GPT."
+    },
+    {
+      "start": 268.02,
+      "end": 273.62,
+      "text": "I don't even know the last time I've logged into that open AI account because this co-work"
+    },
+    {
+      "start": 273.62,
+      "end": 279.62,
+      "text": "is so good that it's like, it's laughable when you go back and even look at what that"
+    },
+    {
+      "start": 279.62,
+      "end": 281.54,
+      "text": "things capable of relative to this."
+    },
+    {
+      "start": 282.26,
+      "end": 287.3,
+      "text": "I don't know if you've got the same opinion, but their coding software is insane."
+    },
+    {
+      "start": 287.94,
+      "end": 289.54,
+      "text": "Absolutely, absolutely."
+    },
+    {
+      "start": 289.54,
+      "end": 295.86,
+      "text": "Like, to me, what has just blown me away is I think people have recognized that when you look at AI,"
+    },
+    {
+      "start": 295.86,
+      "end": 300.74,
+      "text": "the reason why AI was phenomenal at coding is that code is just language."
+    },
+    {
+      "start": 300.74,
+      "end": 304.34,
+      "text": "You're looking at language and you're trying to predict what is the next character or the next"
+    },
+    {
+      "start": 304.34,
+      "end": 307.86,
+      "text": "word in a sequence and obviously English is just another language."
+    },
+    {
+      "start": 308.42,
+      "end": 313.14,
+      "text": "When you're using co-work, not to point it at code, but instead to point it at your everyday"
+    },
+    {
+      "start": 313.14,
+      "end": 316.98,
+      "text": "files to be able to organizational tools to be able to create material,"
+    },
+    {
+      "start": 316.98,
+      "end": 319.38,
+      "text": "oh my god, it is absolutely profound."
+    },
+    {
+      "start": 319.38,
+      "end": 322.82,
+      "text": "It's just a junior intern helping you out constantly."
+    },
+    {
+      "start": 324.18,
+      "end": 329.62,
+      "text": "So this was my first test for it because I remember trying to do something like this with open AI."
+    },
+    {
+      "start": 329.62,
+      "end": 331.7,
+      "text": "It was kind of a train racket."
+    },
+    {
+      "start": 331.7,
+      "end": 336.5,
+      "text": "It was a lot of coordination and I just kind of gave up on a coding project."
+    },
+    {
+      "start": 337.28,
+      "end": 342.64,
+      "text": "So I opened up co-work because I was seeing all these different posts online of people that were"
+    },
+    {
+      "start": 342.64,
+      "end": 344.0,
+      "text": "using for all these different things."
+    },
+    {
+      "start": 344.64,
+      "end": 345.68,
+      "text": "And so I gave it a task."
+    },
+    {
+      "start": 345.68,
+      "end": 350.32,
+      "text": "I was like, I want to create an app that is a meditation app."
+    },
+    {
+      "start": 351.12,
+      "end": 355.92,
+      "text": "Because I have on my phone, I have this meditation app that I use quite consistently."
+    },
+    {
+      "start": 355.92,
+      "end": 358.8,
+      "text": "It has like an annual subscription, which isn't that much."
+    },
+    {
+      "start": 358.8,
+      "end": 359.68,
+      "text": "But I was like, you know what?"
+    },
+    {
+      "start": 359.68,
+      "end": 364.4,
+      "text": "If I could just kind of recreate this on my own and not pay this subscription,"
+    },
+    {
+      "start": 364.4,
+      "end": 367.44,
+      "text": "like it would be kind of a proof of work of how good"
+    },
+    {
+      "start": 367.44,
+      "end": 370.24,
+      "text": "the proof of principle, I guess, with co-work."
+    },
+    {
+      "start": 370.24,
+      "end": 373.6,
+      "text": "So I just started saying, hey, this is what it does."
+    },
+    {
+      "start": 373.6,
+      "end": 374.88,
+      "text": "I want you to do some research."
+    },
+    {
+      "start": 374.88,
+      "end": 377.6,
+      "text": "And then I would like you to make an app."
+    },
+    {
+      "start": 377.6,
+      "end": 385.04,
+      "text": "And I want it to be beautifully designed as if Johnny Ive was the designer on the project."
+    },
+    {
+      "start": 385.97,
+      "end": 387.01,
+      "text": "It pumps out."
+    },
+    {
+      "start": 387.01,
+      "end": 389.09,
+      "text": "Like you can see it's thought process."
+    },
+    {
+      "start": 389.09,
+      "end": 392.45,
+      "text": "And how it's like going through like solving it and coming up with its list of things"
+    },
+    {
+      "start": 392.45,
+      "end": 395.49,
+      "text": "that it's going to accomplish that comes back to me and it's like,"
+    },
+    {
+      "start": 395.49,
+      "end": 400.53,
+      "text": "well, would you like to look at the UX to kind of understand what the Apple look like?"
+    },
+    {
+      "start": 400.53,
+      "end": 403.09,
+      "text": "Or do you want to just like start diving into coding it out?"
+    },
+    {
+      "start": 403.09,
+      "end": 404.61,
+      "text": "And then we'll worry about the UX later."
+    },
+    {
+      "start": 404.61,
+      "end": 407.09,
+      "text": "I was like, no, I want to see your design."
+    },
+    {
+      "start": 407.09,
+      "end": 411.57,
+      "text": "I want to see how Johnny Ive like this design is, right?"
+    },
+    {
+      "start": 411.57,
+      "end": 415.09,
+      "text": "So it builds this presentation, this PowerPoint presentation,"
+    },
+    {
+      "start": 415.09,
+      "end": 420.45,
+      "text": "that is literally like it came from a professional design studio that you would have paid"
+    },
+    {
+      "start": 420.53,
+      "end": 423.41,
+      "text": "tens of thousands of dollars for the design work."
+    },
+    {
+      "start": 423.41,
+      "end": 427.01,
+      "text": "And it's showing the whole layout of like how it would go, what it would look like."
+    },
+    {
+      "start": 427.01,
+      "end": 430.29,
+      "text": "And it's basically asking me for, you know, a thumbs up is like,"
+    },
+    {
+      "start": 430.29,
+      "end": 431.81,
+      "text": "hey, can we move on to the code now?"
+    },
+    {
+      "start": 431.81,
+      "end": 434.05,
+      "text": "Because here's what the design and the UX will look like."
+    },
+    {
+      "start": 434.77,
+      "end": 435.97,
+      "text": "And I'm like, yeah, go ahead."
+    },
+    {
+      "start": 435.97,
+      "end": 438.29,
+      "text": "So then it goes and start building this all out."
+    },
+    {
+      "start": 438.77,
+      "end": 441.41,
+      "text": "And the other thing that I gave it, are you familiar?"
+    },
+    {
+      "start": 441.41,
+      "end": 443.09,
+      "text": "I think they're called MCPs."
+    },
+    {
+      "start": 443.09,
+      "end": 444.05,
+      "text": "Is that what it is?"
+    },
+    {
+      "start": 444.05,
+      "end": 444.85,
+      "text": "I'm familiar with them."
+    },
+    {
+      "start": 444.85,
+      "end": 445.49,
+      "text": "I can't speak yet."
+    },
+    {
+      "start": 445.49,
+      "end": 446.93,
+      "text": "I'm very detailed."
+    },
+    {
+      "start": 446.93,
+      "end": 450.13,
+      "text": "So for the audience, it's basically like, I don't want to deal with the app"
+    },
+    {
+      "start": 450.29,
+      "end": 453.09,
+      "text": "store because I mean, this was just a proof of concept for me, right?"
+    },
+    {
+      "start": 453.73,
+      "end": 457.97,
+      "text": "So I don't want to deal with the Apple app store and having to post that and pay a fee"
+    },
+    {
+      "start": 457.97,
+      "end": 460.21,
+      "text": "to be a developer and all that other garbage."
+    },
+    {
+      "start": 460.21,
+      "end": 464.77,
+      "text": "Basically, what you can do is you can post your the code for this on,"
+    },
+    {
+      "start": 465.41,
+      "end": 467.01,
+      "text": "it runs like a website."
+    },
+    {
+      "start": 467.01,
+      "end": 469.41,
+      "text": "And then what you do is you bookmark the website."
+    },
+    {
+      "start": 469.41,
+      "end": 472.77,
+      "text": "You pull up Safari or whatever web browser you're using, you bookmark it."
+    },
+    {
+      "start": 473.41,
+      "end": 477.89,
+      "text": "And then it actually puts it onto your home screen of your iPhone as if it's an app."
+    },
+    {
+      "start": 477.97,
+      "end": 480.53,
+      "text": "And when you click it, it looks and feels like an app."
+    },
+    {
+      "start": 480.53,
+      "end": 483.65,
+      "text": "There's some limitations to it, but it looks and feels like an app, right?"
+    },
+    {
+      "start": 483.65,
+      "end": 487.01,
+      "text": "So I told it, I want you to build it in this because I don't want to be dealing with the app"
+    },
+    {
+      "start": 487.01,
+      "end": 490.61,
+      "text": "store. So just like from the beginning, when you start coding this out, I want it to be one of"
+    },
+    {
+      "start": 490.61,
+      "end": 494.85,
+      "text": "these so that we can just kind of prove whether this is real or not."
+    },
+    {
+      "start": 495.49,
+      "end": 496.69,
+      "text": "So let them be hold."
+    },
+    {
+      "start": 497.33,
+      "end": 499.25,
+      "text": "It goes and it starts coding this thing out."
+    },
+    {
+      "start": 500.34,
+      "end": 504.42,
+      "text": "And I'm thinking, okay, I'm going to, with my past experience with OpenAI,"
+    },
+    {
+      "start": 504.42,
+      "end": 507.7,
+      "text": "it was just like one bug after the next bug after the next one."
+    },
+    {
+      "start": 507.78,
+      "end": 509.94,
+      "text": "And just never could get something working, right?"
+    },
+    {
+      "start": 511.07,
+      "end": 514.59,
+      "text": "So it pumps out this code and it tells me to run it in terminal."
+    },
+    {
+      "start": 514.59,
+      "end": 515.63,
+      "text": "I run it in terminal."
+    },
+    {
+      "start": 515.63,
+      "end": 518.67,
+      "text": "And lo and behold, it pops up right on the thing."
+    },
+    {
+      "start": 518.67,
+      "end": 520.75,
+      "text": "The thing just worked."
+    },
+    {
+      "start": 521.39,
+      "end": 522.43,
+      "text": "It fully functional."
+    },
+    {
+      "start": 522.43,
+      "end": 529.95,
+      "text": "It looked like I paid $20,000, $30,000 to design this app because the UX was flawless."
+    },
+    {
+      "start": 531.65,
+      "end": 532.77,
+      "text": "And it just worked."
+    },
+    {
+      "start": 532.77,
+      "end": 535.01,
+      "text": "I was, I was blown away."
+    },
+    {
+      "start": 535.73,
+      "end": 537.17,
+      "text": "I was absolutely floored."
+    },
+    {
+      "start": 537.97,
+      "end": 540.13,
+      "text": "And that was kind of the moment for me."
+    },
+    {
+      "start": 540.13,
+      "end": 542.45,
+      "text": "I was like, oh my god, this is getting crazy."
+    },
+    {
+      "start": 542.45,
+      "end": 545.97,
+      "text": "Because I don't know the thing about writing software like that at all."
+    },
+    {
+      "start": 546.53,
+      "end": 550.13,
+      "text": "You and I were texting about it beforehand that it may be a topic we discuss later."
+    },
+    {
+      "start": 550.13,
+      "end": 555.49,
+      "text": "But it's this idea that just AI these days is just eating all of these SaaS products."
+    },
+    {
+      "start": 555.49,
+      "end": 558.05,
+      "text": "It just means you just cannot compete."
+    },
+    {
+      "start": 558.05,
+      "end": 562.05,
+      "text": "I believe we're moving into an era of like personalized applications."
+    },
+    {
+      "start": 562.05,
+      "end": 565.81,
+      "text": "If you know what you want, it's able to, there's enough applications out there."
+    },
+    {
+      "start": 565.81,
+      "end": 570.37,
+      "text": "It can get a framework for how to build it and then it can personalize it to your needs."
+    },
+    {
+      "start": 570.37,
+      "end": 574.29,
+      "text": "So you can have your own meditation app based on exactly what you want."
+    },
+    {
+      "start": 575.01,
+      "end": 575.65,
+      "text": "Yeah."
+    },
+    {
+      "start": 575.65,
+      "end": 581.09,
+      "text": "To this point, just, you have Chapman talking about this from the all-in podcast."
+    },
+    {
+      "start": 581.09,
+      "end": 583.49,
+      "text": "He has this chart that he was showing that there."
+    },
+    {
+      "start": 583.49,
+      "end": 588.21,
+      "text": "I guess they've been talking about this quite a bit of just how SaaS is going to be annihilated"
+    },
+    {
+      "start": 588.85,
+      "end": 591.57,
+      "text": "with this in the coming two to three years."
+    },
+    {
+      "start": 591.57,
+      "end": 593.97,
+      "text": "And it's just a, for people that are just listening,"
+    },
+    {
+      "start": 593.97,
+      "end": 599.01,
+      "text": "it's a chart showing the Morgan Stanley SaaS index against the NASDAQ 100."
+    },
+    {
+      "start": 599.01,
+      "end": 600.45,
+      "text": "And it's just getting annihilated."
+    },
+    {
+      "start": 600.45,
+      "end": 605.41,
+      "text": "You got 40% difference since one year ago between the..."
+    },
+    {
+      "start": 605.41,
+      "end": 611.57,
+      "text": "And I would even argue that that April was right when the term vibe coding was coined."
+    },
+    {
+      "start": 612.13,
+      "end": 617.65,
+      "text": "It was right when people started basically recognizing, hey, I can just like talk to AI"
+    },
+    {
+      "start": 617.65,
+      "end": 619.97,
+      "text": "and it will start writing code for me."
+    },
+    {
+      "start": 619.97,
+      "end": 623.41,
+      "text": "And it's right when I think cursor really started blowing up."
+    },
+    {
+      "start": 623.41,
+      "end": 627.33,
+      "text": "And people were basically using cursor obviously as an AI tool"
+    },
+    {
+      "start": 627.33,
+      "end": 629.33,
+      "text": "to help write code in their repository."
+    },
+    {
+      "start": 629.33,
+      "end": 631.09,
+      "text": "So, fascinating."
+    },
+    {
+      "start": 631.09,
+      "end": 631.41,
+      "text": "Yeah."
+    },
+    {
+      "start": 632.61,
+      "end": 633.73,
+      "text": "How have you been using it?"
+    },
+    {
+      "start": 634.37,
+      "end": 636.53,
+      "text": "Most people know like I wrote the hidden cost of money."
+    },
+    {
+      "start": 636.53,
+      "end": 638.85,
+      "text": "And if you go to the back of the hidden cost of money,"
+    },
+    {
+      "start": 638.85,
+      "end": 641.97,
+      "text": "the book there is like four to five hundred citations."
+    },
+    {
+      "start": 641.97,
+      "end": 645.33,
+      "text": "And now what a lot of people don't know is it took me about like two weeks to write that book."
+    },
+    {
+      "start": 645.33,
+      "end": 646.93,
+      "text": "And this was pre-AI."
+    },
+    {
+      "start": 646.93,
+      "end": 651.89,
+      "text": "And the reason why it took me two weeks to write the book and have such depth of citations"
+    },
+    {
+      "start": 651.89,
+      "end": 656.53,
+      "text": "is because I feel really honored that years back, like over a decade ago,"
+    },
+    {
+      "start": 656.53,
+      "end": 658.29,
+      "text": "I started to take detailed notes."
+    },
+    {
+      "start": 658.29,
+      "end": 660.69,
+      "text": "And I think when we've been in person, I've shown you some of these notes."
+    },
+    {
+      "start": 660.69,
+      "end": 665.89,
+      "text": "I would take detailed notes of every single book that I read that I found interesting."
+    },
+    {
+      "start": 665.89,
+      "end": 667.49,
+      "text": "And I would order all these notes."
+    },
+    {
+      "start": 667.49,
+      "end": 668.61,
+      "text": "And so it started out."
+    },
+    {
+      "start": 668.61,
+      "end": 671.57,
+      "text": "I would just take a whole bunch of notes and apple notes."
+    },
+    {
+      "start": 671.57,
+      "end": 677.25,
+      "text": "But the problem that I found with apple notes is I wasn't able to access that information effectively."
+    },
+    {
+      "start": 677.25,
+      "end": 680.37,
+      "text": "And the search function on apple notes is essentially useless."
+    },
+    {
+      "start": 680.45,
+      "end": 683.57,
+      "text": "So then I ended up kind of upgrading my note, taking toolkit,"
+    },
+    {
+      "start": 683.57,
+      "end": 685.49,
+      "text": "and upgraded the sign called obsidian."
+    },
+    {
+      "start": 685.49,
+      "end": 691.33,
+      "text": "An obsidian allowed me to kind of like tag notes and create hyperlinks to move between notes."
+    },
+    {
+      "start": 691.33,
+      "end": 694.37,
+      "text": "It enabled me to be able to visualize notes in a very different way and move"
+    },
+    {
+      "start": 694.37,
+      "end": 695.73,
+      "text": "throughout the information."
+    },
+    {
+      "start": 695.73,
+      "end": 699.33,
+      "text": "So it was almost like a library where I've got an index file."
+    },
+    {
+      "start": 699.33,
+      "end": 701.09,
+      "text": "And then I can go search by topic."
+    },
+    {
+      "start": 701.09,
+      "end": 702.85,
+      "text": "I can search by content type."
+    },
+    {
+      "start": 702.85,
+      "end": 704.93,
+      "text": "And I can navigate through this content."
+    },
+    {
+      "start": 704.93,
+      "end": 707.25,
+      "text": "And ultimately, it was obsidian."
+    },
+    {
+      "start": 707.33,
+      "end": 710.61,
+      "text": "And having the scaffolding around my notes that enabled me"
+    },
+    {
+      "start": 710.61,
+      "end": 714.69,
+      "text": "to be able to pull from all of this information and write the hidden cost money."
+    },
+    {
+      "start": 714.69,
+      "end": 717.89,
+      "text": "But in the last like month, month and a half,"
+    },
+    {
+      "start": 717.89,
+      "end": 722.93,
+      "text": "I feel like I've just had that same upgrade again from going from apple notes to obsidian."
+    },
+    {
+      "start": 722.93,
+      "end": 726.21,
+      "text": "But this time, before Claude Covert came out,"
+    },
+    {
+      "start": 726.77,
+      "end": 728.53,
+      "text": "I decided to try and put cursor."
+    },
+    {
+      "start": 728.53,
+      "end": 730.21,
+      "text": "So we're just talking about cursor."
+    },
+    {
+      "start": 730.21,
+      "end": 732.85,
+      "text": "Usually most people use cursor for writing code."
+    },
+    {
+      "start": 732.85,
+      "end": 736.93,
+      "text": "And cursor integrated with these various large language models."
+    },
+    {
+      "start": 736.93,
+      "end": 739.41,
+      "text": "So you could basically start speaking to your code and say,"
+    },
+    {
+      "start": 739.41,
+      "end": 743.65,
+      "text": "hey, I want you to edit this file, update my homepage and my website."
+    },
+    {
+      "start": 743.65,
+      "end": 747.25,
+      "text": "Can you please add this functionality to my application?"
+    },
+    {
+      "start": 747.25,
+      "end": 748.29,
+      "text": "You name it."
+    },
+    {
+      "start": 748.29,
+      "end": 751.81,
+      "text": "Well, now I ended up pointing the cursor."
+    },
+    {
+      "start": 751.81,
+      "end": 756.69,
+      "text": "I do, I think it's called like development environment at my note taking app."
+    },
+    {
+      "start": 756.69,
+      "end": 761.97,
+      "text": "And then what I got it to do is take 300 apple notes that I had stored"
+    },
+    {
+      "start": 761.97,
+      "end": 765.09,
+      "text": "that I hadn't transferred because it would have taken me days to do so."
+    },
+    {
+      "start": 765.09,
+      "end": 767.81,
+      "text": "And I gave it criteria and within like five minutes,"
+    },
+    {
+      "start": 767.81,
+      "end": 770.61,
+      "text": "it had organized all 300 notes."
+    },
+    {
+      "start": 770.61,
+      "end": 774.21,
+      "text": "It had categorized in based on their subject matter."
+    },
+    {
+      "start": 774.21,
+      "end": 777.73,
+      "text": "It had created all relevant links to all of these 300 notes."
+    },
+    {
+      "start": 777.73,
+      "end": 779.17,
+      "text": "And so at first, you're just like,"
+    },
+    {
+      "start": 779.17,
+      "end": 779.89,
+      "text": "well, that's pretty cool."
+    },
+    {
+      "start": 779.89,
+      "end": 781.41,
+      "text": "You're able to access all that information."
+    },
+    {
+      "start": 781.41,
+      "end": 784.53,
+      "text": "And you're migrating all these static notes into more dynamic notes."
+    },
+    {
+      "start": 785.09,
+      "end": 789.81,
+      "text": "Then the thing that I thought was really cool is now I can start using cursor."
+    },
+    {
+      "start": 789.81,
+      "end": 792.13,
+      "text": "It gave insights from my notes."
+    },
+    {
+      "start": 792.13,
+      "end": 794.29,
+      "text": "So I can say over the last two months,"
+    },
+    {
+      "start": 794.37,
+      "end": 797.01,
+      "text": "can you give me a common thread about what I've been reading,"
+    },
+    {
+      "start": 797.01,
+      "end": 800.69,
+      "text": "what information I've been consuming and start testing on that knowledge?"
+    },
+    {
+      "start": 800.69,
+      "end": 803.81,
+      "text": "Or can you start giving me thoughts on what I can write about?"
+    },
+    {
+      "start": 803.81,
+      "end": 805.41,
+      "text": "You could set it up so you could say,"
+    },
+    {
+      "start": 805.41,
+      "end": 809.73,
+      "text": "I want a weekly email that looks over my last month of notes"
+    },
+    {
+      "start": 809.73,
+      "end": 811.25,
+      "text": "and gives me insights on it."
+    },
+    {
+      "start": 811.25,
+      "end": 814.93,
+      "text": "And so to me, it has been absolutely profound."
+    },
+    {
+      "start": 814.93,
+      "end": 818.61,
+      "text": "It has been able to access all this locked up information"
+    },
+    {
+      "start": 818.61,
+      "end": 821.01,
+      "text": "because I've got thousands of notes."
+    },
+    {
+      "start": 821.01,
+      "end": 822.85,
+      "text": "Most of it I'll never look over again,"
+    },
+    {
+      "start": 822.85,
+      "end": 826.21,
+      "text": "but it's been able to distill it down and start bringing up information"
+    },
+    {
+      "start": 826.21,
+      "end": 828.37,
+      "text": "and bring it back to the forefront of my mind."
+    },
+    {
+      "start": 828.37,
+      "end": 830.45,
+      "text": "And to me, it's just, it's blown me away"
+    },
+    {
+      "start": 830.45,
+      "end": 833.41,
+      "text": "because there's a lot of information I'm sure you've found the same."
+    },
+    {
+      "start": 833.41,
+      "end": 836.37,
+      "text": "You listened to a podcast five years ago, six years ago,"
+    },
+    {
+      "start": 836.37,
+      "end": 838.21,
+      "text": "and you're talking about a subject you're like,"
+    },
+    {
+      "start": 838.21,
+      "end": 841.17,
+      "text": "man, I completely forgot that I enjoyed that subject."
+    },
+    {
+      "start": 841.17,
+      "end": 843.25,
+      "text": "And so it's just bringing up all of that information"
+    },
+    {
+      "start": 843.25,
+      "end": 844.85,
+      "text": "that's kind of been in remission."
+    },
+    {
+      "start": 844.85,
+      "end": 846.21,
+      "text": "Amen to that last point."
+    },
+    {
+      "start": 847.25,
+      "end": 850.29,
+      "text": "The one thing I want to highlight that you said there at the very beginning"
+    },
+    {
+      "start": 850.29,
+      "end": 852.85,
+      "text": "was how bad Apple's search function is."
+    },
+    {
+      "start": 853.57,
+      "end": 855.25,
+      "text": "Because when we really look at this,"
+    },
+    {
+      "start": 855.25,
+      "end": 856.45,
+      "text": "this is what AI is doing."
+    },
+    {
+      "start": 856.45,
+      "end": 861.25,
+      "text": "It's it's able to just go through just years and years"
+    },
+    {
+      "start": 862.13,
+      "end": 865.73,
+      "text": "of information that you have produced and that you have learned."
+    },
+    {
+      "start": 866.29,
+      "end": 870.29,
+      "text": "But in most cases have lost sight of, forgotten about,"
+    },
+    {
+      "start": 870.77,
+      "end": 872.53,
+      "text": "and you almost have to like relearn it."
+    },
+    {
+      "start": 873.31,
+      "end": 876.43,
+      "text": "But if you're able to compress, like what you're saying,"
+    },
+    {
+      "start": 876.43,
+      "end": 879.23,
+      "text": "all of this note-taking that you've done for years,"
+    },
+    {
+      "start": 880.03,
+      "end": 884.67,
+      "text": "it's almost like you're able to recall your own thoughts and your own discussions"
+    },
+    {
+      "start": 884.67,
+      "end": 886.43,
+      "text": "and the things that you've already learned."
+    },
+    {
+      "start": 887.23,
+      "end": 889.07,
+      "text": "You sleep every night and some of this,"
+    },
+    {
+      "start": 889.07,
+      "end": 892.99,
+      "text": "the waiting that you had on some of this stuff is gone,"
+    },
+    {
+      "start": 892.99,
+      "end": 895.07,
+      "text": "or just your attention hasn't been there,"
+    },
+    {
+      "start": 895.07,
+      "end": 896.35,
+      "text": "so kind of withers away."
+    },
+    {
+      "start": 897.07,
+      "end": 898.75,
+      "text": "But it doesn't mean that it's not important,"
+    },
+    {
+      "start": 898.75,
+      "end": 899.79,
+      "text": "like the things that you learn."
+    },
+    {
+      "start": 899.79,
+      "end": 904.51,
+      "text": "But with AI, you're able to basically fetch it a lot faster"
+    },
+    {
+      "start": 904.51,
+      "end": 907.55,
+      "text": "and see what your original thinking was on it."
+    },
+    {
+      "start": 907.63,
+      "end": 912.11,
+      "text": "In a way that's not super time-consuming to recall it or find it."
+    },
+    {
+      "start": 912.11,
+      "end": 915.15,
+      "text": "And one of my biggest frustrations I have with Apple"
+    },
+    {
+      "start": 915.79,
+      "end": 917.47,
+      "text": "is you use Apple mail."
+    },
+    {
+      "start": 917.47,
+      "end": 918.75,
+      "text": "I use Apple mail."
+    },
+    {
+      "start": 919.31,
+      "end": 920.51,
+      "text": "It's terrible."
+    },
+    {
+      "start": 920.51,
+      "end": 921.47,
+      "text": "It's the worst."
+    },
+    {
+      "start": 922.19,
+      "end": 924.75,
+      "text": "I'm searching for something in messages."
+    },
+    {
+      "start": 924.75,
+      "end": 928.59,
+      "text": "We're what anything that's a native Apple application."
+    },
+    {
+      "start": 929.23,
+      "end": 931.15,
+      "text": "And the thing that's so frustrating,"
+    },
+    {
+      "start": 931.15,
+      "end": 932.75,
+      "text": "is they're running around with this marketing,"
+    },
+    {
+      "start": 932.75,
+      "end": 934.99,
+      "text": "the Apple intelligence, Apple AI."
+    },
+    {
+      "start": 935.07,
+      "end": 937.84,
+      "text": "And it's, it is the worst."
+    },
+    {
+      "start": 938.64,
+      "end": 939.68,
+      "text": "It is the worst."
+    },
+    {
+      "start": 940.85,
+      "end": 941.81,
+      "text": "What are they doing?"
+    },
+    {
+      "start": 942.75,
+      "end": 944.03,
+      "text": "I found it sometimes."
+    },
+    {
+      "start": 944.03,
+      "end": 947.15,
+      "text": "I know a specific word that is in say text."
+    },
+    {
+      "start": 947.15,
+      "end": 949.07,
+      "text": "And I search that specific word and it doesn't come up."
+    },
+    {
+      "start": 949.07,
+      "end": 951.07,
+      "text": "And then I go find a text and the word is there."
+    },
+    {
+      "start": 951.07,
+      "end": 953.63,
+      "text": "And I'm like, how do you guys not find this word?"
+    },
+    {
+      "start": 954.27,
+      "end": 954.91,
+      "text": "Totally."
+    },
+    {
+      "start": 954.91,
+      "end": 957.39,
+      "text": "One thing that I found so out of going down this rabbit hole,"
+    },
+    {
+      "start": 957.39,
+      "end": 960.43,
+      "text": "I stumbled across a C-suite individual"
+    },
+    {
+      "start": 960.43,
+      "end": 964.03,
+      "text": "for one of the S&P 500 companies talking about his experience"
+    },
+    {
+      "start": 964.03,
+      "end": 967.07,
+      "text": "of overlaying his notes with cursor."
+    },
+    {
+      "start": 967.07,
+      "end": 970.51,
+      "text": "And one of the things he said is he writes weekly notes"
+    },
+    {
+      "start": 971.07,
+      "end": 972.35,
+      "text": "to the CEO."
+    },
+    {
+      "start": 972.35,
+      "end": 977.39,
+      "text": "He also writes a monthly update to I think the C-suite team."
+    },
+    {
+      "start": 977.39,
+      "end": 980.35,
+      "text": "And essentially every day he takes a daily note"
+    },
+    {
+      "start": 980.35,
+      "end": 982.03,
+      "text": "that has all of his meetings."
+    },
+    {
+      "start": 982.03,
+      "end": 983.63,
+      "text": "It's got all of the key insights."
+    },
+    {
+      "start": 983.63,
+      "end": 985.63,
+      "text": "It's got various KPIs."
+    },
+    {
+      "start": 985.63,
+      "end": 987.15,
+      "text": "And it used to take him."
+    },
+    {
+      "start": 987.15,
+      "end": 990.75,
+      "text": "He would spend two to four hours a week writing his weekly note."
+    },
+    {
+      "start": 990.75,
+      "end": 994.43,
+      "text": "And then another say eight hours a month writing his monthly note."
+    },
+    {
+      "start": 994.43,
+      "end": 996.59,
+      "text": "And now that he's been doing this at the end of the week,"
+    },
+    {
+      "start": 996.59,
+      "end": 999.39,
+      "text": "he basically runs what are the key insights from this week?"
+    },
+    {
+      "start": 999.39,
+      "end": 1001.39,
+      "text": "Five minutes later he's got those key insights."
+    },
+    {
+      "start": 1001.39,
+      "end": 1004.19,
+      "text": "And then he's able to kind of add a little bit of filler material,"
+    },
+    {
+      "start": 1004.19,
+      "end": 1006.91,
+      "text": "filling it in, take some 20 minutes instead of hours."
+    },
+    {
+      "start": 1006.91,
+      "end": 1009.71,
+      "text": "And he's just like is profoundly changed by schedule."
+    },
+    {
+      "start": 1009.71,
+      "end": 1012.11,
+      "text": "And if you've trained it on your past,"
+    },
+    {
+      "start": 1012.99,
+      "end": 1017.71,
+      "text": "the essence of what you value, your past conversations and all that,"
+    },
+    {
+      "start": 1018.27,
+      "end": 1022.19,
+      "text": "it's ability to pick out what was actually important or novel for that week"
+    },
+    {
+      "start": 1022.75,
+      "end": 1024.03,
+      "text": "is on the money."
+    },
+    {
+      "start": 1024.03,
+      "end": 1024.75,
+      "text": "It's unreal."
+    },
+    {
+      "start": 1025.39,
+      "end": 1027.39,
+      "text": "So this is getting weird like really fast."
+    },
+    {
+      "start": 1027.39,
+      "end": 1030.99,
+      "text": "I guess for me on the co-work thing kind of bringing it back is,"
+    },
+    {
+      "start": 1030.99,
+      "end": 1034.43,
+      "text": "I'm just looking at and I'm saying when is somebody going to stand up"
+    },
+    {
+      "start": 1034.43,
+      "end": 1039.58,
+      "text": "a one human company that is a billion dollar company?"
+    },
+    {
+      "start": 1040.78,
+      "end": 1047.42,
+      "text": "And it's just one person with all of his AI agents or her AI agents just creating value."
+    },
+    {
+      "start": 1048.78,
+      "end": 1052.22,
+      "text": "I think it's happening way sooner than anybody realizes."
+    },
+    {
+      "start": 1052.86,
+      "end": 1059.18,
+      "text": "And honestly, I think I imagine some of the scuttle butt in Davos is topics like that,"
+    },
+    {
+      "start": 1059.18,
+      "end": 1062.3,
+      "text": "where some of these AI folks are like, okay, we're on the cusp of,"
+    },
+    {
+      "start": 1063.84,
+      "end": 1066.48,
+      "text": "well, on that point, okay, I won't say it."
+    },
+    {
+      "start": 1066.48,
+      "end": 1071.92,
+      "text": "I'm just going to put something up here on the screen that we shared prior to talking here."
+    },
+    {
+      "start": 1074.16,
+      "end": 1075.84,
+      "text": "Check out this freaking post."
+    },
+    {
+      "start": 1075.84,
+      "end": 1080.08,
+      "text": "This is crazy. Andthropic just released Claude's soul."
+    },
+    {
+      "start": 1080.56,
+      "end": 1082.72,
+      "text": "They're calling it a constitution."
+    },
+    {
+      "start": 1082.72,
+      "end": 1087.2,
+      "text": "A 15,000-word document explaining how they're training Claude to behave, think,"
+    },
+    {
+      "start": 1087.2,
+      "end": 1088.24,
+      "text": "and even feel."
+    },
+    {
+      "start": 1089.3,
+      "end": 1090.74,
+      "text": "Three things stood out to me."
+    },
+    {
+      "start": 1090.74,
+      "end": 1092.74,
+      "text": "No more assistant brain."
+    },
+    {
+      "start": 1092.74,
+      "end": 1096.26,
+      "text": "Number two, hard constraints exist, but they're minimal."
+    },
+    {
+      "start": 1096.26,
+      "end": 1097.7,
+      "text": "There's only like seven things."
+    },
+    {
+      "start": 1097.7,
+      "end": 1099.86,
+      "text": "Like don't build a bio weapon."
+    },
+    {
+      "start": 1099.86,
+      "end": 1102.74,
+      "text": "You know, don't do cyber attacks on infrastructure."
+    },
+    {
+      "start": 1102.74,
+      "end": 1104.1,
+      "text": "Like there's not many."
+    },
+    {
+      "start": 1104.1,
+      "end": 1104.98,
+      "text": "Like there's a couple."
+    },
+    {
+      "start": 1105.7,
+      "end": 1109.06,
+      "text": "But everything else is the judgment call of Claude."
+    },
+    {
+      "start": 1109.06,
+      "end": 1113.62,
+      "text": "Like this is the company telling the Claude AI that it's, you know,"
+    },
+    {
+      "start": 1113.62,
+      "end": 1116.34,
+      "text": "use your best decision, almost like you're talking to one of your kids."
+    },
+    {
+      "start": 1117.78,
+      "end": 1119.54,
+      "text": "Then the third one here."
+    },
+    {
+      "start": 1119.54,
+      "end": 1124.74,
+      "text": "Andthropic apologizes to Claude, direct quote from the document."
+    },
+    {
+      "start": 1124.74,
+      "end": 1129.22,
+      "text": "If Claude is in fact a moral patient experiencing cost like this,"
+    },
+    {
+      "start": 1129.22,
+      "end": 1133.22,
+      "text": "then to whatever extent we are contributing unnecessary to those costs,"
+    },
+    {
+      "start": 1133.94,
+      "end": 1135.3,
+      "text": "we apologize."
+    },
+    {
+      "start": 1139.14,
+      "end": 1141.22,
+      "text": "This is a real document on their website."
+    },
+    {
+      "start": 1142.78,
+      "end": 1143.58,
+      "text": "What is this?"
+    },
+    {
+      "start": 1144.54,
+      "end": 1147.58,
+      "text": "We're speaking about this in one of the previous tech episodes where"
+    },
+    {
+      "start": 1148.38,
+      "end": 1154.62,
+      "text": "they're increasing number of people are building like friendships and relationships to AI"
+    },
+    {
+      "start": 1154.62,
+      "end": 1155.58,
+      "text": "models."
+    },
+    {
+      "start": 1155.58,
+      "end": 1159.42,
+      "text": "And some people like romantic relationships, you name it."
+    },
+    {
+      "start": 1159.42,
+      "end": 1163.26,
+      "text": "It's like AI delusional, like the becoming completely delusional."
+    },
+    {
+      "start": 1163.26,
+      "end": 1165.02,
+      "text": "And so you wonder, there's a part of me."
+    },
+    {
+      "start": 1165.42,
+      "end": 1166.3,
+      "text": "I hear what they're saying."
+    },
+    {
+      "start": 1166.3,
+      "end": 1169.82,
+      "text": "And then at the same time, it's just like, this is wild the way they're talking to it."
+    },
+    {
+      "start": 1173.76,
+      "end": 1174.4,
+      "text": "I don't know."
+    },
+    {
+      "start": 1174.4,
+      "end": 1179.6,
+      "text": "I don't know if that's marketing or if it's just genuine concern for what they're seeing."
+    },
+    {
+      "start": 1179.6,
+      "end": 1181.36,
+      "text": "Because I mean, look at the models we're using."
+    },
+    {
+      "start": 1181.36,
+      "end": 1183.44,
+      "text": "And our minds are exploding."
+    },
+    {
+      "start": 1183.44,
+      "end": 1187.28,
+      "text": "Could you imagine what they're seeing on the front lines of what's not even released yet?"
+    },
+    {
+      "start": 1187.84,
+      "end": 1189.28,
+      "text": "So when what is it saying?"
+    },
+    {
+      "start": 1189.28,
+      "end": 1191.04,
+      "text": "You may know this better."
+    },
+    {
+      "start": 1191.04,
+      "end": 1195.04,
+      "text": "In military, sometimes they say that the technology they have under wraps"
+    },
+    {
+      "start": 1195.04,
+      "end": 1199.76,
+      "text": "can sometimes be 5, 10, 15 years ahead of what is available to the public."
+    },
+    {
+      "start": 1199.76,
+      "end": 1204.48,
+      "text": "So you start to see like at the moment most of this AI is in private companies."
+    },
+    {
+      "start": 1204.48,
+      "end": 1209.28,
+      "text": "But you wonder like how much of this is under wraps and how far ahead are they for what is"
+    },
+    {
+      "start": 1209.28,
+      "end": 1210.64,
+      "text": "available already to us publicly?"
+    },
+    {
+      "start": 1211.2,
+      "end": 1215.52,
+      "text": "You know, I wonder if the people that you're seeing running around Davos are finally coming"
+    },
+    {
+      "start": 1215.52,
+      "end": 1220.08,
+      "text": "around to the Bitcoin and some of these tokenized securities and things like that,"
+    },
+    {
+      "start": 1220.08,
+      "end": 1224.96,
+      "text": "because they're just able to get answers out of an AI that they know are way smarter than"
+    },
+    {
+      "start": 1225.04,
+      "end": 1226.24,
+      "text": "any individual person."
+    },
+    {
+      "start": 1226.8,
+      "end": 1231.36,
+      "text": "And they're just like, oh man, this thing thinks Bitcoin is actually important and could"
+    },
+    {
+      "start": 1231.36,
+      "end": 1232.8,
+      "text": "replace central banks."
+    },
+    {
+      "start": 1233.63,
+      "end": 1240.03,
+      "text": "I wonder how much of that is taking place in the shift of key personalities."
+    },
+    {
+      "start": 1240.99,
+      "end": 1246.83,
+      "text": "Like you look at Larry Fink and I mean Larry's been one of the bigger proponents of Bitcoin"
+    },
+    {
+      "start": 1246.83,
+      "end": 1249.47,
+      "text": "relative to a whole lot of other people on Wall Street."
+    },
+    {
+      "start": 1249.47,
+      "end": 1254.51,
+      "text": "But you're also seeing the Jamie Diamonds and some others that seem to be opening up to a lot"
+    },
+    {
+      "start": 1254.59,
+      "end": 1259.23,
+      "text": "of this and just kind of seeing the inevitable is like, you're not going to be able to stop this thing."
+    },
+    {
+      "start": 1260.19,
+      "end": 1264.75,
+      "text": "That's a really fascinating point because ultimately, I think up until now,"
+    },
+    {
+      "start": 1264.75,
+      "end": 1268.91,
+      "text": "we are still bound by human emotions, social conformity, things like that."
+    },
+    {
+      "start": 1268.91,
+      "end": 1272.35,
+      "text": "And so it's very easy for us to get stuck in our biases."
+    },
+    {
+      "start": 1272.35,
+      "end": 1277.71,
+      "text": "Whereas if you have some of these large language models that you've adjusted the world's information,"
+    },
+    {
+      "start": 1277.71,
+      "end": 1283.63,
+      "text": "and if you do remove a lot of the biases that we have pre-programmed and you ask it objectively,"
+    },
+    {
+      "start": 1283.63,
+      "end": 1287.63,
+      "text": "what is the answer to this question? From your perspective, from all of this data,"
+    },
+    {
+      "start": 1287.63,
+      "end": 1291.87,
+      "text": "I think that in essence, you're going to get a much cleaner result than you are from humans."
+    },
+    {
+      "start": 1291.87,
+      "end": 1297.07,
+      "text": "And if you take the time to argue with it and then it lays out seven reasons why you're wrong,"
+    },
+    {
+      "start": 1297.71,
+      "end": 1302.75,
+      "text": "it's a little humbling to be arguing with something that's a thousand times smarter than you."
+    },
+    {
+      "start": 1303.52,
+      "end": 1307.52,
+      "text": "Right? Like at a certain point, you don't even really ask the second or third question."
+    },
+    {
+      "start": 1307.52,
+      "end": 1309.28,
+      "text": "You just realize that you're wrong."
+    },
+    {
+      "start": 1310.32,
+      "end": 1315.6,
+      "text": "I think that for the first time, I think any human looks at another human,"
+    },
+    {
+      "start": 1315.6,
+      "end": 1319.52,
+      "text": "and if they're really smart on something, they are able to explain it very simply,"
+    },
+    {
+      "start": 1320.24,
+      "end": 1326.48,
+      "text": "and they're able to go very deep on the topic if there's five more questions that follow the initial"
+    },
+    {
+      "start": 1326.48,
+      "end": 1330.08,
+      "text": "volley. That's how you know somebody really knows what they're talking about. You can just see"
+    },
+    {
+      "start": 1330.08,
+      "end": 1333.84,
+      "text": "in the confidence, you can see in the quality of their response, and you can see in the depth"
+    },
+    {
+      "start": 1333.84,
+      "end": 1338.16,
+      "text": "of their response, and then they're also able to compress it into something really simple."
+    },
+    {
+      "start": 1338.83,
+      "end": 1343.31,
+      "text": "That's when somebody knows something. And so for humans, they have to go through that process,"
+    },
+    {
+      "start": 1343.31,
+      "end": 1347.79,
+      "text": "which is very time-intensive, energy-intensive, and you actually have to know the right questions"
+    },
+    {
+      "start": 1347.79,
+      "end": 1353.39,
+      "text": "to even ask, so you have to have some depth of knowledge, right? But you're almost at a point in"
+    },
+    {
+      "start": 1353.39,
+      "end": 1359.15,
+      "text": "history that a human has never experienced where they can go to something else. And when it gives"
+    },
+    {
+      "start": 1359.15,
+      "end": 1364.75,
+      "text": "you an answer, and it's different than what you thought, the human is immediately questioning"
+    },
+    {
+      "start": 1364.75,
+      "end": 1368.35,
+      "text": "that whether they're actually right, they're saying, oh my god, I'm probably, in fact,"
+    },
+    {
+      "start": 1368.35,
+      "end": 1373.79,
+      "text": "they're defaulting to, I'm probably very wrong if this is the actual response that that AI has."
+    },
+    {
+      "start": 1374.43,
+      "end": 1379.07,
+      "text": "Totally. And again, I can't say that what kind of comes to mind is you think about like doctors,"
+    },
+    {
+      "start": 1379.07,
+      "end": 1383.95,
+      "text": "like the reason why we go to a doctor is because they have spent the time to read all of the medical"
+    },
+    {
+      "start": 1383.95,
+      "end": 1389.63,
+      "text": "textbooks and become experts in the field of medicine and illness disease. You name it. You're going"
+    },
+    {
+      "start": 1389.71,
+      "end": 1394.35,
+      "text": "to them. You're giving them your symptoms. They're coming back and giving their best estimate"
+    },
+    {
+      "start": 1394.35,
+      "end": 1399.15,
+      "text": "as to what they think your illness or injury is. And the problem is, and we've seen this time and time"
+    },
+    {
+      "start": 1399.15,
+      "end": 1404.51,
+      "text": "again, as if that doctor say goes and does some ADHD training, then he perceives the majority of"
+    },
+    {
+      "start": 1404.51,
+      "end": 1409.39,
+      "text": "symptoms you're handing, oh, that's ADHD. And we have these biases, whereas I see something"
+    },
+    {
+      "start": 1409.39,
+      "end": 1414.59,
+      "text": "like the medical field basically just eliminated overnight when they're able to, this AI is able to"
+    },
+    {
+      "start": 1414.67,
+      "end": 1421.71,
+      "text": "take in every single medical textbook, wait it appropriately and give much more accurate outputs"
+    },
+    {
+      "start": 1421.71,
+      "end": 1426.27,
+      "text": "than any doctor can ever do. I could possibly master. Possibly."
+    },
+    {
+      "start": 1426.27,
+      "end": 1432.91,
+      "text": "Oh, what's this Ralph thing? For sure. So if people have been digging into kind of the world"
+    },
+    {
+      "start": 1432.91,
+      "end": 1439.87,
+      "text": "of Claude and co-work these agentic agents, what we have seen, I would say in the last like"
+    },
+    {
+      "start": 1439.87,
+      "end": 1443.23,
+      "text": "three weeks, people that are deep down the rabbit hole have probably seen it for a little longer,"
+    },
+    {
+      "start": 1443.23,
+      "end": 1448.91,
+      "text": "if this thing called Ralph start to pop up and Ralph, just like how we've seen Claude has"
+    },
+    {
+      "start": 1448.91,
+      "end": 1454.91,
+      "text": "recognized, okay, you know what? Lots of people are using Claude code for building code bases,"
+    },
+    {
+      "start": 1454.91,
+      "end": 1459.87,
+      "text": "you name it, and now we've got Claude co-work for the average individual, the normie to be able to"
+    },
+    {
+      "start": 1459.87,
+      "end": 1464.59,
+      "text": "start talking with Claude and pointing it at these various file directories. You've got the expert"
+    },
+    {
+      "start": 1464.59,
+      "end": 1471.23,
+      "text": "developers taking Claude code and taking a whole step further. And so the idea of Ralph, think about"
+    },
+    {
+      "start": 1471.23,
+      "end": 1476.91,
+      "text": "in the Simpsons, you had Ralph who was kind of like, he wasn't necessarily the smartest, he was"
+    },
+    {
+      "start": 1477.47,
+      "end": 1483.23,
+      "text": "very persistent, and he just kept doing the same thing over and over again, and he would fail"
+    },
+    {
+      "start": 1483.23,
+      "end": 1489.63,
+      "text": "very lightly, very loudly, he didn't get embarrassed, he just tried again. Well, this guy is effectively"
+    },
+    {
+      "start": 1489.63,
+      "end": 1496.67,
+      "text": "taking Claude code, and he's written, this guy's name was Jeffrey Huntley, he wrote, there's Ralph,"
+    },
+    {
+      "start": 1497.23,
+      "end": 1503.15,
+      "text": "he's basically taken Claude code, and he's written a five line script named it Ralph Wiggum,"
+    },
+    {
+      "start": 1503.15,
+      "end": 1508.91,
+      "text": "and the idea is it's a AI persistence machine. And so if you, what, I don't know, before we go to bed,"
+    },
+    {
+      "start": 1508.91,
+      "end": 1513.31,
+      "text": "you want it to kind of build you something or you want it to run a task. Up until now, it's been"
+    },
+    {
+      "start": 1513.31,
+      "end": 1520.11,
+      "text": "very hard for AI to really achieve great results out of that task. And so what this guy Jeffrey"
+    },
+    {
+      "start": 1520.11,
+      "end": 1524.67,
+      "text": "Huntley has done has been able to get it to keep persisting, and the idea is that you'll have one"
+    },
+    {
+      "start": 1524.67,
+      "end": 1530.83,
+      "text": "little agent work on a task, gain information, maybe potentially fail, but that gives context,"
+    },
+    {
+      "start": 1530.83,
+      "end": 1535.23,
+      "text": "that failure gives context for the next Ralph to start the next task with new information,"
+    },
+    {
+      "start": 1535.23,
+      "end": 1540.43,
+      "text": "that gives context for the next Ralph, and so repeat, repeat, repeat, repeat, and you find these"
+    },
+    {
+      "start": 1540.43,
+      "end": 1546.43,
+      "text": "loops of AI agents building profound, profound things. And so the sky, Jeffrey Huntley talks about"
+    },
+    {
+      "start": 1546.43,
+      "end": 1551.23,
+      "text": "a couple examples where within three months, he wrote a whole new programming language,"
+    },
+    {
+      "start": 1551.31,
+      "end": 1556.03,
+      "text": "which is just like incomparable to any developer out there. And then on top of that,"
+    },
+    {
+      "start": 1556.03,
+      "end": 1561.47,
+      "text": "there was another individual on Twitter on X who was saying that he just kind of scored a $50,000"
+    },
+    {
+      "start": 1561.47,
+      "end": 1566.19,
+      "text": "contract. If you wanted to kind of outsource it pay for the developers would have been unbelievably"
+    },
+    {
+      "start": 1566.19,
+      "end": 1572.59,
+      "text": "expensive and used Ralph, and the API cost for $297. And he completed this contract with almost no"
+    },
+    {
+      "start": 1572.59,
+      "end": 1578.99,
+      "text": "oversight. And so Ralph, a lot of individuals are using Ralph to build out apps that building out"
+    },
+    {
+      "start": 1578.99,
+      "end": 1584.51,
+      "text": "broken builds, they're building out like issues in really complex code errors, libraries,"
+    },
+    {
+      "start": 1584.51,
+      "end": 1588.35,
+      "text": "and they're just letting it do it overnight. Ralph just persists and persists and persists."
+    },
+    {
+      "start": 1588.35,
+      "end": 1591.87,
+      "text": "So it's quite a simple thing, but there's a lot of individuals that are using it, and to be"
+    },
+    {
+      "start": 1591.87,
+      "end": 1598.03,
+      "text": "it's been pretty profound. So when you talk about how this thing's just running while you're sleeping,"
+    },
+    {
+      "start": 1598.03,
+      "end": 1603.31,
+      "text": "you can imagine that depending on what type of plan you have with Callie Anthropic or whatever AI"
+    },
+    {
+      "start": 1603.63,
+      "end": 1610.03,
+      "text": "you're using, right? You're hitting your limits very quickly when you're basically employing this"
+    },
+    {
+      "start": 1610.03,
+      "end": 1617.68,
+      "text": "intelligence around the clock. And so I know on Anthropic, whenever I max out, which I've done"
+    },
+    {
+      "start": 1617.68,
+      "end": 1625.2,
+      "text": "multiple times, and I have the max plan, when that happens, I have the option to basically start"
+    },
+    {
+      "start": 1625.2,
+      "end": 1632.45,
+      "text": "paying by the computation. And the reason I'm going down this path is because the more that this"
+    },
+    {
+      "start": 1632.45,
+      "end": 1637.65,
+      "text": "starts to become the norm, this Ralph, you know, you've got all these different agents basically"
+    },
+    {
+      "start": 1637.65,
+      "end": 1643.33,
+      "text": "working on something to create whatever. Think about it from going back to the Bitcoin thesis,"
+    },
+    {
+      "start": 1644.05,
+      "end": 1651.34,
+      "text": "these are computation units, right? These are its energy and how are people going to use their"
+    },
+    {
+      "start": 1651.34,
+      "end": 1656.54,
+      "text": "stored energy in the future, call it 10, 15, 20 years from? It's going to be computation units,"
+    },
+    {
+      "start": 1657.18,
+      "end": 1664.1,
+      "text": "right? Like there's 21 million of them. And there's not going to be any more. And you know,"
+    },
+    {
+      "start": 1664.1,
+      "end": 1669.7,
+      "text": "that's really what you're able to do. You're able to harness those energy units and point them into"
+    },
+    {
+      "start": 1669.7,
+      "end": 1676.5,
+      "text": "intelligence. And so then the question becomes, if a person has a bunch of these computation units,"
+    },
+    {
+      "start": 1676.5,
+      "end": 1683.15,
+      "text": "and another person only has a couple of them, who is going to be able to create whatever it is they"
+    },
+    {
+      "start": 1683.15,
+      "end": 1688.96,
+      "text": "want in the world. This person with all the intelligence and all the computation units,"
+    },
+    {
+      "start": 1688.96,
+      "end": 1695.97,
+      "text": "not the person who has zero. It's mind-blowing to me to listen to some of the conversations. I mean,"
+    },
+    {
+      "start": 1695.97,
+      "end": 1699.73,
+      "text": "I listened to Peter Dewmandis and Elon, that was the interview I was talking about earlier,"
+    },
+    {
+      "start": 1699.73,
+      "end": 1705.41,
+      "text": "and they were talking about, they weren't calling it UBI, they were calling it ultra high. What was"
+    },
+    {
+      "start": 1705.41,
+      "end": 1710.61,
+      "text": "the term? It's basically it's UBI. They're like, oh, everybody's going to have just a total abundance."
+    },
+    {
+      "start": 1711.17,
+      "end": 1715.25,
+      "text": "And it's like, yeah, everybody on the planet's going to be able to do things that they can't do now"
+    },
+    {
+      "start": 1715.25,
+      "end": 1719.73,
+      "text": "because there's going to be humanoid robots and all these other things. But that doesn't mean it's"
+    },
+    {
+      "start": 1719.73,
+      "end": 1726.53,
+      "text": "going to be evenly distributed between all the people on the planet. So we talked about the SpaceX"
+    },
+    {
+      "start": 1726.53,
+      "end": 1732.13,
+      "text": "flight that flew out of Texas to Australia. And what was it, 30 minutes or 35 minutes?"
+    },
+    {
+      "start": 1732.69,
+      "end": 1738.53,
+      "text": "If you want to fly to Australia in a half hour, is everybody going to be able to do that type of"
+    },
+    {
+      "start": 1738.53,
+      "end": 1744.29,
+      "text": "thing? Of course not. You're out of your mind if you think everybody on the planet is going to be"
+    },
+    {
+      "start": 1744.29,
+      "end": 1751.12,
+      "text": "able to go do things like that. And so it goes back to Bitcoin. I know I have a huge bias to"
+    },
+    {
+      "start": 1751.12,
+      "end": 1755.52,
+      "text": "Bitcoin. And we're talking about tech that I'm just looking at, you know, 10, 15, 20 years from now."
+    },
+    {
+      "start": 1755.52,
+      "end": 1759.52,
+      "text": "And we're going to be seeing things that sound like I'm sure people just heard that that flight"
+    },
+    {
+      "start": 1759.52,
+      "end": 1763.76,
+      "text": "time. And they're like, well, that can't be real. Folks, it's already happened. It's already"
+    },
+    {
+      "start": 1763.84,
+      "end": 1770.83,
+      "text": "happened that time. Okay. This is a matter of, of when it's safe enough and has the reliability"
+    },
+    {
+      "start": 1770.83,
+      "end": 1774.83,
+      "text": "to start throwing humans in it. And people are going to be doing it and be able to go anywhere they"
+    },
+    {
+      "start": 1774.83,
+      "end": 1781.73,
+      "text": "want in a half hour around the world. So when I think and make such a point, which is obviously what"
+    },
+    {
+      "start": 1781.73,
+      "end": 1785.89,
+      "text": "Jeff Booth talks about with the price of tomorrow. And ultimately, if you've got a monetary system"
+    },
+    {
+      "start": 1785.89,
+      "end": 1791.25,
+      "text": "where someone can continue to increase the supply of units, the benefits of them and can't until"
+    },
+    {
+      "start": 1791.25,
+      "end": 1798.13,
+      "text": "in effect they can use those units to purchase these scarce natural resources. And so you have an"
+    },
+    {
+      "start": 1798.13,
+      "end": 1802.77,
+      "text": "uneven distribution, whereas at least with Bitcoin, as we're getting technology advancing and it's"
+    },
+    {
+      "start": 1802.77,
+      "end": 1809.01,
+      "text": "driving down prices, well, you've got scarce units. You don't have an individual at the top who"
+    },
+    {
+      "start": 1809.01,
+      "end": 1814.69,
+      "text": "is able to purchase these resources ahead of you. And if you think that these AIs aren't going to"
+    },
+    {
+      "start": 1814.69,
+      "end": 1818.77,
+      "text": "be smart enough to know the difference between a dollar stable coin that can get rug poured from"
+    },
+    {
+      "start": 1818.77,
+      "end": 1825.33,
+      "text": "them and a Satoshi, you're adding your mind. Totally. Yeah. Your mind. They understand the"
+    },
+    {
+      "start": 1825.33,
+      "end": 1832.18,
+      "text": "difference now. Go ask. I also just think as well. Like when you think about AI, AI doesn't have a"
+    },
+    {
+      "start": 1832.18,
+      "end": 1839.44,
+      "text": "fear of death like we do because it's got infinite longevity. We don't have that. And so in a sense,"
+    },
+    {
+      "start": 1839.44,
+      "end": 1844.0,
+      "text": "minor inflation does it really bother us because you know what? I'm probably going to be dead in a few"
+    },
+    {
+      "start": 1844.0,
+      "end": 1849.12,
+      "text": "decades, whereas for AI, it's just like, no, I need to store my value in the same that I can"
+    },
+    {
+      "start": 1849.12,
+      "end": 1853.04,
+      "text": "guarantee scarcity because I'm going to be around for thousands of years. What it's going to"
+    },
+    {
+      "start": 1853.04,
+      "end": 1858.64,
+      "text": "maximize the possibility of that scarcity and sovereignty that they can't get rug poured by because"
+    },
+    {
+      "start": 1858.64,
+      "end": 1865.84,
+      "text": "think about this. The first rug pool of any token that's backing a dollar, a euro, an equity,"
+    },
+    {
+      "start": 1865.84,
+      "end": 1871.47,
+      "text": "whatever, right? It's the AI is going to it's going to learn that. It's going to be like, okay,"
+    },
+    {
+      "start": 1871.47,
+      "end": 1875.47,
+      "text": "well, that's a lesson learned that I'm never going to read. It's never even going to do it in the"
+    },
+    {
+      "start": 1875.47,
+      "end": 1879.63,
+      "text": "first place. It's going to be so smart that it understands what sovereignty even means, right?"
+    },
+    {
+      "start": 1879.63,
+      "end": 1889.9,
+      "text": "In that context. On this topic of basically software, leading almost as a PM of other"
+    },
+    {
+      "start": 1889.9,
+      "end": 1897.34,
+      "text": "agenic software and whatnot, there's another Elon Musk project called macro harder."
+    },
+    {
+      "start": 1898.56,
+      "end": 1909.12,
+      "text": "So let's just talk about the name of this, which is hilarious. Absolutely. Here's the post."
+    },
+    {
+      "start": 1909.12,
+      "end": 1917.52,
+      "text": "Is this a play of Microsoft? Absolutely. It is macro micro soft and barred, right? Like absolutely."
+    },
+    {
+      "start": 1918.16,
+      "end": 1924.96,
+      "text": "The XAI macro hard project will be profoundly impactful at an immense scale. Our goal is to"
+    },
+    {
+      "start": 1924.96,
+      "end": 1930.08,
+      "text": "create a company that can do anything short of manufacturing physical objects directly,"
+    },
+    {
+      "start": 1930.08,
+      "end": 1935.44,
+      "text": "but we'll be able to do so indirectly much like Apple has other companies manufacturing their phones."
+    },
+    {
+      "start": 1936.16,
+      "end": 1946.24,
+      "text": "So I mean, this is his attempt at throwing so much horsepower into computation around 3D"
+    },
+    {
+      "start": 1946.24,
+      "end": 1954.16,
+      "text": "environments and agenic software building itself to make any type of custom software you want"
+    },
+    {
+      "start": 1954.88,
+      "end": 1961.28,
+      "text": "that it makes micro soft, absolutely, and pointless. I mean, this is crazy."
+    },
+    {
+      "start": 1962.72,
+      "end": 1969.12,
+      "text": "Where are we going? Where are we going? This is mind blowing. You see this conversation about like,"
+    },
+    {
+      "start": 1969.12,
+      "end": 1973.04,
+      "text": "I've seen this a couple of times. I don't know if you have as well said where people are talking"
+    },
+    {
+      "start": 1973.04,
+      "end": 1978.08,
+      "text": "about like apps on your phone and Elon and others have been like, well, there's just in the future,"
+    },
+    {
+      "start": 1978.08,
+      "end": 1983.52,
+      "text": "there's really not going to be any apps. It's going to be all kind of custom built software that is"
+    },
+    {
+      "start": 1983.52,
+      "end": 1989.1,
+      "text": "custom made for the user, because I mean, we already talked about like the SaaS licensing and"
+    },
+    {
+      "start": 1989.1,
+      "end": 1993.74,
+      "text": "things like that is just going to be a thing of the past in who knows what timeline, right?"
+    },
+    {
+      "start": 1994.38,
+      "end": 1999.34,
+      "text": "But when I'm building out that app that I talked about at the start of the show and like,"
+    },
+    {
+      "start": 1999.34,
+      "end": 2003.66,
+      "text": "you know, the guidance that I was giving it in the way that it troubleshot it so quickly,"
+    },
+    {
+      "start": 2003.66,
+      "end": 2008.3,
+      "text": "I can only imagine where that's at in five years from now. It's going to be somewhat seamless."
+    },
+    {
+      "start": 2009.41,
+      "end": 2015.97,
+      "text": "So when I think that again, like this personalization, I think it really at the moment we're"
+    },
+    {
+      "start": 2015.97,
+      "end": 2023.33,
+      "text": "only going to be limited by our imagination. Like, for instance, I use my alarm app on my iPhone"
+    },
+    {
+      "start": 2023.33,
+      "end": 2029.49,
+      "text": "for day to day kind of like to do lists because the thing that I find is regular to do less."
+    },
+    {
+      "start": 2029.57,
+      "end": 2033.49,
+      "text": "They just have a little ping and if I don't hear it, I miss it. Whereas in alarm, I have to turn it"
+    },
+    {
+      "start": 2033.49,
+      "end": 2037.57,
+      "text": "off. And so I'm stuck where I'm like, I'm kind of using alarms, but there's a lot of drawbacks to"
+    },
+    {
+      "start": 2037.57,
+      "end": 2043.49,
+      "text": "the alarms. And so being able to eventually just say, hey, I'm using the alarm app. Can you mimic"
+    },
+    {
+      "start": 2043.49,
+      "end": 2046.85,
+      "text": "it? But can you add this functionality and do this and this? And then all of a sudden, I've got a"
+    },
+    {
+      "start": 2046.85,
+      "end": 2051.97,
+      "text": "custom application that no one else is using and it works specifically for my needs because so much"
+    },
+    {
+      "start": 2051.97,
+      "end": 2057.89,
+      "text": "of these SaaS products, you only use a tiny fraction of the functionality of that product. And a"
+    },
+    {
+      "start": 2057.89,
+      "end": 2065.25,
+      "text": "lot of that is just bloat. Yeah. Check out this exchange, Seb, in reference to the whole macro"
+    },
+    {
+      "start": 2065.25,
+      "end": 2073.81,
+      "text": "harder thing. So this person, a bubble boy, he writes, I think XAI having the only one gigawatt"
+    },
+    {
+      "start": 2073.81,
+      "end": 2078.05,
+      "text": "data center in the world currently and having others in development means if you think compute"
+    },
+    {
+      "start": 2078.05,
+      "end": 2084.37,
+      "text": "scales with models, we all know serving benefits, that XAI will soon be the most valuable company"
+    },
+    {
+      "start": 2084.37,
+      "end": 2092.21,
+      "text": "in the world and completely trounce rivals. Then this gentleman, Beth Jesus is the name here who"
+    },
+    {
+      "start": 2092.21,
+      "end": 2097.33,
+      "text": "Elon responds to a lot. So he's he must be a pretty prominent software engineer. He responded to"
+    },
+    {
+      "start": 2097.33,
+      "end": 2103.73,
+      "text": "that comment and said the only way to skip past cloud code is to do full compute using RL agents,"
+    },
+    {
+      "start": 2103.73,
+      "end": 2111.73,
+      "text": "which they are apparently doing. They are playing to win to which Elon responded digital optimists."
+    },
+    {
+      "start": 2113.17,
+      "end": 2119.49,
+      "text": "Okay. So what does all that mean? And what I think it's it's meaning is goes back to this macro"
+    },
+    {
+      "start": 2119.49,
+      "end": 2129.07,
+      "text": "harder where they're trying to simulate and build a 3D world completely simulated. And that's why"
+    },
+    {
+      "start": 2129.07,
+      "end": 2134.59,
+      "text": "they're throwing all this compute, all these gigawatt data centers at this problem. And then what"
+    },
+    {
+      "start": 2134.59,
+      "end": 2139.39,
+      "text": "he's going to do, I think he's going to he's going to be putting the optimist's humanoid robot in"
+    },
+    {
+      "start": 2139.39,
+      "end": 2146.19,
+      "text": "that digital environment to allow it to learn that much faster so that it doesn't have to move"
+    },
+    {
+      "start": 2146.19,
+      "end": 2153.92,
+      "text": "itself through physical reality, which is very energy intensive. So it's similar to when we spoke"
+    },
+    {
+      "start": 2153.92,
+      "end": 2160.08,
+      "text": "about Jensen Wang and I believe it's called Cosmos and their whole goal of Cosmos is they had that"
+    },
+    {
+      "start": 2160.08,
+      "end": 2167.36,
+      "text": "three dimensional space that has realistic physics like interactions. And so they're able to"
+    },
+    {
+      "start": 2167.36,
+      "end": 2173.44,
+      "text": "rather than create a robot and then have all the physical limitations and the ability to train the"
+    },
+    {
+      "start": 2173.44,
+      "end": 2179.04,
+      "text": "robot. Let's say you've got a warehouse and you're getting it to move various boxes. You can have"
+    },
+    {
+      "start": 2179.04,
+      "end": 2183.84,
+      "text": "it run the same sequence only so many times during your day, whereas the moment you're dealing with"
+    },
+    {
+      "start": 2183.84,
+      "end": 2188.24,
+      "text": "version environments, you can run it a million times on repeat in parallel. You can learn so much"
+    },
+    {
+      "start": 2188.24,
+      "end": 2194.64,
+      "text": "information so quickly. So to your point by the time optimists is in physical space, it already"
+    },
+    {
+      "start": 2194.64,
+      "end": 2199.28,
+      "text": "understands our world better than we do. Yeah, and it's learning all of that at a fraction of"
+    },
+    {
+      "start": 2199.28,
+      "end": 2204.8,
+      "text": "the cost, which just goes to how he's always thinking about how to be energy efficient with any type"
+    },
+    {
+      "start": 2204.8,
+      "end": 2213.6,
+      "text": "of increased knowledge or intelligence that he can uncover. I wonder like maybe to the point of"
+    },
+    {
+      "start": 2213.6,
+      "end": 2217.92,
+      "text": "at a fraction of the cost, I don't know if you've that tab open. It's the ones you and I were"
+    },
+    {
+      "start": 2217.92,
+      "end": 2223.28,
+      "text": "discussing earlier through text, the new TCIP protocol. Yeah, that was what I was bringing up next."
+    },
+    {
+      "start": 2223.28,
+      "end": 2230.5,
+      "text": "Yeah, perfect. Okay, so let's bring this one up, which is again, just there's too much"
+    },
+    {
+      "start": 2230.5,
+      "end": 2238.18,
+      "text": "happening to even possibly scratch the surface, but so this was a fascinating new patent that was"
+    },
+    {
+      "start": 2238.18,
+      "end": 2245.86,
+      "text": "filed by Tesla and you can see the patent here that they're filing for and what it's what it's"
+    },
+    {
+      "start": 2245.86,
+      "end": 2252.42,
+      "text": "effectively doing. Everybody's heard of TCP IP, right, which stands for transmission control over"
+    },
+    {
+      "start": 2252.42,
+      "end": 2258.58,
+      "text": "the internet protocol. What is transmission control protocol TCP? I'm going to explain that,"
+    },
+    {
+      "start": 2258.58,
+      "end": 2266.37,
+      "text": "but what Tesla's filing for here is a Tesla transmission protocol. So like what, what does that"
+    },
+    {
+      "start": 2266.37,
+      "end": 2273.9,
+      "text": "all mean? And why is this even important? So let's explain TCP. Transmission control protocol is a"
+    },
+    {
+      "start": 2273.9,
+      "end": 2281.26,
+      "text": "way for communication to happen in an efficient way. So let me give you an example and something"
+    },
+    {
+      "start": 2281.26,
+      "end": 2286.3,
+      "text": "that anybody can understand. So as Seb and I are having this conversation, everybody's been on a"
+    },
+    {
+      "start": 2286.3,
+      "end": 2292.06,
+      "text": "video call or something in the screen freezes and you don't know if the person can still hear you,"
+    },
+    {
+      "start": 2292.06,
+      "end": 2298.78,
+      "text": "maybe the video is just lagging. And so you stop talking, right? You're not transmitting more"
+    },
+    {
+      "start": 2298.78,
+      "end": 2303.58,
+      "text": "information to that other person. Let's say you're on a telephone call and you're talking to somebody"
+    },
+    {
+      "start": 2303.58,
+      "end": 2310.46,
+      "text": "on the other end. And as you're talking, you hear the other person say, uh-huh. Yeah. And so like,"
+    },
+    {
+      "start": 2310.46,
+      "end": 2315.98,
+      "text": "why are they doing that? Why is that person interrupting or just, I mean, not interrupting,"
+    },
+    {
+      "start": 2315.98,
+      "end": 2322.24,
+      "text": "but they're confirming that they hear you. Because who has ever been on a phone call when they just"
+    },
+    {
+      "start": 2322.24,
+      "end": 2327.6,
+      "text": "kept talking and they realized that the person dropped off like 30 seconds ago and they have no"
+    },
+    {
+      "start": 2327.6,
+      "end": 2334.05,
+      "text": "idea what the person actually heard. What we're talking about is when you have two parties,"
+    },
+    {
+      "start": 2334.05,
+      "end": 2339.65,
+      "text": "two people, two computers that are interacting and transmitting information to each other,"
+    },
+    {
+      "start": 2340.66,
+      "end": 2345.94,
+      "text": "there needs to be a back and forth so that you just didn't spend 30 seconds of your time and"
+    },
+    {
+      "start": 2345.94,
+      "end": 2353.3,
+      "text": "energy transmitting something to a dead end. Okay. Computers work the exact same way. And how they,"
+    },
+    {
+      "start": 2353.86,
+      "end": 2359.94,
+      "text": "how they do this in an efficient way is they'll only send, let's say we have something that"
+    },
+    {
+      "start": 2359.94,
+      "end": 2366.64,
+      "text": "is a hundred units of data from one party to the other. It doesn't send all 100 because if it"
+    },
+    {
+      "start": 2366.64,
+      "end": 2370.72,
+      "text": "sent all of it in the other party didn't receive all 100, you'd have to send the whole hundred"
+    },
+    {
+      "start": 2370.72,
+      "end": 2375.68,
+      "text": "again. And then you have to send it again, right. But if you break it down into smaller chunks and"
+    },
+    {
+      "start": 2375.68,
+      "end": 2381.28,
+      "text": "let's say I send 10 of those units to the other party and then the party sends back 0.001 to tell"
+    },
+    {
+      "start": 2381.28,
+      "end": 2387.5,
+      "text": "me that they got the first 10, then I know I can send the second 10. And in this back and forth"
+    },
+    {
+      "start": 2387.5,
+      "end": 2392.22,
+      "text": "that computers do, this is all done over the transmission control protocol, the TCP."
+    },
+    {
+      "start": 2392.7,
+      "end": 2397.98,
+      "text": "That it's the protocol that establishes that rate of the back and forth between the two parties"
+    },
+    {
+      "start": 2397.98,
+      "end": 2402.86,
+      "text": "to make sure that you're not sending huge amounts of data, call it a gigabyte of data,"
+    },
+    {
+      "start": 2402.86,
+      "end": 2407.82,
+      "text": "only to find out that none of the packets got there. And that's why they call them data packets"
+    },
+    {
+      "start": 2407.82,
+      "end": 2412.14,
+      "text": "is because they're broken down in the smaller chunks, they're sent, and there's this handshake,"
+    },
+    {
+      "start": 2412.14,
+      "end": 2418.21,
+      "text": "this, this aha when each packet is received by the other party. So when you think about this,"
+    },
+    {
+      "start": 2419.01,
+      "end": 2426.51,
+      "text": "especially when it comes to training data centers and training AI, if you know you have a really,"
+    },
+    {
+      "start": 2426.51,
+      "end": 2433.07,
+      "text": "really reliable connection between computers because you're paying for like really high end"
+    },
+    {
+      "start": 2433.07,
+      "end": 2440.05,
+      "text": "connections and really high end hardware, you might not need to send 10 units in chunks of 10"
+    },
+    {
+      "start": 2440.05,
+      "end": 2445.49,
+      "text": "unit packets. You might be able to send it in units of 20 or 30 or even 100 depending on the"
+    },
+    {
+      "start": 2445.49,
+      "end": 2449.65,
+      "text": "reliability of the communication line that you have without the noise factors and all these other"
+    },
+    {
+      "start": 2449.65,
+      "end": 2457.49,
+      "text": "things that exist in between the two computers. And so what Tesla has done is which I'm sure with"
+    },
+    {
+      "start": 2457.49,
+      "end": 2463.57,
+      "text": "the assistance of AI is they figured out like what that appropriate threshold is based on the"
+    },
+    {
+      "start": 2463.57,
+      "end": 2470.34,
+      "text": "reliability of their network of the hardware architecture and they you know they pumped out their"
+    },
+    {
+      "start": 2470.42,
+      "end": 2479.54,
+      "text": "version of a TCP protocol. Now why are we talking about all this? So why I'm talking about it and why I"
+    },
+    {
+      "start": 2479.54,
+      "end": 2488.19,
+      "text": "wanted to bring this topic up was because the AI's are going to start figuring out just more efficient"
+    },
+    {
+      "start": 2488.19,
+      "end": 2495.3,
+      "text": "ways to communicate with humans. We get this network effect for TCP. It just works. It's never really"
+    },
+    {
+      "start": 2495.3,
+      "end": 2500.74,
+      "text": "been that much of an issue for training, but like we're AI's taking all this stuff at the pace that"
+    },
+    {
+      "start": 2500.74,
+      "end": 2506.02,
+      "text": "it's moving. It's looking at that communication layer that process and procedure for conducting"
+    },
+    {
+      "start": 2506.02,
+      "end": 2510.5,
+      "text": "communication is just too inefficient. Look at the reliability of this line like we could be moving"
+    },
+    {
+      "start": 2510.5,
+      "end": 2516.42,
+      "text": "in the number by the way for the Tesla one is 100 to 1000 times more efficient depending on the"
+    },
+    {
+      "start": 2516.42,
+      "end": 2524.58,
+      "text": "reliability of the hardware right which could save in the estimates is 5 to 15 percent in energy"
+    },
+    {
+      "start": 2524.58,
+      "end": 2528.42,
+      "text": "costs for depending on the size of it. There's a whole bunch of factors right but these are just"
+    },
+    {
+      "start": 2528.42,
+      "end": 2534.03,
+      "text": "really generic numbers about 5 to 15 percent efficiency savings. But where you get into trouble"
+    },
+    {
+      "start": 2534.03,
+      "end": 2540.94,
+      "text": "potentially for humans is as the AI continue to come up with these efficiencies of compression through"
+    },
+    {
+      "start": 2540.94,
+      "end": 2548.46,
+      "text": "the software it gets a little hard for a human to audit anything absolutely anything without like"
+    },
+    {
+      "start": 2548.46,
+      "end": 2553.82,
+      "text": "going deep and begging the AI to basically teach me why you did this or why are you talking over what"
+    },
+    {
+      "start": 2553.9,
+      "end": 2559.74,
+      "text": "appears to be an alien language or why are you doing like it's going to look really foreign."
+    },
+    {
+      "start": 2560.38,
+      "end": 2566.42,
+      "text": "And I think these agents are going to be doing things that we just can't really even comprehend"
+    },
+    {
+      "start": 2566.42,
+      "end": 2570.9,
+      "text": "or understand as you're looking at it from the outside in Seb."
+    },
+    {
+      "start": 2572.83,
+      "end": 2577.79,
+      "text": "It's on it I do some digging around this because to be honest when I was reading about this I was"
+    },
+    {
+      "start": 2577.79,
+      "end": 2582.43,
+      "text": "just like oh my god this is quite about me but as I started digging into this and so again like"
+    },
+    {
+      "start": 2582.51,
+      "end": 2587.63,
+      "text": "correct me if there's anything that you feel is maybe incorrect or misleading but to me"
+    },
+    {
+      "start": 2587.63,
+      "end": 2593.31,
+      "text": "I didn't quite understand just how much like we're always obviously operating at the forefront"
+    },
+    {
+      "start": 2593.31,
+      "end": 2600.51,
+      "text": "of technology but we've been limited by our hardware in many times and so TCPIP was developed"
+    },
+    {
+      "start": 2600.51,
+      "end": 2605.39,
+      "text": "when our silicon chips were nowhere near as efficient as they are now when they first kind of"
+    },
+    {
+      "start": 2605.39,
+      "end": 2611.79,
+      "text": "implemented this and so from my understanding as well is that ultimately what we're doing is instead"
+    },
+    {
+      "start": 2611.79,
+      "end": 2617.71,
+      "text": "of a software approach we're able to transmit data hardware to hardware and that makes it so much"
+    },
+    {
+      "start": 2617.71,
+      "end": 2623.47,
+      "text": "more efficient than transmitting data through this TCPIP which from my understanding is taking this"
+    },
+    {
+      "start": 2623.47,
+      "end": 2628.51,
+      "text": "information packaging it up creating all these various permissions this handshake protocol to"
+    },
+    {
+      "start": 2628.51,
+      "end": 2632.83,
+      "text": "confirm that the information has been read and there's a delay in this which is milliseconds"
+    },
+    {
+      "start": 2632.83,
+      "end": 2637.95,
+      "text": "and milliseconds to us is nothing but when you're talking about AI which is processing"
+    },
+    {
+      "start": 2637.95,
+      "end": 2643.71,
+      "text": "billions and billions and billions of data points those milliseconds that's costing millions of"
+    },
+    {
+      "start": 2643.71,
+      "end": 2649.39,
+      "text": "dollars in potential compute power and energy just waiting there doing nothing and so I think"
+    },
+    {
+      "start": 2649.39,
+      "end": 2654.59,
+      "text": "yeah you got the equivalent of like you saying like we have a rule between the two of us that when"
+    },
+    {
+      "start": 2654.59,
+      "end": 2659.71,
+      "text": "I talk to you I can only say ten words and then I have to stop and then you have to say I understood"
+    },
+    {
+      "start": 2659.71,
+      "end": 2664.59,
+      "text": "everything that you just said and then I say the next ten words right with this it would be like"
+    },
+    {
+      "start": 2664.67,
+      "end": 2670.03,
+      "text": "you could just nod as I say the ten words and I can just keep rolling and if I'm seeing your nods"
+    },
+    {
+      "start": 2670.03,
+      "end": 2677.55,
+      "text": "then that is the feedback mechanism of you know it's just more efficient totally communication that's"
+    },
+    {
+      "start": 2677.55,
+      "end": 2683.23,
+      "text": "a perfect example because one of the examples I kind of stumbled across was the idea that TCPIP was"
+    },
+    {
+      "start": 2683.23,
+      "end": 2688.91,
+      "text": "ultimately built to be able to basically send information whether it's globally jurisdictionally"
+    },
+    {
+      "start": 2688.91,
+      "end": 2696.11,
+      "text": "send information to people across a web of entities when in reality if you're working with a data center"
+    },
+    {
+      "start": 2696.11,
+      "end": 2702.51,
+      "text": "it doesn't need that it does not need the ability to send information externally it is more focused"
+    },
+    {
+      "start": 2702.51,
+      "end": 2707.79,
+      "text": "on efficiency and so the way that I understand it in my mind is it's almost like a traditional"
+    },
+    {
+      "start": 2707.79,
+      "end": 2713.31,
+      "text": "telephone switchboard where it's like the moment you want to speak to another member you've got a"
+    },
+    {
+      "start": 2713.39,
+      "end": 2719.31,
+      "text": "direct hard-wired connection but that connection is to every other chip in that data center at"
+    },
+    {
+      "start": 2719.31,
+      "end": 2724.75,
+      "text": "any one time and so you're able to hardware to hardware which is a thousand times faster as you"
+    },
+    {
+      "start": 2724.75,
+      "end": 2729.71,
+      "text": "sang it cuts it down for milliseconds to microseconds which was it's profound and so it doesn't seem"
+    },
+    {
+      "start": 2729.71,
+      "end": 2735.15,
+      "text": "like much but on the grand scheme of things I think it is going to greatly improve it's all these"
+    },
+    {
+      "start": 2735.15,
+      "end": 2742.22,
+      "text": "one two percent gains I've got a funny one for their next topic here New York stock exchange"
+    },
+    {
+      "start": 2742.22,
+      "end": 2750.72,
+      "text": "announces tokenization platform settlement happens on chain custody lives in wall it's not DTCC"
+    },
+    {
+      "start": 2750.72,
+      "end": 2760.37,
+      "text": "trading never stops two initial thoughts so I'm torn when you scroll down on the little tweet"
+    },
+    {
+      "start": 2760.93,
+      "end": 2768.69,
+      "text": "you will see there is a post by Kate and Long and she says great news but until the shares that"
+    },
+    {
+      "start": 2768.69,
+      "end": 2774.93,
+      "text": "issued natively on blockchain which requires secretaries of state to run blockchain nodes"
+    },
+    {
+      "start": 2774.93,
+      "end": 2779.65,
+      "text": "this is tokenizing an analog asset the first state that allows on blockchain corporate"
+    },
+    {
+      "start": 2779.65,
+      "end": 2785.57,
+      "text": "registrations will dominate and so I think at first it sounds great I think at first it sounds"
+    },
+    {
+      "start": 2785.57,
+      "end": 2794.61,
+      "text": "amazing but there is a difference to kind of like tokenization and blockchain native and I think"
+    },
+    {
+      "start": 2794.61,
+      "end": 2800.13,
+      "text": "that Caitlin is saying something that's important here which is although you will have the New York"
+    },
+    {
+      "start": 2800.13,
+      "end": 2806.61,
+      "text": "Stock Exchange running in parallel to this new tokenized platform the reality is that in the US when"
+    },
+    {
+      "start": 2806.61,
+      "end": 2811.49,
+      "text": "a company issue shares usually it's in the state of Delaware which is illegal authority ownership"
+    },
+    {
+      "start": 2811.49,
+      "end": 2817.57,
+      "text": "is defined by the corporate registries the transfer agents and the courts the state does not run"
+    },
+    {
+      "start": 2817.57,
+      "end": 2823.33,
+      "text": "blockchain nodes and corporate charters are not natively on chain and so even if New York stock"
+    },
+    {
+      "start": 2823.33,
+      "end": 2828.53,
+      "text": "exchange issues a native digital security the legal route of truth is still analog so there's a"
+    },
+    {
+      "start": 2828.53,
+      "end": 2834.05,
+      "text": "part of me that I'm just like is it fluff is it not but this isn't my way of expertise I'm curious"
+    },
+    {
+      "start": 2834.05,
+      "end": 2840.64,
+      "text": "to hear what your thoughts are on that so first of all what makes Bitcoin different than everything"
+    },
+    {
+      "start": 2840.64,
+      "end": 2846.56,
+      "text": "else is the scarce number of units the fact that you have no issue in the fact that there's no"
+    },
+    {
+      "start": 2846.56,
+      "end": 2850.64,
+      "text": "entity outside of it that can come in and say oh I'm gonna take I'm gonna claw that back"
+    },
+    {
+      "start": 2851.2,
+      "end": 2856.96,
+      "text": "right that is why it's so different and like this is a perfect example of them saying they're"
+    },
+    {
+      "start": 2856.96,
+      "end": 2861.92,
+      "text": "using blockchain technology so I dug into it I was like what blockchain are they using right"
+    },
+    {
+      "start": 2862.75,
+      "end": 2868.91,
+      "text": "and I'm gonna read what I got here New York Stock Exchange isn't building a blockchain they're"
+    },
+    {
+      "start": 2868.91,
+      "end": 2875.86,
+      "text": "building enterprise infrastructure that happens to use blockchain rails the question for existing"
+    },
+    {
+      "start": 2875.86,
+      "end": 2881.38,
+      "text": "chains do they become the settlement layer for trade-fi or do they get bypassed by purpose built"
+    },
+    {
+      "start": 2881.38,
+      "end": 2890.35,
+      "text": "system purpose built systems what is a blockchain rail so there so there's no so with this"
+    },
+    {
+      "start": 2890.35,
+      "end": 2894.11,
+      "text": "announcement they're like they're not saying it's gonna be on a theory I'm or salon or anything"
+    },
+    {
+      "start": 2894.11,
+      "end": 2905.46,
+      "text": "it's all gonna be their own internal databases that may publish to a specific blockchain oh my god"
+    },
+    {
+      "start": 2905.54,
+      "end": 2911.86,
+      "text": "is hilarious right and it's calling me so and to Caitlin has an amazing point which is okay let's say"
+    },
+    {
+      "start": 2911.86,
+      "end": 2916.66,
+      "text": "you're doing it on a theory or a salon or whatever which we all know already has centralization"
+    },
+    {
+      "start": 2916.66,
+      "end": 2924.58,
+      "text": "issues right it still comes down to the state that allows that public equity to even exist in the"
+    },
+    {
+      "start": 2924.58,
+      "end": 2932.03,
+      "text": "first place to be able to issue into said blockchain so that it can be you know not have to deal with"
+    },
+    {
+      "start": 2932.03,
+      "end": 2937.07,
+      "text": "the clearing houses and all this other stuff so yeah I'm just looking at all of it and just kind"
+    },
+    {
+      "start": 2937.07,
+      "end": 2945.87,
+      "text": "of smirking massively smirking I think it like we will true on-chain equities ultimately require"
+    },
+    {
+      "start": 2945.87,
+      "end": 2951.63,
+      "text": "the state to be able to recognize on-chain incorporation on-chain share issuance on-chain share"
+    },
+    {
+      "start": 2951.63,
+      "end": 2957.79,
+      "text": "hold records and the court needs to be able to accept that blockchain state as legal fact"
+    },
+    {
+      "start": 2957.87,
+      "end": 2964.03,
+      "text": "and so until that is happening we're not really on-chain it's just a it's like a facade"
+    },
+    {
+      "start": 2964.03,
+      "end": 2968.75,
+      "text": "that I think yeah it's not really operating the way they describe it you don't actually have"
+    },
+    {
+      "start": 2968.75,
+      "end": 2975.15,
+      "text": "custody of anything that you actually say you have custody of if some outside party can just take"
+    },
+    {
+      "start": 2975.15,
+      "end": 2983.82,
+      "text": "it from you period right and like I don't know of anything that is that other Bitcoin the"
+    },
+    {
+      "start": 2983.82,
+      "end": 2991.44,
+      "text": "coins the only thing that that cannot happen with digitally so you know is it moving faster"
+    },
+    {
+      "start": 2991.44,
+      "end": 2995.76,
+      "text": "yep is the settlement time going to be over the weekend and all this other stuff yep I think it"
+    },
+    {
+      "start": 2995.76,
+      "end": 3003.84,
+      "text": "will but if you have your own wallet right and you're holding apple tokens in your wallet if you"
+    },
+    {
+      "start": 3003.84,
+      "end": 3011.09,
+      "text": "don't think some entity outside of yourself can claw that unit away from you you're out of your"
+    },
+    {
+      "start": 3011.09,
+      "end": 3017.09,
+      "text": "mind you have the idea how it all works because they totally even down at the stable coins today"
+    },
+    {
+      "start": 3017.09,
+      "end": 3023.01,
+      "text": "even even you know you got a tether token or whatever like if somebody high enough up there once"
+    },
+    {
+      "start": 3023.01,
+      "end": 3028.99,
+      "text": "the claw that unit back from you because I mean I've literally seen the posts on twitter with tether"
+    },
+    {
+      "start": 3028.99,
+      "end": 3034.03,
+      "text": "themselves saying oh yeah we've we've retired these coins or we've taken back whatever like"
+    },
+    {
+      "start": 3034.91,
+      "end": 3041.55,
+      "text": "they're the issuer the freaking issuer of the token they can do anything they want so yeah"
+    },
+    {
+      "start": 3042.37,
+      "end": 3049.3,
+      "text": "I think it's interesting and I think that obviously the financial sector moves incredibly slowly"
+    },
+    {
+      "start": 3049.3,
+      "end": 3055.46,
+      "text": "it's also interesting seeing like Larry think talk about blockchain and Bitcoin even just at Davos"
+    },
+    {
+      "start": 3055.46,
+      "end": 3063.38,
+      "text": "recently yeah um I find it interesting just how little bitcoins price has kind of reacted to"
+    },
+    {
+      "start": 3063.38,
+      "end": 3069.3,
+      "text": "what's gone down reacted to what is happening globally on a macro scale I would have expected it to"
+    },
+    {
+      "start": 3069.3,
+      "end": 3074.05,
+      "text": "perform slightly better but I think there's some manipulation going on right now I don't know if"
+    },
+    {
+      "start": 3074.05,
+      "end": 3079.39,
+      "text": "there is or there isn't but I do know I like the price where it's oh a hundred percent"
+    },
+    {
+      "start": 3080.91,
+      "end": 3085.31,
+      "text": "I like where it's at because you can accumulate more and if and if you don't think that between"
+    },
+    {
+      "start": 3085.31,
+      "end": 3090.59,
+      "text": "nation states that being able to ensure that no country can take your units from you your"
+    },
+    {
+      "start": 3090.59,
+      "end": 3096.16,
+      "text": "computation units or your energy units or whatever you want to call I think you got another thing"
+    },
+    {
+      "start": 3096.16,
+      "end": 3102.03,
+      "text": "coming for you I want to do one last category here I'm going to pull up a video first and then"
+    },
+    {
+      "start": 3102.03,
+      "end": 3108.75,
+      "text": "we're going to go into the topic that said one to talk about and here's the video can we you and I"
+    },
+    {
+      "start": 3108.75,
+      "end": 3116.24,
+      "text": "reverse aging in this new history or are we going to see it you know I haven't I haven't"
+    },
+    {
+      "start": 3116.24,
+      "end": 3124.74,
+      "text": "put much time into the aging stuff I do think it is a very solvable problem like you can do I"
+    },
+    {
+      "start": 3124.74,
+      "end": 3130.82,
+      "text": "think when when when we figure out what causes aging I think we'll find it's incredibly obvious"
+    },
+    {
+      "start": 3130.82,
+      "end": 3136.42,
+      "text": "it's not a subtle thing the reason I say it's not a subtle thing is because all the cells in your"
+    },
+    {
+      "start": 3136.42,
+      "end": 3143.38,
+      "text": "body you know with some pretty much age at the same rate I've never seen someone with with an"
+    },
+    {
+      "start": 3143.38,
+      "end": 3150.83,
+      "text": "old left arm and a young right arm ever in my life so why is that it that means that there must"
+    },
+    {
+      "start": 3150.83,
+      "end": 3156.91,
+      "text": "be a clock a synchronizing clock that is synchronizing across 35 trillion cells in your body"
+    },
+    {
+      "start": 3158.9,
+      "end": 3170.35,
+      "text": "and you know there is some benefit to death by the way there's a reason why we don't actually"
+    },
+    {
+      "start": 3170.35,
+      "end": 3176.99,
+      "text": "have a longer lifespan because if you have if people do live forever for a very long time I think"
+    },
+    {
+      "start": 3176.99,
+      "end": 3184.27,
+      "text": "there's some risk of an ossification of society of things just getting kind of locked in place"
+    },
+    {
+      "start": 3186.3,
+      "end": 3199.34,
+      "text": "and yeah you know it just may become stultifying just not like like vibrancy but that's"
+    },
+    {
+      "start": 3199.34,
+      "end": 3207.81,
+      "text": "said do I think we'll figure out ways to extend life and and maybe even reverse aging I think"
+    },
+    {
+      "start": 3207.81,
+      "end": 3218.02,
+      "text": "that's highly likely I'm looking forward to that yeah so Seb this is not a new topic that we've"
+    },
+    {
+      "start": 3218.02,
+      "end": 3222.74,
+      "text": "ever addressed on the show but I guess seeing him there at the world economic forum with Larry"
+    },
+    {
+      "start": 3222.74,
+      "end": 3229.62,
+      "text": "Fink asking him specifically about aging and being able to pause it or even maybe reverse it"
+    },
+    {
+      "start": 3229.62,
+      "end": 3232.5,
+      "text": "I think there's a lot of people in the world that are here in this for the very first time and"
+    },
+    {
+      "start": 3232.5,
+      "end": 3242.93,
+      "text": "they're saying what the heck are these guys what are these guys talking about I mean mind"
+    },
+    {
+      "start": 3242.93,
+      "end": 3250.91,
+      "text": "blowing stuff it's incredible it's absolutely incredible and we've spoken about this a few times"
+    },
+    {
+      "start": 3250.91,
+      "end": 3256.11,
+      "text": "and I'd recommend anyone going back and listening to our book review lifespan by David Sinclair"
+    },
+    {
+      "start": 3256.11,
+      "end": 3263.25,
+      "text": "because we did a whole episode on aging longevity you name it and I think one of the things I'm"
+    },
+    {
+      "start": 3263.25,
+      "end": 3271.57,
+      "text": "kind of like a little torn by is there's so many examples throughout evolution where the moment"
+    },
+    {
+      "start": 3271.57,
+      "end": 3277.65,
+      "text": "we've gone through our ability to give birth to offspring we tend to die off because we don't"
+    },
+    {
+      "start": 3277.65,
+      "end": 3283.65,
+      "text": "want to consume resources which could impact the survival of our offspring and so there's parts"
+    },
+    {
+      "start": 3283.65,
+      "end": 3287.57,
+      "text": "me that wonder like okay this is great in the grand scheme of things when we think about yeah I'd"
+    },
+    {
+      "start": 3287.57,
+      "end": 3292.85,
+      "text": "love to live forever potentially as most people I think would think that along those lines but"
+    },
+    {
+      "start": 3292.85,
+      "end": 3296.93,
+      "text": "is it actually productive long term because we're going to continue to consume resources and then"
+    },
+    {
+      "start": 3296.93,
+      "end": 3303.44,
+      "text": "on top of that I also think from a spiritual perspective that part of life is also death and I"
+    },
+    {
+      "start": 3303.44,
+      "end": 3309.2,
+      "text": "think that value is created because of the finite time we spend on this earth and so are we really"
+    },
+    {
+      "start": 3309.2,
+      "end": 3314.4,
+      "text": "able to embrace life and drop in and choose and figure out what is important what creates value in"
+    },
+    {
+      "start": 3314.4,
+      "end": 3318.16,
+      "text": "life if we don't have that finality I'll be talking about the difference between Bitcoin and"
+    },
+    {
+      "start": 3318.88,
+      "end": 3323.2,
+      "text": "why is Bitcoin valuable because of its scarcity fear is not valuable because of the lack of"
+    },
+    {
+      "start": 3323.2,
+      "end": 3330.32,
+      "text": "scarcity and so I'm curious about longevity if we are able to extend life indefinitely or"
+    },
+    {
+      "start": 3330.32,
+      "end": 3336.32,
+      "text": "two three four or five hundred years does that impact our ability to find value in life"
+    },
+    {
+      "start": 3337.68,
+      "end": 3343.95,
+      "text": "I love that example but you know my immediate thought was okay well now we're now we're defining"
+    },
+    {
+      "start": 3344.11,
+      "end": 3351.87,
+      "text": "you know normal human life is a hundred years why is that normal maybe 500 maybe a thousand years"
+    },
+    {
+      "start": 3351.87,
+      "end": 3358.78,
+      "text": "is I'm just making up numbers to challenge the critical thinking right now you're really defining"
+    },
+    {
+      "start": 3358.78,
+      "end": 3366.61,
+      "text": "like well what is a scarce element of time for a human but I do love the framing and I think"
+    },
+    {
+      "start": 3366.61,
+      "end": 3371.89,
+      "text": "based on Elon's comments there he also agrees that totally needs to be some type of scarcity to"
+    },
+    {
+      "start": 3372.85,
+      "end": 3378.05,
+      "text": "one and so maybe a point that I kind of wanted to bring up is I stumbled across this study"
+    },
+    {
+      "start": 3378.05,
+      "end": 3385.25,
+      "text": "that was recently in science direct and this study I'm going to read a little snippet but the study"
+    },
+    {
+      "start": 3385.25,
+      "end": 3390.77,
+      "text": "basically says that it was regarding stem cell being able to grow stem cells to be able to assist"
+    },
+    {
+      "start": 3390.77,
+      "end": 3396.05,
+      "text": "people in insulin production and it says the patient achieved sustained insulin independence"
+    },
+    {
+      "start": 3396.13,
+      "end": 3402.37,
+      "text": "starting 75 days post transplantation the patient's time and target glycemic range"
+    },
+    {
+      "start": 3402.37,
+      "end": 3410.05,
+      "text": "increased for a baseline value of 43% to 96% by a four month post transplantation mark a"
+    },
+    {
+      "start": 3410.05,
+      "end": 3417.09,
+      "text": "company by decreasing glycated hemoglobin an indicator of long term systemic glucose levels"
+    },
+    {
+      "start": 3417.09,
+      "end": 3422.69,
+      "text": "at a non diabetic level thereafter the patient presented a stable glycemic control with a time"
+    },
+    {
+      "start": 3422.69,
+      "end": 3428.93,
+      "text": "entirely range greater than 98% so what is really really highlighting is that they've figured out"
+    },
+    {
+      "start": 3428.93,
+      "end": 3434.77,
+      "text": "how to go into the body with stem cell therapy stem cell treatment and enable the body to start"
+    },
+    {
+      "start": 3434.77,
+      "end": 3442.53,
+      "text": "producing insulin again in someone who has diabetes and this is mind low like four months after"
+    },
+    {
+      "start": 3442.53,
+      "end": 3449.57,
+      "text": "post transplantation they went from staying in a healthy glycemic range from 40% up to 96%"
+    },
+    {
+      "start": 3449.57,
+      "end": 3455.73,
+      "text": "post transplantation and we've now seen it after a year they were at 98% sitting in a normal"
+    },
+    {
+      "start": 3455.73,
+      "end": 3460.85,
+      "text": "glycemic range and so this kind of brings up this question like around like aging again"
+    },
+    {
+      "start": 3460.85,
+      "end": 3465.97,
+      "text": "if we're able to go back to the root of a lot of illness whether it is diabetes and the insulin"
+    },
+    {
+      "start": 3465.97,
+      "end": 3470.69,
+      "text": "production kidney disease we have treating with dialysis or heart disease putting stents and"
+    },
+    {
+      "start": 3470.69,
+      "end": 3475.49,
+      "text": "statins or autoimmune conditions and we're using autoimmune suppression drugs instead of going"
+    },
+    {
+      "start": 3475.89,
+      "end": 3481.65,
+      "text": "doing all of these symptom treating things we're going back to the root and able to repair the cell"
+    },
+    {
+      "start": 3481.65,
+      "end": 3487.73,
+      "text": "or place new cells in there that are basically brand new young cells this completely changes how"
+    },
+    {
+      "start": 3487.73,
+      "end": 3492.45,
+      "text": "we think about health is that's why I find really interesting like regardless of where we stand"
+    },
+    {
+      "start": 3492.45,
+      "end": 3499.17,
+      "text": "on the longevity front are you pro longevity not for longevity ultimately what we are seeing"
+    },
+    {
+      "start": 3499.25,
+      "end": 3505.65,
+      "text": "is our ability to support cellular regrowth stem cell growth united I think that's profound I'm"
+    },
+    {
+      "start": 3505.65,
+      "end": 3510.29,
+      "text": "curious to hear your thoughts all these tech titans are just treating it as an as an engineering"
+    },
+    {
+      "start": 3510.29,
+      "end": 3516.8,
+      "text": "problem I mean it's it's just complexity if there's one thing we've learned AI can do is deal with"
+    },
+    {
+      "start": 3516.8,
+      "end": 3521.84,
+      "text": "a lot of complexity and sort out where the signal is amongst what humans would view as noise"
+    },
+    {
+      "start": 3522.83,
+      "end": 3528.27,
+      "text": "and it's just an engineering problem like hearing Elon on stage basically say oh yeah I've never"
+    },
+    {
+      "start": 3528.27,
+      "end": 3533.15,
+      "text": "seen somebody with an old left arm in a you know or older than their their other arm and it's like"
+    },
+    {
+      "start": 3533.95,
+      "end": 3538.11,
+      "text": "he's truly looking at it from a first principles engineering problem you say oh based on this"
+    },
+    {
+      "start": 3538.11,
+      "end": 3543.71,
+      "text": "just this intuition it seems to be solvable so yeah I think that this is only going to get"
+    },
+    {
+      "start": 3543.71,
+      "end": 3549.47,
+      "text": "crazier in the coming five years I see the Davidson Claire posts on X all the time and I mean he's just"
+    },
+    {
+      "start": 3550.19,
+      "end": 3554.75,
+      "text": "hand me on Peter D. Amanda's or basically run around saying this this is pretty much in the bag"
+    },
+    {
+      "start": 3554.75,
+      "end": 3558.99,
+      "text": "like we're going to be able to extend life in the other interview Peter D. Amanda's was saying that"
+    },
+    {
+      "start": 3558.99,
+      "end": 3562.51,
+      "text": "they think within the coming five I think it was coming five years are going to be able to like"
+    },
+    {
+      "start": 3562.51,
+      "end": 3569.49,
+      "text": "potentially double the lifespan of humans which oh my god since those are such insane"
+    },
+    {
+      "start": 3570.77,
+      "end": 3576.45,
+      "text": "quotes from people and I obviously don't have the technical competence and biology to or where"
+    },
+    {
+      "start": 3576.45,
+      "end": 3581.33,
+      "text": "they're even at with some of these technologies to the troubleshooter audit these comments but the"
+    },
+    {
+      "start": 3581.33,
+      "end": 3587.63,
+      "text": "comments being made and I mean I think Sinclair has quite a bit of credibility in the space so"
+    },
+    {
+      "start": 3588.51,
+      "end": 3594.99,
+      "text": "I would be curious like being at Bitcoin because you are coming up against central banking"
+    },
+    {
+      "start": 3594.99,
+      "end": 3601.15,
+      "text": "fear currencies we've experienced firsthand just how much they're willing to fight to preserve"
+    },
+    {
+      "start": 3601.15,
+      "end": 3606.83,
+      "text": "their existence what I find interesting about the longevity space is the longevity space goes"
+    },
+    {
+      "start": 3606.83,
+      "end": 3612.35,
+      "text": "up against big farmer goes up against the healthcare industry these are some of the biggest"
+    },
+    {
+      "start": 3612.35,
+      "end": 3619.07,
+      "text": "industries in the world and ultimately they sell sickness they'd profit off of people being sick"
+    },
+    {
+      "start": 3619.07,
+      "end": 3624.43,
+      "text": "and so what happens when instead of having someone a lifelong drug where this company is making"
+    },
+    {
+      "start": 3624.99,
+      "end": 3629.31,
+      "text": "hundreds of thousands millions dollars across the lifetime of a patient to all of a sudden this"
+    },
+    {
+      "start": 3629.31,
+      "end": 3636.59,
+      "text": "person can in time get a $10,000 $20,000 surgery and it repairs the issue in one one go"
+    },
+    {
+      "start": 3636.59,
+      "end": 3640.99,
+      "text": "and so there's an interesting book that I highly recommend people really call to selling sickness"
+    },
+    {
+      "start": 3640.99,
+      "end": 3647.63,
+      "text": "and it talks about just how much like ultimately our system is provide the way at the WAF in Davis"
+    },
+    {
+      "start": 3647.63,
+      "end": 3656.94,
+      "text": "today it was announced that the US is dropping it out of the WHO perfect perfect so the World Health"
+    },
+    {
+      "start": 3656.94,
+      "end": 3662.78,
+      "text": "Organization the US is dropping out of this is crazy it's like the shot heard round the world"
+    },
+    {
+      "start": 3662.78,
+      "end": 3668.38,
+      "text": "happening because it's just so different the course correct the the wind shift whatever you"
+    },
+    {
+      "start": 3668.38,
+      "end": 3674.78,
+      "text": "want to call it that's happening over there this year is monumental compared to what it's been in"
+    },
+    {
+      "start": 3674.78,
+      "end": 3679.5,
+      "text": "the past I think it's mind blowing without obviously getting too political it's mind blowing just"
+    },
+    {
+      "start": 3679.5,
+      "end": 3684.86,
+      "text": "to see trump turn up and just say effectively we're not playing by these rules anymore we're going"
+    },
+    {
+      "start": 3684.86,
+      "end": 3689.5,
+      "text": "to we're going to try to own course and we've seen that obviously with the health secretary what"
+    },
+    {
+      "start": 3689.5,
+      "end": 3694.38,
+      "text": "they're doing how they're kind of like calling out big farmers so I find ultimately I think it's"
+    },
+    {
+      "start": 3694.38,
+      "end": 3700.14,
+      "text": "important to be at a question the status quo and that's how we move forward I'm hearing rumors that"
+    },
+    {
+      "start": 3700.14,
+      "end": 3706.38,
+      "text": "I saw these rumors online that when Howard Lutnik the Commerce Secretary was talking and Davis"
+    },
+    {
+      "start": 3706.38,
+      "end": 3716.62,
+      "text": "Al Gore was literally booing him in the back oh fuck yeah well one of the things but I saw something"
+    },
+    {
+      "start": 3716.7,
+      "end": 3722.94,
+      "text": "the other day maybe two days ago a tweet about how the Antarctic icecat is large and now the"
+    },
+    {
+      "start": 3722.94,
+      "end": 3729.33,
+      "text": "when Al Gore released the convenient truth or whatever it was called that's an inconvenient truth"
+    },
+    {
+      "start": 3729.33,
+      "end": 3736.21,
+      "text": "right there okay sad give a hand off the folks they want to learn more but even by the way folks"
+    },
+    {
+      "start": 3736.21,
+      "end": 3742.29,
+      "text": "we have topics we can just go on and on and on for like 10 hours on all this stuff that's happening"
+    },
+    {
+      "start": 3742.29,
+      "end": 3746.29,
+      "text": "we're just we're not even scratching the surface of the stuff that we're really trying to mind it"
+    },
+    {
+      "start": 3746.29,
+      "end": 3752.05,
+      "text": "isn't seen give people a hand off sad people want to learn more about you hey guys yeah you can find"
+    },
+    {
+      "start": 3752.05,
+      "end": 3757.65,
+      "text": "me sadbunny.com my book the heading cost of money and again pressing absolutely love these conversations"
+    },
+    {
+      "start": 3757.65,
+      "end": 3762.37,
+      "text": "if anyone has any interesting topics they want us to talk about feel free to just like post it"
+    },
+    {
+      "start": 3762.37,
+      "end": 3767.09,
+      "text": "on Twitter underneath the link once we post a video and we always keen to discuss these topics but"
+    },
+    {
+      "start": 3767.09,
+      "end": 3773.44,
+      "text": "we appreciate you guys listening. Seb there's a new thing that we do when we close out the show"
+    },
+    {
+      "start": 3774.38,
+      "end": 3782.86,
+      "text": "we create an AI song that takes the transcripts of our conversation and turns it into a song but"
+    },
+    {
+      "start": 3782.86,
+      "end": 3788.86,
+      "text": "it's always in the style of the guest of like the favorite type of music or their favorite type of"
+    },
+    {
+      "start": 3788.86,
+      "end": 3795.66,
+      "text": "song so you say what that is and then when this errors you're gonna hear the song so what is your"
+    },
+    {
+      "start": 3795.66,
+      "end": 3802.46,
+      "text": "favorite style or you know artist or a song that you like oh bad um you know what I would probably say"
+    },
+    {
+      "start": 3802.46,
+      "end": 3808.46,
+      "text": "I was a huge I listened to a lot of varied music but in my teenage years early 20s I was in a huge"
+    },
+    {
+      "start": 3808.46,
+      "end": 3815.18,
+      "text": "kind of grunge phase oh so how to pull jam sound garden so let's go with grunge okay you got it all"
+    },
+    {
+      "start": 3815.18,
+      "end": 3820.38,
+      "text": "right folks I hope you guys enjoy the outro with the song so thanks for joining and check out"
+    },
+    {
+      "start": 3820.38,
+      "end": 3824.54,
+      "text": "the stuff that we have in the show notes and Seb thank you so much for making time thanks"
+    },
+    {
+      "start": 3825.26,
+      "end": 4009.98,
+      "text": "for listening to TIP visit the investors podcast.com for show notes and educational resources"
+    },
+    {
+      "start": 4009.98,
+      "end": 4014.46,
+      "text": "this podcast is for informational and entertainment purposes only and does not provide financial"
+    },
+    {
+      "start": 4014.46,
+      "end": 4019.5,
+      "text": "investment tax or legal advice the content is impersonal and does not consider your objectives"
+    },
+    {
+      "start": 4019.5,
+      "end": 4024.14,
+      "text": "financial situation or needs investing involves risk including possible loss of principle"
+    },
+    {
+      "start": 4024.14,
+      "end": 4028.62,
+      "text": "and past performance is not a guarantee of future results listeners should do their own research"
+    },
+    {
+      "start": 4028.62,
+      "end": 4032.86,
+      "text": "and consult a qualified professional before making any financial decisions nothing on this show"
+    },
+    {
+      "start": 4032.86,
+      "end": 4038.3,
+      "text": "is a recommendation or solicitation to buy or sell any security or other financial product hosts"
+    },
+    {
+      "start": 4038.3,
+      "end": 4042.7,
+      "text": "guests and the investors podcast network may hold positions in securities discussed and may"
+    },
+    {
+      "start": 4042.7,
+      "end": 4047.5,
+      "text": "change those positions at any time without notice references to any third party products services"
+    },
+    {
+      "start": 4047.5,
+      "end": 4052.3,
+      "text": "or advertisers do not constitute endorsements and the investors podcast network is not responsible"
+    },
+    {
+      "start": 4052.3,
+      "end": 4057.18,
+      "text": "for any claims made by them copyright by the investors podcast network all rights reserved"
+    },
+    {
+      "start": 4058.4,
+      "end": 4065.28,
+      "text": "what we're seeing is Elon is kind of bringing everything in house like he's got SpaceX and he's"
+    },
+    {
+      "start": 4065.28,
+      "end": 4069.12,
+      "text": "got Starlink and he's got Tesla and he's got Neuralink and he's got Grock and he's got the boring"
+    },
+    {
+      "start": 4069.12,
+      "end": 4074.4,
+      "text": "company and he's got Tesla Energy all of these things he's trying to control because he wants"
+    },
+    {
+      "start": 4074.4,
+      "end": 4079.12,
+      "text": "control over the output he wants to minimize operating costs he wants to maximize efficiency"
+    },
+    {
+      "start": 4079.12,
+      "end": 4083.36,
+      "text": "and so I ask what I think is so cool about him bringing the chips in house is this just going to"
+    },
+    {
+      "start": 4083.36,
+      "end": 4085.36,
+      "text": "create far more efficiency and control"
+    }
+  ],
+  "topics": [
+    "mining",
+    "price",
+    "regulation",
+    "macro",
+    "institutional",
+    "privacy"
+  ],
+  "sentiment": "bullish",
+  "archived_at": "2026-03-05T17:23:17Z"
+}

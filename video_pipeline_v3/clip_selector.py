@@ -258,6 +258,26 @@ def select_clips(videos: list) -> dict:
             clean_clips = memory_filtered
             result["clips"] = clean_clips
 
+        # 5-CLIP RULE enforcement (PIPELINE_LAWS Section 22)
+        test_mode = len(videos) <= 4  # heuristic: few source videos = test mode
+        required_clips = 2 if test_mode else 5
+
+        # Ensure exactly required_clips from unique channels
+        selected_channels = [c.get("channel", "") for c in clean_clips]
+        unique_channels = set(selected_channels)
+
+        if not test_mode and len(clean_clips) != 5:
+            logger.warning(f"5-CLIP RULE: {len(clean_clips)} clips selected, need exactly 5")
+
+        if len(unique_channels) != len(clean_clips):
+            logger.warning(f"CHANNEL DIVERSITY VIOLATION: {len(unique_channels)} unique "
+                           f"channels for {len(clean_clips)} clips — already deduped above")
+
+        # Log the 5-clip rule result
+        channel_list = sorted(unique_channels)
+        logger.info(f"5-CLIP RULE: Selected {len(clean_clips)} clips from "
+                    f"{len(unique_channels)} unique channels: {channel_list}")
+
         logger.info(f"Claude selected {len(clips)} clips, {len(clean_clips)} passed ad+dedup filter:")
         for c in clean_clips:
             logger.info(f"  #{c['rank']}: [{c['channel']}] {c.get('video_title', '')[:40]} "

@@ -1,0 +1,910 @@
+{
+  "video_id": "DC2iQsy2_vI",
+  "title": "Michael Saylor on the Risks of Quantum Computing to Bitcoin Security",
+  "channel": "Natalie Brunell",
+  "upload_date": "",
+  "duration": 1189,
+  "transcript_text": "We have that saying in Bitcoin, don't trust verify, but a lot of people are just not technical enough to be able to verify. Is quantum actually an existential threat? I know you guys made an announcement recently of strategy with regards to quantum and the future, making sure that Bitcoin is quantum-proof. Can you kind of explain to people why you don't see this as such a risk that seems to be priced in at some point? So, first of all, the consensus of the cybersecurity community broadly held is that quantum risk, if it exists, is more than 10 years out. It's not this decade thing. Whether or not there will be a quantum threat or a quantum risk is a question that is yet to be decided, but there's certainly no consensus that there is any threat right now, or that there will be a threat materializing anytime soon. Should a quantum risk materialize? At that point, then you're going to see an upgrade in the software that runs the global banking system, the global internet, consumer devices, all the crypto networks, the Bitcoin network, everything digital, the AI networks, all of those networks that we rely on today, whether they're governmental or financial or consumer or defense related, they're going to get upgraded with post-quantum resistant cryptography. It won't be a surprise. You'll see it coming. We will all see it coming. Bitcoin software, Bitcoin core version 30. Right now we're debating over upgrading from version 29 to version 30. The software does change. If you've got 30 versions of Bitcoin core in an asset, which is 17 years old, do the math in your head and figure out how long it takes for versions of this stuff to roll out. The nodes will upgrade, the hardware will upgrade, the wallets will upgrade, the exchanges will upgrade. How will they upgrade? Well, wait 10 years, there will be global consensus about the best way to deal with it. There is no global consensus right now because there isn't a credible threat right now. Why do I not worry about it? Well, because everybody with anything at stake, whether it's Google or Microsoft or Apple or Coinbase or BlackRock or strategy or the US government or the Russian government or the EU government or the Chinese government or JP Morgan or Morgan selling, they all have to deal with the same issue. We all have digital systems that would be that would be at risk if there was a credible quantum threat. If and when it materializes, I expect that there will be some software or hardware or both reaction to it, the crypto community is actually the most sophisticated cybersecurity community. If you look at the cybersecurity protocols that are used to move crypto around, they're all multifactor authentication with hardware keys, etc. If you consider the security protocols used to move bank wires around or used to trade stocks, they're orders of magnitude weaker right now. I'm not going to elaborate on them for obvious reasons, but anyone that's actually engaged in a stock transaction or bank wire transaction or a credit card transaction or a check transaction or any kind of consumer finance transaction or communication transaction knows that the steps you go through in order to move Bitcoin out of coal storage or to transfer it to someone else, especially when you're moving it at scale are extremely sophisticated. I think that the crypto security community will be the first to perceive the threat and to react to the threat and they'll be leading the way. We have announced a Bitcoin security program. Coinbase obviously has a security program. A lot of the money that I contribute early to the Bitcoin core dev to the Bitcoin development process was actually to Bitcoin security programs, like the MIT Bitcoin security program. I think that all of us that are large Bitcoin holders or users are in the industry. We know the security of the network is paramount, but I don't actually think that the quantum narrative is the greatest security threat to Bitcoin right now. I don't think it has been people joke they've been concerned and talking about it every two years for the past 15 years. I actually think that there are 100 narratives that people discuss that might be a security threat. Is there a bandwidth problem? Is there a nation-state attack vector? Does it have enough functionality? Does it have too much functionality? Is it evolving too quickly? Is it not evolving fast enough? Is this sufficiently decentralized? Should we make it easier to run on an iPhone? Should we make it not easier to run on an iPhone? The number of debates about what's good for Bitcoin are mind-numbing, and there are many of them. They will continue. Quantum will be one. It used to be, there's a debate, well, the Chinese will they'll control all the mining. Then it's like the Chinese control the mining equipment. There might be a back door in the mining equipment. Oh no, the Chinese ban Bitcoin mining. Chinese ban Bitcoin mining equipment. Chinese don't like Bitcoin anymore. The debates they vary from, there's a risk to, oh no, there isn't a risk. Why don't the Chinese like Bitcoin? At some point it gets silly because it's a hundred of them. At this point, the reason we're talking about quantum is because all of the other risks did not materialize. A decade ago, people fought the block size wars. The entire block size wars, there's books written about it, you can go back. The narrative was, Bitcoin will fail because it doesn't have enough bandwidth. People fought bitterly over this. A few days ago, I posted a screenshot of Clark Moody's dashboard, and it showed that the fee structure of Bitcoin was one sat per V-bite for instantaneous performance. One sat, one sat, one sat, one sat. In essence, there is no bandwidth problem. In the Bitcoin network, a decade after the block size wars, people fought and died over that narrative. It was a non-issue. Eventually, the free market solved the problem. At the end of the day, you always have this dynamic between the alarmist, the ambitious opportunist, or the idealist out there if you want to be charitable. The idealistic intellectuals, you could call them that. You could call them the ambitious opportunist if you like. They pause it. Bitcoin will boil the oceans. Bitcoin will fail because you can't self-custody. Bitcoin will fail because of bandwidth. This follows. It pops up as we can't use nuclear energy. It will blow up the world. We can have nuclear power. We're going to boil the oceans. They're climate alarmists. They're whatever alarmists. There's 150 narratives that people spin up. Every one of them is a way to accumulate, to glean interesting engagement. I want influence, or I want capital, or I want power. It's very important that we vaccinate every three-year-old on Earth at the cost of $10,000 of vaccines shot against yo-yo disease. The one that I just found that hypothetically might well be an issue. Please give me $100 billion and let's declare martial law and let's make it illegal for parents not to do this because I'm here to save the world. It's this God complex or intellectual save the world context. It's been going on for thousands of years, Natalie. It's in the political process and the crypto process and the Bitcoin process. So the fact of the matter is none of the narratives that we're going to stop Bitcoin or threaten Bitcoin everpanned out. They all turned out to be incorrect. The scalability, we have to stop spam. Oh, no, we didn't. We have to create smart contracts to create scam. No, we don't. We have to double the blocks. No, we didn't. The miners, the miners are going to go bankrupt. No, they didn't. No, we'll mine Bitcoin. Yes, they will. The Chinese will stop it. Yes, they did. No, they didn't. Yes, they did. No, they didn't. They need to endorse it. They can't endorse it. Right? It needs to be private. No, it doesn't. Right? All of these things, they're all narratives. It used too much energy. No, it didn't. It'll boil the ocean. It didn't. Quantum will hack it. No, it won't. Right? And what is it that people are missing here? Well, first of all, 99 out of 100 of these narratives, they benefit the ambitious opportunist because now they become famous. Al Gore makes hundreds of millions of dollars preaching that the climate is going to collapse, right? And 25 years later, it didn't happen. Somebody gets rich. ESG worked. But it didn't happen. But the point is if I wasn't preaching it, how am I getting rich? Right? So the point is it's a business. So what you have is this economic and political amplification of alarmist narratives because it benefits the politician. It benefits the entrepreneur. It benefits those that have a will to money or power, right? And how am I supposed to get rich if I don't like we basically at one point, we decided that you had to stand six feet away from each other and wear a mask and the government needed to buy a hundred billions of dollars of masks, you know? And if you didn't wear the mask, you're going to jail and it's like someone sold the masks. Right? And so there is there is a very powerful feedback with these narratives. And once you realize that you realize that 99 out of 100 narratives are just a way for someone to accumulate money and power and you ought to be skeptical of those narratives. And the last point, it's a famous president said, he said, you see 10 problems driving down the road at you. Nine of them are going to drive themselves into a ditch before they get to you. Right? And so how do I get rich, Natalie? Well, I convince you that it's possible that you're going to trip on a rock and break your leg and not be able to work. And so I saw you trip on a rock insurance. What's that cost? That's going to cost you 1% of your annual income, the trip on a rock insurance. And then I, someone else comes along and says, well, you know, you might, you know, get a sneezing attack, Natalie. And I'm going to sell you sneezing attack insurance. And once I can cost you, that's going to cost you 1% because if you get the sneezing attack thing, then you won't be able to work. And so another guy comes along and he convinces you that, you know, there's a hypothetical chance that your children will have autism. And so we're going to sell you, you know, the autism vaccine, whatever, and that'll cost you 2%. And then someone else comes along and they're like, well, you know, it's quite possible that you'll be driving the car and something will happen and you'll wreck the car and you'll be able to work again. So here's like, you know, vocational insurance for driving of the car. And I come up with like 100 possible things. And each of them is 0.01% likely. And the collective all of them is 1% likely to happen to you. But I sell you insurance that sucks up 100% of your income. So if you ensure for every one of these parade of horribles, every hypothetical, possible thing, you're bankrupt. So you are 100% likely to be bankrupt because you bought insurance against 100 things that were 1% likely to happen. And by the way, if you had bought insurance against none of them, a decade would have gone by and you'd be like 1% likely to have one of them. And you would have just like upgraded your iPhone software. And the problem would have gone away. You know, and it's like, but the person that's selling you the insurance isn't going to make a billion dollars if you just wait 10 years and upgrade your iPhone software and it goes away. How am I supposed to get rich on that? Like, how am I supposed to get elected to be governor of a state if, you know, if I don't spin up a narrative that is a doom narrative? And so what the danger is when anything gets weaponized by an entrepreneur, it's like, I want to raise money so I can hire a bunch of quantum resistant developers. Or I want you to sell Bitcoin and buy quantum resistant yo-yo coin. Or I want to be elected mayor. And the problem is that there's hypothetically radioactive something, you know, in 10 years, the water, the tricking water will be radioactive, but we let nuclear reactors get built somewhere in the state five years from now. And that's why you should give me all your money so I can be elected mayor now so I can pass a law to prevent the hypothetical problem 8,700 years from now. And of course, what you see, of course, is when you have enough of these issues, I've had lawyers, I've had lawyers say, well, you know, you can't do that because hypothetically in 15 years after 15 appeals, like, there might be, you know, a quasi liability if you were to do this and that and the other thing, I'm like, what, you know, we're going to go out of business next month if we do what you said. But, but in 15 years, hypothetically, there's a 0.01 percent chance that we might have to pay 0.01 percent of our money to solve the problem. But, oh, well, I guess if you look at it that way, then I guess you're right. It's like, and that, and that is pretty much the legalistic view. And so politicians tend to be lawyers, idealistic intellectuals tend to be thinking that way. Ambitious opportunists think that way. You know, I can basically point to the fall of the British Empire. I can point to the fall of a whole bunch of states. I can point to Easter Island. I can show you the fall of the Roman Empire, the fall of the Carthaginian Empire. Every great city, every great mercantile network, every great empire, every, every great corporation, it all starts to collapse at the point that someone's like, well, you know, out of an abundance of caution, maybe we need to prevent this or we need to do that, right? And I would say this entire quantum fear is just the latest quantum fear. Because there's nothing else to talk about. And I can no longer raise money by saying that that Bitcoin needs to be more scalable or have smart contracts or whatever. So this is the only way to be relevant and get attention. And so, you know, when this one falls, someone will say, well, you know, like at some point, you know, we're going to, and we're going to upgrade to nano bots in the head and hollow bands and Bitcoin's not hollow band nano bot ready. And we're going to need to invest a lot of money in, you know, hollow band nano bot chains because, you know, otherwise your Bitcoin's going to be worthless. It is like someone will say it, I guarantee it because that's the story of humanity since time immemorial. And ultimately, you're either going to have a constructive optimistic view, which is, you know, something will happen and we'll just take advantage, upgrade the software or upgrade the network to take advantage of the new technology and we'll all be richer and happier and live happier ever after. That's one view. Or something's going to happen and we're just too stupid to figure out how to react to it. And we're just going to lose everything. And so therefore, I should just give all my money to this ambitious opportunist, you know, who's preaching that the world's going to end. Why don't I just give all my money to them because I'm too stupid. And it's like, it's silly, but it's predictable. And what I would say is you know, the back of the hitchhikers guy to the galaxy, right? It's like, don't panic. At the end of the day, lots of things will happen in the future. The human race will react to the things. The people that chose to put their money at a bank in cyberspace, they will probably upgrade the hardware and the software and the methodologies that protect the bank in cyberspace when they feel they need to. Until that time, there's a hundred other things. You're probably better off to use that bandwidth worrying about look both ways when you cross the street. Because you don't want to be that egghead intellectual that walks in front of a truck because they're worried about the .01% likely quantum threat that would be easily deflected with the iPhone update, right? Or a 20 second click on this and engage. You know, it's it's not even even that difficult because Natalie, you're not going to have a choice. When when and if there is a cybersecurity threat, your business software is getting upgraded. Your bank software is getting upgraded. The government software is getting upgraded. The crypto network software is getting upgraded. It's almost going to be damn near impossible. Did you ever make a decision to upgrade all your systems to Y2K friendly? Do you even recall that? I do recall that time period and everyone was terrified and it ended up being nothing. So everybody in the world was terrified. The world was coming to an end and it was nothing. But you know what? Billions of people didn't do anything. Couldn't have done anything. Couldn't have stopped it. It was a non-issue and it would just be one of 10,000 examples of nothings. Get arrested. They get overcome by the human race every few years.",
+  "timestamped_text": [
+    {
+      "start": 0.0,
+      "end": 5.6,
+      "text": "We have that saying in Bitcoin, don't trust verify, but a lot of people are just not technical"
+    },
+    {
+      "start": 5.6,
+      "end": 10.96,
+      "text": "enough to be able to verify. Is quantum actually an existential threat? I know you guys made an"
+    },
+    {
+      "start": 10.96,
+      "end": 15.76,
+      "text": "announcement recently of strategy with regards to quantum and the future, making sure that Bitcoin"
+    },
+    {
+      "start": 15.76,
+      "end": 21.36,
+      "text": "is quantum-proof. Can you kind of explain to people why you don't see this as such a risk that"
+    },
+    {
+      "start": 21.36,
+      "end": 28.35,
+      "text": "seems to be priced in at some point? So, first of all, the consensus of the cybersecurity"
+    },
+    {
+      "start": 28.35,
+      "end": 37.47,
+      "text": "community broadly held is that quantum risk, if it exists, is more than 10 years out. It's not"
+    },
+    {
+      "start": 38.03,
+      "end": 46.77,
+      "text": "this decade thing. Whether or not there will be a quantum threat or a quantum risk is a question"
+    },
+    {
+      "start": 46.77,
+      "end": 52.29,
+      "text": "that is yet to be decided, but there's certainly no consensus that there is any threat right now,"
+    },
+    {
+      "start": 52.29,
+      "end": 59.33,
+      "text": "or that there will be a threat materializing anytime soon. Should a quantum risk materialize?"
+    },
+    {
+      "start": 60.54,
+      "end": 68.78,
+      "text": "At that point, then you're going to see an upgrade in the software that runs the global banking system,"
+    },
+    {
+      "start": 68.78,
+      "end": 76.3,
+      "text": "the global internet, consumer devices, all the crypto networks, the Bitcoin network,"
+    },
+    {
+      "start": 77.26,
+      "end": 83.42,
+      "text": "everything digital, the AI networks, all of those networks that we rely on today, whether they're"
+    },
+    {
+      "start": 83.42,
+      "end": 89.98,
+      "text": "governmental or financial or consumer or defense related, they're going to get upgraded with"
+    },
+    {
+      "start": 89.98,
+      "end": 97.34,
+      "text": "post-quantum resistant cryptography. It won't be a surprise. You'll see it coming. We will all see"
+    },
+    {
+      "start": 97.34,
+      "end": 105.26,
+      "text": "it coming. Bitcoin software, Bitcoin core version 30. Right now we're debating over upgrading from"
+    },
+    {
+      "start": 105.26,
+      "end": 111.74,
+      "text": "version 29 to version 30. The software does change. If you've got 30 versions of Bitcoin core in"
+    },
+    {
+      "start": 111.74,
+      "end": 117.9,
+      "text": "an asset, which is 17 years old, do the math in your head and figure out how long it takes"
+    },
+    {
+      "start": 117.9,
+      "end": 123.58,
+      "text": "for versions of this stuff to roll out. The nodes will upgrade, the hardware will upgrade,"
+    },
+    {
+      "start": 123.58,
+      "end": 130.54,
+      "text": "the wallets will upgrade, the exchanges will upgrade. How will they upgrade? Well, wait 10 years,"
+    },
+    {
+      "start": 130.62,
+      "end": 135.74,
+      "text": "there will be global consensus about the best way to deal with it. There is no global consensus"
+    },
+    {
+      "start": 135.74,
+      "end": 142.22,
+      "text": "right now because there isn't a credible threat right now. Why do I not worry about it? Well,"
+    },
+    {
+      "start": 142.22,
+      "end": 148.62,
+      "text": "because everybody with anything at stake, whether it's Google or Microsoft or Apple or Coinbase"
+    },
+    {
+      "start": 148.62,
+      "end": 154.06,
+      "text": "or BlackRock or strategy or the US government or the Russian government or the EU government or"
+    },
+    {
+      "start": 154.06,
+      "end": 161.74,
+      "text": "the Chinese government or JP Morgan or Morgan selling, they all have to deal with the same issue."
+    },
+    {
+      "start": 161.74,
+      "end": 168.7,
+      "text": "We all have digital systems that would be that would be at risk if there was a credible quantum"
+    },
+    {
+      "start": 168.7,
+      "end": 181.98,
+      "text": "threat. If and when it materializes, I expect that there will be some software or hardware or both"
+    },
+    {
+      "start": 181.98,
+      "end": 191.44,
+      "text": "reaction to it, the crypto community is actually the most sophisticated cybersecurity community."
+    },
+    {
+      "start": 191.44,
+      "end": 197.12,
+      "text": "If you look at the cybersecurity protocols that are used to move crypto around,"
+    },
+    {
+      "start": 198.53,
+      "end": 205.25,
+      "text": "they're all multifactor authentication with hardware keys, etc. If you consider the security"
+    },
+    {
+      "start": 205.25,
+      "end": 210.85,
+      "text": "protocols used to move bank wires around or used to trade stocks,"
+    },
+    {
+      "start": 211.71,
+      "end": 219.2,
+      "text": "they're orders of magnitude weaker right now. I'm not going to elaborate on them for obvious"
+    },
+    {
+      "start": 219.2,
+      "end": 226.24,
+      "text": "reasons, but anyone that's actually engaged in a stock transaction or bank wire transaction"
+    },
+    {
+      "start": 226.24,
+      "end": 232.8,
+      "text": "or a credit card transaction or a check transaction or any kind of consumer finance transaction"
+    },
+    {
+      "start": 232.8,
+      "end": 240.0,
+      "text": "or communication transaction knows that the steps you go through in order to move Bitcoin"
+    },
+    {
+      "start": 240.64,
+      "end": 247.04,
+      "text": "out of coal storage or to transfer it to someone else, especially when you're moving it at scale"
+    },
+    {
+      "start": 247.84,
+      "end": 256.0,
+      "text": "are extremely sophisticated. I think that the crypto security community will be the first"
+    },
+    {
+      "start": 258.22,
+      "end": 263.34,
+      "text": "to perceive the threat and to react to the threat and they'll be leading the way."
+    },
+    {
+      "start": 264.43,
+      "end": 271.95,
+      "text": "We have announced a Bitcoin security program. Coinbase obviously has a security program."
+    },
+    {
+      "start": 273.63,
+      "end": 281.79,
+      "text": "A lot of the money that I contribute early to the Bitcoin core dev to the Bitcoin development"
+    },
+    {
+      "start": 281.79,
+      "end": 288.43,
+      "text": "process was actually to Bitcoin security programs, like the MIT Bitcoin security program."
+    },
+    {
+      "start": 288.99,
+      "end": 295.23,
+      "text": "I think that all of us that are large Bitcoin holders or users are in the industry."
+    },
+    {
+      "start": 295.23,
+      "end": 303.46,
+      "text": "We know the security of the network is paramount, but I don't actually think that the quantum narrative"
+    },
+    {
+      "start": 303.46,
+      "end": 307.54,
+      "text": "is the greatest security threat to Bitcoin right now. I don't think it has been people"
+    },
+    {
+      "start": 307.54,
+      "end": 311.14,
+      "text": "joke they've been concerned and talking about it every two years for the past 15 years."
+    },
+    {
+      "start": 311.78,
+      "end": 319.06,
+      "text": "I actually think that there are 100 narratives that people discuss that might be a security"
+    },
+    {
+      "start": 319.06,
+      "end": 325.46,
+      "text": "threat. Is there a bandwidth problem? Is there a nation-state attack vector? Does it have enough"
+    },
+    {
+      "start": 325.46,
+      "end": 331.46,
+      "text": "functionality? Does it have too much functionality? Is it evolving too quickly? Is it not evolving fast"
+    },
+    {
+      "start": 331.46,
+      "end": 338.58,
+      "text": "enough? Is this sufficiently decentralized? Should we make it easier to run on an iPhone? Should we"
+    },
+    {
+      "start": 338.58,
+      "end": 345.7,
+      "text": "make it not easier to run on an iPhone? The number of debates about what's good for Bitcoin"
+    },
+    {
+      "start": 347.14,
+      "end": 353.3,
+      "text": "are mind-numbing, and there are many of them. They will continue. Quantum will be one."
+    },
+    {
+      "start": 354.26,
+      "end": 358.98,
+      "text": "It used to be, there's a debate, well, the Chinese will they'll control all the mining."
+    },
+    {
+      "start": 358.98,
+      "end": 362.26,
+      "text": "Then it's like the Chinese control the mining equipment. There might be a back door in the"
+    },
+    {
+      "start": 362.26,
+      "end": 367.86,
+      "text": "mining equipment. Oh no, the Chinese ban Bitcoin mining. Chinese ban Bitcoin mining equipment."
+    },
+    {
+      "start": 368.82,
+      "end": 375.46,
+      "text": "Chinese don't like Bitcoin anymore. The debates they vary from, there's a risk to, oh no,"
+    },
+    {
+      "start": 375.46,
+      "end": 382.5,
+      "text": "there isn't a risk. Why don't the Chinese like Bitcoin? At some point it gets silly because"
+    },
+    {
+      "start": 382.5,
+      "end": 391.9,
+      "text": "it's a hundred of them. At this point, the reason we're talking about quantum is because all of"
+    },
+    {
+      "start": 392.06,
+      "end": 399.55,
+      "text": "the other risks did not materialize. A decade ago, people fought the block size wars. The entire"
+    },
+    {
+      "start": 399.55,
+      "end": 404.91,
+      "text": "block size wars, there's books written about it, you can go back. The narrative was, Bitcoin will"
+    },
+    {
+      "start": 404.91,
+      "end": 414.94,
+      "text": "fail because it doesn't have enough bandwidth. People fought bitterly over this. A few days ago,"
+    },
+    {
+      "start": 414.94,
+      "end": 420.94,
+      "text": "I posted a screenshot of Clark Moody's dashboard, and it showed that the fee structure of Bitcoin"
+    },
+    {
+      "start": 421.1,
+      "end": 429.66,
+      "text": "was one sat per V-bite for instantaneous performance. One sat, one sat, one sat, one sat. In essence,"
+    },
+    {
+      "start": 431.14,
+      "end": 435.78,
+      "text": "there is no bandwidth problem. In the Bitcoin network, a decade after the block size wars,"
+    },
+    {
+      "start": 436.78,
+      "end": 444.22,
+      "text": "people fought and died over that narrative. It was a non-issue. Eventually, the free market"
+    },
+    {
+      "start": 444.22,
+      "end": 456.02,
+      "text": "solved the problem. At the end of the day, you always have this dynamic between the alarmist,"
+    },
+    {
+      "start": 456.02,
+      "end": 468.1,
+      "text": "the ambitious opportunist, or the idealist out there if you want to be charitable. The idealistic"
+    },
+    {
+      "start": 468.1,
+      "end": 473.65,
+      "text": "intellectuals, you could call them that. You could call them the ambitious opportunist if you like."
+    },
+    {
+      "start": 473.65,
+      "end": 479.65,
+      "text": "They pause it. Bitcoin will boil the oceans. Bitcoin will fail because you can't self-custody."
+    },
+    {
+      "start": 479.65,
+      "end": 488.99,
+      "text": "Bitcoin will fail because of bandwidth. This follows. It pops up as we can't use nuclear energy."
+    },
+    {
+      "start": 488.99,
+      "end": 493.79,
+      "text": "It will blow up the world. We can have nuclear power. We're going to boil the oceans. They're"
+    },
+    {
+      "start": 493.79,
+      "end": 501.71,
+      "text": "climate alarmists. They're whatever alarmists. There's 150 narratives that people spin up. Every"
+    },
+    {
+      "start": 501.71,
+      "end": 509.1,
+      "text": "one of them is a way to accumulate, to glean interesting engagement. I want influence,"
+    },
+    {
+      "start": 509.82,
+      "end": 520.0,
+      "text": "or I want capital, or I want power. It's very important that we vaccinate every three-year-old"
+    },
+    {
+      "start": 520.0,
+      "end": 529.6,
+      "text": "on Earth at the cost of $10,000 of vaccines shot against yo-yo disease. The one that I just found"
+    },
+    {
+      "start": 529.68,
+      "end": 537.41,
+      "text": "that hypothetically might well be an issue. Please give me $100 billion and let's declare martial law"
+    },
+    {
+      "start": 538.42,
+      "end": 545.14,
+      "text": "and let's make it illegal for parents not to do this because I'm here to save the world."
+    },
+    {
+      "start": 546.34,
+      "end": 553.78,
+      "text": "It's this God complex or intellectual save the world context. It's been going on for thousands of"
+    },
+    {
+      "start": 553.78,
+      "end": 559.3,
+      "text": "years, Natalie. It's in the political process and the crypto process and the Bitcoin process."
+    },
+    {
+      "start": 559.38,
+      "end": 565.14,
+      "text": "So the fact of the matter is none of the narratives that we're going to stop Bitcoin or threaten"
+    },
+    {
+      "start": 565.14,
+      "end": 571.3,
+      "text": "Bitcoin everpanned out. They all turned out to be incorrect. The scalability, we have to stop spam."
+    },
+    {
+      "start": 571.3,
+      "end": 578.98,
+      "text": "Oh, no, we didn't. We have to create smart contracts to create scam. No, we don't. We have to double"
+    },
+    {
+      "start": 578.98,
+      "end": 585.22,
+      "text": "the blocks. No, we didn't. The miners, the miners are going to go bankrupt. No, they didn't. No,"
+    },
+    {
+      "start": 585.22,
+      "end": 592.21,
+      "text": "we'll mine Bitcoin. Yes, they will. The Chinese will stop it. Yes, they did. No, they didn't. Yes,"
+    },
+    {
+      "start": 592.21,
+      "end": 597.41,
+      "text": "they did. No, they didn't. They need to endorse it. They can't endorse it. Right? It needs to be"
+    },
+    {
+      "start": 597.41,
+      "end": 603.65,
+      "text": "private. No, it doesn't. Right? All of these things, they're all narratives. It used too much energy."
+    },
+    {
+      "start": 603.65,
+      "end": 612.18,
+      "text": "No, it didn't. It'll boil the ocean. It didn't. Quantum will hack it. No, it won't. Right?"
+    },
+    {
+      "start": 612.18,
+      "end": 618.42,
+      "text": "And what is it that people are missing here? Well, first of all, 99 out of 100 of these narratives,"
+    },
+    {
+      "start": 619.14,
+      "end": 622.98,
+      "text": "they benefit the ambitious opportunist because now they become famous."
+    },
+    {
+      "start": 624.4,
+      "end": 630.24,
+      "text": "Al Gore makes hundreds of millions of dollars preaching that the climate is going to collapse,"
+    },
+    {
+      "start": 630.24,
+      "end": 641.62,
+      "text": "right? And 25 years later, it didn't happen. Somebody gets rich. ESG worked. But it didn't happen."
+    },
+    {
+      "start": 641.62,
+      "end": 646.18,
+      "text": "But the point is if I wasn't preaching it, how am I getting rich? Right? So the point is it's a"
+    },
+    {
+      "start": 646.18,
+      "end": 657.55,
+      "text": "business. So what you have is this economic and political amplification of alarmist narratives"
+    },
+    {
+      "start": 657.55,
+      "end": 666.26,
+      "text": "because it benefits the politician. It benefits the entrepreneur. It benefits those that have a"
+    },
+    {
+      "start": 666.26,
+      "end": 673.06,
+      "text": "will to money or power, right? And how am I supposed to get rich if I don't like we basically at"
+    },
+    {
+      "start": 673.06,
+      "end": 677.14,
+      "text": "one point, we decided that you had to stand six feet away from each other and wear a mask and"
+    },
+    {
+      "start": 677.14,
+      "end": 683.33,
+      "text": "the government needed to buy a hundred billions of dollars of masks, you know? And if you didn't"
+    },
+    {
+      "start": 683.33,
+      "end": 690.45,
+      "text": "wear the mask, you're going to jail and it's like someone sold the masks. Right? And so there is"
+    },
+    {
+      "start": 690.45,
+      "end": 696.21,
+      "text": "there is a very powerful feedback with these narratives. And once you realize that you realize that"
+    },
+    {
+      "start": 696.21,
+      "end": 701.49,
+      "text": "99 out of 100 narratives are just a way for someone to accumulate money and power and you"
+    },
+    {
+      "start": 701.49,
+      "end": 707.63,
+      "text": "ought to be skeptical of those narratives. And the last point, it's a famous president said,"
+    },
+    {
+      "start": 707.63,
+      "end": 715.55,
+      "text": "he said, you see 10 problems driving down the road at you. Nine of them are going to drive"
+    },
+    {
+      "start": 715.55,
+      "end": 724.83,
+      "text": "themselves into a ditch before they get to you. Right? And so how do I get rich, Natalie? Well,"
+    },
+    {
+      "start": 724.99,
+      "end": 731.79,
+      "text": "I convince you that it's possible that you're going to trip on a rock and break your leg and not"
+    },
+    {
+      "start": 731.79,
+      "end": 737.23,
+      "text": "be able to work. And so I saw you trip on a rock insurance. What's that cost? That's going to cost"
+    },
+    {
+      "start": 737.23,
+      "end": 744.27,
+      "text": "you 1% of your annual income, the trip on a rock insurance. And then I, someone else comes along"
+    },
+    {
+      "start": 744.27,
+      "end": 748.11,
+      "text": "and says, well, you know, you might, you know, get a sneezing attack, Natalie. And I'm going to"
+    },
+    {
+      "start": 748.11,
+      "end": 752.19,
+      "text": "sell you sneezing attack insurance. And once I can cost you, that's going to cost you 1% because if"
+    },
+    {
+      "start": 752.19,
+      "end": 757.47,
+      "text": "you get the sneezing attack thing, then you won't be able to work. And so another guy comes along"
+    },
+    {
+      "start": 757.47,
+      "end": 761.07,
+      "text": "and he convinces you that, you know, there's a hypothetical chance that your children will have"
+    },
+    {
+      "start": 761.07,
+      "end": 766.75,
+      "text": "autism. And so we're going to sell you, you know, the autism vaccine, whatever, and that'll cost"
+    },
+    {
+      "start": 766.75,
+      "end": 771.71,
+      "text": "you 2%. And then someone else comes along and they're like, well, you know, it's quite possible"
+    },
+    {
+      "start": 771.71,
+      "end": 776.19,
+      "text": "that you'll be driving the car and something will happen and you'll wreck the car and you'll"
+    },
+    {
+      "start": 776.19,
+      "end": 780.83,
+      "text": "be able to work again. So here's like, you know, vocational insurance for driving of the car."
+    },
+    {
+      "start": 781.39,
+      "end": 792.51,
+      "text": "And I come up with like 100 possible things. And each of them is 0.01% likely. And the collective"
+    },
+    {
+      "start": 792.51,
+      "end": 799.79,
+      "text": "all of them is 1% likely to happen to you. But I sell you insurance that sucks up 100% of your income."
+    },
+    {
+      "start": 800.51,
+      "end": 805.95,
+      "text": "So if you ensure for every one of these parade of horribles, every hypothetical,"
+    },
+    {
+      "start": 806.51,
+      "end": 814.27,
+      "text": "possible thing, you're bankrupt. So you are 100% likely to be bankrupt because you bought"
+    },
+    {
+      "start": 814.27,
+      "end": 822.85,
+      "text": "insurance against 100 things that were 1% likely to happen. And by the way, if you had bought"
+    },
+    {
+      "start": 822.85,
+      "end": 829.57,
+      "text": "insurance against none of them, a decade would have gone by and you'd be like 1% likely to have"
+    },
+    {
+      "start": 829.57,
+      "end": 834.13,
+      "text": "one of them. And you would have just like upgraded your iPhone software. And the problem would have"
+    },
+    {
+      "start": 834.13,
+      "end": 840.5,
+      "text": "gone away. You know, and it's like, but the person that's selling you the insurance isn't going to"
+    },
+    {
+      "start": 840.5,
+      "end": 845.38,
+      "text": "make a billion dollars if you just wait 10 years and upgrade your iPhone software and it goes away."
+    },
+    {
+      "start": 845.38,
+      "end": 850.82,
+      "text": "How am I supposed to get rich on that? Like, how am I supposed to get elected to be governor of a"
+    },
+    {
+      "start": 850.82,
+      "end": 859.22,
+      "text": "state if, you know, if I don't spin up a narrative that is a doom narrative? And so what the"
+    },
+    {
+      "start": 859.22,
+      "end": 865.22,
+      "text": "danger is when anything gets weaponized by an entrepreneur, it's like, I want to raise money so I"
+    },
+    {
+      "start": 865.22,
+      "end": 871.14,
+      "text": "can hire a bunch of quantum resistant developers. Or I want you to sell Bitcoin and buy quantum"
+    },
+    {
+      "start": 871.14,
+      "end": 877.7,
+      "text": "resistant yo-yo coin. Or I want to be elected mayor. And the problem is that there's hypothetically"
+    },
+    {
+      "start": 877.7,
+      "end": 883.54,
+      "text": "radioactive something, you know, in 10 years, the water, the tricking water will be radioactive,"
+    },
+    {
+      "start": 883.54,
+      "end": 888.98,
+      "text": "but we let nuclear reactors get built somewhere in the state five years from now. And that's why"
+    },
+    {
+      "start": 888.98,
+      "end": 894.34,
+      "text": "you should give me all your money so I can be elected mayor now so I can pass a law to prevent"
+    },
+    {
+      "start": 894.34,
+      "end": 902.77,
+      "text": "the hypothetical problem 8,700 years from now. And of course, what you see, of course, is when you"
+    },
+    {
+      "start": 902.85,
+      "end": 908.77,
+      "text": "have enough of these issues, I've had lawyers, I've had lawyers say, well, you know, you can't do"
+    },
+    {
+      "start": 908.77,
+      "end": 915.49,
+      "text": "that because hypothetically in 15 years after 15 appeals, like, there might be, you know, a quasi"
+    },
+    {
+      "start": 915.49,
+      "end": 918.77,
+      "text": "liability if you were to do this and that and the other thing, I'm like, what, you know, we're going"
+    },
+    {
+      "start": 918.77,
+      "end": 925.47,
+      "text": "to go out of business next month if we do what you said. But, but in 15 years, hypothetically,"
+    },
+    {
+      "start": 925.47,
+      "end": 930.51,
+      "text": "there's a 0.01 percent chance that we might have to pay 0.01 percent of our money to solve the"
+    },
+    {
+      "start": 930.51,
+      "end": 935.39,
+      "text": "problem. But, oh, well, I guess if you look at it that way, then I guess you're right. It's like,"
+    },
+    {
+      "start": 935.95,
+      "end": 941.87,
+      "text": "and that, and that is pretty much the legalistic view. And so politicians tend to be lawyers,"
+    },
+    {
+      "start": 941.87,
+      "end": 948.19,
+      "text": "idealistic intellectuals tend to be thinking that way. Ambitious opportunists think that way."
+    },
+    {
+      "start": 948.83,
+      "end": 954.19,
+      "text": "You know, I can basically point to the fall of the British Empire. I can point to the fall of"
+    },
+    {
+      "start": 954.19,
+      "end": 959.23,
+      "text": "a whole bunch of states. I can point to Easter Island. I can show you the fall of the Roman Empire,"
+    },
+    {
+      "start": 959.23,
+      "end": 965.92,
+      "text": "the fall of the Carthaginian Empire. Every great city, every great mercantile network,"
+    },
+    {
+      "start": 965.92,
+      "end": 972.72,
+      "text": "every great empire, every, every great corporation, it all starts to collapse at the point that"
+    },
+    {
+      "start": 972.72,
+      "end": 978.08,
+      "text": "someone's like, well, you know, out of an abundance of caution, maybe we need to prevent this or"
+    },
+    {
+      "start": 978.08,
+      "end": 985.52,
+      "text": "we need to do that, right? And I would say this entire quantum fear is just the latest quantum"
+    },
+    {
+      "start": 985.68,
+      "end": 990.96,
+      "text": "fear. Because there's nothing else to talk about. And I can no longer raise money by saying that"
+    },
+    {
+      "start": 990.96,
+      "end": 996.08,
+      "text": "that Bitcoin needs to be more scalable or have smart contracts or whatever. So this is the only"
+    },
+    {
+      "start": 996.08,
+      "end": 1002.08,
+      "text": "way to be relevant and get attention. And so, you know, when this one falls, someone will say,"
+    },
+    {
+      "start": 1002.08,
+      "end": 1007.44,
+      "text": "well, you know, like at some point, you know, we're going to, and we're going to upgrade to nano bots"
+    },
+    {
+      "start": 1007.44,
+      "end": 1012.72,
+      "text": "in the head and hollow bands and Bitcoin's not hollow band nano bot ready. And we're going to"
+    },
+    {
+      "start": 1012.72,
+      "end": 1020.16,
+      "text": "need to invest a lot of money in, you know, hollow band nano bot chains because, you know,"
+    },
+    {
+      "start": 1020.16,
+      "end": 1025.97,
+      "text": "otherwise your Bitcoin's going to be worthless. It is like someone will say it, I guarantee it"
+    },
+    {
+      "start": 1026.85,
+      "end": 1033.89,
+      "text": "because that's the story of humanity since time immemorial. And ultimately, you're either going"
+    },
+    {
+      "start": 1033.89,
+      "end": 1039.33,
+      "text": "to have a constructive optimistic view, which is, you know, something will happen and we'll just"
+    },
+    {
+      "start": 1039.41,
+      "end": 1044.05,
+      "text": "take advantage, upgrade the software or upgrade the network to take advantage of the new technology"
+    },
+    {
+      "start": 1044.05,
+      "end": 1049.17,
+      "text": "and we'll all be richer and happier and live happier ever after. That's one view. Or something's"
+    },
+    {
+      "start": 1049.17,
+      "end": 1054.37,
+      "text": "going to happen and we're just too stupid to figure out how to react to it. And we're just going"
+    },
+    {
+      "start": 1054.37,
+      "end": 1060.13,
+      "text": "to lose everything. And so therefore, I should just give all my money to this ambitious opportunist,"
+    },
+    {
+      "start": 1060.13,
+      "end": 1066.05,
+      "text": "you know, who's preaching that the world's going to end. Why don't I just give all my money to"
+    },
+    {
+      "start": 1066.13,
+      "end": 1074.08,
+      "text": "them because I'm too stupid. And it's like, it's silly, but it's predictable. And what I would say is"
+    },
+    {
+      "start": 1075.47,
+      "end": 1079.95,
+      "text": "you know, the back of the hitchhikers guy to the galaxy, right? It's like, don't panic."
+    },
+    {
+      "start": 1081.44,
+      "end": 1086.64,
+      "text": "At the end of the day, lots of things will happen in the future. The human race will react to the"
+    },
+    {
+      "start": 1086.64,
+      "end": 1093.39,
+      "text": "things. The people that chose to put their money at a bank in cyberspace, they will probably"
+    },
+    {
+      "start": 1093.39,
+      "end": 1098.03,
+      "text": "upgrade the hardware and the software and the methodologies that protect the bank in cyberspace"
+    },
+    {
+      "start": 1098.03,
+      "end": 1104.4,
+      "text": "when they feel they need to. Until that time, there's a hundred other things. You're probably"
+    },
+    {
+      "start": 1104.4,
+      "end": 1109.04,
+      "text": "better off to use that bandwidth worrying about look both ways when you cross the street."
+    },
+    {
+      "start": 1110.02,
+      "end": 1114.34,
+      "text": "Because you don't want to be that egghead intellectual that walks in front of a truck because"
+    },
+    {
+      "start": 1114.34,
+      "end": 1120.66,
+      "text": "they're worried about the .01% likely quantum threat that would be easily deflected with the"
+    },
+    {
+      "start": 1121.81,
+      "end": 1129.81,
+      "text": "iPhone update, right? Or a 20 second click on this and engage. You know, it's it's not even"
+    },
+    {
+      "start": 1129.81,
+      "end": 1136.45,
+      "text": "even that difficult because Natalie, you're not going to have a choice. When when and if there is a"
+    },
+    {
+      "start": 1136.45,
+      "end": 1141.49,
+      "text": "cybersecurity threat, your business software is getting upgraded. Your bank software is getting"
+    },
+    {
+      "start": 1141.49,
+      "end": 1145.01,
+      "text": "upgraded. The government software is getting upgraded. The crypto network software is getting"
+    },
+    {
+      "start": 1145.01,
+      "end": 1151.73,
+      "text": "upgraded. It's almost going to be damn near impossible. Did you ever make a decision to upgrade"
+    },
+    {
+      "start": 1151.73,
+      "end": 1157.17,
+      "text": "all your systems to Y2K friendly? Do you even recall that? I do recall that time period and"
+    },
+    {
+      "start": 1157.17,
+      "end": 1162.37,
+      "text": "everyone was terrified and it ended up being nothing. So everybody in the world was terrified. The"
+    },
+    {
+      "start": 1162.37,
+      "end": 1169.01,
+      "text": "world was coming to an end and it was nothing. But you know what? Billions of people didn't do"
+    },
+    {
+      "start": 1169.01,
+      "end": 1176.13,
+      "text": "anything. Couldn't have done anything. Couldn't have stopped it. It was a non-issue and it would"
+    },
+    {
+      "start": 1176.13,
+      "end": 1185.73,
+      "text": "just be one of 10,000 examples of nothings. Get arrested. They get overcome by the human race"
+    },
+    {
+      "start": 1185.73,
+      "end": 1202.69,
+      "text": "every few years."
+    }
+  ],
+  "topics": [
+    "mining",
+    "price",
+    "regulation",
+    "self-custody",
+    "macro",
+    "privacy"
+  ],
+  "sentiment": "bearish",
+  "archived_at": "2026-03-05T17:34:56Z"
+}

@@ -1,0 +1,66 @@
+{
+  "topic_velocity": [
+    {
+      "topic": "price",
+      "channels": 11,
+      "sentiment": "bearish",
+      "velocity_score": 100
+    },
+    {
+      "topic": "regulation",
+      "channels": 11,
+      "sentiment": "bearish",
+      "velocity_score": 100
+    },
+    {
+      "topic": "lightning",
+      "channels": 11,
+      "sentiment": "bearish",
+      "velocity_score": 100
+    },
+    {
+      "topic": "institutional",
+      "channels": 9,
+      "sentiment": "bearish",
+      "velocity_score": 100
+    },
+    {
+      "topic": "privacy",
+      "channels": 10,
+      "sentiment": "bearish",
+      "velocity_score": 100
+    },
+    {
+      "topic": "etf",
+      "channels": 9,
+      "sentiment": "bearish",
+      "velocity_score": 100
+    },
+    {
+      "topic": "mining",
+      "channels": 10,
+      "sentiment": "bearish",
+      "velocity_score": 100
+    },
+    {
+      "topic": "macro",
+      "channels": 9,
+      "sentiment": "bearish",
+      "velocity_score": 100
+    },
+    {
+      "topic": "self-custody",
+      "channels": 7,
+      "sentiment": "bearish",
+      "velocity_score": 100
+    }
+  ],
+  "breaking_threshold": true,
+  "recommended_topics": [
+    "price",
+    "regulation",
+    "lightning"
+  ],
+  "scan_time": "2026-03-05T18:00:15Z",
+  "total_videos_48h": 42
+}

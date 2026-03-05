@@ -1,0 +1,684 @@
+{
+  "videos": {
+    "t53xIt47Pa0": {
+      "title": "Bitcoin Adoption Trends",
+      "channel": "Bitcoin Magazine",
+      "upload_date": "",
+      "duration": 455,
+      "topics": [
+        "price",
+        "regulation",
+        "lightning",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bullish",
+      "archived_at": "2026-03-05T17:12:28Z"
+    },
+    "yQL9yua9Yq0": {
+      "title": "Michael Saylor's Strategy World 2026 Keynote: Digital Credit",
+      "channel": "Bitcoin Magazine",
+      "upload_date": "",
+      "duration": 3032,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:12:28Z"
+    },
+    "lmA0Y6or4JA": {
+      "title": "How AI Agents Could Reshape the Global Economy by 2030",
+      "channel": "Bitcoin Magazine",
+      "upload_date": "",
+      "duration": 462,
+      "topics": [
+        "price",
+        "regulation",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:12:28Z"
+    },
+    "GnD7l7Pv_-Y": {
+      "title": "Why Bitcoin Goes Parabolic EVERY TIME It Dies!",
+      "channel": "Simply Bitcoin",
+      "upload_date": "",
+      "duration": 1338,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-03-05T17:12:28Z"
+    },
+    "bOzRI0Teei4": {
+      "title": "Why I\u2019m NOT Buying Bitcoin at $70K (Jamie Dimon's GRAVE Warning)",
+      "channel": "Simply Bitcoin",
+      "upload_date": "",
+      "duration": 907,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-03-05T17:12:28Z"
+    },
+    "gtLNCJjl5EA": {
+      "title": "WWIII JUST STARTED! (Is Bitcoin Crashing to $20K?)",
+      "channel": "Simply Bitcoin",
+      "upload_date": "",
+      "duration": 1006,
+      "topics": [
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:12:28Z"
+    },
+    "Noxp6LNHTDI": {
+      "title": "Why The Iran War is Distracting You From Bitcoin's RUN to $500K!",
+      "channel": "Simply Bitcoin",
+      "upload_date": "",
+      "duration": 1123,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:12:28Z"
+    },
+    "MBIqEC3fU0o": {
+      "title": "IT'S OVER: How Trump Just DESTROYED The Bitcoin Bull Run",
+      "channel": "Simply Bitcoin",
+      "upload_date": "",
+      "duration": 1156,
+      "topics": [
+        "etf",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-03-05T17:13:20Z"
+    },
+    "BpnzrmkpPgQ": {
+      "title": "You Gave AI Full Access To Your Computer. Here's What It's Doing.",
+      "channel": "TFTC",
+      "upload_date": "",
+      "duration": 3668,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:13:21Z"
+    },
+    "X7ua58iwcd4": {
+      "title": "OpenClaw and Self Sovereign AI w/ Alex Gladstein & Justin Moon (TECH015)",
+      "channel": "Preston Pysh",
+      "upload_date": "",
+      "duration": 3929,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:13:22Z"
+    },
+    "s7-l7gzm_PE": {
+      "title": "Bitcoin & Theoretical Physics w/ Jeff Booth, Jack & Nick (BTC259)",
+      "channel": "Preston Pysh",
+      "upload_date": "",
+      "duration": 4657,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:13:22Z"
+    },
+    "WovyQkSdONI": {
+      "title": "Is AGI Here? Clawdbot, Local AI Agent Swarms w/ Pablo Fernandez & Trey Sellers (TECH014)",
+      "channel": "Preston Pysh",
+      "upload_date": "",
+      "duration": 4222,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:13:22Z"
+    },
+    "Nq3qLlcbFK0": {
+      "title": "Monthly Tech Round-up: Davos WEF, Claude Cowork, and MacroHard w/ Seb Bunney (TECH013)",
+      "channel": "Preston Pysh",
+      "upload_date": "",
+      "duration": 4087,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bullish",
+      "archived_at": "2026-03-05T17:17:34Z"
+    },
+    "KKNGEr7Mc38": {
+      "title": "Clarity Act, Bitcoin AI Education, and Payments w/ Parker Lewis (BTC258)",
+      "channel": "Preston Pysh",
+      "upload_date": "",
+      "duration": 3627,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:23:57Z"
+    },
+    "5VczGHHbDTQ": {
+      "title": "The Pentagon Just Fired Anthropic: The AI Surveillance War Begins",
+      "channel": "The Bitcoin Layer",
+      "upload_date": "",
+      "duration": 1733,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bullish",
+      "archived_at": "2026-03-05T17:23:58Z"
+    },
+    "V82emH4q6o0": {
+      "title": "Claude Eclipses Trump as the Most Important Force in Global Macro",
+      "channel": "The Bitcoin Layer",
+      "upload_date": "",
+      "duration": 2697,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-03-05T17:23:58Z"
+    },
+    "gij6bJkyH2w": {
+      "title": "Individual Ownership Peaked in 2024 and What Comes Next for Bitcoin",
+      "channel": "The Bitcoin Layer",
+      "upload_date": "",
+      "duration": 2395,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:23:58Z"
+    },
+    "7fAhxz8GIAg": {
+      "title": "The Liquidity Signal That Called Bitcoin's Drop Is Still Red",
+      "channel": "The Bitcoin Layer",
+      "upload_date": "",
+      "duration": 1692,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-03-05T17:23:58Z"
+    },
+    "7Nw64Jfb2Nw": {
+      "title": "Global Macro Update: Inflation Cools, Bond Yields Drop, & Bitcoin Reacts",
+      "channel": "The Bitcoin Layer",
+      "upload_date": "",
+      "duration": 1955,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-03-05T17:26:36Z"
+    },
+    "IQXvd6ZecmQ": {
+      "title": "How to transform Minecraft Java into Minecraft Alpha ( 1.17 Combinations )",
+      "channel": "Blockworks",
+      "upload_date": "",
+      "duration": 454,
+      "topics": [
+        "regulation"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:26:37Z"
+    },
+    "B3X6sn25dLA": {
+      "title": "Gravity Test",
+      "channel": "Blockworks",
+      "upload_date": "",
+      "duration": 129,
+      "topics": [],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:26:37Z"
+    },
+    "6nxV9_0a2IY": {
+      "title": "Roblox Under Water 2021",
+      "channel": "Blockworks",
+      "upload_date": "",
+      "duration": 148,
+      "topics": [],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:26:37Z"
+    },
+    "flZxA1FRDM8": {
+      "title": "Cloth Physics (v3 OPEN SOURCED)",
+      "channel": "Blockworks",
+      "upload_date": "",
+      "duration": 195,
+      "topics": [],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:26:51Z"
+    },
+    "WeVEuWO20gE": {
+      "title": "CHANNEL ANNOUNCEMENT + Some answers.",
+      "channel": "Blockworks",
+      "upload_date": "",
+      "duration": 133,
+      "topics": [
+        "price",
+        "regulation",
+        "lightning"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:27:06Z"
+    },
+    "ZNfHAEo2jtU": {
+      "title": "Women of Bitcoin Summit Day 1: Bitcoin Explained Simply",
+      "channel": "Natalie Brunell",
+      "upload_date": "",
+      "duration": 3785,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:27:07Z"
+    },
+    "NK4-LeozO34": {
+      "title": "The Untold Bitcoin Boom in Africa, with Stafford Masie",
+      "channel": "Natalie Brunell",
+      "upload_date": "",
+      "duration": 1935,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:27:07Z"
+    },
+    "aId0nDfdUiU": {
+      "title": "Michael Saylor: Why Most People Won\u2019t Buy Bitcoin",
+      "channel": "Natalie Brunell",
+      "upload_date": "",
+      "duration": 513,
+      "topics": [
+        "price",
+        "regulation",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:27:07Z"
+    },
+    "SBPNZsEpV80": {
+      "title": "Michael Saylor: Why Bitcoin Didn\u2019t Go Higher",
+      "channel": "Natalie Brunell",
+      "upload_date": "",
+      "duration": 770,
+      "topics": [
+        "etf",
+        "price",
+        "regulation",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:27:07Z"
+    },
+    "DC2iQsy2_vI": {
+      "title": "Michael Saylor on the Risks of Quantum Computing to Bitcoin Security",
+      "channel": "Natalie Brunell",
+      "upload_date": "",
+      "duration": 1189,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "self-custody",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-03-05T17:28:53Z"
+    },
+    "M1XPOFgjNPk": {
+      "title": "What US Taxpayers With Crypto NEED to do before Dec 31, 2024 - Get into the Safeharbor!",
+      "channel": "Andreas Antonopoulos",
+      "upload_date": "",
+      "duration": 5871,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-03-05T17:28:54Z"
+    },
+    "vwkRsp0gqX4": {
+      "title": "Bitcoin Halving 2024: How It's Different This Time, Myths Debunked, Bitcoin Bugs, and More",
+      "channel": "Andreas Antonopoulos",
+      "upload_date": "",
+      "duration": 890,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:28:54Z"
+    },
+    "AYAreuNzx58": {
+      "title": "Lightning Network: what is it? why should I care? what can I do with it? Enjoy bitcoin like its 2013",
+      "channel": "Andreas Antonopoulos",
+      "upload_date": "",
+      "duration": 1610,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:28:54Z"
+    },
+    "gwABJO-kaM8": {
+      "title": "Buying Bitcoin Using Dollar Cost Averaging & Avoiding Dust UTXO - Self Custody Series - Feb 2024",
+      "channel": "Andreas Antonopoulos",
+      "upload_date": "",
+      "duration": 390,
+      "topics": [
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:29:29Z"
+    },
+    "ePx5lBSI0es": {
+      "title": "Andreas Clarifies: When is Multisig the RIGHT tool to use for your bitcoin security? (January 2024)",
+      "channel": "Andreas Antonopoulos",
+      "upload_date": "",
+      "duration": 338,
+      "topics": [
+        "mining",
+        "regulation",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:30:06Z"
+    },
+    "Mi_Y2jGxOx4": {
+      "title": "The Dollar Is the Titanic\u2026 And Most People Are Still Dancing",
+      "channel": "Robert Breedlove",
+      "upload_date": "",
+      "duration": 403,
+      "topics": [
+        "price",
+        "regulation",
+        "macro"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:30:07Z"
+    },
+    "salvzDUGS_w": {
+      "title": "Low Testosterone Is a Silent Epidemic w/ Miguel & Carlos",
+      "channel": "Robert Breedlove",
+      "upload_date": "",
+      "duration": 9725,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:30:07Z"
+    },
+    "hZkcWYsbeFY": {
+      "title": "If It\u2019s Free, You\u2019re the Product \u2014 The Incentive Trap You\u2019re Missing w/ Robin Seyr",
+      "channel": "Robert Breedlove",
+      "upload_date": "",
+      "duration": 3225,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:30:07Z"
+    },
+    "VvJa8vs-r0s": {
+      "title": "The End of Fiat Is Closer Than You Think w/ Robin Seyr",
+      "channel": "Robert Breedlove",
+      "upload_date": "",
+      "duration": 6512,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:43:54Z"
+    },
+    "MI3ciKI4vto": {
+      "title": "Everyone Laughs at \u201c1 BTC = 1 BTC\u201d\u2026 Until They Get It",
+      "channel": "Robert Breedlove",
+      "upload_date": "",
+      "duration": 309,
+      "topics": [
+        "price",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:44:20Z"
+    },
+    "etTv2PtW2UA": {
+      "title": "Bitcoin vs Banks: What They Don\u2019t Want You to Know",
+      "channel": "Unchained",
+      "upload_date": "",
+      "duration": 207,
+      "topics": [
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:44:20Z"
+    },
+    "yzIe6gOKU50": {
+      "title": "How Bitcoin Gives You Freedom (Explained in under 5 Minutes)",
+      "channel": "Unchained",
+      "upload_date": "",
+      "duration": 241,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:44:20Z"
+    },
+    "crp-mkI1tj4": {
+      "title": "Is Your Phone Listening? Expert Reveals Every Secret to Protect Your Online Privacy",
+      "channel": "Tucker Carlson",
+      "upload_date": "",
+      "duration": 6724,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-05T17:44:23Z"
+    }
+  },
+  "last_scan": "2026-03-05T18:00:15Z",
+  "total_archived": 42,
+  "_last_upload_Bitcoin Magazine": "2026-03-05T17:12:28Z",
+  "_last_upload_Simply Bitcoin": "2026-03-05T17:13:20Z",
+  "_last_upload_TFTC": "2026-03-05T17:13:21Z",
+  "_last_upload_Preston Pysh": "2026-03-05T17:23:57Z",
+  "_last_upload_The Bitcoin Layer": "2026-03-05T17:26:36Z",
+  "_last_upload_Blockworks": "2026-03-05T17:27:06Z",
+  "_last_upload_Natalie Brunell": "2026-03-05T17:28:53Z",
+  "_last_upload_Andreas Antonopoulos": "2026-03-05T17:30:06Z",
+  "_last_upload_Robert Breedlove": "2026-03-05T17:44:20Z",
+  "_last_upload_Unchained": "2026-03-05T17:44:20Z",
+  "_last_upload_Tucker Carlson": "2026-03-05T17:44:23Z"
+}
