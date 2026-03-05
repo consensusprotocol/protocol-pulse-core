@@ -319,3 +319,110 @@ Brand constants: remotion/src/brand.ts
 - Nicole (piTKgcLEGmPE4e6mEKli) — too breathy/whispery at any stability
 - Sarah (EXAVITQu4vr4xnSDxMaL) — still whispery
 - Matilda (XrExE9yKIg1WjnnlVkGX) — fallback only, not approved for production
+
+
+---
+
+## SECTION 21: CHANNEL INTELLIGENCE SYSTEM — REAL-TIME MONITORING
+
+### The Problem (audit findings 2026-03-05):
+The channel scanner only runs when daily_producer.py fires. Between runs,
+the pipeline is blind. Transcripts are not cached persistently. There is no
+continuous monitoring of partner channels.
+
+### The Solution: Background Intelligence Daemon
+
+A cron job runs every 15 minutes on Ultron:
+```
+*/15 * * * * cd ~/protocol_pulse/video_pipeline_v3 && python3 utils/channel_daemon.py >> logs/channel_daemon.log 2>&1
+```
+
+channel_daemon.py:
+1. Scans ALL channels in channels.yaml for new uploads (yt-dlp --flat-playlist)
+2. Compares against data/channel_archive/known_videos.json
+3. If NEW video detected (not in known_videos):
+   a. Download transcript (Whisper on GPU — fast on 4090)
+   b. Save to data/channel_archive/{channel_name}/{video_id}.json:
+      {video_id, title, channel, upload_date, duration, transcript_text, timestamped_text}
+   c. Add to known_videos.json
+   d. Run topic classification + sentiment analysis on transcript
+   e. Update data/intelligence/daily_signals.json with new topic velocity data
+   f. Log: "NEW: {channel} — {title} ({duration}s) — topics: {topics}"
+4. If no new videos: log "SCAN: No new uploads across {n} channels" and exit
+
+### Persistent Archive:
+```
+data/channel_archive/
+  known_videos.json           # Master index of all known video IDs + metadata
+  Simply_Bitcoin/
+    abc123.json               # Full transcript + metadata per video
+    def456.json
+  TFTC/
+    ghi789.json
+  ...
+```
+
+This archive grows over time. The pipeline reads from it instead of re-scanning.
+After 30 days, the pipeline has a DEEP archive of every Bitcoin YouTube upload.
+This IS the intelligence layer. This IS the moat.
+
+### Freshness Rules:
+- Archive updates every 15 minutes (cron)
+- When daily_producer.py runs, it reads from the archive, NOT from a fresh scan
+  (the archive is already fresh because the daemon keeps it updated)
+- If a channel hasn't uploaded in 48 hours, flag it in the log
+  (don't scan dead channels every 15 min — check them hourly instead)
+- Transcript cache NEVER expires. Once transcribed, it's permanent.
+  (Whisper GPU time is expensive; never re-transcribe the same video)
+
+### Clip Sourcing Rules:
+When daily_producer.py needs clips:
+1. Query the archive for videos uploaded in the last 48 hours
+2. Rank by: upload recency × channel priority × topic relevance to today's signals
+3. Select the TOP 5 clips from 5 DIFFERENT channels
+4. If fewer than 5 channels have fresh content, expand the time window to 72 hours
+5. If STILL fewer than 5, expand to 7 days but log a warning:
+   "LOW CONTENT: Only {n} channels have uploads in 7 days"
+
+## SECTION 22: THE 5-CLIP RULE — ABSOLUTE REQUIREMENT
+
+### Every Pulse Check episode features EXACTLY 5 partner clips from 5 DIFFERENT channels.
+
+This is not a suggestion. This is a hard requirement.
+
+Enforcement in clip_selector.py:
+```python
+# After LLM selects clips, validate:
+selected_channels = [clip["channel"] for clip in selected_clips]
+unique_channels = set(selected_channels)
+
+# Rule 1: Exactly 5 clips in production mode
+if not test_mode and len(selected_clips) != 5:
+    logger.error(f"5-CLIP RULE VIOLATION: {len(selected_clips)} clips selected, need exactly 5")
+    # Re-run selection with explicit 5-clip instruction
+
+# Rule 2: All 5 must be from different channels
+if len(unique_channels) != len(selected_clips):
+    logger.error(f"CHANNEL DIVERSITY VIOLATION: {len(unique_channels)} unique channels for {len(selected_clips)} clips")
+    # Drop duplicate channel clips, replace from other channels
+
+# Rule 3: Never reuse a video_id from last 7 episodes (episode memory)
+```
+
+### Test mode exception:
+Test mode uses 2 clips from 2 different channels (for speed).
+Production mode: always 5 clips, 5 channels, no exceptions.
+
+### Channel Selection Priority:
+When choosing which 5 channels to feature (from 18+ available):
+1. Channels with the freshest uploads (last 24 hours preferred)
+2. Channels with highest topic relevance to today's signals
+3. Channels that haven't been featured in the last 3 episodes
+4. Higher priority channels (priority 1) over lower (priority 2-3)
+5. Mainstream channels (Rogan, Lex) only if they have Bitcoin-specific content
+   that passes the keyword filter
+
+### Clip Duration per PRODUCTION_DESIGN_LAWS:
+Each partner clip: 30-60 seconds (sweet spot: 40 seconds).
+The clip_extractor selects the most insightful 40-second window from each video.
+With 5 clips at 40 seconds + narration segments, total episode: 12-15 minutes.
