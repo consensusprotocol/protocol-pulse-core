@@ -1,0 +1,128 @@
+{
+  "video_id": "flZxA1FRDM8",
+  "title": "Cloth Physics (v3 OPEN SOURCED)",
+  "channel": "Blockworks",
+  "upload_date": "",
+  "duration": 195,
+  "transcript_text": "I'm going to take a position here, okay, okay, it's working. Everyone, sorry for that overly dramatic intro, I'm here with the new simulation. This is version 3 of cloth testing, and I think this is the best one so far. I didn't use as many parts, instead I used beam and ball socket constraint. Here's the first test, player collision. The player can collide with the cloth, the cloth is actually three invisible parts with one beam, the beam gets deformed when the parts move. The cloth is 100% customisable, you can change the colors, add texture, add images and change sides. The collision is not perfect, as you can see, sometimes the head clips through the cloth, but in general, this looks good. Here is an example of how you can customize your cloth, this is the same cloth except there's a carpet texture. And if you get creative, you can make a superhero cape, the cape collides with the body, sometimes the cape can, clip through your body, just give a small shake and you should be good to go, the cape also collides when you jump, the cape doesn't glitch in your character, the cape gives a realistic effect when jumping. Well, this is it for now, I will be making this open sourced, so you can work on your games. The model comes with a cape and the cloths, links in description. Anyways, thank you all for watching, share with your friends if they are looking for stuff like this, like if you liked and subscribe to never lose more videos, you can always unsubscribe if you want to, that's it for today, goodbye.",
+  "timestamped_text": [
+    {
+      "start": 0.11,
+      "end": 19.91,
+      "text": "I'm going to take a position here, okay, okay, it's working."
+    },
+    {
+      "start": 19.91,
+      "end": 58.66,
+      "text": "Everyone, sorry for that overly dramatic intro, I'm here with the new simulation."
+    },
+    {
+      "start": 58.66,
+      "end": 63.34,
+      "text": "This is version 3 of cloth testing, and I think this is the best one so far."
+    },
+    {
+      "start": 63.34,
+      "end": 68.74,
+      "text": "I didn't use as many parts, instead I used beam and ball socket constraint."
+    },
+    {
+      "start": 68.74,
+      "end": 78.29,
+      "text": "Here's the first test, player collision."
+    },
+    {
+      "start": 78.29,
+      "end": 83.41,
+      "text": "The player can collide with the cloth, the cloth is actually three invisible parts with"
+    },
+    {
+      "start": 83.41,
+      "end": 94.09,
+      "text": "one beam, the beam gets deformed when the parts move."
+    },
+    {
+      "start": 94.09,
+      "end": 100.73,
+      "text": "The cloth is 100% customisable, you can change the colors, add texture, add images and"
+    },
+    {
+      "start": 100.73,
+      "end": 107.19,
+      "text": "change sides."
+    },
+    {
+      "start": 107.19,
+      "end": 112.95,
+      "text": "The collision is not perfect, as you can see, sometimes the head clips through the cloth,"
+    },
+    {
+      "start": 112.95,
+      "end": 122.34,
+      "text": "but in general, this looks good."
+    },
+    {
+      "start": 122.34,
+      "end": 127.42,
+      "text": "Here is an example of how you can customize your cloth, this is the same cloth except"
+    },
+    {
+      "start": 127.42,
+      "end": 130.59,
+      "text": "there's a carpet texture."
+    },
+    {
+      "start": 130.59,
+      "end": 136.95,
+      "text": "And if you get creative, you can make a superhero cape, the cape collides with the body, sometimes"
+    },
+    {
+      "start": 136.95,
+      "end": 141.71,
+      "text": "the cape can, clip through your body, just give a small shake and you should be good"
+    },
+    {
+      "start": 141.71,
+      "end": 147.63,
+      "text": "to go, the cape also collides when you jump, the cape doesn't glitch in your character,"
+    },
+    {
+      "start": 147.63,
+      "end": 156.57,
+      "text": "the cape gives a realistic effect when jumping."
+    },
+    {
+      "start": 156.57,
+      "end": 161.85,
+      "text": "Well, this is it for now, I will be making this open sourced, so you can work on your"
+    },
+    {
+      "start": 161.85,
+      "end": 163.3,
+      "text": "games."
+    },
+    {
+      "start": 163.3,
+      "end": 167.82,
+      "text": "The model comes with a cape and the cloths, links in description."
+    },
+    {
+      "start": 167.82,
+      "end": 172.46,
+      "text": "Anyways, thank you all for watching, share with your friends if they are looking for stuff"
+    },
+    {
+      "start": 172.46,
+      "end": 177.62,
+      "text": "like this, like if you liked and subscribe to never lose more videos, you can always"
+    },
+    {
+      "start": 177.62,
+      "end": 181.54,
+      "text": "unsubscribe if you want to, that's it for today, goodbye."
+    }
+  ],
+  "topics": [],
+  "sentiment": "neutral",
+  "archived_at": "2026-03-05T17:31:43Z"
+}

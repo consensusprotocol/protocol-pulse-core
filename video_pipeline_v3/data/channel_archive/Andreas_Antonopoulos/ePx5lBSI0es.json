@@ -1,0 +1,543 @@
+{
+  "video_id": "ePx5lBSI0es",
+  "title": "Andreas Clarifies: When is Multisig the RIGHT tool to use for your bitcoin security? (January 2024)",
+  "channel": "Andreas Antonopoulos",
+  "upload_date": "",
+  "duration": 338,
+  "transcript_text": "Anonymous says, you've warned against Multisig, but also recommended the smart custody book, smartcustody2.0, under edit, currently in draft, goes into Multisig. Do you see Multisig ever becoming safe to use? I need to clarify here, because this is a misunderstanding of my position. Multisig is a fantastic tool for security, specifically, big coins on chain Multisig. It is a fantastic tool for security, and it has numerous applications. It is incredibly secure. And if properly deployed, you can balance the security that you get from Multisig with recoverability. The key question there is if properly deployed. What I have said is that Multisig is unsuitable for non-technical users who do not fully appreciate the risks that Multisig introduces in the area of recoverability, specifically the fact that, because Multisig addresses our hash of the Multisig script, which contains the public keys of all of the participating keys. So for example, if you have a two of three, you need three public keys to construct the Multisig address that you need in order to sign. So even though you only need two of the three keys to apply the signature, the thing you're applying the signature against, which is the address, requires all three public keys, which means you have to have a backup of the X-phops. If any of the things that I just said didn't immediately make sense to you, you're like, oh, well, of course, if you don't have the three X-phops and you can generate the three public keys in the specific sequence to generate the addresses that are hashed into the scripts that are hashed into the address of the Multisig. And therefore, when you're trying to recover because this signature is applied to the Multisig script and the script itself contains the public keys, then I would be at a loss to do that. If any of that wasn't immediately obvious to you, then without any judgment, you do not have the technical skills to manage Multisig. It's really as simple as that. And it's not a suitable technique for your own private key security. So there's a specific technique called multi-factor Multisig or single-user Multisig where you basically have three seeds and you store back up solve them and you use two of the three seeds to sign transactions in that way. If you lose one seed, you have the other two. And that is a technique that a very advanced expert user could use to secure their own funds. There's a whole other category of Multisig, which is Multisig, which is a most common deployment to Multisig, and that comes in two broad applications. One is if you have a company and you don't want the CEO, let's call it a CME CEO, SAM, for example, to be able to run away with all the money or give it to his girlfriend or whatever. And you want to have balance and separation of duties and segregation of controls. Then what you do is you use the kind of corporate operational Multisig where you have say a three of five and it takes three executives with their own seeds generated separately to sign for any transaction out of the corporate funds. So a single executive without the cooperation of at least two others cannot raid the company's funds. So that's a different form of Multisig. And again, the people who are doing that usually have the operational expertise to do that and do it correctly. Finally, there's a multi-user Multisig where it's your funds, but you have other organizations acting as a service provider, having a minority of the seeds, this important minority of the seeds, meaning that organization can't spend funds, but that organization has backups in case you lose one of your seeds or devices. This is the model of unchained capital or CASA. It's used for inheritance planning and it's used for kind of recoverability and security. And this is where you have a hybrid custody model where you still have majority control, but the other company has backups to help you in case you have a problem. Again, that is an entire framework using Multisig as a building component, but they also know how to properly back up all of the X-pubs and set up all of the devices and do that. So it's a managed service. That is a good choice for many people. The one thing I'm saying is don't go and try to do Multisig as a two or three with three seeds of your own without expert supervision. If you don't understand the nuances of recoverability for a Multisig and the vast majority of people don't understand the nuances, I didn't understand the nuances. Even after I've used that kind of scheme for a while. So it's for experts and you don't go playing the game at a much harder level than you're ready to play. Don't go for the big boss until you've leveled up.",
+  "timestamped_text": [
+    {
+      "start": 0.82,
+      "end": 3.14,
+      "text": "Anonymous says, you've warned against Multisig,"
+    },
+    {
+      "start": 3.14,
+      "end": 5.3,
+      "text": "but also recommended the smart custody book,"
+    },
+    {
+      "start": 5.3,
+      "end": 9.46,
+      "text": "smartcustody2.0, under edit, currently in draft,"
+    },
+    {
+      "start": 9.46,
+      "end": 10.5,
+      "text": "goes into Multisig."
+    },
+    {
+      "start": 10.5,
+      "end": 13.5,
+      "text": "Do you see Multisig ever becoming safe to use?"
+    },
+    {
+      "start": 13.5,
+      "end": 14.7,
+      "text": "I need to clarify here,"
+    },
+    {
+      "start": 14.7,
+      "end": 17.38,
+      "text": "because this is a misunderstanding of my position."
+    },
+    {
+      "start": 17.38,
+      "end": 20.46,
+      "text": "Multisig is a fantastic tool for security,"
+    },
+    {
+      "start": 20.46,
+      "end": 24.14,
+      "text": "specifically, big coins on chain Multisig."
+    },
+    {
+      "start": 24.14,
+      "end": 25.98,
+      "text": "It is a fantastic tool for security,"
+    },
+    {
+      "start": 25.98,
+      "end": 28.26,
+      "text": "and it has numerous applications."
+    },
+    {
+      "start": 28.26,
+      "end": 30.46,
+      "text": "It is incredibly secure."
+    },
+    {
+      "start": 30.46,
+      "end": 35.18,
+      "text": "And if properly deployed, you can balance the security"
+    },
+    {
+      "start": 35.18,
+      "end": 38.22,
+      "text": "that you get from Multisig with recoverability."
+    },
+    {
+      "start": 38.22,
+      "end": 41.46,
+      "text": "The key question there is if properly deployed."
+    },
+    {
+      "start": 41.46,
+      "end": 45.98,
+      "text": "What I have said is that Multisig is unsuitable"
+    },
+    {
+      "start": 45.98,
+      "end": 49.14,
+      "text": "for non-technical users who do not fully appreciate"
+    },
+    {
+      "start": 49.14,
+      "end": 53.5,
+      "text": "the risks that Multisig introduces in the area"
+    },
+    {
+      "start": 53.5,
+      "end": 56.18,
+      "text": "of recoverability, specifically the fact that,"
+    },
+    {
+      "start": 56.18,
+      "end": 58.54,
+      "text": "because Multisig addresses our hash"
+    },
+    {
+      "start": 58.54,
+      "end": 62.94,
+      "text": "of the Multisig script, which contains the public keys"
+    },
+    {
+      "start": 62.94,
+      "end": 65.34,
+      "text": "of all of the participating keys."
+    },
+    {
+      "start": 65.34,
+      "end": 67.38,
+      "text": "So for example, if you have a two of three,"
+    },
+    {
+      "start": 67.38,
+      "end": 70.74,
+      "text": "you need three public keys to construct"
+    },
+    {
+      "start": 70.74,
+      "end": 74.82,
+      "text": "the Multisig address that you need in order to sign."
+    },
+    {
+      "start": 74.82,
+      "end": 77.38,
+      "text": "So even though you only need two of the three keys"
+    },
+    {
+      "start": 77.38,
+      "end": 80.06,
+      "text": "to apply the signature, the thing you're applying the signature"
+    },
+    {
+      "start": 80.06,
+      "end": 83.02,
+      "text": "against, which is the address, requires all three public keys,"
+    },
+    {
+      "start": 83.02,
+      "end": 85.98,
+      "text": "which means you have to have a backup of the X-phops."
+    },
+    {
+      "start": 85.98,
+      "end": 90.02,
+      "text": "If any of the things that I just said"
+    },
+    {
+      "start": 90.02,
+      "end": 93.06,
+      "text": "didn't immediately make sense to you, you're like,"
+    },
+    {
+      "start": 93.06,
+      "end": 95.42,
+      "text": "oh, well, of course, if you don't have the three X-phops"
+    },
+    {
+      "start": 95.42,
+      "end": 97.74,
+      "text": "and you can generate the three public keys"
+    },
+    {
+      "start": 97.74,
+      "end": 100.22,
+      "text": "in the specific sequence to generate the addresses"
+    },
+    {
+      "start": 100.22,
+      "end": 104.18,
+      "text": "that are hashed into the scripts that are hashed"
+    },
+    {
+      "start": 104.18,
+      "end": 105.98,
+      "text": "into the address of the Multisig."
+    },
+    {
+      "start": 105.98,
+      "end": 107.58,
+      "text": "And therefore, when you're trying to recover"
+    },
+    {
+      "start": 107.58,
+      "end": 111.02,
+      "text": "because this signature is applied to the Multisig script"
+    },
+    {
+      "start": 111.02,
+      "end": 112.78,
+      "text": "and the script itself contains the public keys,"
+    },
+    {
+      "start": 112.78,
+      "end": 116.82,
+      "text": "then I would be at a loss to do that."
+    },
+    {
+      "start": 116.82,
+      "end": 121.18,
+      "text": "If any of that wasn't immediately obvious to you,"
+    },
+    {
+      "start": 121.18,
+      "end": 124.66,
+      "text": "then without any judgment, you do not"
+    },
+    {
+      "start": 124.66,
+      "end": 126.62,
+      "text": "have the technical skills to manage Multisig."
+    },
+    {
+      "start": 126.62,
+      "end": 127.9,
+      "text": "It's really as simple as that."
+    },
+    {
+      "start": 127.9,
+      "end": 129.42,
+      "text": "And it's not a suitable technique"
+    },
+    {
+      "start": 129.42,
+      "end": 133.66,
+      "text": "for your own private key security."
+    },
+    {
+      "start": 133.66,
+      "end": 137.7,
+      "text": "So there's a specific technique called multi-factor Multisig"
+    },
+    {
+      "start": 137.7,
+      "end": 141.54,
+      "text": "or single-user Multisig where you basically have three seeds"
+    },
+    {
+      "start": 141.78,
+      "end": 143.94,
+      "text": "and you store back up solve them and you use two"
+    },
+    {
+      "start": 143.94,
+      "end": 146.7,
+      "text": "of the three seeds to sign transactions in that way."
+    },
+    {
+      "start": 146.7,
+      "end": 150.06,
+      "text": "If you lose one seed, you have the other two."
+    },
+    {
+      "start": 150.06,
+      "end": 154.14,
+      "text": "And that is a technique that a very advanced expert user"
+    },
+    {
+      "start": 154.14,
+      "end": 156.42,
+      "text": "could use to secure their own funds."
+    },
+    {
+      "start": 157.78,
+      "end": 159.82,
+      "text": "There's a whole other category of Multisig,"
+    },
+    {
+      "start": 159.82,
+      "end": 163.22,
+      "text": "which is Multisig, which is a most common deployment"
+    },
+    {
+      "start": 163.22,
+      "end": 166.3,
+      "text": "to Multisig, and that comes in two broad applications."
+    },
+    {
+      "start": 166.3,
+      "end": 169.74,
+      "text": "One is if you have a company and you don't want"
+    },
+    {
+      "start": 170.74,
+      "end": 175.3,
+      "text": "the CEO, let's call it a CME CEO, SAM, for example,"
+    },
+    {
+      "start": 175.3,
+      "end": 176.9,
+      "text": "to be able to run away with all the money"
+    },
+    {
+      "start": 176.9,
+      "end": 180.34,
+      "text": "or give it to his girlfriend or whatever."
+    },
+    {
+      "start": 180.34,
+      "end": 185.34,
+      "text": "And you want to have balance and separation of duties"
+    },
+    {
+      "start": 185.34,
+      "end": 187.7,
+      "text": "and segregation of controls."
+    },
+    {
+      "start": 187.7,
+      "end": 189.3,
+      "text": "Then what you do is you use the kind"
+    },
+    {
+      "start": 189.3,
+      "end": 191.58,
+      "text": "of corporate operational Multisig where you have"
+    },
+    {
+      "start": 191.58,
+      "end": 194.18,
+      "text": "say a three of five and it takes three executives"
+    },
+    {
+      "start": 194.18,
+      "end": 196.9,
+      "text": "with their own seeds generated separately"
+    },
+    {
+      "start": 196.9,
+      "end": 200.98,
+      "text": "to sign for any transaction out of the corporate funds."
+    },
+    {
+      "start": 200.98,
+      "end": 204.18,
+      "text": "So a single executive without the cooperation"
+    },
+    {
+      "start": 204.18,
+      "end": 208.34,
+      "text": "of at least two others cannot raid the company's funds."
+    },
+    {
+      "start": 208.34,
+      "end": 210.22,
+      "text": "So that's a different form of Multisig."
+    },
+    {
+      "start": 210.22,
+      "end": 211.66,
+      "text": "And again, the people who are doing that"
+    },
+    {
+      "start": 211.66,
+      "end": 215.26,
+      "text": "usually have the operational expertise to do that"
+    },
+    {
+      "start": 215.26,
+      "end": 217.39,
+      "text": "and do it correctly."
+    },
+    {
+      "start": 217.39,
+      "end": 221.95,
+      "text": "Finally, there's a multi-user Multisig"
+    },
+    {
+      "start": 221.95,
+      "end": 226.59,
+      "text": "where it's your funds, but you have other organizations"
+    },
+    {
+      "start": 226.59,
+      "end": 227.95,
+      "text": "acting as a service provider,"
+    },
+    {
+      "start": 227.95,
+      "end": 230.63,
+      "text": "having a minority of the seeds,"
+    },
+    {
+      "start": 230.63,
+      "end": 232.59,
+      "text": "this important minority of the seeds,"
+    },
+    {
+      "start": 232.59,
+      "end": 235.19,
+      "text": "meaning that organization can't spend funds,"
+    },
+    {
+      "start": 235.19,
+      "end": 238.19,
+      "text": "but that organization has backups in case you lose"
+    },
+    {
+      "start": 238.19,
+      "end": 240.15,
+      "text": "one of your seeds or devices."
+    },
+    {
+      "start": 240.15,
+      "end": 243.59,
+      "text": "This is the model of unchained capital or CASA."
+    },
+    {
+      "start": 243.59,
+      "end": 245.07,
+      "text": "It's used for inheritance planning"
+    },
+    {
+      "start": 245.07,
+      "end": 249.47,
+      "text": "and it's used for kind of recoverability and security."
+    },
+    {
+      "start": 249.47,
+      "end": 252.39,
+      "text": "And this is where you have a hybrid custody model"
+    },
+    {
+      "start": 252.39,
+      "end": 255.87,
+      "text": "where you still have majority control,"
+    },
+    {
+      "start": 255.87,
+      "end": 258.43,
+      "text": "but the other company has backups"
+    },
+    {
+      "start": 258.43,
+      "end": 260.47,
+      "text": "to help you in case you have a problem."
+    },
+    {
+      "start": 261.55,
+      "end": 264.07,
+      "text": "Again, that is an entire framework"
+    },
+    {
+      "start": 264.07,
+      "end": 266.55,
+      "text": "using Multisig as a building component,"
+    },
+    {
+      "start": 266.55,
+      "end": 269.75,
+      "text": "but they also know how to properly back up all of the X-pubs"
+    },
+    {
+      "start": 269.75,
+      "end": 272.51,
+      "text": "and set up all of the devices and do that."
+    },
+    {
+      "start": 272.51,
+      "end": 274.83,
+      "text": "So it's a managed service."
+    },
+    {
+      "start": 274.83,
+      "end": 277.75,
+      "text": "That is a good choice for many people."
+    },
+    {
+      "start": 277.75,
+      "end": 282.95,
+      "text": "The one thing I'm saying is don't go and try to do Multisig"
+    },
+    {
+      "start": 282.95,
+      "end": 285.79,
+      "text": "as a two or three with three seeds of your own"
+    },
+    {
+      "start": 287.61,
+      "end": 289.53,
+      "text": "without expert supervision."
+    },
+    {
+      "start": 289.53,
+      "end": 293.29,
+      "text": "If you don't understand the nuances of recoverability"
+    },
+    {
+      "start": 293.29,
+      "end": 296.61,
+      "text": "for a Multisig and the vast majority of people"
+    },
+    {
+      "start": 296.61,
+      "end": 298.05,
+      "text": "don't understand the nuances,"
+    },
+    {
+      "start": 298.05,
+      "end": 300.29,
+      "text": "I didn't understand the nuances."
+    },
+    {
+      "start": 300.29,
+      "end": 303.78,
+      "text": "Even after I've used that kind of scheme for a while."
+    },
+    {
+      "start": 303.78,
+      "end": 309.14,
+      "text": "So it's for experts and you don't go playing the game"
+    },
+    {
+      "start": 309.14,
+      "end": 313.14,
+      "text": "at a much harder level than you're ready to play."
+    },
+    {
+      "start": 313.14,
+      "end": 316.14,
+      "text": "Don't go for the big boss until you've leveled up."
+    }
+  ],
+  "topics": [
+    "mining",
+    "regulation",
+    "institutional",
+    "privacy"
+  ],
+  "sentiment": "neutral",
+  "archived_at": "2026-03-05T17:36:54Z"
+}
