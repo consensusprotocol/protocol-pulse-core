@@ -5,14 +5,26 @@ import { WaveformVisualizer } from './compositions/WaveformVisualizer';
 import { SocialCard } from './compositions/SocialCard';
 import { LowerThird } from './compositions/LowerThird';
 import { TitleCard } from './compositions/TitleCard';
+import { CyberpunkBackground } from './compositions/CyberpunkBackground';
 
 const RemotionRoot: React.FC = () => {
   return (
     <>
       <Composition
+        id="CyberpunkBackground"
+        component={CyberpunkBackground}
+        durationInFrames={300}
+        fps={30}
+        width={1920}
+        height={1080}
+        defaultProps={{
+          durationInFrames: 300,
+        }}
+      />
+      <Composition
         id="GlitchTransition"
         component={GlitchTransition}
-        durationInFrames={21}
+        durationInFrames={30}
         fps={30}
         width={1920}
         height={1080}

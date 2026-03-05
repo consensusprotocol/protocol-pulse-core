@@ -106,6 +106,29 @@ export const WaveformVisualizer: React.FC<WaveformVisualizerProps> = ({
 
   const waveformPath = generateHeartbeatPath();
 
+  // Trace dot position — follows the last drawn point on the waveform
+  const traceProgress = interpolate(frame, [0, 45], [0, 1], {
+    extrapolateRight: 'clamp',
+    easing: Easing.out(Easing.quad),
+  });
+  const traceSegment = Math.floor(traceProgress * 200);
+  const traceX = (traceSegment / 200) * waveWidth;
+  const traceBeatPhase = ((traceSegment / 200) * 4 + t * 0.5) % 1;
+  let traceY = waveHeight / 2;
+  if (traceBeatPhase > 0.5 && traceBeatPhase < 0.58) {
+    const spike = Math.sin((traceBeatPhase - 0.5) / 0.08 * Math.PI);
+    traceY -= spike * (waveHeight * 0.8);
+  }
+
+  // Beat pulse — stroke width pulses on QRS peaks
+  const isNearPeak = traceBeatPhase > 0.48 && traceBeatPhase < 0.62;
+  const mainStrokeWidth = isNearPeak
+    ? interpolate(Math.sin((traceBeatPhase - 0.48) / 0.14 * Math.PI), [0, 1], [3, 5])
+    : 3;
+  const glowStrokeWidth = isNearPeak
+    ? interpolate(Math.sin((traceBeatPhase - 0.48) / 0.14 * Math.PI), [0, 1], [6, 10])
+    : 6;
+
   // Floating red particles (3-5 dots)
   const particles = Array.from({ length: 4 }).map((_, i) => {
     const seed = i * 17.3;
@@ -183,26 +206,36 @@ export const WaveformVisualizer: React.FC<WaveformVisualizerProps> = ({
         height={waveHeight}
         viewBox={`0 0 ${waveWidth} ${waveHeight}`}
       >
-        {/* Glow layer */}
+        {/* Outer glow layer */}
         <path
           d={waveformPath}
           fill="none"
           stroke={BRAND.RED}
-          strokeWidth={6}
+          strokeWidth={glowStrokeWidth}
           strokeLinecap="round"
           strokeLinejoin="round"
-          opacity={0.3}
+          opacity={0.5}
           filter="blur(4px)"
         />
-        {/* Main line */}
+        {/* Main line with beat-reactive width */}
         <path
           d={waveformPath}
           fill="none"
           stroke={BRAND.RED}
-          strokeWidth={3}
+          strokeWidth={mainStrokeWidth}
           strokeLinecap="round"
           strokeLinejoin="round"
         />
+        {/* Oscilloscope trace dot */}
+        {traceProgress > 0 && traceProgress < 1 && (
+          <circle
+            cx={traceX}
+            cy={traceY}
+            r={6}
+            fill={BRAND.LIGHT_RED}
+            opacity={0.9}
+          />
+        )}
       </svg>
 
       {/* Mirror reflection waveform */}
@@ -213,7 +246,7 @@ export const WaveformVisualizer: React.FC<WaveformVisualizerProps> = ({
           left: (1920 - waveWidth) / 2,
           overflow: 'visible',
           transform: 'scaleY(-1)',
-          opacity: 0.3,
+          opacity: 0.2,
           filter: 'blur(1px)',
         }}
         width={waveWidth}
