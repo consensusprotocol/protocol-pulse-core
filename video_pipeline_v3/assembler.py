@@ -760,29 +760,40 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
     else:
         bgm_idx = -1
 
-    # Filtergraph
-    fg = f"color=c=0x0A0A0A:s=1920x1080:d={total_dur}:r=30[base];\n"
+    # Filtergraph — gradient background (dark to slightly lighter)
+    fg = f"color=c=0x0C0C0C:s=1920x1080:d={total_dur}:r=30[bgdark];\n"
+    fg += f"color=c=0x161616:s=1920x540:d={total_dur}:r=30[bglite];\n"
+    fg += f"[bgdark][bglite]overlay=0:0[base];\n"
 
-    # Scanline overlay
-    fg += f"color=c=0x000000@0.03:s=1920x2:d={total_dur}:r=30[scanline];\n"
-    fg += f"color=c=0x000000@0.0:s=1920x4:d={total_dur}:r=30[scangap];\n"
+    # Scanline overlay (1px lines every 4px at 5% opacity)
+    fg += f"color=c=0x000000@0.05:s=1920x1:d={total_dur}:r=30[scanline];\n"
+    fg += f"color=c=0x000000@0.0:s=1920x3:d={total_dur}:r=30[scangap];\n"
     fg += f"[scanline][scangap]vstack[scanpair];\n"
-    fg += f"[scanpair]tile=1x180:overlap=0:init_padding=0[scantile];\n"
+    fg += f"[scanpair]tile=1x270:overlap=0:init_padding=0[scantile];\n"
     fg += f"[base][scantile]overlay=0:0[bgscan];\n"
 
-    # Top red accent bar
-    fg += f"[bgscan]drawbox=x=0:y=0:w=1920:h=4:color=0xCC0000:t=fill[bgbar];\n"
+    # Vignette corners (darker edges)
+    fg += (f"[bgscan]drawbox=x=0:y=0:w=200:h=1080:color=0x000000@0.15:t=fill"
+           f",drawbox=x=1720:y=0:w=200:h=1080:color=0x000000@0.15:t=fill"
+           f",drawbox=x=0:y=0:w=1920:h=100:color=0x000000@0.10:t=fill"
+           f",drawbox=x=0:y=980:w=1920:h=100:color=0x000000@0.10:t=fill[bgvig];\n")
 
-    # Section header
-    fg += (f"[bgbar]drawtext=fontfile={FONT_BOLD}:"
+    # Top red accent bar
+    fg += f"[bgvig]drawbox=x=0:y=0:w=1920:h=4:color=0xCC0000:t=fill[bgbar];\n"
+
+    # Pulse dot top-left (static red circle indicator)
+    fg += f"[bgbar]drawbox=x=20:y=16:w=10:h=10:color=0xCC0000:t=fill[bgdot];\n"
+
+    # Section header — "WHAT THE BITCOIN INTERNET IS SAYING"
+    fg += (f"[bgdot]drawtext=fontfile={FONT_BOLD}:"
            f"text='WHAT THE BITCOIN INTERNET IS SAYING':"
            f"fontcolor=0xCC0000:fontsize=28:x=(w-text_w)/2:y=28[bgtitle];\n")
     last_v = "bgtitle"
 
-    # Render up to 2 tweet cards
+    # Render up to 2 tweet cards — stacked vertically with spacing
     card_y_start = 90
-    card_height = 240
-    card_spacing = 20
+    card_height = 260
+    card_spacing = 30
     card_width = 1360
     card_x = 280
 
@@ -799,49 +810,58 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
         cy = card_y_start + ci * (card_height + card_spacing)
         tag = f"c{ci}"
 
-        # Card glow (subtle red behind card)
-        fg += f"color=c=0xCC0000@0.06:s={card_width + 20}x{card_height + 20}:d={total_dur}:r=30[{tag}glow];\n"
-        fg += f"[{last_v}][{tag}glow]overlay={card_x - 10}:{cy - 10}[{tag}g];\n"
+        # Card glow (subtle red behind card — outer glow)
+        fg += f"color=c=0xCC0000@0.08:s={card_width + 24}x{card_height + 24}:d={total_dur}:r=30[{tag}glow];\n"
+        fg += f"[{last_v}][{tag}glow]overlay={card_x - 12}:{cy - 12}[{tag}g];\n"
 
         # Card body
         fg += f"color=c=0x141414@0.95:s={card_width}x{card_height}:d={total_dur}:r=30[{tag}body];\n"
-        # Red border
-        fg += f"[{tag}body]drawbox=x=0:y=0:w={card_width}:h={card_height}:color=0xCC0000@0.6:t=2[{tag}brd];\n"
+        # Outer red border (2px)
+        fg += f"[{tag}body]drawbox=x=0:y=0:w={card_width}:h={card_height}:color=0xCC0000@0.7:t=2[{tag}brd];\n"
+        # Inner glow border (dark red, 2px inside the outer border)
+        fg += f"[{tag}brd]drawbox=x=4:y=4:w={card_width - 8}:h={card_height - 8}:color=0x440000@0.5:t=2[{tag}inner];\n"
         # Left accent bar
-        fg += f"[{tag}brd]drawbox=x=0:y=0:w=6:h={card_height}:color=0xCC0000:t=fill[{tag}lbar];\n"
+        fg += f"[{tag}inner]drawbox=x=0:y=0:w=6:h={card_height}:color=0xCC0000:t=fill[{tag}lbar];\n"
         # Top edge accent
         fg += f"[{tag}lbar]drawbox=x=0:y=0:w={card_width}:h=2:color=0xCC0000:t=fill[{tag}top];\n"
 
         # Pulse dot
         fg += f"[{tag}top]drawbox=x=20:y=18:w=8:h=8:color=0xCC0000:t=fill[{tag}dot];\n"
 
-        # Handle
-        fg += (f"[{tag}dot]drawtext=fontfile={FONT_BOLD}:"
+        # Handle — monospace font
+        fg += (f"[{tag}dot]drawtext=fontfile={FONT_MONO}:"
                f"text='{handle}':"
                f"fontcolor=0xCC0000:fontsize=22:x=38:y=14[{tag}hdl];\n")
 
-        # Tweet text
-        fg += (f"[{tag}hdl]drawtext=fontfile={FONT_MONO}:"
+        # Tweet text — bold for readability
+        fg += (f"[{tag}hdl]drawtext=fontfile={FONT_BOLD}:"
                f"text='{tweet_text}':"
-               f"fontcolor=0xEDEDED:fontsize=24:x=24:y=48:line_spacing=14:"
+               f"fontcolor=0xEDEDED:fontsize=24:x=24:y=52:line_spacing=16:"
                f"box=0[{tag}txt];\n")
 
         # Engagement stats bottom
         fg += (f"[{tag}txt]drawtext=fontfile={FONT_MONO}:"
                f"text='{likes_str} likes  |  {rt_str} RTs':"
-               f"fontcolor=0xFF4444:fontsize=16:x=24:y=h-30[{tag}stats];\n")
+               f"fontcolor=0xFF4444:fontsize=16:x=24:y=h-32[{tag}stats];\n")
 
         # Source label bottom-right
         fg += (f"[{tag}stats]drawtext=fontfile={FONT_MONO}:"
                f"text='via X':fontcolor=0x888888:fontsize=14:"
-               f"x=w-80:y=h-28[{tag}src];\n")
+               f"x=w-80:y=h-30[{tag}src];\n")
 
         # Overlay card on base with fade-in
         fade_start = ci * 0.4
         fg += f"[{tag}g][{tag}src]overlay={card_x}:{cy}:format=auto,fade=t=in:st={fade_start}:d=0.3[{tag}out];\n"
         last_v = f"{tag}out"
 
-    # Ticker bar
+    # "WHAT THE BITCOIN INTERNET IS SAYING" repeated at bottom of cards area
+    bottom_header_y = card_y_start + len(posts[:2]) * (card_height + card_spacing) + 10
+    fg += (f"[{last_v}]drawtext=fontfile={FONT_BOLD}:"
+           f"text='WHAT THE BITCOIN INTERNET IS SAYING':"
+           f"fontcolor=0xCC0000@0.3:fontsize=18:x=(w-text_w)/2:y={bottom_header_y}[vbhdr];\n")
+    last_v = "vbhdr"
+
+    # Bottom info bar — gold/amber text
     fg += f"color=c=0x0A0000@0.92:s=1920x44:d={total_dur}:r=30[tickbg];\n"
     fg += (f"[tickbg]drawtext=fontfile={FONT_MONO}:text='{ticker_text}':"
            f"fontcolor=0xFFD700:fontsize=18:x=w-mod(t*80\\,w+tw):y=12[ticker];\n")
