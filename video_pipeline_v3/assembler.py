@@ -588,18 +588,18 @@ def make_host_visual(audio_path: str, host: int, text: str,
         fg += f"[{last_v}][thumb]overlay=1160:120[vthumb];\n"
         last_v = "vthumb"
 
-    # 13. Social segment — styled tweet card (only for social_segment type)
+    # 13. Social segment — cyberpunk tweet card (only for social_segment type)
     if is_social:
         safe_text = (text.replace("'", "").replace('"', "")
                          .replace(":", " -").replace(";", ",")
                          .replace("[", "(").replace("]", ")")
                          .replace("\u2014", "-").replace("\u2019", "")
                          .replace("\\", "").replace("\n", " "))
-        # Word-wrap at ~55 chars, max 3 lines, truncate with ...
+        # Word-wrap at ~60 chars, max 3 lines, truncate with ...
         wrapped_lines = []
         current_line = ""
         for word in safe_text.split():
-            if len(current_line) + len(word) + 1 > 55:
+            if len(current_line) + len(word) + 1 > 60:
                 wrapped_lines.append(current_line)
                 current_line = word
                 if len(wrapped_lines) >= 3:
@@ -609,25 +609,55 @@ def make_host_visual(audio_path: str, host: int, text: str,
         if current_line and len(wrapped_lines) < 3:
             wrapped_lines.append(current_line)
         if len(wrapped_lines) == 3 and len(safe_text) > sum(len(l) for l in wrapped_lines):
-            wrapped_lines[2] = wrapped_lines[2][:52] + "..."
+            wrapped_lines[2] = wrapped_lines[2][:57] + "..."
         wrapped_text = "\\n".join(wrapped_lines)
 
-        # Red bar top
-        fg += (f"[{last_v}]drawbox=x=0:y=0:w=1920:h=8:color=0xCC0000:t=fill[vsoc_bar];\n")
-        # Section header
+        # --- Cyberpunk card design ---
+        # Scanline overlay (horizontal lines at low opacity)
+        fg += f"color=c=0x000000@0.03:s=1920x2:d={total_dur}:r=30[scanline];\n"
+        fg += f"color=c=0x000000@0.0:s=1920x4:d={total_dur}:r=30[scangap];\n"
+        fg += f"[scanline][scangap]vstack[scanpair];\n"
+        # Tile scanlines across the frame (180 pairs = 1080px)
+        fg += f"[scanpair]tile=1x180:overlap=0:init_padding=0[scantile];\n"
+        fg += f"[{last_v}][scantile]overlay=0:0[vscan];\n"
+
+        # Red accent bar top (thicker for cyberpunk)
+        fg += f"[vscan]drawbox=x=0:y=0:w=1920:h=6:color=0xCC0000:t=fill[vsoc_bar];\n"
+        # Section header — cyberpunk style
         fg += (f"[vsoc_bar]drawtext=fontfile={FONT_BOLD}:"
                f"text='WHAT THE BITCOIN INTERNET IS SAYING':"
-               f"fontcolor=0xCC0000:fontsize=32:x=(w-text_w)/2:y=30[vsoc_title];\n")
-        # Tweet card background (centered dark card with red border)
-        fg += f"color=c=0x1A0000:s=1400x260:d={total_dur}:r=30[tcard];\n"
-        fg += f"[tcard]drawbox=x=0:y=0:w=1400:h=260:color=0xCC0000@0.4:t=4[tcardborder];\n"
-        # Tweet text on card (word-wrapped, max 3 lines)
-        fg += (f"[tcardborder]drawtext=fontfile={FONT_MONO}:"
+               f"fontcolor=0xCC0000:fontsize=28:x=(w-text_w)/2:y=24[vsoc_title];\n")
+
+        # Card glow background (slightly larger, transparent red)
+        fg += f"color=c=0xCC0000@0.08:s=1420x320:d={total_dur}:r=30[cardglow];\n"
+        fg += f"[vsoc_title][cardglow]overlay=250:168[vglow];\n"
+
+        # Card body (dark surface with sharp red border)
+        fg += f"color=c=0x141414@0.95:s=1400x300:d={total_dur}:r=30[tcard];\n"
+        fg += f"[tcard]drawbox=x=0:y=0:w=1400:h=300:color=0xCC0000@0.6:t=2[tcardborder];\n"
+        # Top edge accent line on card
+        fg += f"[tcardborder]drawbox=x=0:y=0:w=1400:h=2:color=0xCC0000:t=fill[tcardtop];\n"
+
+        # Pulse dot (animated blink via alpha modulation)
+        fg += (f"[tcardtop]drawbox=x=20:y=20:w=8:h=8:color=0xCC0000:t=fill[tdot];\n")
+        # Handle text
+        fg += (f"[tdot]drawtext=fontfile={FONT_BOLD}:"
+               f"text='@ProtocolPulse':"
+               f"fontcolor=0xCC0000:fontsize=20:x=38:y=16[thandle];\n")
+
+        # Tweet text (larger, better spacing, #EDEDED color)
+        fg += (f"[thandle]drawtext=fontfile={FONT_MONO}:"
                f"text='{wrapped_text}':"
-               f"fontcolor=white:fontsize=24:x=24:y=40:line_spacing=12:"
+               f"fontcolor=0xEDEDED:fontsize=26:x=24:y=56:line_spacing=16:"
                f"box=0[tcardtext];\n")
-        # Overlay card centered on base
-        fg += f"[vsoc_title][tcardtext]overlay=260:200[vsoc2];\n"
+
+        # Bottom-right engagement indicator
+        fg += (f"[tcardtext]drawtext=fontfile={FONT_MONO}:"
+               f"text='PROTOCOL PULSE':fontcolor=0x888888:fontsize=14:"
+               f"x=w-180:y=h-24[tcardfoot];\n")
+
+        # Overlay card centered on base (with fade-in)
+        fg += f"[vglow][tcardfoot]overlay=260:178:format=auto,fade=t=in:st=0:d=0.3[vsoc2];\n"
         last_v = "vsoc2"
 
     fg += f"[{last_v}]format=yuv420p[outv];\n"
