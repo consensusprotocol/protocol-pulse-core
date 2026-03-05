@@ -1,0 +1,23 @@
+{
+  "topics": [
+    {
+      "topic": "mining difficulty",
+      "velocity_score": 85,
+      "channels_covering": 7,
+      "sentiment": "bearish"
+    },
+    {
+      "topic": "ETF flows",
+      "velocity_score": 68,
+      "channels_covering": 5,
+      "sentiment": "bullish"
+    },
+    {
+      "topic": "self-custody",
+      "velocity_score": 55,
+      "channels_covering": 3,
+      "sentiment": "neutral"
+    }
+  ],
+  "breaking": false
+}

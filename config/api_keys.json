@@ -1,0 +1,16 @@
+{
+  "keys": [
+    {
+      "key": "pp-test-commander-001",
+      "tier": "commander",
+      "subscriber": "PBX Test",
+      "active": true
+    },
+    {
+      "key": "pp-free-demo-001",
+      "tier": "free",
+      "subscriber": "Demo",
+      "active": true
+    }
+  ]
+}
