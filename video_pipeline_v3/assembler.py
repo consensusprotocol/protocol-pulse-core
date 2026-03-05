@@ -888,11 +888,12 @@ def concatenate_parts(parts: list, output_path: str) -> str:
         return ""
 
     # Final encode: PTS reset on BOTH streams + async audio alignment
-    # Use ABR mode (no CRF) to guarantee bitrate floor for YouTube HD quality
+    # ABR mode WITHOUT CRF — CRF overrides -b:v and -minrate, defeating bitrate floor.
+    # Parts already have CRF 17 quality. Final encode just needs bitrate guarantee.
     ok = run_ffmpeg(
         ["-fflags", "+genpts",
          "-i", concat_raw,
-         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+         "-c:v", "libx264", "-preset", "medium",
          "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
          "-r", "30", "-vsync", "cfr",
          "-vf", "setpts=PTS-STARTPTS,format=yuv420p",

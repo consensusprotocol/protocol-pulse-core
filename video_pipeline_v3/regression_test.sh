@@ -86,13 +86,20 @@ echo "── 4. NO BLACK/EMPTY PARTS ──"
 for f in "$WORK"/part_*.mp4; do
     SZ=$(stat -c%s "$f" 2>/dev/null || stat -f%z "$f" 2>/dev/null)
     BASENAME=$(basename "$f")
-    if [ "$SZ" -lt 100000 ]; then
+    # Glitch transitions are 0.5s — 50-80KB is normal
+    if echo "$BASENAME" | grep -q "glitch"; then
+        if [ "$SZ" -lt 10000 ]; then
+            fail "$BASENAME is only ${SZ} bytes — likely black/empty"
+        fi
+    elif [ "$SZ" -lt 100000 ]; then
         fail "$BASENAME is only ${SZ} bytes — likely black/empty"
     fi
 done
 # Count how many passed
 TOTAL_PARTS=$(ls "$WORK"/part_*.mp4 2>/dev/null | wc -l)
-SMALL_PARTS=$(find "$WORK" -name "part_*.mp4" -size -100k 2>/dev/null | wc -l)
+SMALL_PARTS=$(find "$WORK" -name "part_*.mp4" ! -name "*glitch*" -size -100k 2>/dev/null | wc -l)
+SMALL_GLITCH=$(find "$WORK" -name "part_*glitch*" -size -10k 2>/dev/null | wc -l)
+SMALL_PARTS=$((SMALL_PARTS + SMALL_GLITCH))
 GOOD_PARTS=$((TOTAL_PARTS - SMALL_PARTS))
 [ "$SMALL_PARTS" -eq 0 ] && pass "All $TOTAL_PARTS parts have real content" || true
 echo ""
