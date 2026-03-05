@@ -53,6 +53,7 @@ WATERMARK = os.path.join(ASSETS, "logo", "watermark.png")
 BG_MUSIC = os.path.join(ASSETS, "music", "pp_background.mp3")
 TAG_VIDEO = os.path.join(ASSETS, "tag_vertical.mp4")
 OUTRO_BRANDED = os.path.join(ASSETS, "outro_branded.mp4")
+LOGO_IMAGE = os.path.join(ASSETS, "logo_protocol_pulse.png")
 
 
 def run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
@@ -355,15 +356,21 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A")
 
     has_jingle = bool(jingle and os.path.exists(jingle))
     has_wm = os.path.exists(WATERMARK)
+    has_logo = os.path.exists(LOGO_IMAGE)
 
-    # Background: same deep space design but brighter for intro
-    fg = f"color=c=0x0A0000:s=1920x1080:d={total_dur}:r=30[base];\n"
-    fg += (f"[base]drawbox=x=0:y=536:w=1920:h=3:color=0xCC0000@0.5:t=fill"
+    # Background: deep space + vignette + logo
+    fg = f"color=c=0x0A0A0A:s=1920x1080:d={total_dur}:r=30[base];\n"
+    fg += f"color=c=0x0F0000:s=1920x540:d={total_dur}:r=30[tophalf];\n"
+    fg += f"[base][tophalf]overlay=0:0[bgbase];\n"
+    # Vignette
+    fg += (f"[bgbase]drawbox=x=0:y=0:w=250:h=1080:color=0x000000@0.12:t=fill"
+           f",drawbox=x=1670:y=0:w=250:h=1080:color=0x000000@0.12:t=fill[bgvig];\n")
+    fg += (f"[bgvig]drawbox=x=0:y=536:w=1920:h=3:color=0xCC0000@0.5:t=fill"
            f",drawbox=x=0:y=541:w=1920:h=1:color=0x880000@0.3:t=fill[bglines];\n")
     fg += f"color=c=0xCC0000@0.8:s=4x1080:d={total_dur}:r=30[leftbar];\n"
     fg += f"[bglines][leftbar]overlay=0:0[bgv0];\n"
 
-    # Waveform — compact, centered, red
+    # Waveform — compact, centered, red with mirror reflection
     fg += (f"[0:a]showwaves=s=960x80:mode=cline:"
            f"colors=0xCC0000|0xFF4444:scale=sqrt:draw=full:rate=30[wave_raw];\n")
     fg += f"[wave_raw]split[wA][wB];\n"
@@ -371,16 +378,25 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A")
     fg += f"[wA][wflip]vstack[wavepair];\n"
     fg += f"[bgv0][wavepair]overlay=480:460[withwave];\n"
 
-    # Protocol Pulse title (centered, top area)
-    fg += (f"[withwave]drawtext=fontfile={FONT_BOLD}:"
-           f"text='PROTOCOL PULSE':fontcolor=0xCC0000:fontsize=72:"
-           f"x=(w-text_w)/2:y=80[title];\n")
-    fg += (f"[title]drawtext=fontfile={FONT_MONO}:"
-           f"text='PULSE CHECK':fontcolor=0xFFFFFF@0.7:fontsize=32:"
-           f"x=(w-text_w)/2:y=175[v_final];\n")
-
+    # Logo overlay (centered, 200px, black bg removed) or text fallback
     inp_args = [tts_path]
     idx = 1
+    if has_logo:
+        inp_args.append(LOGO_IMAGE)
+        logo_idx = idx
+        idx += 1
+        fg += (f"[{logo_idx}:v]scale=-1:200,"
+               f"colorkey=color=0x000000:similarity=0.25:blend=0.1[logo];\n")
+        fg += f"[withwave][logo]overlay=(W-w)/2:60[title];\n"
+    else:
+        fg += (f"[withwave]drawtext=fontfile={FONT_BOLD}:"
+               f"text='PROTOCOL PULSE':fontcolor=0xCC0000:fontsize=72:"
+               f"x=(w-text_w)/2:y=80[title];\n")
+
+    fg += (f"[title]drawtext=fontfile={FONT_MONO}:"
+           f"text='PULSE CHECK':fontcolor=0xFFFFFF@0.7:fontsize=32:"
+           f"x=(w-text_w)/2:y=280[v_final];\n")
+
     if has_wm:
         inp_args.append(WATERMARK)
         wm_idx = idx
@@ -505,12 +521,23 @@ def make_host_visual(audio_path: str, host: int, text: str,
     has_wm = os.path.exists(WATERMARK)
     has_bgm = os.path.exists(BG_MUSIC)
     has_thumb = bool(thumbnail_path and os.path.exists(thumbnail_path))
+    has_logo = os.path.exists(LOGO_IMAGE)
     is_social = segment_type == "social_segment"
 
+    # Get episode title for subtitle text
+    ep_title = label.replace("host visual", "").replace("(JESSICA)", "").replace("(CHRIS)", "").strip()
+
     # Build inputs list
-    # 0: TTS audio (for waveform + main audio), [1: watermark], [N: bg music], [N: thumbnail]
+    # 0: TTS audio, [1: logo], [N: watermark], [N: bg music], [N: thumbnail]
     inputs = [audio_path]  # 0: tts audio
     inp_idx = 1
+
+    if has_logo:
+        inputs.append(LOGO_IMAGE)
+        logo_idx = inp_idx
+        inp_idx += 1
+    else:
+        logo_idx = -1
 
     if has_wm:
         inputs.append(WATERMARK)
@@ -533,50 +560,81 @@ def make_host_visual(audio_path: str, host: int, text: str,
     else:
         thumb_idx = -1
 
-    # Filter graph — procedural background with audio waveform
-    # 1. Deep black base with red undertone
-    fg = f"color=c=0x0A0000:s=1920x1080:d={total_dur}:r=30[base];\n"
+    # Filter graph — procedural background with logo + audio waveform
+    # 1. Dark base (#0A0A0A) with subtle vignette
+    fg = f"color=c=0x0A0A0A:s=1920x1080:d={total_dur}:r=30[base];\n"
 
-    # 2. Subtle gradient overlay — darker red-tinted top half
-    fg += f"color=c=0x100000:s=1920x540:d={total_dur}:r=30[tophalf];\n"
+    # 2. Subtle gradient overlay — slightly lighter top half for depth
+    fg += f"color=c=0x0F0000:s=1920x540:d={total_dur}:r=30[tophalf];\n"
     fg += f"[base][tophalf]overlay=0:0[bgbase];\n"
 
-    # 3. Thin horizontal accent lines — red palette
-    fg += (f"[bgbase]drawbox=x=0:y=538:w=1920:h=2:color=0xCC0000@0.35:t=fill"
+    # 3. Vignette — darker corners for cinematic feel
+    fg += (f"[bgbase]drawbox=x=0:y=0:w=250:h=1080:color=0x000000@0.12:t=fill"
+           f",drawbox=x=1670:y=0:w=250:h=1080:color=0x000000@0.12:t=fill"
+           f",drawbox=x=0:y=0:w=1920:h=120:color=0x000000@0.08:t=fill"
+           f",drawbox=x=0:y=960:w=1920:h=120:color=0x000000@0.08:t=fill[bgvig];\n")
+
+    # 4. Thin horizontal accent lines — red palette
+    fg += (f"[bgvig]drawbox=x=0:y=538:w=1920:h=2:color=0xCC0000@0.35:t=fill"
            f",drawbox=x=0:y=542:w=1920:h=1:color=0x880000@0.2:t=fill[bglines];\n")
 
-    # 4. LEFT SIDE vertical accent bar — red
+    # 5. LEFT SIDE vertical accent bar — red
     fg += f"color=c=0xCC0000@0.8:s=4x1080:d={total_dur}:r=30[leftbar];\n"
     fg += f"[bglines][leftbar]overlay=0:0[bgv0];\n"
 
-    # 5. Audio waveform — compact, centered, red (960x80)
+    # 6. Logo overlay — centered, 200px height, black bg removed via colorkey
+    if has_logo:
+        fg += (f"[{logo_idx}:v]scale=-1:200,"
+               f"colorkey=color=0x000000:similarity=0.25:blend=0.1[logo];\n")
+        # Center logo: x=(1920-logo_w)/2, y=80
+        fg += f"[bgv0][logo]overlay=(W-w)/2:80[bglogo];\n"
+        last_bg = "bglogo"
+    else:
+        # Fallback: text title if no logo
+        fg += (f"[bgv0]drawtext=fontfile={FONT_BOLD}:"
+               f"text='PROTOCOL PULSE':fontcolor=0xCC0000:fontsize=72:"
+               f"x=(w-text_w)/2:y=80[bglogo];\n")
+        last_bg = "bglogo"
+
+    # 7. "PULSE CHECK" subtitle below logo
+    fg += (f"[{last_bg}]drawtext=fontfile={FONT_MONO}:"
+           f"text='PULSE CHECK':fontcolor=0xFFFFFF@0.7:fontsize=28:"
+           f"x=(w-text_w)/2:y=300[bgtitle];\n")
+
+    # 8. Corner elements — date top-left, "PROTOCOL PULSE" top-right
+    fg += (f"[bgtitle]drawtext=fontfile={FONT_MONO}:"
+           f"text='PROTOCOL PULSE':fontcolor=0x444444:fontsize=16:"
+           f"x=W-200:y=16[bgcorner];\n")
+    last_bg = "bgcorner"
+
+    # 9. Audio waveform — compact, centered, red (960x80)
     fg += (f"[0:a]showwaves=s=960x80:mode=cline:"
            f"colors=0xCC0000|0xFF4444:scale=sqrt:draw=full:rate=30[wave_raw];\n")
 
-    # 6. Slim mirror reflection (subtle, 35% opacity)
+    # 10. Mirror reflection (vflip + 35% opacity fade)
     fg += f"[wave_raw]split[wA][wB];\n"
     fg += f"[wB]vflip,colorchannelmixer=aa=0.35[wflip];\n"
     fg += f"[wA][wflip]vstack[wavepair];\n"   # 960x160 total
 
-    # 7. Overlay waveform centered horizontally: x=(1920-960)/2=480, y=460
-    fg += f"[bgv0][wavepair]overlay=480:460[withwave];\n"
+    # 11. Overlay waveform centered: x=480, y=460
+    fg += f"[{last_bg}][wavepair]overlay=480:460[withwave];\n"
 
-    # 8. Speaker label bar (bottom left)
+    # 12. Speaker label bar (bottom left)
     fg += f"color=c={color}:s=280x52:d={total_dur}:r=30[spkbg];\n"
     fg += (f"[spkbg]drawtext=fontfile={FONT_BOLD}:text='{speaker}':"
            f"fontcolor=white:fontsize=26:x=16:y=12[spklabel];\n")
 
-    # 9. Ticker bar (bottom) — near-black with red undertone
+    # 13. Ticker bar (bottom) — gold text on near-black
     fg += f"color=c=0x0A0000@0.92:s=1920x44:d={total_dur}:r=30[tickbg];\n"
     fg += (f"[tickbg]drawtext=fontfile={FONT_MONO}:text='{ticker_text}':"
            f"fontcolor=0xFFD700:fontsize=18:x=w-mod(t*80\\,w+tw):y=12[ticker];\n")
 
-    # 10. Compose base layers
+    # 14. Compose base layers
     fg += f"[withwave][spklabel]overlay=40:H-90[v1];\n"
     fg += f"[v1][ticker]overlay=0:H-44[v2];\n"
     last_v = "v2"
 
-    # 11. Watermark top-right
+    # 15. Watermark top-right
     if has_wm:
         fg += f"[{wm_idx}:v]scale=150:-1[wm];\n"
         fg += f"[v2][wm]overlay=W-170:16[v3];\n"
