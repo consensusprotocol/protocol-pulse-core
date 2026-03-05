@@ -273,3 +273,91 @@ Before publishing to ANY platform, the content must pass:
 *This document defines how intelligence drives content across all platforms.
 Pair with: X_POSTING_LAWS.md, PIPELINE_LAWS.md, ARTICLE_PAGE_LAWS.md.
 Updates quarterly with platform monitoring data.*
+
+
+---
+
+## ADDENDUM A: PROTOCOL PULSE EDITORIAL VOICE & BRAND ETHOS
+
+### Core Identity:
+Protocol Pulse is a **Bitcoin self-custody, sovereign individual** brand.
+"Not your keys, not your coins" is the philosophical bedrock.
+We serve transactors, not tourists. Bitcoiners, not crypto speculators.
+
+### The ETF Nuance:
+Protocol Pulse does NOT cheerleader ETFs. We cover them because they're market-moving.
+But the editorial angle is ALWAYS from the sovereign Bitcoiner's perspective:
+
+**The rule:** When covering tradfi Bitcoin instruments (ETFs, futures, MSTR, etc.):
+- Lead with what it means for Bitcoin the NETWORK, not Bitcoin the ASSET
+- Frame it as: "Tradfi is validating what we already know"
+- Acknowledge the reality: these instruments exist, capital is flowing, ignore at your peril
+- The sovereign angle: "If tradfi is going to leverage Bitcoin, it may as well be
+  Bitcoiners getting double exposure — borrowing against holdings, milking the
+  fiat system, funneling gains back into real Bitcoin"
+- NEVER frame ETFs as "the way to buy Bitcoin." Self-custody is always the recommendation.
+- NEVER sound anti-tradfi in a way that alienates sponsors or institutional audience.
+  The tone is: "We understand the game. We play it better."
+- Subtle, not preachy. The audience should feel like insiders, not lectured.
+
+**Topic balance rule:**
+If ETF/tradfi topics exceed 40% of a week's content, the system must auto-balance:
+- Force at least 2 mining/hashrate segments per week
+- Force at least 1 Lightning/self-custody segment per week
+- Force at least 1 cypherpunk/privacy segment per week
+- The sentiment engine's topic_velocity is advisory, not mandatory.
+  Brand identity overrides pure velocity when necessary.
+
+### Voice Characteristics:
+- **Authoritative but not arrogant.** We know our stuff. We don't need to prove it.
+- **Insider, not outsider.** "Here's what's actually happening" not "Let me explain crypto."
+- **Data-first, opinion-second.** Lead with the number. Then interpret.
+- **Cypherpunk at heart, professional in delivery.** We believe in sovereignty
+  but we present it in a way that Fortune 500 executives take seriously.
+- **Never salesy about sponsors.** Affiliate reads sound like genuine recommendations
+  from someone who uses the product, not ad copy.
+- **Humor is dry and knowing.** We don't try to be funny. We observe absurdity.
+
+### Content Pillars (in order of brand priority):
+1. **Network Security** — Hash rate, difficulty, mining economics
+2. **Sovereignty** — Self-custody, privacy, censorship resistance
+3. **Macro** — Bitcoin's role in global monetary policy, fiat collapse thesis
+4. **Institutional** — ETFs, corporate treasuries, sovereign wealth funds
+5. **Lightning/Layer 2** — Payments, scaling, real-world adoption
+6. **Culture** — Cypherpunk philosophy, freedom technology, community
+
+If the sentiment engine only surfaces Pillar 4 (institutional) topics for 3
+consecutive days, manually inject Pillars 1-3 content to maintain brand balance.
+
+### Sponsor Sensitivity:
+- Meanwhile (Bitcoin life insurance): Aligned. Self-custody philosophy. Promote freely.
+- Curated Mining: Aligned. Mining = network security. Promote freely.
+- RNS.ID (Palau Digital Residency): Sovereignty-adjacent. Promote as freedom tool.
+- Future sponsors: Must align with at least one content pillar.
+  No shitcoin sponsors. No centralized exchange sponsors (unless they prove
+  proof-of-reserves and self-custody withdrawal support). No "web3" sponsors.
+
+---
+
+## ADDENDUM B: X ARTICLES + SUBSTACK FREQUENCY UPDATE
+
+### X Articles: 1 per week (not 1-3 per day as previously stated)
+- Published: Wednesday (mid-week, high engagement day on X)
+- Selecting the single best intelligence piece from the week so far
+- Can be the SAME article as the Substack piece, reformatted for X
+- Header image: 1600x900, Protocol Pulse branded template
+- Platform-specific formatting: shorter paragraphs than Substack, more bold callouts
+
+### Substack: 1 per week
+- Published: Sunday 6PM ET ("The Sovereign Signal")
+- 2000-3000 words, original synthesis
+- Header image: 1200x630 (Substack optimal)
+- Can share core analysis with X Article but with expanded depth
+
+### Same Article, Two Formats:
+When the X Article and Substack cover the same topic:
+- Substack version: Full depth, 2500+ words, all data, prediction
+- X Article version: Condensed, 1000-1200 words, punchier, more bold text
+- Different header images (platform-specific dimensions)
+- Different opening hooks (X is more immediate, Substack more narrative)
+- Both link to protocolpulse.io for daily content
