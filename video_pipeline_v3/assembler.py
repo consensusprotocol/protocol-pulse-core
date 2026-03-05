@@ -686,6 +686,198 @@ def make_host_visual(audio_path: str, host: int, text: str,
     raise RuntimeError(f"Host visual filtergraph failed for {label}. Check ffmpeg stderr in logs.")
 
 
+def _sanitize_text(text: str) -> str:
+    """Sanitize text for FFmpeg drawtext filter."""
+    return (text.replace("'", "\u2019").replace('"', "")
+                .replace(":", " -").replace(";", ",")
+                .replace("[", "(").replace("]", ")")
+                .replace("\u2014", "-").replace("\\", "")
+                .replace("\n", " ").replace("%", "pct"))
+
+
+def _word_wrap(text: str, max_width: int = 55, max_lines: int = 3) -> str:
+    """Word-wrap text for FFmpeg drawtext, return \\n-joined string."""
+    lines = []
+    current = ""
+    for word in text.split():
+        if len(current) + len(word) + 1 > max_width:
+            lines.append(current)
+            current = word
+            if len(lines) >= max_lines:
+                break
+        else:
+            current = f"{current} {word}".strip() if current else word
+    if current and len(lines) < max_lines:
+        lines.append(current)
+    if len(lines) == max_lines and len(text) > sum(len(l) for l in lines):
+        lines[-1] = lines[-1][:max_width - 3] + "..."
+    return "\\n".join(lines)
+
+
+def make_social_card_visual(audio_path: str, posts: list, output_path: str,
+                            btc_price: str = "N/A") -> str:
+    """Render tweet card visual with real tweet data behind narration audio.
+
+    Shows up to 2 tweet cards stacked vertically, each with:
+    - Real @handle in red
+    - Real tweet text in white, word-wrapped
+    - Engagement stats (likes, retweets)
+    - Red left border accent
+
+    Args:
+        audio_path: TTS narration audio for this social segment
+        posts: List of dicts with handle, text, likes, retweets
+        output_path: Output video path
+        btc_price: BTC price for ticker
+
+    Returns:
+        Path to output video, or "" on failure
+    """
+    audio_dur = ffprobe_duration(audio_path)
+    if audio_dur <= 0:
+        audio_dur = 5
+    total_dur = audio_dur + 0.3
+
+    safe_btc = btc_price.replace("'", "").replace('"', "")
+    ticker_text = f"  PROTOCOL PULSE  |  PULSE CHECK  |  BTC {safe_btc}  |  PROTOCOLPULSE.IO  "
+    ticker_text = ticker_text.replace("'", "").replace('"', "")
+    has_wm = os.path.exists(WATERMARK)
+    has_bgm = os.path.exists(BG_MUSIC)
+
+    # Build inputs
+    inputs = [audio_path]
+    inp_idx = 1
+    if has_wm:
+        inputs.append(WATERMARK)
+        wm_idx = inp_idx
+        inp_idx += 1
+    else:
+        wm_idx = -1
+    if has_bgm:
+        inputs.append(["-stream_loop", "-1", "-i", BG_MUSIC])
+        bgm_idx = inp_idx
+        inp_idx += 1
+    else:
+        bgm_idx = -1
+
+    # Filtergraph
+    fg = f"color=c=0x0A0A0A:s=1920x1080:d={total_dur}:r=30[base];\n"
+
+    # Scanline overlay
+    fg += f"color=c=0x000000@0.03:s=1920x2:d={total_dur}:r=30[scanline];\n"
+    fg += f"color=c=0x000000@0.0:s=1920x4:d={total_dur}:r=30[scangap];\n"
+    fg += f"[scanline][scangap]vstack[scanpair];\n"
+    fg += f"[scanpair]tile=1x180:overlap=0:init_padding=0[scantile];\n"
+    fg += f"[base][scantile]overlay=0:0[bgscan];\n"
+
+    # Top red accent bar
+    fg += f"[bgscan]drawbox=x=0:y=0:w=1920:h=4:color=0xCC0000:t=fill[bgbar];\n"
+
+    # Section header
+    fg += (f"[bgbar]drawtext=fontfile={FONT_BOLD}:"
+           f"text='WHAT THE BITCOIN INTERNET IS SAYING':"
+           f"fontcolor=0xCC0000:fontsize=28:x=(w-text_w)/2:y=28[bgtitle];\n")
+    last_v = "bgtitle"
+
+    # Render up to 2 tweet cards
+    card_y_start = 90
+    card_height = 240
+    card_spacing = 20
+    card_width = 1360
+    card_x = 280
+
+    for ci, post in enumerate(posts[:2]):
+        handle = _sanitize_text(post.get("handle", "unknown"))
+        if not handle.startswith("@"):
+            handle = f"@{handle}"
+        tweet_text = _word_wrap(_sanitize_text(post.get("text", "")), max_width=55, max_lines=3)
+        likes = post.get("likes", 0)
+        retweets = post.get("retweets", 0)
+        likes_str = f"{likes:,}" if isinstance(likes, int) else str(likes)
+        rt_str = f"{retweets:,}" if isinstance(retweets, int) else str(retweets)
+
+        cy = card_y_start + ci * (card_height + card_spacing)
+        tag = f"c{ci}"
+
+        # Card glow (subtle red behind card)
+        fg += f"color=c=0xCC0000@0.06:s={card_width + 20}x{card_height + 20}:d={total_dur}:r=30[{tag}glow];\n"
+        fg += f"[{last_v}][{tag}glow]overlay={card_x - 10}:{cy - 10}[{tag}g];\n"
+
+        # Card body
+        fg += f"color=c=0x141414@0.95:s={card_width}x{card_height}:d={total_dur}:r=30[{tag}body];\n"
+        # Red border
+        fg += f"[{tag}body]drawbox=x=0:y=0:w={card_width}:h={card_height}:color=0xCC0000@0.6:t=2[{tag}brd];\n"
+        # Left accent bar
+        fg += f"[{tag}brd]drawbox=x=0:y=0:w=6:h={card_height}:color=0xCC0000:t=fill[{tag}lbar];\n"
+        # Top edge accent
+        fg += f"[{tag}lbar]drawbox=x=0:y=0:w={card_width}:h=2:color=0xCC0000:t=fill[{tag}top];\n"
+
+        # Pulse dot
+        fg += f"[{tag}top]drawbox=x=20:y=18:w=8:h=8:color=0xCC0000:t=fill[{tag}dot];\n"
+
+        # Handle
+        fg += (f"[{tag}dot]drawtext=fontfile={FONT_BOLD}:"
+               f"text='{handle}':"
+               f"fontcolor=0xCC0000:fontsize=22:x=38:y=14[{tag}hdl];\n")
+
+        # Tweet text
+        fg += (f"[{tag}hdl]drawtext=fontfile={FONT_MONO}:"
+               f"text='{tweet_text}':"
+               f"fontcolor=0xEDEDED:fontsize=24:x=24:y=48:line_spacing=14:"
+               f"box=0[{tag}txt];\n")
+
+        # Engagement stats bottom
+        fg += (f"[{tag}txt]drawtext=fontfile={FONT_MONO}:"
+               f"text='{likes_str} likes  |  {rt_str} RTs':"
+               f"fontcolor=0xFF4444:fontsize=16:x=24:y=h-30[{tag}stats];\n")
+
+        # Source label bottom-right
+        fg += (f"[{tag}stats]drawtext=fontfile={FONT_MONO}:"
+               f"text='via X':fontcolor=0x888888:fontsize=14:"
+               f"x=w-80:y=h-28[{tag}src];\n")
+
+        # Overlay card on base with fade-in
+        fade_start = ci * 0.4
+        fg += f"[{tag}g][{tag}src]overlay={card_x}:{cy}:format=auto,fade=t=in:st={fade_start}:d=0.3[{tag}out];\n"
+        last_v = f"{tag}out"
+
+    # Ticker bar
+    fg += f"color=c=0x0A0000@0.92:s=1920x44:d={total_dur}:r=30[tickbg];\n"
+    fg += (f"[tickbg]drawtext=fontfile={FONT_MONO}:text='{ticker_text}':"
+           f"fontcolor=0xFFD700:fontsize=18:x=w-mod(t*80\\,w+tw):y=12[ticker];\n")
+    fg += f"[{last_v}][ticker]overlay=0:H-44[vtick];\n"
+    last_v = "vtick"
+
+    # Watermark
+    if has_wm:
+        fg += f"[{wm_idx}:v]scale=150:-1[wm];\n"
+        fg += f"[{last_v}][wm]overlay=W-170:16[vwm];\n"
+        last_v = "vwm"
+
+    fg += f"[{last_v}]format=yuv420p[outv];\n"
+
+    # Audio: TTS + optional background music
+    if has_bgm:
+        fg += f"[0:a]loudnorm=I=-16:TP=-1.5:LRA=11[tts];\n"
+        fg += f"[{bgm_idx}:a]volume=-18dB[bgm];\n"
+        fg += f"[tts][bgm]amix=inputs=2:duration=first:weights=1 0.12[outa]"
+    else:
+        fg += f"[0:a]loudnorm=I=-16:TP=-1.5:LRA=11[outa]"
+
+    ok = run_ffmpeg_filtergraph(
+        inputs, fg, ["[outv]", "[outa]"],
+        ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
+         "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+         "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(total_dur)],
+        output_path, "social tweet card", 180,
+    )
+
+    if ok:
+        logger.info(f"  Tweet card visual: {len(posts[:2])} cards, {total_dur:.1f}s")
+        return output_path
+    return ""
+
+
 # ── Glitch transition ───────────────────────────────────────────────────────
 
 REMOTION_DIR = os.path.join(os.path.dirname(__file__), "remotion")
@@ -965,6 +1157,17 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
     parts = []
     part_idx = 0
 
+    # Load real tweet data for social segment cards (V15)
+    tweet_card_posts = []
+    try:
+        from utils.feature_flags import is_enabled
+        if is_enabled("tweet_cards"):
+            from utils.social_fetcher import get_todays_social_posts
+            tweet_card_posts = get_todays_social_posts(max_posts=4)
+    except Exception as e:
+        logger.warning(f"Tweet card data load failed: {e}")
+    social_card_idx = 0  # Track which posts have been shown
+
     # --- 1. INTRO: COLD OPEN TTS + JINGLE (no tag video) ---
     audio_lines = audio_data.get("lines", [])
     cold_open_consumed = False
@@ -1086,13 +1289,30 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
         thumb = clip_thumbnails.get(clip_rank, "") if entry_type in ("setup", "react") else ""
 
         line_out = os.path.join(work_dir, f"part_{part_idx:03d}_{entry_type}.mp4")
-        result = make_host_visual(
-            audio_path, host_num, text, line_out,
-            btc_price=btc_price,
-            label=f"{entry_type} #{part_idx}",
-            thumbnail_path=thumb,
-            segment_type=entry_type,
-        )
+
+        # V15: Tweet card visual for social segments when real data available
+        if entry_type == "social_segment" and tweet_card_posts and social_card_idx < len(tweet_card_posts):
+            # Show 2 posts per card visual (or remaining)
+            card_posts = tweet_card_posts[social_card_idx:social_card_idx + 2]
+            social_card_idx += 2
+            result = make_social_card_visual(
+                audio_path, card_posts, line_out, btc_price=btc_price,
+            )
+            if not result:
+                # Fall back to standard host visual
+                result = make_host_visual(
+                    audio_path, host_num, text, line_out,
+                    btc_price=btc_price, label=f"{entry_type} #{part_idx}",
+                    segment_type=entry_type,
+                )
+        else:
+            result = make_host_visual(
+                audio_path, host_num, text, line_out,
+                btc_price=btc_price,
+                label=f"{entry_type} #{part_idx}",
+                thumbnail_path=thumb,
+                segment_type=entry_type,
+            )
         if result:
             parts.append(result)
             dur = ffprobe_duration(result)

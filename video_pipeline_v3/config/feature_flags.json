@@ -4,7 +4,7 @@
   "channel_dedup": true,
   "silence_detection": true,
   "social_segment": true,
-  "tweet_cards": false,
+  "tweet_cards": true,
   "youtube_auto_upload": false,
   "telegram_alerts": false,
   "analytics_feedback": false,
