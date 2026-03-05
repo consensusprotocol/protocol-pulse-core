@@ -34,6 +34,7 @@ from podcast_feed import extract_podcast_audio, generate_rss_item
 from newsletter_embed import generate_email_html, save_newsletter_html
 from music import ensure_music_dir, has_music, has_intro, has_outro
 from utils.feature_flags import is_enabled, load_all as load_flags
+from utils.quality_gate import compute_quality_score, should_upload, format_score_report
 
 # Setup logging
 logging.basicConfig(
@@ -381,6 +382,56 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False) -> bool:
     manifest_path = os.path.join(run_dir, "manifest.json")
     with open(manifest_path, "w") as f:
         json.dump(manifest, f, indent=2)
+
+    # ── Step 13: QUALITY GATE + AUTO-UPLOAD ────────────────────────────────
+    print("\n[STEP 13] QUALITY GATE...")
+    t0 = time.time()
+    quality_score = compute_quality_score(manifest_path)
+    print(f"  {format_score_report(quality_score)}")
+    manifest["quality_score"] = quality_score
+
+    if is_enabled("youtube_auto_upload") and should_upload(quality_score):
+        from utils.youtube_upload import upload_episode as yt_upload, build_description, build_tags
+        # Build YouTube metadata
+        ep_title = script.get("episode_title", "Pulse Check")
+        yt_title = f"Bitcoin Daily Brief — {ts.strftime('%b %d, %Y')} | Protocol Pulse"
+        chapters_text = ""
+        if os.path.exists(chapters_path):
+            with open(chapters_path) as f:
+                chapters_text = f.read()
+        yt_description = build_description(
+            summary=f"{ep_title}\n\nBTC Price: {btc_price}",
+            chapters_text=chapters_text,
+        )
+        topics = [c.get("channel", "") for c in clips]
+        yt_tags = build_tags(topics)
+
+        print(f"  Uploading to YouTube (unlisted)...")
+        upload_result = yt_upload(
+            final_video, yt_title, yt_description,
+            tags=yt_tags, thumbnail_path=thumb_path, privacy="unlisted",
+        )
+        print(f"  Upload result: {upload_result.get('status')}")
+        if upload_result.get("url"):
+            print(f"  URL: {upload_result['url']}")
+        manifest["upload_result"] = upload_result
+    elif quality_score < 85:
+        logger.warning(f"QUALITY HOLD: Score {quality_score} < 85. Episode held for review.")
+        hold_path = os.path.join(run_dir, "HOLD_FOR_REVIEW.txt")
+        with open(hold_path, "w") as f:
+            f.write(f"Quality score: {quality_score}/100\n")
+            f.write(f"Threshold: 85\n")
+            f.write(f"Reason: Below quality threshold\n")
+            f.write(f"Episode: {script.get('episode_title', '')}\n")
+            f.write(f"Video: {final_video}\n")
+        manifest["held_for_review"] = True
+    else:
+        logger.info("YouTube auto-upload disabled in feature flags")
+
+    # Write final manifest with quality score
+    with open(manifest_path, "w") as f:
+        json.dump(manifest, f, indent=2)
+    timing["13_quality_gate"] = round(time.time() - t0, 2)
 
     return passed
 
