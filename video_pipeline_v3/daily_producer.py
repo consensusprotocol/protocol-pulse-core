@@ -23,7 +23,7 @@ sys.path.insert(0, BASE)
 
 from channel_scanner import scan_all_channels
 from clip_selector import select_clips
-from clip_extractor import extract_all
+from clip_extractor import extract_all, check_av_sync
 from script_writer import generate_from_clips
 from tts_engine import generate_dialogue_audio
 from assembler import assemble_episode, verify_video
@@ -300,6 +300,47 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False) -> bool:
     print("\n[STEP 12/12] VERIFYING OUTPUT...")
     t0 = time.time()
     passed = verify_video(final_video)
+
+    # Final AV sync validation
+    final_offset = check_av_sync(final_video)
+    print(f"  Final AV sync offset: {final_offset:+.3f}s")
+    if abs(final_offset) > 0.05:
+        logger.error(f"FINAL OUTPUT SYNC FAILED: {final_offset:+.3f}s > 0.05s — nuclear re-encode")
+        nuclear_tmp = final_video + ".nuclear.mp4"
+        nuclear_cmd = subprocess.run([
+            "ffmpeg", "-y",
+            "-fflags", "+genpts+igndts",
+            "-i", final_video,
+            "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+            "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
+            "-r", "30", "-vsync", "cfr",
+            "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
+            "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
+            "-af", "asetpts=PTS-STARTPTS,aresample=async=1",
+            "-movflags", "+faststart",
+            nuclear_tmp,
+        ], capture_output=True, text=True, timeout=600)
+        if nuclear_cmd.returncode == 0 and os.path.exists(nuclear_tmp):
+            os.replace(nuclear_tmp, final_video)
+            recheck = check_av_sync(final_video)
+            print(f"  Nuclear re-encode done. New offset: {recheck:+.3f}s")
+        elif os.path.exists(nuclear_tmp):
+            os.remove(nuclear_tmp)
+
+    # Final bitrate validation
+    br_result = subprocess.run(
+        ["ffprobe", "-v", "quiet", "-print_format", "json", "-show_format", final_video],
+        capture_output=True, text=True,
+    )
+    try:
+        br_info = json.loads(br_result.stdout)
+        bitrate = int(br_info.get("format", {}).get("bit_rate", 0))
+        print(f"  Final bitrate: {bitrate / 1_000_000:.1f} Mbps")
+        if bitrate < 3_000_000:
+            logger.error(f"FINAL OUTPUT QUALITY FAILED: {bitrate / 1_000_000:.1f}Mbps < 3Mbps")
+    except Exception:
+        pass
+
     timing["12_verify"] = round(time.time() - t0, 2)
 
     # ── Summary ──────────────────────────────────────────────────────────
