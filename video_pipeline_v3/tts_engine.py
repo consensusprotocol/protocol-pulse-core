@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """TTS Engine V4 — dual-host dialogue with ElevenLabs.
-Host 1 (Jessica): cgSgspJ2msm6clMCkdW9
+Host 1 (Nicole):  piTKgcLEGmPE4e6mEKli
 Host 2 (Chris):   iP95p4xoKVk53GoZ742B
 Generates per-line audio with 0.3s silence gaps between speakers."""
 import os, sys, json, subprocess, tempfile, time, struct
@@ -16,13 +16,13 @@ from relay import get_key
 
 VOICES = {
     1: {
-        "voice_id": "cgSgspJ2msm6clMCkdW9",
-        "name": "Jessica",
+        "voice_id": "piTKgcLEGmPE4e6mEKli",
+        "name": "Nicole",
         "model_id": "eleven_turbo_v2_5",
         "voice_settings": {
-            "stability": 0.5,
-            "similarity_boost": 0.75,
-            "style": 0.0,
+            "stability": 0.40,
+            "similarity_boost": 0.80,
+            "style": 0.20,
             "use_speaker_boost": True,
         },
     },

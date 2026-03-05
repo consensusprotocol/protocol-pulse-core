@@ -2,7 +2,7 @@
 """dual_host_tts.py — Two-voice dialogue engine for Pulse Check V4.
 
 Generates audio for a dual-host conversation using ElevenLabs TTS.
-Host 1 (Jessica): cgSgspJ2msm6clMCkdW9
+Host 1 (Nicole):  piTKgcLEGmPE4e6mEKli
 Host 2 (Chris):   iP95p4xoKVk53GoZ742B
 
 Usage:
@@ -44,13 +44,13 @@ from relay import get_key
 
 VOICES = {
     1: {
-        "voice_id": "cgSgspJ2msm6clMCkdW9",
-        "name": "Jessica",
+        "voice_id": "piTKgcLEGmPE4e6mEKli",
+        "name": "Nicole",
         "model_id": "eleven_turbo_v2_5",
         "voice_settings": {
-            "stability": 0.5,
-            "similarity_boost": 0.75,
-            "style": 0.0,
+            "stability": 0.40,
+            "similarity_boost": 0.80,
+            "style": 0.20,
             "use_speaker_boost": True,
         },
     },
@@ -219,7 +219,7 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
 
     Args:
         dialogue: List of dicts with keys:
-            - host: 1 (Jessica), 2 (Chris), or "CLIP" (silence placeholder)
+            - host: 1 (Nicole), 2 (Chris), or "CLIP" (silence placeholder)
             - text: The line text (or clip description for CLIP)
             - duration: (CLIP only) silence duration in seconds
             - source: (CLIP only) source channel name
