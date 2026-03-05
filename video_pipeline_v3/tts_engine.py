@@ -14,16 +14,46 @@ except ImportError:
 
 from relay import get_key
 
+# Issue 11: Try Natasha Valley Girl voice first, fallback to Eryn
+_NATASHA_VOICE_ID = "uxKr2vlA4hYgXZR1oPRT"
+_ERYN_VOICE_ID = "kdnRe2koJdOK4Ovxn2DI"
+
+def _check_voice_available(voice_id: str) -> bool:
+    """Check if an ElevenLabs voice ID is available on the account."""
+    try:
+        key = get_key("ELEVENLABS_API_KEY")
+        if not key:
+            return False
+        import requests
+        r = requests.get(f"https://api.elevenlabs.io/v1/voices/{voice_id}",
+                         headers={"xi-api-key": key.strip()}, timeout=10)
+        return r.status_code == 200
+    except Exception:
+        return False
+
+# Determine Host 1 voice at import time
+_host1_voice_id = _ERYN_VOICE_ID
+_host1_name = "Eryn"
+try:
+    if _check_voice_available(_NATASHA_VOICE_ID):
+        _host1_voice_id = _NATASHA_VOICE_ID
+        _host1_name = "Natasha"
+        print(f"  [tts] Issue 11: Natasha Valley Girl voice available ({_NATASHA_VOICE_ID})")
+    else:
+        print(f"  [tts] Issue 11: Natasha voice 404 — using Eryn ({_ERYN_VOICE_ID})")
+except Exception:
+    print(f"  [tts] Issue 11: Voice check failed — using Eryn ({_ERYN_VOICE_ID})")
+
 VOICES = {
     1: {
-        "voice_id": "kdnRe2koJdOK4Ovxn2DI",
-        "name": "Eryn",
+        "voice_id": _host1_voice_id,
+        "name": _host1_name,
         "model_id": "eleven_turbo_v2_5",
         "speed": 1.12,
         "voice_settings": {
-            "stability": 0.75,
-            "similarity_boost": 0.75,
-            "style": 0.10,
+            "stability": 0.38 if _host1_name == "Natasha" else 0.75,
+            "similarity_boost": 0.78 if _host1_name == "Natasha" else 0.75,
+            "style": 0.20 if _host1_name == "Natasha" else 0.10,
             "use_speaker_boost": True,
         },
     },

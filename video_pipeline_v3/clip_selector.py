@@ -138,6 +138,11 @@ AD_READ_PHRASES = [
     "today's sponsor", "free trial", "get 20% off", "get 10% off",
     "use my link", "click the link in", "head over to", "sign up at",
     "limited time offer", "swipe up",
+    # Issue 5: expanded ad read patterns
+    "unchained.com", "unchained capital", "collaborative custody",
+    "swan bitcoin", "river.com", "fold app", "cash app",
+    "strike app", "download the app", "link in description",
+    "link in the description", "link below", "link in the bio",
 ]
 
 
@@ -262,26 +267,96 @@ def select_clips(videos: list) -> dict:
         test_mode = len(videos) <= 4  # heuristic: few source videos = test mode
         required_clips = 2 if test_mode else 5
 
-        # Ensure exactly required_clips from unique channels
-        selected_channels = [c.get("channel", "") for c in clean_clips]
-        unique_channels = set(selected_channels)
+        # If we have fewer clips than required, re-select from remaining videos
+        used_channels = {c.get("channel", "") for c in clean_clips}
+        used_video_ids = {c.get("video_id", "") for c in clean_clips} | recent_ids
 
-        if not test_mode and len(clean_clips) != 5:
-            logger.warning(f"5-CLIP RULE: {len(clean_clips)} clips selected, need exactly 5")
+        if not test_mode and len(clean_clips) < 5:
+            logger.warning(f"5-CLIP RULE: Only {len(clean_clips)} clips after filtering, "
+                           f"need 5. Re-selecting from remaining channels...")
 
-        if len(unique_channels) != len(clean_clips):
-            logger.warning(f"CHANNEL DIVERSITY VIOLATION: {len(unique_channels)} unique "
-                           f"channels for {len(clean_clips)} clips — already deduped above")
+            # Find available videos not yet used
+            available = [v for v in videos
+                         if v.get("channel", "") not in used_channels
+                         and v.get("video_id", "") not in used_video_ids]
+
+            if available:
+                # Ask Claude to pick from remaining videos
+                remaining_text = _format_transcripts(available)
+                need = 5 - len(clean_clips)
+                reselect_prompt = (
+                    f"Pick the {need} BEST clip moments from these videos. "
+                    f"Each clip from a DIFFERENT channel. 20-40 seconds each. "
+                    f"NO ad reads. Return ONLY valid JSON with a 'clips' array.\n\n"
+                    f"ALREADY SELECTED channels (DO NOT use these): {list(used_channels)}\n\n"
+                    f"AVAILABLE VIDEOS:\n{remaining_text}\n\n"
+                    f"Return JSON: {{\"clips\": [{{\"rank\": N, \"video_id\": \"...\", "
+                    f"\"channel\": \"...\", \"video_title\": \"...\", \"start_seconds\": N, "
+                    f"\"end_seconds\": N, \"quote\": \"...\", \"why\": \"...\", "
+                    f"\"host_setup\": \"...\", \"host_react\": \"...\"}}]}}"
+                )
+                try:
+                    resp2 = client.messages.create(
+                        model="claude-sonnet-4-6",
+                        max_tokens=3000,
+                        messages=[{"role": "user", "content": reselect_prompt}],
+                    )
+                    text2 = resp2.content[0].text.strip()
+                    if "```json" in text2:
+                        text2 = text2.split("```json")[1].split("```")[0]
+                    elif "```" in text2:
+                        text2 = text2.split("```")[1].split("```")[0]
+                    extra = json.loads(text2)
+                    extra_clips = extra.get("clips", [])
+
+                    # Filter extras through ad-read + dedup
+                    for ec in extra_clips:
+                        ch = ec.get("channel", "")
+                        vid = ec.get("video_id", "")
+                        if ch in used_channels or vid in used_video_ids:
+                            continue
+                        if contains_ad_read(ec.get("quote", "")) or contains_ad_read(ec.get("host_setup", "")):
+                            continue
+                        ec["rank"] = len(clean_clips) + 1
+                        clean_clips.append(ec)
+                        used_channels.add(ch)
+                        used_video_ids.add(vid)
+                        logger.info(f"  RE-SELECT: Added #{ec['rank']} [{ch}] {ec.get('video_title', '')[:40]}")
+                        if len(clean_clips) >= 5:
+                            break
+                except Exception as e:
+                    logger.warning(f"Re-selection failed: {e}")
+
+            result["clips"] = clean_clips
+
+        # Issue 7: HARD ENFORCEMENT — unique channels in Python after ALL selection
+        seen_channels = set()
+        deduped_final = []
+        for clip in clean_clips:
+            ch = clip.get("channel", "")
+            if ch not in seen_channels:
+                seen_channels.add(ch)
+                deduped_final.append(clip)
+            else:
+                logger.warning(f"HARD DEDUP: Removed duplicate channel '{ch}' clip #{clip.get('rank', '?')}")
+        if len(deduped_final) < len(clean_clips):
+            logger.warning(f"HARD DEDUP: {len(clean_clips)} → {len(deduped_final)} clips after enforcement")
+        clean_clips = deduped_final
+        result["clips"] = clean_clips
+
+        if len(clean_clips) < 5 and not test_mode:
+            logger.error(f"HARD DEDUP: Only {len(clean_clips)} unique channels. Need replacement clips.")
 
         # Log the 5-clip rule result
+        unique_channels = {c.get("channel", "") for c in clean_clips}
         channel_list = sorted(unique_channels)
         logger.info(f"5-CLIP RULE: Selected {len(clean_clips)} clips from "
                     f"{len(unique_channels)} unique channels: {channel_list}")
 
-        logger.info(f"Claude selected {len(clips)} clips, {len(clean_clips)} passed ad+dedup filter:")
+        logger.info(f"Claude selected {len(clips)} clips, {len(clean_clips)} passed all filters:")
         for c in clean_clips:
             logger.info(f"  #{c['rank']}: [{c['channel']}] {c.get('video_title', '')[:40]} "
-                        f"({c['start_seconds']}-{c['end_seconds']}s)")
+                        f"({c.get('start_seconds', '?')}-{c.get('end_seconds', '?')}s)")
             logger.info(f"    Quote: \"{c.get('quote', '')[:60]}...\"")
 
         # Record this episode's clips to memory
