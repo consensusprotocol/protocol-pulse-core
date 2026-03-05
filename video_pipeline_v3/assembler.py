@@ -106,7 +106,7 @@ def ensure_audio(video_path: str) -> str:
     out = video_path.replace(".mp4", "_waud.mp4").replace(".mov", "_waud.mp4")
     dur = ffprobe_duration(video_path)
     run_ffmpeg(
-        ["-i", video_path, "-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo",
+        ["-i", video_path, "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
          "-t", str(dur), "-c:v", "copy", "-c:a", "aac", "-shortest", out],
         "add silence", 60,
     )
@@ -156,9 +156,9 @@ def make_intro_video(output_path: str) -> str:
              f"afade=t=out:st={fade_out_a}:d=1.5[outa]"),
             "-map", "[outv]",
             "-map", "[outa]",
-            "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p",
-            "-c:a", "aac", "-ar", "44100", "-b:a", "192k",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             "-t", str(intro_dur),
             output_path,
         ], "intro video + jingle", 120)
@@ -171,18 +171,18 @@ def make_intro_video(output_path: str) -> str:
              f"[1:a]afade=t=out:st={fade_out_a}:d=1.5[outa]"),
             "-map", "[outv]",
             "-map", "[outa]",
-            "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p",
-            "-c:a", "aac", "-ar", "44100", "-b:a", "192k",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             "-t", str(intro_dur), "-shortest",
             output_path,
         ], "intro video + jingle (no orig audio)", 120)
     else:
         ok = run_ffmpeg([
             "-i", INTRO_VIDEO,
-            "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p", "-vf", vf,
-            "-c:a", "aac", "-ar", "44100", "-b:a", "192k",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             output_path,
         ], "intro video normalize", 120)
 
@@ -240,9 +240,9 @@ def make_outro_video(output_path: str) -> str:
              f"afade=t=out:st={fade_out_a}:d=1.0[outa]"),
             "-map", "[outv]",
             "-map", "[outa]",
-            "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p",
-            "-c:a", "aac", "-ar", "44100", "-b:a", "192k",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             "-t", str(outro_dur),
             output_path,
         ], "outro video + jingle", 120)
@@ -255,18 +255,18 @@ def make_outro_video(output_path: str) -> str:
              f"[1:a]afade=t=out:st={fade_out_a}:d=1.0[outa]"),
             "-map", "[outv]",
             "-map", "[outa]",
-            "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p",
-            "-c:a", "aac", "-ar", "44100", "-b:a", "192k",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             "-t", str(outro_dur), "-shortest",
             output_path,
         ], "outro video + jingle (no orig audio)", 120)
     else:
         ok = run_ffmpeg([
             "-i", OUTRO_VIDEO,
-            "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p", "-vf", vf,
-            "-c:a", "aac", "-ar", "44100", "-b:a", "192k",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             output_path,
         ], "outro video normalize", 120)
 
@@ -312,18 +312,18 @@ def make_tag_video(output_path: str, narration_audio: str = "") -> str:
              f"[tagaud][narr]amix=inputs=2:duration=first,"
              f"afade=t=out:st={fade_out_a}:d=1.0[outa]"),
             "-map", "[outv]", "-map", "[outa]",
-            "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p",
-            "-c:a", "aac", "-ar", "44100", "-b:a", "192k",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             "-t", str(tag_dur),
             output_path,
         ], "tag video + narration", 60)
     else:
         ok = run_ffmpeg([
             "-i", tag_src,
-            "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p", "-vf", vf,
-            "-c:a", "aac", "-ar", "44100", "-b:a", "192k",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             output_path,
         ], "tag video", 60)
 
@@ -403,8 +403,8 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A")
 
     ok = run_ffmpeg_filtergraph(
         inp_args, fg, ["[outv]", "[outa]"],
-        ["-c:v", "libx264", "-crf", "18", "-preset", "fast",
-         "-c:a", "aac", "-ar", "44100", "-b:a", "192k", "-t", str(total_dur)],
+        ["-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
+         "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(total_dur)],
         output_path, "intro cold open", 120,
     )
     return output_path if ok else ""
@@ -435,14 +435,14 @@ def make_branded_outro(output_path: str, narration_audio: str = "") -> str:
             "-filter_complex",
             "[0:a]volume=0.25[va];[1:a]volume=1.0[vb];[va][vb]amix=inputs=2:duration=longest[outa]",
             "-map", "0:v", "-map", "[outa]", "-vf", vf,
-            "-c:v", "libx264", "-crf", "20", "-preset", "fast", "-pix_fmt", "yuv420p",
-            "-c:a", "aac", "-ar", "44100", "-b:a", "192k", output_path],
+            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M", "-pix_fmt", "yuv420p",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k", output_path],
             "branded outro", 60)
     else:
         ok = run_ffmpeg([
             "-i", src, "-vf", vf,
-            "-c:v", "libx264", "-crf", "20", "-preset", "fast", "-pix_fmt", "yuv420p",
-            "-c:a", "aac", "-ar", "44100", "-b:a", "192k", output_path],
+            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M", "-pix_fmt", "yuv420p",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k", output_path],
             "branded outro", 60)
 
     if ok and os.path.exists(output_path):
@@ -642,8 +642,8 @@ def make_host_visual(audio_path: str, host: int, text: str,
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
-        ["-c:v", "libx264", "-crf", "20", "-preset", "fast",
-         "-c:a", "aac", "-ar", "44100", "-b:a", "192k", "-t", str(total_dur)],
+        ["-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
+         "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(total_dur)],
         output_path, label or f"host visual ({speaker})", 180,
     )
 
@@ -677,9 +677,9 @@ def _make_remotion_glitch(output_path: str) -> str:
             dur = ffprobe_duration(output_path)
             ok = run_ffmpeg([
                 "-i", output_path,
-                "-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo",
+                "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
                 "-t", str(dur),
-                "-c:v", "copy", "-c:a", "aac", "-ar", "44100", "-b:a", "192k",
+                "-c:v", "copy", "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                 "-shortest", with_audio,
             ], "remotion glitch add audio", 30)
             if ok and os.path.exists(with_audio):
@@ -712,10 +712,10 @@ def make_transition_visual(output_path: str, duration: float = 0.5) -> str:
     if os.path.exists(GLITCH_TRANSITION):
         ok = run_ffmpeg([
             "-i", GLITCH_TRANSITION,
-            "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-vf", "scale=1920:1080,setsar=1,format=yuv420p",
             "-af", "volume=3.0,loudnorm=I=-6:TP=-0.5:LRA=5",
-            "-c:a", "aac", "-ar", "44100", "-b:a", "192k",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             output_path,
         ], "glitch transition", 30)
         if ok and os.path.exists(output_path):
@@ -727,10 +727,10 @@ def make_transition_visual(output_path: str, duration: float = 0.5) -> str:
     logger.warning("All glitch sources failed — using dark flash")
     ok = run_ffmpeg([
         "-f", "lavfi", "-i", f"color=c=0x0A0A0A:s=1920x1080:d={duration}:r=30",
-        "-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo",
+        "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
         "-t", str(duration),
-        "-c:v", "libx264", "-crf", "20", "-preset", "fast",
-        "-c:a", "aac", "-ar", "44100", "-b:a", "192k", "-shortest",
+        "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
+        "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-shortest",
         output_path,
     ], "transition fallback", 30)
     return output_path if ok else ""
@@ -764,7 +764,7 @@ def make_clip_visual(clip_path: str, source: str, output_path: str,
 
     ok = run_ffmpeg_filtergraph(
         [clip_path], fg, ["[outv]", "[outa]"],
-        ["-c:v", "libx264", "-crf", "20", "-preset", "fast",
+        ["-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k"],
         output_path, f"clip visual ({safe_source})",
     )
@@ -774,15 +774,26 @@ def make_clip_visual(clip_path: str, source: str, output_path: str,
 # ── Concatenation ────────────────────────────────────────────────────────────
 
 def normalize_part(part_path: str, output_path: str) -> str:
-    """Normalize a video part to consistent format for concatenation."""
+    """Normalize a video part to EXACTLY consistent format for concatenation.
+
+    Every part must have identical stream parameters to prevent concat drift:
+    - 1920x1080, 30fps CFR, yuv420p, h264
+    - aac 48000Hz stereo
+    - Consistent video_track_timescale
+    - aresample async to absorb minor timing differences
+    """
     part_path = ensure_audio(part_path)
     ok = run_ffmpeg(
         ["-i", part_path,
-         "-c:v", "libx264", "-crf", "20", "-preset", "fast",
-         "-r", "30", "-vf", "scale=1920:1080,setsar=1,format=yuv420p",
-         "-c:a", "aac", "-ar", "44100", "-ac", "2", "-b:a", "192k",
+         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+         "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
+         "-r", "30", "-vsync", "cfr",
+         "-vf", "scale=1920:1080,setsar=1,format=yuv420p",
+         "-video_track_timescale", "90000",
+         "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
+         "-af", "aresample=async=1",
          output_path],
-        "normalize", 120,
+        "normalize", 180,
     )
     return output_path if (ok and os.path.exists(output_path)) else part_path
 
@@ -809,12 +820,40 @@ def concatenate_parts(parts: list, output_path: str) -> str:
         for p in normalized:
             f.write(f"file '{os.path.abspath(p)}'\n")
 
+    # Concat demuxer with stream copy (parts are already normalized)
+    # Then re-encode final output with PTS reset + async audio to kill accumulated drift
+    concat_raw = output_path + ".concat_raw.mp4"
     ok = run_ffmpeg(
         ["-f", "concat", "-safe", "0", "-i", concat_file,
-         "-c:v", "libx264", "-crf", "20", "-preset", "fast",
-         "-c:a", "aac", "-ar", "44100", "-b:a", "192k", output_path],
-        "concat final", 600,
+         "-c", "copy", concat_raw],
+        "concat demux", 300,
     )
+
+    if not ok or not os.path.exists(concat_raw):
+        logger.error("Concat demuxer failed")
+        return ""
+
+    # Final encode: PTS reset on BOTH streams + async audio alignment
+    ok = run_ffmpeg(
+        ["-fflags", "+genpts",
+         "-i", concat_raw,
+         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+         "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
+         "-r", "30", "-vsync", "cfr",
+         "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
+         "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+         "-af", "asetpts=PTS-STARTPTS,aresample=async=1",
+         "-movflags", "+faststart",
+         output_path],
+        "concat final encode", 600,
+    )
+
+    # Cleanup concat raw
+    if os.path.exists(concat_raw):
+        try:
+            os.remove(concat_raw)
+        except OSError:
+            pass
 
     # Cleanup
     for p in normalized:
@@ -1088,7 +1127,7 @@ def verify_video(path: str) -> bool:
 
     if aud:
         checks.append(("Audio codec", aud.get("codec_name") == "aac", aud.get("codec_name")))
-        checks.append(("Sample rate", aud.get("sample_rate") == "44100", aud.get("sample_rate")))
+        checks.append(("Sample rate", aud.get("sample_rate") == "48000", aud.get("sample_rate")))
     else:
         checks.append(("Audio stream", False, "MISSING"))
 
