@@ -38,11 +38,30 @@ SELECTION CRITERIA (in order of priority):
 5. VISUAL — prefer clips where someone is on camera talking (not just voice-over slides)
 
 RULES:
+- CRITICAL — AD READ DETECTION: NEVER select a timestamp range that contains
+  an ad read, sponsorship mention, or promotional segment. Ad reads are identified by:
+  * "This episode is brought to you by..."
+  * "Thanks to our sponsor..."
+  * "Use code [X] at [URL]"
+  * "Go to [domain].com/[show]"
+  * "Check out [product]" with a URL
+  * Any mention of a promo code, discount, or affiliate link
+  * Host reading from a script about a product/service they're paid to mention
+  If a transcript segment contains these patterns, SKIP it and find the next
+  compelling moment that is actual content, not advertising.
+- SEGMENT CONTINUITY: Never select a clip that starts mid-ad-read or ends
+  mid-thought. The clip must begin and end at natural content boundaries.
+  A clip that begins with ad-read content is invalid, full stop.
 - Pick from DIFFERENT channels when possible (variety matters)
-- Each clip should be 20-40 seconds long. The best moment, not the full segment.
+- NEVER select more than 1 clip from the same YouTube video (unique video_id per clip)
+- NEVER select 2 clips from the same channel back-to-back — vary the source
+- If forced to use the same channel twice, clips must be different videos on different topics
+- Each clip should be 20-40 seconds long (the best moment, not the full segment)
 - Rank 1 = most dramatic/important (this becomes the cold open teaser)
 - The timestamps in the transcripts are approximate — pick ranges that capture complete thoughts
 - Avoid dead air, filler words, or mid-sentence cuts
+- When specifying clip end times, always allow 3-4 seconds of buffer AFTER the key statement ends so the narrator never interrupts a sentence in progress
+- Sort clips to maximize channel variety: no same channel appearing consecutively
 
 AVAILABLE VIDEOS:
 {transcripts}
@@ -68,6 +87,26 @@ Return ONLY valid JSON (no markdown, no code fences):
 }}
 
 Return exactly 5 clips, ranked 1-5. If fewer than 5 good moments exist, return what you can."""
+
+
+AD_READ_PHRASES = [
+    "brought to you by", "thanks to our sponsor", "use code", "promo code",
+    "check out", "go to", ".com/", "discount", "affiliate", "sponsored by",
+    "this episode is", "today's episode is brought", "support the show",
+    "today's sponsor", "free trial", "get 20% off", "get 10% off",
+    "use my link", "click the link in", "head over to", "sign up at",
+    "limited time offer", "swipe up",
+]
+
+
+def contains_ad_read(transcript_segment: str) -> bool:
+    """Return True if this transcript segment contains ad read content."""
+    lower = transcript_segment.lower()
+    for phrase in AD_READ_PHRASES:
+        if phrase in lower:
+            logger.info(f"🚫 AD READ DETECTED — pattern '{phrase}' found. Clip REJECTED.")
+            return True
+    return False
 
 
 def _format_transcripts(videos: list) -> str:
@@ -131,8 +170,40 @@ def select_clips(videos: list) -> dict:
         result = json.loads(text)
 
         clips = result.get("clips", [])
-        logger.info(f"Claude selected {len(clips)} clips:")
+
+        # Post-selection ad read filter (double gate per PIPELINE_LAWS Section 15)
+        clean_clips = []
         for c in clips:
+            quote = c.get("quote", "")
+            setup = c.get("host_setup", "")
+            if contains_ad_read(quote) or contains_ad_read(setup):
+                logger.warning(f"  REJECTED clip #{c['rank']} [{c.get('channel','')}] — ad read content")
+                continue
+            clean_clips.append(c)
+        result["clips"] = clean_clips
+
+        # Channel dedup: max 1 clip per channel, keep higher-ranked (lower number)
+        seen_channels = {}
+        deduped_clips = []
+        for c in clean_clips:
+            ch = c.get("channel", "")
+            if ch in seen_channels:
+                existing = seen_channels[ch]
+                if c["rank"] < existing["rank"]:
+                    logger.warning(f"DEDUP: Removed duplicate from channel {ch}, keeping rank {c['rank']} clip")
+                    deduped_clips.remove(existing)
+                    deduped_clips.append(c)
+                    seen_channels[ch] = c
+                else:
+                    logger.warning(f"DEDUP: Removed duplicate from channel {ch}, keeping rank {existing['rank']} clip")
+            else:
+                deduped_clips.append(c)
+                seen_channels[ch] = c
+        clean_clips = deduped_clips
+        result["clips"] = clean_clips
+
+        logger.info(f"Claude selected {len(clips)} clips, {len(clean_clips)} passed ad+dedup filter:")
+        for c in clean_clips:
             logger.info(f"  #{c['rank']}: [{c['channel']}] {c.get('video_title', '')[:40]} "
                         f"({c['start_seconds']}-{c['end_seconds']}s)")
             logger.info(f"    Quote: \"{c.get('quote', '')[:60]}...\"")
