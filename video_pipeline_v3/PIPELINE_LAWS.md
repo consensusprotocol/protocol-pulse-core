@@ -174,3 +174,48 @@ If any check fails, the render is INVALID. Do not upload. Do not claim done.
 
 *This document + PIPELINE_LAWS_ADDENDUM.md (sections 15-18) together form the
 complete Pipeline Laws. Both must be read before every session.*
+
+
+## SECTION 14B: VOICE DYNAMICS — THE CLASSIFIED BRIEFING RULE
+
+Nicole's voice operates in 4 modes. The script writer tags each segment.
+The TTS engine reads the tag and adjusts settings automatically.
+
+### Mode 1: WHISPER (stability 0.38, similarity 0.80, style 0.05)
+Use ONLY when ALL three conditions are met:
+  1. The content is genuinely surprising or exclusive (not routine price updates)
+  2. It's the FIRST time this information appears in the episode
+  3. The segment is 2 sentences or fewer
+Examples: Cold open hook, breaking revelation, shocking data point
+Max usage: 2 whisper segments per episode. Never consecutive.
+Tag: [WHISPER]
+
+### Mode 2: CLEAR (stability 0.65, similarity 0.75, style 0.10)
+DEFAULT mode. Used for all standard narration, transitions, and recaps.
+This is 70-80% of the episode. Confident, articulate, mid-20s professional.
+Tag: [CLEAR] or no tag (default)
+
+### Mode 3: AUTHORITY (stability 0.55, similarity 0.78, style 0.15)
+Used when delivering hard data, metrics, and on-chain analysis.
+Slightly more intense than CLEAR. Conveys "I know what I'm talking about."
+Examples: "Hash rate just hit 1,056 exahash", "ETF inflows topped $2.4 billion"
+Tag: [AUTHORITY]
+
+### Mode 4: WARM (stability 0.50, similarity 0.72, style 0.20)
+Used for outros, calls to action, and community moments.
+Approachable, inviting, slightly more personality.
+Examples: "That's your daily brief", "Subscribe for tomorrow's intel"
+Tag: [WARM]
+
+### Anti-Staleness Rules:
+- Never use WHISPER more than twice per episode
+- Never use WHISPER two episodes in a row for the same segment type
+- If the cold open topic is routine (daily price, hash rate), use AUTHORITY not WHISPER
+- WHISPER is reserved for genuinely surprising moments. If nothing is surprising today, don't force it.
+- The script writer decides the tags based on content analysis, not a fixed pattern
+- Every third episode, the cold open should use CLEAR instead of WHISPER to break the pattern
+
+### Implementation:
+The script_writer SCRIPT_PROMPT includes instructions to tag each segment.
+tts_engine.py reads the tag prefix and selects the corresponding voice settings.
+If no tag is present, CLEAR mode is used (safe default).
