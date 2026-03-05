@@ -259,6 +259,16 @@ def _run_dev_server():
 # Keep routes import near the very bottom so the app object and extensions are fully initialized first.
 import routes
 from routes_api_v2 import api_v2
+try:
+    from routes_api_terminal import terminal_bp
+    app.register_blueprint(terminal_bp)
+except Exception as e:
+    print(f'Terminal API not loaded: {e}')
+try:
+    from routes_newsletter_trigger import newsletter_trigger_bp
+    app.register_blueprint(newsletter_trigger_bp)
+except Exception as e:
+    print(f'Newsletter trigger not loaded: {e}')
 app.register_blueprint(api_v2)
 from onboarding_routes import onboarding_bp
 app.register_blueprint(onboarding_bp)
