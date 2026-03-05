@@ -194,8 +194,8 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
                 "title": v.get("title", ""),
                 "quote": text[:100] if text else "No transcript",
                 "why": "fast-test auto-select",
-                "start_time": "00:01:00",
-                "end_time": "00:01:30",
+                "start_seconds": 60,
+                "end_seconds": 90,
             })
         selections = {"clips": fast_clips}
         clips = fast_clips
@@ -308,6 +308,19 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         print(f"  Title: {script.get('episode_title', 'Untitled')}")
         print(f"  Dialogue: {len(speech_lines)} speech + {len(clip_markers)} clips")
         timing["5_script"] = round(time.time() - t0, 2)
+
+    # Issue 9: Sort social posts ONCE by engagement (likes desc), store on script
+    # This ensures assembler uses the EXACT SAME order as script_writer
+    try:
+        from utils.social_fetcher import get_todays_social_posts
+        sorted_social = get_todays_social_posts(max_posts=5)
+        if sorted_social:
+            sorted_social.sort(key=lambda p: p.get("likes", 0), reverse=True)
+            script["social_posts"] = sorted_social
+            for si, sp in enumerate(sorted_social):
+                logger.info(f"SOCIAL ORDER: #{si}: @{sp.get('handle', '?')} — {sp.get('text', '')[:40]}")
+    except Exception as e:
+        logger.warning(f"Social posts fetch for ordering failed: {e}")
 
     # Save script
     script_path = os.path.join(run_dir, "script.json")
