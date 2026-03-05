@@ -51,8 +51,14 @@ def load_channels() -> dict:
 
 
 def scan_channel(channel_url: str, channel_name: str,
-                 max_age_hours: int = 48, max_videos: int = 3) -> list:
+                 max_age_hours: int = 48, max_videos: int = 3,
+                 filter_keywords: list = None) -> list:
     """Get recent videos from a YouTube channel using yt-dlp.
+
+    Args:
+        filter_keywords: If set, only include videos whose title contains
+                         at least one keyword (case-insensitive). Used for
+                         mainstream channels to filter non-Bitcoin content.
 
     Returns list of dicts: {video_id, title, channel, duration, upload_date, url}
     """
@@ -107,6 +113,20 @@ def scan_channel(channel_url: str, channel_name: str,
             "upload_date": upload_date,
             "url": f"https://www.youtube.com/watch?v={video_id}",
         })
+
+    # Keyword filter for mainstream channels (BUG-005 fix)
+    if filter_keywords and videos:
+        total = len(videos)
+        filtered = []
+        for v in videos:
+            title_lower = v["title"].lower()
+            if any(kw.lower() in title_lower for kw in filter_keywords):
+                filtered.append(v)
+        dropped = total - len(filtered)
+        if dropped > 0:
+            logger.info(f"  KEYWORD FILTER: {channel_name} — {total} videos, "
+                        f"{len(filtered)} matched keywords, {dropped} filtered out")
+        videos = filtered
 
     # Limit to max_videos
     videos = videos[:max_videos]
@@ -207,7 +227,11 @@ def scan_all_channels(model_size: str = "base") -> list:
     {video_id, title, channel, duration, upload_date, url, transcript_text, timestamped_text}
     """
     config = load_channels()
-    channels = config["channels"]
+    channels = list(config.get("channels", []))
+    # Merge mainstream channels (with keyword filtering)
+    mainstream = config.get("mainstream", [])
+    channels.extend(mainstream)
+
     scan_cfg = config.get("scan", {})
     max_age = scan_cfg.get("max_age_hours", 48)
     fallback_age = scan_cfg.get("fallback_age_hours", 168)
@@ -220,7 +244,9 @@ def scan_all_channels(model_size: str = "base") -> list:
     all_videos = []
 
     for ch in channels:
-        videos = scan_channel(ch["url"], ch["name"], max_age, max_videos)
+        keywords = ch.get("filter_keywords")
+        videos = scan_channel(ch["url"], ch["name"], max_age, max_videos,
+                              filter_keywords=keywords)
         all_videos.extend(videos)
 
     # Fallback: if too few videos, expand time window
@@ -228,7 +254,9 @@ def scan_all_channels(model_size: str = "base") -> list:
         logger.info(f"Only {len(all_videos)} videos found, expanding to {fallback_age}h...")
         all_videos = []
         for ch in channels:
-            videos = scan_channel(ch["url"], ch["name"], fallback_age, max_videos)
+            keywords = ch.get("filter_keywords")
+            videos = scan_channel(ch["url"], ch["name"], fallback_age, max_videos,
+                                  filter_keywords=keywords)
             all_videos.extend(videos)
 
     logger.info(f"Total videos found: {len(all_videos)}")
