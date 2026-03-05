@@ -20,7 +20,7 @@ VOICES = {
         "name": "Nicole",
         "model_id": "eleven_turbo_v2_5",
         "voice_settings": {
-            "stability": 0.65,
+            "stability": 0.75,
             "similarity_boost": 0.75,
             "style": 0.10,
             "use_speaker_boost": True,
@@ -46,11 +46,11 @@ VOICES = {
 # Social/transition: warm, inviting
 VOICE_MODES = {
     "cold_open":       {"stability": 0.40, "similarity_boost": 0.75, "style": 0.20},
-    "setup":           {"stability": 0.65, "similarity_boost": 0.75, "style": 0.10},
-    "react":           {"stability": 0.65, "similarity_boost": 0.75, "style": 0.10},
-    "social_segment":  {"stability": 0.50, "similarity_boost": 0.75, "style": 0.12},
-    "wrap":            {"stability": 0.50, "similarity_boost": 0.75, "style": 0.12},
-    "data":            {"stability": 0.55, "similarity_boost": 0.75, "style": 0.10},
+    "setup":           {"stability": 0.75, "similarity_boost": 0.75, "style": 0.10},
+    "react":           {"stability": 0.75, "similarity_boost": 0.75, "style": 0.10},
+    "social_segment":  {"stability": 0.60, "similarity_boost": 0.75, "style": 0.12},
+    "wrap":            {"stability": 0.60, "similarity_boost": 0.75, "style": 0.12},
+    "data":            {"stability": 0.70, "similarity_boost": 0.75, "style": 0.10},
 }
 
 SILENCE_GAP = 0.3  # seconds between speakers
@@ -122,9 +122,10 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
     """Generate TTS for a single line using the specified host voice.
 
     Applies hybrid voice settings based on segment_type for Host 1 (Nicole):
-    - cold_open: whispery, dramatic (stability 0.40)
-    - setup/react: clear, confident (stability 0.65)
-    - social_segment/wrap: warm, inviting (stability 0.50)
+    - cold_open: dramatic whisper (stability 0.40, max 2/episode)
+    - setup/react: clear, confident (stability 0.75)
+    - social_segment/wrap: warm, inviting (stability 0.60)
+    - data: authoritative (stability 0.70)
     """
     if not HAS_REQUESTS:
         return False
