@@ -642,7 +642,8 @@ def make_host_visual(audio_path: str, host: int, text: str,
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
-        ["-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
+        ["-c:v", "libx264", "-preset", "medium",
+         "-b:v", "6M", "-minrate", "3M", "-maxrate", "10M", "-bufsize", "15M",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(total_dur)],
         output_path, label or f"host visual ({speaker})", 180,
     )
@@ -764,7 +765,8 @@ def make_clip_visual(clip_path: str, source: str, output_path: str,
 
     ok = run_ffmpeg_filtergraph(
         [clip_path], fg, ["[outv]", "[outa]"],
-        ["-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
+        ["-c:v", "libx264", "-preset", "medium",
+         "-b:v", "8M", "-minrate", "4M", "-maxrate", "10M", "-bufsize", "15M",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k"],
         output_path, f"clip visual ({safe_source})",
     )
@@ -785,8 +787,8 @@ def normalize_part(part_path: str, output_path: str) -> str:
     part_path = ensure_audio(part_path)
     ok = run_ffmpeg(
         ["-i", part_path,
-         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
-         "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
+         "-c:v", "libx264", "-preset", "medium",
+         "-b:v", "8M", "-minrate", "4M", "-maxrate", "10M", "-bufsize", "15M",
          "-r", "30", "-vsync", "cfr",
          "-vf", "scale=1920:1080,setsar=1,format=yuv420p",
          "-video_track_timescale", "90000",
@@ -834,11 +836,12 @@ def concatenate_parts(parts: list, output_path: str) -> str:
         return ""
 
     # Final encode: PTS reset on BOTH streams + async audio alignment
+    # Use ABR mode (no CRF) to guarantee bitrate floor for YouTube HD quality
     ok = run_ffmpeg(
         ["-fflags", "+genpts",
          "-i", concat_raw,
-         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
-         "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
+         "-c:v", "libx264", "-preset", "medium",
+         "-b:v", "8M", "-minrate", "4M", "-maxrate", "10M", "-bufsize", "15M",
          "-r", "30", "-vsync", "cfr",
          "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
