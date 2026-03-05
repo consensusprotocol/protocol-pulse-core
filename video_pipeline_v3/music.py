@@ -16,8 +16,12 @@ OUTRO_JINGLE = os.path.join(MUSIC_DIR, "pp_outro.mp3")
 
 
 def has_music() -> bool:
-    """Check if background music is available."""
-    return os.path.exists(BG_MUSIC)
+    """Check if any background music is available (mood tracks or legacy)."""
+    if os.path.exists(BG_MUSIC):
+        return True
+    import glob
+    mood_tracks = glob.glob(os.path.join(MUSIC_DIR, "*_*.mp3"))
+    return len(mood_tracks) > 0
 
 
 def has_intro() -> bool:
@@ -45,7 +49,8 @@ def ffprobe_duration(path: str) -> float:
 
 
 def mix_tts_with_music(tts_path: str, output_path: str,
-                       music_volume: float = 0.12) -> bool:
+                       music_volume: float = 0.12,
+                       music_path: str = "") -> bool:
     """Mix TTS audio with background music underneath.
 
     Background music plays at -18dB (volume=0.12) with 1s fade in/out.
@@ -54,11 +59,13 @@ def mix_tts_with_music(tts_path: str, output_path: str,
         tts_path: Path to TTS audio file
         output_path: Where to save mixed audio
         music_volume: Volume level for background music (0.12 = ~-18dB)
+        music_path: Custom music file path (uses BG_MUSIC if empty)
 
     Returns:
         True if mixing succeeded
     """
-    if not has_music():
+    music_file = music_path if (music_path and os.path.exists(music_path)) else BG_MUSIC
+    if not os.path.exists(music_file):
         # No music available — just copy TTS as-is
         subprocess.run(["cp", tts_path, output_path], capture_output=True)
         return os.path.exists(output_path)
@@ -72,7 +79,7 @@ def mix_tts_with_music(tts_path: str, output_path: str,
     cmd = [
         "ffmpeg", "-y",
         "-i", tts_path,
-        "-i", BG_MUSIC,
+        "-i", music_file,
         "-filter_complex",
         f"[1:a]volume={music_volume},"
         f"afade=t=in:d=1,"
