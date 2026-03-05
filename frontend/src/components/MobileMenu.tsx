@@ -29,19 +29,20 @@ export default function MobileMenu({ links }: MobileMenuProps) {
       </button>
 
       {open && (
-        <div className="absolute top-16 left-0 right-0 bg-black/95 backdrop-blur-md border-b border-[#1F1F1F] z-40">
-          <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-4">
+        <div className="absolute top-[calc(4rem+1px)] left-0 right-0 bg-black/80 backdrop-blur-xl border-b border-white/[0.06] z-40">
+          <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col gap-1">
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="text-[#888888] hover:text-[#EDEDED] text-sm font-medium uppercase tracking-wider transition-colors py-2"
+                className="text-[#888888] hover:text-[#EDEDED] text-sm font-medium uppercase tracking-wider transition-all duration-200 py-3 px-4 rounded-lg hover:bg-white/[0.03]"
               >
                 {link.label}
               </Link>
             ))}
           </div>
+          <div className="red-gradient-line" />
         </div>
       )}
     </div>

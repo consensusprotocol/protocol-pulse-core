@@ -29,14 +29,14 @@ export default function ShareButtons({
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1">
       <button
         onClick={handleCopy}
-        className="text-[#888888] hover:text-[#EDEDED] transition-colors p-1.5 rounded hover:bg-[#1F1F1F]"
+        className="text-[#888888] hover:text-[#EDEDED] hover:drop-shadow-[0_0_8px_rgba(237,237,237,0.15)] transition-all duration-200 p-2 rounded-lg hover:bg-white/[0.05]"
         title="Copy link"
       >
         {copied ? (
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#CC0000" strokeWidth="2">
             <path d="M3 8l3 3 7-7" />
           </svg>
         ) : (
@@ -49,7 +49,7 @@ export default function ShareButtons({
         href={twitterUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-[#888888] hover:text-[#EDEDED] transition-colors p-1.5 rounded hover:bg-[#1F1F1F]"
+        className="text-[#888888] hover:text-[#EDEDED] hover:drop-shadow-[0_0_8px_rgba(237,237,237,0.15)] transition-all duration-200 p-2 rounded-lg hover:bg-white/[0.05]"
         title="Share on X"
       >
         <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">

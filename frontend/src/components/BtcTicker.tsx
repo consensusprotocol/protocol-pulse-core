@@ -36,7 +36,6 @@ export default function BtcTicker() {
           pulsing: prev.price !== 0 && prev.price !== btc.price,
         }));
 
-        // Clear pulse after animation
         setTimeout(() => setState((prev) => ({ ...prev, pulsing: false })), 600);
       } catch {
         // Silently fail, keep last known price
@@ -50,24 +49,31 @@ export default function BtcTicker() {
 
   if (state.loading) {
     return (
-      <div className="flex items-center gap-2 text-sm">
-        <span className="text-[#888888]">BTC</span>
-        <span className="text-[#888888]">---</span>
+      <div className="flex items-center gap-2 text-sm bg-white/[0.03] backdrop-blur-sm border border-white/[0.06] rounded-lg px-3 py-1.5">
+        <span className="text-[#888888] font-mono text-xs">BTC</span>
+        <span className="text-[#888888] font-mono">---</span>
       </div>
     );
   }
 
   const isPositive = state.change24h >= 0;
-  const changeColor = isPositive ? "text-emerald-500" : "text-red-500";
+  const changeColor = isPositive ? "text-emerald-400" : "text-red-400";
+  const glowColor = isPositive
+    ? "drop-shadow-[0_0_6px_rgba(52,211,153,0.3)]"
+    : "drop-shadow-[0_0_6px_rgba(248,113,113,0.3)]";
   const changePrefix = isPositive ? "+" : "";
 
   return (
-    <div className={`flex items-center gap-2 text-sm ${state.pulsing ? "animate-price-pulse" : ""}`}>
-      <span className="text-[#888888] font-medium">BTC</span>
-      <span className="text-[#EDEDED] font-semibold tabular-nums">
+    <div
+      className={`flex items-center gap-2 text-sm bg-white/[0.03] backdrop-blur-sm border border-white/[0.06] rounded-lg px-3 py-1.5 ${
+        state.pulsing ? "animate-price-pulse" : ""
+      }`}
+    >
+      <span className="text-[#888888] font-mono text-xs tracking-wider">BTC</span>
+      <span className="text-[#EDEDED] font-semibold font-mono tabular-nums">
         ${state.price.toLocaleString("en-US", { maximumFractionDigits: 0 })}
       </span>
-      <span className={`${changeColor} text-xs font-medium tabular-nums`}>
+      <span className={`${changeColor} ${glowColor} text-xs font-medium font-mono tabular-nums`}>
         {changePrefix}{state.change24h.toFixed(1)}%
       </span>
     </div>
