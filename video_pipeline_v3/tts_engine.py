@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""TTS Engine V4 — dual-host dialogue with ElevenLabs.
-Host 1 (Matilda): XrExE9yKIg1WjnnlVkGX
-Host 2 (Adam):    pNInz6obpgDQGcFmaJgB
+"""TTS Engine V5 — dual-host dialogue with ElevenLabs.
+Host 1 (Eryn):  kdnRe2koJdOK4Ovxn2DI
+Host 2 (Mark):  1SM7GgM6IMuvQlz2BwM3
 Generates per-line audio with 0.3s silence gaps between speakers."""
 import os, sys, json, subprocess, tempfile, time, struct
 from pathlib import Path
@@ -16,20 +16,20 @@ from relay import get_key
 
 VOICES = {
     1: {
-        "voice_id": "XrExE9yKIg1WjnnlVkGX",
-        "name": "Matilda",
+        "voice_id": "kdnRe2koJdOK4Ovxn2DI",
+        "name": "Eryn",
         "model_id": "eleven_turbo_v2_5",
         "speed": 1.12,
         "voice_settings": {
-            "stability": 0.38,
-            "similarity_boost": 0.78,
-            "style": 0.15,
+            "stability": 0.75,
+            "similarity_boost": 0.75,
+            "style": 0.10,
             "use_speaker_boost": True,
         },
     },
     2: {
-        "voice_id": "pNInz6obpgDQGcFmaJgB",
-        "name": "Adam",
+        "voice_id": "1SM7GgM6IMuvQlz2BwM3",
+        "name": "Mark",
         "model_id": "eleven_turbo_v2_5",
         "speed": 1.10,
         "voice_settings": {
@@ -47,12 +47,12 @@ VOICES = {
 # Data callouts (wrap with price): slightly intense
 # Social/transition: warm, inviting
 VOICE_MODES = {
-    "cold_open":       {"stability": 0.40, "similarity_boost": 0.75, "style": 0.20},
-    "setup":           {"stability": 0.75, "similarity_boost": 0.75, "style": 0.10},
-    "react":           {"stability": 0.75, "similarity_boost": 0.75, "style": 0.10},
-    "social_segment":  {"stability": 0.60, "similarity_boost": 0.75, "style": 0.12},
-    "wrap":            {"stability": 0.60, "similarity_boost": 0.75, "style": 0.12},
-    "data":            {"stability": 0.70, "similarity_boost": 0.75, "style": 0.10},
+    "cold_open":       {"stability": 0.38, "similarity_boost": 0.78, "style": 0.15, "speed": 1.12},
+    "setup":           {"stability": 0.75, "similarity_boost": 0.75, "style": 0.10, "speed": 1.12},
+    "react":           {"stability": 0.75, "similarity_boost": 0.75, "style": 0.10, "speed": 1.12},
+    "social_segment":  {"stability": 0.60, "similarity_boost": 0.75, "style": 0.12, "speed": 1.12},
+    "wrap":            {"stability": 0.60, "similarity_boost": 0.72, "style": 0.20, "speed": 1.10},
+    "data":            {"stability": 0.70, "similarity_boost": 0.78, "style": 0.10, "speed": 1.10},
 }
 
 SILENCE_GAP = 0.3  # seconds between speakers
@@ -123,11 +123,12 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
                    segment_type: str = "") -> bool:
     """Generate TTS for a single line using the specified host voice.
 
-    Applies hybrid voice settings based on segment_type for Host 1 (Matilda):
-    - cold_open: dramatic whisper (stability 0.40, max 2/episode)
-    - setup/react: clear, confident (stability 0.75)
-    - social_segment/wrap: warm, inviting (stability 0.60)
-    - data: authoritative (stability 0.70)
+    Applies hybrid voice settings based on segment_type for Host 1 (Eryn):
+    - cold_open: dramatic (stability 0.38, speed 1.12)
+    - setup/react: clear, confident (stability 0.75, speed 1.12)
+    - social_segment: warm (stability 0.60, speed 1.12)
+    - wrap: warm, inviting (stability 0.60, speed 1.10)
+    - data: authoritative (stability 0.70, speed 1.10)
     """
     if not HAS_REQUESTS:
         return False
@@ -140,11 +141,13 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice['voice_id']}"
     headers = {"xi-api-key": key, "Content-Type": "application/json"}
 
-    # Apply hybrid voice mode for Host 1 based on segment type
+    # Apply hybrid voice mode for Host 1 (Eryn) based on segment type
     voice_settings = dict(voice["voice_settings"])
     if host == 1 and segment_type in VOICE_MODES:
         mode = VOICE_MODES[segment_type]
-        voice_settings.update(mode)
+        for k, v in mode.items():
+            if k != "speed":
+                voice_settings[k] = v
 
     chunks = _chunk_text(text)
     chunk_files = []
@@ -155,8 +158,10 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
             "model_id": voice["model_id"],
             "voice_settings": voice_settings,
         }
-        # Add speed parameter if voice config specifies it
+        # Add speed parameter — use mode-specific speed for Host 1
         speed = voice.get("speed", 1.0)
+        if host == 1 and segment_type in VOICE_MODES:
+            speed = VOICE_MODES[segment_type].get("speed", speed)
         if speed != 1.0:
             body["speed"] = speed
         mp3_tmp = output_path + f".chunk{ci}.mp3"

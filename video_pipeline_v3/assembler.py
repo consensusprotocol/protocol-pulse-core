@@ -58,6 +58,8 @@ LOGO_IMAGE = os.path.join(ASSETS, "logo_protocol_pulse.png")
 GLITCH_WHOOSH = os.path.join(ASSETS, "sfx", "glitch_whoosh.wav")
 CARD_SWOOSH = os.path.join(ASSETS, "sfx", "card_swoosh.wav")
 CYBERPUNK_BG_LOOP = os.path.join(ASSETS, "backgrounds", "cyberpunk_loop.mp4")
+DATA_BLIP = os.path.join(ASSETS, "sfx", "data_blip.wav")
+LOWER_SLIDE = os.path.join(ASSETS, "sfx", "lower_slide.wav")
 
 
 def run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
@@ -496,6 +498,82 @@ def fetch_youtube_thumbnail(clip_info: dict) -> str:
             return ""
 
 
+# ── PiP preview for narration segments ──────────────────────────────────────
+
+def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) -> str:
+    """Extract a muted PiP preview clip for overlay during narration.
+
+    Per PRODUCTION_DESIGN_LAWS Section 4 — Face Rule:
+    - 480x270, muted, Ken Burns slow zoom, thin white border
+    - Extracted from 5s into the clip for 8s
+    """
+    if not clip_path or not os.path.exists(clip_path):
+        return ""
+    clip_dur = ffprobe_duration(clip_path)
+    if clip_dur < 10:
+        return ""
+    start = min(5.0, clip_dur - duration - 1)
+    ok = run_ffmpeg([
+        "-ss", str(start), "-i", clip_path,
+        "-t", str(duration), "-an",
+        "-vf", (
+            "scale=500:282,zoompan=z='min(zoom+0.0005,1.05)'"
+            ":d=240:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=480x270,"
+            "pad=484:274:2:2:color=white@0.3,format=yuv420p"
+        ),
+        "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+        "-r", "30",
+        output_path,
+    ], "pip preview extract", 60)
+    return output_path if ok and os.path.exists(output_path) else ""
+
+
+def overlay_pip_on_narration(narration_path: str, pip_path: str,
+                              output_path: str) -> str:
+    """Overlay PiP preview clip onto narration video at bottom-right.
+
+    Position: x=1400, y=540 (bottom-right area of 1920x1080)
+    """
+    if not pip_path or not os.path.exists(pip_path):
+        return narration_path
+    pip_dur = ffprobe_duration(pip_path)
+    ok = run_ffmpeg([
+        "-i", narration_path,
+        "-i", pip_path,
+        "-filter_complex",
+        f"[1:v]format=yuva420p[pip];"
+        f"[0:v][pip]overlay=1400:540:enable='lte(t,{pip_dur})',format=yuv420p[outv]",
+        "-map", "[outv]", "-map", "0:a",
+        "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+        "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
+        "-c:a", "copy",
+        output_path,
+    ], "pip overlay", 180)
+    return output_path if ok and os.path.exists(output_path) else narration_path
+
+
+def mix_lower_slide_sfx(video_path: str) -> str:
+    """Mix lower_slide.wav SFX at the start of a clip with LowerThird."""
+    if not os.path.exists(LOWER_SLIDE) or not os.path.exists(video_path):
+        return video_path
+    tmp = video_path + ".lslide.mp4"
+    ok = run_ffmpeg([
+        "-i", video_path,
+        "-i", LOWER_SLIDE,
+        "-filter_complex",
+        "[0:a][1:a]amix=inputs=2:duration=first:weights=1 0.5[outa]",
+        "-map", "0:v", "-map", "[outa]",
+        "-c:v", "copy",
+        "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+        tmp,
+    ], "mix lower slide sfx", 30)
+    if ok and os.path.exists(tmp):
+        os.replace(tmp, video_path)
+    elif os.path.exists(tmp):
+        os.remove(tmp)
+    return video_path
+
+
 # ── Host dialogue visual ────────────────────────────────────────────────────
 
 def make_host_visual(audio_path: str, host: int, text: str,
@@ -513,7 +591,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
         audio_dur = 5
     total_dur = audio_dur + 0.3
 
-    host_names = {1: "JESSICA", 2: "CHRIS"}
+    host_names = {1: "ERYN", 2: "MARK"}
     host_colors = {1: "0xCC0000@0.95", 2: "0x880000@0.95"}
     speaker = host_names.get(host, "HOST")
     color = host_colors.get(host, "0xFF3333@0.95")
@@ -530,7 +608,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
     is_social = segment_type == "social_segment"
 
     # Get episode title for subtitle text
-    ep_title = label.replace("host visual", "").replace("(JESSICA)", "").replace("(CHRIS)", "").strip()
+    ep_title = label.replace("host visual", "").replace("(ERYN)", "").replace("(MARK)", "").strip()
 
     # Build inputs list
     # 0: TTS audio, [1: cyberpunk bg or logo], [N: watermark], [N: bg music], [N: thumbnail]
@@ -1655,6 +1733,17 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
             clip_thumbnails[rank] = tp
             logger.info(f"  Thumbnail for clip #{rank}: {os.path.basename(tp)}")
 
+    # Build PiP preview map: rank → pip_path (for narration segments before clips)
+    pip_previews = {}
+    for rank, cinfo in extracted_clips.items():
+        clip_path = cinfo.get("path", "")
+        if clip_path and os.path.exists(clip_path):
+            pip_out = os.path.join(work_dir, f"pip_preview_r{rank}.mp4")
+            pip_result = make_pip_preview(clip_path, pip_out)
+            if pip_result:
+                pip_previews[rank] = pip_result
+                logger.info(f"  PiP preview for clip #{rank}: ready")
+
     # Track which audio line index we're on (host lines only, not CLIPs)
     # If we consumed the cold_open, skip the first host audio line
     audio_idx = 1 if cold_open_consumed else 0
@@ -1677,14 +1766,15 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
             clip_path = clip_info.get("path", "")
 
             if clip_path and os.path.exists(clip_path):
-                # Glitch transition BEFORE clip (always)
-                trans_out = os.path.join(work_dir, f"part_{part_idx:03d}_glitch.mp4")
-                trans = make_transition_visual(trans_out)
-                if trans:
-                    parts.append(trans)
-                    dur = ffprobe_duration(trans)
-                    logger.info(f"[{part_idx:03d}] GLITCH TRANSITION: {dur:.2f}s")
-                    part_idx += 1
+                # Alpha transition BEFORE clip (always between segments)
+                if parts:  # Don't add transition before the very first part
+                    trans_out = os.path.join(work_dir, f"part_{part_idx:03d}_glitch.mp4")
+                    trans = make_transition_visual(trans_out)
+                    if trans:
+                        parts.append(trans)
+                        dur = ffprobe_duration(trans)
+                        logger.info(f"[{part_idx:03d}] ALPHA TRANSITION: {dur:.2f}s")
+                        part_idx += 1
 
                 # The clip itself — try Remotion LowerThird overlay, fall back to FFmpeg
                 clip_out = os.path.join(work_dir, f"part_{part_idx:03d}_clip_r{rank}.mp4")
@@ -1702,9 +1792,11 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
                 if not result:
                     result = make_clip_visual(clip_path, handle, clip_out, btc_price=btc_price)
                 if result:
+                    # Mix lower_slide SFX at start of clip (for LowerThird entrance)
+                    mix_lower_slide_sfx(result)
                     parts.append(result)
                     dur = ffprobe_duration(result)
-                    logger.info(f"[{part_idx:03d}] CLIP #{rank} [{channel}]: {dur:.1f}s")
+                    logger.info(f"[{part_idx:03d}] CLIP #{rank} [{channel}]: {dur:.1f}s (with lower slide SFX)")
                     part_idx += 1
                 else:
                     logger.warning(f"[---] Clip #{rank}: visual failed, skipping")
@@ -1713,14 +1805,20 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
             prev_segment_type = "clip"
             continue
 
-        # Glitch transition between segment type changes (clip→host, social→setup, etc.)
-        if prev_segment_type in ("clip",) and entry_type in ("react", "setup", "social_segment", "wrap"):
+        # Alpha transition between EVERY segment type change
+        # Per PRODUCTION_DESIGN_LAWS: transitions between every segment
+        needs_transition = (
+            prev_segment_type != entry_type
+            and prev_segment_type not in ("intro",)
+            and parts  # at least one part already exists
+        )
+        if needs_transition:
             trans_out = os.path.join(work_dir, f"part_{part_idx:03d}_glitch.mp4")
             trans = make_transition_visual(trans_out)
             if trans:
                 parts.append(trans)
                 dur = ffprobe_duration(trans)
-                logger.info(f"[{part_idx:03d}] GLITCH TRANSITION ({prev_segment_type}→{entry_type}): {dur:.2f}s")
+                logger.info(f"[{part_idx:03d}] ALPHA TRANSITION ({prev_segment_type}→{entry_type}): {dur:.2f}s")
                 part_idx += 1
 
         # Host dialogue line — find matching audio
@@ -1800,10 +1898,21 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
                     thumbnail_path=thumb,
                     segment_type=entry_type,
                 )
+
+            # PiP preview: overlay upcoming clip during setup segments (face rule)
+            if result and entry_type == "setup" and clip_rank:
+                pip_path = pip_previews.get(clip_rank, "")
+                if pip_path:
+                    pip_out = result + ".pip.mp4"
+                    pip_result = overlay_pip_on_narration(result, pip_path, pip_out)
+                    if pip_result and pip_result != result:
+                        os.replace(pip_result, result)
+                        logger.info(f"  PiP preview overlaid for setup → clip #{clip_rank}")
+
         if result:
             parts.append(result)
             dur = ffprobe_duration(result)
-            speaker = "JESSICA" if host_num == 1 else "CHRIS"
+            speaker = "ERYN" if host_num == 1 else "MARK"
             logger.info(f"[{part_idx:03d}] {entry_type.upper()} [{speaker}]: {dur:.1f}s")
             part_idx += 1
             prev_segment_type = entry_type
@@ -1812,10 +1921,16 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
 
     # --- 3. BRANDED OUTRO ---
     # RULE (Section 17): Outro plays ONLY after ALL dialogue parts including wrap.
-    # Wrap already rendered above as part of dialogue loop — do NOT mix wrap audio
-    # into outro again (that causes overlap/black screen gap).
     narration_end = sum(ffprobe_duration(p) for p in parts if p and os.path.exists(p))
     logger.info(f"Narration ends at {narration_end:.1f}s — outro starts here")
+
+    # Alpha transition before outro
+    if parts:
+        trans_out = os.path.join(work_dir, f"part_{part_idx:03d}_glitch_pre_outro.mp4")
+        trans = make_transition_visual(trans_out)
+        if trans:
+            parts.append(trans)
+            part_idx += 1
 
     outro_out = os.path.join(work_dir, f"part_{part_idx:03d}_outro_branded.mp4")
     outro_result = make_branded_outro(outro_out)
