@@ -48,9 +48,9 @@ VOICES = {
         "name": "Nicole",
         "model_id": "eleven_turbo_v2_5",
         "voice_settings": {
-            "stability": 0.55,
+            "stability": 0.65,
             "similarity_boost": 0.75,
-            "style": 0.15,
+            "style": 0.10,
             "use_speaker_boost": True,
         },
     },

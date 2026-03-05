@@ -20,9 +20,9 @@ VOICES = {
         "name": "Nicole",
         "model_id": "eleven_turbo_v2_5",
         "voice_settings": {
-            "stability": 0.55,
+            "stability": 0.65,
             "similarity_boost": 0.75,
-            "style": 0.15,
+            "style": 0.10,
             "use_speaker_boost": True,
         },
     },
@@ -37,6 +37,20 @@ VOICES = {
             "use_speaker_boost": True,
         },
     },
+}
+
+# Hybrid voice settings per segment type (overrides for Nicole/Host 1 only)
+# Cold open: whispery dramatic, classified briefing feel
+# Narration (setup/react): clear, confident, authoritative
+# Data callouts (wrap with price): slightly intense
+# Social/transition: warm, inviting
+VOICE_MODES = {
+    "cold_open":       {"stability": 0.40, "similarity_boost": 0.75, "style": 0.20},
+    "setup":           {"stability": 0.65, "similarity_boost": 0.75, "style": 0.10},
+    "react":           {"stability": 0.65, "similarity_boost": 0.75, "style": 0.10},
+    "social_segment":  {"stability": 0.50, "similarity_boost": 0.75, "style": 0.12},
+    "wrap":            {"stability": 0.50, "similarity_boost": 0.75, "style": 0.12},
+    "data":            {"stability": 0.55, "similarity_boost": 0.75, "style": 0.10},
 }
 
 SILENCE_GAP = 0.3  # seconds between speakers
@@ -103,8 +117,15 @@ def _chunk_text(text: str, max_chars: int = MAX_CHUNK_CHARS) -> list:
     return [c for c in chunks if c.strip()]
 
 
-def tts_elevenlabs(text: str, output_path: str, host: int = 1) -> bool:
-    """Generate TTS for a single line using the specified host voice."""
+def tts_elevenlabs(text: str, output_path: str, host: int = 1,
+                   segment_type: str = "") -> bool:
+    """Generate TTS for a single line using the specified host voice.
+
+    Applies hybrid voice settings based on segment_type for Host 1 (Nicole):
+    - cold_open: whispery, dramatic (stability 0.40)
+    - setup/react: clear, confident (stability 0.65)
+    - social_segment/wrap: warm, inviting (stability 0.50)
+    """
     if not HAS_REQUESTS:
         return False
 
@@ -116,6 +137,12 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1) -> bool:
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice['voice_id']}"
     headers = {"xi-api-key": key, "Content-Type": "application/json"}
 
+    # Apply hybrid voice mode for Host 1 based on segment type
+    voice_settings = dict(voice["voice_settings"])
+    if host == 1 and segment_type in VOICE_MODES:
+        mode = VOICE_MODES[segment_type]
+        voice_settings.update(mode)
+
     chunks = _chunk_text(text)
     chunk_files = []
 
@@ -123,7 +150,7 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1) -> bool:
         body = {
             "text": chunk,
             "model_id": voice["model_id"],
-            "voice_settings": voice["voice_settings"],
+            "voice_settings": voice_settings,
         }
         mp3_tmp = output_path + f".chunk{ci}.mp3"
         success = False
@@ -234,11 +261,13 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
 
         host_num = int(host) if host in (1, 2, "1", "2") else 1
         voice = VOICES.get(host_num, VOICES[1])
+        segment_type = entry.get("type", "")
         line_path = os.path.join(output_dir, f"line_{i:03d}_{voice['name'].lower()}.m4a")
 
-        print(f"  [tts] Line {i:02d} ({voice['name']}): {text[:60]}...")
+        mode_tag = f" [{segment_type}]" if segment_type and host_num == 1 else ""
+        print(f"  [tts] Line {i:02d} ({voice['name']}{mode_tag}): {text[:60]}...")
 
-        if tts_elevenlabs(text, line_path, host_num):
+        if tts_elevenlabs(text, line_path, host_num, segment_type=segment_type):
             dur = ffprobe_duration(line_path)
             lines.append({
                 "path": line_path,
