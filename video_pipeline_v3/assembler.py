@@ -22,6 +22,7 @@ Visual rules:
 """
 import json
 import logging
+import math
 import os
 import re
 import shutil
@@ -54,6 +55,9 @@ BG_MUSIC = os.path.join(ASSETS, "music", "pp_background.mp3")
 TAG_VIDEO = os.path.join(ASSETS, "tag_vertical.mp4")
 OUTRO_BRANDED = os.path.join(ASSETS, "outro_branded.mp4")
 LOGO_IMAGE = os.path.join(ASSETS, "logo_protocol_pulse.png")
+GLITCH_WHOOSH = os.path.join(ASSETS, "sfx", "glitch_whoosh.wav")
+CARD_SWOOSH = os.path.join(ASSETS, "sfx", "card_swoosh.wav")
+CYBERPUNK_BG_LOOP = os.path.join(ASSETS, "backgrounds", "cyberpunk_loop.mp4")
 
 
 def run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
@@ -386,7 +390,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A")
         logo_idx = idx
         idx += 1
         fg += (f"[{logo_idx}:v]scale=-1:200,"
-               f"colorkey=color=0x000000:similarity=0.25:blend=0.1[logo];\n")
+               f"colorkey=color=0x000000:similarity=0.15:blend=0.15[logo];\n")
         fg += f"[withwave][logo]overlay=(W-w)/2:60[title];\n"
     else:
         fg += (f"[withwave]drawtext=fontfile={FONT_BOLD}:"
@@ -522,15 +526,23 @@ def make_host_visual(audio_path: str, host: int, text: str,
     has_bgm = os.path.exists(BG_MUSIC)
     has_thumb = bool(thumbnail_path and os.path.exists(thumbnail_path))
     has_logo = os.path.exists(LOGO_IMAGE)
+    has_cyberpunk_bg = os.path.exists(CYBERPUNK_BG_LOOP)
     is_social = segment_type == "social_segment"
 
     # Get episode title for subtitle text
     ep_title = label.replace("host visual", "").replace("(JESSICA)", "").replace("(CHRIS)", "").strip()
 
     # Build inputs list
-    # 0: TTS audio, [1: logo], [N: watermark], [N: bg music], [N: thumbnail]
+    # 0: TTS audio, [1: cyberpunk bg or logo], [N: watermark], [N: bg music], [N: thumbnail]
     inputs = [audio_path]  # 0: tts audio
     inp_idx = 1
+
+    if has_cyberpunk_bg:
+        inputs.append(["-stream_loop", "-1", "-i", CYBERPUNK_BG_LOOP])
+        cyberpunk_idx = inp_idx
+        inp_idx += 1
+    else:
+        cyberpunk_idx = -1
 
     if has_logo:
         inputs.append(LOGO_IMAGE)
@@ -561,18 +573,22 @@ def make_host_visual(audio_path: str, host: int, text: str,
         thumb_idx = -1
 
     # Filter graph — procedural background with logo + audio waveform
-    # 1. Dark base (#0A0A0A) with subtle vignette
-    fg = f"color=c=0x0A0A0A:s=1920x1080:d={total_dur}:r=30[base];\n"
+    if has_cyberpunk_bg:
+        # Use pre-rendered cyberpunk background loop (stream-looped to match duration)
+        fg = f"[{cyberpunk_idx}:v]scale=1920:1080,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS[bgvig];\n"
+    else:
+        # 1. Dark base (#0A0A0A) with subtle vignette
+        fg = f"color=c=0x0A0A0A:s=1920x1080:d={total_dur}:r=30[base];\n"
 
-    # 2. Subtle gradient overlay — slightly lighter top half for depth
-    fg += f"color=c=0x0F0000:s=1920x540:d={total_dur}:r=30[tophalf];\n"
-    fg += f"[base][tophalf]overlay=0:0[bgbase];\n"
+        # 2. Subtle gradient overlay — slightly lighter top half for depth
+        fg += f"color=c=0x0F0000:s=1920x540:d={total_dur}:r=30[tophalf];\n"
+        fg += f"[base][tophalf]overlay=0:0[bgbase];\n"
 
-    # 3. Vignette — darker corners for cinematic feel
-    fg += (f"[bgbase]drawbox=x=0:y=0:w=250:h=1080:color=0x000000@0.12:t=fill"
-           f",drawbox=x=1670:y=0:w=250:h=1080:color=0x000000@0.12:t=fill"
-           f",drawbox=x=0:y=0:w=1920:h=120:color=0x000000@0.08:t=fill"
-           f",drawbox=x=0:y=960:w=1920:h=120:color=0x000000@0.08:t=fill[bgvig];\n")
+        # 3. Vignette — darker corners for cinematic feel
+        fg += (f"[bgbase]drawbox=x=0:y=0:w=250:h=1080:color=0x000000@0.12:t=fill"
+               f",drawbox=x=1670:y=0:w=250:h=1080:color=0x000000@0.12:t=fill"
+               f",drawbox=x=0:y=0:w=1920:h=120:color=0x000000@0.08:t=fill"
+               f",drawbox=x=0:y=960:w=1920:h=120:color=0x000000@0.08:t=fill[bgvig];\n")
 
     # 4. Thin horizontal accent lines — red palette
     fg += (f"[bgvig]drawbox=x=0:y=538:w=1920:h=2:color=0xCC0000@0.35:t=fill"
@@ -585,7 +601,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
     # 6. Logo overlay — centered, 200px height, black bg removed via colorkey
     if has_logo:
         fg += (f"[{logo_idx}:v]scale=-1:200,"
-               f"colorkey=color=0x000000:similarity=0.25:blend=0.1[logo];\n")
+               f"colorkey=color=0x000000:similarity=0.15:blend=0.15[logo];\n")
         # Center logo: x=(1920-logo_w)/2, y=80
         fg += f"[bgv0][logo]overlay=(W-w)/2:80[bglogo];\n"
         last_bg = "bglogo"
@@ -974,8 +990,21 @@ def _make_remotion_glitch(output_path: str) -> str:
             with_audio = output_path + ".waud.mp4"
             dur = ffprobe_duration(output_path)
 
-            # Try to extract whoosh audio from branded asset
-            if os.path.exists(GLITCH_TRANSITION):
+            # Mix in whoosh SFX
+            if os.path.exists(GLITCH_WHOOSH):
+                ok = run_ffmpeg([
+                    "-i", output_path,
+                    "-i", GLITCH_WHOOSH,
+                    "-map", "0:v:0",
+                    "-map", "1:a:0",
+                    "-c:v", "copy",
+                    "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                    "-af", "volume=2.5,afade=t=in:d=0.05,afade=t=out:st=" + f"{max(0, dur-0.15):.2f}" + ":d=0.15",
+                    "-t", str(dur),
+                    "-shortest",
+                    with_audio,
+                ], "remotion glitch + whoosh sfx", 30)
+            elif os.path.exists(GLITCH_TRANSITION):
                 ok = run_ffmpeg([
                     "-i", output_path,
                     "-i", GLITCH_TRANSITION,
@@ -1066,7 +1095,7 @@ def _remotion_with_audio(video_path: str, audio_path: str, output_path: str,
             "-i", audio_path,
             "-stream_loop", "-1", "-i", BG_MUSIC,
             "-filter_complex",
-            f"[0:v]trim=0:{total_dur},setpts=PTS-STARTPTS,loop=loop=-1:size={int(total_dur*30)}:start=0,trim=0:{total_dur},setpts=PTS-STARTPTS[v];"
+            f"[0:v]setpts=PTS-STARTPTS[v];"
             f"[1:a]loudnorm=I=-16:TP=-1.5:LRA=11[tts];"
             f"[2:a]volume=-18dB[bgm];"
             f"[tts][bgm]amix=inputs=2:duration=first:weights=1 0.12[outa]",
@@ -1081,7 +1110,7 @@ def _remotion_with_audio(video_path: str, audio_path: str, output_path: str,
             "-i", video_path,
             "-i", audio_path,
             "-filter_complex",
-            f"[0:v]trim=0:{total_dur},setpts=PTS-STARTPTS,loop=loop=-1:size={int(total_dur*30)}:start=0,trim=0:{total_dur},setpts=PTS-STARTPTS[v];"
+            f"[0:v]setpts=PTS-STARTPTS[v];"
             f"[1:a]loudnorm=I=-16:TP=-1.5:LRA=11[outa]",
             "-map", "[v]", "-map", "[outa]",
             "-c:v", "libx264", "-crf", "17", "-preset", "medium",
@@ -1108,7 +1137,8 @@ def make_remotion_waveform(audio_path: str, output_path: str,
         date = _d.today().isoformat()
 
     dur = ffprobe_duration(audio_path)
-    frames = max(int((dur + 0.3) * 30), 90)
+    total_dur = dur + 0.3
+    frames = max(math.ceil(total_dur * 30), 90)
 
     raw_video = output_path + ".remotion_raw.mp4"
     result = _render_remotion("WaveformVisualizer", raw_video, props={
@@ -1131,6 +1161,31 @@ def make_remotion_waveform(audio_path: str, output_path: str,
     return muxed
 
 
+def _mix_swoosh_into_segment(video_path: str) -> str:
+    """Mix card_swoosh.wav into the first 0.4s of a video segment.
+
+    Modifies the file in-place (via temp rename). Returns the path.
+    """
+    if not os.path.exists(CARD_SWOOSH) or not os.path.exists(video_path):
+        return video_path
+    tmp = video_path + ".swoosh.mp4"
+    ok = run_ffmpeg([
+        "-i", video_path,
+        "-i", CARD_SWOOSH,
+        "-filter_complex",
+        "[0:a][1:a]amix=inputs=2:duration=first:weights=1 0.6[outa]",
+        "-map", "0:v", "-map", "[outa]",
+        "-c:v", "copy",
+        "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+        tmp,
+    ], "mix card swoosh", 30)
+    if ok and os.path.exists(tmp):
+        os.replace(tmp, video_path)
+    elif os.path.exists(tmp):
+        os.remove(tmp)
+    return video_path
+
+
 def make_remotion_social_card(audio_path: str, posts: list, output_path: str,
                               btc_price: str = "N/A") -> str:
     """Render SocialCard via Remotion + mux with TTS audio.
@@ -1142,7 +1197,8 @@ def make_remotion_social_card(audio_path: str, posts: list, output_path: str,
 
     post = posts[0] if posts else {}
     dur = ffprobe_duration(audio_path)
-    frames = max(int((dur + 0.3) * 30), 90)
+    total_dur = dur + 0.3
+    frames = max(math.ceil(total_dur * 30), 90)
 
     raw_video = output_path + ".remotion_raw.mp4"
     result = _render_remotion("SocialCard", raw_video, props={
@@ -1162,6 +1218,8 @@ def make_remotion_social_card(audio_path: str, posts: list, output_path: str,
         except OSError:
             pass
     if muxed:
+        # Mix in card swoosh SFX on entrance
+        muxed = _mix_swoosh_into_segment(muxed)
         logger.info(f"  Remotion SocialCard: {ffprobe_duration(muxed):.1f}s")
     return muxed
 
@@ -1180,7 +1238,8 @@ def make_remotion_title_card(audio_path: str, output_path: str,
         date = _d.today().isoformat()
 
     dur = ffprobe_duration(audio_path)
-    frames = max(int((dur + 1.0) * 30), 120)
+    total_dur = max(dur + 1.0, 4.0)
+    frames = max(math.ceil(total_dur * 30), 120)
 
     raw_video = output_path + ".remotion_raw.mp4"
     result = _render_remotion("TitleCard", raw_video, props={
@@ -1207,7 +1266,7 @@ def make_remotion_title_card(audio_path: str, output_path: str,
             "-i", audio_path,
             "-i", jingle,
             "-filter_complex",
-            f"[0:v]trim=0:{total_dur},setpts=PTS-STARTPTS,loop=loop=-1:size={int(total_dur*30)}:start=0,trim=0:{total_dur},setpts=PTS-STARTPTS[v];"
+            f"[0:v]setpts=PTS-STARTPTS[v];"
             f"[1:a]volume=1.0[tts_a];"
             f"[2:a]volume=0.35[jingle_a];"
             f"[tts_a][jingle_a]amix=inputs=2:duration=first:weights=1 0.35[outa]",
@@ -1248,7 +1307,7 @@ def make_remotion_lower_third(clip_path: str, source: str, output_path: str,
 
     # Render LowerThird overlay (6 seconds max, shown near start of clip)
     overlay_dur = min(6.0, clip_dur * 0.6)
-    frames = int(overlay_dur * 30)
+    frames = math.ceil(overlay_dur * 30)
 
     raw_overlay = output_path + ".remotion_lt.mp4"
     result = _render_remotion("LowerThird", raw_overlay, props={
@@ -1515,6 +1574,28 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
     except Exception as e:
         logger.warning(f"Tweet card data load failed: {e}")
     social_card_idx = 0  # Track which posts have been shown
+    if tweet_card_posts:
+        for ti, tp in enumerate(tweet_card_posts):
+            logger.info(f"  SOCIAL ORDER: Card {ti}: @{tp.get('handle', '?')} — \"{tp.get('text', '')[:60]}\"")
+
+    # Also check if script has social_posts ordering to match
+    script_social_posts = script.get("social_posts", [])
+    if script_social_posts and tweet_card_posts:
+        # Reorder tweet_card_posts to match script ordering by handle
+        script_handles = [p.get("handle", "").lower() for p in script_social_posts]
+        if script_handles:
+            reordered = []
+            remaining = list(tweet_card_posts)
+            for sh in script_handles:
+                for tp in remaining:
+                    if tp.get("handle", "").lower() == sh:
+                        reordered.append(tp)
+                        remaining.remove(tp)
+                        break
+            reordered.extend(remaining)
+            if reordered:
+                tweet_card_posts = reordered
+                logger.info(f"  SOCIAL ORDER: Reordered cards to match script narration order")
 
     # --- 1. INTRO: COLD OPEN TTS + JINGLE (no tag video) ---
     audio_lines = audio_data.get("lines", [])
@@ -1578,6 +1659,8 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
     # If we consumed the cold_open, skip the first host audio line
     audio_idx = 1 if cold_open_consumed else 0
 
+    prev_segment_type = "intro"  # Track previous segment type for transition logic
+
     for i, entry in enumerate(dialogue):
         entry_type = entry.get("type", "")
         host_field = entry.get("host", "")
@@ -1594,7 +1677,7 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
             clip_path = clip_info.get("path", "")
 
             if clip_path and os.path.exists(clip_path):
-                # Glitch transition BEFORE clip
+                # Glitch transition BEFORE clip (always)
                 trans_out = os.path.join(work_dir, f"part_{part_idx:03d}_glitch.mp4")
                 trans = make_transition_visual(trans_out)
                 if trans:
@@ -1627,7 +1710,18 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
                     logger.warning(f"[---] Clip #{rank}: visual failed, skipping")
             else:
                 logger.warning(f"[---] Clip #{rank}: file not found ({clip_path}), skipping")
+            prev_segment_type = "clip"
             continue
+
+        # Glitch transition between segment type changes (clip→host, social→setup, etc.)
+        if prev_segment_type in ("clip",) and entry_type in ("react", "setup", "social_segment", "wrap"):
+            trans_out = os.path.join(work_dir, f"part_{part_idx:03d}_glitch.mp4")
+            trans = make_transition_visual(trans_out)
+            if trans:
+                parts.append(trans)
+                dur = ffprobe_duration(trans)
+                logger.info(f"[{part_idx:03d}] GLITCH TRANSITION ({prev_segment_type}→{entry_type}): {dur:.2f}s")
+                part_idx += 1
 
         # Host dialogue line — find matching audio
         # Match by audio_idx (skip CLIP entries in audio_lines)
@@ -1663,6 +1757,8 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
         if entry_type == "social_segment" and tweet_card_posts and social_card_idx < len(tweet_card_posts):
             # Show 2 posts per card visual (or remaining)
             card_posts = tweet_card_posts[social_card_idx:social_card_idx + 2]
+            for ci, cp in enumerate(card_posts):
+                logger.info(f"  SOCIAL MATCH: segment {i} card {ci}: @{cp.get('handle', '?')} — narration: {text[:50]}")
             social_card_idx += 2
             # Try Remotion SocialCard first
             result = ""
@@ -1676,6 +1772,8 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
                 result = make_social_card_visual(
                     audio_path, card_posts, line_out, btc_price=btc_price,
                 )
+                if result:
+                    result = _mix_swoosh_into_segment(result)
             if not result:
                 # Fall back to standard host visual
                 result = make_host_visual(
@@ -1708,6 +1806,7 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
             speaker = "JESSICA" if host_num == 1 else "CHRIS"
             logger.info(f"[{part_idx:03d}] {entry_type.upper()} [{speaker}]: {dur:.1f}s")
             part_idx += 1
+            prev_segment_type = entry_type
         else:
             logger.warning(f"[---] Host visual failed for {entry_type}")
 

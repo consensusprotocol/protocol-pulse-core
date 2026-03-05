@@ -9,7 +9,7 @@ import {
 import { BRAND } from '../brand';
 
 /**
- * Alpha-channel glitch transition (21 frames / 0.7s at 30fps).
+ * Alpha-channel glitch transition (30 frames / 1.0s at 30fps).
  *
  * Renders on a TRANSPARENT background. Red scan lines sweep left-to-right,
  * revealing transparency behind them. Glitch artifacts (red pixel blocks,
@@ -23,14 +23,14 @@ export const GlitchTransition: React.FC = () => {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
 
-  // Sweep progress: 0→1 over first 15 frames (0.5s), then hold
-  const sweepProgress = interpolate(frame, [0, 15], [0, 1], {
+  // Sweep progress: 0→1 over first 20 frames (0.67s), then hold
+  const sweepProgress = interpolate(frame, [0, 20], [0, 1], {
     extrapolateRight: 'clamp',
     easing: Easing.inOut(Easing.cubic),
   });
 
-  // Fade-out for residual particles (frames 15-21)
-  const residualFade = interpolate(frame, [15, durationInFrames], [1, 0], {
+  // Fade-out for residual particles (frames 20-30)
+  const residualFade = interpolate(frame, [20, durationInFrames], [1, 0], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
@@ -38,7 +38,7 @@ export const GlitchTransition: React.FC = () => {
   // Flash intensity peaks mid-sweep
   const flash = interpolate(
     frame,
-    [0, 5, 10, 15, durationInFrames],
+    [0, 7, 14, 20, durationInFrames],
     [0, 0.8, 1, 0.4, 0],
     { extrapolateRight: 'clamp' }
   );

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """TTS Engine V4 — dual-host dialogue with ElevenLabs.
-Host 1 (Sarah):   EXAVITQu4vr4xnSDxMaL
-Host 2 (Chris):   iP95p4xoKVk53GoZ742B
+Host 1 (Matilda): XrExE9yKIg1WjnnlVkGX
+Host 2 (Adam):    pNInz6obpgDQGcFmaJgB
 Generates per-line audio with 0.3s silence gaps between speakers."""
 import os, sys, json, subprocess, tempfile, time, struct
 from pathlib import Path
@@ -16,30 +16,32 @@ from relay import get_key
 
 VOICES = {
     1: {
-        "voice_id": "EXAVITQu4vr4xnSDxMaL",
-        "name": "Sarah",
+        "voice_id": "XrExE9yKIg1WjnnlVkGX",
+        "name": "Matilda",
         "model_id": "eleven_turbo_v2_5",
+        "speed": 1.12,
         "voice_settings": {
-            "stability": 0.75,
+            "stability": 0.38,
+            "similarity_boost": 0.78,
+            "style": 0.15,
+            "use_speaker_boost": True,
+        },
+    },
+    2: {
+        "voice_id": "pNInz6obpgDQGcFmaJgB",
+        "name": "Adam",
+        "model_id": "eleven_turbo_v2_5",
+        "speed": 1.10,
+        "voice_settings": {
+            "stability": 0.40,
             "similarity_boost": 0.75,
             "style": 0.10,
             "use_speaker_boost": True,
         },
     },
-    2: {
-        "voice_id": "iP95p4xoKVk53GoZ742B",
-        "name": "Chris",
-        "model_id": "eleven_turbo_v2_5",
-        "voice_settings": {
-            "stability": 0.5,
-            "similarity_boost": 0.75,
-            "style": 0.0,
-            "use_speaker_boost": True,
-        },
-    },
 }
 
-# Hybrid voice settings per segment type (overrides for Sarah/Host 1 only)
+# Hybrid voice settings per segment type (overrides for Matilda/Host 1 only)
 # Cold open: whispery dramatic, classified briefing feel
 # Narration (setup/react): clear, confident, authoritative
 # Data callouts (wrap with price): slightly intense
@@ -121,7 +123,7 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
                    segment_type: str = "") -> bool:
     """Generate TTS for a single line using the specified host voice.
 
-    Applies hybrid voice settings based on segment_type for Host 1 (Sarah):
+    Applies hybrid voice settings based on segment_type for Host 1 (Matilda):
     - cold_open: dramatic whisper (stability 0.40, max 2/episode)
     - setup/react: clear, confident (stability 0.75)
     - social_segment/wrap: warm, inviting (stability 0.60)
@@ -153,6 +155,10 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
             "model_id": voice["model_id"],
             "voice_settings": voice_settings,
         }
+        # Add speed parameter if voice config specifies it
+        speed = voice.get("speed", 1.0)
+        if speed != 1.0:
+            body["speed"] = speed
         mp3_tmp = output_path + f".chunk{ci}.mp3"
         success = False
 
