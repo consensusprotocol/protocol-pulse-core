@@ -662,7 +662,12 @@ REMOTION_DIR = os.path.join(os.path.dirname(__file__), "remotion")
 
 
 def _make_remotion_glitch(output_path: str) -> str:
-    """Render GlitchTransition via Remotion. Returns path or '' on failure."""
+    """Render GlitchTransition via Remotion. Returns path or '' on failure.
+
+    Remotion outputs video-only. We mix in the whoosh audio from the branded
+    glitch_transition_waud.mp4 asset for the transition sound effect.
+    Falls back to silent track if branded asset not available.
+    """
     entry = os.path.join(REMOTION_DIR, "src", "index.tsx")
     if not os.path.exists(entry):
         return ""
@@ -673,21 +678,38 @@ def _make_remotion_glitch(output_path: str) -> str:
             cwd=REMOTION_DIR, timeout=60, capture_output=True, text=True,
         )
         if r.returncode == 0 and os.path.exists(output_path):
-            # Remotion output has no audio — add silent track for concat compat
             with_audio = output_path + ".waud.mp4"
             dur = ffprobe_duration(output_path)
-            ok = run_ffmpeg([
-                "-i", output_path,
-                "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
-                "-t", str(dur),
-                "-c:v", "copy", "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-                "-shortest", with_audio,
-            ], "remotion glitch add audio", 30)
+
+            # Try to extract whoosh audio from branded asset
+            if os.path.exists(GLITCH_TRANSITION):
+                ok = run_ffmpeg([
+                    "-i", output_path,
+                    "-i", GLITCH_TRANSITION,
+                    "-map", "0:v:0",
+                    "-map", "1:a:0",
+                    "-c:v", "copy",
+                    "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                    "-af", "volume=3.0,afade=t=in:d=0.05,afade=t=out:st=" + f"{max(0, dur-0.15):.2f}" + ":d=0.15",
+                    "-t", str(dur),
+                    "-shortest",
+                    with_audio,
+                ], "remotion glitch + whoosh audio", 30)
+            else:
+                # Fallback: silent track
+                ok = run_ffmpeg([
+                    "-i", output_path,
+                    "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
+                    "-t", str(dur),
+                    "-c:v", "copy", "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                    "-shortest", with_audio,
+                ], "remotion glitch add silence", 30)
+
             if ok and os.path.exists(with_audio):
                 os.replace(with_audio, output_path)
             elif os.path.exists(with_audio):
                 os.remove(with_audio)
-            logger.info(f"  Remotion glitch transition: {dur:.2f}s")
+            logger.info(f"  Remotion glitch transition: {dur:.2f}s (with whoosh)")
             return output_path
         else:
             logger.warning(f"Remotion glitch render failed: {r.stderr[-300:]}")
