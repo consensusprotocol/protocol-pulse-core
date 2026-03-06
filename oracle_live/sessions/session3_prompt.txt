@@ -1,0 +1,6 @@
+SESSION 3: Interruption hardening + sync quality.
+Read current app.py and OracleStage.jsx and oracle-avatar.js first.
+Fix: (A) per-conversation request lock to prevent simultaneous TTS overlap, (B) interrupt check added between LLM stream chunks not just pre-TTS, (C) try/finally cleanup of ACTIVE_INTERRUPTS on disconnect, (D) audioSource.disconnect() before mode switch, (E) visionActive accent ring cleanup on interrupt, (F) explicit interrupted->idle timeout (220ms).
+Audio sync: (G) set speaking state only after audioCtx.currentTime advances past buffer start, (H) interrupt() must zero viseme blend immediately (no lerp): _currentViseme=0, _nextViseme=0, _blendFactor=0.
+Build: oracle_live/review/stress_test.js — node script firing 3 rapid questions 100ms apart, interrupt at 500ms, logs pass/fail for all 7 GPT stress scenarios.
+GIT: commit with 'SESSION 3' and push.

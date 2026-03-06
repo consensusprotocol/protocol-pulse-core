@@ -1,0 +1,5 @@
+SESSION 4: Proto-P Atlas Production Pipeline.
+Part A: oracle_live/review/ATLAS_WORKFLOW.md — exact Flux.1 production workflow: master portrait settings (guidance 3.5-4.0, steps 28-35, 1024x1024, locked seed, IP-Adapter weight 0.65), mouth-zone inpainting method (mask only Y:68-82% / X:38-62% of face), 18-frame QA checklist per frame (jaw/teeth/lip geometry consistency), blink atlas 3 frames, asset delivery path spec (~/protocol_pulse/static/avatar/visemes/ and blink/).
+Part B: Add to oracle-avatar.js: loadSpriteAtlas({visemePaths, blinkPaths}) method with Promise.all image loading and procedural fallback, renderSpriteMouth() using ctx.globalAlpha blend between frames, renderSpriteEyes() mapping _blinkProgress to b00/b01/b02. useSprites=true routes to sprite renderers, false stays procedural.
+Part C: oracle_live/review/atlas_test.html — drag-drop 18 PNGs, auto-map by v00_ prefix, preview grid, 12fps playback, QA mouth-boundary overlay, export rename tool.
+GIT: commit with 'SESSION 4' and push.

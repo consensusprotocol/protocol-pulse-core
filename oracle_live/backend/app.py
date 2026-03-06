@@ -128,3 +128,22 @@ if __name__ == "__main__":
     import uvicorn
     uvicorn.run("app:app", host=settings.oracle_bind, port=settings.oracle_port,
                 reload=False, log_level=settings.log_level)
+
+# ── Static file serving (added for browser UI) ──────────────────────────────
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os as _os
+
+_FRONTEND_DIR = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "frontend")
+
+@app.get("/")
+async def serve_ui():
+    return FileResponse(_os.path.join(_FRONTEND_DIR, "index.html"))
+
+@app.get("/js/{filename}")
+async def serve_js(filename: str):
+    fp = _os.path.join(_FRONTEND_DIR, filename)
+    if _os.path.exists(fp):
+        return FileResponse(fp, media_type="application/javascript")
+    raise HTTPException(status_code=404, detail="Not found")
+
