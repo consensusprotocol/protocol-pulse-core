@@ -47,6 +47,20 @@ ASSETS = os.path.join(BASE, "assets")
 FONT_BOLD = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 FONT_MONO = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 
+# ── VDS COLOR SYSTEM ──────────────────────────────────────────────────────
+COLOR_BG = "0x06070b"           # deep space black
+COLOR_PANEL = "0x0d1118"        # elevated surface
+COLOR_PANEL2 = "0x121824"       # secondary surface
+COLOR_TEXT = "0xeef2ff"         # primary text (NOT pure white)
+COLOR_MUTED = "0x95a0ba"        # secondary text
+COLOR_RED = "0xff3b5f"          # Protocol Pulse red
+COLOR_GOLD = "0xf8c15c"         # SIGNATURE gold
+COLOR_CYAN = "0x5de4ff"         # data accents
+COLOR_LIME = "0x89ffb8"         # positive metrics
+COLOR_CORAL = "0xff8ba0"        # negative metrics
+COLOR_INFOBAR_BG = "0xf8c15c"   # gold info bar background
+COLOR_INFOBAR_TEXT = "0x1a1f2e"  # dark navy on gold
+
 INTRO_VIDEO = os.path.join(ASSETS, "intro.mp4")
 OUTRO_VIDEO = os.path.join(ASSETS, "outro.mp4")
 GLITCH_TRANSITION = os.path.join(ASSETS, "transitions", "glitch_transition_waud.mp4")
@@ -68,7 +82,15 @@ else:
     GLITCH_WHOOSH = os.path.join(ASSETS, "sfx", "glitch_whoosh.wav")
     logging.getLogger("Assembler").info("CUSTOM WHOOSH NOT FOUND — using generated")
 CARD_SWOOSH = os.path.join(ASSETS, "sfx", "card_swoosh.wav")
-CYBERPUNK_BG_LOOP = os.path.join(ASSETS, "backgrounds", "cyberspace.mp4")
+# VDS-3: Background system — prefer high-quality cyberspace.mp4, fallback chain
+CYBERPUNK_BG_LOOP = None
+for _bg_candidate in ["cyberspace.mp4", "neon_lines.mp4", "cyberpunk_loop.mp4"]:
+    _candidate_path = os.path.join(ASSETS, "backgrounds", _bg_candidate)
+    if os.path.exists(_candidate_path) and os.path.getsize(_candidate_path) > 1_000_000:
+        CYBERPUNK_BG_LOOP = _candidate_path
+        break
+if CYBERPUNK_BG_LOOP is None:
+    CYBERPUNK_BG_LOOP = os.path.join(ASSETS, "backgrounds", "cyberspace.mp4")
 DATA_BLIP = os.path.join(ASSETS, "sfx", "data_blip.wav")
 LOWER_SLIDE = os.path.join(ASSETS, "sfx", "lower_slide.wav")
 
@@ -372,30 +394,31 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A")
         inp_args.append(["-stream_loop", "-1", "-i", CYBERPUNK_BG_LOOP])
         bg_idx = idx
         idx += 1
-        # Use cyberpunk background with glow enhancement
+        # VDS-3: Cyberspace bg with scanlines + vignette
         fg = (f"[{bg_idx}:v]scale=1920:1080,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS,"
               f"split[main][glow];\n"
               f"[glow]boxblur=10:5,curves=all='0/0 0.5/0.2 1/1'[g];\n"
-              f"[main][g]blend=all_mode='screen'[bgvig];\n")
+              f"[main][g]blend=all_mode='screen'[bgraw];\n"
+              f"[bgraw]geq=lum='if(eq(mod(Y\\,4)\\,0)\\,lum(X\\,Y)*0.94\\,lum(X\\,Y))':cr='cr(X\\,Y)':cb='cb(X\\,Y)'[bgscan];\n"
+              f"[bgscan]vignette=PI/4[bgvig];\n")
     else:
-        fg = f"color=c=0x0A0A0A:s=1920x1080:d={total_dur}:r=30[bgvig];\n"
+        fg = f"color=c={COLOR_BG}:s=1920x1080:d={total_dur}:r=30[bgvig];\n"
 
-    # Waveform — compact, left side
+    # VDS waveform — red/gold gradient
     fg += (f"[0:a]showwaves=s=600x80:mode=cline:"
-           f"colors=0xCC0000|0xFF4444:scale=sqrt:draw=full:rate=30[wave_raw];\n")
+           f"colors={COLOR_RED}|{COLOR_GOLD}:scale=sqrt:draw=full:rate=30[wave_raw];\n")
     fg += f"[wave_raw]split[wA][wB];\n"
     fg += f"[wB]vflip,colorchannelmixer=aa=0.35[wflip];\n"
     fg += f"[wA][wflip]vstack[wavepair];\n"
     fg += f"[bgvig][wavepair]overlay=228:440[withwave];\n"
 
-    # NO logo — per Sprint 1.6 + PRODUCTION_DESIGN_LAWS
-    # Just ticker bar at bottom
+    # VDS-2: GOLD INFO BAR for cold open
     safe_btc = btc_price.replace("'", "").replace('"', "")
-    ticker_text = f"  PROTOCOL PULSE  |  PULSE CHECK  |  BTC {safe_btc}  |  PROTOCOLPULSE.IO  "
-    ticker_text = ticker_text.replace("'", "").replace('"', "")
-    fg += f"color=c=0x0A0000@0.92:s=1920x44:d={total_dur}:r=30[tickbg];\n"
-    fg += (f"[tickbg]drawtext=fontfile={FONT_MONO}:text='{ticker_text}':"
-           f"fontcolor=0xFFD700:fontsize=18:x=w-mod(t*80\\,w+tw):y=12[ticker];\n")
+    fg += f"color=c={COLOR_INFOBAR_BG}@0.92:s=1920x44:d={total_dur}:r=30[tickbg];\n"
+    fg += (f"[tickbg]drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
+           f"fontcolor={COLOR_INFOBAR_TEXT}:fontsize=14:x=24:y=15[ib1];\n")
+    fg += (f"[ib1]drawtext=fontfile={FONT_MONO}:text='BTC {safe_btc}  |  PROTOCOLPULSE.IO':"
+           f"fontcolor={COLOR_INFOBAR_TEXT}:fontsize=14:x=(w-text_w)/2:y=15[ticker];\n")
     fg += f"[withwave][ticker]overlay=0:H-44[v_final];\n"
     fg += f"[v_final]format=yuv420p[outv];\n"
 
@@ -523,9 +546,9 @@ def overlay_pip_on_narration(narration_path: str, pip_path: str,
         "-i", pip_path,
         "-filter_complex",
         # Drop shadow: dark box at +4px offset behind PiP
-        f"[0:v]drawbox=x=1060:y=204:w=824:h=466:color=0x000000@0.3:t=fill:enable='lte(t,{pip_dur})'[bg_shadow];"
-        f"[1:v]drawtext=fontfile={FONT_BOLD}:text='COMING UP...':fontcolor=white:fontsize=28:"
-        f"x=12:y=h-38:box=1:boxcolor=black@0.5:boxborderw=6,format=yuva420p[pip];"
+        f"[0:v]drawbox=x=1060:y=204:w=824:h=466:color={COLOR_BG}@0.3:t=fill:enable='lte(t,{pip_dur})'[bg_shadow];"
+        f"[1:v]drawtext=fontfile={FONT_BOLD}:text='COMING UP...':fontcolor={COLOR_TEXT}:fontsize=28:"
+        f"x=12:y=h-38:box=1:boxcolor={COLOR_BG}@0.5:boxborderw=6,format=yuva420p[pip];"
         f"[bg_shadow][pip]overlay=1056:200:enable='lte(t,{pip_dur})',format=yuv420p[outv]",
         "-map", "[outv]", "-map", "0:a",
         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
@@ -576,13 +599,11 @@ def make_host_visual(audio_path: str, host: int, text: str,
     total_dur = audio_dur + 0.3
 
     host_names = {1: "ERYN", 2: "MARK"}
-    host_colors = {1: "0xCC0000@0.95", 2: "0x880000@0.95"}
+    host_colors = {1: f"{COLOR_RED}@0.95", 2: f"{COLOR_RED}@0.80"}
     speaker = host_names.get(host, "HOST")
-    color = host_colors.get(host, "0xFF3333@0.95")
+    color = host_colors.get(host, f"{COLOR_RED}@0.95")
 
     safe_btc = btc_price.replace("'", "").replace('"', "")
-    ticker_text = f"  PROTOCOL PULSE  |  PULSE CHECK  |  BTC {safe_btc}  |  PROTOCOLPULSE.IO  "
-    ticker_text = ticker_text.replace("'", "").replace('"', "")
 
     has_wm = os.path.exists(WATERMARK)
     has_bgm = os.path.exists(BG_MUSIC)
@@ -625,48 +646,43 @@ def make_host_visual(audio_path: str, host: int, text: str,
     else:
         thumb_idx = -1
 
-    # Filter graph — animated background + audio waveform
+    # VDS Filter graph — animated background + audio waveform
     if has_cyberpunk_bg:
-        # Sprint 1.7: Cyberpunk bg with glow enhancement
+        # VDS-3: Cyberspace bg with scanlines + vignette enhancement
         fg = (f"[{cyberpunk_idx}:v]scale=1920:1080,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS,"
               f"split[main][glow];\n"
               f"[glow]boxblur=10:5,curves=all='0/0 0.5/0.2 1/1'[g];\n"
-              f"[main][g]blend=all_mode='screen'[bgvig];\n")
+              f"[main][g]blend=all_mode='screen'[bgraw];\n"
+              # VDS-3: Scanlines (every 4px, 6% opacity darkening)
+              f"[bgraw]geq=lum='if(eq(mod(Y\\,4)\\,0)\\,lum(X\\,Y)*0.94\\,lum(X\\,Y))':cr='cr(X\\,Y)':cb='cb(X\\,Y)'[bgscan];\n"
+              # VDS-3: Vignette (dark corners)
+              f"[bgscan]vignette=PI/4[bgvig];\n")
     else:
-        # 1. Dark base (#0A0A0A) with subtle vignette
-        fg = f"color=c=0x0A0A0A:s=1920x1080:d={total_dur}:r=30[base];\n"
-
-        # 2. Subtle gradient overlay — slightly lighter top half for depth
-        fg += f"color=c=0x0F0000:s=1920x540:d={total_dur}:r=30[tophalf];\n"
+        # VDS-1: Deep space black base with VDS colors
+        fg = f"color=c={COLOR_BG}:s=1920x1080:d={total_dur}:r=30[base];\n"
+        fg += f"color=c={COLOR_PANEL}:s=1920x540:d={total_dur}:r=30[tophalf];\n"
         fg += f"[base][tophalf]overlay=0:0[bgbase];\n"
+        fg += f"[bgbase]vignette=PI/4[bgvig];\n"
 
-        # 3. Vignette — darker corners for cinematic feel
-        fg += (f"[bgbase]drawbox=x=0:y=0:w=250:h=1080:color=0x000000@0.12:t=fill"
-               f",drawbox=x=1670:y=0:w=250:h=1080:color=0x000000@0.12:t=fill"
-               f",drawbox=x=0:y=0:w=1920:h=120:color=0x000000@0.08:t=fill"
-               f",drawbox=x=0:y=960:w=1920:h=120:color=0x000000@0.08:t=fill[bgvig];\n")
+    # VDS-1: Thin horizontal accent lines — VDS red
+    fg += (f"[bgvig]drawbox=x=0:y=538:w=1920:h=2:color={COLOR_RED}@0.35:t=fill"
+           f",drawbox=x=0:y=542:w=1920:h=1:color={COLOR_RED}@0.15:t=fill[bglines];\n")
 
-    # 4. Thin horizontal accent lines — red palette
-    fg += (f"[bgvig]drawbox=x=0:y=538:w=1920:h=2:color=0xCC0000@0.35:t=fill"
-           f",drawbox=x=0:y=542:w=1920:h=1:color=0x880000@0.2:t=fill[bglines];\n")
-
-    # 5. LEFT SIDE vertical accent bar — red
-    fg += f"color=c=0xCC0000@0.8:s=4x1080:d={total_dur}:r=30[leftbar];\n"
+    # VDS-1: LEFT SIDE vertical accent bar — VDS red
+    fg += f"color=c={COLOR_RED}@0.8:s=4x1080:d={total_dur}:r=30[leftbar];\n"
     fg += f"[bglines][leftbar]overlay=0:0[bgv0];\n"
 
-    # Sprint 1.9: NO logo on narration segments (Logo Restraint Addendum).
-    # Logo only appears in: title card, clip watermark, outro.
     last_bg = "bgv0"
 
-    # Corner elements — date top-left, small text top-right (no logo image)
+    # VDS-5: Eyebrow kicker — gold, monospace, uppercase
     fg += (f"[{last_bg}]drawtext=fontfile={FONT_MONO}:"
-           f"text='PROTOCOL PULSE':fontcolor=0x444444:fontsize=16:"
-           f"x=W-200:y=16[bgcorner];\n")
+           f"text='{speaker} - PROTOCOL PULSE':fontcolor={COLOR_GOLD}:fontsize=14:"
+           f"x=40:y=16[bgcorner];\n")
     last_bg = "bgcorner"
 
-    # 9. Audio waveform — Issue 2: left 55% of frame (0-1056px), 600px wide, centered
+    # VDS: Audio waveform — red/gold gradient
     fg += (f"[0:a]showwaves=s=600x80:mode=cline:"
-           f"colors=0xCC0000|0xFF4444:scale=sqrt:draw=full:rate=30[wave_raw];\n")
+           f"colors={COLOR_RED}|{COLOR_GOLD}:scale=sqrt:draw=full:rate=30[wave_raw];\n")
 
     # 10. Mirror reflection (vflip + 35% opacity fade)
     fg += f"[wave_raw]split[wA][wB];\n"
@@ -677,15 +693,17 @@ def make_host_visual(audio_path: str, host: int, text: str,
     # Left zone is 0-1056px, center of 600px waveform = (1056-600)/2 = 228
     fg += f"[{last_bg}][wavepair]overlay=228:340[withwave];\n"
 
-    # 12. Speaker label bar (bottom left)
-    fg += f"color=c={color}:s=280x52:d={total_dur}:r=30[spkbg];\n"
-    fg += (f"[spkbg]drawtext=fontfile={FONT_BOLD}:text='{speaker}':"
-           f"fontcolor=white:fontsize=26:x=16:y=12[spklabel];\n")
+    # VDS-5: Speaker label — eyebrow kicker style (gold text, no colored bg box)
+    fg += f"color=c={COLOR_BG}@0.6:s=320x36:d={total_dur}:r=30[spkbg];\n"
+    fg += (f"[spkbg]drawtext=fontfile={FONT_MONO}:text='{speaker} - PROTOCOL PULSE':"
+           f"fontcolor={COLOR_GOLD}:fontsize=13:x=12:y=10[spklabel];\n")
 
-    # 13. Ticker bar (bottom) — gold text on near-black
-    fg += f"color=c=0x0A0000@0.92:s=1920x44:d={total_dur}:r=30[tickbg];\n"
-    fg += (f"[tickbg]drawtext=fontfile={FONT_MONO}:text='{ticker_text}':"
-           f"fontcolor=0xFFD700:fontsize=18:x=w-mod(t*80\\,w+tw):y=12[ticker];\n")
+    # VDS-2: GOLD INFO BAR — solid gold bg, dark navy text, 3-column, NO scrolling
+    fg += f"color=c={COLOR_INFOBAR_BG}@0.92:s=1920x44:d={total_dur}:r=30[tickbg];\n"
+    fg += (f"[tickbg]drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
+           f"fontcolor={COLOR_INFOBAR_TEXT}:fontsize=14:x=24:y=15[ib1];\n")
+    fg += (f"[ib1]drawtext=fontfile={FONT_MONO}:text='BTC {safe_btc}  |  PROTOCOLPULSE.IO':"
+           f"fontcolor={COLOR_INFOBAR_TEXT}:fontsize=14:x=(w-text_w)/2:y=15[ticker];\n")
 
     # Sprint 3.5: Subtitle text overlay (white, bottom-center, above ticker)
     safe_sub = _sanitize_text(text) if text else ""
@@ -693,9 +711,9 @@ def make_host_visual(audio_path: str, host: int, text: str,
         wrapped_sub = _word_wrap(safe_sub, max_width=50, max_lines=2)
         fg += (f"[withwave]drawtext=fontfile={FONT_BOLD}:"
                f"text='{wrapped_sub}':"
-               f"fontcolor=0xFFFFFF:fontsize=30:x=(w-text_w)/2:y=H-160:"
+               f"fontcolor={COLOR_TEXT}:fontsize=30:x=(w-text_w)/2:y=H-160:"
                f"line_spacing=8:"
-               f"box=1:boxcolor=0x000000@0.5:boxborderw=8[withsub];\n")
+               f"box=1:boxcolor={COLOR_BG}@0.5:boxborderw=8[withsub];\n")
         fg += f"[withsub][spklabel]overlay=40:H-90[v1];\n"
     else:
         fg += f"[withwave][spklabel]overlay=40:H-90[v1];\n"
@@ -711,9 +729,9 @@ def make_host_visual(audio_path: str, host: int, text: str,
         last_v = "v3"
 
     # 12. Thumbnail PIP — right 40% panel (x=1056 to x=1920)
-    # Issue 2: 820x462 at x=1056, y=200 with thin 2px white border at 30% opacity
+    # Issue 2: 820x462 at x=1056, y=200 with thin 2px border at 30% opacity
     if has_thumb:
-        fg += f"[{thumb_idx}:v]scale=820:462,pad=824:466:2:2:color=white@0.3[thumb];\n"
+        fg += f"[{thumb_idx}:v]scale=820:462,pad=824:466:2:2:color={COLOR_TEXT}@0.3[thumb];\n"
         fg += f"[{last_v}][thumb]overlay=1056:200[vthumb];\n"
         last_v = "vthumb"
 
@@ -747,38 +765,38 @@ def make_host_visual(audio_path: str, host: int, text: str,
                f"cr='cr(X,Y)':cb='cb(X,Y)'[vscan];\n")
 
         # Red accent bar top (thicker for cyberpunk)
-        fg += f"[vscan]drawbox=x=0:y=0:w=1920:h=6:color=0xCC0000:t=fill[vsoc_bar];\n"
-        # Section header — cyberpunk style
-        fg += (f"[vsoc_bar]drawtext=fontfile={FONT_BOLD}:"
+        fg += f"[vscan]drawbox=x=0:y=0:w=1920:h=6:color={COLOR_RED}:t=fill[vsoc_bar];\n"
+        # Section header — gold eyebrow kicker style
+        fg += (f"[vsoc_bar]drawtext=fontfile={FONT_MONO}:"
                f"text='WHAT THE BITCOIN INTERNET IS SAYING':"
-               f"fontcolor=0xCC0000:fontsize=28:x=(w-text_w)/2:y=24[vsoc_title];\n")
+               f"fontcolor={COLOR_GOLD}:fontsize=28:x=(w-text_w)/2:y=24[vsoc_title];\n")
 
         # Card glow background (slightly larger, transparent red)
-        fg += f"color=c=0xCC0000@0.08:s=1420x320:d={total_dur}:r=30[cardglow];\n"
+        fg += f"color=c={COLOR_RED}@0.08:s=1420x320:d={total_dur}:r=30[cardglow];\n"
         fg += f"[vsoc_title][cardglow]overlay=250:168[vglow];\n"
 
         # Card body (dark surface with sharp red border)
-        fg += f"color=c=0x141414@0.95:s=1400x300:d={total_dur}:r=30[tcard];\n"
-        fg += f"[tcard]drawbox=x=0:y=0:w=1400:h=300:color=0xCC0000@0.6:t=2[tcardborder];\n"
+        fg += f"color=c={COLOR_PANEL}@0.92:s=1400x300:d={total_dur}:r=30[tcard];\n"
+        fg += f"[tcard]drawbox=x=0:y=0:w=1400:h=300:color={COLOR_RED}@0.4:t=2[tcardborder];\n"
         # Top edge accent line on card
-        fg += f"[tcardborder]drawbox=x=0:y=0:w=1400:h=2:color=0xCC0000:t=fill[tcardtop];\n"
+        fg += f"[tcardborder]drawbox=x=0:y=0:w=1400:h=2:color={COLOR_RED}:t=fill[tcardtop];\n"
 
         # Pulse dot (animated blink via alpha modulation)
-        fg += (f"[tcardtop]drawbox=x=20:y=20:w=8:h=8:color=0xCC0000:t=fill[tdot];\n")
-        # Handle text
-        fg += (f"[tdot]drawtext=fontfile={FONT_BOLD}:"
+        fg += (f"[tcardtop]drawbox=x=20:y=20:w=8:h=8:color={COLOR_RED}:t=fill[tdot];\n")
+        # Handle text — gold
+        fg += (f"[tdot]drawtext=fontfile={FONT_MONO}:"
                f"text='@ProtocolPulse':"
-               f"fontcolor=0xCC0000:fontsize=20:x=38:y=16[thandle];\n")
+               f"fontcolor={COLOR_GOLD}:fontsize=20:x=38:y=16[thandle];\n")
 
-        # Tweet text (larger, better spacing, #EDEDED color)
+        # Tweet text
         fg += (f"[thandle]drawtext=fontfile={FONT_MONO}:"
                f"text='{wrapped_text}':"
-               f"fontcolor=0xEDEDED:fontsize=26:x=24:y=56:line_spacing=16:"
+               f"fontcolor={COLOR_TEXT}:fontsize=22:x=24:y=56:line_spacing=16:"
                f"box=0[tcardtext];\n")
 
         # Bottom-right engagement indicator
         fg += (f"[tcardtext]drawtext=fontfile={FONT_MONO}:"
-               f"text='PROTOCOL PULSE':fontcolor=0x888888:fontsize=14:"
+               f"text='PROTOCOL PULSE':fontcolor={COLOR_MUTED}:fontsize=12:"
                f"x=w-180:y=h-24[tcardfoot];\n")
 
         # Overlay card centered on base (with fade-in)
@@ -867,8 +885,6 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
     total_dur = audio_dur + 0.3
 
     safe_btc = btc_price.replace("'", "").replace('"', "")
-    ticker_text = f"  PROTOCOL PULSE  |  PULSE CHECK  |  BTC {safe_btc}  |  PROTOCOLPULSE.IO  "
-    ticker_text = ticker_text.replace("'", "").replace('"', "")
     has_wm = os.path.exists(WATERMARK)
     has_bgm = os.path.exists(BG_MUSIC)
 
@@ -888,31 +904,28 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
     else:
         bgm_idx = -1
 
-    # Filtergraph — gradient background (dark to slightly lighter)
-    fg = f"color=c=0x0C0C0C:s=1920x1080:d={total_dur}:r=30[bgdark];\n"
-    fg += f"color=c=0x161616:s=1920x540:d={total_dur}:r=30[bglite];\n"
+    # VDS-1: Deep space black gradient background
+    fg = f"color=c={COLOR_BG}:s=1920x1080:d={total_dur}:r=30[bgdark];\n"
+    fg += f"color=c={COLOR_PANEL}:s=1920x540:d={total_dur}:r=30[bglite];\n"
     fg += f"[bgdark][bglite]overlay=0:0[base];\n"
 
-    # Scanline effect via geq (1px dark line every 4px at ~5% opacity)
-    fg += (f"[base]geq=lum='if(eq(mod(Y,4),0),lum(X,Y)*0.92,lum(X,Y))':"
+    # VDS-3: Scanlines (every 4px, 6% opacity)
+    fg += (f"[base]geq=lum='if(eq(mod(Y,4),0),lum(X,Y)*0.94,lum(X,Y))':"
            f"cr='cr(X,Y)':cb='cb(X,Y)'[bgscan];\n")
 
-    # Vignette corners (darker edges)
-    fg += (f"[bgscan]drawbox=x=0:y=0:w=200:h=1080:color=0x000000@0.15:t=fill"
-           f",drawbox=x=1720:y=0:w=200:h=1080:color=0x000000@0.15:t=fill"
-           f",drawbox=x=0:y=0:w=1920:h=100:color=0x000000@0.10:t=fill"
-           f",drawbox=x=0:y=980:w=1920:h=100:color=0x000000@0.10:t=fill[bgvig];\n")
+    # VDS-3: Vignette
+    fg += f"[bgscan]vignette=PI/4[bgvig];\n"
 
-    # Top red accent bar
-    fg += f"[bgvig]drawbox=x=0:y=0:w=1920:h=4:color=0xCC0000:t=fill[bgbar];\n"
+    # VDS-1: Top red accent bar
+    fg += f"[bgvig]drawbox=x=0:y=0:w=1920:h=4:color={COLOR_RED}:t=fill[bgbar];\n"
 
-    # Pulse dot top-left (static red circle indicator)
-    fg += f"[bgbar]drawbox=x=20:y=16:w=10:h=10:color=0xCC0000:t=fill[bgdot];\n"
+    # VDS: Pulse dot top-left
+    fg += f"[bgbar]drawbox=x=20:y=16:w=10:h=10:color={COLOR_RED}:t=fill[bgdot];\n"
 
-    # Section header — "WHAT THE BITCOIN INTERNET IS SAYING"
-    fg += (f"[bgdot]drawtext=fontfile={FONT_BOLD}:"
-           f"text='WHAT THE BITCOIN INTERNET IS SAYING':"
-           f"fontcolor=0xCC0000:fontsize=28:x=(w-text_w)/2:y=28[bgtitle];\n")
+    # VDS: Section header — gold eyebrow kicker
+    fg += (f"[bgdot]drawtext=fontfile={FONT_MONO}:"
+           f"text='SOCIAL PULSE - WHAT BITCOIN IS SAYING':"
+           f"fontcolor={COLOR_GOLD}:fontsize=14:x=(w-text_w)/2:y=20[bgtitle];\n")
     last_v = "bgtitle"
 
     # Render up to 2 tweet cards — stacked vertically with spacing
@@ -946,19 +959,19 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
         tag = f"c{ci}"
 
         # Card glow (subtle red behind card — outer glow)
-        fg += f"color=c=0xCC0000@0.08:s={card_width + 24}x{card_height + 24}:d={total_dur}:r=30[{tag}glow];\n"
+        fg += f"color=c={COLOR_RED}@0.08:s={card_width + 24}x{card_height + 24}:d={total_dur}:r=30[{tag}glow];\n"
         fg += f"[{last_v}][{tag}glow]overlay={card_x - 12}:{cy - 12}[{tag}g];\n"
 
         # Card body
-        fg += f"color=c=0x141414@0.95:s={card_width}x{card_height}:d={total_dur}:r=30[{tag}body];\n"
+        fg += f"color=c={COLOR_PANEL}@0.92:s={card_width}x{card_height}:d={total_dur}:r=30[{tag}body];\n"
         # Outer red border (2px)
-        fg += f"[{tag}body]drawbox=x=0:y=0:w={card_width}:h={card_height}:color=0xCC0000@0.7:t=2[{tag}brd];\n"
+        fg += f"[{tag}body]drawbox=x=0:y=0:w={card_width}:h={card_height}:color={COLOR_RED}@0.4:t=2[{tag}brd];\n"
         # Inner glow border (dark red, 2px inside the outer border)
-        fg += f"[{tag}brd]drawbox=x=4:y=4:w={card_width - 8}:h={card_height - 8}:color=0x440000@0.5:t=2[{tag}inner];\n"
+        fg += f"[{tag}brd]drawbox=x=4:y=4:w={card_width - 8}:h={card_height - 8}:color={COLOR_PANEL2}@0.3:t=2[{tag}inner];\n"
         # Left accent bar
-        fg += f"[{tag}inner]drawbox=x=0:y=0:w=6:h={card_height}:color=0xCC0000:t=fill[{tag}lbar];\n"
+        fg += f"[{tag}inner]drawbox=x=0:y=0:w=6:h={card_height}:color={COLOR_RED}:t=fill[{tag}lbar];\n"
         # Top edge accent
-        fg += f"[{tag}lbar]drawbox=x=0:y=0:w={card_width}:h=2:color=0xCC0000:t=fill[{tag}top];\n"
+        fg += f"[{tag}lbar]drawbox=x=0:y=0:w={card_width}:h=2:color={COLOR_RED}:t=fill[{tag}top];\n"
 
         # Issue 6: If screenshot available, overlay it inside card; else render text
         if ci in screenshot_indices:
@@ -966,31 +979,31 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
             # Scale screenshot to fit inside card (with padding)
             fg += (f"[{ss_idx}:v]scale={card_width - 16}:{card_height - 16}:"
                    f"force_original_aspect_ratio=decrease,"
-                   f"pad={card_width - 16}:{card_height - 16}:(ow-iw)/2:(oh-ih)/2:0x141414[{tag}ss];\n")
+                   f"pad={card_width - 16}:{card_height - 16}:(ow-iw)/2:(oh-ih)/2:{COLOR_PANEL}[{tag}ss];\n")
             fg += f"[{tag}top][{tag}ss]overlay=8:8[{tag}src];\n"
         else:
             # Pulse dot
-            fg += f"[{tag}top]drawbox=x=20:y=18:w=8:h=8:color=0xCC0000:t=fill[{tag}dot];\n"
+            fg += f"[{tag}top]drawbox=x=20:y=18:w=8:h=8:color={COLOR_RED}:t=fill[{tag}dot];\n"
 
             # Handle — monospace font
             fg += (f"[{tag}dot]drawtext=fontfile={FONT_MONO}:"
                    f"text='{handle}':"
-                   f"fontcolor=0xCC0000:fontsize=22:x=38:y=14[{tag}hdl];\n")
+                   f"fontcolor={COLOR_GOLD}:fontsize=14:x=38:y=16[{tag}hdl];\n")
 
             # Tweet text — bold for readability
             fg += (f"[{tag}hdl]drawtext=fontfile={FONT_BOLD}:"
                    f"text='{tweet_text}':"
-                   f"fontcolor=0xEDEDED:fontsize=24:x=24:y=52:line_spacing=16:"
+                   f"fontcolor={COLOR_TEXT}:fontsize=22:x=24:y=52:line_spacing=16:"
                    f"box=0[{tag}txt];\n")
 
             # Engagement stats bottom
             fg += (f"[{tag}txt]drawtext=fontfile={FONT_MONO}:"
                    f"text='{likes_str} likes  |  {rt_str} RTs':"
-                   f"fontcolor=0xFF4444:fontsize=16:x=24:y=h-32[{tag}stats];\n")
+                   f"fontcolor={COLOR_CORAL}:fontsize=12:x=24:y=h-28[{tag}stats];\n")
 
             # Source label bottom-right
             fg += (f"[{tag}stats]drawtext=fontfile={FONT_MONO}:"
-                   f"text='via X':fontcolor=0x888888:fontsize=14:"
+                   f"text='via X':fontcolor={COLOR_MUTED}:fontsize=12:"
                    f"x=w-80:y=h-30[{tag}src];\n")
 
         # Overlay card on base with fade-in
@@ -998,17 +1011,19 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
         fg += f"[{tag}g][{tag}src]overlay={card_x}:{cy}:format=auto,fade=t=in:st={fade_start}:d=0.3[{tag}out];\n"
         last_v = f"{tag}out"
 
-    # "WHAT THE BITCOIN INTERNET IS SAYING" repeated at bottom of cards area
+    # VDS: Subtle bottom label
     bottom_header_y = card_y_start + len(posts[:2]) * (card_height + card_spacing) + 10
-    fg += (f"[{last_v}]drawtext=fontfile={FONT_BOLD}:"
-           f"text='WHAT THE BITCOIN INTERNET IS SAYING':"
-           f"fontcolor=0xCC0000@0.3:fontsize=18:x=(w-text_w)/2:y={bottom_header_y}[vbhdr];\n")
+    fg += (f"[{last_v}]drawtext=fontfile={FONT_MONO}:"
+           f"text='SOCIAL PULSE - WHAT BITCOIN IS SAYING':"
+           f"fontcolor={COLOR_GOLD}@0.3:fontsize=12:x=(w-text_w)/2:y={bottom_header_y}[vbhdr];\n")
     last_v = "vbhdr"
 
-    # Bottom info bar — gold/amber text
-    fg += f"color=c=0x0A0000@0.92:s=1920x44:d={total_dur}:r=30[tickbg];\n"
-    fg += (f"[tickbg]drawtext=fontfile={FONT_MONO}:text='{ticker_text}':"
-           f"fontcolor=0xFFD700:fontsize=18:x=w-mod(t*80\\,w+tw):y=12[ticker];\n")
+    # VDS-2: GOLD INFO BAR — solid gold bg, dark text, 3-column
+    fg += f"color=c={COLOR_INFOBAR_BG}@0.92:s=1920x44:d={total_dur}:r=30[tickbg];\n"
+    fg += (f"[tickbg]drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
+           f"fontcolor={COLOR_INFOBAR_TEXT}:fontsize=14:x=24:y=15[ib1];\n")
+    fg += (f"[ib1]drawtext=fontfile={FONT_MONO}:text='BTC {safe_btc}  |  PROTOCOLPULSE.IO':"
+           f"fontcolor={COLOR_INFOBAR_TEXT}:fontsize=14:x=(w-text_w)/2:y=15[ticker];\n")
     fg += f"[{last_v}][ticker]overlay=0:H-44[vtick];\n"
     last_v = "vtick"
 
@@ -1459,7 +1474,7 @@ def make_transition_visual(output_path: str, duration: float = 0.5) -> str:
     # Last resort: short dark flash
     logger.warning("All glitch sources failed — using dark flash")
     ok = run_ffmpeg([
-        "-f", "lavfi", "-i", f"color=c=0x0A0A0A:s=1920x1080:d={duration}:r=30",
+        "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30",
         "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
         "-t", str(duration),
         "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
@@ -1513,12 +1528,22 @@ def make_clip_visual(clip_path: str, source: str, output_path: str,
     fade_out_start = max(0, clip_dur - 0.5)
     fg = (
         f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,fps=30,"
-        f"fade=t=in:d=0.3,fade=t=out:st={fade_out_start}:d=0.5[clip];\n"
-        # Source attribution (top-right, semi-transparent)
-        f"color=c=0x0A0A0A@0.75:s=320x36:d={clip_dur}[srcbg];\n"
-        f"[srcbg]drawtext=fontfile={FONT_MONO}:text='Source  {safe_source}':fontcolor=white:fontsize=15:x=10:y=10[srclabel];\n"
-        # Compose — source overlay top-right
-        f"[clip][srclabel]overlay=W-340:18,format=yuv420p[outv];\n"
+        f"fade=t=in:d=0.3,fade=t=out:st={fade_out_start}:d=0.5,"
+        # VDS: Subtle warm color grade for partner clips
+        f"curves=r='0/0 1/1.03':g='0/0 1/1.01':b='0/0 1/0.96'[clip];\n"
+        # VDS-6: Protocol Pulse watermark top-right (35% opacity)
+        f"color=c={COLOR_PANEL}@0.35:s=220x28:d={clip_dur}[srcbg];\n"
+        f"[srcbg]drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':fontcolor={COLOR_TEXT}@0.5:fontsize=12:x=8:y=8[srclabel];\n"
+        # VDS-6: Lower third — glassmorphism bar with red left accent
+        f"color=c={COLOR_PANEL}@0.88:s=1920x87:d={clip_dur}[ltbg];\n"
+        f"[ltbg]drawbox=x=0:y=0:w=3:h=87:color={COLOR_RED}:t=fill[ltbar];\n"
+        f"[ltbar]drawtext=fontfile={FONT_MONO}:text='SOURCE - {safe_source.upper()}':"
+        f"fontcolor={COLOR_GOLD}:fontsize=11:x=20:y=14[ltkick];\n"
+        f"[ltkick]drawtext=fontfile={FONT_BOLD}:text='{safe_source}':"
+        f"fontcolor={COLOR_TEXT}:fontsize=22:x=20:y=38[ltname];\n"
+        # Compose: watermark top-right, lower third slides in at t=0.5 for 6s
+        f"[clip][srclabel]overlay=W-240:16[v1];\n"
+        f"[v1][ltname]overlay=0:H-131:enable='between(t,0.5,6.5)',format=yuv420p[outv];\n"
         # Audio: fade in/out + loudnorm to -14 LUFS
         f"[0:a]asetpts=PTS-STARTPTS,"
         f"highpass=f=50,lowpass=f=15000,loudnorm=I=-14:TP=-1.5:LRA=7,"
