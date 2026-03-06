@@ -6,6 +6,7 @@ Endpoints:
   GET /api/v2/terminal/sentiment  — Overall market sentiment
   GET /api/v2/terminal/breaking   — Breaking news alerts
   GET /api/v2/terminal/network    — Bitcoin network health (nodes, hashrate, halving)
+  GET /api/v2/terminal/live       — Real-time live stream intelligence (Commander+)
   GET /api/v2/terminal/docs       — OpenAPI documentation
 
 Authentication: X-API-Key header required on all data endpoints.
@@ -29,6 +30,7 @@ DATA_DIR = BASE_DIR / "data" / "intelligence"
 ARCHIVE_DIR = BASE_DIR / "data" / "channel_archive"
 USAGE_DIR = BASE_DIR / "data" / "terminal" / "usage"
 NODE_SNAPSHOTS_DIR = BASE_DIR / "data" / "node_snapshots"
+LIVE_SIGNALS_PATH = DATA_DIR / "live_signals.json"
 
 # Tier rate limits (requests per day)
 TIER_LIMITS = {
@@ -430,6 +432,89 @@ def get_network():
             "latest_block_height": latest_height or None,
         },
         "meta": _build_meta(tier, api_key, node_data.get("fetched_at") if node_data else None),
+    }
+
+    return jsonify(result)
+
+
+@terminal_bp.route("/api/v2/terminal/live", methods=["GET"])
+@require_api_key
+def get_live():
+    """Real-time live stream intelligence — active YouTube Live + X Spaces.
+
+    Commander+ tier only. Free/Operator get active stream count only.
+    Per LIVE_INTELLIGENCE_LAWS.md.
+    """
+    tier = getattr(request, "api_tier", "free")
+    api_key = getattr(request, "api_key", "")
+
+    data = _load_json(LIVE_SIGNALS_PATH)
+
+    if data is None:
+        return jsonify({
+            "data": {
+                "live_streams": [],
+                "monitoring": True,
+                "channels_watched": 0,
+                "last_check": None,
+            },
+            "meta": _build_meta(tier, api_key),
+        })
+
+    streams = data.get("live_streams", [])
+
+    # Only return active + recently ended streams
+    active_streams = [s for s in streams if s.get("status") in ("live", "ended")]
+
+    # Free/Operator tier: count only, no stream details
+    if tier in ("free", "operator"):
+        return jsonify({
+            "data": {
+                "active_count": sum(1 for s in active_streams if s.get("status") == "live"),
+                "monitoring": True,
+                "channels_watched": data.get("channels_watched", 0),
+                "last_check": data.get("updated_at"),
+                "upgrade_message": "Upgrade to Commander tier for full live stream intelligence",
+            },
+            "meta": _build_meta(tier, api_key, data.get("updated_at")),
+        })
+
+    # Commander+ tier: full stream data
+    response_streams = []
+    for s in active_streams:
+        started = s.get("started_at", "")
+        duration_minutes = None
+        if started:
+            try:
+                started_dt = datetime.fromisoformat(started.replace("Z", "+00:00"))
+                duration_minutes = round(
+                    (datetime.now(timezone.utc) - started_dt).total_seconds() / 60
+                )
+            except (ValueError, AttributeError):
+                pass
+
+        response_streams.append({
+            "channel": s.get("channel", ""),
+            "title": s.get("title", ""),
+            "source": s.get("source", "youtube_live"),
+            "topics": s.get("topics", []),
+            "current_sentiment": s.get("current_sentiment", 50),
+            "sentiment_history": s.get("sentiment_history", [])[-10:],
+            "duration_minutes": duration_minutes,
+            "url": s.get("url", ""),
+            "status": s.get("status", "live"),
+            "started_at": started,
+            "last_updated": s.get("last_updated", ""),
+        })
+
+    result = {
+        "data": {
+            "live_streams": response_streams,
+            "monitoring": True,
+            "channels_watched": data.get("channels_watched", 0),
+            "last_check": data.get("updated_at"),
+        },
+        "meta": _build_meta(tier, api_key, data.get("updated_at")),
     }
 
     return jsonify(result)
