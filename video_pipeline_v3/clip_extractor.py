@@ -295,8 +295,8 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
     return False
 
 
-def _check_clip_quality(clip_path: str, channel: str) -> None:
-    """Issue 15: Quality check after download — warn if bitrate < 2Mbps."""
+def _get_bitrate(clip_path: str) -> int:
+    """Get video bitrate in bps via ffprobe. Returns 0 on failure."""
     import json as _json
     try:
         r = subprocess.run(
@@ -304,14 +304,75 @@ def _check_clip_quality(clip_path: str, channel: str) -> None:
             capture_output=True, text=True, timeout=10,
         )
         info = _json.loads(r.stdout)
-        bitrate = int(info.get("format", {}).get("bit_rate", 0))
-        mbps = bitrate / 1_000_000
-        if mbps < 2.0:
-            logger.warning(f"LOW QUALITY SOURCE: {channel} clip at {mbps:.1f}Mbps — below 2Mbps threshold")
-        else:
-            logger.info(f"  Quality OK: {channel} at {mbps:.1f}Mbps")
+        return int(info.get("format", {}).get("bit_rate", 0))
     except Exception as e:
-        logger.warning(f"  Quality check failed: {e}")
+        logger.warning(f"  Bitrate check failed: {e}")
+        return 0
+
+
+def _redownload_high_quality(video_id: str, start_sec: int, end_sec: int, output_path: str) -> bool:
+    """Re-download clip with explicit high-quality format selector."""
+    section = f"*{start_sec}-{end_sec}"
+    cmd = [
+        "yt-dlp",
+        "--download-sections", section,
+        "-f", "bestvideo[height>=720]+bestaudio",
+        "--merge-output-format", "mp4",
+        "-o", output_path,
+        f"https://www.youtube.com/watch?v={video_id}",
+        "--force-overwrites",
+        "--no-warnings", "--quiet",
+    ]
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        return result.returncode == 0 and os.path.exists(output_path)
+    except Exception as e:
+        logger.warning(f"  High-quality re-download failed: {e}")
+        return False
+
+
+def _check_clip_quality(clip_path: str, channel: str, video_id: str = "",
+                        start_sec: int = 0, end_sec: int = 0) -> str:
+    """Issue 10: Quality enforcement — warn at 3Mbps, reject at 1.5Mbps, retry on low.
+
+    Returns: 'ok', 'redownloaded', or 'rejected'.
+    """
+    bitrate = _get_bitrate(clip_path)
+    if bitrate == 0:
+        logger.warning(f"  Quality check: could not determine bitrate for {channel}")
+        return "ok"  # can't check, allow it
+
+    mbps = bitrate / 1_000_000
+
+    if mbps >= 3.0:
+        logger.info(f"  Quality OK: {channel} at {mbps:.1f}Mbps")
+        return "ok"
+
+    if mbps < 1.5:
+        logger.error(f"REJECTED: {channel} clip at {mbps:.1f}Mbps — below 1.5Mbps floor")
+        # Try re-download before giving up
+        if video_id and _redownload_high_quality(video_id, start_sec, end_sec, clip_path):
+            new_bitrate = _get_bitrate(clip_path)
+            new_mbps = new_bitrate / 1_000_000
+            if new_mbps >= 1.5:
+                logger.info(f"  Re-download succeeded: {channel} now at {new_mbps:.1f}Mbps")
+                return "redownloaded"
+            else:
+                logger.error(f"  Re-download still low: {channel} at {new_mbps:.1f}Mbps — REJECTED")
+                os.remove(clip_path)
+                return "rejected"
+        os.remove(clip_path)
+        return "rejected"
+
+    # Between 1.5 and 3.0 Mbps — warn and try re-download
+    logger.warning(f"LOW QUALITY: {channel} clip at {mbps:.1f}Mbps — below 3Mbps threshold")
+    if video_id and _redownload_high_quality(video_id, start_sec, end_sec, clip_path):
+        new_bitrate = _get_bitrate(clip_path)
+        new_mbps = new_bitrate / 1_000_000
+        if new_mbps > mbps:
+            logger.info(f"  Re-download improved: {channel} {mbps:.1f} -> {new_mbps:.1f}Mbps")
+            return "redownloaded"
+    return "ok"  # allow clips between 1.5-3Mbps even if re-download didn't help
 
 
 def _second_pass_ad_read(clip_path: str, channel: str, rank: int) -> bool:
@@ -351,20 +412,29 @@ def extract_all(selections: dict, output_dir: str) -> dict:
         end = clip["end_seconds"]
         channel = clip.get("channel", "unknown").replace(" ", "_")
 
-        # Issue 4: Scan backward to find sentence boundary before start
-        # If timestamped_text is available, find nearest sentence start
+        # Issue 3/4: Find sentence boundaries for clean clip start AND end
         timestamped_text = clip.get("timestamped_text", "")
         if timestamped_text:
-            adjusted_start = _find_sentence_start(timestamped_text, start)
-            if adjusted_start < start:
-                logger.info(f"  Issue 4: Adjusted clip #{rank} start {start}s → {adjusted_start}s (sentence boundary)")
+            # Backward search for clean clip START
+            adjusted_start = find_sentence_boundary(timestamped_text, start, direction='backward', max_search_seconds=5)
+            if adjusted_start != start:
+                logger.info(f"  Sentence boundary: clip #{rank} start {start}s -> {adjusted_start}s")
                 start = adjusted_start
+            # Forward search for clean clip END
+            adjusted_end = find_sentence_boundary(timestamped_text, end, direction='forward', max_search_seconds=5)
+            if adjusted_end != end:
+                logger.info(f"  Sentence boundary: clip #{rank} end {end}s -> {adjusted_end}s")
+                end = adjusted_end
 
         output_path = os.path.join(output_dir, f"clip_{rank}_{channel}_{video_id}.mp4")
 
         if extract_clip(video_id, start, end, output_path):
-            # Issue 15: Quality check after download
-            _check_clip_quality(output_path, clip.get("channel", channel))
+            # Issue 10: Quality enforcement — reject below 1.5Mbps, retry below 3Mbps
+            quality = _check_clip_quality(output_path, clip.get("channel", channel),
+                                          video_id=video_id, start_sec=start, end_sec=end)
+            if quality == "rejected":
+                logger.warning(f"  Skipping clip #{rank}: quality below 1.5Mbps floor")
+                continue
 
             # Smart trim: find natural pause within the 10s end-pad window
             clip_dur = ffprobe_duration(output_path)
@@ -404,48 +474,89 @@ def extract_all(selections: dict, output_dir: str) -> dict:
     return extracted
 
 
-def _find_sentence_start(timestamped_text: str, target_sec: int) -> int:
-    """Issue 4: Find the nearest sentence boundary BEFORE the target timestamp.
-
-    Scans backward through timestamped transcript to find a period/question mark/
-    exclamation mark followed by a pause, then returns the timestamp of the next
-    sentence start.
-    """
+def _parse_timestamped_text(timestamped_text: str) -> list:
+    """Parse timestamped transcript into list of (seconds, text) tuples."""
     import re
-    # Parse timestamped transcript lines like "[00:01:23] Some text here."
+    # Try [HH:MM:SS] format first
     entries = re.findall(r'\[(\d+):(\d+):(\d+)\]\s*(.*?)(?=\[|\Z)', timestamped_text, re.DOTALL)
-    if not entries:
-        # Try simpler format: [MM:SS] or timestamps in seconds
-        entries_simple = re.findall(r'\[?(\d+):(\d+)\]?\s*(.*?)(?=\[|\Z)', timestamped_text, re.DOTALL)
-        parsed = []
-        for m, s, text in entries_simple:
-            sec = int(m) * 60 + int(s)
-            parsed.append((sec, text.strip()))
-    else:
-        parsed = []
-        for h, m, s, text in entries:
-            sec = int(h) * 3600 + int(m) * 60 + int(s)
-            parsed.append((sec, text.strip()))
+    if entries:
+        return [(int(h) * 3600 + int(m) * 60 + int(s), text.strip())
+                for h, m, s, text in entries]
+    # Try [MM:SS] format
+    entries_simple = re.findall(r'\[?(\d+):(\d+)\]?\s*(.*?)(?=\[|\Z)', timestamped_text, re.DOTALL)
+    if entries_simple:
+        return [(int(m) * 60 + int(s), text.strip())
+                for m, s, text in entries_simple]
+    return []
 
+
+def find_sentence_boundary(timestamped_text: str, target_time: int,
+                           direction: str = 'backward',
+                           max_search_seconds: int = 5) -> int:
+    """Find nearest sentence ending (. ? !) relative to target_time.
+
+    Args:
+        timestamped_text: Timestamped transcript text
+        target_time: Target timestamp in seconds
+        direction: 'backward' for clip start (find sentence start after previous end),
+                   'forward' for clip end (find sentence end after target)
+        max_search_seconds: Maximum seconds to search in either direction
+
+    Returns:
+        Adjusted timestamp in seconds
+    """
+    parsed = _parse_timestamped_text(timestamped_text)
     if not parsed:
-        return target_sec
+        logger.warning(f"WARNING: No sentence boundary found (no parsed entries), using raw timestamp {target_time}")
+        return target_time
 
-    # Find entries before target_sec with sentence endings
-    best_start = target_sec
-    for i, (sec, text) in enumerate(parsed):
-        if sec >= target_sec:
-            break
-        # Check if this text ends with sentence-ending punctuation
-        if text and text[-1] in '.?!':
-            # The next entry's timestamp is the sentence start
-            if i + 1 < len(parsed) and parsed[i + 1][0] <= target_sec:
-                best_start = parsed[i + 1][0]
+    if direction == 'backward':
+        # Find the nearest sentence-ending BEFORE target_time,
+        # then return the timestamp of the NEXT word (sentence start)
+        best_start = target_time
+        for i, (sec, text) in enumerate(parsed):
+            if sec >= target_time:
+                break
+            # Check if text ends with sentence-ending punctuation
+            if text and text.rstrip()[-1:] in '.?!':
+                # Next entry's timestamp = start of next sentence
+                if i + 1 < len(parsed):
+                    candidate = parsed[i + 1][0]
+                    if candidate <= target_time and (target_time - candidate) <= max_search_seconds:
+                        best_start = candidate
 
-    # Don't go back more than 10 seconds
-    if target_sec - best_start > 10:
-        return target_sec
+        if best_start == target_time:
+            logger.info(f"WARNING: No sentence boundary found backward from {target_time}s, using raw timestamp")
+        return best_start
 
-    return best_start
+    elif direction == 'forward':
+        # Find the nearest sentence-ending AFTER target_time,
+        # return the timestamp just after that ending
+        for i, (sec, text) in enumerate(parsed):
+            if sec < target_time:
+                continue
+            if text and text.rstrip()[-1:] in '.?!':
+                # End point: this entry's timestamp + estimated duration for this text
+                # Use next entry's timestamp as the sentence end point
+                if i + 1 < len(parsed):
+                    end_point = parsed[i + 1][0]
+                else:
+                    end_point = sec + 2  # last entry, add 2s buffer
+                if (end_point - target_time) <= max_search_seconds:
+                    return end_point
+                break  # beyond max search window
+
+        logger.info(f"WARNING: No sentence boundary found forward from {target_time}s, using raw timestamp")
+        return target_time
+
+    return target_time
+
+
+def _find_sentence_start(timestamped_text: str, target_sec: int) -> int:
+    """Find the nearest sentence boundary BEFORE the target timestamp.
+    Wrapper around find_sentence_boundary for backward compatibility.
+    """
+    return find_sentence_boundary(timestamped_text, target_sec, direction='backward', max_search_seconds=5)
 
 
 if __name__ == "__main__":
