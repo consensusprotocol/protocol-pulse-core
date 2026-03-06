@@ -201,5 +201,35 @@ split into dedicated modules (V2).
 
 ---
 
+## SECTION 9: LOOP DETECTION
+
+### Purpose:
+Filter out 24/7 ambient streams, price tickers, lofi radio, and other looped
+content that pollutes live intelligence with noise. These streams appear "live"
+but carry zero signal value.
+
+### Scoring System:
+Each stream is evaluated with red flags (discard indicators) and green flags (real content indicators).
+
+**Red Flags (+1 each if true):**
+- Duration > 8 hours (YouTube) or > 6 hours (X Spaces)
+- Title contains loop keywords: "24/7", "live price", "live chart", "radio", "ambient", "lofi", "non-stop", "continuous", "price ticker"
+- Transcript repetition: split into 50-word blocks with 25-word overlap; if unique blocks / total blocks < 50%, it's looped
+- Consecutive live days >= 2 (stream has been "live" for multiple calendar days)
+- Viewer count variance < 5% coefficient of variation across 3+ samples (bot/ambient pattern)
+
+**Green Flags (+1 each if true):**
+- Title contains real content keywords: "discussion", "debate", "interview", "ama", "recap", "reaction", "breaking", "analysis", "panel", "live with"
+- Duration between 30 minutes and 5 hours (typical real stream length)
+
+**Decision:** Discard if `red_flags >= 2 AND green_flags == 0`
+
+### Integration:
+- `utils/live_monitor.py`: `is_looped_stream()` called before adding to live_signals.json (8h threshold)
+- `utils/spaces_monitor.py`: `is_looped_stream()` called before adding to live_signals.json (6h threshold)
+- Discarded streams logged: `[LOOP_DETECT] Discarding: {title}`
+
+---
+
 *This document defines the real-time stream intelligence system.
 Pair with: PIPELINE_LAWS.md, CONTENT_INTELLIGENCE_LAWS.md, PULSE_TERMINAL_LAWS.md*

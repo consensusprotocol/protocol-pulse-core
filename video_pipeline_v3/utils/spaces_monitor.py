@@ -15,6 +15,7 @@ import json
 import logging
 import os
 import re
+import statistics
 import subprocess
 import sys
 import time
@@ -22,6 +23,8 @@ from datetime import datetime, timezone
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, BASE)
+
+from utils.spaces_pulse import process_spaces_chunk
 
 logger = logging.getLogger("SpacesMonitor")
 if not logger.handlers:
@@ -53,6 +56,66 @@ MONITORED_HANDLES = [
     "matt_odell",      # Matt Odell (alt)
     "simaborelle",     # Sim (Simply Bitcoin)
 ]
+
+# ──────────────────────────────────────────────────────────────
+# Loop Detection — filter out looped/ambient Spaces
+# ──────────────────────────────────────────────────────────────
+
+LOOP_KEYWORDS = ['24/7', 'live price', 'live chart', 'radio', 'ambient',
+                 'lofi', 'non-stop', 'continuous', 'price ticker']
+REAL_STREAM_KEYWORDS = ['discussion', 'debate', 'interview', 'ama', 'recap',
+                        'reaction', 'breaking', 'analysis', 'panel', 'live with']
+
+
+def is_looped_stream(stream_info: dict) -> bool:
+    """Detect looped/ambient Spaces that should be discarded.
+
+    Same logic as live_monitor.py but with 6h (21600s) duration threshold
+    since Spaces are typically shorter than YouTube streams.
+    """
+    red_flags = 0
+    green_flags = 0
+    title_lower = stream_info.get('title', '').lower()
+
+    # Red: duration > 6 hours (Spaces threshold)
+    if stream_info.get('duration_seconds', 0) > 21600:
+        red_flags += 1
+
+    # Red: loop-type keywords in title
+    if any(kw in title_lower for kw in LOOP_KEYWORDS):
+        red_flags += 1
+
+    # Red: transcript repetition check
+    words = stream_info.get('transcript_sample', '').lower().split()
+    if len(words) > 100:
+        blocks = [' '.join(words[i:i+50]) for i in range(0, len(words)-50, 25)]
+        unique = len(set(blocks))
+        if blocks and unique / len(blocks) < 0.5:
+            red_flags += 1
+
+    # Red: consecutive live days >= 2
+    if stream_info.get('consecutive_live_days', 0) >= 2:
+        red_flags += 1
+
+    # Red: very low viewer count variance
+    samples = stream_info.get('viewer_count_samples', [])
+    if len(samples) >= 3 and statistics.mean(samples) > 0:
+        if (statistics.stdev(samples) / statistics.mean(samples)) < 0.05:
+            red_flags += 1
+
+    # Green: real discussion keywords in title
+    if any(kw in title_lower for kw in REAL_STREAM_KEYWORDS):
+        green_flags += 1
+
+    # Green: reasonable duration (30 min to 5 hours)
+    if 1800 <= stream_info.get('duration_seconds', 0) <= 18000:
+        green_flags += 1
+
+    is_loop = (red_flags >= 2) and (green_flags == 0)
+    if is_loop:
+        logging.warning(f"[LOOP_DETECT] Discarding Space: {stream_info.get('title')}")
+    return is_loop
+
 
 # Reuse topic/sentiment classification from live_monitor
 TOPIC_KEYWORDS = {
@@ -339,10 +402,21 @@ def run_daemon():
         logger.info("No active X Spaces detected")
     else:
         for space in spaces:
+            # Loop detection — skip 24/7 ambient/looped Spaces
+            if is_looped_stream(space):
+                continue
             logger.info(f"SPACE: {space['channel']} -- {space['title']}")
             # Classify title as initial signal
             topics, sentiment = classify_text(space["title"])
             update_live_signals(space, topics, sentiment, f"X Space detected: {space['title']}")
+            # Process chunk for impact scoring + quote tweet drafting
+            process_spaces_chunk(
+                space_id=space["video_id"],
+                chunk_text=space["title"],
+                speaker_handle=space["channel"].lstrip("@"),
+                space_url=space.get("url", ""),
+                chunk_index=0,
+            )
 
     # Summary
     signals = load_live_signals()

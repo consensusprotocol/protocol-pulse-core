@@ -14,6 +14,7 @@ Cron entry:
 import json
 import logging
 import os
+import statistics
 import subprocess
 import sys
 import time
@@ -36,6 +37,66 @@ if not logger.handlers:
 CHANNELS_FILE = os.path.join(BASE, "channels.yaml")
 LIVE_SIGNALS = os.path.join(BASE, "data", "intelligence", "live_signals.json")
 LIVE_CACHE_DIR = os.path.join(BASE, "cache", "live")
+
+# ──────────────────────────────────────────────────────────────
+# Loop Detection — filter out 24/7 ambient/price ticker streams
+# ──────────────────────────────────────────────────────────────
+
+LOOP_KEYWORDS = ['24/7', 'live price', 'live chart', 'radio', 'ambient',
+                 'lofi', 'non-stop', 'continuous', 'price ticker']
+REAL_STREAM_KEYWORDS = ['discussion', 'debate', 'interview', 'ama', 'recap',
+                        'reaction', 'breaking', 'analysis', 'panel', 'live with']
+
+
+def is_looped_stream(stream_info: dict) -> bool:
+    """Detect looped/ambient streams that should be discarded.
+
+    Scoring: red_flags (bad) vs green_flags (good).
+    Returns True (discard) if red_flags >= 2 and green_flags == 0.
+    """
+    red_flags = 0
+    green_flags = 0
+    title_lower = stream_info.get('title', '').lower()
+
+    # Red: duration > 8 hours
+    if stream_info.get('duration_seconds', 0) > 28800:
+        red_flags += 1
+
+    # Red: loop-type keywords in title
+    if any(kw in title_lower for kw in LOOP_KEYWORDS):
+        red_flags += 1
+
+    # Red: transcript repetition check
+    words = stream_info.get('transcript_sample', '').lower().split()
+    if len(words) > 100:
+        blocks = [' '.join(words[i:i+50]) for i in range(0, len(words)-50, 25)]
+        unique = len(set(blocks))
+        if blocks and unique / len(blocks) < 0.5:
+            red_flags += 1
+
+    # Red: consecutive live days >= 2
+    if stream_info.get('consecutive_live_days', 0) >= 2:
+        red_flags += 1
+
+    # Red: very low viewer count variance (bot/ambient pattern)
+    samples = stream_info.get('viewer_count_samples', [])
+    if len(samples) >= 3 and statistics.mean(samples) > 0:
+        if (statistics.stdev(samples) / statistics.mean(samples)) < 0.05:
+            red_flags += 1
+
+    # Green: real discussion keywords in title
+    if any(kw in title_lower for kw in REAL_STREAM_KEYWORDS):
+        green_flags += 1
+
+    # Green: reasonable duration (30 min to 5 hours)
+    if 1800 <= stream_info.get('duration_seconds', 0) <= 18000:
+        green_flags += 1
+
+    is_loop = (red_flags >= 2) and (green_flags == 0)
+    if is_loop:
+        logging.warning(f"[LOOP_DETECT] Discarding: {stream_info.get('title')}")
+    return is_loop
+
 
 # ──────────────────────────────────────────────────────────────
 # Topic + Sentiment Classification (keyword-based, $0 cost)
@@ -353,6 +414,9 @@ def run_daemon():
         logger.info("No live streams detected")
     else:
         for stream in live:
+            # Loop detection — skip 24/7 ambient/ticker streams
+            if is_looped_stream(stream):
+                continue
             logger.info(f"LIVE: {stream['channel']} -- {stream['title']}")
             # Classify the title as initial signal
             topics, sentiment = classify_text(stream["title"])
