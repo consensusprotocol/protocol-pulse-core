@@ -43,6 +43,8 @@ TONE RULES (NON-NEGOTIABLE):
 - Wit over wisdom. Brief over brilliant. Gossip energy, Bitcoin knowledge.
 - Think: "Yo, you gotta hear what Saylor just said about this" NOT "Michael Saylor made some interesting comments about..."
 - Reactions should feel genuine — surprised, amused, sharp, or skeptical. Never neutral.
+- After clips 2 and 4, add a BRIDGE line (type: "bridge") connecting that clip's theme to the next. 1-2 sentences. Eryn only. Elevate the stakes or pivot the angle.
+- REACT lines: when a clip lands something genuinely significant, give it 2-3 sharp sentences. Brief is not always best. Incisive > terse.
 - NO banned phrases: "Let's dive in", "Without further ado", "Buckle up", "game changer"
 - End with "Stay sovereign."
 
@@ -69,9 +71,11 @@ EPISODE STRUCTURE (follow this order):
 3. [NARRATION] — Analysis after Clip 1. Connect to bigger picture.
 4. [NARRATION] — Setup for Clip 2 with re-engagement hook at ~minute 3.
 5. [NARRATION] — Analysis after Clip 2.
-6. [DATA] — Hard metrics segment: hash rate, price, on-chain data.
-7. [SOCIAL] — Commentary on what Bitcoin internet is saying.
-8. [WARM] — Wrap-up, verdict, call to action. End ABRUPTLY. No "thanks for watching."
+6. [DATA] — Hard metrics segment. MINIMUM 3 exchanges (Eryn + Mark). Cover: price context, hash rate or difficulty, one on-chain signal. At least one specific number per line. Target: 45-60 seconds of spoken content.
+7. [SOCIAL] — MINIMUM 3 tweet reads + 2 Mark reactions. Eryn reads each tweet sharp and brief. Target: 40-50 seconds.
+8. [WARM] — 2-3 sentences synthesizing the day's theme, then abrupt CTA. Target: 20-30 seconds. End ABRUPTLY. No "thanks for watching."
+
+EPISODE LENGTH LAW: Full episode narration must total at least 600 words (excluding clip durations). With 5 clips averaging 30s each = 150s clip time. 600 words spoken ≈ 4 minutes. Total target: 10+ minutes. Sharp does not mean short. Incisive 3-sentence reactions are sharper than vague 1-liners. Go deeper on REACT lines when the clip moment is significant.
 
 SEGMENT TAGGING (MANDATORY — controls Eryn's voice dynamics):
 Every dialogue text line MUST start with a segment type tag in brackets. The TTS engine reads this tag to adjust vocal delivery. If missing, the voice defaults to CLEAR which is safe but loses dramatic range.
@@ -130,6 +134,7 @@ _TAG_TO_TYPE = {
     "DATA": "data",
     "SOCIAL": "social_segment",
     "WARM": "wrap",
+    "BRIDGE": "setup",  # inter-clip context bridges treated as narration
 }
 
 _TAG_PATTERN = re.compile(r"^\[(" + "|".join(_TAG_TO_TYPE.keys()) + r")\]\s*")
