@@ -94,7 +94,7 @@ CRITICAL: If no social posts data is provided (empty or "NONE"), do NOT fabricat
 
 BTC Price Today: {btc_price}
 Top Tweets/Nostr Posts Today: {social_posts}
-
+{live_context}
 Return ONLY valid JSON (no markdown, no code fences):
 {{
   "cold_open": "explosive 1-sentence cold open",
@@ -171,12 +171,14 @@ def _format_clips_info(selections: dict) -> str:
     return "\n".join(parts)
 
 
-def generate_from_clips(selections: dict, btc_price: str = "N/A") -> dict:
+def generate_from_clips(selections: dict, btc_price: str = "N/A",
+                        live_context: str = "") -> dict:
     """Generate host dialogue script around the selected clips.
 
     Args:
         selections: Output from clip_selector.select_clips()
         btc_price: Current BTC price string
+        live_context: Real-time live stream/Spaces intelligence (optional)
 
     Returns:
         Script dict with dialogue array
@@ -208,7 +210,18 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A") -> dict:
         logger.warning(f"Social data fetch failed: {e}")
         social_posts = "NONE — skip social segment entirely"
 
-    prompt = SCRIPT_PROMPT.format(clips_info=clips_info, btc_price=btc_price, social_posts=social_posts)
+    # Build live context block
+    live_block = ""
+    if live_context:
+        live_block = (
+            "\nLIVE INTELLIGENCE: The following events are happening RIGHT NOW or happened "
+            "in the last few hours on Bitcoin YouTube/X Spaces. Reference these naturally "
+            "in your narration to make the episode feel current and urgent:\n"
+            f"{live_context}\n"
+        )
+
+    prompt = SCRIPT_PROMPT.format(clips_info=clips_info, btc_price=btc_price,
+                                   social_posts=social_posts, live_context=live_block)
 
     logger.info(f"Generating script for {len(clips)} clips...")
     client = anthropic.Anthropic(api_key=key)

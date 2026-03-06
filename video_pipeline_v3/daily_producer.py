@@ -287,6 +287,45 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     intro_music = select_intro_music(music_dir)
     print(f"  Mood: {episode_mood} | Music: {os.path.basename(music_bed) if music_bed else 'default'}")
 
+    # ── Step 4c: LIVE SIGNALS ─────────────────────────────────────────────
+    live_context = ""
+    live_signals_path = os.path.join(BASE, "data", "intelligence", "live_signals.json")
+    try:
+        if os.path.exists(live_signals_path):
+            with open(live_signals_path) as f:
+                live_data = json.load(f)
+            from datetime import timezone as _tz
+            now = datetime.now(_tz.utc) if hasattr(datetime, 'now') else datetime.utcnow()
+            active_streams = []
+            for s in live_data.get("live_streams", []):
+                # Only include streams from last 6 hours
+                started = s.get("started_at", "")
+                try:
+                    started_dt = datetime.fromisoformat(started.replace("Z", "+00:00"))
+                    age_hours = (now - started_dt).total_seconds() / 3600
+                    if age_hours > 6:
+                        continue
+                except (ValueError, AttributeError):
+                    continue
+                source = s.get("source", "youtube_live")
+                channel = s.get("channel", "unknown")
+                title = s.get("title", "")
+                topics = ", ".join(s.get("topics", []))
+                sentiment = s.get("current_sentiment", 50)
+                sentiment_label = "bullish" if sentiment > 60 else "bearish" if sentiment < 40 else "neutral"
+                active_streams.append(
+                    f"- {channel} ({source}): \"{title}\" — topics: {topics}, sentiment: {sentiment_label} ({sentiment})"
+                )
+            if active_streams:
+                live_context = "\n".join(active_streams)
+                print(f"  Live signals: {len(active_streams)} active streams in last 6 hours")
+                for line in active_streams:
+                    print(f"    {line}")
+            else:
+                print("  Live signals: no active streams in last 6 hours")
+    except Exception as e:
+        logger.warning(f"Live signals read failed: {e}")
+
     # ── Step 5: GENERATE SCRIPT ───────────────────────────────────────────
     if fast_test:
         print("\n[STEP 5/12] GENERATING SCRIPT (fast-test: hardcoded, no Claude)...")
@@ -301,7 +340,8 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     else:
         print("\n[STEP 5/12] GENERATING HOST DIALOGUE (Claude)...")
         t0 = time.time()
-        script = generate_from_clips(selections, btc_price=btc_price)
+        script = generate_from_clips(selections, btc_price=btc_price,
+                                     live_context=live_context)
         dialogue = script.get("dialogue", [])
         speech_lines = [d for d in dialogue if d.get("host") in (1, 2, "1", "2")]
         clip_markers = [d for d in dialogue if d.get("host") == "CLIP"]
