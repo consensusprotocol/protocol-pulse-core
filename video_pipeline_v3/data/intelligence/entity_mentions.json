@@ -1,0 +1,354 @@
+{
+  "entities": [
+    {
+      "name": "MicroStrategy",
+      "type": "company",
+      "mentions_24h": 27,
+      "channels_covering": 11,
+      "channel_names": [
+        "Andreas Antonopoulos",
+        "BTC Sessions",
+        "Bitcoin Magazine",
+        "Bitcoin Magazine Pro",
+        "Natalie Brunell",
+        "Robert Breedlove",
+        "Saifedean Ammous",
+        "Simply Bitcoin",
+        "Swan Bitcoin",
+        "The Bitcoin Layer",
+        "The Investors Podcast Network"
+      ],
+      "video_count": 27
+    },
+    {
+      "name": "Donald Trump",
+      "type": "person",
+      "mentions_24h": 14,
+      "channels_covering": 8,
+      "channel_names": [
+        "BTC Sessions",
+        "Preston Pysh",
+        "Robert Breedlove",
+        "Saifedean Ammous",
+        "Simply Bitcoin",
+        "Swan Bitcoin",
+        "The Bitcoin Layer",
+        "Tucker Carlson"
+      ],
+      "video_count": 14
+    },
+    {
+      "name": "Federal Reserve",
+      "type": "regulator",
+      "mentions_24h": 10,
+      "channels_covering": 5,
+      "channel_names": [
+        "BTC Sessions",
+        "Preston Pysh",
+        "Saifedean Ammous",
+        "Simply Bitcoin",
+        "The Bitcoin Layer"
+      ],
+      "video_count": 10
+    },
+    {
+      "name": "JPMorgan",
+      "type": "company",
+      "mentions_24h": 9,
+      "channels_covering": 5,
+      "channel_names": [
+        "BTC Sessions",
+        "Bitcoin Magazine",
+        "Natalie Brunell",
+        "Robert Breedlove",
+        "Simply Bitcoin"
+      ],
+      "video_count": 9
+    },
+    {
+      "name": "Michael Saylor",
+      "type": "person",
+      "mentions_24h": 9,
+      "channels_covering": 6,
+      "channel_names": [
+        "Bitcoin Magazine",
+        "Natalie Brunell",
+        "Robert Breedlove",
+        "Saifedean Ammous",
+        "Simply Bitcoin",
+        "Swan Bitcoin"
+      ],
+      "video_count": 9
+    },
+    {
+      "name": "Unchained",
+      "type": "company",
+      "mentions_24h": 9,
+      "channels_covering": 5,
+      "channel_names": [
+        "Andreas Antonopoulos",
+        "Preston Pysh",
+        "TFTC",
+        "The Bitcoin Layer",
+        "Unchained"
+      ],
+      "video_count": 9
+    },
+    {
+      "name": "Lightning Network",
+      "type": "protocol",
+      "mentions_24h": 9,
+      "channels_covering": 6,
+      "channel_names": [
+        "Andreas Antonopoulos",
+        "BTC Sessions",
+        "Bitcoin Magazine Pro",
+        "Preston Pysh",
+        "TFTC",
+        "The Bitcoin Layer"
+      ],
+      "video_count": 9
+    },
+    {
+      "name": "Coinbase",
+      "type": "company",
+      "mentions_24h": 8,
+      "channels_covering": 8,
+      "channel_names": [
+        "Andreas Antonopoulos",
+        "Bitcoin Magazine",
+        "Natalie Brunell",
+        "Preston Pysh",
+        "Simply Bitcoin",
+        "Swan Bitcoin",
+        "TFTC",
+        "Tucker Carlson"
+      ],
+      "video_count": 8
+    },
+    {
+      "name": "Fidelity",
+      "type": "company",
+      "mentions_24h": 6,
+      "channels_covering": 4,
+      "channel_names": [
+        "Andreas Antonopoulos",
+        "Bitcoin Magazine",
+        "Simply Bitcoin",
+        "The Bitcoin Layer"
+      ],
+      "video_count": 6
+    },
+    {
+      "name": "Parker Lewis",
+      "type": "person",
+      "mentions_24h": 6,
+      "channels_covering": 2,
+      "channel_names": [
+        "Preston Pysh",
+        "Saifedean Ammous"
+      ],
+      "video_count": 6
+    },
+    {
+      "name": "Jeff Booth",
+      "type": "person",
+      "mentions_24h": 6,
+      "channels_covering": 3,
+      "channel_names": [
+        "BTC Sessions",
+        "Preston Pysh",
+        "Robert Breedlove"
+      ],
+      "video_count": 6
+    },
+    {
+      "name": "BlackRock",
+      "type": "company",
+      "mentions_24h": 5,
+      "channels_covering": 5,
+      "channel_names": [
+        "BTC Sessions",
+        "Natalie Brunell",
+        "Preston Pysh",
+        "Simply Bitcoin",
+        "Swan Bitcoin"
+      ],
+      "video_count": 5
+    },
+    {
+      "name": "SEC",
+      "type": "regulator",
+      "mentions_24h": 5,
+      "channels_covering": 4,
+      "channel_names": [
+        "Robert Breedlove",
+        "Simply Bitcoin",
+        "Swan Bitcoin",
+        "The Bitcoin Layer"
+      ],
+      "video_count": 5
+    },
+    {
+      "name": "Strike",
+      "type": "company",
+      "mentions_24h": 5,
+      "channels_covering": 4,
+      "channel_names": [
+        "Natalie Brunell",
+        "Simply Bitcoin",
+        "Swan Bitcoin",
+        "TFTC"
+      ],
+      "video_count": 5
+    },
+    {
+      "name": "Tesla",
+      "type": "company",
+      "mentions_24h": 5,
+      "channels_covering": 3,
+      "channel_names": [
+        "Preston Pysh",
+        "Robert Breedlove",
+        "Tucker Carlson"
+      ],
+      "video_count": 5
+    },
+    {
+      "name": "Elon Musk",
+      "type": "person",
+      "mentions_24h": 4,
+      "channels_covering": 4,
+      "channel_names": [
+        "BTC Sessions",
+        "Preston Pysh",
+        "The Bitcoin Layer",
+        "Tucker Carlson"
+      ],
+      "video_count": 4
+    },
+    {
+      "name": "Swan Bitcoin",
+      "type": "company",
+      "mentions_24h": 3,
+      "channels_covering": 1,
+      "channel_names": [
+        "Swan Bitcoin"
+      ],
+      "video_count": 3
+    },
+    {
+      "name": "Goldman Sachs",
+      "type": "company",
+      "mentions_24h": 2,
+      "channels_covering": 1,
+      "channel_names": [
+        "Simply Bitcoin"
+      ],
+      "video_count": 2
+    },
+    {
+      "name": "Sam Bankman-Fried",
+      "type": "person",
+      "mentions_24h": 1,
+      "channels_covering": 1,
+      "channel_names": [
+        "Simply Bitcoin"
+      ],
+      "video_count": 1
+    },
+    {
+      "name": "Grayscale",
+      "type": "company",
+      "mentions_24h": 1,
+      "channels_covering": 1,
+      "channel_names": [
+        "Simply Bitcoin"
+      ],
+      "video_count": 1
+    },
+    {
+      "name": "Anthony Pompliano",
+      "type": "person",
+      "mentions_24h": 1,
+      "channels_covering": 1,
+      "channel_names": [
+        "Saifedean Ammous"
+      ],
+      "video_count": 1
+    },
+    {
+      "name": "Saifedean Ammous",
+      "type": "person",
+      "mentions_24h": 1,
+      "channels_covering": 1,
+      "channel_names": [
+        "Saifedean Ammous"
+      ],
+      "video_count": 1
+    },
+    {
+      "name": "Casa",
+      "type": "company",
+      "mentions_24h": 1,
+      "channels_covering": 1,
+      "channel_names": [
+        "Andreas Antonopoulos"
+      ],
+      "video_count": 1
+    },
+    {
+      "name": "Binance",
+      "type": "company",
+      "mentions_24h": 1,
+      "channels_covering": 1,
+      "channel_names": [
+        "Bitcoin Magazine"
+      ],
+      "video_count": 1
+    },
+    {
+      "name": "Larry Fink",
+      "type": "person",
+      "mentions_24h": 1,
+      "channels_covering": 1,
+      "channel_names": [
+        "Preston Pysh"
+      ],
+      "video_count": 1
+    },
+    {
+      "name": "Jack Dorsey",
+      "type": "person",
+      "mentions_24h": 1,
+      "channels_covering": 1,
+      "channel_names": [
+        "Natalie Brunell"
+      ],
+      "video_count": 1
+    },
+    {
+      "name": "Marathon Digital",
+      "type": "company",
+      "mentions_24h": 1,
+      "channels_covering": 1,
+      "channel_names": [
+        "Robert Breedlove"
+      ],
+      "video_count": 1
+    },
+    {
+      "name": "Elizabeth Warren",
+      "type": "person",
+      "mentions_24h": 1,
+      "channels_covering": 1,
+      "channel_names": [
+        "BTC Sessions"
+      ],
+      "video_count": 1
+    }
+  ],
+  "scan_time": "2026-03-05T21:04:10Z",
+  "total_entities_detected": 28,
+  "archive_window_hours": 48
+}
