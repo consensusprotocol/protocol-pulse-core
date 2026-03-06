@@ -268,12 +268,38 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         return best if moods[best] > 0 else "confident"
 
     def select_music_bed(mood: str, music_dir: str) -> str:
+        # Sprint 1.10: Randomize music, avoid repeating last track
+        last_track_file = os.path.join(music_dir, ".last_track.txt")
+        last_track = ""
+        if os.path.exists(last_track_file):
+            try:
+                last_track = open(last_track_file).read().strip()
+            except Exception:
+                pass
+
         tracks = _glob.glob(os.path.join(music_dir, f"{mood}_*.mp3"))
         if not tracks:
             tracks = _glob.glob(os.path.join(music_dir, "confident_*.mp3"))
         if not tracks:
-            tracks = _glob.glob(os.path.join(music_dir, "*.mp3"))
-        return _random.choice(tracks) if tracks else ""
+            # Get all tracks except reserved ones
+            all_tracks = _glob.glob(os.path.join(music_dir, "*.mp3"))
+            tracks = [t for t in all_tracks
+                      if os.path.basename(t) not in ("pp_outro.mp3", "pp_background.mp3",
+                                                       "pp_intro.mp3", "pp_transition.mp3")]
+        if not tracks:
+            return ""
+
+        # Avoid repeating last track
+        if last_track and len(tracks) > 1:
+            tracks = [t for t in tracks if os.path.basename(t) != last_track] or tracks
+
+        chosen = _random.choice(tracks)
+        try:
+            with open(last_track_file, "w") as f:
+                f.write(os.path.basename(chosen))
+        except Exception:
+            pass
+        return chosen
 
     def select_intro_music(music_dir: str) -> str:
         tracks = _glob.glob(os.path.join(music_dir, "intro_*.mp3"))
@@ -377,6 +403,36 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     print(f"  Audio: {successful}/{len(speech_lines)} lines")
     print(f"  Duration: {audio_data.get('total_duration', 0):.1f}s")
     timing["6_tts"] = round(time.time() - t0, 2)
+
+    # ── Step 6b: BUILD MANIFEST ─────────────────────────────────────────
+    print("\n[STEP 6b/12] BUILDING EPISODE MANIFEST...")
+    t0 = time.time()
+    try:
+        from manifest_builder import build_manifest
+        episode_manifest = build_manifest(
+            script, audio_data, extracted_clips, run_dir,
+            music_bed=music_bed, btc_price=btc_price,
+        )
+        print(f"  Manifest: {episode_manifest.get('total_segments', 0)} segments, "
+              f"~{episode_manifest.get('total_duration_estimate', 0):.0f}s estimated")
+    except Exception as e:
+        logger.warning(f"Manifest build failed (non-blocking): {e}")
+        episode_manifest = {}
+    timing["6b_manifest"] = round(time.time() - t0, 2)
+
+    # ── Step 6c: PREFLIGHT CHECK ─────────────────────────────────────────
+    manifest_json_path = os.path.join(run_dir, "episode_manifest.json")
+    if os.path.exists(manifest_json_path):
+        print("\n[STEP 6c/12] PREFLIGHT QC CHECK...")
+        t0 = time.time()
+        try:
+            from qc_pipeline import preflight_check
+            pf_passed, pf_errors, pf_warnings = preflight_check(manifest_json_path)
+            print(f"  Preflight: {'PASS' if pf_passed else 'FAIL'} — "
+                  f"{len(pf_errors)} errors, {len(pf_warnings)} warnings")
+        except Exception as e:
+            logger.warning(f"Preflight check failed (non-blocking): {e}")
+        timing["6c_preflight"] = round(time.time() - t0, 2)
 
     # ── Step 7: ASSEMBLE ──────────────────────────────────────────────────
     print("\n[STEP 7/12] ASSEMBLING VIDEO...")
@@ -487,6 +543,22 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         pass
 
     timing["12_verify"] = round(time.time() - t0, 2)
+
+    # ── Step 12b: POST-RENDER QC ─────────────────────────────────────────
+    print("\n[STEP 12b] POST-RENDER QC...")
+    t0 = time.time()
+    try:
+        from qc_pipeline import post_render_qc, save_qc_report
+        manifest_json_path = os.path.join(run_dir, "episode_manifest.json")
+        qc_report = post_render_qc(final_video, manifest_json_path)
+        save_qc_report(qc_report, run_dir)
+        print(f"  QC: {'PASS' if qc_report.get('passed') else 'FAIL'}")
+        for check, val in qc_report.get("checks", {}).items():
+            status = "PASS" if val else ("FAIL" if val is not None else "SKIP")
+            print(f"    [{status}] {check}")
+    except Exception as e:
+        logger.warning(f"Post-render QC failed (non-blocking): {e}")
+    timing["12b_qc"] = round(time.time() - t0, 2)
 
     # ── Summary ──────────────────────────────────────────────────────────
     timing["total"] = round(time.time() - t_pipeline_start, 2)
