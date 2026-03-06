@@ -1,0 +1,6 @@
+SESSION 5 FINAL: Integration test, orchestrator audit, final polish, handoff doc.
+Part A: Integration test script — 7 checks: API health, ask response has audio+visemes, interrupt 200, viseme count >0, audio MP3 magic bytes valid, LIVE_CONFIG keys match renderer reads, git status clean. Write results to oracle_live/review/integration_test_results.md.
+Part B: Run python3 ~/protocol_pulse/orchestrator/orchestrator.py audit — fix any failures.
+Part C Polish: (1) Hair shimmer in oracle-avatar.js procedural mode: optical edge glow on red streak via sin(t*3.7)*sin(t*1.3), LIVE_CONFIG.hairShimmerIntensity controls amplitude, hairEdgeGlowOnly=true means 2px glow not physical wave, barely perceptible default. (2) VoiceOrbRenderer.js state label: fade old label out 300ms, fade new in 300ms, no abrupt switch. (3) OracleStage.jsx keyboard shortcuts: Enter=ask, Escape=interrupt, Ctrl+Shift+T=tuning, Tab=vision toggle, Shift+?=show shortcut overlay.
+Part D: Write docs/handoff/CURRENT_STATE.md with all 5 session summaries + commit hashes, file inventory, run commands, CD review path, atlas workflow path, clear next-steps list (DNS, atlas shoot, CD review run, tune+export, Replit integration).
+GIT: commit with 'SESSION 5 FINAL' and push. Print git log --oneline -8.

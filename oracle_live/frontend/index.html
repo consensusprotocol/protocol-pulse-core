@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protocol Pulse Oracle</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#07090f;color:#c8d4f0;font-family:'Inter',monospace,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.shell{display:flex;gap:40px;align-items:flex-start;padding:40px 20px;max-width:900px;width:100%}
+.avatar-col{display:flex;flex-direction:column;align-items:center;gap:12px;flex-shrink:0}
+canvas{border-radius:50%;box-shadow:0 0 60px rgba(204,0,0,0.12)}
+#avatar-cv{display:none;border-radius:12px}
+.status{font:700 11px monospace;letter-spacing:.15em;color:#cc0000;background:rgba(204,0,0,.08);border:1px solid rgba(204,0,0,.2);padding:4px 12px;border-radius:999px}
+.act-btn{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);color:#c8d4f0;font:600 12px monospace;letter-spacing:.1em;padding:8px 18px;border-radius:999px;cursor:pointer;transition:all .2s}
+.act-btn:hover{border-color:rgba(204,0,0,.5);color:#ff6666}
+.controls{flex:1;display:flex;flex-direction:column;gap:16px}
+h1{font:700 22px monospace;letter-spacing:.12em;color:#eef3ff}
+.sub{font:400 13px monospace;color:#445577;letter-spacing:.05em;margin-top:2px}
+textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#c8d4f0;font:14px monospace;padding:12px;resize:vertical;min-height:80px;outline:none}
+textarea:focus{border-color:rgba(204,0,0,.4)}
+.row{display:flex;gap:10px}
+.btn{padding:10px 22px;border-radius:8px;font:600 13px monospace;cursor:pointer;border:none;letter-spacing:.05em;transition:all .2s}
+.primary{background:#cc0000;color:#fff}.primary:hover{background:#e60000}.primary:disabled{background:#440000;color:#880000;cursor:not-allowed}
+.secondary{background:rgba(255,255,255,.06);color:#8899bb;border:1px solid rgba(255,255,255,.08)}.secondary:hover{background:rgba(255,255,255,.1)}
+.transcript{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:14px;min-height:80px;font:14px/1.6 monospace;color:#8899bb}
+.tlabel{font:700 10px monospace;letter-spacing:.15em;color:#445577;margin-bottom:8px}
+.perf{font:400 11px monospace;color:#445566;text-align:right}
+.note{font:400 11px monospace;color:#334455;line-height:1.6;border-top:1px solid rgba(255,255,255,.04);padding-top:12px}
+@media(max-width:600px){.shell{flex-direction:column;align-items:center}canvas{width:260px!important;height:260px!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="avatar-col">
+    <canvas id="orb-cv" width="320" height="320"></canvas>
+    <canvas id="avatar-cv" width="320" height="320"></canvas>
+    <div class="status" id="status">IDLE</div>
+    <button class="act-btn" id="act-btn">&#9672; Activate Oracle</button>
+  </div>
+  <div class="controls">
+    <div><h1>PROTOCOL PULSE ORACLE</h1><div class="sub">Bitcoin intelligence &middot; Sovereign signal</div></div>
+    <textarea id="q" placeholder="Ask about Bitcoin, hashrate, mining, macro, on-chain data, sovereignty..."></textarea>
+    <div class="row">
+      <button class="btn primary" id="ask-btn">Ask Oracle</button>
+      <button class="btn secondary" id="int-btn">Interrupt</button>
+    </div>
+    <div class="transcript"><div class="tlabel">ORACLE RESPONSE</div><div id="resp">...</div></div>
+    <div class="perf" id="perf"></div>
+    <div class="note">Voice mode: HER-style signal presence &nbsp;&middot;&nbsp; Click <b>Activate Oracle</b> for visual avatar<br>oracle-live.protocolpulse.io &nbsp;&middot;&nbsp; Protocol Pulse v2.1</div>
+  </div>
+</div>
+<script>
+const API=window.location.origin,convId=crypto.randomUUID();
+let intId=crypto.randomUUID(),ctrl=null,mode='voice',status='idle';
+let audioCtx,analyser,freqData,avT=0,orbT=0,avRunning=false;
+
+function setStatus(s){
+  status=s;
+  document.getElementById('status').textContent=s.toUpperCase();
+  document.getElementById('ask-btn').disabled=['thinking','speaking'].includes(s);
+}
+
+// Audio init
+function initAudio(){
+  if(audioCtx)return;
+  audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  analyser=audioCtx.createAnalyser();analyser.fftSize=256;
+  freqData=new Uint8Array(analyser.frequencyBinCount);
+}
+
+// Ask
+async function askOracle(){
+  const q=document.getElementById('q').value.trim();if(!q)return;
+  initAudio();if(audioCtx.state==='suspended')await audioCtx.resume();
+  intId=crypto.randomUUID();if(ctrl){ctrl.abort();ctrl=null;}
+  ctrl=new AbortController();const t0=performance.now();setStatus('thinking');
+  document.getElementById('resp').textContent='...';
+  try{
+    const res=await fetch(API+'/oracle/ask',{method:'POST',headers:{'Content-Type':'application/json'},signal:ctrl.signal,body:JSON.stringify({question:q,conversation_id:convId,interrupt_id:intId})});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const d=await res.json();const ms=Math.round(performance.now()-t0);
+    document.getElementById('resp').textContent=d.answer_text||'...';
+    document.getElementById('perf').textContent=ms+'ms \u00b7 '+(d.viseme_timeline?.length||0)+' visemes';
+    setStatus('speaking');
+    const bytes=Uint8Array.from(atob(d.audio_base64),c=>c.charCodeAt(0));
+    const buf=await audioCtx.decodeAudioData(bytes.buffer.slice(0));
+    const src=audioCtx.createBufferSource();src.buffer=buf;
+    src.connect(analyser);analyser.connect(audioCtx.destination);
+    src.start(0);src.onended=()=>setStatus('idle');
+  }catch(e){if(e.name!=='AbortError')console.error(e);setStatus('idle');}
+  finally{ctrl=null;}
+}
+document.getElementById('ask-btn').addEventListener('click',askOracle);
+document.getElementById('q').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();askOracle();}});
+document.getElementById('int-btn').addEventListener('click',async()=>{
+  intId=crypto.randomUUID();if(ctrl){ctrl.abort();ctrl=null;}
+  fetch(API+'/oracle/interrupt',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({conversation_id:convId,interrupt_id:intId})}).catch(()=>{});
+  setStatus('idle');
+});
+
+// Orb
+const OC=document.getElementById('orb-cv'),OX=OC.getContext('2d');
+const SC={idle:['204,0,0',.14],listening:['0,180,255',.28],thinking:['204,0,0',.22],speaking:['204,0,0',.48],interrupted:['204,0,0',.06]};
+function drawOrb(){
+  const w=OC.width,h=OC.height,cx=w/2,cy=h/2;
+  OX.clearRect(0,0,w,h);
+  const bg=OX.createRadialGradient(cx,cy,0,cx,cy,w*.6);bg.addColorStop(0,'#0d1220');bg.addColorStop(1,'#07090f');
+  OX.fillStyle=bg;OX.fillRect(0,0,w,h);
+  const[col,gb]=SC[status]||SC.idle;let amp=0;
+  if(analyser&&status==='speaking'){analyser.getByteFrequencyData(freqData);amp=freqData.slice(2,12).reduce((a,b)=>a+b,0)/10/255;}
+  const p=1+Math.sin(orbT*1.2)*.05;
+  const h2=OX.createRadialGradient(cx,cy,w*.2,cx,cy,w*.48*p);h2.addColorStop(0,`rgba(${col},0)`);h2.addColorStop(1,`rgba(${col},${gb})`);
+  OX.fillStyle=h2;OX.beginPath();OX.arc(cx,cy,w*.5*p,0,Math.PI*2);OX.fill();
+  if(status==='speaking'&&analyser){
+    const bR=w*.18,mW=w*.08*(.3+amp*.7);OX.save();OX.strokeStyle=`rgba(${col},${.4+amp*.4})`;OX.lineWidth=1.5+amp*1.5;OX.shadowBlur=8;OX.shadowColor='rgba(204,0,0,.6)';OX.beginPath();
+    for(let i=0;i<=128;i++){const a=(i/128)*Math.PI*2,b=Math.floor((i/128)*freqData.length*.6),r=bR+(freqData[b]||0)/255*mW,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;i===0?OX.moveTo(x,y):OX.lineTo(x,y);}
+    OX.closePath();OX.stroke();OX.restore();
+  }
+  const cR=w*.13*(1+Math.sin(orbT*2.2)*.06+amp*.12);
+  const cg=OX.createRadialGradient(cx-cR*.2,cy-cR*.2,0,cx,cy,cR);cg.addColorStop(0,'rgba(255,60,60,.9)');cg.addColorStop(.5,'rgba(204,0,0,.75)');cg.addColorStop(1,'rgba(204,0,0,0)');
+  OX.save();OX.shadowBlur=24+amp*20;OX.shadowColor='rgba(204,0,0,.7)';OX.fillStyle=cg;OX.beginPath();OX.arc(cx,cy,cR,0,Math.PI*2);OX.fill();OX.restore();
+  const lbl={idle:'ORACLE',listening:'LISTENING',thinking:'THINKING...',speaking:'SPEAKING',interrupted:'STANDBY'};
+  const lc={idle:'#556688',listening:'#66d9ff',thinking:'#f2c36f',speaking:'#7dffb3',interrupted:'#ff8888'};
+  OX.fillStyle=lc[status]||lc.idle;OX.font='700 11px monospace';OX.textAlign='center';OX.fillText(lbl[status]||'ORACLE',cx,h*.8);
+  orbT+=.016;requestAnimationFrame(drawOrb);
+}
+drawOrb();
+
+// Avatar (procedural placeholder — Proto-P atlas replaces when ready)
+const AV=document.getElementById('avatar-cv'),AX=AV.getContext('2d');
+function avLoop(){
+  if(mode!=='avatar'){avRunning=false;return;}
+  const w=AV.width,h=AV.height,cx=w/2;
+  AX.clearRect(0,0,w,h);AX.fillStyle='#07090f';AX.fillRect(0,0,w,h);
+  AX.save();AX.shadowBlur=30;AX.shadowColor='rgba(204,0,0,.12)';
+  AX.fillStyle='#d4b896';AX.beginPath();AX.ellipse(cx,h*.38,w*.22,h*.27,0,0,Math.PI*2);AX.fill();AX.restore();
+  AX.fillStyle='#14141e';AX.beginPath();AX.ellipse(cx,h*.22,w*.25,h*.16,0,0,Math.PI*2);AX.fill();
+  AX.strokeStyle='#cc0000';AX.lineWidth=4;AX.lineCap='round';
+  AX.beginPath();AX.moveTo(cx-w*.12,h*.13);AX.lineTo(cx-w*.18,h*.34);AX.stroke();
+  const bl=Math.sin(avT*.8)>.98?.08:1;
+  [[cx-w*.08,h*.36],[cx+w*.08,h*.36]].forEach(([ex,ey])=>{
+    AX.fillStyle='#14082a';AX.beginPath();AX.ellipse(ex,ey,w*.055,h*.033*bl,0,0,Math.PI*2);AX.fill();
+    if(bl>.4){AX.fillStyle='#002255';AX.beginPath();AX.arc(ex,ey,w*.028,0,Math.PI*2);AX.fill();AX.fillStyle='rgba(255,255,255,.4)';AX.beginPath();AX.arc(ex-2,ey-2,2,0,Math.PI*2);AX.fill();}
+  });
+  const mo=status==='speaking'?(.02+Math.abs(Math.sin(avT*8))*.04):0;
+  AX.strokeStyle='#8b6b5b';AX.lineWidth=2;AX.beginPath();AX.arc(cx,h*.475,w*.07,mo>.005?0:.1,Math.PI-.1);AX.stroke();
+  if(mo>.01){AX.fillStyle='#1a0808';AX.beginPath();AX.ellipse(cx,h*.48,w*.065,h*mo*1.5,0,0,Math.PI*2);AX.fill();}
+  AX.fillStyle='#14141e';AX.beginPath();AX.ellipse(cx,h*.78,w*.38,h*.22,0,0,Math.PI*2);AX.fill();
+  const gA=status==='speaking'?.1:.04;const g=AX.createRadialGradient(cx,h*.38,0,cx,h*.38,w*.45);
+  g.addColorStop(0,'rgba(204,0,0,0)');g.addColorStop(1,`rgba(204,0,0,${gA+Math.sin(avT*1.5)*.02})`);
+  AX.fillStyle=g;AX.fillRect(0,0,w,h);
+  avT+=.016;requestAnimationFrame(avLoop);
+}
+
+// Mode switch
+document.getElementById('act-btn').addEventListener('click',()=>{
+  if(mode==='voice'){
+    mode='avatar';OC.style.display='none';AV.style.display='block';AV.style.borderRadius='12px';
+    document.getElementById('act-btn').textContent='\u25bc Minimize';
+    if(!avRunning){avRunning=true;avLoop();}
+  }else{
+    mode='voice';OC.style.display='block';AV.style.display='none';
+    document.getElementById('act-btn').textContent='\u25c8 Activate Oracle';
+  }
+});
+</script>
+</body>
+</html>

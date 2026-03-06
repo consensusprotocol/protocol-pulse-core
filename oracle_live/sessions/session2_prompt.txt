@@ -1,0 +1,6 @@
+SESSION 2: Build the Creative Director Review Scaffold.
+File: oracle_live/review/cd_review.html — standalone HTML (no React/Vite).
+Includes: live avatar iframe, state forcing buttons, all 20 GPT scenes with score sliders 1-10 + failure sign checkboxes + notes textareas, scoring dashboard with color coding (green 9-10 / yellow 7-8 / orange 5-6 / red <5), export to JSON+markdown, five final CD questions, priority fix list auto-generated from low scores.
+Design: dark theme matching Protocol Pulse (#07090f bg, red accents, monospace scores).
+State forcing: buttons call POST /oracle/ask or force UI state directly.
+GIT: commit with message containing 'SESSION 2' and push to main.
