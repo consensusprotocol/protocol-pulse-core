@@ -347,6 +347,14 @@ def select_clips(videos: list) -> dict:
         if len(clean_clips) < 5 and not test_mode:
             logger.error(f"HARD DEDUP: Only {len(clean_clips)} unique channels. Need replacement clips.")
 
+        # Score-based ranking (CLIP SCORER per PRODUCTION_DESIGN_LAWS)
+        try:
+            from utils.clip_scorer import rank_clips
+            clean_clips = rank_clips(clean_clips)
+            logger.info("Clip scorer applied — clips re-ranked by intelligence score")
+        except Exception as e:
+            logger.warning(f"Clip scorer unavailable, keeping original rank order: {e}")
+
         # Log the 5-clip rule result
         unique_channels = {c.get("channel", "") for c in clean_clips}
         channel_list = sorted(unique_channels)
