@@ -375,7 +375,7 @@ def make_tag_video(output_path: str, narration_audio: str = "") -> str:
 
 # ── Cold open intro ───────────────────────────────────────────────────────
 
-def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A") -> str:
+def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A", thumbnail_path: str = "") -> str:
     """Cold open: face on screen, NO logo, NO music, immediate voice.
 
     Per PRODUCTION_DESIGN_LAWS: cyberpunk bg + waveform + subtitle.
@@ -385,8 +385,9 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A")
     total_dur = max(tts_dur + 0.3, 3.0)
 
     has_cyberpunk_bg = os.path.exists(CYBERPUNK_BG_LOOP)
+    has_thumb_co = bool(thumbnail_path and os.path.exists(thumbnail_path))
 
-    # Build inputs: 0=TTS, [1=cyberpunk bg]
+    # Build inputs: 0=TTS, [1=cyberpunk bg], [2=thumbnail]
     inp_args = [tts_path]
     idx = 1
 
@@ -404,13 +405,29 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A")
     else:
         fg = f"color=c={COLOR_BG}:s=1920x1080:d={total_dur}:r=30[bgvig];\n"
 
+    # GPT face panel: thumbnail in cold open left panel
+    thumb_co_idx = -1
+    if has_thumb_co:
+        inp_args.append(thumbnail_path)
+        thumb_co_idx = idx
+        idx += 1
+    if has_thumb_co and thumb_co_idx >= 0:
+        fg += (f"[{thumb_co_idx}:v]scale=1056:1080:force_original_aspect_ratio=increase,"
+               f"crop=1056:1080,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS,"
+               f"eq=saturation=1.15:brightness=0.04[thumbface];\n")
+        fg += f"[thumbface]drawbox=x=940:y=0:w=116:h=1080:color={COLOR_BG}@0.7:t=fill[thumbblend];\n"
+        fg += f"[bgvig][thumbblend]overlay=0:0[bgwithface];\n"
+        face_base = "bgwithface"
+    else:
+        face_base = "bgvig"
+
     # VDS waveform — red/gold gradient
     fg += (f"[0:a]showwaves=s=600x80:mode=cline:"
            f"colors={COLOR_RED}|{COLOR_GOLD}:scale=sqrt:draw=full:rate=30[wave_raw];\n")
     fg += f"[wave_raw]split[wA][wB];\n"
     fg += f"[wB]vflip,colorchannelmixer=aa=0.35[wflip];\n"
     fg += f"[wA][wflip]vstack[wavepair];\n"
-    fg += f"[bgvig][wavepair]overlay=228:440[withwave];\n"
+    fg += f"[{face_base}][wavepair]overlay=228:440[withwave];\n"
 
     # VDS-2: GOLD INFO BAR for cold open
     safe_btc = btc_price.replace("'", "").replace('"', "")
@@ -1759,7 +1776,14 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
         # The title card was causing the cold open audio to play twice
         # (once in cold open, once in title card).
         intro_out = os.path.join(work_dir, f"part_{part_idx:03d}_cold_open_hook.mp4")
-        intro_result = make_intro_coldopen(cold_open_audio["path"], intro_out, btc_price=btc_price)
+        # GPT face-first: get clip 1 YouTube thumbnail for cold open face panel
+        co_thumb = ""
+        if 1 in extracted_clips:
+            co_clip_info = extracted_clips[1]
+            co_thumb = fetch_youtube_thumbnail(co_clip_info)
+            if co_thumb:
+                logger.info(f"  Cold open thumbnail: {os.path.basename(co_thumb)}")
+        intro_result = make_intro_coldopen(cold_open_audio["path"], intro_out, btc_price=btc_price, thumbnail_path=co_thumb)
         if intro_result:
             # Sprint 1.6: Overlay PiP of first clip onto cold open (face on screen)
             if 1 in extracted_clips:
