@@ -238,7 +238,7 @@ def post_render_qc(video_path: str, manifest_path: str = "") -> dict:
         max_black = qc_exp.get("max_black_frames_sec", 0.5)
         r = subprocess.run(
             ["ffmpeg", "-i", video_path, "-vf",
-             f"blackdetect=d={max_black}:pix_th=0.10",
+             f"blackdetect=d={max_black}:pix_th=0.02",
              "-f", "null", "-"],
             capture_output=True, text=True, timeout=300,
         )
