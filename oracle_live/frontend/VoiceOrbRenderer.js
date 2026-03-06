@@ -3,8 +3,10 @@
  * VoiceOrbRenderer — Protocol Pulse HER-mode
  * Signal instrument: inner core + radial waveform + outer halo
  * No assets. Pure canvas math. Runs on anything.
- * States: idle | listening | thinking | speaking | interrupted
+ * States: idle | listening | thinking | speaking | broadcast | interrupted
+ * All tunable values read from LIVE_CONFIG.
  */
+import { LIVE_CONFIG } from "./OracleTuningPanel.js";
 
 export class VoiceOrbRenderer {
   constructor(canvas, options = {}) {
@@ -137,7 +139,11 @@ export class VoiceOrbRenderer {
     };
     const cfg = STATE_HALO[this.state] || STATE_HALO.idle;
     const baseR = this.w * cfg.r;
-    const pulse = 1 + Math.sin(t * cfg.speed * Math.PI * 2) * 0.04;
+    let pulseAmp = 0.04;
+    if (LIVE_CONFIG.orbHaloPulseRestrained) {
+      pulseAmp = Math.min(pulseAmp, 0.03);
+    }
+    const pulse = 1 + Math.sin(t * cfg.speed * Math.PI * 2) * pulseAmp;
 
     // Thinking: slow compression inward
     const thinkOffset = this.state === "thinking"
@@ -159,7 +165,7 @@ export class VoiceOrbRenderer {
     if (!this.freqData) return;
     const baseR   = this.w * 0.22;
     const POINTS  = 128;
-    const maxWave = this.w * 0.10 * (0.3 + amp * 0.7);
+    const maxWave = this.w * LIVE_CONFIG.orbWaveformMaxAmp * (0.3 + amp * 0.7);
 
     ctx.save();
     ctx.strokeStyle = `rgba(204,0,0,${0.4 + amp * 0.4})`;
@@ -193,9 +199,15 @@ export class VoiceOrbRenderer {
       interrupted: { r: 0.10, color: [204,  0,  0], glow: 0.08, pulse: 0.3  },
     };
     const cfg   = STATE_CORE[this.state] || STATE_CORE.idle;
-    const pulse = 1 + Math.sin(t * cfg.pulse * Math.PI * 2) * 0.06 + amp * 0.12;
+    const pulseSpeed = this.state === "speaking" ? LIVE_CONFIG.orbInnerPulseSpeed : cfg.pulse;
+    const pulse = 1 + Math.sin(t * pulseSpeed * Math.PI * 2) * 0.06 + amp * 0.12;
     const baseR = this.w * cfg.r * pulse;
-    const [r, gr, b] = cfg.color;
+    let [r, gr, b] = cfg.color;
+    // Broadcast glow cap — reduce glow to avoid over-brightness
+    let glowMult = cfg.glow;
+    if (this.state === "broadcast") {
+      glowMult = Math.min(glowMult, LIVE_CONFIG.broadcastGlowCap);
+    }
 
     // Core gradient
     const g = ctx.createRadialGradient(cx - baseR * 0.2, cy - baseR * 0.2, 0, cx, cy, baseR);
@@ -204,8 +216,8 @@ export class VoiceOrbRenderer {
     g.addColorStop(1,   `rgba(${r},${gr},${b},0)`);
 
     ctx.save();
-    ctx.shadowBlur  = 24 + amp * 20;
-    ctx.shadowColor = `rgba(${r},${gr},${b},0.7)`;
+    ctx.shadowBlur  = (24 + amp * 20) * (glowMult / 0.55);
+    ctx.shadowColor = `rgba(${r},${gr},${b},${Math.min(0.9, glowMult + 0.2)})`;
     ctx.fillStyle   = g;
     ctx.beginPath();
     ctx.arc(cx, cy, baseR, 0, Math.PI * 2);

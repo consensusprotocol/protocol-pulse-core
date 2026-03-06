@@ -3,9 +3,10 @@
  * HologramActivation — Premium restrained sequence
  * 2 hero effects only: scanline reveal + holographic resolve
  * 1 support: tiny chromatic split on impact
- * Duration: ~1200ms
+ * Duration driven by LIVE_CONFIG.activationDurationMs
  * No barrel distortion. No heavy pixelation. No random noise.
  */
+import { LIVE_CONFIG } from "./OracleTuningPanel.js";
 
 export class HologramActivation {
   constructor(canvas) {
@@ -25,10 +26,12 @@ export class HologramActivation {
     const h     = this.h;
     const start = performance.now();
 
-    // Phase 1 (0–180ms): Chromatic split impact
-    // Phase 2 (180–700ms): Scanline reveal sweeping bottom→top
-    // Phase 3 (700–1100ms): Holographic resolve + flicker settle
-    // Phase 4 (1100–1200ms): Single blink, system online
+    // Timing derived from LIVE_CONFIG.activationDurationMs (default 1200)
+    const totalMs = LIVE_CONFIG.activationDurationMs;
+    const p1End   = totalMs * 0.15;       // ~180ms chromatic split
+    const p2End   = totalMs * 0.583;      // ~700ms scanline reveal
+    const p3End   = totalMs * 0.917;      // ~1100ms holographic resolve
+    // p4 = remainder → totalMs           // ~100ms system online blink
 
     await new Promise(resolve => {
       const animate = (now) => {
@@ -39,13 +42,13 @@ export class HologramActivation {
         ctx.fillStyle = "#07090f";
         ctx.fillRect(0, 0, w, h);
 
-        if (elapsed < 180) {
+        if (elapsed < p1End) {
           // ── Phase 1: Chromatic split ──────────────────────────────────────
-          this._renderChromaticSplit(ctx, w, h, elapsed / 180);
+          this._renderChromaticSplit(ctx, w, h, elapsed / p1End);
 
-        } else if (elapsed < 700) {
+        } else if (elapsed < p2End) {
           // ── Phase 2: Scanline reveal ──────────────────────────────────────
-          const progress = (elapsed - 180) / 520;  // 0→1
+          const progress = (elapsed - p1End) / (p2End - p1End);
           const scanY    = h - h * this._easeOut(progress);
 
           // Avatar resolves below the scanline
@@ -53,13 +56,13 @@ export class HologramActivation {
           ctx.beginPath();
           ctx.rect(0, scanY, w, h - scanY);
           ctx.clip();
-          avatarRenderFn(ctx, progress * 0.6); // partial resolve
+          avatarRenderFn(ctx, progress * 0.6);
           ctx.restore();
 
           // Scanline itself — thin cyan stripe
           const lineGrad = ctx.createLinearGradient(0, scanY - 3, 0, scanY + 3);
           lineGrad.addColorStop(0, "rgba(0,220,255,0)");
-          lineGrad.addColorStop(0.5, "rgba(0,220,255,0.85)");
+          lineGrad.addColorStop(0.5, `rgba(0,220,255,${LIVE_CONFIG.scanlineCyanOpacity})`);
           lineGrad.addColorStop(1, "rgba(0,220,255,0)");
           ctx.fillStyle = lineGrad;
           ctx.fillRect(0, scanY - 3, w, 6);
@@ -77,16 +80,16 @@ export class HologramActivation {
           }
           ctx.restore();
 
-        } else if (elapsed < 1100) {
+        } else if (elapsed < p3End) {
           // ── Phase 3: Holographic resolve ──────────────────────────────────
-          const progress  = (elapsed - 700) / 400;  // 0→1
+          const progress  = (elapsed - p2End) / (p3End - p2End);
           const eased     = this._easeOut(progress);
-          const resolveP  = 0.6 + eased * 0.4;      // 0.6→1.0
+          const resolveP  = 0.6 + eased * 0.4;
 
           avatarRenderFn(ctx, resolveP);
 
-          // Holographic edge glow — fades in
-          const edgeOpacity = eased * 0.35;
+          // Holographic edge glow — fades in (driven by LIVE_CONFIG)
+          const edgeOpacity = eased * LIVE_CONFIG.hologramEdgeGlow;
           const edgeGrad = ctx.createRadialGradient(w/2, h/2, w*0.25, w/2, h/2, w*0.55);
           edgeGrad.addColorStop(0, "rgba(0,220,255,0)");
           edgeGrad.addColorStop(0.7, `rgba(0,220,255,${edgeOpacity * 0.15})`);
@@ -102,12 +105,12 @@ export class HologramActivation {
             ctx.globalAlpha = 1;
           }
 
-        } else if (elapsed < 1200) {
+        } else if (elapsed < totalMs) {
           // ── Phase 4: Online — avatar fully resolved ───────────────────────
           avatarRenderFn(ctx, 1.0);
 
           // Cyan rim fades out
-          const fade = 1 - (elapsed - 1100) / 100;
+          const fade = 1 - (elapsed - p3End) / (totalMs - p3End);
           const rim  = ctx.createRadialGradient(w/2, h/2, w*0.3, w/2, h/2, w*0.55);
           rim.addColorStop(0, "rgba(0,220,255,0)");
           rim.addColorStop(1, `rgba(0,220,255,${fade * 0.2})`);
@@ -129,8 +132,7 @@ export class HologramActivation {
   }
 
   _renderChromaticSplit(ctx, w, h, progress) {
-    // Restrained: max ±4px split, fades out by end of phase
-    const maxShift = 4 * (1 - progress);
+    const maxShift = LIVE_CONFIG.chromaticSplitMaxPx * (1 - progress);
     const opacity  = 0.5 * (1 - progress);
 
     // Red channel offset left
