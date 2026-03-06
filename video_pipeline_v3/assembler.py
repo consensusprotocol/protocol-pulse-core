@@ -432,7 +432,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A")
         fg += f"[{jingle_idx}:a]volume=0.35[jingle_a];\n"
         fg += f"[tts_a][jingle_a]amix=inputs=2:duration=first:weights=1 0.35[outa]"
     else:
-        fg += f"[0:a]loudnorm=I=-16:TP=-1.5:LRA=11[outa]"
+        fg += f"[0:a]aresample=async=1[outa]"
 
     ok = run_ffmpeg_filtergraph(
         inp_args, fg, ["[outv]", "[outa]"],
@@ -514,9 +514,9 @@ def fetch_youtube_thumbnail(clip_info: dict) -> str:
 def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) -> str:
     """Extract a muted PiP preview clip for overlay during narration.
 
-    Issue 2: Larger PiP (768x432, ~40% frame width), center-right position.
+    Issue 2: 820x462 PiP (right 40% panel), positioned at x=1056, y=200.
     ACTUAL VIDEO playing (muted), not static image with pan.
-    Thin white border at 20% opacity + subtle drop shadow.
+    Thin 2px white border at 30% opacity.
     """
     if not clip_path or not os.path.exists(clip_path):
         return ""
@@ -528,12 +528,11 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
         "-ss", str(start), "-i", clip_path,
         "-t", str(duration), "-an",
         "-vf", (
-            "scale=768:432:force_original_aspect_ratio=decrease,"
-            "pad=768:432:(ow-iw)/2:(oh-ih)/2:black,"
-            "pad=772:436:2:2:color=white@0.2,"
+            "scale=820:462:force_original_aspect_ratio=decrease,"
+            "pad=820:462:(ow-iw)/2:(oh-ih)/2:black,"
             "format=yuv420p"
         ),
-        "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+        "-c:v", "libx264", "-crf", "17", "-preset", "medium",
         "-r", "30",
         output_path,
     ], "pip preview extract", 60)
@@ -544,8 +543,9 @@ def overlay_pip_on_narration(narration_path: str, pip_path: str,
                               output_path: str) -> str:
     """Overlay PiP preview clip onto narration video.
 
-    Issue 2: Position x=1100, y=350 (center-right, 768x432 PiP).
-    Issue 14: Drop shadow behind PiP (drawbox at +4px offset, black@0.3).
+    Issue 2: Position x=1056, y=200 (right 40% panel, 820x462 PiP).
+    Drop shadow behind PiP (drawbox at +4px offset, black@0.3).
+    "COMING UP..." label inside PiP bottom-left.
     """
     if not pip_path or not os.path.exists(pip_path):
         return narration_path
@@ -555,9 +555,10 @@ def overlay_pip_on_narration(narration_path: str, pip_path: str,
         "-i", pip_path,
         "-filter_complex",
         # Drop shadow: dark box at +4px offset behind PiP
-        f"[0:v]drawbox=x=1104:y=354:w=772:h=436:color=0x000000@0.3:t=fill:enable='lte(t,{pip_dur})'[bg_shadow];"
-        f"[1:v]format=yuva420p[pip];"
-        f"[bg_shadow][pip]overlay=1100:350:enable='lte(t,{pip_dur})',format=yuv420p[outv]",
+        f"[0:v]drawbox=x=1060:y=204:w=824:h=466:color=0x000000@0.3:t=fill:enable='lte(t,{pip_dur})'[bg_shadow];"
+        f"[1:v]drawtext=fontfile={FONT_BOLD}:text='COMING UP...':fontcolor=white:fontsize=28:"
+        f"x=12:y=h-38:box=1:boxcolor=black@0.5:boxborderw=6,format=yuva420p[pip];"
+        f"[bg_shadow][pip]overlay=1056:200:enable='lte(t,{pip_dur})',format=yuv420p[outv]",
         "-map", "[outv]", "-map", "0:a",
         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
         "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
@@ -718,7 +719,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
            f"x=W-200:y=16[bgcorner];\n")
     last_bg = "bgcorner"
 
-    # 9. Audio waveform — Issue 13/14: left 60% of frame, 600px wide, center-left
+    # 9. Audio waveform — Issue 2: left 55% of frame (0-1056px), 600px wide, centered
     fg += (f"[0:a]showwaves=s=600x80:mode=cline:"
            f"colors=0xCC0000|0xFF4444:scale=sqrt:draw=full:rate=30[wave_raw];\n")
 
@@ -727,8 +728,9 @@ def make_host_visual(audio_path: str, host: int, text: str,
     fg += f"[wB]vflip,colorchannelmixer=aa=0.35[wflip];\n"
     fg += f"[wA][wflip]vstack[wavepair];\n"   # 600x160 total
 
-    # 11. Overlay waveform center-left: x=250, y=460 (within left 60% = 0-1152px)
-    fg += f"[{last_bg}][wavepair]overlay=250:460[withwave];\n"
+    # 11. Overlay waveform centered in left zone: x=228, y=340
+    # Left zone is 0-1056px, center of 600px waveform = (1056-600)/2 = 228
+    fg += f"[{last_bg}][wavepair]overlay=228:340[withwave];\n"
 
     # 12. Speaker label bar (bottom left)
     fg += f"color=c={color}:s=280x52:d={total_dur}:r=30[spkbg];\n"
@@ -751,11 +753,11 @@ def make_host_visual(audio_path: str, host: int, text: str,
         fg += f"[v2][wm]overlay=W-170:16[v3];\n"
         last_v = "v3"
 
-    # 12. Thumbnail PIP — MANDATORY for setup/react — right side
-    # Issue 14: Position PiP to the right of waveform (x=1100, y=350)
+    # 12. Thumbnail PIP — right 40% panel (x=1056 to x=1920)
+    # Issue 2: 820x462 at x=1056, y=200 with thin 2px white border at 30% opacity
     if has_thumb:
-        fg += f"[{thumb_idx}:v]scale=720:405,pad=724:409:2:2:color=white@0.2[thumb];\n"
-        fg += f"[{last_v}][thumb]overlay=1100:350[vthumb];\n"
+        fg += f"[{thumb_idx}:v]scale=820:462,pad=824:466:2:2:color=white@0.3[thumb];\n"
+        fg += f"[{last_v}][thumb]overlay=1056:200[vthumb];\n"
         last_v = "vthumb"
 
     # 13. Social segment — cyberpunk tweet card (only for social_segment type)
@@ -828,13 +830,15 @@ def make_host_visual(audio_path: str, host: int, text: str,
 
     fg += f"[{last_v}]format=yuv420p[outv];\n"
 
-    # Audio: TTS + optional background music
+    # Issue 7 FIX: Background music at -20dB under narration.
+    # Removed loudnorm (banned per PIPELINE_LAWS — adds 200ms latency).
+    # Music volume: -20dB = volume=0.1, mixed via amix with weight 0.15.
     if has_bgm:
-        fg += f"[0:a]loudnorm=I=-16:TP=-1.5:LRA=11[tts];\n"
-        fg += f"[{bgm_idx}:a]volume=-20dB[bgm];\n"
-        fg += f"[tts][bgm]amix=inputs=2:duration=first:weights=1 0.12[outa]"
+        fg += f"[0:a]aresample=async=1[tts];\n"
+        fg += f"[{bgm_idx}:a]volume=0.10,afade=t=in:d=0.5,afade=t=out:st={max(0, total_dur - 1.0)}:d=1.0[bgm];\n"
+        fg += f"[tts][bgm]amix=inputs=2:duration=first:weights=1 0.15[outa]"
     else:
-        fg += f"[0:a]loudnorm=I=-16:TP=-1.5:LRA=11[outa]"
+        fg += f"[0:a]aresample=async=1[outa]"
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -960,6 +964,16 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
     card_width = 1360
     card_x = 280
 
+    # Issue 6: Check for screenshot paths and add as inputs
+    screenshot_indices = {}
+    for ci, post in enumerate(posts[:2]):
+        ss_path = post.get("screenshot_path", "")
+        if ss_path and os.path.exists(ss_path):
+            inputs.append(ss_path)
+            screenshot_indices[ci] = inp_idx
+            inp_idx += 1
+            logger.info(f"  Using tweet screenshot for card {ci}: {os.path.basename(ss_path)}")
+
     for ci, post in enumerate(posts[:2]):
         handle = _sanitize_text(post.get("handle", "unknown"))
         if not handle.startswith("@"):
@@ -988,29 +1002,38 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
         # Top edge accent
         fg += f"[{tag}lbar]drawbox=x=0:y=0:w={card_width}:h=2:color=0xCC0000:t=fill[{tag}top];\n"
 
-        # Pulse dot
-        fg += f"[{tag}top]drawbox=x=20:y=18:w=8:h=8:color=0xCC0000:t=fill[{tag}dot];\n"
+        # Issue 6: If screenshot available, overlay it inside card; else render text
+        if ci in screenshot_indices:
+            ss_idx = screenshot_indices[ci]
+            # Scale screenshot to fit inside card (with padding)
+            fg += (f"[{ss_idx}:v]scale={card_width - 16}:{card_height - 16}:"
+                   f"force_original_aspect_ratio=decrease,"
+                   f"pad={card_width - 16}:{card_height - 16}:(ow-iw)/2:(oh-ih)/2:0x141414[{tag}ss];\n")
+            fg += f"[{tag}top][{tag}ss]overlay=8:8[{tag}src];\n"
+        else:
+            # Pulse dot
+            fg += f"[{tag}top]drawbox=x=20:y=18:w=8:h=8:color=0xCC0000:t=fill[{tag}dot];\n"
 
-        # Handle — monospace font
-        fg += (f"[{tag}dot]drawtext=fontfile={FONT_MONO}:"
-               f"text='{handle}':"
-               f"fontcolor=0xCC0000:fontsize=22:x=38:y=14[{tag}hdl];\n")
+            # Handle — monospace font
+            fg += (f"[{tag}dot]drawtext=fontfile={FONT_MONO}:"
+                   f"text='{handle}':"
+                   f"fontcolor=0xCC0000:fontsize=22:x=38:y=14[{tag}hdl];\n")
 
-        # Tweet text — bold for readability
-        fg += (f"[{tag}hdl]drawtext=fontfile={FONT_BOLD}:"
-               f"text='{tweet_text}':"
-               f"fontcolor=0xEDEDED:fontsize=24:x=24:y=52:line_spacing=16:"
-               f"box=0[{tag}txt];\n")
+            # Tweet text — bold for readability
+            fg += (f"[{tag}hdl]drawtext=fontfile={FONT_BOLD}:"
+                   f"text='{tweet_text}':"
+                   f"fontcolor=0xEDEDED:fontsize=24:x=24:y=52:line_spacing=16:"
+                   f"box=0[{tag}txt];\n")
 
-        # Engagement stats bottom
-        fg += (f"[{tag}txt]drawtext=fontfile={FONT_MONO}:"
-               f"text='{likes_str} likes  |  {rt_str} RTs':"
-               f"fontcolor=0xFF4444:fontsize=16:x=24:y=h-32[{tag}stats];\n")
+            # Engagement stats bottom
+            fg += (f"[{tag}txt]drawtext=fontfile={FONT_MONO}:"
+                   f"text='{likes_str} likes  |  {rt_str} RTs':"
+                   f"fontcolor=0xFF4444:fontsize=16:x=24:y=h-32[{tag}stats];\n")
 
-        # Source label bottom-right
-        fg += (f"[{tag}stats]drawtext=fontfile={FONT_MONO}:"
-               f"text='via X':fontcolor=0x888888:fontsize=14:"
-               f"x=w-80:y=h-30[{tag}src];\n")
+            # Source label bottom-right
+            fg += (f"[{tag}stats]drawtext=fontfile={FONT_MONO}:"
+                   f"text='via X':fontcolor=0x888888:fontsize=14:"
+                   f"x=w-80:y=h-30[{tag}src];\n")
 
         # Overlay card on base with fade-in
         fade_start = ci * 0.4
@@ -1039,13 +1062,13 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
 
     fg += f"[{last_v}]format=yuv420p[outv];\n"
 
-    # Audio: TTS + optional background music
+    # Issue 7: Music at -20dB under social narration (same fix as host visual)
     if has_bgm:
-        fg += f"[0:a]loudnorm=I=-16:TP=-1.5:LRA=11[tts];\n"
-        fg += f"[{bgm_idx}:a]volume=-20dB[bgm];\n"
-        fg += f"[tts][bgm]amix=inputs=2:duration=first:weights=1 0.12[outa]"
+        fg += f"[0:a]aresample=async=1[tts];\n"
+        fg += f"[{bgm_idx}:a]volume=0.10,afade=t=in:d=0.5,afade=t=out:st={max(0, total_dur - 1.0)}:d=1.0[bgm];\n"
+        fg += f"[tts][bgm]amix=inputs=2:duration=first:weights=1 0.15[outa]"
     else:
-        fg += f"[0:a]loudnorm=I=-16:TP=-1.5:LRA=11[outa]"
+        fg += f"[0:a]aresample=async=1[outa]"
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -1192,9 +1215,9 @@ def _remotion_with_audio(video_path: str, audio_path: str, output_path: str,
             "-stream_loop", "-1", "-i", BG_MUSIC,
             "-filter_complex",
             f"[0:v]setpts=PTS-STARTPTS[v];"
-            f"[1:a]loudnorm=I=-16:TP=-1.5:LRA=11[tts];"
-            f"[2:a]volume=-20dB[bgm];"
-            f"[tts][bgm]amix=inputs=2:duration=first:weights=1 0.12[outa]",
+            f"[1:a]aresample=async=1[tts];"
+            f"[2:a]volume=0.10,afade=t=in:d=0.5,afade=t=out:st={max(0, total_dur - 1.0)}:d=1.0[bgm];"
+            f"[tts][bgm]amix=inputs=2:duration=first:weights=1 0.15[outa]",
             "-map", "[v]", "-map", "[outa]",
             "-c:v", "libx264", "-crf", "17", "-preset", "medium",
             "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
@@ -1207,7 +1230,7 @@ def _remotion_with_audio(video_path: str, audio_path: str, output_path: str,
             "-i", audio_path,
             "-filter_complex",
             f"[0:v]setpts=PTS-STARTPTS[v];"
-            f"[1:a]loudnorm=I=-16:TP=-1.5:LRA=11[outa]",
+            f"[1:a]aresample=async=1[outa]",
             "-map", "[v]", "-map", "[outa]",
             "-c:v", "libx264", "-crf", "17", "-preset", "medium",
             "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
@@ -1692,38 +1715,38 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
     parts = []
     part_idx = 0
 
-    # Load real tweet data for social segment cards (V15)
+    # Issue 5 FIX: Use the SAME social_posts list from the script (set by daily_producer).
+    # This ensures the assembler's card visuals match the narrator's script order EXACTLY.
+    # Only fall back to fetching if script doesn't have social_posts.
     tweet_card_posts = []
-    try:
-        from utils.feature_flags import is_enabled
-        if is_enabled("tweet_cards"):
-            from utils.social_fetcher import get_todays_social_posts
-            tweet_card_posts = get_todays_social_posts(max_posts=4)
-    except Exception as e:
-        logger.warning(f"Tweet card data load failed: {e}")
-    social_card_idx = 0  # Track which posts have been shown
-    if tweet_card_posts:
-        for ti, tp in enumerate(tweet_card_posts):
-            logger.info(f"  SOCIAL ORDER: Card {ti}: @{tp.get('handle', '?')} — \"{tp.get('text', '')[:60]}\"")
+    social_card_idx = 0
 
-    # Also check if script has social_posts ordering to match
     script_social_posts = script.get("social_posts", [])
-    if script_social_posts and tweet_card_posts:
-        # Reorder tweet_card_posts to match script ordering by handle
-        script_handles = [p.get("handle", "").lower() for p in script_social_posts]
-        if script_handles:
-            reordered = []
-            remaining = list(tweet_card_posts)
-            for sh in script_handles:
-                for tp in remaining:
-                    if tp.get("handle", "").lower() == sh:
-                        reordered.append(tp)
-                        remaining.remove(tp)
-                        break
-            reordered.extend(remaining)
-            if reordered:
-                tweet_card_posts = reordered
-                logger.info(f"  SOCIAL ORDER: Reordered cards to match script narration order")
+    if script_social_posts:
+        tweet_card_posts = list(script_social_posts)
+        # Add display_order to each post for deterministic ordering
+        for di, dp in enumerate(tweet_card_posts):
+            dp["display_order"] = di
+        logger.info(f"  SOCIAL ORDER (from script, Issue 5 fix): {len(tweet_card_posts)} posts")
+    else:
+        # Fallback: fetch fresh if script has no social_posts
+        try:
+            from utils.feature_flags import is_enabled
+            if is_enabled("tweet_cards"):
+                from utils.social_fetcher import get_todays_social_posts
+                tweet_card_posts = get_todays_social_posts(max_posts=4)
+                tweet_card_posts.sort(key=lambda p: p.get("likes", 0), reverse=True)
+                for di, dp in enumerate(tweet_card_posts):
+                    dp["display_order"] = di
+        except Exception as e:
+            logger.warning(f"Tweet card data load failed: {e}")
+
+    if tweet_card_posts:
+        # Sort by display_order to guarantee match with script narration
+        tweet_card_posts.sort(key=lambda p: p.get("display_order", 0))
+        logger.info(f"  SOCIAL POST ORDER CHECK:")
+        for ti, tp in enumerate(tweet_card_posts):
+            logger.info(f"    #{ti}: @{tp.get('handle', '?')} — {tp.get('text', '')[:40]}")
 
     # --- 1. INTRO: Issue 1 — COLD OPEN FIRST, THEN TITLE CARD ---
     # Per PRODUCTION_DESIGN_LAWS Section 1: cold open starts at 0:00 with most shocking moment.
@@ -1741,48 +1764,22 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
             break
 
     if cold_open_audio:
-        # PART 1: Cold open with waveform visual (NO title card)
+        # Issue 1 FIX: Cold open hook is the FIRST thing in the video.
+        # NO title card, NO logo intro. Just the hook + waveform visual.
+        # The title card was causing the cold open audio to play twice
+        # (once in cold open, once in title card).
         intro_out = os.path.join(work_dir, f"part_{part_idx:03d}_cold_open_hook.mp4")
         intro_result = make_intro_coldopen(cold_open_audio["path"], intro_out, btc_price=btc_price)
         if intro_result:
             parts.append(intro_result)
             dur = ffprobe_duration(intro_result)
-            logger.info(f"[{part_idx:03d}] COLD OPEN HOOK (first, no logo): {dur:.1f}s")
+            logger.info(f"[{part_idx:03d}] COLD OPEN HOOK (first frame, no logo, no title card): {dur:.1f}s")
             part_idx += 1
             cold_open_consumed = True
-
-            # PART 2: Title card (plays AFTER cold open, ~4 seconds)
-            title_out = os.path.join(work_dir, f"part_{part_idx:03d}_title_card.mp4")
-            ep_title = script.get("episode_title", script.get("title", "Pulse Check Daily"))
-            title_result = ""
-            try:
-                title_result = make_remotion_title_card(
-                    cold_open_audio["path"], title_out,
-                    title=ep_title, btc_price=btc_price,
-                )
-            except Exception as e:
-                logger.warning(f"Remotion TitleCard failed: {e}")
-            if not title_result:
-                title_result = make_tag_video(title_out)
-            if title_result:
-                parts.append(title_result)
-                dur = ffprobe_duration(title_result)
-                logger.info(f"[{part_idx:03d}] TITLE CARD (after cold open): {dur:.1f}s")
-                part_idx += 1
         else:
-            logger.warning("[---] Cold open intro failed, falling back to tag video")
-            intro_out2 = os.path.join(work_dir, f"part_{part_idx:03d}_intro_tag.mp4")
-            tag_result = make_tag_video(intro_out2)
-            if tag_result:
-                parts.append(tag_result)
-                part_idx += 1
+            logger.warning("[---] Cold open intro failed, starting with first dialogue")
     else:
-        logger.warning("[---] No cold open audio available, using tag intro")
-        intro_out = os.path.join(work_dir, f"part_{part_idx:03d}_intro_tag.mp4")
-        tag_result = make_tag_video(intro_out)
-        if tag_result:
-            parts.append(tag_result)
-            part_idx += 1
+        logger.warning("[---] No cold open audio available, starting with first dialogue")
 
     # --- 2. DIALOGUE + CLIPS ---
 
@@ -1929,6 +1926,23 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
             for ci, cp in enumerate(card_posts):
                 logger.info(f"  SOCIAL MATCH: segment {i} card {ci}: @{cp.get('handle', '?')} — narration: {text[:50]}")
             social_card_idx += 2
+
+            # Issue 6: Try capturing actual tweet screenshots via Playwright
+            for cp in card_posts:
+                tweet_url = cp.get("tweet_url", cp.get("url", ""))
+                if tweet_url and not cp.get("screenshot_path"):
+                    handle = cp.get("handle", "unknown").replace("@", "")
+                    ss_path = os.path.join(work_dir, f"tweet_{handle}_{social_card_idx}.png")
+                    try:
+                        from utils.tweet_screenshot import capture_tweet
+                        if capture_tweet(tweet_url, ss_path):
+                            cp["screenshot_path"] = ss_path
+                            logger.info(f"  Tweet screenshot captured: @{handle}")
+                        else:
+                            logger.info(f"  Tweet screenshot failed for @{handle}, using text card")
+                    except Exception as e:
+                        logger.info(f"  Tweet screenshot unavailable: {e}")
+
             # Try Remotion SocialCard first
             result = ""
             try:
@@ -1951,16 +1965,20 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
                     segment_type=entry_type,
                 )
         else:
-            # Try Remotion WaveformVisualizer for host segments
+            # Issue 9 FIX: When cyberpunk background exists, use FFmpeg make_host_visual
+            # directly (it composites cyberpunk_loop.mp4 as base layer).
+            # Remotion waveform renders its own background which is plain/black.
             result = ""
-            try:
-                result = make_remotion_waveform(
-                    audio_path, line_out,
-                    title=text[:80] if text else "Pulse Check Daily",
-                    btc_price=btc_price,
-                )
-            except Exception as e:
-                logger.warning(f"Remotion WaveformVisualizer failed: {e}")
+            has_cyberpunk = os.path.exists(CYBERPUNK_BG_LOOP)
+            if not has_cyberpunk:
+                try:
+                    result = make_remotion_waveform(
+                        audio_path, line_out,
+                        title=text[:80] if text else "Pulse Check Daily",
+                        btc_price=btc_price,
+                    )
+                except Exception as e:
+                    logger.warning(f"Remotion WaveformVisualizer failed: {e}")
             if not result:
                 result = make_host_visual(
                     audio_path, host_num, text, line_out,
@@ -1970,7 +1988,10 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
                     segment_type=entry_type,
                 )
 
-            # PiP preview: overlay upcoming clip during setup segments (face rule)
+            # Issue 4 FIX: PiP preview ONLY during "setup" segments (introducing next clip).
+            # During "react" segments (discussing previous clip), show PREVIOUS clip thumbnail instead.
+            # This prevents the confusing situation where the next clip's preview appears
+            # while the narrator is still reacting to the previous clip.
             if result and entry_type == "setup" and clip_rank:
                 pip_path = pip_previews.get(clip_rank, "")
                 if pip_path:
@@ -1978,7 +1999,10 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
                     pip_result = overlay_pip_on_narration(result, pip_path, pip_out)
                     if pip_result and pip_result != result:
                         os.replace(pip_result, result)
-                        logger.info(f"  PiP preview overlaid for setup → clip #{clip_rank}")
+                        logger.info(f"  PiP preview overlaid for SETUP → clip #{clip_rank}")
+            elif result and entry_type == "react":
+                # React segments: no PiP preview of next clip (Issue 4)
+                logger.info(f"  No PiP for REACT segment (previous clip thumbnail via static thumb)")
 
         if result:
             parts.append(result)
@@ -1991,7 +2015,16 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
             logger.warning(f"[---] Host visual failed for {entry_type}")
 
     # --- 3. BRANDED OUTRO ---
-    # RULE (Section 17): Outro plays ONLY after ALL dialogue parts including wrap.
+    # Issue 8: The "Stay sovereign" wrap narration plays OVER the outro visual.
+    # Find the wrap audio (last non-CLIP audio line).
+    wrap_audio = ""
+    for al in reversed(audio_lines):
+        if al.get("host") not in ("CLIP",) and al.get("path") and os.path.exists(al.get("path", "")):
+            wrap_audio = al["path"]
+            break
+    if wrap_audio:
+        logger.info(f"  Wrap narration for outro: {os.path.basename(wrap_audio)}")
+
     narration_end = sum(ffprobe_duration(p) for p in parts if p and os.path.exists(p))
     logger.info(f"Narration ends at {narration_end:.1f}s — outro starts here")
 
@@ -2004,7 +2037,8 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
             part_idx += 1
 
     outro_out = os.path.join(work_dir, f"part_{part_idx:03d}_outro_branded.mp4")
-    outro_result = make_branded_outro(outro_out)
+    # Issue 8 FIX: Pass wrap narration to branded outro so "Stay sovereign" plays over it
+    outro_result = make_branded_outro(outro_out, narration_audio=wrap_audio)
     if outro_result:
         parts.append(outro_result)
         dur = ffprobe_duration(outro_result)
