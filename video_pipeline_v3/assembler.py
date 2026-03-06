@@ -1601,7 +1601,7 @@ def normalize_part(part_path: str, output_path: str) -> str:
          "-vf", "scale=1920:1080,setsar=1,format=yuv420p",
          "-video_track_timescale", "90000",
          "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
-         "-af", "loudnorm=I=-14:TP=-2.0:LRA=7,aresample=async=1,alimiter=level_in=1:level_out=0.89:limit=0.841:attack=3:release=30",
+         "-af", "loudnorm=I=-14:TP=-3.0:LRA=7,aresample=async=1,alimiter=level_in=1:level_out=0.794:limit=0.708:attack=3:release=30",
          output_path],
         "normalize", 180,
     )
@@ -1654,7 +1654,7 @@ def concatenate_parts(parts: list, output_path: str) -> str:
          "-r", "30", "-vsync", "cfr",
          "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-         "-af", "asetpts=PTS-STARTPTS,aresample=async=1,loudnorm=I=-14:TP=-2.0:LRA=11:linear=true,alimiter=level_in=1:level_out=0.89:limit=0.841:attack=3:release=30:asc=1",
+         "-af", "asetpts=PTS-STARTPTS,aresample=async=1,loudnorm=I=-14:TP=-3.0:LRA=11:linear=true,alimiter=level_in=1:level_out=0.794:limit=0.708:attack=3:release=30:asc=1",
          "-movflags", "+faststart",
          output_path],
         "concat final encode", 600,
