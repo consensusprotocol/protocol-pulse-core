@@ -104,17 +104,17 @@ export const STATE_CONFIG = {
     blinkIntervalMs:   [3000, 4000],
     blinkDurationMs:   [120, 160],
     gazeMaxOffsetPx:   [2, 1],         // Nearly still — on-air mode
-    saccadeIntervalMs: [5000, 8000],
+    saccadeIntervalMs: [6000, 10000],  // Even less movement — on-air stillness
     gazeFollowsCursor: false,
     browState:         "confident",
-    browIntensity:     0.6,            // Stronger — authoritative delivery
+    browIntensity:     0.5,            // Confident but not theatrical
     mouthViseme:       null,
     mouthScale:        1.05,           // Slightly larger — emphasis
-    headTiltDeg:       -1.0,           // Slight chin-up — broadcast posture
+    headTiltDeg:       0,              // Perfectly upright — authoritative, not arrogant
     headTiltVariance:  0.3,
-    breathingAmp:      0.7,
+    breathingAmp:      0.5,            // Very controlled, almost still
     breathingSpeed:    0.002,
-    glowIntensity:     0.65,           // Maximum presence
+    glowIntensity:     0.55,           // Backed off — presence without loudness
     glowColor:         [247, 147, 26], // Bitcoin orange for alerts
     pulseSpeed:        0.004,
     rightEyeLag:       0.04,
