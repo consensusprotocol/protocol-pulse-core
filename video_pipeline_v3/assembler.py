@@ -68,7 +68,7 @@ else:
     GLITCH_WHOOSH = os.path.join(ASSETS, "sfx", "glitch_whoosh.wav")
     logging.getLogger("Assembler").info("CUSTOM WHOOSH NOT FOUND — using generated")
 CARD_SWOOSH = os.path.join(ASSETS, "sfx", "card_swoosh.wav")
-CYBERPUNK_BG_LOOP = os.path.join(ASSETS, "backgrounds", "cyberpunk_loop.mp4")
+CYBERPUNK_BG_LOOP = os.path.join(ASSETS, "backgrounds", "cyberspace.mp4")
 DATA_BLIP = os.path.join(ASSETS, "sfx", "data_blip.wav")
 LOWER_SLIDE = os.path.join(ASSETS, "sfx", "lower_slide.wav")
 
@@ -232,10 +232,8 @@ def make_outro_video(output_path: str) -> str:
     if outro_dur <= 0:
         return ""
 
-    fade_out_v = max(0, outro_dur - 0.5)
-    fade_out_a = max(0, outro_dur - 1.0)
-    vf = (f"scale=1920:1080,setsar=1,format=yuv420p,"
-          f"fade=t=out:st={fade_out_v}:d=0.5")
+    # Sprint 1.8: No fade-to-black on outro. Hard cut.
+    vf = f"scale=1920:1080,setsar=1,format=yuv420p"
 
     r = subprocess.run(
         ["ffprobe", "-v", "error", "-select_streams", "a",
@@ -356,83 +354,53 @@ def make_tag_video(output_path: str, narration_audio: str = "") -> str:
 # ── Cold open intro ───────────────────────────────────────────────────────
 
 def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A") -> str:
-    """Intro segment: cold open TTS narration with pp_intro.mp3 jingle underneath.
+    """Cold open: face on screen, NO logo, NO music, immediate voice.
 
-    Deep space background + waveform + Protocol Pulse branding.
-    The jingle plays at 35% volume under TTS.
+    Per PRODUCTION_DESIGN_LAWS: cyberpunk bg + waveform + subtitle.
+    Voice starts on frame 1. No pre-roll.
     """
-    import glob as _glob
-
-    jingle = os.path.join(ASSETS, "music", "pp_intro.mp3")
-    if not os.path.exists(jingle):
-        tracks = _glob.glob(os.path.join(ASSETS, "music", "intro_*.mp3"))
-        jingle = tracks[0] if tracks else ""
-
     tts_dur = ffprobe_duration(tts_path)
-    total_dur = max(tts_dur + 1.0, 4.0)
+    total_dur = max(tts_dur + 0.3, 3.0)
 
-    has_jingle = bool(jingle and os.path.exists(jingle))
-    has_wm = os.path.exists(WATERMARK)
-    has_logo = os.path.exists(LOGO_IMAGE)
+    has_cyberpunk_bg = os.path.exists(CYBERPUNK_BG_LOOP)
 
-    # Background: deep space + vignette + logo
-    fg = f"color=c=0x0A0A0A:s=1920x1080:d={total_dur}:r=30[base];\n"
-    fg += f"color=c=0x0F0000:s=1920x540:d={total_dur}:r=30[tophalf];\n"
-    fg += f"[base][tophalf]overlay=0:0[bgbase];\n"
-    # Vignette
-    fg += (f"[bgbase]drawbox=x=0:y=0:w=250:h=1080:color=0x000000@0.12:t=fill"
-           f",drawbox=x=1670:y=0:w=250:h=1080:color=0x000000@0.12:t=fill[bgvig];\n")
-    fg += (f"[bgvig]drawbox=x=0:y=536:w=1920:h=3:color=0xCC0000@0.5:t=fill"
-           f",drawbox=x=0:y=541:w=1920:h=1:color=0x880000@0.3:t=fill[bglines];\n")
-    fg += f"color=c=0xCC0000@0.8:s=4x1080:d={total_dur}:r=30[leftbar];\n"
-    fg += f"[bglines][leftbar]overlay=0:0[bgv0];\n"
+    # Build inputs: 0=TTS, [1=cyberpunk bg]
+    inp_args = [tts_path]
+    idx = 1
 
-    # Waveform — compact, centered, red with mirror reflection
-    fg += (f"[0:a]showwaves=s=960x80:mode=cline:"
+    if has_cyberpunk_bg:
+        inp_args.append(["-stream_loop", "-1", "-i", CYBERPUNK_BG_LOOP])
+        bg_idx = idx
+        idx += 1
+        # Use cyberpunk background with glow enhancement
+        fg = (f"[{bg_idx}:v]scale=1920:1080,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS,"
+              f"split[main][glow];\n"
+              f"[glow]boxblur=10:5,curves=all='0/0 0.5/0.2 1/1'[g];\n"
+              f"[main][g]blend=all_mode='screen'[bgvig];\n")
+    else:
+        fg = f"color=c=0x0A0A0A:s=1920x1080:d={total_dur}:r=30[bgvig];\n"
+
+    # Waveform — compact, left side
+    fg += (f"[0:a]showwaves=s=600x80:mode=cline:"
            f"colors=0xCC0000|0xFF4444:scale=sqrt:draw=full:rate=30[wave_raw];\n")
     fg += f"[wave_raw]split[wA][wB];\n"
     fg += f"[wB]vflip,colorchannelmixer=aa=0.35[wflip];\n"
     fg += f"[wA][wflip]vstack[wavepair];\n"
-    fg += f"[bgv0][wavepair]overlay=480:460[withwave];\n"
+    fg += f"[bgvig][wavepair]overlay=228:440[withwave];\n"
 
-    # Logo overlay (centered, 200px, black bg removed) or text fallback
-    inp_args = [tts_path]
-    idx = 1
-    if has_logo:
-        inp_args.append(LOGO_IMAGE)
-        logo_idx = idx
-        idx += 1
-        fg += (f"[{logo_idx}:v]scale=-1:200,"
-               f"colorkey=color=0x000000:similarity=0.15:blend=0.15[logo];\n")
-        fg += f"[withwave][logo]overlay=(W-w)/2:60[title];\n"
-    else:
-        fg += (f"[withwave]drawtext=fontfile={FONT_BOLD}:"
-               f"text='PROTOCOL PULSE':fontcolor=0xCC0000:fontsize=72:"
-               f"x=(w-text_w)/2:y=80[title];\n")
+    # NO logo — per Sprint 1.6 + PRODUCTION_DESIGN_LAWS
+    # Just ticker bar at bottom
+    safe_btc = btc_price.replace("'", "").replace('"', "")
+    ticker_text = f"  PROTOCOL PULSE  |  PULSE CHECK  |  BTC {safe_btc}  |  PROTOCOLPULSE.IO  "
+    ticker_text = ticker_text.replace("'", "").replace('"', "")
+    fg += f"color=c=0x0A0000@0.92:s=1920x44:d={total_dur}:r=30[tickbg];\n"
+    fg += (f"[tickbg]drawtext=fontfile={FONT_MONO}:text='{ticker_text}':"
+           f"fontcolor=0xFFD700:fontsize=18:x=w-mod(t*80\\,w+tw):y=12[ticker];\n")
+    fg += f"[withwave][ticker]overlay=0:H-44[v_final];\n"
+    fg += f"[v_final]format=yuv420p[outv];\n"
 
-    fg += (f"[title]drawtext=fontfile={FONT_MONO}:"
-           f"text='PULSE CHECK':fontcolor=0xFFFFFF@0.7:fontsize=32:"
-           f"x=(w-text_w)/2:y=280[v_final];\n")
-
-    if has_wm:
-        inp_args.append(WATERMARK)
-        wm_idx = idx
-        idx += 1
-        fg += f"[{wm_idx}:v]scale=150:-1[wm];\n"
-        fg += f"[v_final][wm]overlay=W-170:16[outv_wm];\n"
-        last_v = "outv_wm"
-    else:
-        last_v = "v_final"
-    fg += f"[{last_v}]format=yuv420p[outv];\n"
-
-    if has_jingle:
-        inp_args.append(jingle)
-        jingle_idx = idx
-        fg += f"[0:a]volume=1.0[tts_a];\n"
-        fg += f"[{jingle_idx}:a]volume=0.35[jingle_a];\n"
-        fg += f"[tts_a][jingle_a]amix=inputs=2:duration=first:weights=1 0.35[outa]"
-    else:
-        fg += f"[0:a]aresample=async=1[outa]"
+    # NO music — voice starts immediately
+    fg += f"[0:a]loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]"
 
     ok = run_ffmpeg_filtergraph(
         inp_args, fg, ["[outv]", "[outa]"],
@@ -457,10 +425,9 @@ def make_branded_outro(output_path: str, narration_audio: str = "") -> str:
     dur = ffprobe_duration(src)
     if dur <= 0:
         return ""
-    fade_start = max(dur - 0.8, dur * 0.8)
+    # Sprint 1.8: NO fade-to-black. Abrupt hard cut per PRODUCTION_DESIGN_LAWS.
     vf = (f"scale=1920:1080:force_original_aspect_ratio=increase,"
-          f"crop=1920:1080,setsar=1,fps=30,format=yuv420p,"
-          f"fade=t=out:st={fade_start:.2f}:d=0.8")
+          f"crop=1920:1080,setsar=1,fps=30,format=yuv420p")
 
     if narration_audio and os.path.exists(narration_audio):
         ok = run_ffmpeg([
@@ -523,7 +490,8 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
     clip_dur = ffprobe_duration(clip_path)
     if clip_dur < 10:
         return ""
-    start = min(5.0, clip_dur - duration - 1)
+    # Sprint 3.2: Extract from MIDPOINT of clip (better face shots)
+    start = max(0, (clip_dur / 2) - (duration / 2))
     ok = run_ffmpeg([
         "-ss", str(start), "-i", clip_path,
         "-t", str(duration), "-an",
@@ -619,17 +587,11 @@ def make_host_visual(audio_path: str, host: int, text: str,
     has_wm = os.path.exists(WATERMARK)
     has_bgm = os.path.exists(BG_MUSIC)
     has_thumb = bool(thumbnail_path and os.path.exists(thumbnail_path))
-    has_logo = os.path.exists(LOGO_IMAGE)
     has_cyberpunk_bg = os.path.exists(CYBERPUNK_BG_LOOP)
-    if has_cyberpunk_bg:
-        logger.debug(f"  Issue 16: Cyberpunk background loop active for {label}")
     is_social = segment_type == "social_segment"
 
-    # Get episode title for subtitle text
-    ep_title = label.replace("host visual", "").replace("(ERYN)", "").replace("(MARK)", "").strip()
-
     # Build inputs list
-    # 0: TTS audio, [1: cyberpunk bg or logo], [N: watermark], [N: bg music], [N: thumbnail]
+    # 0: TTS audio, [1: cyberpunk bg], [N: watermark], [N: bg music], [N: thumbnail]
     inputs = [audio_path]  # 0: tts audio
     inp_idx = 1
 
@@ -640,12 +602,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
     else:
         cyberpunk_idx = -1
 
-    if has_logo:
-        inputs.append(LOGO_IMAGE)
-        logo_idx = inp_idx
-        inp_idx += 1
-    else:
-        logo_idx = -1
+    # Sprint 1.9: Logo NOT added as input for narration segments
 
     if has_wm:
         inputs.append(WATERMARK)
@@ -668,10 +625,13 @@ def make_host_visual(audio_path: str, host: int, text: str,
     else:
         thumb_idx = -1
 
-    # Filter graph — procedural background with logo + audio waveform
+    # Filter graph — animated background + audio waveform
     if has_cyberpunk_bg:
-        # Use pre-rendered cyberpunk background loop (stream-looped to match duration)
-        fg = f"[{cyberpunk_idx}:v]scale=1920:1080,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS[bgvig];\n"
+        # Sprint 1.7: Cyberpunk bg with glow enhancement
+        fg = (f"[{cyberpunk_idx}:v]scale=1920:1080,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS,"
+              f"split[main][glow];\n"
+              f"[glow]boxblur=10:5,curves=all='0/0 0.5/0.2 1/1'[g];\n"
+              f"[main][g]blend=all_mode='screen'[bgvig];\n")
     else:
         # 1. Dark base (#0A0A0A) with subtle vignette
         fg = f"color=c=0x0A0A0A:s=1920x1080:d={total_dur}:r=30[base];\n"
@@ -694,27 +654,12 @@ def make_host_visual(audio_path: str, host: int, text: str,
     fg += f"color=c=0xCC0000@0.8:s=4x1080:d={total_dur}:r=30[leftbar];\n"
     fg += f"[bglines][leftbar]overlay=0:0[bgv0];\n"
 
-    # 6. Logo overlay — centered, 200px height, black bg removed via colorkey
-    if has_logo:
-        fg += (f"[{logo_idx}:v]scale=-1:200,"
-               f"colorkey=color=0x000000:similarity=0.15:blend=0.15[logo];\n")
-        # Center logo: x=(1920-logo_w)/2, y=80
-        fg += f"[bgv0][logo]overlay=(W-w)/2:80[bglogo];\n"
-        last_bg = "bglogo"
-    else:
-        # Fallback: text title if no logo
-        fg += (f"[bgv0]drawtext=fontfile={FONT_BOLD}:"
-               f"text='PROTOCOL PULSE':fontcolor=0xCC0000:fontsize=72:"
-               f"x=(w-text_w)/2:y=80[bglogo];\n")
-        last_bg = "bglogo"
+    # Sprint 1.9: NO logo on narration segments (Logo Restraint Addendum).
+    # Logo only appears in: title card, clip watermark, outro.
+    last_bg = "bgv0"
 
-    # 7. "PULSE CHECK" subtitle below logo
+    # Corner elements — date top-left, small text top-right (no logo image)
     fg += (f"[{last_bg}]drawtext=fontfile={FONT_MONO}:"
-           f"text='PULSE CHECK':fontcolor=0xFFFFFF@0.7:fontsize=28:"
-           f"x=(w-text_w)/2:y=300[bgtitle];\n")
-
-    # 8. Corner elements — date top-left, "PROTOCOL PULSE" top-right
-    fg += (f"[bgtitle]drawtext=fontfile={FONT_MONO}:"
            f"text='PROTOCOL PULSE':fontcolor=0x444444:fontsize=16:"
            f"x=W-200:y=16[bgcorner];\n")
     last_bg = "bgcorner"
@@ -742,8 +687,20 @@ def make_host_visual(audio_path: str, host: int, text: str,
     fg += (f"[tickbg]drawtext=fontfile={FONT_MONO}:text='{ticker_text}':"
            f"fontcolor=0xFFD700:fontsize=18:x=w-mod(t*80\\,w+tw):y=12[ticker];\n")
 
+    # Sprint 3.5: Subtitle text overlay (white, bottom-center, above ticker)
+    safe_sub = _sanitize_text(text) if text else ""
+    if safe_sub:
+        wrapped_sub = _word_wrap(safe_sub, max_width=50, max_lines=2)
+        fg += (f"[withwave]drawtext=fontfile={FONT_BOLD}:"
+               f"text='{wrapped_sub}':"
+               f"fontcolor=0xFFFFFF:fontsize=30:x=(w-text_w)/2:y=H-160:"
+               f"line_spacing=8:"
+               f"box=1:boxcolor=0x000000@0.5:boxborderw=8[withsub];\n")
+        fg += f"[withsub][spklabel]overlay=40:H-90[v1];\n"
+    else:
+        fg += f"[withwave][spklabel]overlay=40:H-90[v1];\n"
+
     # 14. Compose base layers
-    fg += f"[withwave][spklabel]overlay=40:H-90[v1];\n"
     fg += f"[v1][ticker]overlay=0:H-44[v2];\n"
     last_v = "v2"
 
@@ -830,15 +787,16 @@ def make_host_visual(audio_path: str, host: int, text: str,
 
     fg += f"[{last_v}]format=yuv420p[outv];\n"
 
-    # Issue 7 FIX: Background music at -20dB under narration.
-    # Removed loudnorm (banned per PIPELINE_LAWS — adds 200ms latency).
-    # Music volume: -20dB = volume=0.1, mixed via amix with weight 0.15.
+    # Sprint 1.3+1.4: Loudnorm narration to -14 LUFS + sidechain music ducking
     if has_bgm:
-        fg += f"[0:a]aresample=async=1[tts];\n"
-        fg += f"[{bgm_idx}:a]volume=0.10,afade=t=in:d=0.5,afade=t=out:st={max(0, total_dur - 1.0)}:d=1.0[bgm];\n"
-        fg += f"[tts][bgm]amix=inputs=2:duration=first:weights=1 0.15[outa]"
+        fg += f"[0:a]loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[tts];\n"
+        # Sidechain ducking: music at -18dB idle, ducks to -30dB when voice present
+        fg += f"[{bgm_idx}:a]volume=0.126,afade=t=in:d=0.5,afade=t=out:st={max(0, total_dur - 1.0)}:d=1.0[music_raw];\n"
+        fg += f"[music_raw]asplit[music_play][music_sc];\n"
+        fg += f"[music_play][music_sc]sidechaincompress=threshold=0.02:ratio=6:attack=50:release=500[music_ducked];\n"
+        fg += f"[tts][music_ducked]amix=inputs=2:duration=first[outa]"
     else:
-        fg += f"[0:a]aresample=async=1[outa]"
+        fg += f"[0:a]loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]"
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -1062,13 +1020,15 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
 
     fg += f"[{last_v}]format=yuv420p[outv];\n"
 
-    # Issue 7: Music at -20dB under social narration (same fix as host visual)
+    # Sprint 1.3+1.4: Loudnorm + sidechain ducking for social segment
     if has_bgm:
-        fg += f"[0:a]aresample=async=1[tts];\n"
-        fg += f"[{bgm_idx}:a]volume=0.10,afade=t=in:d=0.5,afade=t=out:st={max(0, total_dur - 1.0)}:d=1.0[bgm];\n"
-        fg += f"[tts][bgm]amix=inputs=2:duration=first:weights=1 0.15[outa]"
+        fg += f"[0:a]loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[tts];\n"
+        fg += f"[{bgm_idx}:a]volume=0.126,afade=t=in:d=0.5,afade=t=out:st={max(0, total_dur - 1.0)}:d=1.0[music_raw];\n"
+        fg += f"[music_raw]asplit[music_play][music_sc];\n"
+        fg += f"[music_play][music_sc]sidechaincompress=threshold=0.02:ratio=6:attack=50:release=500[music_ducked];\n"
+        fg += f"[tts][music_ducked]amix=inputs=2:duration=first[outa]"
     else:
-        fg += f"[0:a]aresample=async=1[outa]"
+        fg += f"[0:a]loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]"
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -1550,14 +1510,19 @@ def make_clip_visual(clip_path: str, source: str, output_path: str,
     safe_source = source.replace("'", "").replace('"', "").replace(":", "")
     safe_btc = btc_price.replace("'", "").replace('"', "")
 
+    fade_out_start = max(0, clip_dur - 0.5)
     fg = (
-        f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,fps=30[clip];\n"
+        f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,fps=30,"
+        f"fade=t=in:d=0.3,fade=t=out:st={fade_out_start}:d=0.5[clip];\n"
         # Source attribution (top-right, semi-transparent)
         f"color=c=0x0A0A0A@0.75:s=320x36:d={clip_dur}[srcbg];\n"
         f"[srcbg]drawtext=fontfile={FONT_MONO}:text='Source  {safe_source}':fontcolor=white:fontsize=15:x=10:y=10[srclabel];\n"
         # Compose — source overlay top-right
         f"[clip][srclabel]overlay=W-340:18,format=yuv420p[outv];\n"
-        f"[0:a]asetpts=PTS-STARTPTS,volume=1.0[outa]"
+        # Audio: fade in/out + loudnorm to -14 LUFS
+        f"[0:a]asetpts=PTS-STARTPTS,"
+        f"highpass=f=50,lowpass=f=15000,loudnorm=I=-14:TP=-1.5:LRA=7,"
+        f"afade=t=in:d=0.3,afade=t=out:st={fade_out_start}:d=0.5[outa]"
     )
 
     ok = run_ffmpeg_filtergraph(
@@ -1590,7 +1555,7 @@ def normalize_part(part_path: str, output_path: str) -> str:
          "-vf", "scale=1920:1080,setsar=1,format=yuv420p",
          "-video_track_timescale", "90000",
          "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
-         "-af", "aresample=async=1",
+         "-af", "loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1",
          output_path],
         "normalize", 180,
     )
@@ -1771,9 +1736,19 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
         intro_out = os.path.join(work_dir, f"part_{part_idx:03d}_cold_open_hook.mp4")
         intro_result = make_intro_coldopen(cold_open_audio["path"], intro_out, btc_price=btc_price)
         if intro_result:
+            # Sprint 1.6: Overlay PiP of first clip onto cold open (face on screen)
+            if 1 in extracted_clips:
+                clip1_path = extracted_clips[1].get("path", "")
+                if clip1_path and os.path.exists(clip1_path):
+                    pip_co = os.path.join(work_dir, "pip_cold_open.mp4")
+                    pip_co_result = make_pip_preview(clip1_path, pip_co)
+                    if pip_co_result:
+                        pip_co_out = os.path.join(work_dir, f"part_{part_idx:03d}_cold_open_pip.mp4")
+                        intro_result = overlay_pip_on_narration(intro_result, pip_co_result, pip_co_out)
+                        logger.info(f"  Cold open PiP overlay: clip #1 face on screen")
             parts.append(intro_result)
             dur = ffprobe_duration(intro_result)
-            logger.info(f"[{part_idx:03d}] COLD OPEN HOOK (first frame, no logo, no title card): {dur:.1f}s")
+            logger.info(f"[{part_idx:03d}] COLD OPEN HOOK (face, no logo, no music): {dur:.1f}s")
             part_idx += 1
             cold_open_consumed = True
         else:
@@ -1919,51 +1894,99 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
 
         line_out = os.path.join(work_dir, f"part_{part_idx:03d}_{entry_type}.mp4")
 
-        # V15: Tweet card visual for social segments when real data available
+        # Sprint 1.5: Each tweet as its OWN video segment
         if entry_type == "social_segment" and tweet_card_posts and social_card_idx < len(tweet_card_posts):
-            # Show 2 posts per card visual (or remaining)
-            card_posts = tweet_card_posts[social_card_idx:social_card_idx + 2]
-            for ci, cp in enumerate(card_posts):
-                logger.info(f"  SOCIAL MATCH: segment {i} card {ci}: @{cp.get('handle', '?')} — narration: {text[:50]}")
-            social_card_idx += 2
+            # Render up to 3 individual card segments (one per tweet)
+            card_posts = tweet_card_posts[social_card_idx:social_card_idx + 3]
 
-            # Issue 6: Try capturing actual tweet screenshots via Playwright
+            # Try capturing tweet screenshots
             for cp in card_posts:
                 tweet_url = cp.get("tweet_url", cp.get("url", ""))
                 if tweet_url and not cp.get("screenshot_path"):
-                    handle = cp.get("handle", "unknown").replace("@", "")
-                    ss_path = os.path.join(work_dir, f"tweet_{handle}_{social_card_idx}.png")
+                    handle_name = cp.get("handle", "unknown").replace("@", "")
+                    ss_path = os.path.join(work_dir, f"tweet_{handle_name}_{social_card_idx}.png")
                     try:
                         from utils.tweet_screenshot import capture_tweet
                         if capture_tweet(tweet_url, ss_path):
                             cp["screenshot_path"] = ss_path
-                            logger.info(f"  Tweet screenshot captured: @{handle}")
-                        else:
-                            logger.info(f"  Tweet screenshot failed for @{handle}, using text card")
-                    except Exception as e:
-                        logger.info(f"  Tweet screenshot unavailable: {e}")
+                    except Exception:
+                        pass
 
-            # Try Remotion SocialCard first
-            result = ""
-            try:
-                result = make_remotion_social_card(
-                    audio_path, card_posts, line_out, btc_price=btc_price,
-                )
-            except Exception as e:
-                logger.warning(f"Remotion SocialCard failed: {e}")
-            if not result:
-                result = make_social_card_visual(
-                    audio_path, card_posts, line_out, btc_price=btc_price,
-                )
-                if result:
-                    result = _mix_swoosh_into_segment(result)
-            if not result:
-                # Fall back to standard host visual
-                result = make_host_visual(
-                    audio_path, host_num, text, line_out,
-                    btc_price=btc_price, label=f"{entry_type} #{part_idx}",
-                    segment_type=entry_type,
-                )
+            # First card uses the current audio_path (matched by script)
+            # Remaining cards: if there are more audio lines for social segments, use them
+            # Otherwise, render with the same audio (single narration covers all cards)
+            for ci, cp in enumerate(card_posts):
+                card_out = os.path.join(work_dir, f"part_{part_idx:03d}_social_card_{ci}.mp4")
+                logger.info(f"  SOCIAL CARD {ci}: @{cp.get('handle', '?')} — {cp.get('text', '')[:40]}")
+
+                # Use the current audio for first card, try to find audio for subsequent cards
+                card_audio = audio_path if ci == 0 else None
+                if ci > 0:
+                    # Look ahead for more social audio lines
+                    peek_idx = audio_idx
+                    while peek_idx < len(audio_lines):
+                        al = audio_lines[peek_idx]
+                        if al.get("host") not in ("CLIP",) and al.get("path") and os.path.exists(al["path"]):
+                            card_audio = al["path"]
+                            audio_idx = peek_idx + 1
+                            break
+                        peek_idx += 1
+                    if not card_audio:
+                        card_audio = audio_path  # fallback: reuse first card's audio
+
+                # Card swoosh transition between cards
+                if ci > 0:
+                    swoosh_out = os.path.join(work_dir, f"part_{part_idx:03d}_card_swoosh.mp4")
+                    if os.path.exists(CARD_SWOOSH):
+                        swoosh_dur = ffprobe_duration(CARD_SWOOSH)
+                        run_ffmpeg([
+                            "-f", "lavfi", "-i", f"color=c=0x0C0C0C:s=1920x1080:d={swoosh_dur}:r=30",
+                            "-i", CARD_SWOOSH,
+                            "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+                            "-b:v", "8M", "-r", "30", "-pix_fmt", "yuv420p",
+                            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                            "-shortest", swoosh_out,
+                        ], "card swoosh transition", 30)
+                        if os.path.exists(swoosh_out):
+                            parts.append(swoosh_out)
+                            part_idx += 1
+
+                # Render single-card visual
+                card_result = ""
+                try:
+                    card_result = make_remotion_social_card(
+                        card_audio, [cp], card_out, btc_price=btc_price,
+                    )
+                except Exception:
+                    pass
+                if not card_result:
+                    card_result = make_social_card_visual(
+                        card_audio, [cp], card_out, btc_price=btc_price,
+                    )
+                    if card_result:
+                        card_result = _mix_swoosh_into_segment(card_result)
+                if not card_result:
+                    card_result = make_host_visual(
+                        card_audio, host_num, text, card_out,
+                        btc_price=btc_price, label=f"social_card_{ci}",
+                        segment_type="social_segment",
+                    )
+                if card_result:
+                    parts.append(card_result)
+                    dur = ffprobe_duration(card_result)
+                    logger.info(f"[{part_idx:03d}] SOCIAL CARD {ci} [@{cp.get('handle', '?')}]: {dur:.1f}s")
+                    part_idx += 1
+
+            social_card_idx += len(card_posts)
+            prev_segment_type = entry_type
+            continue  # parts already added per-card above
+        elif entry_type == "social_segment":
+            # No tweet card data available — fall back to host visual
+            result = make_host_visual(
+                audio_path, host_num, text, line_out,
+                btc_price=btc_price, label=f"{entry_type} #{part_idx}",
+                segment_type=entry_type,
+            )
         else:
             # Issue 9 FIX: When cyberpunk background exists, use FFmpeg make_host_visual
             # directly (it composites cyberpunk_loop.mp4 as base layer).
@@ -2038,7 +2061,7 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
 
     outro_out = os.path.join(work_dir, f"part_{part_idx:03d}_outro_branded.mp4")
     # Issue 8 FIX: Pass wrap narration to branded outro so "Stay sovereign" plays over it
-    outro_result = make_branded_outro(outro_out, narration_audio=wrap_audio)
+    outro_result = make_branded_outro(outro_out, narration_audio="")
     if outro_result:
         parts.append(outro_result)
         dur = ffprobe_duration(outro_result)
