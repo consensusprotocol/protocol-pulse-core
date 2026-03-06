@@ -1660,6 +1660,45 @@ def concatenate_parts(parts: list, output_path: str) -> str:
         "concat final encode", 600,
     )
 
+    # Post-encode two-pass loudnorm — precisely controls true peak after AAC encoding
+    if ok and os.path.exists(output_path):
+        # Pass 1: measure
+        import re as _re
+        try:
+            r = subprocess.run(
+                ["ffmpeg", "-i", output_path, "-filter:a",
+                 "loudnorm=I=-14:TP=-3.0:LRA=11:print_format=json", "-f", "null", "-"],
+                capture_output=True, text=True, timeout=300,
+            )
+            json_start = r.stderr.rfind("{")
+            json_end = r.stderr.rfind("}") + 1
+            if json_start >= 0 and json_end > json_start:
+                measured = json.loads(r.stderr[json_start:json_end])
+                mi = measured.get("input_i", "-14")
+                mtp = measured.get("input_tp", "0")
+                mlra = measured.get("input_lra", "7")
+                mthresh = measured.get("input_thresh", "-24")
+                # Pass 2: apply with measured values (precise two-pass mode)
+                tp_pass = output_path + ".tp_limited.mp4"
+                tp_ok = run_ffmpeg(
+                    ["-i", output_path,
+                     "-c:v", "copy",
+                     "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                     "-af", (f"loudnorm=I=-14:TP=-3.0:LRA=11:linear=true"
+                             f":measured_I={mi}:measured_TP={mtp}"
+                             f":measured_LRA={mlra}:measured_thresh={mthresh}"),
+                     "-movflags", "+faststart",
+                     tp_pass],
+                    "true peak two-pass loudnorm", 300,
+                )
+                if tp_ok and os.path.exists(tp_pass):
+                    os.replace(tp_pass, output_path)
+                    logger.info("Two-pass loudnorm true peak pass applied")
+                elif os.path.exists(tp_pass):
+                    os.remove(tp_pass)
+        except Exception as e:
+            logger.warning(f"Post-encode TP pass failed: {e}")
+
     # Cleanup concat raw
     if os.path.exists(concat_raw):
         try:
