@@ -1633,7 +1633,7 @@ def concatenate_parts(parts: list, output_path: str) -> str:
          "-r", "30", "-vsync", "cfr",
          "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-         "-af", "asetpts=PTS-STARTPTS,aresample=async=1",
+         "-af", "asetpts=PTS-STARTPTS,aresample=async=1,loudnorm=I=-14:TP=-1.5:LRA=11:linear=true,alimiter=level_in=1:level_out=1:limit=0.841:attack=5:release=50:asc=1",
          "-movflags", "+faststart",
          output_path],
         "concat final encode", 600,
