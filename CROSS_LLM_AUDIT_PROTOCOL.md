@@ -333,3 +333,63 @@ Prerequisites:
 Every major feature gets the combined intelligence of 4+ AI models
 before shipping. No blind spots. No echo chambers. Just consensus-driven
 engineering excellence.*
+
+
+---
+
+## AUTO-TRIGGER RULES (Added 2026-03-06)
+
+### Automatic Cross-LLM Audit triggers:
+
+The Cross-LLM Audit Protocol AUTOMATICALLY activates when ANY of these events occur:
+
+1. **New Feature Build Complete**
+   When any new feature is built and committed to Git, Claude MUST:
+   - Generate the Audit Package for that specific feature
+   - Present it to PBX with: "New feature [X] is built. Ready for cross-LLM audit.
+     Paste this into Gemini, ChatGPT, and Grok."
+   - This is NOT optional. Every new feature gets audited before it ships to production.
+
+2. **Major Refactor Complete**
+   When any existing feature undergoes significant restructuring (>100 lines changed),
+   auto-generate the audit package.
+
+3. **Pipeline Architecture Change**
+   Any change to manifest_builder.py, manifest_renderer.py, qc_pipeline.py,
+   or assembler.py triggers an audit of the affected subsystem.
+
+4. **Gospel Doc Created or Updated**
+   When a new gospel doc is created or an existing one is significantly updated,
+   auto-generate an audit package that includes the doc + all code it governs.
+
+5. **Quality Gate Failure**
+   When qc_pipeline.py reports a failure, auto-generate an audit package
+   focused on the failing subsystem.
+
+6. **PBX Requests It**
+   Always. No questions asked.
+
+### What Claude does automatically:
+- Detects the trigger event
+- Pulls all relevant code from Ultron
+- Packages it with gospel docs and context
+- Presents the Audit Package to PBX
+- Says: "Cross-LLM audit ready. Paste into Gemini/ChatGPT/Grok."
+
+### What Claude does NOT do automatically:
+- Send to external LLMs (PBX does this manually until API automation is built)
+- Execute fixes without PBX reviewing the consensus first
+- Skip the audit because "the code looks fine" — the whole point is catching what we miss
+
+### Integration with build workflow:
+```
+Build feature → Commit → Git push →
+  Claude: "Feature [X] committed. Cross-LLM audit package ready."
+  PBX: pastes to 3 LLMs → collects outputs → pastes back
+  Claude: synthesizes consensus → drafts execution prompt
+  Claude Code: executes consensus fixes → renders → ships
+```
+
+This makes cross-LLM auditing a STANDARD PART of the build process,
+not an occasional nice-to-have. Every feature benefits from 4+ AI perspectives
+before reaching production.
