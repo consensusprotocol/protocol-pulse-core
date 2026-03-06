@@ -113,18 +113,28 @@ def detect_live_streams(channels):
             continue
 
         try:
+            # Use --match-filter for live_status=is_live (currently broadcasting)
+            # and limit to 1 result to avoid scanning entire /streams archive
             result = subprocess.run(
-                ["yt-dlp", "--flat-playlist", "--match-filter", "is_live",
-                 "--print", "%(id)s|%(title)s|%(uploader)s",
-                 url + "/streams", "--max-downloads", "1",
+                ["yt-dlp", "--flat-playlist",
+                 "--match-filter", "live_status=is_live",
+                 "--print", "%(id)s|%(title)s|%(uploader)s|%(live_status)s",
+                 url + "/streams", "--playlist-items", "1:5",
                  "--no-warnings", "--quiet"],
                 capture_output=True, text=True, timeout=20
             )
             stdout = result.stdout.strip()
             if stdout:
                 for line in stdout.split("\n"):
-                    parts = line.strip().split("|")
+                    line = line.strip()
+                    if not line:
+                        continue
+                    parts = line.split("|")
                     if len(parts) >= 2:
+                        # Double-check live_status field if available
+                        live_status = parts[3] if len(parts) > 3 else ""
+                        if live_status and live_status != "is_live":
+                            continue
                         live_streams.append({
                             "video_id": parts[0],
                             "title": parts[1],
