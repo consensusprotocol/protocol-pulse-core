@@ -1,12 +1,13 @@
 """
-ORACLE AVATAR SERVER — GPU-Cached FP16 + Vision Guide
-=======================================================
+ORACLE AVATAR SERVER v2 — GPU-Cached FP16 + Face Restoration + Blinks
+======================================================================
 GPU-accelerated Wav2Lip lip-sync with:
-  - FP16 inference via ModelRegistry singleton
-  - torch.compile(reduce-overhead) fused kernels
-  - Pre-cached reference face (detect once, reuse forever)
-  - Eye blinks + head movement post-processing
+  - FP16 inference via ModelRegistry singleton on GPU 1
+  - GFPGAN/CodeFormer face restoration (fixes blurry 96x96 mouth)
+  - MediaPipe eye blinks (gradient overlay, no warpAffine artifacts)
+  - Head movement post-processing
   - Vision guide endpoints (Gemini 2.5 Flash)
+  - CRF 18, preset fast, 30fps output
 
 Deploy: ~/protocol_pulse/oracle/avatar_server.py
 Launch: cd ~/protocol_pulse/oracle && python3 avatar_server.py
@@ -27,19 +28,23 @@ import cv2
 import torch
 from flask import Flask, request, jsonify, send_file, after_this_request
 
-from model_registry import ModelRegistry, WAV2LIP_DIR, AVATAR_SOURCE
+from model_registry import ModelRegistry, WAV2LIP_DIR, AVATAR_SOURCE, DEVICE
 
 import requests as http_requests  # ElevenLabs TTS
+
+# Face enhancement + blink modules
+from face_enhancer import enhance_frames_batch
+from blink_engine import apply_blink_gradient, generate_blink_schedule
 
 # ─── Config ───────────────────────────────────────────────────────────
 PORT = 8200
 BATCH_SIZE = 48  # Optimal for RTX 4090
-DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
+DEFAULT_FPS = 30.0  # Upgraded from 25fps — smoother motion
 
 # Post-processing config
 BLINK_INTERVAL_MIN = 2.5
 BLINK_INTERVAL_MAX = 5.0
-BLINK_DURATION = 0.22  # ~5 frames at 25fps, visible but natural
+BLINK_DURATION = 0.22  # ~6-7 frames at 30fps, visible but natural
 HEAD_ROTATION_AMPLITUDE = 2.5   # degrees — visible news-anchor sway
 HEAD_TRANSLATION_X = 4.0        # pixels — visible horizontal drift
 HEAD_TRANSLATION_Y = 2.0        # pixels — visible vertical drift
@@ -67,7 +72,7 @@ def _record_latency(seconds):
 # WAV2LIP INFERENCE (FP16)
 # ═══════════════════════════════════════════════════════════════════════
 
-def wav2lip_generate(audio_path, fps=25.0):
+def wav2lip_generate(audio_path, fps=30.0):
     """Run Wav2Lip inference in FP16. Returns list of BGR frames with duration matching."""
     reg = ModelRegistry.get()
     if reg.wav2lip_model is None or reg.avatar_face is None or reg.avatar_face_coords is None:
@@ -84,13 +89,12 @@ def wav2lip_generate(audio_path, fps=25.0):
 
     mel_step = 16
     audio_duration = len(wav) / 16000.0
-    num_frames = int(__import__('math').ceil(audio_duration * fps)) + 2  # FIXED: prevent audio cutoff
+    num_frames = int(math.ceil(audio_duration * fps)) + 2  # prevent audio cutoff
     if num_frames < 1:
         num_frames = 1
 
     # Map each VIDEO frame to its correct MEL position
-    # Mel has 80 columns per second of audio (16kHz / hop_size 200)
-    mel_idx_multiplier = 80.0 / fps  # ~3.2 for 25fps
+    mel_idx_multiplier = 80.0 / fps
 
     mel_chunks = []
     for frame_i in range(num_frames):
@@ -123,7 +127,7 @@ def wav2lip_generate(audio_path, fps=25.0):
         img_batch = np.array([img_concat / 255.0] * len(batch_mels), dtype=np.float32)
         mel_batch = np.array(batch_mels, dtype=np.float32)
 
-        # FP16 tensors → GPU
+        # FP16 tensors → GPU 1
         img_batch = torch.HalfTensor(img_batch.transpose(0, 3, 1, 2)).to(DEVICE)
         mel_batch = torch.HalfTensor(mel_batch[:, np.newaxis, :, :]).to(DEVICE)
 
@@ -137,7 +141,7 @@ def wav2lip_generate(audio_path, fps=25.0):
             full_frame = reg.avatar_face.copy()
             # Feathered blend to eliminate face paste seam
             mask = np.ones_like(p_resized, dtype=np.float32)
-            feather = 8  # pixels of blend
+            feather = 8
             h_face, w_face = p_resized.shape[:2]
             for j in range(min(feather, h_face)):
                 mask[j, :] = j / feather
@@ -154,33 +158,6 @@ def wav2lip_generate(audio_path, fps=25.0):
 
     logger.info(f"Generated {len(frames)} frames for {audio_duration:.2f}s audio @ {fps}fps")
     return frames
-
-
-# ═══════════════════════════════════════════════════════════════════════
-# POST-PROCESSING: EYE BLINKS
-# ═══════════════════════════════════════════════════════════════════════
-
-def generate_blink_schedule(num_frames, fps):
-    duration_sec = num_frames / fps
-    blink_frames = {}
-    t = random.uniform(BLINK_INTERVAL_MIN, BLINK_INTERVAL_MAX)
-    while t < duration_sec - BLINK_DURATION:
-        blink_center = t + BLINK_DURATION / 2
-        blink_half_frames = int((BLINK_DURATION / 2) * fps)
-        center_frame = int(blink_center * fps)
-        for offset in range(-blink_half_frames, blink_half_frames + 1):
-            frame_idx = center_frame + offset
-            if 0 <= frame_idx < num_frames:
-                progress = abs(offset) / max(blink_half_frames, 1)
-                intensity = 0.5 * (1 + math.cos(math.pi * progress))
-                blink_frames[frame_idx] = max(blink_frames.get(frame_idx, 0), intensity)
-        t += BLINK_DURATION + random.uniform(BLINK_INTERVAL_MIN, BLINK_INTERVAL_MAX)
-    return blink_frames
-
-
-def apply_blink(frame, intensity, face_coords):
-    """DISABLED: Was causing rectangular/oval artifacts over eyes."""
-    return frame  # No-op — blink effect permanently disabled
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -203,18 +180,12 @@ def apply_head_movement(frame, frame_idx, fps):
         HEAD_TRANSLATION_Y * 0.3 * math.sin(2 * math.pi * t / (HEAD_PERIOD * 1.6) + 0.3) +
         HEAD_TRANSLATION_Y * 0.2 * math.sin(2 * math.pi * t / (HEAD_PERIOD * 3.0))
     )
-    # Subtle breathing: slight scale oscillation (~0.4%) at 1.5s period
-    breath_scale = 1.0  # Disabled breathing: causes micro-jitter
     h, w = frame.shape[:2]
     center = (w / 2, h / 2)
-    M = cv2.getRotationMatrix2D(center, rot_angle, breath_scale)
+    M = cv2.getRotationMatrix2D(center, rot_angle, 1.0)
     M[0, 2] += tx
     M[1, 2] += ty
     result = cv2.warpAffine(frame, M, (w, h), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
-    # Subtle ambient light variation — additive for uniform effect on dark backgrounds
-    ambient_add = 0  # Disabled: looked unnatural
-    ambient_mul = 1.0  # Disabled: looked unnatural
-    result = np.clip(result.astype(np.float32) * ambient_mul + ambient_add, 0, 255).astype(np.uint8)
     return result
 
 
@@ -222,21 +193,33 @@ def apply_head_movement(frame, frame_idx, fps):
 # POST-PROCESSING: COMBINED PIPELINE
 # ═══════════════════════════════════════════════════════════════════════
 
-def post_process_frames(frames, fps=25.0, enable_blinks=False, enable_head=True):
+def post_process_frames(frames, fps=30.0, enable_blinks=True, enable_head=True):
     """Apply eye blinks and head movement post-processing."""
     if len(frames) == 0:
         return frames
 
     reg = ModelRegistry.get()
+
+    # Generate blink schedule
     blink_schedule = {}
-    if False:  # BLINKS PERMANENTLY DISABLED
-        blink_schedule = generate_blink_schedule(len(frames), fps)
+    if enable_blinks:
+        blink_schedule = generate_blink_schedule(
+            len(frames), fps,
+            interval_min=BLINK_INTERVAL_MIN,
+            interval_max=BLINK_INTERVAL_MAX,
+            duration=BLINK_DURATION,
+        )
 
     processed = []
     for i, frame in enumerate(frames):
         result = frame
         if enable_blinks and i in blink_schedule:
-            result = apply_blink(result, blink_schedule[i], reg.avatar_face_coords)
+            result = apply_blink_gradient(
+                result,
+                blink_schedule[i],
+                eye_landmarks=reg.eye_landmarks,
+                face_coords=reg.avatar_face_coords,
+            )
         if enable_head:
             result = apply_head_movement(result, i, fps)
         processed.append(result)
@@ -247,7 +230,7 @@ def post_process_frames(frames, fps=25.0, enable_blinks=False, enable_head=True)
 # VIDEO ENCODING
 # ═══════════════════════════════════════════════════════════════════════
 
-def frames_to_video(frames, fps=25.0, audio_path=None):
+def frames_to_video(frames, fps=30.0, audio_path=None):
     """Encode frames to MP4, optionally muxing audio (audio as timing master).
     Returns the path to the output MP4 file (caller must clean up)."""
     if not frames:
@@ -264,26 +247,27 @@ def frames_to_video(frames, fps=25.0, audio_path=None):
         writer.release()
 
         if audio_path and os.path.exists(audio_path):
-            # Mux with audio as timing master
             import subprocess
             cmd = [
                 "ffmpeg", "-y", "-loglevel", "error",
                 "-itsoffset", "0.08", "-i", audio_path, "-i", avi_path,
-                "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28",
+                "-c:v", "libx264", "-preset", "fast", "-crf", "18",
                 "-c:a", "aac", "-b:a", "128k",
-                "-map", "0:a", "-map", "1:v", # "-shortest",  # REMOVED: was clipping final audio
+                "-map", "0:a", "-map", "1:v",
                 "-pix_fmt", "yuv420p", "-movflags", "+faststart",
                 mp4_path,
             ]
             subprocess.run(cmd, check=True, capture_output=True)
         else:
-            # Video only (warmup, etc.)
-            os.system(
-                f"ffmpeg -y -loglevel error -i {avi_path} "
-                f"-c:v libx264 -preset ultrafast -crf 23 "
-                f"-pix_fmt yuv420p -movflags +faststart "
-                f"{mp4_path}"
-            )
+            import subprocess
+            cmd = [
+                "ffmpeg", "-y", "-loglevel", "error",
+                "-i", avi_path,
+                "-c:v", "libx264", "-preset", "fast", "-crf", "18",
+                "-pix_fmt", "yuv420p", "-movflags", "+faststart",
+                mp4_path,
+            ]
+            subprocess.run(cmd, check=True, capture_output=True)
 
         if os.path.exists(mp4_path) and os.path.getsize(mp4_path) > 0:
             return mp4_path
@@ -333,20 +317,26 @@ def text_to_speech(text, voice_id="cgSgspJ2msm6clMCkdW9"):
 
 @app.route("/health")
 def health():
-    """Enhanced health check with VRAM, latency, vision status."""
+    """Enhanced health check with VRAM, latency, vision status, enhancer info."""
     reg = ModelRegistry.get() if ModelRegistry.is_loaded() else None
     vram = reg.vram_info() if reg else {"available": False}
 
-    # Vision status
     vision_enabled = bool(os.environ.get("GEMINI_API_KEY"))
-
     avg_latency = round(sum(_request_times) / len(_request_times), 2) if _request_times else None
     uptime = round(time.time() - _start_time, 1)
 
+    # Face enhancer status
+    try:
+        from face_enhancer import get_enhancer
+        _, etype = get_enhancer()
+        face_enhancer_status = etype or "none"
+    except Exception:
+        face_enhancer_status = "error"
+
     return jsonify({
         "status": "ok",
-        "engine": "wav2lip-gan-fp16",
-        "enhancements": ["fp16", "cached_face", "head_movement"],
+        "engine": "wav2lip-gan-fp16-v2",
+        "enhancements": ["fp16", "cached_face", "face_restoration", "mediapipe_blinks", "head_movement"],
         "device": DEVICE,
         "model_loaded": reg is not None and reg.wav2lip_model is not None,
         "avatar_loaded": reg is not None and reg.avatar_face is not None,
@@ -355,11 +345,16 @@ def health():
             if reg and reg.avatar_face is not None else None
         ),
         "face_detected": reg is not None and reg.avatar_face_coords is not None,
+        "face_enhancer": face_enhancer_status,
+        "blinks_enabled": True,
+        "eye_landmarks_detected": reg is not None and reg.eye_landmarks is not None,
         "vram": vram,
         "vision_enabled": vision_enabled,
         "uptime_sec": uptime,
         "avg_latency_sec": avg_latency,
         "requests_tracked": len(_request_times),
+        "output_fps": DEFAULT_FPS,
+        "encoding": "crf18-fast",
         "blink_config": {
             "interval": f"{BLINK_INTERVAL_MIN}-{BLINK_INTERVAL_MAX}s",
             "duration": f"{BLINK_DURATION}s"
@@ -379,21 +374,20 @@ def warmup():
     if reg.wav2lip_model is None:
         return jsonify({"error": "Model not loaded"}), 500
 
-    # Create a short silent audio (0.5s of silence at 16kHz)
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
         import wave
         with wave.open(tmp.name, "w") as wf:
             wf.setnchannels(1)
             wf.setsampwidth(2)
             wf.setframerate(16000)
-            wf.writeframes(b"\x00\x00" * 8000)  # 0.5s silence
+            wf.writeframes(b"\x00\x00" * 8000)
         wav_path = tmp.name
 
     try:
         with _lock:
-            frames = wav2lip_generate(wav_path)
+            frames = wav2lip_generate(wav_path, DEFAULT_FPS)
             if frames:
-                frames = post_process_frames(frames[:5], 25.0, enable_blinks=False, enable_head=True)
+                frames = post_process_frames(frames[:5], DEFAULT_FPS, enable_blinks=True, enable_head=True)
         elapsed = time.time() - t0
         logger.info(f"Warmup complete: {len(frames)} frames in {elapsed:.2f}s")
         return jsonify({
@@ -414,23 +408,24 @@ def warmup():
 
 @app.route("/generate", methods=["POST"])
 def generate():
-    """Generate lip-synced video with blinks and head movement (FP16).
+    """Generate lip-synced video with face restoration, blinks, and head movement.
 
     Accepts two modes:
-      Mode A: {"text": "...", "voice_id": "..."} → ElevenLabs TTS → Wav2Lip → video
-      Mode B: {"audio_base64": "...", "content_type": "..."} → Wav2Lip → video
+      Mode A: {"text": "...", "voice_id": "..."} -> ElevenLabs TTS -> Wav2Lip -> video
+      Mode B: {"audio_base64": "...", "content_type": "..."} -> Wav2Lip -> video
     """
     data = request.get_json()
     if not data:
         return jsonify({"error": "JSON body required"}), 400
 
-    enable_blinks = data.get("enable_blinks", False)
-    enable_head_movement = data.get("enable_head_movement", True)  # Re-enabled with sync offset
-    fps = float(data.get("fps", 25.0))
+    enable_blinks = data.get("enable_blinks", True)  # Blinks ON by default now
+    enable_head_movement = data.get("enable_head_movement", True)
+    enable_face_enhance = data.get("enable_face_enhance", True)  # Face restoration ON by default
+    fps = float(data.get("fps", DEFAULT_FPS))
 
     t_start = time.time()
 
-    # Mode A: text + optional voice_id → ElevenLabs TTS
+    # Mode A: text + optional voice_id -> ElevenLabs TTS
     if "text" in data:
         voice_id = data.get("voice_id", "cgSgspJ2msm6clMCkdW9")
         try:
@@ -465,6 +460,17 @@ def generate():
             t_lip = time.time() - t0
             logger.info(f"Wav2Lip FP16: {len(frames)} frames in {t_lip:.2f}s")
 
+            # Face Enhancement (THE #1 QUALITY UPGRADE)
+            t_enhance = 0.0
+            if enable_face_enhance and len(frames) > 0:
+                try:
+                    t0_enh = time.time()
+                    frames = enhance_frames_batch(frames, reg.avatar_face_coords, batch_size=16)
+                    t_enhance = time.time() - t0_enh
+                    logger.info(f"Face enhancement: {t_enhance:.2f}s")
+                except Exception as e:
+                    logger.warning(f"Face enhancement skipped: {e}")
+
             t0 = time.time()
             if enable_blinks or enable_head_movement:
                 frames = post_process_frames(
@@ -490,10 +496,9 @@ def generate():
 
         logger.info(
             f"Complete: {duration:.1f}s video, {num_frames} frames, "
-            f"lip={t_lip:.1f}s post={t_post:.1f}s enc={t_encode:.1f}s total={t_total:.1f}s"
+            f"lip={t_lip:.1f}s enhance={t_enhance:.1f}s post={t_post:.1f}s enc={t_encode:.1f}s total={t_total:.1f}s"
         )
 
-        # Clean up all temp files after response is sent
         cleanup_paths = [audio_path, wav_path, video_path]
 
         @after_this_request
@@ -516,6 +521,7 @@ def generate():
         response.headers["X-Frames"] = str(num_frames)
         response.headers["X-Processing-Time"] = str(round(t_total, 2))
         response.headers["X-Timing-Wav2Lip"] = str(round(t_lip, 2))
+        response.headers["X-Timing-FaceEnhance"] = str(round(t_enhance, 2))
         response.headers["X-Timing-PostProcess"] = str(round(t_post, 2))
         response.headers["X-Timing-Encoding"] = str(round(t_encode, 2))
         return response
@@ -524,7 +530,6 @@ def generate():
         logger.error(f"Generation error: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
     finally:
-        # Fallback cleanup for error paths (after_this_request handles success path)
         for p in [audio_path, wav_path]:
             try:
                 if os.path.exists(p):
@@ -541,7 +546,8 @@ def reload_avatar():
         return jsonify({
             "status": "reloaded",
             "size": f"{reg.avatar_face.shape[1]}x{reg.avatar_face.shape[0]}",
-            "face": reg.avatar_face_coords
+            "face": reg.avatar_face_coords,
+            "eye_landmarks": reg.eye_landmarks is not None,
         })
     else:
         return jsonify({"error": "No face detected in new image"}), 400
@@ -568,13 +574,7 @@ def source_image():
 
 @app.route("/vision/analyze", methods=["POST"])
 def vision_analyze():
-    """Analyze a Bitcoin hardware image with Gemini 2.5 Flash.
-
-    POST JSON:
-        image_base64: base64-encoded image
-        mime_type: image MIME type (default: image/jpeg)
-        context: optional user question/context
-    """
+    """Analyze a Bitcoin hardware image with Gemini 2.5 Flash."""
     data = request.get_json()
     if not data or not data.get("image_base64"):
         return jsonify({"error": "image_base64 required"}), 400
@@ -588,20 +588,12 @@ def vision_analyze():
 
     if "error" in result:
         return jsonify(result), 500
-
     return jsonify(result)
 
 
 @app.route("/vision/guide", methods=["POST"])
 def vision_guide():
-    """Multi-turn hardware setup guide session.
-
-    POST JSON:
-        session_id: optional (creates new if omitted)
-        image_base64: optional image for this turn
-        mime_type: image MIME type (default: image/jpeg)
-        question: text question (used with or without image)
-    """
+    """Multi-turn hardware setup guide session."""
     data = request.get_json()
     if not data:
         return jsonify({"error": "JSON body required"}), 400
@@ -622,7 +614,6 @@ def vision_guide():
 
     if "error" in result:
         return jsonify(result), 500
-
     return jsonify(result)
 
 
@@ -672,7 +663,6 @@ ORACLE_VOICE_ID = "cgSgspJ2msm6clMCkdW9"  # Jessica
 ORACLE_STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 ORACLE_IDLE_PATH = os.path.join(ORACLE_STATIC_DIR, "oracle_idle.mp4")
 
-# In-memory session store for streaming
 _stream_sessions = {}
 _stream_lock = threading.Lock()
 
@@ -687,7 +677,6 @@ def _get_anthropic_key():
                 if line.startswith("ANTHROPIC_API_KEY="):
                     key = line.strip().split("=", 1)[1].strip().strip("\"'")
     if not key:
-        # Try fetching from Replit relay
         try:
             resp = http_requests.post(
                 "https://protocolpulse.replit.app/api/admin/exec",
@@ -710,28 +699,30 @@ def _split_sentences(text):
     return [s for s in sentences if s.strip()]
 
 
-def _generate_chunk(sentence, chunk_num, session_dir, fps=25.0):
-    """Generate a single video chunk for a sentence: TTS → Wav2Lip → MP4."""
+def _generate_chunk(sentence, chunk_num, session_dir, fps=30.0):
+    """Generate a single video chunk for a sentence: TTS -> Wav2Lip -> MP4."""
     try:
-        # TTS
         audio_bytes = text_to_speech(sentence, ORACLE_VOICE_ID)
         audio_path = os.path.join(session_dir, f"chunk_{chunk_num:03d}.mp3")
         with open(audio_path, "wb") as f:
             f.write(audio_bytes)
 
-        # Convert to wav
         wav_path = os.path.join(session_dir, f"chunk_{chunk_num:03d}_16k.wav")
         subprocess.run(
             ["ffmpeg", "-y", "-loglevel", "error", "-i", audio_path, "-ar", "16000", "-ac", "1", wav_path],
             check=True, capture_output=True,
         )
 
-        # Wav2Lip
         with _lock:
             frames = wav2lip_generate(wav_path, fps)
-            frames = post_process_frames(frames, fps, enable_blinks=False, enable_head=True)
+            # Apply face enhancement
+            reg = ModelRegistry.get()
+            try:
+                frames = enhance_frames_batch(frames, reg.avatar_face_coords, batch_size=16)
+            except Exception:
+                pass
+            frames = post_process_frames(frames, fps, enable_blinks=True, enable_head=True)
 
-        # Encode
         video_path = os.path.join(session_dir, f"chunk_{chunk_num:03d}.mp4")
         tmp_path = frames_to_video(frames, fps, audio_path=wav_path)
         if tmp_path:
@@ -744,16 +735,14 @@ def _generate_chunk(sentence, chunk_num, session_dir, fps=25.0):
 
 
 def _stream_worker(session_id, text):
-    """Background worker: call Claude → split sentences → generate chunks."""
+    """Background worker: call Claude -> split sentences -> generate chunks."""
     session = _stream_sessions.get(session_id)
     if not session:
         return
 
     try:
-        # Get AI response
         api_key = _get_anthropic_key()
         if not api_key:
-            # Fallback: use the input text directly
             logger.warning("No Anthropic key — using input text as-is")
             ai_text = text
         else:
@@ -776,7 +765,7 @@ def _stream_worker(session_id, text):
                 ai_text = resp.json()["content"][0]["text"]
             else:
                 logger.error(f"Claude API error {resp.status_code}: {resp.text[:200]}")
-                ai_text = text  # fallback
+                ai_text = text
 
         session["ai_response"] = ai_text
         sentences = _split_sentences(ai_text)
@@ -800,7 +789,7 @@ def _stream_worker(session_id, text):
 
 @app.route("/generate_stream", methods=["POST"])
 def generate_stream():
-    """Start streaming generation: text → Claude → sentence chunks → video chunks."""
+    """Start streaming generation: text -> Claude -> sentence chunks -> video chunks."""
     data = request.get_json()
     if not data or not data.get("text"):
         return jsonify({"error": "text required"}), 400
@@ -891,18 +880,15 @@ def generate_idle_loop():
         logger.error("Cannot generate idle loop: no avatar loaded")
         return
 
-    fps = 25.0
+    fps = DEFAULT_FPS
     duration = 4.0
     num_frames = int(duration * fps)
 
-    # Create static frames from the avatar face
     base_frame = reg.avatar_face.copy()
     frames = [base_frame.copy() for _ in range(num_frames)]
 
-    # Apply blinks + head movement
-    frames = post_process_frames(frames, fps, enable_blinks=False, enable_head=True)
+    frames = post_process_frames(frames, fps, enable_blinks=True, enable_head=True)
 
-    # Encode to MP4 (no audio)
     video_path = frames_to_video(frames, fps, audio_path=None)
     if video_path:
         os.rename(video_path, ORACLE_IDLE_PATH)
@@ -917,15 +903,17 @@ def generate_idle_loop():
 
 if __name__ == "__main__":
     print(f"\n{'='*60}")
-    print("  ORACLE AVATAR SERVER — GPU-Cached FP16 + Vision")
+    print("  ORACLE AVATAR SERVER v2 — Face Restoration + Blinks")
     print(f"  Port: {PORT}")
     print(f"  Device: {DEVICE}")
     print(f"  Avatar: {AVATAR_SOURCE}")
-    print(f"  Features: FP16, cached_face, eye_blinks, head_movement")
+    print(f"  FPS: {DEFAULT_FPS}")
+    print(f"  Encoding: CRF 18, preset fast")
+    print(f"  Features: FP16, face_restoration, mediapipe_blinks, head_movement")
     print(f"  Vision: {'enabled' if os.environ.get('GEMINI_API_KEY') else 'disabled'}")
     print(f"{'='*60}\n")
 
-    # Load all models via registry (FP16 + torch.compile)
+    # Load all models via registry (FP16 on GPU 1)
     logger.info("Initializing ModelRegistry...")
     reg = ModelRegistry.get()
 
@@ -937,7 +925,16 @@ if __name__ == "__main__":
         logger.error("No face detected in avatar. Exiting.")
         sys.exit(1)
 
-    # ── Auto-warmup: prime CUDA kernels with a test generation ─────
+    # Pre-load face enhancer
+    logger.info("Pre-loading face enhancer...")
+    try:
+        from face_enhancer import get_enhancer
+        enhancer, etype = get_enhancer()
+        logger.info(f"Face enhancer ready: {etype or 'none'}")
+    except Exception as e:
+        logger.warning(f"Face enhancer pre-load failed: {e}")
+
+    # Auto-warmup
     logger.info("[WARMUP] Running pipeline warmup...")
     warmup_start = time.time()
     try:
@@ -947,11 +944,11 @@ if __name__ == "__main__":
                 wf.setnchannels(1)
                 wf.setsampwidth(2)
                 wf.setframerate(16000)
-                wf.writeframes(b"\x00\x00" * 8000)  # 0.5s silence
+                wf.writeframes(b"\x00\x00" * 8000)
             warmup_wav = tmp.name
-        frames = wav2lip_generate(warmup_wav)
+        frames = wav2lip_generate(warmup_wav, DEFAULT_FPS)
         if frames:
-            frames = post_process_frames(frames[:5], 25.0, enable_blinks=False, enable_head=True)
+            frames = post_process_frames(frames[:5], DEFAULT_FPS, enable_blinks=True, enable_head=True)
         os.unlink(warmup_wav)
         logger.info(
             f"[WARMUP] Pipeline ready in {time.time()-warmup_start:.1f}s "
@@ -960,12 +957,13 @@ if __name__ == "__main__":
     except Exception as e:
         logger.warning(f"[WARMUP] Failed (non-fatal): {e}")
 
+    dev_idx = int(DEVICE.split(':')[1]) if ':' in DEVICE else 0
     logger.info(
-        f"[WARMUP] GPU 0 VRAM: {torch.cuda.memory_allocated(0)/1024**3:.1f}GB used"
+        f"[WARMUP] GPU {dev_idx} VRAM: {torch.cuda.memory_allocated(dev_idx)/1024**3:.1f}GB used"
     )
 
-    # ── Generate idle loop if not already present ─────
+    # Generate idle loop if not already present
     generate_idle_loop()
 
-    logger.info(f"Avatar server ready on port {PORT}")
+    logger.info(f"Avatar server v2 ready on port {PORT}")
     app.run(host="0.0.0.0", port=PORT, threaded=True)
