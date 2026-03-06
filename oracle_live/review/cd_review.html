@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CD Review | Protocol Pulse Oracle</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#07090f;--surface:#0c0f18;--border:rgba(255,255,255,.06);--text:#c8d4f0;--dim:#445577;--red:#dc2626;--red-glow:rgba(220,38,38,.12);--green:#22c55e;--yellow:#eab308;--orange:#f97316;--mono:'JetBrains Mono','Fira Code',monospace}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:100vh;padding:0}
+a{color:var(--red);text-decoration:none}
+/* Header */
+.cd-header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;gap:20px}
+.cd-header h1{font:700 16px var(--mono);letter-spacing:.12em;color:#eef3ff}
+.cd-header .badge{font:700 10px var(--mono);letter-spacing:.15em;color:var(--red);background:var(--red-glow);border:1px solid rgba(220,38,38,.25);padding:3px 10px;border-radius:999px}
+.header-scores{margin-left:auto;display:flex;gap:16px;align-items:center}
+.header-scores .hs{font:700 12px var(--mono)}
+.header-scores .hs span{color:var(--dim);font-weight:400;font-size:10px;letter-spacing:.1em}
+
+/* Layout */
+.layout{display:grid;grid-template-columns:320px 1fr;min-height:calc(100vh - 60px)}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:20px;overflow-y:auto;max-height:calc(100vh - 60px);position:sticky;top:60px}
+.main{padding:24px;overflow-y:auto}
+
+/* Avatar panel */
+.avatar-frame{width:100%;aspect-ratio:1;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#000;margin-bottom:16px}
+.avatar-frame iframe{width:100%;height:100%;border:none}
+.state-buttons{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
+.state-btn{font:600 10px var(--mono);letter-spacing:.08em;padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--dim);cursor:pointer;transition:all .15s}
+.state-btn:hover{border-color:rgba(220,38,38,.4);color:var(--text)}
+.state-btn.active{border-color:var(--red);color:var(--red);background:var(--red-glow)}
+
+/* Sidebar nav */
+.scene-nav{list-style:none;margin-top:16px}
+.scene-nav li{padding:6px 10px;border-radius:6px;cursor:pointer;font:400 11px var(--mono);color:var(--dim);display:flex;align-items:center;gap:8px;transition:all .15s}
+.scene-nav li:hover{background:rgba(255,255,255,.04);color:var(--text)}
+.scene-nav li.active{background:var(--red-glow);color:var(--red);border-left:2px solid var(--red)}
+.scene-nav .nav-score{margin-left:auto;font-weight:700;font-size:11px}
+.scene-nav .nav-fail{color:var(--red);font-size:14px;margin-left:4px}
+.nav-label{font:700 9px var(--mono);letter-spacing:.15em;color:var(--dim);padding:12px 10px 6px;text-transform:uppercase}
+
+/* Scene cards */
+.scene-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;transition:border-color .2s}
+.scene-card.fail-flagged{border-color:rgba(220,38,38,.4)}
+.scene-card-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.scene-num{font:700 11px var(--mono);color:var(--red);background:var(--red-glow);width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;flex-shrink:0}
+.scene-title{font:700 13px var(--mono);color:#eef3ff;flex:1}
+.scene-score-display{font:700 20px var(--mono);min-width:40px;text-align:center}
+
+/* Slider */
+.slider-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.slider-row label{font:400 10px var(--mono);letter-spacing:.1em;color:var(--dim);min-width:50px}
+input[type=range]{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;background:rgba(255,255,255,.08);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--red);cursor:pointer;border:2px solid var(--bg)}
+.score-val{font:700 14px var(--mono);min-width:24px;text-align:right}
+
+/* Fail checkbox */
+.fail-check{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.fail-check input[type=checkbox]{accent-color:var(--red);width:16px;height:16px}
+.fail-check label{font:600 11px var(--mono);color:var(--red);letter-spacing:.05em}
+
+/* Notes */
+.scene-notes{width:100%;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;color:var(--text);font:12px var(--mono);padding:10px;resize:vertical;min-height:60px;outline:none}
+.scene-notes:focus{border-color:rgba(220,38,38,.3)}
+.scene-notes::placeholder{color:rgba(68,85,119,.6)}
+
+/* Dashboard */
+.dashboard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px}
+.dashboard h2{font:700 14px var(--mono);letter-spacing:.1em;color:#eef3ff;margin-bottom:16px}
+.dash-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:20px}
+.dash-cell{text-align:center;padding:10px 4px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.02);cursor:pointer;transition:all .15s}
+.dash-cell:hover{transform:scale(1.05)}
+.dash-cell .dc-num{font:700 9px var(--mono);color:var(--dim);margin-bottom:4px}
+.dash-cell .dc-score{font:700 18px var(--mono)}
+.dash-cell .dc-fail{font-size:10px;color:var(--red);margin-top:2px}
+.dash-cell.s-green{border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.06)}
+.dash-cell.s-green .dc-score{color:var(--green)}
+.dash-cell.s-yellow{border-color:rgba(234,179,8,.3);background:rgba(234,179,8,.06)}
+.dash-cell.s-yellow .dc-score{color:var(--yellow)}
+.dash-cell.s-orange{border-color:rgba(249,115,22,.3);background:rgba(249,115,22,.06)}
+.dash-cell.s-orange .dc-score{color:var(--orange)}
+.dash-cell.s-red{border-color:rgba(220,38,38,.3);background:rgba(220,38,38,.06)}
+.dash-cell.s-red .dc-score{color:var(--red)}
+
+.avg-row{display:flex;align-items:center;gap:20px;padding:12px 0;border-top:1px solid var(--border)}
+.avg-label{font:400 10px var(--mono);letter-spacing:.12em;color:var(--dim)}
+.avg-value{font:700 28px var(--mono)}
+
+/* Priority fix list */
+.fix-list{background:var(--surface);border:1px solid rgba(220,38,38,.2);border-radius:12px;padding:20px;margin-bottom:24px}
+.fix-list h2{font:700 14px var(--mono);letter-spacing:.1em;color:var(--red);margin-bottom:12px}
+.fix-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.fix-item:last-child{border-bottom:none}
+.fix-priority{font:700 10px var(--mono);padding:2px 8px;border-radius:4px;flex-shrink:0}
+.fix-priority.p-critical{background:rgba(220,38,38,.15);color:var(--red)}
+.fix-priority.p-high{background:rgba(249,115,22,.15);color:var(--orange)}
+.fix-priority.p-medium{background:rgba(234,179,8,.15);color:var(--yellow)}
+.fix-scene{font:700 11px var(--mono);color:var(--dim);min-width:24px}
+.fix-text{font:400 11px var(--mono);color:var(--text);flex:1}
+.fix-empty{font:400 11px var(--mono);color:rgba(34,197,94,.7);padding:8px 0}
+
+/* CD Questions */
+.cd-questions{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px}
+.cd-questions h2{font:700 14px var(--mono);letter-spacing:.1em;color:#eef3ff;margin-bottom:16px}
+.cd-q{margin-bottom:16px}
+.cd-q label{display:block;font:600 11px var(--mono);color:var(--text);margin-bottom:6px;line-height:1.5}
+.cd-q textarea{width:100%;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;color:var(--text);font:12px var(--mono);padding:10px;resize:vertical;min-height:50px;outline:none}
+.cd-q textarea:focus{border-color:rgba(220,38,38,.3)}
+
+/* Export */
+.export-bar{display:flex;gap:10px;margin-bottom:24px}
+.export-btn{font:600 12px var(--mono);letter-spacing:.05em;padding:10px 20px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);cursor:pointer;transition:all .15s}
+.export-btn:hover{border-color:var(--red);color:var(--red)}
+.export-btn.primary{background:var(--red);color:#fff;border-color:var(--red)}
+.export-btn.primary:hover{background:#ef4444}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.15)}
+
+/* Responsive */
+@media(max-width:800px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{position:static;max-height:none;border-right:none;border-bottom:1px solid var(--border)}
+  .dash-grid{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- ========== HEADER ========== -->
+<div class="cd-header">
+  <h1>CD REVIEW</h1>
+  <span class="badge">PROTOCOL PULSE ORACLE</span>
+  <div class="header-scores">
+    <div class="hs"><span>AVG </span><span id="hdr-avg">--</span></div>
+    <div class="hs"><span>FAILS </span><span id="hdr-fails">0</span></div>
+    <div class="hs"><span>REVIEWED </span><span id="hdr-reviewed">0/20</span></div>
+  </div>
+</div>
+
+<!-- ========== LAYOUT ========== -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <!-- Avatar iframe -->
+    <div class="avatar-frame">
+      <iframe id="avatar-iframe" src="/oracle_live/frontend/index.html" allow="autoplay"></iframe>
+    </div>
+
+    <!-- State forcing -->
+    <div class="state-buttons" id="state-buttons">
+      <button class="state-btn" data-state="idle">IDLE</button>
+      <button class="state-btn" data-state="thinking">THINKING</button>
+      <button class="state-btn" data-state="speaking">SPEAKING</button>
+      <button class="state-btn" data-state="listening">LISTENING</button>
+      <button class="state-btn" data-state="error">ERROR</button>
+      <button class="state-btn" data-state="blink">BLINK</button>
+      <button class="state-btn" data-state="ask">ASK ORACLE</button>
+    </div>
+
+    <!-- Scene nav -->
+    <div class="nav-label">SCENES</div>
+    <ul class="scene-nav" id="scene-nav"></ul>
+  </div>
+
+  <!-- Main content -->
+  <div class="main" id="main-content">
+
+    <!-- Scoring Dashboard -->
+    <div class="dashboard" id="dashboard">
+      <h2>SCORING DASHBOARD</h2>
+      <div class="dash-grid" id="dash-grid"></div>
+      <div class="avg-row">
+        <div class="avg-label">OVERALL AVERAGE</div>
+        <div class="avg-value" id="avg-score">--</div>
+        <div class="avg-label" style="margin-left:auto">FAIL SIGNALS</div>
+        <div class="avg-value" id="fail-count" style="color:var(--red)">0</div>
+      </div>
+    </div>
+
+    <!-- Priority Fix List (auto-generated) -->
+    <div class="fix-list" id="fix-list">
+      <h2>PRIORITY FIX LIST</h2>
+      <div id="fix-items"><div class="fix-empty">All scenes scoring above threshold. No fixes needed.</div></div>
+    </div>
+
+    <!-- Scene Cards -->
+    <div id="scene-cards"></div>
+
+    <!-- CD Final Questions -->
+    <div class="cd-questions">
+      <h2>CREATIVE DIRECTOR FINAL ASSESSMENT</h2>
+      <div class="cd-q">
+        <label>1. Does the Oracle presence feel authoritative and on-brand for Protocol Pulse?</label>
+        <textarea id="cdq-1" placeholder="Assessment..."></textarea>
+      </div>
+      <div class="cd-q">
+        <label>2. Is the voice-to-visual sync convincing enough for live broadcast?</label>
+        <textarea id="cdq-2" placeholder="Assessment..."></textarea>
+      </div>
+      <div class="cd-q">
+        <label>3. What is the single biggest weakness that would make a viewer leave?</label>
+        <textarea id="cdq-3" placeholder="Assessment..."></textarea>
+      </div>
+      <div class="cd-q">
+        <label>4. Rate the "uncanny valley" risk: is the avatar helping or hurting credibility?</label>
+        <textarea id="cdq-4" placeholder="Assessment..."></textarea>
+      </div>
+      <div class="cd-q">
+        <label>5. Ship/no-ship decision: is this ready for the next public demo?</label>
+        <textarea id="cdq-5" placeholder="Assessment..."></textarea>
+      </div>
+    </div>
+
+    <!-- Export -->
+    <div class="export-bar">
+      <button class="export-btn primary" onclick="exportJSON()">Export JSON</button>
+      <button class="export-btn" onclick="exportMarkdown()">Export Markdown</button>
+      <button class="export-btn" onclick="loadReview()">Load Review</button>
+      <input type="file" id="load-input" accept=".json" style="display:none" onchange="handleLoad(event)">
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ========================
+// SCENE DEFINITIONS (20 GPT scenes)
+// ========================
+const SCENES = [
+  { id: 1,  title: "Cold Open / Idle State", desc: "Avatar loads, orb pulses gently, status shows IDLE" },
+  { id: 2,  title: "Oracle Activation", desc: "User clicks Activate Oracle, hologram materializes" },
+  { id: 3,  title: "Voice Orb Idle Animation", desc: "Orb ambient breathing, particle field subtle movement" },
+  { id: 4,  title: "Question Submission", desc: "User types and submits a question, THINKING state triggers" },
+  { id: 5,  title: "Thinking / Processing", desc: "Orb contracts, color shifts, processing indicator active" },
+  { id: 6,  title: "Answer Delivery Start", desc: "First words spoken, orb reacts to audio amplitude" },
+  { id: 7,  title: "Mid-Answer Cadence", desc: "Sustained speech, orb amplitude tracking feels natural" },
+  { id: 8,  title: "Answer Completion", desc: "Speech ends, orb winds down gracefully to idle" },
+  { id: 9,  title: "Avatar Face Render (if active)", desc: "2D face overlay, blink timing, micro-expressions" },
+  { id: 10, title: "Lip Sync / Viseme Accuracy", desc: "Mouth shapes match phonemes, no visible lag" },
+  { id: 11, title: "Blink Behavior", desc: "Blink interval 3-4s, duration 0.15s, looks natural" },
+  { id: 12, title: "Head Micro-Movement", desc: "Subtle rotation +/-1 deg, period ~4s, not robotic" },
+  { id: 13, title: "Interrupt Mid-Speech", desc: "User clicks Interrupt, speech cuts cleanly, orb resets" },
+  { id: 14, title: "Rapid Follow-up Questions", desc: "Submit 3 questions fast, no queue corruption or overlap" },
+  { id: 15, title: "Error State Handling", desc: "API failure graceful, orb shows error, recovery clean" },
+  { id: 16, title: "Mobile Responsiveness", desc: "Layout adapts, touch targets adequate, no overflow" },
+  { id: 17, title: "Audio Quality / Latency", desc: "TTS clarity, no artifacts, end-to-end latency acceptable" },
+  { id: 18, title: "Transcript Display", desc: "Text appears in response panel, readable, properly formatted" },
+  { id: 19, title: "Performance Under Load", desc: "CPU/GPU usage, frame drops, memory leaks over time" },
+  { id: 20, title: "Overall Polish / Ship-Readiness", desc: "Fit and finish, brand alignment, broadcast quality" },
+];
+
+// ========================
+// STATE
+// ========================
+const state = {
+  scores: {},    // { sceneId: number }
+  fails: {},     // { sceneId: boolean }
+  notes: {},     // { sceneId: string }
+  cdAnswers: {}, // { 1-5: string }
+};
+
+// Initialize defaults
+SCENES.forEach(s => {
+  state.scores[s.id] = 5;
+  state.fails[s.id] = false;
+  state.notes[s.id] = "";
+});
+
+// ========================
+// RENDER
+// ========================
+function init() {
+  renderNav();
+  renderDashGrid();
+  renderSceneCards();
+  updateDashboard();
+  bindStateButtons();
+  bindCDQuestions();
+}
+
+function renderNav() {
+  const nav = document.getElementById("scene-nav");
+  nav.innerHTML = SCENES.map(s => `
+    <li data-scene="${s.id}" onclick="scrollToScene(${s.id})">
+      <span>${String(s.id).padStart(2,"0")}</span>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.title}</span>
+      <span class="nav-score" id="nav-score-${s.id}">${state.scores[s.id]}</span>
+      <span class="nav-fail" id="nav-fail-${s.id}" style="display:none">!</span>
+    </li>
+  `).join("");
+}
+
+function renderDashGrid() {
+  const grid = document.getElementById("dash-grid");
+  grid.innerHTML = SCENES.map(s => `
+    <div class="dash-cell" id="dash-${s.id}" onclick="scrollToScene(${s.id})" title="${s.title}">
+      <div class="dc-num">${String(s.id).padStart(2,"0")}</div>
+      <div class="dc-score" id="dash-score-${s.id}">${state.scores[s.id]}</div>
+      <div class="dc-fail" id="dash-fail-${s.id}" style="display:none">FAIL</div>
+    </div>
+  `).join("");
+}
+
+function renderSceneCards() {
+  const container = document.getElementById("scene-cards");
+  container.innerHTML = SCENES.map(s => `
+    <div class="scene-card" id="scene-${s.id}">
+      <div class="scene-card-header">
+        <div class="scene-num">${String(s.id).padStart(2,"0")}</div>
+        <div class="scene-title">${s.title}</div>
+        <div class="scene-score-display" id="score-display-${s.id}">${state.scores[s.id]}</div>
+      </div>
+      <div style="font:400 11px var(--mono);color:var(--dim);margin-bottom:12px">${s.desc}</div>
+      <div class="slider-row">
+        <label>SCORE</label>
+        <input type="range" min="1" max="10" value="${state.scores[s.id]}"
+               id="slider-${s.id}" oninput="onScore(${s.id}, this.value)">
+        <div class="score-val" id="sval-${s.id}">${state.scores[s.id]}</div>
+      </div>
+      <div class="fail-check">
+        <input type="checkbox" id="fail-${s.id}" onchange="onFail(${s.id}, this.checked)">
+        <label for="fail-${s.id}">FAILURE SIGNAL</label>
+      </div>
+      <textarea class="scene-notes" id="notes-${s.id}" placeholder="CD notes for scene ${s.id}..."
+                oninput="onNotes(${s.id}, this.value)"></textarea>
+    </div>
+  `).join("");
+}
+
+// ========================
+// SCORE/FAIL HANDLERS
+// ========================
+function scoreColor(v) {
+  if (v >= 9) return "s-green";
+  if (v >= 7) return "s-yellow";
+  if (v >= 5) return "s-orange";
+  return "s-red";
+}
+
+function scoreColorCSS(v) {
+  if (v >= 9) return "var(--green)";
+  if (v >= 7) return "var(--yellow)";
+  if (v >= 5) return "var(--orange)";
+  return "var(--red)";
+}
+
+function onScore(id, val) {
+  val = parseInt(val);
+  state.scores[id] = val;
+  document.getElementById(`sval-${id}`).textContent = val;
+  document.getElementById(`score-display-${id}`).textContent = val;
+  document.getElementById(`score-display-${id}`).style.color = scoreColorCSS(val);
+  document.getElementById(`nav-score-${id}`).textContent = val;
+  document.getElementById(`nav-score-${id}`).style.color = scoreColorCSS(val);
+  updateDashboard();
+}
+
+function onFail(id, checked) {
+  state.fails[id] = checked;
+  const card = document.getElementById(`scene-${id}`);
+  card.classList.toggle("fail-flagged", checked);
+  document.getElementById(`nav-fail-${id}`).style.display = checked ? "inline" : "none";
+  document.getElementById(`dash-fail-${id}`).style.display = checked ? "block" : "none";
+  updateDashboard();
+}
+
+function onNotes(id, text) {
+  state.notes[id] = text;
+  updateFixList();
+}
+
+function updateDashboard() {
+  const vals = Object.values(state.scores);
+  const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+  const fails = Object.values(state.fails).filter(Boolean).length;
+  const reviewed = vals.filter(v => v !== 5).length + Object.values(state.notes).filter(n => n.trim()).length;
+  const uniqueReviewed = new Set([
+    ...Object.entries(state.scores).filter(([,v]) => v !== 5).map(([k]) => k),
+    ...Object.entries(state.notes).filter(([,v]) => v.trim()).map(([k]) => k),
+    ...Object.entries(state.fails).filter(([,v]) => v).map(([k]) => k),
+  ]).size;
+
+  document.getElementById("avg-score").textContent = avg.toFixed(1);
+  document.getElementById("avg-score").style.color = scoreColorCSS(Math.round(avg));
+  document.getElementById("fail-count").textContent = fails;
+  document.getElementById("hdr-avg").textContent = avg.toFixed(1);
+  document.getElementById("hdr-avg").style.color = scoreColorCSS(Math.round(avg));
+  document.getElementById("hdr-fails").textContent = fails;
+  document.getElementById("hdr-reviewed").textContent = `${uniqueReviewed}/20`;
+
+  // Update dash cells
+  SCENES.forEach(s => {
+    const cell = document.getElementById(`dash-${s.id}`);
+    const v = state.scores[s.id];
+    cell.className = `dash-cell ${scoreColor(v)}`;
+    document.getElementById(`dash-score-${s.id}`).textContent = v;
+  });
+
+  updateFixList();
+}
+
+function updateFixList() {
+  const items = [];
+  SCENES.forEach(s => {
+    const v = state.scores[s.id];
+    const hasFail = state.fails[s.id];
+    if (v < 7 || hasFail) {
+      let priority, pclass;
+      if (hasFail || v < 5) { priority = "CRITICAL"; pclass = "p-critical"; }
+      else if (v < 6) { priority = "HIGH"; pclass = "p-high"; }
+      else { priority = "MEDIUM"; pclass = "p-medium"; }
+      const note = state.notes[s.id] ? state.notes[s.id] : `Score ${v}/10 — needs attention`;
+      items.push({ id: s.id, title: s.title, priority, pclass, note, score: v, fail: hasFail });
+    }
+  });
+
+  // Sort: CRITICAL first, then HIGH, then MEDIUM
+  const order = { CRITICAL: 0, HIGH: 1, MEDIUM: 2 };
+  items.sort((a, b) => order[a.priority] - order[b.priority] || a.score - b.score);
+
+  const container = document.getElementById("fix-items");
+  if (items.length === 0) {
+    container.innerHTML = '<div class="fix-empty">All scenes scoring 7+ with no failures. Ship it.</div>';
+  } else {
+    container.innerHTML = items.map(it => `
+      <div class="fix-item">
+        <span class="fix-priority ${it.pclass}">${it.priority}</span>
+        <span class="fix-scene">#${String(it.id).padStart(2,"0")}</span>
+        <span class="fix-text"><strong>${it.title}</strong> (${it.score}/10${it.fail ? " + FAIL" : ""}) &mdash; ${escHtml(it.note)}</span>
+      </div>
+    `).join("");
+  }
+}
+
+// ========================
+// STATE FORCING
+// ========================
+function bindStateButtons() {
+  document.querySelectorAll(".state-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const action = btn.dataset.state;
+      document.querySelectorAll(".state-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      if (action === "ask") {
+        forceAsk();
+      } else {
+        forceState(action);
+      }
+    });
+  });
+}
+
+function forceState(stateName) {
+  // Try to message the iframe directly
+  const iframe = document.getElementById("avatar-iframe");
+  try {
+    iframe.contentWindow.postMessage({ type: "force-state", state: stateName }, "*");
+  } catch(e) { /* cross-origin */ }
+
+  // Also try the API
+  fetch("/oracle/force-state", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ state: stateName })
+  }).catch(() => {});
+}
+
+function forceAsk() {
+  const question = prompt("Enter question for Oracle:");
+  if (!question) return;
+  fetch("/oracle/ask", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question })
+  }).catch(() => {});
+}
+
+// ========================
+// CD QUESTIONS BINDING
+// ========================
+function bindCDQuestions() {
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById(`cdq-${i}`);
+    el.addEventListener("input", () => { state.cdAnswers[i] = el.value; });
+  }
+}
+
+// ========================
+// NAV
+// ========================
+function scrollToScene(id) {
+  document.getElementById(`scene-${id}`).scrollIntoView({ behavior: "smooth", block: "center" });
+  document.querySelectorAll(".scene-nav li").forEach(li => li.classList.remove("active"));
+  document.querySelector(`.scene-nav li[data-scene="${id}"]`)?.classList.add("active");
+}
+
+// ========================
+// EXPORT
+// ========================
+function gatherReview() {
+  const now = new Date().toISOString();
+  return {
+    meta: { tool: "CD Review — Protocol Pulse Oracle", timestamp: now, version: "1.0" },
+    scenes: SCENES.map(s => ({
+      id: s.id,
+      title: s.title,
+      score: state.scores[s.id],
+      fail: state.fails[s.id],
+      notes: state.notes[s.id] || ""
+    })),
+    summary: {
+      average: +(Object.values(state.scores).reduce((a,b) => a+b, 0) / 20).toFixed(1),
+      fails: Object.values(state.fails).filter(Boolean).length,
+      lowest: SCENES.reduce((min, s) => state.scores[s.id] < state.scores[min.id] ? s : min, SCENES[0]).id,
+    },
+    cd_questions: {
+      q1: state.cdAnswers[1] || "",
+      q2: state.cdAnswers[2] || "",
+      q3: state.cdAnswers[3] || "",
+      q4: state.cdAnswers[4] || "",
+      q5: state.cdAnswers[5] || "",
+    },
+    priority_fixes: buildFixList(),
+  };
+}
+
+function buildFixList() {
+  const fixes = [];
+  SCENES.forEach(s => {
+    const v = state.scores[s.id];
+    if (v < 7 || state.fails[s.id]) {
+      let priority;
+      if (state.fails[s.id] || v < 5) priority = "CRITICAL";
+      else if (v < 6) priority = "HIGH";
+      else priority = "MEDIUM";
+      fixes.push({ scene: s.id, title: s.title, score: v, fail: state.fails[s.id], priority, notes: state.notes[s.id] || "" });
+    }
+  });
+  return fixes;
+}
+
+function exportJSON() {
+  const data = gatherReview();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  download(blob, `cd-review-${dateSlug()}.json`);
+}
+
+function exportMarkdown() {
+  const d = gatherReview();
+  let md = `# CD Review — Protocol Pulse Oracle\n`;
+  md += `**Date:** ${d.meta.timestamp}\n\n`;
+  md += `## Summary\n`;
+  md += `- **Average Score:** ${d.summary.average}/10\n`;
+  md += `- **Fail Signals:** ${d.summary.fails}\n`;
+  md += `- **Lowest Scene:** #${String(d.summary.lowest).padStart(2,"0")}\n\n`;
+
+  if (d.priority_fixes.length > 0) {
+    md += `## Priority Fixes\n`;
+    d.priority_fixes.forEach(f => {
+      md += `- **[${f.priority}]** #${String(f.scene).padStart(2,"0")} ${f.title} (${f.score}/10${f.fail ? " + FAIL" : ""})`;
+      if (f.notes) md += ` — ${f.notes}`;
+      md += `\n`;
+    });
+    md += `\n`;
+  }
+
+  md += `## Scene Scores\n`;
+  md += `| # | Scene | Score | Fail | Notes |\n`;
+  md += `|---|-------|-------|------|-------|\n`;
+  d.scenes.forEach(s => {
+    md += `| ${String(s.id).padStart(2,"0")} | ${s.title} | ${s.score}/10 | ${s.fail ? "YES" : "-"} | ${s.notes.replace(/\n/g," ").substring(0,80)} |\n`;
+  });
+  md += `\n`;
+
+  md += `## CD Final Questions\n`;
+  for (let i = 1; i <= 5; i++) {
+    const labels = [
+      "Does the Oracle presence feel authoritative and on-brand?",
+      "Is the voice-to-visual sync convincing enough for live broadcast?",
+      "Single biggest weakness that would make a viewer leave?",
+      "Uncanny valley risk: helping or hurting credibility?",
+      "Ship/no-ship decision: ready for next public demo?"
+    ];
+    md += `### Q${i}: ${labels[i-1]}\n${d.cd_questions[`q${i}`] || "*No answer*"}\n\n`;
+  }
+
+  const blob = new Blob([md], { type: "text/markdown" });
+  download(blob, `cd-review-${dateSlug()}.md`);
+}
+
+function loadReview() {
+  document.getElementById("load-input").click();
+}
+
+function handleLoad(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.scenes) {
+        data.scenes.forEach(s => {
+          state.scores[s.id] = s.score;
+          state.fails[s.id] = s.fail;
+          state.notes[s.id] = s.notes || "";
+          // Update UI
+          const slider = document.getElementById(`slider-${s.id}`);
+          if (slider) slider.value = s.score;
+          const sval = document.getElementById(`sval-${s.id}`);
+          if (sval) sval.textContent = s.score;
+          const sd = document.getElementById(`score-display-${s.id}`);
+          if (sd) { sd.textContent = s.score; sd.style.color = scoreColorCSS(s.score); }
+          const failCb = document.getElementById(`fail-${s.id}`);
+          if (failCb) failCb.checked = s.fail;
+          const notes = document.getElementById(`notes-${s.id}`);
+          if (notes) notes.value = s.notes || "";
+          onScore(s.id, s.score);
+          onFail(s.id, s.fail);
+        });
+      }
+      if (data.cd_questions) {
+        for (let i = 1; i <= 5; i++) {
+          const val = data.cd_questions[`q${i}`] || "";
+          state.cdAnswers[i] = val;
+          const el = document.getElementById(`cdq-${i}`);
+          if (el) el.value = val;
+        }
+      }
+      updateDashboard();
+    } catch(err) {
+      alert("Invalid review file: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = "";
+}
+
+// ========================
+// UTILS
+// ========================
+function escHtml(s) {
+  const d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function dateSlug() {
+  return new Date().toISOString().slice(0,10);
+}
+
+function download(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ========================
+// BOOT
+// ========================
+init();
+</script>
+</body>
+</html>
