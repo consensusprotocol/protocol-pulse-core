@@ -1,0 +1,32 @@
+{
+  "data": {
+    "overall": {
+      "score": 25,
+      "label": "bearish",
+      "change_24h": "N/A",
+      "components": {
+        "youtube_sentiment": 25,
+        "topic_velocity_bullish_pct": 0
+      }
+    },
+    "breakdown": {
+      "institutional": {
+        "score": 25,
+        "label": "bearish",
+        "driver": "institutional narrative"
+      },
+      "retail": {
+        "score": 25,
+        "label": "bearish",
+        "driver": "price activity"
+      },
+      "mining": {
+        "score": 25,
+        "label": "bearish",
+        "driver": "mining trend"
+      }
+    },
+    "historical": []
+  },
+  "scan_time": "2026-03-05T19:30:16Z"
+}
