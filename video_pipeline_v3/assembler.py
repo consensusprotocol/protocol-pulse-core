@@ -570,7 +570,7 @@ def overlay_pip_on_narration(narration_path: str, pip_path: str,
         "-map", "[outv]", "-map", "0:a",
         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
         "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
-        "-c:a", "copy",
+        "-c:a", "copy", "-shortest",
         output_path,
     ], "pip overlay", 180)
     return output_path if ok and os.path.exists(output_path) else narration_path
@@ -1515,8 +1515,12 @@ def apply_xfade(clip1_path: str, clip2_path: str, output_path: str,
     ok = run_ffmpeg([
         "-i", clip1_path, "-i", clip2_path,
         "-filter_complex",
-        f"[0:v][1:v]xfade=transition={transition}:duration={duration}:offset={offset},format=yuv420p[outv];"
-        f"[0:a][1:a]acrossfade=d={duration}:c1=tri:c2=tri[outa]",
+        f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,fps=30[v0];"
+        f"[1:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,fps=30[v1];"
+        f"[0:a]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo[a0];"
+        f"[1:a]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo[a1];"
+        f"[v0][v1]xfade=transition={transition}:duration={duration}:offset={offset},format=yuv420p[outv];"
+        f"[a0][a1]acrossfade=d={duration}:c1=tri:c2=tri[outa]",
         "-map", "[outv]", "-map", "[outa]",
         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
         "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
@@ -1597,7 +1601,7 @@ def normalize_part(part_path: str, output_path: str) -> str:
          "-vf", "scale=1920:1080,setsar=1,format=yuv420p",
          "-video_track_timescale", "90000",
          "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
-         "-af", "loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1",
+         "-af", "loudnorm=I=-14:TP=-2.0:LRA=7,aresample=async=1,alimiter=level_in=1:level_out=0.89:limit=0.841:attack=3:release=30",
          output_path],
         "normalize", 180,
     )
@@ -1650,7 +1654,7 @@ def concatenate_parts(parts: list, output_path: str) -> str:
          "-r", "30", "-vsync", "cfr",
          "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-         "-af", "asetpts=PTS-STARTPTS,aresample=async=1,loudnorm=I=-14:TP=-1.5:LRA=11:linear=true,alimiter=level_in=1:level_out=1:limit=0.841:attack=5:release=50:asc=1",
+         "-af", "asetpts=PTS-STARTPTS,aresample=async=1,loudnorm=I=-14:TP=-2.0:LRA=11:linear=true,alimiter=level_in=1:level_out=0.89:limit=0.841:attack=3:release=30:asc=1",
          "-movflags", "+faststart",
          output_path],
         "concat final encode", 600,
