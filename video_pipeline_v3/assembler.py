@@ -60,6 +60,15 @@ COLOR_AMBER       = "0xFF8800"   # PENDING / warning
 COLOR_TICKER_BG   = "0x0c0c0c"   # ticker bar background
 COLOR_RED_DIM     = "0x1a0000"   # CTA box bg
 
+# ── BROADCAST ENGINE V2 COLOR SYSTEM ──────────────────────────────────────
+BV2_OBSIDIAN    = "0x020304"   # deepest bg
+BV2_DEEP_PANEL  = "0x050607"   # elevated surface
+BV2_SIGNAL_RED  = "0xFF334D"   # primary accent — warmer red
+BV2_STARK_WHITE = "0xF4F5F8"   # primary text
+BV2_MUTED       = "0xFFFFFF"   # secondary text (used @0.33 opacity)
+BV2_EMERALD     = "0x6EE7B7"   # positive/bullish
+BV2_RED_LIGHT   = "0xFF8595"   # gradient accent
+
 INTRO_VIDEO = os.path.join(ASSETS, "intro.mp4")
 OUTRO_VIDEO = os.path.join(ASSETS, "outro.mp4")
 GLITCH_TRANSITION = os.path.join(ASSETS, "transitions", "glitch_transition_waud.mp4")
@@ -676,6 +685,722 @@ def _build_corner_brackets_fg(label_in: str, label_out: str) -> str:
         f"[{label_out}];\n"
     )
 
+
+# ══════════════════════════════════════════════════════════════════════════
+# BROADCAST ENGINE V2 — 6-scene system
+# ══════════════════════════════════════════════════════════════════════════
+
+def _build_broadcast_bg(duration: float, label_out: str = "bb_bg") -> tuple:
+    """Broadcast Engine V2 premium background — 3-glow radial + grid + vignette."""
+    f = ""
+    # Layer 1: Obsidian base
+    f += f"color=c={BV2_OBSIDIAN}:s=1920x1080:d={duration}:r=30[bb_base];\n"
+    # Layer 2: Red radial glow — top-left
+    f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
+          f"geq=r='clip(46*exp(-((X-230)*(X-230)+(Y-150)*(Y-150))/350000),0,255)'"
+          f":g='clip(10*exp(-((X-230)*(X-230)+(Y-150)*(Y-150))/350000),0,255)'"
+          f":b='clip(15*exp(-((X-230)*(X-230)+(Y-150)*(Y-150))/350000),0,255)'[bb_glow_tl];\n")
+    f += f"[bb_base][bb_glow_tl]blend=all_mode=screen[bb1];\n"
+    # Layer 3: White radial glow — top-right (subtle)
+    f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
+          f"geq=r='clip(15*exp(-((X-1574)*(X-1574)+(Y-173)*(Y-173))/230000),0,255)'"
+          f":g='clip(15*exp(-((X-1574)*(X-1574)+(Y-173)*(Y-173))/230000),0,255)'"
+          f":b='clip(15*exp(-((X-1574)*(X-1574)+(Y-173)*(Y-173))/230000),0,255)'[bb_glow_tr];\n")
+    f += f"[bb1][bb_glow_tr]blend=all_mode=screen[bb2];\n"
+    # Layer 4: Red radial glow — bottom-center
+    f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
+          f"geq=r='clip(25*exp(-((X-998)*(X-998)+(Y-994)*(Y-994))/160000),0,255)'"
+          f":g='clip(5*exp(-((X-998)*(X-998)+(Y-994)*(Y-994))/160000),0,255)'"
+          f":b='clip(8*exp(-((X-998)*(X-998)+(Y-994)*(Y-994))/160000),0,255)'[bb_glow_bc];\n")
+    f += f"[bb2][bb_glow_bc]blend=all_mode=screen[bb3];\n"
+    # Layer 5: Perspective grid (subtle)
+    f += f"[bb3]drawgrid=width=96:height=54:thickness=1:color=0xFFFFFF@0.03[bb4];\n"
+    # Layer 6: Scanlines (4px period)
+    f += f"[bb4]drawgrid=width=0:height=4:thickness=1:color=0xFFFFFF@0.04[bb5];\n"
+    # Layer 7: Vignette
+    f += f"[bb5]vignette=PI/4:mode=backward[bb6];\n"
+    # Layer 8: Red border frame (2px)
+    f += (f"[bb6]drawbox=x=0:y=0:w=1920:h=2:color={BV2_SIGNAL_RED}@0.7:t=fill,"
+          f"drawbox=x=0:y=1078:w=1920:h=2:color={BV2_SIGNAL_RED}@0.7:t=fill,"
+          f"drawbox=x=0:y=0:w=2:h=1080:color={BV2_SIGNAL_RED}@0.7:t=fill,"
+          f"drawbox=x=1918:y=0:w=2:h=1080:color={BV2_SIGNAL_RED}@0.7:t=fill[{label_out}];\n")
+    return ([], f)
+
+
+def _build_top_system_bar(label_in: str, label_out: str, scene_label: str = "",
+                           progress_pct: int = 50) -> str:
+    """Floating pill header bar — Broadcast Engine V2 system bar."""
+    fg = ""
+    # Pill background
+    fg += (f"[{label_in}]drawbox=x=24:y=18:w=1872:h=52:color=0x000000@0.35:t=fill,"
+           f"drawbox=x=24:y=18:w=1872:h=1:color=0xFFFFFF@0.08:t=fill,"
+           f"drawbox=x=24:y=69:w=1872:h=1:color=0xFFFFFF@0.08:t=fill,"
+           # Left: LIVE pill
+           f"drawbox=x=36:y=24:w=200:h=32:color={BV2_SIGNAL_RED}@0.08:t=fill,"
+           f"drawbox=x=36:y=24:w=200:h=32:color={BV2_SIGNAL_RED}@0.25:t=2,"
+           f"drawtext=fontfile={FONT_MONO}:text='  Protocol Pulse Live':"
+           f"fontcolor={BV2_SIGNAL_RED}:fontsize=12:x=46:y=34,"
+           # Center label
+           f"drawtext=fontfile={FONT_MONO}:text='Broadcast Signature System':"
+           f"fontcolor=0xFFFFFF@0.35:fontsize=12:x=260:y=36,"
+           # Right: Motion pct
+           f"drawtext=fontfile={FONT_MONO}:text='Motion {progress_pct}pct':"
+           f"fontcolor=0xFFFFFF@0.45:fontsize=11:x=1540:y=36,"
+           # Right: Narration Layer
+           f"drawtext=fontfile={FONT_MONO}:text='Narration Layer':"
+           f"fontcolor=0xFFFFFF@0.7:fontsize=11:x=1700:y=36"
+           f"[{label_out}];\n")
+    return fg
+
+
+def _build_signature_info_rail(duration: float, btc_price: str, label_in: str,
+                                label_out: str) -> str:
+    """Signature gradient info rail — red-white-red with BLACK text."""
+    import datetime
+    date_str = datetime.datetime.now().strftime("%b %Y").upper()
+    safe_btc = btc_price.replace("'", "").replace('"', "").replace("\\", "")
+
+    fg = ""
+    # Build gradient bar: 3 color zones (red | white | red)
+    fg += f"color=c={BV2_SIGNAL_RED}:s=640x46:d={duration}:r=30[rail_left];\n"
+    fg += f"color=c=0xFFFFFF:s=640x46:d={duration}:r=30[rail_center];\n"
+    fg += f"color=c={BV2_SIGNAL_RED}:s=640x46:d={duration}:r=30[rail_right];\n"
+    fg += f"[rail_left][rail_center]hstack[rail_lc];\n"
+    fg += f"[rail_lc][rail_right]hstack[rail_full];\n"
+    # Overlay rail onto video at y=1034
+    fg += f"[{label_in}][rail_full]overlay=0:1034[rail_ov];\n"
+    # Text in BLACK over the gradient rail
+    fg += (f"[rail_ov]drawtext=fontfile={FONT_MONO}:text='BTC {safe_btc}':"
+           f"fontcolor=0x000000:fontsize=13:x=24:y=1050,"
+           f"drawtext=fontfile={FONT_MONO}:text='PROTOCOLPULSE.IO':"
+           f"fontcolor=0x000000:fontsize=13:x=(w-text_w)/2:y=1050,"
+           f"drawtext=fontfile={FONT_MONO}:text='{date_str} - DAILY BRIEF':"
+           f"fontcolor=0x000000:fontsize=13:x=w-text_w-24:y=1050"
+           f"[{label_out}];\n")
+    return fg
+
+
+def _build_narration_wave(label_in: str, label_out: str) -> str:
+    """EKG narration wave — 1920x120 at y=914, above the info rail."""
+    fg = ""
+    fg += (f"[0:a]showwaves=s=1920x120:mode=line:"
+           f"colors=0xFFFFFF@0.85|{BV2_SIGNAL_RED}@0.12:scale=sqrt:draw=full:rate=30[bv2_ekg];\n")
+    fg += f"[{label_in}][bv2_ekg]overlay=0:914[{label_out}];\n"
+    return fg
+
+
+def _bv2_text_zone(label_in: str, label_out: str, eyebrow: str, headline: str,
+                    body: str, tag: str = "") -> str:
+    """Left 58% text zone shared across scenes 1,2,4,6."""
+    safe_eye = _sanitize_text(eyebrow)
+    safe_head = _sanitize_text(headline)
+    safe_body = _word_wrap(_sanitize_text(body), max_width=30, max_lines=3) if body else ""
+    safe_tag = _sanitize_text(tag) if tag else ""
+
+    fg = ""
+    # Eyebrow
+    fg += (f"[{label_in}]drawtext=fontfile={FONT_MONO}:text='{safe_eye}':"
+           f"fontcolor={BV2_SIGNAL_RED}:fontsize=13:x=64:y=100[bv2_eye];\n")
+    # Headline (large, with shadow for depth)
+    fg += (f"[bv2_eye]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
+           f"fontcolor=0x111111:fontsize=64:x=66:y=132,"
+           f"drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
+           f"fontcolor={BV2_STARK_WHITE}:fontsize=64:x=64:y=130[bv2_head];\n")
+    # Body text
+    if safe_body:
+        fg += (f"[bv2_head]drawtext=fontfile={FONT_MONO}:text='{safe_body}':"
+               f"fontcolor=0xFFFFFF@0.6:fontsize=18:x=64:y=420:line_spacing=8[bv2_body];\n")
+    else:
+        fg += f"[bv2_head]copy[bv2_body];\n"
+    # Tag pill
+    if safe_tag:
+        fg += (f"[bv2_body]drawbox=x=64:y=580:w=220:h=32:color={BV2_SIGNAL_RED}@0.15:t=fill,"
+               f"drawbox=x=64:y=580:w=220:h=32:color={BV2_SIGNAL_RED}@0.4:t=2,"
+               f"drawtext=fontfile={FONT_MONO}:text='{safe_tag}':"
+               f"fontcolor={BV2_SIGNAL_RED}:fontsize=12:x=76:y=590[{label_out}];\n")
+    else:
+        fg += f"[bv2_body]copy[{label_out}];\n"
+    return fg
+
+
+def _bv2_corner_brackets(label_in: str, label_out: str) -> str:
+    """Corner brackets in BV2 signal red."""
+    return (
+        f"[{label_in}]"
+        f"drawbox=x=0:y=0:w=40:h=4:color={BV2_SIGNAL_RED}:t=fill,"
+        f"drawbox=x=0:y=0:w=4:h=40:color={BV2_SIGNAL_RED}:t=fill,"
+        f"drawbox=x=1880:y=0:w=40:h=4:color={BV2_SIGNAL_RED}:t=fill,"
+        f"drawbox=x=1916:y=0:w=4:h=40:color={BV2_SIGNAL_RED}:t=fill,"
+        f"drawbox=x=0:y=1076:w=40:h=4:color={BV2_SIGNAL_RED}:t=fill,"
+        f"drawbox=x=0:y=1040:w=4:h=40:color={BV2_SIGNAL_RED}:t=fill,"
+        f"drawbox=x=1880:y=1076:w=40:h=4:color={BV2_SIGNAL_RED}:t=fill,"
+        f"drawbox=x=1916:y=1040:w=4:h=40:color={BV2_SIGNAL_RED}:t=fill"
+        f"[{label_out}];\n"
+    )
+
+
+def _bv2_encode(inputs, fg, output_path, total_dur, label="bv2 scene"):
+    """Shared encode pipeline for BV2 scenes with music sidechain."""
+    has_bgm = os.path.exists(BG_MUSIC)
+    if has_bgm:
+        inputs.append(["-stream_loop", "-1", "-i", BG_MUSIC])
+        bgm_idx = len(inputs) - 1
+        fg += (f"[0:a]silenceremove=start_periods=1:start_duration=0.05:start_threshold=-50dB:"
+               f"stop_periods=-1:stop_duration=0.1:stop_threshold=-50dB,"
+               f"loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[bv2_tts];\n")
+        fg += (f"[{bgm_idx}:a]volume=0.126,afade=t=in:d=0.5,"
+               f"afade=t=out:st={max(0, total_dur - 1.0)}:d=1.0[bv2_music_raw];\n")
+        fg += f"[bv2_music_raw]asplit[bv2_mplay][bv2_msc];\n"
+        fg += f"[bv2_mplay][bv2_msc]sidechaincompress=threshold=0.02:ratio=6:attack=50:release=500[bv2_mducked];\n"
+        fg += f"[bv2_tts][bv2_mducked]amix=inputs=2:duration=first[outa]"
+    else:
+        fg += (f"[0:a]silenceremove=start_periods=1:start_duration=0.05:start_threshold=-50dB:"
+               f"stop_periods=-1:stop_duration=0.1:stop_threshold=-50dB,"
+               f"loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]")
+
+    ok = run_ffmpeg_filtergraph(
+        inputs, fg, ["[outv]", "[outa]"],
+        ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
+         "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+         "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(total_dur)],
+        output_path, label, 180,
+    )
+    return output_path if ok else ""
+
+
+# ── BV2 Scene 1: COLD OPEN ──────────────────────────────────────────────
+
+def make_cold_open_scene(audio_path: str, headline: str, body: str, tag: str,
+                          output_path: str, btc_price: str = "N/A",
+                          duration: float = 0) -> str:
+    """BV2 Cold Open — left impact text + right ImpactMonitor panel."""
+    audio_dur = ffprobe_duration(audio_path)
+    if audio_dur <= 0:
+        audio_dur = 5
+    total_dur = duration if duration > 0 else audio_dur + 0.3
+
+    inputs = [audio_path]
+    _, bg_fg = _build_broadcast_bg(total_dur, label_out="bb_bg")
+    fg = bg_fg
+
+    # Top system bar
+    fg += _build_top_system_bar("bb_bg", "bv2_bar", progress_pct=84)
+
+    # Left text zone
+    fg += _bv2_text_zone("bv2_bar", "bv2_txt", "BREAKING INTELLIGENCE", headline, body,
+                          tag or "REDLINE")
+
+    # Right panel — ImpactMonitor (x=1120, y=90, w=760, h=900)
+    fg += (f"[bv2_txt]drawbox=x=1120:y=90:w=760:h=900:color={BV2_DEEP_PANEL}@0.92:t=fill,"
+           f"drawbox=x=1120:y=90:w=760:h=1:color=0xFFFFFF@0.08:t=fill,"
+           # Header
+           f"drawtext=fontfile={FONT_MONO}:text='PRESSURE SURFACE':"
+           f"fontcolor={BV2_SIGNAL_RED}:fontsize=11:x=1140:y=108,"
+           f"drawtext=fontfile={FONT_BOLD}:text='MARGIN SHOCK':"
+           f"fontcolor={BV2_STARK_WHITE}:fontsize=28:x=1140:y=126,"
+           # ACTIVE pill
+           f"drawbox=x=1720:y=108:w=80:h=24:color={BV2_SIGNAL_RED}@0.15:t=fill,"
+           f"drawtext=fontfile={FONT_MONO}:text='ACTIVE':"
+           f"fontcolor={BV2_SIGNAL_RED}:fontsize=11:x=1738:y=113"
+           f"[bv2_imp_hdr];\n")
+
+    # 4 metric sub-panels (2x2 grid)
+    metrics = [
+        ("HASH PRICE", "$54.2 PH", "▲", True),
+        ("DIFFICULTY", "+3.1 pct", "▲", True),
+        ("TREASURY", "$128M", "▲", True),
+        ("STRESS", "ELEVATED", "■", False),
+    ]
+    last = "bv2_imp_hdr"
+    for mi, (mlabel, mval, mindic, mgreen) in enumerate(metrics):
+        mx = 1136 + (mi % 2) * 370
+        my = 250 + (mi // 2) * 200
+        ic = BV2_EMERALD if mgreen else BV2_SIGNAL_RED
+        out = f"bv2_m{mi}"
+        fg += (f"[{last}]drawbox=x={mx}:y={my}:w=350:h=170:color=0x0a0a0a@0.9:t=fill,"
+               f"drawbox=x={mx}:y={my}:w=350:h=1:color=0xFFFFFF@0.06:t=fill,"
+               f"drawtext=fontfile={FONT_MONO}:text='{mlabel}':"
+               f"fontcolor=0xFFFFFF@0.4:fontsize=11:x={mx+16}:y={my+16},"
+               f"drawtext=fontfile={FONT_BOLD}:text='{mval}':"
+               f"fontcolor={BV2_STARK_WHITE}:fontsize=28:x={mx+16}:y={my+44},"
+               f"drawtext=fontfile={FONT_MONO}:text='{mindic}':"
+               f"fontcolor={ic}:fontsize=14:x={mx+16}:y={my+90}"
+               f"[{out}];\n")
+        last = out
+
+    # Energy bar at bottom of panel
+    fg += (f"[{last}]drawbox=x=1136:y=920:w=728:h=16:color=0x0a0a0a:t=fill,"
+           f"drawbox=x=1136:y=920:w=611:h=16:color={BV2_SIGNAL_RED}@0.75:t=fill,"
+           f"drawtext=fontfile={FONT_MONO}:text='HEADLINE ENERGY 84pct':"
+           f"fontcolor=0xFFFFFF@0.4:fontsize=10:x=1136:y=944"
+           f"[bv2_co_panels];\n")
+
+    # Corner brackets
+    fg += _bv2_corner_brackets("bv2_co_panels", "bv2_co_corners")
+    # Narration wave
+    fg += _build_narration_wave("bv2_co_corners", "bv2_co_wave")
+    # Info rail
+    fg += _build_signature_info_rail(total_dur, btc_price, "bv2_co_wave", "bv2_co_railed")
+    fg += f"[bv2_co_railed]format=yuv420p[outv];\n"
+
+    return _bv2_encode(inputs, fg, output_path, total_dur, "BV2 cold open")
+
+
+# ── BV2 Scene 2: NARRATOR + PiP (SIGNATURE) ─────────────────────────────
+
+def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
+                             speaker: str, next_speaker: str,
+                             thumb_path: str, output_path: str,
+                             btc_price: str = "N/A", duration: float = 0) -> str:
+    """BV2 Narrator + PiP — SIGNATURE SCENE with preview panel."""
+    audio_dur = ffprobe_duration(audio_path)
+    if audio_dur <= 0:
+        audio_dur = 5
+    total_dur = duration if duration > 0 else audio_dur + 0.3
+
+    inputs = [audio_path]
+    inp_idx = 1
+    has_thumb = bool(thumb_path and os.path.exists(thumb_path))
+    if has_thumb:
+        inputs.append(thumb_path)
+        thumb_idx = inp_idx
+        inp_idx += 1
+    else:
+        thumb_idx = -1
+
+    _, bg_fg = _build_broadcast_bg(total_dur, label_out="bb_bg")
+    fg = bg_fg
+
+    # Top system bar
+    fg += _build_top_system_bar("bb_bg", "bv2_bar", progress_pct=67)
+
+    # Left text zone
+    fg += _bv2_text_zone("bv2_bar", "bv2_txt", f"NARRATIVE SETUP // {_sanitize_text(speaker)[:12]}",
+                          headline, body, "ORACLE NARRATION ACTIVE")
+
+    # Right PiP preview panel (x=1120, y=140, w=740, h=500)
+    fg += (f"[bv2_txt]drawbox=x=1120:y=140:w=740:h=500:color={BV2_DEEP_PANEL}@0.92:t=fill,"
+           f"drawbox=x=1120:y=140:w=740:h=1:color=0xFFFFFF@0.1:t=fill,"
+           f"drawbox=x=1120:y=639:w=740:h=1:color=0xFFFFFF@0.1:t=fill,"
+           # Header
+           f"drawtext=fontfile={FONT_MONO}:text='COMING UP NEXT':"
+           f"fontcolor={BV2_SIGNAL_RED}:fontsize=11:x=1140:y=152,"
+           f"drawtext=fontfile={FONT_MONO}:text='Muted Preview':"
+           f"fontcolor=0xFFFFFF@0.35:fontsize=11:x=1720:y=152"
+           f"[bv2_pip_hdr];\n")
+
+    # Thumbnail or placeholder inside preview box
+    if has_thumb and thumb_idx >= 0:
+        fg += (f"[{thumb_idx}:v]scale=716:370:force_original_aspect_ratio=increase,"
+               f"crop=716:370,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS[bv2_thumb];\n")
+        fg += f"[bv2_pip_hdr][bv2_thumb]overlay=1132:200[bv2_pip_thumb];\n"
+        pip_base = "bv2_pip_thumb"
+    else:
+        # Dark placeholder with gradient boxes simulating silhouette
+        fg += (f"[bv2_pip_hdr]drawbox=x=1132:y=200:w=716:h=370:color=0x080808:t=fill,"
+               f"drawbox=x=1400:y=280:w=180:h=220:color=0x111111:t=fill"
+               f"[bv2_pip_placeholder];\n")
+        pip_base = "bv2_pip_placeholder"
+
+    # Lower third in preview: speaker name
+    safe_next = _sanitize_text(next_speaker)[:30] if next_speaker else "NEXT SOURCE"
+    fg += (f"[{pip_base}]drawbox=x=1132:y=520:w=716:h=50:color=0x000000@0.7:t=fill,"
+           f"drawtext=fontfile={FONT_BOLD}:text='{safe_next}':"
+           f"fontcolor={BV2_STARK_WHITE}:fontsize=18:x=1148:y=534,"
+           # Preview Active pill
+           f"drawbox=x=1720:y=528:w=110:h=24:color={BV2_SIGNAL_RED}@0.12:t=fill,"
+           f"drawtext=fontfile={FONT_MONO}:text='Preview Active':"
+           f"fontcolor={BV2_SIGNAL_RED}:fontsize=10:x=1730:y=533"
+           f"[bv2_pip_final];\n")
+
+    # Status pills below left text
+    fg += (f"[bv2_pip_final]drawbox=x=64:y=650:w=280:h=28:color={BV2_SIGNAL_RED}@0.1:t=fill,"
+           f"drawbox=x=64:y=650:w=280:h=28:color={BV2_SIGNAL_RED}@0.3:t=2,"
+           f"drawtext=fontfile={FONT_MONO}:text='Story Arc Locked':"
+           f"fontcolor={BV2_SIGNAL_RED}:fontsize=11:x=80:y=658"
+           f"[bv2_np_pills];\n")
+
+    # Corner brackets
+    fg += _bv2_corner_brackets("bv2_np_pills", "bv2_np_corners")
+    # Narration wave
+    fg += _build_narration_wave("bv2_np_corners", "bv2_np_wave")
+    # Info rail
+    fg += _build_signature_info_rail(total_dur, btc_price, "bv2_np_wave", "bv2_np_railed")
+    fg += f"[bv2_np_railed]format=yuv420p[outv];\n"
+
+    return _bv2_encode(inputs, fg, output_path, total_dur, "BV2 narrator+pip")
+
+
+# ── BV2 Scene 3: PARTNER CLIP ───────────────────────────────────────────
+
+def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
+                             quote: str, output_path: str,
+                             btc_price: str = "N/A", duration: float = 0) -> str:
+    """BV2 Partner Clip — restraint mode. Full-frame B-roll, premium lower-third."""
+    clip_dur = ffprobe_duration(video_path)
+    if clip_dur <= 0:
+        logger.warning(f"Partner clip has zero duration: {video_path}")
+        return ""
+
+    safe_speaker = _sanitize_text(speaker)[:30] if speaker else "SOURCE"
+    safe_quote = _sanitize_text(quote)[:60] if quote else ""
+    safe_btc = btc_price.replace("'", "").replace('"', "")
+
+    import datetime
+    ts_str = datetime.datetime.now().strftime("%H-%M UTC")
+
+    fade_out_start = max(0, clip_dur - 0.5)
+    fg = ""
+    # Full frame clip
+    fg += (f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,"
+           f"setsar=1,fps=30,fade=t=in:d=0.3,fade=t=out:st={fade_out_start}:d=0.5[bv2_clip];\n")
+    # Red border frame
+    fg += (f"[bv2_clip]drawbox=x=0:y=0:w=1920:h=2:color={BV2_SIGNAL_RED}@0.7:t=fill,"
+           f"drawbox=x=0:y=1078:w=1920:h=2:color={BV2_SIGNAL_RED}@0.7:t=fill,"
+           f"drawbox=x=0:y=0:w=2:h=1080:color={BV2_SIGNAL_RED}@0.7:t=fill,"
+           f"drawbox=x=1918:y=0:w=2:h=1080:color={BV2_SIGNAL_RED}@0.7:t=fill[bv2_clip_framed];\n")
+    # Top-right watermark
+    fg += (f"[bv2_clip_framed]drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
+           f"fontcolor=0xFFFFFF@0.4:fontsize=14:x=W-text_w-24:y=18[bv2_clip_wm];\n")
+    # Corner brackets
+    fg += _bv2_corner_brackets("bv2_clip_wm", "bv2_clip_corners")
+    # Premium lower-third
+    fg += (f"[bv2_clip_corners]drawbox=x=0:y=870:w=800:h=110:color=0x000000@0.88:t=fill,"
+           # Red top accent line
+           f"drawbox=x=0:y=870:w=800:h=4:color={BV2_SIGNAL_RED}:t=fill,"
+           # Guest kicker
+           f"drawtext=fontfile={FONT_MONO}:text='GUEST SOURCE - HIGH SIGNAL':"
+           f"fontcolor={BV2_SIGNAL_RED}:fontsize=11:x=24:y=882,"
+           # Speaker name
+           f"drawtext=fontfile={FONT_BOLD}:text='{safe_speaker}':"
+           f"fontcolor={BV2_STARK_WHITE}:fontsize=26:x=24:y=900,"
+           # Quote
+           f"drawtext=fontfile={FONT_MONO}:text='{safe_quote}':"
+           f"fontcolor=0xFFFFFF@0.6:fontsize=16:x=24:y=938,"
+           # Timestamp
+           f"drawtext=fontfile={FONT_MONO}:text='{ts_str}':"
+           f"fontcolor=0xFFFFFF@0.35:fontsize=11:x=740:y=882"
+           f"[bv2_clip_lt];\n")
+    # Ticker rail
+    fg += _build_signature_info_rail(clip_dur, btc_price, "bv2_clip_lt", "bv2_clip_railed")
+    fg += (f"[bv2_clip_railed]format=yuv420p[outv];\n"
+           # Audio: preserve original, normalize
+           f"[0:a]asetpts=PTS-STARTPTS,"
+           f"highpass=f=50,lowpass=f=15000,loudnorm=I=-14:TP=-1.5:LRA=7,"
+           f"afade=t=in:d=0.3,afade=t=out:st={fade_out_start}:d=0.5[outa]")
+
+    ok = run_ffmpeg_filtergraph(
+        [video_path], fg, ["[outv]", "[outa]"],
+        ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
+         "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+         "-c:a", "aac", "-ar", "48000", "-b:a", "192k"],
+        output_path, f"BV2 partner clip ({safe_speaker})",
+    )
+    return output_path if ok else ""
+
+
+# ── BV2 Scene 4: DATA SEGMENT ───────────────────────────────────────────
+
+def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
+                             output_path: str, btc_price: str = "N/A",
+                             duration: float = 0) -> str:
+    """BV2 Data Segment — left text + 2x2 metric cards + right chart panel."""
+    audio_dur = ffprobe_duration(audio_path)
+    if audio_dur <= 0:
+        audio_dur = 5
+    total_dur = duration if duration > 0 else audio_dur + 0.3
+
+    inputs = [audio_path]
+    _, bg_fg = _build_broadcast_bg(total_dur, label_out="bb_bg")
+    fg = bg_fg
+
+    fg += _build_top_system_bar("bb_bg", "bv2_bar", progress_pct=72)
+    fg += _bv2_text_zone("bv2_bar", "bv2_txt", "MARKET STRUCTURE", headline, "", "ANALYTICS")
+
+    # 2x2 metric card grid (x=64, y=460, w=700, h=300)
+    default_metrics = [
+        ("BTC", btc_price, "+2.1 pct", True),
+        ("HASHRATE", "1,056 EH/s", "+4.2 pct", True),
+        ("ETF FLOW", "$340M", "+18 pct", True),
+        ("MARGIN", "42 pct", "-1.2 pct", False),
+    ]
+    use_metrics = []
+    if metrics and len(metrics) >= 4:
+        for m in metrics[:4]:
+            if isinstance(m, dict):
+                use_metrics.append((
+                    m.get("label", "DATA"),
+                    _sanitize_text(str(m.get("value", "N/A"))),
+                    _sanitize_text(str(m.get("delta", ""))),
+                    m.get("positive", True),
+                ))
+            elif isinstance(m, (list, tuple)) and len(m) >= 3:
+                use_metrics.append((str(m[0]), _sanitize_text(str(m[1])),
+                                    _sanitize_text(str(m[2])),
+                                    m[3] if len(m) > 3 else True))
+    if len(use_metrics) < 4:
+        use_metrics = default_metrics
+
+    last = "bv2_txt"
+    for mi, (mlabel, mval, mdelta, mpos) in enumerate(use_metrics):
+        mx = 64 + (mi % 2) * 360
+        my = 460 + (mi // 2) * 160
+        dc = BV2_EMERALD if mpos else BV2_SIGNAL_RED
+        out = f"bv2_dm{mi}"
+        fg += (f"[{last}]drawbox=x={mx}:y={my}:w=340:h=140:color=0x0a0a0a@0.9:t=fill,"
+               f"drawbox=x={mx}:y={my}:w=340:h=1:color=0xFFFFFF@0.06:t=fill,"
+               f"drawtext=fontfile={FONT_MONO}:text='{mlabel}':"
+               f"fontcolor=0xFFFFFF@0.4:fontsize=11:x={mx+16}:y={my+14},"
+               f"drawtext=fontfile={FONT_BOLD}:text='{mval}':"
+               f"fontcolor={BV2_STARK_WHITE}:fontsize=28:x={mx+16}:y={my+38},"
+               f"drawtext=fontfile={FONT_MONO}:text='{mdelta}':"
+               f"fontcolor={dc}:fontsize=13:x={mx+16}:y={my+80}"
+               f"[{out}];\n")
+        last = out
+
+    # Right chart panel (x=1120, y=90, w=760, h=820)
+    fg += (f"[{last}]drawbox=x=1120:y=90:w=760:h=820:color={BV2_DEEP_PANEL}@0.92:t=fill,"
+           f"drawbox=x=1120:y=90:w=760:h=1:color=0xFFFFFF@0.08:t=fill,"
+           f"drawtext=fontfile={FONT_MONO}:text='BTC NETWORK STRESS':"
+           f"fontcolor={BV2_SIGNAL_RED}:fontsize=11:x=1140:y=108,"
+           # Model Active pill
+           f"drawbox=x=1720:y=105:w=100:h=24:color={BV2_SIGNAL_RED}@0.12:t=fill,"
+           f"drawtext=fontfile={FONT_MONO}:text='Model Active':"
+           f"fontcolor={BV2_SIGNAL_RED}:fontsize=10:x=1732:y=110"
+           f"[bv2_chart_hdr];\n")
+
+    # Stylized rising line chart (10 stepped drawbox segments)
+    chart_x_start = 1160
+    chart_y_base = 800
+    chart_w = 680
+    step_w = chart_w // 10
+    # Approximate upward trend
+    heights = [30, 45, 38, 60, 55, 72, 85, 78, 95, 110]
+    last_chart = "bv2_chart_hdr"
+    for ci, ch in enumerate(heights):
+        cx = chart_x_start + ci * step_w
+        cy = chart_y_base - ch
+        out_c = f"bv2_cbar{ci}"
+        fg += (f"[{last_chart}]drawbox=x={cx}:y={cy}:w={step_w-4}:h={ch}:"
+               f"color={BV2_SIGNAL_RED}@0.6:t=fill[{out_c}];\n")
+        last_chart = out_c
+
+    # Pulse dot at chart tip
+    fg += (f"[{last_chart}]drawbox=x={chart_x_start + 9*step_w + step_w//2 - 6}:"
+           f"y={chart_y_base - heights[-1] - 8}:w=12:h=12:"
+           f"color={BV2_SIGNAL_RED}:t=fill[bv2_chart_done];\n")
+
+    # Corner brackets
+    fg += _bv2_corner_brackets("bv2_chart_done", "bv2_ds_corners")
+    fg += _build_narration_wave("bv2_ds_corners", "bv2_ds_wave")
+    fg += _build_signature_info_rail(total_dur, btc_price, "bv2_ds_wave", "bv2_ds_railed")
+    fg += f"[bv2_ds_railed]format=yuv420p[outv];\n"
+
+    return _bv2_encode(inputs, fg, output_path, total_dur, "BV2 data segment")
+
+
+# ── BV2 Scene 5: SOCIAL STACK ───────────────────────────────────────────
+
+def make_social_stack_scene(audio_path: str, headline: str, social_cards: list,
+                             output_path: str, btc_price: str = "N/A",
+                             duration: float = 0) -> str:
+    """BV2 Social Stack — header + 3-column conviction cards."""
+    audio_dur = ffprobe_duration(audio_path)
+    if audio_dur <= 0:
+        audio_dur = 5
+    total_dur = duration if duration > 0 else audio_dur + 0.3
+
+    inputs = [audio_path]
+    _, bg_fg = _build_broadcast_bg(total_dur, label_out="bb_bg")
+    fg = bg_fg
+
+    fg += _build_top_system_bar("bb_bg", "bv2_bar", progress_pct=58)
+
+    # Header zone
+    fg += (f"[bv2_bar]drawtext=fontfile={FONT_MONO}:text='SIGNAL LAYER':"
+           f"fontcolor={BV2_SIGNAL_RED}:fontsize=13:x=64:y=100,"
+           f"drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(headline)[:40]}':"
+           f"fontcolor={BV2_STARK_WHITE}:fontsize=48:x=64:y=130,"
+           f"drawtext=fontfile={FONT_MONO}:text='Bitcoin Social Conviction Index':"
+           f"fontcolor=0xFFFFFF@0.5:fontsize=16:x=64:y=200"
+           f"[bv2_ss_hdr];\n")
+
+    # Default social cards if none provided
+    default_cards = [
+        {"name": "Signal Source", "handle": "@signal", "score": "96", "text": "Bitcoin conviction remains extremely high", "tag": "HIGH CONVICTION"},
+        {"name": "Market Intel", "handle": "@intel", "score": "84", "text": "Structural demand continues to build", "tag": "STRUCTURAL"},
+        {"name": "Macro Watch", "handle": "@macro", "score": "72", "text": "Global liquidity conditions favor BTC", "tag": "MACRO SIGNAL"},
+    ]
+    cards = social_cards[:3] if social_cards and len(social_cards) >= 1 else default_cards
+    # Pad to 3 if needed
+    while len(cards) < 3:
+        cards.append(default_cards[len(cards) % 3])
+
+    tags = ["HIGH CONVICTION", "STRUCTURAL", "MACRO SIGNAL"]
+    last = "bv2_ss_hdr"
+    for ci, card in enumerate(cards):
+        cx = 64 + ci * 608
+        cy = 300
+        cw = 580
+        ch = 620
+        border_color = f"{BV2_SIGNAL_RED}@0.4" if ci == 0 else "0xFFFFFF@0.08"
+        name = _sanitize_text(str(card.get("name", card.get("handle", "Source"))))[:20]
+        handle = _sanitize_text(str(card.get("handle", "@source")))[:20]
+        score = str(card.get("score", card.get("likes", "80")))[:6]
+        ctext = _word_wrap(_sanitize_text(str(card.get("text", ""))), max_width=24, max_lines=4)
+        ctag = _sanitize_text(str(card.get("tag", tags[ci % 3])))[:20]
+
+        out = f"bv2_sc{ci}"
+        fg += (f"[{last}]drawbox=x={cx}:y={cy}:w={cw}:h={ch}:color={BV2_DEEP_PANEL}@0.92:t=fill,"
+               f"drawbox=x={cx}:y={cy}:w={cw}:h={ch}:color={border_color}:t=2,"
+               # Avatar circle placeholder
+               f"drawbox=x={cx+24}:y={cy+24}:w=44:h=44:color={BV2_SIGNAL_RED}@0.5:t=fill,"
+               # Name
+               f"drawtext=fontfile={FONT_BOLD}:text='{name}':"
+               f"fontcolor={BV2_STARK_WHITE}:fontsize=16:x={cx+80}:y={cy+28},"
+               # Handle
+               f"drawtext=fontfile={FONT_MONO}:text='{handle}':"
+               f"fontcolor=0xFFFFFF@0.35:fontsize=12:x={cx+80}:y={cy+50},"
+               # Score pill
+               f"drawbox=x={cx+cw-90}:y={cy+28}:w=70:h=24:color={BV2_SIGNAL_RED}@0.12:t=fill,"
+               f"drawtext=fontfile={FONT_MONO}:text='{score} / 100':"
+               f"fontcolor={BV2_SIGNAL_RED}:fontsize=11:x={cx+cw-84}:y={cy+34},"
+               # Quote text
+               f"drawtext=fontfile={FONT_BOLD}:text='{ctext}':"
+               f"fontcolor={BV2_STARK_WHITE}:fontsize=20:x={cx+24}:y={cy+100}:line_spacing=10,"
+               # Tag label
+               f"drawtext=fontfile={FONT_MONO}:text='{ctag}':"
+               f"fontcolor={BV2_SIGNAL_RED}:fontsize=11:x={cx+24}:y={cy+ch-36}"
+               f"[{out}];\n")
+        last = out
+
+    fg += _bv2_corner_brackets(last, "bv2_ss_corners")
+    fg += _build_narration_wave("bv2_ss_corners", "bv2_ss_wave")
+    fg += _build_signature_info_rail(total_dur, btc_price, "bv2_ss_wave", "bv2_ss_railed")
+    fg += f"[bv2_ss_railed]format=yuv420p[outv];\n"
+
+    return _bv2_encode(inputs, fg, output_path, total_dur, "BV2 social stack")
+
+
+# ── BV2 Scene 6: WRAP / VERDICT ─────────────────────────────────────────
+
+def make_wrap_scene(audio_path: str, headline: str, body: str,
+                     output_path: str, btc_price: str = "N/A",
+                     duration: float = 0) -> str:
+    """BV2 Wrap — resolved energy + Signal Wave panel."""
+    audio_dur = ffprobe_duration(audio_path)
+    if audio_dur <= 0:
+        audio_dur = 5
+    total_dur = duration if duration > 0 else audio_dur + 0.3
+
+    inputs = [audio_path]
+    _, bg_fg = _build_broadcast_bg(total_dur, label_out="bb_bg")
+    fg = bg_fg
+
+    fg += _build_top_system_bar("bb_bg", "bv2_bar", progress_pct=100)
+    fg += _bv2_text_zone("bv2_bar", "bv2_txt", "FINAL TAKE", headline, body, "RESOLVE")
+
+    # Right Signal Wave panel (x=1120, y=140, w=740, h=680)
+    fg += (f"[bv2_txt]drawbox=x=1120:y=140:w=740:h=680:color={BV2_DEEP_PANEL}@0.92:t=fill,"
+           f"drawbox=x=1120:y=140:w=740:h=1:color=0xFFFFFF@0.08:t=fill,"
+           f"drawtext=fontfile={FONT_MONO}:text='Signal Wave':"
+           f"fontcolor={BV2_SIGNAL_RED}:fontsize=11:x=1140:y=158"
+           f"[bv2_wrap_panel];\n")
+    # Large waveform inside panel
+    fg += (f"[0:a]showwaves=s=700x400:mode=cline:"
+           f"colors={BV2_SIGNAL_RED}|{BV2_STARK_WHITE}:scale=sqrt:draw=full:rate=30[bv2_sigwave];\n")
+    fg += f"[bv2_wrap_panel][bv2_sigwave]overlay=1140:240[bv2_wrap_waved];\n"
+
+    fg += _bv2_corner_brackets("bv2_wrap_waved", "bv2_wrap_corners")
+    fg += _build_narration_wave("bv2_wrap_corners", "bv2_wrap_ekg")
+    fg += _build_signature_info_rail(total_dur, btc_price, "bv2_wrap_ekg", "bv2_wrap_railed")
+    fg += f"[bv2_wrap_railed]format=yuv420p[outv];\n"
+
+    return _bv2_encode(inputs, fg, output_path, total_dur, "BV2 wrap")
+
+
+# ── BV2 Scene Router ────────────────────────────────────────────────────
+
+def select_scene_type(segment_type: str, segment_index: int, total_segments: int) -> str:
+    """Route segment to appropriate BV2 scene type."""
+    if segment_index == 0:
+        return "cold_open"
+    elif segment_type in ("setup", "intro") and segment_index == 1:
+        return "narrator_pip"
+    elif segment_type == "broll":
+        return "partner_clip"
+    elif segment_type == "data":
+        return "data_segment"
+    elif segment_type in ("social", "social_segment"):
+        return "social_stack"
+    elif segment_type in ("wrap", "outro") or segment_index == total_segments - 1:
+        return "wrap"
+    else:
+        return "narrator_pip"  # default to signature scene
+
+
+def make_broadcast_segment(segment_data: dict, audio_path: str, host_num: int,
+                            segment_index: int, total_segments: int,
+                            output_path: str, btc_price: str = "N/A",
+                            thumbnail_path: str = "",
+                            clip_path: str = "",
+                            social_posts: list = None) -> str:
+    """Route to appropriate BV2 scene function based on segment type and position.
+
+    Falls back to make_host_visual if BV2 scene fails.
+    """
+    seg_type = segment_data.get("type", "")
+    text = segment_data.get("text", "")
+    speaker = segment_data.get("speaker", "ERYN" if host_num == 1 else "MARK")
+    scene = select_scene_type(seg_type, segment_index, total_segments)
+
+    try:
+        if scene == "cold_open":
+            return make_cold_open_scene(
+                audio_path, text[:60], text, "REDLINE",
+                output_path, btc_price=btc_price,
+            )
+        elif scene == "narrator_pip":
+            next_speaker = segment_data.get("next_speaker", "")
+            return make_narrator_pip_scene(
+                audio_path, text[:60], text, speaker, next_speaker,
+                thumbnail_path, output_path, btc_price=btc_price,
+            )
+        elif scene == "partner_clip" and clip_path:
+            return make_partner_clip_scene(
+                clip_path, audio_path, speaker, text[:60],
+                output_path, btc_price=btc_price,
+            )
+        elif scene == "data_segment":
+            metrics = segment_data.get("metrics", [])
+            return make_data_segment_scene(
+                audio_path, text[:60], metrics,
+                output_path, btc_price=btc_price,
+            )
+        elif scene == "social_stack":
+            return make_social_stack_scene(
+                audio_path, text[:60], social_posts or [],
+                output_path, btc_price=btc_price,
+            )
+        elif scene == "wrap":
+            return make_wrap_scene(
+                audio_path, text[:60], text,
+                output_path, btc_price=btc_price,
+            )
+    except Exception as e:
+        logger.warning(f"BV2 scene '{scene}' failed: {e} — falling back to make_host_visual")
+
+    # Fallback to Black Diamond host visual
+    return make_host_visual(
+        audio_path, host_num, text, output_path,
+        btc_price=btc_price, label=f"bv2_fallback_{seg_type}",
+        thumbnail_path=thumbnail_path, segment_type=seg_type,
+    )
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# BLACK DIAMOND (legacy) — kept as fallback
+# ══════════════════════════════════════════════════════════════════════════
 
 def make_host_visual(audio_path: str, host: int, text: str,
                      output_path: str, btc_price: str = "N/A",
@@ -2199,13 +2924,18 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                 segment_type=entry_type,
             )
         else:
-            # VDS: All backgrounds are procedural now — use make_host_visual directly.
-            result = make_host_visual(
-                audio_path, host_num, text, line_out,
-                btc_price=btc_price,
-                label=f"{entry_type} #{part_idx}",
+            # BV2: Route to Broadcast Engine V2 scene system (falls back to Black Diamond)
+            seg_data = {"type": entry_type, "text": text,
+                        "speaker": "ERYN" if host_num == 1 else "MARK",
+                        "next_speaker": ""}
+            # Look ahead for next clip speaker
+            if entry_type == "setup" and clip_rank and clip_rank in extracted_clips:
+                seg_data["next_speaker"] = extracted_clips[clip_rank].get("channel", "")
+            result = make_broadcast_segment(
+                seg_data, audio_path, host_num,
+                part_idx, len(dialogue),
+                line_out, btc_price=btc_price,
                 thumbnail_path=thumb,
-                segment_type=entry_type,
             )
 
             # Issue 4 FIX: PiP preview ONLY during "setup" segments (introducing next clip).
