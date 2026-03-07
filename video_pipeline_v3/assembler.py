@@ -150,7 +150,7 @@ def _build_info_bar_fg(duration: float, btc_price: str, block_height: str = "",
     # Scrolling gold text
     fg += (f"[tickline]drawtext=fontfile={FONT_MONO}:text='{safe_content}':"
            f"fontcolor=0xf8c15c:fontsize=17:"
-           f"x=w-mod(t*90\\\\,w+text_w):y=13[ticker];\n")
+           f"x=w-mod(t*90\\,w+text_w):y=13[ticker];\n")
     # Overlay bar onto video frame at bottom
     fg += f"[{label_in}][ticker]overlay=0:H-44[{label_out}];\n"
     return fg
@@ -1748,6 +1748,18 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
     logger.info("ASSEMBLING V10 EPISODE — WAVEFORM VISUALIZER")
     logger.info("=" * 60)
 
+    try:
+        return _assemble_episode_inner(script, audio_data, extracted_clips,
+                                       output_path, btc_price, music_bed, intro_music)
+    except Exception:
+        import traceback
+        logger.error("ASSEMBLY CRASHED — full traceback:")
+        traceback.print_exc()
+        return ""
+
+
+def _assemble_episode_inner(script, audio_data, extracted_clips,
+                            output_path, btc_price="N/A", music_bed="", intro_music=""):
     # Issue 12: Override default BG_MUSIC with mood-matched music bed if provided
     # Ensure music is mixed at -20dB under ALL narration segments
     global BG_MUSIC
