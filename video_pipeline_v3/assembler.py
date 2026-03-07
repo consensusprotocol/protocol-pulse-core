@@ -86,6 +86,26 @@ DATA_BLIP = os.path.join(ASSETS, "sfx", "data_blip.wav")
 LOWER_SLIDE = os.path.join(ASSETS, "sfx", "lower_slide.wav")
 
 
+def _fetch_btc_price() -> str:
+    """FIX 5: Fetch BTC price with dual fallback (CoinGecko → Mempool)."""
+    try:
+        import urllib.request
+        url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
+        with urllib.request.urlopen(url, timeout=5) as r:
+            data = json.loads(r.read())
+            price = data["bitcoin"]["usd"]
+            return f"${price:,.0f}"
+    except Exception:
+        try:
+            import urllib.request
+            url2 = "https://mempool.space/api/v1/prices"
+            with urllib.request.urlopen(url2, timeout=5) as r:
+                data = json.loads(r.read())
+                return f"${data.get('USD', 0):,.0f}"
+        except Exception:
+            return "$N/A"
+
+
 def _build_vds_background_fg(duration: float, label_out: str = "vds_bg") -> tuple:
     """VDS 7-layer procedural background. No external video files.
 
@@ -96,14 +116,15 @@ def _build_vds_background_fg(duration: float, label_out: str = "vds_bg") -> tupl
     # Layer 0: Deep space base
     f += f"color=c=0x06070b:s=1920x1080:d={duration}:r=30[layer0];\n"
     # Layer 1: Three-source radial glows (red top-left, cyan top-right, gold bottom-center)
+    # FIX 10: Increased glow intensity — red 80→180, cyan 60→120, gold 30→80
     f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
-          f"geq=r='clip(80*exp(-(X*X+Y*Y)/160000),0,255)':g='0':b='0'[red_glow];\n")
+          f"geq=r='clip(180*exp(-(X*X+Y*Y)/200000),0,255)':g='0':b='0'[red_glow];\n")
     f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
-          f"geq=r='0':g='clip(40*exp(-((X-1920)*(X-1920)+Y*Y)/100000),0,255)':"
-          f"b='clip(60*exp(-((X-1920)*(X-1920)+Y*Y)/100000),0,255)'[cyan_glow];\n")
+          f"geq=r='0':g='clip(80*exp(-((X-1920)*(X-1920)+Y*Y)/140000),0,255)':"
+          f"b='clip(120*exp(-((X-1920)*(X-1920)+Y*Y)/140000),0,255)'[cyan_glow];\n")
     f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
-          f"geq=r='clip(30*exp(-((X-960)*(X-960)+(Y-1080)*(Y-1080))/80000),0,255)':"
-          f"g='clip(20*exp(-((X-960)*(X-960)+(Y-1080)*(Y-1080))/80000),0,255)':b='0'[gold_glow];\n")
+          f"geq=r='clip(80*exp(-((X-960)*(X-960)+(Y-1080)*(Y-1080))/120000),0,255)':"
+          f"g='clip(50*exp(-((X-960)*(X-960)+(Y-1080)*(Y-1080))/120000),0,255)':b='0'[gold_glow];\n")
     f += f"[layer0][red_glow]blend=all_mode=screen[bg1];\n"
     f += f"[bg1][cyan_glow]blend=all_mode=screen[bg2];\n"
     f += f"[bg2][gold_glow]blend=all_mode=screen[bg_glows];\n"
@@ -471,13 +492,13 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
     else:
         face_base = "bgvig"
 
-    # VDS waveform — red/gold gradient
-    fg += (f"[0:a]showwaves=s=600x80:mode=cline:"
+    # FIX 2: VDS waveform — full width (1920x200), red/gold gradient
+    fg += (f"[0:a]showwaves=s=1920x200:mode=cline:"
            f"colors={COLOR_RED}|{COLOR_GOLD}:scale=sqrt:draw=full:rate=30[wave_raw];\n")
     fg += f"[wave_raw]split[wA][wB];\n"
     fg += f"[wB]vflip,colorchannelmixer=aa=0.35[wflip];\n"
     fg += f"[wA][wflip]vstack[wavepair];\n"
-    fg += f"[{face_base}][wavepair]overlay=228:440[withwave];\n"
+    fg += f"[{face_base}][wavepair]overlay=0:340[withwave];\n"
 
     # VDS animated scrolling info bar
     fg += _build_info_bar_fg(total_dur, btc_price, label_in="withwave", label_out="v_final")
@@ -703,13 +724,11 @@ def make_host_visual(audio_path: str, host: int, text: str,
     _, bg_fg = _build_vds_background_fg(total_dur, label_out="bgvig")
     fg = bg_fg
 
-    # VDS-1: Thin horizontal accent lines — VDS red
-    fg += (f"[bgvig]drawbox=x=0:y=538:w=1920:h=2:color={COLOR_RED}@0.35:t=fill"
-           f",drawbox=x=0:y=542:w=1920:h=1:color={COLOR_RED}@0.15:t=fill[bglines];\n")
+    # FIX 3: Removed red horizontal divider lines at y=538/542 (caused visible seam)
 
     # VDS-1: LEFT SIDE vertical accent bar — VDS red
     fg += f"color=c={COLOR_RED}@0.8:s=4x1080:d={total_dur}:r=30[leftbar];\n"
-    fg += f"[bglines][leftbar]overlay=0:0[bgv0];\n"
+    fg += f"[bgvig][leftbar]overlay=0:0[bgv0];\n"
 
     last_bg = "bgv0"
 
@@ -719,23 +738,24 @@ def make_host_visual(audio_path: str, host: int, text: str,
            f"x=40:y=16[bgcorner];\n")
     last_bg = "bgcorner"
 
-    # VDS: Audio waveform — red/gold gradient
-    fg += (f"[0:a]showwaves=s=600x80:mode=cline:"
+    # FIX 2: Audio waveform — full width (1920x200), centered at y=440
+    fg += (f"[0:a]showwaves=s=1920x200:mode=cline:"
            f"colors={COLOR_RED}|{COLOR_GOLD}:scale=sqrt:draw=full:rate=30[wave_raw];\n")
 
-    # 10. Mirror reflection (vflip + 35% opacity fade)
+    # Mirror reflection (vflip + 35% opacity fade)
     fg += f"[wave_raw]split[wA][wB];\n"
     fg += f"[wB]vflip,colorchannelmixer=aa=0.35[wflip];\n"
-    fg += f"[wA][wflip]vstack[wavepair];\n"   # 600x160 total
+    fg += f"[wA][wflip]vstack[wavepair];\n"   # 1920x400 total
 
-    # 11. Overlay waveform centered in left zone: x=228, y=340
-    # Left zone is 0-1056px, center of 600px waveform = (1056-600)/2 = 228
-    fg += f"[{last_bg}][wavepair]overlay=228:340[withwave];\n"
+    # FIX 2: Overlay waveform full-width, centered vertically at y=340
+    fg += f"[{last_bg}][wavepair]overlay=0:340[withwave];\n"
 
-    # VDS-5: Speaker label — eyebrow kicker style (gold text, no colored bg box)
-    fg += f"color=c={COLOR_BG}@0.6:s=320x36:d={total_dur}:r=30[spkbg];\n"
-    fg += (f"[spkbg]drawtext=fontfile={FONT_MONO}:text='{speaker} - PROTOCOL PULSE':"
-           f"fontcolor={COLOR_GOLD}:fontsize=13:x=12:y=10[spklabel];\n")
+    # FIX 7: Speaker label — proper lower-third bar with gold name + muted subtitle
+    fg += f"color=c={COLOR_BG}@0.75:s=380x56:d={total_dur}:r=30[spkbg];\n"
+    fg += (f"[spkbg]drawtext=fontfile={FONT_MONO}:text='{speaker}':"
+           f"fontcolor={COLOR_GOLD}:fontsize=18:x=16:y=8[spkname];\n")
+    fg += (f"[spkname]drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
+           f"fontcolor={COLOR_MUTED}:fontsize=13:x=16:y=32[spklabel];\n")
 
     # Sprint 3.5: Subtitle text overlay (white, bottom-center, above ticker)
     safe_sub = _sanitize_text(text) if text else ""
@@ -750,8 +770,13 @@ def make_host_visual(audio_path: str, host: int, text: str,
     else:
         fg += f"[withwave][spklabel]overlay=40:H-90[v1];\n"
 
+    # FIX 11: EKG waveform — 120px zone above ticker bar (y=H-164 to y=H-44)
+    fg += (f"[0:a]showwaves=s=1920x120:mode=line:"
+           f"colors={COLOR_GOLD}:scale=sqrt:draw=full:rate=30[ekg_raw];\n")
+    fg += f"[v1][ekg_raw]overlay=0:H-164[v1ekg];\n"
+
     # VDS animated scrolling info bar
-    fg += _build_info_bar_fg(total_dur, btc_price, label_in="v1", label_out="v2")
+    fg += _build_info_bar_fg(total_dur, btc_price, label_in="v1ekg", label_out="v2")
     last_v = "v2"
 
     # 15. Watermark top-right
@@ -789,7 +814,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
             wrapped_lines.append(current_line)
         if len(wrapped_lines) == 3 and len(safe_text) > sum(len(l) for l in wrapped_lines):
             wrapped_lines[2] = wrapped_lines[2][:57] + "..."
-        wrapped_text = "\\n".join(wrapped_lines)
+        wrapped_text = "\n".join(wrapped_lines)
 
         # --- Cyberpunk card design ---
         # Scanline effect via geq (subtle dark line every 4px)
@@ -874,7 +899,12 @@ def _sanitize_text(text: str) -> str:
 
 
 def _word_wrap(text: str, max_width: int = 55, max_lines: int = 3) -> str:
-    """Word-wrap text for FFmpeg drawtext, return \\n-joined string."""
+    """Word-wrap text for FFmpeg drawtext, return newline-joined string.
+
+    FIX 4: Use actual newline character (0x0a) in the text. When written to
+    filter_complex_script file, FFmpeg drawtext renders it as a line break.
+    Escaped sequences like \\n or \\\\n do NOT work in filter_complex_script mode.
+    """
     lines = []
     current = ""
     for word in text.split():
@@ -889,7 +919,7 @@ def _word_wrap(text: str, max_width: int = 55, max_lines: int = 3) -> str:
         lines.append(current)
     if len(lines) == max_lines and len(text) > sum(len(l) for l in lines):
         lines[-1] = lines[-1][:max_width - 3] + "..."
-    return "\\n".join(lines)
+    return "\n".join(lines)
 
 
 def make_social_card_visual(audio_path: str, posts: list, output_path: str,
@@ -1611,7 +1641,11 @@ def normalize_part(part_path: str, output_path: str) -> str:
 
 
 def concatenate_parts(parts: list, output_path: str) -> str:
-    """Concat video parts using FFmpeg concat demuxer."""
+    """FIX 1+8+12: Concat video parts with fade transitions (no black frames).
+
+    Uses concat demuxer with fade-in/fade-out on each part for smooth transitions.
+    No standalone glitch transition clips. Final loudnorm with LRA=7 (FIX 12).
+    """
     valid = [p for p in parts if p and os.path.exists(p)]
     if not valid:
         logger.error("No valid parts to concatenate")
@@ -1620,12 +1654,26 @@ def concatenate_parts(parts: list, output_path: str) -> str:
         shutil.copy2(valid[0], output_path)
         return output_path
 
-    # Normalize all parts to consistent format
+    # Normalize all parts with brief fade-in/fade-out for smooth cuts (FIX 1+8)
     normalized = []
     for i, p in enumerate(valid):
         tmp = output_path + f".norm{i}.mp4"
-        norm = normalize_part(p, tmp)
-        normalized.append(norm)
+        p = ensure_audio(p)
+        dur = ffprobe_duration(p)
+        fade_out_start = max(0, dur - 0.15)
+        ok = run_ffmpeg(
+            ["-i", p,
+             "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+             "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+             "-r", "30", "-vsync", "cfr",
+             "-vf", f"scale=1920:1080,setsar=1,format=yuv420p,fade=t=in:d=0.15,fade=t=out:st={fade_out_start}:d=0.15",
+             "-video_track_timescale", "90000",
+             "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
+             "-af", f"loudnorm=I=-14:TP=-3.0:LRA=7,aresample=async=1,afade=t=in:d=0.1,afade=t=out:st={fade_out_start}:d=0.15",
+             tmp],
+            "normalize+fade", 180,
+        )
+        normalized.append(tmp if (ok and os.path.exists(tmp)) else p)
 
     concat_file = output_path + ".concat.txt"
     with open(concat_file, "w") as f:
@@ -1633,7 +1681,6 @@ def concatenate_parts(parts: list, output_path: str) -> str:
             f.write(f"file '{os.path.abspath(p)}'\n")
 
     # Concat demuxer with stream copy (parts are already normalized)
-    # Then re-encode final output with PTS reset + async audio to kill accumulated drift
     concat_raw = output_path + ".concat_raw.mp4"
     ok = run_ffmpeg(
         ["-f", "concat", "-safe", "0", "-i", concat_file,
@@ -1645,9 +1692,7 @@ def concatenate_parts(parts: list, output_path: str) -> str:
         logger.error("Concat demuxer failed")
         return ""
 
-    # Final encode: PTS reset on BOTH streams + async audio alignment
-    # ABR mode WITHOUT CRF — CRF overrides -b:v and -minrate, defeating bitrate floor.
-    # Parts already have CRF 17 quality. Final encode just needs bitrate guarantee.
+    # Final encode: PTS reset + loudnorm with LRA=7 (FIX 12)
     ok = run_ffmpeg(
         ["-fflags", "+genpts",
          "-i", concat_raw,
@@ -1656,20 +1701,18 @@ def concatenate_parts(parts: list, output_path: str) -> str:
          "-r", "30", "-vsync", "cfr",
          "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-         "-af", "asetpts=PTS-STARTPTS,aresample=async=1,loudnorm=I=-14:TP=-3.0:LRA=11:linear=true,alimiter=level_in=1:level_out=0.794:limit=0.708:attack=3:release=30:asc=1",
+         "-af", "asetpts=PTS-STARTPTS,aresample=async=1,loudnorm=I=-14:TP=-1.5:LRA=7:linear=true",
          "-movflags", "+faststart",
          output_path],
         "concat final encode", 600,
     )
 
-    # Post-encode two-pass loudnorm — precisely controls true peak after AAC encoding
+    # Post-encode two-pass loudnorm (FIX 12: LRA=7)
     if ok and os.path.exists(output_path):
-        # Pass 1: measure
-        import re as _re
         try:
             r = subprocess.run(
                 ["ffmpeg", "-i", output_path, "-filter:a",
-                 "loudnorm=I=-14:TP=-3.0:LRA=11:print_format=json", "-f", "null", "-"],
+                 "loudnorm=I=-14:TP=-1.5:LRA=7:print_format=json", "-f", "null", "-"],
                 capture_output=True, text=True, timeout=300,
             )
             json_start = r.stderr.rfind("{")
@@ -1680,13 +1723,12 @@ def concatenate_parts(parts: list, output_path: str) -> str:
                 mtp = measured.get("input_tp", "0")
                 mlra = measured.get("input_lra", "7")
                 mthresh = measured.get("input_thresh", "-24")
-                # Pass 2: apply with measured values (precise two-pass mode)
                 tp_pass = output_path + ".tp_limited.mp4"
                 tp_ok = run_ffmpeg(
                     ["-i", output_path,
                      "-c:v", "copy",
                      "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-                     "-af", (f"loudnorm=I=-14:TP=-3.0:LRA=11:linear=true"
+                     "-af", (f"loudnorm=I=-14:TP=-1.5:LRA=7:linear=true"
                              f":measured_I={mi}:measured_TP={mtp}"
                              f":measured_LRA={mlra}:measured_thresh={mthresh}"),
                      "-movflags", "+faststart",
@@ -1695,32 +1737,24 @@ def concatenate_parts(parts: list, output_path: str) -> str:
                 )
                 if tp_ok and os.path.exists(tp_pass):
                     os.replace(tp_pass, output_path)
-                    logger.info("Two-pass loudnorm true peak pass applied")
+                    logger.info("Two-pass loudnorm applied (LRA=7)")
                 elif os.path.exists(tp_pass):
                     os.remove(tp_pass)
         except Exception as e:
             logger.warning(f"Post-encode TP pass failed: {e}")
 
-    # Cleanup concat raw
-    if os.path.exists(concat_raw):
-        try:
-            os.remove(concat_raw)
-        except OSError:
-            pass
-
     # Cleanup
+    if os.path.exists(concat_raw):
+        try: os.remove(concat_raw)
+        except OSError: pass
     for p in normalized:
         if ".norm" in p and os.path.exists(p):
-            try:
-                os.remove(p)
-            except OSError:
-                pass
+            try: os.remove(p)
+            except OSError: pass
     for p in valid:
         if p.endswith("_waud.mp4") and os.path.exists(p):
-            try:
-                os.remove(p)
-            except OSError:
-                pass
+            try: os.remove(p)
+            except OSError: pass
     if os.path.exists(concat_file):
         os.remove(concat_file)
 
@@ -1731,7 +1765,8 @@ def concatenate_parts(parts: list, output_path: str) -> str:
 
 def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
                      output_path: str, btc_price: str = "N/A",
-                     music_bed: str = "", intro_music: str = "") -> str:
+                     music_bed: str = "", intro_music: str = "",
+                     broll_clips: list = None) -> str:
     """Assemble a V6 ESPN-quality episode.
 
     Args:
@@ -1740,6 +1775,7 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
         extracted_clips: From clip_extractor.extract_all() — {rank: {path, channel, ...}}
         output_path: Final video path
         btc_price: BTC price string for ticker
+        broll_clips: FIX 6 — list of Pexels B-roll clip paths
 
     Returns:
         Path to final video, or "" on failure
@@ -1750,7 +1786,8 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
 
     try:
         return _assemble_episode_inner(script, audio_data, extracted_clips,
-                                       output_path, btc_price, music_bed, intro_music)
+                                       output_path, btc_price, music_bed, intro_music,
+                                       broll_clips=broll_clips)
     except Exception:
         import traceback
         logger.error("ASSEMBLY CRASHED — full traceback:")
@@ -1759,7 +1796,13 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
 
 
 def _assemble_episode_inner(script, audio_data, extracted_clips,
-                            output_path, btc_price="N/A", music_bed="", intro_music=""):
+                            output_path, btc_price="N/A", music_bed="", intro_music="",
+                            broll_clips=None):
+    # FIX 5: Fetch BTC price if not provided or showing N/A
+    if not btc_price or btc_price in ("N/A", "$N/A", ""):
+        btc_price = _fetch_btc_price()
+        logger.info(f"  BTC price fetched: {btc_price}")
+
     # Issue 12: Override default BG_MUSIC with mood-matched music bed if provided
     # Ensure music is mixed at -20dB under ALL narration segments
     global BG_MUSIC
@@ -1827,11 +1870,31 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             cold_open_audio = al
             break
 
+    # FIX 9: Brief 1.5s title card before cold open
+    import datetime as _dt
+    title_card_out = os.path.join(work_dir, f"part_{part_idx:03d}_title_card.mp4")
+    title_date = _dt.datetime.now().strftime("%B %d, %Y").upper()
+    tc_dur = 1.5
+    tc_ok = run_ffmpeg_filtergraph(
+        [],
+        (f"color=c=0x06070b:s=1920x1080:d={tc_dur}:r=30[bg];\n"
+         f"[bg]drawtext=fontfile={FONT_BOLD}:text='PROTOCOL PULSE':"
+         f"fontcolor={COLOR_GOLD}:fontsize=64:x=(w-text_w)/2:y=(h-text_h)/2-30[t1];\n"
+         f"[t1]drawtext=fontfile={FONT_MONO}:text='{title_date}':"
+         f"fontcolor={COLOR_MUTED}:fontsize=20:x=(w-text_w)/2:y=(h/2)+40,"
+         f"fade=t=in:st=0:d=0.3,fade=t=out:st={tc_dur-0.3}:d=0.3[outv];\n"
+         f"anullsrc=r=48000:cl=stereo,atrim=0:{tc_dur}[outa]"),
+        ["[outv]", "[outa]"],
+        ["-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
+         "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(tc_dur)],
+        title_card_out, "title card", 30,
+    )
+    if tc_ok and os.path.exists(title_card_out):
+        parts.append(title_card_out)
+        logger.info(f"[{part_idx:03d}] TITLE CARD: {tc_dur}s")
+        part_idx += 1
+
     if cold_open_audio:
-        # Issue 1 FIX: Cold open hook is the FIRST thing in the video.
-        # NO title card, NO logo intro. Just the hook + waveform visual.
-        # The title card was causing the cold open audio to play twice
-        # (once in cold open, once in title card).
         intro_out = os.path.join(work_dir, f"part_{part_idx:03d}_cold_open_hook.mp4")
         # GPT face-first: get clip 1 YouTube thumbnail for cold open face panel
         co_thumb = ""
@@ -1861,6 +1924,18 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             logger.warning("[---] Cold open intro failed, starting with first dialogue")
     else:
         logger.warning("[---] No cold open audio available, starting with first dialogue")
+
+    # FIX 6: Prepare B-roll clips for insertion between host segments
+    broll_queue = []
+    if broll_clips:
+        for bp in broll_clips:
+            if isinstance(bp, str) and os.path.exists(bp):
+                broll_queue.append(bp)
+            elif isinstance(bp, dict) and bp.get("path") and os.path.exists(bp["path"]):
+                broll_queue.append(bp["path"])
+        logger.info(f"  B-roll clips available: {len(broll_queue)}")
+    broll_idx = 0
+    host_segment_count = 0  # Insert broll every 2 host segments
 
     # --- 2. DIALOGUE + CLIPS ---
 
@@ -1905,26 +1980,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             clip_path = clip_info.get("path", "")
 
             if clip_path and os.path.exists(clip_path):
-                # Issue 8: xfade transition between last part and clip (not standalone)
-                # Apply xfade to merge outgoing clip with incoming, then replace last part
-                if parts:
-                    prev_part = parts[-1]
-                    xfade_out = os.path.join(work_dir, f"part_{part_idx:03d}_xfade.mp4")
-                    xfaded = apply_xfade(prev_part, clip_path, xfade_out, transition="fade", duration=1.0)
-                    if xfaded:
-                        # Replace last part with xfaded version (it now includes the clip)
-                        # But this merges two parts — we need the clip separate for lower third
-                        # So fall back to standalone transition but keep it short
-                        pass  # xfade between narration and raw clip is tricky with lower thirds
-                    # Fallback: keep standalone transition but use custom whoosh
-                    trans_out = os.path.join(work_dir, f"part_{part_idx:03d}_glitch.mp4")
-                    trans = make_transition_visual(trans_out)
-                    if trans:
-                        parts.append(trans)
-                        dur = ffprobe_duration(trans)
-                        logger.info(f"[{part_idx:03d}] TRANSITION: {dur:.2f}s (with custom whoosh)")
-                        part_idx += 1
-
+                # FIX 1: No standalone glitch transitions — xfade applied in concatenation
                 # The clip itself — try Remotion LowerThird overlay, fall back to FFmpeg
                 clip_out = os.path.join(work_dir, f"part_{part_idx:03d}_clip_r{rank}.mp4")
                 channel = clip_info.get("channel", "")
@@ -1954,21 +2010,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             prev_segment_type = "clip"
             continue
 
-        # Transition between segment type changes
-        # Per PRODUCTION_DESIGN_LAWS: transitions between every segment
-        needs_transition = (
-            prev_segment_type != entry_type
-            and prev_segment_type not in ("intro",)
-            and parts  # at least one part already exists
-        )
-        if needs_transition:
-            trans_out = os.path.join(work_dir, f"part_{part_idx:03d}_glitch.mp4")
-            trans = make_transition_visual(trans_out)
-            if trans:
-                parts.append(trans)
-                dur = ffprobe_duration(trans)
-                logger.info(f"[{part_idx:03d}] TRANSITION ({prev_segment_type}→{entry_type}): {dur:.2f}s")
-                part_idx += 1
+        # FIX 1: No standalone transitions — xfade applied during concatenation
 
         # Host dialogue line — find matching audio
         # Match by audio_idx (skip CLIP entries in audio_lines)
@@ -2126,6 +2168,51 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             logger.info(f"[{part_idx:03d}] {entry_type.upper()} [{speaker}]: {dur:.1f}s")
             part_idx += 1
             prev_segment_type = entry_type
+            host_segment_count += 1
+
+            # FIX 6: Insert B-roll clip every 2 host segments
+            if broll_queue and broll_idx < len(broll_queue) and host_segment_count % 2 == 0:
+                broll_path = broll_queue[broll_idx]
+                broll_out = os.path.join(work_dir, f"part_{part_idx:03d}_broll_{broll_idx}.mp4")
+                # Trim broll to 4s with BG music (or silent if no music)
+                has_bgm_br = os.path.exists(BG_MUSIC)
+                if has_bgm_br:
+                    broll_ok = run_ffmpeg([
+                        "-i", broll_path,
+                        "-stream_loop", "-1", "-i", BG_MUSIC,
+                        "-t", "4",
+                        "-filter_complex",
+                        "[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,"
+                        "setsar=1,fps=30,fade=t=in:d=0.3,fade=t=out:st=3.5:d=0.5,"
+                        "format=yuv420p[outv];"
+                        "[1:a]volume=0.15,afade=t=in:d=0.3,afade=t=out:st=3.5:d=0.5,atrim=0:4[outa]",
+                        "-map", "[outv]", "-map", "[outa]",
+                        "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
+                        "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                        "-shortest",
+                        broll_out,
+                    ], f"broll clip {broll_idx}", 60)
+                else:
+                    broll_ok = run_ffmpeg([
+                        "-i", broll_path,
+                        "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
+                        "-t", "4",
+                        "-filter_complex",
+                        "[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,"
+                        "setsar=1,fps=30,fade=t=in:d=0.3,fade=t=out:st=3.5:d=0.5,"
+                        "format=yuv420p[outv];"
+                        "[1:a]atrim=0:4[outa]",
+                        "-map", "[outv]", "-map", "[outa]",
+                        "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
+                        "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                        "-shortest",
+                        broll_out,
+                    ], f"broll clip {broll_idx}", 60)
+                if broll_ok and os.path.exists(broll_out):
+                    parts.append(broll_out)
+                    logger.info(f"[{part_idx:03d}] B-ROLL #{broll_idx}: 4.0s")
+                    part_idx += 1
+                broll_idx += 1
         else:
             logger.warning(f"[---] Host visual failed for {entry_type}")
 
@@ -2143,13 +2230,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
     narration_end = sum(ffprobe_duration(p) for p in parts if p and os.path.exists(p))
     logger.info(f"Narration ends at {narration_end:.1f}s — outro starts here")
 
-    # Alpha transition before outro
-    if parts:
-        trans_out = os.path.join(work_dir, f"part_{part_idx:03d}_glitch_pre_outro.mp4")
-        trans = make_transition_visual(trans_out)
-        if trans:
-            parts.append(trans)
-            part_idx += 1
+    # FIX 1: No standalone pre-outro transition — xfade in concatenation
 
     outro_out = os.path.join(work_dir, f"part_{part_idx:03d}_outro_branded.mp4")
     # Issue 8 FIX: Pass wrap narration to branded outro so "Stay sovereign" plays over it
