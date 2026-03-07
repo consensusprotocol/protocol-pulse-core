@@ -53,13 +53,40 @@ def run_pipeline(output_path: str, style: str = "default") -> bool:
     t0 = time.time()
     clip_dir = os.path.join(run_dir, "clips")
     clip_data = fetch_all_clips(script, clip_dir)
-    print(f"  Clip sets: {len(clip_data.get('segments', []))}")
+    extracted_clips = {}
+    for rk, ci in clip_data.get("yt_clips", {}).items():
+        try: rank = int(rk)
+        except: rank = len(extracted_clips) + 1
+        if isinstance(ci, list): ci = ci[0] if ci and isinstance(ci[0], dict) else {"path": ""}
+        if isinstance(ci, dict): extracted_clips[rank] = ci
+    print(f"  YouTube clips: {len(extracted_clips)}")
+    print(f"  Pexels B-roll: {len(clip_data.get('broll', []))}")
     print(f"  Time: {time.time()-t0:.1f}s")
 
     # ─── Step 4: Assemble Video ───
     print("\n[STEP 4/5] ASSEMBLING VIDEO...")
     t0 = time.time()
-    result = assemble_episode(script, audio_paths, clip_data, output_path)
+    # FIX 5: Fetch BTC price and pass to assembler
+    btc_price = "N/A"
+    try:
+        import urllib.request
+        url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
+        with urllib.request.urlopen(url, timeout=5) as r:
+            data = json.loads(r.read())
+            btc_price = f"${data['bitcoin']['usd']:,.0f}"
+    except Exception:
+        try:
+            url2 = "https://mempool.space/api/v1/prices"
+            with urllib.request.urlopen(url2, timeout=5) as r2:
+                data = json.loads(r2.read())
+                btc_price = f"${data.get('USD', 0):,.0f}"
+        except Exception:
+            pass
+    print(f"  BTC Price: {btc_price}")
+    # FIX 6: Pass broll clips to assembler
+    broll_clips = clip_data.get("broll", [])
+    result = assemble_episode(script, audio_paths, extracted_clips, output_path,
+                              btc_price=btc_price, broll_clips=broll_clips)
     print(f"  Time: {time.time()-t0:.1f}s")
 
     if not result:
