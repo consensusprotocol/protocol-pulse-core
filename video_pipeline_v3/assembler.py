@@ -82,17 +82,78 @@ else:
     GLITCH_WHOOSH = os.path.join(ASSETS, "sfx", "glitch_whoosh.wav")
     logging.getLogger("Assembler").info("CUSTOM WHOOSH NOT FOUND — using generated")
 CARD_SWOOSH = os.path.join(ASSETS, "sfx", "card_swoosh.wav")
-# VDS-3: Background system — prefer high-quality cyberspace.mp4, fallback chain
-CYBERPUNK_BG_LOOP = None
-for _bg_candidate in ["cyberspace.mp4", "neon_lines.mp4", "cyberpunk_loop.mp4"]:
-    _candidate_path = os.path.join(ASSETS, "backgrounds", _bg_candidate)
-    if os.path.exists(_candidate_path) and os.path.getsize(_candidate_path) > 1_000_000:
-        CYBERPUNK_BG_LOOP = _candidate_path
-        break
-if CYBERPUNK_BG_LOOP is None:
-    CYBERPUNK_BG_LOOP = os.path.join(ASSETS, "backgrounds", "cyberspace.mp4")
 DATA_BLIP = os.path.join(ASSETS, "sfx", "data_blip.wav")
 LOWER_SLIDE = os.path.join(ASSETS, "sfx", "lower_slide.wav")
+
+
+def _build_vds_background_fg(duration: float, label_out: str = "vds_bg") -> tuple:
+    """VDS 7-layer procedural background. No external video files.
+
+    Returns (extra_inputs, filtergraph_string).
+    extra_inputs is always [] — pure procedural generation.
+    """
+    f = ""
+    # Layer 0: Deep space base
+    f += f"color=c=0x06070b:s=1920x1080:d={duration}:r=30[layer0];\n"
+    # Layer 1: Three-source radial glows (red top-left, cyan top-right, gold bottom-center)
+    f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
+          f"geq=r='clip(80*exp(-(X*X+Y*Y)/160000),0,255)':g='0':b='0'[red_glow];\n")
+    f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
+          f"geq=r='0':g='clip(40*exp(-((X-1920)*(X-1920)+Y*Y)/100000),0,255)':"
+          f"b='clip(60*exp(-((X-1920)*(X-1920)+Y*Y)/100000),0,255)'[cyan_glow];\n")
+    f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
+          f"geq=r='clip(30*exp(-((X-960)*(X-960)+(Y-1080)*(Y-1080))/80000),0,255)':"
+          f"g='clip(20*exp(-((X-960)*(X-960)+(Y-1080)*(Y-1080))/80000),0,255)':b='0'[gold_glow];\n")
+    f += f"[layer0][red_glow]blend=all_mode=screen[bg1];\n"
+    f += f"[bg1][cyan_glow]blend=all_mode=screen[bg2];\n"
+    f += f"[bg2][gold_glow]blend=all_mode=screen[bg_glows];\n"
+    # Layer 2: Perspective floor grid
+    f += (f"[bg_glows]drawgrid=width=96:height=54:thickness=1:color=0xffffff@0.04,"
+          f"perspective=x0=240:y0=540:x1=1680:y1=540:x2=0:y2=1080:x3=1920:y3=1080[bg_grid];\n")
+    # Layer 3: Noise texture (subtle grain)
+    f += f"[bg_grid]noise=alls=4:allf=t+u[bg_noise];\n"
+    # Layer 4: Scanlines (horizontal lines every 4px at 4% opacity)
+    f += f"[bg_noise]drawgrid=width=0:height=4:thickness=1:color=0x000000@0.04[bg_scan];\n"
+    # Layer 5: Vignette
+    f += f"[bg_scan]vignette=PI/5:mode=backward[{label_out}];\n"
+    return ([], f)
+
+
+def _build_info_bar_fg(duration: float, btc_price: str, block_height: str = "",
+                       label_in: str = "v_pre_tick", label_out: str = "v_ticked") -> str:
+    """Animated scrolling info bar — VDS gold text on dark bg.
+
+    Replaces the static gold rectangle with a broadcast-quality ticker.
+    """
+    import datetime
+    date_str = datetime.datetime.now().strftime("%b %d, %Y").upper()
+    safe_btc = btc_price.replace("'", "").replace('"', "").replace("\\", "")
+
+    if block_height:
+        content = (f"  PROTOCOL PULSE  |  BTC {safe_btc}  |  BLOCK {block_height}"
+                   f"  |  {date_str}  |  PROTOCOLPULSE.IO  |  STAY SOVEREIGN  "
+                   f"  |  PROTOCOL PULSE  |  BTC {safe_btc}  |  BLOCK {block_height}"
+                   f"  |  {date_str}  |  PROTOCOLPULSE.IO  |  STAY SOVEREIGN  ")
+    else:
+        content = (f"  PROTOCOL PULSE  |  BTC {safe_btc}  |  {date_str}"
+                   f"  |  PROTOCOLPULSE.IO  |  STAY SOVEREIGN  |  PULSE CHECK"
+                   f"  |  PROTOCOL PULSE  |  BTC {safe_btc}  |  {date_str}"
+                   f"  |  PROTOCOLPULSE.IO  |  STAY SOVEREIGN  |  PULSE CHECK  ")
+
+    safe_content = content.replace("'", "").replace('"', "").replace("\\", "")
+
+    fg = ""
+    # Dark base bar with subtle transparency
+    fg += f"color=c=0x06070b@0.95:s=1920x44:d={duration}:r=30[tickbase];\n"
+    # Thin gold line at top edge of bar (1px separator)
+    fg += f"[tickbase]drawbox=x=0:y=0:w=1920:h=1:color=0xf8c15c@0.6:t=fill[tickline];\n"
+    # Scrolling gold text
+    fg += (f"[tickline]drawtext=fontfile={FONT_MONO}:text='{safe_content}':"
+           f"fontcolor=0xf8c15c:fontsize=17:"
+           f"x=w-mod(t*90\\\\,w+text_w):y=13[ticker];\n")
+    # Overlay bar onto video frame at bottom
+    fg += f"[{label_in}][ticker]overlay=0:H-44[{label_out}];\n"
+    return fg
 
 
 def run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
@@ -384,26 +445,15 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
     tts_dur = ffprobe_duration(tts_path)
     total_dur = max(tts_dur + 0.3, 3.0)
 
-    has_cyberpunk_bg = os.path.exists(CYBERPUNK_BG_LOOP)
     has_thumb_co = bool(thumbnail_path and os.path.exists(thumbnail_path))
 
-    # Build inputs: 0=TTS, [1=cyberpunk bg], [2=thumbnail]
+    # Build inputs: 0=TTS, [1=thumbnail if present]
     inp_args = [tts_path]
     idx = 1
 
-    if has_cyberpunk_bg:
-        inp_args.append(["-stream_loop", "-1", "-i", CYBERPUNK_BG_LOOP])
-        bg_idx = idx
-        idx += 1
-        # VDS-3: Cyberspace bg with scanlines + vignette
-        fg = (f"[{bg_idx}:v]scale=1920:1080,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS,"
-              f"split[main][glow];\n"
-              f"[glow]boxblur=10:5,curves=all='0/0 0.5/0.2 1/1'[g];\n"
-              f"[main][g]blend=all_mode='screen'[bgraw];\n"
-              f"[bgraw]geq=lum='if(eq(mod(Y\\,4)\\,0)\\,lum(X\\,Y)*0.94\\,lum(X\\,Y))':cr='cr(X\\,Y)':cb='cb(X\\,Y)'[bgscan];\n"
-              f"[bgscan]vignette=PI/4[bgvig];\n")
-    else:
-        fg = f"color=c={COLOR_BG}:s=1920x1080:d={total_dur}:r=30[bgvig];\n"
+    # VDS procedural background (7-layer, no video files)
+    _, bg_fg = _build_vds_background_fg(total_dur, label_out="bgvig")
+    fg = bg_fg
 
     # GPT face panel: thumbnail in cold open left panel
     thumb_co_idx = -1
@@ -429,14 +479,8 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
     fg += f"[wA][wflip]vstack[wavepair];\n"
     fg += f"[{face_base}][wavepair]overlay=228:440[withwave];\n"
 
-    # VDS-2: GOLD INFO BAR for cold open
-    safe_btc = btc_price.replace("'", "").replace('"', "")
-    fg += f"color=c={COLOR_INFOBAR_BG}@0.92:s=1920x44:d={total_dur}:r=30[tickbg];\n"
-    fg += (f"[tickbg]drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
-           f"fontcolor={COLOR_INFOBAR_TEXT}:fontsize=14:x=24:y=15[ib1];\n")
-    fg += (f"[ib1]drawtext=fontfile={FONT_MONO}:text='BTC {safe_btc}  |  PROTOCOLPULSE.IO':"
-           f"fontcolor={COLOR_INFOBAR_TEXT}:fontsize=14:x=(w-text_w)/2:y=15[ticker];\n")
-    fg += f"[withwave][ticker]overlay=0:H-44[v_final];\n"
+    # VDS animated scrolling info bar
+    fg += _build_info_bar_fg(total_dur, btc_price, label_in="withwave", label_out="v_final")
     fg += f"[v_final]format=yuv420p[outv];\n"
 
     # NO music — voice starts immediately
@@ -625,20 +669,12 @@ def make_host_visual(audio_path: str, host: int, text: str,
     has_wm = os.path.exists(WATERMARK)
     has_bgm = os.path.exists(BG_MUSIC)
     has_thumb = bool(thumbnail_path and os.path.exists(thumbnail_path))
-    has_cyberpunk_bg = os.path.exists(CYBERPUNK_BG_LOOP)
     is_social = segment_type == "social_segment"
 
     # Build inputs list
-    # 0: TTS audio, [1: cyberpunk bg], [N: watermark], [N: bg music], [N: thumbnail]
+    # 0: TTS audio, [N: watermark], [N: bg music], [N: thumbnail]
     inputs = [audio_path]  # 0: tts audio
     inp_idx = 1
-
-    if has_cyberpunk_bg:
-        inputs.append(["-stream_loop", "-1", "-i", CYBERPUNK_BG_LOOP])
-        cyberpunk_idx = inp_idx
-        inp_idx += 1
-    else:
-        cyberpunk_idx = -1
 
     # Sprint 1.9: Logo NOT added as input for narration segments
 
@@ -663,23 +699,9 @@ def make_host_visual(audio_path: str, host: int, text: str,
     else:
         thumb_idx = -1
 
-    # VDS Filter graph — animated background + audio waveform
-    if has_cyberpunk_bg:
-        # VDS-3: Cyberspace bg with scanlines + vignette enhancement
-        fg = (f"[{cyberpunk_idx}:v]scale=1920:1080,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS,"
-              f"split[main][glow];\n"
-              f"[glow]boxblur=10:5,curves=all='0/0 0.5/0.2 1/1'[g];\n"
-              f"[main][g]blend=all_mode='screen'[bgraw];\n"
-              # VDS-3: Scanlines (every 4px, 6% opacity darkening)
-              f"[bgraw]geq=lum='if(eq(mod(Y\\,4)\\,0)\\,lum(X\\,Y)*0.94\\,lum(X\\,Y))':cr='cr(X\\,Y)':cb='cb(X\\,Y)'[bgscan];\n"
-              # VDS-3: Vignette (dark corners)
-              f"[bgscan]vignette=PI/4[bgvig];\n")
-    else:
-        # VDS-1: Deep space black base with VDS colors
-        fg = f"color=c={COLOR_BG}:s=1920x1080:d={total_dur}:r=30[base];\n"
-        fg += f"color=c={COLOR_PANEL}:s=1920x540:d={total_dur}:r=30[tophalf];\n"
-        fg += f"[base][tophalf]overlay=0:0[bgbase];\n"
-        fg += f"[bgbase]vignette=PI/4[bgvig];\n"
+    # VDS procedural background (7-layer, no video files)
+    _, bg_fg = _build_vds_background_fg(total_dur, label_out="bgvig")
+    fg = bg_fg
 
     # VDS-1: Thin horizontal accent lines — VDS red
     fg += (f"[bgvig]drawbox=x=0:y=538:w=1920:h=2:color={COLOR_RED}@0.35:t=fill"
@@ -715,13 +737,6 @@ def make_host_visual(audio_path: str, host: int, text: str,
     fg += (f"[spkbg]drawtext=fontfile={FONT_MONO}:text='{speaker} - PROTOCOL PULSE':"
            f"fontcolor={COLOR_GOLD}:fontsize=13:x=12:y=10[spklabel];\n")
 
-    # VDS-2: GOLD INFO BAR — solid gold bg, dark navy text, 3-column, NO scrolling
-    fg += f"color=c={COLOR_INFOBAR_BG}@0.92:s=1920x44:d={total_dur}:r=30[tickbg];\n"
-    fg += (f"[tickbg]drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
-           f"fontcolor={COLOR_INFOBAR_TEXT}:fontsize=14:x=24:y=15[ib1];\n")
-    fg += (f"[ib1]drawtext=fontfile={FONT_MONO}:text='BTC {safe_btc}  |  PROTOCOLPULSE.IO':"
-           f"fontcolor={COLOR_INFOBAR_TEXT}:fontsize=14:x=(w-text_w)/2:y=15[ticker];\n")
-
     # Sprint 3.5: Subtitle text overlay (white, bottom-center, above ticker)
     safe_sub = _sanitize_text(text) if text else ""
     if safe_sub:
@@ -735,8 +750,8 @@ def make_host_visual(audio_path: str, host: int, text: str,
     else:
         fg += f"[withwave][spklabel]overlay=40:H-90[v1];\n"
 
-    # 14. Compose base layers
-    fg += f"[v1][ticker]overlay=0:H-44[v2];\n"
+    # VDS animated scrolling info bar
+    fg += _build_info_bar_fg(total_dur, btc_price, label_in="v1", label_out="v2")
     last_v = "v2"
 
     # 15. Watermark top-right
@@ -921,17 +936,9 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
     else:
         bgm_idx = -1
 
-    # VDS-1: Deep space black gradient background
-    fg = f"color=c={COLOR_BG}:s=1920x1080:d={total_dur}:r=30[bgdark];\n"
-    fg += f"color=c={COLOR_PANEL}:s=1920x540:d={total_dur}:r=30[bglite];\n"
-    fg += f"[bgdark][bglite]overlay=0:0[base];\n"
-
-    # VDS-3: Scanlines (every 4px, 6% opacity)
-    fg += (f"[base]geq=lum='if(eq(mod(Y,4),0),lum(X,Y)*0.94,lum(X,Y))':"
-           f"cr='cr(X,Y)':cb='cb(X,Y)'[bgscan];\n")
-
-    # VDS-3: Vignette
-    fg += f"[bgscan]vignette=PI/4[bgvig];\n"
+    # VDS procedural background (7-layer, no video files)
+    _, bg_fg = _build_vds_background_fg(total_dur, label_out="bgvig")
+    fg = bg_fg
 
     # VDS-1: Top red accent bar
     fg += f"[bgvig]drawbox=x=0:y=0:w=1920:h=4:color={COLOR_RED}:t=fill[bgbar];\n"
@@ -1035,13 +1042,8 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
            f"fontcolor={COLOR_GOLD}@0.3:fontsize=12:x=(w-text_w)/2:y={bottom_header_y}[vbhdr];\n")
     last_v = "vbhdr"
 
-    # VDS-2: GOLD INFO BAR — solid gold bg, dark text, 3-column
-    fg += f"color=c={COLOR_INFOBAR_BG}@0.92:s=1920x44:d={total_dur}:r=30[tickbg];\n"
-    fg += (f"[tickbg]drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
-           f"fontcolor={COLOR_INFOBAR_TEXT}:fontsize=14:x=24:y=15[ib1];\n")
-    fg += (f"[ib1]drawtext=fontfile={FONT_MONO}:text='BTC {safe_btc}  |  PROTOCOLPULSE.IO':"
-           f"fontcolor={COLOR_INFOBAR_TEXT}:fontsize=14:x=(w-text_w)/2:y=15[ticker];\n")
-    fg += f"[{last_v}][ticker]overlay=0:H-44[vtick];\n"
+    # VDS animated scrolling info bar
+    fg += _build_info_bar_fg(total_dur, btc_price, label_in=last_v, label_out="vtick")
     last_v = "vtick"
 
     # Watermark
@@ -2080,28 +2082,14 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
                 segment_type=entry_type,
             )
         else:
-            # Issue 9 FIX: When cyberpunk background exists, use FFmpeg make_host_visual
-            # directly (it composites cyberpunk_loop.mp4 as base layer).
-            # Remotion waveform renders its own background which is plain/black.
-            result = ""
-            has_cyberpunk = os.path.exists(CYBERPUNK_BG_LOOP)
-            if not has_cyberpunk:
-                try:
-                    result = make_remotion_waveform(
-                        audio_path, line_out,
-                        title=text[:80] if text else "Pulse Check Daily",
-                        btc_price=btc_price,
-                    )
-                except Exception as e:
-                    logger.warning(f"Remotion WaveformVisualizer failed: {e}")
-            if not result:
-                result = make_host_visual(
-                    audio_path, host_num, text, line_out,
-                    btc_price=btc_price,
-                    label=f"{entry_type} #{part_idx}",
-                    thumbnail_path=thumb,
-                    segment_type=entry_type,
-                )
+            # VDS: All backgrounds are procedural now — use make_host_visual directly.
+            result = make_host_visual(
+                audio_path, host_num, text, line_out,
+                btc_price=btc_price,
+                label=f"{entry_type} #{part_idx}",
+                thumbnail_path=thumb,
+                segment_type=entry_type,
+            )
 
             # Issue 4 FIX: PiP preview ONLY during "setup" segments (introducing next clip).
             # During "react" segments (discussing previous clip), show PREVIOUS clip thumbnail instead.
