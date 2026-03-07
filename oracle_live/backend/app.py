@@ -2,7 +2,7 @@ import time
 import uuid
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 import anthropic as anthropic_sdk
@@ -136,9 +136,13 @@ import os as _os
 
 _FRONTEND_DIR = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "frontend")
 
-@app.get("/")
-async def serve_ui():
-    return FileResponse(_os.path.join(_FRONTEND_DIR, "index.html"))
+@app.api_route("/", methods=["GET","HEAD"])
+async def serve_ui(request):
+    from fastapi.responses import Response
+    idx = _os.path.join(_FRONTEND_DIR, "index.html")
+    if request.method == "HEAD":
+        return Response(headers={"content-type":"text/html","cache-control":"no-store"})
+    return FileResponse(idx, headers={"cache-control":"no-store"})
 
 @app.get("/js/{filename}")
 async def serve_js(filename: str):
