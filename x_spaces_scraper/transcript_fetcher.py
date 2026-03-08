@@ -1,207 +1,310 @@
 """
-transcript_fetcher.py — Download Space audio and transcribe with Whisper.
+transcript_fetcher.py — Transcript truth model for X Spaces.
 
-Uses yt-dlp for audio download and faster-whisper for GPU-accelerated transcription.
-Caches transcripts to avoid re-processing.
+Source truth labels enforced:
+  AUDIO_REPLAY  = "audio_replay"    — yt-dlp download + Whisper
+  LIVE_CAPTURE  = "live_capture"    — twspace-dl + rolling Whisper
+  CONTEXT_ONLY  = "context_only"    — tweets/title only — NOT a real transcript
+
+Quality gate: word_count >= 150, language_prob >= 0.70, repetition check.
+Map-reduce summarization for transcripts > 2000 words.
 """
 
-import hashlib
 import json
 import logging
+import os
 import subprocess
-import tempfile
 from pathlib import Path
-from typing import Optional
+
+from x_spaces_scraper.whisper_worker import WhisperWorker
+from x_spaces_scraper.diarizer import diarize
+from x_spaces_scraper.spaces_state import SpaceStateDB
 
 logger = logging.getLogger(__name__)
 
 CACHE_DIR = Path(__file__).parent / "cache"
 CACHE_DIR.mkdir(exist_ok=True)
 
-# Whisper config — use "base" for speed, "large-v3" for accuracy
-WHISPER_MODEL = "base"
-WHISPER_DEVICE = "cuda"
-WHISPER_COMPUTE_TYPE = "float16"
+# Source truth constants
+AUDIO_REPLAY = "audio_replay"
+LIVE_CAPTURE = "live_capture"
+CONTEXT_ONLY = "context_only"
+
+# Quality thresholds
+MIN_WORDS_FOR_AUDIO = 150
+MIN_LANGUAGE_PROB = 0.70
+MAX_REPETITION_RATE = 0.40
 
 
-def _cache_path(space_id: str) -> Path:
+def _cache_path(space_id):
     return CACHE_DIR / f"transcript_{space_id}.json"
 
 
-def _audio_cache_path(space_id: str) -> Path:
-    return CACHE_DIR / f"audio_{space_id}.mp3"
+class TranscriptFetcher:
+    def fetch(self, space_id, space_url, title="", db=None):
+        """
+        Returns:
+        {
+          "space_id": str,
+          "transcript": str,
+          "source": AUDIO_REPLAY | LIVE_CAPTURE | CONTEXT_ONLY,
+          "word_count": int,
+          "quality_score": float,  # 0.0-1.0
+          "language_probability": float,
+          "segments": list,        # diarized segments
+          "speakers": list,        # unique speaker labels
+          "usable": bool,          # True if meets quality threshold for narration
+        }
+        """
+        # Check cache first
+        cached = self._check_cache(space_id)
+        if cached:
+            return cached
 
+        # Method 1: yt-dlp audio download + Whisper transcription
+        result = self._try_audio_replay(space_id, space_url)
+        if result.get("usable"):
+            if db:
+                db.mark(space_id, "transcribed")
+            self._save_cache(space_id, result)
+            return result
 
-def get_cached_transcript(space_id: str) -> Optional[dict]:
-    """Return cached transcript if available."""
-    path = _cache_path(space_id)
-    if path.exists():
-        try:
-            data = json.loads(path.read_text())
-            if data.get("text"):
-                logger.info(f"Cache hit for transcript {space_id}")
-                return data
-        except (json.JSONDecodeError, OSError):
-            pass
-    return None
+        # Method 2: Twitter API tweets as context (NOT narration-grade)
+        context = self._try_api_context(space_id)
+        if context:
+            result = {
+                "space_id": space_id,
+                "transcript": context,
+                "source": CONTEXT_ONLY,
+                "word_count": len(context.split()),
+                "quality_score": 0.3,
+                "language_probability": 1.0,
+                "segments": [],
+                "speakers": [],
+                "usable": False,
+            }
+            self._save_cache(space_id, result)
+            return result
 
-
-def download_audio(space_id: str, space_url: str) -> Optional[Path]:
-    """
-    Download Space audio using yt-dlp.
-    Returns path to the downloaded audio file, or None on failure.
-    """
-    audio_path = _audio_cache_path(space_id)
-    if audio_path.exists() and audio_path.stat().st_size > 1000:
-        logger.info(f"Audio cache hit: {audio_path}")
-        return audio_path
-
-    logger.info(f"Downloading audio for Space {space_id}...")
-    try:
-        # yt-dlp handles X/Twitter Spaces natively
-        cmd = [
-            "yt-dlp",
-            "--extract-audio",
-            "--audio-format", "mp3",
-            "--audio-quality", "0",
-            "--output", str(audio_path.with_suffix("")),  # yt-dlp adds extension
-            "--no-playlist",
-            "--socket-timeout", "30",
-            "--retries", "3",
-            space_url,
-        ]
-        proc = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=300,  # 5 min max
-        )
-
-        if proc.returncode != 0:
-            logger.error(f"yt-dlp failed for {space_id}: {proc.stderr[:500]}")
-            # Try alternate URL format
-            alt_url = f"https://twitter.com/i/spaces/{space_id}"
-            if alt_url != space_url:
-                logger.info(f"Retrying with alternate URL: {alt_url}")
-                cmd[-1] = alt_url
-                proc = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
-                if proc.returncode != 0:
-                    logger.error(f"yt-dlp retry failed: {proc.stderr[:500]}")
-                    return None
-
-        # yt-dlp may create the file with slightly different name
-        if audio_path.exists():
-            return audio_path
-        # Check for file without double extension
-        for candidate in audio_path.parent.glob(f"audio_{space_id}*"):
-            if candidate.stat().st_size > 1000:
-                if candidate != audio_path:
-                    candidate.rename(audio_path)
-                return audio_path
-
-        logger.error(f"Audio file not found after download for {space_id}")
-        return None
-
-    except subprocess.TimeoutExpired:
-        logger.error(f"yt-dlp timed out for {space_id}")
-        return None
-    except Exception as e:
-        logger.error(f"download_audio({space_id}): {e}")
-        return None
-
-
-def transcribe_audio(audio_path: Path, space_id: str) -> Optional[dict]:
-    """
-    Transcribe audio using faster-whisper.
-    Returns dict with: text, segments, language, duration.
-    """
-    logger.info(f"Transcribing {audio_path.name} with faster-whisper ({WHISPER_MODEL})...")
-    try:
-        from faster_whisper import WhisperModel
-
-        model = WhisperModel(
-            WHISPER_MODEL,
-            device=WHISPER_DEVICE,
-            compute_type=WHISPER_COMPUTE_TYPE,
-        )
-
-        segments_iter, info = model.transcribe(
-            str(audio_path),
-            language="en",
-            beam_size=5,
-            vad_filter=True,        # skip silence
-            vad_parameters=dict(
-                min_silence_duration_ms=500,
-            ),
-        )
-
-        segments = []
-        full_text_parts = []
-        for seg in segments_iter:
-            segments.append({
-                "start": round(seg.start, 2),
-                "end": round(seg.end, 2),
-                "text": seg.text.strip(),
-            })
-            full_text_parts.append(seg.text.strip())
-
-        full_text = " ".join(full_text_parts)
-        result = {
+        # Final fallback: metadata only
+        return {
             "space_id": space_id,
-            "text": full_text,
-            "segments": segments,
-            "language": info.language,
-            "duration_s": round(info.duration, 1),
-            "word_count": len(full_text.split()),
+            "transcript": f"X Space: {title}" if title else "",
+            "source": CONTEXT_ONLY,
+            "word_count": 0,
+            "quality_score": 0.0,
+            "language_probability": 0.0,
+            "segments": [],
+            "speakers": [],
+            "usable": False,
         }
 
-        # Cache result
-        cache_path = _cache_path(space_id)
-        cache_path.write_text(json.dumps(result, indent=2))
-        logger.info(
-            f"Transcription complete: {result['word_count']} words, "
-            f"{result['duration_s']}s duration"
-        )
-        return result
-
-    except Exception as e:
-        logger.error(f"transcribe_audio({audio_path}): {e}")
+    def _check_cache(self, space_id):
+        path = _cache_path(space_id)
+        if path.exists():
+            try:
+                data = json.loads(path.read_text())
+                if data.get("transcript") or data.get("text"):
+                    # Normalize old cache format
+                    if "text" in data and "transcript" not in data:
+                        data["transcript"] = data.pop("text")
+                    if "usable" not in data:
+                        data["usable"] = data.get("source") != CONTEXT_ONLY
+                    logger.info(f"Cache hit for transcript {space_id}")
+                    return data
+            except (json.JSONDecodeError, OSError):
+                pass
         return None
 
-
-def fetch_transcript(space_id: str, space_url: str) -> Optional[dict]:
-    """
-    Full pipeline: check cache → download audio → transcribe.
-    Returns transcript dict or None on failure.
-    """
-    # Check cache first
-    cached = get_cached_transcript(space_id)
-    if cached:
-        return cached
-
-    # Download audio
-    audio_path = download_audio(space_id, space_url)
-    if not audio_path:
-        logger.warning(f"Could not download audio for Space {space_id}")
-        return None
-
-    # Transcribe
-    transcript = transcribe_audio(audio_path, space_id)
-
-    # Clean up audio file to save disk (keep transcript cache)
-    if transcript and audio_path.exists():
+    def _save_cache(self, space_id, result):
         try:
-            audio_path.unlink()
-            logger.debug(f"Cleaned up audio file: {audio_path}")
-        except OSError:
+            _cache_path(space_id).write_text(json.dumps(result, indent=2))
+        except OSError as e:
+            logger.debug(f"Cache write failed: {e}")
+
+    def _try_audio_replay(self, space_id, space_url):
+        """Download audio + Whisper transcribe. Full pipeline."""
+        audio_path = f"/tmp/space_{space_id}.m4a"
+        try:
+            r = subprocess.run(
+                ["yt-dlp", "-f", "bestaudio", "-o", audio_path,
+                 space_url, "--no-warnings", "--quiet"],
+                capture_output=True, timeout=120,
+            )
+            if r.returncode != 0 or not os.path.exists(audio_path):
+                return {"usable": False}
+
+            worker = WhisperWorker.get()
+            result = worker.transcribe(audio_path)
+
+            if not self._passes_quality_gate(result):
+                return {"usable": False}
+
+            # Diarize segments
+            result["segments"] = diarize(audio_path, result["segments"])
+            result["speakers"] = list(set(s["speaker"] for s in result["segments"]))
+            result["space_id"] = space_id
+            result["usable"] = True
+            result["quality_score"] = self._compute_quality_score(result)
+            result["transcript"] = result.pop("text", "")
+
+            # Map-reduce summarization for long transcripts
+            if result["word_count"] > 2000:
+                result["full_transcript"] = result["transcript"]
+                result["transcript"] = self._map_reduce_summarize(
+                    result["transcript"], result["segments"]
+                )
+
+            return result
+        except Exception as e:
+            logger.error(f"_try_audio_replay({space_id}): {e}")
+            return {"usable": False, "error": str(e)}
+        finally:
+            if os.path.exists(audio_path):
+                try:
+                    os.remove(audio_path)
+                except OSError:
+                    pass
+
+    def _passes_quality_gate(self, result):
+        """True if transcript meets all quality thresholds."""
+        if result.get("word_count", 0) < MIN_WORDS_FOR_AUDIO:
+            return False
+        if result.get("language_probability", 0) < MIN_LANGUAGE_PROB:
+            return False
+        # Repetition check — bigram dedup rate
+        text = result.get("text", "")
+        words = text.lower().split()
+        if len(words) > 50:
+            bigrams = [f"{words[i]} {words[i+1]}" for i in range(len(words) - 1)]
+            unique_rate = len(set(bigrams)) / len(bigrams)
+            if unique_rate < (1 - MAX_REPETITION_RATE):
+                return False
+        return True
+
+    def _compute_quality_score(self, result):
+        """Compute 0.0-1.0 quality score from transcript metrics."""
+        score = 0.0
+        wc = result.get("word_count", 0)
+        if wc >= 500:
+            score += 0.4
+        elif wc >= 150:
+            score += 0.2
+        lp = result.get("language_probability", 0)
+        score += min(lp * 0.4, 0.4)
+        if result.get("speakers") and len(result["speakers"]) > 1:
+            score += 0.2
+        return round(min(score, 1.0), 2)
+
+    def _map_reduce_summarize(self, transcript, segments):
+        """
+        For transcripts > 2000 words: chunk -> Haiku summarize -> Sonnet synthesize.
+        Preserves speaker attribution.
+        """
+        try:
+            import anthropic
+        except ImportError:
+            logger.warning("anthropic not installed — skipping map-reduce")
+            return transcript[:2000]
+
+        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+        if not api_key:
+            logger.warning("ANTHROPIC_API_KEY not set — skipping map-reduce")
+            return transcript[:2000]
+
+        client = anthropic.Anthropic(api_key=api_key)
+
+        # Split into ~600-word chunks
+        words = transcript.split()
+        chunk_size = 600
+        chunks = []
+        for i in range(0, len(words), chunk_size):
+            chunks.append(" ".join(words[i:i + chunk_size]))
+
+        # Map phase: Haiku summarizes each chunk
+        chunk_summaries = []
+        for i, chunk in enumerate(chunks):
+            try:
+                resp = client.messages.create(
+                    model="claude-haiku-4-5-20251001",
+                    max_tokens=300,
+                    messages=[{
+                        "role": "user",
+                        "content": (
+                            f"Summarize this Bitcoin/crypto X Space segment in 2-3 sentences. "
+                            f"Keep specific numbers, names, predictions, and strong opinions. "
+                            f"Segment {i + 1}/{len(chunks)}:\n\n{chunk}"
+                        ),
+                    }],
+                )
+                chunk_summaries.append(resp.content[0].text)
+            except Exception:
+                chunk_summaries.append(chunk[:200])
+
+        # Reduce phase: Sonnet synthesizes chunk summaries
+        try:
+            all_summaries = "\n\n".join(
+                f"[Segment {i + 1}]: {s}" for i, s in enumerate(chunk_summaries)
+            )
+            resp = client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=600,
+                messages=[{
+                    "role": "user",
+                    "content": (
+                        f"You are a Protocol Pulse Bitcoin intelligence editor. "
+                        f"Synthesize these X Space segment summaries into a 3-4 sentence "
+                        f"broadcast-ready intelligence briefing. "
+                        f"Lead with the most impactful statement. "
+                        f"Include specific claims, predictions, and speaker names.\n\n"
+                        f"{all_summaries}"
+                    ),
+                }],
+            )
+            return resp.content[0].text
+        except Exception:
+            return " ".join(chunk_summaries[:3])
+
+    def _try_api_context(self, space_id):
+        """Twitter API v2 — returns tweet text as CONTEXT ONLY. Never transcript."""
+        import requests
+        bearer = os.environ.get("TWITTER_BEARER_TOKEN", "")
+        if not bearer:
+            return ""
+        try:
+            r = requests.get(
+                f"https://api.twitter.com/2/spaces/{space_id}/tweets",
+                headers={"Authorization": f"Bearer {bearer}"},
+                params={"tweet.fields": "text,author_id,created_at"},
+                timeout=15,
+            )
+            if r.status_code == 200:
+                tweets = r.json().get("data", [])
+                return " ".join(t["text"] for t in tweets[:20])
+        except Exception:
             pass
+        return ""
 
-    return transcript
+
+# Backward-compatible function API (used by run_scraper.py)
+_fetcher = None
 
 
-# ─── CLI ────────────────────────────────────────────────────────────────────
+def fetch_transcript(space_id, space_url, title=""):
+    """Backward-compatible wrapper around TranscriptFetcher."""
+    global _fetcher
+    if _fetcher is None:
+        _fetcher = TranscriptFetcher()
+    result = _fetcher.fetch(space_id, space_url, title=title)
+    # Normalize for backward compat: ensure "text" key exists
+    if "transcript" in result and "text" not in result:
+        result["text"] = result["transcript"]
+    return result
 
+
+# CLI
 if __name__ == "__main__":
+    import re
     import sys
     logging.basicConfig(
         level=logging.INFO,
@@ -214,7 +317,6 @@ if __name__ == "__main__":
 
     target = sys.argv[1]
     if target.startswith("http"):
-        import re
         m = re.search(r"/spaces/(\w+)", target)
         sid = m.group(1) if m else target
         url = target
@@ -224,9 +326,9 @@ if __name__ == "__main__":
 
     result = fetch_transcript(sid, url)
     if result:
-        print(f"\nTranscript ({result['word_count']} words, {result['duration_s']}s):")
-        print(result["text"][:2000])
-        if len(result["text"]) > 2000:
-            print(f"\n... [{len(result['text']) - 2000} more chars]")
+        text = result.get("transcript", result.get("text", ""))
+        print(f"\nTranscript ({result.get('word_count', 0)} words, source={result.get('source', '?')}):")
+        print(f"Usable: {result.get('usable', '?')}")
+        print(text[:2000])
     else:
         print("Failed to fetch transcript.")

@@ -260,8 +260,37 @@ def detect_spaces_ytdlp(handles):
     return live_spaces
 
 
+def check_cookie_validity(cookie_path):
+    """
+    Quick sanity check: cookie file exists, is non-empty, and has no obvious expiry.
+    Returns True if valid enough to use. Logs warning if not.
+    """
+    import time as _time
+    if not os.path.exists(cookie_path):
+        logger.warning(f"[COOKIE] Cookie file missing: {cookie_path}")
+        return False
+
+    size = os.path.getsize(cookie_path)
+    if size < 50:
+        logger.info("[COOKIE] Cookie file is empty placeholder — using unauthenticated mode")
+        return True
+
+    age_days = (_time.time() - os.path.getmtime(cookie_path)) / 86400
+    if age_days > 6:
+        logger.warning(
+            f"[COOKIE] Cookie file is {age_days:.1f} days old — may be expired. "
+            f"Refresh via browser export if Spaces capture fails."
+        )
+
+    return True
+
+
 def detect_all_spaces():
     """Try all detection methods in order. Return list of detected Spaces."""
+    # Cookie validity pre-check
+    if not check_cookie_validity(COOKIE_FILE):
+        logger.warning("[COOKIE] Proceeding without cookies — public Spaces only")
+
     # Method 1: twspace-dl (primary)
     spaces = detect_spaces_twspace(MONITORED_HANDLES)
     if spaces:

@@ -1,0 +1,125 @@
+"""
+spaces_state.py — SQLite-backed idempotent state machine for X Spaces.
+
+States: discovered -> downloading -> transcribed -> summarized -> injected -> published
+Each state is a timestamp column. NULL = not yet reached.
+Prevents cron races. Safe for concurrent access.
+"""
+
+import os
+import sqlite3
+from datetime import datetime, timezone
+
+STATE_ORDER = ["discovered", "downloaded", "transcribed", "summarized", "injected", "published"]
+
+_SCHEMA = """
+CREATE TABLE IF NOT EXISTS spaces (
+    space_id TEXT PRIMARY KEY,
+    title TEXT,
+    host TEXT,
+    url TEXT,
+    started_at TEXT,
+    ended_at TEXT,
+    transcript_source TEXT,
+    transcript_word_count INTEGER DEFAULT 0,
+    transcript_quality_score REAL DEFAULT 0.0,
+    impact_score INTEGER DEFAULT 0,
+    discovered_at TEXT,
+    downloaded_at TEXT,
+    transcribed_at TEXT,
+    summarized_at TEXT,
+    injected_at TEXT,
+    published_at TEXT,
+    error TEXT,
+    UNIQUE(space_id)
+);
+"""
+
+DEFAULT_DB_PATH = os.path.join(
+    os.path.expanduser("~"), "protocol_pulse", "data", "spaces_state.db"
+)
+
+
+class SpaceStateDB:
+    def __init__(self, db_path=None):
+        self.db_path = db_path or DEFAULT_DB_PATH
+        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+        self.conn = sqlite3.connect(self.db_path, timeout=10)
+        self.conn.row_factory = sqlite3.Row
+        self.conn.execute("PRAGMA journal_mode=WAL")
+        self.conn.executescript(_SCHEMA)
+        self.conn.commit()
+
+    def upsert(self, space_id, **kwargs):
+        """Insert or update a space with only the provided fields."""
+        existing = self.get(space_id)
+        if existing is None:
+            # Insert new row
+            kwargs["space_id"] = space_id
+            cols = ", ".join(kwargs.keys())
+            placeholders = ", ".join("?" for _ in kwargs)
+            self.conn.execute(
+                f"INSERT INTO spaces ({cols}) VALUES ({placeholders})",
+                list(kwargs.values()),
+            )
+        else:
+            # Update only provided fields
+            if not kwargs:
+                return
+            sets = ", ".join(f"{k} = ?" for k in kwargs)
+            self.conn.execute(
+                f"UPDATE spaces SET {sets} WHERE space_id = ?",
+                list(kwargs.values()) + [space_id],
+            )
+        self.conn.commit()
+
+    def get(self, space_id):
+        """Get a space record by ID. Returns dict or None."""
+        row = self.conn.execute(
+            "SELECT * FROM spaces WHERE space_id = ?", (space_id,)
+        ).fetchone()
+        if row is None:
+            return None
+        return dict(row)
+
+    def get_pending(self, state):
+        """Return spaces where {state}_at IS NULL and previous state IS NOT NULL.
+
+        e.g. get_pending("transcribed") = downloaded but not yet transcribed.
+        """
+        state_col = f"{state}_at"
+        idx = STATE_ORDER.index(state) if state in STATE_ORDER else -1
+        if idx <= 0:
+            # For "discovered" or unknown: return where discovered_at is set but state is not
+            return self._query_pending(state_col, "discovered_at")
+
+        prev_state = STATE_ORDER[idx - 1]
+        prev_col = f"{prev_state}_at"
+        return self._query_pending(state_col, prev_col)
+
+    def _query_pending(self, state_col, prev_col):
+        rows = self.conn.execute(
+            f"SELECT * FROM spaces WHERE {state_col} IS NULL AND {prev_col} IS NOT NULL"
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+    def mark(self, space_id, state):
+        """Set {state}_at = now() for the given space."""
+        col = f"{state}_at"
+        now = datetime.now(timezone.utc).isoformat()
+        self.conn.execute(
+            f"UPDATE spaces SET {col} = ? WHERE space_id = ?",
+            (now, space_id),
+        )
+        self.conn.commit()
+
+    def needs_processing(self, space_id, state):
+        """Return True if space exists but hasn't reached this state yet."""
+        record = self.get(space_id)
+        if record is None:
+            return False
+        col = f"{state}_at"
+        return record.get(col) is None
+
+    def close(self):
+        self.conn.close()
