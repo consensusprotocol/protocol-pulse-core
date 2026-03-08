@@ -1,12 +1,13 @@
 {
   "data": {
     "overall": {
-      "score": 25,
+      "score": 27,
       "label": "bearish",
       "change_24h": "N/A",
       "components": {
         "youtube_sentiment": 25,
-        "topic_velocity_bullish_pct": 0
+        "topic_velocity_bullish_pct": 0,
+        "x_spaces_sentiment": 50
       }
     },
     "breakdown": {
@@ -24,9 +25,20 @@
         "score": 25,
         "label": "bearish",
         "driver": "mining trend"
+      },
+      "x_spaces": {
+        "score": 50,
+        "label": "NEUTRAL",
+        "active_count": 0,
+        "top_host": null,
+        "top_quote": "",
+        "topics": [],
+        "confidence": "LOW",
+        "driver": "x_spaces live intel",
+        "computed_at": "2026-03-08T15:48:16.173284+00:00"
       }
     },
     "historical": []
   },
-  "scan_time": "2026-03-05T19:30:16Z"
+  "scan_time": "2026-03-08T15:48:16Z"
 }

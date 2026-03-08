@@ -403,6 +403,11 @@ function updateSignalStrength() {
     freshScore * 0.2
   );
 
+  // Blend X Spaces if available
+  if (typeof window._ppBlendXSpaces === 'function') {
+    state.signalScore = window._ppBlendXSpaces(state.signalScore);
+  }
+
   const fill = $('#signal-fill');
   const label = $('#telem-signal');
   if (fill) {

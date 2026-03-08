@@ -24,6 +24,7 @@ TASKS = {
     "sarah_intelligence_briefing": {"cron": "06:00", "description": "Sarah daily intelligence briefing (06:00 UTC)"},
     "sentiment_buffer_update": {"interval_minutes": 5, "description": "Rolling sentiment buffer update"},
     "emergency_flash_check": {"interval_minutes": 5, "description": "Emergency flash check (40%+ drift)"},
+    "x_spaces_sentiment_update": {"interval_minutes": 5, "description": "X Spaces sentiment stream update"},
 }
 
 
@@ -95,6 +96,16 @@ def run_task(name: str) -> Dict:
             return {"success": True, "message": "Flash checked", "result": flash}
         except Exception as e:
             logger.warning("emergency_flash_check: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
+    if name == "x_spaces_sentiment_update":
+        try:
+            from services.spaces_sentiment_service import spaces_sentiment_service
+            result = spaces_sentiment_service.run()
+            logger.info("x_spaces_sentiment: score=%s active=%s", result.get('score'), result.get('active_count'))
+            return {"success": True, "message": f"X Spaces sentiment: {result.get('score')} ({result.get('label')})", "result": result}
+        except Exception as e:
+            logger.warning("x_spaces_sentiment_update: %s", e)
             return {"success": False, "message": str(e), "result": None}
 
     return {"success": False, "message": f"Unknown task: {name}", "result": None}
