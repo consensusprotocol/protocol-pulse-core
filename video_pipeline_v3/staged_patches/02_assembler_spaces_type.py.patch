@@ -1,0 +1,18 @@
+--- a/video_pipeline_v3/assembler.py
++++ b/video_pipeline_v3/assembler.py
+@@ in the segment type handler (where segment["type"] is checked)
++        elif seg_type == "x_spaces":
++            # Map X Spaces segment to data_segment scene
++            eyebrow = seg.get("kicker", "LIVE X SPACES SIGNAL")
++            if seg.get("context_only_segment"):
++                eyebrow = "LIVE INTEL — CONTEXT ONLY"
++            part_path = render_data_segment(
++                text=seg["text"],
++                headline=seg.get("headline", "X SPACES // LIVE INTEL"),
++                eyebrow=eyebrow,
++                tag=seg.get("tag", "INTEL"),
++                duration=seg.get("duration", 15),
++                output_path=os.path.join(parts_dir, f"part_{i:03d}_spaces.mp4"),
++            )
++            if part_path:
++                parts.append(part_path)

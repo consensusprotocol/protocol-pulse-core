@@ -1,0 +1,18 @@
+--- a/video_pipeline_v3/daily_run.py
++++ b/video_pipeline_v3/daily_run.py
+@@ imports section (add after existing imports)
++from video_pipeline_v3.utils.spaces_pipeline import get_latest_spaces_segment
+
+@@ after script is built (inside the episode assembly block, after script segments are collected)
++    # ── X Spaces injection ──
++    spaces_segment = get_latest_spaces_segment(max_age_hours=4)
++    if spaces_segment:
++        logger.info(f"[SPACES] Injecting X Spaces segment: {spaces_segment['space_title']} "
++                     f"(impact={spaces_segment['impact_score']}, source={spaces_segment.get('transcript_source', '?')})")
++        # Insert before the last segment (outro) if possible
++        if len(segments) > 1:
++            segments.insert(-1, spaces_segment)
++        else:
++            segments.append(spaces_segment)
++    else:
++        logger.info("[SPACES] No fresh X Spaces segment to inject")
