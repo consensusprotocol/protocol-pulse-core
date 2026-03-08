@@ -47,26 +47,30 @@ ASSETS = os.path.join(BASE, "assets")
 FONT_BOLD = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 FONT_MONO = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 
-# ── BLACK DIAMOND COLOR SYSTEM ─────────────────────────────────────────────
-COLOR_BG          = "0x000000"   # obsidian — pure black
-COLOR_RED         = "0xFF0000"   # signal red — ALL accents
-COLOR_WHITE       = "0xFFFFFF"   # stark white — headlines
-COLOR_TEXT        = "0xFFFFFF"   # primary text (stark white)
-COLOR_PANEL       = "0x0a0a0a"   # glass panels
-COLOR_PANEL2      = "0x070707"   # left panel glass
+# ── APEX UNIFIED COLOR SYSTEM ─────────────────────────────────────────────
+COLOR_BG          = "0x020304"   # BEV2 cinematic obsidian (not flat black)
+COLOR_PANEL       = "0x050607"   # BEV2 elevated surface
+COLOR_PANEL2      = "0x080a0c"   # secondary surface
+COLOR_RED         = "0xFF0000"   # BD signal red — all accents
+COLOR_RED_WARM    = "0xFF334D"   # BEV2 warm red — transition elements
+COLOR_WHITE       = "0xF4F5F8"   # BEV2 warm white — not pure white
+COLOR_TEXT        = "0xF4F5F8"   # primary text (warm white)
+COLOR_GOLD        = "0xF8C15C"   # VDS gold — EYEBROW KICKERS ONLY
 COLOR_MUTED       = "0x888888"   # secondary labels
-COLOR_GREEN       = "0x00FF88"   # DONE status, bullish
-COLOR_AMBER       = "0xFF8800"   # PENDING / warning
-COLOR_TICKER_BG   = "0x0c0c0c"   # ticker bar background
-COLOR_RED_DIM     = "0x1a0000"   # CTA box bg
+COLOR_MUTED2      = "0x555555"   # metadata, timestamps
+COLOR_GREEN       = "0x6EE7B7"   # BEV2 emerald — positive/DONE
+COLOR_CORAL       = "0xFF8BA0"   # VDS coral — negative/warning
+COLOR_RED_DIM     = "0x1a0000"   # CTA box backgrounds
+COLOR_TICKER_BG   = "0x0c0c0c"   # ticker bar bg (kept dark)
 
-# ── BROADCAST ENGINE V2 COLOR SYSTEM ──────────────────────────────────────
-BV2_OBSIDIAN    = "0x020304"   # deepest bg
-BV2_DEEP_PANEL  = "0x050607"   # elevated surface
-BV2_SIGNAL_RED  = "0xFF334D"   # primary accent — warmer red
-BV2_STARK_WHITE = "0xF4F5F8"   # primary text
+# Legacy aliases for backward compat in make_host_visual / make_clip_visual
+COLOR_AMBER       = COLOR_CORAL
+BV2_OBSIDIAN    = COLOR_BG
+BV2_DEEP_PANEL  = COLOR_PANEL
+BV2_SIGNAL_RED  = COLOR_RED_WARM
+BV2_STARK_WHITE = COLOR_WHITE
 BV2_MUTED       = "0xFFFFFF"   # secondary text (used @0.33 opacity)
-BV2_EMERALD     = "0x6EE7B7"   # positive/bullish
+BV2_EMERALD     = COLOR_GREEN
 BV2_RED_LIGHT   = "0xFF8595"   # gradient accent
 
 INTRO_VIDEO = os.path.join(ASSETS, "intro.mp4")
@@ -92,6 +96,80 @@ else:
 CARD_SWOOSH = os.path.join(ASSETS, "sfx", "card_swoosh.wav")
 DATA_BLIP = os.path.join(ASSETS, "sfx", "data_blip.wav")
 LOWER_SLIDE = os.path.join(ASSETS, "sfx", "lower_slide.wav")
+
+
+def get_latest_spaces_summary() -> dict:
+    """FIX 8: Check for recent X Spaces transcripts for episode inclusion.
+
+    Checks:
+    1. video_pipeline_v3/data/spaces/ for recent chunks
+    2. spaces_scraper/ for cached transcripts
+    3. x_spaces_scraper/ for cached transcripts
+
+    Returns dict with {summary, source, score} if found, else None.
+    """
+    import glob
+    from datetime import datetime, timedelta
+
+    cutoff = datetime.now() - timedelta(hours=24)
+
+    # Check pipeline spaces data first
+    spaces_data_dir = os.path.join(BASE, "data", "spaces")
+    if os.path.exists(spaces_data_dir):
+        for space_dir in sorted(os.listdir(spaces_data_dir), reverse=True):
+            chunks_file = os.path.join(spaces_data_dir, space_dir, "chunks.jsonl")
+            if not os.path.exists(chunks_file):
+                continue
+            # Check if recent (file modified in last 24h)
+            if os.path.getmtime(chunks_file) < cutoff.timestamp():
+                continue
+            # Read highest-impact chunks
+            best_chunks = []
+            try:
+                with open(chunks_file) as f:
+                    for line in f:
+                        line = line.strip()
+                        if not line:
+                            continue
+                        entry = json.loads(line)
+                        if entry.get("impact_score", 0) >= 50:
+                            best_chunks.append(entry)
+            except Exception:
+                continue
+            if best_chunks:
+                best_chunks.sort(key=lambda x: x.get("impact_score", 0), reverse=True)
+                top = best_chunks[0]
+                summary = top.get("text", "")[:500]
+                return {
+                    "summary": f"From X Spaces — {top.get('speaker', 'unknown')}: {summary}",
+                    "source": f"X Spaces ({space_dir})",
+                    "score": top.get("impact_score", 0),
+                }
+
+    # Check spaces_scraper cache
+    scraper_cache = os.path.join(os.path.dirname(BASE), "spaces_scraper", "cache")
+    if not os.path.exists(scraper_cache):
+        scraper_cache = os.path.join(os.path.dirname(BASE), "x_spaces_scraper", "cache")
+    if os.path.exists(scraper_cache):
+        json_files = sorted(glob.glob(os.path.join(scraper_cache, "*.json")), reverse=True)
+        for jf in json_files[:5]:
+            if os.path.getmtime(jf) < cutoff.timestamp():
+                continue
+            try:
+                with open(jf) as f:
+                    data = json.loads(f.read())
+                transcript = data.get("transcript", data.get("text", ""))
+                if transcript and len(transcript) > 100:
+                    return {
+                        "summary": transcript[:500],
+                        "source": f"X Spaces Scraper ({os.path.basename(jf)})",
+                        "score": 60,
+                    }
+            except Exception:
+                continue
+
+    logger.info("  FIX 8: No recent X Spaces data found — segment skipped")
+    return None
 
 
 def _fetch_btc_price() -> str:
@@ -458,25 +536,27 @@ def make_tag_video(output_path: str, narration_audio: str = "") -> str:
 # ── Cold open intro ───────────────────────────────────────────────────────
 
 def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A", thumbnail_path: str = "") -> str:
-    """Cold open: face on screen, NO logo, NO music, immediate voice.
+    """APEX Cold Open intro — 2.0s cinematic intro card + voice.
 
-    Per PRODUCTION_DESIGN_LAWS: cyberpunk bg + waveform + subtitle.
+    APEX background (7 layers) + corner brackets + centered title card.
     Voice starts on frame 1. No pre-roll.
     """
+    import datetime
     tts_dur = ffprobe_duration(tts_path)
     total_dur = max(tts_dur + 0.3, 3.0)
 
+    date_str = datetime.datetime.now().strftime("%b %d, %Y").upper()
+
     has_thumb_co = bool(thumbnail_path and os.path.exists(thumbnail_path))
 
-    # Build inputs: 0=TTS, [1=thumbnail if present]
     inp_args = [tts_path]
     idx = 1
 
-    # VDS procedural background (7-layer, no video files)
-    _, bg_fg = _build_black_diamond_bg(total_dur, label_out="bgvig")
+    # APEX procedural background (7-layer)
+    _, bg_fg = _build_broadcast_bg(total_dur, label_out="bgvig")
     fg = bg_fg
 
-    # GPT face panel: thumbnail in cold open left panel
+    # Thumbnail face panel (if available)
     thumb_co_idx = -1
     if has_thumb_co:
         inp_args.append(thumbnail_path)
@@ -492,22 +572,37 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
     else:
         face_base = "bgvig"
 
-    # FIX 2: VDS waveform — full width (1920x200), red/gold gradient
-    fg += (f"[0:a]showwaves=s=1920x200:mode=cline:"
-           f"colors={COLOR_RED}|{COLOR_RED}:scale=sqrt:draw=full:rate=30[wave_raw];\n")
-    fg += f"[wave_raw]split[wA][wB];\n"
-    fg += f"[wB]vflip,colorchannelmixer=aa=0.35[wflip];\n"
-    fg += f"[wA][wflip]vstack[wavepair];\n"
-    fg += f"[{face_base}][wavepair]overlay=0:340[withwave];\n"
+    # APEX title text centered
+    fg += (f"[{face_base}]"
+           # PROTOCOL PULSE — centered white bold
+           f"drawtext=fontfile={FONT_BOLD}:text='PROTOCOL PULSE':"
+           f"fontcolor={COLOR_WHITE}:fontsize=72:x=(w-text_w)/2:y=300,"
+           # PULSE CHECK — centered warm-red bold
+           f"drawtext=fontfile={FONT_BOLD}:text='PULSE CHECK':"
+           f"fontcolor={COLOR_RED}:fontsize=52:x=(w-text_w)/2:y=400,"
+           # Gold eyebrow date
+           f"drawtext=fontfile={FONT_MONO}:text='{date_str} - DAILY INTELLIGENCE BRIEF':"
+           f"fontcolor={COLOR_GOLD}:fontsize=18:x=(w-text_w)/2:y=490,"
+           # // SIGNAL DETECTED //
+           f"drawtext=fontfile={FONT_MONO}:text='// SIGNAL DETECTED //':"
+           f"fontcolor={COLOR_RED}:fontsize=16:x=(w-text_w)/2:y=540,"
+           # Fade in/out
+           f"fade=t=in:st=0:d=0.4,fade=t=out:st={max(0, total_dur - 0.4)}:d=0.4"
+           f"[withtext];\n")
+
+    # Waveform below title
+    fg += (f"[0:a]showwaves=s=1920x120:mode=cline:"
+           f"colors={COLOR_RED}|{COLOR_RED_WARM}:scale=sqrt:draw=full:rate=30[wave_raw];\n")
+    fg += f"[withtext][wave_raw]overlay=0:620[withwave];\n"
 
     # Corner brackets
     fg += _build_corner_brackets_fg("withwave", "co_cornered")
 
-    # Ticker bar
-    fg += _build_info_bar_fg(total_dur, btc_price, label_in="co_cornered", label_out="v_final")
+    # APEX info rail
+    fg += _build_signature_info_rail(total_dur, btc_price, "co_cornered", "v_final")
     fg += f"[v_final]format=yuv420p[outv];\n"
 
-    # NO music — voice starts immediately, silenceremove + loudnorm
+    # NO music — voice starts immediately
     fg += (f"[0:a]silenceremove=start_periods=1:start_duration=0.05:start_threshold=-50dB:"
            f"stop_periods=-1:stop_duration=0.1:stop_threshold=-50dB,"
            f"loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]")
@@ -516,7 +611,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
         inp_args, fg, ["[outv]", "[outa]"],
         ["-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(total_dur)],
-        output_path, "intro cold open", 120,
+        output_path, "APEX intro cold open", 120,
     )
     return output_path if ok else ""
 
@@ -691,172 +786,210 @@ def _build_corner_brackets_fg(label_in: str, label_out: str) -> str:
 # ══════════════════════════════════════════════════════════════════════════
 
 def _build_broadcast_bg(duration: float, label_out: str = "bb_bg") -> tuple:
-    """Broadcast Engine V2 premium background — 3-glow radial + grid + vignette."""
+    """APEX UNIFIED 7-layer procedural background.
+
+    Layer 1: BEV2 cinematic obsidian base (#020304)
+    Layer 2: BEV2 3-glow radial (top-left red, top-right white, bottom-center red)
+    Layer 3: VDS perspective grid (bottom 30%, very subtle)
+    Layer 4: BD scanlines (horizontal every 4px, red @2.5%)
+    Layer 5: Vignette
+    Layer 6: (film grain skipped — geq too slow per spec)
+    Layer 7: Red border frame (2px all edges)
+    """
     f = ""
-    # Layer 1: Obsidian base
-    f += f"color=c={BV2_OBSIDIAN}:s=1920x1080:d={duration}:r=30[bb_base];\n"
-    # Layer 2: Red radial glow — top-left
+    # Layer 1: Cinematic obsidian base
+    f += f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30[bb_base];\n"
+    # Layer 2a: Red radial glow — top-left
     f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
-          f"geq=r='clip(46*exp(-((X-230)*(X-230)+(Y-150)*(Y-150))/350000),0,255)'"
-          f":g='clip(10*exp(-((X-230)*(X-230)+(Y-150)*(Y-150))/350000),0,255)'"
-          f":b='clip(15*exp(-((X-230)*(X-230)+(Y-150)*(Y-150))/350000),0,255)'[bb_glow_tl];\n")
+          f"geq=r='clip(46*exp(-((X)*(X)+Y*Y)/350000),0,255)':g='0':b='0'[bb_glow_tl];\n")
     f += f"[bb_base][bb_glow_tl]blend=all_mode=screen[bb1];\n"
-    # Layer 3: White radial glow — top-right (subtle)
+    # Layer 2b: White radial glow — top-right (subtle)
     f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
-          f"geq=r='clip(15*exp(-((X-1574)*(X-1574)+(Y-173)*(Y-173))/230000),0,255)'"
-          f":g='clip(15*exp(-((X-1574)*(X-1574)+(Y-173)*(Y-173))/230000),0,255)'"
-          f":b='clip(15*exp(-((X-1574)*(X-1574)+(Y-173)*(Y-173))/230000),0,255)'[bb_glow_tr];\n")
+          f"geq=r='clip(15*exp(-((X-1920)*(X-1920)+Y*Y)/300000),0,255)'"
+          f":g='clip(15*exp(-((X-1920)*(X-1920)+Y*Y)/300000),0,255)'"
+          f":b='clip(15*exp(-((X-1920)*(X-1920)+Y*Y)/300000),0,255)'[bb_glow_tr];\n")
     f += f"[bb1][bb_glow_tr]blend=all_mode=screen[bb2];\n"
-    # Layer 4: Red radial glow — bottom-center
+    # Layer 2c: Red radial glow — bottom-center
     f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
-          f"geq=r='clip(25*exp(-((X-998)*(X-998)+(Y-994)*(Y-994))/160000),0,255)'"
-          f":g='clip(5*exp(-((X-998)*(X-998)+(Y-994)*(Y-994))/160000),0,255)'"
-          f":b='clip(8*exp(-((X-998)*(X-998)+(Y-994)*(Y-994))/160000),0,255)'[bb_glow_bc];\n")
+          f"geq=r='clip(25*exp(-((X-960)*(X-960)+(Y-1080)*(Y-1080))/400000),0,255)':g='0':b='0'[bb_glow_bc];\n")
     f += f"[bb2][bb_glow_bc]blend=all_mode=screen[bb3];\n"
-    # Layer 5: Perspective grid (subtle)
-    f += f"[bb3]drawgrid=width=96:height=54:thickness=1:color=0xFFFFFF@0.03[bb4];\n"
-    # Layer 6: Scanlines (4px period)
-    f += f"[bb4]drawgrid=width=0:height=4:thickness=1:color=0xFFFFFF@0.04[bb5];\n"
-    # Layer 7: Vignette
+    # Layer 3: VDS perspective grid (bottom 30% — subtle white)
+    f += f"[bb3]drawgrid=width=90:height=54:thickness=1:color=0xFFFFFF@0.04[bb4];\n"
+    # Layer 4: BD scanlines (horizontal every 4px, red @2.5%)
+    f += f"[bb4]drawgrid=width=0:height=4:thickness=1:color={COLOR_RED}@0.025[bb5];\n"
+    # Layer 5: Vignette
     f += f"[bb5]vignette=PI/4:mode=backward[bb6];\n"
-    # Layer 8: Red border frame (2px)
-    f += (f"[bb6]drawbox=x=0:y=0:w=1920:h=2:color={BV2_SIGNAL_RED}@0.7:t=fill,"
-          f"drawbox=x=0:y=1078:w=1920:h=2:color={BV2_SIGNAL_RED}@0.7:t=fill,"
-          f"drawbox=x=0:y=0:w=2:h=1080:color={BV2_SIGNAL_RED}@0.7:t=fill,"
-          f"drawbox=x=1918:y=0:w=2:h=1080:color={BV2_SIGNAL_RED}@0.7:t=fill[{label_out}];\n")
+    # Layer 7: Red border frame (2px all edges)
+    f += (f"[bb6]drawbox=x=0:y=0:w=1920:h=2:color={COLOR_RED}@0.75:t=fill,"
+          f"drawbox=x=0:y=1078:w=1920:h=2:color={COLOR_RED}@0.75:t=fill,"
+          f"drawbox=x=0:y=0:w=2:h=1080:color={COLOR_RED}@0.75:t=fill,"
+          f"drawbox=x=1918:y=0:w=2:h=1080:color={COLOR_RED}@0.75:t=fill[{label_out}];\n")
     return ([], f)
 
 
 def _build_top_system_bar(label_in: str, label_out: str, scene_label: str = "",
-                           progress_pct: int = 50) -> str:
-    """Floating pill header bar — Broadcast Engine V2 system bar."""
+                           progress_pct: int = 50, recon_id: str = "") -> str:
+    """APEX UNIFIED header — BD structure + BEV2 glassmorphic floating pill."""
+    import datetime
+    if not recon_id:
+        recon_id = datetime.datetime.now().strftime("%H%M%S")
     fg = ""
-    # Pill background
-    fg += (f"[{label_in}]drawbox=x=24:y=18:w=1872:h=52:color=0x000000@0.35:t=fill,"
-           f"drawbox=x=24:y=18:w=1872:h=1:color=0xFFFFFF@0.08:t=fill,"
-           f"drawbox=x=24:y=69:w=1872:h=1:color=0xFFFFFF@0.08:t=fill,"
-           # Left: LIVE pill
-           f"drawbox=x=36:y=24:w=200:h=32:color={BV2_SIGNAL_RED}@0.08:t=fill,"
-           f"drawbox=x=36:y=24:w=200:h=32:color={BV2_SIGNAL_RED}@0.25:t=2,"
-           f"drawtext=fontfile={FONT_MONO}:text='  Protocol Pulse Live':"
-           f"fontcolor={BV2_SIGNAL_RED}:fontsize=12:x=46:y=34,"
-           # Center label
+    # Floating pill bg with glassmorphic feel
+    fg += (f"[{label_in}]drawbox=x=20:y=12:w=1880:h=52:color=0x000000@0.55:t=fill,"
+           # Red left accent line on pill (BD)
+           f"drawbox=x=20:y=12:w=3:h=52:color={COLOR_RED}@0.9:t=fill,"
+           # Left: bullet + PROTOCOL PULSE
+           f"drawtext=fontfile={FONT_BOLD}:text='  PROTOCOL PULSE':"
+           f"fontcolor={COLOR_WHITE}:fontsize=20:x=38:y=26,"
+           # LIVE label in red
+           f"drawtext=fontfile={FONT_BOLD}:text='LIVE':"
+           f"fontcolor={COLOR_RED}:fontsize=16:x=236:y=30,"
+           # Separator
+           f"drawtext=fontfile={FONT_MONO}:text='|':"
+           f"fontcolor={COLOR_MUTED}:fontsize=16:x=282:y=26,"
+           # Broadcast Signature System (muted mono)
            f"drawtext=fontfile={FONT_MONO}:text='Broadcast Signature System':"
-           f"fontcolor=0xFFFFFF@0.35:fontsize=12:x=260:y=36,"
-           # Right: Motion pct
-           f"drawtext=fontfile={FONT_MONO}:text='Motion {progress_pct}pct':"
-           f"fontcolor=0xFFFFFF@0.45:fontsize=11:x=1540:y=36,"
-           # Right: Narration Layer
+           f"fontcolor={COLOR_MUTED}:fontsize=11:x=302:y=31,"
+           # Right: Motion Active
+           f"drawtext=fontfile={FONT_MONO}:text='Motion Active':"
+           f"fontcolor={COLOR_MUTED}:fontsize=11:x=1560:y=31,"
+           f"drawtext=fontfile={FONT_MONO}:text='|':"
+           f"fontcolor={COLOR_MUTED}:fontsize=11:x=1652:y=31,"
+           # Narration Layer
            f"drawtext=fontfile={FONT_MONO}:text='Narration Layer':"
-           f"fontcolor=0xFFFFFF@0.7:fontsize=11:x=1700:y=36"
+           f"fontcolor=0xFFFFFF@0.7:fontsize=11:x=1666:y=31,"
+           f"drawtext=fontfile={FONT_MONO}:text='|':"
+           f"fontcolor={COLOR_MUTED}:fontsize=11:x=1766:y=31,"
+           # RECON-ID (BD metadata)
+           f"drawtext=fontfile={FONT_MONO}:text='RECON-ID  {recon_id}':"
+           f"fontcolor={COLOR_MUTED}:fontsize=11:x=1780:y=31,"
+           # Bottom separator
+           f"drawbox=x=20:y=64:w=1880:h=1:color={COLOR_RED}@0.25:t=fill"
            f"[{label_out}];\n")
     return fg
 
 
 def _build_signature_info_rail(duration: float, btc_price: str, label_in: str,
                                 label_out: str) -> str:
-    """Signature gradient info rail — red-white-red with BLACK text."""
+    """APEX UNIFIED gradient info rail — red→white→red with BLACK text."""
     import datetime
-    date_str = datetime.datetime.now().strftime("%b %Y").upper()
+    date_str = datetime.datetime.now().strftime("%b %d, %Y").upper()
     safe_btc = btc_price.replace("'", "").replace('"', "").replace("\\", "")
 
     fg = ""
-    # Build gradient bar: 3 color zones (red | white | red)
-    fg += f"color=c={BV2_SIGNAL_RED}:s=640x46:d={duration}:r=30[rail_left];\n"
-    fg += f"color=c=0xFFFFFF:s=640x46:d={duration}:r=30[rail_center];\n"
-    fg += f"color=c={BV2_SIGNAL_RED}:s=640x46:d={duration}:r=30[rail_right];\n"
+    # Build gradient bar: 3 color zones (red | white | warm red)
+    fg += f"color=c={COLOR_RED}@0.85:s=640x48:d={duration}:r=30[rail_left];\n"
+    fg += f"color=c=0xFFFFFF@0.90:s=640x48:d={duration}:r=30[rail_center];\n"
+    fg += f"color=c=0xFF6680@0.85:s=640x48:d={duration}:r=30[rail_right];\n"
     fg += f"[rail_left][rail_center]hstack[rail_lc];\n"
     fg += f"[rail_lc][rail_right]hstack[rail_full];\n"
-    # Overlay rail onto video at y=1034
-    fg += f"[{label_in}][rail_full]overlay=0:1034[rail_ov];\n"
+    # Overlay rail onto video at y=1032
+    fg += f"[{label_in}][rail_full]overlay=0:1032[rail_ov];\n"
     # Text in BLACK over the gradient rail
-    fg += (f"[rail_ov]drawtext=fontfile={FONT_MONO}:text='BTC {safe_btc}':"
-           f"fontcolor=0x000000:fontsize=13:x=24:y=1050,"
-           f"drawtext=fontfile={FONT_MONO}:text='PROTOCOLPULSE.IO':"
-           f"fontcolor=0x000000:fontsize=13:x=(w-text_w)/2:y=1050,"
+    fg += (f"[rail_ov]drawtext=fontfile={FONT_BOLD}:text='BTC {safe_btc}':"
+           f"fontcolor=0x000000:fontsize=14:x=20:y=1048,"
+           f"drawtext=fontfile={FONT_BOLD}:text='PROTOCOLPULSE.IO':"
+           f"fontcolor=0x000000:fontsize=15:x=(w-text_w)/2:y=1047,"
            f"drawtext=fontfile={FONT_MONO}:text='{date_str} - DAILY BRIEF':"
-           f"fontcolor=0x000000:fontsize=13:x=w-text_w-24:y=1050"
+           f"fontcolor=0x000000:fontsize=14:x=w-text_w-20:y=1048"
            f"[{label_out}];\n")
     return fg
 
 
-def _build_narration_wave(label_in: str, label_out: str) -> str:
-    """EKG narration wave — 1920x120 at y=914, above the info rail."""
+def _build_narration_wave(label_in: str, label_out: str,
+                          audio_out_label: str = "_nw_a_out") -> tuple:
+    """APEX V2 Cipher Line waveform — dual-layer EKG at y=880, 160px zone.
+
+    Uses asplit=3 to separate audio feeds:
+      - 2 for visualization (primary + accent)
+      - 1 for audio output (returned as audio_out_label)
+
+    Returns (filtergraph_string, audio_out_pad) where audio_out_pad is the
+    label to pass to _bv2_encode's audio_pad parameter.
+    """
     fg = ""
-    fg += (f"[0:a]showwaves=s=1920x120:mode=line:"
-           f"colors=0xFFFFFF@0.85|{BV2_SIGNAL_RED}@0.12:scale=sqrt:draw=full:rate=30[bv2_ekg];\n")
-    fg += f"[{label_in}][bv2_ekg]overlay=0:914[{label_out}];\n"
-    return fg
+    # Split audio: 2 for vis, 1 for output (FIX 3 — never share audio pads)
+    fg += f"[0:a]asplit=3[_a_vis][_a_vis2][{audio_out_label}];\n"
+
+    # PRIMARY: thin centerline wave — white, ultra-clean
+    fg += (f"[_a_vis]showwaves=s=1920x80:mode=line:"
+           f"colors=0xF4F5F8@0.9:scale=sqrt:draw=full:rate=30[_wave_line];\n")
+
+    # SECONDARY: mirror reflection — warm red, low opacity
+    fg += (f"[_a_vis2]showwaves=s=1920x80:mode=line:"
+           f"colors=0xFF334D@0.25:scale=log:draw=full:rate=30[_wave_red];\n")
+    fg += f"[_wave_red]vflip[_wave_red_flip];\n"
+
+    # Stack: primary on top, flipped reflection below (total 160px)
+    fg += f"[_wave_line][_wave_red_flip]vstack[_wave_stacked];\n"
+
+    # Edge fade bars (top + bottom)
+    fg += (f"[_wave_stacked]"
+           f"drawbox=x=0:y=0:w=1920:h=20:color=0x020304@0.8:t=fill,"
+           f"drawbox=x=0:y=140:w=1920:h=20:color=0x020304@0.8:t=fill"
+           f"[_wave_faded];\n")
+
+    # Thin red center dividing line (the "spine")
+    fg += (f"[_wave_faded]drawbox=x=0:y=79:w=1920:h=2:"
+           f"color=0xFF0000@0.35:t=fill[_wave_final];\n")
+
+    # Position at y=880 (above info rail, 160px zone)
+    fg += f"[{label_in}][_wave_final]overlay=0:880[{label_out}];\n"
+    return fg, f"[{audio_out_label}]"
 
 
 def _bv2_text_zone(label_in: str, label_out: str, eyebrow: str, headline: str,
                     body: str, tag: str = "") -> str:
-    """Left 58% text zone shared across scenes 1,2,4,6."""
+    """APEX left 58% text zone — gold eyebrow kicker (VDS), warm white headline."""
     safe_eye = _sanitize_text(eyebrow)
     safe_head = _sanitize_text(headline)
     safe_body = _word_wrap(_sanitize_text(body), max_width=30, max_lines=3) if body else ""
     safe_tag = _sanitize_text(tag) if tag else ""
 
     fg = ""
-    # Eyebrow
+    # Gold eyebrow kicker (VDS)
     fg += (f"[{label_in}]drawtext=fontfile={FONT_MONO}:text='{safe_eye}':"
-           f"fontcolor={BV2_SIGNAL_RED}:fontsize=13:x=64:y=100[bv2_eye];\n")
+           f"fontcolor={COLOR_GOLD}:fontsize=13:x=64:y=100[bv2_eye];\n")
     # Headline (large, with shadow for depth)
     fg += (f"[bv2_eye]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
            f"fontcolor=0x111111:fontsize=64:x=66:y=132,"
            f"drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
-           f"fontcolor={BV2_STARK_WHITE}:fontsize=64:x=64:y=130[bv2_head];\n")
+           f"fontcolor={COLOR_WHITE}:fontsize=64:x=64:y=130[bv2_head];\n")
     # Body text
     if safe_body:
         fg += (f"[bv2_head]drawtext=fontfile={FONT_MONO}:text='{safe_body}':"
                f"fontcolor=0xFFFFFF@0.6:fontsize=18:x=64:y=420:line_spacing=8[bv2_body];\n")
     else:
         fg += f"[bv2_head]copy[bv2_body];\n"
-    # Tag pill
+    # Tag pill (red accent)
     if safe_tag:
-        fg += (f"[bv2_body]drawbox=x=64:y=580:w=220:h=32:color={BV2_SIGNAL_RED}@0.15:t=fill,"
-               f"drawbox=x=64:y=580:w=220:h=32:color={BV2_SIGNAL_RED}@0.4:t=2,"
+        fg += (f"[bv2_body]drawbox=x=64:y=580:w=220:h=32:color={COLOR_RED}@0.15:t=fill,"
+               f"drawbox=x=64:y=580:w=220:h=32:color={COLOR_RED}@0.4:t=2,"
                f"drawtext=fontfile={FONT_MONO}:text='{safe_tag}':"
-               f"fontcolor={BV2_SIGNAL_RED}:fontsize=12:x=76:y=590[{label_out}];\n")
+               f"fontcolor={COLOR_RED}:fontsize=12:x=76:y=590[{label_out}];\n")
     else:
         fg += f"[bv2_body]copy[{label_out}];\n"
     return fg
 
 
 def _bv2_corner_brackets(label_in: str, label_out: str) -> str:
-    """Corner brackets in BV2 signal red."""
-    return (
-        f"[{label_in}]"
-        f"drawbox=x=0:y=0:w=40:h=4:color={BV2_SIGNAL_RED}:t=fill,"
-        f"drawbox=x=0:y=0:w=4:h=40:color={BV2_SIGNAL_RED}:t=fill,"
-        f"drawbox=x=1880:y=0:w=40:h=4:color={BV2_SIGNAL_RED}:t=fill,"
-        f"drawbox=x=1916:y=0:w=4:h=40:color={BV2_SIGNAL_RED}:t=fill,"
-        f"drawbox=x=0:y=1076:w=40:h=4:color={BV2_SIGNAL_RED}:t=fill,"
-        f"drawbox=x=0:y=1040:w=4:h=40:color={BV2_SIGNAL_RED}:t=fill,"
-        f"drawbox=x=1880:y=1076:w=40:h=4:color={BV2_SIGNAL_RED}:t=fill,"
-        f"drawbox=x=1916:y=1040:w=4:h=40:color={BV2_SIGNAL_RED}:t=fill"
-        f"[{label_out}];\n"
-    )
+    """APEX corner brackets — BD tactical signal red (#FF0000)."""
+    return _build_corner_brackets_fg(label_in, label_out)
 
 
-def _bv2_encode(inputs, fg, output_path, total_dur, label="bv2 scene"):
-    """Shared encode pipeline for BV2 scenes with music sidechain."""
-    has_bgm = os.path.exists(BG_MUSIC)
-    if has_bgm:
-        inputs.append(["-stream_loop", "-1", "-i", BG_MUSIC])
-        bgm_idx = len(inputs) - 1
-        fg += (f"[0:a]silenceremove=start_periods=1:start_duration=0.05:start_threshold=-50dB:"
-               f"stop_periods=-1:stop_duration=0.1:stop_threshold=-50dB,"
-               f"loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[bv2_tts];\n")
-        fg += (f"[{bgm_idx}:a]volume=0.126,afade=t=in:d=0.5,"
-               f"afade=t=out:st={max(0, total_dur - 1.0)}:d=1.0[bv2_music_raw];\n")
-        fg += f"[bv2_music_raw]asplit[bv2_mplay][bv2_msc];\n"
-        fg += f"[bv2_mplay][bv2_msc]sidechaincompress=threshold=0.02:ratio=6:attack=50:release=500[bv2_mducked];\n"
-        fg += f"[bv2_tts][bv2_mducked]amix=inputs=2:duration=first[outa]"
-    else:
-        fg += (f"[0:a]silenceremove=start_periods=1:start_duration=0.05:start_threshold=-50dB:"
-               f"stop_periods=-1:stop_duration=0.1:stop_threshold=-50dB,"
-               f"loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]")
+def _bv2_encode(inputs, fg, output_path, total_dur, label="bv2 scene",
+                audio_pad="[0:a]"):
+    """Shared encode pipeline for BV2 scenes — TTS only, no per-segment music.
+
+    APEX V2: Music is mixed ONCE continuously in concatenate_parts() after all
+    segments are joined. Individual segments render with clean TTS audio only.
+
+    audio_pad: the audio stream label to use (default [0:a]). Scenes that
+    pre-split audio via asplit should pass their output pad here.
+    """
+    fg += (f"{audio_pad}silenceremove=start_periods=1:start_duration=0.05:start_threshold=-50dB:"
+           f"stop_periods=-1:stop_duration=0.1:stop_threshold=-50dB,"
+           f"loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]")
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -873,11 +1006,15 @@ def _bv2_encode(inputs, fg, output_path, total_dur, label="bv2 scene"):
 def make_cold_open_scene(audio_path: str, headline: str, body: str, tag: str,
                           output_path: str, btc_price: str = "N/A",
                           duration: float = 0) -> str:
-    """BV2 Cold Open — left impact text + right ImpactMonitor panel."""
+    """APEX Cold Open — BD left impact panel + VDS 2x2 metric cards right."""
     audio_dur = ffprobe_duration(audio_path)
     if audio_dur <= 0:
         audio_dur = 5
     total_dur = duration if duration > 0 else audio_dur + 0.3
+
+    safe_head = _sanitize_text(headline)[:30]
+    safe_body = _word_wrap(_sanitize_text(body), max_width=38, max_lines=4) if body else ""
+    safe_btc = btc_price.replace("'", "").replace('"', "").replace("\\", "")
 
     inputs = [audio_path]
     _, bg_fg = _build_broadcast_bg(total_dur, label_out="bb_bg")
@@ -886,64 +1023,102 @@ def make_cold_open_scene(audio_path: str, headline: str, body: str, tag: str,
     # Top system bar
     fg += _build_top_system_bar("bb_bg", "bv2_bar", progress_pct=84)
 
-    # Left text zone
-    fg += _bv2_text_zone("bv2_bar", "bv2_txt", "BREAKING INTELLIGENCE", headline, body,
-                          tag or "REDLINE")
+    # LEFT PANEL (x=0,y=72,w=760,h=840) — BD structure
+    fg += (f"[bv2_bar]drawbox=x=0:y=72:w=760:h=840:color={COLOR_PANEL}@0.88:t=fill,"
+           # Red left border (BD)
+           f"drawbox=x=0:y=72:w=5:h=840:color={COLOR_RED}@0.9:t=fill,"
+           # GOLD eyebrow kicker (VDS) — only place gold appears
+           f"drawtext=fontfile={FONT_MONO}:text='BREAKING INTELLIGENCE':"
+           f"fontcolor={COLOR_GOLD}:fontsize=11:x=22:y=96,"
+           # White headline word 1 — large 72px (BD impact)
+           f"drawtext=fontfile={FONT_BOLD}:text='SIGNAL':"
+           f"fontcolor={COLOR_WHITE}:fontsize=72:x=18:y=118,"
+           # Red headline word 2
+           f"drawtext=fontfile={FONT_BOLD}:text='DETECTED':"
+           f"fontcolor={COLOR_RED}:fontsize=72:x=18:y=198,"
+           # Thin red divider
+           f"drawbox=x=20:y=290:w=720:h=1:color={COLOR_RED}@0.3:t=fill,"
+           # Body text (warm white mono)
+           f"drawtext=fontfile={FONT_MONO}:text='{safe_body}':"
+           f"fontcolor={COLOR_WHITE}@0.8:fontsize=18:x=22:y=310:line_spacing=8,"
+           # CTA pill
+           f"drawbox=x=20:y=560:w=460:h=44:color={COLOR_RED_DIM}@0.9:t=fill,"
+           f"drawtext=fontfile={FONT_MONO}:text='BREAKING INTELLIGENCE // INCOMING':"
+           f"fontcolor={COLOR_RED}:fontsize=13:x=34:y=574"
+           f"[co_left];\n")
 
-    # Right panel — ImpactMonitor (x=1120, y=90, w=760, h=900)
-    fg += (f"[bv2_txt]drawbox=x=1120:y=90:w=760:h=900:color={BV2_DEEP_PANEL}@0.92:t=fill,"
-           f"drawbox=x=1120:y=90:w=760:h=1:color=0xFFFFFF@0.08:t=fill,"
-           # Header
-           f"drawtext=fontfile={FONT_MONO}:text='PRESSURE SURFACE':"
-           f"fontcolor={BV2_SIGNAL_RED}:fontsize=11:x=1140:y=108,"
-           f"drawtext=fontfile={FONT_BOLD}:text='MARGIN SHOCK':"
-           f"fontcolor={BV2_STARK_WHITE}:fontsize=28:x=1140:y=126,"
-           # ACTIVE pill
-           f"drawbox=x=1720:y=108:w=80:h=24:color={BV2_SIGNAL_RED}@0.15:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='ACTIVE':"
-           f"fontcolor={BV2_SIGNAL_RED}:fontsize=11:x=1738:y=113"
-           f"[bv2_imp_hdr];\n")
-
-    # 4 metric sub-panels (2x2 grid)
-    metrics = [
-        ("HASH PRICE", "$54.2 PH", "▲", True),
-        ("DIFFICULTY", "+3.1 pct", "▲", True),
-        ("TREASURY", "$128M", "▲", True),
-        ("STRESS", "ELEVATED", "■", False),
+    # RIGHT PANEL — VDS 2x2 Metric Cards (x=780,y=100)
+    metrics_data = [
+        ("BTC PRICE", safe_btc, "+2.1 pct", True),
+        ("HASHRATE", "1,056 EH/s", "+4.2 pct", True),
+        ("ETF FLOW", "$340M", "+18 pct", True),
+        ("MARGIN", "42 pct", "-1.2 pct", False),
     ]
-    last = "bv2_imp_hdr"
-    for mi, (mlabel, mval, mindic, mgreen) in enumerate(metrics):
-        mx = 1136 + (mi % 2) * 370
-        my = 250 + (mi // 2) * 200
-        ic = BV2_EMERALD if mgreen else BV2_SIGNAL_RED
-        out = f"bv2_m{mi}"
-        fg += (f"[{last}]drawbox=x={mx}:y={my}:w=350:h=170:color=0x0a0a0a@0.9:t=fill,"
-               f"drawbox=x={mx}:y={my}:w=350:h=1:color=0xFFFFFF@0.06:t=fill,"
+    last = "co_left"
+    for mi, (mlabel, mval, mdelta, mpos) in enumerate(metrics_data):
+        mx = 780 + (mi % 2) * 540
+        my = 100 + (mi // 2) * 210
+        dc = COLOR_GREEN if mpos else COLOR_CORAL
+        accent = f"{COLOR_RED}@0.6" if mi > 0 else f"{COLOR_GOLD}@0.6"
+        out = f"co_card{mi}"
+        fg += (f"[{last}]drawbox=x={mx}:y={my}:w=520:h=190:color={COLOR_PANEL2}@0.95:t=fill,"
+               # Top accent line (gold for first card, red for rest)
+               f"drawbox=x={mx}:y={my}:w=520:h=3:color={accent}:t=fill,"
+               # Gold eyebrow label (VDS)
                f"drawtext=fontfile={FONT_MONO}:text='{mlabel}':"
-               f"fontcolor=0xFFFFFF@0.4:fontsize=11:x={mx+16}:y={my+16},"
+               f"fontcolor={COLOR_GOLD}:fontsize=11:x={mx+16}:y={my+14},"
+               # White metric value
                f"drawtext=fontfile={FONT_BOLD}:text='{mval}':"
-               f"fontcolor={BV2_STARK_WHITE}:fontsize=28:x={mx+16}:y={my+44},"
-               f"drawtext=fontfile={FONT_MONO}:text='{mindic}':"
-               f"fontcolor={ic}:fontsize=14:x={mx+16}:y={my+90}"
+               f"fontcolor={COLOR_WHITE}:fontsize=42:x={mx+16}:y={my+40},"
+               # Delta with emerald/coral
+               f"drawtext=fontfile={FONT_MONO}:text='{mdelta}':"
+               f"fontcolor={dc}:fontsize=13:x={mx+16}:y={my+100}"
                f"[{out}];\n")
         last = out
 
-    # Energy bar at bottom of panel
-    fg += (f"[{last}]drawbox=x=1136:y=920:w=728:h=16:color=0x0a0a0a:t=fill,"
-           f"drawbox=x=1136:y=920:w=611:h=16:color={BV2_SIGNAL_RED}@0.75:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='HEADLINE ENERGY 84pct':"
-           f"fontcolor=0xFFFFFF@0.4:fontsize=10:x=1136:y=944"
-           f"[bv2_co_panels];\n")
+    # Chart panel below cards (x=780,y=520,w=1100,h=380)
+    fg += (f"[{last}]drawbox=x=780:y=520:w=1100:h=380:color={COLOR_PANEL}@0.9:t=fill,"
+           f"drawbox=x=780:y=520:w=1100:h=1:color=0xFFFFFF@0.06:t=fill,"
+           # Gold label
+           f"drawtext=fontfile={FONT_MONO}:text='BTC NETWORK STRESS':"
+           f"fontcolor={COLOR_GOLD}:fontsize=11:x=800:y=538,"
+           # Model Active pill
+           f"drawbox=x=1720:y=534:w=120:h=24:color={COLOR_GOLD}@0.12:t=fill,"
+           f"drawtext=fontfile={FONT_MONO}:text='Model Active':"
+           f"fontcolor={COLOR_GOLD}:fontsize=10:x=1735:y=539"
+           f"[co_chart_hdr];\n")
+
+    # Stylized rising chart bars (red gradient)
+    chart_x_start = 820
+    chart_y_base = 850
+    chart_w = 1020
+    step_w = chart_w // 10
+    heights = [30, 45, 38, 60, 55, 72, 85, 78, 95, 110]
+    last_chart = "co_chart_hdr"
+    for ci, ch in enumerate(heights):
+        cx = chart_x_start + ci * step_w
+        cy = chart_y_base - ch
+        out_c = f"co_cbar{ci}"
+        fg += (f"[{last_chart}]drawbox=x={cx}:y={cy}:w={step_w-4}:h={ch}:"
+               f"color={COLOR_RED}@0.6:t=fill[{out_c}];\n")
+        last_chart = out_c
+
+    # Pulse dot at chart tip
+    fg += (f"[{last_chart}]drawbox=x={chart_x_start + 9*step_w + step_w//2 - 6}:"
+           f"y={chart_y_base - heights[-1] - 8}:w=12:h=12:"
+           f"color={COLOR_RED}:t=fill[co_chart_done];\n")
 
     # Corner brackets
-    fg += _bv2_corner_brackets("bv2_co_panels", "bv2_co_corners")
-    # Narration wave
-    fg += _build_narration_wave("bv2_co_corners", "bv2_co_wave")
+    fg += _build_corner_brackets_fg("co_chart_done", "co_corners")
+    # Narration wave (FIX 3: returns tuple with audio_out_pad)
+    wave_fg, co_audio_pad = _build_narration_wave("co_corners", "co_wave", "co_a_out")
+    fg += wave_fg
     # Info rail
-    fg += _build_signature_info_rail(total_dur, btc_price, "bv2_co_wave", "bv2_co_railed")
-    fg += f"[bv2_co_railed]format=yuv420p[outv];\n"
+    fg += _build_signature_info_rail(total_dur, btc_price, "co_wave", "co_railed")
+    fg += f"[co_railed]format=yuv420p[outv];\n"
 
-    return _bv2_encode(inputs, fg, output_path, total_dur, "BV2 cold open")
+    return _bv2_encode(inputs, fg, output_path, total_dur, "APEX cold open",
+                       audio_pad=co_audio_pad)
 
 
 # ── BV2 Scene 2: NARRATOR + PiP (SIGNATURE) ─────────────────────────────
@@ -952,7 +1127,7 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
                              speaker: str, next_speaker: str,
                              thumb_path: str, output_path: str,
                              btc_price: str = "N/A", duration: float = 0) -> str:
-    """BV2 Narrator + PiP — SIGNATURE SCENE with preview panel."""
+    """APEX Narrator + PiP — BEV2 architecture + BD tactical brackets on PiP."""
     audio_dur = ffprobe_duration(audio_path)
     if audio_dur <= 0:
         audio_dur = 5
@@ -971,64 +1146,87 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     _, bg_fg = _build_broadcast_bg(total_dur, label_out="bb_bg")
     fg = bg_fg
 
-    # Top system bar
     fg += _build_top_system_bar("bb_bg", "bv2_bar", progress_pct=67)
 
-    # Left text zone
-    fg += _bv2_text_zone("bv2_bar", "bv2_txt", f"NARRATIVE SETUP // {_sanitize_text(speaker)[:12]}",
-                          headline, body, "ORACLE NARRATION ACTIVE")
+    # Left text zone with gold eyebrow
+    safe_speaker = _sanitize_text(speaker)[:12]
+    safe_head = _sanitize_text(headline)[:40]
+    safe_body = _word_wrap(_sanitize_text(body), max_width=30, max_lines=3) if body else ""
+
+    fg += (f"[bv2_bar]drawtext=fontfile={FONT_MONO}:text='NARRATIVE SETUP // {safe_speaker}':"
+           f"fontcolor={COLOR_GOLD}:fontsize=13:x=64:y=100[np_eye];\n")
+    fg += (f"[np_eye]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
+           f"fontcolor=0x111111:fontsize=64:x=66:y=132,"
+           f"drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
+           f"fontcolor={COLOR_WHITE}:fontsize=64:x=64:y=130[np_head];\n")
+    if safe_body:
+        fg += (f"[np_head]drawtext=fontfile={FONT_MONO}:text='{safe_body}':"
+               f"fontcolor=0xFFFFFF@0.6:fontsize=18:x=64:y=420:line_spacing=8[np_body];\n")
+    else:
+        fg += f"[np_head]copy[np_body];\n"
+
+    # ORACLE NARRATION ACTIVE + Story Arc Locked pills
+    fg += (f"[np_body]drawbox=x=64:y=580:w=280:h=32:color={COLOR_RED}@0.15:t=fill,"
+           f"drawbox=x=64:y=580:w=280:h=32:color={COLOR_RED}@0.4:t=2,"
+           f"drawtext=fontfile={FONT_MONO}:text='ORACLE NARRATION ACTIVE':"
+           f"fontcolor={COLOR_RED}:fontsize=12:x=76:y=590,"
+           f"drawbox=x=64:y=620:w=200:h=28:color={COLOR_RED}@0.1:t=fill,"
+           f"drawbox=x=64:y=620:w=200:h=28:color={COLOR_RED}@0.3:t=2,"
+           f"drawtext=fontfile={FONT_MONO}:text='Story Arc Locked':"
+           f"fontcolor={COLOR_RED}:fontsize=11:x=80:y=628"
+           f"[np_pills];\n")
 
     # Right PiP preview panel (x=1120, y=140, w=740, h=500)
-    fg += (f"[bv2_txt]drawbox=x=1120:y=140:w=740:h=500:color={BV2_DEEP_PANEL}@0.92:t=fill,"
+    # Gold eyebrow above PiP
+    fg += (f"[np_pills]drawtext=fontfile={FONT_MONO}:text='COMING UP NEXT':"
+           f"fontcolor={COLOR_GOLD}:fontsize=11:x=1140:y=122[np_pip_eye];\n")
+    fg += (f"[np_pip_eye]drawbox=x=1120:y=140:w=740:h=500:color={COLOR_PANEL}@0.92:t=fill,"
            f"drawbox=x=1120:y=140:w=740:h=1:color=0xFFFFFF@0.1:t=fill,"
            f"drawbox=x=1120:y=639:w=740:h=1:color=0xFFFFFF@0.1:t=fill,"
-           # Header
-           f"drawtext=fontfile={FONT_MONO}:text='COMING UP NEXT':"
-           f"fontcolor={BV2_SIGNAL_RED}:fontsize=11:x=1140:y=152,"
            f"drawtext=fontfile={FONT_MONO}:text='Muted Preview':"
            f"fontcolor=0xFFFFFF@0.35:fontsize=11:x=1720:y=152"
-           f"[bv2_pip_hdr];\n")
+           f"[np_pip_hdr];\n")
 
     # Thumbnail or placeholder inside preview box
     if has_thumb and thumb_idx >= 0:
         fg += (f"[{thumb_idx}:v]scale=716:370:force_original_aspect_ratio=increase,"
-               f"crop=716:370,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS[bv2_thumb];\n")
-        fg += f"[bv2_pip_hdr][bv2_thumb]overlay=1132:200[bv2_pip_thumb];\n"
-        pip_base = "bv2_pip_thumb"
+               f"crop=716:370,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS[np_thumb];\n")
+        fg += f"[np_pip_hdr][np_thumb]overlay=1132:200[np_pip_thumb];\n"
+        pip_base = "np_pip_thumb"
     else:
-        # Dark placeholder with gradient boxes simulating silhouette
-        fg += (f"[bv2_pip_hdr]drawbox=x=1132:y=200:w=716:h=370:color=0x080808:t=fill,"
+        fg += (f"[np_pip_hdr]drawbox=x=1132:y=200:w=716:h=370:color=0x080808:t=fill,"
                f"drawbox=x=1400:y=280:w=180:h=220:color=0x111111:t=fill"
-               f"[bv2_pip_placeholder];\n")
-        pip_base = "bv2_pip_placeholder"
+               f"[np_pip_placeholder];\n")
+        pip_base = "np_pip_placeholder"
 
-    # Lower third in preview: speaker name
+    # Lower third in preview
     safe_next = _sanitize_text(next_speaker)[:30] if next_speaker else "NEXT SOURCE"
     fg += (f"[{pip_base}]drawbox=x=1132:y=520:w=716:h=50:color=0x000000@0.7:t=fill,"
            f"drawtext=fontfile={FONT_BOLD}:text='{safe_next}':"
-           f"fontcolor={BV2_STARK_WHITE}:fontsize=18:x=1148:y=534,"
-           # Preview Active pill
-           f"drawbox=x=1720:y=528:w=110:h=24:color={BV2_SIGNAL_RED}@0.12:t=fill,"
+           f"fontcolor={COLOR_WHITE}:fontsize=18:x=1148:y=534,"
+           f"drawbox=x=1720:y=528:w=110:h=24:color={COLOR_RED}@0.12:t=fill,"
            f"drawtext=fontfile={FONT_MONO}:text='Preview Active':"
-           f"fontcolor={BV2_SIGNAL_RED}:fontsize=10:x=1730:y=533"
-           f"[bv2_pip_final];\n")
+           f"fontcolor={COLOR_RED}:fontsize=10:x=1730:y=533,"
+           # BD tactical mini corner brackets on PiP frame (16px)
+           f"drawbox=x=1120:y=140:w=16:h=3:color={COLOR_RED}:t=fill,"
+           f"drawbox=x=1120:y=140:w=3:h=16:color={COLOR_RED}:t=fill,"
+           f"drawbox=x=1844:y=140:w=16:h=3:color={COLOR_RED}:t=fill,"
+           f"drawbox=x=1857:y=140:w=3:h=16:color={COLOR_RED}:t=fill,"
+           f"drawbox=x=1120:y=637:w=16:h=3:color={COLOR_RED}:t=fill,"
+           f"drawbox=x=1120:y=624:w=3:h=16:color={COLOR_RED}:t=fill,"
+           f"drawbox=x=1844:y=637:w=16:h=3:color={COLOR_RED}:t=fill,"
+           f"drawbox=x=1857:y=624:w=3:h=16:color={COLOR_RED}:t=fill"
+           f"[np_pip_final];\n")
 
-    # Status pills below left text
-    fg += (f"[bv2_pip_final]drawbox=x=64:y=650:w=280:h=28:color={BV2_SIGNAL_RED}@0.1:t=fill,"
-           f"drawbox=x=64:y=650:w=280:h=28:color={BV2_SIGNAL_RED}@0.3:t=2,"
-           f"drawtext=fontfile={FONT_MONO}:text='Story Arc Locked':"
-           f"fontcolor={BV2_SIGNAL_RED}:fontsize=11:x=80:y=658"
-           f"[bv2_np_pills];\n")
+    # Corner brackets (main frame)
+    fg += _build_corner_brackets_fg("np_pip_final", "np_corners")
+    wave_fg, np_audio_pad = _build_narration_wave("np_corners", "np_wave", "np_a_out")
+    fg += wave_fg
+    fg += _build_signature_info_rail(total_dur, btc_price, "np_wave", "np_railed")
+    fg += f"[np_railed]format=yuv420p[outv];\n"
 
-    # Corner brackets
-    fg += _bv2_corner_brackets("bv2_np_pills", "bv2_np_corners")
-    # Narration wave
-    fg += _build_narration_wave("bv2_np_corners", "bv2_np_wave")
-    # Info rail
-    fg += _build_signature_info_rail(total_dur, btc_price, "bv2_np_wave", "bv2_np_railed")
-    fg += f"[bv2_np_railed]format=yuv420p[outv];\n"
-
-    return _bv2_encode(inputs, fg, output_path, total_dur, "BV2 narrator+pip")
+    return _bv2_encode(inputs, fg, output_path, total_dur, "APEX narrator+pip",
+                       audio_pad=np_audio_pad)
 
 
 # ── BV2 Scene 3: PARTNER CLIP ───────────────────────────────────────────
@@ -1036,7 +1234,7 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
 def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
                              quote: str, output_path: str,
                              btc_price: str = "N/A", duration: float = 0) -> str:
-    """BV2 Partner Clip — restraint mode. Full-frame B-roll, premium lower-third."""
+    """APEX Partner Clip — BEV2 restraint. Full-frame, premium lower-third, no competing animations."""
     clip_dur = ffprobe_duration(video_path)
     if clip_dur <= 0:
         logger.warning(f"Partner clip has zero duration: {video_path}")
@@ -1053,37 +1251,32 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
     fg = ""
     # Full frame clip
     fg += (f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,"
-           f"setsar=1,fps=30,fade=t=in:d=0.3,fade=t=out:st={fade_out_start}:d=0.5[bv2_clip];\n")
-    # Red border frame
-    fg += (f"[bv2_clip]drawbox=x=0:y=0:w=1920:h=2:color={BV2_SIGNAL_RED}@0.7:t=fill,"
-           f"drawbox=x=0:y=1078:w=1920:h=2:color={BV2_SIGNAL_RED}@0.7:t=fill,"
-           f"drawbox=x=0:y=0:w=2:h=1080:color={BV2_SIGNAL_RED}@0.7:t=fill,"
-           f"drawbox=x=1918:y=0:w=2:h=1080:color={BV2_SIGNAL_RED}@0.7:t=fill[bv2_clip_framed];\n")
-    # Top-right watermark
-    fg += (f"[bv2_clip_framed]drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
-           f"fontcolor=0xFFFFFF@0.4:fontsize=14:x=W-text_w-24:y=18[bv2_clip_wm];\n")
-    # Corner brackets
-    fg += _bv2_corner_brackets("bv2_clip_wm", "bv2_clip_corners")
-    # Premium lower-third
-    fg += (f"[bv2_clip_corners]drawbox=x=0:y=870:w=800:h=110:color=0x000000@0.88:t=fill,"
-           # Red top accent line
-           f"drawbox=x=0:y=870:w=800:h=4:color={BV2_SIGNAL_RED}:t=fill,"
-           # Guest kicker
-           f"drawtext=fontfile={FONT_MONO}:text='GUEST SOURCE - HIGH SIGNAL':"
-           f"fontcolor={BV2_SIGNAL_RED}:fontsize=11:x=24:y=882,"
-           # Speaker name
+           f"setsar=1,fps=30,fade=t=in:d=0.3,fade=t=out:st={fade_out_start}:d=0.5[pc_clip];\n")
+    # Red border frame (2px)
+    fg += (f"[pc_clip]drawbox=x=0:y=0:w=1920:h=2:color={COLOR_RED}@0.75:t=fill,"
+           f"drawbox=x=0:y=1078:w=1920:h=2:color={COLOR_RED}@0.75:t=fill,"
+           f"drawbox=x=0:y=0:w=2:h=1080:color={COLOR_RED}@0.75:t=fill,"
+           f"drawbox=x=1918:y=0:w=2:h=1080:color={COLOR_RED}@0.75:t=fill[pc_framed];\n")
+    # Top-right watermark (red, 18px, 60% opacity)
+    fg += (f"[pc_framed]drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
+           f"fontcolor={COLOR_RED}@0.6:fontsize=18:x=W-text_w-24:y=18[pc_wm];\n")
+    # BD corner brackets
+    fg += _build_corner_brackets_fg("pc_wm", "pc_corners")
+    # Glass lower-third with red top accent
+    fg += (f"[pc_corners]drawbox=x=0:y=870:w=800:h=110:color=0x000000@0.88:t=fill,"
+           f"drawbox=x=0:y=870:w=800:h=4:color={COLOR_RED}:t=fill,"
+           # Speaker name (bold 26px)
            f"drawtext=fontfile={FONT_BOLD}:text='{safe_speaker}':"
-           f"fontcolor={BV2_STARK_WHITE}:fontsize=26:x=24:y=900,"
-           # Quote
+           f"fontcolor={COLOR_WHITE}:fontsize=26:x=24:y=890,"
+           # Source info
            f"drawtext=fontfile={FONT_MONO}:text='{safe_quote}':"
-           f"fontcolor=0xFFFFFF@0.6:fontsize=16:x=24:y=938,"
-           # Timestamp
+           f"fontcolor=0xFFFFFF@0.6:fontsize=16:x=24:y=928,"
            f"drawtext=fontfile={FONT_MONO}:text='{ts_str}':"
-           f"fontcolor=0xFFFFFF@0.35:fontsize=11:x=740:y=882"
-           f"[bv2_clip_lt];\n")
-    # Ticker rail
-    fg += _build_signature_info_rail(clip_dur, btc_price, "bv2_clip_lt", "bv2_clip_railed")
-    fg += (f"[bv2_clip_railed]format=yuv420p[outv];\n"
+           f"fontcolor=0xFFFFFF@0.35:fontsize=11:x=740:y=878"
+           f"[pc_lt];\n")
+    # Info rail (always present)
+    fg += _build_signature_info_rail(clip_dur, btc_price, "pc_lt", "pc_railed")
+    fg += (f"[pc_railed]format=yuv420p[outv];\n"
            # Audio: preserve original, normalize
            f"[0:a]asetpts=PTS-STARTPTS,"
            f"highpass=f=50,lowpass=f=15000,loudnorm=I=-14:TP=-1.5:LRA=7,"
@@ -1094,7 +1287,7 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
         ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
          "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k"],
-        output_path, f"BV2 partner clip ({safe_speaker})",
+        output_path, f"APEX partner clip ({safe_speaker})",
     )
     return output_path if ok else ""
 
@@ -1104,7 +1297,7 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
 def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
                              output_path: str, btc_price: str = "N/A",
                              duration: float = 0) -> str:
-    """BV2 Data Segment — left text + 2x2 metric cards + right chart panel."""
+    """APEX Data Segment — gold eyebrow cards + emerald/coral deltas + chart."""
     audio_dur = ffprobe_duration(audio_path)
     if audio_dur <= 0:
         audio_dur = 5
@@ -1115,9 +1308,23 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
     fg = bg_fg
 
     fg += _build_top_system_bar("bb_bg", "bv2_bar", progress_pct=72)
-    fg += _bv2_text_zone("bv2_bar", "bv2_txt", "MARKET STRUCTURE", headline, "", "ANALYTICS")
 
-    # 2x2 metric card grid (x=64, y=460, w=700, h=300)
+    # Left text zone with gold eyebrow
+    safe_head = _sanitize_text(headline)[:40]
+    fg += (f"[bv2_bar]drawtext=fontfile={FONT_MONO}:text='MARKET STRUCTURE':"
+           f"fontcolor={COLOR_GOLD}:fontsize=13:x=64:y=100[ds_eye];\n")
+    fg += (f"[ds_eye]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
+           f"fontcolor=0x111111:fontsize=64:x=66:y=132,"
+           f"drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
+           f"fontcolor={COLOR_WHITE}:fontsize=64:x=64:y=130,"
+           # ANALYTICS tag pill
+           f"drawbox=x=64:y=580:w=220:h=32:color={COLOR_RED}@0.15:t=fill,"
+           f"drawbox=x=64:y=580:w=220:h=32:color={COLOR_RED}@0.4:t=2,"
+           f"drawtext=fontfile={FONT_MONO}:text='ANALYTICS':"
+           f"fontcolor={COLOR_RED}:fontsize=12:x=76:y=590"
+           f"[ds_txt];\n")
+
+    # 2x2 metric card grid with gold eyebrow labels (VDS)
     default_metrics = [
         ("BTC", btc_price, "+2.1 pct", True),
         ("HASHRATE", "1,056 EH/s", "+4.2 pct", True),
@@ -1141,70 +1348,97 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
     if len(use_metrics) < 4:
         use_metrics = default_metrics
 
-    last = "bv2_txt"
+    last = "ds_txt"
     for mi, (mlabel, mval, mdelta, mpos) in enumerate(use_metrics):
         mx = 64 + (mi % 2) * 360
         my = 460 + (mi // 2) * 160
-        dc = BV2_EMERALD if mpos else BV2_SIGNAL_RED
-        out = f"bv2_dm{mi}"
-        fg += (f"[{last}]drawbox=x={mx}:y={my}:w=340:h=140:color=0x0a0a0a@0.9:t=fill,"
-               f"drawbox=x={mx}:y={my}:w=340:h=1:color=0xFFFFFF@0.06:t=fill,"
+        dc = COLOR_GREEN if mpos else COLOR_CORAL
+        out = f"ds_dm{mi}"
+        fg += (f"[{last}]drawbox=x={mx}:y={my}:w=340:h=140:color={COLOR_PANEL2}@0.95:t=fill,"
+               f"drawbox=x={mx}:y={my}:w=340:h=3:color={COLOR_RED}@0.5:t=fill,"
+               # Gold eyebrow label (VDS)
                f"drawtext=fontfile={FONT_MONO}:text='{mlabel}':"
-               f"fontcolor=0xFFFFFF@0.4:fontsize=11:x={mx+16}:y={my+14},"
+               f"fontcolor={COLOR_GOLD}:fontsize=11:x={mx+16}:y={my+14},"
                f"drawtext=fontfile={FONT_BOLD}:text='{mval}':"
-               f"fontcolor={BV2_STARK_WHITE}:fontsize=28:x={mx+16}:y={my+38},"
+               f"fontcolor={COLOR_WHITE}:fontsize=28:x={mx+16}:y={my+38},"
+               # Emerald/coral delta (VDS)
                f"drawtext=fontfile={FONT_MONO}:text='{mdelta}':"
                f"fontcolor={dc}:fontsize=13:x={mx+16}:y={my+80}"
                f"[{out}];\n")
         last = out
 
-    # Right chart panel (x=1120, y=90, w=760, h=820)
-    fg += (f"[{last}]drawbox=x=1120:y=90:w=760:h=820:color={BV2_DEEP_PANEL}@0.92:t=fill,"
-           f"drawbox=x=1120:y=90:w=760:h=1:color=0xFFFFFF@0.08:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='BTC NETWORK STRESS':"
-           f"fontcolor={BV2_SIGNAL_RED}:fontsize=11:x=1140:y=108,"
-           # Model Active pill
-           f"drawbox=x=1720:y=105:w=100:h=24:color={BV2_SIGNAL_RED}@0.12:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='Model Active':"
-           f"fontcolor={BV2_SIGNAL_RED}:fontsize=10:x=1732:y=110"
-           f"[bv2_chart_hdr];\n")
+    # FIX 5: Try TradingView chart screenshot, fallback to static bars
+    tv_chart_path = ""
+    try:
+        from chart_capture import get_chart
+        tv_chart_path = get_chart("btc_usd_1d")
+    except Exception as e:
+        logger.warning(f"  TradingView chart capture unavailable: {e}")
 
-    # Stylized rising line chart (10 stepped drawbox segments)
-    chart_x_start = 1160
-    chart_y_base = 800
-    chart_w = 680
-    step_w = chart_w // 10
-    # Approximate upward trend
-    heights = [30, 45, 38, 60, 55, 72, 85, 78, 95, 110]
-    last_chart = "bv2_chart_hdr"
-    for ci, ch in enumerate(heights):
-        cx = chart_x_start + ci * step_w
-        cy = chart_y_base - ch
-        out_c = f"bv2_cbar{ci}"
-        fg += (f"[{last_chart}]drawbox=x={cx}:y={cy}:w={step_w-4}:h={ch}:"
-               f"color={BV2_SIGNAL_RED}@0.6:t=fill[{out_c}];\n")
-        last_chart = out_c
+    if tv_chart_path and os.path.exists(tv_chart_path):
+        # Live TradingView chart overlay
+        inputs.append(tv_chart_path)
+        chart_input_idx = len(inputs) - 1
+        fg += (f"[{last}]drawbox=x=1120:y=90:w=760:h=820:color={COLOR_PANEL}@0.92:t=fill,"
+               f"drawbox=x=1120:y=90:w=760:h=1:color=0xFFFFFF@0.08:t=fill,"
+               f"drawtext=fontfile={FONT_MONO}:text='TRADINGVIEW // BTCUSD 1D':"
+               f"fontcolor={COLOR_GOLD}:fontsize=11:x=1140:y=108,"
+               f"drawbox=x=1720:y=105:w=100:h=24:color={COLOR_GREEN}@0.15:t=fill,"
+               f"drawtext=fontfile={FONT_MONO}:text='LIVE CHART':"
+               f"fontcolor={COLOR_GREEN}:fontsize=10:x=1732:y=110"
+               f"[ds_chart_hdr];\n")
+        fg += (f"[{chart_input_idx}:v]scale=740:700:force_original_aspect_ratio=decrease,"
+               f"pad=740:700:(ow-iw)/2:(oh-ih)/2:color=0x050607[ds_tv_chart];\n")
+        fg += f"[ds_chart_hdr][ds_tv_chart]overlay=1130:130[ds_chart_done];\n"
+    else:
+        # Fallback: static FFmpeg chart bars
+        fg += (f"[{last}]drawbox=x=1120:y=90:w=760:h=820:color={COLOR_PANEL}@0.92:t=fill,"
+               f"drawbox=x=1120:y=90:w=760:h=1:color=0xFFFFFF@0.08:t=fill,"
+               f"drawtext=fontfile={FONT_MONO}:text='BTC NETWORK STRESS':"
+               f"fontcolor={COLOR_GOLD}:fontsize=11:x=1140:y=108,"
+               f"drawbox=x=1720:y=105:w=100:h=24:color={COLOR_GOLD}@0.12:t=fill,"
+               f"drawtext=fontfile={FONT_MONO}:text='Model Active':"
+               f"fontcolor={COLOR_GOLD}:fontsize=10:x=1732:y=110"
+               f"[ds_chart_hdr];\n")
+        chart_x_start = 1160
+        chart_y_base = 800
+        chart_w = 680
+        step_w = chart_w // 10
+        heights = [30, 45, 38, 60, 55, 72, 85, 78, 95, 110]
+        last_chart = "ds_chart_hdr"
+        for ci, ch in enumerate(heights):
+            cx = chart_x_start + ci * step_w
+            cy = chart_y_base - ch
+            out_c = f"ds_cbar{ci}"
+            fg += (f"[{last_chart}]drawbox=x={cx}:y={cy}:w={step_w-4}:h={ch}:"
+                   f"color={COLOR_RED}@0.6:t=fill[{out_c}];\n")
+            last_chart = out_c
+        fg += (f"[{last_chart}]drawbox=x={chart_x_start + 9*step_w + step_w//2 - 6}:"
+               f"y={chart_y_base - heights[-1] - 8}:w=12:h=12:"
+               f"color={COLOR_RED}:t=fill[ds_chart_done];\n")
 
-    # Pulse dot at chart tip
-    fg += (f"[{last_chart}]drawbox=x={chart_x_start + 9*step_w + step_w//2 - 6}:"
-           f"y={chart_y_base - heights[-1] - 8}:w=12:h=12:"
-           f"color={BV2_SIGNAL_RED}:t=fill[bv2_chart_done];\n")
+    fg += _build_corner_brackets_fg("ds_chart_done", "ds_corners")
+    wave_fg, ds_audio_pad = _build_narration_wave("ds_corners", "ds_wave", "ds_a_out")
+    fg += wave_fg
+    fg += _build_signature_info_rail(total_dur, btc_price, "ds_wave", "ds_railed")
+    fg += f"[ds_railed]format=yuv420p[outv];\n"
 
-    # Corner brackets
-    fg += _bv2_corner_brackets("bv2_chart_done", "bv2_ds_corners")
-    fg += _build_narration_wave("bv2_ds_corners", "bv2_ds_wave")
-    fg += _build_signature_info_rail(total_dur, btc_price, "bv2_ds_wave", "bv2_ds_railed")
-    fg += f"[bv2_ds_railed]format=yuv420p[outv];\n"
-
-    return _bv2_encode(inputs, fg, output_path, total_dur, "BV2 data segment")
+    return _bv2_encode(inputs, fg, output_path, total_dur, "APEX data segment",
+                       audio_pad=ds_audio_pad)
 
 
 # ── BV2 Scene 5: SOCIAL STACK ───────────────────────────────────────────
 
 def make_social_stack_scene(audio_path: str, headline: str, social_cards: list,
                              output_path: str, btc_price: str = "N/A",
-                             duration: float = 0) -> str:
-    """BV2 Social Stack — header + 3-column conviction cards."""
+                             duration: float = 0,
+                             card_timings: list = None) -> str:
+    """APEX Social Stack — FIX 4: cards LOCKED to TTS timing.
+
+    Cards appear/disappear synchronized with narration. Each card is visible
+    only during its time slice. Active card: red border + full opacity.
+    Past/future cards: dim panel + muted opacity.
+    """
     audio_dur = ffprobe_duration(audio_path)
     if audio_dur <= 0:
         audio_dur = 5
@@ -1216,70 +1450,92 @@ def make_social_stack_scene(audio_path: str, headline: str, social_cards: list,
 
     fg += _build_top_system_bar("bb_bg", "bv2_bar", progress_pct=58)
 
-    # Header zone
+    # Header zone with gold eyebrow
     fg += (f"[bv2_bar]drawtext=fontfile={FONT_MONO}:text='SIGNAL LAYER':"
-           f"fontcolor={BV2_SIGNAL_RED}:fontsize=13:x=64:y=100,"
+           f"fontcolor={COLOR_GOLD}:fontsize=13:x=64:y=100,"
            f"drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(headline)[:40]}':"
-           f"fontcolor={BV2_STARK_WHITE}:fontsize=48:x=64:y=130,"
+           f"fontcolor={COLOR_WHITE}:fontsize=48:x=64:y=130,"
            f"drawtext=fontfile={FONT_MONO}:text='Bitcoin Social Conviction Index':"
            f"fontcolor=0xFFFFFF@0.5:fontsize=16:x=64:y=200"
-           f"[bv2_ss_hdr];\n")
+           f"[ss_hdr];\n")
 
-    # Default social cards if none provided
     default_cards = [
         {"name": "Signal Source", "handle": "@signal", "score": "96", "text": "Bitcoin conviction remains extremely high", "tag": "HIGH CONVICTION"},
         {"name": "Market Intel", "handle": "@intel", "score": "84", "text": "Structural demand continues to build", "tag": "STRUCTURAL"},
         {"name": "Macro Watch", "handle": "@macro", "score": "72", "text": "Global liquidity conditions favor BTC", "tag": "MACRO SIGNAL"},
     ]
     cards = social_cards[:3] if social_cards and len(social_cards) >= 1 else default_cards
-    # Pad to 3 if needed
     while len(cards) < 3:
         cards.append(default_cards[len(cards) % 3])
 
+    n_cards = min(len(cards), 3)
+
+    # FIX 4: Calculate per-card timing — divide narration evenly across cards
+    if card_timings and len(card_timings) >= n_cards:
+        timings = card_timings[:n_cards]
+    else:
+        tpc = total_dur / n_cards if n_cards > 0 else total_dur
+        timings = [(i * tpc, (i + 1) * tpc) for i in range(n_cards)]
+
     tags = ["HIGH CONVICTION", "STRUCTURAL", "MACRO SIGNAL"]
-    last = "bv2_ss_hdr"
-    for ci, card in enumerate(cards):
+    last = "ss_hdr"
+    for ci, card in enumerate(cards[:n_cards]):
         cx = 64 + ci * 608
         cy = 300
         cw = 580
         ch = 620
-        border_color = f"{BV2_SIGNAL_RED}@0.4" if ci == 0 else "0xFFFFFF@0.08"
+
+        t_start, t_end = timings[ci]
+        # FIX 4: Active card = red border + full text; inactive = dim panel
+        # Use enable expressions for active state highlighting
+        active_enable = f"enable='between(t,{t_start:.2f},{t_end:.2f})'"
+        inactive_enable = f"enable='not(between(t,{t_start:.2f},{t_end:.2f}))'"
+
         name = _sanitize_text(str(card.get("name", card.get("handle", "Source"))))[:20]
         handle = _sanitize_text(str(card.get("handle", "@source")))[:20]
         score = str(card.get("score", card.get("likes", "80")))[:6]
         ctext = _word_wrap(_sanitize_text(str(card.get("text", ""))), max_width=24, max_lines=4)
         ctag = _sanitize_text(str(card.get("tag", tags[ci % 3])))[:20]
 
-        out = f"bv2_sc{ci}"
-        fg += (f"[{last}]drawbox=x={cx}:y={cy}:w={cw}:h={ch}:color={BV2_DEEP_PANEL}@0.92:t=fill,"
-               f"drawbox=x={cx}:y={cy}:w={cw}:h={ch}:color={border_color}:t=2,"
-               # Avatar circle placeholder
-               f"drawbox=x={cx+24}:y={cy+24}:w=44:h=44:color={BV2_SIGNAL_RED}@0.5:t=fill,"
+        out = f"ss_sc{ci}"
+        # Card background (always visible but dimmed when inactive)
+        fg += (f"[{last}]drawbox=x={cx}:y={cy}:w={cw}:h={ch}:color={COLOR_PANEL}@0.92:t=fill,"
+               # Active: red border
+               f"drawbox=x={cx}:y={cy}:w={cw}:h={ch}:color={COLOR_RED}@0.4:t=2:{active_enable},"
+               # Inactive: subtle white border
+               f"drawbox=x={cx}:y={cy}:w={cw}:h={ch}:color=0xFFFFFF@0.08:t=2:{inactive_enable},"
+               # Avatar placeholder
+               f"drawbox=x={cx+24}:y={cy+24}:w=44:h=44:color={COLOR_RED}@0.5:t=fill,"
                # Name
                f"drawtext=fontfile={FONT_BOLD}:text='{name}':"
-               f"fontcolor={BV2_STARK_WHITE}:fontsize=16:x={cx+80}:y={cy+28},"
+               f"fontcolor={COLOR_WHITE}:fontsize=16:x={cx+80}:y={cy+28},"
                # Handle
                f"drawtext=fontfile={FONT_MONO}:text='{handle}':"
                f"fontcolor=0xFFFFFF@0.35:fontsize=12:x={cx+80}:y={cy+50},"
-               # Score pill
-               f"drawbox=x={cx+cw-90}:y={cy+28}:w=70:h=24:color={BV2_SIGNAL_RED}@0.12:t=fill,"
+               # VDS gold score badge
+               f"drawbox=x={cx+cw-90}:y={cy+28}:w=70:h=24:color={COLOR_GOLD}@0.15:t=fill,"
                f"drawtext=fontfile={FONT_MONO}:text='{score} / 100':"
-               f"fontcolor={BV2_SIGNAL_RED}:fontsize=11:x={cx+cw-84}:y={cy+34},"
+               f"fontcolor={COLOR_GOLD}:fontsize=11:x={cx+cw-84}:y={cy+34},"
                # Quote text
                f"drawtext=fontfile={FONT_BOLD}:text='{ctext}':"
-               f"fontcolor={BV2_STARK_WHITE}:fontsize=20:x={cx+24}:y={cy+100}:line_spacing=10,"
-               # Tag label
+               f"fontcolor={COLOR_WHITE}:fontsize=20:x={cx+24}:y={cy+100}:line_spacing=10,"
+               # VDS gold tag label at bottom
                f"drawtext=fontfile={FONT_MONO}:text='{ctag}':"
-               f"fontcolor={BV2_SIGNAL_RED}:fontsize=11:x={cx+24}:y={cy+ch-36}"
+               f"fontcolor={COLOR_GOLD}:fontsize=11:x={cx+24}:y={cy+ch-36},"
+               # Active indicator: "ACTIVE" tag when card is current
+               f"drawtext=fontfile={FONT_MONO}:text='ACTIVE':"
+               f"fontcolor={COLOR_RED}:fontsize=11:x={cx+cw-70}:y={cy+ch-36}:{active_enable}"
                f"[{out}];\n")
         last = out
 
-    fg += _bv2_corner_brackets(last, "bv2_ss_corners")
-    fg += _build_narration_wave("bv2_ss_corners", "bv2_ss_wave")
-    fg += _build_signature_info_rail(total_dur, btc_price, "bv2_ss_wave", "bv2_ss_railed")
-    fg += f"[bv2_ss_railed]format=yuv420p[outv];\n"
+    fg += _build_corner_brackets_fg(last, "ss_corners")
+    wave_fg, ss_audio_pad = _build_narration_wave("ss_corners", "ss_wave", "ss_a_out")
+    fg += wave_fg
+    fg += _build_signature_info_rail(total_dur, btc_price, "ss_wave", "ss_railed")
+    fg += f"[ss_railed]format=yuv420p[outv];\n"
 
-    return _bv2_encode(inputs, fg, output_path, total_dur, "BV2 social stack")
+    return _bv2_encode(inputs, fg, output_path, total_dur, "APEX social stack",
+                       audio_pad=ss_audio_pad)
 
 
 # ── BV2 Scene 6: WRAP / VERDICT ─────────────────────────────────────────
@@ -1287,56 +1543,133 @@ def make_social_stack_scene(audio_path: str, headline: str, social_cards: list,
 def make_wrap_scene(audio_path: str, headline: str, body: str,
                      output_path: str, btc_price: str = "N/A",
                      duration: float = 0) -> str:
-    """BV2 Wrap — resolved energy + Signal Wave panel."""
+    """APEX Wrap — BEV2 waveform + BD episode segments tracker + gold accents."""
     audio_dur = ffprobe_duration(audio_path)
     if audio_dur <= 0:
         audio_dur = 5
     total_dur = duration if duration > 0 else audio_dur + 0.3
+
+    safe_head = _sanitize_text(headline)[:40]
+    safe_body = _word_wrap(_sanitize_text(body), max_width=30, max_lines=3) if body else ""
 
     inputs = [audio_path]
     _, bg_fg = _build_broadcast_bg(total_dur, label_out="bb_bg")
     fg = bg_fg
 
     fg += _build_top_system_bar("bb_bg", "bv2_bar", progress_pct=100)
-    fg += _bv2_text_zone("bv2_bar", "bv2_txt", "FINAL TAKE", headline, body, "RESOLVE")
 
-    # Right Signal Wave panel (x=1120, y=140, w=740, h=680)
-    fg += (f"[bv2_txt]drawbox=x=1120:y=140:w=740:h=680:color={BV2_DEEP_PANEL}@0.92:t=fill,"
+    # Left text zone with gold eyebrow
+    fg += (f"[bv2_bar]drawtext=fontfile={FONT_MONO}:text='FINAL TAKE':"
+           f"fontcolor={COLOR_GOLD}:fontsize=13:x=64:y=100[wr_eye];\n")
+    fg += (f"[wr_eye]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
+           f"fontcolor=0x111111:fontsize=64:x=66:y=132,"
+           f"drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
+           f"fontcolor={COLOR_WHITE}:fontsize=64:x=64:y=130[wr_head];\n")
+    if safe_body:
+        fg += (f"[wr_head]drawtext=fontfile={FONT_MONO}:text='{safe_body}':"
+               f"fontcolor=0xFFFFFF@0.6:fontsize=18:x=64:y=420:line_spacing=8[wr_body];\n")
+    else:
+        fg += f"[wr_head]copy[wr_body];\n"
+    fg += (f"[wr_body]drawbox=x=64:y=580:w=220:h=32:color={COLOR_RED}@0.15:t=fill,"
+           f"drawbox=x=64:y=580:w=220:h=32:color={COLOR_RED}@0.4:t=2,"
+           f"drawtext=fontfile={FONT_MONO}:text='RESOLVE':"
+           f"fontcolor={COLOR_RED}:fontsize=12:x=76:y=590[wr_txt];\n")
+
+    # Right Signal Wave panel (x=1120, y=140, w=740, h=500)
+    fg += (f"[wr_txt]drawbox=x=1120:y=140:w=740:h=500:color={COLOR_PANEL}@0.92:t=fill,"
            f"drawbox=x=1120:y=140:w=740:h=1:color=0xFFFFFF@0.08:t=fill,"
            f"drawtext=fontfile={FONT_MONO}:text='Signal Wave':"
-           f"fontcolor={BV2_SIGNAL_RED}:fontsize=11:x=1140:y=158"
-           f"[bv2_wrap_panel];\n")
+           f"fontcolor={COLOR_GOLD}:fontsize=11:x=1140:y=158"
+           f"[wr_panel];\n")
+    # FIX 3: Single asplit for ALL audio consumers in wrap scene
+    # 1=big waveform, 2+3=narration wave (primary+accent)
+    fg += f"[0:a]asplit=4[_wr_a_big][_wr_a_nav1][_wr_a_nav2][_wr_a_out];\n"
+
     # Large waveform inside panel
-    fg += (f"[0:a]showwaves=s=700x400:mode=cline:"
-           f"colors={BV2_SIGNAL_RED}|{BV2_STARK_WHITE}:scale=sqrt:draw=full:rate=30[bv2_sigwave];\n")
-    fg += f"[bv2_wrap_panel][bv2_sigwave]overlay=1140:240[bv2_wrap_waved];\n"
+    fg += (f"[_wr_a_big]showwaves=s=700x350:mode=cline:"
+           f"colors={COLOR_RED}|{COLOR_WHITE}:scale=sqrt:draw=full:rate=30[wr_sigwave];\n")
+    fg += f"[wr_panel][wr_sigwave]overlay=1140:220[wr_waved];\n"
 
-    fg += _bv2_corner_brackets("bv2_wrap_waved", "bv2_wrap_corners")
-    fg += _build_narration_wave("bv2_wrap_corners", "bv2_wrap_ekg")
-    fg += _build_signature_info_rail(total_dur, btc_price, "bv2_wrap_ekg", "bv2_wrap_railed")
-    fg += f"[bv2_wrap_railed]format=yuv420p[outv];\n"
+    # BD Episode Segments tracker (x=1120,y=660,w=740,h=240)
+    fg += (f"[wr_waved]drawtext=fontfile={FONT_MONO}:text='EPISODE SEGMENTS':"
+           f"fontcolor={COLOR_GOLD}:fontsize=11:x=1140:y=655[wr_seg_eye];\n")
+    segments = [
+        ("COLD OPEN", "DONE"),
+        ("ORACLE BRIEF", "DONE"),
+        ("CLIP REACTION", "DONE"),
+        ("DUAL-HOST", "ACTIVE"),
+    ]
+    last_seg = "wr_seg_eye"
+    for si, (sname, sstatus) in enumerate(segments):
+        sy = 675 + si * 44
+        if sstatus == "DONE":
+            sc = COLOR_GREEN
+        elif sstatus == "ACTIVE":
+            sc = COLOR_RED
+        else:
+            sc = COLOR_MUTED2
+        out_s = f"wr_seg{si}"
+        fg += (f"[{last_seg}]drawbox=x=1140:y={sy}:w=700:h=36:color={COLOR_PANEL2}@0.8:t=fill,"
+               f"drawtext=fontfile={FONT_MONO}:text='{sname}':"
+               f"fontcolor={COLOR_WHITE}@0.7:fontsize=12:x=1156:y={sy+10},"
+               f"drawtext=fontfile={FONT_MONO}:text='{sstatus}':"
+               f"fontcolor={sc}:fontsize=12:x=1740:y={sy+10}"
+               f"[{out_s}];\n")
+        last_seg = out_s
 
-    return _bv2_encode(inputs, fg, output_path, total_dur, "BV2 wrap")
+    fg += _build_corner_brackets_fg(last_seg, "wr_corners")
+
+    # Inline Cipher Line wave using pre-split audio pads (FIX 3)
+    fg += (f"[_wr_a_nav1]showwaves=s=1920x80:mode=line:"
+           f"colors=0xF4F5F8@0.9:scale=sqrt:draw=full:rate=30[_wr_wl];\n")
+    fg += (f"[_wr_a_nav2]showwaves=s=1920x80:mode=line:"
+           f"colors=0xFF334D@0.25:scale=log:draw=full:rate=30[_wr_wr];\n")
+    fg += f"[_wr_wr]vflip[_wr_wrf];\n"
+    fg += f"[_wr_wl][_wr_wrf]vstack[_wr_ws];\n"
+    fg += (f"[_wr_ws]drawbox=x=0:y=0:w=1920:h=20:color=0x020304@0.8:t=fill,"
+           f"drawbox=x=0:y=140:w=1920:h=20:color=0x020304@0.8:t=fill[_wr_wf];\n")
+    fg += f"[_wr_wf]drawbox=x=0:y=79:w=1920:h=2:color=0xFF0000@0.35:t=fill[_wr_wfin];\n"
+    fg += f"[wr_corners][_wr_wfin]overlay=0:880[wr_ekg];\n"
+
+    fg += _build_signature_info_rail(total_dur, btc_price, "wr_ekg", "wr_railed")
+    fg += f"[wr_railed]format=yuv420p[outv];\n"
+
+    return _bv2_encode(inputs, fg, output_path, total_dur, "APEX wrap",
+                       audio_pad="[_wr_a_out]")
 
 
 # ── BV2 Scene Router ────────────────────────────────────────────────────
 
 def select_scene_type(segment_type: str, segment_index: int, total_segments: int) -> str:
-    """Route segment to appropriate BV2 scene type."""
+    """Route segment to appropriate BV2 scene type.
+
+    APEX V2 FIX 7 — PiP-first order:
+      0: cold_open (title card intro)
+      1: narrator_pip (dual host commentary — LEADS the episode)
+      2: partner_clip (YouTube clip)
+      3: react (hosts react to clip)
+      4: data_segment (price action + chart)
+      5: social_stack (tweet conviction)
+      6+: wrap (closing)
+    """
     if segment_index == 0:
         return "cold_open"
-    elif segment_type in ("setup", "intro") and segment_index == 1:
-        return "narrator_pip"
+    elif segment_index == 1 or segment_type in ("setup", "intro", "pip"):
+        return "narrator_pip"  # FIX 7: PiP FIRST after cold open
     elif segment_type == "broll":
         return "partner_clip"
     elif segment_type == "data":
         return "data_segment"
     elif segment_type in ("social", "social_segment"):
         return "social_stack"
+    elif segment_type == "x_spaces":
+        return "data_segment"  # X Spaces uses data_segment visual with branded eyebrow
     elif segment_type in ("wrap", "outro") or segment_index == total_segments - 1:
         return "wrap"
+    elif segment_type == "react":
+        return "narrator_pip"  # react uses same visual as narrator_pip
     else:
-        return "narrator_pip"  # default to signature scene
+        return "narrator_pip"
 
 
 def make_broadcast_segment(segment_data: dict, audio_path: str, host_num: int,
@@ -1351,7 +1684,7 @@ def make_broadcast_segment(segment_data: dict, audio_path: str, host_num: int,
     """
     seg_type = segment_data.get("type", "")
     text = segment_data.get("text", "")
-    speaker = segment_data.get("speaker", "ERYN" if host_num == 1 else "MARK")
+    speaker = segment_data.get("speaker", "DEBORAH" if host_num == 1 else "BRIAN")
     scene = select_scene_type(seg_type, segment_index, total_segments)
 
     try:
@@ -1417,12 +1750,11 @@ def make_host_visual(audio_path: str, host: int, text: str,
         audio_dur = 5
     total_dur = audio_dur + 0.3
 
-    host_names = {1: "ERYN", 2: "MARK"}
+    host_names = {1: "DEBORAH", 2: "BRIAN"}
     speaker = host_names.get(host, "HOST")
 
     safe_btc = btc_price.replace("'", "").replace('"', "")
 
-    has_bgm = os.path.exists(BG_MUSIC)
     is_social = segment_type == "social_segment"
 
     # Eyebrow / headline logic by segment_type
@@ -1431,6 +1763,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
         "setup":     (f"ANALYST // {speaker}", speaker[:6], "REPORTING"),
         "react":     (f"REACTION // {speaker}", speaker[:6], "REACTS"),
         "wrap":      (f"CLOSING // {speaker}", speaker[:6], "CONFIRMED"),
+        "x_spaces":  ("◆ X SPACES // LIVE INTEL", "SPACES", "LIVE"),
     }
     eyebrow, h1, h2 = seg_map.get(segment_type, (f"PROTOCOL PULSE // {speaker}", "SIGNAL", "ACTIVE"))
 
@@ -1441,16 +1774,8 @@ def make_host_visual(audio_path: str, host: int, text: str,
     segment_order = ["cold_open", "setup", "react", "wrap"]
     seg_idx = segment_order.index(segment_type) if segment_type in segment_order else -1
 
-    # Build inputs: 0=TTS audio, [1=bg music]
+    # Build inputs: 0=TTS audio only (APEX V2: music mixed in concatenate_parts)
     inputs = [audio_path]
-    inp_idx = 1
-
-    if has_bgm:
-        inputs.append(["-stream_loop", "-1", "-i", BG_MUSIC])
-        bgm_idx = inp_idx
-        inp_idx += 1
-    else:
-        bgm_idx = -1
 
     # BLACK DIAMOND procedural background
     _, bg_fg = _build_black_diamond_bg(total_dur, label_out="bd_bg")
@@ -1621,20 +1946,10 @@ def make_host_visual(audio_path: str, host: int, text: str,
     else:
         fg += f"[v_final]format=yuv420p[outv];\n"
 
-    # Audio: silenceremove + loudnorm + sidechain music
-    if has_bgm:
-        fg += (f"[0:a]silenceremove=start_periods=1:start_duration=0.05:start_threshold=-50dB:"
-               f"stop_periods=-1:stop_duration=0.1:stop_threshold=-50dB,"
-               f"loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[tts];\n")
-        fg += (f"[{bgm_idx}:a]volume=0.126,afade=t=in:d=0.5,"
-               f"afade=t=out:st={max(0, total_dur - 1.0)}:d=1.0[music_raw];\n")
-        fg += f"[music_raw]asplit[music_play][music_sc];\n"
-        fg += f"[music_play][music_sc]sidechaincompress=threshold=0.02:ratio=6:attack=50:release=500[music_ducked];\n"
-        fg += f"[tts][music_ducked]amix=inputs=2:duration=first[outa]"
-    else:
-        fg += (f"[0:a]silenceremove=start_periods=1:start_duration=0.05:start_threshold=-50dB:"
-               f"stop_periods=-1:stop_duration=0.1:stop_threshold=-50dB,"
-               f"loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]")
+    # Audio: TTS only — APEX V2: music mixed continuously in concatenate_parts()
+    fg += (f"[0:a]silenceremove=start_periods=1:start_duration=0.05:start_threshold=-50dB:"
+           f"stop_periods=-1:stop_duration=0.1:stop_threshold=-50dB,"
+           f"loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]")
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -1710,9 +2025,8 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
 
     safe_btc = btc_price.replace("'", "").replace('"', "")
     has_wm = os.path.exists(WATERMARK)
-    has_bgm = os.path.exists(BG_MUSIC)
 
-    # Build inputs
+    # Build inputs — APEX V2: no per-segment music
     inputs = [audio_path]
     inp_idx = 1
     if has_wm:
@@ -1721,12 +2035,6 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
         inp_idx += 1
     else:
         wm_idx = -1
-    if has_bgm:
-        inputs.append(["-stream_loop", "-1", "-i", BG_MUSIC])
-        bgm_idx = inp_idx
-        inp_idx += 1
-    else:
-        bgm_idx = -1
 
     # VDS procedural background (7-layer, no video files)
     _, bg_fg = _build_black_diamond_bg(total_dur, label_out="bgvig")
@@ -1846,15 +2154,8 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
 
     fg += f"[{last_v}]format=yuv420p[outv];\n"
 
-    # Sprint 1.3+1.4: Loudnorm + sidechain ducking for social segment
-    if has_bgm:
-        fg += f"[0:a]loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[tts];\n"
-        fg += f"[{bgm_idx}:a]volume=0.126,afade=t=in:d=0.5,afade=t=out:st={max(0, total_dur - 1.0)}:d=1.0[music_raw];\n"
-        fg += f"[music_raw]asplit[music_play][music_sc];\n"
-        fg += f"[music_play][music_sc]sidechaincompress=threshold=0.02:ratio=6:attack=50:release=500[music_ducked];\n"
-        fg += f"[tts][music_ducked]amix=inputs=2:duration=first[outa]"
-    else:
-        fg += f"[0:a]loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]"
+    # APEX V2: TTS only — continuous BGM mixed in concatenate_parts()
+    fg += f"[0:a]loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]"
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -1992,37 +2293,19 @@ def _remotion_with_audio(video_path: str, audio_path: str, output_path: str,
         dur = 5
     total_dur = dur + 0.3
 
-    has_bgm = bg_music and os.path.exists(BG_MUSIC)
-
-    if has_bgm:
-        ok = run_ffmpeg([
-            "-i", video_path,
-            "-i", audio_path,
-            "-stream_loop", "-1", "-i", BG_MUSIC,
-            "-filter_complex",
-            f"[0:v]setpts=PTS-STARTPTS[v];"
-            f"[1:a]aresample=async=1[tts];"
-            f"[2:a]volume=0.10,afade=t=in:d=0.5,afade=t=out:st={max(0, total_dur - 1.0)}:d=1.0[bgm];"
-            f"[tts][bgm]amix=inputs=2:duration=first:weights=1 0.15[outa]",
-            "-map", "[v]", "-map", "[outa]",
-            "-c:v", "libx264", "-crf", "17", "-preset", "medium",
-            "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
-            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-            "-t", str(total_dur), output_path,
-        ], f"remotion mux with bgm", 180)
-    else:
-        ok = run_ffmpeg([
-            "-i", video_path,
-            "-i", audio_path,
-            "-filter_complex",
-            f"[0:v]setpts=PTS-STARTPTS[v];"
-            f"[1:a]aresample=async=1[outa]",
-            "-map", "[v]", "-map", "[outa]",
-            "-c:v", "libx264", "-crf", "17", "-preset", "medium",
-            "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
-            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-            "-t", str(total_dur), output_path,
-        ], f"remotion mux no bgm", 180)
+    # APEX V2: No per-segment music — continuous BGM mixed in concatenate_parts()
+    ok = run_ffmpeg([
+        "-i", video_path,
+        "-i", audio_path,
+        "-filter_complex",
+        f"[0:v]setpts=PTS-STARTPTS[v];"
+        f"[1:a]aresample=async=1[outa]",
+        "-map", "[v]", "-map", "[outa]",
+        "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+        "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+        "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+        "-t", str(total_dur), output_path,
+    ], f"remotion mux", 180)
 
     return output_path if ok else ""
 
@@ -2328,9 +2611,11 @@ def apply_xfade(clip1_path: str, clip2_path: str, output_path: str,
 
 def make_clip_visual(clip_path: str, source: str, output_path: str,
                      btc_price: str = "N/A") -> str:
-    """Full-screen YouTube clip with original audio + source attribution.
+    """APEX B-roll / partner clip — BEV2 restraint (let the clip carry the moment).
 
-    CRITICAL: Original audio is preserved. No muting. No TTS overlay.
+    Red border frame, corner brackets (BD), info rail (BEV2),
+    glass lower-third with red top accent. PROTOCOL PULSE watermark top-right.
+    CRITICAL: Original audio is preserved.
     """
     clip_dur = ffprobe_duration(clip_path)
     if clip_dur <= 0:
@@ -2344,12 +2629,12 @@ def make_clip_visual(clip_path: str, source: str, output_path: str,
     fg = (
         f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,fps=30,"
         f"fade=t=in:d=0.3,fade=t=out:st={fade_out_start}:d=0.5[clip];\n"
-        # BD: Red border frame (2px all edges)
-        f"[clip]drawbox=x=0:y=0:w=1920:h=2:color={COLOR_RED}@0.85:t=fill,"
-        f"drawbox=x=0:y=1078:w=1920:h=2:color={COLOR_RED}@0.85:t=fill,"
-        f"drawbox=x=0:y=0:w=2:h=1080:color={COLOR_RED}@0.85:t=fill,"
-        f"drawbox=x=1918:y=0:w=2:h=1080:color={COLOR_RED}@0.85:t=fill,"
-        # Corner brackets
+        # Red border frame (2px all edges)
+        f"[clip]drawbox=x=0:y=0:w=1920:h=2:color={COLOR_RED}@0.75:t=fill,"
+        f"drawbox=x=0:y=1078:w=1920:h=2:color={COLOR_RED}@0.75:t=fill,"
+        f"drawbox=x=0:y=0:w=2:h=1080:color={COLOR_RED}@0.75:t=fill,"
+        f"drawbox=x=1918:y=0:w=2:h=1080:color={COLOR_RED}@0.75:t=fill,"
+        # BD corner brackets
         f"drawbox=x=0:y=0:w=40:h=4:color={COLOR_RED}:t=fill,"
         f"drawbox=x=0:y=0:w=4:h=40:color={COLOR_RED}:t=fill,"
         f"drawbox=x=1880:y=0:w=40:h=4:color={COLOR_RED}:t=fill,"
@@ -2358,27 +2643,23 @@ def make_clip_visual(clip_path: str, source: str, output_path: str,
         f"drawbox=x=0:y=1040:w=4:h=40:color={COLOR_RED}:t=fill,"
         f"drawbox=x=1880:y=1076:w=40:h=4:color={COLOR_RED}:t=fill,"
         f"drawbox=x=1916:y=1040:w=4:h=40:color={COLOR_RED}:t=fill,"
-        # Top-right watermark
+        # Top-right watermark (red, 18px, 60% opacity)
         f"drawtext=fontfile={FONT_BOLD}:text='PROTOCOL PULSE':"
-        f"fontcolor={COLOR_RED}@0.6:fontsize=18:x=W-text_w-20:y=16,"
-        # Top-left incoming signal label
-        f"drawtext=fontfile={FONT_MONO}:text='// INCOMING SIGNAL':"
-        f"fontcolor={COLOR_RED}@0.8:fontsize=12:x=16:y=18"
+        f"fontcolor={COLOR_RED}@0.6:fontsize=18:x=W-text_w-20:y=16"
         f"[clip_branded];\n"
-        # Lower third — source attribution
-        f"color=c={COLOR_PANEL}@0.88:s=1920x87:d={clip_dur}:r=30[ltbg];\n"
-        f"[ltbg]drawbox=x=0:y=0:w=3:h=87:color={COLOR_RED}:t=fill[ltbar];\n"
-        f"[ltbar]drawtext=fontfile={FONT_MONO}:text='SOURCE - {safe_source.upper()}':"
-        f"fontcolor={COLOR_RED}:fontsize=11:x=20:y=14[ltkick];\n"
-        f"[ltkick]drawtext=fontfile={FONT_BOLD}:text='{safe_source}':"
-        f"fontcolor={COLOR_TEXT}:fontsize=22:x=20:y=38[ltname];\n"
-        f"[clip_branded][ltname]overlay=0:H-131:enable='between(t,0.5,6.5)'[clip_lt];\n"
+        # Glass lower-third with red top accent line
+        f"color=c={COLOR_PANEL}@0.88:s=800x90:d={clip_dur}:r=30[ltbg];\n"
+        f"[ltbg]drawbox=x=0:y=0:w=800:h=4:color={COLOR_RED}:t=fill[ltbar];\n"
+        f"[ltbar]drawtext=fontfile={FONT_BOLD}:text='{safe_source}':"
+        f"fontcolor={COLOR_WHITE}:fontsize=26:x=20:y=24[ltname];\n"
+        f"[ltname]drawtext=fontfile={FONT_MONO}:text='SOURCE - PARTNER CHANNEL':"
+        f"fontcolor={COLOR_MUTED}:fontsize=12:x=20:y=60[ltfull];\n"
+        f"[clip_branded][ltfull]overlay=0:870:enable='between(t,0.5,6.5)'[clip_lt];\n"
     )
-    # Ticker bar at bottom (always present)
-    fg += _build_info_bar_fg(clip_dur, btc_price, label_in="clip_lt", label_out="clip_ticked")
+    # Info rail at bottom (always present)
+    fg += _build_signature_info_rail(clip_dur, btc_price, "clip_lt", "clip_railed")
     fg += (
-        f"[clip_ticked]format=yuv420p[outv];\n"
-        # Audio: fade in/out + loudnorm to -14 LUFS
+        f"[clip_railed]format=yuv420p[outv];\n"
         f"[0:a]asetpts=PTS-STARTPTS,"
         f"highpass=f=50,lowpass=f=15000,loudnorm=I=-14:TP=-1.5:LRA=7,"
         f"afade=t=in:d=0.3,afade=t=out:st={fade_out_start}:d=0.5[outa]"
@@ -2473,7 +2754,92 @@ def concatenate_parts(parts: list, output_path: str) -> str:
         logger.error("Concat demuxer failed")
         return ""
 
-    # Final encode: PTS reset + loudnorm with LRA=7 (FIX 12)
+    # APEX V2 FIX 1: Continuous background music across ENTIRE episode
+    # Music plays ONCE continuously — no per-segment start/stop/fade
+    from music import ffprobe_duration as _music_ffprobe_dur
+    has_bgm = os.path.exists(BG_MUSIC)
+    if has_bgm:
+        dur = _music_ffprobe_dur(concat_raw)
+        if dur > 0:
+            music_mixed = output_path + ".music_mixed.mp4"
+            ok_music = run_ffmpeg([
+                "-fflags", "+genpts",
+                "-i", concat_raw,
+                "-stream_loop", "-1", "-i", BG_MUSIC,
+                "-filter_complex", (
+                    f"[0:a]asetpts=PTS-STARTPTS,asplit[tts_main][tts_sc];"
+                    f"[1:a]volume=0.09,afade=t=in:d=2.0,"
+                    f"afade=t=out:st={max(0,dur-3.0)}:d=3.0[bgm_raw];"
+                    f"[bgm_raw][tts_sc]sidechaincompress="
+                    f"threshold=0.015:ratio=8:attack=30:release=600[bgm_ducked];"
+                    f"[tts_main][bgm_ducked]amix=inputs=2:duration=first"
+                    f":weights=1 1[mixed_audio];"
+                    f"[mixed_audio]loudnorm=I=-14:TP=-1.5:LRA=7:linear=true,"
+                    f"aresample=async=1[outa]"
+                ),
+                "-map", "0:v", "-map", "[outa]",
+                "-c:v", "copy",
+                "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                "-t", str(dur),
+                music_mixed
+            ], "continuous bgm mix", 600)
+            if ok_music and os.path.exists(music_mixed):
+                logger.info(f"  APEX V2: Continuous BGM mixed ({dur:.1f}s episode)")
+                concat_raw = music_mixed
+            else:
+                logger.warning("  APEX V2: BGM mix failed — proceeding without music")
+    else:
+        logger.warning("  APEX V2: No BG_MUSIC file found — no music bed")
+
+    # FIX 6: Mix whoosh SFX at transition points between segments
+    has_whoosh = os.path.exists(GLITCH_WHOOSH)
+    if has_whoosh and len(valid) > 1:
+        # Calculate transition timestamps (cumulative durations of each part)
+        transition_times = []
+        cumulative = 0.0
+        for pidx, p in enumerate(valid[:-1]):
+            pdur = ffprobe_duration(p)
+            cumulative += pdur
+            transition_times.append(cumulative)
+
+        if transition_times:
+            whoosh_mixed = output_path + ".whoosh_mixed.mp4"
+            # Build filter: delay each whoosh to its transition time, then amix all
+            whoosh_inputs = []
+            whoosh_fg_parts = []
+            for ti, ttime in enumerate(transition_times):
+                whoosh_inputs.extend(["-i", GLITCH_WHOOSH])
+                delay_ms = int(ttime * 1000)
+                whoosh_fg_parts.append(
+                    f"[{ti+1}:a]volume=0.6,adelay={delay_ms}|{delay_ms}[whoosh_{ti}]"
+                )
+            # Amix all whooshes together
+            whoosh_labels = "".join(f"[whoosh_{ti}]" for ti in range(len(transition_times)))
+            whoosh_fg_parts.append(
+                f"{whoosh_labels}amix=inputs={len(transition_times)}:duration=longest[all_whoosh]"
+            )
+            # Mix whoosh into episode audio
+            whoosh_fg_parts.append(
+                f"[0:a][all_whoosh]amix=inputs=2:duration=first:weights=1 0.5[outa]"
+            )
+            whoosh_fg = ";\n".join(whoosh_fg_parts)
+
+            ok_whoosh = run_ffmpeg(
+                ["-fflags", "+genpts", "-i", concat_raw] + whoosh_inputs +
+                ["-filter_complex", whoosh_fg,
+                 "-map", "0:v", "-map", "[outa]",
+                 "-c:v", "copy",
+                 "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                 whoosh_mixed],
+                "whoosh SFX mix", 300,
+            )
+            if ok_whoosh and os.path.exists(whoosh_mixed):
+                logger.info(f"  FIX 6: Whoosh SFX at {len(transition_times)} transitions")
+                concat_raw = whoosh_mixed
+            else:
+                logger.warning("  FIX 6: Whoosh mix failed — proceeding without SFX")
+
+    # Final encode: PTS reset + loudnorm
     ok = run_ffmpeg(
         ["-fflags", "+genpts",
          "-i", concat_raw,
@@ -2482,47 +2848,11 @@ def concatenate_parts(parts: list, output_path: str) -> str:
          "-r", "30", "-vsync", "cfr",
          "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-         "-af", "asetpts=PTS-STARTPTS,aresample=async=1,loudnorm=I=-14:TP=-1.5:LRA=7:linear=true",
+         "-af", "asetpts=PTS-STARTPTS,aresample=async=1",
          "-movflags", "+faststart",
          output_path],
         "concat final encode", 600,
     )
-
-    # Post-encode two-pass loudnorm (FIX 12: LRA=7)
-    if ok and os.path.exists(output_path):
-        try:
-            r = subprocess.run(
-                ["ffmpeg", "-i", output_path, "-filter:a",
-                 "loudnorm=I=-14:TP=-1.5:LRA=7:print_format=json", "-f", "null", "-"],
-                capture_output=True, text=True, timeout=300,
-            )
-            json_start = r.stderr.rfind("{")
-            json_end = r.stderr.rfind("}") + 1
-            if json_start >= 0 and json_end > json_start:
-                measured = json.loads(r.stderr[json_start:json_end])
-                mi = measured.get("input_i", "-14")
-                mtp = measured.get("input_tp", "0")
-                mlra = measured.get("input_lra", "7")
-                mthresh = measured.get("input_thresh", "-24")
-                tp_pass = output_path + ".tp_limited.mp4"
-                tp_ok = run_ffmpeg(
-                    ["-i", output_path,
-                     "-c:v", "copy",
-                     "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-                     "-af", (f"loudnorm=I=-14:TP=-1.5:LRA=7:linear=true"
-                             f":measured_I={mi}:measured_TP={mtp}"
-                             f":measured_LRA={mlra}:measured_thresh={mthresh}"),
-                     "-movflags", "+faststart",
-                     tp_pass],
-                    "true peak two-pass loudnorm", 300,
-                )
-                if tp_ok and os.path.exists(tp_pass):
-                    os.replace(tp_pass, output_path)
-                    logger.info("Two-pass loudnorm applied (LRA=7)")
-                elif os.path.exists(tp_pass):
-                    os.remove(tp_pass)
-        except Exception as e:
-            logger.warning(f"Post-encode TP pass failed: {e}")
 
     # Cleanup
     if os.path.exists(concat_raw):
@@ -2926,7 +3256,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         else:
             # BV2: Route to Broadcast Engine V2 scene system (falls back to Black Diamond)
             seg_data = {"type": entry_type, "text": text,
-                        "speaker": "ERYN" if host_num == 1 else "MARK",
+                        "speaker": "DEBORAH" if host_num == 1 else "BRIAN",
                         "next_speaker": ""}
             # Look ahead for next clip speaker
             if entry_type == "setup" and clip_rank and clip_rank in extracted_clips:
@@ -2957,7 +3287,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         if result:
             parts.append(result)
             dur = ffprobe_duration(result)
-            speaker = "ERYN" if host_num == 1 else "MARK"
+            speaker = "DEBORAH" if host_num == 1 else "BRIAN"
             logger.info(f"[{part_idx:03d}] {entry_type.upper()} [{speaker}]: {dur:.1f}s")
             part_idx += 1
             prev_segment_type = entry_type
@@ -2990,35 +3320,20 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                     f"fontcolor={COLOR_RED}@0.8:fontsize=12:x=16:y=18,"
                     "format=yuv420p[outv];"
                 )
-                has_bgm_br = os.path.exists(BG_MUSIC)
-                if has_bgm_br:
-                    broll_ok = run_ffmpeg([
-                        "-i", broll_path,
-                        "-stream_loop", "-1", "-i", BG_MUSIC,
-                        "-t", "4",
-                        "-filter_complex",
-                        bd_broll_vf +
-                        "[1:a]volume=0.15,afade=t=in:d=0.3,afade=t=out:st=3.5:d=0.5,atrim=0:4[outa]",
-                        "-map", "[outv]", "-map", "[outa]",
-                        "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
-                        "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-                        "-shortest",
-                        broll_out,
-                    ], f"broll clip {broll_idx}", 60)
-                else:
-                    broll_ok = run_ffmpeg([
-                        "-i", broll_path,
-                        "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
-                        "-t", "4",
-                        "-filter_complex",
-                        bd_broll_vf +
-                        "[1:a]atrim=0:4[outa]",
-                        "-map", "[outv]", "-map", "[outa]",
-                        "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
-                        "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-                        "-shortest",
-                        broll_out,
-                    ], f"broll clip {broll_idx}", 60)
+                # APEX V2: No per-segment music — continuous BGM in concatenate_parts
+                broll_ok = run_ffmpeg([
+                    "-i", broll_path,
+                    "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
+                    "-t", "4",
+                    "-filter_complex",
+                    bd_broll_vf +
+                    "[1:a]atrim=0:4[outa]",
+                    "-map", "[outv]", "-map", "[outa]",
+                    "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
+                    "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                    "-shortest",
+                    broll_out,
+                ], f"broll clip {broll_idx}", 60)
                 if broll_ok and os.path.exists(broll_out):
                     parts.append(broll_out)
                     logger.info(f"[{part_idx:03d}] B-ROLL #{broll_idx}: 4.0s")

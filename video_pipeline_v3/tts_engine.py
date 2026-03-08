@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""TTS Engine V5 — dual-host dialogue with ElevenLabs.
-Host 1 (Eryn):  kdnRe2koJdOK4Ovxn2DI
-Host 2 (Mark):  1SM7GgM6IMuvQlz2BwM3
+"""TTS Engine V6 — APEX V2 dual-host broadcast voices.
+Host 1 (Deborah — Female Newscaster):  VeCVR24o7g2y1IxLJzZs
+Host 2 (Brian — Deep Resonant Analyst): nPczCjzI2devNBz1zQrb
 Generates per-line audio with 0.3s silence gaps between speakers."""
 import os, sys, json, subprocess, tempfile, time, struct
 from pathlib import Path
@@ -14,75 +14,44 @@ except ImportError:
 
 from relay import get_key
 
-# Issue 11: Try Natasha Valley Girl voice first, fallback to Eryn
-_NATASHA_VOICE_ID = "uxKr2vlA4hYgXZR1oPRT"
-_ERYN_VOICE_ID = "kdnRe2koJdOK4Ovxn2DI"
-
-def _check_voice_available(voice_id: str) -> bool:
-    """Check if an ElevenLabs voice ID is available on the account."""
-    try:
-        key = get_key("ELEVENLABS_API_KEY")
-        if not key:
-            return False
-        import requests
-        r = requests.get(f"https://api.elevenlabs.io/v1/voices/{voice_id}",
-                         headers={"xi-api-key": key.strip()}, timeout=10)
-        return r.status_code == 200
-    except Exception:
-        return False
-
-# Determine Host 1 voice at import time
-_host1_voice_id = _ERYN_VOICE_ID
-_host1_name = "Eryn"
-try:
-    if _check_voice_available(_NATASHA_VOICE_ID):
-        _host1_voice_id = _NATASHA_VOICE_ID
-        _host1_name = "Natasha"
-        print(f"  [tts] Issue 11: Natasha Valley Girl voice available ({_NATASHA_VOICE_ID})")
-    else:
-        print(f"  [tts] Issue 11: Natasha voice 404 — using Eryn ({_ERYN_VOICE_ID})")
-except Exception:
-    print(f"  [tts] Issue 11: Voice check failed — using Eryn ({_ERYN_VOICE_ID})")
-
+# APEX V2: Authoritative broadcast voices
+# Host 1: Deborah — "Female Newscaster voice", US midwest, professional
+# Host 2: Brian — "Deep, Resonant and Comforting", American, classy
 VOICES = {
     1: {
-        "voice_id": _host1_voice_id,
-        "name": _host1_name,
+        "voice_id": "VeCVR24o7g2y1IxLJzZs",
+        "name": "Deborah",
         "model_id": "eleven_turbo_v2_5",
-        "speed": 1.12,
+        "speed": 1.05,
         "voice_settings": {
-            "stability": 0.38 if _host1_name == "Natasha" else 0.75,
-            "similarity_boost": 0.78 if _host1_name == "Natasha" else 0.75,
-            "style": 0.20 if _host1_name == "Natasha" else 0.10,
+            "stability": 0.45,
+            "similarity_boost": 0.80,
+            "style": 0.20,
             "use_speaker_boost": True,
         },
     },
     2: {
-        "voice_id": "1SM7GgM6IMuvQlz2BwM3",
-        "name": "Mark",
+        "voice_id": "nPczCjzI2devNBz1zQrb",
+        "name": "Brian",
         "model_id": "eleven_turbo_v2_5",
-        "speed": 1.10,
+        "speed": 1.00,
         "voice_settings": {
-            "stability": 0.40,
-            "similarity_boost": 0.75,
-            "style": 0.10,
+            "stability": 0.45,
+            "similarity_boost": 0.80,
+            "style": 0.20,
             "use_speaker_boost": True,
         },
     },
 }
 
-# Hybrid voice settings per segment type (overrides for Matilda/Host 1 only)
-# Cold open: whispery dramatic, classified briefing feel
-# Narration (setup/react): clear, confident, authoritative
-# Data callouts (wrap with price): slightly intense
-# Social/transition: warm, inviting
+# Hybrid voice settings per segment type (overrides for Host 1 — Deborah)
 VOICE_MODES = {
-    "cold_open":       {"stability": 0.38, "similarity_boost": 0.78, "style": 0.15, "speed": 1.12},
-    "setup":           {"stability": 0.75, "similarity_boost": 0.75, "style": 0.10, "speed": 1.12},
-    "react":           {"stability": 0.75, "similarity_boost": 0.75, "style": 0.10, "speed": 1.12},
-    "social_segment":  {"stability": 0.60, "similarity_boost": 0.75, "style": 0.12, "speed": 1.12},
-    "wrap":            {"stability": 0.60, "similarity_boost": 0.72, "style": 0.20, "speed": 1.10},
-    "data":            {"stability": 0.70, "similarity_boost": 0.78, "style": 0.10, "speed": 1.10},
+    "cold_open":       {"stability": 0.38, "similarity_boost": 0.80, "style": 0.20, "speed": 1.05},
+    "setup":           {"stability": 0.50, "similarity_boost": 0.80, "style": 0.15, "speed": 1.05},
+    "react":           {"stability": 0.50, "similarity_boost": 0.80, "style": 0.15, "speed": 1.05},
+    "social_segment":  {"stability": 0.45, "similarity_boost": 0.78, "style": 0.18, "speed": 1.05},
+    "wrap":            {"stability": 0.45, "similarity_boost": 0.78, "style": 0.22, "speed": 1.02},
+    "data":            {"stability": 0.50, "similarity_boost": 0.82, "style": 0.15, "speed": 1.03},
 }
 
 SILENCE_GAP = 0.3  # seconds between speakers
