@@ -91,8 +91,6 @@ def run_pipeline(output_path: str, style: str = "default") -> bool:
             print(f"  Words: {word_count}")
             print(f"  Title: {script.get('episode_title', '?')}")
             print(f"  Time: {time.time()-t0:.1f}s")
-    else:
-        extracted_clips = {}
 
     # Save script
     with open(os.path.join(run_dir, "script.json"), "w") as f:
