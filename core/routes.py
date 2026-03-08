@@ -6700,7 +6700,7 @@ def api_media_sentiment():
             except:
                 pass
         
-        return jsonify({
+        result = {
             'score': snapshot.score or 50,
             'state': {
                 'key': snapshot.state or 'EQUILIBRIUM',
@@ -6711,7 +6711,28 @@ def api_media_sentiment():
             'sample_size': snapshot.sample_size or 0,
             'verified_count': snapshot.verified_weight or 0,
             'computed_at': snapshot.computed_at.isoformat() if snapshot.computed_at else snapshot.created_at.isoformat()
-        })
+        }
+
+        # Inject x_spaces data from sentiment.json
+        try:
+            import os as _os
+            _sp = _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                                'video_pipeline_v3', 'data', 'intelligence', 'sentiment.json')
+            if _os.path.exists(_sp):
+                with open(_sp) as _f:
+                    _sd = json.load(_f)
+                _xs = _sd.get('data', {}).get('breakdown', {}).get('x_spaces', {})
+                if _xs:
+                    result['x_spaces'] = {
+                        'score': _xs.get('score', 50),
+                        'label': _xs.get('label', 'NEUTRAL'),
+                        'active_count': _xs.get('active_count', 0),
+                        'top_host': _xs.get('top_host'),
+                    }
+        except Exception:
+            pass
+
+        return jsonify(result)
     
     return jsonify({
         'score': 50,
@@ -6725,6 +6746,44 @@ def api_media_sentiment():
         'verified_count': 0,
         'computed_at': datetime.utcnow().isoformat()
     })
+
+
+@app.route('/api/spaces/live')
+def api_spaces_live():
+    """Get live X Spaces sentiment data."""
+    try:
+        import os as _os
+        sentiment_path = _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                                       'video_pipeline_v3', 'data', 'intelligence', 'sentiment.json')
+        xs_data = None
+        if _os.path.exists(sentiment_path):
+            with open(sentiment_path) as _f:
+                sdata = json.load(_f)
+            xs_data = sdata.get('data', {}).get('breakdown', {}).get('x_spaces')
+
+        if not xs_data:
+            from services.spaces_sentiment_service import spaces_sentiment_service
+            xs_data = spaces_sentiment_service.run()
+
+        return jsonify({
+            'score': xs_data.get('score', 50),
+            'label': xs_data.get('label', 'NEUTRAL'),
+            'active_count': xs_data.get('active_count', 0),
+            'top_host': xs_data.get('top_host'),
+            'top_quote': xs_data.get('top_quote', ''),
+            'topics': xs_data.get('topics', []),
+            'confidence': xs_data.get('confidence', 'LOW'),
+            'driver': xs_data.get('driver', 'x_spaces live intel'),
+            'scan_time': xs_data.get('computed_at', datetime.utcnow().isoformat()),
+            'source': 'x_spaces',
+        })
+    except Exception as e:
+        return jsonify({
+            'score': 50, 'label': 'NEUTRAL', 'active_count': 0,
+            'top_host': None, 'top_quote': '', 'topics': [],
+            'confidence': 'LOW', 'driver': 'error', 'scan_time': datetime.utcnow().isoformat(),
+            'source': 'x_spaces', 'error': str(e),
+        })
 
 
 @app.route('/api/podcasts/channels')

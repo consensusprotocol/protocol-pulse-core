@@ -62,6 +62,15 @@
       </div>
     </div>
 
+    <div class="mu-telem-sep"></div>
+
+    <!-- X Spaces -->
+    <div class="mu-telem-metric" title="X Spaces Sentiment">
+      <span class="mu-telem-label">X SPACES</span>
+      <span class="mu-telem-value" id="telem-xs-score" style="min-width:24px;">--</span>
+      <span class="mu-telem-label" id="telem-xs-label" style="font-size:0.55rem;"></span>
+    </div>
+
     <!-- Sentiment Track -->
     <div class="mu-sentiment-track-wrap">
       <span class="mu-sentiment-label-l">FEAR</span>
@@ -78,6 +87,7 @@
       <div class="mu-health-dot loading" id="health-nostr" title="Nostr"></div>
       <div class="mu-health-dot loading" id="health-telemetry" title="Telemetry"></div>
       <div class="mu-health-dot loading" id="health-sentiment" title="Sentiment"></div>
+      <div class="mu-health-dot loading" id="health-xspaces" title="X Spaces"></div>
     </div>
 
     <!-- Cmd+K -->
@@ -397,5 +407,43 @@ function subscribeNewsletter() {
   }).catch(() => alert('Network error — try again'));
 }
 document.getElementById('newsletter-submit')?.addEventListener('click', subscribeNewsletter);
+
+// X Spaces telemetry integration
+(function(){
+  var xsScore = null;
+  function updateXSpacesTelem(d) {
+    if (!d || !d.x_spaces) return;
+    var xs = d.x_spaces;
+    xsScore = xs.score;
+    var sc = document.getElementById('telem-xs-score');
+    var lb = document.getElementById('telem-xs-label');
+    var dot = document.getElementById('health-xspaces');
+    if (sc) sc.textContent = xs.score;
+    if (lb) {
+      lb.textContent = xs.label;
+      lb.style.color = xs.label === 'BULLISH' ? '#22c55e' : xs.label === 'BEARISH' ? '#ef4444' : '#888';
+    }
+    if (dot) {
+      dot.classList.remove('loading');
+      dot.classList.add(xs.active_count > 0 ? 'connected' : 'error');
+    }
+  }
+  function fetchXSpaces() {
+    fetch('/api/media/sentiment').then(function(r){return r.json();}).then(function(d){
+      updateXSpacesTelem(d);
+    }).catch(function(){});
+  }
+  fetchXSpaces();
+  setInterval(fetchXSpaces, 60000);
+
+  // Patch signal strength to blend x_spaces (70% existing + 30% x_spaces)
+  var _origUpdate = window._ppUpdateSignal;
+  window._ppBlendXSpaces = function(baseScore) {
+    if (xsScore !== null) {
+      return Math.round(baseScore * 0.7 + xsScore * 0.3);
+    }
+    return baseScore;
+  };
+})();
 </script>
 {% endblock %}
