@@ -6748,6 +6748,47 @@ def api_media_sentiment():
     })
 
 
+
+
+@app.route('/api/tradfi/signals')
+def api_tradfi_signals():
+    """TradFi intelligence feed — Bitcoin-relevant signals from traditional finance voices."""
+    try:
+        import os as _os, json as _json
+        path = _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                             'video_pipeline_v3','data','intelligence','tradfi_signals.json')
+        if _os.path.exists(path):
+            with open(path) as f:
+                data = _json.load(f)
+            signals = sorted(data.get('signals', []),
+                             key=lambda s: s.get('likes',0)+s.get('retweets',0)*3,
+                             reverse=True)[:20]
+            return jsonify({
+                'signals': signals,
+                'count': len(signals),
+                'weekly_segment_ready': data.get('weekly_segment_ready', False),
+                'last_updated': data.get('last_updated',''),
+            })
+    except Exception as e:
+        logging.warning(f'api_tradfi_signals: {e}')
+    return jsonify({'signals':[],'count':0,'weekly_segment_ready':False,'last_updated':''})
+
+
+@app.route('/api/tradfi/weekly')
+def api_tradfi_weekly():
+    """Weekly TradFi segment brief — macro tone through a Bitcoin lens."""
+    try:
+        import os as _os, json as _json
+        path = _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                             'video_pipeline_v3','data','intelligence','tradfi_weekly.json')
+        if _os.path.exists(path):
+            with open(path) as f:
+                return jsonify(_json.load(f))
+    except Exception as e:
+        logging.warning(f'api_tradfi_weekly: {e}')
+    return jsonify({'segment_ready':False,'macro_tone':'UNKNOWN','signals':[]})
+
+
 @app.route('/api/spaces/live')
 def api_spaces_live():
     """Get live X Spaces sentiment data."""
