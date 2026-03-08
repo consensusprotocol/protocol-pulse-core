@@ -16,7 +16,35 @@ from assembler import assemble_episode, verify_video
 from shorts_cutter import generate_shorts
 
 
-def run_pipeline(output_path: str, style: str = "default") -> bool:
+def _load_cached_transcripts() -> list:
+    """Load videos from cached transcript files (skip scan + transcription)."""
+    transcript_dir = os.path.join(BASE, "transcripts")
+    videos = []
+    if not os.path.isdir(transcript_dir):
+        return videos
+    for fname in os.listdir(transcript_dir):
+        if not fname.endswith(".json"):
+            continue
+        try:
+            with open(os.path.join(transcript_dir, fname)) as f:
+                data = json.load(f)
+            vid = fname.replace(".json", "")
+            videos.append({
+                "video_id": vid,
+                "title": data.get("title", vid),
+                "channel": data.get("channel", "Unknown"),
+                "duration": data.get("duration", 0),
+                "upload_date": "",
+                "url": f"https://www.youtube.com/watch?v={vid}",
+                "transcript_text": data.get("text", ""),
+                "timestamped_text": data.get("timestamped_text", ""),
+            })
+        except Exception:
+            continue
+    return videos
+
+
+def run_pipeline(output_path: str, style: str = "default", cached_only: bool = False) -> bool:
     """Run the complete V5 video pipeline with real content."""
     run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
     run_dir = os.path.join(BASE, "output", f"run_{run_id}")
@@ -26,6 +54,8 @@ def run_pipeline(output_path: str, style: str = "default") -> bool:
     print(f"  PULSE CHECK V5 PIPELINE — Run {run_id}")
     print(f"  Style: {style}")
     print(f"  Output: {output_path}")
+    if cached_only:
+        print(f"  Mode: CACHED TRANSCRIPTS ONLY (skip scan)")
     print("=" * 70)
 
     # ─── BTC Price (fetch early, used everywhere) ───
@@ -43,9 +73,14 @@ def run_pipeline(output_path: str, style: str = "default") -> bool:
     print(f"  BTC Price: {btc_price}")
 
     # ─── Step 1: Scan channels + transcribe ───
-    print("\n[STEP 1/6] SCANNING BITCOIN YOUTUBE CHANNELS...")
-    t0 = time.time()
-    videos = scan_all_channels()
+    if cached_only:
+        print("\n[STEP 1/7] LOADING CACHED TRANSCRIPTS...")
+        t0 = time.time()
+        videos = _load_cached_transcripts()
+    else:
+        print("\n[STEP 1/7] SCANNING BITCOIN YOUTUBE CHANNELS...")
+        t0 = time.time()
+        videos = scan_all_channels()
     print(f"  Videos scanned: {len(videos)}")
     print(f"  With transcripts: {sum(1 for v in videos if v.get('transcript_text'))}")
     print(f"  Time: {time.time()-t0:.1f}s")
@@ -173,6 +208,8 @@ def main():
     parser.add_argument("--style", "-s", default="default", choices=["default", "breaking"],
                         help="Script style")
     parser.add_argument("--date", default="today", help="Date for content (unused in V1)")
+    parser.add_argument("--cached-only", action="store_true",
+                        help="Use cached transcripts only (skip channel scan + Whisper)")
     args = parser.parse_args()
 
     if args.output is None:
@@ -180,7 +217,7 @@ def main():
         args.output = os.path.join(BASE, "output", f"pulse_check_{ts}.mp4")
 
     os.makedirs(os.path.dirname(args.output), exist_ok=True)
-    success = run_pipeline(args.output, args.style)
+    success = run_pipeline(args.output, args.style, cached_only=args.cached_only)
     sys.exit(0 if success else 1)
 
 
