@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Master orchestrator for Pulse Check video pipeline."""
+"""Master orchestrator for Pulse Check video pipeline — V5 real content."""
 import os, sys, json, argparse, time, shutil
 from datetime import datetime
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 
-from script_writer import generate_script
+from channel_scanner import scan_all_channels
+from clip_selector import select_clips
+from script_writer import generate_from_clips, generate_script
 from tts_engine import generate_all_audio
 from clip_fetcher import fetch_all_clips
 from assembler import assemble_episode, verify_video
@@ -14,42 +16,84 @@ from shorts_cutter import generate_shorts
 
 
 def run_pipeline(output_path: str, style: str = "default") -> bool:
-    """Run the complete video pipeline."""
+    """Run the complete V5 video pipeline with real content."""
     run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
     run_dir = os.path.join(BASE, "output", f"run_{run_id}")
     os.makedirs(run_dir, exist_ok=True)
 
     print("\n" + "=" * 70)
-    print(f"  PULSE CHECK VIDEO PIPELINE — Run {run_id}")
+    print(f"  PULSE CHECK V5 PIPELINE — Run {run_id}")
     print(f"  Style: {style}")
     print(f"  Output: {output_path}")
     print("=" * 70)
 
-    # ─── Step 1: Generate Script ───
-    print("\n[STEP 1/5] GENERATING SCRIPT...")
+    # ─── BTC Price (fetch early, used everywhere) ───
+    btc_price = "N/A"
+    try:
+        import urllib.request as _ur
+        with _ur.urlopen("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd", timeout=5) as r:
+            btc_price = f"${json.loads(r.read())['bitcoin']['usd']:,.0f}"
+    except Exception:
+        try:
+            with _ur.urlopen("https://mempool.space/api/v1/prices", timeout=5) as r:
+                btc_price = f"${json.loads(r.read()).get('USD', 0):,.0f}"
+        except Exception:
+            pass
+    print(f"  BTC Price: {btc_price}")
+
+    # ─── Step 1: Scan channels + transcribe ───
+    print("\n[STEP 1/6] SCANNING BITCOIN YOUTUBE CHANNELS...")
     t0 = time.time()
-    script = generate_script(style=style)
-    print(f"  Title: {script.get('episode_title', 'Untitled')}")
-    print(f"  Segments: {len(script.get('segments', []))}")
-    print(f"  Est. duration: {script.get('total_estimated_duration_seconds', 0)}s")
+    videos = scan_all_channels()
+    print(f"  Videos scanned: {len(videos)}")
+    print(f"  With transcripts: {sum(1 for v in videos if v.get('transcript_text'))}")
     print(f"  Time: {time.time()-t0:.1f}s")
+
+    if not videos or not any(v.get('transcript_text') for v in videos):
+        print("  [WARN] No transcripts — falling back to legacy script")
+        script = generate_script(style=style)
+        selections = {}
+    else:
+        # ─── Step 2: Select best clips ───
+        print("\n[STEP 2/6] SELECTING BEST CLIPS (Claude EP)...")
+        t0 = time.time()
+        selections = select_clips(videos)
+        clips = selections.get("clips", [])
+        print(f"  Clips selected: {len(clips)}")
+        for i, c in enumerate(clips, 1):
+            print(f"    {i}. {c.get('channel','?')} — {c.get('video_title', c.get('title','?'))[:60]}")
+        print(f"  Time: {time.time()-t0:.1f}s")
+
+        if not clips:
+            print("  [WARN] No clips selected — falling back")
+            script = generate_script(style=style)
+        else:
+            # ─── Step 3: Generate script from clips ───
+            print("\n[STEP 3/6] WRITING HOST DIALOGUE...")
+            t0 = time.time()
+            script = generate_from_clips(selections, btc_price=btc_price)
+            seg_count = len(script.get("segments", []))
+            word_count = sum(len(s.get("text", "").split()) for s in script.get("segments", []))
+            print(f"  Segments: {seg_count}")
+            print(f"  Words: {word_count}")
+            print(f"  Title: {script.get('episode_title', '?')}")
+            print(f"  Time: {time.time()-t0:.1f}s")
 
     # Save script
     with open(os.path.join(run_dir, "script.json"), "w") as f:
         json.dump(script, f, indent=2)
 
-    # ─── Step 2: Generate TTS Audio ───
-    print("\n[STEP 2/5] GENERATING TTS AUDIO...")
+    # ─── Step 4: TTS ───
+    print("\n[STEP 4/6] GENERATING TTS AUDIO (ElevenLabs)...")
     t0 = time.time()
     audio_dir = os.path.join(run_dir, "audio")
     audio_paths = generate_all_audio(script, audio_dir)
-    print(f"  Audio files: {sum(1 for v in audio_paths.values() if isinstance(v, str) and os.path.exists(v))}")
-    seg_count = sum(1 for s in audio_paths.get('segments', []) if s and os.path.exists(s))
-    print(f"  Segment audio: {seg_count}/{len(script.get('segments', []))}")
+    seg_count = sum(1 for s in audio_paths.get("segments", []) if s and os.path.exists(s))
+    print(f"  Audio segments: {seg_count}")
     print(f"  Time: {time.time()-t0:.1f}s")
 
-    # ─── Step 3: Fetch/Generate Clips ───
-    print("\n[STEP 3/5] FETCHING/GENERATING CLIPS...")
+    # ─── Step 5: Fetch clips ───
+    print("\n[STEP 5/6] FETCHING VIDEO CLIPS...")
     t0 = time.time()
     clip_dir = os.path.join(run_dir, "clips")
     clip_data = fetch_all_clips(script, clip_dir)
@@ -63,27 +107,9 @@ def run_pipeline(output_path: str, style: str = "default") -> bool:
     print(f"  Pexels B-roll: {len(clip_data.get('broll', []))}")
     print(f"  Time: {time.time()-t0:.1f}s")
 
-    # ─── Step 4: Assemble Video ───
-    print("\n[STEP 4/5] ASSEMBLING VIDEO...")
+    # ─── Step 6: Assemble ───
+    print("\n[STEP 6/6] ASSEMBLING VIDEO (Black Diamond)...")
     t0 = time.time()
-    # FIX 5: Fetch BTC price and pass to assembler
-    btc_price = "N/A"
-    try:
-        import urllib.request
-        url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
-        with urllib.request.urlopen(url, timeout=5) as r:
-            data = json.loads(r.read())
-            btc_price = f"${data['bitcoin']['usd']:,.0f}"
-    except Exception:
-        try:
-            url2 = "https://mempool.space/api/v1/prices"
-            with urllib.request.urlopen(url2, timeout=5) as r2:
-                data = json.loads(r2.read())
-                btc_price = f"${data.get('USD', 0):,.0f}"
-        except Exception:
-            pass
-    print(f"  BTC Price: {btc_price}")
-    # FIX 6: Pass broll clips to assembler
     broll_clips = clip_data.get("broll", [])
     result = assemble_episode(script, audio_paths, extracted_clips, output_path,
                               btc_price=btc_price, broll_clips=broll_clips)
@@ -93,8 +119,8 @@ def run_pipeline(output_path: str, style: str = "default") -> bool:
         print("\n  [FAIL] Assembly failed!")
         return False
 
-    # ─── Step 5: Verify ───
-    print("\n[STEP 5/5] VERIFYING OUTPUT...")
+    # ─── Verify ───
+    print("\n[VERIFY] Checking output...")
     passed = verify_video(output_path)
 
     # ─── Generate Shorts ───
@@ -108,8 +134,6 @@ def run_pipeline(output_path: str, style: str = "default") -> bool:
     print("\n" + "=" * 70)
     if passed:
         print(f"  SUCCESS: {output_path}")
-        dur = 0
-        sz = 0
         try:
             import subprocess
             r = subprocess.run(
@@ -119,9 +143,9 @@ def run_pipeline(output_path: str, style: str = "default") -> bool:
             parts = r.stdout.strip().split(",")
             dur = float(parts[0]) if parts else 0
             sz = int(parts[1]) if len(parts) > 1 else 0
+            print(f"  Duration: {dur:.1f}s | Size: {sz/1024/1024:.1f}MB")
         except:
             pass
-        print(f"  Duration: {dur:.1f}s | Size: {sz/1024/1024:.1f}MB")
     else:
         print(f"  WARNING: Verification had failures, but video may still be usable")
     print("=" * 70)
