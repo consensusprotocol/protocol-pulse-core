@@ -8,6 +8,7 @@ sys.path.insert(0, BASE)
 
 from channel_scanner import scan_all_channels
 from clip_selector import select_clips
+from clip_extractor import extract_all as extract_clips
 from script_writer import generate_from_clips, generate_script
 from tts_engine import generate_all_audio
 from clip_fetcher import fetch_all_clips
@@ -53,6 +54,7 @@ def run_pipeline(output_path: str, style: str = "default") -> bool:
         print("  [WARN] No transcripts — falling back to legacy script")
         script = generate_script(style=style)
         selections = {}
+        extracted_clips = {}
     else:
         # ─── Step 2: Select best clips ───
         print("\n[STEP 2/6] SELECTING BEST CLIPS (Claude EP)...")
@@ -67,9 +69,20 @@ def run_pipeline(output_path: str, style: str = "default") -> bool:
         if not clips:
             print("  [WARN] No clips selected — falling back")
             script = generate_script(style=style)
+            extracted_clips = {}
         else:
+            # ─── Step 2b: Extract clip segments from YouTube ───
+            print("\n[STEP 2b/7] EXTRACTING CLIP SEGMENTS (yt-dlp + ffmpeg)...")
+            t0 = time.time()
+            yt_clip_dir = os.path.join(run_dir, "yt_clips")
+            extracted_clips = extract_clips(selections, yt_clip_dir)
+            print(f"  Clips extracted: {len(extracted_clips)}")
+            for rank, ci in sorted(extracted_clips.items()):
+                print(f"    #{rank}: {ci.get('channel','?')} — {ci.get('duration',0):.1f}s")
+            print(f"  Time: {time.time()-t0:.1f}s")
+
             # ─── Step 3: Generate script from clips ───
-            print("\n[STEP 3/6] WRITING HOST DIALOGUE...")
+            print("\n[STEP 3/7] WRITING HOST DIALOGUE...")
             t0 = time.time()
             script = generate_from_clips(selections, btc_price=btc_price)
             seg_count = len(script.get("segments", []))
@@ -78,13 +91,15 @@ def run_pipeline(output_path: str, style: str = "default") -> bool:
             print(f"  Words: {word_count}")
             print(f"  Title: {script.get('episode_title', '?')}")
             print(f"  Time: {time.time()-t0:.1f}s")
+    else:
+        extracted_clips = {}
 
     # Save script
     with open(os.path.join(run_dir, "script.json"), "w") as f:
         json.dump(script, f, indent=2)
 
     # ─── Step 4: TTS ───
-    print("\n[STEP 4/6] GENERATING TTS AUDIO (ElevenLabs)...")
+    print("\n[STEP 4/7] GENERATING TTS AUDIO (ElevenLabs)...")
     t0 = time.time()
     audio_dir = os.path.join(run_dir, "audio")
     audio_paths = generate_all_audio(script, audio_dir)
@@ -92,23 +107,24 @@ def run_pipeline(output_path: str, style: str = "default") -> bool:
     print(f"  Audio segments: {seg_count}")
     print(f"  Time: {time.time()-t0:.1f}s")
 
-    # ─── Step 5: Fetch clips ───
-    print("\n[STEP 5/6] FETCHING VIDEO CLIPS...")
+    # ─── Step 5: Fetch B-roll ───
+    print("\n[STEP 5/7] FETCHING B-ROLL CLIPS...")
     t0 = time.time()
     clip_dir = os.path.join(run_dir, "clips")
     clip_data = fetch_all_clips(script, clip_dir)
-    extracted_clips = {}
+    # Merge any yt_clips from fetcher (legacy path) into extracted_clips
     for rk, ci in clip_data.get("yt_clips", {}).items():
         try: rank = int(rk)
         except: rank = len(extracted_clips) + 1
-        if isinstance(ci, list): ci = ci[0] if ci and isinstance(ci[0], dict) else {"path": ""}
-        if isinstance(ci, dict): extracted_clips[rank] = ci
-    print(f"  YouTube clips: {len(extracted_clips)}")
+        if rank not in extracted_clips:
+            if isinstance(ci, list): ci = ci[0] if ci and isinstance(ci[0], dict) else {"path": ""}
+            if isinstance(ci, dict): extracted_clips[rank] = ci
+    print(f"  YouTube clips (total): {len(extracted_clips)}")
     print(f"  Pexels B-roll: {len(clip_data.get('broll', []))}")
     print(f"  Time: {time.time()-t0:.1f}s")
 
     # ─── Step 6: Assemble ───
-    print("\n[STEP 6/6] ASSEMBLING VIDEO (Black Diamond)...")
+    print("\n[STEP 6/7] ASSEMBLING VIDEO (Black Diamond)...")
     t0 = time.time()
     broll_clips = clip_data.get("broll", [])
     result = assemble_episode(script, audio_paths, extracted_clips, output_path,
@@ -119,8 +135,8 @@ def run_pipeline(output_path: str, style: str = "default") -> bool:
         print("\n  [FAIL] Assembly failed!")
         return False
 
-    # ─── Verify ───
-    print("\n[VERIFY] Checking output...")
+    # ─── Step 7: Verify ───
+    print("\n[STEP 7/7] VERIFYING OUTPUT...")
     passed = verify_video(output_path)
 
     # ─── Generate Shorts ───
