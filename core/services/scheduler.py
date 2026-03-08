@@ -98,6 +98,14 @@ def run_task(name: str) -> Dict:
             logger.warning("emergency_flash_check: %s", e)
             return {"success": False, "message": str(e), "result": None}
 
+    if name == "tradfi_monitor":
+        try:
+            import sys, os
+            sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '..', 'video_pipeline_v3'))
+            from utils.tradfi_monitor import run as tradfi_run
+            tradfi_run()
+        except Exception as e:
+            logger.debug("tradfi_monitor: %s", e)
     if name == "x_spaces_sentiment_update":
         try:
             from services.spaces_sentiment_service import spaces_sentiment_service

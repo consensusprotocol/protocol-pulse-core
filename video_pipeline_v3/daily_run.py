@@ -156,6 +156,24 @@ def run_pipeline(output_path: str, style: str = "default", cached_only: bool = F
     print(f"  Pexels B-roll: {len(clip_data.get('broll', []))}")
     print(f"  Time: {time.time()-t0:.1f}s")
 
+    # ─── Step 5b: X Spaces Segment Injection ───
+    try:
+        from utils.spaces_pipeline import get_latest_spaces_segment
+        spaces_seg = get_latest_spaces_segment(max_age_hours=6)
+        if spaces_seg:
+            segments = script.get("segments", [])
+            # Insert before last segment (wrap/outro)
+            if segments:
+                segments.insert(-1, spaces_seg)
+            else:
+                segments.append(spaces_seg)
+            script["segments"] = segments
+            print(f"  X Spaces segment injected: {spaces_seg['space_title']}")
+        else:
+            print("  No fresh X Spaces content — skipping injection")
+    except Exception as e:
+        print(f"  X Spaces injection skipped: {e}")
+
     # ─── Step 6: Assemble ───
     print("\n[STEP 6/7] ASSEMBLING VIDEO (Black Diamond)...")
     t0 = time.time()
@@ -176,7 +194,7 @@ def run_pipeline(output_path: str, style: str = "default", cached_only: bool = F
     work_dir = os.path.join(os.path.dirname(output_path), "work")
     shorts_dir = os.path.join(BASE, "output", "shorts")
     print("\n[BONUS] GENERATING VERTICAL SHORTS...")
-    shorts = generate_shorts(work_dir, script, shorts_dir)
+    shorts = generate_shorts(script, shorts_dir)
     print(f"  Shorts generated: {len(shorts)}")
 
     # Summary
