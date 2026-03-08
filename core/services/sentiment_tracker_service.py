@@ -13,9 +13,17 @@ logger = logging.getLogger(__name__)
 
 # Legendary handles (3x priority) — align with editorial rule
 LEGENDARY_HANDLES = {
-    "saylor", "lynaldencontact", "adam3us", "jeffbooth", "prestonpysh", "saifedean",
-    "breedlove22", "jack", "lopp", "odell", "pierre_rochard", "martybent", "marshalllong",
-    "_checkmatey_", "woonomic", "natbrunell", "nvk", "coryklippsten",
+    "saylor", "jack", "lopp", "odell", "matt_odell", "martybent", "prestonpysh",
+    "stephanlivera", "natbrunell", "lynaldencontact", "gladstein", "saifedean",
+    "adam3us", "nvk", "giacomozucco", "dergigi", "pierre_rochard", "bitcoinpierre",
+    "coryklippsten", "breedlove22", "jeffbooth", "jimmysong", "excellion",
+    "nic__carter", "woonomic", "100trilliusd", "aantonop", "petermccormack",
+    "apompliano", "real_vijay", "knutsvanholm", "tuurdemeester", "mustsopmurad",
+    "lukedashjr", "nayibbukele", "garycardone", "maxkeiser", "tonevays",
+    "theguyswann", "pete_rizzo_", "fossgregf", "bitstein", "level39",
+    "dotkrueger", "tonyseverinoCMT", "realcryptocrank", "ladytraderRa",
+    "ts_hodl", "isaiahdaustin", "britishhodl", "lorenhodl", "rlad1776",
+    "mmcrypto", "thebtctherapist", "marshalllong",
 }
 
 
