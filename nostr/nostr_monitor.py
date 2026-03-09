@@ -12,6 +12,7 @@ import asyncio
 import json
 import logging
 import os
+import re
 import sys
 import time
 from datetime import datetime, timezone
@@ -278,6 +279,8 @@ async def _connect_relay(relay_url: str):
         backoff = min(backoff * 2, 60)  # exponential backoff, max 60s
 
 
+_EVENT_ID_RE = re.compile(r'^[0-9a-f]{64}$')
+
 def _process_event(event: Dict, relay_url: str):
     """Validate, deduplicate, score, and enqueue an event."""
     global _event_queue, _seen_ids
@@ -286,7 +289,11 @@ def _process_event(event: Dict, relay_url: str):
         return
 
     event_id = event.get("id", "")
-    if not event_id or event_id in _seen_ids:
+    # G3: Validate event_id is exactly 64 hex chars before storage
+    if not event_id or not _EVENT_ID_RE.match(event_id):
+        logger.debug("Dropping event with invalid id format: %s", str(event_id)[:20])
+        return
+    if event_id in _seen_ids:
         return
     _seen_ids.add(event_id)
 

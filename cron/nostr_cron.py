@@ -3,17 +3,32 @@ cron/nostr_cron.py — Hourly Nostr top-content refresh.
 
 Scheduled to run every hour via system cron or the PP scheduler.
 Refreshes the nostr_monitor_events cache and prunes old low-score events.
+
+M6 FIX: Explicit path setup to ensure imports resolve regardless of cwd.
+Usage:
+    python3 /home/ultron/protocol_pulse/cron/nostr_cron.py
+  OR via crontab:
+    0 * * * * cd /home/ultron/protocol_pulse/core && python3 ../cron/nostr_cron.py
 """
 import logging
+import os
 import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-# Ensure project root is in path
-_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(_ROOT))
-sys.path.insert(0, str(_ROOT / "core"))
+# M6 FIX: Resolve project root and core path from this file's location (absolute)
+_CRON_DIR = Path(__file__).resolve().parent
+_PROJECT_ROOT = _CRON_DIR.parent
+_CORE_DIR = _PROJECT_ROOT / "core"
+
+# Insert at front so our modules take precedence
+for _p in [str(_CORE_DIR), str(_PROJECT_ROOT)]:
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+
+# Switch cwd to core/ so Flask's relative paths (DB, .env) resolve correctly
+os.chdir(str(_CORE_DIR))
 
 logger = logging.getLogger("nostr_cron")
 logging.basicConfig(
