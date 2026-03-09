@@ -1,3 +1,7 @@
+# MANDATORY: Read ~/protocol_pulse/CROSS_LLM_AUDIT_LAW.md before starting.
+# Sequence: Build -> 2-cycle LLM audit (Gemini+GPT4o+Grok parallel) -> Second pass -> Merge.
+# ------------------------------------------------------------
+
 # PROTOCOL PULSE — GOSPEL: F5 NODE COUNT WATCH
 # Branch: feature/f5-node-watch | Created: 2026-03-09
 ---

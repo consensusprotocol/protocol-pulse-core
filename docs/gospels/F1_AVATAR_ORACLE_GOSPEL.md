@@ -1,3 +1,7 @@
+# MANDATORY: Read ~/protocol_pulse/CROSS_LLM_AUDIT_LAW.md before starting.
+# Sequence: Build -> 2-cycle LLM audit (Gemini+GPT4o+Grok parallel) -> Second pass -> Merge.
+# ------------------------------------------------------------
+
 # PROTOCOL PULSE — GOSPEL: F1 AVATAR SYSTEM + ORACLE UI OVERHAUL
 # Status: GOSPEL. Load into EVERY Claude Code session touching avatar or oracle.
 # Branch: feature/f1-avatar-oracle

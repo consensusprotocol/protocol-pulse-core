@@ -1,3 +1,7 @@
+# MANDATORY: Read ~/protocol_pulse/CROSS_LLM_AUDIT_LAW.md before starting.
+# Sequence: Build -> 2-cycle LLM audit (Gemini+GPT4o+Grok parallel) -> Second pass -> Merge.
+# ------------------------------------------------------------
+
 # PROTOCOL PULSE — GOSPEL: F3 SCHIFF-BOT HYPOCRISY METRIC
 # Status: GOSPEL. Load into EVERY Claude Code session touching Schiff-Bot.
 # Branch: feature/f3-schiff-bot
