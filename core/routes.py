@@ -8038,6 +8038,94 @@ def api_media_highlights():
         logging.warning('api_media_highlights error: %s', e)
         return jsonify([])
 
+# ═══════════════════════════════════════════════════════════════
+# SCHIFF-BOT / BRIAN — HYPOCRISY METRIC
+# Routes: /schiff, /brian, /api/schiff/score, /api/schiff/refresh
+# ═══════════════════════════════════════════════════════════════
+
+try:
+    from services.schiff_service import (
+        get_latest_score as _schiff_get_score,
+        get_score_history as _schiff_get_history,
+        get_statements as _schiff_get_statements,
+        update_score as _schiff_update_score,
+        seed_statements as _schiff_seed,
+    )
+    _schiff_available = True
+except Exception as _schiff_import_err:
+    logging.warning("schiff_service import failed: %s", _schiff_import_err)
+    _schiff_available = False
+
+
+@app.route('/schiff')
+@app.route('/brian')
+def schiff_bot():
+    """Brian the Hypocrisy Analyst — Schiff-Bot page."""
+    try:
+        if _schiff_available:
+            score = _schiff_get_score(app=app)
+            history = _schiff_get_history(days=90, app=app)
+            statements = _schiff_get_statements(limit=12, app=app)
+        else:
+            score = {}
+            history = []
+            statements = []
+    except Exception as e:
+        logging.warning("schiff_bot view error: %s", e)
+        score = {}
+        history = []
+        statements = []
+    return render_template('schiff_bot.html', score=score, history=history, statements=statements)
+
+
+@app.route('/api/schiff/score')
+def schiff_score_api():
+    """Return the latest Schiff hypocrisy score as JSON."""
+    try:
+        if not _schiff_available:
+            return jsonify({"error": "schiff_service unavailable"}), 503
+        score = _schiff_get_score(app=app)
+        return jsonify(score)
+    except Exception as e:
+        logging.error("schiff_score_api error: %s", e)
+        return jsonify({"error": "Internal error", "detail": str(e)}), 500
+
+
+@app.route('/api/schiff/refresh', methods=['POST'])
+@admin_required
+def schiff_refresh():
+    """Admin-only: trigger a fresh EDGAR fetch and score recalculation."""
+    try:
+        if not _schiff_available:
+            return jsonify({"error": "schiff_service unavailable"}), 503
+        result = _schiff_update_score(app=app)
+        return jsonify(result)
+    except Exception as e:
+        logging.error("schiff_refresh error: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/schiff/statements')
+def schiff_statements_api():
+    """Return public statements list as JSON."""
+    try:
+        if not _schiff_available:
+            return jsonify([])
+        stmts = _schiff_get_statements(limit=50, app=app)
+        return jsonify(stmts)
+    except Exception as e:
+        logging.warning("schiff_statements_api error: %s", e)
+        return jsonify([])
+
+
+# Auto-seed statements once on startup
+try:
+    if _schiff_available:
+        _schiff_seed(app)
+except Exception as _seed_err:
+    logging.warning("Schiff seed (startup): %s", _seed_err)
+
+
 # Error handlers
 @app.errorhandler(404)
 def not_found_error(error):
