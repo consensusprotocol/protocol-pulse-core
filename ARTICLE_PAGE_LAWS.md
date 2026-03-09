@@ -1,3 +1,8 @@
+# MANDATORY: Read ~/protocol_pulse/CROSS_LLM_AUDIT_LAW.md before any build session.
+# Every feature: Build -> 2-cycle LLM audit (Gemini+GPT4o+Grok parallel) -> Second pass -> Merge.
+# INVIOLABLE. No exceptions. No shortcuts. No merging without the audit.
+# ------------------------------------------------------------
+
 # ARTICLE PAGE LAWS v1.0
 
 ## Protocol Pulse — Article Frontend Migration Spec

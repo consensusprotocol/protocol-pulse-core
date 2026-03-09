@@ -1,3 +1,7 @@
+# MANDATORY: Read ~/protocol_pulse/CROSS_LLM_AUDIT_LAW.md before starting.
+# Sequence: Build -> 2-cycle LLM audit (Gemini+GPT4o+Grok parallel) -> Second pass -> Merge.
+# ------------------------------------------------------------
+
 # PROTOCOL PULSE — GOSPEL: V30 PULSE TERMINAL API
 # Branch: feature/v30-terminal-api | Created: 2026-03-09
 ---

@@ -1,6 +1,13 @@
-# MANDATORY: Read ~/protocol_pulse/CROSS_LLM_AUDIT_LAW.md before starting.
-# Sequence: Build -> 2-cycle LLM audit (Gemini+GPT4o+Grok parallel) -> Second pass -> Merge.
-# ------------------------------------------------------------
+# PROTOCOL PULSE — CROSS-LLM AUDIT LAW
+# Status: SUPREME LAW. Governs ALL feature builds. Cannot be overridden.
+# Every Claude Code session reads this first. Every gospel references this.
+# Created: 2026-03-09
+#
+# THE ONE-LINE VERSION:
+# Build code -> fire cross_llm_audit.py (Gemini+GPT4o+Grok parallel, 2 cycles) -> second pass -> merge.
+# NEVER skip. NEVER audit specs. NEVER merge without FINAL_CONSENSUS.md existing.
+# NEVER paste Gemini keys in Claude.ai chat (Google scans and invalidates instantly).
+# Add Gemini key via SSH to Ultron only: ssh ultron then edit ~/protocol_pulse/.env
 
 # PROTOCOL PULSE — POST-BUILD LLM AUDIT PROTOCOL
 # Status: GOSPEL. This runs AFTER every Claude Code feature session.

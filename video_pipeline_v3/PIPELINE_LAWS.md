@@ -1,3 +1,8 @@
+# MANDATORY: Read ~/protocol_pulse/CROSS_LLM_AUDIT_LAW.md before any build session.
+# Every feature: Build -> 2-cycle LLM audit (Gemini+GPT4o+Grok parallel) -> Second pass -> Merge.
+# INVIOLABLE. No exceptions. No shortcuts. No merging without the audit.
+# ------------------------------------------------------------
+
 # PROTOCOL PULSE VIDEO PIPELINE — LAWS
 # Sections 1-14 (Core Rules)
 # Sections 15-18 in PIPELINE_LAWS_ADDENDUM.md
