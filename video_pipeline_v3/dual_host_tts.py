@@ -200,14 +200,15 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1) -> bool:
                     os.remove(f)
                 except Exception:
                     pass
-            # BUG1 FIX A: Fallback chain — pyttsx3 → silence (never return False)
-            print(f"  [tts] ElevenLabs failed — trying pyttsx3 fallback")
+            # P0.6 FIX: Fall back the ENTIRE text to pyttsx3 (not just this chunk).
+            # Returning inside the chunk loop would abandon remaining chunks.
+            print(f"  [tts] ElevenLabs failed — falling back entire text to pyttsx3")
             try:
                 import pyttsx3
                 _engine = pyttsx3.init()
                 _engine.setProperty("rate", 150)
                 wav_tmp = output_path + ".pyttsx3.wav"
-                _engine.save_to_file(chunk, wav_tmp)
+                _engine.save_to_file(text, wav_tmp)  # full text, not just the failed chunk
                 _engine.runAndWait()
                 if os.path.exists(wav_tmp) and os.path.getsize(wav_tmp) > 1000:
                     ok = _mp3_to_m4a(wav_tmp, output_path)
@@ -216,7 +217,8 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1) -> bool:
                     except Exception:
                         pass
                     if ok:
-                        return ok
+                        print(f"  [tts] pyttsx3 fallback SUCCESS (full text)")
+                        return True
             except Exception as pyttsx_err:
                 print(f"  [tts] pyttsx3 unavailable: {pyttsx_err}")
             return _tts_generate_silence_fallback(text, output_path)
@@ -276,7 +278,11 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
 
     key = _get_cached_key("ELEVENLABS_API_KEY")
     if not key:
-        raise RuntimeError("ELEVENLABS_API_KEY not available. Cannot generate audio.")
+        # P1.1 FIX: Route to pyttsx3 fallback instead of hard-failing.
+        # tts_elevenlabs() below already handles missing key gracefully — this guard
+        # was defeating that. Log a warning and continue so fallback is reachable.
+        import logging as _logging
+        _logging.warning("generate_dialogue_audio: ELEVENLABS_API_KEY missing — pyttsx3 fallback will be used")
 
     silence_path = os.path.join(output_dir, "silence.m4a")
     _generate_silence(silence_path, SILENCE_GAP)
@@ -290,7 +296,7 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
         text = entry.get("text", "")
 
         if host == "CLIP":
-            clip_dur = entry.get("duration", 0)
+            clip_dur = float(entry.get("duration", 0))
             lines.append({
                 "path": None,
                 "host": "CLIP",
@@ -300,6 +306,7 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
                 "query": entry.get("query", ""),
                 "text": text,
             })
+            current_time += clip_dur  # P0.5: advance timeline past CLIP
             continue
 
         host_num = int(host) if host in (1, 2, "1", "2") else 1
@@ -320,7 +327,9 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
             parts_for_concat.append(line_path)
             current_time += dur
 
-            if i < len(dialogue) - 1:
+            # Don't insert silence before a CLIP — it has its own timing
+            next_entry = dialogue[i + 1] if i < len(dialogue) - 1 else None
+            if next_entry is not None and next_entry.get("host") != "CLIP":
                 parts_for_concat.append(silence_path)
                 current_time += SILENCE_GAP
         else:

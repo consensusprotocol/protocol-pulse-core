@@ -17,6 +17,7 @@ import re
 import uuid
 from functools import wraps
 from datetime import datetime, timedelta
+import threading
 
 # Import services
 # Note: Ensure these services are also using relative imports if they cause loops
@@ -38,6 +39,49 @@ from services.price_service import price_service
 from services.youtube_service import YouTubeService
 from services.node_service import NodeService
 from services.ghl_service import ghl_service
+
+# ─── Sentiment classification trigger (LAW 1: classify within 60s of publish) ───
+
+def _trigger_sentiment_classification(article_id: int):
+    """
+    Spin up a background thread to classify the article.
+    Uses Flask app context so DB writes work correctly.
+    Non-blocking — returns immediately.
+    """
+    def _classify_worker(aid):
+        import time as _time
+        _time.sleep(2)  # brief delay to let the DB commit settle
+        try:
+            from services.sentiment_analyzer import classify_article
+            result = classify_article(aid)
+            if result:
+                logging.info("Sentiment classification complete: article %s → %s", aid, result.get("sentiment"))
+        except Exception as e:
+            logging.error("Background sentiment classification failed for article %s: %s", aid, e)
+
+    t = threading.Thread(target=_classify_worker, args=(article_id,), daemon=True)
+    t.start()
+
+
+def _startup_batch_classify():
+    """Run on app startup: classify any unclassified articles from last 24h."""
+    def _batch_worker():
+        import time as _time
+        _time.sleep(10)  # wait for app to finish starting up
+        try:
+            from services.sentiment_analyzer import batch_classify
+            result = batch_classify(hours=24)
+            logging.info("Startup batch classify: %s", result)
+        except Exception as e:
+            logging.error("Startup batch classify failed: %s", e)
+
+    t = threading.Thread(target=_batch_worker, daemon=True)
+    t.start()
+
+
+# Fire startup batch classify once (non-blocking)
+_startup_batch_classify()
+
 
 # Initialize services
 ai_service = AIService()
@@ -2619,7 +2663,10 @@ def api_publish_article(article_id):
         # Only set published after AI approval
         article.published = True
         db.session.commit()
-        
+
+        # LAW 1: Trigger sentiment classification within 60s of publication (non-blocking)
+        _trigger_sentiment_classification(article_id)
+
         return jsonify({'success': True, 'message': 'Article published successfully'})
         
     except Exception as e:
@@ -2799,19 +2846,268 @@ def api_generate_sentiment():
 
 @app.route('/sentiment')
 def sentiment_dashboard():
-    """Public sentiment reports dashboard"""
-    
-    reports = models.SentimentReport.query.order_by(models.SentimentReport.report_date.desc()).limit(14).all()
-    
-    latest_report = reports[0] if reports else None
-    latest_article = None
-    if latest_report and latest_report.article_id:
-        latest_article = models.Article.query.get(latest_report.article_id)
-    
-    return render_template('sentiment_dashboard.html', 
-                          reports=reports, 
-                          latest_report=latest_report,
-                          latest_article=latest_article)
+    """Public sentiment dashboard — real-time article classification + narrative intelligence."""
+    import json as _json
+    from sqlalchemy import text as _text
+
+    # ── Latest sentiment report ───────────────────────────────────────────────
+    try:
+        latest_report = db.session.execute(
+            _text("""SELECT report_date, overall_sentiment, score, bullish_pct, bearish_pct,
+                            neutral_pct, narrative, top_bullish_signals, top_bearish_signals,
+                            dominant_narrative, anomaly_detected, created_at
+                     FROM sentiment_reports ORDER BY report_date DESC LIMIT 1""")
+        ).fetchone()
+    except Exception:
+        latest_report = None
+
+    # ── 7-day score history ───────────────────────────────────────────────────
+    try:
+        score_rows = db.session.execute(
+            _text("""SELECT report_date, score, overall_sentiment
+                     FROM sentiment_reports ORDER BY report_date DESC LIMIT 7""")
+        ).fetchall()
+        score_history = [
+            {"date": str(r[0]), "score": float(r[1] or 50), "sentiment": r[2] or "neutral"}
+            for r in reversed(score_rows)
+        ]
+    except Exception:
+        score_history = []
+
+    # ── Recent classified articles ────────────────────────────────────────────
+    try:
+        article_rows = db.session.execute(
+            _text("""SELECT id, title, summary, sentiment, sentiment_confidence,
+                            narrative_label, importance_score, source_url, created_at
+                     FROM articles
+                     WHERE published=1
+                     ORDER BY importance_score DESC NULLS LAST, created_at DESC
+                     LIMIT 20""")
+        ).fetchall()
+        recent_articles = []
+        for r in article_rows:
+            recent_articles.append({
+                "id": r[0], "title": r[1], "summary": (r[2] or "")[:200],
+                "sentiment": r[3] or "unclassified",
+                "confidence": float(r[4] or 0),
+                "narrative_label": r[5] or "—",
+                "importance_score": int(r[6] or 50),
+                "source_url": r[7],
+                "created_at": str(r[8]),
+            })
+    except Exception:
+        recent_articles = []
+
+    # ── Anomaly events ────────────────────────────────────────────────────────
+    try:
+        anomaly_rows = db.session.execute(
+            _text("""SELECT id, event_type, severity, description, created_at
+                     FROM intelligence_events
+                     WHERE severity IN ('warning', 'critical')
+                     ORDER BY created_at DESC LIMIT 5""")
+        ).fetchall()
+        anomaly_events = [
+            {"id": r[0], "type": r[1], "severity": r[2], "description": r[3], "created_at": str(r[4])}
+            for r in anomaly_rows
+        ]
+    except Exception:
+        anomaly_events = []
+
+    # ── Parse signals from JSON ───────────────────────────────────────────────
+    top_bullish = []
+    top_bearish = []
+    if latest_report:
+        try:
+            top_bullish = _json.loads(latest_report[7] or "[]")[:5]
+        except Exception:
+            pass
+        try:
+            top_bearish = _json.loads(latest_report[8] or "[]")[:5]
+        except Exception:
+            pass
+
+    return render_template(
+        'sentiment_dashboard.html',
+        latest_report=latest_report,
+        score_history=score_history,
+        score_history_json=_json.dumps(score_history),
+        recent_articles=recent_articles,
+        top_bullish=top_bullish,
+        top_bearish=top_bearish,
+        anomaly_events=anomaly_events,
+    )
+
+
+@app.route('/intelligence')
+def intelligence_page():
+    """Public intelligence dashboard — signal strength, trending topics, entity tracker."""
+    import json as _json
+    from sqlalchemy import text as _text
+
+    try:
+        from services.intelligence_service import (
+            get_signal_strength, get_trending_topics,
+            get_entity_tracker, get_narrative_timeline, get_intelligence_events
+        )
+        signal = get_signal_strength()
+        trending = get_trending_topics(hours=24)
+        entities = get_entity_tracker(hours=48)
+        narrative_timeline = get_narrative_timeline(days=7)
+        intel_events = get_intelligence_events(limit=8)
+    except Exception as e:
+        logging.error("intelligence_page service error: %s", e)
+        signal = {"composite": 50, "label": "NEUTRAL", "color": "#f8c15c", "components": {}, "trajectory": "UNKNOWN"}
+        trending = []
+        entities = []
+        narrative_timeline = []
+        intel_events = []
+
+    # ── 24h article count ─────────────────────────────────────────────────────
+    try:
+        from datetime import timedelta as _td
+        cutoff_24h = (datetime.utcnow() - _td(hours=24)).isoformat()
+        article_count_24h = db.session.execute(
+            _text("SELECT COUNT(*) FROM articles WHERE published=1 AND created_at >= :c"),
+            {"c": cutoff_24h}
+        ).fetchone()[0]
+    except Exception:
+        article_count_24h = 0
+
+    # ── Top articles by importance ────────────────────────────────────────────
+    try:
+        imp_rows = db.session.execute(
+            _text("""SELECT id, title, sentiment, narrative_label, importance_score,
+                            market_impact_magnitude, created_at
+                     FROM articles WHERE published=1
+                     ORDER BY importance_score DESC NULLS LAST, created_at DESC
+                     LIMIT 15""")
+        ).fetchall()
+        top_articles = [
+            {
+                "id": r[0], "title": r[1],
+                "sentiment": r[2] or "unclassified",
+                "narrative_label": r[3] or "—",
+                "importance_score": int(r[4] or 50),
+                "impact": float(r[5] or 5.0),
+                "created_at": str(r[6]),
+            }
+            for r in imp_rows
+        ]
+    except Exception:
+        top_articles = []
+
+    return render_template(
+        'intelligence_page.html',
+        signal=signal,
+        trending=trending,
+        entities=entities,
+        narrative_timeline=narrative_timeline,
+        intel_events=intel_events,
+        article_count_24h=article_count_24h,
+        top_articles=top_articles,
+        signal_json=_json.dumps(signal, default=str),
+        trending_json=_json.dumps(trending),
+    )
+
+
+@app.route('/api/stream/sentiment')
+def stream_sentiment():
+    """
+    SSE endpoint — push classification events as they happen.
+    Client connects once and receives events in real-time.
+    """
+    import queue
+    import time as _time
+
+    def event_stream():
+        try:
+            from services.sentiment_analyzer import register_sse_subscriber, unregister_sse_subscriber
+        except Exception as e:
+            logging.error("stream_sentiment: import failed: %s", e)
+            yield "data: {\"error\": \"service unavailable\"}\n\n"
+            return
+
+        q = queue.Queue(maxsize=50)
+        register_sse_subscriber(q)
+        try:
+            # Send initial connection confirmation
+            yield "retry: 5000\n"
+            yield "data: {\"type\": \"connected\", \"ts\": " + str(int(_time.time())) + "}\n\n"
+
+            heartbeat_interval = 30  # seconds
+            last_heartbeat = _time.monotonic()
+
+            while True:
+                try:
+                    # Wait up to 1 second for new event
+                    event = q.get(timeout=1.0)
+                    import json as _j
+                    yield f"data: {_j.dumps(event, default=str)}\n\n"
+                    last_heartbeat = _time.monotonic()
+                except queue.Empty:
+                    # Heartbeat to keep connection alive
+                    if _time.monotonic() - last_heartbeat >= heartbeat_interval:
+                        yield ": heartbeat\n\n"
+                        last_heartbeat = _time.monotonic()
+        except GeneratorExit:
+            pass
+        finally:
+            unregister_sse_subscriber(q)
+
+    response = Response(event_stream(), mimetype="text/event-stream")
+    response.headers["Cache-Control"] = "no-cache"
+    response.headers["X-Accel-Buffering"] = "no"
+    response.headers["Connection"] = "keep-alive"
+    return response
+
+
+@app.route('/api/sentiment/classify', methods=['POST'])
+def api_classify_article():
+    """Trigger classification of a specific article. Admin or internal use."""
+    try:
+        data = request.get_json(silent=True) or {}
+        article_id = data.get('article_id')
+        if not article_id:
+            return jsonify({'success': False, 'error': 'article_id required'}), 400
+
+        from services.sentiment_analyzer import classify_article
+        result = classify_article(int(article_id))
+        if result:
+            return jsonify({'success': True, 'result': result})
+        return jsonify({'success': False, 'error': 'classification failed'})
+    except ValueError:
+        return jsonify({'success': False, 'error': 'invalid article_id'}), 400
+    except Exception as e:
+        logging.error("api_classify_article error: %s", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/sentiment/batch', methods=['POST'])
+def api_batch_classify():
+    """Trigger batch classification. Rate-limited."""
+    try:
+        data = request.get_json(silent=True) or {}
+        hours = int(data.get('hours', 6))
+        hours = max(1, min(48, hours))  # clamp to 1-48h
+
+        from services.sentiment_analyzer import batch_classify
+        result = batch_classify(hours=hours)
+        return jsonify({'success': True, 'result': result})
+    except Exception as e:
+        logging.error("api_batch_classify error: %s", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/intelligence/signal')
+def api_signal_strength():
+    """Return signal strength composite. Cached 5 minutes."""
+    try:
+        from services.intelligence_service import get_signal_strength
+        result = get_signal_strength()
+        return jsonify({'success': True, 'data': result})
+    except Exception as e:
+        logging.error("api_signal_strength error: %s", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/sarah-briefing')

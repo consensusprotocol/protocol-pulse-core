@@ -234,14 +234,15 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
                     os.remove(f)
                 except Exception:
                     pass
-            # BUG1 FIX A: Fallback chain — pyttsx3 → silence (never return False)
-            print(f"  [tts] ElevenLabs failed for chunk {ci} — trying pyttsx3 fallback")
+            # P0.6 FIX: Fall back the ENTIRE text to pyttsx3 (not just this chunk).
+            # Returning inside the chunk loop would abandon remaining chunks.
+            print(f"  [tts] ElevenLabs failed for chunk {ci} — falling back entire text to pyttsx3")
             try:
                 import pyttsx3
                 _engine = pyttsx3.init()
                 _engine.setProperty("rate", 150)
-                wav_tmp = output_path + f".pyttsx3.wav"
-                _engine.save_to_file(chunk, wav_tmp)
+                wav_tmp = output_path + ".pyttsx3.wav"
+                _engine.save_to_file(text, wav_tmp)  # full text, not just the failed chunk
                 _engine.runAndWait()
                 if os.path.exists(wav_tmp) and os.path.getsize(wav_tmp) > 1000:
                     ok = _mp3_to_m4a(wav_tmp, output_path)
@@ -250,8 +251,8 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
                     except Exception:
                         pass
                     if ok:
-                        print(f"  [tts] pyttsx3 fallback SUCCESS for chunk {ci}")
-                        return ok
+                        print(f"  [tts] pyttsx3 fallback SUCCESS (full text)")
+                        return True
             except Exception as pyttsx_err:
                 print(f"  [tts] pyttsx3 unavailable: {pyttsx_err}")
             # Final fallback: generate silence so the segment still renders
@@ -323,17 +324,19 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
         host = entry.get("host")
         text = entry.get("text", "")
 
-        # Skip CLIP markers — they don't have audio
+        # Skip CLIP markers — they don't have audio but DO advance the timeline
         if host == "CLIP":
+            clip_duration = float(entry.get("duration", 0.0))
             lines.append({
                 "path": None,
                 "host": "CLIP",
-                "duration": 0.0,
+                "duration": clip_duration,
                 "start": current_time,
                 "source": entry.get("source", ""),
                 "query": entry.get("query", ""),
                 "text": text,
             })
+            current_time += clip_duration  # P0.5: advance timeline past CLIP
             continue
 
         host_num = int(host) if host in (1, 2, "1", "2") else 1
@@ -356,8 +359,9 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
             parts_for_concat.append(line_path)
             current_time += dur
 
-            # Add silence gap between speakers (not after last line)
-            if i < len(dialogue) - 1:
+            # Add silence gap between speakers (not after last line, not before CLIP)
+            next_entry = dialogue[i + 1] if i < len(dialogue) - 1 else None
+            if next_entry is not None and next_entry.get("host") != "CLIP":
                 parts_for_concat.append(silence_path)
                 current_time += SILENCE_GAP
         else:
