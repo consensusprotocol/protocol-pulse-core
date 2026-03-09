@@ -470,6 +470,22 @@ def terminal_subscribe():
     if not email or "@" not in email:
         return jsonify({"error": "Valid email required"}), 400
 
+    # CSRF protection: validate request origin
+    allowed_origins = {
+        os.environ.get("SERVER_NAME", "protocolpulse.io"),
+        "protocolpulse.io",
+        "www.protocolpulse.io",
+        "127.0.0.1",
+        "localhost",
+    }
+    origin = request.headers.get("Origin", "") or request.headers.get("Referer", "")
+    if origin:
+        from urllib.parse import urlparse
+        parsed = urlparse(origin)
+        if parsed.hostname and parsed.hostname not in allowed_origins:
+            logger.warning("CSRF: blocked subscribe from origin %s", origin)
+            return jsonify({"error": "Invalid request origin", "code": "INVALID_ORIGIN"}), 403
+
     stripe_key = os.environ.get("STRIPE_SECRET_KEY")
     if not stripe_key:
         return jsonify({
@@ -486,6 +502,11 @@ def terminal_subscribe():
 
     try:
         stripe.api_key = stripe_key
+        # Idempotency key: prevents duplicate checkout sessions from retries/double-clicks
+        # 5-minute window so legitimate retries after failures can succeed
+        idempotency_key = hashlib.sha256(
+            f"checkout-{email}-{int(time.time() // 300)}".encode()
+        ).hexdigest()
         session = stripe.checkout.Session.create(
             payment_method_types=["card"],
             mode="subscription",
@@ -498,6 +519,7 @@ def terminal_subscribe():
                 "tier": "commander",
                 "email": email,
             },
+            idempotency_key=idempotency_key,
         )
         return jsonify({"checkout_url": session.url, "session_id": session.id}), 200
     except Exception as e:
@@ -535,7 +557,7 @@ def terminal_subscribe_success():
                         result = provision_terminal_subscriber(dict(checkout_session), db, models)
                         if result["success"]:
                             api_key = result["api_key"]
-                            _send_welcome_email(customer_email, api_key)
+                            # Welcome email sent by webhook handler (authoritative) — not here
         except Exception as e:
             logger.error("Success page error for session %s: %s", session_id, e)
             error = "Could not retrieve your subscription details. Check your email for your API key."
@@ -557,16 +579,14 @@ def terminal_stripe_webhook():
     webhook_secret = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 
     if not webhook_secret:
-        logger.warning("STRIPE_WEBHOOK_SECRET not set — skipping signature validation")
-        try:
-            event = json.loads(payload)
-        except Exception:
-            return jsonify({"error": "Invalid payload"}), 400
-    else:
-        event = validate_webhook_signature(payload, sig_header, webhook_secret)
-        if not event:
-            logger.warning("Invalid Stripe webhook signature from %s", request.remote_addr)
-            return jsonify({"error": "Invalid signature"}), 400
+        logger.critical("STRIPE_WEBHOOK_SECRET not configured — rejecting all webhook requests. "
+                        "Set STRIPE_WEBHOOK_SECRET in .env to enable Terminal API subscriptions.")
+        from flask import abort
+        abort(500)
+    event = validate_webhook_signature(payload, sig_header, webhook_secret)
+    if not event:
+        logger.warning("Invalid Stripe webhook signature from %s", request.remote_addr)
+        return jsonify({"error": "Invalid signature"}), 400
 
     event_type = event.get("type", "")
     event_obj = (event.get("data") or {}).get("object", {})
@@ -577,11 +597,23 @@ def terminal_stripe_webhook():
         if event_type == "checkout.session.completed":
             result = provision_terminal_subscriber(event_obj, db, models)
             if result["success"] and result.get("api_key") and result.get("email"):
-                # Send welcome email in background thread
-                email = result["email"]
-                key = result["api_key"]
-                t = threading.Thread(target=_send_welcome_email, args=(email, key), daemon=True)
-                t.start()
+                # Send welcome email only once (check flag to prevent double-send)
+                try:
+                    sub = models.ApiSubscriber.query.filter_by(
+                        api_key=result["api_key"]
+                    ).first()
+                    if sub and not sub.welcome_email_sent:
+                        sub.welcome_email_sent = True
+                        db.session.commit()
+                        email = result["email"]
+                        key = result["api_key"]
+                        t = threading.Thread(
+                            target=_send_welcome_email, args=(email, key), daemon=True
+                        )
+                        t.start()
+                except Exception as e:
+                    logger.error("Error sending welcome email: %s", e)
+                    db.session.rollback()
 
         elif event_type in ("customer.subscription.deleted", "customer.subscription.updated"):
             if event_type == "customer.subscription.deleted":
@@ -598,8 +630,19 @@ def terminal_stripe_webhook():
                             sub.subscription_status = status
                             if status == "active":
                                 sub.is_active = True
+                                sub.past_due_since = None
+                            elif status == "past_due":
+                                if not sub.past_due_since:
+                                    sub.past_due_since = datetime.utcnow()
                             elif status in ("canceled", "unpaid"):
                                 sub.is_active = False
+                            # Sync renewal date and price
+                            period_end_ts = event_obj.get("current_period_end")
+                            if period_end_ts:
+                                sub.current_period_end = datetime.utcfromtimestamp(period_end_ts)
+                            price_id = (event_obj.get("items") or {}).get("data", [{}])[0].get("price", {}).get("id")
+                            if price_id:
+                                sub.stripe_price_id = price_id
                             db.session.commit()
                     except Exception as e:
                         logger.error("Error updating subscription status: %s", e)
@@ -648,14 +691,24 @@ def api_dashboard():
         subscriber = None  # Show unauthenticated state
 
     sparkline = []
+    requests_today = 0
     if subscriber:
         sparkline = get_hourly_usage_sparkline(subscriber.api_key, db, models)
+        try:
+            today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+            requests_today = db.session.query(db.func.count(models.ApiRequestLog.id)).filter(
+                models.ApiRequestLog.api_key == subscriber.api_key,
+                models.ApiRequestLog.created_at >= today_start,
+            ).scalar() or 0
+        except Exception as e:
+            logger.warning("requests_today query failed: %s", e)
 
     return render_template(
         "api_dashboard.html",
         subscriber=subscriber,
         sparkline_json=json.dumps(sparkline),
         api_key=api_key if subscriber else "",
+        requests_today=requests_today,
     )
 
 
@@ -675,17 +728,17 @@ def rotate_api_key():
             return jsonify({"error": "Cannot rotate demo key"}), 403
 
         new_key = generate_api_key(subscriber.tier)
-        old_key = subscriber.api_key
+        # Move current key to previous with 1-hour grace period
+        subscriber.previous_api_key = subscriber.api_key
+        subscriber.previous_key_expires_at = datetime.utcnow() + timedelta(hours=1)
         subscriber.api_key = new_key
-        # Set old key expiry (1hr grace — handled by is_key_valid checking key_expires_at)
-        # We just replace the key; old key is gone from DB immediately
         db.session.commit()
 
         logger.info("API key rotated for %s", subscriber.email)
         return jsonify({
             "success": True,
             "new_api_key": new_key,
-            "message": "Old key is immediately invalidated. Update your applications.",
+            "message": "Old key valid for 1 hour grace period. Update your applications.",
         }), 200
     except Exception as e:
         logger.error("Key rotation error: %s", e)

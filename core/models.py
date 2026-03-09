@@ -976,6 +976,10 @@ class ApiSubscriber(db.Model):
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_used_at = db.Column(db.DateTime)
+    welcome_email_sent = db.Column(db.Boolean, default=False)
+    past_due_since = db.Column(db.DateTime, nullable=True)
+    previous_api_key = db.Column(db.String(64), nullable=True)
+    previous_key_expires_at = db.Column(db.DateTime, nullable=True)
 
     def get_entitlements(self):
         """Return entitlements as dict."""
@@ -1001,6 +1005,12 @@ class ApiSubscriber(db.Model):
             return False
         if self.key_expires_at and datetime.utcnow() > self.key_expires_at:
             return False
+        if self.subscription_status == "past_due":
+            # Allow 72-hour grace period after payment failure
+            if self.past_due_since:
+                grace_end = self.past_due_since + timedelta(hours=72)
+                if datetime.utcnow() > grace_end:
+                    return False
         return True
 
 

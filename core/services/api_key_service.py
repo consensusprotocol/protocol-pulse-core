@@ -195,7 +195,29 @@ def require_api_key(f):
             logger.error("DB error looking up API key: %s", e)
             return jsonify({"error": "Service temporarily unavailable", "code": "DB_ERROR"}), 503
 
-        if not subscriber or not subscriber.is_key_valid():
+        if not subscriber:
+            # Also check if this is a rotated-away key still in grace period
+            try:
+                old_sub = models.ApiSubscriber.query.filter_by(
+                    previous_api_key=api_key
+                ).first()
+                if old_sub and old_sub.previous_key_expires_at and \
+                   datetime.utcnow() < old_sub.previous_key_expires_at and \
+                   old_sub.is_active:
+                    subscriber = old_sub
+                else:
+                    return jsonify({
+                        "error": "Invalid or expired API key",
+                        "code": "INVALID_KEY",
+                        "docs": "/api/v2/terminal/docs"
+                    }), 401
+            except Exception:
+                return jsonify({
+                    "error": "Invalid or expired API key",
+                    "code": "INVALID_KEY",
+                    "docs": "/api/v2/terminal/docs"
+                }), 401
+        elif not subscriber.is_key_valid():
             return jsonify({
                 "error": "Invalid or expired API key",
                 "code": "INVALID_KEY",
@@ -293,23 +315,39 @@ def provision_demo_key(db, models):
 def get_hourly_usage_sparkline(api_key: str, db, models) -> list:
     """
     Returns 24 hourly buckets (last 24h) of request counts for the sparkline.
-    Each bucket: {"hour": "HH:00", "count": int}
+    Single GROUP BY query — no N+1.
     """
     from models import ApiRequestLog
-    from sqlalchemy import func, extract
+    from sqlalchemy import func, text
 
     now = datetime.utcnow()
-    buckets = []
+    window_start = now - timedelta(hours=24)
+
+    # Initialize 24 zero-count slots
+    buckets = {}
+    for i in range(23, -1, -1):
+        slot_time = now - timedelta(hours=i)
+        key = slot_time.strftime("%H:00")
+        buckets[key] = 0
+
     try:
-        for i in range(23, -1, -1):
-            bucket_start = now - timedelta(hours=i+1)
-            bucket_end = now - timedelta(hours=i)
-            count = db.session.query(func.count(ApiRequestLog.id)).filter(
-                ApiRequestLog.api_key == api_key,
-                ApiRequestLog.created_at >= bucket_start,
-                ApiRequestLog.created_at < bucket_end,
-            ).scalar() or 0
-            buckets.append({"hour": bucket_start.strftime("%H:00"), "count": count})
+        # Single query: count requests per hour in last 24h
+        results = db.session.query(
+            func.strftime("%H", ApiRequestLog.created_at).label("hour"),
+            func.count(ApiRequestLog.id).label("cnt"),
+        ).filter(
+            ApiRequestLog.api_key == api_key,
+            ApiRequestLog.created_at >= window_start,
+        ).group_by(
+            func.strftime("%H", ApiRequestLog.created_at)
+        ).all()
+
+        for row in results:
+            slot_key = f"{row.hour}:00"
+            if slot_key in buckets:
+                buckets[slot_key] = row.cnt
+
     except Exception as e:
         logger.warning("sparkline query failed: %s", e)
-    return buckets
+
+    return [{"hour": k, "count": v} for k, v in buckets.items()]

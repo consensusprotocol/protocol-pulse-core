@@ -158,7 +158,7 @@ canvas#sparkline { width: 100%; height: 80px; }
     <div class="dash-grid">
       <div class="stat-card">
         <div class="stat-label">Requests Today</div>
-        <div class="stat-value">{{ subscriber.requests_today or 0 }}</div>
+        <div class="stat-value">{{ requests_today }}</div>
         <div class="stat-sub">of {{ subscriber.rate_limit_per_hour }}/hr limit</div>
       </div>
       <div class="stat-card">

@@ -33,8 +33,11 @@ def resolve_tier_from_price(price_id: str) -> str | None:
 
 def handle_checkout_completed(session_obj: dict, db, models) -> dict:
     """
-    Process a checkout.session.completed event for Terminal subscriptions.
-    Upgrades user tier to commander (or whichever tier was purchased).
+    Process checkout.session.completed for USER MODEL subscriptions (web login tier upgrades).
+
+    WARNING: This function operates on the User model, NOT ApiSubscriber.
+    For Terminal API subscriptions (subscription_type=terminal_api), use
+    provision_terminal_subscriber() instead. These two flows are separate.
 
     Returns {"success": bool, "tier": str, "user_id": int|None, "error": str|None}
     """
@@ -84,7 +87,12 @@ def handle_checkout_completed(session_obj: dict, db, models) -> dict:
 
 def handle_subscription_deleted(subscription_obj: dict, db, models) -> dict:
     """
-    Process a customer.subscription.deleted event.
+    Process customer.subscription.deleted for USER MODEL subscriptions.
+
+    WARNING: This function operates on the User model, NOT ApiSubscriber.
+    For Terminal API subscription cancellations, use cancel_terminal_subscriber() instead.
+    These two flows are separate.
+
     Downgrades user back to free tier.
     """
     subscription_id = subscription_obj.get("id")
