@@ -907,6 +907,51 @@ class EmergencyFlash(db.Model):
     acknowledged_at = db.Column(db.DateTime)
     article = db.relationship('Article', backref='emergency_flash', lazy=True)
 
+# =====================================
+# NOSTR INTELLIGENCE MONITOR (F4)
+# =====================================
+
+class NostrMonitorEvent(db.Model):
+    """Inbound Nostr events captured by the relay monitor."""
+    __tablename__ = 'nostr_monitor_events'
+    id = db.Column(db.Integer, primary_key=True)
+    event_id = db.Column(db.String(64), unique=True, nullable=False)
+    pubkey = db.Column(db.String(64), nullable=False)
+    kind = db.Column(db.Integer, nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    engagement_score = db.Column(db.Float, default=0.0)
+    zaps = db.Column(db.Integer, default=0)
+    quotes = db.Column(db.Integer, default=0)
+    reposts = db.Column(db.Integer, default=0)
+    replies = db.Column(db.Integer, default=0)
+    reactions = db.Column(db.Integer, default=0)
+    bitcoin_relevance = db.Column(db.Float, default=0.0)
+    relay_source = db.Column(db.String(100))
+    created_at = db.Column(db.Integer, nullable=False)       # Nostr unix timestamp
+    fetched_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.Index('idx_nostr_score', 'engagement_score'),
+        db.Index('idx_nostr_created', 'created_at'),
+        db.Index('idx_nostr_relevance', 'bitcoin_relevance'),
+    )
+
+
+class NostrTrackedPubkey(db.Model):
+    """High-signal Nostr pubkeys tracked by Protocol Pulse."""
+    __tablename__ = 'nostr_tracked_pubkeys'
+    id = db.Column(db.Integer, primary_key=True)
+    pubkey = db.Column(db.String(64), unique=True, nullable=False)
+    display_name = db.Column(db.String(150))
+    nip05 = db.Column(db.String(200))
+    follower_tier = db.Column(db.String(20), default='standard')  # 'vip', 'standard'
+    added_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.Index('idx_nostr_pubkey_tier', 'follower_tier'),
+    )
+
+
 class CollectedSignal(db.Model):
     __tablename__ = 'collected_signal'
     id = db.Column(db.Integer, primary_key=True)

@@ -4367,6 +4367,107 @@ def skip_alert(alert_id):
     return jsonify({'success': True})
 
 # ============================================
+# ============================================
+# NOSTR INTELLIGENCE ROUTES (F4)
+# Gospel: GOSPEL.md — LAW 1-5 compliant
+# ============================================
+
+@app.route('/nostr')
+def nostr_page():
+    """Public-facing Nostr onboarding + live signal feed."""
+    try:
+        from services.nostr_service import get_top_content, get_relay_status
+        top_content = get_top_content(limit=10)
+        relay_status = get_relay_status()
+    except Exception as e:
+        logging.warning("nostr_page service error: %s", e)
+        top_content = []
+        relay_status = [
+            {"relay": r, "connected": False, "last_event_at": None, "events_today": 0}
+            for r in ["wss://relay.damus.io", "wss://nos.lol", "wss://relay.nostr.band", "wss://relay.primal.net"]
+        ]
+
+    pp_npub = os.environ.get("NOSTR_NPUB", "npub1protocolpulsexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+    return render_template(
+        'nostr.html',
+        top_content=top_content,
+        relay_status=relay_status,
+        pp_npub=pp_npub,
+    )
+
+
+@app.route('/api/nostr/top')
+def nostr_top():
+    """GET → top 10 Nostr events by engagement score."""
+    try:
+        limit = min(int(request.args.get('limit', 10)), 25)
+        from services.nostr_service import get_top_content
+        content = get_top_content(limit=limit)
+        return jsonify(content)
+    except Exception as e:
+        logging.warning("nostr_top error: %s", e)
+        return jsonify([])
+
+
+@app.route('/api/nostr/relay-status')
+def nostr_relay_status():
+    """GET → relay connection status."""
+    try:
+        from services.nostr_service import get_relay_status
+        status = get_relay_status()
+        return jsonify(status)
+    except Exception as e:
+        logging.warning("nostr_relay_status error: %s", e)
+        relays = ["wss://relay.damus.io", "wss://nos.lol", "wss://relay.nostr.band", "wss://relay.primal.net"]
+        return jsonify([
+            {"relay": r, "connected": False, "last_event_at": None, "events_today": 0}
+            for r in relays
+        ])
+
+
+@app.route('/api/nostr/publish', methods=['POST'])
+@login_required
+@admin_required
+def nostr_publish():
+    """POST {content, kind} → publish to all Nostr relays. Admin only. LAW 5 enforced."""
+    try:
+        data = request.get_json(silent=True) or {}
+        content = (data.get('content') or '').strip()
+        kind = int(data.get('kind', 1))
+
+        if not content:
+            return jsonify({"success": False, "error": "content required"}), 400
+        if len(content) > 4096:
+            return jsonify({"success": False, "error": "content too long (max 4096 chars)"}), 400
+        if kind not in (1, 30023):
+            return jsonify({"success": False, "error": "kind must be 1 or 30023"}), 400
+
+        from nostr.nostr_publisher import sign_and_publish, get_daily_post_count
+        result = sign_and_publish(content=content, kind=kind)
+        result["daily_count"] = get_daily_post_count()
+        return jsonify(result)
+    except Exception as e:
+        logging.error("nostr_publish error: %s", e)
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/nostr/stats')
+def nostr_stats():
+    """GET → aggregate stats (event count, relay status)."""
+    try:
+        from services.nostr_service import get_stats, get_relay_status
+        stats = get_stats()
+        relay_status = get_relay_status()
+        connected = sum(1 for r in relay_status if r.get("connected"))
+        stats["relays_connected"] = connected
+        stats["relays_total"] = len(relay_status)
+        return jsonify(stats)
+    except Exception as e:
+        logging.warning("nostr_stats error: %s", e)
+        return jsonify({"total_events": 0, "events_today": 0, "tracked_pubkeys": 0, "relays_connected": 0, "relays_total": 4})
+
+
+# ============================================
 # NOSTR BROADCASTER ROUTES
 # ============================================
 
