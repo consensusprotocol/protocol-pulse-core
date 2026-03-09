@@ -78,7 +78,7 @@ PROMPT_EOF
 
   tmux kill-session -t "build_${NAME}" 2>/dev/null || true
   tmux new-session -d -s "build_${NAME}" \
-    "cd $WORKTREE && unset ANTHROPIC_API_KEY && claude --dangerously-skip-permissions < /tmp/cc_prompt_${NAME}.txt 2>&1 | tee $LOG; echo SESSION_COMPLETE_${NAME} >> $LOG"
+    "source ~/protocol_pulse/.env && export ANTHROPIC_API_KEY && cd $WORKTREE && claude --dangerously-skip-permissions < /tmp/cc_prompt_${NAME}.txt 2>&1 | tee $LOG; echo SESSION_COMPLETE_${NAME} >> $LOG"
 
   echo "  session launched: build_${NAME}"
 }
