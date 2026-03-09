@@ -1210,3 +1210,52 @@ class CollectedSignal(db.Model):
         db.Index('idx_signal_platform_posted', 'platform', 'posted_at'),
         db.Index('idx_signal_legendary', 'is_legendary', 'collected_at'),
     )
+
+# =====================================
+# PULSE TERMINAL API — V30
+# =====================================
+
+class ApiKey(db.Model):
+    """Paid API key for Pulse Terminal subscribers."""
+    __tablename__ = 'api_keys'
+    id = db.Column(db.Integer, primary_key=True)
+    key_hash = db.Column(db.String(64), unique=True, nullable=False, index=True)   # SHA256 of actual key
+    key_prefix = db.Column(db.String(12), nullable=False)                           # first 8 chars for display
+    tier = db.Column(db.String(30), nullable=False, default='commander')
+    subscriber_email = db.Column(db.String(200), nullable=False, index=True)
+    stripe_customer_id = db.Column(db.String(120), index=True)
+    stripe_subscription_id = db.Column(db.String(120))
+    stripe_session_id = db.Column(db.String(200))
+    requests_today = db.Column(db.Integer, default=0, nullable=False)
+    requests_total = db.Column(db.Integer, default=0, nullable=False)
+    last_used_at = db.Column(db.DateTime, index=True)
+    last_reset_at = db.Column(db.DateTime, default=datetime.utcnow)  # when requests_today was last zeroed
+    active = db.Column(db.Boolean, default=True, nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    __table_args__ = (
+        db.Index('idx_api_keys_hash_active', 'key_hash', 'active'),
+    )
+
+    def reset_if_new_day(self):
+        """Zero requests_today if last reset was a different calendar day (UTC)."""
+        today = datetime.utcnow().date()
+        if self.last_reset_at is None or self.last_reset_at.date() < today:
+            self.requests_today = 0
+            self.last_reset_at = datetime.utcnow()
+
+
+class ApiUsageLog(db.Model):
+    """Per-request usage log for Terminal API — analytics + billing audit trail."""
+    __tablename__ = 'api_usage_log'
+    id = db.Column(db.Integer, primary_key=True)
+    key_prefix = db.Column(db.String(12), nullable=False, index=True)
+    endpoint = db.Column(db.String(100), nullable=False)
+    response_ms = db.Column(db.Integer)
+    status_code = db.Column(db.Integer, default=200)
+    ip_hash = db.Column(db.String(64))   # SHA256 of IP for privacy-safe analytics
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+    __table_args__ = (
+        db.Index('idx_usage_log_prefix_created', 'key_prefix', 'created_at'),
+    )

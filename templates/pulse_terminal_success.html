@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Commander Access Confirmed — Pulse Terminal{% endblock %}
+
+{% block meta_description %}Your Pulse Terminal Commander API key has been provisioned and emailed.{% endblock %}
+
+{% block extra_css %}
+<style>
+.success-wrap {
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 24px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.success-icon {
+  width: 64px;
+  height: 64px;
+  border: 2px solid #22c55e;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 28px;
+  font-size: 1.8rem;
+  color: #22c55e;
+  animation: pop 0.4s ease;
+}
+
+@keyframes pop {
+  0%   { transform: scale(0.4); opacity: 0; }
+  70%  { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.success-wrap h1 {
+  font-size: 1.8rem;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+.success-wrap p {
+  color: #6b7280;
+  font-size: 0.9rem;
+  max-width: 460px;
+  line-height: 1.7;
+  margin-bottom: 0;
+}
+
+.success-wrap p span {
+  color: #dc2626;
+}
+
+.success-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 36px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.success-actions a {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  padding: 10px 22px;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.success-actions .primary {
+  background: #dc2626;
+  color: #fff;
+}
+
+.success-actions .primary:hover { background: #b91c1c; color: #fff; }
+
+.success-actions .secondary {
+  background: transparent;
+  border: 1px solid #1a1a1a;
+  color: #6b7280;
+}
+
+.success-actions .secondary:hover { border-color: #dc2626; color: #dc2626; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="success-wrap">
+  <div class="success-icon">✓</div>
+  <h1>Commander Access Confirmed</h1>
+  <p>
+    Your API key has been generated and emailed to you.<br>
+    Check your inbox for a message from <span>terminal@protocolpulse.io</span>.
+  </p>
+  <p style="margin-top:16px;font-size:0.82rem;">
+    Your key starts with <span>pp_cmd_</span> — store it securely, it won't be shown again.
+  </p>
+  <div class="success-actions">
+    <a href="/terminal#docs" class="primary">View API Docs</a>
+    <a href="/" class="secondary">Back to Protocol Pulse</a>
+  </div>
+</div>
+{% endblock %}
