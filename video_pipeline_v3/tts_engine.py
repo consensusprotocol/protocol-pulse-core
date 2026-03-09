@@ -108,16 +108,41 @@ def _chunk_text(text: str, max_chars: int = MAX_CHUNK_CHARS) -> list:
     return [c for c in chunks if c.strip()]
 
 
+TTS_CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tts_cache")
+
+
+def _tts_cache_key(text: str, voice_id: str, segment_type: str) -> str:
+    """SHA256 hash of text+voice+segment_type → stable cache key."""
+    import hashlib
+    payload = f"{voice_id}:{segment_type}:{text}".encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()[:16]
+
+
+def _tts_cache_get(cache_key: str, output_path: str) -> bool:
+    """Check TTS cache and copy to output_path if hit. Returns True on hit."""
+    import shutil
+    cache_file = os.path.join(TTS_CACHE_DIR, f"{cache_key}.m4a")
+    if os.path.exists(cache_file) and os.path.getsize(cache_file) > 1000:
+        shutil.copy2(cache_file, output_path)
+        return True
+    return False
+
+
+def _tts_cache_put(cache_key: str, audio_path: str) -> None:
+    """Save audio to TTS cache for future runs."""
+    import shutil
+    os.makedirs(TTS_CACHE_DIR, exist_ok=True)
+    cache_file = os.path.join(TTS_CACHE_DIR, f"{cache_key}.m4a")
+    if not os.path.exists(cache_file):
+        shutil.copy2(audio_path, cache_file)
+
+
 def tts_elevenlabs(text: str, output_path: str, host: int = 1,
                    segment_type: str = "") -> bool:
     """Generate TTS for a single line using the specified host voice.
 
-    Applies hybrid voice settings based on segment_type for Host 1 (Eryn):
-    - cold_open: dramatic (stability 0.38, speed 1.12)
-    - setup/react: clear, confident (stability 0.75, speed 1.12)
-    - social_segment: warm (stability 0.60, speed 1.12)
-    - wrap: warm, inviting (stability 0.60, speed 1.10)
-    - data: authoritative (stability 0.70, speed 1.10)
+    Checks TTS cache first (hash of text+voice+segment_type). On cache hit,
+    copies cached audio — no ElevenLabs API call. On miss, generates and caches.
     """
     if not HAS_REQUESTS:
         return False
@@ -127,10 +152,16 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
         return False
 
     voice = VOICES.get(host, VOICES[1])
+    # Check TTS cache first — avoid API call if same text+voice was generated before
+    cache_key = _tts_cache_key(text, voice["voice_id"], segment_type)
+    if _tts_cache_get(cache_key, output_path):
+        print(f"  [tts] Cache HIT ({voice['name']}): {text[:50]}...")
+        return True
+
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice['voice_id']}"
     headers = {"xi-api-key": key, "Content-Type": "application/json"}
 
-    # Apply hybrid voice mode for Host 1 (Eryn) based on segment type
+    # Apply hybrid voice mode for Mark based on segment type
     voice_settings = dict(voice["voice_settings"])
     if host == 1 and segment_type in VOICE_MODES:
         mode = VOICE_MODES[segment_type]
@@ -193,6 +224,8 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
             os.remove(chunk_files[0])
         except Exception:
             pass
+        if ok and os.path.exists(output_path):
+            _tts_cache_put(cache_key, output_path)
         return ok
 
     # Multi-chunk concat
@@ -213,6 +246,8 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
                 os.remove(f)
         except Exception:
             pass
+    if ok and os.path.exists(output_path):
+        _tts_cache_put(cache_key, output_path)
     return ok
 
 
