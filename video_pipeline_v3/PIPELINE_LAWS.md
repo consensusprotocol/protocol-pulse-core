@@ -15,7 +15,7 @@ Every pipeline run must verify before producing anything:
 - [ ] assets/music/ directory has >0 .mp3 files
 - [ ] assets/outro_branded.mp4 exists
 - [ ] config/feature_flags.json exists and is valid JSON
-- [ ] No other Claude Code session writing to video_pipeline_v3/
+- [ ] No other Claude Code session writing to THIS worktree directory (~/worktrees/[feature]/ or ~/protocol_pulse/ for production)
 
 If any check fails, log the failure and abort. Never produce a partial episode.
 
@@ -147,7 +147,7 @@ After every render, validate:
 If any check fails, the render is INVALID. Do not upload. Do not claim done.
 
 ## SECTION 14: PROCESS RULES
-- E1: One Claude Code session writing to video_pipeline_v3/ at a time.
+- E1: One Claude Code session per worktree directory at a time. Under the multi-agent factory system, parallel sessions across DIFFERENT git worktree directories (~/worktrees/[feature]/) are explicitly permitted. Two agents in the SAME worktree = immediate abort. Production ~/protocol_pulse/ is never directly written by any agent.
 - E2: Regression test before every commit. Commit includes `regression: X PASS`.
 - E3: New features start behind feature flags.
 - E4: "Done" = log output proves it. No claims without evidence.
