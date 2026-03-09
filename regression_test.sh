@@ -10,9 +10,9 @@ PIPELINE="$BASE/video_pipeline_v3"
 CORE="$BASE/core"
 GREEN='\033[0;32m'; RED='\033[0;31m'; YELLOW='\033[1;33m'; NC='\033[0m'
 
-ok()   { echo -e "${GREEN}[PASS]${NC} $1"; ((PASS++)); }
-fail() { echo -e "${RED}[FAIL]${NC} $1"; ((FAIL++)); }
-warn() { echo -e "${YELLOW}[WARN]${NC} $1"; ((WARN++)); }
+ok()   { echo -e "${GREEN}[PASS]${NC} $1"; ((++PASS)); }
+fail() { echo -e "${RED}[FAIL]${NC} $1"; ((++FAIL)); }
+warn() { echo -e "${YELLOW}[WARN]${NC} $1"; ((++WARN)); }
 
 echo "============================================================"
 echo " PROTOCOL PULSE REGRESSION TEST"
