@@ -8038,6 +8038,264 @@ def api_media_highlights():
         logging.warning('api_media_highlights error: %s', e)
         return jsonify([])
 
+# ── P3 Mining Intel ───────────────────────────────────────────────────────────
+
+@app.route('/mining')
+def mining_hub():
+    """Bitcoin Mining Intelligence Hub — live hashrate, ASIC calculator, pool distribution."""
+    return render_template('mining_hub.html')
+
+
+@app.route('/api/mining/live-stats')
+@cache.cached(timeout=30, key_prefix='mining_live_stats')
+def api_mining_live_stats():
+    """
+    Live mining command center data: hashrate, difficulty, adjustment, hash price,
+    block height, mempool fees, sats_per_hash.
+    Cached 30s. All external calls have timeouts + graceful fallback.
+    """
+    import math
+    result = {
+        'hashrate_eh': None,
+        'difficulty': None,
+        'difficulty_formatted': None,
+        'next_adjustment_pct': None,
+        'blocks_until_adjustment': None,
+        'epoch_progress_pct': None,
+        'block_height': None,
+        'btc_price_usd': None,
+        'hash_price_usd_per_ph': None,
+        'sats_per_hash': None,
+        'block_reward_btc': 3.125,
+        'block_reward_usd': None,
+        'mempool_fee_low': None,
+        'mempool_fee_mid': None,
+        'mempool_fee_high': None,
+        'next_3_adjustment_forecast': [],
+        'updated_at': datetime.utcnow().isoformat(),
+    }
+
+    # 1. Hashrate + current difficulty
+    try:
+        r = requests.get('https://mempool.space/api/v1/mining/hashrate/1m', timeout=10)
+        if r.ok:
+            d = r.json()
+            raw_hashrate = d.get('currentHashrate') or 0
+            result['hashrate_eh'] = round(raw_hashrate / 1e18, 2) if raw_hashrate else None
+            diff = d.get('currentDifficulty') or 0
+            result['difficulty'] = diff
+            if diff:
+                t = diff / 1e12
+                result['difficulty_formatted'] = f"{t:.2f}T"
+    except requests.exceptions.RequestException as e:
+        logging.warning('mining live-stats hashrate error: %s', e)
+
+    # 2. Difficulty adjustment
+    try:
+        r = requests.get('https://mempool.space/api/v1/difficulty-adjustment', timeout=10)
+        if r.ok:
+            d = r.json()
+            result['next_adjustment_pct'] = round(d.get('difficultyChange', 0), 2)
+            remaining = d.get('remainingBlocks', 0)
+            result['blocks_until_adjustment'] = remaining
+            # epoch progress: (2016 - remaining) / 2016
+            if remaining is not None:
+                completed = 2016 - remaining
+                result['epoch_progress_pct'] = round(max(0, min(100, (completed / 2016) * 100)), 1)
+    except requests.exceptions.RequestException as e:
+        logging.warning('mining live-stats difficulty-adjustment error: %s', e)
+
+    # 3. Block height
+    try:
+        r = requests.get('https://mempool.space/api/blocks/tip/height', timeout=10)
+        if r.ok:
+            result['block_height'] = int(r.text.strip())
+    except requests.exceptions.RequestException as e:
+        logging.warning('mining live-stats block height error: %s', e)
+
+    # 4. BTC price
+    try:
+        r = requests.get(
+            'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd',
+            timeout=10
+        )
+        if r.ok:
+            result['btc_price_usd'] = r.json().get('bitcoin', {}).get('usd')
+    except requests.exceptions.RequestException as e:
+        logging.warning('mining live-stats btc price error: %s', e)
+
+    # 5. Derived metrics
+    if result['hashrate_eh'] and result['btc_price_usd']:
+        hashrate_ph = result['hashrate_eh'] * 1e6
+        daily_btc = 3.125 * 144
+        result['hash_price_usd_per_ph'] = round((daily_btc * result['btc_price_usd']) / hashrate_ph, 4)
+        if hashrate_ph > 0:
+            hashes_per_day = hashrate_ph * 1e12 * 86400
+            btc_per_hash = daily_btc / hashes_per_day if hashes_per_day > 0 else 0
+            result['sats_per_hash'] = round(btc_per_hash * 1e8, 12)
+        result['block_reward_usd'] = round(3.125 * result['btc_price_usd'], 2)
+
+    # 6. 3-epoch difficulty forecast (mean-reversion model)
+    if result['next_adjustment_pct'] is not None:
+        base_adj = result['next_adjustment_pct']
+        forecast = []
+        adj = base_adj
+        for i in range(3):
+            adj = round(adj * (0.7 ** i) if i > 0 else adj, 2)
+            forecast.append({'epoch': i + 1, 'predicted_pct': adj})
+        result['next_3_adjustment_forecast'] = forecast
+
+    # 7. Mempool fee rates
+    try:
+        r = requests.get('https://mempool.space/api/v1/fees/recommended', timeout=10)
+        if r.ok:
+            fees = r.json()
+            result['mempool_fee_low'] = fees.get('economyFee')
+            result['mempool_fee_mid'] = fees.get('halfHourFee')
+            result['mempool_fee_high'] = fees.get('fastestFee')
+    except requests.exceptions.RequestException as e:
+        logging.warning('mining live-stats mempool fees error: %s', e)
+
+    return jsonify(result)
+
+
+@app.route('/api/mining/pools')
+@cache.cached(timeout=300, key_prefix='mining_pools')
+def api_mining_pools():
+    """
+    Pool distribution data from mempool.space (last 7 days).
+    Computes HHI (Herfindahl-Hirschman Index) for concentration risk.
+    Cached 5 minutes.
+    """
+    try:
+        r = requests.get('https://mempool.space/api/v1/mining/pools/1w', timeout=10)
+        if not r.ok:
+            return jsonify({'pools': [], 'hhi': None, 'error': 'upstream error'}), 502
+
+        data = r.json()
+        pools_raw = data.get('pools', [])
+        if not pools_raw:
+            return jsonify({'pools': [], 'hhi': None})
+
+        total_blocks = sum(p.get('blockCount', 0) for p in pools_raw)
+        pools = []
+        hhi = 0.0
+        for p in pools_raw[:12]:
+            blocks = p.get('blockCount', 0)
+            share_pct = round((blocks / total_blocks * 100), 2) if total_blocks else 0
+            hhi += (share_pct ** 2)
+            pools.append({
+                'name': p.get('name', 'Unknown'),
+                'slug': p.get('slug', ''),
+                'share_pct': share_pct,
+                'block_count': blocks,
+            })
+
+        hhi_rounded = round(hhi)
+        if hhi_rounded > 2500:
+            concentration_label, concentration_color = 'HIGH', 'red'
+        elif hhi_rounded > 1500:
+            concentration_label, concentration_color = 'MODERATE', 'gold'
+        else:
+            concentration_label, concentration_color = 'HEALTHY', 'green'
+
+        top3_share = sum(p['share_pct'] for p in pools[:3])
+        centralization_warning = top3_share > 51
+
+        return jsonify({
+            'pools': pools,
+            'hhi': hhi_rounded,
+            'concentration_label': concentration_label,
+            'concentration_color': concentration_color,
+            'top3_share_pct': round(top3_share, 1),
+            'centralization_warning': centralization_warning,
+            'updated_at': datetime.utcnow().isoformat(),
+        })
+    except requests.exceptions.RequestException as e:
+        logging.error('mining pools API error: %s', e)
+        return jsonify({'pools': [], 'hhi': None, 'error': str(e)}), 502
+    except Exception as e:
+        logging.error('mining pools unexpected error: %s', e)
+        return jsonify({'pools': [], 'hhi': None, 'error': 'internal error'}), 500
+
+
+@app.route('/api/charts/hashrate-history')
+@cache.cached(timeout=600, key_prefix='hashrate_history')
+def api_hashrate_history():
+    """
+    30-day hashrate history for SVG chart. Source: mempool.space.
+    Returns: [{timestamp, hashrate_eh}] + ath_eh + 7day_ma points.
+    Cached 10 minutes.
+    """
+    try:
+        r = requests.get('https://mempool.space/api/v1/mining/hashrate/1m', timeout=10)
+        if not r.ok:
+            return jsonify({'data': [], 'ath_eh': None}), 502
+
+        raw = r.json()
+        hashrates = raw.get('hashrates', [])
+        if not hashrates:
+            return jsonify({'data': [], 'ath_eh': None})
+
+        recent = hashrates[-30:] if len(hashrates) >= 30 else hashrates
+        points = []
+        for h in recent:
+            ts = h.get('timestamp')
+            val = h.get('avgHashrate') or h.get('hashrate')
+            if ts and val:
+                points.append({'timestamp': ts, 'hashrate_eh': round(val / 1e18, 2)})
+
+        if not points:
+            return jsonify({'data': [], 'ath_eh': None})
+
+        all_vals = [p['hashrate_eh'] for p in points]
+        ath_eh = max(all_vals) if all_vals else None
+
+        window = 7
+        ma_points = []
+        for i in range(len(points)):
+            start = max(0, i - window + 1)
+            window_vals = [points[j]['hashrate_eh'] for j in range(start, i + 1)]
+            ma_points.append(round(sum(window_vals) / len(window_vals), 2))
+
+        return jsonify({
+            'data': points,
+            'ma7': ma_points,
+            'ath_eh': round(ath_eh, 2) if ath_eh else None,
+            'current_eh': round(raw.get('currentHashrate', 0) / 1e18, 2),
+            'updated_at': datetime.utcnow().isoformat(),
+        })
+    except requests.exceptions.RequestException as e:
+        logging.error('hashrate history error: %s', e)
+        return jsonify({'data': [], 'ath_eh': None, 'error': str(e)}), 502
+    except Exception as e:
+        logging.error('hashrate history unexpected error: %s', e)
+        return jsonify({'data': [], 'ath_eh': None, 'error': 'internal error'}), 500
+
+
+@app.route('/api/mining/articles')
+def api_mining_articles():
+    """Latest 8 mining articles for the /mining hub page."""
+    try:
+        articles = models.Article.query.filter_by(
+            published=True, category='mining'
+        ).order_by(models.Article.created_at.desc()).limit(8).all()
+        result = []
+        for a in articles:
+            result.append({
+                'id': a.id,
+                'title': a.title,
+                'summary': (a.summary or a.content or '')[:200].strip(),
+                'created_at': a.created_at.isoformat() if a.created_at else None,
+                'tags': a.tags or '',
+                'url': f'/articles/{a.id}',
+            })
+        return jsonify({'articles': result})
+    except Exception as e:
+        logging.error('mining articles API error: %s', e)
+        return jsonify({'articles': [], 'error': 'internal error'}), 500
+
+
 # Error handlers
 @app.errorhandler(404)
 def not_found_error(error):
