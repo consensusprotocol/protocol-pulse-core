@@ -62,6 +62,10 @@ TASKS = {
     "article_generation_15m": {"interval_minutes": 15, "description": "Replit-style: generate 1 breaking_news article every 15 minutes (when ENABLE_ARTICLE_AUTOMATION_15M)"},
     "affiliate_education_morning": {"cron": "11:00", "description": "Affiliate education article #1 (11:00 UTC / 6am EST)"},
     "affiliate_education_evening": {"cron": "21:00", "description": "Affiliate education article #2 (21:00 UTC / 4pm EST)"},
+    # F6 Marketing OS
+    "btc_milestone_check": {"interval_minutes": 5, "description": "F6: BTC price milestone check — fires campaigns at 100K/120K/.../1M (never repeats)"},
+    "daily_metrics_snapshot": {"interval_minutes": 60, "description": "F6: Daily performance metrics snapshot (hourly upsert)"},
+    "weekly_performance_analysis": {"cron": "00:00", "cron_day": "sun", "description": "F6: Weekly performance analysis (Sunday 00:00 UTC)"},
 }
 
 
@@ -440,6 +444,71 @@ def run_task(name: str) -> Dict:
             logger.exception("affiliate_education task failed: %s", e)
             return {"success": False, "message": str(e), "result": None}
 
+    # ─── F6 Marketing OS ─────────────────────────────────────────────────────
+
+    if name == "btc_milestone_check":
+        try:
+            from app import app
+            from services.price_service import PriceService
+            from services.milestone_service import milestone_service
+            with app.app_context():
+                price_svc = PriceService()
+                prices = price_svc.get_prices()
+                btc_price = prices.get("bitcoin", {}).get("price", 0)
+                if btc_price > 0:
+                    fired = milestone_service.check_price(btc_price)
+                    msg = f"Checked BTC ${btc_price:,.0f} — {len(fired)} milestone(s) fired"
+                else:
+                    msg = "BTC price unavailable — skip milestone check"
+            return {"success": True, "message": msg, "result": {"btc_price": btc_price, "fired_count": len(fired) if btc_price > 0 else 0}}
+        except Exception as e:
+            logger.warning("btc_milestone_check failed: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
+    if name == "daily_metrics_snapshot":
+        try:
+            from app import app, db
+            from models import PerformanceMetrics
+            from services.price_service import PriceService
+            from datetime import date
+            with app.app_context():
+                today = date.today()
+                metric = PerformanceMetrics.query.filter_by(metric_date=today).first()
+                if not metric:
+                    metric = PerformanceMetrics(metric_date=today)
+                    db.session.add(metric)
+                # Snapshot BTC close price
+                try:
+                    prices = PriceService().get_prices()
+                    btc = prices.get("bitcoin", {}).get("price", 0)
+                    if btc > 0:
+                        if metric.btc_price_open is None:
+                            metric.btc_price_open = btc
+                        metric.btc_price_close = btc
+                except Exception:
+                    pass
+                db.session.commit()
+            return {"success": True, "message": "Daily metrics snapshot updated", "result": {"date": str(today)}}
+        except Exception as e:
+            try:
+                from app import db
+                db.session.rollback()
+            except Exception:
+                pass
+            logger.warning("daily_metrics_snapshot failed: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
+    if name == "weekly_performance_analysis":
+        try:
+            from app import app
+            from services.milestone_service import run_weekly_performance_analysis
+            with app.app_context():
+                result = run_weekly_performance_analysis()
+            return {"success": result.get("success", False), "message": "Weekly analysis complete", "result": result}
+        except Exception as e:
+            logger.warning("weekly_performance_analysis failed: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
     return {"success": False, "message": f"Unknown task: {name}", "result": None}
 
 
@@ -492,6 +561,10 @@ def initialize_scheduler() -> Dict:
         _apscheduler.add_job(lambda: run_task("intel_medley"), trigger=IntervalTrigger(minutes=60), id="intel_medley", replace_existing=True)
         _apscheduler.add_job(lambda: run_task("affiliate_education_morning"), trigger=CronTrigger(hour=11, minute=0), id="affiliate_education_morning", replace_existing=True, max_instances=1)
         _apscheduler.add_job(lambda: run_task("affiliate_education_evening"), trigger=CronTrigger(hour=21, minute=0), id="affiliate_education_evening", replace_existing=True, max_instances=1)
+        # F6 Marketing OS jobs
+        _apscheduler.add_job(lambda: run_task("btc_milestone_check"), trigger=IntervalTrigger(minutes=5), id="btc_milestone_check", replace_existing=True, max_instances=1)
+        _apscheduler.add_job(lambda: run_task("daily_metrics_snapshot"), trigger=IntervalTrigger(hours=1), id="daily_metrics_snapshot", replace_existing=True, max_instances=1)
+        _apscheduler.add_job(lambda: run_task("weekly_performance_analysis"), trigger=CronTrigger(day_of_week="sun", hour=0, minute=0), id="weekly_performance_analysis", replace_existing=True, max_instances=1)
         _apscheduler.start()
         _scheduler_started_at = datetime.utcnow()
     return {"success": True, "started_at": _scheduler_started_at.isoformat(), "mode": "apscheduler"}

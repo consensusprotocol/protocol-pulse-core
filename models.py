@@ -1210,3 +1210,47 @@ class CollectedSignal(db.Model):
         db.Index('idx_signal_platform_posted', 'platform', 'posted_at'),
         db.Index('idx_signal_legendary', 'is_legendary', 'collected_at'),
     )
+
+# =====================================
+# F6 MARKETING OS — MILESTONE + METRICS
+# =====================================
+
+class PerformanceMetrics(db.Model):
+    """Daily performance metrics. One row per day. Upsert on write."""
+    __tablename__ = 'performance_metrics'
+    __table_args__ = (
+        db.Index('idx_perf_metric_date', 'metric_date', unique=True),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    metric_date = db.Column(db.Date, nullable=False, unique=True)
+    page_views = db.Column(db.Integer, default=0)
+    unique_visitors = db.Column(db.Integer, default=0)
+    articles_published = db.Column(db.Integer, default=0)
+    videos_rendered = db.Column(db.Integer, default=0)
+    oracle_sessions = db.Column(db.Integer, default=0)
+    briefings_generated = db.Column(db.Integer, default=0)
+    newsletter_opens = db.Column(db.Integer, default=0)
+    newsletter_clicks = db.Column(db.Integer, default=0)
+    btc_price_open = db.Column(db.Float)
+    btc_price_close = db.Column(db.Float)
+    milestone_triggered = db.Column(db.String(100))  # NULL or milestone label
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class MilestoneFired(db.Model):
+    """Permanent record of every milestone that has fired. Never deleted."""
+    __tablename__ = 'milestone_fired'
+    __table_args__ = (
+        db.Index('idx_milestone_price', 'price_threshold', unique=True),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    price_threshold = db.Column(db.Integer, nullable=False, unique=True)  # e.g. 100000
+    label = db.Column(db.String(100), nullable=False)                      # e.g. "SIX FIGURES"
+    campaign = db.Column(db.String(100))                                   # e.g. "btc_100k"
+    actual_price = db.Column(db.Float)                                     # price when triggered
+    fired_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    nostr_broadcast = db.Column(db.Boolean, default=False)
+    newsletter_sent = db.Column(db.Boolean, default=False)
+    episode_generated = db.Column(db.Boolean, default=False)
