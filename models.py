@@ -126,6 +126,42 @@ class Article(db.Model):
     image_phash = db.Column(db.String(64))                      # perceptual hash hex string
     screenshot_url = db.Column(db.String(500))
     video_url = db.Column(db.String(500))
+    # Law 4: slug — URL-safe identifier, unique, indexed
+    slug = db.Column(db.String(300), unique=True, index=True)
+    read_count = db.Column(db.Integer, default=0)
+
+    def to_api_dict(self, include_content=False):
+        """Law 2: canonical API schema for /api/v2/articles."""
+        import re
+        plain = re.sub(r'<[^>]+>', '', self.content or '').strip()
+        word_count = len(plain.split()) if plain else 0
+        read_time = max(1, round(word_count / 200))
+        tags = []
+        if self.tags:
+            try:
+                import json
+                tags = json.loads(self.tags) if self.tags.startswith('[') else [t.strip() for t in self.tags.split(',') if t.strip()]
+            except Exception:
+                tags = []
+        d = {
+            'id': self.id,
+            'title': self.title,
+            'slug': self.slug or str(self.id),
+            'summary': (plain[:200] + '...') if len(plain) > 200 else plain,
+            'category': self.category or 'Bitcoin',
+            'tags': tags,
+            'author': self.author or 'Protocol Pulse AI',
+            'cover_image_url': self.cover_image_url,
+            'source_url': self.source_url,
+            'source_type': self.source_type,
+            'published_at': self.published_at.isoformat() + 'Z' if self.published_at else None,
+            'created_at': self.created_at.isoformat() + 'Z' if self.created_at else None,
+            'read_time_minutes': read_time,
+        }
+        if include_content:
+            d['content'] = self.content or ''
+        return d
+
 
 class Podcast(db.Model):
     id = db.Column(db.Integer, primary_key=True)
