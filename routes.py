@@ -1677,6 +1677,40 @@ def media_hub():
             {'title': 'The Ethics of Money Production', 'author': 'Jorg Guido Hulsmann', 'amazon_url': f'https://www.amazon.com/dp/1610166817?tag={affiliate_tag}', 'category': 'economics', 'color': '#22c55e'},
         ]
         
+        # Server-side fetch highlights for reliable rendering without JS dependency
+        ssr_highlights = []
+        try:
+            import sqlite3 as _sl3, os as _os2
+            si_path = _os2.path.join(_os2.path.dirname(__file__), 'data', 'sovereign_intel.db')
+            if _os2.path.exists(si_path):
+                conn = _sl3.connect(si_path)
+                conn.row_factory = _sl3.Row
+                rows = conn.execute(
+                    'SELECT name, category, observation, implication, direction, ts_utc '
+                    'FROM signals ORDER BY ts_utc DESC LIMIT 10'
+                ).fetchall()
+                conn.close()
+                for r in rows:
+                    obs = r['observation'] or ''
+                    impl = r['implication'] or ''
+                    excerpt = (obs + ' ' + impl).strip()[:200]
+                    if excerpt:
+                        ssr_highlights.append({
+                            'title': r['name'],
+                            'excerpt': excerpt,
+                            'source': (r['category'] or 'INTEL').upper(),
+                            'direction': r['direction'] or 'neutral',
+                            'timestamp': r['ts_utc'],
+                        })
+            if not ssr_highlights:
+                arts = models.Article.query.filter_by(published=True).order_by(models.Article.created_at.desc()).limit(8).all()
+                for a in arts:
+                    excerpt = (a.summary or a.content or '')[:180].strip()
+                    if excerpt:
+                        ssr_highlights.append({'title': a.title, 'excerpt': excerpt, 'source': 'PROTOCOL PULSE', 'direction': 'neutral'})
+        except Exception as _e:
+            logging.warning(f'SSR highlights failed: {_e}')
+
         return render_template('media_unified.html',
             series_list=series_list,
             series_data=series_config,
@@ -1684,6 +1718,7 @@ def media_hub():
             latest_episodes=latest_episodes,
             podcast_count=podcast_count,
             voice_count=30,
+            ssr_highlights=ssr_highlights,
             all_books=all_books,
         )
         
@@ -8625,3 +8660,55 @@ def api_tradfi_signals():
     except Exception as e:
         logging.warning(f"TradFi signals error: {e}")
         return jsonify({'dxy': {'value': None}, 'gold': {'value': None}}), 200
+
+
+@app.route('/api/media/telemetry')
+def api_media_telemetry():
+    """Telemetry data (fees, mempool, hashrate, block height) for media-unified."""
+    try:
+        import requests as _r
+        from flask import jsonify
+        import logging
+        data = {}
+
+        # Fees from mempool.space
+        try:
+            r = _r.get('https://mempool.space/api/v1/fees/recommended', timeout=6)
+            data['fees'] = r.json()
+        except Exception as e:
+            logging.warning(f"fees: {e}")
+            data['fees'] = None
+
+        # Mempool stats
+        try:
+            r = _r.get('https://mempool.space/api/mempool', timeout=6)
+            data['mempool'] = r.json()
+        except Exception as e:
+            logging.warning(f"mempool: {e}")
+            data['mempool'] = None
+
+        # Block height
+        try:
+            r = _r.get('https://mempool.space/api/blocks/tip/height', timeout=6)
+            data['blockHeight'] = int(r.text.strip())
+        except Exception as e:
+            logging.warning(f"blockHeight: {e}")
+            data['blockHeight'] = None
+
+        # Hashrate
+        try:
+            r = _r.get('https://mempool.space/api/v1/mining/hashrate/3d', timeout=6)
+            d = r.json()
+            rates = d.get('hashrates', [])
+            if rates:
+                data['hashrate'] = round(rates[-1].get('avgHashrate', 0) / 1e18, 1)
+        except Exception as e:
+            logging.warning(f"hashrate: {e}")
+            data['hashrate'] = None
+
+        return jsonify(data), 200, {'Cache-Control': 'public, max-age=30'}
+    except Exception as e:
+        import logging
+        logging.error(f"telemetry error: {e}")
+        from flask import jsonify
+        return jsonify({'error': str(e)}), 500

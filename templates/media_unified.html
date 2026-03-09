@@ -184,7 +184,16 @@
       <span class="mu-col-title">VERIFIED HIGHLIGHTS</span>
       <span class="mu-col-source">partner channels <span class="mu-health-dot connected" id="health-highlights-col"></span></span>
     </div>
-    <div class="mu-col-feed" id="highlights-feed"></div>
+    <div class="mu-col-feed" id="highlights-feed">
+      {% if ssr_highlights %}
+        {% for h in ssr_highlights %}
+        <div class="mu-highlight-item">
+          <div class="mu-highlight-quote">&ldquo;{{ h.excerpt[:180] }}&rdquo;</div>
+          <div class="mu-highlight-source">&mdash; {{ h.source }}{% if h.direction == 'bullish' %} <span style="color:#22c55e">BULLISH</span>{% elif h.direction == 'bearish' %} <span style="color:#dc2626">BEARISH</span>{% endif %}</div>
+        </div>
+        {% endfor %}
+      {% endif %}
+    </div>
   </div>
 </section>
 
