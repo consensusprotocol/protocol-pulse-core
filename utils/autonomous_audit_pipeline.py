@@ -215,8 +215,7 @@ def execute_claude_code(second_pass_prompt, session_name, feature_name):
     auto_script = REPO / f"docs/audits/{feature_name}_auto_execute.sh"
     auto_script.write_text(f"""#!/bin/bash
 cd ~/protocol_pulse
-unset ANTHROPIC_API_KEY
-# Feed the prompt file to claude non-interactively
+set -a && source ~/protocol_pulse/.env && set +a  # API key auth for non-interactive
 claude --dangerously-skip-permissions < {prompt_file} 2>&1
 echo "[AUTO-EXECUTE] Done"
 """)
