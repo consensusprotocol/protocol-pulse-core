@@ -275,6 +275,14 @@ try:
     app.register_blueprint(newsletter_trigger_bp)
 except Exception as e:
     print(f'Newsletter trigger not loaded: {e}')
+
+# B1 Newsletter Engine
+try:
+    from routes_newsletter_b1 import newsletter_b1_bp
+    app.register_blueprint(newsletter_b1_bp)
+    import logging; logging.info("B1 Newsletter blueprint registered")
+except Exception as e:
+    import logging; logging.warning("B1 Newsletter blueprint not loaded: %s", e)
 app.register_blueprint(api_v2)
 from onboarding_routes import onboarding_bp
 app.register_blueprint(onboarding_bp)
