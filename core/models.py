@@ -951,8 +951,12 @@ class NodeSnapshot(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     # JSON blob: {versions: {...}, countries: {...}, ipv4: N, ipv6: N}
     snapshot_data = db.Column(db.Text)
-    # NULL = no alert; otherwise the alert type string
+    # NULL = no alert; otherwise the alert type string (fired at this snapshot)
     alert_fired = db.Column(db.String(120))
+    # Stateful edge-trigger flags — true while the condition is active.
+    # An alert fires only when: currently True AND previous snapshot was False.
+    daily_alert_active  = db.Column(db.Boolean, default=False, nullable=False)
+    weekly_alert_active = db.Column(db.Boolean, default=False, nullable=False)
 
     def to_dict(self):
         return {
