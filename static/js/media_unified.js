@@ -373,6 +373,7 @@ class RelayManager {
     // Quality filter — drop junk before it hits the feed
     if (!isQualityNostrNote(note.content)) return;
 
+    note.relay = this.url || '';
     state.nostrNotes.unshift(note);
     if (state.nostrNotes.length > 100) state.nostrNotes.pop();
 
@@ -927,15 +928,60 @@ function initShowMe() {
   }
 }
 
+
+// ─── NOSTR RELAY STATUS SYNC ──────────────────────────
+function syncRelayStatus() {
+  const rm = window.relayManager;
+  const bar = document.getElementById('mu-relay-status-bar');
+  if (!bar) return;
+
+  const items = bar.querySelectorAll('[data-relay]');
+  items.forEach(item => {
+    const url = item.dataset.relay;
+    const socket = rm && rm.sockets ? rm.sockets[url] : null;
+    const ws = rm && rm.ws ? rm.ws[url] : socket;
+    const readyState = ws ? ws.readyState : 3;
+    // 0=CONNECTING 1=OPEN 2=CLOSING 3=CLOSED
+    const dot = item.querySelector('.mu-relay-dot');
+    const label = item.querySelector('.mu-relay-label');
+    const count = item.querySelector('.mu-relay-count');
+
+    if (readyState === 1) {
+      if (dot) dot.style.background = '#00ff88';
+      if (label) label.textContent = 'LIVE';
+    } else if (readyState === 0) {
+      if (dot) dot.style.background = '#F7931A';
+      if (label) label.textContent = 'CONN';
+    } else {
+      if (dot) dot.style.background = '#666';
+      if (label) label.textContent = 'OFFLINE';
+    }
+
+    // Note count from global state
+    if (count) {
+      const relayNotes = state.nostrNotes.filter(n => n.relay === url).length;
+      count.textContent = relayNotes + ' notes';
+    }
+  });
+
+  // Total count
+  const total = bar.querySelector('#nostr-note-count');
+  if (total) total.textContent = state.nostrNotes.length + ' notes';
+}
+
 // ─── INIT ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   // Core engines
   const relay = new RelayManager();
+  window.relayManager = relay;
   const telemetry = new TelemetryEngine();
   const cmdPalette = new CommandPalette();
 
   // Start data flows
   relay.connectAll();
+  // Sync relay status UI every 5s
+  setInterval(syncRelayStatus, 5000);
+  setTimeout(syncRelayStatus, 2000);
   telemetry.start();
 
   // Fetch content feeds

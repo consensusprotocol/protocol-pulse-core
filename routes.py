@@ -8457,27 +8457,56 @@ def events_page():
 
 @app.route('/api/media/highlights')
 def api_media_highlights():
-    """Return recent published articles as highlight items for the media unified page."""
+    """Return intel signals as verified highlights for the media unified page."""
+    import sqlite3 as _sqlite3, os as _os
     try:
         limit = min(int(request.args.get('limit', 15)), 30)
-        articles = models.Article.query.filter_by(published=True).order_by(models.Article.created_at.desc()).limit(limit).all()
         result = []
-        for a in articles:
-            excerpt = (a.summary or a.content or '')[:200].strip()
-            if not excerpt:
-                continue
-            result.append({
-                'id': a.id,
-                'title': a.title,
-                'excerpt': excerpt,
-                'source': a.author or 'Protocol Pulse',
-                'url': '/articles/' + str(a.id),
-                'timestamp': a.created_at.isoformat() if a.created_at else None,
-                'category': a.category or 'bitcoin',
-            })
+
+        # Primary: sovereign_intel signals DB
+        si_path = _os.path.join(_os.path.dirname(__file__), 'data', 'sovereign_intel.db')
+        if _os.path.exists(si_path):
+            conn = _sqlite3.connect(si_path)
+            conn.row_factory = _sqlite3.Row
+            rows = conn.execute(
+                'SELECT name, category, observation, implication, action, ts_utc, direction, strength '
+                'FROM signals ORDER BY ts_utc DESC LIMIT ?', (limit,)
+            ).fetchall()
+            conn.close()
+            for r in rows:
+                obs = r['observation'] or ''
+                impl = r['implication'] or ''
+                excerpt = (obs + ' ' + impl).strip()[:220]
+                if not excerpt:
+                    continue
+                result.append({
+                    'id': r['name'],
+                    'title': r['name'],
+                    'excerpt': excerpt,
+                    'source': (r['category'] or 'intel').upper(),
+                    'url': '#',
+                    'timestamp': r['ts_utc'],
+                    'direction': r['direction'],
+                    'strength': r['strength'],
+                })
+
+        # Fallback: published articles
+        if len(result) < 3:
+            try:
+                arts = models.Article.query.filter_by(published=True).order_by(models.Article.created_at.desc()).limit(limit - len(result)).all()
+                for a in arts:
+                    excerpt = (a.summary or a.content or '')[:200].strip()
+                    if excerpt:
+                        result.append({'id': a.id, 'title': a.title, 'excerpt': excerpt,
+                            'source': a.author or 'Protocol Pulse', 'url': '/articles/' + str(a.id),
+                            'timestamp': a.created_at.isoformat() if a.created_at else None})
+            except Exception:
+                pass
+
         return jsonify(result)
     except Exception as e:
-        logging.warning('api_media_highlights error: %s', e)
+        import traceback
+        logging.error('api_media_highlights FULL ERROR: %s', traceback.format_exc())
         return jsonify([])
 
 # Error handlers
