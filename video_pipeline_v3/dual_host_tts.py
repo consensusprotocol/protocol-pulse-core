@@ -200,7 +200,7 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1) -> bool:
                     os.remove(f)
                 except Exception:
                     pass
-            # BUG1 FIX A: Fallback chain — pyttsx3 → silence (never return False)
+            # BUG7 FIX: Fallback chain — pyttsx3 → gTTS → silence (never return False)
             print(f"  [tts] ElevenLabs failed — trying pyttsx3 fallback")
             try:
                 import pyttsx3
@@ -219,6 +219,23 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1) -> bool:
                         return ok
             except Exception as pyttsx_err:
                 print(f"  [tts] pyttsx3 unavailable: {pyttsx_err}")
+            # gTTS fallback (free Google TTS, requires internet)
+            try:
+                from gtts import gTTS
+                mp3_gtts = output_path + ".gtts.mp3"
+                tts_obj = gTTS(text=chunk, lang="en", slow=False)
+                tts_obj.save(mp3_gtts)
+                if os.path.exists(mp3_gtts) and os.path.getsize(mp3_gtts) > 1000:
+                    ok = _mp3_to_m4a(mp3_gtts, output_path)
+                    try:
+                        os.remove(mp3_gtts)
+                    except Exception:
+                        pass
+                    if ok:
+                        print(f"  [tts] gTTS fallback SUCCESS")
+                        return ok
+            except Exception as gtts_err:
+                print(f"  [tts] gTTS unavailable: {gtts_err}")
             return _tts_generate_silence_fallback(text, output_path)
         chunk_files.append(mp3_tmp)
 

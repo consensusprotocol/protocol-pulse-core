@@ -200,14 +200,14 @@ def _build_black_diamond_bg(duration: float, label_out: str = "bd_bg") -> tuple:
     extra_inputs is always [] — pure procedural generation.
     """
     f = ""
-    # Layer 1: Pure black base
-    f += f"color=c=0x000000:s=1920x1080:d={duration}:r=30[bd_base];\n"
+    # BUG-1 FIX: Use VDS dark bg (0x0A0A0F) not pure black — avoids blackdetect false positives
+    f += f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30[bd_base];\n"
     # Layer 2: Red radial glow — top-center (subtle)
-    f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
+    f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
           f"geq=r='clip(55*exp(-((X-960)*(X-960)+Y*Y)/380000),0,255)':g='0':b='0'[bd_glow_top];\n")
     f += f"[bd_base][bd_glow_top]blend=all_mode=screen[bg1];\n"
     # Layer 3: Red radial glow — bottom-center
-    f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
+    f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
           f"geq=r='clip(35*exp(-((X-960)*(X-960)+(Y-1080)*(Y-1080))/280000),0,255)':g='0':b='0'[bd_glow_bot];\n")
     f += f"[bg1][bd_glow_bot]blend=all_mode=screen[bg2];\n"
     # Layer 4: Tactical surveillance grid (very subtle)
@@ -884,17 +884,17 @@ def _build_broadcast_bg(duration: float, label_out: str = "bb_bg") -> tuple:
     # Layer 1: Cinematic obsidian base
     f += f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30[bb_base];\n"
     # Layer 2a: Red radial glow — top-left
-    f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
+    f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
           f"geq=r='clip(46*exp(-((X)*(X)+Y*Y)/350000),0,255)':g='0':b='0'[bb_glow_tl];\n")
     f += f"[bb_base][bb_glow_tl]blend=all_mode=screen[bb1];\n"
     # Layer 2b: White radial glow — top-right (subtle)
-    f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
+    f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
           f"geq=r='clip(15*exp(-((X-1920)*(X-1920)+Y*Y)/300000),0,255)'"
           f":g='clip(15*exp(-((X-1920)*(X-1920)+Y*Y)/300000),0,255)'"
           f":b='clip(15*exp(-((X-1920)*(X-1920)+Y*Y)/300000),0,255)'[bb_glow_tr];\n")
     f += f"[bb1][bb_glow_tr]blend=all_mode=screen[bb2];\n"
     # Layer 2c: Red radial glow — bottom-center
-    f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
+    f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
           f"geq=r='clip(25*exp(-((X-960)*(X-960)+(Y-1080)*(Y-1080))/400000),0,255)':g='0':b='0'[bb_glow_bc];\n")
     f += f"[bb2][bb_glow_bc]blend=all_mode=screen[bb3];\n"
     # Layer 3: VDS perspective grid (bottom 30% — subtle white)
@@ -3155,11 +3155,11 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
     if not tc_valid:
         # Fallback: solid color + text only (no complex filtergraph)
         tc_fallback_fg = (
-            f"color=c=0x020304:s=1920x1080:r=30:d={tc_dur}[tc_v];\n"
+            f"color=c=0x0A0A0F:s=1920x1080:r=30:d={tc_dur}[tc_v];\n"
             f"anullsrc=r=48000:cl=stereo,atrim=0:{tc_dur}[tc_a]"
         )
         run_ffmpeg([
-            "-f", "lavfi", "-i", f"color=c=0x020304:s=1920x1080:r=30:d={tc_dur}",
+            "-f", "lavfi", "-i", f"color=c=0x0A0A0F:s=1920x1080:r=30:d={tc_dur}",
             "-f", "lavfi", "-i", f"anullsrc=r=48000:cl=stereo",
             "-filter_complex",
             f"[0:v]drawtext=fontfile={FONT_BOLD}:text='PROTOCOL PULSE':"
