@@ -397,7 +397,7 @@
 
     // Fetch BTC summary data
     function fetchSummary() {
-        fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true&include_24hr_high_low=true')
+        fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true&include_24hr_high_low=true', { signal: AbortSignal.timeout(8000) })
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 var b = data.bitcoin;
@@ -469,7 +469,7 @@
 
     // Fetch hashrate from mempool.space
     function fetchHashrate() {
-        fetch('https://mempool.space/api/v1/mining/hashrate/3m')
+        fetch('/api/proxy/mempool/hashrate', { signal: AbortSignal.timeout(10000) })
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 var hashrates = data.hashrates || [];
@@ -514,7 +514,7 @@
 
     // Fetch fee data from mempool.space
     function fetchFees() {
-        fetch('https://mempool.space/api/v1/fees/recommended')
+        fetch('/api/proxy/mempool/fees', { signal: AbortSignal.timeout(8000) })
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 var labels = ['Fastest', 'Half Hour', 'Hour', 'Economy', 'Minimum'];
@@ -701,7 +701,7 @@
                     });
                 });
             })
-            .catch(function(e) { console.warn('PP charts error:', e); });
+            .catch(function() { /* charts data unavailable */ });
     }
 
     // PP Timeframe buttons

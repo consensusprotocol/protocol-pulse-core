@@ -643,7 +643,7 @@
                     <div class="episode-card">
                         <div class="episode-cover">
                             {% if podcast.cover_image_url %}
-                                <img src="{{ podcast.cover_image_url }}" alt="{{ podcast.title }}">
+                                <img src="{{ podcast.cover_image_url }}" alt="{{ podcast.title }}" loading="lazy" onerror="this.src='/static/images/protocol-pulse-logo-transparent.png'">
                             {% else %}
                                 <div class="cover-placeholder">
                                     <i class="fas fa-microphone"></i>
@@ -773,7 +773,7 @@ let currentSpeedIndex = 1;
 let isMuted = false;
 
 function playPodcastGlobal(podcastId) {
-    fetch(`/api/podcast/${podcastId}`)
+    fetch(`/api/podcast/${podcastId}`, { signal: AbortSignal.timeout(8000) })
         .then(response => response.json())
         .then(podcast => {
             if (!podcast.audio_url) {
@@ -786,7 +786,7 @@ function playPodcastGlobal(podcastId) {
 
             const albumArt = document.getElementById('albumArt');
             if (podcast.cover_image_url && albumArt) {
-                albumArt.innerHTML = `<img src="${podcast.cover_image_url}" alt="">`;
+                albumArt.innerHTML = `<img src="${podcast.cover_image_url}" alt="" onerror="this.src='/static/images/protocol-pulse-logo-transparent.png'">`;
             }
 
             document.getElementById('sovereignAudioBar').style.display = 'block';
@@ -926,7 +926,7 @@ function createPodcastCard(podcast) {
     card.innerHTML = `
         <div class="episode-cover">
             ${podcast.cover_image_url ?
-                `<img src="${podcast.cover_image_url}" alt="${podcast.title}">` :
+                `<img src="${podcast.cover_image_url}" alt="${podcast.title}" onerror="this.src='/static/images/protocol-pulse-logo-transparent.png'">` :
                 `<div class="cover-placeholder"><i class="fas fa-microphone"></i></div>`
             }
             <div class="play-overlay">

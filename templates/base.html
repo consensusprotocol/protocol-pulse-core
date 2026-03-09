@@ -476,9 +476,11 @@
     }
 
     /* ── BTC Price Ticker ── */
+    var _btcTickerInterval = null;
     function ppUpdateBtcPrice() {
-        fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true')
-            .then(function(r) { return r.json(); })
+        fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true',
+              { signal: AbortSignal.timeout(8000) })
+            .then(function(r) { return r.ok ? r.json() : Promise.reject(r.status); })
             .then(function(data) {
                 if (data.bitcoin) {
                     var price = data.bitcoin.usd;
@@ -496,9 +498,10 @@
             .catch(function() {});
     }
     ppUpdateBtcPrice();
-    setInterval(ppUpdateBtcPrice, 60000);
+    _btcTickerInterval = setInterval(ppUpdateBtcPrice, 60000);
 
     /* ── Halving countdown ── */
+    var _halvingInterval = null;
     function ppUpdateHalving() {
         var halvingDate = new Date('2028-04-15T00:00:00Z');
         var now = new Date();
@@ -516,7 +519,13 @@
         }
     }
     ppUpdateHalving();
-    setInterval(ppUpdateHalving, 60000);
+    _halvingInterval = setInterval(ppUpdateHalving, 60000);
+
+    /* ── Cleanup on unload ── */
+    window.addEventListener('beforeunload', function() {
+        if (_btcTickerInterval) clearInterval(_btcTickerInterval);
+        if (_halvingInterval) clearInterval(_halvingInterval);
+    });
 
     /* ── Back to top button ── */
     (function() {
@@ -551,8 +560,8 @@
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
             navigator.serviceWorker.register('/static/sw.js')
-                .then(function(reg) { console.log('SW registered:', reg.scope); })
-                .catch(function(err) { console.log('SW registration failed:', err); });
+                .then(function() {})
+                .catch(function() {});
         });
     }
 

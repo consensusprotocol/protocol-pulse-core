@@ -1529,7 +1529,6 @@ let selectedVariant = null;
 function openProductFromBtn(btn) {
     try {
         var productData = btn.getAttribute('data-product');
-        console.log('Raw product data:', productData);
         var product = JSON.parse(productData);
         openProductModal(product);
     } catch(e) {
@@ -1594,7 +1593,6 @@ function closeProductModal() {
 }
 
 function purchaseProduct() {
-    console.log('Purchase clicked', currentProduct, selectedVariant);
     
     if (!currentProduct) {
         alert('No product selected');
@@ -1624,9 +1622,7 @@ function purchaseProduct() {
         }]
     };
     
-    console.log('Checkout data:', checkoutData);
-    
-    fetch('/api/merch/checkout', {
+    fetch('/api/merch/checkout', { signal: AbortSignal.timeout(15000) }, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -1634,11 +1630,9 @@ function purchaseProduct() {
         body: JSON.stringify(checkoutData)
     })
     .then(response => {
-        console.log('Response status:', response.status);
         return response.json();
     })
     .then(data => {
-        console.log('Checkout response:', data);
         if (data.success && data.checkout_url) {
             // Open Stripe in a new window to avoid iframe restrictions
             var stripeWindow = window.open(data.checkout_url, '_blank', 'noopener,noreferrer');

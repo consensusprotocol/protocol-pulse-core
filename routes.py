@@ -8462,3 +8462,30 @@ def not_found_error(error):
 def internal_error(error):
     db.session.rollback()
     return render_template('500.html'), 500
+
+
+@app.route('/api/proxy/mempool/hashrate')
+def proxy_mempool_hashrate():
+    try:
+        import requests as _r
+        resp = _r.get('https://mempool.space/api/v1/mining/hashrate/3m', timeout=8)
+        resp.raise_for_status()
+        from flask import Response
+        return Response(resp.content, mimetype='application/json', headers={'Cache-Control':'public,max-age=300'})
+    except Exception as e:
+        logging.warning(f"Mempool hashrate proxy: {e}")
+        from flask import jsonify
+        return jsonify({'error':'upstream unavailable'}), 503
+
+@app.route('/api/proxy/mempool/fees')
+def proxy_mempool_fees():
+    try:
+        import requests as _r
+        resp = _r.get('https://mempool.space/api/v1/fees/recommended', timeout=8)
+        resp.raise_for_status()
+        from flask import Response
+        return Response(resp.content, mimetype='application/json', headers={'Cache-Control':'public,max-age=60'})
+    except Exception as e:
+        logging.warning(f"Mempool fees proxy: {e}")
+        from flask import jsonify
+        return jsonify({'error':'upstream unavailable'}), 503
