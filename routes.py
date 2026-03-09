@@ -8545,3 +8545,83 @@ def proxy_mempool_fees():
         logging.warning(f"Mempool fees proxy: {e}")
         from flask import jsonify
         return jsonify({'error':'upstream unavailable'}), 503
+
+
+# ─── MEDIA UNIFIED MISSING ROUTES ───────────────────────────────────────────
+
+@app.route('/api/media/fng')
+def api_media_fng():
+    """Fear & Greed index for media-unified page."""
+    try:
+        import requests as _r
+        resp = _r.get('https://api.alternative.me/fng/?limit=1', timeout=8)
+        resp.raise_for_status()
+        d = resp.json()
+        entry = d.get('data', [{}])[0]
+        return jsonify({
+            'value': int(entry.get('value', 50)),
+            'value_classification': entry.get('value_classification', 'Neutral'),
+            'timestamp': entry.get('timestamp', '')
+        }), 200, {'Cache-Control': 'public, max-age=300'}
+    except Exception as e:
+        logging.warning(f"FNG proxy error: {e}")
+        return jsonify({'value': 50, 'value_classification': 'Neutral', 'timestamp': ''}), 200
+
+
+@app.route('/api/spaces/live')
+def api_spaces_live():
+    """Return live/recent X Spaces for media-unified page."""
+    try:
+        import json as _json
+        from pathlib import Path
+        cache_file = Path('/home/ultron/protocol_pulse/x_spaces_scraper/cache/last_run.json')
+        spaces_dir = Path('/home/ultron/protocol_pulse/x_spaces_scraper/cache')
+        spaces = []
+        if spaces_dir.exists():
+            for f in sorted(spaces_dir.glob('space_*.json'), key=lambda x: x.stat().st_mtime, reverse=True)[:5]:
+                try:
+                    sp = _json.loads(f.read_text())
+                    spaces.append({
+                        'id': sp.get('id', ''),
+                        'title': sp.get('title', 'Bitcoin Space'),
+                        'host': sp.get('host', ''),
+                        'listener_count': sp.get('listener_count', 0),
+                        'state': sp.get('state', 'ended'),
+                        'url': sp.get('url', '')
+                    })
+                except Exception:
+                    pass
+        return jsonify({'spaces': spaces, 'live_count': sum(1 for s in spaces if s.get('state') == 'live')}), 200, {'Cache-Control': 'public, max-age=60'}
+    except Exception as e:
+        logging.warning(f"Spaces live error: {e}")
+        return jsonify({'spaces': [], 'live_count': 0}), 200
+
+
+@app.route('/api/tradfi/signals')
+def api_tradfi_signals():
+    """Traditional finance signals for media-unified correlation panel."""
+    try:
+        import requests as _r
+        signals = {}
+        # DXY proxy via stooq
+        try:
+            r = _r.get('https://stooq.com/q/l/?s=dxy.fx&f=sd2t2ohlcvn&h&e=csv', timeout=6)
+            lines = r.text.strip().split('\n')
+            if len(lines) > 1:
+                parts = lines[1].split(',')
+                if len(parts) >= 5:
+                    signals['dxy'] = {'value': float(parts[4]), 'label': 'DXY'}
+        except Exception:
+            signals['dxy'] = {'value': None, 'label': 'DXY'}
+        # Gold via metals-api fallback
+        try:
+            r = _r.get('https://api.metals.live/v1/spot/gold', timeout=6)
+            d = r.json()
+            signals['gold'] = {'value': d[0].get('gold') if isinstance(d, list) else d.get('gold'), 'label': 'Gold'}
+        except Exception:
+            signals['gold'] = {'value': None, 'label': 'Gold'}
+        signals['timestamp'] = __import__('datetime').datetime.utcnow().isoformat()
+        return jsonify(signals), 200, {'Cache-Control': 'public, max-age=300'}
+    except Exception as e:
+        logging.warning(f"TradFi signals error: {e}")
+        return jsonify({'dxy': {'value': None}, 'gold': {'value': None}}), 200
