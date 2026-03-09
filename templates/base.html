@@ -41,14 +41,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Preload critical CSS -->
-    <link rel="preload" href="{{ url_for('static', filename='css/pulse.css') }}?v=2.1" as="style">
+    <link rel="preload" href="{{ url_for('static', filename='css/pulse.css) }}?v=2.2" as="style">
 
     <!-- Bootstrap (backward compat for existing templates) + Font Awesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <!-- Protocol Pulse Design System -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/pulse.css') }}?v=2.1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pulse.css) }}?v=2.2">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=1.3">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/coindesk-style.css') }}?v=1.1">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/light-mode-fix.css') }}?v=1.0">
@@ -582,167 +582,4 @@
     })();
     </script>
 
-    <!-- Additional inline styles for components not in pulse.css -->
-    <style>
-    /* Search overlay */
-    .pp-search-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        z-index: 2000;
-        display: flex;
-        align-items: flex-start;
-        justify-content: center;
-        padding-top: min(20vh, 160px);
-    }
-    .pp-search-modal {
-        width: 100%;
-        max-width: 580px;
-        background: var(--pp-surface);
-        border: 1px solid var(--pp-border);
-        border-radius: var(--pp-radius-lg);
-        box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-        overflow: hidden;
-        margin: 0 16px;
-    }
-    .pp-search-input-wrap {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 16px 20px;
-        border-bottom: 1px solid var(--pp-border);
-    }
-    .pp-search-input {
-        flex: 1;
-        background: none;
-        border: none;
-        outline: none;
-        color: var(--pp-text);
-        font-family: var(--pp-font-body);
-        font-size: 1rem;
-    }
-    .pp-search-input::placeholder { color: var(--pp-text-muted); }
-    .pp-search-kbd {
-        font-family: var(--pp-font-mono);
-        font-size: 0.6875rem;
-        padding: 2px 8px;
-        background: rgba(255,255,255,0.06);
-        border: 1px solid var(--pp-border);
-        border-radius: 4px;
-        color: var(--pp-text-muted);
-    }
-    .pp-search-results {
-        max-height: 400px;
-        overflow-y: auto;
-        padding: 8px;
-    }
-    .pp-search-group-label {
-        font-size: 0.6875rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--pp-text-muted);
-        padding: 8px 12px 4px;
-    }
-    .pp-search-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 10px 12px;
-        border-radius: var(--pp-radius-sm);
-        color: var(--pp-text-secondary);
-        text-decoration: none;
-        transition: all 0.15s ease;
-        font-size: 0.9375rem;
-    }
-    .pp-search-item:hover {
-        background: var(--pp-teal-dim);
-        color: var(--pp-text);
-    }
-    .pp-search-item i { width: 20px; text-align: center; font-size: 0.875rem; }
-
-    /* Flash messages */
-    .pp-flash {
-        padding: 12px 16px;
-        border-radius: var(--pp-radius-sm);
-        border: 1px solid var(--pp-border);
-        background: var(--pp-surface);
-        color: var(--pp-text);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 8px;
-        font-size: 0.9375rem;
-        animation: pp-slide-down 0.3s var(--pp-ease);
-    }
-    .pp-flash--success { border-color: rgba(0, 230, 118, 0.3); background: rgba(0, 230, 118, 0.08); }
-    .pp-flash--error, .pp-flash--danger { border-color: rgba(255, 71, 87, 0.3); background: rgba(255, 71, 87, 0.08); }
-    .pp-flash--warning { border-color: rgba(245, 166, 35, 0.3); background: rgba(245, 166, 35, 0.08); }
-    .pp-flash--info { border-color: rgba(0, 212, 170, 0.3); background: rgba(0, 212, 170, 0.08); }
-    .pp-flash__close {
-        background: none;
-        border: none;
-        color: var(--pp-text-muted);
-        cursor: pointer;
-        font-size: 1.25rem;
-        line-height: 1;
-        padding: 0 4px;
-    }
-
-    /* Halving clock */
-    .pp-halving-clock {
-        padding: 16px;
-        background: rgba(0, 212, 170, 0.06);
-        border: 1px solid rgba(0, 212, 170, 0.15);
-        border-radius: var(--pp-radius-md);
-        text-align: center;
-        max-width: 240px;
-    }
-    .pp-halving-clock__display {
-        font-family: var(--pp-font-mono);
-        font-size: 1.5rem;
-        display: flex;
-        justify-content: center;
-        align-items: baseline;
-        gap: 2px;
-    }
-
-    /* Back to top */
-    .pp-back-to-top {
-        position: fixed;
-        bottom: 24px;
-        right: 24px;
-        width: 44px;
-        height: 44px;
-        background: var(--pp-surface);
-        border: 1px solid var(--pp-border);
-        border-radius: var(--pp-radius-sm);
-        color: var(--pp-text-secondary);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(10px);
-        transition: all 0.3s var(--pp-ease);
-        z-index: 500;
-    }
-    .pp-back-to-top--visible {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-    }
-    .pp-back-to-top:hover {
-        border-color: var(--pp-teal);
-        color: var(--pp-teal);
-        background: var(--pp-teal-dim);
-    }
-    </style>
-
-    {% block scripts %}{% endblock %}
-</body>
-</html>
+    <!-- Additional inline styles for components not in pulse.css) }}?v=2.2
