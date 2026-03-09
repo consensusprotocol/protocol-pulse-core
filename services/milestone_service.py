@@ -90,6 +90,9 @@ class MilestoneService:
         }
 
         # ── Step 0: Mark as fired FIRST (prevents double-fire race) ──────────
+        # Uses unique constraint on price_threshold — if two concurrent checks both
+        # pass already_fired(), the second INSERT will raise IntegrityError and abort.
+        # This provides true atomic safety beyond the application-level check.
         try:
             record = MilestoneFired(
                 price_threshold=price,
@@ -103,7 +106,12 @@ class MilestoneService:
             results["actions"]["db_logged"] = True
         except Exception as e:
             db.session.rollback()
-            logger.error("CRITICAL: Could not log milestone to DB: %s", e)
+            # IntegrityError means a concurrent process already fired this milestone — safe to ignore
+            from sqlalchemy.exc import IntegrityError
+            if isinstance(e, IntegrityError):
+                logger.warning("Milestone %s already fired by concurrent process — skipping.", label)
+            else:
+                logger.error("CRITICAL: Could not log milestone to DB: %s", e)
             results["actions"]["db_logged"] = False
             # Don't proceed — we can't guarantee no-duplicate without the DB record
             return results
@@ -275,6 +283,10 @@ class MilestoneService:
         """
         Triggers emergency Pulse Check episode generation.
         Non-blocking — writes request to queue file and returns immediately.
+
+        TODO: A separate consumer process (video_pipeline_v3/daily_run.py or a dedicated
+        milestone_episode_worker.py) should tail milestone_episode_queue.jsonl and generate
+        the episode. V1 uses queue-file pattern to decouple from the trigger path.
         """
         import json
         from pathlib import Path
