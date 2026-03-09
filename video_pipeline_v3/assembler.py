@@ -625,24 +625,32 @@ def _make_clip_unavailable_card(rank: int, output_path: str, btc_price: str = "$
     silently skipping — keeps the timeline intact and looks intentional.
     """
     dur = 8.0
+    # Use Black Diamond grid background for visual consistency with host segments
     ok = run_ffmpeg([
         "-f", "lavfi", "-i",
         f"color=c=0x020304:s=1920x1080:r=30:d={dur}",
         "-f", "lavfi", "-i",
         f"anullsrc=r=48000:cl=stereo",
         "-filter_complex",
+        # Grid background
         f"[0:v]"
-        f"drawbox=x=560:y=340:w=800:h=400:color=0x1a0000@0.95:t=fill,"
-        f"drawbox=x=560:y=340:w=800:h=4:color=0xFF0000:t=fill,"
-        f"drawbox=x=560:y=736:w=800:h=4:color=0xFF0000:t=fill,"
+        f"drawgrid=width=80:height=80:thickness=1:color=0xFF0000@0.08,"
+        # Full-width info rail at bottom (matching host segments)
+        f"drawbox=x=0:y=790:w=1920:h=2:color=0xFF0000@0.6:t=fill,"
+        f"drawbox=x=0:y=792:w=1920:h=48:color=0x050607:t=fill,"
+        f"drawtext=fontfile={FONT_MONO}:text='BTC {btc_price}':fontcolor=0xF8C15C:fontsize=22:x=20:y=806,"
+        f"drawtext=fontfile={FONT_MONO}:text='PROTOCOLPULSE.IO':fontcolor=0xF4F5F8:fontsize=22:x=(w-text_w)/2:y=806,"
+        f"drawtext=fontfile={FONT_MONO}:text='MAR 09\\, 2026 — DAILY BRIEF':fontcolor=0x888888:fontsize=18:x=w-360:y=810,"
+        # Center unavailable card
+        f"drawbox=x=400:y=300:w=1120:h=300:color=0x1a0000@0.95:t=fill,"
+        f"drawbox=x=400:y=300:w=1120:h=4:color=0xFF0000:t=fill,"
+        f"drawbox=x=400:y=596:w=1120:h=4:color=0xFF0000:t=fill,"
         f"drawtext=fontfile={FONT_BOLD}:text='CLIP #{rank} LOADING...'"
-        f":fontcolor=0xFF0000:fontsize=52:x=(w-text_w)/2:y=430,"
+        f":fontcolor=0xFF0000:fontsize=56:x=(w-text_w)/2:y=365,"
         f"drawtext=fontfile={FONT_MONO}:text='SOURCE UNAVAILABLE — SIGNAL INTERRUPTED'"
-        f":fontcolor=0x888888:fontsize=22:x=(w-text_w)/2:y=510,"
-        f"drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE'"
-        f":fontcolor=0x444444:fontsize=18:x=w-200:y=20,"
-        f"drawtext=fontfile={FONT_MONO}:text='BTC {btc_price}'"
-        f":fontcolor=0xF8C15C:fontsize=18:x=20:y=20"
+        f":fontcolor=0x888888:fontsize=24:x=(w-text_w)/2:y=460,"
+        # Watermark top-right
+        f"drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':fontcolor=0x333333:fontsize=18:x=w-230:y=20"
         f"[outv]",
         "-map", "[outv]", "-map", "1:a",
         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
@@ -1723,7 +1731,7 @@ def make_broadcast_segment(segment_data: dict, audio_path: str, host_num: int,
     """
     seg_type = segment_data.get("type", "")
     text = segment_data.get("text", "")
-    speaker = segment_data.get("speaker", "DEBORAH" if host_num == 1 else "BRIAN")
+    speaker = segment_data.get("speaker", "MARK")  # single host — Mark only
     scene = select_scene_type(seg_type, segment_index, total_segments)
 
     try:
@@ -1789,8 +1797,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
         audio_dur = 5
     total_dur = audio_dur + 0.3
 
-    host_names = {1: "DEBORAH", 2: "BRIAN"}
-    speaker = host_names.get(host, "HOST")
+    speaker = "MARK"  # single host — PBX directive 2026-03-09
 
     safe_btc = btc_price.replace("'", "").replace('"', "")
 
@@ -3302,7 +3309,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         else:
             # BV2: Route to Broadcast Engine V2 scene system (falls back to Black Diamond)
             seg_data = {"type": entry_type, "text": text,
-                        "speaker": "DEBORAH" if host_num == 1 else "BRIAN",
+                        "speaker": "MARK",  # single host
                         "next_speaker": ""}
             # Look ahead for next clip speaker
             if entry_type == "setup" and clip_rank and clip_rank in extracted_clips:
@@ -3333,8 +3340,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         if result:
             parts.append(result)
             dur = ffprobe_duration(result)
-            speaker = "DEBORAH" if host_num == 1 else "BRIAN"
-            logger.info(f"[{part_idx:03d}] {entry_type.upper()} [{speaker}]: {dur:.1f}s")
+            logger.info(f"[{part_idx:03d}] {entry_type.upper()} [MARK]: {dur:.1f}s")
             part_idx += 1
             prev_segment_type = entry_type
             host_segment_count += 1
