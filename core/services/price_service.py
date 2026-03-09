@@ -42,6 +42,8 @@ class PriceService:
             prices = {
                 'bitcoin': {
                     'price': data.get('bitcoin', {}).get('usd', 0),
+                    'usd': data.get('bitcoin', {}).get('usd', 0),
+                    'usd_24h_change': data.get('bitcoin', {}).get('usd_24h_change', 0),
                     'change_24h': data.get('bitcoin', {}).get('usd_24h_change', 0),
                     'market_cap': data.get('bitcoin', {}).get('usd_market_cap', 0)
                 },
