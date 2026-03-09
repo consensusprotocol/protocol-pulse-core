@@ -616,6 +616,45 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
     return output_path if ok else ""
 
 
+# ── Clip unavailable placeholder ──────────────────────────────────────────
+
+def _make_clip_unavailable_card(rank: int, output_path: str, btc_price: str = "$N/A") -> str:
+    """8-second branded placeholder when a partner clip fails to download.
+
+    Shows 'CLIP #N LOADING...' on Black Diamond background instead of
+    silently skipping — keeps the timeline intact and looks intentional.
+    """
+    dur = 8.0
+    ok = run_ffmpeg([
+        "-f", "lavfi", "-i",
+        f"color=c=0x020304:s=1920x1080:r=30:d={dur}",
+        "-f", "lavfi", "-i",
+        f"anullsrc=r=48000:cl=stereo",
+        "-filter_complex",
+        f"[0:v]"
+        f"drawbox=x=560:y=340:w=800:h=400:color=0x1a0000@0.95:t=fill,"
+        f"drawbox=x=560:y=340:w=800:h=4:color=0xFF0000:t=fill,"
+        f"drawbox=x=560:y=736:w=800:h=4:color=0xFF0000:t=fill,"
+        f"drawtext=fontfile={FONT_BOLD}:text='CLIP #{rank} LOADING...'"
+        f":fontcolor=0xFF0000:fontsize=52:x=(w-text_w)/2:y=430,"
+        f"drawtext=fontfile={FONT_MONO}:text='SOURCE UNAVAILABLE — SIGNAL INTERRUPTED'"
+        f":fontcolor=0x888888:fontsize=22:x=(w-text_w)/2:y=510,"
+        f"drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE'"
+        f":fontcolor=0x444444:fontsize=18:x=w-200:y=20,"
+        f"drawtext=fontfile={FONT_MONO}:text='BTC {btc_price}'"
+        f":fontcolor=0xF8C15C:fontsize=18:x=20:y=20"
+        f"[outv]",
+        "-map", "[outv]", "-map", "1:a",
+        "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+        "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
+        "-pix_fmt", "yuv420p", "-r", "30",
+        "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
+        "-t", str(dur),
+        output_path,
+    ], "clip_unavailable_card", 30)
+    return output_path if ok and os.path.exists(output_path) else ""
+
+
 # ── Branded outro ─────────────────────────────────────────────────────────
 
 def make_branded_outro(output_path: str, narration_audio: str = "") -> str:
@@ -3124,7 +3163,14 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                 else:
                     logger.warning(f"[---] Clip #{rank}: visual failed, skipping")
             else:
-                logger.warning(f"[---] Clip #{rank}: file not found ({clip_path}), skipping")
+                logger.warning(f"[---] Clip #{rank}: file not found ({clip_path}) — injecting branded placeholder")
+                placeholder_out = os.path.join(work_dir, f"part_{part_idx:03d}_clip_placeholder_r{rank}.mp4")
+                placeholder_result = _make_clip_unavailable_card(rank, placeholder_out, btc_price)
+                if placeholder_result:
+                    parts.append(placeholder_result)
+                    dur = ffprobe_duration(placeholder_result)
+                    logger.info(f"[{part_idx:03d}] CLIP #{rank} PLACEHOLDER: {dur:.1f}s")
+                    part_idx += 1
             prev_segment_type = "clip"
             continue
 
@@ -3359,8 +3405,8 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
     # FIX 1: No standalone pre-outro transition — xfade in concatenation
 
     outro_out = os.path.join(work_dir, f"part_{part_idx:03d}_outro_branded.mp4")
-    # Issue 8 FIX: Pass wrap narration to branded outro so "Stay sovereign" plays over it
-    outro_result = make_branded_outro(outro_out, narration_audio="")
+    # Pass wrap narration so "Stay sovereign" plays OVER the branded outro visual
+    outro_result = make_branded_outro(outro_out, narration_audio=wrap_audio)
     if outro_result:
         parts.append(outro_result)
         dur = ffprobe_duration(outro_result)

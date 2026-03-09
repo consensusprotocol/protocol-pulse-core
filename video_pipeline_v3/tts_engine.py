@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""TTS Engine V6 — APEX V2 dual-host broadcast voices.
-Host 1 (Deborah — Female Newscaster):  VeCVR24o7g2y1IxLJzZs
-Host 2 (Brian — Deep Resonant Analyst): nPczCjzI2devNBz1zQrb
-Generates per-line audio with 0.3s silence gaps between speakers."""
+"""TTS Engine V6 — Single-host Mark broadcast voice.
+Host: Mark (1SM7GgM6IMuvQlz2BwM3) at 1.10x speed — PBX approved sole narrator.
+Both host=1 and host=2 route to Mark (no gender swap, no dual-host).
+Generates per-line audio with 0.3s silence gaps."""
 import os, sys, json, subprocess, tempfile, time, struct
 from pathlib import Path
 
@@ -14,44 +14,34 @@ except ImportError:
 
 from relay import get_key
 
-# APEX V2: Authoritative broadcast voices
-# Host 1: Deborah — "Female Newscaster voice", US midwest, professional
-# Host 2: Brian — "Deep, Resonant and Comforting", American, classy
-VOICES = {
-    1: {
-        "voice_id": "VeCVR24o7g2y1IxLJzZs",
-        "name": "Deborah",
-        "model_id": "eleven_turbo_v2_5",
-        "speed": 1.05,
-        "voice_settings": {
-            "stability": 0.45,
-            "similarity_boost": 0.80,
-            "style": 0.20,
-            "use_speaker_boost": True,
-        },
-    },
-    2: {
-        "voice_id": "nPczCjzI2devNBz1zQrb",
-        "name": "Brian",
-        "model_id": "eleven_turbo_v2_5",
-        "speed": 1.00,
-        "voice_settings": {
-            "stability": 0.45,
-            "similarity_boost": 0.80,
-            "style": 0.20,
-            "use_speaker_boost": True,
-        },
+# PBX DIRECTIVE 2026-03-09: SINGLE HOST — Mark at 1.10x speed.
+# Both host=1 and host=2 map to Mark. Deborah/Brian/Nicole/Chris are all BANNED.
+_MARK_VOICE = {
+    "voice_id": "1SM7GgM6IMuvQlz2BwM3",
+    "name": "Mark",
+    "model_id": "eleven_turbo_v2_5",
+    "speed": 1.10,
+    "voice_settings": {
+        "stability": 0.55,
+        "similarity_boost": 0.80,
+        "style": 0.15,
+        "use_speaker_boost": True,
     },
 }
 
-# Hybrid voice settings per segment type (overrides for Host 1 — Deborah)
+VOICES = {
+    1: _MARK_VOICE,
+    2: _MARK_VOICE,  # single narrator — both hosts are Mark
+}
+
+# Voice mode overrides for Mark (segment-type tuning)
 VOICE_MODES = {
-    "cold_open":       {"stability": 0.38, "similarity_boost": 0.80, "style": 0.20, "speed": 1.05},
-    "setup":           {"stability": 0.50, "similarity_boost": 0.80, "style": 0.15, "speed": 1.05},
-    "react":           {"stability": 0.50, "similarity_boost": 0.80, "style": 0.15, "speed": 1.05},
-    "social_segment":  {"stability": 0.45, "similarity_boost": 0.78, "style": 0.18, "speed": 1.05},
-    "wrap":            {"stability": 0.45, "similarity_boost": 0.78, "style": 0.22, "speed": 1.02},
-    "data":            {"stability": 0.50, "similarity_boost": 0.82, "style": 0.15, "speed": 1.03},
+    "cold_open":       {"stability": 0.45, "similarity_boost": 0.80, "style": 0.18, "speed": 1.10},
+    "setup":           {"stability": 0.55, "similarity_boost": 0.80, "style": 0.15, "speed": 1.10},
+    "react":           {"stability": 0.55, "similarity_boost": 0.80, "style": 0.15, "speed": 1.10},
+    "social_segment":  {"stability": 0.50, "similarity_boost": 0.78, "style": 0.18, "speed": 1.10},
+    "wrap":            {"stability": 0.50, "similarity_boost": 0.78, "style": 0.20, "speed": 1.08},
+    "data":            {"stability": 0.60, "similarity_boost": 0.82, "style": 0.12, "speed": 1.10},
 }
 
 SILENCE_GAP = 0.3  # seconds between speakers
