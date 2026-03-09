@@ -237,7 +237,7 @@ def call_gpt4o(prompt: str, results: dict, errors: dict):
         from openai import OpenAI
         client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
         resp = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5.4",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=6000,
             temperature=0.3,
