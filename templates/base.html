@@ -10,6 +10,9 @@
     <meta name="description" content="{% block meta_description %}World-class Bitcoin intelligence. Real-time analysis, market signals, and investigative reporting for transactors.{% endblock %}">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='icons/icon-32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='icons/icon-16.png') }}">
     <link rel="canonical" href="{{ request.url }}">
     <title>{% block title %}Protocol Pulse{% endblock %}</title>
 
@@ -478,18 +481,20 @@
     /* ── BTC Price Ticker ── */
     var _btcTickerInterval = null;
     function ppUpdateBtcPrice() {
-        fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true',
-              { signal: AbortSignal.timeout(8000) })
+        fetch('/api/btc-price', { signal: AbortSignal.timeout(4000) })
             .then(function(r) { return r.ok ? r.json() : Promise.reject(r.status); })
             .then(function(data) {
-                if (data.bitcoin) {
-                    var price = data.bitcoin.usd;
-                    var change = data.bitcoin.usd_24h_change;
+                // supports both /api/btc-price schema {price, change_24h}
+                // and CoinGecko schema {bitcoin: {usd, usd_24h_change}}
+                var price = data.price || (data.bitcoin && data.bitcoin.usd) || 0;
+                var change = (data.change_24h !== undefined ? data.change_24h : null) ||
+                             (data.bitcoin && data.bitcoin.usd_24h_change) || 0;
+                if (price) {
                     var priceEl = document.getElementById('ppBtcPrice');
                     var changeEl = document.getElementById('ppBtcChange');
                     if (priceEl) priceEl.textContent = '$' + price.toLocaleString('en-US', {maximumFractionDigits: 0});
                     if (changeEl) {
-                        var pct = change.toFixed(1);
+                        var pct = parseFloat(change).toFixed(1);
                         changeEl.textContent = (change >= 0 ? '+' : '') + pct + '%';
                         changeEl.className = 'pp-nav__ticker-change pp-nav__ticker-change--' + (change >= 0 ? 'up' : 'down');
                     }
