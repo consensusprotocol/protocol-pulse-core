@@ -276,7 +276,7 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
 
     key = _get_cached_key("ELEVENLABS_API_KEY")
     if not key:
-        raise RuntimeError("ELEVENLABS_API_KEY not available. Cannot generate audio.")
+        print("  [tts] WARNING: ELEVENLABS_API_KEY not available — using silence fallback for all lines")
 
     silence_path = os.path.join(output_dir, "silence.m4a")
     _generate_silence(silence_path, SILENCE_GAP)
@@ -300,6 +300,7 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
                 "query": entry.get("query", ""),
                 "text": text,
             })
+            current_time += clip_dur  # U3 FIX: advance timeline for CLIP entries
             continue
 
         host_num = int(host) if host in (1, 2, "1", "2") else 1

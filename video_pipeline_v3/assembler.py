@@ -953,6 +953,39 @@ def _build_top_system_bar(label_in: str, label_out: str, scene_label: str = "",
     return fg
 
 
+def _build_subtitle_band(label_in: str, label_out: str, text: str, duration: float) -> str:
+    """BUG5 FIX: Animated lower-third subtitle band.
+
+    Position: y=778 to y=885 (H*0.72 to H*0.82), full width
+    Style: dark glass bg, white text, red left accent (4px)
+    Animation: fade-in 0.3s, hold, fade-out 0.3s per subtitle
+    Text: 36px monospace, left-padded 52px, never overlaps PiP or info rail
+    """
+    if not text:
+        return f"[{label_in}]null[{label_out}];\n"
+    safe_text = _sanitize_text(text)
+    # Truncate to max ~80 chars to fit in one line
+    if len(safe_text) > 80:
+        safe_text = safe_text[:77] + "..."
+    fade_dur = min(0.3, duration * 0.1)
+    hold_start = fade_dur
+    hold_end = max(hold_start + 0.1, duration - fade_dur)
+    # Alpha expression: fade in, hold, fade out
+    alpha_expr = f"if(lt(t\\,{fade_dur:.2f})\\,t/{fade_dur:.2f}\\,if(gt(t\\,{hold_end:.2f})\\,max(0\\,({duration:.2f}-t)/{fade_dur:.2f})\\,1))"
+    fg = ""
+    # Dark glass bg box (static semi-transparent)
+    fg += (f"[{label_in}]"
+           f"drawbox=x=0:y=778:w=1920:h=107:color=0x000000@0.75:t=fill,"
+           # Red left accent (4px)
+           f"drawbox=x=0:y=778:w=4:h=107:color={COLOR_RED}@0.9:t=fill,"
+           # White subtitle text with alpha animation
+           f"drawtext=fontfile={FONT_MONO}:text='{safe_text}':"
+           f"fontcolor={COLOR_WHITE}:fontsize=36:x=52:y=820:"
+           f"alpha='{alpha_expr}'"
+           f"[{label_out}];\n")
+    return fg
+
+
 def _build_signature_info_rail(duration: float, btc_price: str, label_in: str,
                                 label_out: str) -> str:
     """APEX UNIFIED gold info rail — BUG3 FIX: gold #F8C15C per VDS spec."""
@@ -1067,9 +1100,10 @@ def _bv2_encode(inputs, fg, output_path, total_dur, label="bv2 scene",
     audio_pad: the audio stream label to use (default [0:a]). Scenes that
     pre-split audio via asplit should pass their output pad here.
     """
+    # BUG8 FIX: Remove per-segment loudnorm — single final loudnorm in concatenate_parts()
     fg += (f"{audio_pad}silenceremove=start_periods=1:start_duration=0.05:start_threshold=-50dB:"
            f"stop_periods=-1:stop_duration=0.1:stop_threshold=-50dB,"
-           f"loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]")
+           f"aresample=async=1[outa]")
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -1193,8 +1227,10 @@ def make_cold_open_scene(audio_path: str, headline: str, body: str, tag: str,
     # Narration wave (FIX 3: returns tuple with audio_out_pad)
     wave_fg, co_audio_pad = _build_narration_wave("co_corners", "co_wave", "co_a_out")
     fg += wave_fg
+    # BUG5 FIX: Animated subtitle band (body text, above info rail)
+    fg += _build_subtitle_band("co_wave", "co_sub", body, total_dur)
     # Info rail
-    fg += _build_signature_info_rail(total_dur, btc_price, "co_wave", "co_railed")
+    fg += _build_signature_info_rail(total_dur, btc_price, "co_sub", "co_railed")
     fg += f"[co_railed]format=yuv420p[outv];\n"
 
     return _bv2_encode(inputs, fg, output_path, total_dur, "APEX cold open",
@@ -1303,7 +1339,9 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     fg += _build_corner_brackets_fg("np_pip_final", "np_corners")
     wave_fg, np_audio_pad = _build_narration_wave("np_corners", "np_wave", "np_a_out")
     fg += wave_fg
-    fg += _build_signature_info_rail(total_dur, btc_price, "np_wave", "np_railed")
+    # BUG5 FIX: Animated subtitle band
+    fg += _build_subtitle_band("np_wave", "np_sub", body, total_dur)
+    fg += _build_signature_info_rail(total_dur, btc_price, "np_sub", "np_railed")
     fg += f"[np_railed]format=yuv420p[outv];\n"
 
     return _bv2_encode(inputs, fg, output_path, total_dur, "APEX narrator+pip",
@@ -1501,7 +1539,9 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
     fg += _build_corner_brackets_fg("ds_chart_done", "ds_corners")
     wave_fg, ds_audio_pad = _build_narration_wave("ds_corners", "ds_wave", "ds_a_out")
     fg += wave_fg
-    fg += _build_signature_info_rail(total_dur, btc_price, "ds_wave", "ds_railed")
+    # BUG5 FIX: Animated subtitle band
+    fg += _build_subtitle_band("ds_wave", "ds_sub", headline, total_dur)
+    fg += _build_signature_info_rail(total_dur, btc_price, "ds_sub", "ds_railed")
     fg += f"[ds_railed]format=yuv420p[outv];\n"
 
     return _bv2_encode(inputs, fg, output_path, total_dur, "APEX data segment",
@@ -1612,7 +1652,9 @@ def make_social_stack_scene(audio_path: str, headline: str, social_cards: list,
     fg += _build_corner_brackets_fg(last, "ss_corners")
     wave_fg, ss_audio_pad = _build_narration_wave("ss_corners", "ss_wave", "ss_a_out")
     fg += wave_fg
-    fg += _build_signature_info_rail(total_dur, btc_price, "ss_wave", "ss_railed")
+    # BUG5 FIX: Animated subtitle band
+    fg += _build_subtitle_band("ss_wave", "ss_sub", headline, total_dur)
+    fg += _build_signature_info_rail(total_dur, btc_price, "ss_sub", "ss_railed")
     fg += f"[ss_railed]format=yuv420p[outv];\n"
 
     return _bv2_encode(inputs, fg, output_path, total_dur, "APEX social stack",
@@ -1712,7 +1754,9 @@ def make_wrap_scene(audio_path: str, headline: str, body: str,
     fg += f"[_wr_wf]drawbox=x=0:y=79:w=1920:h=2:color=0xFF0000@0.35:t=fill[_wr_wfin];\n"
     fg += f"[wr_corners][_wr_wfin]overlay=0:880[wr_ekg];\n"
 
-    fg += _build_signature_info_rail(total_dur, btc_price, "wr_ekg", "wr_railed")
+    # BUG5 FIX: Animated subtitle band
+    fg += _build_subtitle_band("wr_ekg", "wr_sub", body, total_dur)
+    fg += _build_signature_info_rail(total_dur, btc_price, "wr_sub", "wr_railed")
     fg += f"[wr_railed]format=yuv420p[outv];\n"
 
     return _bv2_encode(inputs, fg, output_path, total_dur, "APEX wrap",
