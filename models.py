@@ -1222,11 +1222,15 @@ class MarketBriefing(db.Model):
     __table_args__ = (
         db.Index('idx_briefings_type_date', 'briefing_type', 'generated_at'),
         db.Index('idx_briefings_published', 'published', 'generated_at'),
+        db.Index('idx_briefings_slot_date', 'briefing_type', 'scheduled_date'),
+        # DB-level idempotency guard: only one non-failed briefing per slot per day
+        db.UniqueConstraint('briefing_type', 'scheduled_date', name='uq_briefing_slot_date'),
     )
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text, nullable=False)
     briefing_type = db.Column(db.String(20), nullable=False)  # pre_market | open | close
+    scheduled_date = db.Column(db.String(10))                 # ET date: YYYY-MM-DD (idempotency)
     script_text = db.Column(db.Text, nullable=False)
     video_url = db.Column(db.Text)
     thumbnail_url = db.Column(db.Text)
@@ -1244,6 +1248,7 @@ class MarketBriefing(db.Model):
             'id': self.id,
             'title': self.title,
             'briefing_type': self.briefing_type,
+            'scheduled_date': self.scheduled_date,
             'video_url': self.video_url,
             'thumbnail_url': self.thumbnail_url,
             'duration_seconds': self.duration_seconds,

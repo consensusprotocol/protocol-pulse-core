@@ -8050,6 +8050,29 @@ except Exception as _bse:
     _briefing_service_ok = False
 
 
+def _next_briefing_utc_epoch() -> int:
+    """P1-2: Compute the UTC epoch (ms) of the next scheduled ET briefing slot.
+    Returns a JavaScript-compatible millisecond timestamp.
+    DST-safe: uses pytz IANA timezone — no manual offset arithmetic.
+    """
+    try:
+        import pytz as _tz
+        _ET = _tz.timezone("America/New_York")
+        _UTC = _tz.utc
+        SLOTS = [(7, 0), (9, 30), (16, 30)]
+        now_et = datetime.now(_ET)
+        for h, m in SLOTS:
+            candidate = now_et.replace(hour=h, minute=m, second=0, microsecond=0)
+            if candidate > now_et:
+                return int(candidate.astimezone(_UTC).timestamp() * 1000)
+        # All today's slots passed — next is tomorrow's 07:00
+        tomorrow = (now_et + timedelta(days=1)).replace(hour=7, minute=0, second=0, microsecond=0)
+        return int(tomorrow.astimezone(_UTC).timestamp() * 1000)
+    except Exception as e:
+        logging.warning("_next_briefing_utc_epoch failed: %s", e)
+        return 0
+
+
 @app.route('/stage')
 def stage_redirect():
     """LAW 4: /stage → 302 → /briefing (permanent redirect preserved)."""
@@ -8078,7 +8101,13 @@ def market_briefing():
         logging.warning("market_briefing DB error: %s", e)
         latest = None
         recent = []
-    return render_template('market_briefing.html', latest=latest, recent=recent)
+    next_utc = _next_briefing_utc_epoch()
+    return render_template(
+        'market_briefing.html',
+        latest=latest,
+        recent=recent,
+        next_briefing_utc=next_utc,
+    )
 
 
 @app.route('/briefing/archive')
@@ -8125,6 +8154,30 @@ def briefing_latest():
         return jsonify(b.to_dict())
     except Exception as e:
         logging.warning("briefing_latest error: %s", e)
+        return jsonify({"error": "Service unavailable"}), 503
+
+
+@app.route('/api/briefing/<int:briefing_id>')
+def briefing_by_id(briefing_id):
+    """P1-1: Fetch a single briefing by ID — used by loadBriefing() JS."""
+    try:
+        b = models.MarketBriefing.query.get(briefing_id)
+        if not b or not b.published:
+            return jsonify({"error": "Not found"}), 404
+        import pytz
+        ET = pytz.timezone("America/New_York")
+        # P1-3: Convert UTC generated_at to ET for display
+        gen_et = ""
+        if b.generated_at:
+            utc_dt = pytz.utc.localize(b.generated_at)
+            et_dt = utc_dt.astimezone(ET)
+            gen_et = et_dt.strftime("%-I:%M %p ET · %b %-d, %Y")
+        data = b.to_dict()
+        data['generated_at_et'] = gen_et
+        data['script_text'] = b.script_text   # full script for script panel
+        return jsonify(data)
+    except Exception as e:
+        logging.warning("briefing_by_id error: %s", e)
         return jsonify({"error": "Service unavailable"}), 503
 
 

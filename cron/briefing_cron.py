@@ -63,13 +63,17 @@ def main() -> None:
     scheduler = BlockingScheduler(timezone=ET)
 
     # 07:00 ET — Pre-Market Brief
+    # max_instances=1: prevents job stacking if prev run hasn't finished
+    # coalesce=True: if multiple fires were missed, execute only once on recovery
     scheduler.add_job(
         func=lambda: run_briefing("pre_market"),
         trigger=CronTrigger(hour=7, minute=0, timezone=ET),
         id="pre_market_brief",
         name="Pre-Market Brief (07:00 ET)",
         replace_existing=True,
-        misfire_grace_time=300,  # allow 5min late start
+        max_instances=1,
+        coalesce=True,
+        misfire_grace_time=300,
     )
 
     # 09:30 ET — Market Open Brief
@@ -79,6 +83,8 @@ def main() -> None:
         id="open_brief",
         name="Market Open Brief (09:30 ET)",
         replace_existing=True,
+        max_instances=1,
+        coalesce=True,
         misfire_grace_time=300,
     )
 
@@ -89,6 +95,8 @@ def main() -> None:
         id="close_brief",
         name="Market Close Brief (16:30 ET)",
         replace_existing=True,
+        max_instances=1,
+        coalesce=True,
         misfire_grace_time=300,
     )
 

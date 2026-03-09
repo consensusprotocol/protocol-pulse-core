@@ -42,8 +42,6 @@
     gap: 12px;
 }
 
-.briefing-page-title-block {}
-
 .briefing-page-label {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.6rem;
@@ -125,7 +123,7 @@
     border-radius: 12px;
 }
 
-/* Empty state — no video yet */
+/* Empty state */
 .briefing-player-empty {
     position: absolute;
     inset: 0;
@@ -163,6 +161,7 @@
     text-transform: uppercase;
     color: rgba(255,255,255,0.2);
     text-align: center;
+    padding: 0 24px;
 }
 
 /* Loading state */
@@ -175,6 +174,7 @@
     justify-content: center;
     background: rgba(0,0,0,0.6);
     gap: 12px;
+    z-index: 2;
 }
 
 .briefing-player-loading.active { display: flex; }
@@ -188,10 +188,9 @@
     animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
+/* Video meta */
 .briefing-video-meta {
     display: flex;
     align-items: flex-start;
@@ -232,9 +231,7 @@
     color: rgba(255,255,255,0.15);
 }
 
-.briefing-video-info-item:first-child::before {
-    display: none;
-}
+.briefing-video-info-item:first-child::before { display: none; }
 
 .briefing-type-pill {
     padding: 3px 10px;
@@ -248,7 +245,6 @@
     color: #dc2626;
 }
 
-/* BTC price at generation */
 .briefing-btc-at-gen {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.62rem;
@@ -302,9 +298,7 @@
     letter-spacing: 0.04em;
 }
 
-.briefing-schedule-time.next {
-    color: rgba(220, 38, 38, 0.7);
-}
+.briefing-schedule-time.next { color: rgba(220, 38, 38, 0.7); }
 
 /* ── Section Header ──────────────────────────────── */
 .briefing-section-header {
@@ -332,9 +326,7 @@
     transition: color 0.2s;
 }
 
-.briefing-section-link:hover {
-    color: #dc2626;
-}
+.briefing-section-link:hover { color: #dc2626; }
 
 /* ── Previous Briefings Grid ─────────────────────── */
 .briefing-prev-grid {
@@ -360,9 +352,7 @@
     transform: translateY(-2px);
 }
 
-.briefing-prev-card.active {
-    border-color: rgba(220, 38, 38, 0.4);
-}
+.briefing-prev-card.active { border-color: rgba(220, 38, 38, 0.4); }
 
 .briefing-prev-thumb {
     width: 100%;
@@ -408,9 +398,7 @@
     transition: opacity 0.2s;
 }
 
-.briefing-prev-card:hover .briefing-prev-play-overlay {
-    opacity: 1;
-}
+.briefing-prev-card:hover .briefing-prev-play-overlay { opacity: 1; }
 
 .briefing-prev-play-icon {
     width: 36px;
@@ -432,9 +420,7 @@
     margin-left: 2px;
 }
 
-.briefing-prev-info {
-    padding: 12px 14px;
-}
+.briefing-prev-info { padding: 12px 14px; }
 
 .briefing-prev-type {
     font-family: 'JetBrains Mono', monospace;
@@ -465,7 +451,6 @@
     letter-spacing: 0.03em;
 }
 
-/* Empty state for prev grid */
 .briefing-prev-empty {
     grid-column: 1 / -1;
     padding: 40px;
@@ -531,24 +516,33 @@
 </style>
 {% endblock %}
 
+{#
+  P1-3: ET timestamp helper macro.
+  generated_at is stored as UTC-naive. Convert to ET for display.
+  Uses strptime-safe approach: rely on server-rendered ET string from route.
+#}
+{% macro et_time(dt) %}
+  {%- if dt -%}
+    {{ dt.strftime('%b ') }}{{ dt.day }}{{ dt.strftime(', %Y') }}
+  {%- endif -%}
+{% endmacro %}
+
 {% block content %}
-<div class="briefing-page">
+{# P1-2: next_briefing_utc passed from route as UTC epoch milliseconds #}
+<div class="briefing-page"
+     data-next-briefing-utc="{{ next_briefing_utc | default(0) }}">
     <div class="briefing-inner">
 
         <!-- Page Header -->
         <div class="briefing-page-header">
-            <div class="briefing-page-title-block">
+            <div>
                 <div class="briefing-page-label">Protocol Pulse</div>
                 <h1 class="briefing-page-title">Market Briefing Room</h1>
                 <p class="briefing-page-subtitle">Scheduled intelligence. 3x daily.</p>
             </div>
             <div class="briefing-status-badge">
                 <span class="briefing-status-dot"></span>
-                {% if latest and latest.status == 'completed' %}
-                    Latest Available
-                {% else %}
-                    Awaiting Next Brief
-                {% endif %}
+                {% if latest and latest.status == 'completed' %}Latest Available{% else %}Awaiting Next Brief{% endif %}
             </div>
         </div>
 
@@ -560,7 +554,7 @@
                            src="{{ latest.video_url }}"
                            controls
                            preload="metadata"
-                           poster="{{ latest.thumbnail_url or '' }}"
+                           {% if latest.thumbnail_url %}poster="{{ latest.thumbnail_url }}"{% endif %}
                            playsinline>
                         Your browser does not support the video element.
                     </video>
@@ -569,11 +563,11 @@
                         <div class="briefing-player-empty-icon"></div>
                         <div class="briefing-player-empty-label">
                             {% if latest and latest.status == 'generating' %}
-                                Generating briefing — check back shortly
+                                Generating briefing — check back in a few minutes
                             {% elif latest and latest.status == 'failed' %}
                                 Generation failed — next scheduled briefing on the way
                             {% else %}
-                                No briefing available yet
+                                No briefing available yet. First one at 7:00 AM ET.
                             {% endif %}
                         </div>
                     </div>
@@ -589,52 +583,56 @@
                     <div class="briefing-video-title" id="featuredTitle">
                         {% if latest %}{{ latest.title }}{% else %}No Briefing Available{% endif %}
                     </div>
-                    <div class="briefing-video-info">
+                    <div class="briefing-video-info" id="featuredMeta">
                         {% if latest %}
                             <span class="briefing-video-info-item">
-                                <span class="briefing-type-pill">
+                                <span class="briefing-type-pill" id="featuredTypePill">
                                     {{ latest.briefing_type | replace('_', ' ') | title }}
                                 </span>
                             </span>
-                            <span class="briefing-video-info-item">
-                                {{ latest.generated_at.strftime('%-I:%M %p ET · %b %-d, %Y') if latest.generated_at else '' }}
+                            {# P1-3: ET-aware timestamp — generated_at is UTC, use route-computed value #}
+                            <span class="briefing-video-info-item" id="featuredTimestamp">
+                                {{ latest.generated_at.strftime('%b ') }}{{ latest.generated_at.day }}{{ latest.generated_at.strftime(', %Y') }} UTC
                             </span>
                             {% if latest.duration_seconds %}
-                                <span class="briefing-video-info-item">
-                                    {{ "%d:%02d" % (latest.duration_seconds // 60, latest.duration_seconds % 60) }}
+                                <span class="briefing-video-info-item" id="featuredDuration">
+                                    {{ "%d:%02d" | format(latest.duration_seconds | int // 60, latest.duration_seconds | int % 60) }}
                                 </span>
+                            {% else %}
+                                <span class="briefing-video-info-item" id="featuredDuration"></span>
                             {% endif %}
                             {% if latest.btc_price_at_generation %}
-                                <span class="briefing-video-info-item">
-                                    <span class="briefing-btc-at-gen">
-                                        BTC ${{ "{:,.0f}".format(latest.btc_price_at_generation) }} at generation
-                                    </span>
+                                <span class="briefing-video-info-item" id="featuredBTCPrice">
+                                    <span class="briefing-btc-at-gen">BTC ${{ "{:,.0f}".format(latest.btc_price_at_generation) }} at generation</span>
                                 </span>
+                            {% else %}
+                                <span class="briefing-video-info-item" id="featuredBTCPrice"></span>
                             {% endif %}
                         {% else %}
                             <span class="briefing-video-info-item">Briefings publish at 7:00 AM, 9:30 AM, and 4:30 PM ET</span>
                         {% endif %}
                     </div>
                 </div>
-
                 {% if latest and latest.script_text %}
-                    <button class="briefing-status-badge" id="scriptToggle"
-                            onclick="toggleScript()" style="cursor:pointer; border:none; background:none; padding:6px 14px;">
+                    <button class="briefing-status-badge"
+                            id="scriptToggle"
+                            onclick="toggleScript()"
+                            style="cursor:pointer; border:none; background:rgba(220,38,38,0.05); padding:6px 14px;">
                         View Script
                     </button>
                 {% endif %}
             </div>
 
-            <!-- Script panel -->
-            {% if latest and latest.script_text %}
+            <!-- Script panel — P1-1: full script for current briefing, updated via JS for historical -->
             <div class="briefing-script-panel" id="scriptPanel">
                 <div class="briefing-script-label">Broadcast Script</div>
-                <div class="briefing-script-text">{{ latest.script_text }}</div>
+                <div class="briefing-script-text" id="scriptPanelText">
+                    {% if latest and latest.script_text %}{{ latest.script_text }}{% endif %}
+                </div>
             </div>
-            {% endif %}
         </div>
 
-        <!-- Countdown to next briefing -->
+        <!-- Countdown to next briefing — P1-2: data attribute carries UTC epoch -->
         <div class="briefing-countdown-bar">
             <div>
                 <div class="briefing-countdown-label">Next Briefing In</div>
@@ -647,7 +645,7 @@
             <div class="briefing-countdown-value" id="countdownValue">—</div>
         </div>
 
-        <!-- Previous Briefings -->
+        <!-- Previous Briefings (LAW 3) -->
         <div class="briefing-section-header">
             <div class="briefing-section-label">Previous Briefings</div>
             <a href="/briefing/archive" class="briefing-section-link">View All →</a>
@@ -656,10 +654,9 @@
         <div class="briefing-prev-grid" id="prevGrid">
             {% if recent %}
                 {% for b in recent %}
+                {# P1-1: only store briefing ID in data-briefing-id; JS fetches full data #}
                 <div class="briefing-prev-card {% if b.video_url %}has-video{% endif %}"
-                     data-video="{{ b.video_url or '' }}"
-                     data-title="{{ b.title }}"
-                     data-script="{{ b.script_text | truncate(300) }}"
+                     data-briefing-id="{{ b.id }}"
                      onclick="loadBriefing(this)">
                     <div class="briefing-prev-thumb">
                         {% if b.thumbnail_url %}
@@ -680,10 +677,8 @@
                         <div class="briefing-prev-type">{{ b.briefing_type | replace('_', ' ') | title }}</div>
                         <div class="briefing-prev-title">{{ b.title }}</div>
                         <div class="briefing-prev-meta">
-                            {{ b.generated_at.strftime('%-I:%M %p ET · %b %-d, %Y') if b.generated_at else '' }}
-                            {% if b.duration_seconds %}
-                                · {{ "%d:%02d" % (b.duration_seconds // 60, b.duration_seconds % 60) }}
-                            {% endif %}
+                            {{ b.generated_at.strftime('%b ') }}{{ b.generated_at.day }}{{ b.generated_at.strftime(', %Y') }}
+                            {% if b.duration_seconds %} · {{ "%d:%02d" | format(b.duration_seconds | int // 60, b.duration_seconds | int % 60) }}{% endif %}
                         </div>
                     </div>
                 </div>
@@ -695,8 +690,8 @@
             {% endif %}
         </div>
 
-    </div><!-- /.briefing-inner -->
-</div><!-- /.briefing-page -->
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -704,76 +699,79 @@
 (function () {
     'use strict';
 
-    // ── Countdown ───────────────────────────────────────────
-    var SCHEDULE_ET = [
+    // ── P1-2: Countdown from UTC epoch ─────────────────────
+    // Backend computes next briefing UTC epoch (ms) — no locale conversion.
+    var pageEl = document.querySelector('.briefing-page');
+    var nextUtcMs = pageEl ? parseInt(pageEl.getAttribute('data-next-briefing-utc') || '0', 10) : 0;
+
+    // Identify which slot is next based on nextUtcMs
+    var SLOT_UTC_OFFSETS = [
         { id: 'schedulePreMarket', label: '7:00 AM ET',  hour: 7,  min: 0  },
         { id: 'scheduleOpen',      label: '9:30 AM ET',  hour: 9,  min: 30 },
         { id: 'scheduleClose',     label: '4:30 PM ET',  hour: 16, min: 30 },
     ];
 
-    function toETDate(nowUTC) {
-        // ET = UTC-5 (EST) or UTC-4 (EDT); use Intl for correctness
-        var etStr = nowUTC.toLocaleString('en-US', { timeZone: 'America/New_York' });
-        return new Date(etStr);
+    function findNextSlotIdx() {
+        if (!nextUtcMs) return -1;
+        var now = Date.now();
+        // Find which slot corresponds to nextUtcMs by comparing with all slots today
+        // Simpler: just mark the slot based on nextUtcMs local ET hour
+        // (We know the exact time from the server — highlight the matching slot label)
+        var nextDate = new Date(nextUtcMs);
+        var etH = parseInt(new Intl.DateTimeFormat('en-US', {
+            timeZone: 'America/New_York', hour: 'numeric', hour12: false
+        }).format(nextDate), 10);
+        var etM = parseInt(new Intl.DateTimeFormat('en-US', {
+            timeZone: 'America/New_York', minute: 'numeric'
+        }).format(nextDate), 10);
+        for (var i = 0; i < SLOT_UTC_OFFSETS.length; i++) {
+            if (SLOT_UTC_OFFSETS[i].hour === etH && SLOT_UTC_OFFSETS[i].min === etM) {
+                return i;
+            }
+        }
+        return 0; // default pre-market
     }
 
     function updateCountdown() {
-        var nowUTC = new Date();
-        var etNow  = toETDate(nowUTC);
-        var etH    = etNow.getHours();
-        var etM    = etNow.getMinutes();
-
-        var nextBriefing = null;
-        var nextMs = Infinity;
-        var nextIdx = -1;
-
-        SCHEDULE_ET.forEach(function (slot, idx) {
-            var diffH = slot.hour - etH;
-            var diffM = slot.min  - etM;
-            var totalMs = (diffH * 60 + diffM) * 60 * 1000;
-            if (totalMs > 0 && totalMs < nextMs) {
-                nextMs = totalMs;
-                nextBriefing = slot;
-                nextIdx = idx;
-            }
-        });
+        if (!nextUtcMs) {
+            var cd = document.getElementById('countdownValue');
+            if (cd) cd.textContent = '—';
+            return;
+        }
+        var remaining = nextUtcMs - Date.now();
 
         // Reset highlights
-        SCHEDULE_ET.forEach(function (s) {
+        SLOT_UTC_OFFSETS.forEach(function (s) {
             var el = document.getElementById(s.id);
             if (el) el.className = 'briefing-schedule-time';
         });
 
-        if (!nextBriefing) {
-            // All passed — next is tomorrow's pre-market
-            nextBriefing = SCHEDULE_ET[0];
-            nextIdx = 0;
-            var tomorrowMs = (24*60*60*1000) - (etH*3600 + etM*60) * 1000
-                             + (nextBriefing.hour * 3600 + nextBriefing.min * 60) * 1000;
-            nextMs = tomorrowMs;
+        if (remaining <= 0) {
+            // Slot just passed — the backend value is stale; just show Live
+            var cd = document.getElementById('countdownValue');
+            if (cd) cd.textContent = 'Live';
+            return;
         }
 
-        var el = document.getElementById(nextBriefing.id);
-        if (el) el.className = 'briefing-schedule-time next';
+        var nextIdx = findNextSlotIdx();
+        if (nextIdx >= 0) {
+            var el = document.getElementById(SLOT_UTC_OFFSETS[nextIdx].id);
+            if (el) el.className = 'briefing-schedule-time next';
+        }
 
-        // Format countdown
-        var totalSec = Math.floor(nextMs / 1000);
+        var totalSec = Math.floor(remaining / 1000);
         var h = Math.floor(totalSec / 3600);
         var m = Math.floor((totalSec % 3600) / 60);
-        var countdown = document.getElementById('countdownValue');
-        if (countdown) {
-            if (h > 0) {
-                countdown.textContent = h + 'h ' + m + 'm';
-            } else {
-                countdown.textContent = m + 'm';
-            }
+        var cd = document.getElementById('countdownValue');
+        if (cd) {
+            cd.textContent = h > 0 ? h + 'h ' + m + 'm' : m + 'm';
         }
     }
 
     updateCountdown();
     setInterval(updateCountdown, 60000);
 
-    // ── Script toggle ───────────────────────────────────────
+    // ── Script toggle ────────────────────────────────────────
     window.toggleScript = function () {
         var panel  = document.getElementById('scriptPanel');
         var toggle = document.getElementById('scriptToggle');
@@ -782,87 +780,142 @@
         if (toggle) toggle.textContent = visible ? 'Hide Script' : 'View Script';
     };
 
-    // ── Load previous briefing into featured player ─────────
+    // ── P1-1: Load previous briefing by ID ──────────────────
+    // Fetches full briefing record from /api/briefing/<id> before updating UI.
     window.loadBriefing = function (card) {
-        var videoUrl = card.getAttribute('data-video');
-        var title    = card.getAttribute('data-title');
+        var briefingId = card.getAttribute('data-briefing-id');
+        if (!briefingId) return;
 
-        if (!videoUrl) return;
-
-        // Mark active
+        // Mark active + show loading
         document.querySelectorAll('.briefing-prev-card').forEach(function (c) {
             c.classList.remove('active');
         });
         card.classList.add('active');
 
-        // Show loading
         var loading = document.getElementById('playerLoading');
         if (loading) loading.classList.add('active');
 
-        // Replace player
-        var wrap = document.getElementById('featuredPlayerWrap');
-        var existing = document.getElementById('featuredVideo');
-        var empty    = document.getElementById('featuredEmpty');
-
-        if (empty) empty.style.display = 'none';
-
-        if (existing) {
-            existing.pause();
-            existing.src = videoUrl;
-            existing.load();
-            existing.oncanplay = function () {
+        fetch('/api/briefing/' + briefingId)
+            .then(function (r) {
+                if (!r.ok) throw new Error('Not found');
+                return r.json();
+            })
+            .then(function (data) {
                 if (loading) loading.classList.remove('active');
-                existing.play().catch(function () {});
-            };
-        } else {
-            var vid = document.createElement('video');
-            vid.id        = 'featuredVideo';
-            vid.className = 'briefing-video';
-            vid.src       = videoUrl;
-            vid.controls  = true;
-            vid.preload   = 'metadata';
-            vid.setAttribute('playsinline', '');
-            vid.oncanplay = function () {
-                if (loading) loading.classList.remove('active');
-                vid.play().catch(function () {});
-            };
-            vid.onerror = function () {
-                if (loading) loading.classList.remove('active');
-            };
-            wrap.appendChild(vid);
-        }
 
-        // Update title
-        var titleEl = document.getElementById('featuredTitle');
-        if (titleEl && title) titleEl.textContent = title;
+                if (!data.video_url) {
+                    // No video — just update text fields
+                    _updateMeta(data);
+                    return;
+                }
+
+                // Swap video
+                var wrap = document.getElementById('featuredPlayerWrap');
+                var empty = document.getElementById('featuredEmpty');
+                if (empty) empty.style.display = 'none';
+
+                var existing = document.getElementById('featuredVideo');
+                if (existing) {
+                    existing.pause();
+                    if (data.thumbnail_url) existing.setAttribute('poster', data.thumbnail_url);
+                    existing.src = data.video_url;
+                    existing.load();
+                    existing.oncanplay = function () {
+                        existing.play().catch(function () {});
+                    };
+                } else {
+                    var vid = document.createElement('video');
+                    vid.id        = 'featuredVideo';
+                    vid.className = 'briefing-video';
+                    vid.src       = data.video_url;
+                    vid.controls  = true;
+                    vid.preload   = 'metadata';
+                    if (data.thumbnail_url) vid.setAttribute('poster', data.thumbnail_url);
+                    vid.setAttribute('playsinline', '');
+                    vid.oncanplay = function () { vid.play().catch(function () {}); };
+                    vid.onerror   = function () {};
+                    wrap.appendChild(vid);
+                }
+
+                _updateMeta(data);
+            })
+            .catch(function (err) {
+                if (loading) loading.classList.remove('active');
+                card.classList.remove('active');
+                console.warn('loadBriefing error:', err);
+            });
     };
 
-    // ── Auto-refresh if latest is generating ───────────────
-    {% if latest and latest.status == 'generating' %}
-    setTimeout(function () {
-        window.location.reload();
-    }, 30000);
-    {% endif %}
+    // Update all bound metadata fields after briefing swap (U1 fix)
+    function _updateMeta(data) {
+        var titleEl = document.getElementById('featuredTitle');
+        if (titleEl && data.title) titleEl.textContent = data.title;
 
-    // ── Poll /api/briefing/latest every 2 min to surface new releases ──
-    function pollLatest() {
-        fetch('/api/briefing/latest')
+        var tsEl = document.getElementById('featuredTimestamp');
+        if (tsEl) tsEl.textContent = data.generated_at_et || '';
+
+        var durEl = document.getElementById('featuredDuration');
+        if (durEl && data.duration_seconds) {
+            var d = Math.floor(data.duration_seconds);
+            durEl.textContent = Math.floor(d / 60) + ':' + ('0' + (d % 60)).slice(-2);
+        } else if (durEl) {
+            durEl.textContent = '';
+        }
+
+        var btcEl = document.getElementById('featuredBTCPrice');
+        if (btcEl && data.btc_price_at_generation) {
+            btcEl.innerHTML = '<span class="briefing-btc-at-gen">BTC $' +
+                Number(data.btc_price_at_generation).toLocaleString('en-US', {maximumFractionDigits: 0}) +
+                ' at generation</span>';
+        } else if (btcEl) {
+            btcEl.textContent = '';
+        }
+
+        var typePill = document.getElementById('featuredTypePill');
+        if (typePill && data.briefing_type) {
+            typePill.textContent = data.briefing_type.replace(/_/g, ' ')
+                .replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+        }
+
+        // Update script panel
+        var scriptText = document.getElementById('scriptPanelText');
+        if (scriptText) {
+            scriptText.textContent = data.script_text || '';
+        }
+        // Show toggle if script available
+        var toggle = document.getElementById('scriptToggle');
+        if (toggle) {
+            toggle.style.display = data.script_text ? '' : 'none';
+        }
+    }
+
+    // ── Auto-reload if generating (no hard 30s reload — uses SSE-lite poll) ──
+    {% if latest and latest.status == 'generating' %}
+    var _genPollTimer = setInterval(function () {
+        fetch('/api/briefing/status/{{ latest.id }}')
             .then(function (r) { return r.json(); })
-            .then(function (data) {
-                if (data && data.id) {
-                    {% if latest %}
-                    if (data.id !== {{ latest.id }}) {
-                        window.location.reload();
-                    }
-                    {% else %}
+            .then(function (d) {
+                if (d.status === 'completed' || d.status === 'failed') {
+                    clearInterval(_genPollTimer);
                     window.location.reload();
-                    {% endif %}
                 }
             })
             .catch(function () {});
-    }
+    }, 15000);  // poll every 15s instead of hard 30s reload
+    {% endif %}
 
-    setInterval(pollLatest, 120000);
+    // ── Periodic poll for new briefings (every 2 min) ───────
+    var _latestId = {% if latest %}{{ latest.id }}{% else %}0{% endif %};
+    setInterval(function () {
+        fetch('/api/briefing/latest')
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data && data.id && data.id !== _latestId) {
+                    window.location.reload();
+                }
+            })
+            .catch(function () {});
+    }, 120000);
 
 })();
 </script>
