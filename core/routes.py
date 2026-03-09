@@ -8038,6 +8038,154 @@ def api_media_highlights():
         logging.warning('api_media_highlights error: %s', e)
         return jsonify([])
 
+# ══════════════════════════════════════════════════════
+# MARKET BRIEFING ROOM (F2)
+# ══════════════════════════════════════════════════════
+
+try:
+    from services.briefing_service import generate_briefing as _run_briefing_generation
+    _briefing_service_ok = True
+except Exception as _bse:
+    logging.warning("briefing_service import failed: %s", _bse)
+    _briefing_service_ok = False
+
+
+@app.route('/stage')
+def stage_redirect():
+    """LAW 4: /stage → 302 → /briefing (permanent redirect preserved)."""
+    return redirect('/briefing', code=302)
+
+
+@app.route('/briefing')
+def market_briefing():
+    """Market Briefing Room — LAW 3: always show latest + 3 previous."""
+    try:
+        latest = (
+            models.MarketBriefing.query
+            .filter_by(published=True)
+            .order_by(models.MarketBriefing.generated_at.desc())
+            .first()
+        )
+        recent = (
+            models.MarketBriefing.query
+            .filter_by(published=True)
+            .order_by(models.MarketBriefing.generated_at.desc())
+            .offset(1)
+            .limit(3)
+            .all()
+        )
+    except Exception as e:
+        logging.warning("market_briefing DB error: %s", e)
+        latest = None
+        recent = []
+    return render_template('market_briefing.html', latest=latest, recent=recent)
+
+
+@app.route('/briefing/archive')
+def briefing_archive():
+    """All published briefings — paginated."""
+    try:
+        page = max(1, int(request.args.get('page', 1)))
+        per_page = 12
+        all_briefings = (
+            models.MarketBriefing.query
+            .filter_by(published=True)
+            .order_by(models.MarketBriefing.generated_at.desc())
+            .offset((page - 1) * per_page)
+            .limit(per_page)
+            .all()
+        )
+        total = models.MarketBriefing.query.filter_by(published=True).count()
+        has_next = (page * per_page) < total
+        has_prev = page > 1
+    except Exception as e:
+        logging.warning("briefing_archive DB error: %s", e)
+        all_briefings = []
+        has_next = has_prev = False
+        page = 1
+    return render_template(
+        'market_briefing.html',
+        latest=all_briefings[0] if all_briefings else None,
+        recent=all_briefings[1:4] if len(all_briefings) > 1 else [],
+    )
+
+
+@app.route('/api/briefing/latest')
+def briefing_latest():
+    """Returns the latest completed, published briefing as JSON."""
+    try:
+        b = (
+            models.MarketBriefing.query
+            .filter_by(published=True, status='completed')
+            .order_by(models.MarketBriefing.generated_at.desc())
+            .first()
+        )
+        if not b:
+            return jsonify({}), 200
+        return jsonify(b.to_dict())
+    except Exception as e:
+        logging.warning("briefing_latest error: %s", e)
+        return jsonify({"error": "Service unavailable"}), 503
+
+
+@app.route('/api/briefing/list')
+def briefing_list():
+    """Returns up to 10 recent published briefings as JSON."""
+    try:
+        limit = min(int(request.args.get('limit', 10)), 50)
+        briefings = (
+            models.MarketBriefing.query
+            .filter_by(published=True)
+            .order_by(models.MarketBriefing.generated_at.desc())
+            .limit(limit)
+            .all()
+        )
+        return jsonify([b.to_dict() for b in briefings])
+    except Exception as e:
+        logging.warning("briefing_list error: %s", e)
+        return jsonify([])
+
+
+@app.route('/api/briefing/generate', methods=['POST'])
+@admin_required
+def briefing_generate_manual():
+    """Manual briefing trigger — admin only. Body: {briefing_type: 'pre_market'|'open'|'close'}"""
+    if not _briefing_service_ok:
+        return jsonify({"success": False, "error": "Briefing service unavailable"}), 503
+
+    data = request.get_json(silent=True) or {}
+    briefing_type = data.get('briefing_type', 'open')
+    if briefing_type not in ('pre_market', 'open', 'close'):
+        return jsonify({"success": False, "error": "Invalid briefing_type"}), 400
+
+    try:
+        result = _run_briefing_generation(briefing_type)
+        status_code = 200 if result.get('success') else 500
+        return jsonify(result), status_code
+    except Exception as e:
+        logging.error("briefing_generate_manual error: %s", e)
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/briefing/status/<int:briefing_id>')
+def briefing_status(briefing_id):
+    """Poll the status of a specific briefing by ID."""
+    try:
+        b = models.MarketBriefing.query.get(briefing_id)
+        if not b:
+            return jsonify({"error": "Not found"}), 404
+        return jsonify({
+            "id": b.id,
+            "status": b.status,
+            "published": b.published,
+            "video_url": b.video_url,
+            "error_message": b.error_message,
+        })
+    except Exception as e:
+        logging.warning("briefing_status error: %s", e)
+        return jsonify({"error": "Service unavailable"}), 503
+
+
 # Error handlers
 @app.errorhandler(404)
 def not_found_error(error):
