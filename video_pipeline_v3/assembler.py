@@ -81,14 +81,15 @@ BG_MUSIC = os.path.join(ASSETS, "music", "pp_background.mp3")
 TAG_VIDEO = os.path.join(ASSETS, "tag_vertical.mp4")
 OUTRO_BRANDED = os.path.join(ASSETS, "outro_branded.mp4")
 LOGO_IMAGE = os.path.join(ASSETS, "logo_protocol_pulse.png")
-# Issue 3: Custom whoosh sound — prefer custom_whoosh.mp3 over generated glitch_whoosh.wav
+# Issue 3: Custom whoosh sound — prefer custom_whoosh.wav/.mp3 over generated glitch_whoosh.wav
 _CUSTOM_WHOOSH_MP3 = os.path.join(ASSETS, "sfx", "custom_whoosh.mp3")
 _CUSTOM_WHOOSH_WAV = os.path.join(ASSETS, "sfx", "custom_whoosh.wav")
-if os.path.exists(_CUSTOM_WHOOSH_MP3):
+if os.path.exists(_CUSTOM_WHOOSH_WAV):
+    GLITCH_WHOOSH = _CUSTOM_WHOOSH_WAV
+elif os.path.exists(_CUSTOM_WHOOSH_MP3):
     # Convert mp3 to wav for consistency if not already done
-    if not os.path.exists(_CUSTOM_WHOOSH_WAV):
-        subprocess.run(["ffmpeg", "-y", "-i", _CUSTOM_WHOOSH_MP3, _CUSTOM_WHOOSH_WAV],
-                       capture_output=True, text=True, timeout=10)
+    subprocess.run(["ffmpeg", "-y", "-i", _CUSTOM_WHOOSH_MP3, _CUSTOM_WHOOSH_WAV],
+                   capture_output=True, text=True, timeout=10)
     GLITCH_WHOOSH = _CUSTOM_WHOOSH_WAV if os.path.exists(_CUSTOM_WHOOSH_WAV) else _CUSTOM_WHOOSH_MP3
 else:
     GLITCH_WHOOSH = os.path.join(ASSETS, "sfx", "glitch_whoosh.wav")
