@@ -149,7 +149,28 @@
   <div class="mu-col">
     <div class="mu-col-header">
       <span class="mu-col-title">NOSTR + X LIVE</span>
-      <span class="mu-col-source">relay.damus.io <span class="mu-health-dot connected" id="health-nostr-col"></span></span>
+      <span class="mu-col-source"><span class="mu-health-dot" id="health-nostr-col"></span></span>
+    </div>
+    <!-- D4: Relay Status Bar -->
+    <div class="mu-relay-status-bar" id="relay-status-bar">
+      <div class="mu-relay-item" data-relay="relay.damus.io">
+        <div class="mu-relay-dot" style="background:#555"></div>
+        <span class="mu-relay-name">damus</span>
+        <span class="mu-relay-status">OFFLINE</span>
+        <span class="mu-relay-count">0 notes</span>
+      </div>
+      <div class="mu-relay-item" data-relay="nos.lol">
+        <div class="mu-relay-dot" style="background:#555"></div>
+        <span class="mu-relay-name">nos.lol</span>
+        <span class="mu-relay-status">OFFLINE</span>
+        <span class="mu-relay-count">0 notes</span>
+      </div>
+      <div class="mu-relay-item" data-relay="relay.nostr.band">
+        <div class="mu-relay-dot" style="background:#555"></div>
+        <span class="mu-relay-name">nostr.band</span>
+        <span class="mu-relay-status">OFFLINE</span>
+        <span class="mu-relay-count">0 notes</span>
+      </div>
     </div>
     <div class="mu-col-feed" id="nostr-feed"></div>
     <div class="mu-col-count" id="nostr-count">0 notes</div>
@@ -164,6 +185,44 @@
       <span class="mu-col-source">partner channels <span class="mu-health-dot connected" id="health-highlights-col"></span></span>
     </div>
     <div class="mu-col-feed" id="highlights-feed"></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════
+     SIGNAL STRENGTH GAUGE (Phase 2)
+     ════════════════════════════════════════════════════ -->
+<section class="mu-section mu-signal-section" id="mu-signal-section">
+  <div class="mu-section-head">
+    <h2 class="mu-section-title">SIGNAL STRENGTH</h2>
+    <span class="mu-section-sub">Composite intelligence score — live</span>
+  </div>
+  <div class="mu-signal-gauge-wrap">
+    <div id="signal-strength-gauge">
+      <div class="mu-gauge-ring" style="--score:50%;--color:#E67E22">
+        <div class="mu-gauge-inner">
+          <div class="mu-gauge-score">--</div>
+          <div class="mu-gauge-label">SIGNAL</div>
+          <div class="mu-gauge-level">LOADING</div>
+        </div>
+      </div>
+    </div>
+    <div class="mu-signal-breakdown" id="signal-breakdown">
+      <div class="mu-sig-row">
+        <span class="mu-sig-key">SENTIMENT</span>
+        <span class="mu-sig-val" id="sig-sentiment">--</span>
+        <span class="mu-sig-weight">70%</span>
+      </div>
+      <div class="mu-sig-row">
+        <span class="mu-sig-key">X SPACES</span>
+        <span class="mu-sig-val" id="sig-spaces">--</span>
+        <span class="mu-sig-weight">30%</span>
+      </div>
+      <div class="mu-sig-row mu-sig-total">
+        <span class="mu-sig-key">COMPOSITE</span>
+        <span class="mu-sig-val" id="sig-composite">--</span>
+        <span class="mu-sig-weight">&nbsp;</span>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -389,6 +448,9 @@
   <button class="mu-ab-speed" id="ab-speed">1&times;</button>
 </div>
 
+<!-- D5: Health Strip -->
+<div id="health-strip" class="mu-health-strip"></div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -408,42 +470,330 @@ function subscribeNewsletter() {
 }
 document.getElementById('newsletter-submit')?.addEventListener('click', subscribeNewsletter);
 
-// X Spaces telemetry integration
-(function(){
-  var xsScore = null;
-  function updateXSpacesTelem(d) {
-    if (!d || !d.x_spaces) return;
-    var xs = d.x_spaces;
-    xsScore = xs.score;
+// Phase 2: X Spaces + telemetry wired in media_p2_init below
+</script>
+
+<style>
+/* ── D4: Relay Status Bar ─────────────────────── */
+.mu-relay-status-bar {
+  display: flex; gap: 8px; padding: 6px 12px;
+  background: rgba(247,147,26,0.04); border-bottom: 1px solid #1a1a1a;
+  flex-wrap: wrap;
+}
+.mu-relay-item {
+  display: flex; align-items: center; gap: 5px;
+  font-family: 'Geist Mono', monospace; font-size: 9px;
+}
+.mu-relay-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  animation: mu-pulse 2s infinite;
+}
+.mu-relay-name { color: #888; letter-spacing: 1px; }
+.mu-relay-status { color: #555; font-size: 8px; }
+.mu-relay-count { color: #444; font-size: 8px; }
+
+/* ── D3: Signal Strength Gauge ────────────────── */
+.mu-signal-section { padding: 24px 0; }
+.mu-signal-gauge-wrap {
+  display: flex; align-items: center; gap: 40px;
+  padding: 20px 0; flex-wrap: wrap;
+}
+#signal-strength-gauge { flex-shrink: 0; }
+.mu-gauge-ring {
+  position: relative; width: 140px; height: 140px;
+  border-radius: 50%;
+  background: conic-gradient(var(--color) var(--score), #1a1a1a 0);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 24px color-mix(in srgb, var(--color) 30%, transparent);
+}
+.mu-gauge-inner {
+  width: 100px; height: 100px; border-radius: 50%;
+  background: #0a0a0a;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 2px;
+}
+.mu-gauge-score {
+  font-family: 'Geist Mono', monospace; font-size: 30px;
+  font-weight: 900; color: var(--color); line-height: 1;
+}
+.mu-gauge-label {
+  font-family: 'Geist Mono', monospace; font-size: 8px;
+  color: #555; letter-spacing: 2px;
+}
+.mu-gauge-level {
+  font-family: 'Geist Mono', monospace; font-size: 11px;
+  font-weight: 700; color: var(--color);
+}
+.mu-signal-breakdown {
+  display: flex; flex-direction: column; gap: 10px; min-width: 220px;
+}
+.mu-sig-row {
+  display: flex; gap: 8px; align-items: center;
+  font-family: 'Geist Mono', monospace; font-size: 11px;
+}
+.mu-sig-key { color: #555; letter-spacing: 1px; min-width: 90px; }
+.mu-sig-val { color: #F7931A; font-weight: 700; min-width: 32px; }
+.mu-sig-weight { color: #333; font-size: 9px; }
+.mu-sig-total .mu-sig-key { color: #888; }
+.mu-sig-total .mu-sig-val { color: #fff; font-size: 14px; }
+
+/* ── D5: Health Strip ─────────────────────────── */
+.mu-health-strip {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: 30px; background: #050505;
+  border-top: 1px solid #1a1a1a;
+  display: flex; align-items: center;
+  padding: 0 16px; gap: 20px; z-index: 9999;
+  overflow-x: auto; overflow-y: hidden;
+}
+.mu-hs-item { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.mu-hs-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  animation: mu-pulse 2s infinite;
+}
+.mu-hs-name {
+  font-family: 'Geist Mono', monospace; font-size: 9px;
+  color: #555; letter-spacing: 1px;
+}
+.mu-hs-lat {
+  font-family: 'Geist Mono', monospace; font-size: 8px; color: #333;
+}
+@keyframes mu-pulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
+
+/* Bottom padding so health strip doesn't cover content */
+.mu-page { padding-bottom: 38px; }
+</style>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// MEDIA UNIFIED — PHASE 2 RUNTIME
+// D1: Clean API wiring  D2: Live telemetry  D3: Signal gauge
+// D4: Nostr relay panel  D5: Health strip
+// ═══════════════════════════════════════════════════════
+
+(function() {
+  'use strict';
+
+  // ── Cache ────────────────────────────────────────────
+  var _cache = { sentiment: null, spaces: null, tradfi: null };
+
+  // ── D1 + D2: Live Telemetry Wiring ──────────────────
+  async function fetchSentiment() {
+    try {
+      var r = await fetch('/api/media/sentiment');
+      var d = await r.json();
+      _cache.sentiment = d;
+      return d;
+    } catch(e) {
+      console.warn('[P2] sentiment fetch failed:', e);
+      return _cache.sentiment || { composite_score: null, label: 'OFFLINE' };
+    }
+  }
+
+  async function fetchSpaces() {
+    try {
+      var r = await fetch('/api/spaces/live');
+      var d = await r.json();
+      _cache.spaces = d;
+      return d;
+    } catch(e) {
+      console.warn('[P2] spaces fetch failed:', e);
+      return _cache.spaces || { spaces: [], score: 0, label: 'OFFLINE' };
+    }
+  }
+
+  async function fetchTradfi() {
+    try {
+      var r = await fetch('/api/tradfi/signals');
+      var d = await r.json();
+      _cache.tradfi = d;
+      return d;
+    } catch(e) {
+      return _cache.tradfi || null;
+    }
+  }
+
+  // ── D3: Signal Strength Gauge Renderer ──────────────
+  function computeSignalStrength(sentData, spacesData) {
+    var sentScore = (sentData && sentData.composite_score != null)
+      ? parseFloat(sentData.composite_score) : 50;
+    var spacesCount = (spacesData && spacesData.spaces)
+      ? spacesData.spaces.length : 0;
+    var spacesScore = Math.min(spacesCount * 10, 100);
+    return Math.round(sentScore * 0.7 + spacesScore * 0.3);
+  }
+
+  function renderSignalGauge(score, sentScore, spacesScore) {
+    var el = document.getElementById('signal-strength-gauge');
+    if (!el) return;
+    var level = score >= 70 ? 'HIGH' : score >= 40 ? 'MODERATE' : 'LOW';
+    var color = score >= 70 ? '#F7931A' : score >= 40 ? '#E67E22' : '#666';
+    el.innerHTML =
+      '<div class="mu-gauge-ring" style="--score:' + score + '%;--color:' + color + '">' +
+        '<div class="mu-gauge-inner">' +
+          '<div class="mu-gauge-score">' + score + '</div>' +
+          '<div class="mu-gauge-label">SIGNAL</div>' +
+          '<div class="mu-gauge-level">' + level + '</div>' +
+        '</div>' +
+      '</div>';
+    // Update breakdown
+    var sEl = document.getElementById('sig-sentiment');
+    var spEl = document.getElementById('sig-spaces');
+    var cEl = document.getElementById('sig-composite');
+    if (sEl) sEl.textContent = Math.round(sentScore);
+    if (spEl) spEl.textContent = Math.round(Math.min((spacesScore||0)*10,100));
+    if (cEl) cEl.textContent = score;
+  }
+
+  // ── D4: Nostr Relay Status Panel Updater ────────────
+  // Hook into the existing RelayManager to sync relay dots
+  function syncRelayStatusBar() {
+    if (!window.relayManager || !window.relayManager.sockets) return;
+    var sockets = window.relayManager.sockets;
+    Object.keys(sockets).forEach(function(url) {
+      var ws = sockets[url];
+      var relayName = url.replace('wss://','').split('/')[0];
+      var el = document.querySelector('[data-relay="' + relayName + '"]');
+      if (!el) return;
+      var dot = el.querySelector('.mu-relay-dot');
+      var statusEl = el.querySelector('.mu-relay-status');
+      var countEl = el.querySelector('.mu-relay-count');
+      if (!dot || !statusEl) return;
+      var rs = ws.readyState;
+      if (rs === 1) { // OPEN
+        dot.style.background = '#F7931A';
+        statusEl.textContent = 'LIVE';
+        statusEl.style.color = '#F7931A';
+      } else if (rs === 0) { // CONNECTING
+        dot.style.background = '#E67E22';
+        statusEl.textContent = 'CONNECTING';
+        statusEl.style.color = '#E67E22';
+      } else {
+        dot.style.background = '#444';
+        statusEl.textContent = 'OFFLINE';
+        statusEl.style.color = '#444';
+      }
+    });
+    // Sync note counts from state
+    if (window.state && window.state.nostrNotes) {
+      var byRelay = {};
+      window.state.nostrNotes.forEach(function(n) {
+        if (n.relay) byRelay[n.relay] = (byRelay[n.relay]||0) + 1;
+      });
+      Object.keys(byRelay).forEach(function(url) {
+        var relayName = url.replace('wss://','').split('/')[0];
+        var el = document.querySelector('[data-relay="' + relayName + '"]');
+        if (!el) return;
+        var countEl = el.querySelector('.mu-relay-count');
+        if (countEl) countEl.textContent = byRelay[url] + ' notes';
+      });
+    }
+  }
+
+  // ── X Spaces Telemetry Display (D1 replacement) ─────
+  function updateXSpacesTelemetry(spacesData) {
+    var xs = spacesData || {};
+    var xsScore = xs.score != null ? xs.score : (xs.x_spaces ? xs.x_spaces.score : null);
+    var xsLabel = xs.label || (xs.x_spaces ? xs.x_spaces.label : '') || '';
+    var activeCount = xs.spaces ? xs.spaces.length : (xs.active_count || 0);
+
     var sc = document.getElementById('telem-xs-score');
     var lb = document.getElementById('telem-xs-label');
     var dot = document.getElementById('health-xspaces');
-    if (sc) sc.textContent = xs.score;
-    if (lb) {
-      lb.textContent = xs.label;
-      lb.style.color = xs.label === 'BULLISH' ? '#22c55e' : xs.label === 'BEARISH' ? '#ef4444' : '#888';
+    if (sc && xsScore != null) sc.textContent = xsScore;
+    if (lb && xsLabel) {
+      lb.textContent = xsLabel;
+      lb.style.color = xsLabel === 'BULLISH' ? '#22c55e'
+                     : xsLabel === 'BEARISH' ? '#ef4444' : '#888';
     }
     if (dot) {
       dot.classList.remove('loading');
-      dot.classList.add(xs.active_count > 0 ? 'connected' : 'error');
+      dot.classList.add(activeCount > 0 ? 'connected' : 'error');
     }
-  }
-  function fetchXSpaces() {
-    fetch('/api/media/sentiment').then(function(r){return r.json();}).then(function(d){
-      updateXSpacesTelem(d);
-    }).catch(function(){});
-  }
-  fetchXSpaces();
-  setInterval(fetchXSpaces, 60000);
 
-  // Patch signal strength to blend x_spaces (70% existing + 30% x_spaces)
-  var _origUpdate = window._ppUpdateSignal;
-  window._ppBlendXSpaces = function(baseScore) {
-    if (xsScore !== null) {
-      return Math.round(baseScore * 0.7 + xsScore * 0.3);
+    // Provide blend shim to existing signal engine
+    window._ppBlendXSpaces = function(baseScore) {
+      if (xsScore != null) return Math.round(baseScore * 0.7 + xsScore * 0.3);
+      return baseScore;
+    };
+  }
+
+  // ── D2: Master 30s Telemetry Poll ───────────────────
+  async function updateTelemetry() {
+    var results = await Promise.allSettled([
+      fetchSentiment(),
+      fetchSpaces(),
+      fetchTradfi()
+    ]);
+
+    var sentData  = results[0].status === 'fulfilled' ? results[0].value : (_cache.sentiment || {});
+    var spacesData = results[1].status === 'fulfilled' ? results[1].value : (_cache.spaces || {});
+
+    // Update X Spaces display
+    updateXSpacesTelemetry(spacesData);
+
+    // D3: Compute + render Signal Strength gauge
+    var spacesCount = spacesData.spaces ? spacesData.spaces.length : 0;
+    var sentScore = sentData.composite_score != null ? parseFloat(sentData.composite_score) : 50;
+    var score = computeSignalStrength(sentData, spacesData);
+    renderSignalGauge(score, sentScore, spacesCount);
+
+    // D4: Sync relay status bar
+    syncRelayStatusBar();
+  }
+
+  // ── D5: Health Strip ─────────────────────────────────
+  var P2_SERVICES = [
+    { name: 'PIPELINE', url: 'https://relay.protocolpulse.io/health' },
+    { name: 'ORACLE',   url: 'https://avatar.protocolpulse.io/health' },
+    { name: 'REPLIT',   url: '/api/health' },
+    { name: 'SPACES',   url: '/api/spaces/live' },
+    { name: 'TRADFI',   url: '/api/tradfi/signals' },
+  ];
+
+  async function checkService(svc) {
+    var start = Date.now();
+    try {
+      var r = await Promise.race([
+        fetch(svc.url, { method: 'HEAD', cache: 'no-store' }),
+        new Promise(function(_, rej) { setTimeout(function(){ rej(new Error('timeout')); }, 5000); })
+      ]);
+      return { status: r.ok ? 'UP' : 'DEGRADED', lat: Date.now() - start };
+    } catch(e) {
+      return { status: 'DOWN', lat: null };
     }
-    return baseScore;
-  };
+  }
+
+  async function updateHealthStrip() {
+    var strip = document.getElementById('health-strip');
+    if (!strip) return;
+    var results = await Promise.allSettled(P2_SERVICES.map(checkService));
+    strip.innerHTML = P2_SERVICES.map(function(svc, i) {
+      var r = (results[i].status === 'fulfilled' ? results[i].value : null) || { status: 'UNKNOWN', lat: null };
+      var color = r.status === 'UP' ? '#27AE60' : r.status === 'DEGRADED' ? '#E67E22' : '#444';
+      var lat = r.lat ? r.lat + 'ms' : '--';
+      return '<div class="mu-hs-item">' +
+        '<div class="mu-hs-dot" style="background:' + color + '"></div>' +
+        '<span class="mu-hs-name">' + svc.name + '</span>' +
+        '<span class="mu-hs-lat">' + lat + '</span>' +
+      '</div>';
+    }).join('');
+  }
+
+  // ── BOOT ─────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', function() {
+    // D2+D3: initial poll + 30s interval
+    updateTelemetry();
+    setInterval(updateTelemetry, 30000);
+
+    // D4: Relay status sync every 5s
+    setInterval(syncRelayStatusBar, 5000);
+
+    // D5: Health strip initial + 60s interval
+    updateHealthStrip();
+    setInterval(updateHealthStrip, 60000);
+  });
+
 })();
 </script>
 {% endblock %}
