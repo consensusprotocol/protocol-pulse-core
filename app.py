@@ -265,6 +265,12 @@ try:
 except Exception as e:
     print(f'Terminal API not loaded: {e}')
 try:
+    from routes_commander import commander_bp
+    app.register_blueprint(commander_bp)
+    import logging; logging.info("Commander API blueprint registered at /api/v1")
+except Exception as _e:
+    import logging; logging.warning("Commander blueprint not loaded: %s", _e)
+try:
     from routes_newsletter_trigger import newsletter_trigger_bp
     app.register_blueprint(newsletter_trigger_bp)
 except Exception as e:
