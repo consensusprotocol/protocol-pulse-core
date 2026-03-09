@@ -6,7 +6,30 @@
 
 (function() {
 
+// ─── BECH32 HELPER ────────────────────────────────────
+function bech32ToHex(bech32Str) {
+  var ALPHABET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
+  var data = bech32Str.slice(bech32Str.indexOf('1') + 1);
+  var values = [];
+  for (var i = 0; i < data.length; i++) {
+    var idx = ALPHABET.indexOf(data[i]);
+    if (idx === -1) continue;
+    values.push(idx);
+  }
+  // Remove checksum (last 6 values) and convert 5-bit to 8-bit
+  var payload = values.slice(0, -6);
+  var bits = '';
+  for (var j = 0; j < payload.length; j++) bits += payload[j].toString(2).padStart(5, '0');
+  var hex = '';
+  for (var k = 0; k + 8 <= bits.length; k += 8) {
+    hex += parseInt(bits.slice(k, k + 8), 2).toString(16).padStart(2, '0');
+  }
+  return hex;
+}
+
 // ─── CONFIG ───────────────────────────────────────────
+// npub-encoded pubkeys for Nostr REQ filter (supplement allowlist)
+var NOSTR_PUBKEYS = [];
 var NOSTR_RELAYS = [
   'wss://relay.damus.io',
   'wss://nos.lol',
@@ -115,6 +138,9 @@ var state = {
   chainData: null,
   fngData: null,
   signalScore: 0,
+  sentimentScore: 0,
+  spacesScore: 0,
+  highlights: null,
   sparkData: { btc: [], fees: [], mempool: [], hashrate: [] },
   currentSeries: null,
   audioPlaying: false
@@ -406,6 +432,8 @@ NostrFeed.prototype.connect = function(url) {
       var authors = self.allowlist.map(function(p) { return p.pubkey; }).filter(Boolean);
       if (authors.length > 0) filter.authors = authors;
 
+      var hexPubkeys = NOSTR_PUBKEYS.map(function(npub) { return bech32ToHex(npub); });
+      if (hexPubkeys.length > 0) filter.authors = hexPubkeys;
       ws.send(JSON.stringify(['REQ', 'pp-' + Math.random().toString(36).slice(2, 8), filter]));
     };
 
@@ -929,15 +957,18 @@ function updateSignalStrength() {
 
   state.signalScore = Math.round(nostrScore * 0.35 + chainScore * 0.30 + sentimentScore * 0.35);
 
+  state.sentimentScore = sentimentScore;
+
   var fill = $('#signal-fill');
-  var label = $('#telem-signal');
   if (fill) {
     fill.style.width = state.signalScore + '%';
     if      (state.signalScore > 70) fill.style.background = '#22c55e';
     else if (state.signalScore > 40) fill.style.background = '#f7931a';
     else                             fill.style.background = '#cc0000';
   }
-  if (label) splitFlap(label, state.signalScore);
+  splitFlap($('#sig-composite'), state.signalScore);
+  splitFlap($('#sig-sentiment'), state.sentimentScore || 0);
+  splitFlap($('#sig-spaces'), state.spacesScore || 0);
 }
 
 function updateNostrCount() {
@@ -949,6 +980,26 @@ function updateNostrCount() {
   // Update hero live notes count
   var liveN = $('#liveN');
   if (liveN) liveN.textContent = state.nostrNotes.length;
+}
+
+// ─── HIGHLIGHTS ───────────────────────────────────────
+function renderHighlights() {
+  var container = $('#highlights-container');
+  if (!container || !state.highlights) return;
+  container.innerHTML = state.highlights.map(function(h) {
+    return '<div class="highlight-item">' + (h.content || h.text || '') + '</div>';
+  }).join('');
+}
+
+function fetchHighlights() {
+  fetch('/api/media/highlights').then(function(res) {
+    if (res.ok) return res.json();
+  }).then(function(data) {
+    if (data) {
+      state.highlights = data;
+      renderHighlights();
+    }
+  }).catch(function() {});
 }
 
 // ─── HEALTH HELPER ────────────────────────────────────
