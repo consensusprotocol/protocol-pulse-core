@@ -626,15 +626,16 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
     fg += f"[v_final]format=yuv420p[outv];\n"
 
     # NO music — voice starts immediately
+    # BUG8 FIX: Remove per-segment loudnorm — single final loudnorm in concatenate_parts()
     fg += (f"[0:a]silenceremove=start_periods=1:start_duration=0.05:start_threshold=-50dB:"
            f"stop_periods=-1:stop_duration=0.1:stop_threshold=-50dB,"
-           f"loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]")
+           f"aresample=async=1[outa]")
 
     ok = run_ffmpeg_filtergraph(
         inp_args, fg, ["[outv]", "[outa]"],
         ["-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(total_dur)],
-        output_path, "APEX intro cold open", 120,
+        output_path, "APEX intro cold open", 300,
     )
     return output_path if ok else ""
 
@@ -1105,12 +1106,13 @@ def _bv2_encode(inputs, fg, output_path, total_dur, label="bv2 scene",
            f"stop_periods=-1:stop_duration=0.1:stop_threshold=-50dB,"
            f"aresample=async=1[outa]")
 
+    # TASK1 FIX: Raise timeout from 180s to 300s for complex BV2 filtergraphs
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
         ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
          "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(total_dur)],
-        output_path, label, 180,
+        output_path, label, 300,
     )
     return output_path if ok else ""
 
@@ -2083,7 +2085,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
         ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
          "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(total_dur)],
-        output_path, label or f"host visual ({speaker})", 180,
+        output_path, label or f"host visual ({speaker})", 300,
     )
 
     if ok:

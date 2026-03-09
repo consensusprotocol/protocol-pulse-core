@@ -190,6 +190,48 @@ def run_pipeline(output_path: str, style: str = "default", cached_only: bool = F
     print("\n[STEP 7/7] VERIFYING OUTPUT...")
     passed = verify_video(output_path)
 
+    # ─── Step 8: Grok QC (MANDATORY — never skip) ────────────────────────
+    if passed and os.path.exists(output_path):
+        print("\n[STEP 8/8] GROK-4 VISION FORENSIC QC...")
+        import subprocess as _sp
+        import re as _re
+        xai_key = os.environ.get("XAI_API_KEY", "")
+        if xai_key:
+            qc_script = os.path.join(os.path.dirname(BASE), "utils", "grok_qc_v2.py")
+            if os.path.exists(qc_script):
+                t0 = time.time()
+                qc_result = _sp.run(
+                    ["python3", qc_script, "--video", output_path, "--interval", "5", "--batch-size", "20"],
+                    capture_output=True, text=True, timeout=900,
+                    env={**os.environ, "XAI_API_KEY": xai_key}
+                )
+                elapsed = time.time() - t0
+                report_path = None
+                for line in qc_result.stdout.split("\n"):
+                    if "MASTER_QC_REPORT.md" in line:
+                        candidate = line.strip().split()[-1]
+                        if os.path.exists(candidate):
+                            report_path = candidate
+                grade = "?"
+                if report_path and os.path.exists(report_path):
+                    rtext = open(report_path).read()
+                    m = _re.search(r"GRADE:\s*([A-F][+-]?)", rtext)
+                    if m:
+                        grade = m.group(1)
+                print(f"  QC complete in {elapsed:.0f}s — Grade: {grade}")
+                if report_path:
+                    print(f"  Report: {report_path}")
+                grade_map = {"A": "✅ PUBLISH READY", "B": "✅ PUBLISH READY",
+                             "C": "⚠️  MINOR ISSUES", "D": "❌ DO NOT PUBLISH",
+                             "F": "❌ DO NOT PUBLISH"}
+                status = grade_map.get(grade[0] if grade else "?", "⚠️  CHECK REPORT")
+                print(f"  STATUS: {status}")
+            else:
+                print(f"  WARN: grok_qc_v2.py not found at {qc_script}")
+        else:
+            print("  WARN: XAI_API_KEY not set — Grok QC skipped")
+    # ─────────────────────────────────────────────────────────────────────
+
     # ─── Generate Shorts ───
     work_dir = os.path.join(os.path.dirname(output_path), "work")
     shorts_dir = os.path.join(BASE, "output", "shorts")
