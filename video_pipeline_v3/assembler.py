@@ -81,14 +81,15 @@ BG_MUSIC = os.path.join(ASSETS, "music", "pp_background.mp3")
 TAG_VIDEO = os.path.join(ASSETS, "tag_vertical.mp4")
 OUTRO_BRANDED = os.path.join(ASSETS, "outro_branded.mp4")
 LOGO_IMAGE = os.path.join(ASSETS, "logo_protocol_pulse.png")
-# Issue 3: Custom whoosh sound — prefer custom_whoosh.mp3 over generated glitch_whoosh.wav
+# Issue 3: Custom whoosh sound — prefer custom_whoosh.wav/.mp3 over generated glitch_whoosh.wav
 _CUSTOM_WHOOSH_MP3 = os.path.join(ASSETS, "sfx", "custom_whoosh.mp3")
 _CUSTOM_WHOOSH_WAV = os.path.join(ASSETS, "sfx", "custom_whoosh.wav")
-if os.path.exists(_CUSTOM_WHOOSH_MP3):
+if os.path.exists(_CUSTOM_WHOOSH_WAV):
+    GLITCH_WHOOSH = _CUSTOM_WHOOSH_WAV
+elif os.path.exists(_CUSTOM_WHOOSH_MP3):
     # Convert mp3 to wav for consistency if not already done
-    if not os.path.exists(_CUSTOM_WHOOSH_WAV):
-        subprocess.run(["ffmpeg", "-y", "-i", _CUSTOM_WHOOSH_MP3, _CUSTOM_WHOOSH_WAV],
-                       capture_output=True, text=True, timeout=10)
+    subprocess.run(["ffmpeg", "-y", "-i", _CUSTOM_WHOOSH_MP3, _CUSTOM_WHOOSH_WAV],
+                   capture_output=True, text=True, timeout=10)
     GLITCH_WHOOSH = _CUSTOM_WHOOSH_WAV if os.path.exists(_CUSTOM_WHOOSH_WAV) else _CUSTOM_WHOOSH_MP3
 else:
     GLITCH_WHOOSH = os.path.join(ASSETS, "sfx", "glitch_whoosh.wav")
@@ -614,6 +615,53 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
         output_path, "APEX intro cold open", 120,
     )
     return output_path if ok else ""
+
+
+# ── Clip unavailable placeholder ──────────────────────────────────────────
+
+def _make_clip_unavailable_card(rank: int, output_path: str, btc_price: str = "$N/A") -> str:
+    """8-second branded placeholder when a partner clip fails to download.
+
+    Shows 'CLIP #N LOADING...' on Black Diamond background instead of
+    silently skipping — keeps the timeline intact and looks intentional.
+    """
+    dur = 8.0
+    # Use Black Diamond grid background for visual consistency with host segments
+    ok = run_ffmpeg([
+        "-f", "lavfi", "-i",
+        f"color=c=0x020304:s=1920x1080:r=30:d={dur}",
+        "-f", "lavfi", "-i",
+        f"anullsrc=r=48000:cl=stereo",
+        "-filter_complex",
+        # Grid background
+        f"[0:v]"
+        f"drawgrid=width=80:height=80:thickness=1:color=0xFF0000@0.08,"
+        # Full-width info rail at bottom (matching host segments)
+        f"drawbox=x=0:y=790:w=1920:h=2:color=0xFF0000@0.6:t=fill,"
+        f"drawbox=x=0:y=792:w=1920:h=48:color=0x050607:t=fill,"
+        f"drawtext=fontfile={FONT_MONO}:text='BTC {btc_price}':fontcolor=0xF8C15C:fontsize=22:x=20:y=806,"
+        f"drawtext=fontfile={FONT_MONO}:text='PROTOCOLPULSE.IO':fontcolor=0xF4F5F8:fontsize=22:x=(w-text_w)/2:y=806,"
+        f"drawtext=fontfile={FONT_MONO}:text='MAR 09\\, 2026 — DAILY BRIEF':fontcolor=0x888888:fontsize=18:x=w-360:y=810,"
+        # Center unavailable card
+        f"drawbox=x=400:y=300:w=1120:h=300:color=0x1a0000@0.95:t=fill,"
+        f"drawbox=x=400:y=300:w=1120:h=4:color=0xFF0000:t=fill,"
+        f"drawbox=x=400:y=596:w=1120:h=4:color=0xFF0000:t=fill,"
+        f"drawtext=fontfile={FONT_BOLD}:text='CLIP #{rank} LOADING...'"
+        f":fontcolor=0xFF0000:fontsize=56:x=(w-text_w)/2:y=365,"
+        f"drawtext=fontfile={FONT_MONO}:text='SOURCE UNAVAILABLE — SIGNAL INTERRUPTED'"
+        f":fontcolor=0x888888:fontsize=24:x=(w-text_w)/2:y=460,"
+        # Watermark top-right
+        f"drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':fontcolor=0x333333:fontsize=18:x=w-230:y=20"
+        f"[outv]",
+        "-map", "[outv]", "-map", "1:a",
+        "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+        "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
+        "-pix_fmt", "yuv420p", "-r", "30",
+        "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
+        "-t", str(dur),
+        output_path,
+    ], "clip_unavailable_card", 30)
+    return output_path if ok and os.path.exists(output_path) else ""
 
 
 # ── Branded outro ─────────────────────────────────────────────────────────
@@ -1165,15 +1213,16 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     else:
         fg += f"[np_head]copy[np_body];\n"
 
-    # ORACLE NARRATION ACTIVE + Story Arc Locked pills
-    fg += (f"[np_body]drawbox=x=64:y=580:w=280:h=32:color={COLOR_RED}@0.15:t=fill,"
-           f"drawbox=x=64:y=580:w=280:h=32:color={COLOR_RED}@0.4:t=2,"
+    # ORACLE NARRATION ACTIVE + Story Arc Locked — glass panel style
+    fg += (f"[np_body]drawbox=x=60:y=576:w=290:h=34:color=0x080808@0.82:t=fill,"
+           f"drawbox=x=60:y=576:w=3:h=34:color={COLOR_RED}@0.9:t=fill,"
+           f"drawbox=x=60:y=576:w=290:h=1:color=0xFFFFFF@0.08:t=fill,"
            f"drawtext=fontfile={FONT_MONO}:text='ORACLE NARRATION ACTIVE':"
-           f"fontcolor={COLOR_RED}:fontsize=12:x=76:y=590,"
-           f"drawbox=x=64:y=620:w=200:h=28:color={COLOR_RED}@0.1:t=fill,"
-           f"drawbox=x=64:y=620:w=200:h=28:color={COLOR_RED}@0.3:t=2,"
+           f"fontcolor=0xFFFFFF@0.85:fontsize=12:x=70:y=589,"
+           f"drawbox=x=60:y=618:w=210:h=30:color=0x080808@0.82:t=fill,"
+           f"drawbox=x=60:y=618:w=3:h=30:color={COLOR_RED}@0.6:t=fill,"
            f"drawtext=fontfile={FONT_MONO}:text='Story Arc Locked':"
-           f"fontcolor={COLOR_RED}:fontsize=11:x=80:y=628"
+           f"fontcolor=0xAAAAAA@0.90:fontsize=11:x=70:y=629"
            f"[np_pills];\n")
 
     # Right PiP preview panel (x=1120, y=140, w=740, h=500)
@@ -1684,7 +1733,7 @@ def make_broadcast_segment(segment_data: dict, audio_path: str, host_num: int,
     """
     seg_type = segment_data.get("type", "")
     text = segment_data.get("text", "")
-    speaker = segment_data.get("speaker", "DEBORAH" if host_num == 1 else "BRIAN")
+    speaker = segment_data.get("speaker", "MARK")  # single host — Mark only
     scene = select_scene_type(seg_type, segment_index, total_segments)
 
     try:
@@ -1750,8 +1799,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
         audio_dur = 5
     total_dur = audio_dur + 0.3
 
-    host_names = {1: "DEBORAH", 2: "BRIAN"}
-    speaker = host_names.get(host, "HOST")
+    speaker = "MARK"  # single host — PBX directive 2026-03-09
 
     safe_btc = btc_price.replace("'", "").replace('"', "")
 
@@ -2556,7 +2604,7 @@ def make_transition_visual(output_path: str, duration: float = 0.5) -> str:
             "-i", GLITCH_TRANSITION,
             "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-vf", "scale=1920:1080,setsar=1,format=yuv420p",
-            "-af", "volume=3.0,loudnorm=I=-6:TP=-0.5:LRA=5",
+            "-af", "volume=2.0",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             output_path,
         ], "glitch transition", 30)
@@ -2839,16 +2887,18 @@ def concatenate_parts(parts: list, output_path: str) -> str:
             else:
                 logger.warning("  FIX 6: Whoosh mix failed — proceeding without SFX")
 
-    # Final encode: PTS reset + loudnorm
+    # Final encode: nuclear PTS reset + AV sync lock
     ok = run_ffmpeg(
-        ["-fflags", "+genpts",
+        ["-fflags", "+genpts+igndts+discardcorrupt",
          "-i", concat_raw,
-         "-c:v", "libx264", "-preset", "medium",
+         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
          "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
          "-r", "30", "-vsync", "cfr",
          "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-         "-af", "asetpts=PTS-STARTPTS,aresample=async=1",
+         "-af", "asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.1:first_pts=0",
+         "-avoid_negative_ts", "make_zero",
+         "-max_interleave_delta", "0",
          "-movflags", "+faststart",
          output_path],
         "concat final encode", 600,
@@ -2989,14 +3039,17 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
     _, tc_bg = _build_black_diamond_bg(tc_dur, label_out="tc_bg")
     tc_fg = tc_bg
     tc_fg += _build_corner_brackets_fg("tc_bg", "tc_brackets")
+    safe_btc = btc_price.replace("$", "\\$").replace(",", "\\,") if btc_price else "N/A"
     tc_fg += (f"[tc_brackets]drawtext=fontfile={FONT_BOLD}:text='PROTOCOL PULSE':"
-              f"fontcolor={COLOR_WHITE}:fontsize=96:x=(w-text_w)/2:y=340,"
+              f"fontcolor={COLOR_WHITE}:fontsize=96:x=(w-text_w)/2:y=300,"
               f"drawtext=fontfile={FONT_BOLD}:text='PULSE CHECK':"
-              f"fontcolor={COLOR_RED}:fontsize=64:x=(w-text_w)/2:y=460,"
+              f"fontcolor={COLOR_RED}:fontsize=64:x=(w-text_w)/2:y=420,"
+              f"drawtext=fontfile={FONT_MONO}:text='BTC {safe_btc}':"
+              f"fontcolor=0xF8C15C:fontsize=36:x=(w-text_w)/2:y=520,"
               f"drawtext=fontfile={FONT_MONO}:text='{title_date}':"
-              f"fontcolor={COLOR_MUTED}:fontsize=24:x=(w-text_w)/2:y=550,"
+              f"fontcolor={COLOR_MUTED}:fontsize=22:x=(w-text_w)/2:y=580,"
               f"drawtext=fontfile={FONT_MONO}:text='// SIGNAL DETECTED //':"
-              f"fontcolor={COLOR_RED}:fontsize=20:x=(w-text_w)/2:y=620,"
+              f"fontcolor={COLOR_RED}:fontsize=20:x=(w-text_w)/2:y=630,"
               f"fade=t=in:st=0:d=0.5[outv];\n"
               f"anullsrc=r=48000:cl=stereo,atrim=0:{tc_dur}[outa]")
     tc_ok = run_ffmpeg_filtergraph(
@@ -3124,7 +3177,14 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                 else:
                     logger.warning(f"[---] Clip #{rank}: visual failed, skipping")
             else:
-                logger.warning(f"[---] Clip #{rank}: file not found ({clip_path}), skipping")
+                logger.warning(f"[---] Clip #{rank}: file not found ({clip_path}) — injecting branded placeholder")
+                placeholder_out = os.path.join(work_dir, f"part_{part_idx:03d}_clip_placeholder_r{rank}.mp4")
+                placeholder_result = _make_clip_unavailable_card(rank, placeholder_out, btc_price)
+                if placeholder_result:
+                    parts.append(placeholder_result)
+                    dur = ffprobe_duration(placeholder_result)
+                    logger.info(f"[{part_idx:03d}] CLIP #{rank} PLACEHOLDER: {dur:.1f}s")
+                    part_idx += 1
             prev_segment_type = "clip"
             continue
 
@@ -3256,7 +3316,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         else:
             # BV2: Route to Broadcast Engine V2 scene system (falls back to Black Diamond)
             seg_data = {"type": entry_type, "text": text,
-                        "speaker": "DEBORAH" if host_num == 1 else "BRIAN",
+                        "speaker": "MARK",  # single host
                         "next_speaker": ""}
             # Look ahead for next clip speaker
             if entry_type == "setup" and clip_rank and clip_rank in extracted_clips:
@@ -3287,8 +3347,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         if result:
             parts.append(result)
             dur = ffprobe_duration(result)
-            speaker = "DEBORAH" if host_num == 1 else "BRIAN"
-            logger.info(f"[{part_idx:03d}] {entry_type.upper()} [{speaker}]: {dur:.1f}s")
+            logger.info(f"[{part_idx:03d}] {entry_type.upper()} [MARK]: {dur:.1f}s")
             part_idx += 1
             prev_segment_type = entry_type
             host_segment_count += 1
@@ -3359,8 +3418,8 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
     # FIX 1: No standalone pre-outro transition — xfade in concatenation
 
     outro_out = os.path.join(work_dir, f"part_{part_idx:03d}_outro_branded.mp4")
-    # Issue 8 FIX: Pass wrap narration to branded outro so "Stay sovereign" plays over it
-    outro_result = make_branded_outro(outro_out, narration_audio="")
+    # Pass wrap narration so "Stay sovereign" plays OVER the branded outro visual
+    outro_result = make_branded_outro(outro_out, narration_audio=wrap_audio)
     if outro_result:
         parts.append(outro_result)
         dur = ffprobe_duration(outro_result)

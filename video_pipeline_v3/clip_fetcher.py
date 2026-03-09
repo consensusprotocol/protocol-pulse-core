@@ -21,9 +21,12 @@ _KEY_CACHE: dict = {}
 
 def _get_cached_key(name: str) -> str:
     if name not in _KEY_CACHE:
-        k = get_key(name)
-        if k:
-            _KEY_CACHE[name] = k.strip()
+        try:
+            k = get_key(name, required=False)
+            if k:
+                _KEY_CACHE[name] = k.strip()
+        except (KeyError, Exception):
+            pass
     return _KEY_CACHE.get(name, "")
 
 

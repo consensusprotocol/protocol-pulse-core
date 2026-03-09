@@ -30,26 +30,28 @@ def _run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
 
 
 def fix_av_sync(input_path: str, output_path: str) -> bool:
-    """
-    Fix audio/video sync by resetting both stream PTS to zero independently.
-    The key fix is setpts=PTS-STARTPTS and asetpts=PTS-STARTPTS which forces
-    both streams to start from absolute zero, eliminating any drift from
-    separate-stream yt-dlp merges.
+    """Nuclear AV sync fix — full decode+re-encode with PTS reset.
+
+    Uses discardcorrupt + itsoffset 0 + max_interleave_delta=0 to eliminate
+    DTS discontinuities from yt-dlp multi-stream merges.
     """
     return _run_ffmpeg([
-        "-fflags", "+genpts+igndts",
+        "-fflags", "+genpts+igndts+discardcorrupt",
+        "-itsoffset", "0",
         "-i", input_path,
         "-map", "0:v:0",
         "-map", "0:a:0",
-        "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+        "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+        "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
         "-r", "30", "-vsync", "cfr",
         "-vf", "scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,fps=fps=30,format=yuv420p,setpts=PTS-STARTPTS",
-        "-c:a", "aac", "-ar", "48000", "-ac", "2",
-        "-af", "asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.100000:first_pts=0",
+        "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
+        "-af", "aresample=async=1:min_hard_comp=0.1:first_pts=0,asetpts=PTS-STARTPTS",
         "-avoid_negative_ts", "make_zero",
+        "-max_interleave_delta", "0",
         "-movflags", "+faststart",
         output_path,
-    ], "av_sync_fix", 180)
+    ], "av_sync_fix_v2", 300)
 
 
 def check_av_sync(clip_path: str) -> float:

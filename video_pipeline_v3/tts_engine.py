@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""TTS Engine V6 — APEX V2 dual-host broadcast voices.
-Host 1 (Deborah — Female Newscaster):  VeCVR24o7g2y1IxLJzZs
-Host 2 (Brian — Deep Resonant Analyst): nPczCjzI2devNBz1zQrb
-Generates per-line audio with 0.3s silence gaps between speakers."""
+"""TTS Engine V6 — Single-host Mark broadcast voice.
+Host: Mark (1SM7GgM6IMuvQlz2BwM3) at 1.10x speed — PBX approved sole narrator.
+Both host=1 and host=2 route to Mark (no gender swap, no dual-host).
+Generates per-line audio with 0.3s silence gaps."""
 import os, sys, json, subprocess, tempfile, time, struct
 from pathlib import Path
 
@@ -14,44 +14,34 @@ except ImportError:
 
 from relay import get_key
 
-# APEX V2: Authoritative broadcast voices
-# Host 1: Deborah — "Female Newscaster voice", US midwest, professional
-# Host 2: Brian — "Deep, Resonant and Comforting", American, classy
-VOICES = {
-    1: {
-        "voice_id": "VeCVR24o7g2y1IxLJzZs",
-        "name": "Deborah",
-        "model_id": "eleven_turbo_v2_5",
-        "speed": 1.05,
-        "voice_settings": {
-            "stability": 0.45,
-            "similarity_boost": 0.80,
-            "style": 0.20,
-            "use_speaker_boost": True,
-        },
-    },
-    2: {
-        "voice_id": "nPczCjzI2devNBz1zQrb",
-        "name": "Brian",
-        "model_id": "eleven_turbo_v2_5",
-        "speed": 1.00,
-        "voice_settings": {
-            "stability": 0.45,
-            "similarity_boost": 0.80,
-            "style": 0.20,
-            "use_speaker_boost": True,
-        },
+# PBX DIRECTIVE 2026-03-09: SINGLE HOST — Mark at 1.10x speed.
+# Both host=1 and host=2 map to Mark. Deborah/Brian/Nicole/Chris are all BANNED.
+_MARK_VOICE = {
+    "voice_id": "1SM7GgM6IMuvQlz2BwM3",
+    "name": "Mark",
+    "model_id": "eleven_turbo_v2_5",
+    "speed": 1.10,
+    "voice_settings": {
+        "stability": 0.55,
+        "similarity_boost": 0.80,
+        "style": 0.15,
+        "use_speaker_boost": True,
     },
 }
 
-# Hybrid voice settings per segment type (overrides for Host 1 — Deborah)
+VOICES = {
+    1: _MARK_VOICE,
+    2: _MARK_VOICE,  # single narrator — both hosts are Mark
+}
+
+# Voice mode overrides for Mark (segment-type tuning)
 VOICE_MODES = {
-    "cold_open":       {"stability": 0.38, "similarity_boost": 0.80, "style": 0.20, "speed": 1.05},
-    "setup":           {"stability": 0.50, "similarity_boost": 0.80, "style": 0.15, "speed": 1.05},
-    "react":           {"stability": 0.50, "similarity_boost": 0.80, "style": 0.15, "speed": 1.05},
-    "social_segment":  {"stability": 0.45, "similarity_boost": 0.78, "style": 0.18, "speed": 1.05},
-    "wrap":            {"stability": 0.45, "similarity_boost": 0.78, "style": 0.22, "speed": 1.02},
-    "data":            {"stability": 0.50, "similarity_boost": 0.82, "style": 0.15, "speed": 1.03},
+    "cold_open":       {"stability": 0.45, "similarity_boost": 0.80, "style": 0.18, "speed": 1.10},
+    "setup":           {"stability": 0.55, "similarity_boost": 0.80, "style": 0.15, "speed": 1.10},
+    "react":           {"stability": 0.55, "similarity_boost": 0.80, "style": 0.15, "speed": 1.10},
+    "social_segment":  {"stability": 0.50, "similarity_boost": 0.78, "style": 0.18, "speed": 1.10},
+    "wrap":            {"stability": 0.50, "similarity_boost": 0.78, "style": 0.20, "speed": 1.08},
+    "data":            {"stability": 0.60, "similarity_boost": 0.82, "style": 0.12, "speed": 1.10},
 }
 
 SILENCE_GAP = 0.3  # seconds between speakers
@@ -118,16 +108,41 @@ def _chunk_text(text: str, max_chars: int = MAX_CHUNK_CHARS) -> list:
     return [c for c in chunks if c.strip()]
 
 
+TTS_CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tts_cache")
+
+
+def _tts_cache_key(text: str, voice_id: str, segment_type: str) -> str:
+    """SHA256 hash of text+voice+segment_type → stable cache key."""
+    import hashlib
+    payload = f"{voice_id}:{segment_type}:{text}".encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()[:16]
+
+
+def _tts_cache_get(cache_key: str, output_path: str) -> bool:
+    """Check TTS cache and copy to output_path if hit. Returns True on hit."""
+    import shutil
+    cache_file = os.path.join(TTS_CACHE_DIR, f"{cache_key}.m4a")
+    if os.path.exists(cache_file) and os.path.getsize(cache_file) > 1000:
+        shutil.copy2(cache_file, output_path)
+        return True
+    return False
+
+
+def _tts_cache_put(cache_key: str, audio_path: str) -> None:
+    """Save audio to TTS cache for future runs."""
+    import shutil
+    os.makedirs(TTS_CACHE_DIR, exist_ok=True)
+    cache_file = os.path.join(TTS_CACHE_DIR, f"{cache_key}.m4a")
+    if not os.path.exists(cache_file):
+        shutil.copy2(audio_path, cache_file)
+
+
 def tts_elevenlabs(text: str, output_path: str, host: int = 1,
                    segment_type: str = "") -> bool:
     """Generate TTS for a single line using the specified host voice.
 
-    Applies hybrid voice settings based on segment_type for Host 1 (Eryn):
-    - cold_open: dramatic (stability 0.38, speed 1.12)
-    - setup/react: clear, confident (stability 0.75, speed 1.12)
-    - social_segment: warm (stability 0.60, speed 1.12)
-    - wrap: warm, inviting (stability 0.60, speed 1.10)
-    - data: authoritative (stability 0.70, speed 1.10)
+    Checks TTS cache first (hash of text+voice+segment_type). On cache hit,
+    copies cached audio — no ElevenLabs API call. On miss, generates and caches.
     """
     if not HAS_REQUESTS:
         return False
@@ -137,10 +152,16 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
         return False
 
     voice = VOICES.get(host, VOICES[1])
+    # Check TTS cache first — avoid API call if same text+voice was generated before
+    cache_key = _tts_cache_key(text, voice["voice_id"], segment_type)
+    if _tts_cache_get(cache_key, output_path):
+        print(f"  [tts] Cache HIT ({voice['name']}): {text[:50]}...")
+        return True
+
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice['voice_id']}"
     headers = {"xi-api-key": key, "Content-Type": "application/json"}
 
-    # Apply hybrid voice mode for Host 1 (Eryn) based on segment type
+    # Apply hybrid voice mode for Mark based on segment type
     voice_settings = dict(voice["voice_settings"])
     if host == 1 and segment_type in VOICE_MODES:
         mode = VOICE_MODES[segment_type]
@@ -203,6 +224,8 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
             os.remove(chunk_files[0])
         except Exception:
             pass
+        if ok and os.path.exists(output_path):
+            _tts_cache_put(cache_key, output_path)
         return ok
 
     # Multi-chunk concat
@@ -223,6 +246,8 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
                 os.remove(f)
         except Exception:
             pass
+    if ok and os.path.exists(output_path):
+        _tts_cache_put(cache_key, output_path)
     return ok
 
 
