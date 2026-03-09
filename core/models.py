@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timedelta
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -932,3 +933,88 @@ class CollectedSignal(db.Model):
         db.Index('idx_signal_platform_posted', 'platform', 'posted_at'),
         db.Index('idx_signal_legendary', 'is_legendary', 'collected_at'),
     )
+
+
+# =====================================
+# TERMINAL API SUBSCRIBER MODELS
+# =====================================
+
+class ApiSubscriber(db.Model):
+    """Standalone API subscriber — email + Stripe + API key. No User account required."""
+    __tablename__ = 'api_subscribers'
+
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(200), unique=True, nullable=False, index=True)
+    api_key = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    tier = db.Column(db.String(30), default='commander')  # commander|enterprise|demo
+    stripe_customer_id = db.Column(db.String(120), index=True)
+    stripe_subscription_id = db.Column(db.String(120), unique=True)
+    stripe_price_id = db.Column(db.String(120))
+
+    # Rate limiting
+    rate_limit_per_hour = db.Column(db.Integer, default=1000)
+    requests_this_hour = db.Column(db.Integer, default=0)
+    requests_today = db.Column(db.Integer, default=0)
+    requests_total = db.Column(db.Integer, default=0)
+    rate_window_start = db.Column(db.DateTime)  # when current hour window started
+
+    # Scoped entitlements (JSON: {"stream": true, "webhook": true, "signal": true})
+    entitlements = db.Column(db.Text, default='{}')
+    # Key scopes (JSON array: ["read", "stream", "webhook"])
+    key_scopes = db.Column(db.Text, default='["read"]')
+    # Key expiry (NULL = no expiry)
+    key_expires_at = db.Column(db.DateTime, nullable=True)
+
+    # Webhook delivery
+    webhook_url = db.Column(db.String(500))
+    webhook_secret = db.Column(db.String(100))  # HMAC secret
+
+    # Status
+    is_active = db.Column(db.Boolean, default=True, index=True)
+    subscription_status = db.Column(db.String(30), default='active')  # active|past_due|canceled
+    current_period_end = db.Column(db.DateTime)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_used_at = db.Column(db.DateTime)
+
+    def get_entitlements(self):
+        """Return entitlements as dict."""
+        try:
+            return json.loads(self.entitlements or '{}')
+        except (ValueError, TypeError):
+            return {}
+
+    def has_entitlement(self, feature: str) -> bool:
+        return self.get_entitlements().get(feature, False)
+
+    def get_scopes(self):
+        try:
+            return json.loads(self.key_scopes or '["read"]')
+        except (ValueError, TypeError):
+            return ['read']
+
+    def is_key_valid(self):
+        """Check key is active and not expired."""
+        if not self.is_active:
+            return False
+        if self.subscription_status == 'canceled':
+            return False
+        if self.key_expires_at and datetime.utcnow() > self.key_expires_at:
+            return False
+        return True
+
+
+class ApiRequestLog(db.Model):
+    """Per-request log for rate limiting and usage analytics."""
+    __tablename__ = 'api_request_log'
+    __table_args__ = (
+        db.Index('idx_api_log_key_time', 'api_key', 'created_at'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    api_key = db.Column(db.String(64), nullable=False)
+    endpoint = db.Column(db.String(200), nullable=False)
+    response_time_ms = db.Column(db.Integer)
+    status_code = db.Column(db.Integer)
+    ip_hash = db.Column(db.String(64))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)

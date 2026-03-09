@@ -144,10 +144,20 @@ if __name__ == "__main__":
 with app.app_context():
     # 1. Load the models into memory first
     import models
-    # 2. Create the tables
+    # 2. Create the tables (migration-safe: adds new columns/tables without dropping existing)
     db.create_all()
     # 3. ONLY NOW load the routes
     import routes
+    # 4. Register Terminal API blueprint
+    try:
+        from routes_premium_api import premium_api
+        app.register_blueprint(premium_api)
+        logging.info("Terminal API blueprint registered")
+        # 5. Provision demo API key for playground
+        from services.api_key_service import provision_demo_key
+        provision_demo_key(db, models)
+    except Exception as e:
+        logging.warning("Terminal API blueprint not loaded: %s", e)
 
 # Diagnose: confirm / and /debug-routes are registered (debug 404)
 try:

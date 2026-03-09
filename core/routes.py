@@ -3469,6 +3469,14 @@ try:
 except (ModuleNotFoundError, ImportError) as e:
     logging.warning("routes_social not loaded - social monitoring blueprint not registered: %s", e)
 
+# Register Terminal API / Premium API blueprint
+try:
+    from routes_premium_api import premium_api
+    app.register_blueprint(premium_api)
+    logging.info("Terminal API blueprint (routes_premium_api) registered from routes.py")
+except (ModuleNotFoundError, ImportError) as e:
+    logging.warning("routes_premium_api not loaded: %s", e)
+
 @app.route('/admin/write', methods=['GET', 'POST'])
 @login_required
 @admin_required
@@ -4960,9 +4968,26 @@ def stripe_webhook():
                 session_obj = event['data']['object']
                 metadata = session_obj.get('metadata', {})
 
+                # Terminal API subscription: provision ApiSubscriber
+                if metadata.get('subscription_type') == 'terminal_api':
+                    try:
+                        from services.stripe_service import provision_terminal_subscriber
+                        result = provision_terminal_subscriber(session_obj, db, models)
+                        if result.get('success') and result.get('api_key') and result.get('email'):
+                            import threading
+                            from routes_premium_api import _send_welcome_email
+                            t = threading.Thread(
+                                target=_send_welcome_email,
+                                args=(result['email'], result['api_key']),
+                                daemon=True,
+                            )
+                            t.start()
+                    except Exception as e:
+                        logging.error(f"Terminal subscriber provisioning error: {e}")
+
                 # Subscription: set user tier by email
                 tier = metadata.get('tier')
-                if tier in ('operator', 'commander', 'sovereign'):
+                if tier in ('operator', 'commander', 'sovereign') and metadata.get('subscription_type') != 'terminal_api':
                     email = session_obj.get('customer_email') or (session_obj.get('customer_details') or {}).get('email')
                     if email:
                         user = models.User.query.filter_by(email=email).first()
@@ -4970,8 +4995,12 @@ def stripe_webhook():
                             user.subscription_tier = tier
                             user.stripe_customer_id = session_obj.get('customer')
                             user.stripe_subscription_id = session_obj.get('subscription')
-                            db.session.commit()
-                            logging.info(f"Subscription tier set: {email} -> {tier}")
+                            try:
+                                db.session.commit()
+                                logging.info(f"Subscription tier set: {email} -> {tier}")
+                            except Exception as e:
+                                db.session.rollback()
+                                logging.error(f"Error setting subscription tier: {e}")
 
                 # Handle merch orders - submit to Printful
                 if metadata.get('type') == 'merch_order':
