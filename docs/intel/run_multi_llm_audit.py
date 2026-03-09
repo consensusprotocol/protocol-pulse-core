@@ -66,7 +66,7 @@ def call_gpt4o():
         from openai import OpenAI
         client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
         resp = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5.4",
             messages=[{"role": "user", "content": AUDIT_PROMPT}],
             response_format={"type": "json_object"},
             max_tokens=3000,
