@@ -2031,8 +2031,10 @@ def make_host_visual(audio_path: str, host: int, text: str,
     # ── CORNER BRACKETS ──
     fg += _build_corner_brackets_fg(last_seg, "cornered")
 
-    # ── TICKER BAR ──
-    fg += _build_info_bar_fg(total_dur, btc_price, label_in="cornered", label_out="v_final")
+    # ── BUG3 FIX: Gold signature rail (replaces red ticker) ──
+    fg += _build_signature_info_rail(total_dur, btc_price, "cornered", "v_rail")
+    # ── BUG5 FIX: Animated subtitle band ──
+    fg += _build_subtitle_band("v_rail", "v_final", text, total_dur)
 
     # Social segment overlay (tweet card on right side)
     if is_social:
@@ -2071,9 +2073,10 @@ def make_host_visual(audio_path: str, host: int, text: str,
         fg += f"[v_final]format=yuv420p[outv];\n"
 
     # Audio: TTS only — APEX V2: music mixed continuously in concatenate_parts()
+    # BUG8 FIX: Remove per-segment loudnorm — single final loudnorm in concatenate_parts()
     fg += (f"[0:a]silenceremove=start_periods=1:start_duration=0.05:start_threshold=-50dB:"
            f"stop_periods=-1:stop_duration=0.1:stop_threshold=-50dB,"
-           f"loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]")
+           f"aresample=async=1[outa]")
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
