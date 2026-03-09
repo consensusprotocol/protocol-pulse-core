@@ -14,3 +14,7 @@ data/episodes/
 *.mp3
 *.png
 *.jpg
+node_modules/
+*.part
+x_spaces_scraper/cache/
+video_pipeline_v3/remotion/node_modules/
