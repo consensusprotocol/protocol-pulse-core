@@ -315,7 +315,7 @@ class RelayManager {
         try {
           const msg = JSON.parse(evt.data);
           if (msg[0] === 'EVENT' && msg[2]) {
-            this.handleEvent(msg[2]);
+            this.handleEvent(msg[2], url);
           }
         } catch {}
       };
@@ -335,7 +335,7 @@ class RelayManager {
     }
   }
 
-  handleEvent(evt) {
+  handleEvent(evt, relayUrl) {
     const id = evt.id;
     if (this.seen.has(id)) return;
     this.seen.add(id);
@@ -373,7 +373,7 @@ class RelayManager {
     // Quality filter — drop junk before it hits the feed
     if (!isQualityNostrNote(note.content)) return;
 
-    note.relay = this.url || '';
+    note.relay = relayUrl || '';
     state.nostrNotes.unshift(note);
     if (state.nostrNotes.length > 100) state.nostrNotes.pop();
 
@@ -932,18 +932,19 @@ function initShowMe() {
 // ─── NOSTR RELAY STATUS SYNC ──────────────────────────
 function syncRelayStatus() {
   const rm = window.relayManager;
-  const bar = document.getElementById('mu-relay-status-bar');
+  const bar = document.getElementById('relay-status-bar');
   if (!bar) return;
 
   const items = bar.querySelectorAll('[data-relay]');
   items.forEach(item => {
     const url = item.dataset.relay;
-    const socket = rm && rm.sockets ? rm.sockets[url] : null;
-    const ws = rm && rm.ws ? rm.ws[url] : socket;
+    const wsUrl = url.startsWith('wss://') ? url : 'wss://' + url;
+    const socket = rm && rm.sockets ? rm.sockets[wsUrl] : null;
+    const ws = rm && rm.ws ? rm.ws[wsUrl] : socket;
     const readyState = ws ? ws.readyState : 3;
     // 0=CONNECTING 1=OPEN 2=CLOSING 3=CLOSED
     const dot = item.querySelector('.mu-relay-dot');
-    const label = item.querySelector('.mu-relay-label');
+    const label = item.querySelector('.mu-relay-status');
     const count = item.querySelector('.mu-relay-count');
 
     if (readyState === 1) {
@@ -959,7 +960,7 @@ function syncRelayStatus() {
 
     // Note count from global state
     if (count) {
-      const relayNotes = state.nostrNotes.filter(n => n.relay === url).length;
+      const relayNotes = state.nostrNotes.filter(n => n.relay === wsUrl).length;
       count.textContent = relayNotes + ' notes';
     }
   });
