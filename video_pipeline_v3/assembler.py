@@ -2602,7 +2602,7 @@ def make_transition_visual(output_path: str, duration: float = 0.5) -> str:
             "-i", GLITCH_TRANSITION,
             "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-vf", "scale=1920:1080,setsar=1,format=yuv420p",
-            "-af", "volume=3.0,loudnorm=I=-6:TP=-0.5:LRA=5",
+            "-af", "volume=2.0",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             output_path,
         ], "glitch transition", 30)
@@ -2885,16 +2885,18 @@ def concatenate_parts(parts: list, output_path: str) -> str:
             else:
                 logger.warning("  FIX 6: Whoosh mix failed — proceeding without SFX")
 
-    # Final encode: PTS reset + loudnorm
+    # Final encode: nuclear PTS reset + AV sync lock
     ok = run_ffmpeg(
-        ["-fflags", "+genpts",
+        ["-fflags", "+genpts+igndts+discardcorrupt",
          "-i", concat_raw,
-         "-c:v", "libx264", "-preset", "medium",
+         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
          "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
          "-r", "30", "-vsync", "cfr",
          "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-         "-af", "asetpts=PTS-STARTPTS,aresample=async=1",
+         "-af", "asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.1:first_pts=0",
+         "-avoid_negative_ts", "make_zero",
+         "-max_interleave_delta", "0",
          "-movflags", "+faststart",
          output_path],
         "concat final encode", 600,
