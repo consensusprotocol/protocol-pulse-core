@@ -1213,15 +1213,16 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     else:
         fg += f"[np_head]copy[np_body];\n"
 
-    # ORACLE NARRATION ACTIVE + Story Arc Locked pills
-    fg += (f"[np_body]drawbox=x=64:y=580:w=280:h=32:color={COLOR_RED}@0.15:t=fill,"
-           f"drawbox=x=64:y=580:w=280:h=32:color={COLOR_RED}@0.4:t=2,"
+    # ORACLE NARRATION ACTIVE + Story Arc Locked — glass panel style
+    fg += (f"[np_body]drawbox=x=60:y=576:w=290:h=34:color=0x080808@0.82:t=fill,"
+           f"drawbox=x=60:y=576:w=3:h=34:color={COLOR_RED}@0.9:t=fill,"
+           f"drawbox=x=60:y=576:w=290:h=1:color=0xFFFFFF@0.08:t=fill,"
            f"drawtext=fontfile={FONT_MONO}:text='ORACLE NARRATION ACTIVE':"
-           f"fontcolor={COLOR_RED}:fontsize=12:x=76:y=590,"
-           f"drawbox=x=64:y=620:w=200:h=28:color={COLOR_RED}@0.1:t=fill,"
-           f"drawbox=x=64:y=620:w=200:h=28:color={COLOR_RED}@0.3:t=2,"
+           f"fontcolor=0xFFFFFF@0.85:fontsize=12:x=70:y=589,"
+           f"drawbox=x=60:y=618:w=210:h=30:color=0x080808@0.82:t=fill,"
+           f"drawbox=x=60:y=618:w=3:h=30:color={COLOR_RED}@0.6:t=fill,"
            f"drawtext=fontfile={FONT_MONO}:text='Story Arc Locked':"
-           f"fontcolor={COLOR_RED}:fontsize=11:x=80:y=628"
+           f"fontcolor=0xAAAAAA@0.90:fontsize=11:x=70:y=629"
            f"[np_pills];\n")
 
     # Right PiP preview panel (x=1120, y=140, w=740, h=500)
@@ -3038,14 +3039,17 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
     _, tc_bg = _build_black_diamond_bg(tc_dur, label_out="tc_bg")
     tc_fg = tc_bg
     tc_fg += _build_corner_brackets_fg("tc_bg", "tc_brackets")
+    safe_btc = btc_price.replace("$", "\\$").replace(",", "\\,") if btc_price else "N/A"
     tc_fg += (f"[tc_brackets]drawtext=fontfile={FONT_BOLD}:text='PROTOCOL PULSE':"
-              f"fontcolor={COLOR_WHITE}:fontsize=96:x=(w-text_w)/2:y=340,"
+              f"fontcolor={COLOR_WHITE}:fontsize=96:x=(w-text_w)/2:y=300,"
               f"drawtext=fontfile={FONT_BOLD}:text='PULSE CHECK':"
-              f"fontcolor={COLOR_RED}:fontsize=64:x=(w-text_w)/2:y=460,"
+              f"fontcolor={COLOR_RED}:fontsize=64:x=(w-text_w)/2:y=420,"
+              f"drawtext=fontfile={FONT_MONO}:text='BTC {safe_btc}':"
+              f"fontcolor=0xF8C15C:fontsize=36:x=(w-text_w)/2:y=520,"
               f"drawtext=fontfile={FONT_MONO}:text='{title_date}':"
-              f"fontcolor={COLOR_MUTED}:fontsize=24:x=(w-text_w)/2:y=550,"
+              f"fontcolor={COLOR_MUTED}:fontsize=22:x=(w-text_w)/2:y=580,"
               f"drawtext=fontfile={FONT_MONO}:text='// SIGNAL DETECTED //':"
-              f"fontcolor={COLOR_RED}:fontsize=20:x=(w-text_w)/2:y=620,"
+              f"fontcolor={COLOR_RED}:fontsize=20:x=(w-text_w)/2:y=630,"
               f"fade=t=in:st=0:d=0.5[outv];\n"
               f"anullsrc=r=48000:cl=stereo,atrim=0:{tc_dur}[outa]")
     tc_ok = run_ffmpeg_filtergraph(
