@@ -174,6 +174,28 @@ def run_pipeline(output_path: str, style: str = "default", cached_only: bool = F
     except Exception as e:
         print(f"  X Spaces injection skipped: {e}")
 
+    # ─── Step 5c: Suits & Sats (Mon/Fri) ───
+    try:
+        import datetime as _dt2
+        weekday = _dt2.datetime.utcnow().weekday()
+        if weekday in (0, 4):
+            _twp = os.path.join(os.path.dirname(__file__),
+                "data", "intelligence", "tradfi_weekly.json")
+            if os.path.exists(_twp):
+                with open(_twp) as _f: weekly = json.load(_f)
+                if weekly.get("segment_ready"):
+                    from script_writer import generate_suits_and_sats_block
+                    suits_seg = generate_suits_and_sats_block(weekly)
+                    segments = script.get("segments", [])
+                    insert_idx = max(0, len(segments) - 1)
+                    segments.insert(insert_idx, suits_seg)
+                    script["segments"] = segments
+                    print(f"  Suits & Sats injected: {weekly.get('macro_tone')}")
+                else: print("  Suits & Sats: not ready")
+            else: print("  Suits & Sats: tradfi_weekly.json missing")
+        else: print("  Suits & Sats: not Mon/Fri — skipping")
+    except Exception as e: print(f"  Suits & Sats injection skipped: {e}")
+
     # ─── Step 6: Assemble ───
     print("\n[STEP 6/7] ASSEMBLING VIDEO (Black Diamond)...")
     t0 = time.time()

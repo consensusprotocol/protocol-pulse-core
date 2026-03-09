@@ -1662,6 +1662,8 @@ def select_scene_type(segment_type: str, segment_index: int, total_segments: int
         return "data_segment"
     elif segment_type in ("social", "social_segment"):
         return "social_stack"
+    elif segment_type == "tradfi_weekly":
+        return "data_segment"  # Suits & Sats uses data_segment with SUITS & SATS eyebrow
     elif segment_type == "x_spaces":
         return "data_segment"  # X Spaces uses data_segment visual with branded eyebrow
     elif segment_type in ("wrap", "outro") or segment_index == total_segments - 1:
@@ -1764,6 +1766,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
         "react":     (f"REACTION // {speaker}", speaker[:6], "REACTS"),
         "wrap":      (f"CLOSING // {speaker}", speaker[:6], "CONFIRMED"),
         "x_spaces":  ("◆ X SPACES // LIVE INTEL", "SPACES", "LIVE"),
+        "tradfi_weekly": ("◆ SUITS & SATS // BITCOIN LENS", "TRADFI", "BITCOIN LENS"),
     }
     eyebrow, h1, h2 = seg_map.get(segment_type, (f"PROTOCOL PULSE // {speaker}", "SIGNAL", "ACTIVE"))
 

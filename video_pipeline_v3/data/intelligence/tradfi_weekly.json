@@ -1,0 +1,28 @@
+{
+  "segment_ready": true,
+  "macro_tone": "BULLISH FOR BITCOIN",
+  "macro_summary": "Fed signals rate pause as inflation cools to 2.4 percent. Treasury yields flatten while institutional Bitcoin ETF inflows hit weekly record.",
+  "avg_btc_lens_sentiment": 72,
+  "top_signals": [
+    {
+      "handle": "@RayDalio",
+      "text": "The debt cycle is clearly entering a new phase. Traditional safe havens are being re-evaluated.",
+      "btc_lens": "BULLISH",
+      "engagement": 4200
+    },
+    {
+      "handle": "@LarryFink",
+      "text": "We're seeing unprecedented institutional interest in digital assets as a legitimate asset class.",
+      "btc_lens": "BULLISH",
+      "engagement": 2100
+    },
+    {
+      "handle": "@JPMorgan",
+      "text": "Bitcoin ETF flows suggest a structural shift in how institutions are allocating to alternative assets.",
+      "btc_lens": "CAUTIOUS",
+      "engagement": 5800
+    }
+  ],
+  "generated_at": "2026-03-09T06:00:00Z",
+  "week_of": "2026-03-09"
+}

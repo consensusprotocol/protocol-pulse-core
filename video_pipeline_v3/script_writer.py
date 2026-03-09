@@ -335,3 +335,76 @@ def generate_sample_script(style="default"):
 if __name__ == "__main__":
     script = generate_sample_script()
     print(json.dumps(script, indent=2))
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# SUITS & SATS — TradFi segment generator (Mon/Fri only)
+# ══════════════════════════════════════════════════════════════════════════
+
+def generate_suits_and_sats_block(weekly_data: dict) -> dict:
+    """Generate Suits & Sats dialogue from tradfi_weekly.json data.
+
+    Returns a segment dict compatible with the pipeline script format.
+    Eryn (Host 1) reads TradFi signals cold and factually.
+    Brian / Mark (Host 2) delivers the Bitcoin lens translation.
+    """
+    signals = weekly_data.get("top_signals", [])[:3]
+    macro_tone = weekly_data.get("macro_tone", "NEUTRAL")
+    macro_summary = weekly_data.get("macro_summary", "")
+    sentiment_score = weekly_data.get("avg_btc_lens_sentiment", 50)
+
+    dialogue = []
+
+    # Eryn intro (Host 1) — cold read
+    intro_text = f"Suits and Sats. This week in traditional finance — {macro_summary[:120]}."
+    dialogue.append({
+        "host": 1,
+        "text": intro_text,
+        "type": "tradfi_weekly",
+    })
+
+    # Signal readouts — Eryn reads each signal handle + quote
+    for sig in signals[:2]:
+        handle = sig.get("handle", "")
+        text_snip = sig.get("text", "")[:100]
+        dialogue.append({
+            "host": 1,
+            "text": f"{handle} said: {text_snip}",
+            "type": "tradfi_weekly",
+        })
+
+    # Brian / Mark Bitcoin lens translation (Host 2)
+    if macro_tone == "BULLISH FOR BITCOIN":
+        btc_lens = (
+            f"Translation through a Bitcoin lens — institutional money is looking for exits "
+            f"from fiat. Score: {sentiment_score} out of a hundred. "
+            f"They don't know it yet, but they're describing Bitcoin."
+        )
+    elif macro_tone == "CAUTIOUS":
+        btc_lens = (
+            f"Bitcoin lens score: {sentiment_score}. The suits are nervous. "
+            f"When they're nervous, they print. When they print, Bitcoin wins. "
+            f"This is the setup."
+        )
+    else:
+        btc_lens = (
+            f"Bitcoin lens score: {sentiment_score}. Noise. "
+            f"The signal is the same — hard money wins. Stay sovereign."
+        )
+
+    dialogue.append({
+        "host": 2,
+        "text": btc_lens,
+        "type": "tradfi_weekly",
+    })
+
+    return {
+        "type": "tradfi_weekly",
+        "segment_type": "tradfi_weekly",
+        "space_title": f"Suits & Sats — {macro_tone}",
+        "dialogue": dialogue,
+        "duration_target": 75,
+        "macro_tone": macro_tone,
+        "sentiment_score": sentiment_score,
+        "eyebrow": "SUITS & SATS // BITCOIN LENS",
+    }
