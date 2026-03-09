@@ -932,3 +932,41 @@ class CollectedSignal(db.Model):
         db.Index('idx_signal_platform_posted', 'platform', 'posted_at'),
         db.Index('idx_signal_legendary', 'is_legendary', 'collected_at'),
     )
+
+
+# ── B1 Newsletter ───────────────────────────────────────────────────────────
+
+class NewsletterSubscriber(db.Model):
+    """LAW 4: Each subscriber has a unique unsubscribe_token (CAN-SPAM compliance)."""
+    __tablename__ = 'newsletter_subscribers'
+
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(320), unique=True, nullable=False)
+    unsubscribe_token = db.Column(db.String(64), unique=True, nullable=False)
+    subscribed = db.Column(db.Boolean, default=True, nullable=False)
+    subscribed_at = db.Column(db.DateTime, default=datetime.utcnow)
+    unsubscribed_at = db.Column(db.DateTime)
+    source = db.Column(db.String(50))  # 'homepage', 'api', 'import'
+
+    __table_args__ = (
+        db.Index('idx_newsletter_subscribers_email', 'email'),
+        db.Index('idx_newsletter_subscribers_token', 'unsubscribe_token'),
+        db.Index('idx_newsletter_subscribers_subscribed', 'subscribed'),
+    )
+
+
+class NewsletterSend(db.Model):
+    """LAW 2: One newsletter per day — tracks sends for idempotency."""
+    __tablename__ = 'newsletter_sends'
+
+    id = db.Column(db.Integer, primary_key=True)
+    subject = db.Column(db.Text)
+    resend_batch_id = db.Column(db.String(100))
+    recipient_count = db.Column(db.Integer, default=0)
+    open_count = db.Column(db.Integer, default=0)
+    click_count = db.Column(db.Integer, default=0)
+    sent_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.Index('idx_newsletter_sends_sent_at', 'sent_at'),
+    )
