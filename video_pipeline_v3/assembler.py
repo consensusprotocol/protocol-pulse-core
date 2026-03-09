@@ -314,6 +314,28 @@ def ensure_audio(video_path: str) -> str:
     return out if os.path.exists(out) else video_path
 
 
+def _generate_fallback_silent_audio(work_dir: str, idx: int, text: str = "") -> str:
+    """BUG1 FIX: Generate silence audio as TTS fallback when ElevenLabs quota is exhausted.
+
+    Estimates duration from text length (~150 words/min, ~5 chars/word).
+    Returns path to silent .m4a file, or "" on failure.
+    """
+    # Estimate duration: ~150 wpm, ~5 chars/word → ~750 chars/min → ~12.5 chars/s
+    # Minimum 2s, maximum 30s
+    dur = max(2.0, min(30.0, len(text) / 12.5)) if text else 3.0
+    out = os.path.join(work_dir, f"fallback_silence_{idx:03d}.m4a")
+    ok = run_ffmpeg([
+        "-f", "lavfi", "-i", f"anullsrc=r=48000:cl=stereo",
+        "-t", str(dur),
+        "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
+        out,
+    ], "fallback silence", 15)
+    if ok and os.path.exists(out):
+        logger.warning(f"  [fallback] Generated {dur:.1f}s silence for idx={idx} (TTS quota exhausted)")
+        return out
+    return ""
+
+
 # ── Branded intro/outro ────────────────────────────────────────────────────
 
 def make_intro_video(output_path: str) -> str:
@@ -620,38 +642,52 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
 # ── Clip unavailable placeholder ──────────────────────────────────────────
 
 def _make_clip_unavailable_card(rank: int, output_path: str, btc_price: str = "$N/A") -> str:
-    """8-second branded placeholder when a partner clip fails to download.
+    """BUG4 FIX: 8-second branded 'INTELLIGENCE INCOMING' card — professional, not debug.
 
-    Shows 'CLIP #N LOADING...' on Black Diamond background instead of
-    silently skipping — keeps the timeline intact and looks intentional.
+    Uses 0x0D1117 background (above blackdetect threshold 0x020304).
+    Cyberpunk grid overlay, gold info rail, 'INTELLIGENCE INCOMING' branding.
+    No 'error'/'unavailable'/'interrupted' language.
     """
+    import datetime
     dur = 8.0
-    # Use Black Diamond grid background for visual consistency with host segments
+    date_str = datetime.datetime.now().strftime("%b %d, %Y").upper()
+    safe_btc = (btc_price or "$N/A").replace("'", "").replace('"', "").replace("\\", "")
+
     ok = run_ffmpeg([
         "-f", "lavfi", "-i",
-        f"color=c=0x020304:s=1920x1080:r=30:d={dur}",
+        f"color=c=0x0D1117:s=1920x1080:r=30:d={dur}",
         "-f", "lavfi", "-i",
         f"anullsrc=r=48000:cl=stereo",
         "-filter_complex",
-        # Grid background
+        # Cyberpunk grid overlay at low opacity (intentional look)
         f"[0:v]"
-        f"drawgrid=width=80:height=80:thickness=1:color=0xFF0000@0.08,"
-        # Full-width info rail at bottom (matching host segments)
-        f"drawbox=x=0:y=790:w=1920:h=2:color=0xFF0000@0.6:t=fill,"
-        f"drawbox=x=0:y=792:w=1920:h=48:color=0x050607:t=fill,"
-        f"drawtext=fontfile={FONT_MONO}:text='BTC {btc_price}':fontcolor=0xF8C15C:fontsize=22:x=20:y=806,"
-        f"drawtext=fontfile={FONT_MONO}:text='PROTOCOLPULSE.IO':fontcolor=0xF4F5F8:fontsize=22:x=(w-text_w)/2:y=806,"
-        f"drawtext=fontfile={FONT_MONO}:text='MAR 09\\, 2026 — DAILY BRIEF':fontcolor=0x888888:fontsize=18:x=w-360:y=810,"
-        # Center unavailable card
-        f"drawbox=x=400:y=300:w=1120:h=300:color=0x1a0000@0.95:t=fill,"
-        f"drawbox=x=400:y=300:w=1120:h=4:color=0xFF0000:t=fill,"
-        f"drawbox=x=400:y=596:w=1120:h=4:color=0xFF0000:t=fill,"
-        f"drawtext=fontfile={FONT_BOLD}:text='CLIP #{rank} LOADING...'"
-        f":fontcolor=0xFF0000:fontsize=56:x=(w-text_w)/2:y=365,"
-        f"drawtext=fontfile={FONT_MONO}:text='SOURCE UNAVAILABLE — SIGNAL INTERRUPTED'"
-        f":fontcolor=0x888888:fontsize=24:x=(w-text_w)/2:y=460,"
+        f"drawgrid=width=60:height=60:thickness=1:color=0xFF0000@0.06,"
+        f"drawgrid=width=120:height=120:thickness=1:color=0xFF0000@0.04,"
+        # Horizontal scan lines (cyberpunk aesthetic)
+        f"drawbox=x=0:y=270:w=1920:h=1:color=0xFF0000@0.12:t=fill,"
+        f"drawbox=x=0:y=540:w=1920:h=1:color=0xFF0000@0.12:t=fill,"
+        f"drawbox=x=0:y=810:w=1920:h=1:color=0xFF0000@0.12:t=fill,"
+        # Center card container
+        f"drawbox=x=360:y=280:w=1200:h=380:color=0x0A0E14@0.92:t=fill,"
+        f"drawbox=x=360:y=280:w=1200:h=4:color=0xFF0000@0.9:t=fill,"
+        f"drawbox=x=360:y=656:w=1200:h=4:color={COLOR_GOLD}@0.9:t=fill,"
+        f"drawbox=x=360:y=280:w=4:h=380:color=0xFF0000@0.9:t=fill,"
+        f"drawbox=x=1556:y=280:w=4:h=380:color=0xFF0000@0.9:t=fill,"
+        # Main headline
+        f"drawtext=fontfile={FONT_BOLD}:text='⚡ INTELLIGENCE INCOMING'"
+        f":fontcolor={COLOR_GOLD}:fontsize=52:x=(w-text_w)/2:y=360,"
+        # Subtext
+        f"drawtext=fontfile={FONT_MONO}:text='SOURCING PARTNER SIGNAL...'"
+        f":fontcolor=0x888888:fontsize=26:x=(w-text_w)/2:y=450,"
+        f"drawtext=fontfile={FONT_MONO}:text='SIGNAL {rank} OF 5'"
+        f":fontcolor={COLOR_RED}@0.7:fontsize=18:x=(w-text_w)/2:y=500,"
+        # Gold info rail at bottom
+        f"drawbox=x=0:y=1032:w=1920:h=48:color={COLOR_GOLD}@0.95:t=fill,"
+        f"drawtext=fontfile={FONT_BOLD}:text='BTC {safe_btc}':fontcolor=0x000000:fontsize=14:x=20:y=1048,"
+        f"drawtext=fontfile={FONT_BOLD}:text='PROTOCOLPULSE.IO':fontcolor=0x000000:fontsize=15:x=(w-text_w)/2:y=1047,"
+        f"drawtext=fontfile={FONT_MONO}:text='{date_str} - DAILY BRIEF':fontcolor=0x000000:fontsize=14:x=w-text_w-20:y=1048,"
         # Watermark top-right
-        f"drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':fontcolor=0x333333:fontsize=18:x=w-230:y=20"
+        f"drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':fontcolor={COLOR_RED}@0.4:fontsize=18:x=w-230:y=20"
         f"[outv]",
         "-map", "[outv]", "-map", "1:a",
         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
@@ -919,21 +955,17 @@ def _build_top_system_bar(label_in: str, label_out: str, scene_label: str = "",
 
 def _build_signature_info_rail(duration: float, btc_price: str, label_in: str,
                                 label_out: str) -> str:
-    """APEX UNIFIED gradient info rail — red→white→red with BLACK text."""
+    """APEX UNIFIED gold info rail — BUG3 FIX: gold #F8C15C per VDS spec."""
     import datetime
     date_str = datetime.datetime.now().strftime("%b %d, %Y").upper()
     safe_btc = btc_price.replace("'", "").replace('"', "").replace("\\", "")
 
     fg = ""
-    # Build gradient bar: 3 color zones (red | white | warm red)
-    fg += f"color=c={COLOR_RED}@0.85:s=640x48:d={duration}:r=30[rail_left];\n"
-    fg += f"color=c=0xFFFFFF@0.90:s=640x48:d={duration}:r=30[rail_center];\n"
-    fg += f"color=c=0xFF6680@0.85:s=640x48:d={duration}:r=30[rail_right];\n"
-    fg += f"[rail_left][rail_center]hstack[rail_lc];\n"
-    fg += f"[rail_lc][rail_right]hstack[rail_full];\n"
+    # BUG3 FIX: Solid gold bar (COLOR_GOLD = 0xF8C15C) — NOT red
+    fg += f"color=c={COLOR_GOLD}@0.95:s=1920x48:d={duration}:r=30[rail_full];\n"
     # Overlay rail onto video at y=1032
     fg += f"[{label_in}][rail_full]overlay=0:1032[rail_ov];\n"
-    # Text in BLACK over the gradient rail
+    # Text in BLACK over the gold rail
     fg += (f"[rail_ov]drawtext=fontfile={FONT_BOLD}:text='BTC {safe_btc}':"
            f"fontcolor=0x000000:fontsize=14:x=20:y=1048,"
            f"drawtext=fontfile={FONT_BOLD}:text='PROTOCOLPULSE.IO':"
@@ -2779,7 +2811,8 @@ def concatenate_parts(parts: list, output_path: str) -> str:
              "-vf", f"scale=1920:1080,setsar=1,format=yuv420p,fade=t=in:d=0.15,fade=t=out:st={fade_out_start}:d=0.15",
              "-video_track_timescale", "90000",
              "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
-             "-af", f"loudnorm=I=-14:TP=-3.0:LRA=7,aresample=async=1,afade=t=in:d=0.1,afade=t=out:st={fade_out_start}:d=0.15",
+             # BUG5 FIX: Remove per-segment loudnorm — single authoritative pass at end
+             "-af", f"aresample=async=1,afade=t=in:d=0.1,afade=t=out:st={fade_out_start}:d=0.15",
              tmp],
             "normalize+fade", 180,
         )
@@ -2822,11 +2855,15 @@ def concatenate_parts(parts: list, output_path: str) -> str:
                     f"threshold=0.015:ratio=8:attack=30:release=600[bgm_ducked];"
                     f"[tts_main][bgm_ducked]amix=inputs=2:duration=first"
                     f":weights=1 1[mixed_audio];"
-                    f"[mixed_audio]loudnorm=I=-14:TP=-1.5:LRA=7:linear=true,"
-                    f"aresample=async=1[outa]"
+                    # BUG5 FIX: Remove loudnorm here — single authoritative pass in final encode
+                    f"[mixed_audio]aresample=async=1[outa]"
                 ),
                 "-map", "0:v", "-map", "[outa]",
-                "-c:v", "copy",
+                # BUG2 FIX: Full libx264 re-encode (not -c:v copy) to reset PTS for AV sync
+                "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+                "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+                "-r", "30", "-vsync", "cfr",
+                "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
                 "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                 "-t", str(dur),
                 music_mixed
@@ -2887,7 +2924,7 @@ def concatenate_parts(parts: list, output_path: str) -> str:
             else:
                 logger.warning("  FIX 6: Whoosh mix failed — proceeding without SFX")
 
-    # Final encode: nuclear PTS reset + AV sync lock
+    # Final encode: nuclear PTS reset + AV sync lock + BUG5 single authoritative loudnorm
     ok = run_ffmpeg(
         ["-fflags", "+genpts+igndts+discardcorrupt",
          "-i", concat_raw,
@@ -2896,7 +2933,8 @@ def concatenate_parts(parts: list, output_path: str) -> str:
          "-r", "30", "-vsync", "cfr",
          "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-         "-af", "asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.1:first_pts=0",
+         # BUG5 FIX: Single authoritative loudnorm at end (removed from all intermediate steps)
+         "-af", "asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.1:first_pts=0,loudnorm=I=-14:TP=-1.5:LRA=7:linear=true",
          "-avoid_negative_ts", "make_zero",
          "-max_interleave_delta", "0",
          "-movflags", "+faststart",
@@ -3060,10 +3098,40 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(tc_dur)],
         title_card_out, "title card", 30,
     )
-    if tc_ok and os.path.exists(title_card_out):
+    # BUG6 FIX: Verify title card has valid duration (not black/empty)
+    tc_valid = tc_ok and os.path.exists(title_card_out)
+    if tc_valid:
+        tc_actual_dur = ffprobe_duration(title_card_out)
+        if tc_actual_dur < 0.5:
+            logger.warning(f"  BUG6: Title card too short ({tc_actual_dur:.2f}s) — regenerating with simple fallback")
+            tc_valid = False
+    if not tc_valid:
+        # Fallback: solid color + text only (no complex filtergraph)
+        tc_fallback_fg = (
+            f"color=c=0x020304:s=1920x1080:r=30:d={tc_dur}[tc_v];\n"
+            f"anullsrc=r=48000:cl=stereo,atrim=0:{tc_dur}[tc_a]"
+        )
+        run_ffmpeg([
+            "-f", "lavfi", "-i", f"color=c=0x020304:s=1920x1080:r=30:d={tc_dur}",
+            "-f", "lavfi", "-i", f"anullsrc=r=48000:cl=stereo",
+            "-filter_complex",
+            f"[0:v]drawtext=fontfile={FONT_BOLD}:text='PROTOCOL PULSE':"
+            f"fontcolor={COLOR_WHITE}:fontsize=80:x=(w-text_w)/2:y=420,"
+            f"drawtext=fontfile={FONT_RED if hasattr(globals(), 'COLOR_RED') else FONT_BOLD}:text='PULSE CHECK':"
+            f"fontcolor={COLOR_RED}:fontsize=52:x=(w-text_w)/2:y=530,"
+            f"fade=t=in:st=0:d=0.5[outv]",
+            "-map", "[outv]", "-map", "1:a",
+            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+            "-t", str(tc_dur), title_card_out,
+        ], "title card fallback", 30)
+        tc_valid = os.path.exists(title_card_out) and ffprobe_duration(title_card_out) > 0.5
+    if tc_valid:
         parts.append(title_card_out)
         logger.info(f"[{part_idx:03d}] TITLE CARD: {tc_dur}s")
         part_idx += 1
+    else:
+        logger.warning(f"  BUG6: Title card FAILED entirely — episode will start without it")
 
     if cold_open_audio:
         intro_out = os.path.join(work_dir, f"part_{part_idx:03d}_cold_open_hook.mp4")
@@ -3191,19 +3259,33 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         # FIX 1: No standalone transitions — xfade applied during concatenation
 
         # Host dialogue line — find matching audio
-        # Match by audio_idx (skip CLIP entries in audio_lines)
+        # BUG1 FIX: Accept failed TTS entries (path=None) to maintain script/audio mapping.
+        # When TTS failed, generate fallback silence so the visual segment still renders.
         line_audio = None
         while audio_idx < len(audio_lines):
             al = audio_lines[audio_idx]
-            if al.get("host") not in ("CLIP",) and al.get("path") and os.path.exists(al["path"]):
-                line_audio = al
-                audio_idx += 1
-                break
             audio_idx += 1
+            if al.get("host") in ("CLIP",):
+                continue  # skip CLIP markers, advance past them
+            # Found a host entry (valid audio OR failed TTS with path=None)
+            line_audio = al
+            break
 
         if not line_audio:
-            logger.warning(f"[---] No audio for entry {i} ({entry_type})")
+            logger.warning(f"[---] No audio entry for dialogue {i} ({entry_type}) — skipping")
             continue
+
+        # BUG1 FIX: If TTS failed (path=None), generate silence so segment still renders
+        if not line_audio.get("path") or not os.path.exists(line_audio.get("path", "")):
+            fallback_text = line_audio.get("text", entry.get("text", ""))
+            fallback_path = _generate_fallback_silent_audio(work_dir, part_idx, fallback_text)
+            if fallback_path:
+                line_audio = dict(line_audio)
+                line_audio["path"] = fallback_path
+                logger.warning(f"  [BUG1] Segment {i} ({entry_type}): TTS fallback silence generated")
+            else:
+                logger.warning(f"  [BUG1] Segment {i} ({entry_type}): silence generation failed, skipping")
+                continue
 
         host_num = int(line_audio.get("host", 1)) if str(line_audio.get("host", "1")).isdigit() else 1
         text = line_audio.get("text", entry.get("text", ""))

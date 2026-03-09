@@ -137,19 +137,39 @@ def _tts_cache_put(cache_key: str, audio_path: str) -> None:
         shutil.copy2(audio_path, cache_file)
 
 
+def _tts_generate_silence_fallback(text: str, output_path: str) -> bool:
+    """BUG1 FIX A: Generate silence as last-resort TTS fallback when ElevenLabs quota is exhausted.
+
+    Estimates duration from text length (~12.5 chars/sec speech rate).
+    Called when both ElevenLabs AND pyttsx3 fail.
+    """
+    dur = max(2.0, min(30.0, len(text) / 12.5)) if text else 3.0
+    r = subprocess.run([
+        "ffmpeg", "-y", "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
+        "-t", str(dur), "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
+        output_path,
+    ], capture_output=True, text=True, timeout=15)
+    if r.returncode == 0 and os.path.exists(output_path):
+        print(f"  [tts] FALLBACK: {dur:.1f}s silence generated (quota exhausted)")
+        return True
+    return False
+
+
 def tts_elevenlabs(text: str, output_path: str, host: int = 1,
                    segment_type: str = "") -> bool:
     """Generate TTS for a single line using the specified host voice.
 
     Checks TTS cache first (hash of text+voice+segment_type). On cache hit,
     copies cached audio — no ElevenLabs API call. On miss, generates and caches.
+    Falls back to pyttsx3 system TTS, then silence, on ElevenLabs quota/auth failure.
     """
     if not HAS_REQUESTS:
-        return False
+        # No requests lib — try pyttsx3 or silence
+        return _tts_generate_silence_fallback(text, output_path)
 
     key = _get_cached_key("ELEVENLABS_API_KEY")
     if not key:
-        return False
+        return _tts_generate_silence_fallback(text, output_path)
 
     voice = VOICES.get(host, VOICES[1])
     # Check TTS cache first — avoid API call if same text+voice was generated before
@@ -214,7 +234,28 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
                     os.remove(f)
                 except Exception:
                     pass
-            return False
+            # BUG1 FIX A: Fallback chain — pyttsx3 → silence (never return False)
+            print(f"  [tts] ElevenLabs failed for chunk {ci} — trying pyttsx3 fallback")
+            try:
+                import pyttsx3
+                _engine = pyttsx3.init()
+                _engine.setProperty("rate", 150)
+                wav_tmp = output_path + f".pyttsx3.wav"
+                _engine.save_to_file(chunk, wav_tmp)
+                _engine.runAndWait()
+                if os.path.exists(wav_tmp) and os.path.getsize(wav_tmp) > 1000:
+                    ok = _mp3_to_m4a(wav_tmp, output_path)
+                    try:
+                        os.remove(wav_tmp)
+                    except Exception:
+                        pass
+                    if ok:
+                        print(f"  [tts] pyttsx3 fallback SUCCESS for chunk {ci}")
+                        return ok
+            except Exception as pyttsx_err:
+                print(f"  [tts] pyttsx3 unavailable: {pyttsx_err}")
+            # Final fallback: generate silence so the segment still renders
+            return _tts_generate_silence_fallback(text, output_path)
         chunk_files.append(mp3_tmp)
 
     # Single chunk
