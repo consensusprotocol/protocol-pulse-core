@@ -156,10 +156,10 @@ def add_headers(response):
             response.cache_control.max_age = 86400
             response.cache_control.public = True
     elif request.path.startswith("/api/"):
-        # API endpoints: short cache
+        # P1-3: API endpoints default to private/no-store — prevents user-specific
+        # data leaking through shared caches. Individual routes may opt into caching.
         if "Cache-Control" not in response.headers:
-            response.cache_control.max_age = 60
-            response.cache_control.public = True
+            response.headers["Cache-Control"] = "private, no-store"
     else:
         # HTML pages: no-cache but allow revalidation
         if "Cache-Control" not in response.headers:

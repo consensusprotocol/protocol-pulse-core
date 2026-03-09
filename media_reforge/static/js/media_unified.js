@@ -929,15 +929,13 @@ function updateSignalStrength() {
 
   state.signalScore = Math.round(nostrScore * 0.35 + chainScore * 0.30 + sentimentScore * 0.35);
 
-  var fill = $('#signal-fill');
-  var label = $('#telem-signal');
-  if (fill) {
-    fill.style.width = state.signalScore + '%';
-    if      (state.signalScore > 70) fill.style.background = '#22c55e';
-    else if (state.signalScore > 40) fill.style.background = '#f7931a';
-    else                             fill.style.background = '#cc0000';
-  }
-  if (label) splitFlap(label, state.signalScore);
+  // P0-3 fix: write to correct DOM IDs (sig-composite, sig-sentiment, sig-spaces)
+  var sigComposite = document.getElementById('sig-composite');
+  var sigSentiment = document.getElementById('sig-sentiment');
+  var sigSpaces    = document.getElementById('sig-spaces');
+  if (sigComposite) splitFlap(sigComposite, state.signalScore);
+  if (sigSentiment) splitFlap(sigSentiment, Math.round(sentimentScore));
+  if (sigSpaces)    splitFlap(sigSpaces,    Math.round(nostrScore));
 }
 
 function updateNostrCount() {
