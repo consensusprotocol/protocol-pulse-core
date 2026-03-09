@@ -1,370 +1,123 @@
 {% extends "base.html" %}
-{% block title %}Protocol Pulse | Bitcoin Intelligence Hub{% endblock %}
 
-{% block meta_description %}World-class Bitcoin intelligence. Real-time analysis, market signals, and investigative reporting for transactors.{% endblock %}
+{% block title %}Protocol Pulse — Bitcoin Intelligence for Transactors{% endblock %}
+{% block meta_description %}Real-time Bitcoin intelligence: market signals, investigative reporting, and deep-protocol analysis. Built for people who actually use Bitcoin.{% endblock %}
 
-{% block og_meta %}
-<meta property="og:title" content="Protocol Pulse — Bitcoin Intelligence Hub">
-<meta property="og:description" content="World-class Bitcoin intelligence. Real-time analysis, market signals, and investigative reporting.">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Protocol Pulse">
-<meta property="og:image" content="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
-<meta property="og:url" content="{{ request.url }}">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@ProtocolPulse">
-<meta name="twitter:title" content="Protocol Pulse — Bitcoin Intelligence Hub">
-<meta name="twitter:description" content="World-class Bitcoin intelligence. Real-time analysis, market signals, and investigative reporting.">
-{% endblock %}
-
-{% block head %}
+{% block styles %}
 <style>
 /* ═══════════════════════════════════════
    HERO SECTION
    ═══════════════════════════════════════ */
 .pp-hero {
     position: relative;
-    min-height: 85vh;
-    display: flex;
-    align-items: center;
     overflow: hidden;
+    padding: 140px 0 80px;
     background:
-        radial-gradient(ellipse at 20% 50%, rgba(0, 212, 170, 0.08) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 20%, rgba(245, 166, 35, 0.05) 0%, transparent 40%),
-        radial-gradient(ellipse at 50% 100%, rgba(0, 212, 170, 0.04) 0%, transparent 50%),
-        linear-gradient(180deg, #0a0a0a 0%, #050505 100%);
+        radial-gradient(ellipse at 20% 50%, rgba(220,38,38,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(245,166,35,0.06) 0%, transparent 50%),
+        var(--pp-black);
 }
-
-.pp-hero::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image:
-        linear-gradient(rgba(0, 212, 170, 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 212, 170, 0.02) 1px, transparent 1px);
-    background-size: 60px 60px;
-    animation: pp-grid-pulse 4s ease-in-out infinite;
-    pointer-events: none;
-}
-
-@keyframes pp-grid-pulse {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.7; }
-}
-
-/* Ambient orbs */
 .pp-hero__orb {
     position: absolute;
     border-radius: 50%;
-    filter: blur(100px);
-    animation: pp-orb-float 10s ease-in-out infinite;
+    filter: blur(80px);
     pointer-events: none;
+    opacity: 0.4;
 }
-
-.pp-hero__orb--1 {
-    width: 500px; height: 500px;
-    background: rgba(0, 212, 170, 0.08);
-    top: -10%; left: -5%;
-}
-
-.pp-hero__orb--2 {
-    width: 350px; height: 350px;
-    background: rgba(245, 166, 35, 0.06);
-    bottom: 10%; right: -5%;
-    animation-delay: -5s;
-}
-
-.pp-hero__orb--3 {
-    width: 250px; height: 250px;
-    background: rgba(0, 212, 170, 0.05);
-    top: 40%; left: 60%;
-    animation-delay: -3s;
-}
-
-@keyframes pp-orb-float {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(25px, -25px) scale(1.05); }
-    66% { transform: translate(-15px, 15px) scale(0.97); }
-}
-
-.pp-hero__content {
-    position: relative;
-    z-index: 10;
-    padding: 120px 0 80px;
-}
-
-/* Live badge */
+.pp-hero__orb--1 { width: 600px; height: 600px; background: rgba(220,38,38,0.12); top: -200px; right: -200px; }
+.pp-hero__orb--2 { width: 400px; height: 400px; background: rgba(245,166,35,0.08); bottom: -100px; left: -100px; }
+.pp-hero__orb--3 { width: 300px; height: 300px; background: rgba(0,212,170,0.05); top: 50%; left: 50%; transform: translate(-50%,-50%); }
+.pp-hero__content { position: relative; z-index: 1; max-width: 680px; }
 .pp-hero__badge {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     padding: 6px 16px;
-    background: rgba(0, 212, 170, 0.08);
-    border: 1px solid rgba(0, 212, 170, 0.2);
-    border-radius: var(--pp-radius-full);
+    background: rgba(220,38,38,0.1);
+    border: 1px solid rgba(220,38,38,0.25);
+    border-radius: 20px;
     font-family: var(--pp-font-mono);
     font-size: 0.6875rem;
-    color: var(--pp-teal);
-    letter-spacing: 0.1em;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--pp-red, #CC2222);
     text-transform: uppercase;
     margin-bottom: 24px;
 }
-
 .pp-hero__title {
-    font-family: var(--pp-font-body);
-    font-size: clamp(2.5rem, 6vw, 4.5rem);
-    font-weight: 700;
-    color: var(--pp-text);
+    font-size: clamp(2.5rem, 5vw, 3.75rem);
+    font-weight: 800;
     line-height: 1.1;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.02em;
+    color: var(--pp-text);
     margin-bottom: 20px;
-    max-width: 700px;
 }
-
 .pp-hero__title-accent {
-    background: linear-gradient(135deg, var(--pp-teal) 0%, #00f5c4 50%, var(--pp-amber) 100%);
+    background: linear-gradient(135deg, var(--pp-amber) 0%, #ff6b35 50%, var(--pp-red, #CC2222) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
-
 .pp-hero__subtitle {
-    font-size: 1.2rem;
+    font-size: 1.125rem;
     color: var(--pp-text-secondary);
-    max-width: 540px;
     line-height: 1.7;
     margin-bottom: 36px;
+    max-width: 520px;
 }
-
 .pp-hero__actions {
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
-    margin-bottom: 48px;
+    margin-bottom: 28px;
 }
-
-/* Hero BTC price widget */
+.pp-hero__btn-stage {
+    border-color: rgba(0,212,170,0.3);
+    color: var(--pp-red, #CC2222);
+}
 .pp-hero__price-widget {
     display: flex;
     align-items: center;
-    gap: 24px;
-    padding: 20px 28px;
-    background: rgba(17, 17, 17, 0.8);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--pp-border);
-    border-radius: var(--pp-radius-lg);
-    max-width: 480px;
+    gap: 20px;
+    padding: 16px 20px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--pp-radius);
+    backdrop-filter: blur(10px);
+    width: fit-content;
+    margin-top: 8px;
 }
-
 .pp-hero__price-label {
     font-family: var(--pp-font-mono);
     font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
     color: var(--pp-text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    margin-bottom: 4px;
 }
-
 .pp-hero__price-value {
     font-family: var(--pp-font-mono);
     font-size: 2rem;
     font-weight: 700;
     color: var(--pp-text);
-    font-variant-numeric: tabular-nums;
-    line-height: 1.2;
+    line-height: 1;
 }
-
 .pp-hero__price-change {
     font-family: var(--pp-font-mono);
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 700;
     padding: 4px 10px;
-    border-radius: var(--pp-radius-xs);
+    border-radius: var(--pp-radius-sm);
 }
-
-.pp-hero__price-change--up { color: var(--pp-green); background: rgba(0, 230, 118, 0.1); }
-.pp-hero__price-change--down { color: var(--pp-red); background: rgba(255, 71, 87, 0.1); }
-
-.pp-hero__price-chart {
-    flex-shrink: 0;
-}
-
-/* Animated pulse line in hero */
+.pp-hero__price-change--up { background: rgba(0,212,170,0.1); color: var(--pp-teal); }
+.pp-hero__price-change--down { background: rgba(220,38,38,0.1); color: var(--pp-red, #CC2222); }
+.pp-hero__price-chart { opacity: 0.8; }
 .pp-hero__pulse-line {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    bottom: 0; left: 0; right: 0;
     height: 1px;
-    background: linear-gradient(90deg,
-        transparent 0%,
-        var(--pp-teal) 20%,
-        var(--pp-amber) 50%,
-        var(--pp-teal) 80%,
-        transparent 100%
-    );
-    opacity: 0.4;
-}
-
-.pp-hero__pulse-line::after {
-    content: '';
-    position: absolute;
-    top: -2px;
-    width: 60px;
-    height: 5px;
-    background: var(--pp-teal);
-    border-radius: 5px;
-    filter: blur(3px);
-    animation: pp-pulse-scan 4s linear infinite;
-}
-
-@keyframes pp-pulse-scan {
-    0% { left: -60px; }
-    100% { left: 100%; }
-}
-
-/* ═══════════════════════════════════════
-   TODAY'S SIGNAL
-   ═══════════════════════════════════════ */
-.pp-signal {
-    padding: 20px 24px;
-    background: rgba(0, 212, 170, 0.04);
-    border: 1px solid rgba(0, 212, 170, 0.1);
-    border-radius: var(--pp-radius-md);
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
-}
-
-.pp-signal__icon {
-    flex-shrink: 0;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--pp-teal-dim);
-    border-radius: var(--pp-radius-sm);
-    color: var(--pp-teal);
-    font-size: 0.875rem;
-}
-
-.pp-signal__text {
-    font-size: 0.9375rem;
-    color: var(--pp-text-secondary);
-    line-height: 1.6;
-}
-
-/* ═══════════════════════════════════════
-   STATS COUNTERS
-   ═══════════════════════════════════════ */
-.pp-stats-row {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-}
-
-@media (min-width: 768px) {
-    .pp-stats-row { grid-template-columns: repeat(4, 1fr); }
-}
-
-.pp-stat {
-    padding: 20px;
-    background: var(--pp-surface);
-    border: 1px solid var(--pp-border);
-    border-radius: var(--pp-radius-md);
-    text-align: center;
-    transition: all 0.25s var(--pp-ease);
-}
-
-.pp-stat:hover {
-    border-color: var(--pp-border-teal);
-    box-shadow: var(--pp-shadow-teal);
-}
-
-.pp-stat__value {
-    font-family: var(--pp-font-mono);
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--pp-teal);
-    line-height: 1;
-    margin-bottom: 6px;
-    font-variant-numeric: tabular-nums;
-}
-
-.pp-stat__label {
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--pp-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-/* ═══════════════════════════════════════
-   NEWSLETTER CTA
-   ═══════════════════════════════════════ */
-.pp-newsletter {
-    padding: 48px;
-    background:
-        radial-gradient(ellipse at 30% 50%, rgba(0, 212, 170, 0.06) 0%, transparent 70%),
-        var(--pp-surface);
-    border: 1px solid var(--pp-border);
-    border-radius: var(--pp-radius-lg);
-    text-align: center;
-}
-
-@media (max-width: 767px) {
-    .pp-newsletter { padding: 32px 20px; }
-}
-
-.pp-newsletter__title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 8px;
-}
-
-.pp-newsletter__subtitle {
-    color: var(--pp-text-secondary);
-    margin-bottom: 24px;
-    font-size: 0.9375rem;
-}
-
-.pp-newsletter__form {
-    display: flex;
-    gap: 0;
-    max-width: 420px;
-    margin: 0 auto;
-}
-
-.pp-newsletter__form .pp-input {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-}
-
-.pp-newsletter__form .pp-btn {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    white-space: nowrap;
-}
-
-/* ═══════════════════════════════════════
-   VIDEO EMBED
-   ═══════════════════════════════════════ */
-.pp-video-embed {
-    position: relative;
-    width: 100%;
-    padding-top: 56.25%;
-    background: var(--pp-surface);
-    border-radius: var(--pp-radius-md);
-    overflow: hidden;
-    border: 1px solid var(--pp-border);
-}
-
-.pp-video-embed iframe {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    border: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(245,166,35,0.3) 30%, rgba(220,38,38,0.4) 50%, rgba(245,166,35,0.3) 70%, transparent 100%);
 }
 
 /* ═══════════════════════════════════════
@@ -375,10 +128,9 @@
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
-    margin-top: -24px;
-    margin-bottom: 32px;
+    margin-top: -16px;
+    margin-bottom: 24px;
 }
-
 .pp-hero__new-here-pill {
     display: inline-flex;
     align-items: center;
@@ -394,14 +146,11 @@
     text-transform: uppercase;
     white-space: nowrap;
 }
-
 .pp-hero__new-here-text {
-    font-family: var(--pp-font-body);
     font-size: 0.875rem;
     color: rgba(255,255,255,0.4);
     line-height: 1.5;
 }
-
 .pp-hero__new-here-link {
     color: var(--pp-amber);
     text-decoration: none;
@@ -409,15 +158,205 @@
     border-bottom: 1px solid rgba(245,166,35,0.3);
     transition: border-color 0.15s ease, opacity 0.15s ease;
 }
+.pp-hero__new-here-link:hover { opacity: 0.8; border-bottom-color: rgba(245,166,35,0.6); }
+.pp-hero__new-here-link--stage { color: var(--pp-red, #CC2222); opacity: 0.8; }
+.pp-hero__new-here-sep { margin: 0 6px; opacity: 0.3; }
 
-.pp-hero__new-here-link:hover {
-    opacity: 0.8;
-    border-bottom-color: rgba(245,166,35,0.6);
+/* ═══════════════════════════════════════
+   STATS ROW — LIVE NETWORK DATA
+   ═══════════════════════════════════════ */
+.pp-stat--loading .pp-stat__value { opacity: 0.4; }
+.pp-stat__value--live { transition: all 0.4s ease; }
+
+/* ═══════════════════════════════════════
+   ORACLE SECTION
+   ═══════════════════════════════════════ */
+.pp-oracle-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--pp-radius-lg);
+    border: 1px solid rgba(245,166,35,0.2);
+    background:
+        radial-gradient(ellipse at 20% 50%, rgba(245,166,35,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 30%, rgba(220,38,38,0.06) 0%, transparent 50%),
+        linear-gradient(135deg, #0a0a0a 0%, #111 100%);
+}
+.pp-oracle-card__scanlines {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(245,166,35,0.015) 2px,
+        rgba(245,166,35,0.015) 4px
+    );
+}
+.pp-oracle-card__inner {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    padding: 40px;
+    flex-wrap: wrap;
+}
+.pp-oracle-card__avatar {
+    flex-shrink: 0;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    border: 2px solid rgba(245,166,35,0.3);
+    box-shadow: 0 0 40px rgba(245,166,35,0.1), 0 0 80px rgba(220,38,38,0.05);
+    overflow: hidden;
+    background: #0a0a0a;
+    position: relative;
+}
+.pp-oracle-card__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: contrast(1.1) brightness(1.05);
+}
+.pp-oracle-card__pulse-ring {
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid rgba(245,166,35,0.15);
+    animation: pp-oracle-pulse 3s ease-in-out infinite;
+}
+.pp-oracle-card__body { flex: 1; min-width: 260px; }
+.pp-oracle-card__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: rgba(245,166,35,0.08);
+    border: 1px solid rgba(245,166,35,0.2);
+    border-radius: 20px;
+    font-family: var(--pp-font-mono);
+    font-size: 0.625rem;
+    font-weight: 700;
+    color: var(--pp-amber);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+}
+.pp-oracle-card__badge-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--pp-amber);
+    animation: pp-pulse-dot-glow 2s infinite;
+}
+.pp-oracle-card__title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    color: var(--pp-text);
+    line-height: 1.2;
+    margin-bottom: 10px;
+}
+.pp-oracle-card__title-gradient {
+    background: linear-gradient(135deg, var(--pp-amber) 0%, #ff6b35 50%, var(--pp-red, #CC2222) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.pp-oracle-card__desc {
+    font-size: 0.9375rem;
+    color: var(--pp-text-secondary);
+    line-height: 1.7;
+    margin-bottom: 20px;
+    max-width: 420px;
+}
+.pp-oracle-card__actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.pp-oracle-card__btn-primary {
+    background: linear-gradient(135deg, var(--pp-amber), #ff6b35);
+    border: none;
+    color: #000;
+    font-weight: 700;
+}
+.pp-oracle-card__btn-ghost { border-color: rgba(245,166,35,0.3); color: var(--pp-amber); }
+
+/* ═══════════════════════════════════════
+   PULSE CHECK SECTION
+   ═══════════════════════════════════════ */
+.pp-pulse-check-section {
+    background: var(--pp-surface);
+    border-top: 1px solid var(--pp-border);
+    border-bottom: 1px solid var(--pp-border);
+}
+.pp-video-embed {
+    position: relative;
+    aspect-ratio: 16/9;
+    background: #000;
+    border-radius: var(--pp-radius);
+    overflow: hidden;
+}
+.pp-video-embed iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+.pp-video-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-direction: column;
+    gap: 12px;
+}
+.pp-video-placeholder__icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--pp-teal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.pp-video-placeholder__icon i {
+    color: var(--pp-black);
+    font-size: 1.25rem;
+    margin-left: 3px;
+}
+.pp-podcast-mini {
+    display: flex;
+    gap: 12px;
+    padding: 14px;
+}
+.pp-podcast-mini__thumb {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background: var(--pp-teal-dim);
+    border-radius: var(--pp-radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.pp-podcast-mini__thumb i { color: var(--pp-red, #CC2222); }
+.pp-podcast-mini__body { min-width: 0; }
+.pp-podcast-mini__title {
+    font-weight: 600;
+    color: var(--pp-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.875rem;
 }
 
-.pp-hero__new-here-sep {
-    margin: 0 6px;
-    opacity: 0.3;
+/* ═══════════════════════════════════════
+   SUPPORT CTA
+   ═══════════════════════════════════════ */
+.pp-support-btn {
+    border-color: rgba(247,147,26,0.4);
+    color: #f7931a;
+    margin-right: 8px;
 }
 
 /* ═══════════════════════════════════════
@@ -439,9 +378,7 @@
     transform: translateY(100%);
     transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
 }
-
 .pp-support-bar.is-visible { transform: translateY(0); }
-
 .pp-support-bar__text {
     font-family: var(--pp-font-mono);
     font-size: 0.6875rem;
@@ -451,13 +388,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
-.pp-support-bar__actions {
-    display: flex;
-    gap: 8px;
-    flex-shrink: 0;
-}
-
+.pp-support-bar__actions { display: flex; gap: 8px; flex-shrink: 0; }
 .pp-support-bar__btn {
     display: flex;
     align-items: center;
@@ -473,19 +404,16 @@
     transition: all 0.2s ease;
     white-space: nowrap;
 }
-
 .pp-support-bar__btn--lightning {
     background: rgba(245,166,35,0.1);
     border: 1px solid rgba(245,166,35,0.3);
     color: var(--pp-amber);
 }
-
 .pp-support-bar__btn--lightning:hover {
     background: rgba(245,166,35,0.2);
     border-color: rgba(245,166,35,0.5);
     color: var(--pp-amber);
 }
-
 .pp-support-bar__dismiss {
     background: none;
     border: none;
@@ -496,18 +424,35 @@
     flex-shrink: 0;
     transition: color 0.15s;
 }
-
 .pp-support-bar__dismiss:hover { color: rgba(255,255,255,0.5); }
+
+/* ═══════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════ */
+@keyframes pp-oracle-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.08); opacity: 1; }
+}
+@keyframes pp-pulse-dot-glow {
+    0%, 100% { opacity: 0.5; box-shadow: 0 0 4px rgba(245,166,35,0.3); }
+    50% { opacity: 1; box-shadow: 0 0 8px rgba(245,166,35,0.6); }
+}
 
 /* ═══════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════ */
 @media (max-width: 767px) {
-    .pp-hero__content { padding: 100px 0 60px; }
+    .pp-hero { padding: 100px 0 60px; }
     .pp-hero__price-widget { flex-direction: column; align-items: flex-start; gap: 12px; }
     .pp-hero__price-value { font-size: 1.5rem; }
     .pp-support-bar__text { display: none; }
+    .pp-oracle-card__inner { padding: 24px; gap: 20px; }
+    .pp-oracle-card__avatar { width: 120px; height: 120px; }
 }
+
+/* ═══════════════════════════════════════
+   LIGHT MODE OVERRIDES
+   ═══════════════════════════════════════ */
 [data-theme="light"] .pp-hero__title { color: #000; }
 [data-theme="light"] .pp-hero__subtitle { color: #333; }
 [data-theme="light"] .pp-hero__title-accent { color: #CC2222; }
@@ -516,17 +461,18 @@
 {% endblock %}
 
 {% block content %}
+
 <!-- ═══════════════════════════════════════════════════════════════
      HERO SECTION
      ═══════════════════════════════════════════════════════════════ -->
 <section class="pp-hero">
-    <!-- Ambient orbs -->
     <div class="pp-hero__orb pp-hero__orb--1"></div>
     <div class="pp-hero__orb pp-hero__orb--2"></div>
     <div class="pp-hero__orb pp-hero__orb--3"></div>
 
     <div class="pp-container">
         <div class="pp-hero__content">
+
             <!-- Live badge -->
             <div class="pp-hero__badge pp-animate-in">
                 <span class="pp-pulse-dot"></span>
@@ -553,22 +499,22 @@
                 <a href="/bitfeed-live" class="pp-btn pp-btn--ghost pp-btn--lg">
                     <i class="fas fa-heartbeat"></i> Live Pulse
                 </a>
-                <a href="/stage" class="pp-btn pp-btn--ghost pp-btn--lg" style="border-color:rgba(0,212,170,0.3);color:var(--pp-red, #CC2222);">
+                <a href="/stage" class="pp-btn pp-btn--ghost pp-btn--lg pp-hero__btn-stage">
                     <i class="fas fa-broadcast-tower"></i> Stage ⚡
                 </a>
             </div>
 
-            <!-- New here? path to Dossier -->
-            <div class="pp-hero__new-here pp-animate-in pp-animate-in-delay-4" style="animation-delay:0.6s;">
+            <!-- New here? -->
+            <div class="pp-hero__new-here pp-animate-in pp-animate-in-delay-4">
                 <span class="pp-hero__new-here-pill">New here?</span>
                 <span class="pp-hero__new-here-text">
                     Start with <a href="/dossier" class="pp-hero__new-here-link">The Dossier</a> — 32 intelligence briefs on why Bitcoin wins.
                     <span class="pp-hero__new-here-sep">·</span>
-                    <a href="/stage" class="pp-hero__new-here-link" style="color:var(--pp-red, #CC2222);opacity:0.8;">Watch the Avatar Stage ⚡</a>
+                    <a href="/stage" class="pp-hero__new-here-link pp-hero__new-here-link--stage">Watch the Avatar Stage ⚡</a>
                 </span>
             </div>
 
-            <!-- BTC Price Widget -->
+            <!-- BTC Price Widget (server-rendered, live-updated by JS) -->
             <div class="pp-hero__price-widget pp-animate-in pp-animate-in-delay-4">
                 <div>
                     <div class="pp-hero__price-label">Bitcoin</div>
@@ -580,7 +526,7 @@
                         {% endif %}
                     </div>
                 </div>
-                <div id="heroBtcChange" class="pp-hero__price-change pp-hero__price-change--up">
+                <div id="heroBtcChange" class="pp-hero__price-change {% if prices and prices.get('bitcoin') and prices['bitcoin'].get('usd_24h_change', 0) >= 0 %}pp-hero__price-change--up{% else %}pp-hero__price-change--down{% endif %}">
                     {% if prices and prices.get('bitcoin') %}
                         {% set change = prices['bitcoin'].get('usd_24h_change', 0) %}
                         {{ "+%.1f"|format(change) if change >= 0 else "%.1f"|format(change) }}%
@@ -588,13 +534,11 @@
                         --%
                     {% endif %}
                 </div>
-                <!-- Mini sparkline canvas -->
                 <canvas id="heroSparkline" class="pp-hero__price-chart" width="80" height="36"></canvas>
             </div>
+
         </div>
     </div>
-
-    <!-- Animated pulse line at bottom -->
     <div class="pp-hero__pulse-line"></div>
 </section>
 
@@ -618,22 +562,22 @@
 {% endif %}
 
 <!-- ═══════════════════════════════════════════════════════════════
-     STATS COUNTERS
+     STATS COUNTERS — LIVE NETWORK DATA
      ═══════════════════════════════════════════════════════════════ -->
 <section class="pp-section">
     <div class="pp-container">
-        <div class="pp-stats-row pp-reveal">
-            <div class="pp-stat">
-                <div class="pp-stat__value" data-count="977">977</div>
+        <div class="pp-stats-row pp-reveal" id="statsRow">
+            <div class="pp-stat pp-stat--loading" id="statHashrate">
+                <div class="pp-stat__value pp-stat__value--live" id="statHashrateVal">---</div>
                 <div class="pp-stat__label">EH/s Hashrate</div>
             </div>
-            <div class="pp-stat">
-                <div class="pp-stat__value" data-count="146">146</div>
+            <div class="pp-stat pp-stat--loading" id="statDifficulty">
+                <div class="pp-stat__value pp-stat__value--live" id="statDifficultyVal">---</div>
                 <div class="pp-stat__label">T Difficulty</div>
             </div>
-            <div class="pp-stat">
-                <div class="pp-stat__value" id="articleCountStat">
-                    {{ recent_articles|length + featured_articles|length }}
+            <div class="pp-stat pp-stat--loading" id="statArticles">
+                <div class="pp-stat__value pp-stat__value--live" id="statArticlesVal">
+                    {{ (recent_articles|length + featured_articles|length) }}+
                 </div>
                 <div class="pp-stat__label">Intel Briefs</div>
             </div>
@@ -669,11 +613,10 @@
                      alt="{{ fa.title }}"
                      class="pp-card__image"
                      loading="lazy"
-                     decoding="async">
+                     decoding="async"
+                     onerror="this.src='/static/images/default-header.png'">
                 <div class="pp-card__body">
-                    <span class="pp-badge pp-badge--teal pp-mb-1">
-                        {{ fa.category or 'Intelligence' }}
-                    </span>
+                    <span class="pp-badge pp-badge--teal pp-mb-1">{{ fa.category or 'Intelligence' }}</span>
                     <h3 class="pp-card__title" style="font-size:1.5rem;-webkit-line-clamp:3;">
                         <a href="/article/{{ fa.id }}">{{ fa.title }}</a>
                     </h3>
@@ -698,11 +641,10 @@
                      alt="{{ article.title }}"
                      class="pp-card__image"
                      loading="lazy"
-                     decoding="async">
+                     decoding="async"
+                     onerror="this.src='/static/images/default-header.png'">
                 <div class="pp-card__body">
-                    <span class="pp-badge pp-badge--ghost pp-mb-1">
-                        {{ article.category or 'Intel' }}
-                    </span>
+                    <span class="pp-badge pp-badge--ghost pp-mb-1">{{ article.category or 'Intel' }}</span>
                     <h3 class="pp-card__title">
                         <a href="/article/{{ article.id }}">{{ article.title }}</a>
                     </h3>
@@ -726,135 +668,51 @@
      ═══════════════════════════════════════════════════════════════ -->
 <section class="pp-section" style="padding-top:0;padding-bottom:48px;">
     <div class="pp-container">
-        <div class="pp-reveal" style="
-            position:relative;
-            overflow:hidden;
-            border-radius:var(--pp-radius-lg);
-            border:1px solid rgba(245,166,35,0.2);
-            background:
-                radial-gradient(ellipse at 20% 50%, rgba(245,166,35,0.08) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 30%, rgba(220,38,38,0.06) 0%, transparent 50%),
-                linear-gradient(135deg, #0a0a0a 0%, #111 100%);
-        ">
-            <!-- Scan line overlay -->
-            <div style="
-                position:absolute;inset:0;pointer-events:none;
-                background:repeating-linear-gradient(
-                    0deg,
-                    transparent,
-                    transparent 2px,
-                    rgba(245,166,35,0.015) 2px,
-                    rgba(245,166,35,0.015) 4px
-                );
-            "></div>
+        <div class="pp-oracle-card pp-reveal">
+            <div class="pp-oracle-card__scanlines"></div>
+            <div class="pp-oracle-card__inner">
 
-            <div style="display:flex;align-items:center;gap:32px;padding:40px;flex-wrap:wrap;">
-                <!-- Avatar preview -->
-                <div style="
-                    flex-shrink:0;
-                    width:180px;height:180px;
-                    border-radius:50%;
-                    border:2px solid rgba(245,166,35,0.3);
-                    box-shadow:0 0 40px rgba(245,166,35,0.1), 0 0 80px rgba(220,38,38,0.05);
-                    overflow:hidden;
-                    background:#0a0a0a;
-                    position:relative;
-                ">
+                <!-- Avatar -->
+                <div class="pp-oracle-card__avatar">
                     <img src="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png') }}"
                          alt="The Oracle"
-                         style="width:100%;height:100%;object-fit:cover;filter:contrast(1.1) brightness(1.05);"
                          loading="lazy">
-                    <!-- Pulse ring animation -->
-                    <div style="
-                        position:absolute;inset:-4px;
-                        border-radius:50%;
-                        border:2px solid rgba(245,166,35,0.15);
-                        animation:pp-oracle-pulse 3s ease-in-out infinite;
-                    "></div>
+                    <div class="pp-oracle-card__pulse-ring"></div>
                 </div>
 
-                <!-- Text content -->
-                <div style="flex:1;min-width:260px;">
-                    <div style="
-                        display:inline-flex;align-items:center;gap:6px;
-                        padding:4px 12px;
-                        background:rgba(245,166,35,0.08);
-                        border:1px solid rgba(245,166,35,0.2);
-                        border-radius:20px;
-                        font-family:var(--pp-font-mono);
-                        font-size:0.625rem;
-                        font-weight:700;
-                        color:var(--pp-amber);
-                        text-transform:uppercase;
-                        letter-spacing:0.08em;
-                        margin-bottom:16px;
-                    ">
-                        <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--pp-amber);animation:pp-pulse-dot-glow 2s infinite;"></span>
+                <!-- Text -->
+                <div class="pp-oracle-card__body">
+                    <div class="pp-oracle-card__badge">
+                        <span class="pp-oracle-card__badge-dot"></span>
                         AI INTELLIGENCE ANALYST
                     </div>
-
-                    <h2 style="
-                        font-family:var(--pp-font-body);
-                        font-size:clamp(1.5rem,3vw,2rem);
-                        font-weight:700;
-                        color:var(--pp-text);
-                        line-height:1.2;
-                        margin-bottom:10px;
-                    ">
-                        Consult <span style="
-                            background:linear-gradient(135deg, var(--pp-amber) 0%, #ff6b35 50%, var(--pp-red, #CC2222) 100%);
-                            -webkit-background-clip:text;
-                            -webkit-text-fill-color:transparent;
-                            background-clip:text;
-                        ">The Oracle</span>
+                    <h2 class="pp-oracle-card__title">
+                        Consult <span class="pp-oracle-card__title-gradient">The Oracle</span>
                     </h2>
-
-                    <p style="
-                        font-size:0.9375rem;
-                        color:var(--pp-text-secondary);
-                        line-height:1.7;
-                        margin-bottom:20px;
-                        max-width:420px;
-                    ">
+                    <p class="pp-oracle-card__desc">
                         Real-time Bitcoin intelligence from our AI analyst.
                         Ask anything — market state, mining economics, protocol analysis.
                         Lip-synced avatar delivers briefings in seconds.
                     </p>
-
-                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                        <a href="/stage" class="pp-btn pp-btn--primary pp-btn--lg" style="
-                            background:linear-gradient(135deg, var(--pp-amber), #ff6b35);
-                            border:none;
-                            color:#000;
-                            font-weight:700;
-                        ">
+                    <div class="pp-oracle-card__actions">
+                        <a href="/stage" class="pp-btn pp-btn--primary pp-btn--lg pp-oracle-card__btn-primary">
                             <i class="fas fa-bolt"></i> Consult The Oracle
                         </a>
-                        <a href="/oracle" class="pp-btn pp-btn--ghost pp-btn--lg" style="border-color:rgba(245,166,35,0.3);color:var(--pp-amber);">
+                        <a href="/oracle" class="pp-btn pp-btn--ghost pp-btn--lg pp-oracle-card__btn-ghost">
                             <i class="fas fa-microphone"></i> Ask a Question
                         </a>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
 </section>
 
-<style>
-@keyframes pp-oracle-pulse {
-    0%, 100% { transform:scale(1); opacity:0.5; }
-    50% { transform:scale(1.08); opacity:1; }
-}
-@keyframes pp-pulse-dot-glow {
-    0%, 100% { opacity:0.5; box-shadow:0 0 4px rgba(245,166,35,0.3); }
-    50% { opacity:1; box-shadow:0 0 8px rgba(245,166,35,0.6); }
-}
-</style>
-
 <!-- ═══════════════════════════════════════════════════════════════
      PULSE CHECK — LATEST VIDEO
      ═══════════════════════════════════════════════════════════════ -->
-<section class="pp-section" style="background: var(--pp-surface); border-top: 1px solid var(--pp-border); border-bottom: 1px solid var(--pp-border);">
+<section class="pp-section pp-pulse-check-section">
     <div class="pp-container">
         <div class="pp-layout-sidebar pp-reveal">
             <div>
@@ -864,14 +722,11 @@
                     <p class="pp-section__subtitle">Daily AI-powered Bitcoin intelligence briefing</p>
                 </div>
                 <div class="pp-video-embed" id="pulseCheckEmbed">
-                    <!-- Lazy-loaded video embed placeholder -->
-                    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="ppLoadVideo(this)">
-                        <div style="text-align:center;">
-                            <div style="width:64px;height:64px;border-radius:50%;background:var(--pp-teal);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
-                                <i class="fas fa-play" style="color:var(--pp-black);font-size:1.25rem;margin-left:3px;"></i>
-                            </div>
-                            <div class="pp-label">Watch Latest Episode</div>
+                    <div class="pp-video-placeholder" id="videoPlaceholder" onclick="ppLoadVideo()">
+                        <div class="pp-video-placeholder__icon">
+                            <i class="fas fa-play"></i>
                         </div>
+                        <div class="pp-label">Watch Latest Episode</div>
                     </div>
                 </div>
             </div>
@@ -879,12 +734,12 @@
                 <h3 class="pp-h5 pp-mb-3">Recent Episodes</h3>
                 {% if featured_podcasts %}
                     {% for podcast in featured_podcasts[:3] %}
-                    <a href="/podcasts" class="pp-card pp-mb-2" style="display:flex;gap:12px;padding:14px;">
-                        <div style="flex-shrink:0;width:48px;height:48px;background:var(--pp-teal-dim);border-radius:var(--pp-radius-sm);display:flex;align-items:center;justify-content:center;">
-                            <i class="fas fa-microphone" style="color:var(--pp-red, #CC2222);"></i>
+                    <a href="/podcasts" class="pp-card pp-podcast-mini pp-mb-2">
+                        <div class="pp-podcast-mini__thumb">
+                            <i class="fas fa-microphone"></i>
                         </div>
-                        <div style="min-width:0;">
-                            <div class="pp-small" style="font-weight:600;color:var(--pp-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ podcast.title }}</div>
+                        <div class="pp-podcast-mini__body">
+                            <div class="pp-podcast-mini__title">{{ podcast.title }}</div>
                             <div class="pp-tiny pp-text-muted">{{ podcast.published_date.strftime('%b %d') if podcast.published_date else '' }}</div>
                         </div>
                     </a>
@@ -903,7 +758,7 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════════
-     TOOLS & FEATURES
+     INTELLIGENCE TOOLS GRID
      ═══════════════════════════════════════════════════════════════ -->
 <section class="pp-section">
     <div class="pp-container">
@@ -914,83 +769,63 @@
 
         <div class="pp-grid pp-grid-3 pp-stagger">
             <a href="/live" class="pp-card pp-card--stat">
-                <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-atom" style="color:var(--pp-red, #CC2222);"></i>
-                </div>
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-atom" style="color:var(--pp-red,#CC2222);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">Live Terminal</h3>
                 <p class="pp-small pp-text-secondary">Real-time blockchain data visualization with network stats, mempool activity, and mining metrics.</p>
             </a>
             <a href="/whale-watcher" class="pp-card pp-card--stat pp-card--amber">
-                <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-water" style="color:var(--pp-amber);"></i>
-                </div>
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-water" style="color:var(--pp-amber);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">Whale Watcher</h3>
                 <p class="pp-small pp-text-secondary">Monitor large Bitcoin transactions in real-time. See what the big players are doing before the market reacts.</p>
             </a>
             <a href="/map" class="pp-card pp-card--stat">
-                <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-map-marked-alt" style="color:var(--pp-red, #CC2222);"></i>
-                </div>
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-map-marked-alt" style="color:var(--pp-red,#CC2222);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">Merchant Map</h3>
                 <p class="pp-small pp-text-secondary">Discover Bitcoin-accepting businesses worldwide. Circular economy, visualized.</p>
             </a>
             <a href="/solo-slayers" class="pp-card pp-card--stat pp-card--amber">
-                <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-hammer" style="color:var(--pp-amber);"></i>
-                </div>
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-hammer" style="color:var(--pp-amber);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">Solo Slayers</h3>
                 <p class="pp-small pp-text-secondary">Lottery miners who beat astronomical odds. Solo block finds, verified on-chain.</p>
             </a>
             <a href="/value-stream" class="pp-card pp-card--stat">
-                <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-bolt" style="color:var(--pp-red, #CC2222);"></i>
-                </div>
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-bolt" style="color:var(--pp-red,#CC2222);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">Value Stream</h3>
                 <p class="pp-small pp-text-secondary">Lightning Network value flows and micro-transaction intelligence. The speed layer, analyzed.</p>
             </a>
             <a href="/chat" class="pp-card pp-card--stat pp-card--amber">
-                <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-robot" style="color:var(--pp-amber);"></i>
-                </div>
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-robot" style="color:var(--pp-amber);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">Ask Alex</h3>
                 <p class="pp-small pp-text-secondary">AI-powered Bitcoin analyst. Ask anything about the protocol, market dynamics, or mining economics.</p>
             </a>
-            <a href="/nostr-signal" class="pp-card pp-card--stat" style="border-color:rgba(245,166,35,0.15);">
-                <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-satellite-dish" style="color:var(--pp-amber);"></i>
-                </div>
+            <a href="/nostr-signal" class="pp-card pp-card--stat">
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-satellite-dish" style="color:var(--pp-amber);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">Nostr Signal Radar</h3>
                 <p class="pp-small pp-text-secondary">Real-time alpha from 50+ Bitcoin OGs on Nostr — confidence-scored before it trends anywhere else.</p>
             </a>
             <a href="/network-health" class="pp-card pp-card--stat">
-                <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-heartbeat" style="color:var(--pp-red, #CC2222);"></i>
-                </div>
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-heartbeat" style="color:var(--pp-red,#CC2222);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">Network Health</h3>
                 <p class="pp-small pp-text-secondary">Real-time Bitcoin network vitals: mempool depth, fee rates, hashrate, difficulty, and block times.</p>
             </a>
             <a href="/charts" class="pp-card pp-card--stat pp-card--amber">
-                <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-chart-line" style="color:var(--pp-amber);"></i>
-                </div>
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-chart-line" style="color:var(--pp-amber);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">BTC Charts</h3>
                 <p class="pp-small pp-text-secondary">Interactive price, hashrate, and fee charts with technical overlays. Deep history, clean UI.</p>
             </a>
-            <a href="/stage" class="pp-card pp-card--stat" style="border-color:rgba(0,212,170,0.15);">
-                <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-broadcast-tower" style="color:var(--pp-red, #CC2222);"></i>
-                </div>
+            <a href="/stage" class="pp-card pp-card--stat">
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-broadcast-tower" style="color:var(--pp-red,#CC2222);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">Avatar Stage</h3>
                 <p class="pp-small pp-text-secondary">24/7 Bitcoin intelligence from the AI avatar. Live sentiment, real-time transcript, partner tracking.</p>
             </a>
         </div>
 
-        <!-- Support the Signal CTA -->
+        <!-- Support CTA -->
         <div class="pp-reveal" style="margin-top:32px;text-align:center;">
             <p class="pp-small pp-text-secondary" style="margin-bottom:12px;">
                 Protocol Pulse is ad-free and sovereign. Support it with sats.
             </p>
-            <a href="/donate/bitcoin" class="pp-btn pp-btn--ghost pp-btn--sm" style="border-color:rgba(247,147,26,0.4);color:#f7931a;margin-right:8px;">
+            <a href="/donate/bitcoin" class="pp-btn pp-btn--ghost pp-btn--sm pp-support-btn">
                 <i class="fas fa-bolt"></i> Support with Bitcoin
             </a>
             <a href="/dossier" class="pp-btn pp-btn--ghost pp-btn--sm">
@@ -1012,135 +847,210 @@
                 <input type="email" name="email" class="pp-input" placeholder="your@email.com" required aria-label="Email address">
                 <button type="submit" class="pp-btn pp-btn--primary">Subscribe</button>
             </form>
-            <p class="pp-tiny pp-text-muted pp-mt-2">Join 2,000+ transactors. Unsubscribe anytime.</p>
+            <p class="pp-tiny pp-text-muted pp-mt-2">Join thousands of transactors. Unsubscribe anytime.</p>
         </div>
     </div>
 </section>
+
 {% endblock %}
 
 {% block scripts %}
 <script>
-/* ── Hero BTC price sync ── */
 (function() {
-    // Sync hero price with nav ticker
-    var origUpdate = window.ppUpdateBtcPrice;
-    if (typeof origUpdate === 'function') {
-        // Already handled by base.html ticker
-    }
+    'use strict';
 
-    // Additional hero-specific price update
-    function updateHeroPrice() {
-        fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true')
-            .then(function(r) { return r.json(); })
+    /* ── LIVE NETWORK STATS ──────────────────────────────────────────
+       Fetches /api/network-stats which is live on this server.
+       Falls back gracefully — never shows broken/empty data.
+    ──────────────────────────────────────────────────────────────── */
+    function loadNetworkStats() {
+        fetch('/api/network-stats', { signal: AbortSignal.timeout(6000) })
+            .then(function(r) { return r.ok ? r.json() : Promise.reject(r.status); })
             .then(function(data) {
-                if (data.bitcoin) {
-                    var el = document.getElementById('heroBtcPrice');
-                    var ch = document.getElementById('heroBtcChange');
-                    if (el) el.textContent = '$' + data.bitcoin.usd.toLocaleString('en-US', {maximumFractionDigits: 0});
-                    if (ch) {
-                        var pct = data.bitcoin.usd_24h_change;
-                        ch.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
-                        ch.className = 'pp-hero__price-change pp-hero__price-change--' + (pct >= 0 ? 'up' : 'down');
+                if (data && data.success !== false) {
+                    // Hashrate
+                    var hrEl = document.getElementById('statHashrateVal');
+                    if (hrEl && data.hashrate) {
+                        hrEl.textContent = data.hashrate;
+                        hrEl.closest('.pp-stat').classList.remove('pp-stat--loading');
+                    }
+                    // Difficulty (strip 'T' if present, add it back cleanly)
+                    var difEl = document.getElementById('statDifficultyVal');
+                    if (difEl && data.difficulty_progress) {
+                        var raw = String(data.difficulty_progress).replace(/[^\d.]/g,'');
+                        difEl.textContent = parseFloat(raw).toFixed(0) + 'T';
+                        difEl.closest('.pp-stat').classList.remove('pp-stat--loading');
                     }
                 }
-            }).catch(function(){});
+            })
+            .catch(function() { /* Silently keep server-rendered fallbacks */ });
     }
-    // Don't double-fetch on initial load since we have server-rendered price
-    setTimeout(function() { setInterval(updateHeroPrice, 60000); }, 60000);
-})();
 
-/* ── Mini sparkline ── */
-(function() {
-    var canvas = document.getElementById('heroSparkline');
-    if (!canvas) return;
-    var ctx = canvas.getContext('2d');
-    var w = canvas.width, h = canvas.height;
-
-    fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1&interval=hourly')
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            if (!data.prices || data.prices.length < 2) return;
-            var prices = data.prices.map(function(p) { return p[1]; });
-            var min = Math.min.apply(null, prices);
-            var max = Math.max.apply(null, prices);
-            var range = max - min || 1;
-            var isUp = prices[prices.length - 1] >= prices[0];
-
-            ctx.beginPath();
-            ctx.strokeStyle = isUp ? '#00d4aa' : '#ff4757';
-            ctx.lineWidth = 1.5;
-            ctx.lineJoin = 'round';
-
-            for (var i = 0; i < prices.length; i++) {
-                var x = (i / (prices.length - 1)) * w;
-                var y = h - ((prices[i] - min) / range) * (h - 4) - 2;
-                if (i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-        }).catch(function(){});
-})();
-
-/* ── Lazy video load ── */
-function ppLoadVideo(el) {
-    var container = document.getElementById('pulseCheckEmbed');
-    // Try to load the latest Pulse Check video from YouTube
-    container.innerHTML = '<iframe src="https://www.youtube.com/embed?listType=playlist&list=UU_CHANNEL_ID&index=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
-    // Fallback: just show a message
-    if (!container.querySelector('iframe[src*="youtube"]') || true) {
-        container.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;"><i class="fas fa-podcast" style="font-size:2rem;color:var(--pp-red, #CC2222);"></i><div class="pp-small pp-text-muted">Visit <a href="/podcasts" style="color:var(--pp-red, #CC2222);">Podcasts</a> for the latest episodes</div></div>';
+    /* ── LIVE ARTICLE COUNT ──────────────────────────────────────────
+       Hits /api/latest-articles which returns article data.
+       Updates the stat counter with real published count.
+    ──────────────────────────────────────────────────────────────── */
+    function loadArticleCount() {
+        fetch('/api/latest-articles', { signal: AbortSignal.timeout(5000) })
+            .then(function(r) { return r.ok ? r.json() : Promise.reject(r.status); })
+            .then(function(data) {
+                var countEl = document.getElementById('statArticlesVal');
+                if (!countEl) return;
+                var count = Array.isArray(data) ? data.length : (data.count || data.total || null);
+                if (count) {
+                    // Show real total — if it's just page results, show "X+" to indicate more
+                    countEl.textContent = count >= 100 ? count.toLocaleString() : count + '+';
+                    countEl.closest('.pp-stat').classList.remove('pp-stat--loading');
+                }
+            })
+            .catch(function() { /* Keep Jinja2 server-rendered fallback */ });
     }
-}
 
-/* ── Counter animation (IntersectionObserver) ── */
-(function() {
-    if (!('IntersectionObserver' in window)) return;
-    var animated = new Set();
-    var observer = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-            if (!entry.isIntersecting) return;
-            var el = entry.target;
-            if (animated.has(el)) return;
-            animated.add(el);
+    /* ── HERO BTC PRICE — LIVE UPDATE ───────────────────────────────
+       Server renders initial price. JS updates every 60s.
+       Single setInterval, stored for proper cleanup.
+    ──────────────────────────────────────────────────────────────── */
+    var _priceInterval = null;
 
-            var target = parseInt(el.getAttribute('data-count'));
-            if (!target || isNaN(target)) return;
+    function updateHeroPrice() {
+        fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true',
+              { signal: AbortSignal.timeout(8000) })
+            .then(function(r) { return r.ok ? r.json() : Promise.reject(r.status); })
+            .then(function(data) {
+                if (!data.bitcoin) return;
+                var el = document.getElementById('heroBtcPrice');
+                var ch = document.getElementById('heroBtcChange');
+                if (el) el.textContent = '$' + data.bitcoin.usd.toLocaleString('en-US', {maximumFractionDigits: 0});
+                if (ch) {
+                    var pct = data.bitcoin.usd_24h_change;
+                    ch.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
+                    ch.className = 'pp-hero__price-change pp-hero__price-change--' + (pct >= 0 ? 'up' : 'down');
+                }
+            })
+            .catch(function() { /* Retain server-rendered price on failure */ });
+    }
 
-            var duration = 1500;
-            var start = 0;
-            var startTime = null;
+    /* Start price polling — first update at 60s, then every 60s.
+       Store ref so we can clear on page unload (prevents memory leak). */
+    var _priceInitTimer = setTimeout(function() {
+        updateHeroPrice();
+        _priceInterval = setInterval(updateHeroPrice, 60000);
+    }, 60000);
 
-            function step(ts) {
-                if (!startTime) startTime = ts;
-                var progress = Math.min((ts - startTime) / duration, 1);
-                var eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-                el.textContent = Math.floor(eased * target).toLocaleString();
-                if (progress < 1) requestAnimationFrame(step);
-            }
-            requestAnimationFrame(step);
-        });
-    }, { threshold: 0.3 });
-
-    document.querySelectorAll('[data-count]').forEach(function(el) {
-        observer.observe(el);
+    /* Cleanup on page unload */
+    window.addEventListener('beforeunload', function() {
+        clearTimeout(_priceInitTimer);
+        if (_priceInterval) clearInterval(_priceInterval);
     });
-})();
 
-/* ── Re-init scroll reveal for dynamically-added .pp-reveal elements ── */
-(function() {
-    if (!('IntersectionObserver' in window)) return;
-    var observer = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('pp-visible');
-                observer.unobserve(entry.target);
-            }
+    /* ── MINI SPARKLINE ─────────────────────────────────────────────
+       24h hourly price chart drawn on canvas.
+    ──────────────────────────────────────────────────────────────── */
+    function drawSparkline() {
+        var canvas = document.getElementById('heroSparkline');
+        if (!canvas || !canvas.getContext) return;
+        var ctx = canvas.getContext('2d');
+        var w = canvas.width, h = canvas.height;
+
+        fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1&interval=hourly',
+              { signal: AbortSignal.timeout(10000) })
+            .then(function(r) { return r.ok ? r.json() : Promise.reject(r.status); })
+            .then(function(data) {
+                if (!data.prices || data.prices.length < 2) return;
+                var prices = data.prices.map(function(p) { return p[1]; });
+                var min = Math.min.apply(null, prices);
+                var max = Math.max.apply(null, prices);
+                var range = max - min || 1;
+                var isUp = prices[prices.length - 1] >= prices[0];
+
+                ctx.beginPath();
+                ctx.strokeStyle = isUp ? '#00d4aa' : '#ff4757';
+                ctx.lineWidth = 1.5;
+                ctx.lineJoin = 'round';
+
+                for (var i = 0; i < prices.length; i++) {
+                    var x = (i / (prices.length - 1)) * w;
+                    var y = h - ((prices[i] - min) / range) * (h - 4) - 2;
+                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            })
+            .catch(function() { /* Sparkline fails silently */ });
+    }
+
+    /* ── PULSE CHECK VIDEO ──────────────────────────────────────────
+       Shows latest Pulse Check from the video server.
+       Falls back to /podcasts link if video not available.
+    ──────────────────────────────────────────────────────────────── */
+    window.ppLoadVideo = function() {
+        var container = document.getElementById('pulseCheckEmbed');
+        if (!container) return;
+
+        /* Latest render from the video server */
+        var videoUrl = 'https://video.protocolpulse.io/video_pipeline_v3/output/pulse_check_20260308_123752.mp4';
+
+        container.innerHTML =
+            '<video controls autoplay style="position:absolute;inset:0;width:100%;height:100%;background:#000;" ' +
+            'poster="/static/images/protocol-pulse-logo-transparent.png">' +
+            '<source src="' + videoUrl + '" type="video/mp4">' +
+            '<p style="color:rgba(255,255,255,0.5);padding:20px;">Video unavailable — ' +
+            '<a href="/podcasts" style="color:var(--pp-teal);">visit Podcasts</a></p>' +
+            '</video>';
+    };
+
+    /* ── SCROLL REVEAL ──────────────────────────────────────────────
+       IntersectionObserver for .pp-reveal elements.
+    ──────────────────────────────────────────────────────────────── */
+    if ('IntersectionObserver' in window) {
+        var revealObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('pp-visible');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+        document.querySelectorAll('.pp-reveal:not(.pp-visible)').forEach(function(el) {
+            revealObserver.observe(el);
         });
-    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    }
 
-    document.querySelectorAll('.pp-reveal:not(.pp-visible)').forEach(function(el) {
-        observer.observe(el);
-    });
+    /* ── COUNTER ANIMATION ──────────────────────────────────────────
+       Animates [data-count] elements when they scroll into view.
+    ──────────────────────────────────────────────────────────────── */
+    if ('IntersectionObserver' in window) {
+        var animated = new Set();
+        var counterObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (!entry.isIntersecting) return;
+                var el = entry.target;
+                if (animated.has(el)) return;
+                animated.add(el);
+                var target = parseInt(el.getAttribute('data-count'));
+                if (!target || isNaN(target)) return;
+                var duration = 1500, startTime = null;
+                function step(ts) {
+                    if (!startTime) startTime = ts;
+                    var progress = Math.min((ts - startTime) / duration, 1);
+                    var eased = 1 - Math.pow(1 - progress, 3);
+                    el.textContent = Math.floor(eased * target).toLocaleString();
+                    if (progress < 1) requestAnimationFrame(step);
+                }
+                requestAnimationFrame(step);
+            });
+        }, { threshold: 0.3 });
+
+        document.querySelectorAll('[data-count]').forEach(function(el) {
+            counterObserver.observe(el);
+        });
+    }
+
+    /* ── BOOT SEQUENCE ──────────────────────────────────────────── */
+    loadNetworkStats();
+    loadArticleCount();
+    drawSparkline();
+
 })();
 </script>
 {% endblock %}
