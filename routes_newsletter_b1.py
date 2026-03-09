@@ -23,7 +23,8 @@ _ADMIN_TOKEN = os.environ.get(
 
 def _is_authorized(req) -> bool:
     auth = req.headers.get("Authorization", "")
-    token = req.json.get("token", "") if req.is_json else req.form.get("token", "")
+    payload = (req.get_json(silent=True) or {}) if req.is_json else {}
+    token = payload.get("token", "") or req.form.get("token", "")
     return (
         _ADMIN_TOKEN in auth
         or token == _ADMIN_TOKEN

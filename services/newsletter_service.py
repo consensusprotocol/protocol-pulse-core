@@ -21,12 +21,16 @@ logger = logging.getLogger(__name__)
 
 # ── Constants ────────────────────────────────────────────────────────────────
 
-RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
 FROM_EMAIL = "pulse@protocolpulse.io"
 SITE_URL = os.environ.get("SITE_URL", "https://protocolpulse.io")
 NOSTR_NPUB = os.environ.get("NOSTR_NPUB", "npub1protocolpulse")
 RESEND_BASE = "https://api.resend.com"
 RESEND_TIMEOUT = 30  # seconds
+
+
+def _resend_api_key() -> str:
+    """Read RESEND_API_KEY at call time (supports late .env loading)."""
+    return os.environ.get("RESEND_API_KEY", "")
 
 
 # ── Subscriber management ────────────────────────────────────────────────────
@@ -493,17 +497,21 @@ def build_newsletter_html(
 
 # ── Resend sender ─────────────────────────────────────────────────────────────
 
-def _send_via_resend(to: str, subject: str, html: str) -> Dict:
+def _send_via_resend(to: str, subject: str, html: str, idempotency_key: str = "") -> Dict:
     """Send one email via Resend. Returns {success, id, error}."""
-    if not RESEND_API_KEY:
+    key = _resend_api_key()
+    if not key:
         return {"success": False, "error": "RESEND_API_KEY not set"}
     try:
+        headers = {
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json",
+        }
+        if idempotency_key:
+            headers["Idempotency-Key"] = idempotency_key
         r = requests.post(
             f"{RESEND_BASE}/emails",
-            headers={
-                "Authorization": f"Bearer {RESEND_API_KEY}",
-                "Content-Type": "application/json",
-            },
+            headers=headers,
             json={
                 "from": FROM_EMAIL,
                 "to": [to],
@@ -519,20 +527,24 @@ def _send_via_resend(to: str, subject: str, html: str) -> Dict:
         return {"success": False, "error": str(e)}
 
 
-def _send_batch_via_resend(batch: List[Dict]) -> Dict:
+def _send_batch_via_resend(batch: List[Dict], idempotency_key: str = "") -> Dict:
     """
     Send up to 100 emails in one Resend batch call.
     batch: [{"from","to","subject","html"}, ...]
     """
-    if not RESEND_API_KEY:
+    key = _resend_api_key()
+    if not key:
         return {"success": False, "error": "RESEND_API_KEY not set"}
     try:
+        headers = {
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json",
+        }
+        if idempotency_key:
+            headers["Idempotency-Key"] = idempotency_key
         r = requests.post(
             f"{RESEND_BASE}/emails/batch",
-            headers={
-                "Authorization": f"Bearer {RESEND_API_KEY}",
-                "Content-Type": "application/json",
-            },
+            headers=headers,
             json=batch,
             timeout=60,
         )
@@ -578,6 +590,7 @@ def send_daily_newsletter(force: bool = False) -> Dict:
     # Build subject per LAW 3
     today = datetime.utcnow()
     date_str = today.strftime("%B %d, %Y")
+    date_key = today.strftime("%Y-%m-%d")  # used as idempotency key base
     subject = f"Protocol Pulse — {date_str} | BTC: {btc_price} {btc_change}"
 
     # Load active subscribers
@@ -617,15 +630,20 @@ def send_daily_newsletter(force: bool = False) -> Dict:
             }
         )
 
-    # Send in batches of 100
+    # Send in batches of 100 with per-batch idempotency keys
     for i in range(0, len(all_emails), batch_size):
         chunk = all_emails[i : i + batch_size]
-        result = _send_batch_via_resend(chunk)
+        batch_num = i // batch_size
+        idempotency_key = f"pp-newsletter-{date_key}-batch{batch_num}"
+        result = _send_batch_via_resend(chunk, idempotency_key=idempotency_key)
         if result.get("success"):
             total_sent += result.get("count", len(chunk))
         else:
             err = result.get("error", "unknown")
-            logger.error(f"Batch {i//batch_size} failed: {err}")
+            logger.error(
+                "newsletter batch %d failed (idempotency_key=%s): %s",
+                batch_num, idempotency_key, err
+            )
             errors.append(err)
 
     # Record send in DB

@@ -378,7 +378,7 @@ git push origin {FEATURE_MAP.get(feature, ('','feature/'+feature))[1]}
 
     msg = client.messages.create(
         model="claude-sonnet-4-6",
-        max_completion_tokens=6000,
+        max_tokens=6000,
         messages=[{"role": "user", "content": synthesis_prompt}]
     )
     return msg.content[0].text
