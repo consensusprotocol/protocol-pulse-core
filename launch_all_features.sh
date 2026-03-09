@@ -77,9 +77,11 @@ Print final summary: files created, test results, audit scores, PR ready: YES/NO
 PROMPT_EOF
 
   tmux kill-session -t "build_${NAME}" 2>/dev/null || true
-  tmux new-session -d -s "build_${NAME}" \
-    "source ~/protocol_pulse/.env && export ANTHROPIC_API_KEY && cd $WORKTREE && claude --dangerously-skip-permissions < /tmp/cc_prompt_${NAME}.txt 2>&1 | tee $LOG; echo SESSION_COMPLETE_${NAME} >> $LOG"
-
+  python3 ~/protocol_pulse/utils/export_api_key.py
+  # TMUX RULE: start claude interactively, then send-keys the prompt
+  tmux new-session -d -s "build_${NAME}" "bash -c 'source /tmp/cc_api_key.sh && cd $WORKTREE && claude --dangerously-skip-permissions 2>&1 | tee $LOG; echo SESSION_COMPLETE_${NAME} >> $LOG'"
+  sleep 6
+  tmux send-keys -t "build_${NAME}" "$(cat /tmp/cc_prompt_${NAME}.txt)" Enter
   echo "  session launched: build_${NAME}"
 }
 
