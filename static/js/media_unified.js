@@ -245,6 +245,36 @@ class TelemetryEngine {
   }
 }
 
+
+// ─── NOSTR CONTENT FILTER ─────────────────────────────
+function isQualityNostrNote(content) {
+  if (!content || content.length < 30) return false;
+
+  // Reject if >60% of chars are non-ASCII (CJK, Arabic, etc.)
+  const nonAscii = (content.match(/[^ -]/g) || []).length;
+  if (nonAscii / content.length > 0.35) return false;
+
+  // Reject pure URL posts (nothing but a URL + maybe whitespace)
+  const stripped = content.replace(/https?:\/\/\S+/gi, '').trim();
+  if (stripped.length < 20) return false;
+
+  // Reject bot-pattern posts (emoji + URL clean output)
+  if (/🤖|Tracking strings detected|Clean URL|Removed parts/i.test(content)) return false;
+
+  // Reject posts that are just hashtag soup
+  const words = content.split(/\s+/);
+  const hashtagRatio = words.filter(w => w.startsWith('#')).length / words.length;
+  if (hashtagRatio > 0.5 && words.length > 3) return false;
+
+  // Reject if no real word (3+ alpha chars) exists
+  if (!/[a-zA-Z]{3,}/.test(content)) return false;
+
+  // Reject obvious spam/tracking patterns
+  if (/nostr:npub|nostr:note|lnbc[0-9]/i.test(content) && stripped.length < 40) return false;
+
+  return true;
+}
+
 // ─── RELAY MANAGER (Nostr WebSocket) ──────────────────
 class RelayManager {
   constructor() {
@@ -340,6 +370,9 @@ class RelayManager {
       pubkey: evt.pubkey
     };
 
+    // Quality filter — drop junk before it hits the feed
+    if (!isQualityNostrNote(note.content)) return;
+
     state.nostrNotes.unshift(note);
     if (state.nostrNotes.length > 100) state.nostrNotes.pop();
 
@@ -360,14 +393,24 @@ class RelayManager {
     feed.querySelectorAll('.mu-skeleton').forEach(s => s.remove());
 
     const el = document.createElement('div');
-    el.className = 'mu-feed-item';
+    el.className = 'mu-feed-item mu-note-enter';
     el.innerHTML = `
+      <div class="mu-note-glare"></div>
       <span class="mu-feed-time">${formatTimeAgo(note.created_at * 1000)}</span>
       <div class="mu-feed-author">${escapeHtml(note.name)}</div>
       <div class="mu-feed-content">${linkify(escapeHtml(note.content.slice(0, 280)))}</div>
     `;
 
     feed.prepend(el);
+
+    // Trigger glare animation on next frame
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        el.classList.remove('mu-note-enter');
+        el.classList.add('mu-note-glare-active');
+        setTimeout(() => el.classList.remove('mu-note-glare-active'), 900);
+      });
+    });
 
     // Cap feed items
     while (feed.children.length > 30) {

@@ -1473,3 +1473,48 @@ body.mu-ambient .mu-ambient-layer {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
+
+
+/* ── Phase 2: Nostr Note Entry + Glare Effect ───────── */
+.mu-note-enter {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.mu-feed-item {
+  position: relative;
+  overflow: hidden;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.mu-note-glare {
+  position: absolute;
+  top: 0; left: -80%;
+  width: 60%; height: 100%;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(247, 147, 26, 0.18) 50%,
+    transparent 70%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transform: skewX(-12deg);
+  transition: none;
+}
+
+.mu-note-glare-active .mu-note-glare {
+  animation: mu-glare-sweep 0.75s ease-out forwards;
+}
+
+@keyframes mu-glare-sweep {
+  0%   { left: -80%; opacity: 0; }
+  15%  { opacity: 1; }
+  100% { left: 120%; opacity: 0; }
+}
+
+.mu-note-glare-active {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
