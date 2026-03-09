@@ -8038,6 +8038,478 @@ def api_media_highlights():
         logging.warning('api_media_highlights error: %s', e)
         return jsonify([])
 
+# ─────────────────────────────────────────────────────────────────────────────
+# P3 CHARTS — Bitcoin Intelligence Hub
+# ─────────────────────────────────────────────────────────────────────────────
+import time as _time
+import functools as _functools
+import re as _re_charts
+
+# Simple TTL cache wrapper (no Redis dependency)
+def _ttl_cache(seconds):
+    def decorator(fn):
+        _cache_store = {}
+        @_functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            key = (args, tuple(sorted(kwargs.items())))
+            now = _time.monotonic()
+            if key in _cache_store:
+                result, ts = _cache_store[key]
+                if now - ts < seconds:
+                    return result
+            result = fn(*args, **kwargs)
+            _cache_store[key] = (result, now)
+            return result
+        return wrapper
+    return decorator
+
+CHARTS_HEADERS = {
+    'User-Agent': 'ProtocolPulse/1.0 (+https://protocolpulse.io)',
+    'Accept': 'application/json',
+}
+
+@_ttl_cache(300)
+def _fetch_coingecko_history(days):
+    """Fetch BTC/USD OHLCV from CoinGecko. Cache 5 min."""
+    url = f"https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days={days}&interval={'daily' if days >= 30 else 'hourly'}"
+    try:
+        r = requests.get(url, timeout=10, headers=CHARTS_HEADERS)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        logging.warning("CoinGecko fetch error: %s", e)
+        return None
+
+@_ttl_cache(60)
+def _fetch_mempool_stats():
+    """Fetch mempool stats from mempool.space. Cache 60s."""
+    try:
+        r = requests.get("https://mempool.space/api/v1/fees/recommended", timeout=10, headers=CHARTS_HEADERS)
+        r.raise_for_status()
+        fees = r.json()
+        s = requests.get("https://mempool.space/api/mempool", timeout=10, headers=CHARTS_HEADERS)
+        s.raise_for_status()
+        mem = s.json()
+        return {"fees": fees, "mempool": mem}
+    except Exception as e:
+        logging.warning("Mempool stats fetch error: %s", e)
+        return None
+
+@_ttl_cache(300)
+def _fetch_hashrate_history():
+    """Fetch hashrate history from mempool.space. Cache 5 min."""
+    try:
+        r = requests.get("https://mempool.space/api/v1/mining/hashrate/3m", timeout=10, headers=CHARTS_HEADERS)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        logging.warning("Hashrate history fetch error: %s", e)
+        return None
+
+@_ttl_cache(3600)
+def _fetch_pool_distribution():
+    """Fetch mining pool distribution. Cache 1 hr."""
+    try:
+        r = requests.get("https://mempool.space/api/v1/mining/pools/1w", timeout=10, headers=CHARTS_HEADERS)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        logging.warning("Pool distribution fetch error: %s", e)
+        return None
+
+@_ttl_cache(1800)
+def _fetch_fee_history():
+    """Fetch fee history. Cache 30 min."""
+    try:
+        r = requests.get("https://mempool.space/api/v1/mining/blocks/fees/1w", timeout=10, headers=CHARTS_HEADERS)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        logging.warning("Fee history fetch error: %s", e)
+        return None
+
+@_ttl_cache(3600)
+def _fetch_lightning_stats():
+    """Fetch Lightning Network stats. Cache 1 hr."""
+    try:
+        r = requests.get("https://mempool.space/api/v1/lightning/statistics/latest", timeout=10, headers=CHARTS_HEADERS)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        logging.warning("Lightning stats fetch error: %s", e)
+        return None
+
+@_ttl_cache(3600)
+def _fetch_fear_greed():
+    """Fetch Fear & Greed index. Cache 1 hr."""
+    try:
+        r = requests.get("https://api.alternative.me/fng/?limit=7", timeout=10, headers=CHARTS_HEADERS)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        logging.warning("Fear & Greed fetch error: %s", e)
+        return None
+
+@_ttl_cache(30)
+def _fetch_btc_price():
+    """Fetch current BTC price. Cache 30s."""
+    try:
+        r = requests.get("https://api.coinbase.com/v2/prices/BTC-USD/spot", timeout=10, headers=CHARTS_HEADERS)
+        r.raise_for_status()
+        return float(r.json()["data"]["amount"])
+    except Exception as e:
+        logging.warning("BTC price fetch error: %s", e)
+        try:
+            r2 = requests.get("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd", timeout=10, headers=CHARTS_HEADERS)
+            r2.raise_for_status()
+            return float(r2.json()["bitcoin"]["usd"])
+        except Exception as e2:
+            logging.warning("BTC price fallback error: %s", e2)
+            return None
+
+@_ttl_cache(60)
+def _fetch_block_height():
+    """Fetch current block height. Cache 60s."""
+    try:
+        r = requests.get("https://mempool.space/api/blocks/tip/height", timeout=10, headers=CHARTS_HEADERS)
+        r.raise_for_status()
+        return int(r.text.strip())
+    except Exception as e:
+        logging.warning("Block height fetch error: %s", e)
+        return None
+
+
+# ── Page Route ────────────────────────────────────────────────────────────────
+
+@app.route("/charts")
+def charts():
+    """Bitcoin Charts Intelligence Hub."""
+    btc_price = _fetch_btc_price() or 0
+    block_height = _fetch_block_height() or 0
+    mempool_data = _fetch_mempool_stats() or {}
+    fees = mempool_data.get("fees", {})
+    mem = mempool_data.get("mempool", {})
+    mempool_mb = round((mem.get("vsize", 0) or 0) / 1_000_000, 2)
+    next_block_fee = fees.get("fastestFee", 0)
+
+    # Supply calculation
+    TOTAL_SUPPLY = 21_000_000
+    if block_height:
+        mined = _calc_mined_supply(block_height)
+    else:
+        mined = 19_640_000  # fallback estimate
+    pct_mined = round(mined / TOTAL_SUPPLY * 100, 4)
+
+    # Next halving
+    HALVING_INTERVAL = 210_000
+    halving_epoch = (block_height // HALVING_INTERVAL) + 1 if block_height else 4
+    blocks_to_halving = (halving_epoch * HALVING_INTERVAL) - block_height if block_height else 0
+    days_to_halving = round(blocks_to_halving * 10 / 1440, 1) if blocks_to_halving > 0 else 0
+
+    sats_per_dollar = round(100_000_000 / btc_price, 0) if btc_price > 0 else 0
+
+    return render_template(
+        "charts.html",
+        btc_price=btc_price,
+        block_height=block_height,
+        mempool_mb=mempool_mb,
+        next_block_fee=next_block_fee,
+        mined_supply=mined,
+        pct_mined=pct_mined,
+        blocks_to_halving=blocks_to_halving,
+        days_to_halving=days_to_halving,
+        sats_per_dollar=int(sats_per_dollar),
+        current_subsidy=3.125,
+    )
+
+
+def _calc_mined_supply(block_height):
+    """Calculate total BTC mined from block height using halving schedule."""
+    total = 0.0
+    remaining = block_height
+    subsidy = 50.0
+    while remaining > 0:
+        blocks_in_epoch = min(remaining, 210_000)
+        total += blocks_in_epoch * subsidy
+        remaining -= blocks_in_epoch
+        subsidy /= 2.0
+        if subsidy < 1e-8:
+            break
+    return round(total, 2)
+
+
+# ── API Proxy Endpoints ────────────────────────────────────────────────────────
+
+@app.route("/api/charts/price-history")
+def api_charts_price_history():
+    """Proxy CoinGecko price history. Cache 5 min."""
+    try:
+        days = int(request.args.get("days", 7))
+        days = max(1, min(days, 365))
+        data = _fetch_coingecko_history(days)
+        if data is None:
+            return jsonify({"error": "upstream unavailable"}), 503
+        return jsonify(data)
+    except (ValueError, TypeError) as e:
+        return jsonify({"error": "invalid parameter"}), 400
+    except Exception as e:
+        logging.error("api_charts_price_history error: %s", e)
+        return jsonify({"error": "internal error"}), 500
+
+
+@app.route("/api/charts/mempool-data")
+def api_charts_mempool_data():
+    """Proxy mempool.space stats. Cache 60s."""
+    try:
+        data = _fetch_mempool_stats()
+        if data is None:
+            return jsonify({"error": "upstream unavailable"}), 503
+        return jsonify(data)
+    except Exception as e:
+        logging.error("api_charts_mempool_data error: %s", e)
+        return jsonify({"error": "internal error"}), 500
+
+
+@app.route("/api/charts/hashrate-history")
+def api_charts_hashrate_history():
+    """Proxy mempool.space hashrate history. Cache 5 min."""
+    try:
+        data = _fetch_hashrate_history()
+        if data is None:
+            return jsonify({"error": "upstream unavailable"}), 503
+        return jsonify(data)
+    except Exception as e:
+        logging.error("api_charts_hashrate_history error: %s", e)
+        return jsonify({"error": "internal error"}), 500
+
+
+@app.route("/api/charts/pool-distribution")
+def api_charts_pool_distribution():
+    """Proxy mining pool distribution. Cache 1 hr."""
+    try:
+        data = _fetch_pool_distribution()
+        if data is None:
+            return jsonify({"error": "upstream unavailable"}), 503
+        return jsonify(data)
+    except Exception as e:
+        logging.error("api_charts_pool_distribution error: %s", e)
+        return jsonify({"error": "internal error"}), 500
+
+
+@app.route("/api/charts/fee-history")
+def api_charts_fee_history():
+    """Proxy fee history. Cache 30 min."""
+    try:
+        data = _fetch_fee_history()
+        if data is None:
+            return jsonify({"error": "upstream unavailable"}), 503
+        return jsonify(data)
+    except Exception as e:
+        logging.error("api_charts_fee_history error: %s", e)
+        return jsonify({"error": "internal error"}), 500
+
+
+@app.route("/api/charts/lightning")
+def api_charts_lightning():
+    """Proxy Lightning Network stats. Cache 1 hr."""
+    try:
+        data = _fetch_lightning_stats()
+        if data is None:
+            return jsonify({"error": "upstream unavailable"}), 503
+        return jsonify(data)
+    except Exception as e:
+        logging.error("api_charts_lightning error: %s", e)
+        return jsonify({"error": "internal error"}), 500
+
+
+@app.route("/api/charts/fear-greed")
+def api_charts_fear_greed():
+    """Proxy Fear & Greed index. Cache 1 hr."""
+    try:
+        data = _fetch_fear_greed()
+        if data is None:
+            return jsonify({"error": "upstream unavailable"}), 503
+        return jsonify(data)
+    except Exception as e:
+        logging.error("api_charts_fear_greed error: %s", e)
+        return jsonify({"error": "internal error"}), 500
+
+
+@app.route("/api/charts/price-alert", methods=["POST"])
+def api_charts_price_alert():
+    """Save a price alert. Rate-limited: max 3/email/day, 10 active total."""
+    try:
+        data = request.get_json(silent=True) or {}
+        email = (data.get("email") or "").strip().lower()[:254]
+        target_price = data.get("target_price")
+        direction = (data.get("direction") or "above").strip().lower()
+
+        # Validate email
+        if not email or not _re_charts.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
+            return jsonify({"error": "Valid email required"}), 400
+
+        # Validate price
+        try:
+            target_price = float(target_price)
+            if not (1_000 <= target_price <= 10_000_000):
+                raise ValueError("out of range")
+        except (TypeError, ValueError):
+            return jsonify({"error": "Price must be between $1,000 and $10,000,000"}), 400
+
+        # Validate direction
+        if direction not in ("above", "below"):
+            direction = "above"
+
+        # Rate limiting: max 10 active alerts per email
+        active_count = models.PriceAlert.query.filter_by(email=email, triggered=False).count()
+        if active_count >= 10:
+            return jsonify({"error": "Maximum 10 active alerts per email"}), 429
+
+        # Rate limiting: max 3 new alerts per email per day
+        cutoff = datetime.utcnow() - timedelta(hours=24)
+        recent_count = models.PriceAlert.query.filter(
+            models.PriceAlert.email == email,
+            models.PriceAlert.created_at >= cutoff
+        ).count()
+        if recent_count >= 3:
+            return jsonify({"error": "Maximum 3 alerts per day per email"}), 429
+
+        alert = models.PriceAlert(
+            email=email,
+            target_price=target_price,
+            direction=direction,
+        )
+        try:
+            db.session.add(alert)
+            db.session.commit()
+        except Exception as db_err:
+            db.session.rollback()
+            logging.error("PriceAlert DB error: %s", db_err)
+            return jsonify({"error": "Could not save alert"}), 500
+
+        return jsonify({"success": True, "message": f"Alert set for BTC {direction} ${target_price:,.0f}"}), 201
+
+    except Exception as e:
+        logging.error("api_charts_price_alert error: %s", e)
+        return jsonify({"error": "internal error"}), 500
+
+
+@app.route("/api/charts/ai-explain", methods=["POST"])
+def api_charts_ai_explain():
+    """AI chart interpretation via Anthropic Claude."""
+    try:
+        data = request.get_json(silent=True) or {}
+        chart_type = (data.get("chart_type") or "price")[:50]
+        chart_data = data.get("chart_data") or {}
+        question = (data.get("question") or "Explain this chart")[:500]
+
+        api_key = os.environ.get("ANTHROPIC_API_KEY")
+        if not api_key:
+            return jsonify({"explanation": "AI interpretation requires ANTHROPIC_API_KEY. Key not configured."}), 200
+
+        # Build context from chart data
+        context_parts = [f"Chart type: {chart_type}"]
+        if isinstance(chart_data, dict):
+            for k, v in list(chart_data.items())[:10]:
+                context_parts.append(f"{k}: {v}")
+        context = "\n".join(context_parts)
+
+        prompt = f"""You are a professional Bitcoin analyst interpreting chart data for Protocol Pulse, a Bitcoin intelligence platform.
+
+Chart context:
+{context}
+
+User question: {question}
+
+Provide a concise 2-3 sentence analyst interpretation. Focus on what the data signals for Bitcoin market structure or on-chain health. Be precise, not vague. Use professional financial analyst tone. Do not use markdown formatting."""
+
+        import anthropic
+        client = anthropic.Anthropic(api_key=api_key)
+        message = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=300,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        explanation = message.content[0].text.strip() if message.content else "Analysis unavailable."
+        return jsonify({"explanation": explanation})
+
+    except Exception as e:
+        logging.error("api_charts_ai_explain error: %s", e)
+        return jsonify({"explanation": "AI analysis temporarily unavailable."}), 200
+
+
+# ── Embed Route ────────────────────────────────────────────────────────────────
+
+@app.route("/charts/embed/<chart_id>")
+def charts_embed(chart_id):
+    """Minimal embeddable chart page."""
+    allowed = {"price", "hashrate", "mempool", "pools", "fear-greed"}
+    if chart_id not in allowed:
+        return "Invalid chart", 400
+    days = request.args.get("days", 7)
+    try:
+        days = int(days)
+        days = max(1, min(days, 365))
+    except (ValueError, TypeError):
+        days = 7
+    return render_template("charts_embed.html", chart_id=chart_id, days=days)
+
+
+# ── Cron: Check Price Alerts ───────────────────────────────────────────────────
+
+def check_price_alerts():
+    """Check active price alerts against current BTC price and send emails."""
+    try:
+        price = _fetch_btc_price()
+        if not price:
+            return
+        active_alerts = models.PriceAlert.query.filter_by(triggered=False).all()
+        triggered_ids = []
+        for alert in active_alerts:
+            should_trigger = (
+                (alert.direction == "above" and price >= alert.target_price) or
+                (alert.direction == "below" and price <= alert.target_price)
+            )
+            if should_trigger:
+                triggered_ids.append(alert.id)
+                _send_price_alert_email(alert, price)
+                alert.triggered = True
+                alert.triggered_at = datetime.utcnow()
+        if triggered_ids:
+            try:
+                db.session.commit()
+                logging.info("Triggered %d price alerts", len(triggered_ids))
+            except Exception as commit_err:
+                db.session.rollback()
+                logging.error("Price alert commit error: %s", commit_err)
+    except Exception as e:
+        logging.error("check_price_alerts error: %s", e)
+
+
+def _send_price_alert_email(alert, current_price):
+    """Send price alert email via SendGrid or log if not configured."""
+    try:
+        sg_key = os.environ.get("SENDGRID_API_KEY")
+        from_email = os.environ.get("SENDGRID_FROM_EMAIL", "alerts@protocolpulse.io")
+        if not sg_key:
+            logging.info("Price alert triggered for %s: BTC %s $%.0f (no email key)", alert.email, alert.direction, current_price)
+            return
+        from sendgrid import SendGridAPIClient
+        from sendgrid.helpers.mail import Mail
+        subject = f"⚡ BTC Price Alert: ${current_price:,.0f} — Protocol Pulse"
+        body = (
+            f"Your Bitcoin price alert was triggered!\n\n"
+            f"Alert: BTC {alert.direction} ${alert.target_price:,.0f}\n"
+            f"Current price: ${current_price:,.0f}\n\n"
+            f"View live charts: https://protocolpulse.io/charts\n\n"
+            f"— Protocol Pulse Intelligence"
+        )
+        msg = Mail(from_email=from_email, to_emails=alert.email, subject=subject, plain_text_content=body)
+        SendGridAPIClient(sg_key).send(msg)
+    except Exception as e:
+        logging.warning("Price alert email send error: %s", e)
+
+
 # Error handlers
 @app.errorhandler(404)
 def not_found_error(error):

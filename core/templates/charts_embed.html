@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitcoin {{ chart_id|title }} Chart — Protocol Pulse</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #06070b; color: #eef2ff; font-family: 'JetBrains Mono', monospace; overflow: hidden; }
+  canvas { display: block; width: 100% !important; }
+  .embed-wrap { position: relative; width: 100vw; height: 100vh; padding: 16px; }
+  .embed-title { font-size: 10px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: #95a0ba; margin-bottom: 8px; }
+  .embed-footer { position: absolute; bottom: 8px; right: 12px; font-size: 9px; color: rgba(248,193,92,0.5); letter-spacing: .1em; }
+  .embed-footer a { color: inherit; text-decoration: none; }
+  .loading { display: flex; align-items: center; justify-content: center; height: 80%; color: #95a0ba; font-size: 12px; }
+  .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.08); border-top-color: #f8c15c; border-radius: 50%; animation: spin .8s linear infinite; margin-right: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="embed-wrap">
+  <div class="embed-title">
+    {% if chart_id == 'price' %}BTC / USD — {{ days }}D Price Chart
+    {% elif chart_id == 'hashrate' %}Bitcoin Network Hashrate
+    {% elif chart_id == 'mempool' %}Mempool Size (MB)
+    {% elif chart_id == 'pools' %}Mining Pool Distribution
+    {% elif chart_id == 'fear-greed' %}Fear &amp; Greed Index
+    {% endif %}
+  </div>
+  <div id="loading" class="loading"><div class="spinner"></div>Loading…</div>
+  <canvas id="embed-canvas" style="display:none"></canvas>
+  <div class="embed-footer"><a href="https://protocolpulse.io/charts" target="_blank" rel="noopener">PROTOCOLPULSE.IO</a></div>
+</div>
+
+<script>
+const CHART = '{{ chart_id }}';
+const DAYS  = {{ days }};
+const C     = { gold:'#f8c15c', cyan:'#5de4ff', red:'#ff3b5f', muted:'#95a0ba', bg:'#06070b', panel:'#0d1118' };
+
+const canvas = document.getElementById('embed-canvas');
+const ctx    = canvas.getContext('2d');
+const dpr    = window.devicePixelRatio || 1;
+
+function resize() {
+  const w = window.innerWidth - 32, h = window.innerHeight - 60;
+  canvas.width  = w * dpr; canvas.height = h * dpr;
+  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  return { W: w, H: h };
+}
+
+function drawLine(pts, { W, H }, color, filled) {
+  if (!pts || pts.length < 2) return;
+  const vals = pts.map(p=>p[1]);
+  const minV = Math.min(...vals), maxV = Math.max(...vals);
+  const range = maxV - minV || 1;
+  const padL=50, padR=10, padT=15, padB=30;
+  const iW = W-padL-padR, iH = H-padT-padB;
+  const toX = i => padL + (i/(pts.length-1))*iW;
+  const toY = v => padT + iH - ((v-minV)/range)*iH;
+  // Grid
+  ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=0.5;
+  for(let i=0;i<=4;i++){const y=padT+(i/4)*iH;ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(padL+iW,y);ctx.stroke();}
+  // Y labels
+  ctx.fillStyle=C.muted; ctx.font='9px JetBrains Mono,monospace'; ctx.textAlign='right';
+  for(let i=0;i<=4;i++){const v=minV+(i/4)*range;const y=padT+iH-(i/4)*iH;ctx.fillText(fmt(v),padL-4,y+3);}
+  // X labels
+  ctx.textAlign='center';
+  const xSteps=Math.min(5,pts.length-1);
+  for(let i=0;i<=xSteps;i++){const idx=Math.floor(i/xSteps*(pts.length-1));const d=new Date(pts[idx][0]);ctx.fillText((d.getMonth()+1)+'/'+d.getDate(),toX(idx),H-padB+14);}
+  // Line
+  if(filled){
+    ctx.beginPath(); ctx.moveTo(toX(0),toY(pts[0][1]));
+    pts.forEach((_,i)=>{ if(i>0) ctx.lineTo(toX(i),toY(pts[i][1])); });
+    ctx.lineTo(toX(pts.length-1),padT+iH); ctx.lineTo(padL,padT+iH); ctx.closePath();
+    const g=ctx.createLinearGradient(0,padT,0,padT+iH);
+    g.addColorStop(0,color+'44'); g.addColorStop(1,color+'00');
+    ctx.fillStyle=g; ctx.fill();
+  }
+  ctx.beginPath(); ctx.moveTo(toX(0),toY(pts[0][1]));
+  pts.forEach((_,i)=>{ if(i>0) ctx.lineTo(toX(i),toY(pts[i][1])); });
+  ctx.strokeStyle=color; ctx.lineWidth=2; ctx.lineJoin='round'; ctx.stroke();
+  // Pulse dot
+  const lx=toX(pts.length-1), ly=toY(pts[pts.length-1][1]);
+  ctx.beginPath(); ctx.arc(lx,ly,4,0,Math.PI*2); ctx.fillStyle=color; ctx.fill();
+}
+
+function fmt(v) {
+  if(v>=1e9)return(v/1e9).toFixed(1)+'B';
+  if(v>=1e6)return(v/1e6).toFixed(1)+'M';
+  if(v>=1e3)return(v/1e3).toFixed(0)+'K';
+  return v.toFixed(v<10?1:0);
+}
+
+function show() {
+  document.getElementById('loading').style.display='none';
+  canvas.style.display='block';
+}
+
+const dims = resize();
+ctx.fillStyle=C.bg; ctx.fillRect(0,0,dims.W,dims.H);
+
+if (CHART === 'price') {
+  fetch('/api/charts/price-history?days='+DAYS)
+    .then(r=>r.json()).then(data=>{
+      if(!data.prices) return;
+      show();
+      ctx.clearRect(0,0,dims.W,dims.H);
+      drawLine(data.prices, dims, C.gold, true);
+    }).catch(()=>{});
+} else if (CHART === 'hashrate') {
+  fetch('/api/charts/hashrate-history')
+    .then(r=>r.json()).then(data=>{
+      if(!data.hashrates) return;
+      show();
+      ctx.clearRect(0,0,dims.W,dims.H);
+      const pts = data.hashrates.map(h=>[h.timestamp*1000, h.avgHashrate/1e18]);
+      drawLine(pts, dims, C.cyan, true);
+    }).catch(()=>{});
+} else if (CHART === 'mempool') {
+  fetch('/api/charts/mempool-data')
+    .then(r=>r.json()).then(data=>{
+      show();
+      ctx.fillStyle=C.panel;
+      ctx.fillRect(0,50,dims.W-30,dims.H-60);
+      ctx.fillStyle=C.muted; ctx.font='12px JetBrains Mono,monospace'; ctx.textAlign='center';
+      const mb = data.mempool ? (data.mempool.vsize/1e6).toFixed(2) : '—';
+      ctx.fillStyle=C.red; ctx.font='bold 32px JetBrains Mono,monospace';
+      ctx.fillText(mb+' MB', dims.W/2, dims.H/2);
+      ctx.fillStyle=C.muted; ctx.font='10px JetBrains Mono,monospace';
+      ctx.fillText('CURRENT MEMPOOL SIZE', dims.W/2, dims.H/2+20);
+    }).catch(()=>{});
+} else if (CHART === 'fear-greed') {
+  fetch('/api/charts/fear-greed')
+    .then(r=>r.json()).then(data=>{
+      if(!data.data || !data.data[0]) return;
+      show();
+      const score = parseInt(data.data[0].value);
+      const label = data.data[0].value_classification;
+      // Gauge
+      const cx=dims.W/2, cy=dims.H*0.75, r=Math.min(dims.W/2,dims.H)*0.65;
+      ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI,2*Math.PI);
+      ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=16; ctx.lineCap='round'; ctx.stroke();
+      const sweepAngle = (score/100)*Math.PI;
+      const gColor = score<=25?C.red:score<=50?'#ff8ba0':score<=75?C.gold:'#89ffb8';
+      ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI,Math.PI+sweepAngle);
+      ctx.strokeStyle=gColor; ctx.lineWidth=16; ctx.stroke();
+      ctx.fillStyle=gColor; ctx.font='bold 40px JetBrains Mono,monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(score, cx, cy-10);
+      ctx.fillStyle=C.muted; ctx.font='12px JetBrains Mono,monospace';
+      ctx.fillText(label.toUpperCase(), cx, cy+20);
+    }).catch(()=>{});
+}
+</script>
+</body>
+</html>
