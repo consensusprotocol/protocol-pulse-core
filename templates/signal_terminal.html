@@ -1343,7 +1343,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         try {
             // Request invoice from backend
-            const invoiceRes = await fetch('/api/value-stream/invoice', {
+            const invoiceRes = await fetch('/api/value-stream/invoice', { signal: AbortSignal.timeout(10000) }, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1396,7 +1396,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (value.startsWith('http')) {
                 // Submit URL
-                const res = await fetch('/api/value-stream/submit', {
+                const res = await fetch('/api/value-stream/submit', { signal: AbortSignal.timeout(10000) }, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ url: value })
@@ -1418,7 +1418,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function applyFilters(query) {
         // Parse filter commands like "platform:youtube last:24h"
-        console.log('Applying filters:', query);
+        
         // TODO: Implement filter logic
     }
     
@@ -1441,7 +1441,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const sort = this.dataset.sort;
             // TODO: Re-sort feed based on selection
-            console.log('Sorting by:', sort);
+            
         });
     });
     
@@ -1465,7 +1465,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = JSON.parse(event.data);
             
             if (data.type === 'reconnect') {
-                console.log('Server requested reconnect:', data.reason);
+                
                 eventSource.close();
                 setTimeout(connectSSE, 1000);
                 return;
@@ -1536,7 +1536,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         
         eventSource.onerror = function() {
-            console.log('SSE connection lost, reconnecting in 5s...');
+            
             eventSource.close();
             setTimeout(connectSSE, 5000);
         };

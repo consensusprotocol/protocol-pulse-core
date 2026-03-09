@@ -35,6 +35,33 @@
 {% block head %}
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+/* Extracted from inline styles */
+.art-hero-img { background-size: cover; background-position: center; }
+.art-card-img { background-size: cover; background-position: center; }
+.art-grid-2col { grid-template-columns: repeat(2, 1fr); margin-top: 1.25rem; }
+.art-thumb-side {
+    width: 100px; min-height: 90px;
+    background-size: cover; background-position: center;
+    flex-shrink: 0; border-radius: 10px 0 0 10px;
+}
+.art-empty-icon { font-size: 2.5rem; color: var(--accent-red); opacity: 0.5; }
+.art-empty-text { font-family: 'DM Sans', sans-serif; margin-bottom: 0; }
+.art-morning-thumb { background-size: cover; background-position: center; }
+.art-cat-chevron { font-size: 0.5rem; color: var(--accent-red); }
+.art-oracle-cta {
+    border-color: rgba(220,38,38,.25);
+    text-align: center;
+}
+.art-oracle-btn {
+    display: inline-block; padding: 10px 24px;
+    background: linear-gradient(135deg,#cc2222,#991111);
+    color: #fff; border-radius: 8px;
+    font-family: var(--terminal-font); font-size: .8rem;
+    font-weight: 600; text-decoration: none;
+    letter-spacing: 1px; transition: all .3s ease;
+}
+.art-partner-label { font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase; }
+.art-partner-img { border: 1px solid var(--border-subtle); opacity: 0.9; }
     :root {
         --btc-gold: #f7931a;
         --btc-gold-glow: rgba(247, 147, 26, 0.25);
@@ -728,7 +755,7 @@
                 {% if today_articles|length > 0 %}
                 <a href="{{ url_for('article_detail', article_id=today_articles[0].id) }}" class="text-decoration-none d-block">
                     <div class="hero-article">
-                        <div class="hero-image" style="background-image: url('{{ article_image_urls.get(today_articles[0].id, default_header_url) }}');"></div>
+                        <div class="hero-image art-hero-img" style="background-image: url('{{ article_image_urls.get(today_articles[0].id, default_header_url) }}');"></div>
                         <div class="hero-body">
                             <div class="hero-meta mb-3">
                                 {% if today_articles[0].is_pressing %}
@@ -753,7 +780,7 @@
                     {% for article in today_articles[1:7] %}
                     <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none">
                         <div class="article-card">
-                            <div class="card-image" style="background-image: url('{{ article_image_urls.get(article.id, default_header_url) }}');"></div>
+                            <div class="card-image art-card-img" style="background-image: url('{{ article_image_urls.get(article.id, default_header_url) }}');"></div>
                             <div class="card-body-inner">
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     {% if article.is_pressing %}
@@ -775,11 +802,11 @@
                 {% endif %}
 
                 {% if today_articles|length > 7 %}
-                <div class="article-grid" style="grid-template-columns: repeat(2, 1fr); margin-top: 1.25rem;">
+                <div class="article-grid art-grid-2col">
                     {% for article in today_articles[7:] %}
                     <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none">
                         <div class="article-card" style="flex-direction: row;">
-                            <div style="width: 100px; min-height: 90px; background: url('{{ article_image_urls.get(article.id, default_header_url) }}') center/cover no-repeat; flex-shrink: 0; border-radius: 10px 0 0 10px;"></div>
+                            <div class="art-thumb-side" style="background-image: url('{{ article_image_urls.get(article.id, default_header_url) }}');"></div>
                             <div class="card-body-inner" style="padding: 1rem 1.25rem;">
                                 <span class="cat-pill mb-2" style="align-self: flex-start;">{{ article.category }}</span>
                                 <h3 class="card-headline" style="font-size: 1rem;">{{ article.title }}</h3>
@@ -793,8 +820,8 @@
 
                 {% else %}
                 <div class="empty-state mt-4">
-                    <i class="fas fa-satellite-dish mb-3" style="font-size: 2.5rem; color: var(--accent-red); opacity: 0.5;"></i>
-                    <p style="font-family: 'DM Sans', sans-serif; margin-bottom: 0;">Scanning networks for intelligence...</p>
+                    <i class="fas fa-satellite-dish mb-3 art-empty-icon"></i>
+                    <p class="art-empty-text">Scanning networks for intelligence...</p>
                 </div>
                 {% endif %}
 
@@ -808,7 +835,7 @@
                     {% for article in yesterday_articles %}
                     <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none">
                         <div class="morning-card">
-                            <div class="morning-thumb" style="background-image: url('{{ article_image_urls.get(article.id, default_header_url) }}');"></div>
+                            <div class="morning-thumb art-morning-thumb" style="background-image: url('{{ article_image_urls.get(article.id, default_header_url) }}');"></div>
                             <div class="morning-body">
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     <span class="cat-pill">{{ article.category }}</span>
@@ -904,7 +931,7 @@
                         <h5 class="sb-title">Deep Dive</h5>
                         {% for category in categories %}
                         <a href="/{{ category|lower }}" class="nav-cat">
-                            <i class="fas fa-chevron-right me-2" style="font-size: 0.5rem; color: var(--accent-red);"></i>{{ category }}
+                            <i class="fas fa-chevron-right me-2 art-cat-chevron"></i>{{ category }}
                         </a>
                         {% endfor %}
                     </div>
@@ -917,19 +944,19 @@
                             <button type="submit" class="subscribe-btn">Subscribe</button>
                         </form>
                     </div>
-                    <div class="sb-module" style="border-color:rgba(220,38,38,.25);text-align:center;">
+                    <div class="sb-module art-oracle-cta">
                         <h5 class="sb-title" style="color:#ff4444;">🔮 The Oracle</h5>
                         <p class="time-stamp mb-3" style="color:#666;">Not sure where to start? Let the Oracle guide your Bitcoin journey.</p>
-                        <a href="/onboarding" style="display:inline-block;padding:10px 24px;background:linear-gradient(135deg,#cc2222,#991111);color:#fff;border-radius:8px;font-family:var(--terminal-font);font-size:.8rem;font-weight:600;text-decoration:none;letter-spacing:1px;transition:all .3s ease;">Consult the Oracle</a>
+                        <a href="/onboarding" class="art-oracle-btn">Consult the Oracle</a>
                     </div>
 
                     {% if active_ads %}
                     <div class="sb-module bg-transparent border-0 p-0">
-                        <span class="time-stamp d-block mb-2" style="font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase;">Partner</span>
+                        <span class="time-stamp d-block mb-2 art-partner-label">Partner</span>
                         {% for ad in active_ads %}
                         <div class="mt-2">
                             <a href="{{ ad.target_url }}" target="_blank">
-                                <img src="{{ ad.image_url }}" alt="Partner" class="img-fluid rounded" loading="lazy" decoding="async" style="border: 1px solid var(--border-subtle); opacity: 0.9;">
+                                <img src="{{ ad.image_url }}" alt="Partner" class="img-fluid rounded art-partner-img" loading="lazy" decoding="async">
                             </a>
                         </div>
                         {% endfor %}
