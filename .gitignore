@@ -12,5 +12,12 @@ test_*
 venv/
 data/episodes/
 *.mp3
-*.png
-*.jpg
+# Scope image ignores to upload/temp dirs only — NOT static assets
+uploads/*.png
+uploads/*.jpg
+/tmp/*.png
+/tmp/*.jpg
+attached_assets/*.png
+attached_assets/*.jpg
+# Whitelist required fallback cover images (Law 1 — ARTICLE_PAGE_LAWS.md)
+!static/images/default-covers/*.jpg
