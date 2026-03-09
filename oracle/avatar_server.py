@@ -302,7 +302,8 @@ def text_to_speech(text, voice_id="cgSgspJ2msm6clMCkdW9"):
         json={
             "text": text,
             "model_id": "eleven_turbo_v2_5",
-            "voice_settings": {"stability": 0.6, "similarity_boost": 0.85},
+            # LAW 3: Jessica voice settings — stability=0.45, similarity_boost=0.75, style=0.20
+            "voice_settings": {"stability": 0.45, "similarity_boost": 0.75, "style": 0.20},
         },
         timeout=60,
     )
@@ -346,7 +347,7 @@ def health():
         ),
         "face_detected": reg is not None and reg.avatar_face_coords is not None,
         "face_enhancer": face_enhancer_status,
-        "blinks_enabled": True,
+        "blinks_enabled": False,  # LAW 2: apply_blink disabled
         "eye_landmarks_detected": reg is not None and reg.eye_landmarks is not None,
         "vram": vram,
         "vision_enabled": vision_enabled,
@@ -418,7 +419,7 @@ def generate():
     if not data:
         return jsonify({"error": "JSON body required"}), 400
 
-    enable_blinks = data.get("enable_blinks", True)  # Blinks ON by default now
+    enable_blinks = data.get("enable_blinks", False)  # LAW 2: blinks permanently disabled
     enable_head_movement = data.get("enable_head_movement", True)
     enable_face_enhance = data.get("enable_face_enhance", True)  # Face restoration ON by default
     fps = float(data.get("fps", DEFAULT_FPS))
