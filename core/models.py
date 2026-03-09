@@ -932,3 +932,33 @@ class CollectedSignal(db.Model):
         db.Index('idx_signal_platform_posted', 'platform', 'posted_at'),
         db.Index('idx_signal_legendary', 'is_legendary', 'collected_at'),
     )
+
+
+# =====================================
+# NODE WATCH
+# =====================================
+
+class NodeSnapshot(db.Model):
+    """Bitcoin network node count snapshot — polled every 15 min via cron."""
+    __tablename__ = 'node_snapshots'
+    __table_args__ = (
+        db.Index('idx_node_snapshots_timestamp', 'timestamp'),
+        db.Index('idx_node_snapshots_node_count', 'node_count'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    node_count = db.Column(db.Integer, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    # JSON blob: {versions: {...}, countries: {...}, ipv4: N, ipv6: N}
+    snapshot_data = db.Column(db.Text)
+    # NULL = no alert; otherwise the alert type string
+    alert_fired = db.Column(db.String(120))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'node_count': self.node_count,
+            'timestamp': self.timestamp.isoformat(),
+            'alert_fired': self.alert_fired,
+        }
+

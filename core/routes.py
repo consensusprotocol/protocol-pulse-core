@@ -8038,6 +8038,155 @@ def api_media_highlights():
         logging.warning('api_media_highlights error: %s', e)
         return jsonify([])
 
+# =====================================
+# F5 NODE WATCH — BITNODES PROXY
+# =====================================
+
+# In-memory fallback cache (persists within a process lifetime)
+_bitnodes_snapshot_cache = {'data': None, 'expires': 0}
+_bitnodes_history_cache  = {'data': None, 'expires': 0}
+
+_BITNODES_SNAPSHOT_URL = 'https://bitnodes.io/api/v1/snapshots/?limit=1'
+_BITNODES_HISTORY_URL  = 'https://bitnodes.io/api/v1/snapshots/?limit=48'
+
+
+def _parse_bitnodes_snapshot(raw):
+    """Extract a compact client-ready dict from a raw Bitnodes API response."""
+    if not raw or not isinstance(raw, dict):
+        return None
+    results = raw.get('results', [])
+    if not results:
+        return None
+    snap = results[0]
+    nodes = snap.get('nodes', {})
+    total = snap.get('total_nodes') or len(nodes)
+
+    versions = {}
+    countries = {}
+    ipv4 = 0
+    ipv6 = 0
+    for addr, info in nodes.items():
+        if not isinstance(info, list):
+            continue
+        ver = info[1] if len(info) > 1 else 'unknown'
+        versions[ver] = versions.get(ver, 0) + 1
+        country = info[7] if len(info) > 7 else None
+        if country:
+            countries[country] = countries.get(country, 0) + 1
+        if addr.startswith('['):
+            ipv6 += 1
+        else:
+            ipv4 += 1
+
+    top_versions  = sorted(versions.items(),  key=lambda x: x[1], reverse=True)[:5]
+    top_countries = sorted(countries.items(), key=lambda x: x[1], reverse=True)[:10]
+
+    return {
+        'node_count': total,
+        'timestamp':  snap.get('timestamp'),
+        'versions':   top_versions,
+        'countries':  top_countries,
+        'ipv4': ipv4,
+        'ipv6': ipv6,
+    }
+
+
+def _parse_bitnodes_history(raw):
+    """Return [{timestamp, node_count}, ...] newest-first from Bitnodes history."""
+    if not raw or not isinstance(raw, dict):
+        return []
+    out = []
+    for snap in raw.get('results', []):
+        count = snap.get('total_nodes', 0)
+        ts    = snap.get('timestamp')
+        if count and ts:
+            out.append({'timestamp': ts, 'node_count': count})
+    return out
+
+
+@app.route('/api/proxy/bitnodes/snapshot')
+def bitnodes_snapshot():
+    """Proxy to Bitnodes snapshot API — 5-min server-side cache, never hits browser directly."""
+    import time as _time
+    now = _time.time()
+    if _bitnodes_snapshot_cache['data'] and now < _bitnodes_snapshot_cache['expires']:
+        resp = make_response(jsonify(_bitnodes_snapshot_cache['data']))
+        resp.headers['X-Cache'] = 'HIT'
+        resp.headers['Cache-Control'] = 'public, max-age=300'
+        return resp
+
+    try:
+        r = requests.get(_BITNODES_SNAPSHOT_URL, timeout=8,
+                         headers={'Accept': 'application/json'})
+        r.raise_for_status()
+        parsed = _parse_bitnodes_snapshot(r.json())
+        if parsed is None:
+            raise ValueError('Empty or malformed Bitnodes response')
+        _bitnodes_snapshot_cache['data']    = parsed
+        _bitnodes_snapshot_cache['expires'] = now + 300
+        resp = make_response(jsonify(parsed))
+        resp.headers['X-Cache'] = 'MISS'
+        resp.headers['Cache-Control'] = 'public, max-age=300'
+        return resp
+    except Exception as e:
+        logging.warning('bitnodes_snapshot error: %s', e)
+        stale = _bitnodes_snapshot_cache.get('data')
+        if stale:
+            resp = make_response(jsonify({**stale, 'stale': True}))
+            resp.headers['X-Cache'] = 'STALE'
+            return resp
+        return jsonify({'error': 'Bitnodes unavailable', 'node_count': None}), 503
+
+
+@app.route('/api/proxy/bitnodes/history')
+def bitnodes_history():
+    """Proxy to Bitnodes 24-hr history (48 × 30-min) — 1-hr server-side cache."""
+    import time as _time
+    now = _time.time()
+    if _bitnodes_history_cache['data'] and now < _bitnodes_history_cache['expires']:
+        resp = make_response(jsonify(_bitnodes_history_cache['data']))
+        resp.headers['X-Cache'] = 'HIT'
+        resp.headers['Cache-Control'] = 'public, max-age=3600'
+        return resp
+
+    try:
+        r = requests.get(_BITNODES_HISTORY_URL, timeout=10,
+                         headers={'Accept': 'application/json'})
+        r.raise_for_status()
+        parsed = _parse_bitnodes_history(r.json())
+        if not parsed:
+            raise ValueError('Empty history from Bitnodes')
+        _bitnodes_history_cache['data']    = parsed
+        _bitnodes_history_cache['expires'] = now + 3600
+        resp = make_response(jsonify(parsed))
+        resp.headers['X-Cache'] = 'MISS'
+        resp.headers['Cache-Control'] = 'public, max-age=3600'
+        return resp
+    except Exception as e:
+        logging.warning('bitnodes_history error: %s', e)
+        stale = _bitnodes_history_cache.get('data')
+        if stale:
+            resp = make_response(jsonify(stale))
+            resp.headers['X-Cache'] = 'STALE'
+            return resp
+        return jsonify({'error': 'Bitnodes unavailable', 'history': []}), 503
+
+
+@app.route('/nodes')
+def nodes_page():
+    """Bitcoin network node count monitor page."""
+    try:
+        latest = models.NodeSnapshot.query.order_by(
+            models.NodeSnapshot.timestamp.desc()
+        ).first()
+        node_count = latest.node_count if latest else None
+    except Exception as e:
+        logging.warning('nodes_page DB error: %s', e)
+        node_count = None
+
+    return render_template('nodes.html', node_count=node_count)
+
+
 # Error handlers
 @app.errorhandler(404)
 def not_found_error(error):

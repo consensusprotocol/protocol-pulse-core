@@ -1,0 +1,483 @@
+{% extends "base.html" %}
+
+{% block title %}Bitcoin Node Watch — Protocol Pulse{% endblock %}
+{% block meta_description %}Live Bitcoin network node count monitor. Track reachable nodes, geographic distribution, version breakdown, and real-time alerts.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="Bitcoin Node Watch — Protocol Pulse">
+<meta property="og:description" content="Live Bitcoin network node count monitor. Reachable nodes, version breakdown, and 24-hour history.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protocol Pulse">
+<meta property="og:url" content="{{ request.url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Node Watch page styles ── */
+.nw-hero {
+    background: linear-gradient(135deg, #0a0a0a 0%, #0f0f0f 100%);
+    border-bottom: 1px solid #1a1a1a;
+    padding: 56px 0 40px;
+}
+.nw-hero__label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #dc2626;
+    margin-bottom: 12px;
+}
+.nw-hero__count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(3rem, 8vw, 5.5rem);
+    font-weight: 700;
+    color: #f1f5f9;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    transition: color 0.3s ease;
+}
+.nw-hero__count--loading { color: #374151; }
+.nw-hero__count--error   { color: #dc2626; }
+.nw-hero__subtitle {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+.nw-pulse-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #dc2626;
+    margin-right: 6px;
+    animation: nwPulse 2s ease-in-out infinite;
+}
+@keyframes nwPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(0.8); }
+}
+
+/* Stat cards */
+.nw-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin: 32px 0;
+}
+@media (min-width: 768px) {
+    .nw-cards { grid-template-columns: repeat(4, 1fr); }
+}
+.nw-card {
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    border-radius: 8px;
+    padding: 20px 16px;
+    text-align: center;
+    transition: border-color 0.2s ease;
+}
+.nw-card:hover { border-color: #dc2626; }
+.nw-card__val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #f1f5f9;
+}
+.nw-card__lbl {
+    font-size: 0.72rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 4px;
+}
+
+/* Chart */
+.nw-chart-wrap {
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 32px;
+}
+.nw-chart-wrap h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-bottom: 20px;
+}
+.nw-chart-canvas-wrap {
+    position: relative;
+    height: 220px;
+}
+canvas#nodeChart { width: 100% !important; height: 100% !important; }
+
+/* Version & geo tables */
+.nw-two-col {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+@media (min-width: 768px) {
+    .nw-two-col { grid-template-columns: 1fr 1fr; }
+}
+.nw-table-wrap {
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    border-radius: 8px;
+    padding: 20px;
+}
+.nw-table-wrap h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-bottom: 16px;
+}
+.nw-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+.nw-bar-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: #9ca3af;
+    width: 130px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.nw-bar-track {
+    flex: 1;
+    height: 6px;
+    background: #1a1a1a;
+    border-radius: 3px;
+    overflow: hidden;
+}
+.nw-bar-fill {
+    height: 100%;
+    background: #dc2626;
+    border-radius: 3px;
+    transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.nw-bar-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: #6b7280;
+    width: 48px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+/* Loading skeleton */
+.nw-skeleton {
+    background: linear-gradient(90deg, #111 25%, #1a1a1a 50%, #111 75%);
+    background-size: 200% 100%;
+    animation: nwSkeleton 1.4s infinite;
+    border-radius: 4px;
+    height: 1.6rem;
+}
+@keyframes nwSkeleton {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+.nw-error-msg {
+    color: #6b7280;
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 32px;
+}
+.nw-updated {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: #374151;
+    margin-top: 8px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ── HERO ── -->
+<section class="nw-hero">
+    <div class="pp-container">
+        <div class="nw-hero__label">
+            <span class="nw-pulse-dot" id="heroPulseDot" style="display:none;"></span>
+            Bitcoin Network — Reachable Nodes
+        </div>
+        <div class="nw-hero__count nw-hero__count--loading" id="heroCount">
+            {{ node_count | default('—') }}
+        </div>
+        <div class="nw-hero__subtitle" id="heroSubtitle">
+            Fetching live data from Bitnodes&hellip;
+        </div>
+        <div class="nw-updated" id="heroUpdated"></div>
+    </div>
+</section>
+
+<!-- ── MAIN CONTENT ── -->
+<div class="pp-container" style="padding-top: 32px; padding-bottom: 64px;">
+
+    <!-- Stat cards -->
+    <div class="nw-cards">
+        <div class="nw-card">
+            <div class="nw-card__val" id="cardIpv4">—</div>
+            <div class="nw-card__lbl">IPv4 Nodes</div>
+        </div>
+        <div class="nw-card">
+            <div class="nw-card__val" id="cardIpv6">—</div>
+            <div class="nw-card__lbl">IPv6 Nodes</div>
+        </div>
+        <div class="nw-card">
+            <div class="nw-card__val" id="cardDelta">—</div>
+            <div class="nw-card__lbl">24hr Change</div>
+        </div>
+        <div class="nw-card">
+            <div class="nw-card__val" id="cardPct">—</div>
+            <div class="nw-card__lbl">24hr % Change</div>
+        </div>
+    </div>
+
+    <!-- 24-hr chart -->
+    <div class="nw-chart-wrap">
+        <h2>Node Count — Last 24 Hours</h2>
+        <div class="nw-chart-canvas-wrap" id="chartWrap">
+            <div class="nw-skeleton" style="height:100%;border-radius:6px;" id="chartSkeleton"></div>
+            <canvas id="nodeChart" style="display:none;"></canvas>
+        </div>
+    </div>
+
+    <!-- Version + geo breakdown -->
+    <div class="nw-two-col">
+        <div class="nw-table-wrap">
+            <h3>Top Client Versions</h3>
+            <div id="versionsWrap">
+                <div class="nw-skeleton" style="height:1rem;margin-bottom:8px;"></div>
+                <div class="nw-skeleton" style="height:1rem;margin-bottom:8px;width:80%;"></div>
+                <div class="nw-skeleton" style="height:1rem;margin-bottom:8px;width:65%;"></div>
+                <div class="nw-skeleton" style="height:1rem;width:50%;"></div>
+            </div>
+        </div>
+        <div class="nw-table-wrap">
+            <h3>Top Countries</h3>
+            <div id="countriesWrap">
+                <div class="nw-skeleton" style="height:1rem;margin-bottom:8px;"></div>
+                <div class="nw-skeleton" style="height:1rem;margin-bottom:8px;width:80%;"></div>
+                <div class="nw-skeleton" style="height:1rem;margin-bottom:8px;width:65%;"></div>
+                <div class="nw-skeleton" style="height:1rem;width:50%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <p style="font-size:0.72rem;color:#374151;text-align:center;">
+        Data sourced from <a href="https://bitnodes.io" target="_blank" rel="noopener" style="color:#4b5563;">Bitnodes.io</a>.
+        Local cron polls every 15 min.
+    </p>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js" defer></script>
+<script>
+(function() {
+'use strict';
+
+function fmt(n) { return Number(n).toLocaleString('en-US'); }
+function setEl(id, val) { var e = document.getElementById(id); if (e) e.textContent = val; }
+
+function renderBars(containerId, rows, total) {
+    var wrap = document.getElementById(containerId);
+    if (!wrap) return;
+    if (!rows || rows.length === 0) {
+        wrap.innerHTML = '<p class="nw-error-msg">No data</p>';
+        return;
+    }
+    wrap.innerHTML = '';
+    rows.forEach(function(row) {
+        var label = row[0] || 'unknown';
+        var count = row[1] || 0;
+        var pct = total > 0 ? Math.round((count / total) * 100) : 0;
+        var div = document.createElement('div');
+        div.className = 'nw-bar-row';
+        div.innerHTML =
+            '<div class="nw-bar-label" title="' + label + '">' + label + '</div>' +
+            '<div class="nw-bar-track"><div class="nw-bar-fill" style="width:0%"></div></div>' +
+            '<div class="nw-bar-count">' + fmt(count) + '</div>';
+        wrap.appendChild(div);
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+                var fill = div.querySelector('.nw-bar-fill');
+                if (fill) fill.style.width = pct + '%';
+            });
+        });
+    });
+}
+
+function loadSnapshot() {
+    fetch('/api/proxy/bitnodes/snapshot', { signal: AbortSignal.timeout(8000) })
+        .then(function(r) { return r.ok ? r.json() : Promise.reject('HTTP ' + r.status); })
+        .then(function(d) {
+            var count = d.node_count;
+            if (!count) throw new Error('no node_count');
+
+            var heroEl = document.getElementById('heroCount');
+            if (heroEl) {
+                heroEl.textContent = fmt(count);
+                heroEl.classList.remove('nw-hero__count--loading');
+            }
+            var dot = document.getElementById('heroPulseDot');
+            if (dot) dot.style.display = 'inline-block';
+
+            var sub = document.getElementById('heroSubtitle');
+            if (sub) sub.textContent = 'Reachable nodes on the Bitcoin mainnet right now.';
+
+            setEl('cardIpv4', d.ipv4 ? fmt(d.ipv4) : '—');
+            setEl('cardIpv6', d.ipv6 ? fmt(d.ipv6) : '—');
+
+            if (d.timestamp) {
+                var dt = new Date(d.timestamp * 1000);
+                setEl('heroUpdated', 'Snapshot: ' + dt.toUTCString());
+            }
+
+            renderBars('versionsWrap',  d.versions,  count);
+            renderBars('countriesWrap', d.countries, count);
+        })
+        .catch(function(err) {
+            console.warn('snapshot error:', err);
+            var heroEl = document.getElementById('heroCount');
+            if (heroEl) { heroEl.classList.add('nw-hero__count--error'); heroEl.textContent = 'N/A'; }
+            var sub = document.getElementById('heroSubtitle');
+            if (sub) sub.textContent = 'Could not reach Bitnodes API. Retrying…';
+            ['versionsWrap','countriesWrap'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.innerHTML = '<p class="nw-error-msg">Data temporarily unavailable</p>';
+            });
+        });
+}
+
+function loadHistory() {
+    fetch('/api/proxy/bitnodes/history', { signal: AbortSignal.timeout(10000) })
+        .then(function(r) { return r.ok ? r.json() : Promise.reject('HTTP ' + r.status); })
+        .then(function(data) {
+            if (!Array.isArray(data) || data.length === 0) throw new Error('empty');
+            var sorted = data.slice().reverse();  // oldest → newest
+            var labels = sorted.map(function(d) {
+                var dt = new Date(d.timestamp * 1000);
+                return dt.getUTCHours().toString().padStart(2,'0') + ':' +
+                       dt.getUTCMinutes().toString().padStart(2,'0');
+            });
+            var counts = sorted.map(function(d) { return d.node_count; });
+
+            if (sorted.length >= 2) {
+                var delta = counts[counts.length-1] - counts[0];
+                var pct   = counts[0] > 0 ? ((delta / counts[0]) * 100).toFixed(2) : '0.00';
+                var sign  = delta >= 0 ? '+' : '';
+                setEl('cardDelta', sign + fmt(delta));
+                setEl('cardPct',   sign + pct + '%');
+                var dEl = document.getElementById('cardDelta');
+                var pEl = document.getElementById('cardPct');
+                if (dEl) dEl.style.color = delta >= 0 ? '#22c55e' : '#dc2626';
+                if (pEl) pEl.style.color = delta >= 0 ? '#22c55e' : '#dc2626';
+            }
+
+            waitForChartJs(function() { drawChart(labels, counts); });
+        })
+        .catch(function(err) {
+            console.warn('history error:', err);
+            var sk = document.getElementById('chartSkeleton');
+            if (sk) sk.innerHTML = '<p class="nw-error-msg">Chart data temporarily unavailable</p>';
+        });
+}
+
+function waitForChartJs(cb, attempts) {
+    attempts = attempts || 0;
+    if (typeof Chart !== 'undefined') { cb(); return; }
+    if (attempts > 40) return;
+    setTimeout(function() { waitForChartJs(cb, attempts + 1); }, 100);
+}
+
+function drawChart(labels, counts) {
+    var skeleton = document.getElementById('chartSkeleton');
+    var canvas   = document.getElementById('nodeChart');
+    if (!canvas) return;
+    if (skeleton) skeleton.style.display = 'none';
+    canvas.style.display = 'block';
+
+    var minVal  = Math.min.apply(null, counts);
+    var maxVal  = Math.max.apply(null, counts);
+    var padding = Math.max(50, Math.round((maxVal - minVal) * 0.1));
+
+    new Chart(canvas.getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Reachable Nodes',
+                data: counts,
+                borderColor: '#dc2626',
+                backgroundColor: 'rgba(220,38,38,0.08)',
+                borderWidth: 2,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                fill: true,
+                tension: 0.4,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#0f0f0f',
+                    borderColor: '#1a1a1a',
+                    borderWidth: 1,
+                    titleColor: '#6b7280',
+                    bodyColor: '#f1f5f9',
+                    bodyFont: { family: 'JetBrains Mono', size: 12 },
+                    callbacks: {
+                        label: function(ctx) {
+                            return ' ' + ctx.parsed.y.toLocaleString('en-US') + ' nodes';
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: '#374151',
+                        font: { family: 'JetBrains Mono', size: 10 },
+                        maxTicksLimit: 8,
+                        maxRotation: 0,
+                    },
+                    grid: { color: '#111' },
+                },
+                y: {
+                    min: Math.max(0, minVal - padding),
+                    max: maxVal + padding,
+                    ticks: {
+                        color: '#374151',
+                        font: { family: 'JetBrains Mono', size: 10 },
+                        callback: function(v) { return v.toLocaleString('en-US'); }
+                    },
+                    grid: { color: '#111' },
+                }
+            }
+        }
+    });
+}
+
+loadSnapshot();
+loadHistory();
+setInterval(loadSnapshot, 5 * 60 * 1000);
+
+})();
+</script>
+{% endblock %}

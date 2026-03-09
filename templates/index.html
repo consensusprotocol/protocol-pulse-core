@@ -631,11 +631,9 @@
                 <div class="pp-stat__value" data-count="146">146</div>
                 <div class="pp-stat__label">T Difficulty</div>
             </div>
-            <div class="pp-stat">
-                <div class="pp-stat__value" id="articleCountStat">
-                    {{ recent_articles|length + featured_articles|length }}
-                </div>
-                <div class="pp-stat__label">Intel Briefs</div>
+            <div class="pp-stat" id="nodeCountStat" title="Live Bitcoin reachable node count" style="cursor:pointer;" onclick="window.location='/nodes'">
+                <div class="pp-stat__value" id="nodeCountValue">—</div>
+                <div class="pp-stat__label">BTC Nodes <span id="nodeCountPulse" style="display:none;color:#dc2626;font-size:0.6em;vertical-align:middle;">●</span></div>
             </div>
             <div class="pp-stat">
                 <div class="pp-stat__value">24/7</div>
@@ -1143,6 +1141,23 @@ function ppLoadVideo(el) {
     });
 })();
 </script>
+
+    // Live BTC node count from Bitnodes proxy
+    (function() {
+        var el = document.getElementById('nodeCountValue');
+        var pulse = document.getElementById('nodeCountPulse');
+        if (!el) return;
+        fetch('/api/proxy/bitnodes/snapshot', { signal: AbortSignal.timeout(6000) })
+            .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+            .then(function(d) {
+                var count = d.node_count;
+                if (count && count > 0) {
+                    el.textContent = count.toLocaleString('en-US');
+                    if (pulse) pulse.style.display = 'inline';
+                }
+            })
+            .catch(function() { el.textContent = 'N/A'; });
+    })();
 
     // Fast hero BTC price update on load
     (function() {
