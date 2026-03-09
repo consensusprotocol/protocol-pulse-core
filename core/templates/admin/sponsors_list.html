@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+{% block title %}Sponsor List — Protocol Pulse{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+  --bg: #06070b; --panel: #0d1118; --panel2: #121824;
+  --text: #eef2ff; --muted: #95a0ba;
+  --red: #ff3b5f; --gold: #f8c15c; --lime: #89ffb8; --coral: #ff8ba0;
+  --border: rgba(255,255,255,0.08);
+}
+body { background: var(--bg); color: var(--text); }
+.sl-wrap { max-width: 1280px; margin: 0 auto; padding: 24px 20px 60px; }
+.sl-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
+.sl-header h1 { font-family:'JetBrains Mono',monospace; font-size:1rem; font-weight:800; text-transform:uppercase; letter-spacing:0.16em; color:var(--gold); margin:0; }
+.sl-filters { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+.sl-filter-input {
+  background:var(--panel2); border:1px solid var(--border); border-radius:8px;
+  color:var(--text); padding:8px 12px; font-size:0.82rem; font-family:inherit;
+}
+.sl-filter-input:focus { outline:none; border-color:rgba(248,193,92,0.35); }
+select.sl-filter-input { cursor:pointer; }
+
+.sl-table-wrap { overflow-x:auto; }
+table.sl-table { width:100%; border-collapse:collapse; }
+table.sl-table th {
+  background:var(--panel); border-bottom:2px solid var(--border);
+  padding:10px 12px; font-family:'JetBrains Mono',monospace;
+  font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.14em;
+  color:var(--muted); text-align:left; white-space:nowrap;
+  cursor:pointer; user-select:none;
+}
+table.sl-table th:hover { color:var(--gold); }
+table.sl-table td {
+  padding:10px 12px; font-size:0.80rem; color:var(--text);
+  border-bottom:1px solid var(--border); vertical-align:middle;
+}
+table.sl-table tr:hover td { background:rgba(255,255,255,0.025); }
+
+.sl-score {
+  font-family:'JetBrains Mono',monospace; font-size:0.75rem; font-weight:800;
+  color:var(--gold);
+}
+.sl-status {
+  display:inline-block; padding:2px 8px; border-radius:4px;
+  font-size:0.62rem; font-weight:800; text-transform:uppercase; letter-spacing:0.10em;
+}
+.sl-status.prospect { background:rgba(255,255,255,0.07); color:var(--muted); }
+.sl-status.contacted { background:rgba(93,228,255,0.12); color:var(--cyan); }
+.sl-status.replied { background:rgba(137,255,184,0.12); color:var(--lime); }
+.sl-status.deal { background:rgba(137,255,184,0.18); color:var(--lime); border:1px solid rgba(137,255,184,0.30); }
+.sl-status.rejected { background:rgba(255,138,160,0.10); color:var(--coral); }
+.sl-status.outreach_drafted { background:rgba(248,193,92,0.10); color:var(--gold); }
+.sl-status.negotiating { background:rgba(248,193,92,0.15); color:var(--gold); }
+.sl-status.inbound { background:rgba(93,228,255,0.08); color:var(--cyan); }
+
+.sl-signal-growing { color:var(--lime); font-size:0.68rem; font-weight:700; }
+.sl-signal-declining { color:var(--coral); font-size:0.68rem; font-weight:700; }
+.sl-signal-stable { color:var(--muted); font-size:0.68rem; }
+
+.btn-sm {
+  background:var(--panel2); border:1px solid var(--border); border-radius:6px;
+  color:var(--text); padding:4px 10px; font-size:0.72rem; font-weight:700;
+  cursor:pointer; transition:border-color 0.15s;
+}
+.btn-sm:hover { border-color:var(--gold); color:var(--gold); }
+.btn-sm-red {
+  background:rgba(255,59,95,0.10); border:1px solid rgba(255,59,95,0.25);
+  border-radius:6px; color:var(--coral);
+  padding:4px 10px; font-size:0.72rem; font-weight:700; cursor:pointer;
+}
+
+.sl-empty { text-align:center; padding:40px; color:var(--muted); font-size:0.82rem; }
+
+.sl-pagination { display:flex; gap:8px; margin-top:16px; align-items:center; justify-content:center; }
+.sl-page-btn {
+  background:var(--panel2); border:1px solid var(--border); border-radius:6px;
+  color:var(--text); padding:6px 14px; font-size:0.78rem; cursor:pointer;
+}
+.sl-page-btn.active { background:rgba(248,193,92,0.12); border-color:rgba(248,193,92,0.35); color:var(--gold); }
+.sl-page-info { font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--muted); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sl-wrap">
+  <div class="sl-header">
+    <h1>Sponsor List</h1>
+    <div style="display:flex;gap:10px;">
+      <a href="/admin/sponsors" class="btn-sm" style="text-decoration:none;">← Kanban Board</a>
+      <a href="/api/sponsors/export" class="btn-sm" style="text-decoration:none;">↓ CSV Export</a>
+    </div>
+  </div>
+
+  <div class="sl-filters">
+    <input type="text" class="sl-filter-input" id="filterSearch" placeholder="Search company..." oninput="applyFilters()" style="min-width:200px;">
+    <select class="sl-filter-input" id="filterStatus" onchange="applyFilters()">
+      <option value="">All Statuses</option>
+      <option value="prospect">Prospect</option>
+      <option value="inbound">Inbound</option>
+      <option value="outreach_drafted">Drafted</option>
+      <option value="contacted">Contacted</option>
+      <option value="replied">Replied</option>
+      <option value="negotiating">Negotiating</option>
+      <option value="deal">Deal</option>
+      <option value="rejected">Rejected</option>
+    </select>
+    <select class="sl-filter-input" id="filterCategory" onchange="applyFilters()">
+      <option value="">All Categories</option>
+      <option value="hardware_wallet">Hardware Wallet</option>
+      <option value="exchange">Exchange</option>
+      <option value="fintech">Fintech</option>
+      <option value="vpn">VPN</option>
+      <option value="health">Health</option>
+      <option value="other">Other</option>
+    </select>
+    <select class="sl-filter-input" id="filterSignal" onchange="applyFilters()">
+      <option value="">All Signals</option>
+      <option value="growing">Growing</option>
+      <option value="stable">Stable</option>
+      <option value="declining">Declining</option>
+    </select>
+    <span class="sl-page-info" id="countInfo">Loading...</span>
+  </div>
+
+  <div class="sl-table-wrap">
+    <table class="sl-table">
+      <thead>
+        <tr>
+          <th onclick="sortBy('company_name')">Company ↕</th>
+          <th onclick="sortBy('category')">Category ↕</th>
+          <th onclick="sortBy('relevance_score')">Score ↕</th>
+          <th onclick="sortBy('deal_probability_pct')">Deal Prob ↕</th>
+          <th onclick="sortBy('opportunity_signal')">Signal ↕</th>
+          <th onclick="sortBy('status')">Status ↕</th>
+          <th onclick="sortBy('last_contacted_at')">Last Contact ↕</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="sponsorTableBody">
+        <tr><td colspan="8" class="sl-empty">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sl-pagination" id="pagination"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let allSponsors = [];
+let filtered = [];
+let sortField = 'relevance_score';
+let sortDir = -1;
+let currentPage = 1;
+const PAGE_SIZE = 25;
+
+document.addEventListener('DOMContentLoaded', loadSponsors);
+
+async function loadSponsors() {
+  try {
+    const r = await fetch('/api/sponsors');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    allSponsors = d.sponsors || [];
+    applyFilters();
+  } catch (e) {
+    document.getElementById('sponsorTableBody').innerHTML =
+      `<tr><td colspan="8" class="sl-empty" style="color:var(--coral)">Error: ${esc(e.message)}</td></tr>`;
+  }
+}
+
+function applyFilters() {
+  const search = document.getElementById('filterSearch').value.toLowerCase();
+  const status = document.getElementById('filterStatus').value;
+  const cat = document.getElementById('filterCategory').value;
+  const signal = document.getElementById('filterSignal').value;
+
+  filtered = allSponsors.filter(s => {
+    if (search && !s.company_name.toLowerCase().includes(search)) return false;
+    if (status && s.status !== status) return false;
+    if (cat && s.category !== cat) return false;
+    if (signal && s.opportunity_signal !== signal) return false;
+    return true;
+  });
+
+  sortFiltered();
+  currentPage = 1;
+  renderTable();
+}
+
+function sortBy(field) {
+  if (sortField === field) sortDir *= -1;
+  else { sortField = field; sortDir = field === 'relevance_score' || field === 'deal_probability_pct' ? -1 : 1; }
+  sortFiltered();
+  renderTable();
+}
+
+function sortFiltered() {
+  filtered.sort((a, b) => {
+    const av = a[sortField] ?? '';
+    const bv = b[sortField] ?? '';
+    if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * sortDir;
+    return String(av).localeCompare(String(bv)) * sortDir;
+  });
+}
+
+function renderTable() {
+  const total = filtered.length;
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const page = filtered.slice(start, start + PAGE_SIZE);
+
+  document.getElementById('countInfo').textContent = `${total} sponsors`;
+
+  if (page.length === 0) {
+    document.getElementById('sponsorTableBody').innerHTML =
+      '<tr><td colspan="8" class="sl-empty">No sponsors match filters.</td></tr>';
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+
+  document.getElementById('sponsorTableBody').innerHTML = page.map(s => {
+    const lastContact = s.last_contacted_at ? relTime(s.last_contacted_at) : '—';
+    const signalClass = s.opportunity_signal === 'growing' ? 'sl-signal-growing'
+      : s.opportunity_signal === 'declining' ? 'sl-signal-declining' : 'sl-signal-stable';
+    const statusClass = (s.status || 'prospect').replace('_', '-');
+    return `<tr>
+      <td><strong>${esc(s.company_name)}</strong>${s.website ? `<br><a href="${esc(s.website)}" target="_blank" style="font-size:0.70rem;color:var(--cyan)">${esc(s.website.replace('https://',''))}</a>` : ''}</td>
+      <td>${esc((s.category || 'other').replace('_', ' '))}</td>
+      <td class="sl-score">${s.relevance_score || 0}</td>
+      <td class="sl-score">${s.deal_probability_pct || 0}%</td>
+      <td><span class="${signalClass}">${(s.opportunity_signal || 'stable').toUpperCase()}</span></td>
+      <td><span class="sl-status ${s.status || 'prospect'}">${s.status || 'prospect'}</span></td>
+      <td style="font-size:0.72rem;color:var(--muted)">${lastContact}</td>
+      <td>
+        <button class="btn-sm" onclick="window.location='/admin/sponsors'">View</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // Pagination
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+  let pag = '';
+  for (let i = 1; i <= totalPages; i++) {
+    pag += `<button class="sl-page-btn${i === currentPage ? ' active' : ''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  document.getElementById('pagination').innerHTML =
+    `<span class="sl-page-info">Page ${currentPage} of ${totalPages}</span>${pag}`;
+}
+
+function goPage(p) {
+  currentPage = p;
+  renderTable();
+  window.scrollTo(0, 0);
+}
+
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function relTime(iso) {
+  try {
+    const diff = Date.now() - new Date(iso + (iso.endsWith('Z') ? '' : 'Z')).getTime();
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor(diff / 3600000);
+    if (d > 0) return d + 'd ago';
+    if (h > 0) return h + 'h ago';
+    return 'today';
+  } catch (e) { return '—'; }
+}
+</script>
+{% endblock %}
