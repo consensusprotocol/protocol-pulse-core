@@ -8453,6 +8453,33 @@ def events_page():
     return render_template('events.html')
 
 
+
+
+@app.route('/api/media/highlights')
+def api_media_highlights():
+    """Return recent published articles as highlight items for the media unified page."""
+    try:
+        limit = min(int(request.args.get('limit', 15)), 30)
+        articles = models.Article.query.filter_by(published=True).order_by(models.Article.created_at.desc()).limit(limit).all()
+        result = []
+        for a in articles:
+            excerpt = (a.summary or a.content or '')[:200].strip()
+            if not excerpt:
+                continue
+            result.append({
+                'id': a.id,
+                'title': a.title,
+                'excerpt': excerpt,
+                'source': a.author or 'Protocol Pulse',
+                'url': '/articles/' + str(a.id),
+                'timestamp': a.created_at.isoformat() if a.created_at else None,
+                'category': a.category or 'bitcoin',
+            })
+        return jsonify(result)
+    except Exception as e:
+        logging.warning('api_media_highlights error: %s', e)
+        return jsonify([])
+
 # Error handlers
 @app.errorhandler(404)
 def not_found_error(error):
