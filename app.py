@@ -150,8 +150,11 @@ def add_headers(response):
         else:
             response.cache_control.max_age = 86400
             response.cache_control.public = True
+    elif request.path.startswith("/api/v2/terminal/"):
+        # Authenticated paid API: must never be cached by shared proxies/CDNs
+        response.headers["Cache-Control"] = "no-store, private"
     elif request.path.startswith("/api/"):
-        # API endpoints: short cache
+        # Other API endpoints: short cache
         if "Cache-Control" not in response.headers:
             response.cache_control.max_age = 60
             response.cache_control.public = True
@@ -259,11 +262,9 @@ def _run_dev_server():
 # Keep routes import near the very bottom so the app object and extensions are fully initialized first.
 import routes
 from routes_api_v2 import api_v2
-try:
-    from routes_api_terminal import terminal_bp
-    app.register_blueprint(terminal_bp)
-except Exception as e:
-    print(f'Terminal API not loaded: {e}')
+# Terminal API is monetized — hard fail if routes cannot be loaded
+from routes_api_terminal import terminal_bp
+app.register_blueprint(terminal_bp)
 try:
     from routes_commander import commander_bp
     app.register_blueprint(commander_bp)

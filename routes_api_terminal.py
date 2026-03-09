@@ -28,7 +28,7 @@ from functools import wraps
 
 import requests
 from flask import Blueprint, jsonify, request, render_template, redirect
-from sqlalchemy import func
+from sqlalchemy import func, update
 
 log = logging.getLogger(__name__)
 
@@ -144,7 +144,7 @@ def require_terminal_auth(required_tier: str = "commander"):
                     "upgrade": "https://protocolpulse.io/terminal#pricing",
                 }), 403
 
-            # Rate limit
+            # Rate limit check (pre-increment snapshot)
             limit = TIER_LIMITS.get(tier, 1000)
             if limit != -1 and key_entry.requests_today >= limit:
                 reset_at = _midnight_tomorrow()
@@ -158,12 +158,22 @@ def require_terminal_auth(required_tier: str = "commander"):
                 )
                 return resp, 429
 
-            # Increment counters
+            # Atomic increment — prevents race condition under concurrent requests.
+            # Uses UPDATE ... SET col = col + 1 which is serialized at DB level.
             try:
-                key_entry.requests_today += 1
-                key_entry.requests_total += 1
-                key_entry.last_used_at = _utcnow()
+                today_str = _utcnow().strftime("%Y-%m-%d")
+                db.session.execute(
+                    update(ApiKey)
+                    .where(ApiKey.key_hash == key_hash)
+                    .values(
+                        requests_today=ApiKey.requests_today + 1,
+                        requests_total=ApiKey.requests_total + 1,
+                        last_used_at=_utcnow(),
+                    )
+                )
                 db.session.commit()
+                # Refresh to get updated count for the response envelope
+                db.session.refresh(key_entry)
             except Exception as e:
                 log.error("Failed to update usage counters: %s", e)
                 try:
@@ -608,9 +618,9 @@ def terminal_webhook():
         stripe_subscription_id = session_obj.get("subscription", "")
         stripe_session_id = session_obj.get("id", "")
 
-        if not email:
-            log.error("Webhook: no email found in session %s", stripe_session_id)
-            return jsonify({"error": "No subscriber email in session"}), 400
+        if not email or "@" not in email or "." not in email.split("@")[-1]:
+            log.error("Webhook: invalid or missing email in session %s (got: %r)", stripe_session_id, email)
+            return jsonify({"error": "Invalid or missing subscriber email in session"}), 400
 
         # Generate key: pp_cmd_{32 hex chars}
         raw_key = f"pp_cmd_{secrets.token_hex(16)}"

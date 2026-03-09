@@ -1219,7 +1219,7 @@ class ApiKey(db.Model):
     """Paid API key for Pulse Terminal subscribers."""
     __tablename__ = 'api_keys'
     id = db.Column(db.Integer, primary_key=True)
-    key_hash = db.Column(db.String(64), unique=True, nullable=False, index=True)   # SHA256 of actual key
+    key_hash = db.Column(db.String(64), unique=True, nullable=False)   # SHA256 of actual key — composite idx covers single-col queries
     key_prefix = db.Column(db.String(12), nullable=False)                           # first 8 chars for display
     tier = db.Column(db.String(30), nullable=False, default='commander')
     subscriber_email = db.Column(db.String(200), nullable=False, index=True)

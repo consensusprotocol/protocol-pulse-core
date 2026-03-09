@@ -36,8 +36,9 @@ def upgrade():
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('key_hash'),
     )
+    # Composite index covers all single-key_hash queries via leftmost prefix —
+    # the redundant single-column ix_api_keys_key_hash is omitted (P3 audit fix).
     op.create_index('idx_api_keys_hash_active', 'api_keys', ['key_hash', 'active'])
-    op.create_index('ix_api_keys_key_hash', 'api_keys', ['key_hash'], unique=True)
     op.create_index('ix_api_keys_subscriber_email', 'api_keys', ['subscriber_email'])
     op.create_index('ix_api_keys_stripe_customer_id', 'api_keys', ['stripe_customer_id'])
     op.create_index('ix_api_keys_last_used_at', 'api_keys', ['last_used_at'])
@@ -72,5 +73,4 @@ def downgrade():
     op.drop_index('ix_api_keys_last_used_at', table_name='api_keys')
     op.drop_index('ix_api_keys_stripe_customer_id', table_name='api_keys')
     op.drop_index('ix_api_keys_subscriber_email', table_name='api_keys')
-    op.drop_index('ix_api_keys_key_hash', table_name='api_keys')
     op.drop_table('api_keys')
