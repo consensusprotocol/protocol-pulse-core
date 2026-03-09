@@ -1,901 +1,383 @@
 {% extends "base.html" %}
-{% block title %}Oracle — Protocol Pulse{% endblock %}
-{% block head %}
-<meta name="description" content="The Oracle — Bitcoin Intelligence powered by Protocol Pulse. Ask anything about Bitcoin, monetary history, and freedom technology.">
-<meta property="og:title" content="Oracle — Protocol Pulse">
-<meta property="og:description" content="Sovereign Bitcoin Intelligence. Ask The Oracle.">
-<style>
-/* ── Oracle Sanctuary — CSS Variables ──────────────────── */
-:root {
-  --or-bg: #0a0a0a;
-  --or-surface: #111111;
-  --or-border: #1a1a1a;
-  --or-red: #dc2626;
-  --or-red-dim: #7f1d1d;
-  --or-red-glow: rgba(220, 38, 38, 0.3);
-  --or-cyan: #00d4aa;
-  --or-cyan-dim: rgba(0, 212, 170, 0.08);
-  --or-gold: #f59e0b;
-  --or-text: #e5e5e5;
-  --or-muted: #666666;
-  --or-mono: 'JetBrains Mono', 'Courier New', monospace;
-}
+{% block title %}Oracle · Protocol Pulse{% endblock %}
 
-*, *::before, *::after { box-sizing: border-box; }
+{% block head %}
+<meta name="description" content="Oracle — Sovereign Bitcoin Intelligence by Protocol Pulse">
+<style>
+/* ORACLE SANCTUARY — LAW 4: CSS animations only, no Three.js/WebGL */
+body.oracle-page-body { background:#0a0a0a!important; margin:0; padding:0; overflow-x:hidden; }
+body.oracle-page-body .navbar,
+body.oracle-page-body footer,
+body.oracle-page-body .pp-ticker { display:none!important; }
+
+@keyframes radial-breathe { 0%,100%{opacity:.7} 50%{opacity:1} }
+@keyframes stream-scroll   { 0%{transform:translateY(0)} 100%{transform:translateY(-50%)} }
+@keyframes dot-bounce      { 0%,80%,100%{transform:translateY(0);opacity:.3} 40%{transform:translateY(-8px);opacity:1} }
+@keyframes signal-pulse    { 0%{opacity:.3} 100%{opacity:1} }
+@keyframes glow-idle       { 0%,100%{box-shadow:0 0 30px rgba(220,38,38,.18)} 50%{box-shadow:0 0 50px rgba(220,38,38,.32)} }
+@keyframes glow-active     { 0%,100%{box-shadow:0 0 55px rgba(220,38,38,.5)} 50%{box-shadow:0 0 85px rgba(220,38,38,.7)} }
+@keyframes border-error    { 0%,100%{border-color:rgba(220,38,38,.4)} 50%{border-color:rgba(220,38,38,1)} }
+@keyframes fade-in         { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 
 .oracle-sanctuary {
-  min-height: 100vh;
-  background: var(--or-bg);
+  position:relative; min-height:100vh;
+  background:#0a0a0a;
   background-image:
-    radial-gradient(ellipse at 50% 30%, rgba(220, 38, 38, 0.15), transparent 60%),
-    radial-gradient(ellipse at 80% 70%, rgba(0, 212, 170, 0.08), transparent 50%);
-  color: var(--or-text);
-  font-family: var(--or-mono);
-  position: relative;
-  overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: 6rem;
+    radial-gradient(ellipse at 50% 30%, rgba(220,38,38,.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 70%, rgba(0,212,170,.08) 0%, transparent 50%);
+  display:flex; flex-direction:column; align-items:center;
+  padding:0 16px 170px;
+  font-family:'JetBrains Mono','Courier New',monospace;
+  color:#e5e5e5;
+  animation:radial-breathe 8s ease-in-out infinite;
 }
-
-/* ── Animated SVG data stream background ───────────────── */
 .oracle-bg-stream {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-  opacity: 0.06;
+  position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:0; opacity:.045;
 }
-.oracle-bg-stream svg { width: 100%; height: 100%; }
-
-.stream-col {
-  font-family: var(--or-mono);
-  font-size: 11px;
-  fill: var(--or-red);
-  animation: streamScroll 18s linear infinite;
+.oracle-bg-stream-inner {
+  display:flex; gap:56px; width:max-content;
+  animation:stream-scroll 32s linear infinite;
 }
-.stream-col:nth-child(2) { animation-duration: 23s; animation-delay: -7s; }
-.stream-col:nth-child(3) { animation-duration: 15s; animation-delay: -4s; }
-.stream-col:nth-child(4) { animation-duration: 20s; animation-delay: -11s; fill: var(--or-cyan); }
-.stream-col:nth-child(5) { animation-duration: 25s; animation-delay: -3s; }
-
-@keyframes streamScroll {
-  0%   { transform: translateY(-120%); }
-  100% { transform: translateY(110vh); }
-}
-
-/* ── Header strip ───────────────────────────────────────── */
+.oracle-bg-col { font-family:'JetBrains Mono',monospace; font-size:10px; line-height:1.6; color:#dc2626; white-space:pre; letter-spacing:1px; }
 .oracle-header {
-  position: relative;
-  z-index: 10;
-  width: 100%;
-  max-width: 900px;
-  padding: 1.5rem 2rem 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid rgba(220, 38, 38, 0.15);
+  position:relative; z-index:10; width:100%; max-width:900px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:24px 0 10px; border-bottom:1px solid rgba(220,38,38,.18); margin-bottom:28px;
 }
+.oracle-header-left  { display:flex; align-items:center; gap:14px; }
+.oracle-logo-mark    { font-size:1rem; color:#dc2626; letter-spacing:2px; }
+.oracle-title-text   { font-size:clamp(24px,5vw,48px); font-weight:700; letter-spacing:.3em; color:#e5e5e5; text-transform:uppercase; }
+.oracle-subtitle     { display:block; font-size:.58rem; letter-spacing:.18em; color:rgba(229,229,229,.35); text-transform:uppercase; margin-top:2px; }
+.oracle-header-right { display:flex; align-items:center; gap:14px; }
+.oracle-signal       { display:flex; align-items:flex-end; gap:3px; height:20px; }
+.oracle-signal-bar   { width:5px; border-radius:1px; background:#dc2626; transition:opacity .3s; }
+.oracle-signal-bar.dim { background:rgba(220,38,38,.2); }
+.oracle-sanctuary[data-state="generating"] .oracle-signal-bar:not(.dim) { animation:signal-pulse .45s ease-in-out infinite alternate; }
+.oracle-status       { font-size:.6rem; letter-spacing:3px; color:rgba(229,229,229,.3); text-transform:uppercase; min-width:120px; text-align:right; }
+.oracle-status.active { color:#dc2626; }
 
-.oracle-header-left {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.oracle-diamond {
-  color: var(--or-red);
-  font-size: 1.3rem;
-  animation: diamondPulse 3s ease-in-out infinite;
-}
-@keyframes diamondPulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.35; }
-}
-
-.oracle-title {
-  font-size: 3rem;
-  font-weight: 700;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--or-text);
-  line-height: 1;
-}
-
-.oracle-subtitle {
-  font-size: 0.68rem;
-  color: var(--or-muted);
-  letter-spacing: 0.12em;
-  margin-top: 0.3rem;
-}
-
-/* ── Signal strength indicator ──────────────────────────── */
-.oracle-signal {
-  display: flex;
-  align-items: flex-end;
-  gap: 3px;
-  height: 24px;
-}
-.oracle-signal-bar {
-  width: 5px;
-  background: var(--or-red);
-  border-radius: 1px;
-  transition: opacity 0.3s, background 0.3s;
-}
-.oracle-signal-bar:nth-child(1) { height: 7px;  opacity: 0.3; }
-.oracle-signal-bar:nth-child(2) { height: 11px; opacity: 0.5; }
-.oracle-signal-bar:nth-child(3) { height: 16px; opacity: 0.7; }
-.oracle-signal-bar:nth-child(4) { height: 20px; opacity: 0.85; }
-.oracle-signal-bar:nth-child(5) { height: 24px; opacity: 1.0; }
-
-.oracle-signal.generating .oracle-signal-bar {
-  animation: signalPulse 0.6s ease-in-out infinite;
-  opacity: 1;
-}
-.oracle-signal.generating .oracle-signal-bar:nth-child(1) { animation-delay: 0s; }
-.oracle-signal.generating .oracle-signal-bar:nth-child(2) { animation-delay: 0.1s; }
-.oracle-signal.generating .oracle-signal-bar:nth-child(3) { animation-delay: 0.2s; }
-.oracle-signal.generating .oracle-signal-bar:nth-child(4) { animation-delay: 0.3s; }
-.oracle-signal.generating .oracle-signal-bar:nth-child(5) { animation-delay: 0.4s; }
-
-@keyframes signalPulse {
-  0%, 100% { transform: scaleY(1); }
-  50%       { transform: scaleY(1.6); }
-}
-
-.oracle-status-badge {
-  font-size: 0.58rem;
-  letter-spacing: 0.12em;
-  color: var(--or-muted);
-  text-transform: uppercase;
-  margin-top: 0.2rem;
-  text-align: center;
-  min-height: 0.9rem;
-  transition: color 0.3s;
-}
-.oracle-status-badge.active { color: var(--or-red); }
-
-/* ── Main content area ──────────────────────────────────── */
-.oracle-main {
-  position: relative;
-  z-index: 10;
-  width: 100%;
-  max-width: 900px;
-  padding: 2rem 2rem 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-/* ── Video player ───────────────────────────────────────── */
 .oracle-player-wrap {
-  position: relative;
-  width: 640px;
-  max-width: 100%;
-  aspect-ratio: 16 / 9;
-  border: 1px solid rgba(220, 38, 38, 0.4);
-  border-radius: 4px;
-  box-shadow:
-    0 0 40px rgba(220, 38, 38, 0.3),
-    0 0 80px rgba(220, 38, 38, 0.08);
-  background: #000;
-  overflow: hidden;
-  transition: width 0.45s ease, box-shadow 0.45s ease, border-color 0.3s ease;
+  position:relative; z-index:10; width:640px; max-width:100%;
+  margin:0 auto 24px; border:1px solid rgba(220,38,38,.4); border-radius:4px;
+  background:#000; overflow:hidden; transition:width .4s ease;
+  animation:glow-idle 4s ease-in-out infinite;
 }
-.oracle-player-wrap.active {
-  width: 800px;
-  box-shadow:
-    0 0 60px rgba(220, 38, 38, 0.5),
-    0 0 120px rgba(220, 38, 38, 0.2);
-  border-color: rgba(220, 38, 38, 0.8);
-}
-.oracle-player-wrap.error {
-  animation: errorFlash 0.45s ease 3;
-  border-color: rgba(220, 38, 38, 0.9);
-}
-@keyframes errorFlash {
-  0%, 100% { box-shadow: 0 0 40px rgba(220, 38, 38, 0.3); }
-  50%       { box-shadow: 0 0 90px rgba(220, 38, 38, 1); }
-}
+.oracle-sanctuary[data-state="playing"]    .oracle-player-wrap { width:800px; animation:glow-active 2s ease-in-out infinite; }
+.oracle-sanctuary[data-state="generating"] .oracle-player-wrap { animation:glow-active 1s ease-in-out infinite; }
+.oracle-sanctuary[data-state="error"]      .oracle-player-wrap { animation:border-error .8s ease-in-out infinite; }
+.oracle-player-aspect { position:relative; width:100%; padding-bottom:56.25%; }
+.oracle-player { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; background:#000; }
 
-/* Corner accents */
-.oracle-player-wrap::before,
-.oracle-player-wrap::after {
-  content: '';
-  position: absolute;
-  width: 14px; height: 14px;
-  border-color: var(--or-red);
-  border-style: solid;
-  z-index: 3;
-}
-.oracle-player-wrap::before {
-  top: -1px; left: -1px;
-  border-width: 2px 0 0 2px;
-}
-.oracle-player-wrap::after {
-  bottom: -1px; right: -1px;
-  border-width: 0 2px 2px 0;
-}
-
-/* Idle glow overlay */
-.oracle-idle-glow {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  animation: idleGlow 4s ease-in-out infinite;
-}
-@keyframes idleGlow {
-  0%, 100% { box-shadow: inset 0 0 20px rgba(220, 38, 38, 0.05); }
-  50%       { box-shadow: inset 0 0 40px rgba(220, 38, 38, 0.12); }
-}
-
-.oracle-player {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* Replay button overlay */
-.oracle-player-controls {
-  position: absolute;
-  bottom: 0.6rem;
-  right: 0.7rem;
-  z-index: 5;
-  opacity: 0;
-  transition: opacity 0.25s;
-}
-.oracle-player-wrap:hover .oracle-player-controls,
-.oracle-player-controls.visible { opacity: 1; }
-
-.oracle-replay-btn {
-  background: rgba(10, 10, 10, 0.7);
-  border: 1px solid rgba(220, 38, 38, 0.5);
-  color: var(--or-text);
-  font-family: var(--or-mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 0.35rem 0.7rem;
-  cursor: pointer;
-  border-radius: 2px;
-  transition: background 0.2s;
-}
-.oracle-replay-btn:hover { background: rgba(220, 38, 38, 0.25); }
-
-/* ── Generating indicator ───────────────────────────────── */
 .oracle-generating {
-  display: none;
-  align-items: center;
-  gap: 0.6rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
-  color: var(--or-muted);
-  text-transform: uppercase;
-  padding: 0.3rem 0;
+  display:none; position:absolute; inset:0; background:rgba(0,0,0,.76); z-index:5;
+  align-items:center; justify-content:center; flex-direction:column; gap:14px;
 }
-.oracle-generating.show { display: flex; }
+.oracle-sanctuary[data-state="generating"] .oracle-generating { display:flex; }
+.oracle-dots { display:flex; gap:6px; }
+.oracle-dot  { width:8px; height:8px; border-radius:50%; background:#dc2626; animation:dot-bounce 1.4s ease-in-out infinite; }
+.oracle-dot:nth-child(2) { animation-delay:.2s; }
+.oracle-dot:nth-child(3) { animation-delay:.4s; }
+.oracle-gen-label { font-size:.62rem; letter-spacing:3px; color:rgba(220,38,38,.8); text-transform:uppercase; }
 
-.oracle-gen-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: var(--or-red);
-  animation: genBlink 1.4s ease-in-out infinite;
-}
-.oracle-gen-dot:nth-child(2) { animation-delay: 0.2s; }
-.oracle-gen-dot:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes genBlink {
-  0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
-  40%            { opacity: 1;   transform: scale(1.25); }
-}
-
-/* ── Error state ────────────────────────────────────────── */
 .oracle-error {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.8rem 1.2rem;
-  background: rgba(127, 29, 29, 0.15);
-  border: 1px solid rgba(220, 38, 38, 0.4);
-  border-radius: 3px;
-  font-size: 0.72rem;
-  color: var(--or-red);
-  letter-spacing: 0.08em;
-  width: 100%;
-  max-width: 640px;
-  text-align: center;
+  display:none; position:absolute; inset:0; background:rgba(0,0,0,.82); z-index:5;
+  align-items:center; justify-content:center; flex-direction:column; gap:10px;
+  text-align:center; padding:24px;
 }
-.oracle-error.show { display: flex; }
-
+.oracle-sanctuary[data-state="error"] .oracle-error { display:flex; }
+.oracle-error-title { font-size:.72rem; letter-spacing:2px; color:#dc2626; text-transform:uppercase; }
+.oracle-error-msg   { font-size:.68rem; color:rgba(229,229,229,.45); }
 .oracle-retry-btn {
-  background: transparent;
-  border: 1px solid rgba(220, 38, 38, 0.5);
-  color: var(--or-red);
-  font-family: var(--or-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 0.3rem 0.9rem;
-  cursor: pointer;
-  border-radius: 2px;
-  transition: background 0.2s;
-  margin-top: 0.2rem;
+  margin-top:6px; padding:8px 18px;
+  background:rgba(220,38,38,.15); border:1px solid rgba(220,38,38,.45); border-radius:3px;
+  color:#e5e5e5; font-family:'JetBrains Mono',monospace;
+  font-size:.62rem; letter-spacing:2px; text-transform:uppercase;
+  cursor:pointer; transition:background .2s;
 }
-.oracle-retry-btn:hover { background: rgba(220, 38, 38, 0.15); }
+.oracle-retry-btn:hover { background:rgba(220,38,38,.3); }
 
-/* ── Transcript ─────────────────────────────────────────── */
 .oracle-transcript {
-  display: none;
-  width: 100%;
-  max-width: 640px;
-  font-size: 0.8rem;
-  line-height: 1.65;
-  color: rgba(229, 229, 229, 0.78);
-  border-left: 2px solid rgba(220, 38, 38, 0.35);
-  padding-left: 1rem;
-  letter-spacing: 0.03em;
+  position:relative; z-index:10; width:100%; max-width:900px;
+  margin:0 auto 20px; padding:12px 16px;
+  background:rgba(14,14,14,.75); border-left:2px solid rgba(220,38,38,.5); border-radius:0 3px 3px 0;
+  font-size:.8rem; line-height:1.65; color:rgba(229,229,229,.72);
+  display:none; animation:fade-in .4s ease;
 }
-.oracle-transcript.show { display: block; }
-.oracle-transcript-label {
-  font-size: 0.58rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--or-red);
-  margin-bottom: 0.4rem;
-  opacity: 0.8;
-}
+.oracle-transcript.visible { display:block; }
+.oracle-transcript-label   { font-size:.55rem; letter-spacing:3px; color:rgba(220,38,38,.55); text-transform:uppercase; margin-bottom:6px; }
 
-/* ── Sticky input bar ───────────────────────────────────── */
 .oracle-input-bar {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  z-index: 100;
-  padding: 1rem 1.5rem calc(1rem + env(safe-area-inset-bottom));
-  background: linear-gradient(to top, rgba(10, 10, 10, 0.98) 75%, transparent);
-  display: flex;
-  justify-content: center;
+  position:fixed; bottom:0; left:0; right:0; z-index:100;
+  display:flex; justify-content:center;
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
+  background:linear-gradient(to top, rgba(10,10,10,.98) 70%, transparent);
 }
-.oracle-input-inner {
-  display: flex;
-  gap: 0.6rem;
-  width: 100%;
-  max-width: 900px;
-}
+.oracle-input-inner { display:flex; gap:10px; align-items:center; width:100%; max-width:860px; }
 .oracle-input {
-  flex: 1;
-  background: #111111;
-  border: 1px solid rgba(220, 38, 38, 0.3);
-  color: var(--or-text);
-  font-family: var(--or-mono);
-  font-size: 0.85rem;
-  padding: 0.8rem 1.2rem;
-  border-radius: 3px;
-  outline: none;
-  transition: border-color 0.25s, box-shadow 0.25s;
-  letter-spacing: 0.04em;
+  flex:1; background:rgba(18,18,18,.92); border:1px solid rgba(220,38,38,.28); border-radius:3px;
+  color:#e5e5e5; font-family:'JetBrains Mono',monospace; font-size:.85rem; padding:13px 16px;
+  outline:none; transition:border-color .2s, box-shadow .2s;
 }
-.oracle-input:focus {
-  border-color: var(--or-red);
-  box-shadow: 0 0 18px rgba(220, 38, 38, 0.15);
-}
-.oracle-input::placeholder { color: var(--or-muted); font-style: italic; }
-.oracle-input:disabled     { opacity: 0.45; cursor: not-allowed; }
-
+.oracle-input:focus      { border-color:rgba(220,38,38,.65); box-shadow:0 0 12px rgba(220,38,38,.1); }
+.oracle-input::placeholder { color:rgba(229,229,229,.25); font-style:italic; }
+.oracle-input:disabled   { opacity:.4; cursor:not-allowed; }
 .oracle-ask-btn {
-  background: var(--or-red);
-  border: none;
-  color: #fff;
-  font-family: var(--or-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 0.8rem 1.5rem;
-  border-radius: 3px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.2s, transform 0.1s;
+  background:rgba(220,38,38,.82); border:1px solid rgba(220,38,38,.6); border-radius:3px;
+  color:#fff; font-family:'JetBrains Mono',monospace;
+  font-size:.68rem; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+  padding:13px 20px; cursor:pointer; white-space:nowrap; transition:background .2s; flex-shrink:0;
 }
-.oracle-ask-btn:hover:not(:disabled)  { background: #ef4444; }
-.oracle-ask-btn:active:not(:disabled) { transform: scale(0.97); }
-.oracle-ask-btn:disabled {
-  background: var(--or-red-dim);
-  opacity: 0.45;
-  cursor: not-allowed;
-}
+.oracle-ask-btn:hover:not(:disabled) { background:#dc2626; }
+.oracle-ask-btn:disabled             { opacity:.4; cursor:not-allowed; }
 
-/* ── Recent briefings ───────────────────────────────────── */
-.oracle-recent {
-  width: 100%;
-  max-width: 900px;
-  padding: 0 2rem 1rem;
-  position: relative;
-  z-index: 10;
-}
+.oracle-recent        { position:relative; z-index:10; width:100%; max-width:900px; margin:0 auto; }
 .oracle-recent-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.62rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--or-muted);
-  margin-bottom: 0.6rem;
-  cursor: pointer;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--or-border);
-  user-select: none;
-  transition: color 0.2s;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px 0; border-top:1px solid rgba(255,255,255,.05);
+  cursor:pointer; user-select:none;
+  font-size:.58rem; letter-spacing:3px; color:rgba(229,229,229,.28); text-transform:uppercase;
+  transition:color .2s;
 }
-.oracle-recent-header:hover { color: var(--or-text); }
-.oracle-recent-toggle { transition: transform 0.25s; font-size: 0.8rem; }
-.oracle-recent-toggle.open { transform: rotate(180deg); }
+.oracle-recent-header:hover { color:rgba(229,229,229,.5); }
+.oracle-recent-toggle  { font-size:.65rem; }
+.oracle-recent-list    { overflow:hidden; max-height:0; transition:max-height .4s ease; }
+.oracle-recent-list.open { max-height:700px; }
+.oracle-session-item  { padding:12px 0; border-bottom:1px solid rgba(255,255,255,.04); animation:fade-in .35s ease; }
+.oracle-session-q     { font-size:.78rem; color:rgba(229,229,229,.72); margin-bottom:4px; line-height:1.4; }
+.oracle-session-meta  { display:flex; align-items:center; gap:12px; font-size:.56rem; letter-spacing:1px; color:rgba(229,229,229,.28); text-transform:uppercase; }
+.oracle-replay-btn {
+  background:none; border:none; color:rgba(220,38,38,.55);
+  font-family:'JetBrains Mono',monospace; font-size:.56rem; letter-spacing:1px;
+  cursor:pointer; padding:2px 6px; border-radius:2px; transition:color .2s, background .2s;
+}
+.oracle-replay-btn:hover { color:#dc2626; background:rgba(220,38,38,.1); }
+.oracle-session-t     { margin-top:5px; font-size:.68rem; color:rgba(229,229,229,.38); line-height:1.5; font-style:italic; }
 
-.oracle-recent-list {
-  display: none;
-  flex-direction: column;
-  gap: 0.45rem;
+@media (max-width:700px) {
+  .oracle-title-text { letter-spacing:.12em; }
+  .oracle-player-wrap,
+  .oracle-sanctuary[data-state="playing"] .oracle-player-wrap { width:100%!important; }
+  .oracle-status { display:none; }
 }
-.oracle-recent-list.open { display: flex; }
-
-.oracle-session-item {
-  background: var(--or-surface);
-  border: 1px solid var(--or-border);
-  border-left: 2px solid rgba(220, 38, 38, 0.3);
-  border-radius: 2px;
-  padding: 0.7rem 1rem;
-  cursor: pointer;
-  transition: border-left-color 0.2s, background 0.2s;
+@media (max-width:480px) {
+  .oracle-input   { font-size:.78rem; padding:10px 12px; }
+  .oracle-ask-btn { padding:10px 14px; font-size:.6rem; letter-spacing:1px; }
 }
-.oracle-session-item:hover {
-  border-left-color: var(--or-red);
-  background: #181818;
-}
-.oracle-session-item:focus {
-  outline: 1px solid rgba(220, 38, 38, 0.5);
-  outline-offset: 2px;
-}
-
-.oracle-session-q {
-  font-size: 0.73rem;
-  color: var(--or-text);
-  letter-spacing: 0.04em;
-  margin-bottom: 0.25rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.oracle-session-t {
-  font-size: 0.63rem;
-  color: var(--or-muted);
-  line-height: 1.45;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.oracle-session-meta {
-  font-size: 0.58rem;
-  color: rgba(102, 102, 102, 0.55);
-  margin-top: 0.25rem;
-}
-.oracle-recent-empty {
-  font-size: 0.68rem;
-  color: var(--or-muted);
-  font-style: italic;
-  padding: 0.4rem 0;
-}
-
-/* ── Scrollbar ──────────────────────────────────────────── */
-::-webkit-scrollbar         { width: 4px; }
-::-webkit-scrollbar-track   { background: var(--or-bg); }
-::-webkit-scrollbar-thumb   { background: var(--or-red-dim); border-radius: 2px; }
-
-/* ── Responsive ─────────────────────────────────────────── */
-@media (max-width: 720px) {
-  .oracle-title    { font-size: 2rem; }
-  .oracle-header   { padding: 1rem 1rem 0.8rem; }
-  .oracle-main     { padding: 1rem; gap: 1rem; }
-  .oracle-player-wrap { width: 100% !important; }
-  .oracle-recent   { padding: 0 1rem 1rem; }
-  .oracle-input-bar { padding: 0.75rem 1rem; }
-}
-@media (max-width: 480px) {
-  .oracle-title    { font-size: 1.5rem; letter-spacing: 0.2em; }
-  .oracle-ask-btn  { padding: 0.8rem 0.9rem; font-size: 0.65rem; }
-}
+.visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="oracle-sanctuary">
+<script>document.body.classList.add('oracle-page-body');</script>
 
-  <!-- Animated data-stream background -->
-  <div class="oracle-bg-stream" aria-hidden="true">
-    <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-      <text class="stream-col" x="4%">10110100 01101001 01110100 01100011 01101111 01101001 01101110 01010011</text>
-      <text class="stream-col" x="20%">0F3A9C21 D8B74E5F 2A016800 FFDC4E19 C7A3B2D0 SHA256 secp256k1 ECDSA</text>
-      <text class="stream-col" x="38%">21000000 satoshi genesis nonce merkle difficulty target proof-of-work</text>
-      <text class="stream-col" x="57%">01001000 01001111 01000100 01001100 HODL sovereignty halving 2140</text>
-      <text class="stream-col" x="74%">B0C8E3F2 A914B4DA 7E9F1C38 lightning UTXO mempool finality chain</text>
-    </svg>
-  </div>
+<div class="oracle-bg-stream" aria-hidden="true">
+  <div class="oracle-bg-stream-inner" id="oracle-stream-wrap"></div>
+</div>
 
-  <!-- Header -->
-  <header class="oracle-header">
+<div class="oracle-sanctuary" id="oracle-sanctuary" data-state="idle">
+
+  <header class="oracle-header" role="banner">
     <div class="oracle-header-left">
-      <span class="oracle-diamond" aria-hidden="true">◈</span>
+      <span class="oracle-logo-mark" aria-hidden="true">&#9670;</span>
       <div>
-        <div class="oracle-title">ORACLE</div>
-        <div class="oracle-subtitle">Bitcoin Intelligence · Powered by Protocol Pulse</div>
+        <div class="oracle-title-text">ORACLE</div>
+        <span class="oracle-subtitle">Bitcoin Intelligence &middot; Powered by Protocol Pulse</span>
       </div>
     </div>
-    <div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;">
-      <div class="oracle-signal" id="signalIndicator" aria-label="Signal strength indicator">
-        <div class="oracle-signal-bar"></div>
-        <div class="oracle-signal-bar"></div>
-        <div class="oracle-signal-bar"></div>
-        <div class="oracle-signal-bar"></div>
-        <div class="oracle-signal-bar"></div>
+    <div class="oracle-header-right">
+      <div class="oracle-signal" role="img" aria-label="Signal strength">
+        <div class="oracle-signal-bar" style="height:40%"></div>
+        <div class="oracle-signal-bar" style="height:60%"></div>
+        <div class="oracle-signal-bar" style="height:80%"></div>
+        <div class="oracle-signal-bar" style="height:100%"></div>
+        <div class="oracle-signal-bar dim" style="height:55%"></div>
       </div>
-      <div class="oracle-status-badge" id="statusBadge">ONLINE</div>
+      <div class="oracle-status" id="oracle-status" role="status" aria-live="polite">AWAITING QUERY</div>
     </div>
   </header>
 
-  <!-- Main content -->
-  <main class="oracle-main">
+  <div class="oracle-player-wrap" id="oracle-player-wrap">
+    <div class="oracle-player-aspect">
+      <video class="oracle-player" id="oracle-video"
+             playsinline preload="none"
+             poster="/static/images/Proto_P_Avatar_512.png"
+             aria-label="Oracle AI avatar"></video>
 
-    <!-- Video player -->
-    <div class="oracle-player-wrap" id="playerWrap">
-      <div class="oracle-idle-glow" id="idleGlow"></div>
-      <video
-        class="oracle-player"
-        id="oraclePlayer"
-        poster="/static/images/Proto_P_Avatar_512.png"
-        playsinline
-        preload="none"
-        aria-label="Oracle avatar"
-      ></video>
-      <div class="oracle-player-controls" id="playerControls">
-        <button class="oracle-replay-btn" id="replayBtn" type="button">↺ REPLAY</button>
+      <div class="oracle-generating" id="oracle-generating" role="status" aria-live="assertive">
+        <div class="oracle-dots" aria-hidden="true">
+          <div class="oracle-dot"></div>
+          <div class="oracle-dot"></div>
+          <div class="oracle-dot"></div>
+        </div>
+        <div class="oracle-gen-label">ORACLE IS PROCESSING</div>
+      </div>
+
+      <div class="oracle-error" id="oracle-error" role="alert">
+        <div class="oracle-error-title">&#9888; Signal Lost</div>
+        <div class="oracle-error-msg" id="oracle-error-msg">Oracle temporarily offline</div>
+        <button class="oracle-retry-btn" id="oracle-retry-btn" type="button">&#9654; RETRY</button>
       </div>
     </div>
+  </div>
 
-    <!-- Generating indicator -->
-    <div class="oracle-generating" id="generatingIndicator" aria-live="polite">
-      <div class="oracle-gen-dot"></div>
-      <div class="oracle-gen-dot"></div>
-      <div class="oracle-gen-dot"></div>
-      <span>The Oracle is thinking...</span>
-    </div>
+  <div class="oracle-transcript" id="oracle-transcript" aria-live="polite">
+    <div class="oracle-transcript-label">Oracle says</div>
+    <div id="oracle-transcript-text"></div>
+  </div>
 
-    <!-- Error state -->
-    <div class="oracle-error" id="errorState" role="alert">
-      <span>Oracle temporarily offline — signal interrupted.</span>
-      <button class="oracle-retry-btn" id="retryBtn" type="button">↺ RETRY</button>
+  <section class="oracle-recent" aria-label="Recent Briefings">
+    <div class="oracle-recent-header" id="oracle-recent-header"
+         role="button" aria-expanded="true" tabindex="0">
+      <span>&#9670; RECENT BRIEFINGS</span>
+      <span class="oracle-recent-toggle" id="oracle-recent-toggle">&#9650;</span>
     </div>
-
-    <!-- Transcript -->
-    <div class="oracle-transcript" id="transcriptPanel" aria-live="polite">
-      <div class="oracle-transcript-label">Oracle Response</div>
-      <div id="transcriptText"></div>
-    </div>
-
-  </main>
-
-  <!-- Recent briefings -->
-  <section class="oracle-recent" aria-label="Recent Oracle briefings">
-    <div
-      class="oracle-recent-header"
-      id="recentToggle"
-      role="button"
-      tabindex="0"
-      aria-expanded="false"
-      aria-controls="recentList"
-    >
-      <span>Recent Briefings</span>
-      <span class="oracle-recent-toggle" id="recentToggleIcon" aria-hidden="true">▾</span>
-    </div>
-    <div class="oracle-recent-list" id="recentList" role="list">
-      <div class="oracle-recent-empty">Loading recent briefings...</div>
-    </div>
+    <div class="oracle-recent-list open" id="oracle-recent-list"></div>
   </section>
 
 </div>
 
-<!-- Sticky input bar -->
-<div class="oracle-input-bar">
+<nav class="oracle-input-bar" aria-label="Ask The Oracle">
   <div class="oracle-input-inner">
-    <input
-      type="text"
-      class="oracle-input"
-      id="oracleInput"
-      placeholder="What does the protocol signal today?"
-      maxlength="500"
-      autocomplete="off"
-      spellcheck="false"
-      aria-label="Ask The Oracle a question"
-    >
-    <button class="oracle-ask-btn" id="oracleAskBtn" type="button">
-      ASK ORACLE &#9654;
-    </button>
+    <label for="oracle-question" class="visually-hidden">Your question for The Oracle</label>
+    <input type="text" class="oracle-input" id="oracle-question"
+           placeholder="What does the protocol signal today?"
+           maxlength="500" autocomplete="off" autocorrect="off" spellcheck="false">
+    <button class="oracle-ask-btn" id="oracle-ask-btn" type="button">ASK ORACLE &#9654;</button>
   </div>
-</div>
+</nav>
 
-{% raw %}
 <script>
-(function () {
+(function(){
 'use strict';
+var ORACLE_IMG='/static/images/Proto_P_Avatar_512.png';
+var ASK_URL='/api/oracle/ask';
+var RECENT_URL='/api/oracle/recent';
 
-var player      = document.getElementById('oraclePlayer');
-var playerWrap  = document.getElementById('playerWrap');
-var playerCtrls = document.getElementById('playerControls');
-var replayBtn   = document.getElementById('replayBtn');
-var genInd      = document.getElementById('generatingIndicator');
-var errState    = document.getElementById('errorState');
-var retryBtn    = document.getElementById('retryBtn');
-var txPanel     = document.getElementById('transcriptPanel');
-var txText      = document.getElementById('transcriptText');
-var signal      = document.getElementById('signalIndicator');
-var statusBadge = document.getElementById('statusBadge');
-var input       = document.getElementById('oracleInput');
-var askBtn      = document.getElementById('oracleAskBtn');
-var recentToggle = document.getElementById('recentToggle');
-var recentList   = document.getElementById('recentList');
-var recentIcon   = document.getElementById('recentToggleIcon');
+var sanctuary=document.getElementById('oracle-sanctuary');
+var statusEl=document.getElementById('oracle-status');
+var video=document.getElementById('oracle-video');
+var transcriptEl=document.getElementById('oracle-transcript');
+var transcriptTx=document.getElementById('oracle-transcript-text');
+var recentList=document.getElementById('oracle-recent-list');
+var recentHeader=document.getElementById('oracle-recent-header');
+var recentToggle=document.getElementById('oracle-recent-toggle');
+var inp=document.getElementById('oracle-question');
+var askBtn=document.getElementById('oracle-ask-btn');
+var errorMsgEl=document.getElementById('oracle-error-msg');
+var retryBtn=document.getElementById('oracle-retry-btn');
 
-var isProcessing  = false;
-var lastVideoUrl  = null;
-var lastQuestion  = null;
+var isGenerating=false;
+var lastQuestion='';
 
-// ── State transitions ──────────────────────────────────────
-function setState(s) {
-  playerWrap.classList.remove('active', 'error');
-  signal.classList.remove('generating');
-  genInd.classList.remove('show');
-  errState.classList.remove('show');
-  playerCtrls.classList.remove('visible');
-
-  if (s === 'idle') {
-    statusBadge.textContent = 'ONLINE';
-    statusBadge.className   = 'oracle-status-badge';
-    askBtn.disabled = false;
-    input.disabled  = false;
-
-  } else if (s === 'generating') {
-    statusBadge.textContent = 'PROCESSING';
-    statusBadge.className   = 'oracle-status-badge active';
-    signal.classList.add('generating');
-    genInd.classList.add('show');
-    txPanel.classList.remove('show');
-    askBtn.disabled = true;
-    input.disabled  = true;
-
-  } else if (s === 'playing') {
-    statusBadge.textContent = 'BROADCASTING';
-    statusBadge.className   = 'oracle-status-badge active';
-    playerWrap.classList.add('active');
-    askBtn.disabled = true;
-    input.disabled  = true;
-
-  } else if (s === 'done') {
-    statusBadge.textContent = 'ONLINE';
-    statusBadge.className   = 'oracle-status-badge';
-    playerCtrls.classList.add('visible');
-    askBtn.disabled = false;
-    input.disabled  = false;
-
-  } else if (s === 'error') {
-    statusBadge.textContent = 'OFFLINE';
-    statusBadge.className   = 'oracle-status-badge';
-    playerWrap.classList.add('error');
-    errState.classList.add('show');
-    askBtn.disabled = false;
-    input.disabled  = false;
-  }
+function setState(state){
+  sanctuary.dataset.state=state;
+  var active=(state==='playing'||state==='generating');
+  statusEl.className='oracle-status'+(active?' active':'');
+  if(state==='idle'){statusEl.textContent='AWAITING QUERY';askBtn.disabled=false;inp.disabled=false;}
+  else if(state==='generating'){statusEl.textContent='GENERATING...';askBtn.disabled=true;inp.disabled=true;}
+  else if(state==='playing'){statusEl.textContent='\u25CF BROADCASTING';askBtn.disabled=false;inp.disabled=false;}
+  else if(state==='error'){statusEl.textContent='SIGNAL LOST';askBtn.disabled=false;inp.disabled=false;}
 }
 
-// ── Transcript display ─────────────────────────────────────
-function showTranscript(text) {
-  txText.textContent = text || '';
-  txPanel.classList[text ? 'add' : 'remove']('show');
+function esc(s){var d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML;}
+function fmtTime(iso){try{var d=new Date(iso);return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}catch(_){return '';}}
+
+function showTranscript(text){
+  if(text&&text.trim()){transcriptTx.textContent=text;transcriptEl.classList.add('visible');}
+  else{transcriptEl.classList.remove('visible');}
 }
 
-// ── Video playback ─────────────────────────────────────────
-function playVideo(url) {
+function playVideo(url){
+  video.src=url; video.poster=ORACLE_IMG; video.controls=false;
   setState('playing');
-  player.removeAttribute('controls');
-  player.src = url;
-
-  player.oncanplay = function () {
-    player.play().catch(function () {
-      // Autoplay blocked — show native controls
-      player.setAttribute('controls', '');
-      setState('done');
-    });
-  };
-
-  player.onended = function () {
-    setState('done');
-    loadRecent();
-  };
-
-  player.onerror = function () {
-    setState('error');
-  };
-
-  player.load();
+  var p=video.play();
+  if(p&&typeof p.catch==='function'){p.catch(function(){setState('idle');});}
 }
 
-// ── Ask Oracle ────────────────────────────────────────────
-function askOracle(question) {
-  if (isProcessing || !question) return;
-  isProcessing = true;
-  lastQuestion = question;
-  lastVideoUrl = null;
+video.addEventListener('ended',function(){setState('idle');});
+video.addEventListener('error',function(){if(sanctuary.dataset.state==='playing'){setState('idle');}});
 
+retryBtn.addEventListener('click',function(){
+  setState('idle');
+  if(lastQuestion){inp.value=lastQuestion;}
+  inp.focus();
+});
+
+recentHeader.addEventListener('click',function(){
+  var open=recentList.classList.toggle('open');
+  recentToggle.innerHTML=open?'&#9650;':'&#9660;';
+  recentHeader.setAttribute('aria-expanded',String(open));
+});
+recentHeader.addEventListener('keydown',function(e){
+  if(e.key==='Enter'||e.key===' '){e.preventDefault();recentHeader.click();}
+});
+
+function addSession(s,prepend){
+  var item=document.createElement('div');
+  item.className='oracle-session-item';
+  var rHtml=s.video_url?'<button class="oracle-replay-btn" type="button" data-video="'+esc(s.video_url)+'" data-transcript="'+esc(s.transcript||'')+'">\u25b6 Replay</button>':'';
+  item.innerHTML='<div class="oracle-session-q">'+esc(s.question)+'</div>'
+    +'<div class="oracle-session-meta"><span>'+fmtTime(s.created_at)+'</span>'+rHtml+'</div>'
+    +(s.transcript?'<div class="oracle-session-t">'+esc(s.transcript)+'</div>':'');
+  var rb=item.querySelector('.oracle-replay-btn');
+  if(rb){rb.addEventListener('click',function(e){
+    e.stopPropagation(); if(isGenerating)return;
+    var vurl=this.getAttribute('data-video');
+    var tx=this.getAttribute('data-transcript');
+    if(vurl){showTranscript(tx);playVideo(vurl);}
+  });}
+  if(prepend){
+    recentList.insertBefore(item,recentList.firstChild);
+    while(recentList.children.length>5){recentList.removeChild(recentList.lastChild);}
+  }else{recentList.appendChild(item);}
+}
+
+function askOracle(question){
+  if(isGenerating)return;
+  question=question.trim();
+  if(!question||question.length<3){inp.focus();return;}
+  if(question.length>500){question=question.slice(0,500);}
+  isGenerating=true; lastQuestion=question; inp.value='';
+  transcriptEl.classList.remove('visible');
   setState('generating');
-  showTranscript('');
-  errState.classList.remove('show');
-
-  fetch('/api/oracle/ask', {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ question: question }),
-  })
-  .then(function (resp) {
-    if (!resp.ok) {
-      return resp.json().then(function (d) {
-        throw new Error(d.error || ('HTTP ' + resp.status));
-      });
-    }
+  fetch(ASK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:question})})
+  .then(function(resp){
+    if(!resp.ok){return resp.json().catch(function(){return{};}).then(function(j){throw new Error(j.error||'Oracle generation failed');});}
     return resp.json();
   })
-  .then(function (data) {
-    if (data.transcript) {
-      showTranscript(data.transcript);
-    }
-    if (data.video_url) {
-      lastVideoUrl = data.video_url;
-      playVideo(data.video_url);
-    } else {
-      setState('done');
-      loadRecent();
-    }
+  .then(function(data){
+    showTranscript(data.transcript||'');
+    if(data.video_url){playVideo(data.video_url);}else{setState('idle');}
+    addSession({question:question,transcript:data.transcript||'',video_url:data.video_url||null,created_at:data.timestamp||new Date().toISOString()},true);
   })
-  .catch(function (err) {
-    console.error('Oracle error:', err);
+  .catch(function(err){
+    console.error('[Oracle]',err);
+    errorMsgEl.textContent=err.message||'Oracle temporarily offline';
     setState('error');
   })
-  .finally(function () {
-    isProcessing = false;
-  });
+  .finally(function(){isGenerating=false;});
 }
 
-// ── Controls ──────────────────────────────────────────────
-replayBtn.addEventListener('click', function () {
-  if (lastVideoUrl) playVideo(lastVideoUrl);
-});
+askBtn.addEventListener('click',function(){var q=inp.value.trim();if(q)askOracle(q);});
+inp.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();var q=this.value.trim();if(q)askOracle(q);}});
 
-retryBtn.addEventListener('click', function () {
-  errState.classList.remove('show');
-  if (lastQuestion) askOracle(lastQuestion);
-  else setState('idle');
-});
-
-askBtn.addEventListener('click', function () {
-  var q = input.value.trim();
-  if (q) { input.value = ''; askOracle(q); }
-});
-
-input.addEventListener('keydown', function (e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    var q = input.value.trim();
-    if (q) { input.value = ''; askOracle(q); }
-  }
-});
-
-// ── Recent briefings ──────────────────────────────────────
-function toggleRecent() {
-  var open = recentList.classList.contains('open');
-  recentList.classList[open ? 'remove' : 'add']('open');
-  recentIcon.classList[open ? 'remove' : 'add']('open');
-  recentToggle.setAttribute('aria-expanded', String(!open));
+function loadRecent(){
+  fetch(RECENT_URL).then(function(r){return r.ok?r.json():[];})
+  .then(function(sessions){if(Array.isArray(sessions))sessions.forEach(function(s){addSession(s,false);});})
+  .catch(function(){});
 }
 
-recentToggle.addEventListener('click', toggleRecent);
-recentToggle.addEventListener('keydown', function (e) {
-  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleRecent(); }
-});
-
-function esc(s) {
-  var d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
+function buildStream(){
+  var chars='0123456789ABCDEF ';var lines=[];
+  for(var i=0;i<130;i++){var line='';for(var j=0;j<24;j++){line+=chars[Math.floor(Math.random()*chars.length)];}lines.push(line);}
+  return lines.join('\n');
 }
+var wrap=document.getElementById('oracle-stream-wrap');
+if(wrap){var c1=buildStream();var c2=buildStream();for(var ci=0;ci<4;ci++){var d=document.createElement('div');d.className='oracle-bg-col';d.textContent=ci<2?c1:c2;wrap.appendChild(d);}}
 
-function timeAgo(iso) {
-  if (!iso) return '';
-  try {
-    var sec = Math.floor((Date.now() - new Date(iso + 'Z').getTime()) / 1000);
-    if (sec < 60)    return 'just now';
-    if (sec < 3600)  return Math.floor(sec / 60) + 'm ago';
-    if (sec < 86400) return Math.floor(sec / 3600) + 'h ago';
-    return Math.floor(sec / 86400) + 'd ago';
-  } catch (e) { return ''; }
-}
-
-function loadRecent() {
-  fetch('/api/oracle/recent')
-    .then(function (r) { return r.json(); })
-    .then(function (sessions) {
-      recentList.innerHTML = '';
-      if (!sessions || !sessions.length) {
-        recentList.innerHTML = '<div class="oracle-recent-empty">No briefings yet. Ask The Oracle your first question.</div>';
-        return;
-      }
-
-      sessions.forEach(function (s) {
-        var item = document.createElement('div');
-        item.className = 'oracle-session-item';
-        item.setAttribute('role', 'listitem');
-        item.setAttribute('tabindex', '0');
-
-        var q  = s.question  || '';
-        var t  = s.transcript || '';
-        var ts = timeAgo(s.created_at);
-
-        item.innerHTML =
-          '<div class="oracle-session-q">' + esc(q) + '</div>' +
-          (t  ? '<div class="oracle-session-t">'   + esc(t)  + '</div>' : '') +
-          (ts ? '<div class="oracle-session-meta">' + esc(ts) + '</div>' : '');
-
-        function select() {
-          if (s.video_url) {
-            lastVideoUrl = s.video_url;
-            lastQuestion = q;
-            showTranscript(t);
-            playVideo(s.video_url);
-          } else if (t) {
-            showTranscript(t);
-            setState('done');
-          }
-          input.value = q;
-          input.focus();
-        }
-
-        item.addEventListener('click', select);
-        item.addEventListener('keydown', function (e) {
-          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); }
-        });
-
-        recentList.appendChild(item);
-      });
-
-      // Auto-open if sessions present
-      if (!recentList.classList.contains('open')) {
-        recentList.classList.add('open');
-        recentIcon.classList.add('open');
-        recentToggle.setAttribute('aria-expanded', 'true');
-      }
-    })
-    .catch(function () {
-      recentList.innerHTML = '<div class="oracle-recent-empty">Unable to load recent briefings.</div>';
-    });
-}
-
-// ── Init ─────────────────────────────────────────────────
 setState('idle');
 loadRecent();
-setTimeout(function () { input.focus(); }, 250);
-
-})();
+inp.focus();
+}());
 </script>
-{% endraw %}
 {% endblock %}
