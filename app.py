@@ -69,8 +69,10 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_pre_ping": True,
 }
 
-# Startup env diagnostics (warnings only; never hard-crash startup).
-_required_env = ["SESSION_SECRET", "DATABASE_URL"]
+# Startup env diagnostics.
+# Required vars: missing → log CRITICAL (feature is broken without these).
+# Recommended vars: missing → log INFO (integration degrades gracefully).
+_required_env = ["SESSION_SECRET", "DATABASE_URL", "RESEND_API_KEY"]
 _recommended_env = [
     "TWITTER_API_KEY",
     "TWITTER_API_SECRET",
@@ -79,7 +81,9 @@ _recommended_env = [
 ]
 for _name in _required_env:
     if not os.environ.get(_name):
-        logging.warning("%s missing; using fallback/default where available.", _name)
+        logging.critical(
+            "REQUIRED env var %s is missing — dependent features will fail.", _name
+        )
 for _name in _recommended_env:
     if not os.environ.get(_name):
         logging.info("%s not configured (related integration stays degraded/off).", _name)
@@ -263,18 +267,23 @@ try:
     from routes_api_terminal import terminal_bp
     app.register_blueprint(terminal_bp)
 except Exception as e:
-    print(f'Terminal API not loaded: {e}')
+    logging.critical("Terminal API blueprint failed to load: %s", e)
 try:
     from routes_commander import commander_bp
     app.register_blueprint(commander_bp)
-    import logging; logging.info("Commander API blueprint registered at /api/v1")
+    logging.info("Commander API blueprint registered at /api/v1")
 except Exception as _e:
-    import logging; logging.warning("Commander blueprint not loaded: %s", _e)
+    logging.warning("Commander blueprint not loaded: %s", _e)
 try:
     from routes_newsletter_trigger import newsletter_trigger_bp
     app.register_blueprint(newsletter_trigger_bp)
 except Exception as e:
-    print(f'Newsletter trigger not loaded: {e}')
+    logging.critical("Newsletter trigger blueprint failed to load: %s", e)
+
+# B1 Newsletter Engine — hard fail if feature is active
+from routes_newsletter_b1 import newsletter_b1_bp
+app.register_blueprint(newsletter_b1_bp)
+logging.info("B1 Newsletter blueprint registered")
 app.register_blueprint(api_v2)
 from onboarding_routes import onboarding_bp
 app.register_blueprint(onboarding_bp)
