@@ -49,6 +49,7 @@ paths:
   transcripts: "transcripts"
   assets: "assets"
 
+# Key resolution: env vars -> ~/protocol_pulse/.env (see relay.py)
 relay:
-  url: "https://protocolpulse.replit.app/api/admin/exec"
+  url: "https://relay.protocolpulse.io/exec"  # Ultron relay — Replit deprecated
   token: "581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552"
