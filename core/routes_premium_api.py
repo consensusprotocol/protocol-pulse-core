@@ -20,7 +20,7 @@ from functools import wraps
 import requests as http_requests
 from flask import (
     Blueprint, Response, jsonify, redirect, render_template,
-    request, stream_with_context, url_for
+    request, session, stream_with_context, url_for
 )
 
 from app import db
@@ -32,6 +32,7 @@ from services.api_key_service import (
     provision_demo_key,
     get_hourly_usage_sparkline,
     TIER_ENTITLEMENTS,
+    TIER_LIMITS,
 )
 from services.stripe_service import (
     validate_webhook_signature,
@@ -502,6 +503,8 @@ def terminal_subscribe():
 
     try:
         stripe.api_key = stripe_key
+        # Set SDK-level timeout so a Stripe outage never hangs a Flask worker
+        stripe.default_http_client = stripe.RequestsClient(timeout=10)
         # Idempotency key: prevents duplicate checkout sessions from retries/double-clicks
         # 5-minute window so legitimate retries after failures can succeed
         idempotency_key = hashlib.sha256(
@@ -636,13 +639,17 @@ def terminal_stripe_webhook():
                                     sub.past_due_since = datetime.utcnow()
                             elif status in ("canceled", "unpaid"):
                                 sub.is_active = False
-                            # Sync renewal date and price
+                            # Sync renewal date, price, and rate limit on every plan event
                             period_end_ts = event_obj.get("current_period_end")
                             if period_end_ts:
                                 sub.current_period_end = datetime.utcfromtimestamp(period_end_ts)
                             price_id = (event_obj.get("items") or {}).get("data", [{}])[0].get("price", {}).get("id")
                             if price_id:
                                 sub.stripe_price_id = price_id
+                            # Keep rate_limit_per_hour in sync with the subscriber's tier
+                            tier_limit = TIER_LIMITS.get(sub.tier, 1000)
+                            if tier_limit != -1:
+                                sub.rate_limit_per_hour = tier_limit
                             db.session.commit()
                     except Exception as e:
                         logger.error("Error updating subscription status: %s", e)
@@ -671,12 +678,38 @@ def terminal_stripe_webhook():
 # ─── Dashboard ────────────────────────────────────────────────
 
 
+@premium_api.route("/api/dashboard/auth", methods=["POST"])
+def dashboard_auth():
+    """Exchange a raw API key for a signed session cookie.
+
+    The key is stored in Flask's HMAC-signed, HttpOnly session cookie so it
+    never appears in URLs, server logs, or browser history.
+    """
+    data = request.get_json(silent=True) or {}
+    api_key = (data.get("api_key") or "").strip()
+    if not api_key:
+        return jsonify({"error": "api_key required"}), 400
+    try:
+        sub = models.ApiSubscriber.query.filter_by(api_key=api_key).first()
+    except Exception as e:
+        logger.error("dashboard_auth DB error: %s", e)
+        return jsonify({"error": "Server error"}), 500
+    if not sub or api_key == DEMO_KEY:
+        return jsonify({"error": "Invalid API key"}), 401
+    session["dashboard_api_key"] = api_key
+    session.permanent = True
+    return jsonify({"ok": True, "redirect": "/api/dashboard"}), 200
+
+
 @premium_api.route("/api/dashboard", methods=["GET"])
 def api_dashboard():
-    """Subscriber self-service dashboard. Auth via X-API-Key header or ?key= param."""
+    """Subscriber self-service dashboard. Auth via X-API-Key header or signed session cookie.
+    The ?key= query parameter is NOT supported — use POST /api/dashboard/auth to set the
+    session cookie, which keeps the key out of URLs, logs, and browser history.
+    """
     api_key = (
         request.headers.get("X-API-Key", "")
-        or request.args.get("key", "")
+        or session.get("dashboard_api_key", "")
         or ""
     ).strip()
 
