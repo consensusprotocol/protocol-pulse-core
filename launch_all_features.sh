@@ -1,137 +1,120 @@
 #!/bin/bash
-# PROTOCOL PULSE — PARALLEL FEATURE BUILD LAUNCHER
-# Fires 10 simultaneous Claude Code sessions, one per feature branch
-# Each session reads its gospel doc and builds autonomously
-# Usage: bash launch_all_features.sh [feature1 feature2 ...] or no args = all
-# Created: 2026-03-09
+# PROTOCOL PULSE — PARALLEL FEATURE BUILD + AUDIT LAUNCHER
+# Flow: Build code -> 2-cycle LLM audit -> second pass -> PR-ready
+# Usage: bash launch_all_features.sh [f1-avatar-oracle f5-node-watch ...] or no args = all
 
 set -e
 BASE_DIR=~/protocol_pulse
 GOSPELS_DIR=$BASE_DIR/docs/gospels
 WORKTREES_DIR=~/worktrees
 LOG_DIR=$BASE_DIR/logs/feature_builds
+AUDIT_ENGINE=$BASE_DIR/utils/cross_llm_audit.py
 
-mkdir -p $WORKTREES_DIR $LOG_DIR
+mkdir -p $WORKTREES_DIR $LOG_DIR $BASE_DIR/docs/audits
 
-# Feature definitions: name|branch|gospel|gpu_needed
 FEATURES=(
-  "f1-avatar-oracle|feature/f1-avatar-oracle|F1_AVATAR_ORACLE_GOSPEL.md|yes"
-  "f2-briefing-room|feature/f2-briefing-room|F2_BRIEFING_ROOM_GOSPEL.md|no"
-  "f3-schiff-bot|feature/f3-schiff-bot|F3_SCHIFF_BOT_GOSPEL.md|no"
-  "f4-nostr|feature/f4-nostr|F4_NOSTR_GOSPEL.md|no"
-  "f5-node-watch|feature/f5-node-watch|F5_NODE_WATCH_GOSPEL.md|no"
-  "f6-marketing-os|feature/f6-marketing-os|F6_MARKETING_OS_GOSPEL.md|no"
-  "v30-terminal-api|feature/v30-terminal-api|V30_TERMINAL_API_GOSPEL.md|no"
-  "b1-newsletter|feature/b1-newsletter|B1_NEWSLETTER_GOSPEL.md|no"
-  "v22-multi-format|feature/v22-multi-format|V22_MULTI_FORMAT_GOSPEL.md|no"
+  "f1-avatar-oracle|feature/f1-avatar-oracle|F1_AVATAR_ORACLE_GOSPEL.md|y"
+  "f2-briefing-room|feature/f2-briefing-room|F2_BRIEFING_ROOM_GOSPEL.md|y"
+  "f3-schiff-bot|feature/f3-schiff-bot|F3_SCHIFF_BOT_GOSPEL.md|n"
+  "f4-nostr|feature/f4-nostr|F4_NOSTR_GOSPEL.md|n"
+  "f5-node-watch|feature/f5-node-watch|F5_NODE_WATCH_GOSPEL.md|n"
+  "f6-marketing-os|feature/f6-marketing-os|F6_MARKETING_OS_GOSPEL.md|n"
+  "v30-terminal-api|feature/v30-terminal-api|V30_TERMINAL_API_GOSPEL.md|y"
+  "b1-newsletter|feature/b1-newsletter|B1_NEWSLETTER_GOSPEL.md|n"
+  "v22-multi-format|feature/v22-multi-format|V22_MULTI_FORMAT_GOSPEL.md|y"
 )
 
-# NOTE: VIDEO_AUDIO_FIX is excluded from auto-launch — needs PBX forensic notes first
-
 launch_feature() {
-  local NAME=$1
-  local BRANCH=$2
-  local GOSPEL=$3
-  local GPU_NEEDED=$4
+  local NAME=$1 BRANCH=$2 GOSPEL=$3 HIGH_STAKES=$4
   local WORKTREE=$WORKTREES_DIR/$NAME
   local LOG=$LOG_DIR/${NAME}.log
 
-  echo "=== LAUNCHING $NAME ==="
+  echo ""; echo "=== LAUNCHING: $NAME ===" ; echo "  branch: $BRANCH  log: $LOG"
 
-  # Create git worktree (isolated checkout on its own branch)
+  cd $BASE_DIR
   if [ ! -d "$WORKTREE" ]; then
-    cd $BASE_DIR
     git worktree add $WORKTREE -b $BRANCH 2>/dev/null || git worktree add $WORKTREE $BRANCH
-    echo "  worktree created: $WORKTREE"
-  else
-    echo "  worktree exists: $WORKTREE"
   fi
 
-  # Copy gospel to worktree for easy access
   cp $GOSPELS_DIR/$GOSPEL $WORKTREE/GOSPEL.md
+  cp $GOSPELS_DIR/POST_BUILD_AUDIT_PROTOCOL.md $WORKTREE/AUDIT_PROTOCOL.md 2>/dev/null || true
 
-  # Build the opening prompt for this session
-  PROMPT="Read $WORKTREE/GOSPEL.md in full — this is your complete spec.
-You are building feature branch: $BRANCH
-Worktree: $WORKTREE
-Base repo: $BASE_DIR
+  # Write the prompt to a file
+  cat > /tmp/cc_prompt_${NAME}.txt << PROMPT_EOF
+Read $WORKTREE/GOSPEL.md IN FULL before writing a single line of code.
+This is your complete specification. Every law in it is inviolable.
 
-RULES FOR THIS SESSION:
-1. This is a dedicated worktree — you cannot affect other features
-2. All DB migrations use alembic or direct SQL in a migration script
-3. Run bash $BASE_DIR/regression_test.sh at the end — zero FAILs required
-4. git add -A && git commit -m 'feat($NAME): [description]' when done
-5. git push origin $BRANCH when done — do NOT merge to main
-6. Log all decisions to $LOG
+You are building feature: $NAME
+Branch: $BRANCH | Worktree: $WORKTREE | Base repo: $BASE_DIR
 
-START: Read GOSPEL.md now, then execute the BUILD section step by step."
+PHASE 1 - BUILD:
+Execute the BUILD section of GOSPEL.md step by step.
+Build complete frontend AND backend. World-class quality, not a prototype.
+Every route: try/except. Every API call: timeout + fallback. Every DB write: rollback.
+Every async frontend op: loading/error/empty states all handled.
+Every ORDER BY / WHERE column: indexed.
+CSS animations only - no Three.js, no WebGL.
 
-  # Write prompt to file for tmux injection
-  echo "$PROMPT" > /tmp/prompt_${NAME}.txt
+When complete:
+1. cd $BASE_DIR && bash regression_test.sh -- fix until zero FAILs
+2. git add -A && git commit -m "feat($NAME): initial build"
+3. git push origin $BRANCH
 
-  # Launch tmux session
+PHASE 2 - LLM AUDIT (fires automatically after build):
+python3 $BASE_DIR/utils/cross_llm_audit.py --feature $NAME
+This fires 2-cycle audit with Gemini+OpenAI+Grok, writes FINAL_CONSENSUS.md.
+Wait for it to complete -- it will print AUDIT COMPLETE when done.
+
+PHASE 3 - SECOND PASS:
+Read $BASE_DIR/docs/audits/$NAME/FINAL_CONSENSUS.md
+Implement every P0 and P1 item from the FINAL ACTION PLAN.
+Do NOT change anything in VALIDATED STRENGTHS.
+regression_test.sh -- zero FAILs required.
+git add -A && git commit -m "feat($NAME): post-audit second pass"
+git push origin $BRANCH
+
+Print final summary: files created, test results, audit scores, PR ready: YES/NO
+PROMPT_EOF
+
+  tmux kill-session -t "build_${NAME}" 2>/dev/null || true
   tmux new-session -d -s "build_${NAME}" \
-    "cd $WORKTREE && unset ANTHROPIC_API_KEY && claude --dangerously-skip-permissions 2>&1 | tee $LOG"
+    "cd $WORKTREE && unset ANTHROPIC_API_KEY && claude --dangerously-skip-permissions < /tmp/cc_prompt_${NAME}.txt 2>&1 | tee $LOG; echo SESSION_COMPLETE_${NAME} >> $LOG"
 
-  # Give Claude Code 3 seconds to start, then send the prompt
-  sleep 3
-  tmux send-keys -t "build_${NAME}" "$(cat /tmp/prompt_${NAME}.txt)" Enter
-
-  echo "  session: build_${NAME} | log: $LOG"
-  echo ""
+  echo "  session launched: build_${NAME}"
 }
 
-# Determine which features to launch
-if [ $# -gt 0 ]; then
-  TARGETS=("$@")
+if [ $# -gt 0 ]; then TARGETS=("$@")
 else
-  # Launch all (skip video-audio-fix — needs PBX notes)
   TARGETS=()
-  for feature in "${FEATURES[@]}"; do
-    NAME=$(echo $feature | cut -d'|' -f1)
-    TARGETS+=($NAME)
-  done
+  for f in "${FEATURES[@]}"; do TARGETS+=("$(echo $f | cut -d'|' -f1)"); done
 fi
 
-echo "================================================"
-echo "PROTOCOL PULSE PARALLEL BUILD LAUNCHER"
-echo "Launching ${#TARGETS[@]} feature sessions"
-echo "================================================"
+echo ""; echo "PROTOCOL PULSE PARALLEL BUILD LAUNCHER"
+echo "Launching ${#TARGETS[@]} sessions: Build + 2-cycle audit + second pass"
 echo ""
 
-# First: ensure main is up to date
-cd $BASE_DIR && git pull origin main 2>/dev/null || true
+cd $BASE_DIR && git pull origin main --quiet 2>/dev/null || true
 
-# Launch each feature
-for feature in "${FEATURES[@]}"; do
-  NAME=$(echo $feature | cut -d'|' -f1)
-  BRANCH=$(echo $feature | cut -d'|' -f2)
-  GOSPEL=$(echo $feature | cut -d'|' -f3)
-  GPU=$(echo $feature | cut -d'|' -f4)
-
-  # Check if this feature is in targets
+LAUNCHED=0
+for feature_def in "${FEATURES[@]}"; do
+  NAME=$(echo $feature_def | cut -d'|' -f1)
+  BRANCH=$(echo $feature_def | cut -d'|' -f2)
+  GOSPEL=$(echo $feature_def | cut -d'|' -f3)
+  HIGH=$(echo $feature_def | cut -d'|' -f4)
   for target in "${TARGETS[@]}"; do
     if [ "$target" == "$NAME" ]; then
-      launch_feature $NAME $BRANCH $GOSPEL $GPU
-      sleep 5  # 5s stagger between launches (API rate limit buffer)
+      launch_feature $NAME $BRANCH $GOSPEL $HIGH
+      LAUNCHED=$((LAUNCHED + 1))
+      sleep 8
       break
     fi
   done
 done
 
-echo "================================================"
-echo "ALL SESSIONS LAUNCHED"
+echo ""; echo "$LAUNCHED SESSIONS LAUNCHED"
 echo ""
-echo "Monitor all sessions:"
-echo "  tmux ls | grep build_"
-echo ""
-echo "Attach to specific session:"
-echo "  tmux attach -t build_f1-avatar-oracle"
-echo ""
-echo "Watch all logs:"
-echo "  tail -f $LOG_DIR/*.log"
-echo ""
-echo "Check completion (git branches with commits):"
-echo "  git branch -a | grep feature/"
-echo "  git log --oneline --all --graph | head -30"
-echo "================================================"
+echo "Monitor: tmux ls | grep build_"
+echo "Attach:  tmux attach -t build_f1-avatar-oracle  (Ctrl+B D to detach)"
+echo "Logs:    tail -f $LOG_DIR/*.log"
+echo "Audits:  ls $BASE_DIR/docs/audits/*/FINAL_CONSENSUS.md"
+echo "Branches: cd $BASE_DIR && git branch -a | grep feature/"
