@@ -10,5 +10,7 @@
   "analytics_feedback": false,
   "breaking_news_detector": false,
   "sponsor_rotation": false,
-  "remotion_visuals": true
+  "remotion_visuals": false,
+  "agent_dev_mode": false,
+  "test_mode": false
 }
