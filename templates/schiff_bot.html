@@ -460,20 +460,20 @@
             />
             <text class="sb-gauge-score" x="110" y="88"
               fill="{{ score_color }}" id="sb-score-text">
-              {{ score.score|round|int if score else '—' }}
+              {{ score.score|round|int if score and score.score else '—' }}
             </text>
             <text class="sb-gauge-denom" x="110" y="108">/ 100</text>
           </svg>
 
           <div class="sb-gauge-label" id="sb-score-label"
             style="color: {{ score_color }}; border-color: {{ score_color }}; background: {{ score_color_dim }}">
-            {{ score.label if score else 'Loading…' }}
+            {{ score.label if score and not score.get('data_unavailable') else ('Loading…' if not score else 'Data Unavailable') }}
           </div>
 
-          {% if score and score.get('_synthetic') %}
-          <div class="sb-stale-warn">⚠ Illustrative data — EDGAR fetch pending</div>
-          {% elif score and score.get('_stale') %}
-          <div class="sb-stale-warn">⚠ Cached data ({{ score._cached_at[:10] if score._cached_at else '?' }})</div>
+          {% if score and score.get('data_unavailable') %}
+          <div class="sb-stale-warn">⚠ Score data not yet available — EDGAR fetch pending</div>
+          {% elif score and score.get('stale') %}
+          <div class="sb-stale-warn">⚠ Stale data ({{ score.stale_hours|round(0)|int }}h old) — recalculating</div>
           {% endif %}
 
           <div class="sb-gauge-updated">

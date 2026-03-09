@@ -8093,8 +8093,9 @@ def schiff_score_api():
 
 @app.route('/api/schiff/refresh', methods=['POST'])
 @admin_required
+@limiter.limit("5 per hour")
 def schiff_refresh():
-    """Admin-only: trigger a fresh EDGAR fetch and score recalculation."""
+    """Admin-only: trigger a fresh EDGAR fetch and score recalculation. Rate-limited 5/hour."""
     try:
         if not _schiff_available:
             return jsonify({"error": "schiff_service unavailable"}), 503

@@ -940,9 +940,10 @@ class CollectedSignal(db.Model):
 # =====================================
 
 class SchiffHypocrisy(db.Model):
-    """One calculated hypocrisy score snapshot per day."""
+    """One calculated hypocrisy score snapshot per calendar day (score_date is unique)."""
     __tablename__ = 'schiff_hypocrisy'
     id = db.Column(db.Integer, primary_key=True)
+    score_date = db.Column(db.Date, nullable=False, default=datetime.utcnow)  # one row per day
     score = db.Column(db.Float, nullable=False)           # 0-100
     gold_holding_pct = db.Column(db.Float)                # 0-100 (% of AUM in gold/miners)
     anti_btc_tweet_rate = db.Column(db.Float)             # 0-100 (normalised statement rate)
@@ -957,11 +958,14 @@ class SchiffHypocrisy(db.Model):
     data_sources = db.Column(db.Text)                     # JSON array of source URLs
     __table_args__ = (
         db.Index('idx_schiff_hypo_calculated_at', 'calculated_at'),
+        db.Index('idx_schiff_hypo_score_date', 'score_date'),
+        db.UniqueConstraint('score_date', name='uq_schiff_score_date'),
     )
 
     def to_dict(self):
         return {
             'id': self.id,
+            'score_date': self.score_date.isoformat() if self.score_date else None,
             'score': round(self.score, 1),
             'components': {
                 'gold_holding_pct': self.gold_holding_pct,
