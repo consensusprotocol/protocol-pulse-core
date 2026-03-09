@@ -493,13 +493,14 @@ body { background: var(--bg); color: var(--text); }
     <div class="chart-card-header">
       <span class="chart-title">Bitcoin / US Dollar</span>
       <div class="chart-actions">
-        <button class="btn-chip active" data-tf="1" onclick="loadPriceChart(1,this)">1D</button>
+        <button class="btn-chip" data-tf="1" onclick="loadPriceChart(1,this)">1D</button>
         <button class="btn-chip active" data-tf="7" onclick="loadPriceChart(7,this)">7D</button>
         <button class="btn-chip" data-tf="30" onclick="loadPriceChart(30,this)">30D</button>
         <button class="btn-chip" data-tf="90" onclick="loadPriceChart(90,this)">90D</button>
         <button class="btn-chip" data-tf="365" onclick="loadPriceChart(365,this)">1Y</button>
         <button class="btn-chip interpret-btn" onclick="interpretChart('price','Price Chart')">⚡ INTERPRET</button>
         <button class="btn-chip download-btn" onclick="downloadChart('price-canvas','BTC Price')">↓ PNG</button>
+        <button class="btn-chip" onclick="shareChart('price-canvas','BTC Price Chart')">↗ SHARE</button>
         <button class="btn-chip" onclick="openEmbed('price')">⊞ EMBED</button>
       </div>
     </div>
@@ -516,19 +517,14 @@ body { background: var(--bg); color: var(--text); }
       </div>
     </div>
     <!-- RSI sub-chart -->
+    <!-- RSI sub-chart (hidden by default, toggle below) -->
     <div id="rsi-wrap" style="display:none; margin-top:.5rem;">
-      <label class="toggle-chip" style="margin-bottom:.4rem; display:inline-flex;">
-        <input type="checkbox" id="rsi-toggle" onchange="toggleSubChart('rsi-wrap',this)"> RSI (14)
-      </label>
       <div class="canvas-wrap" style="height:80px">
         <canvas id="rsi-canvas" height="80" aria-label="RSI indicator" role="img"></canvas>
       </div>
     </div>
     <!-- MACD sub-chart -->
     <div id="macd-wrap" style="display:none; margin-top:.5rem;">
-      <label class="toggle-chip" style="margin-bottom:.4rem; display:inline-flex;">
-        <input type="checkbox" id="macd-toggle" onchange="toggleSubChart('macd-wrap',this)"> MACD (12/26/9)
-      </label>
       <div class="canvas-wrap" style="height:80px">
         <canvas id="macd-canvas" height="80" aria-label="MACD indicator" role="img"></canvas>
       </div>
@@ -952,6 +948,7 @@ class ChartEngine {
     const inner = r * 0.55;
     let angle = -Math.PI / 2;
     const total = slices.reduce((s, sl) => s + sl.value, 0);
+    if (total === 0) return; // guard against division by zero
     slices.forEach(sl => {
       const sweep = (sl.value / total) * Math.PI * 2;
       ctx.beginPath();
@@ -1083,25 +1080,42 @@ const state = {
 };
 
 // ── WebSocket — mempool.space ─────────────────────────────────────────────────
-let ws, wsRetryDelay = 1000, wsRetryTimer = null;
+let ws, wsRetryDelay = 1000, wsRetryTimer = null, wsRetryCount = 0;
+let _wsHeartbeat = null;
+const WS_MAX_RETRIES = 12; // ~10 min of retries at 30s cap
+
 function connectWS() {
+  if (wsRetryCount >= WS_MAX_RETRIES) {
+    document.getElementById('ws-dot').classList.add('red');
+    document.getElementById('ws-dot').title = 'Live data unavailable — reload to retry';
+    return;
+  }
   try {
     ws = new WebSocket('wss://mempool.space/api/v1/ws');
     ws.onopen = () => {
       wsRetryDelay = 1000;
+      wsRetryCount = 0;
       ws.send(JSON.stringify({action:'want', data:['stats','blocks']}));
       document.getElementById('ws-dot').classList.remove('red');
+      // Clear any stale heartbeat before creating a new one
+      if (_wsHeartbeat) clearInterval(_wsHeartbeat);
+      _wsHeartbeat = setInterval(() => {
+        if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({action:'ping'}));
+      }, 30000);
     };
     ws.onmessage = (e) => {
       try { handleWSMessage(JSON.parse(e.data)); } catch(_) {}
     };
     ws.onclose = ws.onerror = () => {
       document.getElementById('ws-dot').classList.add('red');
+      if (_wsHeartbeat) { clearInterval(_wsHeartbeat); _wsHeartbeat = null; }
       clearTimeout(wsRetryTimer);
-      wsRetryTimer = setTimeout(() => { wsRetryDelay = Math.min(wsRetryDelay * 2, 30000); connectWS(); }, wsRetryDelay);
+      wsRetryCount++;
+      wsRetryTimer = setTimeout(() => {
+        wsRetryDelay = Math.min(wsRetryDelay * 2, 30000);
+        connectWS();
+      }, wsRetryDelay);
     };
-    // Heartbeat
-    setInterval(() => { if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({action:'ping'})); }, 30000);
   } catch(e) { document.getElementById('ws-dot').classList.add('red'); }
 }
 
@@ -1122,8 +1136,33 @@ function handleWSMessage(data) {
   }
   if (data.block) {
     const h = data.block.height;
-    if (h) document.getElementById('stat-height').textContent = h.toLocaleString();
+    if (h) {
+      document.getElementById('stat-height').textContent = h.toLocaleString();
+      // New block = trigger a price refresh (event-driven, not polled)
+      _refreshPriceFromBlock();
+    }
   }
+}
+
+// Price refresh on new block — event-driven via WebSocket block notification (LAW 1 compliant)
+let _priceRefreshInFlight = false;
+function _refreshPriceFromBlock() {
+  if (_priceRefreshInFlight) return;
+  _priceRefreshInFlight = true;
+  const ctrl = new AbortController();
+  const tid = setTimeout(() => ctrl.abort(), 10000);
+  fetch('/api/charts/price-history?days=1', { signal: ctrl.signal })
+    .then(r => { clearTimeout(tid); return r.ok ? r.json() : null; })
+    .then(data => {
+      _priceRefreshInFlight = false;
+      if (!data || !data.prices || data.prices.length === 0) return;
+      const p = data.prices[data.prices.length - 1][1];
+      state.currentPriceForAlerts = p;
+      document.getElementById('stat-price').textContent = '$' + p.toLocaleString('en-US', {maximumFractionDigits:0});
+      document.getElementById('sats-per-dollar').textContent = Math.round(1e8/p).toLocaleString();
+      document.getElementById('sats-per-dollar-val').textContent = Math.round(1e8/p).toLocaleString();
+    })
+    .catch(() => { _priceRefreshInFlight = false; });
 }
 connectWS();
 
@@ -1132,18 +1171,25 @@ const priceEngine = new ChartEngine('price-canvas');
 let _priceActiveDays = 7;
 let _priceActiveBtns = null;
 
+function _fetchWithTimeout(url, timeout=10000) {
+  const ctrl = new AbortController();
+  const tid = setTimeout(() => ctrl.abort(), timeout);
+  return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(tid));
+}
+
 function loadPriceChart(days, btn) {
   _priceActiveDays = days;
   if (_priceActiveBtns) _priceActiveBtns.forEach(b => b.classList.remove('active'));
   if (btn) { btn.classList.add('active'); _priceActiveBtns = [btn]; }
   showLoading('price-loading', true);
-  fetch('/api/charts/price-history?days=' + days)
+  _fetchWithTimeout('/api/charts/price-history?days=' + days)
     .then(r => r.ok ? r.json() : null)
     .then(data => {
       showLoading('price-loading', false);
-      if (!data || !data.prices) { showError('price-loading'); return; }
+      if (!data || !data.prices || data.prices.length === 0) { showError('price-loading'); return; }
       state.priceData = data.prices;
       drawPriceChart();
+      renderValuationMetrics();
       // Update stat bar with last price + 24h change
       if (data.prices.length > 0) {
         const last = data.prices[data.prices.length - 1][1];
@@ -1198,7 +1244,40 @@ function drawPriceChart() {
   // Stock-to-Flow overlay
   if (state.overlays.s2f) {
     const s2fPts = _calcS2F(pts);
-    drawOverlayLine(priceEngine, s2fPts, pts, PP.colors.cyan + 'aa', 1.5, [8,4], padL, padR, padT, padB);
+    if (s2fPts && s2fPts.length === pts.length) {
+      drawOverlayLine(priceEngine, s2fPts, pts, PP.colors.cyan + 'aa', 1.5, [8,4], padL, padR, padT, padB);
+    }
+  }
+
+  // Mayer Multiple overlay — shows 200D MA ratio as secondary reference line
+  if (state.overlays.mayer && pts.length >= 200) {
+    const ma200vals = _calcMA(pts, 200);
+    // Plot a horizontal band at 200DMA×2.4 (overbought threshold)
+    const latestMA = ma200vals[ma200vals.length - 1];
+    if (latestMA) {
+      const overboughtLine = pts.map(() => latestMA * 2.4);
+      drawOverlayLine(priceEngine, overboughtLine, pts, PP.colors.coral + '60', 1, [8,2], padL, padR, padT, padB);
+      // Label
+      const ctx = priceEngine.ctx;
+      const innerH = priceEngine.H - padT - padB;
+      const allV = pts.map(p=>p[1]);
+      const minV2 = Math.min(...allV), maxV2 = Math.max(...allV), range2 = maxV2 - minV2 || 1;
+      const labelY = padT + innerH - ((latestMA * 2.4 - minV2) / range2) * innerH;
+      if (labelY > padT + 10 && labelY < padT + innerH - 10) {
+        ctx.fillStyle = PP.colors.coral + 'aa';
+        ctx.font = '9px JetBrains Mono,monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText('Mayer 2.4×', padL + 4, labelY - 3);
+      }
+    }
+  }
+
+  // Disable/enable Mayer checkbox based on data length
+  const mayerCb = document.querySelector('input[onchange*="mayer"]');
+  if (mayerCb) {
+    mayerCb.disabled = pts.length < 200;
+    mayerCb.closest('.toggle-chip').title = pts.length < 200 ? 'Select 1Y timeframe to enable Mayer Multiple' : '';
+    if (pts.length < 200) { mayerCb.checked = false; state.overlays.mayer = false; mayerCb.closest('.toggle-chip').classList.remove('active'); }
   }
 }
 
@@ -1288,11 +1367,12 @@ function drawMACD() {
 // ── Hashrate Chart ────────────────────────────────────────────────────────────
 const hashrateEngine = new ChartEngine('hashrate-canvas');
 function loadHashrateChart() {
-  fetch('/api/charts/hashrate-history')
+  showLoading('hashrate-loading', true);
+  _fetchWithTimeout('/api/charts/hashrate-history')
     .then(r => r.ok ? r.json() : null)
     .then(data => {
       showLoading('hashrate-loading', false);
-      if (!data || !data.hashrates) return;
+      if (!data || !data.hashrates || data.hashrates.length === 0) { showError('hashrate-loading'); return; }
       const pts = data.hashrates.map(h => [h.timestamp * 1000, h.avgHashrate / 1e18]);
       hashrateEngine._resize(); hashrateEngine.clear();
       hashrateEngine.drawGrid();
@@ -1317,33 +1397,16 @@ function loadDifficultyDisplay(hrData) {
   const blocksLeft = DIFF_INTERVAL - blocksInEpoch;
   const daysLeft = (blocksLeft * 10 / 1440).toFixed(1);
 
-  // Predict next difficulty adjustment
-  let adjPct = 0, adjSign = '';
-  if (hrData && hrData.hashrates && hrData.hashrates.length > 5) {
-    const recent = hrData.hashrates.slice(-5).reduce((s,h) => s + h.avgHashrate, 0) / 5;
-    const tenDay = 10 * 60 * blocksLeft; // target time for remaining blocks
-    const actualBlockTime = (blocksInEpoch > 0) ? (Date.now()/1000 - hrData.hashrates[0]?.timestamp) / blocksInEpoch * 1000 : 600;
-    adjPct = ((600 / (actualBlockTime || 600)) - 1) * 100;
-    adjSign = adjPct >= 0 ? '+' : '';
-  }
-
   el.innerHTML = `
     <div style="margin-bottom:.75rem">
       <div class="label" style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Epoch Progress</div>
       <div class="supply-bar-wrap"><div class="supply-bar-fill" style="width:${pct}%;background:linear-gradient(90deg,#5de4ff,#89ffb8)"></div></div>
       <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:.3rem">${blocksInEpoch.toLocaleString()} / 2,016 blocks (${pct}%) · ${blocksLeft.toLocaleString()} left · ~${daysLeft} days</div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
-      <div style="background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:.8rem">
-        <div class="label" style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)">Adj. Prediction</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:900;color:${adjPct>=0?'var(--lime)':'var(--coral)'};margin-top:.2rem">${adjSign}${adjPct.toFixed(1)}%</div>
-        <div style="font-size:11px;color:var(--muted)">estimated</div>
-      </div>
-      <div style="background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:.8rem">
-        <div class="label" style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)">Next Adjustment</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:900;color:var(--gold);margin-top:.2rem">~${daysLeft}d</div>
-        <div style="font-size:11px;color:var(--muted)">${blocksLeft.toLocaleString()} blocks</div>
-      </div>
+    <div style="background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:.8rem">
+      <div class="label" style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)">Next Adjustment In</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:900;color:var(--gold);margin-top:.2rem">~${daysLeft} days</div>
+      <div style="font-size:11px;color:var(--muted)">${blocksLeft.toLocaleString()} blocks remaining at current pace</div>
     </div>`;
 }
 
@@ -1352,11 +1415,11 @@ const poolsEngine = new ChartEngine('pools-canvas');
 const POOL_COLORS = ['#ff3b5f','#f8c15c','#5de4ff','#89ffb8','#ff8ba0','#b8a9ff','#ffd4a0','#a0d4ff','#d4ffa0','#ffa0d4','#c0c0c0'];
 
 function loadPoolDistribution() {
-  fetch('/api/charts/pool-distribution')
+  _fetchWithTimeout('/api/charts/pool-distribution')
     .then(r => r.ok ? r.json() : null)
     .then(data => {
       showLoading('pools-loading', false);
-      if (!data || !data.pools) return;
+      if (!data || !data.pools || data.pools.length === 0) { showError('pools-loading'); return; }
       const pools = data.pools.slice(0, 10);
       const slices = pools.map((p, i) => ({ label: p.name, value: p.blockCount, color: POOL_COLORS[i % POOL_COLORS.length] }));
       poolsEngine._resize(); poolsEngine.clear();
@@ -1373,7 +1436,9 @@ function loadPoolDistribution() {
       const hhi = pools.reduce((s, p) => s + Math.pow(p.blockCount/total*100, 2), 0);
       tableHtml += `</tbody></table><div style="margin-top:.5rem;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">HHI Score: <span style="color:${hhi>2500?'var(--coral)':hhi>1500?'var(--gold)':'var(--lime)'}">${Math.round(hhi)}</span> ${hhi>2500?'(High concentration)':hhi>1500?'(Moderate)':'(Healthy)'}</div>`;
       document.getElementById('pool-table-wrap').innerHTML = tableHtml;
-      if (top3Pct > 50) document.getElementById('hhi-warn').classList.add('visible');
+      const warnEl = document.getElementById('hhi-warn');
+      if (top3Pct > 50) warnEl.classList.add('visible');
+      else warnEl.classList.remove('visible');
     })
     .catch(() => showLoading('pools-loading', false));
 }
@@ -1670,6 +1735,52 @@ function interpretChart(chartType, label) {
   .catch(() => { aiText.textContent = 'AI analysis temporarily unavailable.'; });
 }
 
+// ── Share Chart (Web Share API + clipboard fallback) ─────────────────────────
+async function shareChart(canvasId, title) {
+  const engines = {
+    'price-canvas': priceEngine, 'hashrate-canvas': hashrateEngine,
+    'pools-canvas': poolsEngine, 'mempool-canvas': mempoolEngine,
+    'hodl-canvas': hodlEngine, 'fg-canvas': fgEngine
+  };
+  const engine = engines[canvasId];
+  if (!engine) return;
+  try {
+    const blob = await new Promise(res => {
+      const tmp = document.createElement('canvas');
+      tmp.width = engine.canvas.width; tmp.height = engine.canvas.height;
+      const tc = tmp.getContext('2d');
+      tc.setTransform(engine._dpr, 0, 0, engine._dpr, 0, 0);
+      tc.fillStyle = PP.colors.bg; tc.fillRect(0, 0, engine.W, engine.H);
+      tc.drawImage(engine.canvas, 0, 0, engine.W, engine.H);
+      tc.fillStyle = 'rgba(248,193,92,0.5)'; tc.font = '10px JetBrains Mono,monospace';
+      tc.textAlign = 'right'; tc.fillText('PROTOCOLPULSE.IO', engine.W - 8, engine.H - 6);
+      tmp.toBlob(res, 'image/png');
+    });
+    const file = new File([blob], 'pp-' + title.toLowerCase().replace(/\s+/g,'-') + '.png', { type: 'image/png' });
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ title: title + ' — Protocol Pulse', files: [file] });
+    } else {
+      await navigator.clipboard.writeText(window.location.href + '#' + canvasId.replace('-canvas',''));
+      showToast('Chart link copied to clipboard');
+    }
+  } catch (e) {
+    if (e.name !== 'AbortError') {
+      try { await navigator.clipboard.writeText(window.location.href); showToast('Link copied'); } catch(_) {}
+    }
+  }
+}
+
+function showToast(msg) {
+  let t = document.getElementById('pp-toast');
+  if (!t) {
+    t = document.createElement('div'); t.id = 'pp-toast';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0d1118;border:1px solid rgba(248,193,92,.3);color:#f8c15c;font-family:JetBrains Mono,monospace;font-size:12px;padding:8px 18px;border-radius:8px;z-index:9999;pointer-events:none;transition:opacity .3s';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg; t.style.opacity = '1';
+  setTimeout(() => { t.style.opacity = '0'; }, 2500);
+}
+
 // ── Download PNG ──────────────────────────────────────────────────────────────
 function downloadChart(canvasId, title) {
   const engines = {
@@ -1688,9 +1799,12 @@ function openEmbed(chartId) {
   document.getElementById('embed-modal').classList.add('open');
 }
 function closeEmbed() { document.getElementById('embed-modal').classList.remove('open'); }
-function copyEmbed() {
+function copyEmbed(ev) {
   navigator.clipboard.writeText(document.getElementById('embed-code-text').textContent)
-    .then(() => { const b = event.target; b.textContent = 'Copied!'; setTimeout(() => b.textContent = 'Copy Code', 2000); });
+    .then(() => {
+      const b = (ev && ev.target) || document.querySelector('#embed-box .btn-chip');
+      if (b) { b.textContent = 'Copied!'; setTimeout(() => { b.textContent = 'Copy Code'; }, 2000); }
+    });
 }
 
 // ── Price Alert ───────────────────────────────────────────────────────────────
@@ -1701,13 +1815,22 @@ function submitAlert() {
   const msgEl = document.getElementById('alert-msg');
   if (!email || !price) { msgEl.className = 'alert-msg err'; msgEl.textContent = 'Please fill in all fields.'; return; }
   msgEl.className = 'alert-msg'; msgEl.textContent = 'Setting alert…';
+  const ctrl = new AbortController();
+  setTimeout(() => ctrl.abort(), 10000);
   fetch('/api/charts/price-alert', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ email, direction: dir, target_price: parseFloat(price) })
+    body: JSON.stringify({ email, direction: dir, target_price: parseFloat(price) }),
+    signal: ctrl.signal,
   })
-  .then(r => r.json())
-  .then(d => {
+  .then(async r => {
+    let d = {};
+    try { d = await r.json(); } catch(_) {}
+    if (!r.ok) {
+      msgEl.className = 'alert-msg err';
+      msgEl.textContent = d.error || 'Server error. Please try again.';
+      return;
+    }
     if (d.success) {
       msgEl.className = 'alert-msg ok';
       msgEl.textContent = '✓ ' + d.message;
@@ -1717,7 +1840,10 @@ function submitAlert() {
       msgEl.textContent = d.error || 'Error setting alert.';
     }
   })
-  .catch(() => { msgEl.className = 'alert-msg err'; msgEl.textContent = 'Network error. Please try again.'; });
+  .catch(e => {
+    msgEl.className = 'alert-msg err';
+    msgEl.textContent = e.name === 'AbortError' ? 'Request timed out. Please try again.' : 'Network error. Please try again.';
+  });
 }
 
 // ── Cmd+K Command Bar ─────────────────────────────────────────────────────────
@@ -1779,20 +1905,7 @@ function showError(id) {
   if (msg) msg.innerHTML = '<span style="color:var(--coral)">Data unavailable</span>';
 }
 
-// ── Periodic price refresh ─────────────────────────────────────────────────────
-function refreshPrice() {
-  fetch('/api/charts/price-history?days=1')
-    .then(r => r.ok ? r.json() : null)
-    .then(data => {
-      if (!data || !data.prices || data.prices.length === 0) return;
-      const p = data.prices[data.prices.length - 1][1];
-      state.currentPriceForAlerts = p;
-      document.getElementById('stat-price').textContent = '$' + p.toLocaleString('en-US', {maximumFractionDigits:0});
-      document.getElementById('sats-per-dollar').textContent = Math.round(1e8/p).toLocaleString();
-      document.getElementById('sats-per-dollar-val').textContent = Math.round(1e8/p).toLocaleString();
-    }).catch(() => {});
-}
-setInterval(refreshPrice, 30000);
+// Price polling intentionally removed — price updates event-driven via WS new-block message (LAW 1)
 
 // ── Bootstrap all charts on page load ────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -1802,7 +1915,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadFearGreed();
   loadLightning();
   drawHODLWaves();
-  setTimeout(renderValuationMetrics, 3000); // wait for price data
+  // renderValuationMetrics() is called at end of loadPriceChart() — no timeout needed
 });
 window.addEventListener('resize', () => {
   if (state.priceData) drawPriceChart();
