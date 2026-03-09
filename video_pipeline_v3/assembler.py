@@ -914,40 +914,16 @@ def _build_broadcast_bg(duration: float, label_out: str = "bb_bg") -> tuple:
 
 def _build_top_system_bar(label_in: str, label_out: str, scene_label: str = "",
                            progress_pct: int = 50, recon_id: str = "") -> str:
-    """APEX UNIFIED header — BD structure + BEV2 glassmorphic floating pill."""
-    import datetime
-    if not recon_id:
-        recon_id = datetime.datetime.now().strftime("%H%M%S")
+    """CYCLE2 FIX: Clean top bar — no debug elements (RECON-ID, Narration Layer, Broadcast Signature removed).
+    Shows only: PROTOCOL PULSE branding + red accent. No 'LIVE', no system labels.
+    """
     fg = ""
-    # Floating pill bg with glassmorphic feel
     fg += (f"[{label_in}]drawbox=x=20:y=12:w=1880:h=52:color=0x000000@0.55:t=fill,"
-           # Red left accent line on pill (BD)
+           # Red left accent line
            f"drawbox=x=20:y=12:w=3:h=52:color={COLOR_RED}@0.9:t=fill,"
-           # Left: bullet + PROTOCOL PULSE
-           f"drawtext=fontfile={FONT_BOLD}:text='  PROTOCOL PULSE':"
-           f"fontcolor={COLOR_WHITE}:fontsize=20:x=38:y=26,"
-           # LIVE label in red
-           f"drawtext=fontfile={FONT_BOLD}:text='LIVE':"
-           f"fontcolor={COLOR_RED}:fontsize=16:x=236:y=30,"
-           # Separator
-           f"drawtext=fontfile={FONT_MONO}:text='|':"
-           f"fontcolor={COLOR_MUTED}:fontsize=16:x=282:y=26,"
-           # Broadcast Signature System (muted mono)
-           f"drawtext=fontfile={FONT_MONO}:text='Broadcast Signature System':"
-           f"fontcolor={COLOR_MUTED}:fontsize=11:x=302:y=31,"
-           # Right: Motion Active
-           f"drawtext=fontfile={FONT_MONO}:text='Motion Active':"
-           f"fontcolor={COLOR_MUTED}:fontsize=11:x=1560:y=31,"
-           f"drawtext=fontfile={FONT_MONO}:text='|':"
-           f"fontcolor={COLOR_MUTED}:fontsize=11:x=1652:y=31,"
-           # Narration Layer
-           f"drawtext=fontfile={FONT_MONO}:text='Narration Layer':"
-           f"fontcolor=0xFFFFFF@0.7:fontsize=11:x=1666:y=31,"
-           f"drawtext=fontfile={FONT_MONO}:text='|':"
-           f"fontcolor={COLOR_MUTED}:fontsize=11:x=1766:y=31,"
-           # RECON-ID (BD metadata)
-           f"drawtext=fontfile={FONT_MONO}:text='RECON-ID  {recon_id}':"
-           f"fontcolor={COLOR_MUTED}:fontsize=11:x=1780:y=31,"
+           # PROTOCOL PULSE branding (clean, no LIVE/debug labels)
+           f"drawtext=fontfile={FONT_BOLD}:text='PROTOCOL PULSE':"
+           f"fontcolor={COLOR_WHITE}:fontsize=18:x=38:y=28,"
            # Bottom separator
            f"drawbox=x=20:y=64:w=1880:h=1:color={COLOR_RED}@0.25:t=fill"
            f"[{label_out}];\n")
@@ -1283,27 +1259,14 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     else:
         fg += f"[np_head]copy[np_body];\n"
 
-    # ORACLE NARRATION ACTIVE + Story Arc Locked — glass panel style
-    fg += (f"[np_body]drawbox=x=60:y=576:w=290:h=34:color=0x080808@0.82:t=fill,"
-           f"drawbox=x=60:y=576:w=3:h=34:color={COLOR_RED}@0.9:t=fill,"
-           f"drawbox=x=60:y=576:w=290:h=1:color=0xFFFFFF@0.08:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='ORACLE NARRATION ACTIVE':"
-           f"fontcolor=0xFFFFFF@0.85:fontsize=12:x=70:y=589,"
-           f"drawbox=x=60:y=618:w=210:h=30:color=0x080808@0.82:t=fill,"
-           f"drawbox=x=60:y=618:w=3:h=30:color={COLOR_RED}@0.6:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='Story Arc Locked':"
-           f"fontcolor=0xAAAAAA@0.90:fontsize=11:x=70:y=629"
-           f"[np_pills];\n")
+    # CYCLE2 FIX: Removed "ORACLE NARRATION ACTIVE" + "Story Arc Locked" debug badges
+    fg += f"[np_body]copy[np_pills];\n"
 
     # Right PiP preview panel (x=1120, y=140, w=740, h=500)
-    # Gold eyebrow above PiP
-    fg += (f"[np_pills]drawtext=fontfile={FONT_MONO}:text='COMING UP NEXT':"
-           f"fontcolor={COLOR_GOLD}:fontsize=11:x=1140:y=122[np_pip_eye];\n")
-    fg += (f"[np_pip_eye]drawbox=x=1120:y=140:w=740:h=500:color={COLOR_PANEL}@0.92:t=fill,"
+    # CYCLE2 FIX: Removed "COMING UP NEXT" eyebrow and "Muted Preview" debug labels
+    fg += (f"[np_pills]drawbox=x=1120:y=140:w=740:h=500:color={COLOR_PANEL}@0.92:t=fill,"
            f"drawbox=x=1120:y=140:w=740:h=1:color=0xFFFFFF@0.1:t=fill,"
-           f"drawbox=x=1120:y=639:w=740:h=1:color=0xFFFFFF@0.1:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='Muted Preview':"
-           f"fontcolor=0xFFFFFF@0.35:fontsize=11:x=1720:y=152"
+           f"drawbox=x=1120:y=639:w=740:h=1:color=0xFFFFFF@0.1:t=fill"
            f"[np_pip_hdr];\n")
 
     # Thumbnail or placeholder inside preview box
@@ -1318,14 +1281,11 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
                f"[np_pip_placeholder];\n")
         pip_base = "np_pip_placeholder"
 
-    # Lower third in preview
+    # Lower third in preview — CYCLE2 FIX: removed "Preview Active" debug label
     safe_next = _sanitize_text(next_speaker)[:30] if next_speaker else "NEXT SOURCE"
     fg += (f"[{pip_base}]drawbox=x=1132:y=520:w=716:h=50:color=0x000000@0.7:t=fill,"
            f"drawtext=fontfile={FONT_BOLD}:text='{safe_next}':"
            f"fontcolor={COLOR_WHITE}:fontsize=18:x=1148:y=534,"
-           f"drawbox=x=1720:y=528:w=110:h=24:color={COLOR_RED}@0.12:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='Preview Active':"
-           f"fontcolor={COLOR_RED}:fontsize=10:x=1730:y=533,"
            # BD tactical mini corner brackets on PiP frame (16px)
            f"drawbox=x=1120:y=140:w=16:h=3:color={COLOR_RED}:t=fill,"
            f"drawbox=x=1120:y=140:w=3:h=16:color={COLOR_RED}:t=fill,"
@@ -2284,7 +2244,8 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
     fg += f"[{last_v}]format=yuv420p[outv];\n"
 
     # APEX V2: TTS only — continuous BGM mixed in concatenate_parts()
-    fg += f"[0:a]loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]"
+    # CYCLE2 FIX: Added aformat=channel_layouts=stereo to prevent aresample channel layout error
+    fg += f"[0:a]aformat=channel_layouts=stereo,loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]"
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
