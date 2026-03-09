@@ -239,7 +239,7 @@ def call_gpt4o(prompt: str, results: dict, errors: dict):
         resp = client.chat.completions.create(
             model="gpt-5.4",
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=6000,
+            max_completion_tokens=6000,
             temperature=0.3,
         )
         results["gpt4o"] = resp.choices[0].message.content
@@ -258,7 +258,7 @@ def call_grok(prompt: str, results: dict, errors: dict):
         resp = client.chat.completions.create(
             model="grok-3-latest",
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=6000,
+            max_completion_tokens=6000,
             temperature=0.3,
         )
         results["grok"] = resp.choices[0].message.content
@@ -378,7 +378,7 @@ git push origin {FEATURE_MAP.get(feature, ('','feature/'+feature))[1]}
 
     msg = client.messages.create(
         model="claude-sonnet-4-6",
-        max_tokens=6000,
+        max_completion_tokens=6000,
         messages=[{"role": "user", "content": synthesis_prompt}]
     )
     return msg.content[0].text
