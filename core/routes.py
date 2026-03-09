@@ -1337,6 +1337,24 @@ def article_detail(article_id):
         key_takeaways_bullets = [key_takeaways_text]
     body_html = _article_body_without_tldr(article.content or "")
     header_image_url = article.header_image_url or "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200"
+
+    # P3 Affiliate CTA injection — contextual, AI-classified, privacy-first
+    affiliate_cta = None
+    try:
+        from services.affiliate_injector import inject_affiliate_cta
+        raw_ip = request.headers.get('X-Forwarded-For', request.remote_addr or '')
+        client_ip = raw_ip.split(',')[0].strip()
+        tags_str = getattr(article, 'tags', '') or ''
+        affiliate_cta = inject_affiliate_cta(
+            article_id=article.id,
+            article_content=article.content or '',
+            article_category=article.category or '',
+            article_tags=tags_str,
+            client_ip=client_ip,
+        )
+    except Exception as _aff_exc:
+        logging.debug("affiliate_inject skipped: %s", _aff_exc)
+
     return render_template(
         "article_detail.html",
         article=article,
@@ -1345,6 +1363,7 @@ def article_detail(article_id):
         key_takeaways_bullets=key_takeaways_bullets,
         body_html=body_html,
         header_image_url=header_image_url,
+        affiliate_cta=affiliate_cta,
     )
 
 @app.route('/category/<category>')
@@ -8037,6 +8056,279 @@ def api_media_highlights():
     except Exception as e:
         logging.warning('api_media_highlights error: %s', e)
         return jsonify([])
+
+# =============================================
+# P3 AFFILIATE INTEGRATION — Meanwhile + RNS.ID
+# Created: 2026-03-09 | Branch: feature/p3-affiliates
+# =============================================
+
+def _p3_init_tables():
+    """Ensure p3_affiliate_clicks and p3_affiliate_ab_results tables exist."""
+    try:
+        db.session.execute(db.text(
+            "CREATE TABLE IF NOT EXISTS p3_affiliate_clicks ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "partner TEXT NOT NULL, "
+            "referrer_page TEXT, "
+            "ab_variant TEXT, "
+            "converted INTEGER DEFAULT 0, "
+            "user_hash TEXT, "
+            "user_agent_hash TEXT, "
+            "clicked_at DATETIME DEFAULT CURRENT_TIMESTAMP)"
+        ))
+        db.session.execute(db.text(
+            "CREATE INDEX IF NOT EXISTS idx_p3_aff_partner_date "
+            "ON p3_affiliate_clicks(partner, clicked_at)"
+        ))
+        db.session.execute(db.text(
+            "CREATE TABLE IF NOT EXISTS p3_affiliate_ab_results ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "partner TEXT NOT NULL, "
+            "variant TEXT NOT NULL, "
+            "impressions INTEGER DEFAULT 0, "
+            "clicks INTEGER DEFAULT 0, "
+            "winner_locked INTEGER DEFAULT 0, "
+            "calculated_at DATETIME DEFAULT CURRENT_TIMESTAMP, "
+            "UNIQUE(partner, variant))"
+        ))
+        db.session.commit()
+    except Exception as _e:
+        logging.debug("p3_init_tables: %s", _e)
+        db.session.rollback()
+
+
+@app.route('/go/meanwhile')
+def affiliate_go_meanwhile():
+    """Track click → redirect to Meanwhile with referral code."""
+    _p3_init_tables()
+    try:
+        from services.affiliate_injector import track_click, PARTNER_CONFIG
+        salt = os.environ.get('TRACKING_SALT', 'pp-affiliate-default-salt-2026')
+        today = datetime.utcnow().date().isoformat()
+        raw_ip = request.headers.get('X-Forwarded-For', request.remote_addr or '')
+        ip = raw_ip.split(',')[0].strip()
+        user_hash = hashlib.sha256(f"{ip}:{today}:{salt}".encode()).hexdigest()
+        referrer = request.args.get('ref') or request.referrer or ''
+        variant = request.args.get('v', 'A')
+        track_click('meanwhile', referrer[:500], variant, user_hash,
+                    request.headers.get('User-Agent', '')[:500])
+        dest = PARTNER_CONFIG['meanwhile']['redirect_url']
+        resp = redirect(dest, code=302)
+        resp.headers['Cache-Control'] = 'no-store, no-cache'
+        return resp
+    except Exception as e:
+        logging.error("affiliate_go_meanwhile error: %s", e)
+        return redirect('https://www.meanwhile.life/', code=302)
+
+
+@app.route('/go/rns')
+def affiliate_go_rns():
+    """Track click → redirect to RNS.ID with referral code."""
+    _p3_init_tables()
+    try:
+        from services.affiliate_injector import track_click, PARTNER_CONFIG
+        salt = os.environ.get('TRACKING_SALT', 'pp-affiliate-default-salt-2026')
+        today = datetime.utcnow().date().isoformat()
+        raw_ip = request.headers.get('X-Forwarded-For', request.remote_addr or '')
+        ip = raw_ip.split(',')[0].strip()
+        user_hash = hashlib.sha256(f"{ip}:{today}:{salt}".encode()).hexdigest()
+        referrer = request.args.get('ref') or request.referrer or ''
+        variant = request.args.get('v', 'A')
+        track_click('rns_id', referrer[:500], variant, user_hash,
+                    request.headers.get('User-Agent', '')[:500])
+        dest = PARTNER_CONFIG['rns_id']['redirect_url']
+        resp = redirect(dest, code=302)
+        resp.headers['Cache-Control'] = 'no-store, no-cache'
+        return resp
+    except Exception as e:
+        logging.error("affiliate_go_rns error: %s", e)
+        return redirect('https://rns.id/', code=302)
+
+
+@app.route('/bitcoin-life-insurance')
+def bitcoin_life_insurance():
+    """Meanwhile Bitcoin Life Insurance landing page."""
+    return render_template('bitcoin_life_insurance.html')
+
+
+@app.route('/digital-residency')
+def digital_residency():
+    """RNS.ID Palau Digital Residency landing page."""
+    return render_template('digital_residency.html')
+
+
+@app.route('/admin/affiliates')
+@login_required
+@admin_required
+def admin_affiliates():
+    """Admin affiliate analytics dashboard."""
+    _p3_init_tables()
+    try:
+        from services.affiliate_injector import compute_ab_stats, get_partner_config
+        K_ANON = 10  # k-anonymity threshold
+
+        # Clicks last 30 days per partner
+        rows = db.session.execute(db.text(
+            "SELECT partner, date(clicked_at) as day, COUNT(*) as cnt "
+            "FROM p3_affiliate_clicks "
+            "WHERE clicked_at >= date('now', '-30 days') "
+            "GROUP BY partner, day ORDER BY day"
+        )).fetchall()
+        clicks_by_day = {}
+        for r in rows:
+            clicks_by_day.setdefault(r[0], {})[r[1]] = r[2]
+
+        # Total clicks (30d) per partner
+        totals = db.session.execute(db.text(
+            "SELECT partner, COUNT(*) as total, "
+            "COUNT(DISTINCT user_hash) as unique_users "
+            "FROM p3_affiliate_clicks "
+            "WHERE clicked_at >= date('now', '-30 days') "
+            "GROUP BY partner"
+        )).fetchall()
+        totals_map = {r[0]: {"total": r[1], "unique_users": r[2]} for r in totals}
+
+        # Top referrer pages (k-anon enforced)
+        top_refs = db.session.execute(db.text(
+            "SELECT partner, referrer_page, COUNT(*) as cnt, "
+            "COUNT(DISTINCT user_hash) as uniq "
+            "FROM p3_affiliate_clicks "
+            "WHERE clicked_at >= date('now', '-30 days') "
+            "AND referrer_page != '' "
+            "GROUP BY partner, referrer_page "
+            "HAVING uniq >= :k "
+            "ORDER BY cnt DESC LIMIT 20"
+        ), {"k": K_ANON}).fetchall()
+
+        # A/B stats
+        ab_stats = {
+            "meanwhile": compute_ab_stats("meanwhile"),
+            "rns_id": compute_ab_stats("rns_id"),
+        }
+
+        partner_cfg = get_partner_config()
+
+        return render_template(
+            'admin_affiliates.html',
+            clicks_by_day=clicks_by_day,
+            totals_map=totals_map,
+            top_refs=top_refs,
+            ab_stats=ab_stats,
+            partner_cfg=partner_cfg,
+            k_anon=K_ANON,
+        )
+    except Exception as e:
+        logging.error("admin_affiliates error: %s", e)
+        return render_template('admin_affiliates.html',
+                               clicks_by_day={}, totals_map={}, top_refs=[],
+                               ab_stats={}, partner_cfg={}, k_anon=10,
+                               error=str(e))
+
+
+@app.route('/api/affiliates/metrics')
+@login_required
+@admin_required
+def api_affiliates_metrics():
+    """JSON endpoint: affiliate click metrics for dashboard charts."""
+    _p3_init_tables()
+    try:
+        from services.affiliate_injector import compute_ab_stats, PARTNER_CONFIG
+        K_ANON = 10
+
+        # Daily clicks last 30 days
+        rows = db.session.execute(db.text(
+            "SELECT partner, date(clicked_at) as day, COUNT(*) as cnt "
+            "FROM p3_affiliate_clicks "
+            "WHERE clicked_at >= date('now', '-30 days') "
+            "GROUP BY partner, day ORDER BY day"
+        )).fetchall()
+
+        daily = {}
+        for r in rows:
+            daily.setdefault(r[0], []).append({"date": r[1], "clicks": r[2]})
+
+        # Partner totals
+        totals = db.session.execute(db.text(
+            "SELECT partner, COUNT(*) as total, "
+            "COUNT(DISTINCT user_hash) as unique_users "
+            "FROM p3_affiliate_clicks "
+            "GROUP BY partner"
+        )).fetchall()
+        totals_map = {r[0]: {"total": r[1], "unique_users": r[2]} for r in totals}
+
+        # Estimated earnings
+        earnings = {}
+        for partner, cfg in PARTNER_CONFIG.items():
+            t = totals_map.get(partner, {}).get("total", 0)
+            # Conservative: 2% click-to-conversion rate
+            earnings[partner] = round(t * 0.02 * cfg["estimated_commission"], 2)
+
+        return jsonify({
+            "ok": True,
+            "daily_clicks": daily,
+            "totals": totals_map,
+            "estimated_earnings": earnings,
+            "ab_stats": {
+                "meanwhile": compute_ab_stats("meanwhile"),
+                "rns_id": compute_ab_stats("rns_id"),
+            },
+        })
+    except Exception as e:
+        logging.error("api_affiliates_metrics error: %s", e)
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/affiliates/impression', methods=['POST'])
+def api_affiliates_impression():
+    """Record affiliate impression (JS beacon). No auth required — public endpoint."""
+    _p3_init_tables()
+    try:
+        data = request.get_json(silent=True) or {}
+        partner = data.get('partner', '')
+        variant = data.get('variant', 'A')
+        referrer_page = data.get('referrer_page', '')[:500]
+
+        if partner not in ('meanwhile', 'rns_id'):
+            return '', 204
+
+        from services.affiliate_injector import track_impression
+        salt = os.environ.get('TRACKING_SALT', 'pp-affiliate-default-salt-2026')
+        today = datetime.utcnow().date().isoformat()
+        raw_ip = request.headers.get('X-Forwarded-For', request.remote_addr or '')
+        ip = raw_ip.split(',')[0].strip()
+        user_hash = hashlib.sha256(f"{ip}:{today}:{salt}".encode()).hexdigest()
+        track_impression(partner, referrer_page, variant, user_hash)
+        return '', 204
+    except Exception as e:
+        logging.debug("api_affiliates_impression error: %s", e)
+        return '', 204
+
+
+@app.route('/api/affiliates/declare-winner', methods=['POST'])
+@login_required
+@admin_required
+def api_affiliates_declare_winner():
+    """Lock in winning A/B variant for a partner."""
+    _p3_init_tables()
+    try:
+        data = request.get_json(silent=True) or {}
+        partner = data.get('partner', '')
+        variant = data.get('variant', '')
+        if partner not in ('meanwhile', 'rns_id') or variant not in ('A', 'B'):
+            return jsonify({'ok': False, 'error': 'Invalid partner or variant'}), 400
+
+        # Lock winner: set winner_locked=1 on winning variant, disable loser
+        db.session.execute(db.text(
+            "UPDATE p3_affiliate_ab_results SET winner_locked = 1 "
+            "WHERE partner = :partner AND variant = :variant"
+        ), {"partner": partner, "variant": variant})
+        db.session.commit()
+        return jsonify({'ok': True, 'partner': partner, 'winner': variant})
+    except Exception as e:
+        db.session.rollback()
+        logging.error("declare_winner error: %s", e)
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
 
 # Error handlers
 @app.errorhandler(404)

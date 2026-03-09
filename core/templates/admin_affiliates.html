@@ -1,0 +1,664 @@
+{% extends "base.html" %}
+
+{% block title %}Affiliate Analytics — Admin | Protocol Pulse{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ─── AFFILIATE ADMIN DASHBOARD ─── */
+.aff-admin {
+    background: #06070b;
+    min-height: 100vh;
+    padding: 2rem 0 4rem;
+    color: #eef2ff;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.aff-page-header {
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.aff-page-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.20em;
+    text-transform: uppercase;
+    color: #f8c15c;
+    margin-bottom: 0.4rem;
+}
+.aff-page-title {
+    font-size: 1.8rem;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    color: #eef2ff;
+    margin: 0;
+}
+.aff-refresh-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #95a0ba;
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s, border-color 0.2s;
+}
+.aff-refresh-btn:hover { color: #eef2ff; border-color: rgba(255,255,255,0.2); }
+
+/* Summary cards */
+.aff-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+}
+.aff-stat-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 1.4rem 1.2rem;
+}
+.aff-stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #95a0ba;
+    margin-bottom: 0.5rem;
+}
+.aff-stat-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    color: #eef2ff;
+    line-height: 1;
+}
+.aff-stat-sub {
+    font-size: 0.75rem;
+    color: #555e78;
+    margin-top: 0.3rem;
+}
+.aff-stat-card.gold .aff-stat-val { color: #f8c15c; }
+.aff-stat-card.green .aff-stat-val { color: #89ffb8; }
+.aff-stat-card.red .aff-stat-val { color: #ff3b5f; }
+
+/* Chart section */
+.aff-chart-panel {
+    background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 18px;
+    padding: 1.8rem;
+    margin-bottom: 2rem;
+}
+.aff-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.4rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.aff-panel-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #f8c15c;
+}
+.aff-legend {
+    display: flex;
+    gap: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #95a0ba;
+}
+.aff-legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 4px;
+}
+
+/* Chart bars */
+.aff-bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 140px;
+    padding-bottom: 0;
+}
+.aff-bar-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+.aff-bar-pair {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 120px;
+    width: 100%;
+}
+.aff-bar {
+    flex: 1;
+    border-radius: 3px 3px 0 0;
+    min-height: 2px;
+    transition: opacity 0.15s;
+}
+.aff-bar:hover { opacity: 0.7; }
+.aff-bar.meanwhile { background: #f8c15c; }
+.aff-bar.rns_id { background: #5de4ff; }
+.aff-bar-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.5rem;
+    color: #555e78;
+    text-align: center;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* Table */
+.aff-table-panel {
+    background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 18px;
+    padding: 1.8rem;
+    margin-bottom: 2rem;
+}
+.aff-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+.aff-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #555e78;
+    padding: 0.7rem 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.aff-table td {
+    padding: 0.7rem 0.8rem;
+    color: #c8d0e8;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.aff-table tr:last-child td { border-bottom: none; }
+.aff-table tr:hover td { background: rgba(255,255,255,0.02); }
+.aff-partner-badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+}
+.aff-partner-badge.meanwhile { background: rgba(248,193,92,0.12); color: #f8c15c; border: 1px solid rgba(248,193,92,0.2); }
+.aff-partner-badge.rns_id { background: rgba(93,228,255,0.08); color: #5de4ff; border: 1px solid rgba(93,228,255,0.15); }
+
+/* A/B section */
+.aff-ab-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+@media (max-width: 768px) { .aff-ab-grid { grid-template-columns: 1fr; } }
+
+.aff-ab-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 18px;
+    padding: 1.8rem;
+}
+.aff-ab-partner-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #eef2ff;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+.aff-ab-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.aff-ab-variant {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 800;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.06);
+    color: #eef2ff;
+    flex-shrink: 0;
+}
+.aff-ab-bar-wrap {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.aff-ab-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: #f8c15c;
+    transition: width 0.6s ease;
+}
+.aff-ab-bar-fill.rns { background: #5de4ff; }
+.aff-ab-stats {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: #95a0ba;
+    flex-shrink: 0;
+    text-align: right;
+    min-width: 90px;
+}
+.aff-ab-stats .ctr { font-size: 0.8rem; color: #eef2ff; font-weight: 700; }
+.aff-significance {
+    margin-top: 1rem;
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-family: 'JetBrains Mono', monospace;
+}
+.aff-significance.sig {
+    background: rgba(137,255,184,0.07);
+    border: 1px solid rgba(137,255,184,0.20);
+    color: #89ffb8;
+}
+.aff-significance.insig {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    color: #95a0ba;
+}
+.aff-declare-btn {
+    display: inline-block;
+    margin-top: 0.8rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.4rem 1rem;
+    border-radius: 8px;
+    background: rgba(255,59,95,0.12);
+    border: 1px solid rgba(255,59,95,0.25);
+    color: #ff3b5f;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.aff-declare-btn:hover { background: rgba(255,59,95,0.20); }
+.aff-winner-locked {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: #89ffb8;
+    margin-top: 0.8rem;
+}
+
+/* Error notice */
+.aff-error {
+    background: rgba(255,59,95,0.08);
+    border: 1px solid rgba(255,59,95,0.2);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    color: #ff8ba0;
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .aff-bar-chart { height: 100px; }
+    .aff-summary-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="aff-admin">
+<div class="container">
+
+  <!-- PAGE HEADER -->
+  <div class="aff-page-header">
+    <div>
+      <div class="aff-page-kicker">Admin &nbsp;•&nbsp; P3 Revenue</div>
+      <h1 class="aff-page-title">Affiliate Analytics</h1>
+    </div>
+    <a href="/admin/affiliates" class="aff-refresh-btn" aria-label="Refresh data">↺ Refresh</a>
+  </div>
+
+  {% if error %}
+  <div class="aff-error">
+    <strong>Error:</strong> {{ error }}
+    <br><small>Check logs. Tables will be created on next /go/meanwhile or /go/rns request.</small>
+  </div>
+  {% endif %}
+
+  <!-- SUMMARY CARDS -->
+  {% set mw = totals_map.get('meanwhile', {'total':0,'unique_users':0}) %}
+  {% set rns = totals_map.get('rns_id', {'total':0,'unique_users':0}) %}
+  {% set total_all = mw.total + rns.total %}
+  {% set est_mw = (mw.total * 0.02 * 150) | round(2) %}
+  {% set est_rns = (rns.total * 0.02 * 300) | round(2) %}
+  {% set est_total = (est_mw + est_rns) | round(2) %}
+
+  <div class="aff-summary-grid">
+    <div class="aff-stat-card">
+      <div class="aff-stat-label">Total Clicks (30d)</div>
+      <div class="aff-stat-val">{{ total_all }}</div>
+      <div class="aff-stat-sub">Both partners combined</div>
+    </div>
+    <div class="aff-stat-card">
+      <div class="aff-stat-label">Meanwhile Clicks</div>
+      <div class="aff-stat-val">{{ mw.total }}</div>
+      <div class="aff-stat-sub">{{ mw.unique_users }} unique users</div>
+    </div>
+    <div class="aff-stat-card">
+      <div class="aff-stat-label">RNS.ID Clicks</div>
+      <div class="aff-stat-val">{{ rns.total }}</div>
+      <div class="aff-stat-sub">{{ rns.unique_users }} unique users</div>
+    </div>
+    <div class="aff-stat-card gold">
+      <div class="aff-stat-label">Est. Earnings</div>
+      <div class="aff-stat-val">${{ est_total }}</div>
+      <div class="aff-stat-sub">2% conv × commission</div>
+    </div>
+    <div class="aff-stat-card green">
+      <div class="aff-stat-label">Est. Meanwhile</div>
+      <div class="aff-stat-val">${{ est_mw }}</div>
+      <div class="aff-stat-sub">$150 avg commission</div>
+    </div>
+    <div class="aff-stat-card" style="border-color:rgba(93,228,255,0.12);">
+      <div class="aff-stat-label">Est. RNS.ID</div>
+      <div class="aff-stat-val" style="color:#5de4ff;">${{ est_rns }}</div>
+      <div class="aff-stat-sub">$300 per referral</div>
+    </div>
+  </div>
+
+  <!-- CLICKS CHART -->
+  <div class="aff-chart-panel">
+    <div class="aff-panel-header">
+      <div class="aff-panel-title">Clicks Per Day — Last 30 Days</div>
+      <div class="aff-legend">
+        <span><span class="aff-legend-dot" style="background:#f8c15c;"></span>Meanwhile</span>
+        <span><span class="aff-legend-dot" style="background:#5de4ff;"></span>RNS.ID</span>
+      </div>
+    </div>
+    <div class="aff-bar-chart" id="affBarChart" role="img" aria-label="Daily affiliate clicks chart">
+      <!-- Rendered by JS below -->
+      <noscript><p style="color:#95a0ba;font-size:0.8rem;">Enable JavaScript to view chart.</p></noscript>
+    </div>
+  </div>
+
+  <!-- A/B TEST RESULTS -->
+  <div class="aff-page-kicker" style="margin-bottom:1rem;">A/B Test Results — Thompson Sampling MAB</div>
+  <div class="aff-ab-grid">
+
+    {% for partner_key, stats in ab_stats.items() %}
+    {% set partner_label = 'Meanwhile' if partner_key == 'meanwhile' else 'RNS.ID' %}
+    {% set accent = 'meanwhile' if partner_key == 'meanwhile' else 'rns_id' %}
+    <div class="aff-ab-card">
+      <div class="aff-ab-partner-name">
+        <span class="aff-partner-badge {{ accent }}">{{ accent }}</span>
+        {{ partner_label }} — A/B Test
+      </div>
+
+      {% if stats.get('error') %}
+      <p style="color:#555e78;font-size:0.82rem;">No data yet. Run traffic to see results.</p>
+      {% else %}
+      {% set va = stats.get('variant_a', {}) %}
+      {% set vb = stats.get('variant_b', {}) %}
+      {% set max_ctr = [va.get('ctr',0), vb.get('ctr',0), 0.01] | max %}
+
+      <div class="aff-ab-row">
+        <span class="aff-ab-variant">A</span>
+        <div class="aff-ab-bar-wrap">
+          <div class="aff-ab-bar-fill {% if accent == 'rns_id' %}rns{% endif %}"
+               style="width:{{ ((va.get('ctr',0) / max_ctr * 100) | round) | int }}%"></div>
+        </div>
+        <div class="aff-ab-stats">
+          <span class="ctr">{{ va.get('ctr', 0) }}%</span><br>
+          {{ va.get('clicks',0) }}/{{ va.get('impressions',0) }}
+        </div>
+      </div>
+
+      <div class="aff-ab-row">
+        <span class="aff-ab-variant">B</span>
+        <div class="aff-ab-bar-wrap">
+          <div class="aff-ab-bar-fill {% if accent == 'rns_id' %}rns{% endif %}"
+               style="width:{{ ((vb.get('ctr',0) / max_ctr * 100) | round) | int }}%"></div>
+        </div>
+        <div class="aff-ab-stats">
+          <span class="ctr">{{ vb.get('ctr', 0) }}%</span><br>
+          {{ vb.get('clicks',0) }}/{{ vb.get('impressions',0) }}
+        </div>
+      </div>
+
+      {% if stats.get('needs_more_data') %}
+      <div class="aff-significance insig">
+        Need more data — {{ [va.get('impressions',0), vb.get('impressions',0)] | min }}/100 impressions per variant
+      </div>
+      {% elif stats.get('significant') %}
+      <div class="aff-significance sig">
+        ✓ Variant {{ stats.winning_variant }} wins — {{ stats.confidence_pct }}% confidence (z={{ stats.z_score }})
+      </div>
+      <button class="aff-declare-btn"
+              onclick="declareWinner('{{ partner_key }}','{{ stats.winning_variant }}')"
+              aria-label="Lock in Variant {{ stats.winning_variant }} as winner for {{ partner_label }}">
+        Lock In Variant {{ stats.winning_variant }} →
+      </button>
+      {% else %}
+      <div class="aff-significance insig">
+        No significant difference yet (z={{ stats.get('z_score','—') }}, p={{ stats.get('p_value','—') }})
+      </div>
+      {% endif %}
+      {% endif %}
+    </div>
+    {% endfor %}
+
+  </div>
+
+  <!-- TOP REFERRER PAGES -->
+  <div class="aff-table-panel">
+    <div class="aff-panel-header">
+      <div class="aff-panel-title">Top Referrer Pages — 30 Days</div>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:#555e78;">
+        k≥{{ k_anon }} user threshold (privacy)
+      </span>
+    </div>
+    {% if top_refs %}
+    <div style="overflow-x:auto;">
+      <table class="aff-table" aria-label="Top referrer pages by affiliate clicks">
+        <thead>
+          <tr>
+            <th>Partner</th>
+            <th>Page</th>
+            <th>Clicks</th>
+            <th>Unique Users</th>
+            <th>Est. Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ref in top_refs %}
+          {% set comm = 150 if ref[0] == 'meanwhile' else 300 %}
+          <tr>
+            <td><span class="aff-partner-badge {{ ref[0] }}">{{ ref[0] }}</span></td>
+            <td style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:#95a0ba;">
+              {{ ref[1][:60] }}{% if ref[1]|length > 60 %}…{% endif %}
+            </td>
+            <td style="font-family:'JetBrains Mono',monospace;font-weight:700;">{{ ref[2] }}</td>
+            <td style="font-family:'JetBrains Mono',monospace;color:#95a0ba;">{{ ref[3] }}</td>
+            <td style="font-family:'JetBrains Mono',monospace;color:#f8c15c;">
+              ${{ (ref[2] * 0.02 * comm) | round(2) }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p style="color:#555e78;font-size:0.85rem;padding:1rem 0;">
+      No data yet — or all pages below k={{ k_anon }} user threshold.
+    </p>
+    {% endif %}
+  </div>
+
+  <!-- QUICK LINKS -->
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+    <a href="/bitcoin-life-insurance" target="_blank" class="aff-refresh-btn">↗ Meanwhile Landing Page</a>
+    <a href="/digital-residency" target="_blank" class="aff-refresh-btn">↗ RNS.ID Landing Page</a>
+    <a href="/go/meanwhile?ref=admin-test&v=A" target="_blank" class="aff-refresh-btn">Test /go/meanwhile</a>
+    <a href="/go/rns?ref=admin-test&v=A" target="_blank" class="aff-refresh-btn">Test /go/rns</a>
+    <a href="/api/affiliates/metrics" target="_blank" class="aff-refresh-btn">API Metrics JSON</a>
+  </div>
+
+</div>
+</div>
+
+<!-- Chart data injected as JSON -->
+<script id="aff-chart-data" type="application/json">
+{
+  "clicks_by_day": {{ clicks_by_day | tojson }},
+  "meanwhile_color": "#f8c15c",
+  "rns_color": "#5de4ff"
+}
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    // ── Chart rendering ──
+    var raw = {};
+    try { raw = JSON.parse(document.getElementById('aff-chart-data').textContent); } catch(e) {}
+    var mwData = raw.clicks_by_day && raw.clicks_by_day.meanwhile || {};
+    var rnsData = raw.clicks_by_day && raw.clicks_by_day.rns_id || {};
+
+    // Build 30-day date list
+    var dates = [];
+    var now = new Date();
+    for (var i = 29; i >= 0; i--) {
+        var d = new Date(now);
+        d.setDate(d.getDate() - i);
+        var iso = d.toISOString().slice(0, 10);
+        dates.push(iso);
+    }
+
+    // Find max for scaling
+    var maxVal = 1;
+    dates.forEach(function(d) {
+        var v = (mwData[d] || 0) + (rnsData[d] || 0);
+        if (v > maxVal) maxVal = v;
+    });
+
+    var chart = document.getElementById('affBarChart');
+    if (!chart) return;
+    chart.innerHTML = '';
+
+    dates.forEach(function(d) {
+        var mwV = mwData[d] || 0;
+        var rnsV = rnsData[d] || 0;
+        var maxH = 110; // px
+
+        var group = document.createElement('div');
+        group.className = 'aff-bar-group';
+        group.title = d + ': Meanwhile=' + mwV + ', RNS.ID=' + rnsV;
+
+        var pair = document.createElement('div');
+        pair.className = 'aff-bar-pair';
+
+        var b1 = document.createElement('div');
+        b1.className = 'aff-bar meanwhile';
+        b1.style.height = Math.max(2, Math.round(mwV / maxVal * maxH)) + 'px';
+
+        var b2 = document.createElement('div');
+        b2.className = 'aff-bar rns_id';
+        b2.style.height = Math.max(2, Math.round(rnsV / maxVal * maxH)) + 'px';
+
+        pair.appendChild(b1);
+        pair.appendChild(b2);
+
+        var label = document.createElement('div');
+        label.className = 'aff-bar-label';
+        // Show day/month only every 5 days
+        var idx = dates.indexOf(d);
+        if (idx % 5 === 0 || idx === 29) {
+            label.textContent = d.slice(5); // MM-DD
+        }
+
+        group.appendChild(pair);
+        group.appendChild(label);
+        chart.appendChild(group);
+    });
+})();
+
+// ── Declare winner ──
+function declareWinner(partner, variant) {
+    if (!confirm('Lock Variant ' + variant + ' as permanent winner for ' + partner + '?\nThis will freeze the MAB allocation. Cannot be undone easily.')) return;
+
+    var btn = event.currentTarget || document.querySelector('[onclick*="' + partner + '"]');
+    if (btn) btn.disabled = true;
+
+    fetch('/api/affiliates/declare-winner', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({partner: partner, variant: variant})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.ok) {
+            var card = btn ? btn.closest('.aff-ab-card') : null;
+            if (card) {
+                var locked = document.createElement('div');
+                locked.className = 'aff-winner-locked';
+                locked.textContent = '✓ Variant ' + variant + ' Locked as Winner';
+                btn.replaceWith(locked);
+            }
+        } else {
+            alert('Error: ' + (data.error || 'unknown'));
+            if (btn) btn.disabled = false;
+        }
+    })
+    .catch(function(e) {
+        alert('Network error: ' + e.message);
+        if (btn) btn.disabled = false;
+    });
+}
+</script>
+{% endblock %}
