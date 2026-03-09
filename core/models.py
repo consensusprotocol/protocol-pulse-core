@@ -501,6 +501,9 @@ class P3AffiliateClick(db.Model):
     __table_args__ = (
         db.Index('idx_p3_aff_partner_date', 'partner', 'clicked_at'),
         db.Index('idx_p3_aff_variant', 'partner', 'ab_variant'),
+        # P1 FIX (I7): indexes for referrer_page and user_hash (used in analytics/k-anon queries)
+        db.Index('idx_p3_aff_referrer', 'referrer_page'),
+        db.Index('idx_p3_aff_user_hash', 'user_hash'),
     )
 
 

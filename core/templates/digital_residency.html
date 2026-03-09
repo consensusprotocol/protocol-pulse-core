@@ -627,14 +627,17 @@ function toggleFaqRns(btn) {
     btn.setAttribute('aria-expanded', item.classList.contains('open'));
 }
 
+// P0 FIX (I1 + U4): track final CTA click correctly (not as impression)
 function trackAffClick(partner, placement) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const variant = urlParams.get('v') || 'direct';
     const payload = JSON.stringify({
         partner: partner,
-        variant: 'B',
+        variant: variant,
         referrer_page: window.location.pathname + '?placement=' + placement
     });
     if (navigator.sendBeacon) {
-        navigator.sendBeacon('/api/affiliates/impression', new Blob([payload], {type:'application/json'}));
+        navigator.sendBeacon('/api/affiliates/click', new Blob([payload], {type:'application/json'}));
     }
 }
 

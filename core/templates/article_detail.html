@@ -219,7 +219,11 @@
 
                 <!-- P3 Affiliate CTA — Contextual, AI-classified, intent-gated -->
                 {% if affiliate_cta %}
-                <div class="aff-cta-container"
+                {# I3 FIX: visible by default; JS hides then reveals on intent threshold #}
+                <noscript>
+                  <style>.aff-cta-intent-gate { opacity: 1 !important; }</style>
+                </noscript>
+                <div class="aff-cta-intent-gate"
                      data-partner="{{ affiliate_cta.partner }}"
                      data-variant="{{ affiliate_cta.variant }}"
                      data-referrer="{{ request.path }}"
@@ -646,14 +650,15 @@
             obs.observe(ctaBlock);
         }
 
-        // Wire affiliate link clicks to add variant param
+        // M4 FIX: Use URL API to cleanly set params at render time (not on click).
+        // This ensures middle-click / right-click "open in new tab" also gets tracking params.
         ctaBlock.querySelectorAll('a.aff-card-cta, a.aff-link-inline').forEach(function(a) {
-            a.addEventListener('click', function() {
-                var href = a.getAttribute('href');
-                if (href && !href.includes('?')) href += '?';
-                else if (href) href += '&';
-                a.setAttribute('href', href + 'ref=' + encodeURIComponent(referrer) + '&v=' + variant);
-            });
+            try {
+                var url = new URL(a.href, window.location.origin);
+                url.searchParams.set('ref', referrer);
+                url.searchParams.set('v', variant);
+                a.href = url.toString();
+            } catch(e) { /* leave href unchanged if URL construction fails */ }
         });
     })();
 </script>

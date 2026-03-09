@@ -29,6 +29,18 @@ logger = logging.getLogger(__name__)
 # ────────────────────────────────────────────────────────────
 # Partner config
 # ────────────────────────────────────────────────────────────
+# P0 FIX (U2): Hard-fail on missing TRACKING_SALT — no silent degradation
+# Generate via: openssl rand -hex 32 and add to .env
+def _get_tracking_salt() -> str:
+    salt = os.environ.get("TRACKING_SALT")
+    if not salt:
+        raise RuntimeError(
+            "TRACKING_SALT env var must be set. "
+            "Generate with: openssl rand -hex 32"
+        )
+    return salt
+
+
 PARTNER_CONFIG = {
     "meanwhile": {
         "name": "Meanwhile Bitcoin Life Insurance",
@@ -168,8 +180,10 @@ def _get_mab_weights(partner: str) -> tuple[float, float]:
         a_impr, a_clicks = rows.get("A", (0, 0))
         b_impr, b_clicks = rows.get("B", (0, 0))
 
-        total = a_impr + b_impr
-        if total < 100:
+        # P1 FIX (M2): MAB activates on CLICKS not impressions — clicks are
+        # the meaningful signal of intent per the gospel spec
+        total_clicks = a_clicks + b_clicks
+        if total_clicks < 100:
             return 0.5, 0.5
 
         # Thompson Sampling: sample from Beta distribution
@@ -302,25 +316,36 @@ def inject_affiliate_cta(
     Never returns both partners on same article.
     """
     try:
-        # Check for breaking news / exclusion
+        # P1 FIX (M3): Check both category AND tags for breaking news
         cat_lower = (article_category or "").lower()
-        if "breaking" in cat_lower:
+        tags_lower = (article_tags or "").lower()
+        BREAKING_SIGNALS = {"breaking", "breaking-news", "urgent", "breaking_news"}
+        if "breaking" in cat_lower or any(sig in tags_lower for sig in BREAKING_SIGNALS):
             return None
 
         # Build content snippet for classification
         content_snippet = (article_content or "")[:2000]
-        tags_lower = (article_tags or "").lower()
 
-        # AI classification (cached by article_id)
-        classification = _classify_article(article_id, content_snippet)
+        # P1 FIX (I5): Tags are the authoritative gate.
+        # AI classification is a soft enrichment — requires tag agreement.
+        # "AI-only with no matching tags" does NOT qualify.
+        meanwhile_tag_match = any(t in tags_lower for t in MEANWHILE_TAGS)
+        rns_tag_match = any(t in tags_lower for t in RNS_TAGS)
 
-        meanwhile_ok = classification.get("meanwhile", False)
-        rns_ok = classification.get("rns_id", False)
+        # AI classification (cached by article_id) — only called if tags suggest relevance
+        if meanwhile_tag_match or rns_tag_match:
+            classification = _classify_article(article_id, content_snippet)
+            ai_meanwhile = classification.get("meanwhile", False)
+            ai_rns = classification.get("rns_id", False)
+        else:
+            ai_meanwhile = False
+            ai_rns = False
 
-        # Also check tags for fast-path if AI disabled
-        if not meanwhile_ok and not rns_ok:
-            meanwhile_ok = any(t in tags_lower for t in MEANWHILE_TAGS)
-            rns_ok = any(t in tags_lower for t in RNS_TAGS)
+        # Require: (tag match) OR (AI + tag match in content)
+        meanwhile_ok = meanwhile_tag_match or (ai_meanwhile and any(
+            t in content_snippet.lower() for t in MEANWHILE_TAGS))
+        rns_ok = rns_tag_match or (ai_rns and any(
+            t in content_snippet.lower() for t in RNS_TAGS))
 
         # Never show both — pick one (meanwhile wins ties)
         if meanwhile_ok and rns_ok:
@@ -332,7 +357,8 @@ def inject_affiliate_cta(
         partner = "meanwhile" if meanwhile_ok else "rns_id"
 
         # Generate user hash (privacy-first: never store raw IP)
-        salt = os.environ.get("TRACKING_SALT", "pp-affiliate-default-salt-2026")
+        # P0 FIX (U2): hard-fail on missing salt
+        salt = _get_tracking_salt()
         today = date.today().isoformat()
         user_hash = hashlib.sha256(f"{client_ip}:{today}:{salt}".encode()).hexdigest()
 
@@ -364,6 +390,8 @@ def track_click(partner: str, referrer_page: str, ab_variant: str,
     try:
         from app import db
         import sqlalchemy
+        # Sanitize referrer_page — only store path, not full URL (avoids storing PII in query strings)
+        safe_referrer = (referrer_page or "")[:500]
         ua_hash = hashlib.sha256((user_agent or "").encode()).hexdigest()
         db.session.execute(
             sqlalchemy.text(
@@ -374,7 +402,7 @@ def track_click(partner: str, referrer_page: str, ab_variant: str,
             ),
             {
                 "partner": partner,
-                "ref": referrer_page or "",
+                "ref": safe_referrer,
                 "variant": ab_variant or "A",
                 "uhash": user_hash,
                 "uahash": ua_hash,
@@ -407,68 +435,70 @@ def track_impression(partner: str, referrer_page: str, ab_variant: str,
         return False
 
 
+# TODO(p4-conversion): Implement server-to-server conversion postback.
+# Add POST /api/affiliates/conversion endpoint that:
+#   1. Validates shared HMAC secret from partner webhook
+#   2. Flips converted=1 for matching user_hash + partner + date window
+#   3. Logs revenue_usd if partner provides it
+# Without this, the MAB optimizes for clicks not revenue (world-class gap #1 from audit).
+# Meanwhile API docs: https://www.meanwhile.life/api (check partner portal)
+# RNS.ID API docs: check partner dashboard for webhook configuration
+
+
 def _increment_ab_impressions(partner: str, variant: str):
-    """Atomically increment impression count for a variant."""
+    """
+    P0 FIX (U1): Atomic upsert — eliminates SELECT-then-INSERT race condition.
+    Uses SQLite INSERT OR IGNORE + UPDATE pattern for true atomicity.
+    """
     from app import db
     import sqlalchemy
-    # Upsert pattern
-    existing = db.session.execute(
+    now = datetime.utcnow().isoformat()
+    # INSERT OR IGNORE creates the row if absent (0 impressions, 0 clicks)
+    db.session.execute(
         sqlalchemy.text(
-            "SELECT id FROM p3_affiliate_ab_results "
+            "INSERT OR IGNORE INTO p3_affiliate_ab_results "
+            "(partner, variant, impressions, clicks, winner_locked, calculated_at) "
+            "VALUES (:partner, :variant, 0, 0, 0, :now)"
+        ),
+        {"partner": partner, "variant": variant, "now": now},
+    )
+    # UPDATE increments atomically — no read-modify-write race
+    db.session.execute(
+        sqlalchemy.text(
+            "UPDATE p3_affiliate_ab_results "
+            "SET impressions = impressions + 1, calculated_at = :now "
             "WHERE partner = :partner AND variant = :variant"
         ),
-        {"partner": partner, "variant": variant},
-    ).fetchone()
-
-    if existing:
-        db.session.execute(
-            sqlalchemy.text(
-                "UPDATE p3_affiliate_ab_results SET impressions = impressions + 1, "
-                "calculated_at = :now WHERE partner = :partner AND variant = :variant"
-            ),
-            {"now": datetime.utcnow().isoformat(), "partner": partner, "variant": variant},
-        )
-    else:
-        db.session.execute(
-            sqlalchemy.text(
-                "INSERT INTO p3_affiliate_ab_results "
-                "(partner, variant, impressions, clicks, calculated_at) "
-                "VALUES (:partner, :variant, 1, 0, :now)"
-            ),
-            {"partner": partner, "variant": variant, "now": datetime.utcnow().isoformat()},
-        )
+        {"now": now, "partner": partner, "variant": variant},
+    )
     db.session.commit()
 
 
 def _increment_ab_clicks(partner: str, variant: str):
-    """Atomically increment click count for a variant."""
+    """
+    P0 FIX (U1): Atomic upsert — eliminates SELECT-then-INSERT race condition.
+    Uses SQLite INSERT OR IGNORE + UPDATE pattern for true atomicity.
+    """
     from app import db
     import sqlalchemy
-    existing = db.session.execute(
+    now = datetime.utcnow().isoformat()
+    db.session.execute(
         sqlalchemy.text(
-            "SELECT id FROM p3_affiliate_ab_results "
+            "INSERT OR IGNORE INTO p3_affiliate_ab_results "
+            "(partner, variant, impressions, clicks, winner_locked, calculated_at) "
+            "VALUES (:partner, :variant, 0, 0, 0, :now)"
+        ),
+        {"partner": partner, "variant": variant, "now": now},
+    )
+    db.session.execute(
+        sqlalchemy.text(
+            "UPDATE p3_affiliate_ab_results "
+            "SET clicks = clicks + 1, impressions = impressions + 1, "
+            "calculated_at = :now "
             "WHERE partner = :partner AND variant = :variant"
         ),
-        {"partner": partner, "variant": variant},
-    ).fetchone()
-
-    if existing:
-        db.session.execute(
-            sqlalchemy.text(
-                "UPDATE p3_affiliate_ab_results SET clicks = clicks + 1, "
-                "calculated_at = :now WHERE partner = :partner AND variant = :variant"
-            ),
-            {"now": datetime.utcnow().isoformat(), "partner": partner, "variant": variant},
-        )
-    else:
-        db.session.execute(
-            sqlalchemy.text(
-                "INSERT INTO p3_affiliate_ab_results "
-                "(partner, variant, impressions, clicks, calculated_at) "
-                "VALUES (:partner, :variant, 1, 1, :now)"
-            ),
-            {"partner": partner, "variant": variant, "now": datetime.utcnow().isoformat()},
-        )
+        {"now": now, "partner": partner, "variant": variant},
+    )
     db.session.commit()
 
 

@@ -402,12 +402,13 @@
     <div class="aff-stat-card green">
       <div class="aff-stat-label">Est. Meanwhile</div>
       <div class="aff-stat-val">${{ est_mw }}</div>
-      <div class="aff-stat-sub">$150 avg commission</div>
+      {# U5: conversion tracking not yet implemented — this is a modeled estimate #}
+      <div class="aff-stat-sub">~2% conv. model (estimated)</div>
     </div>
     <div class="aff-stat-card" style="border-color:rgba(93,228,255,0.12);">
       <div class="aff-stat-label">Est. RNS.ID</div>
       <div class="aff-stat-val" style="color:#5de4ff;">${{ est_rns }}</div>
-      <div class="aff-stat-sub">$300 per referral</div>
+      <div class="aff-stat-sub">~2% conv. model (estimated)</div>
     </div>
   </div>
 
@@ -478,8 +479,9 @@
       <div class="aff-significance sig">
         ✓ Variant {{ stats.winning_variant }} wins — {{ stats.confidence_pct }}% confidence (z={{ stats.z_score }})
       </div>
+      {# I6 FIX: pass event explicitly — avoid unreliable global `event` object #}
       <button class="aff-declare-btn"
-              onclick="declareWinner('{{ partner_key }}','{{ stats.winning_variant }}')"
+              onclick="declareWinner(event,'{{ partner_key }}','{{ stats.winning_variant }}')"
               aria-label="Lock in Variant {{ stats.winning_variant }} as winner for {{ partner_label }}">
         Lock In Variant {{ stats.winning_variant }} →
       </button>
@@ -629,10 +631,11 @@
 })();
 
 // ── Declare winner ──
-function declareWinner(partner, variant) {
+// I6 FIX: event passed explicitly as parameter, never from global `event`
+function declareWinner(evt, partner, variant) {
     if (!confirm('Lock Variant ' + variant + ' as permanent winner for ' + partner + '?\nThis will freeze the MAB allocation. Cannot be undone easily.')) return;
 
-    var btn = event.currentTarget || document.querySelector('[onclick*="' + partner + '"]');
+    var btn = (evt && evt.currentTarget) || null;
     if (btn) btn.disabled = true;
 
     fetch('/api/affiliates/declare-winner', {

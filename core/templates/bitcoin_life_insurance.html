@@ -605,15 +605,20 @@ function toggleFaq(btn) {
     btn.setAttribute('aria-expanded', item.classList.contains('open'));
 }
 
-// Affiliate click tracking (non-blocking)
+// P0 FIX (I1 + U4): track final CTA click as click (not impression)
+// variant is passed via URL param from the article page, or defaults to 'LP' for direct traffic
 function trackAffClick(partner, placement) {
+    // Read variant from URL if navigated from article (e.g., ?v=A or ?v=B)
+    const urlParams = new URLSearchParams(window.location.search);
+    const variant = urlParams.get('v') || 'direct';
     const payload = JSON.stringify({
         partner: partner,
-        variant: 'B',
+        variant: variant,
         referrer_page: window.location.pathname + '?placement=' + placement
     });
+    // Use /api/affiliates/click for final click events, not impression
     if (navigator.sendBeacon) {
-        navigator.sendBeacon('/api/affiliates/impression', new Blob([payload], {type:'application/json'}));
+        navigator.sendBeacon('/api/affiliates/click', new Blob([payload], {type:'application/json'}));
     }
 }
 

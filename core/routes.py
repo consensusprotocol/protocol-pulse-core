@@ -8098,12 +8098,14 @@ def _p3_init_tables():
 
 
 @app.route('/go/meanwhile')
+@limiter.limit("30 per minute")
 def affiliate_go_meanwhile():
     """Track click → redirect to Meanwhile with referral code."""
     _p3_init_tables()
     try:
         from services.affiliate_injector import track_click, PARTNER_CONFIG
-        salt = os.environ.get('TRACKING_SALT', 'pp-affiliate-default-salt-2026')
+        from services.affiliate_injector import _get_tracking_salt
+        salt = _get_tracking_salt()
         today = datetime.utcnow().date().isoformat()
         raw_ip = request.headers.get('X-Forwarded-For', request.remote_addr or '')
         ip = raw_ip.split(',')[0].strip()
@@ -8122,12 +8124,14 @@ def affiliate_go_meanwhile():
 
 
 @app.route('/go/rns')
+@limiter.limit("30 per minute")
 def affiliate_go_rns():
     """Track click → redirect to RNS.ID with referral code."""
     _p3_init_tables()
     try:
         from services.affiliate_injector import track_click, PARTNER_CONFIG
-        salt = os.environ.get('TRACKING_SALT', 'pp-affiliate-default-salt-2026')
+        from services.affiliate_injector import _get_tracking_salt
+        salt = _get_tracking_salt()
         today = datetime.utcnow().date().isoformat()
         raw_ip = request.headers.get('X-Forwarded-For', request.remote_addr or '')
         ip = raw_ip.split(',')[0].strip()
@@ -8279,6 +8283,7 @@ def api_affiliates_metrics():
 
 
 @app.route('/api/affiliates/impression', methods=['POST'])
+@limiter.limit("60 per minute")
 def api_affiliates_impression():
     """Record affiliate impression (JS beacon). No auth required — public endpoint."""
     _p3_init_tables()
@@ -8292,7 +8297,8 @@ def api_affiliates_impression():
             return '', 204
 
         from services.affiliate_injector import track_impression
-        salt = os.environ.get('TRACKING_SALT', 'pp-affiliate-default-salt-2026')
+        from services.affiliate_injector import _get_tracking_salt
+        salt = _get_tracking_salt()
         today = datetime.utcnow().date().isoformat()
         raw_ip = request.headers.get('X-Forwarded-For', request.remote_addr or '')
         ip = raw_ip.split(',')[0].strip()
@@ -8301,6 +8307,38 @@ def api_affiliates_impression():
         return '', 204
     except Exception as e:
         logging.debug("api_affiliates_impression error: %s", e)
+        return '', 204
+
+
+@app.route('/api/affiliates/click', methods=['POST'])
+@limiter.limit("60 per minute")
+def api_affiliates_click():
+    """
+    Record affiliate click from landing page JS beacon.
+    Distinct from /api/affiliates/impression — fires when user clicks final CTA.
+    P1 FIX (U4): separate endpoint prevents impression/click metric pollution.
+    """
+    _p3_init_tables()
+    try:
+        data = request.get_json(silent=True) or {}
+        partner = data.get('partner', '')
+        variant = data.get('variant', 'direct')
+        referrer_page = data.get('referrer_page', '')[:500]
+
+        if partner not in ('meanwhile', 'rns_id'):
+            return '', 204
+
+        from services.affiliate_injector import track_click, _get_tracking_salt
+        salt = _get_tracking_salt()
+        today = datetime.utcnow().date().isoformat()
+        raw_ip = request.headers.get('X-Forwarded-For', request.remote_addr or '')
+        ip = raw_ip.split(',')[0].strip()
+        user_hash = hashlib.sha256(f"{ip}:{today}:{salt}".encode()).hexdigest()
+        track_click(partner, referrer_page, variant, user_hash,
+                    request.headers.get('User-Agent', '')[:500])
+        return '', 204
+    except Exception as e:
+        logging.debug("api_affiliates_click error: %s", e)
         return '', 204
 
 
