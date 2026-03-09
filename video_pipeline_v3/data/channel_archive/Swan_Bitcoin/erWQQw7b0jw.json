@@ -1,0 +1,2517 @@
+{
+  "video_id": "erWQQw7b0jw",
+  "title": "Is Jane Street Guilty of Manipulating the Bitcoin Price?",
+  "channel": "Swan Bitcoin",
+  "upload_date": "",
+  "duration": 1126,
+  "transcript_text": "The Terraform lawsuit hit Wall Street in overnight, Bitcoiners have a villain. Minipulation, suppression, insider trading, a 10 a.m. sale algo that crashed the price every morning for months. A 473% MSTR position increase sprued into 13 F. One trading desk accused of engineering the crash and dragging Bitcoin into a bear market. Today, we're pulling the thread, the insiders, the skeptics, the on-chain data, to find the signal and the noise. Welcome to No Second Best, the show where conviction meets reality and reality points straight to Bitcoin. I'm your host, Hurley. Now, let's get into it. On Monday morning, Terraform bankruptcy administrator, Todd Snyder filed a lawsuit against Jane Street, alleging they used insider information to front-run trades and extract profits during the Terra Luna collapse in 2022. Jane Street, for those that don't know, is one of the largest quantitative trading firms in the world. They trade everything. Equities, bonds, crypto, derivatives, and they're one of the authorized participants in the Bitcoin ETF ecosystem. That means they sit in the plumbing. The lawsuit dropped, and within hours, people started connecting the dots. There was a peculiar and consistent cell pattern, 10 a.m. Eastern nearly every day, where Bitcoin would dump for months. People noticed it, but nobody had a name to attach to it until now. Then suddenly, yesterday, the 10 a.m. dump stopped right after the lawsuit. Bitcoin ripped 7% in 48 hours. Now, obviously correlation is in causation. Many have pointed out that the 10 a.m. pattern may not hold up under rigorous statistical analysis, but the timing was hard to ignore. And it wasn't just the cell pattern. Jane Street's 13 F filing from Q4 2025 showed a 473% increase in their MSTR position. They added over 785,000 shares, bringing their total holdings up to just under a million shares valued at roughly $121 million. At the same time, MSTR became the most shorted stock in the world, with investors betting against sailor amid $7 billion in unrealized Bitcoin losses. So you've got to firm a custom to running a suppression algorithm, accumulating a massive position in the most prominent Bitcoin treasury company, while that same company is being shorted into the ground. It smells a lot like a conspiracy. Well, two camps formed immediately on Bitcoin Twitter. Camp 1 believes this is proof of systematic price oppression, the same playbook Wall Street ran on gold for decades. Crash the price, liquidate retail, and accumulate at a discount. Camp 2 points to long-term holders moving a record amount of Bitcoin. They say the sell-off was organic, and that blaming Jane Street is what silver and gold bugs have cried for decades. Both camps have credible people, both have data. So which is it? That's what we're getting to the bottom of today. We'll start with the suppression case, and there's nobody more qualified to make it than Caitlin Long. She spent 22 years on Wall Street, and left because she saw what was coming. In 2016, she warned publicly that Wall Street would do to Bitcoin what it did to gold. Wrap it in paper until the price no longer reflects reality. Here's what she had to say recently on what Bitcoin did. Wall Street is here in Bitcoin in a very big way, right? And they're doing it with the ETFs. And as I warned at the time, years, actually, I think I wrote a piece in Forbes in 2016, warning that when Wall Street arrives for Bitcoin, it's going to be a double-edged sword, including when Wall Street gets Bitcoin ETFs. Because it's going to bring in a new demand, new source of demand, but it's also going to bring in all these derivatives. And just today, we're recording this session on Monday, the 26th of January, BlackRock filed an ETF that is going to provide some downside protection is how it's designing it on the IBIT, but also providing some yield by selling call options to monetize Bitcoin's volatility. I saw this just before we started recording. It's like an income generating ETF. But Bitcoin itself doesn't generate any income. So if you're investing in something that generates income, you are taking some counterparty credit risk with your Bitcoin because they're monetizing the volatility, which is a classic Wall Street strategy. But what's the impact of all of that? It has a, it creates paper claims that are not backed by the real thing. And what does that do? It creates an artificial suppression of the price because there's an artificial increase in supply. Think about your supply demand curves when the supply curve moves out to the right. The price goes down. But it also creates demand substitution. And I can go back and find an old tweet thread that I put out a few years ago on this very topic that draws the supply and demand curves and shows why when you get paper claims that people accept as substitutes for the real thing, which of course has been happening for decades in gold and silver. And it's only been happening for a few years in Bitcoin, but that suppresses the price. I actually think that all these derivative games are suppressing the price. A lot of people think they're buying real Bitcoin. They're not buying real Bitcoin. It's concentration of ownership in centralized institutions that are not engaging in self-custody and that are engaging in these sort of yield plays. If you're engaging in a yield play on Bitcoin, you don't own real Bitcoin. You want to claim to Bitcoin. And in the event that there is a short squeeze, guess what? There may not be a chair for you in the game of musical chairs. That black rock income ETF, the one writing covered calls on Bitcoin Holdings is live. In every time a yield product like that gets created on top of Bitcoin, it generates a paper claim that didn't exist before. The supply of paper Bitcoin goes up in the market, but of course not real Bitcoin. Synthetic exposure, but the market price is at the same. Nobody sold a single Satoshi, but Wall Street manufactured supply out of thin air. And the musical chairs metaphor she uses is precise. As long as everyone's happy holding the paper, the game works. The moment people try to redeem, the moment they want a real Bitcoin and not a claim on it, the mismatch becomes a crisis. So how deep does this go? Long doesn't just think suppression is possible. She thinks the ratio of paper claims to actual Bitcoin is approaching what we saw in gold at its worst and she even has a specific number. I know a lot of folks look at the gold buds and say, oh, this is conspiracy theory, but it's not. It's conspiracy fact that the paper claims to the actual physical far exceed the actual physical and it's about 100 to one. And so that means there's somebody with leverage who's in trouble. And historically with some of these ETFs, they've been cash settled. We've seen this. You've talked about it on your podcast with the Bitcoin ETFs, the whole question of physical settlement versus cash settlement. And the original Bitcoin ETFs were all cash settled. Now the SEC has allowed an option for physical settlement, which is great because that's what keeps the ETFs honest. But the cash settled ETFs and the cash settled derivatives are a place where a lot of leverage has crept into these systems. 100 to one. That's the ratio exposed in the gold market and long is saying Bitcoin is headed there. The implication isn't that Bitcoin is overvalued. It's that most people who think they own Bitcoin might be holding a derivative of a derivative. And when the music stops, when settlement actually matters, there won't be enough chairs. Okay, so that's the case for suppression. But there's another voice in the conversation we need to hear. Someone with a very different read on what the data actually shows. James Check built his reputation on on-chain analytics. He doesn't trade narratives, he reads the blockchain. And when the Jane Street theory exploded, he didn't flinch. He pointed at the chain and said, look, it would actually happen. How annoying are the silver bugs? How annoying are they? I've never seen them. Why are they being annoying? No, no. Marker goes down 15% an hour, manipulation. Marker goes parabolic to the upside. It's all there. I want to talk about why your coin is worse. The silver bug episode of watching how painfully irritating they were, it's a mirror for what we look like in the bull market. Do you want to know why the critics don't like us? It's because we look like that. So, you know, the silver bugs immediately, we go literally parabolic. Every sign under the sun was guys, this is the frothiest thing. This is just froth, froth, froth. And yet it goes down from a parabolic vertical move and everyone goes manipulation. No, no. You've got a bunch of old hands who've been stacking silver with since they were, you know, 14 years old. And now they're 70, they've decided to sell because they've waited their whole life for this move. So all these silver bugs are selling and who's buying the people I saw at the silver shop when I was selling. Didn't know what a trance was. So, you know, you've just got the speculative new money coming in. Short term holders bought the top. Long term holders sold the top. It's exactly the same day now. So even the silver bugs like to claim manipulation when a parabolic move pulls back 15, 20% in a couple of hours, it's like, no, it's a bluff top. It's bluff top. Check us saying the same crying that happened in silver is happening in Bitcoin. And the on-chain data backing him up is hard to dismiss. Q4 2025 did see the highest activity from previously dormant coins since the 2017 blow off top. Bitcoin then hadn't moved in three, five, and seven plus years, suddenly hitting the market in size. These weren't day traders getting liquidated by an algo. These were OGs distributing into strength. So who's right in all this? Here's the thing. They both are. Long is right that the mechanism for suppression via paper claims exists. It's documented and has historical precedent in the gold market. Check is right that the on-chain data shows massive organic selling from the long-term holders. Both things are true, and they're not contradictory. What the paper machinery does is amplify. It doesn't create sell-offs from nothing. It widens them, makes the drawdown deeper, the recovery slower, and the price discovery mudier. The holders check points to the ones who sold. They sold into a market where synthetic supply was already suppressing the bid. The selling was real. The headwind was too. So the question isn't who pushed the price down. The question is, what are you exposed to? If you own real Bitcoin, if your coin settle to your keys, then whether Jane Street was suppressing the price or not is an interesting dinner conversation and nothing more. But if your Bitcoin lives inside a wrapper, an ETF, an exchange balance, or a yield product, then it matters a lot. Because your Bitcoin might be one of 100 claims on the same coin, which brings us to the structural problem underneath all of this. Michael Saylor connects the dots. If you're wondering how paper claims actually translate into selling pressure, how the abstract becomes concrete, Saylor walks through the mechanism. So if you have $10 million, you either cannot get a loan from a legitimate bank or you can get a small loan at a 10% interest rate. Or you can get a 3% or 4% loan, but then it gets re-hypothicated. So your $10 million of Bitcoin gets sold once, gets sold twice, gets sold three times. You might actually create $30 or $40 million worth of selling because the Bitcoin that you transferred to the shadow bank or the crypto exchange re-hypothicated it three times. OK, so what's holding down the price? I think what holds down the price of the asset is the lack of a fully formed non-re-hypothicating credit system. So right now we're in that bear market where you've got the re-hypothication holding back the price. And I think at some point it reverses itself. We'll just have to wait. This is how long's warning and checks data coexist. The organic selling was real, but it hit the market where re-hypothication had already multiplied the effective supply of Bitcoin several times over. The holders weren't selling into a clean order book. They were selling into a market where their coins had already been counted three or four times over. The only way to break that chain to stop your Bitcoin from being someone else's leverage is to remove it from the system entirely. And that's where this gets personal. Understanding re-hypothication is one thing, but doing something about it is another. So on private is for the people who actually want to act on this. Leaders of families and businesses building long-term Bitcoin positions who work directly with dedicated Bitcoin experts. Not a broker-jab, real people who understand what we just walk through and help you build a position that reflects it. And Swan Vault goes even further. Collaborative self-custody. You control two offline keys. Swan manages a third for coordination and recovery. Your keys, your coins, with the infrastructure to make sure you don't lose them to a set-up mistake or a bad recovery plan. Visit swan.com slash no second best to learn more about Swan Private and Swan Vault. Now here's where the story breaks from gold. Because the gold bugs were right about suppression and gold's price was distorted for decades. If the same playbook is running on Bitcoin, why should the oak can be any different? Keetlyn Long has an answer. Here's the bottom line. Wall Street will never control Bitcoin in the way that it was able to control gold. Why? Because gold was always stored in the bank's vaults, including the central banks. So the individual ownership of gold has never been more than a few percentage points. Whereas the individual ownership of Bitcoin, it's the vast majority. Yes, there've been some whale selling, some OG selling, as it topped $100,000. But it's still 70% held in long-term hotdlers' hands, give or take. It's still a relatively small portion of Bitcoin that trades every day. And the long-term hotdlers are not going to be bailing out Wall Street. And that supply's never going to be available for Wall Street to come in and financialize. So ultimately, Bitcoin is purely voluntary, so Wall Street can come in, just like anybody can come in. They can play their games. They can also blow themselves up, which I think they might do, somebody will. But by the same token, just the fact that anybody with an internet connection or even a ham radio, I have seen a Bitcoin transaction done over ham radio, okay? Anybody who can communicate with another human being can do a Bitcoin transaction. That means it's entirely voluntary. And that means we can always go around Wall Street. That is the escape valve. And no government can block us from using it as long as we can communicate with another human being, whether the internet is up or not. Gold couldn't escape because physical settlement is slow, expensive, and centralized. You can't email a gold bar. You can't beam it over a ham radio. Bitcoin settles in 10 minutes, anywhere between anyone without asking permission. Wall Street can suppress the price on their exchanges and their ETFs through their derivatives. They can't stop two people with a phone in a private key from transacting. The paper market can distort the price. It can never capture the asset. Okay, one more piece. Everything we've walked through, the suppression, the selling, the re-hypothication, the drawdown, it all produces one very natural response, fear. The sense that something is broken, that maybe the system is rigged and you're on the wrong side of it. Well, Michael Sailor sees it differently. Bitcoin represents the global capital market. And there are people doing things that you can't do, that you won't do, that you don't choose to do. You don't wish to do. And they're doing it with that asset. And that's what's creating the volatility. But that's also creating the gravitational or the magnetic field, which is attracting all of the energy, all the financial energy of the world being drawn into this space, all of the political energy. You know, all of the digital energy, it's all being drawn into this space because of that utility. And I think you just got to make your piece with it, either you're a short term and you're a trader. If you're worried about what Bitcoin's going to be in four days or four weeks or four months, you're a trader, call yourself a trader, and then you better have a trading methodology or trading excellence or be in the trading business or be, you know, neutrally hedge. So it doesn't matter to you. You're either that or you're an investor, you've got a four-year time horizon and then it just doesn't matter. The volatility is a gravitational field. It's what makes Bitcoin a $2 trillion asset instead of a $200 trillion one, for now. Every Jane Street headline, every 10 a.m. dump, every wave of liquidations is the compression event that lets people who are paying attention accumulate at a discount. Traders hate it, investors get it. And in four years, nobody will remember what Jane Street did at 10 a.m. If you're serious about Bitcoin, not the noise, not the cycles, but the actual signal, BitBlock Boom is worth your time. It's happening April 9th through the 12th and 4th Texas. BitBlock Boom is a smaller conference with serious Bitcoiners. Exactly the kind of rumor conversations like this one actually happened in person. Corey Clipston and Brady Swenson from Swan are speaking and a Swan private team will be there too. For tickets visit bitblockboom.com and use code Swan for a discount, but hurry because prices go up in a few days. Okay, let's lay on this plane. We started with a question, is Jane Street suppressing the price of Bitcoin? And the answer is more nuanced than either Cam wants to admit. The mechanism for suppression is real. It's not a conspiracy. It's financial engineering, fiat games. The organic sell-off is also real. Long-term holders distributed a record amount of Bitcoin in Q4 2025. That's not manipulation. That's cycle mechanics. And both compound each other. Sailor named the mechanism, re-hypothication. Every paper claim multiplies selling pressure. The OGs sold into a market where synthetic supply was already crushing the bid. So yes, the Boogeyman exists, but here's what actually matters. Check is probably right about the timeline. Two weeks from now nobody will be talking about Jane Street. The narrative will move. It always does, but the lesson will stay. Paper Bitcoin is someone else's liability. Every wrapper, every derivative, every yield product is a claim that may never settle. When the music stops, the only people not scrambling for a chair are the ones holding real Bitcoin in their own custody. The Boogeyman is real, but he's powerless against real Bitcoin. Jane Street can run algos at 10. They can re-hypothicate paper claims until the cows come home. They can short MSCR into the ground. None of that touches a single Satoshi in Cold Storage. It doesn't touch the 21 million cap. It doesn't alter the 10 minute settlement finality of the base layer. The game is rigged. It always has been. Gold proved it, but Bitcoin has something gold never did. A way out. And the way out is the same whether the Boogeyman is real or imagined. Hold your own keys. Now I want to know what you think. Was Jane Street actively suppressing the price or was it organic distribution from long-term holders? And if you're still holding Bitcoin inside an exchange and ETF or a yield product, what's stopping you from taking custody? Let me know in the comments below. If you enjoyed this episode, share it with someone who needs to hear it. Like the video and subscribe to the Swan Bitcoin channel so you don't miss when it comes next. Thanks for watching and remember, in the game of money, there is no second best.",
+  "timestamped_text": [
+    {
+      "start": 0.0,
+      "end": 2.48,
+      "text": "The Terraform lawsuit hit Wall Street in overnight,"
+    },
+    {
+      "start": 2.48,
+      "end": 3.72,
+      "text": "Bitcoiners have a villain."
+    },
+    {
+      "start": 3.72,
+      "end": 6.8,
+      "text": "Minipulation, suppression, insider trading,"
+    },
+    {
+      "start": 6.8,
+      "end": 9.4,
+      "text": "a 10 a.m. sale algo that crashed the price"
+    },
+    {
+      "start": 9.4,
+      "end": 10.92,
+      "text": "every morning for months."
+    },
+    {
+      "start": 10.92,
+      "end": 15.4,
+      "text": "A 473% MSTR position increase sprued into 13 F."
+    },
+    {
+      "start": 15.4,
+      "end": 18.04,
+      "text": "One trading desk accused of engineering the crash"
+    },
+    {
+      "start": 18.04,
+      "end": 20.0,
+      "text": "and dragging Bitcoin into a bear market."
+    },
+    {
+      "start": 20.0,
+      "end": 22.2,
+      "text": "Today, we're pulling the thread, the insiders,"
+    },
+    {
+      "start": 22.2,
+      "end": 24.16,
+      "text": "the skeptics, the on-chain data,"
+    },
+    {
+      "start": 24.16,
+      "end": 29.86,
+      "text": "to find the signal and the noise."
+    },
+    {
+      "start": 29.86,
+      "end": 31.62,
+      "text": "Welcome to No Second Best,"
+    },
+    {
+      "start": 31.62,
+      "end": 33.78,
+      "text": "the show where conviction meets reality"
+    },
+    {
+      "start": 33.78,
+      "end": 35.9,
+      "text": "and reality points straight to Bitcoin."
+    },
+    {
+      "start": 35.9,
+      "end": 37.18,
+      "text": "I'm your host, Hurley."
+    },
+    {
+      "start": 37.18,
+      "end": 38.3,
+      "text": "Now, let's get into it."
+    },
+    {
+      "start": 38.3,
+      "end": 40.9,
+      "text": "On Monday morning, Terraform bankruptcy administrator,"
+    },
+    {
+      "start": 40.9,
+      "end": 43.94,
+      "text": "Todd Snyder filed a lawsuit against Jane Street,"
+    },
+    {
+      "start": 43.94,
+      "end": 45.86,
+      "text": "alleging they used insider information"
+    },
+    {
+      "start": 45.86,
+      "end": 48.06,
+      "text": "to front-run trades and extract profits"
+    },
+    {
+      "start": 48.06,
+      "end": 50.38,
+      "text": "during the Terra Luna collapse in 2022."
+    },
+    {
+      "start": 50.38,
+      "end": 52.42,
+      "text": "Jane Street, for those that don't know,"
+    },
+    {
+      "start": 52.42,
+      "end": 55.18,
+      "text": "is one of the largest quantitative trading firms in the world."
+    },
+    {
+      "start": 55.18,
+      "end": 56.18,
+      "text": "They trade everything."
+    },
+    {
+      "start": 56.18,
+      "end": 58.94,
+      "text": "Equities, bonds, crypto, derivatives,"
+    },
+    {
+      "start": 58.94,
+      "end": 60.66,
+      "text": "and they're one of the authorized participants"
+    },
+    {
+      "start": 60.7,
+      "end": 62.14,
+      "text": "in the Bitcoin ETF ecosystem."
+    },
+    {
+      "start": 62.14,
+      "end": 63.74,
+      "text": "That means they sit in the plumbing."
+    },
+    {
+      "start": 63.74,
+      "end": 65.5,
+      "text": "The lawsuit dropped, and within hours,"
+    },
+    {
+      "start": 65.5,
+      "end": 67.34,
+      "text": "people started connecting the dots."
+    },
+    {
+      "start": 67.34,
+      "end": 69.98,
+      "text": "There was a peculiar and consistent cell pattern,"
+    },
+    {
+      "start": 69.98,
+      "end": 72.22,
+      "text": "10 a.m. Eastern nearly every day,"
+    },
+    {
+      "start": 72.22,
+      "end": 74.1,
+      "text": "where Bitcoin would dump for months."
+    },
+    {
+      "start": 74.1,
+      "end": 75.98,
+      "text": "People noticed it, but nobody had a name"
+    },
+    {
+      "start": 75.98,
+      "end": 77.5,
+      "text": "to attach to it until now."
+    },
+    {
+      "start": 77.5,
+      "end": 80.22,
+      "text": "Then suddenly, yesterday, the 10 a.m. dump stopped"
+    },
+    {
+      "start": 80.22,
+      "end": 81.82,
+      "text": "right after the lawsuit."
+    },
+    {
+      "start": 81.82,
+      "end": 84.62,
+      "text": "Bitcoin ripped 7% in 48 hours."
+    },
+    {
+      "start": 84.62,
+      "end": 86.66,
+      "text": "Now, obviously correlation is in causation."
+    },
+    {
+      "start": 86.66,
+      "end": 88.38,
+      "text": "Many have pointed out that the 10 a.m. pattern"
+    },
+    {
+      "start": 88.38,
+      "end": 91.1,
+      "text": "may not hold up under rigorous statistical analysis,"
+    },
+    {
+      "start": 91.1,
+      "end": 93.02,
+      "text": "but the timing was hard to ignore."
+    },
+    {
+      "start": 93.02,
+      "end": 94.66,
+      "text": "And it wasn't just the cell pattern."
+    },
+    {
+      "start": 94.66,
+      "end": 98.06,
+      "text": "Jane Street's 13 F filing from Q4 2025"
+    },
+    {
+      "start": 98.06,
+      "end": 102.1,
+      "text": "showed a 473% increase in their MSTR position."
+    },
+    {
+      "start": 102.1,
+      "end": 105.14,
+      "text": "They added over 785,000 shares,"
+    },
+    {
+      "start": 105.14,
+      "end": 108.38,
+      "text": "bringing their total holdings up to just under a million shares"
+    },
+    {
+      "start": 108.38,
+      "end": 111.06,
+      "text": "valued at roughly $121 million."
+    },
+    {
+      "start": 111.06,
+      "end": 114.02,
+      "text": "At the same time, MSTR became the most shorted stock"
+    },
+    {
+      "start": 114.02,
+      "end": 116.46,
+      "text": "in the world, with investors betting against sailor"
+    },
+    {
+      "start": 116.46,
+      "end": 119.26,
+      "text": "amid $7 billion in unrealized Bitcoin losses."
+    },
+    {
+      "start": 119.26,
+      "end": 121.38,
+      "text": "So you've got to firm a custom to running a suppression"
+    },
+    {
+      "start": 121.38,
+      "end": 123.86,
+      "text": "algorithm, accumulating a massive position"
+    },
+    {
+      "start": 123.86,
+      "end": 126.06,
+      "text": "in the most prominent Bitcoin treasury company,"
+    },
+    {
+      "start": 126.06,
+      "end": 128.78,
+      "text": "while that same company is being shorted into the ground."
+    },
+    {
+      "start": 128.78,
+      "end": 130.54,
+      "text": "It smells a lot like a conspiracy."
+    },
+    {
+      "start": 130.54,
+      "end": 133.18,
+      "text": "Well, two camps formed immediately on Bitcoin Twitter."
+    },
+    {
+      "start": 133.18,
+      "end": 136.3,
+      "text": "Camp 1 believes this is proof of systematic price oppression,"
+    },
+    {
+      "start": 136.3,
+      "end": 139.26,
+      "text": "the same playbook Wall Street ran on gold for decades."
+    },
+    {
+      "start": 139.26,
+      "end": 141.26,
+      "text": "Crash the price, liquidate retail,"
+    },
+    {
+      "start": 141.26,
+      "end": 142.66,
+      "text": "and accumulate at a discount."
+    },
+    {
+      "start": 142.66,
+      "end": 144.58,
+      "text": "Camp 2 points to long-term holders"
+    },
+    {
+      "start": 144.58,
+      "end": 146.34,
+      "text": "moving a record amount of Bitcoin."
+    },
+    {
+      "start": 146.34,
+      "end": 148.34,
+      "text": "They say the sell-off was organic,"
+    },
+    {
+      "start": 148.34,
+      "end": 150.9,
+      "text": "and that blaming Jane Street is what silver and gold bugs"
+    },
+    {
+      "start": 150.9,
+      "end": 152.54,
+      "text": "have cried for decades."
+    },
+    {
+      "start": 152.54,
+      "end": 155.5,
+      "text": "Both camps have credible people, both have data."
+    },
+    {
+      "start": 155.5,
+      "end": 156.62,
+      "text": "So which is it?"
+    },
+    {
+      "start": 156.62,
+      "end": 158.42,
+      "text": "That's what we're getting to the bottom of today."
+    },
+    {
+      "start": 158.42,
+      "end": 160.3,
+      "text": "We'll start with the suppression case,"
+    },
+    {
+      "start": 160.3,
+      "end": 162.22,
+      "text": "and there's nobody more qualified to make it"
+    },
+    {
+      "start": 162.22,
+      "end": 163.3,
+      "text": "than Caitlin Long."
+    },
+    {
+      "start": 163.3,
+      "end": 165.58,
+      "text": "She spent 22 years on Wall Street,"
+    },
+    {
+      "start": 165.58,
+      "end": 167.38,
+      "text": "and left because she saw what was coming."
+    },
+    {
+      "start": 167.38,
+      "end": 170.3,
+      "text": "In 2016, she warned publicly that Wall Street would do"
+    },
+    {
+      "start": 170.3,
+      "end": 172.54,
+      "text": "to Bitcoin what it did to gold."
+    },
+    {
+      "start": 172.54,
+      "end": 175.42,
+      "text": "Wrap it in paper until the price no longer reflects reality."
+    },
+    {
+      "start": 175.42,
+      "end": 177.98,
+      "text": "Here's what she had to say recently on what Bitcoin did."
+    },
+    {
+      "start": 177.98,
+      "end": 180.82,
+      "text": "Wall Street is here in Bitcoin in a very big way, right?"
+    },
+    {
+      "start": 180.82,
+      "end": 182.66,
+      "text": "And they're doing it with the ETFs."
+    },
+    {
+      "start": 182.66,
+      "end": 185.02,
+      "text": "And as I warned at the time,"
+    },
+    {
+      "start": 185.02,
+      "end": 188.98,
+      "text": "years, actually, I think I wrote a piece in Forbes in 2016,"
+    },
+    {
+      "start": 188.98,
+      "end": 191.74,
+      "text": "warning that when Wall Street arrives for Bitcoin,"
+    },
+    {
+      "start": 191.74,
+      "end": 193.18,
+      "text": "it's going to be a double-edged sword,"
+    },
+    {
+      "start": 193.18,
+      "end": 196.3,
+      "text": "including when Wall Street gets Bitcoin ETFs."
+    },
+    {
+      "start": 196.3,
+      "end": 200.58,
+      "text": "Because it's going to bring in a new demand, new source of demand,"
+    },
+    {
+      "start": 200.58,
+      "end": 203.14,
+      "text": "but it's also going to bring in all these derivatives."
+    },
+    {
+      "start": 203.14,
+      "end": 205.9,
+      "text": "And just today, we're recording this session"
+    },
+    {
+      "start": 205.9,
+      "end": 211.38,
+      "text": "on Monday, the 26th of January, BlackRock filed an ETF"
+    },
+    {
+      "start": 211.38,
+      "end": 215.02,
+      "text": "that is going to provide some downside protection"
+    },
+    {
+      "start": 215.02,
+      "end": 217.98,
+      "text": "is how it's designing it on the IBIT,"
+    },
+    {
+      "start": 217.98,
+      "end": 220.06,
+      "text": "but also providing some yield"
+    },
+    {
+      "start": 220.06,
+      "end": 223.78,
+      "text": "by selling call options to monetize Bitcoin's volatility."
+    },
+    {
+      "start": 223.78,
+      "end": 225.7,
+      "text": "I saw this just before we started recording."
+    },
+    {
+      "start": 225.7,
+      "end": 228.31,
+      "text": "It's like an income generating ETF."
+    },
+    {
+      "start": 228.31,
+      "end": 230.67,
+      "text": "But Bitcoin itself doesn't generate any income."
+    },
+    {
+      "start": 230.67,
+      "end": 235.79,
+      "text": "So if you're investing in something that generates income,"
+    },
+    {
+      "start": 235.79,
+      "end": 238.95,
+      "text": "you are taking some counterparty credit risk with your Bitcoin"
+    },
+    {
+      "start": 238.95,
+      "end": 241.59,
+      "text": "because they're monetizing the volatility,"
+    },
+    {
+      "start": 241.59,
+      "end": 243.55,
+      "text": "which is a classic Wall Street strategy."
+    },
+    {
+      "start": 243.55,
+      "end": 245.63,
+      "text": "But what's the impact of all of that?"
+    },
+    {
+      "start": 245.63,
+      "end": 249.55,
+      "text": "It has a, it creates paper claims"
+    },
+    {
+      "start": 249.55,
+      "end": 251.75,
+      "text": "that are not backed by the real thing."
+    },
+    {
+      "start": 251.75,
+      "end": 253.43,
+      "text": "And what does that do?"
+    },
+    {
+      "start": 253.43,
+      "end": 257.75,
+      "text": "It creates an artificial suppression of the price"
+    },
+    {
+      "start": 257.79,
+      "end": 261.39,
+      "text": "because there's an artificial increase in supply."
+    },
+    {
+      "start": 261.39,
+      "end": 263.19,
+      "text": "Think about your supply demand curves"
+    },
+    {
+      "start": 263.19,
+      "end": 265.03,
+      "text": "when the supply curve moves out to the right."
+    },
+    {
+      "start": 265.03,
+      "end": 266.35,
+      "text": "The price goes down."
+    },
+    {
+      "start": 266.35,
+      "end": 268.91,
+      "text": "But it also creates demand substitution."
+    },
+    {
+      "start": 268.91,
+      "end": 271.71,
+      "text": "And I can go back and find an old tweet thread"
+    },
+    {
+      "start": 271.71,
+      "end": 274.43,
+      "text": "that I put out a few years ago on this very topic"
+    },
+    {
+      "start": 274.43,
+      "end": 276.59,
+      "text": "that draws the supply and demand curves"
+    },
+    {
+      "start": 276.59,
+      "end": 279.63,
+      "text": "and shows why when you get paper claims"
+    },
+    {
+      "start": 279.63,
+      "end": 282.95,
+      "text": "that people accept as substitutes for the real thing,"
+    },
+    {
+      "start": 282.95,
+      "end": 286.67,
+      "text": "which of course has been happening for decades in gold and silver."
+    },
+    {
+      "start": 286.67,
+      "end": 289.23,
+      "text": "And it's only been happening for a few years in Bitcoin,"
+    },
+    {
+      "start": 289.23,
+      "end": 290.95,
+      "text": "but that suppresses the price."
+    },
+    {
+      "start": 290.95,
+      "end": 294.23,
+      "text": "I actually think that all these derivative games"
+    },
+    {
+      "start": 294.23,
+      "end": 295.35,
+      "text": "are suppressing the price."
+    },
+    {
+      "start": 295.35,
+      "end": 297.47,
+      "text": "A lot of people think they're buying real Bitcoin."
+    },
+    {
+      "start": 297.47,
+      "end": 298.99,
+      "text": "They're not buying real Bitcoin."
+    },
+    {
+      "start": 298.99,
+      "end": 300.59,
+      "text": "It's concentration of ownership"
+    },
+    {
+      "start": 300.59,
+      "end": 303.59,
+      "text": "in centralized institutions"
+    },
+    {
+      "start": 303.59,
+      "end": 306.27,
+      "text": "that are not engaging in self-custody"
+    },
+    {
+      "start": 306.27,
+      "end": 309.59,
+      "text": "and that are engaging in these sort of yield plays."
+    },
+    {
+      "start": 309.59,
+      "end": 312.23,
+      "text": "If you're engaging in a yield play on Bitcoin,"
+    },
+    {
+      "start": 312.23,
+      "end": 313.43,
+      "text": "you don't own real Bitcoin."
+    },
+    {
+      "start": 313.43,
+      "end": 314.75,
+      "text": "You want to claim to Bitcoin."
+    },
+    {
+      "start": 314.75,
+      "end": 317.83,
+      "text": "And in the event that there is a short squeeze,"
+    },
+    {
+      "start": 317.83,
+      "end": 318.51,
+      "text": "guess what?"
+    },
+    {
+      "start": 318.51,
+      "end": 322.87,
+      "text": "There may not be a chair for you in the game of musical chairs."
+    },
+    {
+      "start": 322.87,
+      "end": 324.67,
+      "text": "That black rock income ETF,"
+    },
+    {
+      "start": 324.67,
+      "end": 327.11,
+      "text": "the one writing covered calls on Bitcoin Holdings is live."
+    },
+    {
+      "start": 327.11,
+      "end": 328.55,
+      "text": "In every time a yield product like that"
+    },
+    {
+      "start": 328.55,
+      "end": 330.23,
+      "text": "gets created on top of Bitcoin,"
+    },
+    {
+      "start": 330.23,
+      "end": 332.87,
+      "text": "it generates a paper claim that didn't exist before."
+    },
+    {
+      "start": 332.87,
+      "end": 335.51,
+      "text": "The supply of paper Bitcoin goes up in the market,"
+    },
+    {
+      "start": 335.51,
+      "end": 336.95,
+      "text": "but of course not real Bitcoin."
+    },
+    {
+      "start": 336.95,
+      "end": 339.95,
+      "text": "Synthetic exposure, but the market price is at the same."
+    },
+    {
+      "start": 339.95,
+      "end": 341.75,
+      "text": "Nobody sold a single Satoshi,"
+    },
+    {
+      "start": 341.79,
+      "end": 344.91,
+      "text": "but Wall Street manufactured supply out of thin air."
+    },
+    {
+      "start": 344.91,
+      "end": 347.83,
+      "text": "And the musical chairs metaphor she uses is precise."
+    },
+    {
+      "start": 347.83,
+      "end": 349.95,
+      "text": "As long as everyone's happy holding the paper,"
+    },
+    {
+      "start": 349.95,
+      "end": 351.19,
+      "text": "the game works."
+    },
+    {
+      "start": 351.19,
+      "end": 353.03,
+      "text": "The moment people try to redeem,"
+    },
+    {
+      "start": 353.03,
+      "end": 355.79,
+      "text": "the moment they want a real Bitcoin and not a claim on it,"
+    },
+    {
+      "start": 355.79,
+      "end": 357.51,
+      "text": "the mismatch becomes a crisis."
+    },
+    {
+      "start": 357.51,
+      "end": 359.27,
+      "text": "So how deep does this go?"
+    },
+    {
+      "start": 359.27,
+      "end": 361.55,
+      "text": "Long doesn't just think suppression is possible."
+    },
+    {
+      "start": 361.55,
+      "end": 363.31,
+      "text": "She thinks the ratio of paper claims"
+    },
+    {
+      "start": 363.31,
+      "end": 364.87,
+      "text": "to actual Bitcoin is approaching"
+    },
+    {
+      "start": 364.87,
+      "end": 367.03,
+      "text": "what we saw in gold at its worst"
+    },
+    {
+      "start": 367.03,
+      "end": 368.83,
+      "text": "and she even has a specific number."
+    },
+    {
+      "start": 368.83,
+      "end": 371.15,
+      "text": "I know a lot of folks look at the gold buds"
+    },
+    {
+      "start": 371.15,
+      "end": 372.75,
+      "text": "and say, oh, this is conspiracy theory,"
+    },
+    {
+      "start": 372.75,
+      "end": 373.75,
+      "text": "but it's not."
+    },
+    {
+      "start": 373.75,
+      "end": 376.47,
+      "text": "It's conspiracy fact that the paper claims"
+    },
+    {
+      "start": 376.47,
+      "end": 380.95,
+      "text": "to the actual physical far exceed the actual physical"
+    },
+    {
+      "start": 380.95,
+      "end": 382.83,
+      "text": "and it's about 100 to one."
+    },
+    {
+      "start": 382.83,
+      "end": 385.15,
+      "text": "And so that means there's somebody"
+    },
+    {
+      "start": 385.15,
+      "end": 387.47,
+      "text": "with leverage who's in trouble."
+    },
+    {
+      "start": 387.47,
+      "end": 390.91,
+      "text": "And historically with some of these ETFs,"
+    },
+    {
+      "start": 390.91,
+      "end": 392.27,
+      "text": "they've been cash settled."
+    },
+    {
+      "start": 392.27,
+      "end": 393.11,
+      "text": "We've seen this."
+    },
+    {
+      "start": 393.11,
+      "end": 394.51,
+      "text": "You've talked about it on your podcast"
+    },
+    {
+      "start": 394.51,
+      "end": 396.23,
+      "text": "with the Bitcoin ETFs,"
+    },
+    {
+      "start": 396.23,
+      "end": 398.67,
+      "text": "the whole question of physical settlement"
+    },
+    {
+      "start": 398.67,
+      "end": 400.03,
+      "text": "versus cash settlement."
+    },
+    {
+      "start": 400.03,
+      "end": 403.11,
+      "text": "And the original Bitcoin ETFs were all cash settled."
+    },
+    {
+      "start": 403.11,
+      "end": 405.83,
+      "text": "Now the SEC has allowed an option"
+    },
+    {
+      "start": 405.83,
+      "end": 407.99,
+      "text": "for physical settlement, which is great"
+    },
+    {
+      "start": 407.99,
+      "end": 411.11,
+      "text": "because that's what keeps the ETFs honest."
+    },
+    {
+      "start": 411.11,
+      "end": 414.59,
+      "text": "But the cash settled ETFs and the cash settled derivatives"
+    },
+    {
+      "start": 414.59,
+      "end": 416.39,
+      "text": "are a place where a lot of leverage"
+    },
+    {
+      "start": 416.39,
+      "end": 419.15,
+      "text": "has crept into these systems."
+    },
+    {
+      "start": 419.15,
+      "end": 420.23,
+      "text": "100 to one."
+    },
+    {
+      "start": 420.23,
+      "end": 422.51,
+      "text": "That's the ratio exposed in the gold market"
+    },
+    {
+      "start": 422.51,
+      "end": 424.67,
+      "text": "and long is saying Bitcoin is headed there."
+    },
+    {
+      "start": 424.67,
+      "end": 427.07,
+      "text": "The implication isn't that Bitcoin is overvalued."
+    },
+    {
+      "start": 427.07,
+      "end": 429.11,
+      "text": "It's that most people who think they own Bitcoin"
+    },
+    {
+      "start": 429.11,
+      "end": 431.39,
+      "text": "might be holding a derivative of a derivative."
+    },
+    {
+      "start": 431.39,
+      "end": 432.79,
+      "text": "And when the music stops,"
+    },
+    {
+      "start": 432.79,
+      "end": 434.91,
+      "text": "when settlement actually matters,"
+    },
+    {
+      "start": 434.91,
+      "end": 436.51,
+      "text": "there won't be enough chairs."
+    },
+    {
+      "start": 436.51,
+      "end": 438.35,
+      "text": "Okay, so that's the case for suppression."
+    },
+    {
+      "start": 438.35,
+      "end": 440.71,
+      "text": "But there's another voice in the conversation we need to hear."
+    },
+    {
+      "start": 440.71,
+      "end": 442.03,
+      "text": "Someone with a very different read"
+    },
+    {
+      "start": 442.03,
+      "end": 443.55,
+      "text": "on what the data actually shows."
+    },
+    {
+      "start": 443.55,
+      "end": 445.31,
+      "text": "James Check built his reputation"
+    },
+    {
+      "start": 445.31,
+      "end": 446.83,
+      "text": "on on-chain analytics."
+    },
+    {
+      "start": 446.83,
+      "end": 449.27,
+      "text": "He doesn't trade narratives, he reads the blockchain."
+    },
+    {
+      "start": 449.27,
+      "end": 452.19,
+      "text": "And when the Jane Street theory exploded, he didn't flinch."
+    },
+    {
+      "start": 452.19,
+      "end": 453.43,
+      "text": "He pointed at the chain and said,"
+    },
+    {
+      "start": 453.43,
+      "end": 454.95,
+      "text": "look, it would actually happen."
+    },
+    {
+      "start": 454.95,
+      "end": 457.63,
+      "text": "How annoying are the silver bugs?"
+    },
+    {
+      "start": 457.63,
+      "end": 458.47,
+      "text": "How annoying are they?"
+    },
+    {
+      "start": 458.51,
+      "end": 459.31,
+      "text": "I've never seen them."
+    },
+    {
+      "start": 459.31,
+      "end": 460.15,
+      "text": "Why are they being annoying?"
+    },
+    {
+      "start": 460.15,
+      "end": 460.91,
+      "text": "No, no."
+    },
+    {
+      "start": 460.91,
+      "end": 464.39,
+      "text": "Marker goes down 15% an hour, manipulation."
+    },
+    {
+      "start": 464.39,
+      "end": 466.63,
+      "text": "Marker goes parabolic to the upside."
+    },
+    {
+      "start": 466.63,
+      "end": 467.47,
+      "text": "It's all there."
+    },
+    {
+      "start": 467.47,
+      "end": 470.07,
+      "text": "I want to talk about why your coin is worse."
+    },
+    {
+      "start": 470.07,
+      "end": 472.91,
+      "text": "The silver bug episode of watching"
+    },
+    {
+      "start": 472.91,
+      "end": 475.71,
+      "text": "how painfully irritating they were,"
+    },
+    {
+      "start": 475.71,
+      "end": 478.15,
+      "text": "it's a mirror for what we look like in the bull market."
+    },
+    {
+      "start": 478.15,
+      "end": 480.55,
+      "text": "Do you want to know why the critics don't like us?"
+    },
+    {
+      "start": 480.55,
+      "end": 481.79,
+      "text": "It's because we look like that."
+    },
+    {
+      "start": 481.79,
+      "end": 483.71,
+      "text": "So, you know, the silver bugs immediately,"
+    },
+    {
+      "start": 483.71,
+      "end": 486.67,
+      "text": "we go literally parabolic."
+    },
+    {
+      "start": 486.67,
+      "end": 488.71,
+      "text": "Every sign under the sun was guys,"
+    },
+    {
+      "start": 488.71,
+      "end": 489.95,
+      "text": "this is the frothiest thing."
+    },
+    {
+      "start": 489.95,
+      "end": 492.85,
+      "text": "This is just froth, froth, froth."
+    },
+    {
+      "start": 492.85,
+      "end": 495.61,
+      "text": "And yet it goes down from a parabolic vertical move"
+    },
+    {
+      "start": 495.61,
+      "end": 497.25,
+      "text": "and everyone goes manipulation."
+    },
+    {
+      "start": 497.25,
+      "end": 498.41,
+      "text": "No, no."
+    },
+    {
+      "start": 498.41,
+      "end": 500.29,
+      "text": "You've got a bunch of old hands"
+    },
+    {
+      "start": 500.29,
+      "end": 502.21,
+      "text": "who've been stacking silver with since they were,"
+    },
+    {
+      "start": 502.21,
+      "end": 503.97,
+      "text": "you know, 14 years old."
+    },
+    {
+      "start": 503.97,
+      "end": 506.57,
+      "text": "And now they're 70, they've decided to sell"
+    },
+    {
+      "start": 506.57,
+      "end": 509.17,
+      "text": "because they've waited their whole life for this move."
+    },
+    {
+      "start": 509.17,
+      "end": 510.97,
+      "text": "So all these silver bugs are selling"
+    },
+    {
+      "start": 510.97,
+      "end": 513.41,
+      "text": "and who's buying the people I saw at the silver shop"
+    },
+    {
+      "start": 513.41,
+      "end": 514.41,
+      "text": "when I was selling."
+    },
+    {
+      "start": 514.41,
+      "end": 515.89,
+      "text": "Didn't know what a trance was."
+    },
+    {
+      "start": 515.89,
+      "end": 518.29,
+      "text": "So, you know, you've just got the speculative new money"
+    },
+    {
+      "start": 518.29,
+      "end": 519.45,
+      "text": "coming in."
+    },
+    {
+      "start": 519.45,
+      "end": 521.77,
+      "text": "Short term holders bought the top."
+    },
+    {
+      "start": 521.77,
+      "end": 523.73,
+      "text": "Long term holders sold the top."
+    },
+    {
+      "start": 523.73,
+      "end": 524.85,
+      "text": "It's exactly the same day now."
+    },
+    {
+      "start": 524.85,
+      "end": 528.53,
+      "text": "So even the silver bugs like to claim manipulation"
+    },
+    {
+      "start": 528.53,
+      "end": 532.49,
+      "text": "when a parabolic move pulls back 15, 20% in a couple of hours,"
+    },
+    {
+      "start": 532.49,
+      "end": 534.17,
+      "text": "it's like, no, it's a bluff top."
+    },
+    {
+      "start": 534.17,
+      "end": 535.17,
+      "text": "It's bluff top."
+    },
+    {
+      "start": 535.17,
+      "end": 537.45,
+      "text": "Check us saying the same crying that happened in silver"
+    },
+    {
+      "start": 537.45,
+      "end": 538.65,
+      "text": "is happening in Bitcoin."
+    },
+    {
+      "start": 538.65,
+      "end": 541.37,
+      "text": "And the on-chain data backing him up is hard to dismiss."
+    },
+    {
+      "start": 541.37,
+      "end": 543.85,
+      "text": "Q4 2025 did see the highest activity"
+    },
+    {
+      "start": 543.85,
+      "end": 546.89,
+      "text": "from previously dormant coins since the 2017 blow off top."
+    },
+    {
+      "start": 546.89,
+      "end": 550.25,
+      "text": "Bitcoin then hadn't moved in three, five, and seven plus years,"
+    },
+    {
+      "start": 550.25,
+      "end": 551.97,
+      "text": "suddenly hitting the market in size."
+    },
+    {
+      "start": 551.97,
+      "end": 554.69,
+      "text": "These weren't day traders getting liquidated by an algo."
+    },
+    {
+      "start": 554.69,
+      "end": 557.17,
+      "text": "These were OGs distributing into strength."
+    },
+    {
+      "start": 557.17,
+      "end": 558.85,
+      "text": "So who's right in all this?"
+    },
+    {
+      "start": 558.85,
+      "end": 560.05,
+      "text": "Here's the thing."
+    },
+    {
+      "start": 560.05,
+      "end": 561.01,
+      "text": "They both are."
+    },
+    {
+      "start": 561.01,
+      "end": 563.05,
+      "text": "Long is right that the mechanism for suppression"
+    },
+    {
+      "start": 563.05,
+      "end": 564.97,
+      "text": "via paper claims exists."
+    },
+    {
+      "start": 564.97,
+      "end": 567.57,
+      "text": "It's documented and has historical precedent"
+    },
+    {
+      "start": 567.57,
+      "end": 568.41,
+      "text": "in the gold market."
+    },
+    {
+      "start": 568.41,
+      "end": 569.85,
+      "text": "Check is right that the on-chain data"
+    },
+    {
+      "start": 569.85,
+      "end": 572.85,
+      "text": "shows massive organic selling from the long-term holders."
+    },
+    {
+      "start": 572.85,
+      "end": 575.57,
+      "text": "Both things are true, and they're not contradictory."
+    },
+    {
+      "start": 575.57,
+      "end": 578.33,
+      "text": "What the paper machinery does is amplify."
+    },
+    {
+      "start": 578.33,
+      "end": 580.57,
+      "text": "It doesn't create sell-offs from nothing."
+    },
+    {
+      "start": 580.57,
+      "end": 583.49,
+      "text": "It widens them, makes the drawdown deeper,"
+    },
+    {
+      "start": 583.49,
+      "end": 586.53,
+      "text": "the recovery slower, and the price discovery mudier."
+    },
+    {
+      "start": 586.53,
+      "end": 589.21,
+      "text": "The holders check points to the ones who sold."
+    },
+    {
+      "start": 589.21,
+      "end": 591.09,
+      "text": "They sold into a market where synthetic supply"
+    },
+    {
+      "start": 591.09,
+      "end": 592.69,
+      "text": "was already suppressing the bid."
+    },
+    {
+      "start": 592.69,
+      "end": 594.17,
+      "text": "The selling was real."
+    },
+    {
+      "start": 594.17,
+      "end": 595.33,
+      "text": "The headwind was too."
+    },
+    {
+      "start": 595.33,
+      "end": 597.77,
+      "text": "So the question isn't who pushed the price down."
+    },
+    {
+      "start": 597.77,
+      "end": 600.61,
+      "text": "The question is, what are you exposed to?"
+    },
+    {
+      "start": 600.61,
+      "end": 604.01,
+      "text": "If you own real Bitcoin, if your coin settle to your keys,"
+    },
+    {
+      "start": 604.01,
+      "end": 606.77,
+      "text": "then whether Jane Street was suppressing the price or not"
+    },
+    {
+      "start": 606.77,
+      "end": 609.17,
+      "text": "is an interesting dinner conversation and nothing more."
+    },
+    {
+      "start": 609.17,
+      "end": 611.77,
+      "text": "But if your Bitcoin lives inside a wrapper, an ETF,"
+    },
+    {
+      "start": 611.77,
+      "end": 614.25,
+      "text": "an exchange balance, or a yield product,"
+    },
+    {
+      "start": 614.25,
+      "end": 615.37,
+      "text": "then it matters a lot."
+    },
+    {
+      "start": 615.37,
+      "end": 618.01,
+      "text": "Because your Bitcoin might be one of 100 claims"
+    },
+    {
+      "start": 618.01,
+      "end": 619.65,
+      "text": "on the same coin, which brings us"
+    },
+    {
+      "start": 619.65,
+      "end": 622.09,
+      "text": "to the structural problem underneath all of this."
+    },
+    {
+      "start": 622.09,
+      "end": 624.49,
+      "text": "Michael Saylor connects the dots."
+    },
+    {
+      "start": 624.49,
+      "end": 626.41,
+      "text": "If you're wondering how paper claims actually"
+    },
+    {
+      "start": 626.41,
+      "end": 629.29,
+      "text": "translate into selling pressure, how the abstract becomes"
+    },
+    {
+      "start": 629.29,
+      "end": 631.93,
+      "text": "concrete, Saylor walks through the mechanism."
+    },
+    {
+      "start": 631.93,
+      "end": 634.57,
+      "text": "So if you have $10 million, you either"
+    },
+    {
+      "start": 634.57,
+      "end": 637.57,
+      "text": "cannot get a loan from a legitimate bank"
+    },
+    {
+      "start": 637.57,
+      "end": 643.25,
+      "text": "or you can get a small loan at a 10% interest rate."
+    },
+    {
+      "start": 643.25,
+      "end": 648.21,
+      "text": "Or you can get a 3% or 4% loan, but then it gets re-hypothicated."
+    },
+    {
+      "start": 648.21,
+      "end": 653.56,
+      "text": "So your $10 million of Bitcoin gets sold once, gets sold twice,"
+    },
+    {
+      "start": 653.56,
+      "end": 655.04,
+      "text": "gets sold three times."
+    },
+    {
+      "start": 655.04,
+      "end": 660.12,
+      "text": "You might actually create $30 or $40 million worth of selling"
+    },
+    {
+      "start": 660.12,
+      "end": 666.16,
+      "text": "because the Bitcoin that you transferred to the shadow bank"
+    },
+    {
+      "start": 666.16,
+      "end": 670.44,
+      "text": "or the crypto exchange re-hypothicated it three times."
+    },
+    {
+      "start": 670.44,
+      "end": 672.92,
+      "text": "OK, so what's holding down the price?"
+    },
+    {
+      "start": 672.92,
+      "end": 675.52,
+      "text": "I think what holds down the price of the asset"
+    },
+    {
+      "start": 675.52,
+      "end": 682.4,
+      "text": "is the lack of a fully formed non-re-hypothicating credit"
+    },
+    {
+      "start": 682.4,
+      "end": 683.4,
+      "text": "system."
+    },
+    {
+      "start": 683.4,
+      "end": 687.28,
+      "text": "So right now we're in that bear market"
+    },
+    {
+      "start": 687.28,
+      "end": 691.68,
+      "text": "where you've got the re-hypothication holding back the price."
+    },
+    {
+      "start": 691.68,
+      "end": 695.4,
+      "text": "And I think at some point it reverses itself."
+    },
+    {
+      "start": 695.4,
+      "end": 697.56,
+      "text": "We'll just have to wait."
+    },
+    {
+      "start": 697.56,
+      "end": 700.32,
+      "text": "This is how long's warning and checks data coexist."
+    },
+    {
+      "start": 700.32,
+      "end": 702.84,
+      "text": "The organic selling was real, but it hit the market"
+    },
+    {
+      "start": 702.84,
+      "end": 704.4,
+      "text": "where re-hypothication had already"
+    },
+    {
+      "start": 704.4,
+      "end": 707.4,
+      "text": "multiplied the effective supply of Bitcoin several times over."
+    },
+    {
+      "start": 707.4,
+      "end": 709.56,
+      "text": "The holders weren't selling into a clean order book."
+    },
+    {
+      "start": 709.56,
+      "end": 710.76,
+      "text": "They were selling into a market where"
+    },
+    {
+      "start": 710.8,
+      "end": 713.72,
+      "text": "their coins had already been counted three or four times over."
+    },
+    {
+      "start": 713.72,
+      "end": 716.12,
+      "text": "The only way to break that chain to stop your Bitcoin"
+    },
+    {
+      "start": 716.12,
+      "end": 717.84,
+      "text": "from being someone else's leverage"
+    },
+    {
+      "start": 717.84,
+      "end": 720.04,
+      "text": "is to remove it from the system entirely."
+    },
+    {
+      "start": 720.04,
+      "end": 721.36,
+      "text": "And that's where this gets personal."
+    },
+    {
+      "start": 721.36,
+      "end": 723.76,
+      "text": "Understanding re-hypothication is one thing,"
+    },
+    {
+      "start": 723.76,
+      "end": 725.64,
+      "text": "but doing something about it is another."
+    },
+    {
+      "start": 725.64,
+      "end": 727.44,
+      "text": "So on private is for the people who actually"
+    },
+    {
+      "start": 727.44,
+      "end": 728.72,
+      "text": "want to act on this."
+    },
+    {
+      "start": 728.72,
+      "end": 730.48,
+      "text": "Leaders of families and businesses"
+    },
+    {
+      "start": 730.48,
+      "end": 732.48,
+      "text": "building long-term Bitcoin positions"
+    },
+    {
+      "start": 732.48,
+      "end": 735.12,
+      "text": "who work directly with dedicated Bitcoin experts."
+    },
+    {
+      "start": 735.12,
+      "end": 737.68,
+      "text": "Not a broker-jab, real people who understand what we just"
+    },
+    {
+      "start": 737.68,
+      "end": 740.4,
+      "text": "walk through and help you build a position that reflects it."
+    },
+    {
+      "start": 740.44,
+      "end": 742.44,
+      "text": "And Swan Vault goes even further."
+    },
+    {
+      "start": 742.44,
+      "end": 744.04,
+      "text": "Collaborative self-custody."
+    },
+    {
+      "start": 744.04,
+      "end": 746.0,
+      "text": "You control two offline keys."
+    },
+    {
+      "start": 746.0,
+      "end": 748.96,
+      "text": "Swan manages a third for coordination and recovery."
+    },
+    {
+      "start": 748.96,
+      "end": 751.68,
+      "text": "Your keys, your coins, with the infrastructure"
+    },
+    {
+      "start": 751.68,
+      "end": 753.96,
+      "text": "to make sure you don't lose them to a set-up mistake"
+    },
+    {
+      "start": 753.96,
+      "end": 755.36,
+      "text": "or a bad recovery plan."
+    },
+    {
+      "start": 755.36,
+      "end": 758.0,
+      "text": "Visit swan.com slash no second best"
+    },
+    {
+      "start": 758.0,
+      "end": 760.76,
+      "text": "to learn more about Swan Private and Swan Vault."
+    },
+    {
+      "start": 760.76,
+      "end": 762.88,
+      "text": "Now here's where the story breaks from gold."
+    },
+    {
+      "start": 762.88,
+      "end": 765.0,
+      "text": "Because the gold bugs were right about suppression"
+    },
+    {
+      "start": 765.0,
+      "end": 767.28,
+      "text": "and gold's price was distorted for decades."
+    },
+    {
+      "start": 767.28,
+      "end": 769.36,
+      "text": "If the same playbook is running on Bitcoin,"
+    },
+    {
+      "start": 769.36,
+      "end": 771.69,
+      "text": "why should the oak can be any different?"
+    },
+    {
+      "start": 771.69,
+      "end": 773.49,
+      "text": "Keetlyn Long has an answer."
+    },
+    {
+      "start": 773.49,
+      "end": 774.29,
+      "text": "Here's the bottom line."
+    },
+    {
+      "start": 774.29,
+      "end": 776.01,
+      "text": "Wall Street will never control Bitcoin"
+    },
+    {
+      "start": 776.01,
+      "end": 778.29,
+      "text": "in the way that it was able to control gold."
+    },
+    {
+      "start": 778.29,
+      "end": 779.13,
+      "text": "Why?"
+    },
+    {
+      "start": 779.13,
+      "end": 781.81,
+      "text": "Because gold was always stored in the bank's vaults,"
+    },
+    {
+      "start": 781.81,
+      "end": 783.09,
+      "text": "including the central banks."
+    },
+    {
+      "start": 783.09,
+      "end": 785.57,
+      "text": "So the individual ownership of gold"
+    },
+    {
+      "start": 785.57,
+      "end": 788.33,
+      "text": "has never been more than a few percentage points."
+    },
+    {
+      "start": 788.33,
+      "end": 790.57,
+      "text": "Whereas the individual ownership of Bitcoin,"
+    },
+    {
+      "start": 790.57,
+      "end": 791.57,
+      "text": "it's the vast majority."
+    },
+    {
+      "start": 791.57,
+      "end": 794.57,
+      "text": "Yes, there've been some whale selling, some OG selling,"
+    },
+    {
+      "start": 794.57,
+      "end": 796.61,
+      "text": "as it topped $100,000."
+    },
+    {
+      "start": 796.61,
+      "end": 801.61,
+      "text": "But it's still 70% held in long-term hotdlers' hands,"
+    },
+    {
+      "start": 801.61,
+      "end": 802.29,
+      "text": "give or take."
+    },
+    {
+      "start": 802.29,
+      "end": 804.37,
+      "text": "It's still a relatively small portion of Bitcoin"
+    },
+    {
+      "start": 804.37,
+      "end": 805.45,
+      "text": "that trades every day."
+    },
+    {
+      "start": 805.45,
+      "end": 807.17,
+      "text": "And the long-term hotdlers are not going"
+    },
+    {
+      "start": 807.17,
+      "end": 808.45,
+      "text": "to be bailing out Wall Street."
+    },
+    {
+      "start": 808.45,
+      "end": 810.45,
+      "text": "And that supply's never going to be available"
+    },
+    {
+      "start": 810.45,
+      "end": 812.45,
+      "text": "for Wall Street to come in and financialize."
+    },
+    {
+      "start": 812.45,
+      "end": 814.77,
+      "text": "So ultimately, Bitcoin is purely voluntary,"
+    },
+    {
+      "start": 814.77,
+      "end": 817.53,
+      "text": "so Wall Street can come in, just like anybody can come in."
+    },
+    {
+      "start": 817.53,
+      "end": 818.49,
+      "text": "They can play their games."
+    },
+    {
+      "start": 818.49,
+      "end": 819.93,
+      "text": "They can also blow themselves up,"
+    },
+    {
+      "start": 819.93,
+      "end": 822.05,
+      "text": "which I think they might do, somebody will."
+    },
+    {
+      "start": 822.05,
+      "end": 823.93,
+      "text": "But by the same token, just the fact"
+    },
+    {
+      "start": 823.93,
+      "end": 826.17,
+      "text": "that anybody with an internet connection"
+    },
+    {
+      "start": 826.17,
+      "end": 827.97,
+      "text": "or even a ham radio, I have seen"
+    },
+    {
+      "start": 827.97,
+      "end": 830.45,
+      "text": "a Bitcoin transaction done over ham radio, okay?"
+    },
+    {
+      "start": 830.45,
+      "end": 832.45,
+      "text": "Anybody who can communicate with another human being"
+    },
+    {
+      "start": 832.45,
+      "end": 833.69,
+      "text": "can do a Bitcoin transaction."
+    },
+    {
+      "start": 833.69,
+      "end": 835.49,
+      "text": "That means it's entirely voluntary."
+    },
+    {
+      "start": 835.49,
+      "end": 839.21,
+      "text": "And that means we can always go around Wall Street."
+    },
+    {
+      "start": 839.21,
+      "end": 840.85,
+      "text": "That is the escape valve."
+    },
+    {
+      "start": 840.85,
+      "end": 843.61,
+      "text": "And no government can block us from using it"
+    },
+    {
+      "start": 843.61,
+      "end": 845.93,
+      "text": "as long as we can communicate with another human being,"
+    },
+    {
+      "start": 845.93,
+      "end": 847.97,
+      "text": "whether the internet is up or not."
+    },
+    {
+      "start": 847.97,
+      "end": 849.97,
+      "text": "Gold couldn't escape because physical settlement"
+    },
+    {
+      "start": 849.97,
+      "end": 852.25,
+      "text": "is slow, expensive, and centralized."
+    },
+    {
+      "start": 852.25,
+      "end": 853.85,
+      "text": "You can't email a gold bar."
+    },
+    {
+      "start": 853.85,
+      "end": 855.73,
+      "text": "You can't beam it over a ham radio."
+    },
+    {
+      "start": 855.73,
+      "end": 859.33,
+      "text": "Bitcoin settles in 10 minutes, anywhere between anyone"
+    },
+    {
+      "start": 859.33,
+      "end": 860.65,
+      "text": "without asking permission."
+    },
+    {
+      "start": 860.65,
+      "end": 861.97,
+      "text": "Wall Street can suppress the price"
+    },
+    {
+      "start": 861.97,
+      "end": 865.05,
+      "text": "on their exchanges and their ETFs through their derivatives."
+    },
+    {
+      "start": 865.05,
+      "end": 866.73,
+      "text": "They can't stop two people with a phone"
+    },
+    {
+      "start": 866.73,
+      "end": 868.77,
+      "text": "in a private key from transacting."
+    },
+    {
+      "start": 868.77,
+      "end": 870.89,
+      "text": "The paper market can distort the price."
+    },
+    {
+      "start": 870.89,
+      "end": 872.73,
+      "text": "It can never capture the asset."
+    },
+    {
+      "start": 872.73,
+      "end": 873.97,
+      "text": "Okay, one more piece."
+    },
+    {
+      "start": 873.97,
+      "end": 875.89,
+      "text": "Everything we've walked through, the suppression,"
+    },
+    {
+      "start": 875.89,
+      "end": 879.09,
+      "text": "the selling, the re-hypothication, the drawdown,"
+    },
+    {
+      "start": 879.09,
+      "end": 882.61,
+      "text": "it all produces one very natural response, fear."
+    },
+    {
+      "start": 882.61,
+      "end": 884.45,
+      "text": "The sense that something is broken,"
+    },
+    {
+      "start": 884.45,
+      "end": 885.85,
+      "text": "that maybe the system is rigged"
+    },
+    {
+      "start": 885.85,
+      "end": 887.17,
+      "text": "and you're on the wrong side of it."
+    },
+    {
+      "start": 887.17,
+      "end": 889.59,
+      "text": "Well, Michael Sailor sees it differently."
+    },
+    {
+      "start": 889.59,
+      "end": 892.95,
+      "text": "Bitcoin represents the global capital market."
+    },
+    {
+      "start": 892.95,
+      "end": 895.95,
+      "text": "And there are people doing things that you can't do,"
+    },
+    {
+      "start": 895.95,
+      "end": 899.99,
+      "text": "that you won't do, that you don't choose to do."
+    },
+    {
+      "start": 899.99,
+      "end": 900.99,
+      "text": "You don't wish to do."
+    },
+    {
+      "start": 900.99,
+      "end": 903.55,
+      "text": "And they're doing it with that asset."
+    },
+    {
+      "start": 903.55,
+      "end": 905.19,
+      "text": "And that's what's creating the volatility."
+    },
+    {
+      "start": 905.19,
+      "end": 907.23,
+      "text": "But that's also creating the gravitational"
+    },
+    {
+      "start": 907.23,
+      "end": 911.67,
+      "text": "or the magnetic field, which is attracting all of the energy,"
+    },
+    {
+      "start": 911.67,
+      "end": 913.19,
+      "text": "all the financial energy of the world"
+    },
+    {
+      "start": 913.19,
+      "end": 918.07,
+      "text": "being drawn into this space, all of the political energy."
+    },
+    {
+      "start": 918.07,
+      "end": 921.79,
+      "text": "You know, all of the digital energy,"
+    },
+    {
+      "start": 921.79,
+      "end": 924.59,
+      "text": "it's all being drawn into this space"
+    },
+    {
+      "start": 924.59,
+      "end": 927.15,
+      "text": "because of that utility."
+    },
+    {
+      "start": 927.15,
+      "end": 931.14,
+      "text": "And I think you just got to make your piece with it,"
+    },
+    {
+      "start": 931.14,
+      "end": 934.74,
+      "text": "either you're a short term and you're a trader."
+    },
+    {
+      "start": 934.74,
+      "end": 936.34,
+      "text": "If you're worried about what Bitcoin's going to be"
+    },
+    {
+      "start": 936.34,
+      "end": 938.58,
+      "text": "in four days or four weeks or four months,"
+    },
+    {
+      "start": 938.58,
+      "end": 941.34,
+      "text": "you're a trader, call yourself a trader,"
+    },
+    {
+      "start": 941.34,
+      "end": 943.34,
+      "text": "and then you better have a trading methodology"
+    },
+    {
+      "start": 943.62,
+      "end": 946.54,
+      "text": "or trading excellence or be in the trading business"
+    },
+    {
+      "start": 946.54,
+      "end": 948.7,
+      "text": "or be, you know, neutrally hedge."
+    },
+    {
+      "start": 948.7,
+      "end": 950.46,
+      "text": "So it doesn't matter to you."
+    },
+    {
+      "start": 950.46,
+      "end": 953.18,
+      "text": "You're either that or you're an investor,"
+    },
+    {
+      "start": 953.18,
+      "end": 955.06,
+      "text": "you've got a four-year time horizon"
+    },
+    {
+      "start": 955.06,
+      "end": 957.49,
+      "text": "and then it just doesn't matter."
+    },
+    {
+      "start": 957.49,
+      "end": 959.77,
+      "text": "The volatility is a gravitational field."
+    },
+    {
+      "start": 959.77,
+      "end": 961.97,
+      "text": "It's what makes Bitcoin a $2 trillion asset"
+    },
+    {
+      "start": 961.97,
+      "end": 964.69,
+      "text": "instead of a $200 trillion one, for now."
+    },
+    {
+      "start": 964.69,
+      "end": 967.77,
+      "text": "Every Jane Street headline, every 10 a.m. dump,"
+    },
+    {
+      "start": 967.77,
+      "end": 970.37,
+      "text": "every wave of liquidations is the compression event"
+    },
+    {
+      "start": 970.37,
+      "end": 973.05,
+      "text": "that lets people who are paying attention accumulate"
+    },
+    {
+      "start": 973.05,
+      "end": 974.13,
+      "text": "at a discount."
+    },
+    {
+      "start": 974.13,
+      "end": 976.41,
+      "text": "Traders hate it, investors get it."
+    },
+    {
+      "start": 976.41,
+      "end": 978.29,
+      "text": "And in four years, nobody will remember"
+    },
+    {
+      "start": 978.29,
+      "end": 979.97,
+      "text": "what Jane Street did at 10 a.m."
+    },
+    {
+      "start": 979.97,
+      "end": 981.89,
+      "text": "If you're serious about Bitcoin, not the noise,"
+    },
+    {
+      "start": 981.89,
+      "end": 984.53,
+      "text": "not the cycles, but the actual signal,"
+    },
+    {
+      "start": 984.53,
+      "end": 986.73,
+      "text": "BitBlock Boom is worth your time."
+    },
+    {
+      "start": 986.73,
+      "end": 988.37,
+      "text": "It's happening April 9th through the 12th"
+    },
+    {
+      "start": 988.37,
+      "end": 989.65,
+      "text": "and 4th Texas."
+    },
+    {
+      "start": 989.65,
+      "end": 991.49,
+      "text": "BitBlock Boom is a smaller conference"
+    },
+    {
+      "start": 991.49,
+      "end": 993.05,
+      "text": "with serious Bitcoiners."
+    },
+    {
+      "start": 993.05,
+      "end": 994.81,
+      "text": "Exactly the kind of rumor conversations"
+    },
+    {
+      "start": 994.81,
+      "end": 996.73,
+      "text": "like this one actually happened in person."
+    },
+    {
+      "start": 996.73,
+      "end": 998.81,
+      "text": "Corey Clipston and Brady Swenson from Swan"
+    },
+    {
+      "start": 998.81,
+      "end": 1001.25,
+      "text": "are speaking and a Swan private team will be there too."
+    },
+    {
+      "start": 1001.25,
+      "end": 1003.49,
+      "text": "For tickets visit bitblockboom.com"
+    },
+    {
+      "start": 1003.49,
+      "end": 1005.13,
+      "text": "and use code Swan for a discount,"
+    },
+    {
+      "start": 1005.13,
+      "end": 1007.93,
+      "text": "but hurry because prices go up in a few days."
+    },
+    {
+      "start": 1007.93,
+      "end": 1009.29,
+      "text": "Okay, let's lay on this plane."
+    },
+    {
+      "start": 1009.29,
+      "end": 1010.77,
+      "text": "We started with a question,"
+    },
+    {
+      "start": 1010.77,
+      "end": 1013.65,
+      "text": "is Jane Street suppressing the price of Bitcoin?"
+    },
+    {
+      "start": 1013.65,
+      "end": 1015.09,
+      "text": "And the answer is more nuanced"
+    },
+    {
+      "start": 1015.09,
+      "end": 1016.61,
+      "text": "than either Cam wants to admit."
+    },
+    {
+      "start": 1016.61,
+      "end": 1018.81,
+      "text": "The mechanism for suppression is real."
+    },
+    {
+      "start": 1018.81,
+      "end": 1020.41,
+      "text": "It's not a conspiracy."
+    },
+    {
+      "start": 1020.41,
+      "end": 1023.36,
+      "text": "It's financial engineering, fiat games."
+    },
+    {
+      "start": 1023.36,
+      "end": 1025.56,
+      "text": "The organic sell-off is also real."
+    },
+    {
+      "start": 1025.56,
+      "end": 1027.52,
+      "text": "Long-term holders distributed a record amount"
+    },
+    {
+      "start": 1027.52,
+      "end": 1029.72,
+      "text": "of Bitcoin in Q4 2025."
+    },
+    {
+      "start": 1029.72,
+      "end": 1030.96,
+      "text": "That's not manipulation."
+    },
+    {
+      "start": 1030.96,
+      "end": 1032.6,
+      "text": "That's cycle mechanics."
+    },
+    {
+      "start": 1032.6,
+      "end": 1034.36,
+      "text": "And both compound each other."
+    },
+    {
+      "start": 1034.36,
+      "end": 1037.28,
+      "text": "Sailor named the mechanism, re-hypothication."
+    },
+    {
+      "start": 1037.28,
+      "end": 1039.52,
+      "text": "Every paper claim multiplies selling pressure."
+    },
+    {
+      "start": 1039.52,
+      "end": 1041.0,
+      "text": "The OGs sold into a market"
+    },
+    {
+      "start": 1041.0,
+      "end": 1043.64,
+      "text": "where synthetic supply was already crushing the bid."
+    },
+    {
+      "start": 1043.64,
+      "end": 1045.68,
+      "text": "So yes, the Boogeyman exists,"
+    },
+    {
+      "start": 1045.68,
+      "end": 1047.32,
+      "text": "but here's what actually matters."
+    },
+    {
+      "start": 1047.32,
+      "end": 1049.16,
+      "text": "Check is probably right about the timeline."
+    },
+    {
+      "start": 1049.16,
+      "end": 1050.96,
+      "text": "Two weeks from now nobody will be talking"
+    },
+    {
+      "start": 1050.96,
+      "end": 1052.08,
+      "text": "about Jane Street."
+    },
+    {
+      "start": 1052.08,
+      "end": 1053.76,
+      "text": "The narrative will move."
+    },
+    {
+      "start": 1053.76,
+      "end": 1056.56,
+      "text": "It always does, but the lesson will stay."
+    },
+    {
+      "start": 1056.56,
+      "end": 1059.04,
+      "text": "Paper Bitcoin is someone else's liability."
+    },
+    {
+      "start": 1059.04,
+      "end": 1060.56,
+      "text": "Every wrapper, every derivative,"
+    },
+    {
+      "start": 1060.56,
+      "end": 1063.24,
+      "text": "every yield product is a claim that may never settle."
+    },
+    {
+      "start": 1063.24,
+      "end": 1064.28,
+      "text": "When the music stops,"
+    },
+    {
+      "start": 1064.28,
+      "end": 1066.52,
+      "text": "the only people not scrambling for a chair"
+    },
+    {
+      "start": 1066.52,
+      "end": 1069.32,
+      "text": "are the ones holding real Bitcoin in their own custody."
+    },
+    {
+      "start": 1069.32,
+      "end": 1070.48,
+      "text": "The Boogeyman is real,"
+    },
+    {
+      "start": 1070.48,
+      "end": 1072.8,
+      "text": "but he's powerless against real Bitcoin."
+    },
+    {
+      "start": 1072.8,
+      "end": 1074.88,
+      "text": "Jane Street can run algos at 10."
+    },
+    {
+      "start": 1074.88,
+      "end": 1076.44,
+      "text": "They can re-hypothicate paper claims"
+    },
+    {
+      "start": 1076.44,
+      "end": 1077.6,
+      "text": "until the cows come home."
+    },
+    {
+      "start": 1077.6,
+      "end": 1079.48,
+      "text": "They can short MSCR into the ground."
+    },
+    {
+      "start": 1079.48,
+      "end": 1082.36,
+      "text": "None of that touches a single Satoshi in Cold Storage."
+    },
+    {
+      "start": 1082.36,
+      "end": 1084.48,
+      "text": "It doesn't touch the 21 million cap."
+    },
+    {
+      "start": 1084.48,
+      "end": 1086.16,
+      "text": "It doesn't alter the 10 minute settlement"
+    },
+    {
+      "start": 1086.16,
+      "end": 1087.68,
+      "text": "finality of the base layer."
+    },
+    {
+      "start": 1087.68,
+      "end": 1089.0,
+      "text": "The game is rigged."
+    },
+    {
+      "start": 1089.0,
+      "end": 1090.28,
+      "text": "It always has been."
+    },
+    {
+      "start": 1090.28,
+      "end": 1091.28,
+      "text": "Gold proved it,"
+    },
+    {
+      "start": 1091.28,
+      "end": 1093.4,
+      "text": "but Bitcoin has something gold never did."
+    },
+    {
+      "start": 1093.4,
+      "end": 1094.32,
+      "text": "A way out."
+    },
+    {
+      "start": 1094.32,
+      "end": 1095.52,
+      "text": "And the way out is the same"
+    },
+    {
+      "start": 1095.52,
+      "end": 1097.76,
+      "text": "whether the Boogeyman is real or imagined."
+    },
+    {
+      "start": 1097.76,
+      "end": 1099.72,
+      "text": "Hold your own keys."
+    },
+    {
+      "start": 1099.72,
+      "end": 1101.28,
+      "text": "Now I want to know what you think."
+    },
+    {
+      "start": 1101.28,
+      "end": 1103.48,
+      "text": "Was Jane Street actively suppressing the price"
+    },
+    {
+      "start": 1103.48,
+      "end": 1105.96,
+      "text": "or was it organic distribution from long-term holders?"
+    },
+    {
+      "start": 1105.96,
+      "end": 1108.2,
+      "text": "And if you're still holding Bitcoin inside an exchange"
+    },
+    {
+      "start": 1108.2,
+      "end": 1110.08,
+      "text": "and ETF or a yield product,"
+    },
+    {
+      "start": 1110.08,
+      "end": 1111.88,
+      "text": "what's stopping you from taking custody?"
+    },
+    {
+      "start": 1111.88,
+      "end": 1113.68,
+      "text": "Let me know in the comments below."
+    },
+    {
+      "start": 1113.68,
+      "end": 1114.84,
+      "text": "If you enjoyed this episode,"
+    },
+    {
+      "start": 1114.84,
+      "end": 1116.64,
+      "text": "share it with someone who needs to hear it."
+    },
+    {
+      "start": 1116.64,
+      "end": 1119.48,
+      "text": "Like the video and subscribe to the Swan Bitcoin channel"
+    },
+    {
+      "start": 1119.48,
+      "end": 1120.88,
+      "text": "so you don't miss when it comes next."
+    },
+    {
+      "start": 1120.88,
+      "end": 1122.72,
+      "text": "Thanks for watching and remember,"
+    },
+    {
+      "start": 1122.72,
+      "end": 1124.04,
+      "text": "in the game of money,"
+    },
+    {
+      "start": 1124.04,
+      "end": 1125.4,
+      "text": "there is no second best."
+    }
+  ],
+  "topics": [
+    "etf",
+    "price",
+    "regulation",
+    "lightning",
+    "self-custody",
+    "macro",
+    "institutional",
+    "privacy"
+  ],
+  "sentiment": "bearish",
+  "archived_at": "2026-03-05T20:09:04Z"
+}

@@ -47,7 +47,7 @@ def call_gemini(prompt, json_mode=True):
     try:
         from google import genai as google_genai
         client = google_genai.Client(api_key=os.environ["GEMINI_API_KEY"])
-        resp = client.models.generate_content(model="gemini-2.5-pro-preview-03-25", contents=prompt)
+        resp = client.models.generate_content(model="gemini-2.5-pro", contents=prompt)
         text = resp.text.strip()
         for f in ["```json","```"]: text = text.replace(f,"")
         return json.loads(text.strip()) if json_mode else text.strip()
@@ -55,7 +55,7 @@ def call_gemini(prompt, json_mode=True):
         # Fallback to old SDK
         import google.generativeai as genai
         genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-        model = genai.GenerativeModel("gemini-2.0-flash")
+        model = genai.GenerativeModel("gemini-2.5-pro")
         resp = model.generate_content(prompt)
         text = resp.text.strip()
         for f in ["```json","```"]: text = text.replace(f,"")
@@ -217,7 +217,7 @@ def execute_claude_code(second_pass_prompt, session_name, feature_name):
 cd ~/protocol_pulse
 unset ANTHROPIC_API_KEY
 # Feed the prompt file to claude non-interactively
-claude --dangerously-skip-permissions -p "$(cat {prompt_file})" 2>&1
+claude --dangerously-skip-permissions < {prompt_file} 2>&1
 echo "[AUTO-EXECUTE] Done"
 """)
     auto_script.chmod(0o755)

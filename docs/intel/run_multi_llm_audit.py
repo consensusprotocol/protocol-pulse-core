@@ -49,7 +49,7 @@ def call_gemini():
     try:
         import google.generativeai as genai
         genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-        model = genai.GenerativeModel("gemini-2.5-pro-exp-03-25")
+        model = genai.GenerativeModel("gemini-2.5-pro")
         resp = model.generate_content(AUDIT_PROMPT)
         text = resp.text.strip()
         if "```" in text:

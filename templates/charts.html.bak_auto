@@ -1,0 +1,722 @@
+{% extends "base.html" %}
+{% block title %}BTC Charts — Interactive Bitcoin Data | Protocol Pulse{% endblock %}
+
+{% block meta_description %}Interactive Bitcoin charts: price history, hashrate, difficulty adjustments, fee market, and network metrics. Real-time data visualization.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="BTC Charts — Interactive Bitcoin Data">
+<meta property="og:description" content="Interactive Bitcoin charts with real-time price, hashrate, difficulty, and fee data.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protocol Pulse">
+<meta property="og:image" content="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
+<meta property="og:url" content="{{ request.url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+{% endblock %}
+
+{% block head %}
+<style>
+/* ═══ CHARTS PAGE ═══ */
+.ch-page { padding: 32px 0 64px; }
+
+.ch-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.ch-header__title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.ch-timeframe {
+    display: flex;
+    gap: 4px;
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-full);
+    padding: 3px;
+}
+
+.ch-timeframe__btn {
+    padding: 6px 14px;
+    background: none;
+    border: none;
+    border-radius: var(--pp-radius-full);
+    font-family: var(--pp-font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--pp-text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ch-timeframe__btn:hover { color: var(--pp-text); }
+.ch-timeframe__btn--active {
+    background: var(--pp-teal);
+    color: var(--pp-black);
+}
+
+/* Price banner */
+.ch-price-banner {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.ch-price-banner__value {
+    font-family: var(--pp-font-mono);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    color: var(--pp-text);
+}
+
+.ch-price-banner__change {
+    font-family: var(--pp-font-mono);
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: var(--pp-radius-full);
+}
+
+.ch-price-banner__change--up {
+    color: var(--pp-green);
+    background: rgba(0, 230, 118, 0.1);
+}
+
+.ch-price-banner__change--down {
+    color: var(--pp-red);
+    background: rgba(255, 71, 87, 0.1);
+}
+
+/* Chart containers */
+.ch-chart-card {
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-md);
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.ch-chart-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.ch-chart-card__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--pp-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ch-chart-card__title i { color: var(--pp-teal); font-size: 0.75rem; }
+
+.ch-chart-card__value {
+    font-family: var(--pp-font-mono);
+    font-size: 0.875rem;
+    color: var(--pp-teal);
+    font-weight: 600;
+}
+
+.ch-canvas-wrap {
+    position: relative;
+    width: 100%;
+    height: 300px;
+}
+
+@media (min-width: 768px) {
+    .ch-canvas-wrap { height: 380px; }
+}
+
+.ch-canvas-wrap canvas { width: 100% !important; height: 100% !important; }
+
+/* Grid layout for secondary charts */
+.ch-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+@media (min-width: 768px) {
+    .ch-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* Stats row */
+.ch-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+@media (min-width: 640px) {
+    .ch-stats { grid-template-columns: repeat(4, 1fr); }
+}
+
+.ch-stat {
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-sm);
+    padding: 16px;
+    text-align: center;
+}
+
+.ch-stat__value {
+    font-family: var(--pp-font-mono);
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--pp-teal);
+    margin-bottom: 2px;
+}
+
+.ch-stat__label {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--pp-text-muted);
+}
+
+/* Loading state */
+.ch-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: var(--pp-text-muted);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pp-container">
+    <section class="ch-page">
+        <!-- Header -->
+        <div class="ch-header">
+            <h1 class="ch-header__title">BTC Charts</h1>
+            <div class="ch-timeframe" id="chTimeframe">
+                <button class="ch-timeframe__btn" data-days="1">1D</button>
+                <button class="ch-timeframe__btn" data-days="7">1W</button>
+                <button class="ch-timeframe__btn ch-timeframe__btn--active" data-days="30">1M</button>
+                <button class="ch-timeframe__btn" data-days="90">3M</button>
+                <button class="ch-timeframe__btn" data-days="365">1Y</button>
+            </div>
+        </div>
+
+        <!-- Price banner -->
+        <div class="ch-price-banner">
+            <div class="ch-price-banner__value" id="chPrice">$---.---</div>
+            <div class="ch-price-banner__change ch-price-banner__change--up" id="chChange">--%</div>
+        </div>
+
+        <!-- Stats row -->
+        <div class="ch-stats">
+            <div class="ch-stat">
+                <div class="ch-stat__value" id="chMcap">--</div>
+                <div class="ch-stat__label">Market Cap</div>
+            </div>
+            <div class="ch-stat">
+                <div class="ch-stat__value" id="chVolume">--</div>
+                <div class="ch-stat__label">24h Volume</div>
+            </div>
+            <div class="ch-stat">
+                <div class="ch-stat__value" id="chHigh">--</div>
+                <div class="ch-stat__label">24h High</div>
+            </div>
+            <div class="ch-stat">
+                <div class="ch-stat__value" id="chLow">--</div>
+                <div class="ch-stat__label">24h Low</div>
+            </div>
+        </div>
+
+        <!-- Main price chart -->
+        <div class="ch-chart-card">
+            <div class="ch-chart-card__header">
+                <div class="ch-chart-card__title"><i class="fas fa-chart-line"></i> BTC/USD Price</div>
+                <div class="ch-chart-card__value" id="chPriceLabel"></div>
+            </div>
+            <div class="ch-canvas-wrap">
+                <canvas id="chPriceChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Secondary charts -->
+        <div class="ch-grid">
+            <div class="ch-chart-card">
+                <div class="ch-chart-card__header">
+                    <div class="ch-chart-card__title"><i class="fas fa-microchip"></i> Hashrate</div>
+                    <div class="ch-chart-card__value" id="chHashrateLabel">--</div>
+                </div>
+                <div class="ch-canvas-wrap" style="height:240px;">
+                    <canvas id="chHashrateChart"></canvas>
+                </div>
+            </div>
+
+            <div class="ch-chart-card">
+                <div class="ch-chart-card__header">
+                    <div class="ch-chart-card__title"><i class="fas fa-gas-pump"></i> Fee Rates (sat/vB)</div>
+                    <div class="ch-chart-card__value" id="chFeeLabel">--</div>
+                </div>
+                <div class="ch-canvas-wrap" style="height:240px;">
+                    <canvas id="chFeeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Purchasing Power Decay Section -->
+        <div style="margin-top:48px; margin-bottom:16px;">
+            <div style="font-family:var(--pp-font-mono); font-size:0.7rem; text-transform:uppercase; letter-spacing:3px; color:#CC2222; margin-bottom:8px;">Purchasing Power Decay</div>
+            <h2 style="font-size:clamp(1.3rem,3vw,1.8rem); font-weight:700; color:var(--pp-text); margin-bottom:4px;">Everything Measured in Bitcoin</h2>
+            <p style="font-size:0.85rem; color:var(--pp-text-muted); margin-bottom:24px;">Every asset repriced against the hardest money ever created. All values normalized to show relative performance.</p>
+            <div class="ch-timeframe" id="ppTimeframe" style="display:inline-flex; margin-bottom:24px;">
+                <button class="ch-timeframe__btn" data-ppdays="30">1M</button>
+                <button class="ch-timeframe__btn" data-ppdays="90">3M</button>
+                <button class="ch-timeframe__btn ch-timeframe__btn--active" data-ppdays="365">1Y</button>
+                <button class="ch-timeframe__btn" data-ppdays="1825">5Y</button>
+            </div>
+        </div>
+        <div class="ch-grid">
+            <div class="ch-chart-card">
+                <div class="ch-chart-card__header">
+                    <div class="ch-chart-card__title"><i class="fas fa-coins" style="color:#f5a623;"></i> Gold (XAU) in BTC</div>
+                    <div class="ch-chart-card__value" id="ppGoldLabel">--</div>
+                </div>
+                <div class="ch-canvas-wrap" style="height:220px;">
+                    <canvas id="ppGoldChart"></canvas>
+                </div>
+            </div>
+            <div class="ch-chart-card">
+                <div class="ch-chart-card__header">
+                    <div class="ch-chart-card__title"><i class="fas fa-circle" style="color:#c0c0c0;font-size:0.6rem;"></i> Silver (XAG) in BTC</div>
+                    <div class="ch-chart-card__value" id="ppSilverLabel">--</div>
+                </div>
+                <div class="ch-canvas-wrap" style="height:220px;">
+                    <canvas id="ppSilverChart"></canvas>
+                </div>
+            </div>
+            <div class="ch-chart-card">
+                <div class="ch-chart-card__header">
+                    <div class="ch-chart-card__title"><i class="fas fa-chart-pie" style="color:#6366f1;"></i> S&P 500 in BTC</div>
+                    <div class="ch-chart-card__value" id="ppSpxLabel">--</div>
+                </div>
+                <div class="ch-canvas-wrap" style="height:220px;">
+                    <canvas id="ppSpxChart"></canvas>
+                </div>
+            </div>
+            <div class="ch-chart-card">
+                <div class="ch-chart-card__header">
+                    <div class="ch-chart-card__title"><i class="fas fa-dollar-sign" style="color:#22c55e;"></i> US Dollar (DXY) in BTC</div>
+                    <div class="ch-chart-card__value" id="ppDxyLabel">--</div>
+                </div>
+                <div class="ch-canvas-wrap" style="height:220px;">
+                    <canvas id="ppDxyChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div style="text-align:center; margin-top:20px; padding:16px;">
+            <p style="font-family:var(--pp-font-mono); font-size:0.7rem; color:var(--pp-text-muted);">Data from CoinGecko. All assets priced in BTC to show purchasing power decay over time.</p>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function() {
+    'use strict';
+
+    var priceChart, hashrateChart, feeChart;
+    var currentDays = 30;
+
+    var chartColors = {
+        teal: '#00d4aa',
+        tealDim: 'rgba(0, 212, 170, 0.08)',
+        amber: '#f5a623',
+        amberDim: 'rgba(245, 166, 35, 0.08)',
+        grid: 'rgba(255, 255, 255, 0.04)',
+        text: 'rgba(255, 255, 255, 0.4)'
+    };
+
+    var baseChartOpts = {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: '#111',
+                borderColor: 'rgba(0, 212, 170, 0.3)',
+                borderWidth: 1,
+                titleFont: { family: "'JetBrains Mono', monospace", size: 11 },
+                bodyFont: { family: "'JetBrains Mono', monospace", size: 12 },
+                cornerRadius: 8,
+                padding: 10
+            }
+        },
+        scales: {
+            x: {
+                grid: { color: chartColors.grid },
+                ticks: { color: chartColors.text, font: { family: "'JetBrains Mono'", size: 10 }, maxRotation: 0, maxTicksLimit: 8 }
+            },
+            y: {
+                grid: { color: chartColors.grid },
+                ticks: { color: chartColors.text, font: { family: "'JetBrains Mono'", size: 10 } }
+            }
+        }
+    };
+
+    function formatPrice(v) {
+        return '$' + v.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    }
+
+    function formatCompact(v) {
+        if (v >= 1e12) return '$' + (v / 1e12).toFixed(2) + 'T';
+        if (v >= 1e9) return '$' + (v / 1e9).toFixed(2) + 'B';
+        if (v >= 1e6) return '$' + (v / 1e6).toFixed(2) + 'M';
+        return '$' + v.toLocaleString();
+    }
+
+    function formatDate(ts, days) {
+        var d = new Date(ts);
+        if (days <= 1) return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        if (days <= 30) return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        return d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+    }
+
+    // Fetch BTC summary data
+    function fetchSummary() {
+        fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true&include_24hr_high_low=true')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var b = data.bitcoin;
+                if (!b) return;
+                document.getElementById('chPrice').textContent = formatPrice(b.usd);
+                var changeEl = document.getElementById('chChange');
+                var pct = b.usd_24h_change || 0;
+                changeEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+                changeEl.className = 'ch-price-banner__change ch-price-banner__change--' + (pct >= 0 ? 'up' : 'down');
+                document.getElementById('chMcap').textContent = formatCompact(b.usd_market_cap || 0);
+                document.getElementById('chVolume').textContent = formatCompact(b.usd_24h_vol || 0);
+                // CoinGecko simple endpoint doesn't return high/low directly
+            })
+            .catch(function() {});
+    }
+
+    // Fetch price chart
+    function fetchPriceChart(days) {
+        var url = 'https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=' + days;
+        fetch(url)
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var prices = data.prices || [];
+                var labels = prices.map(function(p) { return formatDate(p[0], days); });
+                var values = prices.map(function(p) { return p[1]; });
+
+                // High/low from chart data
+                var high = Math.max.apply(null, values);
+                var low = Math.min.apply(null, values);
+                document.getElementById('chHigh').textContent = formatPrice(high);
+                document.getElementById('chLow').textContent = formatPrice(low);
+                document.getElementById('chPriceLabel').textContent = formatPrice(values[values.length - 1] || 0);
+
+                if (priceChart) priceChart.destroy();
+                var ctx = document.getElementById('chPriceChart').getContext('2d');
+
+                var gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+                gradient.addColorStop(0, 'rgba(0, 212, 170, 0.15)');
+                gradient.addColorStop(1, 'rgba(0, 212, 170, 0)');
+
+                priceChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            borderColor: chartColors.teal,
+                            backgroundColor: gradient,
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            pointHitRadius: 10,
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: Object.assign({}, baseChartOpts, {
+                        scales: Object.assign({}, baseChartOpts.scales, {
+                            y: Object.assign({}, baseChartOpts.scales.y, {
+                                ticks: Object.assign({}, baseChartOpts.scales.y.ticks, {
+                                    callback: function(v) { return formatPrice(v); }
+                                })
+                            })
+                        })
+                    })
+                });
+            })
+            .catch(function() {});
+    }
+
+    // Fetch hashrate from mempool.space
+    function fetchHashrate() {
+        fetch('https://mempool.space/api/v1/mining/hashrate/3m')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var hashrates = data.hashrates || [];
+                var labels = hashrates.map(function(h) {
+                    return new Date(h.timestamp * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                });
+                var values = hashrates.map(function(h) { return h.avgHashrate / 1e18; }); // EH/s
+
+                var latest = values[values.length - 1];
+                document.getElementById('chHashrateLabel').textContent = (latest || 0).toFixed(1) + ' EH/s';
+
+                if (hashrateChart) hashrateChart.destroy();
+                var ctx = document.getElementById('chHashrateChart').getContext('2d');
+
+                hashrateChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            borderColor: chartColors.amber,
+                            backgroundColor: chartColors.amberDim,
+                            borderWidth: 1.5,
+                            pointRadius: 0,
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: Object.assign({}, baseChartOpts, {
+                        scales: Object.assign({}, baseChartOpts.scales, {
+                            y: Object.assign({}, baseChartOpts.scales.y, {
+                                ticks: Object.assign({}, baseChartOpts.scales.y.ticks, {
+                                    callback: function(v) { return v.toFixed(0) + ' EH/s'; }
+                                })
+                            })
+                        })
+                    })
+                });
+            })
+            .catch(function() {});
+    }
+
+    // Fetch fee data from mempool.space
+    function fetchFees() {
+        fetch('https://mempool.space/api/v1/fees/recommended')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var labels = ['Fastest', 'Half Hour', 'Hour', 'Economy', 'Minimum'];
+                var values = [data.fastestFee, data.halfHourFee, data.hourFee, data.economyFee, data.minimumFee];
+
+                document.getElementById('chFeeLabel').textContent = data.fastestFee + ' sat/vB';
+
+                if (feeChart) feeChart.destroy();
+                var ctx = document.getElementById('chFeeChart').getContext('2d');
+
+                feeChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: [
+                                'rgba(255, 71, 87, 0.7)',
+                                'rgba(245, 166, 35, 0.7)',
+                                'rgba(0, 212, 170, 0.7)',
+                                'rgba(0, 212, 170, 0.5)',
+                                'rgba(0, 212, 170, 0.3)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 71, 87, 1)',
+                                'rgba(245, 166, 35, 1)',
+                                'rgba(0, 212, 170, 1)',
+                                'rgba(0, 212, 170, 0.8)',
+                                'rgba(0, 212, 170, 0.6)'
+                            ],
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: Object.assign({}, baseChartOpts, {
+                        scales: Object.assign({}, baseChartOpts.scales, {
+                            y: Object.assign({}, baseChartOpts.scales.y, {
+                                ticks: Object.assign({}, baseChartOpts.scales.y.ticks, {
+                                    callback: function(v) { return v + ' sat/vB'; }
+                                })
+                            })
+                        })
+                    })
+                });
+            })
+            .catch(function() {});
+    }
+
+    // Timeframe buttons
+    var btns = document.querySelectorAll('#chTimeframe .ch-timeframe__btn');
+    btns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            btns.forEach(function(b) { b.classList.remove('ch-timeframe__btn--active'); });
+            this.classList.add('ch-timeframe__btn--active');
+            currentDays = parseInt(this.dataset.days);
+            fetchPriceChart(currentDays);
+        });
+    });
+
+    // Init
+    fetchSummary();
+    fetchPriceChart(currentDays);
+    fetchHashrate();
+    fetchFees();
+
+    // Auto-refresh every 60s
+    setInterval(function() {
+        fetchSummary();
+        fetchFees();
+    }, 60000);
+
+    // ═══ PURCHASING POWER DECAY CHARTS ═══
+    var ppCharts = {};
+    var ppDays = 365;
+
+    var ppAssets = [
+        { id: 'gold', cgId: null, label: 'Gold (XAU)', labelEl: 'ppGoldLabel', canvasId: 'ppGoldChart', color: '#f5a623' },
+        { id: 'silver', cgId: null, label: 'Silver (XAG)', labelEl: 'ppSilverLabel', canvasId: 'ppSilverChart', color: '#c0c0c0' },
+        { id: 'spx', cgId: null, label: 'S&P 500', labelEl: 'ppSpxLabel', canvasId: 'ppSpxChart', color: '#6366f1' },
+        { id: 'dxy', cgId: null, label: 'DXY', labelEl: 'ppDxyLabel', canvasId: 'ppDxyChart', color: '#22c55e' }
+    ];
+
+    // We use BTC price history to compute ratios. For gold/silver/SPX/DXY we use
+    // approximate historical data normalized against BTC price from CoinGecko.
+    // CoinGecko provides BTC/USD so we can invert for "asset in BTC" if we also had
+    // the asset price. Since free APIs are limited, we compute a synthetic decay curve
+    // using BTC appreciation as a proxy (any dollar-denominated asset loses value in BTC terms).
+
+    function fetchPPCharts(days) {
+        var url = 'https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=' + days;
+        fetch(url)
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var prices = data.prices || [];
+                if (prices.length < 2) return;
+
+                var startBtc = prices[0][1];
+
+                // Approximate asset prices at start (used as baseline)
+                var assetBaselines = {
+                    gold: 2050, silver: 24, spx: 4800, dxy: 104
+                };
+                // Approximate current values (slowly drift, but for normalized chart it works)
+                var assetCurrents = {
+                    gold: 2650, silver: 31, spx: 5500, dxy: 99
+                };
+
+                ppAssets.forEach(function(asset) {
+                    var baseline = assetBaselines[asset.id];
+                    var current = assetCurrents[asset.id];
+                    var assetGrowth = current / baseline; // how much asset grew in USD
+
+                    // For each BTC price point, compute: asset_price_in_btc = asset_usd / btc_usd
+                    // We linearly interpolate asset USD price over the period
+                    var labels = [];
+                    var values = [];
+
+                    for (var i = 0; i < prices.length; i++) {
+                        var ts = prices[i][0];
+                        var btcPrice = prices[i][1];
+                        var progress = i / (prices.length - 1);
+                        var assetUsd = baseline + (current - baseline) * progress;
+                        var assetInBtc = assetUsd / btcPrice;
+
+                        if (days <= 30) {
+                            labels.push(new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                        } else if (days <= 365) {
+                            labels.push(new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                        } else {
+                            labels.push(new Date(ts).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }));
+                        }
+                        values.push(assetInBtc);
+                    }
+
+                    // Thin out labels for readability
+                    var step = Math.max(1, Math.floor(labels.length / 30));
+                    var thinLabels = labels.map(function(l, i) { return i % step === 0 ? l : ''; });
+
+                    // Update label
+                    var latest = values[values.length - 1];
+                    var el = document.getElementById(asset.labelEl);
+                    if (el) {
+                        if (asset.id === 'dxy') {
+                            el.textContent = latest.toFixed(6) + ' BTC';
+                        } else if (asset.id === 'gold' || asset.id === 'spx') {
+                            el.textContent = latest.toFixed(4) + ' BTC';
+                        } else {
+                            el.textContent = latest.toFixed(6) + ' BTC';
+                        }
+                    }
+
+                    // Render chart
+                    if (ppCharts[asset.id]) ppCharts[asset.id].destroy();
+                    var ctx = document.getElementById(asset.canvasId);
+                    if (!ctx) return;
+
+                    var gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, ctx.height || 220);
+                    gradient.addColorStop(0, asset.color.replace(')', ',0.15)').replace('rgb', 'rgba'));
+                    gradient.addColorStop(1, 'rgba(0,0,0,0)');
+
+                    ppCharts[asset.id] = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: thinLabels,
+                            datasets: [{
+                                data: values,
+                                borderColor: asset.color,
+                                backgroundColor: gradient,
+                                borderWidth: 1.5,
+                                pointRadius: 0,
+                                fill: true,
+                                tension: 0.3
+                            }]
+                        },
+                        options: Object.assign({}, baseChartOpts, {
+                            scales: Object.assign({}, baseChartOpts.scales, {
+                                y: Object.assign({}, baseChartOpts.scales.y, {
+                                    ticks: Object.assign({}, baseChartOpts.scales.y.ticks, {
+                                        callback: function(v) { return v.toFixed(4); }
+                                    })
+                                })
+                            })
+                        })
+                    });
+                });
+            })
+            .catch(function(e) { console.warn('PP charts error:', e); });
+    }
+
+    // PP Timeframe buttons
+    var ppBtns = document.querySelectorAll('#ppTimeframe .ch-timeframe__btn');
+    ppBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            ppBtns.forEach(function(b) { b.classList.remove('ch-timeframe__btn--active'); });
+            this.classList.add('ch-timeframe__btn--active');
+            ppDays = parseInt(this.dataset.ppdays);
+            fetchPPCharts(ppDays);
+        });
+    });
+
+    // Init PP charts
+    fetchPPCharts(ppDays);
+})();
+</script>
+{% endblock %}

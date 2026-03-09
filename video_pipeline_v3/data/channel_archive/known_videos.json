@@ -666,19 +666,408 @@
       ],
       "sentiment": "neutral",
       "archived_at": "2026-03-05T17:44:23Z"
+    },
+    "tQR7mHjAwzY": {
+      "title": "Could This Send Bitcoin to $700K Within 10 Months?!",
+      "channel": "Simply Bitcoin",
+      "upload_date": "",
+      "duration": 1027,
+      "topics": [
+        "etf",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bullish",
+      "archived_at": "2026-03-06T12:30:03Z"
+    },
+    "zflAVKCaPfU": {
+      "title": "Why Poor People Rarely Buy Bitcoin",
+      "channel": "Robert Breedlove",
+      "upload_date": "",
+      "duration": 388,
+      "topics": [
+        "price",
+        "regulation",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-06T12:30:16Z"
+    },
+    "iDXbH-d-xRc": {
+      "title": "Did the Federal Reserve Just Open the Door to Bitcoin?",
+      "channel": "Swan Bitcoin",
+      "upload_date": "",
+      "duration": 1022,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-06T12:30:18Z"
+    },
+    "ATFCDL9GuK0": {
+      "title": "Is Bitcoin Failing to Reach the Next Billion Users?",
+      "channel": "Swan Bitcoin",
+      "upload_date": "",
+      "duration": 1240,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bullish",
+      "archived_at": "2026-03-06T12:30:18Z"
+    },
+    "FF86TL4Udns": {
+      "title": "The Most Bullish Bitcoin Metric Nobody's Talking About",
+      "channel": "Swan Bitcoin",
+      "upload_date": "",
+      "duration": 779,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-06T12:30:18Z"
+    },
+    "n9FDly7XbdI": {
+      "title": "10% BTC Price Jump Just Exposed Huge Insider Paper Bitcoin Manipulation",
+      "channel": "BTC Sessions",
+      "upload_date": "",
+      "duration": 1137,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-03-06T12:30:26Z"
+    },
+    "ONDnHKLiLz4": {
+      "title": "The Hidden Attack On America\u2019s Freedom Exposed by Dave Collum (ATTN Bitcoiners)",
+      "channel": "BTC Sessions",
+      "upload_date": "",
+      "duration": 1291,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-06T12:30:26Z"
+    },
+    "p3OGC3non48": {
+      "title": "Will BlackRock Destroy Bitcoin? Huge Trojan Horse OR Hyperbitcoinization (Jeff Booth VS Simon Dixon)",
+      "channel": "BTC Sessions",
+      "upload_date": "",
+      "duration": 1881,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-03-06T12:30:26Z"
+    },
+    "gvPF39pnqD8": {
+      "title": "315. Principles of Economics Lecture 6: Capital",
+      "channel": "Saifedean Ammous",
+      "upload_date": "",
+      "duration": 2794,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-06T12:30:36Z"
+    },
+    "ttDEtDSfRHg": {
+      "title": "314. Principles of Economics Lecture 5: Property",
+      "channel": "Saifedean Ammous",
+      "upload_date": "",
+      "duration": 2628,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-06T12:30:36Z"
+    },
+    "5GMf3wA0ZqI": {
+      "title": "313. Principles of Economics Lecture 4: Labor",
+      "channel": "Saifedean Ammous",
+      "upload_date": "",
+      "duration": 2779,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-03-06T12:30:36Z"
+    },
+    "M0TmfF-91vw": {
+      "title": "Is Bitcoin Actually Dead This Time? (Unbiased Analysis)",
+      "channel": "Bitcoin Magazine Pro",
+      "upload_date": "",
+      "duration": 1310,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-03-06T12:30:46Z"
+    },
+    "c8g4FZ6Onfg": {
+      "title": "Die with Zero & Linde PLC Stock Analysis w/ Clay Finck (TIP796)",
+      "channel": "The Investors Podcast Network",
+      "upload_date": "",
+      "duration": 3409,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-06T12:30:55Z"
+    },
+    "-8lS8eunbNo": {
+      "title": "Trump Just BROKE the Petrodollar (Bitcoin Repricing IMMINENT!)",
+      "channel": "Simply Bitcoin",
+      "upload_date": "",
+      "duration": 947,
+      "topics": [
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-08T04:45:02Z"
+    },
+    "oTYqjHQPhds": {
+      "title": "The $1.8 Trillion Debt Spiral Has Begun \u2014 And No One Sees It",
+      "channel": "Simply Bitcoin",
+      "upload_date": "",
+      "duration": 673,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-03-08T04:45:02Z"
+    },
+    "du8cKForpAk": {
+      "title": "The Banks Are Trying to Stop Bitcoin!",
+      "channel": "Swan Bitcoin",
+      "upload_date": "",
+      "duration": 703,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-08T04:45:04Z"
+    },
+    "d3fEYWU06KY": {
+      "title": "Adam Back May Have JUST Solved The Bitcoin Quantum Threat \u2014 Is It OVER?",
+      "channel": "BTC Sessions",
+      "upload_date": "",
+      "duration": 681,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-08T11:21:01Z"
+    },
+    "4mw00SQkvGA": {
+      "title": "\u201cThis Was ALL Planned\u201d \u2014 US Collapse, Iran War, Bitcoin About to Go Parabolic",
+      "channel": "BTC Sessions",
+      "upload_date": "",
+      "duration": 1369,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-08T11:21:01Z"
+    },
+    "RtKFexfYiA8": {
+      "title": "Institutions Aren't Capitulating On BTC (They're Buying)",
+      "channel": "Bitcoin Magazine Pro",
+      "upload_date": "",
+      "duration": 713,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-08T11:21:15Z"
+    },
+    "gcSHN7zRhv4": {
+      "title": "How John Malone Compounded Wealth: The Risk & Reward Playbook w/ Kyle Grieve (TIP797)",
+      "channel": "The Investors Podcast Network",
+      "upload_date": "",
+      "duration": 3591,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-08T11:21:22Z"
+    },
+    "w6s7y7T1rFM": {
+      "title": "Keynes And The Markets (TIP794)",
+      "channel": "The Investors Podcast Network",
+      "upload_date": "",
+      "duration": 3404,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-08T11:21:22Z"
+    },
+    "pkZqnM22l8Y": {
+      "title": "Bitcoin May Have Already Bottomed During War Markets",
+      "channel": "The Bitcoin Layer",
+      "upload_date": "",
+      "duration": 416,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "lightning",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-09T03:00:10Z"
+    },
+    "z4cTEJ8UyaA": {
+      "title": "America\u2019s Retirement Crisis Is Worse Than You Think",
+      "channel": "Natalie Brunell",
+      "upload_date": "",
+      "duration": 702,
+      "topics": [
+        "etf",
+        "price",
+        "regulation",
+        "self-custody",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-09T03:00:12Z"
     }
   },
-  "last_scan": "2026-03-05T18:00:15Z",
-  "total_archived": 42,
+  "last_scan": "2026-03-09T06:02:26Z",
+  "total_archived": 65,
   "_last_upload_Bitcoin Magazine": "2026-03-05T17:12:28Z",
-  "_last_upload_Simply Bitcoin": "2026-03-05T17:13:20Z",
+  "_last_upload_Simply Bitcoin": "2026-03-08T04:45:02Z",
   "_last_upload_TFTC": "2026-03-05T17:13:21Z",
   "_last_upload_Preston Pysh": "2026-03-05T17:23:57Z",
-  "_last_upload_The Bitcoin Layer": "2026-03-05T17:26:36Z",
+  "_last_upload_The Bitcoin Layer": "2026-03-09T03:00:10Z",
   "_last_upload_Blockworks": "2026-03-05T17:27:06Z",
-  "_last_upload_Natalie Brunell": "2026-03-05T17:28:53Z",
+  "_last_upload_Natalie Brunell": "2026-03-09T03:00:12Z",
   "_last_upload_Andreas Antonopoulos": "2026-03-05T17:30:06Z",
-  "_last_upload_Robert Breedlove": "2026-03-05T17:44:20Z",
+  "_last_upload_Robert Breedlove": "2026-03-06T12:30:16Z",
   "_last_upload_Unchained": "2026-03-05T17:44:20Z",
-  "_last_upload_Tucker Carlson": "2026-03-05T17:44:23Z"
+  "_last_upload_Tucker Carlson": "2026-03-05T17:44:23Z",
+  "_last_upload_Swan Bitcoin": "2026-03-08T04:45:04Z",
+  "_last_upload_BTC Sessions": "2026-03-08T11:21:01Z",
+  "_last_upload_Saifedean Ammous": "2026-03-06T12:30:36Z",
+  "_last_upload_Bitcoin Magazine Pro": "2026-03-08T11:21:15Z",
+  "_last_upload_The Investors Podcast Network": "2026-03-08T11:21:22Z"
 }

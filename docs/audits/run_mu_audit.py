@@ -77,7 +77,7 @@ def call_gemini():
     try:
         import google.generativeai as genai
         genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-        model = genai.GenerativeModel("gemini-2.0-flash")
+        model = genai.GenerativeModel("gemini-2.5-pro")
         resp = model.generate_content(PROMPT)
         text = resp.text.strip()
         for fence in ["```json", "```"]:

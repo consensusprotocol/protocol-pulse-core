@@ -1,0 +1,2401 @@
+{
+  "video_id": "a0ycGl4jN8w",
+  "title": "Run Bitcoin & Lightning Node in 30 mins: Umbrel Home",
+  "channel": "BTC Sessions",
+  "upload_date": "",
+  "duration": 1884,
+  "transcript_text": "This little device can host an entire copy of the history of Bitcoin's transactions, as well as the rules that govern the Bitcoin network. You're also able to not trust anyone because you're trusting yourself and your own copy of the Bitcoin blockchain. I'm Ben of the BTZ Sessions. This is your daily session. So we're going to be taking again a look at the umbral home, and we're going to be investigating how to set it up and use it. In terms of prerequisites, what are you going to need to know in order to successfully navigate this tutorial? Not too too much. You should be aware of how to obtain Bitcoin. You should probably already have a Bitcoin wallet and know how to send a receive. But other than that, not too much else. But without further ado, let's take a look at how to get started setting up your umbral home, what's in the box, and what to do next. Okay, so let's take a look inside the box for the umbral home. It's just lifts up, and we see the main device here. I lift it out of the packaging. You can see there is a power button on the front. If I rotate, there are three USB A, I believe it's 3.2 ports. On the back, you have an Ethernet port, the exhaust for the fan, as well as USB C, which is going to be part of the power. And then again, exhaust on the side here, and then you have it at the bottom. Not much, just a couple rubber feet. Okay, inside the box further, lift this out. You get your instruction manual of what to do. It's pretty basic. You're just plugging in an Ethernet cable to your router. You're plugging in the umbral home to the wall, and then you're going on to your computer, and you're typing in umbral.local on your browser. Let's just take a peek at the remaining items in the box. Here is our power supply. There we go. This obviously plugs into the back of the umbral like so, and into the wall. And then, of course, our Ethernet cable. I will say this is a tad short. You may want a longer one if you are setting this on your shelf. So just be aware that it may not reach. Basically, this goes into the back, and then this goes into your router. And that is it. So router, plug into the wall, go to your browser. We'll take a look at it on the shelf, and then we'll jump to the computer. Here we are with the device now on my shelf. Just the two cables out the back, one plugged into the wall, one plugged into my router down here. Sorry for the mess of cables. But it did boot on by itself. I see the light on the power button. So I'll go check my computer to see if it's already connected to my local network. So here I am on my computer. I've simply opened up a browser. I'm on the same network as the router that I am plugged into. And all I had to do was type umbral.local into my browser. And I'm greeted here with the welcome to umbral.os. Your home cloud server is ready to set up. So let's just go through the setup here, get ourselves centered. I'll hit start. I'm going to create an account. This account info is stored only on your umbral. Make sure to back up your password safely as there's no way to reset it. So I'm going to just call this sessions. Then I'll choose a password. This point I can click create. Let's me know I'm all set. My umbral is now ready. I'm going to hit next. And so we're greeted by this home screen that introduces us to a number of apps that we may want to install onto our umbral. And so I'm going to guide you through a few things that I might like. But first off, I see something that I want to address, which is in the top right corner. Let's me know that there's a new version available to install. So I want to click that. And it says that I can install an update. I recommend that you do that out the gate before you start installing other apps. It's not a bad idea to be up to date. So I'm going to click install now. And it will go through some screens here. It'll do a quick little reboot. And then we'll be right back after a few minutes. I am brought back to this page. It says welcome back into your password. The one that I just set up. So enter that and hit log in. All right. So as I said, we are sitting here on the home screen. And we can see a variety of different apps we may want to install. Aside from that down below, we have a few things. We have our home screen. We have the app store. We have our settings. We have our live usage. So stats about the machine itself. And we also can edit the widgets that are here on the home screen. Should we install a bunch of apps? It also gives us an option here. Just below our main tiles with suggestions to explore more in the app store. However, I see a number of things that I want to install. And they are in the center here. So number one, I want to install a Bitcoin node. So I'm going to go ahead. I'm going to install that. And it will begin installing. This opens up a little pop-up window. I can X out of that and you're going to see that here on the main screen as it loads. But I'm going to go into the app store down below this time. And I'm going to click specifically on Bitcoin so I can see what they've got here. The other thing that you're likely going to want to install is something called ElectRS or Electrum Rust Server. And this just helps any connected wallets quickly be able to find and audit your transactions and your balance. So I'm going to click on that. I'm also going to install ElectRS. And it says it requires these apps. I'm required to have the Bitcoin out. So let's me know if it's dependent on anything else. So I'll install that one as well. And I'll go back. I'm also going to take a peek at doing a lightning node. So I'm going to be running LND. And so they just named that lightning node here. And if I click on it, it lets me know. Hey, this is how you can easily run your own lightning node. Yes, I'm going to install that one as well. And it says, hey, this is also dependent on your Bitcoin node. That's cool. I'm going to install that. And I'll go back. There's a couple of other things I want to install. I really like Albi Hub. This will help us set up our lightning node when we get to that portion. So I'm going to click and install that. That again says it's going to rely on the lightning node. It actually won't let me download it until it's installed. OK, there we go. I can install Albi Hub now. There's one other thing I want to install. And that is something called mempool.space. Or just mempool. So you can see it over here. I'm going to click on that. And it's just a cool way to look up your transactions and see the Bitcoin network in action. So I'm going to go ahead. I'm going to click install. It lets us know that it relies on not only the Bitcoin node, but Electrum Rust Server as well. So I'm going to install that here. It will start on its way. I'll back out. Actually, I can close this now. And here we can see all of our apps that we've got. I'll let mempool install. And then we'll take our first steps to getting these up and running. So we're going to start here by setting up the Bitcoin node itself. AKA Bitcoin Core. So this is the app that says Bitcoin node right here. So I'm going to click on this. And this pertains to the copy of the Bitcoin blockchain that I'm going to run, including all of the rules that govern the network and the history of all the transactions. So when I click on this, you can see it's beginning to synchronize. So it's downloading the history of Bitcoin right here for us. But be prepared for it to chug away for at least a few days to get updated. I'm on pretty fast internet. So I will let you know how quickly this happens. And once that's done, we'll start peaking at the other items because everything else that we've downloaded is going to be dependent on this Bitcoin Core node that I am running. So we'll be back for me in a few days for you in a few seconds. It is now a single day later, actually, a pleasant surprise. It was quicker than I expected. I was expecting at least a few days here. Nonetheless, we have a fully synced Bitcoin node. If you're the kind of Bitcoiner who doesn't trust convenience, cloud backups, or leaving anything to chance, Dirty Man's Safe was built for you. This underground physical storage is for the most paranoid self-custy setups, designed to protect and hide seed phrases, hardware, critical documents, and more. Rugged, weather resistant, and built to disappear, Dirty Man's Safe as a last-line fail-safe to your Bitcoin security model. Head to DirtyManSafe.com and use code BTCSessions for 10% off. If you're a homeowner and you want more Bitcoin, Horizon just opened a whole new door. Most of your wealth is locked in your house, growing a few percent per year while Bitcoin has historically grown far faster. Horizon lets you convert a portion of your home's future value directly into Bitcoin without taking alone. No monthly payments, no interest, no term limits. You stay in your home and you fully control and custody your Bitcoin. There's no forced liquidation, no margin calls, and no income requirement. You unlock tax-free cash today and Horizon simply receives an agreed upon share of your home's future appreciation when you sell or refinance. Hundreds of homeowners are already doing this in over 21 states. So go to joinhorizon.com and see your Bitcoin potential in about 90 seconds. Turn your home into a personal Bitcoin Treasury with Horizon. If I click on Electrum Rust Server, it's going to open up a tab as it would with the Bitcoin node. And it will let me know if it's 100% synchronized. So this did take a little bit of time after the node synced. If it's not finished for you, just wait, it'll finish up in a bit. So here you have an address and down below you have a port number. Those are typically the two bits of info that you're going to need. Depending on the wallet, these will either be entered separately or put together separated by a colon to the two little dots beside. So it might be umbral.local and then the port number put into another field where it might be umbral.local colon 500001. So it really depends on what wallet you're using. And we're going to use the example of sparrow wallet. If you're unfamiliar with sparrow wallet and you'd like to learn more about it, I will link to a tutorial I've done on it in the show notes down below. But we're just going to take a look at how to connect your own node. So in sparrow, again, I'm on a Mac, so I click on the sparrow menu and go to settings. If you're on windows, it'll be file and there'll be a settings there. So I go to settings and then there's something that says server. I'm going to click on that and then I'm going to click edit existing connection. There are multiple choices here. You have public server. That's typically what you would connect to if you didn't have a node running. Bitcoin core, another way of connecting. We are choosing private electrum. And under URL, we're going to need to type in the address. And then under this second field here, that is the port number. So you'll notice that the port number is typically the same for various types of connections. If it's through electrum, it's 500001. That doesn't tend to change very much. And then we just need umbral.local. So I can copy it here on my umbral and I can go ahead and I can paste it in. And all I need to do now, I have both pieces of information, is click test connection. And I get the green check mark. I'm now connected to my own umbral node. If I hit close here, I see the little dial or the little toggle switch in the bottom right is now blue, indicating that I'm connected to my own electrum rust server. So that is it. That is connecting to your own node. But for now, we're going to move on and we're going to check out how to run your own lightning node. So let's investigate the lightning node here that we've downloaded the app for. I'm going to click on it and it will open up a tab for me. And this says, welcome to the lightning network. Would you like to recover a previous node or set up a new node? We're starting from scratch, so we're going to click the ladder. Now, this gives me a seed phrase as I would get if I were setting up a new Bitcoin wallet. So I've got 24 English words. I've covered them here with a sticky note on my Mac so that they're not being revealed to the world. But they are very sensitive information because this is the keys or the key rather that will govern the money on your node if you have a lightning node. And not digitally capped because, again, digital copy of this is not ideal if anybody gets a hold of it. They can access your funds so on and so forth. So I'm going to write these down and then I'm going to hit the next button and we'll see what the next screen looks like. Of course, they're going to have you re-enter your words to make sure that you've noted them down correctly. So I'm going to do that now and then we'll jump ahead to the next screen. After successfully re-entering your words, it will let you know, hey, you're dealing with an experimental technology. Although lightning's been around for a little bit, but it's well worth warning. Hey, like you're dealing with real funds here because you just know that sometimes things can go wrong. It still is relatively early days for this and you're just going to click I understand and agree. It is going to take a moment to kind of sync up all this information and get the lightning, we'll call it the lightning software up and running on your node. So we'll jump ahead. We'll take me to a screen that shows a Bitcoin wallet. So this is like an on-chain regular Bitcoin transaction wallet, a lightning wallet, and a total balance as well as a summary of lightning channels that I may have all of that stuff. If we go back to our humble screen and we go to AlbiHub, AlbiHub is primarily going to be used for our interface for setting up our lightning node. You can set up your lightning node with this original lightning wallet. But I found that AlbiHub, it gives you that guidance through the setup and I've done a video fully on this before AlbiHub on my start 9 node that I have running. It's just very, very helpful through the entire initial setup. So this is going to kind of be our primary way of dealing with our lightning node on our umbral node here. Okay, so we'll go through the setup with AlbiHub and see where it takes us. When I first got into Bitcoin, I was overwhelmed. The jargon, the security risks, the fear that one mistake could cost everything. I remember staring at my screen and wondering, are my keys safe? Did I do this right? That experience is why I started BTC sessions. For over a decade, this channel has helped millions of people like you learn how to use and secure Bitcoin. But I realized something. For many people, videos aren't enough. Everyone learns differently. Some need to ask questions in real time as an expert walks through their setup, their goals, and their threat model. And certain things like advanced cold storage, inheritance planning, privacy, and node or mining setups often can't be fully solved by watching another tutorial. So I built BTC Mentor. I recruited the best Bitcoin educators on the planet to work with you one-on-one. Real experts, real answers, personalized hands-on guidance tailored to your exact situation. Whether you're brand new or building a complex setup, we meet you where you're at and walk with you step-by-step. By the end, you don't just hope your Bitcoin is safe, you know it is. If you're ready for that level confidence, then head to BTCmentor.io and book a call with us today. So I'll click next here on our main screen. Your wallet is always online, ready to use on any device. Your keys are safe, your wallet is encrypted by the password of your choice, and no one can access the funds. But you take your wallet with you, connect wallets to dozens of apps, and here we go. And so we are going to choose Get Started, LND, so we're going to choose that top option. I'm going to get myself off the screen here so that you can see a little bit more clearly. Click Connect Now. This will allow you to connect directly to an Albi account. Now, if you don't have one, you can go to getalbi.com and connect it there, and you'll get an authorization code that you can plug in. I'm going to jump over to GetAlbi.com with an existing account just to see what that looks like. So here I am at GetAlbi.com. I'm currently logged into an existing account I already had, but it's not linked up to any specific wallet. And so here I'm on kind of the main tab under where it says my Albi Hub. And you have a couple options. You have Albi Cloud. That's where you would host your own node in the cloud that they would host. And there's a monthly fee, but there's also a free option for self-hosting. So I'm going to click on the button that says Start with DIY. Now, it gives us a few different options here where it says Set up your Albi Hub. And we have Albi Cloud, Personal Cloud Server, but then there's one that specifies, hey, you can run it on your umbral or your Start 9 server. I've previously done it on the Start 9, as I said, but we can take a look in here and see what it has for us. So there's this handy little guy that they've got there, but we can actually just defer back to Albi Hub itself. Now that we're logged in in our browser, we can simply hit Request. Now it sends us directly to our logged in screen here, and just underneath here, there's an authorization code. Now I'm going to hide that for now because I'm going to be copying and pasting it into our Albi Hub. But all you would do is just get this info and jump back to your Albi Hub. I paste the information here under Authorization Code and I click Submit. At this point, we need a password. This will be exclusive to our Albi Hub locally here. We get myself off the screen here. So I'm going to type in my password twice. I'm going to checkbox here. I've secured this password in a safe place and hit Create Password. I also want to click. I understand this password cannot be recovered. There's no recovery service for this. This is your own infrastructure. Nobody has a backup of it. So make sure you know that password and off we go, setting up your hub. The first thing it says is you're probably going to want to open your first channel. So let's just click on that. So I'm going to now open a lightning channel. This gives me a direct link to other people in the lightning network with real Bitcoin. And then I can start to receive funds. So I'm going to click Open Channel. And this is allowing me to get a channel of a million sets. That means I can receive up to a million sets, which is around $1,000 at the time recordings video. I can receive up to that much in terms of lightning payments. We are paying somebody to lock up this much money between them and our lightning node. Now, if you don't want to do this, we'll examine how to set up your own lightning channel without paying for a service. But this is just the simplest easiest way of doing it right now. And I have a lightning wallet already in my browser. I've got one on my phone too. If you're unfamiliar with various lightning wallet options, I'll leave a couple in tutorials down below. But I'm simply opening up a lightning wallet on my phone right now. I'm going to scan the QR code on the screen. And I'm going to pay that invoice. I just hit pay right now. And there we go. So I just paid the invoice. And I should have a lightning channel open to me in a short period of time. It says six confirmations. So that can take roughly an hour or so. And then we will be good to go. So we'll jump back here once we have our own lightning channel. So it says your new lightning channel is ready to use. Congratulations. Your first lightning channel is active. But for now, I'm going to click the go to your wallet button. And that takes here. That takes me here. And it does let me know that your channel reserves are unmet. You won't be able to make payments until you fill your channel reserve. I'm going to click that and see what it says. Now my portion, I don't have any Bitcoin on my side of the channel right now. So it's basically saying the first time I receive a payment, it will meet the reserves required for the potential fee of closing the channel. And then I will receive from here on in. But let's continue with our setup here before we go much further. Over on the left, it says see next steps. We'll click here. Link your Albi account. Link your lightning address and other apps to this hub. I would like to do that, of course. So I'm going to click link your Albi account. So we can set a budget per month that we're allowed to spend through like Albi apps and all that kind of stuff. If you want, or you can just leave it, I'm going to have it at a million sats. That's the size of the channel. I'm good with that. We're going to hit link to Albi account. And there we go. My Albi account is now linked benparent at get albi.com is my lightning address. And that is it. So we are now connected. We have everything that we need here. We can continue on to finish setup. We'll say see next steps. Send or receive your first payment. Let's do that. We'll click here. And we're going to click receive. And so this allows us benparent at get albi.com allows us to receive lightning payments. If I want, I can set an amount. So let's just test it. I'll set an amount for, let's say, 20,000 satoshies. And I'll hit create invoice. So it gives us this QR code. Now I'm going to pay this just as an example. Let's see. I think I have some funds here. So there's just another lightning wallet that I have in my browser here. But I'm going to copy this invoice. I'm going to head over to this other lightning wallet that I have. And I'm going to send and I'll paste in. Now this could also be done just by scanning the QR code with a mobile lightning wallet. I'll hit proceed. It says this for 20,000 sat. So I'll hit send. And off it goes. Payment sent. Payment received. Okay, perfect. So I can now go back to the wallet. And now I see that I've received 20,000 sat. Minus the channel reserve. So it was 300 and something sat that I needed to have there just in case. Perfect. All right, we've got one more thing to do. See next steps. Connect your first app. Seamlessly connect apps and integrate your wallet with other apps from your hub. So let's click and see what's up with that. So there's lots of different ways that you can connect your alby hub to various apps. So I'll just show kind of the simplest way of doing it. And I want to do it with alby go. This is a very simple mobile wallet that you can connect to your alby hub so that you can spend your lightning funds on the go. So I'm going to load up my phone here and we'll get situated with that app. And then we will connect it to alby go in our alby hub. All right, so I'm going to go ahead. I'm going to click on alby go where it says connect. Now it instructs me to get this app from the Play Store or the App Store or the Zap Store, which is a NOSTA related thing. So first here is my phone. I'm going to open up the app and then I'm going to click connect wallet. I will allow the camera, which allows me to scan right there. I will then hit connect alby go. I'm going to choose full access. I'll hit next. And there's a QR code that I'm going to scan with my phone and then connect. Just scanned and it says connection successful. Please set your wallet name to finish. So I will change this to unroll just so I know I'll hit finish. Wallet is connected. Your lightning wall is ready to use. And look, there's our balance. I can now send and receive transactions from my mobile if I hit receive. There is my lightning address that anybody can send to. I can tap invoice down at the bottom if I want to set a specific amount. And it functions just like a regular Bitcoin lightning wallet sending and receiving anytime you like. On mobile via our alby hub on our unroll back here in alby hub itself. You can see our notification of things to do is all done here. It says here is my alby account. Here is my alby go mobile app. And I can even set budgets for the mobile app too. If I want to limit that, if I'm cautious about it being able to spend too much. Now there is another application that we downloaded when we first started that we haven't yet touched on. And that is mempool. So I want to click on mempool and show you what this is. This is effectively a snapshot of what the Bitcoin network is doing currently as we look at it. So over on the right here, these are blocks of transactions that have been officially confirmed and added to the Bitcoin blockchain. And over on the left is a string of blocks of transactions waiting to be confirmed. This is particularly useful if you want to look up your own transactions and see when they are going to confirm. So we can take a look at that and actually look up one of our own transactions that we did. Let's take a look at this deposit. So this is going to open your transaction details in a public explorer mempool.space. Do you want to continue? Now we can click OK. And this actually does look up the transaction. But if you notice, up top it actually is on the public internet. And that is not ideal for privacy. And so what you can do is you can get the on-chain transaction ID. Every transaction in Bitcoin has a transaction ID. And you can get the same information, but you can look at it on your own copy of mempool. This is sitting not on the internet, but on my node. So how would you do that? Let's take a look over at our Sparrow wallet where I had sent some transaction to the lightning node. I can actually take a look at the info of this and up top there's something called a transaction ID. And different wallets will show you this information in different ways. But I'm just going to copy the transaction ID. I'm going to jump over to mempool, which is again on my node. This is not the open internet. This is my own node. And I can paste in that transaction ID and search for it. And there we can see it. It actually confirmed a while ago. But there it is in the line of confirmed transactions. We can see it was in block number 880,927. And it gives us a bunch of information about it. Again, it shows where it is in the queue. It's already confirmed, but if it wasn't confirmed, it would be over here somewhere. And then it also shows us a few other things. The fee that was paid, the fee rate, who mined it, if it's already been mined. Some features about the transaction. If it used replace by fee, the timestamp of when it happened, the flow of the transaction. So the big piece of Bitcoin that was used were the UTXO. And a chunk of it went to this address, a chunk of it went to this address. And there's the fee. You can actually see it all broken down there. Down below, you see the address it came from. And the address is it was split and went to. And then how big was it? A whole bunch of different metrics about this transaction. All based on the node that is running on our umbral. There's plenty of other things that you can do with umbral. If you are away from home, outside of your network, whatever it may be. Thank you guys so much for watching. As always, like, subscribe, share all those things, help a ton. And of course, if you need some help in your Bitcoin journey, head over to bitcoinmentor.io where my team can personally with one-on-one calls help you through anything in your Bitcoin journey, wallet, hardware, multi-sake, or even running your own node. That I'm out. Have yourself a wonderful day wherever you may be. Stacksats. Keep stacking skills. I'm Ben with the BTC Sessions. This was your daily session.",
+  "timestamped_text": [
+    {
+      "start": 0.0,
+      "end": 5.8,
+      "text": "This little device can host an entire copy of the history of Bitcoin's transactions,"
+    },
+    {
+      "start": 5.8,
+      "end": 8.6,
+      "text": "as well as the rules that govern the Bitcoin network."
+    },
+    {
+      "start": 8.6,
+      "end": 15.8,
+      "text": "You're also able to not trust anyone because you're trusting yourself and your own copy of the Bitcoin blockchain."
+    },
+    {
+      "start": 15.8,
+      "end": 17.6,
+      "text": "I'm Ben of the BTZ Sessions."
+    },
+    {
+      "start": 17.6,
+      "end": 20.4,
+      "text": "This is your daily session."
+    },
+    {
+      "start": 20.4,
+      "end": 27.98,
+      "text": "So we're going to be taking again a look at the umbral home,"
+    },
+    {
+      "start": 27.98,
+      "end": 31.58,
+      "text": "and we're going to be investigating how to set it up and use it."
+    },
+    {
+      "start": 31.58,
+      "end": 37.58,
+      "text": "In terms of prerequisites, what are you going to need to know in order to successfully navigate this tutorial?"
+    },
+    {
+      "start": 37.58,
+      "end": 41.58,
+      "text": "Not too too much. You should be aware of how to obtain Bitcoin."
+    },
+    {
+      "start": 41.58,
+      "end": 45.78,
+      "text": "You should probably already have a Bitcoin wallet and know how to send a receive."
+    },
+    {
+      "start": 45.78,
+      "end": 48.78,
+      "text": "But other than that, not too much else."
+    },
+    {
+      "start": 48.78,
+      "end": 56.78,
+      "text": "But without further ado, let's take a look at how to get started setting up your umbral home, what's in the box, and what to do next."
+    },
+    {
+      "start": 56.78,
+      "end": 64.66,
+      "text": "Okay, so let's take a look inside the box for the umbral home."
+    },
+    {
+      "start": 64.66,
+      "end": 68.66,
+      "text": "It's just lifts up, and we see the main device here."
+    },
+    {
+      "start": 68.66,
+      "end": 70.66,
+      "text": "I lift it out of the packaging."
+    },
+    {
+      "start": 70.66,
+      "end": 73.66,
+      "text": "You can see there is a power button on the front."
+    },
+    {
+      "start": 73.66,
+      "end": 80.66,
+      "text": "If I rotate, there are three USB A, I believe it's 3.2 ports."
+    },
+    {
+      "start": 80.66,
+      "end": 86.66,
+      "text": "On the back, you have an Ethernet port, the exhaust for the fan, as well as USB C,"
+    },
+    {
+      "start": 86.66,
+      "end": 89.66,
+      "text": "which is going to be part of the power."
+    },
+    {
+      "start": 89.66,
+      "end": 94.92,
+      "text": "And then again, exhaust on the side here, and then you have it at the bottom."
+    },
+    {
+      "start": 94.92,
+      "end": 96.92,
+      "text": "Not much, just a couple rubber feet."
+    },
+    {
+      "start": 96.92,
+      "end": 100.92,
+      "text": "Okay, inside the box further, lift this out."
+    },
+    {
+      "start": 100.92,
+      "end": 103.92,
+      "text": "You get your instruction manual of what to do."
+    },
+    {
+      "start": 103.92,
+      "end": 104.92,
+      "text": "It's pretty basic."
+    },
+    {
+      "start": 104.92,
+      "end": 108.92,
+      "text": "You're just plugging in an Ethernet cable to your router."
+    },
+    {
+      "start": 108.92,
+      "end": 113.92,
+      "text": "You're plugging in the umbral home to the wall, and then you're going on to your computer,"
+    },
+    {
+      "start": 113.92,
+      "end": 117.92,
+      "text": "and you're typing in umbral.local on your browser."
+    },
+    {
+      "start": 117.92,
+      "end": 121.92,
+      "text": "Let's just take a peek at the remaining items in the box."
+    },
+    {
+      "start": 121.92,
+      "end": 125.24,
+      "text": "Here is our power supply."
+    },
+    {
+      "start": 125.24,
+      "end": 126.24,
+      "text": "There we go."
+    },
+    {
+      "start": 126.24,
+      "end": 135.02,
+      "text": "This obviously plugs into the back of the umbral like so, and into the wall."
+    },
+    {
+      "start": 135.02,
+      "end": 138.02,
+      "text": "And then, of course, our Ethernet cable."
+    },
+    {
+      "start": 138.02,
+      "end": 140.02,
+      "text": "I will say this is a tad short."
+    },
+    {
+      "start": 140.02,
+      "end": 145.02,
+      "text": "You may want a longer one if you are setting this on your shelf."
+    },
+    {
+      "start": 145.02,
+      "end": 148.02,
+      "text": "So just be aware that it may not reach."
+    },
+    {
+      "start": 148.02,
+      "end": 154.18,
+      "text": "Basically, this goes into the back, and then this goes into your router."
+    },
+    {
+      "start": 154.18,
+      "end": 156.18,
+      "text": "And that is it."
+    },
+    {
+      "start": 156.18,
+      "end": 160.18,
+      "text": "So router, plug into the wall, go to your browser."
+    },
+    {
+      "start": 160.18,
+      "end": 163.18,
+      "text": "We'll take a look at it on the shelf, and then we'll jump to the computer."
+    },
+    {
+      "start": 163.18,
+      "end": 166.18,
+      "text": "Here we are with the device now on my shelf."
+    },
+    {
+      "start": 166.18,
+      "end": 171.18,
+      "text": "Just the two cables out the back, one plugged into the wall, one plugged into my router down here."
+    },
+    {
+      "start": 171.18,
+      "end": 173.18,
+      "text": "Sorry for the mess of cables."
+    },
+    {
+      "start": 173.18,
+      "end": 175.18,
+      "text": "But it did boot on by itself."
+    },
+    {
+      "start": 175.18,
+      "end": 177.18,
+      "text": "I see the light on the power button."
+    },
+    {
+      "start": 177.18,
+      "end": 186.81,
+      "text": "So I'll go check my computer to see if it's already connected to my local network."
+    },
+    {
+      "start": 186.81,
+      "end": 188.81,
+      "text": "So here I am on my computer."
+    },
+    {
+      "start": 188.81,
+      "end": 191.81,
+      "text": "I've simply opened up a browser."
+    },
+    {
+      "start": 191.81,
+      "end": 196.81,
+      "text": "I'm on the same network as the router that I am plugged into."
+    },
+    {
+      "start": 196.81,
+      "end": 200.81,
+      "text": "And all I had to do was type umbral.local into my browser."
+    },
+    {
+      "start": 200.81,
+      "end": 204.81,
+      "text": "And I'm greeted here with the welcome to umbral.os."
+    },
+    {
+      "start": 204.81,
+      "end": 207.81,
+      "text": "Your home cloud server is ready to set up."
+    },
+    {
+      "start": 207.81,
+      "end": 211.81,
+      "text": "So let's just go through the setup here, get ourselves centered."
+    },
+    {
+      "start": 211.81,
+      "end": 214.0,
+      "text": "I'll hit start."
+    },
+    {
+      "start": 214.0,
+      "end": 215.0,
+      "text": "I'm going to create an account."
+    },
+    {
+      "start": 215.0,
+      "end": 218.0,
+      "text": "This account info is stored only on your umbral."
+    },
+    {
+      "start": 218.0,
+      "end": 223.0,
+      "text": "Make sure to back up your password safely as there's no way to reset it."
+    },
+    {
+      "start": 223.0,
+      "end": 228.15,
+      "text": "So I'm going to just call this sessions."
+    },
+    {
+      "start": 228.15,
+      "end": 230.15,
+      "text": "Then I'll choose a password."
+    },
+    {
+      "start": 230.15,
+      "end": 233.15,
+      "text": "This point I can click create."
+    },
+    {
+      "start": 233.15,
+      "end": 235.15,
+      "text": "Let's me know I'm all set."
+    },
+    {
+      "start": 235.15,
+      "end": 236.15,
+      "text": "My umbral is now ready."
+    },
+    {
+      "start": 236.15,
+      "end": 238.15,
+      "text": "I'm going to hit next."
+    },
+    {
+      "start": 238.15,
+      "end": 247.15,
+      "text": "And so we're greeted by this home screen that introduces us to a number of apps that we may want to install onto our umbral."
+    },
+    {
+      "start": 247.15,
+      "end": 251.15,
+      "text": "And so I'm going to guide you through a few things that I might like."
+    },
+    {
+      "start": 251.15,
+      "end": 255.15,
+      "text": "But first off, I see something that I want to address, which is in the top right corner."
+    },
+    {
+      "start": 255.15,
+      "end": 259.15,
+      "text": "Let's me know that there's a new version available to install."
+    },
+    {
+      "start": 259.15,
+      "end": 261.15,
+      "text": "So I want to click that."
+    },
+    {
+      "start": 261.15,
+      "end": 264.15,
+      "text": "And it says that I can install an update."
+    },
+    {
+      "start": 264.15,
+      "end": 268.15,
+      "text": "I recommend that you do that out the gate before you start installing other apps."
+    },
+    {
+      "start": 268.15,
+      "end": 270.15,
+      "text": "It's not a bad idea to be up to date."
+    },
+    {
+      "start": 270.15,
+      "end": 272.15,
+      "text": "So I'm going to click install now."
+    },
+    {
+      "start": 272.15,
+      "end": 275.15,
+      "text": "And it will go through some screens here."
+    },
+    {
+      "start": 275.15,
+      "end": 277.15,
+      "text": "It'll do a quick little reboot."
+    },
+    {
+      "start": 277.15,
+      "end": 280.15,
+      "text": "And then we'll be right back after a few minutes."
+    },
+    {
+      "start": 280.15,
+      "end": 282.15,
+      "text": "I am brought back to this page."
+    },
+    {
+      "start": 282.15,
+      "end": 284.15,
+      "text": "It says welcome back into your password."
+    },
+    {
+      "start": 284.15,
+      "end": 285.15,
+      "text": "The one that I just set up."
+    },
+    {
+      "start": 285.15,
+      "end": 287.15,
+      "text": "So enter that and hit log in."
+    },
+    {
+      "start": 287.31,
+      "end": 288.31,
+      "text": "All right."
+    },
+    {
+      "start": 288.31,
+      "end": 291.31,
+      "text": "So as I said, we are sitting here on the home screen."
+    },
+    {
+      "start": 291.31,
+      "end": 296.31,
+      "text": "And we can see a variety of different apps we may want to install."
+    },
+    {
+      "start": 296.31,
+      "end": 299.31,
+      "text": "Aside from that down below, we have a few things."
+    },
+    {
+      "start": 299.31,
+      "end": 301.31,
+      "text": "We have our home screen."
+    },
+    {
+      "start": 301.31,
+      "end": 303.31,
+      "text": "We have the app store."
+    },
+    {
+      "start": 303.31,
+      "end": 305.31,
+      "text": "We have our settings."
+    },
+    {
+      "start": 305.31,
+      "end": 307.31,
+      "text": "We have our live usage."
+    },
+    {
+      "start": 307.31,
+      "end": 309.31,
+      "text": "So stats about the machine itself."
+    },
+    {
+      "start": 309.31,
+      "end": 313.31,
+      "text": "And we also can edit the widgets that are here on the home screen."
+    },
+    {
+      "start": 313.31,
+      "end": 315.31,
+      "text": "Should we install a bunch of apps?"
+    },
+    {
+      "start": 315.31,
+      "end": 318.31,
+      "text": "It also gives us an option here."
+    },
+    {
+      "start": 318.31,
+      "end": 323.31,
+      "text": "Just below our main tiles with suggestions to explore more in the app store."
+    },
+    {
+      "start": 323.31,
+      "end": 328.31,
+      "text": "However, I see a number of things that I want to install."
+    },
+    {
+      "start": 328.31,
+      "end": 330.31,
+      "text": "And they are in the center here."
+    },
+    {
+      "start": 330.31,
+      "end": 333.31,
+      "text": "So number one, I want to install a Bitcoin node."
+    },
+    {
+      "start": 333.31,
+      "end": 334.31,
+      "text": "So I'm going to go ahead."
+    },
+    {
+      "start": 334.31,
+      "end": 335.31,
+      "text": "I'm going to install that."
+    },
+    {
+      "start": 335.31,
+      "end": 337.31,
+      "text": "And it will begin installing."
+    },
+    {
+      "start": 337.31,
+      "end": 339.31,
+      "text": "This opens up a little pop-up window."
+    },
+    {
+      "start": 339.31,
+      "end": 344.31,
+      "text": "I can X out of that and you're going to see that here on the main screen"
+    },
+    {
+      "start": 344.31,
+      "end": 345.31,
+      "text": "as it loads."
+    },
+    {
+      "start": 345.31,
+      "end": 349.31,
+      "text": "But I'm going to go into the app store down below this time."
+    },
+    {
+      "start": 349.31,
+      "end": 353.31,
+      "text": "And I'm going to click specifically on Bitcoin so I can see what they've got here."
+    },
+    {
+      "start": 353.31,
+      "end": 357.31,
+      "text": "The other thing that you're likely going to want to install"
+    },
+    {
+      "start": 357.31,
+      "end": 362.31,
+      "text": "is something called ElectRS or Electrum Rust Server."
+    },
+    {
+      "start": 362.31,
+      "end": 367.31,
+      "text": "And this just helps any connected wallets quickly be able to find"
+    },
+    {
+      "start": 367.31,
+      "end": 370.31,
+      "text": "and audit your transactions and your balance."
+    },
+    {
+      "start": 370.31,
+      "end": 372.31,
+      "text": "So I'm going to click on that."
+    },
+    {
+      "start": 372.31,
+      "end": 375.31,
+      "text": "I'm also going to install ElectRS."
+    },
+    {
+      "start": 375.31,
+      "end": 377.31,
+      "text": "And it says it requires these apps."
+    },
+    {
+      "start": 377.31,
+      "end": 379.31,
+      "text": "I'm required to have the Bitcoin out."
+    },
+    {
+      "start": 379.31,
+      "end": 381.31,
+      "text": "So let's me know if it's dependent on anything else."
+    },
+    {
+      "start": 381.31,
+      "end": 383.31,
+      "text": "So I'll install that one as well."
+    },
+    {
+      "start": 383.31,
+      "end": 384.31,
+      "text": "And I'll go back."
+    },
+    {
+      "start": 384.31,
+      "end": 388.31,
+      "text": "I'm also going to take a peek at doing a lightning node."
+    },
+    {
+      "start": 388.31,
+      "end": 392.31,
+      "text": "So I'm going to be running LND."
+    },
+    {
+      "start": 392.31,
+      "end": 395.31,
+      "text": "And so they just named that lightning node here."
+    },
+    {
+      "start": 395.31,
+      "end": 399.31,
+      "text": "And if I click on it, it lets me know."
+    },
+    {
+      "start": 399.31,
+      "end": 402.31,
+      "text": "Hey, this is how you can easily run your own lightning node."
+    },
+    {
+      "start": 402.31,
+      "end": 405.31,
+      "text": "Yes, I'm going to install that one as well."
+    },
+    {
+      "start": 405.31,
+      "end": 408.31,
+      "text": "And it says, hey, this is also dependent on your Bitcoin node."
+    },
+    {
+      "start": 408.31,
+      "end": 409.31,
+      "text": "That's cool."
+    },
+    {
+      "start": 409.31,
+      "end": 410.31,
+      "text": "I'm going to install that."
+    },
+    {
+      "start": 410.31,
+      "end": 413.05,
+      "text": "And I'll go back."
+    },
+    {
+      "start": 413.05,
+      "end": 415.05,
+      "text": "There's a couple of other things I want to install."
+    },
+    {
+      "start": 415.05,
+      "end": 416.05,
+      "text": "I really like Albi Hub."
+    },
+    {
+      "start": 416.05,
+      "end": 420.05,
+      "text": "This will help us set up our lightning node when we get to that portion."
+    },
+    {
+      "start": 420.05,
+      "end": 422.05,
+      "text": "So I'm going to click and install that."
+    },
+    {
+      "start": 422.05,
+      "end": 426.05,
+      "text": "That again says it's going to rely on the lightning node."
+    },
+    {
+      "start": 426.05,
+      "end": 429.05,
+      "text": "It actually won't let me download it until it's installed."
+    },
+    {
+      "start": 429.05,
+      "end": 430.05,
+      "text": "OK, there we go."
+    },
+    {
+      "start": 430.05,
+      "end": 432.08,
+      "text": "I can install Albi Hub now."
+    },
+    {
+      "start": 432.08,
+      "end": 435.08,
+      "text": "There's one other thing I want to install."
+    },
+    {
+      "start": 435.08,
+      "end": 441.08,
+      "text": "And that is something called mempool.space."
+    },
+    {
+      "start": 441.08,
+      "end": 442.08,
+      "text": "Or just mempool."
+    },
+    {
+      "start": 442.08,
+      "end": 444.08,
+      "text": "So you can see it over here."
+    },
+    {
+      "start": 444.08,
+      "end": 445.08,
+      "text": "I'm going to click on that."
+    },
+    {
+      "start": 445.08,
+      "end": 450.08,
+      "text": "And it's just a cool way to look up your transactions and see the Bitcoin network in action."
+    },
+    {
+      "start": 450.08,
+      "end": 451.08,
+      "text": "So I'm going to go ahead."
+    },
+    {
+      "start": 451.08,
+      "end": 452.08,
+      "text": "I'm going to click install."
+    },
+    {
+      "start": 452.08,
+      "end": 455.08,
+      "text": "It lets us know that it relies on not only the Bitcoin node,"
+    },
+    {
+      "start": 455.08,
+      "end": 457.08,
+      "text": "but Electrum Rust Server as well."
+    },
+    {
+      "start": 457.08,
+      "end": 459.08,
+      "text": "So I'm going to install that here."
+    },
+    {
+      "start": 459.08,
+      "end": 461.08,
+      "text": "It will start on its way."
+    },
+    {
+      "start": 461.08,
+      "end": 462.08,
+      "text": "I'll back out."
+    },
+    {
+      "start": 462.08,
+      "end": 464.08,
+      "text": "Actually, I can close this now."
+    },
+    {
+      "start": 464.08,
+      "end": 467.08,
+      "text": "And here we can see all of our apps that we've got."
+    },
+    {
+      "start": 467.08,
+      "end": 469.08,
+      "text": "I'll let mempool install."
+    },
+    {
+      "start": 469.08,
+      "end": 474.08,
+      "text": "And then we'll take our first steps to getting these up and running."
+    },
+    {
+      "start": 474.08,
+      "end": 481.83,
+      "text": "So we're going to start here by setting up the Bitcoin node itself."
+    },
+    {
+      "start": 481.83,
+      "end": 483.83,
+      "text": "AKA Bitcoin Core."
+    },
+    {
+      "start": 483.83,
+      "end": 486.83,
+      "text": "So this is the app that says Bitcoin node right here."
+    },
+    {
+      "start": 486.83,
+      "end": 488.83,
+      "text": "So I'm going to click on this."
+    },
+    {
+      "start": 488.83,
+      "end": 492.83,
+      "text": "And this pertains to the copy of the Bitcoin blockchain that I'm going to run,"
+    },
+    {
+      "start": 492.83,
+      "end": 497.83,
+      "text": "including all of the rules that govern the network and the history of all the transactions."
+    },
+    {
+      "start": 497.83,
+      "end": 501.83,
+      "text": "So when I click on this, you can see it's beginning to synchronize."
+    },
+    {
+      "start": 501.83,
+      "end": 505.83,
+      "text": "So it's downloading the history of Bitcoin right here for us."
+    },
+    {
+      "start": 505.83,
+      "end": 511.83,
+      "text": "But be prepared for it to chug away for at least a few days to get updated."
+    },
+    {
+      "start": 511.83,
+      "end": 514.83,
+      "text": "I'm on pretty fast internet."
+    },
+    {
+      "start": 514.83,
+      "end": 517.83,
+      "text": "So I will let you know how quickly this happens."
+    },
+    {
+      "start": 517.83,
+      "end": 521.83,
+      "text": "And once that's done, we'll start peaking at the other items"
+    },
+    {
+      "start": 521.83,
+      "end": 528.83,
+      "text": "because everything else that we've downloaded is going to be dependent on this Bitcoin Core node that I am running."
+    },
+    {
+      "start": 528.83,
+      "end": 534.83,
+      "text": "So we'll be back for me in a few days for you in a few seconds."
+    },
+    {
+      "start": 534.83,
+      "end": 538.83,
+      "text": "It is now a single day later, actually, a pleasant surprise."
+    },
+    {
+      "start": 538.83,
+      "end": 541.83,
+      "text": "It was quicker than I expected. I was expecting at least a few days here."
+    },
+    {
+      "start": 541.83,
+      "end": 544.83,
+      "text": "Nonetheless, we have a fully synced Bitcoin node."
+    },
+    {
+      "start": 544.83,
+      "end": 547.83,
+      "text": "If you're the kind of Bitcoiner who doesn't trust convenience, cloud backups,"
+    },
+    {
+      "start": 547.83,
+      "end": 552.83,
+      "text": "or leaving anything to chance, Dirty Man's Safe was built for you."
+    },
+    {
+      "start": 552.83,
+      "end": 557.83,
+      "text": "This underground physical storage is for the most paranoid self-custy setups,"
+    },
+    {
+      "start": 557.83,
+      "end": 562.83,
+      "text": "designed to protect and hide seed phrases, hardware, critical documents, and more."
+    },
+    {
+      "start": 562.83,
+      "end": 566.83,
+      "text": "Rugged, weather resistant, and built to disappear, Dirty Man's Safe"
+    },
+    {
+      "start": 566.83,
+      "end": 570.83,
+      "text": "as a last-line fail-safe to your Bitcoin security model."
+    },
+    {
+      "start": 570.83,
+      "end": 576.83,
+      "text": "Head to DirtyManSafe.com and use code BTCSessions for 10% off."
+    },
+    {
+      "start": 576.83,
+      "end": 580.47,
+      "text": "If you're a homeowner and you want more Bitcoin,"
+    },
+    {
+      "start": 580.47,
+      "end": 583.47,
+      "text": "Horizon just opened a whole new door."
+    },
+    {
+      "start": 583.47,
+      "end": 585.47,
+      "text": "Most of your wealth is locked in your house,"
+    },
+    {
+      "start": 585.47,
+      "end": 590.47,
+      "text": "growing a few percent per year while Bitcoin has historically grown far faster."
+    },
+    {
+      "start": 591.47,
+      "end": 596.47,
+      "text": "Horizon lets you convert a portion of your home's future value directly into Bitcoin"
+    },
+    {
+      "start": 596.47,
+      "end": 598.47,
+      "text": "without taking alone."
+    },
+    {
+      "start": 598.47,
+      "end": 602.47,
+      "text": "No monthly payments, no interest, no term limits."
+    },
+    {
+      "start": 602.47,
+      "end": 606.47,
+      "text": "You stay in your home and you fully control and custody your Bitcoin."
+    },
+    {
+      "start": 606.47,
+      "end": 611.47,
+      "text": "There's no forced liquidation, no margin calls, and no income requirement."
+    },
+    {
+      "start": 611.47,
+      "end": 617.47,
+      "text": "You unlock tax-free cash today and Horizon simply receives an agreed upon share"
+    },
+    {
+      "start": 617.47,
+      "end": 622.47,
+      "text": "of your home's future appreciation when you sell or refinance."
+    },
+    {
+      "start": 622.47,
+      "end": 626.47,
+      "text": "Hundreds of homeowners are already doing this in over 21 states."
+    },
+    {
+      "start": 626.47,
+      "end": 633.47,
+      "text": "So go to joinhorizon.com and see your Bitcoin potential in about 90 seconds."
+    },
+    {
+      "start": 633.47,
+      "end": 642.25,
+      "text": "Turn your home into a personal Bitcoin Treasury with Horizon."
+    },
+    {
+      "start": 642.25,
+      "end": 647.25,
+      "text": "If I click on Electrum Rust Server, it's going to open up a tab as it would with the Bitcoin node."
+    },
+    {
+      "start": 647.25,
+      "end": 650.25,
+      "text": "And it will let me know if it's 100% synchronized."
+    },
+    {
+      "start": 650.25,
+      "end": 653.25,
+      "text": "So this did take a little bit of time after the node synced."
+    },
+    {
+      "start": 653.25,
+      "end": 657.25,
+      "text": "If it's not finished for you, just wait, it'll finish up in a bit."
+    },
+    {
+      "start": 657.25,
+      "end": 662.25,
+      "text": "So here you have an address and down below you have a port number."
+    },
+    {
+      "start": 662.25,
+      "end": 665.25,
+      "text": "Those are typically the two bits of info that you're going to need."
+    },
+    {
+      "start": 665.25,
+      "end": 671.25,
+      "text": "Depending on the wallet, these will either be entered separately or put together"
+    },
+    {
+      "start": 671.25,
+      "end": 675.25,
+      "text": "separated by a colon to the two little dots beside."
+    },
+    {
+      "start": 675.25,
+      "end": 681.25,
+      "text": "So it might be umbral.local and then the port number put into another field"
+    },
+    {
+      "start": 681.25,
+      "end": 686.25,
+      "text": "where it might be umbral.local colon 500001."
+    },
+    {
+      "start": 686.25,
+      "end": 689.25,
+      "text": "So it really depends on what wallet you're using."
+    },
+    {
+      "start": 689.25,
+      "end": 692.25,
+      "text": "And we're going to use the example of sparrow wallet."
+    },
+    {
+      "start": 692.25,
+      "end": 695.25,
+      "text": "If you're unfamiliar with sparrow wallet and you'd like to learn more about it,"
+    },
+    {
+      "start": 695.25,
+      "end": 699.25,
+      "text": "I will link to a tutorial I've done on it in the show notes down below."
+    },
+    {
+      "start": 699.25,
+      "end": 702.25,
+      "text": "But we're just going to take a look at how to connect your own node."
+    },
+    {
+      "start": 702.25,
+      "end": 706.25,
+      "text": "So in sparrow, again, I'm on a Mac, so I click on the sparrow menu and go to settings."
+    },
+    {
+      "start": 706.25,
+      "end": 710.25,
+      "text": "If you're on windows, it'll be file and there'll be a settings there."
+    },
+    {
+      "start": 710.25,
+      "end": 713.25,
+      "text": "So I go to settings and then there's something that says server."
+    },
+    {
+      "start": 713.25,
+      "end": 718.34,
+      "text": "I'm going to click on that and then I'm going to click edit existing connection."
+    },
+    {
+      "start": 718.34,
+      "end": 720.34,
+      "text": "There are multiple choices here."
+    },
+    {
+      "start": 720.34,
+      "end": 726.34,
+      "text": "You have public server. That's typically what you would connect to if you didn't have a node running."
+    },
+    {
+      "start": 726.34,
+      "end": 729.34,
+      "text": "Bitcoin core, another way of connecting."
+    },
+    {
+      "start": 729.34,
+      "end": 731.34,
+      "text": "We are choosing private electrum."
+    },
+    {
+      "start": 731.34,
+      "end": 738.59,
+      "text": "And under URL, we're going to need to type in the address."
+    },
+    {
+      "start": 738.59,
+      "end": 743.62,
+      "text": "And then under this second field here, that is the port number."
+    },
+    {
+      "start": 743.62,
+      "end": 748.62,
+      "text": "So you'll notice that the port number is typically the same for various types of connections."
+    },
+    {
+      "start": 748.62,
+      "end": 751.62,
+      "text": "If it's through electrum, it's 500001."
+    },
+    {
+      "start": 751.62,
+      "end": 754.62,
+      "text": "That doesn't tend to change very much."
+    },
+    {
+      "start": 754.62,
+      "end": 756.62,
+      "text": "And then we just need umbral.local."
+    },
+    {
+      "start": 756.62,
+      "end": 762.62,
+      "text": "So I can copy it here on my umbral and I can go ahead and I can paste it in."
+    },
+    {
+      "start": 762.62,
+      "end": 767.62,
+      "text": "And all I need to do now, I have both pieces of information, is click test connection."
+    },
+    {
+      "start": 767.62,
+      "end": 771.62,
+      "text": "And I get the green check mark. I'm now connected to my own umbral node."
+    },
+    {
+      "start": 771.62,
+      "end": 779.62,
+      "text": "If I hit close here, I see the little dial or the little toggle switch in the bottom right is now blue,"
+    },
+    {
+      "start": 779.62,
+      "end": 782.62,
+      "text": "indicating that I'm connected to my own electrum rust server."
+    },
+    {
+      "start": 782.62,
+      "end": 785.62,
+      "text": "So that is it. That is connecting to your own node."
+    },
+    {
+      "start": 785.62,
+      "end": 791.62,
+      "text": "But for now, we're going to move on and we're going to check out how to run your own lightning node."
+    },
+    {
+      "start": 791.62,
+      "end": 799.41,
+      "text": "So let's investigate the lightning node here that we've downloaded the app for."
+    },
+    {
+      "start": 799.41,
+      "end": 803.7,
+      "text": "I'm going to click on it and it will open up a tab for me."
+    },
+    {
+      "start": 803.7,
+      "end": 806.7,
+      "text": "And this says, welcome to the lightning network."
+    },
+    {
+      "start": 806.7,
+      "end": 809.7,
+      "text": "Would you like to recover a previous node or set up a new node?"
+    },
+    {
+      "start": 809.7,
+      "end": 812.7,
+      "text": "We're starting from scratch, so we're going to click the ladder."
+    },
+    {
+      "start": 812.7,
+      "end": 819.7,
+      "text": "Now, this gives me a seed phrase as I would get if I were setting up a new Bitcoin wallet."
+    },
+    {
+      "start": 819.7,
+      "end": 821.7,
+      "text": "So I've got 24 English words."
+    },
+    {
+      "start": 821.7,
+      "end": 826.7,
+      "text": "I've covered them here with a sticky note on my Mac so that they're not being revealed to the world."
+    },
+    {
+      "start": 826.7,
+      "end": 837.7,
+      "text": "But they are very sensitive information because this is the keys or the key rather that will govern the money on your node if you have a lightning node."
+    },
+    {
+      "start": 837.7,
+      "end": 844.7,
+      "text": "And not digitally capped because, again, digital copy of this is not ideal if anybody gets a hold of it."
+    },
+    {
+      "start": 844.7,
+      "end": 846.7,
+      "text": "They can access your funds so on and so forth."
+    },
+    {
+      "start": 846.7,
+      "end": 852.7,
+      "text": "So I'm going to write these down and then I'm going to hit the next button and we'll see what the next screen looks like."
+    },
+    {
+      "start": 852.7,
+      "end": 858.7,
+      "text": "Of course, they're going to have you re-enter your words to make sure that you've noted them down correctly."
+    },
+    {
+      "start": 858.7,
+      "end": 863.7,
+      "text": "So I'm going to do that now and then we'll jump ahead to the next screen."
+    },
+    {
+      "start": 863.7,
+      "end": 869.7,
+      "text": "After successfully re-entering your words, it will let you know, hey, you're dealing with an experimental technology."
+    },
+    {
+      "start": 869.7,
+      "end": 873.7,
+      "text": "Although lightning's been around for a little bit, but it's well worth warning."
+    },
+    {
+      "start": 873.7,
+      "end": 879.7,
+      "text": "Hey, like you're dealing with real funds here because you just know that sometimes things can go wrong."
+    },
+    {
+      "start": 879.7,
+      "end": 886.7,
+      "text": "It still is relatively early days for this and you're just going to click I understand and agree."
+    },
+    {
+      "start": 886.7,
+      "end": 896.7,
+      "text": "It is going to take a moment to kind of sync up all this information and get the lightning, we'll call it the lightning software up and running on your node."
+    },
+    {
+      "start": 896.7,
+      "end": 897.7,
+      "text": "So we'll jump ahead."
+    },
+    {
+      "start": 897.7,
+      "end": 901.7,
+      "text": "We'll take me to a screen that shows a Bitcoin wallet."
+    },
+    {
+      "start": 901.7,
+      "end": 914.7,
+      "text": "So this is like an on-chain regular Bitcoin transaction wallet, a lightning wallet, and a total balance as well as a summary of lightning channels that I may have all of that stuff."
+    },
+    {
+      "start": 914.7,
+      "end": 924.7,
+      "text": "If we go back to our humble screen and we go to AlbiHub, AlbiHub is primarily going to be used for our interface for setting up our lightning node."
+    },
+    {
+      "start": 924.7,
+      "end": 928.7,
+      "text": "You can set up your lightning node with this original lightning wallet."
+    },
+    {
+      "start": 928.7,
+      "end": 940.24,
+      "text": "But I found that AlbiHub, it gives you that guidance through the setup and I've done a video fully on this before AlbiHub on my start 9 node that I have running."
+    },
+    {
+      "start": 940.24,
+      "end": 951.24,
+      "text": "It's just very, very helpful through the entire initial setup. So this is going to kind of be our primary way of dealing with our lightning node on our umbral node here."
+    },
+    {
+      "start": 951.24,
+      "end": 956.24,
+      "text": "Okay, so we'll go through the setup with AlbiHub and see where it takes us."
+    },
+    {
+      "start": 956.24,
+      "end": 965.24,
+      "text": "When I first got into Bitcoin, I was overwhelmed. The jargon, the security risks, the fear that one mistake could cost everything."
+    },
+    {
+      "start": 965.24,
+      "end": 973.24,
+      "text": "I remember staring at my screen and wondering, are my keys safe? Did I do this right? That experience is why I started BTC sessions."
+    },
+    {
+      "start": 973.24,
+      "end": 980.24,
+      "text": "For over a decade, this channel has helped millions of people like you learn how to use and secure Bitcoin."
+    },
+    {
+      "start": 980.24,
+      "end": 994.24,
+      "text": "But I realized something. For many people, videos aren't enough. Everyone learns differently. Some need to ask questions in real time as an expert walks through their setup, their goals, and their threat model."
+    },
+    {
+      "start": 994.24,
+      "end": 1004.24,
+      "text": "And certain things like advanced cold storage, inheritance planning, privacy, and node or mining setups often can't be fully solved by watching another tutorial."
+    },
+    {
+      "start": 1004.24,
+      "end": 1012.24,
+      "text": "So I built BTC Mentor. I recruited the best Bitcoin educators on the planet to work with you one-on-one."
+    },
+    {
+      "start": 1012.24,
+      "end": 1019.24,
+      "text": "Real experts, real answers, personalized hands-on guidance tailored to your exact situation."
+    },
+    {
+      "start": 1019.24,
+      "end": 1026.24,
+      "text": "Whether you're brand new or building a complex setup, we meet you where you're at and walk with you step-by-step."
+    },
+    {
+      "start": 1026.24,
+      "end": 1030.24,
+      "text": "By the end, you don't just hope your Bitcoin is safe, you know it is."
+    },
+    {
+      "start": 1030.24,
+      "end": 1043.65,
+      "text": "If you're ready for that level confidence, then head to BTCmentor.io and book a call with us today."
+    },
+    {
+      "start": 1043.65,
+      "end": 1051.65,
+      "text": "So I'll click next here on our main screen. Your wallet is always online, ready to use on any device."
+    },
+    {
+      "start": 1051.65,
+      "end": 1057.65,
+      "text": "Your keys are safe, your wallet is encrypted by the password of your choice, and no one can access the funds."
+    },
+    {
+      "start": 1057.65,
+      "end": 1063.84,
+      "text": "But you take your wallet with you, connect wallets to dozens of apps, and here we go."
+    },
+    {
+      "start": 1063.84,
+      "end": 1070.84,
+      "text": "And so we are going to choose Get Started, LND, so we're going to choose that top option."
+    },
+    {
+      "start": 1070.84,
+      "end": 1075.84,
+      "text": "I'm going to get myself off the screen here so that you can see a little bit more clearly."
+    },
+    {
+      "start": 1075.84,
+      "end": 1081.84,
+      "text": "Click Connect Now. This will allow you to connect directly to an Albi account."
+    },
+    {
+      "start": 1081.84,
+      "end": 1091.84,
+      "text": "Now, if you don't have one, you can go to getalbi.com and connect it there, and you'll get an authorization code that you can plug in."
+    },
+    {
+      "start": 1091.84,
+      "end": 1097.84,
+      "text": "I'm going to jump over to GetAlbi.com with an existing account just to see what that looks like."
+    },
+    {
+      "start": 1097.84,
+      "end": 1106.84,
+      "text": "So here I am at GetAlbi.com. I'm currently logged into an existing account I already had, but it's not linked up to any specific wallet."
+    },
+    {
+      "start": 1106.84,
+      "end": 1111.84,
+      "text": "And so here I'm on kind of the main tab under where it says my Albi Hub."
+    },
+    {
+      "start": 1111.84,
+      "end": 1117.84,
+      "text": "And you have a couple options. You have Albi Cloud. That's where you would host your own node in the cloud that they would host."
+    },
+    {
+      "start": 1118.84,
+      "end": 1122.84,
+      "text": "And there's a monthly fee, but there's also a free option for self-hosting."
+    },
+    {
+      "start": 1122.84,
+      "end": 1126.84,
+      "text": "So I'm going to click on the button that says Start with DIY."
+    },
+    {
+      "start": 1126.84,
+      "end": 1131.84,
+      "text": "Now, it gives us a few different options here where it says Set up your Albi Hub."
+    },
+    {
+      "start": 1131.84,
+      "end": 1140.84,
+      "text": "And we have Albi Cloud, Personal Cloud Server, but then there's one that specifies, hey, you can run it on your umbral or your Start 9 server."
+    },
+    {
+      "start": 1140.84,
+      "end": 1146.84,
+      "text": "I've previously done it on the Start 9, as I said, but we can take a look in here and see what it has for us."
+    },
+    {
+      "start": 1146.84,
+      "end": 1152.84,
+      "text": "So there's this handy little guy that they've got there, but we can actually just defer back to Albi Hub itself."
+    },
+    {
+      "start": 1152.84,
+      "end": 1157.84,
+      "text": "Now that we're logged in in our browser, we can simply hit Request."
+    },
+    {
+      "start": 1157.84,
+      "end": 1163.84,
+      "text": "Now it sends us directly to our logged in screen here, and just underneath here, there's an authorization code."
+    },
+    {
+      "start": 1163.84,
+      "end": 1169.84,
+      "text": "Now I'm going to hide that for now because I'm going to be copying and pasting it into our Albi Hub."
+    },
+    {
+      "start": 1169.84,
+      "end": 1173.84,
+      "text": "But all you would do is just get this info and jump back to your Albi Hub."
+    },
+    {
+      "start": 1173.84,
+      "end": 1179.84,
+      "text": "I paste the information here under Authorization Code and I click Submit."
+    },
+    {
+      "start": 1179.84,
+      "end": 1183.22,
+      "text": "At this point, we need a password."
+    },
+    {
+      "start": 1183.22,
+      "end": 1188.22,
+      "text": "This will be exclusive to our Albi Hub locally here."
+    },
+    {
+      "start": 1188.22,
+      "end": 1190.22,
+      "text": "We get myself off the screen here."
+    },
+    {
+      "start": 1190.22,
+      "end": 1192.22,
+      "text": "So I'm going to type in my password twice."
+    },
+    {
+      "start": 1192.22,
+      "end": 1197.22,
+      "text": "I'm going to checkbox here. I've secured this password in a safe place and hit Create Password."
+    },
+    {
+      "start": 1197.22,
+      "end": 1200.22,
+      "text": "I also want to click. I understand this password cannot be recovered."
+    },
+    {
+      "start": 1200.22,
+      "end": 1202.22,
+      "text": "There's no recovery service for this."
+    },
+    {
+      "start": 1202.22,
+      "end": 1206.22,
+      "text": "This is your own infrastructure. Nobody has a backup of it."
+    },
+    {
+      "start": 1206.22,
+      "end": 1211.38,
+      "text": "So make sure you know that password and off we go, setting up your hub."
+    },
+    {
+      "start": 1211.38,
+      "end": 1215.38,
+      "text": "The first thing it says is you're probably going to want to open your first channel."
+    },
+    {
+      "start": 1215.38,
+      "end": 1217.38,
+      "text": "So let's just click on that."
+    },
+    {
+      "start": 1217.38,
+      "end": 1220.38,
+      "text": "So I'm going to now open a lightning channel."
+    },
+    {
+      "start": 1220.38,
+      "end": 1225.38,
+      "text": "This gives me a direct link to other people in the lightning network with real Bitcoin."
+    },
+    {
+      "start": 1225.38,
+      "end": 1227.38,
+      "text": "And then I can start to receive funds."
+    },
+    {
+      "start": 1227.38,
+      "end": 1229.38,
+      "text": "So I'm going to click Open Channel."
+    },
+    {
+      "start": 1229.38,
+      "end": 1235.8,
+      "text": "And this is allowing me to get a channel of a million sets."
+    },
+    {
+      "start": 1235.8,
+      "end": 1243.8,
+      "text": "That means I can receive up to a million sets, which is around $1,000 at the time recordings video."
+    },
+    {
+      "start": 1243.8,
+      "end": 1247.8,
+      "text": "I can receive up to that much in terms of lightning payments."
+    },
+    {
+      "start": 1247.8,
+      "end": 1254.8,
+      "text": "We are paying somebody to lock up this much money between them and our lightning node."
+    },
+    {
+      "start": 1254.8,
+      "end": 1260.8,
+      "text": "Now, if you don't want to do this, we'll examine how to set up your own lightning channel without paying for a service."
+    },
+    {
+      "start": 1260.8,
+      "end": 1264.8,
+      "text": "But this is just the simplest easiest way of doing it right now."
+    },
+    {
+      "start": 1264.8,
+      "end": 1269.8,
+      "text": "And I have a lightning wallet already in my browser."
+    },
+    {
+      "start": 1269.8,
+      "end": 1271.8,
+      "text": "I've got one on my phone too."
+    },
+    {
+      "start": 1271.8,
+      "end": 1277.8,
+      "text": "If you're unfamiliar with various lightning wallet options, I'll leave a couple in tutorials down below."
+    },
+    {
+      "start": 1277.8,
+      "end": 1282.8,
+      "text": "But I'm simply opening up a lightning wallet on my phone right now."
+    },
+    {
+      "start": 1282.8,
+      "end": 1286.8,
+      "text": "I'm going to scan the QR code on the screen."
+    },
+    {
+      "start": 1286.8,
+      "end": 1288.8,
+      "text": "And I'm going to pay that invoice."
+    },
+    {
+      "start": 1288.8,
+      "end": 1290.8,
+      "text": "I just hit pay right now."
+    },
+    {
+      "start": 1290.8,
+      "end": 1291.8,
+      "text": "And there we go."
+    },
+    {
+      "start": 1291.8,
+      "end": 1293.8,
+      "text": "So I just paid the invoice."
+    },
+    {
+      "start": 1293.8,
+      "end": 1299.8,
+      "text": "And I should have a lightning channel open to me in a short period of time."
+    },
+    {
+      "start": 1299.8,
+      "end": 1300.8,
+      "text": "It says six confirmations."
+    },
+    {
+      "start": 1300.8,
+      "end": 1303.8,
+      "text": "So that can take roughly an hour or so."
+    },
+    {
+      "start": 1303.8,
+      "end": 1305.8,
+      "text": "And then we will be good to go."
+    },
+    {
+      "start": 1305.8,
+      "end": 1308.8,
+      "text": "So we'll jump back here once we have our own lightning channel."
+    },
+    {
+      "start": 1308.8,
+      "end": 1312.8,
+      "text": "So it says your new lightning channel is ready to use."
+    },
+    {
+      "start": 1312.8,
+      "end": 1313.8,
+      "text": "Congratulations."
+    },
+    {
+      "start": 1313.8,
+      "end": 1315.8,
+      "text": "Your first lightning channel is active."
+    },
+    {
+      "start": 1315.8,
+      "end": 1318.8,
+      "text": "But for now, I'm going to click the go to your wallet button."
+    },
+    {
+      "start": 1318.8,
+      "end": 1321.31,
+      "text": "And that takes here."
+    },
+    {
+      "start": 1321.31,
+      "end": 1323.31,
+      "text": "That takes me here."
+    },
+    {
+      "start": 1323.31,
+      "end": 1326.31,
+      "text": "And it does let me know that your channel reserves are unmet."
+    },
+    {
+      "start": 1326.31,
+      "end": 1330.31,
+      "text": "You won't be able to make payments until you fill your channel reserve."
+    },
+    {
+      "start": 1330.31,
+      "end": 1332.31,
+      "text": "I'm going to click that and see what it says."
+    },
+    {
+      "start": 1332.31,
+      "end": 1336.31,
+      "text": "Now my portion, I don't have any Bitcoin on my side of the channel right now."
+    },
+    {
+      "start": 1336.31,
+      "end": 1339.31,
+      "text": "So it's basically saying the first time I receive a payment,"
+    },
+    {
+      "start": 1339.31,
+      "end": 1344.31,
+      "text": "it will meet the reserves required for the potential fee of closing the channel."
+    },
+    {
+      "start": 1344.31,
+      "end": 1347.31,
+      "text": "And then I will receive from here on in."
+    },
+    {
+      "start": 1347.31,
+      "end": 1351.31,
+      "text": "But let's continue with our setup here before we go much further."
+    },
+    {
+      "start": 1351.31,
+      "end": 1354.31,
+      "text": "Over on the left, it says see next steps."
+    },
+    {
+      "start": 1354.31,
+      "end": 1355.31,
+      "text": "We'll click here."
+    },
+    {
+      "start": 1355.31,
+      "end": 1357.31,
+      "text": "Link your Albi account."
+    },
+    {
+      "start": 1357.31,
+      "end": 1361.31,
+      "text": "Link your lightning address and other apps to this hub."
+    },
+    {
+      "start": 1361.31,
+      "end": 1363.31,
+      "text": "I would like to do that, of course."
+    },
+    {
+      "start": 1363.31,
+      "end": 1366.31,
+      "text": "So I'm going to click link your Albi account."
+    },
+    {
+      "start": 1366.31,
+      "end": 1372.31,
+      "text": "So we can set a budget per month that we're allowed to spend"
+    },
+    {
+      "start": 1372.31,
+      "end": 1375.31,
+      "text": "through like Albi apps and all that kind of stuff."
+    },
+    {
+      "start": 1375.31,
+      "end": 1378.31,
+      "text": "If you want, or you can just leave it, I'm going to have it at a million sats."
+    },
+    {
+      "start": 1378.31,
+      "end": 1380.31,
+      "text": "That's the size of the channel."
+    },
+    {
+      "start": 1380.31,
+      "end": 1381.31,
+      "text": "I'm good with that."
+    },
+    {
+      "start": 1381.31,
+      "end": 1383.31,
+      "text": "We're going to hit link to Albi account."
+    },
+    {
+      "start": 1383.31,
+      "end": 1384.31,
+      "text": "And there we go."
+    },
+    {
+      "start": 1384.31,
+      "end": 1389.31,
+      "text": "My Albi account is now linked benparent at get albi.com is my lightning address."
+    },
+    {
+      "start": 1389.31,
+      "end": 1391.31,
+      "text": "And that is it."
+    },
+    {
+      "start": 1391.31,
+      "end": 1393.31,
+      "text": "So we are now connected."
+    },
+    {
+      "start": 1393.31,
+      "end": 1395.31,
+      "text": "We have everything that we need here."
+    },
+    {
+      "start": 1395.31,
+      "end": 1398.31,
+      "text": "We can continue on to finish setup."
+    },
+    {
+      "start": 1398.31,
+      "end": 1400.31,
+      "text": "We'll say see next steps."
+    },
+    {
+      "start": 1400.31,
+      "end": 1402.31,
+      "text": "Send or receive your first payment."
+    },
+    {
+      "start": 1402.31,
+      "end": 1403.31,
+      "text": "Let's do that."
+    },
+    {
+      "start": 1403.31,
+      "end": 1404.79,
+      "text": "We'll click here."
+    },
+    {
+      "start": 1404.79,
+      "end": 1406.79,
+      "text": "And we're going to click receive."
+    },
+    {
+      "start": 1406.79,
+      "end": 1411.92,
+      "text": "And so this allows us benparent at get albi.com allows us to receive"
+    },
+    {
+      "start": 1411.92,
+      "end": 1413.92,
+      "text": "lightning payments."
+    },
+    {
+      "start": 1413.92,
+      "end": 1415.92,
+      "text": "If I want, I can set an amount."
+    },
+    {
+      "start": 1415.92,
+      "end": 1417.92,
+      "text": "So let's just test it."
+    },
+    {
+      "start": 1417.92,
+      "end": 1424.92,
+      "text": "I'll set an amount for, let's say, 20,000 satoshies."
+    },
+    {
+      "start": 1424.92,
+      "end": 1426.92,
+      "text": "And I'll hit create invoice."
+    },
+    {
+      "start": 1426.92,
+      "end": 1428.92,
+      "text": "So it gives us this QR code."
+    },
+    {
+      "start": 1428.92,
+      "end": 1431.92,
+      "text": "Now I'm going to pay this just as an example."
+    },
+    {
+      "start": 1431.92,
+      "end": 1432.92,
+      "text": "Let's see."
+    },
+    {
+      "start": 1432.92,
+      "end": 1435.56,
+      "text": "I think I have some funds here."
+    },
+    {
+      "start": 1435.56,
+      "end": 1438.56,
+      "text": "So there's just another lightning wallet that I have in my browser here."
+    },
+    {
+      "start": 1438.56,
+      "end": 1440.56,
+      "text": "But I'm going to copy this invoice."
+    },
+    {
+      "start": 1440.56,
+      "end": 1444.66,
+      "text": "I'm going to head over to this other lightning wallet that I have."
+    },
+    {
+      "start": 1444.66,
+      "end": 1448.66,
+      "text": "And I'm going to send and I'll paste in."
+    },
+    {
+      "start": 1448.66,
+      "end": 1452.66,
+      "text": "Now this could also be done just by scanning the QR code with a mobile lightning wallet."
+    },
+    {
+      "start": 1452.66,
+      "end": 1453.66,
+      "text": "I'll hit proceed."
+    },
+    {
+      "start": 1453.66,
+      "end": 1455.66,
+      "text": "It says this for 20,000 sat."
+    },
+    {
+      "start": 1455.66,
+      "end": 1457.66,
+      "text": "So I'll hit send."
+    },
+    {
+      "start": 1457.66,
+      "end": 1459.72,
+      "text": "And off it goes."
+    },
+    {
+      "start": 1459.72,
+      "end": 1460.72,
+      "text": "Payment sent."
+    },
+    {
+      "start": 1460.72,
+      "end": 1461.72,
+      "text": "Payment received."
+    },
+    {
+      "start": 1461.72,
+      "end": 1462.72,
+      "text": "Okay, perfect."
+    },
+    {
+      "start": 1462.72,
+      "end": 1465.72,
+      "text": "So I can now go back to the wallet."
+    },
+    {
+      "start": 1465.72,
+      "end": 1471.1,
+      "text": "And now I see that I've received 20,000 sat."
+    },
+    {
+      "start": 1471.1,
+      "end": 1473.1,
+      "text": "Minus the channel reserve."
+    },
+    {
+      "start": 1473.1,
+      "end": 1477.1,
+      "text": "So it was 300 and something sat that I needed to have there just in case."
+    },
+    {
+      "start": 1477.1,
+      "end": 1478.1,
+      "text": "Perfect."
+    },
+    {
+      "start": 1478.1,
+      "end": 1480.1,
+      "text": "All right, we've got one more thing to do."
+    },
+    {
+      "start": 1480.1,
+      "end": 1481.1,
+      "text": "See next steps."
+    },
+    {
+      "start": 1481.1,
+      "end": 1483.39,
+      "text": "Connect your first app."
+    },
+    {
+      "start": 1483.39,
+      "end": 1489.39,
+      "text": "Seamlessly connect apps and integrate your wallet with other apps from your hub."
+    },
+    {
+      "start": 1489.39,
+      "end": 1491.39,
+      "text": "So let's click and see what's up with that."
+    },
+    {
+      "start": 1491.39,
+      "end": 1498.06,
+      "text": "So there's lots of different ways that you can connect your alby hub to various apps."
+    },
+    {
+      "start": 1498.06,
+      "end": 1502.06,
+      "text": "So I'll just show kind of the simplest way of doing it."
+    },
+    {
+      "start": 1502.06,
+      "end": 1506.06,
+      "text": "And I want to do it with alby go."
+    },
+    {
+      "start": 1506.06,
+      "end": 1511.06,
+      "text": "This is a very simple mobile wallet that you can connect to your alby hub"
+    },
+    {
+      "start": 1511.06,
+      "end": 1514.06,
+      "text": "so that you can spend your lightning funds on the go."
+    },
+    {
+      "start": 1514.06,
+      "end": 1518.06,
+      "text": "So I'm going to load up my phone here and we'll get situated with that app."
+    },
+    {
+      "start": 1518.06,
+      "end": 1523.06,
+      "text": "And then we will connect it to alby go in our alby hub."
+    },
+    {
+      "start": 1523.06,
+      "end": 1528.3,
+      "text": "All right, so I'm going to go ahead."
+    },
+    {
+      "start": 1528.3,
+      "end": 1531.3,
+      "text": "I'm going to click on alby go where it says connect."
+    },
+    {
+      "start": 1531.3,
+      "end": 1537.3,
+      "text": "Now it instructs me to get this app from the Play Store or the App Store or the Zap Store,"
+    },
+    {
+      "start": 1537.3,
+      "end": 1541.3,
+      "text": "which is a NOSTA related thing."
+    },
+    {
+      "start": 1541.3,
+      "end": 1544.3,
+      "text": "So first here is my phone."
+    },
+    {
+      "start": 1544.3,
+      "end": 1549.97,
+      "text": "I'm going to open up the app and then I'm going to click connect wallet."
+    },
+    {
+      "start": 1549.97,
+      "end": 1555.16,
+      "text": "I will allow the camera, which allows me to scan right there."
+    },
+    {
+      "start": 1555.16,
+      "end": 1558.16,
+      "text": "I will then hit connect alby go."
+    },
+    {
+      "start": 1558.16,
+      "end": 1562.16,
+      "text": "I'm going to choose full access. I'll hit next."
+    },
+    {
+      "start": 1562.16,
+      "end": 1570.83,
+      "text": "And there's a QR code that I'm going to scan with my phone and then connect."
+    },
+    {
+      "start": 1570.83,
+      "end": 1573.83,
+      "text": "Just scanned and it says connection successful."
+    },
+    {
+      "start": 1573.83,
+      "end": 1576.83,
+      "text": "Please set your wallet name to finish."
+    },
+    {
+      "start": 1576.83,
+      "end": 1587.41,
+      "text": "So I will change this to unroll just so I know I'll hit finish."
+    },
+    {
+      "start": 1587.41,
+      "end": 1591.41,
+      "text": "Wallet is connected. Your lightning wall is ready to use."
+    },
+    {
+      "start": 1591.41,
+      "end": 1593.41,
+      "text": "And look, there's our balance."
+    },
+    {
+      "start": 1593.41,
+      "end": 1598.41,
+      "text": "I can now send and receive transactions from my mobile if I hit receive."
+    },
+    {
+      "start": 1598.41,
+      "end": 1602.41,
+      "text": "There is my lightning address that anybody can send to."
+    },
+    {
+      "start": 1602.41,
+      "end": 1608.41,
+      "text": "I can tap invoice down at the bottom if I want to set a specific amount."
+    },
+    {
+      "start": 1608.41,
+      "end": 1614.41,
+      "text": "And it functions just like a regular Bitcoin lightning wallet sending and receiving anytime you like."
+    },
+    {
+      "start": 1614.41,
+      "end": 1620.41,
+      "text": "On mobile via our alby hub on our unroll back here in alby hub itself."
+    },
+    {
+      "start": 1620.41,
+      "end": 1624.41,
+      "text": "You can see our notification of things to do is all done here."
+    },
+    {
+      "start": 1624.41,
+      "end": 1628.41,
+      "text": "It says here is my alby account. Here is my alby go mobile app."
+    },
+    {
+      "start": 1628.41,
+      "end": 1631.41,
+      "text": "And I can even set budgets for the mobile app too."
+    },
+    {
+      "start": 1631.41,
+      "end": 1637.41,
+      "text": "If I want to limit that, if I'm cautious about it being able to spend too much."
+    },
+    {
+      "start": 1637.41,
+      "end": 1645.0,
+      "text": "Now there is another application that we downloaded when we first started that we haven't yet touched on."
+    },
+    {
+      "start": 1645.0,
+      "end": 1651.0,
+      "text": "And that is mempool. So I want to click on mempool and show you what this is."
+    },
+    {
+      "start": 1651.0,
+      "end": 1659.0,
+      "text": "This is effectively a snapshot of what the Bitcoin network is doing currently as we look at it."
+    },
+    {
+      "start": 1659.0,
+      "end": 1666.0,
+      "text": "So over on the right here, these are blocks of transactions that have been officially confirmed and added to the Bitcoin blockchain."
+    },
+    {
+      "start": 1666.0,
+      "end": 1673.0,
+      "text": "And over on the left is a string of blocks of transactions waiting to be confirmed."
+    },
+    {
+      "start": 1674.0,
+      "end": 1681.0,
+      "text": "This is particularly useful if you want to look up your own transactions and see when they are going to confirm."
+    },
+    {
+      "start": 1681.0,
+      "end": 1686.0,
+      "text": "So we can take a look at that and actually look up one of our own transactions that we did."
+    },
+    {
+      "start": 1686.0,
+      "end": 1688.0,
+      "text": "Let's take a look at this deposit."
+    },
+    {
+      "start": 1688.0,
+      "end": 1694.0,
+      "text": "So this is going to open your transaction details in a public explorer mempool.space."
+    },
+    {
+      "start": 1694.0,
+      "end": 1695.0,
+      "text": "Do you want to continue?"
+    },
+    {
+      "start": 1695.0,
+      "end": 1699.22,
+      "text": "Now we can click OK."
+    },
+    {
+      "start": 1699.22,
+      "end": 1702.95,
+      "text": "And this actually does look up the transaction."
+    },
+    {
+      "start": 1702.95,
+      "end": 1708.95,
+      "text": "But if you notice, up top it actually is on the public internet."
+    },
+    {
+      "start": 1708.95,
+      "end": 1711.95,
+      "text": "And that is not ideal for privacy."
+    },
+    {
+      "start": 1711.95,
+      "end": 1717.95,
+      "text": "And so what you can do is you can get the on-chain transaction ID."
+    },
+    {
+      "start": 1717.95,
+      "end": 1721.95,
+      "text": "Every transaction in Bitcoin has a transaction ID."
+    },
+    {
+      "start": 1721.95,
+      "end": 1727.95,
+      "text": "And you can get the same information, but you can look at it on your own copy of mempool."
+    },
+    {
+      "start": 1727.95,
+      "end": 1730.95,
+      "text": "This is sitting not on the internet, but on my node."
+    },
+    {
+      "start": 1730.95,
+      "end": 1732.95,
+      "text": "So how would you do that?"
+    },
+    {
+      "start": 1732.95,
+      "end": 1741.05,
+      "text": "Let's take a look over at our Sparrow wallet where I had sent some transaction to the lightning node."
+    },
+    {
+      "start": 1741.05,
+      "end": 1747.05,
+      "text": "I can actually take a look at the info of this and up top there's something called a transaction ID."
+    },
+    {
+      "start": 1747.05,
+      "end": 1751.05,
+      "text": "And different wallets will show you this information in different ways."
+    },
+    {
+      "start": 1751.05,
+      "end": 1754.05,
+      "text": "But I'm just going to copy the transaction ID."
+    },
+    {
+      "start": 1754.05,
+      "end": 1758.05,
+      "text": "I'm going to jump over to mempool, which is again on my node."
+    },
+    {
+      "start": 1758.05,
+      "end": 1759.05,
+      "text": "This is not the open internet."
+    },
+    {
+      "start": 1759.05,
+      "end": 1760.05,
+      "text": "This is my own node."
+    },
+    {
+      "start": 1760.05,
+      "end": 1765.3,
+      "text": "And I can paste in that transaction ID and search for it."
+    },
+    {
+      "start": 1765.3,
+      "end": 1766.3,
+      "text": "And there we can see it."
+    },
+    {
+      "start": 1766.3,
+      "end": 1768.3,
+      "text": "It actually confirmed a while ago."
+    },
+    {
+      "start": 1768.3,
+      "end": 1772.3,
+      "text": "But there it is in the line of confirmed transactions."
+    },
+    {
+      "start": 1772.3,
+      "end": 1777.3,
+      "text": "We can see it was in block number 880,927."
+    },
+    {
+      "start": 1777.3,
+      "end": 1780.34,
+      "text": "And it gives us a bunch of information about it."
+    },
+    {
+      "start": 1780.34,
+      "end": 1782.34,
+      "text": "Again, it shows where it is in the queue."
+    },
+    {
+      "start": 1782.34,
+      "end": 1786.34,
+      "text": "It's already confirmed, but if it wasn't confirmed, it would be over here somewhere."
+    },
+    {
+      "start": 1786.34,
+      "end": 1789.34,
+      "text": "And then it also shows us a few other things."
+    },
+    {
+      "start": 1789.34,
+      "end": 1794.34,
+      "text": "The fee that was paid, the fee rate, who mined it, if it's already been mined."
+    },
+    {
+      "start": 1794.34,
+      "end": 1798.34,
+      "text": "Some features about the transaction."
+    },
+    {
+      "start": 1798.34,
+      "end": 1804.34,
+      "text": "If it used replace by fee, the timestamp of when it happened, the flow of the transaction."
+    },
+    {
+      "start": 1804.34,
+      "end": 1808.34,
+      "text": "So the big piece of Bitcoin that was used were the UTXO."
+    },
+    {
+      "start": 1808.34,
+      "end": 1812.34,
+      "text": "And a chunk of it went to this address, a chunk of it went to this address."
+    },
+    {
+      "start": 1812.34,
+      "end": 1813.34,
+      "text": "And there's the fee."
+    },
+    {
+      "start": 1813.34,
+      "end": 1815.34,
+      "text": "You can actually see it all broken down there."
+    },
+    {
+      "start": 1815.34,
+      "end": 1818.34,
+      "text": "Down below, you see the address it came from."
+    },
+    {
+      "start": 1818.34,
+      "end": 1821.34,
+      "text": "And the address is it was split and went to."
+    },
+    {
+      "start": 1821.34,
+      "end": 1823.34,
+      "text": "And then how big was it?"
+    },
+    {
+      "start": 1823.34,
+      "end": 1828.34,
+      "text": "A whole bunch of different metrics about this transaction."
+    },
+    {
+      "start": 1828.34,
+      "end": 1834.34,
+      "text": "All based on the node that is running on our umbral."
+    },
+    {
+      "start": 1834.34,
+      "end": 1837.34,
+      "text": "There's plenty of other things that you can do with umbral."
+    },
+    {
+      "start": 1837.34,
+      "end": 1842.34,
+      "text": "If you are away from home, outside of your network, whatever it may be."
+    },
+    {
+      "start": 1842.34,
+      "end": 1844.34,
+      "text": "Thank you guys so much for watching."
+    },
+    {
+      "start": 1844.34,
+      "end": 1847.34,
+      "text": "As always, like, subscribe, share all those things, help a ton."
+    },
+    {
+      "start": 1847.34,
+      "end": 1852.34,
+      "text": "And of course, if you need some help in your Bitcoin journey, head over to bitcoinmentor.io"
+    },
+    {
+      "start": 1852.34,
+      "end": 1858.34,
+      "text": "where my team can personally with one-on-one calls help you through anything in your Bitcoin journey,"
+    },
+    {
+      "start": 1858.34,
+      "end": 1862.34,
+      "text": "wallet, hardware, multi-sake, or even running your own node."
+    },
+    {
+      "start": 1862.34,
+      "end": 1863.34,
+      "text": "That I'm out."
+    },
+    {
+      "start": 1863.34,
+      "end": 1866.34,
+      "text": "Have yourself a wonderful day wherever you may be."
+    },
+    {
+      "start": 1866.34,
+      "end": 1867.34,
+      "text": "Stacksats."
+    },
+    {
+      "start": 1867.34,
+      "end": 1869.34,
+      "text": "Keep stacking skills."
+    },
+    {
+      "start": 1869.34,
+      "end": 1871.34,
+      "text": "I'm Ben with the BTC Sessions."
+    },
+    {
+      "start": 1871.34,
+      "end": 1873.34,
+      "text": "This was your daily session."
+    }
+  ],
+  "topics": [
+    "mining",
+    "price",
+    "regulation",
+    "lightning",
+    "self-custody",
+    "institutional",
+    "privacy"
+  ],
+  "sentiment": "neutral",
+  "archived_at": "2026-03-06T10:08:44Z"
+}

@@ -1,0 +1,5696 @@
+{
+  "video_id": "hnnYgrOuVKU",
+  "title": "Guy's Take_104 - The User Doesn't Care About Your Mission",
+  "channel": "Guy Swann",
+  "upload_date": "",
+  "duration": 3213,
+  "transcript_text": "You want to connect to device, scan a QR code, you're connected, you're going to share some files, talk files. You want to share a folder that you can see. It will look everything in the folder, and then you can just look and scroll through that list on your phone. But importantly, you can also, the underlying engine is simple. It obscures all that stuff away. And it works with WebSocket and RPC to communicate. So you can just basically build any kind of web app you want on top of it. And we also don't have the mobile build quite yet, but that's been working on the refactor that we're in the middle of. But there's no server, there's not even a networking page. You get a link or a QR, you connect, and your devices can talk to each other. What is up, guys? Welcome back to Bitcoin Audible. I'm Guy Swanton. The guy's read more about Bitcoin than anybody else. You know, I did a talk at Plan B in El Salvador. And I finally got the opportunity to lay out the case and then to share the pair drive project. And as I have said in the talk, it's not totally ready yet. It's mostly just a proof of concept now. But it works. And we are in the process of a rebuild to kind of add all of the things that I feel need to be a part of the base of the engine that runs this thing so that we can really build any type of app on top of it that we want. And I'm actually going to do a follow-up after the talk is over so that I can share a few more ideas that I really didn't have the time to get into in the talk itself because I was laying a lot of groundwork. And obviously this was a speech with PowerPoint and everything. So I've got like a bunch of memes and stuff up in the back. But I mostly, I don't really read my PowerPoint. I usually just have it as a reference and so that people can see the bullet points. And I'll have this available online as well. And my favorite thing about the PowerPoint is just that I get to put up a meme as an example for everything that I bring up. So if you want to check out the PowerPoint or the presentation, I will have it available in the show notes. Along with our amazing sponsor, the HRF, they have the Financial Freedom Report, which is one of my favorite newsletters. They are putting on the Oslo Freedom Forum this year from June 1st to 3rd. You must check it out. And in fact, I think we're going to be having one of the people who will be at the Oslo Freedom Forum on the show leading up to that, which I am kind of jazzed about. We're still talking and getting things scheduled. But I'll leave that as a surprise right now. But stay tuned and don't forget that you can get your tickets. And if you use my link, it's actually a huge way to help out the show. And it doesn't cost you anything extra. So a shout out to everybody who does. And thank you all for supporting the show as well as the HRF. With that, let's get into this talk. This is Guy's Take 105, the user doesn't care about your mission. I'm Guy Swan. The guy who's read more about Bitcoin than anybody else you know. If you know me, you probably know me from Bitcoin Audible over there. But today I am talking about I made probably a dumb decision about a year and a half ago to try to tackle a development project. It was like, oh, we could probably build this in a month. And a year and a half later, here we are. And we kept running into problems. But I have had, literally since I was nine years old and I discovered the internet, I have had a kind of user experience that I have always wanted to have, that I feel like has just never been provided. And one of the things I want to talk about, because I see this with Bitcoiners and developers and people who care about care about sovereignty and all this stuff, is they want to sell it because of how why we care about it. But the user doesn't care about your mission. The user doesn't care about sovereignty or decentralization or peer to peer. The user doesn't even know what that is. Like everybody who cares about that is in this room at the conference. Now, sure, there are a lot of people who we all get together and there's a lot of us who care about this. But if you're only selling or pushing or trying to get those people, you stop really, really quick. And you're not going to be able to actually change the internet. You're not going to be able to fix the problems on the internet if we're trying to just convince everybody to care what we care about. And the proof of that is the internet today. Is if it was actually worth it to everybody to go to peer to peer and be decentralized and be sovereign or whatever, the internet wouldn't look anything like it does today. We're all on centralized platforms. We're all surveilled. Everything's run through network and content owners that we don't even, they control us. We run through their filters. We are in the peak of the middleman internet right now. And people want something that works. They want simple, they will use things that are better, that are simpler, and more fun. It's about the user experience. And so we can't come from, we can't take the tool and think, OK, how do we make people use the tool? How do we make the tool work for them? We have to go, Steve Jobs talks about this like a lot. A couple of great little talks on this, of you have to start at the experience. It's like, what do you want the user to be able to do and then work backward as to which tool is actually going to do that job? And I think it's on us, because we do care about all of those things, to make sure that we can figure out how to use our tools to provide that experience for them. And BitTorrent is the king of lessons that we can learn from this. I'd go on internet history a lot on the show. And one of the crazy things that people don't know is that BitTorrent was like the traffic king in 2006. Almost, it was estimated that almost up to 80% of all internet traffic was peer-to-peer protocols. Why? This was the interface. This is what it looks like. This is not easy to use. This is not fun. That's, I'm already, I have anxiety. I work with this sort of stuff all the time and I just don't like things that look like this. I want it to look clean. But the problem was is that the industry refused to meet the customer where they wanted their media. They wanted to watch stuff when they wanted to watch it and where they wanted to watch it, but the industry refused to adapt. So that crazy situation, that interface, beat the industry. And ironically, ironically is that BitTorrent's success, BitTorrent's success is what killed it. It forced all of the industry's hand to change how they delivered media. It led to the rise of Netflix, the rise of YouTube, the rise of Spotify, the rise of Amazon Prime. Everybody changed the entire way of delivering media. iTunes let you buy one song at a time. You didn't have to buy the whole album. That was such a huge battle. Steve Jobs had to go to one of the major copyright people and say, they're going to get it for free if you don't sell it per song. And that's what they were doing. But that's the big thing is when they forced their hand, BitTorrent traffic peaked in 2007 and it's been declining ever since. Until very recently, because we're back in the content isn't all that convenient anymore, era. Now you have 80 streaming services. So what's broken about the internet? What about the user experience sucks today on the internet? Just so you know, I might have to skip over some slides really quick. I have way too many slides. This ended up being like two hours when I ranted it out, like five times ahead of this. And I've been trying to clean it up. But one of the big things on the internet, it drives me utterly crazy, is the increasing nightmare of logging into stuff. I have recently had a very painful personal experience. I hope you can help me get through this time. I've had to switch my phone over. And I got logged out and deregistered and disconnected from literally every single app. And I have had the worst three days of phone user experience as I've had in years. I'm going to be OK. But it's been really, really rough. And what do you do losing? I didn't know if I was going to get signaled back. Telegram wouldn't connect to my stuff. And I'm doing eSAM stuff. Holy god, it sucks. But there is a thing that happened to me. I was trying to go to a service. I think it was like name cheap or something. I was trying to get a DNS record. I don't remember what it was. But I went to my password managers. I was like, all right, boom, let's log into the service. And says, we need to confirm it with your email. We sent a code. I was like, OK, and I jumped over to, but it was an old Gmail account that I haven't used in a while. I jumped over there and went back to my password manager, use the name password, punch it in. It says, oh, you haven't been here in a while. You should do a capture. Find all the stoplights. And I was like, oh, Jesus Christ. And you have that stupid rate limiter where you click on it. It's like, click on there. It's like, let me waste your time just to get into this. And I had to do it twice, because apparently I'm not human enough. I got it wrong the first time. And then it was like, oh, you haven't been here in a while. We sent a confirmation code to your backup email, which was another Gmail account. And so I went over there, I got my username and password plugged it in, pick all the buses, and then pick all the fire hydrants. I am not kidding. This was, it took me like 14 minutes to get through the cascade of confirm who you are, confirm who you are, confirm who you are, until I finally got the confirmation code and went back to the other one, got into that one, got the confirmation code, went back to the other one, and ended it back at Namecheap. And I needed to get into the service for two seconds to get a little string of data. And then I logged out everything. And I was like, holy God. Holy God, why? Why is it like this? This is a terrible experience. This is exactly how I felt about it. The machines are better at this. The captures don't even do anything anymore. I was trying to find a video because I know I have seen one. And this started back in 2024 of people just like using like Chattach VT to do captures. But I had somebody, there was a video of like someone had like a little script running, and then a capture thing that was just generating new captures over and over. And it was literally just like click, click, click, click, click. In fact, the error rate on the vision model was about as good as mine. One at every three, it might have messed up on, but I probably messed up about 50% of them. Because I'm like, is the top of this is the dude in the motorcycle? Is that, does that count, you know? Then the bot apocalypse. I kind of think we're in the dead internet there, you already. I think there are more people and things that we're interacting with online that aren't people than there are people. And I think when we get to the point, whether or not we're at that point already, I think it's gonna be 10 times worse within a year of that point, like because it's just so easy. Like I just finally got my clawed bot up and running, like a day and a half ago. And I can't, I think the canarian, the coal mine here, is that I see all these obvious bots, but my clawed bot is not obvious. Like I would, it feels like I'm talking to a human, which means that there's probably a ton, like the ones that are obvious, or just the ones that are cheap, or local run, or something. But there's a scam going around a crypto CEO, dude, for an exchange, was talking about this, of bots that go on a telegram thing. They take over somebody's account, and then they literally video call you. And it's a person that you know in their voice, and they talk to you, and to mess up the little bit of oddities about the AI, they literally end for the purpose of what they're trying to do. They break it up, they make the video kind of crappy. And then they say, this is somebody that you know, you're doing a video call, but somebody that you know and says, listen, just do this plugin, it'll fix it. I know that this is like a known problem. And then you install the plugin, they take over your telegram account, they search your computer for any crypto keys, they can dump, then they go through your contact list, and they use your face and your voice that you just gave them, and they turn around and call everybody, all of your friends. And it's this cascade, it's been running through for the last little bit, and like that was, you saw, like these things are easy now, and this is the worst it's ever gonna be. So worst it's ever gonna be. So what's the solution? KYC everything, yay! Subscription, everything. This literally happened last night, I was finishing up my slides. I was trying to, and it was from a cloud bot, I was trying to get a brave search API, so I could pull some information for a little thing I'm working on, and the API is free. API is free, I want you to appreciate that while I finish this story. Is they didn't want bots just coming in and signing up thousands of accounts and thousands of APIs for their brave search engine. So the way they prove that you're human is you punch in a credit card, you punch in a debit card. And so I did this, and I don't know, because I'm in El Salvador, I had my VPN in Georgia, so it looked like I was kind of back towards home, but for whatever reason, this was an unusual purchase, maybe because it was a zero dollar purchase, and I couldn't use it, so I went to my business card, couldn't do it when my Apple credit card couldn't do it. I used four different cards, I couldn't sign up, I want you to appreciate, I want you to appreciate this, I could not pay for a free service, holy God, there's a lot that we can fix, but we have to think about it from the user experience. And then there's the principal agent problem, is that when Twitter or these social media, they're not building for us anymore, once they have a network effect, then we become the product, because we give them the content, I can't tell you how many times I have liked something, or I've been like looking at something on X, like I use social media to get my articles for the show, for Bitcoin Audible most of the time, and so I'll be looking at something, I'll be like, oh, this is interesting or whatever, and then it just refreshes all by itself, and it goes all the way back up to what's the newest thing, and I'm like, oh no, oh no, where's I didn't like it, or save it, where is the thing? And I will spend 40 minutes, I was like, this was a good article, I was excited about this, and I will just scroll and scroll, and I know that's what they want, that's what they are trying to do, I search it, I can't get it, it was in my four U things, so I don't even know if it's somebody I was following, what color was the profile picture, like which account was it, was it Ryan Gentry, who posted this thing? And I literally, I just won't find it, and then I'll get to a point where I've spent so much time just looking for the stupid thing that I was just staring at, that I'm like, I have to get off of here, and inevitably I get stuck in some other thread, or I get outraged baited into some other conversation or engagement, and it takes me three times as long, because Twitter wants me to do something different. They don't want me to be able to find something from five days ago, because what's happening today is gonna get way more clicks, way more rage baity, and so the usefulness of that platform for me is literally the opposite of what the agent, of what the provider wants me to do. Why, why, why do our hosts own our stuff, own our networks, and then there's file sharing. This has been the biggest thing, and what's funny is that I kinda feel like if you can solve this, you can actually solve all the other ones. You can solve this at scale, extremely simply, like good user experience, intuitive. This has been, oh God, I hate file sharing, and this is as somebody who's used to everything, and there are like half decent solutions, wormholes pretty dope, but I feel like they all still are missing like a huge opportunity, or at least in something that I wanna build, or the experience that I want with my stuff, and God, I posted, I posted about a pair drive for the first time, like six or eight months ago, or something, I'll notice here, I did like a big thing about file sharing, and somebody literally said, do you want to just set up an FTP server? Oh my God, nobody is gonna use an FTP server. Do you know, you're not even speaking English to 99% of people, like I want something that my mom can use, that I can use something with my brother and my father-in-law, like I want something that just works, and that doesn't have to use Apple, or Google, or upload for 20 minutes, and then they can download it and get my account and pay 99 a month, I pay 20 dollars a month for BoostiCloud, I can't say how many times AirDrop has failed on me, or how many times, like well, like such a simple use case, of like, you know, we're all out for vacation, Christmas, and everybody's taking pictures and video, and somebody gives a video, and my son doing something like unbelievably cute, and I'm like, oh my God, send me that video, like everybody looks like pull our videos and our images, and inevitably like two people can't join the share link. Everyone's like, we're all on iPhone, like what? What do you mean two people can't share it? That doesn't make any sense. And Apple is like, just make it work, quit like company, try, oh my God, try to do this, a 12 gigabyte file, don't even try, it's never gonna work, it's never gonna work, I did a video that was 12 gigs, oh, and somebody's like, just set up a next cloud server, these are the instructions for setting up a next cloud server, all right, so I'm running out of time, so let me get into a pair drive. Why was the internet revolutionary? It's because it lowered the barrier to entry for creating a company, for reaching an audience, for having a retail store. Like if you have like some sort of a niche that only like 500 people in like a city or whatever could ever be interested in, like you knit, you know, tiny kittens or something, like you need it, like where are you gonna live where there's enough people to sustain a business knitting tiny kittens? What if you have it online? And you can set up a website for just a little bit of money and host that? Well, there might be 2,000 people who really want crocheted kitties online, if you can reach them, then you can actually have a sustainable business. So what tools do we have to lower that barrier to entry again, because right now we are own centralized, you still have to use giant middlemen, why? Why are we still stuck there? Why is it that we still have to go to AWS and Apple to do these things? And what tools do we have to fix that? Well, we've built this thing, we're on number five, because we keep running into a problem that just I can't do the user experience like I want it to, and so we realize that there's like another tool that does the trick, and so we're like, okay, well, well, let's map it back in and start back from zero, but we got Bitcoin and Lightning for opening payments, that's great. All-morting is super difficult. No-star key-based identity. I love No-star social. There's so many great things built into it, but the relay model is still a little bit. I don't think it's like, quote, robust enough, and it's expensive. It's expensive to host. And then the key management is super clunky, is dangerous, and I'll tell you, I've tried to own board a bunch of normies, it scares them. It makes them nervous, and I feel like that's one of its biggest problems. Pub-key. I love Pub-key and what Synonym are doing. They have the login experience I want. Just scan a QR, and then go. But because of that, they don't do any local signing for messages and stuff that gets published, so you have to trust the host, because the host can technically change all of your stuff. Whereas No-star does the opposite. You sign every single message, and so you don't have to trust the host, no matter what relay it comes from. I kind of think you need the primitive of No-star, but the experience of Pub-key. So how the heck do you do that? Then there is the pairstack. Man, that one's fantastic. First thing we did was try to build all of this entirely on the pairstack, but it does have one problem that we ran into. I don't want to just share one file. I don't want to just access one thing on hand and a group message. I have a machine at home, a Linux machine. I'm an editor. I have media like you don't know. I have a podcast and a production company. I have 64 terabytes on that machine. I want to be able to access 64 terabytes, very easily. My one thing about the pairstack was that you have to duplicate it. Think about it. You have to put something in a mailbox to share it. But if you want to, if you want it in your house to use it, you have to either take it back out of the mailbox or you have to have two copies of it. And that's basically what it is. If you want something shareable and usable in your local machine, you have to have two copies of it. So if I wanted to share a terabyte, I have to have two terabytes to share it. That's kind of a non-starter. That's not the experience I want. So I want to be able to use like my phones and offload stuff to my computer and stuff very easily. I want to, all my devices connected. So the pair drive vision. What if all the devices you own felt like they were part of a combined space and files, media, content just seamlessly float? They were just there. If your devices are there, so is your stuff. How do we do it? Right now, just so you know, what we have on GitHub is a proof of concept. It's just proving to me that like, OK, we can build it. We've been working for a couple of months on putting in a few. We're missing a few like really kind of critical primitives at the bottom of this. But we've sorted all the things out. And we've been building it, it's just not published yet. So it's like crazy alpha right now. But I use it. I use it all the time. So what we're doing is we have pair drive core, which is an engine that's basically obscuring away all the various tools that we're using. And for simple setup, like you want to connect a device, scan a QR code, you're connected, you're going to share some files, talk files. You want to share a folder that you can see. It will look everything in the folder, and then you can just look and scroll through that list on your phone. But importantly, you can also, the underlying engine is simple. It obscures all that stuff away. And it works with WebSocket and RPC to communicate. So you can just basically build any kind of web app you want on top of it. And we also don't have the mobile build quite yet. But that's been working on the refactor that we're in the middle of. But there's no server. There's not even a networking page. You get a link or a QR, you connect, and your devices can talk to each other. No visible key management. I want to be able to have users have a no-ster key, but I want them to have the option of just signing with Apple. And it works. And I think we've got a really cool setup for that. And to get the combination of PubKey and no-ster, the sweet spot there, I think we kind of have like a, it's really simple, like it's not that complicated. And it's intuitive, too, is just key at that station is that stop pacing private keys into all the clients and stuff, because that means that like any client that tries to screw you over is immediately the, you know, it's a weakest link problem. You have nine clients. And one of them screws you, well, they're all done. You're accounts nuked. Well, have a main key that you log in with that just signs every time you open up a client or an app or anything, it generates a key. It just generates a key behind the scenes. You just don't have to see it or worry about it. And you just sign, it says, this is mine. And then in our little, like networks, our contact networks, you just have an attestation list of like, this is mine, this is mine, this is mine, this is my primal, this is my pair drive, this is my periscope, this is whatever app. And then everybody gets that. And then you just know which ones to recognize as that person. But because of that, your main keys are always offline. And if one of them gets compromised, you just revoke it. You just update it, say, not mine anymore. Somebody stole that. And so it's going to QR and you're connected. Why I think this has staying power? So there's a great network effects for not your friend. They're your biggest enemy. And one of the biggest problems is a fantastic book called The Cold Start Problem by Andrew Chen, an executive at Uber. It said, you have to have an atomic network where it's sustainable by itself. And Uber had a huge problem because you can't just get like 100 drivers in every single city, because that means that when users get up there, nobody's going to be around. You have to get 100,000 drivers in one city. And then that network can sustain itself, because drivers are available, and customers are available. And then you branch out to the next city. Zoom is a really clever standout in that. Is that Zoom's atomic network is two. If you have Zoom and I have Zoom, then any time we want to do a video call, let's just use Zoom. Why do I think this idea has staying power? Parodrives atomic network is one. I've been using it. I've been using it for a long time. And in all of its various iterations, because I need it between my devices. If somebody else could have it, that's great. Because now we have no stir. We can go ahead and put like, why when you put something up, why can't I like it? Why can't you just share stuff with me and I download it from you? My brother, he's in Canada with his wife, and they're about to go to Brazil. Every once in a while, he'll hit me up. He's like, hey, man, I really want that video. I was like, she hasn't seen the Matrix. Can you give me the Matrix or whatever? And I just sent him a key, and he's like, ah, sweet. Thanks, and they're watching it. And there's a lot of different things with peer-to-peer that makes this solve this problem, like the hug of death of 1,000 people want to piece a content, and one server is holding it. Then 1,000 people descend on that server and the server crashes. Well, in the context of, like, pair drive, is if 1,000 people descend on a file or an article or an HTML page, whatever the heck it is, is that it gets better. It gets faster every time so many joins, because there's another person to connect to to download from. It's all content addressable. I mean, that's the beauty of peer-to-peer. Bram Cohen's purpose with BitTorrent was, I want to figure out how to get Linux ISOs more efficiently to people. And then you have a simple way to, if you've already figured out keys, you have a simple way to put in ZApps. We're looking at the Breeze SDK with state chain, so you don't have to have all onboarding. Somebody can just send you ZApps. You don't have to worry about liquidity or anything like that. And I really think we have all the pieces worked out. I think we have all of it worked out. And I'm super stoked about this, because I've been, this is my god, we've worked so freaking long on this. You're trying to get the user experience the way I want it. But yeah, that's not important. The vision, yeah. All your devices working together is one. Any file, any device, select it and use it. No middleman, no collections, no selling, no surveillance. But the point is that once you have that primitive and it works reliably, and you know you can scale to, I'm just sending you some notes or I'm sinking my calendar or something, but you can also do, I want to be able to deliver the Kim Chi K5 model that's 693 gigabytes to a bunch of my friends, and then they can distribute it. And you don't have to pay the gargantuan hosting fee to have somebody be able to download a near-terabyte of information just to get access to something. Once you solve that problem, you've lowered the barrier entry to where everybody can be a server. And if you have payments natively built in, why do you pay AWS when your friend has 64 terabytes and he's a nerd and he's got a desktop computer? Why don't you just pay him? Why don't you pay anybody? And so my hope, again, like I said, this is a proof of concept. It's an alpha version and we're going to break everything. I've got a CLI update because it's like dumb, unintuitive. I haven't really been thought about, I've been thinking about user experience, but we haven't built for user experience yet. We just build to make it work. So be careful when you go there, if you go check it out on GitHub. But my idea, my hope is that the clunky bit torrent and rust desk, I tried to transfer something from my rust desk back at home, and it failed twice. And I just started over every time. There's a five megabyte file, and it took like 30 or 40 seconds. But then I did this, this was last night. I pair Drive CLI running on my machine. If you see the two lines, this is my Mac book that was here in the hotel. And then you'll see another one that has a black background. This is my Mac at home, my other computer. And so on my computer here, I just drag and drop. Well, there it is. So I put it in here, you can't see the video. But I put it into one, and it just showed up on the other. I put one in the other one, and it showed up here. And it just works. And I want it to start to feel like that. It already feels like that. But we can build any app we want on top of that. We can deliver anything. We can deliver web pages. We can deliver notes. We can deliver no-ster feeds. It doesn't matter. It just needs to work. And it just feels like my machines are in the same space working on the same files. And I don't have to ask Apple for permission to do it. So private, sovereign, secure, scalable. But none of that matters. We're building it because it's going to be better for the user. It's going to be more fun to use. And I got a lot of plans, but we're still at the beginning. So wish me luck. And importantly, if you're interested, I love support. I love feedback. I love it sucks. I can't believe you put this button right here. That's a terrible idea. I need those things. So check it out. You could go to pairdrive.com. I just, I think I linked it. I think you did. Save it just in case. I'm just linking it to the GitHub. And if you want to get in touch with me, go to planb at pairdrive.com. Shoot me an email. I'm in this for the long haul. If we didn't figure everything out, well, we're going to go back and figure it out. Because I'm just going to do it until it freaking works. And I'd love you guys to check it out and join me. Thank you. OK. So I want to talk a little bit more about, before we close this out, about the structure of what we're building. And I want to talk about it because it's actually very easy to vibe code a simple, peer-to-peer file sharing app, a simple way to just deliver a file from my MacBook to my Linux machine, even though all of the official apps out there really kind of suck. Sync thing is probably the closest thing to a working system so much so that when I really looked into how it worked, I strongly considered just taking what Sync thing had, like taking the core of Sync thing and building kind of the interaction or the system on top of it that I wanted, as opposed to what is a very clunky and frustrating experience with Sync thing itself. None of it is entertaining. None of it is fun to me. When I looked at the main page of Sync thing, there were a lot of things that are actually similar to how we are going to engage with our own tools. But the main page looks like the settings page of my router firmware. Nobody's going to use that unless they are someone who's insanely technically literate and is not afraid of an IP address or port numbers or a key. I tell people, I have quote unquote normies who use Bitcoin, who really kind of get a little bit intimidated by just what an address is because they're like, oh my God, am I sending it to the right place? Because it's just a bunch of random nonsense. It's really hard to tell if you are, in fact, sending money to the right place. Even I have made the mistake before in a rush to do something. I copied and pasted the wrong thing and didn't realize which one it was going to. Luckily, it was one of my accounts. So it just showed up in the wrong place. I was like, wait, what? And then I just dealt with it. But there's a meaningful problem. If I'm sending to a contact list that has keys behind it, I'm clearly sending it to my brother. Because my brother has a profile picture. And my brother has his name on it. And it's clearly not my river account or my mother-in-law. And so I really wanted to tackle and think about the pair drive experience in a very similar way. And importantly, one of the things I wanted to do is to build a foundation that you could build anything on top of. This is really the key to it. I can't really take sync thing. There's not like a simple way to take sync thing and then build something on top of it. It just does one thing or views a certain type of file or looks at a particular folder or allows me to back it up with sync thing to integrate where it doesn't really matter what kind of app we have. It can all talk the file sharing protocol in the back end. That's what the web did, right? Is you have HTML and web sockets and TCP, IP and all of these things. And there was this protocol. There was this formal way to communicate. And then if everybody uses that same mode of communication, they could make an app of their own kind or a website of their own type with a completely different purpose. Or you could just build whatever you wanted on top of it. And it didn't have to look just like the other one. It didn't have to be. You didn't have to use the code from the other person because you had a protocol. You had a standard mode of communication. And that's what I think we need in order to get back to peer to peer. But it needs to be really easy to deploy. In most people who deploy websites, don't think about or know about DNS or what's going on with their IP address. Like many of them do because it's still kind of hard to set up a website and a server and actually keep it running. That's why most people don't do it. And most people are using centralized services. But what if you could obscure that away? What if you could have a common way to communicate between various apps or various delivery mechanisms with an underlying file sharing protocol that would just sink whatever it is? And you want to have a podcast app? Well, you could have a podcast app that looks at normal RSS feeds on normal web domains or RSS feeds at a pair drive link. What if instead of the only way to actually integrate a common storage mechanism or backup system or syncing system was that you had to use whatever platform you were locked into. You had to use iCloud on Apple. And you had to have the app itself decide that they weren't going to sell you their own subscription for syncing your notes or your calendar or your minstrel cycle or whatever it is. The insane number of various apps for various single purposes and the number of things that require some sort of a subscription is really just gotten crazy. And I don't dislike single-purpose apps to the contrary. I love single-purpose apps. But the fact that I would need to pay for syncing separately for every single app that I use is crazy. I would distribute this across all these different kinds of servers rather than just having an extra mirror or an extra device backing up all of my things at once. What if there was a joint peer-to-peer protocol? What if there was a way to run an engine underneath this thing? Where backing up and syncing was just dealt with. And if you had a quote unquote account with the peer-to-peer syncing system, you could back up any app that could integrate into it and could read Paradrive keys or Paradrive links. So another way maybe to think about it is like imagine you go to a web torrent is a thing, right? The experience isn't super great, but it is a pretty powerful tool, especially with something like Brave. Now imagine that when you go to a website and you're trying to download like a large file, let's say it's like hugging face and you're trying to download an AI model that's 23 gigabytes or heck, you're trying to download the new Mini Max 2.5 and it's 220 gigabytes. Well, you go and you hit download, you're calling directly to the hugging face servers and if a thousand people go and download that same model at the exact same time, those servers might crash. Because that's a huge amount of bandwidth and the cost to run that, to keep that up and running when thousands of people are downloading thousands of models every single day is extraordinary. Now imagine that you have a bunch of different people who are participating in the hugging face community. The website is being hosted from one location or it is being mirrored from a bunch of different locations but it's signed by its author just like a no-ster note. It's just an HTML file and you can deliver, you can look at that by simply having the key or having the link that goes to it. So you wouldn't even necessarily be getting the website from the hugging face servers set up by them. You might be getting it from anybody else who's looking at it or who has saved it. And when you download a model, it clicks and you go to web torrent where you're downloading it from everybody online who has the model. And so your speed is huge. And if hugging face has their server on and is hosting it as well, they're always there to help and they can provide an enormous amount of bandwidth because they probably do have more capital for more infrastructure. But there's no reason to only need them. And if a thousand people come in and downloaded at the exact same time, it gets faster and more performative. And the hugging face website and server does the opposite of crash. It gets easier for them to deliver it to more people because now there are a thousand new people with the file able to distribute it. Since I was a young boy and I discovered the way peer to peer systems worked, I have always felt that is the natural architecture of the internet and that things needed to go in that direction because it is the most efficient. It is the most sustainable, but you have to have a lot of different protocols to solve all the various pieces of, do you know what you're getting? Do you know who you're getting it from? Do you have a way to establish networks to the people that you know? Do you have a way to verify their reputation? Do you have a way to deliver this with and without a central server? And those problems are really hard. There are many, many, many different layers to that problem. And I'm not saying that peer drive is like the solution to all of them. I'm simply hoping that we can start to build the underlying blocks of this because all of the pieces of this thing exist. All of the pieces of that little world that I just imagined completely exist today. They're completely possible. The question is, can you get the user experience to behave like the normal internet with the benefits of peer to peer on top of it? And with A being able to do things that peer to peer can do, that central servers can't do. And I think you can. And I think the thing is that you should not be afraid of central servers. There's nothing wrong with a central server. If you know that the server doesn't own the content, they don't control or change the content and they don't own the network. Because if you've solved those three problems, a central server is just a really reliable cedar. It's just a really reliable relay or mirror like nobody's mad about more relays in no-ster or having one really, really good relay because I still know that the content is directly from the person I am following because it's signed with their key. And if that relay goes down, I can still get it from somebody else. I can maybe get it from another friend. Peer to peer presents the option to always have a credible exit without losing your network, without losing your identity, without losing your data. So I think it can be built to create the environment that I have imagined for so long. It simply has to be built user-friendly. And you have to do the slow, painful, difficult work in making the experience feel like the normal web. Then you can figure out how to do more things with it that you can't do on the normal web. And you have to be okay with letting the old monetization model not be reliable because it's going to change how we think about capitalizing on these networks. If you can't lock people in to your platform, if you can't trap people by controlling their network or repurposing their content, or you can't control the algorithm to keep them stuck on your platform and continually engaging and rage bait so that you can shove more ads into their face. I think you have to simply be okay with less control and then figure out what it is, what's the service that you provide within this new environment and how do you provide that service better than everybody else. And if I wanted to bootstrap this possible world, if I wanted to attempt to get to a place where we could build something just like this where the internet could actually look like what I've imagined. I would start with making it easy to move files between my MacBook and my Linux machine. And on top of that, making it fun, making it so I could watch movies off my Linux machine insanely easy, I could listen to podcasts off my MacBook from my phone. I essentially could just move and work with files in and between my devices safely, privately, and easily. And that's not easy to do. It's not easy to build that. Maybe I have a problem, maybe I've gone about it the wrong way, I'm being too much of a perfectionist and I just need to get something out. But I have actually just vibe coded a simple way to get a file from Mac to Linux machine in a weekend. That is not that hard, but getting it to flow, getting it to be a complete picture of something that can be used in practically any context and one that has a path to scaling to enormous file indexes and enormous networks where it makes sense to have someone with a completely different app or completely different type of tool to use it on the back end for syncing or for reading files off another device or another network. That's hard. That's hard. And that is our bigger focus with pair driver, pair core, the engine underneath this, which we will be building pair drive on top of as the first example of what can you do with this new tool and I want you to be able to feel why it's different. But again, I'm not saying I have the answers. I just know what I want out of it and how I think and see how this technology works and where I think the value case is for actually building a disruptive new system for the internet because I think the best way to free our hardware to give us back control of our phones, of our accounts and of our systems is to build software that doesn't lock you into their platforms. And specifically one that's broad and generic enough that it's really hard to be like, oh, you can't use this app in our app store. Well, it's not an app. It's something that many, many apps can and or are using. It's a protocol. It's a standard for delivering and exchanging files for any and all purposes. So anyway, I hope you enjoyed the talk. And my extended explanation here added something of value into painting the picture of what it is that we've been focused on and importantly why it's taken a lot longer than just a weekend build for shooting some files or documents or movies from one machine to another, which is a much easier task when you don't really have much else that you want to do with it or you're not thinking about how do I do this with 10 terabytes worth of stuff as opposed to just one file, one time. Thank you for listening. I shout out again to the HRF and their amazing work. I hope to be on their financial freedom newsletter at some point where they talk about pair drive and how it's helping people to have sovereign file sharing and data collection and investigation. I mean, just think about how cool it would be to be able to go through the Epstein files with a private group of like 100 people and then just watching and being able to read how they're marking certain files, what they're highlighting, what they're pointing out, and then being able to directly message each other about this information and then categorizing and put metadata that this is related to this event, this is related to this. Like, imagine a system of collective organization of metadata and analysis of some pool of information around a topic or an event or a conspiracy theory. What's good, what's bad? Who thought this was a good piece of information who said this is crap that has been debunked? What if you could take all of the collective data and reaction and information that you get in Twitter and you could actually pool it into place by topic or by event and you could easily reference it and you could dig through that information and you could base it based on who you thought had a good reputation or who was actually right about it the last two times when you thought it wasn't realistic and now it turns out to be totally the truth. That's something you could do with Pear Drive but I don't think you'd ever really be able to do it with central servers because the second that conspiracy theory was on to anything that was true, you'd probably get shut down. You'd probably get censored, get shadow banned on Twitter, a type of crowdsourced intelligence is a very dangerous thing to a lot of people in power. So how could you make that robust enough that that could be done? You could crowdsource that kind of information. That's something that I hope to be able to deliver on top of the Pear Drive engine. It would be dope to actually be included in the financial freedom report because we were doing something meaningful and it was helping people around the world fight for freedom. So shout out to them, shout out to everybody who listens and supports the show. And hopefully hopefully I can deliver on this promise. I'm working my butt off and putting a lot of capital toward it, wish me luck. With that, I am Guy Swan and until next time, that's my two sats.",
+  "timestamped_text": [
+    {
+      "start": 0.0,
+      "end": 3.84,
+      "text": "You want to connect to device, scan a QR code, you're connected,"
+    },
+    {
+      "start": 3.84,
+      "end": 7.08,
+      "text": "you're going to share some files, talk files."
+    },
+    {
+      "start": 7.08,
+      "end": 10.04,
+      "text": "You want to share a folder that you can see."
+    },
+    {
+      "start": 10.04,
+      "end": 11.84,
+      "text": "It will look everything in the folder,"
+    },
+    {
+      "start": 11.84,
+      "end": 13.96,
+      "text": "and then you can just look and scroll through that list"
+    },
+    {
+      "start": 13.96,
+      "end": 14.88,
+      "text": "on your phone."
+    },
+    {
+      "start": 14.88,
+      "end": 19.04,
+      "text": "But importantly, you can also, the underlying engine"
+    },
+    {
+      "start": 19.04,
+      "end": 19.56,
+      "text": "is simple."
+    },
+    {
+      "start": 19.56,
+      "end": 21.28,
+      "text": "It obscures all that stuff away."
+    },
+    {
+      "start": 21.28,
+      "end": 24.72,
+      "text": "And it works with WebSocket and RPC to communicate."
+    },
+    {
+      "start": 24.72,
+      "end": 26.84,
+      "text": "So you can just basically build any kind of web app"
+    },
+    {
+      "start": 26.84,
+      "end": 28.32,
+      "text": "you want on top of it."
+    },
+    {
+      "start": 28.32,
+      "end": 31.44,
+      "text": "And we also don't have the mobile build quite yet,"
+    },
+    {
+      "start": 31.44,
+      "end": 33.84,
+      "text": "but that's been working on the refactor"
+    },
+    {
+      "start": 33.84,
+      "end": 36.03,
+      "text": "that we're in the middle of."
+    },
+    {
+      "start": 36.03,
+      "end": 40.47,
+      "text": "But there's no server, there's not even a networking page."
+    },
+    {
+      "start": 40.47,
+      "end": 43.35,
+      "text": "You get a link or a QR, you connect,"
+    },
+    {
+      "start": 43.35,
+      "end": 61.14,
+      "text": "and your devices can talk to each other."
+    },
+    {
+      "start": 61.14,
+      "end": 62.54,
+      "text": "What is up, guys?"
+    },
+    {
+      "start": 62.54,
+      "end": 65.14,
+      "text": "Welcome back to Bitcoin Audible."
+    },
+    {
+      "start": 65.14,
+      "end": 66.14,
+      "text": "I'm Guy Swanton."
+    },
+    {
+      "start": 66.14,
+      "end": 68.94,
+      "text": "The guy's read more about Bitcoin than anybody else."
+    },
+    {
+      "start": 68.94,
+      "end": 73.94,
+      "text": "You know, I did a talk at Plan B in El Salvador."
+    },
+    {
+      "start": 73.94,
+      "end": 76.34,
+      "text": "And I finally got the opportunity to lay out the case"
+    },
+    {
+      "start": 76.34,
+      "end": 79.86,
+      "text": "and then to share the pair drive project."
+    },
+    {
+      "start": 79.86,
+      "end": 85.5,
+      "text": "And as I have said in the talk, it's not totally ready yet."
+    },
+    {
+      "start": 85.5,
+      "end": 87.82,
+      "text": "It's mostly just a proof of concept now."
+    },
+    {
+      "start": 87.82,
+      "end": 89.34,
+      "text": "But it works."
+    },
+    {
+      "start": 89.34,
+      "end": 92.02,
+      "text": "And we are in the process of a rebuild"
+    },
+    {
+      "start": 92.02,
+      "end": 94.46,
+      "text": "to kind of add all of the things that I feel"
+    },
+    {
+      "start": 94.46,
+      "end": 97.82,
+      "text": "need to be a part of the base of the engine that"
+    },
+    {
+      "start": 97.82,
+      "end": 102.06,
+      "text": "runs this thing so that we can really build any type of app"
+    },
+    {
+      "start": 102.06,
+      "end": 103.54,
+      "text": "on top of it that we want."
+    },
+    {
+      "start": 103.54,
+      "end": 105.02,
+      "text": "And I'm actually going to do a follow-up"
+    },
+    {
+      "start": 105.02,
+      "end": 110.26,
+      "text": "after the talk is over so that I can share a few more ideas"
+    },
+    {
+      "start": 110.26,
+      "end": 113.06,
+      "text": "that I really didn't have the time to get into in the talk"
+    },
+    {
+      "start": 113.06,
+      "end": 115.3,
+      "text": "itself because I was laying a lot of groundwork."
+    },
+    {
+      "start": 115.3,
+      "end": 120.14,
+      "text": "And obviously this was a speech with PowerPoint and everything."
+    },
+    {
+      "start": 120.14,
+      "end": 122.46,
+      "text": "So I've got like a bunch of memes and stuff up in the back."
+    },
+    {
+      "start": 122.46,
+      "end": 125.14,
+      "text": "But I mostly, I don't really read my PowerPoint."
+    },
+    {
+      "start": 125.14,
+      "end": 127.06,
+      "text": "I usually just have it as a reference"
+    },
+    {
+      "start": 127.06,
+      "end": 130.58,
+      "text": "and so that people can see the bullet points."
+    },
+    {
+      "start": 130.58,
+      "end": 132.86,
+      "text": "And I'll have this available online as well."
+    },
+    {
+      "start": 132.86,
+      "end": 134.26,
+      "text": "And my favorite thing about the PowerPoint"
+    },
+    {
+      "start": 134.26,
+      "end": 136.78,
+      "text": "is just that I get to put up a meme as an example"
+    },
+    {
+      "start": 136.78,
+      "end": 139.22,
+      "text": "for everything that I bring up."
+    },
+    {
+      "start": 139.22,
+      "end": 142.42,
+      "text": "So if you want to check out the PowerPoint or the presentation,"
+    },
+    {
+      "start": 142.42,
+      "end": 144.74,
+      "text": "I will have it available in the show notes."
+    },
+    {
+      "start": 144.74,
+      "end": 147.68,
+      "text": "Along with our amazing sponsor, the HRF,"
+    },
+    {
+      "start": 147.68,
+      "end": 149.5,
+      "text": "they have the Financial Freedom Report,"
+    },
+    {
+      "start": 149.5,
+      "end": 151.7,
+      "text": "which is one of my favorite newsletters."
+    },
+    {
+      "start": 151.7,
+      "end": 154.06,
+      "text": "They are putting on the Oslo Freedom Forum this year"
+    },
+    {
+      "start": 154.06,
+      "end": 155.82,
+      "text": "from June 1st to 3rd."
+    },
+    {
+      "start": 155.82,
+      "end": 157.26,
+      "text": "You must check it out."
+    },
+    {
+      "start": 157.26,
+      "end": 160.34,
+      "text": "And in fact, I think we're going to be having one of the people"
+    },
+    {
+      "start": 160.34,
+      "end": 163.26,
+      "text": "who will be at the Oslo Freedom Forum on the show"
+    },
+    {
+      "start": 163.26,
+      "end": 165.86,
+      "text": "leading up to that, which I am kind of jazzed about."
+    },
+    {
+      "start": 165.86,
+      "end": 168.86,
+      "text": "We're still talking and getting things scheduled."
+    },
+    {
+      "start": 168.86,
+      "end": 171.38,
+      "text": "But I'll leave that as a surprise right now."
+    },
+    {
+      "start": 171.38,
+      "end": 173.9,
+      "text": "But stay tuned and don't forget that you can get your tickets."
+    },
+    {
+      "start": 173.9,
+      "end": 176.74,
+      "text": "And if you use my link, it's actually a huge way"
+    },
+    {
+      "start": 176.74,
+      "end": 178.02,
+      "text": "to help out the show."
+    },
+    {
+      "start": 178.02,
+      "end": 179.78,
+      "text": "And it doesn't cost you anything extra."
+    },
+    {
+      "start": 179.78,
+      "end": 182.02,
+      "text": "So a shout out to everybody who does."
+    },
+    {
+      "start": 182.02,
+      "end": 183.94,
+      "text": "And thank you all for supporting the show"
+    },
+    {
+      "start": 183.94,
+      "end": 185.14,
+      "text": "as well as the HRF."
+    },
+    {
+      "start": 185.14,
+      "end": 187.14,
+      "text": "With that, let's get into this talk."
+    },
+    {
+      "start": 187.14,
+      "end": 191.34,
+      "text": "This is Guy's Take 105, the user doesn't"
+    },
+    {
+      "start": 191.34,
+      "end": 204.32,
+      "text": "care about your mission."
+    },
+    {
+      "start": 204.32,
+      "end": 205.52,
+      "text": "I'm Guy Swan."
+    },
+    {
+      "start": 205.52,
+      "end": 207.36,
+      "text": "The guy who's read more about Bitcoin than anybody else you"
+    },
+    {
+      "start": 207.36,
+      "end": 208.52,
+      "text": "know."
+    },
+    {
+      "start": 208.52,
+      "end": 210.28,
+      "text": "If you know me, you probably know me"
+    },
+    {
+      "start": 210.28,
+      "end": 212.32,
+      "text": "from Bitcoin Audible over there."
+    },
+    {
+      "start": 212.32,
+      "end": 217.44,
+      "text": "But today I am talking about I made probably a dumb decision"
+    },
+    {
+      "start": 217.44,
+      "end": 222.0,
+      "text": "about a year and a half ago to try to tackle a development"
+    },
+    {
+      "start": 222.0,
+      "end": 222.6,
+      "text": "project."
+    },
+    {
+      "start": 222.6,
+      "end": 225.0,
+      "text": "It was like, oh, we could probably build this in a month."
+    },
+    {
+      "start": 225.0,
+      "end": 227.6,
+      "text": "And a year and a half later, here we are."
+    },
+    {
+      "start": 227.6,
+      "end": 229.92,
+      "text": "And we kept running into problems."
+    },
+    {
+      "start": 229.92,
+      "end": 233.72,
+      "text": "But I have had, literally since I was nine years old"
+    },
+    {
+      "start": 233.72,
+      "end": 237.54,
+      "text": "and I discovered the internet, I have had a kind of user"
+    },
+    {
+      "start": 237.54,
+      "end": 242.38,
+      "text": "experience that I have always wanted to have,"
+    },
+    {
+      "start": 242.38,
+      "end": 247.35,
+      "text": "that I feel like has just never been provided."
+    },
+    {
+      "start": 247.35,
+      "end": 249.71,
+      "text": "And one of the things I want to talk about,"
+    },
+    {
+      "start": 249.71,
+      "end": 252.95,
+      "text": "because I see this with Bitcoiners and developers"
+    },
+    {
+      "start": 252.95,
+      "end": 254.99,
+      "text": "and people who care about care about sovereignty"
+    },
+    {
+      "start": 254.99,
+      "end": 259.99,
+      "text": "and all this stuff, is they want to sell it"
+    },
+    {
+      "start": 259.99,
+      "end": 262.78,
+      "text": "because of how why we care about it."
+    },
+    {
+      "start": 262.78,
+      "end": 268.26,
+      "text": "But the user doesn't care about your mission."
+    },
+    {
+      "start": 268.26,
+      "end": 273.74,
+      "text": "The user doesn't care about sovereignty or decentralization"
+    },
+    {
+      "start": 273.74,
+      "end": 274.86,
+      "text": "or peer to peer."
+    },
+    {
+      "start": 274.86,
+      "end": 278.06,
+      "text": "The user doesn't even know what that is."
+    },
+    {
+      "start": 278.06,
+      "end": 281.36,
+      "text": "Like everybody who cares about that is in this room"
+    },
+    {
+      "start": 281.36,
+      "end": 282.96,
+      "text": "at the conference."
+    },
+    {
+      "start": 282.96,
+      "end": 286.72,
+      "text": "Now, sure, there are a lot of people who we all get together"
+    },
+    {
+      "start": 286.72,
+      "end": 288.32,
+      "text": "and there's a lot of us who care about this."
+    },
+    {
+      "start": 288.32,
+      "end": 295.58,
+      "text": "But if you're only selling or pushing"
+    },
+    {
+      "start": 295.58,
+      "end": 299.62,
+      "text": "or trying to get those people, you stop really, really quick."
+    },
+    {
+      "start": 299.62,
+      "end": 303.36,
+      "text": "And you're not going to be able to actually change the internet."
+    },
+    {
+      "start": 303.36,
+      "end": 305.0,
+      "text": "You're not going to be able to fix the problems"
+    },
+    {
+      "start": 305.0,
+      "end": 309.28,
+      "text": "on the internet if we're trying to just convince everybody"
+    },
+    {
+      "start": 309.28,
+      "end": 312.5,
+      "text": "to care what we care about."
+    },
+    {
+      "start": 312.5,
+      "end": 316.38,
+      "text": "And the proof of that is the internet today."
+    },
+    {
+      "start": 316.38,
+      "end": 319.58,
+      "text": "Is if it was actually worth it to everybody"
+    },
+    {
+      "start": 319.58,
+      "end": 321.66,
+      "text": "to go to peer to peer and be decentralized"
+    },
+    {
+      "start": 321.66,
+      "end": 324.7,
+      "text": "and be sovereign or whatever, the internet wouldn't look"
+    },
+    {
+      "start": 324.7,
+      "end": 326.54,
+      "text": "anything like it does today."
+    },
+    {
+      "start": 326.54,
+      "end": 328.22,
+      "text": "We're all on centralized platforms."
+    },
+    {
+      "start": 328.22,
+      "end": 329.42,
+      "text": "We're all surveilled."
+    },
+    {
+      "start": 329.42,
+      "end": 332.1,
+      "text": "Everything's run through network and content owners"
+    },
+    {
+      "start": 332.1,
+      "end": 336.34,
+      "text": "that we don't even, they control us."
+    },
+    {
+      "start": 336.34,
+      "end": 338.5,
+      "text": "We run through their filters."
+    },
+    {
+      "start": 338.5,
+      "end": 342.75,
+      "text": "We are in the peak of the middleman internet right now."
+    },
+    {
+      "start": 342.75,
+      "end": 347.76,
+      "text": "And people want something that works."
+    },
+    {
+      "start": 347.76,
+      "end": 350.92,
+      "text": "They want simple, they will use things"
+    },
+    {
+      "start": 350.92,
+      "end": 355.37,
+      "text": "that are better, that are simpler, and more fun."
+    },
+    {
+      "start": 355.37,
+      "end": 357.61,
+      "text": "It's about the user experience."
+    },
+    {
+      "start": 357.61,
+      "end": 363.89,
+      "text": "And so we can't come from, we can't take the tool and think,"
+    },
+    {
+      "start": 363.89,
+      "end": 366.65,
+      "text": "OK, how do we make people use the tool?"
+    },
+    {
+      "start": 366.65,
+      "end": 368.61,
+      "text": "How do we make the tool work for them?"
+    },
+    {
+      "start": 368.61,
+      "end": 370.97,
+      "text": "We have to go, Steve Jobs talks about this like a lot."
+    },
+    {
+      "start": 371.49,
+      "end": 374.05,
+      "text": "A couple of great little talks on this,"
+    },
+    {
+      "start": 374.05,
+      "end": 376.53,
+      "text": "of you have to start at the experience."
+    },
+    {
+      "start": 376.53,
+      "end": 379.25,
+      "text": "It's like, what do you want the user to be able to do"
+    },
+    {
+      "start": 379.25,
+      "end": 382.05,
+      "text": "and then work backward as to which tool is actually"
+    },
+    {
+      "start": 382.05,
+      "end": 383.53,
+      "text": "going to do that job?"
+    },
+    {
+      "start": 383.53,
+      "end": 385.61,
+      "text": "And I think it's on us, because we do"
+    },
+    {
+      "start": 385.61,
+      "end": 388.21,
+      "text": "care about all of those things, to make sure"
+    },
+    {
+      "start": 388.21,
+      "end": 390.41,
+      "text": "that we can figure out how to use our tools"
+    },
+    {
+      "start": 390.41,
+      "end": 392.81,
+      "text": "to provide that experience for them."
+    },
+    {
+      "start": 392.81,
+      "end": 396.81,
+      "text": "And BitTorrent is the king of lessons"
+    },
+    {
+      "start": 396.81,
+      "end": 398.65,
+      "text": "that we can learn from this."
+    },
+    {
+      "start": 398.65,
+      "end": 401.85,
+      "text": "I'd go on internet history a lot on the show."
+    },
+    {
+      "start": 401.85,
+      "end": 403.89,
+      "text": "And one of the crazy things that people don't know"
+    },
+    {
+      "start": 403.89,
+      "end": 410.37,
+      "text": "is that BitTorrent was like the traffic king in 2006."
+    },
+    {
+      "start": 410.37,
+      "end": 411.69,
+      "text": "Almost, it was estimated that almost"
+    },
+    {
+      "start": 411.69,
+      "end": 414.85,
+      "text": "up to 80% of all internet traffic"
+    },
+    {
+      "start": 414.85,
+      "end": 416.95,
+      "text": "was peer-to-peer protocols."
+    },
+    {
+      "start": 416.95,
+      "end": 419.29,
+      "text": "Why?"
+    },
+    {
+      "start": 419.29,
+      "end": 422.45,
+      "text": "This was the interface."
+    },
+    {
+      "start": 422.45,
+      "end": 423.45,
+      "text": "This is what it looks like."
+    },
+    {
+      "start": 423.45,
+      "end": 425.81,
+      "text": "This is not easy to use."
+    },
+    {
+      "start": 425.81,
+      "end": 426.73,
+      "text": "This is not fun."
+    },
+    {
+      "start": 427.25,
+      "end": 430.13,
+      "text": "That's, I'm already, I have anxiety."
+    },
+    {
+      "start": 430.13,
+      "end": 431.57,
+      "text": "I work with this sort of stuff all the time"
+    },
+    {
+      "start": 431.57,
+      "end": 433.53,
+      "text": "and I just don't like things that look like this."
+    },
+    {
+      "start": 433.53,
+      "end": 435.05,
+      "text": "I want it to look clean."
+    },
+    {
+      "start": 435.05,
+      "end": 437.61,
+      "text": "But the problem was is that the industry"
+    },
+    {
+      "start": 437.61,
+      "end": 441.73,
+      "text": "refused to meet the customer where they wanted their media."
+    },
+    {
+      "start": 441.73,
+      "end": 445.13,
+      "text": "They wanted to watch stuff when they wanted to watch it"
+    },
+    {
+      "start": 445.13,
+      "end": 446.97,
+      "text": "and where they wanted to watch it,"
+    },
+    {
+      "start": 446.97,
+      "end": 449.01,
+      "text": "but the industry refused to adapt."
+    },
+    {
+      "start": 449.01,
+      "end": 453.85,
+      "text": "So that crazy situation, that interface,"
+    },
+    {
+      "start": 453.85,
+      "end": 455.85,
+      "text": "beat the industry."
+    },
+    {
+      "start": 455.85,
+      "end": 461.29,
+      "text": "And ironically, ironically is that BitTorrent's success,"
+    },
+    {
+      "start": 461.29,
+      "end": 463.74,
+      "text": "BitTorrent's success is what killed it."
+    },
+    {
+      "start": 463.74,
+      "end": 466.22,
+      "text": "It forced all of the industry's hand"
+    },
+    {
+      "start": 466.22,
+      "end": 468.94,
+      "text": "to change how they delivered media."
+    },
+    {
+      "start": 468.94,
+      "end": 471.66,
+      "text": "It led to the rise of Netflix, the rise of YouTube,"
+    },
+    {
+      "start": 471.66,
+      "end": 474.38,
+      "text": "the rise of Spotify, the rise of Amazon Prime."
+    },
+    {
+      "start": 474.38,
+      "end": 478.22,
+      "text": "Everybody changed the entire way of delivering media."
+    },
+    {
+      "start": 478.22,
+      "end": 480.86,
+      "text": "iTunes let you buy one song at a time."
+    },
+    {
+      "start": 480.86,
+      "end": 482.34,
+      "text": "You didn't have to buy the whole album."
+    },
+    {
+      "start": 482.34,
+      "end": 484.66,
+      "text": "That was such a huge battle."
+    },
+    {
+      "start": 484.66,
+      "end": 489.14,
+      "text": "Steve Jobs had to go to one of the major copyright people"
+    },
+    {
+      "start": 489.14,
+      "end": 491.02,
+      "text": "and say, they're going to get it for free"
+    },
+    {
+      "start": 491.02,
+      "end": 493.38,
+      "text": "if you don't sell it per song."
+    },
+    {
+      "start": 493.38,
+      "end": 494.94,
+      "text": "And that's what they were doing."
+    },
+    {
+      "start": 494.94,
+      "end": 499.18,
+      "text": "But that's the big thing is when they forced their hand,"
+    },
+    {
+      "start": 499.18,
+      "end": 501.82,
+      "text": "BitTorrent traffic peaked in 2007"
+    },
+    {
+      "start": 501.82,
+      "end": 503.86,
+      "text": "and it's been declining ever since."
+    },
+    {
+      "start": 503.86,
+      "end": 508.34,
+      "text": "Until very recently, because we're back in the content"
+    },
+    {
+      "start": 508.34,
+      "end": 510.54,
+      "text": "isn't all that convenient anymore, era."
+    },
+    {
+      "start": 510.54,
+      "end": 515.03,
+      "text": "Now you have 80 streaming services."
+    },
+    {
+      "start": 515.03,
+      "end": 517.47,
+      "text": "So what's broken about the internet?"
+    },
+    {
+      "start": 517.47,
+      "end": 522.98,
+      "text": "What about the user experience sucks today on the internet?"
+    },
+    {
+      "start": 522.98,
+      "end": 524.9,
+      "text": "Just so you know, I might have to skip over some slides"
+    },
+    {
+      "start": 524.9,
+      "end": 525.74,
+      "text": "really quick."
+    },
+    {
+      "start": 525.74,
+      "end": 526.54,
+      "text": "I have way too many slides."
+    },
+    {
+      "start": 526.54,
+      "end": 528.94,
+      "text": "This ended up being like two hours when I ranted it out,"
+    },
+    {
+      "start": 528.94,
+      "end": 530.38,
+      "text": "like five times ahead of this."
+    },
+    {
+      "start": 530.38,
+      "end": 532.1,
+      "text": "And I've been trying to clean it up."
+    },
+    {
+      "start": 532.1,
+      "end": 534.78,
+      "text": "But one of the big things on the internet,"
+    },
+    {
+      "start": 534.78,
+      "end": 538.26,
+      "text": "it drives me utterly crazy, is the increasing nightmare"
+    },
+    {
+      "start": 538.26,
+      "end": 540.66,
+      "text": "of logging into stuff."
+    },
+    {
+      "start": 540.66,
+      "end": 544.7,
+      "text": "I have recently had a very painful personal experience."
+    },
+    {
+      "start": 544.7,
+      "end": 548.34,
+      "text": "I hope you can help me get through this time."
+    },
+    {
+      "start": 548.34,
+      "end": 550.14,
+      "text": "I've had to switch my phone over."
+    },
+    {
+      "start": 550.14,
+      "end": 552.34,
+      "text": "And I got logged out and deregistered"
+    },
+    {
+      "start": 552.34,
+      "end": 555.62,
+      "text": "and disconnected from literally every single app."
+    },
+    {
+      "start": 555.62,
+      "end": 560.74,
+      "text": "And I have had the worst three days of phone user experience"
+    },
+    {
+      "start": 560.74,
+      "end": 561.74,
+      "text": "as I've had in years."
+    },
+    {
+      "start": 561.74,
+      "end": 563.42,
+      "text": "I'm going to be OK."
+    },
+    {
+      "start": 563.42,
+      "end": 565.42,
+      "text": "But it's been really, really rough."
+    },
+    {
+      "start": 565.42,
+      "end": 568.22,
+      "text": "And what do you do losing?"
+    },
+    {
+      "start": 568.9,
+      "end": 570.86,
+      "text": "I didn't know if I was going to get signaled back."
+    },
+    {
+      "start": 570.86,
+      "end": 572.62,
+      "text": "Telegram wouldn't connect to my stuff."
+    },
+    {
+      "start": 572.62,
+      "end": 573.78,
+      "text": "And I'm doing eSAM stuff."
+    },
+    {
+      "start": 573.78,
+      "end": 575.26,
+      "text": "Holy god, it sucks."
+    },
+    {
+      "start": 575.26,
+      "end": 578.22,
+      "text": "But there is a thing that happened to me."
+    },
+    {
+      "start": 578.22,
+      "end": 579.42,
+      "text": "I was trying to go to a service."
+    },
+    {
+      "start": 579.42,
+      "end": 580.74,
+      "text": "I think it was like name cheap or something."
+    },
+    {
+      "start": 580.74,
+      "end": 582.7,
+      "text": "I was trying to get a DNS record."
+    },
+    {
+      "start": 582.7,
+      "end": 583.74,
+      "text": "I don't remember what it was."
+    },
+    {
+      "start": 583.74,
+      "end": 587.66,
+      "text": "But I went to my password managers."
+    },
+    {
+      "start": 587.66,
+      "end": 590.06,
+      "text": "I was like, all right, boom, let's log into the service."
+    },
+    {
+      "start": 590.06,
+      "end": 592.3,
+      "text": "And says, we need to confirm it with your email."
+    },
+    {
+      "start": 592.3,
+      "end": 593.22,
+      "text": "We sent a code."
+    },
+    {
+      "start": 593.22,
+      "end": 594.5,
+      "text": "I was like, OK, and I jumped over to,"
+    },
+    {
+      "start": 594.5,
+      "end": 597.9,
+      "text": "but it was an old Gmail account that I haven't used in a while."
+    },
+    {
+      "start": 597.9,
+      "end": 601.02,
+      "text": "I jumped over there and went back to my password manager,"
+    },
+    {
+      "start": 601.02,
+      "end": 603.26,
+      "text": "use the name password, punch it in."
+    },
+    {
+      "start": 603.26,
+      "end": 605.86,
+      "text": "It says, oh, you haven't been here in a while."
+    },
+    {
+      "start": 605.86,
+      "end": 607.42,
+      "text": "You should do a capture."
+    },
+    {
+      "start": 607.42,
+      "end": 609.06,
+      "text": "Find all the stoplights."
+    },
+    {
+      "start": 609.06,
+      "end": 610.86,
+      "text": "And I was like, oh, Jesus Christ."
+    },
+    {
+      "start": 610.86,
+      "end": 612.38,
+      "text": "And you have that stupid rate limiter"
+    },
+    {
+      "start": 612.38,
+      "end": 613.14,
+      "text": "where you click on it."
+    },
+    {
+      "start": 613.14,
+      "end": 616.39,
+      "text": "It's like, click on there."
+    },
+    {
+      "start": 616.39,
+      "end": 621.71,
+      "text": "It's like, let me waste your time just to get into this."
+    },
+    {
+      "start": 621.71,
+      "end": 625.47,
+      "text": "And I had to do it twice, because apparently I'm not human enough."
+    },
+    {
+      "start": 625.47,
+      "end": 626.91,
+      "text": "I got it wrong the first time."
+    },
+    {
+      "start": 626.91,
+      "end": 630.35,
+      "text": "And then it was like, oh, you haven't been here in a while."
+    },
+    {
+      "start": 630.35,
+      "end": 633.43,
+      "text": "We sent a confirmation code to your backup email,"
+    },
+    {
+      "start": 633.43,
+      "end": 635.31,
+      "text": "which was another Gmail account."
+    },
+    {
+      "start": 635.31,
+      "end": 637.95,
+      "text": "And so I went over there, I got my username and password"
+    },
+    {
+      "start": 637.95,
+      "end": 640.55,
+      "text": "plugged it in, pick all the buses,"
+    },
+    {
+      "start": 640.55,
+      "end": 642.19,
+      "text": "and then pick all the fire hydrants."
+    },
+    {
+      "start": 642.19,
+      "end": 643.67,
+      "text": "I am not kidding."
+    },
+    {
+      "start": 643.67,
+      "end": 647.15,
+      "text": "This was, it took me like 14 minutes"
+    },
+    {
+      "start": 647.15,
+      "end": 650.99,
+      "text": "to get through the cascade of confirm who you are, confirm"
+    },
+    {
+      "start": 650.99,
+      "end": 654.71,
+      "text": "who you are, confirm who you are, until I finally got the confirmation"
+    },
+    {
+      "start": 654.71,
+      "end": 656.39,
+      "text": "code and went back to the other one, got into that one,"
+    },
+    {
+      "start": 656.39,
+      "end": 658.27,
+      "text": "got the confirmation code, went back to the other one,"
+    },
+    {
+      "start": 658.27,
+      "end": 659.67,
+      "text": "and ended it back at Namecheap."
+    },
+    {
+      "start": 659.67,
+      "end": 663.27,
+      "text": "And I needed to get into the service for two seconds"
+    },
+    {
+      "start": 663.27,
+      "end": 665.11,
+      "text": "to get a little string of data."
+    },
+    {
+      "start": 665.11,
+      "end": 666.79,
+      "text": "And then I logged out everything."
+    },
+    {
+      "start": 666.79,
+      "end": 668.59,
+      "text": "And I was like, holy God."
+    },
+    {
+      "start": 668.59,
+      "end": 670.07,
+      "text": "Holy God, why?"
+    },
+    {
+      "start": 670.07,
+      "end": 672.95,
+      "text": "Why is it like this?"
+    },
+    {
+      "start": 672.95,
+      "end": 674.99,
+      "text": "This is a terrible experience."
+    },
+    {
+      "start": 674.99,
+      "end": 679.23,
+      "text": "This is exactly how I felt about it."
+    },
+    {
+      "start": 679.23,
+      "end": 681.15,
+      "text": "The machines are better at this."
+    },
+    {
+      "start": 681.15,
+      "end": 683.47,
+      "text": "The captures don't even do anything anymore."
+    },
+    {
+      "start": 683.47,
+      "end": 686.27,
+      "text": "I was trying to find a video because I know I have seen one."
+    },
+    {
+      "start": 686.27,
+      "end": 688.91,
+      "text": "And this started back in 2024 of people just like using"
+    },
+    {
+      "start": 688.91,
+      "end": 691.19,
+      "text": "like Chattach VT to do captures."
+    },
+    {
+      "start": 691.19,
+      "end": 692.99,
+      "text": "But I had somebody, there was a video of like someone"
+    },
+    {
+      "start": 692.99,
+      "end": 695.71,
+      "text": "had like a little script running, and then a capture thing"
+    },
+    {
+      "start": 695.71,
+      "end": 697.71,
+      "text": "that was just generating new captures over and over."
+    },
+    {
+      "start": 697.71,
+      "end": 700.83,
+      "text": "And it was literally just like click, click, click, click, click."
+    },
+    {
+      "start": 700.83,
+      "end": 703.71,
+      "text": "In fact, the error rate on the vision model"
+    },
+    {
+      "start": 703.71,
+      "end": 707.31,
+      "text": "was about as good as mine."
+    },
+    {
+      "start": 707.31,
+      "end": 709.11,
+      "text": "One at every three, it might have messed up on,"
+    },
+    {
+      "start": 709.11,
+      "end": 711.99,
+      "text": "but I probably messed up about 50% of them."
+    },
+    {
+      "start": 711.99,
+      "end": 713.31,
+      "text": "Because I'm like, is the top of this"
+    },
+    {
+      "start": 713.31,
+      "end": 714.63,
+      "text": "is the dude in the motorcycle?"
+    },
+    {
+      "start": 714.63,
+      "end": 718.1,
+      "text": "Is that, does that count, you know?"
+    },
+    {
+      "start": 718.1,
+      "end": 720.82,
+      "text": "Then the bot apocalypse."
+    },
+    {
+      "start": 720.82,
+      "end": 724.82,
+      "text": "I kind of think we're in the dead internet there, you already."
+    },
+    {
+      "start": 724.82,
+      "end": 727.54,
+      "text": "I think there are more people and things"
+    },
+    {
+      "start": 727.54,
+      "end": 728.86,
+      "text": "that we're interacting with online"
+    },
+    {
+      "start": 728.86,
+      "end": 731.62,
+      "text": "that aren't people than there are people."
+    },
+    {
+      "start": 731.62,
+      "end": 734.77,
+      "text": "And I think when we get to the point,"
+    },
+    {
+      "start": 734.77,
+      "end": 737.09,
+      "text": "whether or not we're at that point already,"
+    },
+    {
+      "start": 737.09,
+      "end": 738.25,
+      "text": "I think it's gonna be 10 times worse"
+    },
+    {
+      "start": 738.25,
+      "end": 742.77,
+      "text": "within a year of that point, like because it's just so easy."
+    },
+    {
+      "start": 742.77,
+      "end": 745.01,
+      "text": "Like I just finally got my clawed bot up and running,"
+    },
+    {
+      "start": 745.01,
+      "end": 747.45,
+      "text": "like a day and a half ago."
+    },
+    {
+      "start": 747.45,
+      "end": 751.41,
+      "text": "And I can't, I think the canarian, the coal mine here,"
+    },
+    {
+      "start": 751.41,
+      "end": 755.65,
+      "text": "is that I see all these obvious bots,"
+    },
+    {
+      "start": 755.65,
+      "end": 759.61,
+      "text": "but my clawed bot is not obvious."
+    },
+    {
+      "start": 759.61,
+      "end": 762.69,
+      "text": "Like I would, it feels like I'm talking to a human,"
+    },
+    {
+      "start": 762.69,
+      "end": 765.9,
+      "text": "which means that there's probably a ton,"
+    },
+    {
+      "start": 765.9,
+      "end": 767.82,
+      "text": "like the ones that are obvious,"
+    },
+    {
+      "start": 767.82,
+      "end": 769.7,
+      "text": "or just the ones that are cheap,"
+    },
+    {
+      "start": 769.7,
+      "end": 772.3,
+      "text": "or local run, or something."
+    },
+    {
+      "start": 772.3,
+      "end": 777.13,
+      "text": "But there's a scam going around a crypto CEO,"
+    },
+    {
+      "start": 777.13,
+      "end": 779.13,
+      "text": "dude, for an exchange, was talking about this,"
+    },
+    {
+      "start": 779.13,
+      "end": 782.73,
+      "text": "of bots that go on a telegram thing."
+    },
+    {
+      "start": 782.73,
+      "end": 784.97,
+      "text": "They take over somebody's account,"
+    },
+    {
+      "start": 784.97,
+      "end": 789.92,
+      "text": "and then they literally video call you."
+    },
+    {
+      "start": 789.92,
+      "end": 794.92,
+      "text": "And it's a person that you know in their voice,"
+    },
+    {
+      "start": 796.28,
+      "end": 797.68,
+      "text": "and they talk to you, and to mess up"
+    },
+    {
+      "start": 797.68,
+      "end": 800.32,
+      "text": "the little bit of oddities about the AI,"
+    },
+    {
+      "start": 800.32,
+      "end": 802.24,
+      "text": "they literally end for the purpose"
+    },
+    {
+      "start": 802.24,
+      "end": 803.6,
+      "text": "of what they're trying to do."
+    },
+    {
+      "start": 803.6,
+      "end": 807.92,
+      "text": "They break it up, they make the video kind of crappy."
+    },
+    {
+      "start": 807.92,
+      "end": 809.56,
+      "text": "And then they say, this is somebody that you know,"
+    },
+    {
+      "start": 809.56,
+      "end": 811.44,
+      "text": "you're doing a video call, but somebody that you know"
+    },
+    {
+      "start": 811.44,
+      "end": 814.84,
+      "text": "and says, listen, just do this plugin, it'll fix it."
+    },
+    {
+      "start": 814.84,
+      "end": 817.0,
+      "text": "I know that this is like a known problem."
+    },
+    {
+      "start": 817.0,
+      "end": 819.28,
+      "text": "And then you install the plugin,"
+    },
+    {
+      "start": 819.28,
+      "end": 821.28,
+      "text": "they take over your telegram account,"
+    },
+    {
+      "start": 821.28,
+      "end": 824.24,
+      "text": "they search your computer for any crypto keys,"
+    },
+    {
+      "start": 824.24,
+      "end": 827.56,
+      "text": "they can dump, then they go through your contact list,"
+    },
+    {
+      "start": 827.56,
+      "end": 829.6,
+      "text": "and they use your face and your voice"
+    },
+    {
+      "start": 829.6,
+      "end": 831.44,
+      "text": "that you just gave them, and they turn around"
+    },
+    {
+      "start": 831.44,
+      "end": 833.84,
+      "text": "and call everybody, all of your friends."
+    },
+    {
+      "start": 833.84,
+      "end": 835.72,
+      "text": "And it's this cascade, it's been running through"
+    },
+    {
+      "start": 835.72,
+      "end": 838.8,
+      "text": "for the last little bit, and like that was, you saw,"
+    },
+    {
+      "start": 838.8,
+      "end": 841.2,
+      "text": "like these things are easy now,"
+    },
+    {
+      "start": 841.2,
+      "end": 843.24,
+      "text": "and this is the worst it's ever gonna be."
+    },
+    {
+      "start": 843.24,
+      "end": 846.22,
+      "text": "So worst it's ever gonna be."
+    },
+    {
+      "start": 846.22,
+      "end": 848.19,
+      "text": "So what's the solution?"
+    },
+    {
+      "start": 848.19,
+      "end": 851.75,
+      "text": "KYC everything, yay!"
+    },
+    {
+      "start": 851.75,
+      "end": 853.99,
+      "text": "Subscription, everything."
+    },
+    {
+      "start": 853.99,
+      "end": 856.75,
+      "text": "This literally happened last night,"
+    },
+    {
+      "start": 856.75,
+      "end": 858.95,
+      "text": "I was finishing up my slides."
+    },
+    {
+      "start": 858.95,
+      "end": 861.95,
+      "text": "I was trying to, and it was from a cloud bot,"
+    },
+    {
+      "start": 861.95,
+      "end": 866.95,
+      "text": "I was trying to get a brave search API,"
+    },
+    {
+      "start": 867.03,
+      "end": 868.43,
+      "text": "so I could pull some information"
+    },
+    {
+      "start": 868.43,
+      "end": 870.83,
+      "text": "for a little thing I'm working on,"
+    },
+    {
+      "start": 870.83,
+      "end": 873.14,
+      "text": "and the API is free."
+    },
+    {
+      "start": 873.14,
+      "end": 874.7,
+      "text": "API is free, I want you to appreciate that"
+    },
+    {
+      "start": 874.7,
+      "end": 876.5,
+      "text": "while I finish this story."
+    },
+    {
+      "start": 876.5,
+      "end": 880.32,
+      "text": "Is they didn't want bots just coming in"
+    },
+    {
+      "start": 880.32,
+      "end": 884.0,
+      "text": "and signing up thousands of accounts"
+    },
+    {
+      "start": 884.0,
+      "end": 886.8,
+      "text": "and thousands of APIs for their brave search engine."
+    },
+    {
+      "start": 886.8,
+      "end": 889.32,
+      "text": "So the way they prove that you're human"
+    },
+    {
+      "start": 889.32,
+      "end": 891.04,
+      "text": "is you punch in a credit card,"
+    },
+    {
+      "start": 891.04,
+      "end": 892.56,
+      "text": "you punch in a debit card."
+    },
+    {
+      "start": 892.56,
+      "end": 894.72,
+      "text": "And so I did this, and I don't know,"
+    },
+    {
+      "start": 894.72,
+      "end": 897.16,
+      "text": "because I'm in El Salvador, I had my VPN in Georgia,"
+    },
+    {
+      "start": 897.16,
+      "end": 900.72,
+      "text": "so it looked like I was kind of back towards home,"
+    },
+    {
+      "start": 901.84,
+      "end": 904.68,
+      "text": "but for whatever reason,"
+    },
+    {
+      "start": 904.68,
+      "end": 907.4,
+      "text": "this was an unusual purchase,"
+    },
+    {
+      "start": 907.4,
+      "end": 909.44,
+      "text": "maybe because it was a zero dollar purchase,"
+    },
+    {
+      "start": 909.44,
+      "end": 912.72,
+      "text": "and I couldn't use it, so I went to my business card,"
+    },
+    {
+      "start": 912.72,
+      "end": 915.6,
+      "text": "couldn't do it when my Apple credit card couldn't do it."
+    },
+    {
+      "start": 915.6,
+      "end": 917.96,
+      "text": "I used four different cards, I couldn't sign up,"
+    },
+    {
+      "start": 917.96,
+      "end": 921.26,
+      "text": "I want you to appreciate,"
+    },
+    {
+      "start": 921.34,
+      "end": 923.78,
+      "text": "I want you to appreciate this,"
+    },
+    {
+      "start": 923.78,
+      "end": 929.33,
+      "text": "I could not pay for a free service,"
+    },
+    {
+      "start": 929.33,
+      "end": 930.69,
+      "text": "holy God,"
+    },
+    {
+      "start": 936.48,
+      "end": 939.51,
+      "text": "there's a lot that we can fix,"
+    },
+    {
+      "start": 939.51,
+      "end": 942.51,
+      "text": "but we have to think about it from the user experience."
+    },
+    {
+      "start": 944.75,
+      "end": 946.59,
+      "text": "And then there's the principal agent problem,"
+    },
+    {
+      "start": 946.59,
+      "end": 952.33,
+      "text": "is that when Twitter or these social media,"
+    },
+    {
+      "start": 952.77,
+      "end": 954.89,
+      "text": "they're not building for us anymore,"
+    },
+    {
+      "start": 954.89,
+      "end": 957.13,
+      "text": "once they have a network effect,"
+    },
+    {
+      "start": 957.13,
+      "end": 959.25,
+      "text": "then we become the product,"
+    },
+    {
+      "start": 959.25,
+      "end": 961.41,
+      "text": "because we give them the content,"
+    },
+    {
+      "start": 961.41,
+      "end": 964.33,
+      "text": "I can't tell you how many times I have liked something,"
+    },
+    {
+      "start": 964.33,
+      "end": 966.05,
+      "text": "or I've been like looking at something on X,"
+    },
+    {
+      "start": 966.05,
+      "end": 968.09,
+      "text": "like I use social media to get my articles"
+    },
+    {
+      "start": 968.09,
+      "end": 970.61,
+      "text": "for the show, for Bitcoin Audible most of the time,"
+    },
+    {
+      "start": 970.61,
+      "end": 972.73,
+      "text": "and so I'll be looking at something,"
+    },
+    {
+      "start": 972.73,
+      "end": 974.49,
+      "text": "I'll be like, oh, this is interesting or whatever,"
+    },
+    {
+      "start": 974.49,
+      "end": 977.17,
+      "text": "and then it just refreshes all by itself,"
+    },
+    {
+      "start": 977.17,
+      "end": 980.73,
+      "text": "and it goes all the way back up to what's the newest thing,"
+    },
+    {
+      "start": 980.73,
+      "end": 983.73,
+      "text": "and I'm like, oh no, oh no, where's I didn't like it,"
+    },
+    {
+      "start": 983.73,
+      "end": 985.65,
+      "text": "or save it, where is the thing?"
+    },
+    {
+      "start": 985.65,
+      "end": 986.93,
+      "text": "And I will spend 40 minutes,"
+    },
+    {
+      "start": 986.93,
+      "end": 988.21,
+      "text": "I was like, this was a good article,"
+    },
+    {
+      "start": 988.21,
+      "end": 989.37,
+      "text": "I was excited about this,"
+    },
+    {
+      "start": 989.37,
+      "end": 991.13,
+      "text": "and I will just scroll and scroll,"
+    },
+    {
+      "start": 991.13,
+      "end": 993.73,
+      "text": "and I know that's what they want,"
+    },
+    {
+      "start": 993.73,
+      "end": 995.53,
+      "text": "that's what they are trying to do, I search it,"
+    },
+    {
+      "start": 995.53,
+      "end": 997.73,
+      "text": "I can't get it, it was in my four U things,"
+    },
+    {
+      "start": 997.73,
+      "end": 999.49,
+      "text": "so I don't even know if it's somebody I was following,"
+    },
+    {
+      "start": 999.49,
+      "end": 1001.49,
+      "text": "what color was the profile picture,"
+    },
+    {
+      "start": 1001.49,
+      "end": 1004.05,
+      "text": "like which account was it, was it Ryan Gentry,"
+    },
+    {
+      "start": 1004.05,
+      "end": 1006.29,
+      "text": "who posted this thing?"
+    },
+    {
+      "start": 1006.29,
+      "end": 1008.61,
+      "text": "And I literally, I just won't find it,"
+    },
+    {
+      "start": 1008.61,
+      "end": 1010.05,
+      "text": "and then I'll get to a point where I've spent so much time"
+    },
+    {
+      "start": 1010.05,
+      "end": 1012.81,
+      "text": "just looking for the stupid thing that I was just staring at,"
+    },
+    {
+      "start": 1012.81,
+      "end": 1015.57,
+      "text": "that I'm like, I have to get off of here,"
+    },
+    {
+      "start": 1015.57,
+      "end": 1017.93,
+      "text": "and inevitably I get stuck in some other thread,"
+    },
+    {
+      "start": 1017.93,
+      "end": 1021.09,
+      "text": "or I get outraged baited into some other conversation"
+    },
+    {
+      "start": 1021.09,
+      "end": 1023.89,
+      "text": "or engagement, and it takes me three times as long,"
+    },
+    {
+      "start": 1023.89,
+      "end": 1027.57,
+      "text": "because Twitter wants me to do something different."
+    },
+    {
+      "start": 1027.57,
+      "end": 1029.53,
+      "text": "They don't want me to be able to find something"
+    },
+    {
+      "start": 1029.53,
+      "end": 1032.17,
+      "text": "from five days ago, because what's happening today"
+    },
+    {
+      "start": 1032.17,
+      "end": 1035.69,
+      "text": "is gonna get way more clicks, way more rage baity,"
+    },
+    {
+      "start": 1035.69,
+      "end": 1040.24,
+      "text": "and so the usefulness of that platform for me"
+    },
+    {
+      "start": 1040.24,
+      "end": 1044.48,
+      "text": "is literally the opposite of what the agent,"
+    },
+    {
+      "start": 1044.48,
+      "end": 1048.11,
+      "text": "of what the provider wants me to do."
+    },
+    {
+      "start": 1048.11,
+      "end": 1054.3,
+      "text": "Why, why, why do our hosts own our stuff,"
+    },
+    {
+      "start": 1057.81,
+      "end": 1064.93,
+      "text": "own our networks, and then there's file sharing."
+    },
+    {
+      "start": 1064.93,
+      "end": 1067.33,
+      "text": "This has been the biggest thing, and what's funny"
+    },
+    {
+      "start": 1067.33,
+      "end": 1071.01,
+      "text": "is that I kinda feel like if you can solve this,"
+    },
+    {
+      "start": 1071.01,
+      "end": 1073.21,
+      "text": "you can actually solve all the other ones."
+    },
+    {
+      "start": 1073.21,
+      "end": 1077.8,
+      "text": "You can solve this at scale, extremely simply,"
+    },
+    {
+      "start": 1077.8,
+      "end": 1081.38,
+      "text": "like good user experience, intuitive."
+    },
+    {
+      "start": 1081.38,
+      "end": 1086.54,
+      "text": "This has been, oh God, I hate file sharing,"
+    },
+    {
+      "start": 1086.86,
+      "end": 1088.58,
+      "text": "and this is as somebody who's used to everything,"
+    },
+    {
+      "start": 1088.58,
+      "end": 1090.9,
+      "text": "and there are like half decent solutions,"
+    },
+    {
+      "start": 1090.9,
+      "end": 1094.98,
+      "text": "wormholes pretty dope, but I feel like they all still"
+    },
+    {
+      "start": 1094.98,
+      "end": 1096.7,
+      "text": "are missing like a huge opportunity,"
+    },
+    {
+      "start": 1096.7,
+      "end": 1099.34,
+      "text": "or at least in something that I wanna build,"
+    },
+    {
+      "start": 1099.34,
+      "end": 1102.58,
+      "text": "or the experience that I want with my stuff,"
+    },
+    {
+      "start": 1104.02,
+      "end": 1107.06,
+      "text": "and God, I posted, I posted about a pair drive"
+    },
+    {
+      "start": 1107.06,
+      "end": 1109.74,
+      "text": "for the first time, like six or eight months ago,"
+    },
+    {
+      "start": 1109.74,
+      "end": 1111.22,
+      "text": "or something, I'll notice here, I did like a big thing"
+    },
+    {
+      "start": 1111.22,
+      "end": 1114.22,
+      "text": "about file sharing, and somebody literally said,"
+    },
+    {
+      "start": 1114.22,
+      "end": 1118.02,
+      "text": "do you want to just set up an FTP server?"
+    },
+    {
+      "start": 1118.02,
+      "end": 1122.45,
+      "text": "Oh my God, nobody is gonna use an FTP server."
+    },
+    {
+      "start": 1122.45,
+      "end": 1126.85,
+      "text": "Do you know, you're not even speaking English to 99% of people,"
+    },
+    {
+      "start": 1126.85,
+      "end": 1129.53,
+      "text": "like I want something that my mom can use,"
+    },
+    {
+      "start": 1129.53,
+      "end": 1132.25,
+      "text": "that I can use something with my brother"
+    },
+    {
+      "start": 1132.25,
+      "end": 1134.73,
+      "text": "and my father-in-law, like I want something"
+    },
+    {
+      "start": 1134.73,
+      "end": 1138.89,
+      "text": "that just works, and that doesn't have to use Apple,"
+    },
+    {
+      "start": 1138.89,
+      "end": 1142.45,
+      "text": "or Google, or upload for 20 minutes,"
+    },
+    {
+      "start": 1142.45,
+      "end": 1144.97,
+      "text": "and then they can download it and get my account"
+    },
+    {
+      "start": 1144.97,
+      "end": 1149.29,
+      "text": "and pay 99 a month, I pay 20 dollars a month"
+    },
+    {
+      "start": 1149.29,
+      "end": 1150.85,
+      "text": "for BoostiCloud, I can't say how many times"
+    },
+    {
+      "start": 1150.85,
+      "end": 1153.81,
+      "text": "AirDrop has failed on me, or how many times,"
+    },
+    {
+      "start": 1153.81,
+      "end": 1156.69,
+      "text": "like well, like such a simple use case,"
+    },
+    {
+      "start": 1156.69,
+      "end": 1159.61,
+      "text": "of like, you know, we're all out for vacation,"
+    },
+    {
+      "start": 1159.61,
+      "end": 1162.45,
+      "text": "Christmas, and everybody's taking pictures and video,"
+    },
+    {
+      "start": 1162.45,
+      "end": 1165.01,
+      "text": "and somebody gives a video, and my son doing something"
+    },
+    {
+      "start": 1165.01,
+      "end": 1167.65,
+      "text": "like unbelievably cute, and I'm like, oh my God,"
+    },
+    {
+      "start": 1167.65,
+      "end": 1169.17,
+      "text": "send me that video, like everybody looks like"
+    },
+    {
+      "start": 1169.17,
+      "end": 1171.41,
+      "text": "pull our videos and our images,"
+    },
+    {
+      "start": 1171.41,
+      "end": 1174.05,
+      "text": "and inevitably like two people can't join the share link."
+    },
+    {
+      "start": 1174.05,
+      "end": 1176.57,
+      "text": "Everyone's like, we're all on iPhone, like what?"
+    },
+    {
+      "start": 1176.57,
+      "end": 1178.17,
+      "text": "What do you mean two people can't share it?"
+    },
+    {
+      "start": 1178.17,
+      "end": 1179.61,
+      "text": "That doesn't make any sense."
+    },
+    {
+      "start": 1180.76,
+      "end": 1183.27,
+      "text": "And Apple is like, just make it work,"
+    },
+    {
+      "start": 1183.27,
+      "end": 1187.79,
+      "text": "quit like company, try, oh my God, try to do this,"
+    },
+    {
+      "start": 1187.79,
+      "end": 1192.77,
+      "text": "a 12 gigabyte file, don't even try,"
+    },
+    {
+      "start": 1192.77,
+      "end": 1194.57,
+      "text": "it's never gonna work, it's never gonna work,"
+    },
+    {
+      "start": 1194.57,
+      "end": 1197.41,
+      "text": "I did a video that was 12 gigs,"
+    },
+    {
+      "start": 1197.41,
+      "end": 1200.29,
+      "text": "oh, and somebody's like, just set up a next cloud server,"
+    },
+    {
+      "start": 1200.29,
+      "end": 1204.58,
+      "text": "these are the instructions for setting up"
+    },
+    {
+      "start": 1204.58,
+      "end": 1213.56,
+      "text": "a next cloud server, all right, so I'm running out of time,"
+    },
+    {
+      "start": 1213.56,
+      "end": 1215.64,
+      "text": "so let me get into a pair drive."
+    },
+    {
+      "start": 1217.51,
+      "end": 1220.12,
+      "text": "Why was the internet revolutionary?"
+    },
+    {
+      "start": 1220.12,
+      "end": 1223.23,
+      "text": "It's because it lowered the barrier to entry"
+    },
+    {
+      "start": 1223.23,
+      "end": 1227.71,
+      "text": "for creating a company, for reaching an audience,"
+    },
+    {
+      "start": 1227.71,
+      "end": 1229.75,
+      "text": "for having a retail store."
+    },
+    {
+      "start": 1229.75,
+      "end": 1231.55,
+      "text": "Like if you have like some sort of a niche"
+    },
+    {
+      "start": 1231.55,
+      "end": 1235.63,
+      "text": "that only like 500 people in like a city or whatever"
+    },
+    {
+      "start": 1235.63,
+      "end": 1238.83,
+      "text": "could ever be interested in, like you knit,"
+    },
+    {
+      "start": 1238.83,
+      "end": 1242.11,
+      "text": "you know, tiny kittens or something,"
+    },
+    {
+      "start": 1242.11,
+      "end": 1244.71,
+      "text": "like you need it, like where are you gonna live"
+    },
+    {
+      "start": 1244.71,
+      "end": 1246.47,
+      "text": "where there's enough people to sustain a business"
+    },
+    {
+      "start": 1246.47,
+      "end": 1248.03,
+      "text": "knitting tiny kittens?"
+    },
+    {
+      "start": 1248.03,
+      "end": 1249.55,
+      "text": "What if you have it online?"
+    },
+    {
+      "start": 1249.55,
+      "end": 1253.31,
+      "text": "And you can set up a website for just a little bit of money"
+    },
+    {
+      "start": 1253.31,
+      "end": 1255.27,
+      "text": "and host that?"
+    },
+    {
+      "start": 1255.27,
+      "end": 1258.31,
+      "text": "Well, there might be 2,000 people who really want"
+    },
+    {
+      "start": 1258.31,
+      "end": 1262.07,
+      "text": "crocheted kitties online, if you can reach them,"
+    },
+    {
+      "start": 1262.07,
+      "end": 1264.74,
+      "text": "then you can actually have a sustainable business."
+    },
+    {
+      "start": 1264.74,
+      "end": 1269.74,
+      "text": "So what tools do we have to lower that barrier to entry again,"
+    },
+    {
+      "start": 1270.38,
+      "end": 1273.38,
+      "text": "because right now we are own centralized,"
+    },
+    {
+      "start": 1273.38,
+      "end": 1276.74,
+      "text": "you still have to use giant middlemen, why?"
+    },
+    {
+      "start": 1276.74,
+      "end": 1278.5,
+      "text": "Why are we still stuck there?"
+    },
+    {
+      "start": 1278.5,
+      "end": 1281.54,
+      "text": "Why is it that we still have to go to AWS"
+    },
+    {
+      "start": 1281.54,
+      "end": 1283.38,
+      "text": "and Apple to do these things?"
+    },
+    {
+      "start": 1283.42,
+      "end": 1285.74,
+      "text": "And what tools do we have to fix that?"
+    },
+    {
+      "start": 1285.74,
+      "end": 1287.82,
+      "text": "Well, we've built this thing,"
+    },
+    {
+      "start": 1287.82,
+      "end": 1290.02,
+      "text": "we're on number five,"
+    },
+    {
+      "start": 1290.02,
+      "end": 1292.06,
+      "text": "because we keep running into a problem"
+    },
+    {
+      "start": 1292.06,
+      "end": 1295.62,
+      "text": "that just I can't do the user experience like I want it to,"
+    },
+    {
+      "start": 1295.62,
+      "end": 1297.58,
+      "text": "and so we realize that there's like another tool"
+    },
+    {
+      "start": 1297.58,
+      "end": 1299.3,
+      "text": "that does the trick, and so we're like, okay,"
+    },
+    {
+      "start": 1299.3,
+      "end": 1302.94,
+      "text": "well, well, let's map it back in and start back"
+    },
+    {
+      "start": 1302.94,
+      "end": 1306.38,
+      "text": "from zero, but we got Bitcoin and Lightning"
+    },
+    {
+      "start": 1306.38,
+      "end": 1308.14,
+      "text": "for opening payments, that's great."
+    },
+    {
+      "start": 1308.14,
+      "end": 1310.1,
+      "text": "All-morting is super difficult."
+    },
+    {
+      "start": 1310.1,
+      "end": 1311.34,
+      "text": "No-star key-based identity."
+    },
+    {
+      "start": 1311.34,
+      "end": 1313.34,
+      "text": "I love No-star social."
+    },
+    {
+      "start": 1313.34,
+      "end": 1315.66,
+      "text": "There's so many great things built into it,"
+    },
+    {
+      "start": 1315.66,
+      "end": 1317.66,
+      "text": "but the relay model is still a little bit."
+    },
+    {
+      "start": 1318.58,
+      "end": 1321.9,
+      "text": "I don't think it's like, quote, robust enough,"
+    },
+    {
+      "start": 1321.9,
+      "end": 1323.82,
+      "text": "and it's expensive."
+    },
+    {
+      "start": 1323.82,
+      "end": 1325.58,
+      "text": "It's expensive to host."
+    },
+    {
+      "start": 1325.58,
+      "end": 1329.38,
+      "text": "And then the key management is super clunky, is dangerous,"
+    },
+    {
+      "start": 1329.38,
+      "end": 1330.82,
+      "text": "and I'll tell you, I've tried to own board"
+    },
+    {
+      "start": 1330.82,
+      "end": 1332.54,
+      "text": "a bunch of normies, it scares them."
+    },
+    {
+      "start": 1332.54,
+      "end": 1334.54,
+      "text": "It makes them nervous, and I feel like"
+    },
+    {
+      "start": 1334.54,
+      "end": 1335.82,
+      "text": "that's one of its biggest problems."
+    },
+    {
+      "start": 1335.82,
+      "end": 1336.78,
+      "text": "Pub-key."
+    },
+    {
+      "start": 1336.78,
+      "end": 1339.3,
+      "text": "I love Pub-key and what Synonym are doing."
+    },
+    {
+      "start": 1339.3,
+      "end": 1341.5,
+      "text": "They have the login experience I want."
+    },
+    {
+      "start": 1341.5,
+      "end": 1344.73,
+      "text": "Just scan a QR, and then go."
+    },
+    {
+      "start": 1344.73,
+      "end": 1348.21,
+      "text": "But because of that, they don't do any local signing"
+    },
+    {
+      "start": 1348.21,
+      "end": 1350.45,
+      "text": "for messages and stuff that gets published,"
+    },
+    {
+      "start": 1350.45,
+      "end": 1352.25,
+      "text": "so you have to trust the host,"
+    },
+    {
+      "start": 1352.25,
+      "end": 1355.37,
+      "text": "because the host can technically change all of your stuff."
+    },
+    {
+      "start": 1355.37,
+      "end": 1356.57,
+      "text": "Whereas No-star does the opposite."
+    },
+    {
+      "start": 1356.57,
+      "end": 1359.29,
+      "text": "You sign every single message, and so you don't have"
+    },
+    {
+      "start": 1359.29,
+      "end": 1361.85,
+      "text": "to trust the host, no matter what relay it comes from."
+    },
+    {
+      "start": 1361.85,
+      "end": 1364.49,
+      "text": "I kind of think you need the primitive of No-star,"
+    },
+    {
+      "start": 1364.49,
+      "end": 1365.93,
+      "text": "but the experience of Pub-key."
+    },
+    {
+      "start": 1365.93,
+      "end": 1367.97,
+      "text": "So how the heck do you do that?"
+    },
+    {
+      "start": 1367.97,
+      "end": 1370.13,
+      "text": "Then there is the pairstack."
+    },
+    {
+      "start": 1370.13,
+      "end": 1372.49,
+      "text": "Man, that one's fantastic."
+    },
+    {
+      "start": 1372.49,
+      "end": 1374.41,
+      "text": "First thing we did was try to build all of this"
+    },
+    {
+      "start": 1374.41,
+      "end": 1377.33,
+      "text": "entirely on the pairstack, but it does have one problem"
+    },
+    {
+      "start": 1377.33,
+      "end": 1378.9,
+      "text": "that we ran into."
+    },
+    {
+      "start": 1378.9,
+      "end": 1381.5,
+      "text": "I don't want to just share one file."
+    },
+    {
+      "start": 1381.5,
+      "end": 1384.58,
+      "text": "I don't want to just access one thing on hand"
+    },
+    {
+      "start": 1384.58,
+      "end": 1385.86,
+      "text": "and a group message."
+    },
+    {
+      "start": 1385.86,
+      "end": 1388.22,
+      "text": "I have a machine at home, a Linux machine."
+    },
+    {
+      "start": 1388.22,
+      "end": 1389.5,
+      "text": "I'm an editor."
+    },
+    {
+      "start": 1389.5,
+      "end": 1391.54,
+      "text": "I have media like you don't know."
+    },
+    {
+      "start": 1391.54,
+      "end": 1393.9,
+      "text": "I have a podcast and a production company."
+    },
+    {
+      "start": 1393.9,
+      "end": 1397.46,
+      "text": "I have 64 terabytes on that machine."
+    },
+    {
+      "start": 1397.46,
+      "end": 1400.06,
+      "text": "I want to be able to access 64 terabytes,"
+    },
+    {
+      "start": 1400.06,
+      "end": 1402.5,
+      "text": "very easily."
+    },
+    {
+      "start": 1402.5,
+      "end": 1403.9,
+      "text": "My one thing about the pairstack"
+    },
+    {
+      "start": 1403.9,
+      "end": 1405.18,
+      "text": "was that you have to duplicate it."
+    },
+    {
+      "start": 1405.18,
+      "end": 1405.7,
+      "text": "Think about it."
+    },
+    {
+      "start": 1405.7,
+      "end": 1409.18,
+      "text": "You have to put something in a mailbox to share it."
+    },
+    {
+      "start": 1409.18,
+      "end": 1412.66,
+      "text": "But if you want to, if you want it in your house to use it,"
+    },
+    {
+      "start": 1412.66,
+      "end": 1415.82,
+      "text": "you have to either take it back out of the mailbox"
+    },
+    {
+      "start": 1415.82,
+      "end": 1417.74,
+      "text": "or you have to have two copies of it."
+    },
+    {
+      "start": 1417.74,
+      "end": 1418.94,
+      "text": "And that's basically what it is."
+    },
+    {
+      "start": 1418.94,
+      "end": 1421.1,
+      "text": "If you want something shareable and usable"
+    },
+    {
+      "start": 1421.1,
+      "end": 1423.9,
+      "text": "in your local machine, you have to have two copies of it."
+    },
+    {
+      "start": 1423.9,
+      "end": 1425.46,
+      "text": "So if I wanted to share a terabyte,"
+    },
+    {
+      "start": 1425.46,
+      "end": 1428.02,
+      "text": "I have to have two terabytes to share it."
+    },
+    {
+      "start": 1428.02,
+      "end": 1429.26,
+      "text": "That's kind of a non-starter."
+    },
+    {
+      "start": 1429.26,
+      "end": 1430.94,
+      "text": "That's not the experience I want."
+    },
+    {
+      "start": 1430.94,
+      "end": 1434.38,
+      "text": "So I want to be able to use like my phones and offload stuff"
+    },
+    {
+      "start": 1434.38,
+      "end": 1435.98,
+      "text": "to my computer and stuff very easily."
+    },
+    {
+      "start": 1435.98,
+      "end": 1439.0,
+      "text": "I want to, all my devices connected."
+    },
+    {
+      "start": 1439.0,
+      "end": 1441.61,
+      "text": "So the pair drive vision."
+    },
+    {
+      "start": 1441.61,
+      "end": 1443.09,
+      "text": "What if all the devices you own felt"
+    },
+    {
+      "start": 1443.09,
+      "end": 1445.37,
+      "text": "like they were part of a combined space"
+    },
+    {
+      "start": 1445.37,
+      "end": 1450.85,
+      "text": "and files, media, content just seamlessly float?"
+    },
+    {
+      "start": 1450.85,
+      "end": 1453.01,
+      "text": "They were just there."
+    },
+    {
+      "start": 1453.01,
+      "end": 1457.78,
+      "text": "If your devices are there, so is your stuff."
+    },
+    {
+      "start": 1457.78,
+      "end": 1459.95,
+      "text": "How do we do it?"
+    },
+    {
+      "start": 1459.95,
+      "end": 1465.11,
+      "text": "Right now, just so you know, what we have on GitHub"
+    },
+    {
+      "start": 1465.11,
+      "end": 1467.15,
+      "text": "is a proof of concept."
+    },
+    {
+      "start": 1467.15,
+      "end": 1470.51,
+      "text": "It's just proving to me that like, OK, we can build it."
+    },
+    {
+      "start": 1470.51,
+      "end": 1471.87,
+      "text": "We've been working for a couple of months"
+    },
+    {
+      "start": 1471.87,
+      "end": 1473.07,
+      "text": "on putting in a few."
+    },
+    {
+      "start": 1473.07,
+      "end": 1475.43,
+      "text": "We're missing a few like really kind of critical primitives"
+    },
+    {
+      "start": 1475.43,
+      "end": 1476.55,
+      "text": "at the bottom of this."
+    },
+    {
+      "start": 1476.55,
+      "end": 1478.43,
+      "text": "But we've sorted all the things out."
+    },
+    {
+      "start": 1478.43,
+      "end": 1481.71,
+      "text": "And we've been building it, it's just not published yet."
+    },
+    {
+      "start": 1481.71,
+      "end": 1484.99,
+      "text": "So it's like crazy alpha right now."
+    },
+    {
+      "start": 1484.99,
+      "end": 1485.67,
+      "text": "But I use it."
+    },
+    {
+      "start": 1485.67,
+      "end": 1487.11,
+      "text": "I use it all the time."
+    },
+    {
+      "start": 1488.11,
+      "end": 1491.11,
+      "text": "So what we're doing is we have pair drive core, which"
+    },
+    {
+      "start": 1491.11,
+      "end": 1493.71,
+      "text": "is an engine that's basically obscuring away"
+    },
+    {
+      "start": 1493.71,
+      "end": 1495.71,
+      "text": "all the various tools that we're using."
+    },
+    {
+      "start": 1495.71,
+      "end": 1500.43,
+      "text": "And for simple setup, like you want to connect a device,"
+    },
+    {
+      "start": 1500.43,
+      "end": 1502.67,
+      "text": "scan a QR code, you're connected, you're going"
+    },
+    {
+      "start": 1502.67,
+      "end": 1505.71,
+      "text": "to share some files, talk files."
+    },
+    {
+      "start": 1505.71,
+      "end": 1508.71,
+      "text": "You want to share a folder that you can see."
+    },
+    {
+      "start": 1508.71,
+      "end": 1510.51,
+      "text": "It will look everything in the folder,"
+    },
+    {
+      "start": 1510.51,
+      "end": 1512.63,
+      "text": "and then you can just look and scroll through that list"
+    },
+    {
+      "start": 1512.63,
+      "end": 1513.55,
+      "text": "on your phone."
+    },
+    {
+      "start": 1513.55,
+      "end": 1517.71,
+      "text": "But importantly, you can also, the underlying engine"
+    },
+    {
+      "start": 1517.71,
+      "end": 1518.23,
+      "text": "is simple."
+    },
+    {
+      "start": 1518.23,
+      "end": 1519.95,
+      "text": "It obscures all that stuff away."
+    },
+    {
+      "start": 1519.95,
+      "end": 1523.39,
+      "text": "And it works with WebSocket and RPC to communicate."
+    },
+    {
+      "start": 1523.39,
+      "end": 1525.51,
+      "text": "So you can just basically build any kind of web app"
+    },
+    {
+      "start": 1525.51,
+      "end": 1526.99,
+      "text": "you want on top of it."
+    },
+    {
+      "start": 1526.99,
+      "end": 1530.11,
+      "text": "And we also don't have the mobile build quite yet."
+    },
+    {
+      "start": 1530.11,
+      "end": 1532.51,
+      "text": "But that's been working on the refactor"
+    },
+    {
+      "start": 1532.51,
+      "end": 1534.66,
+      "text": "that we're in the middle of."
+    },
+    {
+      "start": 1534.66,
+      "end": 1536.74,
+      "text": "But there's no server."
+    },
+    {
+      "start": 1536.74,
+      "end": 1539.14,
+      "text": "There's not even a networking page."
+    },
+    {
+      "start": 1539.14,
+      "end": 1542.02,
+      "text": "You get a link or a QR, you connect,"
+    },
+    {
+      "start": 1542.02,
+      "end": 1545.18,
+      "text": "and your devices can talk to each other."
+    },
+    {
+      "start": 1545.18,
+      "end": 1546.46,
+      "text": "No visible key management."
+    },
+    {
+      "start": 1546.46,
+      "end": 1549.78,
+      "text": "I want to be able to have users have a no-ster key,"
+    },
+    {
+      "start": 1549.78,
+      "end": 1554.15,
+      "text": "but I want them to have the option of just signing with Apple."
+    },
+    {
+      "start": 1554.15,
+      "end": 1554.87,
+      "text": "And it works."
+    },
+    {
+      "start": 1554.87,
+      "end": 1556.59,
+      "text": "And I think we've got a really cool setup for that."
+    },
+    {
+      "start": 1556.59,
+      "end": 1559.59,
+      "text": "And to get the combination of PubKey and no-ster,"
+    },
+    {
+      "start": 1559.59,
+      "end": 1563.03,
+      "text": "the sweet spot there, I think we kind of have like a,"
+    },
+    {
+      "start": 1563.03,
+      "end": 1567.35,
+      "text": "it's really simple, like it's not that complicated."
+    },
+    {
+      "start": 1567.35,
+      "end": 1570.75,
+      "text": "And it's intuitive, too, is just key at that station"
+    },
+    {
+      "start": 1570.75,
+      "end": 1575.39,
+      "text": "is that stop pacing private keys into all the clients"
+    },
+    {
+      "start": 1575.39,
+      "end": 1577.55,
+      "text": "and stuff, because that means that like any client"
+    },
+    {
+      "start": 1577.55,
+      "end": 1580.03,
+      "text": "that tries to screw you over is immediately"
+    },
+    {
+      "start": 1580.03,
+      "end": 1582.11,
+      "text": "the, you know, it's a weakest link problem."
+    },
+    {
+      "start": 1582.11,
+      "end": 1583.83,
+      "text": "You have nine clients."
+    },
+    {
+      "start": 1583.83,
+      "end": 1585.35,
+      "text": "And one of them screws you, well, they're all done."
+    },
+    {
+      "start": 1585.35,
+      "end": 1586.91,
+      "text": "You're accounts nuked."
+    },
+    {
+      "start": 1586.91,
+      "end": 1591.83,
+      "text": "Well, have a main key that you log in with"
+    },
+    {
+      "start": 1591.83,
+      "end": 1594.91,
+      "text": "that just signs every time you open up a client"
+    },
+    {
+      "start": 1594.91,
+      "end": 1597.15,
+      "text": "or an app or anything, it generates a key."
+    },
+    {
+      "start": 1597.15,
+      "end": 1598.75,
+      "text": "It just generates a key behind the scenes."
+    },
+    {
+      "start": 1598.75,
+      "end": 1600.55,
+      "text": "You just don't have to see it or worry about it."
+    },
+    {
+      "start": 1600.55,
+      "end": 1604.11,
+      "text": "And you just sign, it says, this is mine."
+    },
+    {
+      "start": 1604.11,
+      "end": 1607.87,
+      "text": "And then in our little, like networks, our contact networks,"
+    },
+    {
+      "start": 1607.87,
+      "end": 1609.99,
+      "text": "you just have an attestation list of like, this is mine,"
+    },
+    {
+      "start": 1609.99,
+      "end": 1611.63,
+      "text": "this is mine, this is mine, this is my primal,"
+    },
+    {
+      "start": 1611.63,
+      "end": 1614.11,
+      "text": "this is my pair drive, this is my periscope,"
+    },
+    {
+      "start": 1614.11,
+      "end": 1615.91,
+      "text": "this is whatever app."
+    },
+    {
+      "start": 1615.91,
+      "end": 1618.99,
+      "text": "And then everybody gets that."
+    },
+    {
+      "start": 1618.99,
+      "end": 1622.71,
+      "text": "And then you just know which ones to recognize as that person."
+    },
+    {
+      "start": 1622.71,
+      "end": 1625.47,
+      "text": "But because of that, your main keys are always offline."
+    },
+    {
+      "start": 1625.47,
+      "end": 1627.27,
+      "text": "And if one of them gets compromised, you just revoke it."
+    },
+    {
+      "start": 1627.27,
+      "end": 1629.19,
+      "text": "You just update it, say, not mine anymore."
+    },
+    {
+      "start": 1629.19,
+      "end": 1631.82,
+      "text": "Somebody stole that."
+    },
+    {
+      "start": 1631.82,
+      "end": 1636.14,
+      "text": "And so it's going to QR and you're connected."
+    },
+    {
+      "start": 1636.14,
+      "end": 1637.66,
+      "text": "Why I think this has staying power?"
+    },
+    {
+      "start": 1637.66,
+      "end": 1643.18,
+      "text": "So there's a great network effects for not your friend."
+    },
+    {
+      "start": 1643.18,
+      "end": 1645.18,
+      "text": "They're your biggest enemy."
+    },
+    {
+      "start": 1645.18,
+      "end": 1648.42,
+      "text": "And one of the biggest problems is a fantastic book called"
+    },
+    {
+      "start": 1648.42,
+      "end": 1653.42,
+      "text": "The Cold Start Problem by Andrew Chen, an executive at Uber."
+    },
+    {
+      "start": 1653.42,
+      "end": 1656.02,
+      "text": "It said, you have to have an atomic network"
+    },
+    {
+      "start": 1656.02,
+      "end": 1659.94,
+      "text": "where it's sustainable by itself."
+    },
+    {
+      "start": 1659.94,
+      "end": 1661.94,
+      "text": "And Uber had a huge problem because you"
+    },
+    {
+      "start": 1661.94,
+      "end": 1665.82,
+      "text": "can't just get like 100 drivers in every single city,"
+    },
+    {
+      "start": 1665.82,
+      "end": 1667.78,
+      "text": "because that means that when users get up there,"
+    },
+    {
+      "start": 1667.78,
+      "end": 1669.22,
+      "text": "nobody's going to be around."
+    },
+    {
+      "start": 1669.22,
+      "end": 1672.78,
+      "text": "You have to get 100,000 drivers in one city."
+    },
+    {
+      "start": 1672.78,
+      "end": 1674.98,
+      "text": "And then that network can sustain itself,"
+    },
+    {
+      "start": 1674.98,
+      "end": 1677.7,
+      "text": "because drivers are available, and customers are available."
+    },
+    {
+      "start": 1677.7,
+      "end": 1680.86,
+      "text": "And then you branch out to the next city."
+    },
+    {
+      "start": 1680.86,
+      "end": 1684.74,
+      "text": "Zoom is a really clever standout in that."
+    },
+    {
+      "start": 1684.74,
+      "end": 1686.78,
+      "text": "Is that Zoom's atomic network is two."
+    },
+    {
+      "start": 1686.78,
+      "end": 1689.5,
+      "text": "If you have Zoom and I have Zoom, then any time"
+    },
+    {
+      "start": 1689.5,
+      "end": 1692.64,
+      "text": "we want to do a video call, let's just use Zoom."
+    },
+    {
+      "start": 1692.64,
+      "end": 1696.46,
+      "text": "Why do I think this idea has staying power?"
+    },
+    {
+      "start": 1696.46,
+      "end": 1698.82,
+      "text": "Parodrives atomic network is one."
+    },
+    {
+      "start": 1698.82,
+      "end": 1699.7,
+      "text": "I've been using it."
+    },
+    {
+      "start": 1699.7,
+      "end": 1701.66,
+      "text": "I've been using it for a long time."
+    },
+    {
+      "start": 1701.66,
+      "end": 1704.06,
+      "text": "And in all of its various iterations,"
+    },
+    {
+      "start": 1704.06,
+      "end": 1706.3,
+      "text": "because I need it between my devices."
+    },
+    {
+      "start": 1706.3,
+      "end": 1709.3,
+      "text": "If somebody else could have it, that's great."
+    },
+    {
+      "start": 1709.3,
+      "end": 1710.62,
+      "text": "Because now we have no stir."
+    },
+    {
+      "start": 1710.62,
+      "end": 1714.02,
+      "text": "We can go ahead and put like, why when you put something up,"
+    },
+    {
+      "start": 1714.02,
+      "end": 1715.3,
+      "text": "why can't I like it?"
+    },
+    {
+      "start": 1715.66,
+      "end": 1717.14,
+      "text": "Why can't you just share stuff with me"
+    },
+    {
+      "start": 1717.14,
+      "end": 1718.3,
+      "text": "and I download it from you?"
+    },
+    {
+      "start": 1718.3,
+      "end": 1721.38,
+      "text": "My brother, he's in Canada with his wife,"
+    },
+    {
+      "start": 1721.38,
+      "end": 1722.38,
+      "text": "and they're about to go to Brazil."
+    },
+    {
+      "start": 1722.38,
+      "end": 1723.42,
+      "text": "Every once in a while, he'll hit me up."
+    },
+    {
+      "start": 1723.42,
+      "end": 1726.38,
+      "text": "He's like, hey, man, I really want that video."
+    },
+    {
+      "start": 1726.38,
+      "end": 1727.78,
+      "text": "I was like, she hasn't seen the Matrix."
+    },
+    {
+      "start": 1727.78,
+      "end": 1728.86,
+      "text": "Can you give me the Matrix or whatever?"
+    },
+    {
+      "start": 1728.86,
+      "end": 1730.58,
+      "text": "And I just sent him a key, and he's like, ah, sweet."
+    },
+    {
+      "start": 1730.58,
+      "end": 1733.18,
+      "text": "Thanks, and they're watching it."
+    },
+    {
+      "start": 1733.18,
+      "end": 1742.51,
+      "text": "And there's a lot of different things with peer-to-peer"
+    },
+    {
+      "start": 1742.51,
+      "end": 1744.43,
+      "text": "that makes this solve this problem,"
+    },
+    {
+      "start": 1744.43,
+      "end": 1747.59,
+      "text": "like the hug of death of 1,000 people"
+    },
+    {
+      "start": 1747.59,
+      "end": 1750.95,
+      "text": "want to piece a content, and one server is holding it."
+    },
+    {
+      "start": 1750.95,
+      "end": 1752.79,
+      "text": "Then 1,000 people descend on that server"
+    },
+    {
+      "start": 1752.79,
+      "end": 1754.19,
+      "text": "and the server crashes."
+    },
+    {
+      "start": 1754.19,
+      "end": 1756.79,
+      "text": "Well, in the context of, like, pair drive,"
+    },
+    {
+      "start": 1756.79,
+      "end": 1760.51,
+      "text": "is if 1,000 people descend on a file or an article"
+    },
+    {
+      "start": 1760.51,
+      "end": 1763.71,
+      "text": "or an HTML page, whatever the heck it is,"
+    },
+    {
+      "start": 1763.71,
+      "end": 1764.99,
+      "text": "is that it gets better."
+    },
+    {
+      "start": 1764.99,
+      "end": 1766.83,
+      "text": "It gets faster every time so many joins,"
+    },
+    {
+      "start": 1766.83,
+      "end": 1768.79,
+      "text": "because there's another person to connect to to download from."
+    },
+    {
+      "start": 1768.79,
+      "end": 1771.91,
+      "text": "It's all content addressable."
+    },
+    {
+      "start": 1772.71,
+      "end": 1775.39,
+      "text": "I mean, that's the beauty of peer-to-peer."
+    },
+    {
+      "start": 1775.39,
+      "end": 1777.87,
+      "text": "Bram Cohen's purpose with BitTorrent was,"
+    },
+    {
+      "start": 1777.87,
+      "end": 1780.99,
+      "text": "I want to figure out how to get Linux ISOs more efficiently"
+    },
+    {
+      "start": 1780.99,
+      "end": 1783.52,
+      "text": "to people."
+    },
+    {
+      "start": 1783.52,
+      "end": 1786.84,
+      "text": "And then you have a simple way to, if you've already"
+    },
+    {
+      "start": 1786.84,
+      "end": 1790.04,
+      "text": "figured out keys, you have a simple way to put in ZApps."
+    },
+    {
+      "start": 1790.04,
+      "end": 1792.4,
+      "text": "We're looking at the Breeze SDK with state chain,"
+    },
+    {
+      "start": 1792.4,
+      "end": 1793.84,
+      "text": "so you don't have to have all onboarding."
+    },
+    {
+      "start": 1793.84,
+      "end": 1796.24,
+      "text": "Somebody can just send you ZApps."
+    },
+    {
+      "start": 1796.24,
+      "end": 1798.84,
+      "text": "You don't have to worry about liquidity or anything like that."
+    },
+    {
+      "start": 1798.84,
+      "end": 1801.24,
+      "text": "And I really think we have all the pieces worked out."
+    },
+    {
+      "start": 1801.24,
+      "end": 1802.44,
+      "text": "I think we have all of it worked out."
+    },
+    {
+      "start": 1802.44,
+      "end": 1806.12,
+      "text": "And I'm super stoked about this, because I've been,"
+    },
+    {
+      "start": 1806.12,
+      "end": 1808.44,
+      "text": "this is my god, we've worked so freaking long on this."
+    },
+    {
+      "start": 1808.44,
+      "end": 1812.8,
+      "text": "You're trying to get the user experience the way I want it."
+    },
+    {
+      "start": 1812.8,
+      "end": 1818.05,
+      "text": "But yeah, that's not important."
+    },
+    {
+      "start": 1818.05,
+      "end": 1818.93,
+      "text": "The vision, yeah."
+    },
+    {
+      "start": 1818.93,
+      "end": 1821.33,
+      "text": "All your devices working together is one."
+    },
+    {
+      "start": 1821.33,
+      "end": 1823.89,
+      "text": "Any file, any device, select it and use it."
+    },
+    {
+      "start": 1823.89,
+      "end": 1827.25,
+      "text": "No middleman, no collections, no selling, no surveillance."
+    },
+    {
+      "start": 1827.25,
+      "end": 1829.25,
+      "text": "But the point is that once you have that primitive"
+    },
+    {
+      "start": 1829.25,
+      "end": 1832.97,
+      "text": "and it works reliably, and you know you can scale to,"
+    },
+    {
+      "start": 1832.97,
+      "end": 1835.49,
+      "text": "I'm just sending you some notes or I'm sinking my calendar"
+    },
+    {
+      "start": 1835.49,
+      "end": 1840.09,
+      "text": "or something, but you can also do, I want to be able to deliver"
+    },
+    {
+      "start": 1840.09,
+      "end": 1847.29,
+      "text": "the Kim Chi K5 model that's 693 gigabytes to a bunch of my friends,"
+    },
+    {
+      "start": 1847.29,
+      "end": 1848.65,
+      "text": "and then they can distribute it."
+    },
+    {
+      "start": 1848.65,
+      "end": 1851.89,
+      "text": "And you don't have to pay the gargantuan hosting fee"
+    },
+    {
+      "start": 1851.89,
+      "end": 1854.65,
+      "text": "to have somebody be able to download a near-terabyte"
+    },
+    {
+      "start": 1854.65,
+      "end": 1857.49,
+      "text": "of information just to get access to something."
+    },
+    {
+      "start": 1857.49,
+      "end": 1859.13,
+      "text": "Once you solve that problem,"
+    },
+    {
+      "start": 1859.13,
+      "end": 1862.57,
+      "text": "you've lowered the barrier entry to where everybody can be a server."
+    },
+    {
+      "start": 1862.57,
+      "end": 1864.97,
+      "text": "And if you have payments natively built in,"
+    },
+    {
+      "start": 1864.97,
+      "end": 1868.29,
+      "text": "why do you pay AWS when your friend has 64 terabytes"
+    },
+    {
+      "start": 1868.29,
+      "end": 1870.45,
+      "text": "and he's a nerd and he's got a desktop computer?"
+    },
+    {
+      "start": 1870.45,
+      "end": 1872.78,
+      "text": "Why don't you just pay him?"
+    },
+    {
+      "start": 1872.78,
+      "end": 1874.9,
+      "text": "Why don't you pay anybody?"
+    },
+    {
+      "start": 1874.9,
+      "end": 1881.1,
+      "text": "And so my hope, again, like I said, this is a proof of concept."
+    },
+    {
+      "start": 1881.1,
+      "end": 1885.06,
+      "text": "It's an alpha version and we're going to break everything."
+    },
+    {
+      "start": 1885.06,
+      "end": 1888.82,
+      "text": "I've got a CLI update because it's like dumb, unintuitive."
+    },
+    {
+      "start": 1888.82,
+      "end": 1890.38,
+      "text": "I haven't really been thought about,"
+    },
+    {
+      "start": 1890.38,
+      "end": 1891.62,
+      "text": "I've been thinking about user experience,"
+    },
+    {
+      "start": 1891.62,
+      "end": 1893.26,
+      "text": "but we haven't built for user experience yet."
+    },
+    {
+      "start": 1893.26,
+      "end": 1895.14,
+      "text": "We just build to make it work."
+    },
+    {
+      "start": 1895.14,
+      "end": 1897.1,
+      "text": "So be careful when you go there,"
+    },
+    {
+      "start": 1897.1,
+      "end": 1899.58,
+      "text": "if you go check it out on GitHub."
+    },
+    {
+      "start": 1899.58,
+      "end": 1910.58,
+      "text": "But my idea, my hope is that the clunky bit torrent and rust desk,"
+    },
+    {
+      "start": 1910.58,
+      "end": 1913.38,
+      "text": "I tried to transfer something from my rust desk back at home,"
+    },
+    {
+      "start": 1913.38,
+      "end": 1914.86,
+      "text": "and it failed twice."
+    },
+    {
+      "start": 1914.86,
+      "end": 1916.02,
+      "text": "And I just started over every time."
+    },
+    {
+      "start": 1916.02,
+      "end": 1920.46,
+      "text": "There's a five megabyte file, and it took like 30 or 40 seconds."
+    },
+    {
+      "start": 1920.46,
+      "end": 1922.54,
+      "text": "But then I did this, this was last night."
+    },
+    {
+      "start": 1922.54,
+      "end": 1924.58,
+      "text": "I pair Drive CLI running on my machine."
+    },
+    {
+      "start": 1924.58,
+      "end": 1926.58,
+      "text": "If you see the two lines, this is my Mac book"
+    },
+    {
+      "start": 1926.58,
+      "end": 1929.14,
+      "text": "that was here in the hotel."
+    },
+    {
+      "start": 1929.14,
+      "end": 1937.02,
+      "text": "And then you'll see another one that has a black background."
+    },
+    {
+      "start": 1937.02,
+      "end": 1940.34,
+      "text": "This is my Mac at home, my other computer."
+    },
+    {
+      "start": 1940.34,
+      "end": 1948.13,
+      "text": "And so on my computer here, I just drag and drop."
+    },
+    {
+      "start": 1948.13,
+      "end": 1949.17,
+      "text": "Well, there it is."
+    },
+    {
+      "start": 1949.17,
+      "end": 1952.01,
+      "text": "So I put it in here, you can't see the video."
+    },
+    {
+      "start": 1952.01,
+      "end": 1954.97,
+      "text": "But I put it into one, and it just showed up on the other."
+    },
+    {
+      "start": 1954.97,
+      "end": 1957.77,
+      "text": "I put one in the other one, and it showed up here."
+    },
+    {
+      "start": 1957.77,
+      "end": 1960.65,
+      "text": "And it just works."
+    },
+    {
+      "start": 1960.65,
+      "end": 1964.61,
+      "text": "And I want it to start to feel like that."
+    },
+    {
+      "start": 1964.61,
+      "end": 1966.53,
+      "text": "It already feels like that."
+    },
+    {
+      "start": 1966.53,
+      "end": 1970.21,
+      "text": "But we can build any app we want on top of that."
+    },
+    {
+      "start": 1970.21,
+      "end": 1971.45,
+      "text": "We can deliver anything."
+    },
+    {
+      "start": 1971.45,
+      "end": 1972.61,
+      "text": "We can deliver web pages."
+    },
+    {
+      "start": 1972.61,
+      "end": 1973.57,
+      "text": "We can deliver notes."
+    },
+    {
+      "start": 1973.57,
+      "end": 1976.05,
+      "text": "We can deliver no-ster feeds."
+    },
+    {
+      "start": 1976.05,
+      "end": 1976.85,
+      "text": "It doesn't matter."
+    },
+    {
+      "start": 1976.85,
+      "end": 1978.41,
+      "text": "It just needs to work."
+    },
+    {
+      "start": 1978.41,
+      "end": 1982.89,
+      "text": "And it just feels like my machines are in the same space"
+    },
+    {
+      "start": 1982.89,
+      "end": 1984.65,
+      "text": "working on the same files."
+    },
+    {
+      "start": 1984.65,
+      "end": 1988.66,
+      "text": "And I don't have to ask Apple for permission to do it."
+    },
+    {
+      "start": 1988.66,
+      "end": 2000.88,
+      "text": "So private, sovereign, secure, scalable."
+    },
+    {
+      "start": 2000.88,
+      "end": 2003.01,
+      "text": "But none of that matters."
+    },
+    {
+      "start": 2003.01,
+      "end": 2004.45,
+      "text": "We're building it because it's going"
+    },
+    {
+      "start": 2004.45,
+      "end": 2006.57,
+      "text": "to be better for the user."
+    },
+    {
+      "start": 2006.57,
+      "end": 2009.57,
+      "text": "It's going to be more fun to use."
+    },
+    {
+      "start": 2009.57,
+      "end": 2014.16,
+      "text": "And I got a lot of plans, but we're still at the beginning."
+    },
+    {
+      "start": 2014.16,
+      "end": 2015.36,
+      "text": "So wish me luck."
+    },
+    {
+      "start": 2015.36,
+      "end": 2019.28,
+      "text": "And importantly, if you're interested,"
+    },
+    {
+      "start": 2019.28,
+      "end": 2020.72,
+      "text": "I love support."
+    },
+    {
+      "start": 2020.72,
+      "end": 2021.92,
+      "text": "I love feedback."
+    },
+    {
+      "start": 2021.92,
+      "end": 2023.12,
+      "text": "I love it sucks."
+    },
+    {
+      "start": 2023.12,
+      "end": 2025.0,
+      "text": "I can't believe you put this button right here."
+    },
+    {
+      "start": 2025.0,
+      "end": 2026.48,
+      "text": "That's a terrible idea."
+    },
+    {
+      "start": 2026.48,
+      "end": 2027.88,
+      "text": "I need those things."
+    },
+    {
+      "start": 2027.88,
+      "end": 2030.52,
+      "text": "So check it out."
+    },
+    {
+      "start": 2030.52,
+      "end": 2031.76,
+      "text": "You could go to pairdrive.com."
+    },
+    {
+      "start": 2031.76,
+      "end": 2033.56,
+      "text": "I just, I think I linked it."
+    },
+    {
+      "start": 2033.56,
+      "end": 2034.44,
+      "text": "I think you did."
+    },
+    {
+      "start": 2034.44,
+      "end": 2035.4,
+      "text": "Save it just in case."
+    },
+    {
+      "start": 2035.4,
+      "end": 2037.24,
+      "text": "I'm just linking it to the GitHub."
+    },
+    {
+      "start": 2037.24,
+      "end": 2038.44,
+      "text": "And if you want to get in touch with me,"
+    },
+    {
+      "start": 2038.44,
+      "end": 2040.84,
+      "text": "go to planb at pairdrive.com."
+    },
+    {
+      "start": 2040.84,
+      "end": 2042.24,
+      "text": "Shoot me an email."
+    },
+    {
+      "start": 2042.24,
+      "end": 2043.56,
+      "text": "I'm in this for the long haul."
+    },
+    {
+      "start": 2043.56,
+      "end": 2045.12,
+      "text": "If we didn't figure everything out,"
+    },
+    {
+      "start": 2045.12,
+      "end": 2047.28,
+      "text": "well, we're going to go back and figure it out."
+    },
+    {
+      "start": 2047.28,
+      "end": 2049.96,
+      "text": "Because I'm just going to do it until it freaking works."
+    },
+    {
+      "start": 2049.96,
+      "end": 2052.68,
+      "text": "And I'd love you guys to check it out and join me."
+    },
+    {
+      "start": 2052.68,
+      "end": 2060.31,
+      "text": "Thank you."
+    },
+    {
+      "start": 2060.31,
+      "end": 2061.53,
+      "text": "OK."
+    },
+    {
+      "start": 2061.53,
+      "end": 2063.93,
+      "text": "So I want to talk a little bit more about,"
+    },
+    {
+      "start": 2063.93,
+      "end": 2068.35,
+      "text": "before we close this out, about the structure of what we're"
+    },
+    {
+      "start": 2068.35,
+      "end": 2069.55,
+      "text": "building."
+    },
+    {
+      "start": 2069.55,
+      "end": 2071.59,
+      "text": "And I want to talk about it because it's actually"
+    },
+    {
+      "start": 2071.59,
+      "end": 2077.72,
+      "text": "very easy to vibe code a simple, peer-to-peer file"
+    },
+    {
+      "start": 2077.72,
+      "end": 2082.76,
+      "text": "sharing app, a simple way to just deliver a file"
+    },
+    {
+      "start": 2082.76,
+      "end": 2086.52,
+      "text": "from my MacBook to my Linux machine,"
+    },
+    {
+      "start": 2086.52,
+      "end": 2090.39,
+      "text": "even though all of the official apps out there"
+    },
+    {
+      "start": 2090.39,
+      "end": 2091.83,
+      "text": "really kind of suck."
+    },
+    {
+      "start": 2091.83,
+      "end": 2094.23,
+      "text": "Sync thing is probably the closest thing"
+    },
+    {
+      "start": 2094.23,
+      "end": 2097.87,
+      "text": "to a working system so much so that when I really"
+    },
+    {
+      "start": 2097.87,
+      "end": 2102.25,
+      "text": "looked into how it worked, I strongly"
+    },
+    {
+      "start": 2102.25,
+      "end": 2106.37,
+      "text": "considered just taking what Sync thing had,"
+    },
+    {
+      "start": 2106.37,
+      "end": 2109.57,
+      "text": "like taking the core of Sync thing"
+    },
+    {
+      "start": 2109.57,
+      "end": 2112.69,
+      "text": "and building kind of the interaction"
+    },
+    {
+      "start": 2112.69,
+      "end": 2115.65,
+      "text": "or the system on top of it that I wanted,"
+    },
+    {
+      "start": 2115.65,
+      "end": 2120.61,
+      "text": "as opposed to what is a very clunky and frustrating experience"
+    },
+    {
+      "start": 2120.61,
+      "end": 2122.85,
+      "text": "with Sync thing itself."
+    },
+    {
+      "start": 2122.85,
+      "end": 2123.97,
+      "text": "None of it is entertaining."
+    },
+    {
+      "start": 2123.97,
+      "end": 2125.81,
+      "text": "None of it is fun to me."
+    },
+    {
+      "start": 2125.81,
+      "end": 2129.33,
+      "text": "When I looked at the main page of Sync thing,"
+    },
+    {
+      "start": 2129.33,
+      "end": 2131.72,
+      "text": "there were a lot of things that are actually"
+    },
+    {
+      "start": 2131.72,
+      "end": 2136.52,
+      "text": "similar to how we are going to engage with our own tools."
+    },
+    {
+      "start": 2136.68,
+      "end": 2141.16,
+      "text": "But the main page looks like the settings page"
+    },
+    {
+      "start": 2141.16,
+      "end": 2144.28,
+      "text": "of my router firmware."
+    },
+    {
+      "start": 2144.28,
+      "end": 2146.92,
+      "text": "Nobody's going to use that unless they"
+    },
+    {
+      "start": 2146.92,
+      "end": 2150.36,
+      "text": "are someone who's insanely technically literate"
+    },
+    {
+      "start": 2150.36,
+      "end": 2154.04,
+      "text": "and is not afraid of an IP address or port numbers"
+    },
+    {
+      "start": 2154.04,
+      "end": 2155.64,
+      "text": "or a key."
+    },
+    {
+      "start": 2155.64,
+      "end": 2160.24,
+      "text": "I tell people, I have quote unquote normies who use Bitcoin,"
+    },
+    {
+      "start": 2160.24,
+      "end": 2162.2,
+      "text": "who really kind of get a little bit intimidated by just"
+    },
+    {
+      "start": 2162.2,
+      "end": 2165.44,
+      "text": "what an address is because they're like, oh my God, am I"
+    },
+    {
+      "start": 2165.44,
+      "end": 2166.92,
+      "text": "sending it to the right place?"
+    },
+    {
+      "start": 2166.92,
+      "end": 2169.12,
+      "text": "Because it's just a bunch of random nonsense."
+    },
+    {
+      "start": 2169.12,
+      "end": 2172.98,
+      "text": "It's really hard to tell if you are, in fact,"
+    },
+    {
+      "start": 2172.98,
+      "end": 2174.98,
+      "text": "sending money to the right place."
+    },
+    {
+      "start": 2174.98,
+      "end": 2177.98,
+      "text": "Even I have made the mistake before"
+    },
+    {
+      "start": 2177.98,
+      "end": 2179.94,
+      "text": "in a rush to do something."
+    },
+    {
+      "start": 2179.94,
+      "end": 2182.14,
+      "text": "I copied and pasted the wrong thing"
+    },
+    {
+      "start": 2182.14,
+      "end": 2184.3,
+      "text": "and didn't realize which one it was going to."
+    },
+    {
+      "start": 2184.3,
+      "end": 2186.98,
+      "text": "Luckily, it was one of my accounts."
+    },
+    {
+      "start": 2186.98,
+      "end": 2188.58,
+      "text": "So it just showed up in the wrong place."
+    },
+    {
+      "start": 2188.58,
+      "end": 2190.68,
+      "text": "I was like, wait, what?"
+    },
+    {
+      "start": 2190.68,
+      "end": 2192.84,
+      "text": "And then I just dealt with it."
+    },
+    {
+      "start": 2192.84,
+      "end": 2194.4,
+      "text": "But there's a meaningful problem."
+    },
+    {
+      "start": 2194.4,
+      "end": 2199.92,
+      "text": "If I'm sending to a contact list that has keys behind it,"
+    },
+    {
+      "start": 2199.92,
+      "end": 2202.12,
+      "text": "I'm clearly sending it to my brother."
+    },
+    {
+      "start": 2202.12,
+      "end": 2204.6,
+      "text": "Because my brother has a profile picture."
+    },
+    {
+      "start": 2204.6,
+      "end": 2207.48,
+      "text": "And my brother has his name on it."
+    },
+    {
+      "start": 2207.48,
+      "end": 2213.92,
+      "text": "And it's clearly not my river account or my mother-in-law."
+    },
+    {
+      "start": 2213.92,
+      "end": 2215.96,
+      "text": "And so I really wanted to tackle and think"
+    },
+    {
+      "start": 2215.96,
+      "end": 2221.42,
+      "text": "about the pair drive experience in a very similar way."
+    },
+    {
+      "start": 2221.42,
+      "end": 2224.06,
+      "text": "And importantly, one of the things I wanted to do"
+    },
+    {
+      "start": 2224.06,
+      "end": 2227.82,
+      "text": "is to build a foundation that you could build anything"
+    },
+    {
+      "start": 2227.82,
+      "end": 2228.94,
+      "text": "on top of."
+    },
+    {
+      "start": 2228.94,
+      "end": 2231.86,
+      "text": "This is really the key to it."
+    },
+    {
+      "start": 2231.86,
+      "end": 2234.74,
+      "text": "I can't really take sync thing."
+    },
+    {
+      "start": 2234.74,
+      "end": 2239.74,
+      "text": "There's not like a simple way to take sync thing"
+    },
+    {
+      "start": 2239.74,
+      "end": 2242.5,
+      "text": "and then build something on top of it."
+    },
+    {
+      "start": 2242.5,
+      "end": 2246.18,
+      "text": "It just does one thing or views a certain type of file"
+    },
+    {
+      "start": 2246.18,
+      "end": 2250.9,
+      "text": "or looks at a particular folder or allows me to back it up"
+    },
+    {
+      "start": 2250.94,
+      "end": 2255.41,
+      "text": "with sync thing to integrate where it doesn't really"
+    },
+    {
+      "start": 2255.41,
+      "end": 2259.3,
+      "text": "matter what kind of app we have."
+    },
+    {
+      "start": 2259.3,
+      "end": 2263.77,
+      "text": "It can all talk the file sharing protocol in the back end."
+    },
+    {
+      "start": 2263.77,
+      "end": 2265.57,
+      "text": "That's what the web did, right?"
+    },
+    {
+      "start": 2265.57,
+      "end": 2272.43,
+      "text": "Is you have HTML and web sockets and TCP, IP and all"
+    },
+    {
+      "start": 2272.43,
+      "end": 2272.91,
+      "text": "of these things."
+    },
+    {
+      "start": 2272.91,
+      "end": 2274.27,
+      "text": "And there was this protocol."
+    },
+    {
+      "start": 2274.27,
+      "end": 2277.23,
+      "text": "There was this formal way to communicate."
+    },
+    {
+      "start": 2277.27,
+      "end": 2282.98,
+      "text": "And then if everybody uses that same mode of communication,"
+    },
+    {
+      "start": 2282.98,
+      "end": 2286.22,
+      "text": "they could make an app of their own kind"
+    },
+    {
+      "start": 2286.22,
+      "end": 2289.62,
+      "text": "or a website of their own type with a completely"
+    },
+    {
+      "start": 2289.62,
+      "end": 2291.1,
+      "text": "different purpose."
+    },
+    {
+      "start": 2291.1,
+      "end": 2294.22,
+      "text": "Or you could just build whatever you wanted on top of it."
+    },
+    {
+      "start": 2294.22,
+      "end": 2297.26,
+      "text": "And it didn't have to look just like the other one."
+    },
+    {
+      "start": 2297.26,
+      "end": 2298.42,
+      "text": "It didn't have to be."
+    },
+    {
+      "start": 2298.42,
+      "end": 2300.82,
+      "text": "You didn't have to use the code from the other person"
+    },
+    {
+      "start": 2300.82,
+      "end": 2302.14,
+      "text": "because you had a protocol."
+    },
+    {
+      "start": 2302.14,
+      "end": 2305.78,
+      "text": "You had a standard mode of communication."
+    },
+    {
+      "start": 2305.78,
+      "end": 2309.1,
+      "text": "And that's what I think we need in order"
+    },
+    {
+      "start": 2309.1,
+      "end": 2310.98,
+      "text": "to get back to peer to peer."
+    },
+    {
+      "start": 2310.98,
+      "end": 2313.38,
+      "text": "But it needs to be really easy to deploy."
+    },
+    {
+      "start": 2313.38,
+      "end": 2316.22,
+      "text": "In most people who deploy websites,"
+    },
+    {
+      "start": 2316.22,
+      "end": 2321.34,
+      "text": "don't think about or know about DNS or what's"
+    },
+    {
+      "start": 2321.34,
+      "end": 2323.14,
+      "text": "going on with their IP address."
+    },
+    {
+      "start": 2323.14,
+      "end": 2326.18,
+      "text": "Like many of them do because it's still"
+    },
+    {
+      "start": 2326.18,
+      "end": 2328.82,
+      "text": "kind of hard to set up a website and a server"
+    },
+    {
+      "start": 2328.82,
+      "end": 2330.34,
+      "text": "and actually keep it running."
+    },
+    {
+      "start": 2330.34,
+      "end": 2332.38,
+      "text": "That's why most people don't do it."
+    },
+    {
+      "start": 2332.38,
+      "end": 2335.1,
+      "text": "And most people are using centralized services."
+    },
+    {
+      "start": 2335.1,
+      "end": 2337.14,
+      "text": "But what if you could obscure that away?"
+    },
+    {
+      "start": 2337.14,
+      "end": 2341.14,
+      "text": "What if you could have a common way to communicate"
+    },
+    {
+      "start": 2341.14,
+      "end": 2347.18,
+      "text": "between various apps or various delivery mechanisms"
+    },
+    {
+      "start": 2347.18,
+      "end": 2349.78,
+      "text": "with an underlying file sharing protocol"
+    },
+    {
+      "start": 2349.78,
+      "end": 2352.34,
+      "text": "that would just sink whatever it is?"
+    },
+    {
+      "start": 2352.34,
+      "end": 2354.18,
+      "text": "And you want to have a podcast app?"
+    },
+    {
+      "start": 2354.18,
+      "end": 2356.34,
+      "text": "Well, you could have a podcast app that"
+    },
+    {
+      "start": 2356.34,
+      "end": 2361.66,
+      "text": "looks at normal RSS feeds on normal web domains"
+    },
+    {
+      "start": 2361.66,
+      "end": 2365.55,
+      "text": "or RSS feeds at a pair drive link."
+    },
+    {
+      "start": 2365.55,
+      "end": 2367.67,
+      "text": "What if instead of the only way"
+    },
+    {
+      "start": 2367.67,
+      "end": 2371.83,
+      "text": "to actually integrate a common storage mechanism"
+    },
+    {
+      "start": 2371.83,
+      "end": 2375.72,
+      "text": "or backup system or syncing system"
+    },
+    {
+      "start": 2375.72,
+      "end": 2378.44,
+      "text": "was that you had to use whatever platform you were locked"
+    },
+    {
+      "start": 2378.44,
+      "end": 2379.2,
+      "text": "into."
+    },
+    {
+      "start": 2379.2,
+      "end": 2382.64,
+      "text": "You had to use iCloud on Apple."
+    },
+    {
+      "start": 2382.64,
+      "end": 2386.56,
+      "text": "And you had to have the app itself decide"
+    },
+    {
+      "start": 2386.56,
+      "end": 2391.08,
+      "text": "that they weren't going to sell you their own subscription"
+    },
+    {
+      "start": 2391.08,
+      "end": 2395.36,
+      "text": "for syncing your notes or your calendar"
+    },
+    {
+      "start": 2395.36,
+      "end": 2399.84,
+      "text": "or your minstrel cycle or whatever it is."
+    },
+    {
+      "start": 2399.84,
+      "end": 2403.2,
+      "text": "The insane number of various apps"
+    },
+    {
+      "start": 2403.2,
+      "end": 2408.0,
+      "text": "for various single purposes and the number of things"
+    },
+    {
+      "start": 2408.0,
+      "end": 2410.48,
+      "text": "that require some sort of a subscription"
+    },
+    {
+      "start": 2410.48,
+      "end": 2411.96,
+      "text": "is really just gotten crazy."
+    },
+    {
+      "start": 2411.96,
+      "end": 2414.84,
+      "text": "And I don't dislike single-purpose apps to the contrary."
+    },
+    {
+      "start": 2414.84,
+      "end": 2417.84,
+      "text": "I love single-purpose apps."
+    },
+    {
+      "start": 2417.88,
+      "end": 2424.28,
+      "text": "But the fact that I would need to pay for syncing separately"
+    },
+    {
+      "start": 2424.28,
+      "end": 2430.48,
+      "text": "for every single app that I use is crazy."
+    },
+    {
+      "start": 2430.48,
+      "end": 2433.72,
+      "text": "I would distribute this across all these different kinds"
+    },
+    {
+      "start": 2433.72,
+      "end": 2436.52,
+      "text": "of servers rather than just having an extra mirror"
+    },
+    {
+      "start": 2436.52,
+      "end": 2441.76,
+      "text": "or an extra device backing up all of my things at once."
+    },
+    {
+      "start": 2441.76,
+      "end": 2444.72,
+      "text": "What if there was a joint peer-to-peer protocol?"
+    },
+    {
+      "start": 2444.72,
+      "end": 2449.24,
+      "text": "What if there was a way to run an engine underneath this thing?"
+    },
+    {
+      "start": 2449.24,
+      "end": 2452.04,
+      "text": "Where backing up and syncing was just dealt with."
+    },
+    {
+      "start": 2452.04,
+      "end": 2454.32,
+      "text": "And if you had a quote unquote account"
+    },
+    {
+      "start": 2454.32,
+      "end": 2456.88,
+      "text": "with the peer-to-peer syncing system,"
+    },
+    {
+      "start": 2456.88,
+      "end": 2459.72,
+      "text": "you could back up any app that could integrate into it"
+    },
+    {
+      "start": 2459.72,
+      "end": 2463.88,
+      "text": "and could read Paradrive keys or Paradrive links."
+    },
+    {
+      "start": 2463.88,
+      "end": 2465.48,
+      "text": "So another way maybe to think about it"
+    },
+    {
+      "start": 2465.48,
+      "end": 2469.4,
+      "text": "is like imagine you go to a web torrent is a thing, right?"
+    },
+    {
+      "start": 2469.4,
+      "end": 2471.48,
+      "text": "The experience isn't super great,"
+    },
+    {
+      "start": 2471.48,
+      "end": 2473.56,
+      "text": "but it is a pretty powerful tool, especially"
+    },
+    {
+      "start": 2473.6,
+      "end": 2475.6,
+      "text": "with something like Brave."
+    },
+    {
+      "start": 2475.6,
+      "end": 2478.44,
+      "text": "Now imagine that when you go to a website"
+    },
+    {
+      "start": 2478.44,
+      "end": 2480.48,
+      "text": "and you're trying to download like a large file,"
+    },
+    {
+      "start": 2480.48,
+      "end": 2481.88,
+      "text": "let's say it's like hugging face"
+    },
+    {
+      "start": 2481.88,
+      "end": 2485.68,
+      "text": "and you're trying to download an AI model that's 23 gigabytes"
+    },
+    {
+      "start": 2485.68,
+      "end": 2489.24,
+      "text": "or heck, you're trying to download the new Mini Max 2.5"
+    },
+    {
+      "start": 2489.24,
+      "end": 2492.04,
+      "text": "and it's 220 gigabytes."
+    },
+    {
+      "start": 2492.04,
+      "end": 2494.32,
+      "text": "Well, you go and you hit download,"
+    },
+    {
+      "start": 2494.32,
+      "end": 2496.6,
+      "text": "you're calling directly to the hugging face servers"
+    },
+    {
+      "start": 2496.6,
+      "end": 2499.0,
+      "text": "and if a thousand people go and download that same model"
+    },
+    {
+      "start": 2499.0,
+      "end": 2501.84,
+      "text": "at the exact same time, those servers might crash."
+    },
+    {
+      "start": 2501.84,
+      "end": 2504.2,
+      "text": "Because that's a huge amount of bandwidth"
+    },
+    {
+      "start": 2504.2,
+      "end": 2507.04,
+      "text": "and the cost to run that, to keep that up and running"
+    },
+    {
+      "start": 2507.04,
+      "end": 2509.0,
+      "text": "when thousands of people are downloading thousands"
+    },
+    {
+      "start": 2509.0,
+      "end": 2513.52,
+      "text": "of models every single day is extraordinary."
+    },
+    {
+      "start": 2513.52,
+      "end": 2517.46,
+      "text": "Now imagine that you have a bunch of different people"
+    },
+    {
+      "start": 2517.46,
+      "end": 2520.37,
+      "text": "who are participating in the hugging face community."
+    },
+    {
+      "start": 2520.37,
+      "end": 2523.37,
+      "text": "The website is being hosted from one location"
+    },
+    {
+      "start": 2523.37,
+      "end": 2527.29,
+      "text": "or it is being mirrored from a bunch of different locations"
+    },
+    {
+      "start": 2527.29,
+      "end": 2531.29,
+      "text": "but it's signed by its author just like a no-ster note."
+    },
+    {
+      "start": 2531.29,
+      "end": 2533.97,
+      "text": "It's just an HTML file and you can deliver,"
+    },
+    {
+      "start": 2533.97,
+      "end": 2536.97,
+      "text": "you can look at that by simply having the key"
+    },
+    {
+      "start": 2536.97,
+      "end": 2539.21,
+      "text": "or having the link that goes to it."
+    },
+    {
+      "start": 2539.21,
+      "end": 2542.13,
+      "text": "So you wouldn't even necessarily be getting the website"
+    },
+    {
+      "start": 2542.13,
+      "end": 2545.49,
+      "text": "from the hugging face servers set up by them."
+    },
+    {
+      "start": 2545.49,
+      "end": 2547.13,
+      "text": "You might be getting it from anybody else"
+    },
+    {
+      "start": 2547.13,
+      "end": 2550.25,
+      "text": "who's looking at it or who has saved it."
+    },
+    {
+      "start": 2550.25,
+      "end": 2553.21,
+      "text": "And when you download a model, it clicks"
+    },
+    {
+      "start": 2553.21,
+      "end": 2557.41,
+      "text": "and you go to web torrent where you're downloading it"
+    },
+    {
+      "start": 2557.41,
+      "end": 2559.61,
+      "text": "from everybody online who has the model."
+    },
+    {
+      "start": 2559.61,
+      "end": 2562.57,
+      "text": "And so your speed is huge."
+    },
+    {
+      "start": 2562.57,
+      "end": 2565.33,
+      "text": "And if hugging face has their server on"
+    },
+    {
+      "start": 2565.33,
+      "end": 2568.61,
+      "text": "and is hosting it as well, they're always there to help"
+    },
+    {
+      "start": 2568.61,
+      "end": 2570.97,
+      "text": "and they can provide an enormous amount of bandwidth"
+    },
+    {
+      "start": 2570.97,
+      "end": 2572.85,
+      "text": "because they probably do have more capital"
+    },
+    {
+      "start": 2572.85,
+      "end": 2574.53,
+      "text": "for more infrastructure."
+    },
+    {
+      "start": 2574.53,
+      "end": 2577.77,
+      "text": "But there's no reason to only need them."
+    },
+    {
+      "start": 2577.77,
+      "end": 2579.61,
+      "text": "And if a thousand people come in and downloaded"
+    },
+    {
+      "start": 2579.61,
+      "end": 2583.29,
+      "text": "at the exact same time, it gets faster and more performative."
+    },
+    {
+      "start": 2583.29,
+      "end": 2585.57,
+      "text": "And the hugging face website and server"
+    },
+    {
+      "start": 2585.57,
+      "end": 2587.33,
+      "text": "does the opposite of crash."
+    },
+    {
+      "start": 2587.33,
+      "end": 2590.73,
+      "text": "It gets easier for them to deliver it to more people"
+    },
+    {
+      "start": 2590.73,
+      "end": 2592.57,
+      "text": "because now there are a thousand new people"
+    },
+    {
+      "start": 2592.57,
+      "end": 2594.93,
+      "text": "with the file able to distribute it."
+    },
+    {
+      "start": 2594.93,
+      "end": 2600.12,
+      "text": "Since I was a young boy and I discovered"
+    },
+    {
+      "start": 2600.12,
+      "end": 2605.35,
+      "text": "the way peer to peer systems worked,"
+    },
+    {
+      "start": 2605.35,
+      "end": 2610.9,
+      "text": "I have always felt that is the natural architecture"
+    },
+    {
+      "start": 2610.9,
+      "end": 2614.46,
+      "text": "of the internet and that things needed to go"
+    },
+    {
+      "start": 2614.46,
+      "end": 2617.78,
+      "text": "in that direction because it is the most efficient."
+    },
+    {
+      "start": 2617.78,
+      "end": 2619.46,
+      "text": "It is the most sustainable,"
+    },
+    {
+      "start": 2619.46,
+      "end": 2622.58,
+      "text": "but you have to have a lot of different protocols"
+    },
+    {
+      "start": 2622.58,
+      "end": 2625.14,
+      "text": "to solve all the various pieces of,"
+    },
+    {
+      "start": 2625.14,
+      "end": 2626.82,
+      "text": "do you know what you're getting?"
+    },
+    {
+      "start": 2626.82,
+      "end": 2628.54,
+      "text": "Do you know who you're getting it from?"
+    },
+    {
+      "start": 2628.54,
+      "end": 2630.7,
+      "text": "Do you have a way to establish networks"
+    },
+    {
+      "start": 2630.7,
+      "end": 2632.46,
+      "text": "to the people that you know?"
+    },
+    {
+      "start": 2632.46,
+      "end": 2635.42,
+      "text": "Do you have a way to verify their reputation?"
+    },
+    {
+      "start": 2635.42,
+      "end": 2638.06,
+      "text": "Do you have a way to deliver this with"
+    },
+    {
+      "start": 2638.06,
+      "end": 2640.1,
+      "text": "and without a central server?"
+    },
+    {
+      "start": 2640.1,
+      "end": 2641.9,
+      "text": "And those problems are really hard."
+    },
+    {
+      "start": 2641.9,
+      "end": 2644.34,
+      "text": "There are many, many, many different layers to that problem."
+    },
+    {
+      "start": 2644.34,
+      "end": 2646.62,
+      "text": "And I'm not saying that peer drive is like the solution"
+    },
+    {
+      "start": 2646.62,
+      "end": 2647.82,
+      "text": "to all of them."
+    },
+    {
+      "start": 2647.82,
+      "end": 2652.3,
+      "text": "I'm simply hoping that we can start to build"
+    },
+    {
+      "start": 2652.3,
+      "end": 2653.86,
+      "text": "the underlying blocks of this"
+    },
+    {
+      "start": 2653.86,
+      "end": 2656.62,
+      "text": "because all of the pieces of this thing exist."
+    },
+    {
+      "start": 2656.62,
+      "end": 2658.42,
+      "text": "All of the pieces of that little world"
+    },
+    {
+      "start": 2658.42,
+      "end": 2662.96,
+      "text": "that I just imagined completely exist today."
+    },
+    {
+      "start": 2662.96,
+      "end": 2665.24,
+      "text": "They're completely possible."
+    },
+    {
+      "start": 2665.24,
+      "end": 2667.84,
+      "text": "The question is, can you get the user experience"
+    },
+    {
+      "start": 2667.84,
+      "end": 2671.68,
+      "text": "to behave like the normal internet"
+    },
+    {
+      "start": 2671.68,
+      "end": 2675.44,
+      "text": "with the benefits of peer to peer on top of it?"
+    },
+    {
+      "start": 2675.44,
+      "end": 2677.68,
+      "text": "And with A being able to do things"
+    },
+    {
+      "start": 2677.68,
+      "end": 2680.6,
+      "text": "that peer to peer can do, that central servers can't do."
+    },
+    {
+      "start": 2680.6,
+      "end": 2681.6,
+      "text": "And I think you can."
+    },
+    {
+      "start": 2681.6,
+      "end": 2684.08,
+      "text": "And I think the thing is that you should not be afraid"
+    },
+    {
+      "start": 2684.08,
+      "end": 2685.48,
+      "text": "of central servers."
+    },
+    {
+      "start": 2685.48,
+      "end": 2688.76,
+      "text": "There's nothing wrong with a central server."
+    },
+    {
+      "start": 2688.76,
+      "end": 2692.04,
+      "text": "If you know that the server doesn't own the content,"
+    },
+    {
+      "start": 2692.04,
+      "end": 2694.4,
+      "text": "they don't control or change the content"
+    },
+    {
+      "start": 2694.4,
+      "end": 2696.08,
+      "text": "and they don't own the network."
+    },
+    {
+      "start": 2696.08,
+      "end": 2698.64,
+      "text": "Because if you've solved those three problems,"
+    },
+    {
+      "start": 2698.64,
+      "end": 2701.72,
+      "text": "a central server is just a really reliable cedar."
+    },
+    {
+      "start": 2701.72,
+      "end": 2705.16,
+      "text": "It's just a really reliable relay or mirror"
+    },
+    {
+      "start": 2705.2,
+      "end": 2709.52,
+      "text": "like nobody's mad about more relays in no-ster"
+    },
+    {
+      "start": 2709.52,
+      "end": 2711.48,
+      "text": "or having one really, really good relay"
+    },
+    {
+      "start": 2711.48,
+      "end": 2713.88,
+      "text": "because I still know that the content is directly"
+    },
+    {
+      "start": 2713.88,
+      "end": 2715.92,
+      "text": "from the person I am following"
+    },
+    {
+      "start": 2715.92,
+      "end": 2717.6,
+      "text": "because it's signed with their key."
+    },
+    {
+      "start": 2717.6,
+      "end": 2719.24,
+      "text": "And if that relay goes down,"
+    },
+    {
+      "start": 2719.24,
+      "end": 2720.92,
+      "text": "I can still get it from somebody else."
+    },
+    {
+      "start": 2720.92,
+      "end": 2723.5,
+      "text": "I can maybe get it from another friend."
+    },
+    {
+      "start": 2723.5,
+      "end": 2726.02,
+      "text": "Peer to peer presents the option"
+    },
+    {
+      "start": 2726.02,
+      "end": 2728.46,
+      "text": "to always have a credible exit"
+    },
+    {
+      "start": 2728.46,
+      "end": 2729.74,
+      "text": "without losing your network,"
+    },
+    {
+      "start": 2729.74,
+      "end": 2732.3,
+      "text": "without losing your identity, without losing your data."
+    },
+    {
+      "start": 2732.3,
+      "end": 2738.51,
+      "text": "So I think it can be built to create the environment"
+    },
+    {
+      "start": 2738.71,
+      "end": 2741.91,
+      "text": "that I have imagined for so long."
+    },
+    {
+      "start": 2741.91,
+      "end": 2745.71,
+      "text": "It simply has to be built user-friendly."
+    },
+    {
+      "start": 2745.71,
+      "end": 2750.27,
+      "text": "And you have to do the slow, painful, difficult work"
+    },
+    {
+      "start": 2750.27,
+      "end": 2755.03,
+      "text": "in making the experience feel like the normal web."
+    },
+    {
+      "start": 2755.03,
+      "end": 2758.59,
+      "text": "Then you can figure out how to do more things with it"
+    },
+    {
+      "start": 2758.59,
+      "end": 2760.75,
+      "text": "that you can't do on the normal web."
+    },
+    {
+      "start": 2760.75,
+      "end": 2763.91,
+      "text": "And you have to be okay with letting the old"
+    },
+    {
+      "start": 2763.91,
+      "end": 2766.87,
+      "text": "monetization model not be reliable"
+    },
+    {
+      "start": 2766.87,
+      "end": 2768.87,
+      "text": "because it's going to change how we think"
+    },
+    {
+      "start": 2768.87,
+      "end": 2772.67,
+      "text": "about capitalizing on these networks."
+    },
+    {
+      "start": 2772.67,
+      "end": 2775.79,
+      "text": "If you can't lock people in to your platform,"
+    },
+    {
+      "start": 2775.79,
+      "end": 2779.83,
+      "text": "if you can't trap people by controlling their network"
+    },
+    {
+      "start": 2779.83,
+      "end": 2781.79,
+      "text": "or repurposing their content,"
+    },
+    {
+      "start": 2781.79,
+      "end": 2783.95,
+      "text": "or you can't control the algorithm"
+    },
+    {
+      "start": 2783.95,
+      "end": 2785.71,
+      "text": "to keep them stuck on your platform"
+    },
+    {
+      "start": 2785.71,
+      "end": 2788.47,
+      "text": "and continually engaging and rage bait"
+    },
+    {
+      "start": 2788.47,
+      "end": 2790.91,
+      "text": "so that you can shove more ads into their face."
+    },
+    {
+      "start": 2790.91,
+      "end": 2795.63,
+      "text": "I think you have to simply be okay with less control"
+    },
+    {
+      "start": 2795.63,
+      "end": 2797.15,
+      "text": "and then figure out what it is,"
+    },
+    {
+      "start": 2797.15,
+      "end": 2800.07,
+      "text": "what's the service that you provide"
+    },
+    {
+      "start": 2800.07,
+      "end": 2801.71,
+      "text": "within this new environment"
+    },
+    {
+      "start": 2801.71,
+      "end": 2805.67,
+      "text": "and how do you provide that service better than everybody else."
+    },
+    {
+      "start": 2805.67,
+      "end": 2810.02,
+      "text": "And if I wanted to bootstrap this possible world,"
+    },
+    {
+      "start": 2810.02,
+      "end": 2812.98,
+      "text": "if I wanted to attempt to get to a place"
+    },
+    {
+      "start": 2812.98,
+      "end": 2815.22,
+      "text": "where we could build something just like this"
+    },
+    {
+      "start": 2815.22,
+      "end": 2816.94,
+      "text": "where the internet could actually look"
+    },
+    {
+      "start": 2816.94,
+      "end": 2819.32,
+      "text": "like what I've imagined."
+    },
+    {
+      "start": 2819.32,
+      "end": 2823.44,
+      "text": "I would start with making it easy"
+    },
+    {
+      "start": 2823.44,
+      "end": 2826.6,
+      "text": "to move files between my MacBook and my Linux machine."
+    },
+    {
+      "start": 2826.6,
+      "end": 2829.2,
+      "text": "And on top of that, making it fun,"
+    },
+    {
+      "start": 2829.2,
+      "end": 2832.44,
+      "text": "making it so I could watch movies off my Linux machine"
+    },
+    {
+      "start": 2832.44,
+      "end": 2835.0,
+      "text": "insanely easy, I could listen to podcasts"
+    },
+    {
+      "start": 2835.0,
+      "end": 2837.4,
+      "text": "off my MacBook from my phone."
+    },
+    {
+      "start": 2837.4,
+      "end": 2841.76,
+      "text": "I essentially could just move and work with files"
+    },
+    {
+      "start": 2841.76,
+      "end": 2846.16,
+      "text": "in and between my devices safely, privately, and easily."
+    },
+    {
+      "start": 2846.16,
+      "end": 2847.64,
+      "text": "And that's not easy to do."
+    },
+    {
+      "start": 2847.64,
+      "end": 2848.84,
+      "text": "It's not easy to build that."
+    },
+    {
+      "start": 2848.84,
+      "end": 2849.84,
+      "text": "Maybe I have a problem,"
+    },
+    {
+      "start": 2849.84,
+      "end": 2851.16,
+      "text": "maybe I've gone about it the wrong way,"
+    },
+    {
+      "start": 2851.16,
+      "end": 2852.6,
+      "text": "I'm being too much of a perfectionist"
+    },
+    {
+      "start": 2852.6,
+      "end": 2854.04,
+      "text": "and I just need to get something out."
+    },
+    {
+      "start": 2854.04,
+      "end": 2857.08,
+      "text": "But I have actually just vibe coded a simple way"
+    },
+    {
+      "start": 2857.08,
+      "end": 2860.52,
+      "text": "to get a file from Mac to Linux machine in a weekend."
+    },
+    {
+      "start": 2860.52,
+      "end": 2862.64,
+      "text": "That is not that hard,"
+    },
+    {
+      "start": 2862.64,
+      "end": 2866.93,
+      "text": "but getting it to flow,"
+    },
+    {
+      "start": 2866.93,
+      "end": 2870.53,
+      "text": "getting it to be a complete picture of something"
+    },
+    {
+      "start": 2870.53,
+      "end": 2874.21,
+      "text": "that can be used in practically any context"
+    },
+    {
+      "start": 2874.21,
+      "end": 2877.01,
+      "text": "and one that has a path to scaling"
+    },
+    {
+      "start": 2877.01,
+      "end": 2882.09,
+      "text": "to enormous file indexes and enormous networks"
+    },
+    {
+      "start": 2882.09,
+      "end": 2884.05,
+      "text": "where it makes sense to have someone"
+    },
+    {
+      "start": 2884.05,
+      "end": 2885.85,
+      "text": "with a completely different app"
+    },
+    {
+      "start": 2885.85,
+      "end": 2888.69,
+      "text": "or completely different type of tool"
+    },
+    {
+      "start": 2888.69,
+      "end": 2892.41,
+      "text": "to use it on the back end for syncing"
+    },
+    {
+      "start": 2892.41,
+      "end": 2896.09,
+      "text": "or for reading files off another device"
+    },
+    {
+      "start": 2896.09,
+      "end": 2898.14,
+      "text": "or another network."
+    },
+    {
+      "start": 2898.18,
+      "end": 2899.58,
+      "text": "That's hard."
+    },
+    {
+      "start": 2899.58,
+      "end": 2900.78,
+      "text": "That's hard."
+    },
+    {
+      "start": 2900.78,
+      "end": 2905.06,
+      "text": "And that is our bigger focus"
+    },
+    {
+      "start": 2905.06,
+      "end": 2906.58,
+      "text": "with pair driver,"
+    },
+    {
+      "start": 2906.58,
+      "end": 2909.74,
+      "text": "pair core, the engine underneath this,"
+    },
+    {
+      "start": 2909.74,
+      "end": 2912.74,
+      "text": "which we will be building pair drive on top of"
+    },
+    {
+      "start": 2912.74,
+      "end": 2917.74,
+      "text": "as the first example of what can you do with this new tool"
+    },
+    {
+      "start": 2918.3,
+      "end": 2923.02,
+      "text": "and I want you to be able to feel why it's different."
+    },
+    {
+      "start": 2923.02,
+      "end": 2926.42,
+      "text": "But again, I'm not saying I have the answers."
+    },
+    {
+      "start": 2926.42,
+      "end": 2928.5,
+      "text": "I just know what I want out of it"
+    },
+    {
+      "start": 2929.18,
+      "end": 2932.54,
+      "text": "and how I think and see how this technology works"
+    },
+    {
+      "start": 2932.54,
+      "end": 2935.62,
+      "text": "and where I think the value case is"
+    },
+    {
+      "start": 2935.62,
+      "end": 2940.54,
+      "text": "for actually building a disruptive new system"
+    },
+    {
+      "start": 2940.54,
+      "end": 2941.62,
+      "text": "for the internet"
+    },
+    {
+      "start": 2941.62,
+      "end": 2945.14,
+      "text": "because I think the best way to free our hardware"
+    },
+    {
+      "start": 2945.14,
+      "end": 2947.1,
+      "text": "to give us back control of our phones,"
+    },
+    {
+      "start": 2947.1,
+      "end": 2949.06,
+      "text": "of our accounts and of our systems"
+    },
+    {
+      "start": 2949.06,
+      "end": 2952.54,
+      "text": "is to build software that doesn't lock you"
+    },
+    {
+      "start": 2952.54,
+      "end": 2954.18,
+      "text": "into their platforms."
+    },
+    {
+      "start": 2954.18,
+      "end": 2959.18,
+      "text": "And specifically one that's broad and generic enough"
+    },
+    {
+      "start": 2959.54,
+      "end": 2961.34,
+      "text": "that it's really hard to be like,"
+    },
+    {
+      "start": 2961.34,
+      "end": 2965.11,
+      "text": "oh, you can't use this app in our app store."
+    },
+    {
+      "start": 2965.11,
+      "end": 2967.2,
+      "text": "Well, it's not an app."
+    },
+    {
+      "start": 2967.2,
+      "end": 2971.8,
+      "text": "It's something that many, many apps can and or are using."
+    },
+    {
+      "start": 2971.8,
+      "end": 2973.12,
+      "text": "It's a protocol."
+    },
+    {
+      "start": 2973.12,
+      "end": 2978.12,
+      "text": "It's a standard for delivering and exchanging files"
+    },
+    {
+      "start": 2978.52,
+      "end": 2980.8,
+      "text": "for any and all purposes."
+    },
+    {
+      "start": 2980.8,
+      "end": 2984.41,
+      "text": "So anyway, I hope you enjoyed the talk."
+    },
+    {
+      "start": 2984.93,
+      "end": 2989.37,
+      "text": "And my extended explanation here"
+    },
+    {
+      "start": 2989.37,
+      "end": 2991.29,
+      "text": "added something of value"
+    },
+    {
+      "start": 2991.29,
+      "end": 2993.61,
+      "text": "into painting the picture of what it is"
+    },
+    {
+      "start": 2993.61,
+      "end": 2996.61,
+      "text": "that we've been focused on and importantly why"
+    },
+    {
+      "start": 2996.61,
+      "end": 2998.89,
+      "text": "it's taken a lot longer than just a weekend"
+    },
+    {
+      "start": 2998.89,
+      "end": 3003.25,
+      "text": "build for shooting some files or documents"
+    },
+    {
+      "start": 3003.25,
+      "end": 3005.93,
+      "text": "or movies from one machine to another,"
+    },
+    {
+      "start": 3005.93,
+      "end": 3007.41,
+      "text": "which is a much easier task"
+    },
+    {
+      "start": 3007.41,
+      "end": 3011.37,
+      "text": "when you don't really have much else that you want"
+    },
+    {
+      "start": 3011.37,
+      "end": 3014.69,
+      "text": "to do with it or you're not thinking about"
+    },
+    {
+      "start": 3014.69,
+      "end": 3017.57,
+      "text": "how do I do this with 10 terabytes worth of stuff"
+    },
+    {
+      "start": 3017.57,
+      "end": 3021.01,
+      "text": "as opposed to just one file, one time."
+    },
+    {
+      "start": 3021.01,
+      "end": 3022.93,
+      "text": "Thank you for listening."
+    },
+    {
+      "start": 3022.93,
+      "end": 3026.13,
+      "text": "I shout out again to the HRF and their amazing work."
+    },
+    {
+      "start": 3026.13,
+      "end": 3029.49,
+      "text": "I hope to be on their financial freedom newsletter"
+    },
+    {
+      "start": 3029.49,
+      "end": 3032.85,
+      "text": "at some point where they talk about pair drive"
+    },
+    {
+      "start": 3032.85,
+      "end": 3037.33,
+      "text": "and how it's helping people to have sovereign file sharing"
+    },
+    {
+      "start": 3037.33,
+      "end": 3040.05,
+      "text": "and data collection and investigation."
+    },
+    {
+      "start": 3040.05,
+      "end": 3041.69,
+      "text": "I mean, just think about how cool it would be"
+    },
+    {
+      "start": 3041.69,
+      "end": 3044.25,
+      "text": "to be able to go through the Epstein files"
+    },
+    {
+      "start": 3044.25,
+      "end": 3046.57,
+      "text": "with a private group of like 100 people"
+    },
+    {
+      "start": 3046.57,
+      "end": 3050.05,
+      "text": "and then just watching and being able to read"
+    },
+    {
+      "start": 3050.05,
+      "end": 3051.97,
+      "text": "how they're marking certain files,"
+    },
+    {
+      "start": 3051.97,
+      "end": 3055.01,
+      "text": "what they're highlighting, what they're pointing out,"
+    },
+    {
+      "start": 3055.01,
+      "end": 3057.65,
+      "text": "and then being able to directly message each other"
+    },
+    {
+      "start": 3057.65,
+      "end": 3060.53,
+      "text": "about this information and then categorizing"
+    },
+    {
+      "start": 3060.53,
+      "end": 3063.09,
+      "text": "and put metadata that this is related to this event,"
+    },
+    {
+      "start": 3063.09,
+      "end": 3064.57,
+      "text": "this is related to this."
+    },
+    {
+      "start": 3064.57,
+      "end": 3068.13,
+      "text": "Like, imagine a system of collective organization"
+    },
+    {
+      "start": 3068.13,
+      "end": 3073.13,
+      "text": "of metadata and analysis of some pool of information"
+    },
+    {
+      "start": 3073.29,
+      "end": 3077.81,
+      "text": "around a topic or an event or a conspiracy theory."
+    },
+    {
+      "start": 3077.81,
+      "end": 3079.49,
+      "text": "What's good, what's bad?"
+    },
+    {
+      "start": 3079.49,
+      "end": 3081.49,
+      "text": "Who thought this was a good piece of information"
+    },
+    {
+      "start": 3081.49,
+      "end": 3084.77,
+      "text": "who said this is crap that has been debunked?"
+    },
+    {
+      "start": 3084.77,
+      "end": 3087.97,
+      "text": "What if you could take all of the collective data"
+    },
+    {
+      "start": 3087.97,
+      "end": 3091.61,
+      "text": "and reaction and information that you get in Twitter"
+    },
+    {
+      "start": 3091.61,
+      "end": 3095.05,
+      "text": "and you could actually pool it into place by topic"
+    },
+    {
+      "start": 3095.05,
+      "end": 3097.97,
+      "text": "or by event and you could easily reference it"
+    },
+    {
+      "start": 3097.97,
+      "end": 3099.93,
+      "text": "and you could dig through that information"
+    },
+    {
+      "start": 3099.93,
+      "end": 3102.93,
+      "text": "and you could base it based on who you thought"
+    },
+    {
+      "start": 3102.93,
+      "end": 3106.29,
+      "text": "had a good reputation or who was actually right about it"
+    },
+    {
+      "start": 3106.29,
+      "end": 3107.93,
+      "text": "the last two times when you thought"
+    },
+    {
+      "start": 3107.93,
+      "end": 3109.77,
+      "text": "it wasn't realistic and now it turns out"
+    },
+    {
+      "start": 3109.77,
+      "end": 3111.53,
+      "text": "to be totally the truth."
+    },
+    {
+      "start": 3111.53,
+      "end": 3114.97,
+      "text": "That's something you could do with Pear Drive"
+    },
+    {
+      "start": 3114.97,
+      "end": 3116.81,
+      "text": "but I don't think you'd ever really be able"
+    },
+    {
+      "start": 3116.81,
+      "end": 3117.93,
+      "text": "to do it with central servers"
+    },
+    {
+      "start": 3117.93,
+      "end": 3120.17,
+      "text": "because the second that conspiracy theory"
+    },
+    {
+      "start": 3120.17,
+      "end": 3123.25,
+      "text": "was on to anything that was true,"
+    },
+    {
+      "start": 3123.25,
+      "end": 3124.65,
+      "text": "you'd probably get shut down."
+    },
+    {
+      "start": 3124.65,
+      "end": 3127.89,
+      "text": "You'd probably get censored, get shadow banned on Twitter,"
+    },
+    {
+      "start": 3127.89,
+      "end": 3131.65,
+      "text": "a type of crowdsourced intelligence"
+    },
+    {
+      "start": 3131.65,
+      "end": 3135.29,
+      "text": "is a very dangerous thing to a lot of people in power."
+    },
+    {
+      "start": 3135.29,
+      "end": 3137.29,
+      "text": "So how could you make that robust enough"
+    },
+    {
+      "start": 3137.29,
+      "end": 3139.33,
+      "text": "that that could be done?"
+    },
+    {
+      "start": 3139.33,
+      "end": 3142.05,
+      "text": "You could crowdsource that kind of information."
+    },
+    {
+      "start": 3142.05,
+      "end": 3145.69,
+      "text": "That's something that I hope to be able to deliver"
+    },
+    {
+      "start": 3145.69,
+      "end": 3147.61,
+      "text": "on top of the Pear Drive engine."
+    },
+    {
+      "start": 3147.61,
+      "end": 3149.93,
+      "text": "It would be dope to actually be included"
+    },
+    {
+      "start": 3149.93,
+      "end": 3151.09,
+      "text": "in the financial freedom report"
+    },
+    {
+      "start": 3151.09,
+      "end": 3154.44,
+      "text": "because we were doing something meaningful"
+    },
+    {
+      "start": 3154.44,
+      "end": 3157.54,
+      "text": "and it was helping people around the world"
+    },
+    {
+      "start": 3157.54,
+      "end": 3158.97,
+      "text": "fight for freedom."
+    },
+    {
+      "start": 3158.97,
+      "end": 3162.94,
+      "text": "So shout out to them, shout out to everybody who listens"
+    },
+    {
+      "start": 3162.94,
+      "end": 3164.5,
+      "text": "and supports the show."
+    },
+    {
+      "start": 3164.5,
+      "end": 3168.1,
+      "text": "And hopefully hopefully I can deliver on this promise."
+    },
+    {
+      "start": 3168.1,
+      "end": 3170.02,
+      "text": "I'm working my butt off"
+    },
+    {
+      "start": 3170.02,
+      "end": 3174.18,
+      "text": "and putting a lot of capital toward it, wish me luck."
+    },
+    {
+      "start": 3174.18,
+      "end": 3178.84,
+      "text": "With that, I am Guy Swan and until next time,"
+    },
+    {
+      "start": 3178.84,
+      "end": 3179.92,
+      "text": "that's my two sats."
+    }
+  ],
+  "topics": [
+    "etf",
+    "mining",
+    "price",
+    "regulation",
+    "lightning",
+    "macro",
+    "privacy"
+  ],
+  "sentiment": "neutral",
+  "archived_at": "2026-03-08T02:40:38Z"
+}
