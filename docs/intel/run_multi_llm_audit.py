@@ -69,7 +69,7 @@ def call_gpt4o():
             model="gpt-5.4",
             messages=[{"role": "user", "content": AUDIT_PROMPT}],
             response_format={"type": "json_object"},
-            max_tokens=3000,
+            max_completion_tokens=3000,
         )
         results["gpt4o"] = json.loads(resp.choices[0].message.content)
         print("[GPT-4o] Done - score:", results["gpt4o"].get("score"))
@@ -85,7 +85,7 @@ def call_grok():
             model="grok-3-latest",
             messages=[{"role": "user", "content": AUDIT_PROMPT}],
             response_format={"type": "json_object"},
-            max_tokens=3000,
+            max_completion_tokens=3000,
         )
         results["grok"] = json.loads(resp.choices[0].message.content)
         print("[GROK]  Done - score:", results["grok"].get("score"))
