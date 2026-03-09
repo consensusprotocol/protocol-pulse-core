@@ -1247,9 +1247,8 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     safe_head = _sanitize_text(headline)[:40]
     safe_body = _word_wrap(_sanitize_text(body), max_width=30, max_lines=3) if body else ""
 
-    fg += (f"[bv2_bar]drawtext=fontfile={FONT_MONO}:text='NARRATIVE SETUP // {safe_speaker}':"
-           f"fontcolor={COLOR_GOLD}:fontsize=13:x=64:y=100[np_eye];\n")
-    fg += (f"[np_eye]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
+    # CYCLE3 FIX: removed "NARRATIVE SETUP // MARK" eyebrow debug label
+    fg += (f"[bv2_bar]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
            f"fontcolor=0x111111:fontsize=64:x=66:y=132,"
            f"drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
            f"fontcolor={COLOR_WHITE}:fontsize=64:x=64:y=130[np_head];\n")
@@ -1867,21 +1866,12 @@ def make_host_visual(audio_path: str, host: int, text: str,
     _, bg_fg = _build_black_diamond_bg(total_dur, label_out="bd_bg")
     fg = bg_fg
 
-    # ── HEADER BAR ──
+    # ── HEADER BAR — CYCLE3 FIX: removed LIVE, LAYER 04 ACTIVE, RECON-ID debug labels ──
     fg += (f"[bd_bg]drawbox=x=0:y=0:w=1920:h=72:color=0x050505@0.97:t=fill,"
            f"drawbox=x=0:y=70:w=1920:h=2:color={COLOR_RED}@0.8:t=fill,"
+           f"drawbox=x=0:y=0:w=4:h=72:color={COLOR_RED}@0.9:t=fill,"
            f"drawtext=fontfile={FONT_BOLD}:text='PROTOCOL PULSE':"
-           f"fontcolor={COLOR_WHITE}:fontsize=28:x=24:y=22,"
-           f"drawtext=fontfile={FONT_BOLD}:text='LIVE':"
-           f"fontcolor={COLOR_RED}:fontsize=22:x=280:y=26,"
-           f"drawtext=fontfile={FONT_BOLD}:text='|':"
-           f"fontcolor={COLOR_MUTED}:fontsize=28:x=340:y=22,"
-           f"drawtext=fontfile={FONT_MONO}:text='EPISODE {ep_num}':"
-           f"fontcolor={COLOR_MUTED}:fontsize=16:x=370:y=28,"
-           f"drawtext=fontfile={FONT_MONO}:text='LAYER 04 ACTIVE':"
-           f"fontcolor={COLOR_RED}:fontsize=14:x=560:y=30,"
-           f"drawtext=fontfile={FONT_MONO}:text='RECON-ID - {recon_id}':"
-           f"fontcolor=0x555555:fontsize=13:x=w-text_w-24:y=30"
+           f"fontcolor={COLOR_WHITE}:fontsize=24:x=16:y=24"
            f"[hdr];\n")
 
     # ── LEFT PANEL ──
@@ -1909,13 +1899,8 @@ def make_host_visual(audio_path: str, host: int, text: str,
     else:
         fg += f"[ldiv]copy[lbody];\n"
 
-    # CTA box
-    fg += (f"[lbody]drawbox=x=20:y=600:w=440:h=52:color={COLOR_RED_DIM}@0.95:t=fill,"
-           f"drawbox=x=20:y=600:w=4:h=52:color={COLOR_RED}:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:"
-           f"text='  DUAL-HOST ANALYSIS // INCOMING':"
-           f"fontcolor={COLOR_RED}:fontsize=13:x=34:y=622"
-           f"[lcta];\n")
+    # CTA box — CYCLE3 FIX: removed "DUAL-HOST ANALYSIS // INCOMING" debug label
+    fg += f"[lbody]copy[lcta];\n"
 
     # Mini waveform in left panel bottom
     fg += (f"[0:a]showwaves=s=680x90:mode=cline:"
@@ -1944,54 +1929,13 @@ def make_host_visual(audio_path: str, host: int, text: str,
            f"fontcolor={COLOR_GREEN}:fontsize=12:x=756:y=588"
            f"[dp1];\n")
 
-    fg += (f"[dp1]drawbox=x=1120:y=502:w=300:h=150:color={COLOR_PANEL}@0.95:t=fill,"
-           f"drawbox=x=1120:y=502:w=300:h=2:color={COLOR_RED}@0.5:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='RENDER ENGINE':"
-           f"fontcolor={COLOR_MUTED}:fontsize=12:x=1136:y=517,"
-           f"drawtext=fontfile={FONT_BOLD}:text='134':"
-           f"fontcolor={COLOR_WHITE}:fontsize=52:x=1136:y=530,"
-           f"drawtext=fontfile={FONT_MONO}:text='FPS':"
-           f"fontcolor={COLOR_RED}:fontsize=18:x=1220:y=546,"
-           f"drawtext=fontfile={FONT_MONO}:text='4090 CLUSTER // H264':"
-           f"fontcolor=0x666666:fontsize=12:x=1136:y=588"
-           f"[dp2];\n")
+    # CYCLE3 FIX: Removed "RENDER ENGINE / 4090 CLUSTER" and "AUDIO AMPLITUDE" debug panels
+    fg += f"[dp1]copy[dp_done];\n"
 
-    fg += (f"[dp2]drawbox=x=1430:y=502:w=280:h=150:color={COLOR_PANEL}@0.95:t=fill,"
-           f"drawbox=x=1430:y=502:w=280:h=2:color={COLOR_RED}@0.5:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='  AUDIO AMPLITUDE':"
-           f"fontcolor={COLOR_MUTED}:fontsize=11:x=1446:y=514"
-           f"[dp3];\n")
-    fg += (f"[0:a]showwaves=s=250x60:mode=line:"
-           f"colors={COLOR_RED}:scale=lin:rate=30[amp_wave];\n")
-    fg += f"[dp3][amp_wave]overlay=1440:530[dp_done];\n"
-
-    # ── RIGHT BOT — EPISODE SEGMENTS TRACKER ──
-    fg += (f"[dp_done]drawbox=x=740:y=660:w=1160:h=360:color={COLOR_PANEL}@0.92:t=fill,"
-           f"drawbox=x=740:y=660:w=1160:h=2:color={COLOR_RED}@0.4:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='EPISODE SEGMENTS':"
-           f"fontcolor={COLOR_MUTED}:fontsize=12:x=756:y=675"
-           f"[seg_hdr];\n")
-
-    seg_labels = ["COLD OPEN", "ORACLE BRIEF", "CLIP REACTION", "DUAL-HOST SEGMENT"]
-    last_seg = "seg_hdr"
-    for si, sl in enumerate(seg_labels):
-        row_y = 700 + si * 30
-        if si < seg_idx:
-            status_text, status_color = "DONE", COLOR_GREEN
-        elif si == seg_idx:
-            status_text, status_color = "ACTIVE", COLOR_RED
-        else:
-            status_text, status_color = "PENDING", "0x444444"
-        out_label = f"seg_r{si}"
-        fg += (f"[{last_seg}]drawtext=fontfile={FONT_MONO}:text='{sl}':"
-               f"fontcolor={COLOR_MUTED}:fontsize=14:x=756:y={row_y},"
-               f"drawtext=fontfile={FONT_MONO}:text='{status_text}':"
-               f"fontcolor={status_color}:fontsize=14:x=1100:y={row_y}"
-               f"[{out_label}];\n")
-        last_seg = out_label
+    # ── CYCLE3 FIX: Removed "EPISODE SEGMENTS" debug tracker (ORACLE BRIEF / CLIP REACTION / DUAL-HOST etc.) ──
 
     # ── CORNER BRACKETS ──
-    fg += _build_corner_brackets_fg(last_seg, "cornered")
+    fg += _build_corner_brackets_fg("dp_done", "cornered")
 
     # ── BUG3 FIX: Gold signature rail (replaces red ticker) ──
     fg += _build_signature_info_rail(total_dur, btc_price, "cornered", "v_rail")
@@ -3096,8 +3040,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
               f"fontcolor=0xF8C15C:fontsize=36:x=(w-text_w)/2:y=520,"
               f"drawtext=fontfile={FONT_MONO}:text='{title_date}':"
               f"fontcolor={COLOR_MUTED}:fontsize=22:x=(w-text_w)/2:y=580,"
-              f"drawtext=fontfile={FONT_MONO}:text='// SIGNAL DETECTED //':"
-              f"fontcolor={COLOR_RED}:fontsize=20:x=(w-text_w)/2:y=630,"
+              # CYCLE3 FIX: removed "// SIGNAL DETECTED //" debug text from title card
               f"fade=t=in:st=0:d=0.5[outv];\n"
               f"anullsrc=r=48000:cl=stereo,atrim=0:{tc_dur}[outa]")
     tc_ok = run_ffmpeg_filtergraph(
@@ -3399,12 +3342,19 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             prev_segment_type = entry_type
             continue  # parts already added per-card above
         elif entry_type == "social_segment":
-            # No tweet card data available — fall back to host visual
-            result = make_host_visual(
-                audio_path, host_num, text, line_out,
-                btc_price=btc_price, label=f"{entry_type} #{part_idx}",
-                segment_type=entry_type,
+            # CYCLE3 FIX: Route to make_social_stack_scene instead of legacy make_host_visual
+            result = make_social_stack_scene(
+                audio_path, text[:60], [],
+                line_out, btc_price=btc_price,
             )
+            if not result:
+                # Fallback to narrator_pip scene (clean, no debug elements)
+                seg_data_ss = {"type": "social_segment", "text": text, "speaker": "MARK", "next_speaker": ""}
+                result = make_broadcast_segment(
+                    seg_data_ss, audio_path, host_num,
+                    part_idx, len(dialogue),
+                    line_out + "_ss.mp4", btc_price=btc_price,
+                )
         else:
             # BV2: Route to Broadcast Engine V2 scene system (falls back to Black Diamond)
             seg_data = {"type": entry_type, "text": text,
