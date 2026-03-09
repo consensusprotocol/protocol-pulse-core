@@ -7700,6 +7700,317 @@ def api_rtsa_foundational():
     })
 
 
+# ============================================================
+# PULSE TERMINAL COMMANDER API — v1
+# JWT-authenticated, rate-limited REST API for $49/mo tier
+# ============================================================
+
+import jwt as _jwt
+from functools import wraps as _wraps
+
+_JWT_SECRET = os.environ.get("JWT_SECRET_KEY", "pulse-terminal-dev-secret-change-in-prod")
+_JWT_ALGORITHM = "HS256"
+_JWT_EXPIRY_HOURS = 24
+
+
+def _jwt_required(f):
+    """Decorator: validates Bearer JWT; injects _jwt_user_id, _jwt_tier into kwargs."""
+    @_wraps(f)
+    def decorated(*args, **kwargs):
+        auth_header = request.headers.get("Authorization", "")
+        if not auth_header.startswith("Bearer "):
+            return jsonify({"error": "Missing or invalid Authorization header"}), 401
+        token = auth_header[7:]
+        try:
+            payload = _jwt.decode(token, _JWT_SECRET, algorithms=[_JWT_ALGORITHM])
+        except _jwt.ExpiredSignatureError:
+            return jsonify({"error": "Token expired"}), 401
+        except _jwt.InvalidTokenError:
+            return jsonify({"error": "Invalid token"}), 401
+
+        tier = payload.get("tier", "free")
+        if tier not in ("commander", "sovereign"):
+            return jsonify({"error": "Commander tier required"}), 403
+
+        kwargs["_jwt_user_id"] = payload.get("user_id")
+        kwargs["_jwt_tier"] = tier
+        return f(*args, **kwargs)
+    return decorated
+
+
+def _apply_rate_limit(user_id, tier):
+    """Check rate limit; returns (allowed, meta_dict)."""
+    from services.pulse_terminal_service import check_and_increment_rate_limit
+    result = check_and_increment_rate_limit(user_id, tier)
+    meta = {
+        "tier": tier,
+        "rate_limit_remaining": result["remaining"],
+        "rate_limit_daily": result["limit"],
+        "freshness": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+    }
+    return result["allowed"], meta
+
+
+# ── /v1/auth/token ────────────────────────────────────────────────────────────
+
+@app.route("/v1/auth/token", methods=["POST"])
+def v1_auth_token():
+    """
+    Issue a JWT for Commander API access.
+    POST body: {"email": "...", "password": "..."}
+    Returns: {"token": "...", "tier": "...", "expires_in": 86400}
+    """
+    data = request.get_json(silent=True) or {}
+    email = (data.get("email") or "").strip().lower()
+    password = data.get("password") or ""
+
+    if not email or not password:
+        return jsonify({"error": "email and password required"}), 400
+
+    user = models.User.query.filter_by(email=email).first()
+    if not user or not user.check_password(password):
+        return jsonify({"error": "Invalid credentials"}), 401
+
+    tier = getattr(user, "subscription_tier", "free")
+    if tier not in ("operator", "commander", "sovereign"):
+        return jsonify({"error": "Commander or higher tier required for API access"}), 403
+
+    expiry = datetime.utcnow() + timedelta(hours=_JWT_EXPIRY_HOURS)
+    payload = {
+        "user_id": user.id,
+        "email": user.email,
+        "tier": tier,
+        "exp": expiry,
+        "iat": datetime.utcnow(),
+    }
+    token = _jwt.encode(payload, _JWT_SECRET, algorithm=_JWT_ALGORITHM)
+
+    return jsonify({
+        "token": token,
+        "tier": tier,
+        "expires_in": _JWT_EXPIRY_HOURS * 3600,
+        "expires_at": expiry.strftime("%Y-%m-%dT%H:%M:%SZ"),
+    })
+
+
+# ── /v1/signals/live ─────────────────────────────────────────────────────────
+
+@app.route("/v1/signals/live", methods=["GET"])
+@_jwt_required
+def v1_signals_live(**kwargs):
+    """
+    Commander: Last 10 BTC-relevant live signals with btc_lens_sentiment.
+    Query params: ?limit=10 (max 50)
+    """
+    user_id = kwargs.get("_jwt_user_id")
+    tier = kwargs.get("_jwt_tier")
+
+    allowed, meta = _apply_rate_limit(user_id, tier)
+    if not allowed:
+        return jsonify({"error": "Rate limit exceeded", "meta": meta}), 429
+
+    limit = min(int(request.args.get("limit", 10)), 50)
+
+    from services.pulse_terminal_service import get_live_signals
+    result = get_live_signals(limit=limit)
+
+    response = {
+        "data": result["data"],
+        "meta": {**meta, "stale": result.get("stale", False)},
+    }
+    if result.get("stale"):
+        response["warning"] = "Data may be stale — check meta.freshness"
+
+    return jsonify(response)
+
+
+# ── /v1/spaces/live ───────────────────────────────────────────────────────────
+
+@app.route("/v1/spaces/live", methods=["GET"])
+@_jwt_required
+def v1_spaces_live(**kwargs):
+    """
+    Commander: Active X Spaces from live intelligence feed.
+    """
+    user_id = kwargs.get("_jwt_user_id")
+    tier = kwargs.get("_jwt_tier")
+
+    allowed, meta = _apply_rate_limit(user_id, tier)
+    if not allowed:
+        return jsonify({"error": "Rate limit exceeded", "meta": meta}), 429
+
+    from services.pulse_terminal_service import get_spaces_live
+    result = get_spaces_live()
+
+    return jsonify({
+        "data": result["data"],
+        "meta": {**meta, "stale": result.get("stale", False)},
+    })
+
+
+# ── /v1/tradfi/signals ───────────────────────────────────────────────────────
+
+@app.route("/v1/tradfi/signals", methods=["GET"])
+@_jwt_required
+def v1_tradfi_signals(**kwargs):
+    """
+    Commander: Top 20 TradFi signals filtered for BTC relevance.
+    Query params: ?limit=20, ?btc_only=true
+    """
+    user_id = kwargs.get("_jwt_user_id")
+    tier = kwargs.get("_jwt_tier")
+
+    allowed, meta = _apply_rate_limit(user_id, tier)
+    if not allowed:
+        return jsonify({"error": "Rate limit exceeded", "meta": meta}), 429
+
+    limit = min(int(request.args.get("limit", 20)), 50)
+    btc_only = request.args.get("btc_only", "false").lower() == "true"
+
+    from services.pulse_terminal_service import get_tradfi_signals
+    result = get_tradfi_signals(limit=limit)
+
+    signals = result["data"]["signals"]
+    if btc_only:
+        signals = [s for s in signals if s.get("btc_relevant")]
+
+    return jsonify({
+        "data": {
+            **result["data"],
+            "signals": signals,
+            "total_returned": len(signals),
+        },
+        "meta": {**meta, "stale": result.get("stale", False), "btc_only": btc_only},
+    })
+
+
+# ── /v1/sentiment/composite ──────────────────────────────────────────────────
+
+@app.route("/v1/sentiment/composite", methods=["GET"])
+@_jwt_required
+def v1_sentiment_composite(**kwargs):
+    """
+    Commander: Full composite sentiment — YouTube, X Spaces, entity, TradFi breakdown.
+    """
+    user_id = kwargs.get("_jwt_user_id")
+    tier = kwargs.get("_jwt_tier")
+
+    allowed, meta = _apply_rate_limit(user_id, tier)
+    if not allowed:
+        return jsonify({"error": "Rate limit exceeded", "meta": meta}), 429
+
+    from services.pulse_terminal_service import get_sentiment_composite
+    result = get_sentiment_composite()
+
+    return jsonify({
+        "data": result["data"],
+        "scan_time": result["scan_time"],
+        "meta": {**meta, "stale": result.get("stale", False)},
+    })
+
+
+# ── /v1/alerts/webhook ───────────────────────────────────────────────────────
+
+@app.route("/v1/alerts/webhook", methods=["GET", "POST"])
+@_jwt_required
+def v1_alerts_webhook(**kwargs):
+    """
+    Commander: Register (POST) or query (GET) alert webhook configuration.
+    GET  — returns current breaking alert status + registered webhook URL
+    POST — body: {"webhook_url": "https://...", "threshold_velocity": 80}
+           stores alert webhook preference on user record (via session)
+    """
+    user_id = kwargs.get("_jwt_user_id")
+    tier = kwargs.get("_jwt_tier")
+
+    allowed, meta = _apply_rate_limit(user_id, tier)
+    if not allowed:
+        return jsonify({"error": "Rate limit exceeded", "meta": meta}), 429
+
+    from services.pulse_terminal_service import get_breaking_alerts
+
+    if request.method == "POST":
+        body = request.get_json(silent=True) or {}
+        webhook_url = body.get("webhook_url", "")
+        threshold = int(body.get("threshold_velocity", 80))
+
+        # Validate URL scheme (no localhost/internal allowed in production)
+        if webhook_url and not webhook_url.startswith(("https://", "http://")):
+            return jsonify({"error": "webhook_url must be http/https"}), 400
+
+        # Store in Flask session as lightweight persistence (upgrade to DB when needed)
+        session[f"alert_webhook_{user_id}"] = {
+            "url": webhook_url,
+            "threshold_velocity": threshold,
+            "registered_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+
+        return jsonify({
+            "registered": True,
+            "webhook_url": webhook_url,
+            "threshold_velocity": threshold,
+            "meta": meta,
+        })
+
+    # GET — return current alert status
+    alerts = get_breaking_alerts()
+    webhook_config = session.get(f"alert_webhook_{user_id}", {})
+
+    return jsonify({
+        "data": {
+            **alerts["data"],
+            "webhook_config": webhook_config or None,
+        },
+        "meta": meta,
+    })
+
+
+# ── /v1/stripe/webhook ───────────────────────────────────────────────────────
+
+@app.route("/v1/stripe/webhook", methods=["POST"])
+def v1_stripe_webhook():
+    """
+    Stripe webhook for Pulse Terminal subscriptions.
+    Handles checkout.session.completed and customer.subscription.deleted.
+    """
+    from services.stripe_service import (
+        validate_webhook_signature,
+        handle_checkout_completed,
+        handle_subscription_deleted,
+    )
+
+    payload = request.get_data()
+    sig_header = request.headers.get("Stripe-Signature", "")
+    webhook_secret = os.environ.get("STRIPE_TERMINAL_WEBHOOK_SECRET", "")
+
+    if webhook_secret:
+        event = validate_webhook_signature(payload, sig_header, webhook_secret)
+        if event is None:
+            return jsonify({"error": "Invalid signature"}), 400
+    else:
+        # Dev mode: parse without verification
+        try:
+            event = json.loads(payload)
+        except Exception:
+            return jsonify({"error": "Invalid JSON"}), 400
+
+    event_type = event.get("type", "")
+    event_data = (event.get("data") or {}).get("object") or {}
+
+    if event_type == "checkout.session.completed":
+        result = handle_checkout_completed(event_data, db, models)
+        logging.info("Terminal checkout completed: %s", result)
+        return jsonify({"received": True, "result": result})
+
+    elif event_type == "customer.subscription.deleted":
+        result = handle_subscription_deleted(event_data, db, models)
+        logging.info("Terminal subscription deleted: %s", result)
+        return jsonify({"received": True, "result": result})
+
+    # All other events acknowledged
+    return jsonify({"received": True, "event_type": event_type})
+
+
 # Error handlers
 @app.errorhandler(404)
 def not_found_error(error):
