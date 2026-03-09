@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""dual_host_tts.py — Two-voice dialogue engine for Pulse Check V4.
+"""dual_host_tts.py — Single-host TTS engine for Pulse Check.
 
-Generates audio for a dual-host conversation using ElevenLabs TTS.
-Host 1 (Nicole):  piTKgcLEGmPE4e6mEKli
-Host 2 (Chris):   iP95p4xoKVk53GoZ742B
+Generates audio using ElevenLabs TTS.
+Host: Mark (1SM7GgM6IMuvQlz2BwM3) — PBX approved single narrator at 1.10x speed.
+Both host=1 and host=2 entries route to Mark (single voice, no gender swap).
 
 Usage:
     from dual_host_tts import generate_dialogue_audio
 
     dialogue = [
         {"host": 1, "text": "So Saylor just dropped another banger..."},
-        {"host": 2, "text": "Dude, I saw that. Let's roll the clip."},
+        {"host": 2, "text": "Let's roll the clip."},
         {"host": "CLIP", "duration": 30, "source": "@MicroStrategy"},
         {"host": 2, "text": "Ok here's what blows my mind about this..."},
         {"host": 1, "text": "Right, and if you think about it..."},
@@ -41,30 +41,26 @@ except ImportError:
 from relay import get_key
 
 # ── Voice configuration ──────────────────────────────────────────────────────
+# PBX DIRECTIVE 2026-03-09: SINGLE HOST ONLY — Mark at 1.10x speed.
+# Nicole (piTKgcLEGmPE4e6mEKli) and Chris (iP95p4xoKVk53GoZ742B) are BANNED.
+# Both host=1 and host=2 map to Mark.
+
+_MARK_VOICE = {
+    "voice_id": "1SM7GgM6IMuvQlz2BwM3",
+    "name": "Mark",
+    "model_id": "eleven_turbo_v2_5",
+    "voice_settings": {
+        "stability": 0.55,
+        "similarity_boost": 0.80,
+        "style": 0.15,
+        "use_speaker_boost": True,
+        "speed": 1.10,
+    },
+}
 
 VOICES = {
-    1: {
-        "voice_id": "piTKgcLEGmPE4e6mEKli",
-        "name": "Nicole",
-        "model_id": "eleven_turbo_v2_5",
-        "voice_settings": {
-            "stability": 0.65,
-            "similarity_boost": 0.75,
-            "style": 0.10,
-            "use_speaker_boost": True,
-        },
-    },
-    2: {
-        "voice_id": "iP95p4xoKVk53GoZ742B",
-        "name": "Chris",
-        "model_id": "eleven_turbo_v2_5",
-        "voice_settings": {
-            "stability": 0.5,
-            "similarity_boost": 0.75,
-            "style": 0.0,
-            "use_speaker_boost": True,
-        },
-    },
+    1: _MARK_VOICE,
+    2: _MARK_VOICE,  # both hosts → Mark (single narrator)
 }
 
 SILENCE_GAP = 0.3  # seconds between speakers
@@ -147,11 +143,16 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1) -> bool:
     chunk_files = []
 
     for ci, chunk in enumerate(chunks):
+        # Extract speed (top-level ElevenLabs param) from voice_settings if present
+        raw_settings = dict(voice["voice_settings"])
+        speed_val = raw_settings.pop("speed", None)
         body = {
             "text": chunk,
             "model_id": voice["model_id"],
-            "voice_settings": voice["voice_settings"],
+            "voice_settings": raw_settings,
         }
+        if speed_val is not None:
+            body["speed"] = speed_val
         mp3_tmp = output_path + f".chunk{ci}.mp3"
         success = False
 
@@ -219,7 +220,7 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
 
     Args:
         dialogue: List of dicts with keys:
-            - host: 1 (Nicole), 2 (Chris), or "CLIP" (silence placeholder)
+            - host: 1 or 2 (both route to Mark), or "CLIP" (silence placeholder)
             - text: The line text (or clip description for CLIP)
             - duration: (CLIP only) silence duration in seconds
             - source: (CLIP only) source channel name
