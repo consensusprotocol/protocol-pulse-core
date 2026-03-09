@@ -290,7 +290,7 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
         text = entry.get("text", "")
 
         if host == "CLIP":
-            clip_dur = entry.get("duration", 0)
+            clip_dur = float(entry.get("duration", 30.0))
             lines.append({
                 "path": None,
                 "host": "CLIP",
@@ -300,6 +300,7 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
                 "query": entry.get("query", ""),
                 "text": text,
             })
+            current_time += clip_dur  # advance timeline so subsequent lines sync correctly
             continue
 
         host_num = int(host) if host in (1, 2, "1", "2") else 1

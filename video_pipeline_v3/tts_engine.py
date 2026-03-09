@@ -323,17 +323,19 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
         host = entry.get("host")
         text = entry.get("text", "")
 
-        # Skip CLIP markers — they don't have audio
+        # Skip CLIP markers — they don't have audio but DO advance the timeline
         if host == "CLIP":
+            clip_duration = float(entry.get("duration", 30.0))  # use actual duration or default 30s
             lines.append({
                 "path": None,
                 "host": "CLIP",
-                "duration": 0.0,
+                "duration": clip_duration,  # record actual duration, not hardcoded 0.0
                 "start": current_time,
                 "source": entry.get("source", ""),
                 "query": entry.get("query", ""),
                 "text": text,
             })
+            current_time += clip_duration  # advance timeline so subsequent audio is correctly offset
             continue
 
         host_num = int(host) if host in (1, 2, "1", "2") else 1
