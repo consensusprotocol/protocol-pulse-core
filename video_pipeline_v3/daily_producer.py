@@ -719,6 +719,35 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         alert_pipeline_success(date_str, quality_score,
                                timing.get("video_duration", 0), final_video)
 
+    # ── Step 14: FORMAT MULTIPLIER (V22) ───────────────────────────────────
+    # LAW 1: Only runs AFTER episode is fully rendered and QC-passed.
+    # LAW 2: Runs as a detached subprocess — never blocks or delays the main render.
+    if is_enabled("multi_format_output") and passed:
+        print("\n[STEP 14] FORMAT MULTIPLIER — launching secondary formats...")
+        try:
+            fmt_script = os.path.join(BASE, "format_multiplier.py")
+            fmt_args = [
+                sys.executable, fmt_script,
+                "--manifest", manifest_path,
+                "--video", final_video,
+            ]
+            if test_mode:
+                fmt_args.append("--test")
+            # Detached subprocess: does not block main pipeline return
+            fmt_proc = subprocess.Popen(
+                fmt_args,
+                stdout=open(os.path.join(run_dir, "format_multiplier.log"), "w"),
+                stderr=subprocess.STDOUT,
+                start_new_session=True,  # detach from parent process group
+            )
+            print(f"  Format multiplier launched (PID {fmt_proc.pid}) — 5 formats running in background")
+            print(f"  Log: {run_dir}/format_multiplier.log")
+            manifest["format_multiplier_pid"] = fmt_proc.pid
+        except Exception as e:
+            logger.warning(f"Format multiplier launch failed (non-blocking): {e}")
+    elif not is_enabled("multi_format_output"):
+        logger.info("multi_format_output feature flag is disabled — skipping format multiplier")
+
     return passed
 
 

@@ -12,5 +12,6 @@
   "sponsor_rotation": false,
   "remotion_visuals": false,
   "agent_dev_mode": false,
-  "test_mode": false
+  "test_mode": false,
+  "multi_format_output": false
 }
