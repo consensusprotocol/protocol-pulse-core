@@ -310,6 +310,22 @@ app.register_blueprint(onboarding_bp)
 from oracle_routes import oracle_bp
 app.register_blueprint(oracle_bp)
 
+# SESSION 10 — Article Rebuild: new /api/v2/articles endpoint
+try:
+    from routes_articles import articles_api_bp
+    app.register_blueprint(articles_api_bp)
+    logging.info("Articles API blueprint registered (/api/v2/articles)")
+except Exception as _e:
+    logging.warning("Articles API blueprint not loaded: %s", _e)
+
+# SESSION 5 — Mining Intel Blueprint
+try:
+    from core.blueprints.mining import mining_bp
+    app.register_blueprint(mining_bp)
+    logging.info("Mining Intel blueprint registered at /mining-intel")
+except Exception as _e:
+    logging.warning("Mining Intel blueprint not loaded: %s", _e)
+
 try:
     from services.video_engine.dashboard.app import dashboard_bp
     app.register_blueprint(dashboard_bp)
