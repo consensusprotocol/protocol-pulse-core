@@ -100,3 +100,51 @@ def query_db(sql: str) -> str:
     """DEPRECATED — use direct SQLAlchemy calls on Ultron instead."""
     print(f"[relay] WARNING: query_db() called but Replit relay is deprecated.")
     return "[]"
+
+
+# ── LLM fallback helper ─────────────────────────────────────────────────────
+
+def call_llm(prompt: str, max_tokens: int = 4000, temperature: float = 0.3) -> str | None:
+    """Call an LLM with Anthropic→Grok fallback. Returns response text or None."""
+    import logging
+    log = logging.getLogger("relay.call_llm")
+
+    # Try Anthropic first
+    anthropic_key = get_key("ANTHROPIC_API_KEY", required=False)
+    if anthropic_key:
+        try:
+            import anthropic
+            client = anthropic.Anthropic(api_key=anthropic_key)
+            resp = client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=max_tokens,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            return resp.content[0].text.strip()
+        except Exception as e:
+            log.warning(f"Anthropic failed: {e}")
+
+    # Fallback to Grok/xAI
+    xai_key = get_key("XAI_API_KEY", required=False)
+    if xai_key:
+        try:
+            import requests
+            resp = requests.post(
+                "https://api.x.ai/v1/chat/completions",
+                headers={"Authorization": f"Bearer {xai_key}", "Content-Type": "application/json"},
+                json={
+                    "model": "grok-3-mini-fast",
+                    "messages": [{"role": "user", "content": prompt}],
+                    "max_tokens": max_tokens,
+                    "temperature": temperature,
+                },
+                timeout=120,
+            )
+            if resp.status_code == 200:
+                return resp.json()["choices"][0]["message"]["content"].strip()
+            log.warning(f"Grok API error {resp.status_code}: {resp.text[:200]}")
+        except Exception as e:
+            log.warning(f"Grok failed: {e}")
+
+    log.error("All LLM providers failed")
+    return None

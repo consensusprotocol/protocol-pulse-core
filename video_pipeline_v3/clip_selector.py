@@ -189,24 +189,18 @@ def select_clips(videos: list) -> dict:
         logger.error("No videos to select from")
         return {"clips": [], "episode_title": "Pulse Check", "cold_open": ""}
 
-    key = get_key("ANTHROPIC_API_KEY")
-    if not key or not HAS_ANTHROPIC:
-        logger.error("Anthropic API not available")
-        return {"clips": [], "episode_title": "Pulse Check", "cold_open": ""}
+    from relay import call_llm
 
     transcripts_text = _format_transcripts(videos)
     prompt = SELECTION_PROMPT.format(transcripts=transcripts_text)
 
-    logger.info(f"Sending {len(videos)} transcripts to Claude for clip selection...")
-    client = anthropic.Anthropic(api_key=key)
+    logger.info(f"Sending {len(videos)} transcripts for clip selection...")
+    text = call_llm(prompt, max_tokens=4000)
+    if text is None:
+        logger.error("All LLM providers failed for clip selection")
+        return {"clips": [], "episode_title": "Pulse Check", "cold_open": ""}
 
     try:
-        resp = client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=4000,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        text = resp.content[0].text.strip()
 
         # Strip markdown fences if present
         if "```json" in text:
@@ -296,12 +290,9 @@ def select_clips(videos: list) -> dict:
                     f"\"host_setup\": \"...\", \"host_react\": \"...\"}}]}}"
                 )
                 try:
-                    resp2 = client.messages.create(
-                        model="claude-sonnet-4-6",
-                        max_tokens=3000,
-                        messages=[{"role": "user", "content": reselect_prompt}],
-                    )
-                    text2 = resp2.content[0].text.strip()
+                    text2 = call_llm(reselect_prompt, max_tokens=3000)
+                    if text2 is None:
+                        raise RuntimeError("All LLM providers failed for re-selection")
                     if "```json" in text2:
                         text2 = text2.split("```json")[1].split("```")[0]
                     elif "```" in text2:

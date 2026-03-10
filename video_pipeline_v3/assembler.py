@@ -885,25 +885,6 @@ def _build_top_system_bar(label_in: str, label_out: str, scene_label: str = "",
            # LIVE label in red
            f"drawtext=fontfile={FONT_BOLD}:text='LIVE':"
            f"fontcolor={COLOR_RED}:fontsize=16:x=236:y=30,"
-           # Separator
-           f"drawtext=fontfile={FONT_MONO}:text='|':"
-           f"fontcolor={COLOR_MUTED}:fontsize=16:x=282:y=26,"
-           # Broadcast Signature System (muted mono)
-           f"drawtext=fontfile={FONT_MONO}:text='Broadcast Signature System':"
-           f"fontcolor={COLOR_MUTED}:fontsize=11:x=302:y=31,"
-           # Right: Motion Active
-           f"drawtext=fontfile={FONT_MONO}:text='Motion Active':"
-           f"fontcolor={COLOR_MUTED}:fontsize=11:x=1560:y=31,"
-           f"drawtext=fontfile={FONT_MONO}:text='|':"
-           f"fontcolor={COLOR_MUTED}:fontsize=11:x=1652:y=31,"
-           # Narration Layer
-           f"drawtext=fontfile={FONT_MONO}:text='Narration Layer':"
-           f"fontcolor=0xFFFFFF@0.7:fontsize=11:x=1666:y=31,"
-           f"drawtext=fontfile={FONT_MONO}:text='|':"
-           f"fontcolor={COLOR_MUTED}:fontsize=11:x=1766:y=31,"
-           # RECON-ID (BD metadata)
-           f"drawtext=fontfile={FONT_MONO}:text='RECON-ID  {recon_id}':"
-           f"fontcolor={COLOR_MUTED}:fontsize=11:x=1780:y=31,"
            # Bottom separator
            f"drawbox=x=20:y=64:w=1880:h=1:color={COLOR_RED}@0.25:t=fill"
            f"[{label_out}];\n")
@@ -1215,8 +1196,7 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     safe_head = _sanitize_text(headline)[:40]
     safe_body = _word_wrap(_sanitize_text(body), max_width=30, max_lines=3) if body else ""
 
-    fg += (f"[bv2_bar]drawtext=fontfile={FONT_MONO}:text='NARRATIVE SETUP // {safe_speaker}':"
-           f"fontcolor={COLOR_GOLD}:fontsize=13:x=64:y=100[np_eye];\n")
+    fg += f"[bv2_bar]copy[np_eye];\n"
     fg += (f"[np_eye]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
            f"fontcolor=0x111111:fontsize=64:x=66:y=132,"
            f"drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
@@ -1227,17 +1207,8 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     else:
         fg += f"[np_head]copy[np_body];\n"
 
-    # ORACLE NARRATION ACTIVE + Story Arc Locked — glass panel style
-    fg += (f"[np_body]drawbox=x=60:y=576:w=290:h=34:color=0x080808@0.82:t=fill,"
-           f"drawbox=x=60:y=576:w=3:h=34:color={COLOR_RED}@0.9:t=fill,"
-           f"drawbox=x=60:y=576:w=290:h=1:color=0xFFFFFF@0.08:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='ORACLE NARRATION ACTIVE':"
-           f"fontcolor=0xFFFFFF@0.85:fontsize=12:x=70:y=589,"
-           f"drawbox=x=60:y=618:w=210:h=30:color=0x080808@0.82:t=fill,"
-           f"drawbox=x=60:y=618:w=3:h=30:color={COLOR_RED}@0.6:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='Story Arc Locked':"
-           f"fontcolor=0xAAAAAA@0.90:fontsize=11:x=70:y=629"
-           f"[np_pills];\n")
+    # Status badges removed (PIPELINE_LAWS: no debug overlays)
+    fg += f"[np_body]copy[np_pills];\n"
 
     # Right PiP preview panel (x=1120, y=140, w=740, h=500)
     # Gold eyebrow above PiP
@@ -1246,8 +1217,7 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     fg += (f"[np_pip_eye]drawbox=x=1120:y=140:w=740:h=500:color={COLOR_PANEL}@0.92:t=fill,"
            f"drawbox=x=1120:y=140:w=740:h=1:color=0xFFFFFF@0.1:t=fill,"
            f"drawbox=x=1120:y=639:w=740:h=1:color=0xFFFFFF@0.1:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='Muted Preview':"
-           f"fontcolor=0xFFFFFF@0.35:fontsize=11:x=1720:y=152"
+           f"drawbox=x=1120:y=140:w=0:h=0:color=0x000000@0:t=fill"
            f"[np_pip_hdr];\n")
 
     # FIX 1: Use actual video in PiP box — loop the preview clip to match segment duration
@@ -1881,12 +1851,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
            f"fontcolor={COLOR_RED}:fontsize=22:x=280:y=26,"
            f"drawtext=fontfile={FONT_BOLD}:text='|':"
            f"fontcolor={COLOR_MUTED}:fontsize=28:x=340:y=22,"
-           f"drawtext=fontfile={FONT_MONO}:text='EPISODE {ep_num}':"
-           f"fontcolor={COLOR_MUTED}:fontsize=16:x=370:y=28,"
-           f"drawtext=fontfile={FONT_MONO}:text='LAYER 04 ACTIVE':"
-           f"fontcolor={COLOR_RED}:fontsize=14:x=560:y=30,"
-           f"drawtext=fontfile={FONT_MONO}:text='RECON-ID - {recon_id}':"
-           f"fontcolor=0x555555:fontsize=13:x=w-text_w-24:y=30"
+           f"drawbox=x=0:y=0:w=0:h=0:color=0x000000@0:t=fill"
            f"[hdr];\n")
 
     # ── LEFT PANEL ──
@@ -3130,8 +3095,6 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
               f"fontcolor=0xF8C15C:fontsize=36:x=(w-text_w)/2:y=520,"
               f"drawtext=fontfile={FONT_MONO}:text='{title_date}':"
               f"fontcolor={COLOR_MUTED}:fontsize=22:x=(w-text_w)/2:y=580,"
-              f"drawtext=fontfile={FONT_MONO}:text='// SIGNAL DETECTED //':"
-              f"fontcolor={COLOR_RED}:fontsize=20:x=(w-text_w)/2:y=630,"
               f"fade=t=in:st=0:d=0.5[outv];\n"
               f"anullsrc=r=48000:cl=stereo,atrim=0:{tc_dur}[outa]")
     tc_ok = run_ffmpeg_filtergraph(

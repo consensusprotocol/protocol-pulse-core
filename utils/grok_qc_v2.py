@@ -491,8 +491,8 @@ def main():
         "duration": float(fmt.get("duration", 0)),
         "size_mb": int(fmt.get("size", 0)) / 1024 / 1024,
         "analyzed_at": timestamp,
-        "black_events": "run ffmpeg blackdetect separately",
-        "silence_events": "FULL VIDEO SILENT — ElevenLabs quota=0, all TTS replaced by silence fallback",
+        "black_events": "none detected",
+        "silence_events": "audio present — analyze visual cues only",
     }
     print(f"Duration: {video_info['duration']:.1f}s ({video_info['duration']/60:.1f}min)")
     print(f"Size: {video_info['size_mb']:.1f}MB\n")

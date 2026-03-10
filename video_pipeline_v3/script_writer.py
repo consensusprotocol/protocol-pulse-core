@@ -193,10 +193,7 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
         logger.error("No clips provided for script generation")
         return _fallback_script(selections)
 
-    key = get_key("ANTHROPIC_API_KEY")
-    if not key or not HAS_ANTHROPIC:
-        logger.warning("Anthropic API not available, using fallback script")
-        return _fallback_script(selections)
+    from relay import call_llm
 
     clips_info = _format_clips_info(selections)
 
@@ -229,15 +226,12 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
                                    social_posts=social_posts, live_context=live_block)
 
     logger.info(f"Generating script for {len(clips)} clips...")
-    client = anthropic.Anthropic(api_key=key)
+    text = call_llm(prompt, max_tokens=4000)
+    if text is None:
+        logger.warning("All LLM providers failed, using fallback script")
+        return _fallback_script(selections)
 
     try:
-        resp = client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=4000,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        text = resp.content[0].text.strip()
 
         if "```json" in text:
             text = text.split("```json")[1].split("```")[0]

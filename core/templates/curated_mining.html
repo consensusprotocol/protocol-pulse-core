@@ -2,427 +2,415 @@
 {% block title %}Curated Mining — White-Glove Bitcoin Mining | Consensus Protocol LLC{% endblock %}
 {% block meta_description %}White-glove Bitcoin mining setup. LLC structure, Section 179 tax benefits, passive BTC income. Naples, FL. Schedule your consultation.{% endblock %}
 
-{% block extra_css %}
+{% block head %}
 <style>
 :root {
-  --gold: #F8C15C;
-  --red: #FF0033;
-  --dark: #060608;
-  --panel: #0D0D12;
-  --border: rgba(248,193,92,0.15);
-  --text: #E8E8F0;
-  --muted: #7A7A8C;
+  --cm-gold: #F8C15C;
+  --cm-red: #FF0033;
+  --cm-dark: #060608;
+  --cm-panel: #0D0D12;
+  --cm-border: rgba(248,193,92,0.15);
+  --cm-text: #E8E8F0;
+  --cm-muted: #7A7A8C;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--dark); color: var(--text); font-family: 'DM Sans', system-ui, sans-serif; }
+.cm-wrap * { box-sizing: border-box; }
+.cm-wrap { background: var(--cm-dark); color: var(--cm-text); font-family: 'DM Sans',system-ui,sans-serif; }
 
 /* ── HERO ── */
 .cm-hero {
-  min-height: 100vh;
-  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  min-height: 100vh; display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
   text-align: center; padding: 100px 24px 60px;
   background:
-    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(248,193,92,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(248,193,92,0.09) 0%, transparent 70%),
     radial-gradient(ellipse 60% 40% at 20% 80%, rgba(255,0,51,0.05) 0%, transparent 60%),
-    var(--dark);
+    var(--cm-dark);
   position: relative; overflow: hidden;
 }
 .cm-hero::before {
-  content: '';
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(248,193,92,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(248,193,92,0.04) 1px, transparent 1px);
-  background-size: 60px 60px;
-  pointer-events: none;
+  content:''; position:absolute; inset:0;
+  background-image: linear-gradient(rgba(248,193,92,0.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(248,193,92,0.04) 1px,transparent 1px);
+  background-size:60px 60px; pointer-events:none;
 }
 .cm-eyebrow {
-  font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase;
-  color: var(--gold); font-family: monospace; margin-bottom: 20px;
-  display: inline-flex; align-items: center; gap: 10px;
+  font-size:11px; letter-spacing:.3em; text-transform:uppercase;
+  color:var(--cm-gold); font-family:monospace; margin-bottom:20px;
+  display:inline-flex; align-items:center; gap:10px;
 }
-.cm-eyebrow::before, .cm-eyebrow::after {
-  content: ''; display: block; width: 40px; height: 1px; background: var(--gold); opacity: 0.5;
-}
+.cm-eyebrow::before,.cm-eyebrow::after{content:'';display:block;width:40px;height:1px;background:var(--cm-gold);opacity:.5;}
 .cm-hero h1 {
-  font-size: clamp(2.8rem, 7vw, 6rem); font-weight: 800; line-height: 1.0;
-  letter-spacing: -0.02em; margin-bottom: 24px;
-  background: linear-gradient(135deg, #fff 0%, var(--gold) 60%, #ff9900 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  font-size:clamp(2.8rem,7vw,6rem); font-weight:800; line-height:1.0;
+  letter-spacing:-.02em; margin-bottom:24px;
+  background:linear-gradient(135deg,#fff 0%,var(--cm-gold) 60%,#ff9900 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
 }
-.cm-hero-sub {
-  font-size: clamp(1rem, 2.5vw, 1.35rem); color: var(--muted); max-width: 580px;
-  line-height: 1.6; margin-bottom: 44px;
+.cm-hero-sub { font-size:clamp(1rem,2.5vw,1.35rem); color:var(--cm-muted); max-width:580px; line-height:1.6; margin-bottom:44px; }
+.cm-cta-group { display:flex; gap:14px; flex-wrap:wrap; justify-content:center; }
+.cm-btn-primary {
+  background:var(--cm-gold); color:#000; font-weight:700;
+  padding:16px 36px; border-radius:6px; text-decoration:none;
+  font-size:1rem; letter-spacing:.05em; text-transform:uppercase;
+  transition:all .2s; border:none; cursor:pointer; display:inline-block;
 }
-.cm-cta-group { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
-.cm-cta-primary {
-  background: var(--gold); color: #000; font-weight: 700;
-  padding: 16px 36px; border-radius: 6px; text-decoration: none;
-  font-size: 1rem; letter-spacing: 0.05em; text-transform: uppercase;
-  transition: all 0.2s; border: none; cursor: pointer;
+.cm-btn-primary:hover { background:#ffd070; transform:translateY(-2px); box-shadow:0 8px 24px rgba(248,193,92,.3); }
+.cm-btn-secondary {
+  background:transparent; color:var(--cm-text); font-weight:600;
+  padding:16px 36px; border-radius:6px; text-decoration:none;
+  font-size:1rem; letter-spacing:.05em;
+  border:1px solid rgba(248,193,92,.3); transition:all .2s; display:inline-block;
 }
-.cm-cta-primary:hover { background: #ffd070; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(248,193,92,0.3); }
-.cm-cta-secondary {
-  background: transparent; color: var(--text); font-weight: 600;
-  padding: 16px 36px; border-radius: 6px; text-decoration: none;
-  font-size: 1rem; letter-spacing: 0.05em;
-  border: 1px solid rgba(248,193,92,0.3); transition: all 0.2s;
-}
-.cm-cta-secondary:hover { border-color: var(--gold); color: var(--gold); }
-
-.cm-btc-live {
-  position: absolute; top: 24px; right: 28px;
-  font-family: monospace; font-size: 13px; color: var(--gold);
-  display: flex; align-items: center; gap: 8px;
-}
-.cm-btc-live .pulse { width: 8px; height: 8px; border-radius: 50%; background: #00ff88;
-  animation: pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+.cm-btn-secondary:hover { border-color:var(--cm-gold); color:var(--cm-gold); }
+.cm-pulse-dot { width:8px;height:8px;border-radius:50%;background:#00ff88;animation:cmpulse 2s infinite;display:inline-block; }
+@keyframes cmpulse{0%,100%{opacity:1;}50%{opacity:.3;}}
 
 /* ── STATS BAR ── */
-.cm-stats {
-  display: flex; justify-content: center; gap: 0; flex-wrap: wrap;
-  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-  background: var(--panel);
-}
-.cm-stat {
-  flex: 1; min-width: 160px; padding: 28px 20px; text-align: center;
-  border-right: 1px solid var(--border);
-}
-.cm-stat:last-child { border-right: none; }
-.cm-stat-val { font-size: 2rem; font-weight: 800; color: var(--gold); font-family: monospace; }
-.cm-stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+.cm-stats { display:flex; justify-content:center; flex-wrap:wrap; border-top:1px solid var(--cm-border); border-bottom:1px solid var(--cm-border); background:var(--cm-panel); }
+.cm-stat { flex:1; min-width:160px; padding:28px 20px; text-align:center; border-right:1px solid var(--cm-border); }
+.cm-stat:last-child{border-right:none;}
+.cm-stat-val { font-size:2rem; font-weight:800; color:var(--cm-gold); font-family:monospace; }
+.cm-stat-label { font-size:11px; color:var(--cm-muted); text-transform:uppercase; letter-spacing:.1em; margin-top:4px; }
 
 /* ── SECTIONS ── */
-.cm-section { padding: 80px 24px; max-width: 1100px; margin: 0 auto; }
-.cm-section-title {
-  font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; margin-bottom: 12px;
-  letter-spacing: -0.02em;
-}
-.cm-section-title span { color: var(--gold); }
-.cm-section-sub { color: var(--muted); font-size: 1.1rem; margin-bottom: 48px; max-width: 560px; }
+.cm-section { padding:80px 24px; max-width:1100px; margin:0 auto; }
+.cm-section-title { font-size:clamp(1.8rem,4vw,2.8rem); font-weight:800; margin-bottom:12px; letter-spacing:-.02em; }
+.cm-section-title span { color:var(--cm-gold); }
+.cm-section-sub { color:var(--cm-muted); font-size:1.1rem; margin-bottom:48px; max-width:560px; }
 
-/* ── 3-STEP PROCESS ── */
-.cm-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2px; }
-.cm-step {
-  background: var(--panel); padding: 40px 32px;
-  border: 1px solid var(--border); position: relative;
-  transition: border-color 0.2s;
-}
-.cm-step:hover { border-color: rgba(248,193,92,0.4); }
-.cm-step-num {
-  font-size: 4rem; font-weight: 900; font-family: monospace;
-  color: rgba(248,193,92,0.12); line-height: 1; margin-bottom: 16px;
-}
-.cm-step h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: 10px; color: var(--gold); }
-.cm-step p { color: var(--muted); line-height: 1.7; font-size: 0.95rem; }
+/* ── STEPS ── */
+.cm-steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:2px; }
+.cm-step { background:var(--cm-panel); padding:40px 32px; border:1px solid var(--cm-border); transition:border-color .2s; }
+.cm-step:hover{border-color:rgba(248,193,92,.4);}
+.cm-step-num { font-size:4rem; font-weight:900; font-family:monospace; color:rgba(248,193,92,.12); line-height:1; margin-bottom:16px; }
+.cm-step h3 { font-size:1.3rem; font-weight:700; margin-bottom:10px; color:var(--cm-gold); }
+.cm-step p { color:var(--cm-muted); line-height:1.7; font-size:.95rem; }
 
-/* ── BENEFITS GRID ── */
-.cm-benefits { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
-.cm-benefit {
-  background: var(--panel); padding: 32px 28px;
-  transition: background 0.2s;
-}
-.cm-benefit:hover { background: #111118; }
-.cm-benefit-icon { font-size: 2rem; margin-bottom: 14px; }
-.cm-benefit h4 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
-.cm-benefit p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
-.cm-benefit .highlight { color: var(--gold); font-weight: 700; }
+/* ── BENEFITS ── */
+.cm-benefits { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1px; background:var(--cm-border); border:1px solid var(--cm-border); }
+.cm-benefit { background:var(--cm-panel); padding:32px 28px; transition:background .2s; }
+.cm-benefit:hover{background:#111118;}
+.cm-benefit-icon{font-size:2rem;margin-bottom:14px;}
+.cm-benefit h4{font-size:1.05rem;font-weight:700;margin-bottom:8px;}
+.cm-benefit p{color:var(--cm-muted);font-size:.9rem;line-height:1.6;}
+.cm-hl{color:var(--cm-gold);font-weight:700;}
 
-/* ── CALCULATOR ── */
-.cm-calc-wrap { background: var(--panel); border: 1px solid var(--border); padding: 44px; border-radius: 2px; }
-.cm-calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-@media(max-width:700px){ .cm-calc-grid { grid-template-columns: 1fr; } }
-.cm-input-group { margin-bottom: 28px; }
-.cm-input-group label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 10px; font-family: monospace; }
-.cm-input-group input[type=range] { width: 100%; accent-color: var(--gold); }
-.cm-input-val { font-size: 1.5rem; font-weight: 800; font-family: monospace; color: var(--gold); margin-top: 6px; }
-.cm-results { display: flex; flex-direction: column; gap: 20px; justify-content: center; }
-.cm-result-card { background: rgba(248,193,92,0.06); border: 1px solid rgba(248,193,92,0.2); padding: 20px 24px; border-radius: 2px; }
-.cm-result-card .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); font-family: monospace; }
-.cm-result-card .val { font-size: 1.8rem; font-weight: 800; font-family: monospace; color: var(--gold); margin-top: 4px; }
-.cm-result-card .sub { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
-.cm-calc-disclaimer { font-size: 11px; color: var(--muted); margin-top: 20px; line-height: 1.5; text-align: center; }
-
-/* ── TAX CALLOUT ── */
+/* ── TAX BOX ── */
 .cm-tax-box {
-  background: linear-gradient(135deg, rgba(248,193,92,0.08) 0%, rgba(255,0,51,0.04) 100%);
-  border: 1px solid rgba(248,193,92,0.3);
-  padding: 44px 48px; text-align: center;
-  position: relative; overflow: hidden;
+  background:linear-gradient(135deg,rgba(248,193,92,.08) 0%,rgba(255,0,51,.04) 100%);
+  border:1px solid rgba(248,193,92,.3); padding:44px 48px; text-align:center; position:relative; overflow:hidden;
 }
-.cm-tax-box::before {
-  content: '§179';
-  position: absolute; right: -10px; top: 50%; transform: translateY(-50%);
-  font-size: 9rem; font-weight: 900; color: rgba(248,193,92,0.04);
-  font-family: monospace; pointer-events: none;
+.cm-tax-box::before{content:'§179';position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-size:9rem;font-weight:900;color:rgba(248,193,92,.04);font-family:monospace;pointer-events:none;}
+.cm-tax-amount{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:900;color:var(--cm-gold);font-family:monospace;}
+.cm-tax-label{font-size:1rem;color:var(--cm-muted);margin-top:8px;}
+.cm-tax-detail{font-size:.95rem;color:var(--cm-text);margin-top:20px;max-width:600px;margin-left:auto;margin-right:auto;line-height:1.7;}
+
+/* ── ROI CALCULATOR ── */
+.cm-calc-outer { background:var(--cm-dark); padding:0 24px 80px; }
+.cm-calc-inner { max-width:1100px; margin:0 auto; }
+.cm-calc-grid { display:grid; grid-template-columns:1fr 1fr; gap:32px; }
+@media(max-width:768px){.cm-calc-grid{grid-template-columns:1fr;}}
+.cm-card { background:var(--cm-panel); border:1px solid var(--cm-border); padding:32px; margin-bottom:16px; }
+.cm-card-title { font-size:1rem; font-weight:700; color:var(--cm-text); margin-bottom:20px; display:flex; align-items:center; gap:10px; }
+.cm-card-title .icon { font-size:1.2rem; }
+.cm-field { margin-bottom:22px; }
+.cm-field label { display:block; font-size:11px; text-transform:uppercase; letter-spacing:.12em; color:var(--cm-muted); margin-bottom:8px; font-family:monospace; }
+.cm-field select {
+  width:100%; background:#0a0a10; color:var(--cm-text); border:1px solid var(--cm-border);
+  padding:10px 14px; font-size:.9rem; appearance:none; cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23F8C15C' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 12px center;
 }
-.cm-tax-amount { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 900; color: var(--gold); font-family: monospace; }
-.cm-tax-label { font-size: 1rem; color: var(--muted); margin-top: 8px; }
-.cm-tax-detail { font-size: 0.95rem; color: var(--text); margin-top: 20px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.7; }
+.cm-field input[type=range] { width:100%; accent-color:var(--cm-gold); height:4px; }
+.cm-field .val-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.cm-field .val-display { font-family:monospace; font-size:1rem; color:var(--cm-gold); font-weight:700; }
+.cm-field .range-labels { display:flex; justify-content:space-between; font-size:10px; color:var(--cm-muted); margin-top:4px; }
+
+/* Results */
+.cm-result-hero {
+  background:linear-gradient(135deg,rgba(248,193,92,.12) 0%,rgba(255,0,51,.06) 100%);
+  border:1px solid rgba(248,193,92,.3); padding:32px; margin-bottom:16px;
+  box-shadow:0 0 40px rgba(248,193,92,.06);
+}
+.cm-result-hero-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+.cm-mini-stat { background:rgba(0,0,0,.3); padding:16px; }
+.cm-mini-stat .lbl { font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--cm-muted); font-family:monospace; }
+.cm-mini-stat .val { font-size:1.6rem; font-weight:800; color:var(--cm-text); font-family:monospace; }
+.cm-roi-bar { background:rgba(248,193,92,.08); border:1px solid rgba(248,193,92,.25); padding:20px 24px; display:flex; justify-content:space-between; align-items:center; }
+.cm-roi-big { font-size:3.5rem; font-weight:900; color:var(--cm-gold); font-family:monospace; line-height:1; }
+.cm-roi-label { font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--cm-muted); margin-bottom:4px; }
+.cm-payback { font-size:1.8rem; font-weight:800; color:var(--cm-text); font-family:monospace; }
+
+.cm-result-row { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:rgba(0,0,0,.2); margin-bottom:4px; }
+.cm-result-row .rl { color:var(--cm-muted); font-size:.9rem; }
+.cm-result-row .rv { font-family:monospace; font-weight:700; font-size:.95rem; color:var(--cm-text); }
+.cm-result-row .rv.green { color:#00d46a; }
+.cm-result-row .rv.red { color:#ff4d6a; }
+.cm-result-row .rv.gold { color:var(--cm-gold); }
+.cm-result-highlight { display:flex; justify-content:space-between; align-items:center; padding:14px 16px; background:rgba(248,193,92,.07); border:1px solid rgba(248,193,92,.2); margin-bottom:4px; }
+.cm-result-highlight .rl { color:var(--cm-text); font-weight:600; }
+.cm-result-highlight .rv { color:var(--cm-gold); font-family:monospace; font-weight:800; font-size:1.1rem; }
+.cm-3yr { background:rgba(248,193,92,.06); border:1px solid rgba(248,193,92,.2); padding:20px 24px; text-align:center; margin-top:4px; }
+.cm-3yr .big { font-size:2.8rem; font-weight:900; color:var(--cm-gold); font-family:monospace; }
+.cm-3yr .sub { font-size:.8rem; color:var(--cm-muted); margin-top:6px; }
+.cm-disclaimer { font-size:11px; color:var(--cm-muted); margin-top:16px; line-height:1.6; text-align:center; }
 
 /* ── HARDWARE ── */
-.cm-hardware-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1px; background: var(--border); }
-.cm-hw-card { background: var(--panel); padding: 28px; border: 1px solid transparent; transition: border-color 0.2s; }
-.cm-hw-card:hover { border-color: rgba(248,193,92,0.3); }
-.cm-hw-card .hw-name { font-size: 1.1rem; font-weight: 700; color: var(--gold); }
-.cm-hw-card .hw-hash { font-family: monospace; font-size: 1.4rem; font-weight: 800; margin: 8px 0; }
-.cm-hw-card .hw-specs { font-size: 0.85rem; color: var(--muted); line-height: 1.8; }
-.cm-hw-badge { display: inline-block; font-size: 10px; padding: 3px 8px; background: rgba(248,193,92,0.15); color: var(--gold); border-radius: 2px; font-family: monospace; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
+.cm-hw-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1px; background:var(--cm-border); }
+.cm-hw-card { background:var(--cm-panel); padding:28px; border:1px solid transparent; transition:border-color .2s; }
+.cm-hw-card:hover{border-color:rgba(248,193,92,.3);}
+.cm-hw-badge { display:inline-block; font-size:10px; padding:3px 8px; background:rgba(248,193,92,.15); color:var(--cm-gold); font-family:monospace; text-transform:uppercase; letter-spacing:.1em; margin-bottom:12px; }
+.cm-hw-name{font-size:1.1rem;font-weight:700;color:var(--cm-gold);}
+.cm-hw-hash{font-family:monospace;font-size:1.4rem;font-weight:800;margin:8px 0;}
+.cm-hw-specs{font-size:.85rem;color:var(--cm-muted);line-height:1.8;}
 
-/* ── CTA SECTION ── */
-.cm-final-cta {
-  text-align: center; padding: 100px 24px;
-  background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(248,193,92,0.06) 0%, transparent 70%);
-}
-.cm-final-cta h2 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; margin-bottom: 16px; }
-.cm-final-cta p { color: var(--muted); font-size: 1.1rem; margin-bottom: 44px; max-width: 500px; margin-left: auto; margin-right: auto; }
-.cm-contact-bar { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: center; margin-top: 28px; }
-.cm-contact-item { font-size: 0.9rem; color: var(--muted); font-family: monospace; }
-.cm-contact-item a { color: var(--gold); text-decoration: none; }
-.cm-contact-item a:hover { text-decoration: underline; }
+/* ── TRUST + CTA ── */
+.cm-trust{background:var(--cm-panel);border-top:1px solid var(--cm-border);border-bottom:1px solid var(--cm-border);padding:24px;text-align:center;}
+.cm-trust-items{display:flex;flex-wrap:wrap;gap:32px;justify-content:center;align-items:center;}
+.cm-trust-item{font-size:12px;text-transform:uppercase;letter-spacing:.15em;color:var(--cm-muted);font-family:monospace;}
+.cm-trust-item strong{color:var(--cm-text);}
+.cm-final-cta{text-align:center;padding:100px 24px;background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(248,193,92,.06) 0%,transparent 70%);}
+.cm-final-cta h2{font-size:clamp(2rem,5vw,3.5rem);font-weight:800;margin-bottom:16px;}
+.cm-final-cta p{color:var(--cm-muted);font-size:1.1rem;margin-bottom:44px;max-width:500px;margin-left:auto;margin-right:auto;}
+.cm-contact-bar{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:24px;}
+.cm-contact-item{font-size:.9rem;color:var(--cm-muted);font-family:monospace;}
+.cm-contact-item a{color:var(--cm-gold);text-decoration:none;}
+.cm-contact-item a:hover{text-decoration:underline;}
 
-/* ── TRUST BAR ── */
-.cm-trust { background: var(--panel); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 24px; text-align: center; }
-.cm-trust-items { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; align-items: center; }
-.cm-trust-item { font-size: 12px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted); font-family: monospace; }
-.cm-trust-item strong { color: var(--text); }
-
-@media(max-width:600px) {
-  .cm-section { padding: 60px 20px; }
-  .cm-calc-wrap { padding: 28px 20px; }
-  .cm-tax-box { padding: 32px 24px; }
-}
+@media(max-width:600px){.cm-section{padding:60px 20px;}.cm-tax-box{padding:32px 20px;}.cm-calc-outer{padding:0 16px 60px;}}
 </style>
 {% endblock %}
 
 {% block content %}
+<div class="cm-wrap">
 
-<!-- BTC LIVE PRICE -->
-<div class="cm-btc-live">
-  <span class="pulse"></span>
-  <span>BTC <strong id="cm-btc-price">Loading...</strong></span>
-</div>
-
-<!-- ── HERO ── -->
+<!-- HERO -->
 <section class="cm-hero">
   <div class="cm-eyebrow">Consensus Protocol LLC · Naples, FL</div>
   <h1>MINE BITCOIN.<br>OWN YOUR FUTURE.</h1>
   <p class="cm-hero-sub">White-glove Bitcoin mining setup. LLC protection, Section 179 tax deduction, passive BTC income. We handle everything — you stack sats.</p>
   <div class="cm-cta-group">
-    <a href="mailto:john@curatedmining.com?subject=Mining Consultation Request" class="cm-cta-primary">Schedule Consultation</a>
-    <a href="#calculator" class="cm-cta-secondary">Calculate Returns</a>
+    <a href="mailto:john@curatedmining.com?subject=Mining Consultation Request" class="cm-btn-primary">Schedule Consultation</a>
+    <a href="#calculator" class="cm-btn-secondary">Calculate Returns</a>
   </div>
 </section>
 
-<!-- ── STATS BAR ── -->
+<!-- STATS BAR -->
 <div class="cm-stats">
   <div class="cm-stat">
-    <div class="cm-stat-val" id="cm-stat-btc">$<span id="cm-btc-val">—</span></div>
-    <div class="cm-stat-label">Bitcoin Price</div>
+    <div class="cm-stat-val">$<span id="cm-btc-val">—</span></div>
+    <div class="cm-stat-label">Bitcoin Price <span class="cm-pulse-dot" style="margin-left:6px;"></span></div>
   </div>
-  <div class="cm-stat">
-    <div class="cm-stat-val">3.125</div>
-    <div class="cm-stat-label">BTC / Block Reward</div>
-  </div>
-  <div class="cm-stat">
-    <div class="cm-stat-val">$1.16M</div>
-    <div class="cm-stat-label">Section 179 Deduction Cap</div>
-  </div>
-  <div class="cm-stat">
-    <div class="cm-stat-val">~10 min</div>
-    <div class="cm-stat-label">Bitcoin Block Time</div>
-  </div>
+  <div class="cm-stat"><div class="cm-stat-val">3.125</div><div class="cm-stat-label">BTC / Block Reward</div></div>
+  <div class="cm-stat"><div class="cm-stat-val">$1.16M</div><div class="cm-stat-label">Section 179 Cap</div></div>
+  <div class="cm-stat"><div class="cm-stat-val">~10 min</div><div class="cm-stat-label">Block Time</div></div>
 </div>
 
-<!-- ── 3-STEP PROCESS ── -->
-<div style="background: var(--dark); padding: 80px 24px;">
+<!-- HOW IT WORKS -->
+<div style="background:var(--cm-dark);padding:80px 24px;">
 <div class="cm-section" style="padding:0;">
   <p class="cm-eyebrow" style="margin-bottom:16px;">How It Works</p>
   <h2 class="cm-section-title">Three steps to <span>stacking sats</span></h2>
-  <p class="cm-section-sub">From consultation to live miner — we handle every detail so you don't have to.</p>
+  <p class="cm-section-sub">From consultation to live miner — we handle every detail.</p>
   <div class="cm-steps">
-    <div class="cm-step">
-      <div class="cm-step-num">01</div>
-      <h3>Consult</h3>
-      <p>We assess your budget, power situation, and tax position. Our team identifies the optimal hardware and LLC structure for your specific goals. One call, full clarity.</p>
-    </div>
-    <div class="cm-step">
-      <div class="cm-step-num">02</div>
-      <h3>Deploy</h3>
-      <p>We source, configure, and deploy your ASIC miners. Facility selection, power contracts, network setup, monitoring software — completely handled. Zero technical knowledge required.</p>
-    </div>
-    <div class="cm-step">
-      <div class="cm-step-num">03</div>
-      <h3>Mine</h3>
-      <p>Your operation goes live. Bitcoin flows to your wallet. Monthly reporting keeps you informed. The network works for you — 24/7, 365 days a year.</p>
-    </div>
+    <div class="cm-step"><div class="cm-step-num">01</div><h3>Consult</h3><p>We assess your budget, power situation, and tax position. One call, full clarity.</p></div>
+    <div class="cm-step"><div class="cm-step-num">02</div><h3>Deploy</h3><p>We source, configure, and deploy your ASICs. Facility, power, network — completely handled.</p></div>
+    <div class="cm-step"><div class="cm-step-num">03</div><h3>Mine</h3><p>Your operation goes live. Bitcoin flows to your wallet. 24/7, 365 days a year.</p></div>
   </div>
 </div>
 </div>
 
-<!-- ── BENEFITS ── -->
-<div style="padding: 0 24px 80px;">
-<div class="cm-section" style="padding:0 0 0 0;">
+<!-- BENEFITS -->
+<div style="padding:0 24px 80px;">
+<div class="cm-section" style="padding:0;">
   <p class="cm-eyebrow" style="margin-bottom:16px;">Why Curated Mining</p>
   <h2 class="cm-section-title">Every structural <span>advantage</span></h2>
-  <p class="cm-section-sub">We built this for the serious Bitcoin investor who wants more than speculation.</p>
+  <p class="cm-section-sub">Built for the serious Bitcoin investor who wants more than speculation.</p>
   <div class="cm-benefits">
-    <div class="cm-benefit">
-      <div class="cm-benefit-icon">⚖️</div>
-      <h4>LLC Structure</h4>
-      <p>Your mining operation lives inside a properly formed LLC. <span class="highlight">Full liability protection</span>, pass-through taxation, estate planning flexibility.</p>
-    </div>
-    <div class="cm-benefit">
-      <div class="cm-benefit-icon">🏛️</div>
-      <h4>Section 179 Tax Deduction</h4>
-      <p>Deduct the <span class="highlight">full cost of equipment</span> in year one. Up to $1.16M in immediate deductions. Works for both individuals and businesses.</p>
-    </div>
-    <div class="cm-benefit">
-      <div class="cm-benefit-icon">⚡</div>
-      <h4>Energy Arbitrage</h4>
-      <p>We access institutional power rates unavailable to retail miners. <span class="highlight">Lower electricity cost</span> = higher margins on every block.</p>
-    </div>
-    <div class="cm-benefit">
-      <div class="cm-benefit-icon">₿</div>
-      <h4>Non-Custodial BTC</h4>
-      <p>Mining rewards go directly to <span class="highlight">your wallet</span>. No exchange, no custodian. Pure sovereign accumulation at the protocol level.</p>
-    </div>
-    <div class="cm-benefit">
-      <div class="cm-benefit-icon">🛡️</div>
-      <h4>White-Glove Service</h4>
-      <p>Dedicated account management, <span class="highlight">24/7 monitoring</span>, proactive maintenance. If a miner goes down, we know before you do.</p>
-    </div>
-    <div class="cm-benefit">
-      <div class="cm-benefit-icon">📊</div>
-      <h4>Monthly Intelligence</h4>
-      <p>Detailed reports on hashrate performance, earnings, difficulty adjustments, and network forecasts. <span class="highlight">Full visibility</span> into your operation.</p>
-    </div>
+    <div class="cm-benefit"><div class="cm-benefit-icon">⚖️</div><h4>LLC Structure</h4><p><span class="cm-hl">Full liability protection</span>, pass-through taxation, estate planning flexibility.</p></div>
+    <div class="cm-benefit"><div class="cm-benefit-icon">🏛️</div><h4>Section 179</h4><p>Deduct <span class="cm-hl">full equipment cost</span> in year one. Up to $1.16M in immediate deductions.</p></div>
+    <div class="cm-benefit"><div class="cm-benefit-icon">⚡</div><h4>Energy Arbitrage</h4><p>Institutional power rates. <span class="cm-hl">Lower cost</span> = higher margin on every block.</p></div>
+    <div class="cm-benefit"><div class="cm-benefit-icon">₿</div><h4>Non-Custodial BTC</h4><p>Rewards go directly to <span class="cm-hl">your wallet</span>. No exchange. Pure sovereign accumulation.</p></div>
+    <div class="cm-benefit"><div class="cm-benefit-icon">🛡️</div><h4>White-Glove</h4><p>Dedicated management, <span class="cm-hl">24/7 monitoring</span>. We know before you do if anything goes wrong.</p></div>
+    <div class="cm-benefit"><div class="cm-benefit-icon">📊</div><h4>Monthly Intel</h4><p>Detailed performance reports, difficulty forecasts, earnings breakdowns. <span class="cm-hl">Full visibility.</span></p></div>
   </div>
 </div>
 </div>
 
-<!-- ── TAX CALLOUT ── -->
-<div style="padding: 0 24px; max-width:1100px; margin:0 auto 80px;">
+<!-- SECTION 179 CALLOUT -->
+<div style="padding:0 24px;max-width:1100px;margin:0 auto 80px;">
   <div class="cm-tax-box">
     <div class="cm-tax-amount">$1,160,000</div>
     <div class="cm-tax-label">Maximum Section 179 Deduction — Year One</div>
-    <p class="cm-tax-detail">The IRS allows businesses to deduct the full purchase price of qualifying mining equipment placed in service during the tax year. A $300,000 mining build could reduce your taxable income by $300,000 — in the same year you deploy. Consult your CPA. This is not financial advice.</p>
+    <p class="cm-tax-detail">The IRS allows businesses to deduct the full purchase price of qualifying mining equipment placed in service during the tax year. A $300K mining build could reduce your taxable income by $300K — in the same year you deploy. Consult your CPA. This is not financial advice.</p>
   </div>
 </div>
 
-<!-- ── CALCULATOR ── -->
-<div id="calculator" style="padding: 0 24px; max-width:1100px; margin: 0 auto 80px;">
-  <p class="cm-eyebrow" style="margin-bottom:16px;">Mining Calculator</p>
-  <h2 class="cm-section-title">Estimate your <span>returns</span></h2>
-  <p class="cm-section-sub">Rough projections based on current network conditions. Actual returns vary.</p>
-  <div class="cm-calc-wrap">
-    <div class="cm-calc-grid">
-      <div>
-        <div class="cm-input-group">
-          <label>Investment Budget</label>
-          <input type="range" id="calc-budget" min="10000" max="500000" step="5000" value="50000" oninput="calcUpdate()">
-          <div class="cm-input-val">$<span id="calc-budget-val">50,000</span></div>
+<!-- ROI CALCULATOR -->
+<div id="calculator" class="cm-calc-outer">
+<div class="cm-calc-inner">
+  <p class="cm-eyebrow" style="margin-bottom:16px;">ROI Calculator</p>
+  <h2 class="cm-section-title">Model your <span>returns</span></h2>
+  <p class="cm-section-sub">Real hardware specs, tax optimization, 3-year projections.</p>
+
+  <div class="cm-calc-grid">
+    <!-- LEFT: INPUTS -->
+    <div>
+      <!-- Machine Selection -->
+      <div class="cm-card">
+        <div class="cm-card-title"><span class="icon">⚙️</span> Machine Selection</div>
+        <div class="cm-field">
+          <label>Miner Model</label>
+          <select id="calc-model" onchange="calcUpdate()">
+            <option value="S21Pro">Antminer S21 Pro — 234 TH/s</option>
+            <option value="S21XP">Antminer S21 XP — 270 TH/s</option>
+            <option value="S21">Antminer S21 — 200 TH/s</option>
+            <option value="M60S">Whatsminer M60S — 186 TH/s</option>
+            <option value="S19XP">Antminer S19 XP — 140 TH/s</option>
+          </select>
         </div>
-        <div class="cm-input-group">
-          <label>Power Cost (¢/kWh)</label>
-          <input type="range" id="calc-power" min="2" max="12" step="0.5" value="5" oninput="calcUpdate()">
-          <div class="cm-input-val"><span id="calc-power-val">5.0</span>¢</div>
+        <div class="cm-field">
+          <div class="val-row"><label>Unit Count</label><span class="val-display" id="disp-units">100 units</span></div>
+          <input type="range" id="calc-units" min="10" max="1000" step="10" value="100" oninput="calcUpdate()">
+          <div class="range-labels"><span>10</span><span>1,000</span></div>
+        </div>
+        <div class="cm-field">
+          <label>Hosting Model</label>
+          <select id="calc-hosting" onchange="calcUpdate()">
+            <option value="fullService">Full Service Partnership (Curated Mining)</option>
+            <option value="colocated">Co-located Facility</option>
+            <option value="selfHosted">Self-Hosted</option>
+          </select>
+        </div>
+        <div class="cm-field">
+          <div class="val-row"><label>Uptime %</label><span class="val-display" id="disp-uptime">98%</span></div>
+          <input type="range" id="calc-uptime" min="85" max="100" step="0.5" value="98" oninput="calcUpdate()">
+          <div class="range-labels"><span>85%</span><span>100%</span></div>
         </div>
       </div>
-      <div class="cm-results">
-        <div class="cm-result-card">
-          <div class="lbl">Est. Monthly BTC</div>
-          <div class="val" id="calc-btc-mo">—</div>
-          <div class="sub">Based on current network difficulty</div>
+
+      <!-- Financial Inputs -->
+      <div class="cm-card">
+        <div class="cm-card-title"><span class="icon">💰</span> Financial Inputs</div>
+        <div class="cm-field">
+          <div class="val-row"><label>Bitcoin Price</label><span class="val-display" id="disp-btcprice">$69,000</span></div>
+          <input type="range" id="calc-btcprice" min="50000" max="250000" step="5000" value="69000" oninput="calcUpdate()">
+          <div class="range-labels"><span>$50K</span><span>$250K</span></div>
         </div>
-        <div class="cm-result-card">
-          <div class="lbl">Est. Monthly USD</div>
-          <div class="val" id="calc-usd-mo">—</div>
-          <div class="sub" id="calc-btc-price-sub">at current BTC price</div>
+        <div class="cm-field">
+          <div class="val-row"><label>Electricity (¢/kWh)</label><span class="val-display" id="disp-power">4.5¢</span></div>
+          <input type="range" id="calc-power" min="2" max="12" step="0.5" value="4.5" oninput="calcUpdate()">
+          <div class="range-labels"><span>2¢</span><span>12¢</span></div>
         </div>
-        <div class="cm-result-card">
-          <div class="lbl">Est. Payback Period</div>
-          <div class="val" id="calc-payback">—</div>
-          <div class="sub">Before Section 179 tax savings</div>
+      </div>
+
+      <!-- Tax Strategy -->
+      <div class="cm-card">
+        <div class="cm-card-title"><span class="icon">🏛️</span> Tax Strategy</div>
+        <div class="cm-field">
+          <label>Depreciation Method</label>
+          <select id="calc-depr" onchange="calcUpdate()">
+            <option value="bonus179">Bonus + Section 179 — 100% Year 1</option>
+            <option value="accelerated">Accelerated — 40% Year 1</option>
+            <option value="standard">Standard MACRS 5-Year — 20% Year 1</option>
+          </select>
+        </div>
+        <div class="cm-field">
+          <div class="val-row"><label>Tax Bracket</label><span class="val-display" id="disp-tax">37%</span></div>
+          <input type="range" id="calc-tax" min="10" max="50" step="1" value="37" oninput="calcUpdate()">
+          <div class="range-labels"><span>10%</span><span>50%</span></div>
+        </div>
+        <div class="cm-field">
+          <div class="val-row"><label>Monthly Difficulty Growth</label><span class="val-display" id="disp-diff">3%</span></div>
+          <input type="range" id="calc-diff" min="0" max="10" step="0.5" value="3" oninput="calcUpdate()">
+          <div class="range-labels"><span>0%</span><span>10%</span></div>
         </div>
       </div>
     </div>
-    <p class="cm-calc-disclaimer">⚠️ Estimates only. Not financial advice. Assumes S21 Pro class hardware (~216 TH/s, 3.5kW), network hashrate ~700 EH/s, block reward 3.125 BTC. Power and difficulty change constantly. Consult a financial professional before investing.</p>
+
+    <!-- RIGHT: RESULTS -->
+    <div>
+      <div class="cm-result-hero">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+          <span style="font-size:1rem;font-weight:700;">Investment Summary</span>
+          <span style="font-size:1.5rem;">₿</span>
+        </div>
+        <div class="cm-result-hero-grid">
+          <div class="cm-mini-stat"><div class="lbl">Total Investment</div><div class="val" id="res-invest">—</div></div>
+          <div class="cm-mini-stat"><div class="lbl">Total Hashrate</div><div class="val" id="res-hash">—</div></div>
+        </div>
+        <div class="cm-roi-bar">
+          <div><div class="cm-roi-label">First Year ROI</div><div class="cm-roi-big" id="res-roi">—</div></div>
+          <div style="text-align:right;"><div class="cm-roi-label">Payback Period</div><div class="cm-payback" id="res-payback">—</div></div>
+        </div>
+      </div>
+
+      <div class="cm-card" style="margin-bottom:16px;">
+        <div class="cm-card-title"><span class="icon">⛏️</span> Mining Output</div>
+        <div class="cm-result-row"><span class="rl">Daily BTC Mined</span><span class="rv gold" id="res-daily-btc">—</span></div>
+        <div class="cm-result-row"><span class="rl">Annual BTC Mined</span><span class="rv gold" id="res-annual-btc">—</span></div>
+        <div class="cm-result-row"><span class="rl">Gross Annual Revenue</span><span class="rv" id="res-gross">—</span></div>
+      </div>
+
+      <div class="cm-card" style="margin-bottom:16px;">
+        <div class="cm-card-title"><span class="icon">⚡</span> Operating Costs</div>
+        <div class="cm-result-row"><span class="rl">Power Consumption</span><span class="rv" id="res-power-kw">—</span></div>
+        <div class="cm-result-row"><span class="rl">Annual Electricity</span><span class="rv red" id="res-elec-cost">—</span></div>
+        <div class="cm-result-highlight"><span class="rl">Net Operating Income</span><span class="rv" id="res-noi">—</span></div>
+      </div>
+
+      <div class="cm-card" style="margin-bottom:16px;">
+        <div class="cm-card-title"><span class="icon">🏛️</span> Tax Benefits</div>
+        <div class="cm-result-row"><span class="rl">Year 1 Depreciation</span><span class="rv" id="res-depr">—</span></div>
+        <div class="cm-result-highlight"><span class="rl">Estimated Tax Savings</span><span class="rv green" id="res-tax-save">—</span></div>
+      </div>
+
+      <div class="cm-3yr">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--cm-muted);font-family:monospace;margin-bottom:8px;">3-Year Total Profit</div>
+        <div class="big" id="res-3yr">—</div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--cm-muted);font-family:monospace;margin-top:8px;">3-Year ROI: <span id="res-3yr-roi" style="color:var(--cm-gold);">—</span></div>
+        <div class="sub">* Constant BTC price. Actual results vary. Not financial advice.</div>
+      </div>
+
+      <a href="mailto:john@curatedmining.com?subject=Mining Consultation — Ready to Start" class="cm-btn-primary" style="display:block;text-align:center;margin-top:16px;padding:18px;">
+        Start Your Partnership →
+      </a>
+    </div>
   </div>
+  <p class="cm-disclaimer">⚠️ Estimates only. Not financial advice. Consult a qualified financial professional before investing.</p>
+</div>
 </div>
 
-<!-- ── HARDWARE ── -->
-<div style="padding: 0 24px 80px; max-width:1100px; margin:0 auto;">
+<!-- HARDWARE -->
+<div style="padding:0 24px 80px;max-width:1100px;margin:0 auto;">
   <p class="cm-eyebrow" style="margin-bottom:16px;">Hardware We Deploy</p>
   <h2 class="cm-section-title">Industrial-grade <span>ASICs</span></h2>
-  <p class="cm-section-sub">We source the same hardware institutional miners use — at scale pricing.</p>
-  <div class="cm-hardware-grid">
-    <div class="cm-hw-card">
-      <div class="cm-hw-badge">Top Pick 2026</div>
-      <div class="hw-name">Antminer S21 Pro</div>
-      <div class="hw-hash">234 TH/s</div>
-      <div class="hw-specs">
-        Power: 3,510W<br>
-        Efficiency: 15 J/TH<br>
-        Manufacturer: Bitmain<br>
-        Noise: 75 dB
-      </div>
-    </div>
-    <div class="cm-hw-card">
-      <div class="cm-hw-badge">High Efficiency</div>
-      <div class="hw-name">Whatsminer M60S</div>
-      <div class="hw-hash">186 TH/s</div>
-      <div class="hw-specs">
-        Power: 3,441W<br>
-        Efficiency: 18.5 J/TH<br>
-        Manufacturer: MicroBT<br>
-        Noise: 75 dB
-      </div>
-    </div>
-    <div class="cm-hw-card">
-      <div class="cm-hw-badge">Next-Gen</div>
-      <div class="hw-name">Antminer S21 XP</div>
-      <div class="hw-hash">270 TH/s</div>
-      <div class="hw-specs">
-        Power: 3,645W<br>
-        Efficiency: 13.5 J/TH<br>
-        Manufacturer: Bitmain<br>
-        Noise: 75 dB
-      </div>
-    </div>
-    <div class="cm-hw-card">
-      <div class="cm-hw-badge">Value Play</div>
-      <div class="hw-name">Antminer S19 XP</div>
-      <div class="hw-hash">140 TH/s</div>
-      <div class="hw-specs">
-        Power: 3,010W<br>
-        Efficiency: 21.5 J/TH<br>
-        Manufacturer: Bitmain<br>
-        Noise: 75 dB
-      </div>
-    </div>
+  <p class="cm-section-sub">Same hardware institutional miners use — at scale pricing.</p>
+  <div class="cm-hw-grid">
+    <div class="cm-hw-card"><div class="cm-hw-badge">Top Pick 2026</div><div class="cm-hw-name">Antminer S21 Pro</div><div class="cm-hw-hash">234 TH/s</div><div class="cm-hw-specs">Power: 3,510W<br>Efficiency: 15 J/TH<br>Manufacturer: Bitmain</div></div>
+    <div class="cm-hw-card"><div class="cm-hw-badge">High Efficiency</div><div class="cm-hw-name">Whatsminer M60S</div><div class="cm-hw-hash">186 TH/s</div><div class="cm-hw-specs">Power: 3,441W<br>Efficiency: 18.5 J/TH<br>Manufacturer: MicroBT</div></div>
+    <div class="cm-hw-card"><div class="cm-hw-badge">Next-Gen</div><div class="cm-hw-name">Antminer S21 XP</div><div class="cm-hw-hash">270 TH/s</div><div class="cm-hw-specs">Power: 3,645W<br>Efficiency: 13.5 J/TH<br>Manufacturer: Bitmain</div></div>
+    <div class="cm-hw-card"><div class="cm-hw-badge">Value Play</div><div class="cm-hw-name">Antminer S19 XP</div><div class="cm-hw-hash">140 TH/s</div><div class="cm-hw-specs">Power: 3,010W<br>Efficiency: 21.5 J/TH<br>Manufacturer: Bitmain</div></div>
   </div>
 </div>
 
-<!-- ── TRUST BAR ── -->
+<!-- TRUST -->
 <div class="cm-trust">
   <div class="cm-trust-items">
     <div class="cm-trust-item"><strong>Consensus Protocol LLC</strong> · Naples, FL</div>
     <div class="cm-trust-item">·</div>
-    <div class="cm-trust-item">Media Partner: <strong>Protocol Pulse</strong></div>
+    <div class="cm-trust-item">Media: <strong>Protocol Pulse</strong></div>
     <div class="cm-trust-item">·</div>
-    <div class="cm-trust-item">Contact: <strong>john@curatedmining.com</strong></div>
+    <div class="cm-trust-item"><strong>john@curatedmining.com</strong></div>
     <div class="cm-trust-item">·</div>
-    <div class="cm-trust-item"><strong>LLC Formation · Section 179 · White-Glove Setup</strong></div>
+    <div class="cm-trust-item"><strong>LLC · Section 179 · White-Glove</strong></div>
   </div>
 </div>
 
-<!-- ── FINAL CTA ── -->
+<!-- FINAL CTA -->
 <div class="cm-final-cta">
-  <h2>Ready to mine <span style="color:var(--gold)">Bitcoin?</span></h2>
-  <p>One call. We assess your situation, build the structure, deploy your operation. Most clients are mining within 30–60 days.</p>
-  <a href="mailto:john@curatedmining.com?subject=Mining Consultation Request&body=Name:%0ABudget range:%0ACurrent power situation:%0ABest time to call:" class="cm-cta-primary" style="font-size:1.1rem; padding:18px 48px;">Email John — Schedule a Call</a>
+  <h2>Ready to mine <span style="color:var(--cm-gold)">Bitcoin?</span></h2>
+  <p>One call. We assess, structure, and deploy. Most clients are mining within 30–60 days.</p>
+  <a href="mailto:john@curatedmining.com?subject=Mining Consultation Request&body=Name:%0ABudget range:%0ACurrent power situation:%0ABest time to call:" class="cm-btn-primary" style="font-size:1.1rem;padding:18px 48px;">Email John — Schedule a Call</a>
   <div class="cm-contact-bar">
     <span class="cm-contact-item">📧 <a href="mailto:john@curatedmining.com">john@curatedmining.com</a></span>
     <span class="cm-contact-item">📍 Naples, FL</span>
@@ -430,58 +418,99 @@ body { background: var(--dark); color: var(--text); font-family: 'DM Sans', syst
   </div>
 </div>
 
+</div><!-- end cm-wrap -->
 {% endblock %}
 
-{% block extra_js %}
+{% block scripts %}
 <script>
-// Live BTC price
-let btcPrice = 69808;
-async function loadBtcPrice() {
-  try {
-    const r = await fetch('/api/btc-price');
-    const d = await r.json();
-    btcPrice = d.price;
-    const fmt = '$' + btcPrice.toLocaleString('en-US', {maximumFractionDigits:0});
-    document.getElementById('cm-btc-price').textContent = fmt;
-    document.getElementById('cm-btc-val').textContent = btcPrice.toLocaleString('en-US', {maximumFractionDigits:0});
-    document.getElementById('calc-btc-price-sub').textContent = 'at $' + btcPrice.toLocaleString() + '/BTC';
-    calcUpdate();
-  } catch(e) {}
+const MINERS = {
+  S21Pro: {hash:234, power:3531, price:6500},
+  S21XP:  {hash:270, power:3645, price:8000},
+  S21:    {hash:200, power:3500, price:5000},
+  M60S:   {hash:186, power:3441, price:3500},
+  S19XP:  {hash:140, power:3010, price:2800}
+};
+const HOSTING = {fullService:.85, colocated:.92, selfHosted:1.0};
+const DEPR = {bonus179:1.0, accelerated:.40, standard:.20};
+
+let liveBtc = 69000;
+
+function fmt(n){ return '$'+Math.round(n).toLocaleString('en-US'); }
+function fmtBtc(n){ return n.toFixed(5)+' BTC'; }
+
+function calcUpdate(){
+  const model = document.getElementById('calc-model').value;
+  const units = +document.getElementById('calc-units').value;
+  const hosting = document.getElementById('calc-hosting').value;
+  const uptime = +document.getElementById('calc-uptime').value / 100;
+  const btcPrice = +document.getElementById('calc-btcprice').value;
+  const powerCents = +document.getElementById('calc-power').value;
+  const deprKey = document.getElementById('calc-depr').value;
+  const taxBracket = +document.getElementById('calc-tax').value / 100;
+  const diffGrowth = +document.getElementById('calc-diff').value / 100;
+
+  // update displays
+  document.getElementById('disp-units').textContent = units + ' units';
+  document.getElementById('disp-uptime').textContent = (+document.getElementById('calc-uptime').value).toFixed(1) + '%';
+  document.getElementById('disp-btcprice').textContent = fmt(btcPrice);
+  document.getElementById('disp-power').textContent = (+document.getElementById('calc-power').value).toFixed(1) + '¢';
+  document.getElementById('disp-tax').textContent = (+document.getElementById('calc-tax').value) + '%';
+  document.getElementById('disp-diff').textContent = (+document.getElementById('calc-diff').value).toFixed(1) + '%';
+
+  const m = MINERS[model];
+  const totalHW = m.price * units;
+  const totalHash = m.hash * units;
+  const effHash = totalHash * uptime;
+  const totalPowerKW = (m.power * units) / 1000;
+  const annualKWh = totalPowerKW * 8760 * uptime;
+  const annualElec = annualKWh * (powerCents / 100);
+
+  // Network: 700 EH/s, 3.125 BTC/block, 144 blocks/day
+  const networkHash = 700_000_000; // TH/s
+  const dailyBtc = (effHash / networkHash) * 3.125 * 144;
+  // difficulty adjustment over 12mo avg
+  const avgMult = 1 / (1 + diffGrowth * 6);
+  const adjDailyBtc = dailyBtc * avgMult;
+  const annualBtc = adjDailyBtc * 365;
+
+  const grossRev = annualBtc * btcPrice;
+  const netRev = grossRev * HOSTING[hosting];
+  const noi = netRev - annualElec;
+  const deprAmt = totalHW * DEPR[deprKey];
+  const taxSave = deprAmt * taxBracket;
+  const yr1ROI = ((noi + taxSave) / totalHW) * 100;
+  const payback = noi > 0 ? totalHW / (noi / 12) : Infinity;
+
+  const yr3Btc = annualBtc * 2.5;
+  const yr3Rev = yr3Btc * btcPrice * HOSTING[hosting];
+  const yr3Profit = yr3Rev - (annualElec * 3) - totalHW + taxSave;
+  const yr3ROI = (yr3Profit / totalHW) * 100;
+
+  document.getElementById('res-invest').textContent = fmt(totalHW);
+  document.getElementById('res-hash').textContent = totalHash.toLocaleString() + ' TH/s';
+  document.getElementById('res-roi').textContent = yr1ROI.toFixed(1) + '%';
+  document.getElementById('res-payback').textContent = payback < 120 ? payback.toFixed(1) + ' mo' : 'N/A';
+  document.getElementById('res-daily-btc').textContent = fmtBtc(adjDailyBtc);
+  document.getElementById('res-annual-btc').textContent = fmtBtc(annualBtc);
+  document.getElementById('res-gross').textContent = fmt(grossRev);
+  document.getElementById('res-power-kw').textContent = totalPowerKW.toFixed(0) + ' kW';
+  document.getElementById('res-elec-cost').textContent = '-' + fmt(annualElec);
+  document.getElementById('res-noi').textContent = noi > 0 ? fmt(noi) : 'Unprofitable';
+  document.getElementById('res-depr').textContent = fmt(deprAmt);
+  document.getElementById('res-tax-save').textContent = '+' + fmt(taxSave);
+  document.getElementById('res-3yr').textContent = yr3Profit > 0 ? fmt(yr3Profit) : 'N/A';
+  document.getElementById('res-3yr-roi').textContent = yr3ROI.toFixed(0) + '%';
 }
 
-// Calculator
-function calcUpdate() {
-  const budget = parseInt(document.getElementById('calc-budget').value);
-  const powerCents = parseFloat(document.getElementById('calc-power').value);
-  document.getElementById('calc-budget-val').textContent = budget.toLocaleString();
-  document.getElementById('calc-power-val').textContent = powerCents.toFixed(1);
-
-  // Assumptions: S21 Pro class — 216 TH/s per unit, 3500W, ~$8,000/unit
-  const unitsFloat = budget / 8000;
-  const totalHashTH = unitsFloat * 216;
-  const totalPowerKW = unitsFloat * 3.5;
-
-  // Network: ~700 EH/s = 700,000,000 TH/s, 3.125 BTC/block, 144 blocks/day
-  const networkHashTH = 700_000_000;
-  const btcPerDay = (totalHashTH / networkHashTH) * 3.125 * 144;
-  const btcPerMonth = btcPerDay * 30;
-
-  // Power cost per month
-  const powerCostPerMonth = totalPowerKW * 24 * 30 * (powerCents / 100);
-  const grossUSDPerMonth = btcPerMonth * btcPrice;
-  const netUSDPerMonth = grossUSDPerMonth - powerCostPerMonth;
-  const paybackMonths = netUSDPerMonth > 0 ? (budget / netUSDPerMonth) : Infinity;
-
-  document.getElementById('calc-btc-mo').textContent =
-    btcPerMonth >= 0.001 ? btcPerMonth.toFixed(5) + ' BTC' : '< 0.001 BTC';
-  document.getElementById('calc-usd-mo').textContent =
-    netUSDPerMonth > 0
-      ? '$' + netUSDPerMonth.toLocaleString('en-US', {maximumFractionDigits:0}) + '/mo net'
-      : 'Unprofitable at this power cost';
-  document.getElementById('calc-payback').textContent =
-    paybackMonths < 120 && paybackMonths > 0
-      ? paybackMonths.toFixed(1) + ' months'
-      : 'N/A';
+async function loadBtcPrice(){
+  try{
+    const r = await fetch('/api/btc-price');
+    const d = await r.json();
+    liveBtc = d.price;
+    document.getElementById('cm-btc-val').textContent = Math.round(liveBtc).toLocaleString();
+    document.getElementById('calc-btcprice').value = Math.round(liveBtc / 5000) * 5000;
+    calcUpdate();
+  }catch(e){}
 }
 
 loadBtcPrice();
