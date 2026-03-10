@@ -565,6 +565,12 @@ def initialize_scheduler() -> Dict:
         _apscheduler.add_job(lambda: run_task("btc_milestone_check"), trigger=IntervalTrigger(minutes=5), id="btc_milestone_check", replace_existing=True, max_instances=1)
         _apscheduler.add_job(lambda: run_task("daily_metrics_snapshot"), trigger=IntervalTrigger(hours=1), id="daily_metrics_snapshot", replace_existing=True, max_instances=1)
         _apscheduler.add_job(lambda: run_task("weekly_performance_analysis"), trigger=CronTrigger(day_of_week="sun", hour=0, minute=0), id="weekly_performance_analysis", replace_existing=True, max_instances=1)
+        # SESSION 2: Daily newsletter briefing — 13:00 UTC (8am Eastern)
+        try:
+            from services.newsletter_automation import send_daily_briefing
+            _apscheduler.add_job(send_daily_briefing, trigger=CronTrigger(hour=13, minute=0), id="newsletter_daily_briefing", replace_existing=True, max_instances=1)
+        except Exception as _nle:
+            logging.warning("Newsletter automation job not scheduled: %s", _nle)
         _apscheduler.start()
         _scheduler_started_at = datetime.utcnow()
     return {"success": True, "started_at": _scheduler_started_at.isoformat(), "mode": "apscheduler"}

@@ -310,6 +310,14 @@ app.register_blueprint(onboarding_bp)
 from oracle_routes import oracle_bp
 app.register_blueprint(oracle_bp)
 
+# SESSION 2: Blueprint Architecture — Newsletter main routes
+try:
+    from core.blueprints.newsletter import newsletter_bp
+    app.register_blueprint(newsletter_bp)
+    logging.info("Newsletter main blueprint registered (/newsletter)")
+except Exception as _e:
+    logging.warning("Newsletter main blueprint not loaded: %s", _e)
+
 try:
     from services.video_engine.dashboard.app import dashboard_bp
     app.register_blueprint(dashboard_bp)
