@@ -481,6 +481,49 @@ class AffiliateClick(db.Model):
     user_agent = db.Column(db.String(500))
     clicked_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+
+# ============================================================
+# P3 AFFILIATE TABLES — Meanwhile + RNS.ID
+# Created: 2026-03-09
+# ============================================================
+
+class P3AffiliateClick(db.Model):
+    """Privacy-first click tracking for Meanwhile + RNS.ID affiliate programs."""
+    __tablename__ = 'p3_affiliate_clicks'
+    id = db.Column(db.Integer, primary_key=True)
+    partner = db.Column(db.String(50), nullable=False)       # meanwhile | rns_id
+    referrer_page = db.Column(db.String(500))                # /articles/123, etc.
+    ab_variant = db.Column(db.String(1))                     # A | B
+    converted = db.Column(db.Integer, default=0)             # 1 if reached partner site
+    user_hash = db.Column(db.String(64))                     # SHA256(ip+date+salt)
+    user_agent_hash = db.Column(db.String(64))               # SHA256(user_agent)
+    clicked_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.Index('idx_p3_aff_partner_date', 'partner', 'clicked_at'),
+        db.Index('idx_p3_aff_variant', 'partner', 'ab_variant'),
+        # P1 FIX (I7): indexes for referrer_page and user_hash (used in analytics/k-anon queries)
+        db.Index('idx_p3_aff_referrer', 'referrer_page'),
+        db.Index('idx_p3_aff_user_hash', 'user_hash'),
+    )
+
+
+class P3AffiliateAbResults(db.Model):
+    """A/B test aggregates for Thompson Sampling MAB."""
+    __tablename__ = 'p3_affiliate_ab_results'
+    id = db.Column(db.Integer, primary_key=True)
+    partner = db.Column(db.String(50), nullable=False)       # meanwhile | rns_id
+    variant = db.Column(db.String(1), nullable=False)        # A | B
+    impressions = db.Column(db.Integer, default=0)
+    clicks = db.Column(db.Integer, default=0)
+    winner_locked = db.Column(db.Boolean, default=False)     # True = MAB frozen
+    calculated_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.UniqueConstraint('partner', 'variant', name='uq_p3_ab_partner_variant'),
+    )
+
+
 class FeedItem(db.Model):
     __tablename__ = 'feed_item'
     id = db.Column(db.Integer, primary_key=True)

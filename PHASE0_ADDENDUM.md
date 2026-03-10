@@ -1,69 +1,72 @@
-# PHASE 0 ADDENDUM — P3 Premium Stripe
+# PHASE 0 ADDENDUM — p3-affiliates
 # Created: 2026-03-09
-# Top synthesis suggestions and HOW they'll be implemented
+# Source: C0_SYNTHESIS.md + C0_GEMINI.md + C0_GROK.md
 
-## P0 ADDITIONS (implementing all)
+## TOP PHASE 0 SUGGESTIONS TO IMPLEMENT
 
-### 1. Entitlements System (not just tier strings)
-**HOW**: Add `entitlements` JSON column to `ApiSubscriber` table. Feature flags stored as
-JSON dict (e.g., `{"stream": true, "webhook": true, "signal": true}`). `api_key_service.py`
-checks entitlements per request. Demo tier gets limited subset. Enables future plan versioning
-without schema migration.
+### 1. Thompson Sampling MAB (Multi-Armed Bandit) — IMPLEMENTING
+**What:** Replace static 50/50 split with adaptive traffic allocation after sufficient data
+**How:**
+- `p3_affiliate_ab_results` table stores alpha/beta params for Thompson Sampling
+- Variant selection: deterministic hash of (IP+date+salt) maps into MAB-weighted bucket
+- After 100 clicks per partner: Thompson Sampling weights update automatically
+- Starts 50/50, converges to winner over time
+- "Declare winner" button freezes allocation permanently
+- `_get_ab_variant(partner, user_hash)` in affiliate_injector.py implements this
 
-### 2. Sliding Window Rate Limiting (not just hourly resets)
-**HOW**: `api_request_log` already logs per-request with timestamps. Rate limiter queries
-COUNT(requests WHERE created_at > now()-1hr) — true sliding window. Also adds burst allowance:
-Commander gets 1200 requests/hour but max 50/minute burst. Graceful degradation: 429 response
-includes `Retry-After` header computed from oldest request in window.
+### 2. Client-Side Behavioral Intent Scoring — IMPLEMENTING (lightweight JS, no TF.js)
+**What:** Track scroll depth + time-on-page to score user intent before showing CTA
+**How:**
+- Pure vanilla JS in article_detail.html
+- Tracks: scroll depth (0-100%), time on page (seconds), mouse movement
+- Generates intent score 0-100: (scroll_depth * 0.6 + min(time_secs/120, 1)*40)
+- CTA only injects via JS reveal when intent_score >= 40 (configurable threshold)
+- No TF.js / no external ML - privacy-safe, pure math
+- Falls back to showing CTA at page load if JS disabled
 
-### 3. WebSocket Real-Time Feed
-**HOW**: SSE stream at `/api/v2/terminal/stream` for Commander tier (as spec). Full WebSocket
-is blocked by our Flask stack without gevent/eventlet. SSE with reconnect logic is the
-production-safe choice for the existing Flask app. Client-side auto-reconnect at 3s interval.
-Channel parameter: `?channel=breaking|sentiment|all`. This delivers the real-time experience
-without WebSocket server complexity.
+### 3. navigator.sendBeacon for Impressions — IMPLEMENTING
+**What:** Non-blocking async impression tracking that doesn't delay page transitions
+**How:**
+- `window.addEventListener('beforeunload', ...)` fires sendBeacon to /api/affiliates/impression
+- Also fires on CTA visibility (IntersectionObserver)
+- Server endpoint handles beacon asynchronously
 
-### 4. Scoped API Keys with Expiry
-**HOW**: `ApiSubscriber` gets `key_scopes` TEXT column (JSON array: `["read", "stream", "webhook"]`)
-and `key_expires_at` DATETIME column (NULL = no expiry). Key creation sets scopes based on tier.
-Key rotation: `POST /api/dashboard/rotate-key` generates new key, deactivates old (with 1hr grace).
+### 4. Statistical Significance Display — IMPLEMENTING
+**What:** Admin dashboard shows p-value and confidence interval for A/B tests
+**How:**
+- Python: scipy-style z-test for two proportions (manual math, no scipy dep)
+- Formula: z = (p1-p2) / sqrt(pooled*(1-pooled)*(1/n1+1/n2))
+- p-value approximated via error function
+- Shows: "95% confidence: Variant A wins" or "Need more data (N=47/200)"
 
-### 5. Advanced Developer Onboarding
-**HOW**:
-- Demo key auto-provisioned on app startup (tier="demo", rate_limit=20/hr)
-- `/api/playground` shows language-specific code snippets (Python, curl, Node.js) that auto-fill
-  with the demo key. Tabs for each language.
-- After checkout success: email includes quickstart code snippet + link to playground with their key
+### 5. Content-to-Conversion Intelligence in Admin — IMPLEMENTING
+**What:** Show which articles drive most conversions with per-article revenue estimates
+**How:**
+- Admin dashboard: "Top referrer pages" table with clicks + estimated revenue
+- Meanwhile: $150 average commission per funded policy (conservative)
+- RNS.ID: $300 per referral (stated in gospel)
+- Shows: estimated earnings per article, per day
 
-### 6. Usage Analytics Dashboard
-**HOW**: `/api/dashboard` shows 24-hour sparkline (12 data points, 2hr buckets) from
-`api_request_log`. Uses vanilla JS `<canvas>` for sparkline rendering — no Chart.js dependency.
-Endpoint breakdown pie chart (text-based percentages — no external lib).
+### 6. Sovereignty Score Widget on Landing Pages — IMPLEMENTING
+**What:** Visual trust score showing why Protocol Pulse endorses each partner
+**How:**
+- Static widget with 5 criteria: Privacy, Non-custodial, BTC-native, Regulatory, Transparency
+- Score 0-5 bars, gold fill, visible on both landing pages
+- Reinforces trust with cypherpunk audience
 
-## P1 ADDITIONS (implementing as time allows)
+### 7. k-Anonymity Constraint on Analytics — IMPLEMENTING
+**What:** Never display analytics for fewer than k=10 distinct user hashes
+**How:**
+- All admin analytics queries check count(distinct user_hash) >= 10 before returning
+- For small counts: show "< 10 users — aggregating for privacy" placeholder
+- Implemented in /api/affiliates/metrics endpoint
 
-### 7. Webhook Delivery System
-**HOW**: Background thread (`threading.Thread`) checks `api_subscribers` where `webhook_url IS NOT NULL`
-every 60s. On new breaking article: POST to webhook_url signed with HMAC-SHA256. 3 retry attempts
-with exponential backoff. Log all delivery attempts.
-
-### 8. Billing Portal Link
-**HOW**: `POST /api/dashboard/billing-portal` creates Stripe Customer Portal session, redirects
-subscriber. Requires STRIPE_SECRET_KEY. Degrades gracefully (shows email to contact) if key not set.
-
-## ARCHITECTURE DECISIONS
-
-- **SQLite for api_subscribers**: Same DB as rest of app. `api_request_log` gets indexed on
-  `(api_key, created_at)` per spec. No separate DB needed.
-- **No Flask-SocketIO**: SSE is sufficient for breaking news stream. Avoids server complexity.
-- **Resend for welcome email**: Already in .env. Falls back gracefully if key missing.
-- **premium.html upgrade**: Add Commander API tier card between existing Commander and Sovereign.
-  Keep existing tiers intact — don't break existing subscription flow.
-- **Separate Blueprint**: `routes_premium_api.py` as a Blueprint, imported in app.py.
-  Keeps routes.py clean. Consistent with routes_api_v2.py pattern.
-
-## WHAT WE DO NOT BUILD (keeping scope clean)
-- Team/Workspace management — P1 but too complex for this session; documented as future work
-- Predictive analytics ML — needs separate ML infrastructure
-- Edge CDN — infrastructure, not app-level
-- JWT tokens — overkill for our scale; UUID4 prefix keys are sufficient
+## NOT IMPLEMENTING (over-engineered for this Flask/SQLite env):
+- WebSocket live dashboard → SSE (simpler, same effect, no Redis needed)
+- Edge computing / Cloudflare Workers → not applicable to this Flask stack
+- Redis for MAB storage → SQLite handles MAB state fine at this scale
+- TensorFlow.js behavioral ML → simple scroll/time math is sufficient
+- Blockchain referral tracking → misaligned with simplicity requirement
+- WebXR experiences → banned by GOSPEL (CSS animations only, no 3D)
+- LangChain agent swarms → overkill, Claude Haiku API call is sufficient
+- Voice-activated CTAs → novelty without conversion value

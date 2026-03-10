@@ -1,173 +1,185 @@
 # MANDATORY: Read ~/protocol_pulse/CROSS_LLM_AUDIT_LAW.md before starting.
 # Sequence: Phase0 LLM council -> Build -> 2-cycle audit -> Second pass -> Merge.
 
-# PROTOCOL PULSE — GOSPEL: P3 PREMIUM + STRIPE
-# Branch: feature/p3-premium-stripe | Created: 2026-03-09
+# PROTOCOL PULSE — GOSPEL: P3 AFFILIATE INTEGRATION
+# Branch: feature/p3-affiliates | Created: 2026-03-09
 
 ---
 
 ## WHAT THIS IS
-Commander tier ($49/month). Stripe Checkout. API key issuance. Terminal API endpoints
-gated behind auth. Self-service portal. API Playground. Usage analytics.
-The monetization foundation for Protocol Pulse.
+Passive revenue from two partner programs:
+- Meanwhile Bitcoin Life Insurance — referralCode=KKM73K
+- RNS.ID Palau Digital Residency — $300/referral
+
+Includes: landing pages, AI-powered contextual injection on articles,
+click tracking, A/B testing framework, conversion analytics.
 
 ## PHASE 0 — PRE-BUILD LLM SPEC COUNCIL (MANDATORY)
-Run: python3 ~/protocol_pulse/utils/cross_llm_audit.py --feature p3-premium-stripe --phase0
-Ask all 3 LLMs: "What are the most advanced 2026 developer API monetization features?
-How do the best API-first companies (Stripe, Twilio, OpenAI) handle onboarding,
-billing, rate limiting, and developer experience in 2026?"
+Run: python3 ~/protocol_pulse/utils/cross_llm_audit.py --feature p3-affiliates --phase0
+Ask all 3 LLMs: "What are the most effective affiliate marketing techniques for a
+premium Bitcoin media audience in 2026? What makes CTAs convert without feeling
+spammy or breaking trust with a cypherpunk-adjacent audience?"
 Incorporate top P0 ideas before building.
 
 ## THE LAWS
-### LAW 1: Stripe keys come from .env — never hardcode
-STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_COMMANDER_PRICE_ID must be in .env
-After building, print a clear SETUP.md with exact steps for PBX to:
-1. Create Stripe account + get test keys
-2. Create Commander product ($49/mo recurring) in Stripe dashboard
-3. Add all 3 keys to .env on Ultron
-4. Test with Stripe test mode first
+### LAW 1: Contextual relevance only — no random banner spam
+Claude Haiku analyzes article content → decides if this article warrants an affiliate CTA
+Meanwhile CTA: only on articles tagged wealth/insurance/sovereignty/estate-planning
+RNS.ID CTA: only on articles tagged regulation/privacy/sovereignty/residency/global
+Never show both CTAs on same article. Never show CTAs on breaking news articles.
 
-### LAW 2: API keys are UUID4 — never sequential, never guessable
-import uuid; api_key = "pp_cmd_" + str(uuid.uuid4()).replace("-", "")
-Example: pp_cmd_a3f9b2c1d4e5f6a7b8c9d0e1f2a3b4c5
-Rate limit: 1000 requests/hour per key. Track in api_subscribers table.
+### LAW 2: A/B test every CTA variant
+50/50 random split per user session (based on hash of IP+date, not localStorage)
+Variant A: text-only subtle mention
+Variant B: visual card with image/icon
+Track separately. After 200 clicks per variant: evaluate winner, keep winner.
+Store variant assignment + click outcome in affiliate_clicks table.
 
-### LAW 3: Webhook validation is non-negotiable
-Always: stripe.Webhook.construct_event(payload, sig_header, STRIPE_WEBHOOK_SECRET)
-If validation fails: return 400 immediately, log the attempt
-Handle: payment_intent.succeeded, customer.subscription.deleted, invoice.payment_failed
+### LAW 3: Click tracking hashes IPs — never store raw
+SHA256(ip + date + salt) → user_hash. Salt = random 32-byte value in .env as TRACKING_SALT.
+Never store: raw IPs, cookies, user IDs. Privacy-first.
 
-### LAW 4: API Playground is sandboxed — uses a demo key
-Create a read-only demo api_key (tier="demo") that returns sample data
-Playground hits the actual endpoints with this key — real experience, safe data
-Rate limit demo key: 20 req/hour to prevent abuse
+### LAW 4: Editorial voice — never feel like ads
+Meanwhile landing page: PBX-voice editorial (Matty Ice tone) — "why I trust Meanwhile"
+RNS.ID landing page: Protocol Pulse endorsement — "digital sovereignty starts with ID"
+Both pages have clear disclaimers: "Paid affiliate partnership."
+CTAs embedded in article text should read naturally: "...which is why tools like Meanwhile..."
 
 ## ARCHITECTURE
 
-### Database Schema
+### Database
 ```sql
-CREATE TABLE IF NOT EXISTS api_subscribers (
+CREATE TABLE IF NOT EXISTS affiliate_clicks (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  email TEXT UNIQUE NOT NULL,
-  api_key TEXT UNIQUE NOT NULL,       -- "pp_cmd_" + uuid4
-  tier TEXT DEFAULT "commander",      -- commander|enterprise|demo
-  stripe_customer_id TEXT,
-  stripe_subscription_id TEXT,
-  stripe_price_id TEXT,
-  requests_this_hour INTEGER DEFAULT 0,
-  requests_today INTEGER DEFAULT 0,
-  requests_total INTEGER DEFAULT 0,
-  rate_limit_per_hour INTEGER DEFAULT 1000,
-  webhook_url TEXT,                   -- optional: subscriber can receive pushes
-  webhook_secret TEXT,                -- HMAC secret for their webhook
-  is_active INTEGER DEFAULT 1,
-  subscription_status TEXT DEFAULT "active", -- active|past_due|canceled
-  current_period_end DATETIME,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  last_used_at DATETIME
+  partner TEXT NOT NULL,             -- meanwhile|rns_id
+  referrer_page TEXT,                -- /articles/123, /mining, etc.
+  ab_variant TEXT,                   -- A|B
+  converted INTEGER DEFAULT 0,       -- 1 if they reached partner site (redirect tracked)
+  user_hash TEXT,                    -- SHA256(ip+date+salt)
+  user_agent_hash TEXT,              -- SHA256(user_agent)
+  clicked_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS api_request_log (
+CREATE TABLE IF NOT EXISTS affiliate_ab_results (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  api_key TEXT NOT NULL,
-  endpoint TEXT NOT NULL,
-  response_time_ms INTEGER,
-  status_code INTEGER,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  partner TEXT NOT NULL,
+  variant TEXT NOT NULL,
+  impressions INTEGER DEFAULT 0,
+  clicks INTEGER DEFAULT 0,
+  calculated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
--- Index for rate limiting:
-CREATE INDEX IF NOT EXISTS idx_api_log_key_time ON api_request_log(api_key, created_at);
+
+CREATE INDEX IF NOT EXISTS idx_aff_partner_date ON affiliate_clicks(partner, clicked_at);
 ```
 
-### Services
-```
-services/stripe_service.py       — checkout, webhook, subscription management
-services/api_key_service.py      — auth middleware, rate limiting, usage tracking
-services/terminal_api_service.py — the actual data endpoints for subscribers
-```
-
-### Terminal API Endpoints (all require X-API-Key header)
+### Routes
 ```python
-GET /api/v2/terminal/topics      → top 20 topics from last 24h articles
-GET /api/v2/terminal/entities    → named entities: people, orgs, coins
-GET /api/v2/terminal/sentiment   → aggregate sentiment + components
-GET /api/v2/terminal/breaking    → articles published last 2hrs
-GET /api/v2/terminal/signal      → composite Signal Strength 0-100
-GET /api/v2/terminal/status      → subscriber usage stats + quota
-GET /api/v2/terminal/stream      → SSE stream of breaking news (Commander only)
+GET  /go/meanwhile              → track click → redirect to Meanwhile with referral code
+GET  /go/rns                    → track click → redirect to RNS.ID with referral code
+GET  /bitcoin-life-insurance    → Meanwhile landing page
+GET  /digital-residency         → RNS.ID landing page
+GET  /admin/affiliates          → admin analytics dashboard
+GET  /api/affiliates/metrics    → JSON: clicks/day, conversion rate, top pages
+POST /api/affiliates/impression → track impression (JS beacon call on page load)
 ```
 
-Each endpoint:
-- Validates X-API-Key → 401 if invalid
-- Checks hourly rate limit → 429 if exceeded with Retry-After header
-- Logs request to api_request_log
-- Returns JSON with: data, meta {requests_this_hour, requests_remaining, tier}
+### AI Contextual Injection — services/affiliate_injector.py
+inject_affiliate_cta(article_id, article_content) → Optional[dict]:
+  1. Use claude-haiku-4-5 to classify article tags/themes
+  2. Check: does this article qualify for Meanwhile? for RNS.ID?
+  3. If yes: determine A/B variant (hash-based, no session/cookie needed)
+  4. Return: {partner, variant, cta_html} or None
 
-### Stripe Flow
-POST /api/v2/terminal/subscribe → create_checkout_session(email) → redirect to Stripe
-GET /subscribe/success?session_id=... → validate → show api_key → send welcome email
-POST /webhook/stripe → handle payment events → create/deactivate api_keys
-GET /api/dashboard → subscriber self-service (their key + usage + billing portal link)
+  Called by: article_detail route (articles/{id}) — inject into template context
+  CTA is NEVER shown more than once per article. NEVER on homepage/list pages.
+  Only on dedicated article view pages.
 
-### Premium Landing Page (/premium — upgrade existing template)
-3 tiers as glassmorphism cards:
-FREE: Articles, daily brief, basic charts (current state)
-COMMANDER ($49/mo): Terminal API (1000 req/hr), breaking news stream,
-  entity tracking, sentiment data, signal strength, SSE stream
-  "JOIN THE INTEL FEED →" button — red, animated pulse border on hover
-ENTERPRISE: Contact (custom volume, webhook delivery, white-label)
+### Meanwhile Landing Page — /bitcoin-life-insurance
+template: bitcoin_life_insurance.html
 
-### API Playground (/api/playground)
-Interactive page — try the API before subscribing:
-- Dropdown: select endpoint to test
-- Click "RUN" → hits endpoint with demo key → shows formatted JSON response
-- Shows response time, rate limit headers
-- "Get Full Access →" CTA at bottom
-- Syntax highlighted JSON output (Prism.js from cdnjs)
+DESIGN: Dark, sophisticated, wealth-focused. Black + deep navy + gold accents.
 
-### Usage Analytics Dashboard (/api/dashboard — requires subscriber login or api_key)
-- Your API key (masked, reveal button)
-- Requests today / this month / total
-- Hourly usage sparkline (last 24hrs)
-- Subscription status + next billing date
-- "Manage Billing" → Stripe Customer Portal link
-- Webhook configuration (optional: enter URL + secret to receive push events)
+SECTIONS:
+Hero: "Your Bitcoin Legacy Deserves Protection"
+  Subhead: "Life insurance denominated in Bitcoin — not fiat. Not stocks. Bitcoin."
+  CTA: "Get Your Quote →" (red button, tracks click)
 
-### Webhook Delivery (optional feature for subscribers)
-When new breaking article published: POST to subscriber's webhook_url
-Payload: {event: "breaking_article", data: {title, summary, url, published_at}}
-Sign with HMAC-SHA256 using their webhook_secret → X-PP-Signature header
-Queue delivery, retry 3x on failure, log all attempts
+Why It Matters (3 cards):
+  "Death benefit in BTC — your family inherits sovereignty, not a check"
+  "No fiat conversion risk — benefit doesn't lose purchasing power"
+  "Self-sovereign planning — outside the traditional insurance industry"
 
-## SETUP.md — Generate this file with exact PBX instructions
-After building, create ~/protocol_pulse/STRIPE_SETUP.md:
-```
-# STRIPE SETUP FOR PBX
-1. Go to https://dashboard.stripe.com → create account if needed
-2. Go to Products → Create: "Protocol Pulse Commander" $49/mo recurring
-3. Copy the Price ID (starts with price_...)
-4. Go to Developers → API keys → copy Secret key (sk_test_... for testing)
-5. Go to Developers → Webhooks → Add endpoint:
-   URL: https://protocolpulse.io/webhook/stripe
-   Events: payment_intent.succeeded, customer.subscription.deleted, invoice.payment_failed
-   Copy Signing Secret (whsec_...)
-6. SSH to Ultron: add to ~/protocol_pulse/.env:
-   STRIPE_SECRET_KEY=sk_test_...
-   STRIPE_WEBHOOK_SECRET=whsec_...
-   STRIPE_COMMANDER_PRICE_ID=price_...
-7. Restart Flask: tmux send-keys -t flask_main "C-c" && tmux send-keys -t flask_main "..." Enter
-8. Test with Stripe test card: 4242 4242 4242 4242, any future date, any CVC
-```
+How Meanwhile Works:
+  Whole life product. BTC-denominated policy. Issued by regulated insurer.
+  Application online. Benefit paid in BTC directly to wallet.
+
+Editorial Section — "Why Protocol Pulse Partners With Meanwhile":
+  Matty Ice/PBX first-person voice. 3 paragraphs. Authentic endorsement.
+  Not a paid ad disguised as editorial — clearly labeled "Affiliate Partnership"
+  but written with genuine Protocol Pulse voice.
+
+FAQ (6 questions):
+  "Who is Meanwhile?" / "Is this regulated?" / "How is the benefit paid?"
+  "What happens to the BTC if price drops?" / "Is there a medical exam?"
+  "What coverage amounts are available?"
+
+CTA Footer: "Start Your Application" → /go/meanwhile
+
+Disclaimer: "Protocol Pulse may earn compensation when you apply through our link.
+This is not financial advice."
+
+### RNS.ID Landing Page — /digital-residency
+template: digital_residency.html
+
+DESIGN: Dark, global, freedom-focused. Black + deep blue + green accents.
+Think: passport aesthetic, global citizen, sovereignty signal.
+
+SECTIONS:
+Hero: "Establish Your Digital Sovereignty — Palau Digital Residency"
+  Subhead: "A government-issued digital ID outside the traditional financial surveillance state."
+  CTA: "Apply Now →" (green button, tracks click)
+
+What Is Palau Digital Residency?
+  Official digital identity issued by the Republic of Palau
+  Not crypto — real government-backed digital resident status
+  Enables: international banking access, digital identity verification, mobility
+
+Why Bitcoiners Care (4 points):
+  Bitcoin-friendly jurisdiction | Tax optimization potential
+  Privacy from surveillance finance | Geographic diversification of identity
+
+Protocol Pulse endorsement: cypherpunk angle, sovereignty angle, PBX voice
+Disclaimer: "Affiliate partnership."
+
+FAQ: 5 questions covering legitimacy, banking, tax implications, process
+
+CTA: "Apply for Digital Residency →" → /go/rns
+
+### Admin Analytics — /admin/affiliates
+Dashboard with:
+- Summary: total clicks (30d), meanwhile clicks, rns clicks, estimated earnings
+- Clicks per day chart (Canvas, last 30 days, both partners)
+- Top referrer pages (which articles/pages drive most clicks)
+- A/B test results: variant A vs B click rates per partner, statistical significance
+- "Declare winner" button: locks in winning variant permanently
+
+### CTA Variants
+Variant A (text/inline):
+  "Tools like <a href="/bitcoin-life-insurance">Meanwhile</a> let Bitcoiners
+   protect generational wealth with BTC-denominated life insurance."
+
+Variant B (card):
+  Dark glass card, left red border, Meanwhile logo (text), 2-line pitch, "Learn More →"
 
 ## VERIFICATION
-- [ ] GET /premium → HTTP 200, 3-tier display
-- [ ] POST /api/v2/terminal/subscribe → redirects to Stripe (requires STRIPE key in .env)
-- [ ] GET /api/v2/terminal/topics with valid api_key → 200 with real data
-- [ ] GET /api/v2/terminal/topics with bad key → 401
-- [ ] 1001st request → 429 with Retry-After header
-- [ ] Stripe webhook processes payment_intent.succeeded → creates api_key in DB
-- [ ] Welcome email sent via Resend on subscription
-- [ ] GET /api/playground → playground renders, demo key works
-- [ ] STRIPE_SETUP.md exists with complete instructions
+- [ ] GET /bitcoin-life-insurance → HTTP 200, editorial content loads
+- [ ] GET /digital-residency → HTTP 200, editorial content loads
+- [ ] GET /go/meanwhile → click logged to DB, redirects with referral code
+- [ ] GET /go/rns → click logged to DB, redirects with referral code
+- [ ] inject_affiliate_cta() returns CTA for relevant articles, None for irrelevant
+- [ ] A/B variant assigned consistently for same user
+- [ ] GET /admin/affiliates → shows click analytics
+- [ ] IP is never stored raw (only hash in DB)
+- [ ] Disclaimer present on both landing pages
 - [ ] regression_test.sh: zero FAILs
-- [ ] git commit + push to origin feature/p3-premium-stripe
+- [ ] git commit + push to origin feature/p3-affiliates

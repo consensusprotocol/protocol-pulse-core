@@ -4,6 +4,91 @@
 
 {% block meta_description %}{{ article.summary if article.summary else article.content[:150] }}{% endblock %}
 
+{% block extra_css %}
+<style>
+/* ── P3 Affiliate CTA styles ── */
+.affiliate-card {
+    margin: 2rem 0;
+    border-radius: 14px;
+    overflow: hidden;
+}
+.aff-card-inner {
+    background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-left: 4px solid #ff3b5f;
+    border-radius: 14px;
+    padding: 1.5rem 1.6rem;
+    position: relative;
+}
+.aff-card-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #555e78;
+    margin-bottom: 0.9rem;
+}
+.aff-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.8rem;
+}
+.aff-card-icon { font-size: 1.4rem; }
+.aff-card-title {
+    display: block;
+    font-weight: 800;
+    font-size: 1rem;
+    color: #eef2ff;
+    line-height: 1.2;
+}
+.aff-card-subtitle {
+    display: block;
+    font-size: 0.78rem;
+    color: #95a0ba;
+}
+.aff-card-pitch {
+    font-size: 0.9rem;
+    color: #c8d0e8;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+.aff-card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: #ff3b5f;
+    color: #fff !important;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.5rem 1.2rem;
+    border-radius: 7px;
+    text-decoration: none !important;
+    transition: background 0.2s, transform 0.15s;
+}
+.aff-card-cta:hover { background: #e0364f; transform: translateY(-1px); }
+.aff-cta-green { background: #00d68f !important; color: #06070b !important; }
+.aff-cta-green:hover { background: #00c07d !important; }
+.affiliate-inline {
+    display: block;
+    font-size: 0.92rem;
+    color: #95a0ba;
+    border-left: 2px solid rgba(255,59,95,0.3);
+    padding: 0.5rem 1rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    line-height: 1.6;
+}
+.aff-link-inline {
+    color: #f8c15c;
+    text-decoration: none;
+    border-bottom: 1px dashed rgba(248,193,92,0.4);
+}
+.aff-link-inline:hover { color: #ffd580; border-bottom-color: #ffd580; }
+</style>
+{% endblock %}
+
 {% block head %}
 <!-- Open Graph meta tags for social media sharing -->
 <meta property="og:title" content="{{ article.title }}">
@@ -131,6 +216,22 @@
                         {{ article.content | safe }}
                     </div>
                 </div>
+
+                <!-- P3 Affiliate CTA — Contextual, AI-classified, intent-gated -->
+                {% if affiliate_cta %}
+                {# I3 FIX: visible by default; JS hides then reveals on intent threshold #}
+                <noscript>
+                  <style>.aff-cta-intent-gate { opacity: 1 !important; }</style>
+                </noscript>
+                <div class="aff-cta-intent-gate"
+                     data-partner="{{ affiliate_cta.partner }}"
+                     data-variant="{{ affiliate_cta.variant }}"
+                     data-referrer="{{ request.path }}"
+                     id="affCtaBlock"
+                     style="opacity:0;transition:opacity 0.4s ease;margin:2.5rem 0;">
+                  {{ affiliate_cta.cta_html | safe }}
+                </div>
+                {% endif %}
 
                 <!-- Article Footer -->
                 <footer class="article-footer-professional mt-5 pt-4">
@@ -495,6 +596,71 @@
             toast.show();
         });
     }
+
+    // ── P3 Affiliate: Behavioral intent scoring + CTA reveal ──
+    (function() {
+        var ctaBlock = document.getElementById('affCtaBlock');
+        if (!ctaBlock) return;
+
+        var partner = ctaBlock.dataset.partner;
+        var variant = ctaBlock.dataset.variant;
+        var referrer = ctaBlock.dataset.referrer;
+        var startTime = Date.now();
+        var maxScroll = 0;
+        var ctaShown = false;
+
+        function getIntentScore() {
+            var timeSecs = (Date.now() - startTime) / 1000;
+            var timeScore = Math.min(timeSecs / 90, 1) * 40; // max 40 pts at 90s
+            var scrollScore = maxScroll * 60;                 // max 60 pts at 100% scroll
+            return Math.min(100, Math.round(timeScore + scrollScore));
+        }
+
+        function showCta() {
+            if (ctaShown) return;
+            ctaShown = true;
+            ctaBlock.style.opacity = '1';
+            // Track impression via beacon
+            var payload = JSON.stringify({
+                partner: partner, variant: variant, referrer_page: referrer
+            });
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon('/api/affiliates/impression',
+                    new Blob([payload], {type: 'application/json'}));
+            }
+        }
+
+        // Scroll tracker
+        window.addEventListener('scroll', function() {
+            var scrollPct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+            if (scrollPct > maxScroll) maxScroll = scrollPct;
+            if (getIntentScore() >= 40) showCta();
+        }, {passive: true});
+
+        // Time-based fallback: show after 60s regardless
+        setTimeout(showCta, 60000);
+
+        // IntersectionObserver for CTA block visibility
+        if ('IntersectionObserver' in window) {
+            var obs = new IntersectionObserver(function(entries) {
+                entries.forEach(function(e) {
+                    if (e.isIntersecting && getIntentScore() >= 20) showCta();
+                });
+            }, {threshold: 0.5});
+            obs.observe(ctaBlock);
+        }
+
+        // M4 FIX: Use URL API to cleanly set params at render time (not on click).
+        // This ensures middle-click / right-click "open in new tab" also gets tracking params.
+        ctaBlock.querySelectorAll('a.aff-card-cta, a.aff-link-inline').forEach(function(a) {
+            try {
+                var url = new URL(a.href, window.location.origin);
+                url.searchParams.set('ref', referrer);
+                url.searchParams.set('v', variant);
+                a.href = url.toString();
+            } catch(e) { /* leave href unchanged if URL construction fails */ }
+        });
+    })();
 </script>
 {% endblock %}
 

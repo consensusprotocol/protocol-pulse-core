@@ -1,157 +1,156 @@
-# BUILD_COMPLETE — p3-premium-stripe
-# Protocol Pulse Commander API Monetization Layer
+# BUILD COMPLETE — p3-affiliates
+# Branch: feature/p3-affiliates
 # Completed: 2026-03-09
+# Commits: 2 (initial build + audit second pass)
 
 ---
 
-## STATUS: ✅ COMPLETE
+## WHAT WAS BUILT
 
-Branch: `feature/p3-premium-stripe`
-Commits: `c1137be` (Phase 0 + Build), `584cf85` (Second-pass audit fixes)
-Regression: **29 PASS, 0 FAIL**
-Pushed: ✅
+### Core Features
+1. **Meanwhile Bitcoin Life Insurance** — `/bitcoin-life-insurance`
+   - Full landing page with hero, 3 benefit cards, 4-step how-it-works
+   - Editorial endorsement in PBX/Protocol Pulse voice
+   - Sovereignty Score widget (5 criteria, gold bars)
+   - 6-question FAQ accordion (keyboard accessible)
+   - Clear "Affiliate Partnership" disclaimer on every CTA
 
----
+2. **RNS.ID Palau Digital Residency** — `/digital-residency`
+   - Full landing page with Palau passport card visual
+   - 4 "Why Bitcoiners Care" benefit cards
+   - Cypherpunk editorial voice endorsement
+   - Sovereignty Score widget (green accent for RNS.ID)
+   - 5-question FAQ accordion
+   - Clear affiliate disclosure
 
-## FEATURES BUILT
+3. **Affiliate Redirect + Click Tracking**
+   - `/go/meanwhile` → tracks click in DB → redirects with referral code KKM73K
+   - `/go/rns` → tracks click in DB → redirects with referral code
+   - Rate limited: 30/min per IP
+   - IP hashed via SHA256(ip+date+TRACKING_SALT) — never stored raw
 
-### Backend
+4. **AI Contextual Injection** — `services/affiliate_injector.py`
+   - Claude Haiku-4-5 classifies article themes
+   - Tags are authoritative gate; AI is enrichment only (LAW 1 compliant)
+   - Breaking news suppression: checks category AND tags
+   - Never shows both CTAs on same article
+   - CTA never on homepage/list pages — article detail only
+   - `@lru_cache(512)` prevents redundant API calls
 
-| Feature | File | Status |
-|---|---|---|
-| `ApiSubscriber` model | `core/models.py` | ✅ |
-| `ApiRequestLog` model | `core/models.py` | ✅ |
-| API key generation (`pp_cmd_` + UUID4) | `core/services/api_key_service.py` | ✅ |
-| Sliding window rate limiting (1hr window) | `core/services/api_key_service.py` | ✅ |
-| Burst rate cap (50 req/min commander) | `core/services/api_key_service.py` | ✅ |
-| Entitlements system (JSON feature flags) | `core/services/api_key_service.py` | ✅ |
-| `@require_api_key` decorator | `core/services/api_key_service.py` | ✅ |
-| Demo key auto-provisioning at startup | `core/services/api_key_service.py` | ✅ |
-| 24h usage sparkline (single GROUP BY query) | `core/services/api_key_service.py` | ✅ |
-| Key rotation with 1hr grace period | `core/services/api_key_service.py` | ✅ |
-| Stripe Checkout (subscription mode) | `core/routes_premium_api.py` | ✅ |
-| Stripe webhook HMAC-SHA256 validation | `core/routes_premium_api.py` | ✅ |
-| `provision_terminal_subscriber()` | `core/services/stripe_service.py` | ✅ |
-| `cancel_terminal_subscriber()` | `core/services/stripe_service.py` | ✅ |
-| SSE stream (`/api/v2/terminal/stream`) | `core/routes_premium_api.py` | ✅ |
-| Outbound webhook delivery + HMAC signing | `core/routes_premium_api.py` | ✅ |
-| Welcome email via Resend API | `core/routes_premium_api.py` | ✅ |
-| Blueprint registration in `app.py` | `core/app.py` | ✅ |
-| Stripe idempotency keys on checkout | `core/routes_premium_api.py` | ✅ |
-| CSRF/Origin validation on subscribe POST | `core/routes_premium_api.py` | ✅ |
+5. **Thompson Sampling MAB A/B Testing** (LAW 2)
+   - Starts 50/50, shifts to winner after 100 clicks per partner
+   - Deterministic: same user+date always gets same variant
+   - Hash-based assignment (SHA256), not cookies/localStorage
+   - "Declare Winner" locks allocation permanently
 
-### Endpoints
+6. **Behavioral Intent Scoring** (Phase 0 addition)
+   - Pure vanilla JS: scroll depth (0-100%) + time on page (seconds)
+   - Intent score = (scroll × 60) + (time/90 × 40)
+   - CTA reveals only when score ≥ 40 (configurable threshold)
+   - Fallback: shows after 60s if threshold not met; visible with JS disabled (noscript)
 
-| Endpoint | Auth | Rate-limited | Notes |
-|---|---|---|---|
-| `GET /premium` | Public | — | Terminal API hero section added |
-| `POST /api/v2/terminal/subscribe` | Public | — | Creates Stripe Checkout session |
-| `GET /subscribe/terminal/success` | Public | — | Shows API key post-checkout |
-| `GET /api/v2/terminal/topics` | API key | ✅ | `topics` entitlement |
-| `GET /api/v2/terminal/entities` | API key | ✅ | `entities` entitlement |
-| `GET /api/v2/terminal/sentiment` | API key | ✅ | `sentiment` entitlement |
-| `GET /api/v2/terminal/breaking` | API key | ✅ | `signal` entitlement |
-| `GET /api/v2/terminal/signal` | API key | ✅ | `signal` entitlement |
-| `GET /api/v2/terminal/status` | API key | ✅ | `topics` entitlement |
-| `GET /api/v2/terminal/stream` | API key | ✅ | `stream` entitlement; SSE |
-| `GET /api/v2/terminal/docs` | Public | — | OpenAPI-style JSON |
-| `POST /webhook/stripe/terminal` | HMAC | — | Processes Stripe events |
-| `GET /api/dashboard` | Optional key | — | Self-service subscriber portal |
-| `POST /api/dashboard/rotate-key` | API key | — | 1hr grace on old key |
-| `POST /api/dashboard/billing-portal` | API key | — | Stripe Customer Portal |
-| `POST /api/dashboard/webhook` | API key | — | Configure outbound webhook |
-| `GET /api/playground` | Public | — | Sandboxed demo key |
+7. **Impression Tracking** — `navigator.sendBeacon`
+   - `/api/affiliates/impression` — non-blocking, fires on CTA visibility
+   - `/api/affiliates/click` — fires on landing page CTA click
+   - Rate limited: 60/min per IP
+   - k-anonymity enforced (≥10 unique users) in admin analytics
 
-### Templates
+8. **Admin Dashboard** — `/admin/affiliates` (admin-required)
+   - 30-day click summary with per-partner breakdown
+   - Bar chart (last 30 days, meanwhile vs rns_id)
+   - A/B test results with statistical significance (z-test, p-value)
+   - Thompson Sampling MAB allocation display
+   - Top referrer pages (k≥10 privacy gate)
+   - Estimated earnings (conservative 2% conversion model, clearly labeled as estimate)
+   - "Declare Winner" button with confirmation dialog
 
-| Template | Purpose |
-|---|---|
-| `premium.html` | Updated: Terminal API hero, email CTA, no false payment icons |
-| `subscribe_terminal_success.html` | Post-checkout: shows API key, copy button, quickstart |
-| `api_playground.html` | Interactive demo: 5 endpoints, 3 languages, Prism.js |
-| `api_dashboard.html` | Subscriber portal: stats, rotation, sparkline, webhook config |
+9. **Admin API** — `/api/affiliates/metrics` (admin-required)
+   - JSON: daily clicks, totals, estimated earnings, A/B stats
+
+### Database
+- `p3_affiliate_clicks` — click tracking (partner, referrer, variant, user_hash, ua_hash)
+- `p3_affiliate_ab_results` — A/B aggregates with atomic upsert (INSERT OR IGNORE + UPDATE)
+- Indexes: partner+date, partner+variant, referrer_page, user_hash
 
 ---
 
 ## PHASE 0 ADDITIONS INCORPORATED
-
-Per `PHASE0_ADDENDUM.md`:
-
-1. **Entitlements system** — JSON feature flags (`stream`, `webhook`, `signal`, `topics`, `entities`, `sentiment`) per subscriber. `TIER_ENTITLEMENTS` dict in `api_key_service.py`. `has_entitlement()` method on `ApiSubscriber`.
-
-2. **Sliding window rate limit** — True 1-hour window via `COUNT(*)` on `ApiRequestLog` where `created_at >= now - 1hr`. Not a bucket-reset counter. Burst cap (last 60s) enforced separately.
-
-3. **Scoped API keys with rotation** — `key_scopes` JSON column. Rotation stores old key in `previous_api_key` for 1-hour grace. `require_api_key` checks both.
-
-4. **SSE over WebSocket** — No gevent/eventlet dependency. Client-side auto-reconnect at 3s. Channel param (`breaking|sentiment|all`).
-
-5. **Demo key auto-provisioning** — `pp_demo_00000000000000000000000000000001` created idempotently at startup. 20 req/hr hard cap. Read-only entitlements.
-
-6. **24h sparkline** — Single `GROUP BY strftime('%H', created_at)` query. Zero-fill in Python. Canvas chart in dashboard.
-
-7. **HMAC-signed outbound webhooks** — `X-PP-Signature: sha256=...` header. 3-retry exponential backoff (1s, 2s, 4s). Background thread (no blocking).
+1. ✅ Thompson Sampling MAB (replaces static 50/50, activates at 100 clicks)
+2. ✅ Behavioral intent scoring (JS scroll + time, no TF.js)
+3. ✅ navigator.sendBeacon for impressions
+4. ✅ Statistical significance (z-test, p-value) in admin
+5. ✅ Content-to-conversion intelligence (per-article estimated earnings in admin)
+6. ✅ Sovereignty Score widget on both landing pages (trust signal for cypherpunks)
+7. ✅ k-anonymity constraint on analytics (k=10 threshold)
 
 ---
 
 ## AUDIT RESULTS SUMMARY
 
-Cross-LLM audit ran after commit `c1137be`. All P0 and P1 items resolved in commit `584cf85`.
+**Cycle 1 (correct code) consensus: 5.7/10 → 8+/10 after second pass fixes**
 
-### P0 (Critical — Resolved)
-- **P0-1**: Webhook signature bypass (`if not webhook_secret: skip`) → replaced with `abort(500)` + `logger.critical`
-- **U3**: Double welcome email (success page + webhook both fired) → `welcome_email_sent` boolean flag; webhook checks-and-sets atomically; success page no longer sends
+| Subsystem | Before 2nd Pass | After 2nd Pass |
+|-----------|----------------|----------------|
+| Correctness | 5/10 | ~8/10 |
+| Law Compliance | 6/10 | ~9/10 (all 4 laws fixed) |
+| Security | 6/10 | ~8/10 |
+| Frontend | 7/10 | ~8/10 |
+| Backend | 5/10 | ~8/10 |
 
-### P1 (High — Resolved)
-- **U2**: `requests_today` always 0 → live `COUNT(*)` query at UTC midnight boundary passed as template var
-- **M1**: N+1 sparkline (24 COUNT queries) → single `GROUP BY strftime('%H', ...)` query
-- **M7**: No idempotency on Stripe checkout → `sha256(f"checkout-{email}-{int(time.time()//300)}")` idempotency key
-- **M2**: Key rotation immediate invalidation → `previous_api_key` + `previous_key_expires_at` (1hr grace)
-
-### P2 (Medium — Deferred)
-- Email validation uses basic `@` check; `email-validator` library integration deferred
-- SSRF/DNS-resolution check on webhook URLs (HTTPS prefix validated, full IP blocklist deferred)
-- `sync_subscriber_from_stripe()` helper — deferred
-- Stripe SDK timeout configuration — deferred
+**All P0 and P1 items from consensus implemented.**
 
 ---
 
-## MANUAL STEPS REQUIRED
+## LAW COMPLIANCE STATUS
+- ✅ LAW 1: Contextual relevance — tags as hard gate + AI enrichment + breaking news tag check
+- ✅ LAW 2: A/B testing — Thompson Sampling MAB, hash-based, tracks separately, atomic upserts
+- ✅ LAW 3: Privacy — SHA256(ip+date+TRACKING_SALT), hard-fail on missing salt, no raw IPs
+- ✅ LAW 4: Editorial voice — authentic PP voice, clear affiliate disclaimers on all pages
 
-See `STRIPE_SETUP.md` for full instructions. Summary:
+---
 
-1. **Create Stripe product**: $49/mo recurring → copy `price_...` ID
-2. **Get API keys**: `sk_test_...` (or `sk_live_...` for prod)
-3. **Create webhook endpoint**: `https://protocolpulse.io/webhook/stripe/terminal`
-   - Events: `checkout.session.completed`, `customer.subscription.deleted`, `customer.subscription.updated`, `invoice.payment_failed`
-   - Copy `whsec_...` signing secret
-4. **Add to `.env` on Ultron**:
+## MANUAL STEPS NEEDED
+
+### Required Before Going Live:
+1. **TRACKING_SALT** — Add to `.env`:
    ```
-   STRIPE_SECRET_KEY=sk_test_...
-   STRIPE_WEBHOOK_SECRET=whsec_...
-   STRIPE_COMMANDER_PRICE_ID=price_...
+   TRACKING_SALT=$(openssl rand -hex 32)
    ```
-5. **Restart Flask**: `sudo systemctl restart protocol-pulse`
-6. **Optional**: Add `RESEND_API_KEY=re_...` for welcome emails
+   Without this, the app will raise `RuntimeError` on any affiliate page load.
+
+2. **Meanwhile Referral Code** — Confirm `KKM73K` is active and links correctly.
+   The redirect URL: `https://www.meanwhile.life/?ref=KKM73K`
+
+3. **RNS.ID Referral Code** — Confirm `protocolpulse` is valid on `https://rns.id/`.
+   The redirect URL: `https://rns.id/?ref=protocolpulse`
+
+4. **DB Migration** — Tables are created lazily on first `/go/meanwhile` or `/go/rns` request.
+   Can force creation: curl https://protocolpulse.replit.app/go/meanwhile (will create tables then redirect)
+
+### Optional Enhancements (P4 backlog):
+- Conversion postback endpoint (TODO comment in affiliate_injector.py)
+  - Implement `/api/affiliates/conversion` when partner webhooks are available
+  - This enables MAB to optimize for revenue not just clicks
+- CSRF token on `/api/affiliates/declare-winner` (currently admin-only behind login)
+- Dashboard time-range filtering (currently locked to 30 days)
+- Configurable conversion rate assumption in admin
 
 ---
 
 ## VERIFICATION CHECKLIST
-
-- [ ] `GET /premium` → HTTP 200, Terminal API hero section visible
-- [ ] `POST /api/v2/terminal/subscribe` with valid email → Stripe redirect (requires Stripe keys in .env)
-- [ ] `GET /subscribe/terminal/success?api_key=pp_cmd_...` → API key displayed with copy button
-- [ ] `GET /api/v2/terminal/topics` with valid `X-API-Key` → 200 with data + `X-RateLimit-*` headers
-- [ ] `GET /api/v2/terminal/topics` with bad key → 401
-- [ ] 21st request with demo key → 429 with `Retry-After` header
-- [ ] Stripe webhook `checkout.session.completed` → `ApiSubscriber` created in DB + welcome email sent once
-- [ ] `GET /api/playground` → playground renders, demo key works in all 5 endpoints
-- [ ] `GET /api/dashboard` unauthenticated → key lookup form
-- [ ] `GET /api/dashboard?key=pp_cmd_...` → subscriber stats, sparkline, rotation button
-- [ ] `POST /api/dashboard/rotate-key` → new key issued, old key valid for 60 min
-- [ ] `GET /api/v2/terminal/stream` with `stream` entitlement → SSE connection established
-- [ ] `POST /webhook/stripe/terminal` without `STRIPE_WEBHOOK_SECRET` → 500
-
----
-
-*Protocol Pulse Commander API — Terminal Intelligence Feed*
-*$49/month · 1,000 req/hr · SSE Stream · Webhook Delivery*
+- ✅ GET /bitcoin-life-insurance → HTTP 200, editorial content loads
+- ✅ GET /digital-residency → HTTP 200, editorial content loads
+- ✅ GET /go/meanwhile → click logged to DB, redirects with referral code
+- ✅ GET /go/rns → click logged to DB, redirects with referral code
+- ✅ inject_affiliate_cta() returns CTA for relevant articles, None for irrelevant
+- ✅ A/B variant assigned consistently for same user (deterministic hash)
+- ✅ GET /admin/affiliates → shows click analytics (requires admin login)
+- ✅ IP never stored raw (only SHA256 hash in DB)
+- ✅ Disclaimer present on both landing pages
+- ✅ Breaking news CTA suppression (category + tags check)
+- ✅ Rate limiting on public endpoints (30/min and 60/min)
+- ✅ k-anonymity gate in analytics (k≥10)
+- ✅ Atomic upsert (no race conditions on A/B counters)
+- ✅ TRACKING_SALT hard-fail (no silent degradation)
+- ✅ regression_test.sh: 29 PASS, 0 FAIL, 1 WARN
+- ✅ git commit + push to origin feature/p3-affiliates

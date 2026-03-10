@@ -1,0 +1,652 @@
+{% extends "base.html" %}
+
+{% block title %}Palau Digital Residency — RNS.ID | Protocol Pulse{% endblock %}
+{% block meta_description %}Establish your digital sovereignty with a Palau Digital Residency via RNS.ID. Government-issued digital ID outside the financial surveillance state.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="Palau Digital Residency — RNS.ID | Protocol Pulse">
+<meta property="og:description" content="A government-issued digital identity outside the surveillance state. Digital sovereignty starts with ID.">
+<meta property="og:type" content="website">
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ─── RNS.ID DIGITAL RESIDENCY LANDING PAGE ─── */
+.rns-page {
+    background: #06070b;
+    min-height: 100vh;
+    color: #eef2ff;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Accent: green for RNS.ID (freedom/sovereignty signal) */
+:root {
+    --rns-green: #00d68f;
+    --rns-green-dim: rgba(0,214,143,0.08);
+    --rns-green-border: rgba(0,214,143,0.22);
+}
+
+/* Hero */
+.rns-hero {
+    position: relative;
+    padding: 100px 0 80px;
+    overflow: hidden;
+    text-align: center;
+}
+.rns-hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%;
+    transform: translateX(-50%);
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(0,214,143,0.06) 0%, transparent 70%);
+    pointer-events: none;
+}
+.rns-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 20% 30%, rgba(255,59,95,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 40% at 80% 20%, rgba(93,228,255,0.04) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.rns-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--rns-green);
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+}
+.rns-kicker-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--rns-green);
+    animation: rns-pulse 2s ease-in-out infinite;
+}
+@keyframes rns-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.6); }
+}
+
+.rns-hero h1 {
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    color: #eef2ff;
+    max-width: 820px;
+    margin: 0 auto 1.4rem;
+    text-shadow: 0 4px 28px rgba(0,0,0,0.4);
+}
+.rns-hero h1 span { color: var(--rns-green); }
+.rns-hero-sub {
+    font-size: 1.15rem;
+    color: #95a0ba;
+    max-width: 540px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.6;
+}
+
+.rns-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--rns-green);
+    color: #06070b;
+    font-weight: 800;
+    font-size: 1rem;
+    padding: 0.85rem 2.2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(0,214,143,0.30);
+    border: none;
+}
+.rns-cta-btn:hover {
+    background: #00c07d;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,214,143,0.40);
+    color: #06070b;
+    text-decoration: none;
+}
+.rns-disclaimer-small {
+    margin-top: 1.2rem;
+    font-size: 0.72rem;
+    color: #555e78;
+    letter-spacing: 0.04em;
+}
+
+/* Sections */
+.rns-section { padding: 80px 0; }
+.rns-section-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.20em;
+    text-transform: uppercase;
+    color: var(--rns-green);
+    margin-bottom: 0.8rem;
+}
+.rns-section-title {
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    color: #eef2ff;
+    margin-bottom: 3rem;
+}
+
+/* What Is section */
+.rns-what-bg {
+    background: linear-gradient(180deg, transparent 0%, var(--rns-green-dim) 50%, transparent 100%);
+    border-top: 1px solid rgba(255,255,255,0.04);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.rns-what-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+@media (max-width: 768px) { .rns-what-grid { grid-template-columns: 1fr; gap: 2rem; } }
+
+.rns-passport {
+    background: linear-gradient(135deg, #0d1118 0%, #121824 100%);
+    border: 1px solid var(--rns-green-border);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    position: relative;
+    overflow: hidden;
+}
+.rns-passport::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--rns-green), rgba(0,214,143,0.3));
+}
+.rns-passport-flag {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+.rns-passport h3 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #eef2ff;
+    margin-bottom: 0.4rem;
+}
+.rns-passport-sub {
+    font-size: 0.8rem;
+    color: var(--rns-green);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    margin-bottom: 1.5rem;
+}
+.rns-passport-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 0.85rem;
+}
+.rns-passport-row:last-child { border-bottom: none; }
+.rns-passport-key { color: #95a0ba; }
+.rns-passport-val { color: #eef2ff; font-weight: 600; }
+
+.rns-what-points { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 1rem; }
+.rns-what-point {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    font-size: 0.95rem;
+    color: #c8d0e8;
+    line-height: 1.6;
+}
+.rns-point-icon {
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--rns-green-dim);
+    border: 1px solid var(--rns-green-border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+    color: var(--rns-green);
+    font-weight: 800;
+    margin-top: 0.1rem;
+}
+
+/* Why Bitcoiners Care */
+.rns-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+}
+.rns-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-left: 3px solid var(--rns-green);
+    border-radius: 14px;
+    padding: 1.8rem;
+    transition: box-shadow 0.2s, border-left-color 0.2s;
+}
+.rns-card:hover {
+    border-left-color: #ff3b5f;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.3);
+}
+.rns-card-icon {
+    font-size: 1.8rem;
+    margin-bottom: 0.9rem;
+    display: block;
+}
+.rns-card h3 { font-size: 1rem; font-weight: 700; color: #eef2ff; margin-bottom: 0.5rem; }
+.rns-card p { font-size: 0.88rem; color: #95a0ba; line-height: 1.6; margin: 0; }
+
+/* Editorial */
+.rns-editorial {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 20px;
+    padding: 3rem;
+    position: relative;
+}
+.rns-editorial::before {
+    content: '"';
+    position: absolute;
+    top: 1.5rem; left: 2rem;
+    font-size: 6rem;
+    line-height: 1;
+    color: rgba(0,214,143,0.10);
+    font-family: Georgia, serif;
+    pointer-events: none;
+}
+.rns-editorial-byline {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.8rem;
+}
+.rns-editorial-avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff3b5f, var(--rns-green));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; font-weight: 900; color: #fff;
+    flex-shrink: 0;
+}
+.rns-editorial-author { font-weight: 700; color: #eef2ff; font-size: 0.95rem; }
+.rns-editorial-role { font-size: 0.8rem; color: #95a0ba; margin-top: 0.15rem; }
+.rns-editorial p { font-size: 1.05rem; color: #c8d0e8; line-height: 1.75; margin-bottom: 1.2rem; }
+.rns-editorial p:last-of-type { margin-bottom: 0; }
+
+.rns-affiliate-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: var(--rns-green-dim);
+    border: 1px solid var(--rns-green-border);
+    color: var(--rns-green);
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+    margin-top: 1.5rem;
+}
+
+/* Sovereignty Score */
+.rns-sov-score {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-top: 3rem;
+}
+.rns-sov-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--rns-green);
+    margin-bottom: 1.2rem;
+}
+.rns-sov-rows { display: flex; flex-direction: column; gap: 0.7rem; }
+.rns-sov-row { display: flex; align-items: center; gap: 1rem; }
+.rns-sov-label { font-size: 0.8rem; color: #95a0ba; width: 165px; flex-shrink: 0; }
+.rns-sov-bars { display: flex; gap: 4px; }
+.rns-sov-bar {
+    width: 18px; height: 10px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+.rns-sov-bar.filled { background: var(--rns-green); border-color: var(--rns-green); }
+
+/* FAQ */
+.rns-faq { display: flex; flex-direction: column; gap: 0.8rem; }
+.rns-faq-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    overflow: hidden;
+}
+.rns-faq-q {
+    width: 100%; background: none; border: none;
+    padding: 1.2rem 1.5rem; text-align: left;
+    color: #eef2ff; font-size: 0.95rem; font-weight: 600;
+    cursor: pointer; display: flex; justify-content: space-between;
+    align-items: center; gap: 1rem; transition: color 0.2s;
+}
+.rns-faq-q:hover { color: var(--rns-green); }
+.rns-faq-q::after { content: '+'; font-size: 1.2rem; font-weight: 300; color: var(--rns-green); flex-shrink: 0; transition: transform 0.2s; }
+.rns-faq-item.open .rns-faq-q::after { content: '−'; }
+.rns-faq-a {
+    display: none; padding: 0 1.5rem 1.2rem;
+    font-size: 0.9rem; color: #95a0ba; line-height: 1.7;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+.rns-faq-item.open .rns-faq-a { display: block; }
+
+/* CTA Footer */
+.rns-cta-footer {
+    text-align: center;
+    padding: 80px 0;
+    background: linear-gradient(180deg, transparent 0%, var(--rns-green-dim) 50%, transparent 100%);
+}
+.rns-cta-footer h2 {
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    color: #eef2ff;
+    margin-bottom: 1rem;
+}
+.rns-cta-footer p { color: #95a0ba; font-size: 1.05rem; margin-bottom: 2rem; }
+.rns-disclaimer {
+    font-size: 0.75rem;
+    color: #444e66;
+    max-width: 500px;
+    margin: 1.5rem auto 0;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .rns-hero { padding: 70px 0 60px; }
+    .rns-editorial { padding: 1.8rem; }
+    .rns-editorial::before { display: none; }
+    .rns-section { padding: 56px 0; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rns-page">
+
+  <!-- HERO -->
+  <section class="rns-hero">
+    <div class="container">
+      <div class="rns-kicker">
+        <span class="rns-kicker-dot"></span>
+        AFFILIATE PARTNERSHIP &nbsp;•&nbsp; DIGITAL SOVEREIGNTY TOOLS
+      </div>
+      <h1>Establish Your<br><span>Digital Sovereignty</span></h1>
+      <p class="rns-hero-sub">
+        A government-issued digital ID outside the traditional financial
+        surveillance state. <strong>Palau Digital Residency via RNS.ID.</strong>
+      </p>
+      <a href="/go/rns?ref=/digital-residency&v=hero"
+         class="rns-cta-btn"
+         data-partner="rns_id"
+         onclick="trackAffClick('rns_id','hero')">
+        Apply Now →
+      </a>
+      <p class="rns-disclaimer-small">
+        Affiliate partnership. Not legal or financial advice. See disclaimer below.
+      </p>
+    </div>
+  </section>
+
+  <!-- WHAT IS IT -->
+  <section class="rns-section rns-what-bg">
+    <div class="container">
+      <div class="rns-section-kicker">The Product</div>
+      <h2 class="rns-section-title">What Is Palau Digital Residency?</h2>
+      <div class="rns-what-grid">
+        <div class="rns-passport">
+          <span class="rns-passport-flag">🇵🇼</span>
+          <h3>Republic of Palau</h3>
+          <div class="rns-passport-sub">DIGITAL RESIDENT CERTIFICATE</div>
+          <div class="rns-passport-row">
+            <span class="rns-passport-key">Issuing Authority</span>
+            <span class="rns-passport-val">Republic of Palau</span>
+          </div>
+          <div class="rns-passport-row">
+            <span class="rns-passport-key">Type</span>
+            <span class="rns-passport-val">Digital Identity</span>
+          </div>
+          <div class="rns-passport-row">
+            <span class="rns-passport-key">Jurisdiction</span>
+            <span class="rns-passport-val">Pacific Island Nation</span>
+          </div>
+          <div class="rns-passport-row">
+            <span class="rns-passport-key">BTC Friendly</span>
+            <span class="rns-passport-val" style="color:var(--rns-green);">✓ YES</span>
+          </div>
+          <div class="rns-passport-row">
+            <span class="rns-passport-key">Status</span>
+            <span class="rns-passport-val" style="color:var(--rns-green);">Active Program</span>
+          </div>
+        </div>
+        <div>
+          <ul class="rns-what-points">
+            <li class="rns-what-point">
+              <span class="rns-point-icon">✓</span>
+              <span><strong>Official digital identity</strong> issued by the Republic of Palau. Not crypto — real government-backed digital resident status recognized internationally.</span>
+            </li>
+            <li class="rns-what-point">
+              <span class="rns-point-icon">✓</span>
+              <span><strong>International banking access</strong> — the Palau digital ID enables financial services that may otherwise require traditional residency.</span>
+            </li>
+            <li class="rns-what-point">
+              <span class="rns-point-icon">✓</span>
+              <span><strong>Digital identity verification</strong> — establishes a verifiable, government-backed digital identity usable across multiple jurisdictions.</span>
+            </li>
+            <li class="rns-what-point">
+              <span class="rns-point-icon">✓</span>
+              <span><strong>Geographic diversification of identity</strong> — a second jurisdiction for identity reduces single-point-of-failure risk in your sovereignty stack.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY BITCOINERS CARE -->
+  <section class="rns-section">
+    <div class="container">
+      <div class="rns-section-kicker">The Bitcoin Angle</div>
+      <h2 class="rns-section-title">Why Bitcoiners Care About This</h2>
+      <div class="rns-cards">
+        <div class="rns-card">
+          <span class="rns-card-icon">🏝</span>
+          <h3>Bitcoin-friendly jurisdiction</h3>
+          <p>Palau is emerging as a progressive jurisdiction for digital assets and technology. Not a surveillance-first economy.</p>
+        </div>
+        <div class="rns-card">
+          <span class="rns-card-icon">🔐</span>
+          <h3>Privacy from surveillance finance</h3>
+          <p>Establish an identity layer outside your home country's surveillance infrastructure. Your financial identity is your business.</p>
+        </div>
+        <div class="rns-card">
+          <span class="rns-card-icon">📊</span>
+          <h3>Tax optimization potential</h3>
+          <p>Consult your legal advisor. Geographic diversification of identity can open planning opportunities unavailable to single-jurisdiction residents.</p>
+        </div>
+        <div class="rns-card">
+          <span class="rns-card-icon">🌐</span>
+          <h3>Geographic identity diversification</h3>
+          <p>Don't put all your identity eggs in one jurisdiction's basket. Sovereignty means optionality — in money, in identity, in life.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EDITORIAL -->
+  <section class="rns-section rns-what-bg">
+    <div class="container">
+      <div class="rns-section-kicker">Protocol Pulse Perspective</div>
+      <h2 class="rns-section-title">Digital Sovereignty Starts with Identity</h2>
+      <div class="rns-editorial">
+        <div class="rns-editorial-byline">
+          <div class="rns-editorial-avatar">PP</div>
+          <div>
+            <div class="rns-editorial-author">Protocol Pulse Editorial</div>
+            <div class="rns-editorial-role">Intelligence for Transactors</div>
+          </div>
+        </div>
+        <p>
+          Bitcoin fixes money. It does not fix identity. The cypherpunk project has always
+          been about more than sound money — it's about self-determination across every
+          system that governments and corporations use to control and surveil you. Identity
+          is one of the most overlooked attack surfaces in the sovereignty stack.
+        </p>
+        <p>
+          When your digital identity is tied exclusively to one nation-state's infrastructure,
+          you are one policy change, one sanctions regime, one banking shutdown away from
+          being financially and digitally homeless. Palau digital residency isn't a silver
+          bullet — it's an option. And in the sovereignty game, options are everything.
+        </p>
+        <p>
+          We looked at RNS.ID and the Palau digital residency program carefully before
+          adding it here. The program is real, the government backing is genuine, and
+          for people who think seriously about jurisdictional risk, this is a legitimate
+          tool worth knowing about. At $300 per referral, we earn a commission.
+          We disclose this clearly and stand behind the product.
+        </p>
+        <div class="rns-affiliate-badge">
+          ⚡ Affiliate Partnership — We earn $300 per referral.
+          This is not legal or financial advice.
+        </div>
+      </div>
+
+      <!-- Sovereignty Score -->
+      <div class="rns-sov-score">
+        <div class="rns-sov-title">Protocol Pulse Sovereignty Score — RNS.ID</div>
+        <div class="rns-sov-rows">
+          {% set scores = [
+            ('Privacy', 5),
+            ('BTC-Native Architecture', 3),
+            ('Non-Custodial Structure', 5),
+            ('Regulatory Compliance', 3),
+            ('Transparency', 4)
+          ] %}
+          {% for label, score in scores %}
+          <div class="rns-sov-row">
+            <span class="rns-sov-label">{{ label }}</span>
+            <div class="rns-sov-bars">
+              {% for i in range(1, 6) %}
+              <div class="rns-sov-bar {% if i <= score %}filled{% endif %}"></div>
+              {% endfor %}
+            </div>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--rns-green);font-weight:700;">{{ score }}/5</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="rns-section">
+    <div class="container">
+      <div class="rns-section-kicker">Common Questions</div>
+      <h2 class="rns-section-title">FAQ</h2>
+      <div class="rns-faq" style="max-width:740px;">
+        {% set faqs = [
+          ("Is this a real government program?",
+           "Yes. The Palau Digital Residency program is an official initiative of the Republic of Palau, a sovereign Pacific island nation. RNS.ID is the authorized platform for the application process."),
+          ("Does it affect my current citizenship?",
+           "No. Digital residency is not citizenship and does not affect your current citizenship status. It establishes a digital identity in Palau — it is not an immigration or naturalization product."),
+          ("Can it help with banking access?",
+           "Palau digital residency may open certain financial services that require a verified international identity. Specific benefits vary — consult RNS.ID and your legal advisor for details applicable to your situation."),
+          ("Are there tax implications?",
+           "Potentially, yes. Tax implications depend entirely on your home country's laws and your specific financial situation. We strongly recommend consulting a qualified international tax attorney before any decisions based on digital residency."),
+          ("What's the application process?",
+           "Applications are handled through RNS.ID's online platform. The process involves identity verification and payment. Visit our link for current application requirements and processing times."),
+        ] %}
+        {% for q, a in faqs %}
+        <div class="rns-faq-item">
+          <button class="rns-faq-q" onclick="toggleFaqRns(this)">{{ q }}</button>
+          <div class="rns-faq-a">{{ a }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FOOTER -->
+  <section class="rns-cta-footer">
+    <div class="container">
+      <div class="rns-section-kicker" style="justify-content:center;">Take Action</div>
+      <h2>Apply for Digital Residency</h2>
+      <p>Start your sovereignty stack with a second jurisdiction. Digital freedom begins with digital identity.</p>
+      <a href="/go/rns?ref=/digital-residency&v=footer"
+         class="rns-cta-btn"
+         data-partner="rns_id"
+         onclick="trackAffClick('rns_id','footer')"
+         style="font-size:1.1rem;padding:1rem 2.8rem;">
+        Apply for Digital Residency →
+      </a>
+      <p class="rns-disclaimer">
+        Protocol Pulse may earn compensation when you apply through our link.
+        This is not legal or financial advice. Palau digital residency is not
+        citizenship. Consult qualified legal counsel before making any decisions
+        based on jurisdiction or tax planning.
+      </p>
+    </div>
+  </section>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleFaqRns(btn) {
+    const item = btn.closest('.rns-faq-item');
+    item.classList.toggle('open');
+    btn.setAttribute('aria-expanded', item.classList.contains('open'));
+}
+
+// P0 FIX (I1 + U4): track final CTA click correctly (not as impression)
+function trackAffClick(partner, placement) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const variant = urlParams.get('v') || 'direct';
+    const payload = JSON.stringify({
+        partner: partner,
+        variant: variant,
+        referrer_page: window.location.pathname + '?placement=' + placement
+    });
+    if (navigator.sendBeacon) {
+        navigator.sendBeacon('/api/affiliates/click', new Blob([payload], {type:'application/json'}));
+    }
+}
+
+document.querySelectorAll('.rns-faq-q').forEach(function(btn, i, all) {
+    btn.setAttribute('aria-expanded', 'false');
+    btn.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowDown' && all[i+1]) { all[i+1].focus(); e.preventDefault(); }
+        if (e.key === 'ArrowUp' && all[i-1]) { all[i-1].focus(); e.preventDefault(); }
+    });
+});
+</script>
+{% endblock %}
