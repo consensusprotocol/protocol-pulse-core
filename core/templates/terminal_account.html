@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Terminal Account — Protocol Pulse{% endblock %}
+{% block content %}
+<style>
+body { background: #080810; font-family: 'JetBrains Mono', monospace; }
+.term-account { max-width: 680px; margin: 80px auto; padding: 24px; color: #E2E8F0; }
+.ta-title { font: 700 14px/1 'JetBrains Mono', monospace; color: #F59E0B; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 20px; }
+.ta-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1C1C2E; font: 400 12px/1 'JetBrains Mono', monospace; }
+.ta-label { color: #64748B; text-transform: uppercase; font-size: 10px; letter-spacing: .08em; }
+.ta-val { color: #E2E8F0; }
+.ta-key { background: #050508; border: 1px solid #1C1C2E; padding: 10px 14px; margin-top: 16px; color: #00FF41; font: 400 12px/1 'JetBrains Mono', monospace; word-break: break-all; }
+.btn-back { display: inline-block; margin-top: 20px; padding: 10px 20px; border: 1px solid #F59E0B; color: #F59E0B; font: 600 10px/1 'JetBrains Mono', monospace; letter-spacing: .1em; text-transform: uppercase; text-decoration: none; }
+</style>
+<div class="term-account">
+  <div class="ta-title">COMMANDER ACCOUNT</div>
+  {% if sub %}
+  <div class="ta-row"><span class="ta-label">EMAIL</span><span class="ta-val">{{ sub.email }}</span></div>
+  <div class="ta-row"><span class="ta-label">TIER</span><span class="ta-val" style="color:#F59E0B;">{{ sub.tier.upper() }}</span></div>
+  <div class="ta-row"><span class="ta-label">STATUS</span><span class="ta-val" style="color:#10B981;">{{ sub.subscription_status.upper() }}</span></div>
+  <div class="ta-row"><span class="ta-label">RATE LIMIT</span><span class="ta-val">10,000 req/hr</span></div>
+  <div class="ta-row"><span class="ta-label">API KEY</span><span class="ta-val">{{ sub.api_key[:16] }}...</span></div>
+  <div style="margin-top:14px;font:400 10px/1 'JetBrains Mono',monospace;color:#64748B;">
+    Your full API key (shown only at activation). Use Bearer auth: <code>Authorization: Bearer YOUR_KEY</code>
+  </div>
+  {% else %}
+  <p style="color:#64748B;font-size:12px;">No API subscriber record found. Activate Commander to generate your key.</p>
+  {% endif %}
+  <a href="/terminal" class="btn-back">← BACK TO TERMINAL</a>
+</div>
+{% endblock %}
