@@ -48,7 +48,7 @@ FONT_BOLD = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 FONT_MONO = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 
 # ── APEX UNIFIED COLOR SYSTEM ─────────────────────────────────────────────
-COLOR_BG          = "0x020304"   # BEV2 cinematic obsidian (not flat black)
+COLOR_BG          = "0x0A0A0F"   # VDS dark navy — #0A0A0F per PIPELINE_LAWS
 COLOR_PANEL       = "0x050607"   # BEV2 elevated surface
 COLOR_PANEL2      = "0x080a0c"   # secondary surface
 COLOR_RED         = "0xFF0000"   # BD signal red — all accents
@@ -200,14 +200,14 @@ def _build_black_diamond_bg(duration: float, label_out: str = "bd_bg") -> tuple:
     extra_inputs is always [] — pure procedural generation.
     """
     f = ""
-    # Layer 1: Pure black base
-    f += f"color=c=0x000000:s=1920x1080:d={duration}:r=30[bd_base];\n"
+    # Layer 1: VDS dark navy base (#0A0A0F per PIPELINE_LAWS)
+    f += f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30[bd_base];\n"
     # Layer 2: Red radial glow — top-center (subtle)
-    f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
+    f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
           f"geq=r='clip(55*exp(-((X-960)*(X-960)+Y*Y)/380000),0,255)':g='0':b='0'[bd_glow_top];\n")
     f += f"[bd_base][bd_glow_top]blend=all_mode=screen[bg1];\n"
     # Layer 3: Red radial glow — bottom-center
-    f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
+    f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
           f"geq=r='clip(35*exp(-((X-960)*(X-960)+(Y-1080)*(Y-1080))/280000),0,255)':g='0':b='0'[bd_glow_bot];\n")
     f += f"[bg1][bd_glow_bot]blend=all_mode=screen[bg2];\n"
     # Layer 4: Tactical surveillance grid (very subtle)
@@ -240,17 +240,17 @@ def _build_info_bar_fg(duration: float, btc_price: str, block_height: str = "",
     safe_content = content.replace("'", "").replace('"', "").replace("\\", "")
 
     fg = ""
-    # Dark base bar
-    fg += f"color=c={COLOR_TICKER_BG}@0.97:s=1920x48:d={duration}:r=30[tickbase];\n"
+    # FIX 5: Glassmorphic black base bar
+    fg += f"color=c=0x000000@0.75:s=1920x48:d={duration}:r=30[tickbase];\n"
     # Red top separator line (2px)
-    fg += f"[tickbase]drawbox=x=0:y=0:w=1920:h=2:color={COLOR_RED}@0.85:t=fill[tickline];\n"
-    # Static "// LIVE INTEL //" label
-    fg += (f"[tickline]drawtext=fontfile={FONT_MONO}:text='// LIVE INTEL //':"
-           f"fontcolor={COLOR_RED}@0.5:fontsize=13:x=8:y=18[tickstatic];\n")
+    fg += f"[tickbase]drawbox=x=0:y=0:w=1920:h=2:color=0xFF0033@0.85:t=fill[tickline];\n"
+    # Static 'PULSE CHECK' label left
+    fg += (f"[tickline]drawtext=fontfile={FONT_MONO}:text='PULSE CHECK':"
+           f"fontcolor=0xFFFFFF:fontsize=14:x=8:y=18[tickstatic];\n")
     # Scrolling red text
     fg += (f"[tickstatic]drawtext=fontfile={FONT_MONO}:text='{safe_content}':"
-           f"fontcolor={COLOR_RED}:fontsize=16:"
-           f"x=200+w-mod(t*90\\,w+text_w):y=16[ticker];\n")
+           f"fontcolor=0xFF0033:fontsize=14:"
+           f"x=W-mod(n*2\\,W+text_w):y=18[ticker];\n")
     # Overlay bar onto video frame at y=1032
     fg += f"[{label_in}][ticker]overlay=0:1032[{label_out}];\n"
     return fg
@@ -559,10 +559,9 @@ def make_tag_video(output_path: str, narration_audio: str = "") -> str:
 # ── Cold open intro ───────────────────────────────────────────────────────
 
 def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A", thumbnail_path: str = "") -> str:
-    """APEX Cold Open intro — 2.0s cinematic intro card + voice.
-
-    APEX background (7 layers) + corner brackets + centered title card.
-    Voice starts on frame 1. No pre-roll.
+    """FIX 2 — Clean Cold Open: ONLY cyberpunk background + centered date text.
+    Per PIPELINE_LAWS: cold open = NO logos, bars, watermarks, thumbnails, PiP.
+    Pure dramatic background. Minimum 3 seconds. Voice starts on frame 1.
     """
     import datetime
     tts_dur = ffprobe_duration(tts_path)
@@ -570,71 +569,26 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
 
     date_str = datetime.datetime.now().strftime("%b %d, %Y").upper()
 
-    has_thumb_co = bool(thumbnail_path and os.path.exists(thumbnail_path))
-
-    inp_args = [tts_path]
-    idx = 1
-
-    # APEX procedural background (7-layer)
-    _, bg_fg = _build_broadcast_bg(total_dur, label_out="bgvig")
+    # Build 7-layer broadcast background
+    _, bg_fg = _build_broadcast_bg(total_dur, label_out="co_bg")
     fg = bg_fg
 
-    # Thumbnail face panel (if available)
-    thumb_co_idx = -1
-    if has_thumb_co:
-        inp_args.append(thumbnail_path)
-        thumb_co_idx = idx
-        idx += 1
-    if has_thumb_co and thumb_co_idx >= 0:
-        fg += (f"[{thumb_co_idx}:v]scale=1056:1080:force_original_aspect_ratio=increase,"
-               f"crop=1056:1080,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS,"
-               f"eq=saturation=1.15:brightness=0.04[thumbface];\n")
-        fg += f"[thumbface]drawbox=x=940:y=0:w=116:h=1080:color={COLOR_BG}@0.7:t=fill[thumbblend];\n"
-        fg += f"[bgvig][thumbblend]overlay=0:0[bgwithface];\n"
-        face_base = "bgwithface"
-    else:
-        face_base = "bgvig"
+    # Only date text centered — no logos, no waveform, no bars
+    fg += (f"[co_bg]"
+           f"drawtext=fontfile={FONT_MONO}:text='{date_str}':"
+           f"fontcolor={COLOR_WHITE}:fontsize=48:x=(w-text_w)/2:y=(h-text_h)/2,"
+           f"fade=t=in:st=0:d=0.5,fade=t=out:st={max(0, total_dur - 0.5)}:d=0.5"
+           f"[outv];\n")
 
-    # APEX title text centered
-    fg += (f"[{face_base}]"
-           # PROTOCOL PULSE — centered white bold
-           f"drawtext=fontfile={FONT_BOLD}:text='PROTOCOL PULSE':"
-           f"fontcolor={COLOR_WHITE}:fontsize=72:x=(w-text_w)/2:y=300,"
-           # PULSE CHECK — centered warm-red bold
-           f"drawtext=fontfile={FONT_BOLD}:text='PULSE CHECK':"
-           f"fontcolor={COLOR_RED}:fontsize=52:x=(w-text_w)/2:y=400,"
-           # Gold eyebrow date
-           f"drawtext=fontfile={FONT_MONO}:text='{date_str} - DAILY INTELLIGENCE BRIEF':"
-           f"fontcolor={COLOR_GOLD}:fontsize=18:x=(w-text_w)/2:y=490,"
-           # // SIGNAL DETECTED //
-           f"drawtext=fontfile={FONT_MONO}:text='// SIGNAL DETECTED //':"
-           f"fontcolor={COLOR_RED}:fontsize=16:x=(w-text_w)/2:y=540,"
-           # Fade in/out
-           f"fade=t=in:st=0:d=0.4,fade=t=out:st={max(0, total_dur - 0.4)}:d=0.4"
-           f"[withtext];\n")
-
-    # Waveform below title
-    fg += (f"[0:a]showwaves=s=1920x120:mode=cline:"
-           f"colors={COLOR_RED}|{COLOR_RED_WARM}:scale=sqrt:draw=full:rate=30[wave_raw];\n")
-    fg += f"[withtext][wave_raw]overlay=0:620[withwave];\n"
-
-    # Corner brackets
-    fg += _build_corner_brackets_fg("withwave", "co_cornered")
-
-    # APEX info rail
-    fg += _build_signature_info_rail(total_dur, btc_price, "co_cornered", "v_final")
-    fg += f"[v_final]format=yuv420p[outv];\n"
-
-    # NO music — voice starts immediately
-    fg += (f"[0:a]silenceremove=start_periods=1:start_duration=0.05:start_threshold=-50dB:"
-           f"stop_periods=-1:stop_duration=0.1:stop_threshold=-50dB,"
+    fg += (f"[0:a]aformat=channel_layouts=stereo,"
            f"loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]")
 
     ok = run_ffmpeg_filtergraph(
-        inp_args, fg, ["[outv]", "[outa]"],
-        ["-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+        [tts_path], fg, ["[outv]", "[outa]"],
+        ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
+         "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(total_dur)],
-        output_path, "APEX intro cold open", 120,
+        output_path, "clean cold open", 120,
     )
     return output_path if ok else ""
 
@@ -655,7 +609,7 @@ def _make_clip_unavailable_card(rank: int, output_path: str, btc_price: str = "$
 
     ok = run_ffmpeg([
         "-f", "lavfi", "-i",
-        f"color=c=0x0D1117:s=1920x1080:r=30:d={dur}",
+        f"color=c=0x1A1A2E:s=1920x1080:r=30:d={dur}",  # FIX 4: brighter bg above blackdetect threshold
         "-f", "lavfi", "-i",
         f"anullsrc=r=48000:cl=stereo",
         "-filter_complex",
@@ -777,22 +731,25 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
     if not clip_path or not os.path.exists(clip_path):
         return ""
     clip_dur = ffprobe_duration(clip_path)
-    if clip_dur < 10:
+    if clip_dur < 2:  # FIX 1: lowered min from 10s to 2s
         return ""
-    # Sprint 3.2: Extract from MIDPOINT of clip (better face shots)
-    start = max(0, (clip_dur / 2) - (duration / 2))
+    actual_dur = min(duration, clip_dur - 0.5)
+    if actual_dur <= 0:
+        actual_dur = min(duration, clip_dur)
+    # Extract from MIDPOINT of clip (better face shots)
+    start = max(0, (clip_dur / 2) - (actual_dur / 2))
     ok = run_ffmpeg([
         "-ss", str(start), "-i", clip_path,
-        "-t", str(duration), "-an",
+        "-t", str(actual_dur), "-an",
         "-vf", (
-            "scale=820:462:force_original_aspect_ratio=decrease,"
-            "pad=820:462:(ow-iw)/2:(oh-ih)/2:black,"
-            "format=yuv420p"
+            # FIX 1: scale UP to fill the frame, then crop — NOT decrease+pad which leaves black borders
+            "scale=716:370:force_original_aspect_ratio=increase,"
+            "crop=716:370,setsar=1,format=yuv420p"
         ),
         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
         "-r", "30",
         output_path,
-    ], "pip preview extract", 60)
+    ], "pip preview extract", 120)  # FIX 1: increased timeout
     return output_path if ok and os.path.exists(output_path) else ""
 
 
@@ -881,20 +838,20 @@ def _build_broadcast_bg(duration: float, label_out: str = "bb_bg") -> tuple:
     Layer 7: Red border frame (2px all edges)
     """
     f = ""
-    # Layer 1: Cinematic obsidian base
-    f += f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30[bb_base];\n"
+    # Layer 1: VDS dark navy base (#0A0A0F per PIPELINE_LAWS)
+    f += f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30[bb_base];\n"
     # Layer 2a: Red radial glow — top-left
-    f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
+    f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
           f"geq=r='clip(46*exp(-((X)*(X)+Y*Y)/350000),0,255)':g='0':b='0'[bb_glow_tl];\n")
     f += f"[bb_base][bb_glow_tl]blend=all_mode=screen[bb1];\n"
     # Layer 2b: White radial glow — top-right (subtle)
-    f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
+    f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
           f"geq=r='clip(15*exp(-((X-1920)*(X-1920)+Y*Y)/300000),0,255)'"
           f":g='clip(15*exp(-((X-1920)*(X-1920)+Y*Y)/300000),0,255)'"
           f":b='clip(15*exp(-((X-1920)*(X-1920)+Y*Y)/300000),0,255)'[bb_glow_tr];\n")
     f += f"[bb1][bb_glow_tr]blend=all_mode=screen[bb2];\n"
     # Layer 2c: Red radial glow — bottom-center
-    f += (f"color=c=0x000000:s=1920x1080:d={duration}:r=30,"
+    f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
           f"geq=r='clip(25*exp(-((X-960)*(X-960)+(Y-1080)*(Y-1080))/400000),0,255)':g='0':b='0'[bb_glow_bc];\n")
     f += f"[bb2][bb_glow_bc]blend=all_mode=screen[bb3];\n"
     # Layer 3: VDS perspective grid (bottom 30% — subtle white)
@@ -955,23 +912,34 @@ def _build_top_system_bar(label_in: str, label_out: str, scene_label: str = "",
 
 def _build_signature_info_rail(duration: float, btc_price: str, label_in: str,
                                 label_out: str) -> str:
-    """APEX UNIFIED gold info rail — BUG3 FIX: gold #F8C15C per VDS spec."""
+    """FIX 5 — Glassmorphic black bottom bar: rgba(0,0,0,0.75) with red top separator.
+    Left: 'PULSE CHECK' white monospace. Right: scrolling red ticker.
+    """
     import datetime
     date_str = datetime.datetime.now().strftime("%b %d, %Y").upper()
-    safe_btc = btc_price.replace("'", "").replace('"', "").replace("\\", "")
+    safe_btc = (btc_price or "N/A").replace("'", "").replace('"', "").replace("\\", "")
+    ticker_content = (
+        f"  BTC {safe_btc}  //  PROTOCOL PULSE DAILY BRIEF  //  "
+        f"{date_str}  //  FEAR/GREED  //  STAY SOVEREIGN  //  "
+        f"BTC {safe_btc}  //  PROTOCOLPULSE.IO  //  SIGNAL DETECTED  "
+    )
+    safe_ticker = ticker_content.replace("'", "").replace('"', "").replace("\\", "")
 
     fg = ""
-    # BUG3 FIX: Solid gold bar (COLOR_GOLD = 0xF8C15C) — NOT red
-    fg += f"color=c={COLOR_GOLD}@0.95:s=1920x48:d={duration}:r=30[rail_full];\n"
-    # Overlay rail onto video at y=1032
-    fg += f"[{label_in}][rail_full]overlay=0:1032[rail_ov];\n"
-    # Text in BLACK over the gold rail
-    fg += (f"[rail_ov]drawtext=fontfile={FONT_BOLD}:text='BTC {safe_btc}':"
-           f"fontcolor=0x000000:fontsize=14:x=20:y=1048,"
-           f"drawtext=fontfile={FONT_BOLD}:text='PROTOCOLPULSE.IO':"
-           f"fontcolor=0x000000:fontsize=15:x=(w-text_w)/2:y=1047,"
-           f"drawtext=fontfile={FONT_MONO}:text='{date_str} - DAILY BRIEF':"
-           f"fontcolor=0x000000:fontsize=14:x=w-text_w-20:y=1048"
+    # Glassmorphic black bar (0,0,0 @0.75 opacity)
+    fg += (f"[{label_in}]"
+           f"drawbox=x=0:y=1032:w=1920:h=48:color=0x000000@0.75:t=fill,"
+           # Red top separator line (2px)
+           f"drawbox=x=0:y=1032:w=1920:h=2:color=0xFF0033@0.85:t=fill,"
+           # Left: static 'PULSE CHECK' in white monospace
+           f"drawtext=fontfile={FONT_MONO}:text='PULSE CHECK':"
+           f"fontcolor=0xFFFFFF:fontsize=14:x=16:y=1048,"
+           # Vertical separator after label
+           f"drawbox=x=140:y=1036:w=1:h=38:color=0xFF0033@0.5:t=fill,"
+           # Right: scrolling red ticker
+           f"drawtext=fontfile={FONT_MONO}:text='{safe_ticker}':"
+           f"fontcolor=0xFF0033:fontsize=14:"
+           f"x=W-mod(n*2\\,W+text_w):y=1048"
            f"[{label_out}];\n")
     return fg
 
@@ -1067,7 +1035,8 @@ def _bv2_encode(inputs, fg, output_path, total_dur, label="bv2 scene",
     audio_pad: the audio stream label to use (default [0:a]). Scenes that
     pre-split audio via asplit should pass their output pad here.
     """
-    fg += (f"{audio_pad}silenceremove=start_periods=1:start_duration=0.05:start_threshold=-50dB:"
+    fg += (f"{audio_pad}aformat=channel_layouts=stereo,"
+           f"silenceremove=start_periods=1:start_duration=0.05:start_threshold=-50dB:"
            f"stop_periods=-1:stop_duration=0.1:stop_threshold=-50dB,"
            f"loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]")
 
@@ -1076,7 +1045,7 @@ def _bv2_encode(inputs, fg, output_path, total_dur, label="bv2 scene",
         ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
          "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(total_dur)],
-        output_path, label, 180,
+        output_path, label, 300,
     )
     return output_path if ok else ""
 
@@ -1206,8 +1175,11 @@ def make_cold_open_scene(audio_path: str, headline: str, body: str, tag: str,
 def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
                              speaker: str, next_speaker: str,
                              thumb_path: str, output_path: str,
-                             btc_price: str = "N/A", duration: float = 0) -> str:
-    """APEX Narrator + PiP — BEV2 architecture + BD tactical brackets on PiP."""
+                             btc_price: str = "N/A", duration: float = 0,
+                             pip_video_path: str = "") -> str:
+    """FIX 1 — APEX Narrator + PiP: uses actual video clip in PiP (not static thumbnail).
+    pip_video_path: path to muted PiP preview video from make_pip_preview().
+    """
     audio_dur = ffprobe_duration(audio_path)
     if audio_dur <= 0:
         audio_dur = 5
@@ -1215,7 +1187,17 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
 
     inputs = [audio_path]
     inp_idx = 1
-    has_thumb = bool(thumb_path and os.path.exists(thumb_path))
+    # FIX 1: prefer video PiP over static thumbnail
+    has_pip_video = bool(pip_video_path and os.path.exists(pip_video_path))
+    has_thumb = bool(thumb_path and os.path.exists(thumb_path)) and not has_pip_video
+
+    if has_pip_video:
+        inputs.append(pip_video_path)
+        pip_vid_idx = inp_idx
+        inp_idx += 1
+    else:
+        pip_vid_idx = -1
+
     if has_thumb:
         inputs.append(thumb_path)
         thumb_idx = inp_idx
@@ -1268,8 +1250,17 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
            f"fontcolor=0xFFFFFF@0.35:fontsize=11:x=1720:y=152"
            f"[np_pip_hdr];\n")
 
-    # Thumbnail or placeholder inside preview box
-    if has_thumb and thumb_idx >= 0:
+    # FIX 1: Use actual video in PiP box — loop the preview clip to match segment duration
+    if has_pip_video and pip_vid_idx >= 0:
+        pip_dur_src = ffprobe_duration(pip_video_path)
+        src_frames = max(30, int(pip_dur_src * 30) + 5) if pip_dur_src > 0 else 300
+        loop_flag = f"loop=loop=-1:size={src_frames}:start=0," if pip_dur_src < total_dur else ""
+        fg += (f"[{pip_vid_idx}:v]{loop_flag}"
+               f"scale=716:370:force_original_aspect_ratio=increase,"
+               f"crop=716:370,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS[np_pip_vid];\n")
+        fg += f"[np_pip_hdr][np_pip_vid]overlay=1132:200[np_pip_thumb];\n"
+        pip_base = "np_pip_thumb"
+    elif has_thumb and thumb_idx >= 0:
         fg += (f"[{thumb_idx}:v]scale=716:370:force_original_aspect_ratio=increase,"
                f"crop=716:370,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS[np_thumb];\n")
         fg += f"[np_pip_hdr][np_thumb]overlay=1132:200[np_pip_thumb];\n"
@@ -1758,7 +1749,8 @@ def make_broadcast_segment(segment_data: dict, audio_path: str, host_num: int,
                             output_path: str, btc_price: str = "N/A",
                             thumbnail_path: str = "",
                             clip_path: str = "",
-                            social_posts: list = None) -> str:
+                            social_posts: list = None,
+                            pip_video_path: str = "") -> str:
     """Route to appropriate BV2 scene function based on segment type and position.
 
     Falls back to make_host_visual if BV2 scene fails.
@@ -1779,6 +1771,7 @@ def make_broadcast_segment(segment_data: dict, audio_path: str, host_num: int,
             return make_narrator_pip_scene(
                 audio_path, text[:60], text, speaker, next_speaker,
                 thumbnail_path, output_path, btc_price=btc_price,
+                pip_video_path=pip_video_path,  # FIX 1: pass actual video
             )
         elif scene == "partner_clip" and clip_path:
             return make_partner_clip_scene(
@@ -1805,11 +1798,29 @@ def make_broadcast_segment(segment_data: dict, audio_path: str, host_num: int,
         logger.warning(f"BV2 scene '{scene}' failed: {e} — falling back to make_host_visual")
 
     # Fallback to Black Diamond host visual
-    return make_host_visual(
+    result = make_host_visual(
         audio_path, host_num, text, output_path,
-        btc_price=btc_price, label=f"bv2_fallback_{seg_type}",
+        btc_price=btc_price, label="bv2_fallback_{}".format(seg_type),
         thumbnail_path=thumbnail_path, segment_type=seg_type,
     )
+    # HARD SAFETY NET: if output still missing/empty, generate solid bg+audio
+    if not result or not os.path.exists(result):
+        logger.error("make_host_visual also failed -- generating emergency bg clip")
+        try:
+            dur = ffprobe_duration(audio_path) or 10.0
+            run_ffmpeg([
+                "-f", "lavfi", "-i",
+                "color=c=0x0A0A0F:s=1920x1080:d={:.3f}:r=30".format(dur),
+                "-i", audio_path,
+                "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+                "-r", "30", "-vsync", "cfr", "-pix_fmt", "yuv420p",
+                "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
+                "-t", "{:.3f}".format(dur), output_path
+            ], "emergency bg clip", 60)
+            result = output_path if os.path.exists(output_path) else ""
+        except Exception as _e:
+            logger.error("Emergency clip also failed: %s", _e)
+    return result
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -2234,8 +2245,8 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
 
     fg += f"[{last_v}]format=yuv420p[outv];\n"
 
-    # APEX V2: TTS only — continuous BGM mixed in concatenate_parts()
-    fg += f"[0:a]loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]"
+    # FIX 4: explicit stereo format before loudnorm/aresample to prevent channel layout error
+    fg += f"[0:a]aformat=channel_layouts=stereo,loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]"
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -2816,7 +2827,40 @@ def concatenate_parts(parts: list, output_path: str) -> str:
              tmp],
             "normalize+fade", 180,
         )
-        normalized.append(tmp if (ok and os.path.exists(tmp)) else p)
+        chosen = tmp if (ok and os.path.exists(tmp)) else p
+        # BLACK HOLE GUARD: scan for >1s of black, replace with bg-only clip
+        try:
+            bd = subprocess.run(
+                ["ffprobe", "-v", "quiet", "-f", "lavfi",
+                 "-i", "movie=" + chosen + ",blackdetect=d=1:pix_th=0.02",
+                 "-show_entries", "tags=lavfi.black_start,lavfi.black_end",
+                 "-of", "csv=p=0"],
+                capture_output=True, text=True, timeout=30
+            )
+            black_dur = sum(
+                float(m.group(1))
+                for m in [re.search(r"black_duration:([\d.]+)", l) for l in bd.stderr.splitlines()]
+                if m
+            )
+            if black_dur > 1.0:
+                logger.warning("BLACK HOLE part %d: %.1fs black -- replacing with bg-only", i, black_dur)
+                dur = ffprobe_duration(chosen)
+                bg_only = chosen + ".bgonly.mp4"
+                run_ffmpeg([
+                    "-f", "lavfi", "-i",
+                    "color=c=0x0A0A0F:s=1920x1080:d={:.3f}:r=30".format(dur),
+                    "-f", "lavfi", "-i",
+                    "anullsrc=r=48000:cl=stereo:d={:.3f}".format(dur),
+                    "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+                    "-r", "30", "-vsync", "cfr", "-pix_fmt", "yuv420p",
+                    "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
+                    "-t", "{:.3f}".format(dur), bg_only
+                ], "bg-only fallback {}".format(i), 60)
+                if os.path.exists(bg_only):
+                    chosen = bg_only
+        except Exception as _bh_err:
+            logger.warning("Black hole check failed: %s", _bh_err)
+        normalized.append(chosen)
 
     concat_file = output_path + ".concat.txt"
     with open(concat_file, "w") as f:
@@ -3142,21 +3186,12 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             co_thumb = fetch_youtube_thumbnail(co_clip_info)
             if co_thumb:
                 logger.info(f"  Cold open thumbnail: {os.path.basename(co_thumb)}")
-        intro_result = make_intro_coldopen(cold_open_audio["path"], intro_out, btc_price=btc_price, thumbnail_path=co_thumb)
+        intro_result = make_intro_coldopen(cold_open_audio["path"], intro_out, btc_price=btc_price)
         if intro_result:
-            # Sprint 1.6: Overlay PiP of first clip onto cold open (face on screen)
-            if 1 in extracted_clips:
-                clip1_path = extracted_clips[1].get("path", "")
-                if clip1_path and os.path.exists(clip1_path):
-                    pip_co = os.path.join(work_dir, "pip_cold_open.mp4")
-                    pip_co_result = make_pip_preview(clip1_path, pip_co)
-                    if pip_co_result:
-                        pip_co_out = os.path.join(work_dir, f"part_{part_idx:03d}_cold_open_pip.mp4")
-                        intro_result = overlay_pip_on_narration(intro_result, pip_co_result, pip_co_out)
-                        logger.info(f"  Cold open PiP overlay: clip #1 face on screen")
+            # FIX 2: No PiP overlay on cold open — pure background + date text per PIPELINE_LAWS
             parts.append(intro_result)
             dur = ffprobe_duration(intro_result)
-            logger.info(f"[{part_idx:03d}] COLD OPEN HOOK (face, no logo, no music): {dur:.1f}s")
+            logger.info(f"[{part_idx:03d}] COLD OPEN (clean bg + date only): {dur:.1f}s")
             part_idx += 1
             cold_open_consumed = True
         else:
@@ -3219,8 +3254,24 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             clip_path = clip_info.get("path", "")
 
             if clip_path and os.path.exists(clip_path):
-                # FIX 1: No standalone glitch transitions — xfade applied in concatenation
-                # The clip itself — try Remotion LowerThird overlay, fall back to FFmpeg
+                # FIX 4: Pre-convert AV1/HEVC clips to H264 to avoid black frame bug in filtergraphs
+                codec_check = subprocess.run(
+                    ["ffprobe", "-v", "error", "-select_streams", "v:0",
+                     "-show_entries", "stream=codec_name", "-of", "default", clip_path],
+                    capture_output=True, text=True, timeout=10
+                )
+                clip_codec = codec_check.stdout.strip().replace("codec_name=", "").strip()
+                if clip_codec in ("av1", "hevc", "vp9", "vp8"):
+                    h264_path = clip_path + ".h264.mp4"
+                    ok_conv = run_ffmpeg([
+                        "-i", clip_path,
+                        "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+                        "-pix_fmt", "yuv420p", "-c:a", "copy", h264_path,
+                    ], f"AV1→H264 pre-convert clip #{rank}", 120)
+                    if ok_conv and os.path.exists(h264_path):
+                        clip_path = h264_path
+                        logger.info(f"  FIX4: Pre-converted {clip_codec.upper()} clip #{rank} to H264")
+
                 clip_out = os.path.join(work_dir, f"part_{part_idx:03d}_clip_r{rank}.mp4")
                 channel = clip_info.get("channel", "")
                 handle = f"@{channel.replace(' ', '')}" if channel else "ProtocolPulse"
@@ -3403,28 +3454,17 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             # Look ahead for next clip speaker
             if entry_type == "setup" and clip_rank and clip_rank in extracted_clips:
                 seg_data["next_speaker"] = extracted_clips[clip_rank].get("channel", "")
+            # FIX 1: Pass PiP video directly into the scene renderer (not as a post-processing overlay)
+            pip_vid = pip_previews.get(clip_rank, "") if entry_type == "setup" and clip_rank else ""
+            if pip_vid:
+                logger.info(f"  FIX1: PiP video embedded for SETUP → clip #{clip_rank}")
             result = make_broadcast_segment(
                 seg_data, audio_path, host_num,
                 part_idx, len(dialogue),
                 line_out, btc_price=btc_price,
                 thumbnail_path=thumb,
+                pip_video_path=pip_vid,  # FIX 1: actual video in PiP panel
             )
-
-            # Issue 4 FIX: PiP preview ONLY during "setup" segments (introducing next clip).
-            # During "react" segments (discussing previous clip), show PREVIOUS clip thumbnail instead.
-            # This prevents the confusing situation where the next clip's preview appears
-            # while the narrator is still reacting to the previous clip.
-            if result and entry_type == "setup" and clip_rank:
-                pip_path = pip_previews.get(clip_rank, "")
-                if pip_path:
-                    pip_out = result + ".pip.mp4"
-                    pip_result = overlay_pip_on_narration(result, pip_path, pip_out)
-                    if pip_result and pip_result != result:
-                        os.replace(pip_result, result)
-                        logger.info(f"  PiP preview overlaid for SETUP → clip #{clip_rank}")
-            elif result and entry_type == "react":
-                # React segments: no PiP preview of next clip (Issue 4)
-                logger.info(f"  No PiP for REACT segment (previous clip thumbnail via static thumb)")
 
         if result:
             parts.append(result)
