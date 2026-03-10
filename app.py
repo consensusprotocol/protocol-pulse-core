@@ -322,7 +322,7 @@ except Exception as _e:
 try:
     from core.blueprints.articles import articles_bp
     app.register_blueprint(articles_bp)
-    logging.info("Articles blueprint registered (/article/<slug>, /api/v2/articles)")
+    logging.info("Articles blueprint registered (/article/<slug>)")
 except Exception as _e:
     logging.warning("Articles blueprint not loaded: %s", _e)
 
