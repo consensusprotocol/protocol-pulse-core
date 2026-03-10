@@ -159,6 +159,22 @@ with app.app_context():
     except Exception as e:
         logging.warning("Terminal API blueprint not loaded: %s", e)
 
+    # SESSION 9 — Node Watch blueprint
+    try:
+        from blueprints.node_watch import node_watch_bp
+        app.register_blueprint(node_watch_bp)
+        logging.info("Node Watch blueprint registered (/node-watch, /api/nodes/*)")
+    except Exception as e:
+        logging.warning("Node Watch blueprint not loaded: %s", e)
+
+    # SESSION 6 — Schiff Bot blueprint
+    try:
+        from blueprints.schiff import schiff_bp
+        app.register_blueprint(schiff_bp)
+        logging.info("Schiff Bot blueprint registered (/schiff, /api/schiff/*)")
+    except Exception as e:
+        logging.warning("Schiff Bot blueprint not loaded: %s", e)
+
 # Diagnose: confirm / and /debug-routes are registered (debug 404)
 try:
     rules = [r.rule for r in app.url_map.iter_rules()]

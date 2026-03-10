@@ -318,6 +318,22 @@ try:
 except Exception as _e:
     logging.warning("Schiff Bot blueprint not loaded: %s", _e)
 
+# SESSION 9 — Node Watch Blueprint
+try:
+    from core.blueprints.node_watch import node_watch_bp
+    app.register_blueprint(node_watch_bp)
+    logging.info("Node Watch blueprint registered (/node-watch, /api/nodes/*)")
+except Exception as _e:
+    logging.warning("Node Watch blueprint not loaded: %s", _e)
+
+# SESSION 8 — Nostr Feed
+try:
+    from routes_nostr import nostr_bp
+    app.register_blueprint(nostr_bp)
+    logging.info("Nostr Feed blueprint registered (/nostr)")
+except Exception as _e:
+    logging.warning("Nostr Feed blueprint not loaded: %s", _e)
+
 try:
     from services.video_engine.dashboard.app import dashboard_bp
     app.register_blueprint(dashboard_bp)

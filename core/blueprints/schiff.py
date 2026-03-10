@@ -91,7 +91,7 @@ def _call_claude(user_message: str, history: list) -> str:
                 messages.append({"role": role, "content": content})
         messages.append({"role": "user", "content": user_message})
         response = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-haiku-4-5-20251001",
             max_tokens=512,
             system=SCHIFF_SYSTEM_PROMPT,
             messages=messages,
