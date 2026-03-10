@@ -1,0 +1,975 @@
+{% extends "base.html" %}
+
+{% block title %}Pulse Terminal API — Bitcoin Intelligence for Builders{% endblock %}
+
+{% block meta_description %}Access real-time Bitcoin intelligence via API. Topics, entities, sentiment, breaking news, and network stats. Commander tier: $49/mo, 1,000 requests/day.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="Pulse Terminal API — Bitcoin Intelligence for Builders">
+<meta property="og:description" content="Real-time Bitcoin intelligence API. Topics, sentiment, entities, breaking news, network stats. Commander: $49/mo.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protocol Pulse">
+<meta property="og:url" content="{{ request.url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Pulse Terminal Landing — V30 ────────────────────────── */
+:root {
+  --red: #dc2626;
+  --red-dim: #7f1d1d;
+  --bg: #000;
+  --surface: #0a0a0a;
+  --surface2: #111;
+  --border: #1a1a1a;
+  --text: #e5e5e5;
+  --muted: #6b7280;
+  --mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+.pt-hero {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 80px 24px 60px;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* Animated grid background */
+.pt-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(220,38,38,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(220,38,38,0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: grid-drift 20s linear infinite;
+  z-index: 0;
+}
+
+@keyframes grid-drift {
+  0%   { background-position: 0 0; }
+  100% { background-position: 40px 40px; }
+}
+
+/* Vignette */
+.pt-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.9) 100%);
+  z-index: 1;
+}
+
+.pt-hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+}
+
+.pt-badge {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--red);
+  border: 1px solid var(--red-dim);
+  padding: 4px 12px;
+  border-radius: 2px;
+  margin-bottom: 24px;
+  animation: pulse-badge 2s ease-in-out infinite;
+}
+
+@keyframes pulse-badge {
+  0%, 100% { opacity: 0.7; }
+  50%       { opacity: 1; }
+}
+
+.pt-hero h1 {
+  font-family: var(--mono);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 20px;
+  line-height: 1.1;
+}
+
+.pt-hero h1 span {
+  color: var(--red);
+}
+
+.pt-hero-sub {
+  font-size: 1.1rem;
+  color: var(--muted);
+  max-width: 560px;
+  margin: 0 auto 36px;
+  line-height: 1.6;
+}
+
+.pt-cta-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-terminal-primary {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #fff;
+  background: var(--red);
+  border: none;
+  padding: 14px 32px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.btn-terminal-primary:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+  color: #fff;
+  text-decoration: none;
+}
+
+.btn-terminal-secondary {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid #333;
+  padding: 13px 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.btn-terminal-secondary:hover {
+  border-color: var(--red);
+  color: var(--red);
+  text-decoration: none;
+}
+
+/* ── Live API Demo ── */
+.pt-demo {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0;
+  overflow: hidden;
+  margin: 0 auto;
+  max-width: 760px;
+}
+
+.pt-demo-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+
+.pt-demo-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.pt-demo-dot:nth-child(1) { background: #ef4444; }
+.pt-demo-dot:nth-child(2) { background: #f59e0b; }
+.pt-demo-dot:nth-child(3) { background: #22c55e; }
+
+.pt-demo-title {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-left: 4px;
+}
+
+.pt-demo-body {
+  padding: 20px 24px;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: #e5e5e5;
+  line-height: 1.7;
+  min-height: 140px;
+  position: relative;
+}
+
+.pt-demo-cmd { color: #9ca3af; }
+.pt-demo-key { color: var(--red); }
+.pt-demo-val { color: #4ade80; }
+.pt-demo-num { color: #60a5fa; }
+.pt-demo-str { color: #fbbf24; }
+
+/* Blinking cursor */
+.pt-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 1em;
+  background: var(--red);
+  vertical-align: text-bottom;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── Stats Strip ── */
+.pt-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 60px auto;
+  max-width: 700px;
+}
+
+.pt-stat {
+  background: var(--surface);
+  padding: 28px 24px;
+  text-align: center;
+}
+
+.pt-stat-num {
+  font-family: var(--mono);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--red);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.pt-stat-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ── Endpoints Grid ── */
+.pt-endpoints {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin: 40px 0;
+}
+
+.pt-endpoint-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 20px;
+  transition: border-color 0.2s;
+}
+
+.pt-endpoint-card:hover {
+  border-color: var(--red-dim);
+}
+
+.pt-endpoint-method {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #22c55e;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+
+.pt-endpoint-path {
+  font-family: var(--mono);
+  font-size: 0.88rem;
+  color: var(--red);
+  margin-bottom: 8px;
+  word-break: break-all;
+}
+
+.pt-endpoint-desc {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ── Pricing ── */
+.pt-pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+  margin: 40px 0;
+}
+
+.pt-plan {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 32px 28px;
+  position: relative;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.pt-plan:hover {
+  transform: translateY(-2px);
+}
+
+.pt-plan.featured {
+  border-color: var(--red);
+  background: linear-gradient(135deg, #0d0000 0%, #0a0a0a 100%);
+}
+
+.pt-plan-badge {
+  position: absolute;
+  top: -1px;
+  right: 20px;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: #fff;
+  background: var(--red);
+  padding: 3px 10px;
+  border-radius: 0 0 4px 4px;
+}
+
+.pt-plan-name {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.pt-plan-price {
+  font-family: var(--mono);
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.pt-plan-price sup {
+  font-size: 1rem;
+  vertical-align: super;
+  color: var(--muted);
+}
+
+.pt-plan-period {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+.pt-plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 28px;
+}
+
+.pt-plan-features li {
+  font-size: 0.85rem;
+  color: var(--text);
+  padding: 6px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.pt-plan-features li::before {
+  content: '▸';
+  color: var(--red);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.pt-plan-features li.disabled {
+  color: var(--muted);
+  opacity: 0.5;
+}
+
+.pt-plan-features li.disabled::before {
+  color: #333;
+}
+
+.pt-plan-btn {
+  width: 100%;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 12px 20px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+  letter-spacing: 0.04em;
+}
+
+.pt-plan-btn.active {
+  background: var(--red);
+  color: #fff;
+}
+
+.pt-plan-btn.active:hover {
+  background: #b91c1c;
+}
+
+.pt-plan-btn.inactive {
+  background: var(--surface2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  cursor: not-allowed;
+}
+
+/* ── Code Block ── */
+.pt-code {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 20px 24px;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: #e5e5e5;
+  overflow-x: auto;
+  line-height: 1.7;
+}
+
+.pt-code .comment { color: #6b7280; }
+.pt-code .keyword { color: var(--red); }
+.pt-code .string  { color: #fbbf24; }
+.pt-code .value   { color: #4ade80; }
+
+/* ── FAQ ── */
+.pt-faq {
+  margin: 40px 0;
+}
+
+.pt-faq-item {
+  border-bottom: 1px solid var(--border);
+  padding: 20px 0;
+}
+
+.pt-faq-q {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  user-select: none;
+}
+
+.pt-faq-q::after {
+  content: '+';
+  font-family: var(--mono);
+  font-size: 1.2rem;
+  color: var(--red);
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.pt-faq-item.open .pt-faq-q::after {
+  transform: rotate(45deg);
+}
+
+.pt-faq-a {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.7;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.2s;
+}
+
+.pt-faq-item.open .pt-faq-a {
+  max-height: 300px;
+  padding-top: 12px;
+}
+
+/* ── Section Header ── */
+.pt-section {
+  padding: 60px 0 40px;
+}
+
+.pt-section-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--red);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.pt-section-title {
+  font-family: var(--mono);
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+.pt-section-sub {
+  font-size: 0.95rem;
+  color: var(--muted);
+  max-width: 560px;
+  line-height: 1.6;
+}
+
+/* ── Subscribe Form ── */
+.pt-subscribe-form {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+.pt-subscribe-form input[type="email"] {
+  flex: 1;
+  min-width: 240px;
+  font-family: var(--mono);
+  font-size: 0.88rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 12px 16px;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.pt-subscribe-form input[type="email"]:focus {
+  border-color: var(--red-dim);
+}
+
+.pt-subscribe-form input[type="email"]::placeholder {
+  color: var(--muted);
+}
+
+/* ── Toast ── */
+.pt-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--red);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  padding: 14px 20px;
+  border-radius: 4px;
+  z-index: 9999;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  max-width: 320px;
+}
+
+.pt-toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  .pt-stats { grid-template-columns: 1fr; }
+  .pt-pricing-grid { grid-template-columns: 1fr; }
+  .pt-hero h1 { font-size: 1.8rem; }
+  .pt-cta-row { flex-direction: column; align-items: center; }
+  .pt-demo-body { font-size: 0.75rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════════════════════════════
+     HERO
+══════════════════════════════════════════ -->
+<section class="pt-hero">
+  <div class="pt-hero-content">
+    <div class="pt-badge">PULSE TERMINAL — V30 — COMMANDER TIER</div>
+    <h1>Bitcoin Intelligence<br><span>as an API.</span></h1>
+    <p class="pt-hero-sub">
+      Real-time topics, entity tracking, sentiment scoring, breaking news, and live
+      network stats — wired directly into your stack. No scraping. No guessing.
+    </p>
+    <div class="pt-cta-row">
+      <a href="#pricing" class="btn-terminal-primary">Get Commander Access — $49/mo</a>
+      <a href="#docs" class="btn-terminal-secondary">View Docs</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     LIVE API DEMO
+══════════════════════════════════════════ -->
+<section class="container" style="max-width:860px;padding:0 24px;">
+  <div class="pt-demo">
+    <div class="pt-demo-bar">
+      <div class="pt-demo-dot"></div>
+      <div class="pt-demo-dot"></div>
+      <div class="pt-demo-dot"></div>
+      <span class="pt-demo-title">terminal — bash</span>
+    </div>
+    <div class="pt-demo-body" id="demo-output">
+      <span class="pt-demo-cmd">$ curl https://protocolpulse.io/api/v2/terminal/sentiment \<br>&nbsp;&nbsp;-H <span class="pt-demo-str">"X-PP-API-Key: pp_cmd_..."</span></span><br><br>
+      <span id="demo-response" style="display:none;">{<br>
+&nbsp;&nbsp;<span class="pt-demo-key">"tier"</span>: <span class="pt-demo-str">"commander"</span>,<br>
+&nbsp;&nbsp;<span class="pt-demo-key">"endpoint"</span>: <span class="pt-demo-str">"sentiment"</span>,<br>
+&nbsp;&nbsp;<span class="pt-demo-key">"timestamp"</span>: <span class="pt-demo-str">"2026-03-09T14:22:01Z"</span>,<br>
+&nbsp;&nbsp;<span class="pt-demo-key">"cache_age_seconds"</span>: <span class="pt-demo-num">0</span>,<br>
+&nbsp;&nbsp;<span class="pt-demo-key">"data"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="pt-demo-key">"score"</span>: <span class="pt-demo-num">71</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="pt-demo-key">"label"</span>: <span class="pt-demo-str">"bullish"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="pt-demo-key">"scale"</span>: <span class="pt-demo-str">"0 (max bearish) — 100 (max bullish)"</span><br>
+&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;<span class="pt-demo-key">"rate_limit"</span>: { <span class="pt-demo-key">"requests_today"</span>: <span class="pt-demo-num">1</span>, <span class="pt-demo-key">"limit"</span>: <span class="pt-demo-num">1000</span> }<br>
+}</span>
+      <span class="pt-cursor" id="demo-cursor"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     STATS STRIP
+══════════════════════════════════════════ -->
+<div class="container" style="max-width:860px;padding:0 24px;">
+  <div class="pt-stats">
+    <div class="pt-stat">
+      <span class="pt-stat-num">5</span>
+      <span class="pt-stat-label">Endpoints</span>
+    </div>
+    <div class="pt-stat">
+      <span class="pt-stat-num">1,000</span>
+      <span class="pt-stat-label">Req / Day</span>
+    </div>
+    <div class="pt-stat">
+      <span class="pt-stat-num">$49</span>
+      <span class="pt-stat-label">Per Month</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     ENDPOINTS
+══════════════════════════════════════════ -->
+<section class="container pt-section" style="max-width:860px;padding-left:24px;padding-right:24px;" id="docs">
+  <div class="pt-section-label">Documentation</div>
+  <div class="pt-section-title">5 Commander Endpoints</div>
+  <p class="pt-section-sub">All endpoints require <code style="color:var(--red);">X-PP-API-Key</code> header. JSON response every time.</p>
+
+  <div class="pt-endpoints">
+    <div class="pt-endpoint-card">
+      <div class="pt-endpoint-method">GET</div>
+      <div class="pt-endpoint-path">/api/v2/terminal/topics</div>
+      <div class="pt-endpoint-desc">Top topics from the last 24hr of published articles, ranked by volume. Use to surface narrative momentum.</div>
+    </div>
+    <div class="pt-endpoint-card">
+      <div class="pt-endpoint-method">GET</div>
+      <div class="pt-endpoint-path">/api/v2/terminal/entities</div>
+      <div class="pt-endpoint-desc">Named entities and keywords extracted from articles — ranked by 24hr mention frequency.</div>
+    </div>
+    <div class="pt-endpoint-card">
+      <div class="pt-endpoint-method">GET</div>
+      <div class="pt-endpoint-path">/api/v2/terminal/sentiment</div>
+      <div class="pt-endpoint-desc">Protocol Pulse sentiment index: 0–100. Aggregated from live article signals. 0 = max bearish, 100 = max bullish.</div>
+    </div>
+    <div class="pt-endpoint-card">
+      <div class="pt-endpoint-method">GET</div>
+      <div class="pt-endpoint-path">/api/v2/terminal/breaking</div>
+      <div class="pt-endpoint-desc">Articles published in the last 2 hours. Real-time breaking news feed with summaries and direct links.</div>
+    </div>
+    <div class="pt-endpoint-card">
+      <div class="pt-endpoint-method">GET</div>
+      <div class="pt-endpoint-path">/api/v2/terminal/network</div>
+      <div class="pt-endpoint-desc">Live Bitcoin network stats: hashrate (EH/s), difficulty, block height, and halving countdown with estimated date.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     RESPONSE FORMAT
+══════════════════════════════════════════ -->
+<section class="container pt-section" style="max-width:860px;padding-left:24px;padding-right:24px;">
+  <div class="pt-section-label">Consistency</div>
+  <div class="pt-section-title">One Response Format</div>
+  <p class="pt-section-sub" style="margin-bottom:24px;">Every endpoint returns the same envelope. Parse it once, use everywhere.</p>
+
+  <div class="pt-code">
+<span class="comment">// GET /api/v2/terminal/topics</span>
+{
+  <span class="keyword">"tier"</span>:              <span class="string">"commander"</span>,
+  <span class="keyword">"endpoint"</span>:          <span class="string">"topics"</span>,
+  <span class="keyword">"timestamp"</span>:         <span class="string">"2026-03-09T14:22:01Z"</span>,
+  <span class="keyword">"cache_age_seconds"</span>:  <span class="value">0</span>,
+  <span class="keyword">"data"</span>: {
+    <span class="keyword">"topics"</span>: [
+      { <span class="keyword">"topic"</span>: <span class="string">"Mining"</span>, <span class="keyword">"count"</span>: <span class="value">14</span> },
+      { <span class="keyword">"topic"</span>: <span class="string">"ETF"</span>,    <span class="keyword">"count"</span>: <span class="value">9</span>  }
+    ],
+    <span class="keyword">"window_hours"</span>: <span class="value">24</span>
+  },
+  <span class="keyword">"rate_limit"</span>: {
+    <span class="keyword">"requests_today"</span>: <span class="value">1</span>,
+    <span class="keyword">"limit"</span>:          <span class="value">1000</span>,
+    <span class="keyword">"resets_at"</span>:      <span class="string">"2026-03-10T00:00:00Z"</span>
+  }
+}
+  </div>
+
+  <div style="margin-top:24px;">
+    <div class="pt-section-label" style="margin-bottom:12px;">Authentication</div>
+    <div class="pt-code">
+<span class="comment"># All 5 endpoints require this header:</span>
+curl https://protocolpulse.io/api/v2/terminal/sentiment \
+  -H <span class="string">"X-PP-API-Key: pp_cmd_your_key_here"</span>
+
+<span class="comment"># Missing key → 401 | Invalid key → 401 | Over limit → 429</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     PRICING
+══════════════════════════════════════════ -->
+<section class="container pt-section" style="max-width:860px;padding-left:24px;padding-right:24px;" id="pricing">
+  <div class="pt-section-label">Pricing</div>
+  <div class="pt-section-title">Simple Tiers</div>
+  <p class="pt-section-sub">Commander ships now. Watcher and Sovereign come in V31.</p>
+
+  <div class="pt-pricing-grid" style="margin-top:32px;">
+    <!-- Watcher (V31) -->
+    <div class="pt-plan">
+      <div class="pt-plan-name">Watcher</div>
+      <div class="pt-plan-price"><sup>$</sup>19</div>
+      <div class="pt-plan-period">/ month &nbsp;·&nbsp; coming V31</div>
+      <ul class="pt-plan-features">
+        <li>100 requests / day</li>
+        <li>Topics + Entities</li>
+        <li class="disabled">Sentiment index</li>
+        <li class="disabled">Breaking news feed</li>
+        <li class="disabled">Network stats</li>
+      </ul>
+      <button class="pt-plan-btn inactive" disabled>Coming Soon</button>
+    </div>
+
+    <!-- Commander (featured) -->
+    <div class="pt-plan featured">
+      <div class="pt-plan-badge">LAUNCH TIER</div>
+      <div class="pt-plan-name">Commander</div>
+      <div class="pt-plan-price"><sup>$</sup>49</div>
+      <div class="pt-plan-period">/ month &nbsp;·&nbsp; available now</div>
+      <ul class="pt-plan-features">
+        <li>1,000 requests / day</li>
+        <li>All 5 endpoints</li>
+        <li>Topics + Entities</li>
+        <li>Sentiment index (0–100)</li>
+        <li>Breaking news feed</li>
+        <li>Live network stats</li>
+      </ul>
+      <button class="pt-plan-btn active" onclick="handleSubscribe()">Get Commander Access</button>
+    </div>
+
+    <!-- Sovereign (V31) -->
+    <div class="pt-plan">
+      <div class="pt-plan-name">Sovereign</div>
+      <div class="pt-plan-price"><sup>$</sup>99</div>
+      <div class="pt-plan-period">/ month &nbsp;·&nbsp; coming V31</div>
+      <ul class="pt-plan-features">
+        <li>Unlimited requests</li>
+        <li>All 5 endpoints</li>
+        <li>Webhook push alerts</li>
+        <li>Custom filters</li>
+        <li>Priority support</li>
+      </ul>
+      <button class="pt-plan-btn inactive" disabled>Coming Soon</button>
+    </div>
+  </div>
+
+  <!-- Subscribe Form -->
+  <div style="margin-top:40px;padding:28px;background:var(--surface);border:1px solid var(--border);border-radius:6px;" id="subscribe-form-section">
+    <div class="pt-section-label" style="margin-bottom:8px;">Commander — $49/mo</div>
+    <p style="font-size:0.88rem;color:var(--muted);margin-bottom:0;">Enter your email and we'll redirect you to secure Stripe checkout.</p>
+    <form class="pt-subscribe-form" id="subscribe-form" onsubmit="submitSubscribe(event)">
+      <input type="email" id="subscribe-email" placeholder="you@example.com" required autocomplete="email">
+      <button type="submit" class="btn-terminal-primary" id="subscribe-btn" style="padding:12px 28px;">
+        Subscribe — $49/mo
+      </button>
+    </form>
+    <p id="subscribe-msg" style="display:none;font-family:var(--mono);font-size:0.8rem;margin-top:12px;"></p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     FAQ
+══════════════════════════════════════════ -->
+<section class="container pt-section" style="max-width:860px;padding-left:24px;padding-right:24px;">
+  <div class="pt-section-label">FAQ</div>
+  <div class="pt-section-title">Common Questions</div>
+
+  <div class="pt-faq" style="margin-top:28px;">
+    <div class="pt-faq-item">
+      <div class="pt-faq-q" onclick="toggleFaq(this)">How is the API key delivered?</div>
+      <div class="pt-faq-a">After successful payment, your API key is emailed immediately to the address you provide at checkout. The key starts with <code style="color:var(--red);">pp_cmd_</code>. Store it securely — it won't be shown again in the dashboard.</div>
+    </div>
+    <div class="pt-faq-item">
+      <div class="pt-faq-q" onclick="toggleFaq(this)">When does my rate limit reset?</div>
+      <div class="pt-faq-a">All rate limits reset at 00:00 UTC daily. The <code style="color:var(--red);">rate_limit.resets_at</code> field in every API response shows the exact timestamp. Commander tier gets 1,000 requests per day.</div>
+    </div>
+    <div class="pt-faq-item">
+      <div class="pt-faq-q" onclick="toggleFaq(this)">What is the data source for topics and sentiment?</div>
+      <div class="pt-faq-a">Topics and sentiment are derived from Protocol Pulse's own article database — published, human-reviewed Bitcoin intelligence articles. Sentiment uses both structured signals from the SentimentBuffer and a keyword-frequency fallback for real-time coverage.</div>
+    </div>
+    <div class="pt-faq-item">
+      <div class="pt-faq-q" onclick="toggleFaq(this)">Can I cancel anytime?</div>
+      <div class="pt-faq-a">Yes. Cancel via the Stripe billing portal link included in your confirmation email. Your key remains active until the end of the billing period.</div>
+    </div>
+    <div class="pt-faq-item">
+      <div class="pt-faq-q" onclick="toggleFaq(this)">Is this the same as the live terminal at /live?</div>
+      <div class="pt-faq-a">No. The live terminal at <a href="/live" style="color:var(--red);">/live</a> is a visual dashboard for browsing. Pulse Terminal API is for programmatic access — designed for developers, algo traders, and data teams who want Bitcoin intelligence in their own products.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     FOOTER CTA
+══════════════════════════════════════════ -->
+<section style="padding:60px 24px;text-align:center;background:var(--surface);border-top:1px solid var(--border);margin-top:40px;">
+  <div class="pt-section-label" style="justify-content:center;display:flex;">Ready</div>
+  <h2 style="font-family:var(--mono);font-size:1.8rem;color:#fff;margin:12px 0 16px;">Start building with Bitcoin intelligence.</h2>
+  <p style="color:var(--muted);margin-bottom:28px;">$49/mo. 1,000 requests/day. Cancel anytime.</p>
+  <a href="#pricing" class="btn-terminal-primary">Get Commander Access</a>
+</section>
+
+<!-- Toast -->
+<div class="pt-toast" id="toast"></div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Demo typing animation ──────────────────────────────────────────────
+(function() {
+  const responseEl = document.getElementById('demo-response');
+  const cursorEl   = document.getElementById('demo-cursor');
+
+  setTimeout(function() {
+    if (responseEl) {
+      responseEl.style.display = 'inline';
+      if (cursorEl) cursorEl.style.display = 'none';
+    }
+  }, 1200);
+})();
+
+// ── FAQ accordion ──────────────────────────────────────────────────────
+function toggleFaq(el) {
+  var item = el.parentElement;
+  var isOpen = item.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.pt-faq-item').forEach(function(i) {
+    i.classList.remove('open');
+  });
+  // Toggle clicked
+  if (!isOpen) item.classList.add('open');
+}
+
+// ── Smooth scroll for anchor links ────────────────────────────────────
+document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+  a.addEventListener('click', function(e) {
+    var target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+
+// ── Toast ──────────────────────────────────────────────────────────────
+function showToast(msg, duration) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, duration || 4000);
+}
+
+// ── Pricing button → scroll to form ───────────────────────────────────
+function handleSubscribe() {
+  var formSection = document.getElementById('subscribe-form-section');
+  if (formSection) {
+    formSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(function() {
+      var emailInput = document.getElementById('subscribe-email');
+      if (emailInput) emailInput.focus();
+    }, 400);
+  }
+}
+
+// ── Subscribe form submission ──────────────────────────────────────────
+function submitSubscribe(e) {
+  e.preventDefault();
+  var email = document.getElementById('subscribe-email').value.trim();
+  var btn   = document.getElementById('subscribe-btn');
+  var msg   = document.getElementById('subscribe-msg');
+
+  if (!email || !email.includes('@')) {
+    showToast('Please enter a valid email address.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Redirecting...';
+  msg.style.display = 'none';
+
+  fetch('/api/v2/terminal/subscribe', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email, tier: 'commander' })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.checkout_url) {
+      showToast('Redirecting to secure checkout…');
+      setTimeout(function() {
+        window.location.href = data.checkout_url;
+      }, 800);
+    } else if (data.error && data.error.includes('not yet enabled')) {
+      // Stripe not configured — show early-access message
+      msg.style.display = 'block';
+      msg.style.color = '#fbbf24';
+      msg.textContent = '⚡ Early access: email team@protocolpulse.io to get your key today.';
+      btn.disabled = false;
+      btn.textContent = 'Subscribe — $49/mo';
+    } else {
+      showToast(data.error || 'Something went wrong. Try again.');
+      btn.disabled = false;
+      btn.textContent = 'Subscribe — $49/mo';
+    }
+  })
+  .catch(function(err) {
+    showToast('Network error. Please try again.');
+    btn.disabled = false;
+    btn.textContent = 'Subscribe — $49/mo';
+  });
+}
+</script>
+{% endblock %}

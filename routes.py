@@ -432,6 +432,11 @@ def live_terminal():
     """Live Settlement Terminal - Real-time Bitcoin network visualization"""
     return render_template('live_terminal.html')
 
+@app.route('/terminal')
+def pulse_terminal():
+    """Pulse Terminal API landing page — Commander pricing and documentation."""
+    return render_template('pulse_terminal.html')
+
 @app.route('/bitfeed-live')
 @app.route('/kinetic')
 @app.route('/gravity-well')
