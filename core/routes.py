@@ -9957,6 +9957,189 @@ def nodes_page():
     return render_template('nodes.html', node_count=node_count)
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# SESSION 20 — PRICE ALERT + NOTIFICATION SYSTEM
+# ═══════════════════════════════════════════════════════════════════════════════
+
+import re as _re_alerts
+
+_EMAIL_RE = _re_alerts.compile(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
+
+
+@app.route('/alerts')
+def alerts_page():
+    """Price alert landing page."""
+    # Pass current BTC price for chart seed and placeholder
+    btc_price = _fetch_btc_price() or 0
+    success = request.args.get('success')
+    error = request.args.get('error')
+    cancelled = request.args.get('cancelled')
+    email_param = request.args.get('email', '')
+    return render_template(
+        'alerts.html',
+        btc_price=btc_price,
+        success=success,
+        error=error,
+        cancelled=cancelled,
+        email_param=email_param,
+    )
+
+
+@app.route('/api/alerts/create', methods=['POST'])
+def api_alerts_create():
+    """Create a new price alert — sends confirmation email (double opt-in)."""
+    try:
+        data = request.get_json(silent=True) or {}
+        email = (data.get('email') or '').strip().lower()[:254]
+        raw_price = data.get('target_price')
+        direction = (data.get('direction') or 'above').strip().lower()
+
+        # Validate email
+        if not email or not _EMAIL_RE.match(email):
+            return jsonify({'error': 'Valid email address required'}), 400
+
+        # Validate price
+        try:
+            target_price = float(raw_price)
+            if not (1_000 <= target_price <= 10_000_000):
+                raise ValueError('out of range')
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Price must be between $1,000 and $10,000,000'}), 400
+
+        # Validate direction
+        if direction not in ('above', 'below'):
+            return jsonify({'error': "Direction must be 'above' or 'below'"}), 400
+
+        # Max 3 active alerts per email
+        active_count = models.PriceAlert.query.filter(
+            models.PriceAlert.email == email,
+            models.PriceAlert.active == True,   # noqa: E712
+            models.PriceAlert.triggered_at == None,  # noqa: E711
+        ).count()
+        if active_count >= 3:
+            return jsonify({'error': 'Maximum 3 active alerts per email'}), 429
+
+        confirm_token = models.PriceAlert.generate_token()
+        cancel_token = models.PriceAlert.generate_token()
+
+        alert = models.PriceAlert(
+            email=email,
+            target_price=target_price,
+            direction=direction,
+            active=False,
+            confirmed=False,
+            confirm_token=confirm_token,
+            cancel_token=cancel_token,
+            expires_at=datetime.utcnow() + timedelta(hours=24),
+        )
+        try:
+            db.session.add(alert)
+            db.session.commit()
+        except Exception as db_err:
+            db.session.rollback()
+            logging.error('PriceAlert create DB error: %s', db_err)
+            return jsonify({'error': 'Could not save alert — please try again'}), 500
+
+        # Send confirmation email (non-blocking on failure)
+        try:
+            from services.alert_engine import send_confirmation_email
+            send_confirmation_email(alert)
+        except Exception as mail_err:
+            logging.error('Confirmation email failed: %s', mail_err)
+
+        return jsonify({
+            'status': 'confirmation_sent',
+            'message': 'Check your email to activate your alert. Link expires in 24 hours.',
+        }), 201
+
+    except Exception as e:
+        logging.error('api_alerts_create error: %s', e)
+        return jsonify({'error': 'Internal server error'}), 500
+
+
+@app.route('/api/alerts/verify')
+def api_alerts_verify():
+    """Email verification — activates alert after double opt-in click."""
+    token = (request.args.get('token') or '').strip()
+    if not token:
+        return redirect('/alerts?error=missing_token')
+
+    alert = models.PriceAlert.query.filter_by(confirm_token=token).first()
+    if not alert:
+        return redirect('/alerts?error=invalid_token')
+    if alert.expires_at and alert.expires_at < datetime.utcnow():
+        db.session.delete(alert)
+        db.session.commit()
+        return redirect('/alerts?error=expired')
+    if alert.confirmed:
+        # Already confirmed — idempotent redirect
+        return redirect(f'/alerts?success=1&email={alert.email}')
+
+    alert.confirmed = True
+    alert.active = True
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        logging.error('Alert verify commit error: %s', e)
+        return redirect('/alerts?error=db_error')
+
+    return redirect(f'/alerts?success=1&email={alert.email}')
+
+
+@app.route('/api/alerts/cancel', methods=['GET', 'DELETE'])
+def api_alerts_cancel():
+    """Cancel/deactivate a price alert. One-click from email (GET) or DELETE from JS."""
+    token = (request.args.get('token') or '').strip()
+    if not token and request.method == 'DELETE':
+        body = request.get_json(silent=True) or {}
+        token = (body.get('token') or '').strip()
+
+    if token:
+        alert = models.PriceAlert.query.filter_by(cancel_token=token).first()
+        if alert:
+            alert.active = False
+            try:
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                logging.error('Alert cancel commit error: %s', e)
+
+    if request.method == 'GET':
+        return redirect('/alerts?cancelled=1')
+    return jsonify({'status': 'cancelled'})
+
+
+@app.route('/api/alerts/list')
+def api_alerts_list():
+    """Return active confirmed alerts for a given email (used for 'your alerts' panel)."""
+    email = (request.args.get('email') or '').strip().lower()
+    if not email or not _EMAIL_RE.match(email):
+        return jsonify({'alerts': []})
+    try:
+        alerts = models.PriceAlert.query.filter(
+            models.PriceAlert.email == email,
+            models.PriceAlert.active == True,    # noqa: E712
+            models.PriceAlert.confirmed == True, # noqa: E712
+            models.PriceAlert.triggered_at == None,  # noqa: E711
+        ).order_by(models.PriceAlert.created_at.desc()).limit(10).all()
+        return jsonify({
+            'alerts': [
+                {
+                    'id': a.id,
+                    'target_price': a.target_price,
+                    'direction': a.direction,
+                    'created_at': a.created_at.isoformat(),
+                    'cancel_token': a.cancel_token,
+                }
+                for a in alerts
+            ]
+        })
+    except Exception as e:
+        logging.error('api_alerts_list error: %s', e)
+        return jsonify({'alerts': []})
+
+
 # Error handlers
 @app.errorhandler(404)
 def not_found_error(error):
