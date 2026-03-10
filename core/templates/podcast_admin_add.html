@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}Add Podcast Episode — Admin | Protocol Pulse{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+  --adm-bg:      #000;
+  --adm-surface: #0a0a0a;
+  --adm-border:  #1a1a1a;
+  --adm-purple:  #a855f7;
+  --adm-gold:    #F8C15C;
+  --adm-red:     #dc2626;
+  --adm-text:    #f1f5f9;
+  --adm-muted:   #6b7280;
+  --adm-mono:    'JetBrains Mono', monospace;
+  --adm-sans:    'DM Sans', system-ui, sans-serif;
+}
+.adm-page {
+  min-height: 100vh;
+  background: var(--adm-bg);
+  padding: 40px 24px 80px;
+}
+.adm-card {
+  max-width: 720px;
+  margin: 0 auto;
+  background: var(--adm-surface);
+  border: 1px solid var(--adm-border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.adm-card-head {
+  background: linear-gradient(135deg, #0a0015, #050010);
+  border-bottom: 1px solid var(--adm-border);
+  padding: 24px 28px;
+  position: relative;
+}
+.adm-card-head::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--adm-red), var(--adm-purple), var(--adm-gold));
+}
+.adm-card-head h1 {
+  font-family: var(--adm-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--adm-text);
+  margin: 0 0 4px;
+}
+.adm-card-head p {
+  font-family: var(--adm-mono);
+  font-size: 0.62rem;
+  color: var(--adm-muted);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.adm-form { padding: 28px; }
+.adm-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media (max-width: 600px) { .adm-row { grid-template-columns: 1fr; } }
+.adm-field { margin-bottom: 16px; }
+.adm-label {
+  display: block;
+  font-family: var(--adm-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--adm-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+.adm-input,
+.adm-textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--adm-border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--adm-text);
+  font-family: var(--adm-mono);
+  font-size: 0.82rem;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.adm-input:focus, .adm-textarea:focus { border-color: var(--adm-purple); }
+.adm-textarea { min-height: 100px; resize: vertical; }
+.adm-check-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.adm-check-row input[type=checkbox] { accent-color: var(--adm-purple); width: 16px; height: 16px; }
+.adm-check-row label { font-family: var(--adm-mono); font-size: 0.75rem; color: var(--adm-text); cursor: pointer; }
+.adm-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, var(--adm-purple), #7c3aed);
+  color: #fff;
+  font-family: var(--adm-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  transition: all 0.2s;
+}
+.adm-submit:hover {
+  background: linear-gradient(135deg, #be6af4, #9333ea);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(168,85,247,0.3);
+}
+.adm-cancel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: none;
+  border: 1px solid var(--adm-border);
+  color: var(--adm-muted);
+  font-family: var(--adm-mono);
+  font-size: 0.78rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s;
+  margin-right: 12px;
+}
+.adm-cancel:hover { border-color: var(--adm-red); color: var(--adm-red); }
+.adm-hint {
+  font-family: var(--adm-mono);
+  font-size: 0.58rem;
+  color: var(--adm-muted);
+  margin-top: 4px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="adm-page">
+  <div class="adm-card">
+    <div class="adm-card-head">
+      <h1><i class="fas fa-plus-circle" style="color: var(--adm-purple); margin-right: 8px;"></i>Add Podcast Episode</h1>
+      <p>CypherPunk'd — Admin Panel</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+        <div style="margin: 12px 28px 0; padding: 10px 16px; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); border-radius: 8px; font-family: var(--adm-mono); font-size: 0.72rem; color: #22c55e;">
+          <i class="fas fa-check-circle" style="margin-right: 8px;"></i>{{ msg }}
+        </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form class="adm-form" method="POST" action="/podcast/add">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+      <div class="adm-row">
+        <div class="adm-field">
+          <label class="adm-label">Episode Number</label>
+          <input type="number" name="episode_number" class="adm-input" placeholder="11">
+        </div>
+        <div class="adm-field">
+          <label class="adm-label">Duration</label>
+          <input type="text" name="duration" class="adm-input" placeholder="1:23:45">
+          <div class="adm-hint">Format: H:MM:SS or MM:SS</div>
+        </div>
+      </div>
+
+      <div class="adm-field">
+        <label class="adm-label">Episode Title <span style="color: var(--adm-red);">*</span></label>
+        <input type="text" name="title" class="adm-input" placeholder="Bitcoin and the End of Empire" required>
+      </div>
+
+      <div class="adm-row">
+        <div class="adm-field">
+          <label class="adm-label">Guest Name</label>
+          <input type="text" name="guest_name" class="adm-input" placeholder="Satoshi Nakamoto">
+        </div>
+        <div class="adm-field">
+          <label class="adm-label">Publish Date</label>
+          <input type="date" name="published_at" class="adm-input">
+        </div>
+      </div>
+
+      <div class="adm-field">
+        <label class="adm-label">Guest Bio</label>
+        <textarea name="guest_bio" class="adm-textarea" placeholder="Short bio of the guest..."></textarea>
+      </div>
+
+      <div class="adm-field">
+        <label class="adm-label">YouTube URL</label>
+        <input type="url" name="youtube_url" class="adm-input" placeholder="https://www.youtube.com/watch?v=...">
+      </div>
+
+      <div class="adm-field">
+        <label class="adm-label">Audio URL (MP3/M4A)</label>
+        <input type="url" name="audio_url" class="adm-input" placeholder="https://...">
+        <div class="adm-hint">Optional — if no audio, YouTube embed is used</div>
+      </div>
+
+      <div class="adm-field">
+        <label class="adm-label">Thumbnail URL</label>
+        <input type="url" name="thumbnail_url" class="adm-input" placeholder="https://...">
+      </div>
+
+      <div class="adm-field">
+        <label class="adm-label">Tags</label>
+        <input type="text" name="tags" class="adm-input" placeholder="Bitcoin, sovereignty, mining">
+        <div class="adm-hint">Comma-separated tags</div>
+      </div>
+
+      <div class="adm-field">
+        <label class="adm-label">Show Notes</label>
+        <textarea name="show_notes" class="adm-textarea" rows="6" placeholder="Episode description and show notes..."></textarea>
+      </div>
+
+      <div class="adm-check-row">
+        <input type="checkbox" name="featured" id="featuredCheck" value="1">
+        <label for="featuredCheck">Mark as Featured Episode</label>
+      </div>
+
+      <div style="display: flex; align-items: center;">
+        <a href="/podcast" class="adm-cancel"><i class="fas fa-times"></i> Cancel</a>
+        <button type="submit" class="adm-submit">
+          <i class="fas fa-plus"></i> Add Episode
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

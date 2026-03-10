@@ -159,6 +159,14 @@ with app.app_context():
     except Exception as e:
         logging.warning("Terminal API blueprint not loaded: %s", e)
 
+    # SESSION 16 — CypherPunk'd Podcast blueprint
+    try:
+        from blueprints.podcast import podcast_bp
+        app.register_blueprint(podcast_bp)
+        logging.info("Podcast blueprint registered (/podcast, /podcast/<slug>, /podcast/feed.xml)")
+    except Exception as e:
+        logging.warning("Podcast blueprint not loaded: %s", e)
+
 # Diagnose: confirm / and /debug-routes are registered (debug 404)
 try:
     rules = [r.rule for r in app.url_map.iter_rules()]
