@@ -158,6 +158,19 @@ with app.app_context():
         provision_demo_key(db, models)
     except Exception as e:
         logging.warning("Terminal API blueprint not loaded: %s", e)
+    # 6. Initialize FTS5 search index (SESSION 17 — GLOBAL SEARCH)
+    try:
+        import importlib.util as _ilu
+        import os as _os
+        _svc_path = _os.path.join(_os.path.dirname(__file__), 'services', 'search_service.py')
+        _spec = _ilu.spec_from_file_location('search_service', _svc_path)
+        _search_svc = _ilu.module_from_spec(_spec)
+        _spec.loader.exec_module(_search_svc)
+        _search_svc.init_fts_index(db)
+        _search_svc.populate_fts_index(db)
+        logging.info("FTS5 search index initialized")
+    except Exception as _fts_init_err:
+        logging.warning("FTS5 search index init failed (non-fatal): %s", _fts_init_err)
 
 # Diagnose: confirm / and /debug-routes are registered (debug 404)
 try:
