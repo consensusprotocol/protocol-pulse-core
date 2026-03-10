@@ -34,16 +34,20 @@
         linear-gradient(180deg, #0a0a0a 0%, #050505 100%);
 }
 
+/* Cyberpunk grid overlay */
 .pp-hero::before {
     content: '';
     position: absolute;
     inset: 0;
     background-image:
-        linear-gradient(rgba(0, 212, 170, 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 212, 170, 0.02) 1px, transparent 1px);
-    background-size: 60px 60px;
+        linear-gradient(rgba(220, 38, 38, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(220, 38, 38, 0.03) 1px, transparent 1px),
+        linear-gradient(rgba(0, 212, 170, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 170, 0.015) 1px, transparent 1px);
+    background-size: 60px 60px, 60px 60px, 20px 20px, 20px 20px;
     animation: pp-grid-pulse 4s ease-in-out infinite;
     pointer-events: none;
+    opacity: 0.5;
 }
 
 @keyframes pp-grid-pulse {
@@ -75,7 +79,7 @@
 
 .pp-hero__orb--3 {
     width: 250px; height: 250px;
-    background: rgba(0, 212, 170, 0.05);
+    background: rgba(220, 38, 38, 0.05);
     top: 40%; left: 60%;
     animation-delay: -3s;
 }
@@ -89,7 +93,7 @@
 .pp-hero__content {
     position: relative;
     z-index: 10;
-    padding: 120px 0 80px;
+    padding: 120px 0 60px;
 }
 
 /* Live badge */
@@ -142,53 +146,82 @@
     margin-bottom: 48px;
 }
 
-/* Hero BTC price widget */
-.pp-hero__price-widget {
+/* Hero BTC price widget — upgraded */
+.hero-btc-block {
     display: flex;
-    align-items: center;
-    gap: 24px;
-    padding: 20px 28px;
-    background: rgba(17, 17, 17, 0.8);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--pp-border);
+    align-items: flex-start;
+    gap: 28px;
+    padding: 24px 32px;
+    background: rgba(12, 12, 12, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(220, 38, 38, 0.25);
     border-radius: var(--pp-radius-lg);
-    max-width: 480px;
+    max-width: 520px;
+    box-shadow: 0 0 40px rgba(220, 38, 38, 0.06), inset 0 1px 0 rgba(255,255,255,0.04);
 }
 
-.pp-hero__price-label {
+.hero-btc-block__left { flex: 1; min-width: 0; }
+
+.hero-btc-block__label {
     font-family: var(--pp-font-mono);
-    font-size: 0.6875rem;
+    font-size: 0.625rem;
+    font-weight: 700;
     color: var(--pp-text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.14em;
+    margin-bottom: 6px;
 }
 
-.pp-hero__price-value {
+.hero-btc-block__price {
     font-family: var(--pp-font-mono);
-    font-size: 2rem;
+    font-size: 2.4rem;
     font-weight: 700;
     color: var(--pp-text);
     font-variant-numeric: tabular-nums;
-    line-height: 1.2;
+    line-height: 1;
+    margin-bottom: 8px;
+    transition: color 0.3s ease;
 }
 
-.pp-hero__price-change {
+.hero-btc-block__price.flash-up { color: var(--pp-teal); }
+.hero-btc-block__price.flash-down { color: #ff4757; }
+
+.hero-btc-block__change {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     font-family: var(--pp-font-mono);
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 600;
     padding: 4px 10px;
     border-radius: var(--pp-radius-xs);
 }
 
-.pp-hero__price-change--up { color: var(--pp-green); background: rgba(0, 230, 118, 0.1); }
-.pp-hero__price-change--down { color: var(--pp-red); background: rgba(255, 71, 87, 0.1); }
+.hero-btc-block__change--up { color: var(--pp-teal); background: rgba(0, 230, 118, 0.08); border: 1px solid rgba(0,212,170,0.2); }
+.hero-btc-block__change--down { color: #ff4757; background: rgba(255, 71, 87, 0.08); border: 1px solid rgba(255,71,87,0.2); }
 
-.pp-hero__price-chart {
+.hero-btc-block__right {
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
 }
 
-/* Animated pulse line in hero */
+.hero-live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--pp-font-mono);
+    font-size: 0.5625rem;
+    font-weight: 700;
+    color: var(--pp-teal);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+/* Animated pulse line at bottom of hero */
 .pp-hero__pulse-line {
     position: absolute;
     bottom: 0;
@@ -223,6 +256,73 @@
 }
 
 /* ═══════════════════════════════════════
+   INTEL STRIP
+   ═══════════════════════════════════════ */
+.intel-strip {
+    display: flex;
+    align-items: stretch;
+    background: rgba(8, 8, 8, 0.9);
+    border-bottom: 1px solid rgba(220, 38, 38, 0.12);
+    border-top: 1px solid rgba(220, 38, 38, 0.08);
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    position: sticky;
+    top: 60px;
+    z-index: 40;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.intel-strip::-webkit-scrollbar { display: none; }
+
+.intel-metric {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 24px;
+    border-right: 1px solid rgba(255,255,255,0.04);
+    min-width: 120px;
+    flex-shrink: 0;
+    transition: background 0.2s ease;
+    cursor: default;
+    position: relative;
+}
+
+.intel-metric:last-child { border-right: none; }
+
+.intel-metric:hover { background: rgba(255,255,255,0.02); }
+
+.intel-metric__label {
+    font-family: var(--pp-font-mono);
+    font-size: 0.5rem;
+    font-weight: 700;
+    color: var(--pp-text-muted);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+}
+
+.intel-metric__value {
+    font-family: var(--pp-font-mono);
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--pp-text);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.intel-metric__value.flash {
+    animation: metric-flash 0.6s ease-out;
+}
+
+@keyframes metric-flash {
+    0% { color: var(--pp-teal); }
+    100% { color: var(--pp-text); }
+}
+
+/* ═══════════════════════════════════════
    TODAY'S SIGNAL
    ═══════════════════════════════════════ */
 .pp-signal {
@@ -252,6 +352,142 @@
     font-size: 0.9375rem;
     color: var(--pp-text-secondary);
     line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════
+   FEATURED CAROUSEL
+   ═══════════════════════════════════════ */
+.carousel-wrap {
+    position: relative;
+    border-radius: var(--pp-radius-lg);
+    overflow: hidden;
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    aspect-ratio: 16/7;
+    min-height: 280px;
+    max-height: 480px;
+}
+
+.carousel-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+}
+
+.carousel-slide.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.carousel-slide__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.carousel-slide__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.3) 60%, transparent 100%);
+}
+
+.carousel-slide__body {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 28px 32px;
+}
+
+.carousel-slide__badge {
+    display: inline-block;
+    font-family: var(--pp-font-mono);
+    font-size: 0.5625rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: rgba(220, 38, 38, 0.8);
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.carousel-slide__title {
+    font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.25;
+    margin-bottom: 10px;
+    max-width: 680px;
+    text-decoration: none;
+    display: block;
+}
+
+.carousel-slide__title:hover { color: var(--pp-teal); }
+
+.carousel-slide__meta {
+    font-family: var(--pp-font-mono);
+    font-size: 0.6875rem;
+    color: rgba(255,255,255,0.5);
+}
+
+/* Carousel nav buttons */
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 20;
+    width: 40px;
+    height: 40px;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 50%;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    font-size: 0.75rem;
+}
+
+.carousel-btn:hover {
+    background: rgba(220,38,38,0.6);
+    border-color: rgba(220,38,38,0.4);
+}
+
+.carousel-btn--prev { left: 16px; }
+.carousel-btn--next { right: 16px; }
+
+/* Carousel dots */
+.carousel-dots {
+    position: absolute;
+    bottom: 12px;
+    right: 32px;
+    display: flex;
+    gap: 6px;
+    z-index: 20;
+}
+
+.carousel-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.carousel-dot.active {
+    background: var(--pp-teal);
+    width: 18px;
+    border-radius: 3px;
 }
 
 /* ═══════════════════════════════════════
@@ -297,6 +533,259 @@
     color: var(--pp-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+}
+
+/* ═══════════════════════════════════════
+   FILTER BAR
+   ═══════════════════════════════════════ */
+.filter-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.filter-btn {
+    font-family: var(--pp-font-mono);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 7px 16px;
+    border-radius: var(--pp-radius-full);
+    border: 1px solid var(--pp-border);
+    background: transparent;
+    color: var(--pp-text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.filter-btn:hover {
+    border-color: rgba(220, 38, 38, 0.4);
+    color: var(--pp-text);
+    background: rgba(220, 38, 38, 0.06);
+}
+
+.filter-btn.active {
+    background: rgba(220, 38, 38, 0.12);
+    border-color: rgba(220, 38, 38, 0.5);
+    color: var(--pp-text);
+}
+
+/* ═══════════════════════════════════════
+   ARTICLE GRID
+   ═══════════════════════════════════════ */
+.article-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+@media (min-width: 600px) {
+    .article-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1024px) {
+    .article-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.article-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--pp-radius-md);
+    border: 1px solid var(--pp-border);
+    background: var(--pp-surface);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.25s var(--pp-ease), border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.article-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(248, 193, 92, 0.45);
+    box-shadow: 0 0 22px rgba(248, 193, 92, 0.18), 0 8px 24px rgba(0,0,0,0.4);
+}
+
+.article-card.hidden { display: none; }
+
+.article-card__img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    display: block;
+    background: #111;
+}
+
+.article-card__body {
+    padding: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.article-card__badge {
+    display: inline-block;
+    font-family: var(--pp-font-mono);
+    font-size: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 3px;
+    border: 1px solid rgba(220,38,38,0.3);
+    color: rgba(220,38,38,0.9);
+    background: rgba(220,38,38,0.06);
+    margin-bottom: 8px;
+    align-self: flex-start;
+}
+
+.article-card__title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--pp-text);
+    margin-bottom: 10px;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.article-card__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: auto;
+}
+
+.sentiment-badge {
+    font-family: var(--pp-font-mono);
+    font-size: 0.5625rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.sentiment-badge.bullish {
+    color: var(--pp-teal);
+    background: rgba(0,212,170,0.08);
+    border: 1px solid rgba(0,212,170,0.2);
+}
+
+.sentiment-badge.bearish {
+    color: #ff4757;
+    background: rgba(255,71,87,0.08);
+    border: 1px solid rgba(255,71,87,0.2);
+}
+
+.sentiment-badge.neutral {
+    color: var(--pp-amber);
+    background: rgba(245,166,35,0.08);
+    border: 1px solid rgba(245,166,35,0.2);
+}
+
+.article-card__timestamp {
+    font-family: var(--pp-font-mono);
+    font-size: 0.5625rem;
+    color: var(--pp-text-muted);
+    white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════
+   SIGNAL INTELLIGENCE TEASER
+   ═══════════════════════════════════════ */
+.intel-teaser {
+    padding: 40px 48px;
+    background:
+        radial-gradient(ellipse at 10% 50%, rgba(0,212,170,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse at 90% 50%, rgba(220,38,38,0.04) 0%, transparent 60%),
+        var(--pp-surface);
+    border: 1px solid rgba(0,212,170,0.12);
+    border-radius: var(--pp-radius-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.intel-teaser::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--pp-teal), transparent);
+    opacity: 0.5;
+}
+
+.intel-teaser__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.intel-teaser__title {
+    font-family: var(--pp-font-mono);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--pp-teal);
+}
+
+.intel-teaser__metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+@media (max-width: 600px) {
+    .intel-teaser__metrics { grid-template-columns: 1fr; }
+    .intel-teaser { padding: 28px 20px; }
+}
+
+.intel-teaser__metric-label {
+    font-size: 0.75rem;
+    color: var(--pp-text-muted);
+    margin-bottom: 4px;
+    font-family: var(--pp-font-mono);
+}
+
+.intel-teaser__metric-value {
+    font-family: var(--pp-font-mono);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--pp-text);
+}
+
+.intel-teaser__metric-value .bullish-text { color: var(--pp-teal); }
+.intel-teaser__metric-value .bearish-text { color: #ff4757; }
+
+.intel-teaser__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--pp-font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--pp-teal);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(0,212,170,0.3);
+    padding-bottom: 2px;
+    transition: all 0.2s ease;
+}
+
+.intel-teaser__cta:hover {
+    color: #fff;
+    border-bottom-color: rgba(0,212,170,0.7);
 }
 
 /* ═══════════════════════════════════════
@@ -499,19 +988,27 @@
 
 .pp-support-bar__dismiss:hover { color: rgba(255,255,255,0.5); }
 
+/* Pre-footer quick-nav bar — no custom CSS needed, all inline */
+
 /* ═══════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════ */
 @media (max-width: 767px) {
     .pp-hero__content { padding: 100px 0 60px; }
-    .pp-hero__price-widget { flex-direction: column; align-items: flex-start; gap: 12px; }
-    .pp-hero__price-value { font-size: 1.5rem; }
+    .hero-btc-block { flex-direction: column; align-items: flex-start; gap: 12px; padding: 18px 20px; }
+    .hero-btc-block__price { font-size: 1.8rem; }
+    .carousel-wrap { aspect-ratio: unset; min-height: 260px; }
+    .carousel-slide__body { padding: 16px 18px; }
+    .intel-strip { top: 56px; }
+    .intel-metric { min-width: 100px; padding: 8px 16px; }
     .pp-support-bar__text { display: none; }
 }
+
 [data-theme="light"] .pp-hero__title { color: #000; }
 [data-theme="light"] .pp-hero__subtitle { color: #333; }
 [data-theme="light"] .pp-hero__title-accent { color: #CC2222; }
 [data-theme="light"] .pp-hero { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); }
+[data-theme="light"] .intel-strip { background: rgba(245,245,245,0.95); border-color: rgba(220,38,38,0.15); }
 </style>
 {% endblock %}
 
@@ -568,28 +1065,34 @@
                 </span>
             </div>
 
-            <!-- BTC Price Widget -->
-            <div class="pp-hero__price-widget pp-animate-in pp-animate-in-delay-4">
-                <div>
-                    <div class="pp-hero__price-label">Bitcoin</div>
-                    <div class="pp-hero__price-value" id="heroBtcPrice">
+            <!-- BTC Price Widget — upgraded spec -->
+            <div class="hero-btc-block pp-animate-in pp-animate-in-delay-4">
+                <div class="hero-btc-block__left">
+                    <div class="hero-btc-block__label">BITCOIN</div>
+                    <div class="hero-btc-block__price" id="heroBtcPrice">
                         {% if prices and prices.get('bitcoin') %}
                             ${{ "{:,.0f}".format(prices['bitcoin'].get('usd', 0)) }}
                         {% else %}
                             $--,---
                         {% endif %}
                     </div>
+                    <div id="heroBtcChange" class="hero-btc-block__change {% if prices and prices.get('bitcoin') and prices['bitcoin'].get('usd_24h_change', 0) >= 0 %}hero-btc-block__change--up{% else %}hero-btc-block__change--down{% endif %}">
+                        {% if prices and prices.get('bitcoin') %}
+                            {% set change = prices['bitcoin'].get('usd_24h_change', 0) %}
+                            {% if change >= 0 %}<i class="fas fa-arrow-up" style="font-size:0.65rem;"></i> +{{ "%.1f"|format(change) }}%{% else %}<i class="fas fa-arrow-down" style="font-size:0.65rem;"></i> {{ "%.1f"|format(change) }}%{% endif %}
+                        {% else %}
+                            <i class="fas fa-minus" style="font-size:0.65rem;"></i> --%
+                        {% endif %}
+                    </div>
                 </div>
-                <div id="heroBtcChange" class="pp-hero__price-change pp-hero__price-change--up">
-                    {% if prices and prices.get('bitcoin') %}
-                        {% set change = prices['bitcoin'].get('usd_24h_change', 0) %}
-                        {{ "+%.1f"|format(change) if change >= 0 else "%.1f"|format(change) }}%
-                    {% else %}
-                        --%
-                    {% endif %}
+                <div class="hero-btc-block__right">
+                    <div class="hero-live-badge">
+                        <span class="pp-pulse-dot"></span>
+                        LIVE
+                    </div>
+                    <!-- Mini sparkline canvas -->
+                    <canvas id="heroSparkline" width="90" height="42" style="opacity:0.8;"></canvas>
                 </div>
-                <!-- Mini sparkline canvas -->
-                <canvas id="heroSparkline" class="pp-hero__price-chart" width="80" height="36"></canvas>
             </div>
         </div>
     </div>
@@ -597,6 +1100,36 @@
     <!-- Animated pulse line at bottom -->
     <div class="pp-hero__pulse-line"></div>
 </section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     INTEL STRIP — above-the-fold data bar
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="intel-strip" id="intelStrip" aria-label="Live network intelligence">
+    <div class="intel-metric">
+        <div class="intel-metric__label">BLOCK</div>
+        <div class="intel-metric__value" id="strip-block">—</div>
+    </div>
+    <div class="intel-metric">
+        <div class="intel-metric__label">MEMPOOL</div>
+        <div class="intel-metric__value" id="strip-mempool">— sat/vB</div>
+    </div>
+    <div class="intel-metric">
+        <div class="intel-metric__label">FEAR &amp; GREED</div>
+        <div class="intel-metric__value" id="strip-fg">—</div>
+    </div>
+    <div class="intel-metric">
+        <div class="intel-metric__label">HASHRATE</div>
+        <div class="intel-metric__value" id="strip-hashrate">— EH/s</div>
+    </div>
+    <div class="intel-metric">
+        <div class="intel-metric__label">HALVING</div>
+        <div class="intel-metric__value" id="strip-halving">— days</div>
+    </div>
+    <div class="intel-metric" style="margin-left:auto;">
+        <div class="intel-metric__label">BTC PRICE</div>
+        <div class="intel-metric__value" id="strip-btc">$—</div>
+    </div>
+</div>
 
 <!-- ═══════════════════════════════════════════════════════════════
      TODAY'S SIGNAL
@@ -618,9 +1151,66 @@
 {% endif %}
 
 <!-- ═══════════════════════════════════════════════════════════════
+     FEATURED ARTICLE CAROUSEL
+     ═══════════════════════════════════════════════════════════════ -->
+{% set carousel_list = carousel_articles if carousel_articles else (featured_articles if featured_articles else recent_articles[:3]) %}
+{% if carousel_list %}
+<section class="pp-section" style="padding-top:36px;padding-bottom:0;">
+    <div class="pp-container">
+        <div class="pp-section__title-bar pp-mb-3">
+            <div>
+                <h2 class="pp-section__title">Top Stories</h2>
+                <p class="pp-section__subtitle">Highest-signal intelligence from Protocol Pulse</p>
+            </div>
+            <a href="/articles" class="pp-btn pp-btn--ghost pp-btn--sm">
+                View All <i class="fas fa-arrow-right" style="margin-left:4px;font-size:0.7rem;"></i>
+            </a>
+        </div>
+
+        <div class="carousel-wrap pp-reveal" id="featuredCarousel">
+            {% for article in carousel_list[:3] %}
+            <div class="carousel-slide{% if loop.first %} active{% endif %}" data-index="{{ loop.index0 }}">
+                <img src="{{ article_image_urls.get(article.id, '/static/images/default-header.png') }}"
+                     alt="{{ article.title }}"
+                     class="carousel-slide__img"
+                     loading="{% if loop.first %}eager{% else %}lazy{% endif %}"
+                     decoding="async">
+                <div class="carousel-slide__overlay"></div>
+                <div class="carousel-slide__body">
+                    <div class="carousel-slide__badge">{{ article.category or 'Intel' }}</div>
+                    <a href="/article/{{ article.id }}" class="carousel-slide__title">{{ article.title }}</a>
+                    <div class="carousel-slide__meta">
+                        {{ article.published_at.strftime('%b %d, %Y') if article.published_at else article.created_at.strftime('%b %d, %Y') }}
+                        &nbsp;·&nbsp;
+                        {{ ((article.content|striptags|length) / 1200)|round|int }} min read
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Nav buttons -->
+            <button class="carousel-btn carousel-btn--prev" onclick="carouselPrev()" aria-label="Previous">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="carousel-btn carousel-btn--next" onclick="carouselNext()" aria-label="Next">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+
+            <!-- Dots -->
+            <div class="carousel-dots">
+                {% for article in carousel_list[:3] %}
+                <div class="carousel-dot{% if loop.first %} active{% endif %}" data-dot="{{ loop.index0 }}" onclick="carouselGoTo({{ loop.index0 }})"></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- ═══════════════════════════════════════════════════════════════
      STATS COUNTERS
      ═══════════════════════════════════════════════════════════════ -->
-<section class="pp-section">
+<section class="pp-section" style="padding-top:36px;">
     <div class="pp-container">
         <div class="pp-stats-row pp-reveal">
             <div class="pp-stat">
@@ -644,7 +1234,7 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════════
-     FEATURED ARTICLES
+     CATEGORY FILTER + ARTICLE GRID
      ═══════════════════════════════════════════════════════════════ -->
 <section class="pp-section" style="padding-top:0;">
     <div class="pp-container">
@@ -653,68 +1243,108 @@
                 <h2 class="pp-section__title">Latest Intelligence</h2>
                 <p class="pp-section__subtitle">Real-time analysis from the Protocol Pulse team</p>
             </div>
-            <a href="/articles" class="pp-btn pp-btn--ghost pp-btn--sm">
-                View All <i class="fas fa-arrow-right" style="margin-left:4px;font-size:0.7rem;"></i>
-            </a>
         </div>
 
-        {% if featured_articles and featured_articles|length > 0 %}
-        <!-- Featured article (full width) -->
-        <div class="pp-mb-4 pp-reveal">
-            {% set fa = featured_articles[0] %}
-            <article class="pp-card pp-card--featured">
-                <img src="{{ article_image_urls.get(fa.id, '/static/images/default-header.png') }}"
-                     alt="{{ fa.title }}"
-                     class="pp-card__image"
-                     loading="lazy"
-                     decoding="async">
-                <div class="pp-card__body">
-                    <span class="pp-badge pp-badge--teal pp-mb-1">
-                        {{ fa.category or 'Intelligence' }}
-                    </span>
-                    <h3 class="pp-card__title" style="font-size:1.5rem;-webkit-line-clamp:3;">
-                        <a href="/article/{{ fa.id }}">{{ fa.title }}</a>
-                    </h3>
-                    <p class="pp-card__excerpt" style="-webkit-line-clamp:4;">
-                        {{ fa.summary or fa.content[:200]|striptags + '...' }}
-                    </p>
-                    <div class="pp-card__meta">
-                        <span>{{ fa.published_at.strftime('%b %d, %Y') if fa.published_at else fa.created_at.strftime('%b %d, %Y') }}</span>
-                        <span class="pp-card__meta-divider"></span>
-                        <span>{{ ((fa.content|striptags|length) / 1200)|round|int }} min read</span>
-                    </div>
-                </div>
-            </article>
+        <!-- Filter bar -->
+        <div class="filter-bar pp-reveal" id="filterBar">
+            <button class="filter-btn active" data-cat="all" onclick="filterArticles('all')">All</button>
+            <button class="filter-btn" data-cat="markets" onclick="filterArticles('markets')">Markets</button>
+            <button class="filter-btn" data-cat="mining" onclick="filterArticles('mining')">Mining</button>
+            <button class="filter-btn" data-cat="layer2" onclick="filterArticles('layer2')">Layer 2</button>
+            <button class="filter-btn" data-cat="regulation" onclick="filterArticles('regulation')">Regulation</button>
+            <button class="filter-btn" data-cat="macro" onclick="filterArticles('macro')">Macro</button>
         </div>
-        {% endif %}
 
         <!-- Article grid -->
-        <div class="pp-grid pp-grid-3 pp-stagger">
-            {% for article in recent_articles[:6] %}
-            <article class="pp-card">
+        <div class="article-grid pp-stagger" id="article-grid">
+            {% for article in recent_articles %}
+            {% set cat_raw = (article.category or 'intel')|lower %}
+            {% set cat_key = 'mining' if 'mining' in cat_raw else
+                             'markets' if ('market' in cat_raw or 'price' in cat_raw or 'trading' in cat_raw or 'btc' in cat_raw) else
+                             'layer2' if ('layer' in cat_raw or 'lightning' in cat_raw or 'ln' == cat_raw) else
+                             'regulation' if ('regul' in cat_raw or 'legal' in cat_raw or 'policy' in cat_raw or 'sec' == cat_raw or 'law' in cat_raw) else
+                             'macro' if ('macro' in cat_raw or 'etf' in cat_raw or 'fed' in cat_raw or 'inflation' in cat_raw) else
+                             'intel' %}
+            {% set sent = getattr(article, 'sentiment', None) or '' %}
+            {% set sent_lower = sent|lower %}
+            <a href="/article/{{ article.id }}"
+               class="article-card pp-reveal"
+               data-category="{{ cat_key }}">
                 <img src="{{ article_image_urls.get(article.id, '/static/images/default-header.png') }}"
                      alt="{{ article.title }}"
-                     class="pp-card__image"
+                     class="article-card__img"
                      loading="lazy"
                      decoding="async">
-                <div class="pp-card__body">
-                    <span class="pp-badge pp-badge--ghost pp-mb-1">
-                        {{ article.category or 'Intel' }}
-                    </span>
-                    <h3 class="pp-card__title">
-                        <a href="/article/{{ article.id }}">{{ article.title }}</a>
-                    </h3>
-                    <p class="pp-card__excerpt">
-                        {{ article.summary or article.content[:160]|striptags + '...' }}
-                    </p>
-                    <div class="pp-card__meta">
-                        <span>{{ article.published_at.strftime('%b %d') if article.published_at else article.created_at.strftime('%b %d') }}</span>
-                        <span class="pp-card__meta-divider"></span>
-                        <span>{{ ((article.content|striptags|length) / 1200)|round|int }} min</span>
+                <div class="article-card__body">
+                    <span class="article-card__badge">{{ article.category or 'Intel' }}</span>
+                    <h3 class="article-card__title">{{ article.title }}</h3>
+                    <div class="article-card__meta">
+                        {% if 'bullish' in sent_lower %}
+                            <span class="sentiment-badge bullish">▲ Bullish</span>
+                        {% elif 'bearish' in sent_lower %}
+                            <span class="sentiment-badge bearish">▼ Bearish</span>
+                        {% else %}
+                            <span class="sentiment-badge neutral">◆ Neutral</span>
+                        {% endif %}
+                        <span class="article-card__timestamp">
+                            {% set pub_dt = article.published_at or article.created_at %}
+                            {% if pub_dt %}
+                                {% set now_ts = namespace(v=0) %}
+                                {% set diff_secs = (now_ts.v) %}
+                                {{ pub_dt.strftime('%b %d') }}
+                            {% endif %}
+                        </span>
                     </div>
                 </div>
-            </article>
+            </a>
+            {% else %}
+            <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--pp-text-muted);">
+                <i class="fas fa-satellite-dish" style="font-size:2rem;margin-bottom:12px;display:block;"></i>
+                <p>Intelligence feed warming up — check back shortly.</p>
+            </div>
             {% endfor %}
+        </div>
+
+        <!-- Load more / view all -->
+        {% if recent_articles|length >= 12 %}
+        <div style="text-align:center;margin-top:32px;" class="pp-reveal">
+            <a href="/articles" class="pp-btn pp-btn--ghost">
+                View All Articles <i class="fas fa-arrow-right" style="margin-left:6px;font-size:0.75rem;"></i>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SIGNAL INTELLIGENCE TEASER
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="pp-section" style="padding-top:0;">
+    <div class="pp-container">
+        <div class="intel-teaser pp-reveal">
+            <div class="intel-teaser__header">
+                <span class="pp-pulse-dot"></span>
+                <span class="intel-teaser__title">Signal Intelligence</span>
+            </div>
+            <div class="intel-teaser__metrics">
+                <div>
+                    <div class="intel-teaser__metric-label">Market Sentiment</div>
+                    <div class="intel-teaser__metric-value" id="teaser-sentiment">
+                        <span class="bullish-text" id="teaser-bullish">—%</span> Bullish
+                    </div>
+                </div>
+                <div>
+                    <div class="intel-teaser__metric-label">Dominant Narrative</div>
+                    <div class="intel-teaser__metric-value" id="teaser-narrative">Loading…</div>
+                </div>
+                <div>
+                    <div class="intel-teaser__metric-label">Signal Score</div>
+                    <div class="intel-teaser__metric-value" id="teaser-score">—/100</div>
+                </div>
+            </div>
+            <a href="/intelligence" class="intel-teaser__cta">
+                Full Intelligence Dashboard <i class="fas fa-arrow-right" style="font-size:0.65rem;"></i>
+            </a>
         </div>
     </div>
 </section>
@@ -762,7 +1392,6 @@
                          alt="The Oracle"
                          style="width:100%;height:100%;object-fit:cover;filter:contrast(1.1) brightness(1.05);"
                          loading="lazy">
-                    <!-- Pulse ring animation -->
                     <div style="
                         position:absolute;inset:-4px;
                         border-radius:50%;
@@ -862,7 +1491,6 @@
                     <p class="pp-section__subtitle">Daily AI-powered Bitcoin intelligence briefing</p>
                 </div>
                 <div class="pp-video-embed" id="pulseCheckEmbed">
-                    <!-- Lazy-loaded video embed placeholder -->
                     <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="ppLoadVideo(this)">
                         <div style="text-align:center;">
                             <div style="width:64px;height:64px;border-radius:50%;background:var(--pp-teal);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
@@ -912,78 +1540,57 @@
 
         <div class="pp-grid pp-grid-3 pp-stagger">
             <a href="/live" class="pp-card pp-card--stat">
-                <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-atom" style="color:var(--pp-red, #CC2222);"></i>
-                </div>
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-atom" style="color:var(--pp-red, #CC2222);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">Live Terminal</h3>
                 <p class="pp-small pp-text-secondary">Real-time blockchain data visualization with network stats, mempool activity, and mining metrics.</p>
             </a>
             <a href="/whale-watcher" class="pp-card pp-card--stat pp-card--amber">
-                <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-water" style="color:var(--pp-amber);"></i>
-                </div>
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-water" style="color:var(--pp-amber);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">Whale Watcher</h3>
                 <p class="pp-small pp-text-secondary">Monitor large Bitcoin transactions in real-time. See what the big players are doing before the market reacts.</p>
             </a>
             <a href="/map" class="pp-card pp-card--stat">
-                <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-map-marked-alt" style="color:var(--pp-red, #CC2222);"></i>
-                </div>
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-map-marked-alt" style="color:var(--pp-red, #CC2222);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">Merchant Map</h3>
                 <p class="pp-small pp-text-secondary">Discover Bitcoin-accepting businesses worldwide. Circular economy, visualized.</p>
             </a>
             <a href="/solo-slayers" class="pp-card pp-card--stat pp-card--amber">
-                <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-hammer" style="color:var(--pp-amber);"></i>
-                </div>
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-hammer" style="color:var(--pp-amber);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">Solo Slayers</h3>
                 <p class="pp-small pp-text-secondary">Lottery miners who beat astronomical odds. Solo block finds, verified on-chain.</p>
             </a>
             <a href="/value-stream" class="pp-card pp-card--stat">
-                <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-bolt" style="color:var(--pp-red, #CC2222);"></i>
-                </div>
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-bolt" style="color:var(--pp-red, #CC2222);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">Value Stream</h3>
                 <p class="pp-small pp-text-secondary">Lightning Network value flows and micro-transaction intelligence. The speed layer, analyzed.</p>
             </a>
             <a href="/chat" class="pp-card pp-card--stat pp-card--amber">
-                <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-robot" style="color:var(--pp-amber);"></i>
-                </div>
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-robot" style="color:var(--pp-amber);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">Ask Alex</h3>
                 <p class="pp-small pp-text-secondary">AI-powered Bitcoin analyst. Ask anything about the protocol, market dynamics, or mining economics.</p>
             </a>
             <a href="/nostr-signal" class="pp-card pp-card--stat" style="border-color:rgba(245,166,35,0.15);">
-                <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-satellite-dish" style="color:var(--pp-amber);"></i>
-                </div>
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-satellite-dish" style="color:var(--pp-amber);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">Nostr Signal Radar</h3>
                 <p class="pp-small pp-text-secondary">Real-time alpha from 50+ Bitcoin OGs on Nostr — confidence-scored before it trends anywhere else.</p>
             </a>
             <a href="/network-health" class="pp-card pp-card--stat">
-                <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-heartbeat" style="color:var(--pp-red, #CC2222);"></i>
-                </div>
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-heartbeat" style="color:var(--pp-red, #CC2222);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">Network Health</h3>
                 <p class="pp-small pp-text-secondary">Real-time Bitcoin network vitals: mempool depth, fee rates, hashrate, difficulty, and block times.</p>
             </a>
             <a href="/charts" class="pp-card pp-card--stat pp-card--amber">
-                <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-chart-line" style="color:var(--pp-amber);"></i>
-                </div>
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-chart-line" style="color:var(--pp-amber);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">BTC Charts</h3>
                 <p class="pp-small pp-text-secondary">Interactive price, hashrate, and fee charts with technical overlays. Deep history, clean UI.</p>
             </a>
             <a href="/stage" class="pp-card pp-card--stat" style="border-color:rgba(0,212,170,0.15);">
-                <div style="font-size:1.5rem;margin-bottom:8px;">
-                    <i class="fas fa-broadcast-tower" style="color:var(--pp-red, #CC2222);"></i>
-                </div>
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-broadcast-tower" style="color:var(--pp-red, #CC2222);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">Avatar Stage</h3>
                 <p class="pp-small pp-text-secondary">24/7 Bitcoin intelligence from the AI avatar. Live sentiment, real-time transcript, partner tracking.</p>
             </a>
         </div>
 
-        <!-- Support the Signal CTA -->
         <div class="pp-reveal" style="margin-top:32px;text-align:center;">
             <p class="pp-small pp-text-secondary" style="margin-bottom:12px;">
                 Protocol Pulse is ad-free and sovereign. Support it with sats.
@@ -1014,83 +1621,324 @@
         </div>
     </div>
 </section>
+
+<!-- Pre-footer quick links bar (above base footer) -->
+<div style="background:rgba(5,5,5,0.98);border-top:1px solid rgba(220,38,38,0.08);padding:20px 0;">
+    <div class="pp-container">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+            <div style="display:flex;gap:20px;flex-wrap:wrap;">
+                <a href="/terminal" style="font-family:var(--pp-font-mono);font-size:0.625rem;color:var(--pp-text-muted);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;transition:color 0.15s ease;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color=''">Terminal</a>
+                <a href="/charts" style="font-family:var(--pp-font-mono);font-size:0.625rem;color:var(--pp-text-muted);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color=''">Charts</a>
+                <a href="/mining" style="font-family:var(--pp-font-mono);font-size:0.625rem;color:var(--pp-text-muted);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color=''">Mining</a>
+                <a href="/intelligence" style="font-family:var(--pp-font-mono);font-size:0.625rem;color:var(--pp-text-muted);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color=''">Intelligence</a>
+                <a href="/newsletter" style="font-family:var(--pp-font-mono);font-size:0.625rem;color:var(--pp-text-muted);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color=''">Newsletter</a>
+                <a href="/about" style="font-family:var(--pp-font-mono);font-size:0.625rem;color:var(--pp-text-muted);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color=''">About</a>
+            </div>
+            <div style="display:flex;gap:12px;">
+                <a href="https://x.com/ProtocolPulse" target="_blank" rel="noopener" style="width:28px;height:28px;border-radius:4px;border:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:0.7rem;text-decoration:none;transition:all 0.2s ease;" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(220,38,38,0.4)'" onmouseout="this.style.color='';this.style.borderColor=''"><i class="fab fa-x-twitter"></i></a>
+                <a href="https://www.youtube.com/@ProtocolPulse" target="_blank" rel="noopener" style="width:28px;height:28px;border-radius:4px;border:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:0.7rem;text-decoration:none;transition:all 0.2s ease;" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(220,38,38,0.4)'" onmouseout="this.style.color='';this.style.borderColor=''"><i class="fab fa-youtube"></i></a>
+                <a href="/newsletter" style="width:28px;height:28px;border-radius:4px;border:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:0.7rem;text-decoration:none;transition:all 0.2s ease;" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(220,38,38,0.4)'" onmouseout="this.style.color='';this.style.borderColor=''"><i class="fas fa-envelope"></i></a>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
 <script>
-/* ── Hero BTC price sync ── */
+/* ════════════════════════════════════════════════════════════
+   CAROUSEL
+   ════════════════════════════════════════════════════════════ */
 (function() {
-    // Sync hero price with nav ticker
-    var origUpdate = window.ppUpdateBtcPrice;
-    if (typeof origUpdate === 'function') {
-        // Already handled by base.html ticker
+    var slides = document.querySelectorAll('.carousel-slide');
+    var dots   = document.querySelectorAll('.carousel-dot');
+    var current = 0;
+    var timer;
+
+    function goTo(idx) {
+        slides[current].classList.remove('active');
+        dots[current] && dots[current].classList.remove('active');
+        current = (idx + slides.length) % slides.length;
+        slides[current].classList.add('active');
+        dots[current] && dots[current].classList.add('active');
     }
 
-    // Additional hero-specific price update
-    function updateHeroPrice() {
-        fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true')
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                if (data.bitcoin) {
-                    var el = document.getElementById('heroBtcPrice');
-                    var ch = document.getElementById('heroBtcChange');
-                    if (el) el.textContent = '$' + data.bitcoin.usd.toLocaleString('en-US', {maximumFractionDigits: 0});
-                    if (ch) {
-                        var pct = data.bitcoin.usd_24h_change;
-                        ch.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
-                        ch.className = 'pp-hero__price-change pp-hero__price-change--' + (pct >= 0 ? 'up' : 'down');
-                    }
-                }
-            }).catch(function(){});
+    function next() { goTo(current + 1); }
+    function prev() { goTo(current - 1); }
+
+    function startAuto() {
+        clearInterval(timer);
+        timer = setInterval(next, 5000);
     }
-    // Don't double-fetch on initial load since we have server-rendered price
-    setTimeout(function() { setInterval(updateHeroPrice, 60000); }, 60000);
+
+    window.carouselNext = function() { next(); startAuto(); };
+    window.carouselPrev = function() { prev(); startAuto(); };
+    window.carouselGoTo = function(i) { goTo(i); startAuto(); };
+
+    if (slides.length > 1) startAuto();
+
+    // Pause on hover
+    var wrap = document.getElementById('featuredCarousel');
+    if (wrap) {
+        wrap.addEventListener('mouseenter', function() { clearInterval(timer); });
+        wrap.addEventListener('mouseleave', startAuto);
+    }
 })();
 
-/* ── Mini sparkline ── */
+/* ════════════════════════════════════════════════════════════
+   CATEGORY FILTER
+   ════════════════════════════════════════════════════════════ */
+function filterArticles(cat) {
+    // Update button active state
+    document.querySelectorAll('.filter-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.dataset.cat === cat);
+    });
+
+    // Show/hide cards
+    document.querySelectorAll('.article-card').forEach(function(card) {
+        var cardCat = card.dataset.category || 'intel';
+        if (cat === 'all' || cardCat === cat) {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}
+
+/* ════════════════════════════════════════════════════════════
+   HERO BTC PRICE — smooth count-up animation
+   ════════════════════════════════════════════════════════════ */
+(function() {
+    var currentPrice = 0;
+    var priceEl = document.getElementById('heroBtcPrice');
+    var changeEl = document.getElementById('heroBtcChange');
+    var stripBtcEl = document.getElementById('strip-btc');
+
+    // Read initial server-rendered price
+    if (priceEl) {
+        var initial = priceEl.textContent.replace(/[^0-9]/g, '');
+        if (initial) currentPrice = parseInt(initial, 10);
+    }
+
+    function animatePrice(el, fromVal, toVal, duration) {
+        if (!el) return;
+        var start = null;
+        var diff = toVal - fromVal;
+        function step(ts) {
+            if (!start) start = ts;
+            var progress = Math.min((ts - start) / duration, 1);
+            var eased = 1 - Math.pow(1 - progress, 3);
+            var val = Math.round(fromVal + diff * eased);
+            el.textContent = '$' + val.toLocaleString('en-US', {maximumFractionDigits: 0});
+            if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+    }
+
+    function updatePrice() {
+        fetch('/api/btc-price', { signal: AbortSignal.timeout(5000) })
+            .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+            .then(function(d) {
+                var price = d.price || 0;
+                var change = d.change_24h !== undefined ? d.change_24h : 0;
+                var pct = d.change_24h_pct !== undefined ? d.change_24h_pct : change;
+
+                if (price && priceEl) {
+                    // Flash class
+                    var isUp = price >= currentPrice;
+                    priceEl.classList.remove('flash-up', 'flash-down');
+                    void priceEl.offsetWidth; // reflow
+                    priceEl.classList.add(isUp ? 'flash-up' : 'flash-down');
+                    setTimeout(function() { priceEl.classList.remove('flash-up', 'flash-down'); }, 1200);
+
+                    // Animated count
+                    animatePrice(priceEl, currentPrice || price, price, 800);
+                    currentPrice = price;
+                }
+
+                if (change !== undefined && changeEl) {
+                    var changeVal = parseFloat(pct || change);
+                    var arrow = changeVal >= 0 ? '<i class="fas fa-arrow-up" style="font-size:0.65rem;"></i>' : '<i class="fas fa-arrow-down" style="font-size:0.65rem;"></i>';
+                    changeEl.innerHTML = arrow + ' ' + (changeVal >= 0 ? '+' : '') + changeVal.toFixed(1) + '%';
+                    changeEl.className = 'hero-btc-block__change hero-btc-block__change--' + (changeVal >= 0 ? 'up' : 'down');
+                }
+
+                if (price && stripBtcEl) {
+                    stripBtcEl.textContent = '$' + price.toLocaleString('en-US', {maximumFractionDigits: 0});
+                    flashMetric(stripBtcEl);
+                }
+            }).catch(function() {});
+    }
+
+    // Update after 30s delay (server-rendered is fresh on load), then every 30s
+    setTimeout(function() {
+        updatePrice();
+        setInterval(updatePrice, 30000);
+    }, 10000);
+})();
+
+/* ════════════════════════════════════════════════════════════
+   INTEL STRIP — block, mempool, fear & greed, hashrate, halving
+   ════════════════════════════════════════════════════════════ */
+function flashMetric(el) {
+    if (!el) return;
+    el.classList.remove('flash');
+    void el.offsetWidth;
+    el.classList.add('flash');
+}
+
+var HALVING_BLOCK = 1050000; // next halving block (estimate post-4th halving)
+
+function updateIntelStrip() {
+    fetch('/api/media/telemetry', { signal: AbortSignal.timeout(6000) })
+        .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function(d) {
+            // Block height
+            var blockEl = document.getElementById('strip-block');
+            if (blockEl && d.blockHeight) {
+                var newVal = d.blockHeight.toLocaleString('en-US');
+                if (blockEl.textContent !== newVal) { blockEl.textContent = newVal; flashMetric(blockEl); }
+                // Halving countdown
+                var halvingEl = document.getElementById('strip-halving');
+                if (halvingEl) {
+                    var blocksLeft = Math.max(0, HALVING_BLOCK - d.blockHeight);
+                    var daysLeft = Math.round(blocksLeft * 10 / 1440);
+                    halvingEl.textContent = daysLeft > 0 ? daysLeft + ' days' : 'Next epoch';
+                    flashMetric(halvingEl);
+                }
+            }
+
+            // Mempool fees
+            var mempoolEl = document.getElementById('strip-mempool');
+            if (mempoolEl && d.fees) {
+                var fee = d.fees.fastestFee || d.fees.halfHourFee || '--';
+                mempoolEl.textContent = fee + ' sat/vB';
+                flashMetric(mempoolEl);
+            }
+
+            // Hashrate
+            var hrEl = document.getElementById('strip-hashrate');
+            if (hrEl && d.hashrate) {
+                hrEl.textContent = d.hashrate.toFixed(0) + ' EH/s';
+                flashMetric(hrEl);
+            }
+        }).catch(function() {});
+
+    // Fear & Greed from alternative.me
+    fetch('https://api.alternative.me/fng/?limit=1', { signal: AbortSignal.timeout(6000) })
+        .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function(d) {
+            var fgEl = document.getElementById('strip-fg');
+            if (fgEl && d.data && d.data[0]) {
+                var val = d.data[0].value;
+                var label = d.data[0].value_classification;
+                fgEl.textContent = val + ' — ' + label;
+                flashMetric(fgEl);
+                // Also populate Signal Intelligence Teaser score
+                var scoreEl = document.getElementById('teaser-score');
+                if (scoreEl) scoreEl.textContent = val + '/100';
+            }
+        }).catch(function() {});
+}
+
+updateIntelStrip();
+setInterval(updateIntelStrip, 60000);
+
+/* ════════════════════════════════════════════════════════════
+   SIGNAL INTELLIGENCE TEASER — load from /api/sentiment
+   ════════════════════════════════════════════════════════════ */
+(function() {
+    fetch('/api/sentiment', { signal: AbortSignal.timeout(5000) })
+        .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function(d) {
+            var bullishEl = document.getElementById('teaser-bullish');
+            var narrativeEl = document.getElementById('teaser-narrative');
+
+            if (bullishEl && d.bullish_pct != null) {
+                bullishEl.textContent = Math.round(d.bullish_pct) + '%';
+            }
+            if (narrativeEl && d.narrative) {
+                // Truncate long narrative to a pithy label
+                var n = d.narrative.split('.')[0];
+                if (n.length > 40) n = n.substring(0, 40) + '…';
+                narrativeEl.textContent = n;
+            }
+        }).catch(function() {
+            var narrativeEl = document.getElementById('teaser-narrative');
+            if (narrativeEl) narrativeEl.textContent = 'Bitcoin fundamentals strong';
+        });
+})();
+
+/* ════════════════════════════════════════════════════════════
+   HERO SPARKLINE
+   ════════════════════════════════════════════════════════════ */
 (function() {
     var canvas = document.getElementById('heroSparkline');
     if (!canvas) return;
     var ctx = canvas.getContext('2d');
     var w = canvas.width, h = canvas.height;
 
-    fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1&interval=hourly')
-        .then(function(r) { return r.json(); })
+    fetch('/api/market-dashboard/history?days=1', { signal: AbortSignal.timeout(6000) })
+        .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
         .then(function(data) {
-            if (!data.prices || data.prices.length < 2) return;
-            var prices = data.prices.map(function(p) { return p[1]; });
+            var prices = (data.prices || []).map(function(p) { return Array.isArray(p) ? p[1] : p; });
+            if (prices.length < 2) return;
             var min = Math.min.apply(null, prices);
             var max = Math.max.apply(null, prices);
             var range = max - min || 1;
             var isUp = prices[prices.length - 1] >= prices[0];
 
-            ctx.beginPath();
-            ctx.strokeStyle = isUp ? '#00d4aa' : '#ff4757';
-            ctx.lineWidth = 1.5;
-            ctx.lineJoin = 'round';
+            // Gradient fill
+            var grad = ctx.createLinearGradient(0, 0, 0, h);
+            grad.addColorStop(0, isUp ? 'rgba(0,212,170,0.3)' : 'rgba(255,71,87,0.3)');
+            grad.addColorStop(1, 'transparent');
 
+            ctx.beginPath();
             for (var i = 0; i < prices.length; i++) {
                 var x = (i / (prices.length - 1)) * w;
                 var y = h - ((prices[i] - min) / range) * (h - 4) - 2;
                 if (i === 0) ctx.moveTo(x, y);
                 else ctx.lineTo(x, y);
             }
+            // Close path for fill
+            ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath();
+            ctx.fillStyle = grad;
+            ctx.fill();
+
+            // Stroke line
+            ctx.beginPath();
+            for (var j = 0; j < prices.length; j++) {
+                var px = (j / (prices.length - 1)) * w;
+                var py = h - ((prices[j] - min) / range) * (h - 4) - 2;
+                if (j === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.strokeStyle = isUp ? '#00d4aa' : '#ff4757';
+            ctx.lineWidth = 1.5;
+            ctx.lineJoin = 'round';
             ctx.stroke();
-        }).catch(function(){});
+        }).catch(function() {
+            // Fallback: draw a flat line
+            ctx.beginPath();
+            ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2);
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        });
 })();
 
-/* ── Lazy video load ── */
+/* ════════════════════════════════════════════════════════════
+   LAZY VIDEO LOAD
+   ════════════════════════════════════════════════════════════ */
 function ppLoadVideo(el) {
     var container = document.getElementById('pulseCheckEmbed');
-    // Try to load the latest Pulse Check video from YouTube
-    container.innerHTML = '<iframe src="https://www.youtube.com/embed?listType=playlist&list=UU_CHANNEL_ID&index=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
-    // Fallback: just show a message
-    if (!container.querySelector('iframe[src*="youtube"]') || true) {
-        container.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;"><i class="fas fa-podcast" style="font-size:2rem;color:var(--pp-red, #CC2222);"></i><div class="pp-small pp-text-muted">Visit <a href="/podcasts" style="color:var(--pp-red, #CC2222);">Podcasts</a> for the latest episodes</div></div>';
-    }
+    container.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;"><i class="fas fa-podcast" style="font-size:2rem;color:var(--pp-red, #CC2222);"></i><div class="pp-small pp-text-muted">Visit <a href="/podcasts" style="color:var(--pp-red, #CC2222);">Podcasts</a> for the latest episodes</div></div>';
 }
 
-/* ── Counter animation (IntersectionObserver) ── */
+/* ════════════════════════════════════════════════════════════
+   COUNTER ANIMATION (IntersectionObserver)
+   ════════════════════════════════════════════════════════════ */
 (function() {
     if (!('IntersectionObserver' in window)) return;
     var animated = new Set();
@@ -1100,31 +1948,26 @@ function ppLoadVideo(el) {
             var el = entry.target;
             if (animated.has(el)) return;
             animated.add(el);
-
             var target = parseInt(el.getAttribute('data-count'));
             if (!target || isNaN(target)) return;
-
             var duration = 1500;
-            var start = 0;
             var startTime = null;
-
             function step(ts) {
                 if (!startTime) startTime = ts;
                 var progress = Math.min((ts - startTime) / duration, 1);
-                var eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+                var eased = 1 - Math.pow(1 - progress, 3);
                 el.textContent = Math.floor(eased * target).toLocaleString();
                 if (progress < 1) requestAnimationFrame(step);
             }
             requestAnimationFrame(step);
         });
     }, { threshold: 0.3 });
-
-    document.querySelectorAll('[data-count]').forEach(function(el) {
-        observer.observe(el);
-    });
+    document.querySelectorAll('[data-count]').forEach(function(el) { observer.observe(el); });
 })();
 
-/* ── Re-init scroll reveal for dynamically-added .pp-reveal elements ── */
+/* ════════════════════════════════════════════════════════════
+   SCROLL REVEAL
+   ════════════════════════════════════════════════════════════ */
 (function() {
     if (!('IntersectionObserver' in window)) return;
     var observer = new IntersectionObserver(function(entries) {
@@ -1135,46 +1978,25 @@ function ppLoadVideo(el) {
             }
         });
     }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.pp-reveal:not(.pp-visible)').forEach(function(el) { observer.observe(el); });
+})();
 
-    document.querySelectorAll('.pp-reveal:not(.pp-visible)').forEach(function(el) {
-        observer.observe(el);
-    });
+/* ════════════════════════════════════════════════════════════
+   LIVE BTC NODE COUNT
+   ════════════════════════════════════════════════════════════ */
+(function() {
+    var el = document.getElementById('nodeCountValue');
+    var pulse = document.getElementById('nodeCountPulse');
+    if (!el) return;
+    fetch('/api/proxy/bitnodes/snapshot', { signal: AbortSignal.timeout(6000) })
+        .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function(d) {
+            var count = d.node_count;
+            if (count && count > 0) {
+                el.textContent = count.toLocaleString('en-US');
+                if (pulse) pulse.style.display = 'inline';
+            }
+        }).catch(function() { el.textContent = 'N/A'; });
 })();
 </script>
-
-    // Live BTC node count from Bitnodes proxy
-    (function() {
-        var el = document.getElementById('nodeCountValue');
-        var pulse = document.getElementById('nodeCountPulse');
-        if (!el) return;
-        fetch('/api/proxy/bitnodes/snapshot', { signal: AbortSignal.timeout(6000) })
-            .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
-            .then(function(d) {
-                var count = d.node_count;
-                if (count && count > 0) {
-                    el.textContent = count.toLocaleString('en-US');
-                    if (pulse) pulse.style.display = 'inline';
-                }
-            })
-            .catch(function() { el.textContent = 'N/A'; });
-    })();
-
-    // Fast hero BTC price update on load
-    (function() {
-        fetch('/api/btc-price', { signal: AbortSignal.timeout(4000) })
-            .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
-            .then(function(d) {
-                var price = d.price || (d.bitcoin && d.bitcoin.usd) || 0;
-                var change = (d.change_24h !== undefined ? d.change_24h : 0) ||
-                             (d.bitcoin && d.bitcoin.usd_24h_change) || 0;
-                if (!price) return;
-                var el = document.getElementById('heroBtcPrice');
-                var ch = document.getElementById('heroBtcChange');
-                if (el) el.textContent = '$' + price.toLocaleString('en-US', {maximumFractionDigits: 0});
-                if (ch) {
-                    ch.textContent = (change >= 0 ? '+' : '') + parseFloat(change).toFixed(1) + '%';
-                    ch.className = 'pp-hero__price-change pp-hero__price-change--' + (change >= 0 ? 'up' : 'down');
-                }
-            }).catch(function() {});
-    })();
 {% endblock %}
