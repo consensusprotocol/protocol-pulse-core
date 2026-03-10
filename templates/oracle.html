@@ -164,6 +164,39 @@ body.oracle-page-body .pp-ticker { display:none!important; }
   .oracle-ask-btn { padding:10px 14px; font-size:.6rem; letter-spacing:1px; }
 }
 .visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+/* Gold Info Bar */
+.oracle-info-bar {
+  position:relative; z-index:10; width:100%; max-width:900px;
+  display:flex; justify-content:center; gap:32px; flex-wrap:wrap;
+  padding:10px 0; margin-bottom:18px;
+  border-bottom:1px solid rgba(248,193,92,.12);
+  font-size:.68rem; letter-spacing:2px; text-transform:uppercase;
+  color:rgba(248,193,92,.55);
+}
+.oracle-info-val { color:#F8C15C; font-weight:700; margin-left:6px; }
+@keyframes info-pulse { 0%,100%{opacity:.7} 50%{opacity:1} }
+.oracle-info-bar span { animation:info-pulse 4s ease-in-out infinite; }
+
+/* Suggested Questions */
+.oracle-suggestions {
+  position:relative; z-index:10; width:100%; max-width:900px;
+  display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+  margin:0 auto 20px; padding:0 8px;
+}
+.oracle-pill {
+  background:rgba(18,18,18,.85); border:1px solid rgba(248,193,92,.25); border-radius:20px;
+  color:rgba(229,229,229,.6); font-family:'JetBrains Mono',monospace;
+  font-size:.62rem; letter-spacing:1px; padding:7px 16px;
+  cursor:pointer; transition:border-color .2s, color .2s, background .2s;
+  white-space:nowrap;
+}
+.oracle-pill:hover { border-color:rgba(248,193,92,.65); color:#F8C15C; background:rgba(248,193,92,.06); }
+@media (max-width:700px) {
+  .oracle-info-bar { gap:16px; font-size:.58rem; }
+  .oracle-suggestions { gap:6px; }
+  .oracle-pill { font-size:.55rem; padding:6px 12px; }
+}
 </style>
 {% endblock %}
 
@@ -196,6 +229,12 @@ body.oracle-page-body .pp-ticker { display:none!important; }
     </div>
   </header>
 
+  <div class="oracle-info-bar" id="oracle-info-bar" aria-label="Live Bitcoin metrics">
+    <span>BTC <span class="oracle-info-val" id="info-btc-price">---</span></span>
+    <span>BLOCK <span class="oracle-info-val" id="info-block-height">---</span></span>
+    <span>FEAR/GREED <span class="oracle-info-val" id="info-fear-greed">---</span></span>
+  </div>
+
   <div class="oracle-player-wrap" id="oracle-player-wrap">
     <div class="oracle-player-aspect">
       <video class="oracle-player" id="oracle-video"
@@ -223,6 +262,14 @@ body.oracle-page-body .pp-ticker { display:none!important; }
   <div class="oracle-transcript" id="oracle-transcript" aria-live="polite">
     <div class="oracle-transcript-label">Oracle says</div>
     <div id="oracle-transcript-text"></div>
+  </div>
+
+  <div class="oracle-suggestions" id="oracle-suggestions" aria-label="Suggested questions">
+    <button class="oracle-pill" type="button">What does the protocol signal today?</button>
+    <button class="oracle-pill" type="button">Bitcoin vs Gold — the case for digital scarcity</button>
+    <button class="oracle-pill" type="button">What is the current mempool telling us?</button>
+    <button class="oracle-pill" type="button">Is Bitcoin undervalued right now?</button>
+    <button class="oracle-pill" type="button">Explain the halving cycle</button>
   </div>
 
   <section class="oracle-recent" aria-label="Recent Briefings">
@@ -374,6 +421,37 @@ function buildStream(){
 }
 var wrap=document.getElementById('oracle-stream-wrap');
 if(wrap){var c1=buildStream();var c2=buildStream();for(var ci=0;ci<4;ci++){var d=document.createElement('div');d.className='oracle-bg-col';d.textContent=ci<2?c1:c2;wrap.appendChild(d);}}
+
+// Suggested question pills
+document.querySelectorAll('.oracle-pill').forEach(function(pill){
+  pill.addEventListener('click',function(){
+    if(isGenerating)return;
+    inp.value=this.textContent;
+    askOracle(this.textContent);
+  });
+});
+
+// Gold info bar — live BTC data
+function loadInfoBar(){
+  fetch('/api/btc-price').then(function(r){return r.ok?r.json():null;})
+  .then(function(d){
+    if(!d)return;
+    var priceEl=document.getElementById('info-btc-price');
+    var blockEl=document.getElementById('info-block-height');
+    if(d.price) priceEl.textContent='$'+Number(d.price).toLocaleString();
+    if(d.block_height) blockEl.textContent=Number(d.block_height).toLocaleString();
+  }).catch(function(){});
+  fetch('/api/charts/fear-greed').then(function(r){return r.ok?r.json():null;})
+  .then(function(d){
+    if(!d)return;
+    var fgEl=document.getElementById('info-fear-greed');
+    var val=d.value||d.fear_greed_value||d.score;
+    var label=d.value_classification||d.label||'';
+    if(val) fgEl.textContent=val+(label?' ('+label+')':'');
+  }).catch(function(){});
+}
+loadInfoBar();
+setInterval(loadInfoBar,60000);
 
 setState('idle');
 loadRecent();
