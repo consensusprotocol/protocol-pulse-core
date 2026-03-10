@@ -1,14 +1,14 @@
 {
   "nostr_sentry": {
-    "last_run": "2026-03-10T19:42:30.772133",
+    "last_run": "2026-03-10T21:49:17.014200",
     "fetched": 0,
     "drafted": 0,
     "handles": [],
     "dry_run": false
   },
-  "updated_at": "2026-03-10T19:42:32.743558",
+  "updated_at": "2026-03-10T21:49:18.898987",
   "whale": {
-    "last_run": "2026-03-10T19:42:30.773401",
+    "last_run": "2026-03-10T21:49:17.015546",
     "scanned": 0,
     "inserted": 0,
     "mega_inserted": 0,
@@ -16,15 +16,15 @@
     "mega_events": []
   },
   "ghostwriter": {
-    "last_run": "2026-03-10T19:42:32.743433",
+    "last_run": "2026-03-10T21:49:18.898865",
     "scanned": 0,
     "drafted": 0
   },
   "heartbeat": {
-    "last_heartbeat": "2026-03-10T19:42:30.767054"
+    "last_heartbeat": "2026-03-10T21:49:17.011213"
   },
   "sentry": {
-    "last_run": "2026-03-10T19:42:30.767914",
+    "last_run": "2026-03-10T21:49:17.011966",
     "fetched": 0,
     "drafted": 0,
     "handles": [],

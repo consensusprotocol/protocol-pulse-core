@@ -70,7 +70,7 @@
         "Live stream detected: Bitcoin Price Live!"
       ],
       "status": "live",
-      "last_updated": "2026-03-10T19:40:47.547225+00:00"
+      "last_updated": "2026-03-10T21:50:43.674026+00:00"
     },
     {
       "video_id": "Zqjhq1mLPvA",
@@ -142,11 +142,38 @@
         "Live stream detected: Bitcoin Supply Shock Intensifies As Banks Prepare To Sue The U.S. Gov Over Crypto!",
         "Live stream detected: Bitcoin Supply Shock Intensifies As Banks Prepare To Sue The U.S. Gov Over Crypto!"
       ],
-      "status": "live",
+      "status": "ended",
       "last_updated": "2026-03-10T13:55:42.460763+00:00"
+    },
+    {
+      "video_id": "LxIqF_feNAU",
+      "title": "Elon Musk Just Betrayed Crypto But Jack Dorsey Didn't.",
+      "channel": "Digital Asset News",
+      "source": "youtube_live",
+      "url": "https://www.youtube.com/watch?v=LxIqF_feNAU",
+      "started_at": "2026-03-10T19:50:54.041353+00:00",
+      "topics": [],
+      "current_sentiment": 50,
+      "sentiment_history": [
+        {
+          "time": "2026-03-10T19:50:56.861734+00:00",
+          "score": 50
+        }
+      ],
+      "transcript_chunks": [
+        "Live stream detected: Elon Musk Just Betrayed Crypto But Jack Dorsey Didn't.",
+        "Live stream detected: Elon Musk Just Betrayed Crypto But Jack Dorsey Didn't.",
+        "Live stream detected: Elon Musk Just Betrayed Crypto But Jack Dorsey Didn't.",
+        "Live stream detected: Elon Musk Just Betrayed Crypto But Jack Dorsey Didn't.",
+        "Live stream detected: Elon Musk Just Betrayed Crypto But Jack Dorsey Didn't.",
+        "Live stream detected: Elon Musk Just Betrayed Crypto But Jack Dorsey Didn't.",
+        "Live stream detected: Elon Musk Just Betrayed Crypto But Jack Dorsey Didn't."
+      ],
+      "status": "live",
+      "last_updated": "2026-03-10T20:20:42.598997+00:00"
     }
   ],
-  "updated_at": "2026-03-10T19:40:47.613086+00:00",
+  "updated_at": "2026-03-10T21:50:43.741325+00:00",
   "monitoring": true,
   "channels_watched": 62
 }
