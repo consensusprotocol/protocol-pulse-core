@@ -1196,6 +1196,30 @@ class SchiffHypocrisy(db.Model):
         db.UniqueConstraint('score_date', name='uq_schiff_score_date'),
     )
 
+# =====================================
+# NODE WATCH
+# =====================================
+
+class NodeSnapshot(db.Model):
+    """Bitcoin network node count snapshot — polled every 15 min via cron."""
+    __tablename__ = 'node_snapshots'
+    __table_args__ = (
+        db.Index('idx_node_snapshots_timestamp', 'timestamp'),
+        db.Index('idx_node_snapshots_node_count', 'node_count'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    node_count = db.Column(db.Integer, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    # JSON blob: {versions: {...}, countries: {...}, ipv4: N, ipv6: N}
+    snapshot_data = db.Column(db.Text)
+    # NULL = no alert; otherwise the alert type string (fired at this snapshot)
+    alert_fired = db.Column(db.String(120))
+    # Stateful edge-trigger flags — true while the condition is active.
+    # An alert fires only when: currently True AND previous snapshot was False.
+    daily_alert_active  = db.Column(db.Boolean, default=False, nullable=False)
+    weekly_alert_active = db.Column(db.Boolean, default=False, nullable=False)
+
     def to_dict(self):
         return {
             'id': self.id,
@@ -1230,3 +1254,9 @@ class SchiffStatement(db.Model):
     __table_args__ = (
         db.Index('idx_schiff_stmt_date', 'statement_date'),
     )
+
+            'node_count': self.node_count,
+            'timestamp': self.timestamp.isoformat(),
+            'alert_fired': self.alert_fired,
+        }
+

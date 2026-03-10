@@ -1,69 +1,55 @@
-# BUILD COMPLETE — F4: NOSTR INTELLIGENCE SYSTEM
-Feature ID: f4-nostr
-Branch: feature/f4-nostr
+# BUILD COMPLETE — F5: NODE WATCH
+Feature ID: f5-node-watch
+Branch: feature/f5-node-watch
 Completed: 2026-03-09
-Commit: c896c86 (post-audit second pass — 9 consensus improvements)
+Commit: ecd3e8e (post-audit second pass — 6 consensus improvements)
 
 ---
 
 ## WHAT WAS BUILT
 
-### Nostr Module (nostr/)
-- `nostr/__init__.py` — Package init
-- `nostr/nostr_keys.py` — Key generation/management (secp256k1 keypairs)
-- `nostr/nostr_monitor.py` — 364 lines — relay connection, event subscriptions, scoring
-- `nostr/nostr_publisher.py` — 242 lines — publish NIP-01 events to relays
+### Routes (core/routes.py)
+- `GET /api/proxy/bitnodes/snapshot` — proxied Bitnodes snapshot, 5min server cache
+- `GET /api/proxy/bitnodes/history` — proxied Bitnodes 24hr history, 1hr server cache
+- `GET /nodes` — dedicated Node Watch page
 
-### Service (core/services/nostr_service.py)
-- Nostr event scoring and intelligence aggregation
-- Top signal extraction for dashboard
+### Templates
+- `templates/nodes.html` — Live node count, 24hr sparkline chart, version breakdown, geo top-10, alert log
 
-### Cron (cron/nostr_cron.py — 129 lines)
-- Periodic relay scrape every 15 minutes
-- Publishes daily briefing notes to Nostr
+### Model (core/models.py)
+- `NodeSnapshot` table — stores node_count, timestamp, snapshot_data (JSON), alert_fired
 
-### Routes (core/routes.py — additions)
-- `GET /nostr` — Nostr Intelligence page
-- `GET /api/nostr/signals` — Live Nostr signals API
-- `GET /api/nostr/stats` — Relay stats
+### Cron
+- `cron/node_watch_cron.py` — runs every 15min, fetches Bitnodes snapshot, stores in DB, runs stateful alert logic
 
-### Template (core/templates/nostr.html)
-- Dark glassmorphism design
-- Live Nostr signal feed
-- Network stats, relay list, top signals
-
-### Models (core/models.py — additions)
-- `NostrEvent` — stored events (pubkey, content, kind, score)
-- DB indexes on pubkey, kind, created_at
+### Homepage
+- `templates/index.html` — stats row updated to show live node count from /api/proxy/bitnodes/snapshot
 
 ---
 
 ## AUDIT SUMMARY
 
-### Audit Grade (Cycle 2 — before second pass)
-- Overall: 2/10 → second pass resolved 9 consensus improvements
-- Correctness: 1/10 → monitor/publisher were absent in audit submission, built in second pass
-- Security: 6/10 → retained (key handling is correct)
+### Audit Grade
+- Backend Logic: 72/100 → improved in second pass
+- Error Handling: 75/100
+- Security: 85/100
+- Performance: 83/100
+- Law Compliance: 63/100 → alert logic fixed in second pass
 
-### Key P0/P1 Findings Fixed (9 consensus improvements)
-1. U1 — nostr_monitor.py absent → implemented (364 lines, relay WebSocket + scoring)
-2. U2 — nostr_publisher.py absent → implemented (242 lines, NIP-01 event publish)
-3. U3 — Relay connection without error recovery → exponential backoff added
-4. U4 — No event signature verification → secp256k1 sig validation added
-5. U5 — Scoring function undefined → full importance score algorithm
-6. U6 — DB writes without try/except → all writes wrapped
-7. U7 — Cron crash loop risk → exception guard per relay connection
-8. P1 — Missing cron/nostr_cron.py → created with --now and --scrape flags
-9. P1 — Blueprint registration silent fail → hard startup failure
+### Key Findings Fixed (P0/P1)
+1. U1 — Alert "fire once per crossing" logic replaced with stateful threshold tracker
+2. U2 — Cache key collision between snapshot/history endpoints fixed
+3. U3 — DB write failures now rollback cleanly; alert not marked as fired on DB error
+4. C1 (majority) — Bitnodes fallback to cached last-known value on API down
+5. C2 (majority) — Rate limit guard: skip poll if last snapshot < 14min ago
+6. Performance: index added on node_snapshots.timestamp
 
 ---
 
 ## REGRESSION TEST
-- Result: 29 PASS | 0 FAIL | 1 WARN
+- Result: 29 PASS | 0 FAIL | 1 WARN (uncommitted changes — expected)
 
 ---
 
 ## PBX ACTIONS REQUIRED
-1. **NOSTR_PRIVATE_KEY** (hex) — PP's Nostr identity for publishing. Generate with `python3 -c "from nostr.nostr_keys import generate_keypair; print(generate_keypair())"` or use an existing nsec
-2. System cron: `*/15 * * * * cd /home/ultron/protocol_pulse && python3 cron/nostr_cron.py --scrape`
-3. Daily briefing publish cron: `0 14 * * * cd /home/ultron/protocol_pulse && python3 cron/nostr_cron.py --publish`
+None — Bitnodes API is free/public, no credentials needed.
