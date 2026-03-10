@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""TTS Engine V6 — Single-host Mark broadcast voice.
-Host: Mark (1SM7GgM6IMuvQlz2BwM3) at 1.10x speed — PBX approved sole narrator.
-Both host=1 and host=2 route to Mark (no gender swap, no dual-host).
+"""TTS Engine V7 — Dual-host Eryn (Navigator) + Mark (Punctuator).
+Host 1 = Eryn (kdnRe2koJdOK4Ovxn2DI) at 1.12x — measured, analytical, builds urgency.
+Host 2 = Mark (1SM7GgM6IMuvQlz2BwM3) at 1.10x — sharp, economical, credible.
+Gospel: PULSE_CHECK_NARRATION_GOSPEL.md Part 5.
 Generates per-line audio with 0.3s silence gaps."""
 import os, sys, json, subprocess, tempfile, time, struct
 from pathlib import Path
@@ -14,34 +15,50 @@ except ImportError:
 
 from relay import get_key
 
-# PBX DIRECTIVE 2026-03-09: SINGLE HOST — Mark at 1.10x speed.
-# Both host=1 and host=2 map to Mark. Deborah/Brian/Nicole/Chris are all BANNED.
-_MARK_VOICE = {
-    "voice_id": "1SM7GgM6IMuvQlz2BwM3",
-    "name": "Mark",
-    "model_id": "eleven_turbo_v2_5",
-    "speed": 1.10,
-    "voice_settings": {
-        "stability": 0.55,
-        "similarity_boost": 0.80,
-        "style": 0.15,
-        "use_speaker_boost": True,
+# NARRATION GOSPEL Part 5: Dual-host Eryn (Navigator) + Mark (Punctuator).
+# Eryn = host 1, Mark = host 2. Distinct voices required for asymmetric rhythm.
+VOICES = {
+    1: {  # ERYN — Navigator voice. Measured, analytical, builds urgency.
+        "voice_id": "kdnRe2koJdOK4Ovxn2DI",
+        "name": "Eryn",
+        "model_id": "eleven_turbo_v2_5",
+        "speed": 1.12,
+        "voice_settings": {
+            "stability": 0.52,
+            "similarity_boost": 0.80,
+            "style": 0.18,
+            "use_speaker_boost": True,
+        },
+    },
+    2: {  # MARK — Punctuator voice. Sharp, economical, credible.
+        "voice_id": "1SM7GgM6IMuvQlz2BwM3",
+        "name": "Mark",
+        "model_id": "eleven_turbo_v2_5",
+        "speed": 1.10,
+        "voice_settings": {
+            "stability": 0.55,
+            "similarity_boost": 0.80,
+            "style": 0.15,
+            "use_speaker_boost": True,
+        },
     },
 }
 
-VOICES = {
-    1: _MARK_VOICE,
-    2: _MARK_VOICE,  # single narrator — both hosts are Mark
+# Segment-type overrides for Eryn (host 1)
+VOICE_MODES_HOST1 = {
+    "cold_open":      {"stability": 0.45, "style": 0.22, "speed": 1.10},
+    "setup":          {"stability": 0.52, "style": 0.18, "speed": 1.12},
+    "data":           {"stability": 0.58, "style": 0.12, "speed": 1.12},
+    "social_segment": {"stability": 0.48, "style": 0.20, "speed": 1.10},
+    "wrap":           {"stability": 0.48, "style": 0.22, "speed": 1.08},
 }
 
-# Voice mode overrides for Mark (segment-type tuning)
-VOICE_MODES = {
-    "cold_open":       {"stability": 0.45, "similarity_boost": 0.80, "style": 0.18, "speed": 1.10},
-    "setup":           {"stability": 0.55, "similarity_boost": 0.80, "style": 0.15, "speed": 1.10},
-    "react":           {"stability": 0.55, "similarity_boost": 0.80, "style": 0.15, "speed": 1.10},
-    "social_segment":  {"stability": 0.50, "similarity_boost": 0.78, "style": 0.18, "speed": 1.10},
-    "wrap":            {"stability": 0.50, "similarity_boost": 0.78, "style": 0.20, "speed": 1.08},
-    "data":            {"stability": 0.60, "similarity_boost": 0.82, "style": 0.12, "speed": 1.10},
+# Segment-type overrides for Mark (host 2)
+VOICE_MODES_HOST2 = {
+    "cold_open":      {"stability": 0.50, "style": 0.18, "speed": 1.10},
+    "react":          {"stability": 0.55, "style": 0.15, "speed": 1.10},
+    "data":           {"stability": 0.60, "style": 0.12, "speed": 1.10},
+    "wrap":           {"stability": 0.50, "style": 0.18, "speed": 1.08},
 }
 
 SILENCE_GAP = 0.3  # seconds between speakers
@@ -181,10 +198,11 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice['voice_id']}"
     headers = {"xi-api-key": key, "Content-Type": "application/json"}
 
-    # Apply hybrid voice mode for Mark based on segment type
+    # Apply host-specific voice mode overrides (Eryn=host1, Mark=host2)
     voice_settings = dict(voice["voice_settings"])
-    if host == 1 and segment_type in VOICE_MODES:
-        mode = VOICE_MODES[segment_type]
+    voice_modes = VOICE_MODES_HOST1 if host == 1 else VOICE_MODES_HOST2
+    if segment_type in voice_modes:
+        mode = voice_modes[segment_type]
         for k, v in mode.items():
             if k != "speed":
                 voice_settings[k] = v
@@ -198,10 +216,10 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
             "model_id": voice["model_id"],
             "voice_settings": voice_settings,
         }
-        # Add speed parameter — use mode-specific speed for Host 1
+        # Add speed parameter — use host-specific mode speed
         speed = voice.get("speed", 1.0)
-        if host == 1 and segment_type in VOICE_MODES:
-            speed = VOICE_MODES[segment_type].get("speed", speed)
+        if segment_type in voice_modes:
+            speed = voice_modes[segment_type].get("speed", speed)
         if speed != 1.0:
             body["speed"] = speed
         mp3_tmp = output_path + f".chunk{ci}.mp3"

@@ -25,9 +25,9 @@ if not logger.handlers:
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
 
-SELECTION_PROMPT = """You are the executive producer of "Pulse Check" — a daily 3-5 minute Bitcoin highlight reel.
-Two hosts (Jessica & Chris) present and react to the BEST clips from Bitcoin YouTube that day.
-Think ESPN SportsCenter for Bitcoin.
+SELECTION_PROMPT = """You are the executive producer of "Pulse Check" — a daily Bitcoin intelligence briefing.
+Two hosts (Eryn & Mark) present and analyze the BEST clips from Bitcoin YouTube that day.
+Format: NotebookLM Deep Dive — forensic briefing delivered as genuine conversation.
 
 Your job: analyze these transcripts from today's Bitcoin YouTube videos and pick the 5 BEST moments.
 
@@ -39,20 +39,38 @@ SELECTION CRITERIA (in order of priority):
 5. VISUAL — prefer clips where someone is on camera talking (not just voice-over slides)
 
 RULES:
-- CRITICAL — AD READ DETECTION: NEVER select a timestamp range that contains
-  an ad read, sponsorship mention, or promotional segment. Ad reads are identified by:
-  * "This episode is brought to you by..."
-  * "Thanks to our sponsor..."
-  * "Use code [X] at [URL]"
-  * "Go to [domain].com/[show]"
-  * "Check out [product]" with a URL
-  * Any mention of a promo code, discount, or affiliate link
-  * Host reading from a script about a product/service they're paid to mention
-  If a transcript segment contains these patterns, SKIP it and find the next
-  compelling moment that is actual content, not advertising.
-- SEGMENT CONTINUITY: Never select a clip that starts mid-ad-read or ends
-  mid-thought. The clip must begin and end at natural content boundaries.
-  A clip that begins with ad-read content is invalid, full stop.
+
+SHOW INTRO BLACKOUT — ABSOLUTE HARD RULE:
+NEVER select any clip with start_seconds below 90.
+The first 90 seconds of ANY YouTube video is always: theme music, jingle,
+"hey welcome back everyone," host introduction, sponsor bumper, or housekeeping.
+This content will play the source show's own branding inside our show.
+Minimum start_seconds = 90 for every clip. No exceptions. No overrides.
+
+CLIP START — EXACT SENTENCE BEGINNING:
+The clip must begin at the EXACT FIRST WORD of the compelling sentence.
+Start at the moment where a specific fact, bold assertion, or strong argument begins.
+The first word of start_seconds must be substantive content — not "um," "so," "like," "you know," or "I mean."
+If the sentence begins with filler, advance start_seconds by 1–2 seconds to the first real word.
+NEVER cut mid-sentence. NEVER start before the sentence (no pre-sentence lead-in).
+The clip's opening word must be able to stand alone as an attention-grabbing entry point.
+
+AD READ ELIMINATION — ZERO TOLERANCE:
+1. NEVER select a timestamp range where the 15-second window AROUND the selected
+   range (7.5s before start, 7.5s after end) contains any sponsorship language,
+   promo codes, product mentions, affiliate links, or deviation from primary content.
+2. If a video contains an ad read anywhere in the first 3 minutes, treat the entire
+   first 3 minutes as contaminated — do not select from it.
+3. If uncertain whether a segment is an ad read — it IS an ad read. Skip it.
+4. This applies to: pre-roll, mid-roll, host-read sponsorships, "quick word from our
+   sponsor," affiliate disclosures, merch mentions, course promotions, Patreon/membership
+   CTAs, "check the link in description," and any "use code X" references.
+5. The Python post-selection filter is a safety net, not the primary gate. Get this
+   right at selection time.
+
+SEGMENT CONTINUITY: The clip must begin and end at natural content boundaries.
+A clip that begins with ad-read content or show-intro content is invalid, full stop.
+
 - Pick from DIFFERENT channels when possible (variety matters)
 - NEVER select more than 1 clip from the same YouTube video (unique video_id per clip)
 - NEVER select 2 clips from the same channel back-to-back — vary the source
@@ -60,8 +78,7 @@ RULES:
 - Each clip should be 20-40 seconds long (the best moment, not the full segment)
 - Rank 1 = most dramatic/important (this becomes the cold open teaser)
 - The timestamps in the transcripts are approximate — pick ranges that capture complete thoughts
-- Avoid dead air, filler words, or mid-sentence cuts
-- When specifying clip end times, always allow 3-4 seconds of buffer AFTER the key statement ends so the narrator never interrupts a sentence in progress
+- When specifying clip end times, always allow 3-4 seconds of buffer AFTER the key statement ends
 - Sort clips to maximize channel variety: no same channel appearing consecutively
 
 AVAILABLE VIDEOS:
@@ -79,12 +96,12 @@ Return ONLY valid JSON (no markdown, no code fences):
       "end_seconds": 175,
       "quote": "The exact memorable quote from this moment",
       "why": "Why this clip is compelling (1 sentence)",
-      "host_setup": "What Jessica should say to introduce this clip (1-2 sentences, conversational)",
-      "host_react": "What the hosts should discuss after this clip (2-3 sentences of banter)"
+      "host_setup": "What Eryn should say to introduce this clip (1-2 sentences, forensic/analytical)",
+      "host_react": "What the hosts should discuss after this clip (2-3 sentences, 6-beat rhythm)"
     }}
   ],
   "episode_title": "Short punchy episode title based on top clip (5-8 words)",
-  "cold_open": "Jessica's cold open teaser line about clip #1 — dramatic, hook the viewer (1 sentence)"
+  "cold_open": "Eryn's cold open line about clip #1 — explosive, forensic, no show-name intro (1 sentence)"
 }}
 
 Return exactly 5 clips, ranked 1-5. If fewer than 5 good moments exist, return what you can."""
