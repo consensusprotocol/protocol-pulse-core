@@ -1,982 +1,157 @@
 {% extends "base.html" %}
-
-{% block title %}Latest Intelligence - Protocol Pulse{% endblock %}
-
+{% block title %}Intelligence Feed — Protocol Pulse{% endblock %}
 {% block og_meta %}
-<meta property="og:title" content="Bitcoin News & Analysis — Protocol Pulse">
-<meta property="og:description" content="Breaking Bitcoin news, mining reports, regulatory updates, and institutional analysis.">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Protocol Pulse">
+<meta property="og:title" content="Bitcoin Intelligence Feed — Protocol Pulse">
+<meta property="og:description" content="{{ total_count }} intelligence briefs. Real-time Bitcoin news, analysis, and market intelligence.">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Protocol Pulse">
 <meta property="og:image" content="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
 <meta property="og:url" content="{{ request.url }}">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@ProtocolPulse">
-<meta name="twitter:title" content="Bitcoin News & Analysis — Protocol Pulse">
-<meta name="twitter:description" content="Breaking Bitcoin news, mining reports, regulatory updates, and institutional analysis.">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content="@ProtocolPulse">
 {% endblock %}
-
-{% block schema %}
-{{ super() }}
-<script type="application/ld+json">
-{
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    "name": "Bitcoin News & Analysis",
-    "description": "Breaking Bitcoin news, mining reports, and market analysis from Protocol Pulse.",
-    "publisher": {
-        "@type": "Organization",
-        "name": "Protocol Pulse",
-        "url": "https://protocolpulse.io"
-    }
-}
-</script>
-{% endblock %}
-
+{% block schema %}{{ super() }}<script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Bitcoin Intelligence Feed","description":"Real-time Bitcoin news and analysis from Protocol Pulse.","publisher":{"@type":"Organization","name":"Protocol Pulse","url":"https://protocolpulse.io"}}</script>{% endblock %}
 {% block head %}
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* Extracted from inline styles */
-.art-hero-img { background-size: cover; background-position: center; }
-.art-card-img { background-size: cover; background-position: center; }
-.art-grid-2col { grid-template-columns: repeat(2, 1fr); margin-top: 1.25rem; }
-.art-thumb-side {
-    width: 100px; min-height: 90px;
-    background-size: cover; background-position: center;
-    flex-shrink: 0; border-radius: 10px 0 0 10px;
-}
-.art-empty-icon { font-size: 2.5rem; color: var(--accent-red); opacity: 0.5; }
-.art-empty-text { font-family: 'DM Sans', sans-serif; margin-bottom: 0; }
-.art-morning-thumb { background-size: cover; background-position: center; }
-.art-cat-chevron { font-size: 0.5rem; color: var(--accent-red); }
-.art-oracle-cta {
-    border-color: rgba(220,38,38,.25);
-    text-align: center;
-}
-.art-oracle-btn {
-    display: inline-block; padding: 10px 24px;
-    background: linear-gradient(135deg,#cc2222,#991111);
-    color: #fff; border-radius: 8px;
-    font-family: var(--terminal-font); font-size: .8rem;
-    font-weight: 600; text-decoration: none;
-    letter-spacing: 1px; transition: all .3s ease;
-}
-.art-partner-label { font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase; }
-.art-partner-img { border: 1px solid var(--border-subtle); opacity: 0.9; }
-    :root {
-        --btc-gold: #f7931a;
-        --btc-gold-glow: rgba(247, 147, 26, 0.25);
-        --dark-bg: #030303;
-        --surface-1: #0a0a0a;
-        --surface-2: #111111;
-        --surface-3: #181818;
-        --text-primary: #f0f0f0;
-        --text-secondary: #999999;
-        --text-tertiary: #5a5a5a;
-        --border-subtle: rgba(255,255,255,0.06);
-        --border-accent: rgba(220, 38, 38, 0.15);
-        --accent-red: #dc2626;
-        --accent-red-dim: rgba(220, 38, 38, 0.08);
-    }
-
-    body { background-color: var(--dark-bg); color: var(--text-primary); }
-
-    .articles-page {
-        min-height: 100vh;
-        background: var(--dark-bg);
-    }
-
-    .masthead {
-        border-bottom: 1px solid var(--border-subtle);
-        padding: 2.5rem 0 2rem;
-    }
-
-    .masthead-inner {
-        max-width: 1280px;
-        margin: 0 auto;
-        padding: 0 1.5rem;
-    }
-
-    .edition-label {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.6rem;
-        text-transform: uppercase;
-        letter-spacing: 0.35em;
-        color: var(--accent-red);
-        font-weight: 500;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .edition-label::before {
-        content: '';
-        width: 5px;
-        height: 5px;
-        background: var(--accent-red);
-        border-radius: 50%;
-        box-shadow: 0 0 8px var(--accent-red);
-        animation: livePulse 2s infinite;
-    }
-
-    @keyframes livePulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.3; }
-    }
-
-    .masthead-title {
-        font-family: 'Crimson Pro', Georgia, serif;
-        font-size: 3.5rem;
-        font-weight: 900;
-        color: #fff;
-        letter-spacing: -0.03em;
-        line-height: 1;
-        margin: 0.5rem 0 0.25rem;
-    }
-
-    .masthead-date {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.7rem;
-        color: var(--text-tertiary);
-        letter-spacing: 0.05em;
-    }
-
-    .main-content {
-        max-width: 1280px;
-        margin: 0 auto;
-        padding: 0 1.5rem;
-    }
-
-    .zone-divider {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        margin: 3rem 0 2rem;
-        position: relative;
-    }
-
-    .zone-divider::after {
-        content: '';
-        flex: 1;
-        height: 1px;
-        background: linear-gradient(90deg, var(--border-accent), transparent);
-    }
-
-    .zone-tag {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.6rem;
-        text-transform: uppercase;
-        letter-spacing: 0.25em;
-        color: var(--accent-red);
-        font-weight: 600;
-        white-space: nowrap;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 6px 14px;
-        background: var(--accent-red-dim);
-        border: 1px solid rgba(220,38,38,0.2);
-        border-radius: 4px;
-    }
-
-    .zone-count {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.6rem;
-        color: var(--text-tertiary);
-        letter-spacing: 0.05em;
-    }
-
-    .hero-article {
-        display: grid;
-        grid-template-columns: 1.15fr 1fr;
-        gap: 0;
-        background: var(--surface-1);
-        border: 1px solid var(--border-subtle);
-        border-radius: 12px;
-        overflow: hidden;
-        transition: border-color 0.4s ease;
-        margin-bottom: 1.5rem;
-    }
-
-    .hero-article:hover {
-        border-color: rgba(220,38,38,0.3);
-    }
-
-    .hero-image {
-        min-height: 380px;
-        background-size: cover;
-        background-position: center;
-        position: relative;
-    }
-
-    .hero-image::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(90deg, transparent 60%, var(--surface-1));
-    }
-
-    .hero-body {
-        padding: 2.5rem 3rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .hero-headline {
-        font-family: 'Crimson Pro', Georgia, serif;
-        font-size: 2.4rem;
-        font-weight: 800;
-        line-height: 1.12;
-        color: #fff;
-        letter-spacing: -0.02em;
-        margin-bottom: 1rem;
-        transition: color 0.3s;
-    }
-
-    .hero-article:hover .hero-headline { color: var(--accent-red); }
-
-    .hero-excerpt {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 1.05rem;
-        line-height: 1.7;
-        color: var(--text-secondary);
-        margin-bottom: 1.5rem;
-    }
-
-    .hero-meta {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        flex-wrap: wrap;
-    }
-
-    .cat-pill {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.55rem;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        padding: 4px 10px;
-        border-radius: 3px;
-        background: rgba(255,255,255,0.05);
-        color: var(--text-secondary);
-        font-weight: 500;
-    }
-
-    .cat-pill.breaking {
-        background: var(--accent-red);
-        color: #fff;
-        box-shadow: 0 0 12px rgba(220,38,38,0.4);
-    }
-
-    .time-stamp {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.65rem;
-        color: var(--text-tertiary);
-    }
-
-    .read-cta {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.65rem;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--accent-red);
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        transition: gap 0.2s ease;
-    }
-
-    .hero-article:hover .read-cta { gap: 10px; }
-
-    .article-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.25rem;
-    }
-
-    .article-card {
-        background: var(--surface-1);
-        border: 1px solid var(--border-subtle);
-        border-radius: 10px;
-        overflow: hidden;
-        transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        display: flex;
-        flex-direction: column;
-    }
-
-    .article-card:hover {
-        border-color: rgba(220,38,38,0.35);
-        transform: translateY(-3px);
-        box-shadow: 0 16px 48px rgba(0,0,0,0.5);
-    }
-
-    .card-image {
-        height: 180px;
-        background-size: cover;
-        background-position: center;
-        position: relative;
-    }
-
-    .card-image::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 50%;
-        background: linear-gradient(transparent, var(--surface-1));
-    }
-
-    .card-body-inner {
-        padding: 1.25rem 1.5rem 1.5rem;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .card-headline {
-        font-family: 'Crimson Pro', Georgia, serif;
-        font-size: 1.25rem;
-        font-weight: 700;
-        line-height: 1.3;
-        color: #fff;
-        margin-bottom: 0.75rem;
-        transition: color 0.3s;
-    }
-
-    .article-card:hover .card-headline { color: var(--accent-red); }
-
-    .card-excerpt {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.9rem;
-        line-height: 1.65;
-        color: var(--text-secondary);
-        margin-bottom: 1rem;
-        flex: 1;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    .card-footer-meta {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding-top: 0.75rem;
-        border-top: 1px solid var(--border-subtle);
-        margin-top: auto;
-    }
-
-    .vault-section {
-        margin-top: 3.5rem;
-        padding-top: 3rem;
-        border-top: 2px solid var(--border-subtle);
-        position: relative;
-    }
-
-    .vault-section::before {
-        content: '';
-        position: absolute;
-        top: -2px;
-        left: 0;
-        width: 80px;
-        height: 2px;
-        background: var(--accent-red);
-    }
-
-    .vault-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 2rem;
-    }
-
-    .vault-title {
-        font-family: 'Crimson Pro', Georgia, serif;
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #fff;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .vault-title i {
-        color: var(--text-tertiary);
-        font-size: 1rem;
-    }
-
-    .vault-toggle {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.65rem;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        color: var(--text-tertiary);
-        background: transparent;
-        border: 1px solid var(--border-subtle);
-        padding: 8px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .vault-toggle:hover {
-        border-color: var(--accent-red);
-        color: var(--accent-red);
-        background: var(--accent-red-dim);
-    }
-
-    .vault-list {
-        display: none;
-    }
-
-    .vault-list.open {
-        display: block;
-        animation: slideDown 0.4s ease;
-    }
-
-    @keyframes slideDown {
-        from { opacity: 0; transform: translateY(-8px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .vault-item {
-        display: grid;
-        grid-template-columns: 60px 1fr auto;
-        gap: 1.25rem;
-        align-items: center;
-        padding: 1rem 0;
-        border-bottom: 1px solid var(--border-subtle);
-        transition: all 0.2s ease;
-    }
-
-    .vault-item:last-child { border-bottom: none; }
-
-    .vault-item:hover {
-        padding-left: 8px;
-    }
-
-    .vault-item:hover .vault-item-title {
-        color: var(--accent-red);
-    }
-
-    .vault-date {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.6rem;
-        color: var(--text-tertiary);
-        text-align: center;
-        line-height: 1.5;
-    }
-
-    .vault-date .day {
-        display: block;
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: var(--text-secondary);
-    }
-
-    .vault-item-title {
-        font-family: 'Crimson Pro', Georgia, serif;
-        font-size: 1.05rem;
-        font-weight: 600;
-        color: #fff;
-        line-height: 1.4;
-        transition: color 0.2s;
-    }
-
-    .vault-item-cat {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.55rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--text-tertiary);
-        white-space: nowrap;
-    }
-
-    .sidebar-wrap {
-        position: sticky;
-        top: 1.5rem;
-    }
-
-    .sb-module {
-        background: var(--surface-1);
-        border: 1px solid var(--border-subtle);
-        border-radius: 10px;
-        padding: 1.25rem;
-        margin-bottom: 1.25rem;
-    }
-
-    .sb-module-gold { border-top: 2px solid var(--btc-gold); }
-    .sb-module-red { border-top: 2px solid var(--accent-red); }
-
-    .sb-title {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.65rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.15em;
-        color: #fff;
-        margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .ticker-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 0;
-        border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .ticker-row:last-child { border-bottom: none; }
-
-    .ticker-sym {
-        font-family: 'JetBrains Mono', monospace;
-        font-weight: 600;
-        color: var(--text-tertiary);
-        font-size: 0.7rem;
-    }
-
-    .ticker-val {
-        font-family: 'JetBrains Mono', monospace;
-        font-weight: 600;
-        font-size: 0.8rem;
-    }
-
-    .trending-item {
-        display: flex;
-        gap: 12px;
-        align-items: flex-start;
-        padding: 10px 0;
-        border-bottom: 1px solid var(--border-subtle);
-        transition: padding-left 0.2s;
-    }
-
-    .trending-item:last-child { border-bottom: none; }
-
-    .trending-item:hover { padding-left: 4px; }
-
-    .trending-num {
-        font-family: 'Crimson Pro', serif;
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: var(--accent-red);
-        opacity: 0.4;
-        line-height: 1;
-        min-width: 24px;
-    }
-
-    .trending-title {
-        font-family: 'Crimson Pro', Georgia, serif;
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #fff;
-        line-height: 1.35;
-        transition: color 0.2s;
-    }
-
-    .trending-item:hover .trending-title { color: var(--accent-red); }
-
-    .nav-cat {
-        display: block;
-        padding: 0.5rem 0;
-        color: var(--text-tertiary);
-        text-decoration: none;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.85rem;
-        border-bottom: 1px solid var(--border-subtle);
-        transition: all 0.2s;
-    }
-
-    .nav-cat:hover {
-        color: var(--btc-gold);
-        padding-left: 6px;
-    }
-
-    .nav-cat:last-child { border-bottom: none; }
-
-    .subscribe-input {
-        background: #000 !important;
-        border: 1px solid var(--border-subtle) !important;
-        color: #fff !important;
-        font-family: 'DM Sans', sans-serif;
-        border-radius: 5px;
-        padding: 10px 12px;
-        font-size: 0.85rem;
-    }
-
-    .subscribe-input:focus {
-        border-color: var(--btc-gold) !important;
-        box-shadow: 0 0 0 2px rgba(247,147,26,0.15);
-    }
-
-    .subscribe-btn {
-        background: var(--btc-gold);
-        color: #000;
-        font-family: 'JetBrains Mono', monospace;
-        font-weight: 600;
-        border: none;
-        width: 100%;
-        padding: 10px;
-        border-radius: 5px;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        font-size: 0.65rem;
-        transition: all 0.3s;
-        cursor: pointer;
-    }
-
-    .subscribe-btn:hover {
-        background: #fff;
-        box-shadow: 0 0 20px var(--btc-gold-glow);
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 5rem 2rem;
-        color: var(--text-tertiary);
-        border: 1px dashed var(--border-subtle);
-        border-radius: 12px;
-    }
-
-    .morning-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.25rem;
-    }
-
-    .morning-card {
-        background: var(--surface-1);
-        border: 1px solid var(--border-subtle);
-        border-radius: 10px;
-        overflow: hidden;
-        display: flex;
-        transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    }
-
-    .morning-card:hover {
-        border-color: rgba(220,38,38,0.3);
-        transform: translateY(-2px);
-        box-shadow: 0 12px 36px rgba(0,0,0,0.4);
-    }
-
-    .morning-thumb {
-        width: 140px;
-        min-height: 130px;
-        background-size: cover;
-        background-position: center;
-        flex-shrink: 0;
-        position: relative;
-    }
-
-    .morning-thumb::after {
-        content: '';
-        position: absolute;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        width: 40%;
-        background: linear-gradient(90deg, transparent, var(--surface-1));
-    }
-
-    .morning-body {
-        padding: 1.25rem 1.5rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        flex: 1;
-    }
-
-    .morning-headline {
-        font-family: 'Crimson Pro', Georgia, serif;
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: #fff;
-        line-height: 1.35;
-        margin-bottom: 0.5rem;
-        transition: color 0.3s;
-    }
-
-    .morning-card:hover .morning-headline { color: var(--accent-red); }
-
-    @media (max-width: 1024px) {
-        .hero-article { grid-template-columns: 1fr; }
-        .hero-image { min-height: 260px; }
-        .hero-image::after { background: linear-gradient(transparent 40%, var(--surface-1)); }
-        .hero-body { padding: 2rem; }
-        .hero-headline { font-size: 1.8rem; }
-        .article-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (max-width: 768px) {
-        .masthead-title { font-size: 2.5rem; }
-        .article-grid { grid-template-columns: 1fr; }
-        .morning-grid { grid-template-columns: 1fr; }
-        .morning-card { flex-direction: column; }
-        .morning-thumb { width: 100%; min-height: 160px; }
-        .morning-thumb::after { display: none; }
-        .hero-headline { font-size: 1.6rem; }
-        .hero-body { padding: 1.5rem; }
-        .card-image { height: 160px; }
-        .vault-item { grid-template-columns: 50px 1fr; }
-        .vault-item-cat { display: none; }
-    }
-
-    @media (max-width: 576px) {
-        .masthead-title { font-size: 2rem; }
-        .masthead { padding: 1.5rem 0 1rem; }
-    }
+:root{--af-bg:#030303;--af-s:#0a0a0a;--af-b:rgba(255,255,255,.06);--af-bh:rgba(220,38,38,.35);--af-r:#dc2626;--af-rd:rgba(220,38,38,.08);--af-g:#f7931a;--af-t:#f0f0f0;--af-t2:#999;--af-t3:#5a5a5a;--af-mono:'JetBrains Mono',monospace;--af-serif:'Crimson Pro',Georgia,serif;--af-sans:'DM Sans',system-ui,sans-serif;}
+body{background:var(--af-bg);color:var(--af-t);}
+.af-ph{background:var(--af-bg);border-bottom:1px solid var(--af-b);padding:2rem 0 1.5rem;}
+.af-pi{max-width:1340px;margin:0 auto;padding:0 1.5rem;}
+.af-ey{font-family:var(--af-mono);font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--af-r);display:flex;align-items:center;gap:8px;margin-bottom:.6rem;}
+.af-ey::before{content:'';width:5px;height:5px;background:var(--af-r);border-radius:50%;box-shadow:0 0 8px var(--af-r);animation:afP 2s infinite;}
+@keyframes afP{0%,100%{opacity:1}50%{opacity:.3}}
+.af-ht{font-family:var(--af-mono);font-size:clamp(1rem,2vw,1.35rem);font-weight:700;color:#fff;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.35rem;}
+.af-ht span{color:var(--af-r);}
+.af-hm{font-family:var(--af-mono);font-size:.62rem;color:var(--af-t3);letter-spacing:.04em;}
+.af-ctrl{max-width:1340px;margin:0 auto;padding:1rem 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;border-bottom:1px solid var(--af-b);}
+.af-sw{position:relative;flex:1;min-width:180px;max-width:340px;}
+.af-sw i{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--af-t3);font-size:.7rem;}
+.af-search{width:100%;background:var(--af-s);border:1px solid var(--af-b);border-radius:6px;padding:7px 11px 7px 30px;color:var(--af-t);font-family:var(--af-mono);font-size:.72rem;outline:none;transition:border-color .2s;}
+.af-search:focus{border-color:var(--af-r);}
+.af-search::placeholder{color:var(--af-t3);}
+.af-fs{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.af-pill{font-family:var(--af-mono);font-size:.58rem;text-transform:uppercase;letter-spacing:.08em;padding:5px 11px;border-radius:4px;border:1px solid var(--af-b);background:transparent;color:var(--af-t3);cursor:pointer;transition:all .2s;white-space:nowrap;}
+.af-pill:hover{border-color:var(--af-r);color:var(--af-t);}
+.af-pill.active{background:var(--af-rd);border-color:var(--af-r);color:var(--af-r);}
+.af-pc{display:inline-block;margin-left:4px;opacity:.45;font-size:.52rem;}
+.af-main{max-width:1340px;margin:0 auto;padding:1.5rem 1.5rem 3rem;}
+.af-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;}
+@media(max-width:1100px){.af-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:640px){.af-grid{grid-template-columns:1fr;}}
+.af-card{background:var(--af-s);border:1px solid var(--af-b);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .3s,transform .3s,box-shadow .3s;text-decoration:none;color:inherit;}
+.af-card:hover{border-color:var(--af-bh);transform:translateY(-3px);box-shadow:0 16px 48px rgba(0,0,0,.5),0 0 0 1px rgba(220,38,38,.08);}
+.af-card.af-hidden{display:none;}
+.af-iw{height:180px;position:relative;overflow:hidden;flex-shrink:0;background:#0d0d0d;}
+.af-img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;}
+.af-card:hover .af-img{transform:scale(1.04);}
+.af-ig{width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
+.af-ig i{font-size:2rem;opacity:.12;color:#fff;}
+.af-io{position:absolute;bottom:0;left:0;right:0;height:55%;background:linear-gradient(transparent,var(--af-s));pointer-events:none;}
+.af-bgs{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:6px;}
+.af-badge{font-family:var(--af-mono);font-size:.5rem;text-transform:uppercase;letter-spacing:.08em;padding:3px 8px;border-radius:3px;font-weight:700;border:1px solid;backdrop-filter:blur(4px);}
+.af-bc{background:rgba(0,0,0,.6);max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.af-cb{padding:1.1rem 1.2rem 1.2rem;display:flex;flex-direction:column;flex:1;}
+.af-ct{font-family:var(--af-serif);font-size:1.1rem;font-weight:700;line-height:1.3;color:#fff;margin-bottom:.55rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;transition:color .2s;}
+.af-card:hover .af-ct{color:var(--af-r);}
+.af-cs{font-family:var(--af-sans);font-size:.84rem;line-height:1.6;color:var(--af-t2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;flex:1;margin-bottom:.85rem;}
+.af-cm{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:.7rem;border-top:1px solid var(--af-b);margin-top:auto;}
+.af-ml{display:flex;align-items:center;gap:8px;min-width:0;}
+.af-src{font-family:var(--af-mono);font-size:.56rem;color:var(--af-t3);text-transform:uppercase;letter-spacing:.04em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px;}
+.af-sep{color:var(--af-b);font-size:.5rem;}
+.af-time,.af-read{font-family:var(--af-mono);font-size:.56rem;color:var(--af-t3);white-space:nowrap;}
+.af-empty{text-align:center;padding:5rem 2rem;border:1px dashed var(--af-b);border-radius:12px;color:var(--af-t3);}
+.af-empty i{font-size:2rem;margin-bottom:1rem;opacity:.35;color:var(--af-r);display:block;}
+.af-lw{text-align:center;padding:2.5rem 0 1rem;}
+.af-lb{font-family:var(--af-mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:var(--af-t3);background:var(--af-s);border:1px solid var(--af-b);padding:11px 30px;border-radius:6px;cursor:pointer;transition:all .25s;display:inline-flex;align-items:center;gap:8px;}
+.af-lb:hover{border-color:var(--af-r);color:var(--af-r);background:var(--af-rd);}
+.af-lb:disabled{opacity:.5;cursor:not-allowed;}
+.af-lb .sp{width:12px;height:12px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:afSp .7s linear infinite;display:none;}
+.af-lb.loading .sp{display:block;}
+.af-lb.loading .bt{display:none;}
+@keyframes afSp{to{transform:rotate(360deg)}}
+#af-nr{display:none;text-align:center;padding:3rem;color:var(--af-t3);font-family:var(--af-mono);font-size:.72rem;}
+@media(max-width:768px){.af-iw{height:160px;}.af-ctrl,.af-main{padding:.75rem 1rem 1rem;}.af-pi{padding:0 1rem;}}
 </style>
 {% endblock %}
-
 {% block content %}
-<div class="articles-page">
-
-    <div class="masthead">
-        <div class="masthead-inner">
-            <span class="edition-label">Live Intelligence Feed</span>
-            <h1 class="masthead-title">The Report</h1>
-            <span class="masthead-date">{{ (last_updated | to_est).strftime('%A, %B %d, %Y') }} &middot; {{ (last_updated | to_est).strftime('%I:%M %p') }} ET</span>
-        </div>
-    </div>
-
-    <div class="main-content">
-        <div class="row g-4 py-4">
-            <div class="col-lg-8">
-
-                {% if today_articles %}
-                <div class="zone-divider" style="margin-top: 0.5rem;">
-                    <span class="zone-tag"><i class="fas fa-bolt me-1"></i> The 24-Hour Pulse</span>
-                    <span class="zone-count">{{ today_articles|length }} report{{ 's' if today_articles|length != 1 }}</span>
-                </div>
-
-                {% if today_articles|length > 0 %}
-                <a href="{{ url_for('article_detail', article_id=today_articles[0].id) }}" class="text-decoration-none d-block">
-                    <div class="hero-article">
-                        <div class="hero-image art-hero-img" style="background-image: url('{{ article_image_urls.get(today_articles[0].id, default_header_url) }}');"></div>
-                        <div class="hero-body">
-                            <div class="hero-meta mb-3">
-                                {% if today_articles[0].is_pressing %}
-                                <span class="cat-pill breaking">Breaking</span>
-                                {% endif %}
-                                <span class="cat-pill">{{ today_articles[0].category }}</span>
-                                <span class="time-stamp">{{ (today_articles[0].created_at | to_est).strftime('%I:%M %p') }} ET</span>
-                            </div>
-                            <h2 class="hero-headline">{{ today_articles[0].title }}</h2>
-                            <p class="hero-excerpt">{{ today_articles[0].content | clean_preview(220) }}</p>
-                            <div class="d-flex align-items-center justify-content-between">
-                                <span class="read-cta">Read Full Report <i class="fas fa-arrow-right"></i></span>
-                                <span class="time-stamp">{{ today_articles[0].author or 'Protocol Pulse' }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-                {% endif %}
-
-                {% if today_articles|length > 1 %}
-                <div class="article-grid">
-                    {% for article in today_articles[1:7] %}
-                    <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none">
-                        <div class="article-card">
-                            <div class="card-image art-card-img" style="background-image: url('{{ article_image_urls.get(article.id, default_header_url) }}');"></div>
-                            <div class="card-body-inner">
-                                <div class="d-flex align-items-center gap-2 mb-2">
-                                    {% if article.is_pressing %}
-                                    <span class="cat-pill breaking">Breaking</span>
-                                    {% endif %}
-                                    <span class="cat-pill">{{ article.category }}</span>
-                                </div>
-                                <h3 class="card-headline">{{ article.title }}</h3>
-                                <p class="card-excerpt">{{ article.content | clean_preview(120) }}</p>
-                                <div class="card-footer-meta">
-                                    <span class="time-stamp">{{ (article.created_at | to_est).strftime('%I:%M %p') }} ET</span>
-                                    <span class="read-cta" style="font-size: 0.6rem;">Read <i class="fas fa-chevron-right"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                    {% endfor %}
-                </div>
-                {% endif %}
-
-                {% if today_articles|length > 7 %}
-                <div class="article-grid art-grid-2col">
-                    {% for article in today_articles[7:] %}
-                    <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none">
-                        <div class="article-card" style="flex-direction: row;">
-                            <div class="art-thumb-side" style="background-image: url('{{ article_image_urls.get(article.id, default_header_url) }}');"></div>
-                            <div class="card-body-inner" style="padding: 1rem 1.25rem;">
-                                <span class="cat-pill mb-2" style="align-self: flex-start;">{{ article.category }}</span>
-                                <h3 class="card-headline" style="font-size: 1rem;">{{ article.title }}</h3>
-                                <span class="time-stamp mt-auto">{{ (article.created_at | to_est).strftime('%I:%M %p') }} ET</span>
-                            </div>
-                        </div>
-                    </a>
-                    {% endfor %}
-                </div>
-                {% endif %}
-
-                {% else %}
-                <div class="empty-state mt-4">
-                    <i class="fas fa-satellite-dish mb-3 art-empty-icon"></i>
-                    <p class="art-empty-text">Scanning networks for intelligence...</p>
-                </div>
-                {% endif %}
-
-                {% if yesterday_articles %}
-                <div class="zone-divider">
-                    <span class="zone-tag"><i class="fas fa-history me-1"></i> The Morning After</span>
-                    <span class="zone-count">{{ yesterday_articles|length }} report{{ 's' if yesterday_articles|length != 1 }}</span>
-                </div>
-
-                <div class="morning-grid">
-                    {% for article in yesterday_articles %}
-                    <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none">
-                        <div class="morning-card">
-                            <div class="morning-thumb art-morning-thumb" style="background-image: url('{{ article_image_urls.get(article.id, default_header_url) }}');"></div>
-                            <div class="morning-body">
-                                <div class="d-flex align-items-center gap-2 mb-2">
-                                    <span class="cat-pill">{{ article.category }}</span>
-                                    <span class="time-stamp">{{ (article.created_at | to_est).strftime('%I:%M %p') }} ET</span>
-                                </div>
-                                <h4 class="morning-headline">{{ article.title }}</h4>
-                                <span class="time-stamp">{{ (article.created_at | to_est).strftime('%b %d, %Y') }}</span>
-                            </div>
-                        </div>
-                    </a>
-                    {% endfor %}
-                </div>
-                {% endif %}
-
-                {% if archive_articles %}
-                <div class="vault-section">
-                    <div class="vault-header">
-                        <h2 class="vault-title"><i class="fas fa-layer-group"></i> The Vault</h2>
-                        <button class="vault-toggle" onclick="toggleVault(this)">
-                            {% if today_articles or yesterday_articles %}
-                            <i class="fas fa-chevron-down me-1"></i> Show {{ archive_total_count }} Archived
-                            {% else %}
-                            <i class="fas fa-chevron-up me-1"></i> {{ archive_total_count }} Reports
-                            {% endif %}
-                        </button>
-                    </div>
-
-                    <div id="vault-list" class="vault-list {% if not today_articles and not yesterday_articles %}open{% endif %}">
-                        {% for article in archive_articles %}
-                        <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none d-block">
-                            <div class="vault-item">
-                                <div class="vault-date">
-                                    <span class="day">{{ article.created_at.strftime('%d') }}</span>
-                                    {{ article.created_at.strftime('%b') }}
-                                </div>
-                                <div class="vault-item-title">{{ article.title }}</div>
-                                <span class="vault-item-cat">{{ article.category }}</span>
-                            </div>
-                        </a>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endif %}
-
-            </div>
-
-            <div class="col-lg-4">
-                <div class="sidebar-wrap">
-
-                    <div class="sb-module sb-module-gold">
-                        <h5 class="sb-title">Market Pulse</h5>
-                        <div>
-                            {% if prices %}
-                            <div class="ticker-row">
-                                <span class="ticker-sym">BTC/USD</span>
-                                <span class="ticker-val {{ 'text-success' if prices.get('bitcoin', {}).get('change_24h', 0) >= 0 else 'text-danger' }}">
-                                    {{ price_service.format_price(prices.get('bitcoin', {}).get('price', 0)) }}
-                                </span>
-                            </div>
-                            <div class="ticker-row">
-                                <span class="ticker-sym">SILVER/USD</span>
-                                <span class="ticker-val {{ 'text-success' if prices.get('silver', {}).get('change_24h', 0) >= 0 else 'text-danger' }}">
-                                    {{ price_service.format_price(prices.get('silver', {}).get('price', 0)) }}
-                                </span>
-                            </div>
-                            <div class="ticker-row">
-                                <span class="ticker-sym">GOLD/USD</span>
-                                <span class="ticker-val {{ 'text-success' if prices.get('gold', {}).get('change_24h', 0) >= 0 else 'text-danger' }}">
-                                    {{ price_service.format_price(prices.get('gold', {}).get('price', 0)) }}
-                                </span>
-                            </div>
-                            {% else %}
-                            <div class="ticker-row">
-                                <span class="time-stamp">Loading market data...</span>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    {% if (today_articles + yesterday_articles)|length > 1 %}
-                    <div class="sb-module">
-                        <h5 class="sb-title">Trending Now</h5>
-                        {% for article in (today_articles + yesterday_articles)[:5] %}
-                        <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none d-block trending-item">
-                            <span class="trending-num">{{ loop.index }}</span>
-                            <span class="trending-title">{{ article.title }}</span>
-                        </a>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-
-                    <div class="sb-module">
-                        <h5 class="sb-title">Deep Dive</h5>
-                        {% for category in categories %}
-                        <a href="/{{ category|lower }}" class="nav-cat">
-                            <i class="fas fa-chevron-right me-2 art-cat-chevron"></i>{{ category }}
-                        </a>
-                        {% endfor %}
-                    </div>
-
-                    <div class="sb-module sb-module-red">
-                        <h5 class="sb-title">Protocol Dispatch</h5>
-                        <p class="time-stamp mb-3" style="color: #666;">Daily Bitcoin intelligence, delivered.</p>
-                        <form action="{{ url_for('subscribe') }}" method="POST">
-                            <input type="email" name="email" class="form-control subscribe-input mb-2" placeholder="your@email.com" required>
-                            <button type="submit" class="subscribe-btn">Subscribe</button>
-                        </form>
-                    </div>
-                    <div class="sb-module art-oracle-cta">
-                        <h5 class="sb-title" style="color:#ff4444;">🔮 The Oracle</h5>
-                        <p class="time-stamp mb-3" style="color:#666;">Not sure where to start? Let the Oracle guide your Bitcoin journey.</p>
-                        <a href="/onboarding" class="art-oracle-btn">Consult the Oracle</a>
-                    </div>
-
-                    {% if active_ads %}
-                    <div class="sb-module bg-transparent border-0 p-0">
-                        <span class="time-stamp d-block mb-2 art-partner-label">Partner</span>
-                        {% for ad in active_ads %}
-                        <div class="mt-2">
-                            <a href="{{ ad.target_url }}" target="_blank">
-                                <img src="{{ ad.image_url }}" alt="Partner" class="img-fluid rounded art-partner-img" loading="lazy" decoding="async">
-                            </a>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-
-                </div>
-            </div>
-        </div>
-    </div>
+<div style="background:var(--af-bg,#030303);min-height:100vh;">
+<div class="af-ph"><div class="af-pi">
+  <div class="af-ey">Live Intelligence Feed</div>
+  <h1 class="af-ht">PROTOCOL PULSE <span>//</span> INTELLIGENCE FEED</h1>
+  <div class="af-hm">
+    {% if total_count %}{{ "{:,}".format(total_count) }} brief{{ 's' if total_count != 1 }} &middot; {{ categories|length }} categor{{ 'ies' if categories|length != 1 else 'y' }}{% if last_updated %} &middot; updated {{ last_updated.strftime('%b %d, %Y') }}{% endif %}{% else %}Intelligence feed loading...{% endif %}
+  </div>
+</div></div>
+<div class="af-ctrl">
+  <div class="af-sw"><i class="fas fa-search"></i>
+    <input type="text" class="af-search" id="afSearch" placeholder="Search intelligence..." autocomplete="off" value="{{ search_q or '' }}" aria-label="Search articles">
+  </div>
+  <div class="af-fs" id="afFilters">
+    <button class="af-pill {% if not category_filter or category_filter.lower()=='all' %}active{% endif %}" data-cat="all">All <span class="af-pc">{{ "{:,}".format(total_count) }}</span></button>
+    {% for cat in categories %}<button class="af-pill {% if category_filter and category_filter.lower()==cat.lower() %}active{% endif %}" data-cat="{{ cat }}">{{ cat }}<span class="af-pc">{{ category_counts.get(cat,0) }}</span></button>{% endfor %}
+  </div>
 </div>
-
+<div class="af-main">
+  <div id="afGrid" class="af-grid">
+    {% for d in article_data %}{% set a = d.article %}
+    <a href="/article/{{ d.slug }}" class="af-card" data-title="{{ (a.title or '')|lower }}" data-summary="{{ ((a.summary or '')|lower)[:200] }}" data-cat="{{ (a.category or '')|lower }}" data-tags="{{ (a.tags or '')|lower }}">
+      <div class="af-iw">
+        {% if d.image_url %}<img class="af-img" src="{{ d.image_url }}" alt="{{ a.title }}" loading="lazy" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><div class="af-ig" style="background:{{ d.cat_gradient }};display:none;"><i class="fas fa-broadcast-tower"></i></div>{% else %}<div class="af-ig" style="background:{{ d.cat_gradient }};"><i class="fas fa-broadcast-tower"></i></div>{% endif %}
+        <div class="af-io"></div>
+        <div class="af-bgs"><span class="af-badge af-bc" style="color:{{ d.cat_color }};border-color:{{ d.cat_color }}35;">{{ a.category or 'Bitcoin' }}</span><span class="af-badge" style="color:{{ d.sentiment.color }};border-color:{{ d.sentiment.color }}35;background:{{ d.sentiment.bg }};">{{ d.sentiment.label }}</span></div>
+      </div>
+      <div class="af-cb">
+        <h3 class="af-ct">{{ a.title }}</h3>
+        <p class="af-cs">{% if a.summary %}{{ a.summary[:260] }}{% else %}{{ a.content | clean_preview(200) }}{% endif %}</p>
+        <div class="af-cm"><div class="af-ml"><span class="af-src">{{ a.author or a.source_type or 'Protocol Pulse' }}</span><span class="af-sep">&bull;</span><span class="af-time">{% if a.created_at and last_updated %}{% set diff=(last_updated-a.created_at).total_seconds() %}{% if diff<3600 %}{{ (diff/60)|int }}m ago{% elif diff<86400 %}{{ (diff/3600)|int }}h ago{% elif diff<604800 %}{{ (diff/86400)|int }}d ago{% else %}{{ a.created_at.strftime('%b %d') }}{% endif %}{% endif %}</span></div><span class="af-read"><i class="fas fa-clock" style="margin-right:3px;font-size:.48rem;"></i>{{ d.read_time }}m</span></div>
+      </div>
+    </a>{% endfor %}
+  </div>
+  <div id="af-nr">No intelligence matching your filter.</div>
+  {% if not article_data %}<div class="af-empty"><i class="fas fa-satellite-dish"></i><p style="font-family:var(--af-sans);">Scanning networks for intelligence...</p></div>{% endif %}
+  {% if has_more or (article_data|length >= 24) %}
+  <div class="af-lw" id="afLW">
+    <button class="af-lb" id="afLB" onclick="afLoad()"><span class="bt"><i class="fas fa-chevron-down"></i>&nbsp;LOAD MORE INTELLIGENCE</span><span class="sp"></span></button>
+  </div>{% endif %}
+</div></div>
 <script>
-function toggleVault(btn) {
-    const list = document.getElementById('vault-list');
-    list.classList.toggle('open');
-    const isOpen = list.classList.contains('open');
-    btn.innerHTML = isOpen
-        ? '<i class="fas fa-chevron-up me-1"></i> Hide Archive'
-        : '<i class="fas fa-chevron-down me-1"></i> Show {{ archive_total_count }} Archived';
-}
+(function(){
+  'use strict';
+  var pg=1,cat='{{ (category_filter or "all")|e }}',busy=false;
+  var more={{ 'true' if (has_more or (article_data|length>=24)) else 'false' }};
+  var cache=null;
+  function cards(){if(!cache)cache=document.querySelectorAll('#afGrid .af-card');return cache;}
+  function filter(){
+    var q=(document.getElementById('afSearch')||{value:''}).value.toLowerCase().trim();
+    var a=document.querySelector('.af-pill.active');
+    var c=a?a.dataset.cat.toLowerCase():'all';
+    var v=0;
+    cards().forEach(function(cd){
+      var ok=!q||(cd.dataset.title||'').includes(q)||(cd.dataset.summary||'').includes(q)||(cd.dataset.tags||'').includes(q);
+      var co=c==='all'||(cd.dataset.cat||'').includes(c);
+      if(ok&&co){cd.classList.remove('af-hidden');v++;}else cd.classList.add('af-hidden');
+    });
+    var nr=document.getElementById('af-nr');if(nr)nr.style.display=v===0&&(q||c!=='all')?'block':'none';
+    var lw=document.getElementById('afLW');if(lw)lw.style.display=q||c!=='all'?'none':'';
+  }
+  var si=document.getElementById('afSearch');if(si){var t;si.addEventListener('input',function(){clearTimeout(t);t=setTimeout(filter,180);});}
+  var fs=document.getElementById('afFilters');if(fs)fs.addEventListener('click',function(e){var p=e.target.closest('.af-pill');if(!p)return;document.querySelectorAll('.af-pill').forEach(function(x){x.classList.remove('active');});p.classList.add('active');cat=p.dataset.cat;filter();});
+  window.afLoad=function(){
+    if(busy||!more)return;busy=true;
+    var btn=document.getElementById('afLB');if(btn)btn.classList.add('loading');
+    pg++;
+    fetch('/api/v2/articles?page='+pg+'&per_page=24'+(cat&&cat!=='all'?'&category='+encodeURIComponent(cat):'')).then(function(r){return r.json();}).then(function(d){
+      more=d.has_more||false;
+      var g=document.getElementById('afGrid');
+      (d.articles||[]).forEach(function(a){
+        var c2=document.createElement('a');c2.href='/article/'+a.slug;c2.className='af-card';c2.dataset.title=(a.title||'').toLowerCase();c2.dataset.summary=(a.summary||'').substring(0,200).toLowerCase();c2.dataset.cat=(a.category||'').toLowerCase();c2.dataset.tags='';
+        var im=a.cover_image_url?'<img class="af-img" src="'+a.cover_image_url+'" alt="" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';"><div class="af-ig" style="background:'+a.category_gradient+';display:none;"><i class="fas fa-broadcast-tower"></i></div>':'<div class="af-ig" style="background:'+a.category_gradient+'"><i class="fas fa-broadcast-tower"></i></div>';
+        c2.innerHTML='<div class="af-iw">'+im+'<div class="af-io"></div><div class="af-bgs"><span class="af-badge af-bc" style="color:'+a.category_color+';border-color:'+a.category_color+'35;">'+a.category+'</span><span class="af-badge" style="color:'+a.sentiment_color+';border-color:'+a.sentiment_color+'35;background:'+a.sentiment_bg+';">'+a.sentiment_label+'</span></div></div><div class="af-cb"><h3 class="af-ct">'+a.title+'</h3><p class="af-cs">'+a.summary+'</p><div class="af-cm"><div class="af-ml"><span class="af-src">'+a.source+'</span></div><span class="af-read">'+a.read_time+'m</span></div></div>';
+        g.appendChild(c2);
+      });
+      cache=null;
+      if(!more){var lw=document.getElementById('afLW');if(lw)lw.style.display='none';}
+    }).catch(function(e){console.error('Load more:',e);}).finally(function(){busy=false;if(btn)btn.classList.remove('loading');});
+  };
+  if({{ 'true' if (category_filter and category_filter.lower()!='all') or search_q else 'false' }})filter();
+})();
 </script>
 {% endblock %}

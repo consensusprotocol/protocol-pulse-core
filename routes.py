@@ -27,6 +27,18 @@ import subprocess
 from pathlib import Path
 import models
 from datetime import datetime, timedelta
+# SESSION 10 — Article Rebuild helpers
+try:
+    from core.blueprints.articles import (
+        build_article_data, article_get_sentiment, article_get_related,
+        article_get_image, article_get_read_time, article_cat_color,
+        article_cat_gradient, article_make_slug, article_tldr_bullets,
+    )
+    _ARTICLE_HELPERS_LOADED = True
+except Exception as _ah_err:
+    import logging as _log
+    _log.warning("Article helpers not loaded (SESSION 10): %s", _ah_err)
+    _ARTICLE_HELPERS_LOADED = False
 
 
 # Initialize services
@@ -1299,6 +1311,16 @@ def articles():
             else:
                 article_image_urls[a.id] = "/static/images/default-header.png"
 
+    # SESSION 10 — build article_data for new grid template
+    category_filter = request.args.get("category", "")
+    search_q = request.args.get("q", "")
+    _all_articles = today_articles + yesterday_articles + archive_articles
+    if _ARTICLE_HELPERS_LOADED:
+        article_data = build_article_data(_all_articles, limit=24)
+    else:
+        article_data = []
+    has_more = total_count > 24
+
     return render_template(
         "articles.html",
         today_articles=today_articles,
@@ -1326,6 +1348,10 @@ def articles():
         per_page=per_page,
         default_header_url=default_header_url,
         article_image_urls=article_image_urls,
+        article_data=article_data,
+        category_filter=category_filter,
+        search_q=search_q,
+        has_more=has_more,
     )
 
 def _article_body_without_tldr(content):
@@ -1366,8 +1392,14 @@ def _article_key_takeaways(article):
 
 @app.route('/articles/<int:article_id>')
 def article_detail(article_id):
-    """Individual article page. Key Takeaways and body are never duplicated (TL;DR shown once)."""
+    """Individual article page. Redirects to slug URL if helpers loaded; renders direct if not."""
     article = models.Article.query.get_or_404(article_id)
+    # SESSION 10 — redirect to canonical slug URL
+    if _ARTICLE_HELPERS_LOADED:
+        from flask import redirect as _redirect
+        slug = article_make_slug(article)
+        return _redirect(f"/article/{slug}", 301)
+    # Fallback: render directly (helpers not loaded)
     try:
         related_articles = models.Article.query.filter(
             models.Article.id != article_id,
@@ -1377,7 +1409,6 @@ def article_detail(article_id):
     except Exception:
         related_articles = []
     key_takeaways_text = _article_key_takeaways(article)
-    # Bullet list: split on sentence boundaries for Key Takeaways box
     key_takeaways_bullets = []
     if key_takeaways_text:
         for part in re.split(r"\.\s+", key_takeaways_text):
@@ -1386,9 +1417,7 @@ def article_detail(article_id):
                 key_takeaways_bullets.append(part + ("." if not part.endswith(".") else ""))
     if not key_takeaways_bullets and key_takeaways_text:
         key_takeaways_bullets = [key_takeaways_text]
-    # Full body for display (duplicate TL;DR stripped so only Key Takeaways box shows it once)
     body_html = _article_body_without_tldr(article.content or "")
-    import os as _os
     header_image_url = (getattr(article, "cover_image_url", None) or "").strip()
     if not header_image_url or not header_image_url.startswith("http"):
         header_image_url = (article.header_image_url or "").strip()
@@ -1402,6 +1431,13 @@ def article_detail(article_id):
         key_takeaways_bullets=key_takeaways_bullets,
         body_html=body_html,
         header_image_url=header_image_url,
+        sentiment={"label": "NEUTRAL", "color": "#6b7280", "bg": "rgba(107,114,128,0.12)"},
+        cat_color="#9ca3af",
+        cat_gradient="linear-gradient(135deg,#0d0d1a,#1a1a2e)",
+        read_time=max(1, len(re.sub(r"<[^>]+>", "", article.content or "").split()) // 200),
+        tldr_bullets=[],
+        related_data=[],
+        article_slug=f"{article_id}",
     )
 
 @app.route('/category/<category>')
