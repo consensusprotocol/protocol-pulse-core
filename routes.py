@@ -27,6 +27,7 @@ import subprocess
 from pathlib import Path
 import models
 from datetime import datetime, timedelta
+from routes_articles import build_article_data, article_get_sentiment, article_get_related, article_get_image, article_get_read_time, article_cat_color, article_cat_gradient
 
 
 # Initialize services
@@ -1299,6 +1300,13 @@ def articles():
             else:
                 article_image_urls[a.id] = "/static/images/default-header.png"
 
+    # SESSION 10 — build article_data for new grid template
+    category_filter = request.args.get('category', '')
+    search_q = request.args.get('q', '')
+    _all_articles = today_articles + yesterday_articles + archive_articles
+    article_data = build_article_data(_all_articles[:24])
+    has_more = total_count > 24
+
     return render_template(
         "articles.html",
         today_articles=today_articles,
@@ -1326,6 +1334,10 @@ def articles():
         per_page=per_page,
         default_header_url=default_header_url,
         article_image_urls=article_image_urls,
+        article_data=article_data,
+        category_filter=category_filter,
+        search_q=search_q,
+        has_more=has_more,
     )
 
 def _article_body_without_tldr(content):
@@ -1368,14 +1380,6 @@ def _article_key_takeaways(article):
 def article_detail(article_id):
     """Individual article page. Key Takeaways and body are never duplicated (TL;DR shown once)."""
     article = models.Article.query.get_or_404(article_id)
-    try:
-        related_articles = models.Article.query.filter(
-            models.Article.id != article_id,
-            models.Article.published == True,
-            models.Article.category == article.category
-        ).limit(3).all()
-    except Exception:
-        related_articles = []
     key_takeaways_text = _article_key_takeaways(article)
     # Bullet list: split on sentence boundaries for Key Takeaways box
     key_takeaways_bullets = []
@@ -1388,20 +1392,27 @@ def article_detail(article_id):
         key_takeaways_bullets = [key_takeaways_text]
     # Full body for display (duplicate TL;DR stripped so only Key Takeaways box shows it once)
     body_html = _article_body_without_tldr(article.content or "")
-    import os as _os
-    header_image_url = (getattr(article, "cover_image_url", None) or "").strip()
-    if not header_image_url or not header_image_url.startswith("http"):
-        header_image_url = (article.header_image_url or "").strip()
-    if not header_image_url or not header_image_url.startswith("http"):
-        header_image_url = "/static/images/default-header.png"
+    header_image_url = article_get_image(article) or "/static/images/default-header.png"
+    # SESSION 10 — enriched variables
+    sentiment = article_get_sentiment(article)
+    cat_color = article_cat_color(article.category)
+    cat_gradient = article_cat_gradient(article.category)
+    read_time = article_get_read_time(article)
+    related_articles_list = article_get_related(article, db, models.Article, 3)
+    related_data = build_article_data(related_articles_list)
     return render_template(
         "article_detail.html",
         article=article,
-        related_articles=related_articles,
+        related_articles=related_articles_list,
+        related_data=related_data,
         key_takeaways_text=key_takeaways_text,
         key_takeaways_bullets=key_takeaways_bullets,
         body_html=body_html,
         header_image_url=header_image_url,
+        sentiment=sentiment,
+        cat_color=cat_color,
+        cat_gradient=cat_gradient,
+        read_time=read_time,
     )
 
 @app.route('/category/<category>')
