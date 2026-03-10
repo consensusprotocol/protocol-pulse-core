@@ -932,3 +932,19 @@ class CollectedSignal(db.Model):
         db.Index('idx_signal_platform_posted', 'platform', 'posted_at'),
         db.Index('idx_signal_legendary', 'is_legendary', 'collected_at'),
     )
+
+
+class PriceAlert(db.Model):
+    """Bitcoin price alert subscriptions for /charts page."""
+    __tablename__ = 'price_alerts'
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(254), nullable=False, index=True)
+    target_price = db.Column(db.Float, nullable=False)
+    direction = db.Column(db.String(5), nullable=False)  # 'above' or 'below'
+    triggered = db.Column(db.Boolean, default=False, nullable=False)
+    triggered_at = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    __table_args__ = (
+        db.Index('idx_price_alerts_email_triggered', 'email', 'triggered'),
+        db.Index('idx_price_alerts_active', 'triggered', 'target_price'),
+    )

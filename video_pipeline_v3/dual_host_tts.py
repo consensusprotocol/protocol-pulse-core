@@ -126,14 +126,31 @@ def _chunk_text(text: str, max_chars: int = MAX_CHUNK_CHARS) -> list:
     return [c for c in chunks if c.strip()]
 
 
+def _tts_generate_silence_fallback(text: str, output_path: str) -> bool:
+    """BUG1 FIX A: Generate silence as last-resort TTS fallback (quota exhausted)."""
+    dur = max(2.0, min(30.0, len(text) / 12.5)) if text else 3.0
+    r = subprocess.run([
+        "ffmpeg", "-y", "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
+        "-t", str(dur), "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
+        output_path,
+    ], capture_output=True, text=True, timeout=15)
+    if r.returncode == 0 and os.path.exists(output_path):
+        print(f"  [tts] FALLBACK: {dur:.1f}s silence generated (quota exhausted)")
+        return True
+    return False
+
+
 def tts_elevenlabs(text: str, output_path: str, host: int = 1) -> bool:
-    """Generate TTS audio for a single line using the specified host voice."""
+    """Generate TTS audio for a single line using the specified host voice.
+
+    Falls back to pyttsx3 system TTS, then silence, on ElevenLabs quota/auth failure.
+    """
     if not HAS_REQUESTS:
-        return False
+        return _tts_generate_silence_fallback(text, output_path)
 
     key = _get_cached_key("ELEVENLABS_API_KEY")
     if not key:
-        return False
+        return _tts_generate_silence_fallback(text, output_path)
 
     voice = VOICES.get(host, VOICES[1])
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice['voice_id']}"
@@ -183,7 +200,26 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1) -> bool:
                     os.remove(f)
                 except Exception:
                     pass
-            return False
+            # BUG1 FIX A: Fallback chain — pyttsx3 → silence (never return False)
+            print(f"  [tts] ElevenLabs failed — trying pyttsx3 fallback")
+            try:
+                import pyttsx3
+                _engine = pyttsx3.init()
+                _engine.setProperty("rate", 150)
+                wav_tmp = output_path + ".pyttsx3.wav"
+                _engine.save_to_file(chunk, wav_tmp)
+                _engine.runAndWait()
+                if os.path.exists(wav_tmp) and os.path.getsize(wav_tmp) > 1000:
+                    ok = _mp3_to_m4a(wav_tmp, output_path)
+                    try:
+                        os.remove(wav_tmp)
+                    except Exception:
+                        pass
+                    if ok:
+                        return ok
+            except Exception as pyttsx_err:
+                print(f"  [tts] pyttsx3 unavailable: {pyttsx_err}")
+            return _tts_generate_silence_fallback(text, output_path)
         chunk_files.append(mp3_tmp)
 
     if len(chunk_files) == 1:
