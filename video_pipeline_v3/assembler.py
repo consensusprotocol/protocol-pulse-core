@@ -570,10 +570,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
 
     date_str = datetime.datetime.now().strftime("%b %d, %Y").upper()
 
-    has_thumb_co = bool(thumbnail_path and os.path.exists(thumbnail_path))
-
     inp_args = [tts_path]
-    idx = 1
 
     # CYCLE7 FIX: Per PIPELINE_LAWS cold open = NO logos/bars/watermarks/red-border
     # Use clean dark bg WITHOUT the 7-layer broadcast bg (which adds red border frame)
@@ -581,21 +578,10 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
     # Subtle grid only (no red scanlines, no red border)
     fg += f"[bgvig]drawgrid=width=90:height=54:thickness=1:color=0xFFFFFF@0.03,vignette=PI/4:mode=backward[bgclean];\n"
 
-    # Thumbnail face panel (if available)
-    thumb_co_idx = -1
-    if has_thumb_co:
-        inp_args.append(thumbnail_path)
-        thumb_co_idx = idx
-        idx += 1
-    if has_thumb_co and thumb_co_idx >= 0:
-        fg += (f"[{thumb_co_idx}:v]scale=1056:1080:force_original_aspect_ratio=increase,"
-               f"crop=1056:1080,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS,"
-               f"eq=saturation=1.15:brightness=0.04[thumbface];\n")
-        fg += f"[thumbface]drawbox=x=940:y=0:w=116:h=1080:color={COLOR_BG}@0.7:t=fill[thumbblend];\n"
-        fg += f"[bgclean][thumbblend]overlay=0:0[bgwithface];\n"
-        face_base = "bgwithface"
-    else:
-        face_base = "bgclean"
+    # BUG3 FIX (Option A): Remove thumbnail overlay from cold open entirely.
+    # Per PIPELINE_LAWS: cold open = pure dramatic hook, no logos/watermarks.
+    # Thumbnail at x=0:y=0 overlaps date text at y=490 center. Use clean bg only.
+    face_base = "bgclean"
 
     # CYCLE6 FIX: Cold open hook should NOT repeat "PROTOCOL PULSE"/"PULSE CHECK" branding
     # (title card already showed those). Show only the date/BTC signal line + fade.
@@ -613,10 +599,8 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
     fg += f"[withtext]format=yuv420p[outv];\n"
 
     # NO music — voice starts immediately
-    # BUG8 FIX: Remove per-segment loudnorm — single final loudnorm in concatenate_parts()
-    fg += (f"[0:a]silenceremove=start_periods=1:start_duration=0.05:start_threshold=-50dB:"
-           f"stop_periods=-1:stop_duration=0.1:stop_threshold=-50dB,"
-           f"aresample=async=1[outa]")
+    # BUG1 FIX: Drop silenceremove (stop_periods=-1 was stripping voice audio).
+    fg += "[0:a]aresample=async=1[outa]"
 
     ok = run_ffmpeg_filtergraph(
         inp_args, fg, ["[outv]", "[outa]"],
@@ -762,8 +746,12 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
     """
     if not clip_path or not os.path.exists(clip_path):
         return ""
+    # BUG2 FIX: Reject image files — PiP must be actual video, not static thumbnail
+    if clip_path.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp')):
+        return ""
     clip_dur = ffprobe_duration(clip_path)
-    if clip_dur < 10:
+    # BUG2 FIX: Require at least 30s of video to extract a meaningful PiP
+    if clip_dur < 30:
         return ""
     # Sprint 3.2: Extract from MIDPOINT of clip (better face shots)
     start = max(0, (clip_dur / 2) - (duration / 2))
@@ -1064,10 +1052,9 @@ def _bv2_encode(inputs, fg, output_path, total_dur, label="bv2 scene",
     audio_pad: the audio stream label to use (default [0:a]). Scenes that
     pre-split audio via asplit should pass their output pad here.
     """
-    # BUG8 FIX: Remove per-segment loudnorm — single final loudnorm in concatenate_parts()
-    fg += (f"{audio_pad}silenceremove=start_periods=1:start_duration=0.05:start_threshold=-50dB:"
-           f"stop_periods=-1:stop_duration=0.1:stop_threshold=-50dB,"
-           f"aresample=async=1[outa]")
+    # BUG1 FIX: Drop silenceremove — stop_periods=-1 was stripping voice audio.
+    # aresample handles 44100→48000 resampling cleanly.
+    fg += f"{audio_pad}aresample=async=1[outa]"
 
     # TASK1 FIX: Raise timeout from 180s to 300s for complex BV2 filtergraphs
     ok = run_ffmpeg_filtergraph(
@@ -1856,8 +1843,12 @@ def make_host_visual(audio_path: str, host: int, text: str,
     # CTA box — CYCLE3 FIX: removed "DUAL-HOST ANALYSIS // INCOMING" debug label
     fg += f"[lbody]copy[lcta];\n"
 
+    # BUG1 FIX: Split audio into 3 streams (2 for visuals, 1 for output)
+    # [0:a] must not be referenced more than once without asplit
+    fg += "[0:a]asplit=3[hv_a1][hv_a2][hv_a3];\n"
+
     # Mini waveform in left panel bottom
-    fg += (f"[0:a]showwaves=s=680x90:mode=cline:"
+    fg += (f"[hv_a1]showwaves=s=680x90:mode=cline:"
            f"colors={COLOR_RED}:scale=sqrt:draw=full:rate=30[miniwave];\n")
     fg += f"[lcta][miniwave]overlay=20:880[lpfinal];\n"
 
@@ -1865,7 +1856,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
     fg += f"[lpfinal]drawbox=x=720:y=72:w=1:h=958:color={COLOR_RED}@0.3:t=fill[vdiv];\n"
 
     # ── RIGHT TOP — WAVEFORM VISUALIZER ──
-    fg += (f"[0:a]showwaves=s=1140x200:mode=cline:"
+    fg += (f"[hv_a2]showwaves=s=1140x200:mode=cline:"
            f"colors={COLOR_RED}:scale=sqrt:draw=full:rate=30[wave_top];\n")
     fg += f"[wave_top]split[wA][wB];\n"
     fg += f"[wB]vflip,colorchannelmixer=aa=0.25[wave_bot_dim];\n"
@@ -1933,10 +1924,9 @@ def make_host_visual(audio_path: str, host: int, text: str,
         fg += f"[v_final]format=yuv420p[outv];\n"
 
     # Audio: TTS only — APEX V2: music mixed continuously in concatenate_parts()
-    # BUG8 FIX: Remove per-segment loudnorm — single final loudnorm in concatenate_parts()
-    fg += (f"[0:a]silenceremove=start_periods=1:start_duration=0.05:start_threshold=-50dB:"
-           f"stop_periods=-1:stop_duration=0.1:stop_threshold=-50dB,"
-           f"aresample=async=1[outa]")
+    # BUG1 FIX: Use [hv_a3] (from asplit=3 above). Drop silenceremove — stop_periods=-1
+    # was stripping voice audio throughout. aresample handles 44100→48000 resampling.
+    fg += "[hv_a3]aresample=async=1[outa]"
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -3052,9 +3042,12 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         intro_result = make_intro_coldopen(cold_open_audio["path"], intro_out, btc_price=btc_price, thumbnail_path=co_thumb)
         if intro_result:
             # Sprint 1.6: Overlay PiP of first clip onto cold open (face on screen)
+            # BUG2 FIX: Only attempt if clip is actual video (not image) with duration >= 30s
             if 1 in extracted_clips:
                 clip1_path = extracted_clips[1].get("path", "")
-                if clip1_path and os.path.exists(clip1_path):
+                _is_img = clip1_path.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp')) if clip1_path else True
+                _clip1_dur = ffprobe_duration(clip1_path) if clip1_path and os.path.exists(clip1_path) and not _is_img else 0
+                if clip1_path and os.path.exists(clip1_path) and not _is_img and _clip1_dur >= 30:
                     pip_co = os.path.join(work_dir, "pip_cold_open.mp4")
                     pip_co_result = make_pip_preview(clip1_path, pip_co)
                     if pip_co_result:
@@ -3094,15 +3087,24 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             logger.info(f"  Thumbnail for clip #{rank}: {os.path.basename(tp)}")
 
     # Build PiP preview map: rank → pip_path (for narration segments before clips)
+    # BUG2 FIX: Skip image files and clips shorter than 30s — PiP must be real video
     pip_previews = {}
     for rank, cinfo in extracted_clips.items():
         clip_path = cinfo.get("path", "")
-        if clip_path and os.path.exists(clip_path):
-            pip_out = os.path.join(work_dir, f"pip_preview_r{rank}.mp4")
-            pip_result = make_pip_preview(clip_path, pip_out)
-            if pip_result:
-                pip_previews[rank] = pip_result
-                logger.info(f"  PiP preview for clip #{rank}: ready")
+        if not clip_path or not os.path.exists(clip_path):
+            continue
+        if clip_path.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp')):
+            logger.info(f"  PiP skip #{rank}: image file, not video")
+            continue
+        clip_dur_check = ffprobe_duration(clip_path)
+        if clip_dur_check < 30:
+            logger.info(f"  PiP skip #{rank}: {clip_dur_check:.1f}s < 30s minimum")
+            continue
+        pip_out = os.path.join(work_dir, f"pip_preview_r{rank}.mp4")
+        pip_result = make_pip_preview(clip_path, pip_out)
+        if pip_result:
+            pip_previews[rank] = pip_result
+            logger.info(f"  PiP preview for clip #{rank}: ready")
 
     # Track which audio line index we're on (host lines only, not CLIPs)
     # If we consumed the cold_open, skip the first host audio line
