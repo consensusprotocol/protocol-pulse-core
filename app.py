@@ -350,6 +350,14 @@ try:
 except Exception as _e:
     logging.warning("Schiff Bot blueprint not loaded: %s", _e)
 
+
+# CURATED MINING — White-glove service landing page
+try:
+    from core.blueprints.curated_mining import curated_mining_bp
+    app.register_blueprint(curated_mining_bp)
+    logging.info("Curated Mining blueprint registered at /curated-mining")
+except Exception as _e:
+    logging.warning("Curated Mining blueprint not loaded: %s", _e)
 # SESSION 7 — Oracle Avatar Blueprint
 try:
     from core.blueprints.oracle_avatar import oracle_avatar_bp
