@@ -9601,3 +9601,209 @@ def api_milestone_banner():
     except Exception as e:
         return jsonify({"banner": None, "active": False, "error": str(e)})
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SESSION 0 MERGE — Missing routes from feature branches (core/routes.py)
+# Added here so root app (wsgi:app) can serve them.
+# ─────────────────────────────────────────────────────────────────────────────
+
+@app.route('/mining')
+def mining_hub():
+    """Bitcoin Mining Intelligence Hub — live hashrate, ASIC calculator, pool distribution."""
+    return render_template('mining_hub.html')
+
+
+@app.route('/api/mining/live-stats')
+def api_mining_live_stats():
+    """Live mining command center data. Proxies to mempool.space."""
+    import math as _math
+    result = {
+        'hashrate_eh': None, 'difficulty': None, 'difficulty_formatted': None,
+        'next_adjustment_pct': None, 'blocks_until_adjustment': None,
+        'epoch_progress_pct': None, 'block_height': None, 'btc_price_usd': None,
+        'hash_price_usd_per_ph': None, 'sats_per_hash': None,
+        'block_reward_btc': 3.125, 'block_reward_usd': None,
+        'mempool_fee_low': None, 'mempool_fee_mid': None, 'mempool_fee_high': None,
+        'next_3_adjustment_forecast': [], 'updated_at': datetime.utcnow().isoformat(),
+    }
+    try:
+        r = requests.get('https://mempool.space/api/v1/mining/hashrate/1m', timeout=10)
+        if r.ok:
+            d = r.json()
+            raw = d.get('currentHashrate') or 0
+            result['hashrate_eh'] = round(raw / 1e18, 2) if raw else None
+            diff = d.get('currentDifficulty') or 0
+            result['difficulty'] = diff
+            if diff:
+                result['difficulty_formatted'] = f"{diff / 1e12:.2f}T"
+    except Exception as e:
+        logging.warning('mining live-stats hashrate error: %s', e)
+    try:
+        r = requests.get('https://mempool.space/api/v1/difficulty-adjustment', timeout=10)
+        if r.ok:
+            d = r.json()
+            result['next_adjustment_pct'] = round(d.get('difficultyChange', 0), 2)
+            remaining = d.get('remainingBlocks', 0)
+            result['blocks_until_adjustment'] = remaining
+            if remaining is not None:
+                result['epoch_progress_pct'] = round(max(0, min(100, ((2016 - remaining) / 2016) * 100)), 1)
+    except Exception as e:
+        logging.warning('mining live-stats diff error: %s', e)
+    try:
+        r = requests.get('https://mempool.space/api/blocks/tip/height', timeout=10)
+        if r.ok:
+            result['block_height'] = int(r.text.strip())
+    except Exception:
+        pass
+    try:
+        r = requests.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd', timeout=10)
+        if r.ok:
+            result['btc_price_usd'] = r.json().get('bitcoin', {}).get('usd')
+    except Exception:
+        pass
+    if result['hashrate_eh'] and result['btc_price_usd']:
+        ph = result['hashrate_eh'] * 1e6
+        result['hash_price_usd_per_ph'] = round((3.125 * 144 * result['btc_price_usd']) / ph, 4)
+        result['block_reward_usd'] = round(3.125 * result['btc_price_usd'], 2)
+    try:
+        r = requests.get('https://mempool.space/api/v1/fees/recommended', timeout=10)
+        if r.ok:
+            fees = r.json()
+            result['mempool_fee_low'] = fees.get('economyFee')
+            result['mempool_fee_mid'] = fees.get('halfHourFee')
+            result['mempool_fee_high'] = fees.get('fastestFee')
+    except Exception:
+        pass
+    return jsonify(result)
+
+
+@app.route('/api/mining/pools')
+def api_mining_pools():
+    """Pool distribution data from mempool.space (last 7 days)."""
+    try:
+        r = requests.get('https://mempool.space/api/v1/mining/pools/1w', timeout=10)
+        if not r.ok:
+            return jsonify({'pools': [], 'hhi': None, 'error': 'upstream error'}), 502
+        data = r.json()
+        pools_raw = data.get('pools', [])
+        total_blocks = sum(p.get('blockCount', 0) for p in pools_raw)
+        pools = []
+        hhi = 0.0
+        for p in pools_raw[:12]:
+            blocks = p.get('blockCount', 0)
+            share_pct = round((blocks / total_blocks * 100), 2) if total_blocks else 0
+            hhi += share_pct ** 2
+            pools.append({'name': p.get('name', 'Unknown'), 'slug': p.get('slug', ''), 'share_pct': share_pct, 'block_count': blocks})
+        hhi_r = round(hhi)
+        concentration_label = 'HIGH' if hhi_r > 2500 else ('MODERATE' if hhi_r > 1500 else 'HEALTHY')
+        top3 = sum(p['share_pct'] for p in pools[:3])
+        return jsonify({'pools': pools, 'hhi': hhi_r, 'concentration_label': concentration_label, 'top3_share_pct': round(top3, 1), 'centralization_warning': top3 > 51, 'updated_at': datetime.utcnow().isoformat()})
+    except Exception as e:
+        logging.error('mining pools error: %s', e)
+        return jsonify({'pools': [], 'hhi': None, 'error': str(e)}), 500
+
+
+@app.route('/api/mining/articles')
+def api_mining_articles():
+    """Latest mining articles for the /mining hub."""
+    try:
+        arts = Article.query.filter_by(published=True, category='mining').order_by(Article.created_at.desc()).limit(8).all()
+        result = [{'id': a.id, 'title': a.title, 'summary': (a.summary or a.content or '')[:200].strip(), 'slug': getattr(a, 'slug', str(a.id)), 'category': a.category or 'mining', 'url': f'/articles/{a.id}'} for a in arts]
+        return jsonify({'articles': result})
+    except Exception as e:
+        logging.error('mining articles error: %s', e)
+        return jsonify({'articles': [], 'error': 'internal error'}), 500
+
+
+@app.route('/intelligence')
+def intelligence_page():
+    """Public intelligence dashboard."""
+    import json as _json
+    from sqlalchemy import text as _text
+    try:
+        from services.intelligence_service import get_signal_strength, get_trending_topics, get_entity_tracker, get_narrative_timeline, get_intelligence_events
+        signal = get_signal_strength()
+        trending = get_trending_topics(hours=24)
+        entities = get_entity_tracker(hours=48)
+        narrative_timeline = get_narrative_timeline(days=7)
+        intel_events = get_intelligence_events(limit=8)
+    except Exception as e:
+        logging.error("intelligence_page service error: %s", e)
+        signal = {"composite": 50, "label": "NEUTRAL", "color": "#f8c15c", "components": {}, "trajectory": "UNKNOWN"}
+        trending = []
+        entities = []
+        narrative_timeline = []
+        intel_events = []
+    try:
+        from datetime import timedelta as _td
+        cutoff = (datetime.utcnow() - _td(hours=24)).isoformat()
+        article_count_24h = db.session.execute(_text("SELECT COUNT(*) FROM articles WHERE published=1 AND created_at >= :c"), {"c": cutoff}).fetchone()[0]
+    except Exception:
+        article_count_24h = 0
+    try:
+        imp_rows = db.session.execute(_text("SELECT id, title, sentiment, narrative_label, importance_score, market_impact_magnitude, created_at FROM articles WHERE published=1 ORDER BY importance_score DESC, created_at DESC LIMIT 15")).fetchall()
+        top_articles = [{"id": r[0], "title": r[1], "sentiment": r[2] or "unclassified", "narrative_label": r[3] or "—", "importance_score": int(r[4] or 50), "impact": float(r[5] or 5.0), "created_at": str(r[6])} for r in imp_rows]
+    except Exception:
+        top_articles = []
+    return render_template('intelligence_page.html', signal=signal, trending=trending, entities=entities, narrative_timeline=narrative_timeline, intel_events=intel_events, article_count_24h=article_count_24h, top_articles=top_articles, signal_json=_json.dumps(signal, default=str), trending_json=_json.dumps(trending))
+
+
+@app.route('/newsletter')
+def newsletter_page():
+    """Newsletter subscription landing page."""
+    return render_template('newsletter_subscribe.html') if False else (
+        '<html><body style="background:#000;color:#fff;font-family:monospace;padding:40px">'
+        '<h1 style="color:#dc2626">Protocol Pulse Newsletter</h1>'
+        '<p>Subscribe for daily Bitcoin intelligence.</p>'
+        '<form action="/newsletter/subscribe" method="POST">'
+        '<input type="email" name="email" placeholder="your@email.com" required style="padding:10px;width:300px;background:#111;color:#fff;border:1px solid #333;margin-right:10px">'
+        '<button type="submit" style="padding:10px 20px;background:#dc2626;color:#fff;border:none;cursor:pointer">Subscribe</button>'
+        '</form></body></html>'
+    )
+
+
+@app.route('/oracle-live')
+def oracle_live_page():
+    """Oracle Live — avatar streaming interface."""
+    return render_template('oracle.html')
+
+
+@app.route('/api/sentiment')
+def api_sentiment_summary():
+    """Latest sentiment summary — composite score and narrative."""
+    try:
+        from sqlalchemy import text as _text
+        row = db.session.execute(_text(
+            "SELECT score, bullish_pct, bearish_pct, neutral_pct, narrative, created_at "
+            "FROM sentiment_reports ORDER BY created_at DESC LIMIT 1"
+        )).fetchone()
+        if row:
+            return jsonify({'score': row[0], 'bullish_pct': row[1], 'bearish_pct': row[2], 'neutral_pct': row[3], 'narrative': row[4], 'updated_at': str(row[5])})
+        return jsonify({'score': 50, 'bullish_pct': 33, 'bearish_pct': 33, 'neutral_pct': 34, 'narrative': 'No data yet', 'updated_at': None})
+    except Exception as e:
+        logging.error('api_sentiment_summary error: %s', e)
+        return jsonify({'score': 50, 'error': str(e)}), 500
+
+
+@app.route('/api/articles')
+def api_articles_list():
+    """Articles list API — returns recent published articles."""
+    try:
+        limit = min(int(request.args.get('limit', 20)), 100)
+        category = request.args.get('category')
+        q = Article.query.filter_by(published=True)
+        if category:
+            q = q.filter_by(category=category)
+        arts = q.order_by(Article.created_at.desc()).limit(limit).all()
+        result = [{'id': a.id, 'title': a.title, 'summary': (a.summary or '')[:200], 'category': a.category, 'created_at': str(a.created_at), 'url': f'/articles/{a.id}'} for a in arts]
+        return jsonify({'articles': result, 'count': len(result)})
+    except Exception as e:
+        logging.error('api_articles_list error: %s', e)
+        return jsonify({'articles': [], 'error': str(e)}), 500
+
+
+@app.route('/mining-risk')
+def mining_risk_page():
+    """Mining Risk Calculator — power cost vs. hash price breakeven."""
+    return render_template('mining_risk.html')
+

@@ -1,0 +1,551 @@
+{% extends "base.html" %}
+{% block title %}Partner With Protocol Pulse — Sponsorship{% endblock %}
+{% block meta_description %}Reach 10,000+ Bitcoin-first, high-income investors and builders. Sponsorship packages from $200/send. Protocol Pulse — the premium Bitcoin intelligence platform.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="Partner With Protocol Pulse">
+<meta property="og:description" content="Reach Bitcoin's most engaged audience. Premium sponsorship packages starting at $200.">
+<meta property="og:type" content="website">
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Design System ── */
+:root {
+  --bg: #06070b; --panel: #0d1118; --panel2: #121824;
+  --text: #eef2ff; --muted: #95a0ba;
+  --red: #ff3b5f; --gold: #f8c15c; --cyan: #5de4ff;
+  --lime: #89ffb8; --coral: #ff8ba0;
+  --border: rgba(255,255,255,0.08);
+}
+body { background: var(--bg); color: var(--text); }
+
+/* ── Background ── */
+.sp-bg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 600px 400px at 15% 20%, rgba(255,59,95,0.10) 0%, transparent 70%),
+    radial-gradient(ellipse 500px 350px at 85% 10%, rgba(93,228,255,0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 400px 300px at 50% 90%, rgba(248,193,92,0.05) 0%, transparent 70%),
+    #06070b;
+}
+
+/* ── Layout ── */
+.sp-page { position: relative; z-index: 1; }
+.sp-container { max-width: 960px; margin: 0 auto; padding: 0 20px 80px; }
+
+/* ── Hero ── */
+.sp-hero {
+  padding: 80px 20px 60px; text-align: center;
+  max-width: 780px; margin: 0 auto;
+}
+.sp-hero-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.22em;
+  color: var(--gold); margin-bottom: 18px;
+}
+.sp-hero-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 900; line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: var(--text); margin-bottom: 20px;
+}
+.sp-hero-title .accent { color: var(--red); }
+.sp-hero-body {
+  font-size: 1.05rem; color: #d7def4; line-height: 1.6;
+  max-width: 600px; margin: 0 auto 32px;
+}
+.sp-cta-primary {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--red), #c0152f);
+  color: #fff; padding: 14px 32px; border-radius: 10px;
+  font-weight: 800; font-size: 0.95rem;
+  text-decoration: none; letter-spacing: 0.03em;
+  transition: opacity 0.15s;
+}
+.sp-cta-primary:hover { opacity: 0.85; color: #fff; text-decoration: none; }
+
+/* ── Stats Row ── */
+.sp-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px; margin: 0 auto 60px;
+  max-width: 780px;
+}
+.sp-stat-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 22px 20px;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+.sp-stat-card:hover { border-color: rgba(248,193,92,0.25); }
+.sp-stat-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.9rem; font-weight: 900;
+  letter-spacing: -0.03em; color: var(--text);
+  margin-bottom: 6px;
+}
+.sp-stat-val.gold { color: var(--gold); }
+.sp-stat-label {
+  font-size: 0.65rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.16em;
+  color: var(--muted);
+}
+
+/* ── Section ── */
+.sp-section { margin-bottom: 64px; }
+.sp-section-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.22em;
+  color: var(--gold); margin-bottom: 10px;
+}
+.sp-section-title {
+  font-size: 1.6rem; font-weight: 900;
+  letter-spacing: -0.03em; color: var(--text);
+  margin-bottom: 14px;
+}
+.sp-section-body {
+  font-size: 0.92rem; color: #d7def4; line-height: 1.65;
+  max-width: 680px;
+}
+
+/* ── Audience Profile ── */
+.sp-audience-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px; margin-top: 24px;
+}
+.sp-audience-chip {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px;
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.sp-audience-chip .icon {
+  font-size: 1.2rem; flex-shrink: 0;
+}
+.sp-audience-chip .label {
+  font-size: 0.80rem; font-weight: 700; color: var(--text);
+  margin-bottom: 2px;
+}
+.sp-audience-chip .sub {
+  font-size: 0.72rem; color: var(--muted);
+}
+
+/* ── Packages ── */
+.sp-packages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px; margin-top: 24px;
+}
+.sp-package {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 22px 20px;
+  display: flex; flex-direction: column;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.sp-package:hover, .sp-package.featured {
+  border-color: rgba(248,193,92,0.35);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.30), 0 0 24px rgba(248,193,92,0.06);
+}
+.sp-package.featured {
+  background: linear-gradient(180deg, rgba(248,193,92,0.08), var(--panel));
+}
+.sp-package-badge {
+  display: inline-block;
+  background: rgba(248,193,92,0.15);
+  color: var(--gold);
+  font-size: 0.60rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  border-radius: 4px; padding: 2px 8px;
+  margin-bottom: 12px; align-self: flex-start;
+}
+.sp-package-name {
+  font-size: 0.95rem; font-weight: 800; color: var(--text);
+  margin-bottom: 4px;
+}
+.sp-package-price {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.6rem; font-weight: 900;
+  color: var(--gold); margin-bottom: 4px;
+  letter-spacing: -0.03em;
+}
+.sp-package-period {
+  font-size: 0.72rem; color: var(--muted); margin-bottom: 14px;
+}
+.sp-package-desc {
+  font-size: 0.80rem; color: #d7def4; line-height: 1.5;
+  flex: 1; margin-bottom: 16px;
+}
+.sp-package-feature {
+  font-size: 0.72rem; color: var(--muted); margin-bottom: 4px;
+}
+.sp-package-feature::before { content: '✓ '; color: var(--lime); }
+.sp-package-cta {
+  display: block; width: 100%;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 9px;
+  text-align: center; color: var(--text);
+  font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; transition: all 0.15s;
+  margin-top: auto;
+}
+.sp-package-cta:hover, .sp-package.featured .sp-package-cta {
+  background: rgba(248,193,92,0.15);
+  border-color: rgba(248,193,92,0.35);
+  color: var(--gold);
+}
+
+/* ── Contact Form ── */
+.sp-form-wrap {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px; padding: 32px;
+  max-width: 640px;
+}
+.sp-form-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.16em;
+  color: var(--gold); margin-bottom: 20px;
+}
+.sp-field { margin-bottom: 16px; }
+.sp-field label {
+  display: block; font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.10em;
+  color: var(--muted); margin-bottom: 6px;
+}
+.sp-field input, .sp-field select, .sp-field textarea {
+  width: 100%; background: var(--panel2);
+  border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); padding: 10px 14px;
+  font-size: 0.85rem; font-family: inherit;
+  transition: border-color 0.15s; box-sizing: border-box;
+}
+.sp-field input:focus, .sp-field select:focus, .sp-field textarea:focus {
+  outline: none; border-color: rgba(248,193,92,0.40);
+}
+.sp-field textarea { resize: vertical; min-height: 100px; }
+.sp-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 600px) { .sp-form-grid { grid-template-columns: 1fr; } }
+
+.btn-form-submit {
+  background: linear-gradient(135deg, var(--red), #c0152f);
+  border: none; color: #fff;
+  padding: 12px 28px; border-radius: 8px;
+  font-size: 0.88rem; font-weight: 800;
+  cursor: pointer; transition: opacity 0.15s;
+  width: 100%; margin-top: 4px;
+}
+.btn-form-submit:hover { opacity: 0.85; }
+.btn-form-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.sp-form-success {
+  background: rgba(137,255,184,0.10);
+  border: 1px solid rgba(137,255,184,0.25);
+  border-radius: 10px; padding: 20px;
+  color: var(--lime); font-size: 0.88rem;
+  display: none;
+}
+.sp-form-error {
+  color: var(--coral); font-size: 0.80rem;
+  margin-top: 8px; display: none;
+}
+
+/* ── Gold Info Bar (signature) ── */
+.sp-info-bar {
+  background: linear-gradient(90deg, rgba(248,193,92,0.88), rgba(255,219,132,0.92));
+  padding: 10px 24px;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 8px;
+}
+.sp-info-bar span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; font-weight: 800;
+  letter-spacing: 0.06em; color: #141515;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .sp-stats-row { grid-template-columns: 1fr; }
+  .sp-hero { padding: 50px 20px 40px; }
+  .sp-form-wrap { padding: 20px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sp-bg"></div>
+<div class="sp-page">
+
+  <!-- Gold Info Bar -->
+  <div class="sp-info-bar">
+    <span>PROTOCOL PULSE — BITCOIN INTELLIGENCE PLATFORM</span>
+    <span>PROTOCOLPULSE.IO</span>
+    <span>SPONSORSHIP DECK • 2026</span>
+  </div>
+
+  <!-- Hero -->
+  <div class="sp-hero">
+    <div class="sp-hero-kicker">Sponsorship &amp; Partnerships</div>
+    <h1 class="sp-hero-title">
+      Reach <span class="accent">Bitcoin's</span><br>
+      Most Engaged Audience
+    </h1>
+    <p class="sp-hero-body">
+      Protocol Pulse delivers daily Bitcoin intelligence to a self-sovereign, high-income,
+      technically sophisticated audience that <strong>acts on what they read</strong>.
+      These aren't casual readers — they're builders, investors, and early adopters.
+    </p>
+    <a href="#contact" class="sp-cta-primary">Partner With Us</a>
+  </div>
+
+  <div class="sp-container">
+
+    <!-- Live Stats -->
+    <div class="sp-stats-row">
+      <div class="sp-stat-card">
+        <div class="sp-stat-val gold">{{ metrics.youtube_views | default('10,000+') }}</div>
+        <div class="sp-stat-label">YouTube Views / 30d</div>
+      </div>
+      <div class="sp-stat-card">
+        <div class="sp-stat-val">{{ metrics.website_unique_visits | default('8,500+') }}</div>
+        <div class="sp-stat-label">Unique Visitors / 30d</div>
+      </div>
+      <div class="sp-stat-card">
+        <div class="sp-stat-val gold">{{ metrics.social_impressions | default('50,000+') }}</div>
+        <div class="sp-stat-label">Social Impressions / 30d</div>
+      </div>
+    </div>
+
+    <!-- Audience Profile -->
+    <div class="sp-section">
+      <div class="sp-section-kicker">Who We Reach</div>
+      <h2 class="sp-section-title">Bitcoin-Native. High-Intent.</h2>
+      <p class="sp-section-body">
+        Our audience doesn't stumble onto Bitcoin content — they actively seek it.
+        They're the first adopters, the people who convince their networks.
+        Your message lands with maximum signal-to-noise.
+      </p>
+      <div class="sp-audience-grid">
+        <div class="sp-audience-chip">
+          <div class="icon">₿</div>
+          <div>
+            <div class="label">Bitcoin-First</div>
+            <div class="sub">Not crypto tourists. Protocol Pulse readers are Bitcoin maximalists and serious investors.</div>
+          </div>
+        </div>
+        <div class="sp-audience-chip">
+          <div class="icon">💰</div>
+          <div>
+            <div class="label">High Income</div>
+            <div class="sub">$150k+ average household income. They have the capital to buy what you're selling.</div>
+          </div>
+        </div>
+        <div class="sp-audience-chip">
+          <div class="icon">⚙️</div>
+          <div>
+            <div class="label">Technically Sophisticated</div>
+            <div class="sub">Software engineers, traders, entrepreneurs. They understand your product deeply.</div>
+          </div>
+        </div>
+        <div class="sp-audience-chip">
+          <div class="icon">🔐</div>
+          <div>
+            <div class="label">Self-Sovereign</div>
+            <div class="sub">Hardware wallets, cold storage, running nodes. They take security seriously — and trust your category.</div>
+          </div>
+        </div>
+        <div class="sp-audience-chip">
+          <div class="icon">🌍</div>
+          <div>
+            <div class="label">Global Reach</div>
+            <div class="sub">US, Europe, Latin America. Strong in markets where Bitcoin adoption is accelerating fastest.</div>
+          </div>
+        </div>
+        <div class="sp-audience-chip">
+          <div class="icon">📈</div>
+          <div>
+            <div class="label">High Purchase Intent</div>
+            <div class="sub">Active buyers in hardware wallets, exchanges, privacy tools, and financial services.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ad Packages -->
+    <div class="sp-section">
+      <div class="sp-section-kicker">Sponsorship Packages</div>
+      <h2 class="sp-section-title">Choose Your Placement</h2>
+      <p class="sp-section-body">
+        Every placement is Bitcoin-native. No algorithmic suppression. No competing ads on the same page.
+        Your brand gets the attention it deserves.
+      </p>
+      <div class="sp-packages">
+        <div class="sp-package" onclick="selectPackage('Pulse Check Pre-roll')">
+          <div class="sp-package-name">Pulse Check Pre-roll</div>
+          <div class="sp-package-price">$500</div>
+          <div class="sp-package-period">per episode</div>
+          <p class="sp-package-desc">30-second pre-roll before the daily Bitcoin briefing video. Your message is the first thing our audience hears.</p>
+          <div class="sp-package-feature">30s branded pre-roll</div>
+          <div class="sp-package-feature">Embedded in every episode distribution</div>
+          <div class="sp-package-feature">YouTube + native player</div>
+          <button class="sp-package-cta">Get Started</button>
+        </div>
+        <div class="sp-package" onclick="selectPackage('Article Sponsorship')">
+          <div class="sp-package-name">Article Sponsorship</div>
+          <div class="sp-package-price">$300</div>
+          <div class="sp-package-period">per article</div>
+          <p class="sp-package-desc">Logo placement + contextual mention within a Bitcoin intelligence article. Readers are already engaged and high-intent.</p>
+          <div class="sp-package-feature">Logo in article header</div>
+          <div class="sp-package-feature">Contextual body mention</div>
+          <div class="sp-package-feature">SEO-indexed, permanent</div>
+          <button class="sp-package-cta">Get Started</button>
+        </div>
+        <div class="sp-package" onclick="selectPackage('Newsletter Feature')">
+          <div class="sp-package-name">Newsletter Feature</div>
+          <div class="sp-package-price">$200</div>
+          <div class="sp-package-period">per send</div>
+          <p class="sp-package-desc">Dedicated sponsor section in the Protocol Pulse newsletter. Direct inbox access to our most loyal readers.</p>
+          <div class="sp-package-feature">Dedicated sponsor section</div>
+          <div class="sp-package-feature">Custom copy or we write it</div>
+          <div class="sp-package-feature">Click tracking included</div>
+          <button class="sp-package-cta">Get Started</button>
+        </div>
+        <div class="sp-package featured" onclick="selectPackage('Commander Bundle')">
+          <div class="sp-package-badge">BEST VALUE</div>
+          <div class="sp-package-name">Commander Bundle</div>
+          <div class="sp-package-price">$1,500</div>
+          <div class="sp-package-period">per month</div>
+          <p class="sp-package-desc">Every placement. Maximum exposure. Pre-roll + article + newsletter every month. The complete Protocol Pulse presence.</p>
+          <div class="sp-package-feature">All pre-roll placements</div>
+          <div class="sp-package-feature">2 article sponsorships</div>
+          <div class="sp-package-feature">4 newsletter features</div>
+          <div class="sp-package-feature">Priority scheduling</div>
+          <button class="sp-package-cta">Get Started</button>
+        </div>
+        <div class="sp-package" onclick="selectPackage('Custom Package')">
+          <div class="sp-package-name">Custom Package</div>
+          <div class="sp-package-price">Custom</div>
+          <div class="sp-package-period">contact us</div>
+          <p class="sp-package-desc">Deep integrations, exclusive categories, long-term partnerships, or custom content. Let's build something unique.</p>
+          <div class="sp-package-feature">Exclusive category options</div>
+          <div class="sp-package-feature">Custom content creation</div>
+          <div class="sp-package-feature">Multi-quarter contracts</div>
+          <button class="sp-package-cta">Contact Us</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Form -->
+    <div class="sp-section" id="contact">
+      <div class="sp-section-kicker">Get Started</div>
+      <h2 class="sp-section-title">Partner With Us</h2>
+      <div class="sp-form-wrap">
+        <div class="sp-form-title">Sponsorship Inquiry</div>
+        <div class="sp-form-success" id="formSuccess">
+          <strong>Thank you!</strong> We'll be in touch within 24 hours.
+        </div>
+        <div id="contactFormBody">
+          <div class="sp-form-grid">
+            <div class="sp-field">
+              <label>Company Name *</label>
+              <input type="text" id="fcCompany" placeholder="Your Company">
+            </div>
+            <div class="sp-field">
+              <label>Your Name</label>
+              <input type="text" id="fcName" placeholder="First Last">
+            </div>
+          </div>
+          <div class="sp-field">
+            <label>Email *</label>
+            <input type="email" id="fcEmail" placeholder="you@company.com">
+          </div>
+          <div class="sp-field">
+            <label>Package Interest</label>
+            <select id="fcPackage">
+              <option value="">Select a package...</option>
+              <option value="Pulse Check Pre-roll">Pulse Check Pre-roll ($500/episode)</option>
+              <option value="Article Sponsorship">Article Sponsorship ($300/article)</option>
+              <option value="Newsletter Feature">Newsletter Feature ($200/send)</option>
+              <option value="Commander Bundle">Commander Bundle ($1,500/month)</option>
+              <option value="Custom Package">Custom Package</option>
+            </select>
+          </div>
+          <div class="sp-field">
+            <label>Message</label>
+            <textarea id="fcMessage" placeholder="Tell us about your product, target audience, and what you're hoping to achieve..."></textarea>
+          </div>
+          <div class="sp-form-error" id="formError"></div>
+          <button class="btn-form-submit" id="btnSubmit" onclick="submitContact()">
+            Submit Partnership Inquiry
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /container -->
+</div><!-- /page -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function selectPackage(pkg) {
+  const sel = document.getElementById('fcPackage');
+  if (sel) {
+    for (let i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value.includes(pkg.split(' ')[0])) {
+        sel.selectedIndex = i;
+        break;
+      }
+    }
+  }
+  document.getElementById('contact').scrollIntoView({behavior: 'smooth'});
+}
+
+async function submitContact() {
+  const btn = document.getElementById('btnSubmit');
+  const errEl = document.getElementById('formError');
+  errEl.style.display = 'none';
+
+  const company = document.getElementById('fcCompany').value.trim();
+  const email = document.getElementById('fcEmail').value.trim();
+  const name = document.getElementById('fcName').value.trim();
+  const pkg = document.getElementById('fcPackage').value;
+  const message = document.getElementById('fcMessage').value.trim();
+
+  if (!company) { showErr('Company name is required.'); return; }
+  if (!email || !email.includes('@')) { showErr('Valid email is required.'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  try {
+    const r = await fetch('/api/sponsorship/contact', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({company_name: company, email, name, package: pkg, message})
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Submission failed');
+    document.getElementById('contactFormBody').style.display = 'none';
+    document.getElementById('formSuccess').style.display = 'block';
+  } catch (e) {
+    showErr(e.message);
+    btn.disabled = false;
+    btn.textContent = 'Submit Partnership Inquiry';
+  }
+
+  function showErr(msg) {
+    errEl.textContent = msg;
+    errEl.style.display = 'block';
+  }
+}
+</script>
+{% endblock %}

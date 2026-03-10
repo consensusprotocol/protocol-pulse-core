@@ -1,0 +1,828 @@
+{% extends "base.html" %}
+{% block title %}Nostr Intelligence — Censorship-Resistant Bitcoin Signal | Protocol Pulse{% endblock %}
+
+{% block meta_description %}Real-time Bitcoin signal from Nostr — the censorship-resistant protocol. Top posts scored by engagement, relay status, and Protocol Pulse's own Nostr feed.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="Nostr Intelligence — Protocol Pulse">
+<meta property="og:description" content="Live Bitcoin signal from Nostr. Censorship-resistant, scored by engagement. Follow Protocol Pulse on Nostr.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protocol Pulse">
+<meta property="og:image" content="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
+<meta property="og:url" content="{{ request.url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+{% endblock %}
+
+{% block head %}
+<style>
+/* ================================================================
+   NOSTR INTELLIGENCE PAGE — Protocol Pulse F4
+   Design: Dark terminal × Bitcoin orange × Nostr purple accent
+   ================================================================ */
+:root {
+    --ni-bg:        #000000;
+    --ni-surface:   #0a0a0a;
+    --ni-surface2:  #111111;
+    --ni-border:    rgba(255,255,255,0.07);
+    --ni-red:       #dc2626;
+    --ni-orange:    #f97316;
+    --ni-purple:    #a855f7;
+    --ni-green:     #22c55e;
+    --ni-yellow:    #eab308;
+    --ni-text:      #e5e5e5;
+    --ni-muted:     rgba(255,255,255,0.45);
+    --ni-mono:      'JetBrains Mono', monospace;
+    --ni-sans:      'DM Sans', sans-serif;
+}
+
+body { background: var(--ni-bg) !important; }
+
+/* ── Header ── */
+.ni-hero {
+    padding: 100px 0 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.ni-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(168,85,247,0.08) 0%, transparent 70%);
+    pointer-events: none;
+}
+.ni-eyebrow {
+    font-family: var(--ni-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    color: var(--ni-purple);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+.ni-title {
+    font-family: var(--ni-sans);
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+    line-height: 1.1;
+}
+.ni-title span { color: var(--ni-orange); }
+.ni-subtitle {
+    font-family: var(--ni-sans);
+    font-size: 1.05rem;
+    color: var(--ni-muted);
+    max-width: 560px;
+    margin: 0 auto 32px;
+}
+.ni-pulse-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--ni-green);
+    animation: ni-blink 1.6s ease-in-out infinite;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+@keyframes ni-blink {
+    0%,100% { opacity: 1; }
+    50%      { opacity: 0.25; }
+}
+
+/* ── What is Nostr section ── */
+.ni-section { padding: 0 0 40px; }
+.ni-section-label {
+    font-family: var(--ni-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    color: var(--ni-purple);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.ni-section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--ni-border);
+}
+.ni-card {
+    background: var(--ni-surface);
+    border: 1px solid var(--ni-border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 20px;
+    transition: border-color 0.2s;
+}
+.ni-card:hover { border-color: rgba(168,85,247,0.25); }
+
+/* ── What is Nostr explainer ── */
+.ni-explainer p {
+    font-family: var(--ni-sans);
+    font-size: 1rem;
+    color: var(--ni-text);
+    line-height: 1.7;
+    margin-bottom: 14px;
+}
+.ni-explainer p:last-child { margin-bottom: 0; }
+.ni-highlight { color: var(--ni-orange); font-weight: 600; }
+
+/* ── Follow CTA ── */
+.ni-follow-card {
+    background: linear-gradient(135deg, #0a0a0a 0%, #150a1e 100%);
+    border: 1px solid rgba(168,85,247,0.3);
+    border-radius: 12px;
+    padding: 28px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+}
+.ni-qr-placeholder {
+    width: 110px; height: 110px;
+    background: #fff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+.ni-qr-placeholder canvas, .ni-qr-placeholder img { width: 100%; height: 100%; }
+.ni-follow-info { flex: 1; min-width: 200px; }
+.ni-follow-label {
+    font-family: var(--ni-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    color: var(--ni-purple);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+.ni-npub {
+    font-family: var(--ni-mono);
+    font-size: 0.78rem;
+    color: var(--ni-orange);
+    word-break: break-all;
+    background: rgba(249,115,22,0.07);
+    border: 1px solid rgba(249,115,22,0.15);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.ni-npub:hover { background: rgba(249,115,22,0.14); }
+.ni-copy-hint {
+    font-family: var(--ni-mono);
+    font-size: 0.65rem;
+    color: var(--ni-muted);
+    margin-top: 4px;
+}
+.ni-copy-hint.copied { color: var(--ni-green); }
+.ni-follow-apps {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+.ni-app-badge {
+    font-family: var(--ni-mono);
+    font-size: 0.68rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--ni-border);
+    color: var(--ni-muted);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+.ni-app-badge:hover {
+    border-color: rgba(168,85,247,0.4);
+    color: var(--ni-purple);
+}
+
+/* ── Top signal feed ── */
+.ni-feed-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.ni-refresh-info {
+    font-family: var(--ni-mono);
+    font-size: 0.68rem;
+    color: var(--ni-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.ni-countdown {
+    color: var(--ni-orange);
+    font-weight: 600;
+}
+
+/* Post cards */
+.ni-post {
+    background: var(--ni-surface);
+    border: 1px solid var(--ni-border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    transition: border-color 0.2s, transform 0.15s;
+    cursor: default;
+}
+.ni-post:hover {
+    border-color: rgba(220,38,38,0.3);
+    transform: translateX(2px);
+}
+.ni-post-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.ni-author {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.ni-author-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ni-purple), var(--ni-red));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--ni-mono);
+    font-size: 0.7rem;
+    color: #fff;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.ni-pubkey-short {
+    font-family: var(--ni-mono);
+    font-size: 0.72rem;
+    color: var(--ni-muted);
+}
+.ni-score-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.ni-score {
+    font-family: var(--ni-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ni-orange);
+    background: rgba(249,115,22,0.08);
+    border: 1px solid rgba(249,115,22,0.15);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+.ni-kind-badge {
+    font-family: var(--ni-mono);
+    font-size: 0.62rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--ni-border);
+    color: var(--ni-muted);
+}
+.ni-kind-badge.kind-30023 {
+    border-color: rgba(168,85,247,0.3);
+    color: var(--ni-purple);
+}
+.ni-post-content {
+    font-family: var(--ni-sans);
+    font-size: 0.92rem;
+    color: var(--ni-text);
+    line-height: 1.6;
+    margin-bottom: 12px;
+    word-break: break-word;
+}
+.ni-post-content.truncated { max-height: 4.8em; overflow: hidden; }
+.ni-post-meta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+.ni-meta-item {
+    font-family: var(--ni-mono);
+    font-size: 0.65rem;
+    color: var(--ni-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.ni-meta-item i { font-size: 0.6rem; }
+.ni-meta-item.zap { color: var(--ni-yellow); }
+.ni-relay-tag {
+    font-family: var(--ni-mono);
+    font-size: 0.6rem;
+    color: rgba(168,85,247,0.6);
+    margin-left: auto;
+}
+.ni-open-link {
+    font-family: var(--ni-mono);
+    font-size: 0.65rem;
+    color: var(--ni-muted);
+    text-decoration: none;
+    padding: 3px 8px;
+    border: 1px solid var(--ni-border);
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+.ni-open-link:hover {
+    border-color: rgba(168,85,247,0.4);
+    color: var(--ni-purple);
+}
+
+/* Empty / loading states */
+.ni-loading {
+    text-align: center;
+    padding: 60px 20px;
+    font-family: var(--ni-mono);
+    font-size: 0.85rem;
+    color: var(--ni-muted);
+}
+.ni-spinner {
+    display: inline-block;
+    width: 20px; height: 20px;
+    border: 2px solid rgba(168,85,247,0.2);
+    border-top-color: var(--ni-purple);
+    border-radius: 50%;
+    animation: ni-spin 0.8s linear infinite;
+    margin-bottom: 12px;
+}
+@keyframes ni-spin {
+    to { transform: rotate(360deg); }
+}
+.ni-empty {
+    text-align: center;
+    padding: 48px 20px;
+    font-family: var(--ni-mono);
+    font-size: 0.8rem;
+    color: var(--ni-muted);
+}
+.ni-error {
+    font-family: var(--ni-mono);
+    font-size: 0.8rem;
+    color: var(--ni-red);
+    background: rgba(220,38,38,0.06);
+    border: 1px solid rgba(220,38,38,0.15);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    display: none;
+}
+
+/* ── Relay status ── */
+.ni-relay-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+}
+.ni-relay-item {
+    background: var(--ni-surface2);
+    border: 1px solid var(--ni-border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: border-color 0.3s;
+}
+.ni-relay-item.connected { border-color: rgba(34,197,94,0.2); }
+.ni-relay-item.disconnected { border-color: rgba(220,38,38,0.15); }
+.ni-relay-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--ni-red);
+}
+.ni-relay-item.connected .ni-relay-dot {
+    background: var(--ni-green);
+    animation: ni-blink 2s ease-in-out infinite;
+}
+.ni-relay-info { flex: 1; min-width: 0; }
+.ni-relay-url {
+    font-family: var(--ni-mono);
+    font-size: 0.7rem;
+    color: var(--ni-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.ni-relay-stat {
+    font-family: var(--ni-mono);
+    font-size: 0.6rem;
+    color: var(--ni-muted);
+    margin-top: 2px;
+}
+.ni-relay-status-text {
+    font-family: var(--ni-mono);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+.connected .ni-relay-status-text { color: var(--ni-green); }
+.disconnected .ni-relay-status-text { color: var(--ni-red); }
+
+/* ── Score legend ── */
+.ni-legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-family: var(--ni-mono);
+    font-size: 0.65rem;
+    color: var(--ni-muted);
+    margin-bottom: 16px;
+}
+.ni-legend-item { display: flex; align-items: center; gap: 5px; }
+.ni-legend-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+    .ni-hero { padding: 80px 0 36px; }
+    .ni-follow-card { flex-direction: column; align-items: flex-start; }
+    .ni-qr-placeholder { width: 90px; height: 90px; }
+    .ni-relay-grid { grid-template-columns: 1fr; }
+    .ni-post-header { flex-direction: column; align-items: flex-start; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="background: var(--ni-bg, #000); min-height: 100vh;">
+<div class="container" style="max-width: 860px;">
+
+<!-- ═══════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════ -->
+<div class="ni-hero">
+    <div class="ni-eyebrow">⚡ Protocol Pulse</div>
+    <h1 class="ni-title">NOSTR <span>INTELLIGENCE</span></h1>
+    <p class="ni-subtitle">
+        Censorship-resistant Bitcoin signal — scored, ranked, and live.
+        <span class="ni-pulse-dot"></span>Monitoring 4 relays.
+    </p>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     WHAT IS NOSTR?
+═══════════════════════════════════════════ -->
+<div class="ni-section">
+    <div class="ni-section-label">What is Nostr?</div>
+    <div class="ni-card ni-explainer">
+        <p>
+            <span class="ni-highlight">Nostr</span> (Notes and Other Stuff Transmitted by Relays)
+            is a decentralized communication protocol built for censorship resistance.
+            Unlike X (Twitter) or Facebook, no single company can ban you, shadow-ban your account,
+            or decide what you're allowed to say — your identity is a cryptographic keypair you control.
+        </p>
+        <p>
+            Bitcoin's cypherpunk community has adopted Nostr as its primary uncensorable layer.
+            Developers, analysts, and OGs post <span class="ni-highlight">raw signal</span> here that
+            surfaces 15–30 minutes before mainstream crypto media catches on.
+            Engagement is measured in <span class="ni-highlight">zaps</span> — actual Bitcoin payments
+            via Lightning that represent real conviction, not empty likes.
+        </p>
+        <p>
+            Protocol Pulse monitors Nostr continuously, scoring every post by engagement quality
+            (zaps ×10, quotes ×5, reposts ×3, replies ×2, reactions ×1) and Bitcoin relevance, then
+            surfaces the top signal for you here — updated every 5 minutes.
+        </p>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOLLOW PROTOCOL PULSE
+═══════════════════════════════════════════ -->
+<div class="ni-section">
+    <div class="ni-section-label">Follow Protocol Pulse on Nostr</div>
+    <div class="ni-follow-card">
+        <div class="ni-qr-placeholder" id="qr-container">
+            <!-- QR generated via SVG (no canvas) -->
+            <div id="qr-svg-holder" style="width:110px;height:110px;display:flex;align-items:center;justify-content:center;">
+                <svg width="110" height="110" viewBox="0 0 110 110" id="qr-svg-fallback">
+                    <rect width="110" height="110" fill="white"/>
+                    <text x="55" y="58" text-anchor="middle" font-size="8" fill="#666" font-family="monospace">Loading QR...</text>
+                </svg>
+            </div>
+        </div>
+        <div class="ni-follow-info">
+            <div class="ni-follow-label">Protocol Pulse npub</div>
+            <div class="ni-npub" id="npub-display" onclick="copyNpub()" title="Click to copy">
+                {{ pp_npub }}
+            </div>
+            <div class="ni-copy-hint" id="copy-hint">Click to copy npub address</div>
+            <div class="ni-follow-apps">
+                <a href="https://damus.io" target="_blank" rel="noopener" class="ni-app-badge">Damus (iOS)</a>
+                <a href="https://primal.net" target="_blank" rel="noopener" class="ni-app-badge">Primal</a>
+                <a href="https://iris.to" target="_blank" rel="noopener" class="ni-app-badge">Iris.to</a>
+                <a href="https://snort.social" target="_blank" rel="noopener" class="ni-app-badge">Snort</a>
+                <a href="https://njump.me/{{ pp_npub }}" target="_blank" rel="noopener" class="ni-app-badge">njump.me</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     TOP SIGNAL RIGHT NOW
+═══════════════════════════════════════════ -->
+<div class="ni-section">
+    <div class="ni-section-label">Top Signal Right Now</div>
+
+    <div class="ni-feed-header">
+        <div class="ni-legend">
+            <div class="ni-legend-item">
+                <div class="ni-legend-dot" style="background:#eab308;"></div>⚡ Zap ×10
+            </div>
+            <div class="ni-legend-item">
+                <div class="ni-legend-dot" style="background:#3b82f6;"></div>↩ Quote ×5
+            </div>
+            <div class="ni-legend-item">
+                <div class="ni-legend-dot" style="background:#22c55e;"></div>↗ Repost ×3
+            </div>
+            <div class="ni-legend-item">
+                <div class="ni-legend-dot" style="background:#a855f7;"></div>💬 Reply ×2
+            </div>
+            <div class="ni-legend-item">
+                <div class="ni-legend-dot" style="background:#6b7280;"></div>♡ React ×1
+            </div>
+        </div>
+        <div class="ni-refresh-info">
+            Auto-refresh in <span class="ni-countdown" id="refresh-countdown">5:00</span>
+        </div>
+    </div>
+
+    <div class="ni-error" id="feed-error">
+        Failed to load Nostr signal. Relay connection may be down — retrying...
+    </div>
+
+    <div id="feed-container">
+        {% if top_content %}
+            {% for post in top_content %}
+            <div class="ni-post" data-event-id="{{ post.event_id }}">
+                <div class="ni-post-header">
+                    <div class="ni-author">
+                        <div class="ni-author-avatar">{{ post.pubkey_short[:2].upper() if post.pubkey_short else 'NK' }}</div>
+                        <span class="ni-pubkey-short">{{ post.pubkey_short }}</span>
+                    </div>
+                    <div class="ni-score-badge">
+                        <span class="ni-score">{{ post.engagement_score }}</span>
+                        <span class="ni-kind-badge {% if post.kind == 30023 %}kind-30023{% endif %}">
+                            {% if post.kind == 30023 %}ARTICLE{% else %}NOTE{% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="ni-post-content">{{ post.content[:400] }}{% if post.content|length > 400 %}...{% endif %}</div>
+                <div class="ni-post-meta">
+                    {% if post.zaps > 0 %}
+                    <span class="ni-meta-item zap"><i class="fas fa-bolt"></i> {{ post.zaps }}</span>
+                    {% endif %}
+                    {% if post.quotes > 0 %}
+                    <span class="ni-meta-item"><i class="fas fa-quote-right"></i> {{ post.quotes }}</span>
+                    {% endif %}
+                    {% if post.reposts > 0 %}
+                    <span class="ni-meta-item"><i class="fas fa-retweet"></i> {{ post.reposts }}</span>
+                    {% endif %}
+                    {% if post.replies > 0 %}
+                    <span class="ni-meta-item"><i class="fas fa-comment"></i> {{ post.replies }}</span>
+                    {% endif %}
+                    {% if post.reactions > 0 %}
+                    <span class="ni-meta-item"><i class="fas fa-heart"></i> {{ post.reactions }}</span>
+                    {% endif %}
+                    <span class="ni-meta-item"><i class="fas fa-clock"></i>
+                        {{ post.created_at_iso[:10] if post.created_at_iso else '—' }}
+                    </span>
+                    {% if post.nostr_link %}
+                    <a href="{{ post.nostr_link }}" target="_blank" rel="noopener" class="ni-open-link">
+                        View <i class="fas fa-external-link-alt"></i>
+                    </a>
+                    {% endif %}
+                    <span class="ni-relay-tag">{{ post.relay_source.replace('wss://','') if post.relay_source else '' }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="ni-empty" id="feed-empty">
+                <div class="ni-spinner"></div><br>
+                Monitor is warming up — events will appear within 60 seconds of first relay connection.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     RELAY STATUS
+═══════════════════════════════════════════ -->
+<div class="ni-section">
+    <div class="ni-section-label">Relay Status</div>
+    <div class="ni-relay-grid" id="relay-grid">
+        {% for relay in relay_status %}
+        <div class="ni-relay-item {{ 'connected' if relay.connected else 'disconnected' }}" data-relay="{{ relay.relay }}">
+            <div class="ni-relay-dot"></div>
+            <div class="ni-relay-info">
+                <div class="ni-relay-url">{{ relay.relay.replace('wss://','') }}</div>
+                <div class="ni-relay-stat">
+                    {% if relay.events_today %}{{ relay.events_today }} events today{% else %}No events yet{% endif %}
+                    {% if relay.last_event_at %} · {{ relay.last_event_at[:16] if relay.last_event_at else '' }}{% endif %}
+                </div>
+            </div>
+            <div class="ni-relay-status-text">{{ 'LIVE' if relay.connected else 'OFF' }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+</div><!-- /container -->
+</div><!-- /bg wrapper -->
+{% endblock %}
+
+{% block extra_js %}
+<!-- SVG QR Code library — no canvas, pure SVG output (M2 fix) -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode-svg@1.1.0/lib/qrcode.min.js"></script>
+
+<script>
+/* ── QR Code generation — SVG only, no canvas (M2 fix) ── */
+(function(){
+    var npub = {{ pp_npub | tojson }};
+    var holder = document.getElementById('qr-svg-holder');
+    if (!npub || !holder) return;
+    try {
+        if (typeof QRCode !== 'undefined') {
+            var qr = new QRCode({
+                content: npub,
+                width: 110,
+                height: 110,
+                color: '#000000',
+                background: '#ffffff',
+                ecl: 'M',
+            });
+            holder.innerHTML = qr.svg();
+        }
+    } catch(e) {
+        // Fallback: show truncated npub as text
+        holder.innerHTML = '<svg width="110" height="110" viewBox="0 0 110 110"><rect width="110" height="110" fill="white"/><text x="55" y="55" text-anchor="middle" font-size="7" fill="#000" font-family="monospace">' + npub.substring(0,20) + '...</text></svg>';
+    }
+})();
+
+/* ── Copy npub ── */
+function copyNpub() {
+    var npub = document.getElementById('npub-display').textContent.trim();
+    if (!npub) return;
+    navigator.clipboard.writeText(npub).then(function() {
+        var hint = document.getElementById('copy-hint');
+        hint.textContent = 'Copied!';
+        hint.classList.add('copied');
+        setTimeout(function() {
+            hint.textContent = 'Click to copy npub address';
+            hint.classList.remove('copied');
+        }, 2000);
+    }).catch(function() {
+        // Fallback for non-HTTPS
+        var el = document.createElement('textarea');
+        el.value = npub;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+    });
+}
+
+/* ── Auto-refresh countdown (5 min) ── */
+var REFRESH_SECS = 300;
+var _remaining = REFRESH_SECS;
+var _countdownEl = document.getElementById('refresh-countdown');
+
+function _updateCountdown() {
+    var m = Math.floor(_remaining / 60);
+    var s = _remaining % 60;
+    if (_countdownEl) {
+        _countdownEl.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+    }
+    if (_remaining <= 0) {
+        refreshFeed();
+        _remaining = REFRESH_SECS;
+    } else {
+        _remaining--;
+    }
+}
+setInterval(_updateCountdown, 1000);
+
+/* ── Live feed refresh ── */
+function refreshFeed() {
+    fetch('/api/nostr/top')
+        .then(function(r) {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+        })
+        .then(function(data) {
+            document.getElementById('feed-error').style.display = 'none';
+            renderFeed(data);
+        })
+        .catch(function(err) {
+            var errEl = document.getElementById('feed-error');
+            if (errEl) errEl.style.display = 'block';
+            console.warn('Feed refresh error:', err);
+        });
+}
+
+function renderFeed(posts) {
+    var container = document.getElementById('feed-container');
+    if (!container) return;
+    if (!posts || posts.length === 0) {
+        container.innerHTML = '<div class="ni-empty">No signal yet — monitor is connecting to relays...</div>';
+        return;
+    }
+    var html = posts.map(function(p) {
+        var kind_label = p.kind === 30023 ? 'ARTICLE' : 'NOTE';
+        var kind_class = p.kind === 30023 ? 'kind-30023' : '';
+        var avatar_init = (p.pubkey_short || 'NK').substring(0,2).toUpperCase();
+        var content_safe = escapeHtml((p.content || '').substring(0, 400));
+        var has_more = (p.content || '').length > 400;
+        var time_str = p.created_at_iso ? p.created_at_iso.substring(0,10) : '—';
+        var relay_short = (p.relay_source || '').replace('wss://','');
+        var nostr_link = p.nostr_link || '';
+
+        var meta_parts = [];
+        if (p.zaps > 0) meta_parts.push('<span class="ni-meta-item zap"><i class="fas fa-bolt"></i> ' + p.zaps + '</span>');
+        if (p.quotes > 0) meta_parts.push('<span class="ni-meta-item"><i class="fas fa-quote-right"></i> ' + p.quotes + '</span>');  /* M5 fix */
+        if (p.reposts > 0) meta_parts.push('<span class="ni-meta-item"><i class="fas fa-retweet"></i> ' + p.reposts + '</span>');
+        if (p.replies > 0) meta_parts.push('<span class="ni-meta-item"><i class="fas fa-comment"></i> ' + p.replies + '</span>');
+        if (p.reactions > 0) meta_parts.push('<span class="ni-meta-item"><i class="fas fa-heart"></i> ' + p.reactions + '</span>');
+        meta_parts.push('<span class="ni-meta-item"><i class="fas fa-clock"></i> ' + time_str + '</span>');
+        if (nostr_link) meta_parts.push('<a href="' + nostr_link + '" target="_blank" rel="noopener" class="ni-open-link">View <i class="fas fa-external-link-alt"></i></a>');
+        if (relay_short) meta_parts.push('<span class="ni-relay-tag">' + escapeHtml(relay_short) + '</span>');
+
+        return '<div class="ni-post" data-event-id="' + escapeHtml(p.event_id || '') + '">' +
+            '<div class="ni-post-header">' +
+                '<div class="ni-author">' +
+                    '<div class="ni-author-avatar">' + avatar_init + '</div>' +
+                    '<span class="ni-pubkey-short">' + escapeHtml(p.pubkey_short || '') + '</span>' +
+                '</div>' +
+                '<div class="ni-score-badge">' +
+                    '<span class="ni-score">' + (p.engagement_score || 0) + '</span>' +
+                    '<span class="ni-kind-badge ' + kind_class + '">' + kind_label + '</span>' +
+                '</div>' +
+            '</div>' +
+            '<div class="ni-post-content">' + content_safe + (has_more ? '...' : '') + '</div>' +
+            '<div class="ni-post-meta">' + meta_parts.join('') + '</div>' +
+        '</div>';
+    }).join('');
+    container.innerHTML = html;
+}
+
+/* ── Relay status refresh (every 30s) — M3 fix: includes last_event_at ── */
+function refreshRelayStatus() {
+    // Only poll if tab is visible (G2 fix: don't waste requests on background tabs)
+    if (document.visibilityState === 'hidden') return;
+    fetch('/api/nostr/relay-status')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (!data || !data.length) return;
+            data.forEach(function(relay) {
+                var el = document.querySelector('[data-relay="' + relay.relay + '"]');
+                if (!el) return;
+                el.className = 'ni-relay-item ' + (relay.connected ? 'connected' : 'disconnected');
+                var stat = el.querySelector('.ni-relay-stat');
+                if (stat) {
+                    var ev = relay.events_today || 0;
+                    var stat_text = ev + ' events today';
+                    // M3 fix: include last_event_at in stat display
+                    if (relay.last_event_at) {
+                        var last = relay.last_event_at.substring(0, 16).replace('T', ' ');
+                        stat_text += ' · ' + last;
+                    }
+                    stat.textContent = stat_text;
+                }
+                var txt = el.querySelector('.ni-relay-status-text');
+                if (txt) txt.textContent = relay.connected ? 'LIVE' : 'OFF';
+            });
+        })
+        .catch(function() {});
+}
+setInterval(refreshRelayStatus, 30000);
+
+/* ── Utility ── */
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+</script>
+{% endblock %}

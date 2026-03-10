@@ -1223,21 +1223,9 @@ class NodeSnapshot(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
-            'score_date': self.score_date.isoformat() if self.score_date else None,
-            'score': round(self.score, 1),
-            'components': {
-                'gold_holding_pct': self.gold_holding_pct,
-                'anti_btc_tweet_rate': self.anti_btc_tweet_rate,
-                'no_btc_holding_pct': self.no_btc_holding_pct,
-                'gold_vs_btc_perf_gap': self.gold_vs_btc_perf_gap,
-            },
-            'total_aum_usd': self.total_aum_usd,
-            'btc_holdings_usd': self.btc_holdings_usd,
-            'gold_holdings_usd': self.gold_holdings_usd,
-            'filing_date': self.filing_date.isoformat() if self.filing_date else None,
-            'filing_type': self.filing_type,
-            'calculated_at': self.calculated_at.isoformat() if self.calculated_at else None,
-            'data_sources': json.loads(self.data_sources) if self.data_sources else [],
+            'node_count': self.node_count,
+            'timestamp': self.timestamp.isoformat(),
+            'alert_fired': self.alert_fired,
         }
 
 
@@ -1254,9 +1242,4 @@ class SchiffStatement(db.Model):
     __table_args__ = (
         db.Index('idx_schiff_stmt_date', 'statement_date'),
     )
-
-            'node_count': self.node_count,
-            'timestamp': self.timestamp.isoformat(),
-            'alert_fired': self.alert_fired,
-        }
 

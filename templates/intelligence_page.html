@@ -1,0 +1,811 @@
+{% extends "base.html" %}
+
+{% block title %}Intelligence Dashboard | Protocol Pulse{% endblock %}
+
+{% block meta_description %}Bitcoin signal strength composite, trending narratives, entity tracker, and real-time anomaly detection.{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Intelligence Page ── */
+.intel-page {
+  min-height: 100vh;
+  background: #06070b;
+  padding: 100px 24px 80px;
+}
+
+.intel-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ── Header ── */
+.intel-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: #f8c15c;
+  margin-bottom: 8px;
+}
+
+.intel-headline {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: #eef2ff;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+
+/* ── Glass card ── */
+.g-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 24px;
+  height: 100%;
+}
+
+.g-card.accent-red { border-color: rgba(255,59,95,0.18); }
+.g-card.accent-gold { border-color: rgba(248,193,92,0.15); }
+.g-card.accent-cyan { border-color: rgba(93,228,255,0.12); }
+
+.g-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #f8c15c;
+  margin-bottom: 16px;
+  display: block;
+}
+
+/* ── Signal Strength Big Number ── */
+.signal-composite {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 5rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  transition: color 0.5s ease;
+}
+
+.signal-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+.signal-trajectory {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #95a0ba;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Radial gauge for composite ── */
+.signal-gauge-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.signal-gauge-svg {
+  width: 180px;
+  height: 180px;
+}
+
+/* ── Component mini-gauges ── */
+.component-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.comp-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.comp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.comp-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #95a0ba;
+}
+
+.comp-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  color: #f8c15c;
+}
+
+.comp-bar-track {
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.comp-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.8s ease;
+}
+
+.comp-desc {
+  font-size: 10px;
+  color: #4a5568;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Topic cloud ── */
+.topic-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  line-height: 1.6;
+}
+
+.topic-word {
+  cursor: default;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  transition: opacity 0.2s;
+  text-decoration: none;
+}
+
+.topic-word.bullish { color: #89ffb8; }
+.topic-word.bearish { color: #ff8ba0; }
+.topic-word.neutral { color: #eef2ff; }
+.topic-word:hover { opacity: 0.7; }
+
+/* ── Entity table ── */
+.entity-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.entity-table th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #95a0ba;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  text-align: left;
+}
+
+.entity-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 13px;
+  color: #eef2ff;
+  vertical-align: middle;
+}
+
+.entity-table tr:last-child td { border-bottom: none; }
+
+.entity-type {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(93,228,255,0.08);
+  color: #5de4ff;
+}
+
+/* ── Narrative timeline ── */
+.narr-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.narr-day {
+  display: grid;
+  grid-template-columns: 60px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.narr-day:last-child { border-bottom: none; }
+
+.narr-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #95a0ba;
+  font-weight: 700;
+}
+
+.narr-narrative {
+  font-size: 12px;
+  color: #eef2ff;
+  font-weight: 600;
+}
+
+.narr-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 800;
+  min-width: 32px;
+  text-align: right;
+}
+
+/* ── Event list ── */
+.evt-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  align-items: flex-start;
+}
+
+.evt-item:last-child { border-bottom: none; }
+
+.evt-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.evt-badge.critical { background: rgba(255,59,95,0.15); color: #ff8ba0; }
+.evt-badge.warning  { background: rgba(248,193,92,0.12); color: #f8c15c; }
+.evt-badge.info     { background: rgba(93,228,255,0.10); color: #5de4ff; }
+
+/* ── Fear & Greed widget ── */
+.fg-wrap {
+  text-align: center;
+}
+
+.fg-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 3.5rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.fg-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+.fg-history {
+  display: flex;
+  gap: 4px;
+  margin-top: 16px;
+  align-items: flex-end;
+  justify-content: center;
+  height: 40px;
+}
+
+.fg-bar {
+  width: 24px;
+  border-radius: 2px 2px 0 0;
+  min-height: 4px;
+  transition: height 0.5s ease;
+}
+
+/* ── Stat pills ── */
+.stat-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  flex: 1;
+  min-width: 100px;
+}
+
+.stat-pill-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #f8c15c;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.stat-pill-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #95a0ba;
+  margin-top: 4px;
+}
+
+/* ── Article stream ── */
+.art-stream-item {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  align-items: start;
+}
+
+.art-stream-item:last-child { border-bottom: none; }
+
+.art-rank {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #4a5568;
+  padding-top: 2px;
+}
+
+.art-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #eef2ff;
+  line-height: 1.4;
+  margin-bottom: 3px;
+}
+
+.art-meta {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.art-imp {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1rem;
+  font-weight: 900;
+  text-align: right;
+}
+
+/* ── Badges ── */
+.s-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+.s-badge.bullish { background: rgba(137,255,184,0.10); color: #89ffb8; }
+.s-badge.bearish { background: rgba(255,139,160,0.10); color: #ff8ba0; }
+.s-badge.neutral { background: rgba(248,193,92,0.10); color: #f8c15c; }
+.s-badge.unclassified { background: rgba(149,160,186,0.08); color: #95a0ba; }
+
+.narr-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #95a0ba;
+  background: rgba(149,160,186,0.07);
+  border-radius: 4px;
+  padding: 2px 5px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .intel-headline { font-size: 1.8rem; }
+  .signal-composite { font-size: 3.5rem; }
+  .intel-page { padding: 90px 16px 60px; }
+}
+
+@media (max-width: 1200px) {
+  .intel-container { max-width: 100%; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="intel-page">
+<div class="intel-container">
+
+  <!-- Header -->
+  <div class="mb-4">
+    <div class="intel-eyebrow">SIGNAL INTELLIGENCE • MARKET COMPOSITE</div>
+    <h1 class="intel-headline">Bitcoin Intelligence Dashboard</h1>
+    <p style="color:#95a0ba;font-size:1rem;">
+      Real-time signal strength, narrative tracking, and entity intelligence.
+      <a href="/sentiment" style="color:#f8c15c;text-decoration:none;margin-left:12px;">View Sentiment ↗</a>
+    </p>
+  </div>
+
+  <!-- Stat Pills Row -->
+  <div class="d-flex gap-3 mb-4 flex-wrap">
+    <div class="stat-pill">
+      <div class="stat-pill-value">{{ article_count_24h }}</div>
+      <div class="stat-pill-label">Articles 24h</div>
+    </div>
+    <div class="stat-pill">
+      {% set fg = signal.components.fear_greed.raw_data if signal.components and signal.components.fear_greed and signal.components.fear_greed.raw_data else None %}
+      <div class="stat-pill-value" style="color:{% if fg and fg.value >= 60 %}#89ffb8{% elif fg and fg.value <= 35 %}#ff8ba0{% else %}#f8c15c{% endif %};">
+        {{ fg.value if fg else '—' }}
+      </div>
+      <div class="stat-pill-label">Fear & Greed</div>
+    </div>
+    <div class="stat-pill">
+      {% set price = signal.btc_price %}
+      <div class="stat-pill-value" style="font-size:1.1rem;">
+        ${{ "{:,.0f}".format(price) if price else '—' }}
+      </div>
+      <div class="stat-pill-label">BTC Price</div>
+    </div>
+    <div class="stat-pill">
+      {% set hash = signal.components.hashrate.value_ehs if signal.components and signal.components.hashrate else None %}
+      <div class="stat-pill-value">{{ "{:.0f}".format(hash) if hash else '—' }}</div>
+      <div class="stat-pill-label">EH/s</div>
+    </div>
+    <div class="stat-pill">
+      <div class="stat-pill-value">{{ intel_events|length }}</div>
+      <div class="stat-pill-label">Events</div>
+    </div>
+  </div>
+
+  <!-- Row 1: Signal Strength + Components -->
+  <div class="row g-4 mb-4">
+    <!-- Signal composite -->
+    <div class="col-lg-3">
+      <div class="g-card accent-red text-center">
+        <span class="g-eyebrow">Signal Strength</span>
+        <div class="signal-gauge-wrap mb-3">
+          <svg class="signal-gauge-svg" viewBox="0 0 180 180" aria-label="Signal strength gauge">
+            <defs>
+              <linearGradient id="signal-grad" x1="0" y1="1" x2="1" y2="0">
+                <stop offset="0%" stop-color="#ff3b5f"/>
+                <stop offset="40%" stop-color="#f8c15c"/>
+                <stop offset="100%" stop-color="#5de4ff"/>
+              </linearGradient>
+            </defs>
+            <!-- BG circle -->
+            <circle cx="90" cy="90" r="72" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12"/>
+            <!-- Colored arc -->
+            <circle id="signal-arc" cx="90" cy="90" r="72" fill="none" stroke="url(#signal-grad)"
+                    stroke-width="12" stroke-linecap="round"
+                    stroke-dasharray="452" stroke-dashoffset="452"
+                    transform="rotate(-90 90 90)"/>
+          </svg>
+        </div>
+        <div class="signal-composite" id="signal-num"
+             style="color:{{ signal.color }};">{{ signal.composite|int }}</div>
+        <div class="signal-label" style="color:{{ signal.color }};">{{ signal.label }}</div>
+        <div class="signal-trajectory">
+          {% set traj = signal.trajectory %}
+          {% if 'BULLISH' in traj %}⬆{% elif 'BEARISH' in traj %}⬇{% else %}➡{% endif %}
+          {{ traj|replace('_', ' ') }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Component breakdown -->
+    <div class="col-lg-4">
+      <div class="g-card">
+        <span class="g-eyebrow">Component Breakdown</span>
+        <div class="component-row">
+          {% if signal.components %}
+          {% for key, comp in signal.components.items() %}
+          {% set score = comp.score|default(50)|float %}
+          {% set barColor = '#89ffb8' if score >= 65 else '#f8c15c' if score >= 45 else '#ff8ba0' %}
+          <div class="comp-item">
+            <div class="comp-header">
+              <span class="comp-label">{{ comp.label|default(key) }} ({{ (comp.weight * 100)|int }}%)</span>
+              <span class="comp-score">{{ score|int }}</span>
+            </div>
+            <div class="comp-bar-track">
+              <div class="comp-bar-fill" style="width:{{ score|int }}%;background:{{ barColor }};"></div>
+            </div>
+            <div class="comp-desc">{{ comp.description|default('')|truncate(60) }}</div>
+          </div>
+          {% endfor %}
+          {% else %}
+          <p class="text-muted small">No component data.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Fear & Greed widget -->
+    <div class="col-lg-2">
+      <div class="g-card accent-gold text-center">
+        <span class="g-eyebrow">Fear & Greed</span>
+        {% set fg = signal.components.fear_greed.raw_data if signal.components and signal.components.fear_greed and signal.components.fear_greed.raw_data else None %}
+        {% if fg %}
+        <div class="fg-wrap">
+          <div class="fg-value"
+               style="color:{% if fg.value >= 75 %}#5de4ff{% elif fg.value >= 55 %}#89ffb8{% elif fg.value >= 45 %}#f8c15c{% elif fg.value >= 25 %}#ff8ba0{% else %}#ff3b5f{% endif %};">
+            {{ fg.value }}
+          </div>
+          <div class="fg-label"
+               style="color:{% if fg.value >= 75 %}#5de4ff{% elif fg.value >= 55 %}#89ffb8{% elif fg.value >= 45 %}#f8c15c{% elif fg.value >= 25 %}#ff8ba0{% else %}#ff3b5f{% endif %};">
+            {{ fg.classification }}
+          </div>
+          {% if fg.history %}
+          <div class="fg-history">
+            {% for h in fg.history|reverse %}
+            {% set hpct = (h.value / 100 * 36)|int %}
+            <div class="fg-bar"
+                 style="height:{{ [hpct, 4]|max }}px;background:{% if h.value >= 55 %}#89ffb8{% elif h.value >= 45 %}#f8c15c{% else %}#ff8ba0{% endif %};opacity:0.7;"></div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        {% else %}
+        <div class="fg-wrap" style="padding:20px 0;">
+          <div class="fg-value" style="color:#95a0ba;">—</div>
+          <div class="fg-label" style="color:#4a5568;">Loading…</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Narrative timeline -->
+    <div class="col-lg-3">
+      <div class="g-card">
+        <span class="g-eyebrow">7-Day Narrative Timeline</span>
+        <div class="narr-timeline">
+          {% if narrative_timeline %}
+          {% for day in narrative_timeline %}
+          {% set sc = day.score|float %}
+          <div class="narr-day">
+            <span class="narr-date">{{ day.date }}</span>
+            <span class="narr-narrative">{{ day.dominant_narrative }}</span>
+            <span class="narr-score"
+                  style="color:{% if sc >= 60 %}#89ffb8{% elif sc <= 40 %}#ff8ba0{% else %}#f8c15c{% endif %};">
+              {{ sc|int }}
+            </span>
+          </div>
+          {% endfor %}
+          {% else %}
+          <p class="text-muted small">No narrative data yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Topic Cloud + Entity Tracker -->
+  <div class="row g-4 mb-4">
+    <!-- Trending Topics Cloud -->
+    <div class="col-lg-5">
+      <div class="g-card accent-cyan">
+        <span class="g-eyebrow">Trending Topics (24h)</span>
+        {% if trending %}
+        <div class="topic-cloud">
+          {% for topic in trending %}
+          <span class="topic-word {{ topic.sentiment }}"
+                style="font-size:{{ topic.size }}px;"
+                title="{{ topic.count }} articles — {{ topic.sentiment }}">
+            {{ topic.topic }}
+          </span>
+          {% endfor %}
+        </div>
+        <div class="mt-3 d-flex gap-3" style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;">
+          <span style="color:#89ffb8;">● Bullish</span>
+          <span style="color:#ff8ba0;">● Bearish</span>
+          <span style="color:#eef2ff;">● Neutral</span>
+        </div>
+        {% else %}
+        <p class="text-muted small">No trending topics data. Run batch classification to populate.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Entity Tracker -->
+    <div class="col-lg-7">
+      <div class="g-card">
+        <span class="g-eyebrow">Entity Tracker (48h)</span>
+        {% if entities %}
+        <div style="overflow-x:auto;">
+          <table class="entity-table">
+            <thead>
+              <tr>
+                <th>Entity</th>
+                <th>Type</th>
+                <th>Mentions</th>
+                <th>Sentiment</th>
+                <th>Trend</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ent in entities[:12] %}
+              <tr>
+                <td style="font-weight:600;">{{ ent.entity }}</td>
+                <td><span class="entity-type">{{ ent.type }}</span></td>
+                <td style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#f8c15c;">{{ ent.mention_count }}</td>
+                <td>
+                  <span class="s-badge {{ ent.sentiment }}">
+                    {% if ent.sentiment == 'bullish' %}▲{% elif ent.sentiment == 'bearish' %}▼{% else %}●{% endif %}
+                    {{ ent.sentiment }}
+                  </span>
+                </td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#95a0ba;">
+                  {% if ent.trend == 'up' %}▲ rising{% elif ent.trend == 'down' %}▼ falling{% else %}→ stable{% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-muted small">No entity data. Articles need titles mentioning tracked entities.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 3: Intelligence Events + Article Stream -->
+  <div class="row g-4">
+    <!-- Intelligence Events -->
+    <div class="col-lg-4">
+      <div class="g-card accent-red">
+        <span class="g-eyebrow">Intelligence Events</span>
+        {% if intel_events %}
+        {% for evt in intel_events %}
+        <div class="evt-item">
+          <span class="evt-badge {{ evt.severity }}">{{ evt.severity }}</span>
+          <div>
+            <div style="font-size:12px;color:#eef2ff;line-height:1.4;margin-bottom:4px;">{{ evt.description|truncate(140) }}</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#4a5568;">
+              {{ evt.event_type|replace('_', ' ')|upper }} • {{ evt.created_at }}</div>
+          </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="text-center py-4">
+          <div style="color:#95a0ba;font-size:28px;margin-bottom:8px;">✓</div>
+          <div style="color:#95a0ba;font-size:13px;">No anomalies detected.</div>
+          <div style="color:#4a5568;font-size:11px;margin-top:4px;">All signals within normal range.</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Article Stream (by importance) -->
+    <div class="col-lg-8">
+      <div class="g-card">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+          <span class="g-eyebrow" style="margin-bottom:0;">Article Stream — Sorted by Importance</span>
+          <a href="/articles" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#f8c15c;text-decoration:none;font-weight:700;letter-spacing:0.10em;">ALL ARTICLES ↗</a>
+        </div>
+
+        {% if top_articles %}
+        {% for art in top_articles %}
+        {% set imp = art.importance_score|default(50)|int %}
+        <div class="art-stream-item">
+          <div class="art-rank">{{ loop.index }}</div>
+          <div>
+            <div class="art-title">
+              <a href="/articles/{{ art.id }}" style="color:inherit;text-decoration:none;">
+                {{ art.title|truncate(120) }}
+              </a>
+            </div>
+            <div class="art-meta">
+              <span class="s-badge {{ art.sentiment }}">
+                {% if art.sentiment == 'bullish' %}▲{% elif art.sentiment == 'bearish' %}▼{% else %}●{% endif %}
+                {{ art.sentiment }}
+              </span>
+              {% if art.narrative_label and art.narrative_label != '—' %}
+              <span class="narr-chip">{{ art.narrative_label }}</span>
+              {% endif %}
+              <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#4a5568;">{{ art.created_at[:10] }}</span>
+            </div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div class="art-imp"
+                 style="color:{% if imp >= 70 %}#f8c15c{% elif imp >= 50 %}#95a0ba{% else %}#4a5568{% endif %};">
+              {{ imp }}
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.12em;color:#4a5568;">IMP</div>
+          </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="text-center py-5">
+          <div style="font-size:2rem;margin-bottom:12px;">📡</div>
+          <div style="color:#95a0ba;font-size:14px;">No articles classified yet.</div>
+          <div style="color:#4a5568;font-size:12px;margin-top:4px;">Run: python -m services.sentiment_analyzer batch --hours=24</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div><!-- /intel-container -->
+</div><!-- /intel-page -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  'use strict';
+
+  // ── Signal strength radial gauge ─────────────────────────────────────────
+  const composite = {{ signal.composite|default(50) }};
+  const arcEl = document.getElementById('signal-arc');
+
+  function animateSignalGauge() {
+    if (!arcEl) return;
+    const circumference = 452;
+    const targetOffset = circumference * (1 - composite / 100);
+    const t0 = performance.now();
+    const dur = 1400;
+
+    function step(t) {
+      const progress = Math.min((t - t0) / dur, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      arcEl.setAttribute('stroke-dashoffset', circumference - (circumference - targetOffset) * ease);
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  animateSignalGauge();
+
+  // ── Auto-refresh signal strength every 5 minutes ─────────────────────────
+  setInterval(async () => {
+    try {
+      const r = await fetch('/api/intelligence/signal');
+      if (!r.ok) return;
+      const data = await r.json();
+      if (!data.success || !data.data) return;
+      const sig = data.data;
+      const numEl = document.getElementById('signal-num');
+      if (numEl) {
+        numEl.textContent = Math.round(sig.composite);
+        numEl.style.color = sig.color;
+      }
+    } catch (e) { /* ignore */ }
+  }, 300000); // 5 minutes
+
+})();
+</script>
+{% endblock %}

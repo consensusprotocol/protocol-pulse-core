@@ -1,0 +1,418 @@
+{% extends "base.html" %}
+{% block title %}API Playground | Protocol Pulse{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<style>
+.playground-page {
+  min-height: 100vh;
+  background: #0a0a0f;
+  padding: 100px 20px 60px;
+}
+.playground-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.pg-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+.pg-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: #f8c15c;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.pg-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #eef2ff;
+  margin-bottom: 12px;
+}
+.pg-sub { color: #95a0ba; font-size: 16px; max-width: 560px; margin: 0 auto; }
+.playground-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 768px) {
+  .playground-grid { grid-template-columns: 1fr; }
+  .pg-title { font-size: 1.6rem; }
+}
+.panel {
+  background: #0d1118;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.panel-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.panel-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: #95a0ba;
+  text-transform: uppercase;
+}
+.panel-body { padding: 20px; }
+.form-group { margin-bottom: 18px; }
+.form-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #95a0ba;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 8px;
+}
+.form-select, .form-input {
+  width: 100%;
+  background: #06070b;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: #eef2ff;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-select:focus, .form-input:focus { border-color: #f8c15c; }
+.form-select option { background: #0d1118; }
+.key-display {
+  background: #06070b;
+  border: 1px solid rgba(248,193,92,0.2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #f8c15c;
+  word-break: break-all;
+  margin-bottom: 4px;
+}
+.key-note { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #95a0ba; }
+.run-btn {
+  width: 100%;
+  padding: 14px;
+  background: #ff3b5f;
+  border: none;
+  border-radius: 10px;
+  color: #eef2ff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.run-btn:hover { background: #ff5577; transform: translateY(-1px); }
+.run-btn:active { transform: translateY(0); }
+.run-btn.loading { opacity: 0.7; cursor: not-allowed; }
+.lang-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.lang-tab {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: transparent;
+  color: #95a0ba;
+  transition: all 0.15s;
+}
+.lang-tab.active {
+  background: rgba(248,193,92,0.12);
+  border-color: rgba(248,193,92,0.3);
+  color: #f8c15c;
+}
+.code-snippet {
+  background: #06070b;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  overflow-x: auto;
+  white-space: pre;
+  margin-bottom: 18px;
+  color: #5de4ff;
+}
+.response-area {
+  min-height: 300px;
+  position: relative;
+}
+.response-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.response-meta {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.status-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: none;
+}
+.status-badge.ok { background: rgba(137,255,184,0.1); color: #89ffb8; display: inline; }
+.status-badge.err { background: rgba(255,59,95,0.1); color: #ff8ba0; display: inline; }
+.response-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #95a0ba;
+  display: none;
+}
+#responseOutput {
+  background: #06070b;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  min-height: 240px;
+  overflow-x: auto;
+  color: #95a0ba;
+}
+.skeleton-line {
+  height: 14px;
+  background: linear-gradient(90deg, #1a1a2e 25%, #252540 50%, #1a1a2e 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.cta-section {
+  margin-top: 40px;
+  text-align: center;
+  padding: 40px;
+  background: #0d1118;
+  border: 1px solid rgba(248,193,92,0.15);
+  border-radius: 16px;
+}
+.cta-title { font-family: 'JetBrains Mono', monospace; font-size: 22px; color: #eef2ff; margin-bottom: 10px; }
+.cta-sub { color: #95a0ba; margin-bottom: 24px; }
+.cta-btn {
+  display: inline-block;
+  padding: 16px 36px;
+  background: #ff3b5f;
+  border-radius: 10px;
+  color: #eef2ff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s;
+  animation: pulse-border 2s infinite;
+}
+.cta-btn:hover { background: #ff5577; color: #eef2ff; text-decoration: none; transform: translateY(-2px); }
+@keyframes pulse-border {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,59,95,0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(255,59,95,0); }
+}
+</style>
+{% endblock %}
+{% block content %}
+<div class="playground-page">
+  <div class="playground-container">
+    <div class="pg-header">
+      <p class="pg-eyebrow">Terminal API • Live Demo</p>
+      <h1 class="pg-title">API Playground</h1>
+      <p class="pg-sub">Try every endpoint with a live demo key. Instant results. No signup required.</p>
+    </div>
+
+    <div class="playground-grid">
+      <!-- Left: Controls -->
+      <div>
+        <div class="panel" style="margin-bottom:20px;">
+          <div class="panel-header">
+            <span class="panel-title">Request Builder</span>
+            <span style="font-family:monospace;font-size:11px;color:#5de4ff;">GET</span>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label class="form-label" for="endpointSelect">Endpoint</label>
+              <select class="form-select" id="endpointSelect" onchange="updateSnippet()">
+                <option value="topics">/api/v2/terminal/topics</option>
+                <option value="sentiment">/api/v2/terminal/sentiment</option>
+                <option value="breaking">/api/v2/terminal/breaking</option>
+                <option value="signal">/api/v2/terminal/signal</option>
+                <option value="status">/api/v2/terminal/status</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">API Key</label>
+              <div class="key-display" id="keyDisplay">{{ demo_key }}</div>
+              <p class="key-note">Demo key · 20 req/hr · read-only</p>
+            </div>
+            <button class="run-btn" id="runBtn" onclick="runRequest()">
+              ▶ RUN REQUEST
+            </button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Code Snippet</span></div>
+          <div class="panel-body">
+            <div class="lang-tabs">
+              <button class="lang-tab active" onclick="setLang('curl', this)">curl</button>
+              <button class="lang-tab" onclick="setLang('python', this)">Python</button>
+              <button class="lang-tab" onclick="setLang('node', this)">Node.js</button>
+            </div>
+            <div id="codeSnippet" class="code-snippet"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Response -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Response</span>
+          <div class="response-meta">
+            <span class="response-time" id="responseTime"></span>
+            <span class="status-badge" id="statusBadge"></span>
+          </div>
+        </div>
+        <div class="panel-body response-area">
+          <div id="skeletonLoader" style="display:none;">
+            <div class="skeleton-line" style="width:40%"></div>
+            <div class="skeleton-line" style="width:70%"></div>
+            <div class="skeleton-line" style="width:55%"></div>
+            <div class="skeleton-line" style="width:80%"></div>
+            <div class="skeleton-line" style="width:45%"></div>
+          </div>
+          <pre id="responseOutput">// Click RUN REQUEST to see live data
+// Using demo key — 20 requests/hour
+// Upgrade for 1,000 req/hr + full access</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-section">
+      <h2 class="cta-title">Ready for Full Access?</h2>
+      <p class="cta-sub">Commander tier — 1,000 requests/hour, SSE stream, webhook delivery, entity tracking</p>
+      <a href="/premium" class="cta-btn">JOIN THE INTEL FEED →</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script>
+const DEMO_KEY = "{{ demo_key }}";
+const BASE_URL = window.location.origin;
+const ENDPOINTS = {
+  topics:    "/api/v2/terminal/topics",
+  sentiment: "/api/v2/terminal/sentiment",
+  breaking:  "/api/v2/terminal/breaking",
+  signal:    "/api/v2/terminal/signal",
+  status:    "/api/v2/terminal/status",
+};
+
+let currentLang = "curl";
+
+const SNIPPETS = {
+  curl: (ep) => `curl ${BASE_URL}${ENDPOINTS[ep]} \\\n  -H "X-API-Key: ${DEMO_KEY}"`,
+  python: (ep) => `import requests\n\nresponse = requests.get(\n    "${BASE_URL}${ENDPOINTS[ep]}",\n    headers={"X-API-Key": "${DEMO_KEY}"}\n)\nprint(response.json())`,
+  node: (ep) => `const resp = await fetch("${BASE_URL}${ENDPOINTS[ep]}", {\n  headers: { "X-API-Key": "${DEMO_KEY}" }\n});\nconst data = await resp.json();\nconsole.log(data);`,
+};
+
+function getEndpoint() {
+  return document.getElementById("endpointSelect").value;
+}
+
+function updateSnippet() {
+  const ep = getEndpoint();
+  const el = document.getElementById("codeSnippet");
+  el.textContent = SNIPPETS[currentLang](ep);
+  if (window.Prism) Prism.highlightElement(el);
+}
+
+function setLang(lang, btn) {
+  currentLang = lang;
+  document.querySelectorAll(".lang-tab").forEach(t => t.classList.remove("active"));
+  btn.classList.add("active");
+  updateSnippet();
+}
+
+function showSkeleton(show) {
+  document.getElementById("skeletonLoader").style.display = show ? "block" : "none";
+  document.getElementById("responseOutput").style.display = show ? "none" : "block";
+}
+
+async function runRequest() {
+  const ep = getEndpoint();
+  const url = BASE_URL + ENDPOINTS[ep];
+  const btn = document.getElementById("runBtn");
+  const statusBadge = document.getElementById("statusBadge");
+  const timeBadge = document.getElementById("responseTime");
+  const output = document.getElementById("responseOutput");
+
+  btn.classList.add("loading");
+  btn.textContent = "Running...";
+  showSkeleton(true);
+  statusBadge.style.display = "none";
+  timeBadge.style.display = "none";
+
+  const start = performance.now();
+  try {
+    const resp = await fetch(url, {
+      headers: { "X-API-Key": DEMO_KEY }
+    });
+    const elapsed = Math.round(performance.now() - start);
+    const data = await resp.json();
+
+    showSkeleton(false);
+    output.textContent = JSON.stringify(data, null, 2);
+    if (window.Prism) {
+      output.className = "language-json";
+      Prism.highlightElement(output);
+    }
+
+    statusBadge.textContent = resp.status + " " + (resp.ok ? "OK" : "ERROR");
+    statusBadge.className = "status-badge " + (resp.ok ? "ok" : "err");
+    statusBadge.style.display = "inline";
+    timeBadge.textContent = elapsed + "ms";
+    timeBadge.style.display = "inline";
+  } catch (err) {
+    showSkeleton(false);
+    output.textContent = "// Error: " + err.message;
+    statusBadge.textContent = "ERROR";
+    statusBadge.className = "status-badge err";
+    statusBadge.style.display = "inline";
+  } finally {
+    btn.classList.remove("loading");
+    btn.textContent = "▶ RUN REQUEST";
+  }
+}
+
+// Init
+updateSnippet();
+</script>
+{% endblock %}

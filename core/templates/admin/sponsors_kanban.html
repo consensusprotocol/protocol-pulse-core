@@ -1,0 +1,1136 @@
+{% extends "base.html" %}
+{% block title %}Sponsor Pipeline — Protocol Pulse{% endblock %}
+{% block meta_description %}Sponsor intelligence Kanban pipeline for Protocol Pulse.{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Variables ── */
+:root {
+  --bg: #06070b;
+  --panel: #0d1118;
+  --panel2: #121824;
+  --text: #eef2ff;
+  --muted: #95a0ba;
+  --red: #ff3b5f;
+  --gold: #f8c15c;
+  --cyan: #5de4ff;
+  --lime: #89ffb8;
+  --coral: #ff8ba0;
+  --border: rgba(255,255,255,0.08);
+  --border-red: rgba(255,59,95,0.30);
+}
+
+body { background: var(--bg); color: var(--text); }
+
+/* ── Page Shell ── */
+.sp-page { min-height: 100vh; padding: 0 0 60px; }
+.sp-header {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 16px;
+}
+.sp-header-left h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.1rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.15em;
+  color: var(--gold); margin: 0;
+}
+.sp-header-left p { color: var(--muted); font-size: 0.78rem; margin: 4px 0 0; }
+.sp-header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ── Stat Pills ── */
+.sp-stats {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex; gap: 24px; flex-wrap: wrap; align-items: center;
+}
+.sp-stat { text-align: center; }
+.sp-stat .val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.3rem; font-weight: 900;
+  color: var(--text);
+}
+.sp-stat .val.gold { color: var(--gold); }
+.sp-stat .val.lime { color: var(--lime); }
+.sp-stat .val.red { color: var(--red); }
+.sp-stat .lbl {
+  font-size: 0.62rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--muted); margin-top: 2px;
+}
+.sp-stat-divider { width: 1px; height: 36px; background: var(--border); }
+
+/* ── Alert Banner ── */
+.sp-alert {
+  margin: 0 24px 16px;
+  padding: 10px 16px;
+  background: rgba(255,59,95,0.10);
+  border: 1px solid var(--border-red);
+  border-radius: 8px;
+  font-size: 0.82rem; color: var(--coral);
+  display: none;
+}
+.sp-alert.visible { display: block; }
+
+/* ── Scan Log ── */
+.sp-scan-log {
+  margin: 12px 24px;
+  background: rgba(0,0,0,0.40);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  max-height: 160px; overflow-y: auto;
+  display: none;
+}
+.sp-scan-log.visible { display: block; }
+.sp-scan-log .log-line {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; color: var(--cyan);
+  line-height: 1.6;
+}
+.sp-scan-log .log-line.error { color: var(--coral); }
+.sp-scan-log .log-line.complete { color: var(--lime); }
+
+/* ── Kanban Board ── */
+.sp-board {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(220px, 1fr));
+  gap: 12px;
+  padding: 20px 24px;
+  overflow-x: auto;
+  min-height: 400px;
+}
+
+/* ── Column ── */
+.sp-col {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  display: flex; flex-direction: column;
+  min-height: 300px;
+}
+.sp-col-header {
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sp-col-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.16em;
+  color: var(--muted);
+}
+.sp-col-count {
+  background: rgba(255,255,255,0.07);
+  border-radius: 999px; padding: 2px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem; font-weight: 700;
+  color: var(--text);
+}
+.sp-col[data-stage="6"] .sp-col-title { color: var(--lime); }
+.sp-col-cards {
+  padding: 10px; flex: 1;
+  min-height: 100px;
+}
+.sp-col-cards.drag-over {
+  background: rgba(248,193,92,0.04);
+  border-radius: 8px;
+}
+
+/* ── Sponsor Card ── */
+.sp-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  user-select: none;
+}
+.sp-card:hover {
+  border-color: rgba(255,59,95,0.35);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3), 0 0 20px rgba(255,59,95,0.08);
+  transform: translateY(-1px);
+}
+.sp-card.dragging {
+  opacity: 0.5; transform: scale(0.97);
+}
+.sp-card-top {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 8px;
+  margin-bottom: 8px;
+}
+.sp-card-name {
+  font-size: 0.85rem; font-weight: 700;
+  color: var(--text); line-height: 1.2;
+  flex: 1;
+}
+.sp-card-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem; font-weight: 800;
+  color: var(--gold);
+  border: 1px solid rgba(248,193,92,0.25);
+  border-radius: 999px; padding: 2px 7px;
+  white-space: nowrap; flex-shrink: 0;
+}
+.sp-card-cat {
+  display: inline-block;
+  font-size: 0.60rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.12em;
+  background: rgba(255,255,255,0.06);
+  border-radius: 4px; padding: 2px 6px;
+  color: var(--muted); margin-bottom: 6px;
+}
+.sp-card-signal {
+  font-size: 0.60rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.10em;
+  margin-bottom: 6px;
+}
+.sp-card-signal.growing { color: var(--lime); }
+.sp-card-signal.declining { color: var(--coral); }
+.sp-card-signal.stable { color: var(--muted); }
+/* Deal probability bar */
+.sp-card-prob {
+  height: 3px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 2px;
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+.sp-card-prob-fill {
+  height: 100%; border-radius: 2px;
+  background: linear-gradient(90deg, var(--red), var(--gold));
+  transition: width 0.5s ease;
+}
+.sp-card-meta {
+  font-size: 0.62rem; color: var(--muted);
+  display: flex; align-items: center; gap: 6px;
+  flex-wrap: wrap;
+}
+.sp-card-meta .email-check { color: var(--lime); }
+.sp-card-meta .email-warn { color: var(--coral); }
+.sp-card-time { font-family: 'JetBrains Mono', monospace; font-size: 0.60rem; color: var(--muted); }
+
+/* ── Slide-in Panel ── */
+.sp-panel-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.70);
+  z-index: 1000;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.sp-panel-overlay.open { opacity: 1; pointer-events: all; }
+
+.sp-panel {
+  position: fixed; top: 0; right: 0;
+  width: min(580px, 100vw);
+  height: 100vh;
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  z-index: 1001;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.sp-panel.open { transform: translateX(0); }
+
+.sp-panel-header {
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px; flex-shrink: 0;
+}
+.sp-panel-title { font-size: 1.05rem; font-weight: 800; color: var(--text); }
+.sp-panel-sub { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+.sp-panel-close {
+  background: none; border: none; color: var(--muted);
+  font-size: 1.2rem; cursor: pointer; padding: 4px;
+  line-height: 1;
+}
+.sp-panel-close:hover { color: var(--text); }
+.sp-panel-body {
+  flex: 1; overflow-y: auto; padding: 16px 20px;
+}
+
+/* Panel sections */
+.sp-section { margin-bottom: 20px; }
+.sp-section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.63rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.16em;
+  color: var(--gold); margin-bottom: 10px;
+}
+.sp-intel-box {
+  background: rgba(0,0,0,0.40);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 0.80rem; color: #d7def4;
+  line-height: 1.5;
+  white-space: pre-wrap; max-height: 200px; overflow-y: auto;
+}
+.sp-draft-box {
+  background: rgba(0,0,0,0.40);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 0.80rem; color: #d7def4;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  max-height: 240px; overflow-y: auto;
+}
+.sp-score-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(248,193,92,0.10);
+  border: 1px solid rgba(248,193,92,0.25);
+  border-radius: 6px; padding: 4px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem; font-weight: 700; color: var(--gold);
+  margin-bottom: 10px;
+}
+.sp-activity-item {
+  display: flex; gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.77rem;
+}
+.sp-activity-item:last-child { border-bottom: none; }
+.sp-activity-action {
+  font-weight: 700; color: var(--text);
+  text-transform: uppercase;
+  font-size: 0.65rem; letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.sp-activity-detail { color: var(--muted); flex: 1; }
+.sp-activity-time { color: rgba(149,160,186,0.5); font-size: 0.65rem; white-space: nowrap; }
+
+/* Channel selector */
+.sp-channel-btns { display: flex; gap: 8px; margin-bottom: 12px; }
+.sp-channel-btn {
+  background: var(--panel2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 6px 14px;
+  font-size: 0.75rem; font-weight: 700;
+  color: var(--muted); cursor: pointer;
+  transition: all 0.15s;
+}
+.sp-channel-btn:hover, .sp-channel-btn.active {
+  background: rgba(248,193,92,0.10);
+  border-color: rgba(248,193,92,0.30);
+  color: var(--gold);
+}
+
+/* Panel action bar */
+.sp-panel-actions {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 8px; flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+/* ── Buttons ── */
+.btn-sp-primary {
+  background: linear-gradient(135deg, var(--red), #c0152f);
+  border: none; color: #fff;
+  padding: 9px 18px; border-radius: 8px;
+  font-size: 0.80rem; font-weight: 700;
+  cursor: pointer; transition: opacity 0.15s;
+}
+.btn-sp-primary:hover { opacity: 0.85; }
+.btn-sp-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-sp-secondary {
+  background: var(--panel2); border: 1px solid var(--border);
+  color: var(--text); padding: 9px 18px; border-radius: 8px;
+  font-size: 0.80rem; font-weight: 700;
+  cursor: pointer; transition: border-color 0.15s;
+}
+.btn-sp-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+.btn-sp-gold {
+  background: linear-gradient(135deg, var(--gold), #d49e38);
+  border: none; color: #141515;
+  padding: 9px 18px; border-radius: 8px;
+  font-size: 0.80rem; font-weight: 800;
+  cursor: pointer; transition: opacity 0.15s;
+}
+.btn-sp-gold:hover { opacity: 0.85; }
+.btn-sp-gold:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-sp-danger {
+  background: rgba(255,59,95,0.10); border: 1px solid rgba(255,59,95,0.30);
+  color: var(--coral); padding: 9px 18px; border-radius: 8px;
+  font-size: 0.80rem; font-weight: 700;
+  cursor: pointer; transition: background 0.15s;
+}
+.btn-sp-danger:hover { background: rgba(255,59,95,0.20); }
+
+/* ── Loading skeleton ── */
+.sp-skeleton {
+  background: linear-gradient(90deg, var(--panel2) 25%, rgba(255,255,255,0.04) 50%, var(--panel2) 75%);
+  background-size: 400% 100%;
+  animation: skeleton-sweep 1.4s ease infinite;
+  border-radius: 6px; height: 14px; margin-bottom: 8px;
+}
+@keyframes skeleton-sweep {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* ── Add Modal ── */
+.sp-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.70);
+  z-index: 2000; display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.sp-modal-overlay.open { opacity: 1; pointer-events: all; }
+.sp-modal {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 14px; padding: 24px;
+  width: min(480px, 95vw);
+  max-height: 90vh; overflow-y: auto;
+}
+.sp-modal h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--gold); margin-bottom: 16px;
+}
+.sp-field { margin-bottom: 14px; }
+.sp-field label {
+  display: block; font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.10em;
+  color: var(--muted); margin-bottom: 5px;
+}
+.sp-field input, .sp-field select, .sp-field textarea {
+  width: 100%; background: var(--panel2);
+  border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); padding: 9px 12px;
+  font-size: 0.84rem; font-family: inherit;
+  transition: border-color 0.15s; box-sizing: border-box;
+}
+.sp-field input:focus, .sp-field select:focus, .sp-field textarea:focus {
+  outline: none; border-color: rgba(248,193,92,0.40);
+}
+.sp-field textarea { resize: vertical; min-height: 80px; }
+
+/* ── Confirm Send Modal ── */
+.sp-confirm-box {
+  background: rgba(0,0,0,0.40);
+  border: 1px solid var(--border-red);
+  border-radius: 8px; padding: 14px;
+  margin-bottom: 12px;
+  font-size: 0.80rem; color: #d7def4;
+}
+.sp-confirm-to {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem; color: var(--gold); margin-top: 6px;
+}
+
+/* ── Empty state ── */
+.sp-empty {
+  text-align: center; padding: 32px 16px;
+  color: var(--muted); font-size: 0.78rem;
+}
+.sp-empty .icon { font-size: 1.8rem; margin-bottom: 8px; display: block; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .sp-board { grid-template-columns: repeat(2, 1fr); }
+  .sp-panel { width: 100vw; }
+  .sp-stats { gap: 14px; }
+}
+@media (max-width: 480px) {
+  .sp-board { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sp-page">
+
+  <!-- Header -->
+  <div class="sp-header">
+    <div class="sp-header-left">
+      <h1>Sponsor Intelligence Pipeline</h1>
+      <p>Grok-powered prospect scanner &bull; Claude-drafted outreach &bull; Resend delivery</p>
+    </div>
+    <div class="sp-header-actions">
+      <button class="btn-sp-secondary" onclick="openAddModal()">+ Add Prospect</button>
+      <button class="btn-sp-secondary" onclick="startScanStream()" id="btnScan">
+        <span id="scanBtnText">&#9654; Grok Scan</span>
+      </button>
+      <a href="/api/sponsors/export" class="btn-sp-secondary" style="text-decoration:none">&#8595; CSV</a>
+      <a href="/admin/sponsors/list" class="btn-sp-secondary" style="text-decoration:none">Table View</a>
+    </div>
+  </div>
+
+  <!-- Stats bar -->
+  <div class="sp-stats" id="statsBar">
+    <div class="sp-stat">
+      <div class="val" id="statTotal">—</div>
+      <div class="lbl">Total Prospects</div>
+    </div>
+    <div class="sp-stat-divider"></div>
+    <div class="sp-stat">
+      <div class="val" id="statContacted">—</div>
+      <div class="lbl">Contacted</div>
+    </div>
+    <div class="sp-stat-divider"></div>
+    <div class="sp-stat">
+      <div class="val gold" id="statReplyRate">—%</div>
+      <div class="lbl">Reply Rate</div>
+    </div>
+    <div class="sp-stat-divider"></div>
+    <div class="sp-stat">
+      <div class="val lime" id="statMRR">$—</div>
+      <div class="lbl">Actual MRR</div>
+    </div>
+    <div class="sp-stat-divider"></div>
+    <div class="sp-stat">
+      <div class="val gold" id="statProjected">$—</div>
+      <div class="lbl">Projected MRR</div>
+    </div>
+  </div>
+
+  <!-- Alert banner (rate limit warning etc) -->
+  <div class="sp-alert" id="spAlert"></div>
+
+  <!-- Scan log (SSE streaming) -->
+  <div class="sp-scan-log" id="scanLog"></div>
+
+  <!-- Kanban Board -->
+  <div class="sp-board" id="kanbanBoard">
+    {% set stages = [
+      ('prospect', 'Prospect', 1),
+      ('outreach_drafted', 'Researched / Drafted', 2),
+      ('contacted', 'Contacted', 3),
+      ('replied', 'Replied', 4),
+      ('negotiating', 'Negotiating', 5),
+      ('deal', 'Deal ✓', 6)
+    ] %}
+    {% for status_key, title, stage_num in stages %}
+    <div class="sp-col" data-status="{{ status_key }}" data-stage="{{ stage_num }}"
+         ondragover="handleDragOver(event)" ondrop="handleDrop(event, '{{ status_key }}')">
+      <div class="sp-col-header">
+        <span class="sp-col-title">{{ title }}</span>
+        <span class="sp-col-count" id="colCount-{{ status_key }}">0</span>
+      </div>
+      <div class="sp-col-cards" id="col-{{ status_key }}">
+        <!-- Cards populated by JS -->
+        <div class="sp-skeleton" style="width:90%;"></div>
+        <div class="sp-skeleton" style="width:70%;"></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+<!-- ── Slide-in Detail Panel ── -->
+<div class="sp-panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
+<div class="sp-panel" id="sponsorPanel">
+  <div class="sp-panel-header">
+    <div>
+      <div class="sp-panel-title" id="panelTitle">—</div>
+      <div class="sp-panel-sub" id="panelSub">—</div>
+    </div>
+    <button class="sp-panel-close" onclick="closePanel()">✕</button>
+  </div>
+  <div class="sp-panel-body" id="panelBody">
+    <!-- Populated by JS -->
+  </div>
+  <div class="sp-panel-actions" id="panelActions">
+    <!-- Populated by JS -->
+  </div>
+</div>
+
+<!-- ── Add Prospect Modal ── -->
+<div class="sp-modal-overlay" id="addModal" onclick="if(event.target===this)closeAddModal()">
+  <div class="sp-modal">
+    <h2>Add Prospect</h2>
+    <div class="sp-field">
+      <label>Company Name *</label>
+      <input type="text" id="addCompanyName" placeholder="e.g. Ledger SAS">
+    </div>
+    <div class="sp-field">
+      <label>Website</label>
+      <input type="url" id="addWebsite" placeholder="https://...">
+    </div>
+    <div class="sp-field">
+      <label>Category</label>
+      <select id="addCategory">
+        <option value="hardware_wallet">Hardware Wallet</option>
+        <option value="exchange">Exchange</option>
+        <option value="fintech">Fintech</option>
+        <option value="vpn">VPN</option>
+        <option value="health">Health</option>
+        <option value="other" selected>Other</option>
+      </select>
+    </div>
+    <div class="sp-field">
+      <label>Contact Email</label>
+      <input type="email" id="addEmail" placeholder="partnerships@company.com">
+    </div>
+    <div class="sp-field">
+      <label>Contact Name</label>
+      <input type="text" id="addContactName" placeholder="First Last">
+    </div>
+    <div class="sp-field">
+      <label>Est. Monthly Spend</label>
+      <input type="text" id="addSpend" placeholder="$5k-$15k/mo">
+    </div>
+    <div class="sp-field">
+      <label>Notes</label>
+      <textarea id="addNotes" placeholder="Any intel or context..."></textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn-sp-primary" onclick="submitAddProspect()">Add Prospect</button>
+      <button class="btn-sp-secondary" onclick="closeAddModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Confirm Send Modal ── -->
+<div class="sp-modal-overlay" id="confirmSendModal" onclick="if(event.target===this)closeConfirmSend()">
+  <div class="sp-modal">
+    <h2>Confirm Send</h2>
+    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:12px;">
+      This will send the following email via Resend. This action cannot be undone.
+    </p>
+    <div class="sp-confirm-box">
+      <div><strong id="confirmSubject">—</strong></div>
+      <div class="sp-confirm-to" id="confirmTo">To: —</div>
+    </div>
+    <div id="confirmBody" class="sp-draft-box" style="max-height:180px;"></div>
+    <div style="display:flex;gap:10px;margin-top:14px;">
+      <button class="btn-sp-gold" onclick="executeSend()">Send Now</button>
+      <button class="btn-sp-secondary" onclick="closeConfirmSend()">Cancel</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── State ──
+let allSponsors = [];
+let activeSponsorId = null;
+let activeDraftId = null;
+let activeDraftData = null;
+let currentChannel = 'email';
+let dragSponsorId = null;
+
+// ── Init ──
+document.addEventListener('DOMContentLoaded', () => {
+  loadBoard();
+  loadMetrics();
+});
+
+// ── Load Board ──
+async function loadBoard() {
+  try {
+    const r = await fetch('/api/sponsors');
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+    allSponsors = data.sponsors || [];
+    renderBoard(allSponsors);
+  } catch (e) {
+    showAlert('Failed to load sponsors: ' + e.message);
+  }
+}
+
+function renderBoard(sponsors) {
+  const cols = ['prospect', 'outreach_drafted', 'contacted', 'replied', 'negotiating', 'deal'];
+  // Map inbound → prospect column
+  const colMap = {
+    prospect: 'prospect', inbound: 'prospect',
+    outreach_drafted: 'outreach_drafted',
+    contacted: 'contacted',
+    replied: 'replied',
+    negotiating: 'negotiating',
+    deal: 'deal', rejected: 'deal',
+  };
+  const groups = {};
+  cols.forEach(c => groups[c] = []);
+
+  sponsors.forEach(s => {
+    const col = colMap[s.status] || 'prospect';
+    groups[col].push(s);
+  });
+
+  cols.forEach(col => {
+    const container = document.getElementById('col-' + col);
+    const countEl = document.getElementById('colCount-' + col);
+    if (!container) return;
+    const items = groups[col] || [];
+    countEl.textContent = items.length;
+
+    if (items.length === 0) {
+      container.innerHTML = '<div class="sp-empty"><span class="icon">◇</span>No prospects</div>';
+      return;
+    }
+    container.innerHTML = items.map(s => cardHTML(s)).join('');
+  });
+}
+
+function cardHTML(s) {
+  const signalClass = s.opportunity_signal === 'growing' ? 'growing'
+    : s.opportunity_signal === 'declining' ? 'declining' : 'stable';
+  const signalText = s.opportunity_signal ? s.opportunity_signal.toUpperCase() : 'STABLE';
+  const prob = s.deal_probability_pct || 0;
+  const emailIcon = s.email_verified
+    ? '<span class="email-check">✓</span>'
+    : (s.contact_email ? '<span class="email-warn">⚠</span>' : '');
+  const timeAgo = s.created_at ? relativeTime(s.created_at) : '';
+  const podcasts = Array.isArray(s.podcasts_they_sponsor) ? s.podcasts_they_sponsor : [];
+  const podHint = podcasts.length > 0 ? `· ${podcasts[0]}` : '';
+
+  return `<div class="sp-card" draggable="true"
+    data-id="${s.id}"
+    ondragstart="handleDragStart(event, ${s.id})"
+    onclick="openPanel(${s.id})">
+    <div class="sp-card-top">
+      <div class="sp-card-name">${esc(s.company_name)}</div>
+      <div class="sp-card-score">${s.relevance_score || 0}/100</div>
+    </div>
+    <div class="sp-card-cat">${esc(s.category || 'other')}</div>
+    <div class="sp-card-signal ${signalClass}">${signalText}</div>
+    <div class="sp-card-prob">
+      <div class="sp-card-prob-fill" style="width:${prob}%"></div>
+    </div>
+    <div class="sp-card-meta">
+      ${emailIcon} <span>${esc(podHint)}</span>
+      <span class="sp-card-time">${timeAgo}</span>
+    </div>
+  </div>`;
+}
+
+// ── Metrics ──
+async function loadMetrics() {
+  try {
+    const r = await fetch('/api/sponsors/metrics');
+    if (!r.ok) return;
+    const d = await r.json();
+    document.getElementById('statTotal').textContent = d.total_prospects || 0;
+    const contacted = (d.by_status?.contacted?.count || 0);
+    document.getElementById('statContacted').textContent = contacted;
+    document.getElementById('statReplyRate').textContent = (d.reply_rate_pct || 0) + '%';
+    document.getElementById('statMRR').textContent = '$' + (d.actual_mrr || 0).toLocaleString();
+    document.getElementById('statProjected').textContent = '$' + (d.projected_mrr || 0).toLocaleString();
+  } catch (e) { /* metrics non-critical */ }
+}
+
+// ── SSE Scan Stream ──
+function startScanStream() {
+  const btnScan = document.getElementById('btnScan');
+  const scanLog = document.getElementById('scanLog');
+  const btnText = document.getElementById('scanBtnText');
+
+  btnScan.disabled = true;
+  btnText.textContent = '⏳ Scanning...';
+  scanLog.classList.add('visible');
+  scanLog.innerHTML = '';
+
+  const es = new EventSource('/api/sponsors/scan-stream');
+  es.onmessage = (e) => {
+    try {
+      const payload = JSON.parse(e.data);
+      const line = document.createElement('div');
+      line.className = 'log-line' + (payload.event === 'error' ? ' error' : payload.event === 'complete' || payload.event === 'done' ? ' complete' : '');
+      line.textContent = '[' + payload.event.toUpperCase() + '] ' + payload.message;
+      scanLog.appendChild(line);
+      scanLog.scrollTop = scanLog.scrollHeight;
+
+      if (payload.event === 'complete' || payload.event === 'done') {
+        es.close();
+        btnScan.disabled = false;
+        btnText.textContent = '▶ Grok Scan';
+        loadBoard();
+        loadMetrics();
+      }
+    } catch (err) { /* ignore parse errors */ }
+  };
+  es.onerror = () => {
+    es.close();
+    btnScan.disabled = false;
+    btnText.textContent = '▶ Grok Scan';
+    addLogLine('error', 'SSE connection error. Check server logs.');
+  };
+}
+
+function addLogLine(type, msg) {
+  const scanLog = document.getElementById('scanLog');
+  const line = document.createElement('div');
+  line.className = 'log-line ' + type;
+  line.textContent = '[' + type.toUpperCase() + '] ' + msg;
+  scanLog.appendChild(line);
+  scanLog.scrollTop = scanLog.scrollHeight;
+}
+
+// ── Panel ──
+async function openPanel(sponsorId) {
+  activeSponsorId = sponsorId;
+  activeDraftId = null;
+  activeDraftData = null;
+
+  document.getElementById('panelOverlay').classList.add('open');
+  document.getElementById('sponsorPanel').classList.add('open');
+  document.getElementById('panelBody').innerHTML = '<div class="sp-skeleton" style="height:24px;width:60%;margin-bottom:16px;"></div><div class="sp-skeleton" style="width:90%;"></div><div class="sp-skeleton" style="width:80%;"></div>';
+  document.getElementById('panelActions').innerHTML = '';
+
+  try {
+    const r = await fetch(`/api/sponsors/${sponsorId}`);
+    if (!r.ok) throw new Error('Not found');
+    const d = await r.json();
+    renderPanel(d.sponsor, d.outreach || [], d.activity || []);
+  } catch (e) {
+    document.getElementById('panelBody').innerHTML = `<div style="color:var(--coral);font-size:0.82rem;">Error loading: ${esc(e.message)}</div>`;
+  }
+}
+
+function renderPanel(s, outreach, activity) {
+  document.getElementById('panelTitle').textContent = s.company_name;
+  document.getElementById('panelSub').textContent = (s.category || 'other').replace('_', ' ') + ' · ' + (s.status || 'prospect');
+
+  let intel = '—';
+  try {
+    const notes = s.intelligence_notes;
+    if (notes && notes.startsWith('{')) {
+      const parsed = JSON.parse(notes);
+      intel = parsed.research_summary || parsed.notes || JSON.stringify(parsed, null, 2);
+    } else {
+      intel = notes || '—';
+    }
+  } catch (e) { intel = s.intelligence_notes || '—'; }
+
+  // Latest draft
+  const latestDraft = outreach.length > 0 ? outreach[0] : null;
+  if (latestDraft) {
+    activeDraftId = latestDraft.id;
+    activeDraftData = latestDraft;
+  }
+
+  const podList = Array.isArray(s.podcasts_they_sponsor) ? s.podcasts_they_sponsor.join(', ') : (s.podcasts_they_sponsor || '—');
+  const emailStatus = s.email_verified ? '<span style="color:var(--lime)">✓ Verified</span>' : '<span style="color:var(--coral)">⚠ Unverified</span>';
+
+  let html = `
+    <!-- Intel -->
+    <div class="sp-section">
+      <div class="sp-section-label">Company Intelligence</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+        <div style="font-size:0.75rem;color:var(--muted);">Website</div>
+        <div style="font-size:0.75rem;">${s.website ? `<a href="${esc(s.website)}" target="_blank" style="color:var(--cyan)">${esc(s.website)}</a>` : '—'}</div>
+        <div style="font-size:0.75rem;color:var(--muted);">Contact</div>
+        <div style="font-size:0.75rem;">${esc(s.contact_email || '—')} ${emailStatus}</div>
+        <div style="font-size:0.75rem;color:var(--muted);">Est. Spend</div>
+        <div style="font-size:0.75rem;">${esc(s.estimated_monthly_spend || '—')}</div>
+        <div style="font-size:0.75rem;color:var(--muted);">Podcasts</div>
+        <div style="font-size:0.75rem;">${esc(podList)}</div>
+        <div style="font-size:0.75rem;color:var(--muted);">Signal</div>
+        <div style="font-size:0.75rem;">${esc(s.opportunity_signal || 'stable')}</div>
+      </div>
+      <div class="sp-score-badge">Relevance: ${s.relevance_score || 0}/100 &nbsp;·&nbsp; Deal Prob: ${s.deal_probability_pct || 0}%</div>
+      <div class="sp-section-label" style="margin-top:10px;">Grok Intel</div>
+      <div class="sp-intel-box">${esc(intel)}</div>
+    </div>
+
+    <!-- Outreach Draft -->
+    <div class="sp-section">
+      <div class="sp-section-label">Outreach</div>
+      <div class="sp-channel-btns" id="channelBtns">
+        <button class="sp-channel-btn active" data-ch="email" onclick="selectChannel('email')">Email</button>
+        <button class="sp-channel-btn" data-ch="linkedin" onclick="selectChannel('linkedin')">LinkedIn</button>
+        <button class="sp-channel-btn" data-ch="twitter" onclick="selectChannel('twitter')">Twitter</button>
+      </div>
+      <div id="draftArea">
+        ${latestDraft ? `
+          <div style="font-size:0.72rem;color:var(--muted);margin-bottom:6px;">v${latestDraft.version} · Grok score: <strong style="color:var(--gold)">${latestDraft.grok_review_score || '—'}/100</strong></div>
+          ${latestDraft.subject ? `<div style="font-size:0.80rem;font-weight:700;margin-bottom:6px;">${esc(latestDraft.subject)}</div>` : ''}
+          <div class="sp-draft-box">${esc(latestDraft.body || '')}</div>
+        ` : '<div style="color:var(--muted);font-size:0.80rem;">No draft yet. Generate one below.</div>'}
+      </div>
+    </div>
+
+    <!-- Activity Log -->
+    <div class="sp-section">
+      <div class="sp-section-label">Activity Log</div>
+      <div>
+        ${activity.length === 0 ? '<div style="color:var(--muted);font-size:0.78rem;">No activity yet.</div>' :
+          activity.slice(0, 15).map(a => `
+            <div class="sp-activity-item">
+              <div class="sp-activity-action">${esc(a.action || '')}</div>
+              <div class="sp-activity-detail">${esc(a.detail || '')}</div>
+              <div class="sp-activity-time">${relativeTime(a.created_at)}</div>
+            </div>
+          `).join('')}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('panelBody').innerHTML = html;
+
+  // Panel action buttons
+  const sentDraft = outreach.find(o => o.sent_at);
+  document.getElementById('panelActions').innerHTML = `
+    <button class="btn-sp-primary" onclick="generateDraft(${s.id})" id="btnGenerateDraft">Generate Draft</button>
+    ${activeDraftId && !sentDraft ? `<button class="btn-sp-gold" onclick="openConfirmSend(${s.id}, ${activeDraftId})">Send Email</button>` : ''}
+    <button class="btn-sp-secondary" onclick="changeStatus(${s.id})">Change Status</button>
+    <button class="btn-sp-danger" onclick="softDelete(${s.id})" style="margin-left:auto">Archive</button>
+  `;
+}
+
+function closePanel() {
+  document.getElementById('panelOverlay').classList.remove('open');
+  document.getElementById('sponsorPanel').classList.remove('open');
+  activeSponsorId = null;
+}
+
+function selectChannel(ch) {
+  currentChannel = ch;
+  document.querySelectorAll('.sp-channel-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.ch === ch);
+  });
+}
+
+// ── Generate Draft ──
+async function generateDraft(sponsorId) {
+  const btn = document.getElementById('btnGenerateDraft');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Generating...'; }
+
+  try {
+    const r = await fetch(`/api/sponsors/draft/${sponsorId}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({channel: currentChannel})
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Draft failed');
+
+    const draft = d.draft;
+    activeDraftId = draft.draft_id;
+    activeDraftData = draft;
+
+    const draftArea = document.getElementById('draftArea');
+    if (draftArea) {
+      draftArea.innerHTML = `
+        <div style="font-size:0.72rem;color:var(--muted);margin-bottom:6px;">v${draft.version} · Grok score: <strong style="color:var(--gold)">${draft.grok_score}/100</strong></div>
+        ${draft.subject ? `<div style="font-size:0.80rem;font-weight:700;margin-bottom:6px;">${esc(draft.subject)}</div>` : ''}
+        <div class="sp-draft-box">${esc(draft.body || '')}</div>
+        ${draft.grok_notes ? `<div style="font-size:0.72rem;color:var(--muted);margin-top:6px;">Grok note: ${esc(draft.grok_notes)}</div>` : ''}
+      `;
+    }
+
+    // Show Send button
+    const panelActions = document.getElementById('panelActions');
+    if (panelActions && currentChannel === 'email') {
+      const sendBtn = panelActions.querySelector('.btn-sp-gold');
+      if (!sendBtn) {
+        const newSend = document.createElement('button');
+        newSend.className = 'btn-sp-gold';
+        newSend.textContent = 'Send Email';
+        newSend.onclick = () => openConfirmSend(sponsorId, draft.draft_id);
+        panelActions.insertBefore(newSend, panelActions.children[1]);
+      }
+    }
+  } catch (e) {
+    showAlert('Draft generation failed: ' + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Generate Draft'; }
+  }
+}
+
+// ── Send Email ──
+function openConfirmSend(sponsorId, draftId) {
+  const sponsor = allSponsors.find(s => s.id === sponsorId);
+  document.getElementById('confirmSubject').textContent = activeDraftData?.subject || '—';
+  document.getElementById('confirmTo').textContent = 'To: ' + (sponsor?.contact_email || '—');
+  document.getElementById('confirmBody').textContent = activeDraftData?.body || '';
+  document.getElementById('confirmSendModal').classList.add('open');
+}
+
+function closeConfirmSend() {
+  document.getElementById('confirmSendModal').classList.remove('open');
+}
+
+async function executeSend() {
+  const btn = document.querySelector('#confirmSendModal .btn-sp-gold');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+  try {
+    const r = await fetch(`/api/sponsors/send/${activeSponsorId}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({confirmed: true, draft_id: activeDraftId})
+    });
+    const d = await r.json();
+    if (!r.ok) {
+      if (r.status === 429) showAlert(d.error + ' (' + d.sent_today + ' sent today)');
+      else throw new Error(d.error || 'Send failed');
+    } else {
+      closeConfirmSend();
+      closePanel();
+      loadBoard();
+      loadMetrics();
+    }
+  } catch (e) {
+    showAlert('Send failed: ' + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Send Now'; }
+  }
+}
+
+// ── Change Status ──
+async function changeStatus(sponsorId) {
+  const status = prompt('New status:\nprospect | outreach_drafted | contacted | replied | negotiating | deal | rejected');
+  if (!status) return;
+  try {
+    const r = await fetch(`/api/sponsors/status/${sponsorId}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({status: status.trim()})
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    closePanel();
+    loadBoard();
+    loadMetrics();
+  } catch (e) {
+    showAlert('Status update failed: ' + e.message);
+  }
+}
+
+// ── Soft Delete ──
+async function softDelete(sponsorId) {
+  if (!confirm('Archive this prospect? They will be hidden from the board (soft delete).')) return;
+  try {
+    const r = await fetch(`/api/sponsors/${sponsorId}`, {method: 'DELETE'});
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    closePanel();
+    loadBoard();
+    loadMetrics();
+  } catch (e) {
+    showAlert('Archive failed: ' + e.message);
+  }
+}
+
+// ── Add Prospect Modal ──
+function openAddModal() {
+  document.getElementById('addModal').classList.add('open');
+}
+function closeAddModal() {
+  document.getElementById('addModal').classList.remove('open');
+}
+async function submitAddProspect() {
+  const btn = document.querySelector('#addModal .btn-sp-primary');
+  const companyName = document.getElementById('addCompanyName').value.trim();
+  if (!companyName) { showAlert('Company name is required'); return; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Adding...'; }
+  try {
+    const r = await fetch('/api/sponsors', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        company_name: companyName,
+        website: document.getElementById('addWebsite').value.trim(),
+        category: document.getElementById('addCategory').value,
+        contact_email: document.getElementById('addEmail').value.trim(),
+        contact_name: document.getElementById('addContactName').value.trim(),
+        estimated_monthly_spend: document.getElementById('addSpend').value.trim(),
+        notes: document.getElementById('addNotes').value.trim(),
+      })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    closeAddModal();
+    loadBoard();
+    loadMetrics();
+    // Clear form
+    ['addCompanyName','addWebsite','addEmail','addContactName','addSpend','addNotes'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+  } catch (e) {
+    showAlert('Add failed: ' + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Add Prospect'; }
+  }
+}
+
+// ── Drag and Drop ──
+function handleDragStart(e, sponsorId) {
+  dragSponsorId = sponsorId;
+  e.dataTransfer.effectAllowed = 'move';
+  e.currentTarget.classList.add('dragging');
+}
+function handleDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.querySelector('.sp-col-cards')?.classList.add('drag-over');
+}
+function handleDrop(e, newStatus) {
+  e.preventDefault();
+  document.querySelectorAll('.sp-col-cards').forEach(el => el.classList.remove('drag-over'));
+  if (!dragSponsorId) return;
+  document.querySelectorAll('.sp-card').forEach(el => el.classList.remove('dragging'));
+  updateSponsorStatus(dragSponsorId, newStatus);
+  dragSponsorId = null;
+}
+async function updateSponsorStatus(sponsorId, status) {
+  try {
+    const r = await fetch(`/api/sponsors/status/${sponsorId}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({status, actor: 'admin'})
+    });
+    if (!r.ok) {
+      const d = await r.json();
+      showAlert('Status update failed: ' + (d.error || r.status));
+    }
+    loadBoard();
+    loadMetrics();
+  } catch (e) {
+    showAlert('Drag-drop status update failed: ' + e.message);
+  }
+}
+
+// ── Helpers ──
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function relativeTime(iso) {
+  if (!iso) return '';
+  try {
+    const diff = Date.now() - new Date(iso + (iso.endsWith('Z') ? '' : 'Z')).getTime();
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor(diff / 60000);
+    if (d > 0) return d + 'd ago';
+    if (h > 0) return h + 'h ago';
+    if (m > 0) return m + 'm ago';
+    return 'just now';
+  } catch (e) { return ''; }
+}
+function showAlert(msg) {
+  const el = document.getElementById('spAlert');
+  el.textContent = msg;
+  el.classList.add('visible');
+  setTimeout(() => el.classList.remove('visible'), 6000);
+}
+
+// Keyboard nav: close panel on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('confirmSendModal').classList.contains('open')) closeConfirmSend();
+    else if (document.getElementById('addModal').classList.contains('open')) closeAddModal();
+    else closePanel();
+  }
+});
+</script>
+{% endblock %}
