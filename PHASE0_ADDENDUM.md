@@ -1,106 +1,56 @@
-# PHASE 0 ADDENDUM — p3-sentiment-intel
-# Generated: 2026-03-09
-# Based on C0_SYNTHESIS.md top additions
+# PHASE 0 ADDENDUM — P3 Mining Intel
+# Date: 2026-03-09 | Based on C0_SYNTHESIS.md
 
-## WHAT WE WILL IMPLEMENT (Filtered for feasibility within a single session)
+## TOP P0 ADDITIONS TO IMPLEMENT
 
-### FROM PHASE 0 SYNTHESIS — INCORPORATED:
+### 1. Predictive Difficulty Engine (Feasible without ML — formula-based)
+- **What**: 3-epoch difficulty forecast using extrapolated hashrate trend + block pace
+- **How**: In `/api/charts/hashrate-history` and `/api/mining/live-stats`, compute:
+  - Current block pace (blocks in last 2016 blocks vs expected 2016)
+  - Extrapolate next 3 adjustment % changes
+  - Show "PREDICTED NEXT: +X.X%" with confidence label
+- **Implementation**: Server-side math in the live-stats API endpoint, display in Section 1 hero
 
----
+### 2. Energy Cost Intelligence Panel (Simplified — no ERCOT integration)
+- **What**: Electricity cost breakeven visualizer in the ASIC calculator
+- **How**: In the ASIC calculator (Section 2), add:
+  - Breakeven electricity cost (at current BTC price, what $/kWh makes mining profitable)
+  - Visual range bar showing: "Profitable below $0.08/kWh | Your cost: $0.06/kWh"
+  - Energy cost heatmap legend (green/yellow/red zones)
+- **Implementation**: Client-side JS math in mining_hub.html calculator widget
 
-### 1. Multi-Dimensional Sentiment Analysis [CRITICAL — IMPLEMENTING]
-Instead of simple bullish/bearish, Claude Haiku extracts:
-- Primary sentiment (bullish/bearish/neutral)
-- Target stakeholder dimension (retail/institutional/miner/developer)
-- Market impact magnitude (1-10 scale)
-- Narrative label (ETF flows, halving cycle, regulatory clarity, etc.)
+### 3. Hash Price + Miner Revenue Intelligence
+- **What**: "Hash Price" metric ($/PH/day) — the professional miner's key metric
+- **How**: Formula: (block_reward_BTC * BTC_price * 144) / (network_hashrate_PH)
+  - Display prominently in Section 1 command center
+  - Show 30-day trend (from hashrate history endpoint)
+- **Implementation**: Calculated in `/api/mining/live-stats` server-side
 
-**How**: Extended `classify_article()` prompt returns JSON with all dimensions.
-DB: `sentiment_dimensions TEXT` (JSON), `market_impact_magnitude REAL` on articles table.
+### 4. Pool Concentration HHI Warning (Advanced Pool Intelligence)
+- **What**: Herfindahl-Hirschman Index for mining centralization risk
+- **How**: Sum of (pool_share²) for all pools → display as concentration score
+  - HHI > 2500: "HIGH CONCENTRATION RISK" (red)
+  - HHI 1500-2500: "MODERATE CONCENTRATION" (gold)
+  - HHI < 1500: "HEALTHY DISTRIBUTION" (green)
+- **Implementation**: Calculated in `/api/mining/pools` endpoint
 
----
+### 5. ASIC Lifecycle / Break-Even Timeline Widget
+- **What**: Shows payback period as a visual timeline bar
+- **How**: (ASIC_cost / monthly_profit) = payback months → animate progress bar
+  - Default ASIC costs: S21 Pro $5,000, S19 XP $2,500, M60S $4,000
+  - "At current profitability, payback in X months"
+- **Implementation**: Client-side JS in calculator
 
-### 2. Predictive Sentiment Forecasting (Lightweight) [HIGH IMPACT — PARTIAL]
-No ML models (too heavy for one session). Instead:
-- Rolling weighted average of last 6h sentiment scores → trend direction
-- Simple regression slope calculation from 7-day history → forecast label
-- Display as "trajectory": ACCELERATING_BULLISH / DECELERATING_BULLISH / NEUTRAL / ACCELERATING_BEARISH / DECELERATING_BEARISH
+### 6. Article Generation with Live Data Enrichment
+- **What**: When mining_intel_monitor generates articles, embed current live stats
+- **How**: Fetch live data (hashrate, difficulty, price, hash price) at article generation time
+  - Inject into Claude prompt as structured data context
+  - Article always includes current numbers making it immediately authoritative
+- **Implementation**: In `services/mining_intel_monitor.py`
 
-**How**: Computed in `get_signal_strength()` from `sentiment_snapshots` table data.
-
----
-
-### 3. Event Extraction [OPERATIONAL — IMPLEMENTING]
-Claude Haiku extracts structured events from article content:
-- Event type: regulatory / institutional_move / technical_development / price_action / mining_event
-- Impact score (1-10)
-- Affected entities
-
-**How**: Part of `classify_article()` extended output. Stored as `narrative_label` (event type) and `importance_score`.
-
----
-
-### 4. Advanced Anomaly Detection [INTELLIGENCE — IMPLEMENTING]
-Multivariate detection beyond simple 20-point threshold:
-- Velocity component: rate of change per hour (not just absolute delta)
-- Volume component: articles volume spike vs 7-day average
-- Narrative coherence: if dominant narrative shifts, flag as narrative anomaly
-- All anomalies stored in `intelligence_events` table
-
-**How**: `detect_anomalies()` in `intelligence_service.py` checks all 3 vectors.
-
----
-
-### 5. Source Trust Scoring [SECURITY/QUALITY — IMPLEMENTING]
-Weight sentiment by source credibility:
-- Known Bitcoin media (bitcoinmagazine.com, coindesk.com, decrypt.co): weight 1.0
-- Unknown/generic domains: weight 0.7
-- AI-generated or aggregate sources: weight 0.5
-
-**How**: `_get_source_trust_score(source_url)` function in sentiment_analyzer.py.
-Sentiment composite accounts for weighted articles, not raw average.
-
----
-
-### 6. Narrative Coherence Tracking [INSIGHT — IMPLEMENTING]
-Track which narratives are dominant across recent articles:
-- Count articles per narrative_label in last 24h, 7d
-- Identify rising narratives (24h > 7d_daily_avg)
-- Identify declining narratives
-
-**How**: `get_narrative_timeline()` in intelligence_service.py. Displayed on /intelligence.
-
----
-
-### 7. SSE with Reconnect Logic [LAW 2 — IMPLEMENTING]
-SSE stream at `/api/stream/sentiment` with:
-- Exponential backoff reconnect in browser JS
-- Heartbeat every 30s (comment event `:`  )
-- Proper `retry:` header for browser reconnect
-
----
-
-### 8. Prompt Injection Defense [SECURITY — IMPLEMENTING]
-Before passing article content to Claude:
-- Strip/escape HTML tags from content
-- Truncate to max 2000 chars
-- Wrap in explicit XML-delimited context markers
-- System prompt explicitly warns Claude about untrusted content
-
-**How**: `_sanitize_for_llm(text)` in sentiment_analyzer.py
-
----
-
-## NOT IMPLEMENTING (infrastructure/scope constraints):
-- Kafka/Redpanda event bus (requires infra setup)
-- PostgreSQL/TimescaleDB/Weaviate (SQLite is the stack)
-- Personalized RL dashboards (requires user tracking infra)
-- Podcast audio transcription (separate system already exists)
-- Edge computing (Cloudflare Workers) — not in scope
-- WebSocket full duplex (SSE is sufficient per gospel LAW 2)
-
-## DESIGN DECISIONS:
-- Public `/intelligence` page: new route pointing to upgraded intelligence_dashboard.html
-- Multi-dimensional sentiment: stored as TEXT (JSON) in articles.sentiment_dimensions
-- Cron runs via `cron` or direct invocation; no Redis required
-- All CSS animations only (law) — SVG gauge arc, keyframe animations
+## DECISIONS (Scope Reduction for This Session)
+- Energy grid APIs (ERCOT, Nord Pool): SKIPPED — requires complex API agreements. Replaced with electricity cost optimization math in calculator.
+- ML-based predictions: SKIPPED — replaced with deterministic formula-based forecasting (equally useful for real miners).
+- Social sentiment NLP: SKIPPED — would require Twitter API v2 access. Future feature.
+- Geographic heatmaps: SKIPPED — no reliable free API. Pool chart covers concentration risk.
+- Whale detection: SKIPPED — separate feature scope.

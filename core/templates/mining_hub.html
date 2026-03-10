@@ -1,0 +1,2204 @@
+{% extends "base.html" %}
+{% block title %}Bitcoin Mining Intelligence Hub | Protocol Pulse{% endblock %}
+{% block meta_description %}Live Bitcoin mining command center — real-time hashrate, difficulty tracker, ASIC profitability calculator, pool distribution, and original mining intelligence.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="Bitcoin Mining Intelligence Hub | Protocol Pulse">
+<meta property="og:description" content="Live hashrate, difficulty tracker, ASIC profitability calculator, pool distribution — the definitive Bitcoin mining intelligence destination.">
+<meta property="og:type" content="website">
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Mining Hub Layout ─────────────────────────────────────────────────── */
+.mining-hub {
+    min-height: 100vh;
+    background: var(--pp-bg-primary);
+    padding: 88px 0 80px;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    color: var(--pp-text-primary);
+}
+
+.mining-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ── Hero ──────────────────────────────────────────────────────────────── */
+.mining-hero {
+    text-align: center;
+    padding: 40px 20px 32px;
+    position: relative;
+}
+
+.mining-hero-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #f8c15c;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.mining-hero-kicker .live-dot {
+    width: 7px;
+    height: 7px;
+    background: #f8c15c;
+    border-radius: 50%;
+    animation: pulse-gold 2s infinite;
+}
+
+@keyframes pulse-gold {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(248, 193, 92, 0.4); }
+    50% { opacity: 0.7; box-shadow: 0 0 0 5px rgba(248, 193, 92, 0); }
+}
+
+.mining-hero h1 {
+    font-family: 'Outfit', 'DM Sans', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 800;
+    color: var(--pp-text-primary);
+    letter-spacing: -0.02em;
+    margin: 0 0 10px;
+    line-height: 1.1;
+}
+
+.mining-hero h1 span {
+    color: #f8c15c;
+}
+
+.mining-hero-sub {
+    font-size: 0.95rem;
+    color: var(--pp-text-muted);
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.5;
+}
+
+/* ── Section titles ────────────────────────────────────────────────────── */
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.section-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.20em;
+    text-transform: uppercase;
+    color: #f8c15c;
+    padding: 4px 10px;
+    border: 1px solid rgba(248, 193, 92, 0.25);
+    border-radius: 3px;
+}
+
+.section-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--pp-text-primary);
+    margin: 0;
+}
+
+.section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, rgba(248,193,92,0.3) 0%, rgba(255,255,255,0.04) 60%, transparent 100%);
+    margin-bottom: 24px;
+}
+
+/* ── Command Center — stat grid ────────────────────────────────────────── */
+.command-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+@media (max-width: 1200px) { .command-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px) { .command-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 440px) { .command-grid { grid-template-columns: 1fr; } }
+
+.stat-card {
+    background: var(--pp-bg-card);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: 10px;
+    padding: 16px 18px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+}
+
+.stat-card:hover { border-color: var(--pp-border-hover); }
+
+.stat-card.highlight {
+    border-color: rgba(248, 193, 92, 0.3);
+    background: linear-gradient(135deg, var(--pp-bg-card), rgba(248,193,92,0.04));
+}
+
+.stat-card.highlight::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #f8c15c, rgba(248,193,92,0.2));
+}
+
+.stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--pp-text-muted);
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.45rem;
+    font-weight: 900;
+    color: var(--pp-text-primary);
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.stat-value.gold { color: #f8c15c; }
+.stat-value.cyan { color: #5de4ff; }
+.stat-value.lime { color: #89ffb8; }
+.stat-value.coral { color: #ff8ba0; }
+
+.stat-sub {
+    font-size: 0.72rem;
+    color: var(--pp-text-muted);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.stat-loading {
+    color: var(--pp-text-muted);
+    animation: blink 1.2s step-end infinite;
+}
+@keyframes blink { 50% { opacity: 0.3; } }
+
+/* ── Epoch progress bar ─────────────────────────────────────────────────── */
+.epoch-bar {
+    margin-top: 8px;
+    height: 3px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.epoch-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #f8c15c, rgba(248,193,92,0.4));
+    border-radius: 2px;
+    transition: width 0.8s ease;
+    width: 0%;
+}
+
+/* ── Fee cards row ──────────────────────────────────────────────────────── */
+.fee-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.fee-chip {
+    text-align: center;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--pp-border-subtle);
+    background: rgba(255,255,255,0.02);
+}
+
+.fee-chip-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--pp-text-muted);
+    display: block;
+    margin-bottom: 3px;
+}
+
+.fee-chip-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--pp-text-primary);
+}
+
+/* ── Forecast strip ─────────────────────────────────────────────────────── */
+.forecast-strip {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.forecast-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+    color: var(--pp-text-muted);
+}
+
+.forecast-chip .fc-epoch { color: var(--pp-text-muted); font-size: 0.6rem; }
+.forecast-chip.up { color: #89ffb8; border-color: rgba(137,255,184,0.2); }
+.forecast-chip.down { color: #ff8ba0; border-color: rgba(255,138,160,0.2); }
+
+/* ── ASIC Calculator ────────────────────────────────────────────────────── */
+.calc-section {
+    background: var(--pp-bg-card);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: 14px;
+    padding: 28px;
+    margin-bottom: 32px;
+}
+
+.calc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    align-items: start;
+}
+
+@media (max-width: 768px) { .calc-grid { grid-template-columns: 1fr; } }
+
+.calc-inputs { display: flex; flex-direction: column; gap: 18px; }
+
+.calc-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--pp-text-muted);
+    margin-bottom: 8px;
+    display: block;
+}
+
+.calc-select {
+    width: 100%;
+    background: var(--pp-bg-elevated);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: 8px;
+    color: var(--pp-text-primary);
+    padding: 10px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.calc-select:focus { border-color: rgba(248,193,92,0.4); }
+
+.calc-slider-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.calc-slider-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #f8c15c;
+}
+
+.calc-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+}
+
+.calc-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: #f8c15c;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(248,193,92,0.4);
+}
+
+.calc-slider::-moz-range-thumb {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: #f8c15c;
+    cursor: pointer;
+    border: none;
+}
+
+/* Custom hash/watt inputs */
+.calc-custom-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.calc-input {
+    width: 100%;
+    background: var(--pp-bg-elevated);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: 8px;
+    color: var(--pp-text-primary);
+    padding: 10px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.calc-input:focus { border-color: rgba(248,193,92,0.4); }
+.calc-input::placeholder { color: var(--pp-text-muted); }
+
+/* ── Output panel ────────────────────────────────────────────────────────── */
+.calc-output {
+    background: var(--pp-bg-secondary, #0c0c10);
+    border: 1px solid rgba(248,193,92,0.15);
+    border-radius: 12px;
+    padding: 22px;
+}
+
+.calc-output-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #f8c15c;
+    margin-bottom: 18px;
+}
+
+.output-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 480px) { .output-metrics { grid-template-columns: 1fr; } }
+
+.output-metric {
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.output-metric-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--pp-text-muted);
+    margin-bottom: 5px;
+    display: block;
+}
+
+.output-metric-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.05rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+.output-metric-val.positive { color: #89ffb8; }
+.output-metric-val.negative { color: #ff8ba0; }
+.output-metric-val.neutral { color: var(--pp-text-primary); }
+.output-metric-val.gold { color: #f8c15c; }
+
+/* Breakeven energy bar */
+.energy-range-bar {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.energy-range-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--pp-text-muted);
+    margin-bottom: 8px;
+}
+
+.energy-bar {
+    position: relative;
+    height: 8px;
+    background: linear-gradient(90deg, #89ffb8 0%, #f8c15c 50%, #ff8ba0 100%);
+    border-radius: 4px;
+    margin-bottom: 6px;
+}
+
+.energy-bar-marker {
+    position: absolute;
+    top: -4px;
+    width: 16px; height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    border: 2px solid var(--pp-bg-card);
+    transform: translateX(-50%);
+    transition: left 0.4s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.energy-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--pp-text-muted);
+}
+
+.payback-bar-wrapper {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.payback-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--pp-text-muted);
+    margin-bottom: 8px;
+}
+
+.payback-progress {
+    height: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 4px;
+}
+
+.payback-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #89ffb8, #f8c15c);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+    width: 0%;
+}
+
+.payback-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--pp-text-muted);
+}
+
+.payback-text span { color: #f8c15c; font-weight: 700; }
+
+/* ── Hashrate Chart ──────────────────────────────────────────────────────── */
+.chart-card {
+    background: var(--pp-bg-card);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 32px;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.chart-legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--pp-text-muted);
+}
+
+.legend-line {
+    width: 20px; height: 2px;
+    border-radius: 1px;
+}
+
+.legend-line.cyan { background: #5de4ff; }
+.legend-line.gold { background: #f8c15c; border-style: dashed; height: 0; border-top: 2px dashed #f8c15c; }
+.legend-line.white { background: rgba(255,255,255,0.3); }
+
+#hashrateChart {
+    width: 100%;
+    height: 220px;
+    display: block;
+    cursor: crosshair;
+    overflow: visible;
+}
+
+.chart-tooltip {
+    position: absolute;
+    background: var(--pp-bg-elevated);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--pp-text-primary);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+    white-space: nowrap;
+}
+
+.chart-wrapper { position: relative; }
+
+/* ── Pool Distribution ───────────────────────────────────────────────────── */
+.pool-section {
+    background: var(--pp-bg-card);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 32px;
+}
+
+.pool-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 28px;
+    align-items: start;
+}
+
+@media (max-width: 768px) { .pool-grid { grid-template-columns: 1fr; } }
+
+.pool-pie-wrapper {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    margin: 0 auto;
+}
+
+#poolPieSvg {
+    width: 220px;
+    height: 220px;
+    display: block;
+}
+
+.pool-pie-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+}
+
+.pool-pie-hhi {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--pp-text-primary);
+    line-height: 1;
+}
+
+.pool-pie-hhi-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--pp-text-muted);
+    margin-top: 4px;
+}
+
+.pool-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.pool-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pool-color-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.pool-name {
+    font-size: 0.82rem;
+    color: var(--pp-text-secondary);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pool-bar-wrapper {
+    flex: 2;
+    height: 5px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.pool-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+}
+
+.pool-pct {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--pp-text-primary);
+    width: 42px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.hhi-warning {
+    margin-top: 16px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: none;
+}
+
+.hhi-warning.red {
+    background: rgba(229, 72, 72, 0.1);
+    border: 1px solid rgba(229, 72, 72, 0.3);
+    color: #ff8ba0;
+    display: block;
+}
+
+.hhi-warning.gold {
+    background: rgba(248, 193, 92, 0.08);
+    border: 1px solid rgba(248, 193, 92, 0.25);
+    color: #f8c15c;
+    display: block;
+}
+
+.hhi-warning.green {
+    background: rgba(137, 255, 184, 0.06);
+    border: 1px solid rgba(137, 255, 184, 0.2);
+    color: #89ffb8;
+    display: block;
+}
+
+/* ── Articles Grid ───────────────────────────────────────────────────────── */
+.articles-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 1100px) { .articles-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px) { .articles-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .articles-grid { grid-template-columns: 1fr; } }
+
+.article-card {
+    background: var(--pp-bg-card);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: 10px;
+    padding: 16px;
+    text-decoration: none;
+    display: block;
+    transition: border-color 0.2s, transform 0.15s;
+}
+
+.article-card:hover {
+    border-color: rgba(248, 193, 92, 0.3);
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+.article-card-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #f8c15c;
+    margin-bottom: 8px;
+}
+
+.article-card-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--pp-text-primary);
+    line-height: 1.35;
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.article-card-summary {
+    font-size: 0.75rem;
+    color: var(--pp-text-muted);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.article-card-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--pp-text-muted);
+    margin-top: 10px;
+}
+
+.articles-more-link {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.articles-more-link a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #f8c15c;
+    text-decoration: none;
+    border: 1px solid rgba(248,193,92,0.3);
+    padding: 10px 20px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.articles-more-link a:hover {
+    background: rgba(248,193,92,0.08);
+    text-decoration: none;
+}
+
+.articles-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--pp-text-muted);
+    font-size: 0.85rem;
+}
+
+/* ── Tools row ───────────────────────────────────────────────────────────── */
+.tools-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+@media (max-width: 768px) { .tools-row { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 440px) { .tools-row { grid-template-columns: 1fr; } }
+
+.tool-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    background: var(--pp-bg-card);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: 10px;
+    text-decoration: none;
+    transition: border-color 0.2s, transform 0.15s;
+}
+
+.tool-card:hover {
+    border-color: var(--pp-border-hover);
+    transform: translateY(-1px);
+    text-decoration: none;
+}
+
+.tool-icon {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+.tool-info { min-width: 0; }
+
+.tool-name {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--pp-text-primary);
+    margin-bottom: 2px;
+    line-height: 1.2;
+}
+
+.tool-desc {
+    font-size: 0.68rem;
+    color: var(--pp-text-muted);
+}
+
+/* ── Curated Mining CTA ──────────────────────────────────────────────────── */
+.curated-cta {
+    background: linear-gradient(135deg, var(--pp-bg-card) 0%, rgba(229, 72, 72, 0.04) 100%);
+    border: 1px solid rgba(229, 72, 72, 0.25);
+    border-top: 3px solid var(--pp-accent);
+    border-radius: 14px;
+    padding: 36px 40px;
+    text-align: center;
+    margin-bottom: 48px;
+    position: relative;
+    overflow: hidden;
+}
+
+.curated-cta::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: 50%;
+    width: 400px; height: 200px;
+    background: radial-gradient(ellipse, rgba(229,72,72,0.08) 0%, transparent 70%);
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.curated-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.20em;
+    text-transform: uppercase;
+    color: var(--pp-accent);
+    margin-bottom: 12px;
+}
+
+.curated-headline {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(1.3rem, 3vw, 1.8rem);
+    font-weight: 800;
+    color: var(--pp-text-primary);
+    margin: 0 0 12px;
+    letter-spacing: -0.02em;
+}
+
+.curated-body {
+    font-size: 0.95rem;
+    color: var(--pp-text-secondary, rgba(255,255,255,0.78));
+    max-width: 560px;
+    margin: 0 auto 24px;
+    line-height: 1.6;
+}
+
+.curated-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--pp-accent);
+    color: #fff;
+    padding: 13px 28px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    border: none;
+}
+
+.curated-btn:hover {
+    background: #c53030;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(229, 72, 72, 0.3);
+    text-decoration: none;
+    color: #fff;
+}
+
+.curated-sub {
+    margin-top: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--pp-text-muted);
+    letter-spacing: 0.08em;
+}
+
+/* ── Loading skeleton ────────────────────────────────────────────────────── */
+.skeleton {
+    background: linear-gradient(90deg,
+        rgba(255,255,255,0.04) 25%,
+        rgba(255,255,255,0.08) 50%,
+        rgba(255,255,255,0.04) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 4px;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ── WebSocket status + staleness indicator ─────────────────────────────── */
+.ws-status-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--pp-text-muted);
+}
+
+.ws-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--pp-text-muted);
+    flex-shrink: 0;
+}
+
+.ws-dot.live { background: #89ffb8; box-shadow: 0 0 6px rgba(137,255,184,0.5); animation: pulse-green 2s infinite; }
+.ws-dot.polling { background: #f8c15c; }
+.ws-dot.stale { background: #ff8ba0; }
+
+@keyframes pulse-green {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.staleness-badge {
+    display: none;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(255,138,160,0.1);
+    border: 1px solid rgba(255,138,160,0.2);
+    color: #ff8ba0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+}
+
+/* ── Spacing util ────────────────────────────────────────────────────────── */
+.mb-section { margin-bottom: 40px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mining-hub pp-page">
+  <div class="mining-container">
+
+    <!-- Hero -->
+    <div class="mining-hero">
+      <div class="mining-hero-kicker">
+        <span class="live-dot"></span>
+        LIVE DATA STREAM
+        <span class="live-dot"></span>
+      </div>
+      <h1>Bitcoin Mining <span>Intelligence</span></h1>
+      <p class="mining-hero-sub">Hashrate command center, ASIC profitability, pool concentration — everything serious miners and mining investors need, in one place.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 1 — LIVE MINING COMMAND CENTER                     -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div class="mb-section">
+      <div class="section-header">
+        <span class="section-kicker">Live</span>
+        <h2 class="section-title">Mining Command Center</h2>
+      </div>
+      <div class="section-divider"></div>
+
+      <!-- WebSocket connection status -->
+      <div class="ws-status-bar">
+        <div class="ws-dot" id="wsDot"></div>
+        <span id="wsStatusText">Connecting to live feed...</span>
+        <span class="staleness-badge" id="stalenessBadge"></span>
+      </div>
+
+      <div class="command-grid" id="commandGrid">
+        <!-- Hashrate -->
+        <div class="stat-card highlight">
+          <div class="stat-label">Network Hashrate</div>
+          <div class="stat-value gold stat-loading" id="stat-hashrate">···</div>
+          <div class="stat-sub" id="stat-hashrate-sub">EH/s</div>
+        </div>
+        <!-- Difficulty -->
+        <div class="stat-card">
+          <div class="stat-label">Mining Difficulty</div>
+          <div class="stat-value stat-loading" id="stat-difficulty">···</div>
+          <div class="stat-sub" id="stat-difficulty-sub">Epoch Progress</div>
+          <div class="epoch-bar">
+            <div class="epoch-bar-fill" id="epochBar"></div>
+          </div>
+        </div>
+        <!-- Next Adjustment -->
+        <div class="stat-card">
+          <div class="stat-label">Next Adjustment</div>
+          <div class="stat-value stat-loading" id="stat-adjustment">···</div>
+          <div class="stat-sub" id="stat-adjustment-sub">Blocks remaining: —</div>
+          <div class="forecast-strip" id="forecastStrip"></div>
+        </div>
+        <!-- Hash Price -->
+        <div class="stat-card highlight">
+          <div class="stat-label">Hash Price</div>
+          <div class="stat-value cyan stat-loading" id="stat-hashprice">···</div>
+          <div class="stat-sub">USD per PH/day</div>
+        </div>
+        <!-- Block Height -->
+        <div class="stat-card">
+          <div class="stat-label">Block Height</div>
+          <div class="stat-value stat-loading" id="stat-blockheight">···</div>
+          <div class="stat-sub">3.125 BTC subsidy</div>
+        </div>
+        <!-- Block Reward USD -->
+        <div class="stat-card">
+          <div class="stat-label">Block Reward</div>
+          <div class="stat-value stat-loading" id="stat-blockreward">···</div>
+          <div class="stat-sub">3.125 BTC equivalent</div>
+        </div>
+        <!-- Sats per Hash -->
+        <div class="stat-card">
+          <div class="stat-label">Sats per TH</div>
+          <div class="stat-value stat-loading" id="stat-satsphash">···</div>
+          <div class="stat-sub">Daily sats / TH/s</div>
+        </div>
+        <!-- Mempool Fees -->
+        <div class="stat-card">
+          <div class="stat-label">Mempool Fees</div>
+          <div class="stat-value stat-loading" id="stat-fees-hi" style="font-size:1.1rem">···</div>
+          <div class="stat-sub">sat/vB fastest</div>
+          <div class="fee-row" id="feeRow"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 2 — ASIC PROFITABILITY CALCULATOR                  -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div class="mb-section">
+      <div class="section-header">
+        <span class="section-kicker">Calculator</span>
+        <h2 class="section-title">ASIC Profitability Calculator</h2>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="calc-section">
+        <div class="calc-grid">
+          <!-- Inputs -->
+          <div class="calc-inputs">
+            <!-- ASIC Model -->
+            <div>
+              <label class="calc-label" for="asicModel">ASIC Model</label>
+              <select class="calc-select" id="asicModel">
+                <option value="s21pro">Antminer S21 Pro — 234 TH/s, 3500W</option>
+                <option value="s19xp">Antminer S19 XP — 140 TH/s, 3010W</option>
+                <option value="m60s">Whatsminer M60S — 186 TH/s, 3441W</option>
+                <option value="custom">Custom — Enter TH/s + Watts</option>
+              </select>
+            </div>
+
+            <!-- Custom inputs (shown only when custom is selected) -->
+            <div id="customInputs" style="display:none">
+              <div class="calc-custom-row">
+                <div>
+                  <label class="calc-label" for="customHash">Hashrate (TH/s)</label>
+                  <input type="number" class="calc-input" id="customHash" placeholder="e.g. 100" min="1" max="5000" value="100">
+                </div>
+                <div>
+                  <label class="calc-label" for="customWatts">Power (Watts)</label>
+                  <input type="number" class="calc-input" id="customWatts" placeholder="e.g. 3000" min="1" max="20000" value="3000">
+                </div>
+              </div>
+            </div>
+
+            <!-- ASIC cost for payback calc -->
+            <div>
+              <label class="calc-label" for="asicCost">ASIC Hardware Cost ($)</label>
+              <input type="number" class="calc-input" id="asicCost" placeholder="e.g. 5000" min="0" value="5000">
+            </div>
+
+            <!-- Electricity cost slider -->
+            <div>
+              <div class="calc-slider-row">
+                <label class="calc-label" for="electricitySlider" style="margin:0">Electricity Cost</label>
+                <span class="calc-slider-val" id="electricityDisplay">$0.06/kWh</span>
+              </div>
+              <input type="range" class="calc-slider" id="electricitySlider"
+                     min="0.02" max="0.20" step="0.01" value="0.06">
+              <div style="display:flex;justify-content:space-between;margin-top:4px;font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--pp-text-muted)">
+                <span>$0.02</span><span>$0.20</span>
+              </div>
+            </div>
+
+            <!-- Pool fee slider -->
+            <div>
+              <div class="calc-slider-row">
+                <label class="calc-label" for="poolFeeSlider" style="margin:0">Pool Fee</label>
+                <span class="calc-slider-val" id="poolFeeDisplay">1.0%</span>
+              </div>
+              <input type="range" class="calc-slider" id="poolFeeSlider"
+                     min="0" max="2" step="0.1" value="1.0">
+              <div style="display:flex;justify-content:space-between;margin-top:4px;font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--pp-text-muted)">
+                <span>0%</span><span>2%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Output -->
+          <div class="calc-output">
+            <div class="calc-output-title">Profitability Output — Live Calculation</div>
+
+            <div class="output-metrics">
+              <div class="output-metric">
+                <span class="output-metric-label">Daily BTC Earned</span>
+                <div class="output-metric-val gold" id="out-daily-btc">—</div>
+              </div>
+              <div class="output-metric">
+                <span class="output-metric-label">Daily Revenue</span>
+                <div class="output-metric-val neutral" id="out-daily-rev">—</div>
+              </div>
+              <div class="output-metric">
+                <span class="output-metric-label">Daily Electricity</span>
+                <div class="output-metric-val negative" id="out-daily-elec">—</div>
+              </div>
+              <div class="output-metric">
+                <span class="output-metric-label">Daily Profit/Loss</span>
+                <div class="output-metric-val" id="out-daily-profit">—</div>
+              </div>
+              <div class="output-metric">
+                <span class="output-metric-label">Monthly Profit/Loss</span>
+                <div class="output-metric-val" id="out-monthly-profit">—</div>
+              </div>
+              <div class="output-metric">
+                <span class="output-metric-label">Break-even BTC Price</span>
+                <div class="output-metric-val gold" id="out-breakeven">—</div>
+              </div>
+            </div>
+
+            <!-- Energy range bar -->
+            <div class="energy-range-bar">
+              <div class="energy-range-title">Energy Cost Profitability Zone</div>
+              <div class="energy-bar">
+                <div class="energy-bar-marker" id="energyMarker"></div>
+              </div>
+              <div class="energy-bar-labels">
+                <span>$0.02 Profitable</span>
+                <span id="energyBreakLabel">B/E: —</span>
+                <span>$0.20 Loss</span>
+              </div>
+            </div>
+
+            <!-- Payback period bar -->
+            <div class="payback-bar-wrapper" id="paybackWrapper" style="display:none">
+              <div class="payback-label">Hardware Payback Timeline</div>
+              <div class="payback-progress">
+                <div class="payback-fill" id="paybackFill"></div>
+              </div>
+              <div class="payback-text">At current profitability: payback in <span id="paybackMonths">—</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 3 — HASHRATE CHART                                 -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div class="mb-section">
+      <div class="section-header">
+        <span class="section-kicker">30-Day Trend</span>
+        <h2 class="section-title">Network Hashrate</h2>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-legend">
+            <div class="legend-item">
+              <div class="legend-line cyan"></div>
+              <span>Hashrate (EH/s)</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-line white"></div>
+              <span>7-Day MA</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-line gold"></div>
+              <span>ATH</span>
+            </div>
+          </div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--pp-text-muted)" id="chartCurrentLabel">
+            Current: loading...
+          </div>
+        </div>
+        <div class="chart-wrapper">
+          <svg id="hashrateChart" aria-label="Network hashrate 30-day trend"></svg>
+          <div class="chart-tooltip" id="chartTooltip"></div>
+        </div>
+        <div id="chartError" style="display:none;text-align:center;padding:40px;color:var(--pp-text-muted);font-size:0.82rem;min-height:220px;display:none;align-items:center;justify-content:center">
+          Chart data unavailable. Live stats still active above.
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 4 — MINING POOL DISTRIBUTION                       -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div class="mb-section">
+      <div class="section-header">
+        <span class="section-kicker">7-Day Data</span>
+        <h2 class="section-title">Mining Pool Distribution</h2>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="pool-section">
+        <div class="pool-grid">
+          <div>
+            <div class="pool-pie-wrapper">
+              <svg id="poolPieSvg" viewBox="0 0 220 220" aria-label="Mining pool distribution donut chart"></svg>
+              <div class="pool-pie-center">
+                <div class="pool-pie-hhi" id="hhiValue">—</div>
+                <div class="pool-pie-hhi-label">HHI Score</div>
+              </div>
+            </div>
+            <div class="hhi-warning" id="hhiWarning"></div>
+          </div>
+
+          <div class="pool-list" id="poolList">
+            <div style="color:var(--pp-text-muted);font-size:0.82rem;padding:20px 0">Loading pool data...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 5 — MINING INTEL ARTICLES                          -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div class="mb-section">
+      <div class="section-header">
+        <span class="section-kicker">Original Analysis</span>
+        <h2 class="section-title">Mining Intelligence</h2>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="articles-grid" id="miningArticles">
+        <div class="articles-empty">Loading mining intelligence...</div>
+      </div>
+      <div class="articles-more-link">
+        <a href="/articles?category=mining">MORE MINING INTEL →</a>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 6 — EXISTING TOOLS                                 -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div class="mb-section">
+      <div class="section-header">
+        <span class="section-kicker">Tools</span>
+        <h2 class="section-title">Mining Intelligence Suite</h2>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="tools-row">
+        <a href="/mining-risk" class="tool-card">
+          <div class="tool-icon">🌍</div>
+          <div class="tool-info">
+            <div class="tool-name">Mining Risk</div>
+            <div class="tool-desc">Geo-risk calculator</div>
+          </div>
+        </a>
+        <a href="/solo-slayers" class="tool-card">
+          <div class="tool-icon">⚡</div>
+          <div class="tool-info">
+            <div class="tool-name">Solo Slayers</div>
+            <div class="tool-desc">Solo block tracker</div>
+          </div>
+        </a>
+        <a href="/dossier" class="tool-card">
+          <div class="tool-icon">📊</div>
+          <div class="tool-info">
+            <div class="tool-name">Dossier</div>
+            <div class="tool-desc">Bitcoin deep analysis</div>
+          </div>
+        </a>
+        <a href="/disruption-tracker" class="tool-card">
+          <div class="tool-icon">🎯</div>
+          <div class="tool-info">
+            <div class="tool-name">Kill List</div>
+            <div class="tool-desc">Industry disruption map</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 7 — CURATED MINING CTA                             -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div class="curated-cta">
+      <div class="curated-kicker">⚡ White-Glove Bitcoin Mining Setup</div>
+      <h2 class="curated-headline">Curated Mining</h2>
+      <p class="curated-body">
+        Curated Mining manages your hardware acquisition, hosting, and optimization.
+        LLC partnership structure. Section 179 tax deduction. Zero hassle.
+      </p>
+      <a href="mailto:john@curatedmining.com" class="curated-btn">
+        Contact John →
+      </a>
+      <div class="curated-sub">Built for serious capital allocators. Not retail.</div>
+    </div>
+
+  </div><!-- /.mining-container -->
+</div><!-- /.mining-hub -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Constants & State ─────────────────────────────────────────────────────────
+const ASIC_MODELS = {
+    s21pro: { hash_th: 234, watts: 3500, cost: 5000, label: 'Antminer S21 Pro' },
+    s19xp:  { hash_th: 140, watts: 3010, cost: 2500, label: 'Antminer S19 XP' },
+    m60s:   { hash_th: 186, watts: 3441, cost: 4000, label: 'Whatsminer M60S' },
+};
+
+const POOL_COLORS = [
+    '#5de4ff','#f8c15c','#89ffb8','#ff8ba0','#a78bfa',
+    '#fb923c','#34d399','#f472b6','#60a5fa','#fbbf24',
+    '#e54848','#94a3b8'
+];
+
+let liveStats = {};
+let chartData = null;
+
+// ── Utility: number formatting ────────────────────────────────────────────────
+function fmtNum(n, dec=2) {
+    if (n == null || isNaN(n)) return '—';
+    return Number(n).toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+}
+
+function fmtUSD(n, dec=0) {
+    if (n == null || isNaN(n)) return '—';
+    return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+}
+
+function fmtBTC(n) {
+    if (n == null || isNaN(n)) return '—';
+    return Number(n).toFixed(8) + ' BTC';
+}
+
+function fmtDate(ts) {
+    if (!ts) return '';
+    const d = new Date(typeof ts === 'number' ? ts * 1000 : ts);
+    return d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+}
+
+// ── Remove skeleton loading class ─────────────────────────────────────────────
+function clearLoading(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('stat-loading');
+}
+
+// ── WebSocket connection (LAW 2 compliance) ───────────────────────────────────
+let mempoolWs = null;
+let wsRetries = 0;
+const WS_MAX_RETRIES = 5;
+let lastSuccessfulFetch = null;
+let wsFallbackPollingActive = false;
+let wsConnected = false;
+
+function updateWsStatus(state) {
+    const dot = document.getElementById('wsDot');
+    const text = document.getElementById('wsStatusText');
+    if (!dot || !text) return;
+    dot.className = 'ws-dot ' + state;
+    const labels = {
+        live: 'Live — WebSocket connected',
+        polling: 'Polling — REST fallback active',
+        connecting: 'Connecting to live feed...',
+        stale: 'Feed unavailable — data may be stale',
+    };
+    text.textContent = labels[state] || state;
+}
+
+function updateStaleness() {
+    const badge = document.getElementById('stalenessBadge');
+    if (!badge) return;
+    if (!lastSuccessfulFetch) { badge.style.display = 'none'; return; }
+    const ageSecs = (Date.now() - lastSuccessfulFetch) / 1000;
+    if (ageSecs > 90) {
+        badge.style.display = 'inline';
+        const mins = Math.floor(ageSecs / 60);
+        badge.textContent = `Data as of ${mins}m ago`;
+        updateWsStatus('stale');
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+function connectMempoolWs() {
+    if (wsRetries >= WS_MAX_RETRIES) {
+        console.warn('[WS] Max retries reached — activating REST polling fallback');
+        updateWsStatus('polling');
+        if (!wsFallbackPollingActive) {
+            wsFallbackPollingActive = true;
+            setInterval(loadLiveStatsRest, 30000);
+        }
+        return;
+    }
+
+    updateWsStatus('connecting');
+
+    try {
+        mempoolWs = new WebSocket('wss://mempool.space/api/v1/ws');
+    } catch (e) {
+        console.warn('[WS] WebSocket constructor error:', e);
+        wsRetries++;
+        setTimeout(connectMempoolWs, Math.min(1000 * Math.pow(2, wsRetries), 30000));
+        return;
+    }
+
+    mempoolWs.onopen = () => {
+        wsRetries = 0;
+        wsConnected = true;
+        updateWsStatus('live');
+        mempoolWs.send(JSON.stringify({ action: 'want', data: ['stats', 'blocks'] }));
+    };
+
+    mempoolWs.onmessage = (event) => {
+        try {
+            const msg = JSON.parse(event.data);
+            lastSuccessfulFetch = Date.now();
+
+            // Block message — update hashrate from difficulty
+            if (msg.block) {
+                const blk = msg.block;
+                // hashrate = difficulty * 2^32 / 600
+                if (blk.difficulty) {
+                    const hashrate_hs = blk.difficulty * Math.pow(2, 32) / 600;
+                    const hashrate_eh = hashrate_hs / 1e18;
+                    liveStats.hashrate_eh = parseFloat(hashrate_eh.toFixed(2));
+                    const hrEl = document.getElementById('stat-hashrate');
+                    if (hrEl) {
+                        hrEl.textContent = fmtNum(liveStats.hashrate_eh, 1) + ' EH/s';
+                        hrEl.classList.remove('stat-loading');
+                    }
+                }
+                // Update block height
+                if (blk.height != null) {
+                    liveStats.block_height = blk.height;
+                    const bhEl = document.getElementById('stat-blockheight');
+                    if (bhEl) { bhEl.textContent = blk.height.toLocaleString(); bhEl.classList.remove('stat-loading'); }
+                }
+                calcUpdate();
+            }
+
+            // Stats message — update mempool fees
+            if (msg.fees) {
+                const f = msg.fees;
+                const hiEl = document.getElementById('stat-fees-hi');
+                if (hiEl) { hiEl.textContent = (f.fastestFee || '—') + ' sat/vB'; hiEl.classList.remove('stat-loading'); }
+                const feeRow = document.getElementById('feeRow');
+                if (feeRow) {
+                    feeRow.innerHTML = `
+                        <div class="fee-chip"><span class="fee-chip-label">Low</span><span class="fee-chip-val">${f.economyFee ?? '—'}</span></div>
+                        <div class="fee-chip"><span class="fee-chip-label">Mid</span><span class="fee-chip-val">${f.halfHourFee ?? '—'}</span></div>
+                        <div class="fee-chip"><span class="fee-chip-label">High</span><span class="fee-chip-val">${f.fastestFee ?? '—'}</span></div>
+                    `;
+                }
+                liveStats.mempool_fee_low = f.economyFee;
+                liveStats.mempool_fee_mid = f.halfHourFee;
+                liveStats.mempool_fee_high = f.fastestFee;
+            }
+        } catch (e) {
+            console.warn('[WS] Message parse error:', e);
+        }
+    };
+
+    mempoolWs.onclose = () => {
+        wsConnected = false;
+        wsRetries++;
+        const delay = Math.min(1000 * Math.pow(2, wsRetries), 30000);
+        console.warn(`[WS] Closed. Retry ${wsRetries}/${WS_MAX_RETRIES} in ${delay}ms`);
+        updateWsStatus('connecting');
+        setTimeout(connectMempoolWs, delay);
+    };
+
+    mempoolWs.onerror = () => {
+        // onclose fires after onerror — let it handle reconnect
+    };
+}
+
+// ── Section 1: Load live stats (REST — initial load + fallback) ───────────────
+async function loadLiveStatsRest() {
+    try {
+        const res = await fetch('/api/mining/live-stats');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        liveStats = await res.json();
+        lastSuccessfulFetch = Date.now();
+        renderLiveStats(liveStats);
+        if (!wsConnected) updateWsStatus('polling');
+    } catch (err) {
+        console.warn('Live stats REST error:', err);
+        updateStaleness();
+        ['stat-hashrate','stat-difficulty','stat-adjustment','stat-hashprice',
+         'stat-blockheight','stat-blockreward','stat-satsphash','stat-fees-hi'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el && el.classList.contains('stat-loading')) { el.textContent = 'N/A'; el.classList.remove('stat-loading'); }
+        });
+    }
+}
+
+// Alias for initial load
+async function loadLiveStats() { return loadLiveStatsRest(); }
+
+function renderLiveStats(d) {
+    // Hashrate
+    const hrEl = document.getElementById('stat-hashrate');
+    if (hrEl) {
+        hrEl.textContent = d.hashrate_eh != null ? fmtNum(d.hashrate_eh, 1) + ' EH/s' : 'N/A';
+        hrEl.classList.remove('stat-loading');
+    }
+
+    // Difficulty
+    const diffEl = document.getElementById('stat-difficulty');
+    if (diffEl) {
+        diffEl.textContent = d.difficulty_formatted || (d.difficulty ? fmtNum(d.difficulty/1e12, 2) + 'T' : 'N/A');
+        diffEl.classList.remove('stat-loading');
+    }
+    const diffSub = document.getElementById('stat-difficulty-sub');
+    if (diffSub) diffSub.textContent = d.epoch_progress_pct != null ? `Epoch: ${d.epoch_progress_pct}% complete` : 'Epoch: —';
+    const epochBar = document.getElementById('epochBar');
+    if (epochBar) epochBar.style.width = (d.epoch_progress_pct || 0) + '%';
+
+    // Next adjustment
+    const adjEl = document.getElementById('stat-adjustment');
+    if (adjEl) {
+        const pct = d.next_adjustment_pct;
+        if (pct != null) {
+            adjEl.textContent = (pct > 0 ? '+' : '') + pct.toFixed(2) + '%';
+            adjEl.classList.remove('stat-loading');
+            adjEl.className = adjEl.className.replace(/\b(lime|coral|gold)\b/g, '');
+            adjEl.classList.add(pct > 0 ? 'coral' : 'lime');
+        } else {
+            adjEl.textContent = 'N/A';
+            adjEl.classList.remove('stat-loading');
+        }
+    }
+    const adjSub = document.getElementById('stat-adjustment-sub');
+    if (adjSub) adjSub.textContent = d.blocks_until_adjustment != null ? `Blocks remaining: ${d.blocks_until_adjustment.toLocaleString()}` : 'Blocks remaining: —';
+
+    // Forecast strip
+    const strip = document.getElementById('forecastStrip');
+    if (strip && d.next_3_adjustment_forecast && d.next_3_adjustment_forecast.length) {
+        strip.innerHTML = d.next_3_adjustment_forecast.map(f => {
+            const cls = f.predicted_pct > 0 ? 'up' : f.predicted_pct < 0 ? 'down' : '';
+            const sign = f.predicted_pct > 0 ? '+' : '';
+            return `<span class="forecast-chip ${cls}"><span class="fc-epoch">E${f.epoch}</span>${sign}${f.predicted_pct.toFixed(1)}%</span>`;
+        }).join('');
+    }
+
+    // Hash price
+    const hpEl = document.getElementById('stat-hashprice');
+    if (hpEl) {
+        hpEl.textContent = d.hash_price_usd_per_ph != null ? '$' + d.hash_price_usd_per_ph.toFixed(4) : 'N/A';
+        hpEl.classList.remove('stat-loading');
+    }
+
+    // Block height
+    const bhEl = document.getElementById('stat-blockheight');
+    if (bhEl) {
+        bhEl.textContent = d.block_height != null ? d.block_height.toLocaleString() : 'N/A';
+        bhEl.classList.remove('stat-loading');
+    }
+
+    // Block reward USD
+    const brEl = document.getElementById('stat-blockreward');
+    if (brEl) {
+        brEl.textContent = d.block_reward_usd != null ? fmtUSD(d.block_reward_usd) : 'N/A';
+        brEl.classList.remove('stat-loading');
+    }
+
+    // Sats per TH (daily)
+    const sphEl = document.getElementById('stat-satsphash');
+    if (sphEl) {
+        // Convert sats_per_hash → sats per TH/s per day
+        // sats_per_hash is sats earned per hash; * 1e12 for TH, * 86400 for day
+        if (d.sats_per_hash != null) {
+            const satsPerTHDay = d.sats_per_hash * 1e12 * 86400;
+            sphEl.textContent = fmtNum(satsPerTHDay, 0) + ' sats';
+        } else {
+            sphEl.textContent = 'N/A';
+        }
+        sphEl.classList.remove('stat-loading');
+    }
+
+    // Mempool fees
+    const feesHi = document.getElementById('stat-fees-hi');
+    if (feesHi) {
+        feesHi.textContent = d.mempool_fee_high != null ? d.mempool_fee_high + ' sat/vB' : 'N/A';
+        feesHi.classList.remove('stat-loading');
+    }
+    const feeRow = document.getElementById('feeRow');
+    if (feeRow && (d.mempool_fee_low != null || d.mempool_fee_mid != null)) {
+        feeRow.innerHTML = `
+            <div class="fee-chip"><span class="fee-chip-label">Low</span><span class="fee-chip-val">${d.mempool_fee_low ?? '—'}</span></div>
+            <div class="fee-chip"><span class="fee-chip-label">Mid</span><span class="fee-chip-val">${d.mempool_fee_mid ?? '—'}</span></div>
+            <div class="fee-chip"><span class="fee-chip-label">High</span><span class="fee-chip-val">${d.mempool_fee_high ?? '—'}</span></div>
+        `;
+    }
+
+    // Update calculator with live BTC price
+    calcUpdate();
+}
+
+// ── Section 2: ASIC Calculator ────────────────────────────────────────────────
+const asicModelSel = document.getElementById('asicModel');
+const customInputs = document.getElementById('customInputs');
+const electricitySlider = document.getElementById('electricitySlider');
+const electricityDisplay = document.getElementById('electricityDisplay');
+const poolFeeSlider = document.getElementById('poolFeeSlider');
+const poolFeeDisplay = document.getElementById('poolFeeDisplay');
+const asicCostInput = document.getElementById('asicCost');
+
+asicModelSel.addEventListener('change', () => {
+    const isCustom = asicModelSel.value === 'custom';
+    customInputs.style.display = isCustom ? 'block' : 'none';
+    const model = ASIC_MODELS[asicModelSel.value];
+    if (model) asicCostInput.value = model.cost;
+    calcUpdate();
+});
+
+electricitySlider.addEventListener('input', () => {
+    electricityDisplay.textContent = '$' + parseFloat(electricitySlider.value).toFixed(2) + '/kWh';
+    calcUpdate();
+});
+
+poolFeeSlider.addEventListener('input', () => {
+    poolFeeDisplay.textContent = parseFloat(poolFeeSlider.value).toFixed(1) + '%';
+    calcUpdate();
+});
+
+['customHash','customWatts','asicCost'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', calcUpdate);
+});
+
+function getCalcParams() {
+    const modelKey = asicModelSel.value;
+    let hash_th, watts;
+    if (modelKey === 'custom') {
+        hash_th = parseFloat(document.getElementById('customHash').value) || 100;
+        watts = parseFloat(document.getElementById('customWatts').value) || 3000;
+    } else {
+        const m = ASIC_MODELS[modelKey];
+        hash_th = m.hash_th;
+        watts = m.watts;
+    }
+    return {
+        hash_th,
+        watts,
+        electricity_kwh: parseFloat(electricitySlider.value),
+        pool_fee_pct: parseFloat(poolFeeSlider.value),
+        asic_cost: parseFloat(asicCostInput.value) || 0,
+    };
+}
+
+function calcUpdate() {
+    const p = getCalcParams();
+    const btcPrice = liveStats.btc_price_usd || null;
+    const networkHashrate = liveStats.hashrate_eh ? liveStats.hashrate_eh * 1e18 : null; // H/s
+
+    // Can only calculate if we have BTC price and network hashrate
+    if (!btcPrice || !networkHashrate) {
+        // Show loading/waiting state
+        setOutVal('out-daily-btc', '⟳', 'neutral');
+        setOutVal('out-daily-rev', '⟳', 'neutral');
+        setOutVal('out-daily-elec', '⟳', 'neutral');
+        setOutVal('out-daily-profit', '⟳', 'neutral');
+        setOutVal('out-monthly-profit', '⟳', 'neutral');
+        setOutVal('out-breakeven', '⟳', 'gold');
+        return;
+    }
+
+    const BLOCKS_PER_DAY = 144;
+    const BTC_PER_BLOCK = 3.125;
+
+    // My miner's share of total hashrate
+    const myHashrate_hs = p.hash_th * 1e12; // TH/s → H/s
+    const share = myHashrate_hs / networkHashrate;
+
+    // Daily BTC earned (before pool fee)
+    const daily_btc_gross = share * BLOCKS_PER_DAY * BTC_PER_BLOCK;
+    const pool_fee = p.pool_fee_pct / 100;
+    const daily_btc = daily_btc_gross * (1 - pool_fee);
+
+    // Daily revenue in USD
+    const daily_rev = daily_btc * btcPrice;
+
+    // Daily electricity cost
+    const kWh_per_day = (p.watts / 1000) * 24;
+    const daily_elec = kWh_per_day * p.electricity_kwh;
+
+    // Daily profit
+    const daily_profit = daily_rev - daily_elec;
+    const monthly_profit = daily_profit * 30;
+
+    // Break-even BTC price (electricity cost / daily BTC earned = break-even price)
+    const breakeven_price = daily_btc > 0 ? daily_elec / daily_btc : null;
+
+    setOutVal('out-daily-btc', daily_btc.toFixed(8) + ' BTC', 'gold');
+    setOutVal('out-daily-rev', fmtUSD(daily_rev, 2), 'neutral');
+    setOutVal('out-daily-elec', '-' + fmtUSD(daily_elec, 2), 'negative');
+    setOutVal('out-daily-profit', (daily_profit >= 0 ? '+' : '') + fmtUSD(daily_profit, 2),
+              daily_profit >= 0 ? 'positive' : 'negative');
+    setOutVal('out-monthly-profit', (monthly_profit >= 0 ? '+' : '') + fmtUSD(monthly_profit, 2),
+              monthly_profit >= 0 ? 'positive' : 'negative');
+    setOutVal('out-breakeven', breakeven_price != null ? fmtUSD(breakeven_price) : '—', 'gold');
+
+    // Energy range bar: map current electricity cost to 0.02–0.20 range
+    const energyPos = ((p.electricity_kwh - 0.02) / (0.20 - 0.02)) * 100;
+    const marker = document.getElementById('energyMarker');
+    if (marker) marker.style.left = Math.max(0, Math.min(100, energyPos)) + '%';
+
+    // Breakeven electricity cost label
+    const breakEvenKwh = daily_btc > 0 && btcPrice > 0 ? (daily_btc * btcPrice) / kWh_per_day : null;
+    const bkLabel = document.getElementById('energyBreakLabel');
+    if (bkLabel) bkLabel.textContent = breakEvenKwh != null ? `B/E: $${breakEvenKwh.toFixed(3)}/kWh` : 'B/E: —';
+
+    // Payback period
+    const paybackWrapper = document.getElementById('paybackWrapper');
+    const paybackFill = document.getElementById('paybackFill');
+    const paybackMonths = document.getElementById('paybackMonths');
+    if (p.asic_cost > 0 && daily_profit > 0) {
+        const months = p.asic_cost / (daily_profit * 30);
+        paybackWrapper.style.display = 'block';
+        // Cap visual bar at 36 months
+        paybackFill.style.width = Math.min(100, (months / 36) * 100) + '%';
+        paybackMonths.textContent = months < 1 ? '< 1 month' :
+                                    months > 120 ? '> 10 years' :
+                                    fmtNum(months, 1) + ' months';
+    } else if (p.asic_cost > 0) {
+        paybackWrapper.style.display = 'block';
+        paybackFill.style.width = '0%';
+        paybackMonths.textContent = daily_profit <= 0 ? 'unprofitable at current rates' : '—';
+    } else {
+        paybackWrapper.style.display = 'none';
+    }
+}
+
+function setOutVal(id, val, cls) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = val;
+    el.className = 'output-metric-val';
+    if (cls) el.classList.add(cls);
+}
+
+// ── Section 3: Hashrate Chart (SVG — no canvas per stack constraint) ──────────
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+function svgEl(tag, attrs) {
+    const el = document.createElementNS(SVG_NS, tag);
+    for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+    return el;
+}
+
+async function loadHashrateChart() {
+    try {
+        const res = await fetch('/api/charts/hashrate-history');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        chartData = await res.json();
+        if (!chartData.data || chartData.data.length === 0) throw new Error('no data');
+        renderHashrateChart(chartData);
+
+        const cur = chartData.current_eh;
+        const curEl = document.getElementById('chartCurrentLabel');
+        if (curEl && cur) curEl.textContent = 'Current: ' + fmtNum(cur, 1) + ' EH/s';
+    } catch (err) {
+        console.warn('Chart error:', err);
+        const svg = document.getElementById('hashrateChart');
+        if (svg) svg.style.display = 'none';
+        const errEl = document.getElementById('chartError');
+        if (errEl) errEl.style.display = 'block';
+    }
+}
+
+function renderHashrateChart(data) {
+    const svg = document.getElementById('hashrateChart');
+    if (!svg) return;
+
+    // Clear previous render
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+    const pts = data.data;
+    const ma7 = data.ma7 || [];
+    const athEh = data.ath_eh;
+    if (!pts || pts.length === 0) return;
+
+    const VW = 1000, VH = 220;
+    svg.setAttribute('viewBox', `0 0 ${VW} ${VH}`);
+    svg.setAttribute('preserveAspectRatio', 'none');
+
+    const PAD = { top: 18, right: 20, bottom: 36, left: 60 };
+    const cW = VW - PAD.left - PAD.right;
+    const cH = VH - PAD.top - PAD.bottom;
+
+    const vals = pts.map(p => p.hashrate_eh);
+    const minV = Math.min(...vals) * 0.98;
+    const maxV = Math.max(Math.max(...vals), athEh || 0) * 1.02;
+    const range = maxV - minV || 1;
+
+    const xPos = (i) => PAD.left + (i / (pts.length - 1)) * cW;
+    const yPos = (v) => PAD.top + (1 - (v - minV) / range) * cH;
+
+    // Defs: gradient for fill
+    const defs = svgEl('defs', {});
+    const grad = svgEl('linearGradient', { id: 'hrGrad', x1: '0', y1: '0', x2: '0', y2: '1' });
+    const s1 = svgEl('stop', { offset: '0%', 'stop-color': '#5de4ff', 'stop-opacity': '0.18' });
+    const s2 = svgEl('stop', { offset: '100%', 'stop-color': '#5de4ff', 'stop-opacity': '0' });
+    grad.appendChild(s1); grad.appendChild(s2); defs.appendChild(grad); svg.appendChild(defs);
+
+    // Grid lines + Y labels
+    for (let i = 0; i <= 4; i++) {
+        const y = PAD.top + (i / 4) * cH;
+        const line = svgEl('line', {
+            x1: PAD.left, y1: y, x2: VW - PAD.right, y2: y,
+            stroke: 'rgba(255,255,255,0.04)', 'stroke-width': '1'
+        });
+        svg.appendChild(line);
+        const v = maxV - (i / 4) * range;
+        const lbl = svgEl('text', {
+            x: PAD.left - 6, y: y + 4,
+            fill: 'rgba(255,255,255,0.3)',
+            'font-size': '10',
+            'font-family': 'JetBrains Mono, monospace',
+            'text-anchor': 'end'
+        });
+        lbl.textContent = v.toFixed(0) + ' EH';
+        svg.appendChild(lbl);
+    }
+
+    // ATH dashed line
+    if (athEh) {
+        const yAth = yPos(athEh);
+        const athLine = svgEl('line', {
+            x1: PAD.left, y1: yAth, x2: VW - PAD.right, y2: yAth,
+            stroke: 'rgba(248,193,92,0.5)', 'stroke-width': '1.2',
+            'stroke-dasharray': '6 4'
+        });
+        svg.appendChild(athLine);
+    }
+
+    // Fill polygon under hashrate curve
+    const fillPts = pts.map((p, i) => `${xPos(i)},${yPos(p.hashrate_eh)}`).join(' ');
+    const closePts = `${xPos(pts.length - 1)},${VH - PAD.bottom} ${xPos(0)},${VH - PAD.bottom}`;
+    const fillPoly = svgEl('polygon', {
+        points: fillPts + ' ' + closePts,
+        fill: 'url(#hrGrad)'
+    });
+    svg.appendChild(fillPoly);
+
+    // 7-day MA polyline (dim white)
+    if (ma7.length === pts.length) {
+        const maPoints = ma7.map((v, i) => `${xPos(i)},${yPos(v)}`).join(' ');
+        const maPoly = svgEl('polyline', {
+            points: maPoints,
+            fill: 'none', stroke: 'rgba(255,255,255,0.25)',
+            'stroke-width': '1.5', 'stroke-linejoin': 'round'
+        });
+        svg.appendChild(maPoly);
+    }
+
+    // Hashrate polyline (cyan)
+    const hrPoints = pts.map((p, i) => `${xPos(i)},${yPos(p.hashrate_eh)}`).join(' ');
+    const hrPoly = svgEl('polyline', {
+        points: hrPoints,
+        fill: 'none', stroke: '#5de4ff',
+        'stroke-width': '2', 'stroke-linejoin': 'round', 'stroke-linecap': 'round'
+    });
+    svg.appendChild(hrPoly);
+
+    // X-axis date labels
+    const labelIdxs = [0, Math.floor(pts.length / 2), pts.length - 1];
+    const anchors = ['start', 'middle', 'end'];
+    labelIdxs.forEach((idx, li) => {
+        const lbl = svgEl('text', {
+            x: xPos(idx), y: VH - PAD.bottom + 16,
+            fill: 'rgba(255,255,255,0.35)',
+            'font-size': '10',
+            'font-family': 'JetBrains Mono, monospace',
+            'text-anchor': anchors[li]
+        });
+        lbl.textContent = fmtDate(pts[idx].timestamp);
+        svg.appendChild(lbl);
+    });
+
+    // Current-value pulse dot
+    const lastIdx = pts.length - 1;
+    const dotX = xPos(lastIdx);
+    const dotY = yPos(pts[lastIdx].hashrate_eh);
+
+    const outerCircle = svgEl('circle', {
+        cx: dotX, cy: dotY, r: '8',
+        fill: 'none', stroke: 'rgba(93,228,255,0.3)', 'stroke-width': '2'
+    });
+    outerCircle.innerHTML = '<animate attributeName="r" values="6;10;6" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.6;0.1;0.6" dur="2s" repeatCount="indefinite"/>';
+    svg.appendChild(outerCircle);
+
+    const innerDot = svgEl('circle', {
+        cx: dotX, cy: dotY, r: '4',
+        fill: '#5de4ff'
+    });
+    svg.appendChild(innerDot);
+
+    // Tooltip via invisible hover overlay rectangles
+    svg.addEventListener('mousemove', (e) => {
+        const rect = svg.getBoundingClientRect();
+        // Map screen x to SVG viewBox x (account for preserveAspectRatio:none scaling)
+        const scaleX = VW / rect.width;
+        const mx = (e.clientX - rect.left) * scaleX;
+        const idx = Math.max(0, Math.min(pts.length - 1,
+            Math.round((mx - PAD.left) / cW * (pts.length - 1))));
+        const tip = document.getElementById('chartTooltip');
+        if (tip && pts[idx]) {
+            const screenX = rect.left + (xPos(idx) / VW) * rect.width;
+            const screenY = rect.top + (yPos(pts[idx].hashrate_eh) / VH) * rect.height;
+            tip.style.opacity = '1';
+            tip.style.left = (screenX - rect.left + 12) + 'px';
+            tip.style.top = (screenY - rect.top - 20) + 'px';
+            tip.textContent = `${fmtDate(pts[idx].timestamp)} — ${pts[idx].hashrate_eh} EH/s`;
+        }
+    });
+    svg.addEventListener('mouseleave', () => {
+        const tip = document.getElementById('chartTooltip');
+        if (tip) tip.style.opacity = '0';
+    });
+}
+
+// ── Section 4: Pool Distribution ─────────────────────────────────────────────
+async function loadPoolData() {
+    try {
+        const res = await fetch('/api/mining/pools');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (!data.pools || data.pools.length === 0) throw new Error('no pools');
+        renderPoolData(data);
+    } catch (err) {
+        console.warn('Pool data error:', err);
+        const listEl = document.getElementById('poolList');
+        if (listEl) listEl.innerHTML = '<div style="color:var(--pp-text-muted);font-size:0.82rem;padding:20px 0">Pool data unavailable.</div>';
+    }
+}
+
+function renderPoolData(data) {
+    const pools = data.pools;
+
+    // Pool list
+    const listEl = document.getElementById('poolList');
+    if (listEl) {
+        listEl.innerHTML = pools.map((p, i) => `
+            <div class="pool-row">
+                <div class="pool-color-dot" style="background:${POOL_COLORS[i % POOL_COLORS.length]}"></div>
+                <div class="pool-name">${p.name}</div>
+                <div class="pool-bar-wrapper">
+                    <div class="pool-bar-fill" style="width:${p.share_pct}%;background:${POOL_COLORS[i % POOL_COLORS.length]}"></div>
+                </div>
+                <div class="pool-pct">${p.share_pct.toFixed(1)}%</div>
+            </div>
+        `).join('');
+    }
+
+    // HHI score
+    const hhiEl = document.getElementById('hhiValue');
+    if (hhiEl) hhiEl.textContent = data.hhi != null ? data.hhi.toLocaleString() : '—';
+
+    // Warning box
+    const warnEl = document.getElementById('hhiWarning');
+    if (warnEl && data.concentration_label) {
+        warnEl.className = 'hhi-warning ' + (data.concentration_color || '');
+        const icons = { red: '⚠️', gold: '⚡', green: '✅' };
+        const msgs = {
+            red: `HIGH CONCENTRATION RISK — HHI ${data.hhi} (>2500). Top 3 pools control ${data.top3_share_pct}% of hashrate.`,
+            gold: `MODERATE CONCENTRATION — HHI ${data.hhi}. Monitor pool distribution trends.`,
+            green: `HEALTHY DISTRIBUTION — HHI ${data.hhi}. Network hashrate well distributed.`,
+        };
+        warnEl.textContent = (icons[data.concentration_color] || '') + ' ' + (msgs[data.concentration_color] || '');
+        if (data.centralization_warning && data.concentration_color !== 'red') {
+            warnEl.className = 'hhi-warning red';
+            warnEl.textContent = `⚠️ MINING CENTRALIZATION RISK — Top 3 pools control ${data.top3_share_pct}% of hashrate.`;
+        }
+    }
+
+    // SVG Pie chart
+    renderPieChart(pools);
+}
+
+function polarToCartesian(cx, cy, r, angleDeg) {
+    const rad = (angleDeg - 90) * Math.PI / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+
+function renderPieChart(pools) {
+    const svg = document.getElementById('poolPieSvg');
+    if (!svg) return;
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+    const size = 220, cx = 110, cy = 110;
+    const outerR = 90, innerR = 56;
+    const GAP_DEG = 1.5;
+
+    const total = pools.reduce((s, p) => s + p.share_pct, 0) || 100;
+    let startAngle = 0;
+
+    pools.forEach((p, i) => {
+        const sliceDeg = (p.share_pct / total) * 360;
+        if (sliceDeg < 0.5) { startAngle += sliceDeg; return; }
+
+        const s = startAngle + GAP_DEG / 2;
+        const e = startAngle + sliceDeg - GAP_DEG / 2;
+        const largeArc = (sliceDeg - GAP_DEG) > 180 ? 1 : 0;
+
+        const o1 = polarToCartesian(cx, cy, outerR, s);
+        const o2 = polarToCartesian(cx, cy, outerR, e);
+        const i1 = polarToCartesian(cx, cy, innerR, e);
+        const i2 = polarToCartesian(cx, cy, innerR, s);
+
+        const d = [
+            `M ${o1.x.toFixed(2)} ${o1.y.toFixed(2)}`,
+            `A ${outerR} ${outerR} 0 ${largeArc} 1 ${o2.x.toFixed(2)} ${o2.y.toFixed(2)}`,
+            `L ${i1.x.toFixed(2)} ${i1.y.toFixed(2)}`,
+            `A ${innerR} ${innerR} 0 ${largeArc} 0 ${i2.x.toFixed(2)} ${i2.y.toFixed(2)}`,
+            'Z'
+        ].join(' ');
+
+        const path = svgEl('path', {
+            d,
+            fill: POOL_COLORS[i % POOL_COLORS.length],
+        });
+        path.setAttribute('title', `${p.name} — ${p.share_pct.toFixed(1)}%`);
+        svg.appendChild(path);
+        startAngle += sliceDeg;
+    });
+
+    // Center fill (donut hole)
+    const center = svgEl('circle', {
+        cx, cy, r: innerR - 1,
+        fill: '#0f0f14'
+    });
+    svg.appendChild(center);
+}
+
+// ── Section 5: Mining Articles ────────────────────────────────────────────────
+async function loadMiningArticles() {
+    const grid = document.getElementById('miningArticles');
+    if (!grid) return;
+    try {
+        const res = await fetch('/api/mining/articles');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        const articles = data.articles || [];
+
+        if (articles.length === 0) {
+            grid.innerHTML = `<div class="articles-empty">
+                Mining intelligence articles will appear here after the first monitor run.
+                <br><br>
+                <a href="/articles" style="color:#f8c15c">Browse all articles →</a>
+            </div>`;
+            return;
+        }
+
+        grid.innerHTML = articles.map(a => `
+            <a href="${a.url}" class="article-card">
+                <div class="article-card-kicker">Mining Intel</div>
+                <div class="article-card-title">${escHtml(a.title)}</div>
+                <div class="article-card-summary">${escHtml(a.summary || '')}</div>
+                <div class="article-card-date">${fmtDate(a.created_at)}</div>
+            </a>
+        `).join('');
+    } catch (err) {
+        console.warn('Mining articles error:', err);
+        if (grid) grid.innerHTML = '<div class="articles-empty">Articles unavailable.</div>';
+    }
+}
+
+function escHtml(s) {
+    return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+    // Initialize slider displays
+    electricityDisplay.textContent = '$' + parseFloat(electricitySlider.value).toFixed(2) + '/kWh';
+    poolFeeDisplay.textContent = parseFloat(poolFeeSlider.value).toFixed(1) + '%';
+
+    // Initial REST load (gets all stats including difficulty, hash price, etc.)
+    // WebSocket only provides blocks/fees reactively — full stats still need REST bootstrap
+    await loadLiveStatsRest();
+
+    // Start WebSocket (LAW 2 — live hashrate via WebSocket, not polling)
+    connectMempoolWs();
+
+    // Load chart, pools, articles concurrently (non-blocking)
+    Promise.allSettled([
+        loadHashrateChart(),
+        loadPoolData(),
+        loadMiningArticles(),
+    ]);
+
+    // Refresh full stats every 60s (catches difficulty, hash_price, adjustment data
+    // which aren't in the WebSocket stream)
+    setInterval(loadLiveStatsRest, 60000);
+
+    // Check for staleness every 30 seconds
+    setInterval(updateStaleness, 30000);
+});
+
+// Re-render SVG chart on resize (SVG with preserveAspectRatio:none scales automatically,
+// but tooltip coordinates depend on rendered size so we re-bind on resize)
+let resizeTimer;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+        if (chartData) renderHashrateChart(chartData);
+    }, 300);
+});
+</script>
+{% endblock %}
