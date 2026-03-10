@@ -1,127 +1,173 @@
 # MANDATORY: Read ~/protocol_pulse/CROSS_LLM_AUDIT_LAW.md before starting.
 # Sequence: Phase0 LLM council -> Build -> 2-cycle audit -> Second pass -> Merge.
-# NEVER skip the pre-build LLM council (Phase 0).
 
-# PROTOCOL PULSE — GOSPEL: P3 MEDIA UNIFIED
-# Branch: feature/p3-media-unified | Created: 2026-03-09
+# PROTOCOL PULSE — GOSPEL: P3 PREMIUM + STRIPE
+# Branch: feature/p3-premium-stripe | Created: 2026-03-09
 
 ---
 
 ## WHAT THIS IS
-The single content discovery command center for Protocol Pulse. Kills /media-hub
-and /media-terminal (both broken/fragmented) and replaces them with one cinematic
-intelligence feed at /media. The Netflix × Bloomberg Terminal × Cypherpunk experience.
+Commander tier ($49/month). Stripe Checkout. API key issuance. Terminal API endpoints
+gated behind auth. Self-service portal. API Playground. Usage analytics.
+The monetization foundation for Protocol Pulse.
 
-## PHASE 0 — PRE-BUILD LLM SPEC COUNCIL (MANDATORY — DO BEFORE ANY CODE)
-Run: python3 ~/protocol_pulse/utils/cross_llm_audit.py --feature p3-media-unified --phase0
-This sends this gospel to Gemini-2.5-Pro + GPT-4o + Grok-3 in parallel, asking:
-"What are the most advanced, cutting-edge 2026 features for a Bitcoin intelligence
-media discovery page? What is missing from this spec? What would make this world-class?"
-Read C0_GEMINI.md, C0_GPT4O.md, C0_GROK.md in docs/audits/p3-media-unified/.
-Synthesize the top suggestions and incorporate before building.
+## PHASE 0 — PRE-BUILD LLM SPEC COUNCIL (MANDATORY)
+Run: python3 ~/protocol_pulse/utils/cross_llm_audit.py --feature p3-premium-stripe --phase0
+Ask all 3 LLMs: "What are the most advanced 2026 developer API monetization features?
+How do the best API-first companies (Stripe, Twilio, OpenAI) handle onboarding,
+billing, rate limiting, and developer experience in 2026?"
+Incorporate top P0 ideas before building.
 
 ## THE LAWS
-### LAW 1: Single source of truth — one page, all content
-- /media serves media_unified.html — the only media page that exists
-- 301 redirect /media-hub and /media-terminal to /media permanently
-- All content pulled from real DB/API — zero hardcoded data
+### LAW 1: Stripe keys come from .env — never hardcode
+STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_COMMANDER_PRICE_ID must be in .env
+After building, print a clear SETUP.md with exact steps for PBX to:
+1. Create Stripe account + get test keys
+2. Create Commander product ($49/mo recurring) in Stripe dashboard
+3. Add all 3 keys to .env on Ultron
+4. Test with Stripe test mode first
 
-### LAW 2: Glassmorphism + VISUAL_DESIGN_SYSTEM.md aesthetic only
-- Background: #0A0A0F | Accent: #FF3333 | Gold: #F8C15C | Glass: rgba(255,255,255,0.04)
-- JetBrains Mono for all numbers and data
-- CSS animations only — NO Three.js, NO WebGL, NO canvas 3D
-- Every card has hover: red glow box-shadow + 2px upward transform
+### LAW 2: API keys are UUID4 — never sequential, never guessable
+import uuid; api_key = "pp_cmd_" + str(uuid.uuid4()).replace("-", "")
+Example: pp_cmd_a3f9b2c1d4e5f6a7b8c9d0e1f2a3b4c5
+Rate limit: 1000 requests/hour per key. Track in api_subscribers table.
 
-### LAW 3: Real-time via SSE — never polling for live data
-- /api/stream/media-feed → Server-Sent Events pushing new content
-- Browser subscribes: const evtSource = new EventSource("/api/stream/media-feed")
-- Pushes: new_article, new_episode, btc_price_update, sentiment_change events
-- Falls back gracefully if SSE not supported (30s polling fallback)
+### LAW 3: Webhook validation is non-negotiable
+Always: stripe.Webhook.construct_event(payload, sig_header, STRIPE_WEBHOOK_SECRET)
+If validation fails: return 400 immediately, log the attempt
+Handle: payment_intent.succeeded, customer.subscription.deleted, invoice.payment_failed
 
-### LAW 4: Semantic search — not keyword matching
-- /api/search?q= endpoint uses Claude Haiku to score article relevance
-- Generate embedding-style similarity: pass query + article titles to Claude,
-  ask it to rank by relevance. Return top 10 sorted results.
-- Search bar: Cmd+K shortcut, full-screen overlay, real-time as-you-type (300ms debounce)
-
-### LAW 5: Layout zones are sacred — no overlap ever
-- Content grid: CSS Grid, responsive breakpoints at 768px and 1200px
-- Cards never overlap — overflow: hidden on all containers
+### LAW 4: API Playground is sandboxed — uses a demo key
+Create a read-only demo api_key (tier="demo") that returns sample data
+Playground hits the actual endpoints with this key — real experience, safe data
+Rate limit demo key: 20 req/hour to prevent abuse
 
 ## ARCHITECTURE
 
-### Backend — routes.py additions
-```python
-@app.route("/media")
-def media_unified():
-    # Pass: latest_episodes(5), latest_articles(12), btc_price,
-    #       sentiment_score, article_count_24h, signal_strength
-    ...
+### Database Schema
+```sql
+CREATE TABLE IF NOT EXISTS api_subscribers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT UNIQUE NOT NULL,
+  api_key TEXT UNIQUE NOT NULL,       -- "pp_cmd_" + uuid4
+  tier TEXT DEFAULT "commander",      -- commander|enterprise|demo
+  stripe_customer_id TEXT,
+  stripe_subscription_id TEXT,
+  stripe_price_id TEXT,
+  requests_this_hour INTEGER DEFAULT 0,
+  requests_today INTEGER DEFAULT 0,
+  requests_total INTEGER DEFAULT 0,
+  rate_limit_per_hour INTEGER DEFAULT 1000,
+  webhook_url TEXT,                   -- optional: subscriber can receive pushes
+  webhook_secret TEXT,                -- HMAC secret for their webhook
+  is_active INTEGER DEFAULT 1,
+  subscription_status TEXT DEFAULT "active", -- active|past_due|canceled
+  current_period_end DATETIME,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_used_at DATETIME
+);
 
-@app.route("/api/stream/media-feed")
-def media_feed_sse():
-    # Server-Sent Events — push updates every 30s
-    # event: btc_price_update, new_article, sentiment_update
-    ...
-
-@app.route("/api/search")
-def semantic_search():
-    # q= param, uses Claude Haiku for semantic ranking
-    # Cache identical queries 5min
-    ...
-
-@app.route("/api/system-health")
-def system_health():
-    # Returns: flask, last_render_time, articles_24h, elevenlabs_status
-    ...
+CREATE TABLE IF NOT EXISTS api_request_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  api_key TEXT NOT NULL,
+  endpoint TEXT NOT NULL,
+  response_time_ms INTEGER,
+  status_code INTEGER,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+-- Index for rate limiting:
+CREATE INDEX IF NOT EXISTS idx_api_log_key_time ON api_request_log(api_key, created_at);
 ```
 
-### Database
-No new tables needed — queries existing: articles, podcasts tables.
-Add indexes if missing: articles(published_at), articles(category).
+### Services
+```
+services/stripe_service.py       — checkout, webhook, subscription management
+services/api_key_service.py      — auth middleware, rate limiting, usage tracking
+services/terminal_api_service.py — the actual data endpoints for subscribers
+```
 
-### Frontend Features (26 total)
-TIER 1 — Core experience:
-1.  Hero: Latest Pulse Check embed, full-width, muted autoplay, red gradient overlay
-2.  SSE live ticker: BTC price, block height, 24h change — updates via EventSource
-3.  Pulse Check archive row: horizontal scroll, glassmorphism episode cards
-4.  CypherPunkd row: same pattern, episode + guest name
-5.  Articles masonry: 3-col, real DB data, category badge, read time estimate
-6.  Signal Strength widget: composite score 0-100, animated arc SVG, BULLISH/BEARISH
-7.  Kill fake X feed: replace with real article headline ticker (CSS marquee, DB-sourced)
-8.  Kill hardcoded quotes: gone — replaced by live trending topic pills
-9.  Nostr relay health dot: green/red dot showing relay connection status
-10. System health strip: last render time, article count 24h, API status
+### Terminal API Endpoints (all require X-API-Key header)
+```python
+GET /api/v2/terminal/topics      → top 20 topics from last 24h articles
+GET /api/v2/terminal/entities    → named entities: people, orgs, coins
+GET /api/v2/terminal/sentiment   → aggregate sentiment + components
+GET /api/v2/terminal/breaking    → articles published last 2hrs
+GET /api/v2/terminal/signal      → composite Signal Strength 0-100
+GET /api/v2/terminal/status      → subscriber usage stats + quota
+GET /api/v2/terminal/stream      → SSE stream of breaking news (Commander only)
+```
 
-TIER 2 — Intelligence layer:
-11. Virtual feed filter: ALL/MARKETS/MINING/REGULATION/SOVEREIGNTY/LIGHTNING tabs
-    Pure JS, no reload. Filters all rows simultaneously. Active tab: red underline.
-12. Semantic search overlay: Cmd+K, full-screen dark overlay, live results
-13. Sentiment compact card: today's score, trend vs yesterday, colored indicator
-14. Trending topics pills: top 8 keywords, pill size proportional to frequency
-15. Oracle briefing card: latest AI briefing thumbnail + "WATCH TODAY'S INTEL" CTA
-16. Clips gallery: top 6 YouTube clips, 16:9, channel lower-third attribution
+Each endpoint:
+- Validates X-API-Key → 401 if invalid
+- Checks hourly rate limit → 429 if exceeded with Retry-After header
+- Logs request to api_request_log
+- Returns JSON with: data, meta {requests_this_hour, requests_remaining, tier}
 
-TIER 3 — Premium & engagement:
-17. Commander CTA banner: animated pulse border, red gradient, "ACCESS THE FULL FEED"
-18. Newsletter capture: inline email input, Resend POST, success animation
-19. 7-day BTC sparkline: canvas-drawn, red line, no external lib, W×60px compact
-20. Mining stats strip: hashrate + difficulty from mempool.space proxy
-21. Mempool fee pills: Low/Mid/High sat/vB, color-coded green/yellow/red
-22. Native Web Share: share button on every card, Web Share API, fallback copy-link
-23. Reading progress: article cards show "NEW" badge if published <6hrs ago
-24. Keyboard nav: J/K to move between cards, Enter to open, Esc to close
-25. Lazy load: Intersection Observer on all images and card sections
-26. PWA manifest: add-to-homescreen, theme_color: #0A0A0F
+### Stripe Flow
+POST /api/v2/terminal/subscribe → create_checkout_session(email) → redirect to Stripe
+GET /subscribe/success?session_id=... → validate → show api_key → send welcome email
+POST /webhook/stripe → handle payment events → create/deactivate api_keys
+GET /api/dashboard → subscriber self-service (their key + usage + billing portal link)
+
+### Premium Landing Page (/premium — upgrade existing template)
+3 tiers as glassmorphism cards:
+FREE: Articles, daily brief, basic charts (current state)
+COMMANDER ($49/mo): Terminal API (1000 req/hr), breaking news stream,
+  entity tracking, sentiment data, signal strength, SSE stream
+  "JOIN THE INTEL FEED →" button — red, animated pulse border on hover
+ENTERPRISE: Contact (custom volume, webhook delivery, white-label)
+
+### API Playground (/api/playground)
+Interactive page — try the API before subscribing:
+- Dropdown: select endpoint to test
+- Click "RUN" → hits endpoint with demo key → shows formatted JSON response
+- Shows response time, rate limit headers
+- "Get Full Access →" CTA at bottom
+- Syntax highlighted JSON output (Prism.js from cdnjs)
+
+### Usage Analytics Dashboard (/api/dashboard — requires subscriber login or api_key)
+- Your API key (masked, reveal button)
+- Requests today / this month / total
+- Hourly usage sparkline (last 24hrs)
+- Subscription status + next billing date
+- "Manage Billing" → Stripe Customer Portal link
+- Webhook configuration (optional: enter URL + secret to receive push events)
+
+### Webhook Delivery (optional feature for subscribers)
+When new breaking article published: POST to subscriber's webhook_url
+Payload: {event: "breaking_article", data: {title, summary, url, published_at}}
+Sign with HMAC-SHA256 using their webhook_secret → X-PP-Signature header
+Queue delivery, retry 3x on failure, log all attempts
+
+## SETUP.md — Generate this file with exact PBX instructions
+After building, create ~/protocol_pulse/STRIPE_SETUP.md:
+```
+# STRIPE SETUP FOR PBX
+1. Go to https://dashboard.stripe.com → create account if needed
+2. Go to Products → Create: "Protocol Pulse Commander" $49/mo recurring
+3. Copy the Price ID (starts with price_...)
+4. Go to Developers → API keys → copy Secret key (sk_test_... for testing)
+5. Go to Developers → Webhooks → Add endpoint:
+   URL: https://protocolpulse.io/webhook/stripe
+   Events: payment_intent.succeeded, customer.subscription.deleted, invoice.payment_failed
+   Copy Signing Secret (whsec_...)
+6. SSH to Ultron: add to ~/protocol_pulse/.env:
+   STRIPE_SECRET_KEY=sk_test_...
+   STRIPE_WEBHOOK_SECRET=whsec_...
+   STRIPE_COMMANDER_PRICE_ID=price_...
+7. Restart Flask: tmux send-keys -t flask_main "C-c" && tmux send-keys -t flask_main "..." Enter
+8. Test with Stripe test card: 4242 4242 4242 4242, any future date, any CVC
+```
 
 ## VERIFICATION
-- [ ] GET /media → HTTP 200, renders with real content
-- [ ] GET /media-hub → 301 redirect to /media
-- [ ] GET /media-terminal → 301 redirect to /media
-- [ ] EventSource /api/stream/media-feed connects and pushes events
-- [ ] Cmd+K opens search, results appear within 1s
-- [ ] Virtual filter tabs switch content without page reload
-- [ ] BTC price updates every 30s via SSE
-- [ ] Articles grid shows real data, NOT hardcoded
+- [ ] GET /premium → HTTP 200, 3-tier display
+- [ ] POST /api/v2/terminal/subscribe → redirects to Stripe (requires STRIPE key in .env)
+- [ ] GET /api/v2/terminal/topics with valid api_key → 200 with real data
+- [ ] GET /api/v2/terminal/topics with bad key → 401
+- [ ] 1001st request → 429 with Retry-After header
+- [ ] Stripe webhook processes payment_intent.succeeded → creates api_key in DB
+- [ ] Welcome email sent via Resend on subscription
+- [ ] GET /api/playground → playground renders, demo key works
+- [ ] STRIPE_SETUP.md exists with complete instructions
 - [ ] regression_test.sh: zero FAILs
-- [ ] git commit + push to origin feature/p3-media-unified
+- [ ] git commit + push to origin feature/p3-premium-stripe

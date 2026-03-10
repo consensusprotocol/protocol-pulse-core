@@ -33,8 +33,11 @@ def resolve_tier_from_price(price_id: str) -> str | None:
 
 def handle_checkout_completed(session_obj: dict, db, models) -> dict:
     """
-    Process a checkout.session.completed event for Terminal subscriptions.
-    Upgrades user tier to commander (or whichever tier was purchased).
+    Process checkout.session.completed for USER MODEL subscriptions (web login tier upgrades).
+
+    WARNING: This function operates on the User model, NOT ApiSubscriber.
+    For Terminal API subscriptions (subscription_type=terminal_api), use
+    provision_terminal_subscriber() instead. These two flows are separate.
 
     Returns {"success": bool, "tier": str, "user_id": int|None, "error": str|None}
     """
@@ -84,7 +87,12 @@ def handle_checkout_completed(session_obj: dict, db, models) -> dict:
 
 def handle_subscription_deleted(subscription_obj: dict, db, models) -> dict:
     """
-    Process a customer.subscription.deleted event.
+    Process customer.subscription.deleted for USER MODEL subscriptions.
+
+    WARNING: This function operates on the User model, NOT ApiSubscriber.
+    For Terminal API subscription cancellations, use cancel_terminal_subscriber() instead.
+    These two flows are separate.
+
     Downgrades user back to free tier.
     """
     subscription_id = subscription_obj.get("id")
@@ -111,6 +119,113 @@ def handle_subscription_deleted(subscription_obj: dict, db, models) -> dict:
     except Exception as e:
         db.session.rollback()
         logger.error("DB error downgrading user %d: %s", user.id, e)
+        return {"success": False, "error": str(e)}
+
+
+def provision_terminal_subscriber(session_obj: dict, db, models) -> dict:
+    """
+    On checkout.session.completed for Terminal API subscription:
+    Creates/updates ApiSubscriber record with a fresh API key.
+    Returns {"success": bool, "api_key": str|None, "email": str|None, "error": str|None}
+    """
+    import uuid
+    import json
+    from services.api_key_service import generate_api_key, generate_webhook_secret, TIER_ENTITLEMENTS
+
+    customer_email = (session_obj.get("customer_details") or {}).get("email")
+    if not customer_email:
+        customer_email = session_obj.get("customer_email")
+    customer_id = session_obj.get("customer")
+    subscription_id = session_obj.get("subscription")
+    metadata = session_obj.get("metadata") or {}
+
+    # Only handle terminal API subscriptions
+    if metadata.get("subscription_type") != "terminal_api":
+        return {"success": False, "api_key": None, "email": customer_email, "error": "not terminal_api"}
+
+    if not customer_email:
+        logger.warning("No email in terminal checkout session %s", session_obj.get("id"))
+        return {"success": False, "api_key": None, "email": None, "error": "no email"}
+
+    tier = metadata.get("tier", "commander")
+    if tier not in ("commander", "enterprise"):
+        tier = "commander"
+
+    try:
+        # Check if subscriber already exists (re-subscription or upgrade)
+        existing = models.ApiSubscriber.query.filter_by(email=customer_email).first()
+        if existing:
+            # Reactivate and update
+            existing.is_active = True
+            existing.subscription_status = "active"
+            existing.tier = tier
+            existing.stripe_customer_id = customer_id
+            existing.stripe_subscription_id = subscription_id
+            existing.entitlements = json.dumps(TIER_ENTITLEMENTS.get(tier, {}))
+            existing.key_scopes = json.dumps(["read", "stream", "webhook"])
+            db.session.commit()
+            logger.info("Terminal subscriber reactivated: %s tier=%s", customer_email, tier)
+            return {"success": True, "api_key": existing.api_key, "email": customer_email, "error": None}
+
+        # New subscriber
+        new_key = generate_api_key(tier)
+        entitlements = json.dumps(TIER_ENTITLEMENTS.get(tier, {}))
+        subscriber = models.ApiSubscriber(
+            email=customer_email,
+            api_key=new_key,
+            tier=tier,
+            stripe_customer_id=customer_id,
+            stripe_subscription_id=subscription_id,
+            rate_limit_per_hour=1000 if tier == "commander" else -1,
+            entitlements=entitlements,
+            key_scopes=json.dumps(["read", "stream", "webhook"]),
+            is_active=True,
+            subscription_status="active",
+        )
+        db.session.add(subscriber)
+        db.session.commit()
+        logger.info("Terminal subscriber created: %s key=%s... tier=%s",
+                    customer_email, new_key[:20], tier)
+        return {"success": True, "api_key": new_key, "email": customer_email, "error": None}
+
+    except Exception as e:
+        logger.error("Error provisioning terminal subscriber: %s", e)
+        try:
+            db.session.rollback()
+        except Exception:
+            pass
+        return {"success": False, "api_key": None, "email": customer_email, "error": str(e)}
+
+
+def cancel_terminal_subscriber(subscription_obj: dict, db, models) -> dict:
+    """
+    On customer.subscription.deleted: deactivate the ApiSubscriber.
+    """
+    subscription_id = subscription_obj.get("id")
+    customer_id = subscription_obj.get("customer")
+
+    try:
+        sub = None
+        if subscription_id:
+            sub = models.ApiSubscriber.query.filter_by(stripe_subscription_id=subscription_id).first()
+        if not sub and customer_id:
+            sub = models.ApiSubscriber.query.filter_by(stripe_customer_id=customer_id).first()
+
+        if not sub:
+            return {"success": False, "error": "subscriber not found"}
+
+        sub.is_active = False
+        sub.subscription_status = "canceled"
+        db.session.commit()
+        logger.info("Terminal subscriber deactivated: %s", sub.email)
+        return {"success": True, "email": sub.email}
+
+    except Exception as e:
+        logger.error("Error canceling terminal subscriber: %s", e)
+        try:
+            db.session.rollback()
+        except Exception:
+            pass
         return {"success": False, "error": str(e)}
 
 

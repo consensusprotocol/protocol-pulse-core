@@ -1,0 +1,450 @@
+{% extends "base.html" %}
+{% block title %}API Dashboard | Protocol Pulse{% endblock %}
+{% block extra_css %}
+<style>
+.dashboard-page {
+  min-height: 100vh;
+  background: #0a0a0f;
+  padding: 100px 20px 60px;
+}
+.dashboard-container { max-width: 960px; margin: 0 auto; }
+.dash-header { margin-bottom: 36px; }
+.dash-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 800;
+  letter-spacing: 0.18em; color: #f8c15c;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.dash-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 26px; font-weight: 700; color: #eef2ff;
+}
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+@media (max-width: 768px) { .dash-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 480px) { .dash-grid { grid-template-columns: 1fr; } }
+.stat-card {
+  background: #0d1118;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 20px;
+}
+.stat-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 800;
+  letter-spacing: 0.18em; color: #95a0ba;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px; font-weight: 900;
+  color: #eef2ff; letter-spacing: -0.02em;
+}
+.stat-value.gold { color: #f8c15c; }
+.stat-sub { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #95a0ba; margin-top: 4px; }
+.panel {
+  background: #0d1118;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.panel-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.panel-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 800;
+  letter-spacing: 0.15em; color: #95a0ba;
+  text-transform: uppercase;
+}
+.panel-body { padding: 20px; }
+.key-row {
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+}
+.key-masked {
+  flex: 1; min-width: 200px;
+  font-family: 'JetBrains Mono', monospace; font-size: 14px;
+  color: #f8c15c; background: #06070b;
+  border: 1px solid rgba(248,193,92,0.2);
+  border-radius: 8px; padding: 10px 14px;
+}
+.btn-sm {
+  padding: 8px 16px;
+  border-radius: 8px; font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.15); background: transparent;
+  color: #eef2ff; transition: all 0.15s;
+}
+.btn-sm:hover { border-color: #f8c15c; color: #f8c15c; }
+.btn-sm.danger { border-color: rgba(255,59,95,0.3); color: #ff8ba0; }
+.btn-sm.danger:hover { border-color: #ff3b5f; background: rgba(255,59,95,0.08); }
+canvas#sparkline { width: 100%; height: 80px; }
+.status-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px; border-radius: 999px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+}
+.status-pill.active { background: rgba(137,255,184,0.1); color: #89ffb8; border: 1px solid rgba(137,255,184,0.2); }
+.status-pill.canceled { background: rgba(255,59,95,0.1); color: #ff8ba0; border: 1px solid rgba(255,59,95,0.2); }
+.status-pill.past_due { background: rgba(248,193,92,0.1); color: #f8c15c; border: 1px solid rgba(248,193,92,0.2); }
+.entitlement-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+.ent-chip {
+  padding: 8px 12px; border-radius: 8px; text-align: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+}
+.ent-chip.on { background: rgba(137,255,184,0.08); color: #89ffb8; border: 1px solid rgba(137,255,184,0.15); }
+.ent-chip.off { background: rgba(255,255,255,0.03); color: #4a5068; border: 1px solid rgba(255,255,255,0.06); }
+.webhook-form { display: flex; gap: 10px; flex-wrap: wrap; }
+.webhook-input {
+  flex: 1; min-width: 200px;
+  background: #06070b; border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px; padding: 10px 14px;
+  font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #eef2ff; outline: none;
+}
+.webhook-input:focus { border-color: #f8c15c; }
+.btn-primary {
+  padding: 10px 20px; background: #ff3b5f; border: none;
+  border-radius: 8px; color: #eef2ff; font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s;
+}
+.btn-primary:hover { background: #ff5577; }
+.unauth-card {
+  text-align: center; padding: 60px 40px;
+  background: #0d1118; border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;
+}
+.unauth-title { font-family: 'JetBrains Mono', monospace; font-size: 22px; color: #eef2ff; margin-bottom: 10px; }
+.unauth-sub { color: #95a0ba; margin-bottom: 30px; }
+.key-input-row { display: flex; gap: 10px; max-width: 480px; margin: 0 auto 16px; }
+.key-input {
+  flex: 1; background: #06070b; border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px; padding: 12px 16px; font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; color: #eef2ff; outline: none;
+}
+.key-input:focus { border-color: #f8c15c; }
+#rotateModal {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.8); z-index: 9999;
+  align-items: center; justify-content: center;
+}
+#rotateModal.show { display: flex; }
+.modal-card {
+  background: #0d1118; border: 1px solid rgba(255,59,95,0.3);
+  border-radius: 16px; padding: 36px; max-width: 480px; width: 90%; text-align: center;
+}
+.modal-title { font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #eef2ff; margin-bottom: 12px; }
+.modal-sub { color: #95a0ba; font-size: 14px; margin-bottom: 24px; }
+.modal-actions { display: flex; gap: 12px; justify-content: center; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="dashboard-page">
+  <div class="dashboard-container">
+
+    {% if subscriber %}
+    <!-- Authenticated dashboard -->
+    <div class="dash-header">
+      <p class="dash-eyebrow">Commander Terminal API</p>
+      <h1 class="dash-title">API Dashboard</h1>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="dash-grid">
+      <div class="stat-card">
+        <div class="stat-label">Requests Today</div>
+        <div class="stat-value">{{ requests_today }}</div>
+        <div class="stat-sub">of {{ subscriber.rate_limit_per_hour }}/hr limit</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Requests</div>
+        <div class="stat-value gold">{{ "{:,}".format(subscriber.requests_total or 0) }}</div>
+        <div class="stat-sub">lifetime</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Status</div>
+        <div style="margin-top:8px;">
+          <span class="status-pill {{ subscriber.subscription_status }}">
+            <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+            {{ subscriber.subscription_status | upper }}
+          </span>
+        </div>
+        <div class="stat-sub">
+          {% if subscriber.current_period_end %}
+            Renews {{ subscriber.current_period_end.strftime('%b %d, %Y') }}
+          {% else %}Active{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- API Key panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">API Key</span>
+        <span style="font-family:monospace;font-size:11px;color:#95a0ba;">{{ subscriber.tier | upper }}</span>
+      </div>
+      <div class="panel-body">
+        <div class="key-row">
+          <div class="key-masked" id="keyMasked">{{ subscriber.api_key[:12] }}••••••••••••••••••••••••••••••••</div>
+          <button class="btn-sm" onclick="toggleKey()">Reveal</button>
+          <button class="btn-sm" onclick="copyFullKey()">Copy</button>
+          <button class="btn-sm danger" onclick="document.getElementById('rotateModal').classList.add('show')">Rotate Key</button>
+        </div>
+        <p style="font-family:monospace;font-size:11px;color:#95a0ba;margin-top:10px;">
+          Last used: {% if subscriber.last_used_at %}{{ subscriber.last_used_at.strftime('%Y-%m-%d %H:%M UTC') }}{% else %}Never{% endif %}
+        </p>
+      </div>
+    </div>
+
+    <!-- Sparkline -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Usage — Last 24h</span>
+      </div>
+      <div class="panel-body">
+        <canvas id="sparkline"></canvas>
+      </div>
+    </div>
+
+    <!-- Entitlements -->
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Entitlements</span></div>
+      <div class="panel-body">
+        <div class="entitlement-grid">
+          {% set ents = subscriber.get_entitlements() %}
+          {% for feat, enabled in ents.items() %}
+          <div class="ent-chip {{ 'on' if enabled else 'off' }}">
+            {{ '✓' if enabled else '✗' }} {{ feat }}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Webhook config -->
+    {% if subscriber.has_entitlement('webhook') %}
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Webhook Delivery</span></div>
+      <div class="panel-body">
+        <p style="color:#95a0ba;font-family:monospace;font-size:12px;margin-bottom:14px;">
+          Receive push notifications when breaking articles are published.
+          Payloads are signed with <code style="color:#f8c15c;">X-PP-Signature: sha256=&lt;hmac&gt;</code>
+        </p>
+        <div class="webhook-form" id="webhookForm">
+          <input type="url" class="webhook-input" id="webhookUrl"
+                 placeholder="https://your-server.com/webhook"
+                 value="{{ subscriber.webhook_url or '' }}">
+          <button class="btn-primary" onclick="saveWebhook()">Save</button>
+        </div>
+        {% if subscriber.webhook_secret %}
+        <p style="font-family:monospace;font-size:11px;color:#95a0ba;margin-top:10px;">
+          Signing secret: <code style="color:#f8c15c;">{{ subscriber.webhook_secret[:16] }}...</code>
+        </p>
+        {% endif %}
+        <div id="webhookMsg" style="display:none;margin-top:10px;font-family:monospace;font-size:12px;"></div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Billing -->
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Billing</span></div>
+      <div class="panel-body" style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button class="btn-primary" onclick="openBillingPortal()">Manage Billing →</button>
+        <a href="/api/playground" class="btn-sm" style="padding:10px 20px;">Playground</a>
+        <a href="/api/v2/terminal/docs" class="btn-sm" style="padding:10px 20px;">API Docs</a>
+      </div>
+    </div>
+
+    <!-- Rotate Key Modal -->
+    <div id="rotateModal">
+      <div class="modal-card">
+        <h2 class="modal-title">⚠️ Rotate API Key</h2>
+        <p class="modal-sub">Your current key will be immediately invalidated. Update all applications before rotating.</p>
+        <div class="modal-actions">
+          <button class="btn-sm danger" onclick="rotateKey()">Rotate Key</button>
+          <button class="btn-sm" onclick="document.getElementById('rotateModal').classList.remove('show')">Cancel</button>
+        </div>
+        <div id="rotateResult" style="margin-top:16px;font-family:monospace;font-size:12px;display:none;"></div>
+      </div>
+    </div>
+
+    {% else %}
+    <!-- Unauthenticated -->
+    <div class="unauth-card">
+      <h2 class="unauth-title">API Dashboard</h2>
+      <p class="unauth-sub">Enter your API key to view usage and manage your subscription.</p>
+      <div class="key-input-row">
+        <input type="text" class="key-input" id="keyInput" placeholder="pp_cmd_..." onkeydown="if(event.key==='Enter')lookupKey()">
+        <button class="btn-primary" onclick="lookupKey()">View Dashboard</button>
+      </div>
+      <p style="color:#95a0ba;font-family:monospace;font-size:12px;margin-top:12px;">
+        Don't have a key? <a href="/premium" style="color:#f8c15c;">Get Commander access →</a>
+      </p>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<script>
+{% if subscriber %}
+const FULL_KEY = "{{ api_key }}";
+let keyRevealed = false;
+
+function toggleKey() {
+  const el = document.getElementById("keyMasked");
+  const btn = event.target;
+  if (!keyRevealed) {
+    el.textContent = FULL_KEY;
+    btn.textContent = "Hide";
+    keyRevealed = true;
+  } else {
+    el.textContent = FULL_KEY.substring(0, 12) + "••••••••••••••••••••••••••••••••";
+    btn.textContent = "Reveal";
+    keyRevealed = false;
+  }
+}
+
+function copyFullKey() {
+  navigator.clipboard.writeText(FULL_KEY).catch(() => {});
+}
+
+async function rotateKey() {
+  const resultEl = document.getElementById("rotateResult");
+  resultEl.style.display = "block";
+  resultEl.style.color = "#95a0ba";
+  resultEl.textContent = "Rotating...";
+  try {
+    const resp = await fetch("/api/dashboard/rotate-key", {
+      method: "POST",
+      headers: { "X-API-Key": FULL_KEY }
+    });
+    const data = await resp.json();
+    if (resp.ok) {
+      resultEl.style.color = "#89ffb8";
+      resultEl.textContent = "✓ New key: " + data.new_api_key + "\n\nReload this page and use your new key.";
+    } else {
+      resultEl.style.color = "#ff8ba0";
+      resultEl.textContent = "Error: " + (data.error || "Unknown error");
+    }
+  } catch(e) {
+    resultEl.style.color = "#ff8ba0";
+    resultEl.textContent = "Request failed: " + e.message;
+  }
+}
+
+async function openBillingPortal() {
+  try {
+    const resp = await fetch("/api/dashboard/billing-portal", {
+      method: "POST",
+      headers: { "X-API-Key": FULL_KEY }
+    });
+    const data = await resp.json();
+    if (data.portal_url) {
+      window.location.href = data.portal_url;
+    } else {
+      alert(data.error || "Billing portal not available. Contact support@protocolpulse.io");
+    }
+  } catch(e) {
+    alert("Could not open billing portal.");
+  }
+}
+
+async function saveWebhook() {
+  const url = document.getElementById("webhookUrl").value.trim();
+  const msg = document.getElementById("webhookMsg");
+  msg.style.display = "block";
+  msg.style.color = "#95a0ba";
+  msg.textContent = "Saving...";
+  try {
+    const resp = await fetch("/api/dashboard/webhook", {
+      method: "POST",
+      headers: { "X-API-Key": FULL_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ webhook_url: url })
+    });
+    const data = await resp.json();
+    if (resp.ok) {
+      msg.style.color = "#89ffb8";
+      msg.textContent = "✓ Webhook saved.";
+    } else {
+      msg.style.color = "#ff8ba0";
+      msg.textContent = "Error: " + (data.error || "Unknown error");
+    }
+  } catch(e) {
+    msg.style.color = "#ff8ba0";
+    msg.textContent = "Request failed.";
+  }
+}
+
+// Sparkline canvas
+(function() {
+  const raw = {{ sparkline_json|safe }};
+  if (!raw || !raw.length) return;
+  const canvas = document.getElementById("sparkline");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const W = canvas.offsetWidth || 860;
+  const H = 80;
+  canvas.width = W;
+  canvas.height = H;
+  const counts = raw.map(b => b.count);
+  const max = Math.max(...counts, 1);
+  const pad = 8;
+  const stepX = (W - pad * 2) / (counts.length - 1);
+  ctx.strokeStyle = "#f8c15c";
+  ctx.lineWidth = 2;
+  ctx.shadowColor = "rgba(248,193,92,0.4)";
+  ctx.shadowBlur = 6;
+  ctx.beginPath();
+  counts.forEach((v, i) => {
+    const x = pad + i * stepX;
+    const y = H - pad - (v / max) * (H - pad * 2);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+  // Fill area
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = "transparent";
+  const lastX = pad + (counts.length - 1) * stepX;
+  const lastY = H - pad - (counts[counts.length-1] / max) * (H - pad * 2);
+  ctx.lineTo(lastX, H - pad);
+  ctx.lineTo(pad, H - pad);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, "rgba(248,193,92,0.2)");
+  grad.addColorStop(1, "rgba(248,193,92,0)");
+  ctx.fillStyle = grad;
+  ctx.fill();
+})();
+
+{% endif %}
+
+async function lookupKey() {
+  const key = document.getElementById("keyInput").value.trim();
+  if (!key) return;
+  // POST the key to /api/dashboard/auth — stores it in a signed HttpOnly session cookie
+  // so it never appears in URLs, server logs, or referrer headers.
+  try {
+    const r = await fetch("/api/dashboard/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ api_key: key }),
+    });
+    if (r.ok) {
+      window.location.href = "/api/dashboard";
+    } else {
+      const err = await r.json().catch(() => ({}));
+      alert(err.error || "Invalid API key. Please check and try again.");
+    }
+  } catch (e) {
+    alert("Network error. Please try again.");
+  }
+}
+</script>
+{% endblock %}

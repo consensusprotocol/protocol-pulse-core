@@ -314,8 +314,63 @@
         {% endif %}
         <div class="premium-header">
             <h1 class="premium-title">Upgrade to <span>Premium Intelligence</span></h1>
-            <p class="premium-subtitle">Access exclusive research, strategy calls, and priority intel alerts. Pay with card or Bitcoin.</p>
+            <p class="premium-subtitle">Access exclusive research, strategy calls, and priority intel alerts. Secure card payments via Stripe.</p>
         </div>
+
+        <!-- Terminal API Section -->
+        <div style="margin-bottom:60px;padding:40px;background:linear-gradient(135deg,rgba(13,17,24,0.95),rgba(6,7,11,0.98));border:1px solid rgba(248,193,92,0.25);border-radius:20px;box-shadow:0 0 60px rgba(248,193,92,0.06);">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;" class="terminal-api-grid">
+                <div>
+                    <p style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;letter-spacing:0.2em;color:#f8c15c;text-transform:uppercase;margin-bottom:10px;">TERMINAL API &bull; DEVELOPER ACCESS</p>
+                    <h2 style="font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:700;color:#eef2ff;margin-bottom:12px;line-height:1.2;">Bitcoin Intelligence<br>as a Data Feed</h2>
+                    <p style="color:#95a0ba;font-size:15px;line-height:1.6;margin-bottom:24px;">Real-time topics, sentiment, entities, breaking news — all via REST API. Build apps, bots, and dashboards on Protocol Pulse data.</p>
+                    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:28px;">
+                        <div style="display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#eef2ff;"><span style="color:#f8c15c;">⚡</span> 1,000 requests/hour</div>
+                        <div style="display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#eef2ff;"><span style="color:#f8c15c;">📡</span> SSE real-time breaking news stream</div>
+                        <div style="display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#eef2ff;"><span style="color:#f8c15c;">🔗</span> Webhook push delivery</div>
+                        <div style="display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#eef2ff;"><span style="color:#f8c15c;">📊</span> Topics, entities, sentiment, signal strength</div>
+                    </div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:700;color:#f8c15c;line-height:1;margin-bottom:4px;">$49<span style="font-size:16px;color:#95a0ba;">/mo</span></div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#95a0ba;">Commander Tier &bull; Cancel anytime</div>
+                </div>
+                <div>
+                    <div style="background:#06070b;border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:20px;font-family:'JetBrains Mono',monospace;margin-bottom:16px;">
+                        <div style="color:#95a0ba;font-size:10px;letter-spacing:0.15em;margin-bottom:10px;">SAMPLE RESPONSE</div>
+                        <pre style="color:#5de4ff;margin:0;overflow-x:auto;font-size:11px;line-height:1.6;">{
+  "data": [
+    {"topic": "halving", "mentions": 42},
+    {"topic": "etf", "mentions": 31},
+    {"topic": "lightning", "mentions": 18}
+  ],
+  "meta": {
+    "tier": "commander",
+    "requests_remaining": 987
+  }
+}</pre>
+                    </div>
+                    <div style="display:flex;gap:10px;margin-bottom:10px;" id="terminalApiForm">
+                        <input type="email" id="terminalEmail" placeholder="your@email.com"
+                            style="flex:1;background:#06070b;border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#eef2ff;outline:none;"
+                            onfocus="this.style.borderColor='#f8c15c'" onblur="this.style.borderColor='rgba(255,255,255,0.15)'">
+                        <button onclick="startTerminalCheckout()" id="terminalBtn"
+                            style="padding:12px 18px;background:#ff3b5f;border:none;border-radius:8px;color:#eef2ff;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background 0.2s;"
+                            onmouseover="this.style.background='#ff5577'" onmouseout="this.style.background='#ff3b5f'">
+                            JOIN THE INTEL FEED &rarr;
+                        </button>
+                    </div>
+                    <div id="terminalCheckoutMsg" style="display:none;margin-bottom:10px;font-family:'JetBrains Mono',monospace;font-size:12px;"></div>
+                    <div style="display:flex;gap:16px;">
+                        <a href="/api/playground" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#f8c15c;text-decoration:none;">Try Playground &rarr;</a>
+                        <a href="/api/v2/terminal/docs" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#95a0ba;text-decoration:none;">API Docs &rarr;</a>
+                        <a href="/api/dashboard" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#95a0ba;text-decoration:none;">Dashboard &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <style>
+        .terminal-api-grid { }
+        @media(max-width:768px){ .terminal-api-grid { grid-template-columns: 1fr !important; } }
+        </style>
         
         <div class="pricing-grid">
             <div class="pricing-card">
@@ -386,11 +441,11 @@
             
             <div class="faq-item">
                 <div class="faq-question" onclick="this.parentElement.classList.toggle('active')">
-                    Can I pay with Bitcoin?
+                    What payment methods are accepted?
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    Yes! We accept both on-chain Bitcoin and Lightning payments. After checkout, you'll receive an invoice you can pay with any Bitcoin wallet. Lightning payments are instant.
+                    We accept all major credit and debit cards (Visa, Mastercard, Amex), Apple Pay, and Google Pay — all processed securely through Stripe.
                 </div>
             </div>
             
@@ -426,15 +481,62 @@
         </div>
         
         <div class="payment-methods">
-            <div class="payment-title">Accepted Payment Methods</div>
+            <div class="payment-title">Accepted Payment Methods · Secured by Stripe</div>
             <div class="payment-icons">
-                <div class="payment-icon btc"><i class="fab fa-bitcoin"></i></div>
-                <div class="payment-icon"><i class="fas fa-bolt"></i></div>
                 <div class="payment-icon"><i class="fab fa-cc-visa"></i></div>
                 <div class="payment-icon"><i class="fab fa-cc-mastercard"></i></div>
                 <div class="payment-icon"><i class="fab fa-apple-pay"></i></div>
+                <div class="payment-icon"><i class="fab fa-google-pay"></i></div>
             </div>
         </div>
     </div>
 </div>
+{% block extra_js %}
+<script>
+async function startTerminalCheckout() {
+    const emailEl = document.getElementById('terminalEmail');
+    const btn = document.getElementById('terminalBtn');
+    const msg = document.getElementById('terminalCheckoutMsg');
+    const email = (emailEl ? emailEl.value : '').trim();
+
+    if (!email || !email.includes('@')) {
+        msg.style.display = 'block';
+        msg.style.color = '#ff8ba0';
+        msg.textContent = 'Please enter a valid email address.';
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Loading...';
+    msg.style.display = 'block';
+    msg.style.color = '#95a0ba';
+    msg.textContent = 'Creating checkout session...';
+
+    try {
+        const resp = await fetch('/api/v2/terminal/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        const data = await resp.json();
+
+        if (resp.ok && data.checkout_url) {
+            msg.style.color = '#89ffb8';
+            msg.textContent = 'Redirecting to Stripe...';
+            window.location.href = data.checkout_url;
+        } else {
+            msg.style.color = '#ff8ba0';
+            msg.textContent = data.error || 'Checkout unavailable. Contact support@protocolpulse.io';
+            btn.disabled = false;
+            btn.textContent = 'JOIN THE INTEL FEED \u2192';
+        }
+    } catch (e) {
+        msg.style.color = '#ff8ba0';
+        msg.textContent = 'Request failed. Please try again.';
+        btn.disabled = false;
+        btn.textContent = 'JOIN THE INTEL FEED \u2192';
+    }
+}
+</script>
+{% endblock %}
 {% endblock %}

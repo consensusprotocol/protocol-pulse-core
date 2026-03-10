@@ -1,115 +1,157 @@
-# BUILD COMPLETE — p3-media-unified
-## Branch: feature/p3-media-unified
-## Date: 2026-03-09
+# BUILD_COMPLETE — p3-premium-stripe
+# Protocol Pulse Commander API Monetization Layer
+# Completed: 2026-03-09
 
 ---
 
-## WHAT WAS BUILT
+## STATUS: ✅ COMPLETE
 
-### `/media` — Protocol Pulse Command Center
-A unified content discovery experience replacing the broken `/media-hub` and `/media-terminal`.
-
-**Design**: Netflix × Bloomberg Terminal × Cypherpunk
-**Template**: `core/templates/media_unified.html` (~1950 lines)
-
----
-
-## DELIVERABLES
-
-### New Files
-| File | Description |
-|------|-------------|
-| `core/templates/media_unified.html` | World-class template: SSE, Cmd+K, tabs, sparkline, signal arc |
-| `GOSPEL.md` | Feature spec (26 features, 3 tiers) |
-| `PHASE0_ADDENDUM.md` | Phase 0 LLM council additions |
-| `BUILD_COMPLETE.md` | This file |
-
-### Modified Files
-| File | Change |
-|------|--------|
-| `routes.py` | 4 new API routes + 301 redirects for `/media-hub` and `/media-terminal` |
-| `video_pipeline_v3/tts_engine.py` | P0-2 CLIP timing fix |
-| `video_pipeline_v3/dual_host_tts.py` | P0-2 CLIP timing fix |
+Branch: `feature/p3-premium-stripe`
+Commits: `c1137be` (Phase 0 + Build), `584cf85` (Second-pass audit fixes)
+Regression: **29 PASS, 0 FAIL**
+Pushed: ✅
 
 ---
 
-## PHASE SUMMARY
+## FEATURES BUILT
 
-### Phase 0 — LLM Council
-- Ran `cross_llm_audit.py --phase0`
-- Created `PHASE0_ADDENDUM.md` incorporating top 10 additions
+### Backend
 
-### Phase 1 — Build
-**All 26 GOSPEL features implemented** plus Phase 0 additions:
+| Feature | File | Status |
+|---|---|---|
+| `ApiSubscriber` model | `core/models.py` | ✅ |
+| `ApiRequestLog` model | `core/models.py` | ✅ |
+| API key generation (`pp_cmd_` + UUID4) | `core/services/api_key_service.py` | ✅ |
+| Sliding window rate limiting (1hr window) | `core/services/api_key_service.py` | ✅ |
+| Burst rate cap (50 req/min commander) | `core/services/api_key_service.py` | ✅ |
+| Entitlements system (JSON feature flags) | `core/services/api_key_service.py` | ✅ |
+| `@require_api_key` decorator | `core/services/api_key_service.py` | ✅ |
+| Demo key auto-provisioning at startup | `core/services/api_key_service.py` | ✅ |
+| 24h usage sparkline (single GROUP BY query) | `core/services/api_key_service.py` | ✅ |
+| Key rotation with 1hr grace period | `core/services/api_key_service.py` | ✅ |
+| Stripe Checkout (subscription mode) | `core/routes_premium_api.py` | ✅ |
+| Stripe webhook HMAC-SHA256 validation | `core/routes_premium_api.py` | ✅ |
+| `provision_terminal_subscriber()` | `core/services/stripe_service.py` | ✅ |
+| `cancel_terminal_subscriber()` | `core/services/stripe_service.py` | ✅ |
+| SSE stream (`/api/v2/terminal/stream`) | `core/routes_premium_api.py` | ✅ |
+| Outbound webhook delivery + HMAC signing | `core/routes_premium_api.py` | ✅ |
+| Welcome email via Resend API | `core/routes_premium_api.py` | ✅ |
+| Blueprint registration in `app.py` | `core/app.py` | ✅ |
+| Stripe idempotency keys on checkout | `core/routes_premium_api.py` | ✅ |
+| CSRF/Origin validation on subscribe POST | `core/routes_premium_api.py` | ✅ |
 
-#### Frontend Features
-- Cinematic background (3 glow sources + scanlines + vignette)
-- Sticky telemetry ribbon with SSE live data
-- Feed mode tabs (ALL/MARKETS/MINING/REGULATION/SOVEREIGNTY/LIGHTNING) with localStorage
-- Hero section with AI Meta-Briefing card (Claude Haiku, 24h cache, gold border)
-- Signal strength arc widget (SVG, animated `stroke-dashoffset`)
-- BTC 7-day sparkline (Canvas 2D, no external libs)
-- Article masonry grid (3→2→1 col, `content-visibility: auto`)
-- Category badges (color-coded), NEW badge (<6hrs), read time estimates
-- Episode rail (horizontal scroll, YouTube embed)
-- Intelligence strip (3-col)
-- Mempool fee pills (low=lime, medium=gold, high=coral)
-- Commander CTA banner (animated gradient border)
-- Newsletter section
-- System health strip (fixed bottom)
-- Headline ticker (CSS `animation: ticker-scroll 40s linear infinite`)
-- Cmd+K command palette v2 (`> filter [topic]` + semantic search)
-- Keyboard navigation (J/K/Enter/Esc/`/`)
-- Web Share API with clipboard fallback
-- Progressive loading (IntersectionObserver + `loading="lazy"`)
-- `@media (prefers-reduced-motion)` support
+### Endpoints
 
-#### Backend Routes Added
-| Route | Description |
-|-------|-------------|
-| `GET /api/stream/media-feed` | SSE: heartbeat 25s, Last-Event-ID, 600s max |
-| `GET /api/system-health` | Service health JSON (60s cache) |
-| `GET /api/media/semantic-search` | Claude Haiku ranking, 10/min/IP, 5-min cache |
-| `GET /api/media/meta-briefing` | Claude Haiku daily synthesis, 24h cache |
-| `GET /media-hub` | 301 → `/media` |
-| `GET /media-terminal` | 301 → `/media` |
+| Endpoint | Auth | Rate-limited | Notes |
+|---|---|---|---|
+| `GET /premium` | Public | — | Terminal API hero section added |
+| `POST /api/v2/terminal/subscribe` | Public | — | Creates Stripe Checkout session |
+| `GET /subscribe/terminal/success` | Public | — | Shows API key post-checkout |
+| `GET /api/v2/terminal/topics` | API key | ✅ | `topics` entitlement |
+| `GET /api/v2/terminal/entities` | API key | ✅ | `entities` entitlement |
+| `GET /api/v2/terminal/sentiment` | API key | ✅ | `sentiment` entitlement |
+| `GET /api/v2/terminal/breaking` | API key | ✅ | `signal` entitlement |
+| `GET /api/v2/terminal/signal` | API key | ✅ | `signal` entitlement |
+| `GET /api/v2/terminal/status` | API key | ✅ | `topics` entitlement |
+| `GET /api/v2/terminal/stream` | API key | ✅ | `stream` entitlement; SSE |
+| `GET /api/v2/terminal/docs` | Public | — | OpenAPI-style JSON |
+| `POST /webhook/stripe/terminal` | HMAC | — | Processes Stripe events |
+| `GET /api/dashboard` | Optional key | — | Self-service subscriber portal |
+| `POST /api/dashboard/rotate-key` | API key | — | 1hr grace on old key |
+| `POST /api/dashboard/billing-portal` | API key | — | Stripe Customer Portal |
+| `POST /api/dashboard/webhook` | API key | — | Configure outbound webhook |
+| `GET /api/playground` | Public | — | Sandboxed demo key |
 
-### Phase 2 — Regression Tests
-**29 PASS | 0 FAIL | 1 WARN** (warn = uncommitted changes, expected)
+### Templates
 
-### Phase 3 — Cross-LLM Audit (FINAL_CONSENSUS.md)
-All P0 and P1 items implemented:
-
-| ID | Finding | Fix |
-|----|---------|-----|
-| U4/P0-2 | CLIP timing desync in `tts_engine.py` | `current_time += clip_duration` before `continue` |
-| P0-2 (dual) | Same in `dual_host_tts.py` | Same fix applied |
-| M1 | YouTube ID extraction brittle | Multi-branch Jinja2 conditional |
-| X7 | Health dot class accumulation | `setDotState()` helper clears before adding |
-| X8 | 302 redirects should be 301 | Explicit `redirect('/media', 301)` |
-
-### Phase 4 — Commit + Push
-- All changes committed to `feature/p3-media-unified`
-- Pushed to `origin feature/p3-media-unified`
-
----
-
-## LAWS COMPLIANCE
-
-| Law | Status |
-|-----|--------|
-| SSE-only real-time (no polling) | ✅ EventSource with 30s fallback only on onerror |
-| No hardcoded data | ✅ All from DB / CoinGecko API |
-| 301 redirects | ✅ `/media-hub` and `/media-terminal` |
-| Semantic search | ✅ Claude Haiku with rate limiting + cache |
-| CSS-only animations | ✅ No JS animation loops |
-| Zero regression failures | ✅ 29/29 pass |
+| Template | Purpose |
+|---|---|
+| `premium.html` | Updated: Terminal API hero, email CTA, no false payment icons |
+| `subscribe_terminal_success.html` | Post-checkout: shows API key, copy button, quickstart |
+| `api_playground.html` | Interactive demo: 5 endpoints, 3 languages, Prism.js |
+| `api_dashboard.html` | Subscriber portal: stats, rotation, sparkline, webhook config |
 
 ---
 
-## ARCHITECTURE NOTES
+## PHASE 0 ADDITIONS INCORPORATED
 
-- **Flask template folder**: `core/templates/` (set in `core/app.py`) — NOT top-level `templates/`
-- **In-process caches**: Thread-safe with `threading.Lock()` — no Redis dependency
-- **Rate limiter**: Token bucket per IP in-process dict — no middleware needed
-- **SSE**: Generator function with `stream_with_context()`, `text/event-stream` MIME type
+Per `PHASE0_ADDENDUM.md`:
+
+1. **Entitlements system** — JSON feature flags (`stream`, `webhook`, `signal`, `topics`, `entities`, `sentiment`) per subscriber. `TIER_ENTITLEMENTS` dict in `api_key_service.py`. `has_entitlement()` method on `ApiSubscriber`.
+
+2. **Sliding window rate limit** — True 1-hour window via `COUNT(*)` on `ApiRequestLog` where `created_at >= now - 1hr`. Not a bucket-reset counter. Burst cap (last 60s) enforced separately.
+
+3. **Scoped API keys with rotation** — `key_scopes` JSON column. Rotation stores old key in `previous_api_key` for 1-hour grace. `require_api_key` checks both.
+
+4. **SSE over WebSocket** — No gevent/eventlet dependency. Client-side auto-reconnect at 3s. Channel param (`breaking|sentiment|all`).
+
+5. **Demo key auto-provisioning** — `pp_demo_00000000000000000000000000000001` created idempotently at startup. 20 req/hr hard cap. Read-only entitlements.
+
+6. **24h sparkline** — Single `GROUP BY strftime('%H', created_at)` query. Zero-fill in Python. Canvas chart in dashboard.
+
+7. **HMAC-signed outbound webhooks** — `X-PP-Signature: sha256=...` header. 3-retry exponential backoff (1s, 2s, 4s). Background thread (no blocking).
+
+---
+
+## AUDIT RESULTS SUMMARY
+
+Cross-LLM audit ran after commit `c1137be`. All P0 and P1 items resolved in commit `584cf85`.
+
+### P0 (Critical — Resolved)
+- **P0-1**: Webhook signature bypass (`if not webhook_secret: skip`) → replaced with `abort(500)` + `logger.critical`
+- **U3**: Double welcome email (success page + webhook both fired) → `welcome_email_sent` boolean flag; webhook checks-and-sets atomically; success page no longer sends
+
+### P1 (High — Resolved)
+- **U2**: `requests_today` always 0 → live `COUNT(*)` query at UTC midnight boundary passed as template var
+- **M1**: N+1 sparkline (24 COUNT queries) → single `GROUP BY strftime('%H', ...)` query
+- **M7**: No idempotency on Stripe checkout → `sha256(f"checkout-{email}-{int(time.time()//300)}")` idempotency key
+- **M2**: Key rotation immediate invalidation → `previous_api_key` + `previous_key_expires_at` (1hr grace)
+
+### P2 (Medium — Deferred)
+- Email validation uses basic `@` check; `email-validator` library integration deferred
+- SSRF/DNS-resolution check on webhook URLs (HTTPS prefix validated, full IP blocklist deferred)
+- `sync_subscriber_from_stripe()` helper — deferred
+- Stripe SDK timeout configuration — deferred
+
+---
+
+## MANUAL STEPS REQUIRED
+
+See `STRIPE_SETUP.md` for full instructions. Summary:
+
+1. **Create Stripe product**: $49/mo recurring → copy `price_...` ID
+2. **Get API keys**: `sk_test_...` (or `sk_live_...` for prod)
+3. **Create webhook endpoint**: `https://protocolpulse.io/webhook/stripe/terminal`
+   - Events: `checkout.session.completed`, `customer.subscription.deleted`, `customer.subscription.updated`, `invoice.payment_failed`
+   - Copy `whsec_...` signing secret
+4. **Add to `.env` on Ultron**:
+   ```
+   STRIPE_SECRET_KEY=sk_test_...
+   STRIPE_WEBHOOK_SECRET=whsec_...
+   STRIPE_COMMANDER_PRICE_ID=price_...
+   ```
+5. **Restart Flask**: `sudo systemctl restart protocol-pulse`
+6. **Optional**: Add `RESEND_API_KEY=re_...` for welcome emails
+
+---
+
+## VERIFICATION CHECKLIST
+
+- [ ] `GET /premium` → HTTP 200, Terminal API hero section visible
+- [ ] `POST /api/v2/terminal/subscribe` with valid email → Stripe redirect (requires Stripe keys in .env)
+- [ ] `GET /subscribe/terminal/success?api_key=pp_cmd_...` → API key displayed with copy button
+- [ ] `GET /api/v2/terminal/topics` with valid `X-API-Key` → 200 with data + `X-RateLimit-*` headers
+- [ ] `GET /api/v2/terminal/topics` with bad key → 401
+- [ ] 21st request with demo key → 429 with `Retry-After` header
+- [ ] Stripe webhook `checkout.session.completed` → `ApiSubscriber` created in DB + welcome email sent once
+- [ ] `GET /api/playground` → playground renders, demo key works in all 5 endpoints
+- [ ] `GET /api/dashboard` unauthenticated → key lookup form
+- [ ] `GET /api/dashboard?key=pp_cmd_...` → subscriber stats, sparkline, rotation button
+- [ ] `POST /api/dashboard/rotate-key` → new key issued, old key valid for 60 min
+- [ ] `GET /api/v2/terminal/stream` with `stream` entitlement → SSE connection established
+- [ ] `POST /webhook/stripe/terminal` without `STRIPE_WEBHOOK_SECRET` → 500
+
+---
+
+*Protocol Pulse Commander API — Terminal Intelligence Feed*
+*$49/month · 1,000 req/hr · SSE Stream · Webhook Delivery*
