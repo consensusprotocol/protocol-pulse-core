@@ -1,0 +1,773 @@
+{% extends "base.html" %}
+{% block title %}Oracle Live — Protocol Pulse{% endblock %}
+
+{% block head %}
+<meta name="description" content="Oracle — Live AI briefings by Protocol Pulse. Three daily Bitcoin market updates delivered by Sarah.">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   ORACLE LIVE — SESSION 7
+   Dark cinematic broadcast aesthetic
+═══════════════════════════════════════════════════════════ */
+:root {
+  --oracle-bg:       #050507;
+  --oracle-surface:  #0c0c10;
+  --oracle-card:     #111118;
+  --oracle-border:   rgba(220,38,38,.18);
+  --oracle-border-h: rgba(220,38,38,.42);
+  --oracle-red:      #dc2626;
+  --oracle-gold:     #f59e0b;
+  --oracle-gold-dim: rgba(245,158,11,.15);
+  --oracle-text:     #e5e5e5;
+  --oracle-muted:    rgba(229,229,229,.45);
+  --oracle-faint:    rgba(229,229,229,.18);
+  --oracle-mono:     'JetBrains Mono','Courier New',monospace;
+  --oracle-green:    #22c55e;
+  --oracle-amber:    #f59e0b;
+}
+
+body { background: var(--oracle-bg) !important; }
+.navbar, footer, .pp-ticker { display: none !important; }
+
+/* ── page wrapper ── */
+.oracle-wrap {
+  min-height: 100vh;
+  background: var(--oracle-bg);
+  font-family: var(--oracle-mono);
+  color: var(--oracle-text);
+  padding-bottom: 80px;
+}
+
+/* ── top bar ── */
+.oracle-topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(5,5,7,.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--oracle-border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 32px;
+}
+.oracle-topbar-brand {
+  font-size: .68rem; letter-spacing: .25em; color: var(--oracle-red);
+  text-transform: uppercase; text-decoration: none;
+}
+.oracle-topbar-meta {
+  display: flex; align-items: center; gap: 20px;
+  font-size: .65rem; letter-spacing: .1em; color: var(--oracle-muted);
+}
+.live-dot {
+  display: inline-block; width: 7px; height: 7px;
+  border-radius: 50%; background: var(--oracle-red);
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,100%{ opacity:1; transform:scale(1); }
+  50%{ opacity:.4; transform:scale(.75); }
+}
+.oracle-topbar-btc {
+  font-size: .7rem; color: var(--oracle-gold); letter-spacing: .05em;
+}
+
+/* ── hero section ── */
+.oracle-hero {
+  max-width: 1200px; margin: 0 auto;
+  padding: 40px 24px 0;
+}
+.oracle-hero-inner {
+  display: grid; grid-template-columns: 1fr 320px; gap: 24px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .oracle-hero-inner { grid-template-columns: 1fr; }
+}
+
+/* ── video player ── */
+.oracle-player-wrap {
+  background: var(--oracle-card);
+  border: 1px solid var(--oracle-border);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.oracle-player-badge {
+  position: absolute; top: 14px; left: 14px; z-index: 10;
+  background: rgba(220,38,38,.9);
+  font-size: .58rem; letter-spacing: .18em; color: #fff;
+  padding: 3px 8px; border-radius: 2px; text-transform: uppercase;
+  display: flex; align-items: center; gap: 5px;
+}
+.oracle-video {
+  width: 100%; aspect-ratio: 16/9;
+  background: #000;
+  display: block;
+}
+.oracle-video-placeholder {
+  width: 100%; aspect-ratio: 16/9;
+  background: linear-gradient(135deg, #0a0a0f 0%, #111120 100%);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: var(--oracle-muted); font-size: .7rem; letter-spacing: .12em;
+  text-transform: uppercase; gap: 12px;
+}
+.oracle-video-placeholder svg { width: 48px; height: 48px; opacity: .3; }
+.oracle-player-controls {
+  padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 1px solid var(--oracle-border);
+}
+.oracle-player-title {
+  font-size: .72rem; color: var(--oracle-text); letter-spacing: .04em;
+  flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.oracle-unmute-btn {
+  background: rgba(220,38,38,.15); border: 1px solid rgba(220,38,38,.3);
+  color: var(--oracle-red); font-family: var(--oracle-mono);
+  font-size: .62rem; letter-spacing: .1em; text-transform: uppercase;
+  padding: 5px 12px; cursor: pointer; border-radius: 2px;
+  transition: background .2s;
+}
+.oracle-unmute-btn:hover { background: rgba(220,38,38,.28); }
+.oracle-share-btn {
+  background: none; border: 1px solid var(--oracle-border);
+  color: var(--oracle-muted); font-family: var(--oracle-mono);
+  font-size: .62rem; letter-spacing: .1em; text-transform: uppercase;
+  padding: 5px 12px; cursor: pointer; border-radius: 2px; margin-left: 8px;
+  transition: border-color .2s, color .2s;
+}
+.oracle-share-btn:hover { border-color: var(--oracle-gold); color: var(--oracle-gold); }
+
+/* transcript */
+.oracle-transcript-toggle {
+  width: 100%; background: none;
+  border: none; border-top: 1px solid var(--oracle-border);
+  color: var(--oracle-muted); font-family: var(--oracle-mono);
+  font-size: .63rem; letter-spacing: .12em; text-transform: uppercase;
+  padding: 10px 16px; cursor: pointer; text-align: left;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: color .2s;
+}
+.oracle-transcript-toggle:hover { color: var(--oracle-text); }
+.oracle-transcript-body {
+  display: none; padding: 16px;
+  font-size: .68rem; line-height: 1.8; color: var(--oracle-muted);
+  border-top: 1px solid rgba(220,38,38,.08);
+  max-height: 180px; overflow-y: auto;
+}
+.oracle-transcript-body.open { display: block; }
+
+/* ── status sidebar ── */
+.oracle-sidebar { display: flex; flex-direction: column; gap: 16px; }
+
+.oracle-status-card {
+  background: var(--oracle-card);
+  border: 1px solid var(--oracle-border);
+  border-radius: 4px;
+  padding: 16px;
+}
+.oracle-card-label {
+  font-size: .58rem; letter-spacing: .22em; color: var(--oracle-muted);
+  text-transform: uppercase; margin-bottom: 12px;
+  border-bottom: 1px solid rgba(220,38,38,.08); padding-bottom: 8px;
+}
+
+/* system health row */
+.sys-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.sys-row:last-child { border-bottom: none; }
+.sys-name { font-size: .65rem; color: var(--oracle-text); }
+.sys-status {
+  font-size: .58rem; letter-spacing: .1em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 5px;
+}
+.sys-dot { width: 6px; height: 6px; border-radius: 50%; }
+.sys-dot.ok { background: var(--oracle-green); }
+.sys-dot.err { background: var(--oracle-red); }
+
+/* countdown */
+.oracle-countdown {
+  text-align: center; padding: 8px 0;
+}
+.oracle-countdown-value {
+  font-size: 1.6rem; color: var(--oracle-gold);
+  letter-spacing: .05em; line-height: 1;
+}
+.oracle-countdown-label {
+  font-size: .58rem; color: var(--oracle-muted); letter-spacing: .15em;
+  margin-top: 6px; text-transform: uppercase;
+}
+.oracle-countdown-slot {
+  font-size: .65rem; color: var(--oracle-text); margin-top: 4px;
+}
+
+/* meta pills */
+.oracle-meta-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 5px 0;
+}
+.oracle-meta-key { font-size: .6rem; color: var(--oracle-muted); }
+.oracle-meta-val { font-size: .65rem; color: var(--oracle-text); }
+.oracle-progress-bar {
+  width: 100%; height: 3px; background: rgba(255,255,255,.06);
+  border-radius: 2px; margin-top: 8px; overflow: hidden;
+}
+.oracle-progress-fill {
+  height: 100%; background: var(--oracle-red);
+  border-radius: 2px; transition: width .5s ease;
+}
+
+/* ── schedule section ── */
+.oracle-section {
+  max-width: 1200px; margin: 32px auto 0;
+  padding: 0 24px;
+}
+.oracle-section-title {
+  font-size: .62rem; letter-spacing: .22em; color: var(--oracle-muted);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--oracle-border);
+  padding-bottom: 10px; margin-bottom: 20px;
+}
+
+/* schedule grid */
+.oracle-schedule-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+}
+@media (max-width: 700px) {
+  .oracle-schedule-grid { grid-template-columns: 1fr; }
+}
+
+.oracle-slot-card {
+  background: var(--oracle-card);
+  border: 1px solid var(--oracle-border);
+  border-radius: 4px;
+  padding: 16px;
+  transition: border-color .2s;
+  position: relative;
+  overflow: hidden;
+}
+.oracle-slot-card:hover { border-color: var(--oracle-border-h); }
+.oracle-slot-card.completed {
+  border-color: rgba(34,197,94,.2);
+}
+.oracle-slot-card.completed::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: var(--oracle-green);
+}
+.oracle-slot-card.generating {
+  border-color: rgba(245,158,11,.3);
+}
+.oracle-slot-card.generating::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: var(--oracle-gold);
+  animation: gen-pulse 1.5s ease-in-out infinite;
+}
+@keyframes gen-pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.slot-time {
+  font-size: .6rem; color: var(--oracle-muted); letter-spacing: .1em;
+  text-transform: uppercase; margin-bottom: 6px;
+}
+.slot-title {
+  font-size: .8rem; color: var(--oracle-text);
+  margin-bottom: 6px;
+}
+.slot-desc {
+  font-size: .6rem; color: var(--oracle-muted); line-height: 1.5;
+  margin-bottom: 12px;
+}
+.slot-status {
+  font-size: .58rem; letter-spacing: .12em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 6px;
+}
+.slot-badge {
+  padding: 3px 8px; border-radius: 2px;
+  font-size: .56rem; letter-spacing: .12em;
+}
+.slot-badge.ready {
+  background: rgba(34,197,94,.12); color: var(--oracle-green);
+  border: 1px solid rgba(34,197,94,.2);
+}
+.slot-badge.gen {
+  background: rgba(245,158,11,.12); color: var(--oracle-gold);
+  border: 1px solid rgba(245,158,11,.2);
+}
+.slot-badge.pending {
+  background: rgba(229,229,229,.06); color: var(--oracle-muted);
+  border: 1px solid rgba(229,229,229,.1);
+}
+.slot-watch-btn {
+  display: inline-block; margin-top: 10px;
+  background: none; border: 1px solid rgba(34,197,94,.25);
+  color: var(--oracle-green); font-family: var(--oracle-mono);
+  font-size: .6rem; letter-spacing: .12em; text-transform: uppercase;
+  padding: 5px 12px; cursor: pointer; border-radius: 2px;
+  text-decoration: none; transition: background .2s;
+}
+.slot-watch-btn:hover { background: rgba(34,197,94,.1); color: var(--oracle-green); }
+.slot-duration {
+  font-size: .58rem; color: var(--oracle-muted); margin-left: 8px;
+}
+
+/* thumbnail */
+.slot-thumb {
+  width: 100%; aspect-ratio: 16/9;
+  object-fit: cover; border-radius: 2px;
+  margin-bottom: 10px; display: block;
+}
+.slot-thumb-placeholder {
+  width: 100%; aspect-ratio: 16/9;
+  background: linear-gradient(135deg, #0a0a10, #12121e);
+  border-radius: 2px; margin-bottom: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--oracle-faint); font-size: .6rem; letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+/* ── archive grid ── */
+.oracle-archive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+.oracle-archive-card {
+  background: var(--oracle-card);
+  border: 1px solid var(--oracle-border);
+  border-radius: 4px;
+  padding: 14px;
+  transition: border-color .2s, transform .2s;
+  cursor: pointer;
+}
+.oracle-archive-card:hover {
+  border-color: var(--oracle-border-h);
+  transform: translateY(-2px);
+}
+.archive-thumb {
+  width: 100%; aspect-ratio: 16/9;
+  object-fit: cover; border-radius: 2px;
+  margin-bottom: 10px; display: block;
+}
+.archive-thumb-placeholder {
+  width: 100%; aspect-ratio: 16/9;
+  background: linear-gradient(135deg, #0a0a10, #12121e);
+  border-radius: 2px; margin-bottom: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--oracle-faint); font-size: .55rem; letter-spacing: .1em;
+}
+.archive-date { font-size: .58rem; color: var(--oracle-muted); margin-bottom: 4px; }
+.archive-title { font-size: .72rem; color: var(--oracle-text); margin-bottom: 6px; line-height: 1.35; }
+.archive-meta { font-size: .58rem; color: var(--oracle-muted); display: flex; gap: 8px; align-items: center; }
+.archive-type-badge {
+  background: rgba(220,38,38,.1); color: var(--oracle-red);
+  border: 1px solid rgba(220,38,38,.2);
+  padding: 2px 7px; border-radius: 2px;
+  font-size: .54rem; letter-spacing: .1em; text-transform: uppercase;
+}
+.oracle-empty {
+  text-align: center; padding: 40px 20px;
+  color: var(--oracle-muted); font-size: .68rem; letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+/* ── modal overlay for archive playback ── */
+.oracle-modal {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,.88);
+  align-items: center; justify-content: center;
+}
+.oracle-modal.open { display: flex; }
+.oracle-modal-inner {
+  width: min(860px, 95vw);
+  background: var(--oracle-card);
+  border: 1px solid var(--oracle-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.oracle-modal-video { width: 100%; aspect-ratio: 16/9; display: block; background: #000; }
+.oracle-modal-info {
+  padding: 16px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.oracle-modal-title { font-size: .8rem; color: var(--oracle-text); }
+.oracle-modal-close {
+  background: none; border: 1px solid var(--oracle-border);
+  color: var(--oracle-muted); font-family: var(--oracle-mono);
+  font-size: .6rem; letter-spacing: .1em; padding: 5px 12px;
+  cursor: pointer; border-radius: 2px;
+}
+.oracle-modal-close:hover { color: var(--oracle-text); border-color: var(--oracle-border-h); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="oracle-wrap">
+
+  {# ── TOP BAR ── #}
+  <div class="oracle-topbar">
+    <a href="/" class="oracle-topbar-brand">PROTOCOL PULSE // ORACLE</a>
+    <div class="oracle-topbar-meta">
+      {% if btc_price %}
+      <span class="oracle-topbar-btc">BTC ${{ "{:,.0f}".format(btc_price) }}</span>
+      {% endif %}
+      <span><span class="live-dot"></span> {{ now_et }}</span>
+      <span>{{ et_date }}</span>
+    </div>
+  </div>
+
+  {# ── HERO — PLAYER + SIDEBAR ── #}
+  <div class="oracle-hero">
+    <div class="oracle-hero-inner">
+
+      {# LEFT: video player #}
+      <div>
+        <div class="oracle-player-wrap" id="heroPlayerWrap">
+
+          {% if hero_briefing and hero_briefing.video_url %}
+            <div class="oracle-player-badge">
+              <span class="live-dot"></span> ORACLE BRIEFING
+            </div>
+            <video
+              id="heroVideo"
+              class="oracle-video"
+              autoplay
+              muted
+              playsinline
+              controls
+              preload="metadata"
+              poster="{{ hero_briefing.thumbnail_url or '' }}"
+              data-src="{{ hero_briefing.video_url }}"
+            >
+              <source src="{{ hero_briefing.video_url }}" type="video/mp4">
+              Your browser does not support video.
+            </video>
+            <div class="oracle-player-controls">
+              <span class="oracle-player-title">{{ hero_briefing.title or 'Oracle Briefing' }}</span>
+              {% if hero_briefing.duration_seconds %}
+              <span style="font-size:.6rem;color:var(--oracle-muted);margin-right:8px;">
+                {{ "%.0f"|format(hero_briefing.duration_seconds // 60) }}:{{ "%02d"|format((hero_briefing.duration_seconds % 60)|int) }}
+              </span>
+              {% endif %}
+              <button class="oracle-unmute-btn" id="unmuteBtn" onclick="toggleMute()">UNMUTE</button>
+              <button class="oracle-share-btn" onclick="shareBriefing()">SHARE ↗</button>
+            </div>
+            {% if hero_briefing.script_text %}
+            <button class="oracle-transcript-toggle" onclick="toggleTranscript(this)">
+              <span>TRANSCRIPT</span>
+              <span>▼</span>
+            </button>
+            <div class="oracle-transcript-body" id="heroTranscript">
+              {{ hero_briefing.script_text }}
+            </div>
+            {% endif %}
+
+          {% else %}
+            <div class="oracle-video-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                <circle cx="12" cy="12" r="10"/>
+                <polygon points="10,8 16,12 10,16"/>
+              </svg>
+              <span>NEXT BRIEFING GENERATING</span>
+              <span style="font-size:.55rem;color:var(--oracle-faint);">
+                Check back at {{ next_slot.time_et }}
+              </span>
+            </div>
+            <div class="oracle-player-controls">
+              <span class="oracle-player-title" style="color:var(--oracle-muted);">No briefings published yet today</span>
+            </div>
+          {% endif %}
+
+        </div>{# /player-wrap #}
+      </div>{# /left column #}
+
+      {# RIGHT: status sidebar #}
+      <div class="oracle-sidebar">
+
+        {# System health #}
+        <div class="oracle-status-card">
+          <div class="oracle-card-label">System Status</div>
+          {% for key, svc in system_status.items() %}
+          <div class="sys-row">
+            <span class="sys-name">{{ svc.label }}</span>
+            <span class="sys-status">
+              <span class="sys-dot {{ 'ok' if svc.ok else 'err' }}"></span>
+              {{ 'ONLINE' if svc.ok else 'OFFLINE' }}
+            </span>
+          </div>
+          {% endfor %}
+        </div>
+
+        {# Countdown #}
+        <div class="oracle-status-card">
+          <div class="oracle-card-label">Next Briefing</div>
+          <div class="oracle-countdown">
+            <div class="oracle-countdown-value" id="countdownDisplay">{{ next_slot.eta_str }}</div>
+            <div class="oracle-countdown-label">until next briefing</div>
+            <div class="oracle-countdown-slot">{{ next_slot.label }}</div>
+            <div style="font-size:.58rem;color:var(--oracle-muted);margin-top:3px;">{{ next_slot.time_et }}</div>
+          </div>
+          <div class="oracle-progress-bar">
+            <div class="oracle-progress-fill" id="countdownBar" style="width:0%"></div>
+          </div>
+        </div>
+
+        {# Daily stats #}
+        <div class="oracle-status-card">
+          <div class="oracle-card-label">Today's Briefings</div>
+          <div class="oracle-meta-row">
+            <span class="oracle-meta-key">Generated</span>
+            <span class="oracle-meta-val">{{ today_completed }}/3</span>
+          </div>
+          <div class="oracle-meta-row">
+            <span class="oracle-meta-key">Schedule</span>
+            <span class="oracle-meta-val">8AM · 12PM · 5PM ET</span>
+          </div>
+          {% if fear_greed.value %}
+          <div class="oracle-meta-row">
+            <span class="oracle-meta-key">Fear &amp; Greed</span>
+            <span class="oracle-meta-val" style="color:var(--oracle-gold);">
+              {{ fear_greed.value }} — {{ fear_greed.label }}
+            </span>
+          </div>
+          {% endif %}
+        </div>
+
+      </div>{# /sidebar #}
+    </div>{# /hero-inner #}
+  </div>{# /hero #}
+
+  {# ── TODAY'S BRIEFING SCHEDULE ── #}
+  <div class="oracle-section">
+    <div class="oracle-section-title">Today's Briefings — {{ et_date }}</div>
+    <div class="oracle-schedule-grid">
+
+      {% for slot_type, slot_data in today_slots.items() %}
+      {% set slot = slot_data.slot %}
+      {% set briefing = slot_data.briefing %}
+      {% set status = briefing.status if briefing else 'pending' %}
+
+      <div class="oracle-slot-card {{ status if status in ['completed','generating'] else '' }}">
+
+        {% if briefing and briefing.thumbnail_url and status == 'completed' %}
+          <img class="slot-thumb" src="{{ briefing.thumbnail_url }}"
+               alt="{{ slot.label }}"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="slot-thumb-placeholder" style="display:none;">NO THUMBNAIL</div>
+        {% else %}
+          <div class="slot-thumb-placeholder">{{ 'GENERATING...' if status == 'generating' else 'SCHEDULED' }}</div>
+        {% endif %}
+
+        <div class="slot-time">{{ slot.time_et }} · {{ slot.time_utc }}</div>
+        <div class="slot-title">{{ slot.label }}</div>
+        <div class="slot-desc">{{ slot.description }}</div>
+
+        <div class="slot-status">
+          {% if status == 'completed' %}
+            <span class="slot-badge ready">✓ READY</span>
+            {% if briefing.duration_seconds %}
+            <span class="slot-duration">{{ "%.0f"|format(briefing.duration_seconds) }}s</span>
+            {% endif %}
+          {% elif status == 'generating' %}
+            <span class="slot-badge gen">⟳ GENERATING</span>
+          {% else %}
+            <span class="slot-badge pending">SCHEDULED</span>
+          {% endif %}
+        </div>
+
+        {% if status == 'completed' and briefing.video_url %}
+        <a class="slot-watch-btn" href="#"
+           onclick="playVideo('{{ briefing.video_url }}','{{ briefing.title }}','{{ briefing.thumbnail_url or '' }}'); return false;">
+          ▶ WATCH
+        </a>
+        {% endif %}
+
+      </div>
+      {% endfor %}
+
+    </div>
+  </div>
+
+  {# ── 7-DAY ARCHIVE ── #}
+  <div class="oracle-section" style="margin-top:40px;">
+    <div class="oracle-section-title">Briefing Archive — Last 7 Days</div>
+
+    {% set archive = recent_briefings | selectattr("status", "equalto", "completed") | list %}
+    {% if archive %}
+    <div class="oracle-archive-grid">
+      {% for b in archive %}
+      <div class="oracle-archive-card"
+           onclick="playVideo('{{ b.video_url }}','{{ b.title }}','{{ b.thumbnail_url or '' }}')"
+           title="{{ b.title }}">
+
+        {% if b.thumbnail_url %}
+        <img class="archive-thumb" src="{{ b.thumbnail_url }}"
+             alt="{{ b.title }}"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="archive-thumb-placeholder" style="display:none;">{{ b.briefing_type | upper }}</div>
+        {% else %}
+        <div class="archive-thumb-placeholder">{{ b.briefing_type | upper }}</div>
+        {% endif %}
+
+        <div class="archive-date">
+          {% if b.scheduled_date %}{{ b.scheduled_date }}{% elif b.generated_at %}{{ b.generated_at[:10] }}{% endif %}
+          &nbsp;·&nbsp;{{ b.briefing_type | replace('_', ' ') | upper }}
+        </div>
+        <div class="archive-title">{{ b.title or 'Oracle Briefing' }}</div>
+        <div class="archive-meta">
+          <span class="archive-type-badge">{{ b.briefing_type | replace('_', ' ') }}</span>
+          {% if b.duration_seconds %}
+          <span>{{ "%.0f"|format(b.duration_seconds) }}s</span>
+          {% endif %}
+          {% if b.btc_price_at_generation %}
+          <span>BTC ${{ "{:,.0f}".format(b.btc_price_at_generation) }}</span>
+          {% endif %}
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="oracle-empty">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto 12px;opacity:.25">
+        <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+      </svg>
+      No archived briefings yet — check back after the first briefing is generated.
+    </div>
+    {% endif %}
+  </div>
+
+</div>{# /oracle-wrap #}
+
+{# ── VIDEO MODAL ── #}
+<div class="oracle-modal" id="oracleModal" onclick="if(event.target===this)closeModal()">
+  <div class="oracle-modal-inner">
+    <video id="modalVideo" class="oracle-modal-video" controls autoplay playsinline>
+      <source id="modalVideoSrc" src="" type="video/mp4">
+    </video>
+    <div class="oracle-modal-info">
+      <span class="oracle-modal-title" id="modalTitle"></span>
+      <button class="oracle-modal-close" onclick="closeModal()">CLOSE ✕</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── countdown timer ── */
+(function() {
+  const secondsUntil = {{ next_slot.seconds_until | int }};
+  const totalSlot = 8 * 3600; // assume ~8h slot window for progress
+  let remaining = secondsUntil;
+  const display = document.getElementById('countdownDisplay');
+  const bar = document.getElementById('countdownBar');
+
+  function fmt(s) {
+    if (s <= 0) return '00:00';
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    if (h > 0) return h + 'h ' + String(m).padStart(2,'0') + 'm';
+    return String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+  }
+
+  function updateBar() {
+    const pct = Math.max(0, Math.min(100, (1 - remaining / totalSlot) * 100));
+    if (bar) bar.style.width = pct + '%';
+  }
+
+  function tick() {
+    if (remaining > 0) {
+      remaining--;
+      if (display) display.textContent = fmt(remaining);
+      updateBar();
+    }
+  }
+
+  updateBar();
+  setInterval(tick, 1000);
+})();
+
+/* ── video controls ── */
+function toggleMute() {
+  const v = document.getElementById('heroVideo');
+  if (!v) return;
+  v.muted = !v.muted;
+  const btn = document.getElementById('unmuteBtn');
+  if (btn) btn.textContent = v.muted ? 'UNMUTE' : 'MUTE';
+}
+
+function toggleTranscript(btn) {
+  const body = document.getElementById('heroTranscript');
+  if (!body) return;
+  body.classList.toggle('open');
+  const arrow = btn.querySelector('span:last-child');
+  if (arrow) arrow.textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+
+/* ── modal player ── */
+function playVideo(url, title, thumb) {
+  if (!url) return;
+  const modal = document.getElementById('oracleModal');
+  const video = document.getElementById('modalVideo');
+  const src = document.getElementById('modalVideoSrc');
+  const titleEl = document.getElementById('modalTitle');
+  if (!modal || !video || !src) return;
+  src.src = url;
+  video.load();
+  video.play().catch(() => {});
+  if (titleEl) titleEl.textContent = title || 'Oracle Briefing';
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  const modal = document.getElementById('oracleModal');
+  const video = document.getElementById('modalVideo');
+  if (video) { video.pause(); video.src = ''; }
+  if (modal) modal.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+
+/* ── share ── */
+function shareBriefing() {
+  const url = window.location.href;
+  if (navigator.share) {
+    navigator.share({ title: 'Oracle Briefing — Protocol Pulse', url });
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(url);
+    const btn = document.querySelector('.oracle-share-btn');
+    if (btn) { const old = btn.textContent; btn.textContent = 'COPIED!'; setTimeout(() => btn.textContent = old, 1500); }
+  }
+}
+
+/* ── live status poll ── */
+(function() {
+  function pollStatus() {
+    fetch('/api/oracle/status')
+      .then(r => r.json())
+      .then(data => {
+        // Update system dots
+        const statuses = data.system || {};
+        Object.keys(statuses).forEach(key => {
+          const rows = document.querySelectorAll('.sys-row');
+          rows.forEach(row => {
+            const name = row.querySelector('.sys-name');
+            if (name && statuses[key] && name.textContent.trim().toLowerCase().includes(key.replace('_',' '))) {
+              const dot = row.querySelector('.sys-dot');
+              const txt = row.querySelector('.sys-status');
+              if (dot) { dot.classList.remove('ok','err'); dot.classList.add(statuses[key].ok ? 'ok' : 'err'); }
+              if (txt) { const span = txt.querySelector('span:last-child'); if (span) span.textContent = statuses[key].ok ? 'ONLINE' : 'OFFLINE'; }
+            }
+          });
+        });
+      })
+      .catch(() => {});
+  }
+  setInterval(pollStatus, 60000);  // poll every 60s
+})();
+</script>
+{% endblock %}

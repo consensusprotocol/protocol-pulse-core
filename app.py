@@ -310,6 +310,30 @@ app.register_blueprint(onboarding_bp)
 from oracle_routes import oracle_bp
 app.register_blueprint(oracle_bp)
 
+# SESSION 3 — Media Unified Blueprint
+try:
+    from core.blueprints.media import media_bp
+    app.register_blueprint(media_bp)
+    logging.info("Media Unified blueprint registered (/media, /api/signal/composite, /api/sentiment/heatmap, /api/media/sources/health, /api/media/feed/*)")
+except Exception as _e:
+    logging.warning("Media Unified blueprint not loaded: %s", _e)
+
+# SESSION 6 — Schiff Bot Blueprint
+try:
+    from core.blueprints.schiff import schiff_bp
+    app.register_blueprint(schiff_bp)
+    logging.info("Schiff Bot blueprint registered (/schiff, /api/schiff/*)")
+except Exception as _e:
+    logging.warning("Schiff Bot blueprint not loaded: %s", _e)
+
+# SESSION 7 — Oracle Avatar Blueprint
+try:
+    from core.blueprints.oracle_avatar import oracle_avatar_bp
+    app.register_blueprint(oracle_avatar_bp)
+    logging.info("Oracle Avatar blueprint registered (/oracle-live, /api/oracle/*)")
+except Exception as _e:
+    logging.warning("Oracle Avatar blueprint not loaded: %s", _e)
+
 try:
     from services.video_engine.dashboard.app import dashboard_bp
     app.register_blueprint(dashboard_bp)
