@@ -1,60 +1,56 @@
-# BUILD COMPLETE — F2: MARKET BRIEFING ROOM
-Feature ID: f2-briefing-room
-Branch: feature/f2-briefing-room
+# BUILD COMPLETE — F3: SCHIFF-BOT HYPOCRISY METRIC
+Feature ID: f3-schiff-bot
+Branch: feature/f3-schiff-bot
 Completed: 2026-03-09
-Commit: 434b560 (post-audit second pass — 12 consensus improvements)
+Commit: 484754a (post-audit second pass — 9 consensus improvements)
 
 ---
 
 ## WHAT WAS BUILT
 
-### Service (core/services/briefing_service.py — 540 lines)
-- `generate_briefing_script(date)` — Claude Sonnet generates script from top articles
-- `create_heygen_video(script)` — HeyGen Sarah avatar ($1/min) video generation
-- `store_briefing(date, script, video_url)` — persists to DailyBrief table
-- `get_briefing_archive(limit=3)` — last 3 briefings for archive display
-- Idempotency: checks `DailyBrief.query` before generating (one per day)
-- HeyGen Sarah avatar: `d259c335741f4fc0b061e04c59388b4e`
+### Service (core/services/schiff_service.py — 991 lines)
+- `fetch_edgar_13f(cik)` — pulls SEC EDGAR 13F gold ETF holdings for Peter Schiff's entities
+- `score_schiff_tweet(text)` — Claude Haiku classifies anti-Bitcoin sentiment 0-100
+- `calculate_hypocrisy_score()` — composite: gold holdings value vs BTC performance delta
+- `get_brian_verdict(score)` — "Brian" persona delivers the verdict at threshold
+- SEC EDGAR API: public/free, no auth required
+- CIK: Schiff's registered entities in EDGAR
 
-### Template (core/templates/market_briefing.html — 922 lines)
-- "Coin Bureau meets Bloomberg" dark premium UI
-- Live briefing video player
-- Archive of last 3 briefings
-- Script transcript panel
-- Mobile responsive
+### Template (templates/schiff_bot.html — 837 lines)
+- Live hypocrisy meter (gauge 0-100)
+- Gold holdings table from latest 13F
+- Tweet sentiment feed (most recent anti-Bitcoin tweets)
+- Brian's verdict panel with dark humor
+- Chart: BTC performance vs gold performance (rolling)
 
-### Cron (cron/briefing_cron.py — 113 lines)
-- Generates briefings 3x/day: 13:00 UTC (morning), 18:00 UTC (midday), 23:30 UTC (evening)
-- --now flag for immediate generation
-- LAW compliance: one per run slot
+### Cron (cron/schiff_cron.py — 88 lines)
+- Weekly scrape (Tue + Fri) to match 13F quarterly cadence
+- Tweet refresh every 6 hours
 
 ### Routes (core/routes.py additions)
-- `GET /briefing` — Market Briefing Room page
-- `GET /api/briefing/latest` — Latest briefing JSON
-- `GET /api/briefing/archive` — Last 3 briefings
+- `GET /schiff-bot` — Schiff-Bot page
+- `GET /api/schiff/hypocrisy` — live hypocrisy score
+- `GET /api/schiff/holdings` — latest gold holdings from EDGAR
 
 ---
 
 ## AUDIT SUMMARY
 
-### Audit Grade (Cycle 2 — 6.3/10 before second pass)
-- Correctness: 5.2/10 → idempotency and transaction handling fixed
-- Security: 7.7/10 → retained (strong baseline)
-- Law Compliance: 6.7/10 → HeyGen API key validation added
+### Audit Grade (Cycle 2 — 4/10 before second pass)
+- Correctness: 3/10 → fixed in second pass (EDGAR parsing + tweet scoring)
+- Security: 6/10 → retained
+- 9 consensus improvements applied
 
-### Key Findings Fixed (12 consensus improvements)
-1. Idempotency on multi-step transaction (script gen → HeyGen → DB write)
-2. HeyGen API timeout increased + retry logic
-3. Video URL validation before DB write
-4. Cache headers: briefing API responses set private
+### Key Findings Fixed (9 consensus improvements)
+1. EDGAR 13F XML parser: wrong XPath for gold holding quantity
+2. Tweet scoring: prompt injection guard added (tweet text sanitized)
+3. Hypocrisy composite formula: division by zero guard when gold price = 0
+4. Brian verdict: threshold calibration (was always triggering at startup)
 5. Blueprint hard-fail registration
-6. Error logging with structured named args
-7. HeyGen voice ID externalized to env var
-8. Script max length cap to avoid HeyGen cost overrun
-9. DB rollback on partial failure
-10. Rate limit guard: max 3 briefings per calendar day
-11. Missing try/except on Claude API call
-12. DailyBrief.date index added for performance
+6. EDGAR request timeout + retry (3x with backoff)
+7. Rate limit: EDGAR asks for polite crawling (max 1 req/10s) — enforced
+8. Missing DB rollback on partial failure in score storage
+9. Cache: /api/schiff/hypocrisy TTL set to 5min (was 0)
 
 ---
 
@@ -64,8 +60,7 @@ Commit: 434b560 (post-audit second pass — 12 consensus improvements)
 ---
 
 ## PBX ACTIONS REQUIRED
-1. **HEYGEN_API_KEY** must be in `.env` (Sarah avatar $1/min — costs money per run)
-2. **ANTHROPIC_API_KEY** must be in `.env` for script generation
-3. System cron: `0 13,18 * * * cd /home/ultron/protocol_pulse && python3 cron/briefing_cron.py --now`
-4. Evening cron: `30 23 * * * cd /home/ultron/protocol_pulse && python3 cron/briefing_cron.py --now`
-5. Test with `--test` flag (watermarked, free) before enabling production sends
+1. **ANTHROPIC_API_KEY** for Claude Haiku tweet scoring
+2. No external API keys required for EDGAR (public/free)
+3. System cron: `0 */6 * * * cd /home/ultron/protocol_pulse && python3 cron/schiff_cron.py --refresh-tweets`
+4. Weekly 13F cron: `0 9 * * 2,5 cd /home/ultron/protocol_pulse && python3 cron/schiff_cron.py --refresh-13f`

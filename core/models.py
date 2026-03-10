@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timedelta
+import json
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db  # This stays here; we will fix the 'loop' in app.py
@@ -1121,4 +1122,66 @@ class NewsletterSend(db.Model):
 
     __table_args__ = (
         db.Index('idx_newsletter_sends_sent_at', 'sent_at'),
+    )
+
+# =====================================
+# SCHIFF-BOT / BRIAN — HYPOCRISY METRIC
+# =====================================
+
+class SchiffHypocrisy(db.Model):
+    """One calculated hypocrisy score snapshot per calendar day (score_date is unique)."""
+    __tablename__ = 'schiff_hypocrisy'
+    id = db.Column(db.Integer, primary_key=True)
+    score_date = db.Column(db.Date, nullable=False, default=datetime.utcnow)  # one row per day
+    score = db.Column(db.Float, nullable=False)           # 0-100
+    gold_holding_pct = db.Column(db.Float)                # 0-100 (% of AUM in gold/miners)
+    anti_btc_tweet_rate = db.Column(db.Float)             # 0-100 (normalised statement rate)
+    no_btc_holding_pct = db.Column(db.Float)              # 0 or 100 (binary: no BTC = 100)
+    gold_vs_btc_perf_gap = db.Column(db.Float)            # 0-100 (normalised perf gap)
+    total_aum_usd = db.Column(db.Float)
+    btc_holdings_usd = db.Column(db.Float, default=0)
+    gold_holdings_usd = db.Column(db.Float)
+    filing_date = db.Column(db.Date)
+    filing_type = db.Column(db.String(20), default='13F-HR')
+    calculated_at = db.Column(db.DateTime, default=datetime.utcnow)
+    data_sources = db.Column(db.Text)                     # JSON array of source URLs
+    __table_args__ = (
+        db.Index('idx_schiff_hypo_calculated_at', 'calculated_at'),
+        db.Index('idx_schiff_hypo_score_date', 'score_date'),
+        db.UniqueConstraint('score_date', name='uq_schiff_score_date'),
+    )
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'score_date': self.score_date.isoformat() if self.score_date else None,
+            'score': round(self.score, 1),
+            'components': {
+                'gold_holding_pct': self.gold_holding_pct,
+                'anti_btc_tweet_rate': self.anti_btc_tweet_rate,
+                'no_btc_holding_pct': self.no_btc_holding_pct,
+                'gold_vs_btc_perf_gap': self.gold_vs_btc_perf_gap,
+            },
+            'total_aum_usd': self.total_aum_usd,
+            'btc_holdings_usd': self.btc_holdings_usd,
+            'gold_holdings_usd': self.gold_holdings_usd,
+            'filing_date': self.filing_date.isoformat() if self.filing_date else None,
+            'filing_type': self.filing_type,
+            'calculated_at': self.calculated_at.isoformat() if self.calculated_at else None,
+            'data_sources': json.loads(self.data_sources) if self.data_sources else [],
+        }
+
+
+class SchiffStatement(db.Model):
+    """Manually-seeded public statements by Peter Schiff."""
+    __tablename__ = 'schiff_public_statements'
+    id = db.Column(db.Integer, primary_key=True)
+    statement = db.Column(db.Text, nullable=False)
+    platform = db.Column(db.String(50))          # 'twitter', 'podcast', 'interview'
+    statement_date = db.Column(db.Date)
+    anti_btc_score = db.Column(db.Integer, default=1)  # 1=anti-BTC, 0=neutral
+    source_url = db.Column(db.Text)
+    added_at = db.Column(db.DateTime, default=datetime.utcnow)
+    __table_args__ = (
+        db.Index('idx_schiff_stmt_date', 'statement_date'),
     )

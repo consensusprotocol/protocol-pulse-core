@@ -1,0 +1,837 @@
+{% extends "base.html" %}
+{% block title %}Brian — Hypocrisy Analyst | Protocol Pulse{% endblock %}
+{% block meta_description %}Tracking the gap between what gold bugs say and what the data shows. Brian analyzes Peter Schiff's SEC 13F filings and public statements to produce a real-time Hypocrisy Score.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="Brian — Hypocrisy Analyst | Protocol Pulse">
+<meta property="og:description" content="Gold vs Bitcoin: 0% BTC holdings. Real-time Hypocrisy Score from SEC EDGAR filings.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protocol Pulse">
+<meta property="og:url" content="{{ request.url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+  --sb-bg: #000000;
+  --sb-surface: #0a0a0a;
+  --sb-surface2: #111111;
+  --sb-border: rgba(255,255,255,0.07);
+  --sb-red: #dc2626;
+  --sb-red-dim: rgba(220,38,38,0.12);
+  --sb-gold: #f59e0b;
+  --sb-gold-dim: rgba(245,158,11,0.12);
+  --sb-green: #22c55e;
+  --sb-orange: #f97316;
+  --sb-white: #ffffff;
+  --sb-muted: rgba(255,255,255,0.45);
+  --sb-mono: 'JetBrains Mono', monospace;
+  --sb-sans: 'Inter', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+.sb-wrap {
+  background: var(--sb-bg);
+  min-height: 100vh;
+  color: var(--sb-white);
+  font-family: var(--sb-sans);
+}
+
+/* ── HERO ── */
+.sb-hero {
+  position: relative;
+  padding: 100px 24px 64px;
+  overflow: hidden;
+}
+.sb-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -5%, rgba(245,158,11,0.08) 0%, transparent 60%),
+    repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.013) 40px),
+    repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.013) 40px);
+  pointer-events: none;
+}
+.sb-hero-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+}
+.sb-badge {
+  display: inline-block;
+  font-family: var(--sb-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--sb-gold);
+  border: 1px solid rgba(245,158,11,0.3);
+  padding: 4px 10px;
+  border-radius: 2px;
+  margin-bottom: 20px;
+  background: var(--sb-gold-dim);
+}
+.sb-title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0 0 16px;
+}
+.sb-title span {
+  color: var(--sb-gold);
+}
+.sb-subtitle {
+  font-size: 1.05rem;
+  color: var(--sb-muted);
+  max-width: 560px;
+  line-height: 1.6;
+  margin: 0;
+}
+.sb-meta {
+  margin-top: 24px;
+  font-family: var(--sb-mono);
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.05em;
+}
+.sb-meta span { color: rgba(255,255,255,0.5); }
+
+/* ── MAIN GRID ── */
+.sb-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+.sb-grid-top {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+@media (max-width: 860px) {
+  .sb-grid-top { grid-template-columns: 1fr; }
+}
+
+/* ── GAUGE CARD ── */
+.sb-card {
+  background: var(--sb-surface);
+  border: 1px solid var(--sb-border);
+  border-radius: 8px;
+  padding: 28px;
+}
+.sb-card-title {
+  font-family: var(--sb-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--sb-muted);
+  margin-bottom: 20px;
+}
+
+.sb-gauge-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.sb-gauge-svg {
+  width: 220px;
+  height: 120px;
+  overflow: visible;
+}
+.sb-gauge-arc-bg {
+  fill: none;
+  stroke: rgba(255,255,255,0.06);
+  stroke-width: 18;
+  stroke-linecap: round;
+}
+.sb-gauge-arc {
+  fill: none;
+  stroke-width: 18;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1),
+              stroke 0.6s ease;
+}
+.sb-gauge-score {
+  font-family: var(--sb-mono);
+  font-size: 3rem;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+.sb-gauge-denom {
+  font-family: var(--sb-mono);
+  font-size: 0.9rem;
+  fill: var(--sb-muted);
+  text-anchor: middle;
+}
+.sb-gauge-label {
+  font-family: var(--sb-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 5px 14px;
+  border-radius: 3px;
+  border: 1px solid;
+}
+.sb-gauge-updated {
+  font-family: var(--sb-mono);
+  font-size: 10px;
+  color: var(--sb-muted);
+  text-align: center;
+}
+.sb-stale-warn {
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.25);
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-family: var(--sb-mono);
+  color: var(--sb-gold);
+  text-align: center;
+}
+
+/* ── BREAKDOWN CARD ── */
+.sb-breakdown-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--sb-border);
+}
+.sb-breakdown-row:last-child { border-bottom: none; }
+.sb-breakdown-label {
+  flex: 1;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.8);
+}
+.sb-breakdown-label small {
+  display: block;
+  font-family: var(--sb-mono);
+  font-size: 10px;
+  color: var(--sb-muted);
+  margin-top: 2px;
+}
+.sb-breakdown-bar-wrap {
+  width: 120px;
+  height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.sb-breakdown-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s ease;
+}
+.sb-breakdown-pts {
+  font-family: var(--sb-mono);
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 70px;
+  text-align: right;
+}
+
+/* ── PORTFOLIO TABLE ── */
+.sb-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.sb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.83rem;
+}
+.sb-table th {
+  font-family: var(--sb-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sb-muted);
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--sb-border);
+}
+.sb-table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.035);
+  color: rgba(255,255,255,0.85);
+}
+.sb-table tr:last-child td { border-bottom: none; }
+.sb-table tr:hover td { background: rgba(255,255,255,0.02); }
+.sb-gold-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--sb-gold);
+  margin-right: 6px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.sb-bar-inline {
+  display: inline-block;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--sb-gold);
+  vertical-align: middle;
+  margin-left: 6px;
+  transition: width 0.8s ease;
+}
+
+/* ── CHART ── */
+.sb-chart-wrap {
+  position: relative;
+  height: 160px;
+  margin-top: 8px;
+}
+.sb-chart-canvas { width: 100%; height: 100%; }
+
+/* ── STATEMENTS ── */
+.sb-stmt-item {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--sb-border);
+}
+.sb-stmt-item:last-child { border-bottom: none; }
+.sb-stmt-quote {
+  font-style: italic;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+.sb-stmt-quote::before { content: '"'; color: var(--sb-gold); }
+.sb-stmt-quote::after  { content: '"'; color: var(--sb-gold); }
+.sb-stmt-meta {
+  margin-top: 6px;
+  font-family: var(--sb-mono);
+  font-size: 10px;
+  color: var(--sb-muted);
+}
+.sb-stmt-platform {
+  display: inline-block;
+  padding: 2px 7px;
+  border: 1px solid var(--sb-border);
+  border-radius: 2px;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-right: 6px;
+  color: rgba(255,255,255,0.4);
+}
+
+/* ── SHARE BUTTON ── */
+.sb-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.3);
+  color: var(--sb-gold);
+  font-family: var(--sb-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  text-decoration: none;
+}
+.sb-share-btn:hover {
+  background: rgba(245,158,11,0.18);
+  border-color: rgba(245,158,11,0.5);
+  color: var(--sb-gold);
+  text-decoration: none;
+}
+
+/* ── CIK BADGE ── */
+.sb-source-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--sb-mono);
+  font-size: 10px;
+  color: var(--sb-muted);
+  border: 1px solid var(--sb-border);
+  padding: 4px 10px;
+  border-radius: 2px;
+}
+.sb-source-badge a {
+  color: rgba(255,255,255,0.5);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── EMPTY / LOADING STATES ── */
+.sb-empty {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--sb-muted);
+  font-family: var(--sb-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+.sb-loader {
+  display: inline-block;
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-top-color: var(--sb-gold);
+  border-radius: 50%;
+  animation: sb-spin 0.8s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+@keyframes sb-spin { to { transform: rotate(360deg); } }
+
+/* ── MOBILE ── */
+@media (max-width: 600px) {
+  .sb-hero { padding: 80px 16px 48px; }
+  .sb-main  { padding: 0 16px 60px; }
+  .sb-card  { padding: 20px; }
+  .sb-breakdown-bar-wrap { width: 80px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+{% set s_val = score.score|float if score and score.score is defined else 0 %}
+{% if s_val <= 20 %}
+  {% set score_color = '#22c55e' %}
+  {% set score_color_dim = 'rgba(34,197,94,0.08)' %}
+{% elif s_val <= 40 %}
+  {% set score_color = '#86efac' %}
+  {% set score_color_dim = 'rgba(134,239,172,0.08)' %}
+{% elif s_val <= 60 %}
+  {% set score_color = '#f97316' %}
+  {% set score_color_dim = 'rgba(249,115,22,0.08)' %}
+{% elif s_val <= 80 %}
+  {% set score_color = '#ef4444' %}
+  {% set score_color_dim = 'rgba(239,68,68,0.08)' %}
+{% else %}
+  {% set score_color = '#dc2626' %}
+  {% set score_color_dim = 'rgba(220,38,38,0.10)' %}
+{% endif %}
+
+<div class="sb-wrap">
+
+  <!-- ── HERO ── -->
+  <div class="sb-hero">
+    <div class="sb-hero-inner">
+      <div class="sb-badge">BRIAN — HYPOCRISY ANALYST</div>
+      <h1 class="sb-title">The <span>Gold vs Bitcoin</span><br>Consistency Tracker</h1>
+      <p class="sb-subtitle">Tracking the gap between what gold bugs say and what the data shows — sourced exclusively from SEC EDGAR 13F public filings.</p>
+      <div class="sb-meta">
+        DATA SOURCE: <span>SEC EDGAR (public filings, no auth)</span> &nbsp;·&nbsp;
+        CIK: <span>1424163 (Euro Pacific Asset Management)</span> &nbsp;·&nbsp;
+        UPDATED: <span id="sb-hero-updated">daily at 00:00 UTC</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MAIN CONTENT ── -->
+  <div class="sb-main">
+
+    <!-- Row 1: Gauge + Breakdown -->
+    <div class="sb-grid-top">
+
+      <!-- Gauge Card -->
+      <div class="sb-card">
+        <div class="sb-card-title">Hypocrisy Score</div>
+        <div class="sb-gauge-wrap">
+          <svg class="sb-gauge-svg" viewBox="0 0 220 120" role="img" aria-label="Hypocrisy score gauge">
+            <!-- Background arc: 180° semicircle, d-attr path approach for half arc -->
+            <path class="sb-gauge-arc-bg"
+              d="M 20 110 A 90 90 0 0 1 200 110"
+              stroke-dasharray="283 283"
+              stroke-dashoffset="0"
+            />
+            <path id="sb-gauge-arc"
+              class="sb-gauge-arc"
+              d="M 20 110 A 90 90 0 0 1 200 110"
+              stroke="{{ score_color }}"
+              stroke-dasharray="283 283"
+              stroke-dashoffset="283"
+            />
+            <text class="sb-gauge-score" x="110" y="88"
+              fill="{{ score_color }}" id="sb-score-text">
+              {{ score.score|round|int if score and score.score else '—' }}
+            </text>
+            <text class="sb-gauge-denom" x="110" y="108">/ 100</text>
+          </svg>
+
+          <div class="sb-gauge-label" id="sb-score-label"
+            style="color: {{ score_color }}; border-color: {{ score_color }}; background: {{ score_color_dim }}">
+            {{ score.label if score and not score.get('data_unavailable') else ('Loading…' if not score else 'Data Unavailable') }}
+          </div>
+
+          {% if score and score.get('data_unavailable') %}
+          <div class="sb-stale-warn">⚠ Score data not yet available — EDGAR fetch pending</div>
+          {% elif score and score.get('stale') %}
+          <div class="sb-stale-warn">⚠ Stale data ({{ score.stale_hours|round(0)|int }}h old) — recalculating</div>
+          {% endif %}
+
+          <div class="sb-gauge-updated">
+            Filing: <strong>{{ score.filing_date or '—' }}</strong>
+            &nbsp;·&nbsp;
+            Calc: <strong id="sb-calc-date">{{ score.calculated_at[:10] if score and score.calculated_at else '—' }}</strong>
+          </div>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:8px;">
+            <a class="sb-share-btn" id="sb-share-x" href="#" onclick="shareToX(event)">
+              ✕ Share Score
+            </a>
+            <div class="sb-source-badge">
+              <span>📄 SOURCE:</span>
+              <a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=1424163&type=13F"
+                target="_blank" rel="noopener">EDGAR 13F</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Breakdown Card -->
+      <div class="sb-card">
+        <div class="sb-card-title">Score Breakdown</div>
+
+        {% set comp = score.components if score and score.components else {} %}
+        {% set gold_pct = comp.get('gold_holding_pct', 0)|float %}
+        {% set anti_btc = comp.get('anti_btc_tweet_rate', 0)|float %}
+        {% set no_btc = comp.get('no_btc_holding_pct', 0)|float %}
+        {% set perf_gap = comp.get('gold_vs_btc_perf_gap', 0)|float %}
+
+        <!-- Gold Holdings -->
+        <div class="sb-breakdown-row">
+          <div class="sb-breakdown-label">
+            Gold Holdings
+            <small>Weight: 35% | {{ gold_pct|round(1) }}% of AUM in gold/miners</small>
+          </div>
+          <div class="sb-breakdown-bar-wrap">
+            <div class="sb-breakdown-bar"
+              style="width: {{ [gold_pct, 100]|min }}%; background: var(--sb-gold);"></div>
+          </div>
+          <div class="sb-breakdown-pts" style="color: var(--sb-gold)">
+            {{ (gold_pct * 0.35)|round(1) }} / 35
+          </div>
+        </div>
+
+        <!-- Anti-BTC Statements -->
+        <div class="sb-breakdown-row">
+          <div class="sb-breakdown-label">
+            Anti-BTC Statement Rate
+            <small>Weight: 30% | Public statements on record</small>
+          </div>
+          <div class="sb-breakdown-bar-wrap">
+            <div class="sb-breakdown-bar"
+              style="width: {{ [anti_btc, 100]|min }}%; background: var(--sb-red);"></div>
+          </div>
+          <div class="sb-breakdown-pts" style="color: var(--sb-red)">
+            {{ (anti_btc * 0.30)|round(1) }} / 30
+          </div>
+        </div>
+
+        <!-- BTC Holdings -->
+        <div class="sb-breakdown-row">
+          <div class="sb-breakdown-label">
+            Bitcoin Holdings
+            <small>Weight: 20% | ${{ '{:,.0f}'.format(score.btc_holdings_usd or 0) }} BTC in 13F</small>
+          </div>
+          <div class="sb-breakdown-bar-wrap">
+            <div class="sb-breakdown-bar"
+              style="width: {{ [no_btc, 100]|min }}%; background: var(--sb-orange);"></div>
+          </div>
+          <div class="sb-breakdown-pts" style="color: var(--sb-orange)">
+            {{ (no_btc * 0.20)|round(1) }} / 20
+          </div>
+        </div>
+
+        <!-- Performance Gap -->
+        <div class="sb-breakdown-row">
+          <div class="sb-breakdown-label">
+            BTC vs Gold Performance Gap
+            <small>Weight: 15% | YTD: BTC {{ score.ytd.btc_ytd_pct|round(1) if score and score.ytd else '—' }}% vs Gold {{ score.ytd.gold_ytd_pct|round(1) if score and score.ytd else '—' }}%</small>
+          </div>
+          <div class="sb-breakdown-bar-wrap">
+            <div class="sb-breakdown-bar"
+              style="width: {{ [perf_gap, 100]|min }}%; background: var(--sb-green);"></div>
+          </div>
+          <div class="sb-breakdown-pts" style="color: var(--sb-green)">
+            {{ (perf_gap * 0.15)|round(1) }} / 15
+          </div>
+        </div>
+
+        <!-- AUM Summary -->
+        <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--sb-border);">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div>
+              <div style="font-family: var(--sb-mono); font-size: 10px; color: var(--sb-muted); margin-bottom: 4px; letter-spacing: 0.1em; text-transform: uppercase;">Total AUM (13F)</div>
+              <div style="font-family: var(--sb-mono); font-size: 1.1rem; font-weight: 600; color: var(--sb-white)">
+                ${{ '{:,.0f}'.format(score.total_aum_usd or 0) if score else '—' }}
+              </div>
+            </div>
+            <div>
+              <div style="font-family: var(--sb-mono); font-size: 10px; color: var(--sb-muted); margin-bottom: 4px; letter-spacing: 0.1em; text-transform: uppercase;">Gold Holdings</div>
+              <div style="font-family: var(--sb-mono); font-size: 1.1rem; font-weight: 600; color: var(--sb-gold)">
+                ${{ '{:,.0f}'.format(score.gold_holdings_usd or 0) if score else '—' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: Portfolio Table -->
+    <div class="sb-card" style="margin-bottom: 24px;">
+      <div class="sb-card-title">Portfolio Snapshot — EDGAR 13F Holdings ({{ score.filing_type or '13F-HR' }} · {{ score.filing_date or '—' }})</div>
+
+      {% if score and score.holdings %}
+      <div class="sb-table-wrap">
+        <table class="sb-table">
+          <thead>
+            <tr>
+              <th>Security Name</th>
+              <th>Value (USD)</th>
+              <th>% of AUM</th>
+              <th>Allocation</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for h in score.holdings %}
+            <tr>
+              <td>
+                {% set name_lower = h.name|lower %}
+                {% if 'gold' in name_lower or 'gdx' in name_lower or 'gld' in name_lower or 'miner' in name_lower or 'barrick' in name_lower or 'newmont' in name_lower or 'agnico' in name_lower or 'kinross' in name_lower or 'wheaton' in name_lower %}
+                <span class="sb-gold-dot"></span>
+                {% endif %}
+                {{ h.name }}
+              </td>
+              <td style="font-family: var(--sb-mono)">
+                ${{ '{:,.0f}'.format(h.value_usd) }}
+              </td>
+              <td style="font-family: var(--sb-mono); color: {{ 'var(--sb-gold)' if h.pct_of_portfolio > 5 else 'rgba(255,255,255,0.6)' }}">
+                {{ h.pct_of_portfolio|round(1) }}%
+              </td>
+              <td>
+                <div style="display:flex; align-items:center;">
+                  <div style="width: {{ [h.pct_of_portfolio * 2, 120]|min }}px; height: 4px; border-radius: 2px; background: {{ 'var(--sb-gold)' if h.pct_of_portfolio > 10 else 'rgba(255,255,255,0.2)' }};"></div>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="sb-empty">
+        <span class="sb-loader"></span> Fetching 13F holdings from EDGAR…
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Row 3: Score History Chart + Statements -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+
+      <!-- History Chart -->
+      <div class="sb-card">
+        <div class="sb-card-title">Score History — 90 Days</div>
+        {% if history %}
+        <div class="sb-chart-wrap">
+          <canvas id="sb-chart" class="sb-chart-canvas"></canvas>
+        </div>
+        {% else %}
+        <div class="sb-empty">No history yet — first score on next cron run</div>
+        {% endif %}
+      </div>
+
+      <!-- Recent Statements -->
+      <div class="sb-card">
+        <div class="sb-card-title">Public Statements on Record</div>
+        {% if statements %}
+          {% for s in statements[:6] %}
+          <div class="sb-stmt-item">
+            <div class="sb-stmt-quote">{{ s.statement }}</div>
+            <div class="sb-stmt-meta">
+              <span class="sb-stmt-platform">{{ s.platform or 'public' }}</span>
+              {{ s.statement_date or '' }}
+              {% if s.source_url %}
+              · <a href="{{ s.source_url }}" target="_blank" rel="noopener"
+                  style="color: rgba(255,255,255,0.35); font-size:10px;">source ↗</a>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+        <div class="sb-empty">No statements loaded</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Methodology Footnote -->
+    <div class="sb-card" style="background: transparent; border-color: rgba(255,255,255,0.04);">
+      <div class="sb-card-title">Methodology</div>
+      <div style="font-size: 0.82rem; color: var(--sb-muted); line-height: 1.7; max-width: 800px;">
+        <strong style="color: rgba(255,255,255,0.6)">Brian</strong> is a fictional analytical persona that tracks the gap between publicly available statements and SEC-filed portfolio data.
+        All holdings data sourced exclusively from <a href="https://data.sec.gov" target="_blank" rel="noopener" style="color: rgba(255,255,255,0.5); text-decoration: underline;">SEC EDGAR</a> (CIK 1424163).
+        The Hypocrisy Score formula is fixed:
+        <code style="font-family: var(--sb-mono); background: rgba(255,255,255,0.04); padding: 2px 6px; border-radius: 2px; font-size: 11px; color: rgba(255,255,255,0.5);">
+          gold_pct×0.35 + anti_btc_rate×0.30 + no_btc_pct×0.20 + perf_gap×0.15
+        </code>.
+        Editorial purpose only. Data updated daily from public filings. This is not financial advice.
+      </div>
+    </div>
+
+  </div><!-- .sb-main -->
+</div><!-- .sb-wrap -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  'use strict';
+
+  // ── Gauge animation ──────────────────────────────────────────────
+  const rawScore = {{ score.score|round(1) if score and score.score else 0 }};
+  const ARC_LEN = 283;
+
+  function scoreToColor(s) {
+    if (s <= 20) return '#22c55e';
+    if (s <= 40) return '#86efac';
+    if (s <= 60) return '#f97316';
+    if (s <= 80) return '#ef4444';
+    return '#dc2626';
+  }
+
+  const arc = document.getElementById('sb-gauge-arc');
+  const scoreText = document.getElementById('sb-score-text');
+  if (arc && rawScore > 0) {
+    const filled = ARC_LEN * (rawScore / 100);
+    const offset = ARC_LEN - filled;
+    const color = scoreToColor(rawScore);
+    // Trigger animation after short delay
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        arc.style.strokeDashoffset = offset;
+        arc.style.stroke = color;
+      }, 200);
+    });
+  }
+
+  // ── Score counter animation ──────────────────────────────────────
+  if (scoreText && rawScore > 0) {
+    let current = 0;
+    const duration = 1200;
+    const start = performance.now();
+    function tick(now) {
+      const t = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - t, 3);
+      current = Math.round(rawScore * ease);
+      scoreText.textContent = current;
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // ── History Chart ────────────────────────────────────────────────
+  {% if history %}
+  const historyData = {{ history | tojson }};
+  const canvas = document.getElementById('sb-chart');
+  if (canvas && historyData.length > 0) {
+    drawChart(canvas, historyData);
+  }
+
+  function drawChart(canvas, data) {
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width  = rect.width  * dpr;
+    canvas.height = rect.height * dpr;
+    canvas.style.width  = rect.width  + 'px';
+    canvas.style.height = rect.height + 'px';
+
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    const W = rect.width, H = rect.height;
+    const pad = { top: 10, right: 10, bottom: 24, left: 36 };
+    const cW = W - pad.left - pad.right;
+    const cH = H - pad.top  - pad.bottom;
+
+    const scores = data.map(d => d.score);
+    const minS = Math.max(0,  Math.min(...scores) - 5);
+    const maxS = Math.min(100, Math.max(...scores) + 5);
+
+    function xOf(i) { return pad.left + (i / (scores.length - 1)) * cW; }
+    function yOf(s) { return pad.top + cH - ((s - minS) / (maxS - minS)) * cH; }
+
+    // Grid lines
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.lineWidth = 1;
+    for (let s = Math.ceil(minS / 10) * 10; s <= maxS; s += 10) {
+      const y = yOf(s);
+      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + cW, y); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,0.25)';
+      ctx.font = '9px JetBrains Mono, monospace';
+      ctx.fillText(s, 2, y + 3);
+    }
+
+    // Gradient fill
+    const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + cH);
+    grad.addColorStop(0, 'rgba(245,158,11,0.25)');
+    grad.addColorStop(1, 'rgba(245,158,11,0.0)');
+    ctx.beginPath();
+    ctx.moveTo(xOf(0), yOf(scores[0]));
+    for (let i = 1; i < scores.length; i++) ctx.lineTo(xOf(i), yOf(scores[i]));
+    ctx.lineTo(xOf(scores.length - 1), pad.top + cH);
+    ctx.lineTo(xOf(0), pad.top + cH);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Line
+    ctx.beginPath();
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.moveTo(xOf(0), yOf(scores[0]));
+    for (let i = 1; i < scores.length; i++) ctx.lineTo(xOf(i), yOf(scores[i]));
+    ctx.stroke();
+
+    // X-axis labels (first, mid, last)
+    const labelIdxs = [0, Math.floor(scores.length / 2), scores.length - 1];
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.font = '9px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    for (const i of labelIdxs) {
+      if (data[i] && data[i].calculated_at) {
+        const label = data[i].calculated_at.slice(5, 10);
+        ctx.fillText(label, xOf(i), H - 4);
+      }
+    }
+  }
+  {% endif %}
+
+  // ── Share to X ───────────────────────────────────────────────────
+  window.shareToX = function(e) {
+    e.preventDefault();
+    const score = rawScore;
+    const label = document.getElementById('sb-score-label')?.textContent?.trim() || '';
+    const text = encodeURIComponent(
+      `🔍 Brian's Hypocrisy Score: ${score}/100 — "${label}"\n\nGold holdings: 85%+ of AUM. Bitcoin holdings: $0.\n\nData: SEC EDGAR 13F public filings.\n\nprotocolpulse.io/schiff\n\n#Bitcoin #Gold #PeterSchiff`
+    );
+    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank', 'width=600,height=400');
+  };
+
+  // ── Update hero updated date ─────────────────────────────────────
+  const calcDateEl = document.getElementById('sb-hero-updated');
+  if (calcDateEl) {
+    const calcDate = '{{ score.calculated_at[:10] if score and score.calculated_at else "" }}';
+    if (calcDate) calcDateEl.textContent = `Last updated: ${calcDate}`;
+  }
+
+})();
+</script>
+{% endblock %}
