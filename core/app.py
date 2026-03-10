@@ -159,6 +159,14 @@ with app.app_context():
     except Exception as e:
         logging.warning("Terminal API blueprint not loaded: %s", e)
 
+    # SESSION 13 — Affiliate Revenue Engine blueprint
+    try:
+        from blueprints.affiliates import affiliates_bp
+        app.register_blueprint(affiliates_bp)
+        logging.info("SESSION 13: Affiliate Revenue blueprint registered (/bitcoin-insurance, /api/affiliate/click)")
+    except Exception as e:
+        logging.warning("SESSION 13 affiliates blueprint not loaded: %s", e)
+
 # Diagnose: confirm / and /debug-routes are registered (debug 404)
 try:
     rules = [r.rule for r in app.url_map.iter_rules()]

@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Affiliate Analytics — SESSION 13 | Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+.aff-admin { padding: 40px 0; }
+.aff-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.aff-header h1 {
+    font-size: 1.6rem; font-weight: 900;
+    color: #eef2ff; margin-bottom: 0.3rem;
+    letter-spacing: -0.03em;
+}
+.aff-header .sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; color: #5a6480;
+    letter-spacing: 0.12em; text-transform: uppercase;
+}
+.aff-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.2rem;
+    margin-bottom: 3rem;
+}
+.aff-card {
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-top: 2px solid #dc2626;
+    border-radius: 2px;
+    padding: 1.5rem;
+}
+.aff-card-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.60rem; font-weight: 700;
+    color: #5a6480; letter-spacing: 0.16em;
+    text-transform: uppercase; margin-bottom: 0.7rem;
+}
+.aff-card-value {
+    font-size: 2rem; font-weight: 900;
+    color: #eef2ff; line-height: 1;
+    letter-spacing: -0.04em;
+}
+.aff-card-value.gold { color: #f8c15c; }
+.aff-card-value.green { color: #22c55e; }
+.aff-section-title {
+    font-size: 1.1rem; font-weight: 800;
+    color: #eef2ff; margin-bottom: 1.2rem;
+    letter-spacing: -0.02em;
+}
+.aff-table {
+    width: 100%; border-collapse: collapse;
+    margin-bottom: 2.5rem;
+}
+.aff-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.60rem; font-weight: 700;
+    color: #5a6480; letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 0.6rem 1rem; text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.aff-table td {
+    font-size: 0.85rem; color: #8892a8;
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.aff-table tr:hover td { background: rgba(255,255,255,0.02); }
+.aff-badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem; font-weight: 700;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    padding: 0.2rem 0.6rem; border-radius: 2px;
+}
+.aff-badge-meanwhile { background: rgba(248,193,92,0.10); color: #f8c15c; }
+.aff-badge-rns { background: rgba(34,197,94,0.10); color: #22c55e; }
+.aff-badge-a { background: rgba(93,228,255,0.08); color: #5de4ff; }
+.aff-badge-b { background: rgba(168,85,247,0.10); color: #c084fc; }
+.aff-ab-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+    margin-bottom: 2.5rem;
+}
+@media (max-width: 640px) { .aff-ab-grid { grid-template-columns: 1fr; } }
+.aff-ab-card {
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 2px;
+    padding: 1.5rem;
+}
+.aff-ab-partner {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem; color: #dc2626;
+    font-weight: 800; letter-spacing: 0.14em;
+    text-transform: uppercase; margin-bottom: 1rem;
+}
+.aff-ab-row {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 0.5rem;
+    font-size: 0.82rem; color: #8892a8;
+}
+.aff-ab-row strong { color: #eef2ff; }
+.aff-ab-winner {
+    margin-top: 0.8rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem; font-weight: 700;
+    color: #f8c15c; letter-spacing: 0.10em;
+}
+.aff-error {
+    background: rgba(220,38,38,0.08);
+    border: 1px solid rgba(220,38,38,0.20);
+    border-radius: 2px; padding: 1rem 1.5rem;
+    color: #f87171; font-size: 0.85rem;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 2rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container aff-admin">
+
+  <div class="aff-header">
+    <h1>Affiliate Revenue Engine</h1>
+    <div class="sub">SESSION 13 · Meanwhile + RNS.ID · Click Analytics</div>
+  </div>
+
+  {% if error %}
+  <div class="aff-error">ERROR: {{ error }}</div>
+  {% endif %}
+
+  <!-- KPI Cards -->
+  <div class="aff-cards">
+    <div class="aff-card">
+      <div class="aff-card-label">Meanwhile Clicks (30d)</div>
+      <div class="aff-card-value">{{ totals_map.get('meanwhile', 0) }}</div>
+    </div>
+    <div class="aff-card">
+      <div class="aff-card-label">RNS Clicks (30d)</div>
+      <div class="aff-card-value">{{ totals_map.get('rns', 0) }}</div>
+    </div>
+    <div class="aff-card">
+      <div class="aff-card-label">Est. Meanwhile Revenue</div>
+      <div class="aff-card-value gold">${{ '%.2f'|format(earnings.get('meanwhile', 0)) }}</div>
+    </div>
+    <div class="aff-card">
+      <div class="aff-card-label">Est. RNS Revenue</div>
+      <div class="aff-card-value gold">${{ '%.2f'|format(earnings.get('rns', 0)) }}</div>
+    </div>
+  </div>
+
+  <!-- A/B Test Stats -->
+  <div class="aff-section-title">A/B Test Performance</div>
+  <div class="aff-ab-grid">
+    {% for partner_key, stats in ab_stats.items() %}
+    <div class="aff-ab-card">
+      <div class="aff-ab-partner">{{ partner_key | upper }}</div>
+      {% if stats.get('error') %}
+        <div style="color:#f87171;font-size:0.8rem;">{{ stats.error }}</div>
+      {% elif stats.get('needs_more_data') %}
+        <div class="aff-ab-row"><span>Variant A clicks</span><strong>{{ stats.get('variant_a', {}).get('clicks', 0) }}</strong></div>
+        <div class="aff-ab-row"><span>Variant B clicks</span><strong>{{ stats.get('variant_b', {}).get('clicks', 0) }}</strong></div>
+        <div class="aff-ab-row"><span>Total</span><strong>{{ stats.get('total', 0) }}</strong></div>
+        <div class="aff-ab-winner">⏳ COLLECTING DATA — {{ stats.get('total', 0) }}/100 clicks for MAB activation</div>
+      {% else %}
+        <div class="aff-ab-row"><span>Variant A</span><strong>{{ stats.get('variant_a', {}).get('clicks', 0) }} clicks ({{ stats.get('variant_a', {}).get('rate', 0) }}%)</strong></div>
+        <div class="aff-ab-row"><span>Variant B</span><strong>{{ stats.get('variant_b', {}).get('clicks', 0) }} clicks ({{ stats.get('variant_b', {}).get('rate', 0) }}%)</strong></div>
+        <div class="aff-ab-row"><span>MAB Active</span><strong style="color:#22c55e;">YES</strong></div>
+        {% if stats.get('winner') %}
+        <div class="aff-ab-winner">✓ WINNER: VARIANT {{ stats.winner }}</div>
+        {% endif %}
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Recent Clicks -->
+  <div class="aff-section-title">Recent Clicks (last 20)</div>
+  {% if recent %}
+  <table class="aff-table">
+    <thead>
+      <tr>
+        <th>Partner</th>
+        <th>Source</th>
+        <th>User Hash (prefix)</th>
+        <th>Variant</th>
+        <th>Clicked At</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in recent %}
+      <tr>
+        <td><span class="aff-badge aff-badge-{{ r[0] }}">{{ r[0] }}</span></td>
+        <td>{{ r[1] or 'direct' }}</td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;">{{ r[2] }}…</td>
+        <td><span class="aff-badge {% if r[3] == 'A' %}aff-badge-a{% else %}aff-badge-b{% endif %}">{{ r[3] }}</span></td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;">{{ r[4] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:#5a6480;font-size:0.85rem;">No clicks recorded yet.</p>
+  {% endif %}
+
+  <!-- Partner Config -->
+  <div class="aff-section-title">Partner Configuration</div>
+  {% if partner_cfg %}
+  <table class="aff-table">
+    <thead>
+      <tr>
+        <th>Partner</th>
+        <th>Name</th>
+        <th>Landing Page</th>
+        <th>Est. Commission</th>
+        <th>Redirect URL</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for key, cfg in partner_cfg.items() %}
+      <tr>
+        <td><span class="aff-badge aff-badge-{{ key }}">{{ key }}</span></td>
+        <td>{{ cfg.name }}</td>
+        <td><code>{{ cfg.landing_page }}</code></td>
+        <td style="color:#f8c15c;font-family:'JetBrains Mono',monospace;">${{ cfg.estimated_commission }}</td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;">{{ cfg.redirect_url[:50] }}…</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+</div>
+{% endblock %}
