@@ -595,17 +595,13 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
     else:
         face_base = "bgvig"
 
-    # APEX title text centered
+    # CYCLE6 FIX: Cold open hook should NOT repeat "PROTOCOL PULSE"/"PULSE CHECK" branding
+    # (title card already showed those). Show only the date/BTC signal line + fade.
+    # Per PIPELINE_LAWS: cold open = NO logos, watermarks — pure dramatic hook content.
     fg += (f"[{face_base}]"
-           # PROTOCOL PULSE — centered white bold
-           f"drawtext=fontfile={FONT_BOLD}:text='PROTOCOL PULSE':"
-           f"fontcolor={COLOR_WHITE}:fontsize=72:x=(w-text_w)/2:y=300,"
-           # PULSE CHECK — centered warm-red bold
-           f"drawtext=fontfile={FONT_BOLD}:text='PULSE CHECK':"
-           f"fontcolor={COLOR_RED}:fontsize=52:x=(w-text_w)/2:y=400,"
-           # Gold eyebrow date — CYCLE4 FIX: removed "// SIGNAL DETECTED //" debug text
+           # Gold signal line — date context only
            f"drawtext=fontfile={FONT_MONO}:text='{date_str}':"
-           f"fontcolor={COLOR_GOLD}:fontsize=18:x=(w-text_w)/2:y=490,"
+           f"fontcolor={COLOR_GOLD}:fontsize=22:x=(w-text_w)/2:y=490,"
            # Fade in/out
            f"fade=t=in:st=0:d=0.4,fade=t=out:st={max(0, total_dur - 0.4)}:d=0.4"
            f"[withtext];\n")
@@ -1236,14 +1232,15 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
 
     # Left text zone with gold eyebrow
     safe_speaker = _sanitize_text(speaker)[:12]
-    safe_head = _sanitize_text(headline)[:40]
-    safe_body = _word_wrap(_sanitize_text(body), max_width=30, max_lines=3) if body else ""
+    # CYCLE6 FIX: Reduce headline to 20 chars max (fontsize=52 is wide, 20 chars ~= 640px in left zone)
+    safe_head = _sanitize_text(headline)[:20]
+    # CYCLE6 FIX: Reduced body max_width from 30 to 28 to prevent right-zone overflow
+    safe_body = _word_wrap(_sanitize_text(body), max_width=28, max_lines=4) if body else ""
 
     # CYCLE3 FIX: removed "NARRATIVE SETUP // MARK" eyebrow debug label
+    # CYCLE6 FIX: Reduced headline fontsize 64→52 to fit left half (max ~960px)
     fg += (f"[bv2_bar]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
-           f"fontcolor=0x111111:fontsize=64:x=66:y=132,"
-           f"drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
-           f"fontcolor={COLOR_WHITE}:fontsize=64:x=64:y=130[np_head];\n")
+           f"fontcolor={COLOR_WHITE}:fontsize=52:x=64:y=130[np_head];\n")
     if safe_body:
         fg += (f"[np_head]drawtext=fontfile={FONT_MONO}:text='{safe_body}':"
                f"fontcolor=0xFFFFFF@0.6:fontsize=18:x=64:y=420:line_spacing=8[np_body];\n")
@@ -1267,8 +1264,8 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
         fg += f"[np_pip_hdr][np_thumb]overlay=1132:200[np_pip_thumb];\n"
         pip_base = "np_pip_thumb"
     else:
-        fg += (f"[np_pip_hdr]drawbox=x=1132:y=200:w=716:h=370:color=0x080808:t=fill,"
-               f"drawbox=x=1400:y=280:w=180:h=220:color=0x111111:t=fill"
+        # CYCLE6 FIX: Clean placeholder — single dark fill, no nested boxes (less "debug-looking")
+        fg += (f"[np_pip_hdr]drawbox=x=1132:y=200:w=716:h=370:color=0x0A0A0F@0.9:t=fill"
                f"[np_pip_placeholder];\n")
         pip_base = "np_pip_placeholder"
 
@@ -1625,8 +1622,9 @@ def make_wrap_scene(audio_path: str, headline: str, body: str,
         audio_dur = 5
     total_dur = duration if duration > 0 else audio_dur + 0.3
 
-    safe_head = _sanitize_text(headline)[:40]
-    safe_body = _word_wrap(_sanitize_text(body), max_width=30, max_lines=3) if body else ""
+    # CYCLE6 FIX: Cap headline at 20 chars to prevent right-zone overflow at fontsize=52
+    safe_head = _sanitize_text(headline)[:20]
+    safe_body = _word_wrap(_sanitize_text(body), max_width=28, max_lines=4) if body else ""
 
     inputs = [audio_path]
     _, bg_fg = _build_broadcast_bg(total_dur, label_out="bb_bg")
@@ -1635,8 +1633,9 @@ def make_wrap_scene(audio_path: str, headline: str, body: str,
     fg += _build_top_system_bar("bb_bg", "bv2_bar", progress_pct=100)
 
     # CYCLE5 FIX: Removed "FINAL TAKE" debug eyebrow — start with headline directly
+    # CYCLE6 FIX: Reduced fontsize 64→52 to fit left half zone
     fg += (f"[bv2_bar]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
-           f"fontcolor={COLOR_WHITE}:fontsize=64:x=64:y=130[wr_head];\n")
+           f"fontcolor={COLOR_WHITE}:fontsize=52:x=64:y=130[wr_head];\n")
     if safe_body:
         fg += (f"[wr_head]drawtext=fontfile={FONT_MONO}:text='{safe_body}':"
                f"fontcolor=0xFFFFFF@0.6:fontsize=18:x=64:y=420:line_spacing=8[wr_body];\n")
