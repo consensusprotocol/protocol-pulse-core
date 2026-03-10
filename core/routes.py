@@ -3792,6 +3792,14 @@ try:
 except (ModuleNotFoundError, ImportError) as e:
     logging.warning("routes_premium_api not loaded: %s", e)
 
+# SESSION 4 — Charts Blueprint (new API endpoints, no route conflicts with routes.py)
+try:
+    from blueprints.charts import charts_bp
+    app.register_blueprint(charts_bp)
+    logging.info("Charts blueprint registered (SESSION 4)")
+except Exception as e:
+    logging.warning("Charts blueprint not loaded: %s", e)
+
 @app.route('/admin/write', methods=['GET', 'POST'])
 @login_required
 @admin_required

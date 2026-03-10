@@ -1,1925 +1,842 @@
 {% extends "base.html" %}
 
-{% block title %}Bitcoin Charts — Live On-Chain Intelligence | Protocol Pulse{% endblock %}
-{% block meta_description %}Bloomberg Terminal meets cypherpunk. Real-time Bitcoin price charts, mining metrics, mempool data, on-chain analytics, and supply analysis. Free. No account needed.{% endblock %}
+{% block title %}Bitcoin Charts — Bloomberg Terminal Intelligence | Protocol Pulse{% endblock %}
+{% block meta_description %}Real-time Bitcoin charts: price history, hashrate, difficulty, MVRV Z-Score, realized price, Fear & Greed, and fee market. Bloomberg terminal aesthetic. No account needed.{% endblock %}
 
 {% block extra_css %}
 <style>
-/* ── Charts Page — Design System ─────────────────────────────── */
+/* ── SESSION 4 CHARTS — Bloomberg Terminal Design ───────────────────────── */
 :root {
-  --bg:      #06070b;
-  --panel:   #0d1118;
-  --panel-2: #121824;
-  --text:    #eef2ff;
-  --muted:   #95a0ba;
-  --red:     #ff3b5f;
-  --gold:    #f8c15c;
-  --cyan:    #5de4ff;
-  --lime:    #89ffb8;
-  --coral:   #ff8ba0;
-  --border:  rgba(255,255,255,0.07);
+  --bg:        #06070b;
+  --panel:     #0d1118;
+  --panel-2:   #121824;
+  --border:    rgba(255,255,255,0.07);
+  --text:      #eef2ff;
+  --muted:     #95a0ba;
+  --gold:      #F59E0B;
+  --cyan:      #5DE4FF;
+  --lime:      #89FFB8;
+  --coral:     #FF8BA0;
+  --red:       #FF3B5F;
 }
-body { background: var(--bg); color: var(--text); }
+*, *::before, *::after { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: 'JetBrains Mono', monospace; }
 
-.charts-page { max-width: 1440px; margin: 0 auto; padding: 0 1rem 4rem; }
-
-/* Stat Bar */
+/* ── Stat Bar ─────────────────────────────────────────────────────────── */
 .stat-bar {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: .5rem;
-  padding: 1rem 0;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: linear-gradient(180deg, rgba(6,7,11,.98) 85%, transparent);
+  gap: .4rem;
+  padding: .75rem 0;
+  position: sticky; top: 0; z-index: 50;
+  background: linear-gradient(180deg, rgba(6,7,11,.98) 80%, transparent);
   backdrop-filter: blur(12px);
-  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
 }
 .stat-card {
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: .6rem .9rem;
-  display: flex;
-  flex-direction: column;
-  gap: .15rem;
+  border-radius: 8px;
+  padding: .5rem .8rem;
+  display: flex; flex-direction: column; gap: .1rem;
 }
-.stat-card .label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.stat-card .value {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 1.1rem;
-  font-weight: 900;
-  color: var(--text);
-  line-height: 1;
-}
-.stat-card .delta { font-size: 11px; font-weight: 700; }
-.delta-up   { color: var(--lime); }
-.delta-down { color: var(--coral); }
-.live-dot {
+.sc-label { font-size: 9px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.sc-value  { font-size: 1rem; font-weight: 900; color: var(--text); line-height: 1; }
+.sc-delta  { font-size: 10px; font-weight: 700; }
+.delta-up  { color: var(--lime); }
+.delta-down{ color: var(--coral); }
+.live-pulse {
   display: inline-block; width: 6px; height: 6px;
   border-radius: 50%; background: var(--lime);
-  margin-right: 4px;
-  animation: pulse-dot 2s infinite;
+  margin-right: 3px; vertical-align: middle;
+  animation: livePulse 2s ease-in-out infinite;
 }
-.live-dot.red { background: var(--coral); animation: none; }
-@keyframes pulse-dot {
-  0%,100% { opacity:1; } 50% { opacity:.3; }
+@keyframes livePulse { 0%,100%{opacity:1}50%{opacity:.2} }
+
+/* ── 3-Column Layout ──────────────────────────────────────────────────── */
+.charts-page { max-width: 1600px; margin: 0 auto; padding: 0 .75rem 4rem; }
+.charts-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr 200px;
+  gap: 1rem;
+  align-items: start;
+  margin-top: 1rem;
 }
 
-/* Section header */
-.section-header {
-  display: flex; align-items: center; gap: 1rem;
-  margin: 2.5rem 0 1rem;
-}
-.section-kicker {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px; font-weight: 800;
-  letter-spacing: .20em; text-transform: uppercase;
-  color: var(--gold);
-}
-.section-title {
-  font-size: 1.25rem; font-weight: 900;
-  color: var(--text); margin: 0;
-}
-
-/* Chart card */
-.chart-card {
+/* ── Left Sidebar: Chart Selector ─────────────────────────────────────── */
+.chart-selector {
+  position: sticky; top: 90px;
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 1.25rem;
-  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  user-select: none;
+}
+.sidebar-hdr {
+  padding: .75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 9px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: var(--muted);
+}
+.chart-cat {
+  padding: .4rem 1rem .15rem;
+  font-size: 8px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase;
+  color: rgba(245,158,11,.5);
+  margin-top: .2rem;
+}
+.chart-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .45rem 1rem;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: background .1s, border-color .1s;
+  gap: .3rem;
+}
+.chart-item:hover { background: rgba(255,255,255,.03); }
+.chart-item.active { background: rgba(245,158,11,.07); border-left-color: var(--gold); }
+.chart-item.active .ci-name { color: var(--gold); }
+.ci-name  { font-size: 11px; font-weight: 700; color: var(--text); flex:1; }
+.ci-value { font-size: 9px; font-weight: 800; color: var(--muted); }
+.ci-delta { font-size: 8px; font-weight: 700; }
+
+/* ── Main Chart Area ──────────────────────────────────────────────────── */
+.chart-main {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
   overflow: hidden;
 }
-.chart-card-header {
+.chart-topbar {
   display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 1rem; flex-wrap: wrap; gap: .5rem;
+  padding: .85rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap; gap: .4rem;
 }
-.chart-title {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px; font-weight: 800;
-  letter-spacing: .14em; text-transform: uppercase;
-  color: var(--muted);
-}
-.chart-actions { display: flex; gap: .4rem; flex-wrap: wrap; }
-.btn-chip {
-  background: rgba(255,255,255,.05);
+.chart-name-block .chart-ttl   { font-size: 13px; font-weight: 900; color: var(--text); }
+.chart-name-block .chart-sub   { font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-top:.1rem; }
+.tf-row { display: flex; gap: .25rem; align-items: center; }
+.tf-btn {
+  background: rgba(255,255,255,.04);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 3px 10px;
+  border-radius: 5px;
+  padding: 3px 9px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px; font-weight: 700;
-  letter-spacing: .08em;
-  color: var(--muted);
-  cursor: pointer;
-  transition: all .15s;
+  color: var(--muted); cursor: pointer; transition: all .12s;
 }
-.btn-chip:hover, .btn-chip.active {
-  background: rgba(248,193,92,.1);
-  border-color: var(--gold);
-  color: var(--gold);
+.tf-btn:hover { border-color: rgba(245,158,11,.4); color: var(--gold); }
+.tf-btn.active { background: rgba(245,158,11,.1); border-color: var(--gold); color: var(--gold); }
+.action-row { display: flex; gap: .3rem; }
+.action-btn {
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 3px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--muted); cursor: pointer; transition: all .12s;
 }
-.btn-chip.interpret-btn {
-  background: rgba(93,228,255,.06);
-  border-color: rgba(93,228,255,.2);
-  color: var(--cyan);
-}
-.btn-chip.interpret-btn:hover {
-  background: rgba(93,228,255,.12);
-  border-color: var(--cyan);
-}
-.btn-chip.download-btn {
-  background: rgba(137,255,184,.06);
-  border-color: rgba(137,255,184,.2);
-  color: var(--lime);
-}
-.btn-chip.download-btn:hover {
-  background: rgba(137,255,184,.12);
-}
+.ai-btn  { border-color: rgba(93,228,255,.2); color: var(--cyan); }
+.ai-btn:hover  { background: rgba(93,228,255,.08); }
+.dl-btn  { border-color: rgba(137,255,184,.2); color: var(--lime); }
+.dl-btn:hover  { background: rgba(137,255,184,.08); }
 
-/* Canvas wrapper */
-.canvas-wrap {
-  position: relative; width: 100%;
+/* D3 chart container */
+.d3-container {
+  position: relative;
+  padding: .75rem 1rem 1rem;
+  min-height: 380px;
 }
-.canvas-wrap canvas {
-  width: 100% !important;
-  display: block;
-  border-radius: 8px;
-}
+.d3-svg-wrap { position: relative; width: 100%; }
+.d3-svg-wrap svg { display: block; overflow: visible; }
 
-/* Loading / error overlay */
+/* Loading/error overlay */
 .chart-overlay {
   position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
-  border-radius: 8px;
-  background: rgba(6,7,11,.85);
-  backdrop-filter: blur(4px);
-  z-index: 10;
+  background: rgba(6,7,11,.88); backdrop-filter: blur(4px);
+  border-radius: 8px; z-index: 20; flex-direction: column; gap: .5rem;
 }
-.chart-overlay .msg {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px; color: var(--muted);
-  text-align: center;
+.chart-overlay.hidden { display: none; }
+.spinner {
+  width: 22px; height: 22px;
+  border: 2px solid var(--border); border-top-color: var(--gold);
+  border-radius: 50%; animation: spin .7s linear infinite;
 }
-.chart-overlay .msg .spinner {
-  width: 20px; height: 20px;
-  border: 2px solid var(--border);
-  border-top-color: var(--gold);
-  border-radius: 50%;
-  animation: spin .8s linear infinite;
-  margin: 0 auto .5rem;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin { to{transform:rotate(360deg)} }
+.overlay-msg { font-size: 11px; color: var(--muted); }
 
-/* AI interpretation box */
+/* AI box */
 .ai-box {
-  margin-top: .75rem;
+  margin: 0 1rem .75rem;
   background: rgba(93,228,255,.05);
   border: 1px solid rgba(93,228,255,.15);
-  border-radius: 8px;
-  padding: .75rem 1rem;
-  font-size: 13px; line-height: 1.5;
-  color: #c8e8f0;
-  display: none;
+  border-radius: 8px; padding: .7rem 1rem;
+  font-size: 12px; line-height: 1.55; color: #c8e8f0; display: none;
 }
-.ai-box.visible { display: block; }
-.ai-box-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px; font-weight: 800;
-  letter-spacing: .18em; text-transform: uppercase;
-  color: var(--cyan); margin-bottom: .4rem;
-}
+.ai-box.show { display: block; }
+.ai-box-lbl { font-size: 8px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: var(--cyan); margin-bottom: .4rem; }
+.source-tag { font-size: 8px; color: rgba(149,160,186,.45); padding: .3rem 1rem; text-align: right; border-top: 1px solid var(--border); }
 
-/* Overlay toggles */
-.overlay-toggles {
-  display: flex; flex-wrap: wrap; gap: .5rem;
-  margin-bottom: .75rem;
+/* ── Right Stats Sidebar ──────────────────────────────────────────────── */
+.stats-sidebar {
+  position: sticky; top: 90px;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
 }
-.toggle-chip {
-  display: flex; align-items: center; gap: .4rem;
-  background: rgba(255,255,255,.04);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px; font-weight: 700;
-  color: var(--muted);
-  cursor: pointer;
-  user-select: none;
-  transition: all .15s;
-}
-.toggle-chip input[type=checkbox] { accent-color: var(--gold); }
-.toggle-chip.active {
-  border-color: rgba(248,193,92,.3);
-  color: var(--gold);
-  background: rgba(248,193,92,.07);
-}
+.stats-hdr { padding: .75rem 1rem; border-bottom: 1px solid var(--border); font-size: 9px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+.stat-blk { padding: .6rem 1rem; border-bottom: 1px solid var(--border); }
+.stat-blk:last-child { border-bottom: none; }
+.sb-lbl { font-size: 8px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); display: block; }
+.sb-val { font-size: 1rem; font-weight: 900; color: var(--text); display: block; margin-top: .1rem; word-break: break-all; }
+.sb-sub { font-size: 9px; color: var(--muted); margin-top: .1rem; }
+.rolling-sec { padding: .5rem 1rem; border-top: 1px solid var(--border); }
+.rolling-ttl { font-size: 8px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: .4rem; }
+.rolling-row { display: flex; justify-content: space-between; font-size: 10px; padding: .18rem 0; }
+.rr-key { color: var(--muted); }
+.rr-val { color: var(--text); font-weight: 700; }
 
-/* 2-col grid */
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-@media (max-width: 768px) {
-  .stat-bar { grid-template-columns: repeat(3, 1fr); }
-  .two-col  { grid-template-columns: 1fr; }
-  .chart-card-header { flex-direction: column; align-items: flex-start; }
+/* ── Mobile horizontal tab scroll ───────────────────────────────────── */
+.mobile-tabs { display: none; overflow-x: auto; gap: .35rem; padding: .5rem 0; scrollbar-width: none; }
+.mobile-tabs::-webkit-scrollbar { display: none; }
+.mobile-tab {
+  flex-shrink: 0;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+  padding: .3rem .75rem; font-size: 10px; font-weight: 700;
+  color: var(--muted); cursor: pointer; transition: all .12s; white-space: nowrap;
 }
-@media (max-width: 480px) {
-  .stat-bar { grid-template-columns: repeat(2, 1fr); }
-}
+.mobile-tab.active { background: rgba(245,158,11,.1); border-color: var(--gold); color: var(--gold); }
 
-/* Supply bar */
-.supply-bar-wrap {
-  margin: 1rem 0;
-  background: rgba(255,255,255,.05);
-  border-radius: 999px;
-  height: 14px;
-  overflow: hidden;
+/* ── Responsive ──────────────────────────────────────────────────────── */
+@media(max-width:1100px){
+  .charts-layout { grid-template-columns: 180px 1fr; }
+  .stats-sidebar { grid-column: 1/-1; position: static; }
+  .stats-sidebar-inner { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); }
+  .stat-blk { border-right: 1px solid var(--border); }
 }
-.supply-bar-fill {
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #f8c15c, #ffda8a);
-  box-shadow: 0 0 16px rgba(248,193,92,.4);
-  transition: width 1s ease;
+@media(max-width:768px){
+  .stat-bar { grid-template-columns: repeat(3,1fr); }
+  .charts-layout { grid-template-columns: 1fr; }
+  .chart-selector { display: none; }
+  .mobile-tabs { display: flex; }
+  .stats-sidebar { position: static; }
 }
-
-/* HODL wave colors */
-.hodl-legend { display: flex; flex-wrap: wrap; gap: .4rem .8rem; margin-top: .5rem; }
-.hodl-legend-item { display: flex; align-items: center; gap: .3rem; font-size: 10px; color: var(--muted); }
-.hodl-legend-swatch { width: 10px; height: 10px; border-radius: 2px; }
-
-/* Fee pills */
-.fee-pills { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .5rem; }
-.fee-pill {
-  background: var(--panel-2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: .5rem .9rem;
-  text-align: center;
+@media(max-width:480px){
+  .stat-bar { grid-template-columns: repeat(2,1fr); }
+  .chart-topbar { flex-direction: column; align-items: flex-start; }
 }
-.fee-pill .fee-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); display: block; }
-.fee-pill .fee-val   { font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; font-weight: 900; display: block; }
-
-/* HHI warning */
-.hhi-warn {
-  background: rgba(255,59,95,.08);
-  border: 1px solid rgba(255,59,95,.25);
-  border-radius: 8px;
-  padding: .6rem 1rem;
-  font-size: 12px; color: var(--coral);
-  margin-top: .75rem;
-  display: none;
-}
-.hhi-warn.visible { display: block; }
-
-/* Halving countdown */
-.halving-display {
-  text-align: center; padding: 1.5rem 0;
-}
-.halving-blocks {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 3rem; font-weight: 900;
-  color: var(--red);
-  letter-spacing: -.04em;
-  line-height: 1;
-  text-shadow: 0 0 40px rgba(255,59,95,.4);
-}
-.halving-sub {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px; font-weight: 800;
-  letter-spacing: .18em; text-transform: uppercase;
-  color: var(--muted); margin-top: .4rem;
-}
-.sats-display {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 2rem; font-weight: 900;
-  color: var(--gold);
-  text-shadow: 0 0 30px rgba(248,193,92,.35);
-}
-
-/* Fear & Greed gauge */
-.fg-gauge-wrap { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
-.fg-score {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 3rem; font-weight: 900;
-  line-height: 1;
-}
-.fg-label { font-size: 13px; color: var(--muted); margin-top: .2rem; }
-
-/* Alert form */
-.alert-form { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1rem; }
-.alert-form input[type=email],
-.alert-form input[type=number] {
-  flex: 1; min-width: 160px;
-  background: var(--panel-2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: .6rem 1rem;
-  color: var(--text);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
-}
-.alert-form input:focus {
-  outline: none;
-  border-color: rgba(248,193,92,.4);
-  box-shadow: 0 0 0 2px rgba(248,193,92,.08);
-}
-.alert-form select {
-  background: var(--panel-2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: .6rem 1rem;
-  color: var(--text);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  cursor: pointer;
-}
-.btn-submit {
-  background: linear-gradient(135deg, rgba(255,59,95,.2), rgba(255,59,95,.1));
-  border: 1px solid rgba(255,59,95,.4);
-  border-radius: 8px;
-  padding: .6rem 1.5rem;
-  color: var(--red);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px; font-weight: 800;
-  letter-spacing: .1em; text-transform: uppercase;
-  cursor: pointer;
-  transition: all .15s;
-}
-.btn-submit:hover {
-  background: rgba(255,59,95,.2);
-  box-shadow: 0 0 20px rgba(255,59,95,.2);
-}
-.alert-msg { margin-top: .5rem; font-size: 13px; }
-.alert-msg.ok  { color: var(--lime); }
-.alert-msg.err { color: var(--coral); }
-
-/* Embed modal */
-.embed-modal {
-  display: none; position: fixed; inset: 0; z-index: 999;
-  background: rgba(0,0,0,.7); backdrop-filter: blur(6px);
-  align-items: center; justify-content: center;
-}
-.embed-modal.open { display: flex; }
-.embed-box {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 1.5rem;
-  width: min(500px, 90vw);
-}
-.embed-code {
-  background: var(--panel-2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: .75rem 1rem;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px; color: var(--muted);
-  word-break: break-all;
-  margin: .75rem 0;
-}
-
-/* Cmd+K bar */
-.cmdbar {
-  display: none; position: fixed; inset: 0; z-index: 998;
-  background: rgba(0,0,0,.65); backdrop-filter: blur(8px);
-  align-items: flex-start; justify-content: center;
-  padding-top: 15vh;
-}
-.cmdbar.open { display: flex; }
-.cmdbar-inner {
-  background: var(--panel);
-  border: 1px solid rgba(248,193,92,.25);
-  border-radius: 14px;
-  width: min(540px, 90vw);
-  overflow: hidden;
-  box-shadow: 0 24px 64px rgba(0,0,0,.6), 0 0 40px rgba(248,193,92,.08);
-}
-.cmdbar-input {
-  width: 100%; background: transparent; border: none;
-  padding: 1rem 1.25rem;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 15px; color: var(--text);
-}
-.cmdbar-input:focus { outline: none; }
-.cmdbar-results { border-top: 1px solid var(--border); }
-.cmdbar-item {
-  display: flex; align-items: center; gap: .75rem;
-  padding: .65rem 1.25rem;
-  cursor: pointer;
-  transition: background .1s;
-  font-size: 14px;
-}
-.cmdbar-item:hover { background: rgba(248,193,92,.07); }
-.cmdbar-item-key {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px; font-weight: 800; color: var(--gold);
-  min-width: 80px;
-}
-
-/* Pool table */
-.pool-table { width: 100%; border-collapse: collapse; margin-top: .75rem; }
-.pool-table th {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px; font-weight: 800;
-  letter-spacing: .15em; text-transform: uppercase;
-  color: var(--muted); text-align: left;
-  padding: .4rem .6rem; border-bottom: 1px solid var(--border);
-}
-.pool-table td {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px; color: var(--text);
-  padding: .4rem .6rem; border-bottom: 1px solid rgba(255,255,255,.03);
-}
-
-/* Lightning stats */
-.lightning-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: .75rem; }
-.ln-stat {
-  background: var(--panel-2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: .8rem 1rem;
-}
-.ln-stat .ln-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); }
-.ln-stat .ln-val   { font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; font-weight: 900; color: var(--cyan); margin-top: .2rem; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="charts-page" id="charts-page">
+<div class="charts-page">
 
   <!-- Stat Bar -->
-  <div class="stat-bar" id="stat-bar" role="region" aria-label="Live Bitcoin metrics">
+  <div class="stat-bar">
     <div class="stat-card">
-      <span class="label"><span class="live-dot" id="ws-dot"></span>BTC Price</span>
-      <span class="value" id="stat-price" aria-live="polite">${{ "{:,.0f}".format(btc_price) if btc_price else "---" }}</span>
-      <span class="delta" id="stat-price-delta">—</span>
-    </div>
-    <div class="stat-card">
-      <span class="label">24H Change</span>
-      <span class="value delta" id="stat-change">—</span>
+      <span class="sc-label"><span class="live-pulse"></span>BTC / USD</span>
+      <span class="sc-value" id="sb-price">${{ "{:,.0f}".format(btc_price) if btc_price else "---" }}</span>
+      <span class="sc-delta" id="sb-change">—</span>
     </div>
     <div class="stat-card">
-      <span class="label">Market Cap</span>
-      <span class="value" id="stat-mcap">—</span>
+      <span class="sc-label">Block Height</span>
+      <span class="sc-value">{{ "{:,}".format(block_height) if block_height else "—" }}</span>
+      <span class="sc-delta" style="color:var(--muted);font-size:9px">mainnet</span>
     </div>
     <div class="stat-card">
-      <span class="label">Block Height</span>
-      <span class="value" id="stat-height">{{ "{:,}".format(block_height) if block_height else "—" }}</span>
+      <span class="sc-label">Mempool</span>
+      <span class="sc-value">{{ mempool_mb }} MB</span>
+      <span class="sc-delta" style="color:var(--muted);font-size:9px">{{ next_block_fee }} sat/vB</span>
     </div>
     <div class="stat-card">
-      <span class="label">Mempool</span>
-      <span class="value" id="stat-mempool">{{ mempool_mb }} MB</span>
+      <span class="sc-label">Supply Mined</span>
+      <span class="sc-value">{{ "{:,.0f}".format(mined_supply) }}</span>
+      <span class="sc-delta" style="color:var(--muted);font-size:9px">{{ pct_mined }}% of 21M</span>
     </div>
     <div class="stat-card">
-      <span class="label">Next Block Fee</span>
-      <span class="value" id="stat-fee">{{ next_block_fee }} sat/vB</span>
+      <span class="sc-label">Next Halving</span>
+      <span class="sc-value" style="color:var(--red)">{{ "{:,}".format(blocks_to_halving) }}</span>
+      <span class="sc-delta" style="color:var(--muted);font-size:9px">blocks · ~{{ days_to_halving }}d</span>
+    </div>
+    <div class="stat-card">
+      <span class="sc-label">Sats / Dollar</span>
+      <span class="sc-value" style="color:var(--gold)">{{ "{:,}".format(sats_per_dollar) }}</span>
+      <span class="sc-delta" style="color:var(--muted);font-size:9px">{{ current_subsidy }} BTC/block</span>
     </div>
   </div>
 
-  <!-- ── SECTION 1: PRICE CHART ─────────────────────────────────── -->
-  <div class="section-header" id="section-price">
-    <span class="section-kicker">Section 01 • Live Data</span>
-    <h2 class="section-title">BTC/USD Price Chart</h2>
-  </div>
-  <div class="chart-card">
-    <div class="chart-card-header">
-      <span class="chart-title">Bitcoin / US Dollar</span>
-      <div class="chart-actions">
-        <button class="btn-chip" data-tf="1" onclick="loadPriceChart(1,this)">1D</button>
-        <button class="btn-chip active" data-tf="7" onclick="loadPriceChart(7,this)">7D</button>
-        <button class="btn-chip" data-tf="30" onclick="loadPriceChart(30,this)">30D</button>
-        <button class="btn-chip" data-tf="90" onclick="loadPriceChart(90,this)">90D</button>
-        <button class="btn-chip" data-tf="365" onclick="loadPriceChart(365,this)">1Y</button>
-        <button class="btn-chip interpret-btn" onclick="interpretChart('price','Price Chart')">⚡ INTERPRET</button>
-        <button class="btn-chip download-btn" onclick="downloadChart('price-canvas','BTC Price')">↓ PNG</button>
-        <button class="btn-chip" onclick="shareChart('price-canvas','BTC Price Chart')">↗ SHARE</button>
-        <button class="btn-chip" onclick="openEmbed('price')">⊞ EMBED</button>
-      </div>
-    </div>
-    <div class="overlay-toggles" id="price-overlays">
-      <label class="toggle-chip active"><input type="checkbox" checked onchange="toggleOverlay('ma200',this)"> 200D MA</label>
-      <label class="toggle-chip"><input type="checkbox" onchange="toggleOverlay('bb',this)"> Bollinger Bands</label>
-      <label class="toggle-chip"><input type="checkbox" onchange="toggleOverlay('s2f',this)"> Stock-to-Flow</label>
-      <label class="toggle-chip"><input type="checkbox" onchange="toggleOverlay('mayer',this)"> Mayer Multiple</label>
-    </div>
-    <div class="canvas-wrap" style="height:320px">
-      <canvas id="price-canvas" height="320" aria-label="BTC/USD price chart" role="img"></canvas>
-      <div class="chart-overlay" id="price-loading">
-        <div class="msg"><div class="spinner"></div>Loading price data…</div>
-      </div>
-    </div>
-    <!-- RSI sub-chart -->
-    <!-- RSI sub-chart (hidden by default, toggle below) -->
-    <div id="rsi-wrap" style="display:none; margin-top:.5rem;">
-      <div class="canvas-wrap" style="height:80px">
-        <canvas id="rsi-canvas" height="80" aria-label="RSI indicator" role="img"></canvas>
-      </div>
-    </div>
-    <!-- MACD sub-chart -->
-    <div id="macd-wrap" style="display:none; margin-top:.5rem;">
-      <div class="canvas-wrap" style="height:80px">
-        <canvas id="macd-canvas" height="80" aria-label="MACD indicator" role="img"></canvas>
-      </div>
-    </div>
-    <div style="margin-top:.5rem; display:flex; gap:.4rem; flex-wrap:wrap;">
-      <label class="toggle-chip"><input type="checkbox" onchange="document.getElementById('rsi-wrap').style.display=this.checked?'block':'none'; if(this.checked)drawRSI();"> RSI (14)</label>
-      <label class="toggle-chip"><input type="checkbox" onchange="document.getElementById('macd-wrap').style.display=this.checked?'block':'none'; if(this.checked)drawMACD();"> MACD</label>
-    </div>
-    <div class="ai-box" id="ai-price"><div class="ai-box-label">⚡ AI ANALYSIS</div><span id="ai-price-text"></span></div>
+  <!-- Mobile tabs -->
+  <div class="mobile-tabs" id="mobile-tabs">
+    <button class="mobile-tab active" data-chart="price" data-period="7d">BTC/USD</button>
+    <button class="mobile-tab" data-chart="hashrate" data-period="1y">Hashrate</button>
+    <button class="mobile-tab" data-chart="difficulty" data-period="1y">Difficulty</button>
+    <button class="mobile-tab" data-chart="mvrv" data-period="1y">MVRV</button>
+    <button class="mobile-tab" data-chart="realized-price" data-period="1y">Realized Price</button>
+    <button class="mobile-tab" data-chart="fear-greed" data-period="1y">Fear & Greed</button>
+    <button class="mobile-tab" data-chart="mempool" data-period="7d">Mempool</button>
+    <button class="mobile-tab" data-chart="fees" data-period="30d">Fees</button>
   </div>
 
-  <!-- ── SECTION 2: MINING METRICS ─────────────────────────────── -->
-  <div class="section-header" id="section-mining">
-    <span class="section-kicker">Section 02 • Mining</span>
-    <h2 class="section-title">Hashrate & Difficulty</h2>
-  </div>
-  <div class="two-col">
-    <div class="chart-card">
-      <div class="chart-card-header">
-        <span class="chart-title">Network Hashrate (EH/s)</span>
-        <div class="chart-actions">
-          <button class="btn-chip interpret-btn" onclick="interpretChart('hashrate','Hashrate Chart')">⚡ INTERPRET</button>
-          <button class="btn-chip download-btn" onclick="downloadChart('hashrate-canvas','Hashrate')">↓ PNG</button>
+  <!-- 3-column layout -->
+  <div class="charts-layout">
+
+    <!-- LEFT: Chart Selector Sidebar -->
+    <aside class="chart-selector">
+      <div class="sidebar-hdr">CHARTS</div>
+
+      <div class="chart-cat">PRICE</div>
+      <div class="chart-item active" data-chart="price" data-period="7d">
+        <span class="ci-name">BTC / USD</span>
+        <div style="text-align:right">
+          <div class="ci-value" id="ci-val-price">—</div>
+          <div class="ci-delta" id="ci-delta-price">—</div>
         </div>
       </div>
-      <div class="canvas-wrap" style="height:200px">
-        <canvas id="hashrate-canvas" height="200" aria-label="Bitcoin network hashrate chart" role="img"></canvas>
-        <div class="chart-overlay" id="hashrate-loading">
-          <div class="msg"><div class="spinner"></div>Loading…</div>
+
+      <div class="chart-cat">NETWORK</div>
+      <div class="chart-item" data-chart="hashrate" data-period="1y">
+        <span class="ci-name">Hashrate</span>
+        <div style="text-align:right">
+          <div class="ci-value" id="ci-val-hashrate">—</div>
+          <div class="ci-delta" id="ci-delta-hashrate">—</div>
         </div>
       </div>
-      <div class="ai-box" id="ai-hashrate"><div class="ai-box-label">⚡ AI ANALYSIS</div><span id="ai-hashrate-text"></span></div>
-    </div>
-    <div class="chart-card">
-      <div class="chart-card-header">
-        <span class="chart-title">Difficulty Epoch</span>
-      </div>
-      <div id="difficulty-display" style="padding:.5rem 0"></div>
-    </div>
-  </div>
-
-  <!-- ── SECTION 3: MINING POOLS ───────────────────────────────── -->
-  <div class="section-header" id="section-pools">
-    <span class="section-kicker">Section 03 • Decentralisation</span>
-    <h2 class="section-title">Mining Pool Distribution</h2>
-  </div>
-  <div class="two-col">
-    <div class="chart-card">
-      <div class="chart-card-header">
-        <span class="chart-title">Pool Share — Last 7 Days</span>
-        <div class="chart-actions">
-          <button class="btn-chip download-btn" onclick="downloadChart('pools-canvas','Mining Pools')">↓ PNG</button>
+      <div class="chart-item" data-chart="difficulty" data-period="1y">
+        <span class="ci-name">Difficulty</span>
+        <div style="text-align:right">
+          <div class="ci-value" id="ci-val-difficulty">—</div>
+          <div class="ci-delta" id="ci-delta-difficulty">—</div>
         </div>
       </div>
-      <div class="canvas-wrap" style="height:220px">
-        <canvas id="pools-canvas" height="220" aria-label="Mining pool distribution donut chart" role="img"></canvas>
-        <div class="chart-overlay" id="pools-loading">
-          <div class="msg"><div class="spinner"></div>Loading…</div>
+
+      <div class="chart-cat">VALUATION</div>
+      <div class="chart-item" data-chart="mvrv" data-period="1y">
+        <span class="ci-name">MVRV Z-Score</span>
+        <div style="text-align:right">
+          <div class="ci-value" id="ci-val-mvrv">—</div>
+          <div class="ci-delta" id="ci-delta-mvrv">—</div>
         </div>
       </div>
-    </div>
-    <div class="chart-card">
-      <div class="chart-card-header">
-        <span class="chart-title">Pool Breakdown + HHI Score</span>
-      </div>
-      <div id="pool-table-wrap"></div>
-      <div class="hhi-warn" id="hhi-warn">⚠ Top 3 pools control &gt;50% of hashrate — centralisation risk elevated.</div>
-    </div>
-  </div>
-
-  <!-- ── SECTION 4: MEMPOOL & FEES ─────────────────────────────── -->
-  <div class="section-header" id="section-mempool">
-    <span class="section-kicker">Section 04 • Fee Market</span>
-    <h2 class="section-title">Mempool & Fees</h2>
-  </div>
-  <div class="chart-card">
-    <div class="chart-card-header">
-      <span class="chart-title">Mempool Size (MB) — Live via WebSocket</span>
-      <div class="chart-actions">
-        <button class="btn-chip interpret-btn" onclick="interpretChart('mempool','Mempool Chart')">⚡ INTERPRET</button>
-        <button class="btn-chip download-btn" onclick="downloadChart('mempool-canvas','Mempool')">↓ PNG</button>
-      </div>
-    </div>
-    <div class="canvas-wrap" style="height:180px">
-      <canvas id="mempool-canvas" height="180" aria-label="Mempool size chart" role="img"></canvas>
-    </div>
-    <div class="fee-pills" id="fee-pills">
-      <div class="fee-pill"><span class="fee-label">No Priority</span><span class="fee-val" id="fee-low" style="color:var(--lime)">—</span><span style="font-size:10px;color:var(--muted)">sat/vB</span></div>
-      <div class="fee-pill"><span class="fee-label">1 Hour</span><span class="fee-val" id="fee-mid" style="color:var(--gold)">—</span><span style="font-size:10px;color:var(--muted)">sat/vB</span></div>
-      <div class="fee-pill"><span class="fee-label">30 Min</span><span class="fee-val" id="fee-high" style="color:var(--coral)">—</span><span style="font-size:10px;color:var(--muted)">sat/vB</span></div>
-      <div class="fee-pill"><span class="fee-label">Next Block</span><span class="fee-val" id="fee-urgent" style="color:var(--red)">—</span><span style="font-size:10px;color:var(--muted)">sat/vB</span></div>
-    </div>
-    <div class="ai-box" id="ai-mempool"><div class="ai-box-label">⚡ AI ANALYSIS</div><span id="ai-mempool-text"></span></div>
-  </div>
-
-  <!-- ── SECTION 5: SUPPLY ANALYSIS ────────────────────────────── -->
-  <div class="section-header" id="section-supply">
-    <span class="section-kicker">Section 05 • Scarcity</span>
-    <h2 class="section-title">Supply Analysis</h2>
-  </div>
-  <div class="chart-card">
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;flex-wrap:wrap">
-      <div>
-        <div class="label" style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);">Mined Supply</div>
-        <div class="value" style="font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:900;color:var(--gold);">{{ "{:,.0f}".format(mined_supply) }}</div>
-        <div style="font-size:11px;color:var(--muted);">of 21,000,000 BTC</div>
-      </div>
-      <div>
-        <div class="label" style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);">% Mined</div>
-        <div class="value sats-display" style="font-size:1.5rem;">{{ pct_mined }}%</div>
-      </div>
-      <div>
-        <div class="label" style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);">Current Subsidy</div>
-        <div class="value" style="font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:900;color:var(--cyan);">{{ current_subsidy }} BTC/block</div>
-      </div>
-    </div>
-    <div class="supply-bar-wrap" style="margin:.75rem 0" aria-label="{{ pct_mined }}% of Bitcoin mined">
-      <div class="supply-bar-fill" style="width:{{ pct_mined }}%"></div>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem">
-      <div class="halving-display">
-        <div class="halving-blocks" aria-label="{{ '{:,}'.format(blocks_to_halving) }} blocks to next halving">{{ "{:,}".format(blocks_to_halving) }}</div>
-        <div class="halving-sub">blocks to next halving · ~{{ days_to_halving }} days</div>
-      </div>
-      <div style="text-align:center;padding:1.5rem 0">
-        <div class="label" style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);">Sats Per Dollar</div>
-        <div class="sats-display" id="sats-per-dollar">{{ "{:,}".format(sats_per_dollar) }}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:.2rem;">1 USD = <span id="sats-per-dollar-val">{{ "{:,}".format(sats_per_dollar) }}</span> sats</div>
-      </div>
-    </div>
-
-    <div style="margin-top:1rem;background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem;">Lost Coins Estimate</div>
-      <div style="font-size:13px;color:var(--muted);">~3.7–4M BTC estimated lost or dormant (Chainalysis 2024). Effective circulating supply closer to <strong style="color:var(--text);">~{{ "{:,.0f}".format(mined_supply - 3_800_000) }} BTC</strong>.</div>
-    </div>
-  </div>
-
-  <!-- ── SECTION 6: HODL WAVES ─────────────────────────────────── -->
-  <div class="section-header" id="section-hodl">
-    <span class="section-kicker">Section 06 • Conviction</span>
-    <h2 class="section-title">UTXO Age Distribution (HODL Waves)</h2>
-  </div>
-  <div class="chart-card">
-    <div class="chart-card-header">
-      <span class="chart-title">Estimated % of Supply by Last-Moved Age</span>
-      <div class="chart-actions">
-        <button class="btn-chip download-btn" onclick="downloadChart('hodl-canvas','HODL Waves')">↓ PNG</button>
-      </div>
-    </div>
-    <div class="canvas-wrap" style="height:200px">
-      <canvas id="hodl-canvas" height="200" aria-label="HODL Waves UTXO age distribution" role="img"></canvas>
-    </div>
-    <div class="hodl-legend" id="hodl-legend"></div>
-    <div style="margin-top:.75rem;font-size:11px;color:var(--muted);">Estimated from on-chain analysis. Updated monthly. Source: Glassnode/Coin Metrics community estimates.</div>
-  </div>
-
-  <!-- ── SECTION 7: FEAR & GREED + VALUATION ───────────────────── -->
-  <div class="section-header" id="section-valuation">
-    <span class="section-kicker">Section 07 • Market Sentiment</span>
-    <h2 class="section-title">Fear &amp; Greed + Valuation Metrics</h2>
-  </div>
-  <div class="two-col">
-    <div class="chart-card">
-      <div class="chart-card-header">
-        <span class="chart-title">Fear &amp; Greed Index</span>
-        <div class="chart-actions">
-          <button class="btn-chip download-btn" onclick="downloadChart('fg-canvas','Fear Greed')">↓ PNG</button>
+      <div class="chart-item" data-chart="realized-price" data-period="1y">
+        <span class="ci-name">Realized Price</span>
+        <div style="text-align:right">
+          <div class="ci-value" id="ci-val-realized-price">—</div>
+          <div class="ci-delta" id="ci-delta-realized-price">—</div>
         </div>
       </div>
-      <div class="canvas-wrap" style="height:160px">
-        <canvas id="fg-canvas" height="160" aria-label="Fear and Greed index gauge" role="img"></canvas>
-        <div class="chart-overlay" id="fg-loading">
-          <div class="msg"><div class="spinner"></div>Loading…</div>
+
+      <div class="chart-cat">MARKET</div>
+      <div class="chart-item" data-chart="fear-greed" data-period="1y">
+        <span class="ci-name">Fear & Greed</span>
+        <div style="text-align:right">
+          <div class="ci-value" id="ci-val-fear-greed">—</div>
+          <div class="ci-delta" id="ci-delta-fear-greed">—</div>
         </div>
       </div>
-      <div class="fg-gauge-wrap" id="fg-stats" style="margin-top:.75rem;display:none">
-        <div>
-          <div class="fg-score" id="fg-score-val">—</div>
-          <div class="fg-label" id="fg-label-val">—</div>
+
+      <div class="chart-cat">FEES</div>
+      <div class="chart-item" data-chart="mempool" data-period="7d">
+        <span class="ci-name">Mempool Size</span>
+        <div style="text-align:right">
+          <div class="ci-value" id="ci-val-mempool">—</div>
+          <div class="ci-delta" id="ci-delta-mempool">—</div>
         </div>
-        <div style="flex:1">
-          <div class="canvas-wrap" style="height:40px"><canvas id="fg-sparkline" height="40" aria-label="7-day fear greed trend" role="img"></canvas></div>
-          <div style="font-size:10px;color:var(--muted);margin-top:.3rem">7-day trend</div>
+      </div>
+      <div class="chart-item" data-chart="fees" data-period="30d">
+        <span class="ci-name">Fee History</span>
+        <div style="text-align:right">
+          <div class="ci-value" id="ci-val-fees">{{ next_block_fee }} sat/vB</div>
+          <div class="ci-delta" id="ci-delta-fees">—</div>
         </div>
       </div>
-    </div>
-    <div class="chart-card">
-      <div class="chart-card-header">
-        <span class="chart-title">Valuation Metrics</span>
+    </aside>
+
+    <!-- CENTER: Main D3 Chart -->
+    <main class="chart-main">
+      <div class="chart-topbar">
+        <div class="chart-name-block">
+          <div class="chart-ttl" id="chart-title">BTC / USD</div>
+          <div class="chart-sub" id="chart-subtitle">Bitcoin / US Dollar</div>
+        </div>
+        <div class="tf-row">
+          <button class="tf-btn" data-tf="1d">1D</button>
+          <button class="tf-btn active" data-tf="7d">7D</button>
+          <button class="tf-btn" data-tf="1m">1M</button>
+          <button class="tf-btn" data-tf="3m">3M</button>
+          <button class="tf-btn" data-tf="1y">1Y</button>
+          <button class="tf-btn" data-tf="all">ALL</button>
+        </div>
+        <div class="action-row">
+          <button class="action-btn ai-btn" id="btn-ai">⚡ AI</button>
+          <button class="action-btn dl-btn"  id="btn-og">↗ OG</button>
+        </div>
       </div>
-      <div id="valuation-metrics" style="display:flex;flex-direction:column;gap:.6rem;padding:.25rem 0"></div>
-    </div>
-  </div>
 
-  <!-- ── SECTION 8: LIGHTNING NETWORK ──────────────────────────── -->
-  <div class="section-header" id="section-lightning">
-    <span class="section-kicker">Section 08 • Layer 2</span>
-    <h2 class="section-title">Lightning Network</h2>
-  </div>
-  <div class="chart-card">
-    <div class="chart-card-header">
-      <span class="chart-title">Lightning Network Stats</span>
-    </div>
-    <div class="lightning-stats" id="lightning-stats">
-      <div class="ln-stat"><div class="ln-label">Total Capacity</div><div class="ln-val" id="ln-capacity">—</div></div>
-      <div class="ln-stat"><div class="ln-label">Node Count</div><div class="ln-val" id="ln-nodes">—</div></div>
-      <div class="ln-stat"><div class="ln-label">Channel Count</div><div class="ln-val" id="ln-channels">—</div></div>
-    </div>
-    <div style="margin-top:1rem">
-      <div class="canvas-wrap" style="height:100px">
-        <canvas id="ln-canvas" height="100" aria-label="Lightning capacity trend" role="img"></canvas>
-        <div class="chart-overlay" id="ln-loading"><div class="msg"><div class="spinner"></div>Loading…</div></div>
+      <div class="d3-container">
+        <div class="chart-overlay" id="chart-loading">
+          <div class="spinner"></div>
+          <span class="overlay-msg">Loading data…</span>
+        </div>
+        <div class="chart-overlay hidden" id="chart-error">
+          <span class="overlay-msg">⚠ Data unavailable — upstream API unreachable</span>
+        </div>
+        <div class="d3-svg-wrap" id="d3-wrap"></div>
       </div>
-    </div>
-  </div>
 
-  <!-- ── SECTION 9: PRICE ALERT ─────────────────────────────────── -->
-  <div class="section-header" id="section-alerts">
-    <span class="section-kicker">Section 09 • Alerts</span>
-    <h2 class="section-title">Custom Price Alert</h2>
-  </div>
-  <div class="chart-card">
-    <p style="color:var(--muted);font-size:14px;margin-bottom:.25rem">Get an email when BTC hits your target. Free. No account needed.</p>
-    <div class="alert-form" id="alert-form">
-      <input type="email" id="alert-email" placeholder="your@email.com" aria-label="Email address" autocomplete="email">
-      <select id="alert-direction" aria-label="Alert direction">
-        <option value="above">Above</option>
-        <option value="below">Below</option>
-      </select>
-      <input type="number" id="alert-price" placeholder="e.g. 100000" min="1000" max="10000000" step="1000" aria-label="Target price in USD">
-      <button class="btn-submit" onclick="submitAlert()" aria-label="Set price alert">SET ALERT</button>
-    </div>
-    <div class="alert-msg" id="alert-msg"></div>
-  </div>
+      <div class="ai-box" id="ai-box">
+        <div class="ai-box-lbl">⚡ AI ANALYSIS</div>
+        <span id="ai-box-text"></span>
+      </div>
 
+      <div class="source-tag" id="chart-source">SOURCE: —</div>
+    </main>
+
+    <!-- RIGHT: Stats Sidebar -->
+    <aside class="stats-sidebar">
+      <div class="stats-hdr">STATISTICS</div>
+      <div class="stats-sidebar-inner">
+        <div class="stat-blk">
+          <span class="sb-lbl">Current</span>
+          <span class="sb-val" id="ss-current">—</span>
+          <span class="sb-sub" id="ss-current-sub"></span>
+        </div>
+        <div class="stat-blk">
+          <span class="sb-lbl">Period High</span>
+          <span class="sb-val" id="ss-ath" style="color:var(--lime)">—</span>
+          <span class="sb-sub" id="ss-ath-date"></span>
+        </div>
+        <div class="stat-blk">
+          <span class="sb-lbl">Period Low</span>
+          <span class="sb-val" id="ss-atl" style="color:var(--coral)">—</span>
+          <span class="sb-sub" id="ss-atl-date"></span>
+        </div>
+        <div class="stat-blk">
+          <span class="sb-lbl">24h Change</span>
+          <span class="sb-val" id="ss-24h">—</span>
+        </div>
+        <div class="stat-blk">
+          <span class="sb-lbl">7d Change</span>
+          <span class="sb-val" id="ss-7d">—</span>
+        </div>
+        <div class="stat-blk">
+          <span class="sb-lbl">30d Change</span>
+          <span class="sb-val" id="ss-30d">—</span>
+        </div>
+        <div class="rolling-sec">
+          <div class="rolling-ttl">PERIOD STATS</div>
+          <div class="rolling-row"><span class="rr-key">Avg</span><span class="rr-val" id="rs-avg">—</span></div>
+          <div class="rolling-row"><span class="rr-key">Median</span><span class="rr-val" id="rs-median">—</span></div>
+          <div class="rolling-row"><span class="rr-key">Std Dev</span><span class="rr-val" id="rs-std">—</span></div>
+          <div class="rolling-row"><span class="rr-key">Points</span><span class="rr-val" id="rs-count">—</span></div>
+        </div>
+      </div>
+    </aside>
+
+  </div><!-- .charts-layout -->
 </div><!-- .charts-page -->
 
-<!-- Embed modal -->
-<div class="embed-modal" id="embed-modal" role="dialog" aria-modal="true" aria-label="Embed chart">
-  <div class="embed-box">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
-      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:800;letter-spacing:.14em;color:var(--gold);">EMBED CHART</span>
-      <button onclick="closeEmbed()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;" aria-label="Close">×</button>
-    </div>
-    <div class="embed-code" id="embed-code-text"></div>
-    <div style="display:flex;gap:.5rem">
-      <button class="btn-chip" onclick="copyEmbed()" style="flex:1">Copy Code</button>
-      <button class="btn-chip" onclick="closeEmbed()">Close</button>
-    </div>
-  </div>
-</div>
-
-<!-- Cmd+K command bar -->
-<div class="cmdbar" id="cmdbar" role="dialog" aria-modal="true" aria-label="Quick navigation">
-  <div class="cmdbar-inner">
-    <input class="cmdbar-input" id="cmdbar-input" placeholder="Jump to section… (Esc to close)" aria-label="Quick navigation search">
-    <div class="cmdbar-results" id="cmdbar-results"></div>
-  </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
+<!-- ── D3.js v7 ─────────────────────────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script>
-// ═══════════════════════════════════════════════════════════════════════════
-// PROTOCOL PULSE — ChartEngine (Pure Canvas, No Dependencies)
-// ═══════════════════════════════════════════════════════════════════════════
+'use strict';
 
-const PP = {
-  colors: {
-    bg: '#06070b', panel: '#0d1118', text: '#eef2ff', muted: '#95a0ba',
-    red: '#ff3b5f', gold: '#f8c15c', cyan: '#5de4ff', lime: '#89ffb8', coral: '#ff8ba0',
-    border: 'rgba(255,255,255,0.07)'
-  }
+/* ── Chart configuration map ──────────────────────────────────────────── */
+const CHART_CONFIG = {
+  price: {
+    title: 'BTC / USD', subtitle: 'Bitcoin / US Dollar',
+    apiPath: '/api/charts/price', color: '#F59E0B', unit: 'USD', defaultPeriod: '7d',
+    fmtVal:  v => '$' + d3.format(',.0f')(v),
+    fmtAxis: v => '$' + (v >= 1e6 ? d3.format('.3s')(v) : d3.format(',.0f')(v)),
+  },
+  hashrate: {
+    title: 'Network Hashrate', subtitle: 'EH/s — Exahashes per second',
+    apiPath: '/api/charts/hashrate', color: '#5DE4FF', unit: 'EH/s', defaultPeriod: '1y',
+    fmtVal:  v => d3.format(',.2f')(v) + ' EH/s',
+    fmtAxis: v => d3.format(',.0f')(v),
+  },
+  difficulty: {
+    title: 'Mining Difficulty', subtitle: 'Trillion (T) — adjustment epochs',
+    apiPath: '/api/charts/difficulty', color: '#A78BFA', unit: 'T', defaultPeriod: '1y',
+    fmtVal:  v => d3.format(',.2f')(v) + 'T',
+    fmtAxis: v => d3.format(',.1f')(v) + 'T',
+  },
+  mvrv: {
+    title: 'MVRV Ratio', subtitle: 'Market Value / Realized Value',
+    apiPath: '/api/charts/mvrv', color: '#FB923C', unit: 'ratio', defaultPeriod: '1y',
+    fmtVal:  v => d3.format(',.4f')(v),
+    fmtAxis: v => d3.format(',.2f')(v),
+  },
+  'realized-price': {
+    title: 'Realized Price', subtitle: 'Volume-weighted cost basis (USD)',
+    apiPath: '/api/charts/realized-price', color: '#60A5FA', unit: 'USD', defaultPeriod: '1y',
+    fmtVal:  v => '$' + d3.format(',.0f')(v),
+    fmtAxis: v => '$' + d3.format(',.0f')(v),
+  },
+  'fear-greed': {
+    title: 'Fear & Greed Index', subtitle: '0 = Extreme Fear · 100 = Extreme Greed',
+    apiPath: '/api/charts/fg-history', color: '#89FFB8', unit: 'F&G', defaultPeriod: '1y',
+    fmtVal:  v => Math.round(v).toString(),
+    fmtAxis: v => Math.round(v).toString(),
+  },
+  mempool: {
+    title: 'Mempool Size', subtitle: 'Unconfirmed transactions (MB)',
+    apiPath: null, color: '#FF3B5F', unit: 'MB', defaultPeriod: '7d',
+    fmtVal:  v => d3.format(',.2f')(v) + ' MB',
+    fmtAxis: v => d3.format(',.1f')(v),
+  },
+  fees: {
+    title: 'Fee Market History', subtitle: 'Average fee rate (sat/vB)',
+    apiPath: null, color: '#F59E0B', unit: 'sat/vB', defaultPeriod: '30d',
+    fmtVal:  v => Math.round(v) + ' sat/vB',
+    fmtAxis: v => Math.round(v).toString(),
+  },
 };
 
-class ChartEngine {
-  constructor(canvasId) {
-    this.canvas = document.getElementById(canvasId);
-    if (!this.canvas) return;
-    this.ctx = this.canvas.getContext('2d');
-    this._dpr = window.devicePixelRatio || 1;
-    this._resize();
-    window.addEventListener('resize', () => this._resize());
-  }
+/* ── State ────────────────────────────────────────────────────────────── */
+const state = { chart: 'price', period: '7d', data: null, busy: false };
 
-  _resize() {
-    if (!this.canvas) return;
-    const rect = this.canvas.parentElement.getBoundingClientRect();
-    const w = rect.width || 600;
-    const h = parseInt(this.canvas.getAttribute('height')) || 200;
-    this.canvas.width  = w * this._dpr;
-    this.canvas.height = h * this._dpr;
-    this.canvas.style.width  = w + 'px';
-    this.canvas.style.height = h + 'px';
-    this.ctx.setTransform(this._dpr, 0, 0, this._dpr, 0, 0);
-    this.W = w; this.H = h;
-  }
+/* ── DOM ──────────────────────────────────────────────────────────────── */
+const wrap    = document.getElementById('d3-wrap');
+const loadOvl = document.getElementById('chart-loading');
+const errOvl  = document.getElementById('chart-error');
+const aiBox   = document.getElementById('ai-box');
+const aiTxt   = document.getElementById('ai-box-text');
+const srcTag  = document.getElementById('chart-source');
 
-  clear() {
-    if (!this.ctx) return;
-    this.ctx.clearRect(0, 0, this.W, this.H);
-  }
+const showLoad = on => loadOvl.classList.toggle('hidden', !on);
+const showErr  = on => errOvl.classList.toggle('hidden', !on);
 
-  drawGrid(padL=60, padR=20, padT=20, padB=40, xCount=6, yCount=5) {
-    const ctx = this.ctx;
-    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-    ctx.lineWidth = 0.5;
-    const innerW = this.W - padL - padR;
-    const innerH = this.H - padT - padB;
-    for (let i = 0; i <= yCount; i++) {
-      const y = padT + (i / yCount) * innerH;
-      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + innerW, y); ctx.stroke();
-    }
-    for (let i = 0; i <= xCount; i++) {
-      const x = padL + (i / xCount) * innerW;
-      ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + innerH); ctx.stroke();
-    }
-  }
+/* ── Value formatting helpers ─────────────────────────────────────────── */
+function fmtDelta(pct) {
+  const sign = pct >= 0 ? '+' : '';
+  const cls  = pct >= 0 ? 'delta-up' : 'delta-down';
+  return `<span class="${cls}">${sign}${pct.toFixed(2)}%</span>`;
+}
 
-  drawLine(points, color='#5de4ff', lineWidth=2, filled=false, fillColor=null, padL=60, padR=20, padT=20, padB=40) {
-    if (!points || points.length < 2) return;
-    const ctx = this.ctx;
-    const innerW = this.W - padL - padR;
-    const innerH = this.H - padT - padB;
-    const vals = points.map(p => p[1]);
-    const minV = Math.min(...vals), maxV = Math.max(...vals);
-    const range = maxV - minV || 1;
+/* ── Statistics ───────────────────────────────────────────────────────── */
+function computeStats(data) {
+  if (!data || data.length < 2) return null;
+  const vals = data.map(d => d[1]);
+  const last  = vals[vals.length - 1];
+  const max   = Math.max(...vals);
+  const min   = Math.min(...vals);
+  const miMax = vals.indexOf(max);
+  const miMin = vals.indexOf(min);
 
-    const toX = (i) => padL + (i / (points.length - 1)) * innerW;
-    const toY = (v) => padT + innerH - ((v - minV) / range) * innerH;
+  const now = Date.now();
+  const near = ms => {
+    let best = data[0];
+    for (const d of data) if (Math.abs(d[0] - (now - ms)) < Math.abs(best[0] - (now - ms))) best = d;
+    return best[1];
+  };
 
-    ctx.beginPath();
-    ctx.moveTo(toX(0), toY(points[0][1]));
-    for (let i = 1; i < points.length; i++) {
-      ctx.lineTo(toX(i), toY(points[i][1]));
-    }
+  const avg    = vals.reduce((a,b) => a+b,0) / vals.length;
+  const sorted = [...vals].sort((a,b)=>a-b);
+  const mid    = Math.floor(sorted.length/2);
+  const median = sorted.length % 2 ? sorted[mid] : (sorted[mid-1]+sorted[mid])/2;
+  const std    = Math.sqrt(vals.reduce((a,b)=>a+(b-avg)**2,0)/vals.length);
 
-    if (filled) {
-      ctx.lineTo(toX(points.length - 1), padT + innerH);
-      ctx.lineTo(padL, padT + innerH);
-      ctx.closePath();
-      const grad = ctx.createLinearGradient(0, padT, 0, padT + innerH);
-      grad.addColorStop(0, fillColor || (color + '44'));
-      grad.addColorStop(1, color + '00');
-      ctx.fillStyle = grad;
-      ctx.fill();
-      ctx.beginPath();
-      ctx.moveTo(toX(0), toY(points[0][1]));
-      for (let i = 1; i < points.length; i++) ctx.lineTo(toX(i), toY(points[i][1]));
-    }
+  return {
+    current: last, high: max, low: min,
+    highDate: new Date(data[miMax][0]).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+    lowDate:  new Date(data[miMin][0]).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+    chg24h:  ((last - near(86400e3))    / near(86400e3))    * 100,
+    chg7d:   ((last - near(7*86400e3))  / near(7*86400e3))  * 100,
+    chg30d:  ((last - near(30*86400e3)) / near(30*86400e3)) * 100,
+    avg, median, std, count: vals.length,
+  };
+}
 
-    ctx.strokeStyle = color;
-    ctx.lineWidth = lineWidth;
-    ctx.lineJoin = 'round';
-    ctx.stroke();
-    return { toX, toY, minV, maxV, range, innerW, innerH, padL, padR, padT, padB };
-  }
+function renderStats(data) {
+  const cfg = CHART_CONFIG[state.chart];
+  const s   = computeStats(data);
+  if (!s) return;
+  document.getElementById('ss-current').textContent = cfg.fmtVal(s.current);
+  document.getElementById('ss-ath').textContent     = cfg.fmtVal(s.high);
+  document.getElementById('ss-ath-date').textContent= s.highDate;
+  document.getElementById('ss-atl').textContent     = cfg.fmtVal(s.low);
+  document.getElementById('ss-atl-date').textContent= s.lowDate;
+  document.getElementById('ss-24h').innerHTML  = fmtDelta(s.chg24h);
+  document.getElementById('ss-7d').innerHTML   = fmtDelta(s.chg7d);
+  document.getElementById('ss-30d').innerHTML  = fmtDelta(s.chg30d);
+  document.getElementById('rs-avg').textContent    = cfg.fmtVal(s.avg);
+  document.getElementById('rs-median').textContent = cfg.fmtVal(s.median);
+  document.getElementById('rs-std').textContent    = cfg.fmtVal(s.std);
+  document.getElementById('rs-count').textContent  = s.count;
+}
 
-  drawYAxis(points, color='#95a0ba', padL=60, padR=20, padT=20, padB=40, fmt=null) {
-    if (!points || points.length === 0) return;
-    const ctx = this.ctx;
-    const vals = points.map(p => p[1]);
-    const minV = Math.min(...vals), maxV = Math.max(...vals);
-    const range = maxV - minV || 1;
-    const innerH = this.H - padT - padB;
-    ctx.fillStyle = color;
-    ctx.font = '9px JetBrains Mono, monospace';
-    ctx.textAlign = 'right';
-    const steps = 4;
-    for (let i = 0; i <= steps; i++) {
-      const v = minV + (i / steps) * range;
-      const y = padT + innerH - (i / steps) * innerH;
-      const label = fmt ? fmt(v) : _fmtNum(v);
-      ctx.fillText(label, padL - 5, y + 3);
-    }
-  }
+function updateSidebarItem(key, data) {
+  const valEl = document.getElementById(`ci-val-${key}`);
+  const dltEl = document.getElementById(`ci-delta-${key}`);
+  if (!valEl || !data || data.length < 2) return;
+  const cfg  = CHART_CONFIG[key];
+  const last = data[data.length-1][1];
+  const prev = data[Math.max(0, data.length-7)][1];
+  const pct  = ((last - prev) / prev) * 100;
+  valEl.textContent = cfg.fmtVal(last);
+  dltEl.innerHTML   = fmtDelta(pct);
+}
 
-  drawXAxis(points, color='#95a0ba', padL=60, padR=20, padT=20, padB=40, fmt=null) {
-    if (!points || points.length === 0) return;
-    const ctx = this.ctx;
-    const innerW = this.W - padL - padR;
-    ctx.fillStyle = color;
-    ctx.font = '9px JetBrains Mono, monospace';
-    ctx.textAlign = 'center';
-    const steps = Math.min(6, points.length - 1);
-    for (let i = 0; i <= steps; i++) {
-      const idx = Math.floor(i / steps * (points.length - 1));
-      const x = padL + (idx / (points.length - 1)) * innerW;
-      const label = fmt ? fmt(points[idx][0]) : _fmtDate(points[idx][0]);
-      ctx.fillText(label, x, this.H - padB + 14);
-    }
-  }
+/* ── D3 renderer ──────────────────────────────────────────────────────── */
+function renderD3(data, cfg) {
+  d3.select(wrap).selectAll('*').remove();
 
-  drawBar(points, color='#f8c15c', padL=60, padR=20, padT=20, padB=40) {
-    if (!points || points.length === 0) return;
-    const ctx = this.ctx;
-    const innerW = this.W - padL - padR;
-    const innerH = this.H - padT - padB;
-    const vals = points.map(p => p[1]);
-    const minV = 0, maxV = Math.max(...vals) || 1;
-    const barW = Math.max(1, innerW / points.length - 1);
-    const toY = (v) => padT + innerH - ((v - minV) / (maxV - minV)) * innerH;
-    points.forEach((p, i) => {
-      const x = padL + (i / (points.length - 1)) * innerW - barW / 2;
-      const y = toY(p[1]);
-      const grad = ctx.createLinearGradient(0, y, 0, padT + innerH);
-      grad.addColorStop(0, color);
-      grad.addColorStop(1, color + '33');
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.roundRect ? ctx.roundRect(x, y, barW, padT + innerH - y, 2) : ctx.rect(x, y, barW, padT + innerH - y);
-      ctx.fill();
+  const W  = wrap.offsetWidth || 640;
+  const mg = { top: 16, right: 16, bottom: 38, left: 72 };
+  const w  = W - mg.left - mg.right;
+  const h  = 340;
+  const c  = cfg.color;
+
+  const svg = d3.select(wrap).append('svg')
+    .attr('width','100%').attr('height', h + mg.top + mg.bottom)
+    .style('overflow','visible');
+
+  const g = svg.append('g').attr('transform',`translate(${mg.left},${mg.top})`);
+
+  // Scales
+  const x = d3.scaleTime()
+    .domain(d3.extent(data, d => new Date(d[0])))
+    .range([0, w]);
+  const [yMin,yMax] = d3.extent(data, d => d[1]);
+  const yPad = (yMax - yMin) * 0.05 || Math.abs(yMax) * 0.05 || 1;
+  const y = d3.scaleLinear().domain([yMin - yPad, yMax + yPad]).range([h, 0]);
+
+  // Grid
+  g.append('g').call(d3.axisLeft(y).tickSize(-w).tickFormat(''))
+    .call(gg => gg.select('.domain').remove())
+    .call(gg => gg.selectAll('line').style('stroke','#1C1C2E').style('stroke-dasharray','2,5').style('opacity',.7));
+
+  // Gradient fill
+  const gid = 'grad-' + Math.random().toString(36).slice(2,8);
+  const defs = svg.append('defs');
+  const grad = defs.append('linearGradient').attr('id',gid).attr('x1','0').attr('y1','0').attr('x2','0').attr('y2','1');
+  grad.append('stop').attr('offset','0%').attr('stop-color',c).attr('stop-opacity',0.28);
+  grad.append('stop').attr('offset','100%').attr('stop-color',c).attr('stop-opacity',0.01);
+
+  // Area + line
+  const area = d3.area().x(d=>x(new Date(d[0]))).y0(h).y1(d=>y(d[1])).curve(d3.curveMonotoneX);
+  const line = d3.line().x(d=>x(new Date(d[0]))).y(d=>y(d[1])).curve(d3.curveMonotoneX);
+  g.append('path').datum(data).attr('fill',`url(#${gid})`).attr('d',area);
+  g.append('path').datum(data).attr('fill','none').attr('stroke',c).attr('stroke-width',2).attr('d',line);
+
+  // Axes
+  const ticks = w < 400 ? 4 : 6;
+  g.append('g').attr('transform',`translate(0,${h})`)
+    .call(d3.axisBottom(x).ticks(ticks))
+    .call(ax=>ax.select('.domain').attr('stroke','#1C1C2E'))
+    .call(ax=>ax.selectAll('.tick text').style('fill','#95A0BA').style('font-family','JetBrains Mono,monospace').style('font-size','9px'));
+  g.append('g')
+    .call(d3.axisLeft(y).ticks(6).tickFormat(v=>cfg.fmtAxis(v)))
+    .call(ax=>ax.select('.domain').attr('stroke','#1C1C2E'))
+    .call(ax=>ax.selectAll('.tick text').style('fill','#95A0BA').style('font-family','JetBrains Mono,monospace').style('font-size','9px'));
+
+  // ── Crosshair + Tooltip ──────────────────────────────────────────────
+  const bisect = d3.bisector(d=>d[0]).left;
+
+  const vLine = g.append('line').attr('y1',0).attr('y2',h)
+    .style('stroke','rgba(255,255,255,.3)').style('stroke-width',1)
+    .style('stroke-dasharray','3,3').style('opacity',0).style('pointer-events','none');
+  const hLine = g.append('line').attr('x1',0).attr('x2',w)
+    .style('stroke','rgba(255,255,255,.3)').style('stroke-width',1)
+    .style('stroke-dasharray','3,3').style('opacity',0).style('pointer-events','none');
+  const dot = g.append('circle').attr('r',4)
+    .attr('fill',c).attr('stroke','#080810').attr('stroke-width',2)
+    .style('opacity',0).style('pointer-events','none');
+
+  const tt = d3.select(wrap).append('div')
+    .style('position','absolute').style('background','rgba(13,17,24,.96)')
+    .style('border',`1px solid ${c}33`).style('border-radius','8px')
+    .style('padding','7px 11px').style('font-family','JetBrains Mono,monospace')
+    .style('font-size','11px').style('color','#EEF2FF')
+    .style('pointer-events','none').style('z-index','100')
+    .style('opacity','0').style('min-width','130px').style('white-space','nowrap');
+
+  g.append('rect').attr('width',w).attr('height',h)
+    .style('fill','none').style('pointer-events','all')
+    .on('mousemove', function(ev) {
+      const [mx] = d3.pointer(ev);
+      const xms  = x.invert(mx).getTime();
+      const idx  = Math.min(bisect(data, xms, 1), data.length-1);
+      const d    = data[idx];
+      const px   = x(new Date(d[0]));
+      const py   = y(d[1]);
+      vLine.attr('x1',px).attr('x2',px).style('opacity',.6);
+      hLine.attr('y1',py).attr('y2',py).style('opacity',.6);
+      dot.attr('cx',px).attr('cy',py).style('opacity',1);
+      const ds = new Date(d[0]).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+      const lo = mg.left + px + (px > w*.65 ? -155 : 14);
+      const to = mg.top  + py - 33;
+      tt.html(`<div style="color:#95A0BA;font-size:8px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">${ds}</div>
+               <div style="font-size:15px;font-weight:900;color:${c}">${cfg.fmtVal(d[1])}</div>`)
+        .style('left', lo + 'px').style('top', to + 'px').style('opacity','1');
+    })
+    .on('mouseleave',function(){
+      vLine.style('opacity',0); hLine.style('opacity',0);
+      dot.style('opacity',0);   tt.style('opacity','0');
     });
-  }
-
-  drawDonut(slices, padL=10, padR=10, padT=10, padB=10) {
-    const ctx = this.ctx;
-    const cx = this.W / 2, cy = this.H / 2;
-    const r = Math.min(this.W, this.H) / 2 - 20;
-    const inner = r * 0.55;
-    let angle = -Math.PI / 2;
-    const total = slices.reduce((s, sl) => s + sl.value, 0);
-    if (total === 0) return; // guard against division by zero
-    slices.forEach(sl => {
-      const sweep = (sl.value / total) * Math.PI * 2;
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.arc(cx, cy, r, angle, angle + sweep);
-      ctx.closePath();
-      ctx.fillStyle = sl.color;
-      ctx.fill();
-      angle += sweep;
-    });
-    // Inner hole
-    ctx.beginPath();
-    ctx.arc(cx, cy, inner, 0, Math.PI * 2);
-    ctx.fillStyle = PP.colors.panel;
-    ctx.fill();
-    // Center label
-    ctx.fillStyle = PP.colors.text;
-    ctx.font = 'bold 13px JetBrains Mono, monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(slices.length + ' pools', cx, cy);
-  }
-
-  drawGauge(value, min=0, max=100, color='#f8c15c') {
-    const ctx = this.ctx;
-    const cx = this.W / 2, cy = this.H * 0.85;
-    const r = Math.min(this.W / 2, this.H) * 0.8;
-    const startA = Math.PI, endA = 2 * Math.PI;
-    const sweep = (value - min) / (max - min);
-
-    // Background arc
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, startA, endA);
-    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-    ctx.lineWidth = 14;
-    ctx.lineCap = 'round';
-    ctx.stroke();
-
-    // Value arc
-    const zones = [
-      { end: 25, color: '#ff3b5f' }, { end: 45, color: '#ff8ba0' },
-      { end: 55, color: '#f8c15c' }, { end: 75, color: '#89ffb8' }, { end: 100, color: '#5de4ff' }
-    ];
-    let zone = zones.find(z => value <= z.end) || zones[zones.length - 1];
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, startA, startA + sweep * Math.PI);
-    ctx.strokeStyle = zone.color;
-    ctx.lineWidth = 14;
-    ctx.lineCap = 'round';
-    ctx.stroke();
-
-    // Value text
-    ctx.fillStyle = zone.color;
-    ctx.font = 'bold 28px JetBrains Mono, monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText(value, cx, cy - 5);
-  }
-
-  drawSparkline(points, color='#f8c15c') {
-    if (!points || points.length < 2) return;
-    const vals = points.map(p => typeof p === 'number' ? p : p[1]);
-    const min = Math.min(...vals), max = Math.max(...vals);
-    const range = max - min || 1;
-    const ctx = this.ctx, W = this.W, H = this.H;
-    const toX = i => (i / (vals.length - 1)) * W;
-    const toY = v => H - ((v - min) / range) * H * 0.8 - H * 0.1;
-    ctx.beginPath();
-    ctx.moveTo(toX(0), toY(vals[0]));
-    vals.forEach((v, i) => { if (i > 0) ctx.lineTo(toX(i), toY(v)); });
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1.5;
-    ctx.lineJoin = 'round';
-    ctx.stroke();
-  }
-
-  drawCrosshair(x, y, color='rgba(255,255,255,0.2)') {
-    const ctx = this.ctx;
-    ctx.strokeStyle = color; ctx.lineWidth = 0.5; ctx.setLineDash([4,4]);
-    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,this.H); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(this.W,y); ctx.stroke();
-    ctx.setLineDash([]);
-  }
-
-  exportPNG(title='chart') {
-    const tmpCanvas = document.createElement('canvas');
-    tmpCanvas.width = this.canvas.width;
-    tmpCanvas.height = this.canvas.height;
-    const tCtx = tmpCanvas.getContext('2d');
-    tCtx.setTransform(this._dpr, 0, 0, this._dpr, 0, 0);
-    tCtx.fillStyle = PP.colors.bg;
-    tCtx.fillRect(0, 0, this.W, this.H);
-    tCtx.drawImage(this.canvas, 0, 0, this.W, this.H);
-    tCtx.fillStyle = 'rgba(248,193,92,0.6)';
-    tCtx.font = '10px JetBrains Mono, monospace';
-    tCtx.textAlign = 'right';
-    tCtx.fillText('PROTOCOLPULSE.IO', this.W - 10, this.H - 8);
-    const a = document.createElement('a');
-    a.href = tmpCanvas.toDataURL('image/png');
-    a.download = 'pp-' + title.toLowerCase().replace(/\s+/g,'-') + '-' + new Date().toISOString().slice(0,10) + '.png';
-    a.click();
-  }
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-function _fmtNum(v) {
-  if (v >= 1e12) return (v/1e12).toFixed(1)+'T';
-  if (v >= 1e9)  return (v/1e9).toFixed(1)+'B';
-  if (v >= 1e6)  return (v/1e6).toFixed(1)+'M';
-  if (v >= 1e3)  return (v/1e3).toFixed(1)+'K';
-  return v.toFixed(v < 10 ? 2 : 0);
-}
-function _fmtDate(ts) {
-  const d = new Date(ts);
-  return (d.getMonth()+1) + '/' + d.getDate();
-}
-function _fmtDateShort(ts) {
-  const d = new Date(ts);
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return months[d.getMonth()] + ' ' + d.getDate();
-}
-
-// ── State ─────────────────────────────────────────────────────────────────────
-const state = {
-  priceData: null, priceDays: 7,
-  overlays: { ma200: true, bb: false, s2f: false, mayer: false },
-  mempoolHistory: [],
-  currentPriceForAlerts: {{ btc_price or 0 }},
-};
-
-// ── WebSocket — mempool.space ─────────────────────────────────────────────────
-let ws, wsRetryDelay = 1000, wsRetryTimer = null, wsRetryCount = 0;
-let _wsHeartbeat = null;
-const WS_MAX_RETRIES = 12; // ~10 min of retries at 30s cap
-
-function connectWS() {
-  if (wsRetryCount >= WS_MAX_RETRIES) {
-    document.getElementById('ws-dot').classList.add('red');
-    document.getElementById('ws-dot').title = 'Live data unavailable — reload to retry';
-    return;
+/* ── Data fetchers ────────────────────────────────────────────────────── */
+async function fetchData(chartKey, period) {
+  const cfg = CHART_CONFIG[chartKey];
+  if (chartKey === 'mempool') {
+    try {
+      const r = await fetch('/api/charts/mempool-data');
+      if (!r.ok) return null;
+      const d = await r.json();
+      const mb = (d.mempool?.vsize || 0) / 1e6;
+      return [[Date.now(), Math.round(mb * 100) / 100]];
+    } catch { return null; }
+  }
+  if (chartKey === 'fees') {
+    try {
+      const r = await fetch('/api/charts/fee-history');
+      if (!r.ok) return null;
+      const raw = await r.json();
+      if (!Array.isArray(raw)) return null;
+      return raw
+        .filter(b => b.avgFee != null && b.timestamp != null)
+        .map(b => [b.timestamp * 1000, b.avgFee])
+        .slice(-180);
+    } catch { return null; }
   }
   try {
-    ws = new WebSocket('wss://mempool.space/api/v1/ws');
-    ws.onopen = () => {
-      wsRetryDelay = 1000;
-      wsRetryCount = 0;
-      ws.send(JSON.stringify({action:'want', data:['stats','blocks']}));
-      document.getElementById('ws-dot').classList.remove('red');
-      // Clear any stale heartbeat before creating a new one
-      if (_wsHeartbeat) clearInterval(_wsHeartbeat);
-      _wsHeartbeat = setInterval(() => {
-        if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({action:'ping'}));
-      }, 30000);
-    };
-    ws.onmessage = (e) => {
-      try { handleWSMessage(JSON.parse(e.data)); } catch(_) {}
-    };
-    ws.onclose = ws.onerror = () => {
-      document.getElementById('ws-dot').classList.add('red');
-      if (_wsHeartbeat) { clearInterval(_wsHeartbeat); _wsHeartbeat = null; }
-      clearTimeout(wsRetryTimer);
-      wsRetryCount++;
-      wsRetryTimer = setTimeout(() => {
-        wsRetryDelay = Math.min(wsRetryDelay * 2, 30000);
-        connectWS();
-      }, wsRetryDelay);
-    };
-  } catch(e) { document.getElementById('ws-dot').classList.add('red'); }
+    const r = await fetch(`${cfg.apiPath}?period=${encodeURIComponent(period)}`);
+    if (!r.ok) return null;
+    const d = await r.json();
+    return Array.isArray(d.data) && d.data.length ? d.data : null;
+  } catch { return null; }
 }
 
-function handleWSMessage(data) {
-  if (data.mempoolInfo) {
-    const mb = (data.mempoolInfo.usage / 1e6).toFixed(2);
-    document.getElementById('stat-mempool').textContent = mb + ' MB';
-    state.mempoolHistory.push([Date.now(), parseFloat(mb)]);
-    if (state.mempoolHistory.length > 60) state.mempoolHistory.shift();
-    drawMempoolChart();
-  }
-  if (data.fees) {
-    document.getElementById('stat-fee').textContent = (data.fees.fastestFee || '?') + ' sat/vB';
-    document.getElementById('fee-low').textContent    = data.fees.minimumFee || '—';
-    document.getElementById('fee-mid').textContent    = data.fees.hourFee    || '—';
-    document.getElementById('fee-high').textContent   = data.fees.halfHourFee|| '—';
-    document.getElementById('fee-urgent').textContent = data.fees.fastestFee || '—';
-  }
-  if (data.block) {
-    const h = data.block.height;
-    if (h) {
-      document.getElementById('stat-height').textContent = h.toLocaleString();
-      // New block = trigger a price refresh (event-driven, not polled)
-      _refreshPriceFromBlock();
-    }
-  }
-}
+/* ── Main loader ──────────────────────────────────────────────────────── */
+async function loadChart(chartKey, period, silent = false) {
+  if (state.busy) return;
+  state.busy = true; state.chart = chartKey; state.period = period;
+  const cfg = CHART_CONFIG[chartKey];
 
-// Price refresh on new block — event-driven via WebSocket block notification (LAW 1 compliant)
-let _priceRefreshInFlight = false;
-function _refreshPriceFromBlock() {
-  if (_priceRefreshInFlight) return;
-  _priceRefreshInFlight = true;
-  const ctrl = new AbortController();
-  const tid = setTimeout(() => ctrl.abort(), 10000);
-  fetch('/api/charts/price-history?days=1', { signal: ctrl.signal })
-    .then(r => { clearTimeout(tid); return r.ok ? r.json() : null; })
-    .then(data => {
-      _priceRefreshInFlight = false;
-      if (!data || !data.prices || data.prices.length === 0) return;
-      const p = data.prices[data.prices.length - 1][1];
-      state.currentPriceForAlerts = p;
-      document.getElementById('stat-price').textContent = '$' + p.toLocaleString('en-US', {maximumFractionDigits:0});
-      document.getElementById('sats-per-dollar').textContent = Math.round(1e8/p).toLocaleString();
-      document.getElementById('sats-per-dollar-val').textContent = Math.round(1e8/p).toLocaleString();
-    })
-    .catch(() => { _priceRefreshInFlight = false; });
-}
-connectWS();
+  document.getElementById('chart-title').textContent    = cfg.title;
+  document.getElementById('chart-subtitle').textContent = cfg.subtitle;
+  aiBox.classList.remove('show');
 
-// ── Price Chart ───────────────────────────────────────────────────────────────
-const priceEngine = new ChartEngine('price-canvas');
-let _priceActiveDays = 7;
-let _priceActiveBtns = null;
+  // Active states
+  document.querySelectorAll('.chart-item').forEach(el => el.classList.toggle('active', el.dataset.chart === chartKey));
+  document.querySelectorAll('.mobile-tab').forEach(el => el.classList.toggle('active', el.dataset.chart === chartKey));
+  document.querySelectorAll('.tf-btn').forEach(el => el.classList.toggle('active', el.dataset.tf === period));
 
-function _fetchWithTimeout(url, timeout=10000) {
-  const ctrl = new AbortController();
-  const tid = setTimeout(() => ctrl.abort(), timeout);
-  return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(tid));
-}
+  if (!silent) { showErr(false); showLoad(true); }
 
-function loadPriceChart(days, btn) {
-  _priceActiveDays = days;
-  if (_priceActiveBtns) _priceActiveBtns.forEach(b => b.classList.remove('active'));
-  if (btn) { btn.classList.add('active'); _priceActiveBtns = [btn]; }
-  showLoading('price-loading', true);
-  _fetchWithTimeout('/api/charts/price-history?days=' + days)
-    .then(r => r.ok ? r.json() : null)
-    .then(data => {
-      showLoading('price-loading', false);
-      if (!data || !data.prices || data.prices.length === 0) { showError('price-loading'); return; }
-      state.priceData = data.prices;
-      drawPriceChart();
-      renderValuationMetrics();
-      // Update stat bar with last price + 24h change
-      if (data.prices.length > 0) {
-        const last = data.prices[data.prices.length - 1][1];
-        state.currentPriceForAlerts = last;
-        document.getElementById('stat-price').textContent = '$' + last.toLocaleString('en-US', {maximumFractionDigits:0});
-        document.getElementById('sats-per-dollar').textContent = Math.round(1e8/last).toLocaleString();
-        document.getElementById('sats-per-dollar-val').textContent = Math.round(1e8/last).toLocaleString();
-        if (data.prices.length > 24) {
-          const prev = data.prices[data.prices.length > 24 ? data.prices.length - 25 : 0][1];
-          const pct = ((last - prev) / prev * 100).toFixed(2);
-          const el = document.getElementById('stat-change');
-          el.textContent = (pct >= 0 ? '+' : '') + pct + '%';
-          el.className = 'value delta ' + (pct >= 0 ? 'delta-up' : 'delta-down');
-          // Market cap
-          const mcap = last * 19640000;
-          document.getElementById('stat-mcap').textContent = '$' + _fmtNum(mcap);
-        }
-      }
-    })
-    .catch(() => { showLoading('price-loading', false); showError('price-loading'); });
-}
-
-function drawPriceChart() {
-  if (!state.priceData) return;
-  const pts = state.priceData;
-  priceEngine._resize();
-  priceEngine.clear();
-  priceEngine.drawGrid();
-
-  const vals = pts.map(p => p[1]);
-  const minV = Math.min(...vals), maxV = Math.max(...vals);
-  const padL=60, padR=20, padT=20, padB=40;
-
-  // Price line (filled area)
-  priceEngine.drawLine(pts, PP.colors.gold, 2, true, null, padL, padR, padT, padB);
-  priceEngine.drawYAxis(pts, PP.colors.muted, padL, padR, padT, padB, v => '$' + _fmtNum(v));
-  priceEngine.drawXAxis(pts, PP.colors.muted, padL, padR, padT, padB, ts => _fmtDateShort(ts));
-
-  // 200D MA overlay
-  if (state.overlays.ma200 && pts.length >= 200) {
-    const maPts = _calcMA(pts, 200);
-    drawOverlayLine(priceEngine, maPts, pts, PP.colors.gold + 'bb', 1.5, [6,4], padL, padR, padT, padB);
-  }
-
-  // Bollinger Bands
-  if (state.overlays.bb && pts.length >= 20) {
-    const { upper, lower } = _calcBollinger(pts, 20);
-    drawOverlayLine(priceEngine, upper, pts, PP.colors.lime + '80', 1, [3,3], padL, padR, padT, padB);
-    drawOverlayLine(priceEngine, lower, pts, PP.colors.coral + '80', 1, [3,3], padL, padR, padT, padB);
-  }
-
-  // Stock-to-Flow overlay
-  if (state.overlays.s2f) {
-    const s2fPts = _calcS2F(pts);
-    if (s2fPts && s2fPts.length === pts.length) {
-      drawOverlayLine(priceEngine, s2fPts, pts, PP.colors.cyan + 'aa', 1.5, [8,4], padL, padR, padT, padB);
-    }
-  }
-
-  // Mayer Multiple overlay — shows 200D MA ratio as secondary reference line
-  if (state.overlays.mayer && pts.length >= 200) {
-    const ma200vals = _calcMA(pts, 200);
-    // Plot a horizontal band at 200DMA×2.4 (overbought threshold)
-    const latestMA = ma200vals[ma200vals.length - 1];
-    if (latestMA) {
-      const overboughtLine = pts.map(() => latestMA * 2.4);
-      drawOverlayLine(priceEngine, overboughtLine, pts, PP.colors.coral + '60', 1, [8,2], padL, padR, padT, padB);
-      // Label
-      const ctx = priceEngine.ctx;
-      const innerH = priceEngine.H - padT - padB;
-      const allV = pts.map(p=>p[1]);
-      const minV2 = Math.min(...allV), maxV2 = Math.max(...allV), range2 = maxV2 - minV2 || 1;
-      const labelY = padT + innerH - ((latestMA * 2.4 - minV2) / range2) * innerH;
-      if (labelY > padT + 10 && labelY < padT + innerH - 10) {
-        ctx.fillStyle = PP.colors.coral + 'aa';
-        ctx.font = '9px JetBrains Mono,monospace';
-        ctx.textAlign = 'left';
-        ctx.fillText('Mayer 2.4×', padL + 4, labelY - 3);
-      }
-    }
-  }
-
-  // Disable/enable Mayer checkbox based on data length
-  const mayerCb = document.querySelector('input[onchange*="mayer"]');
-  if (mayerCb) {
-    mayerCb.disabled = pts.length < 200;
-    mayerCb.closest('.toggle-chip').title = pts.length < 200 ? 'Select 1Y timeframe to enable Mayer Multiple' : '';
-    if (pts.length < 200) { mayerCb.checked = false; state.overlays.mayer = false; mayerCb.closest('.toggle-chip').classList.remove('active'); }
-  }
-}
-
-function drawOverlayLine(engine, overlayPts, refPts, color, lw, dash, padL, padR, padT, padB) {
-  if (!overlayPts || overlayPts.length < 2) return;
-  const ctx = engine.ctx;
-  const vals = refPts.map(p => p[1]);
-  const minV = Math.min(...vals), maxV = Math.max(...vals);
-  const range = maxV - minV || 1;
-  const innerW = engine.W - padL - padR;
-  const innerH = engine.H - padT - padB;
-  const toX = i => padL + (i / (refPts.length - 1)) * innerW;
-  const toY = v => padT + innerH - ((v - minV) / range) * innerH;
-
-  ctx.save();
-  ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.setLineDash(dash);
-  ctx.beginPath();
-  overlayPts.forEach((v, i) => {
-    const refIdx = refPts.length - overlayPts.length + i;
-    if (v === null) return;
-    const x = toX(refIdx), y = toY(v);
-    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-  });
-  ctx.stroke();
-  ctx.setLineDash([]); ctx.restore();
-}
-
-// ── RSI ───────────────────────────────────────────────────────────────────────
-const rsiEngine = new ChartEngine('rsi-canvas');
-function drawRSI() {
-  if (!state.priceData || state.priceData.length < 15) return;
-  const rsi = _calcRSI(state.priceData, 14);
-  rsiEngine._resize(); rsiEngine.clear();
-  const pts = rsi.map((v, i) => [state.priceData[state.priceData.length - rsi.length + i][0], v]);
-  rsiEngine.drawGrid(40, 10, 5, 25, 6, 3);
-  rsiEngine.drawLine(pts, PP.colors.cyan, 1.5, false, null, 40, 10, 5, 25);
-  // Overbought/oversold lines
-  const ctx = rsiEngine.ctx;
-  const padL=40, padR=10, padT=5, padB=25;
-  const innerH = rsiEngine.H - padT - padB;
-  const toY = v => padT + innerH - ((v) / 100) * innerH;
-  ctx.strokeStyle = 'rgba(255,59,95,0.4)'; ctx.lineWidth = 0.5; ctx.setLineDash([4,4]);
-  ctx.beginPath(); ctx.moveTo(padL, toY(70)); ctx.lineTo(rsiEngine.W - padR, toY(70)); ctx.stroke();
-  ctx.strokeStyle = 'rgba(137,255,184,0.4)';
-  ctx.beginPath(); ctx.moveTo(padL, toY(30)); ctx.lineTo(rsiEngine.W - padR, toY(30)); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillStyle = PP.colors.muted; ctx.font = '9px JetBrains Mono,monospace'; ctx.textAlign = 'right';
-  ctx.fillText('70', padL-3, toY(70)+3); ctx.fillText('30', padL-3, toY(30)+3);
-  ctx.fillStyle = PP.colors.muted; ctx.textAlign = 'left'; ctx.font = '9px JetBrains Mono,monospace';
-  const lastRSI = rsi[rsi.length-1];
-  ctx.fillStyle = lastRSI > 70 ? PP.colors.coral : lastRSI < 30 ? PP.colors.lime : PP.colors.muted;
-  ctx.fillText('RSI ' + lastRSI.toFixed(1), padL+4, padT+12);
-}
-
-// ── MACD ──────────────────────────────────────────────────────────────────────
-const macdEngine = new ChartEngine('macd-canvas');
-function drawMACD() {
-  if (!state.priceData || state.priceData.length < 26) return;
-  const { macdLine, signalLine, histogram } = _calcMACD(state.priceData);
-  macdEngine._resize(); macdEngine.clear();
-  const padL=40, padR=10, padT=5, padB=25;
-  const histPts = histogram.map((v, i) => [i, v]);
-  const allVals = [...macdLine, ...signalLine, ...histogram].filter(v => v !== null);
-  const minV = Math.min(...allVals), maxV = Math.max(...allVals);
-  const range = maxV - minV || 1;
-  const innerW = macdEngine.W - padL - padR;
-  const innerH = macdEngine.H - padT - padB;
-  const toX = i => padL + (i / (histogram.length - 1)) * innerW;
-  const toY = v => padT + innerH - ((v - minV) / range) * innerH;
-  const ctx = macdEngine.ctx;
-  // Histogram bars
-  histogram.forEach((v, i) => {
-    if (v === null) return;
-    const x = toX(i), barW = Math.max(1, innerW/histogram.length - 1);
-    ctx.fillStyle = v >= 0 ? PP.colors.lime + '88' : PP.colors.coral + '88';
-    const y0 = toY(0), yv = toY(v);
-    ctx.fillRect(x - barW/2, Math.min(y0,yv), barW, Math.abs(y0-yv));
-  });
-  // MACD line
-  ctx.beginPath(); ctx.strokeStyle = PP.colors.cyan; ctx.lineWidth = 1.5;
-  macdLine.forEach((v, i) => { if (v===null) return; const x=toX(i),y=toY(v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); }); ctx.stroke();
-  // Signal line
-  ctx.beginPath(); ctx.strokeStyle = PP.colors.coral; ctx.lineWidth = 1;
-  signalLine.forEach((v, i) => { if (v===null) return; const x=toX(i),y=toY(v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); }); ctx.stroke();
-}
-
-// ── Hashrate Chart ────────────────────────────────────────────────────────────
-const hashrateEngine = new ChartEngine('hashrate-canvas');
-function loadHashrateChart() {
-  showLoading('hashrate-loading', true);
-  _fetchWithTimeout('/api/charts/hashrate-history')
-    .then(r => r.ok ? r.json() : null)
-    .then(data => {
-      showLoading('hashrate-loading', false);
-      if (!data || !data.hashrates || data.hashrates.length === 0) { showError('hashrate-loading'); return; }
-      const pts = data.hashrates.map(h => [h.timestamp * 1000, h.avgHashrate / 1e18]);
-      hashrateEngine._resize(); hashrateEngine.clear();
-      hashrateEngine.drawGrid();
-      hashrateEngine.drawLine(pts, PP.colors.cyan, 2, true, null, 60, 20, 20, 40);
-      hashrateEngine.drawYAxis(pts, PP.colors.muted, 60, 20, 20, 40, v => v.toFixed(0)+' EH/s');
-      hashrateEngine.drawXAxis(pts, PP.colors.muted, 60, 20, 20, 40, ts => _fmtDateShort(ts));
-      // Draw difficulty epoch
-      loadDifficultyDisplay(data);
-    })
-    .catch(() => showLoading('hashrate-loading', false));
-}
-
-function loadDifficultyDisplay(hrData) {
-  const el = document.getElementById('difficulty-display');
-  if (!el) return;
-  const blockHeight = parseInt(document.getElementById('stat-height').textContent.replace(/,/g,'')) || {{ block_height or 0 }};
-  const EPOCH = 210000;
-  const DIFF_INTERVAL = 2016;
-  const epochStart = Math.floor(blockHeight / DIFF_INTERVAL) * DIFF_INTERVAL;
-  const blocksInEpoch = blockHeight - epochStart;
-  const pct = (blocksInEpoch / DIFF_INTERVAL * 100).toFixed(1);
-  const blocksLeft = DIFF_INTERVAL - blocksInEpoch;
-  const daysLeft = (blocksLeft * 10 / 1440).toFixed(1);
-
-  el.innerHTML = `
-    <div style="margin-bottom:.75rem">
-      <div class="label" style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Epoch Progress</div>
-      <div class="supply-bar-wrap"><div class="supply-bar-fill" style="width:${pct}%;background:linear-gradient(90deg,#5de4ff,#89ffb8)"></div></div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:.3rem">${blocksInEpoch.toLocaleString()} / 2,016 blocks (${pct}%) · ${blocksLeft.toLocaleString()} left · ~${daysLeft} days</div>
-    </div>
-    <div style="background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:.8rem">
-      <div class="label" style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)">Next Adjustment In</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:900;color:var(--gold);margin-top:.2rem">~${daysLeft} days</div>
-      <div style="font-size:11px;color:var(--muted)">${blocksLeft.toLocaleString()} blocks remaining at current pace</div>
-    </div>`;
-}
-
-// ── Pool Distribution ─────────────────────────────────────────────────────────
-const poolsEngine = new ChartEngine('pools-canvas');
-const POOL_COLORS = ['#ff3b5f','#f8c15c','#5de4ff','#89ffb8','#ff8ba0','#b8a9ff','#ffd4a0','#a0d4ff','#d4ffa0','#ffa0d4','#c0c0c0'];
-
-function loadPoolDistribution() {
-  _fetchWithTimeout('/api/charts/pool-distribution')
-    .then(r => r.ok ? r.json() : null)
-    .then(data => {
-      showLoading('pools-loading', false);
-      if (!data || !data.pools || data.pools.length === 0) { showError('pools-loading'); return; }
-      const pools = data.pools.slice(0, 10);
-      const slices = pools.map((p, i) => ({ label: p.name, value: p.blockCount, color: POOL_COLORS[i % POOL_COLORS.length] }));
-      poolsEngine._resize(); poolsEngine.clear();
-      poolsEngine.drawDonut(slices);
-      // Table
-      const total = pools.reduce((s, p) => s + p.blockCount, 0);
-      const top3Pct = pools.slice(0,3).reduce((s,p) => s + p.blockCount, 0) / total * 100;
-      let tableHtml = '<table class="pool-table"><thead><tr><th>Pool</th><th>Blocks</th><th>Share</th></tr></thead><tbody>';
-      pools.forEach((p, i) => {
-        const pct = (p.blockCount / total * 100).toFixed(1);
-        tableHtml += `<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${POOL_COLORS[i]};margin-right:6px;"></span>${p.name}</td><td>${p.blockCount}</td><td style="color:var(--gold)">${pct}%</td></tr>`;
-      });
-      // HHI
-      const hhi = pools.reduce((s, p) => s + Math.pow(p.blockCount/total*100, 2), 0);
-      tableHtml += `</tbody></table><div style="margin-top:.5rem;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">HHI Score: <span style="color:${hhi>2500?'var(--coral)':hhi>1500?'var(--gold)':'var(--lime)'}">${Math.round(hhi)}</span> ${hhi>2500?'(High concentration)':hhi>1500?'(Moderate)':'(Healthy)'}</div>`;
-      document.getElementById('pool-table-wrap').innerHTML = tableHtml;
-      const warnEl = document.getElementById('hhi-warn');
-      if (top3Pct > 50) warnEl.classList.add('visible');
-      else warnEl.classList.remove('visible');
-    })
-    .catch(() => showLoading('pools-loading', false));
-}
-
-// ── Mempool Chart ─────────────────────────────────────────────────────────────
-const mempoolEngine = new ChartEngine('mempool-canvas');
-function drawMempoolChart() {
-  if (state.mempoolHistory.length < 2) return;
-  mempoolEngine._resize(); mempoolEngine.clear();
-  mempoolEngine.drawGrid(50, 20, 10, 30, 6, 4);
-  mempoolEngine.drawLine(state.mempoolHistory, PP.colors.red, 2, true, null, 50, 20, 10, 30);
-}
-
-// ── HODL Waves ────────────────────────────────────────────────────────────────
-const hodlEngine = new ChartEngine('hodl-canvas');
-const HODL_DATA = [
-  { label: '< 1 Day',   pct: 0.8,  color: '#ff3b5f' },
-  { label: '1d–1w',     pct: 2.1,  color: '#ff8ba0' },
-  { label: '1w–1m',     pct: 3.4,  color: '#f8c15c' },
-  { label: '1m–3m',     pct: 6.2,  color: '#ffd080' },
-  { label: '3m–6m',     pct: 7.8,  color: '#89ffb8' },
-  { label: '6m–1y',     pct: 9.5,  color: '#5de4ff' },
-  { label: '1y–2y',     pct: 15.2, color: '#b8a9ff' },
-  { label: '2y–3y',     pct: 11.3, color: '#a0d4ff' },
-  { label: '3y–5y',     pct: 14.6, color: '#ffa0d4' },
-  { label: '5y+',       pct: 29.1, color: '#c0a0ff' },
-];
-
-function drawHODLWaves() {
-  hodlEngine._resize(); hodlEngine.clear();
-  const ctx = hodlEngine.ctx;
-  const W = hodlEngine.W, H = hodlEngine.H;
-  const padL = 10, padR = 10, padT = 10, padB = 30;
-  const innerW = W - padL - padR;
-  const innerH = H - padT - padB;
-  const total = HODL_DATA.reduce((s, d) => s + d.pct, 0);
-  let x = padL;
-  HODL_DATA.forEach(d => {
-    const w = (d.pct / total) * innerW;
-    const grad = ctx.createLinearGradient(0, padT, 0, padT + innerH);
-    grad.addColorStop(0, d.color);
-    grad.addColorStop(1, d.color + '44');
-    ctx.fillStyle = grad;
-    ctx.fillRect(x, padT, w, innerH);
-    if (w > 30) {
-      ctx.fillStyle = 'rgba(0,0,0,0.6)';
-      ctx.font = `bold ${Math.min(10, w/4)}px JetBrains Mono,monospace`;
-      ctx.textAlign = 'center';
-      ctx.fillText(d.pct + '%', x + w/2, padT + innerH/2 + 4);
-    }
-    x += w;
-  });
-  // Legend
-  const legendEl = document.getElementById('hodl-legend');
-  legendEl.innerHTML = HODL_DATA.map(d => `<div class="hodl-legend-item"><span class="hodl-legend-swatch" style="background:${d.color}"></span>${d.label} (${d.pct}%)</div>`).join('');
-}
-
-// ── Fear & Greed ──────────────────────────────────────────────────────────────
-const fgEngine = new ChartEngine('fg-canvas');
-const fgSparkEngine = new ChartEngine('fg-sparkline');
-
-function loadFearGreed() {
-  fetch('/api/charts/fear-greed')
-    .then(r => r.ok ? r.json() : null)
-    .then(data => {
-      showLoading('fg-loading', false);
-      if (!data || !data.data || data.data.length === 0) return;
-      document.getElementById('fg-stats').style.display = 'flex';
-      const latest = data.data[0];
-      const score = parseInt(latest.value);
-      document.getElementById('fg-score-val').textContent = score;
-      document.getElementById('fg-score-val').style.color = _fgColor(score);
-      document.getElementById('fg-label-val').textContent = latest.value_classification;
-      fgEngine._resize(); fgEngine.clear();
-      fgEngine.drawGauge(score, 0, 100);
-      // Sparkline
-      const sparkVals = data.data.slice(0,7).reverse().map(d => parseInt(d.value));
-      fgSparkEngine._resize(); fgSparkEngine.clear();
-      fgSparkEngine.drawSparkline(sparkVals, PP.colors.gold);
-    })
-    .catch(() => showLoading('fg-loading', false));
-}
-
-function _fgColor(v) {
-  if (v <= 25) return PP.colors.red;
-  if (v <= 45) return PP.colors.coral;
-  if (v <= 55) return PP.colors.gold;
-  if (v <= 75) return PP.colors.lime;
-  return PP.colors.cyan;
-}
-
-// ── Valuation Metrics ─────────────────────────────────────────────────────────
-function renderValuationMetrics() {
-  const el = document.getElementById('valuation-metrics');
-  if (!el || !state.priceData || state.priceData.length < 200) {
-    if (el) el.innerHTML = '<div style="color:var(--muted);font-size:12px;">Load 1Y price data to see valuation metrics</div>';
-    return;
-  }
-  const prices = state.priceData.map(p => p[1]);
-  const currentPrice = prices[prices.length - 1];
-  const ma200 = prices.length >= 200 ? prices.slice(-200).reduce((s,v) => s+v, 0) / 200 : null;
-  const mayer = ma200 ? (currentPrice / ma200) : null;
-  // S2F model price estimate (simplified)
-  const blockHeight = {{ block_height or 840000 }};
-  const epochNum = Math.floor(blockHeight / 210000);
-  const subsidy = 50 / Math.pow(2, epochNum);
-  const annualIssuance = subsidy * 52560;
-  const currentSupply = {{ mined_supply }};
-  const s2fRatio = currentSupply / annualIssuance;
-  const s2fModelPrice = Math.exp(3.31819 * Math.log(s2fRatio) + 14.6227);
-  // NUPL approx
-  const realizedCapEst = currentSupply * currentPrice * 0.65; // rough estimate
-  const marketCap = currentSupply * currentPrice;
-  const nupl = (marketCap - realizedCapEst) / marketCap;
-
-  const metrics = [
-    {
-      label: 'Mayer Multiple',
-      value: mayer ? mayer.toFixed(2) : '—',
-      color: mayer ? (mayer > 2.4 ? PP.colors.coral : mayer < 1.0 ? PP.colors.lime : PP.colors.gold) : PP.colors.muted,
-      note: mayer ? (mayer > 2.4 ? 'Historically overbought (>2.4)' : mayer < 1.0 ? 'Historically undervalued (<1.0)' : 'Fair value zone (1.0–2.4)') : 'Need 200d data',
-    },
-    {
-      label: 'Stock-to-Flow Ratio',
-      value: s2fRatio.toFixed(1),
-      color: PP.colors.cyan,
-      note: 'S2F model price: $' + Math.round(s2fModelPrice).toLocaleString(),
-    },
-    {
-      label: 'NUPL (estimated)',
-      value: (nupl * 100).toFixed(1) + '%',
-      color: nupl > 0.75 ? PP.colors.coral : nupl > 0.5 ? PP.colors.gold : nupl > 0 ? PP.colors.lime : PP.colors.red,
-      note: nupl > 0.75 ? 'Euphoria zone' : nupl > 0.5 ? 'Belief zone' : nupl > 0.25 ? 'Optimism zone' : 'Hope/Fear zone',
-    },
-  ];
-
-  el.innerHTML = metrics.map(m => `
-    <div style="background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:.75rem 1rem;display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)">${m.label}</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:.15rem">${m.note}</div>
-      </div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:900;color:${m.color}">${m.value}</div>
-    </div>`).join('');
-}
-
-// ── Lightning Stats ───────────────────────────────────────────────────────────
-const lnEngine = new ChartEngine('ln-canvas');
-function loadLightning() {
-  fetch('/api/charts/lightning')
-    .then(r => r.ok ? r.json() : null)
-    .then(data => {
-      showLoading('ln-loading', false);
-      if (!data) return;
-      const latest = data.latest || data;
-      if (latest.total_capacity != null) {
-        document.getElementById('ln-capacity').textContent = (latest.total_capacity / 1e8).toFixed(0) + ' BTC';
-      }
-      if (latest.node_count != null) {
-        document.getElementById('ln-nodes').textContent = latest.node_count.toLocaleString();
-      }
-      if (latest.channel_count != null) {
-        document.getElementById('ln-channels').textContent = latest.channel_count.toLocaleString();
-      }
-      // Capacity trend
-      if (data.channel_count && Array.isArray(data.channel_count)) {
-        const pts = data.channel_count.slice(-30).map(d => [d[0]*1000, d[1]]);
-        lnEngine._resize(); lnEngine.clear();
-        lnEngine.drawGrid(50, 10, 5, 25, 6, 3);
-        lnEngine.drawBar(pts, PP.colors.cyan, 50, 10, 5, 25);
-        lnEngine.drawYAxis(pts, PP.colors.muted, 50, 10, 5, 25, v => _fmtNum(v));
-      }
-    })
-    .catch(() => showLoading('ln-loading', false));
-}
-
-// ── Indicator Math ────────────────────────────────────────────────────────────
-function _calcMA(pts, period) {
-  const result = [];
-  for (let i = 0; i < pts.length; i++) {
-    if (i < period - 1) { result.push(null); continue; }
-    const slice = pts.slice(i - period + 1, i + 1);
-    result.push(slice.reduce((s, p) => s + p[1], 0) / period);
-  }
-  return result.slice(period - 1);
-}
-
-function _calcEMA(vals, period) {
-  const k = 2 / (period + 1);
-  const result = [vals[0]];
-  for (let i = 1; i < vals.length; i++) {
-    result.push(vals[i] * k + result[i-1] * (1 - k));
-  }
-  return result;
-}
-
-function _calcBollinger(pts, period=20, stdMult=2) {
-  const upper = [], lower = [];
-  for (let i = 0; i < pts.length; i++) {
-    if (i < period - 1) { upper.push(null); lower.push(null); continue; }
-    const slice = pts.slice(i - period + 1, i + 1).map(p => p[1]);
-    const mean = slice.reduce((s,v) => s+v, 0) / period;
-    const std  = Math.sqrt(slice.reduce((s,v) => s + Math.pow(v-mean,2), 0) / period);
-    upper.push(mean + stdMult * std);
-    lower.push(mean - stdMult * std);
-  }
-  return { upper: upper.filter(v=>v!==null), lower: lower.filter(v=>v!==null) };
-}
-
-function _calcRSI(pts, period=14) {
-  const closes = pts.map(p => p[1]);
-  const gains = [], losses = [];
-  for (let i = 1; i < closes.length; i++) {
-    const diff = closes[i] - closes[i-1];
-    gains.push(Math.max(0, diff)); losses.push(Math.max(0, -diff));
-  }
-  const rsi = [];
-  let avgGain = gains.slice(0, period).reduce((s,v) => s+v, 0) / period;
-  let avgLoss = losses.slice(0, period).reduce((s,v) => s+v, 0) / period;
-  for (let i = period; i < gains.length; i++) {
-    avgGain = (avgGain * (period - 1) + gains[i]) / period;
-    avgLoss = (avgLoss * (period - 1) + losses[i]) / period;
-    const rs = avgLoss === 0 ? 100 : avgGain / avgLoss;
-    rsi.push(100 - (100 / (1 + rs)));
-  }
-  return rsi;
-}
-
-function _calcMACD(pts, fast=12, slow=26, signal=9) {
-  const closes = pts.map(p => p[1]);
-  const emaFast = _calcEMA(closes, fast);
-  const emaSlow = _calcEMA(closes, slow);
-  const macdLine = emaFast.map((v, i) => v - emaSlow[i]);
-  const startIdx = slow - 1;
-  const macdTrimmed = macdLine.slice(startIdx);
-  const signalLine = _calcEMA(macdTrimmed, signal);
-  const histogram = macdTrimmed.slice(signal - 1).map((v, i) => v - signalLine[i]);
-  return { macdLine: macdLine.slice(startIdx + signal - 1), signalLine: signalLine.slice(signal - 1), histogram };
-}
-
-function _calcS2F(pts) {
-  // Approximate S2F model price as overlay — uses approximate epoch schedule
-  const blockHeight = {{ block_height or 840000 }};
-  const epochs = Math.floor(blockHeight / 210000);
-  const subsidy = 50 / Math.pow(2, epochs);
-  const annIssuance = subsidy * 52560;
-  const supply = {{ mined_supply }};
-  const sf = supply / annIssuance;
-  const modelPrice = Math.exp(3.31819 * Math.log(sf) + 14.6227);
-  // Return constant horizontal line at model price
-  return pts.map(() => modelPrice);
-}
-
-// ── Overlay toggle ────────────────────────────────────────────────────────────
-function toggleOverlay(key, el) {
-  state.overlays[key] = el.checked;
-  el.closest('.toggle-chip').classList.toggle('active', el.checked);
-  drawPriceChart();
-}
-
-// ── AI Interpret ──────────────────────────────────────────────────────────────
-function interpretChart(chartType, label) {
-  const aiBox = document.getElementById('ai-' + chartType);
-  const aiText = document.getElementById('ai-' + chartType + '-text');
-  if (!aiBox || !aiText) return;
-  aiBox.classList.add('visible');
-  aiText.textContent = 'Analyzing market structure…';
-  const chartData = {};
-  if (chartType === 'price' && state.priceData && state.priceData.length > 0) {
-    const prices = state.priceData.map(p => p[1]);
-    chartData.current_price = prices[prices.length - 1];
-    chartData.period_high = Math.max(...prices);
-    chartData.period_low = Math.min(...prices);
-    chartData.price_change_pct = ((prices[prices.length-1] - prices[0]) / prices[0] * 100).toFixed(2);
-    chartData.data_points = state.priceData.length;
-    chartData.days = _priceActiveDays;
-  }
-  fetch('/api/charts/ai-explain', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ chart_type: chartType, chart_data: chartData, question: 'Explain this chart' })
-  })
-  .then(r => r.json())
-  .then(d => {
-    aiText.textContent = d.explanation || 'Analysis unavailable.';
-    // Typewriter effect
-    const text = d.explanation || '';
-    aiText.textContent = '';
-    let i = 0;
-    const timer = setInterval(() => {
-      if (i < text.length) { aiText.textContent += text[i++]; } else { clearInterval(timer); }
-    }, 18);
-  })
-  .catch(() => { aiText.textContent = 'AI analysis temporarily unavailable.'; });
-}
-
-// ── Share Chart (Web Share API + clipboard fallback) ─────────────────────────
-async function shareChart(canvasId, title) {
-  const engines = {
-    'price-canvas': priceEngine, 'hashrate-canvas': hashrateEngine,
-    'pools-canvas': poolsEngine, 'mempool-canvas': mempoolEngine,
-    'hodl-canvas': hodlEngine, 'fg-canvas': fgEngine
-  };
-  const engine = engines[canvasId];
-  if (!engine) return;
   try {
-    const blob = await new Promise(res => {
-      const tmp = document.createElement('canvas');
-      tmp.width = engine.canvas.width; tmp.height = engine.canvas.height;
-      const tc = tmp.getContext('2d');
-      tc.setTransform(engine._dpr, 0, 0, engine._dpr, 0, 0);
-      tc.fillStyle = PP.colors.bg; tc.fillRect(0, 0, engine.W, engine.H);
-      tc.drawImage(engine.canvas, 0, 0, engine.W, engine.H);
-      tc.fillStyle = 'rgba(248,193,92,0.5)'; tc.font = '10px JetBrains Mono,monospace';
-      tc.textAlign = 'right'; tc.fillText('PROTOCOLPULSE.IO', engine.W - 8, engine.H - 6);
-      tmp.toBlob(res, 'image/png');
-    });
-    const file = new File([blob], 'pp-' + title.toLowerCase().replace(/\s+/g,'-') + '.png', { type: 'image/png' });
-    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ title: title + ' — Protocol Pulse', files: [file] });
-    } else {
-      await navigator.clipboard.writeText(window.location.href + '#' + canvasId.replace('-canvas',''));
-      showToast('Chart link copied to clipboard');
-    }
-  } catch (e) {
-    if (e.name !== 'AbortError') {
-      try { await navigator.clipboard.writeText(window.location.href); showToast('Link copied'); } catch(_) {}
-    }
-  }
+    const data = await fetchData(chartKey, period);
+    if (!data || !data.length) { showLoad(false); showErr(true); state.busy = false; return; }
+    state.data = data;
+    showLoad(false); showErr(false);
+    renderD3(data, cfg);
+    renderStats(data);
+    updateSidebarItem(chartKey, data);
+    srcTag.textContent = `SOURCE: ${
+      cfg.apiPath
+        ? (cfg.apiPath.includes('price') ? 'CoinGecko' :
+           cfg.apiPath.includes('hash') || cfg.apiPath.includes('diff') ? 'mempool.space' :
+           cfg.apiPath.includes('mvrv') || cfg.apiPath.includes('realized') ? 'CoinMetrics community' :
+           cfg.apiPath.includes('fg') ? 'alternative.me' : 'Protocol Pulse')
+        : 'mempool.space'
+    } · ${data.length} POINTS · ${period.toUpperCase()}`;
+  } catch(e) { console.error('loadChart error:', e); showLoad(false); showErr(true); }
+  state.busy = false;
 }
 
-function showToast(msg) {
-  let t = document.getElementById('pp-toast');
-  if (!t) {
-    t = document.createElement('div'); t.id = 'pp-toast';
-    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0d1118;border:1px solid rgba(248,193,92,.3);color:#f8c15c;font-family:JetBrains Mono,monospace;font-size:12px;padding:8px 18px;border-radius:8px;z-index:9999;pointer-events:none;transition:opacity .3s';
-    document.body.appendChild(t);
-  }
-  t.textContent = msg; t.style.opacity = '1';
-  setTimeout(() => { t.style.opacity = '0'; }, 2500);
-}
-
-// ── Download PNG ──────────────────────────────────────────────────────────────
-function downloadChart(canvasId, title) {
-  const engines = {
-    'price-canvas': priceEngine, 'hashrate-canvas': hashrateEngine,
-    'pools-canvas': poolsEngine, 'mempool-canvas': mempoolEngine,
-    'hodl-canvas': hodlEngine, 'fg-canvas': fgEngine
-  };
-  const engine = engines[canvasId];
-  if (engine) engine.exportPNG(title);
-}
-
-// ── Embed ─────────────────────────────────────────────────────────────────────
-function openEmbed(chartId) {
-  const code = `<iframe src="https://protocolpulse.io/charts/embed/${chartId}?days=7" width="600" height="360" frameborder="0" style="border-radius:12px" title="Bitcoin ${chartId} chart — Protocol Pulse"></iframe>`;
-  document.getElementById('embed-code-text').textContent = code;
-  document.getElementById('embed-modal').classList.add('open');
-}
-function closeEmbed() { document.getElementById('embed-modal').classList.remove('open'); }
-function copyEmbed(ev) {
-  navigator.clipboard.writeText(document.getElementById('embed-code-text').textContent)
-    .then(() => {
-      const b = (ev && ev.target) || document.querySelector('#embed-box .btn-chip');
-      if (b) { b.textContent = 'Copied!'; setTimeout(() => { b.textContent = 'Copy Code'; }, 2000); }
-    });
-}
-
-// ── Price Alert ───────────────────────────────────────────────────────────────
-function submitAlert() {
-  const email = document.getElementById('alert-email').value.trim();
-  const dir   = document.getElementById('alert-direction').value;
-  const price = document.getElementById('alert-price').value;
-  const msgEl = document.getElementById('alert-msg');
-  if (!email || !price) { msgEl.className = 'alert-msg err'; msgEl.textContent = 'Please fill in all fields.'; return; }
-  msgEl.className = 'alert-msg'; msgEl.textContent = 'Setting alert…';
-  const ctrl = new AbortController();
-  setTimeout(() => ctrl.abort(), 10000);
-  fetch('/api/charts/price-alert', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ email, direction: dir, target_price: parseFloat(price) }),
-    signal: ctrl.signal,
-  })
-  .then(async r => {
-    let d = {};
-    try { d = await r.json(); } catch(_) {}
-    if (!r.ok) {
-      msgEl.className = 'alert-msg err';
-      msgEl.textContent = d.error || 'Server error. Please try again.';
-      return;
-    }
-    if (d.success) {
-      msgEl.className = 'alert-msg ok';
-      msgEl.textContent = '✓ ' + d.message;
-      document.getElementById('alert-price').value = '';
-    } else {
-      msgEl.className = 'alert-msg err';
-      msgEl.textContent = d.error || 'Error setting alert.';
-    }
-  })
-  .catch(e => {
-    msgEl.className = 'alert-msg err';
-    msgEl.textContent = e.name === 'AbortError' ? 'Request timed out. Please try again.' : 'Network error. Please try again.';
+/* ── Event listeners ──────────────────────────────────────────────────── */
+document.querySelectorAll('.chart-item').forEach(el => {
+  el.addEventListener('click', () => {
+    const p = el.dataset.period || CHART_CONFIG[el.dataset.chart]?.defaultPeriod || '7d';
+    loadChart(el.dataset.chart, p);
+    document.querySelectorAll('.tf-btn').forEach(b => b.classList.toggle('active', b.dataset.tf === p));
   });
-}
-
-// ── Cmd+K Command Bar ─────────────────────────────────────────────────────────
-const CMD_SECTIONS = [
-  { key: 'PRICE',    label: 'BTC Price Chart', id: 'section-price' },
-  { key: 'MINING',   label: 'Hashrate & Difficulty', id: 'section-mining' },
-  { key: 'POOLS',    label: 'Mining Pool Distribution', id: 'section-pools' },
-  { key: 'MEMPOOL',  label: 'Mempool & Fees', id: 'section-mempool' },
-  { key: 'SUPPLY',   label: 'Supply Analysis', id: 'section-supply' },
-  { key: 'HODL',     label: 'HODL Waves', id: 'section-hodl' },
-  { key: 'SENTIMENT',label: 'Fear & Greed / Valuation', id: 'section-valuation' },
-  { key: 'LIGHTNING',label: 'Lightning Network', id: 'section-lightning' },
-  { key: 'ALERTS',   label: 'Price Alerts', id: 'section-alerts' },
-];
-
-function openCmdBar() {
-  document.getElementById('cmdbar').classList.add('open');
-  document.getElementById('cmdbar-input').value = '';
-  renderCmdResults('');
-  setTimeout(() => document.getElementById('cmdbar-input').focus(), 50);
-}
-function closeCmdBar() { document.getElementById('cmdbar').classList.remove('open'); }
-
-function renderCmdResults(q) {
-  const filtered = CMD_SECTIONS.filter(s => !q || s.label.toLowerCase().includes(q.toLowerCase()) || s.key.toLowerCase().includes(q.toLowerCase()));
-  document.getElementById('cmdbar-results').innerHTML = filtered.map(s =>
-    `<div class="cmdbar-item" onclick="scrollToSection('${s.id}'); closeCmdBar();" tabindex="0" role="button" aria-label="Go to ${s.label}">
-      <span class="cmdbar-item-key">${s.key}</span>
-      <span>${s.label}</span>
-    </div>`).join('');
-}
-
-function scrollToSection(id) {
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-document.getElementById('cmdbar-input').addEventListener('input', e => renderCmdResults(e.target.value));
-document.getElementById('cmdbar').addEventListener('click', e => { if (e.target === e.currentTarget) closeCmdBar(); });
-document.getElementById('embed-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeEmbed(); });
-
-// Keyboard shortcuts
-document.addEventListener('keydown', e => {
-  if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); openCmdBar(); }
-  if (e.key === 'Escape') { closeCmdBar(); closeEmbed(); }
+});
+document.querySelectorAll('.mobile-tab').forEach(el => {
+  el.addEventListener('click', () => {
+    const p = el.dataset.period || CHART_CONFIG[el.dataset.chart]?.defaultPeriod || '7d';
+    loadChart(el.dataset.chart, p);
+  });
+});
+document.querySelectorAll('.tf-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.tf-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    loadChart(state.chart, b.dataset.tf);
+  });
 });
 
-// ── Utility ───────────────────────────────────────────────────────────────────
-function showLoading(id, show) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.style.display = show ? 'flex' : 'none';
-}
-function showError(id) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.style.display = 'flex';
-  const msg = el.querySelector('.msg');
-  if (msg) msg.innerHTML = '<span style="color:var(--coral)">Data unavailable</span>';
-}
-
-// Price polling intentionally removed — price updates event-driven via WS new-block message (LAW 1)
-
-// ── Bootstrap all charts on page load ────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  loadPriceChart(7, document.querySelector('[data-tf="7"]'));
-  loadHashrateChart();
-  loadPoolDistribution();
-  loadFearGreed();
-  loadLightning();
-  drawHODLWaves();
-  // renderValuationMetrics() is called at end of loadPriceChart() — no timeout needed
+document.getElementById('btn-ai').addEventListener('click', async () => {
+  if (!state.data || !state.data.length) return;
+  const cfg  = CHART_CONFIG[state.chart];
+  const vals = state.data.map(d => d[1]);
+  aiBox.classList.add('show'); aiTxt.textContent = 'Analysing…';
+  try {
+    const r = await fetch('/api/charts/ai-explain', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        chart_type: state.chart,
+        chart_data: {
+          current: vals[vals.length-1], period_high: Math.max(...vals),
+          period_low: Math.min(...vals), period: state.period,
+          unit: cfg.unit, data_points: vals.length,
+        },
+        question: `Analyse this ${cfg.title} chart for the ${state.period} period.`,
+      })
+    });
+    const d = await r.json();
+    aiTxt.textContent = d.explanation || 'Analysis unavailable.';
+  } catch { aiTxt.textContent = 'AI analysis temporarily unavailable.'; }
 });
+
+document.getElementById('btn-og').addEventListener('click', () => {
+  const c = ['price','hashrate','fear-greed'].includes(state.chart) ? state.chart : 'price';
+  window.open(`/api/charts/og-image?chart=${c}&period=${state.period}`, '_blank');
+});
+
+/* ── Resize re-render ─────────────────────────────────────────────────── */
+let _rt = null;
 window.addEventListener('resize', () => {
-  if (state.priceData) drawPriceChart();
-  drawHODLWaves();
+  clearTimeout(_rt);
+  _rt = setTimeout(() => { if (state.data) renderD3(state.data, CHART_CONFIG[state.chart]); }, 250);
 });
+
+/* ── Stat bar price refresh ───────────────────────────────────────────── */
+async function refreshPrice() {
+  try {
+    const r = await fetch('/api/charts/price-history?days=1');
+    if (!r.ok) return;
+    const d = await r.json();
+    const pts = d.prices || [];
+    if (pts.length < 2) return;
+    const last  = pts[pts.length-1][1];
+    const first = pts[0][1];
+    const pct   = ((last - first) / first) * 100;
+    const el = document.getElementById('sb-price');
+    if (el) el.textContent = '$' + d3.format(',.0f')(last);
+    const de = document.getElementById('sb-change');
+    if (de) de.innerHTML = fmtDelta(pct);
+  } catch {}
+}
+
+/* ── Background prefetch sidebar values ──────────────────────────────── */
+async function prefetchSidebar() {
+  const keys = ['price','hashrate','difficulty','mvrv','realized-price','fear-greed'];
+  for (const key of keys) {
+    try {
+      const cfg  = CHART_CONFIG[key];
+      const data = await fetchData(key, cfg.defaultPeriod);
+      if (data && data.length) updateSidebarItem(key, data);
+    } catch {}
+    await new Promise(r => setTimeout(r, 450));
+  }
+}
+
+/* ── Init ─────────────────────────────────────────────────────────────── */
+(async () => {
+  await loadChart('price', '7d');
+  await refreshPrice();
+  prefetchSidebar();
+  setInterval(refreshPrice, 60000);
+})();
 </script>
 {% endblock %}
