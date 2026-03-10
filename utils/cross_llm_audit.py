@@ -40,10 +40,21 @@ FEATURE_MAP = {
     "b1-newsletter":     ("B1_NEWSLETTER_GOSPEL.md",     "feature/b1-newsletter"),
     "v22-multi-format":  ("V22_MULTI_FORMAT_GOSPEL.md",  "feature/v22-multi-format"),
     "video-audio-fix":   ("VIDEO_AUDIO_FIX_GOSPEL.md",   "feature/video-audio-fix"),
+    # SESSION BUILDS (2026-03-10)
+    "session1-terminal":   ("SESSION_1_TERMINAL_SPEC.md",   "feature/session1-terminal"),
+    "session2-newsletter": ("SESSION_2_NEWSLETTER_SPEC.md", "feature/session2-newsletter"),
+    "session3-media":      ("SESSIONS_3_TO_10_SPECS.md",    "feature/session3-media-unified"),
+    "session4-charts":     ("SESSIONS_3_TO_10_SPECS.md",    "feature/session4-charts"),
+    "session5-mining":     ("SESSIONS_3_TO_10_SPECS.md",    "feature/session5-mining-intel"),
+    "session6-schiff":     ("SESSIONS_3_TO_10_SPECS.md",    "feature/session6-schiff-bot"),
+    "session7-oracle":     ("SESSIONS_3_TO_10_SPECS.md",    "feature/session7-oracle-avatar"),
+    "session8-nostr":      ("SESSIONS_3_TO_10_SPECS.md",    "feature/session8-nostr"),
+    "session9-nodes":      ("SESSIONS_3_TO_10_SPECS.md",    "feature/session9-node-watch"),
+    "session10-articles":  ("SESSIONS_3_TO_10_SPECS.md",    "feature/session10-articles"),
 }
 
 # High-stakes features get full 2-cycle audit. Others can use 1-cycle if score > 85.
-HIGH_STAKES = {"f1-avatar-oracle", "v30-terminal-api", "v22-multi-format", "f2-briefing-room"}
+HIGH_STAKES = {"f1-avatar-oracle", "v30-terminal-api", "v22-multi-format", "f2-briefing-room", "session1-terminal", "session10-articles"}
 
 # ─── AUDIT PACKAGE BUILDER ───────────────────────────────────────────────────
 
@@ -377,7 +388,7 @@ git push origin {FEATURE_MAP.get(feature, ('','feature/'+feature))[1]}
 """
 
     msg = client.messages.create(
-        model="claude-sonnet-4-6",
+        model=("claude-haiku-4-5-20251001" if cycle == 1 else "claude-sonnet-4-6"),
         max_tokens=6000,
         messages=[{"role": "user", "content": synthesis_prompt}]
     )
