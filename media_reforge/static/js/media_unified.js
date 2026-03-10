@@ -969,6 +969,14 @@ function updateSignalStrength() {
   splitFlap($('#sig-composite'), state.signalScore);
   splitFlap($('#sig-sentiment'), state.sentimentScore || 0);
   splitFlap($('#sig-spaces'), state.spacesScore || 0);
+
+  // P0-3 fix: write to correct DOM IDs (sig-composite, sig-sentiment, sig-spaces)
+  var sigComposite = document.getElementById('sig-composite');
+  var sigSentiment = document.getElementById('sig-sentiment');
+  var sigSpaces    = document.getElementById('sig-spaces');
+  if (sigComposite) splitFlap(sigComposite, state.signalScore);
+  if (sigSentiment) splitFlap(sigSentiment, Math.round(sentimentScore));
+  if (sigSpaces)    splitFlap(sigSpaces,    Math.round(nostrScore));
 }
 
 function updateNostrCount() {

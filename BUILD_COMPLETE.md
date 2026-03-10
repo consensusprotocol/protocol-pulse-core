@@ -1,54 +1,64 @@
-# BUILD COMPLETE — B1: NEWSLETTER ENGINE
-Feature ID: b1-newsletter
-Branch: feature/b1-newsletter
+# BUILD COMPLETE — F1: AVATAR ORACLE OVERHAUL
+Feature ID: f1-avatar-oracle
+Branch: feature/f1-avatar-oracle
 Completed: 2026-03-09
-Commit: (see below — built on top of 200fb70)
+Commit: da84454 (post-audit second pass — 2 consensus improvements)
 
 ---
 
 ## WHAT WAS BUILT
 
-### Routes (routes_newsletter_b1.py — Blueprint)
-- `POST /api/newsletter/subscribe` — subscribe with email, idempotent
-- `GET /unsubscribe` — CAN-SPAM unsubscribe via ?token=UUID (LAW 4)
-- `POST /api/newsletter/send` — admin-triggered manual send (auth required)
+### Oracle Server (oracle/avatar_server.py — 970 lines)
+- Wav2Lip ONLY for lip-sync (batch_size=48, FP16, GPU-cached)
+- apply_blink() body = `return frame` (disabled permanently per LAW)
+- NO HeyGen calls — Wav2Lip is the exclusive animation engine
+- REST API: POST /generate, GET /health, POST /reload-avatar
+- Production-grade error handling + GPU memory management
 
-### Service (services/newsletter_service.py — 716 lines)
-- `subscribe(email, source)` — atomic subscribe with UUID unsubscribe_token
-- `unsubscribe(token)` — mark subscriber inactive
-- `already_sent_today()` — LAW 2 idempotency gate
-- `build_newsletter_html(...)` — LAW 3 format: BTC price, top story, 4 others, network stat, oracle signal, CTA, footer, unsubscribe link
-- `send_daily_newsletter(force)` — full send pipeline with Resend batch API
-- `send_test_newsletter(to_email)` — test send to single address
+### Blink Engine (oracle/blink_engine.py — 196 lines)
+- Standalone blink effect module (disabled in oracle server per LAW)
+- Interval: 3.0-4.0s centered at 3.5s, duration 0.15s
 
-### Models (models.py — added)
-- `NewsletterSubscriber` — email, unsubscribe_token (UUID), subscribed, source
-- `NewsletterSend` — send log for LAW 2 idempotency (subject, resend_batch_id, recipient_count, sent_at)
+### Oracle Sanctuary Template (templates/oracle.html — 383 lines)
+- Anime cyberpunk persona "Proto-P"
+- Dark glassmorphism panels
+- Live avatar stream via WebRTC/video element
+- Question submission form with animation
+- Signal feed panel
 
-### Cron (cron/newsletter_cron.py)
-- Scheduler loop: sends at 08:00 ET (13:00 UTC) daily
-- `--now` flag: immediate send
-- `--test EMAIL` flag: test send
-- System cron: `0 13 * * * cd /home/ultron/protocol_pulse && python3 cron/newsletter_cron.py --now`
+### Oracle V2 Template (templates/oracle_v2.html)
+- Alternative layout tested during build
 
-### App Registration (app.py)
-- `newsletter_b1_bp` registered at module level (hard-fail if missing — no silent swallow)
+### Oracle Routes (oracle_routes.py)
+- `/oracle` — main sanctuary page
+- `/api/oracle/ask` — submit question → TTS → Wav2Lip → response
+- `/api/oracle/signal` — latest oracle signal
+
+### Viseme Module (oracle/viseme/)
+- `viseme_generator.py` — phoneme-to-viseme mapping
+- `bitcoin_lexicon.py` — Bitcoin-specific pronunciation rules
+- `oracle-avatar.js` — client-side viseme animation
+- `OracleAvatarLive.jsx` — React component (alternative path)
 
 ---
 
 ## AUDIT SUMMARY
 
-### Audit Grade (Cycle 1 — before second pass)
-- Backend Logic: ~17/100 → second pass resolved core implementation gaps
-- Law Compliance: ~7/100 → RESEND_API_KEY startup validation + blueprint registration fixed
+### Audit Grade (Cycle 2 — before second passes)
+- Overall: 2.4/10 → 6 fixes in two second passes
 
-### Key P0/P1 Findings Fixed
-1. U1 — Core implementation was absent (routes/service/models) → fully implemented
-2. U2 — RESEND_API_KEY validation at startup → critical log if missing
-3. U3 — Blueprint registration in hard-fail mode (no try/except swallow)
-4. U4 — _resend_api_key() reads from env at call time (supports late .env)
-5. U5 — Idempotency keys per batch: pp-newsletter-{date}-batch{N} (double-send safe)
-6. P1 — get_json(silent=True) for safe handling of malformed JSON
+### Key P0/P1 Findings Fixed (6 total)
+1. P1-3 — API cache headers: /api/* changed from public to private, no-store
+2. P0-3 — Signal gauge DOM ID mismatch fixed (#sig-composite, #sig-sentiment, #sig-spaces)
+3. P0-1 — Oracle route registration hard-fail (no try/except swallow)
+4. P0-2 — TTS timeout guard on ElevenLabs calls
+5. P1-1 — Wav2Lip batch_size and FP16 explicitly enforced
+6. P1-2 — GPU memory cleared after each generate call
+
+### Critical Laws Verified
+- ✅ Wav2Lip ONLY for lip-sync
+- ✅ apply_blink() body = `return frame` (disabled)
+- ✅ NO HeyGen calls for Oracle avatar
 
 ---
 
@@ -58,7 +68,7 @@ Commit: (see below — built on top of 200fb70)
 ---
 
 ## PBX ACTIONS REQUIRED
-1. `RESEND_API_KEY` must be in `.env` (newsletter silently disabled without it, logs CRITICAL)
-2. DNS: `pulse@protocolpulse.io` must be verified in Resend dashboard
-3. System cron: `0 13 * * * cd /home/ultron/protocol_pulse && python3 cron/newsletter_cron.py --now`
-4. Test send: `python3 cron/newsletter_cron.py --test pbx@protocolpulse.io`
+1. Oracle server restart may be needed: `tmux kill-session -t avatar; tmux new-session -d -s avatar; tmux send-keys -t avatar "cd ~/protocol_pulse/oracle && python3 avatar_server.py" Enter`
+2. Verify Proto_P_Avatar_512.png is in oracle/assets/
+3. ELEVENLABS_API_KEY must be in .env for TTS
+4. Health check: `curl -s http://localhost:8200/health`

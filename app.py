@@ -42,8 +42,13 @@ db = SQLAlchemy(model_class=Base)
 _core_dir = Path(__file__).resolve().parent
 app = Flask(__name__, template_folder=str(_core_dir / "templates"), static_folder=str(_core_dir / "static"))
 
-# Security: Uses .env secret, but provides a fallback for local dev
-app.secret_key = os.environ.get("SESSION_SECRET", "dev_secret_key_protocol_pulse_2026")
+# Security: SECRET must be set in environment — no silent insecure fallback
+_session_secret = os.environ.get("SESSION_SECRET", "")
+if not _session_secret:
+    logging.critical("SESSION_SECRET not set — using ephemeral key. Set SESSION_SECRET in environment for production.")
+    import secrets as _secrets_mod
+    _session_secret = _secrets_mod.token_hex(32)
+app.secret_key = _session_secret
 
 # Public network endpoints (local by default, cloudflared-ready when set in .env)
 app.config["PUBLIC_HUB_URL"] = os.environ.get("PUBLIC_HUB_URL", "http://127.0.0.1:5000").rstrip("/")
@@ -155,10 +160,10 @@ def add_headers(response):
             response.cache_control.max_age = 86400
             response.cache_control.public = True
     elif request.path.startswith("/api/"):
-        # API endpoints: short cache
+        # P1-3: API endpoints default to private/no-store — prevents user-specific
+        # data leaking through shared caches. Individual routes may opt into caching.
         if "Cache-Control" not in response.headers:
-            response.cache_control.max_age = 60
-            response.cache_control.public = True
+            response.headers["Cache-Control"] = "private, no-store"
     else:
         # HTML pages: no-cache but allow revalidation
         if "Cache-Control" not in response.headers:
@@ -171,17 +176,21 @@ def add_headers(response):
 @app.template_filter('inject_ads')
 def inject_ads(content):
     import models
+    from flask import g
     try:
-        active_ads = models.Advertisement.query.filter_by(is_active=True).all()
+        if not hasattr(g, '_active_ads'):
+            g._active_ads = models.Advertisement.query.filter_by(is_active=True).all()
+        active_ads = g._active_ads
         if not active_ads:
             return content
         ad = random.choice(active_ads)
+        from markupsafe import escape as _esc
         ad_html = f'''
         <div class="native-ad-unit my-4 p-3 border-start border-danger bg-dark rounded">
             <small class="text-muted d-block mb-2 text-uppercase" style="letter-spacing: 1px; font-size: 0.7rem;">Protocol Partner</small>
             <a href="/ads/go/{ad.id}" rel="noopener" class="text-decoration-none">
-                <img src="{ad.image_url}" class="img-fluid mb-2 rounded" style="max-height: 150px;" alt="{ad.name}">
-                <p class="mb-0 text-white fw-bold">{ad.name}</p>
+                <img src="{_esc(ad.image_url or '')}" class="img-fluid mb-2 rounded" style="max-height: 150px;" alt="{_esc(ad.name or '')}">
+                <p class="mb-0 text-white fw-bold">{_esc(ad.name or '')}</p>
             </a>
         </div>
         '''
@@ -226,7 +235,10 @@ def article_header_display_filter(article):
 @login_manager.user_loader
 def load_user(user_id):
     import models
-    return models.User.query.get(int(user_id))
+    try:
+        return models.User.query.get(int(user_id))
+    except (ValueError, TypeError):
+        return None
 
 # =====================================
 # THE IGNITION ZONE (CRITICAL ORDER)

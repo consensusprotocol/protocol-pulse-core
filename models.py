@@ -1296,3 +1296,26 @@ class NewsletterSend(db.Model):
     __table_args__ = (
         db.Index('idx_newsletter_sends_at', 'sent_at'),
     )
+
+
+# =====================================
+# ORACLE SESSION — F1 Avatar System
+# =====================================
+
+class OracleSession(db.Model):
+    __tablename__ = 'oracle_sessions'
+    __table_args__ = (
+        db.Index('idx_oracle_sessions_created', 'created_at'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(db.Text, nullable=False)
+    question = db.Column(db.Text, nullable=False)
+    transcript = db.Column(db.Text)
+    video_url = db.Column(db.Text)
+    duration_seconds = db.Column(db.Float)
+    voice_id = db.Column(db.String(60), default='cgSgspJ2msm6clMCkdW9')
+    generation_ms = db.Column(db.Integer)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, nullable=True)
+    ip_hash = db.Column(db.String(64), nullable=True)

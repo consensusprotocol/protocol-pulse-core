@@ -3,7 +3,7 @@ from flask_login import login_required, login_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from app import app, db
-from models import Article, Podcast, ContentPrompt, User, Advertisement, AutomationRun, LaunchSequence, TargetAlert, NostrEvent, ReplySquadMember, EngagementEvent, ContentPerformance, AnalyticsSummary, UserSegment, Sponsor, CreditAccount, PredictionOracle, WhaleTransaction, AffiliatePartner, AffiliateClick, FeedItem, SentimentSnapshot, PulseEvent, AutoPostDraft, DailyBrief
+from models import Article, Podcast, ContentPrompt, User, Advertisement, AutomationRun, LaunchSequence, TargetAlert, NostrEvent, ReplySquadMember, EngagementEvent, ContentPerformance, AnalyticsSummary, UserSegment, Sponsor, CreditAccount, PredictionOracle, WhaleTransaction, AffiliatePartner, AffiliateClick, FeedItem, SentimentSnapshot, PulseEvent, AutoPostDraft, DailyBrief, OracleSession
 import hashlib
 import json
 from functools import wraps
@@ -9103,3 +9103,205 @@ def api_media_meta_briefing():
     except Exception as e:
         logging.error(f"meta-briefing error: {e}")
         return jsonify({'brief': None, 'headline': 'Intelligence offline', 'stance': 'NEUTRAL', 'cached_at': None}), 200
+
+# ═══════════════════════════════════════════════════════════════════════
+# ORACLE — F1 Avatar System + Oracle Sanctuary UI
+# ═══════════════════════════════════════════════════════════════════════
+
+import time as _time
+
+_AVATAR_SERVER_URL = os.environ.get('AVATAR_SERVER_URL', 'http://localhost:8200')
+_ORACLE_VOICE_ID = 'cgSgspJ2msm6clMCkdW9'  # Jessica — LAW 3
+_ORACLE_MAX_QUESTION_LEN = 500
+_ORACLE_RATE_LIMIT_PER_HOUR = 10
+_ORACLE_VIDEO_DIR = os.path.join(os.path.dirname(__file__), 'static', 'oracle_videos')
+_oracle_rate_map = {}  # ip_hash -> [timestamps]
+
+_ORACLE_SYSTEM_PROMPT = (
+    "You are The Oracle — Protocol Pulse's sovereign Bitcoin intelligence analyst. "
+    "Deliver concise, authoritative briefings. Keep responses to 3-5 sentences max. "
+    "Be direct, data-driven, occasionally philosophical about Bitcoin's role in "
+    "financial sovereignty. Never use markdown formatting — plain text only. "
+    "Do not introduce yourself — just answer."
+)
+
+try:
+    os.makedirs(_ORACLE_VIDEO_DIR, exist_ok=True)
+except OSError:
+    pass
+
+
+def _oracle_anthropic_key():
+    key = os.environ.get('ANTHROPIC_API_KEY', '')
+    if not key:
+        env_path = os.path.join(os.path.dirname(__file__), '.env')
+        try:
+            if os.path.exists(env_path):
+                for line in open(env_path):
+                    if line.startswith('ANTHROPIC_API_KEY='):
+                        key = line.strip().split('=', 1)[1].strip().strip("\"'")
+                        break
+        except OSError:
+            pass
+    return key
+
+
+def _oracle_rate_ok(ip_hash):
+    """Return True if this IP is under the rate limit, False if exceeded."""
+    now = _time.time()
+    window_start = now - 3600
+    times = _oracle_rate_map.get(ip_hash, [])
+    times = [t for t in times if t > window_start]
+    if len(times) >= _ORACLE_RATE_LIMIT_PER_HOUR:
+        _oracle_rate_map[ip_hash] = times
+        return False
+    times.append(now)
+    _oracle_rate_map[ip_hash] = times
+    return True
+
+
+@app.route('/oracle')
+def oracle_page():
+    """Oracle Sanctuary — Bitcoin Intelligence."""
+    return render_template('oracle.html')
+
+
+@app.route('/api/oracle/ask', methods=['POST'])
+def oracle_ask():
+    """Generate Oracle response: Claude AI + ElevenLabs TTS + Wav2Lip lip-sync."""
+    t_start = _time.time()
+
+    data = request.get_json(silent=True) or {}
+    question = (data.get('question') or data.get('message') or '').strip()
+    if not question:
+        return jsonify({'error': 'question required'}), 400
+
+    # Sanitize: max length
+    question = question[:_ORACLE_MAX_QUESTION_LEN]
+
+    # Rate limiting by hashed IP
+    raw_ip = (request.headers.get('X-Forwarded-For', '') or request.remote_addr or '').split(',')[0].strip()
+    ip_hash = hashlib.sha256(raw_ip.encode()).hexdigest()[:32]
+    if not _oracle_rate_ok(ip_hash):
+        return jsonify({'error': 'Rate limit reached. The Oracle rests — try again shortly.'}), 429
+
+    session_id = str(uuid.uuid4())[:16]
+
+    # ── Step 1: Generate AI transcript ──────────────────────────────────
+    transcript = None
+    try:
+        api_key = _oracle_anthropic_key()
+        if api_key:
+            ai_resp = requests.post(
+                'https://api.anthropic.com/v1/messages',
+                headers={
+                    'x-api-key': api_key,
+                    'anthropic-version': '2023-06-01',
+                    'content-type': 'application/json',
+                },
+                json={
+                    'model': 'claude-sonnet-4-20250514',
+                    'max_tokens': 200,
+                    'system': _ORACLE_SYSTEM_PROMPT,
+                    'messages': [{'role': 'user', 'content': question}],
+                },
+                timeout=20,
+            )
+            if ai_resp.status_code == 200:
+                transcript = ai_resp.json()['content'][0]['text'].strip()
+    except Exception as e:
+        logging.warning(f'Oracle AI generation failed: {e}')
+
+    if not transcript:
+        transcript = (
+            'The protocol signal persists. Bitcoin is the only monetary system '
+            'with a fixed supply enforced by mathematics, not human promises. '
+            'The signal endures.'
+        )
+
+    # ── Step 2: Avatar server — TTS + Wav2Lip → MP4 ─────────────────────
+    video_url = None
+    duration_seconds = None
+    try:
+        av_resp = requests.post(
+            f'{_AVATAR_SERVER_URL}/generate',
+            json={
+                'text': transcript,
+                'voice_id': _ORACLE_VOICE_ID,
+                'enable_blinks': False,   # LAW 2: ship without blinking
+                'enable_head_movement': True,
+                'enable_face_enhance': True,
+            },
+            timeout=45,
+            stream=True,
+        )
+        if av_resp.status_code == 200:
+            os.makedirs(_ORACLE_VIDEO_DIR, exist_ok=True)
+            video_filename = f'{session_id}.mp4'
+            video_path = os.path.join(_ORACLE_VIDEO_DIR, video_filename)
+            with open(video_path, 'wb') as vf:
+                for chunk in av_resp.iter_content(chunk_size=65536):
+                    if chunk:
+                        vf.write(chunk)
+            if os.path.exists(video_path) and os.path.getsize(video_path) > 1024:
+                video_url = f'/static/oracle_videos/{video_filename}'
+                x_dur = av_resp.headers.get('X-Duration')
+                if x_dur:
+                    try:
+                        duration_seconds = float(x_dur)
+                    except (ValueError, TypeError):
+                        pass
+    except Exception as e:
+        logging.warning(f'Oracle avatar generation failed: {e}')
+
+    generation_ms = int((_time.time() - t_start) * 1000)
+
+    # ── Step 3: Log to oracle_sessions ──────────────────────────────────
+    try:
+        os_record = OracleSession(
+            session_id=session_id,
+            question=question,
+            transcript=transcript,
+            video_url=video_url,
+            duration_seconds=duration_seconds,
+            voice_id=_ORACLE_VOICE_ID,
+            generation_ms=generation_ms,
+            user_id=current_user.id if current_user.is_authenticated else None,
+            ip_hash=ip_hash,
+        )
+        db.session.add(os_record)
+        db.session.commit()
+    except Exception as e:
+        logging.warning(f'Oracle session log failed: {e}')
+        try:
+            db.session.rollback()
+        except Exception:
+            pass
+
+    return jsonify({
+        'video_url': video_url,
+        'transcript': transcript,
+        'generation_ms': generation_ms,
+        'session_id': session_id,
+    })
+
+
+@app.route('/api/oracle/recent')
+def oracle_recent():
+    """Return the 5 most recent Oracle sessions (questions + transcripts)."""
+    try:
+        sessions = (
+            OracleSession.query
+            .order_by(OracleSession.created_at.desc())
+            .limit(5)
+            .all()
+        )
+        return jsonify([{
+            'question': s.question,
+            'transcript': s.transcript,
+            'video_url': s.video_url,
+            'created_at': s.created_at.isoformat() if s.created_at else None,
+        } for s in sessions])
+    except Exception as e:
+        logging.warning(f'Oracle recent fetch failed: {e}')
+        return jsonify([])

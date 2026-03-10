@@ -187,3 +187,10 @@ def generate_blink_schedule(num_frames, fps, interval_min=2.5, interval_max=5.0,
         t += duration + random.uniform(interval_min, interval_max)
 
     return blink_frames
+
+
+def apply_blink(frame, intensity=0.0, face_coords=None):
+    """LAW 2: Permanently disabled — black oval artifact prevention.
+    Body is return frame per gospel. Do not re-enable.
+    """
+    return frame
