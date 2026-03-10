@@ -9,6 +9,7 @@ New API endpoints (no conflict with routes.py):
   GET /api/charts/mvrv?period=1y           — CoinMetrics community MVRV
   GET /api/charts/realized-price?period=1y — CoinMetrics community realized price
   GET /api/charts/fg-history?period=1y     — alternative.me F&G history (365 pts)
+  GET /api/charts/s2f?period=all           — Stock-to-Flow model price (computed, no API)
   GET /api/charts/og-image?chart=price     — matplotlib server-side OG image
 
 Existing routes.py endpoints preserved:
@@ -23,7 +24,8 @@ import requests as _req
 import time as _time
 import logging
 import functools
-from datetime import datetime, timezone
+import math
+from datetime import datetime, timezone, timedelta
 
 charts_bp = Blueprint("charts_bp", __name__)
 
@@ -308,6 +310,73 @@ def api_charts_fg_history():
         })
     except Exception as e:
         logging.error("api_charts_fg_history error: %s", e)
+        return jsonify({"error": "internal error", "data": []}), 500
+
+
+@charts_bp.route("/api/charts/s2f")
+def api_charts_s2f():
+    """
+    Stock-to-Flow model price series — computed server-side, no external API.
+    Returns both the S2F model price and the ratio.
+    """
+    try:
+        period = request.args.get("period", "1y")
+        days = _period_to_days(period)
+        days_back = days if isinstance(days, int) else 1825  # max=5y
+
+        HALVINGS = [
+            (datetime(2009,  1,  3, tzinfo=timezone.utc), 50.0),
+            (datetime(2012, 11, 28, tzinfo=timezone.utc), 25.0),
+            (datetime(2016,  7,  9, tzinfo=timezone.utc), 12.5),
+            (datetime(2020,  5, 11, tzinfo=timezone.utc), 6.25),
+            (datetime(2024,  4, 20, tzinfo=timezone.utc), 3.125),
+        ]
+        BLOCKS_PER_YEAR = 52_560   # 144 blocks/day × 365
+        BLOCKS_PER_DAY  = 144
+
+        def _subsidy_at(dt):
+            s = 50.0
+            for halving_dt, sub in HALVINGS:
+                if dt >= halving_dt:
+                    s = sub
+            return s
+
+        def _supply_at(dt):
+            total = 0.0
+            for i, (halving_dt, sub) in enumerate(HALVINGS):
+                epoch_end = HALVINGS[i + 1][0] if i + 1 < len(HALVINGS) else dt
+                if dt <= halving_dt:
+                    break
+                end = min(dt, epoch_end)
+                days_in_epoch = max(0, (end - halving_dt).days)
+                total += days_in_epoch * BLOCKS_PER_DAY * sub
+            return total
+
+        now = datetime.now(timezone.utc)
+        start = now - timedelta(days=days_back)
+        pts = []
+        cur = start
+        step = timedelta(days=7)
+        while cur <= now:
+            supply = _supply_at(cur)
+            subsidy = _subsidy_at(cur)
+            flow = BLOCKS_PER_YEAR * subsidy
+            if flow > 0 and supply > 0:
+                s2f_ratio = supply / flow
+                # PlanB's simplified model: price ≈ exp(−1.84) × SF^3.36
+                model_price = round(math.exp(-1.84) * (s2f_ratio ** 3.36), 2)
+                pts.append([int(cur.timestamp() * 1000), model_price])
+            cur += step
+
+        return jsonify({
+            "data": pts,
+            "source": "Computed (PlanB S2F model)",
+            "unit": "USD model",
+            "period": period,
+            "note": "S2F model price = exp(-1.84) × SF^3.36",
+        })
+    except Exception as e:
+        logging.error("api_charts_s2f error: %s", e)
         return jsonify({"error": "internal error", "data": []}), 500
 
 

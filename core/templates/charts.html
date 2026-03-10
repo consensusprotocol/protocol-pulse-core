@@ -270,6 +270,7 @@ body { background: var(--bg); color: var(--text); font-family: 'JetBrains Mono',
     <button class="mobile-tab" data-chart="difficulty" data-period="1y">Difficulty</button>
     <button class="mobile-tab" data-chart="mvrv" data-period="1y">MVRV</button>
     <button class="mobile-tab" data-chart="realized-price" data-period="1y">Realized Price</button>
+    <button class="mobile-tab" data-chart="s2f" data-period="all">S2F Model</button>
     <button class="mobile-tab" data-chart="fear-greed" data-period="1y">Fear & Greed</button>
     <button class="mobile-tab" data-chart="mempool" data-period="7d">Mempool</button>
     <button class="mobile-tab" data-chart="fees" data-period="30d">Fees</button>
@@ -320,6 +321,13 @@ body { background: var(--bg); color: var(--text); font-family: 'JetBrains Mono',
         <div style="text-align:right">
           <div class="ci-value" id="ci-val-realized-price">—</div>
           <div class="ci-delta" id="ci-delta-realized-price">—</div>
+        </div>
+      </div>
+      <div class="chart-item" data-chart="s2f" data-period="all">
+        <span class="ci-name">S2F Model</span>
+        <div style="text-align:right">
+          <div class="ci-value" id="ci-val-s2f">—</div>
+          <div class="ci-delta" id="ci-delta-s2f">—</div>
         </div>
       </div>
 
@@ -469,6 +477,12 @@ const CHART_CONFIG = {
     apiPath: '/api/charts/realized-price', color: '#60A5FA', unit: 'USD', defaultPeriod: '1y',
     fmtVal:  v => '$' + d3.format(',.0f')(v),
     fmtAxis: v => '$' + d3.format(',.0f')(v),
+  },
+  s2f: {
+    title: 'Stock-to-Flow Model', subtitle: 'PlanB S2F model price (USD)',
+    apiPath: '/api/charts/s2f', color: '#D97706', unit: 'USD model', defaultPeriod: 'all',
+    fmtVal:  v => '$' + d3.format(',.0f')(v),
+    fmtAxis: v => '$' + (v >= 1e6 ? d3.format('.2s')(v) : d3.format(',.0f')(v)),
   },
   'fear-greed': {
     title: 'Fear & Greed Index', subtitle: '0 = Extreme Fear · 100 = Extreme Greed',
@@ -820,7 +834,7 @@ async function refreshPrice() {
 
 /* ── Background prefetch sidebar values ──────────────────────────────── */
 async function prefetchSidebar() {
-  const keys = ['price','hashrate','difficulty','mvrv','realized-price','fear-greed'];
+  const keys = ['price','hashrate','difficulty','mvrv','realized-price','s2f','fear-greed'];
   for (const key of keys) {
     try {
       const cfg  = CHART_CONFIG[key];
