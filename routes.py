@@ -1,3 +1,8 @@
+# DEPRECATED — routes.py (monolithic)
+# SESSION 2: Blueprint architecture introduced. New routes go in core/blueprints/.
+# Migrated to blueprints: /newsletter (GET), /newsletter/subscribe (POST)
+# Remaining routes will be migrated to core/blueprints/ in future sessions.
+# ---
 from flask import render_template, request, jsonify, redirect, url_for, flash, make_response, session
 from flask_login import login_required, login_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -2050,25 +2055,7 @@ def contact():
     """Contact page"""
     return render_template('contact.html')
 
-@app.route('/newsletter/subscribe', methods=['POST'])
-def newsletter_subscribe():
-    """Handle newsletter subscription requests"""
-    try:
-        email = request.form.get('email')
-        if not email:
-            flash('Email address is required.', 'error')
-            return redirect(url_for('index'))
-        
-        success = newsletter_service.subscribe_user(email)
-        if success:
-            flash('Successfully subscribed to Protocol Pulse newsletter!', 'success')
-        else:
-            flash('Newsletter subscription failed. Please try again.', 'error')
-    except Exception as e:
-        logging.error(f"Newsletter subscription error: {e}")
-        flash('An error occurred. Please try again.', 'error')
-    
-    return redirect(url_for('index'))
+# /newsletter/subscribe (POST) — moved to core/blueprints/newsletter.py (SESSION 2)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -9748,18 +9735,7 @@ def intelligence_page():
     return render_template('intelligence_page.html', signal=signal, trending=trending, entities=entities, narrative_timeline=narrative_timeline, intel_events=intel_events, article_count_24h=article_count_24h, top_articles=top_articles, signal_json=_json.dumps(signal, default=str), trending_json=_json.dumps(trending))
 
 
-@app.route('/newsletter')
-def newsletter_page():
-    """Newsletter subscription landing page."""
-    return render_template('newsletter_subscribe.html') if False else (
-        '<html><body style="background:#000;color:#fff;font-family:monospace;padding:40px">'
-        '<h1 style="color:#dc2626">Protocol Pulse Newsletter</h1>'
-        '<p>Subscribe for daily Bitcoin intelligence.</p>'
-        '<form action="/newsletter/subscribe" method="POST">'
-        '<input type="email" name="email" placeholder="your@email.com" required style="padding:10px;width:300px;background:#111;color:#fff;border:1px solid #333;margin-right:10px">'
-        '<button type="submit" style="padding:10px 20px;background:#dc2626;color:#fff;border:none;cursor:pointer">Subscribe</button>'
-        '</form></body></html>'
-    )
+# /newsletter (GET) — moved to core/blueprints/newsletter.py (SESSION 2)
 
 
 @app.route('/oracle-live')

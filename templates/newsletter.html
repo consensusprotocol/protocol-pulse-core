@@ -1,0 +1,610 @@
+{% extends "base.html" %}
+
+{% block title %}Protocol Pulse Newsletter — Bitcoin Intelligence, Delivered Daily{% endblock %}
+
+{% block meta_description %}80 sources. Distilled to 5 minutes. Every morning. Join the Protocol Pulse daily Bitcoin intelligence briefing.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="Protocol Pulse Newsletter — Bitcoin Intelligence, Delivered Daily">
+<meta property="og:description" content="80 sources. Distilled to 5 minutes. Every morning. Join thousands receiving the daily Pulse Check briefing.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protocol Pulse">
+<meta property="og:image" content="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+{% endblock %}
+
+{% block content %}
+<style>
+/* ── Newsletter Page — Protocol Pulse Design System ── */
+:root {
+  --gold: #F8C15C;
+  --red: #dc2626;
+  --bg: #000;
+  --surface: #0a0a0a;
+  --surface2: #111;
+  --border: #1e1e1e;
+  --text: #e8e8e8;
+  --text-secondary: #888;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+.nl-page { background: var(--bg); min-height: 100vh; }
+
+/* ── HERO ── */
+.nl-hero {
+  position: relative;
+  padding: 100px 0 80px;
+  text-align: center;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+.nl-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(220,38,38,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.nl-hero-eyebrow {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--red);
+  border: 1px solid rgba(220,38,38,0.3);
+  padding: 5px 14px;
+  border-radius: 3px;
+  margin-bottom: 28px;
+}
+.nl-hero h1 {
+  font-family: var(--mono);
+  font-size: clamp(28px, 5vw, 54px);
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: -1px;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  text-shadow: 0 0 60px rgba(248,193,92,0.2);
+}
+.nl-hero-sub {
+  font-size: clamp(15px, 2vw, 19px);
+  color: var(--text-secondary);
+  max-width: 520px;
+  margin: 0 auto 40px;
+  line-height: 1.6;
+}
+.nl-form-wrap {
+  max-width: 500px;
+  margin: 0 auto 24px;
+}
+.nl-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.nl-input {
+  flex: 1;
+  min-width: 220px;
+  padding: 14px 18px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.nl-input:focus { border-color: var(--red); }
+.nl-input::placeholder { color: #444; }
+.nl-btn {
+  padding: 14px 28px;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  white-space: nowrap;
+}
+.nl-btn:hover { background: #b91c1c; transform: translateY(-1px); }
+.nl-btn:active { transform: translateY(0); }
+.nl-social-proof {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+}
+.nl-social-proof span { color: var(--gold); font-weight: 700; }
+.nl-toast {
+  display: none;
+  margin-top: 16px;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 13px;
+  text-align: center;
+}
+.nl-toast.success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #22c55e; }
+.nl-toast.error { background: rgba(220,38,38,0.1); border: 1px solid rgba(220,38,38,0.3); color: #f87171; }
+
+/* ── PREVIEW SECTION ── */
+.nl-preview {
+  padding: 80px 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.nl-section-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+.nl-section-title {
+  font-family: var(--mono);
+  font-size: clamp(20px, 3vw, 28px);
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 40px;
+}
+/* Email mockup */
+.nl-email-mockup {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #111;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03);
+}
+.nl-email-chrome {
+  background: #1a1a1a;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #222;
+}
+.nl-dot { width: 12px; height: 12px; border-radius: 50%; }
+.nl-dot.r { background: #dc2626; }
+.nl-dot.y { background: #f59e0b; }
+.nl-dot.g { background: #22c55e; }
+.nl-chrome-url {
+  flex: 1;
+  background: #0d0d0d;
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #555;
+  margin-left: 8px;
+}
+/* Email inner */
+.nl-email-header {
+  padding: 24px 28px 18px;
+  background: linear-gradient(135deg, #0d0d0d 0%, #130000 100%);
+  border-bottom: 2px solid var(--red);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.nl-email-logo {
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: var(--red);
+}
+.nl-email-date {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+.nl-email-btc { text-align: right; }
+.nl-email-btc-price {
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+}
+.nl-email-btc-change {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+}
+.nl-email-btc-change.pos { color: #22c55e; }
+.nl-email-btc-change.neg { color: #ef4444; }
+.nl-email-signal {
+  margin: 0;
+  padding: 12px 28px;
+  background: #0d0d0d;
+  border-bottom: 1px solid #1a1a1a;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.nl-signal-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #555;
+}
+.nl-signal-score {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold);
+}
+.nl-signal-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-weight: 700;
+}
+.nl-signal-tag.BULLISH { background: rgba(34,197,94,0.15); color: #22c55e; }
+.nl-signal-tag.BEARISH { background: rgba(220,38,38,0.15); color: #f87171; }
+.nl-signal-tag.NEUTRAL { background: rgba(248,193,92,0.15); color: var(--gold); }
+.nl-email-articles { padding: 20px 28px; }
+.nl-lead-story {
+  border-left: 3px solid var(--red);
+  padding-left: 14px;
+  margin-bottom: 20px;
+}
+.nl-lead-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--red);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.nl-lead-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.35;
+  margin-bottom: 8px;
+}
+.nl-lead-summary { font-size: 13px; color: #888; line-height: 1.6; }
+.nl-story-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #1a1a1a;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.nl-story-item:last-child { border-bottom: none; }
+.nl-story-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #333;
+  min-width: 18px;
+}
+.nl-story-title {
+  font-size: 13px;
+  color: #c0c0c0;
+  line-height: 1.4;
+}
+.nl-email-footer {
+  padding: 16px 28px;
+  background: #0a0a0a;
+  border-top: 1px solid #1a1a1a;
+  text-align: center;
+}
+.nl-email-footer-text {
+  font-size: 11px;
+  color: #333;
+  font-family: var(--mono);
+}
+/* CTA below preview */
+.nl-preview-cta {
+  max-width: 600px;
+  margin: 32px auto 0;
+  text-align: center;
+}
+.nl-preview-cta-text {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+.nl-preview-cta-form { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+/* ── STATS SECTION ── */
+.nl-stats {
+  padding: 80px 0;
+  border-bottom: 1px solid var(--border);
+}
+.nl-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.nl-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 28px 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.nl-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--red), transparent);
+}
+.nl-stat-value {
+  font-family: var(--mono);
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--gold);
+  margin-bottom: 8px;
+  line-height: 1;
+}
+.nl-stat-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* ── FOOTER CTA ── */
+.nl-footer-cta {
+  padding: 80px 0;
+  text-align: center;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+.nl-footer-cta h2 {
+  font-family: var(--mono);
+  font-size: clamp(20px, 3vw, 32px);
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+.nl-footer-cta p {
+  color: var(--text-secondary);
+  font-size: 15px;
+  margin-bottom: 32px;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+<div class="nl-page">
+
+  <!-- ── HERO ─────────────────────────────────────────────────────────── -->
+  <section class="nl-hero">
+    <div class="container">
+      <div class="nl-hero-eyebrow">Daily Bitcoin Briefing</div>
+      <h1>BITCOIN INTELLIGENCE.<br>DELIVERED DAILY.</h1>
+      <p class="nl-hero-sub">80 sources. Distilled to 5 minutes. Every morning.</p>
+
+      <div class="nl-form-wrap">
+        <form class="nl-form" id="heroForm" onsubmit="nlSubscribe(event, 'heroForm')">
+          <input
+            type="email"
+            name="email"
+            class="nl-input"
+            placeholder="your@email.com"
+            required
+            autocomplete="email"
+          >
+          <button type="submit" class="nl-btn" id="heroBtn">JOIN THE SIGNAL</button>
+        </form>
+        <div class="nl-toast" id="heroToast"></div>
+        <p class="nl-social-proof" style="margin-top:16px">
+          Join <span>{{ subscriber_count if subscriber_count > 0 else '—' }}</span>
+          subscribers receiving the daily Pulse Check briefing
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── EMAIL PREVIEW ─────────────────────────────────────────────────── -->
+  <section class="nl-preview">
+    <div class="container">
+      <div class="nl-section-label">What You'll Receive</div>
+      <div class="nl-section-title">Today's Pulse Check — <span style="color:var(--gold)">{{ today_str }}</span></div>
+
+      <!-- Browser/email mockup -->
+      <div class="nl-email-mockup">
+        <!-- Chrome bar -->
+        <div class="nl-email-chrome">
+          <div class="nl-dot r"></div>
+          <div class="nl-dot y"></div>
+          <div class="nl-dot g"></div>
+          <div class="nl-chrome-url">Daily Bitcoin Intelligence Brief &mdash; {{ today_str }}</div>
+        </div>
+
+        <!-- Email header -->
+        <div class="nl-email-header">
+          <div>
+            <div class="nl-email-logo">PROTOCOL PULSE</div>
+            <div class="nl-email-date">Bitcoin Intelligence Brief &mdash; {{ today_str }}</div>
+          </div>
+          <div class="nl-email-btc">
+            <div class="nl-email-btc-price">{{ btc.price }}</div>
+            <div class="nl-email-btc-change {{ 'pos' if btc.positive else 'neg' }}">{{ btc.change }}</div>
+          </div>
+        </div>
+
+        <!-- Signal bar -->
+        <div class="nl-email-signal">
+          <span class="nl-signal-label">Today's Signal</span>
+          <span class="nl-signal-score">{{ signal.score }}/100</span>
+          <span class="nl-signal-tag {{ signal.label }}">{{ signal.label }}</span>
+          {% if signal.narrative %}
+          <span style="font-size:12px;color:#666;font-family:var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;">
+            {{ signal.narrative[:60] }}{% if signal.narrative|length > 60 %}...{% endif %}
+          </span>
+          {% endif %}
+        </div>
+
+        <!-- Articles -->
+        <div class="nl-email-articles">
+          {% if articles %}
+            {% set lead = articles[0] %}
+            <div class="nl-lead-story">
+              <div class="nl-lead-eyebrow">Top Story</div>
+              <div class="nl-lead-title">{{ lead.title }}</div>
+              {% if lead.summary %}
+              <div class="nl-lead-summary">{{ lead.summary[:180] }}{% if lead.summary|length > 180 %}...{% endif %}</div>
+              {% endif %}
+            </div>
+            {% for art in articles[1:] %}
+            <div class="nl-story-item">
+              <span class="nl-story-num">{{ loop.index }}.</span>
+              <span class="nl-story-title">{{ art.title }}</span>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div style="text-align:center;padding:24px;font-family:var(--mono);color:#444;font-size:13px;">
+              No articles available — check back tomorrow
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- Email footer -->
+        <div class="nl-email-footer">
+          <div class="nl-email-footer-text">Protocol Pulse &bull; Unsubscribe &bull; protocolpulse.io</div>
+        </div>
+      </div>
+
+      <!-- CTA below preview -->
+      <div class="nl-preview-cta">
+        <p class="nl-preview-cta-text">Get this every morning &rarr;</p>
+        <form class="nl-preview-cta-form" id="previewForm" onsubmit="nlSubscribe(event, 'previewForm')">
+          <input type="email" name="email" class="nl-input" placeholder="your@email.com" required style="max-width:280px;">
+          <button type="submit" class="nl-btn">START RECEIVING</button>
+        </form>
+        <div class="nl-toast" id="previewToast" style="margin-top:12px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── STATS ─────────────────────────────────────────────────────────── -->
+  <section class="nl-stats">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:48px">
+        <div class="nl-section-label">By The Numbers</div>
+        <div class="nl-section-title">The Signal Behind the Signal</div>
+      </div>
+      <div class="nl-stats-grid">
+        <div class="nl-stat-card">
+          <div class="nl-stat-value">80+</div>
+          <div class="nl-stat-label">Sources Monitored Daily</div>
+        </div>
+        <div class="nl-stat-card">
+          <div class="nl-stat-value">{{ total_articles if total_articles > 0 else '1,300+' }}</div>
+          <div class="nl-stat-label">Articles Published</div>
+        </div>
+        <div class="nl-stat-card">
+          <div class="nl-stat-value">15<span style="font-size:18px">MIN</span></div>
+          <div class="nl-stat-label">Update Frequency</div>
+        </div>
+        <div class="nl-stat-card">
+          <div class="nl-stat-value">5<span style="font-size:18px">MIN</span></div>
+          <div class="nl-stat-label">To Read Each Issue</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER CTA ─────────────────────────────────────────────────────── -->
+  <section class="nl-footer-cta">
+    <div class="container">
+      <h2>Don't miss tomorrow's briefing.</h2>
+      <p>Join the Protocol Pulse daily intelligence feed. Free. No noise. Just signal.</p>
+      <form id="footerForm" onsubmit="nlSubscribe(event, 'footerForm')"
+            style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;max-width:480px;margin:0 auto">
+        <input type="email" name="email" class="nl-input" placeholder="your@email.com" required style="flex:1;min-width:220px;">
+        <button type="submit" class="nl-btn">JOIN THE SIGNAL</button>
+      </form>
+      <div class="nl-toast" id="footerToast" style="margin-top:16px;max-width:480px;margin-left:auto;margin-right:auto;"></div>
+    </div>
+  </section>
+
+</div>
+
+{% if request.args.get('subscribed') == '1' %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const t = document.getElementById('heroToast');
+  if (t) {
+    t.className = 'nl-toast success';
+    t.style.display = 'block';
+    t.textContent = '⚡ Check your inbox to confirm. Welcome to the signal.';
+  }
+});
+</script>
+{% endif %}
+
+<script>
+async function nlSubscribe(e, formId) {
+  e.preventDefault();
+  const form = document.getElementById(formId);
+  const toastId = formId.replace('Form', 'Toast');
+  const toast = document.getElementById(toastId);
+  const btn = form.querySelector('button[type=submit]');
+  const email = form.querySelector('input[type=email]').value.trim();
+
+  if (!email) return;
+
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'SENDING...';
+  if (toast) { toast.style.display = 'none'; toast.className = 'nl-toast'; }
+
+  try {
+    const resp = await fetch('/newsletter/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await resp.json();
+
+    if (toast) {
+      toast.style.display = 'block';
+      if (data.success) {
+        toast.className = 'nl-toast success';
+        toast.textContent = '⚡ ' + (data.message || 'Check your inbox to confirm.');
+        form.querySelector('input[type=email]').value = '';
+      } else {
+        toast.className = 'nl-toast error';
+        toast.textContent = data.message || 'Something went wrong. Please try again.';
+      }
+    }
+  } catch (err) {
+    if (toast) {
+      toast.style.display = 'block';
+      toast.className = 'nl-toast error';
+      toast.textContent = 'Network error. Please try again.';
+    }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = orig;
+  }
+}
+</script>
+{% endblock %}
