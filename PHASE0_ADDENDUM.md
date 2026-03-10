@@ -1,93 +1,106 @@
-# PHASE 0 ADDENDUM — P3 CHARTS
+# PHASE 0 ADDENDUM — p3-sentiment-intel
 # Generated: 2026-03-09
-# Status: GOSPEL supplement — all items below are incorporated into build
+# Based on C0_SYNTHESIS.md top additions
+
+## WHAT WE WILL IMPLEMENT (Filtered for feasibility within a single session)
+
+### FROM PHASE 0 SYNTHESIS — INCORPORATED:
 
 ---
 
-## TOP PHASE 0 ADDITIONS TO IMPLEMENT
+### 1. Multi-Dimensional Sentiment Analysis [CRITICAL — IMPLEMENTING]
+Instead of simple bullish/bearish, Claude Haiku extracts:
+- Primary sentiment (bullish/bearish/neutral)
+- Target stakeholder dimension (retail/institutional/miner/developer)
+- Market impact magnitude (1-10 scale)
+- Narrative label (ETF flows, halving cycle, regulatory clarity, etc.)
 
-### 1. AI Chart Interpreter — "Explain This Chart" Button
-**Priority: P0 (Category-Defining)**
-- Every chart card gets an "INTERPRET" button
-- Calls `/api/charts/ai-explain` with chart metadata + current data snapshot
-- Uses Anthropic Claude API (ANTHROPIC_API_KEY from env)
-- Returns 2-3 sentence interpretation in professional analyst voice
-- Loading state: "Analyzing market structure..."
-- Displayed in glassmorphism overlay beneath the chart
-- **Implementation**: Backend streams chart context to Claude claude-haiku-4-5-20251001. Frontend shows typewriter reveal.
-
-### 2. Advanced Bitcoin Valuation Metrics Panel
-**Priority: P0 (Market Leadership)**
-- Mayer Multiple: real-time calculation (price / 200d MA). Display with zones: < 1.0 (undervalued), 1.0–2.4 (fair), > 2.4 (overbought)
-- Stock-to-Flow model price: calculate from current supply + block schedule. Display as overlay on price chart.
-- Puell Multiple: approximated from daily issuance value vs 365d MA (proxy from hashrate data)
-- NUPL approximation: Market Cap - Realized Cap estimate / Market Cap. Display as colored sentiment gauge.
-- **Implementation**: Pure JS math on price history data. No external API needed for Mayer/S2F/NUPL estimates.
-
-### 3. Real-Time Architecture Improvements
-**Priority: P0 (Foundation)**
-- mempool.space WebSocket with exponential backoff reconnect (as per GOSPEL)
-- Heartbeat ping every 30s to keep connection alive
-- Connection status indicator in stat bar (green dot = live, red = polling fallback)
-- **Implementation**: Single WebSocket manager class, wraps all WS subscriptions.
-
-### 4. Lightning Network Metrics Section
-**Priority: P1**
-- Total capacity (BTC + USD), node count, channel count from mempool.space API
-- 30-day capacity trend mini-chart (Canvas bar chart)
-- Source: `/api/charts/lightning` proxy → `https://mempool.space/api/v1/lightning/statistics/latest`
-- **Implementation**: New section after Supply Analysis
-
-### 5. Difficulty Adjustment Prediction
-**Priority: P1**
-- Calculate next difficulty adjustment from current block height + epoch progress
-- Show: blocks remaining, estimated date, expected % change (from current hashrate trend)
-- Visual: progress ring (Canvas arc) + prediction badge
-- **Implementation**: Pure math from block height + mempool data (no external API)
-
-### 6. Fear & Greed Index Display
-**Priority: P1**
-- Fetch from `https://api.alternative.me/fng/?limit=7` (free, no key)
-- 7-day trend sparkline + current value gauge
-- Proxy via `/api/charts/fear-greed`, cache 1hr
-- **Implementation**: Semicircle gauge Canvas component
-
-### 7. Export/Sharing with Protocol Pulse Branding
-**Priority: P1 (from GOSPEL LAW 3)**
-- canvas.toDataURL("image/png") download per chart
-- Watermark "PROTOCOLPULSE.IO" in corner before download
-- Web Share API with fallback to clipboard copy
-- **Implementation**: ChartEngine.exportPNG(chartId, title) method
-
-### 8. Rate Limiting on Price Alert Endpoint
-**Priority: P1 (Security)**
-- Max 3 alerts per email address per day
-- Max 10 active alerts per email total
-- Input validation: valid email format, price must be numeric 1000–10,000,000
-- **Implementation**: DB query count before insert
-
-### 9. Keyboard Accessibility + Command Bar
-**Priority: P2**
-- Cmd+K opens quick-jump to any chart section
-- Tab navigation through all interactive elements
-- ARIA labels on all charts (role="img", aria-label describing the chart)
-- **Implementation**: Global keydown handler, smooth scrollTo sections
-
-### 10. Hashrate Ribbon Indicator
-**Priority: P2**
-- Show 30d vs 60d SMA of hashrate — ribbon color flips bullish/bearish
-- Overlaid on hashrate chart as shaded band
-- **Implementation**: Calculate from hashrate history array in JS
+**How**: Extended `classify_article()` prompt returns JSON with all dimensions.
+DB: `sentiment_dimensions TEXT` (JSON), `market_impact_magnitude REAL` on articles table.
 
 ---
 
-## DESIGN DECISIONS (Best Calls)
+### 2. Predictive Sentiment Forecasting (Lightweight) [HIGH IMPACT — PARTIAL]
+No ML models (too heavy for one session). Instead:
+- Rolling weighted average of last 6h sentiment scores → trend direction
+- Simple regression slope calculation from 7-day history → forecast label
+- Display as "trajectory": ACCELERATING_BULLISH / DECELERATING_BULLISH / NEUTRAL / ACCELERATING_BEARISH / DECELERATING_BEARISH
 
-- **No Glassnode/CoinMetrics API**: Free tiers too limited and require keys. Use pure-JS calculations from price/hashrate history instead for MVRV/NUPL approximations. Label as "estimated" where not exact.
-- **No Redis/Node.js**: Keep single-process Flask. Cache with functools.lru_cache + TTL wrapper.
-- **No TensorFlow.js**: Predictive analytics kept to simple trend extrapolation (linear regression in pure JS) — no ML frameworks.
-- **Fear & Greed**: alternative.me API is genuinely free, no auth, perfect fit.
-- **Lightning metrics**: mempool.space `/lightning/statistics/latest` is free and comprehensive.
+**How**: Computed in `get_signal_strength()` from `sentiment_snapshots` table data.
 
 ---
-*End PHASE0_ADDENDUM.md — All items above incorporated into the build.*
+
+### 3. Event Extraction [OPERATIONAL — IMPLEMENTING]
+Claude Haiku extracts structured events from article content:
+- Event type: regulatory / institutional_move / technical_development / price_action / mining_event
+- Impact score (1-10)
+- Affected entities
+
+**How**: Part of `classify_article()` extended output. Stored as `narrative_label` (event type) and `importance_score`.
+
+---
+
+### 4. Advanced Anomaly Detection [INTELLIGENCE — IMPLEMENTING]
+Multivariate detection beyond simple 20-point threshold:
+- Velocity component: rate of change per hour (not just absolute delta)
+- Volume component: articles volume spike vs 7-day average
+- Narrative coherence: if dominant narrative shifts, flag as narrative anomaly
+- All anomalies stored in `intelligence_events` table
+
+**How**: `detect_anomalies()` in `intelligence_service.py` checks all 3 vectors.
+
+---
+
+### 5. Source Trust Scoring [SECURITY/QUALITY — IMPLEMENTING]
+Weight sentiment by source credibility:
+- Known Bitcoin media (bitcoinmagazine.com, coindesk.com, decrypt.co): weight 1.0
+- Unknown/generic domains: weight 0.7
+- AI-generated or aggregate sources: weight 0.5
+
+**How**: `_get_source_trust_score(source_url)` function in sentiment_analyzer.py.
+Sentiment composite accounts for weighted articles, not raw average.
+
+---
+
+### 6. Narrative Coherence Tracking [INSIGHT — IMPLEMENTING]
+Track which narratives are dominant across recent articles:
+- Count articles per narrative_label in last 24h, 7d
+- Identify rising narratives (24h > 7d_daily_avg)
+- Identify declining narratives
+
+**How**: `get_narrative_timeline()` in intelligence_service.py. Displayed on /intelligence.
+
+---
+
+### 7. SSE with Reconnect Logic [LAW 2 — IMPLEMENTING]
+SSE stream at `/api/stream/sentiment` with:
+- Exponential backoff reconnect in browser JS
+- Heartbeat every 30s (comment event `:`  )
+- Proper `retry:` header for browser reconnect
+
+---
+
+### 8. Prompt Injection Defense [SECURITY — IMPLEMENTING]
+Before passing article content to Claude:
+- Strip/escape HTML tags from content
+- Truncate to max 2000 chars
+- Wrap in explicit XML-delimited context markers
+- System prompt explicitly warns Claude about untrusted content
+
+**How**: `_sanitize_for_llm(text)` in sentiment_analyzer.py
+
+---
+
+## NOT IMPLEMENTING (infrastructure/scope constraints):
+- Kafka/Redpanda event bus (requires infra setup)
+- PostgreSQL/TimescaleDB/Weaviate (SQLite is the stack)
+- Personalized RL dashboards (requires user tracking infra)
+- Podcast audio transcription (separate system already exists)
+- Edge computing (Cloudflare Workers) — not in scope
+- WebSocket full duplex (SSE is sufficient per gospel LAW 2)
+
+## DESIGN DECISIONS:
+- Public `/intelligence` page: new route pointing to upgraded intelligence_dashboard.html
+- Multi-dimensional sentiment: stored as TEXT (JSON) in articles.sentiment_dimensions
+- Cron runs via `cron` or direct invocation; no Redis required
+- All CSS animations only (law) — SVG gauge arc, keyframe animations

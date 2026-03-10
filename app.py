@@ -250,6 +250,13 @@ with app.app_context():
         except Exception as _dbe:
             logging.warning("db.create_all() failed (non-fatal): %s", _dbe)
 
+    # p3-sentiment-intel: migration-safe column/table additions
+    try:
+        from utils.db_migrate_sentiment import run_migrations
+        run_migrations(db)
+    except Exception as _mige:
+        logging.warning("db_migrate_sentiment failed (non-fatal): %s", _mige)
+
 def _run_dev_server():
     port = 5000
     host = "0.0.0.0"

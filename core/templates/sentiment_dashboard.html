@@ -2,184 +2,761 @@
 
 {% block title %}Bitcoin Sentiment Intelligence | Protocol Pulse{% endblock %}
 
+{% block meta_description %}Real-time AI-powered Bitcoin sentiment analysis. Narrative intelligence, anomaly detection, and live article classification.{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Sentiment Dashboard ── */
+:root {
+  --sent-bullish: #89ffb8;
+  --sent-bearish: #ff8ba0;
+  --sent-neutral: #f8c15c;
+  --sent-unclassified: #95a0ba;
+}
+
+.sent-page {
+  min-height: 100vh;
+  background: #06070b;
+  padding: 100px 24px 80px;
+}
+
+.sent-container {
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+/* ── Page header ── */
+.sent-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: #f8c15c;
+  margin-bottom: 8px;
+}
+
+.sent-headline {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: #eef2ff;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+
+.sent-subline {
+  color: #95a0ba;
+  font-size: 1rem;
+}
+
+/* ── Anomaly banner ── */
+.anomaly-banner {
+  background: linear-gradient(135deg, rgba(255,59,95,0.12), rgba(255,59,95,0.05));
+  border: 1px solid rgba(255,59,95,0.4);
+  border-radius: 12px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+  animation: anomaly-pulse 2s ease-in-out infinite;
+}
+
+@keyframes anomaly-pulse {
+  0%, 100% { border-color: rgba(255,59,95,0.4); box-shadow: 0 0 0 rgba(255,59,95,0); }
+  50% { border-color: rgba(255,59,95,0.8); box-shadow: 0 0 16px rgba(255,59,95,0.12); }
+}
+
+.anomaly-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ff3b5f;
+  flex-shrink: 0;
+  animation: dot-blink 1.5s step-start infinite;
+}
+
+@keyframes dot-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.anomaly-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ff8ba0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  flex: 1;
+}
+
+.anomaly-dismiss {
+  background: none;
+  border: none;
+  color: #95a0ba;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  line-height: 1;
+}
+
+/* ── Cards ── */
+.glass-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 24px;
+  height: 100%;
+}
+
+.glass-card.bordered-red {
+  border-color: rgba(255,59,95,0.20);
+}
+
+.card-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #f8c15c;
+  margin-bottom: 16px;
+  display: block;
+}
+
+/* ── Sentiment gauge ── */
+.gauge-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.gauge-svg {
+  width: 200px;
+  height: 120px;
+  overflow: visible;
+}
+
+.gauge-value-large {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 3.2rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.gauge-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #95a0ba;
+  margin-top: 4px;
+}
+
+/* ── Sentiment badge ── */
+.sent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.sent-badge.bullish {
+  background: rgba(137,255,184,0.10);
+  color: #89ffb8;
+  border: 1px solid rgba(137,255,184,0.20);
+}
+
+.sent-badge.bearish {
+  background: rgba(255,139,160,0.10);
+  color: #ff8ba0;
+  border: 1px solid rgba(255,139,160,0.20);
+}
+
+.sent-badge.neutral {
+  background: rgba(248,193,92,0.10);
+  color: #f8c15c;
+  border: 1px solid rgba(248,193,92,0.20);
+}
+
+.sent-badge.unclassified {
+  background: rgba(149,160,186,0.10);
+  color: #95a0ba;
+  border: 1px solid rgba(149,160,186,0.20);
+}
+
+/* ── Distribution bar ── */
+.dist-bar {
+  display: flex;
+  border-radius: 4px;
+  overflow: hidden;
+  height: 8px;
+  gap: 2px;
+  margin: 12px 0;
+}
+
+.dist-bar-seg {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+
+/* ── Sparkline ── */
+.sparkline-wrap {
+  position: relative;
+  height: 80px;
+}
+
+.sparkline-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Narrative card ── */
+.narrative-card {
+  background: linear-gradient(135deg, rgba(248,193,92,0.05), rgba(248,193,92,0.02));
+  border: 1px solid rgba(248,193,92,0.15);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.narrative-tag {
+  display: inline-block;
+  background: rgba(248,193,92,0.10);
+  color: #f8c15c;
+  border: 1px solid rgba(248,193,92,0.20);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ── Signals list ── */
+.signal-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 13px;
+  color: #eef2ff;
+  line-height: 1.4;
+}
+
+.signal-item:last-child { border-bottom: none; }
+
+.signal-arrow {
+  flex-shrink: 0;
+  font-size: 12px;
+  margin-top: 2px;
+  font-weight: 700;
+}
+
+.signal-arrow.up { color: #89ffb8; }
+.signal-arrow.down { color: #ff8ba0; }
+
+/* ── Article feed ── */
+.article-feed-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  transition: background 0.2s;
+  align-items: start;
+}
+
+.article-feed-item:last-child { border-bottom: none; }
+
+.article-feed-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #eef2ff;
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+
+.article-feed-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.narrative-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: #95a0ba;
+  background: rgba(149,160,186,0.08);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+/* ── SSE live indicator ── */
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #89ffb8;
+  display: inline-block;
+  animation: dot-blink 2s ease-in-out infinite;
+  margin-right: 6px;
+}
+
+.live-dot.connecting { background: #f8c15c; }
+.live-dot.error { background: #ff8ba0; animation: none; }
+
+/* ── SSE fade-in ── */
+@keyframes sentiment-fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sentiment-just-classified {
+  animation: sentiment-fade-in 0.4s ease-out forwards;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .sent-headline { font-size: 1.8rem; }
+  .gauge-svg { width: 160px; height: 96px; }
+  .gauge-value-large { font-size: 2.4rem; }
+}
+
+@media (max-width: 1200px) {
+  .sent-page { padding: 90px 16px 60px; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<section class="py-5 bg-black">
-    <div class="container">
-        <div class="row mb-4">
-            <div class="col-12">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-3">
-                        <li class="breadcrumb-item"><a href="/" class="text-danger">Home</a></li>
-                        <li class="breadcrumb-item active text-white" aria-current="page">Sentiment Intelligence</li>
-                    </ol>
-                </nav>
-                <h1 class="display-4 fw-bold text-white mb-2">
-                    <i class="fas fa-chart-line text-danger me-3"></i>Bitcoin Sentiment Intelligence
-                </h1>
-                <p class="lead text-white-50">Daily analysis of Bitcoin discourse across X and Nostr with AI-powered insights</p>
-            </div>
+<div class="sent-page">
+<div class="sent-container">
+
+  <!-- Page Header -->
+  <div class="mb-4">
+    <div class="sent-eyebrow">INTELLIGENCE • NARRATIVE ANALYSIS</div>
+    <h1 class="sent-headline">Bitcoin Sentiment Intelligence</h1>
+    <p class="sent-subline">AI-powered narrative tracking across Bitcoin media — classified in real-time by Claude Haiku</p>
+  </div>
+
+  <!-- Anomaly Banner (dismissible, only shown when active) -->
+  {% if anomaly_events %}
+  <div class="anomaly-banner" id="anomaly-banner">
+    <span class="anomaly-dot"></span>
+    <span class="anomaly-text">
+      ⚠ {{ anomaly_events[0].description|truncate(120) }}
+    </span>
+    <button class="anomaly-dismiss" onclick="document.getElementById('anomaly-banner').style.display='none'"
+            aria-label="Dismiss anomaly alert">✕</button>
+  </div>
+  {% endif %}
+
+  <!-- Row 1: Gauge + Distribution + 7-day sparkline -->
+  <div class="row g-4 mb-4">
+    <!-- Sentiment Gauge -->
+    <div class="col-lg-4">
+      <div class="glass-card bordered-red text-center">
+        <span class="card-eyebrow">Today's Pulse Score</span>
+        <div class="gauge-wrap">
+          <svg class="gauge-svg" viewBox="0 0 200 120" aria-label="Sentiment gauge">
+            <!-- Background arc -->
+            <path d="M 20 110 A 90 90 0 0 1 180 110" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="14" stroke-linecap="round"/>
+            <!-- Colored arc — drawn by JS -->
+            <path id="gauge-arc" d="M 20 110 A 90 90 0 0 1 180 110" fill="none" stroke="#f8c15c" stroke-width="14" stroke-linecap="round"
+                  stroke-dasharray="283" stroke-dashoffset="283"/>
+            <!-- Gradient defs -->
+            <defs>
+              <linearGradient id="gauge-grad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#ff3b5f"/>
+                <stop offset="50%" stop-color="#f8c15c"/>
+                <stop offset="100%" stop-color="#89ffb8"/>
+              </linearGradient>
+            </defs>
+            <path d="M 20 110 A 90 90 0 0 1 180 110" fill="none" stroke="url(#gauge-grad)" stroke-width="14" stroke-linecap="round"
+                  stroke-dasharray="283" stroke-dashoffset="283" id="gauge-arc-color" opacity="0.3"/>
+          </svg>
+          {% set score = latest_report[2]|default(50)|int if latest_report else 50 %}
+          {% set sent = latest_report[1]|default('neutral') if latest_report else 'neutral' %}
+          <div class="gauge-value-large {% if sent == 'bullish' %}text-success{% elif sent == 'bearish' %}text-danger{% else %}text-warning{% endif %}"
+               id="gauge-num">{{ score }}</div>
+          <div class="gauge-label" id="gauge-label">
+            {% if sent == 'bullish' %}BULLISH{% elif sent == 'bearish' %}BEARISH{% else %}NEUTRAL{% endif %}
+          </div>
+          {% if latest_report %}
+          <small class="text-muted" style="font-family:'JetBrains Mono',monospace;font-size:10px;">
+            {{ latest_report[0] }}
+          </small>
+          {% endif %}
         </div>
-        
+      </div>
+    </div>
+
+    <!-- Distribution + Narrative -->
+    <div class="col-lg-4">
+      <div class="glass-card">
+        <span class="card-eyebrow">Sentiment Distribution</span>
         {% if latest_report %}
-        <div class="row mb-5">
-            <div class="col-lg-8">
-                <div class="card bg-dark border-danger h-100">
-                    <div class="card-header bg-danger bg-opacity-10 border-bottom border-danger d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 text-white">
-                            <i class="fas fa-pulse me-2"></i>Today's Pulse
-                        </h5>
-                        <span class="badge 
-                            {% if latest_report.overall_sentiment == 'bullish' %}bg-success
-                            {% elif latest_report.overall_sentiment == 'bearish' %}bg-danger
-                            {% else %}bg-secondary{% endif %}">
-                            {{ latest_report.overall_sentiment|upper if latest_report.overall_sentiment else 'NEUTRAL' }}
-                        </span>
-                    </div>
-                    <div class="card-body">
-                        {% if latest_article %}
-                        <h4 class="text-white mb-3">{{ latest_article.title }}</h4>
-                        <p class="text-white-50 mb-4">{{ latest_article.summary or 'Daily sentiment analysis from X and Nostr.' }}</p>
-                        <a href="{{ url_for('article_detail', article_id=latest_article.id) }}" class="btn btn-outline-danger">
-                            <i class="fas fa-book-open me-2"></i>Read Full Report
-                        </a>
-                        {% else %}
-                        <p class="text-white-50">Report generated for {{ latest_report.report_date }}</p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="card bg-dark border-secondary h-100">
-                    <div class="card-header bg-secondary bg-opacity-10 border-bottom border-secondary">
-                        <h6 class="mb-0 text-white"><i class="fas fa-analytics me-2"></i>Metrics</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-secondary">
-                            <span class="text-white-50">X Posts Analyzed</span>
-                            <span class="text-white fw-bold">{{ latest_report.x_posts_analyzed or 0 }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-secondary">
-                            <span class="text-white-50">Nostr Notes Analyzed</span>
-                            <span class="text-white fw-bold">{{ latest_report.nostr_notes_analyzed or 0 }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-secondary">
-                            <span class="text-white-50">Sentiment Score</span>
-                            <span class="text-white fw-bold">
-                                {% if latest_report.sentiment_score %}
-                                    {% if latest_report.sentiment_score > 0 %}+{% endif %}{{ "%.2f"|format(latest_report.sentiment_score) }}
-                                {% else %}0.00{% endif %}
-                            </span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-white-50">Report Date</span>
-                            <span class="text-white fw-bold">{{ latest_report.report_date.strftime('%b %d') }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        {% set bull = latest_report[3]|default(33.3)|float %}
+        {% set bear = latest_report[4]|default(33.3)|float %}
+        {% set neut = latest_report[5]|default(33.3)|float %}
+        <div class="dist-bar">
+          <div class="dist-bar-seg" style="width:{{ bull|round(1) }}%;background:#89ffb8;"></div>
+          <div class="dist-bar-seg" style="width:{{ bear|round(1) }}%;background:#ff8ba0;"></div>
+          <div class="dist-bar-seg" style="width:{{ neut|round(1) }}%;background:#f8c15c;"></div>
         </div>
-        
-        {% if latest_report.get_themes() %}
-        <div class="row mb-5">
-            <div class="col-12">
-                <h4 class="text-white mb-4"><i class="fas fa-hashtag text-danger me-2"></i>Top Themes Today</h4>
-                <div class="row g-3">
-                    {% for theme in latest_report.get_themes()[:6] %}
-                    <div class="col-md-4 col-lg-2">
-                        <div class="card bg-dark border-secondary text-center py-3">
-                            <span class="text-white fw-bold">{{ theme.theme if theme.theme else theme }}</span>
-                            {% if theme.mentions %}
-                            <small class="text-white-50">{{ theme.mentions }} mentions</small>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
+        <div class="d-flex justify-content-between mt-2 mb-4">
+          <div class="text-center">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:900;color:#89ffb8;">{{ bull|round(1) }}%</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#95a0ba;letter-spacing:0.16em;">BULLISH</div>
+          </div>
+          <div class="text-center">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:900;color:#ff8ba0;">{{ bear|round(1) }}%</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#95a0ba;letter-spacing:0.16em;">BEARISH</div>
+          </div>
+          <div class="text-center">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:900;color:#f8c15c;">{{ neut|round(1) }}%</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#95a0ba;letter-spacing:0.16em;">NEUTRAL</div>
+          </div>
         </div>
+        {% if latest_report[9] %}
+        <div style="font-size:11px;color:#95a0ba;margin-bottom:4px;">Dominant narrative:</div>
+        <span class="narrative-tag">{{ latest_report[9] }}</span>
         {% endif %}
         {% else %}
-        <div class="row mb-5">
-            <div class="col-12">
-                <div class="card bg-dark border-secondary text-center py-5">
-                    <div class="card-body">
-                        <i class="fas fa-chart-bar fa-4x text-secondary mb-4"></i>
-                        <h4 class="text-white">No Sentiment Reports Yet</h4>
-                        <p class="text-white-50">The first daily sentiment report will be generated soon.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <p class="text-muted small mt-4">No report data available yet. Run batch classification to populate.</p>
         {% endif %}
-        
-        {% if reports and reports|length > 1 %}
-        <div class="row">
-            <div class="col-12">
-                <h4 class="text-white mb-4"><i class="fas fa-history text-danger me-2"></i>Recent Reports</h4>
-                <div class="table-responsive">
-                    <table class="table table-dark table-hover">
-                        <thead>
-                            <tr>
-                                <th class="text-white-50">Date</th>
-                                <th class="text-white-50">Sentiment</th>
-                                <th class="text-white-50">Score</th>
-                                <th class="text-white-50">X Posts</th>
-                                <th class="text-white-50">Nostr Notes</th>
-                                <th class="text-white-50">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for report in reports %}
-                            <tr>
-                                <td class="text-white">{{ report.report_date.strftime('%B %d, %Y') }}</td>
-                                <td>
-                                    <span class="badge 
-                                        {% if report.overall_sentiment == 'bullish' %}bg-success
-                                        {% elif report.overall_sentiment == 'bearish' %}bg-danger
-                                        {% else %}bg-secondary{% endif %}">
-                                        {{ report.overall_sentiment|upper if report.overall_sentiment else 'NEUTRAL' }}
-                                    </span>
-                                </td>
-                                <td class="text-white">
-                                    {% if report.sentiment_score %}
-                                        {% if report.sentiment_score > 0 %}+{% endif %}{{ "%.2f"|format(report.sentiment_score) }}
-                                    {% else %}0.00{% endif %}
-                                </td>
-                                <td class="text-white-50">{{ report.x_posts_analyzed or 0 }}</td>
-                                <td class="text-white-50">{{ report.nostr_notes_analyzed or 0 }}</td>
-                                <td>
-                                    {% if report.article_id %}
-                                    <a href="{{ url_for('article_detail', article_id=report.article_id) }}" class="btn btn-sm btn-outline-danger">
-                                        Read
-                                    </a>
-                                    {% else %}
-                                    <span class="text-muted">-</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-        
-        <div class="row mt-5">
-            <div class="col-12">
-                <div class="card bg-dark border-secondary">
-                    <div class="card-body">
-                        <h5 class="text-white mb-3"><i class="fas fa-info-circle text-danger me-2"></i>About Sentiment Intelligence</h5>
-                        <p class="text-white-50 mb-0">
-                            Protocol Pulse aggregates and analyzes Bitcoin-related discourse from X (Twitter) and Nostr every 24 hours. 
-                            Our AI-powered system identifies key themes, narratives, and sentiment shifts from influential voices in the 
-                            Bitcoin ecosystem. Each report includes direct citations and links to the original posts for full transparency 
-                            and verification.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
-</section>
+
+    <!-- 7-day sparkline -->
+    <div class="col-lg-4">
+      <div class="glass-card">
+        <span class="card-eyebrow">7-Day Score History</span>
+        <div class="sparkline-wrap">
+          <canvas id="sparkline-canvas" class="sparkline-canvas" aria-label="7-day sentiment score chart"></canvas>
+        </div>
+        {% if score_history %}
+        <div class="d-flex justify-content-between mt-2">
+          <small style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#95a0ba;">{{ score_history[0].date }}</small>
+          <small style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#f8c15c;">{{ score_history[-1].date }}</small>
+        </div>
+        {% else %}
+        <p class="text-muted small mt-4">No history yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Narrative Intelligence Card -->
+  {% if latest_report and latest_report[6] %}
+  <div class="narrative-card mb-4">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <span class="card-eyebrow" style="margin-bottom:0;">Narrative Intelligence</span>
+      {% if latest_report[9] %}
+      <span class="narrative-tag">{{ latest_report[9] }}</span>
+      {% endif %}
+    </div>
+    <p style="color:#d7def4;font-size:14px;line-height:1.7;margin:0;">
+      {{ latest_report[6] }}
+    </p>
+  </div>
+  {% endif %}
+
+  <!-- Row 3: Bullish + Bearish signals -->
+  {% if top_bullish or top_bearish %}
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <div class="glass-card">
+        <span class="card-eyebrow">Bullish Signals</span>
+        {% if top_bullish %}
+        {% for signal in top_bullish %}
+        <div class="signal-item">
+          <span class="signal-arrow up">▲</span>
+          <span>{{ signal|truncate(120) }}</span>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p class="text-muted small">No bullish signals recorded.</p>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="glass-card">
+        <span class="card-eyebrow">Bearish Signals</span>
+        {% if top_bearish %}
+        {% for signal in top_bearish %}
+        <div class="signal-item">
+          <span class="signal-arrow down">▼</span>
+          <span>{{ signal|truncate(120) }}</span>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p class="text-muted small">No bearish signals recorded.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Row 4: Live article feed -->
+  <div class="glass-card mb-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <span class="card-eyebrow" style="margin-bottom:0;">
+        <span class="live-dot connecting" id="sse-dot"></span>
+        Live Article Classification Feed
+      </span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#95a0ba;" id="sse-status">Connecting…</span>
+    </div>
+
+    <div id="article-feed">
+      {% if recent_articles %}
+      {% for art in recent_articles %}
+      <div class="article-feed-item" data-id="{{ art.id }}">
+        <div>
+          <div class="article-feed-title">{{ art.title|truncate(130) }}</div>
+          <div class="article-feed-meta">
+            <span class="sent-badge {{ art.sentiment }}">
+              {% if art.sentiment == 'bullish' %}▲{% elif art.sentiment == 'bearish' %}▼{% else %}●{% endif %}
+              {{ art.sentiment }}
+            </span>
+            {% if art.narrative_label and art.narrative_label != '—' %}
+            <span class="narrative-chip">{{ art.narrative_label }}</span>
+            {% endif %}
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#4a5568;">{{ art.created_at[:10] }}</span>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:900;
+                      color:{% if art.importance_score >= 70 %}#f8c15c{% elif art.importance_score >= 50 %}#95a0ba{% else %}#4a5568{% endif %};">
+            {{ art.importance_score }}
+          </div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.12em;color:#4a5568;">IMP</div>
+        </div>
+      </div>
+      {% endfor %}
+      {% else %}
+      <div class="text-center py-5">
+        <div style="font-size:2rem;margin-bottom:12px;">📡</div>
+        <div style="color:#95a0ba;font-size:14px;">No classified articles yet.</div>
+        <div style="color:#4a5568;font-size:12px;margin-top:4px;">Run: python -m services.sentiment_analyzer batch --hours=24</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Intelligence events -->
+  {% if anomaly_events %}
+  <div class="glass-card">
+    <span class="card-eyebrow">Intelligence Events</span>
+    {% for evt in anomaly_events %}
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+      <span style="font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:800;padding:3px 7px;border-radius:4px;flex-shrink:0;
+        {% if evt.severity == 'critical' %}background:rgba(255,59,95,0.15);color:#ff8ba0;
+        {% elif evt.severity == 'warning' %}background:rgba(248,193,92,0.12);color:#f8c15c;
+        {% else %}background:rgba(93,228,255,0.10);color:#5de4ff;{% endif %}">
+        {{ evt.severity|upper }}
+      </span>
+      <div style="flex:1;">
+        <div style="font-size:13px;color:#eef2ff;line-height:1.4;">{{ evt.description }}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#4a5568;margin-top:4px;">{{ evt.created_at }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div><!-- /sent-container -->
+</div><!-- /sent-page -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  'use strict';
+
+  // ── Gauge animation ───────────────────────────────────────────────────────
+  const score = {{ (latest_report[2]|default(50)|int) if latest_report else 50 }};
+  const gaugeArc = document.getElementById('gauge-arc');
+  const gaugeArcColor = document.getElementById('gauge-arc-color');
+
+  function animateGauge() {
+    const maxLen = 283; // half-circle arc length
+    const targetLen = maxLen * (score / 100);
+    const offset = maxLen - targetLen;
+    const t0 = performance.now();
+    const dur = 1200;
+
+    function step(t) {
+      const progress = Math.min((t - t0) / dur, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const currentOffset = maxLen - (targetLen * ease);
+      if (gaugeArc) gaugeArc.setAttribute('stroke-dashoffset', currentOffset);
+      if (gaugeArcColor) {
+        gaugeArcColor.setAttribute('stroke-dashoffset', currentOffset);
+        gaugeArcColor.setAttribute('opacity', 0.6);
+      }
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  animateGauge();
+
+  // ── 7-day sparkline (Canvas) ──────────────────────────────────────────────
+  const canvas = document.getElementById('sparkline-canvas');
+  const scoreHistory = {{ score_history_json|safe }};
+
+  function drawSparkline() {
+    if (!canvas || !scoreHistory.length) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+
+    const W = rect.width;
+    const H = rect.height;
+    const pad = 10;
+    const scores = scoreHistory.map(s => s.score);
+    const minS = Math.max(0, Math.min(...scores) - 5);
+    const maxS = Math.min(100, Math.max(...scores) + 5);
+    const range = maxS - minS || 1;
+
+    const pts = scores.map((s, i) => ({
+      x: pad + (i / Math.max(scores.length - 1, 1)) * (W - 2 * pad),
+      y: H - pad - ((s - minS) / range) * (H - 2 * pad),
+    }));
+
+    // Gradient fill
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, 'rgba(248,193,92,0.20)');
+    grad.addColorStop(1, 'rgba(248,193,92,0)');
+
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, H);
+    pts.forEach(p => ctx.lineTo(p.x, p.y));
+    ctx.lineTo(pts[pts.length - 1].x, H);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Line
+    ctx.beginPath();
+    pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+    ctx.strokeStyle = '#f8c15c';
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+
+    // Today's dot
+    const last = pts[pts.length - 1];
+    ctx.beginPath();
+    ctx.arc(last.x, last.y, 5, 0, Math.PI * 2);
+    ctx.fillStyle = '#f8c15c';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(248,193,92,0.4)';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+  }
+
+  if (canvas) {
+    // Wait for layout
+    requestAnimationFrame(() => { requestAnimationFrame(drawSparkline); });
+    window.addEventListener('resize', drawSparkline);
+  }
+
+  // ── SSE connection for live classifications ───────────────────────────────
+  const sseDot = document.getElementById('sse-dot');
+  const sseStatus = document.getElementById('sse-status');
+  const articleFeed = document.getElementById('article-feed');
+
+  function connectSSE() {
+    if (!window.EventSource) return;
+
+    const es = new EventSource('/api/stream/sentiment');
+    let reconnectDelay = 2000;
+
+    es.onopen = () => {
+      if (sseDot) { sseDot.className = 'live-dot'; }
+      if (sseStatus) sseStatus.textContent = 'Live';
+      reconnectDelay = 2000;
+    };
+
+    es.onmessage = (ev) => {
+      try {
+        const data = JSON.parse(ev.data);
+        if (data.type === 'connected') return;
+        if (!articleFeed || !data.article_id) return;
+
+        // Check if article already in feed
+        const existing = articleFeed.querySelector(`[data-id="${data.article_id}"]`);
+
+        const sentClass = data.sentiment || 'neutral';
+        const sentIcon = sentClass === 'bullish' ? '▲' : sentClass === 'bearish' ? '▼' : '●';
+        const importanceColor = (data.importance_score || 50) >= 70 ? '#f8c15c'
+                             : (data.importance_score || 50) >= 50 ? '#95a0ba' : '#4a5568';
+
+        const html = `<div class="article-feed-item sentiment-just-classified" data-id="${data.article_id}">
+          <div>
+            <div class="article-feed-title">Article #${data.article_id} classified</div>
+            <div class="article-feed-meta">
+              <span class="sent-badge ${sentClass}">${sentIcon} ${sentClass}</span>
+              ${data.narrative_label ? `<span class="narrative-chip">${data.narrative_label}</span>` : ''}
+            </div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:900;color:${importanceColor};">
+              ${data.importance_score || 50}
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.12em;color:#4a5568;">IMP</div>
+          </div>
+        </div>`;
+
+        if (existing) {
+          existing.outerHTML = html;
+        } else {
+          articleFeed.insertAdjacentHTML('afterbegin', html);
+          // Keep feed to max 25 items
+          const items = articleFeed.querySelectorAll('.article-feed-item');
+          if (items.length > 25) items[items.length - 1].remove();
+        }
+      } catch (e) { /* ignore parse errors */ }
+    };
+
+    es.onerror = () => {
+      if (sseDot) { sseDot.className = 'live-dot error'; }
+      if (sseStatus) sseStatus.textContent = 'Reconnecting…';
+      es.close();
+      // Exponential backoff with cap
+      setTimeout(() => {
+        reconnectDelay = Math.min(reconnectDelay * 1.5, 30000);
+        connectSSE();
+      }, reconnectDelay);
+    };
+  }
+
+  connectSSE();
+
+})();
+</script>
 {% endblock %}
