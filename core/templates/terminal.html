@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Protocol Pulse Terminal — Bitcoin Intelligence</title>
+<meta name="description" content="Bloomberg-style Bitcoin intelligence terminal. Live price, mempool, on-chain metrics, signal intelligence. Free tier + Commander $29/mo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   PP TERMINAL — BLOOMBERG AESTHETIC — SESSION 1
+   ============================================================ */
+:root {
+  --bg-base:    #080810;
+  --bg-panel:   #0D0D1A;
+  --bg-header:  #050508;
+  --border:     #1C1C2E;
+  --text-primary: #E2E8F0;
+  --text-label:   #64748B;
+  --text-dim:     #2D3748;
+  --gold:   #F59E0B;
+  --green:  #10B981;
+  --red:    #EF4444;
+  --cyan:   #22D3EE;
+  --amber:  #FB923C;
+  --phosphor: #00FF41;
+  --font: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg-base);color:var(--text-primary);font-family:var(--font);font-size:13px;overflow-x:hidden;}
+a{color:inherit;text-decoration:none;}
+button{font-family:var(--font);cursor:pointer;}
+
+/* ── Status bar ──────────────────────────────────────────── */
+#statusbar{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:36px;background:var(--bg-header);
+  border-bottom:1px solid rgba(34,211,238,.2);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;
+}
+.sb-brand{color:var(--phosphor);font:700 11px/1 var(--font);letter-spacing:.1em;}
+.sb-price{color:var(--gold);font:700 13px/1 var(--font);}
+.sb-right{display:flex;align-items:center;gap:12px;}
+.sb-clock{color:var(--text-label);font:400 11px/1 var(--font);}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:pulse-live 2s ease-in-out infinite;}
+@keyframes pulse-live{0%,100%{opacity:1;}50%{opacity:.3;}}
+@keyframes value-flash{0%{color:#FFF;}100%{color:var(--text-primary);}}
+.value-updated{animation:value-flash .6s ease-out;}
+
+/* ── Page wrapper ────────────────────────────────────────── */
+#page{padding:52px 12px 32px;max-width:1600px;margin:0 auto;}
+
+/* ── Grid ────────────────────────────────────────────────── */
+.terminal-grid{display:grid;gap:8px;grid-template-columns:repeat(4,1fr);}
+@media(max-width:1439px){.terminal-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:1023px){.terminal-grid{grid-template-columns:repeat(2,1fr);gap:6px;}}
+@media(max-width:767px) {.terminal-grid{grid-template-columns:1fr;}}
+
+.col-2{grid-column:span 2;}
+.col-full{grid-column:1/-1;}
+@media(max-width:767px){.col-2,.col-full{grid-column:1;}}
+
+/* ── Panel ───────────────────────────────────────────────── */
+.panel{
+  background:var(--bg-panel);border:1px solid var(--border);
+  border-radius:0;overflow:hidden;position:relative;
+}
+.panel-hdr{
+  height:28px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 12px;background:rgba(0,0,0,.4);flex-shrink:0;
+}
+.panel-title{font:700 10px/1 var(--font);color:var(--text-label);letter-spacing:.12em;text-transform:uppercase;}
+.panel-ts{font:400 9px/1 var(--font);color:var(--text-dim);}
+.panel-live{display:flex;align-items:center;gap:5px;}
+.panel-live-label{font:400 9px/1 var(--font);color:var(--cyan);}
+.panel-body{padding:12px;}
+
+/* ── Data rows ───────────────────────────────────────────── */
+.data-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(28,28,46,.6);}
+.data-row:last-child{border-bottom:none;}
+.data-label{font:400 9px/1 var(--font);color:var(--text-label);letter-spacing:.08em;text-transform:uppercase;}
+.data-val{font:600 13px/1 var(--font);color:var(--text-primary);}
+.data-val.gold{color:var(--gold);}
+.data-val.green{color:var(--green);}
+.data-val.red{color:var(--red);}
+.data-delta{font:400 10px/1 var(--font);margin-left:6px;}
+.data-delta.up{color:var(--green);}
+.data-delta.dn{color:var(--red);}
+.data-sep{border:none;border-top:1px solid var(--border);margin:8px 0;}
+
+/* ── Hero price ──────────────────────────────────────────── */
+.hero-price{font:700 34px/1 var(--font);color:var(--gold);padding:10px 0 8px;}
+@media(max-width:767px){.hero-price{font-size:26px;}}
+
+/* ── Bar gauge (F&G) ─────────────────────────────────────── */
+.fg-bar-wrap{margin:10px 0 6px;position:relative;height:16px;background:var(--bg-base);border:1px solid var(--border);}
+.fg-bar-fill{height:100%;background:linear-gradient(to right,#EF4444,#FB923C,#F59E0B,#10B981);opacity:.7;}
+.fg-bar-pointer{position:absolute;top:-3px;width:2px;height:22px;background:var(--text-primary);}
+.fg-labels{display:flex;justify-content:space-between;font:400 8px/1 var(--font);color:var(--text-dim);margin-top:3px;}
+
+/* ── Sparkline ───────────────────────────────────────────── */
+.sparkline{display:block;margin-top:8px;}
+
+/* ── Locked panels ───────────────────────────────────────── */
+.panel-locked{border:1px solid rgba(245,158,11,.25);}
+.panel-locked .panel-content{filter:blur(4px);user-select:none;pointer-events:none;opacity:.4;transition:filter .3s ease,opacity .3s ease;}
+.panel-locked .lock-overlay{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:rgba(8,8,16,.75);backdrop-filter:blur(2px);gap:8px;
+  transition:opacity .3s ease;
+}
+.lock-icon{font-size:18px;color:var(--gold);}
+.lock-tier{font:700 10px/1 var(--font);color:var(--gold);letter-spacing:.15em;}
+.lock-cta{font:400 9px/1 var(--font);color:#94A3B8;text-align:center;padding:0 12px;}
+.lock-button{
+  margin-top:4px;padding:7px 16px;
+  background:transparent;border:1px solid var(--gold);
+  color:var(--gold);font:600 10px/1 var(--font);
+  letter-spacing:.1em;text-transform:uppercase;
+  transition:background .15s,color .15s;
+}
+.lock-button:hover{background:var(--gold);color:#080810;}
+
+/* Signal panel special lock */
+.panel-signal-lock .lock-overlay{
+  background:rgba(8,8,16,.65);
+  gap:10px;
+}
+.panel-signal-lock .panel-content{filter:blur(3px);opacity:.55;}
+.lock-box{
+  border:1px solid rgba(245,158,11,.5);padding:16px 20px;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  font:400 10px/1.5 var(--font);color:#94A3B8;text-align:center;
+  max-width:280px;
+}
+.lock-box-title{font:700 12px/1 var(--font);color:var(--gold);letter-spacing:.1em;}
+
+/* Preview mode (5s unlock) */
+.panel-locked.preview-mode .panel-content{filter:none!important;opacity:1!important;}
+.panel-locked.preview-mode .lock-overlay{opacity:0!important;pointer-events:none!important;}
+.preview-bar{
+  position:absolute;top:0;left:0;height:2px;
+  background:var(--gold);transition:width 1s linear;
+  z-index:5;pointer-events:none;
+}
+
+/* ── CTA section ─────────────────────────────────────────── */
+#cta-section{
+  border:1px solid rgba(245,158,11,.4);background:#0D0D1A;
+  padding:20px;margin:8px 0;
+}
+.cta-inner{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.cta-left h2{font:700 14px/1 var(--font);color:var(--gold);letter-spacing:.1em;margin-bottom:10px;}
+.cta-features{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.cta-features li{font:400 10px/1 var(--font);color:var(--text-primary);}
+.cta-features li::before{content:"✓  ";color:var(--green);}
+.cta-price{font:700 22px/1 var(--font);color:var(--gold);}
+.cta-price-sub{font:400 9px/1 var(--font);color:var(--text-label);}
+.cta-buttons{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+.btn-commander{
+  padding:12px 24px;background:var(--gold);border:none;
+  color:#080810;font:700 11px/1 var(--font);letter-spacing:.1em;
+  text-transform:uppercase;cursor:pointer;
+  transition:opacity .15s;
+}
+.btn-commander:hover{opacity:.85;}
+.btn-preview{
+  padding:10px 24px;background:transparent;
+  border:1px solid var(--gold);color:var(--gold);
+  font:600 10px/1 var(--font);letter-spacing:.1em;text-transform:uppercase;
+  transition:background .15s,color .15s;
+}
+.btn-preview:hover{background:rgba(245,158,11,.1);}
+
+/* Re-engagement banner */
+#re-engage-banner{
+  display:none;position:fixed;top:36px;left:0;right:0;z-index:99;
+  background:rgba(13,13,26,.97);border-bottom:1px solid var(--gold);
+  padding:10px 16px;text-align:center;
+  font:600 11px/1 var(--font);color:var(--gold);
+}
+#re-engage-banner a{
+  margin-left:16px;padding:6px 16px;
+  background:var(--gold);color:#080810;
+  font:700 11px/1 var(--font);
+  letter-spacing:.08em;
+}
+#re-engage-close{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  cursor:pointer;color:var(--text-label);background:none;border:none;
+  font:400 14px/1 var(--font);
+}
+
+/* ── Activated banner ────────────────────────────────────── */
+#activated-banner{
+  background:rgba(16,185,129,.1);border:1px solid var(--green);
+  padding:14px 16px;margin-bottom:8px;
+  font:400 11px/1.5 var(--font);color:var(--text-primary);
+}
+.activated-title{font:700 12px/1 var(--font);color:var(--green);margin-bottom:6px;}
+.api-key-display{
+  background:var(--bg-base);border:1px solid var(--border);
+  padding:8px 12px;margin-top:8px;color:var(--phosphor);
+  font:400 12px/1 var(--font);display:flex;align-items:center;
+  justify-content:space-between;gap:12px;word-break:break-all;
+}
+.copy-btn{
+  padding:5px 10px;background:transparent;border:1px solid var(--cyan);
+  color:var(--cyan);font:600 9px/1 var(--font);letter-spacing:.08em;
+  white-space:nowrap;text-transform:uppercase;
+}
+.copy-btn:hover{background:var(--cyan);color:#080810;}
+
+/* ── Section label ───────────────────────────────────────── */
+.section-label{
+  font:700 9px/1 var(--font);color:var(--text-dim);
+  letter-spacing:.2em;text-transform:uppercase;
+  padding:14px 0 6px;
+}
+
+/* ── Article feed ────────────────────────────────────────── */
+.article-row{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 0;border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background .1s;
+}
+.article-row:hover{background:rgba(255,255,255,.02);}
+.article-row:last-child{border-bottom:none;}
+.article-time{font:400 9px/1 var(--font);color:var(--text-dim);min-width:42px;}
+.article-title{font:400 11px/1.4 var(--font);color:var(--text-primary);flex:1;}
+.article-arrow{color:var(--text-dim);font-size:12px;flex-shrink:0;}
+.article-all{
+  display:block;text-align:right;padding-top:8px;
+  font:400 9px/1 var(--font);color:var(--cyan);
+  letter-spacing:.06em;text-transform:uppercase;
+}
+
+/* ── Signal score display ────────────────────────────────── */
+.signal-score-hero{
+  display:flex;align-items:center;gap:16px;padding:14px 0 10px;
+}
+.signal-num{font:700 42px/1 var(--font);color:var(--text-primary);}
+.signal-class{font:700 14px/1 var(--font);color:var(--green);letter-spacing:.08em;}
+.signal-delta{font:400 10px/1 var(--font);}
+
+/* Signal bar */
+.signal-bar-wrap{height:4px;background:var(--bg-base);border:1px solid var(--border);margin:8px 0;}
+.signal-bar-fill{height:100%;transition:width .5s ease;}
+
+/* Component rows */
+.component-row{display:flex;align-items:center;gap:8px;padding:5px 0;}
+.comp-label{font:400 9px/1 var(--font);color:var(--text-label);width:140px;flex-shrink:0;text-transform:uppercase;}
+.comp-score{font:600 11px/1 var(--font);color:var(--text-primary);width:32px;text-align:right;flex-shrink:0;}
+.comp-bar{flex:1;height:4px;background:var(--border);}
+.comp-bar-fill{height:100%;}
+
+/* ── Alert feed ──────────────────────────────────────────── */
+.alert-row{
+  display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);align-items:flex-start;
+}
+.alert-row:last-child{border-bottom:none;}
+.alert-time{font:400 9px/1 var(--font);color:var(--text-dim);min-width:42px;flex-shrink:0;padding-top:2px;}
+.alert-text{font:400 11px/1.4 var(--font);color:var(--text-primary);}
+.alert-row.is-alert .alert-text{color:var(--amber);}
+
+/* ── Topics ──────────────────────────────────────────────── */
+.topic-row{
+  display:flex;align-items:center;gap:10px;
+  padding:6px 0;border-bottom:1px solid var(--border);
+}
+.topic-row:last-child{border-bottom:none;}
+.topic-rank{font:700 10px/1 var(--font);color:var(--text-dim);width:20px;text-align:right;flex-shrink:0;}
+.topic-term{font:600 11px/1 var(--font);color:var(--text-primary);flex:1;}
+.topic-count{font:400 9px/1 var(--font);color:var(--text-dim);}
+.topic-vel{color:var(--green);margin-right:4px;}
+
+/* ── LN panel ────────────────────────────────────────────── */
+.ln-capacity{font:700 20px/1 var(--font);color:var(--cyan);padding:8px 0 4px;}
+.ln-cap-unit{font:400 11px/1 var(--font);color:var(--text-label);}
+
+/* ── Macro ───────────────────────────────────────────────── */
+.macro-ratio-row{
+  display:flex;justify-content:space-between;padding:4px 0;
+  border-top:1px solid var(--border);margin-top:6px;
+}
+
+/* ── Mobile status bar collapse ──────────────────────────── */
+@media(max-width:767px){
+  .sb-brand{display:none;}
+  #statusbar{justify-content:space-between;}
+}
+
+/* ── Scrollbar ───────────────────────────────────────────── */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg-base);}
+::-webkit-scrollbar-thumb{background:var(--border);}
+</style>
+</head>
+<body>
+
+<!-- ── Fixed status bar ──────────────────────────────────── -->
+<div id="statusbar">
+  <span class="sb-brand">PROTOCOL PULSE TERMINAL</span>
+  <span class="sb-price" id="sb-price">
+    {% if price.price %}
+      BTC ${{ "{:,.2f}".format(price.price) }}
+      <span id="sb-delta" class="{{ 'up' if price.change_24h_pct >= 0 else 'dn' }}" style="font-size:11px;color:{{ '#10B981' if price.change_24h_pct >= 0 else '#EF4444' }}">
+        {{ '▲' if price.change_24h_pct >= 0 else '▼' }}{{ "{:.2f}%".format(price.change_24h_pct | abs) }}
+      </span>
+    {% else %}
+      BTC —
+    {% endif %}
+  </span>
+  <div class="sb-right">
+    <div class="live-dot"></div>
+    <span class="sb-clock" id="sb-clock"></span>
+  </div>
+</div>
+
+<!-- Re-engagement banner (shown after preview) -->
+<div id="re-engage-banner">
+  You just saw Commander access for 5 seconds. Never lose that again.
+  <a href="/terminal/checkout">→ $29/MO</a>
+  <button id="re-engage-close">✕</button>
+</div>
+
+<div id="page">
+
+  <!-- Activated welcome banner -->
+  {% if activated %}
+  <div id="activated-banner">
+    <div class="activated-title">🎯 COMMANDER ACCESS ACTIVATED</div>
+    {% if is_commander %}
+      All panels unlocked. Signal Intelligence live. Welcome to the terminal.
+      {% if api_key %}
+      <div class="api-key-display">
+        <span id="api-key-text">{{ api_key }}</span>
+        <button class="copy-btn" onclick="copyKey()">COPY</button>
+      </div>
+      <div style="margin-top:6px;font-size:9px;color:var(--text-label);">Store this key securely. It grants API access at 10,000 req/hr. Shown here once — find it again at /terminal/account.</div>
+      {% endif %}
+    {% else %}
+      Subscription processing. Refresh in a moment.
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- ═══════════════════ ROW 1 — MARKET OVERVIEW (FREE) ═══════════════════ -->
+  <div class="section-label">MARKET OVERVIEW</div>
+  <div class="terminal-grid" id="row1">
+
+    <!-- 1A: BTC Price (2-col) -->
+    <div class="panel col-2" id="panel-price">
+      <div class="panel-hdr">
+        <span class="panel-title">BTC / USD</span>
+        <div class="panel-live"><div class="live-dot"></div><span class="panel-live-label">LIVE</span></div>
+      </div>
+      <div class="panel-body">
+        <div class="hero-price" id="btc-price-hero">
+          {% if price.price %}${{ "{:,.2f}".format(price.price) }}{% else %}—{% endif %}
+        </div>
+        <hr class="data-sep">
+        <div class="data-row">
+          <span class="data-label">24H CHANGE</span>
+          <span>
+            <span class="data-val {% if price.change_24h_usd >= 0 %}green{% else %}red{% endif %}" id="chg-24h-usd">
+              {{ '▲' if price.change_24h_usd >= 0 else '▼' }} ${{ "{:,.0f}".format(price.change_24h_usd | abs) }}
+            </span>
+            <span class="data-delta {% if price.change_24h_pct >= 0 %}up{% else %}dn{% endif %}" id="chg-24h-pct">
+              {{ '▲' if price.change_24h_pct >= 0 else '▼' }} {{ "{:.2f}%".format(price.change_24h_pct | abs) }}
+            </span>
+          </span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">7D CHANGE</span>
+          <span class="data-val {% if price.change_7d_pct >= 0 %}green{% else %}red{% endif %}">
+            {{ '▲' if price.change_7d_pct >= 0 else '▼' }} {{ "{:.2f}%".format(price.change_7d_pct | abs) }}
+          </span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">30D CHANGE</span>
+          <span class="data-val {% if price.change_30d_pct >= 0 %}green{% else %}red{% endif %}">
+            {{ '▲' if price.change_30d_pct >= 0 else '▼' }} {{ "{:.2f}%".format(price.change_30d_pct | abs) }}
+          </span>
+        </div>
+        <hr class="data-sep">
+        <div class="data-row">
+          <span class="data-label">24H HIGH</span>
+          <span class="data-val gold">${{ "{:,.0f}".format(price.high_24h) }}</span>
+          <span class="data-label" style="margin-left:16px;">24H LOW</span>
+          <span class="data-val">${{ "{:,.0f}".format(price.low_24h) }}</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">MKT CAP</span>
+          <span class="data-val">${{ "{:.2f}T".format(price.market_cap / 1e12) if price.market_cap else "—" }}</span>
+          <span class="data-label" style="margin-left:16px;">DOMINANCE</span>
+          <span class="data-val">{{ price.dominance }}%</span>
+        </div>
+        <svg class="sparkline" id="sparkline-price" width="100%" height="28" viewBox="0 0 300 28" preserveAspectRatio="none">
+          <polyline id="spark-price-line" points="" stroke="#F59E0B" stroke-width="1.5" fill="none"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- 1B: Mempool (1-col) -->
+    <div class="panel" id="panel-mempool">
+      <div class="panel-hdr">
+        <span class="panel-title">MEMPOOL</span>
+        <div class="panel-live"><div class="live-dot"></div><span class="panel-live-label">LIVE</span></div>
+      </div>
+      <div class="panel-body">
+        <div class="data-row">
+          <span class="data-label">UNCONFIRMED TXS</span>
+          <span class="data-val" id="mp-count">{{ "{:,}".format(mempool.count) }}</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">MEMPOOL SIZE</span>
+          <span class="data-val">{{ "{:.1f} MB".format(mempool.vsize / 1e6) if mempool.vsize else "—" }}</span>
+        </div>
+        <hr class="data-sep">
+        <div class="data-label" style="padding:4px 0 6px;">FEE MARKET (sat/vB)</div>
+        <div class="data-row">
+          <span class="data-label">NO PRIORITY</span>
+          <span class="data-val">{{ mempool.fee_no_priority }}</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">LOW PRIORITY</span>
+          <span class="data-val">{{ mempool.fee_low }}</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">MED PRIORITY</span>
+          <span class="data-val gold">{{ mempool.fee_medium }}</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">HIGH PRIORITY</span>
+          <span class="data-val" style="color:var(--amber);">{{ mempool.fee_high }}</span>
+        </div>
+        <hr class="data-sep">
+        <div class="data-row">
+          <span class="data-label">NEXT BLOCK ETA</span>
+          <span class="data-val">~10 min</span>
+        </div>
+        <svg class="sparkline" id="sparkline-mempool" width="100%" height="22" viewBox="0 0 200 22" preserveAspectRatio="none">
+          <polyline id="spark-mempool-line" points="" stroke="#22D3EE" stroke-width="1.5" fill="none"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- 1C: Fear & Greed (1-col) -->
+    <div class="panel" id="panel-fg">
+      <div class="panel-hdr">
+        <span class="panel-title">FEAR &amp; GREED INDEX</span>
+        <span class="panel-ts">○ 15M</span>
+      </div>
+      <div class="panel-body">
+        <div class="data-row">
+          <span class="data-label">TODAY</span>
+          <span class="data-val gold">{{ fg.today }} / 100</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">CLASSIFICATION</span>
+          <span class="data-val" id="fg-class" style="color:{{ '#EF4444' if fg.today < 30 else ('#FB923C' if fg.today < 50 else ('#F59E0B' if fg.today < 70 else '#10B981')) }}">
+            {{ fg.today_class.upper() }}
+          </span>
+        </div>
+        <div class="fg-bar-wrap" style="margin-top:10px;">
+          <div class="fg-bar-fill" style="width:100%;"></div>
+          <div class="fg-bar-pointer" style="left:calc({{ fg.today }}% - 1px);"></div>
+        </div>
+        <div class="fg-labels">
+          <span>FEAR</span><span>50</span><span>GREED</span>
+        </div>
+        <hr class="data-sep">
+        <div class="data-row">
+          <span class="data-label">YESTERDAY</span>
+          <span class="data-val">{{ fg.yesterday }}
+            <span class="data-delta {% if fg.today - fg.yesterday >= 0 %}up{% else %}dn{% endif %}">
+              {{ '▲' if fg.today - fg.yesterday >= 0 else '▼' }} {{ (fg.today - fg.yesterday) | abs }}
+            </span>
+          </span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">LAST WEEK</span>
+          <span class="data-val">{{ fg.last_week }}
+            <span class="data-delta {% if fg.today - fg.last_week >= 0 %}up{% else %}dn{% endif %}">
+              {{ '▲' if fg.today - fg.last_week >= 0 else '▼' }} {{ (fg.today - fg.last_week) | abs }}
+            </span>
+          </span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">LAST MONTH</span>
+          <span class="data-val">{{ fg.last_month }}
+            <span class="data-delta {% if fg.today - fg.last_month >= 0 %}up{% else %}dn{% endif %}">
+              {{ '▲' if fg.today - fg.last_month >= 0 else '▼' }} {{ (fg.today - fg.last_month) | abs }}
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /row1 -->
+
+  <!-- ═══════════════════ ROW 2 — ON-CHAIN METRICS (LOCKED) ═══════════════════ -->
+  <div class="section-label">ON-CHAIN METRICS</div>
+  <div class="terminal-grid" id="row2">
+
+    <!-- 2A: Hashrate & Difficulty -->
+    <div class="panel {% if not is_commander %}panel-locked{% endif %}" id="panel-hashrate">
+      <div class="panel-hdr">
+        <span class="panel-title">NETWORK SECURITY</span>
+        <span class="panel-ts">{% if is_commander %}<span class="panel-live-label" style="color:var(--gold);">COMMANDER</span>{% else %}🔒 COMMANDER{% endif %}</span>
+      </div>
+      <div class="panel-content panel-body">
+        <div class="data-row">
+          <span class="data-label">HASHRATE</span>
+          <span class="data-val gold">{{ onchain.hashrate_ehs }} EH/s</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">DIFFICULTY</span>
+          <span class="data-val">{{ onchain.difficulty_t }} T</span>
+        </div>
+        <hr class="data-sep">
+        <div class="data-row">
+          <span class="data-label">NEXT ADJUSTMENT</span>
+          <span class="data-val {% if onchain.next_adj_pct >= 0 %}green{% else %}red{% endif %}">
+            {{ '+' if onchain.next_adj_pct >= 0 else '' }}{{ "{:.2f}%".format(onchain.next_adj_pct) }}
+          </span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">REMAIN</span>
+          <span class="data-val">{{ onchain.remain_blocks }} blocks</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">BLOCK HEIGHT</span>
+          <span class="data-val">{{ "{:,}".format(onchain.block_height) if onchain.block_height else "—" }}</span>
+        </div>
+      </div>
+      {% if not is_commander %}
+      <div class="lock-overlay">
+        <span class="lock-icon">🔒</span>
+        <span class="lock-tier">COMMANDER</span>
+        <span class="lock-cta">Network security data</span>
+        <button class="lock-button" onclick="location.href='/terminal/checkout'">UNLOCK $29/MO</button>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- 2B: MVRV Z-Score -->
+    <div class="panel {% if not is_commander %}panel-locked{% endif %}" id="panel-mvrv">
+      <div class="panel-hdr">
+        <span class="panel-title">VALUATION MODEL</span>
+        <span class="panel-ts">{% if not is_commander %}🔒 COMMANDER{% endif %}</span>
+      </div>
+      <div class="panel-content panel-body">
+        <div class="data-row">
+          <span class="data-label">MVRV Z-SCORE</span>
+          <span class="data-val gold">{{ onchain.mvrv }}</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">SIGNAL</span>
+          <span class="data-val green">ACCUMULATE</span>
+        </div>
+        <hr class="data-sep">
+        <div class="data-row">
+          <span class="data-label">REALIZED PRICE</span>
+          <span class="data-val">${{ "{:,}".format(onchain.realized_price) }}</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">CYCLE ZONE</span>
+          <span class="data-val" style="color:var(--cyan);">MID-BULL</span>
+        </div>
+      </div>
+      {% if not is_commander %}
+      <div class="lock-overlay">
+        <span class="lock-icon">🔒</span>
+        <span class="lock-tier">COMMANDER</span>
+        <span class="lock-cta">See where we are in the cycle</span>
+        <button class="lock-button" onclick="location.href='/terminal/checkout'">$29/MO</button>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- 2C: Stock to Flow -->
+    <div class="panel {% if not is_commander %}panel-locked{% endif %}" id="panel-s2f">
+      <div class="panel-hdr">
+        <span class="panel-title">STOCK-TO-FLOW</span>
+        <span class="panel-ts">{% if not is_commander %}🔒 COMMANDER{% endif %}</span>
+      </div>
+      <div class="panel-content panel-body">
+        <div class="data-row">
+          <span class="data-label">S2F RATIO</span>
+          <span class="data-val gold">{{ onchain.s2f_ratio }}</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">MODEL PRICE</span>
+          <span class="data-val">${{ "{:,}".format(onchain.s2f_model_price) }}</span>
+        </div>
+        <hr class="data-sep">
+        <div class="data-row">
+          <span class="data-label">NEXT HALVING</span>
+          <span class="data-val">~{{ ((840000 - onchain.block_height) // 144) if onchain.block_height else "—" }} days</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">HALVING EPOCH</span>
+          <span class="data-val" style="color:var(--amber);">5th</span>
+        </div>
+      </div>
+      {% if not is_commander %}
+      <div class="lock-overlay">
+        <span class="lock-icon">🔒</span>
+        <span class="lock-tier">COMMANDER</span>
+        <span class="lock-cta">S2F model + halving countdown</span>
+        <button class="lock-button" onclick="location.href='/terminal/checkout'">$29/MO</button>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- 2D: Exchange Flows -->
+    <div class="panel {% if not is_commander %}panel-locked{% endif %}" id="panel-flows">
+      <div class="panel-hdr">
+        <span class="panel-title">EXCHANGE FLOWS</span>
+        <span class="panel-ts">{% if not is_commander %}🔒 COMMANDER{% endif %}</span>
+      </div>
+      <div class="panel-content panel-body">
+        <div class="data-row">
+          <span class="data-label">INFLOW</span>
+          <span class="data-val red">{{ "{:,}".format(onchain.exchange_inflow) }} BTC</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">OUTFLOW</span>
+          <span class="data-val green">{{ "{:,}".format(onchain.exchange_outflow) }} BTC</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">NET FLOW</span>
+          <span class="data-val {% if onchain.exchange_net < 0 %}green{% else %}red{% endif %}">
+            {{ '+' if onchain.exchange_net >= 0 else '' }}{{ "{:,}".format(onchain.exchange_net) }} BTC
+          </span>
+        </div>
+        <hr class="data-sep">
+        <div class="data-row">
+          <span class="data-label">SIGNAL</span>
+          <span class="data-val green">NET OUTFLOW — BULLISH</span>
+        </div>
+      </div>
+      {% if not is_commander %}
+      <div class="lock-overlay">
+        <span class="lock-icon">🔒</span>
+        <span class="lock-tier">COMMANDER</span>
+        <span class="lock-cta">Follow smart money on-chain</span>
+        <button class="lock-button" onclick="location.href='/terminal/checkout'">$29/MO</button>
+      </div>
+      {% endif %}
+    </div>
+
+  </div><!-- /row2 -->
+
+  <!-- ═══════════════════ ROW 3 — PP SIGNAL INTELLIGENCE (LOCKED) ════════════ -->
+  <div class="section-label">SIGNAL INTELLIGENCE</div>
+  <div class="terminal-grid" id="row3">
+
+    <!-- 3A: Signal Score (2-col, special lock) -->
+    <div class="panel col-2 {% if not is_commander %}panel-locked panel-signal-lock{% endif %}" id="panel-signal">
+      <div class="panel-hdr">
+        <span class="panel-title">PP SIGNAL INTELLIGENCE</span>
+        <div class="panel-live">
+          {% if is_commander %}<div class="live-dot"></div><span class="panel-live-label">LIVE</span>{% else %}<span class="panel-ts">🔒 COMMANDER EXCLUSIVE</span>{% endif %}
+        </div>
+      </div>
+      <div class="panel-content panel-body">
+        <div class="signal-score-hero">
+          <div class="signal-num" id="signal-score-num">{{ signal.score }}</div>
+          <div>
+            <div class="signal-class" id="signal-class" style="color:{{ '#10B981' if signal.score >= 65 else ('#64748B' if signal.score >= 45 else '#EF4444') }}">
+              {{ signal.classification }}
+            </div>
+            <div class="signal-delta data-delta {% if signal.delta >= 0 %}up{% else %}dn{% endif %}" style="margin-top:4px;">
+              {{ '▲ +' if signal.delta >= 0 else '▼ ' }}{{ signal.delta | abs }} FROM YESTERDAY
+            </div>
+          </div>
+        </div>
+        <div class="signal-bar-wrap">
+          <div class="signal-bar-fill" id="signal-bar" style="width:{{ signal.score }}%;background:{{ '#10B981' if signal.score >= 65 else ('#F59E0B' if signal.score >= 45 else '#EF4444') }};"></div>
+        </div>
+        <hr class="data-sep">
+        <div class="data-label" style="padding:6px 0 8px;">COMPONENT BREAKDOWN</div>
+        {% set comps = [
+          ("ARTICLE SENTIMENT", "article_sentiment"),
+          ("PRICE MOMENTUM",    "price_momentum"),
+          ("SOCIAL VOLUME",     "social_volume"),
+          ("ON-CHAIN HEALTH",   "onchain_health"),
+          ("FEAR/GREED CONTRIB","fear_greed_contrib"),
+        ] %}
+        {% for label, key in comps %}
+        {% set val = signal.components[key] | int %}
+        <div class="component-row">
+          <span class="comp-label">{{ label }}</span>
+          <span class="comp-score">{{ val }}</span>
+          <div class="comp-bar">
+            <div class="comp-bar-fill" style="width:{{ val }}%;background:{{ '#10B981' if val >= 65 else ('#F59E0B' if val >= 45 else '#EF4444') }};"></div>
+          </div>
+        </div>
+        {% endfor %}
+        <div class="panel-ts" style="text-align:right;margin-top:8px;">Updated {{ signal.ts }}</div>
+      </div>
+      {% if not is_commander %}
+      <div class="lock-overlay">
+        <div class="lock-box">
+          <div class="lock-box-title">🔒  PP SIGNAL INTELLIGENCE</div>
+          <div>The only composite Bitcoin signal<br>built from 80 live sources.<br>Updated every 2 minutes.</div>
+          <button class="lock-button" style="margin-top:8px;padding:10px 24px;" onclick="location.href='/terminal/checkout'">UNLOCK FOR $29/MO</button>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- 3B: Trending Topics -->
+    <div class="panel {% if not is_commander %}panel-locked{% endif %}" id="panel-topics">
+      <div class="panel-hdr">
+        <span class="panel-title">TRENDING INTEL (LAST 2H)</span>
+        <span class="panel-ts">{% if not is_commander %}🔒 COMMANDER{% endif %}</span>
+      </div>
+      <div class="panel-content panel-body">
+        {% for t in topics.topics[:6] %}
+        <div class="topic-row">
+          <span class="topic-rank">0{{ loop.index }}</span>
+          <span class="topic-term">{{ t.term }}</span>
+          <span class="topic-count"><span class="topic-vel">{{ '↑↑↑' if loop.index == 1 else ('↑↑' if loop.index <= 3 else '↑') }}</span>{{ t.count }} art.</span>
+        </div>
+        {% else %}
+        {% for dummy in [("BITCOIN ETF", 14), ("HALVING", 11), ("BLACKROCK", 9), ("LIGHTNING", 7), ("MEMPOOL", 5)] %}
+        <div class="topic-row">
+          <span class="topic-rank">{{ loop.index }}</span>
+          <span class="topic-term">{{ dummy[0] }}</span>
+          <span class="topic-count"><span class="topic-vel">{{ '↑↑↑' if loop.index == 1 else '↑↑' }}</span>{{ dummy[1] }} art.</span>
+        </div>
+        {% endfor %}
+        {% endfor %}
+        <hr class="data-sep">
+        <div class="data-row">
+          <span class="data-label">TOTAL ARTICLES TODAY</span>
+          <span class="data-val">{{ topics.total_articles }}</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">SOURCES MONITORED</span>
+          <span class="data-val gold">80</span>
+        </div>
+      </div>
+      {% if not is_commander %}
+      <div class="lock-overlay">
+        <span class="lock-icon">🔒</span>
+        <span class="lock-tier">COMMANDER</span>
+        <span class="lock-cta">80 sources. Ranked by velocity.</span>
+        <button class="lock-button" onclick="location.href='/terminal/checkout'">$29/MO</button>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- 3C: Early Warning Feed -->
+    <div class="panel {% if not is_commander %}panel-locked{% endif %}" id="panel-alerts">
+      <div class="panel-hdr">
+        <span class="panel-title">EARLY WARNINGS</span>
+        <span class="panel-ts">{% if not is_commander %}🔒 COMMANDER{% endif %}</span>
+      </div>
+      <div class="panel-content panel-body">
+        {% for alert in alerts[:7] %}
+        <div class="alert-row {{ 'is-alert' if alert.is_alert else '' }}">
+          <span class="alert-time">{{ alert.time }}</span>
+          <a href="{{ alert.url }}" class="alert-text">{{ alert.title[:70] }}{% if alert.title | length > 70 %}...{% endif %}</a>
+        </div>
+        {% else %}
+        <div style="color:var(--text-dim);font-size:11px;padding:8px 0;">No alerts at this time.</div>
+        {% endfor %}
+      </div>
+      {% if not is_commander %}
+      <div class="lock-overlay">
+        <span class="lock-icon">🔒</span>
+        <span class="lock-tier">COMMANDER</span>
+        <span class="lock-cta">Know before Twitter does</span>
+        <button class="lock-button" onclick="location.href='/terminal/checkout'">$29/MO</button>
+      </div>
+      {% endif %}
+    </div>
+
+  </div><!-- /row3 -->
+
+  <!-- ═══════════════════ ROW 4 — LATEST INTEL (FREE) ══════════════════════ -->
+  <div class="section-label">LATEST INTEL</div>
+  <div class="terminal-grid">
+    <div class="panel col-full" id="panel-latest">
+      <div class="panel-hdr">
+        <span class="panel-title">LATEST INTEL</span>
+        <div class="panel-live"><div class="live-dot"></div><span class="panel-live-label">LIVE</span></div>
+      </div>
+      <div class="panel-body">
+        <div id="article-feed">
+          {% for art in latest.articles %}
+          <a href="{{ art.slug }}" class="article-row">
+            <span class="article-time">{{ art.time }}</span>
+            <span class="article-title">{{ art.title }}</span>
+            <span class="article-arrow">→</span>
+          </a>
+          {% else %}
+          <div style="color:var(--text-dim);font-size:11px;padding:8px 0;">Loading latest intelligence...</div>
+          {% endfor %}
+        </div>
+        <a href="/articles" class="article-all">→ VIEW ALL {{ "{:,}".format(latest.total) if latest.total else "" }} ARTICLES</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ CTA SECTION ══════════════════════════════════════ -->
+  {% if not is_commander %}
+  <div id="cta-section">
+    <div class="cta-inner">
+      <div class="cta-left">
+        <h2>COMMANDER ACCESS</h2>
+        <ul class="cta-features">
+          <li>PP Signal Intelligence — composite score from 80 sources</li>
+          <li>Full on-chain metrics (MVRV, S2F, exchange flows)</li>
+          <li>Trending topics ranked by velocity</li>
+          <li>Early warning alert feed</li>
+          <li>API access — 10,000 req/hr</li>
+          <li>No rate limits on this terminal</li>
+        </ul>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+        <div class="cta-price">$29<span class="cta-price-sub">/MO</span></div>
+        <div class="cta-buttons">
+          <button class="btn-commander" onclick="location.href='/terminal/checkout'">ACTIVATE COMMANDER → $29/MO</button>
+          <button class="btn-preview" id="btn-preview" onclick="startPreview()">SEE WHAT YOU'RE MISSING</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ═══════════════════ ROW 5 — MACRO + LIGHTNING ════════════════════════ -->
+  <div class="section-label">MACRO &amp; NETWORK</div>
+  <div class="terminal-grid" id="row5">
+
+    <!-- 5A: Macro (FREE) -->
+    <div class="panel col-2" id="panel-macro">
+      <div class="panel-hdr">
+        <span class="panel-title">MACRO CONTEXT</span>
+        <span class="panel-ts">○ 1H</span>
+      </div>
+      <div class="panel-body">
+        <div class="data-row">
+          <span class="data-label">DXY (USD INDEX)</span>
+          <span class="data-val">{{ macro.DXY.price if macro.DXY else "—" }}</span>
+          {% if macro.DXY and macro.DXY.change_pct %}
+          <span class="data-delta {% if macro.DXY.change_pct >= 0 %}up{% else %}dn{% endif %}">
+            {{ '▲' if macro.DXY.change_pct >= 0 else '▼' }} {{ "{:.2f}%".format(macro.DXY.change_pct | abs) }}
+          </span>
+          {% endif %}
+        </div>
+        <div class="data-row">
+          <span class="data-label">GOLD</span>
+          <span class="data-val">${{ "{:,.0f}".format(macro.GOLD.price) if macro.GOLD and macro.GOLD.price else "—" }}</span>
+          {% if macro.GOLD and macro.GOLD.change_pct %}
+          <span class="data-delta {% if macro.GOLD.change_pct >= 0 %}up{% else %}dn{% endif %}">
+            {{ '▲' if macro.GOLD.change_pct >= 0 else '▼' }} {{ "{:.2f}%".format(macro.GOLD.change_pct | abs) }}
+          </span>
+          {% endif %}
+        </div>
+        <div class="data-row">
+          <span class="data-label">S&amp;P 500</span>
+          <span class="data-val">{{ "{:,.0f}".format(macro.SP500.price) if macro.SP500 and macro.SP500.price else "—" }}</span>
+          {% if macro.SP500 and macro.SP500.change_pct %}
+          <span class="data-delta {% if macro.SP500.change_pct >= 0 %}up{% else %}dn{% endif %}">
+            {{ '▲' if macro.SP500.change_pct >= 0 else '▼' }} {{ "{:.2f}%".format(macro.SP500.change_pct | abs) }}
+          </span>
+          {% endif %}
+        </div>
+        <div class="macro-ratio-row">
+          <span>
+            <span class="data-label">BTC/GOLD RATIO</span>
+            <span class="data-val" style="margin-left:8px;">{{ macro.BTC_GOLD_RATIO if macro.BTC_GOLD_RATIO else "—" }}</span>
+          </span>
+          <span>
+            <span class="data-label">BTC/SP500 RATIO</span>
+            <span class="data-val" style="margin-left:8px;">{{ macro.BTC_SP500_RATIO if macro.BTC_SP500_RATIO else "—" }}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5B: Lightning Network (LOCKED) -->
+    <div class="panel col-2 {% if not is_commander %}panel-locked{% endif %}" id="panel-lightning">
+      <div class="panel-hdr">
+        <span class="panel-title">LIGHTNING NETWORK</span>
+        <span class="panel-ts">{% if not is_commander %}🔒 COMMANDER{% endif %}</span>
+      </div>
+      <div class="panel-content panel-body">
+        <div class="data-row">
+          <span class="data-label">NODES</span>
+          <span class="data-val gold">{{ "{:,}".format(lightning.node_count) if lightning.node_count else "—" }}</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">CHANNELS</span>
+          <span class="data-val">{{ "{:,}".format(lightning.channel_count) if lightning.channel_count else "—" }}</span>
+        </div>
+        <hr class="data-sep">
+        <div>
+          <div class="data-label" style="padding:4px 0 2px;">TOTAL CAPACITY</div>
+          <div class="ln-capacity">{{ "{:.1f}".format(lightning.total_capacity / 1e8) if lightning.total_capacity else "—" }} <span class="ln-cap-unit">BTC</span></div>
+        </div>
+        <div class="data-row" style="margin-top:6px;">
+          <span class="data-label">AVG CHANNEL SIZE</span>
+          <span class="data-val">{{ "{:,}".format(lightning.avg_capacity) if lightning.avg_capacity else "—" }} sats</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">AVG FEE RATE</span>
+          <span class="data-val">{{ lightning.avg_fee_rate if lightning.avg_fee_rate else "—" }} ppm</span>
+        </div>
+      </div>
+      {% if not is_commander %}
+      <div class="lock-overlay">
+        <span class="lock-icon">🔒</span>
+        <span class="lock-tier">COMMANDER</span>
+        <span class="lock-cta">LN network health metrics</span>
+        <button class="lock-button" onclick="location.href='/terminal/checkout'">$29/MO</button>
+      </div>
+      {% endif %}
+    </div>
+
+  </div><!-- /row5 -->
+
+  <!-- Footer -->
+  <div style="text-align:center;padding:24px 0 12px;font:400 9px/1 var(--font);color:var(--text-dim);letter-spacing:.08em;">
+    PROTOCOL PULSE TERMINAL — BITCOIN INTELLIGENCE — DATA UPDATES CONTINUOUSLY
+    {% if is_commander %} — COMMANDER ACCESS ACTIVE{% endif %}
+  </div>
+
+</div><!-- /page -->
+
+<!-- ================================================================
+     JAVASCRIPT
+     ================================================================ -->
+<script>
+// ── UTC clock ─────────────────────────────────────────────────────
+function tickClock() {
+  const now = new Date();
+  const h = now.getUTCHours().toString().padStart(2,'0');
+  const m = now.getUTCMinutes().toString().padStart(2,'0');
+  const s = now.getUTCSeconds().toString().padStart(2,'0');
+  const el = document.getElementById('sb-clock');
+  if (el) el.textContent = `${h}:${m}:${s} UTC`;
+}
+setInterval(tickClock, 1000);
+tickClock();
+
+// ── Flash utility ─────────────────────────────────────────────────
+function flash(el) {
+  el.classList.remove('value-updated');
+  void el.offsetWidth;
+  el.classList.add('value-updated');
+  setTimeout(() => el.classList.remove('value-updated'), 700);
+}
+
+// ── Format helpers ────────────────────────────────────────────────
+const fmt = (n, d=2) => n == null ? '—' : Number(n).toLocaleString('en-US', {minimumFractionDigits:d, maximumFractionDigits:d});
+const fmtk = n => n == null ? '—' : Number(n).toLocaleString('en-US', {maximumFractionDigits:0});
+
+// ── BTC price live fetch ──────────────────────────────────────────
+let lastPrice = {{ price.price or 0 }};
+let priceHistory = [];
+
+function updatePriceDisplay(data) {
+  const newPrice = data.price || 0;
+  const el = document.getElementById('btc-price-hero');
+  const sbEl = document.getElementById('sb-price');
+  const deltaEl = document.getElementById('sb-delta');
+  if (el && newPrice) {
+    const old = lastPrice;
+    lastPrice = newPrice;
+    el.textContent = '$' + fmtk(newPrice) + '.00';
+    flash(el);
+    if (sbEl) sbEl.firstChild.textContent = 'BTC $' + fmtk(newPrice);
+    if (deltaEl) {
+      const pct = data.change_24h_pct || 0;
+      deltaEl.textContent = (pct >= 0 ? '▲' : '▼') + Math.abs(pct).toFixed(2) + '%';
+      deltaEl.style.color = pct >= 0 ? '#10B981' : '#EF4444';
+    }
+    priceHistory.push(newPrice);
+    if (priceHistory.length > 20) priceHistory.shift();
+    drawSparkline('spark-price-line', priceHistory, 300, 28);
+  }
+}
+
+function fetchPrice() {
+  fetch('/api/v2/terminal/price')
+    .then(r => r.json())
+    .then(d => updatePriceDisplay(d))
+    .catch(() => {});
+}
+
+// ── Mempool fetch ─────────────────────────────────────────────────
+function fetchMempool() {
+  fetch('/api/v2/terminal/mempool')
+    .then(r => r.json())
+    .then(d => {
+      const el = document.getElementById('mp-count');
+      if (el && d.count) { el.textContent = fmtk(d.count); flash(el); }
+    })
+    .catch(() => {});
+}
+
+// ── Articles refresh ──────────────────────────────────────────────
+function fetchLatest() {
+  fetch('/api/v2/terminal/latest')
+    .then(r => r.json())
+    .then(d => {
+      const feed = document.getElementById('article-feed');
+      if (!feed || !d.articles || !d.articles.length) return;
+      feed.innerHTML = d.articles.map(a =>
+        `<a href="${a.slug}" class="article-row">
+          <span class="article-time">${a.time || '—'}</span>
+          <span class="article-title">${escHtml(a.title)}</span>
+          <span class="article-arrow">→</span>
+        </a>`
+      ).join('');
+    })
+    .catch(() => {});
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Sparkline renderer ────────────────────────────────────────────
+function drawSparkline(id, data, w, h) {
+  if (!data || data.length < 2) return;
+  const poly = document.getElementById(id);
+  if (!poly) return;
+  const mn = Math.min(...data), mx = Math.max(...data);
+  const range = mx - mn || 1;
+  const pts = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * w;
+    const y = h - ((v - mn) / range) * (h - 2) - 1;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  poly.setAttribute('points', pts);
+}
+
+// ── WebSocket for live BTC price ──────────────────────────────────
+let wsConnected = false;
+function connectWS() {
+  try {
+    const ws = new WebSocket('wss://ws.blockchain.info/inv');
+    ws.onopen = () => {
+      ws.send(JSON.stringify({op:'unconfirmed_sub'}));
+      wsConnected = true;
+    };
+    ws.onmessage = (e) => {
+      try {
+        const d = JSON.parse(e.data);
+        if (d.x && d.x.out) {
+          // Use as a trigger to refresh price
+          fetchPrice();
+        }
+      } catch(ex){}
+    };
+    ws.onclose = () => { wsConnected = false; };
+    ws.onerror = () => { wsConnected = false; };
+  } catch(e) {}
+}
+connectWS();
+
+// ── Polling schedule ──────────────────────────────────────────────
+fetchPrice();
+fetchMempool();
+fetchLatest();
+setInterval(fetchPrice, 15000);
+setInterval(fetchMempool, 30000);
+setInterval(fetchLatest, 60000);
+// Reconnect WS if disconnected
+setInterval(() => { if (!wsConnected) connectWS(); }, 30000);
+
+// ── "See What You're Missing" 5-second preview ────────────────────
+let previewActive = false;
+
+function startPreview() {
+  if (previewActive) return;
+  previewActive = true;
+
+  const btn = document.getElementById('btn-preview');
+  if (btn) btn.disabled = true;
+
+  const locked = document.querySelectorAll('.panel-locked');
+  const bars = [];
+
+  locked.forEach(panel => {
+    // Add preview mode
+    panel.classList.add('preview-mode');
+
+    // Add gold countdown bar
+    const bar = document.createElement('div');
+    bar.className = 'preview-bar';
+    bar.style.width = '100%';
+    panel.appendChild(bar);
+    bars.push(bar);
+  });
+
+  let countdown = 5;
+  const interval = setInterval(() => {
+    countdown--;
+    // Update bar width
+    const pct = (countdown / 5) * 100;
+    bars.forEach(b => b.style.width = pct + '%');
+
+    if (countdown <= 0) {
+      clearInterval(interval);
+      // Re-lock all panels
+      locked.forEach(panel => {
+        panel.classList.remove('preview-mode');
+      });
+      // Remove bars
+      bars.forEach(b => b.remove());
+      previewActive = false;
+      if (btn) btn.disabled = false;
+      // Show re-engagement banner
+      showReEngage();
+    }
+  }, 1000);
+}
+
+function showReEngage() {
+  const banner = document.getElementById('re-engage-banner');
+  if (banner) {
+    banner.style.display = 'block';
+    // Auto-dismiss after 12s
+    setTimeout(() => { if (banner) banner.style.display = 'none'; }, 12000);
+  }
+}
+
+document.getElementById('re-engage-close')?.addEventListener('click', () => {
+  document.getElementById('re-engage-banner').style.display = 'none';
+});
+
+// ── Copy API key ──────────────────────────────────────────────────
+function copyKey() {
+  const el = document.getElementById('api-key-text');
+  if (el) {
+    navigator.clipboard.writeText(el.textContent.trim()).then(() => {
+      const btn = document.querySelector('.copy-btn');
+      if (btn) { btn.textContent = 'COPIED'; setTimeout(() => btn.textContent = 'COPY', 2000); }
+    }).catch(() => {
+      const rng = document.createRange();
+      rng.selectNode(el);
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(rng);
+      document.execCommand('copy');
+    });
+  }
+}
+
+// ── Rank formatting (zero-pad) ────────────────────────────────────
+String.prototype.zfill = function(n) { return this.padStart(n,'0'); };
+</script>
+</body>
+</html>

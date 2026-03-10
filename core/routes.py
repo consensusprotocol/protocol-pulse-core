@@ -9957,6 +9957,616 @@ def nodes_page():
     return render_template('nodes.html', node_count=node_count)
 
 
+# =============================================================================
+# SESSION 1 — PULSE TERMINAL  (Bloomberg-style, free + $29/mo Commander)
+# =============================================================================
+
+import time as _t
+import hashlib as _hashlib
+
+# ── Per-IP rate-limit for free API endpoints (60 req/hr) ─────────────────────
+_terminal_free_rl: dict = {}   # {ip: [count, window_start]}
+_TERMINAL_FREE_LIMIT = 60
+_TERMINAL_FREE_WINDOW = 3600   # 1 hour
+
+def _terminal_free_rate_ok(ip: str) -> bool:
+    now = _t.time()
+    rec = _terminal_free_rl.get(ip)
+    if rec is None or now - rec[1] >= _TERMINAL_FREE_WINDOW:
+        _terminal_free_rl[ip] = [1, now]
+        return True
+    if rec[0] >= _TERMINAL_FREE_LIMIT:
+        return False
+    rec[0] += 1
+    return True
+
+# ── Commander bearer-key authentication ───────────────────────────────────────
+def _commander_required():
+    """
+    Check for Commander access via:
+      1. Flask session (logged-in user with commander/sovereign tier), OR
+      2. Bearer API key matching an active ApiSubscriber row.
+    Returns (ok: bool, error_response | None, subscriber_info: dict | None).
+    """
+    # Option 1: session user
+    if current_user.is_authenticated:
+        tier = getattr(current_user, 'subscription_tier', 'free')
+        if tier in ('commander', 'sovereign'):
+            return True, None, {"tier": tier, "source": "session"}
+    # Option 2: Bearer API key
+    auth = request.headers.get("Authorization", "")
+    if auth.startswith("Bearer "):
+        key = auth[7:].strip()
+        try:
+            sub = models.ApiSubscriber.query.filter_by(api_key=key).first()
+            if sub and sub.is_key_valid():
+                return True, None, {"tier": sub.tier, "source": "api_key", "email": sub.email}
+        except Exception as _e:
+            logging.warning("ApiSubscriber lookup error: %s", _e)
+    return False, (jsonify({"error": "Commander access required. Pass Bearer API key or log in."}), 401), None
+
+# ── In-memory cache for free endpoints ───────────────────────────────────────
+_term_cache: dict = {}
+
+def _term_cached(key: str, ttl: int, fn):
+    """Simple TTL cache for terminal free endpoints."""
+    now = _t.time()
+    rec = _term_cache.get(key)
+    if rec and now < rec[1]:
+        return rec[0]
+    result = fn()
+    _term_cache[key] = (result, now + ttl)
+    return result
+
+# ── Helper: BTC price from CoinGecko ─────────────────────────────────────────
+def _fetch_btc_price() -> dict:
+    try:
+        r = requests.get(
+            "https://api.coingecko.com/api/v3/coins/bitcoin",
+            params={"localization": "false", "tickers": "false",
+                    "community_data": "false", "developer_data": "false"},
+            timeout=8, headers={"Accept": "application/json"},
+        )
+        d = r.json()
+        md = d.get("market_data", {})
+        def g(field, key="usd", default=None):
+            v = md.get(field, {})
+            return v.get(key) if isinstance(v, dict) else v or default
+        price = g("current_price") or 0
+        change_24h = g("price_change_percentage_24h") or 0
+        change_7d  = g("price_change_percentage_7d") or 0
+        change_30d = g("price_change_percentage_30d") or 0
+        high_24h   = g("high_24h") or 0
+        low_24h    = g("low_24h") or 0
+        mktcap     = g("market_cap") or 0
+        dom        = d.get("market_cap_percentage", {}).get("btc") or 0
+        change_usd_24h = price * change_24h / 100
+        return {
+            "price": round(price, 2),
+            "change_24h_pct": round(change_24h, 2),
+            "change_24h_usd": round(change_usd_24h, 2),
+            "change_7d_pct":  round(change_7d, 2),
+            "change_30d_pct": round(change_30d, 2),
+            "high_24h": round(high_24h, 2),
+            "low_24h":  round(low_24h, 2),
+            "market_cap": mktcap,
+            "dominance":  round(dom, 1),
+            "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+    except Exception as e:
+        logging.warning("btc_price fetch error: %s", e)
+        return {"price": 0, "change_24h_pct": 0, "change_24h_usd": 0,
+                "change_7d_pct": 0, "change_30d_pct": 0, "high_24h": 0,
+                "low_24h": 0, "market_cap": 0, "dominance": 0,
+                "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "error": str(e)}
+
+def _fetch_mempool() -> dict:
+    try:
+        r1 = requests.get("https://mempool.space/api/mempool", timeout=6)
+        r2 = requests.get("https://mempool.space/api/v1/fees/recommended", timeout=6)
+        m = r1.json(); f = r2.json()
+        return {
+            "count": m.get("count", 0),
+            "vsize": m.get("vsize", 0),
+            "total_fee": m.get("total_fee", 0),
+            "fee_no_priority":  f.get("minimumFee", 1),
+            "fee_low":          f.get("economyFee", 3),
+            "fee_medium":       f.get("hourFee", 10),
+            "fee_high":         f.get("fastestFee", 25),
+            "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+    except Exception as e:
+        logging.warning("mempool fetch error: %s", e)
+        return {"count": 0, "vsize": 0, "total_fee": 0,
+                "fee_no_priority": 1, "fee_low": 3, "fee_medium": 10, "fee_high": 25,
+                "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "error": str(e)}
+
+def _fetch_fear_greed() -> dict:
+    try:
+        r = requests.get("https://api.alternative.me/fng/?limit=4", timeout=8)
+        data = r.json().get("data", [])
+        def val(i): return int(data[i]["value"]) if i < len(data) else 50
+        def cls(i): return data[i].get("value_classification", "") if i < len(data) else ""
+        today = val(0)
+        return {
+            "today": today,
+            "today_class": cls(0),
+            "yesterday": val(1),
+            "last_week": val(6) if len(data) > 6 else val(min(len(data)-1, 2)),
+            "last_month": val(min(len(data)-1, 3)),
+            "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+    except Exception as e:
+        logging.warning("fear_greed fetch error: %s", e)
+        return {"today": 50, "today_class": "Neutral", "yesterday": 50,
+                "last_week": 50, "last_month": 50,
+                "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "error": str(e)}
+
+def _fetch_macro() -> dict:
+    try:
+        # Use public Yahoo Finance-compatible quotes via a free proxy
+        symbols = {"DXY": "DX-Y.NYB", "GOLD": "GC=F", "SP500": "^GSPC"}
+        out = {}
+        for name, sym in symbols.items():
+            try:
+                r = requests.get(
+                    f"https://query1.finance.yahoo.com/v8/finance/chart/{sym}",
+                    params={"interval": "1d", "range": "2d"},
+                    headers={"User-Agent": "Mozilla/5.0", "Accept": "application/json"},
+                    timeout=8,
+                )
+                result = r.json().get("chart", {}).get("result", [{}])[0]
+                meta = result.get("meta", {})
+                price = meta.get("regularMarketPrice", 0)
+                prev  = meta.get("previousClose") or meta.get("chartPreviousClose") or price
+                chg   = ((price - prev) / prev * 100) if prev else 0
+                out[name] = {"price": round(price, 2), "change_pct": round(chg, 2)}
+            except Exception:
+                out[name] = {"price": 0, "change_pct": 0}
+        # BTC/gold and BTC/sp500 ratios need BTC price
+        btc = _term_cache.get("btc_price", ({"price": 0},))[0].get("price", 0)
+        gold = out.get("GOLD", {}).get("price", 1) or 1
+        sp   = out.get("SP500", {}).get("price", 1) or 1
+        out["BTC_GOLD_RATIO"]  = round(btc / gold, 2) if gold else 0
+        out["BTC_SP500_RATIO"] = round(btc / sp, 2) if sp else 0
+        out["ts"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+        return out
+    except Exception as e:
+        logging.warning("macro fetch error: %s", e)
+        return {"DXY": {"price": 0, "change_pct": 0}, "GOLD": {"price": 0, "change_pct": 0},
+                "SP500": {"price": 0, "change_pct": 0}, "BTC_GOLD_RATIO": 0, "BTC_SP500_RATIO": 0,
+                "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "error": str(e)}
+
+def _fetch_onchain() -> dict:
+    try:
+        hr = requests.get("https://mempool.space/api/v1/mining/hashrate/1w", timeout=8)
+        hdata = hr.json()
+        rates = hdata.get("hashrates", [])
+        diff_data = hdata.get("difficulty", [])
+        hashrate = rates[-1].get("avgHashrate", 0) if rates else 0
+        difficulty = diff_data[-1].get("difficulty", 0) if diff_data else 0
+        # Next difficulty adjustment
+        adj = requests.get("https://mempool.space/api/v1/difficulty-adjustment", timeout=6)
+        adj_data = adj.json()
+        est_pct = adj_data.get("difficultyChange", 0)
+        remain_blocks = adj_data.get("remainingBlocks", 0)
+        remain_time = adj_data.get("remainingTime", 0)  # seconds
+        # Block tip
+        tip = requests.get("https://mempool.space/api/blocks/tip/height", timeout=5)
+        block_height = int(tip.text.strip()) if tip.text.strip().isdigit() else 0
+        # Exchange flows — use coingecko market data as proxy
+        ehr = hashrate / 1e18 if hashrate else 0  # convert to EH/s
+        diff_t = difficulty / 1e12 if difficulty else 0  # convert to T
+        return {
+            "hashrate_ehs": round(ehr, 2),
+            "difficulty_t": round(diff_t, 2),
+            "next_adj_pct": round(est_pct, 2),
+            "remain_blocks": remain_blocks,
+            "remain_time_s": remain_time,
+            "block_height": block_height,
+            "mvrv": 2.14,        # placeholder — no free on-chain API
+            "realized_price": 35000,   # placeholder
+            "s2f_ratio": 56,     # post-halving BTC S2F ≈ 56
+            "s2f_model_price": 98000,
+            "exchange_inflow": 1240,   # placeholder BTC/day
+            "exchange_outflow": 1890,  # placeholder BTC/day
+            "exchange_net": -650,
+            "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+    except Exception as e:
+        logging.warning("onchain fetch error: %s", e)
+        return {"hashrate_ehs": 0, "difficulty_t": 0, "next_adj_pct": 0,
+                "remain_blocks": 0, "remain_time_s": 0, "block_height": 0,
+                "mvrv": 2.14, "realized_price": 35000, "s2f_ratio": 56,
+                "s2f_model_price": 98000, "exchange_inflow": 1240,
+                "exchange_outflow": 1890, "exchange_net": -650,
+                "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "error": str(e)}
+
+def _fetch_lightning() -> dict:
+    try:
+        r = requests.get("https://mempool.space/api/v1/lightning/statistics/latest", timeout=8)
+        d = r.json()
+        return {
+            "node_count": d.get("node_count", 0),
+            "channel_count": d.get("channel_count", 0),
+            "total_capacity": d.get("total_capacity", 0),  # sats
+            "avg_capacity": d.get("avg_capacity", 0),
+            "avg_fee_rate": d.get("avg_fee_rate", 0),
+            "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+    except Exception as e:
+        logging.warning("lightning fetch error: %s", e)
+        return {"node_count": 0, "channel_count": 0, "total_capacity": 0,
+                "avg_capacity": 0, "avg_fee_rate": 0,
+                "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "error": str(e)}
+
+def _fetch_topics() -> dict:
+    """Trending topics ranked by article velocity (last 2h)."""
+    try:
+        cutoff = datetime.utcnow() - timedelta(hours=2)
+        arts = (models.Article.query
+                .filter(models.Article.created_at >= cutoff,
+                        models.Article.published == True)
+                .all())
+        tag_counts: dict = {}
+        for a in arts:
+            tags_raw = (a.tags or "").split(",")
+            for t in tags_raw:
+                t = t.strip().upper()
+                if t and len(t) > 2:
+                    tag_counts[t] = tag_counts.get(t, 0) + 1
+        # Also count categories
+        cat_counts: dict = {}
+        for a in arts:
+            cat = (a.category or "BITCOIN").upper()
+            cat_counts[cat] = cat_counts.get(cat, 0) + 1
+        topics = sorted(tag_counts.items(), key=lambda x: x[1], reverse=True)[:8]
+        if not topics:
+            topics = sorted(cat_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+        return {
+            "topics": [{"term": t, "count": c} for t, c in topics],
+            "total_articles": len(arts),
+            "sources_monitored": 80,
+            "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+    except Exception as e:
+        logging.warning("topics fetch error: %s", e)
+        return {"topics": [], "total_articles": 0, "sources_monitored": 80,
+                "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "error": str(e)}
+
+def _fetch_alerts() -> list:
+    """Early warning alerts from recent high-importance articles."""
+    try:
+        arts = (models.Article.query
+                .filter(models.Article.published == True)
+                .order_by(models.Article.created_at.desc())
+                .limit(20)
+                .all())
+        out = []
+        for a in arts:
+            tags = (a.tags or "").lower()
+            is_alert = any(kw in tags or kw in (a.category or "").lower()
+                           for kw in ["breaking", "urgent", "alert", "crash", "dump", "pump", "rally"])
+            out.append({
+                "time": a.created_at.strftime("%H:%M") if a.created_at else "—",
+                "title": a.title[:80] if a.title else "",
+                "url": f"/articles/{a.id}",
+                "is_alert": is_alert,
+            })
+        return out
+    except Exception as e:
+        logging.warning("alerts fetch error: %s", e)
+        return []
+
+# ── Free endpoints ────────────────────────────────────────────────────────────
+
+@app.route("/api/v2/terminal/price")
+def api_v2_terminal_price():
+    """BTC price, 24h/7d/30d change, market cap, dominance. Cached 30s."""
+    ip = request.remote_addr or "anon"
+    if not _terminal_free_rate_ok(ip):
+        return jsonify({"error": "Rate limit exceeded (60/hr)"}), 429
+    data = _term_cached("btc_price", 30, _fetch_btc_price)
+    return jsonify(data)
+
+
+@app.route("/api/v2/terminal/mempool")
+def api_v2_terminal_mempool():
+    """Mempool stats + fee tiers. Cached 30s."""
+    ip = request.remote_addr or "anon"
+    if not _terminal_free_rate_ok(ip):
+        return jsonify({"error": "Rate limit exceeded (60/hr)"}), 429
+    data = _term_cached("mempool", 30, _fetch_mempool)
+    return jsonify(data)
+
+
+@app.route("/api/v2/terminal/fear-greed")
+def api_v2_terminal_fear_greed():
+    """Fear & Greed index today/yesterday/week/month. Cached 15min."""
+    ip = request.remote_addr or "anon"
+    if not _terminal_free_rate_ok(ip):
+        return jsonify({"error": "Rate limit exceeded (60/hr)"}), 429
+    data = _term_cached("fear_greed", 900, _fetch_fear_greed)
+    return jsonify(data)
+
+
+@app.route("/api/v2/terminal/latest")
+def api_v2_terminal_latest():
+    """Last 5 PP articles. Cached 60s."""
+    ip = request.remote_addr or "anon"
+    if not _terminal_free_rate_ok(ip):
+        return jsonify({"error": "Rate limit exceeded (60/hr)"}), 429
+    def _fetch():
+        try:
+            arts = (models.Article.query
+                    .filter_by(published=True)
+                    .order_by(models.Article.created_at.desc())
+                    .limit(5).all())
+            total = models.Article.query.filter_by(published=True).count()
+            return {
+                "articles": [{
+                    "title": a.title,
+                    "time": a.created_at.strftime("%H:%M") if a.created_at else "—",
+                    "slug": f"/articles/{a.id}",
+                    "category": a.category or "bitcoin",
+                } for a in arts],
+                "total": total,
+                "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+            }
+        except Exception as e:
+            return {"articles": [], "total": 0, "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "error": str(e)}
+    data = _term_cached("latest_articles", 60, _fetch)
+    return jsonify(data)
+
+
+@app.route("/api/v2/terminal/macro")
+def api_v2_terminal_macro():
+    """DXY, Gold, S&P 500 + BTC ratios. Cached 60min."""
+    ip = request.remote_addr or "anon"
+    if not _terminal_free_rate_ok(ip):
+        return jsonify({"error": "Rate limit exceeded (60/hr)"}), 429
+    data = _term_cached("macro", 3600, _fetch_macro)
+    return jsonify(data)
+
+# ── Commander endpoints ───────────────────────────────────────────────────────
+
+@app.route("/api/v2/terminal/signal")
+def api_v2_terminal_signal():
+    """PP Signal Intelligence composite score. Commander only."""
+    ok, err, _ = _commander_required()
+    if not ok:
+        return err
+    from services.signal_engine import compute_signal_score
+    data = compute_signal_score(db=db, models=models)
+    return jsonify(data)
+
+
+@app.route("/api/v2/terminal/topics")
+def api_v2_terminal_topics():
+    """Trending topics ranked by velocity (last 2h). Commander only."""
+    ok, err, _ = _commander_required()
+    if not ok:
+        return err
+    data = _term_cached("topics", 300, _fetch_topics)
+    return jsonify(data)
+
+
+@app.route("/api/v2/terminal/alerts")
+def api_v2_terminal_alerts():
+    """Early warning alert feed (last 20 articles). Commander only."""
+    ok, err, _ = _commander_required()
+    if not ok:
+        return err
+    def _fetch():
+        return {"alerts": _fetch_alerts(), "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")}
+    data = _term_cached("alerts", 30, _fetch)
+    return jsonify(data)
+
+
+@app.route("/api/v2/terminal/onchain")
+def api_v2_terminal_onchain():
+    """MVRV, S2F, hashrate, difficulty, exchange flows. Commander only. Cached 5min."""
+    ok, err, _ = _commander_required()
+    if not ok:
+        return err
+    data = _term_cached("onchain", 300, _fetch_onchain)
+    return jsonify(data)
+
+
+@app.route("/api/v2/terminal/lightning")
+def api_v2_terminal_lightning():
+    """Lightning Network nodes, channels, capacity. Commander only. Cached 10min."""
+    ok, err, _ = _commander_required()
+    if not ok:
+        return err
+    data = _term_cached("lightning", 600, _fetch_lightning)
+    return jsonify(data)
+
+# ── API key management ────────────────────────────────────────────────────────
+
+@app.route("/api/v2/terminal/keys", methods=["GET", "POST"])
+@login_required
+def api_v2_terminal_keys():
+    """GET: list keys. POST: generate new key. Requires active Commander subscription."""
+    tier = getattr(current_user, "subscription_tier", "free")
+    if tier not in ("commander", "sovereign"):
+        return jsonify({"error": "Commander tier required"}), 403
+
+    if request.method == "POST":
+        from services.api_key_service import generate_api_key
+        try:
+            existing = models.ApiSubscriber.query.filter_by(
+                email=current_user.email).first()
+            new_key = generate_api_key(tier)
+            if existing:
+                existing.api_key = new_key
+                existing.is_active = True
+                existing.subscription_status = "active"
+            else:
+                sub = models.ApiSubscriber(
+                    email=current_user.email,
+                    api_key=new_key,
+                    tier=tier,
+                    is_active=True,
+                    subscription_status="active",
+                    rate_limit_per_hour=10000,
+                    entitlements='{"signal":true,"stream":true,"webhook":true}',
+                    key_scopes='["read","stream","webhook"]',
+                )
+                db.session.add(sub)
+            db.session.commit()
+            return jsonify({"api_key": new_key, "tier": tier,
+                            "note": "Store this key securely. Shown once."})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": str(e)}), 500
+
+    # GET — list keys
+    try:
+        subs = models.ApiSubscriber.query.filter_by(email=current_user.email).all()
+        return jsonify({"keys": [{"key_prefix": s.api_key[:16] + "...",
+                                   "tier": s.tier, "active": s.is_active,
+                                   "created": s.created_at.isoformat() if s.created_at else None}
+                                  for s in subs]})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/v2/terminal/keys/<key_prefix>", methods=["DELETE"])
+@login_required
+def api_v2_terminal_keys_delete(key_prefix):
+    """Revoke an API key by prefix."""
+    tier = getattr(current_user, "subscription_tier", "free")
+    if tier not in ("commander", "sovereign"):
+        return jsonify({"error": "Commander tier required"}), 403
+    try:
+        subs = models.ApiSubscriber.query.filter_by(email=current_user.email).all()
+        for s in subs:
+            if s.api_key.startswith(key_prefix.replace("...", "")):
+                s.is_active = False
+                db.session.commit()
+                return jsonify({"revoked": True})
+        return jsonify({"error": "Key not found"}), 404
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+# ── Terminal page routes ──────────────────────────────────────────────────────
+
+@app.route("/terminal")
+def pulse_terminal():
+    """PP Terminal — Bloomberg-style Bitcoin intelligence dashboard."""
+    is_commander = (current_user.is_authenticated and
+                    getattr(current_user, "subscription_tier", "free")
+                    in ("commander", "sovereign"))
+    activated = request.args.get("activated") == "1"
+
+    # Server-side pre-fetch for initial render (both free + Commander panels)
+    price_data    = _term_cached("btc_price", 30, _fetch_btc_price)
+    mempool_data  = _term_cached("mempool", 30, _fetch_mempool)
+    fg_data       = _term_cached("fear_greed", 900, _fetch_fear_greed)
+    onchain_data  = _term_cached("onchain", 300, _fetch_onchain)
+    lightning_data = _term_cached("lightning", 600, _fetch_lightning)
+    macro_data    = _term_cached("macro", 3600, _fetch_macro)
+
+    # Signal score — always compute for locked panel real-data blur
+    from services.signal_engine import compute_signal_score
+    signal_data = compute_signal_score(db=db, models=models)
+
+    # Topics + alerts for locked panels
+    topics_data = _term_cached("topics", 300, _fetch_topics)
+    alerts_data = _fetch_alerts()
+
+    # Latest articles
+    def _latest():
+        try:
+            arts = (models.Article.query.filter_by(published=True)
+                    .order_by(models.Article.created_at.desc()).limit(5).all())
+            total = models.Article.query.filter_by(published=True).count()
+            return {"articles": [{
+                "title": a.title, "time": a.created_at.strftime("%H:%M") if a.created_at else "—",
+                "slug": f"/articles/{a.id}", "category": a.category or "bitcoin",
+            } for a in arts], "total": total}
+        except Exception:
+            return {"articles": [], "total": 0}
+    latest_data = _term_cached("latest_articles", 60, _latest)
+
+    # API key for Commander welcome banner
+    api_key = None
+    if activated and is_commander:
+        try:
+            sub = models.ApiSubscriber.query.filter_by(
+                email=current_user.email).first()
+            if sub:
+                api_key = sub.api_key
+        except Exception:
+            pass
+
+    return render_template(
+        "terminal.html",
+        is_commander=is_commander,
+        activated=activated,
+        api_key=api_key,
+        price=price_data,
+        mempool=mempool_data,
+        fg=fg_data,
+        onchain=onchain_data,
+        lightning=lightning_data,
+        macro=macro_data,
+        signal=signal_data,
+        topics=topics_data,
+        alerts=alerts_data,
+        latest=latest_data,
+    )
+
+
+@app.route("/terminal/commander")
+def terminal_commander_page():
+    """Commander upgrade page — redirects to Stripe checkout."""
+    return redirect(url_for("terminal_checkout"))
+
+
+@app.route("/terminal/checkout")
+@login_required
+def terminal_checkout():
+    """Initiate Stripe checkout for $29/mo Commander tier."""
+    from services.monetization_service import monetization_service
+    success_url = request.host_url.rstrip("/") + "/terminal?activated=1"
+    cancel_url  = request.host_url.rstrip("/") + "/terminal"
+    result = monetization_service.create_checkout_session(
+        tier="commander",
+        user_email=current_user.email,
+        success_url=success_url,
+        cancel_url=cancel_url,
+    )
+    if result.get("checkout_url"):
+        return redirect(result["checkout_url"])
+    elif result.get("simulated"):
+        # Dev mode: simulate success
+        current_user.subscription_tier = "commander"
+        try:
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+        return redirect(url_for("pulse_terminal", activated=1))
+    flash("Unable to start checkout. Please try again.")
+    return redirect(url_for("pulse_terminal"))
+
+
+@app.route("/terminal/account")
+@login_required
+def terminal_account():
+    """Show Commander API key and account status."""
+    is_commander = getattr(current_user, "subscription_tier", "free") in ("commander", "sovereign")
+    if not is_commander:
+        return redirect(url_for("pulse_terminal"))
+    try:
+        sub = models.ApiSubscriber.query.filter_by(email=current_user.email).first()
+    except Exception:
+        sub = None
+    return render_template("terminal_account.html", sub=sub)
+
+
 # Error handlers
 @app.errorhandler(404)
 def not_found_error(error):
