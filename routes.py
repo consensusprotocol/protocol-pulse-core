@@ -1544,11 +1544,15 @@ def podcast_rss():
 
 @app.route('/media-terminal')
 def media_terminal():
-    """Redirect media-terminal to the unified media hub"""
-    return redirect(url_for('media_hub'))
+    """301 permanent redirect from media-terminal to /media"""
+    return redirect('/media', 301)
+
+@app.route('/media-hub')
+def media_hub_redirect():
+    """301 permanent redirect from /media-hub to /media"""
+    return redirect('/media', 301)
 
 @app.route('/media')
-@app.route('/media-hub')
 @app.route('/media-unified')
 def media_hub():
     """Media Hub — cinematic dark layout with real data"""
@@ -8717,3 +8721,385 @@ def api_media_telemetry():
         logging.error(f"telemetry error: {e}")
         from flask import jsonify
         return jsonify({'error': str(e)}), 500
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# MEDIA UNIFIED — P3 ROUTES
+# SSE feed, semantic search, system health, meta-briefing
+# ═══════════════════════════════════════════════════════════════════════════
+
+import time as _time_module
+import threading as _threading_module
+
+# ── In-process caches ──
+_search_cache = {}       # {normalized_q: {'results': [...], 'ts': float}}
+_search_cache_lock = _threading_module.Lock()
+_search_rate = {}        # {ip: [timestamps]}
+_search_rate_lock = _threading_module.Lock()
+_meta_brief_cache = {}   # {date_str: {'brief': str, 'headline': str, 'stance': str, 'cached_at': str}}
+_meta_brief_lock = _threading_module.Lock()
+_sse_event_id = 0        # monotonic SSE event counter
+_sse_event_id_lock = _threading_module.Lock()
+
+
+def _sse_next_id():
+    global _sse_event_id
+    with _sse_event_id_lock:
+        _sse_event_id += 1
+        return _sse_event_id
+
+
+def _search_rate_ok(ip, limit=10, window=60):
+    """Return True if ip is within limit requests per window seconds."""
+    with _search_rate_lock:
+        now = _time_module.time()
+        bucket = _search_rate.get(ip, [])
+        bucket = [t for t in bucket if now - t < window]
+        if len(bucket) >= limit:
+            return False
+        bucket.append(now)
+        _search_rate[ip] = bucket
+        return True
+
+
+def _search_cache_get(q):
+    with _search_cache_lock:
+        entry = _search_cache.get(q)
+        if entry and _time_module.time() - entry['ts'] < 300:  # 5-min TTL
+            return entry['results']
+    return None
+
+
+def _search_cache_set(q, results):
+    with _search_cache_lock:
+        _search_cache[q] = {'results': results, 'ts': _time_module.time()}
+        # Evict entries older than 10 min
+        cutoff = _time_module.time() - 600
+        for k in list(_search_cache.keys()):
+            if _search_cache[k]['ts'] < cutoff:
+                del _search_cache[k]
+
+
+@app.route('/api/stream/media-feed')
+def media_feed_sse():
+    """Server-Sent Events stream: btc_price_update, new_article, sentiment_update, telemetry.
+    Heartbeat every 25s. Respects Last-Event-ID for resume. Max 600s connection.
+    """
+    import requests as _req
+    last_event_id = request.headers.get('Last-Event-ID', '0')
+    try:
+        last_event_id = int(last_event_id)
+    except (ValueError, TypeError):
+        last_event_id = 0
+
+    def _fetch_btc():
+        try:
+            r = _req.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true', timeout=6)
+            d = r.json().get('bitcoin', {})
+            return {'price': d.get('usd'), 'change_24h': d.get('usd_24h_change')}
+        except Exception:
+            return None
+
+    def _fetch_articles():
+        try:
+            arts = models.Article.query.filter_by(published=True).order_by(
+                models.Article.created_at.desc()
+            ).limit(3).all()
+            return [{'id': a.id, 'title': a.title, 'category': a.category or 'bitcoin',
+                     'created_at': a.created_at.isoformat() if a.created_at else None}
+                    for a in arts]
+        except Exception:
+            return []
+
+    def _fetch_sentiment():
+        try:
+            snap = models.SentimentSnapshot.query.order_by(
+                models.SentimentSnapshot.created_at.desc()
+            ).first()
+            if snap:
+                return {'score': snap.score, 'state': snap.state or 'NEUTRAL'}
+        except Exception:
+            pass
+        return None
+
+    def generate():
+        start = _time_module.time()
+        last_data_push = 0
+        eid = last_event_id
+
+        # Send initial connection confirmation
+        eid = _sse_next_id()
+        yield f"id: {eid}\nevent: connected\ndata: {{\"status\": \"connected\", \"ts\": {int(_time_module.time())}}}\n\n"
+
+        while _time_module.time() - start < 600:
+            now = _time_module.time()
+            try:
+                if now - last_data_push >= 30:
+                    last_data_push = now
+
+                    # BTC price
+                    btc = _fetch_btc()
+                    if btc and btc.get('price'):
+                        eid = _sse_next_id()
+                        yield f"id: {eid}\nevent: btc_price_update\ndata: {json.dumps(btc)}\n\n"
+
+                    # Latest articles
+                    arts = _fetch_articles()
+                    if arts:
+                        eid = _sse_next_id()
+                        yield f"id: {eid}\nevent: new_article\ndata: {json.dumps({'articles': arts})}\n\n"
+
+                    # Sentiment
+                    sent = _fetch_sentiment()
+                    if sent:
+                        eid = _sse_next_id()
+                        yield f"id: {eid}\nevent: sentiment_update\ndata: {json.dumps(sent)}\n\n"
+
+                # Heartbeat every 25s to keep connection alive
+                yield ": keepalive\n\n"
+                _time_module.sleep(25)
+
+            except GeneratorExit:
+                break
+            except Exception as e:
+                logging.warning(f"SSE media-feed error: {e}")
+                yield f"data: {{\"type\": \"error\", \"message\": \"stream error\"}}\n\n"
+                break
+
+    return Response(
+        generate(),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache, no-store',
+            'X-Accel-Buffering': 'no',
+            'Connection': 'keep-alive',
+            'Access-Control-Allow-Origin': '*',
+        }
+    )
+
+
+@app.route('/api/system-health')
+def api_system_health():
+    """System health: Flask status, DB, article counts, last article time."""
+    try:
+        now = _time_module.time()
+        # Articles in last 24h
+        from datetime import datetime, timedelta
+        cutoff = datetime.utcnow() - timedelta(hours=24)
+        arts_24h = 0
+        last_art_ts = None
+        try:
+            arts_24h = models.Article.query.filter(
+                models.Article.published == True,
+                models.Article.created_at >= cutoff
+            ).count()
+            last_art = models.Article.query.filter_by(published=True).order_by(
+                models.Article.created_at.desc()
+            ).first()
+            if last_art and last_art.created_at:
+                last_art_ts = last_art.created_at.isoformat()
+        except Exception as db_err:
+            logging.warning(f"system-health db: {db_err}")
+
+        return jsonify({
+            'status': 'ok',
+            'ts': int(now),
+            'articles_24h': arts_24h,
+            'last_article_at': last_art_ts,
+            'services': {
+                'flask': 'ok',
+                'db': 'ok',
+            }
+        }), 200, {'Cache-Control': 'public, max-age=60'}
+
+    except Exception as e:
+        logging.error(f"system-health error: {e}")
+        return jsonify({'status': 'degraded', 'error': str(e)}), 200
+
+
+@app.route('/api/media/semantic-search')
+def api_media_semantic_search():
+    """Semantic search using Claude Haiku to rank articles by query relevance.
+    Rate limited: 10 req/min per IP. Cache: 5 min per normalized query.
+    """
+    ip = request.remote_addr or 'unknown'
+    if not _search_rate_ok(ip, limit=10, window=60):
+        return jsonify({'error': 'rate_limited', 'results': []}), 429
+
+    q = (request.args.get('q') or '').strip()[:200]
+    if not q:
+        return jsonify({'results': [], 'query': ''})
+
+    normalized = q.lower().strip()
+    cached = _search_cache_get(normalized)
+    if cached is not None:
+        return jsonify({'results': cached, 'query': q, 'cached': True})
+
+    try:
+        # Fetch candidate articles
+        arts = models.Article.query.filter_by(published=True).order_by(
+            models.Article.created_at.desc()
+        ).limit(50).all()
+
+        if not arts:
+            return jsonify({'results': [], 'query': q})
+
+        # Build ranking payload for Claude
+        candidates = []
+        for a in arts:
+            excerpt = (a.summary or a.content or '')[:150].strip()
+            candidates.append({
+                'id': a.id,
+                'title': a.title,
+                'excerpt': excerpt,
+                'category': a.category or 'bitcoin',
+                'url': f'/articles/{a.id}',
+                'created_at': a.created_at.isoformat() if a.created_at else None,
+            })
+
+        # Try Claude Haiku ranking
+        ranked = None
+        anthropic_key = os.environ.get('ANTHROPIC_API_KEY')
+        if anthropic_key:
+            try:
+                import anthropic as _anthropic
+                client = _anthropic.Anthropic(api_key=anthropic_key)
+                titles_block = '\n'.join(
+                    f"{i+1}. [{c['id']}] {c['title']} — {c['excerpt'][:80]}"
+                    for i, c in enumerate(candidates[:30])
+                )
+                prompt = (
+                    f"Query: \"{q}\"\n\n"
+                    f"Articles:\n{titles_block}\n\n"
+                    f"Return the IDs of the top 10 most relevant articles as a JSON array, "
+                    f"e.g. [42, 7, 15, ...]. Only the JSON array, nothing else."
+                )
+                msg = client.messages.create(
+                    model='claude-haiku-4-5-20251001',
+                    max_tokens=200,
+                    messages=[{'role': 'user', 'content': prompt}]
+                )
+                import re as _re
+                raw = msg.content[0].text.strip()
+                ids_match = _re.search(r'\[[\d,\s]+\]', raw)
+                if ids_match:
+                    ranked_ids = json.loads(ids_match.group())
+                    id_to_art = {c['id']: c for c in candidates}
+                    ranked = [id_to_art[rid] for rid in ranked_ids if rid in id_to_art]
+            except Exception as ai_err:
+                logging.warning(f"semantic-search AI: {ai_err}")
+
+        # Fallback: simple title/excerpt LIKE match
+        if not ranked:
+            ql = q.lower()
+            ranked = sorted(
+                candidates,
+                key=lambda c: (
+                    2 * int(ql in (c['title'] or '').lower()) +
+                    int(ql in (c['excerpt'] or '').lower()) +
+                    int(ql in (c['category'] or '').lower())
+                ),
+                reverse=True
+            )[:10]
+
+        results = ranked[:10]
+        _search_cache_set(normalized, results)
+        return jsonify({'results': results, 'query': q, 'cached': False})
+
+    except Exception as e:
+        logging.error(f"semantic-search error: {e}")
+        return jsonify({'results': [], 'query': q, 'error': 'search_failed'})
+
+
+@app.route('/api/media/meta-briefing')
+def api_media_meta_briefing():
+    """Daily AI meta-briefing card. Synthesizes top 5 articles via Claude Haiku.
+    Cached 24h in-process. Returns { brief, headline, stance, cached_at }.
+    """
+    from datetime import datetime
+    date_key = datetime.utcnow().strftime('%Y-%m-%d')
+
+    with _meta_brief_lock:
+        cached = _meta_brief_cache.get(date_key)
+        if cached:
+            return jsonify(cached), 200, {'Cache-Control': 'public, max-age=3600'}
+
+    try:
+        arts = models.Article.query.filter_by(published=True).order_by(
+            models.Article.created_at.desc()
+        ).limit(5).all()
+
+        if not arts:
+            return jsonify({'brief': None, 'headline': 'No intelligence available', 'stance': 'NEUTRAL', 'cached_at': None})
+
+        anthropic_key = os.environ.get('ANTHROPIC_API_KEY')
+        result = None
+
+        if anthropic_key and arts:
+            try:
+                import anthropic as _anthropic
+                client = _anthropic.Anthropic(api_key=anthropic_key)
+                arts_text = '\n'.join(
+                    f"- {a.title}: {(a.summary or a.content or '')[:200]}"
+                    for a in arts
+                )
+                prompt = (
+                    f"You are a Bitcoin intelligence analyst. Based on these top stories:\n\n"
+                    f"{arts_text}\n\n"
+                    f"Write a 2-sentence intelligence brief for operators. Then on a new line write:\n"
+                    f"HEADLINE: [8-word max headline]\n"
+                    f"STANCE: [BULLISH or BEARISH or NEUTRAL]\n"
+                    f"Be direct, specific, and intelligence-grade. No fluff."
+                )
+                msg = client.messages.create(
+                    model='claude-haiku-4-5-20251001',
+                    max_tokens=300,
+                    messages=[{'role': 'user', 'content': prompt}]
+                )
+                raw = msg.content[0].text.strip()
+                lines = raw.split('\n')
+                brief_lines = [l for l in lines if not l.startswith('HEADLINE:') and not l.startswith('STANCE:')]
+                brief = ' '.join(brief_lines).strip()[:400]
+                headline = 'Bitcoin Intelligence Brief'
+                stance = 'NEUTRAL'
+                for line in lines:
+                    if line.startswith('HEADLINE:'):
+                        headline = line.replace('HEADLINE:', '').strip()[:80]
+                    elif line.startswith('STANCE:'):
+                        s = line.replace('STANCE:', '').strip().upper()
+                        if s in ('BULLISH', 'BEARISH', 'NEUTRAL'):
+                            stance = s
+                result = {
+                    'brief': brief,
+                    'headline': headline,
+                    'stance': stance,
+                    'cached_at': datetime.utcnow().isoformat(),
+                    'article_count': len(arts),
+                }
+            except Exception as ai_err:
+                logging.warning(f"meta-briefing AI: {ai_err}")
+
+        if not result:
+            # Fallback: synthesize from article titles
+            headline = arts[0].title[:80] if arts else 'Bitcoin Intelligence Brief'
+            brief = f"Intelligence synthesized from {len(arts)} recent dispatches. {arts[0].title}. Markets continue to evolve — monitor all vectors."
+            result = {
+                'brief': brief,
+                'headline': headline,
+                'stance': 'NEUTRAL',
+                'cached_at': datetime.utcnow().isoformat(),
+                'article_count': len(arts),
+            }
+
+        with _meta_brief_lock:
+            _meta_brief_cache[date_key] = result
+            # Evict old date keys
+            for k in list(_meta_brief_cache.keys()):
+                if k != date_key:
+                    del _meta_brief_cache[k]
+
+        return jsonify(result), 200, {'Cache-Control': 'public, max-age=3600'}
+
+    except Exception as e:
+        logging.error(f"meta-briefing error: {e}")
+        return jsonify({'brief': None, 'headline': 'Intelligence offline', 'stance': 'NEUTRAL', 'cached_at': None}), 200

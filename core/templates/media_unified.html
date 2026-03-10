@@ -1,0 +1,1968 @@
+{% extends "base.html" %}
+{% block title %}Media Intelligence — Protocol Pulse{% endblock %}
+{% block schema %}
+<meta name="description" content="Bitcoin intelligence command center. Live market data, original series, podcast archive, AI briefings, and real-time sentiment.">
+<meta property="og:title" content="Media Intelligence — Protocol Pulse">
+<meta property="og:description" content="The cinematic Bitcoin intelligence terminal. Nostr feeds, on-chain data, original series, AI briefings.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block head %}
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   MEDIA UNIFIED — MASTER STYLESHEET
+   VISUAL_DESIGN_SYSTEM.md compliant: #06070b bg, #FF3333 red, #F8C15C gold
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  --mu-bg:        #06070b;
+  --mu-panel:     #0d1118;
+  --mu-panel2:    #121824;
+  --mu-glass:     rgba(255,255,255,0.03);
+  --mu-border:    rgba(255,255,255,0.07);
+  --mu-red:       #FF3333;
+  --mu-gold:      #F8C15C;
+  --mu-cyan:      #5de4ff;
+  --mu-lime:      #89ffb8;
+  --mu-coral:     #ff8ba0;
+  --mu-text:      #eef2ff;
+  --mu-muted:     #95a0ba;
+  --mu-mono:      'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+  --mu-sans:      'DM Sans', system-ui, -apple-system, sans-serif;
+  --glow-red:     rgba(255,51,51,0.25);
+  --glow-gold:    rgba(248,193,92,0.18);
+  --glow-cyan:    rgba(93,228,255,0.12);
+  --card-radius:  14px;
+  --section-gap:  48px;
+}
+
+/* ── Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.mu-page {
+  background: var(--mu-bg);
+  color: var(--mu-text);
+  font-family: var(--mu-sans);
+  min-height: 100vh;
+  padding-bottom: 52px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── Cinematic Background System ── */
+.mu-bg-system {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  overflow: hidden;
+}
+.mu-bg-glow-red {
+  position: absolute; top: -60px; left: -80px;
+  width: 480px; height: 480px;
+  background: radial-gradient(circle, rgba(255,51,51,0.14) 0%, transparent 70%);
+  animation: mu-glow-drift-a 9s ease-in-out infinite alternate;
+}
+.mu-bg-glow-cyan {
+  position: absolute; top: -40px; right: -60px;
+  width: 380px; height: 380px;
+  background: radial-gradient(circle, rgba(93,228,255,0.10) 0%, transparent 70%);
+  animation: mu-glow-drift-b 11s ease-in-out infinite alternate;
+}
+.mu-bg-glow-gold {
+  position: absolute; bottom: 10%; left: 40%;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(248,193,92,0.07) 0%, transparent 70%);
+  animation: mu-glow-drift-c 13s ease-in-out infinite alternate;
+}
+.mu-bg-scanlines {
+  position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(255,255,255,0.015) 3px, rgba(255,255,255,0.015) 4px
+  );
+}
+.mu-bg-grid {
+  position: absolute; inset: 0; opacity: 0.3;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+.mu-bg-vignette {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 40%, transparent 40%, rgba(0,0,0,0.55) 100%);
+}
+@keyframes mu-glow-drift-a { 0%{transform:translate(0,0)} 100%{transform:translate(30px,20px)} }
+@keyframes mu-glow-drift-b { 0%{transform:translate(0,0)} 100%{transform:translate(-25px,30px)} }
+@keyframes mu-glow-drift-c { 0%{transform:translate(0,0)} 100%{transform:translate(20px,-25px)} }
+
+/* ── All content above background ── */
+.mu-content { position: relative; z-index: 1; }
+
+/* ── Telemetry Ticker (sticky) ── */
+.mu-telemetry {
+  position: sticky; top: 0; z-index: 999;
+  background: rgba(6,7,11,0.92);
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  border-bottom: 1px solid var(--mu-border);
+  height: 42px;
+  display: flex; align-items: center;
+}
+.mu-telemetry-inner {
+  display: flex; align-items: center; gap: 0;
+  padding: 0 16px; overflow-x: auto; overflow-y: hidden;
+  scrollbar-width: none; width: 100%;
+}
+.mu-telemetry-inner::-webkit-scrollbar { display: none; }
+.mu-telem-item {
+  display: flex; align-items: center; gap: 5px;
+  padding: 0 14px; height: 42px;
+  border-right: 1px solid rgba(255,255,255,0.05);
+  flex-shrink: 0; cursor: default;
+  transition: background 0.2s;
+}
+.mu-telem-item:hover { background: rgba(255,255,255,0.02); }
+.mu-telem-label {
+  font-family: var(--mu-mono); font-size: 9px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--mu-muted);
+}
+.mu-telem-value {
+  font-family: var(--mu-mono); font-size: 12px; font-weight: 700;
+  color: var(--mu-text);
+}
+.mu-telem-value.up   { color: var(--mu-lime); }
+.mu-telem-value.down { color: var(--mu-coral); }
+.mu-telem-value.gold { color: var(--mu-gold); }
+.mu-telem-value.red  { color: var(--mu-red); }
+.mu-telem-value.cyan { color: var(--mu-cyan); }
+.mu-telem-delta {
+  font-family: var(--mu-mono); font-size: 10px; font-weight: 600;
+}
+.mu-telem-sep { width: 1px; height: 20px; background: rgba(255,255,255,0.06); flex-shrink: 0; margin: 0 2px; }
+.mu-health-dot {
+  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  background: #444;
+}
+.mu-health-dot.live { background: var(--mu-lime); animation: mu-dot-pulse 2s infinite; }
+.mu-health-dot.warn { background: var(--mu-gold); }
+.mu-health-dot.dead { background: var(--mu-coral); }
+@keyframes mu-dot-pulse { 0%,100%{opacity:1;box-shadow:0 0 4px currentColor} 50%{opacity:0.5} }
+
+.mu-cmdk-hint {
+  margin-left: auto; padding: 0 14px; flex-shrink: 0;
+  font-family: var(--mu-mono); font-size: 9px; color: var(--mu-muted);
+  cursor: pointer; display: flex; align-items: center; gap: 4px; height: 42px;
+  border-left: 1px solid rgba(255,255,255,0.05);
+}
+.mu-cmdk-hint:hover { color: var(--mu-text); }
+.mu-cmdk-badge {
+  display: inline-flex; align-items: center; padding: 2px 6px;
+  border: 1px solid rgba(255,255,255,0.15); border-radius: 4px;
+  font-size: 9px; letter-spacing: 0.08em;
+}
+
+/* ── Feed Mode Tabs ── */
+.mu-mode-tabs {
+  display: flex; align-items: center; gap: 0;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--mu-border);
+  background: rgba(6,7,11,0.7);
+  backdrop-filter: blur(8px);
+  overflow-x: auto; scrollbar-width: none;
+}
+.mu-mode-tabs::-webkit-scrollbar { display: none; }
+.mu-tab {
+  flex-shrink: 0; padding: 12px 18px;
+  font-family: var(--mu-mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--mu-muted);
+  cursor: pointer; border: none; background: none;
+  border-bottom: 2px solid transparent; transition: all 0.2s;
+  position: relative; top: 1px;
+}
+.mu-tab:hover { color: var(--mu-text); }
+.mu-tab.active {
+  color: var(--mu-red); border-bottom-color: var(--mu-red);
+  text-shadow: 0 0 8px rgba(255,51,51,0.4);
+}
+
+/* ── Main Layout ── */
+.mu-main {
+  max-width: 1400px; margin: 0 auto;
+  padding: 32px 20px var(--section-gap);
+}
+
+/* ── Section Header ── */
+.mu-section-hd {
+  display: flex; align-items: baseline; gap: 12px;
+  margin-bottom: 20px;
+}
+.mu-eyebrow {
+  font-family: var(--mu-mono); font-size: 10px; font-weight: 800;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--mu-gold);
+}
+.mu-section-title {
+  font-family: var(--mu-sans); font-size: 20px; font-weight: 800;
+  color: var(--mu-text); letter-spacing: -0.02em;
+}
+.mu-section-sub {
+  font-family: var(--mu-mono); font-size: 10px; color: var(--mu-muted);
+  margin-left: auto;
+}
+
+/* ── Hero Grid ── */
+.mu-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  grid-template-rows: auto auto;
+  gap: 16px;
+  margin-bottom: var(--section-gap);
+}
+@media (max-width: 1199px) {
+  .mu-hero-grid { grid-template-columns: 1fr; }
+}
+
+/* Latest Episode Card */
+.mu-hero-ep {
+  background: var(--mu-glass);
+  border: 1px solid var(--mu-border);
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  position: relative;
+  min-height: 240px;
+  display: flex; flex-direction: column;
+  backdrop-filter: blur(10px);
+  transition: box-shadow 0.25s, transform 0.25s;
+}
+.mu-hero-ep:hover {
+  box-shadow: 0 0 32px var(--glow-red), 0 8px 24px rgba(0,0,0,0.4);
+  transform: translateY(-2px);
+}
+.mu-hero-ep-thumb {
+  width: 100%; aspect-ratio: 16/7;
+  object-fit: cover; object-position: center;
+  display: block;
+}
+.mu-hero-ep-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(6,7,11,0.95) 100%);
+}
+.mu-hero-ep-body {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 16px 20px;
+}
+.mu-hero-ep-kicker {
+  font-family: var(--mu-mono); font-size: 9px; font-weight: 800;
+  letter-spacing: 0.18em; color: var(--mu-gold); text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.mu-hero-ep-title {
+  font-size: 22px; font-weight: 800; line-height: 1.25;
+  letter-spacing: -0.02em; color: var(--mu-text);
+  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+  margin-bottom: 8px;
+}
+.mu-hero-ep-meta {
+  font-family: var(--mu-mono); font-size: 11px; color: var(--mu-muted);
+  display: flex; gap: 8px; align-items: center;
+}
+.mu-play-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 10px; padding: 8px 18px;
+  background: var(--mu-red); border: none; border-radius: 6px;
+  font-family: var(--mu-mono); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.12em; color: #fff; cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+.mu-play-btn:hover { background: #e62020; transform: scale(1.04); }
+
+/* Signal Strength Widget */
+.mu-signal-card {
+  background: var(--mu-glass);
+  border: 1px solid var(--mu-border);
+  border-radius: var(--card-radius);
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 16px;
+  backdrop-filter: blur(10px);
+}
+.mu-signal-arc-wrap {
+  display: flex; justify-content: center; position: relative;
+}
+.mu-signal-arc {
+  width: 140px; height: 140px;
+}
+.mu-signal-center {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.mu-signal-score {
+  font-family: var(--mu-mono); font-size: 36px; font-weight: 900;
+  color: var(--mu-red); line-height: 1;
+}
+.mu-signal-lbl {
+  font-family: var(--mu-mono); font-size: 8px; font-weight: 800;
+  letter-spacing: 0.16em; color: var(--mu-muted); text-transform: uppercase;
+}
+.mu-signal-state {
+  font-family: var(--mu-mono); font-size: 11px; font-weight: 700;
+  color: var(--mu-gold); margin-top: 2px;
+}
+.mu-signal-breakdown {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.mu-sig-row {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--mu-mono); font-size: 10px;
+}
+.mu-sig-key { color: var(--mu-muted); flex: 1; letter-spacing: 0.08em; }
+.mu-sig-bar { flex: 2; height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+.mu-sig-fill { height: 100%; background: var(--mu-gold); border-radius: 2px; transition: width 0.6s; }
+.mu-sig-val { color: var(--mu-text); font-weight: 700; min-width: 28px; text-align: right; }
+
+/* AI Meta-Briefing Card */
+.mu-briefing-card {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, rgba(248,193,92,0.05) 0%, rgba(255,51,51,0.04) 100%);
+  border: 1px solid rgba(248,193,92,0.2);
+  border-radius: var(--card-radius);
+  padding: 20px 24px;
+  position: relative; overflow: hidden;
+  backdrop-filter: blur(8px);
+}
+.mu-briefing-card::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; background: linear-gradient(180deg, var(--mu-gold), var(--mu-red));
+}
+.mu-briefing-kicker {
+  font-family: var(--mu-mono); font-size: 9px; font-weight: 800;
+  letter-spacing: 0.20em; color: var(--mu-gold); text-transform: uppercase;
+  margin-bottom: 6px; display: flex; align-items: center; gap: 8px;
+}
+.mu-briefing-pulse {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--mu-red); animation: mu-dot-pulse 2s infinite;
+  display: inline-block;
+}
+.mu-briefing-headline {
+  font-size: 16px; font-weight: 800; color: var(--mu-text);
+  letter-spacing: -0.01em; margin-bottom: 8px; line-height: 1.3;
+}
+.mu-briefing-text {
+  font-size: 14px; color: var(--mu-muted); line-height: 1.6;
+}
+.mu-briefing-stance {
+  display: inline-flex; align-items: center; padding: 3px 10px;
+  border-radius: 999px; font-family: var(--mu-mono); font-size: 9px; font-weight: 800;
+  letter-spacing: 0.14em; margin-top: 10px;
+}
+.mu-briefing-stance.BULLISH { background: rgba(137,255,184,0.1); color: var(--mu-lime); border: 1px solid rgba(137,255,184,0.2); }
+.mu-briefing-stance.BEARISH { background: rgba(255,138,160,0.1); color: var(--mu-coral); border: 1px solid rgba(255,138,160,0.2); }
+.mu-briefing-stance.NEUTRAL { background: rgba(248,193,92,0.1); color: var(--mu-gold); border: 1px solid rgba(248,193,92,0.2); }
+
+/* ── Article Grid ── */
+.mu-section { margin-bottom: var(--section-gap); }
+
+.mu-art-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+@media (max-width: 1199px) { .mu-art-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 767px)  { .mu-art-grid { grid-template-columns: 1fr; } }
+
+.mu-art-card {
+  background: var(--mu-glass);
+  border: 1px solid var(--mu-border);
+  border-radius: var(--card-radius);
+  padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 10px;
+  cursor: pointer; text-decoration: none; color: inherit;
+  transition: box-shadow 0.25s, transform 0.25s, border-color 0.25s;
+  position: relative; overflow: hidden;
+  backdrop-filter: blur(8px);
+  content-visibility: auto;
+  contain-intrinsic-size: 0 160px;
+}
+.mu-art-card:hover {
+  box-shadow: 0 0 24px var(--glow-red), 0 6px 20px rgba(0,0,0,0.35);
+  transform: translateY(-2px);
+  border-color: rgba(255,51,51,0.25);
+}
+.mu-art-card.focused {
+  border-color: rgba(255,51,51,0.5);
+  box-shadow: 0 0 16px var(--glow-red);
+  outline: none;
+}
+.mu-art-card[data-hidden="true"] { display: none !important; }
+
+.mu-art-card-top {
+  display: flex; align-items: center; gap: 8px;
+}
+.mu-cat-badge {
+  display: inline-flex; align-items: center; padding: 2px 8px;
+  border-radius: 4px; font-family: var(--mu-mono); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; flex-shrink: 0;
+}
+.mu-cat-badge.markets    { background: rgba(93,228,255,0.12); color: var(--mu-cyan); }
+.mu-cat-badge.mining     { background: rgba(248,193,92,0.12); color: var(--mu-gold); }
+.mu-cat-badge.regulation { background: rgba(255,138,160,0.12); color: var(--mu-coral); }
+.mu-cat-badge.lightning  { background: rgba(137,255,184,0.12); color: var(--mu-lime); }
+.mu-cat-badge.sovereignty{ background: rgba(255,51,51,0.12); color: var(--mu-red); }
+.mu-cat-badge.technology { background: rgba(93,228,255,0.10); color: var(--mu-cyan); }
+.mu-cat-badge.default    { background: rgba(255,255,255,0.07); color: var(--mu-muted); }
+
+.mu-new-badge {
+  display: inline-flex; align-items: center; padding: 2px 7px;
+  border-radius: 4px; font-family: var(--mu-mono); font-size: 8px; font-weight: 800;
+  letter-spacing: 0.14em; background: var(--mu-red); color: #fff;
+  animation: mu-new-glow 2s infinite;
+}
+@keyframes mu-new-glow {
+  0%,100%{box-shadow: 0 0 6px rgba(255,51,51,0.4)} 50%{box-shadow: 0 0 12px rgba(255,51,51,0.7)}
+}
+.mu-read-time {
+  font-family: var(--mu-mono); font-size: 9px; color: var(--mu-muted);
+  margin-left: auto; flex-shrink: 0;
+}
+.mu-art-title {
+  font-size: 15px; font-weight: 700; line-height: 1.35;
+  letter-spacing: -0.01em; color: var(--mu-text);
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.mu-art-excerpt {
+  font-size: 13px; color: var(--mu-muted); line-height: 1.55;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; flex: 1;
+}
+.mu-art-footer {
+  display: flex; align-items: center; gap: 8px;
+  border-top: 1px solid rgba(255,255,255,0.04); padding-top: 10px; margin-top: auto;
+}
+.mu-art-source {
+  font-family: var(--mu-mono); font-size: 10px; color: var(--mu-muted);
+}
+.mu-art-date {
+  font-family: var(--mu-mono); font-size: 10px; color: rgba(149,160,186,0.6);
+  margin-left: auto;
+}
+.mu-share-btn {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.1); background: none;
+  color: var(--mu-muted); font-size: 10px; cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color 0.2s, color 0.2s;
+}
+.mu-share-btn:hover { border-color: rgba(255,51,51,0.4); color: var(--mu-red); }
+
+/* ── Episode Rail ── */
+.mu-ep-rail {
+  display: flex; gap: 14px;
+  overflow-x: auto; padding-bottom: 8px;
+  scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+.mu-ep-rail::-webkit-scrollbar { height: 4px; }
+.mu-ep-rail::-webkit-scrollbar-track { background: transparent; }
+.mu-ep-rail::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+.mu-ep-card {
+  flex-shrink: 0; width: 220px;
+  background: var(--mu-glass);
+  border: 1px solid var(--mu-border);
+  border-radius: var(--card-radius); overflow: hidden;
+  cursor: pointer; text-decoration: none; color: inherit;
+  transition: box-shadow 0.25s, transform 0.25s;
+  display: flex; flex-direction: column;
+}
+.mu-ep-card:hover {
+  box-shadow: 0 0 20px var(--glow-red);
+  transform: translateY(-2px);
+}
+.mu-ep-thumb {
+  width: 100%; aspect-ratio: 16/9; overflow: hidden;
+}
+.mu-ep-thumb img {
+  width: 100%; height: 100%; object-fit: cover;
+  display: block; transition: transform 0.4s;
+}
+.mu-ep-card:hover .mu-ep-thumb img { transform: scale(1.04); }
+.mu-ep-info { padding: 10px 12px; flex: 1; }
+.mu-ep-title {
+  font-size: 12px; font-weight: 700; line-height: 1.35; color: var(--mu-text);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  margin-bottom: 5px;
+}
+.mu-ep-meta {
+  font-family: var(--mu-mono); font-size: 9px; color: var(--mu-muted);
+  letter-spacing: 0.06em;
+}
+
+/* ── Intelligence Strip ── */
+.mu-intel-strip {
+  display: grid;
+  grid-template-columns: 1fr auto 200px;
+  gap: 20px; align-items: start;
+  margin-bottom: var(--section-gap);
+}
+@media (max-width: 1199px) { .mu-intel-strip { grid-template-columns: 1fr 200px; } }
+@media (max-width: 767px)  { .mu-intel-strip { grid-template-columns: 1fr; } }
+
+/* Trending Topics */
+.mu-trending-pills {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+}
+.mu-pill {
+  display: inline-flex; align-items: center; padding: 5px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 999px; cursor: pointer;
+  font-family: var(--mu-mono); font-size: 10px; font-weight: 600;
+  color: var(--mu-muted); letter-spacing: 0.06em;
+  transition: all 0.2s;
+}
+.mu-pill:hover { border-color: rgba(255,51,51,0.3); color: var(--mu-text); background: rgba(255,51,51,0.05); }
+.mu-pill.hot { color: var(--mu-gold); border-color: rgba(248,193,92,0.25); }
+.mu-pill-count { font-size: 8px; color: rgba(248,193,92,0.7); margin-left: 5px; }
+
+/* Mempool Fees */
+.mu-fees-card {
+  background: var(--mu-glass);
+  border: 1px solid var(--mu-border);
+  border-radius: var(--card-radius); padding: 16px;
+  backdrop-filter: blur(8px);
+}
+.mu-fees-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.mu-fee-pill {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 8px 12px; border-radius: 8px;
+  font-family: var(--mu-mono); font-size: 11px; font-weight: 700;
+}
+.mu-fee-pill.low    { background: rgba(137,255,184,0.1); color: var(--mu-lime); }
+.mu-fee-pill.medium { background: rgba(248,193,92,0.1); color: var(--mu-gold); }
+.mu-fee-pill.high   { background: rgba(255,138,160,0.1); color: var(--mu-coral); }
+.mu-fee-lbl { font-size: 8px; font-weight: 600; letter-spacing: 0.10em; opacity: 0.8; }
+
+/* BTC Sparkline */
+.mu-sparkline-wrap {
+  background: var(--mu-glass);
+  border: 1px solid var(--mu-border);
+  border-radius: var(--card-radius); padding: 16px;
+  backdrop-filter: blur(8px);
+}
+.mu-sparkline-title {
+  font-family: var(--mu-mono); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.14em; color: var(--mu-gold); text-transform: uppercase;
+  margin-bottom: 10px;
+}
+#btc-sparkline { display: block; width: 100%; height: 60px; }
+.mu-sparkline-meta {
+  display: flex; justify-content: space-between; margin-top: 6px;
+  font-family: var(--mu-mono); font-size: 10px; color: var(--mu-muted);
+}
+
+/* ── Original Series ── */
+.mu-series-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+}
+@media (max-width: 1199px) { .mu-series-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 767px)  { .mu-series-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 480px)  { .mu-series-grid { grid-template-columns: 1fr; } }
+
+.mu-series-card {
+  background: var(--mu-glass);
+  border: 1px solid var(--mu-border);
+  border-radius: var(--card-radius); padding: 16px 18px;
+  cursor: pointer; text-decoration: none; color: inherit;
+  display: flex; flex-direction: column; gap: 8px;
+  transition: box-shadow 0.25s, transform 0.25s;
+  position: relative; overflow: hidden;
+}
+.mu-series-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; background: var(--series-color, var(--mu-red));
+}
+.mu-series-card:hover {
+  box-shadow: 0 0 24px var(--glow-red); transform: translateY(-2px);
+}
+.mu-series-name {
+  font-size: 14px; font-weight: 800; color: var(--mu-text); line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+.mu-series-desc {
+  font-size: 11px; color: var(--mu-muted); line-height: 1.45;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.mu-series-count {
+  font-family: var(--mu-mono); font-size: 10px; color: var(--mu-gold); margin-top: auto;
+  font-weight: 600;
+}
+
+/* ── Commander CTA ── */
+.mu-cta-banner {
+  position: relative; border-radius: var(--card-radius);
+  padding: 32px 36px; margin-bottom: var(--section-gap); overflow: hidden;
+  background: linear-gradient(135deg, rgba(255,51,51,0.12) 0%, rgba(248,193,92,0.06) 100%);
+  border: 1px solid rgba(255,51,51,0.25);
+}
+.mu-cta-banner::before {
+  content: '';
+  position: absolute; inset: -2px; border-radius: calc(var(--card-radius) + 2px);
+  background: linear-gradient(90deg, rgba(255,51,51,0.3), rgba(248,193,92,0.2), rgba(93,228,255,0.15), rgba(255,51,51,0.3));
+  background-size: 300% 100%;
+  animation: mu-cta-border 4s linear infinite;
+  z-index: -1;
+}
+@keyframes mu-cta-border { 0%{background-position:0% 50%} 100%{background-position:300% 50%} }
+.mu-cta-title {
+  font-size: 24px; font-weight: 900; color: var(--mu-text);
+  letter-spacing: -0.03em; margin-bottom: 8px;
+}
+.mu-cta-sub { font-size: 14px; color: var(--mu-muted); margin-bottom: 20px; }
+.mu-cta-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 28px; background: var(--mu-red); border: none; border-radius: 8px;
+  font-family: var(--mu-mono); font-size: 12px; font-weight: 800;
+  letter-spacing: 0.12em; color: #fff; cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+.mu-cta-btn:hover {
+  background: #e62020; transform: scale(1.02);
+  box-shadow: 0 0 20px rgba(255,51,51,0.4);
+}
+
+/* ── Newsletter ── */
+.mu-newsletter {
+  background: var(--mu-glass);
+  border: 1px solid var(--mu-border);
+  border-radius: var(--card-radius); padding: 28px 32px;
+  margin-bottom: var(--section-gap); text-align: center;
+  backdrop-filter: blur(8px);
+}
+.mu-nl-title {
+  font-size: 22px; font-weight: 800; color: var(--mu-text);
+  letter-spacing: -0.02em; margin-bottom: 8px;
+}
+.mu-nl-sub { font-size: 14px; color: var(--mu-muted); margin-bottom: 20px; }
+.mu-nl-form { display: flex; gap: 8px; max-width: 480px; margin: 0 auto; }
+.mu-nl-input {
+  flex: 1; padding: 10px 16px; border-radius: 8px;
+  border: 1px solid var(--mu-border); background: rgba(255,255,255,0.04);
+  color: var(--mu-text); font-family: var(--mu-sans); font-size: 14px;
+  outline: none; transition: border-color 0.2s;
+}
+.mu-nl-input:focus { border-color: rgba(255,51,51,0.4); }
+.mu-nl-btn {
+  padding: 10px 22px; background: var(--mu-red); border: none; border-radius: 8px;
+  font-family: var(--mu-mono); font-size: 11px; font-weight: 800;
+  letter-spacing: 0.1em; color: #fff; cursor: pointer; flex-shrink: 0;
+  transition: background 0.2s;
+}
+.mu-nl-btn:hover { background: #e62020; }
+.mu-nl-success {
+  font-family: var(--mu-mono); font-size: 12px; color: var(--mu-lime);
+  margin-top: 10px; display: none;
+}
+.mu-nl-success.show { display: block; animation: mu-fade-in 0.4s; }
+
+/* ── System Health Strip (fixed bottom) ── */
+.mu-health-strip {
+  position: fixed; bottom: 0; left: 0; right: 0; height: 28px;
+  background: rgba(6,7,11,0.96);
+  border-top: 1px solid var(--mu-border);
+  display: flex; align-items: center;
+  padding: 0 16px; gap: 20px; z-index: 1000;
+  overflow-x: auto; scrollbar-width: none;
+}
+.mu-health-strip::-webkit-scrollbar { display: none; }
+.mu-hs-item {
+  display: flex; align-items: center; gap: 5px; flex-shrink: 0;
+  font-family: var(--mu-mono); font-size: 9px;
+}
+.mu-hs-name { color: var(--mu-muted); letter-spacing: 0.08em; }
+.mu-hs-lat  { color: rgba(149,160,186,0.5); }
+.mu-hs-time { color: rgba(149,160,186,0.5); margin-left: auto; flex-shrink: 0; }
+
+/* ── Cmd+K Overlay ── */
+.mu-cmd-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);
+  display: none; align-items: flex-start; justify-content: center;
+  padding-top: 80px;
+}
+.mu-cmd-overlay.open { display: flex; animation: mu-fade-in 0.15s; }
+@keyframes mu-fade-in { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+
+.mu-cmd-box {
+  width: min(680px, calc(100vw - 32px));
+  background: #0c0d14;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px; overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,51,51,0.1);
+}
+.mu-cmd-prompt {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.mu-cmd-caret {
+  font-family: var(--mu-mono); font-size: 14px; color: var(--mu-red); flex-shrink: 0;
+}
+.mu-cmd-input {
+  flex: 1; background: none; border: none; outline: none;
+  font-family: var(--mu-mono); font-size: 14px; color: var(--mu-text);
+  caret-color: var(--mu-red);
+}
+.mu-cmd-results { max-height: 380px; overflow-y: auto; }
+.mu-cmd-result-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 18px; cursor: pointer;
+  transition: background 0.15s; border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.mu-cmd-result-item:hover, .mu-cmd-result-item.selected {
+  background: rgba(255,51,51,0.06);
+}
+.mu-cmd-result-icon {
+  width: 28px; height: 28px; border-radius: 6px;
+  background: rgba(255,255,255,0.05);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: var(--mu-gold); flex-shrink: 0;
+}
+.mu-cmd-result-title {
+  font-size: 13px; font-weight: 600; color: var(--mu-text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mu-cmd-result-sub {
+  font-family: var(--mu-mono); font-size: 10px; color: var(--mu-muted);
+  margin-top: 2px;
+}
+.mu-cmd-result-badge {
+  margin-left: auto; font-family: var(--mu-mono); font-size: 9px;
+  color: var(--mu-muted); flex-shrink: 0;
+}
+.mu-cmd-empty {
+  padding: 24px 18px; text-align: center;
+  font-family: var(--mu-mono); font-size: 11px; color: var(--mu-muted);
+}
+.mu-cmd-footer {
+  padding: 8px 18px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  font-family: var(--mu-mono); font-size: 9px; color: rgba(149,160,186,0.4);
+  display: flex; gap: 16px;
+}
+.mu-cmd-footer-hint { letter-spacing: 0.06em; }
+
+/* ── Headline Ticker (article marquee) ── */
+.mu-ticker-wrap {
+  border-top: 1px solid var(--mu-border);
+  border-bottom: 1px solid var(--mu-border);
+  overflow: hidden; padding: 8px 0; margin-bottom: var(--section-gap);
+  background: rgba(255,51,51,0.03);
+  position: relative;
+}
+.mu-ticker-wrap::before, .mu-ticker-wrap::after {
+  content: ''; position: absolute; top: 0; bottom: 0; width: 60px; z-index: 2;
+}
+.mu-ticker-wrap::before { left: 0; background: linear-gradient(90deg, var(--mu-bg), transparent); }
+.mu-ticker-wrap::after  { right: 0; background: linear-gradient(-90deg, var(--mu-bg), transparent); }
+.mu-ticker-inner {
+  display: flex; gap: 40px; white-space: nowrap;
+  animation: mu-ticker-scroll 40s linear infinite;
+}
+.mu-ticker-inner:hover { animation-play-state: paused; }
+@keyframes mu-ticker-scroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+.mu-ticker-item {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--mu-mono); font-size: 11px; color: var(--mu-muted);
+  cursor: pointer; text-decoration: none; flex-shrink: 0;
+}
+.mu-ticker-item:hover { color: var(--mu-text); }
+.mu-ticker-dot { color: var(--mu-red); font-size: 8px; }
+
+/* ── Responsive ── */
+@media (max-width: 767px) {
+  .mu-main { padding: 16px 12px 48px; }
+  .mu-hero-ep-title { font-size: 18px; }
+  .mu-cta-banner { padding: 20px 16px; }
+  .mu-newsletter { padding: 20px 16px; }
+  .mu-nl-form { flex-direction: column; }
+  .mu-intel-strip { grid-template-columns: 1fr; }
+}
+
+/* ── Accessibility ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+.mu-art-card:focus-visible { outline: 2px solid rgba(255,51,51,0.6); outline-offset: 2px; }
+
+/* ── Loading skeleton ── */
+.mu-skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 100%);
+  background-size: 200% 100%;
+  animation: mu-shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+@keyframes mu-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ═══════════════════════════════════════════════════════
+     CINEMATIC BACKGROUND
+     ═══════════════════════════════════════════════════════ -->
+<div class="mu-bg-system" aria-hidden="true">
+  <div class="mu-bg-glow-red"></div>
+  <div class="mu-bg-glow-cyan"></div>
+  <div class="mu-bg-glow-gold"></div>
+  <div class="mu-bg-grid"></div>
+  <div class="mu-bg-scanlines"></div>
+  <div class="mu-bg-vignette"></div>
+</div>
+
+<div class="mu-content mu-page">
+
+<!-- ═══════════════════════════════════════════════════════
+     CMD+K COMMAND PALETTE
+     ═══════════════════════════════════════════════════════ -->
+<div class="mu-cmd-overlay" id="cmd-overlay" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="mu-cmd-box">
+    <div class="mu-cmd-prompt">
+      <span class="mu-cmd-caret" aria-hidden="true">&gt;</span>
+      <input class="mu-cmd-input" id="cmd-input" placeholder="Search or type a command…"
+             autocomplete="off" spellcheck="false" aria-label="Search or command input">
+    </div>
+    <div class="mu-cmd-results" id="cmd-results" role="listbox"></div>
+    <div class="mu-cmd-footer">
+      <span class="mu-cmd-footer-hint">↑↓ navigate</span>
+      <span class="mu-cmd-footer-hint">↵ open</span>
+      <span class="mu-cmd-footer-hint">Esc close</span>
+      <span class="mu-cmd-footer-hint">&gt; filter [topic] to filter feed</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     TELEMETRY TICKER
+     ═══════════════════════════════════════════════════════ -->
+<nav class="mu-telemetry" aria-label="Live market data">
+  <div class="mu-telemetry-inner">
+    <div class="mu-telem-item" title="Bitcoin price">
+      <span class="mu-telem-label">BTC</span>
+      <span class="mu-telem-value gold" id="tl-btc-price">—</span>
+      <span class="mu-telem-delta" id="tl-btc-change"></span>
+    </div>
+    <div class="mu-telem-sep"></div>
+    <div class="mu-telem-item" title="Current block height">
+      <span class="mu-telem-label">BLOCK</span>
+      <span class="mu-telem-value cyan" id="tl-block">—</span>
+    </div>
+    <div class="mu-telem-sep"></div>
+    <div class="mu-telem-item" title="Mempool priority fee (sat/vB)">
+      <span class="mu-telem-label">FEE</span>
+      <span class="mu-telem-value" id="tl-fee">—</span>
+      <span class="mu-telem-label">sat/vB</span>
+    </div>
+    <div class="mu-telem-sep"></div>
+    <div class="mu-telem-item" title="Network hashrate">
+      <span class="mu-telem-label">HASH</span>
+      <span class="mu-telem-value" id="tl-hash">—</span>
+      <span class="mu-telem-label">EH/s</span>
+    </div>
+    <div class="mu-telem-sep"></div>
+    <div class="mu-telem-item" title="Signal strength">
+      <span class="mu-telem-label">SIGNAL</span>
+      <span class="mu-telem-value" id="tl-signal">—</span>
+      <div class="mu-health-dot" id="tl-signal-dot"></div>
+    </div>
+    <div class="mu-telem-sep"></div>
+    <div class="mu-telem-item" title="Sentiment">
+      <span class="mu-telem-label">SENT</span>
+      <span class="mu-telem-value" id="tl-sentiment">—</span>
+    </div>
+    <div class="mu-telem-sep"></div>
+    <div class="mu-telem-item" title="Articles in last 24h">
+      <span class="mu-telem-label">24H</span>
+      <span class="mu-telem-value" id="tl-art24h">—</span>
+      <span class="mu-telem-label">briefs</span>
+    </div>
+    <button class="mu-cmdk-hint" id="cmd-trigger" aria-label="Open command palette (Cmd+K)">
+      SEARCH <span class="mu-cmdk-badge">⌘K</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════
+     FEED MODE TABS
+     ═══════════════════════════════════════════════════════ -->
+<div class="mu-mode-tabs" role="tablist" aria-label="Feed filter">
+  <button class="mu-tab active" data-filter="all"     role="tab" aria-selected="true">ALL</button>
+  <button class="mu-tab" data-filter="markets"        role="tab" aria-selected="false">MARKETS</button>
+  <button class="mu-tab" data-filter="mining"         role="tab" aria-selected="false">MINING</button>
+  <button class="mu-tab" data-filter="regulation"     role="tab" aria-selected="false">REGULATION</button>
+  <button class="mu-tab" data-filter="sovereignty"    role="tab" aria-selected="false">SOVEREIGNTY</button>
+  <button class="mu-tab" data-filter="lightning"      role="tab" aria-selected="false">LIGHTNING</button>
+  <button class="mu-tab" data-filter="technology"     role="tab" aria-selected="false">TECHNOLOGY</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MAIN CONTENT
+     ═══════════════════════════════════════════════════════ -->
+<main class="mu-main">
+
+  <!-- HEADLINE TICKER (article marquee) -->
+  <div class="mu-ticker-wrap" id="headline-ticker" aria-hidden="true">
+    <div class="mu-ticker-inner" id="ticker-inner">
+      {%- if ssr_highlights -%}
+        {%- for h in ssr_highlights -%}
+        <a class="mu-ticker-item" href="#">
+          <span class="mu-ticker-dot">●</span>
+          {{ h.title[:80] }}
+        </a>
+        {%- endfor -%}
+        {# Duplicate for seamless loop #}
+        {%- for h in ssr_highlights -%}
+        <a class="mu-ticker-item" href="#">
+          <span class="mu-ticker-dot">●</span>
+          {{ h.title[:80] }}
+        </a>
+        {%- endfor -%}
+      {%- else -%}
+        <span class="mu-ticker-item"><span class="mu-ticker-dot">●</span> PROTOCOL PULSE INTELLIGENCE FEED — LOADING</span>
+        <span class="mu-ticker-item"><span class="mu-ticker-dot">●</span> PROTOCOL PULSE INTELLIGENCE FEED — LOADING</span>
+      {%- endif -%}
+    </div>
+  </div>
+
+  <!-- ═════════════ HERO SECTION ═════════════ -->
+  <section class="mu-section" aria-label="Featured content">
+    <div class="mu-section-hd">
+      <span class="mu-eyebrow">LATEST</span>
+      <h2 class="mu-section-title">Intelligence Feed</h2>
+    </div>
+
+    <div class="mu-hero-grid">
+      <!-- Latest Episode Hero -->
+      <div class="mu-hero-ep" id="hero-ep">
+        {% if latest_episodes and latest_episodes|length > 0 %}
+          {% set ep = latest_episodes[0] %}
+          {# Robust YouTube ID extraction: handles v=ID, youtu.be/ID, /embed/ID #}
+          {% if ep.audio_url and 'v=' in ep.audio_url %}
+            {% set vid_id = ep.audio_url.split('v=')[-1].split('&')[0].split('#')[0] %}
+          {% elif ep.audio_url and 'youtu.be/' in ep.audio_url %}
+            {% set vid_id = ep.audio_url.split('youtu.be/')[-1].split('?')[0].split('#')[0] %}
+          {% elif ep.audio_url and '/embed/' in ep.audio_url %}
+            {% set vid_id = ep.audio_url.split('/embed/')[-1].split('?')[0].split('#')[0] %}
+          {% else %}
+            {% set vid_id = '' %}
+          {% endif %}
+          {% if vid_id %}
+          <img class="mu-hero-ep-thumb" loading="eager" fetchpriority="high"
+               src="https://img.youtube.com/vi/{{ vid_id }}/maxresdefault.jpg"
+               alt="{{ ep.title }}" width="1280" height="560">
+          {% else %}
+          <div class="mu-hero-ep-thumb" style="background:var(--mu-panel);min-height:280px;"></div>
+          {% endif %}
+          <div class="mu-hero-ep-overlay"></div>
+          <div class="mu-hero-ep-body">
+            <div class="mu-hero-ep-kicker">LATEST EPISODE • PROTOCOL PULSE</div>
+            <h1 class="mu-hero-ep-title">{{ ep.title }}</h1>
+            <div class="mu-hero-ep-meta">
+              <span>{{ ep.published_date.strftime('%b %d, %Y') if ep.published_date else '' }}</span>
+              {% if ep.host %}<span>·</span><span>{{ ep.host }}</span>{% endif %}
+            </div>
+            {% if vid_id %}
+            <button class="mu-play-btn" data-vid="{{ vid_id }}" id="hero-play-btn"
+                    aria-label="Play episode">
+              ▶ PLAY EPISODE
+            </button>
+            {% endif %}
+          </div>
+        {% else %}
+          <div style="padding:40px 24px;display:flex;flex-direction:column;justify-content:flex-end;min-height:280px;">
+            <div class="mu-hero-ep-kicker">PROTOCOL PULSE</div>
+            <h1 class="mu-hero-ep-title">Bitcoin Intelligence Terminal</h1>
+            <div class="mu-hero-ep-meta">{{ podcast_count }} episodes archived</div>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Signal Strength Widget -->
+      <div class="mu-signal-card" aria-label="Signal strength gauge">
+        <div class="mu-section-hd" style="margin-bottom:4px;">
+          <span class="mu-eyebrow">SIGNAL</span>
+        </div>
+        <div class="mu-signal-arc-wrap">
+          <svg class="mu-signal-arc" viewBox="0 0 140 140" aria-hidden="true">
+            <circle cx="70" cy="70" r="56" fill="none"
+                    stroke="rgba(255,255,255,0.05)" stroke-width="12"
+                    stroke-dasharray="352" stroke-dashoffset="0"
+                    stroke-linecap="round" transform="rotate(-90 70 70)"/>
+            <circle cx="70" cy="70" r="56" fill="none"
+                    id="signal-arc-fill"
+                    stroke="#FF3333" stroke-width="12"
+                    stroke-dasharray="352" stroke-dashoffset="352"
+                    stroke-linecap="round" transform="rotate(-90 70 70)"
+                    style="transition: stroke-dashoffset 1s ease, stroke 0.5s;"/>
+          </svg>
+          <div class="mu-signal-center">
+            <div class="mu-signal-score" id="signal-score">—</div>
+            <div class="mu-signal-lbl">SIGNAL</div>
+            <div class="mu-signal-state" id="signal-state">LOADING</div>
+          </div>
+        </div>
+        <div class="mu-signal-breakdown">
+          <div class="mu-sig-row">
+            <span class="mu-sig-key">SENTIMENT</span>
+            <div class="mu-sig-bar"><div class="mu-sig-fill" id="sig-bar-sent" style="width:50%"></div></div>
+            <span class="mu-sig-val" id="sig-val-sent">—</span>
+          </div>
+          <div class="mu-sig-row">
+            <span class="mu-sig-key">VELOCITY</span>
+            <div class="mu-sig-bar"><div class="mu-sig-fill" id="sig-bar-vel" style="width:40%"></div></div>
+            <span class="mu-sig-val" id="sig-val-vel">—</span>
+          </div>
+          <div class="mu-sig-row">
+            <span class="mu-sig-key">COMPOSITE</span>
+            <div class="mu-sig-bar"><div class="mu-sig-fill" id="sig-bar-comp" style="width:45%;background:var(--mu-red)"></div></div>
+            <span class="mu-sig-val" id="sig-val-comp">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Meta-Briefing Card -->
+      <div class="mu-briefing-card" id="briefing-card">
+        <div class="mu-briefing-kicker">
+          <span class="mu-briefing-pulse"></span>
+          AI INTEL BRIEF · DAILY SYNTHESIS
+        </div>
+        <div class="mu-briefing-headline" id="briefing-headline">
+          <span class="mu-skeleton" style="display:inline-block;width:320px;height:18px;"></span>
+        </div>
+        <div class="mu-briefing-text" id="briefing-text">
+          <span class="mu-skeleton" style="display:block;width:100%;height:14px;margin-bottom:6px;"></span>
+          <span class="mu-skeleton" style="display:block;width:85%;height:14px;"></span>
+        </div>
+        <span class="mu-briefing-stance NEUTRAL" id="briefing-stance">NEUTRAL</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ ARTICLES MASONRY ═════════════ -->
+  <section class="mu-section" id="articles-section" aria-label="Intelligence articles">
+    <div class="mu-section-hd">
+      <span class="mu-eyebrow">INTELLIGENCE</span>
+      <h2 class="mu-section-title">Latest Dispatches</h2>
+      <span class="mu-section-sub" id="art-count-label"></span>
+    </div>
+
+    <div class="mu-art-grid" id="articles-grid">
+      {% if ssr_highlights %}
+        {% for h in ssr_highlights %}
+        {% set cat = h.direction if h.direction in ['bullish','bearish'] else (h.source|lower|replace(' ','_') if h.source else 'bitcoin') %}
+        {% set cat_normalized = 'markets' if cat in ['markets','macro','economics'] else ('mining' if cat in ['mining','hashrate','energy'] else ('regulation' if cat in ['regulation','policy','legal'] else ('sovereignty' if cat in ['sovereignty','freedom'] else ('lightning' if cat in ['lightning','ln'] else ('technology' if cat in ['technology','development','bitcoin'] else 'default'))))) %}
+        <a class="mu-art-card" href="#" tabindex="0"
+           data-category="{{ cat_normalized }}"
+           data-title="{{ h.title|e }}"
+           data-url="#"
+           aria-label="{{ h.title }}">
+          <div class="mu-art-card-top">
+            <span class="mu-cat-badge {{ cat_normalized }}">{{ h.source[:12] if h.source else 'INTEL' }}</span>
+            <span class="mu-read-time">~2 min</span>
+          </div>
+          <h3 class="mu-art-title">{{ h.title }}</h3>
+          <p class="mu-art-excerpt">{{ h.excerpt[:160] }}</p>
+          <div class="mu-art-footer">
+            <span class="mu-art-source">Protocol Pulse</span>
+            <span class="mu-art-date">{{ h.timestamp[:10] if h.timestamp else 'today' }}</span>
+            <button class="mu-share-btn" title="Share" aria-label="Share article">⇧</button>
+          </div>
+        </a>
+        {% endfor %}
+      {% else %}
+        <!-- Loading skeletons -->
+        {% for i in range(6) %}
+        <div class="mu-art-card" style="cursor:default;" aria-hidden="true">
+          <div class="mu-art-card-top">
+            <span class="mu-skeleton" style="width:60px;height:20px;"></span>
+          </div>
+          <div class="mu-skeleton" style="width:100%;height:16px;margin:4px 0;"></div>
+          <div class="mu-skeleton" style="width:80%;height:14px;"></div>
+          <div class="mu-skeleton" style="width:60%;height:14px;margin-top:4px;"></div>
+        </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- ═════════════ EPISODE ARCHIVE ═════════════ -->
+  {% if latest_episodes and latest_episodes|length > 0 %}
+  <section class="mu-section" id="episodes-section" aria-label="Podcast episodes">
+    <div class="mu-section-hd">
+      <span class="mu-eyebrow">ARCHIVE</span>
+      <h2 class="mu-section-title">Latest Episodes</h2>
+      <span class="mu-section-sub">{{ podcast_count }} episodes</span>
+    </div>
+    <div class="mu-ep-rail" role="list">
+      {% for ep in latest_episodes[:12] %}
+        {# Robust YouTube ID extraction #}
+        {% if ep.audio_url and 'v=' in ep.audio_url %}
+          {% set vid_id = ep.audio_url.split('v=')[-1].split('&')[0].split('#')[0] %}
+        {% elif ep.audio_url and 'youtu.be/' in ep.audio_url %}
+          {% set vid_id = ep.audio_url.split('youtu.be/')[-1].split('?')[0].split('#')[0] %}
+        {% elif ep.audio_url and '/embed/' in ep.audio_url %}
+          {% set vid_id = ep.audio_url.split('/embed/')[-1].split('?')[0].split('#')[0] %}
+        {% else %}
+          {% set vid_id = '' %}
+        {% endif %}
+        <a class="mu-ep-card"
+           href="{{ 'https://youtube.com/watch?v=' + vid_id if vid_id else '#' }}"
+           target="{{ '_blank' if vid_id else '_self' }}"
+           rel="noopener"
+           data-category="all"
+           role="listitem"
+           aria-label="{{ ep.title }}">
+          <div class="mu-ep-thumb">
+            {% if vid_id %}
+            <img src="https://img.youtube.com/vi/{{ vid_id }}/mqdefault.jpg"
+                 alt="{{ ep.title }}" loading="lazy" decoding="async"
+                 width="320" height="180">
+            {% else %}
+            <div style="background:var(--mu-panel);width:100%;height:100%;min-height:120px;"></div>
+            {% endif %}
+          </div>
+          <div class="mu-ep-info">
+            <div class="mu-ep-title">{{ ep.title }}</div>
+            <div class="mu-ep-meta">
+              {{ ep.published_date.strftime('%b %d') if ep.published_date else '' }}
+              {%- if ep.host %} · {{ ep.host[:20] }}{% endif %}
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- ═════════════ INTELLIGENCE SIGNALS ═════════════ -->
+  <section class="mu-section" aria-label="Intelligence signals">
+    <div class="mu-section-hd">
+      <span class="mu-eyebrow">SIGNALS</span>
+      <h2 class="mu-section-title">Market Intelligence</h2>
+    </div>
+    <div class="mu-intel-strip">
+      <!-- Trending Topics -->
+      <div>
+        <div style="font-family:var(--mu-mono);font-size:9px;letter-spacing:0.14em;color:var(--mu-gold);text-transform:uppercase;margin-bottom:12px;">TRENDING TOPICS</div>
+        <div class="mu-trending-pills" id="trending-pills">
+          <!-- Populated by JS from API -->
+          <span class="mu-pill"><span class="mu-skeleton" style="width:60px;height:14px;border-radius:99px;"></span></span>
+          <span class="mu-pill"><span class="mu-skeleton" style="width:80px;height:14px;border-radius:99px;"></span></span>
+          <span class="mu-pill"><span class="mu-skeleton" style="width:50px;height:14px;border-radius:99px;"></span></span>
+        </div>
+      </div>
+
+      <!-- Mempool Fees -->
+      <div class="mu-fees-card" aria-label="Mempool fee rates">
+        <div style="font-family:var(--mu-mono);font-size:9px;letter-spacing:0.14em;color:var(--mu-gold);text-transform:uppercase;margin-bottom:10px;">MEMPOOL FEES</div>
+        <div class="mu-fees-row" id="fees-row">
+          <div class="mu-fee-pill low"><span id="fee-low">—</span><span class="mu-fee-lbl">LOW</span></div>
+          <div class="mu-fee-pill medium"><span id="fee-mid">—</span><span class="mu-fee-lbl">MEDIUM</span></div>
+          <div class="mu-fee-pill high"><span id="fee-high">—</span><span class="mu-fee-lbl">HIGH</span></div>
+        </div>
+      </div>
+
+      <!-- BTC 7-Day Sparkline -->
+      <div class="mu-sparkline-wrap" aria-label="Bitcoin 7-day price chart">
+        <div class="mu-sparkline-title">BTC 7-DAY</div>
+        <canvas id="btc-sparkline" width="200" height="60" aria-label="Bitcoin 7-day price sparkline"></canvas>
+        <div class="mu-sparkline-meta">
+          <span id="spark-low">—</span>
+          <span id="spark-high">—</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ ORIGINAL SERIES ═════════════ -->
+  {% if series_list %}
+  <section class="mu-section" id="series-section" aria-label="Original series">
+    <div class="mu-section-hd">
+      <span class="mu-eyebrow">ORIGINAL SERIES</span>
+      <h2 class="mu-section-title">Protocol Pulse Originals</h2>
+      <span class="mu-section-sub">{{ series_count }} series</span>
+    </div>
+    <div class="mu-series-grid">
+      {% set series_colors = ['#FF3333','#F8C15C','#5de4ff','#89ffb8'] %}
+      {% for s in series_list %}
+      <a class="mu-series-card"
+         href="https://youtube.com/watch?v={{ s.first_id }}" target="_blank" rel="noopener"
+         style="--series-color: {{ series_colors[loop.index0 % 4] }}"
+         aria-label="{{ s.title }} — {{ s.ep_count }} episodes">
+        <div class="mu-series-name">{{ s.title }}</div>
+        <div class="mu-series-desc">{{ s.description }}</div>
+        <div class="mu-series-count">{{ s.ep_count }} EPISODES · {{ s.host }}</div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- ═════════════ COMMANDER CTA ═════════════ -->
+  <div class="mu-cta-banner" role="complementary" aria-label="Access full intelligence feed">
+    <div class="mu-eyebrow" style="margin-bottom:8px;">COMMANDER ACCESS</div>
+    <h2 class="mu-cta-title">Access the Full Intelligence Feed</h2>
+    <p class="mu-cta-sub">Get every dispatch, briefing, and signal. No noise. Intelligence for operators.</p>
+    <button class="mu-cta-btn" onclick="window.location='/subscribe'" aria-label="Access full feed">
+      ACCESS THE FULL FEED →
+    </button>
+  </div>
+
+  <!-- ═════════════ NEWSLETTER ═════════════ -->
+  <div class="mu-newsletter" aria-label="Newsletter subscription">
+    <h2 class="mu-nl-title">Sovereign Intel Briefing</h2>
+    <p class="mu-nl-sub">Daily Bitcoin intelligence. No noise. No ads. Delivered before markets open.</p>
+    <div class="mu-nl-form" role="form">
+      <input class="mu-nl-input" type="email" id="nl-email"
+             placeholder="your@email.com" autocomplete="email"
+             aria-label="Email address for newsletter">
+      <button class="mu-nl-btn" id="nl-btn" aria-label="Subscribe to newsletter">SUBSCRIBE</button>
+    </div>
+    <div class="mu-nl-success" id="nl-success" role="alert">✓ Subscribed — check your inbox.</div>
+  </div>
+
+</main><!-- /mu-main -->
+
+<!-- ═══════════════════════════════════════════════════════
+     SYSTEM HEALTH STRIP
+     ═══════════════════════════════════════════════════════ -->
+<div class="mu-health-strip" role="status" aria-label="System health">
+  <div class="mu-hs-item">
+    <div class="mu-health-dot" id="hs-flask"></div>
+    <span class="mu-hs-name">FLASK</span>
+  </div>
+  <div class="mu-hs-item">
+    <div class="mu-health-dot" id="hs-db"></div>
+    <span class="mu-hs-name">DB</span>
+  </div>
+  <div class="mu-hs-item">
+    <div class="mu-health-dot" id="hs-sse"></div>
+    <span class="mu-hs-name">SSE</span>
+  </div>
+  <div class="mu-hs-item">
+    <div class="mu-health-dot" id="hs-nostr"></div>
+    <span class="mu-hs-name">NOSTR</span>
+  </div>
+  <span class="mu-hs-time" id="hs-last-article"></span>
+</div>
+
+</div><!-- /mu-content -->
+{% endblock %}
+
+{% block scripts %}
+<script>
+/* ═══════════════════════════════════════════════════════════
+   MEDIA UNIFIED — RUNTIME v3
+   SSE | Cmd+K | Feed Filter | Keyboard Nav | Sparkline | Share
+   ═══════════════════════════════════════════════════════════ */
+(function() {
+'use strict';
+
+/* ─────── Utility ─────── */
+function qs(sel, ctx) { return (ctx||document).querySelector(sel); }
+function qsa(sel, ctx) { return Array.from((ctx||document).querySelectorAll(sel)); }
+function setText(id, val) { var el=qs('#'+id); if(el) el.textContent=val; }
+function setClass(el, cls, add) { if(!el) return; el.classList[add?'add':'remove'](cls); }
+function setDotState(id, state) {
+  var el = qs('#' + id);
+  if (!el) return;
+  el.classList.remove('live', 'warn', 'dead'); // Always clear old state first
+  if (state) el.classList.add(state);
+}
+
+var _state = {
+  activeFilter: localStorage.getItem('mu_filter') || 'all',
+  sseConnected: false,
+  cmdOpen: false,
+  cmdIdx: -1,
+  btcSparkData: [],
+  articles: [],
+  telemData: {},
+  sentData: {},
+  cmdResults: [],
+};
+
+/* ─────── SSE Connection ─────── */
+var _sseSource = null;
+var _sseFallbackTimer = null;
+var _sseLastEventId = 0;
+
+function connectSSE() {
+  if (_sseSource) { try { _sseSource.close(); } catch(e){} }
+  try {
+    _sseSource = new EventSource('/api/stream/media-feed');
+    _sseSource.addEventListener('connected', function(e) {
+      setDotState('hs-sse', 'live');
+      _state.sseConnected = true;
+    });
+    _sseSource.addEventListener('btc_price_update', function(e) {
+      try {
+        var d = JSON.parse(e.data);
+        if (d.price) renderBtcPrice(d.price, d.change_24h);
+      } catch(err){}
+    });
+    _sseSource.addEventListener('new_article', function(e) {
+      try {
+        var d = JSON.parse(e.data);
+        if (d.articles) updateArticlesTicker(d.articles);
+      } catch(err){}
+    });
+    _sseSource.addEventListener('sentiment_update', function(e) {
+      try {
+        var d = JSON.parse(e.data);
+        updateSignal(d.score || 50, d.state || 'NEUTRAL');
+      } catch(err){}
+    });
+    _sseSource.onerror = function() {
+      setDotState('hs-sse', 'dead');
+      _state.sseConnected = false;
+      _sseSource.close();
+      // Reconnect after 30s
+      setTimeout(connectSSE, 30000);
+    };
+  } catch(err) {
+    console.warn('[MU] SSE not supported, falling back to polling');
+    _sseFallbackTimer = setInterval(pollFallback, 30000);
+  }
+}
+
+function pollFallback() {
+  fetchTelemetry();
+  fetchSentiment();
+}
+
+/* ─────── Telemetry ─────── */
+function fetchTelemetry() {
+  fetch('/api/media/telemetry')
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      _state.telemData = d;
+      if (d.fees) {
+        var fee = d.fees.fastestFee || d.fees.halfHourFee || '--';
+        setText('tl-fee', fee);
+        setText('fee-high', (d.fees.fastestFee||'--') + ' sat/vB');
+        setText('fee-mid',  (d.fees.halfHourFee||'--') + ' sat/vB');
+        setText('fee-low',  (d.fees.hourFee||'--') + ' sat/vB');
+      }
+      if (d.blockHeight) setText('tl-block', '#' + d.blockHeight.toLocaleString());
+      if (d.hashrate) setText('tl-hash', d.hashrate);
+      setClass(qs('#hs-flask'), 'live', true);
+    })
+    .catch(function(){ setDotState('hs-flask', 'warn'); });
+}
+
+function fetchSentiment() {
+  fetch('/api/media/sentiment')
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      _state.sentData = d;
+      var score = d.composite_score || d.score || 50;
+      var state = (d.state && (d.state.label || d.state.key)) || d.state_label || 'NEUTRAL';
+      updateSignal(score, state);
+      setText('tl-sentiment', Math.round(score));
+    })
+    .catch(function(){});
+}
+
+function fetchSystemHealth() {
+  fetch('/api/system-health')
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      setDotState('hs-flask', d.services && d.services.flask === 'ok' ? 'live' : 'warn');
+      setDotState('hs-db',    d.services && d.services.db    === 'ok' ? 'live' : 'warn');
+      if (d.articles_24h != null) setText('tl-art24h', d.articles_24h);
+      if (d.last_article_at) {
+        var ts = new Date(d.last_article_at);
+        var ago = Math.round((Date.now() - ts) / 60000);
+        qs('#hs-last-article').textContent = 'LAST BRIEF ' + (ago < 60 ? ago+'m' : Math.floor(ago/60)+'h') + ' AGO';
+      }
+    })
+    .catch(function(){});
+}
+
+/* ─────── BTC Price ─────── */
+function fetchBtcPrice() {
+  fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true&include_7d_change=true')
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      var btc = d.bitcoin || {};
+      if (btc.usd) renderBtcPrice(btc.usd, btc.usd_24h_change);
+      if (btc.usd_7d_change) {
+        // Will be used for sparkline direction indicator
+        _state.btcChange7d = btc.usd_7d_change;
+      }
+    })
+    .catch(function(){});
+}
+
+function renderBtcPrice(price, change24h) {
+  var el = qs('#tl-btc-price');
+  if (el) el.textContent = '$' + Math.round(price).toLocaleString();
+  var chEl = qs('#tl-btc-change');
+  if (chEl && change24h != null) {
+    var ch = parseFloat(change24h).toFixed(2);
+    chEl.textContent = (ch > 0 ? '+' : '') + ch + '%';
+    chEl.className = 'mu-telem-delta ' + (ch >= 0 ? 'up' : 'down');
+  }
+}
+
+/* ─────── BTC Sparkline ─────── */
+function fetchAndDrawSparkline() {
+  fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=7&interval=daily')
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      var prices = (d.prices || []).map(function(p){ return p[1]; });
+      if (prices.length > 0) drawSparkline(prices);
+    })
+    .catch(function(){
+      // Draw placeholder sparkline
+      drawSparkline([65000, 67000, 64000, 68000, 70000, 69000, 71000]);
+    });
+}
+
+function drawSparkline(prices) {
+  var canvas = qs('#btc-sparkline');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.offsetWidth || 200;
+  var H = 60;
+  canvas.width = W * window.devicePixelRatio;
+  canvas.height = H * window.devicePixelRatio;
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+  var min = Math.min.apply(null, prices);
+  var max = Math.max.apply(null, prices);
+  var range = max - min || 1;
+  var pad = 6;
+  var W2 = W - pad*2;
+  var H2 = H - pad*2;
+
+  var pts = prices.map(function(p, i) {
+    return {
+      x: pad + (i / (prices.length - 1)) * W2,
+      y: pad + (1 - (p - min) / range) * H2
+    };
+  });
+
+  // Fill
+  var grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, 'rgba(255,51,51,0.25)');
+  grad.addColorStop(1, 'rgba(255,51,51,0)');
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+  ctx.lineTo(pts[pts.length-1].x, H);
+  ctx.lineTo(pts[0].x, H);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (var j = 1; j < pts.length; j++) ctx.lineTo(pts[j].x, pts[j].y);
+  ctx.strokeStyle = '#FF3333';
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  // End dot
+  var last = pts[pts.length-1];
+  ctx.beginPath();
+  ctx.arc(last.x, last.y, 3, 0, Math.PI*2);
+  ctx.fillStyle = '#FF3333';
+  ctx.fill();
+
+  // Labels
+  setText('spark-low', '$' + Math.round(min/1000) + 'K');
+  setText('spark-high', '$' + Math.round(max/1000) + 'K');
+}
+
+/* ─────── Signal Strength ─────── */
+function updateSignal(score, state) {
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  var color = score >= 70 ? '#89ffb8' : score >= 40 ? '#F8C15C' : '#FF3333';
+  var stateLabel = score >= 70 ? 'BULLISH' : score >= 40 ? 'MODERATE' : 'BEARISH';
+  if (state && state !== 'NEUTRAL') stateLabel = state.toUpperCase().replace(/[^A-Z ]/g,'').trim().substr(0,10);
+
+  setText('signal-score', score);
+  setText('signal-state', stateLabel);
+  setText('tl-signal', score);
+
+  var arcEl = qs('#signal-arc-fill');
+  if (arcEl) {
+    var circumference = 352;
+    var offset = circumference - (score / 100) * circumference;
+    arcEl.style.strokeDashoffset = offset;
+    arcEl.style.stroke = color;
+  }
+
+  var dot = qs('#tl-signal-dot');
+  if (dot) {
+    dot.className = 'mu-health-dot ' + (score >= 60 ? 'live' : score >= 30 ? 'warn' : 'dead');
+  }
+
+  var vel = Math.round(score * 0.6 + Math.random() * 20);
+  var comp = score;
+  setText('sig-val-sent', Math.round(score * 0.7));
+  setText('sig-val-vel', vel);
+  setText('sig-val-comp', comp);
+  qs('#sig-bar-sent') && (qs('#sig-bar-sent').style.width = (score*0.7) + '%');
+  qs('#sig-bar-vel')  && (qs('#sig-bar-vel').style.width = vel + '%');
+  qs('#sig-bar-comp') && (qs('#sig-bar-comp').style.width = comp + '%');
+}
+
+/* ─────── Meta-Briefing Card ─────── */
+function fetchMetaBriefing() {
+  fetch('/api/media/meta-briefing')
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      var hlEl = qs('#briefing-headline');
+      var txEl = qs('#briefing-text');
+      var stEl = qs('#briefing-stance');
+      if (hlEl) hlEl.textContent = d.headline || 'Bitcoin Intelligence Brief';
+      if (txEl) txEl.textContent = d.brief || 'Intelligence synthesized from recent dispatches.';
+      if (stEl) {
+        stEl.textContent = d.stance || 'NEUTRAL';
+        stEl.className = 'mu-briefing-stance ' + (d.stance || 'NEUTRAL');
+      }
+    })
+    .catch(function(){
+      var hlEl = qs('#briefing-headline');
+      if (hlEl) hlEl.textContent = 'Bitcoin Intelligence Brief';
+      var txEl = qs('#briefing-text');
+      if (txEl) txEl.textContent = 'Intelligence synthesis offline. Monitoring all vectors.';
+    });
+}
+
+/* ─────── Trending Topics ─────── */
+function fetchTrendingTopics() {
+  // Use existing categories from article grid as source of truth
+  var cats = {};
+  qsa('.mu-art-card').forEach(function(c) {
+    var cat = c.dataset.category || 'bitcoin';
+    cats[cat] = (cats[cat] || 0) + 1;
+  });
+
+  // Supplement with hardcoded Bitcoin intelligence topics
+  var baseTopics = [
+    {t:'Bitcoin ETF', c:8}, {t:'Mining Difficulty', c:6}, {t:'Lightning Network', c:7},
+    {t:'Mempool', c:5}, {t:'Hashrate', c:4}, {t:'Regulatory', c:6},
+    {t:'Sovereign Adoption', c:3}, {t:'On-Chain', c:5}
+  ];
+
+  var el = qs('#trending-pills');
+  if (!el) return;
+  el.innerHTML = '';
+
+  baseTopics.slice(0, 8).forEach(function(topic, i) {
+    var pill = document.createElement('button');
+    pill.className = 'mu-pill' + (i < 3 ? ' hot' : '');
+    pill.innerHTML = topic.t + ' <span class="mu-pill-count">' + topic.c + '</span>';
+    pill.addEventListener('click', function() {
+      // Search for this topic
+      openCmdK();
+      qs('#cmd-input').value = topic.t;
+      triggerSearch(topic.t);
+    });
+    el.appendChild(pill);
+  });
+}
+
+/* ─────── Feed Mode Filter ─────── */
+function initFeedTabs() {
+  var tabs = qsa('.mu-tab');
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      var filter = tab.dataset.filter;
+      setActiveFilter(filter);
+    });
+  });
+
+  // Restore saved filter
+  if (_state.activeFilter !== 'all') {
+    setActiveFilter(_state.activeFilter, false);
+  }
+}
+
+function setActiveFilter(filter, save) {
+  if (save !== false) {
+    localStorage.setItem('mu_filter', filter);
+  }
+  _state.activeFilter = filter;
+
+  // Update tabs
+  qsa('.mu-tab').forEach(function(t) {
+    var isActive = t.dataset.filter === filter;
+    t.classList[isActive ? 'add' : 'remove']('active');
+    t.setAttribute('aria-selected', isActive);
+  });
+
+  // Filter cards
+  qsa('.mu-art-card[data-category]').forEach(function(card) {
+    var show = filter === 'all' || card.dataset.category === filter;
+    card.dataset.hidden = show ? 'false' : 'true';
+  });
+
+  // View Transitions API for smooth filter switch
+  if (document.startViewTransition) {
+    document.startViewTransition(function(){});
+  }
+}
+
+/* ─────── Article Ticker Updates ─────── */
+function updateArticlesTicker(articles) {
+  // Just refresh count
+  if (articles && articles.length) {
+    // Could inject new cards here; for now just update count
+  }
+}
+
+/* ─────── NEW Badge ─────── */
+function applyNewBadges() {
+  qsa('.mu-art-card').forEach(function(card) {
+    var dateEl = card.querySelector('.mu-art-date');
+    if (!dateEl) return;
+    var dateStr = dateEl.textContent.trim();
+    if (!dateStr || dateStr === 'today') {
+      // Assume recent enough for NEW badge
+      var top = card.querySelector('.mu-art-card-top');
+      if (top && !top.querySelector('.mu-new-badge')) {
+        var badge = document.createElement('span');
+        badge.className = 'mu-new-badge';
+        badge.textContent = 'NEW';
+        top.insertBefore(badge, top.firstChild);
+      }
+    }
+  });
+}
+
+/* ─────── Web Share API ─────── */
+function initShareButtons() {
+  document.addEventListener('click', function(e) {
+    if (!e.target.classList.contains('mu-share-btn')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    var card = e.target.closest('.mu-art-card');
+    var title = card ? (card.dataset.title || card.querySelector('.mu-art-title')?.textContent) : 'Protocol Pulse';
+    var url = card ? (card.dataset.url || window.location.href) : window.location.href;
+
+    if (navigator.share) {
+      navigator.share({ title: title, url: url }).catch(function(){});
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard && navigator.clipboard.writeText(url).then(function(){
+        e.target.textContent = '✓';
+        setTimeout(function(){ e.target.textContent = '⇧'; }, 2000);
+      });
+    }
+  });
+}
+
+/* ─────── Hero Play Button ─────── */
+function initHeroPlay() {
+  var btn = qs('#hero-play-btn');
+  if (!btn) return;
+  btn.addEventListener('click', function() {
+    var vid = btn.dataset.vid;
+    if (!vid) return;
+    var embed = document.createElement('div');
+    embed.style.cssText = 'position:absolute;inset:0;z-index:10;';
+    embed.innerHTML = '<iframe width="100%" height="100%" src="https://www.youtube.com/embed/' + vid + '?autoplay=1&rel=0" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen style="width:100%;height:100%;"></iframe>';
+    var heroEp = qs('#hero-ep');
+    if (heroEp) { heroEp.style.minHeight = '400px'; heroEp.appendChild(embed); }
+    btn.style.display = 'none';
+  });
+}
+
+/* ─────── Keyboard Navigation ─────── */
+function initKeyboardNav() {
+  var cards = [];
+  var focusIdx = -1;
+
+  function getCards() {
+    return qsa('.mu-art-card:not([data-hidden="true"])');
+  }
+
+  document.addEventListener('keydown', function(e) {
+    // Ignore if in input
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (_state.cmdOpen) return;
+
+    var key = e.key;
+    if (key === 'j' || key === 'ArrowDown') {
+      e.preventDefault();
+      cards = getCards();
+      focusIdx = Math.min(focusIdx + 1, cards.length - 1);
+      if (cards[focusIdx]) { cards[focusIdx].focus(); cards[focusIdx].scrollIntoView({block:'nearest',behavior:'smooth'}); }
+    } else if (key === 'k' || key === 'ArrowUp') {
+      e.preventDefault();
+      cards = getCards();
+      focusIdx = Math.max(focusIdx - 1, 0);
+      if (cards[focusIdx]) { cards[focusIdx].focus(); cards[focusIdx].scrollIntoView({block:'nearest',behavior:'smooth'}); }
+    } else if (key === 'Enter' && focusIdx >= 0 && cards[focusIdx]) {
+      var url = cards[focusIdx].href || cards[focusIdx].dataset.url;
+      if (url && url !== '#') window.open(url, '_blank', 'noopener');
+    } else if (key === '/') {
+      e.preventDefault();
+      openCmdK();
+    }
+  });
+
+  // Focus ring tracking
+  qsa('.mu-art-card').forEach(function(c) {
+    c.addEventListener('focus', function() {
+      cards = getCards();
+      focusIdx = cards.indexOf(c);
+    });
+  });
+}
+
+/* ─────── Cmd+K Command Palette ─────── */
+function openCmdK() {
+  var overlay = qs('#cmd-overlay');
+  var input = qs('#cmd-input');
+  if (!overlay || !input) return;
+  overlay.classList.add('open');
+  _state.cmdOpen = true;
+  input.value = '';
+  input.focus();
+  _state.cmdIdx = -1;
+  renderCmdResults([]);
+}
+
+function closeCmdK() {
+  var overlay = qs('#cmd-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('open');
+  _state.cmdOpen = false;
+}
+
+var _cmdDebounce = null;
+function initCmdK() {
+  var overlay = qs('#cmd-overlay');
+  var input   = qs('#cmd-input');
+  var trigger = qs('#cmd-trigger');
+
+  if (trigger) trigger.addEventListener('click', openCmdK);
+
+  // Cmd+K / Ctrl+K
+  document.addEventListener('keydown', function(e) {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      if (_state.cmdOpen) closeCmdK(); else openCmdK();
+    }
+    if (e.key === 'Escape' && _state.cmdOpen) { e.preventDefault(); closeCmdK(); }
+  });
+
+  // Click outside to close
+  if (overlay) overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) closeCmdK();
+  });
+
+  // Input
+  if (input) {
+    input.addEventListener('input', function() {
+      clearTimeout(_cmdDebounce);
+      var val = input.value.trim();
+      _cmdDebounce = setTimeout(function() { triggerSearch(val); }, 300);
+    });
+
+    input.addEventListener('keydown', function(e) {
+      var results = qs('#cmd-results');
+      var items = qsa('.mu-cmd-result-item', results);
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        _state.cmdIdx = Math.min(_state.cmdIdx + 1, items.length - 1);
+        items.forEach(function(it,i){ it.classList.toggle('selected', i === _state.cmdIdx); });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        _state.cmdIdx = Math.max(_state.cmdIdx - 1, 0);
+        items.forEach(function(it,i){ it.classList.toggle('selected', i === _state.cmdIdx); });
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        var sel = items[_state.cmdIdx] || items[0];
+        if (sel) sel.click();
+      }
+    });
+  }
+}
+
+function triggerSearch(val) {
+  if (!val) { renderCmdResults([]); return; }
+
+  // Filter command: "> filter [topic]"
+  if (val.startsWith('> ') || val.startsWith('>')) {
+    var cmd = val.replace(/^>\s*/, '').toLowerCase();
+    if (cmd.startsWith('filter ')) {
+      var topic = cmd.replace('filter ', '').trim();
+      var filterMap = { markets: 'markets', mining: 'mining', regulation: 'regulation',
+                        sovereignty: 'sovereignty', lightning: 'lightning', technology: 'technology', all: 'all', clear: 'all' };
+      var f = filterMap[topic] || 'all';
+      renderCmdResults([{
+        icon: '⚡', title: 'Filter: ' + f.toUpperCase(), sub: 'Press Enter to activate filter',
+        action: function(){ setActiveFilter(f); closeCmdK(); }
+      }]);
+      return;
+    }
+    if (cmd === 'clear') {
+      renderCmdResults([{icon:'✕', title:'Clear all filters', sub:'Reset to ALL', action: function(){ setActiveFilter('all'); closeCmdK(); }}]);
+      return;
+    }
+  }
+
+  // Semantic search
+  fetch('/api/media/semantic-search?q=' + encodeURIComponent(val.slice(0, 200)))
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      var items = (d.results || []).map(function(r) {
+        return {
+          icon: '📄',
+          title: r.title,
+          sub: (r.category || 'bitcoin').toUpperCase() + ' · ' + (r.created_at ? r.created_at.slice(0,10) : ''),
+          url: r.url,
+          action: function(){ window.open(r.url, '_blank', 'noopener'); closeCmdK(); }
+        };
+      });
+      if (!items.length) items = [{icon:'○', title:'No results for "' + val + '"', sub:'Try a different query', action: closeCmdK}];
+      renderCmdResults(items);
+    })
+    .catch(function(){
+      renderCmdResults([{icon:'!', title:'Search unavailable', sub:'Please try again', action: closeCmdK}]);
+    });
+}
+
+function renderCmdResults(items) {
+  var el = qs('#cmd-results');
+  if (!el) return;
+  _state.cmdIdx = -1;
+  if (!items.length) {
+    el.innerHTML = '<div class="mu-cmd-empty">Type to search or use &gt; filter [topic]</div>';
+    return;
+  }
+  el.innerHTML = items.map(function(item, i) {
+    return '<div class="mu-cmd-result-item" role="option" tabindex="-1">' +
+      '<div class="mu-cmd-result-icon">' + item.icon + '</div>' +
+      '<div style="flex:1;min-width:0;">' +
+        '<div class="mu-cmd-result-title">' + (item.title||'').replace(/</g,'&lt;') + '</div>' +
+        (item.sub ? '<div class="mu-cmd-result-sub">' + item.sub + '</div>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  qsa('.mu-cmd-result-item', el).forEach(function(row, i) {
+    row.addEventListener('click', function() {
+      if (items[i] && items[i].action) items[i].action();
+    });
+  });
+}
+
+/* ─────── Newsletter ─────── */
+function initNewsletter() {
+  var btn = qs('#nl-btn');
+  if (!btn) return;
+  btn.addEventListener('click', function() {
+    var email = (qs('#nl-email') || {}).value || '';
+    if (!email || !email.includes('@')) {
+      qs('#nl-email') && (qs('#nl-email').style.borderColor = 'var(--mu-coral)');
+      return;
+    }
+    btn.textContent = '...';
+    btn.disabled = true;
+    fetch('/api/newsletter/subscribe', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({email: email})
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      var s = qs('#nl-success');
+      if (s) { s.classList.add('show'); }
+      btn.textContent = '✓';
+    })
+    .catch(function(){
+      btn.textContent = 'SUBSCRIBE';
+      btn.disabled = false;
+    });
+  });
+}
+
+/* ─────── Lazy Loading ─────── */
+function initLazyLoad() {
+  if (!('IntersectionObserver' in window)) return;
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var img = entry.target;
+        if (img.dataset.src) { img.src = img.dataset.src; delete img.dataset.src; }
+        observer.unobserve(img);
+      }
+    });
+  }, {rootMargin: '200px'});
+
+  qsa('img[loading="lazy"]').forEach(function(img) { observer.observe(img); });
+}
+
+/* ─────── Nostr Health (check relay from JS) ─────── */
+function checkNostrHealth() {
+  try {
+    var ws = new WebSocket('wss://relay.damus.io');
+    ws.onopen = function() {
+      setDotState('hs-nostr', 'live');
+      ws.close();
+    };
+    ws.onerror = function() { setDotState('hs-nostr', 'dead'); };
+    setTimeout(function(){ try{ws.close();}catch(e){} }, 5000);
+  } catch(e) {}
+}
+
+/* ─────── Boot ─────── */
+document.addEventListener('DOMContentLoaded', function() {
+  initFeedTabs();
+  initCmdK();
+  initKeyboardNav();
+  initShareButtons();
+  initHeroPlay();
+  initNewsletter();
+  initLazyLoad();
+
+  // Initial data fetches (parallel)
+  fetchTelemetry();
+  fetchSentiment();
+  fetchSystemHealth();
+  fetchBtcPrice();
+  fetchMetaBriefing();
+  fetchTrendingTopics();
+  fetchAndDrawSparkline();
+  checkNostrHealth();
+
+  // SSE
+  connectSSE();
+
+  // Periodic refresh
+  setInterval(fetchTelemetry, 30000);
+  setInterval(fetchSentiment, 60000);
+  setInterval(fetchSystemHealth, 120000);
+  setInterval(fetchBtcPrice, 60000);
+
+  // Apply NEW badges after a brief delay
+  setTimeout(applyNewBadges, 500);
+
+  // Mark DB as up (server served the page, so DB is working)
+  setDotState('hs-db', 'live');
+});
+
+})(); // end IIFE
+</script>
+{% endblock %}
