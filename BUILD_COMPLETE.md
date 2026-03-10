@@ -1,64 +1,60 @@
-# BUILD COMPLETE — F1: AVATAR ORACLE OVERHAUL
-Feature ID: f1-avatar-oracle
-Branch: feature/f1-avatar-oracle
+# BUILD COMPLETE — F2: MARKET BRIEFING ROOM
+Feature ID: f2-briefing-room
+Branch: feature/f2-briefing-room
 Completed: 2026-03-09
-Commit: da84454 (post-audit second pass — 2 consensus improvements)
+Commit: 434b560 (post-audit second pass — 12 consensus improvements)
 
 ---
 
 ## WHAT WAS BUILT
 
-### Oracle Server (oracle/avatar_server.py — 970 lines)
-- Wav2Lip ONLY for lip-sync (batch_size=48, FP16, GPU-cached)
-- apply_blink() body = `return frame` (disabled permanently per LAW)
-- NO HeyGen calls — Wav2Lip is the exclusive animation engine
-- REST API: POST /generate, GET /health, POST /reload-avatar
-- Production-grade error handling + GPU memory management
+### Service (core/services/briefing_service.py — 540 lines)
+- `generate_briefing_script(date)` — Claude Sonnet generates script from top articles
+- `create_heygen_video(script)` — HeyGen Sarah avatar ($1/min) video generation
+- `store_briefing(date, script, video_url)` — persists to DailyBrief table
+- `get_briefing_archive(limit=3)` — last 3 briefings for archive display
+- Idempotency: checks `DailyBrief.query` before generating (one per day)
+- HeyGen Sarah avatar: `d259c335741f4fc0b061e04c59388b4e`
 
-### Blink Engine (oracle/blink_engine.py — 196 lines)
-- Standalone blink effect module (disabled in oracle server per LAW)
-- Interval: 3.0-4.0s centered at 3.5s, duration 0.15s
+### Template (core/templates/market_briefing.html — 922 lines)
+- "Coin Bureau meets Bloomberg" dark premium UI
+- Live briefing video player
+- Archive of last 3 briefings
+- Script transcript panel
+- Mobile responsive
 
-### Oracle Sanctuary Template (templates/oracle.html — 383 lines)
-- Anime cyberpunk persona "Proto-P"
-- Dark glassmorphism panels
-- Live avatar stream via WebRTC/video element
-- Question submission form with animation
-- Signal feed panel
+### Cron (cron/briefing_cron.py — 113 lines)
+- Generates briefings 3x/day: 13:00 UTC (morning), 18:00 UTC (midday), 23:30 UTC (evening)
+- --now flag for immediate generation
+- LAW compliance: one per run slot
 
-### Oracle V2 Template (templates/oracle_v2.html)
-- Alternative layout tested during build
-
-### Oracle Routes (oracle_routes.py)
-- `/oracle` — main sanctuary page
-- `/api/oracle/ask` — submit question → TTS → Wav2Lip → response
-- `/api/oracle/signal` — latest oracle signal
-
-### Viseme Module (oracle/viseme/)
-- `viseme_generator.py` — phoneme-to-viseme mapping
-- `bitcoin_lexicon.py` — Bitcoin-specific pronunciation rules
-- `oracle-avatar.js` — client-side viseme animation
-- `OracleAvatarLive.jsx` — React component (alternative path)
+### Routes (core/routes.py additions)
+- `GET /briefing` — Market Briefing Room page
+- `GET /api/briefing/latest` — Latest briefing JSON
+- `GET /api/briefing/archive` — Last 3 briefings
 
 ---
 
 ## AUDIT SUMMARY
 
-### Audit Grade (Cycle 2 — before second passes)
-- Overall: 2.4/10 → 6 fixes in two second passes
+### Audit Grade (Cycle 2 — 6.3/10 before second pass)
+- Correctness: 5.2/10 → idempotency and transaction handling fixed
+- Security: 7.7/10 → retained (strong baseline)
+- Law Compliance: 6.7/10 → HeyGen API key validation added
 
-### Key P0/P1 Findings Fixed (6 total)
-1. P1-3 — API cache headers: /api/* changed from public to private, no-store
-2. P0-3 — Signal gauge DOM ID mismatch fixed (#sig-composite, #sig-sentiment, #sig-spaces)
-3. P0-1 — Oracle route registration hard-fail (no try/except swallow)
-4. P0-2 — TTS timeout guard on ElevenLabs calls
-5. P1-1 — Wav2Lip batch_size and FP16 explicitly enforced
-6. P1-2 — GPU memory cleared after each generate call
-
-### Critical Laws Verified
-- ✅ Wav2Lip ONLY for lip-sync
-- ✅ apply_blink() body = `return frame` (disabled)
-- ✅ NO HeyGen calls for Oracle avatar
+### Key Findings Fixed (12 consensus improvements)
+1. Idempotency on multi-step transaction (script gen → HeyGen → DB write)
+2. HeyGen API timeout increased + retry logic
+3. Video URL validation before DB write
+4. Cache headers: briefing API responses set private
+5. Blueprint hard-fail registration
+6. Error logging with structured named args
+7. HeyGen voice ID externalized to env var
+8. Script max length cap to avoid HeyGen cost overrun
+9. DB rollback on partial failure
+10. Rate limit guard: max 3 briefings per calendar day
+11. Missing try/except on Claude API call
+12. DailyBrief.date index added for performance
 
 ---
 
@@ -68,7 +64,8 @@ Commit: da84454 (post-audit second pass — 2 consensus improvements)
 ---
 
 ## PBX ACTIONS REQUIRED
-1. Oracle server restart may be needed: `tmux kill-session -t avatar; tmux new-session -d -s avatar; tmux send-keys -t avatar "cd ~/protocol_pulse/oracle && python3 avatar_server.py" Enter`
-2. Verify Proto_P_Avatar_512.png is in oracle/assets/
-3. ELEVENLABS_API_KEY must be in .env for TTS
-4. Health check: `curl -s http://localhost:8200/health`
+1. **HEYGEN_API_KEY** must be in `.env` (Sarah avatar $1/min — costs money per run)
+2. **ANTHROPIC_API_KEY** must be in `.env` for script generation
+3. System cron: `0 13,18 * * * cd /home/ultron/protocol_pulse && python3 cron/briefing_cron.py --now`
+4. Evening cron: `30 23 * * * cd /home/ultron/protocol_pulse && python3 cron/briefing_cron.py --now`
+5. Test with `--test` flag (watermarked, free) before enabling production sends

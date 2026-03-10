@@ -1,0 +1,922 @@
+{% extends "base.html" %}
+{% block title %}Market Briefing Room — Scheduled Intelligence | Protocol Pulse{% endblock %}
+
+{% block meta_description %}HeyGen Sarah delivers 3 scheduled Bitcoin market briefings per day. Pre-market, open, and close — programmatically scripted, rendered, and served.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="Market Briefing Room | Protocol Pulse">
+<meta property="og:description" content="Scheduled Bitcoin intelligence. Pre-market, open, and close briefings — 3x daily.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protocol Pulse">
+<meta property="og:image" content="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
+<meta property="og:url" content="{{ request.url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════
+   MARKET BRIEFING ROOM — Broadcast Intelligence
+   ══════════════════════════════════════════════════ */
+
+.briefing-page {
+    min-height: 100vh;
+    background: #000;
+    padding: 60px 20px 100px;
+}
+
+.briefing-inner {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+/* ── Page Header ─────────────────────────────────── */
+.briefing-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.briefing-page-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #dc2626;
+    margin-bottom: 6px;
+}
+
+.briefing-page-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.95);
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin: 0;
+}
+
+.briefing-page-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: 8px;
+}
+
+.briefing-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid rgba(220, 38, 38, 0.25);
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    background: rgba(220, 38, 38, 0.05);
+    white-space: nowrap;
+}
+
+.briefing-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #dc2626;
+    animation: status-pulse 2s ease-in-out infinite;
+}
+
+@keyframes status-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* ── Featured Player ─────────────────────────────── */
+.briefing-featured {
+    margin-bottom: 48px;
+}
+
+.briefing-player-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.briefing-video {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+/* Empty state */
+.briefing-player-empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.briefing-player-empty-icon {
+    width: 56px;
+    height: 56px;
+    border: 2px solid rgba(220, 38, 38, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.briefing-player-empty-icon::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 0 10px 18px;
+    border-color: transparent transparent transparent rgba(220, 38, 38, 0.4);
+    margin-left: 4px;
+}
+
+.briefing-player-empty-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+    text-align: center;
+    padding: 0 24px;
+}
+
+/* Loading state */
+.briefing-player-loading {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.6);
+    gap: 12px;
+    z-index: 2;
+}
+
+.briefing-player-loading.active { display: flex; }
+
+.briefing-spinner {
+    width: 32px;
+    height: 32px;
+    border: 2px solid rgba(220, 38, 38, 0.15);
+    border-top-color: #dc2626;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Video meta */
+.briefing-video-meta {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.briefing-video-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.92);
+    margin: 0;
+}
+
+.briefing-video-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+.briefing-video-info-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.briefing-video-info-item::before {
+    content: '·';
+    color: rgba(255,255,255,0.15);
+}
+
+.briefing-video-info-item:first-child::before { display: none; }
+
+.briefing-type-pill {
+    padding: 3px 10px;
+    background: rgba(220, 38, 38, 0.1);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #dc2626;
+}
+
+.briefing-btc-at-gen {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    color: rgba(247, 147, 26, 0.7);
+}
+
+/* ── Countdown ───────────────────────────────────── */
+.briefing-countdown-bar {
+    background: rgba(10, 10, 10, 0.9);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 48px;
+    flex-wrap: wrap;
+}
+
+.briefing-countdown-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+}
+
+.briefing-countdown-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+    letter-spacing: 0.06em;
+    min-width: 90px;
+    text-align: right;
+}
+
+.briefing-schedule {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.briefing-schedule-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 0.04em;
+}
+
+.briefing-schedule-time.next { color: rgba(220, 38, 38, 0.7); }
+
+/* ── Section Header ──────────────────────────────── */
+.briefing-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.briefing-section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+}
+
+.briefing-section-link {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(220, 38, 38, 0.6);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.briefing-section-link:hover { color: #dc2626; }
+
+/* ── Previous Briefings Grid ─────────────────────── */
+.briefing-prev-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 60px;
+}
+
+.briefing-prev-card {
+    background: rgba(12, 12, 12, 0.9);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+    display: block;
+    text-decoration: none;
+}
+
+.briefing-prev-card:hover {
+    border-color: rgba(220, 38, 38, 0.2);
+    transform: translateY(-2px);
+}
+
+.briefing-prev-card.active { border-color: rgba(220, 38, 38, 0.4); }
+
+.briefing-prev-thumb {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #0a0a0a;
+    position: relative;
+    overflow: hidden;
+}
+
+.briefing-prev-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.briefing-prev-thumb-empty {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0a0a0a;
+}
+
+.briefing-prev-thumb-empty::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 8px 0 8px 14px;
+    border-color: transparent transparent transparent rgba(255,255,255,0.1);
+}
+
+.briefing-prev-play-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.briefing-prev-card:hover .briefing-prev-play-overlay { opacity: 1; }
+
+.briefing-prev-play-icon {
+    width: 36px;
+    height: 36px;
+    border: 2px solid rgba(255,255,255,0.8);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.briefing-prev-play-icon::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 7px 0 7px 12px;
+    border-color: transparent transparent transparent rgba(255,255,255,0.9);
+    margin-left: 2px;
+}
+
+.briefing-prev-info { padding: 12px 14px; }
+
+.briefing-prev-type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #dc2626;
+    margin-bottom: 4px;
+}
+
+.briefing-prev-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.3;
+    margin-bottom: 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.briefing-prev-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 0.03em;
+}
+
+.briefing-prev-empty {
+    grid-column: 1 / -1;
+    padding: 40px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.15);
+    border: 1px dashed rgba(255,255,255,0.06);
+    border-radius: 10px;
+}
+
+/* ── Script Panel ────────────────────────────────── */
+.briefing-script-panel {
+    background: rgba(10, 10, 10, 0.8);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin-top: 24px;
+    display: none;
+}
+
+.briefing-script-panel.visible {
+    display: block;
+    animation: fade-up 0.3s ease-out;
+}
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.briefing-script-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+    margin-bottom: 12px;
+}
+
+.briefing-script-text {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: rgba(255,255,255,0.75);
+    white-space: pre-wrap;
+}
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 680px) {
+    .briefing-page-title { font-size: 1.7rem; }
+    .briefing-prev-grid { grid-template-columns: 1fr; }
+    .briefing-video-title { font-size: 1.2rem; }
+    .briefing-countdown-bar { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .briefing-countdown-value { text-align: left; }
+}
+
+@media (min-width: 481px) and (max-width: 780px) {
+    .briefing-prev-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+{% endblock %}
+
+{#
+  P1-3: ET timestamp helper macro.
+  generated_at is stored as UTC-naive. Convert to ET for display.
+  Uses strptime-safe approach: rely on server-rendered ET string from route.
+#}
+{% macro et_time(dt) %}
+  {%- if dt -%}
+    {{ dt.strftime('%b ') }}{{ dt.day }}{{ dt.strftime(', %Y') }}
+  {%- endif -%}
+{% endmacro %}
+
+{% block content %}
+{# P1-2: next_briefing_utc passed from route as UTC epoch milliseconds #}
+<div class="briefing-page"
+     data-next-briefing-utc="{{ next_briefing_utc | default(0) }}">
+    <div class="briefing-inner">
+
+        <!-- Page Header -->
+        <div class="briefing-page-header">
+            <div>
+                <div class="briefing-page-label">Protocol Pulse</div>
+                <h1 class="briefing-page-title">Market Briefing Room</h1>
+                <p class="briefing-page-subtitle">Scheduled intelligence. 3x daily.</p>
+            </div>
+            <div class="briefing-status-badge">
+                <span class="briefing-status-dot"></span>
+                {% if latest and latest.status == 'completed' %}Latest Available{% else %}Awaiting Next Brief{% endif %}
+            </div>
+        </div>
+
+        <!-- Featured Video Player -->
+        <div class="briefing-featured">
+            <div class="briefing-player-wrap" id="featuredPlayerWrap">
+                {% if latest and latest.video_url %}
+                    <video class="briefing-video" id="featuredVideo"
+                           src="{{ latest.video_url }}"
+                           controls
+                           preload="metadata"
+                           {% if latest.thumbnail_url %}poster="{{ latest.thumbnail_url }}"{% endif %}
+                           playsinline>
+                        Your browser does not support the video element.
+                    </video>
+                {% else %}
+                    <div class="briefing-player-empty" id="featuredEmpty">
+                        <div class="briefing-player-empty-icon"></div>
+                        <div class="briefing-player-empty-label">
+                            {% if latest and latest.status == 'generating' %}
+                                Generating briefing — check back in a few minutes
+                            {% elif latest and latest.status == 'failed' %}
+                                Generation failed — next scheduled briefing on the way
+                            {% else %}
+                                No briefing available yet. First one at 7:00 AM ET.
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="briefing-player-loading" id="playerLoading">
+                    <div class="briefing-spinner"></div>
+                </div>
+            </div>
+
+            <!-- Video meta -->
+            <div class="briefing-video-meta">
+                <div>
+                    <div class="briefing-video-title" id="featuredTitle">
+                        {% if latest %}{{ latest.title }}{% else %}No Briefing Available{% endif %}
+                    </div>
+                    <div class="briefing-video-info" id="featuredMeta">
+                        {% if latest %}
+                            <span class="briefing-video-info-item">
+                                <span class="briefing-type-pill" id="featuredTypePill">
+                                    {{ latest.briefing_type | replace('_', ' ') | title }}
+                                </span>
+                            </span>
+                            {# P1-3: ET-aware timestamp — generated_at is UTC, use route-computed value #}
+                            <span class="briefing-video-info-item" id="featuredTimestamp">
+                                {{ latest.generated_at.strftime('%b ') }}{{ latest.generated_at.day }}{{ latest.generated_at.strftime(', %Y') }} UTC
+                            </span>
+                            {% if latest.duration_seconds %}
+                                <span class="briefing-video-info-item" id="featuredDuration">
+                                    {{ "%d:%02d" | format(latest.duration_seconds | int // 60, latest.duration_seconds | int % 60) }}
+                                </span>
+                            {% else %}
+                                <span class="briefing-video-info-item" id="featuredDuration"></span>
+                            {% endif %}
+                            {% if latest.btc_price_at_generation %}
+                                <span class="briefing-video-info-item" id="featuredBTCPrice">
+                                    <span class="briefing-btc-at-gen">BTC ${{ "{:,.0f}".format(latest.btc_price_at_generation) }} at generation</span>
+                                </span>
+                            {% else %}
+                                <span class="briefing-video-info-item" id="featuredBTCPrice"></span>
+                            {% endif %}
+                        {% else %}
+                            <span class="briefing-video-info-item">Briefings publish at 7:00 AM, 9:30 AM, and 4:30 PM ET</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if latest and latest.script_text %}
+                    <button class="briefing-status-badge"
+                            id="scriptToggle"
+                            onclick="toggleScript()"
+                            style="cursor:pointer; border:none; background:rgba(220,38,38,0.05); padding:6px 14px;">
+                        View Script
+                    </button>
+                {% endif %}
+            </div>
+
+            <!-- Script panel — P1-1: full script for current briefing, updated via JS for historical -->
+            <div class="briefing-script-panel" id="scriptPanel">
+                <div class="briefing-script-label">Broadcast Script</div>
+                <div class="briefing-script-text" id="scriptPanelText">
+                    {% if latest and latest.script_text %}{{ latest.script_text }}{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Countdown to next briefing — P1-2: data attribute carries UTC epoch -->
+        <div class="briefing-countdown-bar">
+            <div>
+                <div class="briefing-countdown-label">Next Briefing In</div>
+                <div class="briefing-schedule">
+                    <span class="briefing-schedule-time" id="schedulePreMarket">7:00 AM ET</span>
+                    <span class="briefing-schedule-time" id="scheduleOpen">9:30 AM ET</span>
+                    <span class="briefing-schedule-time" id="scheduleClose">4:30 PM ET</span>
+                </div>
+            </div>
+            <div class="briefing-countdown-value" id="countdownValue">—</div>
+        </div>
+
+        <!-- Previous Briefings (LAW 3) -->
+        <div class="briefing-section-header">
+            <div class="briefing-section-label">Previous Briefings</div>
+            <a href="/briefing/archive" class="briefing-section-link">View All →</a>
+        </div>
+
+        <div class="briefing-prev-grid" id="prevGrid">
+            {% if recent %}
+                {% for b in recent %}
+                {# P1-1: only store briefing ID in data-briefing-id; JS fetches full data #}
+                <div class="briefing-prev-card {% if b.video_url %}has-video{% endif %}"
+                     data-briefing-id="{{ b.id }}"
+                     onclick="loadBriefing(this)">
+                    <div class="briefing-prev-thumb">
+                        {% if b.thumbnail_url %}
+                            <img src="{{ b.thumbnail_url }}" alt="{{ b.title }}" loading="lazy">
+                            <div class="briefing-prev-play-overlay">
+                                <div class="briefing-prev-play-icon"></div>
+                            </div>
+                        {% elif b.video_url %}
+                            <div class="briefing-prev-thumb-empty"></div>
+                            <div class="briefing-prev-play-overlay" style="opacity:0.7;">
+                                <div class="briefing-prev-play-icon"></div>
+                            </div>
+                        {% else %}
+                            <div class="briefing-prev-thumb-empty"></div>
+                        {% endif %}
+                    </div>
+                    <div class="briefing-prev-info">
+                        <div class="briefing-prev-type">{{ b.briefing_type | replace('_', ' ') | title }}</div>
+                        <div class="briefing-prev-title">{{ b.title }}</div>
+                        <div class="briefing-prev-meta">
+                            {{ b.generated_at.strftime('%b ') }}{{ b.generated_at.day }}{{ b.generated_at.strftime(', %Y') }}
+                            {% if b.duration_seconds %} · {{ "%d:%02d" | format(b.duration_seconds | int // 60, b.duration_seconds | int % 60) }}{% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="briefing-prev-empty">
+                    Previous briefings will appear here after the first broadcast
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    'use strict';
+
+    // ── P1-2: Countdown from UTC epoch ─────────────────────
+    // Backend computes next briefing UTC epoch (ms) — no locale conversion.
+    var pageEl = document.querySelector('.briefing-page');
+    var nextUtcMs = pageEl ? parseInt(pageEl.getAttribute('data-next-briefing-utc') || '0', 10) : 0;
+
+    // Identify which slot is next based on nextUtcMs
+    var SLOT_UTC_OFFSETS = [
+        { id: 'schedulePreMarket', label: '7:00 AM ET',  hour: 7,  min: 0  },
+        { id: 'scheduleOpen',      label: '9:30 AM ET',  hour: 9,  min: 30 },
+        { id: 'scheduleClose',     label: '4:30 PM ET',  hour: 16, min: 30 },
+    ];
+
+    function findNextSlotIdx() {
+        if (!nextUtcMs) return -1;
+        var now = Date.now();
+        // Find which slot corresponds to nextUtcMs by comparing with all slots today
+        // Simpler: just mark the slot based on nextUtcMs local ET hour
+        // (We know the exact time from the server — highlight the matching slot label)
+        var nextDate = new Date(nextUtcMs);
+        var etH = parseInt(new Intl.DateTimeFormat('en-US', {
+            timeZone: 'America/New_York', hour: 'numeric', hour12: false
+        }).format(nextDate), 10);
+        var etM = parseInt(new Intl.DateTimeFormat('en-US', {
+            timeZone: 'America/New_York', minute: 'numeric'
+        }).format(nextDate), 10);
+        for (var i = 0; i < SLOT_UTC_OFFSETS.length; i++) {
+            if (SLOT_UTC_OFFSETS[i].hour === etH && SLOT_UTC_OFFSETS[i].min === etM) {
+                return i;
+            }
+        }
+        return 0; // default pre-market
+    }
+
+    function updateCountdown() {
+        if (!nextUtcMs) {
+            var cd = document.getElementById('countdownValue');
+            if (cd) cd.textContent = '—';
+            return;
+        }
+        var remaining = nextUtcMs - Date.now();
+
+        // Reset highlights
+        SLOT_UTC_OFFSETS.forEach(function (s) {
+            var el = document.getElementById(s.id);
+            if (el) el.className = 'briefing-schedule-time';
+        });
+
+        if (remaining <= 0) {
+            // Slot just passed — the backend value is stale; just show Live
+            var cd = document.getElementById('countdownValue');
+            if (cd) cd.textContent = 'Live';
+            return;
+        }
+
+        var nextIdx = findNextSlotIdx();
+        if (nextIdx >= 0) {
+            var el = document.getElementById(SLOT_UTC_OFFSETS[nextIdx].id);
+            if (el) el.className = 'briefing-schedule-time next';
+        }
+
+        var totalSec = Math.floor(remaining / 1000);
+        var h = Math.floor(totalSec / 3600);
+        var m = Math.floor((totalSec % 3600) / 60);
+        var cd = document.getElementById('countdownValue');
+        if (cd) {
+            cd.textContent = h > 0 ? h + 'h ' + m + 'm' : m + 'm';
+        }
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 60000);
+
+    // ── Script toggle ────────────────────────────────────────
+    window.toggleScript = function () {
+        var panel  = document.getElementById('scriptPanel');
+        var toggle = document.getElementById('scriptToggle');
+        if (!panel) return;
+        var visible = panel.classList.toggle('visible');
+        if (toggle) toggle.textContent = visible ? 'Hide Script' : 'View Script';
+    };
+
+    // ── P1-1: Load previous briefing by ID ──────────────────
+    // Fetches full briefing record from /api/briefing/<id> before updating UI.
+    window.loadBriefing = function (card) {
+        var briefingId = card.getAttribute('data-briefing-id');
+        if (!briefingId) return;
+
+        // Mark active + show loading
+        document.querySelectorAll('.briefing-prev-card').forEach(function (c) {
+            c.classList.remove('active');
+        });
+        card.classList.add('active');
+
+        var loading = document.getElementById('playerLoading');
+        if (loading) loading.classList.add('active');
+
+        fetch('/api/briefing/' + briefingId)
+            .then(function (r) {
+                if (!r.ok) throw new Error('Not found');
+                return r.json();
+            })
+            .then(function (data) {
+                if (loading) loading.classList.remove('active');
+
+                if (!data.video_url) {
+                    // No video — just update text fields
+                    _updateMeta(data);
+                    return;
+                }
+
+                // Swap video
+                var wrap = document.getElementById('featuredPlayerWrap');
+                var empty = document.getElementById('featuredEmpty');
+                if (empty) empty.style.display = 'none';
+
+                var existing = document.getElementById('featuredVideo');
+                if (existing) {
+                    existing.pause();
+                    if (data.thumbnail_url) existing.setAttribute('poster', data.thumbnail_url);
+                    existing.src = data.video_url;
+                    existing.load();
+                    existing.oncanplay = function () {
+                        existing.play().catch(function () {});
+                    };
+                } else {
+                    var vid = document.createElement('video');
+                    vid.id        = 'featuredVideo';
+                    vid.className = 'briefing-video';
+                    vid.src       = data.video_url;
+                    vid.controls  = true;
+                    vid.preload   = 'metadata';
+                    if (data.thumbnail_url) vid.setAttribute('poster', data.thumbnail_url);
+                    vid.setAttribute('playsinline', '');
+                    vid.oncanplay = function () { vid.play().catch(function () {}); };
+                    vid.onerror   = function () {};
+                    wrap.appendChild(vid);
+                }
+
+                _updateMeta(data);
+            })
+            .catch(function (err) {
+                if (loading) loading.classList.remove('active');
+                card.classList.remove('active');
+                console.warn('loadBriefing error:', err);
+            });
+    };
+
+    // Update all bound metadata fields after briefing swap (U1 fix)
+    function _updateMeta(data) {
+        var titleEl = document.getElementById('featuredTitle');
+        if (titleEl && data.title) titleEl.textContent = data.title;
+
+        var tsEl = document.getElementById('featuredTimestamp');
+        if (tsEl) tsEl.textContent = data.generated_at_et || '';
+
+        var durEl = document.getElementById('featuredDuration');
+        if (durEl && data.duration_seconds) {
+            var d = Math.floor(data.duration_seconds);
+            durEl.textContent = Math.floor(d / 60) + ':' + ('0' + (d % 60)).slice(-2);
+        } else if (durEl) {
+            durEl.textContent = '';
+        }
+
+        var btcEl = document.getElementById('featuredBTCPrice');
+        if (btcEl && data.btc_price_at_generation) {
+            btcEl.innerHTML = '<span class="briefing-btc-at-gen">BTC $' +
+                Number(data.btc_price_at_generation).toLocaleString('en-US', {maximumFractionDigits: 0}) +
+                ' at generation</span>';
+        } else if (btcEl) {
+            btcEl.textContent = '';
+        }
+
+        var typePill = document.getElementById('featuredTypePill');
+        if (typePill && data.briefing_type) {
+            typePill.textContent = data.briefing_type.replace(/_/g, ' ')
+                .replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+        }
+
+        // Update script panel
+        var scriptText = document.getElementById('scriptPanelText');
+        if (scriptText) {
+            scriptText.textContent = data.script_text || '';
+        }
+        // Show toggle if script available
+        var toggle = document.getElementById('scriptToggle');
+        if (toggle) {
+            toggle.style.display = data.script_text ? '' : 'none';
+        }
+    }
+
+    // ── Auto-reload if generating (no hard 30s reload — uses SSE-lite poll) ──
+    {% if latest and latest.status == 'generating' %}
+    var _genPollTimer = setInterval(function () {
+        fetch('/api/briefing/status/{{ latest.id }}')
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (d.status === 'completed' || d.status === 'failed') {
+                    clearInterval(_genPollTimer);
+                    window.location.reload();
+                }
+            })
+            .catch(function () {});
+    }, 15000);  // poll every 15s instead of hard 30s reload
+    {% endif %}
+
+    // ── Periodic poll for new briefings (every 2 min) ───────
+    var _latestId = {% if latest %}{{ latest.id }}{% else %}0{% endif %};
+    setInterval(function () {
+        fetch('/api/briefing/latest')
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data && data.id && data.id !== _latestId) {
+                    window.location.reload();
+                }
+            })
+            .catch(function () {});
+    }, 120000);
+
+})();
+</script>
+{% endblock %}

@@ -1319,3 +1319,51 @@ class OracleSession(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, nullable=True)
     ip_hash = db.Column(db.String(64), nullable=True)
+
+
+# =====================================
+# MARKET BRIEFING ROOM (F2)
+# =====================================
+
+class MarketBriefing(db.Model):
+    """Scheduled HeyGen Sarah video briefings — 3x daily at market-critical times."""
+    __tablename__ = 'market_briefings'
+    __table_args__ = (
+        db.Index('idx_briefings_type_date', 'briefing_type', 'generated_at'),
+        db.Index('idx_briefings_published', 'published', 'generated_at'),
+        db.Index('idx_briefings_slot_date', 'briefing_type', 'scheduled_date'),
+        # DB-level idempotency guard: only one non-failed briefing per slot per day
+        db.UniqueConstraint('briefing_type', 'scheduled_date', name='uq_briefing_slot_date'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.Text, nullable=False)
+    briefing_type = db.Column(db.String(20), nullable=False)  # pre_market | open | close
+    scheduled_date = db.Column(db.String(10))                 # ET date: YYYY-MM-DD (idempotency)
+    script_text = db.Column(db.Text, nullable=False)
+    video_url = db.Column(db.Text)
+    thumbnail_url = db.Column(db.Text)
+    heygen_video_id = db.Column(db.String(100))
+    duration_seconds = db.Column(db.Float)
+    btc_price_at_generation = db.Column(db.Float)
+    status = db.Column(db.String(20), default='pending')  # pending|generating|completed|failed
+    published = db.Column(db.Boolean, default=False)
+    generated_at = db.Column(db.DateTime, default=datetime.utcnow)
+    published_at = db.Column(db.DateTime)
+    error_message = db.Column(db.Text)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'briefing_type': self.briefing_type,
+            'scheduled_date': self.scheduled_date,
+            'video_url': self.video_url,
+            'thumbnail_url': self.thumbnail_url,
+            'duration_seconds': self.duration_seconds,
+            'btc_price_at_generation': self.btc_price_at_generation,
+            'status': self.status,
+            'published': self.published,
+            'generated_at': self.generated_at.isoformat() if self.generated_at else None,
+            'published_at': self.published_at.isoformat() if self.published_at else None,
+        }
