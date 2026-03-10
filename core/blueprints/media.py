@@ -418,11 +418,22 @@ def _get_intelligence_feed(limit=20):
     """Latest articles with sentiment badges."""
     from app import db
     from models import Article
+    from sqlalchemy import text as _sa_text
 
     try:
+        # Use with_entities to select only columns we know exist (avoids schema mismatch on older DBs)
         articles = (
             Article.query
             .filter(Article.published == True)
+            .with_entities(
+                Article.id,
+                Article.title,
+                Article.summary,
+                Article.author,
+                Article.category,
+                Article.tags,
+                Article.created_at,
+            )
             .order_by(Article.created_at.desc())
             .limit(limit)
             .all()
@@ -432,15 +443,19 @@ def _get_intelligence_feed(limit=20):
         return {"items": [], "computed_at": _utcnow().isoformat() + "Z"}
 
     items = []
+    bullish_words = ["bull", "surge", "rally", "growth", "adoption", "all-time", "record", "approved", "launch"]
+    bearish_words = ["bear", "crash", "drop", "ban", "hack", "attack", "decline", "loss", "fail"]
     for a in articles:
-        # Derive sentiment from category/tags heuristic if no SentimentReport
-        text = " ".join([
-            (a.category or "").lower(),
-            (a.tags or "").lower(),
-            (a.title or "").lower(),
-        ])
-        bullish_words = ["bull", "surge", "rally", "growth", "adoption", "all-time", "record", "approved", "launch"]
-        bearish_words = ["bear", "crash", "drop", "ban", "hack", "attack", "decline", "loss", "fail"]
+        # with_entities returns named tuples
+        aid = a.id
+        title = a.title or ""
+        summary = (a.summary or "")[:200]
+        author = a.author or "Protocol Pulse"
+        category = a.category or "News"
+        tags = a.tags or ""
+        created_at = a.created_at
+
+        text = " ".join([category.lower(), tags.lower(), title.lower()])
         bull_score = sum(1 for w in bullish_words if w in text)
         bear_score = sum(1 for w in bearish_words if w in text)
         if bull_score > bear_score:
@@ -454,16 +469,16 @@ def _get_intelligence_feed(limit=20):
             sentiment_color = "#f59e0b"
 
         items.append({
-            "id": a.id,
-            "title": a.title,
-            "summary": (a.summary or "")[:200],
-            "source": a.author or "Protocol Pulse",
-            "category": a.category or "News",
-            "url": f"/article/{a.id}",
-            "timestamp": a.created_at.isoformat() + "Z" if a.created_at else None,
+            "id": aid,
+            "title": title,
+            "summary": summary,
+            "source": author,
+            "category": category,
+            "url": f"/article/{aid}",
+            "timestamp": created_at.isoformat() + "Z" if created_at else None,
             "sentiment": sentiment,
             "sentiment_color": sentiment_color,
-            "cover_image": a.cover_image_url or a.header_image_url or "",
+            "cover_image": "",
         })
 
     return {"items": items, "computed_at": _utcnow().isoformat() + "Z"}
@@ -576,22 +591,19 @@ def api_media_feed_stream():
                 new_articles = (
                     Article.query
                     .filter(Article.published == True, Article.id > last_id)
+                    .with_entities(Article.id, Article.title, Article.author, Article.category, Article.tags, Article.created_at)
                     .order_by(Article.id.asc())
                     .limit(5)
                     .all()
                 )
+                _bw = ["bull", "surge", "rally", "growth", "adoption", "record", "approved"]
+                _be = ["bear", "crash", "drop", "ban", "hack", "decline", "loss"]
                 for a in new_articles:
                     last_id = a.id
-                    text = " ".join([
-                        (a.category or "").lower(),
-                        (a.tags or "").lower(),
-                        (a.title or "").lower(),
-                    ])
-                    bullish_words = ["bull", "surge", "rally", "growth", "adoption", "record", "approved"]
-                    bearish_words = ["bear", "crash", "drop", "ban", "hack", "decline", "loss"]
-                    bull_score = sum(1 for w in bullish_words if w in text)
-                    bear_score = sum(1 for w in bearish_words if w in text)
-                    sentiment = "BULLISH" if bull_score > bear_score else ("BEARISH" if bear_score > bull_score else "NEUTRAL")
+                    text = " ".join([(a.category or "").lower(), (a.tags or "").lower(), (a.title or "").lower()])
+                    bs = sum(1 for w in _bw if w in text)
+                    es = sum(1 for w in _be if w in text)
+                    sentiment = "BULLISH" if bs > es else ("BEARISH" if es > bs else "NEUTRAL")
                     item = {
                         "id": a.id,
                         "title": a.title,
