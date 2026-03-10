@@ -70,3 +70,84 @@
 - Locked: Single loudnorm in concatenate_parts()
 - Open: Subtitle band inconsistency (~50% of frames missing it), LUFS low (-17.7) due to cached silence audio
 
+
+
+---
+
+## QC PIPELINE LAW — PERMANENT — NEVER SKIP
+
+### THE TWO-STAGE QC GATE:
+
+STAGE 1 — GEMINI (automated, runs after every render):
+- Gemini video analysis runs automatically as Step 8 of daily_run.py
+- Output: GEMINI_QC_REPORT.json + GEMINI_QC_REPORT.md with scores per dimension
+- The gauntlet MUST read EVERY score and EVERY finding from this report
+- EVERY dimension scoring below 8/10 maps to a specific code fix — no exceptions
+- EVERY bug listed maps to a specific code fix with file + line — no exceptions
+- Nothing is summarized, nothing is skipped, nothing is cherry-picked
+- Re-render after fixes → Gemini runs again → repeat until ALL dimensions ≥ 8/10 and grade = A
+- ONLY when Gemini grades A does the video get served to PBX
+
+STAGE 2 — GROK (manual, PBX-run, after Gemini A-grade confirmed):
+- PBX takes the silver platter URL and runs it through Grok browser video analysis tool
+- Grok produces a breakdown of any remaining issues
+- Every Grok finding maps to a code fix in the NEXT render cycle
+- Grok findings are treated with the same weight as Gemini findings — nothing ignored
+
+### THE SILVER PLATTER RULE:
+Video is NEVER shown to PBX until Gemini grades it A.
+When Gemini grades A: post the URL as: 
+  🎬 SILVER PLATTER: https://video.protocolpulse.io/[filename]
+  Gemini grade: A | Scores: [all dimensions] | Ready for Grok review.
+
+### WHAT COUNTS AS GRADE A (ALL must be true):
+- pip ≥ 8/10
+- cold_open ≥ 8/10  
+- background ≥ 8/10
+- voices = 10/10 (already achieved — never regress)
+- audio_quality ≥ 9/10 (already achieved — never regress)
+- debug_text = 10/10 (already achieved — never regress)
+- Zero black frames detected by ffprobe blackdetect
+- Zero silence segments detected by ffprobe silencedetect
+- LUFS between -15 and -13 (target -14)
+
+
+
+---
+
+## QC PIPELINE LAW — PERMANENT — NEVER SKIP
+
+### THE TWO-STAGE QC GATE:
+
+STAGE 1 — GEMINI (automated, runs after every render):
+- Gemini video analysis runs automatically as Step 8 of daily_run.py
+- Output: GEMINI_QC_REPORT.json + GEMINI_QC_REPORT.md with scores per dimension
+- The gauntlet MUST read EVERY score and EVERY finding from this report
+- EVERY dimension scoring below 8/10 maps to a specific code fix — no exceptions
+- EVERY bug listed maps to a specific code fix with file + line — no exceptions
+- Nothing is summarized, nothing is skipped, nothing is cherry-picked
+- Re-render after fixes → Gemini runs again → repeat until ALL dimensions ≥ 8/10 and grade = A
+- ONLY when Gemini grades A does the video get served to PBX
+
+STAGE 2 — GROK (manual, PBX-run, after Gemini A-grade confirmed):
+- PBX takes the silver platter URL and runs it through Grok browser video analysis tool
+- Grok produces a breakdown of any remaining issues
+- Every Grok finding maps to a code fix in the NEXT render cycle
+- Grok findings are treated with the same weight as Gemini findings — nothing ignored
+
+### THE SILVER PLATTER RULE:
+Video is NEVER shown to PBX until Gemini grades it A.
+When Gemini grades A: post the URL as: 
+  🎬 SILVER PLATTER: https://video.protocolpulse.io/[filename]
+  Gemini grade: A | Scores: [all dimensions] | Ready for Grok review.
+
+### WHAT COUNTS AS GRADE A (ALL must be true):
+- pip ≥ 8/10
+- cold_open ≥ 8/10  
+- background ≥ 8/10
+- voices = 10/10 (already achieved — never regress)
+- audio_quality ≥ 9/10 (already achieved — never regress)
+- debug_text = 10/10 (already achieved — never regress)
+- Zero black frames detected by ffprobe blackdetect
+- Zero silence segments detected by ffprobe silencedetect
+- LUFS between -15 and -13 (target -14)
