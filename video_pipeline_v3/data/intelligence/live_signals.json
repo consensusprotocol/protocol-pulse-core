@@ -70,10 +70,83 @@
         "Live stream detected: Bitcoin Price Live!"
       ],
       "status": "live",
-      "last_updated": "2026-03-09T06:05:42.699831+00:00"
+      "last_updated": "2026-03-10T19:35:47.932819+00:00"
+    },
+    {
+      "video_id": "Zqjhq1mLPvA",
+      "title": "Bitcoin Supply Shock Intensifies As Banks Prepare To Sue The U.S. Gov Over Crypto!",
+      "channel": "Scott Melker",
+      "source": "youtube_live",
+      "url": "https://www.youtube.com/watch?v=Zqjhq1mLPvA",
+      "started_at": "2026-03-10T13:05:41.261052+00:00",
+      "topics": [
+        "regulation"
+      ],
+      "current_sentiment": 60,
+      "sentiment_history": [
+        {
+          "time": "2026-03-10T13:05:52.699226+00:00",
+          "score": 60
+        },
+        {
+          "time": "2026-03-10T13:10:42.220764+00:00",
+          "score": 60
+        },
+        {
+          "time": "2026-03-10T13:15:48.474575+00:00",
+          "score": 60
+        },
+        {
+          "time": "2026-03-10T13:20:43.852962+00:00",
+          "score": 60
+        },
+        {
+          "time": "2026-03-10T13:25:45.102317+00:00",
+          "score": 60
+        },
+        {
+          "time": "2026-03-10T13:30:44.211191+00:00",
+          "score": 60
+        },
+        {
+          "time": "2026-03-10T13:35:43.888171+00:00",
+          "score": 60
+        },
+        {
+          "time": "2026-03-10T13:40:48.289908+00:00",
+          "score": 60
+        },
+        {
+          "time": "2026-03-10T13:45:49.276683+00:00",
+          "score": 60
+        },
+        {
+          "time": "2026-03-10T13:50:45.120269+00:00",
+          "score": 60
+        },
+        {
+          "time": "2026-03-10T13:55:42.460747+00:00",
+          "score": 60
+        }
+      ],
+      "transcript_chunks": [
+        "Live stream detected: Bitcoin Supply Shock Intensifies As Banks Prepare To Sue The U.S. Gov Over Crypto!",
+        "Live stream detected: Bitcoin Supply Shock Intensifies As Banks Prepare To Sue The U.S. Gov Over Crypto!",
+        "Live stream detected: Bitcoin Supply Shock Intensifies As Banks Prepare To Sue The U.S. Gov Over Crypto!",
+        "Live stream detected: Bitcoin Supply Shock Intensifies As Banks Prepare To Sue The U.S. Gov Over Crypto!",
+        "Live stream detected: Bitcoin Supply Shock Intensifies As Banks Prepare To Sue The U.S. Gov Over Crypto!",
+        "Live stream detected: Bitcoin Supply Shock Intensifies As Banks Prepare To Sue The U.S. Gov Over Crypto!",
+        "Live stream detected: Bitcoin Supply Shock Intensifies As Banks Prepare To Sue The U.S. Gov Over Crypto!",
+        "Live stream detected: Bitcoin Supply Shock Intensifies As Banks Prepare To Sue The U.S. Gov Over Crypto!",
+        "Live stream detected: Bitcoin Supply Shock Intensifies As Banks Prepare To Sue The U.S. Gov Over Crypto!",
+        "Live stream detected: Bitcoin Supply Shock Intensifies As Banks Prepare To Sue The U.S. Gov Over Crypto!",
+        "Live stream detected: Bitcoin Supply Shock Intensifies As Banks Prepare To Sue The U.S. Gov Over Crypto!"
+      ],
+      "status": "live",
+      "last_updated": "2026-03-10T13:55:42.460763+00:00"
     }
   ],
-  "updated_at": "2026-03-09T06:05:42.766049+00:00",
+  "updated_at": "2026-03-10T19:35:48.002864+00:00",
   "monitoring": true,
   "channels_watched": 62
 }

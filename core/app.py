@@ -1,4 +1,5 @@
 import os
+from blueprints.curated_mining import curated_mining_bp
 from pathlib import Path
 from dotenv import load_dotenv
 # Load .env from the same directory as this file (core/) so it works from any cwd
@@ -152,6 +153,7 @@ with app.app_context():
     try:
         from routes_premium_api import premium_api
         app.register_blueprint(premium_api)
+app.register_blueprint(curated_mining_bp)
         logging.info("Terminal API blueprint registered")
         # 5. Provision demo API key for playground
         from services.api_key_service import provision_demo_key
