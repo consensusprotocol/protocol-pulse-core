@@ -1,0 +1,1628 @@
+{% extends "base.html" %}
+{% block title %}Nostr Feed — Live Bitcoin Signal | Protocol Pulse{% endblock %}
+
+{% block meta_description %}Real-time Bitcoin signal from Nostr — censorship-resistant, decentralized. Live feed from 4 relays with relay health monitoring, filters, and stats.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="Nostr Feed — Protocol Pulse">
+<meta property="og:description" content="Live Bitcoin signal from Nostr. Censorship-resistant. 4 relays. Real-time.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protocol Pulse">
+<meta property="og:image" content="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
+<meta property="og:url" content="{{ request.url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+{% endblock %}
+
+{% block head %}
+<style>
+/* ================================================================
+   NOSTR FEED — Session 8 — Protocol Pulse
+   Dark terminal × Bitcoin orange × Nostr purple
+   ================================================================ */
+:root {
+  --n-bg:       #000000;
+  --n-surface:  #0a0a0a;
+  --n-s2:       #0f0f0f;
+  --n-s3:       #141414;
+  --n-border:   rgba(255,255,255,0.07);
+  --n-red:      #dc2626;
+  --n-orange:   #f97316;
+  --n-purple:   #a855f7;
+  --n-green:    #22c55e;
+  --n-amber:    #f59e0b;
+  --n-blue:     #3b82f6;
+  --n-text:     #e5e5e5;
+  --n-muted:    rgba(255,255,255,0.4);
+  --n-mono:     'JetBrains Mono', 'Courier New', monospace;
+  --n-sans:     'Inter', 'DM Sans', sans-serif;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--n-bg) !important; }
+
+/* ── Page layout ── */
+.nf-wrap {
+  min-height: 100vh;
+  background: var(--n-bg);
+  padding-top: 64px;
+}
+.nf-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* ── Page header ── */
+.nf-header {
+  padding: 32px 0 20px;
+  border-bottom: 1px solid var(--n-border);
+  margin-bottom: 0;
+}
+.nf-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.nf-title-block { flex: 1; min-width: 220px; }
+.nf-eyebrow {
+  font-family: var(--n-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--n-purple);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.nf-title {
+  font-family: var(--n-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+.nf-title span { color: var(--n-orange); }
+.nf-subtitle {
+  font-family: var(--n-sans);
+  font-size: 0.82rem;
+  color: var(--n-muted);
+  margin-top: 4px;
+}
+.nf-live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--n-mono);
+  font-size: 0.68rem;
+  color: var(--n-green);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+.nf-live-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--n-green);
+  animation: nf-pulse 1.8s ease-in-out infinite;
+}
+@keyframes nf-pulse {
+  0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+  50%      { opacity: 0.7; box-shadow: 0 0 0 4px rgba(34,197,94,0); }
+}
+
+/* ── Relay status bar ── */
+.nf-relay-bar {
+  background: var(--n-surface);
+  border-bottom: 1px solid var(--n-border);
+  padding: 12px 0;
+}
+.nf-relay-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.nf-relay-summary {
+  font-family: var(--n-mono);
+  font-size: 0.65rem;
+  color: var(--n-muted);
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+.nf-relay-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--n-border);
+  background: var(--n-s2);
+  font-family: var(--n-mono);
+  font-size: 0.62rem;
+  color: var(--n-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.nf-relay-pill.connected {
+  border-color: rgba(34,197,94,0.25);
+  color: var(--n-text);
+}
+.nf-relay-pill.error {
+  border-color: rgba(220,38,38,0.2);
+  color: rgba(220,38,38,0.7);
+}
+.nf-relay-pill:hover { border-color: rgba(168,85,247,0.3); }
+.nf-relay-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--n-red);
+  flex-shrink: 0;
+}
+.nf-relay-pill.connected .nf-relay-dot {
+  background: var(--n-green);
+  animation: nf-pulse 2s ease-in-out infinite;
+}
+.nf-relay-pill.connecting .nf-relay-dot {
+  background: var(--n-amber);
+  animation: nf-pulse 1s ease-in-out infinite;
+}
+.nf-relay-latency {
+  font-size: 0.58rem;
+  color: var(--n-muted);
+  margin-left: 2px;
+}
+.nf-relay-epm {
+  font-size: 0.58rem;
+  padding: 1px 5px;
+  background: rgba(168,85,247,0.08);
+  border-radius: 3px;
+  color: rgba(168,85,247,0.7);
+}
+.nf-relay-pill .nf-remove-btn {
+  display: none;
+  width: 14px; height: 14px;
+  background: rgba(220,38,38,0.15);
+  border: none;
+  border-radius: 50%;
+  color: var(--n-red);
+  font-size: 0.6rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+.nf-relay-pill:hover .nf-remove-btn { display: inline-flex; }
+
+/* ── Main two-column layout ── */
+.nf-body {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 0;
+  min-height: calc(100vh - 200px);
+}
+@media (max-width: 900px) {
+  .nf-body { grid-template-columns: 1fr; }
+  .nf-sidebar { display: none; }
+}
+
+/* ── Filter bar ── */
+.nf-filter-bar {
+  background: var(--n-surface);
+  border-bottom: 1px solid var(--n-border);
+  padding: 10px 0;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.nf-filter-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.nf-filter-label {
+  font-family: var(--n-mono);
+  font-size: 0.62rem;
+  color: var(--n-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.nf-tag-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  border: 1px solid var(--n-border);
+  background: transparent;
+  color: var(--n-muted);
+  font-family: var(--n-mono);
+  font-size: 0.62rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.nf-tag-btn.active {
+  background: rgba(168,85,247,0.12);
+  border-color: rgba(168,85,247,0.4);
+  color: var(--n-purple);
+}
+.nf-tag-btn:hover:not(.active) {
+  border-color: rgba(255,255,255,0.15);
+  color: var(--n-text);
+}
+.nf-filter-divider {
+  width: 1px; height: 16px;
+  background: var(--n-border);
+  flex-shrink: 0;
+}
+.nf-kind-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 4px;
+  border: 1px solid var(--n-border);
+  background: transparent;
+  color: var(--n-muted);
+  font-family: var(--n-mono);
+  font-size: 0.6rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.nf-kind-btn.active {
+  background: rgba(249,115,22,0.1);
+  border-color: rgba(249,115,22,0.35);
+  color: var(--n-orange);
+}
+.nf-search-input {
+  background: var(--n-s2);
+  border: 1px solid var(--n-border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  color: var(--n-text);
+  font-family: var(--n-mono);
+  font-size: 0.68rem;
+  width: 160px;
+  transition: border-color 0.2s;
+}
+.nf-search-input:focus {
+  outline: none;
+  border-color: rgba(168,85,247,0.4);
+}
+.nf-search-input::placeholder { color: var(--n-muted); }
+
+/* ── Main feed area ── */
+.nf-feed-main {
+  border-right: 1px solid var(--n-border);
+}
+.nf-feed-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--n-border);
+}
+.nf-feed-title {
+  font-family: var(--n-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  color: var(--n-muted);
+  text-transform: uppercase;
+}
+.nf-event-counter {
+  font-family: var(--n-mono);
+  font-size: 0.65rem;
+  color: var(--n-orange);
+  background: rgba(249,115,22,0.07);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(249,115,22,0.15);
+}
+.nf-connecting-banner {
+  text-align: center;
+  padding: 40px 20px;
+  font-family: var(--n-mono);
+  font-size: 0.78rem;
+  color: var(--n-purple);
+  border-bottom: 1px solid var(--n-border);
+  display: none;
+}
+.nf-connecting-banner.visible { display: block; }
+.nf-spinner {
+  display: inline-block;
+  width: 14px; height: 14px;
+  border: 2px solid rgba(168,85,247,0.2);
+  border-top-color: var(--n-purple);
+  border-radius: 50%;
+  animation: nf-spin 0.7s linear infinite;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+@keyframes nf-spin { to { transform: rotate(360deg); } }
+
+/* ── Event cards ── */
+#nf-event-list { max-height: calc(100vh - 300px); overflow-y: auto; }
+#nf-event-list::-webkit-scrollbar { width: 4px; }
+#nf-event-list::-webkit-scrollbar-track { background: transparent; }
+#nf-event-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+.nf-event {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--n-border);
+  transition: background 0.15s;
+  animation: nf-slide-in 0.25s ease-out;
+}
+.nf-event:hover { background: rgba(255,255,255,0.02); }
+@keyframes nf-slide-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.nf-event.hidden { display: none; }
+.nf-event-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.nf-avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a855f7 0%, #dc2626 100%);
+  font-family: var(--n-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.nf-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.nf-author-info { flex: 1; min-width: 0; }
+.nf-pubkey {
+  font-family: var(--n-mono);
+  font-size: 0.65rem;
+  color: var(--n-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nf-pubkey span { color: var(--n-text); }
+.nf-time {
+  font-family: var(--n-mono);
+  font-size: 0.6rem;
+  color: var(--n-muted);
+  margin-top: 1px;
+}
+.nf-relay-badge {
+  font-family: var(--n-mono);
+  font-size: 0.58rem;
+  color: rgba(168,85,247,0.5);
+  padding: 1px 6px;
+  border: 1px solid rgba(168,85,247,0.12);
+  border-radius: 3px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+}
+.nf-event-content {
+  font-family: var(--n-sans);
+  font-size: 0.88rem;
+  color: var(--n-text);
+  line-height: 1.6;
+  word-break: break-word;
+  margin-bottom: 8px;
+  white-space: pre-wrap;
+}
+.nf-event-content.collapsed {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.nf-expand-btn {
+  background: none;
+  border: none;
+  color: var(--n-purple);
+  font-family: var(--n-mono);
+  font-size: 0.62rem;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 8px;
+}
+.nf-event-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.nf-hashtag {
+  font-family: var(--n-mono);
+  font-size: 0.58rem;
+  color: rgba(168,85,247,0.6);
+  padding: 1px 6px;
+  border: 1px solid rgba(168,85,247,0.1);
+  border-radius: 3px;
+  text-decoration: none;
+}
+.nf-hashtag:hover { color: var(--n-purple); border-color: rgba(168,85,247,0.3); }
+.nf-event-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.nf-action-link {
+  font-family: var(--n-mono);
+  font-size: 0.6rem;
+  color: var(--n-muted);
+  text-decoration: none;
+  padding: 2px 8px;
+  border: 1px solid var(--n-border);
+  border-radius: 4px;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.nf-action-link:hover {
+  color: var(--n-purple);
+  border-color: rgba(168,85,247,0.3);
+}
+.nf-event-id-short {
+  font-family: var(--n-mono);
+  font-size: 0.55rem;
+  color: rgba(255,255,255,0.15);
+  margin-left: auto;
+}
+.nf-new-badge {
+  font-family: var(--n-mono);
+  font-size: 0.55rem;
+  color: var(--n-green);
+  background: rgba(34,197,94,0.08);
+  border: 1px solid rgba(34,197,94,0.2);
+  padding: 1px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* ── Empty / loading ── */
+.nf-empty {
+  padding: 60px 20px;
+  text-align: center;
+  font-family: var(--n-mono);
+  font-size: 0.78rem;
+  color: var(--n-muted);
+  line-height: 1.8;
+}
+
+/* ── Sidebar ── */
+.nf-sidebar {
+  background: var(--n-surface);
+}
+.nf-sidebar-section {
+  padding: 16px;
+  border-bottom: 1px solid var(--n-border);
+}
+.nf-sidebar-label {
+  font-family: var(--n-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  color: var(--n-muted);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nf-sidebar-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--n-border);
+}
+
+/* Stats row */
+.nf-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.nf-stat-key {
+  font-family: var(--n-mono);
+  font-size: 0.62rem;
+  color: var(--n-muted);
+}
+.nf-stat-val {
+  font-family: var(--n-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--n-orange);
+}
+
+/* Top hashtags */
+.nf-tag-list { margin-top: 4px; }
+.nf-tag-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.nf-tag-name {
+  font-family: var(--n-mono);
+  font-size: 0.62rem;
+  color: var(--n-purple);
+}
+.nf-tag-bar-wrap { width: 60px; height: 3px; background: rgba(255,255,255,0.05); border-radius: 2px; }
+.nf-tag-bar { height: 100%; background: var(--n-purple); border-radius: 2px; transition: width 0.5s; }
+.nf-tag-count {
+  font-family: var(--n-mono);
+  font-size: 0.58rem;
+  color: var(--n-muted);
+  min-width: 20px;
+  text-align: right;
+}
+
+/* Relay detail list */
+.nf-relay-detail {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.nf-relay-detail:last-child { border-bottom: none; }
+.nf-relay-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+.nf-relay-name {
+  font-family: var(--n-mono);
+  font-size: 0.65rem;
+  color: var(--n-text);
+  flex: 1;
+}
+.nf-relay-status {
+  font-family: var(--n-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.status-live { color: var(--n-green); }
+.status-off  { color: var(--n-red); }
+.nf-relay-meta {
+  font-family: var(--n-mono);
+  font-size: 0.58rem;
+  color: var(--n-muted);
+}
+
+/* Relay manager add */
+.nf-add-relay-form {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+.nf-add-relay-input {
+  flex: 1;
+  background: var(--n-s2);
+  border: 1px solid var(--n-border);
+  border-radius: 5px;
+  padding: 5px 8px;
+  color: var(--n-text);
+  font-family: var(--n-mono);
+  font-size: 0.62rem;
+  min-width: 0;
+}
+.nf-add-relay-input:focus { outline: none; border-color: rgba(168,85,247,0.35); }
+.nf-add-relay-input::placeholder { color: var(--n-muted); }
+.nf-add-relay-btn {
+  background: rgba(168,85,247,0.12);
+  border: 1px solid rgba(168,85,247,0.3);
+  border-radius: 5px;
+  color: var(--n-purple);
+  font-family: var(--n-mono);
+  font-size: 0.62rem;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.nf-add-relay-btn:hover { background: rgba(168,85,247,0.2); }
+.nf-relay-msg {
+  font-family: var(--n-mono);
+  font-size: 0.6rem;
+  margin-top: 4px;
+  min-height: 14px;
+}
+.nf-relay-msg.ok  { color: var(--n-green); }
+.nf-relay-msg.err { color: var(--n-red); }
+
+/* NIP chips */
+.nf-nips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 4px;
+}
+.nf-nip {
+  font-family: var(--n-mono);
+  font-size: 0.52rem;
+  color: rgba(168,85,247,0.4);
+  border: 1px solid rgba(168,85,247,0.12);
+  padding: 0 4px;
+  border-radius: 2px;
+}
+
+/* Follow card */
+.nf-follow-card {
+  background: linear-gradient(135deg, var(--n-s2) 0%, #150a1e 100%);
+  border: 1px solid rgba(168,85,247,0.2);
+  border-radius: 8px;
+  padding: 14px;
+  margin-top: 10px;
+}
+.nf-follow-label {
+  font-family: var(--n-mono);
+  font-size: 0.6rem;
+  color: var(--n-purple);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+.nf-npub {
+  font-family: var(--n-mono);
+  font-size: 0.6rem;
+  color: var(--n-orange);
+  word-break: break-all;
+  background: rgba(249,115,22,0.06);
+  border: 1px solid rgba(249,115,22,0.12);
+  border-radius: 4px;
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-bottom: 8px;
+}
+.nf-npub:hover { background: rgba(249,115,22,0.12); }
+.nf-app-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.nf-app-link {
+  font-family: var(--n-mono);
+  font-size: 0.58rem;
+  color: var(--n-muted);
+  border: 1px solid var(--n-border);
+  border-radius: 12px;
+  padding: 2px 8px;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+.nf-app-link:hover { color: var(--n-purple); border-color: rgba(168,85,247,0.3); }
+
+/* ── Reconnect overlay ── */
+.nf-reconnect-btn {
+  background: rgba(168,85,247,0.1);
+  border: 1px solid rgba(168,85,247,0.3);
+  border-radius: 6px;
+  color: var(--n-purple);
+  font-family: var(--n-mono);
+  font-size: 0.68rem;
+  padding: 6px 14px;
+  cursor: pointer;
+  margin-left: auto;
+  transition: background 0.15s;
+}
+.nf-reconnect-btn:hover { background: rgba(168,85,247,0.2); }
+
+/* ── New events button ── */
+#nf-new-events-btn {
+  display: none;
+  position: sticky;
+  top: 50px;
+  z-index: 10;
+  width: 100%;
+  background: rgba(168,85,247,0.9);
+  border: none;
+  padding: 8px;
+  color: #fff;
+  font-family: var(--n-mono);
+  font-size: 0.7rem;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s;
+}
+#nf-new-events-btn:hover { background: var(--n-purple); }
+
+/* ── Mobile adjustments ── */
+@media (max-width: 768px) {
+  .nf-filter-inner { gap: 4px; }
+  .nf-search-input { width: 120px; }
+  #nf-event-list { max-height: none; overflow-y: visible; }
+  .nf-relay-pill .nf-relay-latency { display: none; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="nf-wrap">
+
+<!-- ── Page header ── -->
+<div class="nf-header">
+  <div class="nf-container">
+    <div class="nf-header-inner">
+      <div class="nf-title-block">
+        <div class="nf-eyebrow">⚡ Protocol Pulse // Nostr</div>
+        <h1 class="nf-title">NOSTR <span>FEED</span></h1>
+        <p class="nf-subtitle">Censorship-resistant Bitcoin signal — 4 relays, live.</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div class="nf-live-indicator" id="nf-live-status">
+          <span class="nf-live-dot"></span>
+          <span id="nf-live-text">CONNECTING…</span>
+        </div>
+        <button class="nf-reconnect-btn" onclick="reconnectAll()">⟳ Reconnect</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Relay status bar ── -->
+<div class="nf-relay-bar">
+  <div class="nf-container">
+    <div class="nf-relay-bar-inner" id="nf-relay-pills">
+      <span class="nf-relay-summary" id="nf-relay-summary">
+        Connected to <strong id="nf-connected-count">0</strong>/{{ relay_count }} relays
+      </span>
+      {% for relay in relay_status %}
+      <div class="nf-relay-pill {{ 'connected' if relay.connected else '' }}"
+           data-relay-url="{{ relay.url }}"
+           data-relay-name="{{ relay.name }}"
+           title="{{ relay.description }}">
+        <span class="nf-relay-dot"></span>
+        <span>{{ relay.name }}</span>
+        {% if relay.latency_ms %}<span class="nf-relay-latency">{{ relay.latency_ms|int }}ms</span>{% endif %}
+        {% if relay.events_per_min %}<span class="nf-relay-epm">{{ relay.events_per_min }}/min</span>{% endif %}
+        <button class="nf-remove-btn" onclick="removeRelay('{{ relay.url }}', event)" title="Remove relay">×</button>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- ── Main layout ── -->
+<div class="nf-container">
+<div class="nf-body">
+
+<!-- Left: feed column -->
+<div class="nf-feed-main">
+
+  <!-- Filter bar (sticky) -->
+  <div class="nf-filter-bar">
+    <div class="nf-filter-inner">
+      <span class="nf-filter-label">TAGS:</span>
+      <button class="nf-tag-btn active" data-tag="bitcoin" onclick="toggleTag(this,'bitcoin')">#bitcoin</button>
+      <button class="nf-tag-btn active" data-tag="btc"     onclick="toggleTag(this,'btc')">#btc</button>
+      <button class="nf-tag-btn"        data-tag="lightning" onclick="toggleTag(this,'lightning')">#lightning</button>
+      <button class="nf-tag-btn"        data-tag="nostr"   onclick="toggleTag(this,'nostr')">#nostr</button>
+      <div class="nf-filter-divider"></div>
+      <span class="nf-filter-label">KINDS:</span>
+      <button class="nf-kind-btn active" data-kind="1"  onclick="toggleKind(this,1)">NOTES</button>
+      <button class="nf-kind-btn"        data-kind="6"  onclick="toggleKind(this,6)">REPOSTS</button>
+      <button class="nf-kind-btn"        data-kind="7"  onclick="toggleKind(this,7)">REACTIONS</button>
+      <div class="nf-filter-divider"></div>
+      <input class="nf-search-input" id="nf-search" type="text"
+             placeholder="Search events…" oninput="applySearch()" />
+    </div>
+  </div>
+
+  <!-- New events banner -->
+  <button id="nf-new-events-btn" onclick="flushNewEvents()">
+    <span id="nf-new-count">0</span> new events — click to load
+  </button>
+
+  <!-- Feed header row -->
+  <div class="nf-feed-header">
+    <span class="nf-feed-title">LIVE BITCOIN SIGNAL</span>
+    <span class="nf-event-counter" id="nf-event-count">
+      {{ initial_event_count }} events
+    </span>
+  </div>
+
+  <!-- Connecting banner (shown until first WS event arrives) -->
+  <div class="nf-connecting-banner {{ '' if initial_event_count > 0 else 'visible' }}" id="nf-connecting-banner">
+    <span class="nf-spinner"></span>
+    Connecting to Nostr relays — Bitcoin-tagged events will stream in shortly…
+  </div>
+
+  <!-- Event list -->
+  <div id="nf-event-list">
+    {% if cached_events %}
+      {% for ev in cached_events %}
+      <div class="nf-event"
+           data-id="{{ ev.id }}"
+           data-kind="{{ ev.kind }}"
+           data-tags="{{ ev.hashtags | join(',') }}"
+           data-ts="{{ ev.created_at }}"
+           data-relay="{{ ev.relay }}">
+        <div class="nf-event-head">
+          <div class="nf-avatar" id="avatar-{{ loop.index }}">
+            <img src="https://robohash.org/{{ ev.pubkey[:10] }}.png?set=set4&size=30x30"
+                 alt="{{ ev.pubkey_initials }}"
+                 onerror="this.style.display='none';this.parentElement.textContent='{{ ev.pubkey_initials }}'">
+          </div>
+          <div class="nf-author-info">
+            <div class="nf-pubkey"><span>{{ ev.pubkey_short }}</span></div>
+            <div class="nf-time">{{ ev.time_str or ev.date_str }}</div>
+          </div>
+          <span class="nf-relay-badge" title="{{ ev.relay }}">{{ ev.relay[:20] }}</span>
+        </div>
+
+        <div class="nf-event-content collapsed" id="content-{{ loop.index }}">{{ ev.content_preview }}</div>
+        {% if ev.content_truncated %}
+        <button class="nf-expand-btn" onclick="expandEvent('content-{{ loop.index }}', this)">
+          ▼ show more
+        </button>
+        {% endif %}
+
+        {% if ev.hashtags %}
+        <div class="nf-event-tags">
+          {% for tag in ev.hashtags %}
+          <span class="nf-hashtag">#{{ tag }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="nf-event-actions">
+          {% if ev.primal_link %}
+          <a href="{{ ev.primal_link }}" target="_blank" rel="noopener" class="nf-action-link">
+            <i class="fas fa-external-link-alt"></i> Primal
+          </a>
+          {% endif %}
+          {% if ev.snort_link %}
+          <a href="{{ ev.snort_link }}" target="_blank" rel="noopener" class="nf-action-link">
+            Snort
+          </a>
+          {% endif %}
+          {% if ev.njump_link %}
+          <a href="{{ ev.njump_link }}" target="_blank" rel="noopener" class="nf-action-link">
+            njump
+          </a>
+          {% endif %}
+          <span class="nf-event-id-short">{{ ev.id[:8] }}…</span>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="nf-empty" id="nf-empty-state">
+        <div class="nf-spinner"></div><br>
+        Monitor warming up — events arrive within 30–60 seconds.
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Right: sidebar -->
+<div class="nf-sidebar">
+
+  <!-- Live stats -->
+  <div class="nf-sidebar-section">
+    <div class="nf-sidebar-label">Session Stats</div>
+    <div class="nf-stat-row">
+      <span class="nf-stat-key">Events received</span>
+      <span class="nf-stat-val" id="stat-events">{{ initial_event_count }}</span>
+    </div>
+    <div class="nf-stat-row">
+      <span class="nf-stat-key">Active pubkeys</span>
+      <span class="nf-stat-val" id="stat-pubkeys">—</span>
+    </div>
+    <div class="nf-stat-row">
+      <span class="nf-stat-key">Relays connected</span>
+      <span class="nf-stat-val" id="stat-relays">{{ connected_count }}/{{ relay_count }}</span>
+    </div>
+    <div class="nf-stat-row">
+      <span class="nf-stat-key">Events/min</span>
+      <span class="nf-stat-val" id="stat-epm">—</span>
+    </div>
+  </div>
+
+  <!-- Top hashtags -->
+  <div class="nf-sidebar-section">
+    <div class="nf-sidebar-label">Top Hashtags</div>
+    <div class="nf-tag-list" id="sidebar-tags">
+      <div style="font-family:var(--n-mono);font-size:0.62rem;color:var(--n-muted);">
+        Accumulating…
+      </div>
+    </div>
+  </div>
+
+  <!-- Relay detail -->
+  <div class="nf-sidebar-section">
+    <div class="nf-sidebar-label">Relay Health</div>
+    {% for relay in relay_status %}
+    <div class="nf-relay-detail" id="relay-detail-{{ loop.index0 }}" data-url="{{ relay.url }}">
+      <div class="nf-relay-name-row">
+        <div class="nf-relay-dot" style="width:6px;height:6px;border-radius:50%;background:{{ '#22c55e' if relay.connected else '#dc2626' }};flex-shrink:0;"></div>
+        <span class="nf-relay-name">{{ relay.name }}</span>
+        <span class="nf-relay-status {{ 'status-live' if relay.connected else 'status-off' }}">
+          {{ 'LIVE' if relay.connected else 'OFF' }}
+        </span>
+      </div>
+      <div class="nf-relay-meta">
+        {{ relay.url.replace('wss://','') }}<br>
+        {% if relay.latency_ms %}{{ relay.latency_ms|int }}ms · {% endif %}
+        <span class="relay-sess-count-{{ loop.index0 }}">{{ relay.events_session }} events</span>
+      </div>
+      <div class="nf-nips">
+        {% for nip in relay.nips %}
+        <span class="nf-nip">{{ nip }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Relay manager / add relay -->
+  <div class="nf-sidebar-section">
+    <div class="nf-sidebar-label">Relay Manager</div>
+    <div class="nf-add-relay-form">
+      <input class="nf-add-relay-input" id="nf-add-relay-input"
+             type="text" placeholder="wss://relay.example.com" />
+      <button class="nf-add-relay-btn" onclick="addCustomRelay()">+ ADD</button>
+    </div>
+    <div class="nf-relay-msg" id="nf-relay-msg"></div>
+    <div style="font-family:var(--n-mono);font-size:0.58rem;color:var(--n-muted);margin-top:8px;">
+      Custom relays saved to localStorage and connected client-side.
+    </div>
+  </div>
+
+  <!-- Follow PP on Nostr -->
+  <div class="nf-sidebar-section">
+    <div class="nf-sidebar-label">Follow Protocol Pulse</div>
+    <div class="nf-follow-card">
+      <div class="nf-follow-label">PP NOSTR IDENTITY</div>
+      <div class="nf-npub" id="nf-npub" onclick="copyNpub()" title="Click to copy">{{ pp_npub }}</div>
+      <div style="font-family:var(--n-mono);font-size:0.58rem;color:var(--n-muted);margin-bottom:8px;" id="nf-copy-hint">
+        Click to copy
+      </div>
+      <div class="nf-app-links">
+        <a href="https://primal.net" target="_blank" rel="noopener" class="nf-app-link">Primal</a>
+        <a href="https://damus.io" target="_blank" rel="noopener" class="nf-app-link">Damus</a>
+        <a href="https://snort.social" target="_blank" rel="noopener" class="nf-app-link">Snort</a>
+        <a href="https://njump.me/{{ pp_npub }}" target="_blank" rel="noopener" class="nf-app-link">njump</a>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /sidebar -->
+</div><!-- /nf-body -->
+</div><!-- /container -->
+
+</div><!-- /nf-wrap -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* ================================================================
+   NOSTR FEED — Session 8 — Client-side Engine
+   Architecture: browser connects directly to Nostr relays via WS
+   Server provides initial cache + relay config
+   ================================================================ */
+
+'use strict';
+
+// ── Config ──────────────────────────────────────────────────────────────────
+var DEFAULT_RELAYS = [
+  'wss://relay.damus.io',
+  'wss://nos.lol',
+  'wss://relay.nostr.band',
+  'wss://nostr.wine'
+];
+
+var FILTER_TAGS = { bitcoin: true, btc: true };
+var FILTER_KINDS = { 1: true };
+var SEARCH_TERM = '';
+var ACTIVE_WS = {};   // relay_url → WebSocket
+var RELAY_STATS = {}; // relay_url → {connected, events, latency, epm_times}
+var SESSION_EVENTS = {}; // event_id → true (dedup)
+var SESSION_PUBKEYS = {};
+var SESSION_HASHTAGS = {}; // hashtag → count
+var SESSION_EVENT_COUNT = {{ initial_event_count }};
+var SESSION_EVENT_TIMES = []; // timestamps for epm
+var NEW_EVENTS_QUEUE = [];
+var SCROLL_AT_TOP = true;
+
+// Load custom relays from localStorage
+var _stored = localStorage.getItem('pp_nostr_relays');
+if (_stored) {
+  try {
+    var stored = JSON.parse(_stored);
+    if (Array.isArray(stored)) {
+      stored.forEach(function(url) {
+        if (typeof url === 'string' && url.startsWith('wss://') && DEFAULT_RELAYS.indexOf(url) === -1) {
+          DEFAULT_RELAYS.push(url);
+        }
+      });
+    }
+  } catch(e) {}
+}
+
+// ── Time formatting ──────────────────────────────────────────────────────────
+function timeAgo(ts) {
+  var now = Math.floor(Date.now() / 1000);
+  var diff = now - ts;
+  if (diff < 60)  return diff + 's ago';
+  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+  return Math.floor(diff / 86400) + 'd ago';
+}
+
+function fmtTime(ts) {
+  var d = new Date(ts * 1000);
+  return d.toUTCString().split(' ')[4] + ' UTC';
+}
+
+// ── HTML escaping ────────────────────────────────────────────────────────────
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ── Build event card HTML ────────────────────────────────────────────────────
+function buildEventCard(ev, relay_url, isNew) {
+  var pubkey = ev.pubkey || '';
+  var pubShort = pubkey.length > 12 ? pubkey.slice(0,8) + '…' + pubkey.slice(-4) : pubkey;
+  var initials = pubkey.slice(0,2).toUpperCase() || '??';
+  var content = ev.content || '';
+  var preview = content.length > 280 ? content.slice(0, 280) : content;
+  var truncated = content.length > 280;
+  var ts = ev.created_at || 0;
+  var timeStr = fmtTime(ts);
+  var relay_short = relay_url.replace('wss://', '').slice(0, 18);
+  var event_id = ev.id || '';
+  var primal = event_id ? 'https://primal.net/e/' + event_id : '';
+  var snort  = event_id ? 'https://snort.social/e/' + event_id : '';
+  var njump  = event_id ? 'https://njump.me/' + event_id : '';
+
+  // Extract hashtags
+  var tags = (ev.tags || []).filter(function(t) { return t && t[0] === 't' && t[1]; });
+  var hashtags = tags.slice(0, 6).map(function(t) { return t[1].toLowerCase(); });
+
+  var tagHtml = '';
+  if (hashtags.length > 0) {
+    tagHtml = '<div class="nf-event-tags">' +
+      hashtags.map(function(t) { return '<span class="nf-hashtag">#' + esc(t) + '</span>'; }).join('') +
+      '</div>';
+  }
+
+  var actionsHtml = '';
+  if (primal) actionsHtml += '<a href="' + primal + '" target="_blank" rel="noopener" class="nf-action-link"><i class="fas fa-external-link-alt"></i> Primal</a>';
+  if (snort)  actionsHtml += '<a href="' + snort  + '" target="_blank" rel="noopener" class="nf-action-link">Snort</a>';
+  if (njump)  actionsHtml += '<a href="' + njump  + '" target="_blank" rel="noopener" class="nf-action-link">njump</a>';
+  if (event_id) actionsHtml += '<span class="nf-event-id-short">' + esc(event_id.slice(0,8)) + '…</span>';
+
+  var newBadge = isNew ? '<span class="nf-new-badge">NEW</span>' : '';
+  var uid = 'ev_' + (event_id || Date.now()).slice(0, 16);
+  var kindStr = ev.kind === 1 ? 'NOTE' : (ev.kind === 6 ? 'REPOST' : 'REACT');
+
+  return '<div class="nf-event" ' +
+    'data-id="' + esc(event_id) + '" ' +
+    'data-kind="' + (ev.kind||1) + '" ' +
+    'data-tags="' + esc(hashtags.join(',')) + '" ' +
+    'data-ts="' + ts + '" ' +
+    'data-relay="' + esc(relay_url.replace('wss://','')) + '">' +
+    '<div class="nf-event-head">' +
+      '<div class="nf-avatar">' +
+        '<img src="https://robohash.org/' + esc(pubkey.slice(0,10)) + '.png?set=set4&size=30x30" ' +
+             'alt="' + esc(initials) + '" ' +
+             'onerror="this.style.display=\'none\';this.parentElement.textContent=\'' + esc(initials) + '\'" />' +
+      '</div>' +
+      '<div class="nf-author-info">' +
+        '<div class="nf-pubkey"><span>' + esc(pubShort) + '</span></div>' +
+        '<div class="nf-time">' + esc(timeStr) + ' · ' + esc(kindStr) + '</div>' +
+      '</div>' +
+      newBadge +
+      '<span class="nf-relay-badge" title="' + esc(relay_url) + '">' + esc(relay_short) + '</span>' +
+    '</div>' +
+    '<div class="nf-event-content collapsed" id="' + uid + '">' + esc(preview) + '</div>' +
+    (truncated ? '<button class="nf-expand-btn" onclick="expandEvent(\'' + uid + '\',this)">▼ show more</button>' : '') +
+    tagHtml +
+    '<div class="nf-event-actions">' + actionsHtml + '</div>' +
+  '</div>';
+}
+
+// ── Filter logic ─────────────────────────────────────────────────────────────
+function eventMatchesFilter(el) {
+  var kind   = parseInt(el.getAttribute('data-kind') || '1', 10);
+  var tagsRaw = (el.getAttribute('data-tags') || '').toLowerCase();
+  var relay  = (el.getAttribute('data-relay') || '').toLowerCase();
+  var content = (el.querySelector('.nf-event-content') || {}).textContent || '';
+
+  // Kind filter
+  if (!FILTER_KINDS[kind]) return false;
+
+  // Tag filter: event must match at least one active tag
+  var activeTags = Object.keys(FILTER_TAGS).filter(function(k) { return FILTER_TAGS[k]; });
+  if (activeTags.length > 0) {
+    var matched = activeTags.some(function(t) { return tagsRaw.indexOf(t) !== -1; });
+    if (!matched) return false;
+  }
+
+  // Search filter
+  if (SEARCH_TERM) {
+    var haystack = content.toLowerCase() + ' ' + tagsRaw + ' ' + relay;
+    if (haystack.indexOf(SEARCH_TERM) === -1) return false;
+  }
+
+  return true;
+}
+
+function applyFilters() {
+  var items = document.querySelectorAll('#nf-event-list .nf-event');
+  var visible = 0;
+  items.forEach(function(el) {
+    if (eventMatchesFilter(el)) {
+      el.classList.remove('hidden');
+      visible++;
+    } else {
+      el.classList.add('hidden');
+    }
+  });
+  var counter = document.getElementById('nf-event-count');
+  if (counter) counter.textContent = visible + ' events';
+}
+
+function toggleTag(btn, tag) {
+  FILTER_TAGS[tag] = !FILTER_TAGS[tag];
+  btn.classList.toggle('active', !!FILTER_TAGS[tag]);
+  applyFilters();
+}
+
+function toggleKind(btn, kind) {
+  FILTER_KINDS[kind] = !FILTER_KINDS[kind];
+  btn.classList.toggle('active', !!FILTER_KINDS[kind]);
+  applyFilters();
+}
+
+function applySearch() {
+  SEARCH_TERM = (document.getElementById('nf-search').value || '').toLowerCase().trim();
+  applyFilters();
+}
+
+// ── Expand/collapse event content ─────────────────────────────────────────
+function expandEvent(id, btn) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('collapsed');
+  if (btn) btn.style.display = 'none';
+}
+
+// ── Prepend event to feed ─────────────────────────────────────────────────
+function prependEvent(html) {
+  var list = document.getElementById('nf-event-list');
+  if (!list) return;
+  var empty = document.getElementById('nf-empty-state');
+  if (empty) empty.remove();
+  var connecting = document.getElementById('nf-connecting-banner');
+  if (connecting) connecting.classList.remove('visible');
+
+  var temp = document.createElement('div');
+  temp.innerHTML = html;
+  var node = temp.firstChild;
+  if (!node) return;
+
+  if (list.firstChild) {
+    list.insertBefore(node, list.firstChild);
+  } else {
+    list.appendChild(node);
+  }
+
+  SESSION_EVENT_COUNT++;
+  var counter = document.getElementById('nf-event-count');
+  if (counter) {
+    var visible = list.querySelectorAll('.nf-event:not(.hidden)').length;
+    counter.textContent = visible + ' events';
+  }
+
+  // Remove old events if too many (keep 200 max)
+  var all = list.querySelectorAll('.nf-event');
+  if (all.length > 200) {
+    all[all.length - 1].remove();
+  }
+}
+
+// ── New events queue (when user has scrolled down) ────────────────────────
+function flushNewEvents() {
+  if (NEW_EVENTS_QUEUE.length === 0) return;
+  var list = document.getElementById('nf-event-list');
+  if (!list) return;
+  var fragment = document.createDocumentFragment();
+  NEW_EVENTS_QUEUE.forEach(function(html) {
+    var temp = document.createElement('div');
+    temp.innerHTML = html;
+    if (temp.firstChild) fragment.appendChild(temp.firstChild);
+  });
+  NEW_EVENTS_QUEUE = [];
+  list.insertBefore(fragment, list.firstChild);
+  var btn = document.getElementById('nf-new-events-btn');
+  if (btn) btn.style.display = 'none';
+  list.scrollTop = 0;
+  applyFilters();
+}
+
+// ── Handle incoming Nostr event ───────────────────────────────────────────
+function handleEvent(nostrEvent, relayUrl) {
+  var id = nostrEvent.id || '';
+  if (SESSION_EVENTS[id]) return;  // dedup
+  SESSION_EVENTS[id] = true;
+
+  var pubkey = nostrEvent.pubkey || '';
+  SESSION_PUBKEYS[pubkey] = true;
+
+  // Collect hashtags
+  (nostrEvent.tags || []).forEach(function(t) {
+    if (t && t[0] === 't' && t[1]) {
+      var tag = t[1].toLowerCase();
+      if (tag !== 'bitcoin' && tag !== 'btc') {
+        SESSION_HASHTAGS[tag] = (SESSION_HASHTAGS[tag] || 0) + 1;
+      }
+    }
+  });
+
+  var now = Date.now();
+  SESSION_EVENT_TIMES.push(now);
+  // Keep last 60s worth
+  var cutoff = now - 60000;
+  SESSION_EVENT_TIMES = SESSION_EVENT_TIMES.filter(function(t) { return t >= cutoff; });
+
+  // Build card
+  var html = buildEventCard(nostrEvent, relayUrl, true);
+
+  // If user is near top → prepend directly, else queue
+  var list = document.getElementById('nf-event-list');
+  if (!list || list.scrollTop < 200) {
+    prependEvent(html);
+    applyFilters();
+  } else {
+    NEW_EVENTS_QUEUE.push(html);
+    var btn = document.getElementById('nf-new-events-btn');
+    if (btn) {
+      btn.style.display = 'block';
+      document.getElementById('nf-new-count').textContent = NEW_EVENTS_QUEUE.length;
+    }
+  }
+
+  updateStats();
+  updateSidebarTags();
+}
+
+// ── Update stats sidebar ──────────────────────────────────────────────────
+function updateStats() {
+  var statEvents  = document.getElementById('stat-events');
+  var statPubkeys = document.getElementById('stat-pubkeys');
+  var statRelays  = document.getElementById('stat-relays');
+  var statEpm     = document.getElementById('stat-epm');
+
+  if (statEvents)  statEvents.textContent  = Object.keys(SESSION_EVENTS).length;
+  if (statPubkeys) statPubkeys.textContent  = Object.keys(SESSION_PUBKEYS).length;
+  if (statEpm)     statEpm.textContent      = SESSION_EVENT_TIMES.length + '/min';
+
+  var connected = Object.values(RELAY_STATS).filter(function(r) { return r.connected; }).length;
+  var total = Object.keys(RELAY_STATS).length || DEFAULT_RELAYS.length;
+  if (statRelays) statRelays.textContent = connected + '/' + total;
+}
+
+function updateSidebarTags() {
+  var el = document.getElementById('sidebar-tags');
+  if (!el) return;
+  var sorted = Object.entries(SESSION_HASHTAGS).sort(function(a,b) { return b[1] - a[1]; }).slice(0, 10);
+  if (sorted.length === 0) return;
+  var maxCount = sorted[0][1] || 1;
+  el.innerHTML = sorted.map(function(pair) {
+    var pct = Math.max(4, Math.round((pair[1] / maxCount) * 100));
+    return '<div class="nf-tag-row">' +
+      '<span class="nf-tag-name">#' + esc(pair[0]) + '</span>' +
+      '<div class="nf-tag-bar-wrap"><div class="nf-tag-bar" style="width:' + pct + '%"></div></div>' +
+      '<span class="nf-tag-count">' + pair[1] + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+// ── Relay pill update ─────────────────────────────────────────────────────
+function updateRelayPill(url, connected, latencyMs, epm) {
+  var pill = document.querySelector('[data-relay-url="' + url + '"]');
+  if (!pill) return;
+  pill.classList.toggle('connected', connected);
+  pill.classList.toggle('error', !connected);
+  var dot = pill.querySelector('.nf-relay-dot');
+  if (dot) {
+    dot.style.background = connected ? 'var(--n-green)' : 'var(--n-red)';
+    dot.style.animation = connected ? 'nf-pulse 2s ease-in-out infinite' : 'none';
+  }
+  var latEl = pill.querySelector('.nf-relay-latency');
+  if (latEl && latencyMs != null) latEl.textContent = Math.round(latencyMs) + 'ms';
+  var epmEl = pill.querySelector('.nf-relay-epm');
+  if (epmEl && epm != null) epmEl.textContent = epm.toFixed(1) + '/min';
+}
+
+function updateRelayBar() {
+  var connected = Object.values(RELAY_STATS).filter(function(r) { return r.connected; }).length;
+  var total = Object.keys(RELAY_STATS).length || DEFAULT_RELAYS.length;
+  var countEl = document.getElementById('nf-connected-count');
+  if (countEl) countEl.textContent = connected;
+  var liveText = document.getElementById('nf-live-text');
+  if (liveText) {
+    liveText.textContent = connected > 0 ? 'LIVE — ' + connected + '/' + total + ' RELAYS' : 'CONNECTING…';
+  }
+  var statRelays = document.getElementById('stat-relays');
+  if (statRelays) statRelays.textContent = connected + '/' + total;
+}
+
+// ── WebSocket connection per relay ────────────────────────────────────────
+function connectRelay(url, isCustom) {
+  if (ACTIVE_WS[url]) {
+    try { ACTIVE_WS[url].close(); } catch(e) {}
+  }
+
+  if (!RELAY_STATS[url]) {
+    RELAY_STATS[url] = { connected: false, events: 0, epm_times: [] };
+  }
+
+  var t_start = Date.now();
+  var ws;
+  try {
+    ws = new WebSocket(url);
+  } catch(e) {
+    console.warn('Nostr WS create failed:', url, e.message);
+    RELAY_STATS[url].connected = false;
+    updateRelayPill(url, false, null, null);
+    updateRelayBar();
+    return;
+  }
+
+  ACTIVE_WS[url] = ws;
+
+  ws.onopen = function() {
+    var latency = Date.now() - t_start;
+    RELAY_STATS[url].connected = true;
+    RELAY_STATS[url].latency = latency;
+    updateRelayPill(url, true, latency, 0);
+    updateRelayBar();
+    console.log('Nostr connected:', url, latency + 'ms');
+
+    // Subscribe: kind:1 with #bitcoin, last 6 hours
+    var since = Math.floor(Date.now() / 1000) - 21600;  // 6h
+    var sub = JSON.stringify([
+      'REQ', 'pp_btc_1',
+      { kinds: [1], '#t': ['bitcoin'], since: since, limit: 20 }
+    ]);
+    ws.send(sub);
+
+    // Also #btc
+    var sub2 = JSON.stringify([
+      'REQ', 'pp_btc_2',
+      { kinds: [1], '#t': ['btc'], since: since, limit: 10 }
+    ]);
+    ws.send(sub2);
+
+    // Also subscribe to open stream for new events
+    var subLive = JSON.stringify([
+      'REQ', 'pp_live',
+      { kinds: [1], '#t': ['bitcoin', 'btc'], since: Math.floor(Date.now() / 1000) }
+    ]);
+    ws.send(subLive);
+  };
+
+  ws.onmessage = function(e) {
+    var msg;
+    try { msg = JSON.parse(e.data); } catch(err) { return; }
+    if (!Array.isArray(msg) || msg.length < 2) return;
+
+    var type = msg[0];
+    if (type === 'EVENT' && msg.length >= 3) {
+      var event = msg[2];
+      if (event && typeof event === 'object' && event.kind === 1 && event.content) {
+        RELAY_STATS[url].events = (RELAY_STATS[url].events || 0) + 1;
+        RELAY_STATS[url].epm_times = RELAY_STATS[url].epm_times || [];
+        RELAY_STATS[url].epm_times.push(Date.now());
+        // trim to 2 min window
+        var cut = Date.now() - 120000;
+        RELAY_STATS[url].epm_times = RELAY_STATS[url].epm_times.filter(function(t) { return t >= cut; });
+        var epm = RELAY_STATS[url].epm_times.filter(function(t) { return t >= Date.now() - 60000; }).length;
+        updateRelayPill(url, true, RELAY_STATS[url].latency, epm);
+        handleEvent(event, url);
+      }
+    } else if (type === 'NOTICE') {
+      console.debug('Nostr NOTICE from', url, msg[1]);
+    }
+  };
+
+  ws.onerror = function(e) {
+    console.warn('Nostr WS error:', url);
+  };
+
+  ws.onclose = function(e) {
+    RELAY_STATS[url].connected = false;
+    updateRelayPill(url, false, null, null);
+    updateRelayBar();
+    console.log('Nostr disconnected:', url, 'code:', e.code);
+
+    // Auto-reconnect after 30s
+    if (!ws._manual_close) {
+      setTimeout(function() { connectRelay(url, isCustom); }, 30000);
+    }
+  };
+}
+
+// ── Connect all relays ────────────────────────────────────────────────────
+function connectAll() {
+  DEFAULT_RELAYS.forEach(function(url) { connectRelay(url, false); });
+}
+
+function reconnectAll() {
+  Object.values(ACTIVE_WS).forEach(function(ws) {
+    ws._manual_close = true;
+    try { ws.close(); } catch(e) {}
+  });
+  ACTIVE_WS = {};
+  setTimeout(connectAll, 500);
+}
+
+// ── Add custom relay ──────────────────────────────────────────────────────
+function addCustomRelay() {
+  var input = document.getElementById('nf-add-relay-input');
+  var msg   = document.getElementById('nf-relay-msg');
+  var url   = (input ? input.value.trim() : '');
+
+  if (!url) {
+    if (msg) { msg.textContent = 'Enter a wss:// URL'; msg.className = 'nf-relay-msg err'; }
+    return;
+  }
+  if (!/^wss?:\/\/[a-zA-Z0-9._\-]+(:\d+)?(\/.*)?$/.test(url)) {
+    if (msg) { msg.textContent = 'Invalid relay URL — must be wss://'; msg.className = 'nf-relay-msg err'; }
+    return;
+  }
+
+  // Server-side validation
+  fetch('/api/nostr/relay/add', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url: url }),
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.ok) {
+      // Add pill to relay bar
+      if (DEFAULT_RELAYS.indexOf(url) === -1) {
+        DEFAULT_RELAYS.push(url);
+        // Save to localStorage
+        var custom = DEFAULT_RELAYS.filter(function(u) {
+          return !['wss://relay.damus.io','wss://nos.lol','wss://relay.nostr.band','wss://nostr.wine'].includes(u);
+        });
+        localStorage.setItem('pp_nostr_relays', JSON.stringify(custom));
+      }
+      addRelayPill(url);
+      connectRelay(url, true);
+      if (msg) { msg.textContent = 'Connecting to ' + url; msg.className = 'nf-relay-msg ok'; }
+      if (input) input.value = '';
+    } else {
+      if (msg) { msg.textContent = data.error || 'Invalid relay'; msg.className = 'nf-relay-msg err'; }
+    }
+  })
+  .catch(function() {
+    if (msg) { msg.textContent = 'Validation failed — try connecting directly'; msg.className = 'nf-relay-msg err'; }
+    // Still attempt client-side connect
+    if (DEFAULT_RELAYS.indexOf(url) === -1) DEFAULT_RELAYS.push(url);
+    addRelayPill(url);
+    connectRelay(url, true);
+    if (input) input.value = '';
+  });
+}
+
+function addRelayPill(url) {
+  var bar = document.getElementById('nf-relay-pills');
+  if (!bar || document.querySelector('[data-relay-url="' + url + '"]')) return;
+  var name = url.replace('wss://','').split('/')[0].split('.').slice(-2).join('.');
+  var pill = document.createElement('div');
+  pill.className = 'nf-relay-pill connecting';
+  pill.setAttribute('data-relay-url', url);
+  pill.innerHTML = '<span class="nf-relay-dot"></span>' +
+    '<span>' + esc(name) + '</span>' +
+    '<button class="nf-remove-btn" onclick="removeRelay(\'' + url + '\', event)" title="Remove">×</button>';
+  bar.appendChild(pill);
+}
+
+function removeRelay(url, event) {
+  event.stopPropagation();
+  // Close WS
+  var ws = ACTIVE_WS[url];
+  if (ws) { ws._manual_close = true; try { ws.close(); } catch(e) {} delete ACTIVE_WS[url]; }
+  delete RELAY_STATS[url];
+  // Remove pill
+  var pill = document.querySelector('[data-relay-url="' + url + '"]');
+  if (pill) pill.remove();
+  // Remove from array
+  var idx = DEFAULT_RELAYS.indexOf(url);
+  if (idx !== -1) DEFAULT_RELAYS.splice(idx, 1);
+  // Update localStorage custom relays
+  var custom = DEFAULT_RELAYS.filter(function(u) {
+    return !['wss://relay.damus.io','wss://nos.lol','wss://relay.nostr.band','wss://nostr.wine'].includes(u);
+  });
+  localStorage.setItem('pp_nostr_relays', JSON.stringify(custom));
+  updateRelayBar();
+}
+
+// ── Copy npub ─────────────────────────────────────────────────────────────
+function copyNpub() {
+  var npub = (document.getElementById('nf-npub') || {}).textContent.trim();
+  if (!npub) return;
+  navigator.clipboard.writeText(npub).then(function() {
+    var el = document.getElementById('nf-copy-hint');
+    if (el) { el.textContent = 'Copied!'; setTimeout(function() { el.textContent = 'Click to copy'; }, 2000); }
+  }).catch(function() {
+    var ta = document.createElement('textarea');
+    ta.value = npub;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+}
+
+// ── Poll server stats (every 30s) ─────────────────────────────────────────
+function pollServerStats() {
+  fetch('/api/nostr/stats')
+    .then(function(r) { return r.json(); })
+    .catch(function() { return {}; })
+    .then(function(data) {
+      // Merge server stats into session stats (server pre-fetches too)
+      if (data.top_hashtags && data.top_hashtags.length > 0 && Object.keys(SESSION_HASHTAGS).length === 0) {
+        data.top_hashtags.forEach(function(item) {
+          SESSION_HASHTAGS[item.tag] = item.count;
+        });
+        updateSidebarTags();
+      }
+    });
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  // Seed session events from SSR events (to avoid re-adding them)
+  document.querySelectorAll('#nf-event-list .nf-event').forEach(function(el) {
+    var id = el.getAttribute('data-id');
+    if (id) SESSION_EVENTS[id] = true;
+  });
+
+  // Connect to all relays
+  if (typeof WebSocket !== 'undefined') {
+    connectAll();
+  } else {
+    var banner = document.getElementById('nf-connecting-banner');
+    if (banner) {
+      banner.classList.add('visible');
+      banner.textContent = 'WebSocket not supported in this browser — showing cached events only.';
+    }
+  }
+
+  // Initial stats poll
+  pollServerStats();
+  setInterval(pollServerStats, 30000);
+
+  // Apply initial filters
+  applyFilters();
+});
+</script>
+{% endblock %}
