@@ -153,13 +153,14 @@ with app.app_context():
     try:
         from routes_premium_api import premium_api
         app.register_blueprint(premium_api)
-app.register_blueprint(curated_mining_bp)
         logging.info("Terminal API blueprint registered")
         # 5. Provision demo API key for playground
         from services.api_key_service import provision_demo_key
         provision_demo_key(db, models)
     except Exception as e:
         logging.warning("Terminal API blueprint not loaded: %s", e)
+
+app.register_blueprint(curated_mining_bp)
 
 # Diagnose: confirm / and /debug-routes are registered (debug 404)
 try:
