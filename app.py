@@ -310,6 +310,14 @@ app.register_blueprint(onboarding_bp)
 from oracle_routes import oracle_bp
 app.register_blueprint(oracle_bp)
 
+# SESSION 6 — Schiff Bot Blueprint
+try:
+    from core.blueprints.schiff import schiff_bp
+    app.register_blueprint(schiff_bp)
+    logging.info("Schiff Bot blueprint registered (/schiff, /api/schiff/*)")
+except Exception as _e:
+    logging.warning("Schiff Bot blueprint not loaded: %s", _e)
+
 try:
     from services.video_engine.dashboard.app import dashboard_bp
     app.register_blueprint(dashboard_bp)
