@@ -2959,9 +2959,13 @@ def sentiment_dashboard():
 
 @app.route('/intelligence')
 def intelligence_page():
-    """Public intelligence dashboard — signal strength, trending topics, entity tracker."""
+    """
+    SESSION 12 UPGRADE — Signal Intelligence command center.
+    Added: sentiment heatmap, dominant narrative, anomaly banner, SSE live feed.
+    """
     import json as _json
     from sqlalchemy import text as _text
+    from datetime import timedelta as _td
 
     try:
         from services.intelligence_service import (
@@ -2983,7 +2987,6 @@ def intelligence_page():
 
     # ── 24h article count ─────────────────────────────────────────────────────
     try:
-        from datetime import timedelta as _td
         cutoff_24h = (datetime.utcnow() - _td(hours=24)).isoformat()
         article_count_24h = db.session.execute(
             _text("SELECT COUNT(*) FROM articles WHERE published=1 AND created_at >= :c"),
@@ -3015,6 +3018,25 @@ def intelligence_page():
     except Exception:
         top_articles = []
 
+    # ── SESSION 12: Sentiment summary + heatmap + anomaly ────────────────────
+    try:
+        from core.services.sentiment_engine import (
+            get_sentiment_summary, get_category_heatmap, check_anomaly
+        )
+        sentiment_summary = get_sentiment_summary(db.session, _text)
+        category_heatmap = get_category_heatmap(db.session, _text)
+        anomaly_active = check_anomaly(db.session, _text)
+    except Exception as e:
+        logging.warning("intelligence_page: sentiment engine error: %s", e)
+        sentiment_summary = {
+            "overall_sentiment": "neutral", "score": 50,
+            "bullish_pct": 33, "bearish_pct": 33, "neutral_pct": 34,
+            "dominant_narrative": "other", "momentum": "stable",
+            "updated_at": datetime.utcnow().isoformat(),
+        }
+        category_heatmap = []
+        anomaly_active = False
+
     return render_template(
         'intelligence_page.html',
         signal=signal,
@@ -3026,6 +3048,12 @@ def intelligence_page():
         top_articles=top_articles,
         signal_json=_json.dumps(signal, default=str),
         trending_json=_json.dumps(trending),
+        # SESSION 12 additions
+        sentiment_summary=sentiment_summary,
+        category_heatmap=category_heatmap,
+        category_heatmap_json=_json.dumps(category_heatmap),
+        anomaly_active=anomaly_active,
+        sentiment_summary_json=_json.dumps(sentiment_summary),
     )
 
 
@@ -3127,6 +3155,59 @@ def api_signal_strength():
     except Exception as e:
         logging.error("api_signal_strength error: %s", e)
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# ─── SESSION 12: Sentiment Intelligence Engine ────────────────────────────────
+
+@app.route('/api/v2/sentiment/summary')
+def api_v2_sentiment_summary():
+    """
+    SESSION 12 — Aggregate sentiment summary.
+    Returns: overall_sentiment, score, bullish_pct, bearish_pct, neutral_pct,
+             dominant_narrative, momentum, anomaly, updated_at
+    """
+    from sqlalchemy import text as _t
+    try:
+        from core.services.sentiment_engine import (
+            get_sentiment_summary, check_anomaly
+        )
+        summary = get_sentiment_summary(db.session, _t)
+        anomaly = check_anomaly(db.session, _t)
+        summary["anomaly"] = anomaly
+        return jsonify({"success": True, "data": summary})
+    except Exception as e:
+        logging.error("api_v2_sentiment_summary error: %s", e)
+        # Graceful fallback
+        return jsonify({
+            "success": True,
+            "data": {
+                "overall_sentiment": "neutral",
+                "score": 50,
+                "bullish_pct": 33,
+                "bearish_pct": 33,
+                "neutral_pct": 34,
+                "dominant_narrative": "other",
+                "momentum": "stable",
+                "anomaly": False,
+                "updated_at": datetime.utcnow().isoformat(),
+            }
+        })
+
+
+@app.route('/api/v2/sentiment/heatmap')
+def api_v2_sentiment_heatmap():
+    """
+    SESSION 12 — Per-category sentiment heatmap data.
+    Returns list of category cells with bullish/bearish/neutral counts.
+    """
+    from sqlalchemy import text as _t
+    try:
+        from core.services.sentiment_engine import get_category_heatmap
+        cells = get_category_heatmap(db.session, _t)
+        return jsonify({"success": True, "data": cells})
+    except Exception as e:
+        logging.error("api_v2_sentiment_heatmap error: %s", e)
+        return jsonify({"success": True, "data": []})
 
 
 @app.route('/sarah-briefing')

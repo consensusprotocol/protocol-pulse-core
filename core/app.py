@@ -146,6 +146,13 @@ with app.app_context():
     import models
     # 2. Create the tables (migration-safe: adds new columns/tables without dropping existing)
     db.create_all()
+    # 2b. SESSION 12 — Run sentiment intelligence migrations (adds article sentiment columns + tables)
+    try:
+        from utils.db_migrate_sentiment import run_migrations
+        run_migrations(db)
+        logging.info("SESSION 12: sentiment-intel migrations applied")
+    except Exception as _e:
+        logging.warning("SESSION 12: db_migrate_sentiment failed: %s", _e)
     # 3. ONLY NOW load the routes
     import routes
     # 4. Register Terminal API blueprint

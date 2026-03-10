@@ -115,6 +115,14 @@ class Article(db.Model):
     header_image_url = db.Column(db.String(500))
     screenshot_url = db.Column(db.String(500))
     video_url = db.Column(db.String(500))
+    # ── SESSION 12: Sentiment Intelligence Engine ─────────────────────────────
+    sentiment = db.Column(db.String(20))          # bullish | bearish | neutral
+    sentiment_confidence = db.Column(db.Float)    # 0.0–1.0 (adjusted for source trust)
+    narrative_label = db.Column(db.String(80))    # from NARRATIVES taxonomy
+    importance_score = db.Column(db.Integer, default=50)  # 1–100
+    sentiment_dimensions = db.Column(db.Text)     # JSON: target_dimension, key_signal, source_trust
+    market_impact_magnitude = db.Column(db.Float) # 1.0–10.0
+    sentiment_at = db.Column(db.DateTime)         # when last classified
 
 class Podcast(db.Model):
     id = db.Column(db.Integer, primary_key=True)
