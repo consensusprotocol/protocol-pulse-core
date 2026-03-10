@@ -202,18 +202,18 @@ def _build_black_diamond_bg(duration: float, label_out: str = "bd_bg") -> tuple:
     f = ""
     # BUG-1 FIX: Use VDS dark bg (0x0A0A0F) not pure black — avoids blackdetect false positives
     f += f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30[bd_base];\n"
-    # Layer 2: CYCLE3 FIX: Reduced red glow (55→20) to prevent reddish BG
+    # Layer 2: CYCLE5 FIX: Further reduced red glow (20→6) to eliminate reddish BG perception
     f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
-          f"geq=r='clip(20*exp(-((X-960)*(X-960)+Y*Y)/380000),0,255)':g='0':b='0'[bd_glow_top];\n")
+          f"geq=r='clip(6*exp(-((X-960)*(X-960)+Y*Y)/380000),0,255)':g='0':b='0'[bd_glow_top];\n")
     f += f"[bd_base][bd_glow_top]blend=all_mode=screen[bg1];\n"
-    # Layer 3: CYCLE3 FIX: Reduced bottom glow (35→14)
+    # Layer 3: CYCLE5 FIX: Further reduced bottom glow (14→4)
     f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
-          f"geq=r='clip(14*exp(-((X-960)*(X-960)+(Y-1080)*(Y-1080))/280000),0,255)':g='0':b='0'[bd_glow_bot];\n")
+          f"geq=r='clip(4*exp(-((X-960)*(X-960)+(Y-1080)*(Y-1080))/280000),0,255)':g='0':b='0'[bd_glow_bot];\n")
     f += f"[bg1][bd_glow_bot]blend=all_mode=screen[bg2];\n"
-    # Layer 4: Tactical surveillance grid (very subtle)
-    f += f"[bg2]drawgrid=width=120:height=68:thickness=1:color=0xFF0000@0.07[bg3];\n"
-    # Layer 5: Scanlines (horizontal every 3px)
-    f += f"[bg3]drawgrid=width=0:height=3:thickness=1:color=0xFF0000@0.025[bg4];\n"
+    # Layer 4: Tactical surveillance grid (very subtle) — reduced to 0.04 opacity
+    f += f"[bg2]drawgrid=width=120:height=68:thickness=1:color=0xFF0000@0.04[bg3];\n"
+    # Layer 5: Scanlines (horizontal every 3px) — reduced to 0.015 opacity
+    f += f"[bg3]drawgrid=width=0:height=3:thickness=1:color=0xFF0000@0.015[bg4];\n"
     # Layer 6: Vignette
     f += f"[bg4]vignette=PI/4:mode=backward[bg5];\n"
     # Layer 7: Red border frame (2px solid on all 4 edges)
@@ -610,13 +610,9 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
            f"fade=t=in:st=0:d=0.4,fade=t=out:st={max(0, total_dur - 0.4)}:d=0.4"
            f"[withtext];\n")
 
-    # Waveform below title
-    fg += (f"[0:a]showwaves=s=1920x120:mode=cline:"
-           f"colors={COLOR_RED}|{COLOR_RED_WARM}:scale=sqrt:draw=full:rate=30[wave_raw];\n")
-    fg += f"[withtext][wave_raw]overlay=0:620[withwave];\n"
-
+    # CYCLE4 FIX: removed waveform from intro coldopen (was flagged as "active but silent")
     # Corner brackets
-    fg += _build_corner_brackets_fg("withwave", "co_cornered")
+    fg += _build_corner_brackets_fg("withtext", "co_cornered")
 
     # APEX info rail
     fg += _build_signature_info_rail(total_dur, btc_price, "co_cornered", "v_final")
@@ -809,10 +805,9 @@ def overlay_pip_on_narration(narration_path: str, pip_path: str,
         "-i", narration_path,
         "-i", pip_path,
         "-filter_complex",
-        # Drop shadow: dark box at +4px offset behind PiP
+        # CYCLE4 FIX: removed "COMING UP..." debug text from PiP overlay
         f"[0:v]drawbox=x=1060:y=204:w=824:h=466:color={COLOR_BG}@0.3:t=fill:enable='lte(t,{pip_dur})'[bg_shadow];"
-        f"[1:v]drawtext=fontfile={FONT_BOLD}:text='COMING UP...':fontcolor={COLOR_TEXT}:fontsize=28:"
-        f"x=12:y=h-38:box=1:boxcolor={COLOR_BG}@0.5:boxborderw=6,format=yuva420p[pip];"
+        f"[1:v]format=yuva420p[pip];"
         f"[bg_shadow][pip]overlay=1056:200:enable='lte(t,{pip_dur})',format=yuv420p[outv]",
         "-map", "[outv]", "-map", "0:a",
         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
@@ -881,9 +876,9 @@ def _build_broadcast_bg(duration: float, label_out: str = "bb_bg") -> tuple:
     f = ""
     # Layer 1: Cinematic obsidian base
     f += f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30[bb_base];\n"
-    # Layer 2a: CYCLE3 FIX: Reduced red glow intensity (46→18) to prevent reddish background
+    # Layer 2a: CYCLE5 FIX: Further reduced red glow (18→6) to eliminate reddish background perception
     f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
-          f"geq=r='clip(18*exp(-((X)*(X)+Y*Y)/350000),0,255)':g='0':b='0'[bb_glow_tl];\n")
+          f"geq=r='clip(6*exp(-((X)*(X)+Y*Y)/350000),0,255)':g='0':b='0'[bb_glow_tl];\n")
     f += f"[bb_base][bb_glow_tl]blend=all_mode=screen[bb1];\n"
     # Layer 2b: White radial glow — top-right (subtle)
     f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
@@ -891,14 +886,14 @@ def _build_broadcast_bg(duration: float, label_out: str = "bb_bg") -> tuple:
           f":g='clip(12*exp(-((X-1920)*(X-1920)+Y*Y)/300000),0,255)'"
           f":b='clip(12*exp(-((X-1920)*(X-1920)+Y*Y)/300000),0,255)'[bb_glow_tr];\n")
     f += f"[bb1][bb_glow_tr]blend=all_mode=screen[bb2];\n"
-    # Layer 2c: CYCLE3 FIX: Reduced red bottom glow (25→12)
+    # Layer 2c: CYCLE5 FIX: Further reduced red bottom glow (12→4)
     f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
-          f"geq=r='clip(12*exp(-((X-960)*(X-960)+(Y-1080)*(Y-1080))/400000),0,255)':g='0':b='0'[bb_glow_bc];\n")
+          f"geq=r='clip(4*exp(-((X-960)*(X-960)+(Y-1080)*(Y-1080))/400000),0,255)':g='0':b='0'[bb_glow_bc];\n")
     f += f"[bb2][bb_glow_bc]blend=all_mode=screen[bb3];\n"
     # Layer 3: VDS perspective grid (bottom 30% — subtle white)
     f += f"[bb3]drawgrid=width=90:height=54:thickness=1:color=0xFFFFFF@0.04[bb4];\n"
-    # Layer 4: BD scanlines (horizontal every 4px, red @2.5%)
-    f += f"[bb4]drawgrid=width=0:height=4:thickness=1:color={COLOR_RED}@0.025[bb5];\n"
+    # Layer 4: CYCLE5 FIX: Reduced BD scanlines opacity (2.5%→1%) to reduce redness
+    f += f"[bb4]drawgrid=width=0:height=4:thickness=1:color={COLOR_RED}@0.01[bb5];\n"
     # Layer 5: Vignette
     f += f"[bb5]vignette=PI/4:mode=backward[bb6];\n"
     # Layer 7: Red border frame (2px all edges)
@@ -1639,28 +1634,21 @@ def make_wrap_scene(audio_path: str, headline: str, body: str,
 
     fg += _build_top_system_bar("bb_bg", "bv2_bar", progress_pct=100)
 
-    # Left text zone with gold eyebrow
-    fg += (f"[bv2_bar]drawtext=fontfile={FONT_MONO}:text='FINAL TAKE':"
-           f"fontcolor={COLOR_GOLD}:fontsize=13:x=64:y=100[wr_eye];\n")
-    fg += (f"[wr_eye]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
-           f"fontcolor=0x111111:fontsize=64:x=66:y=132,"
-           f"drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
+    # CYCLE5 FIX: Removed "FINAL TAKE" debug eyebrow — start with headline directly
+    fg += (f"[bv2_bar]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
            f"fontcolor={COLOR_WHITE}:fontsize=64:x=64:y=130[wr_head];\n")
     if safe_body:
         fg += (f"[wr_head]drawtext=fontfile={FONT_MONO}:text='{safe_body}':"
                f"fontcolor=0xFFFFFF@0.6:fontsize=18:x=64:y=420:line_spacing=8[wr_body];\n")
     else:
         fg += f"[wr_head]copy[wr_body];\n"
-    fg += (f"[wr_body]drawbox=x=64:y=580:w=220:h=32:color={COLOR_RED}@0.15:t=fill,"
-           f"drawbox=x=64:y=580:w=220:h=32:color={COLOR_RED}@0.4:t=2,"
-           f"drawtext=fontfile={FONT_MONO}:text='RESOLVE':"
-           f"fontcolor={COLOR_RED}:fontsize=12:x=76:y=590[wr_txt];\n")
+    # CYCLE5 FIX: Removed "RESOLVE" debug button — pass through cleanly
+    fg += f"[wr_body]copy[wr_txt];\n"
 
     # Right Signal Wave panel (x=1120, y=140, w=740, h=500)
+    # CYCLE5 FIX: Removed "Signal Wave" debug label and "EPISODE SEGMENTS" tracker
     fg += (f"[wr_txt]drawbox=x=1120:y=140:w=740:h=500:color={COLOR_PANEL}@0.92:t=fill,"
-           f"drawbox=x=1120:y=140:w=740:h=1:color=0xFFFFFF@0.08:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='Signal Wave':"
-           f"fontcolor={COLOR_GOLD}:fontsize=11:x=1140:y=158"
+           f"drawbox=x=1120:y=140:w=740:h=1:color=0xFFFFFF@0.08:t=fill"
            f"[wr_panel];\n")
     # FIX 3: Single asplit for ALL audio consumers in wrap scene
     # 1=big waveform, 2+3=narration wave (primary+accent)
@@ -1671,34 +1659,8 @@ def make_wrap_scene(audio_path: str, headline: str, body: str,
            f"colors={COLOR_RED}|{COLOR_WHITE}:scale=sqrt:draw=full:rate=30[wr_sigwave];\n")
     fg += f"[wr_panel][wr_sigwave]overlay=1140:220[wr_waved];\n"
 
-    # BD Episode Segments tracker (x=1120,y=660,w=740,h=240)
-    fg += (f"[wr_waved]drawtext=fontfile={FONT_MONO}:text='EPISODE SEGMENTS':"
-           f"fontcolor={COLOR_GOLD}:fontsize=11:x=1140:y=655[wr_seg_eye];\n")
-    segments = [
-        ("COLD OPEN", "DONE"),
-        ("ORACLE BRIEF", "DONE"),
-        ("CLIP REACTION", "DONE"),
-        ("DUAL-HOST", "ACTIVE"),
-    ]
-    last_seg = "wr_seg_eye"
-    for si, (sname, sstatus) in enumerate(segments):
-        sy = 675 + si * 44
-        if sstatus == "DONE":
-            sc = COLOR_GREEN
-        elif sstatus == "ACTIVE":
-            sc = COLOR_RED
-        else:
-            sc = COLOR_MUTED2
-        out_s = f"wr_seg{si}"
-        fg += (f"[{last_seg}]drawbox=x=1140:y={sy}:w=700:h=36:color={COLOR_PANEL2}@0.8:t=fill,"
-               f"drawtext=fontfile={FONT_MONO}:text='{sname}':"
-               f"fontcolor={COLOR_WHITE}@0.7:fontsize=12:x=1156:y={sy+10},"
-               f"drawtext=fontfile={FONT_MONO}:text='{sstatus}':"
-               f"fontcolor={sc}:fontsize=12:x=1740:y={sy+10}"
-               f"[{out_s}];\n")
-        last_seg = out_s
-
-    fg += _build_corner_brackets_fg(last_seg, "wr_corners")
+    # CYCLE5 FIX: Removed "EPISODE SEGMENTS" debug tracker (COLD OPEN/ORACLE BRIEF/CLIP REACTION/DUAL-HOST)
+    fg += _build_corner_brackets_fg("wr_waved", "wr_corners")
 
     # Inline Cipher Line wave using pre-split audio pads (FIX 3)
     fg += (f"[_wr_a_nav1]showwaves=s=1920x80:mode=line:"
