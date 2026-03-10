@@ -310,6 +310,22 @@ app.register_blueprint(onboarding_bp)
 from oracle_routes import oracle_bp
 app.register_blueprint(oracle_bp)
 
+# SESSION 6 — Schiff Bot Blueprint
+try:
+    from core.blueprints.schiff import schiff_bp
+    app.register_blueprint(schiff_bp)
+    logging.info("Schiff Bot blueprint registered (/schiff, /api/schiff/*)")
+except Exception as _e:
+    logging.warning("Schiff Bot blueprint not loaded: %s", _e)
+
+# SESSION 9 — Node Watch Blueprint
+try:
+    from core.blueprints.node_watch import node_watch_bp
+    app.register_blueprint(node_watch_bp)
+    logging.info("Node Watch blueprint registered (/node-watch, /api/nodes/*)")
+except Exception as _e:
+    logging.warning("Node Watch blueprint not loaded: %s", _e)
+
 try:
     from services.video_engine.dashboard.app import dashboard_bp
     app.register_blueprint(dashboard_bp)
