@@ -1,0 +1,1080 @@
+{% extends "base.html" %}
+
+{% block title %}Bitcoin Node Watch — Network Health Dashboard | Protocol Pulse{% endblock %}
+{% block meta_description %}Live Bitcoin network intelligence — reachable node count, geographic distribution, version adoption, network health score, and historical trends. Powered by Bitnodes.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="Bitcoin Node Watch — Protocol Pulse">
+<meta property="og:description" content="Live reachable nodes, geographic decentralisation, version adoption and network health score for the Bitcoin P2P network.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protocol Pulse">
+<meta property="og:url" content="{{ request.url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+{% endblock %}
+
+{% block extra_css %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+/* =====================================================================
+   NODE WATCH — design tokens + layout
+   ===================================================================== */
+:root {
+  --nw-bg:        #000;
+  --nw-surface:   #0a0a0a;
+  --nw-border:    #1a1a1a;
+  --nw-border-h:  #2a2a2a;
+  --nw-red:       #dc2626;
+  --nw-gold:      #f8c15c;
+  --nw-green:     #22c55e;
+  --nw-amber:     #f59e0b;
+  --nw-cyan:      #06b6d4;
+  --nw-text:      #f1f5f9;
+  --nw-muted:     #6b7280;
+  --nw-dim:       #374151;
+  --nw-mono:      'JetBrains Mono', monospace;
+  --nw-sans:      'DM Sans', system-ui, sans-serif;
+}
+
+/* ── Page wrapper ── */
+.nw-page {
+  min-height: 100vh;
+  background: var(--nw-bg);
+  padding-bottom: 80px;
+}
+
+/* ── Sticky header bar ── */
+.nw-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(0,0,0,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--nw-border);
+  padding: 10px 0;
+}
+.nw-topbar__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.nw-topbar__brand {
+  font-family: var(--nw-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--nw-red);
+}
+.nw-topbar__live {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--nw-mono);
+  font-size: 0.65rem;
+  color: var(--nw-muted);
+  letter-spacing: 0.1em;
+}
+.live-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--nw-green);
+  animation: livePulse 2s ease-in-out infinite;
+}
+@keyframes livePulse {
+  0%,100% { opacity:1; box-shadow: 0 0 0 0 rgba(34,197,94,.5); }
+  50%      { opacity:.6; box-shadow: 0 0 0 5px rgba(34,197,94,0); }
+}
+
+/* ── Container ── */
+.nw-wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ── Hero ── */
+.nw-hero {
+  padding: 48px 20px 36px;
+  text-align: center;
+  border-bottom: 1px solid var(--nw-border);
+}
+.nw-hero__eyebrow {
+  font-family: var(--nw-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--nw-gold);
+  margin-bottom: 14px;
+}
+.nw-hero__title {
+  font-family: 'Outfit', var(--nw-sans);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 800;
+  color: var(--nw-text);
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+  line-height: 1.1;
+}
+.nw-hero__title span { color: var(--nw-gold); }
+.nw-hero__sub {
+  font-size: 0.9rem;
+  color: var(--nw-muted);
+  max-width: 520px;
+  margin: 0 auto 32px;
+}
+
+/* ── Hero stat cards ── */
+.nw-hero-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+@media (min-width: 600px)  { .nw-hero-stats { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 900px)  { .nw-hero-stats { grid-template-columns: repeat(6, 1fr); } }
+
+.nw-stat {
+  background: var(--nw-surface);
+  border: 1px solid var(--nw-border);
+  border-radius: 10px;
+  padding: 18px 12px 14px;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+.nw-stat:hover { border-color: var(--nw-border-h); }
+.nw-stat__val {
+  font-family: var(--nw-mono);
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-weight: 700;
+  color: var(--nw-text);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.nw-stat__lbl {
+  font-size: 0.62rem;
+  font-family: var(--nw-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nw-muted);
+}
+.nw-stat__delta {
+  font-family: var(--nw-mono);
+  font-size: 0.7rem;
+  margin-top: 4px;
+}
+
+/* ── Network type breakdown bar ── */
+.nw-netbar-wrap {
+  max-width: 960px;
+  margin: 20px auto 0;
+  background: var(--nw-surface);
+  border: 1px solid var(--nw-border);
+  border-radius: 10px;
+  padding: 16px 20px;
+}
+.nw-netbar-label {
+  font-family: var(--nw-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nw-muted);
+  margin-bottom: 10px;
+}
+.nw-netbar-track {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--nw-border);
+  gap: 1px;
+}
+.nw-netbar-seg {
+  height: 100%;
+  transition: width 0.7s cubic-bezier(.25,.46,.45,.94);
+}
+.nw-netbar-seg--ipv4 { background: var(--nw-cyan); }
+.nw-netbar-seg--ipv6 { background: var(--nw-gold); }
+.nw-netbar-seg--tor  { background: #8b5cf6; }
+.nw-netbar-seg--i2p  { background: #ec4899; }
+
+.nw-netbar-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.nw-legend-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--nw-mono);
+  font-size: 0.65rem;
+  color: var(--nw-muted);
+}
+.nw-legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ── Health score ── */
+.nw-health {
+  max-width: 960px;
+  margin: 24px auto 0;
+  background: var(--nw-surface);
+  border: 1px solid var(--nw-border);
+  border-radius: 10px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.nw-health__gauge-wrap {
+  flex-shrink: 0;
+  position: relative;
+  width: 90px; height: 90px;
+}
+.nw-health__svg { width: 90px; height: 90px; }
+.nw-health__score-label {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.nw-health__score-num {
+  font-family: var(--nw-mono);
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.nw-health__score-sub {
+  font-family: var(--nw-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nw-muted);
+}
+.nw-health__info { flex: 1; min-width: 180px; }
+.nw-health__badge {
+  display: inline-block;
+  font-family: var(--nw-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  padding: 3px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.nw-health__reason {
+  font-size: 0.82rem;
+  color: var(--nw-muted);
+  line-height: 1.5;
+}
+.nw-health__components {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.nw-health-comp {
+  font-family: var(--nw-mono);
+  font-size: 0.6rem;
+  color: var(--nw-dim);
+  background: #111;
+  border: 1px solid var(--nw-border);
+  border-radius: 4px;
+  padding: 2px 7px;
+}
+.nw-health-comp strong { color: var(--nw-muted); }
+
+/* ── Section heading ── */
+.nw-section-head {
+  font-family: var(--nw-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--nw-red);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.nw-section-head::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--nw-border);
+}
+
+/* ── Two-column layout ── */
+.nw-two-col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+@media (min-width: 768px) {
+  .nw-two-col { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── Panel card ── */
+.nw-panel {
+  background: var(--nw-surface);
+  border: 1px solid var(--nw-border);
+  border-radius: 10px;
+  padding: 20px;
+  transition: border-color 0.2s;
+}
+.nw-panel:hover { border-color: var(--nw-border-h); }
+
+/* ── Bar rows (countries / versions) ── */
+.nw-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 9px;
+}
+.nw-bar-label {
+  font-family: var(--nw-mono);
+  font-size: 0.68rem;
+  color: #9ca3af;
+  width: 150px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nw-bar-track {
+  flex: 1;
+  height: 5px;
+  background: #1a1a1a;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.nw-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.7s cubic-bezier(.25,.46,.45,.94);
+  width: 0%;
+}
+.nw-bar-fill--geo { background: var(--nw-gold); }
+.nw-bar-fill--ver { background: var(--nw-cyan); }
+.nw-bar-fill--ver-current { background: var(--nw-green); }
+.nw-bar-pct {
+  font-family: var(--nw-mono);
+  font-size: 0.65rem;
+  color: var(--nw-muted);
+  width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.nw-current-badge {
+  font-family: var(--nw-mono);
+  font-size: 0.55rem;
+  color: var(--nw-green);
+  background: rgba(34,197,94,0.1);
+  border: 1px solid rgba(34,197,94,0.2);
+  border-radius: 3px;
+  padding: 1px 4px;
+  flex-shrink: 0;
+}
+
+/* ── Map ── */
+.nw-map-wrap {
+  background: var(--nw-surface);
+  border: 1px solid var(--nw-border);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+#nwMap {
+  width: 100%;
+  height: 340px;
+  background: #0a0a0a;
+  z-index: 1;
+}
+/* Override Leaflet dark tiles */
+.leaflet-container { background: #0a0a0a; }
+.nw-map-footer {
+  padding: 8px 16px;
+  font-family: var(--nw-mono);
+  font-size: 0.6rem;
+  color: var(--nw-dim);
+  border-top: 1px solid var(--nw-border);
+}
+
+/* ── History chart ── */
+.nw-chart-wrap {
+  background: var(--nw-surface);
+  border: 1px solid var(--nw-border);
+  border-radius: 10px;
+  padding: 20px;
+  position: relative;
+}
+.nw-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.nw-chart-title {
+  font-family: var(--nw-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nw-muted);
+}
+.nw-chart-area {
+  position: relative;
+  height: 200px;
+}
+#nwHistoryChart { width: 100% !important; height: 200px !important; }
+
+/* ── Skeleton loader ── */
+.nw-skel {
+  background: linear-gradient(90deg, #111 25%, #1a1a1a 50%, #111 75%);
+  background-size: 200% 100%;
+  animation: skelShimmer 1.4s infinite;
+  border-radius: 4px;
+}
+@keyframes skelShimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Source note ── */
+.nw-source-note {
+  text-align: center;
+  font-family: var(--nw-mono);
+  font-size: 0.6rem;
+  color: var(--nw-dim);
+  margin-top: 32px;
+}
+.nw-source-note a { color: var(--nw-muted); text-decoration: none; }
+.nw-source-note a:hover { color: var(--nw-text); }
+
+/* ── Sections spacing ── */
+.nw-sections { margin-top: 32px; display: flex; flex-direction: column; gap: 32px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="nw-page">
+
+  <!-- ── Sticky top bar ─────────────────────────────────────────── -->
+  <div class="nw-topbar">
+    <div class="nw-topbar__inner">
+      <div class="nw-topbar__brand">Protocol Pulse // Node Watch</div>
+      <div class="nw-topbar__live">
+        <span class="live-dot"></span>
+        <span id="topbarNodes">Loading…</span>
+        &nbsp;·&nbsp;
+        <span id="topbarUpdated">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Hero ──────────────────────────────────────────────────── -->
+  <div class="nw-hero">
+    <div class="nw-hero__eyebrow">Bitcoin P2P Network Intelligence</div>
+    <h1 class="nw-hero__title">Node <span>Watch</span></h1>
+    <p class="nw-hero__sub">
+      Live reachable nodes, geographic decentralisation, version adoption &amp; network health.
+      Real data from <a href="https://bitnodes.io" target="_blank" rel="noopener"
+        style="color:var(--nw-gold);text-decoration:none">Bitnodes.io</a>.
+    </p>
+
+    <!-- Hero stats row -->
+    <div class="nw-hero-stats">
+      <div class="nw-stat">
+        <div class="nw-stat__val" id="statReachable">
+          <div class="nw-skel" style="height:1.5rem;width:70%;margin:0 auto;"></div>
+        </div>
+        <div class="nw-stat__lbl">Reachable</div>
+      </div>
+      <div class="nw-stat">
+        <div class="nw-stat__val" id="statIPv4">—</div>
+        <div class="nw-stat__lbl">IPv4</div>
+      </div>
+      <div class="nw-stat">
+        <div class="nw-stat__val" id="statIPv6">—</div>
+        <div class="nw-stat__lbl">IPv6</div>
+      </div>
+      <div class="nw-stat">
+        <div class="nw-stat__val" id="statTor">—</div>
+        <div class="nw-stat__lbl">Tor Nodes</div>
+      </div>
+      <div class="nw-stat">
+        <div class="nw-stat__val" id="statI2P">—</div>
+        <div class="nw-stat__lbl">I2P Nodes</div>
+      </div>
+      <div class="nw-stat">
+        <div class="nw-stat__val" id="statDelta">—</div>
+        <div class="nw-stat__lbl">Snapshot Delta</div>
+        <div class="nw-stat__delta" id="statDeltaDir"></div>
+      </div>
+    </div>
+
+    <!-- Network type bar -->
+    <div class="nw-netbar-wrap">
+      <div class="nw-netbar-label">Network Type Distribution</div>
+      <div class="nw-netbar-track">
+        <div class="nw-netbar-seg nw-netbar-seg--ipv4" id="netbarIPv4" style="width:0%"></div>
+        <div class="nw-netbar-seg nw-netbar-seg--ipv6" id="netbarIPv6" style="width:0%"></div>
+        <div class="nw-netbar-seg nw-netbar-seg--tor"  id="netbarTor"  style="width:0%"></div>
+        <div class="nw-netbar-seg nw-netbar-seg--i2p"  id="netbarI2P"  style="width:0%"></div>
+      </div>
+      <div class="nw-netbar-legend">
+        <span class="nw-legend-pill"><span class="nw-legend-dot" style="background:var(--nw-cyan);"></span><span id="legendIPv4">IPv4</span></span>
+        <span class="nw-legend-pill"><span class="nw-legend-dot" style="background:var(--nw-gold);"></span><span id="legendIPv6">IPv6</span></span>
+        <span class="nw-legend-pill"><span class="nw-legend-dot" style="background:#8b5cf6;"></span><span id="legendTor">Tor</span></span>
+        <span class="nw-legend-pill"><span class="nw-legend-dot" style="background:#ec4899;"></span><span id="legendI2P">I2P</span></span>
+      </div>
+    </div>
+
+    <!-- Health score -->
+    <div class="nw-health" id="healthCard">
+      <div class="nw-health__gauge-wrap">
+        <svg class="nw-health__svg" viewBox="0 0 90 90">
+          <!-- Track -->
+          <circle cx="45" cy="45" r="36"
+            fill="none" stroke="#1a1a1a" stroke-width="8"
+            stroke-dasharray="188 226" stroke-dashoffset="0"
+            stroke-linecap="round"
+            transform="rotate(135 45 45)"/>
+          <!-- Progress arc  -->
+          <circle cx="45" cy="45" r="36"
+            fill="none" stroke="#dc2626" stroke-width="8"
+            id="healthArc"
+            stroke-dasharray="0 226"
+            stroke-dashoffset="0"
+            stroke-linecap="round"
+            transform="rotate(135 45 45)"
+            style="transition: stroke-dasharray 1s ease, stroke 0.5s ease;"/>
+        </svg>
+        <div class="nw-health__score-label">
+          <div class="nw-health__score-num" id="healthNum">—</div>
+          <div class="nw-health__score-sub">/100</div>
+        </div>
+      </div>
+      <div class="nw-health__info">
+        <div>
+          <span class="nw-health__badge" id="healthBadge"
+            style="background:rgba(220,38,38,0.1);color:#dc2626;border:1px solid rgba(220,38,38,0.2)">
+            Loading…
+          </span>
+        </div>
+        <div class="nw-health__reason" id="healthReason">Calculating network health score…</div>
+        <div class="nw-health__components" id="healthComponents"></div>
+      </div>
+    </div>
+  </div><!-- /.nw-hero -->
+
+  <!-- ── Main sections ─────────────────────────────────────────── -->
+  <div class="nw-wrap">
+  <div class="nw-sections">
+
+    <!-- Geographic Distribution + Leaflet Map -->
+    <div>
+      <div class="nw-section-head">Geographic Distribution</div>
+      <div class="nw-two-col">
+        <!-- Country bars -->
+        <div class="nw-panel">
+          <div style="font-family:var(--nw-mono);font-size:0.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--nw-muted);margin-bottom:14px;">
+            Top 15 Countries by Node Count
+          </div>
+          <div id="countriesWrap">
+            <div class="nw-skel" style="height:.9rem;margin-bottom:8px;"></div>
+            <div class="nw-skel" style="height:.9rem;margin-bottom:8px;width:85%;"></div>
+            <div class="nw-skel" style="height:.9rem;margin-bottom:8px;width:72%;"></div>
+            <div class="nw-skel" style="height:.9rem;margin-bottom:8px;width:60%;"></div>
+            <div class="nw-skel" style="height:.9rem;width:50%;"></div>
+          </div>
+        </div>
+        <!-- Leaflet map -->
+        <div class="nw-map-wrap">
+          <div id="nwMap"></div>
+          <div class="nw-map-footer">Node density by country · circle radius = relative count</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Version Distribution + History Chart -->
+    <div>
+      <div class="nw-section-head">Version Adoption &amp; History</div>
+      <div class="nw-two-col">
+        <!-- Version bars -->
+        <div class="nw-panel">
+          <div style="font-family:var(--nw-mono);font-size:0.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--nw-muted);margin-bottom:14px;">
+            Bitcoin Core Version Distribution
+          </div>
+          <div id="versionsWrap">
+            <div class="nw-skel" style="height:.9rem;margin-bottom:8px;"></div>
+            <div class="nw-skel" style="height:.9rem;margin-bottom:8px;width:85%;"></div>
+            <div class="nw-skel" style="height:.9rem;margin-bottom:8px;width:65%;"></div>
+            <div class="nw-skel" style="height:.9rem;width:50%;"></div>
+          </div>
+        </div>
+        <!-- History chart -->
+        <div class="nw-chart-wrap">
+          <div class="nw-chart-header">
+            <span class="nw-chart-title">Node Count History</span>
+            <span style="font-family:var(--nw-mono);font-size:0.6rem;color:var(--nw-dim);" id="historyRange"></span>
+          </div>
+          <div class="nw-chart-area">
+            <div class="nw-skel" id="historySkel" style="height:200px;border-radius:6px;"></div>
+            <canvas id="nwHistoryChart" style="display:none;"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.nw-sections -->
+
+  <!-- Source attribution -->
+  <p class="nw-source-note">
+    Data sourced from <a href="https://bitnodes.io" target="_blank" rel="noopener">Bitnodes.io</a>
+    (public API, no key required).
+    Summary cached 5 min · Countries &amp; versions cached 1 h · History cached 24 h.
+  </p>
+
+  </div><!-- /.nw-wrap -->
+</div><!-- /.nw-page -->
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js for history chart -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js" defer></script>
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN/WLcE=" crossorigin="" defer></script>
+<script>
+(function () {
+'use strict';
+
+/* ── Utilities ─────────────────────────────────────────────────── */
+function fmt(n) {
+  return typeof n === 'number' ? n.toLocaleString('en-US') : (n || '—');
+}
+function pct(a, b) {
+  return b > 0 ? ((a / b) * 100).toFixed(1) : '0.0';
+}
+function setEl(id, val) {
+  var e = document.getElementById(id);
+  if (e) e.innerHTML = val;
+}
+function setTxt(id, val) {
+  var e = document.getElementById(id);
+  if (e) e.textContent = val;
+}
+function timeAgo(unixSec) {
+  if (!unixSec) return '—';
+  var diff = Math.round((Date.now() / 1000) - unixSec);
+  if (diff < 60) return diff + 's ago';
+  if (diff < 3600) return Math.round(diff / 60) + 'm ago';
+  return Math.round(diff / 3600) + 'h ago';
+}
+
+/* ── Map (Leaflet) ─────────────────────────────────────────────── */
+var leafletMap = null;
+var mapMarkers = [];
+
+function waitForLeaflet(cb, n) {
+  n = n || 0;
+  if (typeof L !== 'undefined') { cb(); return; }
+  if (n > 60) return;
+  setTimeout(function () { waitForLeaflet(cb, n + 1); }, 150);
+}
+
+function initMap() {
+  waitForLeaflet(function () {
+    leafletMap = L.map('nwMap', {
+      center:     [20, 0],
+      zoom:       1,
+      zoomControl: true,
+      attributionControl: false,
+      minZoom: 1,
+      maxZoom: 6,
+    });
+    L.tileLayer(
+      'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png',
+      { attribution: '© Stadia Maps © OpenMapTiles © OSM contributors' }
+    ).addTo(leafletMap);
+    // Immediately try to place markers if countries data arrived
+    if (window._nwCountriesData) {
+      placeMapMarkers(window._nwCountriesData);
+    }
+  });
+}
+
+function placeMapMarkers(countries) {
+  if (!leafletMap) {
+    window._nwCountriesData = countries;
+    return;
+  }
+  mapMarkers.forEach(function (m) { leafletMap.removeLayer(m); });
+  mapMarkers = [];
+
+  var maxCount = 0;
+  countries.forEach(function (c) { if (c.count > maxCount) maxCount = c.count; });
+
+  countries.forEach(function (c) {
+    if (!c.lat || !c.lng) return;
+    var radius = 4 + (c.count / maxCount) * 24;  // 4–28 px
+    var col    = c.pct > 30 ? '#dc2626'
+               : c.pct > 15 ? '#f8c15c'
+               : '#06b6d4';
+    var marker = L.circleMarker([c.lat, c.lng], {
+      radius:      radius,
+      fillColor:   col,
+      color:       'rgba(0,0,0,0.4)',
+      weight:      1,
+      fillOpacity: 0.7,
+    }).bindTooltip(
+      '<b style="font-family:JetBrains Mono,monospace">' + (c.name || c.cc) + '</b><br>' +
+      '<span style="font-size:0.75rem">' + fmt(c.count) + ' nodes (' + c.pct + '%)</span>',
+      { sticky: true }
+    );
+    marker.addTo(leafletMap);
+    mapMarkers.push(marker);
+  });
+}
+
+/* ── Health gauge ──────────────────────────────────────────────── */
+function renderHealthGauge(health) {
+  if (!health) return;
+  var score  = health.score || 0;
+  var colour = health.colour || '#dc2626';
+  var label  = health.label  || 'UNKNOWN';
+  var reason = health.reason || '';
+  var comps  = health.components || {};
+
+  // Arc: max circumference = 188 (3/4 circle at r=36, 2πr×0.75 ≈ 169 — we use 188 as in CSS)
+  var arc = document.getElementById('healthArc');
+  if (arc) {
+    var filled = (score / 100) * 188;
+    arc.setAttribute('stroke-dasharray', filled + ' ' + (188 - filled + 38));
+    arc.setAttribute('stroke', colour);
+  }
+
+  setEl('healthNum', '<span style="color:' + colour + '">' + score + '</span>');
+
+  var badge = document.getElementById('healthBadge');
+  if (badge) {
+    badge.textContent = 'NETWORK ' + label;
+    badge.style.background = 'rgba(' + hexToRgb(colour) + ',0.12)';
+    badge.style.color       = colour;
+    badge.style.border      = '1px solid rgba(' + hexToRgb(colour) + ',0.3)';
+  }
+
+  setTxt('healthReason', reason);
+
+  var compWrap = document.getElementById('healthComponents');
+  if (compWrap) {
+    var html = '';
+    var labels = {
+      node_level: 'NODES', growth_trend: 'GROWTH',
+      version_currency: 'VERSIONS', geo_diversity: 'GEO',
+      privacy_nodes: 'PRIVACY', data_freshness: 'FRESHNESS'
+    };
+    Object.keys(comps).forEach(function (k) {
+      html += '<span class="nw-health-comp"><strong>' + (labels[k] || k) + '</strong> ' + comps[k] + 'pt</span>';
+    });
+    compWrap.innerHTML = html;
+  }
+}
+
+function hexToRgb(hex) {
+  var r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return r ? parseInt(r[1],16)+','+parseInt(r[2],16)+','+parseInt(r[3],16) : '220,38,38';
+}
+
+/* ── Summary fetch ─────────────────────────────────────────────── */
+function loadSummary() {
+  fetch('/api/nodes/summary', { signal: AbortSignal.timeout(10000) })
+    .then(function (r) { return r.ok ? r.json() : Promise.reject('HTTP ' + r.status); })
+    .then(function (d) {
+      var total = d.reachable || 0;
+
+      setEl('statReachable', '<span style="color:var(--nw-text)">' + fmt(total) + '</span>');
+      setEl('statIPv4', fmt(d.ipv4));
+      setEl('statIPv6', fmt(d.ipv6));
+      setEl('statTor', fmt(d.tor));
+      setEl('statI2P', fmt(d.i2p || 0));
+
+      // 24h delta
+      var delta = d.delta_24h || 0;
+      var sign  = delta >= 0 ? '+' : '';
+      var col   = delta >= 0 ? 'var(--nw-green)' : 'var(--nw-red)';
+      setEl('statDelta', '<span style="color:' + col + '">' + sign + fmt(delta) + '</span>');
+      setEl('statDeltaDir', '<span style="color:' + col + '">' + (delta >= 0 ? '▲' : '▼') + ' vs prev snapshot</span>');
+
+      // Topbar
+      setTxt('topbarNodes', fmt(total) + ' reachable nodes');
+      setTxt('topbarUpdated', d.timestamp ? 'Updated ' + timeAgo(d.timestamp) : '');
+
+      // Network type bar
+      if (total > 0) {
+        var ipv4p = pct(d.ipv4, total);
+        var ipv6p = pct(d.ipv6, total);
+        var torp  = pct(d.tor,  total);
+        var i2pp  = pct(d.i2p || 0, total);
+
+        document.getElementById('netbarIPv4').style.width = ipv4p + '%';
+        document.getElementById('netbarIPv6').style.width = ipv6p + '%';
+        document.getElementById('netbarTor').style.width  = torp  + '%';
+        document.getElementById('netbarI2P').style.width  = i2pp  + '%';
+
+        setTxt('legendIPv4', 'IPv4 ' + ipv4p + '%');
+        setTxt('legendIPv6', 'IPv6 ' + ipv6p + '%');
+        setTxt('legendTor',  'Tor '  + torp  + '%');
+        setTxt('legendI2P',  'I2P '  + i2pp  + '%');
+      }
+
+      // Health score
+      renderHealthGauge(d.health);
+
+      if (d.stale) {
+        console.warn('Node Watch: using stale summary data');
+      }
+    })
+    .catch(function (err) {
+      console.error('Summary error:', err);
+      setEl('statReachable', '<span style="color:var(--nw-muted)">N/A</span>');
+      setTxt('topbarNodes', 'Data unavailable');
+      setTxt('healthReason', 'Could not fetch network data. Retrying shortly.');
+    });
+}
+
+/* ── Countries fetch ───────────────────────────────────────────── */
+function loadCountries() {
+  fetch('/api/nodes/countries', { signal: AbortSignal.timeout(10000) })
+    .then(function (r) { return r.ok ? r.json() : Promise.reject('HTTP ' + r.status); })
+    .then(function (d) {
+      var rows = d.countries || [];
+      if (!rows.length) {
+        setEl('countriesWrap', '<p style="color:var(--nw-muted);font-size:.8rem;padding:16px 0">No data available</p>');
+        return;
+      }
+      var html = '';
+      rows.forEach(function (c) {
+        var fillCls = c.pct > 30 ? '' : '';
+        var barCol  = c.pct > 30 ? '#dc2626' : (c.pct > 15 ? '#f8c15c' : '#f8c15c');
+        html +=
+          '<div class="nw-bar-row">' +
+            '<div class="nw-bar-label" title="' + (c.name||c.cc) + '">' + (c.name || c.cc) + '</div>' +
+            '<div class="nw-bar-track">' +
+              '<div class="nw-bar-fill nw-bar-fill--geo" style="width:0%;background:' + barCol + '" data-pct="' + c.pct + '"></div>' +
+            '</div>' +
+            '<div class="nw-bar-pct">' + c.pct + '%</div>' +
+          '</div>';
+      });
+      var wrap = document.getElementById('countriesWrap');
+      if (wrap) {
+        wrap.innerHTML = html;
+        // Animate bars
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            wrap.querySelectorAll('.nw-bar-fill').forEach(function (el) {
+              el.style.width = el.getAttribute('data-pct') + '%';
+            });
+          });
+        });
+      }
+      // Map
+      window._nwCountriesData = rows;
+      placeMapMarkers(rows);
+    })
+    .catch(function (err) {
+      console.error('Countries error:', err);
+      setEl('countriesWrap', '<p style="color:var(--nw-muted);font-size:.8rem;padding:16px 0">Country data temporarily unavailable</p>');
+    });
+}
+
+/* ── Versions fetch ────────────────────────────────────────────── */
+function loadVersions() {
+  fetch('/api/nodes/versions', { signal: AbortSignal.timeout(10000) })
+    .then(function (r) { return r.ok ? r.json() : Promise.reject('HTTP ' + r.status); })
+    .then(function (d) {
+      var rows = d.versions || [];
+      if (!rows.length) {
+        setEl('versionsWrap', '<p style="color:var(--nw-muted);font-size:.8rem;padding:16px 0">No data available</p>');
+        return;
+      }
+      var html = '';
+      rows.forEach(function (v) {
+        var currentBadge = v.current
+          ? '<span class="nw-current-badge">CURRENT</span>'
+          : '';
+        var fillCls = v.current ? 'nw-bar-fill--ver-current' : 'nw-bar-fill--ver';
+        html +=
+          '<div class="nw-bar-row">' +
+            '<div class="nw-bar-label" title="' + v.version + '">' + v.version + '</div>' +
+            '<div class="nw-bar-track">' +
+              '<div class="nw-bar-fill ' + fillCls + '" style="width:0%" data-pct="' + v.pct + '"></div>' +
+            '</div>' +
+            '<div class="nw-bar-pct">' + v.pct + '%</div>' +
+            currentBadge +
+          '</div>';
+      });
+      var wrap = document.getElementById('versionsWrap');
+      if (wrap) {
+        wrap.innerHTML = html;
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            wrap.querySelectorAll('.nw-bar-fill').forEach(function (el) {
+              el.style.width = el.getAttribute('data-pct') + '%';
+            });
+          });
+        });
+      }
+    })
+    .catch(function (err) {
+      console.error('Versions error:', err);
+      setEl('versionsWrap', '<p style="color:var(--nw-muted);font-size:.8rem;padding:16px 0">Version data temporarily unavailable</p>');
+    });
+}
+
+/* ── History chart ─────────────────────────────────────────────── */
+var histChart = null;
+
+function waitForChartJs(cb, n) {
+  n = n || 0;
+  if (typeof Chart !== 'undefined') { cb(); return; }
+  if (n > 60) return;
+  setTimeout(function () { waitForChartJs(cb, n + 1); }, 150);
+}
+
+function loadHistory() {
+  fetch('/api/nodes/history', { signal: AbortSignal.timeout(15000) })
+    .then(function (r) { return r.ok ? r.json() : Promise.reject('HTTP ' + r.status); })
+    .then(function (d) {
+      var pts = d.history || [];
+      if (!pts.length) throw new Error('empty');
+
+      // Range label
+      if (pts.length >= 2) {
+        var first = new Date(pts[0].ts * 1000);
+        var last  = new Date(pts[pts.length - 1].ts * 1000);
+        var diff  = Math.round((last - first) / (1000 * 60 * 60 * 24));
+        setTxt('historyRange', diff + ' days of data');
+      }
+
+      waitForChartJs(function () { drawHistoryChart(pts); });
+    })
+    .catch(function (err) {
+      console.error('History error:', err);
+      var skel = document.getElementById('historySkel');
+      if (skel) skel.innerHTML = '<p style="color:var(--nw-muted);font-size:.8rem;text-align:center;padding:60px 0">History data temporarily unavailable</p>';
+    });
+}
+
+function drawHistoryChart(pts) {
+  var skel   = document.getElementById('historySkel');
+  var canvas = document.getElementById('nwHistoryChart');
+  if (!canvas) return;
+  if (skel) skel.style.display = 'none';
+  canvas.style.display = 'block';
+
+  // Downsample if > 200 points to keep chart readable
+  var data = pts;
+  if (pts.length > 200) {
+    var step = Math.ceil(pts.length / 200);
+    data = pts.filter(function (_, i) { return i % step === 0; });
+  }
+
+  var labels = data.map(function (p) {
+    var d = new Date(p.ts * 1000);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  });
+  var counts = data.map(function (p) { return p.count; });
+
+  var minV   = Math.min.apply(null, counts);
+  var maxV   = Math.max.apply(null, counts);
+  var pad    = Math.max(100, Math.round((maxV - minV) * 0.08));
+
+  if (histChart) { histChart.destroy(); }
+
+  histChart = new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Reachable Nodes',
+        data:  counts,
+        borderColor:     '#06b6d4',
+        backgroundColor: 'rgba(6,182,212,0.07)',
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        fill: true,
+        tension: 0.3,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0f0f0f',
+          borderColor:     '#1a1a1a',
+          borderWidth: 1,
+          titleColor: '#6b7280',
+          bodyColor:  '#f1f5f9',
+          bodyFont:   { family: 'JetBrains Mono', size: 11 },
+          callbacks: {
+            label: function (ctx) {
+              return ' ' + ctx.parsed.y.toLocaleString('en-US') + ' nodes';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#374151', font: { family: 'JetBrains Mono', size: 9 }, maxTicksLimit: 8, maxRotation: 0 },
+          grid:  { color: '#111' },
+        },
+        y: {
+          min: Math.max(0, minV - pad),
+          max: maxV + pad,
+          ticks: {
+            color: '#374151',
+            font:  { family: 'JetBrains Mono', size: 9 },
+            callback: function (v) { return v >= 1000 ? (v/1000).toFixed(0)+'k' : v; }
+          },
+          grid: { color: '#111' },
+        }
+      }
+    }
+  });
+}
+
+/* ── Boot ──────────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', function () {
+  initMap();
+  loadSummary();
+  loadCountries();
+  loadVersions();
+  loadHistory();
+
+  // Refresh summary every 5 minutes
+  setInterval(loadSummary, 5 * 60 * 1000);
+});
+
+})();
+</script>
+{% endblock %}

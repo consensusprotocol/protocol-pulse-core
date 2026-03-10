@@ -1,0 +1,1 @@
+/home/ultron/protocol_pulse/docs/gospels/B1_NEWSLETTER_GOSPEL.md
