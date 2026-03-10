@@ -310,6 +310,46 @@ app.register_blueprint(onboarding_bp)
 from oracle_routes import oracle_bp
 app.register_blueprint(oracle_bp)
 
+# SESSION 10 — Article Rebuild: new /api/v2/articles endpoint
+try:
+    from routes_articles import articles_api_bp
+    app.register_blueprint(articles_api_bp)
+    logging.info("Articles API blueprint registered (/api/v2/articles)")
+except Exception as _e:
+    logging.warning("Articles API blueprint not loaded: %s", _e)
+
+# SESSION 8 — Nostr Feed
+try:
+    from routes_nostr import nostr_bp
+    app.register_blueprint(nostr_bp)
+    logging.info("Nostr Feed blueprint registered (/nostr)")
+except Exception as _e:
+    logging.warning("Nostr Feed blueprint not loaded: %s", _e)
+
+# SESSION 5 — Mining Intel Blueprint
+try:
+    from core.blueprints.mining import mining_bp
+    app.register_blueprint(mining_bp)
+    logging.info("Mining Intel blueprint registered at /mining-intel")
+except Exception as _e:
+    logging.warning("Mining Intel blueprint not loaded: %s", _e)
+
+# SESSION 6 — Schiff Bot Blueprint
+try:
+    from core.blueprints.schiff import schiff_bp
+    app.register_blueprint(schiff_bp)
+    logging.info("Schiff Bot blueprint registered (/schiff, /api/schiff/*)")
+except Exception as _e:
+    logging.warning("Schiff Bot blueprint not loaded: %s", _e)
+
+# SESSION 7 — Oracle Avatar Blueprint
+try:
+    from core.blueprints.oracle_avatar import oracle_avatar_bp
+    app.register_blueprint(oracle_avatar_bp)
+    logging.info("Oracle Avatar blueprint registered (/oracle-live, /api/oracle/*)")
+except Exception as _e:
+    logging.warning("Oracle Avatar blueprint not loaded: %s", _e)
+
 try:
     from services.video_engine.dashboard.app import dashboard_bp
     app.register_blueprint(dashboard_bp)

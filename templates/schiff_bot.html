@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Brian — Hypocrisy Analyst | Protocol Pulse{% endblock %}
-{% block meta_description %}Tracking the gap between what gold bugs say and what the data shows. Brian analyzes Peter Schiff's SEC 13F filings and public statements to produce a real-time Hypocrisy Score.{% endblock %}
+{% block title %}Debate the Schiff Bot — Protocol Pulse{% endblock %}
+{% block meta_description %}Can you out-argue the most famous Bitcoin skeptic? The Schiff Bot argues Peter Schiff's gold-bug positions. Make your case for Bitcoin.{% endblock %}
 
 {% block og_meta %}
-<meta property="og:title" content="Brian — Hypocrisy Analyst | Protocol Pulse">
-<meta property="og:description" content="Gold vs Bitcoin: 0% BTC holdings. Real-time Hypocrisy Score from SEC EDGAR filings.">
+<meta property="og:title" content="Debate the Schiff Bot — Protocol Pulse">
+<meta property="og:description" content="Can you out-argue the most famous Bitcoin skeptic? Debate AI-powered Peter Schiff on gold vs Bitcoin.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Protocol Pulse">
 <meta property="og:url" content="{{ request.url }}">
@@ -15,822 +15,872 @@
 {% block extra_css %}
 <style>
 :root {
-  --sb-bg: #000000;
-  --sb-surface: #0a0a0a;
-  --sb-surface2: #111111;
-  --sb-border: rgba(255,255,255,0.07);
-  --sb-red: #dc2626;
-  --sb-red-dim: rgba(220,38,38,0.12);
-  --sb-gold: #f59e0b;
-  --sb-gold-dim: rgba(245,158,11,0.12);
-  --sb-green: #22c55e;
-  --sb-orange: #f97316;
-  --sb-white: #ffffff;
-  --sb-muted: rgba(255,255,255,0.45);
-  --sb-mono: 'JetBrains Mono', monospace;
-  --sb-sans: 'Inter', sans-serif;
+  --bg: #000000;
+  --surface: #0a0a0a;
+  --surface2: #111111;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --red: #dc2626;
+  --red-dim: rgba(220,38,38,0.10);
+  --gold: #f59e0b;
+  --gold-dim: rgba(245,158,11,0.10);
+  --orange: #f97316;
+  --orange-dim: rgba(249,115,22,0.10);
+  --green: #22c55e;
+  --white: #ffffff;
+  --muted: rgba(255,255,255,0.40);
+  --muted2: rgba(255,255,255,0.25);
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Inter', sans-serif;
 }
+*, *::before, *::after { box-sizing: border-box; }
 
-* { box-sizing: border-box; }
-
+/* ── PAGE WRAPPER ── */
 .sb-wrap {
-  background: var(--sb-bg);
+  background: var(--bg);
   min-height: 100vh;
-  color: var(--sb-white);
-  font-family: var(--sb-sans);
+  color: var(--white);
+  font-family: var(--sans);
 }
 
-/* ── HERO ── */
-.sb-hero {
+/* ── HERO HEADER ── */
+.sb-header {
   position: relative;
-  padding: 100px 24px 64px;
+  padding: 80px 24px 48px;
   overflow: hidden;
+  text-align: center;
 }
-.sb-hero::before {
+.sb-header::before {
   content: '';
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 50% at 50% -5%, rgba(245,158,11,0.08) 0%, transparent 60%),
-    repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.013) 40px),
-    repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.013) 40px);
+    radial-gradient(ellipse 60% 40% at 25% 50%, rgba(245,158,11,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 75% 50%, rgba(249,115,22,0.06) 0%, transparent 60%),
+    repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.012) 40px),
+    repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.012) 40px);
   pointer-events: none;
 }
-.sb-hero-inner {
-  max-width: 1100px;
-  margin: 0 auto;
-  position: relative;
-}
+.sb-header-inner { position: relative; max-width: 800px; margin: 0 auto; }
 .sb-badge {
   display: inline-block;
-  font-family: var(--sb-mono);
+  font-family: var(--mono);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--sb-gold);
-  border: 1px solid rgba(245,158,11,0.3);
-  padding: 4px 10px;
+  color: var(--orange);
+  border: 1px solid rgba(249,115,22,0.35);
+  padding: 4px 12px;
   border-radius: 2px;
+  background: var(--orange-dim);
   margin-bottom: 20px;
-  background: var(--sb-gold-dim);
 }
-.sb-title {
-  font-size: clamp(2rem, 5vw, 3.5rem);
+.sb-header h1 {
+  font-size: clamp(1.8rem, 4vw, 3rem);
   font-weight: 700;
   letter-spacing: -0.02em;
-  line-height: 1.1;
-  margin: 0 0 16px;
+  line-height: 1.15;
+  margin: 0 0 14px;
 }
-.sb-title span {
-  color: var(--sb-gold);
-}
-.sb-subtitle {
-  font-size: 1.05rem;
-  color: var(--sb-muted);
-  max-width: 560px;
-  line-height: 1.6;
+.sb-header h1 .gold { color: var(--gold); }
+.sb-header p {
+  font-size: 1rem;
+  color: var(--muted);
   margin: 0;
+  line-height: 1.6;
 }
-.sb-meta {
-  margin-top: 24px;
-  font-family: var(--sb-mono);
-  font-size: 11px;
-  color: rgba(255,255,255,0.3);
-  letter-spacing: 0.05em;
-}
-.sb-meta span { color: rgba(255,255,255,0.5); }
 
-/* ── MAIN GRID ── */
-.sb-main {
-  max-width: 1100px;
+/* ── SPLIT BANNER ── */
+.sb-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 6px;
+  margin: 0 0 32px;
+}
+.sb-split-gold   { background: linear-gradient(90deg, #b45309, var(--gold)); }
+.sb-split-orange { background: linear-gradient(90deg, var(--orange), #ea580c); }
+
+/* ── MAIN LAYOUT ── */
+.sb-layout {
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px 80px;
-}
-
-.sb-grid-top {
   display: grid;
-  grid-template-columns: 380px 1fr;
+  grid-template-columns: 1fr 340px;
   gap: 24px;
-  margin-bottom: 24px;
+  align-items: start;
 }
-@media (max-width: 860px) {
-  .sb-grid-top { grid-template-columns: 1fr; }
-}
-
-/* ── GAUGE CARD ── */
-.sb-card {
-  background: var(--sb-surface);
-  border: 1px solid var(--sb-border);
-  border-radius: 8px;
-  padding: 28px;
-}
-.sb-card-title {
-  font-family: var(--sb-mono);
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--sb-muted);
-  margin-bottom: 20px;
+@media (max-width: 960px) {
+  .sb-layout { grid-template-columns: 1fr; }
 }
 
-.sb-gauge-wrap {
-  display: flex;
-  flex-direction: column;
+/* ── DEBATE ARENA ── */
+.sb-arena { display: flex; flex-direction: column; gap: 0; }
+
+/* Combatants bar */
+.sb-combatants {
+  display: grid;
+  grid-template-columns: 1fr 48px 1fr;
   align-items: center;
-  gap: 16px;
+  margin-bottom: 16px;
 }
-.sb-gauge-svg {
-  width: 220px;
-  height: 120px;
-  overflow: visible;
-}
-.sb-gauge-arc-bg {
-  fill: none;
-  stroke: rgba(255,255,255,0.06);
-  stroke-width: 18;
-  stroke-linecap: round;
-}
-.sb-gauge-arc {
-  fill: none;
-  stroke-width: 18;
-  stroke-linecap: round;
-  transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1),
-              stroke 0.6s ease;
-}
-.sb-gauge-score {
-  font-family: var(--sb-mono);
-  font-size: 3rem;
-  font-weight: 700;
-  text-anchor: middle;
-  dominant-baseline: middle;
-}
-.sb-gauge-denom {
-  font-family: var(--sb-mono);
-  font-size: 0.9rem;
-  fill: var(--sb-muted);
-  text-anchor: middle;
-}
-.sb-gauge-label {
-  font-family: var(--sb-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  text-align: center;
-  padding: 5px 14px;
-  border-radius: 3px;
-  border: 1px solid;
-}
-.sb-gauge-updated {
-  font-family: var(--sb-mono);
-  font-size: 10px;
-  color: var(--sb-muted);
-  text-align: center;
-}
-.sb-stale-warn {
-  background: rgba(245,158,11,0.08);
-  border: 1px solid rgba(245,158,11,0.25);
-  border-radius: 4px;
-  padding: 6px 12px;
-  font-size: 11px;
-  font-family: var(--sb-mono);
-  color: var(--sb-gold);
-  text-align: center;
-}
-
-/* ── BREAKDOWN CARD ── */
-.sb-breakdown-row {
+.sb-combatant {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--sb-border);
+  padding: 14px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
 }
-.sb-breakdown-row:last-child { border-bottom: none; }
-.sb-breakdown-label {
-  flex: 1;
-  font-size: 0.85rem;
-  color: rgba(255,255,255,0.8);
-}
-.sb-breakdown-label small {
-  display: block;
-  font-family: var(--sb-mono);
-  font-size: 10px;
-  color: var(--sb-muted);
-  margin-top: 2px;
-}
-.sb-breakdown-bar-wrap {
-  width: 120px;
-  height: 6px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 3px;
-  overflow: hidden;
-}
-.sb-breakdown-bar {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 1s ease;
-}
-.sb-breakdown-pts {
-  font-family: var(--sb-mono);
-  font-size: 12px;
-  font-weight: 600;
-  min-width: 70px;
-  text-align: right;
-}
-
-/* ── PORTFOLIO TABLE ── */
-.sb-table-wrap {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-.sb-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.83rem;
-}
-.sb-table th {
-  font-family: var(--sb-mono);
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--sb-muted);
-  padding: 10px 12px;
-  text-align: left;
-  border-bottom: 1px solid var(--sb-border);
-}
-.sb-table td {
-  padding: 11px 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.035);
-  color: rgba(255,255,255,0.85);
-}
-.sb-table tr:last-child td { border-bottom: none; }
-.sb-table tr:hover td { background: rgba(255,255,255,0.02); }
-.sb-gold-dot {
-  display: inline-block;
-  width: 6px; height: 6px;
+.sb-combatant.schiff { border-color: rgba(245,158,11,0.25); background: rgba(245,158,11,0.04); }
+.sb-combatant.user   { border-color: rgba(249,115,22,0.25); background: rgba(249,115,22,0.04); flex-direction: row-reverse; }
+.sb-avatar {
+  width: 40px; height: 40px;
   border-radius: 50%;
-  background: var(--sb-gold);
-  margin-right: 6px;
-  vertical-align: middle;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: var(--mono);
   flex-shrink: 0;
 }
-.sb-bar-inline {
-  display: inline-block;
-  height: 3px;
-  border-radius: 2px;
-  background: var(--sb-gold);
-  vertical-align: middle;
-  margin-left: 6px;
-  transition: width 0.8s ease;
-}
-
-/* ── CHART ── */
-.sb-chart-wrap {
-  position: relative;
-  height: 160px;
-  margin-top: 8px;
-}
-.sb-chart-canvas { width: 100%; height: 100%; }
-
-/* ── STATEMENTS ── */
-.sb-stmt-item {
-  padding: 14px 0;
-  border-bottom: 1px solid var(--sb-border);
-}
-.sb-stmt-item:last-child { border-bottom: none; }
-.sb-stmt-quote {
-  font-style: italic;
-  color: rgba(255,255,255,0.8);
-  line-height: 1.55;
-  font-size: 0.9rem;
-}
-.sb-stmt-quote::before { content: '"'; color: var(--sb-gold); }
-.sb-stmt-quote::after  { content: '"'; color: var(--sb-gold); }
-.sb-stmt-meta {
-  margin-top: 6px;
-  font-family: var(--sb-mono);
-  font-size: 10px;
-  color: var(--sb-muted);
-}
-.sb-stmt-platform {
-  display: inline-block;
-  padding: 2px 7px;
-  border: 1px solid var(--sb-border);
-  border-radius: 2px;
-  font-size: 9px;
+.sb-avatar.schiff-av { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); color: var(--gold); }
+.sb-avatar.user-av   { background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.3); color: var(--orange); }
+.sb-combatant-info { flex: 1; }
+.sb-combatant-name {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  margin-right: 6px;
-  color: rgba(255,255,255,0.4);
 }
-
-/* ── SHARE BUTTON ── */
-.sb-share-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(245,158,11,0.1);
-  border: 1px solid rgba(245,158,11,0.3);
-  color: var(--sb-gold);
-  font-family: var(--sb-mono);
-  font-size: 11px;
+.sb-combatant.schiff .sb-combatant-name { color: var(--gold); }
+.sb-combatant.user   .sb-combatant-name { color: var(--orange); text-align: right; }
+.sb-combatant-stance { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.sb-combatant.user .sb-combatant-stance { text-align: right; }
+.sb-vs {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted2);
   letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
-  text-decoration: none;
-}
-.sb-share-btn:hover {
-  background: rgba(245,158,11,0.18);
-  border-color: rgba(245,158,11,0.5);
-  color: var(--sb-gold);
-  text-decoration: none;
 }
 
-/* ── CIK BADGE ── */
-.sb-source-badge {
+/* Chat container */
+.sb-chat-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.sb-chat-log {
+  min-height: 420px;
+  max-height: 560px;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scroll-behavior: smooth;
+}
+.sb-chat-log::-webkit-scrollbar { width: 4px; }
+.sb-chat-log::-webkit-scrollbar-track { background: transparent; }
+.sb-chat-log::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+/* Messages */
+.sb-msg {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  animation: sb-fadein 0.25s ease;
+}
+@keyframes sb-fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; } }
+
+.sb-msg.schiff-msg { flex-direction: row; }
+.sb-msg.user-msg   { flex-direction: row-reverse; }
+
+.sb-msg-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  font-family: var(--mono);
+}
+.schiff-msg .sb-msg-avatar { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.25); color: var(--gold); }
+.user-msg   .sb-msg-avatar { background: rgba(249,115,22,0.12); border: 1px solid rgba(249,115,22,0.25); color: var(--orange); }
+
+.sb-msg-bubble {
+  max-width: 82%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+.schiff-msg .sb-msg-bubble {
+  background: rgba(245,158,11,0.06);
+  border: 1px solid rgba(245,158,11,0.15);
+  color: rgba(255,255,255,0.9);
+  border-top-left-radius: 2px;
+}
+.user-msg .sb-msg-bubble {
+  background: rgba(249,115,22,0.08);
+  border: 1px solid rgba(249,115,22,0.18);
+  color: rgba(255,255,255,0.95);
+  border-top-right-radius: 2px;
+}
+.sb-msg-meta {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted2);
+  margin-top: 5px;
+  letter-spacing: 0.05em;
+}
+.user-msg .sb-msg-meta { text-align: right; }
+
+/* Typing indicator */
+.sb-typing {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px;
+  background: rgba(245,158,11,0.04);
+  border: 1px solid rgba(245,158,11,0.12);
+  border-radius: 8px;
+  border-top-left-radius: 2px;
+  width: 64px;
+}
+.sb-typing-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  opacity: 0.4;
+  animation: sb-bounce 1.2s infinite;
+}
+.sb-typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.sb-typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes sb-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30%            { transform: translateY(-5px); opacity: 1; }
+}
+
+/* Share strip */
+.sb-share-strip {
+  padding: 10px 20px;
+  background: rgba(255,255,255,0.02);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  min-height: 46px;
+}
+.sb-share-btn-inline {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: var(--sb-mono);
+  background: transparent;
+  border: 1px solid rgba(249,115,22,0.3);
+  color: var(--orange);
+  font-family: var(--mono);
   font-size: 10px;
-  color: var(--sb-muted);
-  border: 1px solid var(--sb-border);
-  padding: 4px 10px;
-  border-radius: 2px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.18s ease;
 }
-.sb-source-badge a {
-  color: rgba(255,255,255,0.5);
-  text-decoration: underline;
-  text-underline-offset: 2px;
+.sb-share-btn-inline:hover { background: var(--orange-dim); border-color: rgba(249,115,22,0.55); }
+.sb-exchange-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted2);
+  letter-spacing: 0.05em;
+  margin-left: auto;
 }
 
-/* ── EMPTY / LOADING STATES ── */
-.sb-empty {
-  text-align: center;
-  padding: 40px 0;
-  color: var(--sb-muted);
-  font-family: var(--sb-mono);
+/* Input area */
+.sb-input-wrap {
+  padding: 16px 20px;
+  background: var(--surface2);
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+.sb-input {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 12px 16px;
+  color: var(--white);
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  resize: none;
+  min-height: 48px;
+  max-height: 120px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+.sb-input:focus { border-color: rgba(249,115,22,0.4); }
+.sb-input::placeholder { color: var(--muted2); }
+.sb-input:disabled { opacity: 0.5; cursor: not-allowed; }
+.sb-send-btn {
+  background: linear-gradient(135deg, var(--orange), #c2410c);
+  border: none;
+  color: white;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+  white-space: nowrap;
+  height: 48px;
+}
+.sb-send-btn:hover { opacity: 0.88; }
+.sb-send-btn:active { transform: scale(0.97); }
+.sb-send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.sb-input-hint {
+  padding: 8px 20px 12px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted2);
+  letter-spacing: 0.05em;
+  background: var(--surface2);
+  display: flex;
+  justify-content: space-between;
+}
+.sb-hint-limit.warning { color: var(--orange); }
+
+/* Error toast */
+.sb-error-toast {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: rgba(220,38,38,0.95);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-family: var(--mono);
   font-size: 12px;
-  letter-spacing: 0.08em;
+  z-index: 9999;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  max-width: 340px;
+  pointer-events: none;
 }
-.sb-loader {
-  display: inline-block;
-  width: 14px; height: 14px;
-  border: 2px solid rgba(255,255,255,0.1);
-  border-top-color: var(--sb-gold);
-  border-radius: 50%;
-  animation: sb-spin 0.8s linear infinite;
-  vertical-align: middle;
-  margin-right: 6px;
-}
-@keyframes sb-spin { to { transform: rotate(360deg); } }
+.sb-error-toast.show { transform: translateY(0); opacity: 1; }
 
-/* ── MOBILE ── */
-@media (max-width: 600px) {
-  .sb-hero { padding: 80px 16px 48px; }
-  .sb-main  { padding: 0 16px 60px; }
-  .sb-card  { padding: 20px; }
-  .sb-breakdown-bar-wrap { width: 80px; }
+/* Debate-over banner */
+.sb-debate-over {
+  background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(249,115,22,0.06));
+  border: 1px solid rgba(245,158,11,0.25);
+  border-radius: 6px;
+  padding: 16px 20px;
+  text-align: center;
+  margin: 0 20px 16px;
+  display: none;
+}
+.sb-debate-over.visible { display: block; animation: sb-fadein 0.4s ease; }
+.sb-debate-over p {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--gold);
+  margin: 0 0 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.sb-final-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.sb-restart-btn {
+  background: transparent;
+  border: 1px solid rgba(249,115,22,0.4);
+  color: var(--orange);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.sb-restart-btn:hover { background: var(--orange-dim); }
+.sb-share-final-btn {
+  background: transparent;
+  border: 1px solid rgba(245,158,11,0.4);
+  color: var(--gold);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.sb-share-final-btn:hover { background: var(--gold-dim); }
+
+/* ── SIDEBAR ── */
+.sb-sidebar { display: flex; flex-direction: column; gap: 20px; }
+
+.sb-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+}
+.sb-card-title {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Greatest Hits */
+.sb-hit { padding: 12px 0; border-bottom: 1px solid var(--border); }
+.sb-hit:last-child { border-bottom: none; padding-bottom: 0; }
+.sb-hit-quote {
+  font-style: italic;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.5;
+}
+.sb-hit-quote::before { content: '"'; color: var(--gold); }
+.sb-hit-quote::after  { content: '"'; color: var(--gold); }
+.sb-hit-meta { margin-top: 6px; font-family: var(--mono); font-size: 9px; color: var(--muted); }
+.sb-hit-date  { color: rgba(255,255,255,0.35); }
+.sb-hit-then  { color: var(--red); }
+.sb-hit-now   { color: var(--green); }
+.sb-hit-arrow { font-size: 9px; color: var(--muted2); margin: 0 3px; }
+
+/* Rules */
+.sb-rule { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; }
+.sb-rule:last-child { border-bottom: none; }
+.sb-rule-n { font-family: var(--mono); font-size: 10px; font-weight: 700; color: var(--orange); min-width: 18px; flex-shrink: 0; margin-top: 1px; }
+.sb-rule-text { color: var(--muted); line-height: 1.45; }
+
+/* Mobile */
+@media (max-width: 640px) {
+  .sb-header { padding: 70px 16px 36px; }
+  .sb-layout  { padding: 0 16px 60px; }
+  .sb-combatants { grid-template-columns: 1fr 32px 1fr; }
+  .sb-combatant  { padding: 10px 12px; }
+  .sb-chat-log   { min-height: 300px; max-height: 420px; padding: 14px; }
+  .sb-msg-bubble { max-width: 90%; font-size: 0.875rem; }
+  .sb-input-wrap { padding: 12px 14px; gap: 8px; }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-{% set s_val = score.score|float if score and score.score is defined else 0 %}
-{% if s_val <= 20 %}
-  {% set score_color = '#22c55e' %}
-  {% set score_color_dim = 'rgba(34,197,94,0.08)' %}
-{% elif s_val <= 40 %}
-  {% set score_color = '#86efac' %}
-  {% set score_color_dim = 'rgba(134,239,172,0.08)' %}
-{% elif s_val <= 60 %}
-  {% set score_color = '#f97316' %}
-  {% set score_color_dim = 'rgba(249,115,22,0.08)' %}
-{% elif s_val <= 80 %}
-  {% set score_color = '#ef4444' %}
-  {% set score_color_dim = 'rgba(239,68,68,0.08)' %}
-{% else %}
-  {% set score_color = '#dc2626' %}
-  {% set score_color_dim = 'rgba(220,38,38,0.10)' %}
-{% endif %}
-
 <div class="sb-wrap">
 
-  <!-- ── HERO ── -->
-  <div class="sb-hero">
-    <div class="sb-hero-inner">
-      <div class="sb-badge">BRIAN — HYPOCRISY ANALYST</div>
-      <h1 class="sb-title">The <span>Gold vs Bitcoin</span><br>Consistency Tracker</h1>
-      <p class="sb-subtitle">Tracking the gap between what gold bugs say and what the data shows — sourced exclusively from SEC EDGAR 13F public filings.</p>
-      <div class="sb-meta">
-        DATA SOURCE: <span>SEC EDGAR (public filings, no auth)</span> &nbsp;·&nbsp;
-        CIK: <span>1424163 (Euro Pacific Asset Management)</span> &nbsp;·&nbsp;
-        UPDATED: <span id="sb-hero-updated">daily at 00:00 UTC</span>
-      </div>
+  <!-- HEADER -->
+  <div class="sb-header">
+    <div class="sb-header-inner">
+      <div class="sb-badge">AI DEBATE ARENA — LIVE</div>
+      <h1>Debate the <span class="gold">Schiff Bot</span></h1>
+      <p>Can you out-argue the most famous Bitcoin skeptic?<br>
+         Peter Schiff is in the building. Make your case for Bitcoin.</p>
     </div>
   </div>
 
-  <!-- ── MAIN CONTENT ── -->
-  <div class="sb-main">
+  <div class="sb-split">
+    <div class="sb-split-gold"></div>
+    <div class="sb-split-orange"></div>
+  </div>
 
-    <!-- Row 1: Gauge + Breakdown -->
-    <div class="sb-grid-top">
+  <!-- MAIN LAYOUT -->
+  <div class="sb-layout">
 
-      <!-- Gauge Card -->
-      <div class="sb-card">
-        <div class="sb-card-title">Hypocrisy Score</div>
-        <div class="sb-gauge-wrap">
-          <svg class="sb-gauge-svg" viewBox="0 0 220 120" role="img" aria-label="Hypocrisy score gauge">
-            <!-- Background arc: 180° semicircle, d-attr path approach for half arc -->
-            <path class="sb-gauge-arc-bg"
-              d="M 20 110 A 90 90 0 0 1 200 110"
-              stroke-dasharray="283 283"
-              stroke-dashoffset="0"
-            />
-            <path id="sb-gauge-arc"
-              class="sb-gauge-arc"
-              d="M 20 110 A 90 90 0 0 1 200 110"
-              stroke="{{ score_color }}"
-              stroke-dasharray="283 283"
-              stroke-dashoffset="283"
-            />
-            <text class="sb-gauge-score" x="110" y="88"
-              fill="{{ score_color }}" id="sb-score-text">
-              {{ score.score|round|int if score and score.score else '—' }}
-            </text>
-            <text class="sb-gauge-denom" x="110" y="108">/ 100</text>
-          </svg>
+    <!-- DEBATE ARENA -->
+    <div class="sb-arena">
 
-          <div class="sb-gauge-label" id="sb-score-label"
-            style="color: {{ score_color }}; border-color: {{ score_color }}; background: {{ score_color_dim }}">
-            {{ score.label if score and not score.get('data_unavailable') else ('Loading…' if not score else 'Data Unavailable') }}
+      <!-- Combatants -->
+      <div class="sb-combatants">
+        <div class="sb-combatant schiff">
+          <div class="sb-avatar schiff-av">PS</div>
+          <div class="sb-combatant-info">
+            <div class="sb-combatant-name">Peter Schiff</div>
+            <div class="sb-combatant-stance">Gold &gt; Bitcoin. Always.</div>
           </div>
-
-          {% if score and score.get('data_unavailable') %}
-          <div class="sb-stale-warn">⚠ Score data not yet available — EDGAR fetch pending</div>
-          {% elif score and score.get('stale') %}
-          <div class="sb-stale-warn">⚠ Stale data ({{ score.stale_hours|round(0)|int }}h old) — recalculating</div>
-          {% endif %}
-
-          <div class="sb-gauge-updated">
-            Filing: <strong>{{ score.filing_date or '—' }}</strong>
-            &nbsp;·&nbsp;
-            Calc: <strong id="sb-calc-date">{{ score.calculated_at[:10] if score and score.calculated_at else '—' }}</strong>
-          </div>
-
-          <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:8px;">
-            <a class="sb-share-btn" id="sb-share-x" href="#" onclick="shareToX(event)">
-              ✕ Share Score
-            </a>
-            <div class="sb-source-badge">
-              <span>📄 SOURCE:</span>
-              <a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=1424163&type=13F"
-                target="_blank" rel="noopener">EDGAR 13F</a>
-            </div>
+        </div>
+        <div class="sb-vs">VS</div>
+        <div class="sb-combatant user">
+          <div class="sb-avatar user-av">₿</div>
+          <div class="sb-combatant-info">
+            <div class="sb-combatant-name">You</div>
+            <div class="sb-combatant-stance">Bitcoin maximalist</div>
           </div>
         </div>
       </div>
 
-      <!-- Breakdown Card -->
-      <div class="sb-card">
-        <div class="sb-card-title">Score Breakdown</div>
+      <!-- Chat Box -->
+      <div class="sb-chat-box">
 
-        {% set comp = score.components if score and score.components else {} %}
-        {% set gold_pct = comp.get('gold_holding_pct', 0)|float %}
-        {% set anti_btc = comp.get('anti_btc_tweet_rate', 0)|float %}
-        {% set no_btc = comp.get('no_btc_holding_pct', 0)|float %}
-        {% set perf_gap = comp.get('gold_vs_btc_perf_gap', 0)|float %}
-
-        <!-- Gold Holdings -->
-        <div class="sb-breakdown-row">
-          <div class="sb-breakdown-label">
-            Gold Holdings
-            <small>Weight: 35% | {{ gold_pct|round(1) }}% of AUM in gold/miners</small>
-          </div>
-          <div class="sb-breakdown-bar-wrap">
-            <div class="sb-breakdown-bar"
-              style="width: {{ [gold_pct, 100]|min }}%; background: var(--sb-gold);"></div>
-          </div>
-          <div class="sb-breakdown-pts" style="color: var(--sb-gold)">
-            {{ (gold_pct * 0.35)|round(1) }} / 35
-          </div>
-        </div>
-
-        <!-- Anti-BTC Statements -->
-        <div class="sb-breakdown-row">
-          <div class="sb-breakdown-label">
-            Anti-BTC Statement Rate
-            <small>Weight: 30% | Public statements on record</small>
-          </div>
-          <div class="sb-breakdown-bar-wrap">
-            <div class="sb-breakdown-bar"
-              style="width: {{ [anti_btc, 100]|min }}%; background: var(--sb-red);"></div>
-          </div>
-          <div class="sb-breakdown-pts" style="color: var(--sb-red)">
-            {{ (anti_btc * 0.30)|round(1) }} / 30
-          </div>
-        </div>
-
-        <!-- BTC Holdings -->
-        <div class="sb-breakdown-row">
-          <div class="sb-breakdown-label">
-            Bitcoin Holdings
-            <small>Weight: 20% | ${{ '{:,.0f}'.format(score.btc_holdings_usd or 0) }} BTC in 13F</small>
-          </div>
-          <div class="sb-breakdown-bar-wrap">
-            <div class="sb-breakdown-bar"
-              style="width: {{ [no_btc, 100]|min }}%; background: var(--sb-orange);"></div>
-          </div>
-          <div class="sb-breakdown-pts" style="color: var(--sb-orange)">
-            {{ (no_btc * 0.20)|round(1) }} / 20
-          </div>
-        </div>
-
-        <!-- Performance Gap -->
-        <div class="sb-breakdown-row">
-          <div class="sb-breakdown-label">
-            BTC vs Gold Performance Gap
-            <small>Weight: 15% | YTD: BTC {{ score.ytd.btc_ytd_pct|round(1) if score and score.ytd else '—' }}% vs Gold {{ score.ytd.gold_ytd_pct|round(1) if score and score.ytd else '—' }}%</small>
-          </div>
-          <div class="sb-breakdown-bar-wrap">
-            <div class="sb-breakdown-bar"
-              style="width: {{ [perf_gap, 100]|min }}%; background: var(--sb-green);"></div>
-          </div>
-          <div class="sb-breakdown-pts" style="color: var(--sb-green)">
-            {{ (perf_gap * 0.15)|round(1) }} / 15
-          </div>
-        </div>
-
-        <!-- AUM Summary -->
-        <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--sb-border);">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <!-- Chat log -->
+        <div class="sb-chat-log" id="sb-chat-log">
+          <div class="sb-msg schiff-msg">
+            <div class="sb-msg-avatar schiff-av">PS</div>
             <div>
-              <div style="font-family: var(--sb-mono); font-size: 10px; color: var(--sb-muted); margin-bottom: 4px; letter-spacing: 0.1em; text-transform: uppercase;">Total AUM (13F)</div>
-              <div style="font-family: var(--sb-mono); font-size: 1.1rem; font-weight: 600; color: var(--sb-white)">
-                ${{ '{:,.0f}'.format(score.total_aum_usd or 0) if score else '—' }}
-              </div>
-            </div>
-            <div>
-              <div style="font-family: var(--sb-mono); font-size: 10px; color: var(--sb-muted); margin-bottom: 4px; letter-spacing: 0.1em; text-transform: uppercase;">Gold Holdings</div>
-              <div style="font-family: var(--sb-mono); font-size: 1.1rem; font-weight: 600; color: var(--sb-gold)">
-                ${{ '{:,.0f}'.format(score.gold_holdings_usd or 0) if score else '—' }}
-              </div>
+              <div class="sb-msg-bubble" id="sb-opening-text">{{ opening_line }}</div>
+              <div class="sb-msg-meta">PETER SCHIFF · NOW</div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Row 2: Portfolio Table -->
-    <div class="sb-card" style="margin-bottom: 24px;">
-      <div class="sb-card-title">Portfolio Snapshot — EDGAR 13F Holdings ({{ score.filing_type or '13F-HR' }} · {{ score.filing_date or '—' }})</div>
-
-      {% if score and score.holdings %}
-      <div class="sb-table-wrap">
-        <table class="sb-table">
-          <thead>
-            <tr>
-              <th>Security Name</th>
-              <th>Value (USD)</th>
-              <th>% of AUM</th>
-              <th>Allocation</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for h in score.holdings %}
-            <tr>
-              <td>
-                {% set name_lower = h.name|lower %}
-                {% if 'gold' in name_lower or 'gdx' in name_lower or 'gld' in name_lower or 'miner' in name_lower or 'barrick' in name_lower or 'newmont' in name_lower or 'agnico' in name_lower or 'kinross' in name_lower or 'wheaton' in name_lower %}
-                <span class="sb-gold-dot"></span>
-                {% endif %}
-                {{ h.name }}
-              </td>
-              <td style="font-family: var(--sb-mono)">
-                ${{ '{:,.0f}'.format(h.value_usd) }}
-              </td>
-              <td style="font-family: var(--sb-mono); color: {{ 'var(--sb-gold)' if h.pct_of_portfolio > 5 else 'rgba(255,255,255,0.6)' }}">
-                {{ h.pct_of_portfolio|round(1) }}%
-              </td>
-              <td>
-                <div style="display:flex; align-items:center;">
-                  <div style="width: {{ [h.pct_of_portfolio * 2, 120]|min }}px; height: 4px; border-radius: 2px; background: {{ 'var(--sb-gold)' if h.pct_of_portfolio > 10 else 'rgba(255,255,255,0.2)' }};"></div>
-                </div>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% else %}
-      <div class="sb-empty">
-        <span class="sb-loader"></span> Fetching 13F holdings from EDGAR…
-      </div>
-      {% endif %}
-    </div>
-
-    <!-- Row 3: Score History Chart + Statements -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
-
-      <!-- History Chart -->
-      <div class="sb-card">
-        <div class="sb-card-title">Score History — 90 Days</div>
-        {% if history %}
-        <div class="sb-chart-wrap">
-          <canvas id="sb-chart" class="sb-chart-canvas"></canvas>
-        </div>
-        {% else %}
-        <div class="sb-empty">No history yet — first score on next cron run</div>
-        {% endif %}
-      </div>
-
-      <!-- Recent Statements -->
-      <div class="sb-card">
-        <div class="sb-card-title">Public Statements on Record</div>
-        {% if statements %}
-          {% for s in statements[:6] %}
-          <div class="sb-stmt-item">
-            <div class="sb-stmt-quote">{{ s.statement }}</div>
-            <div class="sb-stmt-meta">
-              <span class="sb-stmt-platform">{{ s.platform or 'public' }}</span>
-              {{ s.statement_date or '' }}
-              {% if s.source_url %}
-              · <a href="{{ s.source_url }}" target="_blank" rel="noopener"
-                  style="color: rgba(255,255,255,0.35); font-size:10px;">source ↗</a>
-              {% endif %}
-            </div>
+        <!-- Debate-over banner -->
+        <div class="sb-debate-over" id="sb-debate-over">
+          <p>⚔ Debate complete — Peter has left the building</p>
+          <div class="sb-final-btns">
+            <button class="sb-restart-btn" onclick="restartDebate()">↺ NEW DEBATE</button>
+            <button class="sb-share-final-btn" onclick="shareDebate()">✕ SHARE RESULT</button>
           </div>
-          {% endfor %}
-        {% else %}
-        <div class="sb-empty">No statements loaded</div>
-        {% endif %}
-      </div>
-    </div>
+        </div>
 
-    <!-- Methodology Footnote -->
-    <div class="sb-card" style="background: transparent; border-color: rgba(255,255,255,0.04);">
-      <div class="sb-card-title">Methodology</div>
-      <div style="font-size: 0.82rem; color: var(--sb-muted); line-height: 1.7; max-width: 800px;">
-        <strong style="color: rgba(255,255,255,0.6)">Brian</strong> is a fictional analytical persona that tracks the gap between publicly available statements and SEC-filed portfolio data.
-        All holdings data sourced exclusively from <a href="https://data.sec.gov" target="_blank" rel="noopener" style="color: rgba(255,255,255,0.5); text-decoration: underline;">SEC EDGAR</a> (CIK 1424163).
-        The Hypocrisy Score formula is fixed:
-        <code style="font-family: var(--sb-mono); background: rgba(255,255,255,0.04); padding: 2px 6px; border-radius: 2px; font-size: 11px; color: rgba(255,255,255,0.5);">
-          gold_pct×0.35 + anti_btc_rate×0.30 + no_btc_pct×0.20 + perf_gap×0.15
-        </code>.
-        Editorial purpose only. Data updated daily from public filings. This is not financial advice.
-      </div>
-    </div>
+        <!-- Share strip -->
+        <div class="sb-share-strip">
+          <button class="sb-share-btn-inline" id="sb-share-btn" onclick="shareDebate()" style="display:none">
+            ✕ SHARE THIS DEBATE
+          </button>
+          <span class="sb-exchange-count" id="sb-exchange-label">Exchange 0 of 6</span>
+        </div>
 
-  </div><!-- .sb-main -->
+        <!-- Input -->
+        <div class="sb-input-wrap">
+          <textarea
+            id="sb-input"
+            class="sb-input"
+            placeholder="Make your case for Bitcoin…"
+            rows="1"
+            maxlength="1000"
+          ></textarea>
+          <button class="sb-send-btn" id="sb-send-btn" onclick="sendMessage()">
+            ARGUE →
+          </button>
+        </div>
+        <div class="sb-input-hint">
+          <span id="sb-hint-chars" class="sb-hint-limit">0 / 1000</span>
+          <span>Enter to send · Shift+Enter for new line</span>
+        </div>
+
+      </div><!-- .sb-chat-box -->
+    </div><!-- .sb-arena -->
+
+    <!-- SIDEBAR -->
+    <div class="sb-sidebar">
+
+      <!-- Greatest Hits -->
+      <div class="sb-card">
+        <div class="sb-card-title">Schiff's Greatest Hits</div>
+        {% for hit in schiff_hits %}
+        <div class="sb-hit">
+          <div class="sb-hit-quote">{{ hit.quote }}</div>
+          <div class="sb-hit-meta">
+            <span class="sb-hit-date">{{ hit.date }}</span>
+            —
+            BTC was <span class="sb-hit-then">${{ '{:,}'.format(hit.btc_then) }}</span>
+            <span class="sb-hit-arrow">→</span>
+            now <span class="sb-hit-now">${{ '{:,}'.format(hit.btc_now) }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Rules -->
+      <div class="sb-card">
+        <div class="sb-card-title">Rules of Engagement</div>
+        <div class="sb-rule">
+          <div class="sb-rule-n">01</div>
+          <div class="sb-rule-text">6 exchanges per debate. Make every one count.</div>
+        </div>
+        <div class="sb-rule">
+          <div class="sb-rule-n">02</div>
+          <div class="sb-rule-text">Schiff argues gold-bug positions faithfully. No mercy given.</div>
+        </div>
+        <div class="sb-rule">
+          <div class="sb-rule-n">03</div>
+          <div class="sb-rule-text">Share your best debate on X to prove Bitcoin wins the argument.</div>
+        </div>
+        <div class="sb-rule">
+          <div class="sb-rule-n">04</div>
+          <div class="sb-rule-text">Rate limit: 10 debates per hour. Quality over quantity.</div>
+        </div>
+      </div>
+
+      <!-- Share CTA -->
+      <div class="sb-card" style="background:rgba(249,115,22,0.04); border-color:rgba(249,115,22,0.2);">
+        <div class="sb-card-title" style="color:var(--orange)">Share Your Debate</div>
+        <p style="font-size:0.83rem; color:var(--muted); line-height:1.55; margin:0 0 14px;">
+          Screenshot your best exchange. Post it on X.<br>
+          Did Bitcoin win? Let the timeline decide.
+        </p>
+        <button
+          class="sb-share-btn-inline"
+          style="width:100%; justify-content:center; font-size:11px; padding:10px;"
+          onclick="shareDebate()">
+          ✕ SHARE ON X / TWITTER
+        </button>
+      </div>
+
+    </div><!-- .sb-sidebar -->
+  </div><!-- .sb-layout -->
 </div><!-- .sb-wrap -->
+
+<div class="sb-error-toast" id="sb-error-toast"></div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-(function() {
+(function () {
   'use strict';
 
-  // ── Gauge animation ──────────────────────────────────────────────
-  const rawScore = {{ score.score|round(1) if score and score.score else 0 }};
-  const ARC_LEN = 283;
+  // ── STATE ─────────────────────────────────────────────────────
+  let exchangeCount = 0;
+  let isLoading     = false;
+  let debateOver    = false;
 
-  function scoreToColor(s) {
-    if (s <= 20) return '#22c55e';
-    if (s <= 40) return '#86efac';
-    if (s <= 60) return '#f97316';
-    if (s <= 80) return '#ef4444';
-    return '#dc2626';
+  const history = [{
+    role: 'assistant',
+    content: document.getElementById('sb-opening-text').textContent.trim()
+  }];
+
+  // ── DOM ──────────────────────────────────────────────────────
+  const chatLog    = document.getElementById('sb-chat-log');
+  const input      = document.getElementById('sb-input');
+  const sendBtn    = document.getElementById('sb-send-btn');
+  const shareBtn   = document.getElementById('sb-share-btn');
+  const debateOverEl = document.getElementById('sb-debate-over');
+  const exchLabel  = document.getElementById('sb-exchange-label');
+  const hintChars  = document.getElementById('sb-hint-chars');
+  const errorToast = document.getElementById('sb-error-toast');
+
+  // ── HELPERS ──────────────────────────────────────────────────
+  function scrollBottom() { chatLog.scrollTop = chatLog.scrollHeight; }
+
+  function ts() {
+    return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
   }
 
-  const arc = document.getElementById('sb-gauge-arc');
-  const scoreText = document.getElementById('sb-score-text');
-  if (arc && rawScore > 0) {
-    const filled = ARC_LEN * (rawScore / 100);
-    const offset = ARC_LEN - filled;
-    const color = scoreToColor(rawScore);
-    // Trigger animation after short delay
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        arc.style.strokeDashoffset = offset;
-        arc.style.stroke = color;
-      }, 200);
-    });
+  function escHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
   }
 
-  // ── Score counter animation ──────────────────────────────────────
-  if (scoreText && rawScore > 0) {
-    let current = 0;
-    const duration = 1200;
-    const start = performance.now();
-    function tick(now) {
-      const t = Math.min((now - start) / duration, 1);
-      const ease = 1 - Math.pow(1 - t, 3);
-      current = Math.round(rawScore * ease);
-      scoreText.textContent = current;
-      if (t < 1) requestAnimationFrame(tick);
+  function showError(msg) {
+    errorToast.textContent = msg;
+    errorToast.classList.add('show');
+    setTimeout(() => errorToast.classList.remove('show'), 5000);
+  }
+
+  function setLoading(v) {
+    isLoading = v;
+    sendBtn.disabled = v;
+    input.disabled = v;
+    sendBtn.textContent = v ? '…' : 'ARGUE →';
+  }
+
+  function appendMsg(role, text) {
+    const isSchiff = role === 'schiff';
+    const div = document.createElement('div');
+    div.className = 'sb-msg ' + (isSchiff ? 'schiff-msg' : 'user-msg');
+    div.innerHTML =
+      '<div class="sb-msg-avatar ' + (isSchiff ? 'schiff-av' : '') + '">' +
+        (isSchiff ? 'PS' : '₿') +
+      '</div>' +
+      '<div>' +
+        '<div class="sb-msg-bubble">' + escHtml(text) + '</div>' +
+        '<div class="sb-msg-meta">' + (isSchiff ? 'PETER SCHIFF' : 'YOU') + ' · ' + ts() + '</div>' +
+      '</div>';
+    chatLog.appendChild(div);
+    scrollBottom();
+  }
+
+  function appendTyping() {
+    const div = document.createElement('div');
+    div.className = 'sb-msg schiff-msg';
+    div.id = 'sb-typing';
+    div.innerHTML =
+      '<div class="sb-msg-avatar schiff-av">PS</div>' +
+      '<div class="sb-typing">' +
+        '<div class="sb-typing-dot"></div>' +
+        '<div class="sb-typing-dot"></div>' +
+        '<div class="sb-typing-dot"></div>' +
+      '</div>';
+    chatLog.appendChild(div);
+    scrollBottom();
+  }
+
+  function removeTyping() {
+    const t = document.getElementById('sb-typing');
+    if (t) t.remove();
+  }
+
+  function updateLabel() {
+    exchLabel.textContent = 'Exchange ' + exchangeCount + ' of 6';
+    if (exchangeCount >= 1) shareBtn.style.display = 'inline-flex';
+  }
+
+  // ── CHAR COUNTER + AUTO-RESIZE ───────────────────────────────
+  input.addEventListener('input', function () {
+    const len = this.value.length;
+    hintChars.textContent = len + ' / 1000';
+    hintChars.className = 'sb-hint-limit' + (len > 800 ? ' warning' : '');
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
+
+  // ── KEYBOARD SUBMIT ──────────────────────────────────────────
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (!isLoading && !debateOver) sendMessage();
     }
-    requestAnimationFrame(tick);
-  }
+  });
 
-  // ── History Chart ────────────────────────────────────────────────
-  {% if history %}
-  const historyData = {{ history | tojson }};
-  const canvas = document.getElementById('sb-chart');
-  if (canvas && historyData.length > 0) {
-    drawChart(canvas, historyData);
-  }
+  // ── SEND MESSAGE ─────────────────────────────────────────────
+  window.sendMessage = function () {
+    if (isLoading || debateOver) return;
+    const msg = input.value.trim();
+    if (!msg) return;
+    if (msg.length > 1000) { showError('Message too long (max 1000 characters).'); return; }
 
-  function drawChart(canvas, data) {
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.parentElement.getBoundingClientRect();
-    canvas.width  = rect.width  * dpr;
-    canvas.height = rect.height * dpr;
-    canvas.style.width  = rect.width  + 'px';
-    canvas.style.height = rect.height + 'px';
+    appendMsg('user', msg);
+    history.push({ role: 'user', content: msg });
 
-    const ctx = canvas.getContext('2d');
-    ctx.scale(dpr, dpr);
+    input.value = '';
+    input.style.height = 'auto';
+    hintChars.textContent = '0 / 1000';
 
-    const W = rect.width, H = rect.height;
-    const pad = { top: 10, right: 10, bottom: 24, left: 36 };
-    const cW = W - pad.left - pad.right;
-    const cH = H - pad.top  - pad.bottom;
+    setLoading(true);
+    appendTyping();
 
-    const scores = data.map(d => d.score);
-    const minS = Math.max(0,  Math.min(...scores) - 5);
-    const maxS = Math.min(100, Math.max(...scores) + 5);
+    fetch('/api/schiff/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: msg,
+        history: history.slice(-12),
+        exchange_count: exchangeCount
+      })
+    })
+    .then(function (r) {
+      return r.json().then(function (d) { return { ok: r.ok, status: r.status, data: d }; });
+    })
+    .then(function (res) {
+      removeTyping();
+      setLoading(false);
 
-    function xOf(i) { return pad.left + (i / (scores.length - 1)) * cW; }
-    function yOf(s) { return pad.top + cH - ((s - minS) / (maxS - minS)) * cH; }
-
-    // Grid lines
-    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-    ctx.lineWidth = 1;
-    for (let s = Math.ceil(minS / 10) * 10; s <= maxS; s += 10) {
-      const y = yOf(s);
-      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + cW, y); ctx.stroke();
-      ctx.fillStyle = 'rgba(255,255,255,0.25)';
-      ctx.font = '9px JetBrains Mono, monospace';
-      ctx.fillText(s, 2, y + 3);
-    }
-
-    // Gradient fill
-    const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + cH);
-    grad.addColorStop(0, 'rgba(245,158,11,0.25)');
-    grad.addColorStop(1, 'rgba(245,158,11,0.0)');
-    ctx.beginPath();
-    ctx.moveTo(xOf(0), yOf(scores[0]));
-    for (let i = 1; i < scores.length; i++) ctx.lineTo(xOf(i), yOf(scores[i]));
-    ctx.lineTo(xOf(scores.length - 1), pad.top + cH);
-    ctx.lineTo(xOf(0), pad.top + cH);
-    ctx.closePath();
-    ctx.fillStyle = grad;
-    ctx.fill();
-
-    // Line
-    ctx.beginPath();
-    ctx.strokeStyle = '#f59e0b';
-    ctx.lineWidth = 2;
-    ctx.lineJoin = 'round';
-    ctx.moveTo(xOf(0), yOf(scores[0]));
-    for (let i = 1; i < scores.length; i++) ctx.lineTo(xOf(i), yOf(scores[i]));
-    ctx.stroke();
-
-    // X-axis labels (first, mid, last)
-    const labelIdxs = [0, Math.floor(scores.length / 2), scores.length - 1];
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-    ctx.font = '9px JetBrains Mono, monospace';
-    ctx.textAlign = 'center';
-    for (const i of labelIdxs) {
-      if (data[i] && data[i].calculated_at) {
-        const label = data[i].calculated_at.slice(5, 10);
-        ctx.fillText(label, xOf(i), H - 4);
+      if (!res.ok) {
+        const errMsg = res.data.message || res.data.error || 'Something went wrong.';
+        showError(errMsg);
+        if (res.status === 429) {
+          debateOver = true;
+          input.disabled = true;
+          sendBtn.disabled = true;
+        }
+        return;
       }
-    }
-  }
-  {% endif %}
 
-  // ── Share to X ───────────────────────────────────────────────────
-  window.shareToX = function(e) {
-    e.preventDefault();
-    const score = rawScore;
-    const label = document.getElementById('sb-score-label')?.textContent?.trim() || '';
-    const text = encodeURIComponent(
-      `🔍 Brian's Hypocrisy Score: ${score}/100 — "${label}"\n\nGold holdings: 85%+ of AUM. Bitcoin holdings: $0.\n\nData: SEC EDGAR 13F public filings.\n\nprotocolpulse.io/schiff\n\n#Bitcoin #Gold #PeterSchiff`
-    );
-    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank', 'width=600,height=400');
+      const reply = res.data.response;
+      exchangeCount = res.data.exchange_count;
+
+      appendMsg('schiff', reply);
+      history.push({ role: 'assistant', content: reply });
+      updateLabel();
+
+      if (exchangeCount >= 6) {
+        debateOver = true;
+        debateOverEl.classList.add('visible');
+        input.disabled = true;
+        sendBtn.disabled = true;
+        scrollBottom();
+      }
+    })
+    .catch(function (err) {
+      removeTyping();
+      setLoading(false);
+      console.error('Schiff API error:', err);
+      showError('Network error — check your connection and try again.');
+    });
   };
 
-  // ── Update hero updated date ─────────────────────────────────────
-  const calcDateEl = document.getElementById('sb-hero-updated');
-  if (calcDateEl) {
-    const calcDate = '{{ score.calculated_at[:10] if score and score.calculated_at else "" }}';
-    if (calcDate) calcDateEl.textContent = `Last updated: ${calcDate}`;
-  }
+  // ── SHARE ─────────────────────────────────────────────────────
+  window.shareDebate = function () {
+    let outcome = 'held my ground';
+    if (exchangeCount >= 6) outcome = 'survived all 6 rounds';
+    else if (exchangeCount >= 3) outcome = 'made some strong points';
+
+    const text = encodeURIComponent(
+      'I just debated the Schiff Bot on @ProtocolPulse and ' + outcome + '. ' +
+      'Can you do better? Peter is waiting.\n\n' +
+      '#Bitcoin #Gold #SchiffBot\nprotocolpulse.io/schiff'
+    );
+    window.open(
+      'https://twitter.com/intent/tweet?text=' + text,
+      '_blank',
+      'width=600,height=400,noopener,noreferrer'
+    );
+  };
+
+  // ── RESTART ───────────────────────────────────────────────────
+  window.restartDebate = function () {
+    fetch('/api/schiff/opening')
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        chatLog.innerHTML = '';
+        history.length = 0;
+        exchangeCount = 0;
+        debateOver = false;
+        debateOverEl.classList.remove('visible');
+        shareBtn.style.display = 'none';
+        updateLabel();
+        input.disabled = false;
+        sendBtn.disabled = false;
+
+        const opening = d.opening || 'Bitcoin is a fraud. Fight me.';
+        history.push({ role: 'assistant', content: opening });
+
+        const div = document.createElement('div');
+        div.className = 'sb-msg schiff-msg';
+        div.innerHTML =
+          '<div class="sb-msg-avatar schiff-av">PS</div>' +
+          '<div>' +
+            '<div class="sb-msg-bubble">' + escHtml(opening) + '</div>' +
+            '<div class="sb-msg-meta">PETER SCHIFF · ' + ts() + '</div>' +
+          '</div>';
+        chatLog.appendChild(div);
+        scrollBottom();
+        input.focus();
+      })
+      .catch(function () { location.reload(); });
+  };
+
+  // ── INIT ──────────────────────────────────────────────────────
+  updateLabel();
+  input.focus();
+  scrollBottom();
 
 })();
 </script>
