@@ -389,6 +389,8 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
                 "duration": dur,
                 "start": current_time,
                 "text": text,
+                "type": segment_type,
+                "clip_rank": entry.get("clip_rank", 0),  # PiP FIX: preserve for assembler lookup
             })
             parts_for_concat.append(line_path)
             current_time += dur
@@ -405,6 +407,8 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
                 "duration": 0.0,
                 "start": current_time,
                 "text": text,
+                "type": segment_type,
+                "clip_rank": entry.get("clip_rank", 0),  # PiP FIX: preserve for assembler lookup
             })
 
     # Concatenate all lines into full audio
