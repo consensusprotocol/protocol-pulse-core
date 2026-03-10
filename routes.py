@@ -9783,3 +9783,46 @@ def mining_risk_page():
     """Mining Risk Calculator — power cost vs. hash price breakeven."""
     return render_template('mining_risk.html')
 
+
+# ── BATCH-2 ROUTES ─────────────────────────────────────────────────────────
+
+@app.route('/node-watch')
+def node_watch_page():
+    """Bitcoin Node Watch — live network node monitor."""
+    return render_template('nodes.html')
+
+
+@app.route('/bitcoin-insurance')
+def bitcoin_insurance_page():
+    """Bitcoin Life Insurance landing — redirect to full page."""
+    return render_template('bitcoin_life_insurance.html')
+
+
+@app.route('/briefing')
+def market_briefing_page():
+    """Market Briefing Room — alias for /sarah-briefing."""
+    from models import SarahBrief, EmergencyFlash
+    latest_brief = SarahBrief.query.order_by(SarahBrief.brief_date.desc()).first()
+    past_briefs = SarahBrief.query.order_by(SarahBrief.brief_date.desc()).offset(1).limit(7).all()
+    emergency_flash = EmergencyFlash.query.filter(
+        EmergencyFlash.acknowledged == False
+    ).order_by(EmergencyFlash.triggered_at.desc()).first()
+    return render_template('sarah_briefing.html',
+                           latest_brief=latest_brief,
+                           past_briefs=past_briefs,
+                           emergency_flash=emergency_flash)
+
+
+@app.route('/podcast')
+def podcast_single():
+    """Podcast page — canonical alias for /podcasts."""
+    from flask import redirect
+    return redirect('/podcasts', code=301)
+
+
+@app.route('/alerts')
+def price_alerts_page():
+    """Price Alerts — redirect to charts hub alerts section."""
+    from flask import redirect
+    return redirect('/charts#alerts', code=302)
+
