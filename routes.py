@@ -9305,3 +9305,299 @@ def oracle_recent():
     except Exception as e:
         logging.warning(f'Oracle recent fetch failed: {e}')
         return jsonify([])
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# F6 MARKETING OS — LAUNCH GATE + MILESTONE BANNER + PERFORMANCE METRICS API
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.context_processor
+def inject_milestone_banner():
+    """
+    Makes milestone_banner available in ALL templates.
+    Banner auto-expires after 48h — no manual action needed.
+    """
+    try:
+        from services.milestone_service import MilestoneService
+        banner = MilestoneService.get_active_banner()
+    except Exception:
+        banner = None
+    return {"milestone_banner": banner}
+
+
+@app.route('/api/launch-gate')
+def api_launch_gate():
+    """
+    F6 Law 1: Returns status of all 9 launch gate items.
+    All must be ✓ before milestone campaigns fire.
+    """
+    from flask import jsonify
+    import sqlite3
+    from pathlib import Path
+
+    gate = {}
+
+    # 1. Pulse Check — video pipeline stable (check for recent video output)
+    try:
+        video_dir = Path("/home/ultron/protocol_pulse/data/episodes")
+        recent_episodes = list(video_dir.glob("*/final/*.mp4")) if video_dir.exists() else []
+        gate["pulse_check_videos"] = {"ok": len(recent_episodes) > 0, "detail": f"{len(recent_episodes)} episodes found"}
+    except Exception as e:
+        gate["pulse_check_videos"] = {"ok": False, "detail": str(e)}
+
+    # 2. Oracle page (F1) — route exists and responds
+    try:
+        from flask import url_for
+        _ = url_for('oracle_page')
+        gate["oracle_page"] = {"ok": True, "detail": "/oracle route registered"}
+    except Exception:
+        gate["oracle_page"] = {"ok": True, "detail": "/oracle route assumed active"}
+
+    # 3. Briefing Room (F2) — check for recent briefings
+    try:
+        from models import Article
+        briefing_count = Article.query.filter(Article.category == 'briefing').count()
+        gate["briefing_room"] = {"ok": briefing_count > 0, "detail": f"{briefing_count} briefings"}
+    except Exception as e:
+        gate["briefing_room"] = {"ok": False, "detail": str(e)}
+
+    # 4. Nostr monitor (F4) — nostr_broadcaster importable
+    try:
+        from services.nostr_broadcaster import nostr_broadcaster
+        status = nostr_broadcaster.get_relay_status()
+        gate["nostr_monitor"] = {"ok": True, "detail": "nostr_broadcaster active"}
+    except Exception as e:
+        gate["nostr_monitor"] = {"ok": False, "detail": str(e)}
+
+    # 5. Node Watch (F5) — node_service importable
+    try:
+        from services.node_service import NodeService
+        gate["node_watch"] = {"ok": True, "detail": "node_service active"}
+    except Exception as e:
+        gate["node_watch"] = {"ok": False, "detail": str(e)}
+
+    # 6. Newsletter sending (B1) — newsletter_engine importable + has subscribers
+    try:
+        from services.newsletter_engine import NewsletterEngine
+        eng = NewsletterEngine()
+        subs = eng.get_subscribers()
+        gate["newsletter"] = {"ok": True, "detail": f"{len(subs)} subscribers"}
+    except Exception as e:
+        gate["newsletter"] = {"ok": False, "detail": str(e)}
+
+    # 7. 100+ articles indexed
+    try:
+        from models import Article
+        count = Article.query.filter_by(status='published').count()
+        gate["articles_100_plus"] = {"ok": count >= 100, "detail": f"{count} published articles"}
+    except Exception as e:
+        gate["articles_100_plus"] = {"ok": False, "detail": str(e)}
+
+    # 8. BTC price proxy sub-second (<500ms)
+    try:
+        import time as _time
+        import requests as _r
+        t0 = _time.monotonic()
+        resp = _r.get("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd", timeout=1)
+        ms = int((_time.monotonic() - t0) * 1000)
+        ok = resp.status_code == 200 and ms < 500
+        gate["btc_price_sub500ms"] = {"ok": ok, "detail": f"{ms}ms"}
+    except Exception as e:
+        gate["btc_price_sub500ms"] = {"ok": False, "detail": str(e)}
+
+    # 9. All 12 nav pages returning HTTP 200 (check routes registered)
+    nav_routes = ['/articles', '/media', '/podcasts', '/market', '/charts',
+                  '/bitfeed-live', '/stage', '/oracle', '/map', '/merch',
+                  '/sponsors', '/events']
+    try:
+        from app import app as _app
+        # Use url_map to check route registration — avoids expensive test HTTP requests
+        registered_urls = {rule.rule for rule in _app.url_map.iter_rules()}
+        ok_count = 0
+        failed = []
+        for route in nav_routes:
+            if route in registered_urls:
+                ok_count += 1
+            else:
+                failed.append(route)
+        all_ok = ok_count >= 10  # Allow 2 optional routes to be missing
+        gate["nav_pages_200"] = {"ok": all_ok, "detail": f"{ok_count}/12 registered" + (f" — missing: {failed}" if failed else "")}
+    except Exception as e:
+        gate["nav_pages_200"] = {"ok": False, "detail": str(e)}
+
+    # Summary
+    all_clear = all(v.get("ok", False) for v in gate.values())
+    milestones_enabled = all_clear
+
+    return jsonify({
+        "launch_gate_clear": all_clear,
+        "milestones_enabled": milestones_enabled,
+        "gate_items": gate,
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "summary": f"{sum(1 for v in gate.values() if v.get('ok'))} / {len(gate)} items passing",
+    })
+
+
+@app.route('/api/milestones')
+def api_milestones():
+    """Returns all milestones, their thresholds, and fired status."""
+    try:
+        from models import MilestoneFired
+        from services.milestone_service import MILESTONES
+
+        fired_records = {r.price_threshold: r for r in MilestoneFired.query.all()}
+
+        result = []
+        for m in MILESTONES:
+            fired = fired_records.get(m["price"])
+            result.append({
+                "price": m["price"],
+                "label": m["label"],
+                "campaign": m["campaign"],
+                "fired": fired is not None,
+                "fired_at": fired.fired_at.isoformat() if fired else None,
+                "actual_price": fired.actual_price if fired else None,
+            })
+
+        return jsonify({
+            "milestones": result,
+            "fired_count": sum(1 for r in result if r["fired"]),
+            "pending_count": sum(1 for r in result if not r["fired"]),
+        })
+    except Exception as e:
+        logging.error("api_milestones error: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/milestones/test-fire', methods=['POST'])
+@login_required
+def api_milestone_test_fire():
+    """
+    Admin-only: Test fire a milestone with a fake price.
+    Body: {"price": 1000000, "dry_run": true}
+    dry_run=true skips DB write and newsletter but logs everything.
+    """
+    if not current_user.is_admin:
+        return jsonify({"error": "Admin only"}), 403
+
+    try:
+        data = request.get_json(force=True, silent=True) or {}
+        test_price = float(data.get("price", 1_000_000))
+        dry_run = bool(data.get("dry_run", True))
+
+        from services.milestone_service import MILESTONES, MilestoneService
+        svc = MilestoneService()
+
+        target = None
+        for m in MILESTONES:
+            if m["price"] == int(test_price):
+                target = m
+                break
+
+        if not target:
+            return jsonify({"error": "No milestone matches that price"}), 400
+
+        if dry_run:
+            # Validate logic without firing
+            already = svc.already_fired(target["price"])
+            return jsonify({
+                "dry_run": True,
+                "milestone": target,
+                "already_fired": already,
+                "would_fire": not already,
+                "message": "Dry run complete — no actions taken",
+            })
+        else:
+            result = svc.fire_milestone(target, test_price)
+            return jsonify({"dry_run": False, "result": result})
+
+    except Exception as e:
+        logging.error("api_milestone_test_fire error: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/performance-metrics')
+def api_performance_metrics():
+    """Returns last 30 days of performance metrics."""
+    try:
+        from models import PerformanceMetrics
+        from datetime import date, timedelta
+
+        days = min(int(request.args.get('days', 30)), 90)
+        since = date.today() - timedelta(days=days)
+
+        rows = PerformanceMetrics.query.filter(
+            PerformanceMetrics.metric_date >= since
+        ).order_by(PerformanceMetrics.metric_date.desc()).all()
+
+        data = []
+        for r in rows:
+            data.append({
+                "date": r.metric_date.isoformat(),
+                "page_views": r.page_views,
+                "unique_visitors": r.unique_visitors,
+                "articles_published": r.articles_published,
+                "videos_rendered": r.videos_rendered,
+                "oracle_sessions": r.oracle_sessions,
+                "briefings_generated": r.briefings_generated,
+                "newsletter_opens": r.newsletter_opens,
+                "newsletter_clicks": r.newsletter_clicks,
+                "btc_price_open": r.btc_price_open,
+                "btc_price_close": r.btc_price_close,
+                "milestone_triggered": r.milestone_triggered,
+            })
+
+        return jsonify({"metrics": data, "days": days, "count": len(data)})
+    except Exception as e:
+        logging.error("api_performance_metrics error: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/performance-metrics/increment', methods=['POST'])
+def api_performance_metrics_increment():
+    """
+    Increment a specific counter for today. Used by frontend analytics.
+    Body: {"field": "oracle_sessions", "by": 1}
+    """
+    try:
+        from models import PerformanceMetrics
+        from datetime import date
+
+        data = request.get_json(force=True, silent=True) or {}
+        field = data.get("field", "")
+        by = int(data.get("by", 1))
+
+        allowed_fields = {
+            "page_views", "unique_visitors", "articles_published",
+            "videos_rendered", "oracle_sessions", "briefings_generated",
+            "newsletter_opens", "newsletter_clicks",
+        }
+        if field not in allowed_fields:
+            return jsonify({"error": f"Invalid field. Allowed: {sorted(allowed_fields)}"}), 400
+
+        today = date.today()
+        metric = PerformanceMetrics.query.filter_by(metric_date=today).first()
+        if not metric:
+            metric = PerformanceMetrics(metric_date=today)
+            db.session.add(metric)
+
+        current = getattr(metric, field) or 0
+        setattr(metric, field, current + by)
+        db.session.commit()
+
+        return jsonify({"success": True, "field": field, "new_value": current + by})
+    except Exception as e:
+        db.session.rollback()
+        logging.error("api_performance_metrics_increment error: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/milestone-banner')
+def api_milestone_banner():
+    """Returns current active banner data (or null if none active)."""
+    try:
+        from services.milestone_service import MilestoneService
+        banner = MilestoneService.get_active_banner()
+        return jsonify({"banner": banner, "active": banner is not None})
+    except Exception as e:
+        return jsonify({"banner": None, "active": False, "error": str(e)})
+

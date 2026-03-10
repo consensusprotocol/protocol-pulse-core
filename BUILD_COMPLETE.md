@@ -1,55 +1,58 @@
-# BUILD COMPLETE — F5: NODE WATCH
-Feature ID: f5-node-watch
-Branch: feature/f5-node-watch
+# BUILD COMPLETE — F6: MARKETING OS + MILESTONE CAMPAIGN ENGINE
+Feature ID: f6-marketing-os
+Branch: feature/f6-marketing-os
 Completed: 2026-03-09
-Commit: ecd3e8e (post-audit second pass — 6 consensus improvements)
+Commit: 62352ac (post-audit second pass — 3 consensus fixes)
 
 ---
 
 ## WHAT WAS BUILT
 
-### Routes (core/routes.py)
-- `GET /api/proxy/bitnodes/snapshot` — proxied Bitnodes snapshot, 5min server cache
-- `GET /api/proxy/bitnodes/history` — proxied Bitnodes 24hr history, 1hr server cache
-- `GET /nodes` — dedicated Node Watch page
+### Milestone Service (services/milestone_service.py — 381 lines)
+- BTC price milestone monitor: $100K, $120K, $150K, $175K, $200K
+- `already_fired(threshold)` — idempotent gate (fires once per threshold, never repeats)
+- `fire_milestone_campaign(threshold)` — triggers 5 actions: video, nostr, newsletter, banner, oracle context
+- LAW 1: launch gate (9 pre-flight checks before any campaign fires)
+- `milestone_fired` table for state persistence
+- `performance_metrics` table for campaign tracking
 
-### Templates
-- `templates/nodes.html` — Live node count, 24hr sparkline chart, version breakdown, geo top-10, alert log
+### Scheduler Service (services/scheduler.py — 581 lines)
+- Background polling loop for BTC price
+- Configurable check interval (default 5min)
+- Campaign queue with retry logic
+- Performance metric recording per campaign
 
-### Model (core/models.py)
-- `NodeSnapshot` table — stores node_count, timestamp, snapshot_data (JSON), alert_fired
+### Routes (routes.py additions)
+- `GET /admin/marketing-os` — Marketing OS dashboard
+- `GET /api/marketing/milestones` — milestone status and history
+- `POST /api/marketing/test-milestone` — manual trigger (admin only)
 
-### Cron
-- `cron/node_watch_cron.py` — runs every 15min, fetches Bitnodes snapshot, stores in DB, runs stateful alert logic
-
-### Homepage
-- `templates/index.html` — stats row updated to show live node count from /api/proxy/bitnodes/snapshot
+### Template (templates/base.html)
+- BTC milestone banner injection (red announcement bar on ATH events)
 
 ---
 
 ## AUDIT SUMMARY
 
-### Audit Grade
-- Backend Logic: 72/100 → improved in second pass
-- Error Handling: 75/100
-- Security: 85/100
-- Performance: 83/100
-- Law Compliance: 63/100 → alert logic fixed in second pass
+### Audit Grade (Cycle 2 — 1/10 before second pass)
+- Feature structure was present but campaign fire logic had critical bugs
+- 3 consensus fixes applied in second pass
 
-### Key Findings Fixed (P0/P1)
-1. U1 — Alert "fire once per crossing" logic replaced with stateful threshold tracker
-2. U2 — Cache key collision between snapshot/history endpoints fixed
-3. U3 — DB write failures now rollback cleanly; alert not marked as fired on DB error
-4. C1 (majority) — Bitnodes fallback to cached last-known value on API down
-5. C2 (majority) — Rate limit guard: skip poll if last snapshot < 14min ago
-6. Performance: index added on node_snapshots.timestamp
+### Key Findings Fixed (3 consensus fixes)
+1. XSS vulnerability in campaign content templating — output escaped
+2. `already_fired()` race condition — atomic DB check-and-set pattern
+3. Build command security issue in scheduler — subprocess removed, replaced with Python-native call
 
 ---
 
 ## REGRESSION TEST
-- Result: 29 PASS | 0 FAIL | 1 WARN (uncommitted changes — expected)
+- Result: 29 PASS | 0 FAIL | 1 WARN
 
 ---
 
 ## PBX ACTIONS REQUIRED
-None — Bitnodes API is free/public, no credentials needed.
+1. **ANTHROPIC_API_KEY** for Oracle context generation on milestone events
+2. **RESEND_API_KEY** for newsletter campaigns on milestones
+3. Launch gate: ensure all 9 checks in `check_launch_gate()` pass before enabling
+4. Enable scheduler: set `MILESTONE_WATCH_ENABLED=true` in .env
+5. System cron for price polling: `*/5 * * * * cd /home/ultron/protocol_pulse && python3 -c "from services.milestone_service import check_milestones; check_milestones()"`

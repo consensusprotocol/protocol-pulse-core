@@ -103,6 +103,22 @@
     <a href="#ppMainContent" class="pp-sr-only" style="position:absolute;top:-40px;left:0;padding:8px 16px;background:var(--pp-teal);color:var(--pp-black);z-index:9999;transition:top 0.2s;" onfocus="this.style.top='0'" onblur="this.style.top='-40px'">Skip to main content</a>
 
     <!-- ═══════════════════════════════════════════════════════════════
+         F6: MILESTONE BANNER — Auto-displays 48h after BTC milestone
+         ═══════════════════════════════════════════════════════════════ -->
+    {% if milestone_banner %}
+    <div class="pp-milestone-banner" id="ppMilestoneBanner" role="alert" aria-live="assertive">
+        <div class="pp-milestone-banner__inner">
+            <span class="pp-milestone-banner__icon">⚡</span>
+            <span class="pp-milestone-banner__label">BITCOIN HITS</span>
+            <span class="pp-milestone-banner__milestone">{{ milestone_banner.label }}</span>
+            <span class="pp-milestone-banner__price">${{ "{:,.0f}".format(milestone_banner.actual_price) }}</span>
+            <a href="/articles" class="pp-milestone-banner__cta">Read the Briefing →</a>
+            <button class="pp-milestone-banner__close" onclick="ppDismissMilestoneBanner()" aria-label="Dismiss milestone banner">×</button>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ═══════════════════════════════════════════════════════════════
          NAVIGATION — Glassmorphism Command Bar
          ═══════════════════════════════════════════════════════════════ -->
     <nav class="pp-nav" id="ppNav" role="navigation" aria-label="Main navigation">
@@ -587,7 +603,135 @@
     })();
     </script>
 
-    <!-- Additional inline styles for components not in pulse.css
+    <!-- Additional inline styles for components not in pulse.css -->
+    <style>
+    /* ── F6: Milestone Banner ── */
+    .pp-milestone-banner {
+        position: relative;
+        z-index: 1000;
+        background: linear-gradient(90deg, #7f1d1d 0%, #dc2626 40%, #991b1b 100%);
+        border-bottom: 2px solid #ef4444;
+        animation: pp-milestone-slide-in 0.5s cubic-bezier(0.16,1,0.3,1) both;
+        overflow: hidden;
+    }
+    .pp-milestone-banner::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+            90deg,
+            transparent 0,
+            transparent 40px,
+            rgba(255,255,255,0.03) 40px,
+            rgba(255,255,255,0.03) 41px
+        );
+        pointer-events: none;
+    }
+    .pp-milestone-banner__inner {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 10px 20px;
+        flex-wrap: wrap;
+    }
+    .pp-milestone-banner__icon {
+        font-size: 20px;
+        animation: pp-milestone-pulse 1.5s ease-in-out infinite;
+        flex-shrink: 0;
+    }
+    .pp-milestone-banner__label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: rgba(255,255,255,0.7);
+        text-transform: uppercase;
+        flex-shrink: 0;
+    }
+    .pp-milestone-banner__milestone {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 18px;
+        font-weight: 900;
+        color: #fff;
+        letter-spacing: -0.5px;
+        flex-shrink: 0;
+    }
+    .pp-milestone-banner__price {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
+        font-weight: 700;
+        color: #fca5a5;
+        flex-shrink: 0;
+    }
+    .pp-milestone-banner__cta {
+        margin-left: auto;
+        background: rgba(255,255,255,0.15);
+        color: #fff;
+        text-decoration: none;
+        padding: 6px 16px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        border: 1px solid rgba(255,255,255,0.25);
+        transition: background 0.2s;
+        flex-shrink: 0;
+    }
+    .pp-milestone-banner__cta:hover {
+        background: rgba(255,255,255,0.25);
+        color: #fff;
+        text-decoration: none;
+    }
+    .pp-milestone-banner__close {
+        background: none;
+        border: none;
+        color: rgba(255,255,255,0.6);
+        font-size: 22px;
+        line-height: 1;
+        cursor: pointer;
+        padding: 0 4px;
+        flex-shrink: 0;
+        transition: color 0.15s;
+    }
+    .pp-milestone-banner__close:hover { color: #fff; }
+    @keyframes pp-milestone-slide-in {
+        from { transform: translateY(-100%); opacity: 0; }
+        to   { transform: translateY(0);    opacity: 1; }
+    }
+    @keyframes pp-milestone-pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50%       { transform: scale(1.2); opacity: 0.8; }
+    }
+    @media (max-width: 600px) {
+        .pp-milestone-banner__inner { gap: 8px; padding: 8px 12px; }
+        .pp-milestone-banner__milestone { font-size: 15px; }
+        .pp-milestone-banner__cta { margin-left: 0; }
+    }
+    </style>
+
+    <script>
+    /* ── F6: Milestone banner dismiss ── */
+    function ppDismissMilestoneBanner() {
+        var banner = document.getElementById('ppMilestoneBanner');
+        if (banner) {
+            banner.style.transition = 'opacity 0.3s, max-height 0.4s';
+            banner.style.opacity = '0';
+            banner.style.maxHeight = '0';
+            banner.style.overflow = 'hidden';
+            setTimeout(function() { banner.remove(); }, 400);
+        }
+        try { sessionStorage.setItem('pp-milestone-banner-dismissed', '1'); } catch(e) {}
+    }
+    // Auto-dismiss if already dismissed this session
+    (function() {
+        try {
+            if (sessionStorage.getItem('pp-milestone-banner-dismissed') === '1') {
+                var b = document.getElementById('ppMilestoneBanner');
+                if (b) b.style.display = 'none';
+            }
+        } catch(e) {}
+    })();
+    </script>
 
     {% block scripts %}{% endblock %}
 </body>
