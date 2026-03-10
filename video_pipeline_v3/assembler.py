@@ -575,9 +575,11 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
     inp_args = [tts_path]
     idx = 1
 
-    # APEX procedural background (7-layer)
-    _, bg_fg = _build_broadcast_bg(total_dur, label_out="bgvig")
-    fg = bg_fg
+    # CYCLE7 FIX: Per PIPELINE_LAWS cold open = NO logos/bars/watermarks/red-border
+    # Use clean dark bg WITHOUT the 7-layer broadcast bg (which adds red border frame)
+    fg = f"color=c=0x0A0A0F:s=1920x1080:d={total_dur}:r=30[bgvig];\n"
+    # Subtle grid only (no red scanlines, no red border)
+    fg += f"[bgvig]drawgrid=width=90:height=54:thickness=1:color=0xFFFFFF@0.03,vignette=PI/4:mode=backward[bgclean];\n"
 
     # Thumbnail face panel (if available)
     thumb_co_idx = -1
@@ -590,10 +592,10 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                f"crop=1056:1080,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS,"
                f"eq=saturation=1.15:brightness=0.04[thumbface];\n")
         fg += f"[thumbface]drawbox=x=940:y=0:w=116:h=1080:color={COLOR_BG}@0.7:t=fill[thumbblend];\n"
-        fg += f"[bgvig][thumbblend]overlay=0:0[bgwithface];\n"
+        fg += f"[bgclean][thumbblend]overlay=0:0[bgwithface];\n"
         face_base = "bgwithface"
     else:
-        face_base = "bgvig"
+        face_base = "bgclean"
 
     # CYCLE6 FIX: Cold open hook should NOT repeat "PROTOCOL PULSE"/"PULSE CHECK" branding
     # (title card already showed those). Show only the date/BTC signal line + fade.
@@ -606,13 +608,9 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
            f"fade=t=in:st=0:d=0.4,fade=t=out:st={max(0, total_dur - 0.4)}:d=0.4"
            f"[withtext];\n")
 
-    # CYCLE4 FIX: removed waveform from intro coldopen (was flagged as "active but silent")
-    # Corner brackets
-    fg += _build_corner_brackets_fg("withtext", "co_cornered")
-
-    # APEX info rail
-    fg += _build_signature_info_rail(total_dur, btc_price, "co_cornered", "v_final")
-    fg += f"[v_final]format=yuv420p[outv];\n"
+    # CYCLE7 FIX: Per PIPELINE_LAWS "Cold open: NO logos, bars, watermarks — pure dramatic clip"
+    # Remove corner brackets and info rail from the cold open hook — go straight to output
+    fg += f"[withtext]format=yuv420p[outv];\n"
 
     # NO music — voice starts immediately
     # BUG8 FIX: Remove per-segment loudnorm — single final loudnorm in concatenate_parts()
@@ -663,21 +661,19 @@ def _make_clip_unavailable_card(rank: int, output_path: str, btc_price: str = "$
         f"drawbox=x=360:y=656:w=1200:h=4:color={COLOR_GOLD}@0.9:t=fill,"
         f"drawbox=x=360:y=280:w=4:h=380:color=0xFF0000@0.9:t=fill,"
         f"drawbox=x=1556:y=280:w=4:h=380:color=0xFF0000@0.9:t=fill,"
+        # CYCLE7 FIX: Removed "SIGNAL {rank} OF 5" debug text
         # Main headline
-        f"drawtext=fontfile={FONT_BOLD}:text='⚡ INTELLIGENCE INCOMING'"
+        f"drawtext=fontfile={FONT_BOLD}:text='INTELLIGENCE INCOMING'"
         f":fontcolor={COLOR_GOLD}:fontsize=52:x=(w-text_w)/2:y=360,"
         # Subtext
         f"drawtext=fontfile={FONT_MONO}:text='SOURCING PARTNER SIGNAL...'"
         f":fontcolor=0x888888:fontsize=26:x=(w-text_w)/2:y=450,"
-        f"drawtext=fontfile={FONT_MONO}:text='SIGNAL {rank} OF 5'"
-        f":fontcolor={COLOR_RED}@0.7:fontsize=18:x=(w-text_w)/2:y=500,"
-        # Gold info rail at bottom
-        f"drawbox=x=0:y=1032:w=1920:h=48:color={COLOR_GOLD}@0.95:t=fill,"
-        f"drawtext=fontfile={FONT_BOLD}:text='BTC {safe_btc}':fontcolor=0x000000:fontsize=14:x=20:y=1048,"
-        f"drawtext=fontfile={FONT_BOLD}:text='PROTOCOLPULSE.IO':fontcolor=0x000000:fontsize=15:x=(w-text_w)/2:y=1047,"
-        f"drawtext=fontfile={FONT_MONO}:text='{date_str} - DAILY BRIEF':fontcolor=0x000000:fontsize=14:x=w-text_w-20:y=1048,"
-        # Watermark top-right
-        f"drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':fontcolor={COLOR_RED}@0.4:fontsize=18:x=w-230:y=20"
+        # CYCLE7 FIX: Dark glassmorphism bottom bar (was solid gold — non-spec)
+        f"drawbox=x=0:y=1032:w=1920:h=48:color=0x000000@0.85:t=fill,"
+        f"drawbox=x=0:y=1032:w=4:h=48:color={COLOR_RED}@0.9:t=fill,"
+        f"drawtext=fontfile={FONT_BOLD}:text='BTC {safe_btc}':fontcolor={COLOR_GOLD}:fontsize=14:x=14:y=1048,"
+        f"drawtext=fontfile={FONT_BOLD}:text='PROTOCOL PULSE':fontcolor={COLOR_GOLD}:fontsize=15:x=(w-text_w)/2:y=1047,"
+        f"drawtext=fontfile={FONT_MONO}:text='{date_str}':fontcolor={COLOR_GOLD}:fontsize=13:x=w-text_w-20:y=1048"
         f"[outv]",
         "-map", "[outv]", "-map", "1:a",
         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
