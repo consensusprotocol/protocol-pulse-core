@@ -202,13 +202,13 @@ def _build_black_diamond_bg(duration: float, label_out: str = "bd_bg") -> tuple:
     f = ""
     # BUG-1 FIX: Use VDS dark bg (0x0A0A0F) not pure black — avoids blackdetect false positives
     f += f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30[bd_base];\n"
-    # Layer 2: Red radial glow — top-center (subtle)
+    # Layer 2: CYCLE3 FIX: Reduced red glow (55→20) to prevent reddish BG
     f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
-          f"geq=r='clip(55*exp(-((X-960)*(X-960)+Y*Y)/380000),0,255)':g='0':b='0'[bd_glow_top];\n")
+          f"geq=r='clip(20*exp(-((X-960)*(X-960)+Y*Y)/380000),0,255)':g='0':b='0'[bd_glow_top];\n")
     f += f"[bd_base][bd_glow_top]blend=all_mode=screen[bg1];\n"
-    # Layer 3: Red radial glow — bottom-center
+    # Layer 3: CYCLE3 FIX: Reduced bottom glow (35→14)
     f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
-          f"geq=r='clip(35*exp(-((X-960)*(X-960)+(Y-1080)*(Y-1080))/280000),0,255)':g='0':b='0'[bd_glow_bot];\n")
+          f"geq=r='clip(14*exp(-((X-960)*(X-960)+(Y-1080)*(Y-1080))/280000),0,255)':g='0':b='0'[bd_glow_bot];\n")
     f += f"[bg1][bd_glow_bot]blend=all_mode=screen[bg2];\n"
     # Layer 4: Tactical surveillance grid (very subtle)
     f += f"[bg2]drawgrid=width=120:height=68:thickness=1:color=0xFF0000@0.07[bg3];\n"
@@ -603,12 +603,9 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
            # PULSE CHECK — centered warm-red bold
            f"drawtext=fontfile={FONT_BOLD}:text='PULSE CHECK':"
            f"fontcolor={COLOR_RED}:fontsize=52:x=(w-text_w)/2:y=400,"
-           # Gold eyebrow date
-           f"drawtext=fontfile={FONT_MONO}:text='{date_str} - DAILY INTELLIGENCE BRIEF':"
+           # Gold eyebrow date — CYCLE4 FIX: removed "// SIGNAL DETECTED //" debug text
+           f"drawtext=fontfile={FONT_MONO}:text='{date_str}':"
            f"fontcolor={COLOR_GOLD}:fontsize=18:x=(w-text_w)/2:y=490,"
-           # // SIGNAL DETECTED //
-           f"drawtext=fontfile={FONT_MONO}:text='// SIGNAL DETECTED //':"
-           f"fontcolor={COLOR_RED}:fontsize=16:x=(w-text_w)/2:y=540,"
            # Fade in/out
            f"fade=t=in:st=0:d=0.4,fade=t=out:st={max(0, total_dur - 0.4)}:d=0.4"
            f"[withtext];\n")
@@ -884,19 +881,19 @@ def _build_broadcast_bg(duration: float, label_out: str = "bb_bg") -> tuple:
     f = ""
     # Layer 1: Cinematic obsidian base
     f += f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30[bb_base];\n"
-    # Layer 2a: Red radial glow — top-left
+    # Layer 2a: CYCLE3 FIX: Reduced red glow intensity (46→18) to prevent reddish background
     f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
-          f"geq=r='clip(46*exp(-((X)*(X)+Y*Y)/350000),0,255)':g='0':b='0'[bb_glow_tl];\n")
+          f"geq=r='clip(18*exp(-((X)*(X)+Y*Y)/350000),0,255)':g='0':b='0'[bb_glow_tl];\n")
     f += f"[bb_base][bb_glow_tl]blend=all_mode=screen[bb1];\n"
     # Layer 2b: White radial glow — top-right (subtle)
     f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
-          f"geq=r='clip(15*exp(-((X-1920)*(X-1920)+Y*Y)/300000),0,255)'"
-          f":g='clip(15*exp(-((X-1920)*(X-1920)+Y*Y)/300000),0,255)'"
-          f":b='clip(15*exp(-((X-1920)*(X-1920)+Y*Y)/300000),0,255)'[bb_glow_tr];\n")
+          f"geq=r='clip(12*exp(-((X-1920)*(X-1920)+Y*Y)/300000),0,255)'"
+          f":g='clip(12*exp(-((X-1920)*(X-1920)+Y*Y)/300000),0,255)'"
+          f":b='clip(12*exp(-((X-1920)*(X-1920)+Y*Y)/300000),0,255)'[bb_glow_tr];\n")
     f += f"[bb1][bb_glow_tr]blend=all_mode=screen[bb2];\n"
-    # Layer 2c: Red radial glow — bottom-center
+    # Layer 2c: CYCLE3 FIX: Reduced red bottom glow (25→12)
     f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
-          f"geq=r='clip(25*exp(-((X-960)*(X-960)+(Y-1080)*(Y-1080))/400000),0,255)':g='0':b='0'[bb_glow_bc];\n")
+          f"geq=r='clip(12*exp(-((X-960)*(X-960)+(Y-1080)*(Y-1080))/400000),0,255)':g='0':b='0'[bb_glow_bc];\n")
     f += f"[bb2][bb_glow_bc]blend=all_mode=screen[bb3];\n"
     # Layer 3: VDS perspective grid (bottom 30% — subtle white)
     f += f"[bb3]drawgrid=width=90:height=54:thickness=1:color=0xFFFFFF@0.04[bb4];\n"
@@ -971,17 +968,20 @@ def _build_signature_info_rail(duration: float, btc_price: str, label_in: str,
     safe_btc = btc_price.replace("'", "").replace('"', "").replace("\\", "")
 
     fg = ""
-    # BUG3 FIX: Solid gold bar (COLOR_GOLD = 0xF8C15C) — NOT red
-    fg += f"color=c={COLOR_GOLD}@0.95:s=1920x48:d={duration}:r=30[rail_full];\n"
-    # Overlay rail onto video at y=1032
-    fg += f"[{label_in}][rail_full]overlay=0:1032[rail_ov];\n"
-    # Text in BLACK over the gold rail
-    fg += (f"[rail_ov]drawtext=fontfile={FONT_BOLD}:text='BTC {safe_btc}':"
-           f"fontcolor=0x000000:fontsize=14:x=20:y=1048,"
-           f"drawtext=fontfile={FONT_BOLD}:text='PROTOCOLPULSE.IO':"
-           f"fontcolor=0x000000:fontsize=15:x=(w-text_w)/2:y=1047,"
-           f"drawtext=fontfile={FONT_MONO}:text='{date_str} - DAILY BRIEF':"
-           f"fontcolor=0x000000:fontsize=14:x=w-text_w-20:y=1048"
+    # CYCLE4 FIX: Dark glassmorphism bar with gold text (per spec: dark bg + gold text)
+    # Dark bar background at y=1032 (48px high)
+    fg += (f"[{label_in}]drawbox=x=0:y=1032:w=1920:h=48:color=0x000000@0.85:t=fill,"
+           # Left red accent bar (4px)
+           f"drawbox=x=0:y=1032:w=4:h=48:color={COLOR_RED}@0.9:t=fill,"
+           # Gold text: BTC price
+           f"drawtext=fontfile={FONT_BOLD}:text='BTC {safe_btc}':"
+           f"fontcolor={COLOR_GOLD}:fontsize=14:x=14:y=1048,"
+           # Gold text: site name centered
+           f"drawtext=fontfile={FONT_BOLD}:text='PROTOCOL PULSE':"
+           f"fontcolor={COLOR_GOLD}:fontsize=15:x=(w-text_w)/2:y=1047,"
+           # Gold text: date right-aligned
+           f"drawtext=fontfile={FONT_MONO}:text='{date_str}':"
+           f"fontcolor={COLOR_GOLD}:fontsize=13:x=w-text_w-20:y=1048"
            f"[{label_out}];\n")
     return fg
 
@@ -1133,10 +1133,7 @@ def make_cold_open_scene(audio_path: str, headline: str, body: str, tag: str,
            # Body text (warm white mono)
            f"drawtext=fontfile={FONT_MONO}:text='{safe_body}':"
            f"fontcolor={COLOR_WHITE}@0.8:fontsize=18:x=22:y=310:line_spacing=8,"
-           # CTA pill
-           f"drawbox=x=20:y=560:w=460:h=44:color={COLOR_RED_DIM}@0.9:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='BREAKING INTELLIGENCE // INCOMING':"
-           f"fontcolor={COLOR_RED}:fontsize=13:x=34:y=574"
+           # CYCLE4 FIX: removed "BREAKING INTELLIGENCE // INCOMING" debug CTA pill
            f"[co_left];\n")
 
     # RIGHT PANEL — VDS 2x2 Metric Cards (x=780,y=100)
@@ -1280,8 +1277,8 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
                f"[np_pip_placeholder];\n")
         pip_base = "np_pip_placeholder"
 
-    # Lower third in preview — CYCLE2 FIX: removed "Preview Active" debug label
-    safe_next = _sanitize_text(next_speaker)[:30] if next_speaker else "NEXT SOURCE"
+    # Lower third in preview — CYCLE3 FIX: use empty string when no next speaker (was "NEXT SOURCE")
+    safe_next = _sanitize_text(next_speaker)[:30] if next_speaker else ""
     fg += (f"[{pip_base}]drawbox=x=1132:y=520:w=716:h=50:color=0x000000@0.7:t=fill,"
            f"drawtext=fontfile={FONT_BOLD}:text='{safe_next}':"
            f"fontcolor={COLOR_WHITE}:fontsize=18:x=1148:y=534,"
