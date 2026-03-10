@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Curated Mining — Mine Bitcoin. Own Your Future.</title>
+  <meta name="description" content="White-glove Bitcoin mining setup. LLC structure. Section 179 tax deduction. Passive BTC income from day one. Consensus Protocol LLC — Naples, FL.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── RESET & BASE ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black:   #000000;
+      --surface: #0a0a0a;
+      --card:    #111111;
+      --border:  #1f1f1f;
+      --red:     #dc2626;
+      --red-dim: #991b1b;
+      --gold:    #f8c15c;
+      --gold-dim:#c49a38;
+      --white:   #ffffff;
+      --muted:   #888888;
+      --mono:    'JetBrains Mono', monospace;
+      --sans:    'Inter', sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--sans);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ── STICKY NAV BAR ── */
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(0,0,0,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 56px;
+    }
+    .topbar-brand {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+    .topbar-cta {
+      background: var(--red);
+      color: var(--white);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.45rem 1.2rem;
+      border-radius: 3px;
+      transition: background 0.2s;
+    }
+    .topbar-cta:hover { background: #b91c1c; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 7rem 2rem 5rem;
+      overflow: hidden;
+    }
+    /* Animated grid background */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(248,193,92,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(248,193,92,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridPan 30s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes gridPan {
+      0%   { background-position: 0 0; }
+      100% { background-position: 60px 60px; }
+    }
+    /* Gold particle dots */
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 50% at 50% 40%, rgba(248,193,92,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 780px;
+      text-align: center;
+    }
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.25em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-family: var(--mono);
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 span { color: var(--gold); }
+    .hero-sub {
+      font-size: 1.2rem;
+      color: rgba(255,255,255,0.75);
+      max-width: 580px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+    }
+    .cta-primary {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--black);
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 1rem 2.5rem;
+      border-radius: 3px;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .cta-primary:hover {
+      background: var(--gold-dim);
+      transform: translateY(-1px);
+    }
+    .cta-primary.large { padding: 1.2rem 3rem; font-size: 0.9rem; }
+    .cta-note {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 1rem;
+    }
+
+    /* ── SECTION WRAPPER ── */
+    section { padding: 5rem 2rem; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      color: var(--red);
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    h2.section-title {
+      font-family: var(--mono);
+      font-size: clamp(1.6rem, 4vw, 2.6rem);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.5rem;
+    }
+    .section-divider {
+      width: 48px;
+      height: 3px;
+      background: var(--gold);
+      margin: 1.2rem 0 2.5rem;
+    }
+
+    /* ── STATS STRIP ── */
+    .stats-strip {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 2.5rem 2rem;
+    }
+    .stats-grid {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 2rem;
+      text-align: center;
+    }
+    .stat-val {
+      font-family: var(--mono);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--gold);
+      display: block;
+    }
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-top: 0.25rem;
+    }
+
+    /* ── PROCESS ── */
+    .process { background: var(--surface); }
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .step {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--gold);
+      padding: 2rem 1.75rem;
+      border-radius: 4px;
+      position: relative;
+    }
+    .step-num {
+      font-family: var(--mono);
+      font-size: 3rem;
+      font-weight: 700;
+      color: rgba(248,193,92,0.15);
+      position: absolute;
+      top: 1rem; right: 1.25rem;
+      line-height: 1;
+      user-select: none;
+    }
+    .step h3 {
+      font-family: var(--mono);
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+    .step p { font-size: 0.95rem; color: rgba(255,255,255,0.7); line-height: 1.65; }
+
+    /* ── BENEFITS ── */
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .benefit-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--red);
+      padding: 1.75rem;
+      border-radius: 4px;
+    }
+    .benefit-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+    .benefit-card h3 {
+      font-family: var(--mono);
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.6rem;
+    }
+    .benefit-card p { font-size: 0.9rem; color: rgba(255,255,255,0.7); line-height: 1.6; }
+
+    /* ── HARDWARE ── */
+    .hardware { background: var(--surface); }
+    .hardware-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .miner-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .miner-card:hover {
+      border-color: var(--gold);
+      transform: translateY(-2px);
+    }
+    .miner-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+    }
+    .miner-card h3 {
+      font-family: var(--mono);
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+    }
+    .miner-badge {
+      position: absolute;
+      top: 1.2rem; right: 1.2rem;
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: rgba(248,193,92,0.15);
+      color: var(--gold);
+      padding: 0.2rem 0.5rem;
+      border-radius: 2px;
+    }
+    .specs { margin-bottom: 1.25rem; }
+    .specs div {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.45rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .specs div:last-child { border-bottom: none; }
+    .specs span {
+      font-family: var(--mono);
+      font-weight: 600;
+      color: var(--white);
+    }
+    .miner-desc { font-size: 0.85rem; color: rgba(255,255,255,0.55); line-height: 1.55; }
+
+    /* ── CALCULATOR ── */
+    .calculator { background: var(--black); }
+    .calc-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      margin-top: 3rem;
+      align-items: start;
+    }
+    @media (max-width: 768px) {
+      .calc-layout { grid-template-columns: 1fr; gap: 2rem; }
+    }
+    .calc-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2rem;
+    }
+    .calc-panel h3 {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1.75rem;
+    }
+    .input-group { margin-bottom: 1.75rem; }
+    .input-group label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+    .value-display {
+      font-family: var(--mono);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--gold);
+      display: block;
+      margin-bottom: 0.6rem;
+    }
+    input[type="range"] {
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--gold);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+    input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--gold);
+      cursor: pointer;
+      border: none;
+    }
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .result-row:last-of-type { border-bottom: none; }
+    .result-label {
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .result-value {
+      font-family: var(--mono);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+    .result-value.positive { color: #22c55e; }
+    .result-value.btc { color: var(--gold); }
+    .calc-disclaimer {
+      margin-top: 2rem;
+      font-size: 0.76rem;
+      color: var(--muted);
+      line-height: 1.55;
+      padding: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: rgba(255,255,255,0.02);
+    }
+    .calc-disclaimer strong { color: rgba(255,255,255,0.5); }
+
+    /* ── SECTION 179 ── */
+    .tax-section { background: var(--surface); }
+    .tax-highlight {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-top: 4px solid var(--gold);
+      border-radius: 4px;
+      padding: 3rem;
+      max-width: 780px;
+      margin: 3rem auto 0;
+    }
+    .tax-highlight h2 {
+      font-family: var(--mono);
+      font-size: clamp(1.4rem, 3.5vw, 2rem);
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 1.25rem;
+      line-height: 1.2;
+    }
+    .tax-highlight p {
+      color: rgba(255,255,255,0.75);
+      font-size: 1rem;
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+    .tax-highlight ul {
+      list-style: none;
+      margin-bottom: 1.75rem;
+    }
+    .tax-highlight li {
+      padding: 0.5rem 0 0.5rem 1.5rem;
+      position: relative;
+      color: rgba(255,255,255,0.8);
+      font-size: 0.95rem;
+    }
+    .tax-highlight li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--gold);
+      font-family: var(--mono);
+      font-weight: 700;
+    }
+    .link-external {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .link-external:hover { color: var(--gold); border-color: var(--gold); }
+
+    /* ── CONSULT CTA ── */
+    .consult-cta {
+      background: var(--black);
+      text-align: center;
+      padding: 7rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .consult-cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 40% at 50% 50%, rgba(220,38,38,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .consult-cta h2 {
+      font-family: var(--mono);
+      font-size: clamp(2rem, 6vw, 4rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+    .consult-cta > p {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+    .phone-link {
+      color: var(--gold);
+      font-family: var(--mono);
+      font-weight: 600;
+      border-bottom: 1px solid var(--gold-dim);
+      padding-bottom: 1px;
+    }
+    .phone-link:hover { color: var(--white); }
+    .trust {
+      margin-top: 1.75rem !important;
+      font-size: 0.78rem !important;
+      color: var(--muted) !important;
+      font-family: var(--mono);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── FOOTER ── */
+    .site-footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+    }
+    .site-footer p {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+    .site-footer a { color: var(--muted); border-bottom: 1px solid transparent; transition: color 0.2s; }
+    .site-footer a:hover { color: var(--gold); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .topbar { padding: 0 1rem; }
+      section { padding: 3.5rem 1.25rem; }
+      .tax-highlight { padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <nav class="topbar" role="navigation" aria-label="Page navigation">
+    <span class="topbar-brand">Curated Mining — Protocol Pulse</span>
+    <a href="#consult" class="topbar-cta">Get Started</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" aria-labelledby="hero-heading">
+    <div class="hero-content">
+      <p class="eyebrow">Consensus Protocol LLC — Naples, FL</p>
+      <h1 id="hero-heading">MINE BITCOIN.<br><span>OWN YOUR FUTURE.</span></h1>
+      <p class="hero-sub">White-glove Bitcoin mining setup. LLC structure. Section 179 tax deduction. Passive BTC income from day one.</p>
+      <a href="#consult" class="cta-primary">Schedule Your Mining Consultation</a>
+      <p class="cta-note">Free 30-minute consultation — no obligation</p>
+    </div>
+  </section>
+
+  <!-- STATS STRIP -->
+  <div class="stats-strip" role="region" aria-label="Key metrics">
+    <div class="stats-grid">
+      <div>
+        <span class="stat-val">$1.16M</span>
+        <span class="stat-label">Section 179 Deduction Limit</span>
+      </div>
+      <div>
+        <span class="stat-val">3.125</span>
+        <span class="stat-label">BTC Block Reward (Post-Halving)</span>
+      </div>
+      <div>
+        <span class="stat-val">15 J/TH</span>
+        <span class="stat-label">S21 Pro Efficiency</span>
+      </div>
+      <div>
+        <span class="stat-val">24/7</span>
+        <span class="stat-label">White-Glove Monitoring</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3-STEP PROCESS -->
+  <section class="process" aria-labelledby="process-heading">
+    <div class="section-inner">
+      <p class="section-label">How It Works</p>
+      <h2 class="section-title" id="process-heading">Three Steps to Mining Bitcoin</h2>
+      <div class="section-divider" role="presentation"></div>
+      <div class="steps-grid">
+        <div class="step">
+          <span class="step-num" aria-hidden="true">01</span>
+          <h3>CONSULT</h3>
+          <p>Free strategy session. We map your budget, power situation, and tax profile. No obligation — just clarity.</p>
+        </div>
+        <div class="step">
+          <span class="step-num" aria-hidden="true">02</span>
+          <h3>DEPLOY</h3>
+          <p>We source, configure, and deploy your ASIC miners. You own the hardware outright from day one.</p>
+        </div>
+        <div class="step">
+          <span class="step-num" aria-hidden="true">03</span>
+          <h3>MINE</h3>
+          <p>Earn BTC daily. White-glove monitoring included. Mine with institutional efficiency at any scale.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BENEFITS -->
+  <section aria-labelledby="benefits-heading">
+    <div class="section-inner">
+      <p class="section-label">Why Curated Mining</p>
+      <h2 class="section-title" id="benefits-heading">The Unfair Advantage</h2>
+      <div class="section-divider" role="presentation"></div>
+      <div class="benefits-grid">
+        <div class="benefit-card">
+          <span class="benefit-icon" aria-hidden="true">⚡</span>
+          <h3>Tax Advantages</h3>
+          <p>Section 179 lets you deduct up to $1.16M of qualifying equipment in year one. Turn hardware into tax savings immediately.</p>
+        </div>
+        <div class="benefit-card">
+          <span class="benefit-icon" aria-hidden="true">🏛</span>
+          <h3>LLC Structure</h3>
+          <p>Full liability protection plus pass-through taxation. Your mining operation runs as a proper business entity from day one.</p>
+        </div>
+        <div class="benefit-card">
+          <span class="benefit-icon" aria-hidden="true">₿</span>
+          <h3>Passive BTC Income</h3>
+          <p>Bitcoin earned daily, automatically. Stack sats without active management — we handle operations so you don't have to.</p>
+        </div>
+        <div class="benefit-card">
+          <span class="benefit-icon" aria-hidden="true">🔋</span>
+          <h3>Energy Arbitrage</h3>
+          <p>Access wholesale energy rates through our partnerships. Lower power cost is the single biggest lever on mining profitability.</p>
+        </div>
+        <div class="benefit-card">
+          <span class="benefit-icon" aria-hidden="true">🔑</span>
+          <h3>Full Sovereignty</h3>
+          <p>You own the hardware. You own the BTC. No custodial risk, no third-party exposure — pure self-sovereign Bitcoin accumulation.</p>
+        </div>
+        <div class="benefit-card">
+          <span class="benefit-icon" aria-hidden="true">🎯</span>
+          <h3>White-Glove Support</h3>
+          <p>From procurement through deployment, our team handles every detail. Institutional-grade operations available at any budget.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HARDWARE SHOWCASE -->
+  <section class="hardware" aria-labelledby="hardware-heading">
+    <div class="section-inner">
+      <p class="section-label">Hardware</p>
+      <h2 class="section-title" id="hardware-heading">Enterprise-Grade ASIC Miners</h2>
+      <div class="section-divider" role="presentation"></div>
+      <div class="hardware-grid">
+        <div class="miner-card">
+          <span class="miner-badge">Gold Standard</span>
+          <h3>Antminer S21 Pro</h3>
+          <div class="specs" aria-label="S21 Pro specifications">
+            <div><span>Hashrate</span><span>234 TH/s</span></div>
+            <div><span>Power Draw</span><span>3,510 W</span></div>
+            <div><span>Efficiency</span><span>15 J/TH</span></div>
+          </div>
+          <p class="miner-desc">The current gold standard for serious miners. Exceptional efficiency-per-watt ratio makes this the most popular choice in our deployments.</p>
+        </div>
+        <div class="miner-card">
+          <span class="miner-badge">Best-in-Class</span>
+          <h3>Antminer S21 XP</h3>
+          <div class="specs" aria-label="S21 XP specifications">
+            <div><span>Hashrate</span><span>270 TH/s</span></div>
+            <div><span>Power Draw</span><span>3,645 W</span></div>
+            <div><span>Efficiency</span><span>13.5 J/TH</span></div>
+          </div>
+          <p class="miner-desc">Next-generation efficiency. Best-in-class performance per watt. The preferred choice for clients prioritizing long-term economics.</p>
+        </div>
+        <div class="miner-card">
+          <span class="miner-badge">Battle-Tested</span>
+          <h3>WhatsMiner M60S</h3>
+          <div class="specs" aria-label="M60S specifications">
+            <div><span>Hashrate</span><span>186 TH/s</span></div>
+            <div><span>Power Draw</span><span>3,441 W</span></div>
+            <div><span>Efficiency</span><span>18.5 J/TH</span></div>
+          </div>
+          <p class="miner-desc">Proven reliability at scale. A strong choice for multi-unit deployments where operational simplicity matters as much as raw performance.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTERACTIVE CALCULATOR -->
+  <section class="calculator" id="calculator" aria-labelledby="calc-heading">
+    <div class="section-inner">
+      <p class="section-label">Mining Calculator</p>
+      <h2 class="section-title" id="calc-heading">Calculate Your Mining Returns</h2>
+      <div class="section-divider" role="presentation"></div>
+      <div class="calc-layout">
+        <!-- Inputs -->
+        <div class="calc-panel">
+          <h3>Your Parameters</h3>
+          <div class="input-group">
+            <label for="budget-slider">Mining Budget</label>
+            <span class="value-display">$<span id="budget-display">50,000</span></span>
+            <input type="range" id="budget-slider" min="10000" max="500000" step="5000" value="50000"
+                   aria-label="Mining budget slider" aria-valuemin="10000" aria-valuemax="500000">
+            <div style="display:flex;justify-content:space-between;margin-top:0.4rem;font-size:0.7rem;color:var(--muted);">
+              <span>$10K</span><span>$500K</span>
+            </div>
+          </div>
+          <div class="input-group">
+            <label for="power-slider">Power Cost ($/kWh)</label>
+            <span class="value-display">$<span id="power-display">0.065</span>/kWh</span>
+            <input type="range" id="power-slider" min="0.03" max="0.12" step="0.005" value="0.065"
+                   aria-label="Power cost per kWh slider" aria-valuemin="0.03" aria-valuemax="0.12">
+            <div style="display:flex;justify-content:space-between;margin-top:0.4rem;font-size:0.7rem;color:var(--muted);">
+              <span>$0.03</span><span>$0.12</span>
+            </div>
+          </div>
+          <div style="padding:0.75rem;background:rgba(248,193,92,0.06);border:1px solid rgba(248,193,92,0.15);border-radius:3px;font-size:0.78rem;color:rgba(255,255,255,0.55);">
+            Model: Antminer S21 Pro at $8/TH &nbsp;|&nbsp; Network: 700 EH/s &nbsp;|&nbsp; Block reward: 3.125 BTC
+          </div>
+        </div>
+        <!-- Results -->
+        <div class="calc-panel">
+          <h3>Estimated Monthly Returns</h3>
+          <div class="result-row">
+            <span class="result-label">Est. BTC Mined</span>
+            <span class="result-value btc" id="monthly-btc">— BTC</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Est. Revenue (USD)</span>
+            <span class="result-value" id="monthly-revenue">—</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Est. Power Cost</span>
+            <span class="result-value" id="monthly-power">—</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Est. Monthly Profit</span>
+            <span class="result-value positive" id="monthly-profit">—</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Est. Payback Period</span>
+            <span class="result-value" id="payback">—</span>
+          </div>
+          <div class="result-row" style="border-bottom:none">
+            <span class="result-label">BTC Price Used</span>
+            <span class="result-value" id="btc-price-used" style="font-size:0.9rem;color:var(--muted);">loading...</span>
+          </div>
+          <div class="calc-disclaimer" role="note" aria-label="Calculator disclaimer">
+            <strong>Disclaimer:</strong> Estimates only. Based on current BTC price, 700 EH/s network hashrate, and stated power cost. Actual results will vary based on difficulty adjustments, hardware availability, and market conditions. <strong>Not financial advice.</strong> Consult a qualified financial professional before investing.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 179 CALLOUT -->
+  <section class="tax-section" aria-labelledby="tax-heading">
+    <div class="section-inner">
+      <p class="section-label">Tax Strategy</p>
+      <h2 class="section-title" id="tax-heading">The Section 179 Advantage</h2>
+      <div class="section-divider" role="presentation"></div>
+      <div class="tax-highlight">
+        <h2>DEDUCT UP TO $1,160,000 IN YEAR 1</h2>
+        <p>Under IRC Section 179, qualifying Bitcoin mining equipment may be fully expensed in the year of purchase — dramatically reducing your effective cost basis.</p>
+        <ul>
+          <li>Full purchase price deductible in year one (up to $1.16M limit, 2024 figure)</li>
+          <li>LLC structure ensures deductions pass through to your personal return</li>
+          <li>Typical clients reduce effective equipment cost by 25–37% through year-one deductions</li>
+          <li>Bonus depreciation may provide additional deductions — consult your CPA</li>
+        </ul>
+        <a href="https://www.irs.gov/publications/p946" target="_blank" rel="noopener noreferrer" class="link-external">
+          IRS Publication 946 — How to Depreciate Property →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONSULTATION CTA -->
+  <section class="consult-cta" id="consult" aria-labelledby="consult-heading">
+    <h2 id="consult-heading">READY TO MINE?</h2>
+    <p>Schedule a free 30-minute consultation with our mining team.</p>
+    <a href="mailto:john@curatedmining.com?subject=Mining%20Consultation%20Request%20via%20Protocol%20Pulse"
+       class="cta-primary large"
+       style="position:relative">
+      Schedule Your Mining Consultation
+    </a>
+    <p style="margin-top:1.5rem;position:relative">
+      Or call: <a href="tel:+12399999999" class="phone-link">+1 (239) 999-9999</a>
+    </p>
+    <p class="trust">Consensus Protocol LLC &nbsp;·&nbsp; Naples, FL &nbsp;·&nbsp; Protocol Pulse Media Partner</p>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer" role="contentinfo">
+    <p>
+      &copy; 2026 Consensus Protocol LLC — Naples, FL
+      &nbsp;|&nbsp;
+      <a href="/">Protocol Pulse</a>
+      &nbsp;|&nbsp;
+      <a href="/mining">Mining Intelligence Hub</a>
+    </p>
+    <p style="margin-top:0.5rem">
+      This page is for informational purposes only. Nothing on this page constitutes financial, tax, or legal advice. Bitcoin mining involves substantial risk. Consult a qualified professional before investing.
+    </p>
+  </footer>
+
+  <script>
+    /* ── CALCULATOR LOGIC ── */
+    (function () {
+      'use strict';
+
+      const budgetSlider  = document.getElementById('budget-slider');
+      const powerSlider   = document.getElementById('power-slider');
+      const budgetDisplay = document.getElementById('budget-display');
+      const powerDisplay  = document.getElementById('power-display');
+      const elMonthlyBTC  = document.getElementById('monthly-btc');
+      const elRevenue     = document.getElementById('monthly-revenue');
+      const elPower       = document.getElementById('monthly-power');
+      const elProfit      = document.getElementById('monthly-profit');
+      const elPayback     = document.getElementById('payback');
+      const elBtcPrice    = document.getElementById('btc-price-used');
+
+      let liveBtcPrice = 95000;
+      let calcTimer    = null;
+
+      function fmt(n, decimals) {
+        return n.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+      }
+
+      function runCalc() {
+        const budget    = parseInt(budgetSlider.value, 10);
+        const powerCost = parseFloat(powerSlider.value);
+
+        // Update display labels
+        budgetDisplay.textContent = fmt(budget, 0);
+        powerDisplay.textContent  = parseFloat(powerCost).toFixed(3);
+
+        // Call API for accurate numbers (live BTC price)
+        clearTimeout(calcTimer);
+        calcTimer = setTimeout(function () {
+          fetch('/api/mining/estimate?budget=' + budget + '&power_cost=' + powerCost)
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (data) {
+              if (!data) return;
+              liveBtcPrice = data.btc_price || liveBtcPrice;
+              elBtcPrice.textContent  = '$' + fmt(liveBtcPrice, 0);
+              elMonthlyBTC.textContent = '~' + data.monthly_btc.toFixed(4) + ' BTC';
+              elRevenue.textContent    = '~$' + fmt(data.monthly_revenue_usd, 0);
+              elPower.textContent      = '-$' + fmt(data.monthly_power_cost_usd, 0);
+
+              var profit = data.monthly_profit_usd;
+              elProfit.textContent = (profit >= 0 ? '~$' : '-$') + fmt(Math.abs(profit), 0);
+              elProfit.className = 'result-value ' + (profit >= 0 ? 'positive' : 'negative');
+
+              if (data.payback_months !== null) {
+                elPayback.textContent = '~' + data.payback_months + ' months';
+              } else {
+                elPayback.textContent = 'N/A (unprofitable)';
+              }
+            })
+            .catch(function () {
+              // Fallback: client-side estimate with cached BTC price
+              clientCalc(budget, powerCost);
+            });
+        }, 180);
+      }
+
+      function clientCalc(budget, powerCost) {
+        var pricePerTH     = 8.0;
+        var hashrateTH     = budget / pricePerTH;
+        var powerW         = hashrateTH * 15;
+        var networkHashEH  = 700;
+        var blockReward    = 3.125;
+
+        var dailyBTC       = (hashrateTH / (networkHashEH * 1e6)) * blockReward * 144;
+        var dailyPowerUSD  = (powerW / 1000) * 24 * powerCost;
+        var monthlyBTC     = dailyBTC * 30;
+        var monthlyRev     = monthlyBTC * liveBtcPrice;
+        var monthlyPow     = dailyPowerUSD * 30;
+        var monthlyProfit  = monthlyRev - monthlyPow;
+        var payback        = monthlyProfit > 0 ? budget / monthlyProfit : null;
+
+        elMonthlyBTC.textContent = '~' + monthlyBTC.toFixed(4) + ' BTC';
+        elRevenue.textContent    = '~$' + fmt(monthlyRev, 0);
+        elPower.textContent      = '-$' + fmt(monthlyPow, 0);
+        elProfit.textContent     = (monthlyProfit >= 0 ? '~$' : '-$') + fmt(Math.abs(monthlyProfit), 0);
+        elProfit.className       = 'result-value ' + (monthlyProfit >= 0 ? 'positive' : 'negative');
+        elPayback.textContent    = payback ? '~' + Math.round(payback) + ' months' : 'N/A (unprofitable)';
+        elBtcPrice.textContent   = '$' + fmt(liveBtcPrice, 0) + ' (est.)';
+      }
+
+      // Fetch live BTC price on load
+      fetch('/api/btc-price')
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          if (d && d.price) {
+            liveBtcPrice = d.price;
+            elBtcPrice.textContent = '$' + fmt(liveBtcPrice, 0);
+          }
+        })
+        .catch(function () {})
+        .finally(function () { runCalc(); });
+
+      budgetSlider.addEventListener('input', runCalc);
+      powerSlider.addEventListener('input', runCalc);
+    }());
+  </script>
+</body>
+</html>
