@@ -2264,7 +2264,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
         fg += f"[v_final]format=yuv420p[outv];\n"
 
     # Audio: TTS only — APEX V2: music mixed continuously in concatenate_parts()
-    fg += (f"[0:a]loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]")
+    fg += (f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,loudnorm=I=-14:TP=-1.5:LRA=7,aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp[outa]")
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -2482,7 +2482,7 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
     fg += f"[{last_v}]format=yuv420p[outv];\n"
 
     # FIX 4: explicit stereo format before loudnorm/aresample to prevent channel layout error
-    fg += f"[0:a]aformat=channel_layouts=stereo,loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]"
+    fg += f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,loudnorm=I=-14:TP=-1.5:LRA=7,aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp[outa]"
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -3120,7 +3120,7 @@ def normalize_part(part_path: str, output_path: str) -> str:
          "-vf", "scale=1920:1080,setsar=1,format=yuv420p",
          "-video_track_timescale", "90000",
          "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
-         "-af", "loudnorm=I=-14:TP=-3.0:LRA=7,aresample=async=1,alimiter=level_in=1:level_out=0.794:limit=0.708:attack=3:release=30",
+         "-af", "aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,loudnorm=I=-14:TP=-3.0:LRA=7,aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,alimiter=level_in=1:level_out=0.794:limit=0.708:attack=3:release=30",
          output_path],
         "normalize", 180,
     )
