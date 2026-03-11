@@ -157,11 +157,48 @@ def enhance_frames_batch(frames, face_coords, batch_size=16):
                     logger.warning(f"GFPGAN enhance error: {e}")
                 enhanced_frames.append(frame)
 
+    elif etype == 'codeformer':
+        import torch
+        from basicsr.utils import img2tensor, tensor2img
+        from torchvision.transforms.functional import normalize as tv_normalize
+        try:
+            from facelib.utils.face_restoration_helper import FaceRestoreHelper
+            helper = FaceRestoreHelper(
+                upscale_factor=1, face_size=512, crop_ratio=(1,1),
+                det_model='retinaface_resnet50', save_ext='png',
+                use_parse=True, device='cuda:1'
+            )
+            for i, frame in enumerate(frames):
+                try:
+                    helper.clean_all()
+                    helper.read_image(frame)
+                    helper.get_face_landmarks_5(only_center_face=True, resize=640)
+                    helper.align_warp_face()
+                    if not helper.cropped_faces:
+                        enhanced_frames.append(frame)
+                        continue
+                    face_t = img2tensor(helper.cropped_faces[0]/255., bgr2rgb=True, float32=True)
+                    tv_normalize(face_t, (0.5,0.5,0.5), (0.5,0.5,0.5), inplace=True)
+                    face_t = face_t.unsqueeze(0).to('cuda:1')
+                    with torch.no_grad():
+                        out = enhancer(face_t, w=0.7, adain=True)[0]
+                    restored = tensor2img(out, rgb2bgr=True, min_max=(-1,1)).astype('uint8')
+                    helper.add_restored_face(restored)
+                    helper.paste_faces_to_input_image()
+                    result = helper.output
+                    enhanced_frames.append(result if result is not None and result.shape==frame.shape else frame)
+                except Exception as e:
+                    if i==0: logger.warning(f"CodeFormer frame error: {e}")
+                    enhanced_frames.append(frame)
+        except Exception as e:
+            logger.warning(f"CodeFormer batch setup error: {e}")
+            enhanced_frames = list(frames)
     else:
         # Unknown enhancer type — return as-is
-        enhanced_frames = frames
+        enhanced_frames = list(frames)
 
     return enhanced_frames
+
 
 
 def enhance_frames_fast(frames, face_coords):

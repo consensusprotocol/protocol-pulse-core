@@ -274,11 +274,11 @@ body.oracle-page-body .pp-ticker { display:none!important; }
 
   <section class="oracle-recent" aria-label="Recent Briefings">
     <div class="oracle-recent-header" id="oracle-recent-header"
-         role="button" aria-expanded="true" tabindex="0">
-      <span>&#9670; RECENT BRIEFINGS</span>
+         role="button" aria-expanded="false" tabindex="0">
+      <span>&#9670; PAST SESSIONS</span>
       <span class="oracle-recent-toggle" id="oracle-recent-toggle">&#9650;</span>
     </div>
-    <div class="oracle-recent-list open" id="oracle-recent-list"></div>
+    <div class="oracle-recent-list" id="oracle-recent-list"></div>
   </section>
 
 </div>
@@ -365,7 +365,7 @@ function addSession(s,prepend){
   var rHtml=s.video_url?'<button class="oracle-replay-btn" type="button" data-video="'+esc(s.video_url)+'" data-transcript="'+esc(s.transcript||'')+'">\u25b6 Replay</button>':'';
   item.innerHTML='<div class="oracle-session-q">'+esc(s.question)+'</div>'
     +'<div class="oracle-session-meta"><span>'+fmtTime(s.created_at)+'</span>'+rHtml+'</div>'
-    +(s.transcript?'<div class="oracle-session-t">'+esc(s.transcript)+'</div>':'');
+    +(s.transcript?'<div class="oracle-session-t">'+esc((s.transcript||'').slice(0,88)+((s.transcript||'').length>88?'...':''))+'</div>':'');
   var rb=item.querySelector('.oracle-replay-btn');
   if(rb){rb.addEventListener('click',function(e){
     e.stopPropagation(); if(isGenerating)return;
