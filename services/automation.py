@@ -296,7 +296,7 @@ def generate_article_with_tracking(force: bool = False) -> dict:
                     source_type=(article_data.get("source_type") or "ai_generated"),
                     author="Al Ingle",
                     published=(publish_allowed and ok and not draft_by_words),
-                    header_image_url=header_url,
+                    cover_image_url=header_url,
                 )
                 db.session.add(article)
                 db.session.commit()
@@ -337,7 +337,7 @@ def generate_article_with_tracking(force: bool = False) -> dict:
                     source_type=(article_data.get("source_type") or "reddit"),
                     author="Al Ingle",
                     published=(publish_allowed and ok and not draft_by_words),
-                    header_image_url=header_url,
+                    cover_image_url=header_url,
                 )
                 db.session.add(article)
                 db.session.commit()
@@ -436,7 +436,7 @@ def generate_breaking_article_with_tracking() -> dict:
                 seo_description=article_data.get("seo_description", ""),
                 source_url=(article_data.get("source_url") or "").strip() or None,
                 source_type=(article_data.get("source_type") or "ai_generated"),
-                header_image_url=header_url,
+                cover_image_url=header_url,
                 published=(publish_allowed and ok and not draft_by_words),
                 featured=True,
             )

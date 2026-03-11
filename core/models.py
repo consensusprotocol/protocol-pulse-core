@@ -112,7 +112,18 @@ class Article(db.Model):
     seo_title = db.Column(db.String(200))
     seo_description = db.Column(db.String(300))
     substack_url = db.Column(db.String(500))
+    published_at = db.Column(db.DateTime, nullable=True)
     header_image_url = db.Column(db.String(500))
+    cover_image_url = db.Column(db.String(500))
+    image_status = db.Column(db.String(30), default="ok")
+    image_phash = db.Column(db.String(64))
+    slug = db.Column(db.String(300), unique=True, index=True)
+    read_count = db.Column(db.Integer, default=0)
+    fact_check_passed = db.Column(db.Boolean)
+    grok_review_score = db.Column(db.Float)
+    gemini_review_score = db.Column(db.Float)
+    quality_tier = db.Column(db.String(30))
+    content_hash = db.Column(db.String(64))
     screenshot_url = db.Column(db.String(500))
     video_url = db.Column(db.String(500))
     # ── SESSION 12: Sentiment Intelligence Engine ─────────────────────────────
@@ -123,6 +134,16 @@ class Article(db.Model):
     sentiment_dimensions = db.Column(db.Text)     # JSON: target_dimension, key_signal, source_trust
     market_impact_magnitude = db.Column(db.Float) # 1.0–10.0
     sentiment_at = db.Column(db.DateTime)         # when last classified
+
+    def resolve_cover_image(self):
+        """Law 1: cover_image_url is the single source of truth for images."""
+        url = (self.cover_image_url or "").strip()
+        if url and url.startswith("http"):
+            return url
+        url = (self.header_image_url or "").strip()
+        if url and url.startswith("http"):
+            return url
+        return "/static/images/default-header.png"
 
 class Podcast(db.Model):
     id = db.Column(db.Integer, primary_key=True)

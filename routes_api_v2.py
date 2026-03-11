@@ -24,17 +24,18 @@ def _strip_html(html):
 
 
 def _article_to_dict(article, include_content=False):
-    """Convert Article model to API dict. Law 2 schema."""
+    """Convert Article model to API dict. Law 2 schema. Delegates to model.to_api_dict()."""
+    if hasattr(article, 'to_api_dict'):
+        return article.to_api_dict(include_content=include_content)
+    # Fallback for older model without to_api_dict
     plain = _strip_html(article.content or "")
     word_count = len(plain.split()) if plain else 0
-
     tags = []
     if article.tags:
         try:
             tags = json.loads(article.tags) if article.tags.startswith('[') else [t.strip() for t in article.tags.split(',') if t.strip()]
         except Exception:
             tags = []
-
     result = {
         "id": article.id,
         "title": article.title or "",
@@ -43,17 +44,15 @@ def _article_to_dict(article, include_content=False):
         "category": article.category or "Bitcoin",
         "tags": tags,
         "author": article.author or "Protocol Pulse AI",
-        "cover_image_url": article.cover_image_url or "/static/images/default-header.png",
+        "cover_image_url": article.resolve_cover_image() if hasattr(article, 'resolve_cover_image') else (article.cover_image_url or "/static/images/default-header.png"),
         "source_url": article.source_url or "",
         "source_type": article.source_type or "",
         "published_at": article.published_at.isoformat() + "Z" if article.published_at else None,
         "created_at": article.created_at.isoformat() + "Z" if article.created_at else None,
         "read_time_minutes": max(1, word_count // 200),
     }
-
     if include_content:
         result["content"] = article.content or ""
-
     return result
 
 

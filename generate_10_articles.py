@@ -148,7 +148,7 @@ def generate_article_with_claude(topic, image_url, category, index):
                 tags="bitcoin,crypto,intelligence",
                 seo_title=title,
                 seo_description=title[:150],
-                header_image_url=image_url,
+                cover_image_url=image_url,
                 source_url="",
                 source_type="ai_generated",
                 published=True,

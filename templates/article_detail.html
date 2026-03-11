@@ -8,7 +8,7 @@
 <!-- Open Graph -->
 <meta property="og:title" content="{{ article.title }}">
 <meta property="og:description" content="{{ article.summary or article.content[:200]|striptags }}">
-<meta property="og:image" content="{{ header_image_url or url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
+<meta property="og:image" content="{{ cover_image_url or url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
 <meta property="og:url" content="{{ request.url }}">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Protocol Pulse">
@@ -19,7 +19,7 @@
 <meta name="twitter:site" content="@ProtocolPulse">
 <meta name="twitter:title" content="{{ article.title }}">
 <meta name="twitter:description" content="{{ article.summary or article.content[:200]|striptags }}">
-<meta name="twitter:image" content="{{ header_image_url or url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
+<meta name="twitter:image" content="{{ cover_image_url or url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
 {% endblock %}
 
 {% block head %}
@@ -33,7 +33,7 @@
     "@type": "NewsArticle",
     "headline": "{{ article.title }}",
     "description": "{{ article.summary or article.content[:200]|striptags }}",
-    "image": "{{ header_image_url or '' }}",
+    "image": "{{ cover_image_url or '' }}",
     "datePublished": "{{ article.published_at.isoformat() if article.published_at else article.created_at.isoformat() }}",
     "dateModified": "{{ article.published_at.isoformat() if article.published_at else article.created_at.isoformat() }}",
     "author": {
@@ -145,7 +145,7 @@
         {% endif %}
 
         <!-- Hero image -->
-        {% set img = header_image_url or '/static/images/default-header.png' %}
+        {% set img = cover_image_url or '/static/images/default-header.png' %}
         <div class="pp-article__hero-image">
             <img src="{{ img }}" alt="{{ article.title }}" loading="eager">
         </div>

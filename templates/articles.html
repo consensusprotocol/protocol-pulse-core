@@ -728,6 +728,83 @@
         .masthead-title { font-size: 2rem; }
         .masthead { padding: 1.5rem 0 1rem; }
     }
+
+    /* Category filter pills */
+    .category-filters {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 1rem 0;
+        margin-bottom: 0.5rem;
+    }
+    .category-pill {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 6px 14px;
+        border-radius: 4px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-tertiary);
+        cursor: pointer;
+        transition: all 0.25s ease;
+        white-space: nowrap;
+    }
+    .category-pill:hover {
+        border-color: rgba(220,38,38,0.4);
+        color: var(--text-secondary);
+    }
+    .category-pill.active {
+        border-color: var(--btc-gold);
+        color: var(--btc-gold);
+        background: rgba(247,147,26,0.08);
+    }
+    .category-pill .pill-count {
+        margin-left: 4px;
+        opacity: 0.5;
+    }
+
+    /* Infinite scroll loader */
+    .scroll-loader {
+        text-align: center;
+        padding: 2rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        color: var(--text-tertiary);
+        letter-spacing: 0.1em;
+    }
+    .scroll-loader .spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--border-subtle);
+        border-top-color: var(--accent-red);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .scroll-end {
+        text-align: center;
+        padding: 2rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        color: var(--text-tertiary);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    /* API-loaded article cards grid */
+    #api-articles-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+        margin-top: 1.5rem;
+    }
+    @media (max-width: 1024px) { #api-articles-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 768px) { #api-articles-grid { grid-template-columns: 1fr; } }
 </style>
 {% endblock %}
 
@@ -743,8 +820,16 @@
     </div>
 
     <div class="main-content">
+        <!-- BUG 3: Category filter pills (wired to API) -->
+        <div class="category-filters" id="categoryFilters">
+            <span class="category-pill active" data-category="" onclick="ppFilterCategory(this)">All</span>
+            {% for cat, count in category_counts.items()|sort(attribute='1', reverse=true) %}
+            <span class="category-pill" data-category="{{ cat }}" onclick="ppFilterCategory(this)">{{ cat }}<span class="pill-count">({{ count }})</span></span>
+            {% endfor %}
+        </div>
+
         <div class="row g-4 py-4">
-            <div class="col-lg-8">
+            <div class="col-lg-8" id="articlesMainCol">
 
                 {% if today_articles %}
                 <div class="zone-divider" style="margin-top: 0.5rem;">
@@ -880,6 +965,16 @@
                 </div>
                 {% endif %}
 
+                <!-- BUG 2: Infinite scroll — loads more articles from API -->
+                <div id="api-articles-grid"></div>
+                <div class="scroll-loader" id="scrollLoader" style="display:none;">
+                    <span class="spinner"></span> Loading more intelligence...
+                </div>
+                <div class="scroll-end" id="scrollEnd" style="display:none;">
+                    — End of intelligence feed —
+                </div>
+                <div id="scrollSentinel" style="height:1px;"></div>
+
             </div>
 
             <div class="col-lg-4">
@@ -978,5 +1073,120 @@ function toggleVault(btn) {
         ? '<i class="fas fa-chevron-up me-1"></i> Hide Archive'
         : '<i class="fas fa-chevron-down me-1"></i> Show {{ archive_total_count }} Archived';
 }
+
+/* ── BUG 2: Infinite Scroll via /api/v2/articles ── */
+(function() {
+    var ppPage = 1;
+    var ppLoading = false;
+    var ppDone = false;
+    var ppCategory = '';
+    var ppGrid = document.getElementById('api-articles-grid');
+    var ppLoader = document.getElementById('scrollLoader');
+    var ppEnd = document.getElementById('scrollEnd');
+    var ppSentinel = document.getElementById('scrollSentinel');
+
+    function ppMakeCard(a) {
+        var img = a.cover_image_url || '/static/images/default-header.png';
+        var date = '';
+        if (a.published_at) {
+            var d = new Date(a.published_at);
+            date = d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+        }
+        return '<a href="/articles/' + a.id + '" class="text-decoration-none">' +
+            '<div class="article-card">' +
+                '<div class="card-image art-card-img" style="background-image:url(\'' + img.replace(/'/g, "\\'") + '\');"></div>' +
+                '<div class="card-body-inner">' +
+                    '<div class="d-flex align-items-center gap-2 mb-2">' +
+                        '<span class="cat-pill">' + (a.category || 'Bitcoin') + '</span>' +
+                    '</div>' +
+                    '<h3 class="card-headline">' + (a.title || '') + '</h3>' +
+                    '<p class="card-excerpt">' + (a.summary || '').substring(0, 140) + '</p>' +
+                    '<div class="card-footer-meta">' +
+                        '<span class="time-stamp">' + date + '</span>' +
+                        '<span class="read-cta" style="font-size:0.6rem;">Read <i class="fas fa-chevron-right"></i></span>' +
+                    '</div>' +
+                '</div>' +
+            '</div></a>';
+    }
+
+    function ppLoadMore() {
+        if (ppLoading || ppDone) return;
+        ppLoading = true;
+        ppLoader.style.display = 'block';
+        ppPage++;
+        var url = '/api/v2/articles?page=' + ppPage + '&per_page=20';
+        if (ppCategory) url += '&category=' + encodeURIComponent(ppCategory);
+        fetch(url).then(function(r) { return r.json(); }).then(function(data) {
+            if (!data.articles || data.articles.length === 0) {
+                ppDone = true;
+                ppLoader.style.display = 'none';
+                ppEnd.style.display = 'block';
+                return;
+            }
+            var html = '';
+            data.articles.forEach(function(a) { html += ppMakeCard(a); });
+            ppGrid.insertAdjacentHTML('beforeend', html);
+            ppLoading = false;
+            ppLoader.style.display = 'none';
+            if (!data.pagination.has_next) {
+                ppDone = true;
+                ppEnd.style.display = 'block';
+            }
+        }).catch(function() {
+            ppLoading = false;
+            ppLoader.style.display = 'none';
+        });
+    }
+
+    var observer = new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) ppLoadMore();
+    }, { rootMargin: '200px' });
+    if (ppSentinel) observer.observe(ppSentinel);
+
+    /* ── BUG 3: Category Filter Logic ── */
+    window.ppFilterCategory = function(el) {
+        var cat = el.getAttribute('data-category') || '';
+        ppCategory = cat;
+        ppPage = 0; // reset — ppLoadMore increments to 1
+        ppDone = false;
+        ppGrid.innerHTML = '';
+        ppEnd.style.display = 'none';
+
+        // Update active pill
+        document.querySelectorAll('.category-pill').forEach(function(p) { p.classList.remove('active'); });
+        el.classList.add('active');
+
+        // Update URL without reload
+        var url = new URL(window.location);
+        if (cat) { url.searchParams.set('category', cat); } else { url.searchParams.delete('category'); }
+        history.pushState({}, '', url);
+
+        if (cat) {
+            // Hide server-rendered articles, show only API results
+            var mainCol = document.getElementById('articlesMainCol');
+            var serverSections = mainCol.querySelectorAll('.zone-divider, .hero-article, .article-grid, .morning-grid, .vault-section, .empty-state, .art-grid-2col');
+            serverSections.forEach(function(s) { s.style.display = 'none'; });
+            // Also hide direct children that are links to articles
+            var heroLink = mainCol.querySelector('a.text-decoration-none.d-block');
+            if (heroLink) heroLink.style.display = 'none';
+        } else {
+            // Show all server-rendered articles again
+            var mainCol = document.getElementById('articlesMainCol');
+            mainCol.querySelectorAll('[style*="display: none"]').forEach(function(s) {
+                s.style.display = '';
+            });
+        }
+
+        ppLoadMore();
+    };
+
+    // Restore category from URL on page load
+    var params = new URLSearchParams(window.location.search);
+    var initCat = params.get('category');
+    if (initCat) {
+        var pill = document.querySelector('.category-pill[data-category="' + initCat + '"]');
+        if (pill) ppFilterCategory(pill);
+    }
+})();
 </script>
 {% endblock %}

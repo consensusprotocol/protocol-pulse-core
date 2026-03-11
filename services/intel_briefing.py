@@ -350,7 +350,7 @@ Requirements:
                     summary=f"{series} — Protocol Pulse editorial column.",
                     category="opinion",
                     source_type="intel_briefing",
-                    header_image_url=header_image,
+                    cover_image_url=header_image,
                     published=True,
                 )
                 db.session.add(article)

@@ -689,7 +689,7 @@ def run_article_generation_cycle() -> Dict:
                 source_type=article_data['source_type'],
                 published=should_publish,
                 published_at=datetime.utcnow() if should_publish else None,
-                header_image_url=header_image
+                cover_image_url=header_image
             )
 
             db.session.add(article)
@@ -944,7 +944,7 @@ Target: 500-750 words. 80% education, 20% product. Clean HTML only. No markdown.
             source_url=partner["url"],
             source_type="affiliate",
             published=True,
-            header_image_url=header_image
+            cover_image_url=header_image
         )
         db.session.add(article)
         db.session.commit()
