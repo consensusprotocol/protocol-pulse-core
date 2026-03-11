@@ -44,7 +44,7 @@ from relay import get_key
 # DUAL HOST RESTORED 2026-03-10: Natasha (HOST_1) + Mark (HOST_2)
 # Nicole (piTKgcLEGmPE4e6mEKli) and Chris (iP95p4xoKVk53GoZ742B) are BANNED.
 
-_ERYN_VOICE = {
+_NATASHA_VOICE = {
     "voice_id": "uxKr2vlA4hYgXZR1oPRT",
     "name": "Eryn",
     "model_id": "eleven_turbo_v2_5",
@@ -71,7 +71,7 @@ _MARK_VOICE = {
 }
 
 VOICES = {
-    1: _ERYN_VOICE,   # HOST_1 → Natasha (female)
+    1: _NATASHA_VOICE,   # HOST_1 → Natasha (female)
     2: _MARK_VOICE,   # HOST_2 → Mark (male)
 }
 
