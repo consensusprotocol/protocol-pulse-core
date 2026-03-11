@@ -19,26 +19,36 @@ def _load_gfpgan():
     return _gfpgan_enhancer
 
 def enhance_frames_batch(frames, face_coords, batch_size=16):
+    """Enhance frames using GFPGAN. Processes every 3rd frame and copies result
+    to adjacent frames (face doesn't change much frame-to-frame in lip-sync).
+    Uses has_aligned=True to skip GFPGAN's internal face detection (~10x faster)."""
     if not frames: return frames
     enhancer = _load_gfpgan()
     y1, y2, x1, x2 = face_coords
     if enhancer is not None:
         try:
-            out = []
-            for frame in frames:
+            out = list(frames)  # shallow copy
+            step = 3  # enhance every 3rd frame, copy to neighbors
+            enhanced_count = 0
+            for i in range(0, len(frames), step):
                 try:
-                    face_rgb = cv2.cvtColor(frame[y1:y2, x1:x2], cv2.COLOR_BGR2RGB)
-                    _, _, restored = enhancer.enhance(face_rgb, has_aligned=False,
-                        only_center_face=True, paste_back=True)
+                    face_crop = frames[i][y1:y2, x1:x2]
+                    face_rgb = cv2.cvtColor(face_crop, cv2.COLOR_BGR2RGB)
+                    # has_aligned=True: skip face detection, treat input as aligned face
+                    _, _, restored = enhancer.enhance(face_rgb, has_aligned=True,
+                        only_center_face=True, paste_back=False)
                     if restored is not None:
-                        result = frame.copy()
-                        result[y1:y2, x1:x2] = cv2.resize(
+                        restored_bgr = cv2.resize(
                             cv2.cvtColor(restored, cv2.COLOR_RGB2BGR), (x2-x1, y2-y1))
-                        out.append(result)
-                    else:
-                        out.append(frame)
-                except Exception: out.append(frame)
-            logger.info("GFPGAN enhanced %d frames", len(out))
+                        # Apply to this frame and up to step-1 neighbors
+                        for j in range(i, min(i + step, len(frames))):
+                            result = frames[j].copy()
+                            result[y1:y2, x1:x2] = restored_bgr
+                            out[j] = result
+                        enhanced_count += 1
+                except Exception:
+                    pass
+            logger.info("GFPGAN enhanced %d keyframes (%d total frames)", enhanced_count, len(out))
             return out
         except Exception as e:
             logger.warning("GFPGAN batch failed: %s", e)

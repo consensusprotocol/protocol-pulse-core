@@ -39,7 +39,7 @@ from blink_engine import apply_blink_gradient, generate_blink_schedule
 
 # ─── Config ───────────────────────────────────────────────────────────
 PORT = 8200
-BATCH_SIZE = 48  # Optimal for RTX 4090
+BATCH_SIZE = 64  # Optimal for RTX 4090 — larger batch = fewer kernel launches
 DEFAULT_FPS = 30.0  # Upgraded from 25fps — smoother motion
 
 # Post-processing config
@@ -247,12 +247,16 @@ def frames_to_video(frames, fps=30.0, audio_path=None):
             writer.write(frame)
         writer.release()
 
+        import subprocess
         if audio_path and os.path.exists(audio_path):
-            import subprocess
             cmd = [
                 "ffmpeg", "-y", "-loglevel", "error",
                 "-itsoffset", "0.08", "-i", audio_path, "-i", avi_path,
-                "-c:v", "libx264", "-preset", "superfast", "-crf", "20",
+            ]
+            if w > 512:
+                cmd += ["-vf", "scale=512:512"]
+            cmd += [
+                "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28",
                 "-c:a", "aac", "-b:a", "128k",
                 "-map", "0:a", "-map", "1:v",
                 "-pix_fmt", "yuv420p", "-movflags", "+faststart",
@@ -260,11 +264,14 @@ def frames_to_video(frames, fps=30.0, audio_path=None):
             ]
             subprocess.run(cmd, check=True, capture_output=True)
         else:
-            import subprocess
             cmd = [
                 "ffmpeg", "-y", "-loglevel", "error",
                 "-i", avi_path,
-                "-c:v", "libx264", "-preset", "superfast", "-crf", "20",
+            ]
+            if w > 512:
+                cmd += ["-vf", "scale=512:512"]
+            cmd += [
+                "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28",
                 "-pix_fmt", "yuv420p", "-movflags", "+faststart",
                 mp4_path,
             ]
@@ -329,7 +336,11 @@ def health():
 
     # Face enhancer status
     try:
-        _,        face_enhancer_status = etype or "none"
+        from face_enhancer import _gfpgan_loaded, _gfpgan_enhancer
+        if _gfpgan_loaded:
+            face_enhancer_status = "gfpgan" if _gfpgan_enhancer is not None else "sharpen_only"
+        else:
+            face_enhancer_status = "not_loaded"
     except Exception:
         face_enhancer_status = "error"
 
@@ -354,7 +365,7 @@ def health():
         "avg_latency_sec": avg_latency,
         "requests_tracked": len(_request_times),
         "output_fps": DEFAULT_FPS,
-        "encoding": "crf20-superfast",
+        "encoding": "crf28-ultrafast-512",
         "blink_config": {
             "interval": f"{BLINK_INTERVAL_MIN}-{BLINK_INTERVAL_MAX}s",
             "duration": f"{BLINK_DURATION}s"
@@ -718,9 +729,10 @@ def _generate_chunk(sentence, chunk_num, session_dir, fps=30.0):
 
         with _lock:
             frames = wav2lip_generate(wav_path, fps)
-            # Apply face enhancement
+            # Apply face enhancement (sharpen first, then GFPGAN if available)
             reg = ModelRegistry.get()
             try:
+                frames = sharpen_mouth_region(frames, reg.avatar_face_coords)
                 frames = enhance_frames_batch(frames, reg.avatar_face_coords, batch_size=16)
             except Exception:
                 pass
@@ -758,7 +770,7 @@ def _stream_worker(session_id, text):
                 },
                 json={
                     "model": "claude-sonnet-4-20250514",
-                    "max_tokens": 300,
+                    "max_tokens": 80,  # Short transcript = fewer TTS seconds = fewer Wav2Lip frames
                     "system": ORACLE_SYSTEM_PROMPT,
                     "messages": [{"role": "user", "content": text}],
                 },
@@ -911,7 +923,7 @@ if __name__ == "__main__":
     print(f"  Device: {DEVICE}")
     print(f"  Avatar: {AVATAR_SOURCE}")
     print(f"  FPS: {DEFAULT_FPS}")
-    print(f"  Encoding: CRF 20, preset superfast")
+    print(f"  Encoding: CRF 28, preset ultrafast, 512px output")
     print(f"  Features: FP16, face_restoration, mediapipe_blinks, head_movement")
     print(f"  Vision: {'enabled' if os.environ.get('GEMINI_API_KEY') else 'disabled'}")
     print(f"{'='*60}\n")
@@ -928,10 +940,12 @@ if __name__ == "__main__":
         logger.error("No face detected in avatar. Exiting.")
         sys.exit(1)
 
-    # Pre-load face enhancer
+    # Pre-load face enhancer (eager load at startup, not lazily on first request)
     logger.info("Pre-loading face enhancer...")
     try:
-        enhancer,        logger.info(f"Face enhancer ready: {etype or 'none'}")
+        from face_enhancer import _load_gfpgan
+        enhancer = _load_gfpgan()
+        logger.info(f"Face enhancer ready: {'gfpgan' if enhancer else 'sharpen_only'}")
     except Exception as e:
         logger.warning(f"Face enhancer pre-load failed: {e}")
 

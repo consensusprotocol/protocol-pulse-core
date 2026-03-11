@@ -47,6 +47,9 @@ def rate_limit(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         ip = (request.headers.get('CF-Connecting-IP') or request.headers.get('X-Forwarded-For','').split(',')[0].strip() or request.remote_addr or 'unknown')
+        # Skip rate limit for localhost (server-side requests share same IP)
+        if ip in ('127.0.0.1', '::1', 'localhost'):
+            return f(*args, **kwargs)
         now = time.time()
         last = _last_request.get(ip, 0)
         if now - last < RATE_LIMIT_SECONDS:
@@ -197,7 +200,7 @@ def _generate_oracle_video_file(transcript: str, session_id: str) -> str | None:
             logger.error("Oracle video file empty after write")
             return None
 
-        return url_for('static', filename=f'oracle_video/{video_filename}')
+        return url_for('static', filename=f'oracle_videos/{video_filename}')
 
     except requests.exceptions.Timeout:
         logger.error("Avatar server timeout during oracle generation")

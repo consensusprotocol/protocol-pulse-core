@@ -395,6 +395,7 @@ function askOracle(question){
     showTranscript(data.transcript||'');
     if(data.video_url){playVideo(data.video_url);}else{setState('idle');}
     addSession({question:question,transcript:data.transcript||'',video_url:data.video_url||null,created_at:data.timestamp||new Date().toISOString()},true);
+    inp.focus();
   })
   .catch(function(err){
     console.error('[Oracle]',err);
