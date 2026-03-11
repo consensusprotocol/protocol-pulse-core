@@ -25,6 +25,10 @@ TASKS = {
     "sentiment_buffer_update": {"interval_minutes": 5, "description": "Rolling sentiment buffer update"},
     "emergency_flash_check": {"interval_minutes": 5, "description": "Emergency flash check (40%+ drift)"},
     "x_spaces_sentiment_update": {"interval_minutes": 5, "description": "X Spaces sentiment stream update"},
+    # Market Briefing Room — HeyGen Sarah 3x/day (06:45, 09:15, 16:15 ET)
+    "briefing_pre_market": {"cron": "11:45", "description": "Pre-market briefing (06:45 ET / 11:45 UTC)"},
+    "briefing_open":       {"cron": "14:15", "description": "Market-open briefing (09:15 ET / 14:15 UTC)"},
+    "briefing_close":      {"cron": "21:15", "description": "Market-close briefing (16:15 ET / 21:15 UTC)"},
 }
 
 
@@ -96,6 +100,28 @@ def run_task(name: str) -> Dict:
             return {"success": True, "message": "Flash checked", "result": flash}
         except Exception as e:
             logger.warning("emergency_flash_check: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
+    # Market Briefing Room — trigger HeyGen Sarah generation
+    if name in ("briefing_pre_market", "briefing_open", "briefing_close"):
+        slot_map = {
+            "briefing_pre_market": "pre_market",
+            "briefing_open":       "open",
+            "briefing_close":      "close",
+        }
+        briefing_type = slot_map[name]
+        try:
+            from services.briefing_scheduler import trigger_briefing
+            result = trigger_briefing(briefing_type)
+            msg = (
+                f"Briefing {briefing_type} id={result.get('briefing_id')} "
+                f"duration={result.get('duration_seconds')}s"
+                if result.get("success")
+                else f"Briefing {briefing_type} failed: {result.get('error')}"
+            )
+            return {"success": result.get("success", False), "message": msg, "result": result}
+        except Exception as e:
+            logger.error("briefing task %s failed: %s", name, e)
             return {"success": False, "message": str(e), "result": None}
 
     if name == "tradfi_monitor":
