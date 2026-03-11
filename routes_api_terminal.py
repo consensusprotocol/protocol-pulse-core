@@ -37,17 +37,30 @@ terminal_bp = Blueprint("terminal", __name__)
 # ── Constants ─────────────────────────────────────────────────────────────────
 
 TIER_LIMITS = {
+    "demo":      20,
     "commander": 1000,
     "sovereign": -1,   # unlimited (V31)
     "watcher":   100,  # V31
 }
 
 COMMANDER_DAILY_LIMIT = 1000
+DEMO_KEY = "pp_demo_readonly"
+DEMO_KEY_HASH = hashlib.sha256(DEMO_KEY.encode()).hexdigest()
 BREAKING_LOOKBACK_HOURS = 2
 HALVING_INTERVAL = 210_000
 LAST_HALVING_BLOCK = 840_000
 NEXT_HALVING_BLOCK = LAST_HALVING_BLOCK + HALVING_INTERVAL  # 1,050,000
 EXTERNAL_TIMEOUT = 6
+
+# Known Bitcoin entities for entity tracking (Phase 3 spec)
+KNOWN_ENTITIES = [
+    "MicroStrategy", "BlackRock", "Saylor", "Fed", "ETF",
+    "Halving", "Lightning", "Ordinals", "Runes", "Taproot",
+]
+
+# Sentiment keywords (Phase 3 spec)
+POSITIVE_KEYWORDS = ["bull", "surge", "rally", "ath", "adoption", "record", "inflow"]
+NEGATIVE_KEYWORDS = ["bear", "crash", "dump", "ban", "fear", "panic", "outflow"]
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -95,6 +108,37 @@ def _terminal_response(endpoint: str, data, tier: str,
             "resets_at": reset_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
         },
     }
+
+
+# ── Demo Key Provisioning ─────────────────────────────────────────────────────
+
+def provision_demo_key():
+    """Insert the demo API key on first run. Called at app startup."""
+    from app import db
+    from models import ApiKey
+
+    try:
+        existing = ApiKey.query.filter_by(key_hash=DEMO_KEY_HASH).first()
+        if existing:
+            return
+        demo = ApiKey(
+            key_hash=DEMO_KEY_HASH,
+            key_prefix=DEMO_KEY[:8],
+            tier="demo",
+            subscriber_email="demo@protocolpulse.io",
+            requests_today=0,
+            requests_total=0,
+            active=True,
+        )
+        db.session.add(demo)
+        db.session.commit()
+        log.info("Demo API key provisioned: %s", DEMO_KEY)
+    except Exception as e:
+        log.warning("Demo key provisioning failed (non-fatal): %s", e)
+        try:
+            db.session.rollback()
+        except Exception:
+            pass
 
 
 # ── Auth + Rate-Limit Decorator ───────────────────────────────────────────────
@@ -219,65 +263,125 @@ def require_terminal_auth(required_tier: str = "commander"):
 # ── Data Helpers ──────────────────────────────────────────────────────────────
 
 def _get_topics():
-    """Top categories from published articles in last 24hr."""
+    """Top 10 topics from published articles in last 24hr with trend direction."""
     from models import Article
-    cutoff = _utcnow() - timedelta(hours=24)
+    cutoff_24h = _utcnow() - timedelta(hours=24)
+    cutoff_4d = _utcnow() - timedelta(days=4)
     try:
+        # Current 24hr counts
         rows = (
             Article.query
-            .filter(Article.published == True, Article.created_at > cutoff)
+            .filter(Article.published == True, Article.created_at > cutoff_24h)
             .with_entities(Article.category, func.count(Article.id).label("cnt"))
             .group_by(Article.category)
             .order_by(func.count(Article.id).desc())
-            .limit(20)
+            .limit(10)
             .all()
         )
-        return [
-            {"topic": r.category or "Uncategorized", "count": r.cnt}
-            for r in rows if r.category
-        ]
+
+        # Prior 3 days average (for trend direction)
+        prior_rows = (
+            Article.query
+            .filter(
+                Article.published == True,
+                Article.created_at > cutoff_4d,
+                Article.created_at <= cutoff_24h,
+            )
+            .with_entities(Article.category, func.count(Article.id).label("cnt"))
+            .group_by(Article.category)
+            .all()
+        )
+        # Average per day over 3 days
+        prior_avg = {r.category: r.cnt / 3.0 for r in prior_rows if r.category}
+
+        results = []
+        for r in rows:
+            if not r.category:
+                continue
+            avg = prior_avg.get(r.category, 0)
+            trend = "rising" if r.cnt > avg else "stable"
+            results.append({
+                "topic": r.category,
+                "count": r.cnt,
+                "trend_direction": trend,
+            })
+        return results
     except Exception as e:
         log.error("topics query failed: %s", e)
         return []
 
 
 def _get_entities():
-    """Keyword/tag frequency from published articles in last 24hr."""
+    """Scan last 50 article titles for known Bitcoin entities with sentiment."""
     from models import Article
     cutoff = _utcnow() - timedelta(hours=24)
     try:
         rows = (
             Article.query
-            .filter(
-                Article.published == True,
-                Article.created_at > cutoff,
-                Article.tags != None,
-                Article.tags != "",
-            )
-            .with_entities(Article.tags)
-            .limit(200)
+            .filter(Article.published == True, Article.created_at > cutoff)
+            .with_entities(Article.title, Article.summary)
+            .order_by(Article.created_at.desc())
+            .limit(50)
             .all()
         )
-        counts: dict = {}
-        for (tags,) in rows:
-            if not tags:
-                continue
-            for tag in tags.split(","):
-                tag = tag.strip()
-                if not tag or len(tag) < 2:
-                    continue
-                if tag not in counts:
-                    counts[tag] = {"name": tag, "mentions_24h": 0, "type": "keyword"}
-                counts[tag]["mentions_24h"] += 1
 
-        return sorted(counts.values(), key=lambda x: x["mentions_24h"], reverse=True)[:30]
+        positive_words = {"bull", "surge", "rally", "ath", "adoption", "record", "inflow",
+                          "growth", "gain", "buy", "rise", "pump", "approved", "success"}
+        negative_words = {"bear", "crash", "dump", "ban", "fear", "panic", "outflow",
+                          "sell", "drop", "hack", "reject", "fail", "loss", "decline"}
+
+        results = []
+        for entity in KNOWN_ENTITIES:
+            mentions = 0
+            pos_count = 0
+            neg_count = 0
+            entity_lower = entity.lower()
+
+            for r in rows:
+                blob = f"{r.title or ''} {r.summary or ''}".lower()
+                if entity_lower in blob:
+                    mentions += 1
+                    # Sentiment from surrounding words
+                    pos_count += sum(1 for w in positive_words if w in blob)
+                    neg_count += sum(1 for w in negative_words if w in blob)
+
+            if mentions > 0:
+                total = pos_count + neg_count
+                if total == 0:
+                    sentiment = "neutral"
+                    score = 0.0
+                elif pos_count > neg_count:
+                    sentiment = "positive"
+                    score = round(pos_count / total, 2)
+                elif neg_count > pos_count:
+                    sentiment = "negative"
+                    score = round(-neg_count / total, 2)
+                else:
+                    sentiment = "neutral"
+                    score = 0.0
+            else:
+                sentiment = "neutral"
+                score = 0.0
+
+            results.append({
+                "entity": entity,
+                "mentions": mentions,
+                "sentiment": sentiment,
+                "sentiment_score": score,
+            })
+
+        return sorted(results, key=lambda x: x["mentions"], reverse=True)
     except Exception as e:
         log.error("entities query failed: %s", e)
         return []
 
 
 def _get_sentiment():
-    """Return (score 0-100, as_of datetime). 0=bearish, 50=neutral, 100=bullish."""
+    """Return (score 0-100, label, article_count, as_of).
+
+    Algorithm: average of (article score field if exists, else title keyword scoring).
+    Positive keywords: +10 each. Negative keywords: -10 each. Normalize to 0-100.
+    """
     from models import Article
     cutoff = _utcnow() - timedelta(hours=24)
 
@@ -298,11 +402,12 @@ def _get_sentiment():
                 score = int(raw)
             else:
                 score = 50
-            return score, latest.timestamp
+            label = "Bullish" if score > 60 else ("Bearish" if score < 40 else "Neutral")
+            return score, label, 0, latest.timestamp
     except Exception:
         pass
 
-    # Fallback: keyword heuristic on article titles/summaries
+    # Keyword heuristic on article titles
     try:
         rows = (
             Article.query
@@ -311,24 +416,28 @@ def _get_sentiment():
             .limit(100)
             .all()
         )
-        bull_kw = {"bullish", "surge", "rally", "ath", "gain", "rise", "pump", "moon", "buy", "adoption", "institutional"}
-        bear_kw = {"bearish", "crash", "dump", "drop", "fall", "bear", "sell", "fear", "ban", "hack"}
-        bull, bear = 0, 0
+        article_count = len(rows)
+        raw_score = 50  # start neutral
         for r in rows:
             blob = f"{r.title or ''} {r.summary or ''}".lower()
-            bull += sum(1 for kw in bull_kw if kw in blob)
-            bear += sum(1 for kw in bear_kw if kw in blob)
-        total = bull + bear
-        if total == 0:
-            return 50, None
-        return int(bull / total * 100), None
+            for kw in POSITIVE_KEYWORDS:
+                if kw in blob:
+                    raw_score += 10
+            for kw in NEGATIVE_KEYWORDS:
+                if kw in blob:
+                    raw_score -= 10
+
+        # Normalize to 0-100
+        score = max(0, min(100, raw_score))
+        label = "Bullish" if score > 60 else ("Bearish" if score < 40 else "Neutral")
+        return score, label, article_count, _utcnow()
     except Exception as e:
         log.error("sentiment fallback failed: %s", e)
-        return 50, None
+        return 50, "Neutral", 0, None
 
 
 def _get_breaking():
-    """Articles published in last 2hr."""
+    """Articles published in last 2hr with score > 80 (or all if score not set)."""
     from models import Article
     cutoff = _utcnow() - timedelta(hours=BREAKING_LOOKBACK_HOURS)
     try:
@@ -336,20 +445,26 @@ def _get_breaking():
             Article.query
             .filter(Article.published == True, Article.created_at > cutoff)
             .order_by(Article.created_at.desc())
-            .limit(10)
+            .limit(20)
             .all()
         )
-        return [
-            {
+        # Filter by score > 80 if score field exists, else include all (limit 10)
+        filtered = []
+        for a in rows:
+            score = getattr(a, "score", None) or getattr(a, "relevance_score", None)
+            if score is not None and score <= 80:
+                continue
+            filtered.append({
                 "id": a.id,
                 "title": a.title,
-                "category": a.category,
-                "summary": (a.summary or "")[:200],
+                "url": f"https://protocolpulse.io/article/{a.id}",
                 "published_at": _iso(a.created_at),
-                "url": f"https://protocolpulse.io/articles/{a.id}",
-            }
-            for a in rows
-        ]
+                "score": score,
+                "category": a.category,
+            })
+            if len(filtered) >= 10:
+                break
+        return filtered
     except Exception as e:
         log.error("breaking query failed: %s", e)
         return []
@@ -358,16 +473,40 @@ def _get_breaking():
 def _get_network_stats() -> dict:
     """Fetch Bitcoin network stats from public APIs with timeout + graceful degradation."""
     stats = {
+        "price": None,
+        "price_change_24h": None,
         "hashrate_eh": None,
         "difficulty": None,
         "block_height": None,
-        "nodes_reachable": None,
-        "halving": {
-            "next_halving_block": NEXT_HALVING_BLOCK,
-            "blocks_remaining": None,
-            "estimated_date": None,
-        },
+        "next_halving_blocks": None,
     }
+
+    # BTC price from internal API or CoinGecko fallback
+    try:
+        # Try internal /api/btc-price first
+        from flask import current_app
+        with current_app.test_client() as client:
+            resp = client.get("/api/btc-price")
+            if resp.status_code == 200:
+                d = resp.get_json()
+                stats["price"] = d.get("price") or d.get("usd")
+                stats["price_change_24h"] = d.get("change_24h") or d.get("price_change_24h")
+    except Exception:
+        pass
+
+    # Fallback: CoinGecko for price if not available
+    if stats["price"] is None:
+        try:
+            resp = requests.get(
+                "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true",
+                timeout=EXTERNAL_TIMEOUT,
+            )
+            if resp.ok:
+                d = resp.json().get("bitcoin", {})
+                stats["price"] = d.get("usd")
+                stats["price_change_24h"] = round(d.get("usd_24h_change", 0), 2)
+        except Exception as e:
+            log.warning("price fetch failed: %s", e)
 
     # Block height via mempool.space
     try:
@@ -410,15 +549,22 @@ def _get_network_stats() -> dict:
     # Halving countdown
     height = stats.get("block_height")
     if height:
-        remaining = max(0, NEXT_HALVING_BLOCK - height)
-        stats["halving"]["blocks_remaining"] = remaining
-        if remaining > 0:
-            est_dt = _utcnow() + timedelta(minutes=remaining * 10)
-            stats["halving"]["estimated_date"] = _iso(est_dt)
-        else:
-            stats["halving"]["estimated_date"] = "OCCURRED"
+        stats["next_halving_blocks"] = max(0, NEXT_HALVING_BLOCK - height)
 
     return stats
+
+
+# ── Status Endpoint (no auth) ─────────────────────────────────────────────────
+
+@terminal_bp.route("/api/v2/terminal/status", methods=["GET"])
+def terminal_status():
+    """Public status endpoint — no auth required."""
+    return jsonify({
+        "status": "operational",
+        "version": "1.0",
+        "tiers": ["commander"],
+        "docs": "https://protocolpulse.io/terminal",
+    })
 
 
 # ── API Endpoints ─────────────────────────────────────────────────────────────
@@ -470,16 +616,15 @@ def terminal_sentiment():
     requests_today = entry.requests_today if entry else 0
     limit = getattr(request, "api_limit", COMMANDER_DAILY_LIMIT)
 
-    score, as_of = _get_sentiment()
-    label = "bullish" if score > 60 else ("bearish" if score < 40 else "neutral")
+    score, label, article_count, computed_at = _get_sentiment()
 
     return jsonify(_terminal_response(
         endpoint="sentiment",
         data={
             "score": score,
             "label": label,
-            "scale": "0 (max bearish) — 100 (max bullish)",
-            "as_of": _iso(as_of) if as_of else _iso(_utcnow()),
+            "article_count": article_count,
+            "computed_at": _iso(computed_at) if computed_at else _iso(_utcnow()),
         },
         tier=tier,
         requests_today=requests_today,
@@ -559,9 +704,9 @@ def terminal_subscribe():
         import stripe as stripe_lib
         stripe_lib.api_key = stripe_key
 
-        price_id = os.environ.get("STRIPE_PRICE_COMMANDER", "").strip()
+        price_id = os.environ.get("STRIPE_COMMANDER_PRICE_ID", "").strip()
         if not price_id:
-            return jsonify({"error": "Stripe price not configured for commander tier"}), 503
+            return jsonify({"error": "Stripe price not configured", "setup": "See /terminal#setup"}), 503
 
         session = stripe_lib.checkout.Session.create(
             mode="subscription",
@@ -673,6 +818,12 @@ def terminal_webhook():
     return jsonify({"status": "ignored", "event_type": event_type})
 
 
+@terminal_bp.route("/webhook/stripe/terminal", methods=["POST"])
+def terminal_webhook_alias():
+    """Alias for the Terminal Stripe webhook (spec-required path)."""
+    return terminal_webhook()
+
+
 def _send_api_key_email(email: str, raw_key: str, tier: str):
     """Send API key via Resend. Best-effort — log on failure, never raise."""
     resend_key = os.environ.get("RESEND_API_KEY", "").strip()
@@ -691,7 +842,7 @@ def _send_api_key_email(email: str, raw_key: str, tier: str):
             json={
                 "from": "Pulse Terminal <terminal@protocolpulse.io>",
                 "to": [email],
-                "subject": "Your Pulse Terminal API Key — Commander Access",
+                "subject": f"Your Protocol Pulse Commander API Key — {raw_key[:12]}...",
                 "html": f"""
 <div style="font-family:monospace;background:#000;color:#fff;padding:32px;max-width:520px;">
   <h2 style="color:#dc2626;font-size:1.4rem;margin-bottom:16px;">PULSE TERMINAL — COMMANDER</h2>

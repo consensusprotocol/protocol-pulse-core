@@ -589,6 +589,146 @@
   opacity: 1;
 }
 
+/* ── Sentiment Gauge ── */
+.pt-gauge-wrap {
+  margin: 32px auto 36px;
+  text-align: center;
+}
+
+.pt-gauge {
+  width: 180px;
+  margin: 0 auto;
+}
+
+.pt-gauge-svg {
+  width: 100%;
+  height: auto;
+}
+
+.pt-gauge-caption {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* ── API Playground ── */
+.pt-playground {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+  margin: 32px 0;
+}
+
+.pt-playground-controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  align-items: flex-end;
+}
+
+.pt-playground-controls label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.pt-playground-controls input,
+.pt-playground-controls select {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.pt-playground-controls input:focus,
+.pt-playground-controls select:focus {
+  border-color: var(--red-dim);
+}
+
+.pt-playground-output {
+  background: #050505;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 16px 20px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: #4ade80;
+  min-height: 120px;
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.6;
+}
+
+.btn-run {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--red);
+  border: none;
+  padding: 10px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: background 0.2s;
+  align-self: flex-end;
+}
+
+.btn-run:hover {
+  background: #b91c1c;
+}
+
+/* ── Code Tabs ── */
+.pt-code-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+}
+
+.pt-code-tab {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  padding: 8px 16px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+.pt-code-tab.active {
+  color: var(--red);
+  border-bottom-color: var(--red);
+}
+
+.pt-code-panel {
+  display: none;
+}
+
+.pt-code-panel.active {
+  display: block;
+}
+
 /* ── Mobile ── */
 @media (max-width: 640px) {
   .pt-stats { grid-template-columns: 1fr; }
@@ -596,6 +736,7 @@
   .pt-hero h1 { font-size: 1.8rem; }
   .pt-cta-row { flex-direction: column; align-items: center; }
   .pt-demo-body { font-size: 0.75rem; }
+  .pt-playground-controls { flex-direction: column; }
 }
 </style>
 {% endblock %}
@@ -607,15 +748,37 @@
 ══════════════════════════════════════════ -->
 <section class="pt-hero">
   <div class="pt-hero-content">
-    <div class="pt-badge">PULSE TERMINAL — V30 — COMMANDER TIER</div>
-    <h1>Bitcoin Intelligence<br><span>as an API.</span></h1>
+    <div class="pt-badge">PULSE TERMINAL API</div>
+    <h1>Institutional-grade Bitcoin intelligence.<br><span>One endpoint.</span></h1>
     <p class="pt-hero-sub">
       Real-time topics, entity tracking, sentiment scoring, breaking news, and live
       network stats — wired directly into your stack. No scraping. No guessing.
     </p>
+
+    <!-- Live Sentiment Gauge -->
+    <div class="pt-gauge-wrap" id="gauge-section">
+      <div class="pt-gauge">
+        <svg viewBox="0 0 200 120" class="pt-gauge-svg">
+          <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#1a1a1a" stroke-width="12" stroke-linecap="round"/>
+          <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="url(#gauge-grad)" stroke-width="12" stroke-linecap="round"
+                id="gauge-arc" stroke-dasharray="251.3" stroke-dashoffset="251.3"/>
+          <defs>
+            <linearGradient id="gauge-grad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#ef4444"/>
+              <stop offset="50%" stop-color="#fbbf24"/>
+              <stop offset="100%" stop-color="#22c55e"/>
+            </linearGradient>
+          </defs>
+          <text x="100" y="85" text-anchor="middle" fill="#fff" font-family="var(--mono)" font-size="28" font-weight="700" id="gauge-score">--</text>
+          <text x="100" y="105" text-anchor="middle" fill="#6b7280" font-family="var(--mono)" font-size="11" id="gauge-label">LOADING</text>
+        </svg>
+      </div>
+      <div class="pt-gauge-caption">Live BTC Sentiment</div>
+    </div>
+
     <div class="pt-cta-row">
       <a href="#pricing" class="btn-terminal-primary">Get Commander Access — $49/mo</a>
-      <a href="#docs" class="btn-terminal-secondary">View Docs</a>
+      <a href="#playground" class="btn-terminal-secondary">Try the API</a>
     </div>
   </div>
 </section>
@@ -821,6 +984,106 @@ curl https://protocolpulse.io/api/v2/terminal/sentiment \
 </section>
 
 <!-- ═══════════════════════════════════════
+     API PLAYGROUND
+══════════════════════════════════════════ -->
+<section class="container pt-section" style="max-width:860px;padding-left:24px;padding-right:24px;" id="playground">
+  <div class="pt-section-label">Try It</div>
+  <div class="pt-section-title">API Playground</div>
+  <p class="pt-section-sub">Hit live endpoints with the demo key. No signup required.</p>
+
+  <div class="pt-playground">
+    <div class="pt-playground-controls">
+      <div style="flex:1;min-width:200px;">
+        <label>API Key</label>
+        <input type="text" id="pg-key" value="pp_demo_readonly" style="width:100%;" placeholder="pp_cmd_your_key">
+      </div>
+      <div style="min-width:180px;">
+        <label>Endpoint</label>
+        <select id="pg-endpoint">
+          <option value="sentiment">sentiment</option>
+          <option value="topics">topics</option>
+          <option value="entities">entities</option>
+          <option value="breaking">breaking</option>
+          <option value="network">network</option>
+        </select>
+      </div>
+      <button class="btn-run" id="pg-run" onclick="runPlayground()">Run</button>
+    </div>
+    <div class="pt-playground-output" id="pg-output">// Click "Run" to fetch live data...</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SETUP / CODE SNIPPETS
+══════════════════════════════════════════ -->
+<section class="container pt-section" style="max-width:860px;padding-left:24px;padding-right:24px;" id="setup">
+  <div class="pt-section-label">Integration</div>
+  <div class="pt-section-title">Quick Start</div>
+  <p class="pt-section-sub" style="margin-bottom:20px;">Copy-paste into your project. Works in seconds.</p>
+
+  <div class="pt-code-tabs">
+    <button class="pt-code-tab active" onclick="switchTab('curl',this)">curl</button>
+    <button class="pt-code-tab" onclick="switchTab('python',this)">Python</button>
+    <button class="pt-code-tab" onclick="switchTab('js',this)">JavaScript</button>
+  </div>
+  <div class="pt-code-panel active" id="tab-curl">
+    <div class="pt-code">
+<span class="comment"># Get BTC sentiment score</span>
+<span class="keyword">curl</span> https://protocolpulse.io/api/v2/terminal/sentiment \
+  -H <span class="string">"X-PP-API-Key: pp_cmd_your_key_here"</span>
+
+<span class="comment"># Get breaking news</span>
+<span class="keyword">curl</span> https://protocolpulse.io/api/v2/terminal/breaking \
+  -H <span class="string">"X-PP-API-Key: pp_cmd_your_key_here"</span>
+
+<span class="comment"># Get live network stats</span>
+<span class="keyword">curl</span> https://protocolpulse.io/api/v2/terminal/network \
+  -H <span class="string">"X-PP-API-Key: pp_cmd_your_key_here"</span>
+    </div>
+  </div>
+  <div class="pt-code-panel" id="tab-python">
+    <div class="pt-code">
+<span class="keyword">import</span> requests
+
+API_KEY = <span class="string">"pp_cmd_your_key_here"</span>
+BASE    = <span class="string">"https://protocolpulse.io/api/v2/terminal"</span>
+HEADERS = {<span class="string">"X-PP-API-Key"</span>: API_KEY}
+
+<span class="comment"># Sentiment score</span>
+r = requests.get(f<span class="string">"{BASE}/sentiment"</span>, headers=HEADERS)
+data = r.json()
+print(f<span class="string">"BTC Sentiment: {data['data']['score']}/100 ({data['data']['label']})"</span>)
+
+<span class="comment"># Breaking news</span>
+r = requests.get(f<span class="string">"{BASE}/breaking"</span>, headers=HEADERS)
+<span class="keyword">for</span> article <span class="keyword">in</span> r.json()[<span class="string">"data"</span>][<span class="string">"articles"</span>]:
+    print(f<span class="string">"  {article['title']}"</span>)
+    </div>
+  </div>
+  <div class="pt-code-panel" id="tab-js">
+    <div class="pt-code">
+<span class="keyword">const</span> API_KEY = <span class="string">"pp_cmd_your_key_here"</span>;
+<span class="keyword">const</span> BASE    = <span class="string">"https://protocolpulse.io/api/v2/terminal"</span>;
+
+<span class="comment">// Fetch sentiment</span>
+<span class="keyword">const</span> res = <span class="keyword">await</span> fetch(`${BASE}/sentiment`, {
+  headers: { <span class="string">"X-PP-API-Key"</span>: API_KEY }
+});
+<span class="keyword">const</span> { data } = <span class="keyword">await</span> res.json();
+console.log(`BTC Sentiment: ${data.score}/100 (${data.label})`);
+
+<span class="comment">// Fetch topics</span>
+<span class="keyword">const</span> topics = <span class="keyword">await</span> fetch(`${BASE}/topics`, {
+  headers: { <span class="string">"X-PP-API-Key"</span>: API_KEY }
+}).then(r => r.json());
+topics.data.topics.forEach(t =>
+  console.log(`  ${t.topic}: ${t.count} articles`)
+);
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
      FAQ
 ══════════════════════════════════════════ -->
 <section class="container pt-section" style="max-width:860px;padding-left:24px;padding-right:24px;">
@@ -870,26 +1133,44 @@ curl https://protocolpulse.io/api/v2/terminal/sentiment \
 <script>
 // ── Demo typing animation ──────────────────────────────────────────────
 (function() {
-  const responseEl = document.getElementById('demo-response');
-  const cursorEl   = document.getElementById('demo-cursor');
-
+  var responseEl = document.getElementById('demo-response');
+  var cursorEl   = document.getElementById('demo-cursor');
   setTimeout(function() {
-    if (responseEl) {
-      responseEl.style.display = 'inline';
-      if (cursorEl) cursorEl.style.display = 'none';
-    }
+    if (responseEl) { responseEl.style.display = 'inline'; }
+    if (cursorEl) { cursorEl.style.display = 'none'; }
   }, 1200);
+})();
+
+// ── Live Sentiment Gauge ──────────────────────────────────────────────
+(function() {
+  var TOTAL_ARC = 251.3;
+  fetch('/api/v2/terminal/sentiment', {
+    headers: { 'X-PP-API-Key': 'pp_demo_readonly' }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    var score = (d.data && d.data.score != null) ? d.data.score : 50;
+    var label = (d.data && d.data.label) ? d.data.label : 'Neutral';
+    var arc = document.getElementById('gauge-arc');
+    var scoreTxt = document.getElementById('gauge-score');
+    var labelTxt = document.getElementById('gauge-label');
+    if (arc) { arc.style.transition = 'stroke-dashoffset 1.2s ease'; arc.setAttribute('stroke-dashoffset', TOTAL_ARC - (score / 100) * TOTAL_ARC); }
+    if (scoreTxt) scoreTxt.textContent = score;
+    if (labelTxt) labelTxt.textContent = label.toUpperCase();
+  })
+  .catch(function() {
+    var s = document.getElementById('gauge-score');
+    var l = document.getElementById('gauge-label');
+    if (s) s.textContent = '50';
+    if (l) l.textContent = 'NEUTRAL';
+  });
 })();
 
 // ── FAQ accordion ──────────────────────────────────────────────────────
 function toggleFaq(el) {
   var item = el.parentElement;
   var isOpen = item.classList.contains('open');
-  // Close all
-  document.querySelectorAll('.pt-faq-item').forEach(function(i) {
-    i.classList.remove('open');
-  });
-  // Toggle clicked
+  document.querySelectorAll('.pt-faq-item').forEach(function(i) { i.classList.remove('open'); });
   if (!isOpen) item.classList.add('open');
 }
 
@@ -897,10 +1178,7 @@ function toggleFaq(el) {
 document.querySelectorAll('a[href^="#"]').forEach(function(a) {
   a.addEventListener('click', function(e) {
     var target = document.querySelector(this.getAttribute('href'));
-    if (target) {
-      e.preventDefault();
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
   });
 });
 
@@ -931,10 +1209,7 @@ function submitSubscribe(e) {
   var btn   = document.getElementById('subscribe-btn');
   var msg   = document.getElementById('subscribe-msg');
 
-  if (!email || !email.includes('@')) {
-    showToast('Please enter a valid email address.');
-    return;
-  }
+  if (!email || !email.includes('@')) { showToast('Please enter a valid email address.'); return; }
 
   btn.disabled = true;
   btn.textContent = 'Redirecting...';
@@ -948,15 +1223,12 @@ function submitSubscribe(e) {
   .then(function(r) { return r.json(); })
   .then(function(data) {
     if (data.checkout_url) {
-      showToast('Redirecting to secure checkout…');
-      setTimeout(function() {
-        window.location.href = data.checkout_url;
-      }, 800);
+      showToast('Redirecting to secure checkout...');
+      setTimeout(function() { window.location.href = data.checkout_url; }, 800);
     } else if (data.error && data.error.includes('not yet enabled')) {
-      // Stripe not configured — show early-access message
       msg.style.display = 'block';
       msg.style.color = '#fbbf24';
-      msg.textContent = '⚡ Early access: email team@protocolpulse.io to get your key today.';
+      msg.textContent = 'Early access: email team@protocolpulse.io to get your key today.';
       btn.disabled = false;
       btn.textContent = 'Subscribe — $49/mo';
     } else {
@@ -965,11 +1237,55 @@ function submitSubscribe(e) {
       btn.textContent = 'Subscribe — $49/mo';
     }
   })
-  .catch(function(err) {
+  .catch(function() {
     showToast('Network error. Please try again.');
     btn.disabled = false;
     btn.textContent = 'Subscribe — $49/mo';
   });
+}
+
+// ── API Playground ──────────────────────────────────────────────────────
+function runPlayground() {
+  var key = document.getElementById('pg-key').value.trim();
+  var endpoint = document.getElementById('pg-endpoint').value;
+  var output = document.getElementById('pg-output');
+  var btn = document.getElementById('pg-run');
+
+  if (!key) { output.textContent = '// Enter an API key above'; return; }
+
+  btn.disabled = true;
+  btn.textContent = '...';
+  output.textContent = '// Fetching...';
+
+  var t0 = performance.now();
+  fetch('/api/v2/terminal/' + endpoint, {
+    headers: { 'X-PP-API-Key': key }
+  })
+  .then(function(r) {
+    var ms = Math.round(performance.now() - t0);
+    var limit = r.headers.get('X-RateLimit-Limit') || '—';
+    var remaining = r.headers.get('X-RateLimit-Remaining') || '—';
+    return r.json().then(function(data) {
+      output.textContent = '// ' + ms + 'ms | Rate limit: ' + remaining + '/' + limit + ' remaining\n\n' +
+        JSON.stringify(data, null, 2);
+    });
+  })
+  .catch(function(err) {
+    output.textContent = '// Error: ' + err.message;
+  })
+  .finally(function() {
+    btn.disabled = false;
+    btn.textContent = 'Run';
+  });
+}
+
+// ── Code Tab Switcher ──────────────────────────────────────────────────
+function switchTab(tab, el) {
+  document.querySelectorAll('.pt-code-tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.pt-code-panel').forEach(function(p) { p.classList.remove('active'); });
+  el.classList.add('active');
+  var panel = document.getElementById('tab-' + tab);
+  if (panel) panel.classList.add('active');
 }
 </script>
 {% endblock %}

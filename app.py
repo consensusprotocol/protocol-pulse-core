@@ -283,8 +283,10 @@ def _run_dev_server():
 import routes
 from routes_api_v2 import api_v2
 try:
-    from routes_api_terminal import terminal_bp
+    from routes_api_terminal import terminal_bp, provision_demo_key
     app.register_blueprint(terminal_bp)
+    with app.app_context():
+        provision_demo_key()
 except Exception as e:
     logging.critical("Terminal API blueprint failed to load: %s", e)
 try:
