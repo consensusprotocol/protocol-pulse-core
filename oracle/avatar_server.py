@@ -7,7 +7,7 @@ GPU-accelerated Wav2Lip lip-sync with:
   - MediaPipe eye blinks (gradient overlay, no warpAffine artifacts)
   - Head movement post-processing
   - Vision guide endpoints (Gemini 2.5 Flash)
-  - CRF 18, preset fast, 30fps output
+  - CRF 20, preset superfast, 30fps output
 
 Deploy: ~/protocol_pulse/oracle/avatar_server.py
 Launch: cd ~/protocol_pulse/oracle && python3 avatar_server.py
@@ -26,6 +26,7 @@ import numpy as np
 
 import cv2
 import torch
+torch.backends.cudnn.benchmark = True
 from flask import Flask, request, jsonify, send_file, after_this_request
 
 from model_registry import ModelRegistry, WAV2LIP_DIR, AVATAR_SOURCE, DEVICE
@@ -328,9 +329,7 @@ def health():
 
     # Face enhancer status
     try:
-        from face_enhancer import get_enhancer
-        _, etype = get_enhancer()
-        face_enhancer_status = etype or "none"
+        _,        face_enhancer_status = etype or "none"
     except Exception:
         face_enhancer_status = "error"
 
@@ -355,7 +354,7 @@ def health():
         "avg_latency_sec": avg_latency,
         "requests_tracked": len(_request_times),
         "output_fps": DEFAULT_FPS,
-        "encoding": "crf18-fast",
+        "encoding": "crf20-superfast",
         "blink_config": {
             "interval": f"{BLINK_INTERVAL_MIN}-{BLINK_INTERVAL_MAX}s",
             "duration": f"{BLINK_DURATION}s"
@@ -912,7 +911,7 @@ if __name__ == "__main__":
     print(f"  Device: {DEVICE}")
     print(f"  Avatar: {AVATAR_SOURCE}")
     print(f"  FPS: {DEFAULT_FPS}")
-    print(f"  Encoding: CRF 18, preset fast")
+    print(f"  Encoding: CRF 20, preset superfast")
     print(f"  Features: FP16, face_restoration, mediapipe_blinks, head_movement")
     print(f"  Vision: {'enabled' if os.environ.get('GEMINI_API_KEY') else 'disabled'}")
     print(f"{'='*60}\n")
@@ -932,9 +931,7 @@ if __name__ == "__main__":
     # Pre-load face enhancer
     logger.info("Pre-loading face enhancer...")
     try:
-        from face_enhancer import get_enhancer
-        enhancer, etype = get_enhancer()
-        logger.info(f"Face enhancer ready: {etype or 'none'}")
+        enhancer,        logger.info(f"Face enhancer ready: {etype or 'none'}")
     except Exception as e:
         logger.warning(f"Face enhancer pre-load failed: {e}")
 

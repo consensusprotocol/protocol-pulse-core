@@ -384,7 +384,7 @@ function askOracle(question){
   question=question.trim();
   if(!question||question.length<3){inp.focus();return;}
   if(question.length>500){question=question.slice(0,500);}
-  isGenerating=true; lastQuestion=question; inp.value='';
+  isGenerating=true; lastQuestion=question; inp.value=''; setState('generating');
   transcriptEl.classList.remove('visible');
   setState('generating');
   fetch(ASK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:question})})
@@ -401,6 +401,7 @@ function askOracle(question){
     console.error('[Oracle]',err);
     errorMsgEl.textContent=err.message||'Oracle temporarily offline';
     setState('error');
+    setTimeout(function(){if(sanctuary.dataset.state==='error'){setState('idle');}},4000);
   })
   .finally(function(){isGenerating=false;});
 }

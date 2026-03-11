@@ -40,7 +40,7 @@ ORACLE_SYSTEM_PROMPT = (
 
 # In-memory rate limiter (per-IP, simple window)
 _last_request: dict = {}
-RATE_LIMIT_SECONDS = 20
+RATE_LIMIT_SECONDS = 5
 
 
 def rate_limit(f):
@@ -157,7 +157,7 @@ def _generate_oracle_video_file(transcript: str, session_id: str) -> str | None:
     """POST transcript to avatar_server (Mode A: text→TTS→Wav2Lip) and save MP4 to disk.
     Returns static URL or None on failure.
     """
-    video_dir = os.path.join(current_app.static_folder, 'oracle_video')
+    video_dir = os.path.join(current_app.static_folder, 'oracle_videos')
     os.makedirs(video_dir, exist_ok=True)
 
     # Clean up oracle videos older than 2 hours
