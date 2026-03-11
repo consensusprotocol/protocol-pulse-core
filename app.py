@@ -375,6 +375,14 @@ try:
 except ImportError as _e:
     logging.warning("Dashboard blueprint not loaded: %s", _e)
 
+# F4/F7 — Briefings Blueprint (public /briefings page)
+try:
+    from core.blueprints.briefings import briefings_bp
+    app.register_blueprint(briefings_bp)
+    logging.info("Briefings blueprint registered at /briefings")
+except Exception as _e:
+    logging.warning("Briefings blueprint not loaded: %s", _e)
+
 # Start background APScheduler only when explicitly enabled for this process.
 if os.environ.get("ENABLE_APSCHEDULER", "false").strip().lower() in {"1", "true", "yes", "on"}:
     try:

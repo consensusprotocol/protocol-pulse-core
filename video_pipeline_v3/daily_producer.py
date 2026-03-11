@@ -14,6 +14,7 @@ import argparse
 import json
 import logging
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -97,12 +98,83 @@ def _build_fast_test_script(clips_info: dict, btc_price: str) -> dict:
     }
 
 
+def _send_resend_alert(subject: str, body: str):
+    """Send a non-blocking email alert via Resend."""
+    try:
+        import resend
+        resend.api_key = os.environ.get("RESEND_API_KEY", "")
+        if not resend.api_key:
+            logger.warning("RESEND_API_KEY not set — skipping email alert")
+            return
+        resend.Emails.send({
+            "from": "pulse@protocolpulse.io",
+            "to": ["contact@consensusprotocol.org"],
+            "subject": subject,
+            "html": f"<pre>{body}</pre>",
+        })
+    except Exception as e:
+        logger.warning(f"Resend alert failed: {e}")
+
+
+def _post_render_health_check(video_path: str) -> tuple[bool, list[str]]:
+    """Verify rendered video meets quality thresholds.
+
+    Returns (passed, errors).
+    """
+    errors = []
+    if not os.path.exists(video_path):
+        return False, ["Video file does not exist"]
+
+    # File size > 50MB
+    size_mb = os.path.getsize(video_path) / (1024 * 1024)
+    if size_mb < 50:
+        errors.append(f"File size {size_mb:.1f}MB < 50MB minimum")
+
+    # ffprobe checks
+    try:
+        probe = subprocess.run(
+            ["ffprobe", "-v", "quiet", "-print_format", "json",
+             "-show_format", "-show_streams", video_path],
+            capture_output=True, text=True, timeout=30,
+        )
+        info = json.loads(probe.stdout)
+        fmt = info.get("format", {})
+        streams = info.get("streams", [])
+
+        # Duration 400-600s
+        duration = float(fmt.get("duration", 0))
+        if duration < 400 or duration > 600:
+            errors.append(f"Duration {duration:.0f}s outside 400-600s range")
+
+        # Audio stream present
+        audio_streams = [s for s in streams if s.get("codec_type") == "audio"]
+        if not audio_streams:
+            errors.append("No audio stream found")
+    except Exception as e:
+        errors.append(f"ffprobe failed: {e}")
+
+    passed = len(errors) == 0
+    if not passed:
+        logger.critical(f"POST-RENDER HEALTH CHECK FAILED: {errors}")
+        _send_resend_alert(
+            "CRITICAL: Pulse Check render failed health check",
+            f"Video: {video_path}\nErrors:\n" + "\n".join(f"  - {e}" for e in errors),
+        )
+    return passed, errors
+
+
 def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
                  fast_test: bool = False) -> bool:
     # Fast test implies test + skip-scan
     if fast_test:
         test_mode = True
         skip_scan = True
+
+    # Wipe TTS cache before each run to prevent stale audio
+    tts_cache = os.path.join(BASE, "tts_cache")
+    shutil.rmtree(tts_cache, ignore_errors=True)
+    os.makedirs(tts_cache, exist_ok=True)
+    logger.info("TTS cache wiped")
 
     ts = datetime.now()
     date_str = ts.strftime("%Y%m%d")
@@ -747,6 +819,32 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
             logger.warning(f"Format multiplier launch failed (non-blocking): {e}")
     elif not is_enabled("multi_format_output"):
         logger.info("multi_format_output feature flag is disabled — skipping format multiplier")
+
+    # ── Post-render health check + Resend notification ─────────────────────
+    if not test_mode:
+        hc_passed, hc_errors = _post_render_health_check(final_video)
+        dur_s = timing.get("video_duration", 0)
+        size_mb = timing.get("video_size_mb", 0)
+        dur_min = int(dur_s // 60)
+        dur_sec = int(dur_s % 60)
+        if passed and hc_passed:
+            _send_resend_alert(
+                f"Pulse Check rendered: {dur_min}m {dur_sec}s, {size_mb:.0f}MB",
+                f"Episode: {script.get('episode_title', 'Untitled')}\n"
+                f"Duration: {dur_min}m {dur_sec}s\n"
+                f"Size: {size_mb:.1f}MB\n"
+                f"Quality: {quality_score}/100\n"
+                f"Video: {final_video}",
+            )
+        else:
+            _send_resend_alert(
+                "ALERT: Pulse Check render issues detected",
+                f"Episode: {script.get('episode_title', 'Untitled')}\n"
+                f"Pipeline passed: {passed}\n"
+                f"Health check passed: {hc_passed}\n"
+                f"Errors: {hc_errors}\n"
+                f"Video: {final_video}",
+            )
 
     return passed
 
