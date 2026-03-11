@@ -175,6 +175,14 @@ with app.app_context():
 
 app.register_blueprint(curated_mining_bp)
 
+    # SESSION 18 — Curated Mining landing page
+    try:
+        from blueprints.curated_mining import curated_mining_bp
+        app.register_blueprint(curated_mining_bp)
+        logging.info("Curated Mining blueprint registered (/curated-mining, /api/mining/estimate)")
+    except Exception as e:
+        logging.warning("Curated Mining blueprint not loaded: %s", e)
+
 # Diagnose: confirm / and /debug-routes are registered (debug 404)
 try:
     rules = [r.rule for r in app.url_map.iter_rules()]
