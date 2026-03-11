@@ -146,5 +146,29 @@ def call_llm(prompt: str, max_tokens: int = 4000, temperature: float = 0.3) -> s
         except Exception as e:
             log.warning(f"Grok failed: {e}")
 
-    log.error("All LLM providers failed")
+    # Fallback to Gemini
+    gemini_key = get_key("GEMINI_API_KEY", required=False)
+    if gemini_key:
+        try:
+            import requests
+            gemini_model = get_key("GEMINI_MODEL", required=False) or "gemini-2.0-flash"
+            resp = requests.post(
+                f"https://generativelanguage.googleapis.com/v1beta/models/{gemini_model}:generateContent?key={gemini_key}",
+                headers={"Content-Type": "application/json"},
+                json={
+                    "contents": [{"parts": [{"text": prompt}]}],
+                    "generationConfig": {"maxOutputTokens": max_tokens, "temperature": temperature},
+                },
+                timeout=120,
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+                log.info("Gemini fallback succeeded")
+                return text
+            log.warning(f"Gemini API error {resp.status_code}: {resp.text[:200]}")
+        except Exception as e:
+            log.warning(f"Gemini failed: {e}")
+
+    log.error("All LLM providers failed (Anthropic + Grok + Gemini)")
     return None
