@@ -10107,6 +10107,7 @@ def api_milestone_banner():
 # ─────────────────────────────────────────────────────────────────────────────
 
 @app.route('/mining')
+@app.route('/mining-intel')
 def mining_hub():
     """Bitcoin Mining Intelligence Hub — live hashrate, ASIC calculator, pool distribution."""
     return render_template('mining_hub.html')
