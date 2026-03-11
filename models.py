@@ -1415,6 +1415,9 @@ class MilestoneFired(db.Model):
 class PriceAlert(db.Model):
     """Public BTC price alerts — no auth required."""
     __tablename__ = 'price_alerts'
+    __table_args__ = (
+        db.Index('idx_price_alert_active_notified', 'active', 'notified'),
+    )
 
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), nullable=False, index=True)

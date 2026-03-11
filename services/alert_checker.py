@@ -66,7 +66,7 @@ def _trigger_email_html(price: float, target: float, direction: str, token: str)
 
 
 def _get_btc_price() -> float | None:
-    """Fetch BTC price from CoinGecko (same source as /api/btc-price)."""
+    """Fetch BTC spot price from Coinbase."""
     try:
         r = requests.get(
             "https://api.coinbase.com/v2/prices/BTC-USD/spot",
@@ -121,8 +121,12 @@ def check_all_alerts():
                 logger.error("Email failed for alert #%d: %s", alert.id, result.get("error"))
 
         if triggered:
-            db.session.commit()
-            logger.info("Triggered %d alerts", triggered)
+            try:
+                db.session.commit()
+                logger.info("Triggered %d alerts", triggered)
+            except Exception as e:
+                db.session.rollback()
+                logger.error("DB commit failed after triggering %d alerts: %s", triggered, e)
         else:
             logger.info("No alerts triggered (%d active)", len(alerts))
 

@@ -173,7 +173,10 @@ function submitAlert() {
   fetch('/api/alerts/subscribe', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({email, price_target:target, direction})
-  }).then(r=>r.json()).then(d=>{
+  }).then(r=>{
+    if(!r.ok && r.headers.get('content-type')?.indexOf('json')===-1) throw new Error('Server error');
+    return r.json();
+  }).then(d=>{
     msg.textContent = d.message;
     msg.className = 'form-msg ' + (d.status==='created'?'success':'error');
     if(d.status==='created') {

@@ -101,6 +101,9 @@ function deleteAlert(id) {
     if(d.status==='deleted') {
       document.getElementById('alert-'+id).remove();
       msg.textContent='Alert removed.'; msg.className='msg success';
+      if(!document.querySelector('.alert-card')) {
+        document.getElementById('alertList').innerHTML='<div class="empty-state">No alerts found.</div>';
+      }
     } else {
       msg.textContent=d.message; msg.className='msg error';
     }
