@@ -354,13 +354,24 @@ def index():
         ).limit(3).all()
         recent_articles = Article.query.filter_by(published=True).order_by(
             db.func.coalesce(Article.published_at, Article.created_at).desc()
-        ).limit(6).all()
+        ).limit(12).all()
         featured_podcasts = Podcast.query.filter_by(featured=True).order_by(Podcast.published_date.desc()).limit(3).all()
+        # Carousel: top articles by importance_score (falls back to featured then recent)
+        try:
+            from sqlalchemy import text as _sqla_text
+            carousel_rows = db.session.execute(_sqla_text(
+                "SELECT id FROM articles WHERE published=1 ORDER BY COALESCE(importance_score,0) DESC, created_at DESC LIMIT 3"
+            )).fetchall()
+            carousel_ids = [r[0] for r in carousel_rows]
+            carousel_articles = [Article.query.get(aid) for aid in carousel_ids if Article.query.get(aid)]
+        except Exception:
+            carousel_articles = featured_articles[:3] if featured_articles else recent_articles[:3]
     except Exception as _db_err:
         logging.error("Homepage DB query failed: %s", _db_err)
         featured_articles = []
         recent_articles = []
         featured_podcasts = []
+        carousel_articles = []
 
     # Fetch live cryptocurrency prices
     prices = price_service.get_prices()
@@ -402,7 +413,7 @@ def index():
 
     import os as _os
     article_image_urls = {}
-    for a in (featured_articles + recent_articles + bento_articles):
+    for a in (featured_articles + recent_articles + bento_articles + carousel_articles):
         ciu = (getattr(a, "cover_image_url", None) or "").strip()
         if ciu and ciu.startswith("http"):
             article_image_urls[a.id] = ciu
@@ -422,6 +433,7 @@ def index():
     return render_template('index.html',
                          featured_articles=featured_articles,
                          recent_articles=recent_articles,
+                         carousel_articles=carousel_articles,
                          featured_podcasts=featured_podcasts,
                          prices=prices,
                          price_service=price_service,
