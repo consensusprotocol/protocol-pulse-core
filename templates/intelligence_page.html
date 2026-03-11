@@ -433,11 +433,219 @@
   padding: 2px 5px;
 }
 
+/* ── SESSION 12: Anomaly alert banner ── */
+.anomaly-banner {
+  background: linear-gradient(90deg, rgba(220,38,38,0.18), rgba(220,38,38,0.06));
+  border: 1px solid rgba(220,38,38,0.35);
+  border-radius: 12px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+  animation: anomaly-pulse 2s ease-in-out infinite;
+}
+
+@keyframes anomaly-pulse {
+  0%, 100% { border-color: rgba(220,38,38,0.35); box-shadow: none; }
+  50% { border-color: rgba(220,38,38,0.7); box-shadow: 0 0 16px rgba(220,38,38,0.2); }
+}
+
+.anomaly-dot {
+  width: 10px; height: 10px;
+  background: #dc2626;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: anomaly-blink 1s step-end infinite;
+}
+
+@keyframes anomaly-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+/* ── SESSION 12: Sentiment heatmap ── */
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.heatmap-cell {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02);
+  cursor: default;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.heatmap-cell:hover { transform: translateY(-1px); }
+
+.heatmap-cell.bullish {
+  background: rgba(137,255,184,0.07);
+  border-color: rgba(137,255,184,0.20);
+}
+
+.heatmap-cell.bearish {
+  background: rgba(255,139,160,0.07);
+  border-color: rgba(255,139,160,0.20);
+}
+
+.heatmap-cell.neutral {
+  background: rgba(248,193,92,0.06);
+  border-color: rgba(248,193,92,0.14);
+}
+
+.heatmap-cat {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #95a0ba;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.heatmap-sentiment {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.heatmap-cell.bullish .heatmap-sentiment { color: #89ffb8; }
+.heatmap-cell.bearish .heatmap-sentiment { color: #ff8ba0; }
+.heatmap-cell.neutral .heatmap-sentiment { color: #f8c15c; }
+
+.heatmap-bar-track {
+  height: 3px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.heatmap-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+.heatmap-cell.bullish .heatmap-bar-fill { background: #89ffb8; }
+.heatmap-cell.bearish .heatmap-bar-fill { background: #ff8ba0; }
+.heatmap-cell.neutral .heatmap-bar-fill { background: #f8c15c; }
+
+/* ── SESSION 12: Dominant narrative display ── */
+.dominant-narrative-wrap {
+  text-align: center;
+  padding: 20px 12px;
+}
+
+.dominant-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #f8c15c;
+  margin-bottom: 12px;
+}
+
+.dominant-text {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #eef2ff;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+
+.momentum-badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 99px;
+}
+
+.momentum-badge.intensifying { background: rgba(137,255,184,0.12); color: #89ffb8; }
+.momentum-badge.weakening    { background: rgba(255,139,160,0.12); color: #ff8ba0; }
+.momentum-badge.stable       { background: rgba(248,193,92,0.10); color: #f8c15c; }
+
+/* ── SESSION 12: Live sentiment feed ── */
+.live-feed-wrap {
+  max-height: 340px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+.live-feed-item {
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  align-items: flex-start;
+  opacity: 0;
+  transform: translateY(6px);
+  animation: feed-in 0.35s ease forwards;
+}
+
+.live-feed-item:last-child { border-bottom: none; }
+
+@keyframes feed-in {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.live-feed-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.live-feed-dot.bullish { background: #89ffb8; }
+.live-feed-dot.bearish { background: #ff8ba0; }
+.live-feed-dot.neutral { background: #f8c15c; }
+.live-feed-dot.unclassified { background: #4a5568; }
+
+.live-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #89ffb8;
+  margin-bottom: 12px;
+}
+
+.live-status-dot {
+  width: 6px; height: 6px;
+  background: #89ffb8;
+  border-radius: 50%;
+  animation: live-blink 1.5s ease-in-out infinite;
+}
+
+@keyframes live-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .intel-headline { font-size: 1.8rem; }
   .signal-composite { font-size: 3.5rem; }
   .intel-page { padding: 90px 16px 60px; }
+  .heatmap-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
 }
 
 @media (max-width: 1200px) {
@@ -449,6 +657,22 @@
 {% block content %}
 <div class="intel-page">
 <div class="intel-container">
+
+  <!-- SESSION 12: Anomaly Alert Banner -->
+  {% if anomaly_active %}
+  <div class="anomaly-banner" id="anomaly-banner">
+    <div class="anomaly-dot"></div>
+    <div style="flex:1;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;color:#ff8ba0;margin-bottom:2px;">
+        SENTIMENT ANOMALY DETECTED
+      </div>
+      <div style="font-size:13px;color:#eef2ff;">
+        Bullish/bearish sentiment shifted &gt;20% in the last hour. Review intelligence events below.
+      </div>
+    </div>
+    <a href="#intel-events" style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:0.12em;color:#ff8ba0;text-decoration:none;white-space:nowrap;">VIEW EVENTS ↓</a>
+  </div>
+  {% endif %}
 
   <!-- Header -->
   <div class="mb-4">
@@ -759,6 +983,140 @@
     </div>
   </div>
 
+
+  <!-- SESSION 12 Row: Sentiment Heatmap + Dominant Narrative + Summary -->
+  <div class="row g-4 mt-2 mb-4">
+
+    <!-- Sentiment Heatmap by Category -->
+    <div class="col-lg-7">
+      <div class="g-card accent-cyan">
+        <span class="g-eyebrow">Sentiment Heatmap by Category (48h)</span>
+        {% if category_heatmap %}
+        <div class="heatmap-grid">
+          {% for cell in category_heatmap %}
+          <div class="heatmap-cell {{ cell.dominant_sentiment }}"
+               title="{{ cell.category }}: {{ cell.bullish_count }} bullish / {{ cell.bearish_count }} bearish / {{ cell.neutral_count }} neutral">
+            <div class="heatmap-cat">{{ cell.category[:16] }}</div>
+            <div class="heatmap-sentiment">
+              {% if cell.dominant_sentiment == 'bullish' %}▲{% elif cell.dominant_sentiment == 'bearish' %}▼{% else %}●{% endif %}
+              {{ cell.dominant_sentiment }}
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#4a5568;margin-top:2px;">
+              {{ cell.total }} articles
+            </div>
+            <div class="heatmap-bar-track">
+              {% if cell.dominant_sentiment == 'bullish' %}
+              <div class="heatmap-bar-fill" style="width:{{ cell.bullish_pct }}%;"></div>
+              {% elif cell.dominant_sentiment == 'bearish' %}
+              <div class="heatmap-bar-fill" style="width:{{ cell.bearish_pct }}%;"></div>
+              {% else %}
+              <div class="heatmap-bar-fill" style="width:50%;"></div>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted small mt-2">No heatmap data yet. Run batch classification to populate.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Dominant Narrative + Sentiment Score -->
+    <div class="col-lg-5">
+      <div class="g-card accent-gold">
+        <span class="g-eyebrow">Dominant Narrative & Sentiment Score</span>
+
+        {% set ss = sentiment_summary %}
+        <div class="dominant-narrative-wrap">
+          <div class="dominant-label">DOMINANT NARRATIVE</div>
+          <div class="dominant-text">{{ ss.dominant_narrative|title }}</div>
+          <div class="momentum-badge {{ ss.momentum }}">
+            {% if ss.momentum == 'intensifying' %}▲{% elif ss.momentum == 'weakening' %}▼{% else %}→{% endif %}
+            {{ ss.momentum }}
+          </div>
+        </div>
+
+        <!-- Sentiment donut-style bar -->
+        <div class="mt-3">
+          <div style="height:8px;border-radius:4px;overflow:hidden;display:flex;gap:2px;">
+            <div style="width:{{ ss.bullish_pct }}%;background:#89ffb8;border-radius:4px 0 0 4px;"></div>
+            <div style="width:{{ ss.neutral_pct }}%;background:#f8c15c;"></div>
+            <div style="width:{{ ss.bearish_pct }}%;background:#ff8ba0;border-radius:0 4px 4px 0;"></div>
+          </div>
+          <div class="d-flex justify-content-between mt-2" style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;">
+            <span style="color:#89ffb8;">▲ {{ ss.bullish_pct|round(1) }}% bull</span>
+            <span style="color:#f8c15c;">● {{ ss.neutral_pct|round(1) }}% neutral</span>
+            <span style="color:#ff8ba0;">▼ {{ ss.bearish_pct|round(1) }}% bear</span>
+          </div>
+        </div>
+
+        <!-- Overall score -->
+        <div class="text-center mt-3">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:2.8rem;font-weight:900;letter-spacing:-0.04em;
+                      color:{% if ss.overall_sentiment == 'bullish' %}#89ffb8{% elif ss.overall_sentiment == 'bearish' %}#ff8ba0{% else %}#f8c15c{% endif %};">
+            {{ ss.score }}
+          </div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;
+                      color:{% if ss.overall_sentiment == 'bullish' %}#89ffb8{% elif ss.overall_sentiment == 'bearish' %}#ff8ba0{% else %}#f8c15c{% endif %};">
+            {{ ss.overall_sentiment }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSION 12 Row: Live Sentiment Feed (SSE-powered) -->
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <div class="g-card">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div>
+            <div class="live-status">
+              <div class="live-status-dot"></div>
+              LIVE CLASSIFICATION FEED
+            </div>
+          </div>
+          <a href="/sentiment" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#f8c15c;text-decoration:none;font-weight:700;letter-spacing:0.10em;">
+            FULL DASHBOARD ↗
+          </a>
+        </div>
+        <div class="live-feed-wrap" id="live-feed">
+          <!-- Initial articles from SSR -->
+          {% for art in top_articles[:5] %}
+          <div class="live-feed-item" style="animation-delay:{{ loop.index0 * 0.06 }}s;">
+            <div class="live-feed-dot {{ art.sentiment }}"></div>
+            <div style="flex:1;">
+              <div style="font-size:12px;color:#eef2ff;font-weight:600;line-height:1.4;margin-bottom:3px;">
+                <a href="/articles/{{ art.id }}" style="color:inherit;text-decoration:none;">
+                  {{ art.title|truncate(120) }}
+                </a>
+              </div>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <span class="s-badge {{ art.sentiment }}">
+                  {% if art.sentiment == 'bullish' %}▲{% elif art.sentiment == 'bearish' %}▼{% else %}●{% endif %}
+                  {{ art.sentiment }}
+                </span>
+                {% if art.narrative_label and art.narrative_label != '—' %}
+                <span class="narr-chip">{{ art.narrative_label }}</span>
+                {% endif %}
+                <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#4a5568;">
+                  imp {{ art.importance_score }}
+                </span>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+          {% if not top_articles %}
+          <div id="live-feed-empty" style="text-align:center;padding:24px;color:#4a5568;font-size:13px;">
+            Waiting for classifications…
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div><!-- /intel-container -->
 </div><!-- /intel-page -->
 {% endblock %}
@@ -805,6 +1163,120 @@
       }
     } catch (e) { /* ignore */ }
   }, 300000); // 5 minutes
+
+  // ── SESSION 12: SSE live feed ─────────────────────────────────────────────
+  const feed = document.getElementById('live-feed');
+  const MAX_FEED_ITEMS = 20;
+
+  function sentimentColor(s) {
+    if (s === 'bullish') return '#89ffb8';
+    if (s === 'bearish') return '#ff8ba0';
+    return '#f8c15c';
+  }
+
+  function sentimentArrow(s) {
+    if (s === 'bullish') return '▲';
+    if (s === 'bearish') return '▼';
+    return '●';
+  }
+
+  function addFeedItem(evt) {
+    if (!feed || !evt.title) return;
+    // Remove empty state placeholder
+    const empty = document.getElementById('live-feed-empty');
+    if (empty) empty.remove();
+
+    const div = document.createElement('div');
+    div.className = 'live-feed-item';
+    const color = sentimentColor(evt.sentiment);
+    const arrow = sentimentArrow(evt.sentiment);
+    div.innerHTML = `
+      <div class="live-feed-dot ${evt.sentiment || 'neutral'}"></div>
+      <div style="flex:1;">
+        <div style="font-size:12px;color:#eef2ff;font-weight:600;line-height:1.4;margin-bottom:3px;">
+          <a href="/articles/${evt.article_id}" style="color:inherit;text-decoration:none;">
+            ${(evt.title || '').slice(0, 120)}
+          </a>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span class="s-badge ${evt.sentiment}" style="background:${color}18;color:${color};">
+            ${arrow} ${evt.sentiment || 'neutral'}
+          </span>
+          ${evt.narrative_label ? `<span class="narr-chip">${evt.narrative_label}</span>` : ''}
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#4a5568;">
+            imp ${evt.importance_score || 50}
+          </span>
+        </div>
+      </div>
+    `;
+
+    feed.insertBefore(div, feed.firstChild);
+
+    // Trim old items
+    const items = feed.querySelectorAll('.live-feed-item');
+    if (items.length > MAX_FEED_ITEMS) {
+      items[items.length - 1].remove();
+    }
+  }
+
+  // Connect to SSE stream
+  function connectSSE() {
+    if (!window.EventSource) return;
+    const es = new EventSource('/api/stream/sentiment');
+
+    es.onmessage = (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        if (data.type === 'connected') return;
+        if (data.type === 'classification' || data.article_id) {
+          addFeedItem(data);
+        }
+      } catch (err) { /* ignore parse errors */ }
+    };
+
+    es.onerror = () => {
+      es.close();
+      // Reconnect after 10s
+      setTimeout(connectSSE, 10000);
+    };
+  }
+
+  connectSSE();
+
+  // ── SESSION 12: Auto-refresh anomaly check every 60s ─────────────────────
+  const anomalyBanner = document.getElementById('anomaly-banner');
+
+  setInterval(async () => {
+    try {
+      const r = await fetch('/api/v2/sentiment/summary');
+      if (!r.ok) return;
+      const d = await r.json();
+      if (!d.success || !d.data) return;
+      const summary = d.data;
+
+      if (summary.anomaly && !anomalyBanner) {
+        // Insert banner if not present
+        const container = document.querySelector('.intel-container');
+        if (container) {
+          const banner = document.createElement('div');
+          banner.id = 'anomaly-banner';
+          banner.className = 'anomaly-banner';
+          banner.innerHTML = `
+            <div class="anomaly-dot"></div>
+            <div style="flex:1;">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;color:#ff8ba0;margin-bottom:2px;">
+                SENTIMENT ANOMALY DETECTED
+              </div>
+              <div style="font-size:13px;color:#eef2ff;">
+                Sentiment shifted &gt;20% in the last hour.
+              </div>
+            </div>
+          `;
+          container.insertBefore(banner, container.firstChild);
+        }
+      }
+    } catch (e) { /* ignore */ }
+  }, 60000);
 
 })();
 </script>
