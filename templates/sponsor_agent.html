@@ -68,7 +68,6 @@
           {% if item.notes %}<div class="sa-card-notes">{{ item.notes }}</div>{% endif %}
           <div class="sa-card-actions">
             {% if item.status == 'prospect' %}
-              <button class="sa-btn" onclick="updateStatus({{ item.id }}, 'draft')">Draft</button>
               <button class="sa-btn" onclick="updateStatus({{ item.id }}, 'rejected')">Reject</button>
             {% elif item.status == 'draft' %}
               <button class="sa-btn" onclick="updateStatus({{ item.id }}, 'approved')">Approve</button>
@@ -88,6 +87,9 @@
           </div>
         </div>
         {% endfor %}
+        {% if not columns[status] %}
+        <div style="color:#555; font-size:12px; text-align:center; padding:30px 10px;">No items</div>
+        {% endif %}
       </div>
     </div>
     {% endfor %}

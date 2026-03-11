@@ -21,44 +21,80 @@ sponsor_bp = Blueprint("sponsor", __name__)
 
 VALID_STATUSES = {"prospect", "draft", "approved", "sent", "replied", "negotiating", "closed", "rejected"}
 
+ALLOWED_TRANSITIONS = {
+    "prospect": {"draft", "rejected"},
+    "draft": {"approved", "rejected"},
+    "approved": {"sent", "rejected"},
+    "sent": {"replied", "rejected"},
+    "replied": {"negotiating", "rejected"},
+    "negotiating": {"closed", "rejected"},
+    "closed": set(),
+    "rejected": set(),
+}
+
 
 def _check_admin():
-    """Verify admin token. Returns error response or None if OK."""
+    """Verify admin token via header only. Returns error response or None if OK."""
     token = os.environ.get("ADMIN_TOKEN", "")
     if not token:
         return jsonify({"error": "ADMIN_TOKEN not configured"}), 500
 
-    provided = request.headers.get("X-Admin-Token") or request.args.get("token", "")
+    provided = request.headers.get("X-Admin-Token", "")
     if provided != token:
         return jsonify({"error": "Unauthorized"}), 401
 
     return None
 
 
+def _check_admin_page():
+    """Verify admin for page loads (header or query param for initial load)."""
+    token = os.environ.get("ADMIN_TOKEN", "")
+    if not token:
+        return False
+    provided = request.headers.get("X-Admin-Token") or request.args.get("token", "")
+    return provided == token
+
+
+def _log_activity(db, outreach_id: int, action: str, details: str = None,
+                  old_status: str = None, new_status: str = None):
+    """Record a state change in the activity log."""
+    from models import SponsorActivityLog
+    log = SponsorActivityLog(
+        outreach_id=outreach_id,
+        action=action,
+        old_status=old_status,
+        new_status=new_status,
+        details=details,
+    )
+    db.session.add(log)
+
+
 @sponsor_bp.route("/sponsor-agent")
 def dashboard():
     """Admin Kanban dashboard for sponsor outreach pipeline."""
-    token = os.environ.get("ADMIN_TOKEN", "")
-    provided = request.args.get("token", "")
-    if not token or provided != token:
+    if not _check_admin_page():
         return "Unauthorized", 401
 
-    from app import db
     from models import SponsorOutreach
 
-    outreach_items = SponsorOutreach.query.order_by(SponsorOutreach.created_at.desc()).all()
+    outreach_items = (
+        SponsorOutreach.query
+        .filter_by(is_deleted=False)
+        .order_by(SponsorOutreach.created_at.desc())
+        .all()
+    )
 
-    # Group by status
     columns = {}
     for status in ["prospect", "draft", "approved", "sent", "replied", "negotiating", "closed", "rejected"]:
         columns[status] = [o for o in outreach_items if o.status == status]
 
-    # Stats
     total = len(outreach_items)
     sent_count = sum(1 for o in outreach_items if o.status in ("sent", "replied", "negotiating", "closed"))
     replied_count = sum(1 for o in outreach_items if o.status in ("replied", "negotiating", "closed"))
     closed_count = sum(1 for o in outreach_items if o.status == "closed")
     revenue = sum(o.deal_value or 0 for o in outreach_items if o.status == "closed")
+
+    token = request.args.get("token", "")
 
     return render_template(
         "sponsor_agent.html",
@@ -68,7 +104,7 @@ def dashboard():
         replied_count=replied_count,
         closed_count=closed_count,
         revenue=revenue,
-        token=provided,
+        token=token,
     )
 
 
@@ -80,11 +116,17 @@ def api_scan():
         return auth_err
 
     data = request.get_json(silent=True) or {}
-    count = min(int(data.get("count", 5)), 20)
+
+    try:
+        count = max(1, min(int(data.get("count", 5)), 20))
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid count parameter"}), 400
+
     category = data.get("category")
+    if category and category not in {"hardware", "exchanges", "mining", "financial", "education"}:
+        return jsonify({"error": f"Invalid category: {category}"}), 400
 
     from sponsor_agent.prospect_finder import find_new_prospects
-    from app import app
 
     prospects = find_new_prospects(count=count, category=category)
     return jsonify({"found": len(prospects), "prospects": prospects})
@@ -114,7 +156,12 @@ def api_send():
     from models import SponsorOutreach
 
     data = request.get_json(silent=True) or {}
-    outreach_id = data.get("id")
+
+    try:
+        outreach_id = int(data.get("id", 0))
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid id"}), 400
+
     if not outreach_id:
         return jsonify({"error": "Missing id"}), 400
 
@@ -128,7 +175,9 @@ def api_send():
     if not outreach.email:
         return jsonify({"error": "No email address for this prospect"}), 400
 
-    # Send via Resend
+    if not outreach.subject or not outreach.body:
+        return jsonify({"error": "Email subject and body must be set before sending"}), 400
+
     resend_key = os.environ.get("RESEND_API_KEY", "")
     if not resend_key:
         return jsonify({"error": "RESEND_API_KEY not configured"}), 500
@@ -148,15 +197,28 @@ def api_send():
             timeout=15,
         )
         resp.raise_for_status()
+        resend_data = resp.json()
     except http_requests.RequestException as exc:
-        logger.error("Resend send failed for %s: %s", outreach.company, exc)
+        logger.error("Resend send failed for outreach_id=%d (%s): %s", outreach.id, outreach.company, exc)
         return jsonify({"error": f"Send failed: {exc}"}), 502
 
+    old_status = outreach.status
     outreach.status = "sent"
     outreach.sent_at = datetime.utcnow()
-    db.session.commit()
+    outreach.resend_message_id = resend_data.get("id")
 
-    logger.info("Sent outreach email to %s (%s)", outreach.company, outreach.email)
+    _log_activity(db, outreach.id, "email_sent",
+                  f"Sent via Resend (msg_id={outreach.resend_message_id})",
+                  old_status=old_status, new_status="sent")
+
+    try:
+        db.session.commit()
+    except Exception as exc:
+        db.session.rollback()
+        logger.error("DB commit failed after sending email for outreach_id=%d: %s", outreach.id, exc)
+        return jsonify({"error": "Email sent but failed to update status — check logs"}), 500
+
+    logger.info("Sent outreach to %s (%s), resend_id=%s", outreach.company, outreach.email, outreach.resend_message_id)
     return jsonify({"ok": True, "company": outreach.company})
 
 
@@ -171,13 +233,18 @@ def api_update_status():
     from models import SponsorOutreach
 
     data = request.get_json(silent=True) or {}
-    outreach_id = data.get("id")
-    new_status = data.get("status")
-    notes = data.get("notes")
-    deal_value = data.get("deal_value")
+
+    try:
+        outreach_id = int(data.get("id", 0))
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid id"}), 400
 
     if not outreach_id:
         return jsonify({"error": "Missing id"}), 400
+
+    new_status = data.get("status")
+    notes = data.get("notes")
+    deal_value = data.get("deal_value")
 
     outreach = SponsorOutreach.query.get(outreach_id)
     if not outreach:
@@ -186,17 +253,36 @@ def api_update_status():
     if new_status:
         if new_status not in VALID_STATUSES:
             return jsonify({"error": f"Invalid status: {new_status}"}), 400
+
+        allowed = ALLOWED_TRANSITIONS.get(outreach.status, set())
+        if new_status not in allowed:
+            return jsonify({"error": f"Cannot transition from '{outreach.status}' to '{new_status}'"}), 400
+
+        old_status = outreach.status
         outreach.status = new_status
         if new_status == "replied":
             outreach.replied_at = datetime.utcnow()
+
+        _log_activity(db, outreach.id, "status_change",
+                      f"{old_status} -> {new_status}",
+                      old_status=old_status, new_status=new_status)
 
     if notes is not None:
         outreach.notes = notes
 
     if deal_value is not None:
-        outreach.deal_value = float(deal_value)
+        try:
+            outreach.deal_value = float(deal_value)
+        except (ValueError, TypeError):
+            return jsonify({"error": "Invalid deal_value"}), 400
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception as exc:
+        db.session.rollback()
+        logger.error("Failed to update outreach_id=%d: %s", outreach_id, exc)
+        return jsonify({"error": "Update failed"}), 500
+
     return jsonify({"ok": True, "status": outreach.status})
 
 
@@ -207,19 +293,32 @@ def api_stats():
     if auth_err:
         return auth_err
 
+    from app import db
     from models import SponsorOutreach
+    from sqlalchemy import func
 
-    items = SponsorOutreach.query.all()
+    status_counts = (
+        db.session.query(SponsorOutreach.status, func.count(SponsorOutreach.id))
+        .filter_by(is_deleted=False)
+        .group_by(SponsorOutreach.status)
+        .all()
+    )
+
     stats = {s: 0 for s in VALID_STATUSES}
-    revenue = 0.0
-    for item in items:
-        if item.status in stats:
-            stats[item.status] += 1
-        if item.status == "closed" and item.deal_value:
-            revenue += item.deal_value
+    total = 0
+    for status, cnt in status_counts:
+        if status in stats:
+            stats[status] = cnt
+        total += cnt
+
+    revenue_result = (
+        db.session.query(func.coalesce(func.sum(SponsorOutreach.deal_value), 0))
+        .filter_by(status="closed", is_deleted=False)
+        .scalar()
+    )
 
     return jsonify({
-        "total": len(items),
+        "total": total,
         "by_status": stats,
-        "revenue": revenue,
+        "revenue": float(revenue_result),
     })

@@ -7,9 +7,7 @@ enriches with Hunter.io contact data, stores in SponsorOutreach table.
 
 import os
 import logging
-import hashlib
 import requests
-from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -72,14 +70,14 @@ def _extract_domain(url: str) -> str:
 
     parsed = urlparse(url)
     host = parsed.hostname or ""
-    # Strip www.
     if host.startswith("www."):
         host = host[4:]
     return host
 
 
 def _find_email_hunter(domain: str) -> str | None:
-    """Find a contact email for domain via Hunter.io."""
+    """Find a verified contact email for domain via Hunter.io.
+    Only returns emails that Hunter has actually found — never fabricates."""
     key = _hunter_key()
     if not key:
         return None
@@ -95,10 +93,6 @@ def _find_email_hunter(domain: str) -> str | None:
         emails = data.get("emails", [])
         if emails:
             return emails[0].get("value")
-        # Fallback to pattern-based
-        pattern = data.get("pattern")
-        if pattern:
-            return f"{pattern}@{domain}"
     except requests.RequestException as exc:
         logger.error("Hunter.io lookup failed for %s: %s", domain, exc)
 
@@ -116,6 +110,20 @@ def _relevance_score(title: str, snippet: str, category: str) -> float:
 
     score = min(1.0, (btc_hits * 0.15 + biz_hits * 0.1 + 0.2))
     return round(score, 2)
+
+
+def _log_activity(db, outreach_id: int, action: str, details: str = None,
+                  old_status: str = None, new_status: str = None):
+    """Record a state change in the activity log."""
+    from models import SponsorActivityLog
+    log = SponsorActivityLog(
+        outreach_id=outreach_id,
+        action=action,
+        old_status=old_status,
+        new_status=new_status,
+        details=details,
+    )
+    db.session.add(log)
 
 
 def find_new_prospects(count: int = 5, category: str | None = None) -> list[dict]:
@@ -186,7 +194,6 @@ def find_new_prospects(count: int = 5, category: str | None = None) -> list[dict
                 }
                 prospects.append(prospect)
 
-                # Store in DB
                 outreach = SponsorOutreach(
                     company=prospect["company"],
                     domain=prospect["domain"],
@@ -195,6 +202,10 @@ def find_new_prospects(count: int = 5, category: str | None = None) -> list[dict
                     status="prospect",
                 )
                 db.session.add(outreach)
+                db.session.flush()
+
+                _log_activity(db, outreach.id, "created", f"Prospect found via Serper: {domain}",
+                              new_status="prospect")
 
     try:
         db.session.commit()
@@ -202,5 +213,6 @@ def find_new_prospects(count: int = 5, category: str | None = None) -> list[dict
     except Exception as exc:
         db.session.rollback()
         logger.error("Failed to store prospects: %s", exc)
+        prospects = []
 
     return prospects

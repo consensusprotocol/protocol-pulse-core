@@ -1417,7 +1417,7 @@ class SponsorOutreach(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     company = db.Column(db.String(200), nullable=False)
-    domain = db.Column(db.String(200), nullable=False, index=True)
+    domain = db.Column(db.String(200), nullable=False, unique=True)
     email = db.Column(db.String(200))
     category = db.Column(db.String(50))
     status = db.Column(db.String(50), default="prospect", index=True)
@@ -1427,4 +1427,27 @@ class SponsorOutreach(db.Model):
     replied_at = db.Column(db.DateTime)
     deal_value = db.Column(db.Float)
     notes = db.Column(db.Text)
+    is_deleted = db.Column(db.Boolean, default=False, index=True)
+    resend_message_id = db.Column(db.String(200))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.Index("idx_sponsor_outreach_domain", "domain", unique=True),
+        db.Index("idx_sponsor_outreach_active", "status", "is_deleted"),
+    )
+
+
+class SponsorActivityLog(db.Model):
+    __tablename__ = "sponsor_activity_log"
+
+    id = db.Column(db.Integer, primary_key=True)
+    outreach_id = db.Column(db.Integer, db.ForeignKey("sponsor_outreach.id"), nullable=False)
+    action = db.Column(db.String(50), nullable=False)
+    old_status = db.Column(db.String(50))
+    new_status = db.Column(db.String(50))
+    details = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.Index("idx_sponsor_activity_outreach", "outreach_id"),
+    )

@@ -82,7 +82,7 @@ def draft_emails_for_prospects() -> int:
     from app import db
     from models import SponsorOutreach
 
-    prospects = SponsorOutreach.query.filter_by(status="prospect").all()
+    prospects = SponsorOutreach.query.filter_by(status="prospect", is_deleted=False).all()
     drafted = 0
 
     for outreach in prospects:
@@ -97,9 +97,20 @@ def draft_emails_for_prospects() -> int:
             outreach.body = result["body"]
             outreach.status = "draft"
             drafted += 1
-            logger.info("Drafted email for %s", outreach.company)
+
+            from models import SponsorActivityLog
+            log = SponsorActivityLog(
+                outreach_id=outreach.id,
+                action="email_drafted",
+                old_status="prospect",
+                new_status="draft",
+                details=f"Subject: {result['subject'][:100]}",
+            )
+            db.session.add(log)
+
+            logger.info("Drafted email for %s (id=%d)", outreach.company, outreach.id)
         else:
-            logger.warning("Empty draft for %s — skipping", outreach.company)
+            logger.warning("Empty draft for %s (id=%d) — skipping", outreach.company, outreach.id)
 
     try:
         db.session.commit()
