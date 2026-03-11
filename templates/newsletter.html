@@ -393,6 +393,18 @@
 
 <div class="nl-page">
 
+  {% if status == 'confirmed' %}
+  <div style="background:rgba(34,197,94,0.1);border-bottom:1px solid rgba(34,197,94,0.3);
+              padding:16px;text-align:center;font-family:var(--mono);font-size:14px;color:#22c55e;">
+    Subscription confirmed! You're now receiving the daily Protocol Pulse briefing.
+  </div>
+  {% elif status == 'already_confirmed' %}
+  <div style="background:rgba(248,193,92,0.1);border-bottom:1px solid rgba(248,193,92,0.3);
+              padding:16px;text-align:center;font-family:var(--mono);font-size:14px;color:#F8C15C;">
+    Your subscription is already confirmed. You're in the feed.
+  </div>
+  {% endif %}
+
   <!-- ── HERO ─────────────────────────────────────────────────────────── -->
   <section class="nl-hero">
     <div class="container">
@@ -415,7 +427,7 @@
         <div class="nl-toast" id="heroToast"></div>
         <p class="nl-social-proof" style="margin-top:16px">
           Join <span>{{ subscriber_count if subscriber_count > 0 else '—' }}</span>
-          subscribers receiving the daily Pulse Check briefing
+          readers receiving the daily Pulse Check briefing
         </p>
       </div>
     </div>

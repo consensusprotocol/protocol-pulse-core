@@ -1263,21 +1263,27 @@ class ApiUsageLog(db.Model):
 # ── B1 Newsletter (Gospel: b1-newsletter) ──────────────────────────────────
 
 class NewsletterSubscriber(db.Model):
-    """LAW 4: Each subscriber has a unique unsubscribe_token (CAN-SPAM compliance)."""
+    """LAW 4: Each subscriber has a unique unsubscribe_token (CAN-SPAM compliance).
+    Double opt-in: confirmed=False until email link clicked."""
     __tablename__ = 'newsletter_subscribers'
 
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(320), unique=True, nullable=False)
     unsubscribe_token = db.Column(db.String(64), unique=True, nullable=False)
+    confirmation_token = db.Column(db.String(64), unique=True)
+    confirmed = db.Column(db.Boolean, default=False, nullable=False)
+    confirmed_at = db.Column(db.DateTime)
     subscribed = db.Column(db.Boolean, default=True, nullable=False)
     subscribed_at = db.Column(db.DateTime, default=datetime.utcnow)
     unsubscribed_at = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     source = db.Column(db.String(50))  # 'homepage', 'api', 'import'
 
     __table_args__ = (
         db.Index('idx_newsletter_sub_email', 'email'),
         db.Index('idx_newsletter_sub_token', 'unsubscribe_token'),
         db.Index('idx_newsletter_sub_active', 'subscribed'),
+        db.Index('idx_newsletter_sub_confirm', 'confirmation_token'),
     )
 
 
@@ -1295,6 +1301,22 @@ class NewsletterSend(db.Model):
 
     __table_args__ = (
         db.Index('idx_newsletter_sends_at', 'sent_at'),
+    )
+
+
+class NewsletterCampaign(db.Model):
+    """Tracks digest campaign sends with metadata."""
+    __tablename__ = 'newsletter_campaigns'
+
+    id = db.Column(db.Integer, primary_key=True)
+    sent_at = db.Column(db.DateTime, default=datetime.utcnow)
+    recipient_count = db.Column(db.Integer, default=0)
+    failed_count = db.Column(db.Integer, default=0)
+    top_headline = db.Column(db.String(300))
+    status = db.Column(db.String(30), default='sent')  # sent | partial | failed
+
+    __table_args__ = (
+        db.Index('idx_newsletter_campaign_at', 'sent_at'),
     )
 
 

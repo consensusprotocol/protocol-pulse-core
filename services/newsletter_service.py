@@ -12,6 +12,7 @@ Laws:
 
 import os
 import uuid
+import secrets
 import logging
 import requests
 from datetime import datetime, date
@@ -37,8 +38,10 @@ def _resend_api_key() -> str:
 
 def subscribe(email: str, source: str = "api") -> Tuple[bool, str]:
     """
-    Add a subscriber. Returns (success, message).
-    Idempotent — if already subscribed returns success with note.
+    Double opt-in subscribe. Returns (success, status).
+    Status values: 'already_subscribed', 'check_email', 'check_email_resent'.
+    Sends confirmation email via Resend. Subscriber is NOT confirmed until
+    they click the link (GET /newsletter/confirm?token=xxx).
     """
     from app import db
     from models import NewsletterSubscriber
@@ -50,26 +53,37 @@ def subscribe(email: str, source: str = "api") -> Tuple[bool, str]:
     try:
         existing = NewsletterSubscriber.query.filter_by(email=email).first()
         if existing:
-            if existing.subscribed:
+            if existing.confirmed and existing.subscribed:
                 return True, "already_subscribed"
-            # Re-subscribe
+            if not existing.confirmed:
+                # Resend confirmation email
+                _send_confirmation_email(email, existing.confirmation_token)
+                return True, "check_email"
+            # Was unsubscribed — re-subscribe but require re-confirm
+            existing.confirmed = False
+            existing.confirmation_token = secrets.token_urlsafe(32)
             existing.subscribed = True
             existing.unsubscribed_at = None
             existing.subscribed_at = datetime.utcnow()
             db.session.commit()
-            return True, "resubscribed"
+            _send_confirmation_email(email, existing.confirmation_token)
+            return True, "check_email"
 
-        token = str(uuid.uuid4())
+        unsub_token = str(uuid.uuid4())
+        confirm_token = secrets.token_urlsafe(32)
         sub = NewsletterSubscriber(
             email=email,
-            unsubscribe_token=token,
+            unsubscribe_token=unsub_token,
+            confirmation_token=confirm_token,
+            confirmed=False,
             subscribed=True,
             source=source,
         )
         db.session.add(sub)
         db.session.commit()
-        logger.info(f"New subscriber: {email} (source={source})")
-        return True, "subscribed"
+        logger.info(f"New subscriber (pending confirm): {email} (source={source})")
+        _send_confirmation_email(email, confirm_token)
+        return True, "check_email"
 
     except Exception as e:
         try:
@@ -78,6 +92,117 @@ def subscribe(email: str, source: str = "api") -> Tuple[bool, str]:
             pass
         logger.error(f"subscribe error for {email}: {e}")
         return False, "database_error"
+
+
+def confirm_subscriber(token: str) -> Tuple[bool, str]:
+    """
+    Confirm a subscriber by their confirmation token.
+    Returns (success, status): 'confirmed', 'already_confirmed', 'not_found'.
+    Sends welcome email on first confirmation.
+    """
+    from app import db
+    from models import NewsletterSubscriber
+
+    if not token:
+        return False, "not_found"
+
+    try:
+        sub = NewsletterSubscriber.query.filter_by(confirmation_token=token).first()
+        if not sub:
+            return False, "not_found"
+        if sub.confirmed:
+            return True, "already_confirmed"
+
+        sub.confirmed = True
+        sub.confirmed_at = datetime.utcnow()
+        db.session.commit()
+        logger.info(f"Subscriber confirmed: {sub.email}")
+
+        # Send welcome email
+        _send_welcome_email(sub.email, sub.unsubscribe_token)
+        return True, "confirmed"
+
+    except Exception as e:
+        try:
+            db.session.rollback()
+        except Exception:
+            pass
+        logger.error(f"confirm_subscriber error: {e}")
+        return False, "database_error"
+
+
+def _send_confirmation_email(email: str, confirmation_token: str) -> bool:
+    """Send double opt-in confirmation email via Resend."""
+    key = _resend_api_key()
+    if not key:
+        logger.warning("RESEND_API_KEY not set — confirmation email skipped")
+        return False
+
+    confirm_url = f"{SITE_URL}/newsletter/confirm?token={confirmation_token}"
+
+    from services.email_templates import confirmation_email
+    tmpl = confirmation_email(confirm_url, email, SITE_URL)
+
+    try:
+        resp = requests.post(
+            f"{RESEND_BASE}/emails",
+            headers={
+                "Authorization": f"Bearer {key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "from": FROM_EMAIL,
+                "to": [email],
+                "subject": tmpl["subject"],
+                "html": tmpl["html"],
+            },
+            timeout=RESEND_TIMEOUT,
+        )
+        if resp.status_code in (200, 201):
+            logger.info("Confirmation email sent to %s", email)
+            return True
+        logger.warning("Confirmation email failed for %s: HTTP %s", email, resp.status_code)
+        return False
+    except Exception as e:
+        logger.error("Confirmation email exception for %s: %s", email, e)
+        return False
+
+
+def _send_welcome_email(email: str, unsubscribe_token: str) -> bool:
+    """Send welcome email after confirmation via Resend."""
+    key = _resend_api_key()
+    if not key:
+        logger.warning("RESEND_API_KEY not set — welcome email skipped")
+        return False
+
+    unsub_url = f"{SITE_URL}/newsletter/unsubscribe?token={unsubscribe_token}"
+
+    from services.email_templates import welcome_email
+    tmpl = welcome_email(unsub_url, SITE_URL)
+
+    try:
+        resp = requests.post(
+            f"{RESEND_BASE}/emails",
+            headers={
+                "Authorization": f"Bearer {key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "from": FROM_EMAIL,
+                "to": [email],
+                "subject": tmpl["subject"],
+                "html": tmpl["html"],
+            },
+            timeout=RESEND_TIMEOUT,
+        )
+        if resp.status_code in (200, 201):
+            logger.info("Welcome email sent to %s", email)
+            return True
+        logger.warning("Welcome email failed for %s: HTTP %s", email, resp.status_code)
+        return False
+    except Exception as e:
+        logger.error("Welcome email exception for %s: %s", email, e)
+        return False
 
 
 def unsubscribe_by_token(token: str) -> Tuple[bool, str]:
@@ -593,9 +718,9 @@ def send_daily_newsletter(force: bool = False) -> Dict:
     date_key = today.strftime("%Y-%m-%d")  # used as idempotency key base
     subject = f"Protocol Pulse — {date_str} | BTC: {btc_price} {btc_change}"
 
-    # Load active subscribers
+    # Load active confirmed subscribers only (double opt-in)
     try:
-        subscribers = NewsletterSubscriber.query.filter_by(subscribed=True).all()
+        subscribers = NewsletterSubscriber.query.filter_by(subscribed=True, confirmed=True).all()
     except Exception as e:
         logger.error(f"Subscriber query failed: {e}")
         return {"success": False, "error": f"Subscriber query error: {e}"}

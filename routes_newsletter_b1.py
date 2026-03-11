@@ -56,14 +56,14 @@ def api_newsletter_subscribe():
         success, msg = subscribe(email, source="api")
 
         if success:
+            if msg == "already_subscribed":
+                message = "You're already subscribed!"
+            else:
+                message = "Check your inbox to confirm your subscription."
             return jsonify(
                 {
                     "success": True,
-                    "message": (
-                        "You're already subscribed!"
-                        if msg == "already_subscribed"
-                        else "Subscribed successfully! Check your inbox."
-                    ),
+                    "message": message,
                     "status": msg,
                 }
             ), 200

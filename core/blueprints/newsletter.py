@@ -10,8 +10,8 @@ Routes:
 import os
 import logging
 import requests
-from datetime import datetime
-from flask import Blueprint, render_template, request, jsonify, redirect, url_for, render_template_string
+from datetime import datetime, timedelta
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, render_template_string, abort
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ def _resend_key() -> str:
 def _get_subscriber_count() -> int:
     try:
         from models import NewsletterSubscriber
-        return NewsletterSubscriber.query.filter_by(subscribed=True).count()
+        return NewsletterSubscriber.query.filter_by(confirmed=True, subscribed=True).count()
     except Exception as e:
         logger.warning("subscriber_count error: %s", e)
         return 0
@@ -274,6 +274,8 @@ def newsletter_page():
     total_articles = _get_total_article_count()
     today_str = datetime.utcnow().strftime("%B %d, %Y")
 
+    status = request.args.get("status", "")
+
     return render_template(
         "newsletter.html",
         subscriber_count=subscriber_count,
@@ -282,6 +284,7 @@ def newsletter_page():
         btc=btc,
         total_articles=total_articles,
         today_str=today_str,
+        status=status,
     )
 
 
@@ -311,22 +314,11 @@ def newsletter_subscribe():
         success, msg = subscribe(email, source="newsletter_page")
 
         if success:
-            # Send welcome email for new subscribers only
-            if msg == "subscribed":
-                try:
-                    from models import NewsletterSubscriber
-                    sub = NewsletterSubscriber.query.filter_by(email=email).first()
-                    if sub and sub.unsubscribe_token:
-                        _send_welcome_email(email, sub.unsubscribe_token)
-                except Exception as we:
-                    logger.warning("Welcome email lookup failed: %s", we)
-
             if is_ajax:
-                message = (
-                    "You're already subscribed!"
-                    if msg == "already_subscribed"
-                    else "Check your inbox to confirm. Welcome to the signal."
-                )
+                if msg == "already_subscribed":
+                    message = "You're already subscribed!"
+                else:
+                    message = "Check your inbox to confirm your subscription."
                 return jsonify({"success": True, "message": message, "status": msg})
 
             return redirect(url_for("newsletter_main.newsletter_page") + "?subscribed=1")
@@ -424,3 +416,190 @@ def newsletter_unsubscribe():
             _UNSUB_PAGE, icon="⚠", title="Error",
             message="Something went wrong. Please try again.",
         ), 500
+
+
+# ── Double opt-in confirmation ─────────────────────────────────────────────
+
+@newsletter_bp.route("/newsletter/confirm")
+def newsletter_confirm():
+    """GET /newsletter/confirm?token=xxx — Confirm double opt-in."""
+    token = request.args.get("token", "").strip()
+    if not token:
+        return redirect(url_for("newsletter_main.newsletter_page"))
+
+    try:
+        from services.newsletter_service import confirm_subscriber
+        success, status = confirm_subscriber(token)
+
+        if success:
+            return redirect(url_for("newsletter_main.newsletter_page") + f"?status={status}")
+
+        if status == "not_found":
+            return render_template_string(
+                _UNSUB_PAGE,
+                icon="⚠",
+                title="Invalid Link",
+                message=(
+                    "This confirmation link is invalid or expired. "
+                    "Please subscribe again at "
+                    "<a href='/newsletter'>protocolpulse.io/newsletter</a>."
+                ),
+            ), 404
+
+        return render_template_string(
+            _UNSUB_PAGE, icon="⚠", title="Error",
+            message="Something went wrong. Please try again.",
+        ), 500
+
+    except Exception as e:
+        logger.error("/newsletter/confirm error: %s", e)
+        return render_template_string(
+            _UNSUB_PAGE, icon="⚠", title="Error",
+            message="Something went wrong. Please try again.",
+        ), 500
+
+
+# ── Admin: send digest ────────────────────────────────────────────────────
+
+_ADMIN_TOKEN = os.environ.get(
+    "ADMIN_TOKEN",
+    os.environ.get("NEWSLETTER_ADMIN_TOKEN", ""),
+)
+
+
+def _is_admin_authorized(req) -> bool:
+    if not _ADMIN_TOKEN:
+        return req.remote_addr in ("127.0.0.1", "::1")
+    auth = req.headers.get("Authorization", "")
+    return f"Bearer {_ADMIN_TOKEN}" == auth or req.remote_addr in ("127.0.0.1", "::1")
+
+
+@newsletter_bp.route("/api/newsletter/send", methods=["POST"])
+def api_newsletter_send():
+    """
+    POST /api/newsletter/send (Bearer ADMIN_TOKEN)
+    Generate digest from last 24h articles, batch send to confirmed subscribers.
+    """
+    if not _is_admin_authorized(request):
+        return jsonify({"error": "unauthorized"}), 401
+
+    try:
+        from app import db
+        from models import Article, NewsletterSubscriber, NewsletterCampaign
+        from services.email_templates import digest_email
+        import time
+
+        cutoff = datetime.utcnow() - timedelta(hours=24)
+        articles = (
+            Article.query
+            .filter(Article.published == True, Article.created_at >= cutoff)
+            .order_by(Article.created_at.desc())
+            .limit(5)
+            .all()
+        )
+        if not articles:
+            articles = (
+                Article.query.filter_by(published=True)
+                .order_by(Article.created_at.desc())
+                .limit(5)
+                .all()
+            )
+
+        if not articles:
+            return jsonify({"error": "No articles available"}), 400
+
+        art_list = [
+            {
+                "title": a.title or "Untitled",
+                "summary": (a.summary or (a.content[:300] if a.content else ""))[:250],
+                "cover_image_url": getattr(a, "cover_image_url", "") or "",
+                "url": f"{SITE_URL}/article/{a.id}",
+            }
+            for a in articles
+        ]
+
+        subscribers = NewsletterSubscriber.query.filter_by(
+            confirmed=True, subscribed=True
+        ).all()
+
+        if not subscribers:
+            return jsonify({"error": "No confirmed subscribers"}), 400
+
+        sent = 0
+        failed = 0
+        key = os.environ.get("RESEND_API_KEY", "")
+        batch_size = 100
+
+        for i in range(0, len(subscribers), batch_size):
+            chunk = subscribers[i:i + batch_size]
+            batch_emails = []
+            for sub in chunk:
+                unsub_url = f"{SITE_URL}/newsletter/unsubscribe?token={sub.unsubscribe_token}"
+                tmpl = digest_email(art_list, unsub_url, SITE_URL)
+                batch_emails.append({
+                    "from": FROM_EMAIL,
+                    "to": [sub.email],
+                    "subject": tmpl["subject"],
+                    "html": tmpl["html"],
+                })
+
+            if key and batch_emails:
+                try:
+                    resp = requests.post(
+                        f"{RESEND_BASE}/emails/batch",
+                        headers={
+                            "Authorization": f"Bearer {key}",
+                            "Content-Type": "application/json",
+                        },
+                        json=batch_emails,
+                        timeout=60,
+                    )
+                    if resp.status_code in (200, 201):
+                        sent += len(chunk)
+                    else:
+                        failed += len(chunk)
+                        logger.error("Digest batch failed: HTTP %s", resp.status_code)
+                except Exception as be:
+                    failed += len(chunk)
+                    logger.error("Digest batch exception: %s", be)
+            else:
+                failed += len(chunk)
+
+            if i + batch_size < len(subscribers):
+                time.sleep(1)
+
+        top_headline = art_list[0]["title"]
+        status = "sent" if failed == 0 else ("partial" if sent > 0 else "failed")
+        campaign = NewsletterCampaign(
+            recipient_count=sent,
+            failed_count=failed,
+            top_headline=top_headline,
+            status=status,
+        )
+        db.session.add(campaign)
+        db.session.commit()
+
+        return jsonify({"sent": sent, "failed": failed, "status": status})
+
+    except Exception as e:
+        logger.error("/api/newsletter/send error: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@newsletter_bp.route("/api/newsletter/latest-digest")
+def api_newsletter_latest_digest():
+    """GET /api/newsletter/latest-digest — public preview of last 5 articles as newsletter."""
+    try:
+        articles = _get_preview_articles(5)
+        result = [
+            {
+                "title": a["title"],
+                "summary": a["summary"][:200],
+                "category": a["category"],
+            }
+            for a in articles
+        ]
+        return jsonify({"articles": result, "count": len(result)})
+    except Exception as e:
+        logger.error("/api/newsletter/latest-digest error: %s", e)
+        return jsonify({"articles": [], "count": 0})
