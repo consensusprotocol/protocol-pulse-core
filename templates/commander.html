@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+{% block title %}Commander — Protocol Pulse{% endblock %}
+{% block meta_description %}Protocol Pulse Commander: premium Bitcoin intelligence API. Real-time signals, sentiment analysis, spaces monitoring, TradFi correlation. $49/mo.{% endblock %}
+
+{% block content %}
+<style>
+    .commander-hero {
+        min-height: 100vh;
+        background: #000;
+        color: #fff;
+        font-family: 'JetBrains Mono', monospace;
+    }
+    .commander-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 60px 24px;
+    }
+    .commander-badge {
+        display: inline-block;
+        padding: 6px 16px;
+        border: 1px solid #F7931A;
+        color: #F7931A;
+        font-size: 0.75rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 24px;
+    }
+    .commander-title {
+        font-size: 3rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 16px;
+        background: linear-gradient(135deg, #F7931A, #FFD700);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .commander-subtitle {
+        font-size: 1.2rem;
+        color: #888;
+        margin-bottom: 48px;
+        max-width: 600px;
+    }
+    .price-block {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin-bottom: 40px;
+    }
+    .price-amount {
+        font-size: 3.5rem;
+        font-weight: 900;
+        color: #F7931A;
+    }
+    .price-period {
+        font-size: 1.2rem;
+        color: #666;
+    }
+    .features-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 48px;
+    }
+    @media (max-width: 600px) {
+        .features-grid { grid-template-columns: 1fr; }
+        .commander-title { font-size: 2rem; }
+    }
+    .feature-card {
+        background: #0a0a0a;
+        border: 1px solid #1a1a1a;
+        border-left: 3px solid #F7931A;
+        padding: 20px;
+        border-radius: 4px;
+    }
+    .feature-card h3 {
+        color: #F7931A;
+        font-size: 0.9rem;
+        margin: 0 0 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .feature-card p {
+        color: #999;
+        font-size: 0.85rem;
+        margin: 0;
+        line-height: 1.5;
+    }
+    .cta-button {
+        display: inline-block;
+        padding: 16px 48px;
+        background: linear-gradient(135deg, #F7931A, #E88A00);
+        color: #000;
+        font-weight: 800;
+        font-size: 1.1rem;
+        text-decoration: none;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        transition: box-shadow 0.3s;
+    }
+    .cta-button:hover {
+        box-shadow: 0 0 30px rgba(247, 147, 26, 0.4);
+    }
+    .cta-button:disabled {
+        opacity: 0.5;
+        cursor: wait;
+    }
+    .endpoint-list {
+        margin: 48px 0;
+        padding: 0;
+        list-style: none;
+    }
+    .endpoint-list li {
+        padding: 12px 0;
+        border-bottom: 1px solid #111;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .endpoint-method {
+        background: #1a1a1a;
+        color: #4ade80;
+        padding: 2px 8px;
+        font-size: 0.7rem;
+        border-radius: 2px;
+        font-weight: 700;
+    }
+    .endpoint-path {
+        color: #ccc;
+        font-size: 0.9rem;
+    }
+    .endpoint-desc {
+        color: #666;
+        font-size: 0.8rem;
+        margin-left: auto;
+    }
+    .glow-border {
+        box-shadow: 0 0 60px rgba(247, 147, 26, 0.1), inset 0 0 60px rgba(247, 147, 26, 0.05);
+        border: 1px solid rgba(247, 147, 26, 0.2);
+        border-radius: 8px;
+        padding: 40px;
+        margin-bottom: 48px;
+    }
+</style>
+
+<div class="commander-hero">
+    <div class="commander-container">
+        <div class="commander-badge">Premium Intelligence</div>
+        <h1 class="commander-title">PROTOCOL PULSE<br>COMMANDER</h1>
+        <p class="commander-subtitle">
+            Production-grade Bitcoin intelligence API. Real-time signals, sentiment composites,
+            X Spaces monitoring, TradFi correlation — delivered at machine speed.
+        </p>
+
+        <div class="glow-border">
+            <div class="price-block">
+                <span class="price-amount">$49</span>
+                <span class="price-period">/month</span>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>Live Signals</h3>
+                    <p>Real-time BTC signal score computed from on-chain, sentiment, social, macro, and whale activity.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Spaces Monitor</h3>
+                    <p>Live Bitcoin Twitter/X Spaces detection with transcription summaries and sentiment analysis.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Sentiment Composite</h3>
+                    <p>Multi-source sentiment analysis: Fear &amp; Greed, social velocity, narrative detection, market impact.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>TradFi Signals</h3>
+                    <p>Traditional finance correlation data: DXY, yields, SPX, gold — with BTC relevance scoring.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Alert Webhooks</h3>
+                    <p>Push breaking alerts to your webhook endpoint when signal velocity exceeds your threshold.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>1000 req/day</h3>
+                    <p>Production-ready rate limits. Simple API key auth. JSON responses. Zero login friction.</p>
+                </div>
+            </div>
+
+            <button class="cta-button" id="activate-btn" onclick="activateCommander()">
+                ACTIVATE COMMANDER
+            </button>
+        </div>
+
+        <h2 style="color:#F7931A;font-size:1.2rem;letter-spacing:2px;margin-bottom:24px;">API ENDPOINTS</h2>
+        <ul class="endpoint-list">
+            <li>
+                <span class="endpoint-method">GET</span>
+                <span class="endpoint-path">/api/v1/signals/live</span>
+                <span class="endpoint-desc">Real-time signal score</span>
+            </li>
+            <li>
+                <span class="endpoint-method">GET</span>
+                <span class="endpoint-path">/api/v1/spaces/live</span>
+                <span class="endpoint-desc">Active Spaces monitor</span>
+            </li>
+            <li>
+                <span class="endpoint-method">GET</span>
+                <span class="endpoint-path">/api/v1/tradfi/signals</span>
+                <span class="endpoint-desc">TradFi correlation data</span>
+            </li>
+            <li>
+                <span class="endpoint-method">GET</span>
+                <span class="endpoint-path">/api/v1/sentiment/composite</span>
+                <span class="endpoint-desc">Sentiment composite score</span>
+            </li>
+            <li>
+                <span class="endpoint-method">POST</span>
+                <span class="endpoint-path">/api/v1/alerts/webhook</span>
+                <span class="endpoint-desc">Register alert webhook</span>
+            </li>
+        </ul>
+
+        <div style="margin-top:48px;padding:24px;background:#0a0a0a;border-radius:4px;border:1px solid #1a1a1a;">
+            <p style="color:#888;font-size:0.8rem;margin:0 0 12px;">Quick start after activation:</p>
+            <pre style="color:#4ade80;font-size:0.85rem;overflow-x:auto;margin:0;"><code>curl -s https://protocolpulse.io/api/v1/signals/live \
+  -H "X-Commander-Key: YOUR_API_KEY" | jq .</code></pre>
+        </div>
+    </div>
+</div>
+
+<script>
+async function activateCommander() {
+    const btn = document.getElementById('activate-btn');
+    btn.disabled = true;
+    btn.textContent = 'CONNECTING TO STRIPE...';
+    try {
+        const resp = await fetch('/api/v1/checkout/create-session', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({})
+        });
+        const data = await resp.json();
+        if (data.url) {
+            window.location.href = data.url;
+        } else {
+            btn.textContent = 'ERROR — TRY AGAIN';
+            btn.disabled = false;
+        }
+    } catch(e) {
+        btn.textContent = 'ERROR — TRY AGAIN';
+        btn.disabled = false;
+    }
+}
+</script>
+{% endblock %}

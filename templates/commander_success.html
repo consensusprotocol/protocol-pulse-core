@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Commander Activated — Protocol Pulse{% endblock %}
+
+{% block content %}
+<style>
+    .success-hero {
+        min-height: 100vh;
+        background: #000;
+        color: #fff;
+        font-family: 'JetBrains Mono', monospace;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .success-container {
+        max-width: 700px;
+        padding: 40px 24px;
+        text-align: center;
+    }
+    .success-icon {
+        font-size: 4rem;
+        margin-bottom: 16px;
+    }
+    .success-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #F7931A;
+        margin-bottom: 8px;
+    }
+    .success-subtitle {
+        color: #888;
+        margin-bottom: 32px;
+    }
+    .key-box {
+        background: #0a0a0a;
+        border: 2px solid #F7931A;
+        border-radius: 4px;
+        padding: 24px;
+        margin: 24px 0;
+        text-align: left;
+    }
+    .key-label {
+        color: #888;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+    }
+    .key-value {
+        color: #F7931A;
+        font-size: 0.9rem;
+        word-break: break-all;
+        line-height: 1.6;
+        background: #111;
+        padding: 12px;
+        border-radius: 2px;
+        position: relative;
+    }
+    .copy-btn {
+        display: inline-block;
+        margin-top: 12px;
+        padding: 8px 24px;
+        background: #1a1a1a;
+        color: #F7931A;
+        border: 1px solid #F7931A;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 0.8rem;
+        border-radius: 2px;
+        transition: background 0.2s;
+    }
+    .copy-btn:hover {
+        background: #F7931A;
+        color: #000;
+    }
+    .curl-example {
+        background: #0a0a0a;
+        border: 1px solid #1a1a1a;
+        border-radius: 4px;
+        padding: 20px;
+        margin: 24px 0;
+        text-align: left;
+    }
+    .curl-example pre {
+        color: #4ade80;
+        font-size: 0.82rem;
+        overflow-x: auto;
+        margin: 0;
+        white-space: pre-wrap;
+    }
+    .dashboard-link {
+        display: inline-block;
+        margin-top: 24px;
+        padding: 12px 32px;
+        background: linear-gradient(135deg, #F7931A, #E88A00);
+        color: #000;
+        font-weight: 700;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 0.9rem;
+    }
+    .no-key-msg {
+        color: #dc2626;
+        padding: 20px;
+        background: #1a0000;
+        border: 1px solid #dc2626;
+        border-radius: 4px;
+    }
+</style>
+
+<div class="success-hero">
+    <div class="success-container">
+        {% if api_key %}
+        <div class="success-icon">&#x26A1;</div>
+        <h1 class="success-title">COMMANDER ACTIVATED</h1>
+        <p class="success-subtitle">Your API key is ready. Save it now — it won't be shown again.</p>
+
+        <div class="key-box">
+            <div class="key-label">Your Commander API Key</div>
+            <div class="key-value" id="api-key">{{ api_key }}</div>
+            <button class="copy-btn" onclick="copyKey()">COPY TO CLIPBOARD</button>
+        </div>
+
+        <div class="curl-example">
+            <p style="color:#888;font-size:0.75rem;margin:0 0 12px;text-transform:uppercase;letter-spacing:1px;">Quick start</p>
+            <pre>curl -s https://protocolpulse.io/api/v1/signals/live \
+  -H "X-Commander-Key: {{ api_key }}" | jq .</pre>
+        </div>
+
+        <a class="dashboard-link" href="/commander/dashboard?key={{ api_key }}">
+            GO TO DASHBOARD &rarr;
+        </a>
+        {% else %}
+        <div class="success-icon">&#x23F3;</div>
+        <h1 class="success-title">PROCESSING</h1>
+        <div class="no-key-msg">
+            <p>Your payment is being processed. If your key doesn't appear within 60 seconds, check your email — we'll send your API key there.</p>
+            <p style="margin-top:12px;"><a href="/commander" style="color:#F7931A;">Back to Commander &rarr;</a></p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function copyKey() {
+    const key = document.getElementById('api-key').textContent.trim();
+    navigator.clipboard.writeText(key).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = 'COPIED!';
+        setTimeout(() => { btn.textContent = 'COPY TO CLIPBOARD'; }, 2000);
+    });
+}
+</script>
+{% endblock %}

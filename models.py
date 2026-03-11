@@ -1299,6 +1299,51 @@ class NewsletterSend(db.Model):
 
 
 # =====================================
+# COMMANDER SUBSCRIBER — Stripe API Key Auth
+# =====================================
+
+class CommanderSubscriber(db.Model):
+    """Standalone Commander API subscriber. No User account required."""
+    __tablename__ = 'commander_subscribers'
+
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(200), unique=True, nullable=False, index=True)
+    stripe_customer_id = db.Column(db.String(120), index=True)
+    stripe_subscription_id = db.Column(db.String(120), unique=True)
+    stripe_session_id = db.Column(db.String(200))
+    api_key = db.Column(db.String(80), unique=True, nullable=False, index=True)
+    active = db.Column(db.Boolean, default=True, nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    calls_today = db.Column(db.Integer, default=0, nullable=False)
+    calls_month = db.Column(db.Integer, default=0, nullable=False)
+    last_call_at = db.Column(db.DateTime)
+    last_reset_date = db.Column(db.String(10))  # 'YYYY-MM-DD' for daily reset
+    last_reset_month = db.Column(db.String(7))  # 'YYYY-MM' for monthly reset
+
+    __table_args__ = (
+        db.Index('idx_commander_api_key_active', 'api_key', 'active'),
+    )
+
+    def reset_if_needed(self):
+        """Reset daily/monthly counters if the date has changed."""
+        today = datetime.utcnow().strftime('%Y-%m-%d')
+        month = datetime.utcnow().strftime('%Y-%m')
+        if self.last_reset_date != today:
+            self.calls_today = 0
+            self.last_reset_date = today
+        if self.last_reset_month != month:
+            self.calls_month = 0
+            self.last_reset_month = month
+
+    def increment_calls(self):
+        """Increment call counters and update last_call_at."""
+        self.reset_if_needed()
+        self.calls_today = (self.calls_today or 0) + 1
+        self.calls_month = (self.calls_month or 0) + 1
+        self.last_call_at = datetime.utcnow()
+
+
+# =====================================
 # ORACLE SESSION — F1 Avatar System
 # =====================================
 
