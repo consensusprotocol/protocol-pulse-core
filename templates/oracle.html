@@ -107,14 +107,14 @@ body.oracle-page-body .pp-ticker { display:none!important; }
 .oracle-transcript-label   { font-size:.55rem; letter-spacing:3px; color:rgba(220,38,38,.55); text-transform:uppercase; margin-bottom:6px; }
 
 .oracle-input-bar {
-  position:fixed; bottom:0; left:0; right:0; z-index:100;
+  position:fixed; bottom:0; left:0; right:0; z-index:9999;
   display:flex; justify-content:center;
   padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
   background:linear-gradient(to top, rgba(10,10,10,.98) 70%, transparent);
 }
 .oracle-input-inner { display:flex; gap:10px; align-items:center; width:100%; max-width:860px; }
 .oracle-input {
-  flex:1; background:rgba(18,18,18,.92); border:1px solid rgba(220,38,38,.28); border-radius:3px;
+  flex:1; pointer-events:auto !important; background:rgba(18,18,18,.92); border:1px solid rgba(220,38,38,.28); border-radius:3px;
   color:#e5e5e5; font-family:'JetBrains Mono',monospace; font-size:.85rem; padding:13px 16px;
   outline:none; transition:border-color .2s, box-shadow .2s;
 }
@@ -321,7 +321,7 @@ function setState(state){
   var active=(state==='playing'||state==='generating');
   statusEl.className='oracle-status'+(active?' active':'');
   if(state==='idle'){statusEl.textContent='AWAITING QUERY';askBtn.disabled=false;inp.disabled=false;}
-  else if(state==='generating'){statusEl.textContent='GENERATING...';askBtn.disabled=true;inp.disabled=true;}
+  else if(state==='generating'){statusEl.textContent='GENERATING...';askBtn.disabled=true;inp.disabled=false;}
   else if(state==='playing'){statusEl.textContent='\u25CF BROADCASTING';askBtn.disabled=false;inp.disabled=false;}
   else if(state==='error'){statusEl.textContent='SIGNAL LOST';askBtn.disabled=false;inp.disabled=false;}
 }
@@ -386,7 +386,6 @@ function askOracle(question){
   if(question.length>500){question=question.slice(0,500);}
   isGenerating=true; lastQuestion=question; inp.value=''; setState('generating');
   transcriptEl.classList.remove('visible');
-  setState('generating');
   fetch(ASK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:question})})
   .then(function(resp){
     if(!resp.ok){return resp.json().catch(function(){return{};}).then(function(j){throw new Error(j.error||'Oracle generation failed');});}
@@ -406,7 +405,7 @@ function askOracle(question){
   .finally(function(){isGenerating=false;});
 }
 
-askBtn.addEventListener('click',function(){var q=inp.value.trim();if(q)askOracle(q);});
+askBtn.addEventListener('click',function(){var q=inp.value.trim();if(!q)return;if(isGenerating){var old=askBtn.textContent;askBtn.textContent='GENERATING...';setTimeout(function(){askBtn.textContent=old;},1500);return;}askOracle(q);});
 inp.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();var q=this.value.trim();if(q)askOracle(q);}});
 
 function loadRecent(){
