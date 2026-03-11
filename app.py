@@ -290,8 +290,9 @@ try:
 except Exception as e:
     logging.critical("Terminal API blueprint failed to load: %s", e)
 try:
-    from routes_commander import commander_bp
+    from routes_commander import commander_bp, commander_pages_bp
     app.register_blueprint(commander_bp)
+    app.register_blueprint(commander_pages_bp)
     logging.info("Commander API blueprint registered at /api/v1")
 except Exception as _e:
     logging.warning("Commander blueprint not loaded: %s", _e)

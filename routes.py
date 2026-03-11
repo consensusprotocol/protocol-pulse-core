@@ -78,9 +78,15 @@ def _next_briefing_utc_epoch() -> int:
 
 
 def admin_required(f):
-    """Decorator to enforce admin role-based access control"""
+    """Decorator to enforce admin role-based access control.
+    Supports X-Admin-Token header bypass for API/automation access.
+    """
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        admin_token = request.headers.get("X-Admin-Token", "")
+        expected_token = os.environ.get("ADMIN_TOKEN", "")
+        if admin_token and expected_token and admin_token == expected_token:
+            return f(*args, **kwargs)
         if not current_user.is_authenticated or not current_user.is_admin:
             flash('Admin access required.')
             return redirect('/login')
@@ -2116,7 +2122,6 @@ def signup():
     return redirect('/login')
 
 @app.route('/admin')
-@login_required
 @admin_required
 def admin_dashboard():
     """Admin dashboard"""
@@ -2125,11 +2130,22 @@ def admin_dashboard():
     total_podcasts = Podcast.query.count()
     recent_articles = Article.query.filter_by(published=True).order_by(Article.created_at.desc()).limit(5).all()
     
+    # Commander subscriber stats
+    from models import CommanderSubscriber
+    commander_total = CommanderSubscriber.query.count()
+    commander_active = CommanderSubscriber.query.filter_by(active=True).count()
+    commander_subs = CommanderSubscriber.query.order_by(CommanderSubscriber.created_at.desc()).limit(10).all()
+    commander_calls = sum(s.calls_month or 0 for s in CommanderSubscriber.query.filter_by(active=True).all())
+
     return render_template('admin/dashboard.html',
                          total_articles=total_articles,
                          published_articles=published_articles,
                          total_podcasts=total_podcasts,
-                         recent_articles=recent_articles)
+                         recent_articles=recent_articles,
+                         commander_total=commander_total,
+                         commander_active=commander_active,
+                         commander_subs=commander_subs,
+                         commander_calls=commander_calls)
 
 # ============================================================
 # SESSION 19 — ADMIN INTELLIGENCE DASHBOARD API ROUTES

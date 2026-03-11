@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+{% block title %}Commander Dashboard — Protocol Pulse{% endblock %}
+
+{% block content %}
+<style>
+    .dash-hero {
+        min-height: 100vh;
+        background: #000;
+        color: #fff;
+        font-family: 'JetBrains Mono', monospace;
+    }
+    .dash-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px 24px;
+    }
+    .dash-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .dash-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #F7931A;
+    }
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 2px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .status-active { background: #052e16; color: #4ade80; border: 1px solid #166534; }
+    .status-inactive { background: #1a0000; color: #dc2626; border: 1px solid #dc2626; }
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+    @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } }
+    .stat-card {
+        background: #0a0a0a;
+        border: 1px solid #1a1a1a;
+        padding: 20px;
+        border-radius: 4px;
+    }
+    .stat-label {
+        color: #666;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+    }
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #F7931A;
+    }
+    .stat-sub {
+        color: #555;
+        font-size: 0.75rem;
+        margin-top: 4px;
+    }
+    .key-display {
+        background: #0a0a0a;
+        border: 1px solid #1a1a1a;
+        padding: 16px;
+        border-radius: 4px;
+        margin-bottom: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .key-display code {
+        color: #888;
+        font-size: 0.9rem;
+    }
+    .endpoint-doc {
+        background: #0a0a0a;
+        border: 1px solid #1a1a1a;
+        border-radius: 4px;
+        margin-bottom: 12px;
+        overflow: hidden;
+    }
+    .endpoint-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        cursor: pointer;
+    }
+    .endpoint-header:hover {
+        background: #111;
+    }
+    .ep-method {
+        background: #1a1a1a;
+        color: #4ade80;
+        padding: 2px 8px;
+        font-size: 0.7rem;
+        border-radius: 2px;
+        font-weight: 700;
+    }
+    .ep-path {
+        color: #ccc;
+        font-size: 0.85rem;
+    }
+    .ep-desc {
+        color: #666;
+        font-size: 0.75rem;
+        margin-left: auto;
+    }
+    .endpoint-body {
+        display: none;
+        padding: 0 16px 16px;
+        border-top: 1px solid #111;
+    }
+    .endpoint-body.open {
+        display: block;
+    }
+    .endpoint-body pre {
+        background: #111;
+        padding: 12px;
+        border-radius: 2px;
+        color: #4ade80;
+        font-size: 0.8rem;
+        overflow-x: auto;
+    }
+    .error-box {
+        background: #1a0000;
+        border: 1px solid #dc2626;
+        color: #dc2626;
+        padding: 20px;
+        border-radius: 4px;
+        text-align: center;
+    }
+    .error-box a { color: #F7931A; }
+    .section-title {
+        color: #F7931A;
+        font-size: 1rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin: 32px 0 16px;
+    }
+</style>
+
+<div class="dash-hero">
+    <div class="dash-container">
+        {% if not authed %}
+        <h1 class="dash-title" style="margin-bottom:24px;">COMMANDER DASHBOARD</h1>
+        <div class="error-box">
+            <p>{{ error }}</p>
+            <p style="margin-top:12px;"><a href="/commander">Get Commander access &rarr;</a></p>
+        </div>
+        {% else %}
+        <div class="dash-header">
+            <h1 class="dash-title">COMMANDER DASHBOARD</h1>
+            <span class="status-badge {% if sub.active %}status-active{% else %}status-inactive{% endif %}">
+                {% if sub.active %}ACTIVE{% else %}INACTIVE{% endif %}
+            </span>
+        </div>
+
+        <div class="key-display">
+            <div>
+                <span style="color:#666;font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">API Key: </span>
+                <code>{{ masked_key }}</code>
+            </div>
+            <span style="color:#555;font-size:0.7rem;">{{ sub.email }}</span>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Calls Today</div>
+                <div class="stat-value">{{ calls_today }}</div>
+                <div class="stat-sub">/ {{ daily_limit }} daily limit</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Calls This Month</div>
+                <div class="stat-value">{{ calls_month }}</div>
+                <div class="stat-sub">Resets on the 1st</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Member Since</div>
+                <div class="stat-value" style="font-size:1.2rem;">{{ sub.created_at.strftime('%Y-%m-%d') }}</div>
+                <div class="stat-sub">{{ sub.created_at.strftime('%H:%M UTC') }}</div>
+            </div>
+        </div>
+
+        <h2 class="section-title">API Endpoints</h2>
+
+        <div class="endpoint-doc" onclick="this.querySelector('.endpoint-body').classList.toggle('open')">
+            <div class="endpoint-header">
+                <span class="ep-method">GET</span>
+                <span class="ep-path">/api/v1/signals/live</span>
+                <span class="ep-desc">Real-time BTC signal score</span>
+            </div>
+            <div class="endpoint-body">
+                <p style="color:#888;font-size:0.8rem;">Returns composite signal score (0-100) from on-chain, sentiment, social, macro, and whale data.</p>
+                <pre>curl -s https://protocolpulse.io/api/v1/signals/live \
+  -H "X-Commander-Key: YOUR_KEY" | jq .</pre>
+                <p style="color:#555;font-size:0.75rem;">Params: ?limit=10 (max 50)</p>
+            </div>
+        </div>
+
+        <div class="endpoint-doc" onclick="this.querySelector('.endpoint-body').classList.toggle('open')">
+            <div class="endpoint-header">
+                <span class="ep-method">GET</span>
+                <span class="ep-path">/api/v1/spaces/live</span>
+                <span class="ep-desc">Active X Spaces</span>
+            </div>
+            <div class="endpoint-body">
+                <p style="color:#888;font-size:0.8rem;">Bitcoin Twitter/X Spaces detection with transcription summaries and live sentiment.</p>
+                <pre>curl -s https://protocolpulse.io/api/v1/spaces/live \
+  -H "X-Commander-Key: YOUR_KEY" | jq .</pre>
+            </div>
+        </div>
+
+        <div class="endpoint-doc" onclick="this.querySelector('.endpoint-body').classList.toggle('open')">
+            <div class="endpoint-header">
+                <span class="ep-method">GET</span>
+                <span class="ep-path">/api/v1/tradfi/signals</span>
+                <span class="ep-desc">TradFi correlation</span>
+            </div>
+            <div class="endpoint-body">
+                <p style="color:#888;font-size:0.8rem;">Traditional finance signals: DXY, yields, SPX, gold with BTC relevance scoring.</p>
+                <pre>curl -s "https://protocolpulse.io/api/v1/tradfi/signals?btc_only=true" \
+  -H "X-Commander-Key: YOUR_KEY" | jq .</pre>
+                <p style="color:#555;font-size:0.75rem;">Params: ?limit=20 (max 50), ?btc_only=true</p>
+            </div>
+        </div>
+
+        <div class="endpoint-doc" onclick="this.querySelector('.endpoint-body').classList.toggle('open')">
+            <div class="endpoint-header">
+                <span class="ep-method">GET</span>
+                <span class="ep-path">/api/v1/sentiment/composite</span>
+                <span class="ep-desc">Sentiment analysis</span>
+            </div>
+            <div class="endpoint-body">
+                <p style="color:#888;font-size:0.8rem;">Multi-source sentiment: Fear &amp; Greed, social velocity, narrative detection, market impact.</p>
+                <pre>curl -s https://protocolpulse.io/api/v1/sentiment/composite \
+  -H "X-Commander-Key: YOUR_KEY" | jq .</pre>
+            </div>
+        </div>
+
+        <div class="endpoint-doc" onclick="this.querySelector('.endpoint-body').classList.toggle('open')">
+            <div class="endpoint-header">
+                <span class="ep-method">GET/POST</span>
+                <span class="ep-path">/api/v1/alerts/webhook</span>
+                <span class="ep-desc">Alert webhook</span>
+            </div>
+            <div class="endpoint-body">
+                <p style="color:#888;font-size:0.8rem;">GET: View current alerts. POST: Register a webhook URL for push alerts when signal velocity spikes.</p>
+                <pre>curl -s -X POST https://protocolpulse.io/api/v1/alerts/webhook \
+  -H "X-Commander-Key: YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"webhook_url":"https://your-server.com/hook","threshold_velocity":80}'</pre>
+            </div>
+        </div>
+
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
