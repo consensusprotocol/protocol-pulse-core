@@ -240,3 +240,23 @@ def enhance_frames_fast(frames, face_coords):
         enhanced.append(frame)
 
     return enhanced
+
+
+def sharpen_mouth_region(frames, face_coords):
+    import cv2, numpy as np
+    y1, y2, x1, x2 = face_coords
+    mouth_y1 = y1 + int((y2 - y1) * 0.45)
+    kernel = np.array([[-1,-1,-1],[-1,9,-1],[-1,-1,-1]], dtype=np.float32)
+    out = []
+    for frame in frames:
+        try:
+            region = frame[mouth_y1:y2, x1:x2].copy()
+            smooth = cv2.bilateralFilter(region, d=5, sigmaColor=40, sigmaSpace=5)
+            sharpened = cv2.filter2D(smooth, -1, kernel)
+            blended = cv2.addWeighted(sharpened, 0.65, smooth, 0.35, 0)
+            result = frame.copy()
+            result[mouth_y1:y2, x1:x2] = blended
+            out.append(result)
+        except Exception:
+            out.append(frame)
+    return out

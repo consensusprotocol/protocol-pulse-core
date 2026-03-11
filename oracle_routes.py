@@ -40,13 +40,13 @@ ORACLE_SYSTEM_PROMPT = (
 
 # In-memory rate limiter (per-IP, simple window)
 _last_request: dict = {}
-RATE_LIMIT_SECONDS = 3
+RATE_LIMIT_SECONDS = 20
 
 
 def rate_limit(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        ip = request.remote_addr or 'unknown'
+        ip = (request.headers.get('CF-Connecting-IP') or request.headers.get('X-Forwarded-For','').split(',')[0].strip() or request.remote_addr or 'unknown')
         now = time.time()
         last = _last_request.get(ip, 0)
         if now - last < RATE_LIMIT_SECONDS:
@@ -81,7 +81,7 @@ def call_claude(message, history=None):
             },
             json={
                 'model': 'claude-sonnet-4-6',
-                'max_tokens': 200,
+                'max_tokens': 80,  # ~5s audio at 150 chars, keeps render under 8s
                 'system': ORACLE_SYSTEM_PROMPT,
                 'messages': messages,
             },

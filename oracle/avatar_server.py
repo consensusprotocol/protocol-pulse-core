@@ -33,7 +33,7 @@ from model_registry import ModelRegistry, WAV2LIP_DIR, AVATAR_SOURCE, DEVICE
 import requests as http_requests  # ElevenLabs TTS
 
 # Face enhancement + blink modules
-from face_enhancer import enhance_frames_batch
+from face_enhancer import enhance_frames_batch, sharpen_mouth_region
 from blink_engine import apply_blink_gradient, generate_blink_schedule
 
 # ─── Config ───────────────────────────────────────────────────────────
@@ -251,7 +251,7 @@ def frames_to_video(frames, fps=30.0, audio_path=None):
             cmd = [
                 "ffmpeg", "-y", "-loglevel", "error",
                 "-itsoffset", "0.08", "-i", audio_path, "-i", avi_path,
-                "-c:v", "libx264", "-preset", "fast", "-crf", "18",
+                "-c:v", "libx264", "-preset", "superfast", "-crf", "20",
                 "-c:a", "aac", "-b:a", "128k",
                 "-map", "0:a", "-map", "1:v",
                 "-pix_fmt", "yuv420p", "-movflags", "+faststart",
@@ -263,7 +263,7 @@ def frames_to_video(frames, fps=30.0, audio_path=None):
             cmd = [
                 "ffmpeg", "-y", "-loglevel", "error",
                 "-i", avi_path,
-                "-c:v", "libx264", "-preset", "fast", "-crf", "18",
+                "-c:v", "libx264", "-preset", "superfast", "-crf", "20",
                 "-pix_fmt", "yuv420p", "-movflags", "+faststart",
                 mp4_path,
             ]
@@ -463,10 +463,13 @@ def generate():
 
             # Face Enhancement (THE #1 QUALITY UPGRADE)
             t_enhance = 0.0
-            if enable_face_enhance and len(frames) > 0:
+            if len(frames) > 0:
                 try:
                     t0_enh = time.time()
-                    frames = enhance_frames_batch(frames, reg.avatar_face_coords, batch_size=16)
+                    # Always sharpen mouth region (CV2, no ML deps, guaranteed)
+                    frames = sharpen_mouth_region(frames, reg.avatar_face_coords)
+                    if enable_face_enhance:
+                        frames = enhance_frames_batch(frames, reg.avatar_face_coords, batch_size=16)
                     t_enhance = time.time() - t0_enh
                     logger.info(f"Face enhancement: {t_enhance:.2f}s")
                 except Exception as e:
