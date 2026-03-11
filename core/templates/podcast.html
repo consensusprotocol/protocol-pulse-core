@@ -1,0 +1,1181 @@
+{% extends "base.html" %}
+
+{% block title %}CypherPunk'd Podcast — Bitcoin Sovereignty | Protocol Pulse{% endblock %}
+
+{% block head %}
+<meta name="description" content="CypherPunk'd: The uncensored voice of Bitcoin sovereignty. Deep conversations with builders, thinkers, and freedom advocates.">
+<meta property="og:title" content="CypherPunk'd Podcast — Protocol Pulse">
+<meta property="og:description" content="The uncensored voice of Bitcoin sovereignty. Deep conversations with the minds building the future of money.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+<link rel="alternate" type="application/rss+xml" title="CypherPunk'd RSS Feed" href="/podcast/feed.xml">
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* =====================================================================
+   CYPHERPUNK'D PODCAST PAGE — design tokens
+   ===================================================================== */
+:root {
+  --pod-bg:       #000;
+  --pod-surface:  #0a0a0a;
+  --pod-border:   #1a1a1a;
+  --pod-border-h: #2a2a2a;
+  --pod-red:      #dc2626;
+  --pod-gold:     #F8C15C;
+  --pod-purple:   #a855f7;
+  --pod-green:    #22c55e;
+  --pod-text:     #f1f5f9;
+  --pod-muted:    #6b7280;
+  --pod-dim:      #374151;
+  --pod-mono:     'JetBrains Mono', monospace;
+  --pod-sans:     'DM Sans', system-ui, sans-serif;
+}
+
+.pod-page {
+  min-height: 100vh;
+  background: var(--pod-bg);
+  padding-bottom: 120px;
+}
+
+/* ── Hero ── */
+.pod-hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, #0a0005 0%, #000 40%, #050010 100%);
+  padding: 80px 0 60px;
+  border-bottom: 1px solid var(--pod-border);
+}
+.pod-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 600px 300px at 70% 50%, rgba(168,85,247,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 400px 200px at 20% 80%, rgba(220,38,38,0.07) 0%, transparent 60%);
+  pointer-events: none;
+}
+.pod-hero-inner {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 48px;
+  align-items: center;
+}
+@media (max-width: 768px) {
+  .pod-hero-inner { grid-template-columns: 1fr; gap: 24px; text-align: center; }
+  .pod-hero-art { margin: 0 auto; }
+}
+
+.pod-hero-art {
+  width: 180px;
+  height: 180px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #1a0030, #0d0020);
+  border: 2px solid rgba(168,85,247,0.3);
+  box-shadow: 0 0 60px rgba(168,85,247,0.15), 0 0 120px rgba(220,38,38,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+.pod-hero-art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(168,85,247,0.1) 0%, transparent 60%);
+}
+.pod-hero-art-icon {
+  font-size: 4rem;
+  background: linear-gradient(135deg, var(--pod-purple), var(--pod-gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  z-index: 1;
+}
+
+.pod-hero-label {
+  font-family: var(--pod-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--pod-purple);
+  margin-bottom: 8px;
+}
+.pod-hero-title {
+  font-family: var(--pod-mono);
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  color: var(--pod-text);
+  line-height: 1.1;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+.pod-hero-title span {
+  background: linear-gradient(135deg, var(--pod-purple), var(--pod-gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.pod-hero-tagline {
+  font-family: var(--pod-mono);
+  font-size: 0.75rem;
+  color: var(--pod-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 24px;
+}
+.pod-hero-stats {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+@media (max-width: 768px) { .pod-hero-stats { justify-content: center; } }
+.pod-stat {
+  display: flex;
+  flex-direction: column;
+}
+.pod-stat-val {
+  font-family: var(--pod-mono);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--pod-gold);
+  line-height: 1;
+}
+.pod-stat-lbl {
+  font-family: var(--pod-mono);
+  font-size: 0.6rem;
+  color: var(--pod-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 3px;
+}
+
+/* ── Subscribe strip ── */
+.pod-subscribe {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 24px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+@media (max-width: 768px) { .pod-subscribe { justify-content: center; } }
+.pod-sub-label {
+  font-family: var(--pod-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--pod-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-right: 4px;
+}
+.pod-sub-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-family: var(--pod-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid var(--pod-border);
+  background: var(--pod-surface);
+  color: var(--pod-text);
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+.pod-sub-btn:hover {
+  border-color: var(--pod-purple);
+  background: rgba(168,85,247,0.08);
+  color: var(--pod-text);
+  transform: translateY(-1px);
+}
+.pod-sub-btn.rss:hover { border-color: var(--pod-gold); background: rgba(248,193,92,0.08); }
+.pod-sub-btn i { font-size: 0.85rem; }
+.pod-sub-btn.apple i  { color: #fc3c44; }
+.pod-sub-btn.spotify i { color: #1db954; }
+.pod-sub-btn.youtube i { color: #ff0000; }
+.pod-sub-btn.rss i    { color: var(--pod-gold); }
+
+/* ── Search bar ── */
+.pod-search-wrap {
+  max-width: 1200px;
+  margin: 32px auto 0;
+  padding: 0 24px;
+}
+.pod-search {
+  width: 100%;
+  padding: 12px 18px 12px 44px;
+  background: var(--pod-surface);
+  border: 1px solid var(--pod-border);
+  border-radius: 10px;
+  color: var(--pod-text);
+  font-family: var(--pod-mono);
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.pod-search:focus { border-color: var(--pod-purple); }
+.pod-search-wrap { position: relative; }
+.pod-search-icon {
+  position: absolute;
+  left: 42px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--pod-muted);
+  font-size: 0.8rem;
+  pointer-events: none;
+}
+
+/* ── Section heading ── */
+.pod-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px 0;
+}
+.pod-section-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--pod-border);
+}
+.pod-section-head h2 {
+  font-family: var(--pod-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--pod-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin: 0;
+}
+.pod-section-head .badge-count {
+  font-family: var(--pod-mono);
+  font-size: 0.6rem;
+  padding: 2px 8px;
+  background: rgba(168,85,247,0.15);
+  color: var(--pod-purple);
+  border: 1px solid rgba(168,85,247,0.3);
+  border-radius: 20px;
+  letter-spacing: 0.1em;
+}
+
+/* ── Featured episode ── */
+.pod-featured {
+  position: relative;
+  background: linear-gradient(135deg, #0a0015, #050010);
+  border: 1px solid rgba(168,85,247,0.25);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 40px;
+  transition: border-color 0.3s;
+}
+.pod-featured:hover { border-color: rgba(168,85,247,0.5); }
+.pod-featured::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--pod-red), var(--pod-purple), var(--pod-gold));
+}
+.pod-featured-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+@media (max-width: 768px) { .pod-featured-inner { grid-template-columns: 1fr; } }
+.pod-featured-player {
+  background: #050010;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 260px;
+  padding: 32px;
+}
+.pod-featured-info {
+  padding: 36px 36px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.pod-feat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--pod-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--pod-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  border: 1px solid rgba(248,193,92,0.3);
+  background: rgba(248,193,92,0.07);
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+  width: fit-content;
+}
+.pod-feat-ep {
+  font-family: var(--pod-mono);
+  font-size: 0.65rem;
+  color: var(--pod-muted);
+  margin-bottom: 8px;
+  letter-spacing: 0.1em;
+}
+.pod-feat-title {
+  font-family: var(--pod-mono);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--pod-text);
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+.pod-feat-guest {
+  font-family: var(--pod-sans);
+  font-size: 0.9rem;
+  color: var(--pod-purple);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.pod-feat-bio {
+  font-family: var(--pod-sans);
+  font-size: 0.8rem;
+  color: var(--pod-muted);
+  line-height: 1.6;
+  margin-bottom: 20px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pod-feat-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.pod-feat-meta span {
+  font-family: var(--pod-mono);
+  font-size: 0.65rem;
+  color: var(--pod-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.pod-feat-meta span i { color: var(--pod-gold); }
+.pod-feat-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.pod-tag {
+  font-family: var(--pod-mono);
+  font-size: 0.58rem;
+  padding: 3px 8px;
+  background: rgba(168,85,247,0.1);
+  border: 1px solid rgba(168,85,247,0.2);
+  color: var(--pod-purple);
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.pod-btn-listen {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 22px;
+  background: linear-gradient(135deg, var(--pod-purple), #7c3aed);
+  color: #fff;
+  font-family: var(--pod-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 8px;
+  letter-spacing: 0.08em;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+}
+.pod-btn-listen:hover {
+  background: linear-gradient(135deg, #be6af4, #9333ea);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(168,85,247,0.3);
+}
+
+/* ── Player widget (for featured) ── */
+.pod-player-widget {
+  width: 100%;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--pod-border);
+  border-radius: 12px;
+  padding: 20px;
+}
+.pod-player-cover {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #1a0030, #0d0020);
+  border: 1px solid rgba(168,85,247,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  margin: 0 auto 16px;
+  color: var(--pod-purple);
+}
+.pod-player-title {
+  font-family: var(--pod-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--pod-text);
+  text-align: center;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pod-player-guest {
+  font-family: var(--pod-mono);
+  font-size: 0.6rem;
+  color: var(--pod-muted);
+  text-align: center;
+  margin-bottom: 16px;
+}
+/* Progress bar */
+.pod-progress-wrap {
+  width: 100%;
+  margin-bottom: 10px;
+}
+.pod-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--pod-border);
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+}
+.pod-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--pod-purple), var(--pod-gold));
+  border-radius: 4px;
+  width: 0%;
+  transition: width 0.1s;
+}
+.pod-progress-times {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--pod-mono);
+  font-size: 0.55rem;
+  color: var(--pod-muted);
+  margin-top: 4px;
+}
+/* Controls */
+.pod-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.pod-ctrl-btn {
+  background: none;
+  border: none;
+  color: var(--pod-muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  transition: color 0.2s;
+}
+.pod-ctrl-btn:hover { color: var(--pod-text); }
+.pod-ctrl-play {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pod-purple), #7c3aed);
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(168,85,247,0.4);
+}
+.pod-ctrl-play:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(168,85,247,0.5); }
+/* Speed selector */
+.pod-speed-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.pod-speed-btn {
+  font-family: var(--pod-mono);
+  font-size: 0.58rem;
+  padding: 3px 7px;
+  border: 1px solid var(--pod-border);
+  background: none;
+  color: var(--pod-muted);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.pod-speed-btn:hover,
+.pod-speed-btn.active {
+  border-color: var(--pod-purple);
+  color: var(--pod-purple);
+  background: rgba(168,85,247,0.1);
+}
+
+/* ── Episode grid ── */
+.pod-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+@media (max-width: 1024px) { .pod-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px)  { .pod-grid { grid-template-columns: 1fr; } }
+
+.pod-card {
+  background: var(--pod-surface);
+  border: 1px solid var(--pod-border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+}
+.pod-card:hover {
+  border-color: rgba(168,85,247,0.4);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+.pod-card-thumb {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: linear-gradient(135deg, #0d0020, #050010);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: var(--pod-purple);
+  position: relative;
+}
+.pod-card-ep-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-family: var(--pod-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  background: rgba(0,0,0,0.8);
+  border: 1px solid var(--pod-border);
+  color: var(--pod-muted);
+  border-radius: 4px;
+  letter-spacing: 0.08em;
+}
+.pod-card-dur-badge {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-family: var(--pod-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  padding: 3px 7px;
+  background: rgba(0,0,0,0.85);
+  color: var(--pod-gold);
+  border: 1px solid rgba(248,193,92,0.2);
+  border-radius: 4px;
+}
+.pod-card-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.pod-card-guest {
+  font-family: var(--pod-mono);
+  font-size: 0.62rem;
+  color: var(--pod-purple);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+.pod-card-title {
+  font-family: var(--pod-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--pod-text);
+  line-height: 1.4;
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pod-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--pod-border);
+}
+.pod-card-date {
+  font-family: var(--pod-mono);
+  font-size: 0.58rem;
+  color: var(--pod-muted);
+}
+.pod-card-play {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(168,85,247,0.15);
+  border: 1px solid rgba(168,85,247,0.3);
+  color: var(--pod-purple);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  transition: all 0.2s;
+}
+.pod-card:hover .pod-card-play {
+  background: var(--pod-purple);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(168,85,247,0.4);
+}
+
+/* ── NOW PLAYING sticky bar ── */
+.pod-now-playing {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: rgba(10,0,20,0.97);
+  border-top: 1px solid rgba(168,85,247,0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 10px 24px;
+  display: none;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 -8px 32px rgba(168,85,247,0.15);
+}
+.pod-now-playing.active { display: flex; }
+.pod-np-cover {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #1a0030, #0d0020);
+  border: 1px solid rgba(168,85,247,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: var(--pod-purple);
+  flex-shrink: 0;
+}
+.pod-np-info { flex: 1; min-width: 0; }
+.pod-np-title {
+  font-family: var(--pod-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--pod-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pod-np-guest {
+  font-family: var(--pod-mono);
+  font-size: 0.58rem;
+  color: var(--pod-muted);
+}
+.pod-np-progress {
+  flex: 1;
+  max-width: 360px;
+}
+.pod-np-bar {
+  width: 100%;
+  height: 3px;
+  background: var(--pod-border);
+  border-radius: 3px;
+  cursor: pointer;
+  position: relative;
+}
+.pod-np-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--pod-purple), var(--pod-gold));
+  border-radius: 3px;
+  width: 0%;
+  transition: width 0.1s;
+}
+.pod-np-times {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--pod-mono);
+  font-size: 0.5rem;
+  color: var(--pod-muted);
+  margin-top: 3px;
+}
+.pod-np-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.pod-np-play {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pod-purple), #7c3aed);
+  border: none;
+  color: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.pod-np-play:hover { transform: scale(1.1); }
+.pod-np-btn {
+  background: none;
+  border: none;
+  color: var(--pod-muted);
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 4px;
+  transition: color 0.2s;
+}
+.pod-np-btn:hover { color: var(--pod-text); }
+.pod-np-close {
+  background: none;
+  border: none;
+  color: var(--pod-muted);
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+.pod-np-close:hover { color: var(--pod-red); }
+.pod-np-label {
+  font-family: var(--pod-mono);
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: var(--pod-purple);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  flex-shrink: 0;
+}
+
+/* ── No-results ── */
+.pod-empty {
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--pod-muted);
+  font-family: var(--pod-mono);
+  font-size: 0.8rem;
+}
+.pod-empty i { font-size: 2rem; margin-bottom: 12px; display: block; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pod-page">
+
+  <!-- ── Hero ─────────────────────────────────────────── -->
+  <section class="pod-hero">
+    <div class="pod-hero-inner">
+      <div class="pod-hero-art">
+        <i class="fas fa-microphone-alt pod-hero-art-icon"></i>
+      </div>
+      <div>
+        <div class="pod-hero-label">Protocol Pulse Originals</div>
+        <h1 class="pod-hero-title"><span>CypherPunk'd</span></h1>
+        <div class="pod-hero-tagline">The Uncensored Voice of Bitcoin Sovereignty</div>
+        <div class="pod-hero-stats">
+          <div class="pod-stat">
+            <span class="pod-stat-val">{{ episodes|length }}</span>
+            <span class="pod-stat-lbl">Episodes</span>
+          </div>
+          <div class="pod-stat">
+            <span class="pod-stat-val">{{ episodes|selectattr('featured')|list|length }}</span>
+            <span class="pod-stat-lbl">Featured</span>
+          </div>
+          <div class="pod-stat">
+            <span class="pod-stat-val">FREE</span>
+            <span class="pod-stat-lbl">Always</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Subscribe strip -->
+    <div class="pod-subscribe">
+      <span class="pod-sub-label">Subscribe:</span>
+      <a href="#" class="pod-sub-btn apple">
+        <i class="fab fa-apple"></i> Apple Podcasts
+      </a>
+      <a href="#" class="pod-sub-btn spotify">
+        <i class="fab fa-spotify"></i> Spotify
+      </a>
+      <a href="https://www.youtube.com/@ProtocolPulse" target="_blank" rel="noopener" class="pod-sub-btn youtube">
+        <i class="fab fa-youtube"></i> YouTube
+      </a>
+      <a href="/podcast/feed.xml" class="pod-sub-btn rss">
+        <i class="fas fa-rss"></i> RSS Feed
+      </a>
+    </div>
+  </section>
+
+  <!-- ── Search ──────────────────────────────────────── -->
+  <div class="pod-search-wrap" style="margin-top: 32px; position: relative;">
+    <i class="fas fa-search pod-search-icon"></i>
+    <input
+      type="text"
+      class="pod-search"
+      id="podSearch"
+      placeholder="Search by guest, topic, or keyword..."
+      autocomplete="off"
+    >
+  </div>
+
+  <!-- ── Featured Episode ────────────────────────────── -->
+  {% if featured %}
+  <div class="pod-section">
+    <div class="pod-section-head">
+      <h2><i class="fas fa-star" style="color: var(--pod-gold); margin-right: 6px;"></i>Latest Featured</h2>
+    </div>
+    <div class="pod-featured">
+      <div class="pod-featured-inner">
+        <!-- Player side -->
+        <div class="pod-featured-player">
+          <div class="pod-player-widget" id="featPlayerWidget">
+            <div class="pod-player-cover">
+              <i class="fas fa-microphone-alt"></i>
+            </div>
+            <div class="pod-player-title">{{ featured.title }}</div>
+            <div class="pod-player-guest">{{ featured.guest_name }}</div>
+            <!-- Progress -->
+            <div class="pod-progress-wrap">
+              <div class="pod-progress-bar" id="featProgressBar">
+                <div class="pod-progress-fill" id="featProgressFill"></div>
+              </div>
+              <div class="pod-progress-times">
+                <span id="featCurrentTime">0:00</span>
+                <span id="featDuration">{{ featured.duration }}</span>
+              </div>
+            </div>
+            <!-- Controls -->
+            <div class="pod-controls">
+              <button class="pod-ctrl-btn" title="Rewind 15s" onclick="seekRel(-15)">
+                <i class="fas fa-undo"></i>
+              </button>
+              <button class="pod-ctrl-play" id="featPlayBtn" onclick="toggleFeatured()">
+                <i class="fas fa-play" id="featPlayIcon"></i>
+              </button>
+              <button class="pod-ctrl-btn" title="Forward 30s" onclick="seekRel(30)">
+                <i class="fas fa-redo"></i>
+              </button>
+            </div>
+            <!-- Speed -->
+            <div class="pod-speed-wrap">
+              <span style="font-family: var(--pod-mono); font-size: 0.58rem; color: var(--pod-muted);">SPEED:</span>
+              <button class="pod-speed-btn" onclick="setSpeed(0.75)">0.75×</button>
+              <button class="pod-speed-btn active" onclick="setSpeed(1.0)">1×</button>
+              <button class="pod-speed-btn" onclick="setSpeed(1.25)">1.25×</button>
+              <button class="pod-speed-btn" onclick="setSpeed(1.5)">1.5×</button>
+              <button class="pod-speed-btn" onclick="setSpeed(2.0)">2×</button>
+            </div>
+          </div>
+        </div>
+        <!-- Info side -->
+        <div class="pod-featured-info">
+          <div>
+            <div class="pod-feat-badge"><i class="fas fa-star"></i> Featured Episode</div>
+            <div class="pod-feat-ep">EP. {{ featured.episode_number or '—' }}</div>
+            <h2 class="pod-feat-title">{{ featured.title }}</h2>
+            <div class="pod-feat-guest">
+              <i class="fas fa-user-circle" style="margin-right: 6px;"></i>{{ featured.guest_name }}
+            </div>
+            <div class="pod-feat-bio">{{ featured.guest_bio }}</div>
+            <div class="pod-feat-meta">
+              {% if featured.duration %}
+              <span><i class="fas fa-clock"></i> {{ featured.duration }}</span>
+              {% endif %}
+              {% if featured.published_at %}
+              <span><i class="fas fa-calendar"></i> {{ featured.published_at.strftime('%b %d, %Y') }}</span>
+              {% endif %}
+            </div>
+            <div class="pod-feat-tags">
+              {% for tag in featured.tags_list %}
+              <span class="pod-tag">{{ tag }}</span>
+              {% endfor %}
+            </div>
+          </div>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <a href="/podcast/{{ featured.slug }}" class="pod-btn-listen">
+              <i class="fas fa-play"></i> Listen Now
+            </a>
+            {% if featured.youtube_url and 'placeholder' not in featured.youtube_url %}
+            <a href="{{ featured.youtube_url }}" target="_blank" rel="noopener" class="pod-btn-listen" style="background: linear-gradient(135deg, #b91c1c, #991b1b);">
+              <i class="fab fa-youtube"></i> Watch
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ── All Episodes ─────────────────────────────────── -->
+  <div class="pod-section" id="episodeSection">
+    <div class="pod-section-head">
+      <h2><i class="fas fa-list" style="color: var(--pod-muted); margin-right: 6px;"></i>All Episodes</h2>
+      <span class="badge-count">{{ episodes|length }}</span>
+    </div>
+
+    <div class="pod-grid" id="podGrid">
+      {% for ep in episodes %}
+      <a href="/podcast/{{ ep.slug }}" class="pod-card" data-title="{{ ep.title|lower }}" data-guest="{{ (ep.guest_name or '')|lower }}" data-tags="{{ (ep.tags or '')|lower }}">
+        <div class="pod-card-thumb">
+          <i class="fas fa-microphone-alt"></i>
+          <div class="pod-card-ep-badge">EP. {{ ep.episode_number or '—' }}</div>
+          <div class="pod-card-dur-badge">{{ ep.duration or '—' }}</div>
+        </div>
+        <div class="pod-card-body">
+          <div class="pod-card-guest">{{ ep.guest_name or 'Guest' }}</div>
+          <div class="pod-card-title">{{ ep.title }}</div>
+          <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 6px;">
+            {% for tag in ep.tags_list[:3] %}
+            <span class="pod-tag">{{ tag }}</span>
+            {% endfor %}
+          </div>
+          <div class="pod-card-meta">
+            <span class="pod-card-date">
+              {% if ep.published_at %}{{ ep.published_at.strftime('%b %Y') }}{% endif %}
+            </span>
+            <div class="pod-card-play">
+              <i class="fas fa-play" style="margin-left: 2px;"></i>
+            </div>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+    <div class="pod-empty" id="podEmpty" style="display: none;">
+      <i class="fas fa-search"></i>
+      No episodes match your search.
+    </div>
+  </div>
+
+</div>
+
+<!-- ── NOW PLAYING Sticky Bar ─────────────────────────── -->
+<div class="pod-now-playing" id="nowPlayingBar">
+  <span class="pod-np-label">Now Playing</span>
+  <div class="pod-np-cover"><i class="fas fa-microphone-alt"></i></div>
+  <div class="pod-np-info">
+    <div class="pod-np-title" id="npTitle">—</div>
+    <div class="pod-np-guest" id="npGuest">—</div>
+  </div>
+  <div class="pod-np-progress">
+    <div class="pod-np-bar" id="npBar" onclick="seekNP(event)">
+      <div class="pod-np-fill" id="npFill"></div>
+    </div>
+    <div class="pod-np-times">
+      <span id="npCurrent">0:00</span>
+      <span id="npDur">—</span>
+    </div>
+  </div>
+  <div class="pod-np-controls">
+    <button class="pod-np-btn" onclick="seekRel(-15)" title="−15s"><i class="fas fa-undo"></i></button>
+    <button class="pod-np-play" id="npPlayBtn" onclick="toggleFeatured()">
+      <i class="fas fa-play" id="npPlayIcon"></i>
+    </button>
+    <button class="pod-np-btn" onclick="seekRel(30)" title="+30s"><i class="fas fa-redo"></i></button>
+  </div>
+  <button class="pod-np-close" onclick="closePlayer()" title="Close"><i class="fas fa-times"></i></button>
+</div>
+
+<!-- Hidden audio element -->
+<audio id="podAudio" preload="none"></audio>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+  /* ── Audio state ── */
+  const audio = document.getElementById('podAudio');
+  const nowBar = document.getElementById('nowPlayingBar');
+  let isPlaying = false;
+  let currentEp = null;
+
+  /* Featured episode data */
+  const featuredAudio = {{ (featured.audio_url or '')|tojson if featured else '""' }};
+  const featuredTitle = {{ (featured.title or '')|tojson if featured else '""' }};
+  const featuredGuest = {{ (featured.guest_name or '')|tojson if featured else '""' }};
+  const featuredDur   = {{ (featured.duration or '')|tojson if featured else '""' }};
+
+  /* ── Toggle featured player ── */
+  window.toggleFeatured = function() {
+    if (!featuredAudio) {
+      // No audio URL — just show now playing bar with episode info
+      activateNowPlaying(featuredTitle, featuredGuest, featuredDur, null);
+      return;
+    }
+    if (currentEp !== 'featured') {
+      audio.src = featuredAudio;
+      currentEp = 'featured';
+    }
+    togglePlay();
+  };
+
+  function activateNowPlaying(title, guest, dur, src) {
+    document.getElementById('npTitle').textContent = title;
+    document.getElementById('npGuest').textContent = guest;
+    document.getElementById('npDur').textContent = dur || '—';
+    nowBar.classList.add('active');
+    if (src) { audio.src = src; currentEp = src; }
+    isPlaying = true;
+    syncIcons();
+  }
+
+  function togglePlay() {
+    if (isPlaying) {
+      audio.pause();
+      isPlaying = false;
+    } else {
+      audio.play().then(() => { isPlaying = true; syncIcons(); }).catch(() => {
+        // No audio available — still show bar
+        isPlaying = true;
+        nowBar.classList.add('active');
+      });
+      isPlaying = true;
+      nowBar.classList.add('active');
+      document.getElementById('npTitle').textContent = featuredTitle;
+      document.getElementById('npGuest').textContent = featuredGuest;
+      document.getElementById('npDur').textContent = featuredDur;
+    }
+    syncIcons();
+  }
+
+  function syncIcons() {
+    const icon = isPlaying ? 'fa-pause' : 'fa-play';
+    ['featPlayIcon','npPlayIcon'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.className = 'fas ' + icon; }
+    });
+  }
+
+  /* ── Seek ── */
+  window.seekRel = function(secs) {
+    audio.currentTime = Math.max(0, (audio.currentTime || 0) + secs);
+  };
+
+  /* ── Speed ── */
+  window.setSpeed = function(rate) {
+    audio.playbackRate = rate;
+    document.querySelectorAll('.pod-speed-btn').forEach(b => {
+      b.classList.toggle('active', parseFloat(b.textContent) === rate);
+    });
+  };
+
+  /* ── Progress update ── */
+  audio.addEventListener('timeupdate', () => {
+    const cur = audio.currentTime;
+    const dur = audio.duration || 0;
+    const pct = dur ? (cur / dur * 100) : 0;
+    const fill1 = document.getElementById('featProgressFill');
+    const fill2 = document.getElementById('npFill');
+    if (fill1) fill1.style.width = pct + '%';
+    if (fill2) fill2.style.width = pct + '%';
+    const ct = document.getElementById('featCurrentTime');
+    const np = document.getElementById('npCurrent');
+    const fmt = t => {
+      const m = Math.floor(t/60), s = Math.floor(t%60);
+      return m + ':' + String(s).padStart(2,'0');
+    };
+    if (ct) ct.textContent = fmt(cur);
+    if (np) np.textContent = fmt(cur);
+  });
+
+  /* ── Progress bar click ── */
+  const featBar = document.getElementById('featProgressBar');
+  if (featBar) {
+    featBar.addEventListener('click', e => {
+      const r = featBar.getBoundingClientRect();
+      const pct = (e.clientX - r.left) / r.width;
+      if (audio.duration) audio.currentTime = pct * audio.duration;
+    });
+  }
+  window.seekNP = function(e) {
+    const bar = document.getElementById('npBar');
+    const r = bar.getBoundingClientRect();
+    const pct = (e.clientX - r.left) / r.width;
+    if (audio.duration) audio.currentTime = pct * audio.duration;
+  };
+
+  /* ── Close player ── */
+  window.closePlayer = function() {
+    audio.pause();
+    isPlaying = false;
+    nowBar.classList.remove('active');
+    syncIcons();
+  };
+
+  audio.addEventListener('ended', () => {
+    isPlaying = false;
+    syncIcons();
+  });
+
+  /* ── Client-side search ── */
+  const searchInput = document.getElementById('podSearch');
+  const grid = document.getElementById('podGrid');
+  const emptyMsg = document.getElementById('podEmpty');
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.toLowerCase().trim();
+      const cards = grid.querySelectorAll('.pod-card');
+      let visible = 0;
+      cards.forEach(card => {
+        const haystack = [
+          card.dataset.title || '',
+          card.dataset.guest || '',
+          card.dataset.tags || ''
+        ].join(' ');
+        const match = !q || haystack.includes(q);
+        card.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      emptyMsg.style.display = visible === 0 ? 'block' : 'none';
+    });
+  }
+})();
+</script>
+{% endblock %}

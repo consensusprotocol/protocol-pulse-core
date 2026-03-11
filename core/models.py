@@ -130,6 +130,48 @@ class Podcast(db.Model):
     category = db.Column(db.String(50), default="Web3")
     rss_source = db.Column(db.String(100))
 
+class PodcastEpisode(db.Model):
+    """SESSION 16 — CypherPunk'd podcast episodes."""
+    __tablename__ = 'podcast_episodes'
+    id = db.Column(db.Integer, primary_key=True)
+    slug = db.Column(db.String(200), unique=True, nullable=False)
+    title = db.Column(db.String(300), nullable=False)
+    episode_number = db.Column(db.Integer)
+    guest_name = db.Column(db.String(200))
+    guest_bio = db.Column(db.Text)
+    guest_image_url = db.Column(db.String(500))
+    youtube_url = db.Column(db.String(500))
+    audio_url = db.Column(db.String(500))
+    duration = db.Column(db.String(20))  # "1:23:45"
+    published_at = db.Column(db.DateTime)
+    show_notes = db.Column(db.Text)
+    tags = db.Column(db.Text)  # JSON array
+    featured = db.Column(db.Boolean, default=False)
+    thumbnail_url = db.Column(db.String(500))
+
+    @property
+    def tags_list(self):
+        import json
+        try:
+            return json.loads(self.tags or '[]')
+        except Exception:
+            return []
+
+    @property
+    def youtube_embed_url(self):
+        """Convert watch URL to embed URL."""
+        if not self.youtube_url:
+            return None
+        import re
+        m = re.search(r'[?&]v=([A-Za-z0-9_-]{11})', self.youtube_url)
+        if m:
+            return f"https://www.youtube.com/embed/{m.group(1)}"
+        m2 = re.search(r'youtu\.be/([A-Za-z0-9_-]{11})', self.youtube_url)
+        if m2:
+            return f"https://www.youtube.com/embed/{m2.group(1)}"
+        return None
+
+
 class ContentPrompt(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
