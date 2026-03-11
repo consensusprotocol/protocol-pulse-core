@@ -40,6 +40,8 @@ from services.youtube_service import YouTubeService
 from services.node_service import NodeService
 from services.ghl_service import ghl_service
 
+ADMIN_SECRET = os.environ.get('ADMIN_SECRET', '')
+
 # ─── Sentiment classification trigger (LAW 1: classify within 60s of publish) ───
 
 def _trigger_sentiment_classification(article_id: int):
@@ -2299,6 +2301,99 @@ def newsletter_subscribe():
     
     return redirect(url_for('index'))
 
+# ── B1 Newsletter Engine Routes ──────────────────────────────────────────────
+
+@app.route('/api/newsletter/subscribe', methods=['POST'])
+@limiter.limit("5 per minute")
+def api_newsletter_subscribe():
+    """Subscribe to newsletter — JSON API."""
+    data = request.get_json(silent=True) or {}
+    email = (data.get('email') or request.form.get('email', '')).strip().lower()
+    if not email or '@' not in email:
+        return jsonify({'success': False, 'message': 'Valid email required'}), 400
+    source = request.referrer or 'api'
+    # Check existing
+    existing = models.NewsletterSubscriber.query.filter_by(email=email).first()
+    if existing and existing.subscribed:
+        return jsonify({'success': False, 'message': 'Already subscribed'}), 409
+    if existing and not existing.subscribed:
+        existing.subscribed = True
+        existing.unsubscribed_at = None
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Re-subscribed successfully'})
+    sub = models.NewsletterSubscriber(
+        email=email,
+        unsubscribe_token=str(uuid.uuid4()),
+        subscribed=True,
+        source=source[:50] if isinstance(source, str) else 'api',
+    )
+    db.session.add(sub)
+    # Also set User flag
+    user = models.User.query.filter_by(email=email).first()
+    if user:
+        user.newsletter_subscribed = True
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Subscribed to Protocol Pulse'})
+
+
+@app.route('/unsubscribe')
+def newsletter_unsubscribe():
+    """CAN-SPAM compliant unsubscribe (LAW 4)."""
+    token = request.args.get('token', '').strip()
+    if not token:
+        return '<html><body style="background:#0a0a0a;color:#f4f5f8;font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;"><div style="text-align:center"><h1 style="color:#FF0000">Invalid Link</h1><p>Missing unsubscribe token.</p></div></body></html>', 400
+    sub = models.NewsletterSubscriber.query.filter_by(unsubscribe_token=token).first()
+    if not sub:
+        return '<html><body style="background:#0a0a0a;color:#f4f5f8;font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;"><div style="text-align:center"><h1 style="color:#FF0000">Not Found</h1><p>Token not recognized.</p></div></body></html>', 404
+    sub.subscribed = False
+    sub.unsubscribed_at = datetime.utcnow()
+    # Also update User table
+    user = models.User.query.filter_by(email=sub.email).first()
+    if user:
+        user.newsletter_subscribed = False
+    db.session.commit()
+    return '''<html><body style="background:#0a0a0a;color:#f4f5f8;font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;">
+<div style="text-align:center">
+<h1 style="color:#FF0000;letter-spacing:0.1em;">PROTOCOL PULSE</h1>
+<p style="font-size:18px;margin-top:20px;">You've been unsubscribed from Protocol Pulse.</p>
+<p style="color:#888;font-size:14px;margin-top:10px;">You will no longer receive daily briefings.</p>
+<a href="/" style="display:inline-block;margin-top:24px;color:#FF0000;text-decoration:none;border:1px solid #FF0000;padding:10px 24px;border-radius:4px;">Return to Protocol Pulse</a>
+</div></body></html>''', 200
+
+
+@app.route('/api/newsletter/send', methods=['POST'])
+def api_newsletter_send():
+    """Admin-only: trigger newsletter send."""
+    # Check admin session or ADMIN_SECRET header
+    admin_ok = False
+    if hasattr(current_user, 'is_admin') and current_user.is_authenticated and current_user.is_admin:
+        admin_ok = True
+    secret = request.headers.get('X-Admin-Secret', '')
+    if secret and ADMIN_SECRET and secret == ADMIN_SECRET:
+        admin_ok = True
+    if not admin_ok:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+    from services.newsletter import NewsletterEngine
+    engine = NewsletterEngine()
+    result = engine.send()
+    return jsonify(result)
+
+
+@app.route('/admin/newsletter')
+@login_required
+def admin_newsletter():
+    """Newsletter admin dashboard."""
+    if not current_user.is_admin:
+        return redirect(url_for('index'))
+    sub_count = models.NewsletterSubscriber.query.filter_by(subscribed=True).count()
+    total_subs = models.NewsletterSubscriber.query.count()
+    recent_sends = models.NewsletterSend.query.order_by(models.NewsletterSend.sent_at.desc()).limit(10).all()
+    last_send = recent_sends[0] if recent_sends else None
+    return render_template('admin_newsletter.html',
+                           sub_count=sub_count, total_subs=total_subs,
+                           recent_sends=recent_sends, last_send=last_send)
+
+
 @app.route('/login', methods=['GET', 'POST'])
 @limiter.limit("5 per minute")
 def login():
@@ -3784,12 +3879,13 @@ try:
 except (ModuleNotFoundError, ImportError) as e:
     logging.warning("routes_social not loaded - social monitoring blueprint not registered: %s", e)
 
-# Register Terminal API / Premium API blueprint
+# Register Terminal API / Premium API blueprint (skip if already registered by app.py)
 try:
     from routes_premium_api import premium_api
-    app.register_blueprint(premium_api)
-    logging.info("Terminal API blueprint (routes_premium_api) registered from routes.py")
-except (ModuleNotFoundError, ImportError) as e:
+    if 'premium_api' not in [bp.name for bp in app.iter_blueprints()]:
+        app.register_blueprint(premium_api)
+        logging.info("Terminal API blueprint (routes_premium_api) registered from routes.py")
+except (ModuleNotFoundError, ImportError, ValueError) as e:
     logging.warning("routes_premium_api not loaded: %s", e)
 
 @app.route('/admin/write', methods=['GET', 'POST'])
@@ -10565,6 +10661,131 @@ def terminal_account():
     except Exception:
         sub = None
     return render_template("terminal_account.html", sub=sub)
+
+
+# ── N17 Global FTS5 Search ───────────────────────────────────────────────────
+
+@app.route('/search')
+def search_page():
+    """Full-text search page with FTS5."""
+    q = request.args.get('q', '').strip()
+    category = request.args.get('category', '').strip()
+    page = request.args.get('page', 1, type=int)
+    limit = min(request.args.get('limit', 20, type=int), 50)
+    offset = (page - 1) * limit
+
+    results = []
+    total = 0
+
+    if q:
+        try:
+            raw = db.engine.raw_connection()
+            cur = raw.cursor()
+            # Sanitize query for FTS5 (escape double quotes, wrap terms)
+            safe_q = q.replace('"', '""')
+            fts_query = ' '.join(f'"{w}"' for w in safe_q.split() if w)
+
+            # Count total
+            count_sql = """
+                SELECT count(*) FROM articles
+                JOIN articles_fts ON articles.id = articles_fts.rowid
+                WHERE articles_fts MATCH ?
+            """
+            count_params = [fts_query]
+            if category:
+                count_sql += " AND articles.category = ?"
+                count_params.append(category)
+
+            total = cur.execute(count_sql, count_params).fetchone()[0]
+
+            # Fetch results with highlights
+            search_sql = """
+                SELECT articles.id, articles.title, articles.category,
+                       articles.created_at, articles.header_image_url,
+                       highlight(articles_fts, 1, '<mark>', '</mark>') as snippet,
+                       rank
+                FROM articles
+                JOIN articles_fts ON articles.id = articles_fts.rowid
+                WHERE articles_fts MATCH ?
+            """
+            search_params = [fts_query]
+            if category:
+                search_sql += " AND articles.category = ?"
+                search_params.append(category)
+            search_sql += " ORDER BY rank LIMIT ? OFFSET ?"
+            search_params.extend([limit, offset])
+
+            rows = cur.execute(search_sql, search_params).fetchall()
+            for r in rows:
+                snippet = r[5] or ''
+                # Trim snippet to ~150 chars while keeping highlight tags
+                plain_len = len(re.sub(r'</?mark>', '', snippet))
+                if plain_len > 150:
+                    # Truncate but keep mark tags
+                    snippet = snippet[:200].rsplit(' ', 1)[0] + '...'
+                results.append({
+                    'id': r[0], 'title': r[1], 'category': r[2],
+                    'published_at': r[3], 'header_image_url': r[4],
+                    'snippet': snippet, 'score': r[6],
+                })
+            raw.close()
+        except Exception as e:
+            logging.error(f"Search error: {e}")
+
+    return render_template('search.html', results=results, query=q,
+                           total=total, page=page, limit=limit, category=category)
+
+
+@app.route('/api/search')
+def api_search():
+    """JSON search API for typeahead."""
+    q = request.args.get('q', '').strip()
+    category = request.args.get('category', '').strip()
+    limit = min(request.args.get('limit', 10, type=int), 50)
+    page = request.args.get('page', 1, type=int)
+    offset = (page - 1) * limit
+
+    if not q or len(q) < 2:
+        return jsonify([])
+
+    try:
+        raw = db.engine.raw_connection()
+        cur = raw.cursor()
+        safe_q = q.replace('"', '""')
+        fts_query = ' '.join(f'"{w}"' for w in safe_q.split() if w)
+
+        sql = """
+            SELECT articles.id, articles.title, articles.category,
+                   articles.created_at,
+                   highlight(articles_fts, 1, '<mark>', '</mark>') as snippet,
+                   rank
+            FROM articles
+            JOIN articles_fts ON articles.id = articles_fts.rowid
+            WHERE articles_fts MATCH ?
+        """
+        params = [fts_query]
+        if category:
+            sql += " AND articles.category = ?"
+            params.append(category)
+        sql += " ORDER BY rank LIMIT ? OFFSET ?"
+        params.extend([limit, offset])
+
+        rows = cur.execute(sql, params).fetchall()
+        results = []
+        for r in rows:
+            snippet = r[4] or ''
+            plain_len = len(re.sub(r'</?mark>', '', snippet))
+            if plain_len > 150:
+                snippet = snippet[:200].rsplit(' ', 1)[0] + '...'
+            results.append({
+                'id': r[0], 'title': r[1], 'category': r[2],
+                'published_at': r[3], 'snippet': snippet, 'score': r[5],
+            })
+        raw.close()
+        return jsonify(results)
+    except Exception as e:
+        logging.error(f"API search error: {e}")
+        return jsonify([])
 
 
 # Error handlers

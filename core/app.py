@@ -147,6 +147,43 @@ with app.app_context():
     import models
     # 2. Create the tables (migration-safe: adds new columns/tables without dropping existing)
     db.create_all()
+
+    # 2b. FTS5 full-text search index on articles (N17)
+    # NOTE: FTS columns are title/body/category. articles.content maps to FTS body.
+    # We do NOT use content= sync (conflicts with column name), so triggers handle sync.
+    try:
+        raw = db.engine.raw_connection()
+        cur = raw.cursor()
+        cur.executescript("""
+            CREATE VIRTUAL TABLE IF NOT EXISTS articles_fts USING fts5(
+                title, body, category
+            );
+
+            CREATE TRIGGER IF NOT EXISTS articles_fts_insert AFTER INSERT ON articles BEGIN
+                INSERT INTO articles_fts(rowid, title, body, category)
+                VALUES (new.id, new.title, COALESCE(new.content,''), COALESCE(new.category,''));
+            END;
+
+            CREATE TRIGGER IF NOT EXISTS articles_fts_update AFTER UPDATE ON articles BEGIN
+                INSERT INTO articles_fts(articles_fts, rowid, title, body, category)
+                VALUES ('delete', old.id, old.title, COALESCE(old.content,''), COALESCE(old.category,''));
+                INSERT INTO articles_fts(rowid, title, body, category)
+                VALUES (new.id, new.title, COALESCE(new.content,''), COALESCE(new.category,''));
+            END;
+        """)
+        # Populate FTS if empty
+        cnt = cur.execute("SELECT count(*) FROM articles_fts").fetchone()[0]
+        if cnt == 0:
+            cur.execute("""
+                INSERT INTO articles_fts(rowid, title, body, category)
+                SELECT id, title, COALESCE(content,''), COALESCE(category,'') FROM articles
+            """)
+        raw.commit()
+        raw.close()
+        logging.info("FTS5 articles_fts ready (%d rows)", cnt)
+    except Exception as e:
+        logging.warning("FTS5 setup skipped: %s", e)
+
     # 3. ONLY NOW load the routes
     import routes
     # 4. Register Terminal API blueprint

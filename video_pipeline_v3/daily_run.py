@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Master orchestrator for Pulse Check video pipeline — V5 real content."""
+"""Master orchestrator for Pulse Check video pipeline — V5 real content.
+
+# Cron: 0 12 * * * python3 -c 'from core.services.newsletter import NewsletterEngine; NewsletterEngine().send()'
+# (12 UTC = 08:00 ET — B1 Newsletter daily send)
+"""
 import os, sys, json, argparse, time, shutil
 from datetime import datetime
 
