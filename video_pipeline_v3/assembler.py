@@ -630,9 +630,9 @@ def _make_clip_unavailable_card(rank: int, output_path: str, btc_price: str = "$
         f"drawtext=fontfile={FONT_BOLD}:text='PULSE CHECK'"
         f":fontcolor={COLOR_GOLD}:fontsize=52:x=(w-text_w)/2:y=360,"
         # Subtext
-        f"drawtext=fontfile={FONT_MONO}:text='NEXT CLIP LOADING'"
+        f"drawtext=fontfile={FONT_MONO}:text='INTELLIGENCE INCOMING'"
         f":fontcolor=0x888888:fontsize=26:x=(w-text_w)/2:y=450,"
-        f"drawtext=fontfile={FONT_MONO}:text='CLIP {rank} OF 5'"
+        f"drawtext=fontfile={FONT_MONO}:text='STAY SOVEREIGN'"
         f":fontcolor={COLOR_RED}@0.7:fontsize=18:x=(w-text_w)/2:y=500,"
         # Gold info rail at bottom
         f"drawbox=x=0:y=1032:w=1920:h=48:color={COLOR_GOLD}@0.95:t=fill,"
@@ -728,6 +728,15 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
     Thin 2px white border at 30% opacity.
     """
     if not clip_path or not os.path.exists(clip_path):
+        logger.warning(f"PiP: clip path missing: {clip_path}")
+        return ""
+    try:
+        file_size = os.path.getsize(clip_path)
+        if file_size < 50_000:  # < 50KB = stub/corrupt
+            logger.warning(f"PiP: clip too small ({file_size}b), skipping: {clip_path}")
+            return ""
+    except OSError as e:
+        logger.warning(f"PiP: cannot stat clip: {e}")
         return ""
     clip_dur = ffprobe_duration(clip_path)
     if clip_dur < 2:  # FIX 1: lowered min from 10s to 2s
@@ -1016,8 +1025,6 @@ def _bv2_encode(inputs, fg, output_path, total_dur, label="bv2 scene",
     pre-split audio via asplit should pass their output pad here.
     """
     fg += (f"{audio_pad}aformat=channel_layouts=stereo,"
-           f"silenceremove=start_periods=1:start_duration=0.05:start_threshold=-50dB:"
-           f"stop_periods=-1:stop_duration=0.1:stop_threshold=-50dB,"
            f"loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]")
 
     ok = run_ffmpeg_filtergraph(
@@ -1168,7 +1175,8 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     inputs = [audio_path]
     inp_idx = 1
     # FIX 1: prefer video PiP over static thumbnail
-    has_pip_video = bool(pip_video_path and os.path.exists(pip_video_path))
+    has_pip_video = bool(pip_video_path and os.path.exists(pip_video_path)
+                         and os.path.getsize(pip_video_path) > 10000)  # >10KB = real video
     has_thumb = bool(thumb_path and os.path.exists(thumb_path)) and not has_pip_video
 
     if has_pip_video:
@@ -1185,6 +1193,69 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     else:
         thumb_idx = -1
 
+    # ── Load intelligence data at render time ──────────────────────────────
+    import json as _json, datetime as _dt
+    _BASE_INTEL = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                               "data", "intelligence")
+    _nc_path = os.path.join(_BASE_INTEL, "narrative_context.json")
+    _ds_path = os.path.join(_BASE_INTEL, "daily_signals.json")
+
+    # Defaults
+    _btc_price_val = btc_price if btc_price and btc_price not in ("N/A", "$0", "") else None
+    _dominant_narrative = "Bitcoin Sound Money"
+    _market_mood = "NEUTRAL"
+    _top_quote = ""
+    _quote_handle = ""
+    _top_topics = []
+
+    # Narrative context
+    try:
+        with open(_nc_path) as _f:
+            _nc = _json.load(_f)
+        _computed = _nc.get("computed_at", "")
+        if _computed:
+            _age = (_dt.datetime.now(_dt.timezone.utc) -
+                    _dt.datetime.fromisoformat(_computed)).total_seconds() / 3600
+            if _age < 12:
+                _dominant_narrative = _nc.get("dominant_narrative", _dominant_narrative)[:42]
+                _market_mood = _nc.get("market_mood", "neutral").upper().replace("_", " ")[:16]
+                _hint = _nc.get("eryn_intro_hook", "")
+                if "'" in _hint:
+                    _qs = _hint.find("'") + 1
+                    _qe = _hint.find("'", _qs)
+                    if _qe > _qs:
+                        _top_quote = _hint[_qs:_qe][:70]
+                _tl = _nc.get("thought_leaders_mentioned", [])
+                _quote_handle = ("@" + _tl[0][:18]) if _tl else ""
+    except Exception:
+        pass
+
+    # Daily signals — top topics
+    try:
+        with open(_ds_path) as _f:
+            _ds = _json.load(_f)
+        _top_topics = [t.get("topic", "")[:28] for t in _ds.get("topic_velocity", [])[:3]
+                       if t.get("velocity_score", 0) > 10]
+    except Exception:
+        pass
+
+    # BTC price — fetch fresh if not passed in
+    if not _btc_price_val:
+        try:
+            import urllib.request as _ur
+            with _ur.urlopen("https://mempool.space/api/v1/prices", timeout=3) as _r:
+                _btc_price_val = f"${_json.loads(_r.read()).get('USD', 0):,.0f}"
+        except Exception:
+            _btc_price_val = "LOADING"
+
+    # Sanitize all strings for FFmpeg
+    _btc_safe = _sanitize_text(_btc_price_val)
+    _narr_safe = _sanitize_text(_dominant_narrative)
+    _mood_safe = _sanitize_text(_market_mood)
+    _quote_safe = _sanitize_text(_top_quote[:60]) if _top_quote else ""
+    _handle_safe = _sanitize_text(_quote_handle)
+    _ts_safe = _dt.datetime.now(tz=_dt.timezone.utc).strftime("%H:%M UTC")
+
     _, bg_fg = _build_broadcast_bg(total_dur, label_out="bb_bg")
     fg = bg_fg
 
@@ -1192,7 +1263,7 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
 
     # Left text zone with gold eyebrow
     safe_speaker = _sanitize_text(speaker)[:12]
-    safe_head = _sanitize_text(headline)[:40]
+    safe_head = _sanitize_text(headline)[:55]
     safe_body = _word_wrap(_sanitize_text(body), max_width=30, max_lines=3) if body else ""
 
     fg += f"[bv2_bar]copy[np_eye];\n"
@@ -1200,63 +1271,181 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
            f"fontcolor=0x111111:fontsize=64:x=66:y=132,"
            f"drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
            f"fontcolor={COLOR_WHITE}:fontsize=64:x=64:y=130[np_head];\n")
-    if safe_body:
-        fg += (f"[np_head]drawtext=fontfile={FONT_MONO}:text='{safe_body}':"
-               f"fontcolor=0xFFFFFF@0.6:fontsize=18:x=64:y=420:line_spacing=8[np_body];\n")
+    # No duplicate body text — left zone is clean headline only
+    fg += f"[np_head]copy[np_body];\n"
+
+    # ═══════════════════════════════════════════════════════
+    # INTELLIGENCE PANEL — Left zone, x=64, y=220, w=960, h=430
+    # Glassmorphic cyberpunk design: dark glass + red accents
+    # ═══════════════════════════════════════════════════════
+
+    # Glassmorphic panel base — dark translucent surface
+    fg += (
+        f"[np_body]"
+        f"drawbox=x=64:y=222:w=960:h=430:color=0x05060A@0.88:t=fill,"
+        f"drawbox=x=64:y=222:w=960:h=2:color={COLOR_RED}:t=fill,"
+        f"drawbox=x=64:y=222:w=2:h=430:color={COLOR_RED}@0.6:t=fill,"
+        f"drawbox=x=64:y=651:w=960:h=1:color=0xFFFFFF@0.08:t=fill,"
+        f"drawbox=x=1023:y=222:w=1:h=430:color=0xFFFFFF@0.05:t=fill,"
+        f"drawbox=x=66:y=226:w=956:h=1:color=0xFFFFFF@0.07:t=fill"
+        f"[np_glass_base];\n"
+    )
+
+    # ── SECTION 1: BTC PRICE (top of panel, y=240-310) ──────────────────
+    fg += (
+        f"[np_glass_base]"
+        f"drawtext=fontfile={FONT_MONO}:text='BTC LIVE':"
+        f"fontcolor={COLOR_GOLD}@0.65:fontsize=11:x=80:y=236,"
+        f"drawtext=fontfile={FONT_MONO}:text='{_ts_safe}':"
+        f"fontcolor=0xFFFFFF@0.25:fontsize=10:x=960:y=236,"
+        f"drawtext=fontfile={FONT_BOLD}:text='{_btc_safe}':"
+        f"fontcolor={COLOR_GOLD}:fontsize=52:x=78:y=248,"
+        f"drawbox=x=78:y=316:w=930:h=1:color=0xFFFFFF@0.07:t=fill"
+        f"[np_price];\n"
+    )
+
+    # ── SECTION 2: NARRATIVE (middle, y=328-420) ─────────────────────────
+    _mood_pill_w = min(len(_mood_safe) * 8 + 20, 200)
+    fg += (
+        f"[np_price]"
+        f"drawtext=fontfile={FONT_MONO}:text='SIGNAL':"
+        f"fontcolor={COLOR_RED}@0.6:fontsize=10:x=80:y=326,"
+        f"drawbox=x=940:y=322:w={_mood_pill_w}:h=18:color={COLOR_RED}@0.12:t=fill,"
+        f"drawbox=x=940:y=322:w={_mood_pill_w}:h=18:color={COLOR_RED}@0.4:t=1,"
+        f"drawtext=fontfile={FONT_MONO}:text='{_mood_safe}':"
+        f"fontcolor={COLOR_RED}:fontsize=9:x=950:y=326,"
+        f"drawtext=fontfile={FONT_BOLD}:text='{_narr_safe}':"
+        f"fontcolor={COLOR_WHITE}:fontsize=24:x=78:y=342,"
+        f"drawbox=x=78:y=380:w=930:h=1:color=0xFFFFFF@0.06:t=fill"
+        f"[np_narrative];\n"
+    )
+
+    # ── SECTION 3: THOUGHT LEADER QUOTE OR TOPICS (bottom, y=390-630) ────
+    if _quote_safe:
+        _q_lines = []
+        _words = _quote_safe.split()
+        _line = ""
+        for _w in _words:
+            if len(_line) + len(_w) + 1 <= 48:
+                _line += (" " + _w if _line else _w)
+            else:
+                _q_lines.append(_line)
+                _line = _w
+                if len(_q_lines) >= 2:
+                    break
+        if _line and len(_q_lines) < 2:
+            _q_lines.append(_line)
+        _q1 = _sanitize_text(_q_lines[0]) if len(_q_lines) > 0 else ""
+        _q2 = _sanitize_text(_q_lines[1]) if len(_q_lines) > 1 else ""
+
+        fg += (
+            f"[np_narrative]"
+            f"drawtext=fontfile={FONT_BOLD}:text='\\\"':"
+            f"fontcolor={COLOR_RED}@0.5:fontsize=32:x=78:y=386,"
+        )
+        if _q1:
+            fg += (
+                f"drawtext=fontfile={FONT_MONO}:text='{_q1}':"
+                f"fontcolor=0xFFFFFF@0.80:fontsize=16:x=112:y=392,"
+            )
+        if _q2:
+            fg += (
+                f"drawtext=fontfile={FONT_MONO}:text='{_q2}':"
+                f"fontcolor=0xFFFFFF@0.80:fontsize=16:x=112:y=412,"
+            )
+        fg += (
+            f"drawtext=fontfile={FONT_MONO}:text='{_handle_safe}':"
+            f"fontcolor={COLOR_RED}:fontsize=12:x=112:y=436,"
+            f"drawtext=fontfile={FONT_MONO}:text='THOUGHT LEADER SIGNAL':"
+            f"fontcolor=0xFFFFFF@0.20:fontsize=9:x=80:y=456"
+            f"[np_quote];\n"
+        )
+        intel_out = "np_quote"
+    elif _top_topics:
+        fg += f"[np_narrative]"
+        fg += (
+            f"drawtext=fontfile={FONT_MONO}:text='TRENDING TOPICS':"
+            f"fontcolor=0xFFFFFF@0.25:fontsize=10:x=80:y=390,"
+        )
+        for _ti, _tp in enumerate(_top_topics[:3]):
+            _tp_safe = _sanitize_text(_tp)
+            _ty = 410 + _ti * 24
+            fg += (
+                f"drawtext=fontfile={FONT_MONO}:text='▸ {_tp_safe}':"
+                f"fontcolor=0xFFFFFF@0.65:fontsize=14:x=86:y={_ty},"
+            )
+        fg += f"drawbox=x=78:y=476:w=200:h=1:color={COLOR_RED}@0.3:t=fill[np_topics];\n"
+        intel_out = "np_topics"
     else:
-        fg += f"[np_head]copy[np_body];\n"
+        fg += f"[np_narrative]copy[np_intel_empty];\n"
+        intel_out = "np_intel_empty"
 
-    # Status badges removed (PIPELINE_LAWS: no debug overlays)
-    fg += f"[np_body]copy[np_pills];\n"
+    # Corner bracket accents (cyberpunk tactical)
+    fg += (
+        f"[{intel_out}]"
+        f"drawbox=x=1012:y=222:w=12:h=2:color={COLOR_RED}@0.5:t=fill,"
+        f"drawbox=x=1022:y=222:w=2:h=12:color={COLOR_RED}@0.5:t=fill,"
+        f"drawbox=x=64:y=650:w=12:h=2:color={COLOR_RED}@0.3:t=fill,"
+        f"drawbox=x=64:y=640:w=2:h=12:color={COLOR_RED}@0.3:t=fill"
+        f"[np_pills];\n"
+    )
 
-    # Right PiP preview panel (x=1120, y=140, w=740, h=500)
+    # Right PiP preview panel (x=1060, y=220, w=820, h=460) — strictly right half, no text overlap
     # Gold eyebrow above PiP
     fg += (f"[np_pills]drawtext=fontfile={FONT_MONO}:text='COMING UP NEXT':"
-           f"fontcolor={COLOR_GOLD}:fontsize=11:x=1140:y=122[np_pip_eye];\n")
-    fg += (f"[np_pip_eye]drawbox=x=1120:y=140:w=740:h=500:color={COLOR_PANEL}@0.92:t=fill,"
-           f"drawbox=x=1120:y=140:w=740:h=1:color=0xFFFFFF@0.1:t=fill,"
-           f"drawbox=x=1120:y=639:w=740:h=1:color=0xFFFFFF@0.1:t=fill,"
-           f"drawbox=x=1120:y=140:w=0:h=0:color=0x000000@0:t=fill"
+           f"fontcolor={COLOR_GOLD}:fontsize=11:x=1080:y=202[np_pip_eye];\n")
+    fg += (f"[np_pip_eye]drawbox=x=1060:y=220:w=820:h=460:color={COLOR_PANEL}@0.92:t=fill,"
+           f"drawbox=x=1060:y=220:w=820:h=1:color=0xFFFFFF@0.1:t=fill,"
+           f"drawbox=x=1060:y=679:w=820:h=1:color=0xFFFFFF@0.1:t=fill,"
+           f"drawbox=x=1060:y=220:w=0:h=0:color=0x000000@0:t=fill"
            f"[np_pip_hdr];\n")
 
     # FIX 1: Use actual video in PiP box — loop the preview clip to match segment duration
+    # PiP content area: x=1072, y=232, w=796, h=370 (inside the 1060,220,820,460 panel)
     if has_pip_video and pip_vid_idx >= 0:
         pip_dur_src = ffprobe_duration(pip_video_path)
         src_frames = max(30, int(pip_dur_src * 30) + 5) if pip_dur_src > 0 else 300
         loop_flag = f"loop=loop=-1:size={src_frames}:start=0," if pip_dur_src < total_dur else ""
         fg += (f"[{pip_vid_idx}:v]{loop_flag}"
-               f"scale=716:370:force_original_aspect_ratio=increase,"
-               f"crop=716:370,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS[np_pip_vid];\n")
-        fg += f"[np_pip_hdr][np_pip_vid]overlay=1132:200[np_pip_thumb];\n"
+               f"scale=796:370:force_original_aspect_ratio=increase,"
+               f"crop=796:370,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS[np_pip_vid];\n")
+        fg += f"[np_pip_hdr][np_pip_vid]overlay=1072:240[np_pip_thumb];\n"
         pip_base = "np_pip_thumb"
     elif has_thumb and thumb_idx >= 0:
-        fg += (f"[{thumb_idx}:v]scale=716:370:force_original_aspect_ratio=increase,"
-               f"crop=716:370,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS[np_thumb];\n")
-        fg += f"[np_pip_hdr][np_thumb]overlay=1132:200[np_pip_thumb];\n"
+        fg += (f"[{thumb_idx}:v]scale=796:370:force_original_aspect_ratio=increase,"
+               f"crop=796:370,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS[np_thumb];\n")
+        fg += f"[np_pip_hdr][np_thumb]overlay=1072:240[np_pip_thumb];\n"
         pip_base = "np_pip_thumb"
     else:
-        fg += (f"[np_pip_hdr]drawbox=x=1132:y=200:w=716:h=370:color=0x080808:t=fill,"
-               f"drawbox=x=1400:y=280:w=180:h=220:color=0x111111:t=fill"
-               f"[np_pip_placeholder];\n")
-        pip_base = "np_pip_placeholder"
+        # Minimal styled placeholder — keeps PiP frame occupied
+        fg += (
+            f"[np_pip_hdr]"
+            f"drawbox=x=1072:y=240:w=796:h=370:color=0x050607:t=fill,"
+            f"drawtext=fontfile={FONT_MONO}:text='PREVIEW':"
+            f"fontcolor={COLOR_RED}@0.4:fontsize=14:x=1420:y=410,"
+            f"drawtext=fontfile={FONT_MONO}:text='LOADING':"
+            f"fontcolor=0xFFFFFF@0.2:fontsize=11:x=1422:y=430"
+            f"[np_pip_thumb];\n"
+        )
+        pip_base = "np_pip_thumb"
 
     # Lower third in preview
     safe_next = _sanitize_text(next_speaker)[:30] if next_speaker else "NEXT SOURCE"
-    fg += (f"[{pip_base}]drawbox=x=1132:y=520:w=716:h=50:color=0x000000@0.7:t=fill,"
+    fg += (f"[{pip_base}]drawbox=x=1072:y=620:w=796:h=50:color=0x000000@0.7:t=fill,"
            f"drawtext=fontfile={FONT_BOLD}:text='{safe_next}':"
-           f"fontcolor={COLOR_WHITE}:fontsize=18:x=1148:y=534,"
-           f"drawbox=x=1720:y=528:w=110:h=24:color={COLOR_RED}@0.12:t=fill,"
+           f"fontcolor={COLOR_WHITE}:fontsize=18:x=1088:y=634,"
+           f"drawbox=x=1740:y=628:w=110:h=24:color={COLOR_RED}@0.12:t=fill,"
            f"drawtext=fontfile={FONT_MONO}:text='Preview Active':"
-           f"fontcolor={COLOR_RED}:fontsize=10:x=1730:y=533,"
+           f"fontcolor={COLOR_RED}:fontsize=10:x=1750:y=633,"
            # BD tactical mini corner brackets on PiP frame (16px)
-           f"drawbox=x=1120:y=140:w=16:h=3:color={COLOR_RED}:t=fill,"
-           f"drawbox=x=1120:y=140:w=3:h=16:color={COLOR_RED}:t=fill,"
-           f"drawbox=x=1844:y=140:w=16:h=3:color={COLOR_RED}:t=fill,"
-           f"drawbox=x=1857:y=140:w=3:h=16:color={COLOR_RED}:t=fill,"
-           f"drawbox=x=1120:y=637:w=16:h=3:color={COLOR_RED}:t=fill,"
-           f"drawbox=x=1120:y=624:w=3:h=16:color={COLOR_RED}:t=fill,"
-           f"drawbox=x=1844:y=637:w=16:h=3:color={COLOR_RED}:t=fill,"
-           f"drawbox=x=1857:y=624:w=3:h=16:color={COLOR_RED}:t=fill"
+           f"drawbox=x=1060:y=220:w=16:h=3:color={COLOR_RED}:t=fill,"
+           f"drawbox=x=1060:y=220:w=3:h=16:color={COLOR_RED}:t=fill,"
+           f"drawbox=x=1864:y=220:w=16:h=3:color={COLOR_RED}:t=fill,"
+           f"drawbox=x=1877:y=220:w=3:h=16:color={COLOR_RED}:t=fill,"
+           f"drawbox=x=1060:y=677:w=16:h=3:color={COLOR_RED}:t=fill,"
+           f"drawbox=x=1060:y=664:w=3:h=16:color={COLOR_RED}:t=fill,"
+           f"drawbox=x=1864:y=677:w=16:h=3:color={COLOR_RED}:t=fill,"
+           f"drawbox=x=1877:y=664:w=3:h=16:color={COLOR_RED}:t=fill"
            f"[np_pip_final];\n")
 
     # Corner brackets (main frame)
@@ -1266,11 +1455,52 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     fg += _build_signature_info_rail(total_dur, btc_price, "np_wave", "np_railed")
     fg += f"[np_railed]format=yuv420p[outv];\n"
 
-    return _bv2_encode(inputs, fg, output_path, total_dur, "APEX narrator+pip",
-                       audio_pad=np_audio_pad)
+    result = _bv2_encode(inputs, fg, output_path, total_dur, "APEX narrator+pip",
+                         audio_pad=np_audio_pad)
+
+    # Session 4 Fix 6: Try Remotion IntelPanel overlay (upgrade from drawtext)
+    if result and os.path.exists(result):
+        try:
+            frames = max(int(total_dur * 30), 120)
+            remotion_panel = _make_remotion_intel_panel(frames, btc_price)
+            if remotion_panel and os.path.exists(remotion_panel):
+                upgraded = output_path + ".intel_upgrade.mp4"
+                ok = run_ffmpeg([
+                    "-i", result,
+                    "-i", remotion_panel,
+                    "-filter_complex",
+                    "[0:v][1:v]overlay=0:0:shortest=1[outv]",
+                    "-map", "[outv]", "-map", "0:a",
+                    "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+                    "-b:v", "8M", "-c:a", "copy",
+                    "-t", str(total_dur), upgraded,
+                ], "Remotion IntelPanel overlay", 120)
+                if ok and os.path.exists(upgraded):
+                    shutil.move(upgraded, output_path)
+                    logger.info("  Fix 6: Remotion IntelPanel overlay applied")
+                else:
+                    logger.info("  Fix 6: Remotion overlay failed — keeping drawtext panel")
+        except Exception as e:
+            logger.info(f"  Fix 6: Remotion IntelPanel skipped: {e}")
+
+    return result
 
 
 # ── BV2 Scene 3: PARTNER CLIP ───────────────────────────────────────────
+
+def _get_audio_offset(clip_path: str) -> float:
+    """Session 4 Fix 5: Probe container-level audio start offset for lip sync."""
+    try:
+        r = subprocess.run([
+            "ffprobe", "-v", "quiet", "-select_streams", "a:0",
+            "-show_entries", "stream=start_time",
+            "-of", "csv=p=0", clip_path
+        ], capture_output=True, text=True, timeout=10)
+        val = float(r.stdout.strip())
+        return val if 0 < val < 2.0 else 0.0  # ignore large or negative offsets
+    except Exception:
+        return 0.0
+
 
 def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
                              quote: str, output_path: str,
@@ -1292,7 +1522,13 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
     fg = ""
     # Full frame clip
     fg += (f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,"
-           f"setsar=1,fps=30,fade=t=in:d=0.3,fade=t=out:st={fade_out_start}:d=0.5[pc_clip];\n")
+           f"setsar=1,fps=30,fade=t=in:d=0.3,fade=t=out:st={fade_out_start}:d=0.5[pc_raw];\n")
+    # Cyberpunk aesthetic: darken clip slightly + tactical grid + radial vignette
+    fg += (f"[pc_raw]"
+           f"eq=brightness=-0.05:saturation=0.9:contrast=1.05,"
+           f"drawgrid=width=120:height=68:thickness=1:color=0xFF0000@0.05,"
+           f"vignette=PI/5:mode=backward"
+           f"[pc_clip];\n")
     # Red border frame (2px)
     fg += (f"[pc_clip]drawbox=x=0:y=0:w=1920:h=2:color={COLOR_RED}@0.75:t=fill,"
            f"drawbox=x=0:y=1078:w=1920:h=2:color={COLOR_RED}@0.75:t=fill,"
@@ -1318,13 +1554,22 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
     # Info rail (always present)
     fg += _build_signature_info_rail(clip_dur, btc_price, "pc_lt", "pc_railed")
     fg += (f"[pc_railed]format=yuv420p[outv];\n"
-           # Audio: preserve original, normalize
-           f"[0:a]asetpts=PTS-STARTPTS,"
+           # Issue 4 FIX: Strip first 2.5s of partner clip audio (intro jangle) + fade in
+           # Session 4 Fix 5: aresample=async=1 for lip sync drift correction
+           f"[0:a]aresample=async=1,atrim=start=2.5,asetpts=PTS-STARTPTS,"
            f"highpass=f=50,lowpass=f=15000,loudnorm=I=-14:TP=-1.5:LRA=7,"
-           f"afade=t=in:d=0.3,afade=t=out:st={fade_out_start}:d=0.5[outa]")
+           f"afade=t=in:d=0.5,afade=t=out:st={max(0, fade_out_start - 2.5)}:d=0.5[outa]")
+
+    # Session 4 Fix 5: Probe audio offset for lip sync correction
+    a_offset = _get_audio_offset(video_path)
+    input_spec = video_path
+    if a_offset > 0.01:
+        # Use list input form so itsoffset is prepended before -i
+        input_spec = ["-itsoffset", str(a_offset), "-i", video_path]
+        logger.info(f"  Fix 5: Audio offset {a_offset:.3f}s applied for lip sync")
 
     ok = run_ffmpeg_filtergraph(
-        [video_path], fg, ["[outv]", "[outa]"],
+        [input_spec], fg, ["[outv]", "[outa]"],
         ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
          "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k"],
@@ -1469,6 +1714,17 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
 
 
 # ── BV2 Scene 5: SOCIAL STACK ───────────────────────────────────────────
+
+def _rank_cards_for_segment(cards: list, segment_text: str) -> list:
+    """Session 4 Fix 4: Rank tweet cards by relevance to narrator text."""
+    if not cards or not segment_text:
+        return cards
+    words = set(segment_text.lower().split())
+    def score(card):
+        card_words = set((card.get('text', '') + ' ' + card.get('handle', '')).lower().split())
+        return len(words & card_words)
+    return sorted(cards, key=score, reverse=True)
+
 
 def make_social_stack_scene(audio_path: str, headline: str, social_cards: list,
                              output_path: str, btc_price: str = "N/A",
@@ -1673,10 +1929,15 @@ def make_wrap_scene(audio_path: str, headline: str, body: str,
     fg += f"[wr_corners][_wr_wfin]overlay=0:880[wr_ekg];\n"
 
     fg += _build_signature_info_rail(total_dur, btc_price, "wr_ekg", "wr_railed")
-    fg += f"[wr_railed]format=yuv420p[outv];\n"
+    # Session 4 Fix 7: Extended fade-to-black (1.5s) and audio fade (2.5s) for clean ending
+    fade_v_start = max(0, total_dur - 1.5)
+    fade_a_start = max(0, total_dur - 2.5)
+    fg += (f"[wr_railed]fade=t=out:st={fade_v_start:.2f}:d=1.5:color=0x0A0A0F,"
+           f"format=yuv420p[outv];\n")
+    fg += (f"[_wr_a_out]afade=t=out:st={fade_a_start:.2f}:d=2.5[_wr_a_faded];\n")
 
     return _bv2_encode(inputs, fg, output_path, total_dur, "APEX wrap",
-                       audio_pad="[_wr_a_out]")
+                       audio_pad="[_wr_a_faded]")
 
 
 # ── BV2 Scene Router ────────────────────────────────────────────────────
@@ -1726,41 +1987,42 @@ def make_broadcast_segment(segment_data: dict, audio_path: str, host_num: int,
     """
     seg_type = segment_data.get("type", "")
     text = segment_data.get("text", "")
-    speaker = segment_data.get("speaker", "MARK")  # single host — Mark only
+    headline = segment_data.get("headline") or segment_data.get("title") or _smart_headline(text)
+    speaker = segment_data.get("speaker", "ERYN")  # dual host — Eryn (HOST_1) + Mark (HOST_2)
     scene = select_scene_type(seg_type, segment_index, total_segments)
 
     try:
         if scene == "cold_open":
             return make_cold_open_scene(
-                audio_path, text[:60], text, "REDLINE",
+                audio_path, headline, text, "REDLINE",
                 output_path, btc_price=btc_price,
             )
         elif scene == "narrator_pip":
             next_speaker = segment_data.get("next_speaker", "")
             return make_narrator_pip_scene(
-                audio_path, text[:60], text, speaker, next_speaker,
+                audio_path, headline, text, speaker, next_speaker,
                 thumbnail_path, output_path, btc_price=btc_price,
                 pip_video_path=pip_video_path,  # FIX 1: pass actual video
             )
         elif scene == "partner_clip" and clip_path:
             return make_partner_clip_scene(
-                clip_path, audio_path, speaker, text[:60],
+                clip_path, audio_path, speaker, headline,
                 output_path, btc_price=btc_price,
             )
         elif scene == "data_segment":
             metrics = segment_data.get("metrics", [])
             return make_data_segment_scene(
-                audio_path, text[:60], metrics,
+                audio_path, headline, metrics,
                 output_path, btc_price=btc_price,
             )
         elif scene == "social_stack":
             return make_social_stack_scene(
-                audio_path, text[:60], social_posts or [],
+                audio_path, headline, social_posts or [],
                 output_path, btc_price=btc_price,
             )
         elif scene == "wrap":
             return make_wrap_scene(
-                audio_path, text[:60], text,
+                audio_path, headline, text,
                 output_path, btc_price=btc_price,
             )
     except Exception as e:
@@ -1811,7 +2073,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
         audio_dur = 5
     total_dur = audio_dur + 0.3
 
-    speaker = "MARK"  # single host — PBX directive 2026-03-09
+    speaker = "ERYN" if host == 1 else "MARK"  # dual host restored 2026-03-10
 
     safe_btc = btc_price.replace("'", "").replace('"', "")
 
@@ -2002,9 +2264,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
         fg += f"[v_final]format=yuv420p[outv];\n"
 
     # Audio: TTS only — APEX V2: music mixed continuously in concatenate_parts()
-    fg += (f"[0:a]silenceremove=start_periods=1:start_duration=0.05:start_threshold=-50dB:"
-           f"stop_periods=-1:stop_duration=0.1:stop_threshold=-50dB,"
-           f"loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]")
+    fg += (f"[0:a]loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]")
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -2028,6 +2288,18 @@ def _sanitize_text(text: str) -> str:
                 .replace("[", "(").replace("]", ")")
                 .replace("\u2014", "-").replace("\\", "")
                 .replace("\n", " ").replace("%", "pct"))
+
+
+def _smart_headline(text: str, max_len: int = 55) -> str:
+    """Truncate text at a word boundary, never cutting mid-word."""
+    if len(text) <= max_len:
+        return text
+    truncated = text[:max_len]
+    # Find last space to avoid cutting mid-word
+    last_space = truncated.rfind(" ")
+    if last_space > max_len // 2:
+        return truncated[:last_space]
+    return truncated
 
 
 def _word_wrap(text: str, max_width: int = 55, max_lines: int = 3) -> str:
@@ -2476,6 +2748,9 @@ def make_remotion_title_card(audio_path: str, output_path: str,
 
     Falls back to '' on failure (caller should use FFmpeg make_intro_coldopen).
     """
+    # Session 4 Fix 1: Title card suppressed — kills momentum with 8s dead air
+    logger.info("Title card suppressed — per PIPELINE_LAWS session 4")
+    return ""
     if not _remotion_enabled():
         return ""
     if not date:
@@ -2536,6 +2811,69 @@ def make_remotion_title_card(audio_path: str, output_path: str,
     return ""
 
 
+def _make_remotion_intel_panel(duration_frames: int = 300,
+                               btc_price: str = "N/A") -> str:
+    """Session 4 Fix 6: Render IntelPanel overlay via Remotion.
+
+    Reads narrative_context.json for live data. Returns path to rendered
+    transparent overlay video, or '' on failure.
+    """
+    if not _remotion_enabled():
+        return ""
+
+    # Read narrative context
+    import json as _json, datetime as _dt
+    _intel_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                              "data", "intelligence")
+    _nc_path = os.path.join(_intel_dir, "narrative_context.json")
+
+    narrative = "Bitcoin Sound Money"
+    market_mood = "NEUTRAL"
+    quote_text = ""
+    quote_handle = ""
+
+    try:
+        with open(_nc_path) as f:
+            nc = _json.load(f)
+        computed = nc.get("computed_at", "")
+        if computed:
+            age = (_dt.datetime.now(_dt.timezone.utc) -
+                   _dt.datetime.fromisoformat(computed)).total_seconds() / 3600
+            if age < 12:
+                narrative = nc.get("dominant_narrative", narrative)[:42]
+                market_mood = nc.get("market_mood", "neutral").upper().replace("_", " ")[:16]
+                hint = nc.get("eryn_intro_hook", "")
+                if "'" in hint:
+                    qs = hint.find("'") + 1
+                    qe = hint.find("'", qs)
+                    if qe > qs:
+                        quote_text = hint[qs:qe][:70]
+                tl = nc.get("thought_leaders_mentioned", [])
+                quote_handle = ("@" + tl[0][:18]) if tl else ""
+    except Exception:
+        pass
+
+    import hashlib
+    props_hash = hashlib.md5(f"{btc_price}{narrative}{market_mood}".encode()).hexdigest()[:8]
+    out_path = os.path.join(tempfile.gettempdir(), f"intel_panel_{props_hash}.mp4")
+
+    if os.path.exists(out_path) and os.path.getsize(out_path) > 10000:
+        return out_path  # cached
+
+    result = _render_remotion("IntelPanel", out_path, props={
+        "btcPrice": btc_price,
+        "narrative": narrative,
+        "marketMood": market_mood,
+        "quoteText": quote_text,
+        "quoteHandle": quote_handle,
+        "durationInFrames": duration_frames,
+    }, timeout=120)
+
+    if result:
+        logger.info(f"  Remotion IntelPanel rendered: {narrative} / {market_mood}")
+    return result or ""
+
+
 def make_remotion_lower_third(clip_path: str, source: str, output_path: str,
                               btc_price: str = "N/A",
                               speaker_name: str = "") -> str:
@@ -2592,44 +2930,75 @@ def make_remotion_lower_third(clip_path: str, source: str, output_path: str,
     return ""
 
 
-def make_transition_visual(output_path: str, duration: float = 0.5) -> str:
-    """Glitch transition — tries Remotion first, then asset file, then dark flash.
+def make_transition_visual(output_path: str, duration: float = 0.6) -> str:
+    """Glitch transition — branded asset with custom_whoosh mixed at -6dB.
 
     Priority:
-    1. Remotion GlitchTransition (best quality)
-    2. Branded glitch_transition_waud.mp4 asset
-    3. Simple dark flash fallback
-    """
-    # Try Remotion first
-    remotion_result = _make_remotion_glitch(output_path)
-    if remotion_result:
-        return remotion_result
+    1. Branded glitch_transition_waud.mp4 asset + custom_whoosh.wav at -6dB
+    2. Simple dark flash fallback with whoosh
 
-    # Fallback to branded asset
+    Duration: 0.5s-0.8s. Clamped to this range.
+    """
+    duration = max(0.5, min(0.8, duration))
+
+    # Issue 7 FIX: Use branded asset IMMEDIATELY (skip Remotion — it fails silently)
     if os.path.exists(GLITCH_TRANSITION):
-        ok = run_ffmpeg([
-            "-i", GLITCH_TRANSITION,
-            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
-            "-r", "30", "-vf", "scale=1920:1080,setsar=1,format=yuv420p",
-            "-af", "volume=2.0",
-            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-            output_path,
-        ], "glitch transition", 30)
+        # Mix custom whoosh at -6dB (loud enough to hear clearly)
+        has_whoosh = os.path.exists(GLITCH_WHOOSH)
+        if has_whoosh:
+            ok = run_ffmpeg([
+                "-i", GLITCH_TRANSITION,
+                "-i", GLITCH_WHOOSH,
+                "-filter_complex",
+                f"[0:v]scale=1920:1080,setsar=1,fps=30,trim=0:{duration},setpts=PTS-STARTPTS,format=yuv420p[outv];"
+                f"[0:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=1.5[ta];"
+                f"[1:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=0.5[wa];"
+                f"[ta][wa]amix=inputs=2:duration=first[outa]",
+                "-map", "[outv]", "-map", "[outa]",
+                "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
+                "-r", "30", "-pix_fmt", "yuv420p",
+                "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                "-t", str(duration),
+                output_path,
+            ], "glitch transition + whoosh", 30)
+        else:
+            ok = run_ffmpeg([
+                "-i", GLITCH_TRANSITION,
+                "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
+                "-r", "30", "-vf", f"scale=1920:1080,setsar=1,fps=30,trim=0:{duration},setpts=PTS-STARTPTS,format=yuv420p",
+                "-af", f"atrim=0:{duration},asetpts=PTS-STARTPTS,volume=2.0",
+                "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                "-t", str(duration),
+                output_path,
+            ], "glitch transition", 30)
         if ok and os.path.exists(output_path):
             dur = ffprobe_duration(output_path)
-            logger.info(f"  Glitch transition (asset): {dur:.2f}s")
+            logger.info(f"  TRANSITION FIRING: glitch asset + whoosh ({dur:.2f}s)")
             return output_path
 
-    # Last resort: short dark flash
-    logger.warning("All glitch sources failed — using dark flash")
-    ok = run_ffmpeg([
-        "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30",
-        "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
-        "-t", str(duration),
-        "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
-        "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-shortest",
-        output_path,
-    ], "transition fallback", 30)
+    # Last resort: short dark flash with whoosh
+    logger.warning("Glitch asset not found — using dark flash with whoosh")
+    if os.path.exists(GLITCH_WHOOSH):
+        ok = run_ffmpeg([
+            "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30",
+            "-i", GLITCH_WHOOSH,
+            "-filter_complex",
+            f"[1:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=0.5[outa]",
+            "-map", "0:v", "-map", "[outa]",
+            "-t", str(duration),
+            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-shortest",
+            output_path,
+        ], "transition fallback + whoosh", 30)
+    else:
+        ok = run_ffmpeg([
+            "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30",
+            "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
+            "-t", str(duration),
+            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-shortest",
+            output_path,
+        ], "transition fallback", 30)
     return output_path if ok else ""
 
 
@@ -2715,9 +3084,10 @@ def make_clip_visual(clip_path: str, source: str, output_path: str,
     fg += _build_signature_info_rail(clip_dur, btc_price, "clip_lt", "clip_railed")
     fg += (
         f"[clip_railed]format=yuv420p[outv];\n"
-        f"[0:a]asetpts=PTS-STARTPTS,"
+        # Issue 4 FIX: Strip first 2.5s of clip audio (intro jangle) + fade in 0.5s
+        f"[0:a]atrim=start=2.5,asetpts=PTS-STARTPTS,"
         f"highpass=f=50,lowpass=f=15000,loudnorm=I=-14:TP=-1.5:LRA=7,"
-        f"afade=t=in:d=0.3,afade=t=out:st={fade_out_start}:d=0.5[outa]"
+        f"afade=t=in:d=0.5,afade=t=out:st={max(0, fade_out_start - 2.5)}:d=0.5[outa]"
     )
 
     ok = run_ffmpeg_filtergraph(
@@ -2826,6 +3196,29 @@ def concatenate_parts(parts: list, output_path: str) -> str:
             logger.warning("Black hole check failed: %s", _bh_err)
         normalized.append(chosen)
 
+    # Session 4 Fix 7B: Re-apply longer fade to last part (outro) for clean ending
+    if len(normalized) >= 2:
+        last_part = normalized[-1]
+        last_dur = ffprobe_duration(last_part)
+        if last_dur > 2.0:
+            last_refaded = last_part + ".refaded.mp4"
+            fade_v_start = max(0, last_dur - 1.5)
+            fade_a_start = max(0, last_dur - 2.5)
+            ok_refade = run_ffmpeg(
+                ["-i", last_part,
+                 "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+                 "-b:v", "8M", "-r", "30", "-vsync", "cfr",
+                 "-vf", f"scale=1920:1080,setsar=1,format=yuv420p,fade=t=in:d=0.15,fade=t=out:st={fade_v_start:.2f}:d=1.5:color=0x0A0A0F",
+                 "-video_track_timescale", "90000",
+                 "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
+                 "-af", f"aresample=async=1,afade=t=in:d=0.1,afade=t=out:st={fade_a_start:.2f}:d=2.5",
+                 last_refaded],
+                "outro extended fade", 180,
+            )
+            if ok_refade and os.path.exists(last_refaded):
+                normalized[-1] = last_refaded
+                logger.info(f"  Fix 7B: Extended outro fade applied (1.5s video, 2.5s audio)")
+
     concat_file = output_path + ".concat.txt"
     with open(concat_file, "w") as f:
         for p in normalized:
@@ -2856,14 +3249,14 @@ def concatenate_parts(parts: list, output_path: str) -> str:
                 "-i", concat_raw,
                 "-stream_loop", "-1", "-i", BG_MUSIC,
                 "-filter_complex", (
+                    # Issue 6 FIX: Continuous BGM with sidechain ducking — music never drops to silence
                     f"[0:a]asetpts=PTS-STARTPTS,asplit[tts_main][tts_sc];"
-                    f"[1:a]volume=0.09,afade=t=in:d=2.0,"
+                    f"[1:a]volume=0.12,afade=t=in:d=2.0,"
                     f"afade=t=out:st={max(0,dur-3.0)}:d=3.0[bgm_raw];"
                     f"[bgm_raw][tts_sc]sidechaincompress="
-                    f"threshold=0.015:ratio=8:attack=30:release=600[bgm_ducked];"
+                    f"threshold=0.02:ratio=4:attack=5:release=200[bgm_ducked];"
                     f"[tts_main][bgm_ducked]amix=inputs=2:duration=first"
                     f":weights=1 1[mixed_audio];"
-                    # BUG5 FIX: Remove loudnorm here — single authoritative pass in final encode
                     f"[mixed_audio]aresample=async=1[outa]"
                 ),
                 "-map", "0:v", "-map", "[outa]",
@@ -3062,9 +3455,9 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         for ti, tp in enumerate(tweet_card_posts):
             logger.info(f"    #{ti}: @{tp.get('handle', '?')} — {tp.get('text', '')[:40]}")
 
-    # --- 1. INTRO: Issue 1 — COLD OPEN FIRST, THEN TITLE CARD ---
-    # Per PRODUCTION_DESIGN_LAWS Section 1: cold open starts at 0:00 with most shocking moment.
-    # NO logo/title card first. TitleCard plays AFTER the cold open hook (~8 seconds).
+    # --- 1. INTRO: Session 4 Fix 1 — COLD OPEN ONLY, NO TITLE CARD ---
+    # Title card killed — dead air that murders momentum. Episode goes:
+    # cold_open_hook → immediate first narration segment.
     audio_lines = audio_data.get("lines", [])
     cold_open_consumed = False
 
@@ -3077,67 +3470,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             cold_open_audio = al
             break
 
-    # BLACK DIAMOND: 2.0s cold open title card
-    import datetime as _dt
-    title_card_out = os.path.join(work_dir, f"part_{part_idx:03d}_title_card.mp4")
-    title_date = _dt.datetime.now().strftime("%B %d, %Y").upper()
-    tc_dur = 2.0
-    _, tc_bg = _build_black_diamond_bg(tc_dur, label_out="tc_bg")
-    tc_fg = tc_bg
-    tc_fg += _build_corner_brackets_fg("tc_bg", "tc_brackets")
-    safe_btc = btc_price.replace("$", "\\$").replace(",", "\\,") if btc_price else "N/A"
-    tc_fg += (f"[tc_brackets]drawtext=fontfile={FONT_BOLD}:text='PROTOCOL PULSE':"
-              f"fontcolor={COLOR_WHITE}:fontsize=96:x=(w-text_w)/2:y=300,"
-              f"drawtext=fontfile={FONT_BOLD}:text='PULSE CHECK':"
-              f"fontcolor={COLOR_RED}:fontsize=64:x=(w-text_w)/2:y=420,"
-              f"drawtext=fontfile={FONT_MONO}:text='BTC {safe_btc}':"
-              f"fontcolor=0xF8C15C:fontsize=36:x=(w-text_w)/2:y=520,"
-              f"drawtext=fontfile={FONT_MONO}:text='{title_date}':"
-              f"fontcolor={COLOR_MUTED}:fontsize=22:x=(w-text_w)/2:y=580,"
-              f"fade=t=in:st=0:d=0.5[outv];\n"
-              f"anullsrc=r=48000:cl=stereo,atrim=0:{tc_dur}[outa]")
-    tc_ok = run_ffmpeg_filtergraph(
-        [],
-        tc_fg,
-        ["[outv]", "[outa]"],
-        ["-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
-         "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(tc_dur)],
-        title_card_out, "title card", 30,
-    )
-    # BUG6 FIX: Verify title card has valid duration (not black/empty)
-    tc_valid = tc_ok and os.path.exists(title_card_out)
-    if tc_valid:
-        tc_actual_dur = ffprobe_duration(title_card_out)
-        if tc_actual_dur < 0.5:
-            logger.warning(f"  BUG6: Title card too short ({tc_actual_dur:.2f}s) — regenerating with simple fallback")
-            tc_valid = False
-    if not tc_valid:
-        # Fallback: solid color + text only (no complex filtergraph)
-        tc_fallback_fg = (
-            f"color=c=0x020304:s=1920x1080:r=30:d={tc_dur}[tc_v];\n"
-            f"anullsrc=r=48000:cl=stereo,atrim=0:{tc_dur}[tc_a]"
-        )
-        run_ffmpeg([
-            "-f", "lavfi", "-i", f"color=c=0x020304:s=1920x1080:r=30:d={tc_dur}",
-            "-f", "lavfi", "-i", f"anullsrc=r=48000:cl=stereo",
-            "-filter_complex",
-            f"[0:v]drawtext=fontfile={FONT_BOLD}:text='PROTOCOL PULSE':"
-            f"fontcolor={COLOR_WHITE}:fontsize=80:x=(w-text_w)/2:y=420,"
-            f"drawtext=fontfile={FONT_RED if hasattr(globals(), 'COLOR_RED') else FONT_BOLD}:text='PULSE CHECK':"
-            f"fontcolor={COLOR_RED}:fontsize=52:x=(w-text_w)/2:y=530,"
-            f"fade=t=in:st=0:d=0.5[outv]",
-            "-map", "[outv]", "-map", "1:a",
-            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
-            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-            "-t", str(tc_dur), title_card_out,
-        ], "title card fallback", 30)
-        tc_valid = os.path.exists(title_card_out) and ffprobe_duration(title_card_out) > 0.5
-    if tc_valid:
-        parts.append(title_card_out)
-        logger.info(f"[{part_idx:03d}] TITLE CARD: {tc_dur}s")
-        part_idx += 1
-    else:
-        logger.warning(f"  BUG6: Title card FAILED entirely — episode will start without it")
+    logger.info("  Session 4: Title card SUPPRESSED — cold open leads directly into content")
 
     if cold_open_audio:
         intro_out = os.path.join(work_dir, f"part_{part_idx:03d}_cold_open_hook.mp4")
@@ -3210,6 +3543,15 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             continue
 
         if host_field == "CLIP":
+            # Issue 7 FIX: Fire glitch transition before each clip (setup→clip)
+            if prev_segment_type in ("setup", "cold_open", "react"):
+                trans_out = os.path.join(work_dir, f"part_{part_idx:03d}_transition_to_clip.mp4")
+                trans_result = make_transition_visual(trans_out, duration=0.6)
+                if trans_result:
+                    parts.append(trans_result)
+                    logger.info(f"GLITCH TRANSITION: [{prev_segment_type}] → [CLIP] using {os.path.basename(GLITCH_TRANSITION)}")
+                    part_idx += 1
+
             # YouTube clip — full screen, original audio
             rank = entry.get("rank", 0)
             clip_info = extracted_clips.get(rank, {})
@@ -3269,7 +3611,14 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             prev_segment_type = "clip"
             continue
 
-        # FIX 1: No standalone transitions — xfade applied during concatenation
+        # Issue 7 FIX: Fire glitch transition between setup→clip pairs
+        if prev_segment_type in ("setup", "react") and entry_type in ("setup",):
+            trans_out = os.path.join(work_dir, f"part_{part_idx:03d}_transition.mp4")
+            trans_result = make_transition_visual(trans_out, duration=0.6)
+            if trans_result:
+                parts.append(trans_result)
+                logger.info(f"GLITCH TRANSITION: [{prev_segment_type}] → [{entry_type}] using {os.path.basename(GLITCH_TRANSITION)}")
+                part_idx += 1
 
         # Host dialogue line — find matching audio
         # BUG1 FIX: Accept failed TTS entries (path=None) to maintain script/audio mapping.
@@ -3319,6 +3668,8 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         if entry_type == "social_segment" and tweet_card_posts and social_card_idx < len(tweet_card_posts):
             # Render up to 3 individual card segments (one per tweet)
             card_posts = tweet_card_posts[social_card_idx:social_card_idx + 3]
+            # Session 4 Fix 4: Rank cards by relevance to narrator text
+            card_posts = _rank_cards_for_segment(card_posts, text)
 
             # Try capturing tweet screenshots
             for cp in card_posts:
@@ -3333,6 +3684,8 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                     except Exception:
                         pass
 
+            # Issue 5 FIX: Render all cards, then xfade them into one continuous segment
+            card_rendered_paths = []
             # First card uses the current audio_path (matched by script)
             # Remaining cards: if there are more audio lines for social segments, use them
             # Otherwise, render with the same audio (single narration covers all cards)
@@ -3355,23 +3708,6 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                     if not card_audio:
                         card_audio = audio_path  # fallback: reuse first card's audio
 
-                # Card swoosh transition between cards
-                if ci > 0:
-                    swoosh_out = os.path.join(work_dir, f"part_{part_idx:03d}_card_swoosh.mp4")
-                    if os.path.exists(CARD_SWOOSH):
-                        swoosh_dur = ffprobe_duration(CARD_SWOOSH)
-                        run_ffmpeg([
-                            "-f", "lavfi", "-i", f"color=c=0x0C0C0C:s=1920x1080:d={swoosh_dur}:r=30",
-                            "-i", CARD_SWOOSH,
-                            "-c:v", "libx264", "-crf", "17", "-preset", "medium",
-                            "-b:v", "8M", "-r", "30", "-pix_fmt", "yuv420p",
-                            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-                            "-shortest", swoosh_out,
-                        ], "card swoosh transition", 30)
-                        if os.path.exists(swoosh_out):
-                            parts.append(swoosh_out)
-                            part_idx += 1
-
                 # Render single-card visual
                 card_result = ""
                 try:
@@ -3393,10 +3729,64 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                         segment_type="social_segment",
                     )
                 if card_result:
-                    parts.append(card_result)
+                    card_rendered_paths.append(card_result)
                     dur = ffprobe_duration(card_result)
-                    logger.info(f"[{part_idx:03d}] SOCIAL CARD {ci} [@{cp.get('handle', '?')}]: {dur:.1f}s")
-                    part_idx += 1
+                    logger.info(f"  SOCIAL CARD {ci} rendered: @{cp.get('handle', '?')} ({dur:.1f}s)")
+
+            # Issue 5 FIX: Stitch cards with xfade transitions (no black flash)
+            if len(card_rendered_paths) >= 2:
+                # Apply sequential xfade between all cards
+                current_stitched = card_rendered_paths[0]
+                for xfi in range(1, len(card_rendered_paths)):
+                    xfade_out = os.path.join(work_dir, f"part_{part_idx:03d}_social_xfade_{xfi}.mp4")
+                    xfade_result = apply_xfade(
+                        current_stitched, card_rendered_paths[xfi],
+                        xfade_out, transition="slideleft", duration=0.4,
+                    )
+                    if xfade_result:
+                        current_stitched = xfade_result
+                        logger.info(f"  Issue 5: xfade card {xfi-1}→{xfi} OK")
+                    else:
+                        # Fallback: just append without transition
+                        logger.warning(f"  Issue 5: xfade failed for cards {xfi-1}→{xfi}")
+                        parts.append(current_stitched)
+                        current_stitched = card_rendered_paths[xfi]
+                        part_idx += 1
+                # Mix card_swoosh SFX at transition points
+                if os.path.exists(CARD_SWOOSH) and len(card_rendered_paths) > 1:
+                    swoosh_mixed = current_stitched + ".swoosh.mp4"
+                    card_durs = [ffprobe_duration(p) for p in card_rendered_paths]
+                    swoosh_inputs = []
+                    swoosh_fg_parts = []
+                    cumul = 0.0
+                    for si in range(len(card_durs) - 1):
+                        cumul += card_durs[si] - 0.4  # account for xfade overlap
+                        swoosh_inputs.extend(["-i", CARD_SWOOSH])
+                        delay_ms = int(cumul * 1000)
+                        swoosh_fg_parts.append(f"[{si+1}:a]volume=0.5,adelay={delay_ms}|{delay_ms}[sw_{si}]")
+                    sw_labels = "".join(f"[sw_{si}]" for si in range(len(card_durs) - 1))
+                    swoosh_fg_parts.append(f"{sw_labels}amix=inputs={len(card_durs)-1}:duration=longest[all_sw]")
+                    swoosh_fg_parts.append(f"[0:a][all_sw]amix=inputs=2:duration=first:weights=1 0.5[outa]")
+                    swoosh_fg = ";\n".join(swoosh_fg_parts)
+                    ok_sw = run_ffmpeg(
+                        ["-i", current_stitched] + swoosh_inputs +
+                        ["-filter_complex", swoosh_fg,
+                         "-map", "0:v", "-map", "[outa]",
+                         "-c:v", "copy", "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                         swoosh_mixed],
+                        "card swoosh mix", 120,
+                    )
+                    if ok_sw and os.path.exists(swoosh_mixed):
+                        current_stitched = swoosh_mixed
+                parts.append(current_stitched)
+                dur = ffprobe_duration(current_stitched)
+                logger.info(f"[{part_idx:03d}] SOCIAL CARDS (xfaded): {dur:.1f}s")
+                part_idx += 1
+            elif len(card_rendered_paths) == 1:
+                parts.append(card_rendered_paths[0])
+                dur = ffprobe_duration(card_rendered_paths[0])
+                logger.info(f"[{part_idx:03d}] SOCIAL CARD (single): {dur:.1f}s")
+                part_idx += 1
 
             social_card_idx += len(card_posts)
             prev_segment_type = entry_type
@@ -3410,8 +3800,11 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             )
         else:
             # BV2: Route to Broadcast Engine V2 scene system (falls back to Black Diamond)
+            # Dual host: map host_num to speaker name
+            seg_speaker = "ERYN" if host_num == 1 else "MARK"
             seg_data = {"type": entry_type, "text": text,
-                        "speaker": "MARK",  # single host
+                        "speaker": seg_speaker,  # dual host — Eryn + Mark
+                        "headline": entry.get("headline", ""),  # Session 4 Fix 2
                         "next_speaker": ""}
             # Look ahead for next clip speaker
             if entry_type == "setup" and clip_rank and clip_rank in extracted_clips:
@@ -3431,7 +3824,8 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         if result:
             parts.append(result)
             dur = ffprobe_duration(result)
-            logger.info(f"[{part_idx:03d}] {entry_type.upper()} [MARK]: {dur:.1f}s")
+            speaker_label = "ERYN" if host_num == 1 else "MARK"
+            logger.info(f"[{part_idx:03d}] {entry_type.upper()} [{speaker_label}]: {dur:.1f}s")
             part_idx += 1
             prev_segment_type = entry_type
             host_segment_count += 1
@@ -3486,13 +3880,23 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             logger.warning(f"[---] Host visual failed for {entry_type}")
 
     # --- 3. BRANDED OUTRO ---
-    # Issue 8: The "Stay sovereign" wrap narration plays OVER the outro visual.
+    # Issue 8 FIX: The "Stay sovereign" wrap narration plays OVER the outro visual.
+    # Remove the last wrap segment from parts (it will play over the outro instead).
     # Find the wrap audio (last non-CLIP audio line).
     wrap_audio = ""
     for al in reversed(audio_lines):
         if al.get("host") not in ("CLIP",) and al.get("path") and os.path.exists(al.get("path", "")):
             wrap_audio = al["path"]
             break
+
+    # Issue 8 FIX: If the last part is a wrap scene, remove it — wrap audio plays over outro instead
+    if parts and wrap_audio:
+        last_part_name = os.path.basename(parts[-1]) if parts[-1] else ""
+        if "wrap" in last_part_name.lower():
+            removed = parts.pop()
+            part_idx -= 1
+            logger.info(f"  Issue 8: Removed duplicate wrap segment ({os.path.basename(removed)}) — plays over outro instead")
+
     if wrap_audio:
         logger.info(f"  Wrap narration for outro: {os.path.basename(wrap_audio)}")
 

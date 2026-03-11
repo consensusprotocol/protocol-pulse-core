@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""TTS Engine V6 — Single-host Mark broadcast voice.
-Host: Mark (1SM7GgM6IMuvQlz2BwM3) at 1.10x speed — PBX approved sole narrator.
-Both host=1 and host=2 route to Mark (no gender swap, no dual-host).
+"""TTS Engine V6 — Dual-host broadcast voice.
+Host 1 (Eryn): kdnRe2koJdOK4Ovxn2DI at 1.12x — sharp female setup host.
+Host 2 (Mark): 1SM7GgM6IMuvQlz2BwM3 at 1.10x — male contrarian react host.
 Generates per-line audio with 0.3s silence gaps."""
 import os, sys, json, subprocess, tempfile, time, struct
 from pathlib import Path
@@ -14,8 +14,21 @@ except ImportError:
 
 from relay import get_key
 
-# PBX DIRECTIVE 2026-03-09: SINGLE HOST — Mark at 1.10x speed.
-# Both host=1 and host=2 map to Mark. Deborah/Brian/Nicole/Chris are all BANNED.
+# DUAL HOST RESTORED 2026-03-10: Eryn (HOST_1) + Mark (HOST_2)
+# Nicole/Chris/Deborah/Brian are all BANNED.
+_ERYN_VOICE = {
+    "voice_id": "kdnRe2koJdOK4Ovxn2DI",
+    "name": "Eryn",
+    "model_id": "eleven_turbo_v2_5",
+    "speed": 1.12,
+    "voice_settings": {
+        "stability": 0.55,
+        "similarity_boost": 0.80,
+        "style": 0.15,
+        "use_speaker_boost": True,
+    },
+}
+
 _MARK_VOICE = {
     "voice_id": "1SM7GgM6IMuvQlz2BwM3",
     "name": "Mark",
@@ -30,18 +43,18 @@ _MARK_VOICE = {
 }
 
 VOICES = {
-    1: _MARK_VOICE,
-    2: _MARK_VOICE,  # single narrator — both hosts are Mark
+    1: _ERYN_VOICE,   # HOST_1 → Eryn (female)
+    2: _MARK_VOICE,   # HOST_2 → Mark (male)
 }
 
-# Voice mode overrides for Mark (segment-type tuning)
+# Voice mode overrides per segment type (applied to whichever host speaks)
 VOICE_MODES = {
-    "cold_open":       {"stability": 0.45, "similarity_boost": 0.80, "style": 0.18, "speed": 1.10},
-    "setup":           {"stability": 0.55, "similarity_boost": 0.80, "style": 0.15, "speed": 1.10},
-    "react":           {"stability": 0.55, "similarity_boost": 0.80, "style": 0.15, "speed": 1.10},
-    "social_segment":  {"stability": 0.50, "similarity_boost": 0.78, "style": 0.18, "speed": 1.10},
-    "wrap":            {"stability": 0.50, "similarity_boost": 0.78, "style": 0.20, "speed": 1.08},
-    "data":            {"stability": 0.60, "similarity_boost": 0.82, "style": 0.12, "speed": 1.10},
+    "cold_open":       {"stability": 0.45, "similarity_boost": 0.80, "style": 0.18},
+    "setup":           {"stability": 0.55, "similarity_boost": 0.80, "style": 0.15},
+    "react":           {"stability": 0.55, "similarity_boost": 0.80, "style": 0.15},
+    "social_segment":  {"stability": 0.50, "similarity_boost": 0.78, "style": 0.18},
+    "wrap":            {"stability": 0.50, "similarity_boost": 0.78, "style": 0.20},
+    "data":            {"stability": 0.60, "similarity_boost": 0.82, "style": 0.12},
 }
 
 SILENCE_GAP = 0.3  # seconds between speakers
@@ -108,6 +121,80 @@ def _chunk_text(text: str, max_chars: int = MAX_CHUNK_CHARS) -> list:
     return [c for c in chunks if c.strip()]
 
 
+def expand_numbers_for_tts(text: str) -> str:
+    """Session 4 Fix 3: Expand numbers and abbreviations so ElevenLabs reads them naturally."""
+    import re as _re
+
+    # Dollar amounts: $83,420 → "83 thousand 420 dollars"
+    def _dollar(m):
+        val_str = m.group(1).replace(",", "")
+        try:
+            val = int(float(val_str))
+        except ValueError:
+            return m.group(0)
+        if val >= 1_000_000_000:
+            return f"{val/1_000_000_000:.1f} billion dollars".replace(".0 ", " ")
+        if val >= 1_000_000:
+            return f"{val/1_000_000:.1f} million dollars".replace(".0 ", " ")
+        if val >= 1_000:
+            b = val // 1000
+            r = val % 1000
+            if r == 0:
+                return f"{b} thousand dollars"
+            return f"{b} thousand {r} dollars"
+        return f"{val} dollars"
+
+    # Dollar + billion/million shorthand first: $1.2 billion → "1.2 billion dollars"
+    text = _re.sub(r'\$(\d+(?:\.\d+)?)\s*[Bb]illion', lambda m: f"{m.group(1)} billion dollars", text)
+    text = _re.sub(r'\$(\d+(?:\.\d+)?)\s*[Mm]illion', lambda m: f"{m.group(1)} million dollars", text)
+
+    text = _re.sub(r'\$([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]+)?)', _dollar, text)
+
+    # Large plain numbers with commas: 70,015 → "70 thousand 15"
+    def _plain_num(m):
+        val_str = m.group(0).replace(",", "")
+        try:
+            val = int(val_str)
+        except ValueError:
+            return m.group(0)
+        if val >= 1_000_000_000:
+            return f"{val/1_000_000_000:.1f} billion".replace(".0 ", " ")
+        if val >= 1_000_000:
+            return f"{val/1_000_000:.1f} million".replace(".0 ", " ")
+        if val >= 10_000:
+            b = val // 1000
+            r = val % 1000
+            if r == 0:
+                return f"{b} thousand"
+            return f"{b} thousand {r}"
+        return m.group(0)  # leave small numbers as-is
+    text = _re.sub(r'\b\d{1,3}(?:,\d{3})+\b', _plain_num, text)
+
+    # Percentages: 8.4% → "8 point 4 percent"
+    def _pct(m):
+        return m.group(1).replace(".", " point ") + " percent"
+    text = _re.sub(r'([\d.]+)%', _pct, text)
+
+    # Hashrate units
+    text = _re.sub(r'(\d+(?:\.\d+)?)\s*EH/?s', lambda m: f"{m.group(1)} exahash per second", text)
+    text = _re.sub(r'(\d+(?:\.\d+)?)\s*TH/?s', lambda m: f"{m.group(1)} terahash per second", text)
+    text = _re.sub(r'(\d+(?:\.\d+)?)\s*PH/?s', lambda m: f"{m.group(1)} petahash per second", text)
+
+    # Billion/million shorthand already in text (normalize)
+    text = _re.sub(r'(\d+(?:\.\d+)?)\s*[Bb]illion', lambda m: f"{m.group(1)} billion", text)
+    text = _re.sub(r'(\d+(?:\.\d+)?)\s*[Mm]illion', lambda m: f"{m.group(1)} million", text)
+
+    # K shorthand: 74K → "74 thousand"
+    def _k(m):
+        val = float(m.group(1))
+        if val == int(val):
+            return f"{int(val)} thousand"
+        return f"{val} thousand"
+    text = _re.sub(r'(\d+(?:\.\d+)?)[Kk]\b', _k, text)
+
+    return text
+
+
 TTS_CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tts_cache")
 
 
@@ -171,6 +258,9 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
     if not key:
         return _tts_generate_silence_fallback(text, output_path)
 
+    # Session 4 Fix 3: Expand numbers before TTS to prevent babbling
+    text = expand_numbers_for_tts(text)
+
     voice = VOICES.get(host, VOICES[1])
     # Check TTS cache first — avoid API call if same text+voice was generated before
     cache_key = _tts_cache_key(text, voice["voice_id"], segment_type)
@@ -181,9 +271,9 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice['voice_id']}"
     headers = {"xi-api-key": key, "Content-Type": "application/json"}
 
-    # Apply hybrid voice mode for Mark based on segment type
+    # Apply voice mode overrides based on segment type (both hosts)
     voice_settings = dict(voice["voice_settings"])
-    if host == 1 and segment_type in VOICE_MODES:
+    if segment_type in VOICE_MODES:
         mode = VOICE_MODES[segment_type]
         for k, v in mode.items():
             if k != "speed":
@@ -198,10 +288,8 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
             "model_id": voice["model_id"],
             "voice_settings": voice_settings,
         }
-        # Add speed parameter — use mode-specific speed for Host 1
+        # Add speed parameter from voice config (host-specific)
         speed = voice.get("speed", 1.0)
-        if host == 1 and segment_type in VOICE_MODES:
-            speed = VOICE_MODES[segment_type].get("speed", speed)
         if speed != 1.0:
             body["speed"] = speed
         mp3_tmp = output_path + f".chunk{ci}.mp3"

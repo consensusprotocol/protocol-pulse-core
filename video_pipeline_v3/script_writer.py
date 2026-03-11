@@ -237,6 +237,50 @@ Eryn and Mark must sound like analysts who read the numbers this morning, not ge
 """
 
 
+def _populate_segment_headlines(result: dict) -> dict:
+    """Session 4 Fix 2: Add 'headline' key to each dialogue entry.
+
+    Maps segment type + clip rank to a meaningful headline so _smart_headline()
+    in assembler.py gets a real headline instead of truncated spoken text.
+    """
+    dialogue = result.get("dialogue", [])
+    summaries = result.get("segments_summary", [])
+    episode_title = result.get("episode_title", "Pulse Check Daily")
+
+    for entry in dialogue:
+        if entry.get("headline"):
+            continue  # already has one
+        host = entry.get("host")
+        if host == "CLIP":
+            continue  # clip markers don't need headlines
+
+        seg_type = entry.get("type", "")
+        clip_rank = entry.get("clip_rank", 0)
+
+        if seg_type == "cold_open":
+            entry["headline"] = episode_title
+        elif seg_type in ("setup", "react") and clip_rank:
+            # Use segments_summary (clip "why" strings) keyed by rank
+            idx = clip_rank - 1
+            if 0 <= idx < len(summaries) and summaries[idx]:
+                entry["headline"] = summaries[idx][:55]
+            else:
+                entry["headline"] = episode_title
+        elif seg_type == "data":
+            entry["headline"] = "TODAY'S INTELLIGENCE"
+        elif seg_type == "social_segment":
+            entry["headline"] = "SIGNAL FROM THE FIELD"
+        elif seg_type in ("wrap", "outro"):
+            entry["headline"] = "STAY SOVEREIGN"
+        elif seg_type == "bridge":
+            entry["headline"] = episode_title
+        else:
+            # Generic narrator — use episode title
+            entry["headline"] = episode_title
+
+    return result
+
+
 def generate_from_clips(selections: dict, btc_price: str = "N/A",
                         live_context: str = "") -> dict:
     """Generate host dialogue script around the selected clips.
@@ -322,6 +366,9 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
 
         # Extract [TAG] prefixes from text and set type fields for TTS
         result = _extract_segment_tags(result)
+
+        # Session 4 Fix 2: Populate 'headline' per dialogue entry for assembler
+        result = _populate_segment_headlines(result)
 
         # Validate structure
         dialogue = result.get("dialogue", [])

@@ -27,8 +27,9 @@
 - Bitrate: 192k (audio)
 
 ## TTS (locked)
-- Voice: Mark (ID: 1SM7GgM6IMuvQlz2BwM3) at 1.10x speed
-- Both host=1 and host=2 → Mark (single narrator)
+- Host 1 (Eryn): ID kdnRe2koJdOK4Ovxn2DI at 1.12x speed — sharp female setup/bridge host
+- Host 2 (Mark): ID 1SM7GgM6IMuvQlz2BwM3 at 1.10x speed — male contrarian/react host
+- DUAL HOST RESTORED 2026-03-10: both voices MUST render in every episode
 - Speed param: top-level body param, NOT inside voice_settings
 - Fallback chain: ElevenLabs → pyttsx3 → gTTS → silence
 - TTS cache: tts_cache/ SHA256(voice_id:segment_type:text)[:16].m4a
