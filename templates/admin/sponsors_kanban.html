@@ -1,0 +1,606 @@
+{% extends "base.html" %}
+{% block title %}Sponsor Pipeline — Protocol Pulse{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+  --kb-bg: #06060b;
+  --kb-surface: #0c0c14;
+  --kb-border: rgba(255,255,255,0.07);
+  --kb-red: #dc2626;
+  --kb-gold: #F8C15C;
+  --kb-green: #22c55e;
+  --kb-blue: #3b82f6;
+  --kb-mono: 'JetBrains Mono', monospace;
+}
+
+.kb-wrap { background: var(--kb-bg); min-height: 100vh; color: #fff; padding: 0; }
+
+/* Top bar */
+.kb-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px; border-bottom: 1px solid var(--kb-border);
+  flex-wrap: wrap; gap: 12px;
+}
+.kb-title { font-family: var(--kb-mono); font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--kb-red); }
+.kb-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.kb-btn {
+  font-family: var(--kb-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 8px 16px; border-radius: 4px; border: 1px solid var(--kb-border);
+  background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.7);
+  cursor: pointer; transition: all 0.15s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+}
+.kb-btn:hover { border-color: var(--kb-red); color: #fff; background: rgba(220,38,38,0.1); }
+.kb-btn-primary { background: var(--kb-red); border-color: var(--kb-red); color: #fff; }
+.kb-btn-primary:hover { background: #b91c1c; }
+
+/* Stats strip */
+.kb-stats {
+  display: flex; gap: 32px; padding: 16px 24px;
+  border-bottom: 1px solid var(--kb-border); flex-wrap: wrap;
+}
+.kb-stat { text-align: center; }
+.kb-stat-val { font-family: var(--kb-mono); font-size: 1.4rem; font-weight: 700; display: block; }
+.kb-stat-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.45); }
+.kb-stat-accent { color: var(--kb-gold); }
+.kb-stat-green { color: var(--kb-green); }
+
+/* Kanban board */
+.kb-board {
+  display: flex; gap: 12px; padding: 16px;
+  overflow-x: auto; min-height: calc(100vh - 200px);
+  align-items: flex-start;
+}
+.kb-column {
+  min-width: 260px; max-width: 300px; flex: 1;
+  background: var(--kb-surface); border: 1px solid var(--kb-border);
+  border-radius: 8px; display: flex; flex-direction: column;
+}
+.kb-col-header {
+  padding: 12px 14px; border-bottom: 1px solid var(--kb-border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.kb-col-title {
+  font-family: var(--kb-mono); font-size: 0.68rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: rgba(255,255,255,0.6);
+}
+.kb-col-count {
+  font-family: var(--kb-mono); font-size: 0.7rem;
+  background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 10px;
+  color: rgba(255,255,255,0.5);
+}
+.kb-col-body {
+  padding: 8px; flex: 1; min-height: 100px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.kb-col-body.drag-over { background: rgba(220,38,38,0.06); }
+
+/* Cards */
+.kb-card {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 6px; padding: 12px; cursor: grab; transition: all 0.15s;
+  position: relative;
+}
+.kb-card:hover { border-color: rgba(220,38,38,0.3); background: rgba(255,255,255,0.05); }
+.kb-card.dragging { opacity: 0.4; }
+.kb-card-name { font-size: 0.88rem; font-weight: 600; margin-bottom: 6px; }
+.kb-card-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.kb-badge {
+  font-family: var(--kb-mono); font-size: 0.6rem; letter-spacing: 0.05em;
+  padding: 2px 6px; border-radius: 3px; text-transform: uppercase;
+}
+.kb-badge-score { background: rgba(220,38,38,0.15); color: var(--kb-red); }
+.kb-badge-score.high { background: rgba(34,197,94,0.15); color: var(--kb-green); }
+.kb-badge-cat { background: rgba(59,130,246,0.12); color: var(--kb-blue); }
+.kb-card-time { font-size: 0.62rem; color: rgba(255,255,255,0.3); margin-top: 6px; }
+
+/* Slide-in detail panel */
+.kb-panel-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  z-index: 1000; display: none; opacity: 0; transition: opacity 0.2s;
+}
+.kb-panel-overlay.open { display: block; opacity: 1; }
+.kb-panel {
+  position: fixed; top: 0; right: -480px; width: 480px; height: 100vh;
+  background: #0a0a12; border-left: 1px solid var(--kb-border);
+  z-index: 1001; overflow-y: auto; transition: right 0.25s ease;
+  padding: 24px;
+}
+.kb-panel.open { right: 0; }
+@media (max-width: 560px) { .kb-panel { width: 100vw; right: -100vw; } }
+.kb-panel-close {
+  position: absolute; top: 12px; right: 12px; background: none; border: none;
+  color: rgba(255,255,255,0.5); font-size: 1.2rem; cursor: pointer;
+}
+.kb-panel h2 { font-size: 1.2rem; margin: 0 0 4px; }
+.kb-panel-status {
+  font-family: var(--kb-mono); font-size: 0.7rem; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--kb-red); margin-bottom: 16px;
+}
+.kb-panel-section { margin-bottom: 20px; }
+.kb-panel-label {
+  font-family: var(--kb-mono); font-size: 0.65rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 8px;
+}
+.kb-panel-field { font-size: 0.88rem; color: rgba(255,255,255,0.75); line-height: 1.5; margin-bottom: 4px; }
+.kb-panel-field a { color: var(--kb-blue); text-decoration: none; }
+.kb-panel-intel {
+  background: rgba(255,255,255,0.03); border: 1px solid var(--kb-border);
+  border-radius: 6px; padding: 12px; font-size: 0.82rem; color: rgba(255,255,255,0.6);
+  max-height: 200px; overflow-y: auto; white-space: pre-wrap; word-break: break-word;
+}
+.kb-panel-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.kb-panel-draft {
+  margin-top: 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--kb-border);
+  border-radius: 6px; padding: 14px;
+}
+.kb-panel-draft h4 { font-size: 0.85rem; margin: 0 0 4px; }
+.kb-panel-draft .draft-body { font-size: 0.82rem; color: rgba(255,255,255,0.6); white-space: pre-wrap; line-height: 1.5; }
+.kb-panel-draft .draft-score { font-family: var(--kb-mono); font-size: 0.72rem; color: var(--kb-gold); margin-top: 8px; }
+
+/* Activity log */
+.kb-activity { list-style: none; padding: 0; margin: 0; }
+.kb-activity li {
+  font-size: 0.78rem; color: rgba(255,255,255,0.5);
+  padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex; justify-content: space-between; gap: 8px;
+}
+.kb-activity-action { color: rgba(255,255,255,0.7); }
+.kb-activity-time { font-family: var(--kb-mono); font-size: 0.65rem; color: rgba(255,255,255,0.3); white-space: nowrap; }
+
+/* Add prospect modal */
+.kb-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  z-index: 2000; display: none; align-items: center; justify-content: center;
+}
+.kb-modal-overlay.open { display: flex; }
+.kb-modal {
+  background: #0c0c14; border: 1px solid var(--kb-border); border-radius: 10px;
+  padding: 28px; width: 420px; max-width: 95vw;
+}
+.kb-modal h3 { font-size: 1rem; margin: 0 0 16px; }
+.kb-modal-field { margin-bottom: 14px; }
+.kb-modal-field label {
+  display: block; font-family: var(--kb-mono); font-size: 0.65rem;
+  letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.45);
+  margin-bottom: 6px;
+}
+.kb-modal-field input, .kb-modal-field select {
+  width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px; padding: 9px 12px; color: #fff; font-size: 0.88rem; outline: none;
+}
+.kb-modal-field input:focus, .kb-modal-field select:focus { border-color: var(--kb-red); }
+.kb-modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
+
+/* Scan progress */
+.kb-scan-bar {
+  display: none; padding: 12px 24px; border-bottom: 1px solid var(--kb-border);
+  background: rgba(220,38,38,0.04); font-size: 0.82rem; color: rgba(255,255,255,0.7);
+}
+.kb-scan-bar.active { display: flex; align-items: center; gap: 10px; }
+.kb-spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.2); border-top-color: var(--kb-red); border-radius: 50%; animation: spin 0.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Toast */
+.kb-toast {
+  position: fixed; bottom: 24px; right: 24px; background: #111; border: 1px solid var(--kb-border);
+  border-radius: 6px; padding: 12px 20px; font-size: 0.85rem; z-index: 3000;
+  opacity: 0; transform: translateY(10px); transition: all 0.2s; pointer-events: none;
+}
+.kb-toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.kb-toast.success { border-color: var(--kb-green); }
+.kb-toast.error { border-color: var(--kb-red); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="kb-wrap">
+
+  <!-- Header -->
+  <div class="kb-header">
+    <div>
+      <div class="kb-title">// Sponsor Pipeline</div>
+    </div>
+    <div class="kb-actions">
+      <button class="kb-btn" onclick="openAddModal()"><i class="fas fa-plus"></i> Add Prospect</button>
+      <button class="kb-btn" onclick="runScan()" id="scanBtn"><i class="fas fa-radar"></i> Run Grok Scan</button>
+      <a href="/admin/sponsors/list" class="kb-btn"><i class="fas fa-table"></i> Table View</a>
+      <a href="/api/sponsors/export" class="kb-btn"><i class="fas fa-download"></i> CSV</a>
+    </div>
+  </div>
+
+  <!-- Scan progress -->
+  <div class="kb-scan-bar" id="scanBar">
+    <div class="kb-spinner"></div>
+    <span id="scanMsg">Scanning...</span>
+  </div>
+
+  <!-- Stats -->
+  <div class="kb-stats" id="statsBar">
+    <div class="kb-stat"><span class="kb-stat-val kb-stat-accent" id="statTotal">—</span><span class="kb-stat-label">Prospects</span></div>
+    <div class="kb-stat"><span class="kb-stat-val" id="statContacted">—</span><span class="kb-stat-label">Contacted</span></div>
+    <div class="kb-stat"><span class="kb-stat-val kb-stat-green" id="statReplyRate">—</span><span class="kb-stat-label">Reply Rate</span></div>
+    <div class="kb-stat"><span class="kb-stat-val kb-stat-accent" id="statMRR">—</span><span class="kb-stat-label">Projected MRR</span></div>
+  </div>
+
+  <!-- Kanban Board -->
+  <div class="kb-board" id="board"></div>
+
+  <!-- Detail Panel -->
+  <div class="kb-panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
+  <div class="kb-panel" id="detailPanel">
+    <button class="kb-panel-close" onclick="closePanel()">&times;</button>
+    <div id="panelContent">Loading...</div>
+  </div>
+
+  <!-- Add Prospect Modal -->
+  <div class="kb-modal-overlay" id="addModal">
+    <div class="kb-modal">
+      <h3>Add Prospect</h3>
+      <div class="kb-modal-field">
+        <label>Company Name *</label>
+        <input type="text" id="addCompany" placeholder="Swan Bitcoin">
+      </div>
+      <div class="kb-modal-field">
+        <label>Website</label>
+        <input type="text" id="addWebsite" placeholder="https://swanbitcoin.com">
+      </div>
+      <div class="kb-modal-field">
+        <label>Category</label>
+        <select id="addCategory">
+          <option value="other">Other</option>
+          <option value="exchange">Exchange</option>
+          <option value="hardware_wallet">Hardware Wallet</option>
+          <option value="fintech">Fintech</option>
+          <option value="vpn">VPN</option>
+          <option value="health">Health</option>
+        </select>
+      </div>
+      <div class="kb-modal-field">
+        <label>Contact Email</label>
+        <input type="email" id="addEmail" placeholder="partnerships@company.com">
+      </div>
+      <div class="kb-modal-actions">
+        <button class="kb-btn" onclick="closeAddModal()">Cancel</button>
+        <button class="kb-btn kb-btn-primary" onclick="submitProspect()">Add & Research</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="kb-toast" id="toast"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const STAGES = [
+  {id: 1, key: 'prospect', label: 'Prospect', statuses: ['prospect','inbound']},
+  {id: 2, key: 'researched', label: 'Researched', statuses: []},
+  {id: 3, key: 'drafted', label: 'Drafted', statuses: ['outreach_drafted']},
+  {id: 4, key: 'contacted', label: 'Contacted', statuses: ['contacted']},
+  {id: 5, key: 'replied', label: 'Replied', statuses: ['replied','negotiating']},
+  {id: 6, key: 'deal', label: 'Deal / Closed', statuses: ['deal','rejected']},
+];
+
+let allSponsors = [];
+
+function toast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'kb-toast show ' + type;
+  setTimeout(() => t.className = 'kb-toast', 3000);
+}
+
+function timeAgo(dt) {
+  if (!dt) return '';
+  const d = new Date(dt);
+  const s = Math.floor((Date.now() - d.getTime()) / 1000);
+  if (s < 60) return 'just now';
+  if (s < 3600) return Math.floor(s/60) + 'm ago';
+  if (s < 86400) return Math.floor(s/3600) + 'h ago';
+  return Math.floor(s/86400) + 'd ago';
+}
+
+async function loadSponsors() {
+  try {
+    const r = await fetch('/api/sponsors');
+    const d = await r.json();
+    allSponsors = d.sponsors || [];
+    renderBoard();
+  } catch(e) { console.error(e); }
+}
+
+async function loadMetrics() {
+  try {
+    const r = await fetch('/api/sponsors/metrics');
+    const d = await r.json();
+    document.getElementById('statTotal').textContent = d.total_prospects || 0;
+    document.getElementById('statContacted').textContent = d.total_sent || 0;
+    document.getElementById('statReplyRate').textContent = (d.reply_rate_pct || 0) + '%';
+    document.getElementById('statMRR').textContent = '$' + (d.projected_mrr || 0).toLocaleString();
+  } catch(e) { console.error(e); }
+}
+
+function renderBoard() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+
+  STAGES.forEach(stage => {
+    const cards = allSponsors.filter(s => s.pipeline_stage === stage.id);
+
+    const col = document.createElement('div');
+    col.className = 'kb-column';
+    col.innerHTML = `
+      <div class="kb-col-header">
+        <span class="kb-col-title">${stage.label}</span>
+        <span class="kb-col-count">${cards.length}</span>
+      </div>
+    `;
+
+    const body = document.createElement('div');
+    body.className = 'kb-col-body';
+    body.dataset.stage = stage.id;
+
+    // Drag-and-drop
+    body.addEventListener('dragover', e => { e.preventDefault(); body.classList.add('drag-over'); });
+    body.addEventListener('dragleave', () => body.classList.remove('drag-over'));
+    body.addEventListener('drop', e => {
+      e.preventDefault();
+      body.classList.remove('drag-over');
+      const sid = e.dataTransfer.getData('text/plain');
+      if (sid) moveToStage(parseInt(sid), stage.id);
+    });
+
+    cards.forEach(s => {
+      const card = document.createElement('div');
+      card.className = 'kb-card';
+      card.draggable = true;
+      card.dataset.id = s.id;
+      card.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', s.id);
+        card.classList.add('dragging');
+      });
+      card.addEventListener('dragend', () => card.classList.remove('dragging'));
+      card.addEventListener('click', () => openPanel(s.id));
+
+      const scoreClass = (s.relevance_score || 0) >= 70 ? 'high' : '';
+      card.innerHTML = `
+        <div class="kb-card-name">${esc(s.company_name)}</div>
+        <div class="kb-card-meta">
+          <span class="kb-badge kb-badge-score ${scoreClass}">${s.relevance_score || 0}</span>
+          ${s.category ? `<span class="kb-badge kb-badge-cat">${esc(s.category)}</span>` : ''}
+        </div>
+        <div class="kb-card-time">${timeAgo(s.updated_at)}</div>
+      `;
+      body.appendChild(card);
+    });
+
+    col.appendChild(body);
+    board.appendChild(col);
+  });
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+async function moveToStage(sponsorId, newStage) {
+  const stageStatusMap = {1:'prospect', 2:'prospect', 3:'outreach_drafted', 4:'contacted', 5:'replied', 6:'deal'};
+  const newStatus = stageStatusMap[newStage] || 'prospect';
+  try {
+    const r = await fetch(`/api/sponsors/status/${sponsorId}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({status: newStatus})
+    });
+    if (r.ok) {
+      toast('Status updated');
+      loadSponsors();
+      loadMetrics();
+    } else {
+      const d = await r.json();
+      toast(d.error || 'Failed', 'error');
+    }
+  } catch(e) { toast('Network error', 'error'); }
+}
+
+async function openPanel(sponsorId) {
+  const panel = document.getElementById('detailPanel');
+  const overlay = document.getElementById('panelOverlay');
+  const content = document.getElementById('panelContent');
+  content.innerHTML = '<div style="color:rgba(255,255,255,0.4)">Loading...</div>';
+  panel.classList.add('open');
+  overlay.classList.add('open');
+
+  try {
+    const r = await fetch(`/api/sponsors/${sponsorId}`);
+    const d = await r.json();
+    const s = d.sponsor;
+    const outreach = d.outreach || [];
+    const activity = d.activity || [];
+
+    let intel = s.intelligence_notes || '';
+    if (typeof intel === 'string') {
+      try { intel = JSON.stringify(JSON.parse(intel), null, 2); } catch(e) {}
+    }
+
+    let draftsHtml = '';
+    outreach.forEach(o => {
+      draftsHtml += `
+        <div class="kb-panel-draft">
+          <h4>${esc(o.subject || 'Draft')}</h4>
+          <div class="draft-body">${esc(o.body || '')}</div>
+          <div class="draft-score">Grok score: ${o.grok_review_score || '—'} | ${o.sent_at ? 'Sent ' + timeAgo(o.sent_at) : 'Not sent'}</div>
+          ${!o.sent_at && s.contact_email ? `<button class="kb-btn kb-btn-primary" style="margin-top:8px;font-size:0.7rem;" onclick="sendEmail(${s.id},${o.id})">Send via Resend</button>` : ''}
+        </div>`;
+    });
+
+    let actHtml = '';
+    activity.slice(0, 15).forEach(a => {
+      actHtml += `<li><span class="kb-activity-action">${esc(a.action)}: ${esc((a.detail||'').substring(0,80))}</span><span class="kb-activity-time">${timeAgo(a.created_at)}</span></li>`;
+    });
+
+    content.innerHTML = `
+      <h2>${esc(s.company_name)}</h2>
+      <div class="kb-panel-status">${esc(s.status)} · Stage ${s.pipeline_stage}</div>
+
+      <div class="kb-panel-section">
+        <div class="kb-panel-label">// Company Info</div>
+        ${s.website ? `<div class="kb-panel-field"><a href="${esc(s.website)}" target="_blank">${esc(s.website)}</a></div>` : ''}
+        ${s.category ? `<div class="kb-panel-field">Category: ${esc(s.category)}</div>` : ''}
+        ${s.contact_email ? `<div class="kb-panel-field">Email: ${esc(s.contact_email)}</div>` : ''}
+        ${s.contact_name ? `<div class="kb-panel-field">Contact: ${esc(s.contact_name)}</div>` : ''}
+        ${s.estimated_monthly_spend ? `<div class="kb-panel-field">Est. spend: ${esc(s.estimated_monthly_spend)}</div>` : ''}
+        <div class="kb-panel-field">Score: ${s.relevance_score || 0} · Deal prob: ${s.deal_probability_pct || 0}%</div>
+        ${s.outreach_angle ? `<div class="kb-panel-field">Angle: ${esc(s.outreach_angle)}</div>` : ''}
+      </div>
+
+      ${intel ? `
+      <div class="kb-panel-section">
+        <div class="kb-panel-label">// Grok Intelligence</div>
+        <div class="kb-panel-intel">${esc(intel)}</div>
+      </div>` : ''}
+
+      <div class="kb-panel-actions">
+        <button class="kb-btn kb-btn-primary" onclick="generateDraft(${s.id})"><i class="fas fa-pen"></i> Generate Outreach</button>
+        <button class="kb-btn" onclick="closePanel()">Close</button>
+      </div>
+
+      ${draftsHtml ? `
+      <div class="kb-panel-section" style="margin-top:16px;">
+        <div class="kb-panel-label">// Outreach Drafts</div>
+        ${draftsHtml}
+      </div>` : ''}
+
+      ${actHtml ? `
+      <div class="kb-panel-section">
+        <div class="kb-panel-label">// Activity Log</div>
+        <ul class="kb-activity">${actHtml}</ul>
+      </div>` : ''}
+    `;
+  } catch(e) {
+    content.innerHTML = '<div style="color:var(--kb-red)">Error loading sponsor details</div>';
+  }
+}
+
+function closePanel() {
+  document.getElementById('detailPanel').classList.remove('open');
+  document.getElementById('panelOverlay').classList.remove('open');
+}
+
+async function generateDraft(sponsorId) {
+  toast('Generating outreach draft...');
+  try {
+    const r = await fetch(`/api/sponsors/draft/${sponsorId}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({channel: 'email'})
+    });
+    const d = await r.json();
+    if (r.ok && d.ok) {
+      toast('Draft generated! Grok score: ' + (d.draft.grok_score || '—'));
+      openPanel(sponsorId);
+      loadSponsors();
+    } else {
+      toast(d.error || 'Draft failed', 'error');
+    }
+  } catch(e) { toast('Network error', 'error'); }
+}
+
+async function sendEmail(sponsorId, draftId) {
+  if (!confirm('Send this email via Resend? This action cannot be undone.')) return;
+  try {
+    const r = await fetch(`/api/sponsors/send/${sponsorId}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({draft_id: draftId, confirmed: true})
+    });
+    const d = await r.json();
+    if (r.ok && d.ok) {
+      toast('Email sent to ' + d.sent_to);
+      openPanel(sponsorId);
+      loadSponsors();
+      loadMetrics();
+    } else {
+      toast(d.error || 'Send failed', 'error');
+    }
+  } catch(e) { toast('Network error', 'error'); }
+}
+
+function openAddModal() { document.getElementById('addModal').classList.add('open'); }
+function closeAddModal() { document.getElementById('addModal').classList.remove('open'); }
+
+async function submitProspect() {
+  const company = document.getElementById('addCompany').value.trim();
+  const website = document.getElementById('addWebsite').value.trim();
+  const category = document.getElementById('addCategory').value;
+  const email = document.getElementById('addEmail').value.trim();
+  if (!company) { toast('Company name required', 'error'); return; }
+
+  try {
+    const r = await fetch('/api/sponsors/prospect', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({company, url: website, category, contact_email: email})
+    });
+    const d = await r.json();
+    if (r.ok) {
+      toast(d.message || 'Prospect added');
+      closeAddModal();
+      document.getElementById('addCompany').value = '';
+      document.getElementById('addWebsite').value = '';
+      document.getElementById('addEmail').value = '';
+      loadSponsors();
+    } else {
+      toast(d.error || 'Failed', 'error');
+    }
+  } catch(e) { toast('Network error', 'error'); }
+}
+
+async function runScan() {
+  document.getElementById('scanBar').classList.add('active');
+  document.getElementById('scanBtn').disabled = true;
+  const msgEl = document.getElementById('scanMsg');
+
+  try {
+    const es = new EventSource('/api/sponsors/scan-stream');
+    es.onmessage = function(e) {
+      try {
+        const d = JSON.parse(e.data);
+        msgEl.textContent = d.message || 'Scanning...';
+        if (d.event === 'done' || d.event === 'complete' || d.event === 'error' || d.event === 'timeout') {
+          es.close();
+          document.getElementById('scanBar').classList.remove('active');
+          document.getElementById('scanBtn').disabled = false;
+          toast(d.event === 'error' ? 'Scan error: ' + d.message : 'Scan complete');
+          loadSponsors();
+          loadMetrics();
+        }
+      } catch(err) {}
+    };
+    es.onerror = function() {
+      es.close();
+      document.getElementById('scanBar').classList.remove('active');
+      document.getElementById('scanBtn').disabled = false;
+      toast('Scan connection lost', 'error');
+      loadSponsors();
+    };
+  } catch(e) {
+    // Fallback to non-streaming
+    fetch('/api/sponsors/scan', {method: 'POST'});
+    msgEl.textContent = 'Scan started (check back in 60s)...';
+    setTimeout(() => {
+      document.getElementById('scanBar').classList.remove('active');
+      document.getElementById('scanBtn').disabled = false;
+      loadSponsors();
+      loadMetrics();
+    }, 60000);
+  }
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  loadSponsors();
+  loadMetrics();
+});
+</script>
+{% endblock %}
