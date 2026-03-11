@@ -21,7 +21,8 @@ def _load_gfpgan():
 def enhance_frames_batch(frames, face_coords, batch_size=16):
     """Enhance frames using GFPGAN. Processes every 3rd frame and copies result
     to adjacent frames (face doesn't change much frame-to-frame in lip-sync).
-    Uses has_aligned=True to skip GFPGAN's internal face detection (~10x faster)."""
+    NOTE: GFPGAN requires has_aligned=False (per-frame face detection) which takes
+    ~0.6s/frame. At 100 keyframes that's ~60s — only use for offline/HQ renders."""
     if not frames: return frames
     enhancer = _load_gfpgan()
     y1, y2, x1, x2 = face_coords
@@ -34,13 +35,11 @@ def enhance_frames_batch(frames, face_coords, batch_size=16):
                 try:
                     face_crop = frames[i][y1:y2, x1:x2]
                     face_rgb = cv2.cvtColor(face_crop, cv2.COLOR_BGR2RGB)
-                    # has_aligned=True: skip face detection, treat input as aligned face
-                    _, _, restored = enhancer.enhance(face_rgb, has_aligned=True,
-                        only_center_face=True, paste_back=False)
+                    _, _, restored = enhancer.enhance(face_rgb, has_aligned=False,
+                        only_center_face=True, paste_back=True)
                     if restored is not None:
                         restored_bgr = cv2.resize(
                             cv2.cvtColor(restored, cv2.COLOR_RGB2BGR), (x2-x1, y2-y1))
-                        # Apply to this frame and up to step-1 neighbors
                         for j in range(i, min(i + step, len(frames))):
                             result = frames[j].copy()
                             result[y1:y2, x1:x2] = restored_bgr

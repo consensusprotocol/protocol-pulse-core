@@ -431,7 +431,7 @@ def generate():
 
     enable_blinks = data.get("enable_blinks", False)  # LAW 2: blinks permanently disabled
     enable_head_movement = data.get("enable_head_movement", True)
-    enable_face_enhance = data.get("enable_face_enhance", True)  # Face restoration ON by default
+    enable_face_enhance = data.get("enable_face_enhance", False)  # GFPGAN OFF by default (~60s); sharpen always runs
     fps = float(data.get("fps", DEFAULT_FPS))
 
     t_start = time.time()
