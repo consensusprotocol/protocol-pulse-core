@@ -1,0 +1,856 @@
+{% extends "base.html" %}
+
+{% block title %}Protect Your Bitcoin Legacy — Meanwhile Life Insurance | Protocol Pulse{% endblock %}
+{% block meta_description %}Bitcoin-denominated life insurance for Bitcoiners. Protect your family's sovereignty with a BTC death benefit — not a fiat check. Meanwhile Life Insurance, referral code KKM73K.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="Protect Your Bitcoin Legacy — Meanwhile | Protocol Pulse">
+<meta property="og:description" content="Life insurance denominated in Bitcoin. Your family inherits sovereignty, not debasement.">
+<meta property="og:type" content="website">
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ─── BITCOIN INSURANCE LANDING PAGE — SESSION 13 ─── */
+.bi-page {
+    background: #000;
+    min-height: 100vh;
+    color: #eef2ff;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ── Cyberpunk grid overlay ── */
+.bi-grid-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+        linear-gradient(rgba(220,38,38,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(220,38,38,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+}
+
+.bi-page > * { position: relative; z-index: 1; }
+
+/* ── Scanline effect ── */
+.bi-scanlines {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.08) 2px,
+        rgba(0,0,0,0.08) 4px
+    );
+}
+
+/* ── Hero ── */
+.bi-hero {
+    position: relative;
+    padding: 110px 0 90px;
+    overflow: hidden;
+    text-align: center;
+}
+.bi-hero::before {
+    content: '';
+    position: absolute;
+    top: -100px; left: 50%;
+    transform: translateX(-50%);
+    width: 800px; height: 800px;
+    background: radial-gradient(circle, rgba(248,193,92,0.06) 0%, transparent 65%);
+    pointer-events: none;
+}
+.bi-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 55% 45% at 15% 25%, rgba(220,38,38,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 35% at 85% 15%, rgba(93,228,255,0.04) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.bi-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #dc2626;
+    margin-bottom: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+}
+.bi-kicker-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #dc2626;
+    animation: bi-pulse 1.8s ease-in-out infinite;
+}
+@keyframes bi-pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(220,38,38,0.6); }
+    50% { opacity: 0.5; box-shadow: 0 0 0 6px rgba(220,38,38,0); }
+}
+
+.bi-hero h1 {
+    font-size: clamp(2.4rem, 5.5vw, 4.2rem);
+    font-weight: 900;
+    line-height: 1.02;
+    letter-spacing: -0.045em;
+    color: #fff;
+    max-width: 860px;
+    margin: 0 auto 1.4rem;
+    text-shadow: 0 0 60px rgba(248,193,92,0.15), 0 4px 30px rgba(0,0,0,0.6);
+}
+.bi-hero h1 .accent-gold { color: #f8c15c; }
+.bi-hero h1 .accent-red { color: #dc2626; }
+
+.bi-hero-sub {
+    font-size: 1.2rem;
+    color: #8892a8;
+    max-width: 560px;
+    margin: 0 auto 2.8rem;
+    line-height: 1.65;
+}
+.bi-hero-sub strong { color: #c8d0e8; }
+
+/* Primary CTA button */
+.bi-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: #dc2626;
+    color: #fff;
+    font-weight: 800;
+    font-size: 1.05rem;
+    padding: 0.95rem 2.6rem;
+    border-radius: 4px;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: background 0.18s, transform 0.12s, box-shadow 0.18s;
+    box-shadow: 0 0 0 1px rgba(220,38,38,0.5), 0 6px 24px rgba(220,38,38,0.3);
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+.bi-cta-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent);
+    transition: left 0.4s;
+}
+.bi-cta-btn:hover::before { left: 100%; }
+.bi-cta-btn:hover {
+    background: #b91c1c;
+    transform: translateY(-2px);
+    box-shadow: 0 0 0 1px rgba(220,38,38,0.6), 0 10px 36px rgba(220,38,38,0.35);
+    color: #fff;
+    text-decoration: none;
+}
+.bi-cta-arrow {
+    font-size: 1.1em;
+    transition: transform 0.2s;
+}
+.bi-cta-btn:hover .bi-cta-arrow { transform: translateX(4px); }
+
+.bi-hero-disclaimer {
+    margin-top: 1.3rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: #3d4561;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+/* ── Trust bar ── */
+.bi-trust-bar {
+    border-top: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding: 20px 0;
+    background: rgba(255,255,255,0.02);
+}
+.bi-trust-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+    flex-wrap: wrap;
+}
+.bi-trust-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #5a6480;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.bi-trust-icon { color: #f8c15c; font-size: 0.9rem; }
+
+/* ── Sections ── */
+.bi-section { padding: 84px 0; }
+.bi-section-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.60rem;
+    font-weight: 800;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #dc2626;
+    margin-bottom: 0.7rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.bi-section-kicker::before {
+    content: '';
+    display: inline-block;
+    width: 20px; height: 1px;
+    background: #dc2626;
+    flex-shrink: 0;
+}
+.bi-section-title {
+    font-size: clamp(1.7rem, 3.8vw, 2.5rem);
+    font-weight: 900;
+    letter-spacing: -0.035em;
+    color: #fff;
+    margin-bottom: 3rem;
+    line-height: 1.15;
+}
+
+/* ── Benefits grid ── */
+.bi-benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    gap: 1.5rem;
+}
+.bi-benefit-card {
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-top: 2px solid #dc2626;
+    border-radius: 2px;
+    padding: 2rem 1.8rem;
+    transition: border-top-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    position: relative;
+}
+.bi-benefit-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(248,193,92,0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.bi-benefit-card:hover {
+    border-top-color: #f8c15c;
+    box-shadow: 0 0 0 1px rgba(248,193,92,0.08), 0 16px 48px rgba(0,0,0,0.4);
+    transform: translateY(-2px);
+}
+.bi-benefit-card:hover::after { opacity: 1; }
+.bi-benefit-icon {
+    font-size: 2rem;
+    margin-bottom: 1.2rem;
+    display: block;
+    line-height: 1;
+}
+.bi-benefit-card h3 {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #eef2ff;
+    margin-bottom: 0.7rem;
+    letter-spacing: -0.01em;
+}
+.bi-benefit-card p {
+    font-size: 0.88rem;
+    color: #6b7694;
+    line-height: 1.65;
+    margin: 0;
+}
+
+/* ── Dark section bg ── */
+.bi-dark-bg {
+    background: #050507;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+/* ── How it works steps ── */
+.bi-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+.bi-step {
+    padding: 1.8rem;
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 2px;
+    position: relative;
+}
+.bi-step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: rgba(220,38,38,0.18);
+    line-height: 1;
+    margin-bottom: 0.9rem;
+}
+.bi-step h4 {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #eef2ff;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+}
+.bi-step p {
+    font-size: 0.84rem;
+    color: #6b7694;
+    margin: 0;
+    line-height: 1.55;
+}
+
+/* ── Editorial block ── */
+.bi-editorial {
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-left: 3px solid #dc2626;
+    border-radius: 2px;
+    padding: 2.8rem 3rem;
+    position: relative;
+}
+.bi-editorial::before {
+    content: '"';
+    position: absolute;
+    top: 1.2rem; left: 2.5rem;
+    font-size: 7rem;
+    line-height: 1;
+    color: rgba(220,38,38,0.07);
+    font-family: Georgia, serif;
+    pointer-events: none;
+}
+.bi-editorial-byline {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.8rem;
+}
+.bi-editorial-avatar {
+    width: 44px; height: 44px;
+    border-radius: 2px;
+    background: linear-gradient(135deg, #dc2626, #f8c15c);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem; font-weight: 900; color: #fff;
+    flex-shrink: 0;
+    letter-spacing: 0.05em;
+}
+.bi-editorial-author { font-weight: 800; color: #eef2ff; font-size: 0.9rem; }
+.bi-editorial-role { font-size: 0.75rem; color: #5a6480; margin-top: 0.15rem; font-family: 'JetBrains Mono', monospace; }
+.bi-editorial-body p {
+    font-size: 1.02rem;
+    color: #b0bad4;
+    line-height: 1.78;
+    margin-bottom: 1.2rem;
+}
+.bi-editorial-body p:last-of-type { margin-bottom: 0; }
+.bi-affiliate-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.60rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: rgba(248,193,92,0.06);
+    border: 1px solid rgba(248,193,92,0.18);
+    color: #f8c15c;
+    padding: 0.3rem 0.9rem;
+    border-radius: 2px;
+    margin-top: 1.6rem;
+}
+
+/* ── Sovereignty Score ── */
+.bi-score-panel {
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 2px;
+    padding: 2rem;
+    margin-top: 2.5rem;
+}
+.bi-score-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.20em;
+    text-transform: uppercase;
+    color: #f8c15c;
+    margin-bottom: 1.4rem;
+}
+.bi-score-rows { display: flex; flex-direction: column; gap: 0.8rem; }
+.bi-score-row { display: flex; align-items: center; gap: 1rem; }
+.bi-score-label { font-size: 0.78rem; color: #6b7694; width: 160px; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; }
+.bi-score-bars { display: flex; gap: 3px; }
+.bi-score-bar {
+    width: 20px; height: 8px;
+    border-radius: 1px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.07);
+    transition: background 0.2s;
+}
+.bi-score-bar.filled { background: #dc2626; border-color: rgba(220,38,38,0.5); }
+.bi-score-bar.filled-gold { background: #f8c15c; border-color: rgba(248,193,92,0.5); }
+.bi-score-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.70rem;
+    color: #f8c15c;
+    font-weight: 700;
+    min-width: 28px;
+}
+
+/* ── Social proof ── */
+.bi-social-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+.bi-testimonial {
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 2px;
+    padding: 1.8rem;
+    position: relative;
+}
+.bi-testimonial::before {
+    content: '"';
+    position: absolute;
+    top: 0.8rem; right: 1.2rem;
+    font-size: 3rem;
+    color: rgba(248,193,92,0.15);
+    font-family: Georgia, serif;
+    line-height: 1;
+}
+.bi-testimonial-text {
+    font-size: 0.9rem;
+    color: #8892a8;
+    line-height: 1.68;
+    margin-bottom: 1.2rem;
+    font-style: italic;
+}
+.bi-testimonial-author {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #f8c15c;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+/* ── FAQ ── */
+.bi-faq { display: flex; flex-direction: column; gap: 0.7rem; }
+.bi-faq-item {
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+}
+.bi-faq-item.open { border-color: rgba(220,38,38,0.25); }
+.bi-faq-q {
+    width: 100%; background: none; border: none;
+    padding: 1.15rem 1.5rem; text-align: left;
+    color: #c8d0e8; font-size: 0.92rem; font-weight: 600;
+    cursor: pointer; display: flex; justify-content: space-between;
+    align-items: center; gap: 1rem;
+    transition: color 0.2s;
+    letter-spacing: -0.01em;
+}
+.bi-faq-q:hover { color: #fff; }
+.bi-faq-q::after {
+    content: '+';
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem; font-weight: 300;
+    color: #dc2626;
+    flex-shrink: 0;
+}
+.bi-faq-item.open .bi-faq-q { color: #fff; }
+.bi-faq-item.open .bi-faq-q::after { content: '−'; }
+.bi-faq-a {
+    display: none;
+    padding: 0 1.5rem 1.2rem;
+    font-size: 0.87rem;
+    color: #6b7694;
+    line-height: 1.72;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+.bi-faq-item.open .bi-faq-a { display: block; }
+
+/* ── CTA Footer ── */
+.bi-cta-footer {
+    text-align: center;
+    padding: 100px 0 80px;
+    position: relative;
+    overflow: hidden;
+}
+.bi-cta-footer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(220,38,38,0.05) 0%, transparent 70%);
+    pointer-events: none;
+}
+.bi-cta-footer h2 {
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    color: #fff;
+    margin-bottom: 1rem;
+    position: relative;
+}
+.bi-cta-footer > div > p {
+    color: #6b7694;
+    font-size: 1.1rem;
+    margin-bottom: 2.4rem;
+    position: relative;
+}
+.bi-disclaimer {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: #2d3347;
+    max-width: 520px;
+    margin: 1.8rem auto 0;
+    line-height: 1.65;
+    letter-spacing: 0.03em;
+    position: relative;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .bi-hero { padding: 80px 0 64px; }
+    .bi-editorial { padding: 1.8rem; }
+    .bi-editorial::before { display: none; }
+    .bi-section { padding: 60px 0; }
+    .bi-trust-inner { gap: 1.5rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bi-page">
+<div class="bi-grid-bg"></div>
+<div class="bi-scanlines"></div>
+
+<!-- ═══ HERO ═══ -->
+<section class="bi-hero">
+  <div class="container">
+    <div class="bi-kicker">
+      <span class="bi-kicker-dot"></span>
+      AFFILIATE PARTNERSHIP &nbsp;·&nbsp; BITCOIN SOVEREIGN TOOLS
+    </div>
+    <h1>
+      Protect Your<br>
+      <span class="accent-gold">Bitcoin</span>
+      <span class="accent-red"> Legacy</span>
+    </h1>
+    <p class="bi-hero-sub">
+      Life insurance <strong>denominated in Bitcoin</strong> — not fiat. Not stocks. <strong>Bitcoin.</strong>
+      Your family inherits sovereignty, not a debasement-adjusted check.
+    </p>
+    <a href="/api/affiliate/click?partner=meanwhile&article_id=bitcoin-insurance-hero"
+       class="bi-cta-btn"
+       data-partner="meanwhile"
+       onclick="trackBiClick('hero')">
+      Get Your Bitcoin Life Insurance Quote <span class="bi-cta-arrow">→</span>
+    </a>
+    <p class="bi-hero-disclaimer">
+      AFFILIATE PARTNERSHIP · NOT FINANCIAL ADVICE · SEE DISCLAIMER BELOW
+    </p>
+  </div>
+</section>
+
+<!-- ═══ TRUST BAR ═══ -->
+<div class="bi-trust-bar">
+  <div class="container">
+    <div class="bi-trust-inner">
+      <span class="bi-trust-item"><span class="bi-trust-icon">✓</span> Licensed Insurer</span>
+      <span class="bi-trust-item"><span class="bi-trust-icon">₿</span> BTC-Denominated Policy</span>
+      <span class="bi-trust-item"><span class="bi-trust-icon">✓</span> Meanwhile Partnership</span>
+      <span class="bi-trust-item"><span class="bi-trust-icon">⚡</span> Protocol Pulse Vetted</span>
+      <span class="bi-trust-item"><span class="bi-trust-icon">🔑</span> No Fiat Conversion</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BENEFITS ═══ -->
+<section class="bi-section">
+  <div class="container">
+    <div class="bi-section-kicker">Why Bitcoiners Choose Meanwhile</div>
+    <h2 class="bi-section-title">The Only Life Insurance<br>Bitcoiners Actually Need</h2>
+    <div class="bi-benefits-grid">
+      <div class="bi-benefit-card">
+        <span class="bi-benefit-icon">₿</span>
+        <h3>Death benefit paid in Bitcoin</h3>
+        <p>Your family receives the benefit in BTC — not a fiat check subject to monetary debasement. Death benefit preserves purchasing power.</p>
+      </div>
+      <div class="bi-benefit-card">
+        <span class="bi-benefit-icon">📈</span>
+        <h3>Tax-advantaged BTC accumulation</h3>
+        <p>Policy cash value grows tax-deferred. Access capital without triggering taxable BTC sales. A legal structure traditional investors overlook.</p>
+      </div>
+      <div class="bi-benefit-card">
+        <span class="bi-benefit-icon">🔑</span>
+        <h3>Generational wealth transfer</h3>
+        <p>Estate planning in Bitcoin — transfer your stack to heirs with structured, legally recognized Bitcoin-denominated coverage. Sovereignty across generations.</p>
+      </div>
+      <div class="bi-benefit-card">
+        <span class="bi-benefit-icon">🛡</span>
+        <h3>No forced fiat liquidation</h3>
+        <p>Traditional life insurance forces beneficiaries into a USD payout. Meanwhile eliminates that risk — the policy is structured in BTC from day one.</p>
+      </div>
+      <div class="bi-benefit-card">
+        <span class="bi-benefit-icon">⚖️</span>
+        <h3>Licensed and regulated</h3>
+        <p>Meanwhile works with regulated insurance carriers. Real coverage under existing regulatory frameworks — not a crypto scheme. Backed by actual insurance infrastructure.</p>
+      </div>
+      <div class="bi-benefit-card">
+        <span class="bi-benefit-icon">🌐</span>
+        <h3>Self-sovereign architecture</h3>
+        <p>Designed for Bitcoiners who think in sats. The product acknowledges that fiat is a liability, not a feature. Estate planning built on monetary truth.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HOW IT WORKS ═══ -->
+<section class="bi-section bi-dark-bg">
+  <div class="container">
+    <div class="bi-section-kicker">Application Process</div>
+    <h2 class="bi-section-title">From Application to Coverage</h2>
+    <div class="bi-steps">
+      <div class="bi-step">
+        <div class="bi-step-num">01</div>
+        <h4>Apply online</h4>
+        <p>Complete the application process entirely online through Meanwhile. No in-person meetings required.</p>
+      </div>
+      <div class="bi-step">
+        <div class="bi-step-num">02</div>
+        <h4>Select coverage</h4>
+        <p>Choose a whole life policy denomination in Bitcoin. Coverage amount varies based on your profile and eligibility.</p>
+      </div>
+      <div class="bi-step">
+        <div class="bi-step-num">03</div>
+        <h4>BTC-denominated policy issued</h4>
+        <p>Your policy value is tracked in Bitcoin from day one. Premium payments, cash value, and death benefit — all in BTC.</p>
+      </div>
+      <div class="bi-step">
+        <div class="bi-step-num">04</div>
+        <h4>Benefit paid directly in BTC</h4>
+        <p>Upon claim, benefit is paid to the Bitcoin wallet address designated in your policy. Sovereign inheritance.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ EDITORIAL ENDORSEMENT ═══ -->
+<section class="bi-section">
+  <div class="container">
+    <div class="bi-section-kicker">Protocol Pulse Perspective</div>
+    <h2 class="bi-section-title">Why We Partner With Meanwhile</h2>
+    <div class="bi-editorial">
+      <div class="bi-editorial-byline">
+        <div class="bi-editorial-avatar">PP</div>
+        <div>
+          <div class="bi-editorial-author">Protocol Pulse Editorial</div>
+          <div class="bi-editorial-role">INTELLIGENCE FOR TRANSACTORS</div>
+        </div>
+      </div>
+      <div class="bi-editorial-body">
+        <p>
+          Most Bitcoiners think about sovereignty in terms of keys and custody.
+          But there's a dimension of sovereignty almost nobody addresses:
+          generational transfer. What happens to your stack when you're gone?
+          If the answer is "my family figures it out," that's not a plan —
+          that's a fiat outcome dressed in an orange coin.
+        </p>
+        <p>
+          Meanwhile solves a real problem. Life insurance that pays out in
+          Bitcoin, denominated in Bitcoin, without forcing your family to sell
+          into a fiat intermediary to receive a "benefit" that's actually a
+          debasement-adjusted fraction of what you built. This is what
+          sovereignty looks like extended across time — not just across borders.
+        </p>
+        <p>
+          We vetted Meanwhile before partnering. The product is real, the
+          insurer is regulated, and the Bitcoin-native architecture is genuine.
+          For Bitcoiners with dependents and meaningful stacks, this isn't just
+          a financial product — it's a cypherpunk responsibility. We stand behind it.
+        </p>
+      </div>
+      <div class="bi-affiliate-badge">
+        ⚡ AFFILIATE PARTNERSHIP — We earn a commission when you apply through our link. Not financial advice.
+      </div>
+    </div>
+
+    <!-- Sovereignty Score -->
+    <div class="bi-score-panel">
+      <div class="bi-score-title">Protocol Pulse Sovereignty Score — Meanwhile</div>
+      <div class="bi-score-rows">
+        {% set scores = [
+          ('Privacy', 4, False),
+          ('BTC-Native Architecture', 5, True),
+          ('Non-Custodial Structure', 3, False),
+          ('Regulatory Compliance', 4, False),
+          ('Transparency', 4, False)
+        ] %}
+        {% for label, score, is_gold in scores %}
+        <div class="bi-score-row">
+          <span class="bi-score-label">{{ label }}</span>
+          <div class="bi-score-bars">
+            {% for i in range(1, 6) %}
+            <div class="bi-score-bar {% if i <= score %}{% if is_gold %}filled-gold{% else %}filled{% endif %}{% endif %}"></div>
+            {% endfor %}
+          </div>
+          <span class="bi-score-val">{{ score }}/5</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SOCIAL PROOF ═══ -->
+<section class="bi-section bi-dark-bg">
+  <div class="container">
+    <div class="bi-section-kicker">Community</div>
+    <h2 class="bi-section-title">What Bitcoiners Are Saying</h2>
+    <div class="bi-social-grid">
+      <div class="bi-testimonial">
+        <p class="bi-testimonial-text">
+          "Finally addressed the estate planning gap in my sovereignty stack. Meanwhile is the first product I've seen that actually understands why Bitcoiners reject fiat-denominated insurance."
+        </p>
+        <div class="bi-testimonial-author">⚡ Bitcoin Hodler · 8 BTC stack</div>
+      </div>
+      <div class="bi-testimonial">
+        <p class="bi-testimonial-text">
+          "Tax-deferred BTC accumulation inside a life insurance wrapper is the strategy nobody is talking about. It's not just protection — it's a planning tool."
+        </p>
+        <div class="bi-testimonial-author">⚡ Bitcoin-native family office</div>
+      </div>
+      <div class="bi-testimonial">
+        <p class="bi-testimonial-text">
+          "Generational transfer without forced fiat conversion is exactly what was missing. My beneficiaries inherit sats, not USD. That's sovereignty."
+        </p>
+        <div class="bi-testimonial-author">⚡ Cypherpunk · Estate planning advocate</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FAQ ═══ -->
+<section class="bi-section">
+  <div class="container">
+    <div class="bi-section-kicker">Common Questions</div>
+    <h2 class="bi-section-title">FAQ</h2>
+    <div class="bi-faq" style="max-width:760px;">
+      {% set faqs = [
+        ("What is Bitcoin life insurance?",
+         "Bitcoin life insurance is a whole life insurance policy denominated in Bitcoin rather than fiat currency. Meanwhile offers BTC-native coverage where the policy value, premium structure, and death benefit are all tracked and paid in Bitcoin — not converted to USD."),
+        ("Is it tax-advantaged?",
+         "Yes. Like traditional whole life insurance, Bitcoin life insurance through Meanwhile can provide tax-deferred growth on the policy's cash value. This means BTC accumulation inside the policy isn't subject to capital gains taxes until accessed. Consult a qualified tax advisor for specifics applicable to your situation."),
+        ("How much coverage is available?",
+         "Coverage amounts vary based on your profile, health status, and eligibility. Visit Meanwhile's application to see current coverage options and get a personalized quote based on your situation."),
+        ("Is Meanwhile a regulated insurer?",
+         "Meanwhile partners with regulated insurance carriers to issue policies. The product operates under existing life insurance regulatory frameworks, providing real coverage backed by licensed insurance infrastructure — not a DeFi protocol or crypto scheme."),
+        ("What happens if Bitcoin price drops?",
+         "The policy is denominated in Bitcoin, not USD. If Bitcoin's fiat price drops, the Bitcoin amount of your coverage is unaffected. For those who measure wealth in sats rather than dollars, this is a feature — not a bug."),
+        ("Do I need a medical exam?",
+         "It depends on coverage amount. Smaller policies may not require a medical exam. The application process is handled entirely online through Meanwhile's platform."),
+      ] %}
+      {% for q, a in faqs %}
+      <div class="bi-faq-item">
+        <button class="bi-faq-q" onclick="biFaqToggle(this)" aria-expanded="false">{{ q }}</button>
+        <div class="bi-faq-a">{{ a }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA FOOTER ═══ -->
+<section class="bi-cta-footer">
+  <div class="container">
+    <div class="bi-section-kicker" style="justify-content:center; margin-bottom:1rem;">Take Action</div>
+    <h2>Protect Your Bitcoin Legacy</h2>
+    <p>Your family's sovereignty depends on what you build today.</p>
+    <a href="/api/affiliate/click?partner=meanwhile&article_id=bitcoin-insurance-footer"
+       class="bi-cta-btn"
+       data-partner="meanwhile"
+       onclick="trackBiClick('footer')"
+       style="font-size:1.1rem; padding:1.1rem 3rem;">
+      Get Your Bitcoin Life Insurance Quote <span class="bi-cta-arrow">→</span>
+    </a>
+    <p class="bi-disclaimer">
+      PROTOCOL PULSE MAY EARN COMPENSATION WHEN YOU APPLY THROUGH OUR LINK. REFERRAL CODE: KKM73K.
+      THIS IS NOT FINANCIAL ADVICE. INSURANCE PRODUCTS ARE SUBJECT TO AVAILABILITY AND ELIGIBILITY.
+      REVIEW ALL POLICY TERMS WITH MEANWHILE DIRECTLY BEFORE APPLYING.
+    </p>
+  </div>
+</section>
+
+</div><!-- .bi-page -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// FAQ toggle
+function biFaqToggle(btn) {
+    const item = btn.closest('.bi-faq-item');
+    const wasOpen = item.classList.contains('open');
+    // Close all
+    document.querySelectorAll('.bi-faq-item.open').forEach(function(el) {
+        el.classList.remove('open');
+        el.querySelector('.bi-faq-q').setAttribute('aria-expanded', 'false');
+    });
+    // Toggle clicked
+    if (!wasOpen) {
+        item.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+    }
+}
+
+// Keyboard navigation for FAQ
+document.querySelectorAll('.bi-faq-q').forEach(function(btn, i, all) {
+    btn.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowDown' && all[i + 1]) { all[i + 1].focus(); e.preventDefault(); }
+        if (e.key === 'ArrowUp' && all[i - 1]) { all[i - 1].focus(); e.preventDefault(); }
+        if (e.key === 'Enter' || e.key === ' ') { biFaqToggle(btn); e.preventDefault(); }
+    });
+});
+
+// Click tracking beacon
+function trackBiClick(placement) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const variant = urlParams.get('v') || 'direct';
+    const payload = JSON.stringify({
+        partner: 'meanwhile',
+        variant: variant,
+        referrer_page: window.location.pathname + '?placement=' + placement
+    });
+    if (navigator.sendBeacon) {
+        navigator.sendBeacon(
+            '/api/affiliates/click',
+            new Blob([payload], { type: 'application/json' })
+        );
+    }
+}
+</script>
+{% endblock %}
