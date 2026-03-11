@@ -881,22 +881,100 @@
         });
     }
     
-    // Command palette search/filter
+    // Command palette search/filter — with live article search (SESSION 17)
     const commandInput = document.getElementById('commandPaletteInput');
+    const commandResults = document.getElementById('commandResults');
+    var _cpSearchTimer = null;
+    var _cpStaticHTML = commandResults ? commandResults.innerHTML : '';
+
+    function _cpFilterStatic(query) {
+        document.querySelectorAll('.command-item').forEach(function(item) {
+            const titleEl = item.querySelector('.command-item-title');
+            const descEl = item.querySelector('.command-item-desc');
+            const title = titleEl ? titleEl.textContent.toLowerCase() : '';
+            const desc = descEl ? descEl.textContent.toLowerCase() : '';
+            if (title.includes(query) || desc.includes(query)) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    function _cpRenderArticles(results, query) {
+        if (!commandResults) return;
+        if (!results || results.length === 0) {
+            // No article results — restore static items filtered by query
+            commandResults.innerHTML = _cpStaticHTML;
+            _cpFilterStatic(query);
+            return;
+        }
+        var articleSection = '<div class="command-section-header">Articles</div>';
+        results.slice(0, 5).forEach(function(r) {
+            var url = r.url || ('/articles/' + r.id);
+            var snippet = (r.snippet || '').replace(/<[^>]+>/g, '').substring(0, 80);
+            articleSection += '<div class="command-item" onclick="navigateTo(\'' + url.replace(/'/g, "\\'") + '\')">' +
+                '<div class="command-item-icon"><i class="fas fa-file-alt" style="color:#0ea5e9;"></i></div>' +
+                '<div class="command-item-text">' +
+                '<div class="command-item-title">' + (r.title || '').substring(0, 60) + '</div>' +
+                (snippet ? '<div class="command-item-desc">' + snippet + '&hellip;</div>' : '') +
+                '</div></div>';
+        });
+        // Append "See all results" link
+        articleSection += '<div class="command-item" onclick="navigateTo(\'/search?q=' + encodeURIComponent(query) + '\')">' +
+            '<div class="command-item-icon"><i class="fas fa-search" style="color:#6b7280;"></i></div>' +
+            '<div class="command-item-text"><div class="command-item-title">See all results for &ldquo;' + query.substring(0, 40) + '&rdquo;</div></div></div>';
+
+        commandResults.innerHTML = articleSection;
+    }
+
     if (commandInput) {
         commandInput.addEventListener('input', function(e) {
-            const query = e.target.value.toLowerCase();
-            document.querySelectorAll('.command-item').forEach(function(item) {
-                const titleEl = item.querySelector('.command-item-title');
-                const descEl = item.querySelector('.command-item-desc');
-                const title = titleEl ? titleEl.textContent.toLowerCase() : '';
-                const desc = descEl ? descEl.textContent.toLowerCase() : '';
-                if (title.includes(query) || desc.includes(query)) {
-                    item.style.display = 'flex';
-                } else {
-                    item.style.display = 'none';
+            const query = e.target.value;
+            const queryLower = query.toLowerCase();
+            clearTimeout(_cpSearchTimer);
+
+            if (!query || query.length < 2) {
+                // Restore static command items
+                if (commandResults) commandResults.innerHTML = _cpStaticHTML;
+                return;
+            }
+
+            // First: filter static items immediately
+            _cpFilterStatic(queryLower);
+
+            // Then: fire live article search after 300ms debounce
+            _cpSearchTimer = setTimeout(function() {
+                fetch('/api/search?q=' + encodeURIComponent(query) + '&type=articles&limit=5')
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        _cpRenderArticles(data.results || [], query);
+                    })
+                    .catch(function() {
+                        // On error keep static filtered results visible
+                    });
+            }, 300);
+        });
+
+        // Keyboard navigation in command palette
+        commandInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                var firstItem = commandResults && commandResults.querySelector('.command-item');
+                if (firstItem) firstItem.click();
+            }
+        });
+    }
+
+    // Nav search bar — redirect to /search page
+    const navSearchInput = document.getElementById('commandSearchInput');
+    if (navSearchInput) {
+        navSearchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                var q = navSearchInput.value.trim();
+                if (q.length >= 1) {
+                    window.location.href = '/search?q=' + encodeURIComponent(q);
                 }
-            });
+            }
         });
     }
     

@@ -8103,32 +8103,105 @@ def feed_opml():
 
 @app.route('/search')
 def search_page():
-    """Full-text search page with AI enhancement."""
+    """Full-text search page — FTS5 powered with type filtering."""
     query = request.args.get('q', '').strip()
-    return render_template('search.html', query=query)
+    search_type = request.args.get('type', 'all')
+    results = []
+    if query:
+        try:
+            from core.services import search_service
+            results = search_service.search(db, query, search_type, limit=20)
+        except Exception as _se:
+            logging.warning("FTS5 search failed in search_page, falling back: %s", _se)
+            try:
+                from services.search_engine import search_articles
+                _legacy = search_articles(query, page=1, per_page=20)
+                # Normalise legacy format to new format
+                for r in _legacy.get('results', []):
+                    results.append({
+                        'type': 'article',
+                        'id': r.get('id'),
+                        'title': r.get('title', ''),
+                        'snippet': r.get('snippet', r.get('summary', '')[:200]),
+                        'category': r.get('category', ''),
+                        'date': r.get('published_at', ''),
+                        'url': f"/articles/{r.get('id')}",
+                    })
+            except Exception:
+                pass
+    try:
+        from core.services import search_service as _ss
+        popular = _ss.get_popular_searches()
+    except Exception:
+        popular = ['Bitcoin ETF', 'Lightning Network', 'Bitcoin mining', 'Regulation', 'Halving']
+    return render_template('search.html', query=query, results=results,
+                           search_type=search_type, popular=popular)
 
 
 @app.route('/api/search')
 def api_search():
-    """Search articles with AI ranking."""
-    from services.search_engine import search_articles
+    """FTS5-powered article search API — returns JSON results with snippets."""
     query = request.args.get('q', '').strip()
+    search_type = request.args.get('type', 'all')
+    limit = min(int(request.args.get('limit', 20)), 50)
     page = request.args.get('page', 1, type=int)
-    if not query:
-        return jsonify({"results": [], "total": 0, "query": ""})
-    results = search_articles(query, page=page, per_page=20)
-    return jsonify(results)
+
+    if not query or len(query) < 2:
+        return jsonify({"results": [], "total": 0, "query": query})
+
+    # Try FTS5 first, fall back to LIKE-based engine
+    try:
+        from core.services import search_service
+        results = search_service.search(db, query, search_type, limit=limit)
+        return jsonify({"results": results, "total": len(results), "query": query})
+    except Exception as _fts_err:
+        logging.warning("FTS5 api_search failed, falling back to search_engine: %s", _fts_err)
+
+    try:
+        from services.search_engine import search_articles
+        data = search_articles(query, page=page, per_page=limit)
+        # Normalise legacy results to new format
+        normalised = []
+        for r in data.get('results', []):
+            normalised.append({
+                'type': 'article',
+                'id': r.get('id'),
+                'title': r.get('title', ''),
+                'snippet': r.get('snippet', r.get('summary', '')[:200]),
+                'category': r.get('category', ''),
+                'date': r.get('published_at', ''),
+                'url': f"/articles/{r.get('id')}",
+                # Legacy fields for backward compat with existing search.html JS
+                'slug': r.get('id'),
+                'summary': r.get('summary', ''),
+                'published_at': r.get('published_at', ''),
+            })
+        return jsonify({"results": normalised, "total": len(normalised), "query": query})
+    except Exception as _leg_err:
+        logging.error("Both FTS5 and legacy search failed: %s", _leg_err)
+        return jsonify({"results": [], "total": 0, "query": query})
 
 
 @app.route('/api/search/autocomplete')
 def api_search_autocomplete():
-    """Autocomplete suggestions."""
+    """Autocomplete suggestions using article title index."""
     from services.search_engine import autocomplete
     q = request.args.get('q', '').strip()
     if len(q) < 2:
         return jsonify({"suggestions": []})
     suggestions = autocomplete(q, limit=8)
     return jsonify({"suggestions": suggestions})
+
+
+@app.route('/api/search/popular')
+def api_search_popular():
+    """Return popular/trending search terms."""
+    try:
+        from core.services import search_service
+        popular = search_service.get_popular_searches(limit=6)
+    except Exception:
+        popular = ['Bitcoin ETF', 'Lightning Network', 'Bitcoin mining', 'Regulation', 'Halving']
+    return jsonify({"popular": popular})
 
 
 # ═══════════════════════════════════════════════════════════════════════════

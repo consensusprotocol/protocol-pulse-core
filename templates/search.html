@@ -14,7 +14,7 @@
 /* Search input */
 .pp-search-box {
     max-width: 680px;
-    margin: 0 auto 40px;
+    margin: 0 auto 16px;
     position: relative;
 }
 .pp-search-box__input {
@@ -41,6 +41,20 @@
     transform: translateY(-50%);
     color: var(--pp-text-muted);
     font-size: 1rem;
+    pointer-events: none;
+}
+.pp-search-box__kbd {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--pp-surface-2, #111);
+    border: 1px solid var(--pp-border);
+    border-radius: 4px;
+    color: var(--pp-text-muted);
+    font-family: var(--pp-font-mono);
+    font-size: 0.6875rem;
+    padding: 2px 6px;
     pointer-events: none;
 }
 .pp-search-box__clear {
@@ -94,6 +108,68 @@
     text-align: center;
 }
 
+/* Type filter tabs */
+.pp-search-tabs {
+    max-width: 680px;
+    margin: 0 auto 28px;
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--pp-border);
+    padding-bottom: 0;
+}
+.pp-search-tab {
+    padding: 8px 16px;
+    border: none;
+    background: none;
+    color: var(--pp-text-muted);
+    font-family: var(--pp-font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+.pp-search-tab:hover { color: var(--pp-text-secondary); }
+.pp-search-tab.active {
+    color: var(--pp-teal, #0ea5e9);
+    border-bottom-color: var(--pp-teal, #0ea5e9);
+}
+
+/* Popular searches */
+.pp-search-popular {
+    max-width: 680px;
+    margin: 0 auto 32px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+.pp-search-popular__label {
+    font-size: 0.75rem;
+    font-family: var(--pp-font-mono);
+    color: var(--pp-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+.pp-search-popular__term {
+    display: inline-block;
+    padding: 4px 12px;
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--pp-radius-full);
+    color: var(--pp-text-secondary);
+    font-size: 0.8125rem;
+    text-decoration: none;
+    transition: border-color 0.2s ease, color 0.2s ease;
+}
+.pp-search-popular__term:hover {
+    border-color: var(--pp-teal, #0ea5e9);
+    color: var(--pp-teal, #0ea5e9);
+}
+
 /* Results */
 .pp-search-meta {
     display: flex;
@@ -114,10 +190,30 @@
     text-decoration: none;
     color: var(--pp-text);
     transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    outline: none;
 }
-.pp-search-result:hover {
-    border-color: var(--pp-border-hover);
+.pp-search-result:hover,
+.pp-search-result:focus {
+    border-color: var(--pp-teal, #0ea5e9);
     box-shadow: var(--pp-shadow-sm);
+}
+.pp-search-result--focused {
+    border-color: var(--pp-teal, #0ea5e9);
+    box-shadow: 0 0 0 2px var(--pp-teal-dim);
+}
+.pp-search-result__type-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    background: rgba(220,38,38,0.1);
+    color: #dc2626;
+    border-radius: 3px;
+    font-family: var(--pp-font-mono);
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-right: 8px;
+    vertical-align: middle;
 }
 .pp-search-result__title {
     font-size: 1.125rem;
@@ -133,7 +229,7 @@
 }
 .pp-search-result__snippet mark {
     background: var(--pp-teal-dim);
-    color: var(--pp-teal);
+    color: var(--pp-teal, #0ea5e9);
     padding: 1px 3px;
     border-radius: 2px;
 }
@@ -146,13 +242,19 @@
 }
 .pp-search-result__tag {
     background: var(--pp-teal-dim);
-    color: var(--pp-teal);
+    color: var(--pp-teal, #0ea5e9);
     padding: 2px 8px;
     border-radius: var(--pp-radius-full);
     font-size: 0.6875rem;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.04em;
+}
+
+/* SSR results (server-side rendered on page load) */
+.pp-search-ssr {
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 /* Empty state */
@@ -175,14 +277,6 @@
     color: var(--pp-text-muted);
 }
 
-/* Pagination */
-.pp-search-pager {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 32px;
-}
-
 /* Loading */
 .pp-search-loading {
     text-align: center;
@@ -192,9 +286,30 @@
 }
 .pp-search-loading.active { display: block; }
 
+/* Keyboard nav hint */
+.pp-search-keynav {
+    max-width: 800px;
+    margin: 16px auto 0;
+    text-align: right;
+    font-size: 0.6875rem;
+    font-family: var(--pp-font-mono);
+    color: var(--pp-text-dim, #555);
+}
+.pp-search-keynav kbd {
+    display: inline-block;
+    padding: 1px 5px;
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: 3px;
+    font-size: 0.6875rem;
+    margin: 0 1px;
+}
+
 @media (max-width: 768px) {
     .pp-search-page__title { font-size: 1.5rem; }
     .pp-search-result { padding: 16px; }
+    .pp-search-tabs { overflow-x: auto; flex-wrap: nowrap; }
+    .pp-search-keynav { display: none; }
 }
 </style>
 {% endblock %}
@@ -213,18 +328,82 @@
                    value="{{ query }}"
                    placeholder="Search articles, topics, Bitcoin terminology..."
                    autocomplete="off"
-                   autofocus>
-            <button class="pp-search-box__clear" id="searchClear" onclick="clearSearch()">&times;</button>
-            <div class="pp-autocomplete" id="autoComplete"></div>
+                   autofocus
+                   aria-label="Search Protocol Pulse">
+            <button class="pp-search-box__clear" id="searchClear" onclick="clearSearch()" aria-label="Clear search">&times;</button>
+            <span class="pp-search-box__kbd" id="searchKbd">⌘K</span>
+            <div class="pp-autocomplete" id="autoComplete" role="listbox"></div>
         </div>
 
-        <!-- Results -->
-        <div class="pp-search-results" id="searchResults">
+        <!-- Type filter tabs -->
+        <div class="pp-search-tabs" id="searchTabs" role="tablist">
+            <button class="pp-search-tab {% if search_type == 'all' %}active{% endif %}"
+                    data-type="all" role="tab"
+                    aria-selected="{{ 'true' if search_type == 'all' else 'false' }}"
+                    onclick="setSearchType('all')">All</button>
+            <button class="pp-search-tab {% if search_type == 'articles' %}active{% endif %}"
+                    data-type="articles" role="tab"
+                    aria-selected="{{ 'true' if search_type == 'articles' else 'false' }}"
+                    onclick="setSearchType('articles')">Articles</button>
+            <button class="pp-search-tab {% if search_type == 'podcast' %}active{% endif %}"
+                    data-type="podcast" role="tab"
+                    aria-selected="{{ 'true' if search_type == 'podcast' else 'false' }}"
+                    onclick="setSearchType('podcast')">Podcast</button>
+        </div>
+
+        <!-- Popular searches (shown when no query active) -->
+        {% if not query and popular %}
+        <div class="pp-search-popular" id="popularSearches">
+            <span class="pp-search-popular__label">Popular:</span>
+            {% for term in popular %}
+            <a href="/search?q={{ term|urlencode }}" class="pp-search-popular__term">{{ term }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- SSR results (server-rendered on initial load with query) -->
+        {% if query and results %}
+        <div class="pp-search-ssr" id="ssrResults">
+            <div class="pp-search-meta">
+                <span>{{ results|length }} result{{ 's' if results|length != 1 else '' }} for "{{ query }}"</span>
+            </div>
+            {% for r in results %}
+            <a href="{{ r.url }}" class="pp-search-result" tabindex="0">
+                <div class="pp-search-result__title">
+                    <span class="pp-search-result__type-badge">{{ r.type }}</span>{{ r.title }}
+                </div>
+                {% if r.snippet %}
+                <div class="pp-search-result__snippet">{{ r.snippet|safe }}</div>
+                {% endif %}
+                <div class="pp-search-result__meta">
+                    {% if r.category %}<span class="pp-search-result__tag">{{ r.category }}</span>{% endif %}
+                    {% if r.date %}<span>{{ r.date[:10] }}</span>{% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% elif query and not results %}
+        <div class="pp-search-ssr" id="ssrResults">
+            <div class="pp-search-empty">
+                <div class="pp-search-empty__icon"><i class="fas fa-satellite-dish"></i></div>
+                <div class="pp-search-empty__text">No signals found for "{{ query }}"</div>
+                <div class="pp-search-empty__hint">Try different keywords or browse our <a href="/articles" style="color:var(--pp-teal);">Intel Briefs</a></div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Dynamic results (populated by JS) -->
+        <div class="pp-search-results" id="searchResults" style="{{ 'display:none' if query else '' }}">
             <div class="pp-search-loading" id="searchLoading">
                 <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;"></i>
                 <div style="margin-top:8px;">Searching...</div>
             </div>
             <div id="searchResultsContent"></div>
+        </div>
+
+        <!-- Keyboard nav hint -->
+        <div class="pp-search-keynav" id="searchKeyNav" style="{{ 'display:none' if not query else '' }}">
+            <kbd>&uarr;</kbd><kbd>&darr;</kbd> navigate &nbsp; <kbd>Enter</kbd> open &nbsp; <kbd>Esc</kbd> back to input
         </div>
     </div>
 </section>
@@ -234,46 +413,123 @@
 <script>
 (function() {
     'use strict';
+
     var input = document.getElementById('searchInput');
     var clearBtn = document.getElementById('searchClear');
-    var resultsContainer = document.getElementById('searchResultsContent');
+    var kbdHint = document.getElementById('searchKbd');
+    var resultsDiv = document.getElementById('searchResults');
+    var resultsContent = document.getElementById('searchResultsContent');
     var loadingEl = document.getElementById('searchLoading');
     var acDropdown = document.getElementById('autoComplete');
+    var ssrResults = document.getElementById('ssrResults');
+    var keyNavHint = document.getElementById('searchKeyNav');
+    var popularEl = document.getElementById('popularSearches');
+
     var debounceTimer = null;
     var acTimer = null;
     var currentQuery = '';
+    var currentType = '{{ search_type }}' || 'all';
+    var acActiveIdx = -1;
+
+    // -------------------------------------------------------------------------
+    // Utilities
+    // -------------------------------------------------------------------------
+
+    function escapeHtml(s) {
+        if (!s) return '';
+        var d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+    }
 
     function updateClearBtn() {
-        clearBtn.style.display = input.value.length > 0 ? 'block' : 'none';
+        var hasVal = input.value.length > 0;
+        clearBtn.style.display = hasVal ? 'block' : 'none';
+        if (kbdHint) kbdHint.style.display = hasVal ? 'none' : 'block';
     }
+
+    function updateUrl(q, type) {
+        var url = '/search';
+        var params = [];
+        if (q) params.push('q=' + encodeURIComponent(q));
+        if (type && type !== 'all') params.push('type=' + encodeURIComponent(type));
+        if (params.length) url += '?' + params.join('&');
+        history.replaceState(null, '', url);
+    }
+
+    // -------------------------------------------------------------------------
+    // Clear
+    // -------------------------------------------------------------------------
 
     window.clearSearch = function() {
         input.value = '';
-        resultsContainer.innerHTML = '';
+        resultsContent.innerHTML = '';
+        resultsDiv.style.display = 'none';
         acDropdown.style.display = 'none';
+        if (ssrResults) ssrResults.style.display = 'none';
+        if (keyNavHint) keyNavHint.style.display = 'none';
+        if (popularEl) popularEl.style.display = 'flex';
         updateClearBtn();
         input.focus();
         history.replaceState(null, '', '/search');
     };
 
-    function doSearch(query) {
+    // -------------------------------------------------------------------------
+    // Type tabs
+    // -------------------------------------------------------------------------
+
+    window.setSearchType = function(type) {
+        currentType = type;
+        document.querySelectorAll('.pp-search-tab').forEach(function(btn) {
+            btn.classList.toggle('active', btn.dataset.type === type);
+            btn.setAttribute('aria-selected', btn.dataset.type === type ? 'true' : 'false');
+        });
+        var q = input.value.trim();
+        if (q.length >= 2) {
+            doSearch(q, true);
+        }
+    };
+
+    // -------------------------------------------------------------------------
+    // Search
+    // -------------------------------------------------------------------------
+
+    function doSearch(query, force) {
         if (!query || query.length < 2) {
-            resultsContainer.innerHTML = '';
+            resultsContent.innerHTML = '';
+            resultsDiv.style.display = 'none';
+            if (keyNavHint) keyNavHint.style.display = 'none';
             return;
         }
-        currentQuery = query;
-        loadingEl.classList.add('active');
-        history.replaceState(null, '', '/search?q=' + encodeURIComponent(query));
 
-        fetch('/api/search?q=' + encodeURIComponent(query))
+        if (!force && query === currentQuery) return;
+        currentQuery = query;
+
+        // Hide SSR results, show dynamic area
+        if (ssrResults) ssrResults.style.display = 'none';
+        if (popularEl) popularEl.style.display = 'none';
+        resultsDiv.style.display = 'block';
+        loadingEl.classList.add('active');
+        updateUrl(query, currentType);
+
+        var url = '/api/search?q=' + encodeURIComponent(query) +
+                  '&type=' + encodeURIComponent(currentType) +
+                  '&limit=20';
+
+        fetch(url)
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 loadingEl.classList.remove('active');
                 renderResults(data);
+                if (keyNavHint) keyNavHint.style.display = 'block';
             })
             .catch(function() {
                 loadingEl.classList.remove('active');
-                resultsContainer.innerHTML = '<div class="pp-search-empty"><div class="pp-search-empty__icon"><i class="fas fa-exclamation-triangle"></i></div><div class="pp-search-empty__text">Search unavailable</div></div>';
+                resultsContent.innerHTML =
+                    '<div class="pp-search-empty">' +
+                    '<div class="pp-search-empty__icon"><i class="fas fa-exclamation-triangle"></i></div>' +
+                    '<div class="pp-search-empty__text">Search unavailable. Please try again.</div>' +
+                    '</div>';
             });
     }
 
@@ -283,34 +539,54 @@
         var html = '';
 
         if (total > 0) {
-            html += '<div class="pp-search-meta"><span>' + total + ' result' + (total !== 1 ? 's' : '') + ' for "' + escapeHtml(data.query) + '"</span></div>';
+            html += '<div class="pp-search-meta"><span>' +
+                    total + ' result' + (total !== 1 ? 's' : '') +
+                    ' for &ldquo;' + escapeHtml(data.query) + '&rdquo;</span></div>';
         }
 
         if (results.length === 0) {
-            html += '<div class="pp-search-empty">' +
+            html +=
+                '<div class="pp-search-empty">' +
                 '<div class="pp-search-empty__icon"><i class="fas fa-satellite-dish"></i></div>' +
-                '<div class="pp-search-empty__text">No signals found for "' + escapeHtml(data.query) + '"</div>' +
-                '<div class="pp-search-empty__hint">Try different keywords or browse our <a href="/articles" style="color:var(--pp-teal);">Intel Briefs</a></div>' +
+                '<div class="pp-search-empty__text">No signals found for &ldquo;' + escapeHtml(data.query) + '&rdquo;</div>' +
+                '<div class="pp-search-empty__hint">Try different keywords or browse our ' +
+                '<a href="/articles" style="color:var(--pp-teal);">Intel Briefs</a></div>' +
                 '</div>';
         } else {
-            results.forEach(function(r) {
-                var date = r.published_at ? new Date(r.published_at).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'}) : '';
-                var slug = r.slug || r.id;
-                html += '<a href="/articles/' + slug + '" class="pp-search-result">' +
-                    '<div class="pp-search-result__title">' + escapeHtml(r.title) + '</div>' +
-                    '<div class="pp-search-result__snippet">' + (r.snippet || escapeHtml(r.summary || '').substring(0, 200)) + '</div>' +
+            results.forEach(function(r, idx) {
+                var dateStr = '';
+                var rawDate = r.date || r.published_at || '';
+                if (rawDate) {
+                    try {
+                        dateStr = new Date(rawDate).toLocaleDateString('en-US', {
+                            month: 'short', day: 'numeric', year: 'numeric'
+                        });
+                    } catch(e) { dateStr = rawDate.substring(0, 10); }
+                }
+                var url = r.url || ('/articles/' + (r.id || ''));
+                var snippet = r.snippet || escapeHtml((r.summary || '').substring(0, 200));
+                var typeBadge = r.type ? '<span class="pp-search-result__type-badge">' + escapeHtml(r.type) + '</span>' : '';
+
+                html += '<a href="' + escapeHtml(url) + '" class="pp-search-result" tabindex="0" data-idx="' + idx + '">' +
+                    '<div class="pp-search-result__title">' + typeBadge + escapeHtml(r.title || '') + '</div>' +
+                    (snippet ? '<div class="pp-search-result__snippet">' + snippet + '</div>' : '') +
                     '<div class="pp-search-result__meta">' +
                     (r.category ? '<span class="pp-search-result__tag">' + escapeHtml(r.category) + '</span>' : '') +
-                    (date ? '<span>' + date + '</span>' : '') +
+                    (dateStr ? '<span>' + dateStr + '</span>' : '') +
                     '</div></a>';
             });
         }
-        resultsContainer.innerHTML = html;
+        resultsContent.innerHTML = html;
     }
+
+    // -------------------------------------------------------------------------
+    // Autocomplete
+    // -------------------------------------------------------------------------
 
     function fetchAutocomplete(query) {
         if (query.length < 2) {
             acDropdown.style.display = 'none';
+            acActiveIdx = -1;
             return;
         }
         fetch('/api/search/autocomplete?q=' + encodeURIComponent(query))
@@ -321,8 +597,11 @@
                     acDropdown.style.display = 'none';
                     return;
                 }
-                acDropdown.innerHTML = suggestions.map(function(s) {
-                    return '<div class="pp-autocomplete__item" data-val="' + escapeHtml(s) + '"><i class="fas fa-search"></i>' + escapeHtml(s) + '</div>';
+                acActiveIdx = -1;
+                acDropdown.innerHTML = suggestions.map(function(s, i) {
+                    return '<div class="pp-autocomplete__item" role="option" data-val="' +
+                           escapeHtml(s) + '" data-ac-idx="' + i + '">' +
+                           '<i class="fas fa-search"></i>' + escapeHtml(s) + '</div>';
                 }).join('');
                 acDropdown.style.display = 'block';
 
@@ -330,19 +609,47 @@
                     item.addEventListener('click', function() {
                         input.value = this.dataset.val;
                         acDropdown.style.display = 'none';
-                        doSearch(input.value);
+                        acActiveIdx = -1;
+                        doSearch(input.value, true);
                     });
                 });
             })
             .catch(function() { acDropdown.style.display = 'none'; });
     }
 
-    function escapeHtml(s) {
-        if (!s) return '';
-        var d = document.createElement('div');
-        d.textContent = s;
-        return d.innerHTML;
+    function acMoveSelection(dir) {
+        var items = acDropdown.querySelectorAll('.pp-autocomplete__item');
+        if (!items.length || acDropdown.style.display === 'none') return false;
+        items[acActiveIdx >= 0 ? acActiveIdx : 0]
+            .classList.remove('pp-autocomplete__item--active');
+        acActiveIdx += dir;
+        if (acActiveIdx < 0) acActiveIdx = items.length - 1;
+        if (acActiveIdx >= items.length) acActiveIdx = 0;
+        var active = items[acActiveIdx];
+        active.classList.add('pp-autocomplete__item--active');
+        input.value = active.dataset.val;
+        return true;
     }
+
+    // -------------------------------------------------------------------------
+    // Keyboard navigation for result cards
+    // -------------------------------------------------------------------------
+
+    function getResultCards() {
+        return resultsContent.querySelectorAll('.pp-search-result');
+    }
+
+    function focusResultCard(idx) {
+        var cards = getResultCards();
+        if (!cards.length) return;
+        idx = ((idx % cards.length) + cards.length) % cards.length;
+        cards[idx].focus();
+        cards[idx].classList.add('pp-search-result--focused');
+    }
+
+    // -------------------------------------------------------------------------
+    // Event listeners
+    // -------------------------------------------------------------------------
 
     input.addEventListener('input', function() {
         updateClearBtn();
@@ -350,17 +657,61 @@
         clearTimeout(debounceTimer);
         clearTimeout(acTimer);
         acTimer = setTimeout(function() { fetchAutocomplete(q); }, 150);
-        debounceTimer = setTimeout(function() { doSearch(q); }, 400);
+        debounceTimer = setTimeout(function() { doSearch(q); }, 300);
     });
 
     input.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            acDropdown.style.display = 'none';
-            clearTimeout(debounceTimer);
-            doSearch(input.value.trim());
+        switch (e.key) {
+            case 'Enter':
+                acDropdown.style.display = 'none';
+                clearTimeout(debounceTimer);
+                doSearch(input.value.trim(), true);
+                break;
+            case 'Escape':
+                acDropdown.style.display = 'none';
+                break;
+            case 'ArrowDown':
+                e.preventDefault();
+                if (acDropdown.style.display !== 'none') {
+                    acMoveSelection(1);
+                } else {
+                    // Move focus to first result card
+                    var cards = getResultCards();
+                    if (cards.length) { cards[0].focus(); }
+                }
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                if (acDropdown.style.display !== 'none') {
+                    acMoveSelection(-1);
+                }
+                break;
         }
-        if (e.key === 'Escape') {
-            acDropdown.style.display = 'none';
+    });
+
+    // Keyboard navigation inside result cards
+    resultsContent.addEventListener('keydown', function(e) {
+        var cards = getResultCards();
+        var focused = document.activeElement;
+        var currentIdx = -1;
+        cards.forEach(function(c, i) { if (c === focused) currentIdx = i; });
+
+        switch(e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                if (currentIdx < cards.length - 1) focusResultCard(currentIdx + 1);
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                if (currentIdx > 0) {
+                    focusResultCard(currentIdx - 1);
+                } else {
+                    input.focus();
+                }
+                break;
+            case 'Escape':
+                input.focus();
+                break;
         }
     });
 
@@ -370,10 +721,32 @@
         }
     });
 
-    // Initial search if query provided
+    // -------------------------------------------------------------------------
+    // Global cmd+K shortcut → focus search input on this page
+    // -------------------------------------------------------------------------
+    document.addEventListener('keydown', function(e) {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+            // If command palette is open, let base.html handle it
+            var palette = document.getElementById('commandPalette');
+            if (palette && palette.classList.contains('active')) return;
+            e.preventDefault();
+            input.focus();
+            input.select();
+        }
+    });
+
+    // -------------------------------------------------------------------------
+    // Bootstrap: init clear button + trigger search if query present from SSR
+    // -------------------------------------------------------------------------
     updateClearBtn();
-    var initQ = '{{ query }}'.trim();
-    if (initQ) doSearch(initQ);
+
+    // On type change (re-fire existing query)
+    var initQ = input.value.trim();
+    if (initQ) {
+        // SSR already rendered results; JS search fires only on subsequent input
+        // Show keyboard nav hint since we have results
+        if (keyNavHint) keyNavHint.style.display = 'block';
+    }
 })();
 </script>
 {% endblock %}
