@@ -375,6 +375,14 @@ try:
 except ImportError as _e:
     logging.warning("Dashboard blueprint not loaded: %s", _e)
 
+# SPONSOR AGENT V2 — Outreach pipeline
+try:
+    from core.blueprints.sponsor import sponsor_bp
+    app.register_blueprint(sponsor_bp)
+    logging.info("Sponsor Agent blueprint registered at /sponsor-agent")
+except Exception as _e:
+    logging.warning("Sponsor Agent blueprint not loaded: %s", _e)
+
 # Start background APScheduler only when explicitly enabled for this process.
 if os.environ.get("ENABLE_APSCHEDULER", "false").strip().lower() in {"1", "true", "yes", "on"}:
     try:

@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Sponsor Agent — Protocol Pulse{% endblock %}
+{% block content %}
+<style>
+  .sa-wrap { max-width: 1400px; margin: 0 auto; padding: 20px; }
+  .sa-stats { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+  .sa-stat { background: #0a0a0a; border: 1px solid #222; border-radius: 8px; padding: 16px 24px; flex: 1; min-width: 120px; }
+  .sa-stat-val { font-size: 28px; font-weight: 700; color: #dc2626; font-family: 'JetBrains Mono', monospace; }
+  .sa-stat-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+  .sa-kanban { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 20px; }
+  .sa-col { min-width: 260px; max-width: 300px; flex-shrink: 0; }
+  .sa-col-header { background: #111; border: 1px solid #333; border-radius: 6px 6px 0 0; padding: 10px 14px; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #ccc; display: flex; justify-content: space-between; }
+  .sa-col-count { background: #dc2626; color: #fff; border-radius: 10px; padding: 1px 8px; font-size: 11px; }
+  .sa-col-body { background: #0a0a0a; border: 1px solid #222; border-top: none; border-radius: 0 0 6px 6px; padding: 8px; min-height: 200px; }
+  .sa-card { background: #111; border: 1px solid #333; border-radius: 6px; padding: 12px; margin-bottom: 8px; }
+  .sa-card-company { font-weight: 600; color: #fff; font-size: 14px; margin-bottom: 4px; }
+  .sa-card-domain { font-size: 12px; color: #888; font-family: 'JetBrains Mono', monospace; }
+  .sa-card-email { font-size: 11px; color: #666; margin-top: 4px; }
+  .sa-card-cat { display: inline-block; background: #1a1a2e; color: #7c8cf8; font-size: 10px; padding: 2px 8px; border-radius: 4px; margin-top: 6px; }
+  .sa-card-actions { margin-top: 8px; display: flex; gap: 4px; flex-wrap: wrap; }
+  .sa-btn { background: #222; color: #ccc; border: 1px solid #444; border-radius: 4px; padding: 4px 10px; font-size: 11px; cursor: pointer; transition: background 0.2s; }
+  .sa-btn:hover { background: #333; }
+  .sa-btn-send { background: #dc2626; color: #fff; border-color: #dc2626; }
+  .sa-btn-send:hover { background: #b91c1c; }
+  .sa-card-notes { font-size: 11px; color: #666; margin-top: 6px; font-style: italic; }
+  .sa-card-deal { font-size: 12px; color: #22c55e; font-weight: 600; margin-top: 4px; }
+  .sa-toolbar { display: flex; gap: 12px; margin-bottom: 20px; }
+  .sa-toolbar button { background: #dc2626; color: #fff; border: none; border-radius: 6px; padding: 10px 20px; font-size: 13px; cursor: pointer; font-weight: 600; }
+  .sa-toolbar button:hover { background: #b91c1c; }
+  .sa-toolbar button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .sa-toast { position: fixed; bottom: 20px; right: 20px; background: #111; border: 1px solid #333; border-radius: 8px; padding: 12px 20px; color: #fff; font-size: 13px; display: none; z-index: 1000; }
+  .sa-subject-preview { font-size: 11px; color: #aaa; margin-top: 6px; border-left: 2px solid #dc2626; padding-left: 8px; }
+</style>
+
+<div class="sa-wrap">
+  <h1 style="color:#fff; margin-bottom: 8px;">Sponsor Agent <span style="color:#dc2626;">V2</span></h1>
+  <p style="color:#888; margin-bottom: 20px; font-size: 14px;">Outreach pipeline — find, draft, approve, send, close.</p>
+
+  <div class="sa-stats">
+    <div class="sa-stat"><div class="sa-stat-val">{{ total }}</div><div class="sa-stat-label">Prospects</div></div>
+    <div class="sa-stat"><div class="sa-stat-val">{{ sent_count }}</div><div class="sa-stat-label">Emails Sent</div></div>
+    <div class="sa-stat"><div class="sa-stat-val">{{ replied_count }}</div><div class="sa-stat-label">Replies</div></div>
+    <div class="sa-stat"><div class="sa-stat-val">{{ closed_count }}</div><div class="sa-stat-label">Closed</div></div>
+    <div class="sa-stat"><div class="sa-stat-val">${{ "%.0f"|format(revenue) }}</div><div class="sa-stat-label">Revenue</div></div>
+  </div>
+
+  <div class="sa-toolbar">
+    <button onclick="scanProspects()" id="btn-scan">Scan for Prospects</button>
+    <button onclick="draftEmails()" id="btn-draft">Draft Emails</button>
+  </div>
+
+  <div class="sa-kanban">
+    {% for status in ["prospect", "draft", "approved", "sent", "replied", "negotiating", "closed", "rejected"] %}
+    <div class="sa-col">
+      <div class="sa-col-header">
+        {{ status }}
+        <span class="sa-col-count">{{ columns[status]|length }}</span>
+      </div>
+      <div class="sa-col-body" id="col-{{ status }}">
+        {% for item in columns[status] %}
+        <div class="sa-card" data-id="{{ item.id }}">
+          <div class="sa-card-company">{{ item.company }}</div>
+          <div class="sa-card-domain">{{ item.domain }}</div>
+          {% if item.email %}<div class="sa-card-email">{{ item.email }}</div>{% endif %}
+          {% if item.category %}<span class="sa-card-cat">{{ item.category }}</span>{% endif %}
+          {% if item.subject %}<div class="sa-subject-preview">{{ item.subject }}</div>{% endif %}
+          {% if item.deal_value %}<div class="sa-card-deal">${{ "%.0f"|format(item.deal_value) }}</div>{% endif %}
+          {% if item.notes %}<div class="sa-card-notes">{{ item.notes }}</div>{% endif %}
+          <div class="sa-card-actions">
+            {% if item.status == 'prospect' %}
+              <button class="sa-btn" onclick="updateStatus({{ item.id }}, 'draft')">Draft</button>
+              <button class="sa-btn" onclick="updateStatus({{ item.id }}, 'rejected')">Reject</button>
+            {% elif item.status == 'draft' %}
+              <button class="sa-btn" onclick="updateStatus({{ item.id }}, 'approved')">Approve</button>
+              <button class="sa-btn" onclick="updateStatus({{ item.id }}, 'rejected')">Reject</button>
+            {% elif item.status == 'approved' %}
+              <button class="sa-btn sa-btn-send" onclick="sendEmail({{ item.id }})">Send</button>
+              <button class="sa-btn" onclick="updateStatus({{ item.id }}, 'rejected')">Cancel</button>
+            {% elif item.status == 'sent' %}
+              <button class="sa-btn" onclick="updateStatus({{ item.id }}, 'replied')">Got Reply</button>
+            {% elif item.status == 'replied' %}
+              <button class="sa-btn" onclick="updateStatus({{ item.id }}, 'negotiating')">Negotiating</button>
+              <button class="sa-btn" onclick="updateStatus({{ item.id }}, 'rejected')">Pass</button>
+            {% elif item.status == 'negotiating' %}
+              <button class="sa-btn sa-btn-send" onclick="closeDeal({{ item.id }})">Close Deal</button>
+              <button class="sa-btn" onclick="updateStatus({{ item.id }}, 'rejected')">Walk Away</button>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="sa-toast" id="toast"></div>
+
+<script>
+const TOKEN = '{{ token }}';
+const HEADERS = {'Content-Type': 'application/json', 'X-Admin-Token': TOKEN};
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3000);
+}
+
+async function scanProspects() {
+  const btn = document.getElementById('btn-scan');
+  btn.disabled = true;
+  btn.textContent = 'Scanning...';
+  try {
+    const r = await fetch('/api/sponsor-agent/scan', {method: 'POST', headers: HEADERS, body: JSON.stringify({count: 5})});
+    const d = await r.json();
+    toast(`Found ${d.found} prospects`);
+    setTimeout(() => location.reload(), 1000);
+  } catch(e) { toast('Scan failed'); }
+  btn.disabled = false;
+  btn.textContent = 'Scan for Prospects';
+}
+
+async function draftEmails() {
+  const btn = document.getElementById('btn-draft');
+  btn.disabled = true;
+  btn.textContent = 'Drafting...';
+  try {
+    const r = await fetch('/api/sponsor-agent/draft', {method: 'POST', headers: HEADERS});
+    const d = await r.json();
+    toast(`Drafted ${d.drafted} emails`);
+    setTimeout(() => location.reload(), 1000);
+  } catch(e) { toast('Draft failed'); }
+  btn.disabled = false;
+  btn.textContent = 'Draft Emails';
+}
+
+async function updateStatus(id, status, extra) {
+  const body = {id, status, ...(extra || {})};
+  try {
+    const r = await fetch('/api/sponsor-agent/status', {method: 'POST', headers: HEADERS, body: JSON.stringify(body)});
+    const d = await r.json();
+    if (d.ok) { toast(`Updated to ${status}`); setTimeout(() => location.reload(), 500); }
+    else { toast(d.error || 'Update failed'); }
+  } catch(e) { toast('Update failed'); }
+}
+
+async function sendEmail(id) {
+  if (!confirm('Send this outreach email?')) return;
+  try {
+    const r = await fetch('/api/sponsor-agent/send', {method: 'POST', headers: HEADERS, body: JSON.stringify({id})});
+    const d = await r.json();
+    if (d.ok) { toast(`Sent to ${d.company}`); setTimeout(() => location.reload(), 500); }
+    else { toast(d.error || 'Send failed'); }
+  } catch(e) { toast('Send failed'); }
+}
+
+function closeDeal(id) {
+  const val = prompt('Deal value ($):');
+  if (val === null) return;
+  updateStatus(id, 'closed', {deal_value: parseFloat(val) || 0});
+}
+</script>
+{% endblock %}
