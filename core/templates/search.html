@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}Search{% if query %} — {{ query }}{% endif %} | Protocol Pulse{% endblock %}
+{% block content %}
+<div style="max-width:860px;margin:0 auto;padding:40px 20px;">
+
+    <!-- Search Bar -->
+    <div style="position:relative;margin-bottom:32px;">
+        <form action="/search" method="GET" id="searchForm" autocomplete="off">
+            <div style="position:relative;">
+                <i class="fas fa-search" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#555;font-size:16px;"></i>
+                <input type="text" name="q" id="searchInput" value="{{ query }}"
+                    placeholder="Search intelligence..."
+                    style="width:100%;padding:16px 16px 16px 48px;background:rgba(255,255,255,0.03);border:2px solid #1a1a1a;border-radius:12px;color:#f4f5f8;font-size:16px;outline:none;transition:border-color 0.2s;box-sizing:border-box;"
+                    onfocus="this.style.borderColor='#FF0000'" onblur="this.style.borderColor='#1a1a1a'">
+                <div id="loadingPulse" style="display:none;position:absolute;right:16px;top:50%;transform:translateY(-50%);">
+                    <div style="width:20px;height:20px;border:2px solid #FF0000;border-top-color:transparent;border-radius:50%;animation:pp-spin 0.8s linear infinite;"></div>
+                </div>
+            </div>
+        </form>
+
+        <!-- Typeahead Dropdown -->
+        <div id="typeahead" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:100;background:#0f0f0f;border:1px solid #1a1a1a;border-radius:8px;margin-top:4px;max-height:400px;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.5);">
+        </div>
+    </div>
+
+    <!-- Results Header -->
+    {% if query %}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <p style="color:#888;font-size:13px;margin:0;">
+            {% if total > 0 %}
+                <span style="color:#f4f5f8;font-weight:600;">{{ total }}</span> result{{ 's' if total != 1 else '' }} for
+                <span style="color:#FF0000;">"{{ query }}"</span>
+            {% endif %}
+        </p>
+        {% if total > limit %}
+        <div style="color:#888;font-size:13px;">
+            Page {{ page }} of {{ ((total - 1) // limit) + 1 }}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Results -->
+    {% if query and results %}
+    <div id="searchResults">
+        {% for r in results %}
+        <a href="/articles/{{ r.id }}" style="display:block;text-decoration:none;background:rgba(255,255,255,0.02);border:1px solid #1a1a1a;border-radius:8px;padding:20px;margin-bottom:12px;transition:border-color 0.2s;"
+           onmouseenter="this.style.borderColor='#FF0000'" onmouseleave="this.style.borderColor='#1a1a1a'">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+                <div style="flex:1;">
+                    <h3 style="margin:0 0 8px;color:#f4f5f8;font-size:16px;font-weight:600;">{{ r.title }}</h3>
+                    <p style="margin:0 0 10px;color:#aaa;font-size:13px;line-height:1.5;">{{ r.snippet|safe }}</p>
+                    <div style="display:flex;gap:12px;align-items:center;">
+                        {% if r.category %}
+                        <span style="background:rgba(255,0,0,0.1);color:#FF0000;font-size:10px;padding:3px 10px;border-radius:4px;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;">{{ r.category }}</span>
+                        {% endif %}
+                        {% if r.published_at %}
+                        <span style="color:#555;font-size:11px;">{{ r.published_at }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if total > limit %}
+    <div style="display:flex;justify-content:center;gap:8px;margin-top:24px;">
+        {% if page > 1 %}
+        <a href="/search?q={{ query }}&page={{ page - 1 }}{% if category %}&category={{ category }}{% endif %}"
+           style="padding:8px 16px;background:#0f0f0f;border:1px solid #1a1a1a;border-radius:4px;color:#f4f5f8;text-decoration:none;font-size:13px;">Prev</a>
+        {% endif %}
+        {% if page * limit < total %}
+        <a href="/search?q={{ query }}&page={{ page + 1 }}{% if category %}&category={{ category }}{% endif %}"
+           style="padding:8px 16px;background:#FF0000;border:1px solid #FF0000;border-radius:4px;color:#fff;text-decoration:none;font-size:13px;font-weight:600;">Next</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% elif query and not results %}
+    <!-- Empty State -->
+    <div style="text-align:center;padding:60px 20px;">
+        <div style="font-size:48px;color:#FF0000;margin-bottom:16px;">&#8856;</div>
+        <h2 style="color:#f4f5f8;font-size:20px;margin:0 0 8px;">No signals found for '{{ query }}'</h2>
+        <p style="color:#888;font-size:14px;margin:0;">Try different keywords or broader search terms.</p>
+    </div>
+
+    {% else %}
+    <!-- Default State -->
+    <div style="text-align:center;padding:60px 20px;">
+        <i class="fas fa-search" style="font-size:36px;color:#1a1a1a;margin-bottom:16px;display:block;"></i>
+        <h2 style="color:#555;font-size:18px;margin:0 0 8px;">Search Protocol Pulse Intelligence</h2>
+        <p style="color:#444;font-size:14px;margin:0;">Articles, briefings, and market signals.</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    @keyframes pp-spin { to { transform: translateY(-50%) rotate(360deg); } }
+    #typeahead mark { background: rgba(255,0,0,0.3); color: #f4f5f8; padding: 0 2px; border-radius: 2px; }
+    #searchResults mark { background: rgba(255,0,0,0.25); color: #f4f5f8; padding: 0 2px; border-radius: 2px; }
+</style>
+
+<script>
+(function(){
+    var input = document.getElementById('searchInput');
+    var dropdown = document.getElementById('typeahead');
+    var loading = document.getElementById('loadingPulse');
+    var timer = null;
+
+    input.addEventListener('input', function(){
+        clearTimeout(timer);
+        var q = input.value.trim();
+        if(q.length < 2){ dropdown.style.display='none'; return; }
+        timer = setTimeout(function(){ doTypeahead(q); }, 300);
+    });
+
+    input.addEventListener('keydown', function(e){
+        if(e.key === 'Escape'){ dropdown.style.display='none'; }
+    });
+
+    document.addEventListener('click', function(e){
+        if(!dropdown.contains(e.target) && e.target !== input) dropdown.style.display='none';
+    });
+
+    function doTypeahead(q){
+        loading.style.display='block';
+        fetch('/api/search?q=' + encodeURIComponent(q) + '&limit=6')
+        .then(function(r){return r.json()})
+        .then(function(items){
+            loading.style.display='none';
+            if(!items.length){ dropdown.style.display='none'; return; }
+            var html = '';
+            items.forEach(function(item){
+                html += '<a href="/articles/' + item.id + '" style="display:block;padding:12px 16px;border-bottom:1px solid #1a1a1a;text-decoration:none;transition:background 0.15s;" onmouseenter="this.style.background=\'rgba(255,0,0,0.05)\'" onmouseleave="this.style.background=\'transparent\'">';
+                html += '<div style="color:#f4f5f8;font-size:14px;font-weight:600;margin-bottom:4px;">' + item.title + '</div>';
+                html += '<div style="color:#888;font-size:12px;">' + (item.snippet||'').substring(0,100) + '</div>';
+                if(item.category) html += '<span style="display:inline-block;margin-top:4px;background:rgba(255,0,0,0.1);color:#FF0000;font-size:9px;padding:2px 6px;border-radius:3px;text-transform:uppercase;">' + item.category + '</span>';
+                html += '</a>';
+            });
+            html += '<a href="/search?q=' + encodeURIComponent(q) + '" style="display:block;padding:10px 16px;text-align:center;color:#FF0000;font-size:12px;text-decoration:none;font-weight:600;letter-spacing:0.05em;">VIEW ALL RESULTS &rarr;</a>';
+            dropdown.innerHTML = html;
+            dropdown.style.display = 'block';
+        })
+        .catch(function(){
+            loading.style.display='none';
+            dropdown.style.display='none';
+        });
+    }
+})();
+</script>
+{% endblock %}

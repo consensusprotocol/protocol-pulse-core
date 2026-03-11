@@ -1223,11 +1223,13 @@ class NewsletterSend(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     subject = db.Column(db.Text)
+    resend_message_id = db.Column(db.String(100))
     resend_batch_id = db.Column(db.String(100))
     recipient_count = db.Column(db.Integer, default=0)
     open_count = db.Column(db.Integer, default=0)
     click_count = db.Column(db.Integer, default=0)
     sent_at = db.Column(db.DateTime, default=datetime.utcnow)
+    article_ids = db.Column(db.Text)  # JSON array of article IDs included
 
     __table_args__ = (
         db.Index('idx_newsletter_sends_sent_at', 'sent_at'),

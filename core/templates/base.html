@@ -213,11 +213,11 @@
         </div>
 
         <div class="nav-link-cluster">
-            <div class="command-search-wrap">
+            <form action="/search" method="GET" class="command-search-wrap" style="margin:0;" onsubmit="if(!this.q.value.trim()){this.q.focus();return false;}">
                 <i class="fas fa-search command-search-icon"></i>
-                <input type="text" class="command-search" id="commandSearchInput" placeholder="Search..." onclick="openCommandPalette()">
+                <input type="text" name="q" class="command-search" id="commandSearchInput" placeholder="Search..." autocomplete="off">
                 <span class="command-shortcut">⌘K</span>
-            </div>
+            </form>
             
             <div class="sovereign-mode-toggle">
                 {% if current_user.is_authenticated and current_user.is_admin %}

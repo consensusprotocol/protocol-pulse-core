@@ -1,311 +1,399 @@
-# SendGrid Newsletter Service - Protocol Pulse
-# Using blueprint:python_sendgrid integration
-# 
-# FACTUAL ACCURACY MANDATE: All newsletter content is verified before sending.
-# The fact-checker validates Bitcoin metrics, node counts, fee rates, etc.
-# against live blockchain data sources (mempool.space, bitnodes.io, coingecko).
+# Protocol Pulse — Newsletter Engine (B1 Gospel)
+# LAW 1: Resend API only (RESEND_API_KEY in .env)
+# LAW 2: One newsletter per day maximum
+# LAW 3: Dark cyberpunk HTML email (inline styles, Gmail/Outlook safe)
+# LAW 4: CAN-SPAM compliant unsubscribe
 #
-# HIGHLEVEL REQUIREMENTS:
-# To enable automated newsletter distribution via GHL:
-# 1. Create a GHL Workflow triggered by webhook
-# 2. Set up a webhook URL in your GHL Location Settings
-# 3. Configure GHL_WEBHOOK_URL environment variable
-# 4. Create email template in GHL that uses these payload fields:
-#    - email_subject: Newsletter subject line
-#    - headline: Lead article title
-#    - headline_url: Link to lead article
-#    - articles[]: Array of article objects (title, summary, url, category)
-#    - article_count: Number of articles included
-# 5. Configure a contact list or tag for subscribers in GHL
-# 6. Wire the workflow to send emails using your template
+# Cron: 0 12 * * * python3 -c 'from core.services.newsletter import NewsletterEngine; NewsletterEngine().send()'
+# (12 UTC = 08:00 ET)
 
 import os
-import sys
+import json
+import uuid
+import re
 import logging
-try:
-    from sendgrid import SendGridAPIClient
-    from sendgrid.helpers.mail import Mail, Email, To, Content
-    _sendgrid_available = True
-except ImportError:
-    SendGridAPIClient = None
-    Mail = Email = To = Content = None
-    _sendgrid_available = False
-    logging.warning("sendgrid package not installed - newsletter functionality disabled")
+from datetime import datetime, timedelta, date
+
+import resend
 
 from app import db
 import models
 
+SITE_URL = os.environ.get('SITE_URL', 'https://protocolpulse.io')
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
+FROM_EMAIL = 'pulse@protocolpulse.io'
+ADMIN_SECRET = os.environ.get('ADMIN_SECRET', '')
 
-class NewsletterService:
+
+class NewsletterEngine:
+    """B1 Gospel newsletter engine — Resend API, one per day, CAN-SPAM."""
+
     def __init__(self):
-        self.sendgrid_key = os.environ.get('SENDGRID_API_KEY')
-        if not self.sendgrid_key or not _sendgrid_available:
-            if not _sendgrid_available:
-                logging.warning("SendGrid package not available - newsletter disabled")
-            else:
-                logging.warning("SENDGRID_API_KEY not configured - newsletter functionality disabled")
-            self.enabled = False
-            self.sg = None
-        else:
-            self.enabled = True
-            self.sg = SendGridAPIClient(self.sendgrid_key)
+        resend.api_key = RESEND_API_KEY
 
-    def subscribe_user(self, email: str, name: str = None) -> bool:
-        """Subscribe user to newsletter and save to database"""
-        if not self.enabled:
-            logging.warning("Newsletter service not enabled - SENDGRID_API_KEY missing")
-            return False
-            
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+
+    def already_sent_today(self) -> bool:
+        """Check newsletter_sends for today's date (LAW 2)."""
+        today_start = datetime.combine(date.today(), datetime.min.time())
+        sent = models.NewsletterSend.query.filter(
+            models.NewsletterSend.sent_at >= today_start
+        ).first()
+        return sent is not None
+
+    def get_top_articles(self, n=5) -> list:
+        """Top articles by published_at in the last 24 hours."""
+        cutoff = datetime.utcnow() - timedelta(hours=24)
+        articles = models.Article.query.filter(
+            models.Article.published == True,
+            models.Article.created_at >= cutoff
+        ).order_by(models.Article.created_at.desc()).limit(n).all()
+        return articles
+
+    def get_oracle_signal(self) -> str:
+        """Read today's signal from narrative_context.json."""
+        paths = [
+            os.path.join(os.path.dirname(__file__), '..', '..', 'video_pipeline_v3', 'data', 'intelligence', 'narrative_context.json'),
+            os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'intelligence', 'narrative_context.json'),
+        ]
+        for p in paths:
+            try:
+                with open(p, 'r') as f:
+                    ctx = json.load(f)
+                return ctx.get('episode_narrative', ctx.get('dominant_narrative', 'No signal available'))
+            except (FileNotFoundError, json.JSONDecodeError):
+                continue
+        return 'Network signal unavailable'
+
+    def _get_btc_price(self) -> str:
+        """Fetch BTC price via price_service or fallback."""
         try:
-            # Save to database
-            existing_user = models.User.query.filter_by(email=email).first()
-            if not existing_user:
-                user = models.User()
-                user.username = name or email.split('@')[0]
-                user.email = email
-                user.newsletter_subscribed = True
-                db.session.add(user)
-                db.session.commit()
-                logging.info(f"New user subscribed: {email}")
-            else:
-                existing_user.newsletter_subscribed = True
-                db.session.commit()
-                logging.info(f"Existing user resubscribed: {email}")
-            
-            # Send welcome email
-            return self.send_welcome_email(email, name)
-            
-        except Exception as e:
-            logging.error(f"Newsletter subscription error: {e}")
-            return False
-
-    def send_welcome_email(self, to_email: str, name: str = None) -> bool:
-        """Send welcome email to new subscriber"""
-        if not self.enabled:
-            return False
-            
+            from services.price_service import price_service
+            data = price_service.get_price()
+            if data and data.get('usd'):
+                return f"${data['usd']:,.0f}"
+        except Exception:
+            pass
         try:
-            subject = "Welcome to Protocol Pulse - Your Bitcoin & DeFi News Source"
-            
-            display_name = f' {name}' if name else ''
-            html_content = f"""
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <div style="background: #dc2626; color: white; padding: 20px; text-align: center;">
-                    <h1>Welcome to Protocol Pulse</h1>
-                </div>
-                <div style="padding: 30px;">
-                    <h2>Hello{display_name}!</h2>
-                    <p>Thank you for subscribing to Protocol Pulse, your trusted source for Bitcoin and DeFi news.</p>
-                    
-                    <p>You'll receive:</p>
-                    <ul>
-                        <li>🚀 Breaking Bitcoin & DeFi news</li>
-                        <li>📊 AI-powered market analysis</li>
-                        <li>🎯 Expert insights from Al Ingle</li>
-                        <li>🔥 Weekly newsletter roundups</li>
-                    </ul>
-                    
-                    <p>Visit our website to read the latest articles: <a href="https://protocolpulse.replit.app">Protocol Pulse</a></p>
-                    
-                    <p>Best regards,<br>The Protocol Pulse Team</p>
-                </div>
-            </div>
-            """
-            
-            message = Mail(
-                from_email=Email("newsletter@protocolpulse.com", "Protocol Pulse"),
-                to_emails=To(to_email),
-                subject=subject,
-                html_content=Content("text/html", html_content)
-            )
-            
-            response = self.sg.send(message)
-            logging.info(f"Welcome email sent to {to_email}")
-            return True
-            
-        except Exception as e:
-            logging.error(f"SendGrid welcome email error: {e}")
-            return False
+            import requests as req
+            r = req.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd', timeout=5)
+            p = r.json().get('bitcoin', {}).get('usd', 0)
+            return f"${p:,.0f}"
+        except Exception:
+            return '$--,---'
 
-    def _strip_html(self, html_content: str) -> str:
-        """Strip HTML tags to get plain text for fact-checking."""
-        import re
-        clean = re.sub(r'<[^>]+>', ' ', html_content)
+    @staticmethod
+    def _clean_summary(content, max_length=200):
+        if not content:
+            return ''
+        clean = re.sub(r'<[^>]+>', '', content)
         clean = re.sub(r'\s+', ' ', clean).strip()
+        if len(clean) > max_length:
+            clean = clean[:max_length].rsplit(' ', 1)[0] + '...'
         return clean
 
-    def send_newsletter(self, subject: str, content: str, recipients: list = None, 
-                         skip_fact_check: bool = False) -> bool:
-        """
-        Send newsletter to all subscribers or specific recipients.
-        
-        FACTUAL ACCURACY MANDATE: Content is verified before sending.
-        Uses blocking fact-check - if verification fails or service errors,
-        newsletter is NOT sent. This ensures all distributed content is accurate.
-        
-        Args:
-            subject: Newsletter subject line
-            content: HTML content to send
-            recipients: Optional list of email addresses (defaults to all subscribers)
-            skip_fact_check: Set True to skip verification (not recommended)
-        
-        Returns:
-            bool: True if newsletter sent successfully, False otherwise
-        """
-        if not self.enabled:
-            logging.error("Newsletter service not enabled - SENDGRID_API_KEY missing")
-            return False
-        
-        # BLOCKING FACT CHECK - Newsletter must be factual
-        # If fact-check fails OR service errors, we do NOT send
-        if not skip_fact_check:
-            try:
-                from services.fact_checker import verify_article_before_publish
-                
-                plain_text = self._strip_html(content)
-                is_verified, verification_report = verify_article_before_publish(plain_text)
-                
-                if not is_verified:
-                    logging.error(f"Newsletter BLOCKED - fact-check failed: {verification_report.get('errors', [])}")
-                    self.last_verification_report = verification_report
-                    return False
-                    
-                logging.info("Newsletter passed fact-check verification")
-                self.last_verification_report = verification_report
-                
-            except Exception as e:
-                # STRICT BLOCKING: If fact-checker service fails, do NOT send
-                logging.error(f"Newsletter BLOCKED - fact-check service error: {e}")
-                self.last_verification_report = {'error': str(e), 'verified': False}
-                return False
-            
-        try:
-            if recipients is None:
-                subscribed_users = models.User.query.filter_by(newsletter_subscribed=True).all()
-                recipients = [user.email for user in subscribed_users]
-            
-            if not recipients:
-                logging.warning("No newsletter recipients found")
-                return False
-            
-            for email in recipients:
-                message = Mail(
-                    from_email=Email("newsletter@protocolpulse.com", "Protocol Pulse"),
-                    to_emails=To(email),
-                    subject=subject,
-                    html_content=Content("text/html", content)
-                )
-                
-                self.sg.send(message)
-            
-            logging.info(f"Newsletter sent to {len(recipients)} recipients")
-            return True
-            
-        except Exception as e:
-            logging.error(f"Newsletter sending error: {e}")
-            return False
-    
-    def get_last_verification_report(self) -> dict:
-        """Get the verification report from the last send attempt."""
-        return getattr(self, 'last_verification_report', {})
+    # ------------------------------------------------------------------
+    # Email builders
+    # ------------------------------------------------------------------
 
-# Global newsletter service instance
+    def build_html(self, articles, btc_price, signal, unsubscribe_token='TOKEN') -> str:
+        """Build dark cyberpunk HTML email (inline styles, no CSS classes)."""
+        today_str = datetime.utcnow().strftime('%B %d, %Y')
+
+        # Top story
+        top = articles[0] if articles else None
+        top_title = top.title if top else 'No top story'
+        top_url = f"{SITE_URL}/articles/{top.id}" if top else SITE_URL
+        top_summary = self._clean_summary(top.content if top else '', 200)
+
+        # Briefing articles (2-5)
+        briefing = articles[1:5] if len(articles) > 1 else []
+
+        briefing_rows = ''
+        for a in briefing:
+            cat = a.category or 'Bitcoin'
+            briefing_rows += f'''
+            <tr>
+                <td style="padding: 10px 0; border-bottom: 1px solid #1a1a1a;">
+                    <a href="{SITE_URL}/articles/{a.id}" style="color: #f4f5f8; text-decoration: none; font-size: 15px; font-weight: 600;">{a.title}</a>
+                    <span style="display: inline-block; background: #1a1a1a; color: #FF0000; font-size: 10px; padding: 2px 8px; border-radius: 3px; margin-left: 8px; letter-spacing: 0.05em; text-transform: uppercase;">{cat}</span>
+                    <div style="color: #888; font-size: 13px; margin-top: 4px;">{self._clean_summary(a.content, 100)}</div>
+                </td>
+            </tr>'''
+
+        npub = os.environ.get('NOSTR_NPUB', '')
+        npub_line = f'<p style="color:#555; font-size:11px; margin-top:8px;">npub: {npub}</p>' if npub else ''
+
+        html = f'''<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0; padding:0; background-color:#0a0a0a; font-family: Arial, Helvetica, sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#0a0a0a;">
+<tr><td align="center" style="padding: 20px 0;">
+<table width="600" cellpadding="0" cellspacing="0" style="background-color:#0a0a0a; max-width:600px; width:100%;">
+
+    <!-- HEADER -->
+    <tr><td style="background: linear-gradient(135deg, #0a0a0a 0%, #1a0000 100%); padding: 30px 24px; text-align: center; border-bottom: 2px solid #FF0000;">
+        <h1 style="margin:0; color:#FF0000; font-size:28px; letter-spacing:0.15em; font-weight:800;">PROTOCOL PULSE</h1>
+        <p style="margin:8px 0 0; color:#888; font-size:13px; letter-spacing:0.1em;">{today_str}</p>
+        <p style="margin:6px 0 0; color:#F8C15C; font-size:18px; font-weight:700;">BTC: {btc_price}</p>
+    </td></tr>
+
+    <!-- TOP STORY -->
+    <tr><td style="padding: 28px 24px 20px;">
+        <p style="margin:0 0 10px; color:#FF0000; font-size:11px; letter-spacing:0.15em; text-transform:uppercase; font-weight:700;">TOP STORY</p>
+        <a href="{top_url}" style="color:#f4f5f8; text-decoration:none; font-size:20px; font-weight:700; line-height:1.3;">{top_title}</a>
+        <p style="color:#aaa; font-size:14px; line-height:1.5; margin:12px 0 0;">{top_summary}</p>
+    </td></tr>
+
+    <!-- BRIEFING -->
+    <tr><td style="padding: 0 24px 20px;">
+        <p style="margin:0 0 12px; color:#FF0000; font-size:11px; letter-spacing:0.15em; text-transform:uppercase; font-weight:700;">BRIEFING</p>
+        <table width="100%" cellpadding="0" cellspacing="0">
+            {briefing_rows}
+        </table>
+    </td></tr>
+
+    <!-- NETWORK SIGNAL -->
+    <tr><td style="padding: 20px 24px; background-color:#0f0f0f; border-left: 3px solid #F8C15C;">
+        <p style="margin:0 0 8px; color:#F8C15C; font-size:11px; letter-spacing:0.15em; text-transform:uppercase; font-weight:700;">NETWORK SIGNAL</p>
+        <p style="color:#ccc; font-size:14px; line-height:1.5; margin:0;">{signal}</p>
+    </td></tr>
+
+    <!-- CTA -->
+    <tr><td align="center" style="padding: 30px 24px;">
+        <a href="{SITE_URL}" style="display:inline-block; background:#FF0000; color:#fff; text-decoration:none; padding:14px 36px; font-size:14px; font-weight:700; letter-spacing:0.1em; border-radius:4px;">READ FULL BRIEFING &rarr;</a>
+    </td></tr>
+
+    <!-- FOOTER -->
+    <tr><td style="padding: 20px 24px; border-top: 1px solid #1a1a1a; text-align:center;">
+        <p style="color:#555; font-size:11px; margin:0;">You received this because you subscribed to Protocol Pulse.</p>
+        <p style="margin:8px 0 0;"><a href="{SITE_URL}/unsubscribe?token={unsubscribe_token}" style="color:#FF0000; font-size:11px; text-decoration:underline;">Unsubscribe</a></p>
+        {npub_line}
+    </td></tr>
+
+</table>
+</td></tr></table>
+</body>
+</html>'''
+        return html
+
+    def build_text(self, articles, btc_price, signal) -> str:
+        """Plain-text version of the newsletter."""
+        today_str = datetime.utcnow().strftime('%B %d, %Y')
+        lines = [
+            f"PROTOCOL PULSE — {today_str}",
+            f"BTC: {btc_price}",
+            "",
+            "═══ TOP STORY ═══",
+        ]
+        if articles:
+            top = articles[0]
+            lines.append(f"{top.title}")
+            lines.append(f"{SITE_URL}/articles/{top.id}")
+            lines.append(self._clean_summary(top.content, 200))
+            lines.append("")
+
+        lines.append("═══ BRIEFING ═══")
+        for a in articles[1:5]:
+            lines.append(f"• {a.title} [{a.category or 'Bitcoin'}]")
+            lines.append(f"  {SITE_URL}/articles/{a.id}")
+        lines.append("")
+        lines.append("═══ NETWORK SIGNAL ═══")
+        lines.append(signal)
+        lines.append("")
+        lines.append(f"Read full briefing: {SITE_URL}")
+        lines.append("")
+        lines.append(f"Unsubscribe: {SITE_URL}/unsubscribe?token=TOKEN")
+        return "\n".join(lines)
+
+    # ------------------------------------------------------------------
+    # Main send
+    # ------------------------------------------------------------------
+
+    def send(self) -> dict:
+        """Assemble and send today's newsletter via Resend (LAW 1)."""
+        if not RESEND_API_KEY:
+            return {'success': False, 'error': 'RESEND_API_KEY not configured'}
+
+        if self.already_sent_today():
+            return {'success': False, 'error': 'Newsletter already sent today (LAW 2)'}
+
+        articles = self.get_top_articles(5)
+        if not articles:
+            return {'success': False, 'error': 'No articles from last 24h'}
+
+        btc_price = self._get_btc_price()
+        signal = self.get_oracle_signal()
+        today_str = datetime.utcnow().strftime('%b %d, %Y')
+        subject = f"Protocol Pulse \u2014 {today_str} | BTC: {btc_price}"
+
+        # Get active subscribers
+        subscribers = models.NewsletterSubscriber.query.filter_by(subscribed=True).all()
+        if not subscribers:
+            return {'success': False, 'error': 'No active subscribers'}
+
+        sent_count = 0
+        errors = []
+        first_message_id = None
+
+        for sub in subscribers:
+            html = self.build_html(articles, btc_price, signal, unsubscribe_token=sub.unsubscribe_token)
+            text = self.build_text(articles, btc_price, signal)
+
+            try:
+                result = resend.Emails.send({
+                    'from': f'Protocol Pulse <{FROM_EMAIL}>',
+                    'to': [sub.email],
+                    'subject': subject,
+                    'html': html,
+                    'text': text,
+                })
+                msg_id = result.get('id', '') if isinstance(result, dict) else str(result)
+                if not first_message_id:
+                    first_message_id = msg_id
+                sent_count += 1
+            except Exception as e:
+                errors.append(f"{sub.email}: {e}")
+                logging.error(f"Resend error for {sub.email}: {e}")
+
+        # Record the send
+        article_ids = json.dumps([a.id for a in articles])
+        send_record = models.NewsletterSend(
+            subject=subject,
+            resend_message_id=first_message_id or '',
+            recipient_count=sent_count,
+            sent_at=datetime.utcnow(),
+            article_ids=article_ids,
+        )
+        db.session.add(send_record)
+        db.session.commit()
+
+        logging.info(f"Newsletter sent to {sent_count}/{len(subscribers)} subscribers")
+
+        return {
+            'success': True,
+            'sent_count': sent_count,
+            'total_subscribers': len(subscribers),
+            'errors': errors,
+            'subject': subject,
+        }
+
+
+# ------------------------------------------------------------------
+# Legacy compatibility — keep newsletter_service for existing routes
+# ------------------------------------------------------------------
+
+class NewsletterService:
+    """Thin wrapper for backward compat with existing subscribe routes."""
+
+    def __init__(self):
+        self.enabled = bool(RESEND_API_KEY)
+
+    def subscribe_user(self, email: str, name: str = None) -> bool:
+        """Add to newsletter_subscribers table + User table."""
+        try:
+            # Newsletter subscribers table (CAN-SPAM with token)
+            existing = models.NewsletterSubscriber.query.filter_by(email=email).first()
+            if existing:
+                if not existing.subscribed:
+                    existing.subscribed = True
+                    existing.unsubscribed_at = None
+                    db.session.commit()
+                    logging.info(f"Re-subscribed: {email}")
+                    return True
+                return True  # already subscribed
+            sub = models.NewsletterSubscriber(
+                email=email,
+                unsubscribe_token=str(uuid.uuid4()),
+                subscribed=True,
+                source='api',
+            )
+            db.session.add(sub)
+
+            # Also update User table if exists
+            user = models.User.query.filter_by(email=email).first()
+            if user:
+                user.newsletter_subscribed = True
+            else:
+                user = models.User(
+                    username=name or email.split('@')[0],
+                    email=email,
+                    newsletter_subscribed=True,
+                )
+                db.session.add(user)
+
+            db.session.commit()
+            logging.info(f"Subscribed: {email}")
+            return True
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Subscribe error: {e}")
+            return False
+
+
 newsletter_service = NewsletterService()
 
 
-# ============================================
-# HighLevel (GHL) Webhook Integration
-# ============================================
+# ------------------------------------------------------------------
+# GHL Webhook Integration (preserved from original)
+# ------------------------------------------------------------------
 
 GHL_WEBHOOK_URL = os.environ.get('GHL_WEBHOOK_URL', '')
-SITE_URL = os.environ.get('SITE_URL', 'https://protocolpulse.io')
 
 
 def send_daily_brief_to_ghl(ghl_webhook_url=None):
-    """
-    Fetches articles from the last 24 hours and sends them to GHL webhook
-    for automated newsletter distribution.
-    
-    Args:
-        ghl_webhook_url: Optional webhook URL override (uses env var if not provided)
-    
-    Returns:
-        dict with status and response details
-    """
-    from datetime import datetime, timedelta
-    import requests
-    import re
-    
+    """Send articles to GHL webhook for automated newsletter distribution."""
+    import requests as req
+
     webhook_url = ghl_webhook_url or GHL_WEBHOOK_URL
-    
     if not webhook_url:
-        logging.warning("GHL_WEBHOOK_URL not configured - skipping newsletter send")
         return {'status': 'skipped', 'reason': 'No webhook URL configured'}
-    
+
     try:
         cutoff = datetime.utcnow() - timedelta(hours=24)
         today_articles = models.Article.query.filter(
             models.Article.published == True,
             models.Article.created_at >= cutoff
         ).order_by(models.Article.created_at.desc()).limit(5).all()
-        
+
         if not today_articles:
-            logging.info("No articles from last 24h - skipping newsletter")
             return {'status': 'skipped', 'reason': 'No articles to send'}
-        
-        def clean_summary(content, max_length=200):
+
+        def clean(content, ml=200):
             if not content:
-                return ""
-            clean = re.sub(r'<[^>]+>', '', content)
-            clean = re.sub(r'\s+', ' ', clean).strip()
-            if len(clean) > max_length:
-                clean = clean[:max_length].rsplit(' ', 1)[0] + '...'
-            return clean
-        
+                return ''
+            c = re.sub(r'<[^>]+>', '', content)
+            c = re.sub(r'\s+', ' ', c).strip()
+            return c[:ml].rsplit(' ', 1)[0] + '...' if len(c) > ml else c
+
         payload = {
-            "email_subject": f"Protocol Pulse: The {datetime.utcnow().strftime('%B %d')} Brief",
-            "send_date": datetime.utcnow().isoformat(),
-            "article_count": len(today_articles),
-            "articles": [
+            'email_subject': f"Protocol Pulse: The {datetime.utcnow().strftime('%B %d')} Brief",
+            'send_date': datetime.utcnow().isoformat(),
+            'article_count': len(today_articles),
+            'articles': [
                 {
-                    "title": article.title,
-                    "summary": clean_summary(article.content, 200),
-                    "category": article.category or "Bitcoin",
-                    "url": f"{SITE_URL}/articles/{article.id}",
-                    "published_at": article.created_at.isoformat()
+                    'title': a.title,
+                    'summary': clean(a.content, 200),
+                    'category': a.category or 'Bitcoin',
+                    'url': f"{SITE_URL}/articles/{a.id}",
+                    'published_at': a.created_at.isoformat(),
                 }
-                for article in today_articles[:3]
+                for a in today_articles[:3]
             ],
-            "headline": today_articles[0].title if today_articles else "",
-            "headline_url": f"{SITE_URL}/articles/{today_articles[0].id}" if today_articles else "",
-            "site_url": SITE_URL,
-            "unsubscribe_url": f"{SITE_URL}/unsubscribe"
+            'headline': today_articles[0].title,
+            'headline_url': f"{SITE_URL}/articles/{today_articles[0].id}",
+            'site_url': SITE_URL,
+            'unsubscribe_url': f"{SITE_URL}/unsubscribe",
         }
-        
-        logging.info(f"Sending {len(today_articles)} articles to GHL webhook")
-        
-        response = requests.post(
-            webhook_url,
-            json=payload,
-            headers={'Content-Type': 'application/json'},
-            timeout=30
-        )
-        
-        if response.status_code == 200:
-            logging.info("Successfully sent newsletter to GHL")
-            return {
-                'status': 'success',
-                'articles_sent': len(today_articles),
-                'response_code': response.status_code
-            }
-        else:
-            logging.error(f"GHL webhook returned {response.status_code}: {response.text}")
-            return {
-                'status': 'error',
-                'response_code': response.status_code,
-                'error': response.text
-            }
-            
+
+        resp = req.post(webhook_url, json=payload, headers={'Content-Type': 'application/json'}, timeout=30)
+
+        if resp.status_code == 200:
+            return {'status': 'success', 'articles_sent': len(today_articles), 'response_code': 200}
+        return {'status': 'error', 'response_code': resp.status_code, 'error': resp.text}
     except Exception as e:
-        logging.error(f"Error sending to GHL: {str(e)}")
+        logging.error(f"GHL error: {e}")
         return {'status': 'error', 'error': str(e)}
