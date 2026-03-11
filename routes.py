@@ -9826,3 +9826,43 @@ def price_alerts_page():
     from flask import redirect
     return redirect('/charts#alerts', code=302)
 
+
+
+# ── BLUEPRINT REGISTRATIONS ────────────────────────────────────────────────
+# Register all feature blueprints built in Phase 1 multi-agent sprint.
+
+try:
+    from routes_api_terminal import terminal_bp
+    app.register_blueprint(terminal_bp)
+except Exception as _e:
+    import logging; logging.warning(f"terminal_bp failed: {_e}")
+
+try:
+    from routes_commander import commander_bp
+    app.register_blueprint(commander_bp)
+except Exception as _e:
+    import logging; logging.warning(f"commander_bp failed: {_e}")
+
+try:
+    from routes_newsletter_b1 import newsletter_b1_bp
+    app.register_blueprint(newsletter_b1_bp)
+except Exception as _e:
+    import logging; logging.warning(f"newsletter_b1_bp failed: {_e}")
+
+try:
+    from routes_nostr import nostr_bp
+    app.register_blueprint(nostr_bp)
+except Exception as _e:
+    import logging; logging.warning(f"nostr_bp failed: {_e}")
+
+try:
+    from routes_api_v2 import api_v2
+    app.register_blueprint(api_v2)
+except Exception as _e:
+    import logging; logging.warning(f"api_v2 failed: {_e}")
+
+try:
+    from routes_newsletter_trigger import newsletter_trigger_bp
+    app.register_blueprint(newsletter_trigger_bp)
+except Exception as _e:
+    import logging; logging.warning(f"newsletter_trigger_bp failed: {_e}")
