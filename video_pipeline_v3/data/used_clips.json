@@ -131,6 +131,123 @@
         "BTC Sessions",
         "Swan Bitcoin"
       ]
+    },
+    {
+      "date": "2026-03-10",
+      "video_ids": [
+        "n9FDly7XbdI",
+        "7fAhxz8GIAg",
+        "gcSHN7zRhv4",
+        "GnD7l7Pv_-Y",
+        "ttDEtDSfRHg"
+      ],
+      "channels": [
+        "BTC Sessions",
+        "The Bitcoin Layer",
+        "The Investors Podcast Network",
+        "Simply Bitcoin",
+        "Saifedean Ammous"
+      ]
+    },
+    {
+      "date": "2026-03-11",
+      "video_ids": [
+        "BpnzrmkpPgQ",
+        "vwkRsp0gqX4",
+        "etTv2PtW2UA",
+        "WovyQkSdONI",
+        "d3fEYWU06KY"
+      ],
+      "channels": [
+        "TFTC",
+        "Andreas Antonopoulos",
+        "Unchained",
+        "Preston Pysh",
+        "BTC Sessions"
+      ]
+    },
+    {
+      "date": "2026-03-11",
+      "video_ids": [
+        "SBPNZsEpV80",
+        "bOzRI0Teei4",
+        "gij6bJkyH2w",
+        "NK4-LeozO34",
+        "X7ua58iwcd4"
+      ],
+      "channels": [
+        "Natalie Brunell",
+        "Simply Bitcoin",
+        "The Bitcoin Layer",
+        "Tucker Carlson",
+        "Preston Pysh"
+      ]
+    },
+    {
+      "date": "2026-03-11",
+      "video_ids": [
+        "RtKFexfYiA8",
+        "t53xIt47Pa0",
+        "iDXbH-d-xRc",
+        "gvPF39pnqD8",
+        "pkZqnM22l8Y"
+      ],
+      "channels": [
+        "Bitcoin Magazine Pro",
+        "Bitcoin Magazine",
+        "Swan Bitcoin",
+        "Saifedean Ammous",
+        "The Bitcoin Layer"
+      ]
+    },
+    {
+      "date": "2026-03-11",
+      "video_ids": [
+        "M0TmfF-91vw",
+        "du8cKForpAk",
+        "oTYqjHQPhds",
+        "crp-mkI1tj4"
+      ],
+      "channels": [
+        "Bitcoin Magazine Pro",
+        "Swan Bitcoin",
+        "Simply Bitcoin",
+        "Tucker Carlson"
+      ]
+    },
+    {
+      "date": "2026-03-11",
+      "video_ids": [
+        "zflAVKCaPfU",
+        "FF86TL4Udns",
+        "ZNfHAEo2jtU",
+        "p3OGC3non48",
+        "lmA0Y6or4JA"
+      ],
+      "channels": [
+        "Robert Breedlove",
+        "Swan Bitcoin",
+        "Natalie Brunell",
+        "BTC Sessions",
+        "Bitcoin Magazine"
+      ]
+    },
+    {
+      "date": "2026-03-11",
+      "video_ids": [
+        "yzIe6gOKU50",
+        "s7-l7gzm_PE",
+        "4mw00SQkvGA",
+        "z4cTEJ8UyaA",
+        "gtLNCJjl5EA"
+      ],
+      "channels": [
+        "Unchained",
+        "Preston Pysh",
+        "BTC Sessions",
+        "Natalie Brunell",
+        "Simply Bitcoin"
+      ]
     }
   ]
 }

@@ -1,14 +1,21 @@
 {
-  "nostr_sentry": {
-    "last_run": "2026-03-10T23:28:59.525083",
+  "sentry": {
+    "last_run": "2026-03-11T08:40:59.336341",
     "fetched": 0,
     "drafted": 0,
     "handles": [],
     "dry_run": false
   },
-  "updated_at": "2026-03-10T23:29:01.381741",
+  "updated_at": "2026-03-11T08:41:02.490108",
+  "nostr_sentry": {
+    "last_run": "2026-03-11T08:40:59.340505",
+    "fetched": 0,
+    "drafted": 0,
+    "handles": [],
+    "dry_run": false
+  },
   "whale": {
-    "last_run": "2026-03-10T23:28:59.526310",
+    "last_run": "2026-03-11T08:40:59.341744",
     "scanned": 0,
     "inserted": 0,
     "mega_inserted": 0,
@@ -16,18 +23,11 @@
     "mega_events": []
   },
   "ghostwriter": {
-    "last_run": "2026-03-10T23:29:01.381589",
+    "last_run": "2026-03-11T08:41:02.489986",
     "scanned": 0,
     "drafted": 0
   },
   "heartbeat": {
-    "last_heartbeat": "2026-03-10T23:28:59.520138"
-  },
-  "sentry": {
-    "last_run": "2026-03-10T23:28:59.520863",
-    "fetched": 0,
-    "drafted": 0,
-    "handles": [],
-    "dry_run": false
+    "last_heartbeat": "2026-03-11T08:40:59.335562"
   }
 }

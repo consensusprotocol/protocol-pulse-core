@@ -40,6 +40,11 @@ FEATURE_MAP = {
     "b1-newsletter":     ("B1_NEWSLETTER_GOSPEL.md",     "feature/b1-newsletter"),
     "v22-multi-format":  ("V22_MULTI_FORMAT_GOSPEL.md",  "feature/v22-multi-format"),
     "video-audio-fix":   ("VIDEO_AUDIO_FIX_GOSPEL.md",   "feature/video-audio-fix"),
+    "f6-price-alerts":  ("F6_PRICE_ALERTS_GOSPEL.md",   "feature/f6-price-alerts"),
+    "f8-sponsor-agent": ("P3_SPONSOR_AGENT_GOSPEL.md",  "feature/f8-sponsor-agent"),
+    "f4-cron-heygen":   ("F4_CRON_HEYGEN_GOSPEL.md",   "feature/f4-cron-heygen"),
+    "stripe_commander": ("F1_STRIPE_COMMANDER_GOSPEL.md", "feature/f1-stripe-commander"),
+    "article_page_laws": ("ARTICLE_PAGE_LAWS.md", "feature/f2-article-laws"),
 }
 
 # High-stakes features get full 2-cycle audit. Others can use 1-cycle if score > 85.

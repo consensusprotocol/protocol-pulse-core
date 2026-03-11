@@ -1,56 +1,60 @@
 {
   "topic_velocity": [
     {
-      "topic": "Bitcoin conference promotions",
+      "topic": "etf",
       "channels": 3,
+      "sentiment": "bearish",
+      "velocity_score": 45
+    },
+    {
+      "topic": "price",
+      "channels": 3,
+      "sentiment": "bearish",
+      "velocity_score": 45
+    },
+    {
+      "topic": "macro",
+      "channels": 3,
+      "sentiment": "bearish",
+      "velocity_score": 45
+    },
+    {
+      "topic": "privacy",
+      "channels": 3,
+      "sentiment": "bearish",
+      "velocity_score": 45
+    },
+    {
+      "topic": "regulation",
+      "channels": 2,
+      "sentiment": "bearish",
+      "velocity_score": 30
+    },
+    {
+      "topic": "mining",
+      "channels": 1,
       "sentiment": "neutral",
-      "velocity_score": 9,
-      "authority_score": 3,
-      "top_quote": "MEET SENATOR LUMMIS AT BITCOIN 2026 IN LAS VEGAS",
-      "thought_leaders": [
-        "BitcoinMagazine",
-        "TheBitcoinConf",
-        "Excellion"
-      ],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
+      "velocity_score": 15
     },
     {
-      "topic": "Bitcoin's permissionless protocol",
+      "topic": "lightning",
       "channels": 1,
-      "sentiment": "bullish",
-      "velocity_score": 3,
-      "authority_score": 3,
-      "top_quote": "An honest protocol changes everything\u2014like the TCP/IP of money: neutral, honest, permissionless",
-      "thought_leaders": [
-        "JeffBooth"
-      ],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
+      "sentiment": "neutral",
+      "velocity_score": 15
     },
     {
-      "topic": "Institutional adoption via politicians",
+      "topic": "self-custody",
       "channels": 1,
-      "sentiment": "bullish",
-      "velocity_score": 2,
-      "authority_score": 1,
-      "top_quote": "SENATOR LUMMIS JUST MET WITH FED CHAIR NOMINEE KEVIN WARSH TO DISCUSS #BITCOIN & CRYPTO",
-      "thought_leaders": [
-        "TheBitcoinConf"
-      ],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
+      "sentiment": "neutral",
+      "velocity_score": 15
     }
   ],
   "breaking_threshold": false,
   "recommended_topics": [
-    "Bitcoin conference promotions",
-    "Bitcoin's permissionless protocol",
-    "Institutional adoption via politicians"
+    "etf",
+    "price",
+    "macro"
   ],
-  "dominant_narrative": "Bitcoin conference promotions",
-  "market_mood": "cautiously_bullish",
-  "total_tweets_analyzed": 138,
-  "thought_leaders_active": 12,
-  "scan_time": "2026-03-11T01:25:17Z"
+  "scan_time": "2026-03-11T08:33:07Z",
+  "total_videos_48h": 6
 }

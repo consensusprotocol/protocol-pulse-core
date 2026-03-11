@@ -1451,3 +1451,21 @@ class PriceAlert(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     triggered_at = db.Column(db.DateTime)
     triggered_price = db.Column(db.Float)
+
+
+class SponsorOutreach(db.Model):
+    __tablename__ = "sponsor_outreach"
+
+    id = db.Column(db.Integer, primary_key=True)
+    company = db.Column(db.String(200), nullable=False)
+    domain = db.Column(db.String(200), nullable=False, index=True)
+    email = db.Column(db.String(200))
+    category = db.Column(db.String(50))
+    status = db.Column(db.String(50), default="prospect", index=True)
+    subject = db.Column(db.String(500))
+    body = db.Column(db.Text)
+    sent_at = db.Column(db.DateTime)
+    replied_at = db.Column(db.DateTime)
+    deal_value = db.Column(db.Float)
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)

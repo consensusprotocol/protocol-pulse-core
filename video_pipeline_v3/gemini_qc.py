@@ -30,10 +30,11 @@ def _get_gemini_key() -> str:
     return ""
 
 
-QC_PROMPT = """You are a broadcast QC engineer scoring a Protocol Pulse "Pulse Check" episode.
+QC_PROMPT = """You are a STRICT broadcast QC engineer scoring a Protocol Pulse "Pulse Check" episode.
+You must be HARSH. Grade C videos must NEVER pass as Grade A. Every deficiency must reduce scores.
 
 SHOW DESIGN (score against THIS, not generic expectations):
-- Canvas: 1920×1080, 30fps, dark cyberpunk aesthetic
+- Canvas: 1920x1080, 30fps, dark cyberpunk aesthetic
 - Background: deep dark (#0A0A0F) with red grid overlay + vignette — this is CORRECT, not a bug
 - Top bar: "PROTOCOL PULSE LIVE" branding pill — this is CORRECT branding
 - Bottom info bar: "PULSE CHECK" left, scrolling gold ticker right with BTC price
@@ -42,20 +43,40 @@ SHOW DESIGN (score against THIS, not generic expectations):
 - Social cards: tweet content on dark background
 - Waveform visualizer in narration segments is intentional design
 - "COMING UP NEXT" label on PiP is functional, NOT debug text
+- DUAL HOSTS: There MUST be BOTH a female voice (Eryn/HOST_1) and male voice (Mark/HOST_2)
 
 SCORING DIMENSIONS (1-10 each):
 
-1. **pip** — Picture-in-Picture quality in narration segments. Score 10 if PiP shows real thumbnails in correct position (top-right), has red border, channel name. Score 8 if PiP present but some missing thumbnails. Score 5 if PiP rarely present. Score 1 if no PiP at all.
+1. **pip** — Picture-in-Picture quality in narration segments. Score 10 if PiP shows real thumbnails/video in correct position (top-right, x>1040), has red border, channel name, does NOT overlap left-half text. Score 8 if PiP present but some missing thumbnails. Score 5 if PiP rarely present or overlaps text. Score 1 if no PiP at all. CRITICAL: If PiP overlaps title/headline text in the left half, pip score = 4 maximum.
 
-2. **cold_open** — First 15 seconds quality. Score 10 if title card + cold open are clean with branding, BTC price, date. Score 8 if present but minor issues. Score 5 if partially broken. Score 1 if black/missing.
+2. **cold_open** — First 15 seconds quality. Score 10 if title card + cold open are clean with branding, BTC price, date. Score 8 if present but minor issues. Score 5 if partially broken. Score 1 if black/missing. If segments hard-cut with black flash between title card and cold open, cap at 7.
 
 3. **background** — Background consistency across narration segments. Score 10 if dark cyberpunk with grid consistently present. Score 8 if mostly consistent. Score 5 if inconsistent. Score 1 if plain black or broken.
 
-4. **voices** — Are there voice segments? Look for subtitle text, waveform activity. Score 10 if narration text visible in multiple segments (indicating TTS audio). Score 5 if sparse. Score 1 if no narration text at all.
+4. **voices** — DUAL HOST CHECK: Are there BOTH a female voice (Eryn) AND male voice (Mark) clearly present? Look for different speaker names/labels in narration segments. Score 10 if BOTH voices clearly present with distinct speaker labels. Score 5 MAXIMUM if only one voice is present (single narrator). Score 1 if no narration at all.
 
-5. **audio_quality** — Visual indicators of audio quality. Score 10 if: narration text is present in setup segments (indicating TTS voiceover), waveform visualizers show activity in narration segments, clip segments show people speaking on camera, and bottom ticker is scrolling. Score 8 if most of these are present. Note: data segments and social cards may NOT have waveforms — this is normal. Only narration/setup segments need waveforms. Score 5 only if MOST segments lack any audio indicators.
+5. **audio_quality** — Visual indicators of audio quality AND music continuity. Score 10 if: narration text present, waveform visualizers show activity, bottom ticker scrolling, AND background music appears continuous (no silent gaps between segments). Score 6 MAXIMUM if music drops to silence between segments. Score 5 only if MOST segments lack audio indicators.
 
 6. **debug_text** — Absence of debug overlays. Score 10 if NO debug text like "ORACLE NARRATION ACTIVE", "Story Arc Locked", "RECON-ID", "NARRATIVE SETUP //", "Muted Preview", "Broadcast Signature System", "Motion Active", "Narration Layer". Score 5 if some debug text. Score 1 if pervasive debug overlays.
+
+ADDITIONAL CRITICAL CHECKS (must report in issues):
+- Twitter/social card transitions: Do cards transition smoothly or flash black between them? Black flash = automatic issue flag.
+- Outro duplicate: Does the outro tag/branding appear MORE THAN ONCE at the end? If so, flag as CRITICAL issue.
+- Narrator depth: Do narrator segments contain specific data points, numbers, or evaluated insights? If narration is purely surface-level restatements, note as issue.
+- Transition quality: Are there visual transitions (glitch/wipe effects) between segments? Hard-cut black flash between segments = issue flag, cap overall at B.
+
+GRADE A requires ALL of:
+- voices >= 9 (both Eryn AND Mark present)
+- pip >= 8 (PiP not overlapping text)
+- cold_open >= 8
+- background >= 9
+- audio_quality >= 9 (continuous music, no gaps)
+- debug_text = 10 (zero debug overlays)
+- No black flash between cards
+- No duplicate outro
+- LUFS between -13 and -15 (if measurable from visual indicators)
+
+If ANY criterion fails, grade CANNOT be A. Be strict. Do not grade on a curve.
 
 Return ONLY valid JSON (no markdown fences):
 {
@@ -67,7 +88,11 @@ Return ONLY valid JSON (no markdown fences):
   "debug_text": <1-10>,
   "overall_grade": "<A/B/C/D/F>",
   "issues": ["<issue 1>", "<issue 2>"],
-  "strengths": ["<strength 1>", "<strength 2>"]
+  "strengths": ["<strength 1>", "<strength 2>"],
+  "dual_host_detected": <true/false>,
+  "black_flash_detected": <true/false>,
+  "duplicate_outro_detected": <true/false>,
+  "music_continuous": <true/false>
 }
 """
 

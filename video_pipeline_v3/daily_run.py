@@ -85,11 +85,18 @@ def run_pipeline(output_path: str, style: str = "default", cached_only: bool = F
     try:
         import urllib.request as _ur
         with _ur.urlopen("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd", timeout=5) as r:
-            btc_price = f"${json.loads(r.read())['bitcoin']['usd']:,.0f}"
+            _cg_usd = json.loads(r.read())['bitcoin']['usd']
+            if _cg_usd and _cg_usd > 0:
+                btc_price = f"${_cg_usd:,.0f}"
     except Exception:
+        pass
+    if btc_price == "N/A":
         try:
+            import urllib.request as _ur
             with _ur.urlopen("https://mempool.space/api/v1/prices", timeout=5) as r:
-                btc_price = f"${json.loads(r.read()).get('USD', 0):,.0f}"
+                _mp_usd = json.loads(r.read()).get('USD', 0)
+                if _mp_usd and _mp_usd > 0:
+                    btc_price = f"${_mp_usd:,.0f}"
         except Exception:
             pass
     print(f"  BTC Price: {btc_price}")

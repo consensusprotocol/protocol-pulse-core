@@ -70,7 +70,7 @@
         "Live stream detected: Bitcoin Price Live!"
       ],
       "status": "live",
-      "last_updated": "2026-03-10T23:25:47.351615+00:00"
+      "last_updated": "2026-03-11T08:40:41.835066+00:00"
     },
     {
       "video_id": "Zqjhq1mLPvA",
@@ -169,11 +169,11 @@
         "Live stream detected: Elon Musk Just Betrayed Crypto But Jack Dorsey Didn't.",
         "Live stream detected: Elon Musk Just Betrayed Crypto But Jack Dorsey Didn't."
       ],
-      "status": "live",
+      "status": "ended",
       "last_updated": "2026-03-10T20:20:42.598997+00:00"
     }
   ],
-  "updated_at": "2026-03-10T23:25:47.416384+00:00",
+  "updated_at": "2026-03-11T08:40:41.900509+00:00",
   "monitoring": true,
   "channels_watched": 62
 }

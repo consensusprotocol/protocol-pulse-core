@@ -1077,10 +1077,25 @@
       "topics": [],
       "sentiment": "neutral",
       "archived_at": "2026-03-10T15:36:50Z"
+    },
+    "a_8cUt0-2bY": {
+      "title": "Can Bitcoin Stay Strong as Oil and Geopolitics Roil Markets?",
+      "channel": "CoinDesk",
+      "upload_date": "",
+      "duration": 406,
+      "topics": [
+        "etf",
+        "price",
+        "regulation",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-03-11T04:49:55Z"
     }
   },
-  "last_scan": "2026-03-10T23:15:13Z",
-  "total_archived": 68,
+  "last_scan": "2026-03-11T08:33:07Z",
+  "total_archived": 69,
   "_last_upload_Bitcoin Magazine": "2026-03-05T17:12:28Z",
   "_last_upload_Simply Bitcoin": "2026-03-08T05:15:02Z",
   "_last_upload_TFTC": "2026-03-05T17:13:21Z",
@@ -1097,5 +1112,6 @@
   "_last_upload_Saifedean Ammous": "2026-03-06T12:30:36Z",
   "_last_upload_Bitcoin Magazine Pro": "2026-03-08T11:09:11Z",
   "_last_upload_The Investors Podcast Network": "2026-03-08T11:09:23Z",
-  "_last_upload_Nathaniel Whittemore": "2026-03-10T15:36:50Z"
+  "_last_upload_Nathaniel Whittemore": "2026-03-10T15:36:50Z",
+  "_last_upload_CoinDesk": "2026-03-11T04:49:55Z"
 }
