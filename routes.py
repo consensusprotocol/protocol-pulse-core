@@ -8394,7 +8394,7 @@ def api_pipeline_ab_tests():
 @app.route('/stage')
 def avatar_stage():
     """LAW 4: /stage → 302 → /briefing (permanent redirect preserved)."""
-    return redirect('/briefing', code=302)
+    return redirect('/oracle', code=302)
 
 @app.route('/api/stage/transcript')
 def api_stage_transcript():
@@ -10204,7 +10204,7 @@ def api_signal_strength():
 
 
 @app.route('/api/intelligence/trending')
-def api_trending_topics():
+def api_intel_trending_topics():
     """Return trending topics from last 24h of classified articles."""
     try:
         from services.intelligence_service import get_trending_topics
