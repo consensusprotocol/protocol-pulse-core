@@ -1432,3 +1432,22 @@ class MilestoneFired(db.Model):
     nostr_broadcast = db.Column(db.Boolean, default=False)
     newsletter_sent = db.Column(db.Boolean, default=False)
     episode_generated = db.Column(db.Boolean, default=False)
+
+
+class PriceAlert(db.Model):
+    """Public BTC price alerts — no auth required."""
+    __tablename__ = 'price_alerts'
+    __table_args__ = (
+        db.Index('idx_price_alert_active_notified', 'active', 'notified'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(255), nullable=False, index=True)
+    price_target = db.Column(db.Float, nullable=False)
+    direction = db.Column(db.String(10), nullable=False)  # "above" | "below"
+    active = db.Column(db.Boolean, default=True)
+    notified = db.Column(db.Boolean, default=False)
+    email_token = db.Column(db.String(64), nullable=False, unique=True, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    triggered_at = db.Column(db.DateTime)
+    triggered_price = db.Column(db.Float)

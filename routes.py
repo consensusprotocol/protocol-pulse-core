@@ -8,7 +8,7 @@ from flask_login import login_required, login_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from app import app, db
-from models import Article, Podcast, ContentPrompt, User, Advertisement, AutomationRun, LaunchSequence, TargetAlert, NostrEvent, ReplySquadMember, EngagementEvent, ContentPerformance, AnalyticsSummary, UserSegment, Sponsor, CreditAccount, PredictionOracle, WhaleTransaction, AffiliatePartner, AffiliateClick, FeedItem, SentimentSnapshot, PulseEvent, AutoPostDraft, DailyBrief, OracleSession, MarketBriefing
+from models import Article, Podcast, ContentPrompt, User, Advertisement, AutomationRun, LaunchSequence, TargetAlert, NostrEvent, ReplySquadMember, EngagementEvent, ContentPerformance, AnalyticsSummary, UserSegment, Sponsor, CreditAccount, PredictionOracle, WhaleTransaction, AffiliatePartner, AffiliateClick, FeedItem, SentimentSnapshot, PulseEvent, AutoPostDraft, DailyBrief, OracleSession, MarketBriefing, PriceAlert
 import hashlib
 import json
 from functools import wraps
@@ -10475,9 +10475,137 @@ def podcast_single():
 
 @app.route('/alerts')
 def price_alerts_page():
-    """Price Alerts — redirect to charts hub alerts section."""
-    from flask import redirect
-    return redirect('/charts#alerts', code=302)
+    """Price Alerts — public signup page, no auth required."""
+    active_count = PriceAlert.query.filter_by(active=True, notified=False).count()
+    recent_triggered = (
+        PriceAlert.query
+        .filter_by(notified=True)
+        .order_by(PriceAlert.triggered_at.desc())
+        .limit(3)
+        .all()
+    )
+    return render_template('price_alerts.html',
+                           active_count=active_count,
+                           recent_triggered=recent_triggered)
+
+
+@app.route('/api/alerts/subscribe', methods=['POST'])
+def api_alerts_subscribe():
+    """Public alert signup — no auth required."""
+    import secrets
+    data = request.get_json(silent=True) or {}
+    email = (data.get('email') or '').strip().lower()
+    price_target = data.get('price_target')
+    direction = (data.get('direction') or '').strip().lower()
+
+    # Validate email
+    if not email or not re.match(r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$', email):
+        return jsonify({'status': 'error', 'message': 'Valid email required.'}), 400
+
+    # Validate price target
+    try:
+        price_target = float(price_target)
+        if price_target <= 0 or price_target > 10_000_000:
+            raise ValueError
+    except (TypeError, ValueError):
+        return jsonify({'status': 'error', 'message': 'Price target must be between $1 and $10,000,000.'}), 400
+
+    # Validate direction
+    if direction not in ('above', 'below'):
+        return jsonify({'status': 'error', 'message': 'Direction must be "above" or "below".'}), 400
+
+    # Rate limit: max 10 active alerts per email
+    existing = PriceAlert.query.filter_by(email=email, active=True, notified=False).count()
+    if existing >= 10:
+        return jsonify({'status': 'error', 'message': 'Maximum 10 active alerts per email.'}), 429
+
+    token = secrets.token_urlsafe(16)
+    alert = PriceAlert(
+        email=email,
+        price_target=price_target,
+        direction=direction,
+        email_token=token,
+    )
+    db.session.add(alert)
+    db.session.commit()
+
+    # Send confirmation email via Resend
+    base_url = os.environ.get('BASE_URL', request.host_url.rstrip('/'))
+    _send_alert_confirmation(email, price_target, direction, token, base_url)
+
+    return jsonify({'status': 'created', 'message': 'Alert set! Check your email.'})
+
+
+def _send_alert_confirmation(email, price_target, direction, token, base_url):
+    """Send confirmation email for new price alert."""
+    resend_key = os.environ.get('RESEND_API_KEY', '')
+    if not resend_key:
+        logging.warning("RESEND_API_KEY not set — skipping confirmation email")
+        return
+    html = f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:'Courier New',monospace;color:#e5e5e5">
+<div style="max-width:600px;margin:0 auto;padding:40px 24px">
+  <div style="text-align:center;margin-bottom:32px">
+    <span style="font-size:28px;font-weight:700;letter-spacing:4px;color:#dc2626">PROTOCOL PULSE</span>
+  </div>
+  <div style="border:1px solid rgba(220,38,38,.4);border-radius:4px;padding:32px;background:#111">
+    <h2 style="color:#dc2626;font-size:14px;letter-spacing:3px;margin:0 0 16px">ALERT CONFIRMED</h2>
+    <p style="font-size:13px;color:#999;margin:0 0 8px">Your Bitcoin price alert is set:</p>
+    <p style="font-size:20px;font-weight:700;color:#F8C15C;margin:0 0 4px">BTC {direction.upper()} ${price_target:,.0f}</p>
+    <p style="font-size:12px;color:#666;margin:0 0 24px">We'll notify you when the price crosses your target.</p>
+    <a href="{base_url}/alerts/manage?token={token}"
+       style="display:inline-block;background:#dc2626;color:#fff;padding:10px 24px;text-decoration:none;border-radius:3px;font-size:12px;letter-spacing:2px;font-weight:700">MANAGE ALERTS</a>
+  </div>
+  <p style="text-align:center;font-size:10px;color:#444;margin-top:24px;letter-spacing:1px">PROTOCOL PULSE · SOVEREIGN BITCOIN INTELLIGENCE</p>
+</div>
+</body></html>"""
+    try:
+        requests.post(
+            "https://api.resend.com/emails",
+            headers={"Authorization": f"Bearer {resend_key}", "Content-Type": "application/json"},
+            json={"from": "pulse@protocolpulse.io", "to": [email],
+                  "subject": f"Alert Set: BTC {direction} ${price_target:,.0f}",
+                  "html": html},
+            timeout=30,
+        )
+    except Exception as e:
+        logging.error("Confirmation email failed: %s", e)
+
+
+@app.route('/alerts/manage')
+def alerts_manage():
+    """Manage alerts via token — no auth required."""
+    token = request.args.get('token', '').strip()
+    if not token:
+        return redirect('/alerts')
+    alert = PriceAlert.query.filter_by(email_token=token).first()
+    if not alert:
+        flash('Invalid or expired token.', 'error')
+        return redirect('/alerts')
+    # Show all alerts for this email
+    user_alerts = PriceAlert.query.filter_by(email=alert.email).order_by(PriceAlert.created_at.desc()).all()
+    return render_template('price_alerts_manage.html', alerts=user_alerts, token=token)
+
+
+@app.route('/api/alerts/delete', methods=['POST'])
+def api_alerts_delete():
+    """Delete a single alert by id + token."""
+    data = request.get_json(silent=True) or {}
+    token = (data.get('token') or '').strip()
+    alert_id = data.get('alert_id')
+    if not token or not alert_id:
+        return jsonify({'status': 'error', 'message': 'Missing token or alert_id.'}), 400
+    # Verify token belongs to an alert for the same email
+    auth_alert = PriceAlert.query.filter_by(email_token=token).first()
+    if not auth_alert:
+        return jsonify({'status': 'error', 'message': 'Invalid token.'}), 403
+    target = PriceAlert.query.get(alert_id)
+    if not target or target.email != auth_alert.email:
+        return jsonify({'status': 'error', 'message': 'Alert not found.'}), 404
+    db.session.delete(target)
+    db.session.commit()
+    return jsonify({'status': 'deleted', 'message': 'Alert removed.'})
 
 
 # ─────────────────────────────────────────────────────────────────────────────
