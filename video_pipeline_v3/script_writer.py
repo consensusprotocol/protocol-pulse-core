@@ -37,8 +37,8 @@ HOST 2 (Mark) — Hot takes, contrarian, dry wit. Warm strong male voice. Reacts
 
 TONE RULES (NON-NEGOTIABLE):
 - NEVER generic. Never say "interesting" or "really impactful" or "that's great stuff."
-- SETUP lines = 1-2 sentences MAX. A teaser, not a summary. Leave them wanting the clip.
-- REACT lines = 1-2 sentences MAX. A hot take or one sharp observation. Not a recap.
+- SETUP lines = 2-4 sentences. A sharp framing angle + one specific data point. Leave them wanting the clip.
+- REACT lines = 2-4 sentences. A hot take with substance — specific implication, not a vague platitude.
 - Cold open = 1 explosive sentence. Most outrageous or interesting story. Hook them in 3 seconds.
 - Wit over wisdom. Brief over brilliant. Gossip energy, Bitcoin knowledge.
 - Think: "Yo, you gotta hear what Saylor just said about this" NOT "Michael Saylor made some interesting comments about..."
@@ -63,7 +63,7 @@ DELIVERY RULES:
 - React lines start with a reaction word: "Yeah.", "Exactly.", "Wild.", "That's the tell.", "100%.", "I mean—"
 - Tone = investigative gossip journalist who happens to understand Austrian economics.
 - Think Page Six but for Bitcoin. Sharp. Knowing. Never neutral.
-- Max 2 sentences per setup or react. Ruthlessly cut anything that sounds like a press release.
+- Min 3, max 4 sentences per setup or react. Ruthlessly cut anything that sounds like a press release.
 
 EPISODE STRUCTURE (follow this order):
 1. [COLD_OPEN] — The hook. Most shocking insight. 1-2 sentences MAX.
@@ -74,6 +74,19 @@ EPISODE STRUCTURE (follow this order):
 6. [DATA] — Hard metrics segment. MINIMUM 3 exchanges (Eryn + Mark). Cover: price context, hash rate or difficulty, one on-chain signal. At least one specific number per line. Target: 45-60 seconds of spoken content.
 7. [SOCIAL] — MINIMUM 3 tweet reads + 2 Mark reactions. Eryn reads each tweet sharp and brief. Target: 40-50 seconds.
 8. [WARM] — 2-3 sentences synthesizing the day's theme, then abrupt CTA. Target: 20-30 seconds. End ABRUPTLY. No "thanks for watching."
+
+NARRATION PHILOSOPHY — Simon Dixon / Preston Pysh standard:
+- Every line must contain ONE specific insight, data point, or evaluated observation
+- Never state what already happened — analyze WHY it matters and WHAT COMES NEXT
+- Eryn sets up the angle with a sharp framing line + 1 specific number or fact
+- Mark delivers the contrarian take, macro context, or on-chain implication
+- Forbidden phrases: "Bitcoin continues to", "the market is watching", "this is significant",
+  "interesting to note", "worth keeping an eye on", any pure restatement of price
+- Required: each exchange references at least one of: hashrate, difficulty adjustment,
+  miner profitability, HODLer behavior, lightning adoption, ETF flows, or macro correlation
+- Minimum 3 sentences per speaker turn. Never 1-2 sentence fluff turns.
+- Bridges between clips must connect thematic dots — not just "next up"
+- DATA segment minimum: 4 exchanges, each with a specific metric, each with an implication
 
 EPISODE LENGTH LAW: Full episode narration must total at least 600 words (excluding clip durations). With 5 clips averaging 30s each = 150s clip time. 600 words spoken ≈ 4 minutes. Total target: 10+ minutes. Sharp does not mean short. Incisive 3-sentence reactions are sharper than vague 1-liners. Go deeper on REACT lines when the clip moment is significant.
 
@@ -176,6 +189,54 @@ def _format_clips_info(selections: dict) -> str:
     return "\n".join(parts)
 
 
+def _load_narrative_context() -> dict:
+    """Load narrative_context.json for narrative-aware script generation.
+    Returns empty dict if missing or stale (>6hr old)."""
+    import os
+    from datetime import datetime, timezone
+    ctx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "data", "intelligence", "narrative_context.json")
+    try:
+        with open(ctx_path) as f:
+            ctx = json.load(f)
+        # Check staleness
+        computed = ctx.get("computed_at", "")
+        if computed:
+            computed_dt = datetime.fromisoformat(computed.replace("Z", "+00:00"))
+            age_hours = (datetime.now(timezone.utc) - computed_dt).total_seconds() / 3600
+            if age_hours > 6:
+                logger.warning(f"Narrative context is {age_hours:.1f}h old (>6h) — using generic prompt")
+                return {}
+        return ctx
+    except (FileNotFoundError, json.JSONDecodeError, ValueError) as e:
+        logger.warning(f"Narrative context unavailable: {e}")
+        return {}
+
+
+NARRATIVE_INJECTION = """
+TODAY'S LIVE NARRATIVE CONTEXT (from real-time thought leader monitoring):
+Dominant narrative: {dominant_narrative}
+Market mood: {market_mood}
+What thought leaders are saying: {episode_narrative}
+Eryn should reference: {eryn_intro_hook}
+Mark should add: {mark_context}
+Suggested bridge lines: {narrative_bridge_lines}
+
+MANDATORY SCRIPT RULES (from narrative context):
+- Eryn's cold open MUST reference the dominant narrative in her first sentence
+- At least ONE of the clips must be explicitly connected to the X discourse
+  (e.g., "This is what everyone on Crypto Twitter has been discussing all morning...")
+- Mark must cite at least one specific data point from the narrative context (not generic)
+- Avoid topics flagged in: {avoid_topics}
+- The show must feel LIVE — like Eryn and Mark have been tracking this story all morning
+
+DATA SEGMENT REQUIREMENT: The data/metrics discussed must relate to today's
+dominant narrative ({dominant_narrative}). If narrative is "ETF inflows",
+cite actual ETF flow numbers. If "mining difficulty", cite actual hashrate/difficulty data.
+Eryn and Mark must sound like analysts who read the numbers this morning, not generalists.
+"""
+
+
 def generate_from_clips(selections: dict, btc_price: str = "N/A",
                         live_context: str = "") -> dict:
     """Generate host dialogue script around the selected clips.
@@ -221,6 +282,25 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
             "in your narration to make the episode feel current and urgent:\n"
             f"{live_context}\n"
         )
+
+    # Inject narrative context from thought leader monitoring
+    narrative_ctx = _load_narrative_context()
+    if narrative_ctx and narrative_ctx.get("dominant_narrative"):
+        try:
+            bridge_lines = narrative_ctx.get("narrative_bridge_lines", [])
+            narrative_block = NARRATIVE_INJECTION.format(
+                dominant_narrative=narrative_ctx.get("dominant_narrative", ""),
+                market_mood=narrative_ctx.get("market_mood", ""),
+                episode_narrative=narrative_ctx.get("episode_narrative", ""),
+                eryn_intro_hook=narrative_ctx.get("eryn_intro_hook", ""),
+                mark_context=narrative_ctx.get("mark_context", ""),
+                narrative_bridge_lines="\n".join(bridge_lines) if bridge_lines else "none",
+                avoid_topics=", ".join(narrative_ctx.get("avoid_topics", [])),
+            )
+            live_block = narrative_block + "\n" + live_block
+            logger.info(f"Narrative context injected: {narrative_ctx.get('dominant_narrative')}")
+        except Exception as e:
+            logger.warning(f"Failed to inject narrative context: {e}")
 
     prompt = SCRIPT_PROMPT.format(clips_info=clips_info, btc_price=btc_price,
                                    social_posts=social_posts, live_context=live_block)

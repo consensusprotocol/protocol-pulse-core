@@ -27,19 +27,72 @@ if not logger.handlers:
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
 
+# ── GPU Memory Guard ──────────────────────────────────────────────────────────
+MIN_FREE_VRAM_MB = 3000  # Require 3GB free before loading Whisper on CUDA
+
+def _check_gpu_memory_mb() -> float:
+    """Return free VRAM on GPU 0 in MB. Returns 0 on failure."""
+    try:
+        result = subprocess.run(
+            ["nvidia-smi", "--query-gpu=memory.free", "--format=csv,noheader,nounits"],
+            capture_output=True, text=True, timeout=5
+        )
+        lines = result.stdout.strip().split('\n')
+        return float(lines[0].strip()) if lines else 0.0
+    except Exception:
+        return 0.0
+
+# ── YT-DLP URL fallbacks for channels without /videos tab ─────────────────────
+YT_URL_FALLBACKS = {
+    "@WBDPodcast": "https://www.youtube.com/@WBDPodcast/podcasts",
+    "@BitcoinAudible": "https://www.youtube.com/@BitcoinAudible/podcasts",
+    "@BTCInc": "https://www.youtube.com/@BTCInc/videos",
+    "@CasaBitcoin": "https://www.youtube.com/@CasaBitcoin/videos",
+    "@AnselLindner": "https://www.youtube.com/@AnselLindner/videos",
+}
+
+def _get_channel_url(channel: dict) -> str:
+    """Get the best yt-dlp URL for a channel, with fallbacks for broken tabs."""
+    handle = channel.get("handle", "")
+    if handle in YT_URL_FALLBACKS:
+        return YT_URL_FALLBACKS[handle]
+    url = channel.get("url", "")
+    # Extract handle from URL if present
+    for fb_handle, fb_url in YT_URL_FALLBACKS.items():
+        if fb_handle in url:
+            return fb_url
+    return url
+
 # Lazy-loaded Whisper model
 _whisper_model = None
+_whisper_device = None  # Track which device the current model uses
 
 
-def _get_whisper(model_size: str = "base"):
-    """Load faster-whisper model (lazy, cached)."""
-    global _whisper_model
-    if _whisper_model is not None:
+def _get_whisper(model_size: str = "base", force_cpu: bool = False):
+    """Load faster-whisper model with GPU memory guard and CPU fallback."""
+    global _whisper_model, _whisper_device
+
+    if force_cpu:
+        target_device = "cpu"
+    else:
+        free_mb = _check_gpu_memory_mb()
+        if free_mb >= MIN_FREE_VRAM_MB:
+            target_device = "cuda"
+            logger.info(f"Whisper: CUDA mode ({free_mb:.0f}MB free)")
+        else:
+            target_device = "cpu"
+            logger.warning(f"Whisper: CPU fallback (only {free_mb:.0f}MB free on GPU)")
+
+    # Reuse cached model if device matches
+    if _whisper_model is not None and _whisper_device == target_device:
         return _whisper_model
+
     from faster_whisper import WhisperModel
-    logger.info(f"Loading Whisper '{model_size}' on CUDA...")
+    compute = "float16" if target_device == "cuda" else "int8"
+    logger.info(f"Loading Whisper '{model_size}' on {target_device} ({compute})...")
     t0 = time.time()
-    _whisper_model = WhisperModel(model_size, device="cuda", compute_type="float16")
+    _whisper_model = WhisperModel(model_size, device=target_device, compute_type=compute)
+    _whisper_device = target_device
     logger.info(f"Whisper loaded in {time.time() - t0:.1f}s")
     return _whisper_model
 
@@ -73,7 +126,9 @@ def scan_channel(channel_url: str, channel_name: str,
         "--print", "%(id)s|%(title)s|%(duration)s|%(upload_date)s",
         "--no-warnings",
         "--quiet",
-        channel_url + "/videos",
+        channel_url if "/videos" in channel_url or "/podcasts" in channel_url
+                        or "/streams" in channel_url or "/releases" in channel_url
+        else channel_url + "/videos",
     ]
 
     try:
@@ -187,37 +242,56 @@ def download_audio(video_id: str) -> str:
 
 
 def transcribe_audio(audio_path: str, model_size: str = "base") -> dict:
-    """Transcribe audio with faster-whisper. Returns {text, timestamped_text, duration}."""
+    """Transcribe audio with faster-whisper. CUDA OOM guard + CPU fallback."""
+    global _whisper_model, _whisper_device
+
+    def _run_transcription(mdl):
+        t0 = time.time()
+        segments_iter, info = mdl.transcribe(
+            audio_path,
+            language="en",
+            word_timestamps=False,
+            vad_filter=True,
+            vad_parameters=dict(min_silence_duration_ms=500),
+        )
+        text_parts = []
+        timestamped_lines = []
+        for seg in segments_iter:
+            seg_text = seg.text.strip()
+            text_parts.append(seg_text)
+            mm = int(seg.start // 60)
+            ss = int(seg.start % 60)
+            timestamped_lines.append(f"[{mm:02d}:{ss:02d}] {seg_text}")
+        elapsed = time.time() - t0
+        duration = info.duration if hasattr(info, "duration") else 0
+        return {
+            "text": " ".join(text_parts),
+            "timestamped_text": "\n".join(timestamped_lines),
+            "duration": round(duration, 2),
+            "transcription_time": round(elapsed, 2),
+        }
+
     model = _get_whisper(model_size)
-    t0 = time.time()
-
-    segments_iter, info = model.transcribe(
-        audio_path,
-        language="en",
-        word_timestamps=False,  # faster without word-level
-        vad_filter=True,
-        vad_parameters=dict(min_silence_duration_ms=500),
-    )
-
-    text_parts = []
-    timestamped_lines = []
-
-    for seg in segments_iter:
-        seg_text = seg.text.strip()
-        text_parts.append(seg_text)
-        mm = int(seg.start // 60)
-        ss = int(seg.start % 60)
-        timestamped_lines.append(f"[{mm:02d}:{ss:02d}] {seg_text}")
-
-    elapsed = time.time() - t0
-    duration = info.duration if hasattr(info, "duration") else 0
-
-    return {
-        "text": " ".join(text_parts),
-        "timestamped_text": "\n".join(timestamped_lines),
-        "duration": round(duration, 2),
-        "transcription_time": round(elapsed, 2),
-    }
+    try:
+        return _run_transcription(model)
+    except Exception as e:
+        err_str = str(e).lower()
+        if "out of memory" in err_str or "cuda" in err_str:
+            logger.warning(f"CUDA OOM on {audio_path} — clearing cache + retrying on CPU")
+            try:
+                import torch
+                torch.cuda.empty_cache()
+            except Exception:
+                pass
+            _whisper_model = None
+            _whisper_device = None
+            try:
+                cpu_model = _get_whisper(model_size, force_cpu=True)
+                return _run_transcription(cpu_model)
+            except Exception as e2:
+                logger.error(f"CPU retry also failed: {e2}")
+                return {"text": "", "timestamped_text": "", "duration": 0, "transcription_time": 0}
+        raise
 
 
 def scan_all_channels(model_size: str = "base") -> list:

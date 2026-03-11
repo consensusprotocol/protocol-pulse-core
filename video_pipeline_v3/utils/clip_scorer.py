@@ -21,6 +21,7 @@ BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DAILY_SIGNALS_PATH = os.path.join(BASE, "data", "intelligence", "daily_signals.json")
 LIVE_SIGNALS_PATH = os.path.join(BASE, "data", "intelligence", "live_signals.json")
 USED_CLIPS_PATH = os.path.join(BASE, "data", "used_clips.json")
+NARRATIVE_CONTEXT_PATH = os.path.join(BASE, "data", "intelligence", "narrative_context.json")
 CHANNELS_FILE = os.path.join(BASE, "channels.yaml")
 
 # High-impact words that indicate emotional/breaking content
@@ -93,17 +94,82 @@ def _get_live_boost_topics():
     return live_topics
 
 
+def _load_narrative_context():
+    """Load narrative_context.json for narrative match scoring."""
+    return _load_json(NARRATIVE_CONTEXT_PATH) or {}
+
+
+def _score_narrative_match(clip: dict, narrative_context: dict) -> int:
+    """Score how well a clip matches today's dominant thought leader narrative.
+
+    0-25 points:
+    - 25: clip topic exactly matches #1 narrative AND channel is thought leader's YT channel
+    - 20: clip topic matches #1 narrative
+    - 15: clip topic matches #2 or #3 narrative
+    - 10: clip topic adjacent to a narrative
+    - 5:  clip mentions any trending thought leader by name
+    - 0:  no narrative connection
+    """
+    priority_topics = narrative_context.get("clip_selection_priority", [])
+    if not priority_topics:
+        return 0
+
+    clip_text = " ".join([
+        clip.get("quote", ""),
+        clip.get("key_quote", ""),
+        clip.get("video_title", ""),
+        clip.get("why", ""),
+        clip.get("host_setup", ""),
+        clip.get("narrator_intro", ""),
+    ]).lower()
+
+    if not clip_text.strip():
+        return 0
+
+    # Check exact match with top narrative
+    top_narrative = priority_topics[0].lower() if priority_topics else ""
+    if top_narrative:
+        top_words = [w for w in top_narrative.split() if len(w) > 2]
+        if top_words and all(w in clip_text for w in top_words):
+            return 25  # Full match with #1 narrative
+        if top_words and any(w in clip_text for w in top_words):
+            return 20  # Partial match with #1 narrative
+
+    # Check secondary narratives (#2 and #3)
+    for topic in priority_topics[1:3]:
+        topic_words = [w for w in topic.lower().split() if len(w) > 2]
+        if topic_words and any(w in clip_text for w in topic_words):
+            return 15
+
+    # Check thought leader name mentions
+    thought_leaders = narrative_context.get("thought_leaders_mentioned", [])
+    if any(tl.lower() in clip_text for tl in thought_leaders if tl):
+        return 5
+
+    return 0
+
+
 def score_clip(clip, daily_signals=None, channel_priorities=None, recent_channels=None,
-               live_topics=None):
-    """Score a single clip moment 0-100.
+               live_topics=None, narrative_context=None):
+    """Score a single clip moment 0-100 across 6 dimensions.
+
+    Dimensions:
+    1. Topic velocity (daily_signals.json) — 0-25 pts
+    2. Engagement potential (X trending) — 0-20 pts
+    3. Novelty (not in recent episodes) — 0-20 pts
+    4. Speaker authority (channel tier) — 0-15 pts
+    5. Emotional impact (keyword) — 0-20 pts
+    6. Narrative match (thought leader discourse) — 0-25 pts
+
+    Raw total 0-125, normalized to 0-100.
 
     Args:
         clip: Dict with at minimum 'channel' and 'quote'/'transcript' keys.
-              May also have 'video_title', 'why', 'host_setup'.
         daily_signals: Loaded daily_signals.json dict (or None to load from disk).
         channel_priorities: Dict of channel_name -> priority int (or None to load).
         recent_channels: Set of channel names from recent episodes (or None to compute).
         live_topics: Set of topics from active live streams (or None to load).
+        narrative_context: Loaded narrative_context.json dict (or None to load from disk).
 
     Returns:
         int: Score 0-100.
@@ -116,6 +182,8 @@ def score_clip(clip, daily_signals=None, channel_priorities=None, recent_channel
         recent_channels = _get_recent_topics(max_episodes=3)
     if live_topics is None:
         live_topics = _get_live_boost_topics()
+    if narrative_context is None:
+        narrative_context = _load_narrative_context()
 
     # Combine all text for analysis
     text = " ".join([
@@ -125,7 +193,7 @@ def score_clip(clip, daily_signals=None, channel_priorities=None, recent_channel
         clip.get("video_title", ""),
     ]).lower()
 
-    score = 0
+    raw_score = 0
 
     # ── 1. Topic Velocity (0-25 points) ──
     topic_velocity = daily_signals.get("topic_velocity", [])
@@ -133,51 +201,47 @@ def score_clip(clip, daily_signals=None, channel_priorities=None, recent_channel
     for topic_entry in topic_velocity:
         topic_name = topic_entry.get("topic", "").lower()
         velocity = topic_entry.get("velocity_score", 0)
-        channels_count = topic_entry.get("channels", 0)
 
-        # Check if clip text mentions this topic
         if topic_name in text or any(w in text for w in topic_name.split()):
-            # Scale: velocity_score is 0-100, we want 0-25
             topic_score = min(velocity / 4, 25)
-
-            # Live stream boost: 1.5x if topic is currently live
             if topic_name in live_topics:
                 topic_score = min(topic_score * 1.5, 25)
-
             best_velocity = max(best_velocity, topic_score)
 
-    score += round(best_velocity)
+    raw_score += round(best_velocity)
 
     # ── 2. Engagement Potential (0-20 points) ──
-    # Based on which topics historically perform well on X
     engagement_score = 0
     for topic, base_engagement in HIGH_ENGAGEMENT_TOPICS.items():
         if topic.lower() in text:
             engagement_score = max(engagement_score, base_engagement)
-    score += min(engagement_score, 20)
+    raw_score += min(engagement_score, 20)
 
     # ── 3. Novelty (0-20 points) ──
     channel = clip.get("channel", "")
     if channel in recent_channels:
-        # Channel was featured recently — lower novelty score
-        score += 5
+        raw_score += 5
     else:
-        # Fresh channel — full novelty points
-        score += 20
+        raw_score += 20
 
     # ── 4. Speaker Authority (0-15 points) ──
     priority = channel_priorities.get(channel, 3)
     authority_map = {1: 15, 2: 10, 3: 5}
-    score += authority_map.get(priority, 3)
+    raw_score += authority_map.get(priority, 3)
 
     # ── 5. Emotional Impact (0-20 points) ──
     impact_count = sum(1 for w in IMPACT_WORDS if w in text)
-    score += min(impact_count * 5, 20)
+    raw_score += min(impact_count * 5, 20)
 
-    return min(score, 100)
+    # ── 6. Narrative Match (0-25 points) ──
+    raw_score += _score_narrative_match(clip, narrative_context)
+
+    # Normalize: raw 0-125 → 0-100
+    final_score = min(100, round(raw_score * 100 / 125))
+    return final_score
 
 
-def rank_clips(clips, daily_signals=None):
+def rank_clips(clips, daily_signals=None, narrative_context=None):
     """Score and rank a list of clips. Returns clips sorted by score (highest first).
 
     Each clip gets a 'score' field added.
@@ -185,16 +249,25 @@ def rank_clips(clips, daily_signals=None):
     Args:
         clips: List of clip dicts (from Claude's selection).
         daily_signals: Optional pre-loaded daily_signals.json.
+        narrative_context: Optional pre-loaded narrative_context.json.
 
     Returns:
         List of clips sorted by score descending, each with 'score' added.
     """
     if daily_signals is None:
         daily_signals = _load_json(DAILY_SIGNALS_PATH) or {}
+    if narrative_context is None:
+        narrative_context = _load_narrative_context()
 
     channel_priorities = _load_channel_priorities()
     recent_channels = _get_recent_topics(max_episodes=3)
     live_topics = _get_live_boost_topics()
+
+    # Log narrative context
+    dominant = narrative_context.get("dominant_narrative", "none")
+    priorities = narrative_context.get("clip_selection_priority", [])
+    if dominant and dominant != "none":
+        logger.info(f"Episode narrative: {dominant} | Priority topics: {priorities}")
 
     for clip in clips:
         clip["score"] = score_clip(
@@ -203,6 +276,7 @@ def rank_clips(clips, daily_signals=None):
             channel_priorities=channel_priorities,
             recent_channels=recent_channels,
             live_topics=live_topics,
+            narrative_context=narrative_context,
         )
 
     ranked = sorted(clips, key=lambda c: c.get("score", 0), reverse=True)
@@ -214,7 +288,7 @@ def rank_clips(clips, daily_signals=None):
     return ranked
 
 
-def select_top_clips(clips, count=5, daily_signals=None):
+def select_top_clips(clips, count=5, daily_signals=None, narrative_context=None):
     """Score all clips, then pick the top N from N unique channels.
 
     Enforces channel diversity: one clip per channel, highest-scored wins.
@@ -223,11 +297,12 @@ def select_top_clips(clips, count=5, daily_signals=None):
         clips: List of clip dicts.
         count: Number of clips to select (default 5).
         daily_signals: Optional pre-loaded daily_signals.json.
+        narrative_context: Optional pre-loaded narrative_context.json.
 
     Returns:
         List of top N clips from N unique channels, sorted by score.
     """
-    ranked = rank_clips(clips, daily_signals=daily_signals)
+    ranked = rank_clips(clips, daily_signals=daily_signals, narrative_context=narrative_context)
 
     selected = []
     seen_channels = set()

@@ -340,9 +340,27 @@ def select_clips(videos: list) -> dict:
 
         # Score-based ranking (CLIP SCORER per PRODUCTION_DESIGN_LAWS)
         try:
-            from utils.clip_scorer import rank_clips
-            clean_clips = rank_clips(clean_clips)
-            logger.info("Clip scorer applied — clips re-ranked by intelligence score")
+            from utils.clip_scorer import rank_clips, _load_narrative_context
+            narrative_ctx = _load_narrative_context()
+            if narrative_ctx:
+                dominant = narrative_ctx.get("dominant_narrative", "")
+                if dominant:
+                    logger.info(f"Episode narrative: {dominant}")
+                # Filter clips that only match avoid_topics
+                avoid = [t.lower() for t in narrative_ctx.get("avoid_topics", [])]
+                if avoid:
+                    pre_count = len(clean_clips)
+                    clean_clips = [
+                        c for c in clean_clips
+                        if not all(
+                            a in (c.get("quote", "") + " " + c.get("video_title", "")).lower()
+                            for a in avoid
+                        )
+                    ]
+                    if len(clean_clips) < pre_count:
+                        logger.info(f"Narrative filter: removed {pre_count - len(clean_clips)} clips matching avoid_topics")
+            clean_clips = rank_clips(clean_clips, narrative_context=narrative_ctx)
+            logger.info("Clip scorer applied — clips re-ranked by intelligence score (narrative-aware)")
         except Exception as e:
             logger.warning(f"Clip scorer unavailable, keeping original rank order: {e}")
 

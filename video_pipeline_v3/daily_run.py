@@ -58,6 +58,24 @@ def run_pipeline(output_path: str, style: str = "default", cached_only: bool = F
         print(f"  Mode: CACHED TRANSCRIPTS ONLY (skip scan)")
     print("=" * 70)
 
+    # ─── Step 0: Narrative Intelligence (thought leader X monitoring) ───
+    print("\n[STEP 0/8] NARRATIVE INTELLIGENCE — THOUGHT LEADER MONITORING...")
+    t0 = time.time()
+    try:
+        from utils.narrative_intelligence import NarrativeIntelligenceEngine
+        ni_engine = NarrativeIntelligenceEngine()
+        narrative_result = ni_engine.run()
+        dominant = narrative_result.get("dominant_narrative", "unknown")
+        mood = narrative_result.get("market_mood", "unknown")
+        top_topics = [t["topic"] for t in narrative_result.get("topic_velocity", [])[:3]]
+        print(f"  Dominant narrative: {dominant}")
+        print(f"  Market mood: {mood}")
+        print(f"  Top topics: {', '.join(top_topics)}")
+        print(f"  Thought leaders active: {narrative_result.get('thought_leaders_active', 0)}")
+        print(f"  Time: {time.time()-t0:.1f}s")
+    except Exception as e:
+        print(f"  [WARN] Narrative intelligence unavailable: {e} — continuing with historical signals")
+
     # ─── BTC Price (fetch early, used everywhere) ───
     btc_price = "N/A"
     try:

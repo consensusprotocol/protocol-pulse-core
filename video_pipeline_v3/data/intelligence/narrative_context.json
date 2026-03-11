@@ -1,0 +1,27 @@
+{
+  "episode_narrative": "Bitcoin conference promotions is dominating Bitcoin discourse \u2014 1 of 1 Priority-1 thought leaders tweeted about it in the last 4 hours",
+  "eryn_intro_hook": "Eryn should reference: 'SENATOR LUMMIS JUST MET WITH FED CHAIR NOMINEE KEVIN WARSH TO DISCUSS #BITCOIN & CRYPTO' from thought leaders TheBitcoinConf",
+  "mark_context": "Mark should add context: 'Bitcoin conference promotions' is also trending with 3 thought leaders discussing it",
+  "clip_selection_priority": [
+    "Institutional adoption via politicians",
+    "Bitcoin conference promotions",
+    "Bitcoin's permissionless protocol"
+  ],
+  "avoid_topics": [
+    "price speculation",
+    "altcoins"
+  ],
+  "thought_leaders_mentioned": [
+    "JeffBooth",
+    "BitcoinMagazine",
+    "TheBitcoinConf",
+    "Excellion"
+  ],
+  "narrative_bridge_lines": [
+    "And this is exactly what Bitcoin thought leaders predicted \u2014 here's what they said:",
+    "The discourse on X is clear \u2014 let's hear from the channels who called this first:"
+  ],
+  "dominant_narrative": "Bitcoin conference promotions",
+  "market_mood": "cautiously_bullish",
+  "computed_at": "2026-03-11T01:25:17.679563+00:00"
+}
