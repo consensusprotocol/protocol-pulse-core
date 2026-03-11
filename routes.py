@@ -2135,6 +2135,331 @@ def admin_dashboard():
                          total_podcasts=total_podcasts,
                          recent_articles=recent_articles)
 
+# ============================================================
+# SESSION 19 — ADMIN INTELLIGENCE DASHBOARD API ROUTES
+# ============================================================
+
+@app.route('/api/admin/pipeline-stats')
+@login_required
+@admin_required
+def api_admin_pipeline_stats():
+    """Pipeline health: article counts, video render status."""
+    now = datetime.utcnow()
+    h24 = now - timedelta(hours=24)
+    d7 = now - timedelta(days=7)
+    h1 = now - timedelta(hours=1)
+
+    articles_24h = Article.query.filter(Article.created_at >= h24).count()
+    articles_7d = Article.query.filter(Article.created_at >= d7).count()
+    articles_total = Article.query.count()
+    articles_published = Article.query.filter_by(published=True).count()
+    articles_draft = Article.query.filter_by(published=False).count()
+    articles_1h = Article.query.filter(Article.created_at >= h1).count()
+
+    # Daily sparkline: count per day for last 7 days
+    sparkline = []
+    for i in range(6, -1, -1):
+        day_start = now - timedelta(days=i+1)
+        day_end = now - timedelta(days=i)
+        cnt = Article.query.filter(
+            Article.created_at >= day_start,
+            Article.created_at < day_end
+        ).count()
+        sparkline.append(cnt)
+
+    # Last video render — check logs
+    last_video = None
+    try:
+        import glob as _glob
+        report_paths = [
+            '/home/ultron/protocol_pulse/logs/daily_pulse.report.json',
+            '/home/ultron/protocol_pulse/logs/medley_pipeline_report.json',
+            '/home/ultron/protocol_pulse/logs/medley_daily_beat.report.json',
+        ]
+        for rpath in report_paths:
+            if os.path.exists(rpath):
+                mtime = os.path.getmtime(rpath)
+                ts = datetime.utcfromtimestamp(mtime).isoformat() + 'Z'
+                last_video = {'path': os.path.basename(rpath), 'timestamp': ts}
+                break
+    except Exception:
+        pass
+
+    # Next briefing (13:00 UTC daily)
+    next_briefing_hour = 13
+    next_briefing = now.replace(hour=next_briefing_hour, minute=0, second=0, microsecond=0)
+    if next_briefing <= now:
+        next_briefing += timedelta(days=1)
+
+    return jsonify({
+        'articles_24h': articles_24h,
+        'articles_7d': articles_7d,
+        'articles_total': articles_total,
+        'articles_published': articles_published,
+        'articles_draft': articles_draft,
+        'articles_1h': articles_1h,
+        'sparkline': sparkline,
+        'last_video': last_video,
+        'next_briefing': next_briefing.isoformat() + 'Z',
+        'timestamp': now.isoformat() + 'Z',
+    })
+
+
+@app.route('/api/admin/audience-stats')
+@login_required
+@admin_required
+def api_admin_audience_stats():
+    """Newsletter subscribers, email stats."""
+    try:
+        from models import NewsletterSubscriber, NewsletterSend
+        now = datetime.utcnow()
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        week_start = now - timedelta(days=7)
+
+        total_subs = NewsletterSubscriber.query.filter_by(subscribed=True).count()
+        total_unsub = NewsletterSubscriber.query.filter_by(subscribed=False).count()
+        new_today = NewsletterSubscriber.query.filter(
+            NewsletterSubscriber.subscribed_at >= today_start,
+            NewsletterSubscriber.subscribed == True
+        ).count()
+        new_week = NewsletterSubscriber.query.filter(
+            NewsletterSubscriber.subscribed_at >= week_start,
+            NewsletterSubscriber.subscribed == True
+        ).count()
+        unsub_week = NewsletterSubscriber.query.filter(
+            NewsletterSubscriber.unsubscribed_at >= week_start
+        ).count()
+
+        last_send = NewsletterSend.query.order_by(NewsletterSend.sent_at.desc()).first()
+        last_send_data = None
+        if last_send:
+            last_send_data = {
+                'subject': last_send.subject,
+                'sent_at': last_send.sent_at.isoformat() + 'Z' if last_send.sent_at else None,
+                'recipient_count': last_send.recipient_count,
+                'open_count': last_send.open_count,
+                'click_count': last_send.click_count,
+            }
+
+        # Next email at 13:00 UTC
+        next_email = now.replace(hour=13, minute=0, second=0, microsecond=0)
+        if next_email <= now:
+            next_email += timedelta(days=1)
+
+        return jsonify({
+            'total_subscribers': total_subs,
+            'total_unsubscribed': total_unsub,
+            'new_today': new_today,
+            'new_week': new_week,
+            'unsub_week': unsub_week,
+            'last_send': last_send_data,
+            'next_email': next_email.isoformat() + 'Z',
+            'timestamp': now.isoformat() + 'Z',
+        })
+    except Exception as e:
+        return jsonify({'error': str(e), 'total_subscribers': 0})
+
+
+@app.route('/api/admin/content-stats')
+@login_required
+@admin_required
+def api_admin_content_stats():
+    """Top articles, sentiment distribution, affiliate clicks."""
+    now = datetime.utcnow()
+    d7 = now - timedelta(days=7)
+
+    # Top 10 articles by ID (proxy for recency/activity; no view_count column)
+    top_articles_q = Article.query.filter_by(published=True)\
+        .order_by(Article.created_at.desc()).limit(10).all()
+    top_articles = [{
+        'id': a.id,
+        'title': a.title[:70],
+        'category': a.category,
+        'created_at': a.created_at.isoformat() + 'Z' if a.created_at else None,
+    } for a in top_articles_q]
+
+    # Sentiment distribution from SentimentReport
+    sentiment_dist = {'bullish': 0, 'bearish': 0, 'neutral': 0}
+    try:
+        from models import SentimentReport
+        reports = SentimentReport.query.order_by(SentimentReport.report_date.desc()).limit(30).all()
+        for r in reports:
+            s = (r.overall_sentiment or '').lower()
+            if 'bull' in s:
+                sentiment_dist['bullish'] += 1
+            elif 'bear' in s:
+                sentiment_dist['bearish'] += 1
+            else:
+                sentiment_dist['neutral'] += 1
+    except Exception:
+        pass
+
+    # Affiliate click counts per partner
+    affiliate_data = []
+    try:
+        partners = AffiliatePartner.query.filter_by(is_active=True).all()
+        for p in partners:
+            clicks_7d = AffiliateClick.query.filter(
+                AffiliateClick.partner_id == p.id,
+                AffiliateClick.clicked_at >= d7
+            ).count()
+            clicks_total = AffiliateClick.query.filter_by(partner_id=p.id).count()
+            affiliate_data.append({
+                'name': p.name,
+                'slug': p.slug,
+                'clicks_7d': clicks_7d,
+                'clicks_total': clicks_total,
+            })
+    except Exception:
+        pass
+
+    # Draft/error article queue
+    draft_queue = Article.query.filter_by(published=False)\
+        .order_by(Article.created_at.desc()).limit(5).all()
+    draft_list = [{
+        'id': a.id,
+        'title': a.title[:60],
+        'category': a.category,
+        'created_at': a.created_at.isoformat() + 'Z' if a.created_at else None,
+    } for a in draft_queue]
+
+    return jsonify({
+        'top_articles': top_articles,
+        'sentiment_dist': sentiment_dist,
+        'affiliate_data': affiliate_data,
+        'draft_queue': draft_list,
+        'timestamp': now.isoformat() + 'Z',
+    })
+
+
+@app.route('/api/admin/system-health')
+@login_required
+@admin_required
+def api_admin_system_health():
+    """CPU, RAM, disk, GPU, recent errors."""
+    import psutil
+
+    cpu = psutil.cpu_percent(interval=0.5)
+    ram = psutil.virtual_memory()
+    disk = psutil.disk_usage('/')
+
+    # GPU via nvidia-smi
+    gpu = None
+    try:
+        gpu_out = subprocess.check_output(
+            ['nvidia-smi', '--query-gpu=utilization.gpu,temperature.gpu,memory.used,memory.total',
+             '--format=csv,noheader,nounits'],
+            timeout=3
+        ).decode().strip().split(',')
+        gpu = {
+            'utilization': float(gpu_out[0].strip()),
+            'temp': float(gpu_out[1].strip()),
+            'memory_used': float(gpu_out[2].strip()),
+            'memory_total': float(gpu_out[3].strip()),
+        }
+    except Exception:
+        pass
+
+    # Recent errors from gunicorn error log
+    errors = []
+    log_paths = [
+        '/home/ultron/protocol_pulse/logs/gunicorn_error.log',
+        '/home/ultron/logs/gunicorn_error.log',
+    ]
+    for lp in log_paths:
+        try:
+            with open(lp, 'r') as f:
+                lines = f.readlines()[-200:]
+            for line in lines:
+                if 'ERROR' in line or 'CRITICAL' in line or 'Traceback' in line:
+                    errors.append(line.strip()[:200])
+            errors = errors[-10:]
+            break
+        except Exception:
+            pass
+
+    # Uptime
+    uptime_seconds = None
+    try:
+        boot_time = psutil.boot_time()
+        uptime_seconds = int(datetime.utcnow().timestamp() - boot_time)
+    except Exception:
+        pass
+
+    return jsonify({
+        'cpu_pct': cpu,
+        'ram_used_gb': round(ram.used / (1024**3), 1),
+        'ram_total_gb': round(ram.total / (1024**3), 1),
+        'ram_pct': round(ram.percent, 1),
+        'disk_used_gb': round(disk.used / (1024**3), 1),
+        'disk_total_gb': round(disk.total / (1024**3), 1),
+        'disk_pct': round(disk.percent, 1),
+        'gpu': gpu,
+        'recent_errors': errors,
+        'uptime_seconds': uptime_seconds,
+        'timestamp': datetime.utcnow().isoformat() + 'Z',
+    })
+
+
+@app.route('/api/admin/revenue-stats')
+@login_required
+@admin_required
+def api_admin_revenue_stats():
+    """Stripe MRR, active Commander subscribers. Returns {} if no key."""
+    stripe_key = os.environ.get('STRIPE_SECRET_KEY')
+    if not stripe_key:
+        return jsonify({'available': False})
+
+    try:
+        import stripe as _stripe
+        _stripe.api_key = stripe_key
+
+        # Active Commander subscribers from DB
+        commander_count = User.query.filter(
+            User.subscription_tier.in_(['commander', 'sovereign'])
+        ).count()
+
+        # Stripe MRR: sum active subscription amounts
+        mrr_cents = 0
+        recent_charges = []
+        try:
+            subs = _stripe.Subscription.list(status='active', limit=100)
+            for sub in subs.data:
+                for item in sub['items']['data']:
+                    plan = item.get('plan') or item.get('price', {})
+                    amount = plan.get('amount', 0) or 0
+                    interval = plan.get('interval', 'month')
+                    if interval == 'year':
+                        mrr_cents += amount // 12
+                    else:
+                        mrr_cents += amount
+        except Exception:
+            pass
+
+        try:
+            charges = _stripe.Charge.list(limit=5, created={'gte': int((datetime.utcnow() - timedelta(days=30)).timestamp())})
+            for ch in charges.data:
+                if ch.paid:
+                    recent_charges.append({
+                        'amount': ch.amount / 100,
+                        'currency': ch.currency.upper(),
+                        'created': datetime.utcfromtimestamp(ch.created).isoformat() + 'Z',
+                        'description': ch.description or '',
+                    })
+        except Exception:
+            pass
+
+        return jsonify({
+            'available': True,
+            'mrr_usd': round(mrr_cents / 100, 2),
+            'commander_count': commander_count,
+            'recent_charges': recent_charges,
+            'timestamp': datetime.utcnow().isoformat() + 'Z',
+        })
+    except Exception as e:
+        return jsonify({'available': False, 'error': str(e)})
+
+
 @app.route('/admin/youtube-auth')
 @login_required
 @admin_required

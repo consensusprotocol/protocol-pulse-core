@@ -41,3 +41,6 @@ apscheduler
 
 # Image guardrails
 imagehash
+
+# System monitoring
+psutil
