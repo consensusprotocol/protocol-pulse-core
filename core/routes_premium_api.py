@@ -861,6 +861,135 @@ def api_playground():
     return render_template("api_playground.html", demo_key=demo_key)
 
 
+# ─── SESSION 11: New spec-named routes ────────────────────────
+
+
+@premium_api.route("/api/subscribe/commander", methods=["POST"])
+def subscribe_commander():
+    """
+    POST /api/subscribe/commander — Create Stripe Checkout session for Commander tier.
+
+    Body: {"email": "user@example.com"}
+    Returns: {"checkout_url": "https://checkout.stripe.com/..."}
+    """
+    data = request.get_json(silent=True) or {}
+    email = (data.get("email") or "").strip()
+
+    if not email or "@" not in email:
+        return jsonify({"error": "Valid email required"}), 400
+
+    try:
+        from services.premium_service import create_commander_checkout
+        checkout_url = create_commander_checkout(
+            email=email,
+            success_url=request.url_root.rstrip("/") + "/subscribe/terminal/success",
+            cancel_url=request.url_root.rstrip("/") + "/premium",
+        )
+        return jsonify({"checkout_url": checkout_url}), 200
+    except RuntimeError as e:
+        msg = str(e)
+        if "not configured" in msg.lower():
+            return jsonify({"error": msg, "code": "NOT_CONFIGURED"}), 503
+        return jsonify({"error": msg}), 500
+    except Exception as e:
+        logger.error("subscribe_commander error: %s", e)
+        return jsonify({"error": "Checkout failed. Please try again.", "detail": str(e)[:200]}), 500
+
+
+@premium_api.route("/api/stripe/webhook", methods=["POST"])
+def stripe_webhook_v2():
+    """
+    POST /api/stripe/webhook — Stripe webhook endpoint (spec alias).
+
+    Handles:
+      - checkout.session.completed → provision ApiSubscriber + upgrade User tier
+      - customer.subscription.deleted → revoke key, set tier='free'
+      - payment_intent.succeeded → set tier='commander' for one-time payments
+
+    Returns 400 on signature failure, 200 on success.
+    """
+    payload = request.get_data()
+    sig_header = request.headers.get("Stripe-Signature", "")
+
+    try:
+        from services.premium_service import handle_webhook_event
+        result = handle_webhook_event(payload, sig_header, db, models)
+    except Exception as e:
+        logger.error("stripe_webhook_v2 unexpected error: %s", e)
+        return jsonify({"error": "Internal error"}), 500
+
+    if not result.get("ok"):
+        status = result.get("status", 400)
+        return jsonify({"error": result.get("error", "Webhook error")}), status
+
+    return jsonify({"received": True}), 200
+
+
+@premium_api.route("/terminal/dashboard", methods=["GET"])
+def terminal_dashboard():
+    """
+    GET /terminal/dashboard — Commander self-service portal.
+
+    Shows API key (masked), copy + regenerate buttons, usage stats (today / week / quota meter),
+    entitlements, webhook config, and billing portal link.
+
+    Auth: X-API-Key header OR signed session cookie (POST /api/dashboard/auth first).
+    """
+    api_key = (
+        request.headers.get("X-API-Key", "")
+        or session.get("dashboard_api_key", "")
+        or ""
+    ).strip()
+
+    subscriber = None
+    if api_key:
+        try:
+            subscriber = models.ApiSubscriber.query.filter_by(api_key=api_key).first()
+        except Exception as e:
+            logger.error("terminal_dashboard DB error: %s", e)
+
+    if not subscriber or api_key == DEMO_KEY:
+        subscriber = None
+
+    sparkline = []
+    requests_today = 0
+    requests_week = 0
+
+    if subscriber:
+        sparkline = get_hourly_usage_sparkline(subscriber.api_key, db, models)
+        try:
+            today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+            week_start = datetime.utcnow() - timedelta(days=7)
+            requests_today = db.session.query(db.func.count(models.ApiRequestLog.id)).filter(
+                models.ApiRequestLog.api_key == subscriber.api_key,
+                models.ApiRequestLog.created_at >= today_start,
+            ).scalar() or 0
+            requests_week = db.session.query(db.func.count(models.ApiRequestLog.id)).filter(
+                models.ApiRequestLog.api_key == subscriber.api_key,
+                models.ApiRequestLog.created_at >= week_start,
+            ).scalar() or 0
+        except Exception as e:
+            logger.warning("terminal_dashboard usage query failed: %s", e)
+
+    return render_template(
+        "terminal_dashboard.html",
+        subscriber=subscriber,
+        sparkline_json=json.dumps(sparkline),
+        api_key=api_key if subscriber else "",
+        requests_today=requests_today,
+        requests_week=requests_week,
+    )
+
+
+@premium_api.route("/terminal/playground", methods=["GET"])
+def terminal_playground():
+    """
+    GET /terminal/playground — API sandbox with 5 endpoint cards, code snippets (curl/Python/Node),
+    live response viewer, and custom key support.
+    """
+    return render_template("terminal_playground.html", demo_key=DEMO_KEY)
+
+
 # ─── Webhook Delivery (background) ───────────────────────────
 
 
