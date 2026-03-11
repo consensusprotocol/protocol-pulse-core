@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Manage Alerts · Protocol Pulse{% endblock %}
+
+{% block head %}
+<style>
+body { background:#0a0a0a!important; }
+.manage-page {
+  min-height:100vh; padding:80px 16px 60px;
+  font-family:'JetBrains Mono','Courier New',monospace; color:#e5e5e5;
+  background:#0a0a0a;
+  background-image: radial-gradient(ellipse at 50% 20%, rgba(220,38,38,.12) 0%, transparent 60%);
+}
+.manage-container { max-width:640px; margin:0 auto; }
+.manage-header { text-align:center; margin-bottom:40px; }
+.manage-header h1 { font-size:28px; font-weight:700; letter-spacing:.2em; margin:0 0 8px; text-transform:uppercase; }
+.manage-header .subtitle { font-size:12px; letter-spacing:3px; color:rgba(229,229,229,.35); text-transform:uppercase; }
+
+.alert-card {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:16px 20px; margin-bottom:10px; border-radius:4px;
+  background:rgba(17,17,17,.9); border:1px solid rgba(255,255,255,.08);
+}
+.alert-info { flex:1; }
+.alert-dir { font-size:10px; letter-spacing:2px; text-transform:uppercase; margin-bottom:4px; }
+.alert-dir.above { color:#22c55e; }
+.alert-dir.below { color:#ef4444; }
+.alert-target { font-size:18px; font-weight:700; }
+.alert-date { font-size:10px; color:#555; margin-top:4px; }
+.alert-status { font-size:10px; letter-spacing:2px; text-transform:uppercase; margin-right:16px; }
+.alert-status.active { color:#22c55e; }
+.alert-status.triggered { color:#F8C15C; }
+
+.btn-delete {
+  padding:8px 16px; background:transparent; border:1px solid rgba(239,68,68,.4);
+  color:#ef4444; border-radius:3px; font-family:inherit; font-size:10px;
+  letter-spacing:2px; cursor:pointer; text-transform:uppercase; transition:all .2s;
+}
+.btn-delete:hover { background:rgba(239,68,68,.15); }
+
+.btn-new-alert {
+  display:inline-block; margin-top:24px; padding:12px 24px;
+  background:#dc2626; color:#fff; border:none; border-radius:3px;
+  font-family:inherit; font-size:12px; font-weight:700; letter-spacing:2px;
+  text-decoration:none; text-transform:uppercase;
+}
+
+.empty-state { text-align:center; padding:40px; color:#666; font-size:13px; }
+.msg { text-align:center; margin-top:12px; font-size:12px; min-height:18px; }
+.msg.success { color:#22c55e; }
+.msg.error { color:#ef4444; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="manage-page">
+<div class="manage-container">
+  <div class="manage-header">
+    <h1>Your Alerts</h1>
+    <div class="subtitle">Manage Bitcoin Price Notifications</div>
+  </div>
+
+  <div id="alertList">
+  {% if alerts %}
+    {% for a in alerts %}
+    <div class="alert-card" id="alert-{{ a.id }}">
+      <div class="alert-info">
+        <div class="alert-dir {{ a.direction }}">{{ a.direction }}</div>
+        <div class="alert-target">${{ "{:,.0f}".format(a.price_target) }}</div>
+        <div class="alert-date">Set {{ a.created_at.strftime('%b %d, %Y') }}</div>
+      </div>
+      {% if a.notified %}
+      <span class="alert-status triggered">Triggered</span>
+      {% else %}
+      <span class="alert-status active">Active</span>
+      {% endif %}
+      <button class="btn-delete" onclick="deleteAlert({{ a.id }})">Delete</button>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-state">No alerts found.</div>
+  {% endif %}
+  </div>
+
+  <div class="msg" id="manageMsg"></div>
+
+  <div style="text-align:center">
+    <a href="/alerts" class="btn-new-alert">Set New Alert</a>
+  </div>
+</div>
+</div>
+
+<script>
+const TOKEN = '{{ token }}';
+function deleteAlert(id) {
+  if(!confirm('Delete this alert?')) return;
+  fetch('/api/alerts/delete', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({token:TOKEN, alert_id:id})
+  }).then(r=>r.json()).then(d=>{
+    const msg = document.getElementById('manageMsg');
+    if(d.status==='deleted') {
+      document.getElementById('alert-'+id).remove();
+      msg.textContent='Alert removed.'; msg.className='msg success';
+    } else {
+      msg.textContent=d.message; msg.className='msg error';
+    }
+  }).catch(()=>{
+    document.getElementById('manageMsg').textContent='Network error.';
+    document.getElementById('manageMsg').className='msg error';
+  });
+}
+</script>
+{% endblock %}
