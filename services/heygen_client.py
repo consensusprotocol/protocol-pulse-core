@@ -10,7 +10,7 @@ HEYGEN_API_BASE = "https://api.heygen.com/v2"
 HEYGEN_V1_BASE = "https://api.heygen.com/v1"
 
 # Avatar IDs
-SARAH_AVATAR_ID = "d259c335741f4fc0b061e04c59388b4e"  # Photo Avatar III — $1/min
+SARAH_AVATAR_ID = "Anna_public_20240108"  # Anna (White T-shirt) — replaced d259c335 (expired)
 PBX_AVATAR_ID = "3be8ed14b0954b898f4127836c21f6cc"
 
 # Voice IDs (HeyGen built-in)

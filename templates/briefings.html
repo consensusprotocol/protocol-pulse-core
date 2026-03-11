@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Oracle Briefings — Protocol Pulse{% endblock %}
+{% block content %}
+<style>
+  .briefings-hero { padding: 4rem 2rem 2rem; text-align: center; }
+  .briefings-hero h1 { font-size: 2.5rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
+  .briefings-hero .subtitle { color: #999; font-size: 1.1rem; }
+  .briefings-container { max-width: 900px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+  .date-group { margin-bottom: 2.5rem; }
+  .date-label { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: #dc2626;
+    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; padding-bottom: 0.5rem;
+    border-bottom: 1px solid #1a1a1a; }
+  .briefing-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 8px;
+    padding: 1.5rem; margin-bottom: 1rem; transition: border-color 0.2s; }
+  .briefing-card:hover { border-color: #dc2626; }
+  .briefing-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+  .briefing-type { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #dc2626;
+    text-transform: uppercase; letter-spacing: 0.05em; }
+  .briefing-time { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #666; }
+  .briefing-meta { font-size: 0.8rem; color: #666; margin-bottom: 0.75rem; }
+  .briefing-script { color: #ccc; font-size: 0.9rem; line-height: 1.6; }
+  .briefing-video { width: 100%; max-width: 100%; border-radius: 6px; margin-top: 1rem;
+    background: #000; }
+  .no-briefings { text-align: center; color: #666; padding: 3rem 0; font-size: 1.1rem; }
+</style>
+
+<div class="briefings-hero">
+  <h1>Oracle Briefings</h1>
+  <p class="subtitle">3x daily market intelligence from Sarah — powered by HeyGen</p>
+</div>
+
+<div class="briefings-container">
+  {% if briefings_by_date %}
+    {% for date, briefings in briefings_by_date|dictsort(reverse=true) %}
+    <div class="date-group">
+      <div class="date-label">{{ date }}</div>
+      {% for b in briefings %}
+      <div class="briefing-card">
+        <div class="briefing-header">
+          <span class="briefing-type">{{ b.type }}</span>
+          <span class="briefing-time">{{ b.time }} UTC</span>
+        </div>
+        {% if b.get('title') %}<h3 style="color:#fff;margin:0 0 0.5rem;font-size:1rem;">{{ b.title }}</h3>{% endif %}
+        {% if b.get('duration') or b.get('size_mb') or b.get('btc_price') %}
+        <div class="briefing-meta">
+          {% if b.get('duration') %}{{ b.duration|round(0)|int }}s{% endif %}
+          {% if b.get('size_mb') %} · {{ b.size_mb }}MB{% endif %}
+          {% if b.get('btc_price') %} · BTC ${{ "{:,.0f}".format(b.btc_price) }}{% endif %}
+        </div>
+        {% endif %}
+        {% if b.get('video_url') %}
+        <video class="briefing-video" controls preload="metadata" poster="">
+          <source src="{{ b.video_url }}" type="video/mp4">
+        </video>
+        {% endif %}
+        {% if b.get('script_preview') %}
+        <p class="briefing-script">{{ b.script_preview[:300] }}{% if b.script_preview|length > 300 %}...{% endif %}</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="no-briefings">No briefings found in the last 7 days.</div>
+  {% endif %}
+</div>
+{% endblock %}

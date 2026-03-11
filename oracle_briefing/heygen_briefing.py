@@ -151,7 +151,8 @@ def write_briefing_script(briefing_type: str, market_data: dict) -> str:
 # Main
 # ---------------------------------------------------------------------------
 
-def run_briefing(briefing_type: str = "morning", test: bool = False) -> dict | None:
+def run_briefing(briefing_type: str = "morning", test: bool = False,
+                 dry_run: bool = False) -> dict | None:
     """Generate and save a complete Oracle Briefing."""
     ts = datetime.now()
     date_str = ts.strftime("%Y-%m-%d")
@@ -163,7 +164,7 @@ def run_briefing(briefing_type: str = "morning", test: bool = False) -> dict | N
     # Step 1: Market data
     market = get_market_data()
     print(f"\n{'='*60}")
-    print(f"  ORACLE BRIEFING — {briefing_type.upper()}")
+    print(f"  ORACLE BRIEFING — {briefing_type.upper()}{' [DRY RUN]' if dry_run else ''}")
     print(f"  {date_str} {time_str} | BTC: {market['btc_price']}")
     print(f"{'='*60}\n")
 
@@ -177,6 +178,13 @@ def run_briefing(briefing_type: str = "morning", test: bool = False) -> dict | N
     script_path = os.path.join(out_dir, f"briefing_{briefing_type}_{time_str}.txt")
     with open(script_path, "w") as f:
         f.write(script)
+
+    if dry_run:
+        print(f"\n  [dry-run] Script saved: {script_path}")
+        print(f"  [dry-run] Avatar: {SARAH_AVATAR_ID}")
+        print(f"  [dry-run] Would generate HeyGen video ({est_seconds}s est)")
+        print(f"\n  Script preview:\n  {script[:300]}...")
+        return {"script": script_path, "type": briefing_type, "dry_run": True}
 
     # Step 3: Generate HeyGen video
     video_path = os.path.join(out_dir, f"briefing_{briefing_type}_{time_str}.mp4")
@@ -209,5 +217,10 @@ if __name__ == "__main__":
         action="store_true",
         help="Use HeyGen test mode (free, watermarked)",
     )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Generate script only, skip HeyGen video generation",
+    )
     args = parser.parse_args()
-    run_briefing(args.type, args.test)
+    run_briefing(args.type, args.test, args.dry_run)
