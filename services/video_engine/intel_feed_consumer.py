@@ -253,7 +253,7 @@ Clean HTML only. No markdown. No backticks."""
                     source_type="video_intel",
                     published=should_publish,
                     published_at=datetime.utcnow() if should_publish else None,
-                    header_image_url=header_image
+                    cover_image_url=header_image
                 )
 
                 db.session.add(article)

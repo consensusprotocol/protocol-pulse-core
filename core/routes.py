@@ -1293,17 +1293,22 @@ def articles():
     import os as _os
     article_image_urls = {}
     for a in recent:
+        # Law 1: prefer cover_image_url, fall back to header_image_url
+        ciu = (getattr(a, "cover_image_url", None) or "").strip()
+        if ciu and ciu.startswith("http"):
+            article_image_urls[a.id] = ciu
+            continue
         url = (getattr(a, "header_image_url", None) or "").strip()
-        if url and url != default_header_url:
+        if url and url.startswith("http"):
+            article_image_urls[a.id] = url
+        elif url and url != default_header_url:
             filepath = url.lstrip("/")
             if _os.path.exists(filepath):
-                mtime = int(_os.path.getmtime(filepath))
-                url = f"{url}?v={mtime}"
+                article_image_urls[a.id] = url
             else:
-                url = default_header_url
+                article_image_urls[a.id] = default_header_url
         else:
-            url = default_header_url
-        article_image_urls[a.id] = url
+            article_image_urls[a.id] = default_header_url
 
     return render_template('articles.html',
                          today_articles=today_articles,
@@ -1382,7 +1387,7 @@ def article_detail(article_id):
     if not key_takeaways_bullets and key_takeaways_text:
         key_takeaways_bullets = [key_takeaways_text]
     body_html = _article_body_without_tldr(article.content or "")
-    header_image_url = article.header_image_url or "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200"
+    header_image_url = article.resolve_cover_image() if hasattr(article, 'resolve_cover_image') else (article.cover_image_url or article.header_image_url or "/static/images/default-header.png")
 
     # P3 Affiliate CTA injection — contextual, AI-classified, privacy-first
     affiliate_cta = None
@@ -1408,7 +1413,7 @@ def article_detail(article_id):
         key_takeaways_text=key_takeaways_text,
         key_takeaways_bullets=key_takeaways_bullets,
         body_html=body_html,
-        header_image_url=header_image_url,
+        cover_image_url=header_image_url,
         affiliate_cta=affiliate_cta,
     )
 

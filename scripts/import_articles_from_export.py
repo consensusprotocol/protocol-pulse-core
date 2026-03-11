@@ -77,7 +77,7 @@ def main():
                     seo_title=(a.get("seo_title") or "")[:200] or None,
                     seo_description=(a.get("seo_description") or "")[:300] or None,
                     substack_url=(a.get("substack_url") or "")[:500] or None,
-                    header_image_url=(a.get("header_image_url") or "")[:500] or None,
+                    cover_image_url=(a.get("header_image_url") or "")[:500] or None,
                     video_url=(a.get("video_url") or "")[:500] or None,
                 )
                 db.session.add(art)

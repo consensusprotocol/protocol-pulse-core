@@ -441,7 +441,7 @@ Output clean HTML with these sections:
                     content=content,
                     category="education",
                     source_type="affiliate_education",
-                    header_image_url=header_img,
+                    cover_image_url=header_img,
                     published=should_publish,
                     tags=f"affiliate:{product['id']}",
                     seo_description=f"Affiliate: {product['name']}",

@@ -1433,12 +1433,8 @@ def article_detail(article_id):
         key_takeaways_bullets = [key_takeaways_text]
     # Full body for display (duplicate TL;DR stripped so only Key Takeaways box shows it once)
     body_html = _article_body_without_tldr(article.content or "")
-    import os as _os
-    header_image_url = (getattr(article, "cover_image_url", None) or "").strip()
-    if not header_image_url or not header_image_url.startswith("http"):
-        header_image_url = (article.header_image_url or "").strip()
-    if not header_image_url or not header_image_url.startswith("http"):
-        header_image_url = "/static/images/default-header.png"
+    # Law 1: cover_image_url is the single source of truth
+    cover_image_url = article.resolve_cover_image() if hasattr(article, 'resolve_cover_image') else "/static/images/default-header.png"
     return render_template(
         "article_detail.html",
         article=article,
@@ -1446,7 +1442,7 @@ def article_detail(article_id):
         key_takeaways_text=key_takeaways_text,
         key_takeaways_bullets=key_takeaways_bullets,
         body_html=body_html,
-        header_image_url=header_image_url,
+        cover_image_url=cover_image_url,
     )
 
 @app.route('/category/<category>')
@@ -2671,7 +2667,7 @@ def api_generate_article():
                 seo_title=article_data.get('seo_title', article_data.get('title', '')[:200]),
                 seo_description=article_data.get('seo_description', (article_data.get('title', '') or '')[:150]),
                 published=False,
-                header_image_url=header_url,
+                cover_image_url=header_url,
             )
             db.session.add(article)
             db.session.commit()
@@ -2704,7 +2700,7 @@ def api_generate_article():
                 seo_title=article_data.get('seo_title', article_data['title']),
                 seo_description=article_data.get('seo_description', article_data['title'][:150]),
                 published=False,  # BLOCKED - saved as draft for review
-                header_image_url=header_url,
+                cover_image_url=header_url,
             )
             db.session.add(article)
             db.session.commit()
@@ -2733,7 +2729,7 @@ def api_generate_article():
             seo_title=article_data.get('seo_title', article_data['title']),
             seo_description=article_data.get('seo_description', article_data['title'][:150]),
             published=bool(publish_allowed),  # Auto-publish is frozen unless ENABLE_AUTO_PUBLISH=true
-            header_image_url=header_url,
+            cover_image_url=header_url,
         )
         
         db.session.add(article)
@@ -3177,8 +3173,8 @@ def generate_podcast():
                 summary=f"Deep-dive audio analysis featuring expert commentary",
                 content=f'<p class="article-paragraph">Listen to our AI-hosted podcast breakdown.</p><audio controls src="/{result["audio_file"]}" style="width:100%; margin-top: 1rem;"></audio>',
                 category='Podcast',
-                # Article model field is header_image_url (image_url is ignored). Keep but don't fail.
-                header_image_url=thumbnail_url,
+                # Law 1: cover_image_url is the single source of truth
+                cover_image_url=thumbnail_url,
                 published=False
             )
             ok, errs = validate_article_for_publish(article)
@@ -3690,7 +3686,7 @@ def latest_articles():
     articles = Article.query.filter_by(published=True).order_by(
         db.func.coalesce(Article.published_at, Article.created_at).desc()
     ).limit(6).all()
-    return jsonify([{'id': a.id, 'title': a.title, 'summary': a.summary, 'header_image_url': a.header_image_url or '/static/images/default-header.png'} for a in articles])
+    return jsonify([{'id': a.id, 'title': a.title, 'summary': a.summary, 'cover_image_url': a.resolve_cover_image() if hasattr(a, 'resolve_cover_image') else (a.cover_image_url or a.header_image_url or '/static/images/default-header.png')} for a in articles])
 
 @app.route('/api/reddit-trends', methods=['GET'])
 @login_required

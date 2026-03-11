@@ -881,7 +881,7 @@ FORMAT: Use <h1 class="article-header">, <div class="tldr-section">, <p class="a
                 source_type="ai_generated",
                 published=False,  # Require manual approval by default
                 author="Al Ingle",
-                header_image_url=header_url,
+                cover_image_url=header_url,
             )
             
             db.session.add(article)

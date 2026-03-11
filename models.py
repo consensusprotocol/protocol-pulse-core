@@ -124,8 +124,55 @@ class Article(db.Model):
     cover_image_url = db.Column(db.String(500))
     image_status = db.Column(db.String(30), default="ok")       # ok | needs_regen | banned | duplicate
     image_phash = db.Column(db.String(64))                      # perceptual hash hex string
+    slug = db.Column(db.String(300), unique=True, index=True)
+    read_count = db.Column(db.Integer, default=0)
+    fact_check_passed = db.Column(db.Boolean)
+    grok_review_score = db.Column(db.Float)
+    gemini_review_score = db.Column(db.Float)
+    quality_tier = db.Column(db.String(30))
+    content_hash = db.Column(db.String(64))
     screenshot_url = db.Column(db.String(500))
     video_url = db.Column(db.String(500))
+
+    def resolve_cover_image(self):
+        """Law 1: cover_image_url is the single source of truth for images."""
+        url = (self.cover_image_url or "").strip()
+        if url and url.startswith("http"):
+            return url
+        url = (self.header_image_url or "").strip()
+        if url and url.startswith("http"):
+            return url
+        return "/static/images/default-header.png"
+
+    def to_api_dict(self, include_content=False):
+        """Law 2: API response dict."""
+        import json as _json, re as _re
+        plain = _re.sub(r'<[^>]+>', '', self.content or "").strip()
+        word_count = len(plain.split()) if plain else 0
+        tags = []
+        if self.tags:
+            try:
+                tags = _json.loads(self.tags) if self.tags.startswith('[') else [t.strip() for t in self.tags.split(',') if t.strip()]
+            except Exception:
+                tags = []
+        result = {
+            "id": self.id,
+            "title": self.title or "",
+            "slug": self.slug or f"article-{self.id}",
+            "summary": (self.summary or plain[:200] + ("..." if len(plain) > 200 else "")).strip(),
+            "category": self.category or "Bitcoin",
+            "tags": tags,
+            "author": self.author or "Protocol Pulse AI",
+            "cover_image_url": self.resolve_cover_image(),
+            "source_url": self.source_url or "",
+            "source_type": self.source_type or "",
+            "published_at": self.published_at.isoformat() + "Z" if self.published_at else None,
+            "created_at": self.created_at.isoformat() + "Z" if self.created_at else None,
+            "read_time_minutes": max(1, word_count // 200),
+        }
+        if include_content:
+            result["content"] = self.content or ""
+        return result
 
 class Podcast(db.Model):
     id = db.Column(db.Integer, primary_key=True)

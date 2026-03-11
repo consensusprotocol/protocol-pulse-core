@@ -356,7 +356,7 @@ Return HTML only. No markdown. No code fences. No preamble."""
                     summary=f"Daily digest of the most engaged Bitcoin conversations from {len(tweets)} thought leaders across X.",
                     category="sentiment",
                     source_type="sentiment_pulse",
-                    header_image_url=header_image,
+                    cover_image_url=header_image,
                     published=True,
                 )
                 db.session.add(article)
