@@ -8,7 +8,7 @@ from flask_login import login_required, login_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from app import app, db
-from models import Article, Podcast, ContentPrompt, User, Advertisement, AutomationRun, LaunchSequence, TargetAlert, NostrEvent, ReplySquadMember, EngagementEvent, ContentPerformance, AnalyticsSummary, UserSegment, Sponsor, CreditAccount, PredictionOracle, WhaleTransaction, AffiliatePartner, AffiliateClick, FeedItem, SentimentSnapshot, PulseEvent, AutoPostDraft, DailyBrief, OracleSession
+from models import Article, Podcast, ContentPrompt, User, Advertisement, AutomationRun, LaunchSequence, TargetAlert, NostrEvent, ReplySquadMember, EngagementEvent, ContentPerformance, AnalyticsSummary, UserSegment, Sponsor, CreditAccount, PredictionOracle, WhaleTransaction, AffiliatePartner, AffiliateClick, FeedItem, SentimentSnapshot, PulseEvent, AutoPostDraft, DailyBrief, OracleSession, MarketBriefing
 import hashlib
 import json
 from functools import wraps
@@ -48,6 +48,34 @@ except Exception as e:
 # Initialize RSS and Printful services
 rss_service = RSSService()
 printful_service = PrintfulService()
+
+# ─── F2 BRIEFING ROOM HELPERS ────────────────────────────────
+try:
+    from services.briefing_service import generate_briefing as _run_briefing_generation
+    _briefing_service_ok = True
+except Exception as _bse:
+    logging.warning("briefing_service import failed: %s", _bse)
+    _briefing_service_ok = False
+
+
+def _next_briefing_utc_epoch() -> int:
+    """Compute the UTC epoch (ms) of the next scheduled ET briefing slot."""
+    try:
+        import pytz as _tz
+        _ET = _tz.timezone("America/New_York")
+        _UTC = _tz.utc
+        SLOTS = [(7, 0), (9, 30), (16, 30)]
+        now_et = datetime.now(_ET)
+        for h, m in SLOTS:
+            candidate = now_et.replace(hour=h, minute=m, second=0, microsecond=0)
+            if candidate > now_et:
+                return int(candidate.astimezone(_UTC).timestamp() * 1000)
+        tomorrow = (now_et + timedelta(days=1)).replace(hour=7, minute=0, second=0, microsecond=0)
+        return int(tomorrow.astimezone(_UTC).timestamp() * 1000)
+    except Exception as e:
+        logging.warning("_next_briefing_utc_epoch failed: %s", e)
+        return 0
+
 
 def admin_required(f):
     """Decorator to enforce admin role-based access control"""
@@ -2639,20 +2667,96 @@ def api_generate_sentiment():
 
 @app.route('/sentiment')
 def sentiment_dashboard():
-    """Public sentiment reports dashboard"""
-    from models import SentimentReport, Article
-    
-    reports = SentimentReport.query.order_by(SentimentReport.report_date.desc()).limit(14).all()
-    
-    latest_report = reports[0] if reports else None
-    latest_article = None
-    if latest_report and latest_report.article_id:
-        latest_article = Article.query.get(latest_report.article_id)
-    
-    return render_template('sentiment_dashboard.html', 
-                          reports=reports, 
-                          latest_report=latest_report,
-                          latest_article=latest_article)
+    """Public sentiment dashboard — real-time article classification + narrative intelligence."""
+    import json as _json
+    from sqlalchemy import text as _text
+
+    # ── Latest sentiment report ───────────────────────────────────────────────
+    try:
+        latest_report = db.session.execute(
+            _text("""SELECT report_date, overall_sentiment, score, bullish_pct, bearish_pct,
+                            neutral_pct, narrative, top_bullish_signals, top_bearish_signals,
+                            dominant_narrative, anomaly_detected, created_at
+                     FROM sentiment_reports ORDER BY report_date DESC LIMIT 1""")
+        ).fetchone()
+    except Exception:
+        latest_report = None
+
+    # ── 7-day score history ───────────────────────────────────────────────────
+    try:
+        score_rows = db.session.execute(
+            _text("""SELECT report_date, score, overall_sentiment
+                     FROM sentiment_reports ORDER BY report_date DESC LIMIT 7""")
+        ).fetchall()
+        score_history = [
+            {"date": str(r[0]), "score": float(r[1] or 50), "sentiment": r[2] or "neutral"}
+            for r in reversed(score_rows)
+        ]
+    except Exception:
+        score_history = []
+
+    # ── Recent classified articles ────────────────────────────────────────────
+    try:
+        article_rows = db.session.execute(
+            _text("""SELECT id, title, summary, sentiment, sentiment_confidence,
+                            narrative_label, importance_score, source_url, created_at
+                     FROM articles
+                     WHERE published=1
+                     ORDER BY importance_score DESC NULLS LAST, created_at DESC
+                     LIMIT 20""")
+        ).fetchall()
+        recent_articles = []
+        for r in article_rows:
+            recent_articles.append({
+                "id": r[0], "title": r[1], "summary": (r[2] or "")[:200],
+                "sentiment": r[3] or "unclassified",
+                "confidence": float(r[4] or 0),
+                "narrative_label": r[5] or "",
+                "importance_score": int(r[6] or 50),
+                "source_url": r[7],
+                "created_at": str(r[8]),
+            })
+    except Exception:
+        recent_articles = []
+
+    # ── Anomaly events ────────────────────────────────────────────────────────
+    try:
+        anomaly_rows = db.session.execute(
+            _text("""SELECT id, event_type, severity, description, created_at
+                     FROM intelligence_events
+                     WHERE severity IN ('warning', 'critical')
+                     ORDER BY created_at DESC LIMIT 5""")
+        ).fetchall()
+        anomaly_events = [
+            {"id": r[0], "type": r[1], "severity": r[2], "description": r[3], "created_at": str(r[4])}
+            for r in anomaly_rows
+        ]
+    except Exception:
+        anomaly_events = []
+
+    # ── Parse signals from JSON ───────────────────────────────────────────────
+    top_bullish = []
+    top_bearish = []
+    if latest_report:
+        try:
+            top_bullish = _json.loads(latest_report[7] or "[]")[:5]
+        except Exception:
+            pass
+        try:
+            top_bearish = _json.loads(latest_report[8] or "[]")[:5]
+        except Exception:
+            pass
+
+    return render_template(
+        'sentiment_dashboard.html',
+        latest_report=latest_report,
+        score_history=score_history,
+        score_history_json=_json.dumps(score_history),
+        recent_articles=recent_articles,
+        top_bullish=top_bullish,
+        top_bearish=top_bearish,
+        anomaly_events=anomaly_events,
+    )
 
 
 @app.route('/sarah-briefing')
@@ -8289,10 +8393,8 @@ def api_pipeline_ab_tests():
 
 @app.route('/stage')
 def avatar_stage():
-    """Avatar Cinema Mode — 24/7 Bitcoin intelligence live stream stage."""
-    import os
-    stream_url = os.environ.get('STAGE_STREAM_URL', None)
-    return render_template('stage.html', stream_url=stream_url)
+    """LAW 4: /stage → 302 → /briefing (permanent redirect preserved)."""
+    return redirect('/briefing', code=302)
 
 @app.route('/api/stage/transcript')
 def api_stage_transcript():
@@ -9800,17 +9902,157 @@ def bitcoin_insurance_page():
 
 @app.route('/briefing')
 def market_briefing_page():
-    """Market Briefing Room — alias for /sarah-briefing."""
-    from models import SarahBrief, EmergencyFlash
-    latest_brief = SarahBrief.query.order_by(SarahBrief.brief_date.desc()).first()
-    past_briefs = SarahBrief.query.order_by(SarahBrief.brief_date.desc()).offset(1).limit(7).all()
-    emergency_flash = EmergencyFlash.query.filter(
-        EmergencyFlash.acknowledged == False
-    ).order_by(EmergencyFlash.triggered_at.desc()).first()
-    return render_template('sarah_briefing.html',
-                           latest_brief=latest_brief,
-                           past_briefs=past_briefs,
-                           emergency_flash=emergency_flash)
+    """Market Briefing Room (F2) — LAW 3: always show latest + 3 previous."""
+    try:
+        latest = (
+            MarketBriefing.query
+            .filter_by(published=True)
+            .order_by(MarketBriefing.generated_at.desc())
+            .first()
+        )
+        recent = (
+            MarketBriefing.query
+            .filter_by(published=True)
+            .order_by(MarketBriefing.generated_at.desc())
+            .offset(1)
+            .limit(3)
+            .all()
+        )
+    except Exception as e:
+        logging.warning("market_briefing DB error: %s", e)
+        latest = None
+        recent = []
+    next_utc = _next_briefing_utc_epoch()
+    return render_template(
+        'market_briefing.html',
+        latest=latest,
+        recent=recent,
+        next_briefing_utc=next_utc,
+    )
+
+
+@app.route('/briefing/archive')
+def briefing_archive():
+    """All published briefings — paginated."""
+    try:
+        page = max(1, int(request.args.get('page', 1)))
+        per_page = 12
+        all_briefings = (
+            MarketBriefing.query
+            .filter_by(published=True)
+            .order_by(MarketBriefing.generated_at.desc())
+            .offset((page - 1) * per_page)
+            .limit(per_page)
+            .all()
+        )
+    except Exception as e:
+        logging.warning("briefing_archive DB error: %s", e)
+        all_briefings = []
+    return render_template(
+        'market_briefing.html',
+        latest=all_briefings[0] if all_briefings else None,
+        recent=all_briefings[1:4] if len(all_briefings) > 1 else [],
+        next_briefing_utc=_next_briefing_utc_epoch(),
+    )
+
+
+@app.route('/api/briefing/latest')
+def briefing_latest():
+    """Returns the latest completed, published briefing as JSON."""
+    try:
+        b = (
+            MarketBriefing.query
+            .filter_by(published=True, status='completed')
+            .order_by(MarketBriefing.generated_at.desc())
+            .first()
+        )
+        if not b:
+            return jsonify({}), 200
+        return jsonify(b.to_dict())
+    except Exception as e:
+        logging.warning("briefing_latest error: %s", e)
+        return jsonify({"error": "Service unavailable"}), 503
+
+
+@app.route('/api/briefing/<int:briefing_id>')
+def briefing_by_id(briefing_id):
+    """Fetch a single briefing by ID."""
+    try:
+        b = MarketBriefing.query.get(briefing_id)
+        if not b or not b.published:
+            return jsonify({"error": "Not found"}), 404
+        import pytz
+        ET = pytz.timezone("America/New_York")
+        gen_et = ""
+        if b.generated_at:
+            utc_dt = pytz.utc.localize(b.generated_at)
+            et_dt = utc_dt.astimezone(ET)
+            gen_et = et_dt.strftime("%-I:%M %p ET · %b %-d, %Y")
+        data = b.to_dict()
+        data['generated_at_et'] = gen_et
+        data['script_text'] = b.script_text
+        return jsonify(data)
+    except Exception as e:
+        logging.warning("briefing_by_id error: %s", e)
+        return jsonify({"error": "Service unavailable"}), 503
+
+
+@app.route('/api/briefing/list')
+def briefing_list():
+    """Returns up to 10 recent published briefings as JSON."""
+    try:
+        limit = min(int(request.args.get('limit', 10)), 50)
+        briefings = (
+            MarketBriefing.query
+            .filter_by(published=True)
+            .order_by(MarketBriefing.generated_at.desc())
+            .limit(limit)
+            .all()
+        )
+        return jsonify([b.to_dict() for b in briefings])
+    except Exception as e:
+        logging.warning("briefing_list error: %s", e)
+        return jsonify([])
+
+
+@app.route('/api/briefing/generate', methods=['POST'])
+@admin_required
+def briefing_generate_manual():
+    """Manual briefing trigger — admin only. Body: {briefing_type: 'pre_market'|'open'|'close'}"""
+    if not _briefing_service_ok:
+        return jsonify({"success": False, "error": "Briefing service unavailable"}), 503
+
+    data = request.get_json(silent=True) or {}
+    briefing_type = data.get('briefing_type', 'open')
+    if briefing_type not in ('pre_market', 'open', 'close'):
+        return jsonify({"success": False, "error": "Invalid briefing_type"}), 400
+
+    try:
+        result = _run_briefing_generation(briefing_type)
+        status_code = 200 if result.get('success') else 500
+        return jsonify(result), status_code
+    except Exception as e:
+        logging.error("briefing_generate_manual error: %s", e)
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/briefing/status/<int:briefing_id>')
+def briefing_status(briefing_id):
+    """Poll the status of a specific briefing by ID."""
+    try:
+        b = MarketBriefing.query.get(briefing_id)
+        if not b:
+            return jsonify({"error": "Not found"}), 404
+        return jsonify({
+            "id": b.id,
+            "status": b.status,
+            "published": b.published,
+            "video_url": b.video_url,
+            "error_message": b.error_message,
+        })
+    except Exception as e:
+        logging.warning("briefing_status error: %s", e)
+        return jsonify({"error": "Service unavailable"}), 503
 
 
 @app.route('/podcast')
@@ -9825,4 +10067,177 @@ def price_alerts_page():
     """Price Alerts — redirect to charts hub alerts section."""
     from flask import redirect
     return redirect('/charts#alerts', code=302)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SESSION 9 — SENTIMENT + INTELLIGENCE API ENDPOINTS
+# ─────────────────────────────────────────────────────────────────────────────
+
+@app.route('/api/stream/sentiment')
+def stream_sentiment():
+    """SSE endpoint — push classification events as they happen."""
+    import queue
+    import time as _time
+
+    def event_stream():
+        try:
+            from services.sentiment_analyzer import register_sse_subscriber, unregister_sse_subscriber
+        except Exception as e:
+            logging.error("stream_sentiment: import failed: %s", e)
+            yield "data: {\"error\": \"service unavailable\"}\n\n"
+            return
+
+        q = queue.Queue(maxsize=50)
+        register_sse_subscriber(q)
+        try:
+            yield "retry: 5000\n"
+            yield "data: {\"type\": \"connected\", \"ts\": " + str(int(_time.time())) + "}\n\n"
+
+            heartbeat_interval = 30
+            last_heartbeat = _time.monotonic()
+
+            while True:
+                try:
+                    event = q.get(timeout=1.0)
+                    import json as _j
+                    yield f"data: {_j.dumps(event, default=str)}\n\n"
+                    last_heartbeat = _time.monotonic()
+                except queue.Empty:
+                    now = _time.monotonic()
+                    if now - last_heartbeat >= heartbeat_interval:
+                        yield ": heartbeat\n\n"
+                        last_heartbeat = now
+        except GeneratorExit:
+            pass
+        finally:
+            unregister_sse_subscriber(q)
+
+    from flask import Response
+    return Response(event_stream(), mimetype='text/event-stream',
+                    headers={
+                        'Cache-Control': 'no-cache',
+                        'X-Accel-Buffering': 'no',
+                        'Connection': 'keep-alive',
+                    })
+
+
+@app.route('/api/sentiment/classify', methods=['POST'])
+def api_classify_article():
+    """Trigger classification of a specific article."""
+    try:
+        data = request.get_json(silent=True) or {}
+        article_id = data.get('article_id')
+        if not article_id:
+            return jsonify({'success': False, 'error': 'article_id required'}), 400
+
+        from services.sentiment_analyzer import classify_article
+        result = classify_article(int(article_id))
+        if result:
+            return jsonify({'success': True, 'result': result})
+        return jsonify({'success': False, 'error': 'classification failed'})
+    except ValueError:
+        return jsonify({'success': False, 'error': 'invalid article_id'}), 400
+    except Exception as e:
+        logging.error("api_classify_article error: %s", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/sentiment/batch', methods=['POST'])
+def api_batch_classify():
+    """Trigger batch classification of unclassified articles."""
+    try:
+        data = request.get_json(silent=True) or {}
+        hours = int(data.get('hours', 6))
+        hours = max(1, min(48, hours))
+
+        from services.sentiment_analyzer import batch_classify
+        result = batch_classify(hours=hours)
+        return jsonify({'success': True, 'result': result})
+    except Exception as e:
+        logging.error("api_batch_classify error: %s", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/sentiment/daily-report')
+def api_sentiment_daily_report():
+    """Return latest daily sentiment report."""
+    from sqlalchemy import text as _text
+    try:
+        row = db.session.execute(
+            _text("""SELECT report_date, overall_sentiment, score, bullish_pct, bearish_pct,
+                            neutral_pct, narrative, top_bullish_signals, top_bearish_signals,
+                            dominant_narrative, anomaly_detected, created_at
+                     FROM sentiment_reports ORDER BY report_date DESC LIMIT 1""")
+        ).fetchone()
+        if not row:
+            return jsonify({'success': True, 'report': None})
+        import json as _json
+        return jsonify({'success': True, 'report': {
+            'report_date': str(row[0]),
+            'overall_sentiment': row[1],
+            'score': row[2],
+            'bullish_pct': row[3],
+            'bearish_pct': row[4],
+            'neutral_pct': row[5],
+            'narrative': row[6],
+            'top_bullish_signals': _json.loads(row[7] or '[]'),
+            'top_bearish_signals': _json.loads(row[8] or '[]'),
+            'dominant_narrative': row[9],
+            'anomaly_detected': bool(row[10]),
+            'created_at': str(row[11]),
+        }})
+    except Exception as e:
+        logging.error("api_sentiment_daily_report error: %s", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/intelligence/signal')
+def api_signal_strength():
+    """Return signal strength composite. Cached 5 minutes."""
+    try:
+        from services.intelligence_service import get_signal_strength
+        result = get_signal_strength()
+        return jsonify({'success': True, 'data': result})
+    except Exception as e:
+        logging.error("api_signal_strength error: %s", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/intelligence/trending')
+def api_trending_topics():
+    """Return trending topics from last 24h of classified articles."""
+    try:
+        from services.intelligence_service import get_trending_topics
+        hours = int(request.args.get('hours', 24))
+        result = get_trending_topics(hours=hours)
+        return jsonify({'success': True, 'data': result})
+    except Exception as e:
+        logging.error("api_trending_topics error: %s", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/intelligence/entities')
+def api_entity_tracker():
+    """Return entity tracker data from recent articles."""
+    try:
+        from services.intelligence_service import get_entity_tracker
+        hours = int(request.args.get('hours', 48))
+        result = get_entity_tracker(hours=hours)
+        return jsonify({'success': True, 'data': result})
+    except Exception as e:
+        logging.error("api_entity_tracker error: %s", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/intelligence/events')
+def api_intelligence_events():
+    """Return recent intelligence events (anomalies, shifts)."""
+    try:
+        from services.intelligence_service import get_intelligence_events
+        limit = int(request.args.get('limit', 10))
+        result = get_intelligence_events(limit=limit)
+        return jsonify({'success': True, 'data': result})
+    except Exception as e:
+        logging.error("api_intelligence_events error: %s", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
 
