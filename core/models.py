@@ -1067,19 +1067,33 @@ class CollectedSignal(db.Model):
 
 
 class PriceAlert(db.Model):
-    """Bitcoin price alert subscriptions for /charts page."""
+    """Bitcoin price alert subscriptions — double opt-in, Resend delivery."""
     __tablename__ = 'price_alerts'
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(254), nullable=False, index=True)
     target_price = db.Column(db.Float, nullable=False)
     direction = db.Column(db.String(5), nullable=False)  # 'above' or 'below'
+    # Legacy field kept for backward compat with old /api/charts/price-alert route
     triggered = db.Column(db.Boolean, default=False, nullable=False)
     triggered_at = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    # Double opt-in fields (SESSION 20)
+    active = db.Column(db.Boolean, default=False)      # False until confirmed
+    confirmed = db.Column(db.Boolean, default=False)
+    confirm_token = db.Column(db.String(86), unique=True)
+    cancel_token = db.Column(db.String(86), unique=True)
+    expires_at = db.Column(db.DateTime)                # 24hr for unconfirmed
     __table_args__ = (
         db.Index('idx_price_alerts_email_triggered', 'email', 'triggered'),
         db.Index('idx_price_alerts_active', 'triggered', 'target_price'),
+        db.Index('idx_price_alerts_confirm', 'confirm_token'),
+        db.Index('idx_price_alerts_cancel', 'cancel_token'),
     )
+
+    @staticmethod
+    def generate_token():
+        import secrets
+        return secrets.token_urlsafe(32)
 
 # =====================================
 # TERMINAL API SUBSCRIBER MODELS

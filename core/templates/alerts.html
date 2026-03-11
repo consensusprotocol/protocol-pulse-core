@@ -1,0 +1,826 @@
+{% extends "base.html" %}
+
+{% block title %}Bitcoin Price Alerts — Protocol Pulse{% endblock %}
+
+{% block head %}
+<meta name="description" content="Set a Bitcoin price alert. Get notified by email when BTC crosses your target. Free, instant, double opt-in.">
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Alerts Page ──────────────────────────────────────────────────────────── */
+.alerts-hero {
+  background: #000;
+  border-bottom: 1px solid #1a1a1a;
+  padding: 60px 0 40px;
+  text-align: center;
+}
+.alerts-hero .eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: #dc2626;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.alerts-hero h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(26px, 4vw, 40px);
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 12px;
+}
+.alerts-hero .live-price {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  color: #F8C15C;
+}
+.alerts-hero .price-label {
+  font-size: 12px;
+  color: #555;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+/* ── Alert Form Card ─────────────────────────────────────────────────────── */
+.alert-card {
+  background: #0a0a0a;
+  border: 1px solid #1f1f1f;
+  border-radius: 8px;
+  padding: 36px;
+  max-width: 520px;
+  margin: 0 auto 32px;
+}
+.alert-card h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 24px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.form-field {
+  margin-bottom: 20px;
+}
+.form-field label {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #888;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.form-field input {
+  width: 100%;
+  background: #111;
+  border: 1px solid #2a2a2a;
+  border-radius: 4px;
+  padding: 12px 16px;
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.form-field input:focus {
+  border-color: #dc2626;
+}
+.form-field input::placeholder {
+  color: #3a3a3a;
+}
+
+/* Direction toggle */
+.direction-toggle {
+  display: flex;
+  gap: 8px;
+}
+.dir-btn {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #2a2a2a;
+  background: #111;
+  color: #666;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+.dir-btn.active-above {
+  background: #0f2e0f;
+  border-color: #22c55e;
+  color: #22c55e;
+}
+.dir-btn.active-below {
+  background: #2e0f0f;
+  border-color: #dc2626;
+  color: #dc2626;
+}
+.dir-btn:hover:not(.active-above):not(.active-below) {
+  border-color: #444;
+  color: #999;
+}
+
+/* Submit button */
+.btn-set-alert {
+  width: 100%;
+  padding: 14px;
+  background: #dc2626;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.15s;
+}
+.btn-set-alert:hover {
+  background: #b91c1c;
+}
+.btn-set-alert:disabled {
+  background: #333;
+  color: #666;
+  cursor: not-allowed;
+}
+
+/* Success / Error banners */
+.alert-banner {
+  max-width: 520px;
+  margin: 0 auto 20px;
+  padding: 14px 20px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+}
+.alert-banner.success {
+  background: #0f2e0f;
+  border: 1px solid #22c55e;
+  color: #22c55e;
+}
+.alert-banner.error {
+  background: #2e0f0f;
+  border: 1px solid #dc2626;
+  color: #dc2626;
+}
+.alert-banner.info {
+  background: #1a1200;
+  border: 1px solid #F8C15C;
+  color: #F8C15C;
+}
+
+/* Confirm-sent state */
+.confirm-sent {
+  text-align: center;
+  padding: 40px 20px;
+  display: none;
+}
+.confirm-sent .icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+.confirm-sent h3 {
+  font-family: 'JetBrains Mono', monospace;
+  color: #F8C15C;
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+.confirm-sent p {
+  color: #888;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ── 7-Day Chart ─────────────────────────────────────────────────────────── */
+.chart-section {
+  max-width: 720px;
+  margin: 0 auto 40px;
+  padding: 0 16px;
+}
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.chart-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #666;
+  text-transform: uppercase;
+}
+.chart-range-info {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #444;
+}
+.chart-container {
+  background: #0a0a0a;
+  border: 1px solid #1f1f1f;
+  border-radius: 6px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+#btc-price-chart {
+  width: 100%;
+  display: block;
+}
+
+/* ── My Alerts Panel ─────────────────────────────────────────────────────── */
+.my-alerts-section {
+  max-width: 520px;
+  margin: 0 auto 60px;
+  padding: 0 16px;
+  display: none;
+}
+.my-alerts-section.visible { display: block; }
+.my-alerts-header {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: #888;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.alert-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+}
+.alert-row .al-price {
+  color: #F8C15C;
+  font-weight: 600;
+}
+.alert-row .al-dir-above { color: #22c55e; }
+.alert-row .al-dir-below { color: #dc2626; }
+.alert-row .al-distance {
+  color: #555;
+  font-size: 11px;
+}
+.al-cancel-btn {
+  background: none;
+  border: 1px solid #2a2a2a;
+  border-radius: 3px;
+  color: #444;
+  font-size: 11px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  transition: all 0.15s;
+}
+.al-cancel-btn:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+/* ── How It Works ────────────────────────────────────────────────────────── */
+.how-it-works {
+  max-width: 720px;
+  margin: 0 auto 60px;
+  padding: 0 16px;
+}
+.how-it-works h3 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: #555;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+.step-card {
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  border-radius: 6px;
+  padding: 20px;
+  text-align: center;
+}
+.step-card .step-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f1f1f;
+  margin-bottom: 8px;
+}
+.step-card .step-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+.step-card .step-desc {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* ── Spinner ─────────────────────────────────────────────────────────────── */
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #fff3;
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ── Hero ─────────────────────────────────────────────────────────────── -->
+<section class="alerts-hero">
+  <div class="container">
+    <div class="eyebrow">Protocol Pulse · Notifications</div>
+    <h1>BITCOIN PRICE ALERTS</h1>
+    <div class="price-label">BTC / USD</div>
+    <div class="live-price" id="live-price">
+      {% if btc_price %}${{ "{:,.0f}".format(btc_price) }}{% else %}Loading...{% endif %}
+    </div>
+  </div>
+</section>
+
+<div class="container" style="padding-top:40px;">
+
+  <!-- ── Status Banners ───────────────────────────────────────────────── -->
+  {% if success %}
+  <div class="alert-banner success">
+    <strong>Alert activated!</strong>
+    {% if email_param %}
+      We'll notify <strong>{{ email_param }}</strong> when BTC hits your target.
+    {% else %}
+      Your price alert is now live. We'll email you when BTC hits your target.
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if cancelled %}
+  <div class="alert-banner info">
+    Alert cancelled. You won't receive further notifications for that target.
+  </div>
+  {% endif %}
+
+  {% if error %}
+  <div class="alert-banner error">
+    {% if error == 'invalid_token' %}Invalid or expired confirmation link.
+    {% elif error == 'expired' %}Confirmation link expired. Please set a new alert.
+    {% elif error == 'missing_token' %}Missing confirmation token.
+    {% else %}Something went wrong. Please try again.
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- ── Form Card ──────────────────────────────────────────────────── -->
+  <div class="alert-card" id="form-card">
+    <h2>Set a Price Alert</h2>
+
+    <!-- Form -->
+    <div id="form-view">
+      <div class="form-field">
+        <label>Alert when BTC goes</label>
+        <div class="direction-toggle">
+          <button type="button" class="dir-btn active-above" id="btn-above" onclick="setDirection('above')">
+            ▲ Above
+          </button>
+          <button type="button" class="dir-btn" id="btn-below" onclick="setDirection('below')">
+            ▼ Below
+          </button>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>Target Price (USD)</label>
+        <input
+          type="text"
+          id="target-price"
+          placeholder="e.g. $100,000"
+          inputmode="numeric"
+          autocomplete="off"
+        >
+      </div>
+
+      <div class="form-field">
+        <label>Your Email</label>
+        <input
+          type="email"
+          id="alert-email"
+          placeholder="you@example.com"
+          autocomplete="email"
+        >
+      </div>
+
+      <div id="form-error" style="color:#dc2626;font-family:'JetBrains Mono',monospace;font-size:12px;margin-bottom:12px;display:none;"></div>
+
+      <button class="btn-set-alert" id="submit-btn" onclick="submitAlert()">
+        SET ALERT →
+      </button>
+
+      <p style="color:#333;font-size:11px;font-family:'JetBrains Mono',monospace;margin-top:14px;text-align:center;">
+        You'll receive a confirmation email. Max 3 active alerts per address.
+      </p>
+    </div>
+
+    <!-- Confirmation sent state -->
+    <div class="confirm-sent" id="confirm-sent-view">
+      <div class="icon">📬</div>
+      <h3>Check Your Email</h3>
+      <p>
+        A confirmation link has been sent to <strong id="sent-email" style="color:#fff;"></strong>.<br>
+        Click the link to activate your alert. It expires in 24 hours.
+      </p>
+      <p style="margin-top:20px;">
+        <button onclick="resetForm()" style="background:none;border:1px solid #333;color:#888;padding:10px 20px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;border-radius:4px;">
+          Set Another Alert
+        </button>
+      </p>
+    </div>
+  </div>
+
+  <!-- ── 7-Day Chart ────────────────────────────────────────────────── -->
+  <div class="chart-section">
+    <div class="chart-header">
+      <span class="chart-title">BTC Price — 7 Days</span>
+      <span class="chart-range-info" id="chart-range-info">Loading...</span>
+    </div>
+    <div class="chart-container">
+      <svg id="btc-price-chart" height="200" viewBox="0 0 700 200" preserveAspectRatio="none">
+        <text x="350" y="106" fill="#333" font-family="monospace" font-size="12" text-anchor="middle">Loading chart data...</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ── My Alerts ──────────────────────────────────────────────────── -->
+  <div class="my-alerts-section" id="my-alerts-section">
+    <div class="my-alerts-header">Your Active Alerts</div>
+    <div id="alerts-list"></div>
+  </div>
+
+  <!-- ── How It Works ───────────────────────────────────────────────── -->
+  <div class="how-it-works">
+    <h3>How It Works</h3>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-title">Set Target</div>
+        <div class="step-desc">Enter the price level you want to track — above or below current market.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-title">Confirm Email</div>
+        <div class="step-desc">Click the link we send you. No account required, no spam — ever.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-title">Get Notified</div>
+        <div class="step-desc">Instant email the moment Bitcoin crosses your target price.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">04</div>
+        <div class="step-title">One-Click Cancel</div>
+        <div class="step-desc">Every alert email includes a cancel link. No login needed.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* ── State ─────────────────────────────────────────────────────────────────── */
+let selectedDirection = 'above';
+let currentPrice = {{ btc_price | default(0) }};
+let alertLine = null; // SVG y-coordinate for target line
+
+/* ── Helpers ────────────────────────────────────────────────────────────────── */
+function setDirection(dir) {
+  selectedDirection = dir;
+  document.getElementById('btn-above').className = 'dir-btn' + (dir === 'above' ? ' active-above' : '');
+  document.getElementById('btn-below').className = 'dir-btn' + (dir === 'below' ? ' active-below' : '');
+  redrawTargetLine();
+}
+
+function formatPrice(val) {
+  const num = parseFloat(String(val).replace(/[^0-9.]/g, ''));
+  if (isNaN(num)) return '';
+  return num.toLocaleString('en-US');
+}
+
+document.getElementById('target-price').addEventListener('input', function () {
+  const raw = this.value.replace(/[^0-9.]/g, '');
+  const cursor = this.selectionStart;
+  const formatted = raw ? parseFloat(raw).toLocaleString('en-US', { maximumFractionDigits: 0 }) : '';
+  this.value = formatted;
+  redrawTargetLine();
+});
+
+function getTargetPriceFloat() {
+  const val = document.getElementById('target-price').value.replace(/[^0-9.]/g, '');
+  return val ? parseFloat(val) : null;
+}
+
+function showError(msg) {
+  const el = document.getElementById('form-error');
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+
+function resetForm() {
+  document.getElementById('form-view').style.display = 'block';
+  document.getElementById('confirm-sent-view').style.display = 'none';
+  document.getElementById('target-price').value = '';
+  document.getElementById('alert-email').value = '';
+  showError('');
+}
+
+/* ── Submit ─────────────────────────────────────────────────────────────────── */
+async function submitAlert() {
+  showError('');
+  const email = document.getElementById('alert-email').value.trim();
+  const targetPrice = getTargetPriceFloat();
+  const btn = document.getElementById('submit-btn');
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showError('Please enter a valid email address.');
+    return;
+  }
+  if (!targetPrice || targetPrice < 1000 || targetPrice > 10000000) {
+    showError('Price must be between $1,000 and $10,000,000.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>SENDING...';
+
+  try {
+    const resp = await fetch('/api/alerts/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, target_price: targetPrice, direction: selectedDirection }),
+    });
+    const data = await resp.json();
+
+    if (resp.ok && data.status === 'confirmation_sent') {
+      document.getElementById('sent-email').textContent = email;
+      document.getElementById('form-view').style.display = 'none';
+      document.getElementById('confirm-sent-view').style.display = 'block';
+      // Save email in session storage to load alerts list
+      sessionStorage.setItem('alert_email', email);
+    } else {
+      showError(data.error || 'Something went wrong. Please try again.');
+    }
+  } catch (err) {
+    showError('Network error — please try again.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'SET ALERT →';
+  }
+}
+
+/* ── Live Price ──────────────────────────────────────────────────────────────── */
+async function fetchLivePrice() {
+  try {
+    const resp = await fetch('/api/btc-price', { signal: AbortSignal.timeout(5000) });
+    const data = await resp.json();
+    const price = data.price || data.usd || data.bitcoin?.usd;
+    if (price) {
+      currentPrice = parseFloat(price);
+      document.getElementById('live-price').textContent = '$' + currentPrice.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      redrawTargetLine();
+    }
+  } catch (e) { /* silent */ }
+}
+
+/* ── 7-Day Chart ─────────────────────────────────────────────────────────────── */
+let chartPrices = [];
+let chartMin = 0, chartMax = 0;
+const W = 700, H = 200, PAD = { top: 16, right: 24, bottom: 30, left: 56 };
+const CW = W - PAD.left - PAD.right;
+const CH = H - PAD.top - PAD.bottom;
+
+function priceToY(price) {
+  if (chartMax === chartMin) return PAD.top + CH / 2;
+  return PAD.top + CH - ((price - chartMin) / (chartMax - chartMin)) * CH;
+}
+function idxToX(i, len) {
+  return PAD.left + (i / (len - 1)) * CW;
+}
+
+async function loadChart() {
+  try {
+    const resp = await fetch('/api/charts/price-history?days=7');
+    const data = await resp.json();
+    // Expect [{time, price}] or {prices: [[ts, price]]}
+    let prices = [];
+    if (Array.isArray(data)) {
+      prices = data.map(d => d.price || d[1]);
+    } else if (data.prices) {
+      prices = data.prices.map(d => d[1]);
+    } else if (data.history) {
+      prices = data.history.map(d => d.price || d[1]);
+    }
+    if (prices.length < 2) return;
+    chartPrices = prices;
+    chartMin = Math.min(...prices) * 0.997;
+    chartMax = Math.max(...prices) * 1.003;
+    drawChart();
+
+    // Update range info
+    const lo = Math.min(...prices), hi = Math.max(...prices);
+    document.getElementById('chart-range-info').textContent =
+      `Low: $${lo.toLocaleString('en-US', { maximumFractionDigits: 0 })}  ·  High: $${hi.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+  } catch (e) {
+    document.getElementById('chart-range-info').textContent = 'Chart unavailable';
+  }
+}
+
+function drawChart() {
+  const svg = document.getElementById('btc-price-chart');
+  if (chartPrices.length < 2) return;
+  const len = chartPrices.length;
+
+  // Build polyline points
+  const pts = chartPrices.map((p, i) => `${idxToX(i, len).toFixed(1)},${priceToY(p).toFixed(1)}`).join(' ');
+
+  // Y-axis labels (3 levels)
+  const yLevels = [chartMin, (chartMin + chartMax) / 2, chartMax];
+  const yLabels = yLevels.map(p =>
+    `<text x="${PAD.left - 6}" y="${(priceToY(p) + 4).toFixed(1)}" fill="#444" font-family="monospace" font-size="10" text-anchor="end">$${Math.round(p).toLocaleString('en-US')}</text>`
+  ).join('');
+
+  // Grid lines
+  const gridLines = yLevels.map(p =>
+    `<line x1="${PAD.left}" y1="${priceToY(p).toFixed(1)}" x2="${W - PAD.right}" y2="${priceToY(p).toFixed(1)}" stroke="#1a1a1a" stroke-width="1"/>`
+  ).join('');
+
+  // X axis labels (7 days: start, middle, end)
+  const xLabels = [0, Math.floor(len / 2), len - 1].map(i => {
+    const label = i === 0 ? '7d ago' : i === len - 1 ? 'Now' : '3.5d ago';
+    return `<text x="${idxToX(i, len).toFixed(1)}" y="${H - 6}" fill="#444" font-family="monospace" font-size="10" text-anchor="middle">${label}</text>`;
+  }).join('');
+
+  // Fill gradient
+  const fillPts = `${idxToX(0, len).toFixed(1)},${H - PAD.bottom} ` + pts + ` ${idxToX(len - 1, len).toFixed(1)},${H - PAD.bottom}`;
+
+  // Current price line
+  const currentY = priceToY(currentPrice > 0 ? currentPrice : chartPrices[len - 1]);
+  const currentPriceLine = `
+    <line x1="${PAD.left}" y1="${currentY.toFixed(1)}" x2="${W - PAD.right}" y2="${currentY.toFixed(1)}"
+          stroke="#F8C15C" stroke-width="1" stroke-dasharray="4,3" opacity="0.4"/>
+  `;
+
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="price-fill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#dc2626" stop-opacity="0.15"/>
+        <stop offset="100%" stop-color="#dc2626" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    ${gridLines}
+    <polygon points="${fillPts}" fill="url(#price-fill)"/>
+    <polyline points="${pts}" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+    ${currentPriceLine}
+    ${yLabels}
+    ${xLabels}
+    <g id="target-line-group"></g>
+  `;
+}
+
+function redrawTargetLine() {
+  if (chartPrices.length < 2) return;
+  const group = document.getElementById('target-line-group');
+  if (!group) return;
+
+  const target = getTargetPriceFloat();
+  if (!target || target < chartMin * 0.8 || target > chartMax * 1.2) {
+    group.innerHTML = '';
+    return;
+  }
+
+  // Clamp Y to chart area
+  let y = priceToY(target);
+  y = Math.max(PAD.top, Math.min(PAD.top + CH, y));
+
+  const color = selectedDirection === 'above' ? '#22c55e' : '#dc2626';
+  const label = `$${Math.round(target).toLocaleString('en-US')}`;
+
+  group.innerHTML = `
+    <line x1="${PAD.left}" y1="${y.toFixed(1)}" x2="${W - PAD.right}" y2="${y.toFixed(1)}"
+          stroke="${color}" stroke-width="1.5" stroke-dasharray="6,3"/>
+    <rect x="${W - PAD.right - 70}" y="${(y - 11).toFixed(1)}" width="70" height="14"
+          fill="${color}" rx="2" opacity="0.9"/>
+    <text x="${W - PAD.right - 35}" y="${(y + 1).toFixed(1)}" fill="#000" font-family="monospace"
+          font-size="10" font-weight="bold" text-anchor="middle">${label}</text>
+  `;
+}
+
+/* ── My Alerts ──────────────────────────────────────────────────────────────── */
+async function loadMyAlerts(email) {
+  if (!email) return;
+  try {
+    const resp = await fetch(`/api/alerts/list?email=${encodeURIComponent(email)}`);
+    const data = await resp.json();
+    if (!data.alerts || data.alerts.length === 0) return;
+
+    const section = document.getElementById('my-alerts-section');
+    const list = document.getElementById('alerts-list');
+    section.classList.add('visible');
+
+    list.innerHTML = data.alerts.map(a => {
+      const diff = currentPrice > 0 ? Math.abs(currentPrice - a.target_price) : null;
+      const distText = diff !== null
+        ? `$${Math.round(diff).toLocaleString('en-US')} away`
+        : '';
+      const dirClass = a.direction === 'above' ? 'al-dir-above' : 'al-dir-below';
+      const dirLabel = a.direction === 'above' ? '▲ above' : '▼ below';
+      return `
+        <div class="alert-row" id="alert-row-${a.id}">
+          <div>
+            <span class="${dirClass}">${dirLabel}</span>
+            <span class="al-price" style="margin-left:10px;">$${Math.round(a.target_price).toLocaleString('en-US')}</span>
+            <span class="al-distance" style="margin-left:10px;">${distText}</span>
+          </div>
+          <button class="al-cancel-btn" onclick="cancelAlert('${a.cancel_token}', ${a.id})">Cancel</button>
+        </div>
+      `;
+    }).join('');
+  } catch (e) { /* silent */ }
+}
+
+async function cancelAlert(token, id) {
+  try {
+    const resp = await fetch(`/api/alerts/cancel?token=${encodeURIComponent(token)}`, { method: 'DELETE' });
+    if (resp.ok) {
+      const row = document.getElementById(`alert-row-${id}`);
+      if (row) { row.style.opacity = '0.3'; row.style.pointerEvents = 'none'; }
+    }
+  } catch (e) { /* silent */ }
+}
+
+/* ── Init ────────────────────────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', async () => {
+  // Live price every 30s
+  fetchLivePrice();
+  setInterval(fetchLivePrice, 30000);
+
+  // Chart
+  await loadChart();
+
+  // Load existing alerts if email is known
+  const storedEmail = sessionStorage.getItem('alert_email');
+  {% if email_param %}
+  loadMyAlerts('{{ email_param | e }}');
+  {% endif %}
+  if (storedEmail && !('{{ email_param }}')) {
+    loadMyAlerts(storedEmail);
+  }
+
+  // If email field is filled, check for alerts
+  document.getElementById('alert-email').addEventListener('blur', function () {
+    const email = this.value.trim();
+    if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      sessionStorage.setItem('alert_email', email);
+      loadMyAlerts(email);
+    }
+  });
+
+  // Keyboard: Enter submits
+  ['target-price', 'alert-email'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if (e.key === 'Enter') submitAlert();
+    });
+  });
+});
+</script>
+{% endblock %}
