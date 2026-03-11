@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""dual_host_tts.py — Single-host TTS engine for Pulse Check.
+"""dual_host_tts.py — Dual-host TTS engine for Pulse Check.
 
 Generates audio using ElevenLabs TTS.
-Host: Mark (1SM7GgM6IMuvQlz2BwM3) — PBX approved single narrator at 1.10x speed.
-Both host=1 and host=2 entries route to Mark (single voice, no gender swap).
+Host 1 (Natasha): uxKr2vlA4hYgXZR1oPRT — sharp female, 1.12x speed.
+Host 2 (Mark): 1SM7GgM6IMuvQlz2BwM3 — male contrarian, 1.10x speed.
 
 Usage:
     from dual_host_tts import generate_dialogue_audio
@@ -41,9 +41,21 @@ except ImportError:
 from relay import get_key
 
 # ── Voice configuration ──────────────────────────────────────────────────────
-# PBX DIRECTIVE 2026-03-09: SINGLE HOST ONLY — Mark at 1.10x speed.
+# DUAL HOST RESTORED 2026-03-10: Natasha (HOST_1) + Mark (HOST_2)
 # Nicole (piTKgcLEGmPE4e6mEKli) and Chris (iP95p4xoKVk53GoZ742B) are BANNED.
-# Both host=1 and host=2 map to Mark.
+
+_ERYN_VOICE = {
+    "voice_id": "uxKr2vlA4hYgXZR1oPRT",
+    "name": "Eryn",
+    "model_id": "eleven_turbo_v2_5",
+    "voice_settings": {
+        "stability": 0.55,
+        "similarity_boost": 0.80,
+        "style": 0.15,
+        "use_speaker_boost": True,
+        "speed": 1.12,
+    },
+}
 
 _MARK_VOICE = {
     "voice_id": "1SM7GgM6IMuvQlz2BwM3",
@@ -59,8 +71,8 @@ _MARK_VOICE = {
 }
 
 VOICES = {
-    1: _MARK_VOICE,
-    2: _MARK_VOICE,  # both hosts → Mark (single narrator)
+    1: _ERYN_VOICE,   # HOST_1 → Natasha (female)
+    2: _MARK_VOICE,   # HOST_2 → Mark (male)
 }
 
 SILENCE_GAP = 0.3  # seconds between speakers
