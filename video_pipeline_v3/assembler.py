@@ -232,11 +232,10 @@ def _build_info_bar_fg(duration: float, btc_price: str, block_height: str = "",
     safe_btc = btc_price.replace("'", "").replace('"', "").replace("\\", "")
 
     content = (f"  PROTOCOL PULSE  //  BTC {safe_btc}  //  {date_str}"
-               f"  //  SOVEREIGNTY LAYER ACTIVE  //  PROTOCOLPULSE.IO"
-               f"  //  SIGNAL DETECTED  //  STAY SOVEREIGN  "
-               f"  //  PROTOCOL PULSE  //  BTC {safe_btc}  //  {date_str}"
-               f"  //  SOVEREIGNTY LAYER ACTIVE  //  PROTOCOLPULSE.IO"
-               f"  //  SIGNAL DETECTED  //  STAY SOVEREIGN  ")
+               f"  //  PROTOCOLPULSE.IO  //  STAY SOVEREIGN  "
+               f"  //  PROTOCOL PULSE DAILY BRIEF  //  {date_str}"
+               f"  //  FEAR/GREED  //  STAY SOVEREIGN"
+               f"  //  BTC {safe_btc}  //  PROTOCOLPULSE.IO  ")
     safe_content = content.replace("'", "").replace('"', "").replace("\\", "")
 
     fg = ""
@@ -628,12 +627,12 @@ def _make_clip_unavailable_card(rank: int, output_path: str, btc_price: str = "$
         f"drawbox=x=360:y=280:w=4:h=380:color=0xFF0000@0.9:t=fill,"
         f"drawbox=x=1556:y=280:w=4:h=380:color=0xFF0000@0.9:t=fill,"
         # Main headline
-        f"drawtext=fontfile={FONT_BOLD}:text='⚡ INTELLIGENCE INCOMING'"
+        f"drawtext=fontfile={FONT_BOLD}:text='PULSE CHECK'"
         f":fontcolor={COLOR_GOLD}:fontsize=52:x=(w-text_w)/2:y=360,"
         # Subtext
-        f"drawtext=fontfile={FONT_MONO}:text='SOURCING PARTNER SIGNAL...'"
+        f"drawtext=fontfile={FONT_MONO}:text='NEXT CLIP LOADING'"
         f":fontcolor=0x888888:fontsize=26:x=(w-text_w)/2:y=450,"
-        f"drawtext=fontfile={FONT_MONO}:text='SIGNAL {rank} OF 5'"
+        f"drawtext=fontfile={FONT_MONO}:text='CLIP {rank} OF 5'"
         f":fontcolor={COLOR_RED}@0.7:fontsize=18:x=(w-text_w)/2:y=500,"
         # Gold info rail at bottom
         f"drawbox=x=0:y=1032:w=1920:h=48:color={COLOR_GOLD}@0.95:t=fill,"
@@ -902,7 +901,7 @@ def _build_signature_info_rail(duration: float, btc_price: str, label_in: str,
     ticker_content = (
         f"  BTC {safe_btc}  //  PROTOCOL PULSE DAILY BRIEF  //  "
         f"{date_str}  //  FEAR/GREED  //  STAY SOVEREIGN  //  "
-        f"BTC {safe_btc}  //  PROTOCOLPULSE.IO  //  SIGNAL DETECTED  "
+        f"BTC {safe_btc}  //  PROTOCOLPULSE.IO  //  STAY SOVEREIGN  "
     )
     safe_ticker = ticker_content.replace("'", "").replace('"', "").replace("\\", "")
 
