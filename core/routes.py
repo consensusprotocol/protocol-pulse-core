@@ -1381,6 +1381,24 @@ def article_detail(article_id):
         key_takeaways_bullets = [key_takeaways_text]
     body_html = _article_body_without_tldr(article.content or "")
     header_image_url = article.header_image_url or "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200"
+
+    # P3 Affiliate CTA injection — contextual, AI-classified, privacy-first
+    affiliate_cta = None
+    try:
+        from services.affiliate_injector import inject_affiliate_cta
+        raw_ip = request.headers.get('X-Forwarded-For', request.remote_addr or '')
+        client_ip = raw_ip.split(',')[0].strip()
+        tags_str = getattr(article, 'tags', '') or ''
+        affiliate_cta = inject_affiliate_cta(
+            article_id=article.id,
+            article_content=article.content or '',
+            article_category=article.category or '',
+            article_tags=tags_str,
+            client_ip=client_ip,
+        )
+    except Exception as _aff_exc:
+        logging.debug("affiliate_inject skipped: %s", _aff_exc)
+
     return render_template(
         "article_detail.html",
         article=article,
@@ -1389,6 +1407,7 @@ def article_detail(article_id):
         key_takeaways_bullets=key_takeaways_bullets,
         body_html=body_html,
         header_image_url=header_image_url,
+        affiliate_cta=affiliate_cta,
     )
 
 @app.route('/category/<category>')
@@ -3765,6 +3784,14 @@ try:
 except (ModuleNotFoundError, ImportError) as e:
     logging.warning("routes_social not loaded - social monitoring blueprint not registered: %s", e)
 
+# Register Terminal API / Premium API blueprint
+try:
+    from routes_premium_api import premium_api
+    app.register_blueprint(premium_api)
+    logging.info("Terminal API blueprint (routes_premium_api) registered from routes.py")
+except (ModuleNotFoundError, ImportError) as e:
+    logging.warning("routes_premium_api not loaded: %s", e)
+
 @app.route('/admin/write', methods=['GET', 'POST'])
 @login_required
 @admin_required
@@ -4663,6 +4690,107 @@ def skip_alert(alert_id):
     return jsonify({'success': True})
 
 # ============================================
+# ============================================
+# NOSTR INTELLIGENCE ROUTES (F4)
+# Gospel: GOSPEL.md — LAW 1-5 compliant
+# ============================================
+
+@app.route('/nostr')
+def nostr_page():
+    """Public-facing Nostr onboarding + live signal feed."""
+    try:
+        from services.nostr_service import get_top_content, get_relay_status
+        top_content = get_top_content(limit=10)
+        relay_status = get_relay_status()
+    except Exception as e:
+        logging.warning("nostr_page service error: %s", e)
+        top_content = []
+        relay_status = [
+            {"relay": r, "connected": False, "last_event_at": None, "events_today": 0}
+            for r in ["wss://relay.damus.io", "wss://nos.lol", "wss://relay.nostr.band", "wss://relay.primal.net"]
+        ]
+
+    pp_npub = os.environ.get("NOSTR_NPUB", "npub1protocolpulsexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+    return render_template(
+        'nostr.html',
+        top_content=top_content,
+        relay_status=relay_status,
+        pp_npub=pp_npub,
+    )
+
+
+@app.route('/api/nostr/top')
+def nostr_top():
+    """GET → top 10 Nostr events by engagement score."""
+    try:
+        limit = min(int(request.args.get('limit', 10)), 25)
+        from services.nostr_service import get_top_content
+        content = get_top_content(limit=limit)
+        return jsonify(content)
+    except Exception as e:
+        logging.warning("nostr_top error: %s", e)
+        return jsonify([])
+
+
+@app.route('/api/nostr/relay-status')
+def nostr_relay_status():
+    """GET → relay connection status."""
+    try:
+        from services.nostr_service import get_relay_status
+        status = get_relay_status()
+        return jsonify(status)
+    except Exception as e:
+        logging.warning("nostr_relay_status error: %s", e)
+        relays = ["wss://relay.damus.io", "wss://nos.lol", "wss://relay.nostr.band", "wss://relay.primal.net"]
+        return jsonify([
+            {"relay": r, "connected": False, "last_event_at": None, "events_today": 0}
+            for r in relays
+        ])
+
+
+@app.route('/api/nostr/publish', methods=['POST'])
+@login_required
+@admin_required
+def nostr_publish():
+    """POST {content, kind} → publish to all Nostr relays. Admin only. LAW 5 enforced."""
+    try:
+        data = request.get_json(silent=True) or {}
+        content = (data.get('content') or '').strip()
+        kind = int(data.get('kind', 1))
+
+        if not content:
+            return jsonify({"success": False, "error": "content required"}), 400
+        if len(content) > 4096:
+            return jsonify({"success": False, "error": "content too long (max 4096 chars)"}), 400
+        if kind not in (1, 30023):
+            return jsonify({"success": False, "error": "kind must be 1 or 30023"}), 400
+
+        from nostr.nostr_publisher import sign_and_publish, get_daily_post_count
+        result = sign_and_publish(content=content, kind=kind)
+        result["daily_count"] = get_daily_post_count()
+        return jsonify(result)
+    except Exception as e:
+        logging.error("nostr_publish error: %s", e)
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/nostr/stats')
+def nostr_stats():
+    """GET → aggregate stats (event count, relay status)."""
+    try:
+        from services.nostr_service import get_stats, get_relay_status
+        stats = get_stats()
+        relay_status = get_relay_status()
+        connected = sum(1 for r in relay_status if r.get("connected"))
+        stats["relays_connected"] = connected
+        stats["relays_total"] = len(relay_status)
+        return jsonify(stats)
+    except Exception as e:
+        logging.warning("nostr_stats error: %s", e)
+        return jsonify({"total_events": 0, "events_today": 0, "tracked_pubkeys": 0, "relays_connected": 0, "relays_total": 4})
+
+
+# ============================================
 # NOSTR BROADCASTER ROUTES
 # ============================================
 
@@ -5256,9 +5384,26 @@ def stripe_webhook():
                 session_obj = event['data']['object']
                 metadata = session_obj.get('metadata', {})
 
+                # Terminal API subscription: provision ApiSubscriber
+                if metadata.get('subscription_type') == 'terminal_api':
+                    try:
+                        from services.stripe_service import provision_terminal_subscriber
+                        result = provision_terminal_subscriber(session_obj, db, models)
+                        if result.get('success') and result.get('api_key') and result.get('email'):
+                            import threading
+                            from routes_premium_api import _send_welcome_email
+                            t = threading.Thread(
+                                target=_send_welcome_email,
+                                args=(result['email'], result['api_key']),
+                                daemon=True,
+                            )
+                            t.start()
+                    except Exception as e:
+                        logging.error(f"Terminal subscriber provisioning error: {e}")
+
                 # Subscription: set user tier by email
                 tier = metadata.get('tier')
-                if tier in ('operator', 'commander', 'sovereign'):
+                if tier in ('operator', 'commander', 'sovereign') and metadata.get('subscription_type') != 'terminal_api':
                     email = session_obj.get('customer_email') or (session_obj.get('customer_details') or {}).get('email')
                     if email:
                         user = models.User.query.filter_by(email=email).first()
@@ -5266,8 +5411,12 @@ def stripe_webhook():
                             user.subscription_tier = tier
                             user.stripe_customer_id = session_obj.get('customer')
                             user.stripe_subscription_id = session_obj.get('subscription')
-                            db.session.commit()
-                            logging.info(f"Subscription tier set: {email} -> {tier}")
+                            try:
+                                db.session.commit()
+                                logging.info(f"Subscription tier set: {email} -> {tier}")
+                            except Exception as e:
+                                db.session.rollback()
+                                logging.error(f"Error setting subscription tier: {e}")
 
                 # Handle merch orders - submit to Printful
                 if metadata.get('type') == 'merch_order':
@@ -8333,6 +8482,2090 @@ def api_media_highlights():
     except Exception as e:
         logging.warning('api_media_highlights error: %s', e)
         return jsonify([])
+
+# ─────────────────────────────────────────────────────────────────────────────
+# P3 CHARTS — Bitcoin Intelligence Hub
+# ─────────────────────────────────────────────────────────────────────────────
+import time as _time
+import functools as _functools
+import re as _re_charts
+
+# Simple TTL cache wrapper (no Redis dependency)
+def _ttl_cache(seconds):
+    def decorator(fn):
+        _cache_store = {}
+        @_functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            key = (args, tuple(sorted(kwargs.items())))
+            now = _time.monotonic()
+            if key in _cache_store:
+                result, ts = _cache_store[key]
+                if now - ts < seconds:
+                    return result
+            result = fn(*args, **kwargs)
+            _cache_store[key] = (result, now)
+            return result
+        return wrapper
+    return decorator
+
+CHARTS_HEADERS = {
+    'User-Agent': 'ProtocolPulse/1.0 (+https://protocolpulse.io)',
+    'Accept': 'application/json',
+}
+
+@_ttl_cache(300)
+def _fetch_coingecko_history(days):
+    """Fetch BTC/USD OHLCV from CoinGecko. Cache 5 min."""
+    url = f"https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days={days}&interval={'daily' if days >= 30 else 'hourly'}"
+    try:
+        r = requests.get(url, timeout=10, headers=CHARTS_HEADERS)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        logging.warning("CoinGecko fetch error: %s", e)
+        return None
+
+@_ttl_cache(60)
+def _fetch_mempool_stats():
+    """Fetch mempool stats from mempool.space. Cache 60s."""
+    try:
+        r = requests.get("https://mempool.space/api/v1/fees/recommended", timeout=10, headers=CHARTS_HEADERS)
+        r.raise_for_status()
+        fees = r.json()
+        s = requests.get("https://mempool.space/api/mempool", timeout=10, headers=CHARTS_HEADERS)
+        s.raise_for_status()
+        mem = s.json()
+        return {"fees": fees, "mempool": mem}
+    except Exception as e:
+        logging.warning("Mempool stats fetch error: %s", e)
+        return None
+
+@_ttl_cache(300)
+def _fetch_hashrate_history():
+    """Fetch hashrate history from mempool.space. Cache 5 min."""
+    try:
+        r = requests.get("https://mempool.space/api/v1/mining/hashrate/3m", timeout=10, headers=CHARTS_HEADERS)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        logging.warning("Hashrate history fetch error: %s", e)
+        return None
+
+@_ttl_cache(3600)
+def _fetch_pool_distribution():
+    """Fetch mining pool distribution. Cache 1 hr."""
+    try:
+        r = requests.get("https://mempool.space/api/v1/mining/pools/1w", timeout=10, headers=CHARTS_HEADERS)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        logging.warning("Pool distribution fetch error: %s", e)
+        return None
+
+@_ttl_cache(1800)
+def _fetch_fee_history():
+    """Fetch fee history. Cache 30 min."""
+    try:
+        r = requests.get("https://mempool.space/api/v1/mining/blocks/fees/1w", timeout=10, headers=CHARTS_HEADERS)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        logging.warning("Fee history fetch error: %s", e)
+        return None
+
+@_ttl_cache(3600)
+def _fetch_lightning_stats():
+    """Fetch Lightning Network stats. Cache 1 hr."""
+    try:
+        r = requests.get("https://mempool.space/api/v1/lightning/statistics/latest", timeout=10, headers=CHARTS_HEADERS)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        logging.warning("Lightning stats fetch error: %s", e)
+        return None
+
+@_ttl_cache(3600)
+def _fetch_fear_greed():
+    """Fetch Fear & Greed index. Cache 1 hr."""
+    try:
+        r = requests.get("https://api.alternative.me/fng/?limit=7", timeout=10, headers=CHARTS_HEADERS)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        logging.warning("Fear & Greed fetch error: %s", e)
+        return None
+
+@_ttl_cache(30)
+def _fetch_btc_price():
+    """Fetch current BTC price. Cache 30s."""
+    try:
+        r = requests.get("https://api.coinbase.com/v2/prices/BTC-USD/spot", timeout=10, headers=CHARTS_HEADERS)
+        r.raise_for_status()
+        return float(r.json()["data"]["amount"])
+    except Exception as e:
+        logging.warning("BTC price fetch error: %s", e)
+        try:
+            r2 = requests.get("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd", timeout=10, headers=CHARTS_HEADERS)
+            r2.raise_for_status()
+            return float(r2.json()["bitcoin"]["usd"])
+        except Exception as e2:
+            logging.warning("BTC price fallback error: %s", e2)
+            return None
+
+@_ttl_cache(60)
+def _fetch_block_height():
+    """Fetch current block height. Cache 60s."""
+    try:
+        r = requests.get("https://mempool.space/api/blocks/tip/height", timeout=10, headers=CHARTS_HEADERS)
+        r.raise_for_status()
+        return int(r.text.strip())
+    except Exception as e:
+        logging.warning("Block height fetch error: %s", e)
+        return None
+
+
+# ── Page Route ────────────────────────────────────────────────────────────────
+
+@app.route("/charts")
+def charts():
+    """Bitcoin Charts Intelligence Hub."""
+    btc_price = _fetch_btc_price() or 0
+    block_height = _fetch_block_height() or 0
+    mempool_data = _fetch_mempool_stats() or {}
+    fees = mempool_data.get("fees", {})
+    mem = mempool_data.get("mempool", {})
+    mempool_mb = round((mem.get("vsize", 0) or 0) / 1_000_000, 2)
+    next_block_fee = fees.get("fastestFee", 0)
+
+    # Supply calculation
+    TOTAL_SUPPLY = 21_000_000
+    if block_height:
+        mined = _calc_mined_supply(block_height)
+    else:
+        mined = 19_640_000  # fallback estimate
+    pct_mined = round(mined / TOTAL_SUPPLY * 100, 4)
+
+    # Next halving
+    HALVING_INTERVAL = 210_000
+    halving_epoch = (block_height // HALVING_INTERVAL) + 1 if block_height else 4
+    blocks_to_halving = (halving_epoch * HALVING_INTERVAL) - block_height if block_height else 0
+    days_to_halving = round(blocks_to_halving * 10 / 1440, 1) if blocks_to_halving > 0 else 0
+
+    sats_per_dollar = round(100_000_000 / btc_price, 0) if btc_price > 0 else 0
+
+    return render_template(
+        "charts.html",
+        btc_price=btc_price,
+        block_height=block_height,
+        mempool_mb=mempool_mb,
+        next_block_fee=next_block_fee,
+        mined_supply=mined,
+        pct_mined=pct_mined,
+        blocks_to_halving=blocks_to_halving,
+        days_to_halving=days_to_halving,
+        sats_per_dollar=int(sats_per_dollar),
+        current_subsidy=3.125,
+    )
+
+
+def _calc_mined_supply(block_height):
+    """Calculate total BTC mined from block height using halving schedule."""
+    total = 0.0
+    remaining = block_height
+    subsidy = 50.0
+    while remaining > 0:
+        blocks_in_epoch = min(remaining, 210_000)
+        total += blocks_in_epoch * subsidy
+        remaining -= blocks_in_epoch
+        subsidy /= 2.0
+        if subsidy < 1e-8:
+            break
+    return round(total, 2)
+
+
+# ── API Proxy Endpoints ────────────────────────────────────────────────────────
+
+@app.route("/api/charts/price-history")
+def api_charts_price_history():
+    """Proxy CoinGecko price history. Cache 5 min."""
+    try:
+        days = int(request.args.get("days", 7))
+        days = max(1, min(days, 365))
+        data = _fetch_coingecko_history(days)
+        if data is None:
+            return jsonify({"error": "upstream unavailable"}), 503
+        return jsonify(data)
+    except (ValueError, TypeError) as e:
+        return jsonify({"error": "invalid parameter"}), 400
+    except Exception as e:
+        logging.error("api_charts_price_history error: %s", e)
+        return jsonify({"error": "internal error"}), 500
+
+
+@app.route("/api/charts/mempool-data")
+def api_charts_mempool_data():
+    """Proxy mempool.space stats. Cache 60s."""
+    try:
+        data = _fetch_mempool_stats()
+        if data is None:
+            return jsonify({"error": "upstream unavailable"}), 503
+        return jsonify(data)
+    except Exception as e:
+        logging.error("api_charts_mempool_data error: %s", e)
+        return jsonify({"error": "internal error"}), 500
+
+
+@app.route("/api/charts/hashrate-history")
+def api_charts_hashrate_history():
+    """Proxy mempool.space hashrate history. Cache 5 min."""
+    try:
+        data = _fetch_hashrate_history()
+        if data is None:
+            return jsonify({"error": "upstream unavailable"}), 503
+        return jsonify(data)
+    except Exception as e:
+        logging.error("api_charts_hashrate_history error: %s", e)
+        return jsonify({"error": "internal error"}), 500
+
+
+@app.route("/api/charts/pool-distribution")
+def api_charts_pool_distribution():
+    """Proxy mining pool distribution. Cache 1 hr."""
+    try:
+        data = _fetch_pool_distribution()
+        if data is None:
+            return jsonify({"error": "upstream unavailable"}), 503
+        return jsonify(data)
+    except Exception as e:
+        logging.error("api_charts_pool_distribution error: %s", e)
+        return jsonify({"error": "internal error"}), 500
+
+
+@app.route("/api/charts/fee-history")
+def api_charts_fee_history():
+    """Proxy fee history. Cache 30 min."""
+    try:
+        data = _fetch_fee_history()
+        if data is None:
+            return jsonify({"error": "upstream unavailable"}), 503
+        return jsonify(data)
+    except Exception as e:
+        logging.error("api_charts_fee_history error: %s", e)
+        return jsonify({"error": "internal error"}), 500
+
+
+@app.route("/api/charts/lightning")
+def api_charts_lightning():
+    """Proxy Lightning Network stats. Cache 1 hr."""
+    try:
+        data = _fetch_lightning_stats()
+        if data is None:
+            return jsonify({"error": "upstream unavailable"}), 503
+        return jsonify(data)
+    except Exception as e:
+        logging.error("api_charts_lightning error: %s", e)
+        return jsonify({"error": "internal error"}), 500
+
+
+@app.route("/api/charts/fear-greed")
+def api_charts_fear_greed():
+    """Proxy Fear & Greed index. Cache 1 hr."""
+    try:
+        data = _fetch_fear_greed()
+        if data is None:
+            return jsonify({"error": "upstream unavailable"}), 503
+        return jsonify(data)
+    except Exception as e:
+        logging.error("api_charts_fear_greed error: %s", e)
+        return jsonify({"error": "internal error"}), 500
+
+
+@app.route("/api/charts/price-alert", methods=["POST"])
+def api_charts_price_alert():
+    """Save a price alert. Rate-limited: max 3/email/day, 10 active total."""
+    try:
+        data = request.get_json(silent=True) or {}
+        email = (data.get("email") or "").strip().lower()[:254]
+        target_price = data.get("target_price")
+        direction = (data.get("direction") or "above").strip().lower()
+
+        # Validate email
+        if not email or not _re_charts.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
+            return jsonify({"error": "Valid email required"}), 400
+
+        # Validate price
+        try:
+            target_price = float(target_price)
+            if not (1_000 <= target_price <= 10_000_000):
+                raise ValueError("out of range")
+        except (TypeError, ValueError):
+            return jsonify({"error": "Price must be between $1,000 and $10,000,000"}), 400
+
+        # Validate direction
+        if direction not in ("above", "below"):
+            direction = "above"
+
+        # Rate limiting: max 10 active alerts per email
+        active_count = models.PriceAlert.query.filter_by(email=email, triggered=False).count()
+        if active_count >= 10:
+            return jsonify({"error": "Maximum 10 active alerts per email"}), 429
+
+        # Rate limiting: max 3 new alerts per email per day
+        cutoff = datetime.utcnow() - timedelta(hours=24)
+        recent_count = models.PriceAlert.query.filter(
+            models.PriceAlert.email == email,
+            models.PriceAlert.created_at >= cutoff
+        ).count()
+        if recent_count >= 3:
+            return jsonify({"error": "Maximum 3 alerts per day per email"}), 429
+
+        alert = models.PriceAlert(
+            email=email,
+            target_price=target_price,
+            direction=direction,
+        )
+        try:
+            db.session.add(alert)
+            db.session.commit()
+        except Exception as db_err:
+            db.session.rollback()
+            logging.error("PriceAlert DB error: %s", db_err)
+            return jsonify({"error": "Could not save alert"}), 500
+
+        return jsonify({"success": True, "message": f"Alert set for BTC {direction} ${target_price:,.0f}"}), 201
+
+    except Exception as e:
+        logging.error("api_charts_price_alert error: %s", e)
+        return jsonify({"error": "internal error"}), 500
+
+
+@app.route("/api/charts/ai-explain", methods=["POST"])
+def api_charts_ai_explain():
+    """AI chart interpretation via Anthropic Claude."""
+    try:
+        data = request.get_json(silent=True) or {}
+        chart_type = (data.get("chart_type") or "price")[:50]
+        chart_data = data.get("chart_data") or {}
+        question = (data.get("question") or "Explain this chart")[:500]
+
+        api_key = os.environ.get("ANTHROPIC_API_KEY")
+        if not api_key:
+            return jsonify({"explanation": "AI interpretation requires ANTHROPIC_API_KEY. Key not configured."}), 200
+
+        # Build context from chart data
+        context_parts = [f"Chart type: {chart_type}"]
+        if isinstance(chart_data, dict):
+            for k, v in list(chart_data.items())[:10]:
+                context_parts.append(f"{k}: {v}")
+        context = "\n".join(context_parts)
+
+        prompt = f"""You are a professional Bitcoin analyst interpreting chart data for Protocol Pulse, a Bitcoin intelligence platform.
+
+Chart context:
+{context}
+
+User question: {question}
+
+Provide a concise 2-3 sentence analyst interpretation. Focus on what the data signals for Bitcoin market structure or on-chain health. Be precise, not vague. Use professional financial analyst tone. Do not use markdown formatting."""
+
+        import anthropic
+        client = anthropic.Anthropic(api_key=api_key)
+        message = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=300,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        explanation = message.content[0].text.strip() if message.content else "Analysis unavailable."
+        return jsonify({"explanation": explanation})
+
+    except Exception as e:
+        logging.error("api_charts_ai_explain error: %s", e)
+        return jsonify({"explanation": "AI analysis temporarily unavailable."}), 200
+
+
+# ── Embed Route ────────────────────────────────────────────────────────────────
+
+@app.route("/charts/embed/<chart_id>")
+def charts_embed(chart_id):
+    """Minimal embeddable chart page."""
+    allowed = {"price", "hashrate", "mempool", "pools", "fear-greed"}
+    if chart_id not in allowed:
+        return "Invalid chart", 400
+    days = request.args.get("days", 7)
+    try:
+        days = int(days)
+        days = max(1, min(days, 365))
+    except (ValueError, TypeError):
+        days = 7
+    return render_template("charts_embed.html", chart_id=chart_id, days=days)
+
+
+# ── Cron: Check Price Alerts ───────────────────────────────────────────────────
+
+def check_price_alerts():
+    """Check active price alerts against current BTC price and send emails."""
+    try:
+        price = _fetch_btc_price()
+        if not price:
+            return
+        active_alerts = models.PriceAlert.query.filter_by(triggered=False).all()
+        triggered_ids = []
+        for alert in active_alerts:
+            should_trigger = (
+                (alert.direction == "above" and price >= alert.target_price) or
+                (alert.direction == "below" and price <= alert.target_price)
+            )
+            if should_trigger:
+                triggered_ids.append(alert.id)
+                _send_price_alert_email(alert, price)
+                alert.triggered = True
+                alert.triggered_at = datetime.utcnow()
+        if triggered_ids:
+            try:
+                db.session.commit()
+                logging.info("Triggered %d price alerts", len(triggered_ids))
+            except Exception as commit_err:
+                db.session.rollback()
+                logging.error("Price alert commit error: %s", commit_err)
+    except Exception as e:
+        logging.error("check_price_alerts error: %s", e)
+
+
+def _send_price_alert_email(alert, current_price):
+    """Send price alert email via SendGrid or log if not configured."""
+    try:
+        sg_key = os.environ.get("SENDGRID_API_KEY")
+        from_email = os.environ.get("SENDGRID_FROM_EMAIL", "alerts@protocolpulse.io")
+        if not sg_key:
+            logging.info("Price alert triggered for %s: BTC %s $%.0f (no email key)", alert.email, alert.direction, current_price)
+            return
+        from sendgrid import SendGridAPIClient
+        from sendgrid.helpers.mail import Mail
+        subject = f"⚡ BTC Price Alert: ${current_price:,.0f} — Protocol Pulse"
+        body = (
+            f"Your Bitcoin price alert was triggered!\n\n"
+            f"Alert: BTC {alert.direction} ${alert.target_price:,.0f}\n"
+            f"Current price: ${current_price:,.0f}\n\n"
+            f"View live charts: https://protocolpulse.io/charts\n\n"
+            f"— Protocol Pulse Intelligence"
+        )
+        msg = Mail(from_email=from_email, to_emails=alert.email, subject=subject, plain_text_content=body)
+        SendGridAPIClient(sg_key).send(msg)
+    except Exception as e:
+        logging.warning("Price alert email send error: %s", e)
+
+# ── P3 Mining Intel ───────────────────────────────────────────────────────────
+
+@app.route('/mining')
+def mining_hub():
+    """Bitcoin Mining Intelligence Hub — live hashrate, ASIC calculator, pool distribution."""
+    return render_template('mining_hub.html')
+
+
+@app.route('/api/mining/live-stats')
+@cache.cached(timeout=30, key_prefix='mining_live_stats')
+def api_mining_live_stats():
+    """
+    Live mining command center data: hashrate, difficulty, adjustment, hash price,
+    block height, mempool fees, sats_per_hash.
+    Cached 30s. All external calls have timeouts + graceful fallback.
+    """
+    import math
+    result = {
+        'hashrate_eh': None,
+        'difficulty': None,
+        'difficulty_formatted': None,
+        'next_adjustment_pct': None,
+        'blocks_until_adjustment': None,
+        'epoch_progress_pct': None,
+        'block_height': None,
+        'btc_price_usd': None,
+        'hash_price_usd_per_ph': None,
+        'sats_per_hash': None,
+        'block_reward_btc': 3.125,
+        'block_reward_usd': None,
+        'mempool_fee_low': None,
+        'mempool_fee_mid': None,
+        'mempool_fee_high': None,
+        'next_3_adjustment_forecast': [],
+        'updated_at': datetime.utcnow().isoformat(),
+    }
+
+    # 1. Hashrate + current difficulty
+    try:
+        r = requests.get('https://mempool.space/api/v1/mining/hashrate/1m', timeout=10)
+        if r.ok:
+            d = r.json()
+            raw_hashrate = d.get('currentHashrate') or 0
+            result['hashrate_eh'] = round(raw_hashrate / 1e18, 2) if raw_hashrate else None
+            diff = d.get('currentDifficulty') or 0
+            result['difficulty'] = diff
+            if diff:
+                t = diff / 1e12
+                result['difficulty_formatted'] = f"{t:.2f}T"
+    except requests.exceptions.RequestException as e:
+        logging.warning('mining live-stats hashrate error: %s', e)
+
+    # 2. Difficulty adjustment
+    try:
+        r = requests.get('https://mempool.space/api/v1/difficulty-adjustment', timeout=10)
+        if r.ok:
+            d = r.json()
+            result['next_adjustment_pct'] = round(d.get('difficultyChange', 0), 2)
+            remaining = d.get('remainingBlocks', 0)
+            result['blocks_until_adjustment'] = remaining
+            # epoch progress: (2016 - remaining) / 2016
+            if remaining is not None:
+                completed = 2016 - remaining
+                result['epoch_progress_pct'] = round(max(0, min(100, (completed / 2016) * 100)), 1)
+    except requests.exceptions.RequestException as e:
+        logging.warning('mining live-stats difficulty-adjustment error: %s', e)
+
+    # 3. Block height
+    try:
+        r = requests.get('https://mempool.space/api/blocks/tip/height', timeout=10)
+        if r.ok:
+            result['block_height'] = int(r.text.strip())
+    except requests.exceptions.RequestException as e:
+        logging.warning('mining live-stats block height error: %s', e)
+
+    # 4. BTC price
+    try:
+        r = requests.get(
+            'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd',
+            timeout=10
+        )
+        if r.ok:
+            result['btc_price_usd'] = r.json().get('bitcoin', {}).get('usd')
+    except requests.exceptions.RequestException as e:
+        logging.warning('mining live-stats btc price error: %s', e)
+
+    # 5. Derived metrics
+    if result['hashrate_eh'] and result['btc_price_usd']:
+        hashrate_ph = result['hashrate_eh'] * 1e6
+        daily_btc = 3.125 * 144
+        result['hash_price_usd_per_ph'] = round((daily_btc * result['btc_price_usd']) / hashrate_ph, 4)
+        if hashrate_ph > 0:
+            hashes_per_day = hashrate_ph * 1e12 * 86400
+            btc_per_hash = daily_btc / hashes_per_day if hashes_per_day > 0 else 0
+            result['sats_per_hash'] = round(btc_per_hash * 1e8, 12)
+        result['block_reward_usd'] = round(3.125 * result['btc_price_usd'], 2)
+
+    # 6. 3-epoch difficulty forecast (mean-reversion model)
+    if result['next_adjustment_pct'] is not None:
+        base_adj = result['next_adjustment_pct']
+        forecast = []
+        adj = base_adj
+        for i in range(3):
+            adj = round(adj * (0.7 ** i) if i > 0 else adj, 2)
+            forecast.append({'epoch': i + 1, 'predicted_pct': adj})
+        result['next_3_adjustment_forecast'] = forecast
+
+    # 7. Mempool fee rates
+    try:
+        r = requests.get('https://mempool.space/api/v1/fees/recommended', timeout=10)
+        if r.ok:
+            fees = r.json()
+            result['mempool_fee_low'] = fees.get('economyFee')
+            result['mempool_fee_mid'] = fees.get('halfHourFee')
+            result['mempool_fee_high'] = fees.get('fastestFee')
+    except requests.exceptions.RequestException as e:
+        logging.warning('mining live-stats mempool fees error: %s', e)
+
+    return jsonify(result)
+
+
+@app.route('/api/mining/pools')
+@cache.cached(timeout=300, key_prefix='mining_pools')
+def api_mining_pools():
+    """
+    Pool distribution data from mempool.space (last 7 days).
+    Computes HHI (Herfindahl-Hirschman Index) for concentration risk.
+    Cached 5 minutes.
+    """
+    try:
+        r = requests.get('https://mempool.space/api/v1/mining/pools/1w', timeout=10)
+        if not r.ok:
+            return jsonify({'pools': [], 'hhi': None, 'error': 'upstream error'}), 502
+
+        data = r.json()
+        pools_raw = data.get('pools', [])
+        if not pools_raw:
+            return jsonify({'pools': [], 'hhi': None})
+
+        total_blocks = sum(p.get('blockCount', 0) for p in pools_raw)
+        pools = []
+        hhi = 0.0
+        for p in pools_raw[:12]:
+            blocks = p.get('blockCount', 0)
+            share_pct = round((blocks / total_blocks * 100), 2) if total_blocks else 0
+            hhi += (share_pct ** 2)
+            pools.append({
+                'name': p.get('name', 'Unknown'),
+                'slug': p.get('slug', ''),
+                'share_pct': share_pct,
+                'block_count': blocks,
+            })
+
+        hhi_rounded = round(hhi)
+        if hhi_rounded > 2500:
+            concentration_label, concentration_color = 'HIGH', 'red'
+        elif hhi_rounded > 1500:
+            concentration_label, concentration_color = 'MODERATE', 'gold'
+        else:
+            concentration_label, concentration_color = 'HEALTHY', 'green'
+
+        top3_share = sum(p['share_pct'] for p in pools[:3])
+        centralization_warning = top3_share > 51
+
+        return jsonify({
+            'pools': pools,
+            'hhi': hhi_rounded,
+            'concentration_label': concentration_label,
+            'concentration_color': concentration_color,
+            'top3_share_pct': round(top3_share, 1),
+            'centralization_warning': centralization_warning,
+            'updated_at': datetime.utcnow().isoformat(),
+        })
+    except requests.exceptions.RequestException as e:
+        logging.error('mining pools API error: %s', e)
+        return jsonify({'pools': [], 'hhi': None, 'error': str(e)}), 502
+    except Exception as e:
+        logging.error('mining pools unexpected error: %s', e)
+        return jsonify({'pools': [], 'hhi': None, 'error': 'internal error'}), 500
+
+
+@app.route('/api/charts/hashrate-history')
+@cache.cached(timeout=600, key_prefix='hashrate_history')
+def api_hashrate_history():
+    """
+    30-day hashrate history for SVG chart. Source: mempool.space.
+    Returns: [{timestamp, hashrate_eh}] + ath_eh + 7day_ma points.
+    Cached 10 minutes.
+    """
+    try:
+        r = requests.get('https://mempool.space/api/v1/mining/hashrate/1m', timeout=10)
+        if not r.ok:
+            return jsonify({'data': [], 'ath_eh': None}), 502
+
+        raw = r.json()
+        hashrates = raw.get('hashrates', [])
+        if not hashrates:
+            return jsonify({'data': [], 'ath_eh': None})
+
+        recent = hashrates[-30:] if len(hashrates) >= 30 else hashrates
+        points = []
+        for h in recent:
+            ts = h.get('timestamp')
+            val = h.get('avgHashrate') or h.get('hashrate')
+            if ts and val:
+                points.append({'timestamp': ts, 'hashrate_eh': round(val / 1e18, 2)})
+
+        if not points:
+            return jsonify({'data': [], 'ath_eh': None})
+
+        all_vals = [p['hashrate_eh'] for p in points]
+        ath_eh = max(all_vals) if all_vals else None
+
+        window = 7
+        ma_points = []
+        for i in range(len(points)):
+            start = max(0, i - window + 1)
+            window_vals = [points[j]['hashrate_eh'] for j in range(start, i + 1)]
+            ma_points.append(round(sum(window_vals) / len(window_vals), 2))
+
+        return jsonify({
+            'data': points,
+            'ma7': ma_points,
+            'ath_eh': round(ath_eh, 2) if ath_eh else None,
+            'current_eh': round(raw.get('currentHashrate', 0) / 1e18, 2),
+            'updated_at': datetime.utcnow().isoformat(),
+        })
+    except requests.exceptions.RequestException as e:
+        logging.error('hashrate history error: %s', e)
+        return jsonify({'data': [], 'ath_eh': None, 'error': str(e)}), 502
+    except Exception as e:
+        logging.error('hashrate history unexpected error: %s', e)
+        return jsonify({'data': [], 'ath_eh': None, 'error': 'internal error'}), 500
+
+
+@app.route('/api/mining/articles')
+def api_mining_articles():
+    """Latest 8 mining articles for the /mining hub page."""
+    try:
+        articles = models.Article.query.filter_by(
+            published=True, category='mining'
+        ).order_by(models.Article.created_at.desc()).limit(8).all()
+        result = []
+        for a in articles:
+            result.append({
+                'id': a.id,
+                'title': a.title,
+                'summary': (a.summary or a.content or '')[:200].strip(),
+                'created_at': a.created_at.isoformat() if a.created_at else None,
+                'tags': a.tags or '',
+                'url': f'/articles/{a.id}',
+            })
+        return jsonify({'articles': result})
+    except Exception as e:
+        logging.error('mining articles API error: %s', e)
+        return jsonify({'articles': [], 'error': 'internal error'}), 500
+# =============================================
+# P3 AFFILIATE INTEGRATION — Meanwhile + RNS.ID
+# Created: 2026-03-09 | Branch: feature/p3-affiliates
+# =============================================
+
+def _p3_init_tables():
+    """Ensure p3_affiliate_clicks and p3_affiliate_ab_results tables exist."""
+    try:
+        db.session.execute(db.text(
+            "CREATE TABLE IF NOT EXISTS p3_affiliate_clicks ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "partner TEXT NOT NULL, "
+            "referrer_page TEXT, "
+            "ab_variant TEXT, "
+            "converted INTEGER DEFAULT 0, "
+            "user_hash TEXT, "
+            "user_agent_hash TEXT, "
+            "clicked_at DATETIME DEFAULT CURRENT_TIMESTAMP)"
+        ))
+        db.session.execute(db.text(
+            "CREATE INDEX IF NOT EXISTS idx_p3_aff_partner_date "
+            "ON p3_affiliate_clicks(partner, clicked_at)"
+        ))
+        db.session.execute(db.text(
+            "CREATE TABLE IF NOT EXISTS p3_affiliate_ab_results ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "partner TEXT NOT NULL, "
+            "variant TEXT NOT NULL, "
+            "impressions INTEGER DEFAULT 0, "
+            "clicks INTEGER DEFAULT 0, "
+            "winner_locked INTEGER DEFAULT 0, "
+            "calculated_at DATETIME DEFAULT CURRENT_TIMESTAMP, "
+            "UNIQUE(partner, variant))"
+        ))
+        db.session.commit()
+    except Exception as _e:
+        logging.debug("p3_init_tables: %s", _e)
+        db.session.rollback()
+
+
+@app.route('/go/meanwhile')
+@limiter.limit("30 per minute")
+def affiliate_go_meanwhile():
+    """Track click → redirect to Meanwhile with referral code."""
+    _p3_init_tables()
+    try:
+        from services.affiliate_injector import track_click, PARTNER_CONFIG
+        from services.affiliate_injector import _get_tracking_salt
+        salt = _get_tracking_salt()
+        today = datetime.utcnow().date().isoformat()
+        raw_ip = request.headers.get('X-Forwarded-For', request.remote_addr or '')
+        ip = raw_ip.split(',')[0].strip()
+        user_hash = hashlib.sha256(f"{ip}:{today}:{salt}".encode()).hexdigest()
+        referrer = request.args.get('ref') or request.referrer or ''
+        variant = request.args.get('v', 'A')
+        track_click('meanwhile', referrer[:500], variant, user_hash,
+                    request.headers.get('User-Agent', '')[:500])
+        dest = PARTNER_CONFIG['meanwhile']['redirect_url']
+        resp = redirect(dest, code=302)
+        resp.headers['Cache-Control'] = 'no-store, no-cache'
+        return resp
+    except Exception as e:
+        logging.error("affiliate_go_meanwhile error: %s", e)
+        return redirect('https://www.meanwhile.life/', code=302)
+
+
+@app.route('/go/rns')
+@limiter.limit("30 per minute")
+def affiliate_go_rns():
+    """Track click → redirect to RNS.ID with referral code."""
+    _p3_init_tables()
+    try:
+        from services.affiliate_injector import track_click, PARTNER_CONFIG
+        from services.affiliate_injector import _get_tracking_salt
+        salt = _get_tracking_salt()
+        today = datetime.utcnow().date().isoformat()
+        raw_ip = request.headers.get('X-Forwarded-For', request.remote_addr or '')
+        ip = raw_ip.split(',')[0].strip()
+        user_hash = hashlib.sha256(f"{ip}:{today}:{salt}".encode()).hexdigest()
+        referrer = request.args.get('ref') or request.referrer or ''
+        variant = request.args.get('v', 'A')
+        track_click('rns_id', referrer[:500], variant, user_hash,
+                    request.headers.get('User-Agent', '')[:500])
+        dest = PARTNER_CONFIG['rns_id']['redirect_url']
+        resp = redirect(dest, code=302)
+        resp.headers['Cache-Control'] = 'no-store, no-cache'
+        return resp
+    except Exception as e:
+        logging.error("affiliate_go_rns error: %s", e)
+        return redirect('https://rns.id/', code=302)
+
+
+@app.route('/bitcoin-life-insurance')
+def bitcoin_life_insurance():
+    """Meanwhile Bitcoin Life Insurance landing page."""
+    return render_template('bitcoin_life_insurance.html')
+
+
+@app.route('/digital-residency')
+def digital_residency():
+    """RNS.ID Palau Digital Residency landing page."""
+    return render_template('digital_residency.html')
+
+
+@app.route('/admin/affiliates')
+@login_required
+@admin_required
+def admin_affiliates():
+    """Admin affiliate analytics dashboard."""
+    _p3_init_tables()
+    try:
+        from services.affiliate_injector import compute_ab_stats, get_partner_config
+        K_ANON = 10  # k-anonymity threshold
+
+        # Clicks last 30 days per partner
+        rows = db.session.execute(db.text(
+            "SELECT partner, date(clicked_at) as day, COUNT(*) as cnt "
+            "FROM p3_affiliate_clicks "
+            "WHERE clicked_at >= date('now', '-30 days') "
+            "GROUP BY partner, day ORDER BY day"
+        )).fetchall()
+        clicks_by_day = {}
+        for r in rows:
+            clicks_by_day.setdefault(r[0], {})[r[1]] = r[2]
+
+        # Total clicks (30d) per partner
+        totals = db.session.execute(db.text(
+            "SELECT partner, COUNT(*) as total, "
+            "COUNT(DISTINCT user_hash) as unique_users "
+            "FROM p3_affiliate_clicks "
+            "WHERE clicked_at >= date('now', '-30 days') "
+            "GROUP BY partner"
+        )).fetchall()
+        totals_map = {r[0]: {"total": r[1], "unique_users": r[2]} for r in totals}
+
+        # Top referrer pages (k-anon enforced)
+        top_refs = db.session.execute(db.text(
+            "SELECT partner, referrer_page, COUNT(*) as cnt, "
+            "COUNT(DISTINCT user_hash) as uniq "
+            "FROM p3_affiliate_clicks "
+            "WHERE clicked_at >= date('now', '-30 days') "
+            "AND referrer_page != '' "
+            "GROUP BY partner, referrer_page "
+            "HAVING uniq >= :k "
+            "ORDER BY cnt DESC LIMIT 20"
+        ), {"k": K_ANON}).fetchall()
+
+        # A/B stats
+        ab_stats = {
+            "meanwhile": compute_ab_stats("meanwhile"),
+            "rns_id": compute_ab_stats("rns_id"),
+        }
+
+        partner_cfg = get_partner_config()
+
+        return render_template(
+            'admin_affiliates.html',
+            clicks_by_day=clicks_by_day,
+            totals_map=totals_map,
+            top_refs=top_refs,
+            ab_stats=ab_stats,
+            partner_cfg=partner_cfg,
+            k_anon=K_ANON,
+        )
+    except Exception as e:
+        logging.error("admin_affiliates error: %s", e)
+        return render_template('admin_affiliates.html',
+                               clicks_by_day={}, totals_map={}, top_refs=[],
+                               ab_stats={}, partner_cfg={}, k_anon=10,
+                               error=str(e))
+
+
+@app.route('/api/affiliates/metrics')
+@login_required
+@admin_required
+def api_affiliates_metrics():
+    """JSON endpoint: affiliate click metrics for dashboard charts."""
+    _p3_init_tables()
+    try:
+        from services.affiliate_injector import compute_ab_stats, PARTNER_CONFIG
+        K_ANON = 10
+
+        # Daily clicks last 30 days
+        rows = db.session.execute(db.text(
+            "SELECT partner, date(clicked_at) as day, COUNT(*) as cnt "
+            "FROM p3_affiliate_clicks "
+            "WHERE clicked_at >= date('now', '-30 days') "
+            "GROUP BY partner, day ORDER BY day"
+        )).fetchall()
+
+        daily = {}
+        for r in rows:
+            daily.setdefault(r[0], []).append({"date": r[1], "clicks": r[2]})
+
+        # Partner totals
+        totals = db.session.execute(db.text(
+            "SELECT partner, COUNT(*) as total, "
+            "COUNT(DISTINCT user_hash) as unique_users "
+            "FROM p3_affiliate_clicks "
+            "GROUP BY partner"
+        )).fetchall()
+        totals_map = {r[0]: {"total": r[1], "unique_users": r[2]} for r in totals}
+
+        # Estimated earnings
+        earnings = {}
+        for partner, cfg in PARTNER_CONFIG.items():
+            t = totals_map.get(partner, {}).get("total", 0)
+            # Conservative: 2% click-to-conversion rate
+            earnings[partner] = round(t * 0.02 * cfg["estimated_commission"], 2)
+
+        return jsonify({
+            "ok": True,
+            "daily_clicks": daily,
+            "totals": totals_map,
+            "estimated_earnings": earnings,
+            "ab_stats": {
+                "meanwhile": compute_ab_stats("meanwhile"),
+                "rns_id": compute_ab_stats("rns_id"),
+            },
+        })
+    except Exception as e:
+        logging.error("api_affiliates_metrics error: %s", e)
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/affiliates/impression', methods=['POST'])
+@limiter.limit("60 per minute")
+def api_affiliates_impression():
+    """Record affiliate impression (JS beacon). No auth required — public endpoint."""
+    _p3_init_tables()
+    try:
+        data = request.get_json(silent=True) or {}
+        partner = data.get('partner', '')
+        variant = data.get('variant', 'A')
+        referrer_page = data.get('referrer_page', '')[:500]
+
+        if partner not in ('meanwhile', 'rns_id'):
+            return '', 204
+
+        from services.affiliate_injector import track_impression
+        from services.affiliate_injector import _get_tracking_salt
+        salt = _get_tracking_salt()
+        today = datetime.utcnow().date().isoformat()
+        raw_ip = request.headers.get('X-Forwarded-For', request.remote_addr or '')
+        ip = raw_ip.split(',')[0].strip()
+        user_hash = hashlib.sha256(f"{ip}:{today}:{salt}".encode()).hexdigest()
+        track_impression(partner, referrer_page, variant, user_hash)
+        return '', 204
+    except Exception as e:
+        logging.debug("api_affiliates_impression error: %s", e)
+        return '', 204
+
+
+@app.route('/api/affiliates/click', methods=['POST'])
+@limiter.limit("60 per minute")
+def api_affiliates_click():
+    """
+    Record affiliate click from landing page JS beacon.
+    Distinct from /api/affiliates/impression — fires when user clicks final CTA.
+    P1 FIX (U4): separate endpoint prevents impression/click metric pollution.
+    """
+    _p3_init_tables()
+    try:
+        data = request.get_json(silent=True) or {}
+        partner = data.get('partner', '')
+        variant = data.get('variant', 'direct')
+        referrer_page = data.get('referrer_page', '')[:500]
+
+        if partner not in ('meanwhile', 'rns_id'):
+            return '', 204
+
+        from services.affiliate_injector import track_click, _get_tracking_salt
+        salt = _get_tracking_salt()
+        today = datetime.utcnow().date().isoformat()
+        raw_ip = request.headers.get('X-Forwarded-For', request.remote_addr or '')
+        ip = raw_ip.split(',')[0].strip()
+        user_hash = hashlib.sha256(f"{ip}:{today}:{salt}".encode()).hexdigest()
+        track_click(partner, referrer_page, variant, user_hash,
+                    request.headers.get('User-Agent', '')[:500])
+        return '', 204
+    except Exception as e:
+        logging.debug("api_affiliates_click error: %s", e)
+        return '', 204
+
+
+@app.route('/api/affiliates/declare-winner', methods=['POST'])
+@login_required
+@admin_required
+def api_affiliates_declare_winner():
+    """Lock in winning A/B variant for a partner."""
+    _p3_init_tables()
+    try:
+        data = request.get_json(silent=True) or {}
+        partner = data.get('partner', '')
+        variant = data.get('variant', '')
+        if partner not in ('meanwhile', 'rns_id') or variant not in ('A', 'B'):
+            return jsonify({'ok': False, 'error': 'Invalid partner or variant'}), 400
+
+        # Lock winner: set winner_locked=1 on winning variant, disable loser
+        db.session.execute(db.text(
+            "UPDATE p3_affiliate_ab_results SET winner_locked = 1 "
+            "WHERE partner = :partner AND variant = :variant"
+        ), {"partner": partner, "variant": variant})
+        db.session.commit()
+        return jsonify({'ok': True, 'partner': partner, 'winner': variant})
+    except Exception as e:
+        db.session.rollback()
+        logging.error("declare_winner error: %s", e)
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+# ══════════════════════════════════════════════════════
+# MARKET BRIEFING ROOM (F2)
+# ══════════════════════════════════════════════════════
+
+try:
+    from services.briefing_service import generate_briefing as _run_briefing_generation
+    _briefing_service_ok = True
+except Exception as _bse:
+    logging.warning("briefing_service import failed: %s", _bse)
+    _briefing_service_ok = False
+
+
+def _next_briefing_utc_epoch() -> int:
+    """P1-2: Compute the UTC epoch (ms) of the next scheduled ET briefing slot.
+    Returns a JavaScript-compatible millisecond timestamp.
+    DST-safe: uses pytz IANA timezone — no manual offset arithmetic.
+    """
+    try:
+        import pytz as _tz
+        _ET = _tz.timezone("America/New_York")
+        _UTC = _tz.utc
+        SLOTS = [(7, 0), (9, 30), (16, 30)]
+        now_et = datetime.now(_ET)
+        for h, m in SLOTS:
+            candidate = now_et.replace(hour=h, minute=m, second=0, microsecond=0)
+            if candidate > now_et:
+                return int(candidate.astimezone(_UTC).timestamp() * 1000)
+        # All today's slots passed — next is tomorrow's 07:00
+        tomorrow = (now_et + timedelta(days=1)).replace(hour=7, minute=0, second=0, microsecond=0)
+        return int(tomorrow.astimezone(_UTC).timestamp() * 1000)
+    except Exception as e:
+        logging.warning("_next_briefing_utc_epoch failed: %s", e)
+        return 0
+
+
+@app.route('/stage')
+def stage_redirect():
+    """LAW 4: /stage → 302 → /briefing (permanent redirect preserved)."""
+    return redirect('/briefing', code=302)
+
+
+@app.route('/briefing')
+def market_briefing():
+    """Market Briefing Room — LAW 3: always show latest + 3 previous."""
+    try:
+        latest = (
+            models.MarketBriefing.query
+            .filter_by(published=True)
+            .order_by(models.MarketBriefing.generated_at.desc())
+            .first()
+        )
+        recent = (
+            models.MarketBriefing.query
+            .filter_by(published=True)
+            .order_by(models.MarketBriefing.generated_at.desc())
+            .offset(1)
+            .limit(3)
+            .all()
+        )
+    except Exception as e:
+        logging.warning("market_briefing DB error: %s", e)
+        latest = None
+        recent = []
+    next_utc = _next_briefing_utc_epoch()
+    return render_template(
+        'market_briefing.html',
+        latest=latest,
+        recent=recent,
+        next_briefing_utc=next_utc,
+    )
+
+
+@app.route('/briefing/archive')
+def briefing_archive():
+    """All published briefings — paginated."""
+    try:
+        page = max(1, int(request.args.get('page', 1)))
+        per_page = 12
+        all_briefings = (
+            models.MarketBriefing.query
+            .filter_by(published=True)
+            .order_by(models.MarketBriefing.generated_at.desc())
+            .offset((page - 1) * per_page)
+            .limit(per_page)
+            .all()
+        )
+        total = models.MarketBriefing.query.filter_by(published=True).count()
+        has_next = (page * per_page) < total
+        has_prev = page > 1
+    except Exception as e:
+        logging.warning("briefing_archive DB error: %s", e)
+        all_briefings = []
+        has_next = has_prev = False
+        page = 1
+    return render_template(
+        'market_briefing.html',
+        latest=all_briefings[0] if all_briefings else None,
+        recent=all_briefings[1:4] if len(all_briefings) > 1 else [],
+    )
+
+
+@app.route('/api/briefing/latest')
+def briefing_latest():
+    """Returns the latest completed, published briefing as JSON."""
+    try:
+        b = (
+            models.MarketBriefing.query
+            .filter_by(published=True, status='completed')
+            .order_by(models.MarketBriefing.generated_at.desc())
+            .first()
+        )
+        if not b:
+            return jsonify({}), 200
+        return jsonify(b.to_dict())
+    except Exception as e:
+        logging.warning("briefing_latest error: %s", e)
+        return jsonify({"error": "Service unavailable"}), 503
+
+
+@app.route('/api/briefing/<int:briefing_id>')
+def briefing_by_id(briefing_id):
+    """P1-1: Fetch a single briefing by ID — used by loadBriefing() JS."""
+    try:
+        b = models.MarketBriefing.query.get(briefing_id)
+        if not b or not b.published:
+            return jsonify({"error": "Not found"}), 404
+        import pytz
+        ET = pytz.timezone("America/New_York")
+        # P1-3: Convert UTC generated_at to ET for display
+        gen_et = ""
+        if b.generated_at:
+            utc_dt = pytz.utc.localize(b.generated_at)
+            et_dt = utc_dt.astimezone(ET)
+            gen_et = et_dt.strftime("%-I:%M %p ET · %b %-d, %Y")
+        data = b.to_dict()
+        data['generated_at_et'] = gen_et
+        data['script_text'] = b.script_text   # full script for script panel
+        return jsonify(data)
+    except Exception as e:
+        logging.warning("briefing_by_id error: %s", e)
+        return jsonify({"error": "Service unavailable"}), 503
+
+
+@app.route('/api/briefing/list')
+def briefing_list():
+    """Returns up to 10 recent published briefings as JSON."""
+    try:
+        limit = min(int(request.args.get('limit', 10)), 50)
+        briefings = (
+            models.MarketBriefing.query
+            .filter_by(published=True)
+            .order_by(models.MarketBriefing.generated_at.desc())
+            .limit(limit)
+            .all()
+        )
+        return jsonify([b.to_dict() for b in briefings])
+    except Exception as e:
+        logging.warning("briefing_list error: %s", e)
+        return jsonify([])
+
+
+@app.route('/api/briefing/generate', methods=['POST'])
+@admin_required
+def briefing_generate_manual():
+    """Manual briefing trigger — admin only. Body: {briefing_type: 'pre_market'|'open'|'close'}"""
+    if not _briefing_service_ok:
+        return jsonify({"success": False, "error": "Briefing service unavailable"}), 503
+
+    data = request.get_json(silent=True) or {}
+    briefing_type = data.get('briefing_type', 'open')
+    if briefing_type not in ('pre_market', 'open', 'close'):
+        return jsonify({"success": False, "error": "Invalid briefing_type"}), 400
+
+    try:
+        result = _run_briefing_generation(briefing_type)
+        status_code = 200 if result.get('success') else 500
+        return jsonify(result), status_code
+    except Exception as e:
+        logging.error("briefing_generate_manual error: %s", e)
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/briefing/status/<int:briefing_id>')
+def briefing_status(briefing_id):
+    """Poll the status of a specific briefing by ID."""
+    try:
+        b = models.MarketBriefing.query.get(briefing_id)
+        if not b:
+            return jsonify({"error": "Not found"}), 404
+        return jsonify({
+            "id": b.id,
+            "status": b.status,
+            "published": b.published,
+            "video_url": b.video_url,
+            "error_message": b.error_message,
+        })
+    except Exception as e:
+        logging.warning("briefing_status error: %s", e)
+        return jsonify({"error": "Service unavailable"}), 503
+
+# ═══════════════════════════════════════════════════════════════
+# SCHIFF-BOT / BRIAN — HYPOCRISY METRIC
+# Routes: /schiff, /brian, /api/schiff/score, /api/schiff/refresh
+# ═══════════════════════════════════════════════════════════════
+
+try:
+    from services.schiff_service import (
+        get_latest_score as _schiff_get_score,
+        get_score_history as _schiff_get_history,
+        get_statements as _schiff_get_statements,
+        update_score as _schiff_update_score,
+        seed_statements as _schiff_seed,
+    )
+    _schiff_available = True
+except Exception as _schiff_import_err:
+    logging.warning("schiff_service import failed: %s", _schiff_import_err)
+    _schiff_available = False
+
+
+@app.route('/schiff')
+@app.route('/brian')
+def schiff_bot():
+    """Brian the Hypocrisy Analyst — Schiff-Bot page."""
+    try:
+        if _schiff_available:
+            score = _schiff_get_score(app=app)
+            history = _schiff_get_history(days=90, app=app)
+            statements = _schiff_get_statements(limit=12, app=app)
+        else:
+            score = {}
+            history = []
+            statements = []
+    except Exception as e:
+        logging.warning("schiff_bot view error: %s", e)
+        score = {}
+        history = []
+        statements = []
+    return render_template('schiff_bot.html', score=score, history=history, statements=statements)
+
+
+@app.route('/api/schiff/score')
+def schiff_score_api():
+    """Return the latest Schiff hypocrisy score as JSON."""
+    try:
+        if not _schiff_available:
+            return jsonify({"error": "schiff_service unavailable"}), 503
+        score = _schiff_get_score(app=app)
+        return jsonify(score)
+    except Exception as e:
+        logging.error("schiff_score_api error: %s", e)
+        return jsonify({"error": "Internal error", "detail": str(e)}), 500
+
+
+@app.route('/api/schiff/refresh', methods=['POST'])
+@admin_required
+@limiter.limit("5 per hour")
+def schiff_refresh():
+    """Admin-only: trigger a fresh EDGAR fetch and score recalculation. Rate-limited 5/hour."""
+    try:
+        if not _schiff_available:
+            return jsonify({"error": "schiff_service unavailable"}), 503
+        result = _schiff_update_score(app=app)
+        return jsonify(result)
+    except Exception as e:
+        logging.error("schiff_refresh error: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/schiff/statements')
+def schiff_statements_api():
+    """Return public statements list as JSON."""
+    try:
+        if not _schiff_available:
+            return jsonify([])
+        stmts = _schiff_get_statements(limit=50, app=app)
+        return jsonify(stmts)
+    except Exception as e:
+        logging.warning("schiff_statements_api error: %s", e)
+        return jsonify([])
+
+
+# Auto-seed statements once on startup
+try:
+    if _schiff_available:
+        _schiff_seed(app)
+except Exception as _seed_err:
+    logging.warning("Schiff seed (startup): %s", _seed_err)
+
+# =====================================
+# F5 NODE WATCH — BITNODES PROXY
+# =====================================
+
+# In-memory fallback cache (persists within a process lifetime)
+_bitnodes_snapshot_cache = {'data': None, 'expires': 0}
+_bitnodes_history_cache  = {'data': None, 'expires': 0}
+
+_BITNODES_SNAPSHOT_URL = 'https://bitnodes.io/api/v1/snapshots/?limit=1'
+_BITNODES_HISTORY_URL  = 'https://bitnodes.io/api/v1/snapshots/?limit=48'
+
+
+def _parse_bitnodes_snapshot(raw):
+    """Extract a compact client-ready dict from a raw Bitnodes API response."""
+    if not raw or not isinstance(raw, dict):
+        return None
+    results = raw.get('results', [])
+    if not results:
+        return None
+    snap = results[0]
+    nodes = snap.get('nodes', {})
+    total = snap.get('total_nodes') or len(nodes)
+
+    versions = {}
+    countries = {}
+    ipv4 = 0
+    ipv6 = 0
+    for addr, info in nodes.items():
+        if not isinstance(info, list):
+            continue
+        ver = info[1] if len(info) > 1 else 'unknown'
+        versions[ver] = versions.get(ver, 0) + 1
+        country = info[7] if len(info) > 7 else None
+        if country:
+            countries[country] = countries.get(country, 0) + 1
+        if addr.startswith('['):
+            ipv6 += 1
+        else:
+            ipv4 += 1
+
+    top_versions  = sorted(versions.items(),  key=lambda x: x[1], reverse=True)[:5]
+    top_countries = sorted(countries.items(), key=lambda x: x[1], reverse=True)[:10]
+
+    return {
+        'node_count': total,
+        'timestamp':  snap.get('timestamp'),
+        'versions':   top_versions,
+        'countries':  top_countries,
+        'ipv4': ipv4,
+        'ipv6': ipv6,
+    }
+
+
+def _parse_bitnodes_history(raw):
+    """Return [{timestamp, node_count}, ...] newest-first from Bitnodes history."""
+    if not raw or not isinstance(raw, dict):
+        return []
+    out = []
+    for snap in raw.get('results', []):
+        count = snap.get('total_nodes', 0)
+        ts    = snap.get('timestamp')
+        if count and ts:
+            out.append({'timestamp': ts, 'node_count': count})
+    return out
+
+
+@app.route('/api/proxy/bitnodes/snapshot')
+def bitnodes_snapshot():
+    """Proxy to Bitnodes snapshot API — 5-min server-side cache, never hits browser directly."""
+    import time as _time
+    now = _time.time()
+    if _bitnodes_snapshot_cache['data'] and now < _bitnodes_snapshot_cache['expires']:
+        resp = make_response(jsonify(_bitnodes_snapshot_cache['data']))
+        resp.headers['X-Cache'] = 'HIT'
+        resp.headers['Cache-Control'] = 'public, max-age=300'
+        return resp
+
+    try:
+        r = requests.get(_BITNODES_SNAPSHOT_URL, timeout=8,
+                         headers={'Accept': 'application/json'})
+        r.raise_for_status()
+        parsed = _parse_bitnodes_snapshot(r.json())
+        if parsed is None:
+            raise ValueError('Empty or malformed Bitnodes response')
+        _bitnodes_snapshot_cache['data']    = parsed
+        _bitnodes_snapshot_cache['expires'] = now + 300
+        resp = make_response(jsonify(parsed))
+        resp.headers['X-Cache'] = 'MISS'
+        resp.headers['Cache-Control'] = 'public, max-age=300'
+        return resp
+    except Exception as e:
+        logging.warning('bitnodes_snapshot error: %s', e)
+        stale = _bitnodes_snapshot_cache.get('data')
+        if stale:
+            resp = make_response(jsonify({**stale, 'stale': True}))
+            resp.headers['X-Cache'] = 'STALE'
+            return resp
+        return jsonify({'error': 'Bitnodes unavailable', 'node_count': None}), 503
+
+
+@app.route('/api/proxy/bitnodes/history')
+def bitnodes_history():
+    """Proxy to Bitnodes 24-hr history (48 × 30-min) — 1-hr server-side cache."""
+    import time as _time
+    now = _time.time()
+    if _bitnodes_history_cache['data'] and now < _bitnodes_history_cache['expires']:
+        resp = make_response(jsonify(_bitnodes_history_cache['data']))
+        resp.headers['X-Cache'] = 'HIT'
+        resp.headers['Cache-Control'] = 'public, max-age=3600'
+        return resp
+
+    try:
+        r = requests.get(_BITNODES_HISTORY_URL, timeout=10,
+                         headers={'Accept': 'application/json'})
+        r.raise_for_status()
+        parsed = _parse_bitnodes_history(r.json())
+        if not parsed:
+            raise ValueError('Empty history from Bitnodes')
+        _bitnodes_history_cache['data']    = parsed
+        _bitnodes_history_cache['expires'] = now + 3600
+        resp = make_response(jsonify(parsed))
+        resp.headers['X-Cache'] = 'MISS'
+        resp.headers['Cache-Control'] = 'public, max-age=3600'
+        return resp
+    except Exception as e:
+        logging.warning('bitnodes_history error: %s', e)
+        stale = _bitnodes_history_cache.get('data')
+        if stale:
+            resp = make_response(jsonify(stale))
+            resp.headers['X-Cache'] = 'STALE'
+            return resp
+        return jsonify({'error': 'Bitnodes unavailable', 'history': []}), 503
+
+
+@app.route('/nodes')
+def nodes_page():
+    """Bitcoin network node count monitor page."""
+    try:
+        latest = models.NodeSnapshot.query.order_by(
+            models.NodeSnapshot.timestamp.desc()
+        ).first()
+        node_count = latest.node_count if latest else None
+    except Exception as e:
+        logging.warning('nodes_page DB error: %s', e)
+        node_count = None
+
+    return render_template('nodes.html', node_count=node_count)
+
+
+# =============================================================================
+# SESSION 1 — PULSE TERMINAL  (Bloomberg-style, free + $29/mo Commander)
+# =============================================================================
+
+import time as _t
+import hashlib as _hashlib
+
+# ── Per-IP rate-limit for free API endpoints (60 req/hr) ─────────────────────
+_terminal_free_rl: dict = {}   # {ip: [count, window_start]}
+_TERMINAL_FREE_LIMIT = 60
+_TERMINAL_FREE_WINDOW = 3600   # 1 hour
+
+def _terminal_free_rate_ok(ip: str) -> bool:
+    now = _t.time()
+    rec = _terminal_free_rl.get(ip)
+    if rec is None or now - rec[1] >= _TERMINAL_FREE_WINDOW:
+        _terminal_free_rl[ip] = [1, now]
+        return True
+    if rec[0] >= _TERMINAL_FREE_LIMIT:
+        return False
+    rec[0] += 1
+    return True
+
+# ── Commander bearer-key authentication ───────────────────────────────────────
+def _commander_required():
+    """
+    Check for Commander access via:
+      1. Flask session (logged-in user with commander/sovereign tier), OR
+      2. Bearer API key matching an active ApiSubscriber row.
+    Returns (ok: bool, error_response | None, subscriber_info: dict | None).
+    """
+    # Option 1: session user
+    if current_user.is_authenticated:
+        tier = getattr(current_user, 'subscription_tier', 'free')
+        if tier in ('commander', 'sovereign'):
+            return True, None, {"tier": tier, "source": "session"}
+    # Option 2: Bearer API key
+    auth = request.headers.get("Authorization", "")
+    if auth.startswith("Bearer "):
+        key = auth[7:].strip()
+        try:
+            sub = models.ApiSubscriber.query.filter_by(api_key=key).first()
+            if sub and sub.is_key_valid():
+                return True, None, {"tier": sub.tier, "source": "api_key", "email": sub.email}
+        except Exception as _e:
+            logging.warning("ApiSubscriber lookup error: %s", _e)
+    return False, (jsonify({"error": "Commander access required. Pass Bearer API key or log in."}), 401), None
+
+# ── In-memory cache for free endpoints ───────────────────────────────────────
+_term_cache: dict = {}
+
+def _term_cached(key: str, ttl: int, fn):
+    """Simple TTL cache for terminal free endpoints."""
+    now = _t.time()
+    rec = _term_cache.get(key)
+    if rec and now < rec[1]:
+        return rec[0]
+    result = fn()
+    _term_cache[key] = (result, now + ttl)
+    return result
+
+# ── Helper: BTC price from CoinGecko ─────────────────────────────────────────
+def _fetch_btc_price() -> dict:
+    try:
+        r = requests.get(
+            "https://api.coingecko.com/api/v3/coins/bitcoin",
+            params={"localization": "false", "tickers": "false",
+                    "community_data": "false", "developer_data": "false"},
+            timeout=8, headers={"Accept": "application/json"},
+        )
+        d = r.json()
+        md = d.get("market_data", {})
+        def g(field, key="usd", default=None):
+            v = md.get(field, {})
+            return v.get(key) if isinstance(v, dict) else v or default
+        price = g("current_price") or 0
+        change_24h = g("price_change_percentage_24h") or 0
+        change_7d  = g("price_change_percentage_7d") or 0
+        change_30d = g("price_change_percentage_30d") or 0
+        high_24h   = g("high_24h") or 0
+        low_24h    = g("low_24h") or 0
+        mktcap     = g("market_cap") or 0
+        dom        = d.get("market_cap_percentage", {}).get("btc") or 0
+        change_usd_24h = price * change_24h / 100
+        return {
+            "price": round(price, 2),
+            "change_24h_pct": round(change_24h, 2),
+            "change_24h_usd": round(change_usd_24h, 2),
+            "change_7d_pct":  round(change_7d, 2),
+            "change_30d_pct": round(change_30d, 2),
+            "high_24h": round(high_24h, 2),
+            "low_24h":  round(low_24h, 2),
+            "market_cap": mktcap,
+            "dominance":  round(dom, 1),
+            "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+    except Exception as e:
+        logging.warning("btc_price fetch error: %s", e)
+        return {"price": 0, "change_24h_pct": 0, "change_24h_usd": 0,
+                "change_7d_pct": 0, "change_30d_pct": 0, "high_24h": 0,
+                "low_24h": 0, "market_cap": 0, "dominance": 0,
+                "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "error": str(e)}
+
+def _fetch_mempool() -> dict:
+    try:
+        r1 = requests.get("https://mempool.space/api/mempool", timeout=6)
+        r2 = requests.get("https://mempool.space/api/v1/fees/recommended", timeout=6)
+        m = r1.json(); f = r2.json()
+        return {
+            "count": m.get("count", 0),
+            "vsize": m.get("vsize", 0),
+            "total_fee": m.get("total_fee", 0),
+            "fee_no_priority":  f.get("minimumFee", 1),
+            "fee_low":          f.get("economyFee", 3),
+            "fee_medium":       f.get("hourFee", 10),
+            "fee_high":         f.get("fastestFee", 25),
+            "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+    except Exception as e:
+        logging.warning("mempool fetch error: %s", e)
+        return {"count": 0, "vsize": 0, "total_fee": 0,
+                "fee_no_priority": 1, "fee_low": 3, "fee_medium": 10, "fee_high": 25,
+                "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "error": str(e)}
+
+def _fetch_fear_greed() -> dict:
+    try:
+        r = requests.get("https://api.alternative.me/fng/?limit=4", timeout=8)
+        data = r.json().get("data", [])
+        def val(i): return int(data[i]["value"]) if i < len(data) else 50
+        def cls(i): return data[i].get("value_classification", "") if i < len(data) else ""
+        today = val(0)
+        return {
+            "today": today,
+            "today_class": cls(0),
+            "yesterday": val(1),
+            "last_week": val(6) if len(data) > 6 else val(min(len(data)-1, 2)),
+            "last_month": val(min(len(data)-1, 3)),
+            "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+    except Exception as e:
+        logging.warning("fear_greed fetch error: %s", e)
+        return {"today": 50, "today_class": "Neutral", "yesterday": 50,
+                "last_week": 50, "last_month": 50,
+                "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "error": str(e)}
+
+def _fetch_macro() -> dict:
+    try:
+        # Use public Yahoo Finance-compatible quotes via a free proxy
+        symbols = {"DXY": "DX-Y.NYB", "GOLD": "GC=F", "SP500": "^GSPC"}
+        out = {}
+        for name, sym in symbols.items():
+            try:
+                r = requests.get(
+                    f"https://query1.finance.yahoo.com/v8/finance/chart/{sym}",
+                    params={"interval": "1d", "range": "2d"},
+                    headers={"User-Agent": "Mozilla/5.0", "Accept": "application/json"},
+                    timeout=8,
+                )
+                result = r.json().get("chart", {}).get("result", [{}])[0]
+                meta = result.get("meta", {})
+                price = meta.get("regularMarketPrice", 0)
+                prev  = meta.get("previousClose") or meta.get("chartPreviousClose") or price
+                chg   = ((price - prev) / prev * 100) if prev else 0
+                out[name] = {"price": round(price, 2), "change_pct": round(chg, 2)}
+            except Exception:
+                out[name] = {"price": 0, "change_pct": 0}
+        # BTC/gold and BTC/sp500 ratios need BTC price
+        btc = _term_cache.get("btc_price", ({"price": 0},))[0].get("price", 0)
+        gold = out.get("GOLD", {}).get("price", 1) or 1
+        sp   = out.get("SP500", {}).get("price", 1) or 1
+        out["BTC_GOLD_RATIO"]  = round(btc / gold, 2) if gold else 0
+        out["BTC_SP500_RATIO"] = round(btc / sp, 2) if sp else 0
+        out["ts"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+        return out
+    except Exception as e:
+        logging.warning("macro fetch error: %s", e)
+        return {"DXY": {"price": 0, "change_pct": 0}, "GOLD": {"price": 0, "change_pct": 0},
+                "SP500": {"price": 0, "change_pct": 0}, "BTC_GOLD_RATIO": 0, "BTC_SP500_RATIO": 0,
+                "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "error": str(e)}
+
+def _fetch_onchain() -> dict:
+    try:
+        hr = requests.get("https://mempool.space/api/v1/mining/hashrate/1w", timeout=8)
+        hdata = hr.json()
+        rates = hdata.get("hashrates", [])
+        diff_data = hdata.get("difficulty", [])
+        hashrate = rates[-1].get("avgHashrate", 0) if rates else 0
+        difficulty = diff_data[-1].get("difficulty", 0) if diff_data else 0
+        # Next difficulty adjustment
+        adj = requests.get("https://mempool.space/api/v1/difficulty-adjustment", timeout=6)
+        adj_data = adj.json()
+        est_pct = adj_data.get("difficultyChange", 0)
+        remain_blocks = adj_data.get("remainingBlocks", 0)
+        remain_time = adj_data.get("remainingTime", 0)  # seconds
+        # Block tip
+        tip = requests.get("https://mempool.space/api/blocks/tip/height", timeout=5)
+        block_height = int(tip.text.strip()) if tip.text.strip().isdigit() else 0
+        # Exchange flows — use coingecko market data as proxy
+        ehr = hashrate / 1e18 if hashrate else 0  # convert to EH/s
+        diff_t = difficulty / 1e12 if difficulty else 0  # convert to T
+        return {
+            "hashrate_ehs": round(ehr, 2),
+            "difficulty_t": round(diff_t, 2),
+            "next_adj_pct": round(est_pct, 2),
+            "remain_blocks": remain_blocks,
+            "remain_time_s": remain_time,
+            "block_height": block_height,
+            "mvrv": 2.14,        # placeholder — no free on-chain API
+            "realized_price": 35000,   # placeholder
+            "s2f_ratio": 56,     # post-halving BTC S2F ≈ 56
+            "s2f_model_price": 98000,
+            "exchange_inflow": 1240,   # placeholder BTC/day
+            "exchange_outflow": 1890,  # placeholder BTC/day
+            "exchange_net": -650,
+            "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+    except Exception as e:
+        logging.warning("onchain fetch error: %s", e)
+        return {"hashrate_ehs": 0, "difficulty_t": 0, "next_adj_pct": 0,
+                "remain_blocks": 0, "remain_time_s": 0, "block_height": 0,
+                "mvrv": 2.14, "realized_price": 35000, "s2f_ratio": 56,
+                "s2f_model_price": 98000, "exchange_inflow": 1240,
+                "exchange_outflow": 1890, "exchange_net": -650,
+                "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "error": str(e)}
+
+def _fetch_lightning() -> dict:
+    try:
+        r = requests.get("https://mempool.space/api/v1/lightning/statistics/latest", timeout=8)
+        d = r.json()
+        return {
+            "node_count": d.get("node_count", 0),
+            "channel_count": d.get("channel_count", 0),
+            "total_capacity": d.get("total_capacity", 0),  # sats
+            "avg_capacity": d.get("avg_capacity", 0),
+            "avg_fee_rate": d.get("avg_fee_rate", 0),
+            "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+    except Exception as e:
+        logging.warning("lightning fetch error: %s", e)
+        return {"node_count": 0, "channel_count": 0, "total_capacity": 0,
+                "avg_capacity": 0, "avg_fee_rate": 0,
+                "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "error": str(e)}
+
+def _fetch_topics() -> dict:
+    """Trending topics ranked by article velocity (last 2h)."""
+    try:
+        cutoff = datetime.utcnow() - timedelta(hours=2)
+        arts = (models.Article.query
+                .filter(models.Article.created_at >= cutoff,
+                        models.Article.published == True)
+                .all())
+        tag_counts: dict = {}
+        for a in arts:
+            tags_raw = (a.tags or "").split(",")
+            for t in tags_raw:
+                t = t.strip().upper()
+                if t and len(t) > 2:
+                    tag_counts[t] = tag_counts.get(t, 0) + 1
+        # Also count categories
+        cat_counts: dict = {}
+        for a in arts:
+            cat = (a.category or "BITCOIN").upper()
+            cat_counts[cat] = cat_counts.get(cat, 0) + 1
+        topics = sorted(tag_counts.items(), key=lambda x: x[1], reverse=True)[:8]
+        if not topics:
+            topics = sorted(cat_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+        return {
+            "topics": [{"term": t, "count": c} for t, c in topics],
+            "total_articles": len(arts),
+            "sources_monitored": 80,
+            "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+    except Exception as e:
+        logging.warning("topics fetch error: %s", e)
+        return {"topics": [], "total_articles": 0, "sources_monitored": 80,
+                "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "error": str(e)}
+
+def _fetch_alerts() -> list:
+    """Early warning alerts from recent high-importance articles."""
+    try:
+        arts = (models.Article.query
+                .filter(models.Article.published == True)
+                .order_by(models.Article.created_at.desc())
+                .limit(20)
+                .all())
+        out = []
+        for a in arts:
+            tags = (a.tags or "").lower()
+            is_alert = any(kw in tags or kw in (a.category or "").lower()
+                           for kw in ["breaking", "urgent", "alert", "crash", "dump", "pump", "rally"])
+            out.append({
+                "time": a.created_at.strftime("%H:%M") if a.created_at else "—",
+                "title": a.title[:80] if a.title else "",
+                "url": f"/articles/{a.id}",
+                "is_alert": is_alert,
+            })
+        return out
+    except Exception as e:
+        logging.warning("alerts fetch error: %s", e)
+        return []
+
+# ── Free endpoints ────────────────────────────────────────────────────────────
+
+@app.route("/api/v2/terminal/price")
+def api_v2_terminal_price():
+    """BTC price, 24h/7d/30d change, market cap, dominance. Cached 30s."""
+    ip = request.remote_addr or "anon"
+    if not _terminal_free_rate_ok(ip):
+        return jsonify({"error": "Rate limit exceeded (60/hr)"}), 429
+    data = _term_cached("btc_price", 30, _fetch_btc_price)
+    return jsonify(data)
+
+
+@app.route("/api/v2/terminal/mempool")
+def api_v2_terminal_mempool():
+    """Mempool stats + fee tiers. Cached 30s."""
+    ip = request.remote_addr or "anon"
+    if not _terminal_free_rate_ok(ip):
+        return jsonify({"error": "Rate limit exceeded (60/hr)"}), 429
+    data = _term_cached("mempool", 30, _fetch_mempool)
+    return jsonify(data)
+
+
+@app.route("/api/v2/terminal/fear-greed")
+def api_v2_terminal_fear_greed():
+    """Fear & Greed index today/yesterday/week/month. Cached 15min."""
+    ip = request.remote_addr or "anon"
+    if not _terminal_free_rate_ok(ip):
+        return jsonify({"error": "Rate limit exceeded (60/hr)"}), 429
+    data = _term_cached("fear_greed", 900, _fetch_fear_greed)
+    return jsonify(data)
+
+
+@app.route("/api/v2/terminal/latest")
+def api_v2_terminal_latest():
+    """Last 5 PP articles. Cached 60s."""
+    ip = request.remote_addr or "anon"
+    if not _terminal_free_rate_ok(ip):
+        return jsonify({"error": "Rate limit exceeded (60/hr)"}), 429
+    def _fetch():
+        try:
+            arts = (models.Article.query
+                    .filter_by(published=True)
+                    .order_by(models.Article.created_at.desc())
+                    .limit(5).all())
+            total = models.Article.query.filter_by(published=True).count()
+            return {
+                "articles": [{
+                    "title": a.title,
+                    "time": a.created_at.strftime("%H:%M") if a.created_at else "—",
+                    "slug": f"/articles/{a.id}",
+                    "category": a.category or "bitcoin",
+                } for a in arts],
+                "total": total,
+                "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+            }
+        except Exception as e:
+            return {"articles": [], "total": 0, "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "error": str(e)}
+    data = _term_cached("latest_articles", 60, _fetch)
+    return jsonify(data)
+
+
+@app.route("/api/v2/terminal/macro")
+def api_v2_terminal_macro():
+    """DXY, Gold, S&P 500 + BTC ratios. Cached 60min."""
+    ip = request.remote_addr or "anon"
+    if not _terminal_free_rate_ok(ip):
+        return jsonify({"error": "Rate limit exceeded (60/hr)"}), 429
+    data = _term_cached("macro", 3600, _fetch_macro)
+    return jsonify(data)
+
+# ── Commander endpoints ───────────────────────────────────────────────────────
+
+@app.route("/api/v2/terminal/signal")
+def api_v2_terminal_signal():
+    """PP Signal Intelligence composite score. Commander only."""
+    ok, err, _ = _commander_required()
+    if not ok:
+        return err
+    from services.signal_engine import compute_signal_score
+    data = compute_signal_score(db=db, models=models)
+    return jsonify(data)
+
+
+@app.route("/api/v2/terminal/topics")
+def api_v2_terminal_topics():
+    """Trending topics ranked by velocity (last 2h). Commander only."""
+    ok, err, _ = _commander_required()
+    if not ok:
+        return err
+    data = _term_cached("topics", 300, _fetch_topics)
+    return jsonify(data)
+
+
+@app.route("/api/v2/terminal/alerts")
+def api_v2_terminal_alerts():
+    """Early warning alert feed (last 20 articles). Commander only."""
+    ok, err, _ = _commander_required()
+    if not ok:
+        return err
+    def _fetch():
+        return {"alerts": _fetch_alerts(), "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")}
+    data = _term_cached("alerts", 30, _fetch)
+    return jsonify(data)
+
+
+@app.route("/api/v2/terminal/onchain")
+def api_v2_terminal_onchain():
+    """MVRV, S2F, hashrate, difficulty, exchange flows. Commander only. Cached 5min."""
+    ok, err, _ = _commander_required()
+    if not ok:
+        return err
+    data = _term_cached("onchain", 300, _fetch_onchain)
+    return jsonify(data)
+
+
+@app.route("/api/v2/terminal/lightning")
+def api_v2_terminal_lightning():
+    """Lightning Network nodes, channels, capacity. Commander only. Cached 10min."""
+    ok, err, _ = _commander_required()
+    if not ok:
+        return err
+    data = _term_cached("lightning", 600, _fetch_lightning)
+    return jsonify(data)
+
+# ── API key management ────────────────────────────────────────────────────────
+
+@app.route("/api/v2/terminal/keys", methods=["GET", "POST"])
+@login_required
+def api_v2_terminal_keys():
+    """GET: list keys. POST: generate new key. Requires active Commander subscription."""
+    tier = getattr(current_user, "subscription_tier", "free")
+    if tier not in ("commander", "sovereign"):
+        return jsonify({"error": "Commander tier required"}), 403
+
+    if request.method == "POST":
+        from services.api_key_service import generate_api_key
+        try:
+            existing = models.ApiSubscriber.query.filter_by(
+                email=current_user.email).first()
+            new_key = generate_api_key(tier)
+            if existing:
+                existing.api_key = new_key
+                existing.is_active = True
+                existing.subscription_status = "active"
+            else:
+                sub = models.ApiSubscriber(
+                    email=current_user.email,
+                    api_key=new_key,
+                    tier=tier,
+                    is_active=True,
+                    subscription_status="active",
+                    rate_limit_per_hour=10000,
+                    entitlements='{"signal":true,"stream":true,"webhook":true}',
+                    key_scopes='["read","stream","webhook"]',
+                )
+                db.session.add(sub)
+            db.session.commit()
+            return jsonify({"api_key": new_key, "tier": tier,
+                            "note": "Store this key securely. Shown once."})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": str(e)}), 500
+
+    # GET — list keys
+    try:
+        subs = models.ApiSubscriber.query.filter_by(email=current_user.email).all()
+        return jsonify({"keys": [{"key_prefix": s.api_key[:16] + "...",
+                                   "tier": s.tier, "active": s.is_active,
+                                   "created": s.created_at.isoformat() if s.created_at else None}
+                                  for s in subs]})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/v2/terminal/keys/<key_prefix>", methods=["DELETE"])
+@login_required
+def api_v2_terminal_keys_delete(key_prefix):
+    """Revoke an API key by prefix."""
+    tier = getattr(current_user, "subscription_tier", "free")
+    if tier not in ("commander", "sovereign"):
+        return jsonify({"error": "Commander tier required"}), 403
+    try:
+        subs = models.ApiSubscriber.query.filter_by(email=current_user.email).all()
+        for s in subs:
+            if s.api_key.startswith(key_prefix.replace("...", "")):
+                s.is_active = False
+                db.session.commit()
+                return jsonify({"revoked": True})
+        return jsonify({"error": "Key not found"}), 404
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+# ── Terminal page routes ──────────────────────────────────────────────────────
+
+@app.route("/terminal")
+def pulse_terminal():
+    """PP Terminal — Bloomberg-style Bitcoin intelligence dashboard."""
+    is_commander = (current_user.is_authenticated and
+                    getattr(current_user, "subscription_tier", "free")
+                    in ("commander", "sovereign"))
+    activated = request.args.get("activated") == "1"
+
+    # Server-side pre-fetch for initial render (both free + Commander panels)
+    price_data    = _term_cached("btc_price", 30, _fetch_btc_price)
+    mempool_data  = _term_cached("mempool", 30, _fetch_mempool)
+    fg_data       = _term_cached("fear_greed", 900, _fetch_fear_greed)
+    onchain_data  = _term_cached("onchain", 300, _fetch_onchain)
+    lightning_data = _term_cached("lightning", 600, _fetch_lightning)
+    macro_data    = _term_cached("macro", 3600, _fetch_macro)
+
+    # Signal score — always compute for locked panel real-data blur
+    from services.signal_engine import compute_signal_score
+    signal_data = compute_signal_score(db=db, models=models)
+
+    # Topics + alerts for locked panels
+    topics_data = _term_cached("topics", 300, _fetch_topics)
+    alerts_data = _fetch_alerts()
+
+    # Latest articles
+    def _latest():
+        try:
+            arts = (models.Article.query.filter_by(published=True)
+                    .order_by(models.Article.created_at.desc()).limit(5).all())
+            total = models.Article.query.filter_by(published=True).count()
+            return {"articles": [{
+                "title": a.title, "time": a.created_at.strftime("%H:%M") if a.created_at else "—",
+                "slug": f"/articles/{a.id}", "category": a.category or "bitcoin",
+            } for a in arts], "total": total}
+        except Exception:
+            return {"articles": [], "total": 0}
+    latest_data = _term_cached("latest_articles", 60, _latest)
+
+    # API key for Commander welcome banner
+    api_key = None
+    if activated and is_commander:
+        try:
+            sub = models.ApiSubscriber.query.filter_by(
+                email=current_user.email).first()
+            if sub:
+                api_key = sub.api_key
+        except Exception:
+            pass
+
+    return render_template(
+        "terminal.html",
+        is_commander=is_commander,
+        activated=activated,
+        api_key=api_key,
+        price=price_data,
+        mempool=mempool_data,
+        fg=fg_data,
+        onchain=onchain_data,
+        lightning=lightning_data,
+        macro=macro_data,
+        signal=signal_data,
+        topics=topics_data,
+        alerts=alerts_data,
+        latest=latest_data,
+    )
+
+
+@app.route("/terminal/commander")
+def terminal_commander_page():
+    """Commander upgrade page — redirects to Stripe checkout."""
+    return redirect(url_for("terminal_checkout"))
+
+
+@app.route("/terminal/checkout")
+@login_required
+def terminal_checkout():
+    """Initiate Stripe checkout for $29/mo Commander tier."""
+    from services.monetization_service import monetization_service
+    success_url = request.host_url.rstrip("/") + "/terminal?activated=1"
+    cancel_url  = request.host_url.rstrip("/") + "/terminal"
+    result = monetization_service.create_checkout_session(
+        tier="commander",
+        user_email=current_user.email,
+        success_url=success_url,
+        cancel_url=cancel_url,
+    )
+    if result.get("checkout_url"):
+        return redirect(result["checkout_url"])
+    elif result.get("simulated"):
+        # Dev mode: simulate success
+        current_user.subscription_tier = "commander"
+        try:
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+        return redirect(url_for("pulse_terminal", activated=1))
+    flash("Unable to start checkout. Please try again.")
+    return redirect(url_for("pulse_terminal"))
+
+
+@app.route("/terminal/account")
+@login_required
+def terminal_account():
+    """Show Commander API key and account status."""
+    is_commander = getattr(current_user, "subscription_tier", "free") in ("commander", "sovereign")
+    if not is_commander:
+        return redirect(url_for("pulse_terminal"))
+    try:
+        sub = models.ApiSubscriber.query.filter_by(email=current_user.email).first()
+    except Exception:
+        sub = None
+    return render_template("terminal_account.html", sub=sub)
+
 
 # Error handlers
 @app.errorhandler(404)

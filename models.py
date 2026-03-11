@@ -1210,3 +1210,203 @@ class CollectedSignal(db.Model):
         db.Index('idx_signal_platform_posted', 'platform', 'posted_at'),
         db.Index('idx_signal_legendary', 'is_legendary', 'collected_at'),
     )
+
+# =====================================
+# PULSE TERMINAL API — V30
+# =====================================
+
+class ApiKey(db.Model):
+    """Paid API key for Pulse Terminal subscribers."""
+    __tablename__ = 'api_keys'
+    id = db.Column(db.Integer, primary_key=True)
+    key_hash = db.Column(db.String(64), unique=True, nullable=False)   # SHA256 of actual key — composite idx covers single-col queries
+    key_prefix = db.Column(db.String(12), nullable=False)                           # first 8 chars for display
+    tier = db.Column(db.String(30), nullable=False, default='commander')
+    subscriber_email = db.Column(db.String(200), nullable=False, index=True)
+    stripe_customer_id = db.Column(db.String(120), index=True)
+    stripe_subscription_id = db.Column(db.String(120))
+    stripe_session_id = db.Column(db.String(200))
+    requests_today = db.Column(db.Integer, default=0, nullable=False)
+    requests_total = db.Column(db.Integer, default=0, nullable=False)
+    last_used_at = db.Column(db.DateTime, index=True)
+    last_reset_at = db.Column(db.DateTime, default=datetime.utcnow)  # when requests_today was last zeroed
+    active = db.Column(db.Boolean, default=True, nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    __table_args__ = (
+        db.Index('idx_api_keys_hash_active', 'key_hash', 'active'),
+    )
+
+    def reset_if_new_day(self):
+        """Zero requests_today if last reset was a different calendar day (UTC)."""
+        today = datetime.utcnow().date()
+        if self.last_reset_at is None or self.last_reset_at.date() < today:
+            self.requests_today = 0
+            self.last_reset_at = datetime.utcnow()
+
+
+class ApiUsageLog(db.Model):
+    """Per-request usage log for Terminal API — analytics + billing audit trail."""
+    __tablename__ = 'api_usage_log'
+    id = db.Column(db.Integer, primary_key=True)
+    key_prefix = db.Column(db.String(12), nullable=False, index=True)
+    endpoint = db.Column(db.String(100), nullable=False)
+    response_ms = db.Column(db.Integer)
+    status_code = db.Column(db.Integer, default=200)
+    ip_hash = db.Column(db.String(64))   # SHA256 of IP for privacy-safe analytics
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+    __table_args__ = (
+        db.Index('idx_usage_log_prefix_created', 'key_prefix', 'created_at'),
+    )
+
+# ── B1 Newsletter (Gospel: b1-newsletter) ──────────────────────────────────
+
+class NewsletterSubscriber(db.Model):
+    """LAW 4: Each subscriber has a unique unsubscribe_token (CAN-SPAM compliance)."""
+    __tablename__ = 'newsletter_subscribers'
+
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(320), unique=True, nullable=False)
+    unsubscribe_token = db.Column(db.String(64), unique=True, nullable=False)
+    subscribed = db.Column(db.Boolean, default=True, nullable=False)
+    subscribed_at = db.Column(db.DateTime, default=datetime.utcnow)
+    unsubscribed_at = db.Column(db.DateTime)
+    source = db.Column(db.String(50))  # 'homepage', 'api', 'import'
+
+    __table_args__ = (
+        db.Index('idx_newsletter_sub_email', 'email'),
+        db.Index('idx_newsletter_sub_token', 'unsubscribe_token'),
+        db.Index('idx_newsletter_sub_active', 'subscribed'),
+    )
+
+
+class NewsletterSend(db.Model):
+    """LAW 2: One newsletter per day — tracks sends for idempotency."""
+    __tablename__ = 'newsletter_sends'
+
+    id = db.Column(db.Integer, primary_key=True)
+    subject = db.Column(db.Text)
+    resend_batch_id = db.Column(db.String(100))
+    recipient_count = db.Column(db.Integer, default=0)
+    open_count = db.Column(db.Integer, default=0)
+    click_count = db.Column(db.Integer, default=0)
+    sent_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.Index('idx_newsletter_sends_at', 'sent_at'),
+    )
+
+
+# =====================================
+# ORACLE SESSION — F1 Avatar System
+# =====================================
+
+class OracleSession(db.Model):
+    __tablename__ = 'oracle_sessions'
+    __table_args__ = (
+        db.Index('idx_oracle_sessions_created', 'created_at'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(db.Text, nullable=False)
+    question = db.Column(db.Text, nullable=False)
+    transcript = db.Column(db.Text)
+    video_url = db.Column(db.Text)
+    duration_seconds = db.Column(db.Float)
+    voice_id = db.Column(db.String(60), default='cgSgspJ2msm6clMCkdW9')
+    generation_ms = db.Column(db.Integer)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, nullable=True)
+    ip_hash = db.Column(db.String(64), nullable=True)
+
+
+# =====================================
+# MARKET BRIEFING ROOM (F2)
+# =====================================
+
+class MarketBriefing(db.Model):
+    """Scheduled HeyGen Sarah video briefings — 3x daily at market-critical times."""
+    __tablename__ = 'market_briefings'
+    __table_args__ = (
+        db.Index('idx_briefings_type_date', 'briefing_type', 'generated_at'),
+        db.Index('idx_briefings_published', 'published', 'generated_at'),
+        db.Index('idx_briefings_slot_date', 'briefing_type', 'scheduled_date'),
+        # DB-level idempotency guard: only one non-failed briefing per slot per day
+        db.UniqueConstraint('briefing_type', 'scheduled_date', name='uq_briefing_slot_date'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.Text, nullable=False)
+    briefing_type = db.Column(db.String(20), nullable=False)  # pre_market | open | close
+    scheduled_date = db.Column(db.String(10))                 # ET date: YYYY-MM-DD (idempotency)
+    script_text = db.Column(db.Text, nullable=False)
+    video_url = db.Column(db.Text)
+    thumbnail_url = db.Column(db.Text)
+    heygen_video_id = db.Column(db.String(100))
+    duration_seconds = db.Column(db.Float)
+    btc_price_at_generation = db.Column(db.Float)
+    status = db.Column(db.String(20), default='pending')  # pending|generating|completed|failed
+    published = db.Column(db.Boolean, default=False)
+    generated_at = db.Column(db.DateTime, default=datetime.utcnow)
+    published_at = db.Column(db.DateTime)
+    error_message = db.Column(db.Text)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'briefing_type': self.briefing_type,
+            'scheduled_date': self.scheduled_date,
+            'video_url': self.video_url,
+            'thumbnail_url': self.thumbnail_url,
+            'duration_seconds': self.duration_seconds,
+            'btc_price_at_generation': self.btc_price_at_generation,
+            'status': self.status,
+            'published': self.published,
+            'generated_at': self.generated_at.isoformat() if self.generated_at else None,
+            'published_at': self.published_at.isoformat() if self.published_at else None,
+        }
+
+# F6 MARKETING OS — MILESTONE + METRICS
+# =====================================
+
+class PerformanceMetrics(db.Model):
+    """Daily performance metrics. One row per day. Upsert on write."""
+    __tablename__ = 'performance_metrics'
+    __table_args__ = (
+        db.Index('idx_perf_metric_date', 'metric_date', unique=True),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    metric_date = db.Column(db.Date, nullable=False, unique=True)
+    page_views = db.Column(db.Integer, default=0)
+    unique_visitors = db.Column(db.Integer, default=0)
+    articles_published = db.Column(db.Integer, default=0)
+    videos_rendered = db.Column(db.Integer, default=0)
+    oracle_sessions = db.Column(db.Integer, default=0)
+    briefings_generated = db.Column(db.Integer, default=0)
+    newsletter_opens = db.Column(db.Integer, default=0)
+    newsletter_clicks = db.Column(db.Integer, default=0)
+    btc_price_open = db.Column(db.Float)
+    btc_price_close = db.Column(db.Float)
+    milestone_triggered = db.Column(db.String(100))  # NULL or milestone label
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class MilestoneFired(db.Model):
+    """Permanent record of every milestone that has fired. Never deleted."""
+    __tablename__ = 'milestone_fired'
+    __table_args__ = (
+        db.Index('idx_milestone_price', 'price_threshold', unique=True),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    price_threshold = db.Column(db.Integer, nullable=False, unique=True)  # e.g. 100000
+    label = db.Column(db.String(100), nullable=False)                      # e.g. "SIX FIGURES"
+    campaign = db.Column(db.String(100))                                   # e.g. "btc_100k"
+    actual_price = db.Column(db.Float)                                     # price when triggered
+    fired_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    nostr_broadcast = db.Column(db.Boolean, default=False)
+    newsletter_sent = db.Column(db.Boolean, default=False)
+    episode_generated = db.Column(db.Boolean, default=False)

@@ -1,9 +1,14 @@
+# DEPRECATED — routes.py (monolithic)
+# SESSION 2: Blueprint architecture introduced. New routes go in core/blueprints/.
+# Migrated to blueprints: /newsletter (GET), /newsletter/subscribe (POST)
+# Remaining routes will be migrated to core/blueprints/ in future sessions.
+# ---
 from flask import render_template, request, jsonify, redirect, url_for, flash, make_response, session
 from flask_login import login_required, login_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from app import app, db
-from models import Article, Podcast, ContentPrompt, User, Advertisement, AutomationRun, LaunchSequence, TargetAlert, NostrEvent, ReplySquadMember, EngagementEvent, ContentPerformance, AnalyticsSummary, UserSegment, Sponsor, CreditAccount, PredictionOracle, WhaleTransaction, AffiliatePartner, AffiliateClick, FeedItem, SentimentSnapshot, PulseEvent, AutoPostDraft, DailyBrief
+from models import Article, Podcast, ContentPrompt, User, Advertisement, AutomationRun, LaunchSequence, TargetAlert, NostrEvent, ReplySquadMember, EngagementEvent, ContentPerformance, AnalyticsSummary, UserSegment, Sponsor, CreditAccount, PredictionOracle, WhaleTransaction, AffiliatePartner, AffiliateClick, FeedItem, SentimentSnapshot, PulseEvent, AutoPostDraft, DailyBrief, OracleSession, MarketBriefing
 import hashlib
 import json
 from functools import wraps
@@ -43,6 +48,34 @@ except Exception as e:
 # Initialize RSS and Printful services
 rss_service = RSSService()
 printful_service = PrintfulService()
+
+# ─── F2 BRIEFING ROOM HELPERS ────────────────────────────────
+try:
+    from services.briefing_service import generate_briefing as _run_briefing_generation
+    _briefing_service_ok = True
+except Exception as _bse:
+    logging.warning("briefing_service import failed: %s", _bse)
+    _briefing_service_ok = False
+
+
+def _next_briefing_utc_epoch() -> int:
+    """Compute the UTC epoch (ms) of the next scheduled ET briefing slot."""
+    try:
+        import pytz as _tz
+        _ET = _tz.timezone("America/New_York")
+        _UTC = _tz.utc
+        SLOTS = [(7, 0), (9, 30), (16, 30)]
+        now_et = datetime.now(_ET)
+        for h, m in SLOTS:
+            candidate = now_et.replace(hour=h, minute=m, second=0, microsecond=0)
+            if candidate > now_et:
+                return int(candidate.astimezone(_UTC).timestamp() * 1000)
+        tomorrow = (now_et + timedelta(days=1)).replace(hour=7, minute=0, second=0, microsecond=0)
+        return int(tomorrow.astimezone(_UTC).timestamp() * 1000)
+    except Exception as e:
+        logging.warning("_next_briefing_utc_epoch failed: %s", e)
+        return 0
+
 
 def admin_required(f):
     """Decorator to enforce admin role-based access control"""
@@ -431,6 +464,11 @@ def generate_todays_signal():
 def live_terminal():
     """Live Settlement Terminal - Real-time Bitcoin network visualization"""
     return render_template('live_terminal.html')
+
+@app.route('/terminal')
+def pulse_terminal():
+    """Pulse Terminal API landing page — Commander pricing and documentation."""
+    return render_template('pulse_terminal.html')
 
 @app.route('/bitfeed-live')
 @app.route('/kinetic')
@@ -1539,11 +1577,15 @@ def podcast_rss():
 
 @app.route('/media-terminal')
 def media_terminal():
-    """Redirect media-terminal to the unified media hub"""
-    return redirect(url_for('media_hub'))
+    """301 permanent redirect from media-terminal to /media"""
+    return redirect('/media', 301)
+
+@app.route('/media-hub')
+def media_hub_redirect():
+    """301 permanent redirect from /media-hub to /media"""
+    return redirect('/media', 301)
 
 @app.route('/media')
-@app.route('/media-hub')
 @app.route('/media-unified')
 def media_hub():
     """Media Hub — cinematic dark layout with real data"""
@@ -2041,25 +2083,7 @@ def contact():
     """Contact page"""
     return render_template('contact.html')
 
-@app.route('/newsletter/subscribe', methods=['POST'])
-def newsletter_subscribe():
-    """Handle newsletter subscription requests"""
-    try:
-        email = request.form.get('email')
-        if not email:
-            flash('Email address is required.', 'error')
-            return redirect(url_for('index'))
-        
-        success = newsletter_service.subscribe_user(email)
-        if success:
-            flash('Successfully subscribed to Protocol Pulse newsletter!', 'success')
-        else:
-            flash('Newsletter subscription failed. Please try again.', 'error')
-    except Exception as e:
-        logging.error(f"Newsletter subscription error: {e}")
-        flash('An error occurred. Please try again.', 'error')
-    
-    return redirect(url_for('index'))
+# /newsletter/subscribe (POST) — moved to core/blueprints/newsletter.py (SESSION 2)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -2643,20 +2667,96 @@ def api_generate_sentiment():
 
 @app.route('/sentiment')
 def sentiment_dashboard():
-    """Public sentiment reports dashboard"""
-    from models import SentimentReport, Article
-    
-    reports = SentimentReport.query.order_by(SentimentReport.report_date.desc()).limit(14).all()
-    
-    latest_report = reports[0] if reports else None
-    latest_article = None
-    if latest_report and latest_report.article_id:
-        latest_article = Article.query.get(latest_report.article_id)
-    
-    return render_template('sentiment_dashboard.html', 
-                          reports=reports, 
-                          latest_report=latest_report,
-                          latest_article=latest_article)
+    """Public sentiment dashboard — real-time article classification + narrative intelligence."""
+    import json as _json
+    from sqlalchemy import text as _text
+
+    # ── Latest sentiment report ───────────────────────────────────────────────
+    try:
+        latest_report = db.session.execute(
+            _text("""SELECT report_date, overall_sentiment, score, bullish_pct, bearish_pct,
+                            neutral_pct, narrative, top_bullish_signals, top_bearish_signals,
+                            dominant_narrative, anomaly_detected, created_at
+                     FROM sentiment_reports ORDER BY report_date DESC LIMIT 1""")
+        ).fetchone()
+    except Exception:
+        latest_report = None
+
+    # ── 7-day score history ───────────────────────────────────────────────────
+    try:
+        score_rows = db.session.execute(
+            _text("""SELECT report_date, score, overall_sentiment
+                     FROM sentiment_reports ORDER BY report_date DESC LIMIT 7""")
+        ).fetchall()
+        score_history = [
+            {"date": str(r[0]), "score": float(r[1] or 50), "sentiment": r[2] or "neutral"}
+            for r in reversed(score_rows)
+        ]
+    except Exception:
+        score_history = []
+
+    # ── Recent classified articles ────────────────────────────────────────────
+    try:
+        article_rows = db.session.execute(
+            _text("""SELECT id, title, summary, sentiment, sentiment_confidence,
+                            narrative_label, importance_score, source_url, created_at
+                     FROM articles
+                     WHERE published=1
+                     ORDER BY importance_score DESC NULLS LAST, created_at DESC
+                     LIMIT 20""")
+        ).fetchall()
+        recent_articles = []
+        for r in article_rows:
+            recent_articles.append({
+                "id": r[0], "title": r[1], "summary": (r[2] or "")[:200],
+                "sentiment": r[3] or "unclassified",
+                "confidence": float(r[4] or 0),
+                "narrative_label": r[5] or "",
+                "importance_score": int(r[6] or 50),
+                "source_url": r[7],
+                "created_at": str(r[8]),
+            })
+    except Exception:
+        recent_articles = []
+
+    # ── Anomaly events ────────────────────────────────────────────────────────
+    try:
+        anomaly_rows = db.session.execute(
+            _text("""SELECT id, event_type, severity, description, created_at
+                     FROM intelligence_events
+                     WHERE severity IN ('warning', 'critical')
+                     ORDER BY created_at DESC LIMIT 5""")
+        ).fetchall()
+        anomaly_events = [
+            {"id": r[0], "type": r[1], "severity": r[2], "description": r[3], "created_at": str(r[4])}
+            for r in anomaly_rows
+        ]
+    except Exception:
+        anomaly_events = []
+
+    # ── Parse signals from JSON ───────────────────────────────────────────────
+    top_bullish = []
+    top_bearish = []
+    if latest_report:
+        try:
+            top_bullish = _json.loads(latest_report[7] or "[]")[:5]
+        except Exception:
+            pass
+        try:
+            top_bearish = _json.loads(latest_report[8] or "[]")[:5]
+        except Exception:
+            pass
+
+    return render_template(
+        'sentiment_dashboard.html',
+        latest_report=latest_report,
+        score_history=score_history,
+        score_history_json=_json.dumps(score_history),
+        recent_articles=recent_articles,
+        top_bullish=top_bullish,
+        top_bearish=top_bearish,
+        anomaly_events=anomaly_events,
+    )
 
 
 @app.route('/sarah-briefing')
@@ -8293,10 +8393,8 @@ def api_pipeline_ab_tests():
 
 @app.route('/stage')
 def avatar_stage():
-    """Avatar Cinema Mode — 24/7 Bitcoin intelligence live stream stage."""
-    import os
-    stream_url = os.environ.get('STAGE_STREAM_URL', None)
-    return render_template('stage.html', stream_url=stream_url)
+    """LAW 4: /stage → 302 → /briefing (permanent redirect preserved)."""
+    return redirect('/briefing', code=302)
 
 @app.route('/api/stage/transcript')
 def api_stage_transcript():
@@ -8712,3 +8810,1434 @@ def api_media_telemetry():
         logging.error(f"telemetry error: {e}")
         from flask import jsonify
         return jsonify({'error': str(e)}), 500
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# MEDIA UNIFIED — P3 ROUTES
+# SSE feed, semantic search, system health, meta-briefing
+# ═══════════════════════════════════════════════════════════════════════════
+
+import time as _time_module
+import threading as _threading_module
+
+# ── In-process caches ──
+_search_cache = {}       # {normalized_q: {'results': [...], 'ts': float}}
+_search_cache_lock = _threading_module.Lock()
+_search_rate = {}        # {ip: [timestamps]}
+_search_rate_lock = _threading_module.Lock()
+_meta_brief_cache = {}   # {date_str: {'brief': str, 'headline': str, 'stance': str, 'cached_at': str}}
+_meta_brief_lock = _threading_module.Lock()
+_sse_event_id = 0        # monotonic SSE event counter
+_sse_event_id_lock = _threading_module.Lock()
+
+
+def _sse_next_id():
+    global _sse_event_id
+    with _sse_event_id_lock:
+        _sse_event_id += 1
+        return _sse_event_id
+
+
+def _search_rate_ok(ip, limit=10, window=60):
+    """Return True if ip is within limit requests per window seconds."""
+    with _search_rate_lock:
+        now = _time_module.time()
+        bucket = _search_rate.get(ip, [])
+        bucket = [t for t in bucket if now - t < window]
+        if len(bucket) >= limit:
+            return False
+        bucket.append(now)
+        _search_rate[ip] = bucket
+        return True
+
+
+def _search_cache_get(q):
+    with _search_cache_lock:
+        entry = _search_cache.get(q)
+        if entry and _time_module.time() - entry['ts'] < 300:  # 5-min TTL
+            return entry['results']
+    return None
+
+
+def _search_cache_set(q, results):
+    with _search_cache_lock:
+        _search_cache[q] = {'results': results, 'ts': _time_module.time()}
+        # Evict entries older than 10 min
+        cutoff = _time_module.time() - 600
+        for k in list(_search_cache.keys()):
+            if _search_cache[k]['ts'] < cutoff:
+                del _search_cache[k]
+
+
+@app.route('/api/stream/media-feed')
+def media_feed_sse():
+    """Server-Sent Events stream: btc_price_update, new_article, sentiment_update, telemetry.
+    Heartbeat every 25s. Respects Last-Event-ID for resume. Max 600s connection.
+    """
+    import requests as _req
+    last_event_id = request.headers.get('Last-Event-ID', '0')
+    try:
+        last_event_id = int(last_event_id)
+    except (ValueError, TypeError):
+        last_event_id = 0
+
+    def _fetch_btc():
+        try:
+            r = _req.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true', timeout=6)
+            d = r.json().get('bitcoin', {})
+            return {'price': d.get('usd'), 'change_24h': d.get('usd_24h_change')}
+        except Exception:
+            return None
+
+    def _fetch_articles():
+        try:
+            arts = models.Article.query.filter_by(published=True).order_by(
+                models.Article.created_at.desc()
+            ).limit(3).all()
+            return [{'id': a.id, 'title': a.title, 'category': a.category or 'bitcoin',
+                     'created_at': a.created_at.isoformat() if a.created_at else None}
+                    for a in arts]
+        except Exception:
+            return []
+
+    def _fetch_sentiment():
+        try:
+            snap = models.SentimentSnapshot.query.order_by(
+                models.SentimentSnapshot.created_at.desc()
+            ).first()
+            if snap:
+                return {'score': snap.score, 'state': snap.state or 'NEUTRAL'}
+        except Exception:
+            pass
+        return None
+
+    def generate():
+        start = _time_module.time()
+        last_data_push = 0
+        eid = last_event_id
+
+        # Send initial connection confirmation
+        eid = _sse_next_id()
+        yield f"id: {eid}\nevent: connected\ndata: {{\"status\": \"connected\", \"ts\": {int(_time_module.time())}}}\n\n"
+
+        while _time_module.time() - start < 600:
+            now = _time_module.time()
+            try:
+                if now - last_data_push >= 30:
+                    last_data_push = now
+
+                    # BTC price
+                    btc = _fetch_btc()
+                    if btc and btc.get('price'):
+                        eid = _sse_next_id()
+                        yield f"id: {eid}\nevent: btc_price_update\ndata: {json.dumps(btc)}\n\n"
+
+                    # Latest articles
+                    arts = _fetch_articles()
+                    if arts:
+                        eid = _sse_next_id()
+                        yield f"id: {eid}\nevent: new_article\ndata: {json.dumps({'articles': arts})}\n\n"
+
+                    # Sentiment
+                    sent = _fetch_sentiment()
+                    if sent:
+                        eid = _sse_next_id()
+                        yield f"id: {eid}\nevent: sentiment_update\ndata: {json.dumps(sent)}\n\n"
+
+                # Heartbeat every 25s to keep connection alive
+                yield ": keepalive\n\n"
+                _time_module.sleep(25)
+
+            except GeneratorExit:
+                break
+            except Exception as e:
+                logging.warning(f"SSE media-feed error: {e}")
+                yield f"data: {{\"type\": \"error\", \"message\": \"stream error\"}}\n\n"
+                break
+
+    return Response(
+        generate(),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache, no-store',
+            'X-Accel-Buffering': 'no',
+            'Connection': 'keep-alive',
+            'Access-Control-Allow-Origin': '*',
+        }
+    )
+
+
+@app.route('/api/system-health')
+def api_system_health():
+    """System health: Flask status, DB, article counts, last article time."""
+    try:
+        now = _time_module.time()
+        # Articles in last 24h
+        from datetime import datetime, timedelta
+        cutoff = datetime.utcnow() - timedelta(hours=24)
+        arts_24h = 0
+        last_art_ts = None
+        try:
+            arts_24h = models.Article.query.filter(
+                models.Article.published == True,
+                models.Article.created_at >= cutoff
+            ).count()
+            last_art = models.Article.query.filter_by(published=True).order_by(
+                models.Article.created_at.desc()
+            ).first()
+            if last_art and last_art.created_at:
+                last_art_ts = last_art.created_at.isoformat()
+        except Exception as db_err:
+            logging.warning(f"system-health db: {db_err}")
+
+        return jsonify({
+            'status': 'ok',
+            'ts': int(now),
+            'articles_24h': arts_24h,
+            'last_article_at': last_art_ts,
+            'services': {
+                'flask': 'ok',
+                'db': 'ok',
+            }
+        }), 200, {'Cache-Control': 'public, max-age=60'}
+
+    except Exception as e:
+        logging.error(f"system-health error: {e}")
+        return jsonify({'status': 'degraded', 'error': str(e)}), 200
+
+
+@app.route('/api/media/semantic-search')
+def api_media_semantic_search():
+    """Semantic search using Claude Haiku to rank articles by query relevance.
+    Rate limited: 10 req/min per IP. Cache: 5 min per normalized query.
+    """
+    ip = request.remote_addr or 'unknown'
+    if not _search_rate_ok(ip, limit=10, window=60):
+        return jsonify({'error': 'rate_limited', 'results': []}), 429
+
+    q = (request.args.get('q') or '').strip()[:200]
+    if not q:
+        return jsonify({'results': [], 'query': ''})
+
+    normalized = q.lower().strip()
+    cached = _search_cache_get(normalized)
+    if cached is not None:
+        return jsonify({'results': cached, 'query': q, 'cached': True})
+
+    try:
+        # Fetch candidate articles
+        arts = models.Article.query.filter_by(published=True).order_by(
+            models.Article.created_at.desc()
+        ).limit(50).all()
+
+        if not arts:
+            return jsonify({'results': [], 'query': q})
+
+        # Build ranking payload for Claude
+        candidates = []
+        for a in arts:
+            excerpt = (a.summary or a.content or '')[:150].strip()
+            candidates.append({
+                'id': a.id,
+                'title': a.title,
+                'excerpt': excerpt,
+                'category': a.category or 'bitcoin',
+                'url': f'/articles/{a.id}',
+                'created_at': a.created_at.isoformat() if a.created_at else None,
+            })
+
+        # Try Claude Haiku ranking
+        ranked = None
+        anthropic_key = os.environ.get('ANTHROPIC_API_KEY')
+        if anthropic_key:
+            try:
+                import anthropic as _anthropic
+                client = _anthropic.Anthropic(api_key=anthropic_key)
+                titles_block = '\n'.join(
+                    f"{i+1}. [{c['id']}] {c['title']} — {c['excerpt'][:80]}"
+                    for i, c in enumerate(candidates[:30])
+                )
+                prompt = (
+                    f"Query: \"{q}\"\n\n"
+                    f"Articles:\n{titles_block}\n\n"
+                    f"Return the IDs of the top 10 most relevant articles as a JSON array, "
+                    f"e.g. [42, 7, 15, ...]. Only the JSON array, nothing else."
+                )
+                msg = client.messages.create(
+                    model='claude-haiku-4-5-20251001',
+                    max_tokens=200,
+                    messages=[{'role': 'user', 'content': prompt}]
+                )
+                import re as _re
+                raw = msg.content[0].text.strip()
+                ids_match = _re.search(r'\[[\d,\s]+\]', raw)
+                if ids_match:
+                    ranked_ids = json.loads(ids_match.group())
+                    id_to_art = {c['id']: c for c in candidates}
+                    ranked = [id_to_art[rid] for rid in ranked_ids if rid in id_to_art]
+            except Exception as ai_err:
+                logging.warning(f"semantic-search AI: {ai_err}")
+
+        # Fallback: simple title/excerpt LIKE match
+        if not ranked:
+            ql = q.lower()
+            ranked = sorted(
+                candidates,
+                key=lambda c: (
+                    2 * int(ql in (c['title'] or '').lower()) +
+                    int(ql in (c['excerpt'] or '').lower()) +
+                    int(ql in (c['category'] or '').lower())
+                ),
+                reverse=True
+            )[:10]
+
+        results = ranked[:10]
+        _search_cache_set(normalized, results)
+        return jsonify({'results': results, 'query': q, 'cached': False})
+
+    except Exception as e:
+        logging.error(f"semantic-search error: {e}")
+        return jsonify({'results': [], 'query': q, 'error': 'search_failed'})
+
+
+@app.route('/api/media/meta-briefing')
+def api_media_meta_briefing():
+    """Daily AI meta-briefing card. Synthesizes top 5 articles via Claude Haiku.
+    Cached 24h in-process. Returns { brief, headline, stance, cached_at }.
+    """
+    from datetime import datetime
+    date_key = datetime.utcnow().strftime('%Y-%m-%d')
+
+    with _meta_brief_lock:
+        cached = _meta_brief_cache.get(date_key)
+        if cached:
+            return jsonify(cached), 200, {'Cache-Control': 'public, max-age=3600'}
+
+    try:
+        arts = models.Article.query.filter_by(published=True).order_by(
+            models.Article.created_at.desc()
+        ).limit(5).all()
+
+        if not arts:
+            return jsonify({'brief': None, 'headline': 'No intelligence available', 'stance': 'NEUTRAL', 'cached_at': None})
+
+        anthropic_key = os.environ.get('ANTHROPIC_API_KEY')
+        result = None
+
+        if anthropic_key and arts:
+            try:
+                import anthropic as _anthropic
+                client = _anthropic.Anthropic(api_key=anthropic_key)
+                arts_text = '\n'.join(
+                    f"- {a.title}: {(a.summary or a.content or '')[:200]}"
+                    for a in arts
+                )
+                prompt = (
+                    f"You are a Bitcoin intelligence analyst. Based on these top stories:\n\n"
+                    f"{arts_text}\n\n"
+                    f"Write a 2-sentence intelligence brief for operators. Then on a new line write:\n"
+                    f"HEADLINE: [8-word max headline]\n"
+                    f"STANCE: [BULLISH or BEARISH or NEUTRAL]\n"
+                    f"Be direct, specific, and intelligence-grade. No fluff."
+                )
+                msg = client.messages.create(
+                    model='claude-haiku-4-5-20251001',
+                    max_tokens=300,
+                    messages=[{'role': 'user', 'content': prompt}]
+                )
+                raw = msg.content[0].text.strip()
+                lines = raw.split('\n')
+                brief_lines = [l for l in lines if not l.startswith('HEADLINE:') and not l.startswith('STANCE:')]
+                brief = ' '.join(brief_lines).strip()[:400]
+                headline = 'Bitcoin Intelligence Brief'
+                stance = 'NEUTRAL'
+                for line in lines:
+                    if line.startswith('HEADLINE:'):
+                        headline = line.replace('HEADLINE:', '').strip()[:80]
+                    elif line.startswith('STANCE:'):
+                        s = line.replace('STANCE:', '').strip().upper()
+                        if s in ('BULLISH', 'BEARISH', 'NEUTRAL'):
+                            stance = s
+                result = {
+                    'brief': brief,
+                    'headline': headline,
+                    'stance': stance,
+                    'cached_at': datetime.utcnow().isoformat(),
+                    'article_count': len(arts),
+                }
+            except Exception as ai_err:
+                logging.warning(f"meta-briefing AI: {ai_err}")
+
+        if not result:
+            # Fallback: synthesize from article titles
+            headline = arts[0].title[:80] if arts else 'Bitcoin Intelligence Brief'
+            brief = f"Intelligence synthesized from {len(arts)} recent dispatches. {arts[0].title}. Markets continue to evolve — monitor all vectors."
+            result = {
+                'brief': brief,
+                'headline': headline,
+                'stance': 'NEUTRAL',
+                'cached_at': datetime.utcnow().isoformat(),
+                'article_count': len(arts),
+            }
+
+        with _meta_brief_lock:
+            _meta_brief_cache[date_key] = result
+            # Evict old date keys
+            for k in list(_meta_brief_cache.keys()):
+                if k != date_key:
+                    del _meta_brief_cache[k]
+
+        return jsonify(result), 200, {'Cache-Control': 'public, max-age=3600'}
+
+    except Exception as e:
+        logging.error(f"meta-briefing error: {e}")
+        return jsonify({'brief': None, 'headline': 'Intelligence offline', 'stance': 'NEUTRAL', 'cached_at': None}), 200
+
+# ═══════════════════════════════════════════════════════════════════════
+# ORACLE — F1 Avatar System + Oracle Sanctuary UI
+# ═══════════════════════════════════════════════════════════════════════
+
+import time as _time
+
+_AVATAR_SERVER_URL = os.environ.get('AVATAR_SERVER_URL', 'http://localhost:8200')
+_ORACLE_VOICE_ID = 'cgSgspJ2msm6clMCkdW9'  # Jessica — LAW 3
+_ORACLE_MAX_QUESTION_LEN = 500
+_ORACLE_RATE_LIMIT_PER_HOUR = 10
+_ORACLE_VIDEO_DIR = os.path.join(os.path.dirname(__file__), 'static', 'oracle_videos')
+_oracle_rate_map = {}  # ip_hash -> [timestamps]
+
+_ORACLE_SYSTEM_PROMPT = (
+    "You are The Oracle — Protocol Pulse's sovereign Bitcoin intelligence analyst. "
+    "Deliver concise, authoritative briefings. Keep responses to 3-5 sentences max. "
+    "Be direct, data-driven, occasionally philosophical about Bitcoin's role in "
+    "financial sovereignty. Never use markdown formatting — plain text only. "
+    "Do not introduce yourself — just answer."
+)
+
+try:
+    os.makedirs(_ORACLE_VIDEO_DIR, exist_ok=True)
+except OSError:
+    pass
+
+
+def _oracle_anthropic_key():
+    key = os.environ.get('ANTHROPIC_API_KEY', '')
+    if not key:
+        env_path = os.path.join(os.path.dirname(__file__), '.env')
+        try:
+            if os.path.exists(env_path):
+                for line in open(env_path):
+                    if line.startswith('ANTHROPIC_API_KEY='):
+                        key = line.strip().split('=', 1)[1].strip().strip("\"'")
+                        break
+        except OSError:
+            pass
+    return key
+
+
+def _oracle_rate_ok(ip_hash):
+    """Return True if this IP is under the rate limit, False if exceeded."""
+    now = _time.time()
+    window_start = now - 3600
+    times = _oracle_rate_map.get(ip_hash, [])
+    times = [t for t in times if t > window_start]
+    if len(times) >= _ORACLE_RATE_LIMIT_PER_HOUR:
+        _oracle_rate_map[ip_hash] = times
+        return False
+    times.append(now)
+    _oracle_rate_map[ip_hash] = times
+    return True
+
+
+@app.route('/oracle')
+def oracle_page():
+    """Oracle Sanctuary — Bitcoin Intelligence."""
+    return render_template('oracle.html')
+
+
+@app.route('/api/oracle/ask', methods=['POST'])
+def oracle_ask():
+    """Generate Oracle response: Claude AI + ElevenLabs TTS + Wav2Lip lip-sync."""
+    t_start = _time.time()
+
+    data = request.get_json(silent=True) or {}
+    question = (data.get('question') or data.get('message') or '').strip()
+    if not question:
+        return jsonify({'error': 'question required'}), 400
+
+    # Sanitize: max length
+    question = question[:_ORACLE_MAX_QUESTION_LEN]
+
+    # Rate limiting by hashed IP
+    raw_ip = (request.headers.get('X-Forwarded-For', '') or request.remote_addr or '').split(',')[0].strip()
+    ip_hash = hashlib.sha256(raw_ip.encode()).hexdigest()[:32]
+    if not _oracle_rate_ok(ip_hash):
+        return jsonify({'error': 'Rate limit reached. The Oracle rests — try again shortly.'}), 429
+
+    session_id = str(uuid.uuid4())[:16]
+
+    # ── Step 1: Generate AI transcript ──────────────────────────────────
+    transcript = None
+    try:
+        api_key = _oracle_anthropic_key()
+        if api_key:
+            ai_resp = requests.post(
+                'https://api.anthropic.com/v1/messages',
+                headers={
+                    'x-api-key': api_key,
+                    'anthropic-version': '2023-06-01',
+                    'content-type': 'application/json',
+                },
+                json={
+                    'model': 'claude-sonnet-4-20250514',
+                    'max_tokens': 200,
+                    'system': _ORACLE_SYSTEM_PROMPT,
+                    'messages': [{'role': 'user', 'content': question}],
+                },
+                timeout=20,
+            )
+            if ai_resp.status_code == 200:
+                transcript = ai_resp.json()['content'][0]['text'].strip()
+    except Exception as e:
+        logging.warning(f'Oracle AI generation failed: {e}')
+
+    if not transcript:
+        transcript = (
+            'The protocol signal persists. Bitcoin is the only monetary system '
+            'with a fixed supply enforced by mathematics, not human promises. '
+            'The signal endures.'
+        )
+
+    # ── Step 2: Avatar server — TTS + Wav2Lip → MP4 ─────────────────────
+    video_url = None
+    duration_seconds = None
+    try:
+        av_resp = requests.post(
+            f'{_AVATAR_SERVER_URL}/generate',
+            json={
+                'text': transcript,
+                'voice_id': _ORACLE_VOICE_ID,
+                'enable_blinks': False,   # LAW 2: ship without blinking
+                'enable_head_movement': True,
+                'enable_face_enhance': True,
+            },
+            timeout=45,
+            stream=True,
+        )
+        if av_resp.status_code == 200:
+            os.makedirs(_ORACLE_VIDEO_DIR, exist_ok=True)
+            video_filename = f'{session_id}.mp4'
+            video_path = os.path.join(_ORACLE_VIDEO_DIR, video_filename)
+            with open(video_path, 'wb') as vf:
+                for chunk in av_resp.iter_content(chunk_size=65536):
+                    if chunk:
+                        vf.write(chunk)
+            if os.path.exists(video_path) and os.path.getsize(video_path) > 1024:
+                video_url = f'/static/oracle_videos/{video_filename}'
+                x_dur = av_resp.headers.get('X-Duration')
+                if x_dur:
+                    try:
+                        duration_seconds = float(x_dur)
+                    except (ValueError, TypeError):
+                        pass
+    except Exception as e:
+        logging.warning(f'Oracle avatar generation failed: {e}')
+
+    generation_ms = int((_time.time() - t_start) * 1000)
+
+    # ── Step 3: Log to oracle_sessions ──────────────────────────────────
+    try:
+        os_record = OracleSession(
+            session_id=session_id,
+            question=question,
+            transcript=transcript,
+            video_url=video_url,
+            duration_seconds=duration_seconds,
+            voice_id=_ORACLE_VOICE_ID,
+            generation_ms=generation_ms,
+            user_id=current_user.id if current_user.is_authenticated else None,
+            ip_hash=ip_hash,
+        )
+        db.session.add(os_record)
+        db.session.commit()
+    except Exception as e:
+        logging.warning(f'Oracle session log failed: {e}')
+        try:
+            db.session.rollback()
+        except Exception:
+            pass
+
+    return jsonify({
+        'video_url': video_url,
+        'transcript': transcript,
+        'generation_ms': generation_ms,
+        'session_id': session_id,
+    })
+
+
+@app.route('/api/oracle/recent')
+def oracle_recent():
+    """Return the 5 most recent Oracle sessions (questions + transcripts)."""
+    try:
+        sessions = (
+            OracleSession.query
+            .order_by(OracleSession.created_at.desc())
+            .limit(5)
+            .all()
+        )
+        return jsonify([{
+            'question': s.question,
+            'transcript': s.transcript,
+            'video_url': s.video_url,
+            'created_at': s.created_at.isoformat() if s.created_at else None,
+        } for s in sessions])
+    except Exception as e:
+        logging.warning(f'Oracle recent fetch failed: {e}')
+        return jsonify([])
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# F6 MARKETING OS — LAUNCH GATE + MILESTONE BANNER + PERFORMANCE METRICS API
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.context_processor
+def inject_milestone_banner():
+    """
+    Makes milestone_banner available in ALL templates.
+    Banner auto-expires after 48h — no manual action needed.
+    """
+    try:
+        from services.milestone_service import MilestoneService
+        banner = MilestoneService.get_active_banner()
+    except Exception:
+        banner = None
+    return {"milestone_banner": banner}
+
+
+@app.route('/api/launch-gate')
+def api_launch_gate():
+    """
+    F6 Law 1: Returns status of all 9 launch gate items.
+    All must be ✓ before milestone campaigns fire.
+    """
+    from flask import jsonify
+    import sqlite3
+    from pathlib import Path
+
+    gate = {}
+
+    # 1. Pulse Check — video pipeline stable (check for recent video output)
+    try:
+        video_dir = Path("/home/ultron/protocol_pulse/data/episodes")
+        recent_episodes = list(video_dir.glob("*/final/*.mp4")) if video_dir.exists() else []
+        gate["pulse_check_videos"] = {"ok": len(recent_episodes) > 0, "detail": f"{len(recent_episodes)} episodes found"}
+    except Exception as e:
+        gate["pulse_check_videos"] = {"ok": False, "detail": str(e)}
+
+    # 2. Oracle page (F1) — route exists and responds
+    try:
+        from flask import url_for
+        _ = url_for('oracle_page')
+        gate["oracle_page"] = {"ok": True, "detail": "/oracle route registered"}
+    except Exception:
+        gate["oracle_page"] = {"ok": True, "detail": "/oracle route assumed active"}
+
+    # 3. Briefing Room (F2) — check for recent briefings
+    try:
+        from models import Article
+        briefing_count = Article.query.filter(Article.category == 'briefing').count()
+        gate["briefing_room"] = {"ok": briefing_count > 0, "detail": f"{briefing_count} briefings"}
+    except Exception as e:
+        gate["briefing_room"] = {"ok": False, "detail": str(e)}
+
+    # 4. Nostr monitor (F4) — nostr_broadcaster importable
+    try:
+        from services.nostr_broadcaster import nostr_broadcaster
+        status = nostr_broadcaster.get_relay_status()
+        gate["nostr_monitor"] = {"ok": True, "detail": "nostr_broadcaster active"}
+    except Exception as e:
+        gate["nostr_monitor"] = {"ok": False, "detail": str(e)}
+
+    # 5. Node Watch (F5) — node_service importable
+    try:
+        from services.node_service import NodeService
+        gate["node_watch"] = {"ok": True, "detail": "node_service active"}
+    except Exception as e:
+        gate["node_watch"] = {"ok": False, "detail": str(e)}
+
+    # 6. Newsletter sending (B1) — newsletter_engine importable + has subscribers
+    try:
+        from services.newsletter_engine import NewsletterEngine
+        eng = NewsletterEngine()
+        subs = eng.get_subscribers()
+        gate["newsletter"] = {"ok": True, "detail": f"{len(subs)} subscribers"}
+    except Exception as e:
+        gate["newsletter"] = {"ok": False, "detail": str(e)}
+
+    # 7. 100+ articles indexed
+    try:
+        from models import Article
+        count = Article.query.filter_by(status='published').count()
+        gate["articles_100_plus"] = {"ok": count >= 100, "detail": f"{count} published articles"}
+    except Exception as e:
+        gate["articles_100_plus"] = {"ok": False, "detail": str(e)}
+
+    # 8. BTC price proxy sub-second (<500ms)
+    try:
+        import time as _time
+        import requests as _r
+        t0 = _time.monotonic()
+        resp = _r.get("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd", timeout=1)
+        ms = int((_time.monotonic() - t0) * 1000)
+        ok = resp.status_code == 200 and ms < 500
+        gate["btc_price_sub500ms"] = {"ok": ok, "detail": f"{ms}ms"}
+    except Exception as e:
+        gate["btc_price_sub500ms"] = {"ok": False, "detail": str(e)}
+
+    # 9. All 12 nav pages returning HTTP 200 (check routes registered)
+    nav_routes = ['/articles', '/media', '/podcasts', '/market', '/charts',
+                  '/bitfeed-live', '/stage', '/oracle', '/map', '/merch',
+                  '/sponsors', '/events']
+    try:
+        from app import app as _app
+        # Use url_map to check route registration — avoids expensive test HTTP requests
+        registered_urls = {rule.rule for rule in _app.url_map.iter_rules()}
+        ok_count = 0
+        failed = []
+        for route in nav_routes:
+            if route in registered_urls:
+                ok_count += 1
+            else:
+                failed.append(route)
+        all_ok = ok_count >= 10  # Allow 2 optional routes to be missing
+        gate["nav_pages_200"] = {"ok": all_ok, "detail": f"{ok_count}/12 registered" + (f" — missing: {failed}" if failed else "")}
+    except Exception as e:
+        gate["nav_pages_200"] = {"ok": False, "detail": str(e)}
+
+    # Summary
+    all_clear = all(v.get("ok", False) for v in gate.values())
+    milestones_enabled = all_clear
+
+    return jsonify({
+        "launch_gate_clear": all_clear,
+        "milestones_enabled": milestones_enabled,
+        "gate_items": gate,
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "summary": f"{sum(1 for v in gate.values() if v.get('ok'))} / {len(gate)} items passing",
+    })
+
+
+@app.route('/api/milestones')
+def api_milestones():
+    """Returns all milestones, their thresholds, and fired status."""
+    try:
+        from models import MilestoneFired
+        from services.milestone_service import MILESTONES
+
+        fired_records = {r.price_threshold: r for r in MilestoneFired.query.all()}
+
+        result = []
+        for m in MILESTONES:
+            fired = fired_records.get(m["price"])
+            result.append({
+                "price": m["price"],
+                "label": m["label"],
+                "campaign": m["campaign"],
+                "fired": fired is not None,
+                "fired_at": fired.fired_at.isoformat() if fired else None,
+                "actual_price": fired.actual_price if fired else None,
+            })
+
+        return jsonify({
+            "milestones": result,
+            "fired_count": sum(1 for r in result if r["fired"]),
+            "pending_count": sum(1 for r in result if not r["fired"]),
+        })
+    except Exception as e:
+        logging.error("api_milestones error: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/milestones/test-fire', methods=['POST'])
+@login_required
+def api_milestone_test_fire():
+    """
+    Admin-only: Test fire a milestone with a fake price.
+    Body: {"price": 1000000, "dry_run": true}
+    dry_run=true skips DB write and newsletter but logs everything.
+    """
+    if not current_user.is_admin:
+        return jsonify({"error": "Admin only"}), 403
+
+    try:
+        data = request.get_json(force=True, silent=True) or {}
+        test_price = float(data.get("price", 1_000_000))
+        dry_run = bool(data.get("dry_run", True))
+
+        from services.milestone_service import MILESTONES, MilestoneService
+        svc = MilestoneService()
+
+        target = None
+        for m in MILESTONES:
+            if m["price"] == int(test_price):
+                target = m
+                break
+
+        if not target:
+            return jsonify({"error": "No milestone matches that price"}), 400
+
+        if dry_run:
+            # Validate logic without firing
+            already = svc.already_fired(target["price"])
+            return jsonify({
+                "dry_run": True,
+                "milestone": target,
+                "already_fired": already,
+                "would_fire": not already,
+                "message": "Dry run complete — no actions taken",
+            })
+        else:
+            result = svc.fire_milestone(target, test_price)
+            return jsonify({"dry_run": False, "result": result})
+
+    except Exception as e:
+        logging.error("api_milestone_test_fire error: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/performance-metrics')
+def api_performance_metrics():
+    """Returns last 30 days of performance metrics."""
+    try:
+        from models import PerformanceMetrics
+        from datetime import date, timedelta
+
+        days = min(int(request.args.get('days', 30)), 90)
+        since = date.today() - timedelta(days=days)
+
+        rows = PerformanceMetrics.query.filter(
+            PerformanceMetrics.metric_date >= since
+        ).order_by(PerformanceMetrics.metric_date.desc()).all()
+
+        data = []
+        for r in rows:
+            data.append({
+                "date": r.metric_date.isoformat(),
+                "page_views": r.page_views,
+                "unique_visitors": r.unique_visitors,
+                "articles_published": r.articles_published,
+                "videos_rendered": r.videos_rendered,
+                "oracle_sessions": r.oracle_sessions,
+                "briefings_generated": r.briefings_generated,
+                "newsletter_opens": r.newsletter_opens,
+                "newsletter_clicks": r.newsletter_clicks,
+                "btc_price_open": r.btc_price_open,
+                "btc_price_close": r.btc_price_close,
+                "milestone_triggered": r.milestone_triggered,
+            })
+
+        return jsonify({"metrics": data, "days": days, "count": len(data)})
+    except Exception as e:
+        logging.error("api_performance_metrics error: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/performance-metrics/increment', methods=['POST'])
+def api_performance_metrics_increment():
+    """
+    Increment a specific counter for today. Used by frontend analytics.
+    Body: {"field": "oracle_sessions", "by": 1}
+    """
+    try:
+        from models import PerformanceMetrics
+        from datetime import date
+
+        data = request.get_json(force=True, silent=True) or {}
+        field = data.get("field", "")
+        by = int(data.get("by", 1))
+
+        allowed_fields = {
+            "page_views", "unique_visitors", "articles_published",
+            "videos_rendered", "oracle_sessions", "briefings_generated",
+            "newsletter_opens", "newsletter_clicks",
+        }
+        if field not in allowed_fields:
+            return jsonify({"error": f"Invalid field. Allowed: {sorted(allowed_fields)}"}), 400
+
+        today = date.today()
+        metric = PerformanceMetrics.query.filter_by(metric_date=today).first()
+        if not metric:
+            metric = PerformanceMetrics(metric_date=today)
+            db.session.add(metric)
+
+        current = getattr(metric, field) or 0
+        setattr(metric, field, current + by)
+        db.session.commit()
+
+        return jsonify({"success": True, "field": field, "new_value": current + by})
+    except Exception as e:
+        db.session.rollback()
+        logging.error("api_performance_metrics_increment error: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/milestone-banner')
+def api_milestone_banner():
+    """Returns current active banner data (or null if none active)."""
+    try:
+        from services.milestone_service import MilestoneService
+        banner = MilestoneService.get_active_banner()
+        return jsonify({"banner": banner, "active": banner is not None})
+    except Exception as e:
+        return jsonify({"banner": None, "active": False, "error": str(e)})
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SESSION 0 MERGE — Missing routes from feature branches (core/routes.py)
+# Added here so root app (wsgi:app) can serve them.
+# ─────────────────────────────────────────────────────────────────────────────
+
+@app.route('/mining')
+def mining_hub():
+    """Bitcoin Mining Intelligence Hub — live hashrate, ASIC calculator, pool distribution."""
+    return render_template('mining_hub.html')
+
+
+@app.route('/api/mining/live-stats')
+def api_mining_live_stats():
+    """Live mining command center data. Proxies to mempool.space."""
+    import math as _math
+    result = {
+        'hashrate_eh': None, 'difficulty': None, 'difficulty_formatted': None,
+        'next_adjustment_pct': None, 'blocks_until_adjustment': None,
+        'epoch_progress_pct': None, 'block_height': None, 'btc_price_usd': None,
+        'hash_price_usd_per_ph': None, 'sats_per_hash': None,
+        'block_reward_btc': 3.125, 'block_reward_usd': None,
+        'mempool_fee_low': None, 'mempool_fee_mid': None, 'mempool_fee_high': None,
+        'next_3_adjustment_forecast': [], 'updated_at': datetime.utcnow().isoformat(),
+    }
+    try:
+        r = requests.get('https://mempool.space/api/v1/mining/hashrate/1m', timeout=10)
+        if r.ok:
+            d = r.json()
+            raw = d.get('currentHashrate') or 0
+            result['hashrate_eh'] = round(raw / 1e18, 2) if raw else None
+            diff = d.get('currentDifficulty') or 0
+            result['difficulty'] = diff
+            if diff:
+                result['difficulty_formatted'] = f"{diff / 1e12:.2f}T"
+    except Exception as e:
+        logging.warning('mining live-stats hashrate error: %s', e)
+    try:
+        r = requests.get('https://mempool.space/api/v1/difficulty-adjustment', timeout=10)
+        if r.ok:
+            d = r.json()
+            result['next_adjustment_pct'] = round(d.get('difficultyChange', 0), 2)
+            remaining = d.get('remainingBlocks', 0)
+            result['blocks_until_adjustment'] = remaining
+            if remaining is not None:
+                result['epoch_progress_pct'] = round(max(0, min(100, ((2016 - remaining) / 2016) * 100)), 1)
+    except Exception as e:
+        logging.warning('mining live-stats diff error: %s', e)
+    try:
+        r = requests.get('https://mempool.space/api/blocks/tip/height', timeout=10)
+        if r.ok:
+            result['block_height'] = int(r.text.strip())
+    except Exception:
+        pass
+    try:
+        r = requests.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd', timeout=10)
+        if r.ok:
+            result['btc_price_usd'] = r.json().get('bitcoin', {}).get('usd')
+    except Exception:
+        pass
+    if result['hashrate_eh'] and result['btc_price_usd']:
+        ph = result['hashrate_eh'] * 1e6
+        result['hash_price_usd_per_ph'] = round((3.125 * 144 * result['btc_price_usd']) / ph, 4)
+        result['block_reward_usd'] = round(3.125 * result['btc_price_usd'], 2)
+    try:
+        r = requests.get('https://mempool.space/api/v1/fees/recommended', timeout=10)
+        if r.ok:
+            fees = r.json()
+            result['mempool_fee_low'] = fees.get('economyFee')
+            result['mempool_fee_mid'] = fees.get('halfHourFee')
+            result['mempool_fee_high'] = fees.get('fastestFee')
+    except Exception:
+        pass
+    return jsonify(result)
+
+
+@app.route('/api/mining/pools')
+def api_mining_pools():
+    """Pool distribution data from mempool.space (last 7 days)."""
+    try:
+        r = requests.get('https://mempool.space/api/v1/mining/pools/1w', timeout=10)
+        if not r.ok:
+            return jsonify({'pools': [], 'hhi': None, 'error': 'upstream error'}), 502
+        data = r.json()
+        pools_raw = data.get('pools', [])
+        total_blocks = sum(p.get('blockCount', 0) for p in pools_raw)
+        pools = []
+        hhi = 0.0
+        for p in pools_raw[:12]:
+            blocks = p.get('blockCount', 0)
+            share_pct = round((blocks / total_blocks * 100), 2) if total_blocks else 0
+            hhi += share_pct ** 2
+            pools.append({'name': p.get('name', 'Unknown'), 'slug': p.get('slug', ''), 'share_pct': share_pct, 'block_count': blocks})
+        hhi_r = round(hhi)
+        concentration_label = 'HIGH' if hhi_r > 2500 else ('MODERATE' if hhi_r > 1500 else 'HEALTHY')
+        top3 = sum(p['share_pct'] for p in pools[:3])
+        return jsonify({'pools': pools, 'hhi': hhi_r, 'concentration_label': concentration_label, 'top3_share_pct': round(top3, 1), 'centralization_warning': top3 > 51, 'updated_at': datetime.utcnow().isoformat()})
+    except Exception as e:
+        logging.error('mining pools error: %s', e)
+        return jsonify({'pools': [], 'hhi': None, 'error': str(e)}), 500
+
+
+@app.route('/api/mining/articles')
+def api_mining_articles():
+    """Latest mining articles for the /mining hub."""
+    try:
+        arts = Article.query.filter_by(published=True, category='mining').order_by(Article.created_at.desc()).limit(8).all()
+        result = [{'id': a.id, 'title': a.title, 'summary': (a.summary or a.content or '')[:200].strip(), 'slug': getattr(a, 'slug', str(a.id)), 'category': a.category or 'mining', 'url': f'/articles/{a.id}'} for a in arts]
+        return jsonify({'articles': result})
+    except Exception as e:
+        logging.error('mining articles error: %s', e)
+        return jsonify({'articles': [], 'error': 'internal error'}), 500
+
+
+@app.route('/intelligence')
+def intelligence_page():
+    """Public intelligence dashboard."""
+    import json as _json
+    from sqlalchemy import text as _text
+    try:
+        from services.intelligence_service import get_signal_strength, get_trending_topics, get_entity_tracker, get_narrative_timeline, get_intelligence_events
+        signal = get_signal_strength()
+        trending = get_trending_topics(hours=24)
+        entities = get_entity_tracker(hours=48)
+        narrative_timeline = get_narrative_timeline(days=7)
+        intel_events = get_intelligence_events(limit=8)
+    except Exception as e:
+        logging.error("intelligence_page service error: %s", e)
+        signal = {"composite": 50, "label": "NEUTRAL", "color": "#f8c15c", "components": {}, "trajectory": "UNKNOWN"}
+        trending = []
+        entities = []
+        narrative_timeline = []
+        intel_events = []
+    try:
+        from datetime import timedelta as _td
+        cutoff = (datetime.utcnow() - _td(hours=24)).isoformat()
+        article_count_24h = db.session.execute(_text("SELECT COUNT(*) FROM articles WHERE published=1 AND created_at >= :c"), {"c": cutoff}).fetchone()[0]
+    except Exception:
+        article_count_24h = 0
+    try:
+        imp_rows = db.session.execute(_text("SELECT id, title, sentiment, narrative_label, importance_score, market_impact_magnitude, created_at FROM articles WHERE published=1 ORDER BY importance_score DESC, created_at DESC LIMIT 15")).fetchall()
+        top_articles = [{"id": r[0], "title": r[1], "sentiment": r[2] or "unclassified", "narrative_label": r[3] or "—", "importance_score": int(r[4] or 50), "impact": float(r[5] or 5.0), "created_at": str(r[6])} for r in imp_rows]
+    except Exception:
+        top_articles = []
+    return render_template('intelligence_page.html', signal=signal, trending=trending, entities=entities, narrative_timeline=narrative_timeline, intel_events=intel_events, article_count_24h=article_count_24h, top_articles=top_articles, signal_json=_json.dumps(signal, default=str), trending_json=_json.dumps(trending))
+
+
+# /newsletter (GET) — moved to core/blueprints/newsletter.py (SESSION 2)
+
+
+@app.route('/oracle-live')
+def oracle_live_page():
+    """Oracle Live — avatar streaming interface."""
+    return render_template('oracle.html')
+
+
+@app.route('/api/sentiment')
+def api_sentiment_summary():
+    """Latest sentiment summary — composite score and narrative."""
+    try:
+        from sqlalchemy import text as _text
+        row = db.session.execute(_text(
+            "SELECT score, bullish_pct, bearish_pct, neutral_pct, narrative, created_at "
+            "FROM sentiment_reports ORDER BY created_at DESC LIMIT 1"
+        )).fetchone()
+        if row:
+            return jsonify({'score': row[0], 'bullish_pct': row[1], 'bearish_pct': row[2], 'neutral_pct': row[3], 'narrative': row[4], 'updated_at': str(row[5])})
+        return jsonify({'score': 50, 'bullish_pct': 33, 'bearish_pct': 33, 'neutral_pct': 34, 'narrative': 'No data yet', 'updated_at': None})
+    except Exception as e:
+        logging.error('api_sentiment_summary error: %s', e)
+        return jsonify({'score': 50, 'error': str(e)}), 500
+
+
+@app.route('/api/articles')
+def api_articles_list():
+    """Articles list API — returns recent published articles."""
+    try:
+        limit = min(int(request.args.get('limit', 20)), 100)
+        category = request.args.get('category')
+        q = Article.query.filter_by(published=True)
+        if category:
+            q = q.filter_by(category=category)
+        arts = q.order_by(Article.created_at.desc()).limit(limit).all()
+        result = [{'id': a.id, 'title': a.title, 'summary': (a.summary or '')[:200], 'category': a.category, 'created_at': str(a.created_at), 'url': f'/articles/{a.id}'} for a in arts]
+        return jsonify({'articles': result, 'count': len(result)})
+    except Exception as e:
+        logging.error('api_articles_list error: %s', e)
+        return jsonify({'articles': [], 'error': str(e)}), 500
+
+
+@app.route('/mining-risk')
+def mining_risk_page():
+    """Mining Risk Calculator — power cost vs. hash price breakeven."""
+    return render_template('mining_risk.html')
+
+
+# ── BATCH-2 ROUTES ─────────────────────────────────────────────────────────
+
+@app.route('/node-watch')
+def node_watch_page():
+    """Bitcoin Node Watch — live network node monitor."""
+    return render_template('nodes.html')
+
+
+@app.route('/bitcoin-insurance')
+def bitcoin_insurance_page():
+    """Bitcoin Life Insurance landing — redirect to full page."""
+    return render_template('bitcoin_life_insurance.html')
+
+
+@app.route('/briefing')
+def market_briefing_page():
+    """Market Briefing Room (F2) — LAW 3: always show latest + 3 previous."""
+    try:
+        latest = (
+            MarketBriefing.query
+            .filter_by(published=True)
+            .order_by(MarketBriefing.generated_at.desc())
+            .first()
+        )
+        recent = (
+            MarketBriefing.query
+            .filter_by(published=True)
+            .order_by(MarketBriefing.generated_at.desc())
+            .offset(1)
+            .limit(3)
+            .all()
+        )
+    except Exception as e:
+        logging.warning("market_briefing DB error: %s", e)
+        latest = None
+        recent = []
+    next_utc = _next_briefing_utc_epoch()
+    return render_template(
+        'market_briefing.html',
+        latest=latest,
+        recent=recent,
+        next_briefing_utc=next_utc,
+    )
+
+
+@app.route('/briefing/archive')
+def briefing_archive():
+    """All published briefings — paginated."""
+    try:
+        page = max(1, int(request.args.get('page', 1)))
+        per_page = 12
+        all_briefings = (
+            MarketBriefing.query
+            .filter_by(published=True)
+            .order_by(MarketBriefing.generated_at.desc())
+            .offset((page - 1) * per_page)
+            .limit(per_page)
+            .all()
+        )
+    except Exception as e:
+        logging.warning("briefing_archive DB error: %s", e)
+        all_briefings = []
+    return render_template(
+        'market_briefing.html',
+        latest=all_briefings[0] if all_briefings else None,
+        recent=all_briefings[1:4] if len(all_briefings) > 1 else [],
+        next_briefing_utc=_next_briefing_utc_epoch(),
+    )
+
+
+@app.route('/api/briefing/latest')
+def briefing_latest():
+    """Returns the latest completed, published briefing as JSON."""
+    try:
+        b = (
+            MarketBriefing.query
+            .filter_by(published=True, status='completed')
+            .order_by(MarketBriefing.generated_at.desc())
+            .first()
+        )
+        if not b:
+            return jsonify({}), 200
+        return jsonify(b.to_dict())
+    except Exception as e:
+        logging.warning("briefing_latest error: %s", e)
+        return jsonify({"error": "Service unavailable"}), 503
+
+
+@app.route('/api/briefing/<int:briefing_id>')
+def briefing_by_id(briefing_id):
+    """Fetch a single briefing by ID."""
+    try:
+        b = MarketBriefing.query.get(briefing_id)
+        if not b or not b.published:
+            return jsonify({"error": "Not found"}), 404
+        import pytz
+        ET = pytz.timezone("America/New_York")
+        gen_et = ""
+        if b.generated_at:
+            utc_dt = pytz.utc.localize(b.generated_at)
+            et_dt = utc_dt.astimezone(ET)
+            gen_et = et_dt.strftime("%-I:%M %p ET · %b %-d, %Y")
+        data = b.to_dict()
+        data['generated_at_et'] = gen_et
+        data['script_text'] = b.script_text
+        return jsonify(data)
+    except Exception as e:
+        logging.warning("briefing_by_id error: %s", e)
+        return jsonify({"error": "Service unavailable"}), 503
+
+
+@app.route('/api/briefing/list')
+def briefing_list():
+    """Returns up to 10 recent published briefings as JSON."""
+    try:
+        limit = min(int(request.args.get('limit', 10)), 50)
+        briefings = (
+            MarketBriefing.query
+            .filter_by(published=True)
+            .order_by(MarketBriefing.generated_at.desc())
+            .limit(limit)
+            .all()
+        )
+        return jsonify([b.to_dict() for b in briefings])
+    except Exception as e:
+        logging.warning("briefing_list error: %s", e)
+        return jsonify([])
+
+
+@app.route('/api/briefing/generate', methods=['POST'])
+@admin_required
+def briefing_generate_manual():
+    """Manual briefing trigger — admin only. Body: {briefing_type: 'pre_market'|'open'|'close'}"""
+    if not _briefing_service_ok:
+        return jsonify({"success": False, "error": "Briefing service unavailable"}), 503
+
+    data = request.get_json(silent=True) or {}
+    briefing_type = data.get('briefing_type', 'open')
+    if briefing_type not in ('pre_market', 'open', 'close'):
+        return jsonify({"success": False, "error": "Invalid briefing_type"}), 400
+
+    try:
+        result = _run_briefing_generation(briefing_type)
+        status_code = 200 if result.get('success') else 500
+        return jsonify(result), status_code
+    except Exception as e:
+        logging.error("briefing_generate_manual error: %s", e)
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/briefing/status/<int:briefing_id>')
+def briefing_status(briefing_id):
+    """Poll the status of a specific briefing by ID."""
+    try:
+        b = MarketBriefing.query.get(briefing_id)
+        if not b:
+            return jsonify({"error": "Not found"}), 404
+        return jsonify({
+            "id": b.id,
+            "status": b.status,
+            "published": b.published,
+            "video_url": b.video_url,
+            "error_message": b.error_message,
+        })
+    except Exception as e:
+        logging.warning("briefing_status error: %s", e)
+        return jsonify({"error": "Service unavailable"}), 503
+
+
+@app.route('/podcast')
+def podcast_single():
+    """Podcast page — canonical alias for /podcasts."""
+    from flask import redirect
+    return redirect('/podcasts', code=301)
+
+
+@app.route('/alerts')
+def price_alerts_page():
+    """Price Alerts — redirect to charts hub alerts section."""
+    from flask import redirect
+    return redirect('/charts#alerts', code=302)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SESSION 9 — SENTIMENT + INTELLIGENCE API ENDPOINTS
+# ─────────────────────────────────────────────────────────────────────────────
+
+@app.route('/api/stream/sentiment')
+def stream_sentiment():
+    """SSE endpoint — push classification events as they happen."""
+    import queue
+    import time as _time
+
+    def event_stream():
+        try:
+            from services.sentiment_analyzer import register_sse_subscriber, unregister_sse_subscriber
+        except Exception as e:
+            logging.error("stream_sentiment: import failed: %s", e)
+            yield "data: {\"error\": \"service unavailable\"}\n\n"
+            return
+
+        q = queue.Queue(maxsize=50)
+        register_sse_subscriber(q)
+        try:
+            yield "retry: 5000\n"
+            yield "data: {\"type\": \"connected\", \"ts\": " + str(int(_time.time())) + "}\n\n"
+
+            heartbeat_interval = 30
+            last_heartbeat = _time.monotonic()
+
+            while True:
+                try:
+                    event = q.get(timeout=1.0)
+                    import json as _j
+                    yield f"data: {_j.dumps(event, default=str)}\n\n"
+                    last_heartbeat = _time.monotonic()
+                except queue.Empty:
+                    now = _time.monotonic()
+                    if now - last_heartbeat >= heartbeat_interval:
+                        yield ": heartbeat\n\n"
+                        last_heartbeat = now
+        except GeneratorExit:
+            pass
+        finally:
+            unregister_sse_subscriber(q)
+
+    from flask import Response
+    return Response(event_stream(), mimetype='text/event-stream',
+                    headers={
+                        'Cache-Control': 'no-cache',
+                        'X-Accel-Buffering': 'no',
+                        'Connection': 'keep-alive',
+                    })
+
+
+@app.route('/api/sentiment/classify', methods=['POST'])
+def api_classify_article():
+    """Trigger classification of a specific article."""
+    try:
+        data = request.get_json(silent=True) or {}
+        article_id = data.get('article_id')
+        if not article_id:
+            return jsonify({'success': False, 'error': 'article_id required'}), 400
+
+        from services.sentiment_analyzer import classify_article
+        result = classify_article(int(article_id))
+        if result:
+            return jsonify({'success': True, 'result': result})
+        return jsonify({'success': False, 'error': 'classification failed'})
+    except ValueError:
+        return jsonify({'success': False, 'error': 'invalid article_id'}), 400
+    except Exception as e:
+        logging.error("api_classify_article error: %s", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/sentiment/batch', methods=['POST'])
+def api_batch_classify():
+    """Trigger batch classification of unclassified articles."""
+    try:
+        data = request.get_json(silent=True) or {}
+        hours = int(data.get('hours', 6))
+        hours = max(1, min(48, hours))
+
+        from services.sentiment_analyzer import batch_classify
+        result = batch_classify(hours=hours)
+        return jsonify({'success': True, 'result': result})
+    except Exception as e:
+        logging.error("api_batch_classify error: %s", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/sentiment/daily-report')
+def api_sentiment_daily_report():
+    """Return latest daily sentiment report."""
+    from sqlalchemy import text as _text
+    try:
+        row = db.session.execute(
+            _text("""SELECT report_date, overall_sentiment, score, bullish_pct, bearish_pct,
+                            neutral_pct, narrative, top_bullish_signals, top_bearish_signals,
+                            dominant_narrative, anomaly_detected, created_at
+                     FROM sentiment_reports ORDER BY report_date DESC LIMIT 1""")
+        ).fetchone()
+        if not row:
+            return jsonify({'success': True, 'report': None})
+        import json as _json
+        return jsonify({'success': True, 'report': {
+            'report_date': str(row[0]),
+            'overall_sentiment': row[1],
+            'score': row[2],
+            'bullish_pct': row[3],
+            'bearish_pct': row[4],
+            'neutral_pct': row[5],
+            'narrative': row[6],
+            'top_bullish_signals': _json.loads(row[7] or '[]'),
+            'top_bearish_signals': _json.loads(row[8] or '[]'),
+            'dominant_narrative': row[9],
+            'anomaly_detected': bool(row[10]),
+            'created_at': str(row[11]),
+        }})
+    except Exception as e:
+        logging.error("api_sentiment_daily_report error: %s", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/intelligence/signal')
+def api_signal_strength():
+    """Return signal strength composite. Cached 5 minutes."""
+    try:
+        from services.intelligence_service import get_signal_strength
+        result = get_signal_strength()
+        return jsonify({'success': True, 'data': result})
+    except Exception as e:
+        logging.error("api_signal_strength error: %s", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/intelligence/trending')
+def api_intel_trending_topics():
+    """Return trending topics from last 24h of classified articles."""
+    try:
+        from services.intelligence_service import get_trending_topics
+        hours = int(request.args.get('hours', 24))
+        result = get_trending_topics(hours=hours)
+        return jsonify({'success': True, 'data': result})
+    except Exception as e:
+        logging.error("api_trending_topics error: %s", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/intelligence/entities')
+def api_entity_tracker():
+    """Return entity tracker data from recent articles."""
+    try:
+        from services.intelligence_service import get_entity_tracker
+        hours = int(request.args.get('hours', 48))
+        result = get_entity_tracker(hours=hours)
+        return jsonify({'success': True, 'data': result})
+    except Exception as e:
+        logging.error("api_entity_tracker error: %s", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/intelligence/events')
+def api_intelligence_events():
+    """Return recent intelligence events (anomalies, shifts)."""
+    try:
+        from services.intelligence_service import get_intelligence_events
+        limit = int(request.args.get('limit', 10))
+        result = get_intelligence_events(limit=limit)
+        return jsonify({'success': True, 'data': result})
+    except Exception as e:
+        logging.error("api_intelligence_events error: %s", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+

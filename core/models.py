@@ -1,4 +1,6 @@
+import json
 from datetime import datetime, timedelta
+import json
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db  # This stays here; we will fix the 'loop' in app.py
@@ -480,6 +482,49 @@ class AffiliateClick(db.Model):
     user_agent = db.Column(db.String(500))
     clicked_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+
+# ============================================================
+# P3 AFFILIATE TABLES — Meanwhile + RNS.ID
+# Created: 2026-03-09
+# ============================================================
+
+class P3AffiliateClick(db.Model):
+    """Privacy-first click tracking for Meanwhile + RNS.ID affiliate programs."""
+    __tablename__ = 'p3_affiliate_clicks'
+    id = db.Column(db.Integer, primary_key=True)
+    partner = db.Column(db.String(50), nullable=False)       # meanwhile | rns_id
+    referrer_page = db.Column(db.String(500))                # /articles/123, etc.
+    ab_variant = db.Column(db.String(1))                     # A | B
+    converted = db.Column(db.Integer, default=0)             # 1 if reached partner site
+    user_hash = db.Column(db.String(64))                     # SHA256(ip+date+salt)
+    user_agent_hash = db.Column(db.String(64))               # SHA256(user_agent)
+    clicked_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.Index('idx_p3_aff_partner_date', 'partner', 'clicked_at'),
+        db.Index('idx_p3_aff_variant', 'partner', 'ab_variant'),
+        # P1 FIX (I7): indexes for referrer_page and user_hash (used in analytics/k-anon queries)
+        db.Index('idx_p3_aff_referrer', 'referrer_page'),
+        db.Index('idx_p3_aff_user_hash', 'user_hash'),
+    )
+
+
+class P3AffiliateAbResults(db.Model):
+    """A/B test aggregates for Thompson Sampling MAB."""
+    __tablename__ = 'p3_affiliate_ab_results'
+    id = db.Column(db.Integer, primary_key=True)
+    partner = db.Column(db.String(50), nullable=False)       # meanwhile | rns_id
+    variant = db.Column(db.String(1), nullable=False)        # A | B
+    impressions = db.Column(db.Integer, default=0)
+    clicks = db.Column(db.Integer, default=0)
+    winner_locked = db.Column(db.Boolean, default=False)     # True = MAB frozen
+    calculated_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.UniqueConstraint('partner', 'variant', name='uq_p3_ab_partner_variant'),
+    )
+
+
 class FeedItem(db.Model):
     __tablename__ = 'feed_item'
     id = db.Column(db.Integer, primary_key=True)
@@ -907,6 +952,51 @@ class EmergencyFlash(db.Model):
     acknowledged_at = db.Column(db.DateTime)
     article = db.relationship('Article', backref='emergency_flash', lazy=True)
 
+# =====================================
+# NOSTR INTELLIGENCE MONITOR (F4)
+# =====================================
+
+class NostrMonitorEvent(db.Model):
+    """Inbound Nostr events captured by the relay monitor."""
+    __tablename__ = 'nostr_monitor_events'
+    id = db.Column(db.Integer, primary_key=True)
+    event_id = db.Column(db.String(64), unique=True, nullable=False)
+    pubkey = db.Column(db.String(64), nullable=False)
+    kind = db.Column(db.Integer, nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    engagement_score = db.Column(db.Float, default=0.0)
+    zaps = db.Column(db.Integer, default=0)
+    quotes = db.Column(db.Integer, default=0)
+    reposts = db.Column(db.Integer, default=0)
+    replies = db.Column(db.Integer, default=0)
+    reactions = db.Column(db.Integer, default=0)
+    bitcoin_relevance = db.Column(db.Float, default=0.0)
+    relay_source = db.Column(db.String(100))
+    created_at = db.Column(db.Integer, nullable=False)       # Nostr unix timestamp
+    fetched_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.Index('idx_nostr_score', 'engagement_score'),
+        db.Index('idx_nostr_created', 'created_at'),
+        db.Index('idx_nostr_relevance', 'bitcoin_relevance'),
+    )
+
+
+class NostrTrackedPubkey(db.Model):
+    """High-signal Nostr pubkeys tracked by Protocol Pulse."""
+    __tablename__ = 'nostr_tracked_pubkeys'
+    id = db.Column(db.Integer, primary_key=True)
+    pubkey = db.Column(db.String(64), unique=True, nullable=False)
+    display_name = db.Column(db.String(150))
+    nip05 = db.Column(db.String(200))
+    follower_tier = db.Column(db.String(20), default='standard')  # 'vip', 'standard'
+    added_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.Index('idx_nostr_pubkey_tier', 'follower_tier'),
+    )
+
+
 class CollectedSignal(db.Model):
     __tablename__ = 'collected_signal'
     id = db.Column(db.Integer, primary_key=True)
@@ -932,3 +1022,224 @@ class CollectedSignal(db.Model):
         db.Index('idx_signal_platform_posted', 'platform', 'posted_at'),
         db.Index('idx_signal_legendary', 'is_legendary', 'collected_at'),
     )
+
+
+class PriceAlert(db.Model):
+    """Bitcoin price alert subscriptions for /charts page."""
+    __tablename__ = 'price_alerts'
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(254), nullable=False, index=True)
+    target_price = db.Column(db.Float, nullable=False)
+    direction = db.Column(db.String(5), nullable=False)  # 'above' or 'below'
+    triggered = db.Column(db.Boolean, default=False, nullable=False)
+    triggered_at = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    __table_args__ = (
+        db.Index('idx_price_alerts_email_triggered', 'email', 'triggered'),
+        db.Index('idx_price_alerts_active', 'triggered', 'target_price'),
+    )
+
+# =====================================
+# TERMINAL API SUBSCRIBER MODELS
+# =====================================
+
+class ApiSubscriber(db.Model):
+    """Standalone API subscriber — email + Stripe + API key. No User account required."""
+    __tablename__ = 'api_subscribers'
+
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(200), unique=True, nullable=False, index=True)
+    api_key = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    tier = db.Column(db.String(30), default='commander')  # commander|enterprise|demo
+    stripe_customer_id = db.Column(db.String(120), index=True)
+    stripe_subscription_id = db.Column(db.String(120), unique=True)
+    stripe_price_id = db.Column(db.String(120))
+
+    # Rate limiting
+    rate_limit_per_hour = db.Column(db.Integer, default=1000)
+    requests_this_hour = db.Column(db.Integer, default=0)
+    requests_today = db.Column(db.Integer, default=0)
+    requests_total = db.Column(db.Integer, default=0)
+    rate_window_start = db.Column(db.DateTime)  # when current hour window started
+
+    # Scoped entitlements (JSON: {"stream": true, "webhook": true, "signal": true})
+    entitlements = db.Column(db.Text, default='{}')
+    # Key scopes (JSON array: ["read", "stream", "webhook"])
+    key_scopes = db.Column(db.Text, default='["read"]')
+    # Key expiry (NULL = no expiry)
+    key_expires_at = db.Column(db.DateTime, nullable=True)
+
+    # Webhook delivery
+    webhook_url = db.Column(db.String(500))
+    webhook_secret = db.Column(db.String(100))  # HMAC secret
+
+    # Status
+    is_active = db.Column(db.Boolean, default=True, index=True)
+    subscription_status = db.Column(db.String(30), default='active')  # active|past_due|canceled
+    current_period_end = db.Column(db.DateTime)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_used_at = db.Column(db.DateTime)
+    welcome_email_sent = db.Column(db.Boolean, default=False)
+    past_due_since = db.Column(db.DateTime, nullable=True)
+    previous_api_key = db.Column(db.String(64), nullable=True)
+    previous_key_expires_at = db.Column(db.DateTime, nullable=True)
+
+    def get_entitlements(self):
+        """Return entitlements as dict."""
+        try:
+            return json.loads(self.entitlements or '{}')
+        except (ValueError, TypeError):
+            return {}
+
+    def has_entitlement(self, feature: str) -> bool:
+        return self.get_entitlements().get(feature, False)
+
+    def get_scopes(self):
+        try:
+            return json.loads(self.key_scopes or '["read"]')
+        except (ValueError, TypeError):
+            return ['read']
+
+    def is_key_valid(self):
+        """Check key is active and not expired."""
+        if not self.is_active:
+            return False
+        if self.subscription_status == 'canceled':
+            return False
+        if self.key_expires_at and datetime.utcnow() > self.key_expires_at:
+            return False
+        if self.subscription_status == "past_due":
+            # Allow 72-hour grace period after payment failure
+            if self.past_due_since:
+                grace_end = self.past_due_since + timedelta(hours=72)
+                if datetime.utcnow() > grace_end:
+                    return False
+        return True
+
+
+class ApiRequestLog(db.Model):
+    """Per-request log for rate limiting and usage analytics."""
+    __tablename__ = 'api_request_log'
+    __table_args__ = (
+        db.Index('idx_api_log_key_time', 'api_key', 'created_at'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    api_key = db.Column(db.String(64), nullable=False)
+    endpoint = db.Column(db.String(200), nullable=False)
+    response_time_ms = db.Column(db.Integer)
+    status_code = db.Column(db.Integer)
+    ip_hash = db.Column(db.String(64))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+# ── B1 Newsletter ───────────────────────────────────────────────────────────
+
+class NewsletterSubscriber(db.Model):
+    """LAW 4: Each subscriber has a unique unsubscribe_token (CAN-SPAM compliance)."""
+    __tablename__ = 'newsletter_subscribers'
+
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(320), unique=True, nullable=False)
+    unsubscribe_token = db.Column(db.String(64), unique=True, nullable=False)
+    subscribed = db.Column(db.Boolean, default=True, nullable=False)
+    subscribed_at = db.Column(db.DateTime, default=datetime.utcnow)
+    unsubscribed_at = db.Column(db.DateTime)
+    source = db.Column(db.String(50))  # 'homepage', 'api', 'import'
+
+    __table_args__ = (
+        db.Index('idx_newsletter_subscribers_email', 'email'),
+        db.Index('idx_newsletter_subscribers_token', 'unsubscribe_token'),
+        db.Index('idx_newsletter_subscribers_subscribed', 'subscribed'),
+    )
+
+
+class NewsletterSend(db.Model):
+    """LAW 2: One newsletter per day — tracks sends for idempotency."""
+    __tablename__ = 'newsletter_sends'
+
+    id = db.Column(db.Integer, primary_key=True)
+    subject = db.Column(db.Text)
+    resend_batch_id = db.Column(db.String(100))
+    recipient_count = db.Column(db.Integer, default=0)
+    open_count = db.Column(db.Integer, default=0)
+    click_count = db.Column(db.Integer, default=0)
+    sent_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.Index('idx_newsletter_sends_sent_at', 'sent_at'),
+    )
+
+# =====================================
+# SCHIFF-BOT / BRIAN — HYPOCRISY METRIC
+# =====================================
+
+class SchiffHypocrisy(db.Model):
+    """One calculated hypocrisy score snapshot per calendar day (score_date is unique)."""
+    __tablename__ = 'schiff_hypocrisy'
+    id = db.Column(db.Integer, primary_key=True)
+    score_date = db.Column(db.Date, nullable=False, default=datetime.utcnow)  # one row per day
+    score = db.Column(db.Float, nullable=False)           # 0-100
+    gold_holding_pct = db.Column(db.Float)                # 0-100 (% of AUM in gold/miners)
+    anti_btc_tweet_rate = db.Column(db.Float)             # 0-100 (normalised statement rate)
+    no_btc_holding_pct = db.Column(db.Float)              # 0 or 100 (binary: no BTC = 100)
+    gold_vs_btc_perf_gap = db.Column(db.Float)            # 0-100 (normalised perf gap)
+    total_aum_usd = db.Column(db.Float)
+    btc_holdings_usd = db.Column(db.Float, default=0)
+    gold_holdings_usd = db.Column(db.Float)
+    filing_date = db.Column(db.Date)
+    filing_type = db.Column(db.String(20), default='13F-HR')
+    calculated_at = db.Column(db.DateTime, default=datetime.utcnow)
+    data_sources = db.Column(db.Text)                     # JSON array of source URLs
+    __table_args__ = (
+        db.Index('idx_schiff_hypo_calculated_at', 'calculated_at'),
+        db.Index('idx_schiff_hypo_score_date', 'score_date'),
+        db.UniqueConstraint('score_date', name='uq_schiff_score_date'),
+    )
+
+# =====================================
+# NODE WATCH
+# =====================================
+
+class NodeSnapshot(db.Model):
+    """Bitcoin network node count snapshot — polled every 15 min via cron."""
+    __tablename__ = 'node_snapshots'
+    __table_args__ = (
+        db.Index('idx_node_snapshots_timestamp', 'timestamp'),
+        db.Index('idx_node_snapshots_node_count', 'node_count'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    node_count = db.Column(db.Integer, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    # JSON blob: {versions: {...}, countries: {...}, ipv4: N, ipv6: N}
+    snapshot_data = db.Column(db.Text)
+    # NULL = no alert; otherwise the alert type string (fired at this snapshot)
+    alert_fired = db.Column(db.String(120))
+    # Stateful edge-trigger flags — true while the condition is active.
+    # An alert fires only when: currently True AND previous snapshot was False.
+    daily_alert_active  = db.Column(db.Boolean, default=False, nullable=False)
+    weekly_alert_active = db.Column(db.Boolean, default=False, nullable=False)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'node_count': self.node_count,
+            'timestamp': self.timestamp.isoformat(),
+            'alert_fired': self.alert_fired,
+        }
+
+
+class SchiffStatement(db.Model):
+    """Manually-seeded public statements by Peter Schiff."""
+    __tablename__ = 'schiff_public_statements'
+    id = db.Column(db.Integer, primary_key=True)
+    statement = db.Column(db.Text, nullable=False)
+    platform = db.Column(db.String(50))          # 'twitter', 'podcast', 'interview'
+    statement_date = db.Column(db.Date)
+    anti_btc_score = db.Column(db.Integer, default=1)  # 1=anti-BTC, 0=neutral
+    source_url = db.Column(db.Text)
+    added_at = db.Column(db.DateTime, default=datetime.utcnow)
+    __table_args__ = (
+        db.Index('idx_schiff_stmt_date', 'statement_date'),
+    )
+
