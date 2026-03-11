@@ -4,6 +4,7 @@ Blueprint registered in app.py with url_prefix=/api/v1 (commander_bp).
 Commander pages blueprint registered with no prefix (commander_pages_bp).
 """
 
+import hashlib
 import json
 import logging
 import os
@@ -40,11 +41,43 @@ _JWT_SECRET = os.environ.get("JWT_SECRET_KEY") or os.environ.get("SESSION_SECRET
 _JWT_ALGORITHM = "HS256"
 _JWT_EXPIRY_HOURS = 24
 _COMMANDER_DAILY_LIMIT = 1000
+_RESEND_TIMEOUT = 10  # seconds
+
+# Idempotency: track processed Stripe event IDs (in-memory, TTL-based)
+_processed_events = {}  # event_id -> timestamp
+_IDEMPOTENCY_TTL = 86400  # 24 hours
+
+# Short-lived cache for displaying plaintext API key on success page (5 min TTL)
+_pending_keys = {}  # stripe_session_id -> (api_key, expiry_timestamp)
+
+
+def _is_event_processed(event_id):
+    """Check if a Stripe event ID has already been processed."""
+    if event_id in _processed_events:
+        if (datetime.utcnow() - _processed_events[event_id]).total_seconds() < _IDEMPOTENCY_TTL:
+            return True
+        del _processed_events[event_id]
+    return False
+
+
+def _mark_event_processed(event_id):
+    """Mark a Stripe event ID as processed. Prune old entries."""
+    _processed_events[event_id] = datetime.utcnow()
+    # Prune entries older than TTL (every 100 events to avoid overhead)
+    if len(_processed_events) > 100:
+        cutoff = datetime.utcnow() - timedelta(seconds=_IDEMPOTENCY_TTL)
+        stale = [k for k, v in _processed_events.items() if v < cutoff]
+        for k in stale:
+            del _processed_events[k]
 
 
 # ══════════════════════════════════════════════════════════════════════════════
 # AUTH DECORATORS
 # ══════════════════════════════════════════════════════════════════════════════
+
+def _hash_key(raw_key):
+    return hashlib.sha256(raw_key.encode()).hexdigest()
+
 
 def require_commander_key(f):
     """Authenticate via X-Commander-Key header against CommanderSubscriber."""
@@ -58,9 +91,10 @@ def require_commander_key(f):
                 "docs": "https://protocolpulse.io/commander",
             }), 401
 
+        key_hash = _hash_key(api_key)
         try:
             sub = models.CommanderSubscriber.query.filter_by(
-                api_key=api_key, active=True
+                api_key_hash=key_hash, active=True
             ).first()
         except Exception as e:
             logger.error("DB error looking up Commander key: %s", e)
@@ -125,9 +159,10 @@ def _commander_or_jwt(f):
 
         # Try Commander key first
         if commander_key:
+            key_hash = _hash_key(commander_key)
             try:
                 sub = models.CommanderSubscriber.query.filter_by(
-                    api_key=commander_key, active=True
+                    api_key_hash=key_hash, active=True
                 ).first()
             except Exception as e:
                 logger.error("DB error looking up Commander key: %s", e)
@@ -181,7 +216,18 @@ def _commander_or_jwt(f):
     return decorated
 
 
-def _rl(user_id, tier):
+def _rl(user_id, tier, commander_sub=None):
+    """Rate limit check. Commander key users skip the service-level limiter
+    since they're already rate-limited in the auth decorator."""
+    if commander_sub:
+        # Already rate-limited in _commander_or_jwt — just build meta
+        meta = {
+            "tier": "commander",
+            "rate_limit_remaining": max(0, _COMMANDER_DAILY_LIMIT - (commander_sub.calls_today or 0)),
+            "rate_limit_daily": _COMMANDER_DAILY_LIMIT,
+            "freshness": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+        return True, meta
     result = check_and_increment_rate_limit(user_id, tier)
     meta = {
         "tier": tier,
@@ -237,15 +283,20 @@ def v1_stripe_webhook():
     sig_header = request.headers.get("Stripe-Signature", "")
     webhook_secret = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 
-    if webhook_secret:
-        event = validate_webhook_signature(payload, sig_header, webhook_secret)
-        if event is None:
-            return jsonify({"error": "Invalid signature"}), 400
-    else:
-        try:
-            event = json.loads(payload)
-        except Exception:
-            return jsonify({"error": "Invalid JSON"}), 400
+    if not webhook_secret:
+        logger.error("STRIPE_WEBHOOK_SECRET not configured — rejecting webhook")
+        return jsonify({"error": "Webhook verification not configured"}), 503
+
+    event = validate_webhook_signature(payload, sig_header, webhook_secret)
+    if event is None:
+        return jsonify({"error": "Invalid signature"}), 400
+
+    # Idempotency: skip already-processed events
+    event_id = event.get("id", "")
+    if event_id and _is_event_processed(event_id):
+        return jsonify({"received": True, "duplicate": True})
+    if event_id:
+        _mark_event_processed(event_id)
 
     event_type = event.get("type", "")
     event_data = (event.get("data") or {}).get("object") or {}
@@ -292,12 +343,18 @@ def _handle_commander_checkout(session_obj):
     try:
         existing = models.CommanderSubscriber.query.filter_by(email=customer_email).first()
         if existing:
+            # Reactivation: generate a fresh key
+            new_key = "pp_cmd_" + secrets.token_hex(32)
             existing.active = True
             existing.stripe_customer_id = customer_id
             existing.stripe_subscription_id = subscription_id
             existing.stripe_session_id = session_id
+            existing.api_key_hash = _hash_key(new_key)
+            existing.api_key_prefix = new_key[:12]
             db.session.commit()
-            _send_welcome_email(customer_email, existing.api_key)
+            if session_id:
+                _pending_keys[session_id] = (new_key, datetime.utcnow() + timedelta(minutes=5))
+            _send_welcome_email(customer_email, new_key)
             return {"success": True, "email": customer_email, "reactivated": True}
 
         api_key = "pp_cmd_" + secrets.token_hex(32)
@@ -306,11 +363,15 @@ def _handle_commander_checkout(session_obj):
             stripe_customer_id=customer_id,
             stripe_subscription_id=subscription_id,
             stripe_session_id=session_id,
-            api_key=api_key,
+            api_key_hash=_hash_key(api_key),
+            api_key_prefix=api_key[:12],
             active=True,
         )
         db.session.add(sub)
         db.session.commit()
+        # Cache plaintext key briefly for success page display
+        if session_id:
+            _pending_keys[session_id] = (api_key, datetime.utcnow() + timedelta(minutes=5))
         _send_welcome_email(customer_email, api_key)
         logger.info("Commander subscriber created: %s", customer_email)
         return {"success": True, "email": customer_email, "reactivated": False}
@@ -401,6 +462,7 @@ def _send_welcome_email(email, api_key):
         resp = _requests.post(
             "https://api.resend.com/emails",
             headers={"Authorization": f"Bearer {resend_key}", "Content-Type": "application/json"},
+            timeout=_RESEND_TIMEOUT,
             json={
                 "from": "Protocol Pulse <noreply@protocolpulse.io>",
                 "to": [email],
@@ -438,6 +500,7 @@ def _send_payment_failed_email(email):
         _requests.post(
             "https://api.resend.com/emails",
             headers={"Authorization": f"Bearer {resend_key}", "Content-Type": "application/json"},
+            timeout=_RESEND_TIMEOUT,
             json={
                 "from": "Protocol Pulse <noreply@protocolpulse.io>",
                 "to": [email],
@@ -489,7 +552,7 @@ def v1_auth_token():
 @commander_bp.route("/signals/live", methods=["GET"])
 @_commander_or_jwt
 def v1_signals_live(**kwargs):
-    allowed, meta = _rl(kwargs.get("_jwt_user_id"), kwargs.get("_jwt_tier"))
+    allowed, meta = _rl(kwargs.get("_jwt_user_id"), kwargs.get("_jwt_tier"), kwargs.get("_commander_sub"))
     if not allowed:
         return jsonify({"error": "Rate limit exceeded", "meta": meta}), 429
     limit = min(int(request.args.get("limit", 10)), 50)
@@ -503,7 +566,7 @@ def v1_signals_live(**kwargs):
 @commander_bp.route("/spaces/live", methods=["GET"])
 @_commander_or_jwt
 def v1_spaces_live(**kwargs):
-    allowed, meta = _rl(kwargs.get("_jwt_user_id"), kwargs.get("_jwt_tier"))
+    allowed, meta = _rl(kwargs.get("_jwt_user_id"), kwargs.get("_jwt_tier"), kwargs.get("_commander_sub"))
     if not allowed:
         return jsonify({"error": "Rate limit exceeded", "meta": meta}), 429
     result = get_spaces_live()
@@ -513,7 +576,7 @@ def v1_spaces_live(**kwargs):
 @commander_bp.route("/tradfi/signals", methods=["GET"])
 @_commander_or_jwt
 def v1_tradfi_signals(**kwargs):
-    allowed, meta = _rl(kwargs.get("_jwt_user_id"), kwargs.get("_jwt_tier"))
+    allowed, meta = _rl(kwargs.get("_jwt_user_id"), kwargs.get("_jwt_tier"), kwargs.get("_commander_sub"))
     if not allowed:
         return jsonify({"error": "Rate limit exceeded", "meta": meta}), 429
     limit = min(int(request.args.get("limit", 20)), 50)
@@ -529,7 +592,7 @@ def v1_tradfi_signals(**kwargs):
 @commander_bp.route("/sentiment/composite", methods=["GET"])
 @_commander_or_jwt
 def v1_sentiment_composite(**kwargs):
-    allowed, meta = _rl(kwargs.get("_jwt_user_id"), kwargs.get("_jwt_tier"))
+    allowed, meta = _rl(kwargs.get("_jwt_user_id"), kwargs.get("_jwt_tier"), kwargs.get("_commander_sub"))
     if not allowed:
         return jsonify({"error": "Rate limit exceeded", "meta": meta}), 429
     result = get_sentiment_composite()
@@ -574,35 +637,27 @@ def commander_landing():
 
 @commander_pages_bp.route("/commander/success")
 def commander_success():
-    """Post-checkout success page — display API key."""
+    """Post-checkout success page — display API key from short-lived cache."""
     session_id = request.args.get("session_id", "")
-    sub = None
     api_key = ""
     email = ""
 
+    # Retrieve plaintext key from short-lived cache
+    if session_id and session_id in _pending_keys:
+        cached_key, expiry = _pending_keys[session_id]
+        if datetime.utcnow() < expiry:
+            api_key = cached_key
+            del _pending_keys[session_id]  # one-time display
+        else:
+            del _pending_keys[session_id]
+
+    # Look up subscriber for email display
     if session_id:
         sub = models.CommanderSubscriber.query.filter_by(
             stripe_session_id=session_id
         ).first()
-
-    if not sub and session_id:
-        # Try retrieving from Stripe to get email
-        try:
-            import stripe
-            stripe.api_key = os.environ.get("STRIPE_SECRET_KEY", "")
-            if stripe.api_key:
-                stripe_session = stripe.checkout.Session.retrieve(session_id)
-                customer_email = (stripe_session.get("customer_details") or {}).get("email", "")
-                if customer_email:
-                    sub = models.CommanderSubscriber.query.filter_by(
-                        email=customer_email
-                    ).first()
-        except Exception as e:
-            logger.warning("Stripe session retrieval failed: %s", e)
-
-    if sub:
-        api_key = sub.api_key
-        email = sub.email
+        if sub:
+            email = sub.email
 
     return render_template("commander_success.html", api_key=api_key, email=email)
 
@@ -616,12 +671,17 @@ def commander_dashboard():
     if not api_key:
         return render_template("commander_dashboard.html", authed=False, sub=None, error="No API key provided. Add ?key=YOUR_KEY to the URL.")
 
-    sub = models.CommanderSubscriber.query.filter_by(api_key=api_key, active=True).first()
+    key_hash = _hash_key(api_key)
+    sub = models.CommanderSubscriber.query.filter_by(api_key_hash=key_hash, active=True).first()
     if not sub:
         return render_template("commander_dashboard.html", authed=False, sub=None, error="Invalid or inactive API key.")
 
     sub.reset_if_needed()
-    masked_key = api_key[:12] + "..." + api_key[-4:]
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+    masked_key = sub.api_key_prefix + "..." + api_key[-4:]
 
     return render_template(
         "commander_dashboard.html",

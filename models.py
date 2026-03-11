@@ -1303,7 +1303,8 @@ class NewsletterSend(db.Model):
 # =====================================
 
 class CommanderSubscriber(db.Model):
-    """Standalone Commander API subscriber. No User account required."""
+    """Standalone Commander API subscriber. No User account required.
+    API keys stored as SHA256 hash — plaintext never persisted after creation."""
     __tablename__ = 'commander_subscribers'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -1311,7 +1312,8 @@ class CommanderSubscriber(db.Model):
     stripe_customer_id = db.Column(db.String(120), index=True)
     stripe_subscription_id = db.Column(db.String(120), unique=True)
     stripe_session_id = db.Column(db.String(200))
-    api_key = db.Column(db.String(80), unique=True, nullable=False, index=True)
+    api_key_hash = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    api_key_prefix = db.Column(db.String(16), nullable=False)  # first 12 chars for display
     active = db.Column(db.Boolean, default=True, nullable=False, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     calls_today = db.Column(db.Integer, default=0, nullable=False)
@@ -1321,8 +1323,13 @@ class CommanderSubscriber(db.Model):
     last_reset_month = db.Column(db.String(7))  # 'YYYY-MM' for monthly reset
 
     __table_args__ = (
-        db.Index('idx_commander_api_key_active', 'api_key', 'active'),
+        db.Index('idx_commander_keyhash_active', 'api_key_hash', 'active'),
     )
+
+    @staticmethod
+    def hash_key(raw_key):
+        import hashlib
+        return hashlib.sha256(raw_key.encode()).hexdigest()
 
     def reset_if_needed(self):
         """Reset daily/monthly counters if the date has changed."""
