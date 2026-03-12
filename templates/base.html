@@ -143,15 +143,29 @@
             <!-- Desktop Nav Links -->
             <div class="pp-nav__links">
                 <a href="/articles" class="pp-nav__link">Intel</a>
+                <a href="/briefings" class="pp-nav__link" style="color:var(--pp-amber);">Briefings</a>
                 <a href="/media" class="pp-nav__link">Media</a>
-                <a href="/podcasts" class="pp-nav__link">Podcasts</a>
                 <a href="/market" class="pp-nav__link">Markets</a>
-                <a href="/charts" class="pp-nav__link">Charts</a>
-                <a href="/bitfeed-live" class="pp-nav__link">Live Pulse</a>
-                <a href="/stage" class="pp-nav__link" style="color:var(--pp-teal);">Stage ⚡</a>
                 <a href="/oracle" class="pp-nav__link" style="color:var(--pp-amber);">Oracle ⚡</a>
-                <a href="/map" class="pp-nav__link">Maps</a>
-                <a href="/merch" class="pp-nav__link">Merch</a>
+                <a href="/stage" class="pp-nav__link" style="color:var(--pp-teal);">Stage ⚡</a>
+                <div class="nav-dropdown">
+                    <a href="#" class="pp-nav__link" onclick="return false;">More ▾</a>
+                    <div class="nav-dropdown-menu">
+                        <a href="/podcasts" class="nav-dropdown-item"><i class="fas fa-podcast"></i> Podcasts</a>
+                        <a href="/charts" class="nav-dropdown-item"><i class="fas fa-chart-area"></i> Charts</a>
+                        <a href="/signal-terminal" class="nav-dropdown-item"><i class="fas fa-terminal"></i> Signal Terminal</a>
+                        <a href="/bitfeed-live" class="nav-dropdown-item"><i class="fas fa-heartbeat"></i> Live Pulse</a>
+                        <a href="/clips" class="nav-dropdown-item"><i class="fas fa-film"></i> Signal Clips</a>
+                        <a href="/media-terminal" class="nav-dropdown-item"><i class="fas fa-tv"></i> Media Terminal</a>
+                        <div class="nav-dropdown-divider"></div>
+                        <a href="/pulse-forecast" class="nav-dropdown-item"><i class="fas fa-brain"></i> Forecast</a>
+                        <a href="/chat" class="nav-dropdown-item"><i class="fas fa-robot"></i> Ask Alex</a>
+                        <a href="/dashboard" class="nav-dropdown-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                        <div class="nav-dropdown-divider"></div>
+                        <a href="/map" class="nav-dropdown-item"><i class="fas fa-map-marked-alt"></i> Maps</a>
+                        <a href="/merch" class="nav-dropdown-item"><i class="fas fa-tshirt"></i> Merch</a>
+                    </div>
+                </div>
                 {% if current_user.is_authenticated %}
                     {% if current_user.is_admin %}
                     <a href="/admin/command-deck" class="pp-nav__link pp-text-amber">Admin</a>
@@ -192,10 +206,15 @@
         </div>
         <a href="/" class="pp-nav__link"><i class="fas fa-home" style="width:20px;"></i> Home</a>
         <a href="/articles" class="pp-nav__link"><i class="fas fa-terminal" style="width:20px;"></i> Intel Briefs</a>
+        <a href="/briefings" class="pp-nav__link" style="color:var(--pp-amber);"><i class="fas fa-video" style="width:20px;"></i> Briefings</a>
         <a href="/media" class="pp-nav__link"><i class="fas fa-broadcast-tower" style="width:20px;"></i> Media Hub</a>
         <a href="/podcasts" class="pp-nav__link"><i class="fas fa-podcast" style="width:20px;"></i> Podcasts</a>
         <a href="/clips" class="pp-nav__link"><i class="fas fa-film" style="width:20px;"></i> Signal Clips</a>
         <a href="/market" class="pp-nav__link"><i class="fas fa-chart-line" style="width:20px;"></i> Markets</a>
+        <a href="/charts" class="pp-nav__link"><i class="fas fa-chart-area" style="width:20px;"></i> Charts</a>
+        <a href="/oracle" class="pp-nav__link" style="color:var(--pp-amber);"><i class="fas fa-eye" style="width:20px;"></i> Oracle</a>
+        <a href="/signal-terminal" class="pp-nav__link"><i class="fas fa-terminal" style="width:20px;"></i> Signal Terminal</a>
+        <a href="/media-terminal" class="pp-nav__link"><i class="fas fa-tv" style="width:20px;"></i> Media Terminal</a>
         <a href="/pulse-forecast" class="pp-nav__link"><i class="fas fa-brain" style="width:20px;"></i> Forecast</a>
         <a href="/bitfeed-live" class="pp-nav__link"><i class="fas fa-heartbeat" style="width:20px;"></i> Live Pulse</a>
         <a href="/stage" class="pp-nav__link" style="color:var(--pp-teal);"><i class="fas fa-broadcast-tower" style="width:20px;"></i> Avatar Stage</a>
@@ -205,8 +224,9 @@
         <a href="/whale-watcher" class="pp-nav__link"><i class="fas fa-water" style="width:20px;"></i> Whale Watcher</a>
         <a href="/solo-slayers" class="pp-nav__link"><i class="fas fa-hammer" style="width:20px;"></i> Solo Slayers</a>
         <a href="/value-stream" class="pp-nav__link"><i class="fas fa-bolt" style="width:20px;"></i> Value Stream</a>
-        <a href="/merch" class="pp-nav__link"><i class="fas fa-tshirt" style="width:20px;"></i> Merch</a>
+        <a href="/dashboard" class="pp-nav__link"><i class="fas fa-tachometer-alt" style="width:20px;"></i> Dashboard</a>
         <a href="/chat" class="pp-nav__link"><i class="fas fa-robot" style="width:20px;"></i> Ask Alex</a>
+        <a href="/merch" class="pp-nav__link"><i class="fas fa-tshirt" style="width:20px;"></i> Merch</a>
         <a href="/logistics" class="pp-nav__link"><i class="fas fa-folder-open" style="width:20px;"></i> Index</a>
         <hr class="pp-divider" style="margin:8px 0;">
         {% if current_user.is_authenticated %}
