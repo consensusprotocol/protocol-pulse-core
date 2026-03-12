@@ -52,7 +52,7 @@
 
     <!-- Protocol Pulse Design System -->
     <link rel="stylesheet" href="{{ '/v3/css/pulse.css' }}?v=3.0">
-    <link rel="stylesheet" href="{{ '/v3/css/style.css' }}?v=2.0">
+    <link rel="stylesheet" href="{{ '/v3/css/pp-style.css' }}?v=2.0">
     <link rel="stylesheet" href="{{ '/v3/css/coindesk-style.css' }}?v=2.0">
     <link rel="stylesheet" href="{{ '/v3/css/light-mode-fix.css' }}?v=2.0">
     {% if current_user.is_authenticated and (current_user.operative_rank|default(0)) >= 3 %}
@@ -96,7 +96,7 @@
     <link rel="alternate" type="application/feed+json" title="Protocol Pulse JSON Feed" href="/feed/json">
 
     {% block head %}{% endblock %}
-    <link rel="stylesheet" href="{{ '/v3/css/session15-homepage.css' }}?v=2.0">
+    <link rel="stylesheet" href="{{ '/v3/css/pp-homepage.css' }}?v=2.0">
 </head>
 <body class="pp-body{% if current_user.is_authenticated and current_user.operative_rank >= 3 %} rank-3-active{% endif %}{% block body_class %}{% endblock %}">
 
