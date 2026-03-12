@@ -716,7 +716,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     # ── Step 13: QUALITY GATE + AUTO-UPLOAD ────────────────────────────────
     print("\n[STEP 13] QUALITY GATE...")
     t0 = time.time()
-    quality_score = compute_quality_score(manifest_path)
+    quality_score = compute_quality_score(manifest_path, video_path=final_video)
     print(f"  {format_score_report(quality_score)}")
     manifest["quality_score"] = quality_score
 

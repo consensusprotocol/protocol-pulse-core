@@ -249,21 +249,41 @@ def _tts_cache_put(cache_key: str, audio_path: str) -> None:
 
 
 def _tts_generate_silence_fallback(text: str, output_path: str) -> bool:
-    """BUG1 FIX A: Generate silence as last-resort TTS fallback when ElevenLabs quota is exhausted.
+    """HARD FAIL: silence fallback is no longer allowed.
 
-    Estimates duration from text length (~12.5 chars/sec speech rate).
-    Called when both ElevenLabs AND pyttsx3 fail.
+    Previously generated silent AAC as a last resort, masking total TTS failure.
+    This caused downstream black frames and F-grade renders that QC scored 94/100.
+    Now raises RuntimeError so the pipeline fails fast instead of rendering garbage.
     """
-    dur = max(2.0, min(30.0, len(text) / 12.5)) if text else 3.0
-    r = subprocess.run([
-        "ffmpeg", "-y", "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
-        "-t", str(dur), "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
-        output_path,
-    ], capture_output=True, text=True, timeout=15)
-    if r.returncode == 0 and os.path.exists(output_path):
-        print(f"  [tts] FALLBACK: {dur:.1f}s silence generated (quota exhausted)")
-        return True
-    return False
+    snippet = (text[:80] + "...") if len(text) > 80 else text
+    raise RuntimeError(
+        f"TTS FATAL: ElevenLabs + pyttsx3 both failed. Refusing to render silence. "
+        f"Text: \"{snippet}\". Fix the TTS provider before re-running."
+    )
+
+
+def validate_tts_output(path: str, min_size: int = 10240) -> None:
+    """Validate TTS output file is real audio, not empty/corrupt.
+
+    Raises RuntimeError if:
+      - File doesn't exist
+      - File < min_size bytes (10KB default)
+      - ffprobe duration < 0.5s
+    """
+    if not os.path.exists(path):
+        raise RuntimeError(f"TTS output missing: {path}")
+    size = os.path.getsize(path)
+    if size < min_size:
+        raise RuntimeError(
+            f"TTS output too small ({size} bytes < {min_size}): {path} — "
+            f"ElevenLabs likely returned empty audio"
+        )
+    dur = ffprobe_duration(path)
+    if dur < 0.5:
+        raise RuntimeError(
+            f"TTS output too short ({dur:.2f}s < 0.5s): {path} — "
+            f"audio is effectively silent/corrupt"
+        )
 
 
 def tts_inworld(text: str, output_path: str, host: int = 1,
@@ -390,6 +410,12 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
                 if r.status_code == 200:
                     with open(mp3_tmp, "wb") as f:
                         f.write(r.content)
+                    # Pre-validate: ElevenLabs sometimes returns empty/tiny responses
+                    if os.path.getsize(mp3_tmp) < 1000:
+                        print(f"  [tts] WARNING: ElevenLabs returned tiny file ({os.path.getsize(mp3_tmp)}B) for chunk {ci}, retrying...")
+                        if attempt < 2:
+                            time.sleep(2 ** attempt)
+                            continue
                     success = True
                     break
                 elif r.status_code == 429:
@@ -444,6 +470,7 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
         except Exception:
             pass
         if ok and os.path.exists(output_path):
+            validate_tts_output(output_path)
             _tts_cache_put(cache_key, output_path)
         return ok
 
@@ -466,6 +493,7 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
         except Exception:
             pass
     if ok and os.path.exists(output_path):
+        validate_tts_output(output_path)
         _tts_cache_put(cache_key, output_path)
     return ok
 
@@ -579,6 +607,31 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
     successful = sum(1 for l in lines if l["path"] and os.path.exists(l.get("path", "")))
 
     print(f"\n  [tts] Dialogue audio: {successful}/{len(dialogue)} lines, {total_dur:.1f}s total")
+
+    # ── Per-host TTS validation: catch silent hosts BEFORE render starts ──
+    host_stats = {}  # {host_num: {"total": N, "ok": N}}
+    for l in lines:
+        h = l.get("host")
+        if h == "CLIP":
+            continue
+        if h not in host_stats:
+            host_stats[h] = {"total": 0, "ok": 0}
+        host_stats[h]["total"] += 1
+        if l.get("path") and os.path.exists(l.get("path", "")):
+            host_stats[h]["ok"] += 1
+
+    for h, stats in host_stats.items():
+        voice_name = VOICES.get(h, {}).get("name", f"Host{h}")
+        if stats["ok"] == 0 and stats["total"] > 0:
+            raise RuntimeError(
+                f"TTS FATAL: {voice_name} (host {h}) has 0/{stats['total']} successful lines. "
+                f"All audio is missing/silent. Aborting before render."
+            )
+        if stats["total"] > 0 and stats["ok"] / stats["total"] < 0.5:
+            raise RuntimeError(
+                f"TTS FATAL: {voice_name} (host {h}) has only {stats['ok']}/{stats['total']} "
+                f"successful lines (<50%). Too many failures to produce a quality render."
+            )
 
     return {
         "lines": lines,

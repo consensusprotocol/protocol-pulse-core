@@ -1,31 +1,144 @@
 """Quality Gate — compute episode quality score and decide upload eligibility.
 
-Score 0-100 based on production quality metrics.
-Per PIPELINE_FORENSIC_AUDIT LAW D4.
+Score 0-100 based on REAL production quality metrics (ffprobe analysis).
+Per PIPELINE_FORENSIC_AUDIT LAW D4 + 2026-03-12 QC overhaul.
+
+Previous version was manifest-metadata-only and scored 94/100 on renders
+that Gemini graded F (29-38/100). Now runs actual ffprobe checks for:
+  - Silence detection (silencedetect)
+  - Black frame detection (blackdetect)
+  - True peak analysis (loudnorm)
+  - Duration validation
 """
 import json
 import logging
 import os
+import re
+import subprocess
 
 logger = logging.getLogger("QualityGate")
 
 
-def compute_quality_score(manifest_path: str) -> int:
-    """Score 0-100 based on episode quality metrics.
+def _run_ffprobe_duration(video_path: str) -> float:
+    """Get video duration in seconds."""
+    try:
+        r = subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+             "-of", "default=noprint_wrappers=1:nokey=1", video_path],
+            capture_output=True, text=True, timeout=30,
+        )
+        return float(r.stdout.strip()) if r.stdout.strip() else 0.0
+    except Exception:
+        return 0.0
 
-    Scoring:
-      - AV sync: each clip with offset < 0.05s = +10 (max 30 for 3 clips)
-      - No premature cutoffs: each clip trimmed at pause = +5 (max 15)
-      - Channel diversity: all unique channels = +20
-      - Music present = +10
-      - Regression/verify passed = +25
 
-    Args:
-        manifest_path: Path to episode manifest.json
+def _detect_silence(video_path: str, min_duration: float = 2.0,
+                    noise_db: int = -40) -> list:
+    """Run ffmpeg silencedetect and return list of silent segments.
 
-    Returns:
-        Quality score 0-100
+    Returns: [{"start": float, "end": float, "duration": float}, ...]
     """
+    try:
+        r = subprocess.run(
+            ["ffmpeg", "-i", video_path, "-af",
+             f"silencedetect=noise={noise_db}dB:d={min_duration}",
+             "-f", "null", "-"],
+            capture_output=True, text=True, timeout=300,
+        )
+        silences = []
+        for match in re.finditer(
+            r"silence_start: ([\d.]+).*?silence_end: ([\d.]+).*?silence_duration: ([\d.]+)",
+            r.stderr, re.DOTALL,
+        ):
+            silences.append({
+                "start": float(match.group(1)),
+                "end": float(match.group(2)),
+                "duration": float(match.group(3)),
+            })
+        return silences
+    except Exception as e:
+        logger.warning(f"Silence detection failed: {e}")
+        return []
+
+
+def _detect_black_frames(video_path: str, min_duration: float = 0.5,
+                         pix_threshold: float = 0.02) -> list:
+    """Run ffmpeg blackdetect and return list of black segments.
+
+    Returns: [{"start": float, "end": float, "duration": float}, ...]
+    """
+    try:
+        r = subprocess.run(
+            ["ffmpeg", "-i", video_path, "-vf",
+             f"blackdetect=d={min_duration}:pix_th={pix_threshold}",
+             "-f", "null", "-"],
+            capture_output=True, text=True, timeout=300,
+        )
+        blacks = []
+        for match in re.finditer(
+            r"black_start:([\d.]+) black_end:([\d.]+) black_duration:([\d.]+)",
+            r.stderr,
+        ):
+            blacks.append({
+                "start": float(match.group(1)),
+                "end": float(match.group(2)),
+                "duration": float(match.group(3)),
+            })
+        return blacks
+    except Exception as e:
+        logger.warning(f"Black frame detection failed: {e}")
+        return []
+
+
+def _measure_loudness(video_path: str) -> dict:
+    """Run ffmpeg loudnorm to get LUFS and true peak.
+
+    Returns: {"lufs": float|None, "true_peak": float|None}
+    """
+    try:
+        r = subprocess.run(
+            ["ffmpeg", "-i", video_path, "-filter:a", "loudnorm=print_format=json",
+             "-f", "null", "-"],
+            capture_output=True, text=True, timeout=300,
+        )
+        stderr = r.stderr
+        json_start = stderr.rfind("{")
+        json_end = stderr.rfind("}") + 1
+        if json_start >= 0 and json_end > json_start:
+            ln_data = json.loads(stderr[json_start:json_end])
+            return {
+                "lufs": float(ln_data.get("input_i", -99)),
+                "true_peak": float(ln_data.get("input_tp", 0)),
+            }
+    except Exception as e:
+        logger.warning(f"Loudness measurement failed: {e}")
+    return {"lufs": None, "true_peak": None}
+
+
+def compute_quality_score(manifest_path: str, video_path: str = "") -> int:
+    """Score 0-100 based on real video quality analysis.
+
+    Two modes:
+      - manifest_path only: legacy manifest-based scoring (capped at 60)
+      - manifest_path + video_path: full ffprobe analysis
+
+    Critical failures that force score to 0:
+      - Total silence > 5s (host audio missing)
+      - Any mid-video black segment > 2s
+      - No video file / unreadable
+
+    Penalties:
+      - True peak > -1.0 dBFS: -20 points
+      - LUFS deviation > 3 from -14: -10 points
+      - Any silence > 2s: -15 per occurrence (on top of critical check)
+
+    Base points (from manifest, max 50):
+      - Clips present with good AV sync: up to 15
+      - Channel diversity: 10
+      - Music present: 10
+      - Pipeline success flag: 15
+    """
+    # ── Load manifest ──
     try:
         with open(manifest_path) as f:
             manifest = json.load(f)
@@ -33,46 +146,121 @@ def compute_quality_score(manifest_path: str) -> int:
         logger.error(f"Cannot read manifest: {e}")
         return 0
 
+    # ── Base score from manifest (max 50) ──
     score = 0
-
-    # AV sync: each clip with good offset = +10 (max 30)
     clips_used = manifest.get("clips_used", [])
-    for clip in clips_used:
+
+    # AV sync: up to 15 points (5 per clip, max 3 clips)
+    for clip in clips_used[:3]:
         av_offset = clip.get("av_offset", 999)
         if av_offset < 0.05:
-            score += 10
+            score += 5
         elif av_offset < 0.15:
-            # Partial credit for acceptable sync
-            score += 5
-
-    # If no av_offset data in manifest, give benefit of doubt for clips that exist
+            score += 3
+    # Benefit of doubt if no av_offset data
     if clips_used and not any("av_offset" in c for c in clips_used):
-        score += 10 * min(len(clips_used), 3)
+        score += 5 * min(len(clips_used), 3)
 
-    # No premature cutoffs: each clip trimmed at natural pause = +5 (max 15)
-    for clip in clips_used:
-        if clip.get("trimmed_at_pause", False):
-            score += 5
-    # If no trimmed_at_pause data, give partial credit for existing clips
-    if clips_used and not any("trimmed_at_pause" in c for c in clips_used):
-        score += 3 * min(len(clips_used), 3)
-
-    # Channel diversity: all unique channels = +20
+    # Channel diversity: 10 points
     channels = [c.get("channel", "") for c in clips_used]
     if channels and len(channels) == len(set(channels)):
-        score += 20
+        score += 10
 
-    # Music present = +10
+    # Music present: 10 points
     if manifest.get("music_track") or manifest.get("timing", {}).get("7_assemble"):
         score += 10
 
-    # Regression/verify passed = +25
+    # Pipeline success: 15 points
     if manifest.get("success", False):
-        score += 25
-    if manifest.get("regression_passed", False):
-        score += 0  # Already counted in success
+        score += 15
 
-    return min(100, score)
+    score = min(50, score)
+    logger.info(f"  Manifest base score: {score}/50")
+
+    # ── If no video path, cap at manifest score (max 50) ──
+    if not video_path or not os.path.exists(video_path):
+        logger.warning("  No video file for ffprobe analysis — capped at manifest score")
+        return min(50, score)
+
+    # ── Real ffprobe checks (up to 50 bonus points, or hard penalties) ──
+    failures = []
+    duration = _run_ffprobe_duration(video_path)
+
+    # Duration check: must be > 60s for a real episode
+    if duration < 60:
+        failures.append(f"Video too short: {duration:.1f}s")
+        logger.error(f"  CRITICAL: Video duration {duration:.1f}s < 60s")
+        return 0
+
+    # ── Silence detection ──
+    silences = _detect_silence(video_path, min_duration=2.0)
+    total_silence = sum(s["duration"] for s in silences)
+
+    if total_silence > 5.0:
+        # Critical: > 5s total silence means host audio is missing
+        failures.append(f"Total silence: {total_silence:.1f}s (>5s limit)")
+        logger.error(f"  CRITICAL FAIL: {total_silence:.1f}s total silence detected "
+                      f"({len(silences)} gaps). Host audio likely missing.")
+        for s in silences:
+            logger.error(f"    Silent gap: {s['start']:.1f}s - {s['end']:.1f}s "
+                          f"({s['duration']:.1f}s)")
+        return 0
+
+    # Non-critical silence penalty: -15 per gap
+    silence_penalty = len(silences) * 15
+    if silences:
+        logger.warning(f"  Silence penalty: -{silence_penalty} ({len(silences)} gaps >2s)")
+
+    # ── Black frame detection ──
+    blacks = _detect_black_frames(video_path, min_duration=0.5)
+
+    # Filter: ignore first 2s (title card) and last 5s (outro fade)
+    mid_blacks = [b for b in blacks
+                  if b["start"] > 2.0 and b["end"] < (duration - 5.0)]
+
+    critical_blacks = [b for b in mid_blacks if b["duration"] > 2.0]
+    if critical_blacks:
+        failures.append(f"{len(critical_blacks)} black segments >2s mid-video")
+        logger.error(f"  CRITICAL FAIL: {len(critical_blacks)} black frame segments >2s:")
+        for b in critical_blacks:
+            logger.error(f"    Black: {b['start']:.1f}s - {b['end']:.1f}s "
+                          f"({b['duration']:.1f}s)")
+        return 0
+
+    black_penalty = len(mid_blacks) * 10
+    if mid_blacks:
+        logger.warning(f"  Black frame penalty: -{black_penalty} ({len(mid_blacks)} segments >0.5s)")
+
+    # ── Loudness / True peak ──
+    loudness = _measure_loudness(video_path)
+    peak_penalty = 0
+    lufs_penalty = 0
+
+    if loudness["true_peak"] is not None:
+        if loudness["true_peak"] > -1.0:
+            peak_penalty = 20
+            logger.warning(f"  True peak penalty: -20 ({loudness['true_peak']:.1f} dBTP > -1.0)")
+        logger.info(f"  True peak: {loudness['true_peak']:.1f} dBTP")
+
+    if loudness["lufs"] is not None:
+        lufs_dev = abs(loudness["lufs"] - (-14))
+        if lufs_dev > 3:
+            lufs_penalty = 10
+            logger.warning(f"  LUFS penalty: -10 ({loudness['lufs']:.1f} LUFS, "
+                            f"deviation {lufs_dev:.1f} from -14)")
+        logger.info(f"  Integrated LUFS: {loudness['lufs']:.1f}")
+
+    # ── Compute final score ──
+    # Video analysis bonus: 50 points minus penalties
+    video_bonus = max(0, 50 - silence_penalty - black_penalty - peak_penalty - lufs_penalty)
+    final_score = min(100, score + video_bonus)
+
+    logger.info(f"  Video analysis: +{video_bonus}/50 "
+                f"(silence:-{silence_penalty} black:-{black_penalty} "
+                f"peak:-{peak_penalty} lufs:-{lufs_penalty})")
+    logger.info(f"  Final score: {final_score}/100")
+
+    return final_score
 
 
 def should_upload(score: int, threshold: int = 85) -> bool:

@@ -143,17 +143,16 @@ def _chunk_text(text: str, max_chars: int = MAX_CHUNK_CHARS) -> list:
 
 
 def _tts_generate_silence_fallback(text: str, output_path: str) -> bool:
-    """BUG1 FIX A: Generate silence as last-resort TTS fallback (quota exhausted)."""
-    dur = max(2.0, min(30.0, len(text) / 12.5)) if text else 3.0
-    r = subprocess.run([
-        "ffmpeg", "-y", "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
-        "-t", str(dur), "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
-        output_path,
-    ], capture_output=True, text=True, timeout=15)
-    if r.returncode == 0 and os.path.exists(output_path):
-        print(f"  [tts] FALLBACK: {dur:.1f}s silence generated (quota exhausted)")
-        return True
-    return False
+    """HARD FAIL: silence fallback is no longer allowed.
+
+    Previously generated silent AAC masking total TTS failure.
+    Now raises RuntimeError so the pipeline fails fast.
+    """
+    snippet = (text[:80] + "...") if len(text) > 80 else text
+    raise RuntimeError(
+        f"TTS FATAL: ElevenLabs + pyttsx3 both failed. Refusing to render silence. "
+        f"Text: \"{snippet}\". Fix the TTS provider before re-running."
+    )
 
 
 def tts_elevenlabs(text: str, output_path: str, host: int = 1) -> bool:
