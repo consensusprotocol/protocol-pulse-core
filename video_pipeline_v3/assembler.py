@@ -3336,7 +3336,7 @@ def concatenate_parts(parts: list, output_path: str) -> str:
          "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
          # BUG5 FIX: Single authoritative loudnorm at end (removed from all intermediate steps)
-         "-af", "asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.1:first_pts=0,loudnorm=I=-14:TP=-2.0:LRA=7:linear=true,dynaudnorm=f=150:g=15",
+         "-af", "asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.1:first_pts=0,loudnorm=I=-14:TP=-2.0:LRA=7:linear=true,alimiter=level_in=1:level_out=0.891:limit=0.891:attack=5:release=50",
          "-avoid_negative_ts", "make_zero",
          "-max_interleave_delta", "0",
          "-movflags", "+faststart",
@@ -3571,7 +3571,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                     ok_conv = run_ffmpeg([
                         "-i", clip_path,
                         "-c:v", "libx264", "-crf", "17", "-preset", "fast",
-                        "-pix_fmt", "yuv420p", "-c:a", "copy", h264_path,
+                        "-r", "30", "-pix_fmt", "yuv420p", "-c:a", "aac", "-ar", "48000", "-b:a", "192k", h264_path,
                     ], f"AV1→H264 pre-convert clip #{rank}", 120)
                     if ok_conv and os.path.exists(h264_path):
                         clip_path = h264_path
