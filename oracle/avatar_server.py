@@ -1,13 +1,14 @@
 """
-ORACLE AVATAR SERVER v2 — GPU-Cached FP16 + Face Restoration + Blinks
-======================================================================
+ORACLE AVATAR SERVER v2 — GPU-Cached FP16 + CV2 Sharpen + Blinks
+=================================================================
 GPU-accelerated Wav2Lip lip-sync with:
   - FP16 inference via ModelRegistry singleton on GPU 1
-  - GFPGAN/CodeFormer face restoration (fixes blurry 96x96 mouth)
+  - CV2 bilateral sharpen (GFPGAN fully removed 2026-03-12)
   - MediaPipe eye blinks (gradient overlay, no warpAffine artifacts)
   - Head movement post-processing
   - Vision guide endpoints (Gemini 2.5 Flash)
-  - CRF 20, preset superfast, 30fps output
+  - Input audio length guard (30s max, chunked processing)
+  - CRF 28, preset ultrafast, 30fps output
 
 Deploy: ~/protocol_pulse/oracle/avatar_server.py
 Launch: cd ~/protocol_pulse/oracle && python3 avatar_server.py
@@ -34,7 +35,7 @@ from model_registry import ModelRegistry, WAV2LIP_DIR, AVATAR_SOURCE, DEVICE
 import requests as http_requests  # ElevenLabs TTS
 
 # Face enhancement + blink modules
-from face_enhancer import enhance_frames_batch, sharpen_mouth_region
+from face_enhancer import sharpen_mouth_region
 from blink_engine import apply_blink_gradient, generate_blink_schedule
 
 # ─── Config ───────────────────────────────────────────────────────────
@@ -51,11 +52,11 @@ HEAD_TRANSLATION_X = 4.0        # pixels — visible horizontal drift
 HEAD_TRANSLATION_Y = 2.0        # pixels — visible vertical drift
 HEAD_PERIOD = 5.0               # seconds per full cycle — slow and natural
 
-# Face enhancement flag — GFPGAN adds ~60s for 100 keyframes, OFF by default
-ENABLE_FACE_ENHANCEMENT = os.environ.get("ENABLE_FACE_ENHANCEMENT", "false").lower() == "true"
+# Lock timeout (seconds) — if GPU is busy longer than this, return 503
+LOCK_TIMEOUT = int(os.environ.get("AVATAR_LOCK_TIMEOUT", "10"))
 
-# Generation timeout (seconds) — prevents GPU stalls from hanging forever
-GENERATION_TIMEOUT = int(os.environ.get("AVATAR_GENERATION_TIMEOUT", "120"))
+# Max audio duration (seconds) — longer clips get chunked
+MAX_AUDIO_SECONDS = 30
 
 # ─── Logging ──────────────────────────────────────────────────────────
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -344,20 +345,10 @@ def health():
     avg_latency = round(sum(_request_times) / len(_request_times), 2) if _request_times else None
     uptime = round(time.time() - _start_time, 1)
 
-    # Face enhancer status
-    try:
-        from face_enhancer import _gfpgan_loaded, _gfpgan_enhancer
-        if _gfpgan_loaded:
-            face_enhancer_status = "gfpgan" if _gfpgan_enhancer is not None else "sharpen_only"
-        else:
-            face_enhancer_status = "not_loaded"
-    except Exception:
-        face_enhancer_status = "error"
-
     return jsonify({
         "status": "ok",
         "engine": "wav2lip-gan-fp16-v2",
-        "enhancements": ["fp16", "cached_face", "face_restoration", "mediapipe_blinks", "head_movement"],
+        "enhancements": ["fp16", "cached_face", "cv2_sharpen", "mediapipe_blinks", "head_movement"],
         "device": DEVICE,
         "model_loaded": reg is not None and reg.wav2lip_model is not None,
         "avatar_loaded": reg is not None and reg.avatar_face is not None,
@@ -366,8 +357,8 @@ def health():
             if reg and reg.avatar_face is not None else None
         ),
         "face_detected": reg is not None and reg.avatar_face_coords is not None,
-        "face_enhancer": face_enhancer_status,
-        "blinks_enabled": False,  # LAW 2: apply_blink disabled
+        "face_enhancer": "cv2_sharpen_only",
+        "blinks_enabled": False,
         "eye_landmarks_detected": reg is not None and reg.eye_landmarks is not None,
         "vram": vram,
         "vision_enabled": vision_enabled,
@@ -376,7 +367,7 @@ def health():
         "requests_tracked": len(_request_times),
         "output_fps": DEFAULT_FPS,
         "batch_size": BATCH_SIZE,
-        "face_enhancement_enabled": ENABLE_FACE_ENHANCEMENT,
+        "max_audio_seconds": MAX_AUDIO_SECONDS,
         "encoding": "crf28-ultrafast-512",
         "blink_config": {
             "interval": f"{BLINK_INTERVAL_MIN}-{BLINK_INTERVAL_MAX}s",
@@ -449,7 +440,6 @@ def generate():
 
     enable_blinks = False  # LAW 2: blinks permanently disabled — black oval artifacts
     enable_head_movement = data.get("enable_head_movement", True)
-    enable_face_enhance = data.get("enable_face_enhance", ENABLE_FACE_ENHANCEMENT)  # GFPGAN OFF by default (~60s)
     fps = float(data.get("fps", DEFAULT_FPS))
 
     t_start = time.time()
@@ -481,30 +471,47 @@ def generate():
     wav_path = audio_path + "_16k.wav"
     os.system(f'ffmpeg -y -loglevel error -i {audio_path} -ar 16000 -ac 1 {wav_path}')
 
+    # Input length guard: check audio duration
+    try:
+        import subprocess as _sp
+        probe = _sp.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+             "-of", "default=noprint_wrappers=1:nokey=1", wav_path],
+            capture_output=True, text=True, timeout=10,
+        )
+        audio_duration_sec = float(probe.stdout.strip()) if probe.stdout.strip() else 0.0
+    except Exception:
+        audio_duration_sec = 0.0
+
+    if audio_duration_sec > MAX_AUDIO_SECONDS:
+        logger.warning(f"Audio too long ({audio_duration_sec:.1f}s > {MAX_AUDIO_SECONDS}s) — rejecting")
+        return jsonify({
+            "error": f"Audio too long ({audio_duration_sec:.1f}s). Max {MAX_AUDIO_SECONDS}s.",
+            "code": "AUDIO_TOO_LONG",
+            "max_seconds": MAX_AUDIO_SECONDS,
+        }), 400
+
     try:
         reg = ModelRegistry.get()
-        acquired = _lock.acquire(timeout=GENERATION_TIMEOUT)
+        acquired = _lock.acquire(timeout=LOCK_TIMEOUT)
         if not acquired:
-            return jsonify({"error": "Generation timeout — GPU busy", "code": "GPU_BUSY"}), 503
+            return jsonify({"error": "GPU busy", "code": "GPU_BUSY", "retry_after": 5}), 503
         try:
             t0 = time.time()
             frames = wav2lip_generate(wav_path, fps)
             t_lip = time.time() - t0
             logger.info(f"Wav2Lip FP16: {len(frames)} frames in {t_lip:.2f}s")
 
-            # Face Enhancement (THE #1 QUALITY UPGRADE)
+            # CV2 sharpen only — no GFPGAN
             t_enhance = 0.0
             if len(frames) > 0:
                 try:
                     t0_enh = time.time()
-                    # Always sharpen mouth region (CV2, no ML deps, guaranteed)
                     frames = sharpen_mouth_region(frames, reg.avatar_face_coords)
-                    if enable_face_enhance:
-                        frames = enhance_frames_batch(frames, reg.avatar_face_coords, batch_size=16)
                     t_enhance = time.time() - t0_enh
-                    logger.info(f"Face enhancement: {t_enhance:.2f}s")
+                    logger.info(f"CV2 sharpen: {t_enhance:.2f}s")
                 except Exception as e:
-                    logger.warning(f"Face enhancement skipped: {e}")
+                    logger.warning(f"Sharpen skipped: {e}")
 
             t0 = time.time()
             if enable_blinks or enable_head_movement:
@@ -752,12 +759,9 @@ def _generate_chunk(sentence, chunk_num, session_dir, fps=30.0):
 
         with _lock:
             frames = wav2lip_generate(wav_path, fps)
-            # Sharpen mouth only (fast CV2 op); GFPGAN only if explicitly enabled
             reg = ModelRegistry.get()
             try:
                 frames = sharpen_mouth_region(frames, reg.avatar_face_coords)
-                if ENABLE_FACE_ENHANCEMENT:
-                    frames = enhance_frames_batch(frames, reg.avatar_face_coords, batch_size=16)
             except Exception:
                 pass
             frames = post_process_frames(frames, fps, enable_blinks=False, enable_head=True)
@@ -942,14 +946,15 @@ def generate_idle_loop():
 
 if __name__ == "__main__":
     print(f"\n{'='*60}")
-    print("  ORACLE AVATAR SERVER v2 — Face Restoration + Blinks")
+    print("  ORACLE AVATAR SERVER v2 — CV2 Sharpen + Blinks")
     print(f"  Port: {PORT}")
     print(f"  Device: {DEVICE}")
     print(f"  Avatar: {AVATAR_SOURCE}")
     print(f"  FPS: {DEFAULT_FPS}")
     print(f"  Encoding: CRF 28, preset ultrafast, 512px output")
-    print(f"  Features: FP16, face_restoration, mediapipe_blinks, head_movement")
+    print(f"  Features: FP16, cv2_sharpen, mediapipe_blinks, head_movement")
     print(f"  Vision: {'enabled' if os.environ.get('GEMINI_API_KEY') else 'disabled'}")
+    print(f"  Max audio: {MAX_AUDIO_SECONDS}s | Lock timeout: {LOCK_TIMEOUT}s")
     print(f"{'='*60}\n")
 
     # Load all models via registry (FP16 on GPU 1)
@@ -964,17 +969,7 @@ if __name__ == "__main__":
         logger.error("No face detected in avatar. Exiting.")
         sys.exit(1)
 
-    # Pre-load face enhancer only if enabled (GFPGAN adds ~5-10s startup + VRAM)
-    if ENABLE_FACE_ENHANCEMENT:
-        logger.info("Pre-loading face enhancer (ENABLE_FACE_ENHANCEMENT=true)...")
-        try:
-            from face_enhancer import _load_gfpgan
-            enhancer = _load_gfpgan()
-            logger.info(f"Face enhancer ready: {'gfpgan' if enhancer else 'sharpen_only'}")
-        except Exception as e:
-            logger.warning(f"Face enhancer pre-load failed: {e}")
-    else:
-        logger.info("Face enhancer: GFPGAN disabled (ENABLE_FACE_ENHANCEMENT=false), sharpen-only mode")
+    logger.info("Face enhancer: CV2 sharpen-only (no GFPGAN)")
 
     # Auto-warmup
     logger.info("[WARMUP] Running pipeline warmup...")

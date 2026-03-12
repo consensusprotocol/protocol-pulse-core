@@ -178,6 +178,37 @@ body.oracle-page-body .pp-ticker { display:none!important; }
 @keyframes info-pulse { 0%,100%{opacity:.7} 50%{opacity:1} }
 .oracle-info-bar span { animation:info-pulse 4s ease-in-out infinite; }
 
+/* Vision Guide */
+.oracle-vision-btn {
+  background:rgba(0,212,170,.12); border:1px solid rgba(0,212,170,.35); border-radius:3px;
+  color:rgba(0,212,170,.85); font-family:'JetBrains Mono',monospace;
+  font-size:.62rem; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+  padding:13px 14px; cursor:pointer; white-space:nowrap; transition:background .2s, color .2s; flex-shrink:0;
+}
+.oracle-vision-btn:hover:not(:disabled) { background:rgba(0,212,170,.25); color:#00d4aa; }
+.oracle-vision-btn:disabled { opacity:.4; cursor:not-allowed; }
+.oracle-vision-panel {
+  position:relative; z-index:10; width:100%; max-width:900px;
+  margin:0 auto 16px; padding:14px 18px;
+  background:rgba(0,212,170,.06); border:1px solid rgba(0,212,170,.2); border-radius:4px;
+  display:none; animation:fade-in .4s ease;
+}
+.oracle-vision-panel.visible { display:block; }
+.oracle-vision-label { font-size:.55rem; letter-spacing:3px; color:rgba(0,212,170,.6); text-transform:uppercase; margin-bottom:8px; }
+.oracle-vision-device { font-size:.82rem; color:#00d4aa; font-weight:700; margin-bottom:4px; }
+.oracle-vision-steps { font-size:.75rem; color:rgba(229,229,229,.7); line-height:1.65; }
+.oracle-vision-steps ol { margin:6px 0 0 18px; padding:0; }
+.oracle-vision-steps li { margin-bottom:4px; }
+.oracle-vision-alert { font-size:.72rem; color:#dc2626; font-weight:700; margin-bottom:8px; }
+.oracle-vision-speak-btn {
+  margin-top:10px; padding:6px 14px;
+  background:rgba(220,38,38,.15); border:1px solid rgba(220,38,38,.35); border-radius:3px;
+  color:#e5e5e5; font-family:'JetBrains Mono',monospace;
+  font-size:.58rem; letter-spacing:2px; text-transform:uppercase;
+  cursor:pointer; transition:background .2s;
+}
+.oracle-vision-speak-btn:hover { background:rgba(220,38,38,.3); }
+
 /* Suggested Questions */
 .oracle-suggestions {
   position:relative; z-index:10; width:100%; max-width:900px;
@@ -264,6 +295,14 @@ body.oracle-page-body .pp-ticker { display:none!important; }
     <div id="oracle-transcript-text"></div>
   </div>
 
+  <div class="oracle-vision-panel" id="oracle-vision-panel" aria-live="polite">
+    <div class="oracle-vision-label">&#9670; Hardware Guide</div>
+    <div class="oracle-vision-alert" id="oracle-vision-alert"></div>
+    <div class="oracle-vision-device" id="oracle-vision-device"></div>
+    <div class="oracle-vision-steps" id="oracle-vision-steps"></div>
+    <button class="oracle-vision-speak-btn" id="oracle-vision-speak" type="button" style="display:none">&#9654; Oracle reads guidance</button>
+  </div>
+
   <div class="oracle-suggestions" id="oracle-suggestions" aria-label="Suggested questions">
     <button class="oracle-pill" type="button">What does the protocol signal today?</button>
     <button class="oracle-pill" type="button">Bitcoin vs Gold — the case for digital scarcity</button>
@@ -290,6 +329,8 @@ body.oracle-page-body .pp-ticker { display:none!important; }
            placeholder="What does the protocol signal today?"
            maxlength="500" autocomplete="off" autocorrect="off" spellcheck="false">
     <button class="oracle-ask-btn" id="oracle-ask-btn" type="button">ASK ORACLE &#9654;</button>
+    <button class="oracle-vision-btn" id="oracle-vision-btn" type="button" title="Show your Bitcoin hardware for guided setup">&#128247; DEVICE</button>
+    <input type="file" id="oracle-vision-file" accept="image/*" capture="environment" style="display:none">
   </div>
 </nav>
 
@@ -453,6 +494,58 @@ function loadInfoBar(){
 }
 loadInfoBar();
 setInterval(loadInfoBar,60000);
+
+// Vision Guide — hardware image analysis
+var visionBtn=document.getElementById('oracle-vision-btn');
+var visionFile=document.getElementById('oracle-vision-file');
+var visionPanel=document.getElementById('oracle-vision-panel');
+var visionAlert=document.getElementById('oracle-vision-alert');
+var visionDevice=document.getElementById('oracle-vision-device');
+var visionSteps=document.getElementById('oracle-vision-steps');
+var visionSpeak=document.getElementById('oracle-vision-speak');
+var lastGuidanceText='';
+
+visionBtn.addEventListener('click',function(){visionFile.click();});
+
+visionFile.addEventListener('change',function(){
+  var file=this.files&&this.files[0];
+  if(!file)return;
+  if(file.size>10*1024*1024){alert('Image too large (max 10MB)');return;}
+  visionBtn.disabled=true;visionBtn.textContent='ANALYZING...';
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var b64=e.target.result.split(',')[1];
+    var mime=file.type||'image/jpeg';
+    fetch('/vision/analyze',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({image_base64:b64,mime_type:mime})})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      visionPanel.classList.add('visible');
+      visionAlert.textContent=d.security_alert||'';
+      visionAlert.style.display=d.security_alert?'block':'none';
+      visionDevice.textContent=d.device_name&&d.device_name!=='unknown'?d.device_name:'Device detected';
+      var html='';
+      if(d.current_step)html+='<p>'+esc(d.current_step)+'</p>';
+      if(d.steps&&d.steps.length){html+='<ol>';d.steps.forEach(function(s){html+='<li>'+esc(s)+'</li>';});html+='</ol>';}
+      if(d.guidance_text)html+='<p style="margin-top:8px;color:rgba(229,229,229,.5);font-style:italic">'+esc(d.guidance_text)+'</p>';
+      visionSteps.innerHTML=html;
+      lastGuidanceText=d.guidance_text||d.current_step||'';
+      visionSpeak.style.display=lastGuidanceText?'inline-block':'none';
+    })
+    .catch(function(err){
+      visionPanel.classList.add('visible');
+      visionDevice.textContent='Analysis failed';
+      visionSteps.innerHTML='<p>'+esc(err.message||'Could not analyze image')+'</p>';
+    })
+    .finally(function(){visionBtn.disabled=false;visionBtn.innerHTML='&#128247; DEVICE';visionFile.value='';});
+  };
+  reader.readAsDataURL(file);
+});
+
+visionSpeak.addEventListener('click',function(){
+  if(!lastGuidanceText||isGenerating)return;
+  askOracle(lastGuidanceText);
+});
 
 setState('idle');
 loadRecent();
