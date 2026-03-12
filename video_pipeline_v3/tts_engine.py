@@ -323,25 +323,48 @@ def tts_inworld(text: str, output_path: str, host: int = 1,
     except requests.RequestException as e:
         raise RuntimeError(f"Inworld request failed: {e}")
 
-    # Write raw MP3 to temp file, then atempo=1.2 to output
-    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
+    # Write raw audio to temp, normalize to WAV then apply host-specific speed
+    speed = voice.get("speed", 1.2)
+    with tempfile.NamedTemporaryFile(suffix=".raw_audio", delete=False) as tmp:
         tmp.write(raw_audio)
         tmp_path = tmp.name
 
+    wav_path = tmp_path + ".wav"
     try:
-        result = subprocess.run(
+        # Step 1: convert whatever format Inworld sent → WAV (robust, no codec assumptions)
+        r1 = subprocess.run(
             ["ffmpeg", "-y", "-i", tmp_path,
-             "-filter:a", "atempo=1.2",
-             "-c:a", "libmp3lame", "-q:a", "2", output_path],
+             "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "1", wav_path],
+            capture_output=True, text=True, timeout=60,
+        )
+        src = wav_path if (r1.returncode == 0 and os.path.exists(wav_path)) else tmp_path
+
+        # Step 2: apply atempo (must be 0.5-2.0; chain two filters if > 2.0)
+        if speed > 2.0:
+            atempo_chain = f"atempo=2.0,atempo={speed/2.0:.3f}"
+        elif speed < 0.5:
+            atempo_chain = f"atempo=0.5,atempo={speed/0.5:.3f}"
+        else:
+            atempo_chain = f"atempo={speed:.3f}"
+
+        result = subprocess.run(
+            ["ffmpeg", "-y", "-i", src,
+             "-filter:a", atempo_chain,
+             "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "1",
+             output_path.replace(".mp3", ".wav") if output_path.endswith(".mp3") else output_path],
             capture_output=True, text=True, timeout=120,
         )
+        # if caller wants mp3, convert wav → mp3
+        final_path = output_path.replace(".mp3", ".wav") if output_path.endswith(".mp3") else output_path
+        if output_path.endswith(".mp3") and os.path.exists(final_path):
+            import shutil; shutil.copy(final_path, output_path)
+
         if result.returncode != 0:
             raise RuntimeError(f"ffmpeg atempo failed: {result.stderr[:300]}")
     finally:
-        try:
-            os.remove(tmp_path)
-        except OSError:
-            pass
+        for p in [tmp_path, wav_path]:
+            try: os.remove(p)
+            except OSError: pass
 
     # CRITICAL: reject silent/corrupt files
     if not os.path.exists(output_path) or os.path.getsize(output_path) < 10240:
