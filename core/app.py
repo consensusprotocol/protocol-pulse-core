@@ -182,22 +182,6 @@ with app.app_context():
 
 app.register_blueprint(curated_mining_bp)
 
-    # SESSION 18 — Curated Mining landing page
-    try:
-        from blueprints.curated_mining import curated_mining_bp
-        app.register_blueprint(curated_mining_bp)
-        logging.info("Curated Mining blueprint registered (/curated-mining, /api/mining/estimate)")
-    except Exception as e:
-        logging.warning("Curated Mining blueprint not loaded: %s", e)
-
-    # SESSION 13 — Affiliate Revenue Engine blueprint
-    try:
-        from blueprints.affiliates import affiliates_bp
-        app.register_blueprint(affiliates_bp)
-        logging.info("SESSION 13: Affiliate Revenue blueprint registered (/bitcoin-insurance, /api/affiliate/click)")
-    except Exception as e:
-        logging.warning("SESSION 13 affiliates blueprint not loaded: %s", e)
-
 # Diagnose: confirm / and /debug-routes are registered (debug 404)
 try:
     rules = [r.rule for r in app.url_map.iter_rules()]
@@ -213,13 +197,4 @@ if __name__ == "__main__":
     print(f"Starting Protocol Pulse → http://127.0.0.1:{port}/ (debug routes: http://127.0.0.1:{port}/debug-routes)")
     # Disable reloader so the process that binds the port is the same one that loaded routes (avoids 404 from reloader child)
     app.run(host="0.0.0.0", port=port, debug=True, use_reloader=False)
-@app.route('/assets/css/<path:filename>')
-def assets_css(filename):
-    from flask import send_from_directory, make_response
-    import os
-    css_dir = os.path.join(app.root_path, '..', 'static', 'css')
-    resp = make_response(send_from_directory(os.path.abspath(css_dir), filename))
-    resp.headers['Cache-Control'] = 'public, max-age=3600'
-    resp.headers['Content-Type'] = 'text/css'
-    return resp
 
