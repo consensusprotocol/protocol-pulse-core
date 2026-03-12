@@ -139,6 +139,17 @@ def check_render_progress():
     current_iter = iterations[-1] if iterations else 'iteration 1 running'
     return f'{current_iter} | {last_grade}'
 
+
+def append_to_lessons(event_type, session, detail):
+    from datetime import datetime as _dt
+    ts = _dt.now().strftime('%Y-%m-%d %H:%M')
+    entry = '
+### WATCHDOG [' + ts + '] ' + event_type + ' - ' + session + '
+' + detail + '
+'
+    try: open(BASE + '/PIPELINE_LESSONS.md', 'a').write(entry)
+    except Exception as e: log('LESSONS write error: ' + str(e))
+
 def write_status_file():
     status = {
         'timestamp': datetime.now().isoformat(),
@@ -207,6 +218,7 @@ def main():
             write_status_file()
             progress = check_render_progress()
             log(f'RENDER PROGRESS: {progress}')
+            append_to_lessons('RENDER-HEARTBEAT', 'smart_loop', f'Progress: {progress}')
             last_status = now
 
 if __name__ == '__main__':
