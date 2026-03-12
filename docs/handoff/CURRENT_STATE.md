@@ -1,6 +1,6 @@
 # Protocol Pulse — Current State
-**Generated:** 2026-03-12 03:09:09  
-**Git:** `d2dd725a` on `main`  
+**Generated:** 2026-03-12 04:07:21  
+**Git:** `3f1643e9` on `main`  
 **Repo:** https://github.com/consensusprotocol/protocol-pulse-core
 
 ---
@@ -9,7 +9,7 @@
 | Service | Status |
 |---------|--------|
 | Flask (protocolpulse.io) | HTTP 200 |
-| Avatar server (port 8200) | HTTP 200 — avg latency 48.92s |
+| Avatar server (port 8200) | HTTP 200 — avg latency 44.44s |
 | CF Tunnel | Active |
 | Watchdog cron | Every 5 min |
 
@@ -17,13 +17,12 @@
 
 ## 🎬 VIDEO PIPELINE — CURRENT
 - **V8:** GRADE_F_FAIL|29|/home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-12/pulse_check_20260312.mp4|This episode is a catastrophic technical failure, rendered unwatchable by a complete TTS failure that cascaded into massive audio and video errors.
-- **V9:** Rendering — [027] DATA [ERYN]: 19.5s
-[assemble] [028] DATA [MARK]: 17.8s
-[028] DATA [MARK]: 17.8s
-[assemble] [029] DATA [ERYN]: 19.1s
-[029] DATA [ERYN]: 19.1s
-- **V9 grade:** 
-- **V9 file:** -rw-r--r-- 1 ultron ultron 167M Mar 12 02:01 video_pipeline_v3/output/2026-03-12/pulse_check_20260312.mp4
+- **V9:** Rendering —   Output: /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-12
+======================================================================
+[STEP 13] QUALITY GATE...
+  QUALITY SCORE: 69/100 [#############-------] HOLD (threshold: 85)
+- **V9 grade:** GRADE_F_FAIL|38|/home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-12/pulse_check_20260312.mp4|This episode is a catastrophic and unpublishable failure due to a complete breakdown of the text-to-speech pipeline, resulting in a silent co-host, unwatchable dead air, and clipped audio.
+- **V9 file:** -rw-r--r-- 1 ultron ultron 224M Mar 12 03:32 video_pipeline_v3/output/2026-03-12/pulse_check_20260312.mp4
 - **Root cause of V7/V8 F:** Eryn voice ID `uxKr2vlA4hYgXZR1oPRT` (Natasha) was wiped by git reset. Fixed in commit `7667c3d6` — correct ID `kdnRe2koJdOK4Ovxn2DI`
 - **QC false positive bug:** Internal scorer reports 94/100 PASS on Grade F renders — CC session `qc_audit` fixing now
 
@@ -104,12 +103,12 @@ tmux new-session -s NAME \; send-keys 'cd ~/protocol_pulse && unset ANTHROPIC_AP
 
 ## 📜 GIT LOG (last 8)
 ```
+3f1643e9 fix(qc): add real ffprobe silence/black/peak checks, TTS pre-validation
+91cbcdde chore: update CURRENT_STATE.md handoff doc 2026-03-12
 d2dd725a feat(tts): add Inworld provider Lauren+Nate (TTS_PROVIDER=inworld), ElevenLabs default
 7667c3d6 fix(tts): RESTORE Eryn voice kdnRe2koJdOK4Ovxn2DI (lost in git reset, wiped V6 fix)
 20bcca4c fix(site): rename pp-lightfix -> pp-fix to bypass CF cached 404
 8503e711 fix(site): rename pp-core->pp-main, pp-lightfix->pp-fixes to clear CF 404 cache
 bfc4eeb4 fix(site): extract all inline CSS from templates — zero <style> tags remaining
 104b6e50 fix(site): base.html - use pp-core/pp-coindesk/pp-lightfix names, all v3/css BYPASS
-cbdba781 fix(site): rename style.css/session15 to pp-style/pp-homepage to bypass CF 404 cache
-84bcc2c1 fix(site): base.html CSS paths -> /v3/css/ with no-store bypass
 ```
