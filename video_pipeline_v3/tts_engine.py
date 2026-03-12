@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""TTS Engine V6 — Dual-host broadcast voice.
+"""TTS Engine V7 — Dual-provider: ElevenLabs (default) + Inworld.
 Host 1 (Eryn): kdnRe2koJdOK4Ovxn2DI at 1.12x — sharp female setup host.
 Host 2 (Mark): 1SM7GgM6IMuvQlz2BwM3 at 1.10x — male contrarian react host.
 Generates per-line audio with 0.3s silence gaps."""
@@ -46,6 +46,30 @@ VOICES = {
     1: _NATASHA_VOICE,   # HOST_1 → Eryn (female)
     2: _MARK_VOICE,   # HOST_2 → Mark (male)
 }
+
+# ── INWORLD VOICE CONFIGS (set TTS_PROVIDER=inworld in .env to activate) ──
+# Winners selected 2026-03-12: Lauren (sharp female) + Nate (authoritative male)
+_LAUREN_INWORLD = {
+    "voice_id": "Lauren",
+    "name": "Lauren",
+    "model_id": "inworld-tts-1.5-max",
+    "speed": 1.0,
+    "temperature": 0.5,
+}
+_NATE_INWORLD = {
+    "voice_id": "Nate",
+    "name": "Nate",
+    "model_id": "inworld-tts-1.5-max",
+    "speed": 1.0,
+    "temperature": 0.5,
+}
+INWORLD_VOICES = {
+    1: _LAUREN_INWORLD,
+    2: _NATE_INWORLD,
+}
+
+def _get_tts_provider() -> str:
+    return os.environ.get("TTS_PROVIDER", "elevenlabs").lower().strip()
 
 # Voice mode overrides per segment type (applied to whichever host speaks)
 VOICE_MODES = {
@@ -242,6 +266,71 @@ def _tts_generate_silence_fallback(text: str, output_path: str) -> bool:
     return False
 
 
+def tts_inworld(text: str, output_path: str, host: int = 1,
+                segment_type: str = "narration") -> bool:
+    """Generate TTS via Inworld AI. Raises RuntimeError on any failure."""
+    import base64 as _b64
+
+    if not HAS_REQUESTS:
+        raise RuntimeError("requests library not available for Inworld TTS")
+
+    key = _get_cached_key("INWORLD_API_KEY")
+    if not key:
+        raise RuntimeError("INWORLD_API_KEY not set")
+
+    text = expand_numbers_for_tts(text)
+
+    voice = INWORLD_VOICES.get(host, INWORLD_VOICES[1])
+    url = "https://api.inworld.ai/tts/v1/voice"
+    headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
+    body = {
+        "voiceId": voice["voice_id"],
+        "modelId": voice["model_id"],
+        "text": text,
+        "speakingRate": 1.0,
+        "temperature": 0.5,
+    }
+
+    try:
+        r = requests.post(url, json=body, headers=headers, timeout=90)
+        if r.status_code != 200:
+            raise RuntimeError(f"Inworld API HTTP {r.status_code}: {r.text[:300]}")
+        data = r.json()
+        audio_b64 = data.get("audioContent") or data.get("audio_content")
+        if not audio_b64:
+            raise RuntimeError(f"Inworld response missing audioContent: {list(data.keys())}")
+        raw_audio = _b64.b64decode(audio_b64)
+    except requests.RequestException as e:
+        raise RuntimeError(f"Inworld request failed: {e}")
+
+    # Write raw MP3 to temp file, then atempo=1.2 to output
+    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
+        tmp.write(raw_audio)
+        tmp_path = tmp.name
+
+    try:
+        result = subprocess.run(
+            ["ffmpeg", "-y", "-i", tmp_path,
+             "-filter:a", "atempo=1.2",
+             "-c:a", "libmp3lame", "-q:a", "2", output_path],
+            capture_output=True, text=True, timeout=120,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(f"ffmpeg atempo failed: {result.stderr[:300]}")
+    finally:
+        try:
+            os.remove(tmp_path)
+        except OSError:
+            pass
+
+    # CRITICAL: reject silent/corrupt files
+    if not os.path.exists(output_path) or os.path.getsize(output_path) < 10240:
+        raise RuntimeError("TTS output too small — silent file detected")
+
+    print(f"  [tts] Inworld OK ({voice['name']}): {text[:50]}...")
+    return True
+
+
 def tts_elevenlabs(text: str, output_path: str, host: int = 1,
                    segment_type: str = "") -> bool:
     """Generate TTS for a single line using the specified host voice.
@@ -435,7 +524,12 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
         mode_tag = f" [{segment_type}]" if segment_type and host_num == 1 else ""
         print(f"  [tts] Line {i:02d} ({voice['name']}{mode_tag}): {text[:60]}...")
 
-        if tts_elevenlabs(text, line_path, host_num, segment_type=segment_type):
+        _provider = _get_tts_provider()
+        if _provider == "inworld":
+            _tts_ok = tts_inworld(text, line_path, host_num, segment_type=segment_type)
+        else:
+            _tts_ok = tts_elevenlabs(text, line_path, host_num, segment_type=segment_type)
+        if _tts_ok:
             dur = ffprobe_duration(line_path)
             lines.append({
                 "path": line_path,
