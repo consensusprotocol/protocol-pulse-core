@@ -580,7 +580,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
            f"[outv];\n")
 
     fg += (f"[0:a]aformat=channel_layouts=stereo,"
-           f"loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]")
+           f"loudnorm=I=-14:TP=-2.0:LRA=7,aresample=async=1[outa]")
 
     ok = run_ffmpeg_filtergraph(
         [tts_path], fg, ["[outv]", "[outa]"],
@@ -1025,7 +1025,7 @@ def _bv2_encode(inputs, fg, output_path, total_dur, label="bv2 scene",
     pre-split audio via asplit should pass their output pad here.
     """
     fg += (f"{audio_pad}aformat=channel_layouts=stereo,"
-           f"loudnorm=I=-14:TP=-1.5:LRA=7,aresample=async=1[outa]")
+           f"loudnorm=I=-14:TP=-2.0:LRA=7,aresample=async=1[outa]")
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -1557,7 +1557,7 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
            # Issue 4 FIX: Strip first 2.5s of partner clip audio (intro jangle) + fade in
            # Session 4 Fix 5: aresample=async=1 for lip sync drift correction
            f"[0:a]aresample=async=1,atrim=start=2.5,asetpts=PTS-STARTPTS,"
-           f"highpass=f=50,lowpass=f=15000,loudnorm=I=-14:TP=-1.5:LRA=7,"
+           f"highpass=f=50,lowpass=f=15000,loudnorm=I=-14:TP=-2.0:LRA=7,"
            f"afade=t=in:d=0.5,afade=t=out:st={max(0, fade_out_start - 2.5)}:d=0.5[outa]")
 
     # Session 4 Fix 5: Probe audio offset for lip sync correction
@@ -2264,7 +2264,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
         fg += f"[v_final]format=yuv420p[outv];\n"
 
     # Audio: TTS only — APEX V2: music mixed continuously in concatenate_parts()
-    fg += (f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,loudnorm=I=-14:TP=-1.5:LRA=7,aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp[outa]")
+    fg += (f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,loudnorm=I=-14:TP=-2.0:LRA=7,aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp[outa]")
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -2482,7 +2482,7 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
     fg += f"[{last_v}]format=yuv420p[outv];\n"
 
     # FIX 4: explicit stereo format before loudnorm/aresample to prevent channel layout error
-    fg += f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,loudnorm=I=-14:TP=-1.5:LRA=7,aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp[outa]"
+    fg += f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,loudnorm=I=-14:TP=-2.0:LRA=7,aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp[outa]"
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -3086,7 +3086,7 @@ def make_clip_visual(clip_path: str, source: str, output_path: str,
         f"[clip_railed]format=yuv420p[outv];\n"
         # Issue 4 FIX: Strip first 2.5s of clip audio (intro jangle) + fade in 0.5s
         f"[0:a]atrim=start=2.5,asetpts=PTS-STARTPTS,"
-        f"highpass=f=50,lowpass=f=15000,loudnorm=I=-14:TP=-1.5:LRA=7,"
+        f"highpass=f=50,lowpass=f=15000,loudnorm=I=-14:TP=-2.0:LRA=7,"
         f"afade=t=in:d=0.5,afade=t=out:st={max(0, fade_out_start - 2.5)}:d=0.5[outa]"
     )
 
@@ -3326,16 +3326,17 @@ def concatenate_parts(parts: list, output_path: str) -> str:
                 logger.warning("  FIX 6: Whoosh mix failed — proceeding without SFX")
 
     # Final encode: nuclear PTS reset + AV sync lock + BUG5 single authoritative loudnorm
+    # CRF 15 + minrate 3.5M floor to guarantee ≥3.5Mbps output (was CRF 17 → 2.8Mbps on dark content)
     ok = run_ffmpeg(
         ["-fflags", "+genpts+igndts+discardcorrupt",
          "-i", concat_raw,
-         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
-         "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+         "-c:v", "libx264", "-crf", "15", "-preset", "medium",
+         "-b:v", "8M", "-minrate", "3.5M", "-maxrate", "10M", "-bufsize", "15M",
          "-r", "30", "-vsync", "cfr",
          "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
          # BUG5 FIX: Single authoritative loudnorm at end (removed from all intermediate steps)
-         "-af", "asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.1:first_pts=0,loudnorm=I=-14:TP=-1.5:LRA=7:linear=true",
+         "-af", "asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.1:first_pts=0,loudnorm=I=-14:TP=-2.0:LRA=7:linear=true,dynaudnorm=f=150:g=15",
          "-avoid_negative_ts", "make_zero",
          "-max_interleave_delta", "0",
          "-movflags", "+faststart",
@@ -3652,6 +3653,21 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         host_num = int(line_audio.get("host", 1)) if str(line_audio.get("host", "1")).isdigit() else 1
         text = line_audio.get("text", entry.get("text", ""))
         audio_path = line_audio["path"]
+
+        # Silent gap guard: TTS files < 5KB are likely empty/corrupt
+        try:
+            tts_size = os.path.getsize(audio_path)
+            if tts_size < 5000:
+                logger.warning(f"  [GAP GUARD] Segment {i} ({entry_type}): TTS file {os.path.basename(audio_path)} is {tts_size}B (<5KB) — substituting 0.5s silence pad")
+                silence_pad = os.path.join(work_dir, f"silence_pad_{part_idx:03d}.m4a")
+                run_ffmpeg([
+                    "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
+                    "-t", "0.5", "-c:a", "aac", "-b:a", "192k", silence_pad,
+                ], "silence pad", 10)
+                if os.path.exists(silence_pad):
+                    audio_path = silence_pad
+        except OSError:
+            pass
 
         # Mix TTS with background music if music utility supports it
         # (We handle music mixing directly in make_host_visual via assets/music/pp_background.mp3)

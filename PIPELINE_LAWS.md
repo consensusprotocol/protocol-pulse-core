@@ -20,7 +20,7 @@
 
 ## AUDIO TARGETS (locked)
 - Integrated LUFS: -14 ±2
-- True peak: ≤ -1.5dBTP
+- True peak: ≤ -2.0dBTP
 - LRA: 7 LU
 - Single loudnorm: only in concatenate_parts() — no per-segment loudnorm
 - Sample rate: 48000 Hz

@@ -17,6 +17,7 @@ if not logger.handlers:
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 CLIP_CACHE = os.path.join(BASE, "downloads", "clip_cache")
+MAX_CLIP_DURATION = 90  # Hard cap: no clip exceeds 90s (target 5×90=450s + narration ≈ 540s)
 
 
 def _run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
@@ -454,6 +455,19 @@ def extract_all(selections: dict, output_dir: str) -> dict:
                         logger.info(f"  Trimmed clip #{rank} at {pause_at:.1f}s (silence detection)")
                     elif os.path.exists(trimmed):
                         os.remove(trimmed)
+
+            # Hard duration cap: trim clips exceeding MAX_CLIP_DURATION
+            clip_dur = ffprobe_duration(output_path)
+            if clip_dur > MAX_CLIP_DURATION:
+                capped = output_path + ".capped.mp4"
+                if _run_ffmpeg([
+                    "-i", output_path, "-t", str(MAX_CLIP_DURATION),
+                    "-c:v", "copy", "-c:a", "copy", capped,
+                ], f"duration cap {clip_dur:.0f}s→{MAX_CLIP_DURATION}s", 30) and os.path.exists(capped):
+                    os.replace(capped, output_path)
+                    logger.info(f"  DURATION CAP: clip #{rank} trimmed {clip_dur:.0f}s → {MAX_CLIP_DURATION}s")
+                elif os.path.exists(capped):
+                    os.remove(capped)
 
             # Issue 5: Second-pass ad read scan
             if _second_pass_ad_read(output_path, clip.get("channel", ""), rank):
