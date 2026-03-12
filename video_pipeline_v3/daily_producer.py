@@ -224,7 +224,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         import glob
         transcript_dir = os.path.join(BASE, "transcripts")
         videos = []
-        for tf in sorted(glob.glob(os.path.join(transcript_dir, "*.json")))[:20]:
+        for tf in sorted(glob.glob(os.path.join(transcript_dir, "*.json")))[:60]:
             with open(tf) as f:
                 data = json.load(f)
                 videos.append({
