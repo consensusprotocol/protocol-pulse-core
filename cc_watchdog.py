@@ -141,14 +141,14 @@ def check_render_progress():
 
 
 def append_to_lessons(event_type, session, detail):
-    from datetime import datetime as _dt
-    ts = _dt.now().strftime('%Y-%m-%d %H:%M')
-    entry = '
-### WATCHDOG [' + ts + '] ' + event_type + ' - ' + session + '
-' + detail + '
-'
-    try: open(BASE + '/PIPELINE_LESSONS.md', 'a').write(entry)
-    except Exception as e: log('LESSONS write error: ' + str(e))
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M")
+    line = "\n### WATCHDOG [" + ts + "] " + event_type + " - " + session + "\n" + str(detail) + "\n"
+    try:
+        with open(BASE + "/PIPELINE_LESSONS.md", "a") as fh:
+            fh.write(line)
+    except Exception as ex:
+        log("LESSONS write error: " + str(ex))
+
 
 def write_status_file():
     status = {
