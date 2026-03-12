@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """TTS Engine V6 — Dual-host broadcast voice.
-Host 1 (Natasha): uxKr2vlA4hYgXZR1oPRT at 1.12x — sharp female setup host.
+Host 1 (Eryn): kdnRe2koJdOK4Ovxn2DI at 1.12x — sharp female setup host.
 Host 2 (Mark): 1SM7GgM6IMuvQlz2BwM3 at 1.10x — male contrarian react host.
 Generates per-line audio with 0.3s silence gaps."""
 import os, sys, json, subprocess, tempfile, time, struct
@@ -14,10 +14,10 @@ except ImportError:
 
 from relay import get_key
 
-# DUAL HOST RESTORED 2026-03-10: Natasha (HOST_1) + Mark (HOST_2)
+# DUAL HOST RESTORED 2026-03-10: Eryn (HOST_1) + Mark (HOST_2)
 # Nicole/Chris/Deborah/Brian are all BANNED.
 _NATASHA_VOICE = {
-    "voice_id": "uxKr2vlA4hYgXZR1oPRT",
+    "voice_id": "kdnRe2koJdOK4Ovxn2DI",
     "name": "Eryn",
     "model_id": "eleven_turbo_v2_5",
     "speed": 1.12,
@@ -43,7 +43,7 @@ _MARK_VOICE = {
 }
 
 VOICES = {
-    1: _NATASHA_VOICE,   # HOST_1 → Natasha (female)
+    1: _NATASHA_VOICE,   # HOST_1 → Eryn (female)
     2: _MARK_VOICE,   # HOST_2 → Mark (male)
 }
 
