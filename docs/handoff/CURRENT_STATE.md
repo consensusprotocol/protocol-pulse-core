@@ -1,6 +1,6 @@
 # Protocol Pulse — Current State
-**Generated:** 2026-03-12 04:07:21  
-**Git:** `3f1643e9` on `main`  
+**Generated:** 2026-03-12 12:29:42  
+**Git:** `07e45dbc` on `main`  
 **Repo:** https://github.com/consensusprotocol/protocol-pulse-core
 
 ---
@@ -9,7 +9,7 @@
 | Service | Status |
 |---------|--------|
 | Flask (protocolpulse.io) | HTTP 200 |
-| Avatar server (port 8200) | HTTP 200 — avg latency 44.44s |
+| Avatar server (port 8200) | HTTP 200 — avg latency 11.49s |
 | CF Tunnel | Active |
 | Watchdog cron | Every 5 min |
 
@@ -22,7 +22,7 @@
 [STEP 13] QUALITY GATE...
   QUALITY SCORE: 69/100 [#############-------] HOLD (threshold: 85)
 - **V9 grade:** GRADE_F_FAIL|38|/home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-12/pulse_check_20260312.mp4|This episode is a catastrophic and unpublishable failure due to a complete breakdown of the text-to-speech pipeline, resulting in a silent co-host, unwatchable dead air, and clipped audio.
-- **V9 file:** -rw-r--r-- 1 ultron ultron 224M Mar 12 03:32 video_pipeline_v3/output/2026-03-12/pulse_check_20260312.mp4
+- **V9 file:** -rw-r--r-- 1 ultron ultron 232M Mar 12 11:59 video_pipeline_v3/output/2026-03-12/pulse_check_20260312.mp4
 - **Root cause of V7/V8 F:** Eryn voice ID `uxKr2vlA4hYgXZR1oPRT` (Natasha) was wiped by git reset. Fixed in commit `7667c3d6` — correct ID `kdnRe2koJdOK4Ovxn2DI`
 - **QC false positive bug:** Internal scorer reports 94/100 PASS on Grade F renders — CC session `qc_audit` fixing now
 
@@ -103,12 +103,12 @@ tmux new-session -s NAME \; send-keys 'cd ~/protocol_pulse && unset ANTHROPIC_AP
 
 ## 📜 GIT LOG (last 8)
 ```
-3f1643e9 fix(qc): add real ffprobe silence/black/peak checks, TTS pre-validation
-91cbcdde chore: update CURRENT_STATE.md handoff doc 2026-03-12
-d2dd725a feat(tts): add Inworld provider Lauren+Nate (TTS_PROVIDER=inworld), ElevenLabs default
-7667c3d6 fix(tts): RESTORE Eryn voice kdnRe2koJdOK4Ovxn2DI (lost in git reset, wiped V6 fix)
-20bcca4c fix(site): rename pp-lightfix -> pp-fix to bypass CF cached 404
-8503e711 fix(site): rename pp-core->pp-main, pp-lightfix->pp-fixes to clear CF 404 cache
-bfc4eeb4 fix(site): extract all inline CSS from templates — zero <style> tags remaining
-104b6e50 fix(site): base.html - use pp-core/pp-coindesk/pp-lightfix names, all v3/css BYPASS
+07e45dbc chore: smart loop report
+5183a24a chore: Linear ticket backlog + smart render loop
+cdaf3fc5 fix(avatar): fully remove GFPGAN, fix 503 busy lock, add input guard, wire vision UI
+24451647 feat(pipeline): smart_render_loop.py - self-improving loop with PIPELINE_LESSONS.md
+e8df7191 chore: add gunicorn.pid to .gitignore
+86349600 feat(articles): port p4-article-page second-pass improvements to API v2
+8a4fc3e3 feat(nav): add Briefings, Clips, Signal Terminal, Media Terminal, Chat to nav; restructure desktop nav with More dropdown
+daeb57e9 fix(avatar): P0 blink artifact, /status 404, latency 48s→10s, BATCH_SIZE=48
 ```
