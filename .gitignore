@@ -12,8 +12,14 @@ test_*
 venv/
 data/episodes/
 *.mp3
-*.png
-*.jpg
+uploads/*.png
+uploads/*.jpg
+/tmp/*.png
+/tmp/*.jpg
+attached_assets/*.png
+attached_assets/*.jpg
+# Allow fallback cover images (Law 1)
+!static/images/default-covers/*.jpg
 node_modules/
 *.part
 x_spaces_scraper/cache/
