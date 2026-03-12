@@ -39,7 +39,7 @@ from blink_engine import apply_blink_gradient, generate_blink_schedule
 
 # ─── Config ───────────────────────────────────────────────────────────
 PORT = 8200
-BATCH_SIZE = 64  # Optimal for RTX 4090 — larger batch = fewer kernel launches
+BATCH_SIZE = 48  # Proven stable at 134fps — 64 caused VRAM pressure on GPU 1
 DEFAULT_FPS = 30.0  # Upgraded from 25fps — smoother motion
 
 # Post-processing config
@@ -50,6 +50,12 @@ HEAD_ROTATION_AMPLITUDE = 2.5   # degrees — visible news-anchor sway
 HEAD_TRANSLATION_X = 4.0        # pixels — visible horizontal drift
 HEAD_TRANSLATION_Y = 2.0        # pixels — visible vertical drift
 HEAD_PERIOD = 5.0               # seconds per full cycle — slow and natural
+
+# Face enhancement flag — GFPGAN adds ~60s for 100 keyframes, OFF by default
+ENABLE_FACE_ENHANCEMENT = os.environ.get("ENABLE_FACE_ENHANCEMENT", "false").lower() == "true"
+
+# Generation timeout (seconds) — prevents GPU stalls from hanging forever
+GENERATION_TIMEOUT = int(os.environ.get("AVATAR_GENERATION_TIMEOUT", "120"))
 
 # ─── Logging ──────────────────────────────────────────────────────────
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -215,12 +221,16 @@ def post_process_frames(frames, fps=30.0, enable_blinks=True, enable_head=True):
     for i, frame in enumerate(frames):
         result = frame
         if enable_blinks and i in blink_schedule:
-            result = apply_blink_gradient(
-                result,
-                blink_schedule[i],
-                eye_landmarks=reg.eye_landmarks,
-                face_coords=reg.avatar_face_coords,
-            )
+            try:
+                result = apply_blink_gradient(
+                    result,
+                    blink_schedule[i],
+                    eye_landmarks=reg.eye_landmarks,
+                    face_coords=reg.avatar_face_coords,
+                )
+            except Exception:
+                # P0 safety net: blink artifacts → return original frame
+                result = frame
         if enable_head:
             result = apply_head_movement(result, i, fps)
         processed.append(result)
@@ -365,6 +375,8 @@ def health():
         "avg_latency_sec": avg_latency,
         "requests_tracked": len(_request_times),
         "output_fps": DEFAULT_FPS,
+        "batch_size": BATCH_SIZE,
+        "face_enhancement_enabled": ENABLE_FACE_ENHANCEMENT,
         "encoding": "crf28-ultrafast-512",
         "blink_config": {
             "interval": f"{BLINK_INTERVAL_MIN}-{BLINK_INTERVAL_MAX}s",
@@ -375,6 +387,12 @@ def health():
             "period": f"{HEAD_PERIOD}s"
         }
     })
+
+
+@app.route("/status")
+def status():
+    """Alias for /health — frontend expects this route."""
+    return health()
 
 
 @app.route("/warmup", methods=["POST"])
@@ -398,7 +416,7 @@ def warmup():
         with _lock:
             frames = wav2lip_generate(wav_path, DEFAULT_FPS)
             if frames:
-                frames = post_process_frames(frames[:5], DEFAULT_FPS, enable_blinks=True, enable_head=True)
+                frames = post_process_frames(frames[:5], DEFAULT_FPS, enable_blinks=False, enable_head=True)
         elapsed = time.time() - t0
         logger.info(f"Warmup complete: {len(frames)} frames in {elapsed:.2f}s")
         return jsonify({
@@ -429,9 +447,9 @@ def generate():
     if not data:
         return jsonify({"error": "JSON body required"}), 400
 
-    enable_blinks = data.get("enable_blinks", False)  # LAW 2: blinks permanently disabled
+    enable_blinks = False  # LAW 2: blinks permanently disabled — black oval artifacts
     enable_head_movement = data.get("enable_head_movement", True)
-    enable_face_enhance = data.get("enable_face_enhance", False)  # GFPGAN OFF by default (~60s); sharpen always runs
+    enable_face_enhance = data.get("enable_face_enhance", ENABLE_FACE_ENHANCEMENT)  # GFPGAN OFF by default (~60s)
     fps = float(data.get("fps", DEFAULT_FPS))
 
     t_start = time.time()
@@ -465,7 +483,10 @@ def generate():
 
     try:
         reg = ModelRegistry.get()
-        with _lock:
+        acquired = _lock.acquire(timeout=GENERATION_TIMEOUT)
+        if not acquired:
+            return jsonify({"error": "Generation timeout — GPU busy", "code": "GPU_BUSY"}), 503
+        try:
             t0 = time.time()
             frames = wav2lip_generate(wav_path, fps)
             t_lip = time.time() - t0
@@ -499,9 +520,11 @@ def generate():
             video_path = frames_to_video(frames, fps, audio_path=wav_path)
             t_encode = time.time() - t0
             logger.info(f"Encoding: {t_encode:.2f}s")
+        finally:
+            _lock.release()
 
         if not video_path:
-            return jsonify({"error": "Video encoding failed"}), 500
+            return jsonify({"error": "Video encoding failed", "code": "ENCODE_FAILED"}), 500
 
         t_total = time.time() - t_start
         _record_latency(t_total)
@@ -542,7 +565,7 @@ def generate():
 
     except Exception as e:
         logger.error(f"Generation error: {e}", exc_info=True)
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e), "code": "GENERATION_ERROR"}), 500
     finally:
         for p in [audio_path, wav_path]:
             try:
@@ -729,14 +752,15 @@ def _generate_chunk(sentence, chunk_num, session_dir, fps=30.0):
 
         with _lock:
             frames = wav2lip_generate(wav_path, fps)
-            # Apply face enhancement (sharpen first, then GFPGAN if available)
+            # Sharpen mouth only (fast CV2 op); GFPGAN only if explicitly enabled
             reg = ModelRegistry.get()
             try:
                 frames = sharpen_mouth_region(frames, reg.avatar_face_coords)
-                frames = enhance_frames_batch(frames, reg.avatar_face_coords, batch_size=16)
+                if ENABLE_FACE_ENHANCEMENT:
+                    frames = enhance_frames_batch(frames, reg.avatar_face_coords, batch_size=16)
             except Exception:
                 pass
-            frames = post_process_frames(frames, fps, enable_blinks=True, enable_head=True)
+            frames = post_process_frames(frames, fps, enable_blinks=False, enable_head=True)
 
         video_path = os.path.join(session_dir, f"chunk_{chunk_num:03d}.mp4")
         tmp_path = frames_to_video(frames, fps, audio_path=wav_path)
@@ -902,7 +926,7 @@ def generate_idle_loop():
     base_frame = reg.avatar_face.copy()
     frames = [base_frame.copy() for _ in range(num_frames)]
 
-    frames = post_process_frames(frames, fps, enable_blinks=True, enable_head=True)
+    frames = post_process_frames(frames, fps, enable_blinks=False, enable_head=True)
 
     video_path = frames_to_video(frames, fps, audio_path=None)
     if video_path:
@@ -940,14 +964,17 @@ if __name__ == "__main__":
         logger.error("No face detected in avatar. Exiting.")
         sys.exit(1)
 
-    # Pre-load face enhancer (eager load at startup, not lazily on first request)
-    logger.info("Pre-loading face enhancer...")
-    try:
-        from face_enhancer import _load_gfpgan
-        enhancer = _load_gfpgan()
-        logger.info(f"Face enhancer ready: {'gfpgan' if enhancer else 'sharpen_only'}")
-    except Exception as e:
-        logger.warning(f"Face enhancer pre-load failed: {e}")
+    # Pre-load face enhancer only if enabled (GFPGAN adds ~5-10s startup + VRAM)
+    if ENABLE_FACE_ENHANCEMENT:
+        logger.info("Pre-loading face enhancer (ENABLE_FACE_ENHANCEMENT=true)...")
+        try:
+            from face_enhancer import _load_gfpgan
+            enhancer = _load_gfpgan()
+            logger.info(f"Face enhancer ready: {'gfpgan' if enhancer else 'sharpen_only'}")
+        except Exception as e:
+            logger.warning(f"Face enhancer pre-load failed: {e}")
+    else:
+        logger.info("Face enhancer: GFPGAN disabled (ENABLE_FACE_ENHANCEMENT=false), sharpen-only mode")
 
     # Auto-warmup
     logger.info("[WARMUP] Running pipeline warmup...")
@@ -963,7 +990,7 @@ if __name__ == "__main__":
             warmup_wav = tmp.name
         frames = wav2lip_generate(warmup_wav, DEFAULT_FPS)
         if frames:
-            frames = post_process_frames(frames[:5], DEFAULT_FPS, enable_blinks=True, enable_head=True)
+            frames = post_process_frames(frames[:5], DEFAULT_FPS, enable_blinks=False, enable_head=True)
         os.unlink(warmup_wav)
         logger.info(
             f"[WARMUP] Pipeline ready in {time.time()-warmup_start:.1f}s "
