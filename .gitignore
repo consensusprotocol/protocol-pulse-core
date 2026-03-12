@@ -29,3 +29,4 @@ gfpgan/weights/
 oracle/gfpgan/weights/
 *.pth
 video_pipeline_v3/tts_cache/
+gunicorn.pid
