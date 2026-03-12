@@ -413,3 +413,14 @@ except Exception as e:
 
 if __name__ == "__main__":
     _run_dev_server()
+@app.route('/a/<path:fn>')
+def _serve_asset(fn):
+    from flask import make_response, abort
+    import mimetypes, os as _o
+    p = _o.path.join('/home/ultron/protocol_pulse/static', fn)
+    if not _o.path.exists(p): abort(404)
+    data = open(p,'rb').read()
+    resp = make_response(data)
+    resp.headers['Content-Type'] = mimetypes.guess_type(p)[0] or 'text/plain'
+    resp.headers['Cache-Control'] = 'public, max-age=3600'
+    return resp
