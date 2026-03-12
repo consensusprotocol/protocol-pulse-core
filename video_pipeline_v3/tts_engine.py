@@ -332,11 +332,19 @@ def tts_inworld(text: str, output_path: str, host: int = 1,
     wav_path = tmp_path + ".wav"
     try:
         # Step 1: convert whatever format Inworld sent → WAV (robust, no codec assumptions)
+        # Try decoding as mp3 first (Inworld returns mp3), fallback to auto-detect
         r1 = subprocess.run(
-            ["ffmpeg", "-y", "-i", tmp_path,
+            ["ffmpeg", "-y", "-f", "mp3", "-i", tmp_path,
              "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "1", wav_path],
             capture_output=True, text=True, timeout=60,
         )
+        if r1.returncode != 0 or not os.path.exists(wav_path):
+            # Fallback: let ffmpeg auto-detect
+            r1 = subprocess.run(
+                ["ffmpeg", "-y", "-i", tmp_path,
+                 "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "1", wav_path],
+                capture_output=True, text=True, timeout=60,
+            )
         src = wav_path if (r1.returncode == 0 and os.path.exists(wav_path)) else tmp_path
 
         # Step 2: apply atempo (must be 0.5-2.0; chain two filters if > 2.0)
