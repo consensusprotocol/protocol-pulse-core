@@ -213,3 +213,13 @@ if __name__ == "__main__":
     print(f"Starting Protocol Pulse → http://127.0.0.1:{port}/ (debug routes: http://127.0.0.1:{port}/debug-routes)")
     # Disable reloader so the process that binds the port is the same one that loaded routes (avoids 404 from reloader child)
     app.run(host="0.0.0.0", port=port, debug=True, use_reloader=False)
+@app.route('/assets/css/<path:filename>')
+def assets_css(filename):
+    from flask import send_from_directory, make_response
+    import os
+    css_dir = os.path.join(app.root_path, '..', 'static', 'css')
+    resp = make_response(send_from_directory(os.path.abspath(css_dir), filename))
+    resp.headers['Cache-Control'] = 'public, max-age=3600'
+    resp.headers['Content-Type'] = 'text/css'
+    return resp
+

@@ -2,59 +2,65 @@
   "topic_velocity": [
     {
       "topic": "etf",
-      "channels": 3,
-      "sentiment": "bearish",
-      "velocity_score": 45
-    },
-    {
-      "topic": "price",
-      "channels": 3,
-      "sentiment": "bearish",
-      "velocity_score": 45
-    },
-    {
-      "topic": "macro",
-      "channels": 3,
-      "sentiment": "bearish",
-      "velocity_score": 45
-    },
-    {
-      "topic": "privacy",
-      "channels": 3,
-      "sentiment": "bearish",
-      "velocity_score": 45
-    },
-    {
-      "topic": "regulation",
-      "channels": 2,
-      "sentiment": "bearish",
-      "velocity_score": 30
+      "channels": 15,
+      "sentiment": "bullish",
+      "velocity_score": 100
     },
     {
       "topic": "mining",
-      "channels": 1,
-      "sentiment": "neutral",
-      "velocity_score": 15
+      "channels": 26,
+      "sentiment": "bullish",
+      "velocity_score": 100
+    },
+    {
+      "topic": "price",
+      "channels": 28,
+      "sentiment": "bullish",
+      "velocity_score": 100
     },
     {
       "topic": "lightning",
-      "channels": 1,
-      "sentiment": "neutral",
-      "velocity_score": 15
+      "channels": 22,
+      "sentiment": "bullish",
+      "velocity_score": 100
+    },
+    {
+      "topic": "macro",
+      "channels": 25,
+      "sentiment": "bullish",
+      "velocity_score": 100
+    },
+    {
+      "topic": "privacy",
+      "channels": 27,
+      "sentiment": "bullish",
+      "velocity_score": 100
+    },
+    {
+      "topic": "regulation",
+      "channels": 27,
+      "sentiment": "bullish",
+      "velocity_score": 100
     },
     {
       "topic": "self-custody",
-      "channels": 1,
-      "sentiment": "neutral",
-      "velocity_score": 15
+      "channels": 7,
+      "sentiment": "bullish",
+      "velocity_score": 100
+    },
+    {
+      "topic": "institutional",
+      "channels": 17,
+      "sentiment": "bullish",
+      "velocity_score": 100
     }
   ],
-  "breaking_threshold": false,
+  "breaking_threshold": true,
   "recommended_topics": [
     "etf",
-    "price",
-    "macro"
+    "mining",
+    "price"
   ],
-  "scan_time": "2026-03-11T08:33:07Z",
-  "total_videos_48h": 6
+  "scan_time": "2026-03-12T04:17:11Z",
+  "total_videos_48h": 75
 }

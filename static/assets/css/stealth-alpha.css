@@ -1,0 +1,166 @@
+/* 
+ * Stealth Alpha Theme - Exclusive for Rank 3 (Sovereign Elite) Operatives
+ * Phase 7: Operative Rank System
+ */
+
+:root {
+    --stealth-primary: #8b5cf6;
+    --stealth-secondary: #a78bfa;
+    --stealth-accent: #c4b5fd;
+    --stealth-dark: #0f0a1a;
+    --stealth-glow: rgba(139, 92, 246, 0.3);
+}
+
+/* Elite Badge Glow */
+.rank-3-active .navbar {
+    border-bottom: 1px solid var(--stealth-primary);
+    box-shadow: 0 4px 30px var(--stealth-glow);
+}
+
+/* Wireframe Scanlines for Sovereign Elite */
+.rank-3-active::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(139, 92, 246, 0.02) 2px,
+        rgba(139, 92, 246, 0.02) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* Elite Purple Accents */
+.rank-3-active .media-card {
+    border-color: rgba(139, 92, 246, 0.2);
+}
+
+.rank-3-active .media-card:hover {
+    border-color: var(--stealth-primary);
+    box-shadow: 0 20px 60px var(--stealth-glow);
+}
+
+/* Sovereign Badge Animation */
+.rank-badge-elite {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.05));
+    border: 1px solid var(--stealth-primary);
+    color: var(--stealth-primary);
+    animation: elitePulse 3s ease-in-out infinite;
+}
+
+@keyframes elitePulse {
+    0%, 100% {
+        box-shadow: 0 0 10px var(--stealth-glow);
+    }
+    50% {
+        box-shadow: 0 0 25px var(--stealth-glow), 0 0 40px rgba(139, 92, 246, 0.15);
+    }
+}
+
+/* Elite Typography */
+.rank-3-active .page-title,
+.rank-3-active .section-title {
+    text-shadow: 0 0 30px var(--stealth-glow);
+}
+
+/* Navigation Elite Indicator */
+.elite-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: linear-gradient(135deg, var(--stealth-primary), #6d28d9);
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #fff;
+    margin-left: 10px;
+}
+
+/* Elite Cards Border Treatment */
+.rank-3-active .glass-card,
+.rank-3-active .content-card,
+.rank-3-active .feature-card {
+    position: relative;
+}
+
+.rank-3-active .glass-card::before,
+.rank-3-active .content-card::before,
+.rank-3-active .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--stealth-primary), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.rank-3-active .glass-card:hover::before,
+.rank-3-active .content-card:hover::before,
+.rank-3-active .feature-card:hover::before {
+    opacity: 1;
+}
+
+/* Elite Data Grid Effects */
+.rank-3-active .data-value {
+    color: var(--stealth-secondary);
+}
+
+.rank-3-active .terminal-text {
+    color: var(--stealth-accent);
+    text-shadow: 0 0 10px var(--stealth-glow);
+}
+
+/* Exclusive Elite Footer Mark */
+.rank-3-active .footer::before {
+    content: 'SOVEREIGN ELITE ACTIVE';
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 2px;
+    color: var(--stealth-primary);
+    opacity: 0.4;
+}
+
+/* Buttons with Elite Treatment */
+.rank-3-active .btn-primary,
+.rank-3-active .cta-btn {
+    background: linear-gradient(135deg, var(--stealth-primary), #6d28d9);
+    box-shadow: 0 4px 20px var(--stealth-glow);
+}
+
+.rank-3-active .btn-primary:hover,
+.rank-3-active .cta-btn:hover {
+    box-shadow: 0 8px 30px var(--stealth-glow);
+}
+
+/* Mobile Elite Adjustments */
+@media (max-width: 768px) {
+    .rank-3-active::before {
+        background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 1px,
+            rgba(139, 92, 246, 0.015) 1px,
+            rgba(139, 92, 246, 0.015) 2px
+        );
+    }
+    
+    .elite-indicator {
+        display: none;
+    }
+}

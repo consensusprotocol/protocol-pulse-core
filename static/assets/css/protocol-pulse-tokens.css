@@ -1,0 +1,150 @@
+/**
+ * Protocol Pulse — shared design tokens (v2)
+ * Palette: #0a0a0a black, #CC2222 teal, #f5a623 amber
+ * Use on About, Contact, Donate, Intelligence, Articles, Subscribe, and any page that should feel like the Media Hub.
+ */
+:root {
+    --pp-bg-primary: #0a0a0a;
+    --pp-bg-secondary: #111111;
+    --pp-bg-card: #111111;
+    --pp-bg-elevated: #1a1a1a;
+    --pp-bg-glass: rgba(255,255,255,0.03);
+    --pp-border-subtle: rgba(255,255,255,0.08);
+    --pp-border-hover: rgba(255,255,255,0.15);
+    --pp-border-focus: rgba(0,212,170,0.6);
+    --pp-text-primary: #f0f0f0;
+    --pp-text-secondary: rgba(255,255,255,0.65);
+    --pp-text-muted: rgba(255,255,255,0.4);
+    --pp-accent: #CC2222;
+    --pp-accent-soft: rgba(0,212,170,0.12);
+    --pp-accent-glow: rgba(0,212,170,0.18);
+    --pp-bitcoin: #f7931a;
+    --pp-nostr: #a855f7;
+    --pp-success: #00e676;
+    --pp-radius-sm: 8px;
+    --pp-radius-md: 12px;
+    --pp-radius-lg: 16px;
+    --pp-radius-xl: 24px;
+    --pp-radius-full: 9999px;
+    --pp-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --pp-shadow-sm: 0 2px 8px rgba(0,0,0,0.25);
+    --pp-shadow-md: 0 8px 32px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2);
+    --pp-shadow-glow: 0 0 40px rgba(0,212,170,0.15);
+}
+
+/* Apply to body when page uses PP dark layout */
+.pp-page,
+body.pp-dark {
+    background: var(--pp-bg-primary) !important;
+    color: var(--pp-text-primary) !important;
+    -webkit-font-smoothing: antialiased;
+}
+
+.pp-page .form-control,
+.pp-page .form-select {
+    background: var(--pp-bg-card);
+    border-color: var(--pp-border-subtle);
+    color: var(--pp-text-primary);
+}
+
+.pp-page .form-control:focus {
+    border-color: var(--pp-accent);
+    box-shadow: 0 0 0 2px var(--pp-accent-soft);
+}
+
+.pp-page .btn-primary,
+.pp-btn-primary {
+    background: var(--pp-accent);
+    border-color: var(--pp-accent);
+    color: #000;
+}
+
+.pp-page .btn-primary:hover,
+.pp-btn-primary:hover {
+    background: #E03333;
+    border-color: #E03333;
+    color: #000;
+}
+
+.pp-page .text-muted { color: var(--pp-text-muted) !important; }
+.pp-page .text-primary { color: var(--pp-accent) !important; }
+
+/* ============================================
+   Site-wide: nav and footer use PP tokens
+   ============================================ */
+
+.nav-command-bar {
+    background: rgba(10, 10, 10, 0.92);
+    border-bottom-color: var(--pp-border-subtle);
+}
+.nav-brand { color: var(--pp-text-primary); }
+.nav-brand:hover { color: var(--pp-accent); }
+.nav-item { color: var(--pp-text-secondary); }
+.nav-item:hover {
+    color: var(--pp-text-primary);
+    background: var(--pp-accent-soft);
+}
+.nav-item.active { color: var(--pp-accent); border-bottom-color: var(--pp-accent); }
+.nav-dropdown-menu {
+    background: var(--pp-bg-card);
+    border-color: var(--pp-border-subtle);
+}
+.nav-dropdown-item { color: var(--pp-text-secondary); }
+.nav-dropdown-item:hover {
+    background: var(--pp-accent-soft);
+    color: var(--pp-text-primary);
+}
+.nav-dropdown-divider { background: var(--pp-border-subtle); }
+.command-search {
+    background: var(--pp-bg-elevated);
+    border-color: var(--pp-border-subtle);
+    color: var(--pp-text-primary);
+}
+.command-search::placeholder { color: var(--pp-text-muted); }
+.command-search:focus {
+    border-color: var(--pp-accent);
+    box-shadow: 0 0 0 2px var(--pp-accent-soft);
+}
+
+footer {
+    background: var(--pp-bg-secondary) !important;
+    border-top: 1px solid var(--pp-border-subtle) !important;
+    color: var(--pp-text-primary) !important;
+}
+footer a { color: var(--pp-text-secondary) !important; }
+footer a:hover { color: var(--pp-accent) !important; }
+footer h5, footer h6 { color: var(--pp-text-primary) !important; }
+footer .text-muted { color: var(--pp-text-muted) !important; }
+footer .satoshi-clock {
+    background: var(--pp-bg-card);
+    border-color: var(--pp-border-subtle);
+}
+footer .clock-label { color: var(--pp-accent); }
+footer .clock-value { color: var(--pp-text-primary); }
+footer .clock-unit { color: var(--pp-text-muted); }
+footer .clock-separator { color: var(--pp-accent); }
+footer .clock-sublabel { color: var(--pp-text-muted); }
+footer .btn-outline-success {
+    border-color: var(--pp-success);
+    color: var(--pp-success);
+}
+footer .btn-outline-success:hover {
+    background: var(--pp-success);
+    color: #fff;
+}
+footer .btn-outline-warning {
+    border-color: var(--pp-bitcoin);
+    color: var(--pp-bitcoin);
+}
+footer .btn-outline-warning:hover {
+    background: var(--pp-bitcoin);
+    color: #000;
+}
+footer .btn-outline-danger {
+    border-color: var(--pp-accent);
+    color: var(--pp-accent);
+}
+footer .btn-outline-danger:hover {
+    background: var(--pp-accent);
+    color: #000;
+}
