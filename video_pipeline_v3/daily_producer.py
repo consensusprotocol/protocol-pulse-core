@@ -315,6 +315,66 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     clip_dir = os.path.join(run_dir, "clips")
     extracted_clips = extract_all(selections, clip_dir)
     print(f"  Extracted: {len(extracted_clips)}/{len(clips)} clips")
+
+    # ── Quality-aware fallback: retry with ranked alternates ──────────
+    if not test_mode and not fast_test and len(extracted_clips) < 5:
+        used_video_ids = {info["video_id"] for info in extracted_clips.values()}
+        used_channels = {info["channel"] for info in extracted_clips.values()}
+        tried_video_ids = {c["video_id"] for c in clips} | used_video_ids
+
+        remaining = [v for v in videos
+                     if v["video_id"] not in tried_video_ids
+                     and v.get("channel", "") not in used_channels]
+
+        if remaining:
+            need = 5 - len(extracted_clips)
+            logger.info(
+                f"[extractor] Only {len(extracted_clips)}/5 clips passed quality "
+                f"— selecting fallbacks from {len(remaining)} candidates (need {need})"
+            )
+            fallback_sel = select_clips(remaining)
+            fallback_clips = fallback_sel.get("clips", [])
+
+            max_rank = max(extracted_clips.keys()) if extracted_clips else 0
+            for fc in fallback_clips:
+                if len(extracted_clips) >= 5:
+                    break
+                fc_ch = fc.get("channel", "")
+                fc_vid = fc.get("video_id", "")
+                if fc_ch in used_channels or fc_vid in tried_video_ids:
+                    continue
+                max_rank += 1
+                fc["rank"] = max_rank
+                logger.info(
+                    f"[extractor] Clip failed quality — trying fallback candidate "
+                    f"#{max_rank} [{fc_ch}] from selections"
+                )
+                fb_result = extract_all({"clips": [fc]}, clip_dir)
+                if fb_result:
+                    for r, info in fb_result.items():
+                        extracted_clips[r] = info
+                        used_video_ids.add(info["video_id"])
+                        used_channels.add(info["channel"])
+                        tried_video_ids.add(fc_vid)
+                        selections["clips"].append(fc)
+                        logger.info(
+                            f"[extractor] Fallback clip #{r} passed quality — "
+                            f"{info['channel']} ({info['duration']:.1f}s)"
+                        )
+                else:
+                    tried_video_ids.add(fc_vid)
+                    logger.warning(
+                        f"[extractor] Fallback [{fc_ch}] also failed quality — trying next"
+                    )
+
+            # Update clips list and re-save selections
+            clips = selections.get("clips", [])
+            with open(sel_path, "w") as f:
+                json.dump(selections, f, indent=2)
+            logger.info(f"[extractor] After fallback: {len(extracted_clips)}/5 clips")
+        else:
+            logger.warning("[extractor] No fallback candidates — all channels/videos exhausted")
+
     if not test_mode:
         _unique_ch = len({info.get("channel", f"unk_{i}") for i, info in enumerate(extracted_clips.values())})
         if len(extracted_clips) < 5 or _unique_ch < 5:
