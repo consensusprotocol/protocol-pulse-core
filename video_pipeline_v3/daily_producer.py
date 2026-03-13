@@ -68,7 +68,7 @@ def get_btc_price() -> str:
             return f"${usd:,.0f}"
     except Exception:
         pass
-    return "$N/A" — never hardcode stale price
+    return "$N/A"  # Fallback - no hardcoded stale price
 
 
 def _build_fast_test_script(clips_info: dict, btc_price: str) -> dict:
