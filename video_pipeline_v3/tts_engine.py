@@ -346,7 +346,11 @@ def tts_inworld(text: str, output_path: str, host: int = 1,
             capture_output=True, text=True, timeout=120,
         )
         if result.returncode != 0:
-            raise RuntimeError("ffmpeg atempo failed: " + result.stderr[:300])
+            import sys
+            print(f"[tts] FFMPEG FAIL rc={result.returncode}", file=sys.stderr)
+            print(f"[tts] FFMPEG STDERR TAIL: {result.stderr[-800:]}", file=sys.stderr)
+            print(f"[tts] out_wav={out_wav} exists={os.path.exists(out_wav)}", file=sys.stderr)
+            raise RuntimeError("ffmpeg atempo failed (last 500): " + result.stderr[-500:])
         if out_wav != output_path:  # copy wav back to original path (.m4a or .mp3)
             import shutil; shutil.copy(out_wav, output_path)
     finally:
