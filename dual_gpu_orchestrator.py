@@ -252,59 +252,9 @@ def run_render(gpu_id, branch=None):
     env['GPU_ID'] = str(gpu_id)
     env['OUTPUT_SUBDIR'] = f'gpu{gpu_id}'
 
-    # Worktrees disabled — git worktree setup fails silently on this system
-    # Both GPUs run from PIPELINE (main repo). GPU0 uses render-stable via git stash/checkout
-    # which is too risky on shared repo. Simpler: both run from PIPELINE, GPU0=baseline, GPU1=latest.
-    worktree_dir = None
+    # Worktrees disabled — transcripts/data only exist in main repo dir
+    # Both GPUs render from PIPELINE (same codebase, same data)
     cwd = PIPELINE
-
-    if branch:
-        worktree_dir = f'/tmp/gpu{gpu_id}_render_worktree'
-        # Clean up any existing worktree
-        try:
-            subprocess.run(
-                ['git', 'worktree', 'remove', '--force', worktree_dir],
-                capture_output=True, cwd=BASE, timeout=30
-            )
-        except Exception:
-            pass
-        shutil.rmtree(worktree_dir, ignore_errors=True)
-
-        # Check if branch exists
-        branch_exists = subprocess.run(
-            ['git', 'rev-parse', '--verify', branch],
-            capture_output=True, cwd=BASE
-        ).returncode == 0
-
-        if branch_exists:
-            try:
-                r = subprocess.run(
-                    ['git', 'worktree', 'add', worktree_dir, branch],
-                    capture_output=True, text=True, cwd=BASE, timeout=60
-                )
-                if r.returncode == 0:
-                    cwd = f'{worktree_dir}/video_pipeline_v3'
-                    # Symlink .env so worktree has API keys
-                    wt_env = f'{worktree_dir}/.env'
-                    if not os.path.exists(wt_env):
-                        try:
-                            os.symlink('/home/ultron/protocol_pulse/.env', wt_env)
-                        except Exception:
-                            import shutil as _shutil
-                            _shutil.copy('/home/ultron/protocol_pulse/.env', wt_env)
-                    log(f"Using worktree at {worktree_dir} (branch {branch})", gpu_id)
-                else:
-                    log(f"Worktree creation failed: {r.stderr[:200]}. Using main.", gpu_id)
-                    worktree_dir = None
-                    cwd = PIPELINE
-            except Exception as e:
-                log(f"Worktree error: {e}. Using main.", gpu_id)
-                worktree_dir = None
-                cwd = PIPELINE
-        else:
-            log(f"Branch {branch} doesn't exist yet. Using main.", gpu_id)
-            worktree_dir = None
-            cwd = PIPELINE
 
     render_log = f'{BASE}/logs/gpu{gpu_id}_render.log'
     start_time = time.time()
@@ -326,15 +276,7 @@ def run_render(gpu_id, branch=None):
         log(f"Render CRASHED: {e}", gpu_id)
         return None
     finally:
-        # Clean up worktree
-        if worktree_dir and os.path.exists(worktree_dir):
-            try:
-                subprocess.run(
-                    ['git', 'worktree', 'remove', '--force', worktree_dir],
-                    capture_output=True, cwd=BASE, timeout=30
-                )
-            except Exception:
-                pass
+        pass  # no worktree to clean up
 
     video = find_latest_video()
     if video:
