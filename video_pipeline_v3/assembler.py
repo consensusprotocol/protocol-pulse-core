@@ -580,7 +580,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
            f"[outv];\n")
 
     fg += (f"[0:a]aformat=channel_layouts=stereo,"
-           f"loudnorm=I=-14:TP=-2.0:LRA=7,aresample=async=1[outa]")
+           f"loudnorm=I=-14:TP=-2.0:LRA=7,alimiter=limit=0.891:level=disabled:attack=5:release=50,aresample=async=1[outa]")
 
     ok = run_ffmpeg_filtergraph(
         [tts_path], fg, ["[outv]", "[outa]"],
@@ -1025,7 +1025,7 @@ def _bv2_encode(inputs, fg, output_path, total_dur, label="bv2 scene",
     pre-split audio via asplit should pass their output pad here.
     """
     fg += (f"{audio_pad}aformat=channel_layouts=stereo,"
-           f"loudnorm=I=-14:TP=-2.0:LRA=7,aresample=async=1[outa]")
+           f"loudnorm=I=-14:TP=-2.0:LRA=7,alimiter=limit=0.891:level=disabled:attack=5:release=50,aresample=async=1[outa]")
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -2264,7 +2264,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
         fg += f"[v_final]format=yuv420p[outv];\n"
 
     # Audio: TTS only — APEX V2: music mixed continuously in concatenate_parts()
-    fg += (f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,loudnorm=I=-14:TP=-2.0:LRA=7,aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp[outa]")
+    fg += (f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,loudnorm=I=-14:TP=-2.0:LRA=7,alimiter=limit=0.891:level=disabled:attack=5:release=50,aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp[outa]")
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -2482,7 +2482,7 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
     fg += f"[{last_v}]format=yuv420p[outv];\n"
 
     # FIX 4: explicit stereo format before loudnorm/aresample to prevent channel layout error
-    fg += f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,loudnorm=I=-14:TP=-2.0:LRA=7,aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp[outa]"
+    fg += f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,loudnorm=I=-14:TP=-2.0:LRA=7,alimiter=limit=0.891:level=disabled:attack=5:release=50,aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp[outa]"
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
