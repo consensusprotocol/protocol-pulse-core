@@ -165,80 +165,17 @@ def extract_failures(grade_log, forensics):
     return failures[:8]
 
 def fire_cc_fix(iteration, failures, grade, score):
-    lessons = load_lessons()
-    failures_text = chr(10).join(f'- {f}' for f in failures)
-    prompt = f"""Read PIPELINE_LAWS.md and PIPELINE_LESSONS.md first — both are mandatory context.
-
-## SELF-IMPROVING RENDER LOOP — ITERATION {iteration} FIX SESSION
-Grade: {grade} ({score}/100)
-
-## ACCUMULATED LESSONS FROM ALL PREVIOUS ITERATIONS:
-{lessons}
-
-## CURRENT FAILURES TO FIX (iteration {iteration}):
-{failures_text}
-
-## HARD RULES — READ BEFORE TOUCHING A SINGLE FILE:
-1. Read the actual file before editing — grep first, never guess at line numbers
-2. Fix ONLY the failing dimensions listed above — do not refactor other code
-3. Every fix must be the minimal surgical change — one problem, one fix
-4. After every edit: python3 -c "import ast; ast.parse(open('file').read())" to verify syntax
-5. Run regression_test.sh — must show zero FAILs before committing
-6. Commit: git add [changed files only] && git commit -m "fix(pipeline): iter{iteration} - [specific fixes]" && git push
-7. DO NOT touch assembler.py audio chain if audio_clipping is not in the failure list
-8. DO NOT touch tts_engine.py if TTS is not in the failure list
-9. If you cannot fix something with certainty — leave it alone and document why
-
-Priority order: TTS failures → freeze frames → audio clipping → duration → bitrate"""
-
-    prompt_path = f'{BASE}/docs/cc_iter{iteration}_fix.md'
-    open(prompt_path, 'w').write(prompt)
-    session = f'iter{iteration}_fix'
-
-    # Kill ALL stale fix sessions before spawning new one (prevents collision)
-    for s in [f'iter{i}_fix' for i in range(1, 9)] + [session]:
-        subprocess.run(f'tmux kill-session -t {s} 2>/dev/null', shell=True)
-    time.sleep(2)
-
-    subprocess.run(
-        f'tmux new-session -d -s {session} "cd {BASE} && unset ANTHROPIC_API_KEY && claude --dangerously-skip-permissions"',
-        shell=True
-    )
-    time.sleep(10)
-    subprocess.run(f'tmux send-keys -t {session} "$(cat {prompt_path})" Enter', shell=True)
-    log(f"CC fix session {session} launched (all previous sessions killed)")
-
-    # Wait for session to ACTUALLY exit — hard poll, no timeout bypass
-    deadline = time.time() + 1800  # 30 min max
-    while time.time() < deadline:
-        if not tmux_alive(session):
-            log(f"Fix session {session} exited cleanly")
-            break
-        remaining = int((deadline - time.time()) / 60)
-        if remaining % 5 == 0:
-            log(f"Fix session running... {remaining}min remaining")
-        time.sleep(60)
-    else:
-        log(f"WARNING: Fix session hit 30min limit — killing and proceeding")
-        subprocess.run(f'tmux kill-session -t {session} 2>/dev/null', shell=True)
-
-    # Always pull latest after CC session
-    run('git pull origin main 2>&1 | tail -3')
-    time.sleep(5)
-
-    # Verify our known-good fixes are still intact after CC session
-    asm = open(f'{PIPELINE}/assembler.py').read()
-    tts = open(f'{PIPELINE}/tts_engine.py').read()
-    issues = []
-    if 'dynaudnorm' in asm: issues.append('dynaudnorm re-introduced in assembler')
-    if 'alimiter' not in asm: issues.append('alimiter removed from assembler')
-    if 'pcm_s16le' not in tts: issues.append('Inworld WAV fix removed from tts_engine')
-    if issues:
-        log(f"REGRESSION DETECTED after iter{iteration} CC fix: {issues}")
-        log("Reverting to known-good state...")
-        run('git checkout HEAD -- video_pipeline_v3/assembler.py video_pipeline_v3/tts_engine.py')
-
-    return [f"CC fix session iter{iteration} applied and verified"]
+    """CC FIX SESSIONS PERMANENTLY DISABLED.
+    Were reverting proven fixes every iteration. Fixes pre-applied to source.
+    """
+    log(f"CC fix SKIPPED (disabled - fixes pre-applied to source before loop)")
+    try:
+        with open(f"{BASE}/PIPELINE_LESSONS.md", "a") as fh:
+            fh.write(f"\n### Run4 Iter{iteration} Grade:{grade} Score:{score}\n")
+            for fail in failures:
+                fh.write(f"- {fail[:120]}\n")
+    except Exception as ex:
+        log(f"lessons write error: {ex}")
 
 
 def main():
