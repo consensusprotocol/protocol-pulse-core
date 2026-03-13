@@ -1,0 +1,672 @@
+{
+  "video_id": "-CfPbKOAc8w",
+  "title": "12 - The Genesis Block",
+  "channel": "Base58",
+  "upload_date": "",
+  "duration": 595,
+  "transcript_text": "Every Bitcoin Core download comes with the very first block in the chain already hard-coded into it. We call this block the Genesis block. Satoshi Nakamoto created this block and included it when he shipped Bitcoin. Every block in the chain builds upon the Genesis block. Our blockchain is a small file folder. Inside of it, we'll find our Genesis block. Let's take a look at our Genesis block and the transaction inside of it, the Genesis transaction. Inside of the Genesis block, you should find a single transaction. Go ahead and take it out of the Genesis block. This is the Genesis transaction. You may have heard the phrase Chancellor on the brink of the second bailout for banks. That was a phrase that Satoshi wrote into the very first transaction inside of the very first block in the Bitcoin blockchain. Our LARP transaction doesn't have any messages in it. It just locks up Bitcoin. Transactions are how Bitcoin is accounted for and moved from one person to the next. Let's look at this transaction that we've pulled out of the Genesis block. Every transaction is a form that has fields filled in. Our transactions have a transaction ID or TXID field, a set of inputs and a set of outputs. Transactions must be kept track of until all of the outputs on them are spent or used in other transactions. A transaction that's inside of block belongs in one of the two baskets that you've received, either the mempool or the UTXO set, which basket using the Genesis transaction belongs in. Confirmed transactions are ones that are included in blocks. They belong in the UTXO set. Some fun trivia. The Genesis transaction inside of the real Bitcoin blockchain was left out of the UTXO set. The Bitcoin in it is unfundable. Was this a mistake on Satoshi's part? Hard to say. In the lore, however, we include the Genesis transaction in our UTXO set. The UTXO set now should include just our Genesis transaction, which has outputs that are guarded with locks. The official names of these locks is script pub keys. In the lore, we'll just call them pub keys. Each lock is a different color. Only the node that has a matching secret key in their wallet with the same color is able to make a signature, which will allow them to spend these bitcoins. Your node should have a private key, which may or may not match one of the outputs in our UTXO set. Let's see where you can find your node's private key. If you look on the front flap of your blockchain, this is your Bitcoin wallet. Bitcoin wallets hold private keys. Notice what color your private key is. My private key is green. So I'm going to look for green outputs in the UTXO set. In the current UTXO set, I have 25 Bitcoin locked up to the green output. So the balance of my Bitcoin wallet is 25 bitcoins. It's possible that your key may not have any outputs with matching locks in the UTXO set. No one has locked up Bitcoin that your key can unlock yet. These locks are basically the same as a Bitcoin address. Each lock can only be unlocked by the wallet that has the correct color key. In Bitcoin, we have a motto, don't trust Verify. Let's verify the information that we've got on the Genesis block. We use the same process to verify later blocks that we receive from other nodes on the network. We'll get there later in the LARP, but your node is constantly sending and receiving new block and transaction data. We need to verify block data before including it into our blockchain. But how are blocks validated? To validate a block, we'll want to check that the data included in the block header is correct. And that the hash of the block header data is within an acceptable range. Let's validate the Genesis block to see how this process works. If you want to follow along on the block validation worksheet, those are the steps that we'll be using to validate a block. The first thing on our block validation checklist is validating that the block cache we calculate is beneath the required target. Our target is 8500. Let's use our basic to compute the block cache of the Genesis block. We'll input all the information from the block header into the basic and see what block hash at output. The first piece of information to add is the previous block hash. There is no prior block for the Genesis block, so we'll use all zeros instead. If you make a mistake, you can delete information by hitting the star key. To enter information and advance to the next screen, hit the pound key. The second piece of information is the TX commitment or transaction commitment. Our Genesis blocks transaction commitment is 33. Next is the time. We'll put in 1, 2, 3, 4 or 1234. The target is 8500. Let's add that. The final field is the nonce. Our nonce is 103554. After all the fields are entered, the basic will calculate the block hash and show it to us. The block hash for the Genesis block is 7657. Let's write this down on our block validation card. Is this less than the target 8500? Yes, it is. We know this is a valid block hash because the hash number 7657 is less than our target. Cool. We've got a few other things to validate before we consider the Genesis block valid. The next thing to verify is the coin-based transaction. Every block should have one. You can identify the coin-based transaction by the inputs field. It's the only transaction that will have no inputs. It's also always the first transaction in the block. Our validation worksheet says that we should check the total outputs in the coin base or less or equal to the block reward plus fees. There are no other transactions in the Genesis block, so we'll just have the block rewards in our coin-based transaction. For the first block, the coin-based reward is 50 bitcoin. We should check that the coin-based transaction doesn't have more than 50 bitcoins in its outputs. If you add up the output values, you should see that we have one output worth 25 bitcoin locked up to a green lock and three other outputs for the value of 8 bitcoins each. Adding these up, the total amount of outputs on our coin-based transaction is 49 bitcoins. This is less than 50 bitcoins, so this is a valid coin-based transaction. Every coin-based transaction is allowed to claim up to 50 new bitcoins. What happens if they don't account for all 50 bitcoins? In the LARP, our Genesis block's coin-based transaction is missing one bitcoin. This is a mistake that the miner made. They could have claimed one extra bitcoin, but didn't. Instead, this bitcoin doesn't enter the UTXO set and as a result, it never gets added to the bitcoins supply. Our LARP chain will always have one less bitcoins than it could have had if this mistake hadn't been made. There's a few examples of blocks where the miners forgot to create all the new bitcoins they were allowed to. Because of this, there will actually be less than 21 million bitcoin ever created. There's no way to fix this once the block has been found and added to the blockchain. The final thing to check for our block validation checklist is that the transactions inside the block are the ones that the miner put there. We use the TX commitment or transaction commitment to make it hard for anyone to swap transactions into the block while it's in transit to all the different nodes on the network. All we need to do is take the number from the TXID of the transactions inside the block. The Genesis block doesn't have any transactions other than the coin-based, so that makes this easy for us. The TXID for a coin-based transaction is Eagle33. The number from this is 33. This should match the TX commitment on the block header. And it does match. That's the last thing we needed to check to know if our block is valid or not. Now that we've validated our Genesis block and transaction, we're ready to get our first network transaction. At this point, you should have one block in your blockchain, the Genesis block and one transaction in your UTXO set basket, the coin-based transaction from the Genesis block.",
+  "timestamped_text": [
+    {
+      "start": 3.86,
+      "end": 10.06,
+      "text": "Every Bitcoin Core download comes with the very first block in the chain already hard-coded into it."
+    },
+    {
+      "start": 10.06,
+      "end": 12.46,
+      "text": "We call this block the Genesis block."
+    },
+    {
+      "start": 12.46,
+      "end": 17.26,
+      "text": "Satoshi Nakamoto created this block and included it when he shipped Bitcoin."
+    },
+    {
+      "start": 17.26,
+      "end": 21.46,
+      "text": "Every block in the chain builds upon the Genesis block."
+    },
+    {
+      "start": 21.46,
+      "end": 24.66,
+      "text": "Our blockchain is a small file folder."
+    },
+    {
+      "start": 24.66,
+      "end": 27.66,
+      "text": "Inside of it, we'll find our Genesis block."
+    },
+    {
+      "start": 27.66,
+      "end": 33.46,
+      "text": "Let's take a look at our Genesis block and the transaction inside of it, the Genesis transaction."
+    },
+    {
+      "start": 38.21,
+      "end": 42.21,
+      "text": "Inside of the Genesis block, you should find a single transaction."
+    },
+    {
+      "start": 42.21,
+      "end": 44.81,
+      "text": "Go ahead and take it out of the Genesis block."
+    },
+    {
+      "start": 44.81,
+      "end": 47.01,
+      "text": "This is the Genesis transaction."
+    },
+    {
+      "start": 47.01,
+      "end": 51.81,
+      "text": "You may have heard the phrase Chancellor on the brink of the second bailout for banks."
+    },
+    {
+      "start": 51.81,
+      "end": 58.81,
+      "text": "That was a phrase that Satoshi wrote into the very first transaction inside of the very first block in the Bitcoin blockchain."
+    },
+    {
+      "start": 58.81,
+      "end": 62.21,
+      "text": "Our LARP transaction doesn't have any messages in it."
+    },
+    {
+      "start": 62.21,
+      "end": 63.81,
+      "text": "It just locks up Bitcoin."
+    },
+    {
+      "start": 63.81,
+      "end": 68.81,
+      "text": "Transactions are how Bitcoin is accounted for and moved from one person to the next."
+    },
+    {
+      "start": 68.81,
+      "end": 72.41,
+      "text": "Let's look at this transaction that we've pulled out of the Genesis block."
+    },
+    {
+      "start": 72.41,
+      "end": 76.01,
+      "text": "Every transaction is a form that has fields filled in."
+    },
+    {
+      "start": 76.01,
+      "end": 83.21,
+      "text": "Our transactions have a transaction ID or TXID field, a set of inputs and a set of outputs."
+    },
+    {
+      "start": 83.21,
+      "end": 90.44,
+      "text": "Transactions must be kept track of until all of the outputs on them are spent or used in other transactions."
+    },
+    {
+      "start": 90.44,
+      "end": 95.44,
+      "text": "A transaction that's inside of block belongs in one of the two baskets that you've received,"
+    },
+    {
+      "start": 95.44,
+      "end": 102.24,
+      "text": "either the mempool or the UTXO set, which basket using the Genesis transaction belongs in."
+    },
+    {
+      "start": 102.24,
+      "end": 105.44,
+      "text": "Confirmed transactions are ones that are included in blocks."
+    },
+    {
+      "start": 105.44,
+      "end": 107.64,
+      "text": "They belong in the UTXO set."
+    },
+    {
+      "start": 107.64,
+      "end": 109.44,
+      "text": "Some fun trivia."
+    },
+    {
+      "start": 109.44,
+      "end": 115.64,
+      "text": "The Genesis transaction inside of the real Bitcoin blockchain was left out of the UTXO set."
+    },
+    {
+      "start": 115.64,
+      "end": 118.04,
+      "text": "The Bitcoin in it is unfundable."
+    },
+    {
+      "start": 118.04,
+      "end": 120.24,
+      "text": "Was this a mistake on Satoshi's part?"
+    },
+    {
+      "start": 120.24,
+      "end": 121.44,
+      "text": "Hard to say."
+    },
+    {
+      "start": 121.44,
+      "end": 130.79,
+      "text": "In the lore, however, we include the Genesis transaction in our UTXO set."
+    },
+    {
+      "start": 130.79,
+      "end": 137.59,
+      "text": "The UTXO set now should include just our Genesis transaction, which has outputs that are guarded with locks."
+    },
+    {
+      "start": 137.59,
+      "end": 141.19,
+      "text": "The official names of these locks is script pub keys."
+    },
+    {
+      "start": 141.19,
+      "end": 144.18,
+      "text": "In the lore, we'll just call them pub keys."
+    },
+    {
+      "start": 144.18,
+      "end": 146.38,
+      "text": "Each lock is a different color."
+    },
+    {
+      "start": 146.38,
+      "end": 152.18,
+      "text": "Only the node that has a matching secret key in their wallet with the same color is able to make a signature,"
+    },
+    {
+      "start": 152.18,
+      "end": 154.98,
+      "text": "which will allow them to spend these bitcoins."
+    },
+    {
+      "start": 154.98,
+      "end": 161.28,
+      "text": "Your node should have a private key, which may or may not match one of the outputs in our UTXO set."
+    },
+    {
+      "start": 161.28,
+      "end": 164.18,
+      "text": "Let's see where you can find your node's private key."
+    },
+    {
+      "start": 164.18,
+      "end": 169.48,
+      "text": "If you look on the front flap of your blockchain, this is your Bitcoin wallet."
+    },
+    {
+      "start": 169.48,
+      "end": 171.98,
+      "text": "Bitcoin wallets hold private keys."
+    },
+    {
+      "start": 171.98,
+      "end": 174.8,
+      "text": "Notice what color your private key is."
+    },
+    {
+      "start": 174.8,
+      "end": 177.0,
+      "text": "My private key is green."
+    },
+    {
+      "start": 177.0,
+      "end": 181.1,
+      "text": "So I'm going to look for green outputs in the UTXO set."
+    },
+    {
+      "start": 181.1,
+      "end": 187.1,
+      "text": "In the current UTXO set, I have 25 Bitcoin locked up to the green output."
+    },
+    {
+      "start": 187.1,
+      "end": 191.5,
+      "text": "So the balance of my Bitcoin wallet is 25 bitcoins."
+    },
+    {
+      "start": 191.5,
+      "end": 197.4,
+      "text": "It's possible that your key may not have any outputs with matching locks in the UTXO set."
+    },
+    {
+      "start": 197.4,
+      "end": 201.34,
+      "text": "No one has locked up Bitcoin that your key can unlock yet."
+    },
+    {
+      "start": 201.34,
+      "end": 205.64,
+      "text": "These locks are basically the same as a Bitcoin address."
+    },
+    {
+      "start": 205.64,
+      "end": 214.4,
+      "text": "Each lock can only be unlocked by the wallet that has the correct color key."
+    },
+    {
+      "start": 214.5,
+      "end": 218.7,
+      "text": "In Bitcoin, we have a motto, don't trust Verify."
+    },
+    {
+      "start": 218.7,
+      "end": 222.6,
+      "text": "Let's verify the information that we've got on the Genesis block."
+    },
+    {
+      "start": 222.6,
+      "end": 228.3,
+      "text": "We use the same process to verify later blocks that we receive from other nodes on the network."
+    },
+    {
+      "start": 228.3,
+      "end": 235.3,
+      "text": "We'll get there later in the LARP, but your node is constantly sending and receiving new block and transaction data."
+    },
+    {
+      "start": 235.3,
+      "end": 239.7,
+      "text": "We need to verify block data before including it into our blockchain."
+    },
+    {
+      "start": 239.7,
+      "end": 242.0,
+      "text": "But how are blocks validated?"
+    },
+    {
+      "start": 242.0,
+      "end": 247.4,
+      "text": "To validate a block, we'll want to check that the data included in the block header is correct."
+    },
+    {
+      "start": 247.4,
+      "end": 252.51,
+      "text": "And that the hash of the block header data is within an acceptable range."
+    },
+    {
+      "start": 252.51,
+      "end": 256.31,
+      "text": "Let's validate the Genesis block to see how this process works."
+    },
+    {
+      "start": 256.31,
+      "end": 259.51,
+      "text": "If you want to follow along on the block validation worksheet,"
+    },
+    {
+      "start": 259.51,
+      "end": 267.02,
+      "text": "those are the steps that we'll be using to validate a block."
+    },
+    {
+      "start": 267.02,
+      "end": 272.72,
+      "text": "The first thing on our block validation checklist is validating that the block cache we calculate"
+    },
+    {
+      "start": 272.72,
+      "end": 275.25,
+      "text": "is beneath the required target."
+    },
+    {
+      "start": 275.25,
+      "end": 278.53,
+      "text": "Our target is 8500."
+    },
+    {
+      "start": 278.53,
+      "end": 283.06,
+      "text": "Let's use our basic to compute the block cache of the Genesis block."
+    },
+    {
+      "start": 283.06,
+      "end": 287.16,
+      "text": "We'll input all the information from the block header into the basic"
+    },
+    {
+      "start": 287.16,
+      "end": 289.56,
+      "text": "and see what block hash at output."
+    },
+    {
+      "start": 289.56,
+      "end": 293.86,
+      "text": "The first piece of information to add is the previous block hash."
+    },
+    {
+      "start": 293.86,
+      "end": 304.06,
+      "text": "There is no prior block for the Genesis block, so we'll use all zeros instead."
+    },
+    {
+      "start": 304.06,
+      "end": 308.66,
+      "text": "If you make a mistake, you can delete information by hitting the star key."
+    },
+    {
+      "start": 308.66,
+      "end": 315.92,
+      "text": "To enter information and advance to the next screen, hit the pound key."
+    },
+    {
+      "start": 315.92,
+      "end": 321.12,
+      "text": "The second piece of information is the TX commitment or transaction commitment."
+    },
+    {
+      "start": 321.12,
+      "end": 329.67,
+      "text": "Our Genesis blocks transaction commitment is 33."
+    },
+    {
+      "start": 329.67,
+      "end": 331.17,
+      "text": "Next is the time."
+    },
+    {
+      "start": 331.17,
+      "end": 337.51,
+      "text": "We'll put in 1, 2, 3, 4 or 1234."
+    },
+    {
+      "start": 337.51,
+      "end": 339.81,
+      "text": "The target is 8500."
+    },
+    {
+      "start": 339.81,
+      "end": 345.22,
+      "text": "Let's add that."
+    },
+    {
+      "start": 345.22,
+      "end": 347.12,
+      "text": "The final field is the nonce."
+    },
+    {
+      "start": 347.12,
+      "end": 350.72,
+      "text": "Our nonce is 103554."
+    },
+    {
+      "start": 350.72,
+      "end": 360.04,
+      "text": "After all the fields are entered, the basic will calculate the block hash and show it to us."
+    },
+    {
+      "start": 360.04,
+      "end": 364.74,
+      "text": "The block hash for the Genesis block is 7657."
+    },
+    {
+      "start": 364.74,
+      "end": 368.88,
+      "text": "Let's write this down on our block validation card."
+    },
+    {
+      "start": 368.88,
+      "end": 371.88,
+      "text": "Is this less than the target 8500?"
+    },
+    {
+      "start": 371.88,
+      "end": 373.41,
+      "text": "Yes, it is."
+    },
+    {
+      "start": 373.41,
+      "end": 380.91,
+      "text": "We know this is a valid block hash because the hash number 7657 is less than our target."
+    },
+    {
+      "start": 380.91,
+      "end": 381.91,
+      "text": "Cool."
+    },
+    {
+      "start": 381.91,
+      "end": 391.24,
+      "text": "We've got a few other things to validate before we consider the Genesis block valid."
+    },
+    {
+      "start": 391.24,
+      "end": 394.94,
+      "text": "The next thing to verify is the coin-based transaction."
+    },
+    {
+      "start": 394.94,
+      "end": 397.04,
+      "text": "Every block should have one."
+    },
+    {
+      "start": 397.04,
+      "end": 401.04,
+      "text": "You can identify the coin-based transaction by the inputs field."
+    },
+    {
+      "start": 401.04,
+      "end": 404.34,
+      "text": "It's the only transaction that will have no inputs."
+    },
+    {
+      "start": 404.34,
+      "end": 408.28,
+      "text": "It's also always the first transaction in the block."
+    },
+    {
+      "start": 408.28,
+      "end": 412.28,
+      "text": "Our validation worksheet says that we should check the total outputs in the coin base"
+    },
+    {
+      "start": 412.38,
+      "end": 417.17,
+      "text": "or less or equal to the block reward plus fees."
+    },
+    {
+      "start": 417.17,
+      "end": 420.17,
+      "text": "There are no other transactions in the Genesis block,"
+    },
+    {
+      "start": 420.17,
+      "end": 424.47,
+      "text": "so we'll just have the block rewards in our coin-based transaction."
+    },
+    {
+      "start": 424.47,
+      "end": 428.77,
+      "text": "For the first block, the coin-based reward is 50 bitcoin."
+    },
+    {
+      "start": 428.77,
+      "end": 434.57,
+      "text": "We should check that the coin-based transaction doesn't have more than 50 bitcoins in its outputs."
+    },
+    {
+      "start": 434.57,
+      "end": 436.77,
+      "text": "If you add up the output values,"
+    },
+    {
+      "start": 436.77,
+      "end": 440.87,
+      "text": "you should see that we have one output worth 25 bitcoin"
+    },
+    {
+      "start": 440.87,
+      "end": 447.66,
+      "text": "locked up to a green lock and three other outputs for the value of 8 bitcoins each."
+    },
+    {
+      "start": 447.66,
+      "end": 454.86,
+      "text": "Adding these up, the total amount of outputs on our coin-based transaction is 49 bitcoins."
+    },
+    {
+      "start": 454.86,
+      "end": 464.38,
+      "text": "This is less than 50 bitcoins, so this is a valid coin-based transaction."
+    },
+    {
+      "start": 464.38,
+      "end": 468.88,
+      "text": "Every coin-based transaction is allowed to claim up to 50 new bitcoins."
+    },
+    {
+      "start": 468.88,
+      "end": 472.48,
+      "text": "What happens if they don't account for all 50 bitcoins?"
+    },
+    {
+      "start": 472.48,
+      "end": 478.04,
+      "text": "In the LARP, our Genesis block's coin-based transaction is missing one bitcoin."
+    },
+    {
+      "start": 478.04,
+      "end": 480.44,
+      "text": "This is a mistake that the miner made."
+    },
+    {
+      "start": 480.44,
+      "end": 484.04,
+      "text": "They could have claimed one extra bitcoin, but didn't."
+    },
+    {
+      "start": 484.04,
+      "end": 488.04,
+      "text": "Instead, this bitcoin doesn't enter the UTXO set"
+    },
+    {
+      "start": 488.04,
+      "end": 492.24,
+      "text": "and as a result, it never gets added to the bitcoins supply."
+    },
+    {
+      "start": 492.24,
+      "end": 496.74,
+      "text": "Our LARP chain will always have one less bitcoins than it could have had"
+    },
+    {
+      "start": 496.74,
+      "end": 499.28,
+      "text": "if this mistake hadn't been made."
+    },
+    {
+      "start": 499.38,
+      "end": 505.88,
+      "text": "There's a few examples of blocks where the miners forgot to create all the new bitcoins they were allowed to."
+    },
+    {
+      "start": 505.88,
+      "end": 511.5,
+      "text": "Because of this, there will actually be less than 21 million bitcoin ever created."
+    },
+    {
+      "start": 511.5,
+      "end": 520.35,
+      "text": "There's no way to fix this once the block has been found and added to the blockchain."
+    },
+    {
+      "start": 520.35,
+      "end": 523.75,
+      "text": "The final thing to check for our block validation checklist"
+    },
+    {
+      "start": 523.75,
+      "end": 528.55,
+      "text": "is that the transactions inside the block are the ones that the miner put there."
+    },
+    {
+      "start": 528.55,
+      "end": 533.35,
+      "text": "We use the TX commitment or transaction commitment to make it hard"
+    },
+    {
+      "start": 533.35,
+      "end": 536.35,
+      "text": "for anyone to swap transactions into the block"
+    },
+    {
+      "start": 536.35,
+      "end": 540.05,
+      "text": "while it's in transit to all the different nodes on the network."
+    },
+    {
+      "start": 540.05,
+      "end": 545.98,
+      "text": "All we need to do is take the number from the TXID of the transactions inside the block."
+    },
+    {
+      "start": 545.98,
+      "end": 550.18,
+      "text": "The Genesis block doesn't have any transactions other than the coin-based,"
+    },
+    {
+      "start": 550.18,
+      "end": 552.88,
+      "text": "so that makes this easy for us."
+    },
+    {
+      "start": 552.88,
+      "end": 557.84,
+      "text": "The TXID for a coin-based transaction is Eagle33."
+    },
+    {
+      "start": 557.84,
+      "end": 560.64,
+      "text": "The number from this is 33."
+    },
+    {
+      "start": 560.64,
+      "end": 564.44,
+      "text": "This should match the TX commitment on the block header."
+    },
+    {
+      "start": 564.44,
+      "end": 565.94,
+      "text": "And it does match."
+    },
+    {
+      "start": 565.94,
+      "end": 570.87,
+      "text": "That's the last thing we needed to check to know if our block is valid or not."
+    },
+    {
+      "start": 570.87,
+      "end": 574.97,
+      "text": "Now that we've validated our Genesis block and transaction,"
+    },
+    {
+      "start": 574.97,
+      "end": 577.67,
+      "text": "we're ready to get our first network transaction."
+    },
+    {
+      "start": 577.67,
+      "end": 581.57,
+      "text": "At this point, you should have one block in your blockchain,"
+    },
+    {
+      "start": 581.57,
+      "end": 586.27,
+      "text": "the Genesis block and one transaction in your UTXO set basket,"
+    },
+    {
+      "start": 586.27,
+      "end": 589.07,
+      "text": "the coin-based transaction from the Genesis block."
+    }
+  ],
+  "topics": [
+    "mining",
+    "price",
+    "regulation"
+  ],
+  "sentiment": "neutral",
+  "archived_at": "2026-03-13T03:58:10Z"
+}

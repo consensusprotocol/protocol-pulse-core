@@ -1,0 +1,2824 @@
+{
+  "video_id": "JGjD-il29_M",
+  "title": "Tone Vays BIP-110 Reaction Vid",
+  "channel": "Bitcoin Mechanic",
+  "upload_date": "",
+  "duration": 3487,
+  "transcript_text": "Yellow, I'm going to record a reaction bit, tones, it complaint about bit 110, knots. Rollsly censored by Legacy Social Media. Let me remind a little bit. Excellent. Thank you for coming out. This is not my first time in El Salvador, but it is my first time at Plan B events and absolutely excellent. Thank you so much for the invite and letting me come back to the stage. I have pretty much left the world of making Bitcoin content and public speaking. For several reasons, one is I was grossly censored by Legacy Social Media, Twitter, YouTube. I got completely shut down during the pandemic for my political beliefs and there's also lots of channels. I was good friends with tones during that whole period, really related to the struggles, the COVID stuff, the tyranny. Decisions and eco-simply Bitcoin that just do an excellent job with amazing production quality. So all of you that are here that have been in the space pre-pandemic should know me very well. If you are new, welcome. I will not talk about myself because that's not important, but what I have to say I believe is important and I came back into the space, started doing podcasts which made me so long again. We helped people navigate the 2017 fork and now we are back to covering the current divide between knots and core which has turned into pro or con on BIP 110. Today I want to talk about what is decentralization. I revived the presentation I was doing all around the world, trying to explain at crypto conferences why Bitcoin is the only decentralized project in the crypto space and potentially in the world other than things like Bitcoin and why Bitcoin will is here and all other shitcoins including Ethereum don't matter because they're not decentralized. Thank you. I revived the presentation in order to bring this presentation to talk about what happens as BIP 110 tries to activate a user activated software and in my view there should be a chart right there. So to me decentralization is checks and balances of the following three things. Code development, mining infrastructure and the ability to run a node and actually running a node. BIP 110 is the manifest check and balances, checks the check and balancing of the nodes versus rogue developers. So any shitcoin that does not have mining is already at a 33% disadvantage on being more decentralized than Bitcoin and now I want to talk about what happens if BIP 110 gets activated. Now most of the people I speak to they think BIP 110 is dead on arrival and I tend to agree with them but I want to explain why BIP 110 is dead on arrival or should be dead on arrival and my view is what's arrival I'm pretty sure it's it arrived a while ago. Lots of people are running it now is that BIP 110 is a hostile attack on Bitcoin. Hey guys you I'm putting a clock for me so I know how much time I have left because I don't have a clock. Thanks. So I can gauge my presentation. So the main reason as I see it the activation of BIP 110 through a user activated software would decrease Bitcoin's decentralization protocol in all three facets of this triangle and we're going to start with the most important in this particular case which is the code. In my prior presentations of Bitcoin versus Bitcoin Cash it was to me the most well they're all important but I focused on the nodes this time I'm focusing on the code because Bitcoin code is designed in its own decentralized way so each part of that triangle in itself has elements of decentralization and Bitcoin code the Bitcoin client the most popular client Bitcoin core which used to have like 98% of of usage now it's down to about 80% of usage because Bitcoin core is not perfect and I will be the first to admit that Bitcoin core has been moving in the wrong direction over the last five to seven years and hopefully that is a problem that will be fixed however the knots user activated saw fork of BIP 110. Let's let's know in what ways he thinks core is getting worse because BIP 110 is the natural result of people acknowledging the ways in which is getting worse. We'll not fix it and we'll only make things worse. At the moment this is an old graphic from 2016 of which core developers did what to the code you can see Peter will at the top Vladimir Vandaland was second this was an update in 2020 or right at the end of 2019 which also showed all of the developers and what they've done to the code unfortunately no one is doing analysis on which developers are making changes to their code so we just have to go to GitHub and you can see all of the developers throughout history and their contributions to their code you see Luke dash right here at number 15 historically has not made a lot of changes recently another controversial developer Gloria Zhao you can see well she's young she wasn't there in the early days and you can see she's had a little more contributions recently again these are just controversial developers the average recent was the main developer that switched over to Bitcoin cash you can see he's still up there at number six because the old code changes they're still there and they're still very very important but the point is Bitcoin core this was the list of all the Bitcoin core developers that contributed to seg with back in 2017 and you can see this group of developers of core versus the group of developers that were listed as coding for Bitcoin cash or B cash as we like to call it bch and Bitcoin error log at the top who spoke in the other room that's John Carvalo he's Bitcoin Maxi but he kind of made himself listed as a Bitcoin cash developer because he found a spelling error in their code and by fixing that spelling error in their code he trolled them into mandating that according to the rules he must be listed as I be so his point seems to be that many developers contribute to seg with and therefore the UASF Bitcoin 48 that pushed seg with over the finish line was more acceptable but not many developers are interested in Bitcoin 10 therefore it's not it doesn't have the same degree of approval I would guess is his point but it doesn't matter at the end of the day if the users are prepared to run it that's what matters and there's more people running Bitcoin 10 than ran bit 148 so it has more sanction it has more legitimization and decentralization. B cash developer okay just a slight history on the matter and here we are today okay so I want to GitHub and I started looking around okay what about the transparency because Bitcoin core is the most transparent coding project possibly in history and the reason why it's so easy to criticize all of these coin core developers and it's easy to give them a hard time is because of all the transparency you have on who they are and what they do and what they've done I had trouble all right so who's the three owners of the Bitcoin core repo who are the people with merge access which people with merge access did glorious merge access get revoked when she got hacked two weeks ago do we know any of these things I know some of them but only because people told me in private but they're not known none of the decisions made upstream of the eventual conversations that happen in public on GitHub on made known developers that are not within the clique get disinvited from the private chatroom house rules events where the developers go and discuss these things this is not transparent institution at all it pays homage to transparency in a uh with cheap gestures where stuff ends up on GitHub but survivorship bias unfortunately means you don't notice the artifact of the centralization and op ohpaceness or opacity to the process here because ultimately what happens here is if you're not part of the clique everything you try and contribute to core just dies in silence and no one ever sees it that's the reality of it or finding the list of developers or anyone that is openly uh coding or would be coding the Bitcoin protocol if the BIP one I mean John attack is a core developer he's got he's very prolific he's got more comments than Luke even and he did a presentation today saying core is a complete it's utterly beyond repair at this point it's become everything ever it's become the complete opposite of what it used to be it used to be transparent it used to have vision it used to have strong leadership it used to have diversity of cultures now it's just a typically like every other bureaucratic North American institution infested with silly values cliquey political um just an impossible for any sort of meritocratic process at all so people just get driven out if they're actually good at their job if they know how to play political games and backstab people then it works well or they get far within it if John is blowing the whistle on this John's actually a core developer with masses of contributions and is very respected and doesn't support BIP 110 by the way so all that being the case I would listen to John over what terms opinion is which seems to be a very naive uh sort of you know go on TV and talk about oh Bitcoin's open source therefore we don't need to trust anyone these are incredibly naive viewpoints that people you know would talk about over a decade ago but the reality is just nothing like his ideal is that and succeeds this is the list they had Lucas at the top Larry Rainer's second listed as a Bitcoin core contributor I could not find him in the top 100 of Bitcoin core contributors list for changes Jimmy songs on the list I'm not sure if Jimmy knows he's on the list I thought he was more neutral because I have a podcast with Jimmy I should ask him that he knows he's on the list I need to reach out to Jorge Simon who I do know he's listed number 40 as a Bitcoin core contributor uh and then you have Matt Hill who I know and I as far as I know that is the list of pretty much the technical people so to me the activation of BIP 110 is a hostile takeover of who is going to code Bitcoin going forward and to be honest other than Jimmy's song I really wouldn't trust these people to code my website um so yes um uh one of the reasons why I can speak my mind you wouldn't trust Luke to code your website seems a little bit hyperbolic but I'll allow him some artistic license on it um it being charitable to tone I can envision I can envision this as a hostile takeover but it would have to be it all comes down to what the BIP actually does that's far more relevant than who it is and the amount of names on at some stupid list that will get funneled through some centralized bureaucratic being anyway this is all this is all very very crude uh heuristic analysis like I hope he gets into what BIP 110 actually does because that's definitely relevant and um talking about the the devs behind it the number of them and how much you trust them and all that stuff is just that's putting a blindfold on trying to figure out what's in the room you need to actually take the blindfold off and look at what the stuff is right and that's what does BIP 110 actually do is because in the 10 years I've been publicly speaking uh in the space I've never had sponsors that paid me for anything and I've never had a business that would be destroyed by an angry mob on twitter so I'm one of the few people that can just speak my mind regardless of consequences because there won't be any financial consequences for me from either sponsors or some kind of business that I run that depends on Bitcoiners and this neutrality that I have puts me in a very unique position and neutrality is great but I want a bit more than that I want people that are incentivized to protect Bitcoin because it's their life savings those are the people I trust and their random unknowns on twitter typically so um you can pat yourself on the back for that all you like tone I agree you don't have sponsors that are corrupting you chain code does not sponsor the tone based channel or something like that and make you make bad arguments but that doesn't mean your neutrality suddenly means you're able to look at this super dispassionately I do believe you are somewhat off the mark on this if you're interpreting it as a hostile takeover though I didn't finish my point last pause I think if I disliked what it was doing yeah I think it all comes down to what it's doing if I disliked what some one developer was proposing as a UASF into Bitcoin if I thought it made Bitcoin worse then yeah I would view it as a hostile takeover attempt but this is clearly being done and adopted by Bitcoiners that have lots of Bitcoin that think Bitcoin is made worse by being left open to things like large operatons and taproot injection things like that clearly make Bitcoin worse and the people adopting the solution to that clearly have Bitcoin's best interest at heart so a hostile takeover attempt of Bitcoin by Bitcoiners does not particularly concern me and in fact implies that Bitcoin is being somewhat handled and managed by non Bitcoiners which would actually explain why it's being opened up to arbitrary data in the first place and here's the list of core developers that coded version 30 I'm not saying or version 30 is great I'm not too thrilled about opening up opportunity but I will explain why it's not as bad as a lot of people make it out to be but the more important part is who do you want developing the Bitcoin code going forward a large list like this with people that have lots of experience and have done incredible things or what I consider a very centralized group of developers going forward I don't care about the length of the list I care about what they're actually doing if the user activated software actually succeeds again I really hope he talks about what bit one 10 actually does he says he's not thrilled about blowing up an opportunity anyway I don't think there's anyone using Bitcoin as money that thinks one megabyte operatons which are what consensus allows for are somehow doing some good and by the way those people in blue were the people that actually signed the version 30 I should say yeah one megabyte operatons are allowed by consensus now bit 110 would make them impossible by consensus statement this is what the Bitcoin network looks like overall this is a picture from 2016 I got to reach out to Lukas newsy who put this together like five years ago he told me he's gonna update this through an interactive web portal either I can't find it or he didn't build it one of those two is going to be true but anyway Bitcoin is meant to do a lot and while I agree in spirit that's gonna do a lot hey Bitcoin transactions must only be financial transactions and everything else is spam the definition of spam is not exactly defined on any protocol back in the day to me spam was sending one set random transactions all over the place like in 2017 in order to make fees high so that becash would look better and Bitcoin that's what they did Roger Vier spam the shit out of the Bitcoin network with one sat transactions everywhere so that if you needed to make a payment it was now expensive that was pure spam if someone is actually paying for block space while we don't like it it's debatable whether it's spam or not and you don't want one or two people deciding what is or mmm no tone that that was probably a brain fart but the spam in 2017 that you say is definitely spam paid for block space to spam in 2023 and onwards you're saying it's not necessarily spam because they paid for block space but so did the guys in 2017 as they are the same thing they're both people using Bitcoin maliciously and paying for block space but that doesn't mean they're not behaving maliciously again this is same as spam anyway I don't care if you paid for an internet connection or a phone number and you're using it to harass me but it's not the why I have a phone it's an abuse of telephony to contact people that don't want to be contacted and annoy them I don't it doesn't matter whether it costs the money to engage in the harassment they're engaging it and I don't understand that go here and thought but it sounds like he's just about to try and jump and say all right I hope you don't realize that was a completely incoherent point but we don't want a centralized group of people deciding what is and isn't spam that's um that that's really that really annoys me that he did that because he he's obviously made a completely logically inconsistent or contradictory point and then just jumping onto the next thing to hope you don't notice it isn't spam because tomorrow they're gonna decide they're gonna decide what isn't isn't allowed in other ways who's they we have a strict list of rules Bitcoin is distributed authoritarianism as Greg describes it I don't mind authoritarianism what I don't like is centralization and that seems to be his issue here but again if there's a if there's a that if there's a daithon that makes a future version of Bitcoin 10 that blocks something that is actually undermining Bitcoin instead sorry it attempts to block something in an effort that would undermine Bitcoin rather than make it better money as Bitcoin 10 does if no one runs it it doesn't do anything it's only because people are actually running Bitcoin 10 that people are even paying attention to the point where he's doing this presentation that makes it credibly decentralized this Bitcoin is interested in running this thing it's not that one guy wrote Bitcoin 10 and now he has the power to start censoring transactions it's that he wrote it and Bitcoin has half the power to enforce a new set of rules and all Bitcoin is is Bitcoin is enforcing rules that is what Bitcoin is other than spam so that is how in my view the activation of people on 10 would completely centralize Bitcoin core development because you are firing the current group of developers because I don't know how much respect I would have for the current core developers not necessarily they can modify that's a bit of a leap that does many things the core developers can do for example we know that core developers are unhappy with core as demonstrated by Jonah tax talk today he is a core developer he says core is completely destroyed and talking to him like third implementations not do I really like no one really knows exactly the path is going to go in but we do know that Bitcoin is care about the network and the check or balance the tone seems to think nodes perform as a function against code I don't see there being any better manifestation of that than something like bit one 10 and I repeat that people are running bit one 10 because they think that the reference implementation has made a mistake by opening up a spam filter that kept operatons typically lower than 83 bytes and they said giant operatons are not necessary for Bitcoin in fact they are a negative so we're going to close that in consensus aggressively and I don't see that as being an issue I don't think anyone's going to fight to keep them around so but his point is that we that creates centralization pressure because best I can understand his argument is that everyone will be running a client like bit one takes everyone would have to run it or they'd have to run a modified core the enforce the rules to which would spontaneously appear there's plenty of people that might be alright with bit point 10 that just don't run or want to run a fork of nodes okay I get it but what's your solution otherwise if the check or balance that you invoke exists but you have a problem with the manifestation of that check or balance then what's the point of the check or balance if people can't respond to an issue with the developers working on the code by releasing an alternate if that the community voluntarily starts running without you saying it's a hostile attack to take over development from the people doing it all this begs the question of what would justify that then because you've said you're not happy with core and you've said it's on a downtrend and you're not that happy about them blowing up in the operaton limit how are we supposed to react to any of that stuff we had conversations there was gnashing of teeth people yelling and screaming and nothing seemed to be able to to get over the centralized decree that these spam filters were going to get ripped out they were and now there's a reaction to that and I guess but I guess Tom's credit he's not saying knots is a hostile take over anything he's saying it's bit point 10 specifically so again I think again comes down to what bit point 10 actually does and I hope he gets into that that will would continue coding through knots when multiple things that they've done over the last five years would be rolled back and that's not good now what about mining so mining is another very critical component I we see ocean mining pool right here now I like what ocean mining pool is doing I was at the ocean mining pool launch in South Carolina I did multiple podcasts back then that was like the last thing I did pretty much was supporting ocean mining pool because the ocean mining pool gave power back to the individual miner inside a pool letting them pick their own blocks so I'm doing my best to separate the ocean mining pool business from the knots attempting to hostile attack the bit going protocol because the CEO of one is the leader of the other doing my best to separate the two so I do believe that mining could also use some work in decentralizing the network but here's the important thing that everyone is missing or ignoring okay so very simple I'm trying to keep it as simple as possible let's see if AI or basic AI on a Google search can get it right does the removal of opportune limit make mining more fair or less fair let's go by hands does anyone here have an opinion raise your hand if you think that removal of opportune limit so going from 80 bytes to 100 kilobytes do you think that makes mining less fair raise your hand less fair no one do you think it makes mining more fair raise your hand a few hands went up and most people don't have an opinion it actually makes mining a lot more fair because no it doesn't it's incredibly marginal that's in that's super disingenuous or he's just just hasn't done the numbers at all it's a fraction of a fraction it's 99% of minor income is the same for everyone no matter what the men pool policies of the network are you're getting 3.125 fresh bitcoins no matter who you are no matter how big you are if you find a block best where you get then there's a couple of transaction fees which might give you another you know 0.1 of a percent or something it didn't used to be this bad but transaction fees are absolutely minuscule at the moment and then if you manage to scoop up a large operating within that set of transactions that you can add maybe you add another 0.1 percent to that 0.1 percent so it's absolutely minuscule we're talking about I mean 0.1 percent of 0.1 percent is that's an a millionth of the overall reward it's utterly negligible when you're and the kind of things you was talking about second ago and you know saying good things about ocean like you're talking about single or double digit percentage difference for minors dropping FPS and making their own blocks and things like that the stuff ocean permitted you're talking about stuff this you know six or seven orders of magnitude more financially relevant so he's making a point does technically true and core did make that point a lot but it's utterly irrelevant at the moment again bit going cool around with spam filters for years it's not why mining ended up centralised that was because of FPS and the design of the stratum protocol and none of the developers pushing to blow open operating give a shit about the issues with stratum or FPS because they are disingenuous they do not care about mining centralisation they only talk about it because it's a good political tool for making people accept blowing open spam filters which are doing no harm you can submit a large op return to a miner to mine and pay them a fee under the table but which miner are you going to approach to do this are you gonna approach the little guy that may occasionally find a block every couple of weeks or are you gonna approach the big guy that finds a block every couple of hours obviously you're going to approach the big guy that finds a block every couple of hours so suddenly one of the reasons that the op return limit was removed was to make mining more fair because if someone does want to mine a large transaction or a big op return transaction now they have an even playing field on which miner can do it so there was a technical reason to remove the op return limit yeah it just never appeared till 2023 Bitcoin ran fine without that and suddenly spam filters are a cause of centralisation in mining it's technically true I can never say to core or to tone here that they are technically incorrect they are technically correct the best kind of correct but it's completely and utterly irrelevant in all of the real world scenarios miners find themselves in miners are losing single or double digit percentages of their income based on other factors I've mentioned that they are weathering they are not paying any attention to this kind of stuff at all the only miner that did this famously going out of band for transactions that were filtered by the network one mara they published their numbers and they didn't move the needle as far as I'm concerned mara find you know how many blocks do they find they probably find like 20 21 blocks a day right and they made like 18 or 19 bitcoins in a couple of years from slipstream that's a few hours worth of blocks for them like it's it's barely moves the needle at all it was barely worth them even doing slipstream in the first place and at one point they even stopped jumping in front of the steam roller picking up pennies as Jimmy Song elegantly put it trying to put in transactions that would make their blocks slower to propagate trying to eek out a couple more cents from their blocks it's not rational behavior and miners are incentivized by the network not to put stuff in blocks that the network hates and is telling you hate because it doesn't relay around the network even if it hasn't modified consensus rules yet this all sounds kind of weird and crazy but it was how the network always worked so I never had an issue with it and even in you know when compact blocks but first became a thing the messaging from core back in 2016 was miners are encouraged to update their spam field so that their blocks don't propagate more slowly it wasn't nodes need to start relaying trash that they hate so that miners have an even playing field as Tom is trying to paint as a positive here contrary to what Twitter vocal community will have you believe okay and what core used to say addition putting that data in the op return field does not blow up the UTF so set so a basic Twitter search will give you three logical technical reasons as to why the op return was removed okay you can still prune this data out and then actually in the long run it would take up less space so anyone that thinks that their node will be forced to store more data if the op return field is being used more often in my view that is very incorrect no it's completely correct because right now the spammers as we call them with ordinals and other garbage onto the chain they're stuffing that thing in a way that is very inefficient by using the op return field it would actually be more expensive for them to use it but it would be more efficient for all the nodes that are currently storing data and all of that stuff on CSAM and other scary tactics are insane I'm going to talk about in the notes scared tactics implies disingenuousness it's not disingenuous people hated that argument but I don't care I made it in a sincere capacity if the blockchain is filled up with CSAM I don't want to run it on my personal devices obviously and there are thousands of people that are going to agree with that if you're going to paint that as like and that's ridiculous I can't believe that I can't believe that he would paint that that way but many people do jackamo does as well as very annoying that people made that argument some people make the argument that all ones and zeros are the same it doesn't really matter to me that's just naive section so here are the counter arguments and it's a very very simple reply but yes point that op returns great because it's not as bad as other things it just was it it begs the question well what if we didn't have this stuff what if you get rid of op returns and the other stuff then you just have less garbage I'm sick of hearing about how garbage and a trash can is better than garbage not in a trash can I want it to be less garbage that's the thing I don't want Bitcoin to find creative things to do with garbage and treat it as an inevitability when you can actually prevent it from existing the Bitcoin blockchain is not growing any faster than it was designed to grow you're just upset that the data in the Bitcoin blockchain is not true you're liking okay you can make it that you can sort of look at the individual level in that sense but we have a pretty good shared understanding of inability to delineate between monetary activity and spam and it's I don't like you when people do that that's if I've only ever heard this that sentiment uttered and this is not a Bitcoin thing it's just you know someone does something clearly in bad taste clearly an anti social thing that they do you have an issue with it and people are like oh you just don't like that he did that that's not true and I've heard people try to characterize all morality as simply everything you like you is moral in your head and everything you dislike is immoral that's not what morality is Bitcoin is as actual definitions it is actually a monetary network and people using it for things that aren't monetary I don't just dislike that that is literally an abuse of what it is it's contrary to its design and purpose and therefore if it's allowed to flourish it undermines it it breaks pieces of how it works and makes it weaker by by perverting it do you understand that's not just me oh I don't like it and it's not and also further I don't care what data it is it definitely adds insult to injury if the data is of illegal pornography but even if it's good data even if it's data or I approve of like these freaking Guatemalan elections people seem to be obsessed must be completely non-rigged because someone uploaded them in an opportune I don't care what the data is it doesn't belong in Bitcoin's blockchain it's a monetary network all you're doing is storing files on other peoples computers by tricking them into thinking the transactions when they're not okay but and trying to remove Bitcoin's decentralization to force your idea on what is and isn't spam is basically censorship no it's not we are not acting on behalf of governments we're not acting in our own self-interest you are conflating to utterly different things and tiring them with the same brush pretty ironic because you opened your talk about having been viciously censored on social media I agreed you were at the behest of the state department who were in direct communication with the board at Twitter who decided people that talk about x y and z need to be kicked off this platform deboosted cancelled whatsoever it was clearly the state putting their foot on the neck of these people in deputizing private companies in order to carry out their dirty work that is not at all the same thing as Bitcoin is saying this is a monetary network we don't care who engages in non-monetary activity we just want to minimize all of it we don't care who gets targeted by that and we are voluntarily as individuals going to change the rules and enforce a new rule set that keeps that kind of behavior to a minimum this is more like a forum dedicated to you know bicycles where someone keeps coming along and talking about dogs or something and they delete the posts of the person talking about dogs says this is nothing to do with this forum this is a forum about bicycles and bicycle repair and tires and chains and things like that please stop talking about animals it's not this stuff saying you're censored from that is completely inappropriate is an abuse of a very evocative term and it's been it's complete garbage it's you and Peter Todd and other people that abuse this term to all of our detriment because we need something for when actual censorship comes along and people try to actually censor Bitcoin no one is acting on behalf of the government and no one is seeking to persecute specific groups of people they are looking to minimize a type of activity regardless of who the people are that does not fit the definition of censorship at all and that's sloppy work from tone describing it as such and that ends the mining portion this was me comparing well you didn't do a very good job with it and all the ship coins which doesn't relate to this particular presentation so opening up opportunities absolutely nothing for minus at all you're not going to decentralize mining by opening up spam filters because they weren't the cause of the centralization in the first place stratum v1 was you also still have not talked about anything bit 110 actually does the mining part was very very quick there are technical reasons as to why the the increase in the aperture limit was finally put in even though the Bitcoin core developers were hesitant on doing so in the past but now they they also read the room maybe they didn't read the room well enough but by reading the room they see that this ordinal scrap and rune scrap and stamps and god knows what other garbage we've had for a little while it's dying off on its own it just reincarnates as something else shit coins if forever Bitcoin financial transactions will outgrow no they won't and they haven't this is just empty dogma people that use Bitcoin to actually move money around as opposed to hold will have other options and they use them they can use lightning at best but at worst they just use third-party custodians and that's happened the trend is in the wrong direction if you're gonna assert the financial activity will outpriced arbitrary data storage you have to show me evidence mr chart astrologer and the trends are in the wrong direction all of the spam transactions i'm not scared i'm not scared that Bitcoin will become a shit coin jpegs and monkey pictures i'm not big because it's already hit but real Bitcoin transactions will force that shit out because they are more important sorry you have to show me some evidence for that claim i'm not scared of that but others are finally we got the last section which is nodes okay everyone is screaming that uh you need to run a node you need to run a road a node the question is do you know why you need to run a node and what type of node are you running okay and for some reason this movement of the bib 110 uh believes that if bib 110 softwork succeeds suddenly there will be more nodes and that would decentralize the network and i'm going to do my best to give you a counter argument to that no the claim is that if we don't do something like this nodes will turn off it's not quite that's a mis-framing of it i'm not saying that if bib 110 succeeds loads of people turn on nodes i don't think anyone's ever made that claim though uh thinking about it loads of people have turned on nodes as a result of this general battle i think there are more there's certainly a lot more listening nodes than it used to be here is just a brief you know overview of the history of nodes uh knots was a little blip that's the light green line that that is in 2020 this is in September of 2022 the knots implementation is growing let's go to 2024 it looks like a train a little bit and look at it today it is about 20% of the network which i had no problem with a knots implementation to compete with core before they decided to put in a hostile attack through what user activated swap fork okay so he is okay with knots he's just not okay with bib 110 but he's saying it's all the same thing and knots isn't bib 110 i agree it's masses of overlap between the same people but i don't think bib 110 is going to go into actual knots until um until some further community support emerges it's popular and it's very nation but i think if there's some actual support from big businesses and stuff like that not minus because this really isn't up to minus but i think there's some big support then i can see it succeeding i don't again you have to come down to what it actually does tone what does bib 110 do that you don't like rather than all the the implications of it activating what is do you have an actual problem with what it does okay here's the history of nodes every time i did this presentation i do a new snapshot this is uh what's the date on this 2020 we had 10,000 nodes reachable nodes uh 20 uh 22 14,000 uh 24 18,000 this is 25 last year 21,000 where are we today we're at well 24,500 nodes us dominates as a single country but what type of nodes are they so again i'm going to try to just like yeah loads have node count has rapidly gone up as a result of this whole conflict i think a lot of people have acknowledged that benefit even on the core side they're like well if more people run nodes now i'm being overly generous zero people on the core side have ever said oh at least more people are running nodes they hate everything about this they they hate it go quick i have about four minutes left basic question in google reasons to run a node second basic question what type of bitcoin nodes are there you need to understand this if you are running a node okay why do you run a node it enhances privacy great it gives you it allows you to verify your own transactions that is the main reason why everyone should everyone should run a node to verify your own transactions so that you have your own security and sovereignty i'm going to skip the red box transaction censorship resistance uh local data access the reasons to run a node is because if you don't then someone else is running one on your behalf when you do one of about a million things whether you're looking into block explorer whether you're using lightning whether you're verifying a transaction whether you're broadcasting anything whether you're doing a coin joint any of this stuff you have to get someone else to do on your behalf if you don't have a node but let's talk about this one strengthening if you want to mine the network and what does that mean the real strength of the network that makes bitcoin this resilient global unstoppable decentralized protocol is also having a full node okay you can verify your own transactions with a prune node you don't need to store the history of all bitcoin transactions okay but if you store the full history every transaction okay now you are a real full node and the scare time prune nodes are still full nodes practice oh my god what if there is a bad picture and not trying that in the history of the bitcoin blockchain this is the crazy cc sub argument the bitcoin protocol doesn't store pictures it just stores text you need to use third party software in order to see what that is you know what's another what third party software the internet itself there are bad pictures all over the internet how do we go and look for them no okay this is completely in coherent all bad pictures are just ones and zeros dude you need software the interpreters and shows it in displaces an image you don't you don't delete a media player off your computer and act like there's no porn on the hard drive there's no hard works because you can't double click in play it what is this argument seriously you can store nasty content inside operatives and then it's just on your computer there's no you're not gonna dance around that argument dude it's the files are there all pretend is just file storage hey so the bitcoin protocol doesn't store this bad material you stop to use third party software to access it as you do for any media and here's the here's my question in any file format if you are too fragile and too much of a snowflake and too scared to run a full bitcoin node because of the big op return and somebody could put weird packs in there oh really we're gonna use that argument all right let's do the piece Morgan argument you're too scared to get the vaccine it's just a little prick in your arm tone what are you so scared about do you see loads of people dying after taking it no how about just erase all principle all people that have any sort of backbone and integrity trying to maintain the network is what it ought to be trying to have some sort of conviction in the direction it goes that take issues seriously even if they might appear dismissible to you and going oh you're just a bit scared of a picture you sound like Piers Morgan here dude that could potentially lead you to some picture your node is too fragile don't be on the don't run a full node I'll run a second one for you the bitcoin network needs strong resilient nodes to stay decentralized I defined the scope in with regard to what I will tolerate and why won't I will tolerate the world's most evil transaction ever someone paying for the most heinous activity whatsoever because bitcoin being neutral money is defensible running neutral file storage on hard drives in my house is not defensible and it's not bitcoin as battle if you want to do the big all day here is just ones and zeros argument have had it but don't make bitcoin part of your ideological battle we do not treat all dayers ones and zeros we treat financial activity and transactions as distinct from arbitrary data storage and we do that because we are reasonable about the scope in which we must fight and anyone that is scared to run them today who knows what they're going to be scared of to run them tomorrow so here are my closing thoughts I may go one minute I'm not scared to run a node I don't want to put pressure on people to run a node doing things they didn't sign up for that's all because it's only going to make the network of worse quality over okay to me the current is activated softwork is a repeat of the 2017 big blockers they had their developer that was there from the beginning that is the expert they had Roger here with his bitcoin.com website as the media arm pretending to be the real with the big blockers are we bitcoin people were going the reason I was against big blockers is because it makes life harder for node runners the reason them against arbitrary data storage in bitcoin is because it makes life harder for node runners good luck finding it in consistency in my reasoning here when they are to buy bitcoin they got sold bitcoin cash there are youtube channels I'm not going to name them but there's a youtube channel that has rebranded to be basically anti bitcoin core pushing the user activated softwork everything is there I'm going to ask him what that is tomorrow it's an ideological movement it's all the same we know ideologues are just said the ideologues of the people saying all day is just ones and zeros and you need to be you need to treat it as such otherwise you're censoring people that's an ideological ridiculousness that people are trying to bring into bitcoin bitcoin is a just pragmatic and saying we can tell the difference between junk data which you were fine delineating by the way you said oh we can call this spam because it's just cheap nonsense transactions being sent back and forth back and forth to try and make big blocks that good you were fine making a distinction then on a pragmatic basis but now you're an ideolog we need to be neutral about everything but you're calling us ideologues it's very annoying to get called ideologues when you're being pragmatic by ideologues same okay the only difference there's one difference in 2017 in order for the big blocker ideological movement to succeed they weren't ideologues either big blockers weren't ideologues they were just they were just too they just too easily dismissed the issues that come with the technical changes they wanted to make they just treated them like they didn't matter that's all they they were practical in the fact that they thought if bitcoin gets expensive as a medium of exchange without any of these scaling things fleshed out people are just going to use as a store of value and it will die as a means of you know providing censorship resistant payments to the world and becoming a neutral payment network very valid concern it's wrong to just to to hate on the big blockers and cost dispersions as to their motivations I completely sympathize with all of the things the big blockers wanted I just didn't think the price was worth paying and I didn't think they took seriously what they were degrading in trying to bring about their desire and I don't think calling them ideologues is appropriate I think they were just technically not understanding the implications of what it was they were trying to do that so they needed to loosen the rules and push those rules through a hard fork this time around in order for the this ideological movement to succeed they need to contract the rules and they are able to do it with soft fork instead of a hard fork but it is an ideological movement not a technological one they all think they will be the real Bitcoin but even today be cash and BSV both fully so who defines what Bitcoin is Tom why do we I don't understand how you can is it just the core side of it is that what it is like this conversation has been added repeatedly today some people took from 2017 that nodes were the most important aspects of the network and that you can't degrade anything about you can't put any more pressure on nodes you have to the whole network is in service with people running nodes the other lesson was the core I'll just write about everything even though they were against bit 148 which happened and was a good thing like that seems to be the lesson tone is more that seems to be the one he learnt leave there the real Bitcoin and this is my last slide why work for devs cautious of the 2017 user activated soft fork that we all wanted because we wanted segwood we wanted Bitcoin to scale again a brief list on a basic google search the risk of a permanent change that was too great it was dangerous it had didn't have the broad consensus but it technically did all of these reasons but the most important one it didn't have broad consensus but it technically did what I don't know my opinion on bit 148 is that it won because intolerant minorities can do soft folks in Bitcoin and provided they're not awful enough to trigger a URSF they happen and they tend to happen as a result of the people that have the most conviction and commitment to Bitcoin so I'm actually not I don't have a problem with that google didn't mention core devs and other prominent technical Bitcoin thought leaders warned that the success of the 2017 segwood user activated soft fork might one day lead to a hostile use of this method in the future for a more controversial change and here we are that was the real danger of activating our user activated soft fork in 2017 even though it's what we wanted but we opened up the it wasn't most of core we're against it we did it anyway now you have lightning you're welcome I don't get it or for this method to be used for something that isn't in consensus Bitcoin 48 wasn't in consensus either but a majority of crypto Twitter which is a minority of Bitcoin users around the world are pushing it's not just Bitcoin Twitter my dude that's just my preferred medium of exchange hey my youtube account does that count I don't know why they need to do this why denigrate social media you have a youtube account with a hundred thousand followers or subscribers even why do we need to dismiss the venue of the conversation where's more appropriate to talk about mailing list the GitHub all that happens is that the pull requests just get closed it's a waste of time but I mean this is a let's get real here Tom the mechanism exists in Bitcoin whether you like it or not people can you at you you ASF new rules into Bitcoin that can happen we did it before you can pretend and rewrite history if you want the Bitcoin 48 had consensus it didn't there were 500 nodes in force in the rules of that for like a month and then at the end of that month suddenly another 500 turned on in one second which was clearly someone just spinning up a bunch of them in Amazon web server trying to make the whole movement look stupid or to foolishly try and make it look stronger even though no one would buy that kind of number as a thousand nodes even if you ignore the fact that one of those 500 of them which one nodes we did it anyway most of course that it was a bad idea you just said core didn't like it you given their reasons for why they didn't like it while simultaneously saying it had consensus while saying it didn't have consensus though technically it did I don't that is just completely incoherent whether you think bit 148 had any any sort of consensus or not my opinion is that it didn't we just didn't care we did it anyway minus hated us big blockers hated us core hated us we did it anyway now you have segue and the lightning network you're welcome the people that actually put the the things that need to be put at the forefront took the reins and did what needed to be done and a bunch of crybaby started talking about precedent and slippery slope and all the same garbage you hear from that you're hearing now about bit 1 10 exactly the same bullshit slippery slope fallacy is a fallacy for a reason because it's telling you well I don't like what you're doing but because of a similar thing that you might do in the future if this happens and I'm telling you it's a mechanism that exists within Bitcoin regardless the only defense you actually have is not discouraging people from doing forks that are actually a good idea because of the precedent they set if they don't quite have consensus yet and you're not allowed to build consensus or you're not allowed to figure out that chicken and egg problem you just have to accept that if it's not liked you can't ever do anything that will encourage further conversation and iteration or any of that you just have to give up this was my tweet months ago how dare you try to build consensus for something that doesn't have consensus it's an impossible standard to me and the only way they get around that in core is they just operate within a clique entirely and make everything utterly opaque and just hope people pay no attention so bit 1 10 it does not have consensus but neither did bit 148 and if you're worried about the mechanism existing within Bitcoin where a small minority can bring in a small set of rule changes and tightening of the rules against or at least without the consent of a large group of the community who may be indifferent to it if you're concerned about that mechanism you need to get real about what you do about that you don't sit here making half house presentations where you haven't even talked about what the bit does at all he hasn't mentioned the bit at all he attacked filters for a while bit 1 10 is not a new bunch of filters it's a consensus change you don't make those kinds of videos you get real about it so tone if this is a bad hostile takeover you have to demonstrate that what it's doing justifies a you rsf and as far as I know there's four people in Bitcoin right now that would run a you rsf that is a chain that wouldn't get wiped out by the you asf overtaking it and that's probably rewritten and PR and I don't know synovi or um a Bitcoin equal proof of cash and zander these are the people that jump to mind that would actually you are as if it's like six or seven people as far as I know there's no there's no huddle there there's no hash rate where's the significance I don't really see that as being worth it for them to do such a thing because at the end of the day what are they defending and that's when it comes down to what bit 1 10 actually does which again you didn't mention once you're against it but you never mentioned why it's there your ursf to prevent this soft fork that you dislike would be there to help make persistent the consensus validity of giant operatives which do absolutely nothing for Bitcoin and just open us up to people dumping egregious data into the chain to the point where nodes start turning off what is the point in defending something like that it's going to do why would you possibly stick your neck out resisting the uasf of bit 1 10 on that premise because you want to have bigger operatives or you think it creates some awful precedent you can do it if you want but I just think I think ultimately it comes down to what the bit patchy does if the I was worried about that mechanism too because it turns out that's the best point done made in this whole thing was that last point because someone might come along and do a uasf that isn't in Bitcoin's best interest it does undermine it at some point then we have to ursf it and while ursf is not going to be based on these half-fast reasons like how long is the list of developers that wrote this stupid thing or something like that it's going to be based on what it does because that's actually what matters if someone makes a uasf and releases a client and people start running it and it's bad for Bitcoin then I'm going to have to lead a ursf movement to try and counter it but I'm not going to do that here because bit 1 10 actually does good things so thank you for watching",
+  "timestamped_text": [
+    {
+      "start": 0.18,
+      "end": 8.66,
+      "text": "Yellow, I'm going to record a reaction bit, tones, it complaint about bit 110, knots."
+    },
+    {
+      "start": 10.5,
+      "end": 15.3,
+      "text": "Rollsly censored by Legacy Social Media. Let me remind a little bit. Excellent."
+    },
+    {
+      "start": 16.58,
+      "end": 21.22,
+      "text": "Thank you for coming out. This is not my first time in El Salvador, but it is my first time at Plan B"
+    },
+    {
+      "start": 22.02,
+      "end": 26.42,
+      "text": "events and absolutely excellent. Thank you so much for the invite and letting me come back to the"
+    },
+    {
+      "start": 26.42,
+      "end": 33.46,
+      "text": "stage. I have pretty much left the world of making Bitcoin content and public speaking."
+    },
+    {
+      "start": 34.26,
+      "end": 40.82,
+      "text": "For several reasons, one is I was grossly censored by Legacy Social Media, Twitter, YouTube. I got"
+    },
+    {
+      "start": 40.82,
+      "end": 46.42,
+      "text": "completely shut down during the pandemic for my political beliefs and there's also lots of"
+    },
+    {
+      "start": 46.42,
+      "end": 55.49,
+      "text": "channels. I was good friends with tones during that whole period, really related to the struggles,"
+    },
+    {
+      "start": 55.49,
+      "end": 61.73,
+      "text": "the COVID stuff, the tyranny. Decisions and eco-simply Bitcoin that just do an excellent job with"
+    },
+    {
+      "start": 61.73,
+      "end": 66.61,
+      "text": "amazing production quality. So all of you that are here that have been in the space pre-pandemic should"
+    },
+    {
+      "start": 66.61,
+      "end": 71.89,
+      "text": "know me very well. If you are new, welcome. I will not talk about myself because that's not important,"
+    },
+    {
+      "start": 71.97,
+      "end": 77.81,
+      "text": "but what I have to say I believe is important and I came back into the space, started doing podcasts"
+    },
+    {
+      "start": 77.81,
+      "end": 84.93,
+      "text": "which made me so long again. We helped people navigate the 2017 fork and now we are back to covering"
+    },
+    {
+      "start": 84.93,
+      "end": 93.09,
+      "text": "the current divide between knots and core which has turned into pro or con on BIP 110. Today I want"
+    },
+    {
+      "start": 93.09,
+      "end": 98.85,
+      "text": "to talk about what is decentralization. I revived the presentation I was doing all around the world,"
+    },
+    {
+      "start": 99.73,
+      "end": 107.97,
+      "text": "trying to explain at crypto conferences why Bitcoin is the only decentralized project in the"
+    },
+    {
+      "start": 107.97,
+      "end": 113.97,
+      "text": "crypto space and potentially in the world other than things like Bitcoin and why Bitcoin will"
+    },
+    {
+      "start": 113.97,
+      "end": 118.77,
+      "text": "is here and all other shitcoins including Ethereum don't matter because they're not decentralized."
+    },
+    {
+      "start": 120.45,
+      "end": 125.17,
+      "text": "Thank you. I revived the presentation in order to bring this presentation to talk about"
+    },
+    {
+      "start": 125.73,
+      "end": 134.13,
+      "text": "what happens as BIP 110 tries to activate a user activated software and in my view there should be"
+    },
+    {
+      "start": 134.13,
+      "end": 141.25,
+      "text": "a chart right there. So to me decentralization is checks and balances of the following three things."
+    },
+    {
+      "start": 141.25,
+      "end": 148.21,
+      "text": "Code development, mining infrastructure and the ability to run a node and actually running a node."
+    },
+    {
+      "start": 148.93,
+      "end": 156.77,
+      "text": "BIP 110 is the manifest check and balances, checks the check and balancing of the nodes versus"
+    },
+    {
+      "start": 157.41,
+      "end": 165.01,
+      "text": "rogue developers. So any shitcoin that does not have mining is already at a 33% disadvantage"
+    },
+    {
+      "start": 165.01,
+      "end": 171.73,
+      "text": "on being more decentralized than Bitcoin and now I want to talk about what happens if"
+    },
+    {
+      "start": 172.69,
+      "end": 180.69,
+      "text": "BIP 110 gets activated. Now most of the people I speak to they think BIP 110 is dead on arrival and I"
+    },
+    {
+      "start": 180.69,
+      "end": 187.41,
+      "text": "tend to agree with them but I want to explain why BIP 110 is dead on arrival or should be dead"
+    },
+    {
+      "start": 187.41,
+      "end": 192.69,
+      "text": "on arrival and my view is what's arrival I'm pretty sure it's it arrived a while ago."
+    },
+    {
+      "start": 193.57,
+      "end": 198.77,
+      "text": "Lots of people are running it now is that BIP 110 is a hostile attack on Bitcoin. Hey guys you"
+    },
+    {
+      "start": 198.77,
+      "end": 202.45,
+      "text": "I'm putting a clock for me so I know how much time I have left because I don't have a clock."
+    },
+    {
+      "start": 203.25,
+      "end": 214.42,
+      "text": "Thanks. So I can gauge my presentation. So the main reason as I see it the activation of BIP 110"
+    },
+    {
+      "start": 214.42,
+      "end": 224.11,
+      "text": "through a user activated software would decrease Bitcoin's decentralization protocol in all three"
+    },
+    {
+      "start": 224.11,
+      "end": 229.55,
+      "text": "facets of this triangle and we're going to start with the most important in this particular case"
+    },
+    {
+      "start": 229.63,
+      "end": 238.35,
+      "text": "which is the code. In my prior presentations of Bitcoin versus Bitcoin Cash it was to me the most"
+    },
+    {
+      "start": 238.35,
+      "end": 243.63,
+      "text": "well they're all important but I focused on the nodes this time I'm focusing on the code because"
+    },
+    {
+      "start": 243.63,
+      "end": 252.11,
+      "text": "Bitcoin code is designed in its own decentralized way so each part of that triangle in itself has"
+    },
+    {
+      "start": 252.11,
+      "end": 257.47,
+      "text": "elements of decentralization and Bitcoin code the Bitcoin client the most popular client Bitcoin"
+    },
+    {
+      "start": 257.47,
+      "end": 265.31,
+      "text": "core which used to have like 98% of of usage now it's down to about 80% of usage because Bitcoin"
+    },
+    {
+      "start": 265.31,
+      "end": 270.99,
+      "text": "core is not perfect and I will be the first to admit that Bitcoin core has been moving in the"
+    },
+    {
+      "start": 270.99,
+      "end": 277.39,
+      "text": "wrong direction over the last five to seven years and hopefully that is a problem that will be"
+    },
+    {
+      "start": 277.39,
+      "end": 284.19,
+      "text": "fixed however the knots user activated saw fork of BIP 110. Let's let's know in what ways he"
+    },
+    {
+      "start": 284.19,
+      "end": 290.75,
+      "text": "thinks core is getting worse because BIP 110 is the natural result of people acknowledging the"
+    },
+    {
+      "start": 290.75,
+      "end": 296.03,
+      "text": "ways in which is getting worse. We'll not fix it and we'll only make things worse. At the moment"
+    },
+    {
+      "start": 296.03,
+      "end": 301.39,
+      "text": "this is an old graphic from 2016 of which core developers did what to the code you can see Peter"
+    },
+    {
+      "start": 301.39,
+      "end": 308.83,
+      "text": "will at the top Vladimir Vandaland was second this was an update in 2020 or right at the end of 2019"
+    },
+    {
+      "start": 308.83,
+      "end": 313.39,
+      "text": "which also showed all of the developers and what they've done to the code unfortunately no one"
+    },
+    {
+      "start": 313.39,
+      "end": 318.75,
+      "text": "is doing analysis on which developers are making changes to their code so we just have to go to"
+    },
+    {
+      "start": 318.75,
+      "end": 323.95,
+      "text": "GitHub and you can see all of the developers throughout history and their contributions to their"
+    },
+    {
+      "start": 323.95,
+      "end": 329.39,
+      "text": "code you see Luke dash right here at number 15 historically has not made a lot of changes recently"
+    },
+    {
+      "start": 329.39,
+      "end": 333.87,
+      "text": "another controversial developer Gloria Zhao you can see well she's young she wasn't there in"
+    },
+    {
+      "start": 333.87,
+      "end": 340.35,
+      "text": "the early days and you can see she's had a little more contributions recently again these are just"
+    },
+    {
+      "start": 340.35,
+      "end": 345.31,
+      "text": "controversial developers the average recent was the main developer that switched over to Bitcoin"
+    },
+    {
+      "start": 345.31,
+      "end": 350.11,
+      "text": "cash you can see he's still up there at number six because the old code changes they're still there"
+    },
+    {
+      "start": 350.11,
+      "end": 355.95,
+      "text": "and they're still very very important but the point is Bitcoin core this was the list of all the"
+    },
+    {
+      "start": 355.95,
+      "end": 362.59,
+      "text": "Bitcoin core developers that contributed to seg with back in 2017 and you can see this group of"
+    },
+    {
+      "start": 362.59,
+      "end": 371.23,
+      "text": "developers of core versus the group of developers that were listed as coding for Bitcoin cash or"
+    },
+    {
+      "start": 371.23,
+      "end": 376.67,
+      "text": "B cash as we like to call it bch and Bitcoin error log at the top who spoke in the other room"
+    },
+    {
+      "start": 376.67,
+      "end": 382.99,
+      "text": "that's John Carvalo he's Bitcoin Maxi but he kind of made himself listed as a Bitcoin cash"
+    },
+    {
+      "start": 382.99,
+      "end": 387.71,
+      "text": "developer because he found a spelling error in their code and by fixing that spelling error in"
+    },
+    {
+      "start": 387.71,
+      "end": 393.07,
+      "text": "their code he trolled them into mandating that according to the rules he must be listed as I"
+    },
+    {
+      "start": 393.07,
+      "end": 399.63,
+      "text": "be so his point seems to be that many developers contribute to seg with and therefore the UASF"
+    },
+    {
+      "start": 400.19,
+      "end": 407.79,
+      "text": "Bitcoin 48 that pushed seg with over the finish line was more acceptable but not many developers"
+    },
+    {
+      "start": 407.79,
+      "end": 415.34,
+      "text": "are interested in Bitcoin 10 therefore it's not it doesn't have the same degree of approval I would"
+    },
+    {
+      "start": 415.34,
+      "end": 420.7,
+      "text": "guess is his point but it doesn't matter at the end of the day if the users are prepared to run it"
+    },
+    {
+      "start": 420.7,
+      "end": 425.98,
+      "text": "that's what matters and there's more people running Bitcoin 10 than ran bit 148 so it has more"
+    },
+    {
+      "start": 426.78,
+      "end": 432.14,
+      "text": "sanction it has more legitimization and decentralization."
+    },
+    {
+      "start": 432.7,
+      "end": 440.46,
+      "text": "B cash developer okay just a slight history on the matter and here we are today okay so I want"
+    },
+    {
+      "start": 440.46,
+      "end": 445.02,
+      "text": "to GitHub and I started looking around okay what about the transparency because Bitcoin core"
+    },
+    {
+      "start": 445.02,
+      "end": 451.34,
+      "text": "is the most transparent coding project possibly in history and the reason why it's so easy to"
+    },
+    {
+      "start": 452.54,
+      "end": 457.18,
+      "text": "criticize all of these coin core developers and it's easy to give them a hard time is because of"
+    },
+    {
+      "start": 457.18,
+      "end": 463.02,
+      "text": "all the transparency you have on who they are and what they do and what they've done I had trouble"
+    },
+    {
+      "start": 463.02,
+      "end": 469.49,
+      "text": "all right so who's the three owners of the Bitcoin core repo who are the people with merge access"
+    },
+    {
+      "start": 470.53,
+      "end": 475.49,
+      "text": "which people with merge access did glorious merge access get revoked when she got hacked two"
+    },
+    {
+      "start": 475.49,
+      "end": 482.83,
+      "text": "weeks ago do we know any of these things I know some of them but only because people told me in private"
+    },
+    {
+      "start": 482.83,
+      "end": 489.39,
+      "text": "but they're not known none of the decisions made upstream of the eventual conversations that happen"
+    },
+    {
+      "start": 489.39,
+      "end": 496.58,
+      "text": "in public on GitHub on made known developers that are not within the clique get disinvited from the"
+    },
+    {
+      "start": 496.58,
+      "end": 503.36,
+      "text": "private chatroom house rules events where the developers go and discuss these things this is not"
+    },
+    {
+      "start": 503.36,
+      "end": 512.72,
+      "text": "transparent institution at all it pays homage to transparency in a uh with cheap gestures where"
+    },
+    {
+      "start": 512.72,
+      "end": 519.2,
+      "text": "stuff ends up on GitHub but survivorship bias unfortunately means you don't notice the artifact"
+    },
+    {
+      "start": 519.2,
+      "end": 526.64,
+      "text": "of the centralization and op ohpaceness or opacity to the process here because ultimately what"
+    },
+    {
+      "start": 526.64,
+      "end": 531.6,
+      "text": "happens here is if you're not part of the clique everything you try and contribute to core just"
+    },
+    {
+      "start": 531.6,
+      "end": 538.24,
+      "text": "dies in silence and no one ever sees it that's the reality of it or finding the list of developers"
+    },
+    {
+      "start": 538.24,
+      "end": 545.44,
+      "text": "or anyone that is openly uh coding or would be coding the Bitcoin protocol if the BIP one"
+    },
+    {
+      "start": 546.18,
+      "end": 552.02,
+      "text": "I mean John attack is a core developer he's got he's very prolific he's got more comments than"
+    },
+    {
+      "start": 552.02,
+      "end": 559.38,
+      "text": "Luke even and he did a presentation today saying core is a complete it's utterly beyond repair"
+    },
+    {
+      "start": 559.38,
+      "end": 565.38,
+      "text": "at this point it's become everything ever it's become the complete opposite of what it used to be"
+    },
+    {
+      "start": 565.38,
+      "end": 570.58,
+      "text": "it used to be transparent it used to have vision it used to have strong leadership it used to have"
+    },
+    {
+      "start": 572.35,
+      "end": 580.99,
+      "text": "diversity of cultures now it's just a typically like every other bureaucratic North American institution"
+    },
+    {
+      "start": 581.07,
+      "end": 591.3,
+      "text": "infested with silly values cliquey political um just an impossible for any sort of meritocratic"
+    },
+    {
+      "start": 591.3,
+      "end": 596.1,
+      "text": "process at all so people just get driven out if they're actually good at their job if they know"
+    },
+    {
+      "start": 596.1,
+      "end": 601.14,
+      "text": "how to play political games and backstab people then it works well or they get far within it"
+    },
+    {
+      "start": 601.78,
+      "end": 606.9,
+      "text": "if John is blowing the whistle on this John's actually a core developer with masses of contributions"
+    },
+    {
+      "start": 606.9,
+      "end": 612.74,
+      "text": "and is very respected and doesn't support BIP 110 by the way so all that being the case I would"
+    },
+    {
+      "start": 612.74,
+      "end": 619.73,
+      "text": "listen to John over what terms opinion is which seems to be a very naive uh sort of you know go on"
+    },
+    {
+      "start": 619.73,
+      "end": 624.13,
+      "text": "TV and talk about oh Bitcoin's open source therefore we don't need to trust anyone these are"
+    },
+    {
+      "start": 624.13,
+      "end": 630.29,
+      "text": "incredibly naive viewpoints that people you know would talk about over a decade ago but the"
+    },
+    {
+      "start": 630.29,
+      "end": 636.29,
+      "text": "reality is just nothing like his ideal is that and succeeds this is the list they had"
+    },
+    {
+      "start": 636.29,
+      "end": 642.29,
+      "text": "Lucas at the top Larry Rainer's second listed as a Bitcoin core contributor I could not find him"
+    },
+    {
+      "start": 642.29,
+      "end": 648.61,
+      "text": "in the top 100 of Bitcoin core contributors list for changes Jimmy songs on the list I'm not"
+    },
+    {
+      "start": 648.61,
+      "end": 653.01,
+      "text": "sure if Jimmy knows he's on the list I thought he was more neutral because I have a podcast with Jimmy"
+    },
+    {
+      "start": 653.65,
+      "end": 657.97,
+      "text": "I should ask him that he knows he's on the list I need to reach out to Jorge Simon who I do know"
+    },
+    {
+      "start": 657.97,
+      "end": 664.69,
+      "text": "he's listed number 40 as a Bitcoin core contributor uh and then you have Matt Hill who I know and I"
+    },
+    {
+      "start": 664.69,
+      "end": 671.65,
+      "text": "as far as I know that is the list of pretty much the technical people so to me the activation of BIP 110"
+    },
+    {
+      "start": 671.65,
+      "end": 677.97,
+      "text": "is a hostile takeover of who is going to code Bitcoin going forward and to be honest other than Jimmy's"
+    },
+    {
+      "start": 677.97,
+      "end": 683.33,
+      "text": "song I really wouldn't trust these people to code my website um so yes um uh one of the reasons"
+    },
+    {
+      "start": 683.33,
+      "end": 689.25,
+      "text": "why I can speak my mind you wouldn't trust Luke to code your website seems a little bit"
+    },
+    {
+      "start": 689.25,
+      "end": 697.49,
+      "text": "hyperbolic but I'll allow him some artistic license on it um it being charitable to tone I can"
+    },
+    {
+      "start": 697.49,
+      "end": 704.08,
+      "text": "envision I can envision this as a hostile takeover but it would have to be it all comes down to"
+    },
+    {
+      "start": 704.08,
+      "end": 708.8,
+      "text": "what the BIP actually does that's far more relevant than who it is and the amount of names on"
+    },
+    {
+      "start": 708.88,
+      "end": 713.92,
+      "text": "at some stupid list that will get funneled through some centralized bureaucratic being anyway"
+    },
+    {
+      "start": 714.56,
+      "end": 722.42,
+      "text": "this is all this is all very very crude uh heuristic analysis like I hope he gets into what BIP 110"
+    },
+    {
+      "start": 722.42,
+      "end": 728.42,
+      "text": "actually does because that's definitely relevant and um talking about the the devs behind it"
+    },
+    {
+      "start": 728.42,
+      "end": 733.38,
+      "text": "the number of them and how much you trust them and all that stuff is just that's putting a blindfold"
+    },
+    {
+      "start": 733.38,
+      "end": 737.7,
+      "text": "on trying to figure out what's in the room you need to actually take the blindfold off and look at"
+    },
+    {
+      "start": 737.7,
+      "end": 744.74,
+      "text": "what the stuff is right and that's what does BIP 110 actually do is because in the 10 years I've"
+    },
+    {
+      "start": 744.74,
+      "end": 750.98,
+      "text": "been publicly speaking uh in the space I've never had sponsors that paid me for anything and I've"
+    },
+    {
+      "start": 750.98,
+      "end": 756.9,
+      "text": "never had a business that would be destroyed by an angry mob on twitter so I'm one of the few"
+    },
+    {
+      "start": 756.9,
+      "end": 762.58,
+      "text": "people that can just speak my mind regardless of consequences because there won't be any financial"
+    },
+    {
+      "start": 762.66,
+      "end": 768.82,
+      "text": "consequences for me from either sponsors or some kind of business that I run that depends on"
+    },
+    {
+      "start": 768.82,
+      "end": 776.26,
+      "text": "Bitcoiners and this neutrality that I have puts me in a very unique position and neutrality is great"
+    },
+    {
+      "start": 776.26,
+      "end": 780.98,
+      "text": "but I want a bit more than that I want people that are incentivized to protect Bitcoin because it's"
+    },
+    {
+      "start": 780.98,
+      "end": 786.1,
+      "text": "their life savings those are the people I trust and their random unknowns on twitter typically so"
+    },
+    {
+      "start": 787.06,
+      "end": 792.82,
+      "text": "um you can pat yourself on the back for that all you like tone I agree you don't have sponsors"
+    },
+    {
+      "start": 792.82,
+      "end": 797.3,
+      "text": "that are corrupting you chain code does not sponsor the tone based channel or something like that"
+    },
+    {
+      "start": 797.3,
+      "end": 803.62,
+      "text": "and make you make bad arguments but that doesn't mean your neutrality suddenly means you're"
+    },
+    {
+      "start": 803.62,
+      "end": 811.54,
+      "text": "able to look at this super dispassionately I do believe you are somewhat off the mark on this"
+    },
+    {
+      "start": 811.54,
+      "end": 818.18,
+      "text": "if you're interpreting it as a hostile takeover though I didn't finish my point last pause I think"
+    },
+    {
+      "start": 818.82,
+      "end": 824.18,
+      "text": "if I disliked what it was doing yeah I think it all comes down to what it's doing if I disliked"
+    },
+    {
+      "start": 824.18,
+      "end": 830.02,
+      "text": "what some one developer was proposing as a UASF into Bitcoin if I thought it made Bitcoin worse"
+    },
+    {
+      "start": 830.02,
+      "end": 836.26,
+      "text": "then yeah I would view it as a hostile takeover attempt but this is clearly being done and adopted"
+    },
+    {
+      "start": 836.26,
+      "end": 842.98,
+      "text": "by Bitcoiners that have lots of Bitcoin that think Bitcoin is made worse by being left open"
+    },
+    {
+      "start": 842.98,
+      "end": 851.22,
+      "text": "to things like large operatons and taproot injection things like that clearly make Bitcoin worse and"
+    },
+    {
+      "start": 851.22,
+      "end": 858.88,
+      "text": "the people adopting the solution to that clearly have Bitcoin's best interest at heart so a hostile"
+    },
+    {
+      "start": 858.88,
+      "end": 865.92,
+      "text": "takeover attempt of Bitcoin by Bitcoiners does not particularly concern me and in fact implies"
+    },
+    {
+      "start": 865.92,
+      "end": 872.8,
+      "text": "that Bitcoin is being somewhat handled and managed by non Bitcoiners which would actually explain"
+    },
+    {
+      "start": 872.8,
+      "end": 878.4,
+      "text": "why it's being opened up to arbitrary data in the first place and here's the list of core developers"
+    },
+    {
+      "start": 878.4,
+      "end": 884.56,
+      "text": "that coded version 30 I'm not saying or version 30 is great I'm not too thrilled about opening up"
+    },
+    {
+      "start": 884.56,
+      "end": 889.92,
+      "text": "opportunity but I will explain why it's not as bad as a lot of people make it out to be but the"
+    },
+    {
+      "start": 889.92,
+      "end": 896.0,
+      "text": "more important part is who do you want developing the Bitcoin code going forward a large list like"
+    },
+    {
+      "start": 896.0,
+      "end": 903.12,
+      "text": "this with people that have lots of experience and have done incredible things or what I consider"
+    },
+    {
+      "start": 903.12,
+      "end": 909.2,
+      "text": "a very centralized group of developers going forward I don't care about the length of the list"
+    },
+    {
+      "start": 909.2,
+      "end": 915.28,
+      "text": "I care about what they're actually doing if the user activated software actually succeeds again"
+    },
+    {
+      "start": 915.28,
+      "end": 919.04,
+      "text": "I really hope he talks about what bit one 10 actually does he says he's not thrilled about"
+    },
+    {
+      "start": 919.04,
+      "end": 922.96,
+      "text": "blowing up an opportunity anyway I don't think there's anyone using Bitcoin as money that"
+    },
+    {
+      "start": 922.96,
+      "end": 929.28,
+      "text": "thinks one megabyte operatons which are what consensus allows for are somehow doing some good"
+    },
+    {
+      "start": 930.37,
+      "end": 935.89,
+      "text": "and by the way those people in blue were the people that actually signed the version 30 I should"
+    },
+    {
+      "start": 935.89,
+      "end": 941.41,
+      "text": "say yeah one megabyte operatons are allowed by consensus now bit 110 would make them impossible by"
+    },
+    {
+      "start": 941.41,
+      "end": 947.73,
+      "text": "consensus statement this is what the Bitcoin network looks like overall this is a picture from"
+    },
+    {
+      "start": 947.73,
+      "end": 953.65,
+      "text": "2016 I got to reach out to Lukas newsy who put this together like five years ago he told me he's"
+    },
+    {
+      "start": 953.65,
+      "end": 958.93,
+      "text": "gonna update this through an interactive web portal either I can't find it or he didn't build it one"
+    },
+    {
+      "start": 958.93,
+      "end": 966.21,
+      "text": "of those two is going to be true but anyway Bitcoin is meant to do a lot and while I agree in spirit"
+    },
+    {
+      "start": 966.29,
+      "end": 971.57,
+      "text": "that's gonna do a lot hey Bitcoin transactions must only be financial transactions and everything"
+    },
+    {
+      "start": 971.57,
+      "end": 979.65,
+      "text": "else is spam the definition of spam is not exactly defined on any protocol back in the day to me"
+    },
+    {
+      "start": 979.65,
+      "end": 985.73,
+      "text": "spam was sending one set random transactions all over the place like in 2017 in order to make"
+    },
+    {
+      "start": 985.73,
+      "end": 992.37,
+      "text": "fees high so that becash would look better and Bitcoin that's what they did Roger Vier spam the"
+    },
+    {
+      "start": 992.37,
+      "end": 998.13,
+      "text": "shit out of the Bitcoin network with one sat transactions everywhere so that if you needed to make"
+    },
+    {
+      "start": 998.13,
+      "end": 1004.77,
+      "text": "a payment it was now expensive that was pure spam if someone is actually paying for block space while"
+    },
+    {
+      "start": 1004.77,
+      "end": 1009.81,
+      "text": "we don't like it it's debatable whether it's spam or not and you don't want one or two people"
+    },
+    {
+      "start": 1009.81,
+      "end": 1018.05,
+      "text": "deciding what is or mmm no tone that that was probably a brain fart but the spam in 2017 that you"
+    },
+    {
+      "start": 1018.05,
+      "end": 1026.0,
+      "text": "say is definitely spam paid for block space to spam in 2023 and onwards you're saying it's not"
+    },
+    {
+      "start": 1026.0,
+      "end": 1032.54,
+      "text": "necessarily spam because they paid for block space but so did the guys in 2017 as they are the"
+    },
+    {
+      "start": 1032.54,
+      "end": 1038.62,
+      "text": "same thing they're both people using Bitcoin maliciously and paying for block space but that"
+    },
+    {
+      "start": 1038.62,
+      "end": 1044.62,
+      "text": "doesn't mean they're not behaving maliciously again this is same as spam anyway I don't care if"
+    },
+    {
+      "start": 1044.62,
+      "end": 1050.38,
+      "text": "you paid for an internet connection or a phone number and you're using it to harass me but"
+    },
+    {
+      "start": 1050.38,
+      "end": 1056.78,
+      "text": "it's not the why I have a phone it's an abuse of telephony to contact people that don't want to be"
+    },
+    {
+      "start": 1056.78,
+      "end": 1063.02,
+      "text": "contacted and annoy them I don't it doesn't matter whether it costs the money to engage in the"
+    },
+    {
+      "start": 1063.02,
+      "end": 1067.49,
+      "text": "harassment they're engaging it and I don't understand that go here and thought but it sounds like"
+    },
+    {
+      "start": 1067.49,
+      "end": 1072.77,
+      "text": "he's just about to try and jump and say all right I hope you don't realize that was a completely"
+    },
+    {
+      "start": 1072.77,
+      "end": 1077.81,
+      "text": "incoherent point but we don't want a centralized group of people deciding what is and isn't spam that's"
+    },
+    {
+      "start": 1079.09,
+      "end": 1084.13,
+      "text": "um that that's really that really annoys me that he did that because he he's obviously made a"
+    },
+    {
+      "start": 1084.13,
+      "end": 1090.13,
+      "text": "completely logically inconsistent or contradictory point and then just jumping onto the next thing to"
+    },
+    {
+      "start": 1090.13,
+      "end": 1094.61,
+      "text": "hope you don't notice it isn't spam because tomorrow they're gonna decide they're gonna decide"
+    },
+    {
+      "start": 1094.61,
+      "end": 1100.61,
+      "text": "what isn't isn't allowed in other ways who's they we have a strict list of rules Bitcoin is"
+    },
+    {
+      "start": 1100.61,
+      "end": 1105.89,
+      "text": "distributed authoritarianism as Greg describes it I don't mind authoritarianism what I don't like"
+    },
+    {
+      "start": 1105.89,
+      "end": 1112.45,
+      "text": "is centralization and that seems to be his issue here but again if there's a if there's a that if"
+    },
+    {
+      "start": 1112.45,
+      "end": 1117.89,
+      "text": "there's a daithon that makes a future version of Bitcoin 10 that blocks something that is actually"
+    },
+    {
+      "start": 1119.06,
+      "end": 1125.62,
+      "text": "undermining Bitcoin instead sorry it attempts to block something in an effort that would undermine"
+    },
+    {
+      "start": 1125.62,
+      "end": 1132.19,
+      "text": "Bitcoin rather than make it better money as Bitcoin 10 does if no one runs it it doesn't do"
+    },
+    {
+      "start": 1132.19,
+      "end": 1136.67,
+      "text": "anything it's only because people are actually running Bitcoin 10 that people are even paying"
+    },
+    {
+      "start": 1136.67,
+      "end": 1141.23,
+      "text": "attention to the point where he's doing this presentation that makes it credibly decentralized"
+    },
+    {
+      "start": 1141.79,
+      "end": 1147.71,
+      "text": "this Bitcoin is interested in running this thing it's not that one guy wrote Bitcoin 10 and now he"
+    },
+    {
+      "start": 1147.71,
+      "end": 1152.59,
+      "text": "has the power to start censoring transactions it's that he wrote it and Bitcoin has half the power"
+    },
+    {
+      "start": 1152.59,
+      "end": 1158.27,
+      "text": "to enforce a new set of rules and all Bitcoin is is Bitcoin is enforcing rules that is what"
+    },
+    {
+      "start": 1158.27,
+      "end": 1165.82,
+      "text": "Bitcoin is other than spam so that is how in my view the activation of people on 10 would"
+    },
+    {
+      "start": 1165.82,
+      "end": 1170.94,
+      "text": "completely centralize Bitcoin core development because you are firing the current group of"
+    },
+    {
+      "start": 1170.94,
+      "end": 1174.86,
+      "text": "developers because I don't know how much respect I would have for the current core developers"
+    },
+    {
+      "start": 1174.86,
+      "end": 1182.06,
+      "text": "not necessarily they can modify that's a bit of a leap that does many things the core developers"
+    },
+    {
+      "start": 1182.06,
+      "end": 1187.26,
+      "text": "can do for example we know that core developers are unhappy with core as demonstrated by"
+    },
+    {
+      "start": 1187.26,
+      "end": 1193.9,
+      "text": "Jonah tax talk today he is a core developer he says core is completely destroyed and talking to him"
+    },
+    {
+      "start": 1193.9,
+      "end": 1200.54,
+      "text": "like third implementations not do I really like no one really knows exactly the path is going to"
+    },
+    {
+      "start": 1200.54,
+      "end": 1206.3,
+      "text": "go in but we do know that Bitcoin is care about the network and the check or balance the tone seems"
+    },
+    {
+      "start": 1206.3,
+      "end": 1214.67,
+      "text": "to think nodes perform as a function against code I don't see there being any better manifestation"
+    },
+    {
+      "start": 1214.67,
+      "end": 1220.18,
+      "text": "of that than something like bit one 10 and I repeat that people are running bit one 10 because they"
+    },
+    {
+      "start": 1220.18,
+      "end": 1226.66,
+      "text": "think that the reference implementation has made a mistake by opening up a spam filter that kept"
+    },
+    {
+      "start": 1226.66,
+      "end": 1232.9,
+      "text": "operatons typically lower than 83 bytes and they said giant operatons are not necessary for Bitcoin"
+    },
+    {
+      "start": 1232.98,
+      "end": 1241.62,
+      "text": "in fact they are a negative so we're going to close that in consensus aggressively and I don't see"
+    },
+    {
+      "start": 1241.62,
+      "end": 1249.17,
+      "text": "that as being an issue I don't think anyone's going to fight to keep them around so but his point"
+    },
+    {
+      "start": 1249.17,
+      "end": 1255.39,
+      "text": "is that we that creates centralization pressure because best I can understand his argument is that"
+    },
+    {
+      "start": 1255.39,
+      "end": 1259.31,
+      "text": "everyone will be running a client like bit one takes everyone would have to run it or they'd have"
+    },
+    {
+      "start": 1259.31,
+      "end": 1264.99,
+      "text": "to run a modified core the enforce the rules to which would spontaneously appear there's plenty of"
+    },
+    {
+      "start": 1264.99,
+      "end": 1268.75,
+      "text": "people that might be alright with bit point 10 that just don't run or want to run a fork of nodes"
+    },
+    {
+      "start": 1269.79,
+      "end": 1278.91,
+      "text": "okay I get it but what's your solution otherwise if the check or balance that you invoke exists"
+    },
+    {
+      "start": 1278.91,
+      "end": 1283.23,
+      "text": "but you have a problem with the manifestation of that check or balance then what's the point of"
+    },
+    {
+      "start": 1283.23,
+      "end": 1290.59,
+      "text": "the check or balance if people can't respond to an issue with the developers working on the code"
+    },
+    {
+      "start": 1291.23,
+      "end": 1296.11,
+      "text": "by releasing an alternate if that the community voluntarily starts running without you saying it's a"
+    },
+    {
+      "start": 1296.11,
+      "end": 1302.59,
+      "text": "hostile attack to take over development from the people doing it all this begs the question of"
+    },
+    {
+      "start": 1302.59,
+      "end": 1306.83,
+      "text": "what would justify that then because you've said you're not happy with core and you've said it's"
+    },
+    {
+      "start": 1306.83,
+      "end": 1311.15,
+      "text": "on a downtrend and you're not that happy about them blowing up in the operaton limit"
+    },
+    {
+      "start": 1313.31,
+      "end": 1316.83,
+      "text": "how are we supposed to react to any of that stuff we had conversations there was"
+    },
+    {
+      "start": 1317.39,
+      "end": 1321.87,
+      "text": "gnashing of teeth people yelling and screaming and nothing seemed to be able to"
+    },
+    {
+      "start": 1322.67,
+      "end": 1328.27,
+      "text": "to get over the centralized decree that these spam filters were going to get ripped out"
+    },
+    {
+      "start": 1329.66,
+      "end": 1335.98,
+      "text": "they were and now there's a reaction to that and I guess but I guess Tom's credit he's not saying"
+    },
+    {
+      "start": 1335.98,
+      "end": 1341.58,
+      "text": "knots is a hostile take over anything he's saying it's bit point 10 specifically so again I think"
+    },
+    {
+      "start": 1341.9,
+      "end": 1346.46,
+      "text": "again comes down to what bit point 10 actually does and I hope he gets into that that will"
+    },
+    {
+      "start": 1346.46,
+      "end": 1351.5,
+      "text": "would continue coding through knots when multiple things that they've done over the last five years"
+    },
+    {
+      "start": 1351.5,
+      "end": 1357.9,
+      "text": "would be rolled back and that's not good now what about mining so mining is another very critical"
+    },
+    {
+      "start": 1357.9,
+      "end": 1364.38,
+      "text": "component I we see ocean mining pool right here now I like what ocean mining pool is doing I was"
+    },
+    {
+      "start": 1364.38,
+      "end": 1369.98,
+      "text": "at the ocean mining pool launch in South Carolina I did multiple podcasts back then that was like"
+    },
+    {
+      "start": 1369.98,
+      "end": 1374.86,
+      "text": "the last thing I did pretty much was supporting ocean mining pool because the ocean mining pool"
+    },
+    {
+      "start": 1374.86,
+      "end": 1380.94,
+      "text": "gave power back to the individual miner inside a pool letting them pick their own blocks so I'm doing"
+    },
+    {
+      "start": 1380.94,
+      "end": 1388.3,
+      "text": "my best to separate the ocean mining pool business from the knots attempting to hostile attack"
+    },
+    {
+      "start": 1388.3,
+      "end": 1393.26,
+      "text": "the bit going protocol because the CEO of one is the leader of the other doing my best to separate"
+    },
+    {
+      "start": 1393.26,
+      "end": 1400.06,
+      "text": "the two so I do believe that mining could also use some work in decentralizing the network but"
+    },
+    {
+      "start": 1400.06,
+      "end": 1406.06,
+      "text": "here's the important thing that everyone is missing or ignoring okay so very simple I'm trying"
+    },
+    {
+      "start": 1406.06,
+      "end": 1411.5,
+      "text": "to keep it as simple as possible let's see if AI or basic AI on a Google search can get it right"
+    },
+    {
+      "start": 1411.5,
+      "end": 1418.38,
+      "text": "does the removal of opportune limit make mining more fair or less fair let's go by hands does anyone"
+    },
+    {
+      "start": 1418.38,
+      "end": 1424.86,
+      "text": "here have an opinion raise your hand if you think that removal of opportune limit so going from"
+    },
+    {
+      "start": 1424.86,
+      "end": 1436.78,
+      "text": "80 bytes to 100 kilobytes do you think that makes mining less fair raise your hand less fair no one"
+    },
+    {
+      "start": 1436.78,
+      "end": 1441.1,
+      "text": "do you think it makes mining more fair raise your hand a few hands went up and most people don't"
+    },
+    {
+      "start": 1441.1,
+      "end": 1447.66,
+      "text": "have an opinion it actually makes mining a lot more fair because no it doesn't it's incredibly"
+    },
+    {
+      "start": 1447.66,
+      "end": 1456.22,
+      "text": "marginal that's in that's super disingenuous or he's just just hasn't done the numbers at all"
+    },
+    {
+      "start": 1456.22,
+      "end": 1464.3,
+      "text": "it's a fraction of a fraction it's 99% of minor income is the same for everyone no matter what the"
+    },
+    {
+      "start": 1464.3,
+      "end": 1469.98,
+      "text": "men pool policies of the network are you're getting 3.125 fresh bitcoins no matter who you are no matter"
+    },
+    {
+      "start": 1469.98,
+      "end": 1474.7,
+      "text": "how big you are if you find a block best where you get then there's a couple of transaction fees"
+    },
+    {
+      "start": 1474.7,
+      "end": 1479.9,
+      "text": "which might give you another you know 0.1 of a percent or something it didn't used to be this"
+    },
+    {
+      "start": 1479.9,
+      "end": 1485.18,
+      "text": "bad but transaction fees are absolutely minuscule at the moment and then if you manage to scoop up a"
+    },
+    {
+      "start": 1485.18,
+      "end": 1491.18,
+      "text": "large operating within that set of transactions that you can add maybe you add another 0.1 percent"
+    },
+    {
+      "start": 1491.18,
+      "end": 1499.89,
+      "text": "to that 0.1 percent so it's absolutely minuscule we're talking about I mean 0.1 percent of 0.1 percent"
+    },
+    {
+      "start": 1499.89,
+      "end": 1506.05,
+      "text": "is that's an a millionth of the overall reward it's utterly negligible when you're and the kind"
+    },
+    {
+      "start": 1506.05,
+      "end": 1509.49,
+      "text": "of things you was talking about second ago and you know saying good things about ocean"
+    },
+    {
+      "start": 1510.93,
+      "end": 1517.01,
+      "text": "like you're talking about single or double digit percentage difference for minors dropping FPS"
+    },
+    {
+      "start": 1517.01,
+      "end": 1522.45,
+      "text": "and making their own blocks and things like that the stuff ocean permitted you're talking about"
+    },
+    {
+      "start": 1522.45,
+      "end": 1529.65,
+      "text": "stuff this you know six or seven orders of magnitude more financially relevant so he's making"
+    },
+    {
+      "start": 1529.65,
+      "end": 1535.25,
+      "text": "a point does technically true and core did make that point a lot but it's utterly irrelevant at the"
+    },
+    {
+      "start": 1535.25,
+      "end": 1540.37,
+      "text": "moment again bit going cool around with spam filters for years it's not why mining ended up"
+    },
+    {
+      "start": 1540.37,
+      "end": 1545.01,
+      "text": "centralised that was because of FPS and the design of the stratum protocol and none of the"
+    },
+    {
+      "start": 1545.01,
+      "end": 1552.61,
+      "text": "developers pushing to blow open operating give a shit about the issues with stratum or FPS"
+    },
+    {
+      "start": 1552.61,
+      "end": 1558.45,
+      "text": "because they are disingenuous they do not care about mining centralisation they only talk about it"
+    },
+    {
+      "start": 1558.45,
+      "end": 1563.73,
+      "text": "because it's a good political tool for making people accept blowing open spam filters which are"
+    },
+    {
+      "start": 1563.73,
+      "end": 1573.1,
+      "text": "doing no harm you can submit a large op return to a miner to mine and pay them a fee under the"
+    },
+    {
+      "start": 1573.1,
+      "end": 1579.5,
+      "text": "table but which miner are you going to approach to do this are you gonna approach the little guy"
+    },
+    {
+      "start": 1579.5,
+      "end": 1584.78,
+      "text": "that may occasionally find a block every couple of weeks or are you gonna approach the big guy"
+    },
+    {
+      "start": 1584.78,
+      "end": 1590.38,
+      "text": "that finds a block every couple of hours obviously you're going to approach the big guy that"
+    },
+    {
+      "start": 1590.38,
+      "end": 1596.54,
+      "text": "finds a block every couple of hours so suddenly one of the reasons that the op return limit was"
+    },
+    {
+      "start": 1596.54,
+      "end": 1602.94,
+      "text": "removed was to make mining more fair because if someone does want to mine a large transaction"
+    },
+    {
+      "start": 1603.66,
+      "end": 1610.54,
+      "text": "or a big op return transaction now they have an even playing field on which miner can do it"
+    },
+    {
+      "start": 1610.54,
+      "end": 1616.86,
+      "text": "so there was a technical reason to remove the op return limit yeah it just never appeared till 2023"
+    },
+    {
+      "start": 1616.86,
+      "end": 1621.98,
+      "text": "Bitcoin ran fine without that and suddenly spam filters are a cause of centralisation in mining"
+    },
+    {
+      "start": 1622.54,
+      "end": 1628.38,
+      "text": "it's technically true I can never say to core or to tone here that they are technically incorrect"
+    },
+    {
+      "start": 1628.38,
+      "end": 1634.14,
+      "text": "they are technically correct the best kind of correct but it's completely and utterly irrelevant"
+    },
+    {
+      "start": 1634.14,
+      "end": 1639.9,
+      "text": "in all of the real world scenarios miners find themselves in miners are losing single or"
+    },
+    {
+      "start": 1639.9,
+      "end": 1645.5,
+      "text": "double digit percentages of their income based on other factors I've mentioned that they are"
+    },
+    {
+      "start": 1645.5,
+      "end": 1650.78,
+      "text": "weathering they are not paying any attention to this kind of stuff at all the only miner that did"
+    },
+    {
+      "start": 1650.78,
+      "end": 1656.86,
+      "text": "this famously going out of band for transactions that were filtered by the network one mara they"
+    },
+    {
+      "start": 1656.86,
+      "end": 1664.06,
+      "text": "published their numbers and they didn't move the needle as far as I'm concerned mara find you know"
+    },
+    {
+      "start": 1665.41,
+      "end": 1671.41,
+      "text": "how many blocks do they find they probably find like 20 21 blocks a day right and they made like"
+    },
+    {
+      "start": 1671.41,
+      "end": 1678.45,
+      "text": "18 or 19 bitcoins in a couple of years from slipstream that's a few hours worth of blocks for them"
+    },
+    {
+      "start": 1679.33,
+      "end": 1684.13,
+      "text": "like it's it's barely moves the needle at all it was barely worth them even doing slipstream in"
+    },
+    {
+      "start": 1684.13,
+      "end": 1689.49,
+      "text": "the first place and at one point they even stopped jumping in front of the steam roller picking up"
+    },
+    {
+      "start": 1689.49,
+      "end": 1694.29,
+      "text": "pennies as Jimmy Song elegantly put it trying to put in transactions that would make their blocks"
+    },
+    {
+      "start": 1694.29,
+      "end": 1699.65,
+      "text": "slower to propagate trying to eek out a couple more cents from their blocks it's not rational"
+    },
+    {
+      "start": 1699.65,
+      "end": 1705.73,
+      "text": "behavior and miners are incentivized by the network not to put stuff in blocks that the network"
+    },
+    {
+      "start": 1705.73,
+      "end": 1710.77,
+      "text": "hates and is telling you hate because it doesn't relay around the network even if it hasn't modified"
+    },
+    {
+      "start": 1710.77,
+      "end": 1715.81,
+      "text": "consensus rules yet this all sounds kind of weird and crazy but it was how the network always"
+    },
+    {
+      "start": 1715.81,
+      "end": 1721.01,
+      "text": "worked so I never had an issue with it and even in you know when compact blocks but first became"
+    },
+    {
+      "start": 1721.01,
+      "end": 1727.31,
+      "text": "a thing the messaging from core back in 2016 was miners are encouraged to update their spam"
+    },
+    {
+      "start": 1727.31,
+      "end": 1732.43,
+      "text": "field so that their blocks don't propagate more slowly it wasn't nodes need to start relaying trash"
+    },
+    {
+      "start": 1732.43,
+      "end": 1738.03,
+      "text": "that they hate so that miners have an even playing field as Tom is trying to paint as a positive here"
+    },
+    {
+      "start": 1739.12,
+      "end": 1746.48,
+      "text": "contrary to what Twitter vocal community will have you believe okay and what core used to say"
+    },
+    {
+      "start": 1746.48,
+      "end": 1756.0,
+      "text": "addition putting that data in the op return field does not blow up the UTF so set so a basic"
+    },
+    {
+      "start": 1756.0,
+      "end": 1763.68,
+      "text": "Twitter search will give you three logical technical reasons as to why the op return was removed okay"
+    },
+    {
+      "start": 1763.68,
+      "end": 1769.2,
+      "text": "you can still prune this data out and then actually in the long run it would take up less space"
+    },
+    {
+      "start": 1769.2,
+      "end": 1775.52,
+      "text": "so anyone that thinks that their node will be forced to store more data if the op return field"
+    },
+    {
+      "start": 1775.52,
+      "end": 1781.76,
+      "text": "is being used more often in my view that is very incorrect no it's completely correct because right"
+    },
+    {
+      "start": 1781.76,
+      "end": 1788.0,
+      "text": "now the spammers as we call them with ordinals and other garbage onto the chain they're stuffing"
+    },
+    {
+      "start": 1788.0,
+      "end": 1794.24,
+      "text": "that thing in a way that is very inefficient by using the op return field it would actually be"
+    },
+    {
+      "start": 1794.24,
+      "end": 1800.4,
+      "text": "more expensive for them to use it but it would be more efficient for all the nodes that are currently"
+    },
+    {
+      "start": 1800.4,
+      "end": 1805.84,
+      "text": "storing data and all of that stuff on CSAM and other scary tactics are insane I'm going to talk"
+    },
+    {
+      "start": 1805.84,
+      "end": 1812.0,
+      "text": "about in the notes scared tactics implies disingenuousness it's not disingenuous people hated that"
+    },
+    {
+      "start": 1812.0,
+      "end": 1817.76,
+      "text": "argument but I don't care I made it in a sincere capacity if the blockchain is filled up with CSAM"
+    },
+    {
+      "start": 1817.76,
+      "end": 1822.88,
+      "text": "I don't want to run it on my personal devices obviously and there are thousands of people that"
+    },
+    {
+      "start": 1822.88,
+      "end": 1828.85,
+      "text": "are going to agree with that if you're going to paint that as like and that's ridiculous I can't"
+    },
+    {
+      "start": 1828.85,
+      "end": 1832.93,
+      "text": "believe that I can't believe that he would paint that that way but many people do"
+    },
+    {
+      "start": 1833.49,
+      "end": 1837.49,
+      "text": "jackamo does as well as very annoying that people made that argument some people make the argument"
+    },
+    {
+      "start": 1837.49,
+      "end": 1841.41,
+      "text": "that all ones and zeros are the same it doesn't really matter to me that's just naive"
+    },
+    {
+      "start": 1842.21,
+      "end": 1848.21,
+      "text": "section so here are the counter arguments and it's a very very simple reply but yes point"
+    },
+    {
+      "start": 1848.21,
+      "end": 1853.09,
+      "text": "that op returns great because it's not as bad as other things it just was it it begs the question"
+    },
+    {
+      "start": 1853.09,
+      "end": 1856.85,
+      "text": "well what if we didn't have this stuff what if you get rid of op returns and the other stuff then"
+    },
+    {
+      "start": 1856.85,
+      "end": 1861.41,
+      "text": "you just have less garbage I'm sick of hearing about how garbage and a trash can is better than"
+    },
+    {
+      "start": 1861.41,
+      "end": 1867.41,
+      "text": "garbage not in a trash can I want it to be less garbage that's the thing I don't want Bitcoin to"
+    },
+    {
+      "start": 1867.41,
+      "end": 1872.05,
+      "text": "find creative things to do with garbage and treat it as an inevitability when you can actually"
+    },
+    {
+      "start": 1872.05,
+      "end": 1879.25,
+      "text": "prevent it from existing the Bitcoin blockchain is not growing any faster than it was designed to grow"
+    },
+    {
+      "start": 1879.25,
+      "end": 1884.61,
+      "text": "you're just upset that the data in the Bitcoin blockchain is not true you're liking okay"
+    },
+    {
+      "start": 1885.41,
+      "end": 1891.01,
+      "text": "you can make it that you can sort of look at the individual level in that sense but we have a"
+    },
+    {
+      "start": 1891.01,
+      "end": 1897.57,
+      "text": "pretty good shared understanding of inability to delineate between monetary activity and spam"
+    },
+    {
+      "start": 1898.37,
+      "end": 1905.97,
+      "text": "and it's I don't like you when people do that that's if I've only ever heard this that sentiment"
+    },
+    {
+      "start": 1905.97,
+      "end": 1910.77,
+      "text": "uttered and this is not a Bitcoin thing it's just you know someone does something clearly in bad"
+    },
+    {
+      "start": 1910.77,
+      "end": 1916.93,
+      "text": "taste clearly an anti social thing that they do you have an issue with it and people are like oh"
+    },
+    {
+      "start": 1916.93,
+      "end": 1923.33,
+      "text": "you just don't like that he did that that's not true and I've heard people try to characterize"
+    },
+    {
+      "start": 1923.33,
+      "end": 1929.41,
+      "text": "all morality as simply everything you like you is moral in your head and everything you dislike"
+    },
+    {
+      "start": 1929.41,
+      "end": 1938.05,
+      "text": "is immoral that's not what morality is Bitcoin is as actual definitions it is actually a monetary"
+    },
+    {
+      "start": 1938.05,
+      "end": 1943.73,
+      "text": "network and people using it for things that aren't monetary I don't just dislike that that is"
+    },
+    {
+      "start": 1943.73,
+      "end": 1949.97,
+      "text": "literally an abuse of what it is it's contrary to its design and purpose and therefore if it's"
+    },
+    {
+      "start": 1949.97,
+      "end": 1957.81,
+      "text": "allowed to flourish it undermines it it breaks pieces of how it works and makes it weaker by by"
+    },
+    {
+      "start": 1957.81,
+      "end": 1964.21,
+      "text": "perverting it do you understand that's not just me oh I don't like it and it's not and also"
+    },
+    {
+      "start": 1964.21,
+      "end": 1969.81,
+      "text": "further I don't care what data it is it definitely adds insult to injury if the data is of"
+    },
+    {
+      "start": 1969.81,
+      "end": 1976.29,
+      "text": "illegal pornography but even if it's good data even if it's data or I approve of like these"
+    },
+    {
+      "start": 1977.01,
+      "end": 1982.69,
+      "text": "freaking Guatemalan elections people seem to be obsessed must be completely non-rigged"
+    },
+    {
+      "start": 1982.69,
+      "end": 1989.09,
+      "text": "because someone uploaded them in an opportune I don't care what the data is it doesn't belong"
+    },
+    {
+      "start": 1989.09,
+      "end": 1993.57,
+      "text": "in Bitcoin's blockchain it's a monetary network all you're doing is storing files on other"
+    },
+    {
+      "start": 1993.57,
+      "end": 1999.49,
+      "text": "peoples computers by tricking them into thinking the transactions when they're not okay but and"
+    },
+    {
+      "start": 1999.49,
+      "end": 2006.53,
+      "text": "trying to remove Bitcoin's decentralization to force your idea on what is and isn't spam is"
+    },
+    {
+      "start": 2006.53,
+      "end": 2012.58,
+      "text": "basically censorship no it's not we are not acting on behalf of governments we're not acting in our"
+    },
+    {
+      "start": 2012.58,
+      "end": 2019.78,
+      "text": "own self-interest you are conflating to utterly different things and tiring them with the same"
+    },
+    {
+      "start": 2019.78,
+      "end": 2026.26,
+      "text": "brush pretty ironic because you opened your talk about having been viciously censored on social"
+    },
+    {
+      "start": 2026.26,
+      "end": 2033.06,
+      "text": "media I agreed you were at the behest of the state department who were in direct communication"
+    },
+    {
+      "start": 2033.06,
+      "end": 2039.38,
+      "text": "with the board at Twitter who decided people that talk about x y and z need to be kicked off"
+    },
+    {
+      "start": 2039.38,
+      "end": 2045.54,
+      "text": "this platform deboosted cancelled whatsoever it was clearly the state putting their foot on the"
+    },
+    {
+      "start": 2045.54,
+      "end": 2053.46,
+      "text": "neck of these people in deputizing private companies in order to carry out their dirty work that is"
+    },
+    {
+      "start": 2053.46,
+      "end": 2059.7,
+      "text": "not at all the same thing as Bitcoin is saying this is a monetary network we don't care who engages"
+    },
+    {
+      "start": 2059.7,
+      "end": 2065.3,
+      "text": "in non-monetary activity we just want to minimize all of it we don't care who gets targeted by"
+    },
+    {
+      "start": 2065.3,
+      "end": 2072.02,
+      "text": "that and we are voluntarily as individuals going to change the rules and enforce a new rule set"
+    },
+    {
+      "start": 2072.02,
+      "end": 2078.9,
+      "text": "that keeps that kind of behavior to a minimum this is more like a forum dedicated to you know"
+    },
+    {
+      "start": 2079.78,
+      "end": 2084.58,
+      "text": "bicycles where someone keeps coming along and talking about dogs or something and they"
+    },
+    {
+      "start": 2084.58,
+      "end": 2089.22,
+      "text": "delete the posts of the person talking about dogs says this is nothing to do with this forum this"
+    },
+    {
+      "start": 2089.22,
+      "end": 2095.38,
+      "text": "is a forum about bicycles and bicycle repair and tires and chains and things like that please"
+    },
+    {
+      "start": 2095.38,
+      "end": 2101.22,
+      "text": "stop talking about animals it's not this stuff saying you're censored from that is completely"
+    },
+    {
+      "start": 2101.22,
+      "end": 2110.74,
+      "text": "inappropriate is an abuse of a very evocative term and it's been it's complete garbage it's you"
+    },
+    {
+      "start": 2110.74,
+      "end": 2116.5,
+      "text": "and Peter Todd and other people that abuse this term to all of our detriment because we need something"
+    },
+    {
+      "start": 2116.5,
+      "end": 2121.7,
+      "text": "for when actual censorship comes along and people try to actually censor Bitcoin no one is acting"
+    },
+    {
+      "start": 2121.7,
+      "end": 2126.5,
+      "text": "on behalf of the government and no one is seeking to persecute specific groups of people they are"
+    },
+    {
+      "start": 2126.58,
+      "end": 2131.78,
+      "text": "looking to minimize a type of activity regardless of who the people are that does not fit the"
+    },
+    {
+      "start": 2131.78,
+      "end": 2138.54,
+      "text": "definition of censorship at all and that's sloppy work from tone describing it as such and that"
+    },
+    {
+      "start": 2138.54,
+      "end": 2142.78,
+      "text": "ends the mining portion this was me comparing well you didn't do a very good job with it"
+    },
+    {
+      "start": 2142.78,
+      "end": 2146.54,
+      "text": "and all the ship coins which doesn't relate to this particular presentation so"
+    },
+    {
+      "start": 2147.18,
+      "end": 2152.14,
+      "text": "opening up opportunities absolutely nothing for minus at all you're not going to decentralize mining"
+    },
+    {
+      "start": 2152.14,
+      "end": 2157.26,
+      "text": "by opening up spam filters because they weren't the cause of the centralization in the first place"
+    },
+    {
+      "start": 2157.26,
+      "end": 2163.5,
+      "text": "stratum v1 was you also still have not talked about anything bit 110 actually does the mining"
+    },
+    {
+      "start": 2163.5,
+      "end": 2168.94,
+      "text": "part was very very quick there are technical reasons as to why the the increase in the"
+    },
+    {
+      "start": 2168.94,
+      "end": 2174.86,
+      "text": "aperture limit was finally put in even though the Bitcoin core developers were hesitant on doing so"
+    },
+    {
+      "start": 2174.86,
+      "end": 2181.18,
+      "text": "in the past but now they they also read the room maybe they didn't read the room well enough but"
+    },
+    {
+      "start": 2181.18,
+      "end": 2186.7,
+      "text": "by reading the room they see that this ordinal scrap and rune scrap and stamps and god knows what"
+    },
+    {
+      "start": 2186.7,
+      "end": 2192.22,
+      "text": "other garbage we've had for a little while it's dying off on its own it just reincarnates as"
+    },
+    {
+      "start": 2192.22,
+      "end": 2199.42,
+      "text": "something else shit coins if forever Bitcoin financial transactions will outgrow no they won't and"
+    },
+    {
+      "start": 2199.42,
+      "end": 2206.14,
+      "text": "they haven't this is just empty dogma people that use Bitcoin to actually move money around as"
+    },
+    {
+      "start": 2206.14,
+      "end": 2210.78,
+      "text": "opposed to hold will have other options and they use them they can use lightning at best"
+    },
+    {
+      "start": 2210.78,
+      "end": 2216.22,
+      "text": "but at worst they just use third-party custodians and that's happened the trend is in the wrong"
+    },
+    {
+      "start": 2216.22,
+      "end": 2222.7,
+      "text": "direction if you're gonna assert the financial activity will outpriced arbitrary data storage"
+    },
+    {
+      "start": 2222.7,
+      "end": 2228.38,
+      "text": "you have to show me evidence mr chart astrologer and the trends are in the wrong direction"
+    },
+    {
+      "start": 2229.02,
+      "end": 2233.18,
+      "text": "all of the spam transactions i'm not scared i'm not scared that Bitcoin will become"
+    },
+    {
+      "start": 2233.98,
+      "end": 2241.02,
+      "text": "a shit coin jpegs and monkey pictures i'm not big because it's already hit but real Bitcoin transactions"
+    },
+    {
+      "start": 2241.02,
+      "end": 2246.38,
+      "text": "will force that shit out because they are more important sorry you have to show me some evidence"
+    },
+    {
+      "start": 2246.38,
+      "end": 2251.26,
+      "text": "for that claim i'm not scared of that but others are finally we got the last section which is"
+    },
+    {
+      "start": 2251.26,
+      "end": 2257.26,
+      "text": "nodes okay everyone is screaming that uh you need to run a node you need to run a road a node the"
+    },
+    {
+      "start": 2257.26,
+      "end": 2263.02,
+      "text": "question is do you know why you need to run a node and what type of node are you running okay"
+    },
+    {
+      "start": 2263.02,
+      "end": 2273.38,
+      "text": "and for some reason this movement of the bib 110 uh believes that if bib 110 softwork succeeds"
+    },
+    {
+      "start": 2273.38,
+      "end": 2277.94,
+      "text": "suddenly there will be more nodes and that would decentralize the network and i'm going to do my"
+    },
+    {
+      "start": 2277.94,
+      "end": 2284.85,
+      "text": "best to give you a counter argument to that no the claim is that if we don't do something like this"
+    },
+    {
+      "start": 2285.49,
+      "end": 2292.98,
+      "text": "nodes will turn off it's not quite that's a mis-framing of it i'm not saying that if bib 110 succeeds"
+    },
+    {
+      "start": 2292.98,
+      "end": 2299.87,
+      "text": "loads of people turn on nodes i don't think anyone's ever made that claim though uh thinking about it"
+    },
+    {
+      "start": 2301.23,
+      "end": 2307.79,
+      "text": "loads of people have turned on nodes as a result of this general battle i think there are more"
+    },
+    {
+      "start": 2307.79,
+      "end": 2312.54,
+      "text": "there's certainly a lot more listening nodes than it used to be here is just a brief you know"
+    },
+    {
+      "start": 2312.54,
+      "end": 2317.82,
+      "text": "overview of the history of nodes uh knots was a little blip that's the light green line that"
+    },
+    {
+      "start": 2317.82,
+      "end": 2324.38,
+      "text": "that is in 2020 this is in September of 2022 the knots implementation is growing let's go to"
+    },
+    {
+      "start": 2325.46,
+      "end": 2331.38,
+      "text": "2024 it looks like a train a little bit and look at it today it is about 20% of the network"
+    },
+    {
+      "start": 2331.38,
+      "end": 2337.54,
+      "text": "which i had no problem with a knots implementation to compete with core before they decided to put in"
+    },
+    {
+      "start": 2338.26,
+      "end": 2343.38,
+      "text": "a hostile attack through what user activated swap fork okay so he is okay with knots he's just not"
+    },
+    {
+      "start": 2343.38,
+      "end": 2349.86,
+      "text": "okay with bib 110 but he's saying it's all the same thing and knots isn't bib 110 i agree it's"
+    },
+    {
+      "start": 2349.86,
+      "end": 2355.7,
+      "text": "masses of overlap between the same people but i don't think bib 110 is going to go into actual"
+    },
+    {
+      "start": 2355.7,
+      "end": 2365.71,
+      "text": "knots until um until some further community support emerges it's popular and it's very nation"
+    },
+    {
+      "start": 2365.71,
+      "end": 2370.91,
+      "text": "but i think if there's some actual support from big businesses and stuff like that not minus"
+    },
+    {
+      "start": 2370.91,
+      "end": 2377.06,
+      "text": "because this really isn't up to minus but i think there's some big support then i can see it"
+    },
+    {
+      "start": 2377.06,
+      "end": 2382.42,
+      "text": "succeeding i don't again you have to come down to what it actually does tone what does bib 110 do"
+    },
+    {
+      "start": 2382.42,
+      "end": 2388.18,
+      "text": "that you don't like rather than all the the implications of it activating what is do you have"
+    },
+    {
+      "start": 2388.18,
+      "end": 2393.78,
+      "text": "an actual problem with what it does okay here's the history of nodes every time i did this presentation"
+    },
+    {
+      "start": 2393.86,
+      "end": 2401.54,
+      "text": "i do a new snapshot this is uh what's the date on this 2020 we had 10,000 nodes reachable nodes uh"
+    },
+    {
+      "start": 2401.54,
+      "end": 2414.1,
+      "text": "20 uh 22 14,000 uh 24 18,000 this is 25 last year 21,000 where are we today we're at well 24,500"
+    },
+    {
+      "start": 2414.1,
+      "end": 2420.98,
+      "text": "nodes us dominates as a single country but what type of nodes are they so again i'm going to try"
+    },
+    {
+      "start": 2421.06,
+      "end": 2426.74,
+      "text": "to just like yeah loads have node count has rapidly gone up as a result of this whole conflict i"
+    },
+    {
+      "start": 2426.74,
+      "end": 2431.14,
+      "text": "think a lot of people have acknowledged that benefit even on the core side they're like well if more"
+    },
+    {
+      "start": 2431.14,
+      "end": 2436.58,
+      "text": "people run nodes now i'm being overly generous zero people on the core side have ever said oh at"
+    },
+    {
+      "start": 2436.58,
+      "end": 2440.98,
+      "text": "least more people are running nodes they hate everything about this they they hate it"
+    },
+    {
+      "start": 2441.86,
+      "end": 2449.86,
+      "text": "go quick i have about four minutes left basic question in google reasons to run a node"
+    },
+    {
+      "start": 2449.86,
+      "end": 2456.58,
+      "text": "second basic question what type of bitcoin nodes are there you need to understand this if you"
+    },
+    {
+      "start": 2456.58,
+      "end": 2463.86,
+      "text": "are running a node okay why do you run a node it enhances privacy great it gives you it allows"
+    },
+    {
+      "start": 2463.86,
+      "end": 2469.06,
+      "text": "you to verify your own transactions that is the main reason why everyone should everyone should"
+    },
+    {
+      "start": 2469.06,
+      "end": 2473.86,
+      "text": "run a node to verify your own transactions so that you have your own security and sovereignty"
+    },
+    {
+      "start": 2473.86,
+      "end": 2479.14,
+      "text": "i'm going to skip the red box transaction censorship resistance uh local data access"
+    },
+    {
+      "start": 2479.14,
+      "end": 2483.62,
+      "text": "the reasons to run a node is because if you don't then someone else is running one on your"
+    },
+    {
+      "start": 2483.62,
+      "end": 2488.02,
+      "text": "behalf when you do one of about a million things whether you're looking into block explorer"
+    },
+    {
+      "start": 2488.02,
+      "end": 2492.26,
+      "text": "whether you're using lightning whether you're verifying a transaction whether you're broadcasting"
+    },
+    {
+      "start": 2492.26,
+      "end": 2498.27,
+      "text": "anything whether you're doing a coin joint any of this stuff you have to get someone else to do"
+    },
+    {
+      "start": 2498.27,
+      "end": 2502.91,
+      "text": "on your behalf if you don't have a node but let's talk about this one strengthening if you want"
+    },
+    {
+      "start": 2502.91,
+      "end": 2509.15,
+      "text": "to mine the network and what does that mean the real strength of the network that makes bitcoin"
+    },
+    {
+      "start": 2509.15,
+      "end": 2517.47,
+      "text": "this resilient global unstoppable decentralized protocol is also having a full node okay you can"
+    },
+    {
+      "start": 2517.47,
+      "end": 2522.27,
+      "text": "verify your own transactions with a prune node you don't need to store the history of all bitcoin"
+    },
+    {
+      "start": 2522.27,
+      "end": 2531.74,
+      "text": "transactions okay but if you store the full history every transaction okay now you are a real"
+    },
+    {
+      "start": 2531.74,
+      "end": 2538.22,
+      "text": "full node and the scare time prune nodes are still full nodes practice oh my god what if there is a"
+    },
+    {
+      "start": 2538.22,
+      "end": 2542.7,
+      "text": "bad picture and not trying that in the history of the bitcoin blockchain this is the crazy cc"
+    },
+    {
+      "start": 2542.7,
+      "end": 2548.62,
+      "text": "sub argument the bitcoin protocol doesn't store pictures it just stores text you need to use"
+    },
+    {
+      "start": 2548.62,
+      "end": 2554.7,
+      "text": "third party software in order to see what that is you know what's another what third party software"
+    },
+    {
+      "start": 2554.7,
+      "end": 2559.74,
+      "text": "the internet itself there are bad pictures all over the internet how do we go and look for them"
+    },
+    {
+      "start": 2559.74,
+      "end": 2566.78,
+      "text": "no okay this is completely in coherent all bad pictures are just ones and zeros dude you need software"
+    },
+    {
+      "start": 2566.78,
+      "end": 2573.34,
+      "text": "the interpreters and shows it in displaces an image you don't you don't delete a media player off"
+    },
+    {
+      "start": 2573.34,
+      "end": 2577.58,
+      "text": "your computer and act like there's no porn on the hard drive there's no hard works because you can't"
+    },
+    {
+      "start": 2577.58,
+      "end": 2584.77,
+      "text": "double click in play it what is this argument seriously you can store nasty content inside"
+    },
+    {
+      "start": 2584.77,
+      "end": 2589.89,
+      "text": "operatives and then it's just on your computer there's no you're not gonna dance around that"
+    },
+    {
+      "start": 2589.89,
+      "end": 2596.05,
+      "text": "argument dude it's the files are there all pretend is just file storage hey so the bitcoin protocol"
+    },
+    {
+      "start": 2596.05,
+      "end": 2602.21,
+      "text": "doesn't store this bad material you stop to use third party software to access it as you do for"
+    },
+    {
+      "start": 2602.21,
+      "end": 2608.61,
+      "text": "any media and here's the here's my question in any file format if you are too fragile and too much"
+    },
+    {
+      "start": 2608.61,
+      "end": 2614.77,
+      "text": "of a snowflake and too scared to run a full bitcoin node because of the big op return and somebody"
+    },
+    {
+      "start": 2614.77,
+      "end": 2619.81,
+      "text": "could put weird packs in there oh really we're gonna use that argument all right let's do the"
+    },
+    {
+      "start": 2619.81,
+      "end": 2625.33,
+      "text": "piece Morgan argument you're too scared to get the vaccine it's just a little prick in your arm"
+    },
+    {
+      "start": 2625.33,
+      "end": 2631.25,
+      "text": "tone what are you so scared about do you see loads of people dying after taking it no how about"
+    },
+    {
+      "start": 2631.25,
+      "end": 2636.85,
+      "text": "just erase all principle all people that have any sort of backbone and integrity trying to"
+    },
+    {
+      "start": 2636.85,
+      "end": 2641.49,
+      "text": "maintain the network is what it ought to be trying to have some sort of conviction in the direction"
+    },
+    {
+      "start": 2641.49,
+      "end": 2647.09,
+      "text": "it goes that take issues seriously even if they might appear dismissible to you and going oh"
+    },
+    {
+      "start": 2647.09,
+      "end": 2653.33,
+      "text": "you're just a bit scared of a picture you sound like Piers Morgan here dude that could potentially"
+    },
+    {
+      "start": 2653.33,
+      "end": 2659.57,
+      "text": "lead you to some picture your node is too fragile don't be on the don't run a full node I'll run a"
+    },
+    {
+      "start": 2659.57,
+      "end": 2666.21,
+      "text": "second one for you the bitcoin network needs strong resilient nodes to stay decentralized I"
+    },
+    {
+      "start": 2666.21,
+      "end": 2672.72,
+      "text": "defined the scope in with regard to what I will tolerate and why won't I will tolerate the world's"
+    },
+    {
+      "start": 2672.72,
+      "end": 2679.2,
+      "text": "most evil transaction ever someone paying for the most heinous activity whatsoever because bitcoin"
+    },
+    {
+      "start": 2679.2,
+      "end": 2686.88,
+      "text": "being neutral money is defensible running neutral file storage on hard drives in my house is not"
+    },
+    {
+      "start": 2686.88,
+      "end": 2692.88,
+      "text": "defensible and it's not bitcoin as battle if you want to do the big all day here is just ones"
+    },
+    {
+      "start": 2692.88,
+      "end": 2699.68,
+      "text": "and zeros argument have had it but don't make bitcoin part of your ideological battle we do"
+    },
+    {
+      "start": 2699.68,
+      "end": 2706.32,
+      "text": "not treat all dayers ones and zeros we treat financial activity and transactions as distinct"
+    },
+    {
+      "start": 2706.32,
+      "end": 2712.8,
+      "text": "from arbitrary data storage and we do that because we are reasonable about the scope in which we"
+    },
+    {
+      "start": 2712.8,
+      "end": 2718.64,
+      "text": "must fight and anyone that is scared to run them today who knows what they're going to be scared"
+    },
+    {
+      "start": 2718.72,
+      "end": 2724.88,
+      "text": "of to run them tomorrow so here are my closing thoughts I may go one minute I'm not scared to run a"
+    },
+    {
+      "start": 2724.88,
+      "end": 2729.92,
+      "text": "node I don't want to put pressure on people to run a node doing things they didn't sign up for that's"
+    },
+    {
+      "start": 2729.92,
+      "end": 2737.9,
+      "text": "all because it's only going to make the network of worse quality over okay to me the current"
+    },
+    {
+      "start": 2737.9,
+      "end": 2743.98,
+      "text": "is activated softwork is a repeat of the 2017 big blockers they had their developer that was"
+    },
+    {
+      "start": 2743.98,
+      "end": 2749.66,
+      "text": "there from the beginning that is the expert they had Roger here with his bitcoin.com website"
+    },
+    {
+      "start": 2749.66,
+      "end": 2755.02,
+      "text": "as the media arm pretending to be the real with the big blockers are we bitcoin people were going"
+    },
+    {
+      "start": 2755.02,
+      "end": 2760.46,
+      "text": "the reason I was against big blockers is because it makes life harder for node runners the reason"
+    },
+    {
+      "start": 2760.46,
+      "end": 2764.86,
+      "text": "them against arbitrary data storage in bitcoin is because it makes life harder for node runners"
+    },
+    {
+      "start": 2765.66,
+      "end": 2770.46,
+      "text": "good luck finding it in consistency in my reasoning here when they are to buy bitcoin they got"
+    },
+    {
+      "start": 2770.46,
+      "end": 2774.46,
+      "text": "sold bitcoin cash there are youtube channels I'm not going to name them but there's a youtube"
+    },
+    {
+      "start": 2774.46,
+      "end": 2780.06,
+      "text": "channel that has rebranded to be basically anti bitcoin core pushing the user activated softwork"
+    },
+    {
+      "start": 2780.06,
+      "end": 2786.46,
+      "text": "everything is there I'm going to ask him what that is tomorrow it's an ideological movement it's all"
+    },
+    {
+      "start": 2786.46,
+      "end": 2791.5,
+      "text": "the same we know ideologues are just said the ideologues of the people saying all day is just"
+    },
+    {
+      "start": 2791.5,
+      "end": 2797.34,
+      "text": "ones and zeros and you need to be you need to treat it as such otherwise you're censoring people"
+    },
+    {
+      "start": 2797.34,
+      "end": 2803.02,
+      "text": "that's an ideological ridiculousness that people are trying to bring into bitcoin bitcoin is"
+    },
+    {
+      "start": 2803.02,
+      "end": 2809.58,
+      "text": "a just pragmatic and saying we can tell the difference between junk data which you were fine delineating"
+    },
+    {
+      "start": 2809.58,
+      "end": 2814.46,
+      "text": "by the way you said oh we can call this spam because it's just cheap nonsense transactions being"
+    },
+    {
+      "start": 2814.46,
+      "end": 2818.62,
+      "text": "sent back and forth back and forth to try and make big blocks that good you were fine making a"
+    },
+    {
+      "start": 2818.62,
+      "end": 2824.3,
+      "text": "distinction then on a pragmatic basis but now you're an ideolog we need to be neutral about everything"
+    },
+    {
+      "start": 2824.3,
+      "end": 2828.94,
+      "text": "but you're calling us ideologues it's very annoying to get called ideologues when you're being"
+    },
+    {
+      "start": 2828.94,
+      "end": 2837.26,
+      "text": "pragmatic by ideologues same okay the only difference there's one difference in 2017 in order for"
+    },
+    {
+      "start": 2837.26,
+      "end": 2844.54,
+      "text": "the big blocker ideological movement to succeed they weren't ideologues either big blockers weren't"
+    },
+    {
+      "start": 2844.54,
+      "end": 2851.44,
+      "text": "ideologues they were just they were just too they just too easily dismissed the issues that come"
+    },
+    {
+      "start": 2851.44,
+      "end": 2856.16,
+      "text": "with the technical changes they wanted to make they just treated them like they didn't matter that's"
+    },
+    {
+      "start": 2856.16,
+      "end": 2861.44,
+      "text": "all they they were practical in the fact that they thought if bitcoin gets expensive as a medium of"
+    },
+    {
+      "start": 2861.44,
+      "end": 2866.48,
+      "text": "exchange without any of these scaling things fleshed out people are just going to use as a store of"
+    },
+    {
+      "start": 2866.48,
+      "end": 2872.16,
+      "text": "value and it will die as a means of you know providing censorship resistant payments to the world"
+    },
+    {
+      "start": 2872.16,
+      "end": 2879.28,
+      "text": "and becoming a neutral payment network very valid concern it's wrong to just to to hate on the big"
+    },
+    {
+      "start": 2879.28,
+      "end": 2886.0,
+      "text": "blockers and cost dispersions as to their motivations I completely sympathize with all of the things"
+    },
+    {
+      "start": 2886.0,
+      "end": 2891.28,
+      "text": "the big blockers wanted I just didn't think the price was worth paying and I didn't think they"
+    },
+    {
+      "start": 2891.28,
+      "end": 2896.72,
+      "text": "took seriously what they were degrading in trying to bring about their desire and I don't think"
+    },
+    {
+      "start": 2896.72,
+      "end": 2905.26,
+      "text": "calling them ideologues is appropriate I think they were just technically not understanding the"
+    },
+    {
+      "start": 2905.26,
+      "end": 2910.78,
+      "text": "implications of what it was they were trying to do that so they needed to loosen the rules and"
+    },
+    {
+      "start": 2910.78,
+      "end": 2918.22,
+      "text": "push those rules through a hard fork this time around in order for the this ideological movement to"
+    },
+    {
+      "start": 2918.22,
+      "end": 2924.94,
+      "text": "succeed they need to contract the rules and they are able to do it with soft fork instead of a"
+    },
+    {
+      "start": 2924.94,
+      "end": 2929.9,
+      "text": "hard fork but it is an ideological movement not a technological one they all think they will be"
+    },
+    {
+      "start": 2929.9,
+      "end": 2935.98,
+      "text": "the real Bitcoin but even today be cash and BSV both fully so who defines what Bitcoin is Tom"
+    },
+    {
+      "start": 2937.12,
+      "end": 2946.0,
+      "text": "why do we I don't understand how you can is it just the core side of it is that what it is like"
+    },
+    {
+      "start": 2946.0,
+      "end": 2953.2,
+      "text": "this conversation has been added repeatedly today some people took from 2017 that nodes were the"
+    },
+    {
+      "start": 2953.2,
+      "end": 2958.62,
+      "text": "most important aspects of the network and that you can't degrade anything about you can't put"
+    },
+    {
+      "start": 2958.62,
+      "end": 2963.5,
+      "text": "any more pressure on nodes you have to the whole network is in service with people running nodes"
+    },
+    {
+      "start": 2963.5,
+      "end": 2969.1,
+      "text": "the other lesson was the core I'll just write about everything even though they were against bit 148"
+    },
+    {
+      "start": 2969.1,
+      "end": 2978.05,
+      "text": "which happened and was a good thing like that seems to be the lesson tone is more that seems to"
+    },
+    {
+      "start": 2978.05,
+      "end": 2986.05,
+      "text": "be the one he learnt leave there the real Bitcoin and this is my last slide why work for devs cautious"
+    },
+    {
+      "start": 2986.05,
+      "end": 2991.33,
+      "text": "of the 2017 user activated soft fork that we all wanted because we wanted segwood we wanted"
+    },
+    {
+      "start": 2991.33,
+      "end": 2998.77,
+      "text": "Bitcoin to scale again a brief list on a basic google search the risk of a permanent change"
+    },
+    {
+      "start": 2998.77,
+      "end": 3004.37,
+      "text": "that was too great it was dangerous it had didn't have the broad consensus but it technically did"
+    },
+    {
+      "start": 3005.17,
+      "end": 3010.93,
+      "text": "all of these reasons but the most important one it didn't have broad consensus but it technically did"
+    },
+    {
+      "start": 3012.85,
+      "end": 3023.58,
+      "text": "what I don't know my opinion on bit 148 is that it won because intolerant minorities can do soft"
+    },
+    {
+      "start": 3023.58,
+      "end": 3031.89,
+      "text": "folks in Bitcoin and provided they're not awful enough to trigger a URSF they happen and they tend"
+    },
+    {
+      "start": 3031.89,
+      "end": 3036.13,
+      "text": "to happen as a result of the people that have the most conviction and commitment to Bitcoin so"
+    },
+    {
+      "start": 3036.13,
+      "end": 3041.33,
+      "text": "I'm actually not I don't have a problem with that google didn't mention core devs and other"
+    },
+    {
+      "start": 3041.33,
+      "end": 3048.45,
+      "text": "prominent technical Bitcoin thought leaders warned that the success of the 2017 segwood user"
+    },
+    {
+      "start": 3048.45,
+      "end": 3055.57,
+      "text": "activated soft fork might one day lead to a hostile use of this method in the future for a more"
+    },
+    {
+      "start": 3055.57,
+      "end": 3062.05,
+      "text": "controversial change and here we are that was the real danger of activating our user activated"
+    },
+    {
+      "start": 3062.05,
+      "end": 3068.53,
+      "text": "soft fork in 2017 even though it's what we wanted but we opened up the it wasn't most of core we're"
+    },
+    {
+      "start": 3068.53,
+      "end": 3075.38,
+      "text": "against it we did it anyway now you have lightning you're welcome I don't get it or for this"
+    },
+    {
+      "start": 3075.38,
+      "end": 3081.22,
+      "text": "method to be used for something that isn't in consensus Bitcoin 48 wasn't in consensus either"
+    },
+    {
+      "start": 3081.22,
+      "end": 3087.46,
+      "text": "but a majority of crypto Twitter which is a minority of Bitcoin users around the world are pushing"
+    },
+    {
+      "start": 3088.7,
+      "end": 3093.9,
+      "text": "it's not just Bitcoin Twitter my dude that's just my preferred medium of exchange hey my youtube"
+    },
+    {
+      "start": 3093.9,
+      "end": 3099.66,
+      "text": "account does that count I don't know why they need to do this why denigrate social media you have a"
+    },
+    {
+      "start": 3099.66,
+      "end": 3105.58,
+      "text": "youtube account with a hundred thousand followers or subscribers even why do we need to dismiss"
+    },
+    {
+      "start": 3105.58,
+      "end": 3112.3,
+      "text": "the venue of the conversation where's more appropriate to talk about mailing list the"
+    },
+    {
+      "start": 3112.38,
+      "end": 3118.51,
+      "text": "GitHub all that happens is that the pull requests just get closed it's a waste of time but I mean"
+    },
+    {
+      "start": 3118.51,
+      "end": 3129.36,
+      "text": "this is a let's get real here Tom the mechanism exists in Bitcoin whether you like it or not people"
+    },
+    {
+      "start": 3129.36,
+      "end": 3138.94,
+      "text": "can you at you you ASF new rules into Bitcoin that can happen we did it before you can pretend"
+    },
+    {
+      "start": 3139.02,
+      "end": 3144.78,
+      "text": "and rewrite history if you want the Bitcoin 48 had consensus it didn't there were 500 nodes"
+    },
+    {
+      "start": 3144.78,
+      "end": 3150.78,
+      "text": "in force in the rules of that for like a month and then at the end of that month suddenly another"
+    },
+    {
+      "start": 3150.78,
+      "end": 3156.22,
+      "text": "500 turned on in one second which was clearly someone just spinning up a bunch of them in Amazon"
+    },
+    {
+      "start": 3156.22,
+      "end": 3161.02,
+      "text": "web server trying to make the whole movement look stupid or to foolishly try and make it look"
+    },
+    {
+      "start": 3161.02,
+      "end": 3166.14,
+      "text": "stronger even though no one would buy that kind of number as a thousand nodes even if you ignore"
+    },
+    {
+      "start": 3166.14,
+      "end": 3172.3,
+      "text": "the fact that one of those 500 of them which one nodes we did it anyway most of course that it was"
+    },
+    {
+      "start": 3172.3,
+      "end": 3178.7,
+      "text": "a bad idea you just said core didn't like it you given their reasons for why they didn't like it"
+    },
+    {
+      "start": 3178.7,
+      "end": 3184.86,
+      "text": "while simultaneously saying it had consensus while saying it didn't have consensus though technically"
+    },
+    {
+      "start": 3184.86,
+      "end": 3191.5,
+      "text": "it did I don't that is just completely incoherent whether you think bit 148 had any any sort of"
+    },
+    {
+      "start": 3191.5,
+      "end": 3197.58,
+      "text": "consensus or not my opinion is that it didn't we just didn't care we did it anyway minus hated"
+    },
+    {
+      "start": 3197.58,
+      "end": 3204.14,
+      "text": "us big blockers hated us core hated us we did it anyway now you have segue and the lightning"
+    },
+    {
+      "start": 3204.14,
+      "end": 3209.66,
+      "text": "network you're welcome the people that actually put the the things that need to be put at the"
+    },
+    {
+      "start": 3209.66,
+      "end": 3215.34,
+      "text": "forefront took the reins and did what needed to be done and a bunch of crybaby started talking"
+    },
+    {
+      "start": 3215.34,
+      "end": 3220.06,
+      "text": "about precedent and slippery slope and all the same garbage you hear from that you're hearing"
+    },
+    {
+      "start": 3220.06,
+      "end": 3226.54,
+      "text": "now about bit 1 10 exactly the same bullshit slippery slope fallacy is a fallacy for a reason"
+    },
+    {
+      "start": 3226.54,
+      "end": 3230.94,
+      "text": "because it's telling you well I don't like what you're doing but because of a similar thing"
+    },
+    {
+      "start": 3230.94,
+      "end": 3235.9,
+      "text": "that you might do in the future if this happens and I'm telling you it's a mechanism that exists"
+    },
+    {
+      "start": 3235.9,
+      "end": 3242.54,
+      "text": "within Bitcoin regardless the only defense you actually have is not discouraging people from"
+    },
+    {
+      "start": 3242.54,
+      "end": 3247.1,
+      "text": "doing forks that are actually a good idea because of the precedent they set if they don't quite"
+    },
+    {
+      "start": 3247.1,
+      "end": 3251.34,
+      "text": "have consensus yet and you're not allowed to build consensus or you're not allowed to figure out"
+    },
+    {
+      "start": 3251.34,
+      "end": 3255.26,
+      "text": "that chicken and egg problem you just have to accept that if it's not liked you can't ever do"
+    },
+    {
+      "start": 3255.26,
+      "end": 3260.38,
+      "text": "anything that will encourage further conversation and iteration or any of that you just have to give up"
+    },
+    {
+      "start": 3260.38,
+      "end": 3264.7,
+      "text": "this was my tweet months ago how dare you try to build consensus for something that doesn't have"
+    },
+    {
+      "start": 3264.7,
+      "end": 3269.98,
+      "text": "consensus it's an impossible standard to me and the only way they get around that in core is they"
+    },
+    {
+      "start": 3269.98,
+      "end": 3274.78,
+      "text": "just operate within a clique entirely and make everything utterly opaque and just hope people"
+    },
+    {
+      "start": 3274.78,
+      "end": 3282.86,
+      "text": "pay no attention so bit 1 10 it does not have consensus but neither did bit 148 and if you're"
+    },
+    {
+      "start": 3282.86,
+      "end": 3288.94,
+      "text": "worried about the mechanism existing within Bitcoin where a small minority can bring in a small set"
+    },
+    {
+      "start": 3288.94,
+      "end": 3296.94,
+      "text": "of rule changes and tightening of the rules against or at least without the consent of a large"
+    },
+    {
+      "start": 3296.94,
+      "end": 3303.34,
+      "text": "group of the community who may be indifferent to it if you're concerned about that mechanism you"
+    },
+    {
+      "start": 3303.34,
+      "end": 3309.02,
+      "text": "need to get real about what you do about that you don't sit here making half house presentations"
+    },
+    {
+      "start": 3309.02,
+      "end": 3315.1,
+      "text": "where you haven't even talked about what the bit does at all he hasn't mentioned the bit at all"
+    },
+    {
+      "start": 3315.1,
+      "end": 3320.38,
+      "text": "he attacked filters for a while bit 1 10 is not a new bunch of filters it's a consensus change"
+    },
+    {
+      "start": 3321.34,
+      "end": 3326.86,
+      "text": "you don't make those kinds of videos you get real about it so tone if this is a bad hostile takeover"
+    },
+    {
+      "start": 3327.74,
+      "end": 3335.58,
+      "text": "you have to demonstrate that what it's doing justifies a you rsf and as far as I know there's four"
+    },
+    {
+      "start": 3335.58,
+      "end": 3340.86,
+      "text": "people in Bitcoin right now that would run a you rsf that is a chain that wouldn't get wiped out"
+    },
+    {
+      "start": 3340.86,
+      "end": 3355.57,
+      "text": "by the you asf overtaking it and that's probably rewritten and PR and I don't know synovi or"
+    },
+    {
+      "start": 3355.57,
+      "end": 3367.09,
+      "text": "um a Bitcoin equal proof of cash and zander these are the people that jump to mind that would"
+    },
+    {
+      "start": 3367.09,
+      "end": 3372.61,
+      "text": "actually you are as if it's like six or seven people as far as I know there's no there's no"
+    },
+    {
+      "start": 3372.61,
+      "end": 3377.87,
+      "text": "huddle there there's no hash rate where's the significance I don't really see that as being"
+    },
+    {
+      "start": 3378.51,
+      "end": 3383.55,
+      "text": "worth it for them to do such a thing because at the end of the day what are they defending and"
+    },
+    {
+      "start": 3383.55,
+      "end": 3387.71,
+      "text": "that's when it comes down to what bit 1 10 actually does which again you didn't mention once"
+    },
+    {
+      "start": 3387.71,
+      "end": 3395.73,
+      "text": "you're against it but you never mentioned why it's there your ursf to prevent this soft fork"
+    },
+    {
+      "start": 3395.73,
+      "end": 3405.81,
+      "text": "that you dislike would be there to help make persistent the consensus validity of giant"
+    },
+    {
+      "start": 3405.81,
+      "end": 3411.41,
+      "text": "operatives which do absolutely nothing for Bitcoin and just open us up to people dumping"
+    },
+    {
+      "start": 3411.49,
+      "end": 3417.74,
+      "text": "egregious data into the chain to the point where nodes start turning off what is the point in"
+    },
+    {
+      "start": 3417.74,
+      "end": 3423.66,
+      "text": "defending something like that it's going to do why would you possibly stick your neck out resisting"
+    },
+    {
+      "start": 3424.8,
+      "end": 3430.96,
+      "text": "the uasf of bit 1 10 on that premise because you want to have bigger operatives or you think it"
+    },
+    {
+      "start": 3430.96,
+      "end": 3438.02,
+      "text": "creates some awful precedent you can do it if you want but I just think I think ultimately it"
+    },
+    {
+      "start": 3438.02,
+      "end": 3443.14,
+      "text": "comes down to what the bit patchy does if the I was worried about that mechanism too because it"
+    },
+    {
+      "start": 3443.14,
+      "end": 3448.26,
+      "text": "turns out that's the best point done made in this whole thing was that last point because"
+    },
+    {
+      "start": 3448.98,
+      "end": 3454.34,
+      "text": "someone might come along and do a uasf that isn't in Bitcoin's best interest it does undermine it at"
+    },
+    {
+      "start": 3454.34,
+      "end": 3460.34,
+      "text": "some point then we have to ursf it and while ursf is not going to be based on these half-fast"
+    },
+    {
+      "start": 3460.34,
+      "end": 3465.14,
+      "text": "reasons like how long is the list of developers that wrote this stupid thing or something like that"
+    },
+    {
+      "start": 3465.14,
+      "end": 3470.77,
+      "text": "it's going to be based on what it does because that's actually what matters if someone makes a uasf"
+    },
+    {
+      "start": 3470.77,
+      "end": 3475.57,
+      "text": "and releases a client and people start running it and it's bad for Bitcoin then I'm going to have"
+    },
+    {
+      "start": 3475.57,
+      "end": 3481.33,
+      "text": "to lead a ursf movement to try and counter it but I'm not going to do that here because bit 1 10 actually"
+    },
+    {
+      "start": 3481.33,
+      "end": 3485.15,
+      "text": "does good things so thank you for watching"
+    }
+  ],
+  "topics": [
+    "mining",
+    "price",
+    "regulation",
+    "lightning",
+    "privacy"
+  ],
+  "sentiment": "neutral",
+  "archived_at": "2026-03-13T04:02:31Z"
+}

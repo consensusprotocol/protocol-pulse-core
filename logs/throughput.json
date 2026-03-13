@@ -1,1 +1,12 @@
-{"last_render_epoch": 0, "renders_gpu0": 0, "renders_gpu1": 0, "renders_per_hour_gpu0": 0, "renders_per_hour_gpu1": 0}
+{
+  "last_render_epoch": 1773378483.4449713,
+  "last_render_iso": "2026-03-13T01:08:03.444971",
+  "renders_gpu0": 0,
+  "renders_gpu1": 0,
+  "renders_per_hour_gpu0": 0.0,
+  "last_grade_gpu0": null,
+  "last_score_gpu0": 0,
+  "renders_per_hour_gpu1": 0.0,
+  "last_grade_gpu1": null,
+  "last_score_gpu1": 0
+}

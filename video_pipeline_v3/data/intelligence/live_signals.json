@@ -70,10 +70,45 @@
         "Live stream detected: Bitcoin Price Live!"
       ],
       "status": "live",
-      "last_updated": "2026-03-12T04:15:42.025381+00:00"
+      "last_updated": "2026-03-13T05:05:41.288015+00:00"
+    },
+    {
+      "video_id": "im7NGMuPJmQ",
+      "title": "Another $1.9T Bank Just Got Hit \u2014 The Contagion JUST Got Worse (1% Will Survive With Bitcoin)",
+      "channel": "BTC Sessions",
+      "source": "youtube_live",
+      "url": "https://www.youtube.com/watch?v=im7NGMuPJmQ",
+      "started_at": "2026-03-12T22:10:10.805682+00:00",
+      "topics": [
+        "regulation"
+      ],
+      "current_sentiment": 50,
+      "sentiment_history": [
+        {
+          "time": "2026-03-12T22:10:43.518478+00:00",
+          "score": 50
+        }
+      ],
+      "transcript_chunks": [
+        "Live stream detected: Another $1.9T Bank Just Got Hit \u2014 The Contagion JUST Got Worse (1% Will Survive With Bitcoin)",
+        "Live stream detected: Another $1.9T Bank Just Got Hit \u2014 The Contagion JUST Got Worse (1% Will Survive With Bitcoin)",
+        "Live stream detected: Another $1.9T Bank Just Got Hit \u2014 The Contagion JUST Got Worse (1% Will Survive With Bitcoin)",
+        "Live stream detected: Another $1.9T Bank Just Got Hit \u2014 The Contagion JUST Got Worse (1% Will Survive With Bitcoin)",
+        "Live stream detected: Another $1.9T Bank Just Got Hit \u2014 The Contagion JUST Got Worse (1% Will Survive With Bitcoin)",
+        "Live stream detected: Another $1.9T Bank Just Got Hit \u2014 The Contagion JUST Got Worse (1% Will Survive With Bitcoin)",
+        "Live stream detected: Another $1.9T Bank Just Got Hit \u2014 The Contagion JUST Got Worse (1% Will Survive With Bitcoin)",
+        "Live stream detected: Another $1.9T Bank Just Got Hit \u2014 The Contagion JUST Got Worse (1% Will Survive With Bitcoin)",
+        "Live stream detected: Another $1.9T Bank Just Got Hit \u2014 The Contagion JUST Got Worse (1% Will Survive With Bitcoin)",
+        "Live stream detected: Another $1.9T Bank Just Got Hit \u2014 The Contagion JUST Got Worse (1% Will Survive With Bitcoin)",
+        "Live stream detected: Another $1.9T Bank Just Got Hit \u2014 The Contagion JUST Got Worse (1% Will Survive With Bitcoin)",
+        "Live stream detected: Another $1.9T Bank Just Got Hit \u2014 The Contagion JUST Got Worse (1% Will Survive With Bitcoin)",
+        "Live stream detected: Another $1.9T Bank Just Got Hit \u2014 The Contagion JUST Got Worse (1% Will Survive With Bitcoin)"
+      ],
+      "status": "live",
+      "last_updated": "2026-03-12T23:10:45.262110+00:00"
     }
   ],
-  "updated_at": "2026-03-12T04:15:42.096472+00:00",
+  "updated_at": "2026-03-13T05:05:41.372125+00:00",
   "monitoring": true,
   "channels_watched": 62
 }

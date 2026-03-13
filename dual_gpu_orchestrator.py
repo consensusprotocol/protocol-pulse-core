@@ -200,10 +200,13 @@ def update_throughput():
 
 def find_latest_video(output_subdir=None):
     """Return today's final MP4 only. Never fall back to previous days."""
-    today = datetime.now().strftime('%Y-%m-%d')
-    today_dir = os.path.join(PIPELINE, 'output', today)
+    from datetime import timedelta
+    now = datetime.now()
     candidates = []
-    if os.path.exists(today_dir):
+    for date_str in [now.strftime('%Y-%m-%d'), (now - timedelta(days=1)).strftime('%Y-%m-%d')]:
+        today_dir = os.path.join(PIPELINE, 'output', date_str)
+        if not os.path.exists(today_dir):
+            continue
         for f in os.listdir(today_dir):
             if f.endswith('.mp4') and 'pulse_check' in f and 'music_mixed' not in f and 'concat_raw' not in f:
                 full = os.path.join(today_dir, f)

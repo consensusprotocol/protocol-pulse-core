@@ -1,0 +1,2835 @@
+{
+  "video_id": "eWbBnqRcIo0",
+  "title": "Attack Vectors in Real Life: Being your own Bitcoin Bank",
+  "channel": "Jameson Lopp",
+  "upload_date": "",
+  "duration": 1747,
+  "transcript_text": "Hey, everyone. We have James and Lop here of CTO of Casa. He'll be doing a talk on attack vectors in real life. What it means to be your own bank. Can you guys confirm in the chat that you can hear him? Hello. Looks like we're good to go. All right. Well, let's get this thing started then. We've got far too little time and far too many things to worry about. But as I think many of us are aware, there's a reason why banks exist. Banks are specializing in security. And there's a lot of different things that they have to worry about on that end of things. So if we want to really achieve the promise of Bitcoin and crypto, the ability to be your own bank, then a big question comes down to, how do we actually make it feasible for normal people to have the same level of security if not better as a bank? And I believe that it is possible. The technology is within our grasp. It's just a matter of usability. So this is what I've been focused on for over five years now. I've been working on various self-custody, multi-sing based products since early 2015. And I've seen a lot of things go wrong. And every time something goes wrong, it's an opportunity for us to learn a valuable new lesson. So getting things started. We know the greatest strength of these digital bear assets is that no authority can confiscate your wealth. No one can censor your transactions. But the flip side of this is that if you screw up, if someone manages to penetrate your security and finds a weakness, or if you just lose your keys, there's no one out there who can give you your money back. So this is a high stakes environment. If you make a single mistake, it can be potentially catastrophic. And unfortunately, a lot of people have done that over the years. It's a history with many documented failures and probably even more undocumented that people were just too ashamed to talk about it. So there are reason to believe from various on-chain analysis that millions of Bitcoin have been lost, millions of Bitcoin have been stolen throughout the years. As I'm sure most of you are aware, not your keys, not your coins might be hard to read. But this is just an exchange hack timeline only from last year. This is something that continues to be a problem in the space that a lot of people are putting their funds with custodians and trusting that nothing will go wrong. But if anything, it seems like the volume of hacks that is happening in the space is increasing. It's not clear to me that people are at least on the crypto custodian side that they're necessarily learning from the mistakes of the past because we have a lot of new people, a lot of new businesses that come in, especially during bull runs. And I think they just throw themselves into it and don't necessarily learn from history. So we'll start off with some of what I think are scarier but actually less likely attacks. So something you hear a lot about in this space are wrench attacks. You know, physical coercion. What if somebody comes to your house and decides to start beating on you until you hand over your money? Well, this has happened. I actually run a project that catalogs known physical attacks in the space. And there have been about 50 or 60 of them over the past decade. Once again, these provide good opportunities for us to learn from other people's mistakes. And in the vast majority of these attacks, the perpetrators were actually successful in coercing the victim to transfer their money. So the question becomes, when did the attackers fail? Well, there were three examples we know of. A man in Norway escaped a home invader by jumping off a second floor balcony, not great. A Dutch traitor a year or two ago actually was horrifically tortured and didn't give up his private keys. It's unclear whether or not he was capable of doing so. We didn't really get a lot of insight into that case. The only single case in which a physical attack was successfully thwarted and a victim defended themselves was actually a man in Miami who was engaging in a face-to-face Bitcoin trade. He was carrying a handgun. He defended himself and shot his attacker. So we certainly have a long ways to go when it comes to people being able to defend themselves against physical coercion. But it is very rare. So we'll get into some of the more common things quite shortly. But the only way to prevent physical attacks is by having strong operational security. That means not broadcasting that you have a decent amount of wealth in that your age you see target. On the other hand, the only foolproof way to defend yourself against coercion is to not have access to your keys. If you can't access your keys, then it's not possible even if you're being coerced for you to give your money to that attacker. Now, there are theories about duress wallets and essentially trying to bribe an attacker with a small amount of money. I don't really subscribe to those theories too much because they involve a lot of speculation as to whether or not an attacker knows how much money you have and has an expectation of how much to get out of you. And also, you're speculating as to how the attacker is going to react if they think you might be trying to trick them. So I try to stick to the better guarantees of just not allowing any money to flow. There are also hardware flaws in this space, which, once again, is a fairly edge case. For example, there are known attacks against hardware devices that are essentially voltage glitching. It allows a sophisticated attacker to dump all the data off the device and then essentially brute force their way through any software security to get to your seed phrase. Now, as far as I'm aware, these types of attacks have only really been demonstrated in lab conditions, but it is the type of thing that I believe is going to be cheap enough that we're going to see proliferate more and more as the years go on. This is not a multi-million dollar attack, but rather something that just requires some technical expertise and a few hundred dollars worth of equipment. The more common type of attacks we see against people who are at least using hardware devices is just simple stuff of supply chain, essentially, not buying a hardware device directly from the vendor, buying it on a second-hand market where it's already been opened and initialized. And if you are using a hardware device where someone else knows the private keys and then you're not really getting any security and they're just going to be able to sweep your funds as soon as you deposit anything. Brain wallets are something that I believe were a lot more popular before hardware devices became more more popular, but this is a particularly devious attack that people are susceptible to because it requires absolutely no interaction between the victim and their attacker. Rather, the attacker is just watching the blockchain data and trying to brute force keys to see if any have been deterministically generated with brain wallet algorithms. So there are a number of examples here of common phrases that have had a lot of money put into them and stolen very quickly. My favorite is actually the last one. It's just a blank wallet. It was like the default on some wallet generate or website and of course within a few seconds of the money being deposited it was gone. So a short version here is that humans are very bad at generating randomness and entropy and that's essentially what a brain wallet is relying on. So don't use brain wallets. Malware is something that has been around for quite a few years, but as the incentives are changing, we're seeing more and more malware come out that will install itself in your browser through an extension or on your desktop, even some on mobile devices, though that's less common. And it's going to be looking for private keys. It's going to be trying to screw with any other wallet software that you have installed and try to get you to unintentionally send your money to the attacker. So a more common version of malware we're seeing is clickboard malware, where essentially if you're copying an address because you're going to send money to it, then this malware is sitting on your device, reading everything that gets copied into the clipboard. And if it sees a crypto address, then it'll actually swap it out with one that looks very similar, probably has the first few characters, the exact same except those addresses will belong to the attacker and you will unintentionally send your money to them. So you have to be very careful, check the entire address, not just the first few characters whenever you're sending money in this space. In a similar vein, another type of man in the middle attack that we've heard about recently, malicious tour relays, if you're doing any type of browser-based sending where you're sending to a service that is displaying an address in the browser, and if that service is not being served over SSL and encrypted, then if you're using Tor, it's possible there's a malicious exit node or relay node out there that is actually going to swap out that address once again for one that is owned by the attacker. We're also seeing plenty of malicious QR code generators, just another common issue where people have an address, they want to be able to scan it with their mobile app. And so there's probably hundreds of websites out there that you can paste data into and it generates a QR code. But some of them, they'll act normally until you put in a Bitcoin address or something else, another type of common crypto and they will swap it out. So be careful, always check your addresses multiple times. Common thing that we see, especially with newbies in the system that are looking to improve their privacy, they want to mix their coins, they don't understand a lot about how mixers actually work. And they'll probably just Google Bitcoin mixer and go to the first thing that comes up. Unfortunately, a lot of these mixers are custodial and essentially you send your money to them. And if that is the case, then it's probably not going to send your money back to you. Have to be very careful about that. Should only really use mixing software that you are running yourself, something like join market, wasabi or samarize solution, where you're not really handing over your money to a third party. There's also plenty of malicious wallet software out there. This one is an interesting case because I believe wallet generator was running as a up and up software generator for a number of years. And I think it was purchased by a malicious actor. This software was actually open source. You could download it to an offline airgapped computer. But even if you generated your keys offline, you were still susceptible to having your funds taken because they had put some underhanded malicious code in the generation of the keys that made it not random. And so it was deterministic in a way that the attacker actually knew all of the keys that would be generated ahead of time. And it was sufficiently obfuscated that auditing the code was not obvious and less or more sophisticated programmer looked at it. So I think they got away with a decent amount of money before people caught on. Sim swapping something that's been around for about five years in the Bitcoin space, it really started taking off in 2015. The problem here being that a lot of services, even today, they should know better but they're using SMS as a two factor authentication or in some cases, even full account recovery mechanism. And the short version is that the security around your mobile provider, especially if you're an American citizen, is extremely low. You should not use anything phone number related as a secure authentication mechanism. There's actually a weird trade off here where there are a number of countries that don't have this problem. And usually that's because the country actually has draconian identification laws around Sims that actually require you to personally register your Sim with strong identification around your passport, driver license, or whatever. So it's a weird situation where we have some additional freedoms and privacy potential in America, but the trade off is that it's easy for people who are not us to then steal our Sim. So use hardware devices whenever possible. And by hardware devices, I mean things like Ubiqui or even Trezor has like a U2F two factor authentication functionality. Now as this space is becoming more secure, as we are learning and we're improving our best practices, there's the software and hardware continue to improve over the years, the weakness that will always remain is the humans. And so social engineering is something that becomes more and more prevalent. And in fact, that is what a number of these attacks that I've already talked about actually are. They aren't using technical weaknesses to take your money away from you, rather they are using weaknesses in other parts of the software stack to fool the human into voluntarily sending their money away. So this was an example of a more sophisticated attack that was actually a multi-hop attack against several different people at different companies. And the primary problem or thing that could have stopped it is having a stronger authentication. So if you're sending money simply because you receive an email from someone, especially if it's not like a GPG signed email, then you shouldn't trust it. Fishing with AdWords is something that has been prevalent for a number of years and Google doesn't seem to be doing a very good job stopping it. These fishers are actually paying Google for ad placement for common browser-based wallets and other online custodians. And they're praying upon people's laziness. You might have a blockchain wallet or a coin-based exchange account or whatever. And a lot of people, I think they just go to Google and type in what they want to go to and then click on the first thing. And that's where this trap will spring. The easy way around it is that you shouldn't be searching for the web-based services that you're using commonly. You should bookmark them and always use the bookmarks to make sure that you're going to the service that you think you are. On a very similar vein, something called typo-swatting, where instead of the attack occurring at the search engine level, it actually is occurring at the domain name service level. So malicious attackers will purchase variations of common popular services that you would essentially type in incorrectly. So one or two characters off of the real thing. And once again, if you're just being lazy and you type in the URL to wherever you're going all the time, then it's probably going to happen over a long enough period of time. You're going to make a typo at some point. And you might end up at one of these clone hijacker sites, put in all of your authentication info, and then they just proxy it to the real service, log in, and sweep all of your money. So once again, bookmarks are your friend. Now, this is an interesting one. Fake air drops were a thing in 2017. There was a number of malicious software, especially when there were like 50 different Bitcoin forks happening in a several month time span. Some of that software was malicious, and it would just literally steal all your Bitcoin keys instead of allowing you to split off air dropped funds from another chain. But this is one that I actually came across just in the past week. Obviously, this is a ripple-based scam. And if it's too small for you to see in the URL, it's ripple.com.so. So most people are probably going to miss that. It has a valid SSL certificate. So nothing to throw any red flags there. It looks a lot like the ripple website. And the most interesting things that I found when I started digging deeper into this is that they would actually detect if you put in your address and it belonged to an exchange. I guess they had some sophisticated analytics on that. They would detect that this is an exchange address and ask you to withdraw your money to your own wallet before you could proceed with the air drop. The other unique thing I saw was they were actually kind of nice in that they checked the balance on your address. And if it was less than $1,000, they actually declined to steal your money. Of course, the way that they put it was, oh, your balance is too low to qualify for our incentive program. So that was a very surprising thing. But the most unique thing that I had never seen before, which is also probably hard to see, but in the center there, they have a fully functional in-browser ledger hardware wallet integration. I tested this out. It works. You can actually plug in your ledger wallet and it will construct a transaction that, if you're dumb enough to click on the buttons, it will sign that transaction and sweep your entire ripple wallet balance. So this is really what I'm trying to warn people about. Is it like, I've known that this type of stuff was possible for years, but it hasn't happened until now that the incentives continue to grow and the sophistication of the attackers continues to improve. So we need to remain on our guard. Now you're probably wondering, well, we've gone through a number of nightmare scenarios. What's the greatest threat? It's actually, I would say, none of these things. All you have to do is look in the mirror. If you remember one of those first slides I showed about Bitcoin like lost versus Bitcoin stolen and anecdotally, over the years, this is what I have seen myself is that you're actually far more likely to screw up yourself and lose access to your private keys than you are to have your money stolen from you. So simple things like bad cyber hygiene or reusing passwords and passwords getting leaked from other parties and then getting used to log into your other crypto services. This is something that we see a lot in the security spaces. Whenever there's a major hack and leak of an online database we start getting slammed with basically millions of login requests where someone's just going through all the user names and passwords from that leak and using them against our service, against other services. And if they find a hit, that's free money. On the other hand, simple IT data management practices it's tough for a lot of people, even more sophisticated folks. And nobody really wants to spend time backing up their data. Here's some examples of, you know, Stefan Thomas actually had three different redundant copies of his wallet, but he managed to delete two of them and lose the password for the third. On the other hand, I believe this was an editor for a tech magazine. He had backed up his pin and recovery seed on the same piece of paper and the house cleaning service through it away. He did end up getting his Bitcoin recovered but it actually required a highly sophisticated technical attack against his treasurer. So that turned into a really lengthy, interesting article to read a number of years ago. Of course, a lot of you have probably heard about, I believe it was James Howles, very early Bitcoin miner who had thousands and thousands of Bitcoin that were just stored on a hard drive that he accidentally threw out, I believe during spring cleaning or something at some point and didn't realize it until much later and unfortunately his requests to his local city to go through the dump and excavate it have been denied. Of course, some people do back up their keys but they don't do it in a secure manner. And if you just back them up into a third party service unencrypted then some terrible things could happen if the wrong person gets access to that account. Paper wallets, thankfully I believe are becoming less popular but there's just a lot of things that can go wrong with them. It's hard to generate the keys securely. It's in many cases they're not encrypted so if an attacker finds it they can steal the money. Of course, paper itself can easily be destroyed. And one common thing that not many people know about is a lot of paper wallets are just like a single private key and if you load that into software and spend it but don't spend the entire balance, then the rest of the balance in many cases of Bitcoin software will get sent to another private key and other address that actually doesn't exist in your backup. And so a lot of people have unintentionally lost their money that way by not fully sweeping the wallets. Metal wallets definitely a lot better. However, not a panacea. I have another project where I stress test these metal devices and some of them are not as robust as you might think. The short version of this is usually the more pieces a metal device has, the more complex it is, the more likely it is to have some sort of failure under various stresses. Once again, these devices are very rarely unencrypted so a physical attacker could probably steal your money if it's a single signature backup. Environmental factors are less of an issue but some of them do not in my experience survive a common house fire. They may not survive a building collapse, et cetera, et cetera. And this is a quick review, but if you just go to lop.net, you can find a link to all of my detailed stress tests. So best practices, what do we really wanna do? Well, when I'm architecting things for CASA, my primary consideration is to eliminate single points of failure, how do we do that? Use multi-signature wallets, use a diversity of different hardware devices to prevent things like supply chain attacks or any possible catastrophic bug and any one device, any one brand. And then we also geographically separate those devices and that gives you additional robustness against things like environmental disasters or like I said, the $5 wrench attack. If the keys to your setup are sufficiently geographically distributed amongst a variety of different access controlled locations, that in my opinion is how we achieve a level of security that is actually superior to your average bank. And when it comes to using these metal backups for seed phrases, I basically recommend using the simplest devices out there, the block plate, seed plate, steel wallet, just a single sheet of metal that you punch, some little holes into with a straight punch and that will survive basically enter, right? Anything that you can imagine. So, haven't really talked much about operational security, that could be a whole other talk in and of itself. First rule of Bitcoin Club is always talk about Bitcoin. Second rule is never talk about your Bitcoin. And what do we mean by that? Well, here we see, this was a tweet from Cody Brown in 2017 where he was actually referencing a Facebook post from a friend of his who got Sima swapped and had all of his money taken out of his Coinbase account. Well, within 48 hours of Cody Brown tweeting this, you'll notice he says, I trade all of my coins there worried by their lack of transparency and response. He got Sim swapped and all of his money got taken out of his Coinbase account. Now, obviously we can't say for certain that that never would have happened otherwise, but he made himself a very juicy target and unfortunately he paid the price for it. So, if you're going to be public on Twitter, other social media, the easiest thing to do is to use a pseudonym and not your real name that people can then find information about and try to attack. Otherwise, you need to go down the privacy rabbit hole that I've done that takes a lot of time, a lot of resources. Now, finally, the end, very few people, it seems in this space, perhaps because a lot of the early adopters are younger, seem to be thinking about inheritance issues. And so, we have a number of clients come to us because at CASA, we have an inheritance setup that we spend a lot of time architecting to work within the traditional estate planning process, but the ones that come to us that do have an inheritance plan, usually it can be best described as a treasure hunt. And the problem with a lot of these treasure hunts is that they tend to be very brittle and are usually not well tested. And so, if you have a multi-hop process treasure hunt that your errors, your beneficiaries would have to go through in order to recover your funds, you need to be very careful that there aren't single points of failure in that as well. Because usually, if you get one step wrong or they can't figure out how to execute it, then they'll never be able to recover your money. So, I think we have a few minutes left for questions. This is still just trying to cram everything that I can to in a short period of time, but this is the type of stuff that I have been dealing with for several years and trying to continue to architect solutions so that the average person doesn't have to worry about every single possible thing that can happen in this space. It's a very dynamic environment and we'll continue to see new novel types of attacks. I'm sure for the foreseeable future. Yeah, this was a really great presentation. If there are any last questions, we have one more minute. Otherwise, we'll transition to the next talk. Cool. So, we're gonna transition then. Thanks again, sincerely. All right, thank you.",
+  "timestamped_text": [
+    {
+      "start": 5.9,
+      "end": 10.78,
+      "text": "Hey, everyone. We have James and Lop here of CTO of Casa."
+    },
+    {
+      "start": 10.78,
+      "end": 13.9,
+      "text": "He'll be doing a talk on attack vectors in real life."
+    },
+    {
+      "start": 13.9,
+      "end": 16.14,
+      "text": "What it means to be your own bank."
+    },
+    {
+      "start": 16.14,
+      "end": 18.7,
+      "text": "Can you guys confirm in the chat that you can hear him?"
+    },
+    {
+      "start": 18.7,
+      "end": 49.78,
+      "text": "Hello. Looks like we're good to go."
+    },
+    {
+      "start": 49.78,
+      "end": 54.22,
+      "text": "All right. Well, let's get this thing started then."
+    },
+    {
+      "start": 54.22,
+      "end": 58.86,
+      "text": "We've got far too little time and far too many things to worry about."
+    },
+    {
+      "start": 58.86,
+      "end": 63.26,
+      "text": "But as I think many of us are aware,"
+    },
+    {
+      "start": 63.34,
+      "end": 65.66,
+      "text": "there's a reason why banks exist."
+    },
+    {
+      "start": 65.66,
+      "end": 68.7,
+      "text": "Banks are specializing in security."
+    },
+    {
+      "start": 68.7,
+      "end": 73.34,
+      "text": "And there's a lot of different things that they have to worry about on that end of things."
+    },
+    {
+      "start": 73.34,
+      "end": 78.7,
+      "text": "So if we want to really achieve the promise of Bitcoin and crypto,"
+    },
+    {
+      "start": 78.7,
+      "end": 81.5,
+      "text": "the ability to be your own bank,"
+    },
+    {
+      "start": 81.5,
+      "end": 83.98,
+      "text": "then a big question comes down to,"
+    },
+    {
+      "start": 83.98,
+      "end": 87.9,
+      "text": "how do we actually make it feasible for normal people"
+    },
+    {
+      "start": 87.9,
+      "end": 93.1,
+      "text": "to have the same level of security if not better as a bank?"
+    },
+    {
+      "start": 93.18,
+      "end": 96.14,
+      "text": "And I believe that it is possible."
+    },
+    {
+      "start": 96.14,
+      "end": 98.38,
+      "text": "The technology is within our grasp."
+    },
+    {
+      "start": 98.38,
+      "end": 100.14,
+      "text": "It's just a matter of usability."
+    },
+    {
+      "start": 100.14,
+      "end": 103.66,
+      "text": "So this is what I've been focused on for over five years now."
+    },
+    {
+      "start": 103.66,
+      "end": 107.34,
+      "text": "I've been working on various self-custody,"
+    },
+    {
+      "start": 107.34,
+      "end": 110.7,
+      "text": "multi-sing based products since early 2015."
+    },
+    {
+      "start": 110.7,
+      "end": 112.78,
+      "text": "And I've seen a lot of things go wrong."
+    },
+    {
+      "start": 112.78,
+      "end": 114.94,
+      "text": "And every time something goes wrong,"
+    },
+    {
+      "start": 114.94,
+      "end": 118.7,
+      "text": "it's an opportunity for us to learn a valuable new lesson."
+    },
+    {
+      "start": 118.7,
+      "end": 121.02,
+      "text": "So getting things started."
+    },
+    {
+      "start": 121.98,
+      "end": 126.3,
+      "text": "We know the greatest strength of these digital bear assets"
+    },
+    {
+      "start": 126.3,
+      "end": 130.22,
+      "text": "is that no authority can confiscate your wealth."
+    },
+    {
+      "start": 130.22,
+      "end": 132.78,
+      "text": "No one can censor your transactions."
+    },
+    {
+      "start": 132.78,
+      "end": 137.42,
+      "text": "But the flip side of this is that if you screw up,"
+    },
+    {
+      "start": 137.42,
+      "end": 143.1,
+      "text": "if someone manages to penetrate your security and finds a weakness,"
+    },
+    {
+      "start": 143.1,
+      "end": 145.9,
+      "text": "or if you just lose your keys,"
+    },
+    {
+      "start": 145.9,
+      "end": 149.34,
+      "text": "there's no one out there who can give you your money back."
+    },
+    {
+      "start": 149.34,
+      "end": 151.9,
+      "text": "So this is a high stakes environment."
+    },
+    {
+      "start": 151.9,
+      "end": 154.22,
+      "text": "If you make a single mistake,"
+    },
+    {
+      "start": 154.22,
+      "end": 156.3,
+      "text": "it can be potentially catastrophic."
+    },
+    {
+      "start": 156.3,
+      "end": 159.98,
+      "text": "And unfortunately, a lot of people have done that over the years."
+    },
+    {
+      "start": 159.98,
+      "end": 164.06,
+      "text": "It's a history with many documented failures"
+    },
+    {
+      "start": 164.06,
+      "end": 165.98,
+      "text": "and probably even more undocumented"
+    },
+    {
+      "start": 165.98,
+      "end": 168.7,
+      "text": "that people were just too ashamed to talk about it."
+    },
+    {
+      "start": 168.7,
+      "end": 173.66,
+      "text": "So there are reason to believe from various on-chain analysis"
+    },
+    {
+      "start": 173.66,
+      "end": 176.3,
+      "text": "that millions of Bitcoin have been lost,"
+    },
+    {
+      "start": 176.3,
+      "end": 178.94,
+      "text": "millions of Bitcoin have been stolen throughout the years."
+    },
+    {
+      "start": 181.04,
+      "end": 183.36,
+      "text": "As I'm sure most of you are aware,"
+    },
+    {
+      "start": 183.36,
+      "end": 186.88,
+      "text": "not your keys, not your coins might be hard to read."
+    },
+    {
+      "start": 186.88,
+      "end": 192.16,
+      "text": "But this is just an exchange hack timeline only from last year."
+    },
+    {
+      "start": 193.28,
+      "end": 196.64,
+      "text": "This is something that continues to be a problem in the space"
+    },
+    {
+      "start": 196.64,
+      "end": 201.52,
+      "text": "that a lot of people are putting their funds with custodians"
+    },
+    {
+      "start": 201.52,
+      "end": 203.76,
+      "text": "and trusting that nothing will go wrong."
+    },
+    {
+      "start": 203.76,
+      "end": 208.56,
+      "text": "But if anything, it seems like the volume of hacks"
+    },
+    {
+      "start": 208.56,
+      "end": 211.68,
+      "text": "that is happening in the space is increasing."
+    },
+    {
+      "start": 211.68,
+      "end": 218.88,
+      "text": "It's not clear to me that people are at least on the crypto custodian side"
+    },
+    {
+      "start": 218.88,
+      "end": 222.48,
+      "text": "that they're necessarily learning from the mistakes of the past"
+    },
+    {
+      "start": 222.48,
+      "end": 225.12,
+      "text": "because we have a lot of new people,"
+    },
+    {
+      "start": 225.12,
+      "end": 226.96,
+      "text": "a lot of new businesses that come in,"
+    },
+    {
+      "start": 226.96,
+      "end": 228.8,
+      "text": "especially during bull runs."
+    },
+    {
+      "start": 228.8,
+      "end": 231.2,
+      "text": "And I think they just throw themselves into it"
+    },
+    {
+      "start": 231.2,
+      "end": 233.52,
+      "text": "and don't necessarily learn from history."
+    },
+    {
+      "start": 234.32,
+      "end": 238.8,
+      "text": "So we'll start off with some of what I think are scarier"
+    },
+    {
+      "start": 238.8,
+      "end": 241.36,
+      "text": "but actually less likely attacks."
+    },
+    {
+      "start": 241.36,
+      "end": 245.04,
+      "text": "So something you hear a lot about in this space are wrench attacks."
+    },
+    {
+      "start": 245.04,
+      "end": 247.04,
+      "text": "You know, physical coercion."
+    },
+    {
+      "start": 247.04,
+      "end": 248.88,
+      "text": "What if somebody comes to your house"
+    },
+    {
+      "start": 248.88,
+      "end": 251.12,
+      "text": "and decides to start beating on you"
+    },
+    {
+      "start": 251.12,
+      "end": 253.12,
+      "text": "until you hand over your money?"
+    },
+    {
+      "start": 253.12,
+      "end": 255.12,
+      "text": "Well, this has happened."
+    },
+    {
+      "start": 255.12,
+      "end": 259.04,
+      "text": "I actually run a project that catalogs known physical attacks in the space."
+    },
+    {
+      "start": 259.52,
+      "end": 263.84,
+      "text": "And there have been about 50 or 60 of them over the past decade."
+    },
+    {
+      "start": 264.48,
+      "end": 267.68,
+      "text": "Once again, these provide good opportunities for us"
+    },
+    {
+      "start": 267.68,
+      "end": 270.24,
+      "text": "to learn from other people's mistakes."
+    },
+    {
+      "start": 270.24,
+      "end": 272.64,
+      "text": "And in the vast majority of these attacks,"
+    },
+    {
+      "start": 272.64,
+      "end": 276.16,
+      "text": "the perpetrators were actually successful in coercing the victim"
+    },
+    {
+      "start": 276.16,
+      "end": 277.76,
+      "text": "to transfer their money."
+    },
+    {
+      "start": 277.76,
+      "end": 280.96,
+      "text": "So the question becomes, when did the attackers fail?"
+    },
+    {
+      "start": 280.96,
+      "end": 282.72,
+      "text": "Well, there were three examples we know of."
+    },
+    {
+      "start": 283.44,
+      "end": 285.68,
+      "text": "A man in Norway escaped a home invader"
+    },
+    {
+      "start": 285.68,
+      "end": 288.0,
+      "text": "by jumping off a second floor balcony,"
+    },
+    {
+      "start": 288.08,
+      "end": 289.2,
+      "text": "not great."
+    },
+    {
+      "start": 289.2,
+      "end": 292.08,
+      "text": "A Dutch traitor a year or two ago actually"
+    },
+    {
+      "start": 292.08,
+      "end": 295.44,
+      "text": "was horrifically tortured and didn't give up his private keys."
+    },
+    {
+      "start": 295.44,
+      "end": 298.8,
+      "text": "It's unclear whether or not he was capable of doing so."
+    },
+    {
+      "start": 298.8,
+      "end": 301.6,
+      "text": "We didn't really get a lot of insight into that case."
+    },
+    {
+      "start": 301.6,
+      "end": 306.4,
+      "text": "The only single case in which a physical attack"
+    },
+    {
+      "start": 306.4,
+      "end": 308.64,
+      "text": "was successfully thwarted"
+    },
+    {
+      "start": 308.64,
+      "end": 310.72,
+      "text": "and a victim defended themselves"
+    },
+    {
+      "start": 310.72,
+      "end": 312.64,
+      "text": "was actually a man in Miami"
+    },
+    {
+      "start": 312.64,
+      "end": 316.32,
+      "text": "who was engaging in a face-to-face Bitcoin trade."
+    },
+    {
+      "start": 316.4,
+      "end": 318.16,
+      "text": "He was carrying a handgun."
+    },
+    {
+      "start": 318.16,
+      "end": 320.56,
+      "text": "He defended himself and shot his attacker."
+    },
+    {
+      "start": 320.56,
+      "end": 323.92,
+      "text": "So we certainly have a long ways to go"
+    },
+    {
+      "start": 323.92,
+      "end": 326.88,
+      "text": "when it comes to people being able to defend themselves"
+    },
+    {
+      "start": 326.88,
+      "end": 328.8,
+      "text": "against physical coercion."
+    },
+    {
+      "start": 328.8,
+      "end": 330.4,
+      "text": "But it is very rare."
+    },
+    {
+      "start": 330.4,
+      "end": 333.36,
+      "text": "So we'll get into some of the more common things"
+    },
+    {
+      "start": 333.36,
+      "end": 334.56,
+      "text": "quite shortly."
+    },
+    {
+      "start": 334.56,
+      "end": 337.36,
+      "text": "But the only way to prevent physical attacks"
+    },
+    {
+      "start": 337.36,
+      "end": 340.4,
+      "text": "is by having strong operational security."
+    },
+    {
+      "start": 340.4,
+      "end": 343.52,
+      "text": "That means not broadcasting that you have"
+    },
+    {
+      "start": 344.0,
+      "end": 346.88,
+      "text": "a decent amount of wealth in that your age you see target."
+    },
+    {
+      "start": 347.68,
+      "end": 349.84,
+      "text": "On the other hand, the only foolproof way"
+    },
+    {
+      "start": 349.84,
+      "end": 352.0,
+      "text": "to defend yourself against coercion"
+    },
+    {
+      "start": 352.0,
+      "end": 354.56,
+      "text": "is to not have access to your keys."
+    },
+    {
+      "start": 355.44,
+      "end": 357.36,
+      "text": "If you can't access your keys,"
+    },
+    {
+      "start": 357.36,
+      "end": 361.04,
+      "text": "then it's not possible even if you're being coerced"
+    },
+    {
+      "start": 361.04,
+      "end": 364.0,
+      "text": "for you to give your money to that attacker."
+    },
+    {
+      "start": 364.0,
+      "end": 367.68,
+      "text": "Now, there are theories about duress wallets"
+    },
+    {
+      "start": 367.68,
+      "end": 369.52,
+      "text": "and essentially trying to bribe an attacker"
+    },
+    {
+      "start": 369.52,
+      "end": 370.72,
+      "text": "with a small amount of money."
+    },
+    {
+      "start": 371.68,
+      "end": 374.24,
+      "text": "I don't really subscribe to those theories too much"
+    },
+    {
+      "start": 374.24,
+      "end": 376.16,
+      "text": "because they involve a lot of speculation"
+    },
+    {
+      "start": 376.16,
+      "end": 380.0,
+      "text": "as to whether or not an attacker knows how much money you have"
+    },
+    {
+      "start": 380.0,
+      "end": 382.56,
+      "text": "and has an expectation of how much to get out of you."
+    },
+    {
+      "start": 382.56,
+      "end": 385.04,
+      "text": "And also, you're speculating as to how the attacker"
+    },
+    {
+      "start": 385.04,
+      "end": 387.76,
+      "text": "is going to react if they think you might be trying to trick them."
+    },
+    {
+      "start": 388.4,
+      "end": 391.68,
+      "text": "So I try to stick to the better guarantees"
+    },
+    {
+      "start": 391.68,
+      "end": 394.08,
+      "text": "of just not allowing any money to flow."
+    },
+    {
+      "start": 394.88,
+      "end": 397.92,
+      "text": "There are also hardware flaws in this space,"
+    },
+    {
+      "start": 398.48,
+      "end": 400.96,
+      "text": "which, once again, is a fairly edge case."
+    },
+    {
+      "start": 402.08,
+      "end": 404.48,
+      "text": "For example, there are known attacks"
+    },
+    {
+      "start": 404.48,
+      "end": 406.88,
+      "text": "against hardware devices that are essentially"
+    },
+    {
+      "start": 406.88,
+      "end": 408.16,
+      "text": "voltage glitching."
+    },
+    {
+      "start": 408.16,
+      "end": 411.28,
+      "text": "It allows a sophisticated attacker"
+    },
+    {
+      "start": 411.28,
+      "end": 413.52,
+      "text": "to dump all the data off the device"
+    },
+    {
+      "start": 413.52,
+      "end": 415.52,
+      "text": "and then essentially brute force their way"
+    },
+    {
+      "start": 415.52,
+      "end": 417.36,
+      "text": "through any software security"
+    },
+    {
+      "start": 417.36,
+      "end": 418.8,
+      "text": "to get to your seed phrase."
+    },
+    {
+      "start": 418.8,
+      "end": 420.4,
+      "text": "Now, as far as I'm aware,"
+    },
+    {
+      "start": 420.4,
+      "end": 422.88,
+      "text": "these types of attacks have only really been demonstrated"
+    },
+    {
+      "start": 422.88,
+      "end": 424.32,
+      "text": "in lab conditions,"
+    },
+    {
+      "start": 424.32,
+      "end": 426.08,
+      "text": "but it is the type of thing"
+    },
+    {
+      "start": 426.08,
+      "end": 428.16,
+      "text": "that I believe is going to be cheap enough"
+    },
+    {
+      "start": 428.16,
+      "end": 430.72,
+      "text": "that we're going to see proliferate more and more"
+    },
+    {
+      "start": 430.72,
+      "end": 431.92,
+      "text": "as the years go on."
+    },
+    {
+      "start": 431.92,
+      "end": 435.04,
+      "text": "This is not a multi-million dollar attack,"
+    },
+    {
+      "start": 435.04,
+      "end": 437.92,
+      "text": "but rather something that just requires some technical expertise"
+    },
+    {
+      "start": 437.92,
+      "end": 439.76,
+      "text": "and a few hundred dollars worth of equipment."
+    },
+    {
+      "start": 441.86,
+      "end": 444.42,
+      "text": "The more common type of attacks we see"
+    },
+    {
+      "start": 444.42,
+      "end": 447.7,
+      "text": "against people who are at least using hardware devices"
+    },
+    {
+      "start": 447.7,
+      "end": 450.66,
+      "text": "is just simple stuff of supply chain,"
+    },
+    {
+      "start": 450.66,
+      "end": 453.94,
+      "text": "essentially, not buying a hardware device directly"
+    },
+    {
+      "start": 453.94,
+      "end": 454.9,
+      "text": "from the vendor,"
+    },
+    {
+      "start": 454.9,
+      "end": 456.5,
+      "text": "buying it on a second-hand market"
+    },
+    {
+      "start": 456.5,
+      "end": 459.46,
+      "text": "where it's already been opened and initialized."
+    },
+    {
+      "start": 459.46,
+      "end": 462.66,
+      "text": "And if you are using a hardware device"
+    },
+    {
+      "start": 462.66,
+      "end": 465.06,
+      "text": "where someone else knows the private keys"
+    },
+    {
+      "start": 465.06,
+      "end": 467.46,
+      "text": "and then you're not really getting any security"
+    },
+    {
+      "start": 467.46,
+      "end": 469.46,
+      "text": "and they're just going to be able to sweep your funds"
+    },
+    {
+      "start": 469.46,
+      "end": 472.66,
+      "text": "as soon as you deposit anything."
+    },
+    {
+      "start": 473.97,
+      "end": 476.93,
+      "text": "Brain wallets are something that I believe"
+    },
+    {
+      "start": 476.93,
+      "end": 479.89,
+      "text": "were a lot more popular before hardware devices"
+    },
+    {
+      "start": 479.89,
+      "end": 482.61,
+      "text": "became more more popular,"
+    },
+    {
+      "start": 482.61,
+      "end": 486.69,
+      "text": "but this is a particularly devious attack"
+    },
+    {
+      "start": 486.77,
+      "end": 488.37,
+      "text": "that people are susceptible to"
+    },
+    {
+      "start": 488.37,
+      "end": 491.49,
+      "text": "because it requires absolutely no interaction"
+    },
+    {
+      "start": 491.49,
+      "end": 493.73,
+      "text": "between the victim and their attacker."
+    },
+    {
+      "start": 493.73,
+      "end": 497.33,
+      "text": "Rather, the attacker is just watching the blockchain data"
+    },
+    {
+      "start": 497.33,
+      "end": 499.33,
+      "text": "and trying to brute force keys"
+    },
+    {
+      "start": 499.33,
+      "end": 503.01,
+      "text": "to see if any have been deterministically generated"
+    },
+    {
+      "start": 503.01,
+      "end": 504.93,
+      "text": "with brain wallet algorithms."
+    },
+    {
+      "start": 504.93,
+      "end": 509.33,
+      "text": "So there are a number of examples here of common phrases"
+    },
+    {
+      "start": 509.33,
+      "end": 511.57,
+      "text": "that have had a lot of money put into them"
+    },
+    {
+      "start": 511.57,
+      "end": 513.17,
+      "text": "and stolen very quickly."
+    },
+    {
+      "start": 513.17,
+      "end": 515.01,
+      "text": "My favorite is actually the last one."
+    },
+    {
+      "start": 515.01,
+      "end": 516.21,
+      "text": "It's just a blank wallet."
+    },
+    {
+      "start": 516.21,
+      "end": 518.61,
+      "text": "It was like the default on some wallet generate"
+    },
+    {
+      "start": 518.61,
+      "end": 521.41,
+      "text": "or website and of course within a few seconds"
+    },
+    {
+      "start": 521.41,
+      "end": 523.49,
+      "text": "of the money being deposited it was gone."
+    },
+    {
+      "start": 523.49,
+      "end": 527.81,
+      "text": "So a short version here is that humans are very bad"
+    },
+    {
+      "start": 527.81,
+      "end": 529.97,
+      "text": "at generating randomness and entropy"
+    },
+    {
+      "start": 529.97,
+      "end": 533.01,
+      "text": "and that's essentially what a brain wallet is relying on."
+    },
+    {
+      "start": 533.01,
+      "end": 534.69,
+      "text": "So don't use brain wallets."
+    },
+    {
+      "start": 536.11,
+      "end": 538.11,
+      "text": "Malware is something that has been around"
+    },
+    {
+      "start": 538.11,
+      "end": 539.15,
+      "text": "for quite a few years,"
+    },
+    {
+      "start": 539.15,
+      "end": 541.07,
+      "text": "but as the incentives are changing,"
+    },
+    {
+      "start": 541.07,
+      "end": 543.47,
+      "text": "we're seeing more and more malware come out"
+    },
+    {
+      "start": 543.55,
+      "end": 546.99,
+      "text": "that will install itself in your browser"
+    },
+    {
+      "start": 546.99,
+      "end": 550.67,
+      "text": "through an extension or on your desktop,"
+    },
+    {
+      "start": 550.67,
+      "end": 554.27,
+      "text": "even some on mobile devices, though that's less common."
+    },
+    {
+      "start": 554.27,
+      "end": 557.31,
+      "text": "And it's going to be looking for private keys."
+    },
+    {
+      "start": 557.31,
+      "end": 560.11,
+      "text": "It's going to be trying to screw with any other wallet software"
+    },
+    {
+      "start": 560.11,
+      "end": 563.55,
+      "text": "that you have installed and try to get you"
+    },
+    {
+      "start": 563.55,
+      "end": 567.15,
+      "text": "to unintentionally send your money to the attacker."
+    },
+    {
+      "start": 567.15,
+      "end": 569.63,
+      "text": "So a more common version of malware"
+    },
+    {
+      "start": 569.63,
+      "end": 571.95,
+      "text": "we're seeing is clickboard malware,"
+    },
+    {
+      "start": 571.95,
+      "end": 574.27,
+      "text": "where essentially if you're copying an address"
+    },
+    {
+      "start": 574.27,
+      "end": 576.35,
+      "text": "because you're going to send money to it,"
+    },
+    {
+      "start": 576.35,
+      "end": 579.47,
+      "text": "then this malware is sitting on your device,"
+    },
+    {
+      "start": 579.47,
+      "end": 582.43,
+      "text": "reading everything that gets copied into the clipboard."
+    },
+    {
+      "start": 582.43,
+      "end": 585.23,
+      "text": "And if it sees a crypto address,"
+    },
+    {
+      "start": 585.23,
+      "end": 587.15,
+      "text": "then it'll actually swap it out with one"
+    },
+    {
+      "start": 587.15,
+      "end": 590.27,
+      "text": "that looks very similar, probably has the first few characters,"
+    },
+    {
+      "start": 590.27,
+      "end": 594.03,
+      "text": "the exact same except those addresses will belong to the attacker"
+    },
+    {
+      "start": 594.03,
+      "end": 596.99,
+      "text": "and you will unintentionally send your money to them."
+    },
+    {
+      "start": 596.99,
+      "end": 601.15,
+      "text": "So you have to be very careful, check the entire address,"
+    },
+    {
+      "start": 601.15,
+      "end": 602.91,
+      "text": "not just the first few characters"
+    },
+    {
+      "start": 602.91,
+      "end": 605.71,
+      "text": "whenever you're sending money in this space."
+    },
+    {
+      "start": 605.71,
+      "end": 609.71,
+      "text": "In a similar vein, another type of man in the middle attack"
+    },
+    {
+      "start": 609.71,
+      "end": 613.19,
+      "text": "that we've heard about recently, malicious tour relays,"
+    },
+    {
+      "start": 613.19,
+      "end": 618.23,
+      "text": "if you're doing any type of browser-based sending"
+    },
+    {
+      "start": 618.23,
+      "end": 622.31,
+      "text": "where you're sending to a service that is displaying an address"
+    },
+    {
+      "start": 622.31,
+      "end": 626.67,
+      "text": "in the browser, and if that service is not being served"
+    },
+    {
+      "start": 626.67,
+      "end": 630.59,
+      "text": "over SSL and encrypted, then if you're using Tor,"
+    },
+    {
+      "start": 630.67,
+      "end": 633.39,
+      "text": "it's possible there's a malicious exit node"
+    },
+    {
+      "start": 633.39,
+      "end": 636.87,
+      "text": "or relay node out there that is actually going to swap out"
+    },
+    {
+      "start": 636.87,
+      "end": 642.82,
+      "text": "that address once again for one that is owned by the attacker."
+    },
+    {
+      "start": 642.82,
+      "end": 646.74,
+      "text": "We're also seeing plenty of malicious QR code generators,"
+    },
+    {
+      "start": 646.74,
+      "end": 650.66,
+      "text": "just another common issue where people have an address,"
+    },
+    {
+      "start": 650.66,
+      "end": 653.1,
+      "text": "they want to be able to scan it with their mobile app."
+    },
+    {
+      "start": 653.1,
+      "end": 656.5,
+      "text": "And so there's probably hundreds of websites out there"
+    },
+    {
+      "start": 656.5,
+      "end": 659.62,
+      "text": "that you can paste data into and it generates a QR code."
+    },
+    {
+      "start": 659.62,
+      "end": 662.58,
+      "text": "But some of them, they'll act normally"
+    },
+    {
+      "start": 662.58,
+      "end": 666.42,
+      "text": "until you put in a Bitcoin address or something else,"
+    },
+    {
+      "start": 666.42,
+      "end": 670.14,
+      "text": "another type of common crypto and they will swap it out."
+    },
+    {
+      "start": 670.14,
+      "end": 675.34,
+      "text": "So be careful, always check your addresses multiple times."
+    },
+    {
+      "start": 675.34,
+      "end": 677.7,
+      "text": "Common thing that we see, especially with newbies"
+    },
+    {
+      "start": 677.7,
+      "end": 680.78,
+      "text": "in the system that are looking to improve their privacy,"
+    },
+    {
+      "start": 680.78,
+      "end": 683.38,
+      "text": "they want to mix their coins, they don't understand a lot"
+    },
+    {
+      "start": 683.38,
+      "end": 685.22,
+      "text": "about how mixers actually work."
+    },
+    {
+      "start": 685.22,
+      "end": 688.34,
+      "text": "And they'll probably just Google Bitcoin mixer"
+    },
+    {
+      "start": 688.34,
+      "end": 690.38,
+      "text": "and go to the first thing that comes up."
+    },
+    {
+      "start": 690.38,
+      "end": 694.34,
+      "text": "Unfortunately, a lot of these mixers are custodial"
+    },
+    {
+      "start": 694.34,
+      "end": 696.98,
+      "text": "and essentially you send your money to them."
+    },
+    {
+      "start": 696.98,
+      "end": 700.54,
+      "text": "And if that is the case, then it's probably"
+    },
+    {
+      "start": 700.54,
+      "end": 702.34,
+      "text": "not going to send your money back to you."
+    },
+    {
+      "start": 702.34,
+      "end": 703.94,
+      "text": "Have to be very careful about that."
+    },
+    {
+      "start": 703.94,
+      "end": 706.58,
+      "text": "Should only really use mixing software"
+    },
+    {
+      "start": 706.58,
+      "end": 708.74,
+      "text": "that you are running yourself, something like"
+    },
+    {
+      "start": 708.74,
+      "end": 712.82,
+      "text": "join market, wasabi or samarize solution,"
+    },
+    {
+      "start": 712.82,
+      "end": 715.34,
+      "text": "where you're not really handing over your money"
+    },
+    {
+      "start": 715.34,
+      "end": 717.14,
+      "text": "to a third party."
+    },
+    {
+      "start": 717.14,
+      "end": 721.26,
+      "text": "There's also plenty of malicious wallet software out there."
+    },
+    {
+      "start": 721.26,
+      "end": 723.86,
+      "text": "This one is an interesting case because I believe"
+    },
+    {
+      "start": 723.86,
+      "end": 730.26,
+      "text": "wallet generator was running as a up and up software generator"
+    },
+    {
+      "start": 730.26,
+      "end": 731.22,
+      "text": "for a number of years."
+    },
+    {
+      "start": 731.22,
+      "end": 734.22,
+      "text": "And I think it was purchased by a malicious actor."
+    },
+    {
+      "start": 734.22,
+      "end": 737.1,
+      "text": "This software was actually open source."
+    },
+    {
+      "start": 737.1,
+      "end": 740.46,
+      "text": "You could download it to an offline airgapped computer."
+    },
+    {
+      "start": 740.46,
+      "end": 743.5,
+      "text": "But even if you generated your keys offline,"
+    },
+    {
+      "start": 743.5,
+      "end": 746.86,
+      "text": "you were still susceptible to having your funds taken"
+    },
+    {
+      "start": 746.9,
+      "end": 750.54,
+      "text": "because they had put some underhanded malicious code"
+    },
+    {
+      "start": 750.54,
+      "end": 755.42,
+      "text": "in the generation of the keys that made it not random."
+    },
+    {
+      "start": 755.42,
+      "end": 757.62,
+      "text": "And so it was deterministic in a way"
+    },
+    {
+      "start": 757.62,
+      "end": 759.86,
+      "text": "that the attacker actually knew all of the keys"
+    },
+    {
+      "start": 759.86,
+      "end": 761.86,
+      "text": "that would be generated ahead of time."
+    },
+    {
+      "start": 761.86,
+      "end": 764.82,
+      "text": "And it was sufficiently obfuscated"
+    },
+    {
+      "start": 764.82,
+      "end": 768.02,
+      "text": "that auditing the code was not obvious"
+    },
+    {
+      "start": 768.02,
+      "end": 770.62,
+      "text": "and less or more sophisticated programmer looked at it."
+    },
+    {
+      "start": 770.62,
+      "end": 772.5,
+      "text": "So I think they got away with a decent amount"
+    },
+    {
+      "start": 772.5,
+      "end": 775.19,
+      "text": "of money before people caught on."
+    },
+    {
+      "start": 775.19,
+      "end": 780.39,
+      "text": "Sim swapping something that's been around for about five years"
+    },
+    {
+      "start": 780.39,
+      "end": 784.55,
+      "text": "in the Bitcoin space, it really started taking off in 2015."
+    },
+    {
+      "start": 784.55,
+      "end": 787.19,
+      "text": "The problem here being that a lot of services,"
+    },
+    {
+      "start": 787.19,
+      "end": 789.43,
+      "text": "even today, they should know better"
+    },
+    {
+      "start": 789.43,
+      "end": 794.23,
+      "text": "but they're using SMS as a two factor authentication"
+    },
+    {
+      "start": 794.23,
+      "end": 797.95,
+      "text": "or in some cases, even full account recovery mechanism."
+    },
+    {
+      "start": 797.95,
+      "end": 803.03,
+      "text": "And the short version is that the security around your mobile"
+    },
+    {
+      "start": 803.03,
+      "end": 805.43,
+      "text": "provider, especially if you're an American citizen,"
+    },
+    {
+      "start": 805.43,
+      "end": 807.43,
+      "text": "is extremely low."
+    },
+    {
+      "start": 807.43,
+      "end": 811.55,
+      "text": "You should not use anything phone number related"
+    },
+    {
+      "start": 811.55,
+      "end": 814.63,
+      "text": "as a secure authentication mechanism."
+    },
+    {
+      "start": 815.91,
+      "end": 817.95,
+      "text": "There's actually a weird trade off here"
+    },
+    {
+      "start": 817.95,
+      "end": 819.99,
+      "text": "where there are a number of countries"
+    },
+    {
+      "start": 819.99,
+      "end": 821.43,
+      "text": "that don't have this problem."
+    },
+    {
+      "start": 821.43,
+      "end": 823.67,
+      "text": "And usually that's because the country actually has"
+    },
+    {
+      "start": 823.67,
+      "end": 827.87,
+      "text": "draconian identification laws around Sims"
+    },
+    {
+      "start": 827.87,
+      "end": 832.31,
+      "text": "that actually require you to personally register your Sim"
+    },
+    {
+      "start": 832.31,
+      "end": 835.43,
+      "text": "with strong identification around your passport,"
+    },
+    {
+      "start": 835.43,
+      "end": 837.19,
+      "text": "driver license, or whatever."
+    },
+    {
+      "start": 837.19,
+      "end": 842.22,
+      "text": "So it's a weird situation where we have some additional freedoms"
+    },
+    {
+      "start": 843.5,
+      "end": 846.94,
+      "text": "and privacy potential in America,"
+    },
+    {
+      "start": 846.94,
+      "end": 850.7,
+      "text": "but the trade off is that it's easy for people who are not us"
+    },
+    {
+      "start": 850.7,
+      "end": 852.66,
+      "text": "to then steal our Sim."
+    },
+    {
+      "start": 852.66,
+      "end": 857.46,
+      "text": "So use hardware devices whenever possible."
+    },
+    {
+      "start": 857.46,
+      "end": 860.82,
+      "text": "And by hardware devices, I mean things like Ubiqui"
+    },
+    {
+      "start": 861.06,
+      "end": 865.82,
+      "text": "or even Trezor has like a U2F two factor authentication"
+    },
+    {
+      "start": 866.14,
+      "end": 868.22,
+      "text": "functionality."
+    },
+    {
+      "start": 868.22,
+      "end": 872.78,
+      "text": "Now as this space is becoming more secure,"
+    },
+    {
+      "start": 872.78,
+      "end": 876.7,
+      "text": "as we are learning and we're improving our best practices,"
+    },
+    {
+      "start": 876.7,
+      "end": 879.3,
+      "text": "there's the software and hardware continue"
+    },
+    {
+      "start": 879.3,
+      "end": 882.18,
+      "text": "to improve over the years, the weakness"
+    },
+    {
+      "start": 882.18,
+      "end": 884.98,
+      "text": "that will always remain is the humans."
+    },
+    {
+      "start": 884.98,
+      "end": 888.14,
+      "text": "And so social engineering is something that becomes"
+    },
+    {
+      "start": 888.14,
+      "end": 889.66,
+      "text": "more and more prevalent."
+    },
+    {
+      "start": 889.66,
+      "end": 892.02,
+      "text": "And in fact, that is what a number of these attacks"
+    },
+    {
+      "start": 892.02,
+      "end": 894.78,
+      "text": "that I've already talked about actually are."
+    },
+    {
+      "start": 894.78,
+      "end": 897.82,
+      "text": "They aren't using technical weaknesses"
+    },
+    {
+      "start": 897.82,
+      "end": 899.78,
+      "text": "to take your money away from you,"
+    },
+    {
+      "start": 899.78,
+      "end": 902.98,
+      "text": "rather they are using weaknesses in other parts"
+    },
+    {
+      "start": 902.98,
+      "end": 907.5,
+      "text": "of the software stack to fool the human"
+    },
+    {
+      "start": 907.5,
+      "end": 910.62,
+      "text": "into voluntarily sending their money away."
+    },
+    {
+      "start": 910.62,
+      "end": 914.06,
+      "text": "So this was an example of a more sophisticated attack"
+    },
+    {
+      "start": 914.06,
+      "end": 915.94,
+      "text": "that was actually a multi-hop attack"
+    },
+    {
+      "start": 915.94,
+      "end": 918.78,
+      "text": "against several different people at different companies."
+    },
+    {
+      "start": 918.78,
+      "end": 922.42,
+      "text": "And the primary problem or thing that could have stopped it"
+    },
+    {
+      "start": 922.42,
+      "end": 926.1,
+      "text": "is having a stronger authentication."
+    },
+    {
+      "start": 926.1,
+      "end": 929.06,
+      "text": "So if you're sending money simply because you receive"
+    },
+    {
+      "start": 929.06,
+      "end": 932.54,
+      "text": "an email from someone, especially if it's not like a GPG"
+    },
+    {
+      "start": 932.54,
+      "end": 938.37,
+      "text": "signed email, then you shouldn't trust it."
+    },
+    {
+      "start": 938.37,
+      "end": 941.65,
+      "text": "Fishing with AdWords is something that has been prevalent"
+    },
+    {
+      "start": 941.65,
+      "end": 944.81,
+      "text": "for a number of years and Google doesn't seem to be doing"
+    },
+    {
+      "start": 944.81,
+      "end": 947.17,
+      "text": "a very good job stopping it."
+    },
+    {
+      "start": 947.17,
+      "end": 950.83,
+      "text": "These fishers are actually paying Google"
+    },
+    {
+      "start": 950.83,
+      "end": 956.03,
+      "text": "for ad placement for common browser-based wallets"
+    },
+    {
+      "start": 956.03,
+      "end": 959.35,
+      "text": "and other online custodians."
+    },
+    {
+      "start": 959.35,
+      "end": 962.15,
+      "text": "And they're praying upon people's laziness."
+    },
+    {
+      "start": 962.15,
+      "end": 963.63,
+      "text": "You might have a blockchain wallet"
+    },
+    {
+      "start": 963.63,
+      "end": 966.11,
+      "text": "or a coin-based exchange account or whatever."
+    },
+    {
+      "start": 966.11,
+      "end": 970.67,
+      "text": "And a lot of people, I think they just go to Google"
+    },
+    {
+      "start": 970.67,
+      "end": 972.11,
+      "text": "and type in what they want to go to"
+    },
+    {
+      "start": 972.11,
+      "end": 973.47,
+      "text": "and then click on the first thing."
+    },
+    {
+      "start": 973.47,
+      "end": 977.07,
+      "text": "And that's where this trap will spring."
+    },
+    {
+      "start": 977.07,
+      "end": 980.91,
+      "text": "The easy way around it is that you shouldn't be searching"
+    },
+    {
+      "start": 980.91,
+      "end": 983.71,
+      "text": "for the web-based services that you're using commonly."
+    },
+    {
+      "start": 983.71,
+      "end": 986.63,
+      "text": "You should bookmark them and always use the bookmarks"
+    },
+    {
+      "start": 986.63,
+      "end": 989.03,
+      "text": "to make sure that you're going to the service"
+    },
+    {
+      "start": 989.03,
+      "end": 991.35,
+      "text": "that you think you are."
+    },
+    {
+      "start": 991.35,
+      "end": 995.55,
+      "text": "On a very similar vein, something called typo-swatting,"
+    },
+    {
+      "start": 995.55,
+      "end": 999.31,
+      "text": "where instead of the attack occurring"
+    },
+    {
+      "start": 999.31,
+      "end": 1001.55,
+      "text": "at the search engine level, it actually"
+    },
+    {
+      "start": 1001.55,
+      "end": 1004.75,
+      "text": "is occurring at the domain name service level."
+    },
+    {
+      "start": 1004.75,
+      "end": 1009.75,
+      "text": "So malicious attackers will purchase variations"
+    },
+    {
+      "start": 1009.75,
+      "end": 1016.12,
+      "text": "of common popular services that you would essentially"
+    },
+    {
+      "start": 1016.12,
+      "end": 1017.88,
+      "text": "type in incorrectly."
+    },
+    {
+      "start": 1017.88,
+      "end": 1022.52,
+      "text": "So one or two characters off of the real thing."
+    },
+    {
+      "start": 1022.52,
+      "end": 1026.72,
+      "text": "And once again, if you're just being lazy"
+    },
+    {
+      "start": 1026.72,
+      "end": 1030.44,
+      "text": "and you type in the URL to wherever"
+    },
+    {
+      "start": 1030.44,
+      "end": 1033.72,
+      "text": "you're going all the time, then it's probably going"
+    },
+    {
+      "start": 1033.72,
+      "end": 1035.92,
+      "text": "to happen over a long enough period of time."
+    },
+    {
+      "start": 1035.92,
+      "end": 1037.88,
+      "text": "You're going to make a typo at some point."
+    },
+    {
+      "start": 1037.88,
+      "end": 1041.4,
+      "text": "And you might end up at one of these clone hijacker sites,"
+    },
+    {
+      "start": 1041.4,
+      "end": 1043.8,
+      "text": "put in all of your authentication info,"
+    },
+    {
+      "start": 1043.8,
+      "end": 1047.2,
+      "text": "and then they just proxy it to the real service, log in,"
+    },
+    {
+      "start": 1047.2,
+      "end": 1049.24,
+      "text": "and sweep all of your money."
+    },
+    {
+      "start": 1049.24,
+      "end": 1053.44,
+      "text": "So once again, bookmarks are your friend."
+    },
+    {
+      "start": 1053.44,
+      "end": 1055.92,
+      "text": "Now, this is an interesting one."
+    },
+    {
+      "start": 1055.92,
+      "end": 1058.56,
+      "text": "Fake air drops were a thing in 2017."
+    },
+    {
+      "start": 1058.56,
+      "end": 1060.96,
+      "text": "There was a number of malicious software, especially"
+    },
+    {
+      "start": 1060.96,
+      "end": 1064.84,
+      "text": "when there were like 50 different Bitcoin forks happening"
+    },
+    {
+      "start": 1064.84,
+      "end": 1066.72,
+      "text": "in a several month time span."
+    },
+    {
+      "start": 1066.72,
+      "end": 1068.64,
+      "text": "Some of that software was malicious,"
+    },
+    {
+      "start": 1068.64,
+      "end": 1071.0,
+      "text": "and it would just literally steal all your Bitcoin keys"
+    },
+    {
+      "start": 1071.0,
+      "end": 1075.48,
+      "text": "instead of allowing you to split off air dropped funds"
+    },
+    {
+      "start": 1075.48,
+      "end": 1076.76,
+      "text": "from another chain."
+    },
+    {
+      "start": 1076.76,
+      "end": 1079.08,
+      "text": "But this is one that I actually came across just"
+    },
+    {
+      "start": 1079.08,
+      "end": 1082.29,
+      "text": "in the past week."
+    },
+    {
+      "start": 1082.29,
+      "end": 1085.77,
+      "text": "Obviously, this is a ripple-based scam."
+    },
+    {
+      "start": 1085.77,
+      "end": 1089.97,
+      "text": "And if it's too small for you to see in the URL,"
+    },
+    {
+      "start": 1089.97,
+      "end": 1092.73,
+      "text": "it's ripple.com.so."
+    },
+    {
+      "start": 1092.73,
+      "end": 1095.27,
+      "text": "So most people are probably going to miss that."
+    },
+    {
+      "start": 1095.27,
+      "end": 1098.35,
+      "text": "It has a valid SSL certificate."
+    },
+    {
+      "start": 1098.35,
+      "end": 1102.39,
+      "text": "So nothing to throw any red flags there."
+    },
+    {
+      "start": 1102.39,
+      "end": 1105.55,
+      "text": "It looks a lot like the ripple website."
+    },
+    {
+      "start": 1105.55,
+      "end": 1109.15,
+      "text": "And the most interesting things that I found when I started"
+    },
+    {
+      "start": 1109.15,
+      "end": 1113.83,
+      "text": "digging deeper into this is that they would actually detect"
+    },
+    {
+      "start": 1113.83,
+      "end": 1118.23,
+      "text": "if you put in your address and it belonged to an exchange."
+    },
+    {
+      "start": 1118.23,
+      "end": 1123.39,
+      "text": "I guess they had some sophisticated analytics on that."
+    },
+    {
+      "start": 1123.39,
+      "end": 1126.11,
+      "text": "They would detect that this is an exchange address"
+    },
+    {
+      "start": 1126.11,
+      "end": 1128.87,
+      "text": "and ask you to withdraw your money to your own wallet"
+    },
+    {
+      "start": 1128.87,
+      "end": 1132.15,
+      "text": "before you could proceed with the air drop."
+    },
+    {
+      "start": 1132.15,
+      "end": 1137.79,
+      "text": "The other unique thing I saw was they were actually kind"
+    },
+    {
+      "start": 1137.79,
+      "end": 1141.31,
+      "text": "of nice in that they checked the balance on your address."
+    },
+    {
+      "start": 1141.31,
+      "end": 1143.59,
+      "text": "And if it was less than $1,000, they actually"
+    },
+    {
+      "start": 1143.59,
+      "end": 1145.19,
+      "text": "declined to steal your money."
+    },
+    {
+      "start": 1145.19,
+      "end": 1148.31,
+      "text": "Of course, the way that they put it was, oh,"
+    },
+    {
+      "start": 1148.31,
+      "end": 1151.83,
+      "text": "your balance is too low to qualify for our incentive program."
+    },
+    {
+      "start": 1151.83,
+      "end": 1155.11,
+      "text": "So that was a very surprising thing."
+    },
+    {
+      "start": 1155.11,
+      "end": 1158.75,
+      "text": "But the most unique thing that I had never seen before,"
+    },
+    {
+      "start": 1158.75,
+      "end": 1162.19,
+      "text": "which is also probably hard to see, but in the center there,"
+    },
+    {
+      "start": 1162.19,
+      "end": 1166.91,
+      "text": "they have a fully functional in-browser ledger hardware"
+    },
+    {
+      "start": 1166.91,
+      "end": 1168.03,
+      "text": "wallet integration."
+    },
+    {
+      "start": 1168.03,
+      "end": 1169.39,
+      "text": "I tested this out."
+    },
+    {
+      "start": 1169.39,
+      "end": 1171.43,
+      "text": "It works."
+    },
+    {
+      "start": 1171.43,
+      "end": 1173.55,
+      "text": "You can actually plug in your ledger wallet"
+    },
+    {
+      "start": 1173.55,
+      "end": 1176.03,
+      "text": "and it will construct a transaction that,"
+    },
+    {
+      "start": 1176.03,
+      "end": 1178.87,
+      "text": "if you're dumb enough to click on the buttons,"
+    },
+    {
+      "start": 1178.87,
+      "end": 1182.83,
+      "text": "it will sign that transaction and sweep your entire"
+    },
+    {
+      "start": 1182.83,
+      "end": 1185.69,
+      "text": "ripple wallet balance."
+    },
+    {
+      "start": 1185.69,
+      "end": 1188.57,
+      "text": "So this is really what I'm trying to warn people about."
+    },
+    {
+      "start": 1188.57,
+      "end": 1191.21,
+      "text": "Is it like, I've known that this type of stuff"
+    },
+    {
+      "start": 1191.21,
+      "end": 1195.17,
+      "text": "was possible for years, but it hasn't happened"
+    },
+    {
+      "start": 1195.17,
+      "end": 1197.01,
+      "text": "until now that the incentives continue"
+    },
+    {
+      "start": 1197.01,
+      "end": 1199.81,
+      "text": "to grow and the sophistication of the attackers"
+    },
+    {
+      "start": 1199.81,
+      "end": 1201.41,
+      "text": "continues to improve."
+    },
+    {
+      "start": 1201.41,
+      "end": 1204.01,
+      "text": "So we need to remain on our guard."
+    },
+    {
+      "start": 1204.01,
+      "end": 1205.97,
+      "text": "Now you're probably wondering, well,"
+    },
+    {
+      "start": 1205.97,
+      "end": 1208.09,
+      "text": "we've gone through a number of nightmare scenarios."
+    },
+    {
+      "start": 1208.09,
+      "end": 1210.65,
+      "text": "What's the greatest threat?"
+    },
+    {
+      "start": 1210.65,
+      "end": 1214.66,
+      "text": "It's actually, I would say, none of these things."
+    },
+    {
+      "start": 1214.66,
+      "end": 1217.96,
+      "text": "All you have to do is look in the mirror."
+    },
+    {
+      "start": 1217.96,
+      "end": 1219.64,
+      "text": "If you remember one of those first slides"
+    },
+    {
+      "start": 1219.64,
+      "end": 1224.52,
+      "text": "I showed about Bitcoin like lost versus Bitcoin stolen"
+    },
+    {
+      "start": 1224.52,
+      "end": 1226.8,
+      "text": "and anecdotally, over the years, this"
+    },
+    {
+      "start": 1226.8,
+      "end": 1230.2,
+      "text": "is what I have seen myself is that you're actually far more"
+    },
+    {
+      "start": 1230.2,
+      "end": 1232.56,
+      "text": "likely to screw up yourself and lose access"
+    },
+    {
+      "start": 1232.56,
+      "end": 1234.64,
+      "text": "to your private keys than you are"
+    },
+    {
+      "start": 1234.64,
+      "end": 1237.0,
+      "text": "to have your money stolen from you."
+    },
+    {
+      "start": 1237.0,
+      "end": 1242.98,
+      "text": "So simple things like bad cyber hygiene"
+    },
+    {
+      "start": 1242.98,
+      "end": 1246.34,
+      "text": "or reusing passwords and passwords getting leaked"
+    },
+    {
+      "start": 1246.34,
+      "end": 1248.1,
+      "text": "from other parties and then getting"
+    },
+    {
+      "start": 1248.1,
+      "end": 1252.58,
+      "text": "used to log into your other crypto services."
+    },
+    {
+      "start": 1252.58,
+      "end": 1255.14,
+      "text": "This is something that we see a lot in the security spaces."
+    },
+    {
+      "start": 1255.14,
+      "end": 1259.42,
+      "text": "Whenever there's a major hack and leak of an online database"
+    },
+    {
+      "start": 1259.46,
+      "end": 1265.1,
+      "text": "we start getting slammed with basically millions of login"
+    },
+    {
+      "start": 1265.1,
+      "end": 1267.82,
+      "text": "requests where someone's just going through all the user"
+    },
+    {
+      "start": 1267.82,
+      "end": 1269.22,
+      "text": "names and passwords from that leak"
+    },
+    {
+      "start": 1269.22,
+      "end": 1272.26,
+      "text": "and using them against our service, against other services."
+    },
+    {
+      "start": 1272.26,
+      "end": 1279.94,
+      "text": "And if they find a hit, that's free money."
+    },
+    {
+      "start": 1279.94,
+      "end": 1284.1,
+      "text": "On the other hand, simple IT data management practices"
+    },
+    {
+      "start": 1284.1,
+      "end": 1287.78,
+      "text": "it's tough for a lot of people, even more sophisticated folks."
+    },
+    {
+      "start": 1287.78,
+      "end": 1291.94,
+      "text": "And nobody really wants to spend time backing up their data."
+    },
+    {
+      "start": 1291.94,
+      "end": 1294.22,
+      "text": "Here's some examples of, you know,"
+    },
+    {
+      "start": 1294.22,
+      "end": 1297.3,
+      "text": "Stefan Thomas actually had three different redundant copies"
+    },
+    {
+      "start": 1297.3,
+      "end": 1299.54,
+      "text": "of his wallet, but he managed to delete two of them"
+    },
+    {
+      "start": 1299.54,
+      "end": 1302.18,
+      "text": "and lose the password for the third."
+    },
+    {
+      "start": 1302.18,
+      "end": 1305.18,
+      "text": "On the other hand, I believe this was an editor"
+    },
+    {
+      "start": 1305.18,
+      "end": 1307.42,
+      "text": "for a tech magazine."
+    },
+    {
+      "start": 1307.42,
+      "end": 1310.34,
+      "text": "He had backed up his pin and recovery seed"
+    },
+    {
+      "start": 1310.34,
+      "end": 1313.78,
+      "text": "on the same piece of paper and the house cleaning service"
+    },
+    {
+      "start": 1313.78,
+      "end": 1315.3,
+      "text": "through it away."
+    },
+    {
+      "start": 1315.3,
+      "end": 1318.02,
+      "text": "He did end up getting his Bitcoin recovered"
+    },
+    {
+      "start": 1318.02,
+      "end": 1320.94,
+      "text": "but it actually required a highly sophisticated"
+    },
+    {
+      "start": 1320.94,
+      "end": 1323.94,
+      "text": "technical attack against his treasurer."
+    },
+    {
+      "start": 1323.94,
+      "end": 1326.78,
+      "text": "So that turned into a really lengthy,"
+    },
+    {
+      "start": 1326.78,
+      "end": 1329.78,
+      "text": "interesting article to read a number of years ago."
+    },
+    {
+      "start": 1329.78,
+      "end": 1332.14,
+      "text": "Of course, a lot of you have probably heard about,"
+    },
+    {
+      "start": 1332.14,
+      "end": 1335.86,
+      "text": "I believe it was James Howles, very early Bitcoin miner"
+    },
+    {
+      "start": 1335.86,
+      "end": 1338.22,
+      "text": "who had thousands and thousands of Bitcoin"
+    },
+    {
+      "start": 1338.22,
+      "end": 1339.66,
+      "text": "that were just stored on a hard drive"
+    },
+    {
+      "start": 1339.66,
+      "end": 1341.02,
+      "text": "that he accidentally threw out,"
+    },
+    {
+      "start": 1341.02,
+      "end": 1343.9,
+      "text": "I believe during spring cleaning or something at some point"
+    },
+    {
+      "start": 1343.9,
+      "end": 1346.58,
+      "text": "and didn't realize it until much later"
+    },
+    {
+      "start": 1346.58,
+      "end": 1350.14,
+      "text": "and unfortunately his requests to his local city"
+    },
+    {
+      "start": 1350.14,
+      "end": 1356.41,
+      "text": "to go through the dump and excavate it have been denied."
+    },
+    {
+      "start": 1356.41,
+      "end": 1359.49,
+      "text": "Of course, some people do back up their keys"
+    },
+    {
+      "start": 1359.49,
+      "end": 1361.93,
+      "text": "but they don't do it in a secure manner."
+    },
+    {
+      "start": 1361.93,
+      "end": 1365.89,
+      "text": "And if you just back them up into a third party service"
+    },
+    {
+      "start": 1365.89,
+      "end": 1369.09,
+      "text": "unencrypted then some terrible things could happen"
+    },
+    {
+      "start": 1369.09,
+      "end": 1373.32,
+      "text": "if the wrong person gets access to that account."
+    },
+    {
+      "start": 1373.32,
+      "end": 1377.6,
+      "text": "Paper wallets, thankfully I believe are becoming less popular"
+    },
+    {
+      "start": 1377.6,
+      "end": 1380.32,
+      "text": "but there's just a lot of things that can go wrong with them."
+    },
+    {
+      "start": 1380.36,
+      "end": 1383.24,
+      "text": "It's hard to generate the keys securely."
+    },
+    {
+      "start": 1383.24,
+      "end": 1385.48,
+      "text": "It's in many cases they're not encrypted"
+    },
+    {
+      "start": 1385.48,
+      "end": 1388.16,
+      "text": "so if an attacker finds it they can steal the money."
+    },
+    {
+      "start": 1388.16,
+      "end": 1391.76,
+      "text": "Of course, paper itself can easily be destroyed."
+    },
+    {
+      "start": 1391.76,
+      "end": 1394.32,
+      "text": "And one common thing that not many people know about"
+    },
+    {
+      "start": 1394.32,
+      "end": 1398.4,
+      "text": "is a lot of paper wallets are just like a single private key"
+    },
+    {
+      "start": 1398.4,
+      "end": 1400.72,
+      "text": "and if you load that into software and spend it"
+    },
+    {
+      "start": 1400.72,
+      "end": 1402.72,
+      "text": "but don't spend the entire balance,"
+    },
+    {
+      "start": 1402.72,
+      "end": 1406.24,
+      "text": "then the rest of the balance in many cases"
+    },
+    {
+      "start": 1406.24,
+      "end": 1410.2,
+      "text": "of Bitcoin software will get sent to another private key"
+    },
+    {
+      "start": 1410.24,
+      "end": 1413.52,
+      "text": "and other address that actually doesn't exist in your backup."
+    },
+    {
+      "start": 1413.52,
+      "end": 1416.44,
+      "text": "And so a lot of people have unintentionally lost their money"
+    },
+    {
+      "start": 1416.44,
+      "end": 1419.32,
+      "text": "that way by not fully sweeping the wallets."
+    },
+    {
+      "start": 1419.32,
+      "end": 1421.52,
+      "text": "Metal wallets definitely a lot better."
+    },
+    {
+      "start": 1421.52,
+      "end": 1424.35,
+      "text": "However, not a panacea."
+    },
+    {
+      "start": 1424.35,
+      "end": 1428.63,
+      "text": "I have another project where I stress test these metal devices"
+    },
+    {
+      "start": 1428.63,
+      "end": 1431.87,
+      "text": "and some of them are not as robust as you might think."
+    },
+    {
+      "start": 1432.87,
+      "end": 1436.19,
+      "text": "The short version of this is usually the more pieces"
+    },
+    {
+      "start": 1436.19,
+      "end": 1439.43,
+      "text": "a metal device has, the more complex it is,"
+    },
+    {
+      "start": 1439.43,
+      "end": 1441.79,
+      "text": "the more likely it is to have some sort of failure"
+    },
+    {
+      "start": 1441.79,
+      "end": 1443.43,
+      "text": "under various stresses."
+    },
+    {
+      "start": 1443.43,
+      "end": 1447.31,
+      "text": "Once again, these devices are very rarely unencrypted"
+    },
+    {
+      "start": 1447.31,
+      "end": 1450.07,
+      "text": "so a physical attacker could probably steal your money"
+    },
+    {
+      "start": 1450.07,
+      "end": 1452.51,
+      "text": "if it's a single signature backup."
+    },
+    {
+      "start": 1452.51,
+      "end": 1454.91,
+      "text": "Environmental factors are less of an issue"
+    },
+    {
+      "start": 1454.91,
+      "end": 1458.07,
+      "text": "but some of them do not in my experience"
+    },
+    {
+      "start": 1458.07,
+      "end": 1459.91,
+      "text": "survive a common house fire."
+    },
+    {
+      "start": 1461.78,
+      "end": 1465.3,
+      "text": "They may not survive a building collapse, et cetera, et cetera."
+    },
+    {
+      "start": 1466.54,
+      "end": 1469.42,
+      "text": "And this is a quick review,"
+    },
+    {
+      "start": 1469.42,
+      "end": 1471.02,
+      "text": "but if you just go to lop.net,"
+    },
+    {
+      "start": 1471.02,
+      "end": 1475.54,
+      "text": "you can find a link to all of my detailed stress tests."
+    },
+    {
+      "start": 1475.54,
+      "end": 1477.78,
+      "text": "So best practices, what do we really wanna do?"
+    },
+    {
+      "start": 1477.78,
+      "end": 1480.94,
+      "text": "Well, when I'm architecting things for CASA,"
+    },
+    {
+      "start": 1480.94,
+      "end": 1484.02,
+      "text": "my primary consideration is to eliminate single points"
+    },
+    {
+      "start": 1484.02,
+      "end": 1486.54,
+      "text": "of failure, how do we do that?"
+    },
+    {
+      "start": 1486.54,
+      "end": 1488.18,
+      "text": "Use multi-signature wallets,"
+    },
+    {
+      "start": 1488.18,
+      "end": 1490.42,
+      "text": "use a diversity of different hardware devices"
+    },
+    {
+      "start": 1490.42,
+      "end": 1493.38,
+      "text": "to prevent things like supply chain attacks"
+    },
+    {
+      "start": 1493.38,
+      "end": 1496.06,
+      "text": "or any possible catastrophic bug"
+    },
+    {
+      "start": 1496.06,
+      "end": 1500.46,
+      "text": "and any one device, any one brand."
+    },
+    {
+      "start": 1500.46,
+      "end": 1504.86,
+      "text": "And then we also geographically separate those devices"
+    },
+    {
+      "start": 1504.86,
+      "end": 1507.18,
+      "text": "and that gives you additional robustness"
+    },
+    {
+      "start": 1507.18,
+      "end": 1509.66,
+      "text": "against things like environmental disasters"
+    },
+    {
+      "start": 1509.66,
+      "end": 1512.3,
+      "text": "or like I said, the $5 wrench attack."
+    },
+    {
+      "start": 1512.3,
+      "end": 1516.5,
+      "text": "If the keys to your setup are sufficiently geographically"
+    },
+    {
+      "start": 1516.5,
+      "end": 1520.3,
+      "text": "distributed amongst a variety of different access controlled"
+    },
+    {
+      "start": 1520.3,
+      "end": 1522.62,
+      "text": "locations, that in my opinion"
+    },
+    {
+      "start": 1522.62,
+      "end": 1525.02,
+      "text": "is how we achieve a level of security"
+    },
+    {
+      "start": 1525.02,
+      "end": 1528.22,
+      "text": "that is actually superior to your average bank."
+    },
+    {
+      "start": 1528.22,
+      "end": 1530.9,
+      "text": "And when it comes to using these metal backups"
+    },
+    {
+      "start": 1530.9,
+      "end": 1534.74,
+      "text": "for seed phrases, I basically recommend using"
+    },
+    {
+      "start": 1534.74,
+      "end": 1537.02,
+      "text": "the simplest devices out there,"
+    },
+    {
+      "start": 1537.02,
+      "end": 1539.5,
+      "text": "the block plate, seed plate, steel wallet,"
+    },
+    {
+      "start": 1539.5,
+      "end": 1542.54,
+      "text": "just a single sheet of metal that you punch,"
+    },
+    {
+      "start": 1542.54,
+      "end": 1545.34,
+      "text": "some little holes into with a straight punch"
+    },
+    {
+      "start": 1545.34,
+      "end": 1548.1,
+      "text": "and that will survive basically enter, right?"
+    },
+    {
+      "start": 1548.1,
+      "end": 1550.58,
+      "text": "Anything that you can imagine."
+    },
+    {
+      "start": 1550.66,
+      "end": 1554.5,
+      "text": "So, haven't really talked much about operational security,"
+    },
+    {
+      "start": 1554.5,
+      "end": 1557.54,
+      "text": "that could be a whole other talk in and of itself."
+    },
+    {
+      "start": 1557.54,
+      "end": 1560.3,
+      "text": "First rule of Bitcoin Club is always talk about Bitcoin."
+    },
+    {
+      "start": 1560.3,
+      "end": 1563.14,
+      "text": "Second rule is never talk about your Bitcoin."
+    },
+    {
+      "start": 1563.14,
+      "end": 1564.46,
+      "text": "And what do we mean by that?"
+    },
+    {
+      "start": 1564.46,
+      "end": 1569.66,
+      "text": "Well, here we see, this was a tweet from Cody Brown in 2017"
+    },
+    {
+      "start": 1569.66,
+      "end": 1572.1,
+      "text": "where he was actually referencing a Facebook post"
+    },
+    {
+      "start": 1572.1,
+      "end": 1574.58,
+      "text": "from a friend of his who got Sima swapped"
+    },
+    {
+      "start": 1574.58,
+      "end": 1577.5,
+      "text": "and had all of his money taken out of his Coinbase account."
+    },
+    {
+      "start": 1577.5,
+      "end": 1581.82,
+      "text": "Well, within 48 hours of Cody Brown tweeting this,"
+    },
+    {
+      "start": 1581.82,
+      "end": 1585.06,
+      "text": "you'll notice he says, I trade all of my coins there"
+    },
+    {
+      "start": 1585.06,
+      "end": 1588.22,
+      "text": "worried by their lack of transparency and response."
+    },
+    {
+      "start": 1588.22,
+      "end": 1591.06,
+      "text": "He got Sim swapped and all of his money got taken out"
+    },
+    {
+      "start": 1591.06,
+      "end": 1592.66,
+      "text": "of his Coinbase account."
+    },
+    {
+      "start": 1592.66,
+      "end": 1596.22,
+      "text": "Now, obviously we can't say for certain"
+    },
+    {
+      "start": 1596.22,
+      "end": 1598.1,
+      "text": "that that never would have happened otherwise,"
+    },
+    {
+      "start": 1598.1,
+      "end": 1600.82,
+      "text": "but he made himself a very juicy target"
+    },
+    {
+      "start": 1600.82,
+      "end": 1603.61,
+      "text": "and unfortunately he paid the price for it."
+    },
+    {
+      "start": 1603.61,
+      "end": 1608.13,
+      "text": "So, if you're going to be public on Twitter,"
+    },
+    {
+      "start": 1608.13,
+      "end": 1611.29,
+      "text": "other social media, the easiest thing to do"
+    },
+    {
+      "start": 1611.29,
+      "end": 1615.25,
+      "text": "is to use a pseudonym and not your real name"
+    },
+    {
+      "start": 1615.25,
+      "end": 1617.45,
+      "text": "that people can then find information about"
+    },
+    {
+      "start": 1617.45,
+      "end": 1618.77,
+      "text": "and try to attack."
+    },
+    {
+      "start": 1618.77,
+      "end": 1621.73,
+      "text": "Otherwise, you need to go down the privacy rabbit hole"
+    },
+    {
+      "start": 1621.73,
+      "end": 1624.77,
+      "text": "that I've done that takes a lot of time,"
+    },
+    {
+      "start": 1624.77,
+      "end": 1626.65,
+      "text": "a lot of resources."
+    },
+    {
+      "start": 1626.65,
+      "end": 1631.17,
+      "text": "Now, finally, the end, very few people,"
+    },
+    {
+      "start": 1631.17,
+      "end": 1633.81,
+      "text": "it seems in this space, perhaps because a lot"
+    },
+    {
+      "start": 1633.81,
+      "end": 1635.49,
+      "text": "of the early adopters are younger,"
+    },
+    {
+      "start": 1635.49,
+      "end": 1638.37,
+      "text": "seem to be thinking about inheritance issues."
+    },
+    {
+      "start": 1638.37,
+      "end": 1640.81,
+      "text": "And so, we have a number of clients come to us"
+    },
+    {
+      "start": 1640.81,
+      "end": 1644.25,
+      "text": "because at CASA, we have an inheritance setup"
+    },
+    {
+      "start": 1644.25,
+      "end": 1647.53,
+      "text": "that we spend a lot of time architecting"
+    },
+    {
+      "start": 1647.53,
+      "end": 1650.69,
+      "text": "to work within the traditional estate planning process,"
+    },
+    {
+      "start": 1650.69,
+      "end": 1656.01,
+      "text": "but the ones that come to us that do have an inheritance plan,"
+    },
+    {
+      "start": 1656.01,
+      "end": 1660.05,
+      "text": "usually it can be best described as a treasure hunt."
+    },
+    {
+      "start": 1660.05,
+      "end": 1661.89,
+      "text": "And the problem with a lot of these treasure hunts"
+    },
+    {
+      "start": 1661.89,
+      "end": 1663.49,
+      "text": "is that they tend to be very brittle"
+    },
+    {
+      "start": 1663.49,
+      "end": 1665.45,
+      "text": "and are usually not well tested."
+    },
+    {
+      "start": 1665.45,
+      "end": 1670.29,
+      "text": "And so, if you have a multi-hop process treasure hunt"
+    },
+    {
+      "start": 1670.29,
+      "end": 1672.05,
+      "text": "that your errors, your beneficiaries"
+    },
+    {
+      "start": 1672.05,
+      "end": 1675.13,
+      "text": "would have to go through in order to recover your funds,"
+    },
+    {
+      "start": 1675.13,
+      "end": 1678.05,
+      "text": "you need to be very careful that there aren't single points"
+    },
+    {
+      "start": 1678.05,
+      "end": 1679.93,
+      "text": "of failure in that as well."
+    },
+    {
+      "start": 1679.93,
+      "end": 1682.61,
+      "text": "Because usually, if you get one step wrong"
+    },
+    {
+      "start": 1682.61,
+      "end": 1684.85,
+      "text": "or they can't figure out how to execute it,"
+    },
+    {
+      "start": 1684.85,
+      "end": 1688.23,
+      "text": "then they'll never be able to recover your money."
+    },
+    {
+      "start": 1688.23,
+      "end": 1691.51,
+      "text": "So, I think we have a few minutes left for questions."
+    },
+    {
+      "start": 1691.51,
+      "end": 1694.31,
+      "text": "This is still just trying to cram everything that I can"
+    },
+    {
+      "start": 1694.31,
+      "end": 1695.91,
+      "text": "to in a short period of time,"
+    },
+    {
+      "start": 1695.91,
+      "end": 1699.35,
+      "text": "but this is the type of stuff that I have been dealing with"
+    },
+    {
+      "start": 1699.35,
+      "end": 1702.47,
+      "text": "for several years and trying to continue"
+    },
+    {
+      "start": 1702.47,
+      "end": 1705.31,
+      "text": "to architect solutions so that the average person"
+    },
+    {
+      "start": 1705.31,
+      "end": 1708.11,
+      "text": "doesn't have to worry about every single possible thing"
+    },
+    {
+      "start": 1708.11,
+      "end": 1709.35,
+      "text": "that can happen in this space."
+    },
+    {
+      "start": 1709.35,
+      "end": 1711.31,
+      "text": "It's a very dynamic environment"
+    },
+    {
+      "start": 1711.31,
+      "end": 1714.71,
+      "text": "and we'll continue to see new novel types of attacks."
+    },
+    {
+      "start": 1714.71,
+      "end": 1723.26,
+      "text": "I'm sure for the foreseeable future."
+    },
+    {
+      "start": 1723.26,
+      "end": 1725.98,
+      "text": "Yeah, this was a really great presentation."
+    },
+    {
+      "start": 1725.98,
+      "end": 1727.5,
+      "text": "If there are any last questions,"
+    },
+    {
+      "start": 1727.5,
+      "end": 1729.62,
+      "text": "we have one more minute."
+    },
+    {
+      "start": 1729.62,
+      "end": 1739.02,
+      "text": "Otherwise, we'll transition to the next talk."
+    },
+    {
+      "start": 1739.02,
+      "end": 1739.86,
+      "text": "Cool."
+    },
+    {
+      "start": 1739.86,
+      "end": 1741.22,
+      "text": "So, we're gonna transition then."
+    },
+    {
+      "start": 1741.22,
+      "end": 1743.42,
+      "text": "Thanks again, sincerely."
+    },
+    {
+      "start": 1743.42,
+      "end": 1744.26,
+      "text": "All right, thank you."
+    }
+  ],
+  "topics": [
+    "mining",
+    "price",
+    "regulation",
+    "self-custody",
+    "macro",
+    "privacy"
+  ],
+  "sentiment": "bearish",
+  "archived_at": "2026-03-13T03:57:43Z"
+}

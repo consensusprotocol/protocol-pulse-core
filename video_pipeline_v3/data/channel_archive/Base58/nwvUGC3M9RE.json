@@ -1,0 +1,230 @@
+{
+  "video_id": "nwvUGC3M9RE",
+  "title": "11 - Downloading the Node",
+  "channel": "Base58",
+  "upload_date": "",
+  "duration": 211,
+  "transcript_text": "To run Bitcoin and participate in the Bitcoin network, first, you'll need to get a copy of Bitcoin Core. Typically, you download the Bitcoin Core software from Bitcoin.org. Once it's downloaded, you should validate that you got the right software, and then begin to sync with other Bitcoin nodes all around the world. Today, we're starting the Bitcoin network at Block Zero. You'll be downloading a recent version of Bitcoin Core, but there's no initial block downloads that will do. Instead, we'll start with the Genesis block and build the chain together as a new Bitcoin network. As mentioned earlier, the game will run in phases, and each phase will add a new part of the protocol. The first phase is going through an understanding what's included in the Bitcoin Core download. Let's verify our Bitcoin Core download by going through all the parts we should have received. Transaction cards. These are the blank transaction cards. We'll write new Bitcoin transactions or make copies of existing transactions with them. On the loads. These are block templates. We'll use them to build new blocks. Block header cards. These are blank block headers. They have all the information we need to verify a block. Block transaction ID cards. These cards that save block TXID are used when we're building blocks. They let us save some time by only sending the transaction IDs of transactions in a block, not the whole transaction. Key and lock stickers. These keys and locks are for securing and spending Bitcoin in transactions. We'll use the lock to lock up Bitcoin and the keys to stand in as signatures that authorize the spending of Bitcoin. Pence. For writing on transactions and block header cards. An approval stamp. This stamp lets us mark transactions as valid before we add them to our mempool. Baskets. Speaking of the mempool, we have two baskets for holding transactions. A mempool basket and a UTXO set basket. Network cards. These cards are network messages. We'll use them to communicate with other nodes. Draw erase markers. These are for writing on the network messages and our block and transaction validation checklist. Rings. These are network headers. We'll use them to send messages and transactions and blocks between nodes. On the load holder. This is your blockchain which holds new blocks as they get added to the chain. Inside the blockchain will also have our wallet. This holds the secret key that identifies your node's Bitcoins. Any Bitcoin locked to a lock that matches your secret key belongs to your node. Block and transaction checklists. We'll need to verify every transaction and block that we get over the network. These two cards are here to help you make sure all the data you get is valid. Scorecard. This card will use at the very end of the lot. You'll use it to tally up the number of Bitcoins that belong to each key in your UTXO set at the end of the game. That's everything in your Bitcoin core node. Let's get started by taking a look at the Genesis block which should be inside of our blockchain.",
+  "timestamped_text": [
+    {
+      "start": 4.05,
+      "end": 10.05,
+      "text": "To run Bitcoin and participate in the Bitcoin network, first, you'll need to get a copy of Bitcoin Core."
+    },
+    {
+      "start": 10.05,
+      "end": 18.95,
+      "text": "Typically, you download the Bitcoin Core software from Bitcoin.org."
+    },
+    {
+      "start": 18.95,
+      "end": 25.95,
+      "text": "Once it's downloaded, you should validate that you got the right software, and then begin to sync with other Bitcoin nodes all around the world."
+    },
+    {
+      "start": 25.95,
+      "end": 28.95,
+      "text": "Today, we're starting the Bitcoin network at Block Zero."
+    },
+    {
+      "start": 28.95,
+      "end": 34.95,
+      "text": "You'll be downloading a recent version of Bitcoin Core, but there's no initial block downloads that will do."
+    },
+    {
+      "start": 34.95,
+      "end": 39.95,
+      "text": "Instead, we'll start with the Genesis block and build the chain together as a new Bitcoin network."
+    },
+    {
+      "start": 39.95,
+      "end": 45.95,
+      "text": "As mentioned earlier, the game will run in phases, and each phase will add a new part of the protocol."
+    },
+    {
+      "start": 45.95,
+      "end": 50.95,
+      "text": "The first phase is going through an understanding what's included in the Bitcoin Core download."
+    },
+    {
+      "start": 50.95,
+      "end": 55.95,
+      "text": "Let's verify our Bitcoin Core download by going through all the parts we should have received."
+    },
+    {
+      "start": 55.95,
+      "end": 57.95,
+      "text": "Transaction cards."
+    },
+    {
+      "start": 58.95,
+      "end": 60.95,
+      "text": "These are the blank transaction cards."
+    },
+    {
+      "start": 60.95,
+      "end": 65.95,
+      "text": "We'll write new Bitcoin transactions or make copies of existing transactions with them."
+    },
+    {
+      "start": 65.95,
+      "end": 68.27,
+      "text": "On the loads."
+    },
+    {
+      "start": 68.27,
+      "end": 72.56,
+      "text": "These are block templates. We'll use them to build new blocks."
+    },
+    {
+      "start": 72.56,
+      "end": 79.82,
+      "text": "Block header cards. These are blank block headers. They have all the information we need to verify a block."
+    },
+    {
+      "start": 79.82,
+      "end": 81.82,
+      "text": "Block transaction ID cards."
+    },
+    {
+      "start": 81.82,
+      "end": 86.82,
+      "text": "These cards that save block TXID are used when we're building blocks."
+    },
+    {
+      "start": 86.82,
+      "end": 94.94,
+      "text": "They let us save some time by only sending the transaction IDs of transactions in a block, not the whole transaction."
+    },
+    {
+      "start": 94.94,
+      "end": 96.94,
+      "text": "Key and lock stickers."
+    },
+    {
+      "start": 96.94,
+      "end": 101.94,
+      "text": "These keys and locks are for securing and spending Bitcoin in transactions."
+    },
+    {
+      "start": 101.94,
+      "end": 108.94,
+      "text": "We'll use the lock to lock up Bitcoin and the keys to stand in as signatures that authorize the spending of Bitcoin."
+    },
+    {
+      "start": 108.94,
+      "end": 114.07,
+      "text": "Pence. For writing on transactions and block header cards."
+    },
+    {
+      "start": 114.07,
+      "end": 120.07,
+      "text": "An approval stamp. This stamp lets us mark transactions as valid before we add them to our mempool."
+    },
+    {
+      "start": 120.07,
+      "end": 122.23,
+      "text": "Baskets."
+    },
+    {
+      "start": 122.23,
+      "end": 126.26,
+      "text": "Speaking of the mempool, we have two baskets for holding transactions."
+    },
+    {
+      "start": 126.26,
+      "end": 130.49,
+      "text": "A mempool basket and a UTXO set basket."
+    },
+    {
+      "start": 130.49,
+      "end": 136.49,
+      "text": "Network cards. These cards are network messages. We'll use them to communicate with other nodes."
+    },
+    {
+      "start": 136.49,
+      "end": 138.68,
+      "text": "Draw erase markers."
+    },
+    {
+      "start": 138.68,
+      "end": 143.68,
+      "text": "These are for writing on the network messages and our block and transaction validation checklist."
+    },
+    {
+      "start": 144.68,
+      "end": 148.0,
+      "text": "Rings. These are network headers."
+    },
+    {
+      "start": 148.0,
+      "end": 153.0,
+      "text": "We'll use them to send messages and transactions and blocks between nodes."
+    },
+    {
+      "start": 153.0,
+      "end": 159.35,
+      "text": "On the load holder. This is your blockchain which holds new blocks as they get added to the chain."
+    },
+    {
+      "start": 159.35,
+      "end": 162.64,
+      "text": "Inside the blockchain will also have our wallet."
+    },
+    {
+      "start": 162.64,
+      "end": 166.64,
+      "text": "This holds the secret key that identifies your node's Bitcoins."
+    },
+    {
+      "start": 166.64,
+      "end": 172.64,
+      "text": "Any Bitcoin locked to a lock that matches your secret key belongs to your node."
+    },
+    {
+      "start": 173.64,
+      "end": 176.06,
+      "text": "Block and transaction checklists."
+    },
+    {
+      "start": 176.06,
+      "end": 181.06,
+      "text": "We'll need to verify every transaction and block that we get over the network."
+    },
+    {
+      "start": 181.06,
+      "end": 186.06,
+      "text": "These two cards are here to help you make sure all the data you get is valid."
+    },
+    {
+      "start": 186.06,
+      "end": 187.31,
+      "text": "Scorecard."
+    },
+    {
+      "start": 187.31,
+      "end": 190.31,
+      "text": "This card will use at the very end of the lot."
+    },
+    {
+      "start": 190.31,
+      "end": 197.31,
+      "text": "You'll use it to tally up the number of Bitcoins that belong to each key in your UTXO set at the end of the game."
+    },
+    {
+      "start": 197.31,
+      "end": 200.54,
+      "text": "That's everything in your Bitcoin core node."
+    },
+    {
+      "start": 200.54,
+      "end": 205.54,
+      "text": "Let's get started by taking a look at the Genesis block which should be inside of our blockchain."
+    }
+  ],
+  "topics": [
+    "regulation"
+  ],
+  "sentiment": "neutral",
+  "archived_at": "2026-03-13T03:57:51Z"
+}

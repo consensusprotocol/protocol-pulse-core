@@ -1,0 +1,892 @@
+{
+  "video_id": "-J5M0RzRssI",
+  "title": "Taking Apart An S19j Pro",
+  "channel": "Compass Mining",
+  "upload_date": "",
+  "duration": 839,
+  "transcript_text": "This is Darwin with Compass Mining, I'll be tearing down an Ant-minor S19J Pro all the way down to its hashboards. Let's get started. Okay, the rear simply is off. Let's get rid of this zip tie here. Now let's disconnect the rear fans from the control board. Let's go ahead and take care of the front fan assembly. And also, snip off this zip tie. Let's disassemble the front fan assembly. Front fan assembly has been removed. And it's always good to remember that the front fan assembly, the labels are in, as in you don't see them. And on the rear, they're out, as in you do see them. Let's take off our control board now. We're going to start by disconnecting the cables to the hashboards. Just a little squeeze and wiggle. Now let's go ahead and remove the power supply control line, and the voltage to the control board, the cable that controls it that is, and two screws in the front. And our control board with simply slide right out. And now, let's remove our power supply. We'll start with removing the bus bar on our supply itself. And while we're at it, let's go ahead and take off these screws for the hashboard. One screw in the back here allows us to remove our power supply. And it should slide right out. Now let's slide out our hashboard. As you can see, this particular S19 J-Pro has a aluminum back board. This will also have 32 screws holding in two heat sinks on the top. And three heat sinks on the bottom. Let's go ahead and take out these other hashboards, leaving us our empty shell. Let's clean it up just a little before we take the way. We want to try to keep our environment for our miners as clean as possible. All of this avoids the dirt getting caught up in the heat sinks in the fans, and ultimately, shortening the lightspan. Okay, now that we have wiped that down, let's take a nice close look at one of the hashboards, shall we? We'll start with taking off these heat sinks. When you're unscrewing these screws, it's good not to completely take them out, so that we don't lose these screws. So loosen them from the board, but keep them in the heat sink. These heat sinks have a part-time lifting up of the plate, due to the thermal pace that's keeping them down. So we're going to take a flat edge screwdriver, slightly lift up one corner to get it started, and it should lift up just like that. And let's take off the other side. Now let's take a closer look at our hashboard. Should have 126 A6. These are the domains. These are the LDOs and PLL chips at power each domain. These go to these, these go to these, and so forth. These are the last seven domains that are powered from this circuit here, and that's where their chips look slightly different. In this area, this particular board does not use what's called a pick chip, but it does have an e-prom, negative rail, positive rail, and the input coming in from our control board. Since this is an aluminum back board, all of our circuitry is going to be on the top side. You'll notice the back heat sinks aren't coming off. There are stuck on with the thermal pace, but if you are going to be doing any type of work on this board, removing A6 chips or replacing anything else, you might want to go ahead and take those off. We won't be doing it today, but it is always the good practice that, if you're doing any type of work on the board, to go ahead and clean off the old thermal pace and reapply some new one, this will ensure that the A6 chips will have good thermal transfer to the heat sinks on the top. Okay, let's go ahead and put this all back together and that we've taken a closer look at our hash board. Make sure that your holes are lined up before starting to drill in. That way you don't accidentally drill into a part of the circuit board and do damage. If you've taken those rear heat sinks off, it can be a little bit more challenging, but just make sure all your holes are lined up before screwing down your heat sink. Now, let's get to our fan here. We'll start with removing the fan grills. Our fan grills are off and our fan. As you can see, this is a very dirty fan. I'm going to wipe that down just a little bit with our microfiber cloth. Let's get these new fan grills and some new screws. Okay, we're going to just start with a corner screw first. Get ourselves lined up. Okay, our front fans are what they should be. Let's go ahead and change out the fans on our rear plate. We're going to now only match up the cables, but make sure this is label side out. As you will notice, these cables will run up on the opposite side of the front fans. So front fans, cables will run up the right side, rear fans, cables will run up the lift. And just like that, it's done. Now that we have some new grills on the front, let's wipe down this power supply. And I think we're just about ready to start putting everything back together. Let's give it a passports. Let's slide these in. Okay, let's go ahead and put in our rear plate. Our rear plate is going to have this top groove there and a smaller profile for the board guide. And our cables go up the lift. Okay, let's do the same step with our front fan grill. We have our fans on. Let's go ahead and put on our power supply. We're going to string up these fan cables out of the way. And then we're going to line up our slot. Once they're lined up, we will slowly slide it in. Let's put one screw in here. And this should make sure that our power supply is secure. Okay, let's go ahead and put in our control board and front face plate. This control board will go into these slots. Slide it all the way back. And then our face plate, our front plate. Make sure to line it up with everything. Let's go ahead and string up our cables for our fans. So typically our fans in the front are going to go into the first two slots on our control board. And then our rear fans go into these slots here. The other thing to remember for these rear fan cables, we want them to go into this little channel in between the power supply and your main chassis. Let's go ahead and put in our power cable from the power supply to the control board and then our control line from the power supply goes in like so. And then of course, last but not least, our control lines for the hash boards. Might seem like this one's going here, but actually this other one goes over to chain one or board two. And then this one goes over to chain two or board three. Now that we have those in, let's go ahead and put in our power bus bars. This is negative, this is positive. Negative is going to be just a little bit bigger than our positive. Let's start with our negative. Let's start with these screws on the power supply. With these, we're going to leave the screws that we put in just a little bit loose so that everything aligns up. Let's go ahead and put in our positive rail. Now that we're all lined up, let's go ahead and tighten them all up. Let's go ahead and pull out the excess for our cables. Give a little twist and tuck it under. This one will eventually go right here in this groove. So let's go ahead and put in our power supply cover. Two tabs, two slots. Let's make sure not to catch these fan wires right here. It's going to go right here in this little groove, and just like so, and then line up your two screw holes. Make sure that these wires are not pinched before you screw it down. Pinch wires mean that you run the risk of pinching a control line or severing a power line. Fans won't work, and your miner won't be happy. Last but not least, we have our top cover. I'm going to slide this in, making sure not to pinch the wires, lines up and fit around the front, and slide it down. It should snap in, and then let's just tighten up this last screw, and that's it. Thank you so much for joining us today. This has been a tear down of an ant miner S19J Pro.",
+  "timestamped_text": [
+    {
+      "start": 7.89,
+      "end": 17.95,
+      "text": "This is Darwin with Compass Mining, I'll be tearing down an Ant-minor S19J Pro all the way down to its hashboards."
+    },
+    {
+      "start": 17.95,
+      "end": 19.95,
+      "text": "Let's get started."
+    },
+    {
+      "start": 19.95,
+      "end": 32.5,
+      "text": "Okay, the rear simply is off."
+    },
+    {
+      "start": 32.5,
+      "end": 34.5,
+      "text": "Let's get rid of this zip tie here."
+    },
+    {
+      "start": 34.5,
+      "end": 43.82,
+      "text": "Now let's disconnect the rear fans from the control board."
+    },
+    {
+      "start": 43.82,
+      "end": 51.08,
+      "text": "Let's go ahead and take care of the front fan assembly."
+    },
+    {
+      "start": 52.66,
+      "end": 56.07,
+      "text": "And also, snip off this zip tie."
+    },
+    {
+      "start": 56.07,
+      "end": 60.38,
+      "text": "Let's disassemble the front fan assembly."
+    },
+    {
+      "start": 60.38,
+      "end": 65.4,
+      "text": "Front fan assembly has been removed."
+    },
+    {
+      "start": 65.4,
+      "end": 72.4,
+      "text": "And it's always good to remember that the front fan assembly, the labels are in, as in you don't see them."
+    },
+    {
+      "start": 72.75,
+      "end": 77.07,
+      "text": "And on the rear, they're out, as in you do see them."
+    },
+    {
+      "start": 77.07,
+      "end": 80.07,
+      "text": "Let's take off our control board now."
+    },
+    {
+      "start": 80.07,
+      "end": 85.07,
+      "text": "We're going to start by disconnecting the cables to the hashboards."
+    },
+    {
+      "start": 85.07,
+      "end": 87.07,
+      "text": "Just a little squeeze and wiggle."
+    },
+    {
+      "start": 87.07,
+      "end": 92.81,
+      "text": "Now let's go ahead and remove the power supply control line,"
+    },
+    {
+      "start": 92.81,
+      "end": 104.28,
+      "text": "and the voltage to the control board, the cable that controls it that is,"
+    },
+    {
+      "start": 104.28,
+      "end": 106.76,
+      "text": "and two screws in the front."
+    },
+    {
+      "start": 106.76,
+      "end": 113.58,
+      "text": "And our control board with simply slide right out."
+    },
+    {
+      "start": 113.58,
+      "end": 117.87,
+      "text": "And now, let's remove our power supply."
+    },
+    {
+      "start": 117.87,
+      "end": 122.87,
+      "text": "We'll start with removing the bus bar on our supply itself."
+    },
+    {
+      "start": 122.87,
+      "end": 127.87,
+      "text": "And while we're at it, let's go ahead and take off these screws for the hashboard."
+    },
+    {
+      "start": 127.87,
+      "end": 136.84,
+      "text": "One screw in the back here allows us to remove our power supply."
+    },
+    {
+      "start": 136.84,
+      "end": 139.32,
+      "text": "And it should slide right out."
+    },
+    {
+      "start": 139.32,
+      "end": 145.81,
+      "text": "Now let's slide out our hashboard."
+    },
+    {
+      "start": 145.81,
+      "end": 154.41,
+      "text": "As you can see, this particular S19 J-Pro has a aluminum back board."
+    },
+    {
+      "start": 154.41,
+      "end": 161.73,
+      "text": "This will also have 32 screws holding in two heat sinks on the top."
+    },
+    {
+      "start": 161.73,
+      "end": 164.73,
+      "text": "And three heat sinks on the bottom."
+    },
+    {
+      "start": 164.73,
+      "end": 168.5,
+      "text": "Let's go ahead and take out these other hashboards,"
+    },
+    {
+      "start": 168.5,
+      "end": 172.39,
+      "text": "leaving us our empty shell."
+    },
+    {
+      "start": 172.39,
+      "end": 175.39,
+      "text": "Let's clean it up just a little before we take the way."
+    },
+    {
+      "start": 175.39,
+      "end": 180.39,
+      "text": "We want to try to keep our environment for our miners as clean as possible."
+    },
+    {
+      "start": 180.39,
+      "end": 185.39,
+      "text": "All of this avoids the dirt getting caught up in the heat sinks in the fans,"
+    },
+    {
+      "start": 185.39,
+      "end": 189.39,
+      "text": "and ultimately, shortening the lightspan."
+    },
+    {
+      "start": 189.39,
+      "end": 193.97,
+      "text": "Okay, now that we have wiped that down,"
+    },
+    {
+      "start": 193.97,
+      "end": 198.22,
+      "text": "let's take a nice close look at one of the hashboards, shall we?"
+    },
+    {
+      "start": 198.22,
+      "end": 201.22,
+      "text": "We'll start with taking off these heat sinks."
+    },
+    {
+      "start": 201.22,
+      "end": 205.79,
+      "text": "When you're unscrewing these screws,"
+    },
+    {
+      "start": 205.79,
+      "end": 208.82,
+      "text": "it's good not to completely take them out,"
+    },
+    {
+      "start": 208.82,
+      "end": 211.95,
+      "text": "so that we don't lose these screws."
+    },
+    {
+      "start": 211.95,
+      "end": 213.95,
+      "text": "So loosen them from the board,"
+    },
+    {
+      "start": 213.95,
+      "end": 217.11,
+      "text": "but keep them in the heat sink."
+    },
+    {
+      "start": 217.11,
+      "end": 224.54,
+      "text": "These heat sinks have a part-time lifting up of the plate,"
+    },
+    {
+      "start": 224.54,
+      "end": 227.54,
+      "text": "due to the thermal pace that's keeping them down."
+    },
+    {
+      "start": 227.54,
+      "end": 231.54,
+      "text": "So we're going to take a flat edge screwdriver,"
+    },
+    {
+      "start": 231.54,
+      "end": 235.57,
+      "text": "slightly lift up one corner to get it started,"
+    },
+    {
+      "start": 235.57,
+      "end": 238.73,
+      "text": "and it should lift up just like that."
+    },
+    {
+      "start": 238.73,
+      "end": 242.91,
+      "text": "And let's take off the other side."
+    },
+    {
+      "start": 242.91,
+      "end": 246.39,
+      "text": "Now let's take a closer look at our hashboard."
+    },
+    {
+      "start": 246.39,
+      "end": 249.39,
+      "text": "Should have 126 A6."
+    },
+    {
+      "start": 249.39,
+      "end": 254.37,
+      "text": "These are the domains."
+    },
+    {
+      "start": 254.37,
+      "end": 258.37,
+      "text": "These are the LDOs and PLL chips at power each domain."
+    },
+    {
+      "start": 260.01,
+      "end": 264.01,
+      "text": "These go to these, these go to these, and so forth."
+    },
+    {
+      "start": 264.01,
+      "end": 269.49,
+      "text": "These are the last seven domains that are powered"
+    },
+    {
+      "start": 269.49,
+      "end": 271.49,
+      "text": "from this circuit here,"
+    },
+    {
+      "start": 271.49,
+      "end": 275.06,
+      "text": "and that's where their chips look slightly different."
+    },
+    {
+      "start": 275.06,
+      "end": 279.77,
+      "text": "In this area, this particular board does not use"
+    },
+    {
+      "start": 279.77,
+      "end": 281.77,
+      "text": "what's called a pick chip,"
+    },
+    {
+      "start": 281.77,
+      "end": 287.44,
+      "text": "but it does have an e-prom, negative rail, positive rail,"
+    },
+    {
+      "start": 288.7,
+      "end": 292.46,
+      "text": "and the input coming in from our control board."
+    },
+    {
+      "start": 292.46,
+      "end": 295.46,
+      "text": "Since this is an aluminum back board,"
+    },
+    {
+      "start": 295.46,
+      "end": 301.49,
+      "text": "all of our circuitry is going to be on the top side."
+    },
+    {
+      "start": 301.49,
+      "end": 304.49,
+      "text": "You'll notice the back heat sinks aren't coming off."
+    },
+    {
+      "start": 304.49,
+      "end": 307.49,
+      "text": "There are stuck on with the thermal pace,"
+    },
+    {
+      "start": 307.49,
+      "end": 312.81,
+      "text": "but if you are going to be doing any type of work on this board,"
+    },
+    {
+      "start": 312.81,
+      "end": 314.81,
+      "text": "removing A6 chips or replacing anything else,"
+    },
+    {
+      "start": 314.81,
+      "end": 316.81,
+      "text": "you might want to go ahead and take those off."
+    },
+    {
+      "start": 316.81,
+      "end": 319.58,
+      "text": "We won't be doing it today,"
+    },
+    {
+      "start": 319.58,
+      "end": 322.58,
+      "text": "but it is always the good practice that,"
+    },
+    {
+      "start": 322.58,
+      "end": 324.58,
+      "text": "if you're doing any type of work on the board,"
+    },
+    {
+      "start": 324.58,
+      "end": 327.58,
+      "text": "to go ahead and clean off the old thermal pace"
+    },
+    {
+      "start": 327.58,
+      "end": 329.58,
+      "text": "and reapply some new one,"
+    },
+    {
+      "start": 329.58,
+      "end": 332.9,
+      "text": "this will ensure that the A6 chips"
+    },
+    {
+      "start": 332.9,
+      "end": 339.82,
+      "text": "will have good thermal transfer to the heat sinks on the top."
+    },
+    {
+      "start": 339.82,
+      "end": 342.82,
+      "text": "Okay, let's go ahead and put this all back together"
+    },
+    {
+      "start": 342.82,
+      "end": 346.42,
+      "text": "and that we've taken a closer look at our hash board."
+    },
+    {
+      "start": 346.42,
+      "end": 348.42,
+      "text": "Make sure that your holes are lined up"
+    },
+    {
+      "start": 348.42,
+      "end": 351.81,
+      "text": "before starting to drill in."
+    },
+    {
+      "start": 351.81,
+      "end": 354.81,
+      "text": "That way you don't accidentally drill into"
+    },
+    {
+      "start": 354.81,
+      "end": 357.81,
+      "text": "a part of the circuit board and do damage."
+    },
+    {
+      "start": 357.81,
+      "end": 360.81,
+      "text": "If you've taken those rear heat sinks off,"
+    },
+    {
+      "start": 360.81,
+      "end": 364.16,
+      "text": "it can be a little bit more challenging,"
+    },
+    {
+      "start": 364.16,
+      "end": 366.16,
+      "text": "but just make sure all your holes are lined up"
+    },
+    {
+      "start": 366.16,
+      "end": 370.42,
+      "text": "before screwing down your heat sink."
+    },
+    {
+      "start": 370.42,
+      "end": 374.34,
+      "text": "Now, let's get to our fan here."
+    },
+    {
+      "start": 374.34,
+      "end": 376.34,
+      "text": "We'll start with removing the fan grills."
+    },
+    {
+      "start": 376.34,
+      "end": 385.85,
+      "text": "Our fan grills are off and our fan."
+    },
+    {
+      "start": 385.85,
+      "end": 390.04,
+      "text": "As you can see, this is a very dirty fan."
+    },
+    {
+      "start": 390.04,
+      "end": 393.68,
+      "text": "I'm going to wipe that down just a little bit"
+    },
+    {
+      "start": 393.68,
+      "end": 397.38,
+      "text": "with our microfiber cloth."
+    },
+    {
+      "start": 397.38,
+      "end": 402.77,
+      "text": "Let's get these new fan grills and some new screws."
+    },
+    {
+      "start": 402.77,
+      "end": 408.37,
+      "text": "Okay, we're going to just start with a corner screw first."
+    },
+    {
+      "start": 408.37,
+      "end": 412.87,
+      "text": "Get ourselves lined up."
+    },
+    {
+      "start": 412.87,
+      "end": 418.35,
+      "text": "Okay, our front fans are what they should be."
+    },
+    {
+      "start": 418.35,
+      "end": 423.74,
+      "text": "Let's go ahead and change out the fans on our rear plate."
+    },
+    {
+      "start": 423.74,
+      "end": 428.4,
+      "text": "We're going to now only match up the cables,"
+    },
+    {
+      "start": 428.4,
+      "end": 431.4,
+      "text": "but make sure this is label side out."
+    },
+    {
+      "start": 431.4,
+      "end": 434.33,
+      "text": "As you will notice, these cables"
+    },
+    {
+      "start": 434.33,
+      "end": 438.78,
+      "text": "will run up on the opposite side of the front fans."
+    },
+    {
+      "start": 438.78,
+      "end": 445.05,
+      "text": "So front fans, cables will run up the right side,"
+    },
+    {
+      "start": 445.05,
+      "end": 453.88,
+      "text": "rear fans, cables will run up the lift."
+    },
+    {
+      "start": 453.88,
+      "end": 455.88,
+      "text": "And just like that, it's done."
+    },
+    {
+      "start": 455.88,
+      "end": 458.91,
+      "text": "Now that we have some new grills on the front,"
+    },
+    {
+      "start": 458.91,
+      "end": 464.82,
+      "text": "let's wipe down this power supply."
+    },
+    {
+      "start": 464.82,
+      "end": 467.82,
+      "text": "And I think we're just about ready to start"
+    },
+    {
+      "start": 467.82,
+      "end": 469.82,
+      "text": "putting everything back together."
+    },
+    {
+      "start": 469.82,
+      "end": 472.3,
+      "text": "Let's give it a passports."
+    },
+    {
+      "start": 472.3,
+      "end": 476.64,
+      "text": "Let's slide these in."
+    },
+    {
+      "start": 476.64,
+      "end": 482.02,
+      "text": "Okay, let's go ahead and put in our rear plate."
+    },
+    {
+      "start": 482.02,
+      "end": 485.02,
+      "text": "Our rear plate is going to have this top groove there"
+    },
+    {
+      "start": 485.02,
+      "end": 490.92,
+      "text": "and a smaller profile for the board guide."
+    },
+    {
+      "start": 490.92,
+      "end": 495.59,
+      "text": "And our cables go up the lift."
+    },
+    {
+      "start": 495.59,
+      "end": 507.34,
+      "text": "Okay, let's do the same step with our front fan grill."
+    },
+    {
+      "start": 507.34,
+      "end": 520.15,
+      "text": "We have our fans on."
+    },
+    {
+      "start": 520.15,
+      "end": 524.98,
+      "text": "Let's go ahead and put on our power supply."
+    },
+    {
+      "start": 524.98,
+      "end": 528.98,
+      "text": "We're going to string up these fan cables out of the way."
+    },
+    {
+      "start": 528.98,
+      "end": 533.7,
+      "text": "And then we're going to line up our slot."
+    },
+    {
+      "start": 533.7,
+      "end": 539.47,
+      "text": "Once they're lined up, we will slowly slide it in."
+    },
+    {
+      "start": 540.53,
+      "end": 544.99,
+      "text": "Let's put one screw in here."
+    },
+    {
+      "start": 544.99,
+      "end": 550.02,
+      "text": "And this should make sure that our power supply is secure."
+    },
+    {
+      "start": 550.02,
+      "end": 553.02,
+      "text": "Okay, let's go ahead and put in our control board"
+    },
+    {
+      "start": 553.02,
+      "end": 554.02,
+      "text": "and front face plate."
+    },
+    {
+      "start": 554.02,
+      "end": 557.02,
+      "text": "This control board will go into these slots."
+    },
+    {
+      "start": 557.02,
+      "end": 559.02,
+      "text": "Slide it all the way back."
+    },
+    {
+      "start": 559.02,
+      "end": 565.51,
+      "text": "And then our face plate, our front plate."
+    },
+    {
+      "start": 565.51,
+      "end": 571.94,
+      "text": "Make sure to line it up with everything."
+    },
+    {
+      "start": 571.94,
+      "end": 576.94,
+      "text": "Let's go ahead and string up our cables for our fans."
+    },
+    {
+      "start": 576.94,
+      "end": 578.94,
+      "text": "So typically our fans in the front"
+    },
+    {
+      "start": 578.94,
+      "end": 585.2,
+      "text": "are going to go into the first two slots on our control board."
+    },
+    {
+      "start": 585.2,
+      "end": 591.79,
+      "text": "And then our rear fans go into these slots here."
+    },
+    {
+      "start": 591.79,
+      "end": 596.02,
+      "text": "The other thing to remember for these rear fan cables,"
+    },
+    {
+      "start": 596.02,
+      "end": 599.05,
+      "text": "we want them to go into this little channel"
+    },
+    {
+      "start": 599.05,
+      "end": 604.26,
+      "text": "in between the power supply and your main chassis."
+    },
+    {
+      "start": 604.26,
+      "end": 608.33,
+      "text": "Let's go ahead and put in our power cable"
+    },
+    {
+      "start": 608.33,
+      "end": 611.62,
+      "text": "from the power supply to the control board"
+    },
+    {
+      "start": 611.62,
+      "end": 619.41,
+      "text": "and then our control line from the power supply goes in like so."
+    },
+    {
+      "start": 619.41,
+      "end": 621.41,
+      "text": "And then of course, last but not least,"
+    },
+    {
+      "start": 621.41,
+      "end": 625.79,
+      "text": "our control lines for the hash boards."
+    },
+    {
+      "start": 625.79,
+      "end": 633.33,
+      "text": "Might seem like this one's going here,"
+    },
+    {
+      "start": 633.33,
+      "end": 642.67,
+      "text": "but actually this other one goes over to chain one or board two."
+    },
+    {
+      "start": 642.67,
+      "end": 646.67,
+      "text": "And then this one goes over to chain two or board three."
+    },
+    {
+      "start": 646.67,
+      "end": 649.44,
+      "text": "Now that we have those in,"
+    },
+    {
+      "start": 649.44,
+      "end": 656.5,
+      "text": "let's go ahead and put in our power bus bars."
+    },
+    {
+      "start": 656.5,
+      "end": 659.91,
+      "text": "This is negative, this is positive."
+    },
+    {
+      "start": 659.91,
+      "end": 665.65,
+      "text": "Negative is going to be just a little bit bigger than our positive."
+    },
+    {
+      "start": 665.65,
+      "end": 667.65,
+      "text": "Let's start with our negative."
+    },
+    {
+      "start": 667.65,
+      "end": 671.06,
+      "text": "Let's start with these screws on the power supply."
+    },
+    {
+      "start": 671.06,
+      "end": 675.06,
+      "text": "With these, we're going to leave the screws that we put in"
+    },
+    {
+      "start": 675.06,
+      "end": 679.06,
+      "text": "just a little bit loose so that everything aligns up."
+    },
+    {
+      "start": 679.06,
+      "end": 699.06,
+      "text": "Let's go ahead and put in our positive rail."
+    },
+    {
+      "start": 699.06,
+      "end": 705.54,
+      "text": "Now that we're all lined up,"
+    },
+    {
+      "start": 705.54,
+      "end": 707.54,
+      "text": "let's go ahead and tighten them all up."
+    },
+    {
+      "start": 707.54,
+      "end": 735.18,
+      "text": "Let's go ahead and pull out the excess for our cables."
+    },
+    {
+      "start": 735.18,
+      "end": 739.46,
+      "text": "Give a little twist and tuck it under."
+    },
+    {
+      "start": 739.46,
+      "end": 744.68,
+      "text": "This one will eventually go right here in this groove."
+    },
+    {
+      "start": 744.68,
+      "end": 748.68,
+      "text": "So let's go ahead and put in our power supply cover."
+    },
+    {
+      "start": 748.68,
+      "end": 752.51,
+      "text": "Two tabs, two slots."
+    },
+    {
+      "start": 752.51,
+      "end": 767.95,
+      "text": "Let's make sure not to catch these fan wires right here."
+    },
+    {
+      "start": 767.95,
+      "end": 773.99,
+      "text": "It's going to go right here in this little groove,"
+    },
+    {
+      "start": 773.99,
+      "end": 776.98,
+      "text": "and just like so,"
+    },
+    {
+      "start": 776.98,
+      "end": 782.76,
+      "text": "and then line up your two screw holes."
+    },
+    {
+      "start": 782.76,
+      "end": 787.76,
+      "text": "Make sure that these wires are not pinched before you screw it down."
+    },
+    {
+      "start": 787.76,
+      "end": 791.76,
+      "text": "Pinch wires mean that you run the risk of pinching a control line"
+    },
+    {
+      "start": 791.76,
+      "end": 793.76,
+      "text": "or severing a power line."
+    },
+    {
+      "start": 793.76,
+      "end": 795.76,
+      "text": "Fans won't work,"
+    },
+    {
+      "start": 795.76,
+      "end": 798.92,
+      "text": "and your miner won't be happy."
+    },
+    {
+      "start": 798.92,
+      "end": 802.92,
+      "text": "Last but not least, we have our top cover."
+    },
+    {
+      "start": 802.92,
+      "end": 804.92,
+      "text": "I'm going to slide this in,"
+    },
+    {
+      "start": 804.92,
+      "end": 807.98,
+      "text": "making sure not to pinch the wires,"
+    },
+    {
+      "start": 807.98,
+      "end": 810.98,
+      "text": "lines up and fit around the front,"
+    },
+    {
+      "start": 810.98,
+      "end": 813.56,
+      "text": "and slide it down."
+    },
+    {
+      "start": 813.56,
+      "end": 816.1,
+      "text": "It should snap in,"
+    },
+    {
+      "start": 816.1,
+      "end": 818.1,
+      "text": "and then let's just tighten up this last screw,"
+    },
+    {
+      "start": 818.1,
+      "end": 820.1,
+      "text": "and that's it."
+    },
+    {
+      "start": 820.1,
+      "end": 822.1,
+      "text": "Thank you so much for joining us today."
+    },
+    {
+      "start": 822.1,
+      "end": 829.1,
+      "text": "This has been a tear down of an ant miner S19J Pro."
+    }
+  ],
+  "topics": [
+    "mining",
+    "regulation",
+    "lightning"
+  ],
+  "sentiment": "neutral",
+  "archived_at": "2026-03-13T00:30:04Z"
+}

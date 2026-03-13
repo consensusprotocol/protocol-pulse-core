@@ -1,0 +1,654 @@
+{
+  "video_id": "-WVF9gtHmvk",
+  "title": "Scallop - The World\u2019s First Bank on a Blockchain?",
+  "channel": "The Bitcoin Podcast",
+  "upload_date": "",
+  "duration": 622,
+  "transcript_text": "Hey, everyone. Welcome back. Ready for a deep dive today. We're tackling scallop this time around. This should be interesting. They're getting a lot of attention for how they want to bring crypto to the mainstream. Yeah, you know that whole banking, the unbanked thing that always comes up with crypto. It feels like scallop is actually trying to do it, not just talk about it. Right. And their white paper digs into some really key problems like the cost and friction of moving between your regular finances and crypto. I mean, that's a pain point everyone's felt, right? For sure, constantly converting back and forth the fees. Yeah. It adds up. Uh-huh. No wonder people find it daunting, especially if you're new to all this. Totally. And the whole thing can feel pretty complex even for someone who's been following crypto for a bit. I know I still get tripped up sometimes. Absolutely. And then there's just the fact that you can't really use crypto for everyday stuff easily. Like, sure, maybe you can find a place that takes Bitcoin, but it's not exactly mainstream adoption yet. Not even close. So that's where scallop comes in. They're aiming to be the get this world's first regulated neo banking application. That's a mouthful. It is, but it sounds like they're trying to blend the traditional banking world with crypto in a way that actually makes sense for regular people ambitious. Totally. And they're backing it up, not just talking, they're building the tools to actually make it happen, which is cool to see. So let's talk more action. I like it. But what does that actually look like? How do they plan to pull this off? So they're doing two big things. One, they're really focused on making it user friendly. Like think of it like your online banking app, but you can manage your crypto right alongside your regular money. So no more needing to be a blockchain expert just to buy a coffee with Bitcoin. Exactly. Trying to make it less intimidating for everyone, which is key. I like that. So that's one part you said they had a two-pronged approach. What's the other? The second part is that they're not just doing crypto. They're doing both. Fiat and crypto, all in one place, acting as the bridge between them. Best of both worlds. Having your cake and eating it too. Exactly. You can still have your regular bank accounts and cards, but you've got that direct connection to crypto within the same system. So it's not about ditching your bank entirely. It's like they're trying to integrate crypto into how you already handle your money. Makes you wonder how they see Bitcoin and the whole existing banking system fitting together. That's the interesting part. They get that most people aren't ditching their banks anytime soon, right? Paychecks, bills, all that still runs through the system. Right, but at the same time, people are interested in crypto, right? They see the limitations of how things are and they want in on this new thing. Totally. So Scalp's trying to build that bridge and not just blow everything up, but how do you actually do that? You've got the rules and regulations of banking on one side and crypto kind of wants to be its own thing, right? That's where the regulated part of what they're doing gets really important. They're trying to walk this line, keep both sides happy. Like they have a crypto license from Estonia, a banking license from Lithuania. So they're covered in the EU for both sides. Okay, so they're legit in Europe at least, but what about everywhere else? Things are still so up in the air with crypto regulations, especially mixing it with traditional banking. It's a bold move to take on. And here's the big one. They got a full banking license in Canada. That makes them, and I'm quoting here, the first institution in the world to offer customers regulated bank accounts for both Fiat and crypto. Wow. Now that's interesting. It's like they're setting the standard, showing it can be done, but you know what always comes up with this stuff? Security. People are worried about their money, whether it's in a bank or in crypto. So what's Scalp doing there? Yeah, security is huge. They're hitting it from a few angles. On the crypto side, they have those personal hardware wallets, really high security, and they do cold storage for most of their crypto funds. Plus, it's insured for up to $100 million. Okay, so they're taking the digital asset side seriously. That's good to know. But what about the regular money side, the Fiat? Same deal. Sticking to best practices there, the money's held in big, established banks, and it's protected by all the usual schemes, FSCS in the UK and Europe. That sort of thing. Sounds like they're taking the boxes, at least as far as keeping things safe goes. All right, switching gears a bit. Let's talk about their token, SCLP. What's the deal with that? How does that fit into all of this? Right. So SCLP, it's their utility token. It's actually a key part of how they want to get people using the platform and make it all work. Okay, so it's not just some speculative thing. There's a real use for it. Tell me more. It's built on the Binance Smart Chain, which they picked, because it's already widely used and has a lot of defy stuff happening. Think of SCLP as the fuel for doing things within scallops system. I like that analogy. So as a user, how would I actually use SCLP? Well, you can pay fees with it, like when you exchange currencies or make transactions. And here's the interesting bit. You can stake it, lock it up for a bit, and potentially earn rewards, almost like you get a say in things the more you stake. Right. So it incentivizes holding onto it, maybe even benefits from the token growing in value. Clever, what about those perks and discounts I saw and mentioned somewhere? How does that tie in? So the more SCLP you have, the better your membership tier is, basically. And that gets you things like lower fees when trading, higher ATM withdrawal limits, even cashback when you use their scallop cards. We cashback on crypto purchases? That's wild. Yeah. It's like they're taking the best parts of using a credit card and applying it to crypto. Exactly. It gets people actually using their crypto for everyday things, which is huge for getting it more integrated into, well, everything. I see what you mean. It's not just about holding it. It's about actually spending it, living with it. Now, we touched on this earlier, but let's dig deeper into scallop chain. What's the point of having their own blockchain? There are tons of them out there already. This is where things get really interesting. This isn't just about being a convenient platform. They want a whole ecosystem. And scallop chain is the foundation. It's like they're trying to build the next evolution of financial services where you've got the decentralization of blockchain and the security and trust we expect ambitious. But how can you even have a regulated blockchain? Isn't that a contradiction? Blockchain is supposed to be decentralized. Exactly. It's the big question, right? They call it the world's first regulated blockchain, which, sure, it's a bold claim, but what they're getting at is a more transparent, trust worthy blockchain experience. Okay. Now I got to know, how do you even begin to do that? Decentralized and regulated seem miles apart. It's all in how they onboard users and applications. Everyone, and I mean, everyone on scallop chain goes through KYC and KYB. For those of us who don't speak acronym fluently, what's that mean? Right. Sorry. KYC is know your customer and KYB is know your business. Basically, it's how they verify that you are who you say you are and that you're legit. So building that baseline of trust, knowing who's who in the system. Exactly. By doing this KYC and KYB stuff on the blockchain, it's like having a digital passport that proves your identity. Interesting. So it's not about hiding or being anonymous. Yeah. It's about knowing who's who, making sure everyone's playing by the same rules. But how does that even work technically? That's where it gets really cool, but also kind of complex. They're using blockchain to make a system for verifying identity that's secure and can't be messed with. There are cryptographic techniques involved, decentralized identity solutions. It's pretty high level stuff. Sounds like it. It's like they're building trust into the very foundation of the blockchain itself. But why go through all this trouble? Why is a regulated blockchain so important to them? It comes down to this. They truly believe that for blockchain to really take off to be used by everyone, it has to play nice with the regulators, with the existing financial institutions. They want to bridge the gap, not wide in it. It's a big bet for sure. Are they going to be the ones to make crypto-tallable for the masses, for the people who are still scared of the whole Wild West thing? That's a good question. Totally. And this is where that whole decentralized identity thing comes in. It's not just about like a safer blockchain. It's about giving people more control, you know? Okay. We keep saying decentralized identity, but let's break it down. What does it actually mean? And why should our listeners care about this? Imagine, right? You control your own digital identity. Not Google, not Facebook, not the banks, you. And this identity is on the blockchain, so it's secure and you use it everywhere. No more giving your info to every website and app under the sun. So like a single digital passport for everything that you actually own. Instead of just handing your data over to every company that asks, that would be huge, especially these days. Exactly. And here's where it gets crazy cool with scallop chain, because everything is verified. They can do things differently, like imagine a whole new financial system built on that. That's a big claim. What would that even look like for a regular person? Can be an example. Think about credit scores, right? Total black box right now. But on the blockchain, your reputation could be tied to what you do directly. Wait, you're saying if I pay my bills on time, but using crypto, that could help my credit score. Exactly. It's not just about bills, even. It's everything. Peer-to-peer lending, supporting charities on the blockchain. It all gets factored in. Way more accurate picture of you than just how much debt you have. Wow. That is wild. Building your reputation by what you do in this new system. That's a huge change. Absolutely. But that's what scallop is aiming for, changing how we think about money entirely. They're not just making an app. They're trying to rebuild the foundation. It's incredibly ambitious. Whether they pull it off or not, just trying is huge. They're really taking on some big fundamental issues here. No doubt about it. And I think that's what makes this so exciting to watch, right? They're pushing the boundaries, asking those big questions about what the future of finance could be. Couldn't agree more. And on that note, we want to hear from you. What do you think about all this? Is scallop onto something big with this whole regulated blockchain decentralized identity thing or the wayoff base? Let us know in the comments. We love hearing your thoughts. This has been a wild ride and we hope you've enjoyed this deep dive into the world of scallop. If you did, make sure you hit that subscribe button and ring the bell so you don't miss out on future episodes where we'll be unpacking even more fascinating developments in the world of crypto and beyond. Until next time.",
+  "timestamped_text": [
+    {
+      "start": 0.0,
+      "end": 4.96,
+      "text": "Hey, everyone. Welcome back. Ready for a deep dive today. We're tackling scallop this time around."
+    },
+    {
+      "start": 4.96,
+      "end": 9.84,
+      "text": "This should be interesting. They're getting a lot of attention for how they want to bring crypto"
+    },
+    {
+      "start": 9.84,
+      "end": 14.4,
+      "text": "to the mainstream. Yeah, you know that whole banking, the unbanked thing that always comes up with"
+    },
+    {
+      "start": 14.4,
+      "end": 19.68,
+      "text": "crypto. It feels like scallop is actually trying to do it, not just talk about it. Right. And their"
+    },
+    {
+      "start": 19.68,
+      "end": 27.44,
+      "text": "white paper digs into some really key problems like the cost and friction of moving between your"
+    },
+    {
+      "start": 27.44,
+      "end": 32.56,
+      "text": "regular finances and crypto. I mean, that's a pain point everyone's felt, right? For sure,"
+    },
+    {
+      "start": 32.56,
+      "end": 37.68,
+      "text": "constantly converting back and forth the fees. Yeah. It adds up. Uh-huh. No wonder people find"
+    },
+    {
+      "start": 37.68,
+      "end": 42.4,
+      "text": "it daunting, especially if you're new to all this. Totally. And the whole thing can feel pretty complex"
+    },
+    {
+      "start": 42.4,
+      "end": 47.04,
+      "text": "even for someone who's been following crypto for a bit. I know I still get tripped up sometimes."
+    },
+    {
+      "start": 47.04,
+      "end": 51.6,
+      "text": "Absolutely. And then there's just the fact that you can't really use crypto for everyday stuff"
+    },
+    {
+      "start": 51.6,
+      "end": 56.56,
+      "text": "easily. Like, sure, maybe you can find a place that takes Bitcoin, but it's not exactly mainstream"
+    },
+    {
+      "start": 56.56,
+      "end": 62.96,
+      "text": "adoption yet. Not even close. So that's where scallop comes in. They're aiming to be the get this"
+    },
+    {
+      "start": 62.96,
+      "end": 70.32,
+      "text": "world's first regulated neo banking application. That's a mouthful. It is, but it sounds like they're"
+    },
+    {
+      "start": 70.32,
+      "end": 76.32,
+      "text": "trying to blend the traditional banking world with crypto in a way that actually makes sense for"
+    },
+    {
+      "start": 76.32,
+      "end": 81.28,
+      "text": "regular people ambitious. Totally. And they're backing it up, not just talking, they're building"
+    },
+    {
+      "start": 81.28,
+      "end": 87.44,
+      "text": "the tools to actually make it happen, which is cool to see. So let's talk more action. I like it."
+    },
+    {
+      "start": 87.92,
+      "end": 92.08,
+      "text": "But what does that actually look like? How do they plan to pull this off? So they're doing two"
+    },
+    {
+      "start": 92.08,
+      "end": 96.72,
+      "text": "big things. One, they're really focused on making it user friendly. Like think of it like your"
+    },
+    {
+      "start": 96.72,
+      "end": 101.92,
+      "text": "online banking app, but you can manage your crypto right alongside your regular money."
+    },
+    {
+      "start": 101.92,
+      "end": 106.0,
+      "text": "So no more needing to be a blockchain expert just to buy a coffee with Bitcoin."
+    },
+    {
+      "start": 106.0,
+      "end": 109.12,
+      "text": "Exactly. Trying to make it less intimidating for everyone, which is key."
+    },
+    {
+      "start": 109.12,
+      "end": 112.32,
+      "text": "I like that. So that's one part you said they had a two-pronged approach. What's the other?"
+    },
+    {
+      "start": 112.32,
+      "end": 117.36,
+      "text": "The second part is that they're not just doing crypto. They're doing both. Fiat and crypto,"
+    },
+    {
+      "start": 117.36,
+      "end": 122.32,
+      "text": "all in one place, acting as the bridge between them. Best of both worlds. Having your cake and eating"
+    },
+    {
+      "start": 122.32,
+      "end": 127.84,
+      "text": "it too. Exactly. You can still have your regular bank accounts and cards, but you've got that direct"
+    },
+    {
+      "start": 127.84,
+      "end": 133.44,
+      "text": "connection to crypto within the same system. So it's not about ditching your bank entirely. It's"
+    },
+    {
+      "start": 133.44,
+      "end": 137.92,
+      "text": "like they're trying to integrate crypto into how you already handle your money. Makes you wonder how"
+    },
+    {
+      "start": 137.92,
+      "end": 142.64,
+      "text": "they see Bitcoin and the whole existing banking system fitting together. That's the interesting part."
+    },
+    {
+      "start": 142.64,
+      "end": 147.36,
+      "text": "They get that most people aren't ditching their banks anytime soon, right? Paychecks, bills,"
+    },
+    {
+      "start": 147.36,
+      "end": 152.64,
+      "text": "all that still runs through the system. Right, but at the same time, people are interested in crypto,"
+    },
+    {
+      "start": 152.64,
+      "end": 157.12,
+      "text": "right? They see the limitations of how things are and they want in on this new thing."
+    },
+    {
+      "start": 157.12,
+      "end": 161.52,
+      "text": "Totally. So Scalp's trying to build that bridge and not just blow everything up,"
+    },
+    {
+      "start": 161.52,
+      "end": 166.4,
+      "text": "but how do you actually do that? You've got the rules and regulations of banking on one side"
+    },
+    {
+      "start": 166.4,
+      "end": 171.36,
+      "text": "and crypto kind of wants to be its own thing, right? That's where the regulated part of what"
+    },
+    {
+      "start": 171.36,
+      "end": 176.08,
+      "text": "they're doing gets really important. They're trying to walk this line, keep both sides happy."
+    },
+    {
+      "start": 176.08,
+      "end": 181.76,
+      "text": "Like they have a crypto license from Estonia, a banking license from Lithuania. So they're covered"
+    },
+    {
+      "start": 181.76,
+      "end": 187.76,
+      "text": "in the EU for both sides. Okay, so they're legit in Europe at least, but what about everywhere else?"
+    },
+    {
+      "start": 188.9,
+      "end": 194.42,
+      "text": "Things are still so up in the air with crypto regulations, especially mixing it with traditional"
+    },
+    {
+      "start": 194.42,
+      "end": 199.3,
+      "text": "banking. It's a bold move to take on. And here's the big one. They got a full banking license in"
+    },
+    {
+      "start": 199.3,
+      "end": 205.94,
+      "text": "Canada. That makes them, and I'm quoting here, the first institution in the world to offer customers"
+    },
+    {
+      "start": 205.94,
+      "end": 210.34,
+      "text": "regulated bank accounts for both Fiat and crypto. Wow. Now that's interesting. It's like they're"
+    },
+    {
+      "start": 210.34,
+      "end": 214.74,
+      "text": "setting the standard, showing it can be done, but you know what always comes up with this stuff?"
+    },
+    {
+      "start": 214.74,
+      "end": 219.22,
+      "text": "Security. People are worried about their money, whether it's in a bank or in crypto. So what's"
+    },
+    {
+      "start": 219.22,
+      "end": 224.1,
+      "text": "Scalp doing there? Yeah, security is huge. They're hitting it from a few angles. On the crypto side,"
+    },
+    {
+      "start": 224.1,
+      "end": 228.9,
+      "text": "they have those personal hardware wallets, really high security, and they do cold storage for"
+    },
+    {
+      "start": 228.9,
+      "end": 233.94,
+      "text": "most of their crypto funds. Plus, it's insured for up to $100 million. Okay, so they're taking the"
+    },
+    {
+      "start": 233.94,
+      "end": 239.3,
+      "text": "digital asset side seriously. That's good to know. But what about the regular money side, the Fiat?"
+    },
+    {
+      "start": 239.3,
+      "end": 244.1,
+      "text": "Same deal. Sticking to best practices there, the money's held in big, established banks,"
+    },
+    {
+      "start": 244.1,
+      "end": 249.22,
+      "text": "and it's protected by all the usual schemes, FSCS in the UK and Europe. That sort of thing."
+    },
+    {
+      "start": 249.22,
+      "end": 252.34,
+      "text": "Sounds like they're taking the boxes, at least as far as keeping things safe goes."
+    },
+    {
+      "start": 252.9,
+      "end": 256.98,
+      "text": "All right, switching gears a bit. Let's talk about their token, SCLP."
+    },
+    {
+      "start": 257.7,
+      "end": 260.1,
+      "text": "What's the deal with that? How does that fit into all of this?"
+    },
+    {
+      "start": 260.74,
+      "end": 267.06,
+      "text": "Right. So SCLP, it's their utility token. It's actually a key part of how they want to get people"
+    },
+    {
+      "start": 267.06,
+      "end": 271.46,
+      "text": "using the platform and make it all work. Okay, so it's not just some speculative thing. There's"
+    },
+    {
+      "start": 271.46,
+      "end": 276.26,
+      "text": "a real use for it. Tell me more. It's built on the Binance Smart Chain, which they picked,"
+    },
+    {
+      "start": 276.26,
+      "end": 281.78,
+      "text": "because it's already widely used and has a lot of defy stuff happening. Think of SCLP as the"
+    },
+    {
+      "start": 281.78,
+      "end": 286.9,
+      "text": "fuel for doing things within scallops system. I like that analogy. So as a user, how would I"
+    },
+    {
+      "start": 286.9,
+      "end": 292.18,
+      "text": "actually use SCLP? Well, you can pay fees with it, like when you exchange currencies or make"
+    },
+    {
+      "start": 292.18,
+      "end": 296.5,
+      "text": "transactions. And here's the interesting bit. You can stake it, lock it up for a bit,"
+    },
+    {
+      "start": 296.5,
+      "end": 300.98,
+      "text": "and potentially earn rewards, almost like you get a say in things the more you stake."
+    },
+    {
+      "start": 300.98,
+      "end": 306.34,
+      "text": "Right. So it incentivizes holding onto it, maybe even benefits from the token growing in value."
+    },
+    {
+      "start": 306.34,
+      "end": 311.46,
+      "text": "Clever, what about those perks and discounts I saw and mentioned somewhere? How does that tie in?"
+    },
+    {
+      "start": 311.46,
+      "end": 316.82,
+      "text": "So the more SCLP you have, the better your membership tier is, basically. And that gets you"
+    },
+    {
+      "start": 316.82,
+      "end": 322.66,
+      "text": "things like lower fees when trading, higher ATM withdrawal limits, even cashback when you use"
+    },
+    {
+      "start": 322.66,
+      "end": 328.02,
+      "text": "their scallop cards. We cashback on crypto purchases? That's wild. Yeah. It's like they're taking"
+    },
+    {
+      "start": 328.02,
+      "end": 332.98,
+      "text": "the best parts of using a credit card and applying it to crypto. Exactly. It gets people actually"
+    },
+    {
+      "start": 332.98,
+      "end": 338.74,
+      "text": "using their crypto for everyday things, which is huge for getting it more integrated into, well,"
+    },
+    {
+      "start": 338.74,
+      "end": 342.18,
+      "text": "everything. I see what you mean. It's not just about holding it. It's about actually"
+    },
+    {
+      "start": 342.18,
+      "end": 346.42,
+      "text": "spending it, living with it. Now, we touched on this earlier, but let's dig deeper into"
+    },
+    {
+      "start": 346.42,
+      "end": 350.58,
+      "text": "scallop chain. What's the point of having their own blockchain? There are tons of them out"
+    },
+    {
+      "start": 350.58,
+      "end": 354.74,
+      "text": "there already. This is where things get really interesting. This isn't just about being a"
+    },
+    {
+      "start": 354.74,
+      "end": 360.1,
+      "text": "convenient platform. They want a whole ecosystem. And scallop chain is the foundation. It's like"
+    },
+    {
+      "start": 360.1,
+      "end": 365.14,
+      "text": "they're trying to build the next evolution of financial services where you've got the decentralization"
+    },
+    {
+      "start": 365.22,
+      "end": 370.34,
+      "text": "of blockchain and the security and trust we expect ambitious. But how can you even have a"
+    },
+    {
+      "start": 370.34,
+      "end": 375.46,
+      "text": "regulated blockchain? Isn't that a contradiction? Blockchain is supposed to be decentralized. Exactly."
+    },
+    {
+      "start": 375.46,
+      "end": 380.18,
+      "text": "It's the big question, right? They call it the world's first regulated blockchain, which, sure,"
+    },
+    {
+      "start": 380.18,
+      "end": 386.18,
+      "text": "it's a bold claim, but what they're getting at is a more transparent, trust worthy blockchain"
+    },
+    {
+      "start": 386.18,
+      "end": 392.42,
+      "text": "experience. Okay. Now I got to know, how do you even begin to do that? Decentralized and regulated"
+    },
+    {
+      "start": 392.42,
+      "end": 398.34,
+      "text": "seem miles apart. It's all in how they onboard users and applications. Everyone, and I mean,"
+    },
+    {
+      "start": 398.34,
+      "end": 403.22,
+      "text": "everyone on scallop chain goes through KYC and KYB. For those of us who don't speak acronym"
+    },
+    {
+      "start": 403.22,
+      "end": 408.74,
+      "text": "fluently, what's that mean? Right. Sorry. KYC is know your customer and KYB is know your business."
+    },
+    {
+      "start": 408.74,
+      "end": 412.74,
+      "text": "Basically, it's how they verify that you are who you say you are and that you're legit."
+    },
+    {
+      "start": 412.74,
+      "end": 418.5,
+      "text": "So building that baseline of trust, knowing who's who in the system. Exactly. By doing this KYC"
+    },
+    {
+      "start": 418.58,
+      "end": 424.5,
+      "text": "and KYB stuff on the blockchain, it's like having a digital passport that proves your identity."
+    },
+    {
+      "start": 424.5,
+      "end": 430.26,
+      "text": "Interesting. So it's not about hiding or being anonymous. Yeah. It's about knowing who's who,"
+    },
+    {
+      "start": 430.26,
+      "end": 434.66,
+      "text": "making sure everyone's playing by the same rules. But how does that even work technically?"
+    },
+    {
+      "start": 434.66,
+      "end": 439.86,
+      "text": "That's where it gets really cool, but also kind of complex. They're using blockchain to make a system"
+    },
+    {
+      "start": 439.86,
+      "end": 444.66,
+      "text": "for verifying identity that's secure and can't be messed with. There are cryptographic techniques"
+    },
+    {
+      "start": 444.66,
+      "end": 449.54,
+      "text": "involved, decentralized identity solutions. It's pretty high level stuff. Sounds like it."
+    },
+    {
+      "start": 449.54,
+      "end": 452.9,
+      "text": "It's like they're building trust into the very foundation of the blockchain itself."
+    },
+    {
+      "start": 453.54,
+      "end": 458.5,
+      "text": "But why go through all this trouble? Why is a regulated blockchain so important to them?"
+    },
+    {
+      "start": 459.06,
+      "end": 464.5,
+      "text": "It comes down to this. They truly believe that for blockchain to really take off to be used"
+    },
+    {
+      "start": 464.5,
+      "end": 469.22,
+      "text": "by everyone, it has to play nice with the regulators, with the existing financial institutions."
+    },
+    {
+      "start": 469.22,
+      "end": 472.5,
+      "text": "They want to bridge the gap, not wide in it. It's a big bet for sure."
+    },
+    {
+      "start": 473.3,
+      "end": 477.3,
+      "text": "Are they going to be the ones to make crypto-tallable for the masses, for the people who are"
+    },
+    {
+      "start": 477.3,
+      "end": 480.91,
+      "text": "still scared of the whole Wild West thing? That's a good question."
+    },
+    {
+      "start": 480.91,
+      "end": 486.03,
+      "text": "Totally. And this is where that whole decentralized identity thing comes in. It's not just about"
+    },
+    {
+      "start": 486.03,
+      "end": 490.51,
+      "text": "like a safer blockchain. It's about giving people more control, you know?"
+    },
+    {
+      "start": 490.51,
+      "end": 495.63,
+      "text": "Okay. We keep saying decentralized identity, but let's break it down. What does it actually mean?"
+    },
+    {
+      "start": 495.63,
+      "end": 497.47,
+      "text": "And why should our listeners care about this?"
+    },
+    {
+      "start": 497.47,
+      "end": 500.51,
+      "text": "Imagine, right? You control your own digital identity."
+    },
+    {
+      "start": 500.51,
+      "end": 505.63,
+      "text": "Not Google, not Facebook, not the banks, you. And this identity is on the blockchain,"
+    },
+    {
+      "start": 505.63,
+      "end": 511.39,
+      "text": "so it's secure and you use it everywhere. No more giving your info to every website and app"
+    },
+    {
+      "start": 511.39,
+      "end": 516.59,
+      "text": "under the sun. So like a single digital passport for everything that you actually own."
+    },
+    {
+      "start": 516.59,
+      "end": 521.07,
+      "text": "Instead of just handing your data over to every company that asks, that would be huge,"
+    },
+    {
+      "start": 521.07,
+      "end": 525.15,
+      "text": "especially these days. Exactly. And here's where it gets crazy cool with"
+    },
+    {
+      "start": 525.15,
+      "end": 529.39,
+      "text": "scallop chain, because everything is verified. They can do things differently, like imagine a whole"
+    },
+    {
+      "start": 529.39,
+      "end": 533.39,
+      "text": "new financial system built on that. That's a big claim. What would that even look like for a"
+    },
+    {
+      "start": 533.39,
+      "end": 538.19,
+      "text": "regular person? Can be an example. Think about credit scores, right? Total black box right now."
+    },
+    {
+      "start": 538.19,
+      "end": 543.07,
+      "text": "But on the blockchain, your reputation could be tied to what you do directly."
+    },
+    {
+      "start": 543.07,
+      "end": 548.03,
+      "text": "Wait, you're saying if I pay my bills on time, but using crypto, that could help my credit score."
+    },
+    {
+      "start": 548.03,
+      "end": 552.43,
+      "text": "Exactly. It's not just about bills, even. It's everything. Peer-to-peer lending,"
+    },
+    {
+      "start": 552.43,
+      "end": 557.23,
+      "text": "supporting charities on the blockchain. It all gets factored in. Way more accurate picture of"
+    },
+    {
+      "start": 557.39,
+      "end": 562.91,
+      "text": "you than just how much debt you have. Wow. That is wild. Building your reputation by what you"
+    },
+    {
+      "start": 562.91,
+      "end": 568.27,
+      "text": "do in this new system. That's a huge change. Absolutely. But that's what scallop is aiming for,"
+    },
+    {
+      "start": 568.27,
+      "end": 572.43,
+      "text": "changing how we think about money entirely. They're not just making an app. They're trying to"
+    },
+    {
+      "start": 572.43,
+      "end": 576.43,
+      "text": "rebuild the foundation. It's incredibly ambitious. Whether they pull it off or not,"
+    },
+    {
+      "start": 576.43,
+      "end": 580.83,
+      "text": "just trying is huge. They're really taking on some big fundamental issues here."
+    },
+    {
+      "start": 580.83,
+      "end": 584.35,
+      "text": "No doubt about it. And I think that's what makes this so exciting to watch, right? They're"
+    },
+    {
+      "start": 584.35,
+      "end": 589.07,
+      "text": "pushing the boundaries, asking those big questions about what the future of finance could be."
+    },
+    {
+      "start": 589.07,
+      "end": 594.98,
+      "text": "Couldn't agree more. And on that note, we want to hear from you. What do you think about all this?"
+    },
+    {
+      "start": 594.98,
+      "end": 600.66,
+      "text": "Is scallop onto something big with this whole regulated blockchain decentralized identity thing"
+    },
+    {
+      "start": 600.66,
+      "end": 604.42,
+      "text": "or the wayoff base? Let us know in the comments. We love hearing your thoughts."
+    },
+    {
+      "start": 604.42,
+      "end": 609.06,
+      "text": "This has been a wild ride and we hope you've enjoyed this deep dive into the world of scallop."
+    },
+    {
+      "start": 609.06,
+      "end": 613.94,
+      "text": "If you did, make sure you hit that subscribe button and ring the bell so you don't miss out on"
+    },
+    {
+      "start": 613.94,
+      "end": 618.34,
+      "text": "future episodes where we'll be unpacking even more fascinating developments in the world of"
+    },
+    {
+      "start": 618.34,
+      "end": 623.06,
+      "text": "crypto and beyond. Until next time."
+    }
+  ],
+  "topics": [
+    "mining",
+    "regulation",
+    "self-custody",
+    "macro",
+    "privacy"
+  ],
+  "sentiment": "neutral",
+  "archived_at": "2026-03-13T03:58:36Z"
+}

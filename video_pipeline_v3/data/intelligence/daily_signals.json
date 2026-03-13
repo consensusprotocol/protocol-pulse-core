@@ -2,55 +2,55 @@
   "topic_velocity": [
     {
       "topic": "etf",
-      "channels": 15,
-      "sentiment": "bullish",
-      "velocity_score": 100
-    },
-    {
-      "topic": "mining",
-      "channels": 26,
+      "channels": 19,
       "sentiment": "bullish",
       "velocity_score": 100
     },
     {
       "topic": "price",
-      "channels": 28,
-      "sentiment": "bullish",
-      "velocity_score": 100
-    },
-    {
-      "topic": "lightning",
-      "channels": 22,
-      "sentiment": "bullish",
-      "velocity_score": 100
-    },
-    {
-      "topic": "macro",
-      "channels": 25,
-      "sentiment": "bullish",
-      "velocity_score": 100
-    },
-    {
-      "topic": "privacy",
-      "channels": 27,
+      "channels": 36,
       "sentiment": "bullish",
       "velocity_score": 100
     },
     {
       "topic": "regulation",
+      "channels": 34,
+      "sentiment": "bullish",
+      "velocity_score": 100
+    },
+    {
+      "topic": "macro",
+      "channels": 33,
+      "sentiment": "bullish",
+      "velocity_score": 100
+    },
+    {
+      "topic": "privacy",
+      "channels": 35,
+      "sentiment": "bullish",
+      "velocity_score": 100
+    },
+    {
+      "topic": "mining",
+      "channels": 32,
+      "sentiment": "bullish",
+      "velocity_score": 100
+    },
+    {
+      "topic": "lightning",
       "channels": 27,
       "sentiment": "bullish",
       "velocity_score": 100
     },
     {
       "topic": "self-custody",
-      "channels": 7,
+      "channels": 11,
       "sentiment": "bullish",
       "velocity_score": 100
     },
     {
       "topic": "institutional",
-      "channels": 17,
+      "channels": 22,
       "sentiment": "bullish",
       "velocity_score": 100
     }
@@ -58,9 +58,9 @@
   "breaking_threshold": true,
   "recommended_topics": [
     "etf",
-    "mining",
-    "price"
+    "price",
+    "regulation"
   ],
-  "scan_time": "2026-03-12T04:17:11Z",
-  "total_videos_48h": 75
+  "scan_time": "2026-03-12T23:17:13Z",
+  "total_videos_48h": 91
 }
