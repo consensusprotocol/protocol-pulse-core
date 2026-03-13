@@ -120,6 +120,9 @@ def _mp3_to_m4a(mp3_path: str, m4a_path: str) -> bool:
     return r.returncode == 0 and os.path.exists(m4a_path)
 
 
+MAX_CHUNK_CHARS = 500  # ElevenLabs safe chunk size
+
+
 def _chunk_text(text: str, max_chars: int = MAX_CHUNK_CHARS) -> list:
     if len(text) <= max_chars:
         return [text]
