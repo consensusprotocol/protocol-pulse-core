@@ -119,14 +119,19 @@ def _prune_old_episodes():
     return data
 
 
-def _get_recent_video_ids(max_days: int = 7) -> set:
-    """Get all video_ids used in episodes from the last N days (video-level only)."""
+def _get_recent_video_ids(max_episodes: int = 7) -> set:
+    """Get video_ids used in the last N episodes (video-level dedup only, NOT channel-level).
+
+    Per PIPELINE_LAWS: 'Never reuse a video_id from the last 7 episodes.'
+    """
     data = _prune_old_episodes()
-    cutoff = (datetime.utcnow() - timedelta(days=max_days)).strftime("%Y-%m-%d")
+    episodes = data.get("episodes", [])
+    # Only look at last N episodes, not all episodes in the time window
+    recent = episodes[-max_episodes:] if len(episodes) > max_episodes else episodes
     ids = set()
-    for ep in data.get("episodes", []):
-        if ep.get("date", "") >= cutoff:
-            ids.update(ep.get("video_ids", []))
+    for ep in recent:
+        ids.update(ep.get("video_ids", []))
+    logger.info(f"EPISODE MEMORY: {len(ids)} video_ids blocked from last {len(recent)} episodes")
     return ids
 
 
@@ -193,6 +198,40 @@ def _format_transcripts(videos: list) -> str:
     return "\n".join(parts)
 
 
+def _parse_llm_json(text: str, label: str = "LLM") -> dict | None:
+    """Parse JSON from LLM response, stripping markdown fences and repairing truncation.
+
+    Returns parsed dict or None on failure.
+    """
+    if not text:
+        return None
+    # Strip markdown fences
+    if "```json" in text:
+        text = text.split("```json", 1)[1].split("```", 1)[0]
+    elif "```" in text:
+        text = text.split("```", 1)[1].split("```", 1)[0]
+    text = text.strip()
+    # Attempt direct parse
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+    # Repair: find last complete clip object and close structures
+    try:
+        last_brace = text.rfind("}")
+        if last_brace > 0:
+            repaired = text[:last_brace + 1]
+            if '"clips"' in repaired and not repaired.rstrip().endswith("]}"):
+                repaired = repaired.rstrip().rstrip(",") + "]}"
+            result = json.loads(repaired)
+            logger.warning(f"{label}: JSON repaired (truncated response salvaged)")
+            return result
+    except json.JSONDecodeError:
+        pass
+    logger.warning(f"{label}: JSON parse failed. Raw (first 500): {text[:500]}")
+    return None
+
+
 def select_clips(videos: list) -> dict:
     """Use Claude to select the 5 best clip moments from transcribed videos.
 
@@ -218,14 +257,10 @@ def select_clips(videos: list) -> dict:
         return {"clips": [], "episode_title": "Pulse Check", "cold_open": ""}
 
     try:
-
-        # Strip markdown fences if present
-        if "```json" in text:
-            text = text.split("```json")[1].split("```")[0]
-        elif "```" in text:
-            text = text.split("```")[1].split("```")[0]
-
-        result = json.loads(text)
+        result = _parse_llm_json(text, label="main selection")
+        if result is None:
+            logger.error(f"Failed to parse Claude response as JSON. Raw (first 500): {text[:500]}")
+            return {"clips": [], "episode_title": "Pulse Check", "cold_open": ""}
 
         clips = result.get("clips", [])
 
@@ -310,27 +345,17 @@ def select_clips(videos: list) -> dict:
                     text2 = call_llm(reselect_prompt, max_tokens=4096)
                     if text2 is None:
                         raise RuntimeError("All LLM providers failed for re-selection")
-                    # Strip markdown fences if present
-                    if "```json" in text2:
-                        text2 = text2.split("```json")[1].split("```")[0]
-                    elif "```" in text2:
-                        text2 = text2.split("```")[1].split("```")[0]
-                    text2 = text2.strip()
-                    try:
-                        extra = json.loads(text2)
-                    except json.JSONDecodeError:
-                        # Try to salvage truncated JSON by closing open structures
-                        logger.warning(f"Re-selection JSON malformed, attempting repair. Raw (last 200): ...{text2[-200:]}")
-                        # Find last complete clip object
-                        last_brace = text2.rfind("}")
-                        if last_brace > 0:
-                            repaired = text2[:last_brace + 1]
-                            # Close the array and outer object if needed
-                            if '"clips"' in repaired and not repaired.rstrip().endswith("]}"):
-                                repaired = repaired.rstrip().rstrip(",") + "]}"
-                            extra = json.loads(repaired)
-                        else:
-                            raise
+
+                    extra = _parse_llm_json(text2, label="re-selection")
+                    if extra is None:
+                        # Retry once with fresh call
+                        logger.warning("Re-selection JSON parse failed, retrying...")
+                        text2 = call_llm(reselect_prompt, max_tokens=4096)
+                        if text2 is not None:
+                            extra = _parse_llm_json(text2, label="re-selection retry")
+                    if extra is None:
+                        logger.warning(f"Re-selection parse failed after retry. Raw (first 500): {(text2 or '')[:500]}")
+                        extra = {"clips": []}
                     extra_clips = extra.get("clips", [])
 
                     # Filter extras through ad-read + dedup
