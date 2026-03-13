@@ -26,6 +26,9 @@ import threading
 import re
 from datetime import datetime
 
+sys.path.insert(0, '/home/ultron/protocol_pulse')
+from utils.notify import notify, notify_critical
+
 BASE = '/home/ultron/protocol_pulse'
 PIPELINE = f'{BASE}/video_pipeline_v3'
 LESSONS_FILE = f'{BASE}/PIPELINE_LESSONS.md'
@@ -85,18 +88,18 @@ def require_audit_before_change(changed_files):
         audit_logs.extend(glob.glob(f'{audit_dir}/{ext}'))
 
     if not audit_logs:
-        raise RuntimeError(
-            "AUDIT REQUIRED: no audit logs found in docs/audits/. "
-            "Run: python3 utils/cross_llm_audit.py --feature video-audio-fix"
-        )
+        msg = ("AUDIT REQUIRED: no audit logs found in docs/audits/. "
+               "Run: python3 utils/cross_llm_audit.py --feature video-audio-fix")
+        notify_critical(f"🚫 AUDIT GATE BLOCKED: {msg}")
+        raise RuntimeError(msg)
 
     newest_audit = max(audit_logs, key=os.path.getmtime)
     audit_age_hours = (time.time() - os.path.getmtime(newest_audit)) / 3600
     if audit_age_hours > 24:
-        raise RuntimeError(
-            f"AUDIT STALE: newest audit is {audit_age_hours:.1f}h old. "
-            "Re-run: python3 utils/cross_llm_audit.py --feature video-audio-fix"
-        )
+        msg = (f"AUDIT STALE: newest audit is {audit_age_hours:.1f}h old. "
+               "Re-run: python3 utils/cross_llm_audit.py --feature video-audio-fix")
+        notify_critical(f"🚫 AUDIT GATE BLOCKED: {msg}")
+        raise RuntimeError(msg)
 
     log(f"Audit gate passed: {os.path.basename(newest_audit)} is {audit_age_hours:.1f}h old")
     return True
@@ -165,6 +168,32 @@ def get_gpu_grade(gpu_id):
         except Exception:
             pass
     return {'score': 0, 'grade': 'F'}
+
+
+THROUGHPUT_FILE = f'{BASE}/logs/throughput.json'
+
+def update_throughput():
+    """Write throughput stats to logs/throughput.json for GitHub Actions heartbeat."""
+    try:
+        with render_stats_lock:
+            now = time.time()
+            data = {
+                'last_render_epoch': now,
+                'last_render_iso': datetime.now().isoformat(),
+                'renders_gpu0': render_stats[0]['count'],
+                'renders_gpu1': render_stats[1]['count'],
+            }
+            for gid in (0, 1):
+                s = render_stats[gid]
+                elapsed_h = (now - s['start_time']) / 3600 if s['start_time'] else 0
+                data[f'renders_per_hour_gpu{gid}'] = round(s['count'] / max(elapsed_h, 0.01), 2)
+                data[f'last_grade_gpu{gid}'] = s.get('last_grade', 'N/A')
+                data[f'last_score_gpu{gid}'] = s.get('last_score', 0)
+
+        with open(THROUGHPUT_FILE, 'w') as f:
+            json.dump(data, f, indent=2)
+    except Exception as e:
+        log(f"Throughput write error: {e}")
 
 
 # ─── RENDER LOGIC ────────────────────────────────────────────────────────────
@@ -400,6 +429,9 @@ def gpu_worker(gpu_id, branch=None):
                 render_stats[gpu_id]['last_grade'] = grade
                 render_stats[gpu_id]['last_score'] = score
 
+            # Update throughput.json after every render
+            update_throughput()
+
             # Promotion check: GPU 1 (experimental) tries to beat GPU 0 (stable)
             if gpu_id == 1 and score > 0:
                 gpu0_data = get_gpu_grade(0)
@@ -416,8 +448,9 @@ def gpu_worker(gpu_id, branch=None):
 
             # OOM detection
             if 'out of memory' in error_str.lower() or 'OOM' in error_str:
-                log("OOM detected — waiting 60s for GPU memory to clear", gpu_id)
-                time.sleep(60)
+                log("OOM detected — waiting 30s for GPU memory to clear", gpu_id)
+                notify(f"⚠️ GPU{gpu_id} OOM — waiting 30s before restart")
+                time.sleep(30)
             else:
                 time.sleep(10)
 
@@ -483,6 +516,8 @@ def main():
 
     log("Both GPU workers launched. Monitoring...")
 
+    notify("🚀 Dual-GPU Orchestrator STARTED — GPU0 stable, GPU1 experimental")
+
     # Main thread: monitor and report
     try:
         while True:
@@ -495,9 +530,13 @@ def main():
                     log(f"GPU{gid}: {s['count']} renders, {rph:.1f}/hr, "
                         f"last={s['last_grade']}({s['last_score']})")
 
+            # Update throughput.json
+            update_throughput()
+
             # Check threads are alive
             if not gpu0_thread.is_alive():
                 log("GPU0 thread DIED — restarting")
+                notify("⚠️ GPU0 worker thread died — restarting")
                 gpu0_thread = threading.Thread(
                     target=gpu_worker, args=(0, 'render-stable'),
                     name='gpu0-stable', daemon=True
@@ -506,17 +545,24 @@ def main():
 
             if not gpu1_thread.is_alive():
                 log("GPU1 thread DIED — restarting")
+                notify("⚠️ GPU1 worker thread died — restarting")
                 gpu1_thread = threading.Thread(
                     target=gpu_worker, args=(1, None),
                     name='gpu1-experimental', daemon=True
                 )
                 gpu1_thread.start()
 
+            # Both dead at same time = critical
+            if not gpu0_thread.is_alive() and not gpu1_thread.is_alive():
+                notify_critical("🚨 BOTH GPU workers dead — orchestrator restarting both")
+
     except KeyboardInterrupt:
         log("Keyboard interrupt — shutting down gracefully")
+        notify("⏹️ Orchestrator stopped (keyboard interrupt)")
         sys.exit(0)
     except Exception as e:
         log(f"ORCHESTRATOR CRASH: {e} — restarting main loop")
+        notify_critical(f"🚨 Orchestrator crashed: {e}")
         # Self-restart
         time.sleep(5)
         main()

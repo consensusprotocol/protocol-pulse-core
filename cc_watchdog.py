@@ -6,24 +6,16 @@ Detects stalls, restarts them, logs everything.
 Also monitors: grade trends, TTS health, GPU utilization, render throughput.
 Runs as a persistent daemon in tmux:watchdog
 """
-import subprocess, time, os, json, re, urllib.request
+import subprocess, time, os, json, re, urllib.request, glob
 from datetime import datetime
 
 BASE = '/home/ultron/protocol_pulse'
 LOG = f'{BASE}/logs/watchdog.log'
 LESSONS_FILE = f'{BASE}/PIPELINE_LESSONS.md'
-DISCORD_WEBHOOK = os.environ.get('DISCORD_WEBHOOK_URL')
 
-# Load DISCORD_WEBHOOK from .env if not in env
-if not DISCORD_WEBHOOK:
-    try:
-        for line in open(f'{BASE}/.env'):
-            l = line.strip()
-            if l.startswith('DISCORD_WEBHOOK_URL='):
-                DISCORD_WEBHOOK = l.split('=', 1)[1].strip().strip("'").strip('"')
-                break
-    except Exception:
-        pass
+import sys
+sys.path.insert(0, BASE)
+from utils.notify import notify, notify_critical
 
 # Sessions to monitor: name → prompt file (for restart)
 WATCHED = {
@@ -180,18 +172,16 @@ def write_status_file():
 
 # ─── SYSTEM 5: CORRECTNESS MONITORS ──────────────────────────────────────────
 
-def send_discord_alert(message):
-    """Send alert to Discord webhook if configured."""
-    if not DISCORD_WEBHOOK:
-        return
+def send_alert(message, critical=False):
+    """Send alert via Telegram (and SMS if critical)."""
     try:
-        payload = json.dumps({'content': f'[WATCHDOG] {message}'}).encode()
-        req = urllib.request.Request(DISCORD_WEBHOOK, data=payload,
-                                     headers={'Content-Type': 'application/json'})
-        urllib.request.urlopen(req, timeout=10)
-        log(f'Discord alert sent: {message[:60]}')
+        if critical:
+            notify_critical(f'[WATCHDOG] {message}')
+        else:
+            notify(f'[WATCHDOG] {message}')
+        log(f'Alert sent: {message[:60]}')
     except Exception as e:
-        log(f'Discord alert failed: {e}')
+        log(f'Alert send failed: {e}')
 
 
 def check_grade_trend():
@@ -226,7 +216,7 @@ def check_grade_trend():
             msg = f'GRADE STUCK: last 3 grades are all {last3[0]}/100. Pipeline may be stuck in a loop.'
             log(f'WATCHDOG: {msg}')
             append_to_lessons('GRADE-STUCK', 'orchestrator', msg)
-            send_discord_alert(msg)
+            send_alert(msg)
             return True
     return False
 
@@ -302,7 +292,11 @@ def check_gpu_utilization():
                     msg = f'GPU IDLE: Both GPUs at 0% for {idle_minutes:.0f} min while orchestrator is running'
                     log(f'WATCHDOG: {msg}')
                     append_to_lessons('GPU-IDLE', 'orchestrator', msg)
-                    send_discord_alert(msg)
+                    # Critical if idle for 2h+
+                    if idle_minutes >= 120:
+                        send_alert(msg, critical=True)
+                    else:
+                        send_alert(msg)
     except Exception as e:
         log(f'WATCHDOG: GPU check error: {e}')
 
@@ -339,9 +333,32 @@ def check_render_throughput():
             msg = f'LOW THROUGHPUT: {rph:.1f} renders/hour (expected >= 1). Check for stuck renders.'
             log(f'WATCHDOG: {msg}')
             append_to_lessons('LOW-THROUGHPUT', 'orchestrator', msg)
-            send_discord_alert(msg)
+            send_alert(msg)
         # Reset window
         _render_throughput = {'count': 0, 'window_start': now}
+
+
+def check_audit_staleness():
+    """Alert if no new audit in docs/audits/ within 48 hours."""
+    audit_dir = f'{BASE}/docs/audits'
+    if not os.path.isdir(audit_dir):
+        return
+    audit_files = []
+    for ext in ('*.md', '*.log'):
+        audit_files.extend(glob.glob(f'{audit_dir}/**/{ext}', recursive=True))
+        audit_files.extend(glob.glob(f'{audit_dir}/{ext}'))
+    if not audit_files:
+        msg = 'AUDIT STALE: No audit logs found in docs/audits/ at all.'
+        log(f'WATCHDOG: {msg}')
+        send_alert(msg)
+        return
+    newest = max(audit_files, key=os.path.getmtime)
+    age_hours = (time.time() - os.path.getmtime(newest)) / 3600
+    if age_hours > 48:
+        msg = f'AUDIT STALE: newest audit is {age_hours:.0f}h old (>48h). Run cross_llm_audit.py.'
+        log(f'WATCHDOG: {msg}')
+        append_to_lessons('AUDIT-STALE', 'watchdog', msg)
+        send_alert(msg)
 
 
 def main():
@@ -359,9 +376,11 @@ def main():
     status_interval = 300  # write status file every 5 min
     tts_interval = 600     # TTS health check every 10 min
     gpu_interval = 300     # GPU utilization check every 5 min
+    audit_interval = 3600  # audit staleness check every hour
     last_status = time.time()
     last_tts_check = time.time()
     last_gpu_check = time.time()
+    last_audit_check = time.time()
 
     while True:
         time.sleep(check_interval)
@@ -414,8 +433,15 @@ def main():
 
         # TTS health check every 10 min
         if now - last_tts_check >= tts_interval:
-            check_tts_health()
+            tts_ok = check_tts_health()
+            if not tts_ok:
+                send_alert('TTS HEALTH FAIL — ElevenLabs may be down')
             last_tts_check = now
+
+        # Audit staleness check every hour
+        if now - last_audit_check >= audit_interval:
+            check_audit_staleness()
+            last_audit_check = now
 
 if __name__ == '__main__':
     main()

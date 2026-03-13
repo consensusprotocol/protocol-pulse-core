@@ -85,4 +85,12 @@ Score $NEW_SCORE beats previous best $BEST. Main merged to render-stable.
 ---
 EOF
 
+# ── Send Telegram alert ──────────────────────────────────────────────────────
+python3 -c "
+import sys
+sys.path.insert(0, '$BASE')
+from utils.notify import notify
+notify('✅ PROMOTED: new best grade $NEW_SCORE (was $BEST)')
+" 2>/dev/null || echo "WARNING: Telegram notification failed"
+
 echo "PROMOTED: new best grade $NEW_SCORE on render-stable (was $BEST)"

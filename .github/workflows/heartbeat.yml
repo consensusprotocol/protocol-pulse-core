@@ -1,0 +1,54 @@
+name: Pipeline Heartbeat
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  check_pipeline_health:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check last render timestamp
+        run: |
+          if [ -f logs/throughput.json ]; then
+            LAST_RENDER=$(python3 -c "
+          import json, time
+          try:
+              d = json.load(open('logs/throughput.json'))
+              last = d.get('last_render_epoch', 0)
+              hours_ago = (time.time() - last) / 3600
+              print(f'{hours_ago:.1f}')
+          except:
+              print('999')
+            ")
+            echo "Last render: ${LAST_RENDER}h ago"
+            if python3 -c "exit(0 if float('${LAST_RENDER}') < 12 else 1)"; then
+              echo "✅ Render pipeline active"
+            else
+              echo "⚠️ WARNING: No render in ${LAST_RENDER} hours"
+              if [ -n "${{ secrets.TELEGRAM_BOT_TOKEN }}" ]; then
+                curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+                  -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+                  -d "text=⚠️ Protocol Pulse: No render completed in ${LAST_RENDER}h. Orchestrator may be down. Check Ultron."
+              fi
+            fi
+          else
+            echo "No throughput.json found — pipeline may not be running"
+          fi
+
+      - name: Report current best grade
+        run: |
+          if [ -f logs/best_grade.json ]; then
+            python3 -c "
+          import json
+          d = json.load(open('logs/best_grade.json'))
+          score = d.get('score', 0)
+          promoted = d.get('promoted_at', 'unknown')
+          print(f'Current best grade: {score}/100 promoted at {promoted}')
+            "
+          else
+            echo "No best_grade.json found"
+          fi
