@@ -336,7 +336,7 @@ def _redownload_high_quality(video_id: str, start_sec: int, end_sec: int, output
 
 def _check_clip_quality(clip_path: str, channel: str, video_id: str = "",
                         start_sec: int = 0, end_sec: int = 0) -> str:
-    """Issue 10: Quality enforcement — warn at 3Mbps, reject at 1.5Mbps, retry on low.
+    """Quality enforcement — reject below 3Mbps floor, retry on low.
 
     Returns: 'ok', 'redownloaded', or 'rejected'.
     """
@@ -351,31 +351,21 @@ def _check_clip_quality(clip_path: str, channel: str, video_id: str = "",
         logger.info(f"  Quality OK: {channel} at {mbps:.1f}Mbps")
         return "ok"
 
-    if mbps < 1.5:
-        logger.error(f"REJECTED: {channel} clip at {mbps:.1f}Mbps — below 1.5Mbps floor")
-        # Try re-download before giving up
-        if video_id and _redownload_high_quality(video_id, start_sec, end_sec, clip_path):
-            new_bitrate = _get_bitrate(clip_path)
-            new_mbps = new_bitrate / 1_000_000
-            if new_mbps >= 1.5:
-                logger.info(f"  Re-download succeeded: {channel} now at {new_mbps:.1f}Mbps")
-                return "redownloaded"
-            else:
-                logger.error(f"  Re-download still low: {channel} at {new_mbps:.1f}Mbps — REJECTED")
-                os.remove(clip_path)
-                return "rejected"
-        os.remove(clip_path)
-        return "rejected"
-
-    # Between 1.5 and 3.0 Mbps — warn and try re-download
-    logger.warning(f"LOW QUALITY: {channel} clip at {mbps:.1f}Mbps — below 3Mbps threshold")
+    # Below 3Mbps floor — try re-download before rejecting
+    logger.warning(f"  BELOW 3Mbps FLOOR: {channel} clip at {mbps:.1f}Mbps")
     if video_id and _redownload_high_quality(video_id, start_sec, end_sec, clip_path):
         new_bitrate = _get_bitrate(clip_path)
         new_mbps = new_bitrate / 1_000_000
-        if new_mbps > mbps:
-            logger.info(f"  Re-download improved: {channel} {mbps:.1f} -> {new_mbps:.1f}Mbps")
+        if new_mbps >= 3.0:
+            logger.info(f"  Re-download succeeded: {channel} now at {new_mbps:.1f}Mbps")
             return "redownloaded"
-    return "ok"  # allow clips between 1.5-3Mbps even if re-download didn't help
+        logger.error(f"  Re-download still below 3Mbps floor: {channel} at {new_mbps:.1f}Mbps — REJECTED")
+        os.remove(clip_path)
+        return "rejected"
+
+    logger.error(f"  REJECTED: {channel} clip at {mbps:.1f}Mbps — below 3Mbps floor")
+    os.remove(clip_path)
+    return "rejected"
 
 
 def _second_pass_ad_read(clip_path: str, channel: str, rank: int) -> bool:
@@ -436,7 +426,7 @@ def extract_all(selections: dict, output_dir: str) -> dict:
             quality = _check_clip_quality(output_path, clip.get("channel", channel),
                                           video_id=video_id, start_sec=start, end_sec=end)
             if quality == "rejected":
-                logger.warning(f"  Skipping clip #{rank}: quality below 1.5Mbps floor")
+                logger.warning(f"  Skipping clip #{rank}: quality below 3Mbps floor")
                 continue
 
             # Smart trim: find natural pause within the 10s end-pad window
