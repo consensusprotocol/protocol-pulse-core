@@ -69,22 +69,14 @@ INWORLD_VOICES = {
 }
 
 def _get_tts_provider() -> str:
-    return os.environ.get("TTS_PROVIDER", "elevenlabs").lower().strip()
-
-# Voice mode overrides per segment type (applied to whichever host speaks)
-VOICE_MODES = {
-    "cold_open":       {"stability": 0.45, "similarity_boost": 0.80, "style": 0.18},
-    "setup":           {"stability": 0.55, "similarity_boost": 0.80, "style": 0.15},
-    "react":           {"stability": 0.55, "similarity_boost": 0.80, "style": 0.15},
-    "social_segment":  {"stability": 0.50, "similarity_boost": 0.78, "style": 0.18},
-    "wrap":            {"stability": 0.50, "similarity_boost": 0.78, "style": 0.20},
-    "data":            {"stability": 0.60, "similarity_boost": 0.82, "style": 0.12},
-}
-
-SILENCE_GAP = 0.3  # seconds between speakers
-MAX_CHUNK_CHARS = 4900
-
-_KEY_CACHE: dict = {}
+    """TTS provider locked to ElevenLabs per PIPELINE_LAWS."""
+    val = os.environ.get("TTS_PROVIDER", "elevenlabs").lower().strip()
+    if val != "elevenlabs":
+        raise RuntimeError(
+            f"[TTS] PIPELINE_LAWS violation: TTS_PROVIDER must be 'elevenlabs', got '{val}'. "
+            "Inworld returns 0 bytes — never switch providers."
+        )
+    return "elevenlabs"
 
 
 def _get_cached_key(name: str) -> str:
@@ -104,14 +96,15 @@ def ffprobe_duration(path: str) -> float:
     try:
         return float(r.stdout.strip())
     except Exception:
-        return 0.0
+        logger.warning(f"[TTS] ffprobe_duration failed for {path}")
+        return -1.0
 
 
 def _generate_silence(output_path: str, duration: float) -> bool:
     """Generate a silent audio file."""
     r = subprocess.run(
         ["ffmpeg", "-y", "-f", "lavfi", "-i",
-         f"anullsrc=r=44100:cl=mono", "-t", str(duration),
+         f"anullsrc=r=48000:cl=stereo", "-t", str(duration),
          "-c:a", "aac", "-b:a", "192k", output_path],
         capture_output=True, text=True, timeout=30,
     )
@@ -121,7 +114,7 @@ def _generate_silence(output_path: str, duration: float) -> bool:
 def _mp3_to_m4a(mp3_path: str, m4a_path: str) -> bool:
     r = subprocess.run(
         ["ffmpeg", "-y", "-i", mp3_path,
-         "-c:a", "aac", "-ar", "44100", "-ac", "1", "-b:a", "192k", m4a_path],
+         "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k", m4a_path],
         capture_output=True, text=True, timeout=120,
     )
     return r.returncode == 0 and os.path.exists(m4a_path)
@@ -230,12 +223,20 @@ def _tts_cache_key(text: str, voice_id: str, segment_type: str) -> str:
 
 
 def _tts_cache_get(cache_key: str, output_path: str) -> bool:
-    """Check TTS cache and copy to output_path if hit. Returns True on hit."""
-    import shutil
+    """Return True if valid cached file exists and passes validation."""
     cache_file = os.path.join(TTS_CACHE_DIR, f"{cache_key}.m4a")
-    if os.path.exists(cache_file) and os.path.getsize(cache_file) > 1000:
+    if os.path.exists(cache_file) and os.path.getsize(cache_file) > 10240:
         shutil.copy2(cache_file, output_path)
-        return True
+        try:
+            validate_tts_output(output_path)
+            return True
+        except RuntimeError:
+            logger.warning(f"[TTS] Corrupt cache deleted: {cache_file}")
+            try:
+                os.remove(cache_file)
+                os.remove(output_path)
+            except Exception:
+                pass
     return False
 
 
@@ -288,81 +289,11 @@ def validate_tts_output(path: str, min_size: int = 10240) -> None:
 
 def tts_inworld(text: str, output_path: str, host: int = 1,
                 segment_type: str = "narration") -> bool:
-    """Generate TTS via Inworld AI. Raises RuntimeError on any failure."""
-    import base64 as _b64
-
-    if not HAS_REQUESTS:
-        raise RuntimeError("requests library not available for Inworld TTS")
-
-    key = _get_cached_key("INWORLD_API_KEY")
-    if not key:
-        raise RuntimeError("INWORLD_API_KEY not set")
-
-    text = expand_numbers_for_tts(text)
-
-    voice = INWORLD_VOICES.get(host, INWORLD_VOICES[1])
-    url = "https://api.inworld.ai/tts/v1/voice"
-    headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
-    body = {
-        "voiceId": voice["voice_id"],
-        "modelId": voice["model_id"],
-        "text": text,
-        "speakingRate": 1.0,
-        "temperature": 0.5,
-    }
-
-    try:
-        r = requests.post(url, json=body, headers=headers, timeout=90)
-        if r.status_code != 200:
-            raise RuntimeError(f"Inworld API HTTP {r.status_code}: {r.text[:300]}")
-        data = r.json()
-        audio_b64 = data.get("audioContent") or data.get("audio_content")
-        if not audio_b64:
-            raise RuntimeError(f"Inworld response missing audioContent: {list(data.keys())}")
-        raw_audio = _b64.b64decode(audio_b64)
-    except requests.RequestException as e:
-        raise RuntimeError(f"Inworld request failed: {e}")
-
-    # Inworld returns MP3. Single ffmpeg call: decode + atempo + write WAV.
-    # Tested live: HTTP 200, 32685 bytes MP3, atempo rc=0, 143994 bytes WAV output.
-    speed = voice.get("speed", 1.2)
-    if speed > 2.0:
-        atempo_chain = "atempo=2.0,atempo={:.3f}".format(speed / 2.0)
-    elif speed < 0.5:
-        atempo_chain = "atempo=0.5,atempo={:.3f}".format(speed / 0.5)
-    else:
-        atempo_chain = "atempo={:.3f}".format(speed)
-
-    # Always write to .wav — works for .mp3, .m4a, .wav input paths
-    out_wav = os.path.splitext(output_path)[0] + ".wav"
-
-    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
-        tmp.write(raw_audio)
-        tmp_path = tmp.name
-    try:
-        result = subprocess.run(
-            ["ffmpeg", "-y", "-i", tmp_path, "-filter:a", atempo_chain,
-             "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "1", out_wav],
-            capture_output=True, text=True, timeout=120,
-        )
-        if result.returncode != 0:
-            import sys
-            print(f"[tts] FFMPEG FAIL rc={result.returncode}", file=sys.stderr)
-            print(f"[tts] FFMPEG STDERR TAIL: {result.stderr[-800:]}", file=sys.stderr)
-            print(f"[tts] out_wav={out_wav} exists={os.path.exists(out_wav)}", file=sys.stderr)
-            raise RuntimeError("ffmpeg atempo failed (last 500): " + result.stderr[-500:])
-        if out_wav != output_path:  # copy wav back to original path (.m4a or .mp3)
-            import shutil; shutil.copy(out_wav, output_path)
-    finally:
-        try: os.remove(tmp_path)
-        except OSError: pass
-
-    # CRITICAL: reject silent/corrupt files
-    if not os.path.exists(output_path) or os.path.getsize(output_path) < 10240:
-        raise RuntimeError("TTS output too small — silent file detected")
-
-    print(f"  [tts] Inworld OK ({voice['name']}): {text[:50]}...")
-    return True
+    """DISABLED: Inworld TTS banned per PIPELINE_LAWS (0-byte synthesis)."""
+    raise RuntimeError(
+        "Inworld TTS is disabled per PIPELINE_LAWS. TTS_PROVIDER must be 'elevenlabs'. "
+        "Inworld synthesis returns 0 bytes — account not provisioned."
+    )
 
 
 def tts_elevenlabs(text: str, output_path: str, host: int = 1,
@@ -570,10 +501,8 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
         print(f"  [tts] Line {i:02d} ({voice['name']}{mode_tag}): {text[:60]}...")
 
         _provider = _get_tts_provider()
-        if _provider == "inworld":
-            _tts_ok = tts_inworld(text, line_path, host_num, segment_type=segment_type)
-        else:
-            _tts_ok = tts_elevenlabs(text, line_path, host_num, segment_type=segment_type)
+        # ElevenLabs only — Inworld disabled per PIPELINE_LAWS
+        _tts_ok = tts_elevenlabs(text, line_path, host_num, segment_type=segment_type)
         if _tts_ok:
             dur = ffprobe_duration(line_path)
             lines.append({

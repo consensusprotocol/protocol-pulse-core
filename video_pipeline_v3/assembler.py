@@ -69,7 +69,7 @@ BV2_OBSIDIAN    = COLOR_BG
 BV2_DEEP_PANEL  = COLOR_PANEL
 BV2_SIGNAL_RED  = COLOR_RED_WARM
 BV2_STARK_WHITE = COLOR_WHITE
-BV2_MUTED       = "0xFFFFFF"   # secondary text (used @0.33 opacity)
+BV2_MUTED       = COLOR_WHITE  # secondary text (used @0.33 opacity, warm white)
 BV2_EMERALD     = COLOR_GREEN
 BV2_RED_LIGHT   = "0xFF8595"   # gradient accent
 
@@ -242,13 +242,13 @@ def _build_info_bar_fg(duration: float, btc_price: str, block_height: str = "",
     # FIX 5: Glassmorphic black base bar
     fg += f"color=c=0x000000@0.75:s=1920x48:d={duration}:r=30[tickbase];\n"
     # Red top separator line (2px)
-    fg += f"[tickbase]drawbox=x=0:y=0:w=1920:h=2:color=0xFF0033@0.85:t=fill[tickline];\n"
+    fg += f"[tickbase]drawbox=x=0:y=0:w=1920:h=2:color={COLOR_RED}@0.85:t=fill[tickline];\n"
     # Static 'PULSE CHECK' label left
     fg += (f"[tickline]drawtext=fontfile={FONT_MONO}:text='PULSE CHECK':"
            f"fontcolor=0xF4F5F8:fontsize=14:x=8:y=18[tickstatic];\n")
     # Scrolling red text
     fg += (f"[tickstatic]drawtext=fontfile={FONT_MONO}:text='{safe_content}':"
-           f"fontcolor=0xFF0033:fontsize=14:"
+           f"fontcolor={COLOR_RED}:fontsize=14:"
            f"x=W-mod(n*2\\,W+text_w):y=18[ticker];\n")
     # Overlay bar onto video frame at y=1032
     fg += f"[{label_in}][ticker]overlay=0:1032[{label_out}];\n"
@@ -580,7 +580,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
            f"[outv];\n")
 
     fg += (f"[0:a]aformat=channel_layouts=stereo,"
-           f"loudnorm=I=-14:TP=-2.0:LRA=7,alimiter=limit=0.891:level=disabled:attack=5:release=50,aresample=async=1[outa]")
+           f"alimiter=limit=0.891:level=disabled:attack=5:release=50,aresample=async=1[outa]")
 
     ok = run_ffmpeg_filtergraph(
         [tts_path], fg, ["[outv]", "[outa]"],
@@ -919,15 +919,15 @@ def _build_signature_info_rail(duration: float, btc_price: str, label_in: str,
     fg += (f"[{label_in}]"
            f"drawbox=x=0:y=1032:w=1920:h=48:color=0x000000@0.75:t=fill,"
            # Red top separator line (2px)
-           f"drawbox=x=0:y=1032:w=1920:h=2:color=0xFF0033@0.85:t=fill,"
+           f"drawbox=x=0:y=1032:w=1920:h=2:color={COLOR_RED}@0.85:t=fill,"
            # Left: static 'PULSE CHECK' in white monospace
            f"drawtext=fontfile={FONT_MONO}:text='PULSE CHECK':"
            f"fontcolor=0xF4F5F8:fontsize=14:x=16:y=1048,"
            # Vertical separator after label
-           f"drawbox=x=140:y=1036:w=1:h=38:color=0xFF0033@0.5:t=fill,"
+           f"drawbox=x=140:y=1036:w=1:h=38:color={COLOR_RED}@0.5:t=fill,"
            # Right: scrolling red ticker
            f"drawtext=fontfile={FONT_MONO}:text='{safe_ticker}':"
-           f"fontcolor=0xFF0033:fontsize=14:"
+           f"fontcolor={COLOR_RED}:fontsize=14:"
            f"x=W-mod(n*2\\,W+text_w):y=1048"
            f"[{label_out}];\n")
     return fg
@@ -1025,7 +1025,7 @@ def _bv2_encode(inputs, fg, output_path, total_dur, label="bv2 scene",
     pre-split audio via asplit should pass their output pad here.
     """
     fg += (f"{audio_pad}aformat=channel_layouts=stereo,"
-           f"loudnorm=I=-14:TP=-2.0:LRA=7,alimiter=limit=0.891:level=disabled:attack=5:release=50,aresample=async=1[outa]")
+           f"alimiter=limit=0.891:level=disabled:attack=5:release=50,aresample=async=1[outa]")
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -1557,7 +1557,7 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
            # Issue 4 FIX: Strip first 2.5s of partner clip audio (intro jangle) + fade in
            # Session 4 Fix 5: aresample=async=1 for lip sync drift correction
            f"[0:a]aresample=async=1,atrim=start=2.5,asetpts=PTS-STARTPTS,"
-           f"highpass=f=50,lowpass=f=15000,loudnorm=I=-14:TP=-2.0:LRA=7,"
+           f"highpass=f=50,lowpass=f=15000,"
            f"afade=t=in:d=0.5,afade=t=out:st={max(0, fade_out_start - 2.5)}:d=0.5[outa]")
 
     # Session 4 Fix 5: Probe audio offset for lip sync correction
@@ -2264,7 +2264,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
         fg += f"[v_final]format=yuv420p[outv];\n"
 
     # Audio: TTS only — APEX V2: music mixed continuously in concatenate_parts()
-    fg += (f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,loudnorm=I=-14:TP=-2.0:LRA=7,alimiter=limit=0.891:level=disabled:attack=5:release=50[outa]")
+    fg += (f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,alimiter=limit=0.891:level=disabled:attack=5:release=50[outa]")
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -2482,7 +2482,7 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
     fg += f"[{last_v}]format=yuv420p[outv];\n"
 
     # FIX 4: explicit stereo format before loudnorm/aresample to prevent channel layout error
-    fg += f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,loudnorm=I=-14:TP=-2.0:LRA=7,alimiter=limit=0.891:level=disabled:attack=5:release=50[outa]"
+    fg += f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,alimiter=limit=0.891:level=disabled:attack=5:release=50[outa]"
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -3086,7 +3086,7 @@ def make_clip_visual(clip_path: str, source: str, output_path: str,
         f"[clip_railed]format=yuv420p[outv];\n"
         # Issue 4 FIX: Strip first 2.5s of clip audio (intro jangle) + fade in 0.5s
         f"[0:a]atrim=start=2.5,asetpts=PTS-STARTPTS,"
-        f"highpass=f=50,lowpass=f=15000,loudnorm=I=-14:TP=-2.0:LRA=7,"
+        f"highpass=f=50,lowpass=f=15000,"
         f"afade=t=in:d=0.5,afade=t=out:st={max(0, fade_out_start - 2.5)}:d=0.5[outa]"
     )
 

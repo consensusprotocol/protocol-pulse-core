@@ -51,7 +51,7 @@ logger = logging.getLogger("Producer")
 
 
 def get_btc_price() -> str:
-    """Fetch current BTC price from mempool.space."""
+    """Fetch current BTC price (CoinGecko primary + mempool.space fallback)."""
     try:
         import requests
         r = requests.get("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd", timeout=5)
@@ -315,6 +315,14 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     clip_dir = os.path.join(run_dir, "clips")
     extracted_clips = extract_all(selections, clip_dir)
     print(f"  Extracted: {len(extracted_clips)}/{len(clips)} clips")
+    if not test_mode:
+        _unique_ch = len({info.get("channel", f"unk_{i}") for i, info in enumerate(extracted_clips.values())})
+        if len(extracted_clips) < 5 or _unique_ch < 5:
+            logger.critical(
+                f"[PIPELINE] HARD FAIL: Need 5 clips from 5 unique channels, "
+                f"got {len(extracted_clips)} clips from {_unique_ch} channels."
+            )
+            return False
     for rank, info in sorted(extracted_clips.items()):
         print(f"    #{rank}: {info['channel']} — {info['duration']:.1f}s")
     timing["4_extract"] = round(time.time() - t0, 2)
@@ -854,7 +862,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
                 f"Video: {final_video}",
             )
 
-    return passed
+    return passed and hc_passed
 
 
 def _write_timing_report(run_dir: str, timing: dict, t_start: float, success: bool):
