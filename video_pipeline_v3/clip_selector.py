@@ -8,7 +8,7 @@ import json
 import logging
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 
 try:
     import anthropic
@@ -104,13 +104,29 @@ def _load_used_clips() -> dict:
         return {"episodes": []}
 
 
-def _get_recent_video_ids(max_episodes: int = 7) -> set:
-    """Get all video_ids used in the last N episodes."""
+def _prune_old_episodes():
+    """Remove episodes older than 7 days from used_clips.json."""
     data = _load_used_clips()
-    recent = data.get("episodes", [])[-max_episodes:]
+    cutoff = (datetime.utcnow() - timedelta(days=7)).strftime("%Y-%m-%d")
+    before = len(data.get("episodes", []))
+    data["episodes"] = [ep for ep in data.get("episodes", []) if ep.get("date", "") >= cutoff]
+    after = len(data["episodes"])
+    if after < before:
+        logger.info(f"EPISODE MEMORY: Pruned {before - after} episodes older than 7 days")
+        os.makedirs(os.path.dirname(USED_CLIPS_PATH), exist_ok=True)
+        with open(USED_CLIPS_PATH, "w") as f:
+            json.dump(data, f, indent=2)
+    return data
+
+
+def _get_recent_video_ids(max_days: int = 7) -> set:
+    """Get all video_ids used in episodes from the last N days (video-level only)."""
+    data = _prune_old_episodes()
+    cutoff = (datetime.utcnow() - timedelta(days=max_days)).strftime("%Y-%m-%d")
     ids = set()
-    for ep in recent:
-        ids.update(ep.get("video_ids", []))
+    for ep in data.get("episodes", []):
+        if ep.get("date", "") >= cutoff:
+            ids.update(ep.get("video_ids", []))
     return ids
 
 
@@ -124,8 +140,9 @@ def _record_episode(clips: list):
         "video_ids": video_ids,
         "channels": channels,
     })
-    # Keep only last 30 episodes
-    data["episodes"] = data["episodes"][-30:]
+    # Prune episodes older than 7 days
+    cutoff = (datetime.utcnow() - timedelta(days=7)).strftime("%Y-%m-%d")
+    data["episodes"] = [ep for ep in data["episodes"] if ep.get("date", "") >= cutoff]
     os.makedirs(os.path.dirname(USED_CLIPS_PATH), exist_ok=True)
     with open(USED_CLIPS_PATH, "w") as f:
         json.dump(data, f, indent=2)
@@ -263,7 +280,7 @@ def select_clips(videos: list) -> dict:
 
         # If we have fewer clips than required, re-select from remaining videos
         used_channels = {c.get("channel", "") for c in clean_clips}
-        used_video_ids = {c.get("video_id", "") for c in clean_clips} | recent_ids
+        used_video_ids = {c.get("video_id", "") for c in clean_clips}
 
         if not test_mode and len(clean_clips) < 5:
             logger.warning(f"5-CLIP RULE: Only {len(clean_clips)} clips after filtering, "
@@ -290,14 +307,30 @@ def select_clips(videos: list) -> dict:
                     f"\"host_setup\": \"...\", \"host_react\": \"...\"}}]}}"
                 )
                 try:
-                    text2 = call_llm(reselect_prompt, max_tokens=3000)
+                    text2 = call_llm(reselect_prompt, max_tokens=4096)
                     if text2 is None:
                         raise RuntimeError("All LLM providers failed for re-selection")
+                    # Strip markdown fences if present
                     if "```json" in text2:
                         text2 = text2.split("```json")[1].split("```")[0]
                     elif "```" in text2:
                         text2 = text2.split("```")[1].split("```")[0]
-                    extra = json.loads(text2)
+                    text2 = text2.strip()
+                    try:
+                        extra = json.loads(text2)
+                    except json.JSONDecodeError:
+                        # Try to salvage truncated JSON by closing open structures
+                        logger.warning(f"Re-selection JSON malformed, attempting repair. Raw (last 200): ...{text2[-200:]}")
+                        # Find last complete clip object
+                        last_brace = text2.rfind("}")
+                        if last_brace > 0:
+                            repaired = text2[:last_brace + 1]
+                            # Close the array and outer object if needed
+                            if '"clips"' in repaired and not repaired.rstrip().endswith("]}"):
+                                repaired = repaired.rstrip().rstrip(",") + "]}"
+                            extra = json.loads(repaired)
+                        else:
+                            raise
                     extra_clips = extra.get("clips", [])
 
                     # Filter extras through ad-read + dedup
