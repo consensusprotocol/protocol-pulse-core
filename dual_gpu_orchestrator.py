@@ -252,7 +252,9 @@ def run_render(gpu_id, branch=None):
     env['GPU_ID'] = str(gpu_id)
     env['OUTPUT_SUBDIR'] = f'gpu{gpu_id}'
 
-    # If branch specified, checkout in a temporary worktree
+    # Worktrees disabled — git worktree setup fails silently on this system
+    # Both GPUs run from PIPELINE (main repo). GPU0 uses render-stable via git stash/checkout
+    # which is too risky on shared repo. Simpler: both run from PIPELINE, GPU0=baseline, GPU1=latest.
     worktree_dir = None
     cwd = PIPELINE
 
