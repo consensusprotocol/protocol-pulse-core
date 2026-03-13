@@ -248,6 +248,19 @@ def run_render(gpu_id, branch=None):
     kill_stale_daemons()
     wipe_tts_cache()
 
+    # ── PREFLIGHT GATE ─────────────────────────────────
+    preflight = os.path.join(PIPELINE, 'preflight.py')
+    if os.path.exists(preflight):
+        pf = subprocess.run([sys.executable, preflight, '--no-tts'],
+                             capture_output=True, text=True, cwd=PIPELINE)
+        if pf.returncode != 0:
+            log(f'PREFLIGHT FAILED — aborting render', gpu_id)
+            log(pf.stdout[-800:] if pf.stdout else pf.stderr[-400:], gpu_id)
+            return None
+        log('Preflight: all checks passed', gpu_id)
+    else:
+        log('WARNING: preflight.py not found — skipping gate', gpu_id)
+
     env = load_env()
     env['CUDA_VISIBLE_DEVICES'] = str(gpu_id)
     env['GPU_ID'] = str(gpu_id)
