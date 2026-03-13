@@ -125,6 +125,7 @@ def _mp3_to_m4a(mp3_path: str, m4a_path: str) -> bool:
 
 
 MAX_CHUNK_CHARS = 500  # ElevenLabs safe chunk size
+SILENCE_GAP = 0.3  # seconds between speakers
 
 
 def _chunk_text(text: str, max_chars: int = MAX_CHUNK_CHARS) -> list:
