@@ -199,30 +199,18 @@ def update_throughput():
 # ─── RENDER LOGIC ────────────────────────────────────────────────────────────
 
 def find_latest_video(output_subdir=None):
-    """Find the most recent pulse_check MP4."""
-    search_base = PIPELINE
-    if output_subdir:
-        search_base = f'{PIPELINE}/output/{output_subdir}'
-
-    candidates = []
-    for root, dirs, files in os.walk(search_base):
-        for f in files:
-            if (f.endswith('.mp4') and 'pulse_check' in f
-                    and not any(x in f for x in ['music_mixed', 'concat_raw', '.norm', 'whoosh', 'placeholder'])):
-                full = os.path.join(root, f)
-                candidates.append((os.path.getmtime(full), full))
-
-    # Also check the date-based output dirs
+    """Return today's final MP4 only. Never fall back to previous days."""
     today = datetime.now().strftime('%Y-%m-%d')
-    for pat in [f'output/{today}/*.mp4', 'output/*.mp4']:
-        for f in glob.glob(f'{PIPELINE}/{pat}'):
-            if (f.endswith('.mp4') and 'pulse_check' in f
-                    and not any(x in f for x in ['music_mixed', 'concat_raw', '.norm', 'whoosh', 'placeholder'])):
-                candidates.append((os.path.getmtime(f), f))
-
+    today_dir = os.path.join(PIPELINE, 'output', today)
+    candidates = []
+    if os.path.exists(today_dir):
+        for f in os.listdir(today_dir):
+            if f.endswith('.mp4') and 'pulse_check' in f and 'music_mixed' not in f and 'concat_raw' not in f:
+                full = os.path.join(today_dir, f)
+                if os.path.getsize(full) > 10_000_000:
+                    candidates.append((os.path.getmtime(full), full))
     candidates.sort(reverse=True)
     return candidates[0][1] if candidates else None
-
 
 def kill_stale_daemons():
     """Kill stale channel_daemon.py processes."""
