@@ -288,8 +288,8 @@ def run_render(gpu_id, branch=None):
                         try:
                             os.symlink('/home/ultron/protocol_pulse/.env', wt_env)
                         except Exception:
-                            import shutil
-                            shutil.copy('/home/ultron/protocol_pulse/.env', wt_env)
+                            import shutil as _shutil
+                            _shutil.copy('/home/ultron/protocol_pulse/.env', wt_env)
                     log(f"Using worktree at {worktree_dir} (branch {branch})", gpu_id)
                 else:
                     log(f"Worktree creation failed: {r.stderr[:200]}. Using main.", gpu_id)
