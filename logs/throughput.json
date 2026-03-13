@@ -1,12 +1,12 @@
 {
-  "last_render_epoch": 1773382478.0099657,
-  "last_render_iso": "2026-03-13T02:14:38.009966",
-  "renders_gpu0": 0,
-  "renders_gpu1": 0,
-  "renders_per_hour_gpu0": 0.0,
-  "last_grade_gpu0": null,
-  "last_score_gpu0": 0,
-  "renders_per_hour_gpu1": 0.0,
-  "last_grade_gpu1": null,
-  "last_score_gpu1": 0
+  "last_render_epoch": 1773384362.0076716,
+  "last_render_iso": "2026-03-13T02:46:02.007672",
+  "renders_gpu0": 4,
+  "renders_gpu1": 3,
+  "renders_per_hour_gpu0": 9.41,
+  "last_grade_gpu0": "F",
+  "last_score_gpu0": 43,
+  "renders_per_hour_gpu1": 7.2,
+  "last_grade_gpu1": "F",
+  "last_score_gpu1": 24
 }
