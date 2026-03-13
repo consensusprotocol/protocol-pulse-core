@@ -45,6 +45,7 @@ FEATURE_MAP = {
     "f4-cron-heygen":   ("F4_CRON_HEYGEN_GOSPEL.md",   "feature/f4-cron-heygen"),
     "stripe_commander": ("F1_STRIPE_COMMANDER_GOSPEL.md", "feature/f1-stripe-commander"),
     "article_page_laws": ("ARTICLE_PAGE_LAWS.md", "feature/f2-article-laws"),
+    "tts-pipeline": ("TTS_PIPELINE_AUDIT_GOSPEL.md", "feature/tts-pipeline"),
 }
 
 # High-stakes features get full 2-cycle audit. Others can use 1-cycle if score > 85.
