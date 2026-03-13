@@ -248,6 +248,11 @@ def run_render(gpu_id, branch=None):
     kill_stale_daemons()
     wipe_tts_cache()
 
+    # ── SPEND CAP GATE ────────────────────────────────
+    if os.path.exists('/home/ultron/protocol_pulse/logs/ANTHROPIC_SPEND_CAP_HIT.flag'):
+        log(f'SPEND CAP SENTINEL active — aborting render. Delete /home/ultron/protocol_pulse/logs/ANTHROPIC_SPEND_CAP_HIT.flag to resume.', gpu_id)
+        return None
+
     # ── PREFLIGHT GATE ─────────────────────────────────
     preflight = os.path.join(PIPELINE, 'preflight.py')
     if os.path.exists(preflight):

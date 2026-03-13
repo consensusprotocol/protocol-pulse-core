@@ -1,3 +1,4 @@
+import os
 """Key resolution helper for Protocol Pulse pipeline.
 
 Resolution order for every key:
@@ -104,14 +105,48 @@ def query_db(sql: str) -> str:
 
 # ── LLM fallback helper ─────────────────────────────────────────────────────
 
+
+SPEND_CAP_SENTINEL = '/home/ultron/protocol_pulse/logs/ANTHROPIC_SPEND_CAP_HIT.flag'
+
+def _check_spend_cap_sentinel():
+    """Return True if spend cap sentinel exists — abort all LLM calls."""
+    return os.path.exists(SPEND_CAP_SENTINEL)
+
+def _set_spend_cap_sentinel(error_msg: str = ''):
+    """Write sentinel file and log — halts all future LLM calls this session."""
+    import datetime
+    os.makedirs(os.path.dirname(SPEND_CAP_SENTINEL), exist_ok=True)
+    with open(SPEND_CAP_SENTINEL, 'w') as f:
+        f.write(f"ANTHROPIC SPEND CAP HIT\n{datetime.datetime.utcnow().isoformat()}Z\n{error_msg}\n")
+    print(f"[SPEND_CAP] 🔴 SENTINEL WRITTEN — all LLM calls halted: {error_msg}", flush=True)
+    # Telegram alert
+    try:
+        import requests as _req
+        _tok = get_key('TELEGRAM_BOT_TOKEN', required=False)
+        _cid = get_key('TELEGRAM_CHAT_ID', required=False)
+        if _tok and _cid:
+            _req.post(
+                f'https://api.telegram.org/bot{_tok}/sendMessage',
+                json={'chat_id': _cid,
+                      'text': f'🔴 ANTHROPIC SPEND CAP HIT — all pipeline LLM calls halted.\n{error_msg}'},
+                timeout=5
+            )
+    except Exception:
+        pass
+
 def call_llm(prompt: str, max_tokens: int = 4000, temperature: float = 0.3) -> str | None:
     """Call an LLM with Anthropic→Grok fallback. Returns response text or None."""
     import logging
     log = logging.getLogger("relay.call_llm")
 
+    # ── SPEND CAP GATE ────────────────────────────────────────
+    if _check_spend_cap_sentinel():
+        log.error("[SPEND_CAP] Sentinel active — skipping Anthropic, trying fallbacks")
+        # Fall through to Grok/Gemini below
+
     # Try Anthropic first
     anthropic_key = get_key("ANTHROPIC_API_KEY", required=False)
-    if anthropic_key:
+    if anthropic_key and not _check_spend_cap_sentinel():
         try:
             import anthropic
             client = anthropic.Anthropic(api_key=anthropic_key)
@@ -122,7 +157,15 @@ def call_llm(prompt: str, max_tokens: int = 4000, temperature: float = 0.3) -> s
             )
             return resp.content[0].text.strip()
         except Exception as e:
-            log.warning(f"Anthropic failed: {e}")
+            err_str = str(e).lower()
+            # Spend cap / quota errors → write sentinel, halt Anthropic permanently this session
+            if any(x in err_str for x in ['529', 'credit_balance_too_low',
+                                            'spend_limit_exceeded', 'insufficient_quota',
+                                            'payment_required', '402']):
+                _set_spend_cap_sentinel(str(e))
+                log.error(f"[SPEND_CAP] Anthropic spend cap hit — falling back to Grok/Gemini")
+            else:
+                log.warning(f"Anthropic failed (transient): {e}")
 
     # Fallback to Grok/xAI
     xai_key = get_key("XAI_API_KEY", required=False)
