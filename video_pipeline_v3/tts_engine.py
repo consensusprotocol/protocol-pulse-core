@@ -79,6 +79,8 @@ def _get_tts_provider() -> str:
     return "elevenlabs"
 
 
+_KEY_CACHE: dict = {}
+
 def _get_cached_key(name: str) -> str:
     if name not in _KEY_CACHE:
         k = get_key(name)
