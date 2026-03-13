@@ -1,74 +1,6 @@
 {
   "episodes": [
     {
-      "date": "2026-03-12",
-      "video_ids": [
-        "4nDVYeU6SRw",
-        "3XyLlUcX13E",
-        "4mw00SQkvGA",
-        "57GVjvYfpx0",
-        "2DIlhctrBcY"
-      ],
-      "channels": [
-        "Altcoin Daily",
-        "Digital Asset News",
-        "BTC Sessions",
-        "Blockware Solutions",
-        "Anthony Pompliano"
-      ]
-    },
-    {
-      "date": "2026-03-12",
-      "video_ids": [
-        "GdfvYL1vKRk",
-        "4yMGeaL4KfY",
-        "FF86TL4Udns",
-        "NK4-LeozO34",
-        "26lG23eyt-k"
-      ],
-      "channels": [
-        "Coin Bureau",
-        "Simply Bitcoin",
-        "Swan Bitcoin",
-        "Natalie Brunell",
-        "CNBC Television"
-      ]
-    },
-    {
-      "date": "2026-03-12",
-      "video_ids": [
-        "5kFhXw1wZvQ",
-        "AOr8Db4q860",
-        "Mi_Y2jGxOx4",
-        "GnD7l7Pv_-Y",
-        "BpnzrmkpPgQ"
-      ],
-      "channels": [
-        "Anthony Pompliano",
-        "Blockware Solutions",
-        "Robert Breedlove",
-        "Simply Bitcoin",
-        "TFTC"
-      ]
-    },
-    {
-      "date": "2026-03-13",
-      "video_ids": [
-        "AYAreuNzx58",
-        "4h0fL7Zm_xk",
-        "N6vOLQ3qJiA",
-        "5GMf3wA0ZqI",
-        "2EFfA_8pogQ"
-      ],
-      "channels": [
-        "Andreas Antonopoulos",
-        "Real Vision Finance",
-        "Bitcoin Magazine",
-        "Saifedean Ammous",
-        "Simply Bitcoin"
-      ]
-    },
-    {
       "date": "2026-03-13",
       "video_ids": [
         "8WjGNNF48Dk",
@@ -415,6 +347,159 @@
         "Bitcoin Magazine Pro",
         "Swan Bitcoin",
         "Blockware Solutions"
+      ]
+    },
+    {
+      "date": "2026-03-13",
+      "video_ids": [
+        "GdfvYL1vKRk",
+        "4yMGeaL4KfY",
+        "NK4-LeozO34",
+        "FF86TL4Udns",
+        "26lG23eyt-k"
+      ],
+      "channels": [
+        "Coin Bureau",
+        "Simply Bitcoin",
+        "Natalie Brunell",
+        "Swan Bitcoin",
+        "CNBC Television"
+      ]
+    },
+    {
+      "date": "2026-03-13",
+      "video_ids": [
+        "2DIlhctrBcY",
+        "3XyLlUcX13E",
+        "GnD7l7Pv_-Y",
+        "ExYe0PrTZhE",
+        "AOr8Db4q860"
+      ],
+      "channels": [
+        "Anthony Pompliano",
+        "Digital Asset News",
+        "Simply Bitcoin",
+        "George Gammon",
+        "Blockware Solutions"
+      ]
+    },
+    {
+      "date": "2026-03-13",
+      "video_ids": [
+        "57GVjvYfpx0",
+        "4nDVYeU6SRw",
+        "-8lS8eunbNo",
+        "5kFhXw1wZvQ",
+        "BpnzrmkpPgQ"
+      ],
+      "channels": [
+        "Blockware Solutions",
+        "Altcoin Daily",
+        "Simply Bitcoin",
+        "Anthony Pompliano",
+        "TFTC"
+      ]
+    },
+    {
+      "date": "2026-03-13",
+      "video_ids": [
+        "AYAreuNzx58",
+        "2EFfA_8pogQ",
+        "Mi_Y2jGxOx4",
+        "N6vOLQ3qJiA",
+        "8-8CFxRFVWA"
+      ],
+      "channels": [
+        "Andreas Antonopoulos",
+        "Simply Bitcoin",
+        "Robert Breedlove",
+        "Bitcoin Magazine",
+        "Compass Mining"
+      ]
+    },
+    {
+      "date": "2026-03-13",
+      "video_ids": [
+        "8WjGNNF48Dk",
+        "-a-GwIZmoOM",
+        "5VczGHHbDTQ",
+        "LKbDRJiqNtM",
+        "4h0fL7Zm_xk"
+      ],
+      "channels": [
+        "CoinGecko",
+        "Bitcoin Mechanic",
+        "The Bitcoin Layer",
+        "Simply Bitcoin",
+        "Real Vision Finance"
+      ]
+    },
+    {
+      "date": "2026-03-13",
+      "video_ids": [
+        "DDPSXTWjYaY",
+        "H3x9BCzzD8w",
+        "1w-ok-_d_K4",
+        "7fAhxz8GIAg",
+        "JPE7X_q3A7A"
+      ],
+      "channels": [
+        "DataDash",
+        "CoinTelegraph",
+        "Riot Platforms",
+        "The Bitcoin Layer",
+        "Bitcoin Mechanic"
+      ]
+    },
+    {
+      "date": "2026-03-13",
+      "video_ids": [
+        "4mw00SQkvGA",
+        "EAdSg0NcZGQ",
+        "MOXZAjI-arY",
+        "ATvWS_9wNfk",
+        "FXSh5cHQK84"
+      ],
+      "channels": [
+        "BTC Sessions",
+        "CoinTelegraph",
+        "Jameson Lopp",
+        "Guy Swann",
+        "Base58"
+      ]
+    },
+    {
+      "date": "2026-03-13",
+      "video_ids": [
+        "LTQc-242WL8",
+        "M0TmfF-91vw",
+        "5scEV0IVYeY",
+        "EZsli3cvW7Q",
+        "JJrhk7uqCCQ"
+      ],
+      "channels": [
+        "CNBC Television",
+        "Bitcoin Magazine Pro",
+        "Tone Vays",
+        "Stacker News",
+        "Blockware Solutions"
+      ]
+    },
+    {
+      "date": "2026-03-13",
+      "video_ids": [
+        "GdfvYL1vKRk",
+        "4yMGeaL4KfY",
+        "FF86TL4Udns",
+        "NK4-LeozO34",
+        "26lG23eyt-k"
+      ],
+      "channels": [
+        "Coin Bureau",
+        "Simply Bitcoin",
+        "Swan Bitcoin",
+        "Natalie Brunell",
+        "CNBC Television"
       ]
     }
   ]

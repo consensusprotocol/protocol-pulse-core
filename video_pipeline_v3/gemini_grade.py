@@ -108,9 +108,9 @@ log(f"Silence gaps >0.8s mid-video: {silence_count}")
 # ── EBU R128 loudness ─────────────────────────────────────────────────────────
 log("Running EBU R128 loudness measurement...")
 loudness_raw = run(f'ffmpeg -i "{LATEST}" -af "ebur128=peak=true" -f null - 2>&1 | grep -E "Integrated|True Peak|LRA|Threshold"')
-integrated_match = re.search(r'Integrated loudness.*?(-[\d.]+)\s+LUFS', loudness_raw)
-true_peak_match = re.search(r'True peak.*?(-?[\d.]+)\s+dBFS', loudness_raw)
-lra_match = re.search(r'LRA:.*?([\d.]+)\s+LU', loudness_raw)
+integrated_match = re.search(r'(?:Integrated loudness|I:)\s*(-[\d.]+)\s*LUFS', loudness_raw) or re.search(r'I:\s+(-[\d.]+)', loudness_raw)
+true_peak_match = re.search(r'(?:True peak|Peak:)\s+(-?[\d.]+)', loudness_raw)
+lra_match = re.search(r'LRA:\s+([\d.]+)', loudness_raw)
 integrated_lufs = float(integrated_match.group(1)) if integrated_match else None
 true_peak_dbfs = float(true_peak_match.group(1)) if true_peak_match else None
 lra_lu = float(lra_match.group(1)) if lra_match else None
