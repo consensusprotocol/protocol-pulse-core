@@ -282,6 +282,14 @@ def run_render(gpu_id, branch=None):
                 )
                 if r.returncode == 0:
                     cwd = f'{worktree_dir}/video_pipeline_v3'
+                    # Symlink .env so worktree has API keys
+                    wt_env = f'{worktree_dir}/.env'
+                    if not os.path.exists(wt_env):
+                        try:
+                            os.symlink('/home/ultron/protocol_pulse/.env', wt_env)
+                        except Exception:
+                            import shutil
+                            shutil.copy('/home/ultron/protocol_pulse/.env', wt_env)
                     log(f"Using worktree at {worktree_dir} (branch {branch})", gpu_id)
                 else:
                     log(f"Worktree creation failed: {r.stderr[:200]}. Using main.", gpu_id)
