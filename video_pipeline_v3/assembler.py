@@ -217,10 +217,10 @@ def _build_black_diamond_bg(duration: float, label_out: str = "bd_bg") -> tuple:
     # Layer 6: Vignette
     f += f"[bg4]vignette=PI/4:mode=backward[bg5];\n"
     # Layer 7: Red border frame (2px solid on all 4 edges)
-    f += (f"[bg5]drawbox=x=0:y=0:w=1920:h=2:color=0xFF0000@0.85:t=fill,"
-          f"drawbox=x=0:y=1078:w=1920:h=2:color=0xFF0000@0.85:t=fill,"
-          f"drawbox=x=0:y=0:w=2:h=1080:color=0xFF0000@0.85:t=fill,"
-          f"drawbox=x=1918:y=0:w=2:h=1080:color=0xFF0000@0.85:t=fill[{label_out}];\n")
+    f += (f"[bg5]drawbox=x=0:y=0:w=1920:h=2:color=0xFF3333@0.85:t=fill,"
+          f"drawbox=x=0:y=1078:w=1920:h=2:color=0xFF3333@0.85:t=fill,"
+          f"drawbox=x=0:y=0:w=2:h=1080:color=0xFF3333@0.85:t=fill,"
+          f"drawbox=x=1918:y=0:w=2:h=1080:color=0xFF3333@0.85:t=fill[{label_out}];\n")
     return ([], f)
 
 
@@ -245,7 +245,7 @@ def _build_info_bar_fg(duration: float, btc_price: str, block_height: str = "",
     fg += f"[tickbase]drawbox=x=0:y=0:w=1920:h=2:color=0xFF0033@0.85:t=fill[tickline];\n"
     # Static 'PULSE CHECK' label left
     fg += (f"[tickline]drawtext=fontfile={FONT_MONO}:text='PULSE CHECK':"
-           f"fontcolor=0xFFFFFF:fontsize=14:x=8:y=18[tickstatic];\n")
+           f"fontcolor=0xF4F5F8:fontsize=14:x=8:y=18[tickstatic];\n")
     # Scrolling red text
     fg += (f"[tickstatic]drawtext=fontfile={FONT_MONO}:text='{safe_content}':"
            f"fontcolor=0xFF0033:fontsize=14:"
@@ -622,10 +622,10 @@ def _make_clip_unavailable_card(rank: int, output_path: str, btc_price: str = "$
         f"drawbox=x=0:y=810:w=1920:h=1:color=0xFF0000@0.12:t=fill,"
         # Center card container
         f"drawbox=x=360:y=280:w=1200:h=380:color=0x0A0E14@0.92:t=fill,"
-        f"drawbox=x=360:y=280:w=1200:h=4:color=0xFF0000@0.9:t=fill,"
+        f"drawbox=x=360:y=280:w=1200:h=4:color=0xFF3333@0.9:t=fill,"
         f"drawbox=x=360:y=656:w=1200:h=4:color={COLOR_GOLD}@0.9:t=fill,"
-        f"drawbox=x=360:y=280:w=4:h=380:color=0xFF0000@0.9:t=fill,"
-        f"drawbox=x=1556:y=280:w=4:h=380:color=0xFF0000@0.9:t=fill,"
+        f"drawbox=x=360:y=280:w=4:h=380:color=0xFF3333@0.9:t=fill,"
+        f"drawbox=x=1556:y=280:w=4:h=380:color=0xFF3333@0.9:t=fill,"
         # Main headline
         f"drawtext=fontfile={FONT_BOLD}:text='PULSE CHECK'"
         f":fontcolor={COLOR_GOLD}:fontsize=52:x=(w-text_w)/2:y=360,"
@@ -922,7 +922,7 @@ def _build_signature_info_rail(duration: float, btc_price: str, label_in: str,
            f"drawbox=x=0:y=1032:w=1920:h=2:color=0xFF0033@0.85:t=fill,"
            # Left: static 'PULSE CHECK' in white monospace
            f"drawtext=fontfile={FONT_MONO}:text='PULSE CHECK':"
-           f"fontcolor=0xFFFFFF:fontsize=14:x=16:y=1048,"
+           f"fontcolor=0xF4F5F8:fontsize=14:x=16:y=1048,"
            # Vertical separator after label
            f"drawbox=x=140:y=1036:w=1:h=38:color=0xFF0033@0.5:t=fill,"
            # Right: scrolling red ticker
@@ -2264,7 +2264,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
         fg += f"[v_final]format=yuv420p[outv];\n"
 
     # Audio: TTS only — APEX V2: music mixed continuously in concatenate_parts()
-    fg += (f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,loudnorm=I=-14:TP=-2.0:LRA=7,alimiter=limit=0.891:level=disabled:attack=5:release=50,aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp[outa]")
+    fg += (f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,loudnorm=I=-14:TP=-2.0:LRA=7,alimiter=limit=0.891:level=disabled:attack=5:release=50[outa]")
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -2482,7 +2482,7 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
     fg += f"[{last_v}]format=yuv420p[outv];\n"
 
     # FIX 4: explicit stereo format before loudnorm/aresample to prevent channel layout error
-    fg += f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,loudnorm=I=-14:TP=-2.0:LRA=7,alimiter=limit=0.891:level=disabled:attack=5:release=50,aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp[outa]"
+    fg += f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,loudnorm=I=-14:TP=-2.0:LRA=7,alimiter=limit=0.891:level=disabled:attack=5:release=50[outa]"
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
