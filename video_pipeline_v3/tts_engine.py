@@ -333,7 +333,8 @@ def tts_inworld(text: str, output_path: str, host: int = 1,
     else:
         atempo_chain = "atempo={:.3f}".format(speed)
 
-    out_wav = output_path if not output_path.endswith(".mp3") else output_path[:-4] + ".wav"
+    # Always write to .wav — works for .mp3, .m4a, .wav input paths
+    out_wav = os.path.splitext(output_path)[0] + ".wav"
 
     with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
         tmp.write(raw_audio)
@@ -346,7 +347,7 @@ def tts_inworld(text: str, output_path: str, host: int = 1,
         )
         if result.returncode != 0:
             raise RuntimeError("ffmpeg atempo failed: " + result.stderr[:300])
-        if output_path.endswith(".mp3") and out_wav != output_path:
+        if out_wav != output_path:  # copy wav back to original path (.m4a or .mp3)
             import shutil; shutil.copy(out_wav, output_path)
     finally:
         try: os.remove(tmp_path)
@@ -523,9 +524,12 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
     """
     os.makedirs(output_dir, exist_ok=True)
 
-    key = _get_cached_key("ELEVENLABS_API_KEY")
-    if not key:
-        raise RuntimeError("ELEVENLABS_API_KEY not available. Cannot generate audio.")
+    # Only require ElevenLabs key if actually using ElevenLabs
+    _active_provider = _get_tts_provider()
+    if _active_provider == "elevenlabs":
+        key = _get_cached_key("ELEVENLABS_API_KEY")
+        if not key:
+            raise RuntimeError("ELEVENLABS_API_KEY not available. Cannot generate audio.")
 
     silence_path = os.path.join(output_dir, "silence.m4a")
     _generate_silence(silence_path, SILENCE_GAP)

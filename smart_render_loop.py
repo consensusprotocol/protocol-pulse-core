@@ -225,7 +225,7 @@ def main():
             break
         # append lesson BEFORE fixing
         fixes = fire_cc_fix(iteration, failures, grade, score)
-        append_lesson(iteration, grade, score, failures, fixes)
+        append_lesson(iteration, grade, score, failures, fixes or [])
         log(f"Lesson recorded. Proceeding to iteration {iteration+1}...")
     else:
         log(f"All {MAX_ITER} iterations complete")
