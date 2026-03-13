@@ -70,7 +70,7 @@
         "Live stream detected: Bitcoin Price Live!"
       ],
       "status": "live",
-      "last_updated": "2026-03-13T05:05:41.288015+00:00"
+      "last_updated": "2026-03-13T05:35:41.731526+00:00"
     },
     {
       "video_id": "im7NGMuPJmQ",
@@ -104,11 +104,11 @@
         "Live stream detected: Another $1.9T Bank Just Got Hit \u2014 The Contagion JUST Got Worse (1% Will Survive With Bitcoin)",
         "Live stream detected: Another $1.9T Bank Just Got Hit \u2014 The Contagion JUST Got Worse (1% Will Survive With Bitcoin)"
       ],
-      "status": "live",
+      "status": "ended",
       "last_updated": "2026-03-12T23:10:45.262110+00:00"
     }
   ],
-  "updated_at": "2026-03-13T05:05:41.372125+00:00",
+  "updated_at": "2026-03-13T05:35:41.795792+00:00",
   "monitoring": true,
   "channels_watched": 62
 }
