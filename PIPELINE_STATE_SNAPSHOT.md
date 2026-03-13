@@ -265,3 +265,18 @@ e0c9fe0a  fix(pipeline): Grok P1s — COLOR_RED 0xFF3333 + duration 480-900s + B
 - Gemini 2.5 Pro thinking model: `parts[]` where index 0 is thought block (no text key) — parse with `next((p["text"] for p in parts if "text" in p), ...)`
 - File writes via base64 chunked encoding (500-char chunks → /tmp/file.b64 → base64 -d)
 - Token: `581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552`
+
+## SESSION UPDATE — 03:36 UTC Mar 13
+
+### Additional fixes committed this session (post-snapshot):
+- `aa18b339` fix(pipeline): quality-aware clip fallback — 3Mbps floor, retry ranked alternates
+- `99e4d19f` fix(grader): EBU R128 regex — handle both 'I:' and 'Integrated loudness' formats  
+- `5f8d44d8` fix(selector): JSON parse robustness + episode memory last-7-episodes dedup
+- `[latest]` fix(tts): declare _KEY_CACHE module-level dict (NameError crash at TTS step)
+
+### Current blocker resolved:
+NameError: name '_KEY_CACHE' is not defined — fixed and synced to render-stable
+
+### Still watching:
+- First clean render into output/2026-03-13/ pending
+- Pre-flight assertions + selector safety layer flagged as P0 post-Grade-A work
