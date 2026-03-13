@@ -24,7 +24,7 @@ import shutil
 import subprocess
 import threading
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 
 sys.path.insert(0, '/home/ultron/protocol_pulse')
 from utils.notify import notify, notify_critical
@@ -200,20 +200,30 @@ def update_throughput():
 
 def find_latest_video(output_subdir=None):
     """Return today's final MP4 only. Never fall back to previous days."""
-    from datetime import timedelta
-    now = datetime.now()
+    from datetime import timedelta, timezone
+    now = datetime.now(timezone.utc)
     candidates = []
     for date_str in [now.strftime('%Y-%m-%d'), (now - timedelta(days=1)).strftime('%Y-%m-%d')]:
         today_dir = os.path.join(PIPELINE, 'output', date_str)
         if not os.path.exists(today_dir):
             continue
         for f in os.listdir(today_dir):
-            if f.endswith('.mp4') and 'pulse_check' in f and 'music_mixed' not in f and 'concat_raw' not in f:
+            # ONLY accept pulse_check_YYYYMMDD.mp4 — reject .norm, .concat, and other intermediates
+            if re.match(r'^pulse_check_\d{8}\.mp4$', f):
                 full = os.path.join(today_dir, f)
                 if os.path.getsize(full) > 10_000_000:
                     candidates.append((os.path.getmtime(full), full))
     candidates.sort(reverse=True)
-    return candidates[0][1] if candidates else None
+    if not candidates:
+        # Log rejected intermediates for diagnosis
+        now = datetime.now(timezone.utc)
+        today_dir = os.path.join(PIPELINE, 'output', now.strftime('%Y-%m-%d'))
+        if os.path.exists(today_dir):
+            all_mp4s = [f for f in os.listdir(today_dir) if f.endswith('.mp4')]
+            if all_mp4s:
+                log(f"FAILED: No valid pulse_check_*.mp4 found. Rejected intermediates: {all_mp4s}")
+        return None
+    return candidates[0][1]
 
 def kill_stale_daemons():
     """Kill stale channel_daemon.py processes."""

@@ -552,6 +552,15 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
         if os.path.exists(concat_file):
             os.remove(concat_file)
 
+    # Guard: full_dialogue.m4a must not be zero-byte or tiny
+    if os.path.exists(full_path):
+        full_size = os.path.getsize(full_path)
+        if full_size < 10240:
+            raise RuntimeError(
+                f"full_dialogue.m4a is {full_size} bytes (<10KB) — "
+                f"FFmpeg concat produced empty/corrupt audio. Aborting before render."
+            )
+
     total_dur = ffprobe_duration(full_path) if os.path.exists(full_path) else current_time
     successful = sum(1 for l in lines if l["path"] and os.path.exists(l.get("path", "")))
 

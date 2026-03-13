@@ -18,7 +18,7 @@ import shutil
 import subprocess
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
@@ -184,7 +184,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     os.makedirs(tts_cache, exist_ok=True)
     logger.info("TTS cache wiped")
 
-    ts = datetime.now()
+    ts = datetime.now(timezone.utc)
     date_str = ts.strftime("%Y%m%d")
     time_str = ts.strftime("%Y%m%d_%H%M%S")
 
