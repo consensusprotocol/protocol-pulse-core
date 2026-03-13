@@ -125,6 +125,16 @@ def _mp3_to_m4a(mp3_path: str, m4a_path: str) -> bool:
 MAX_CHUNK_CHARS = 500  # ElevenLabs safe chunk size
 SILENCE_GAP = 0.3  # seconds between speakers
 
+# Voice mode overrides per segment type (applied to whichever host speaks)
+VOICE_MODES = {
+    "cold_open":       {"stability": 0.45, "similarity_boost": 0.80, "style": 0.18},
+    "setup":           {"stability": 0.55, "similarity_boost": 0.80, "style": 0.15},
+    "react":           {"stability": 0.55, "similarity_boost": 0.80, "style": 0.15},
+    "bridge":          {"stability": 0.52, "similarity_boost": 0.80, "style": 0.15},
+    "social_segment":  {"stability": 0.50, "similarity_boost": 0.78, "style": 0.18},
+    "wrap":            {"stability": 0.50, "similarity_boost": 0.78, "style": 0.20},
+}
+
 
 def _chunk_text(text: str, max_chars: int = MAX_CHUNK_CHARS) -> list:
     if len(text) <= max_chars:

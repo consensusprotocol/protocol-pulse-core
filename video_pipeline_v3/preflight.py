@@ -63,7 +63,7 @@ def check_constants():
     ok = True
     c = open(f'{V3}/tts_engine.py').read() if os.path.exists(f'{V3}/tts_engine.py') else ''
 
-    for const, val in [('SILENCE_GAP', '0.3'), ('MAX_CHUNK_CHARS', '500')]:
+    for const, val in [('SILENCE_GAP', '0.3'), ('MAX_CHUNK_CHARS', '500'), ('VOICE_MODES', '{')]:
         present = bool(re.search(rf'^{const}\s*=', c, re.MULTILINE))
         if not chk(f'Constant: {const} = {val}', present,
                    f'MISSING — add: {const} = {val}'):
