@@ -3,19 +3,31 @@
 cc_watchdog.py — Universal CC Session Watchdog
 Monitors all active CC sessions every 60s.
 Detects stalls, restarts them, logs everything.
+Also monitors: grade trends, TTS health, GPU utilization, render throughput.
 Runs as a persistent daemon in tmux:watchdog
 """
-import subprocess, time, os, json, re
+import subprocess, time, os, json, re, urllib.request
 from datetime import datetime
 
 BASE = '/home/ultron/protocol_pulse'
 LOG = f'{BASE}/logs/watchdog.log'
-DISCORD_WEBHOOK = None  # add later if wanted
+LESSONS_FILE = f'{BASE}/PIPELINE_LESSONS.md'
+DISCORD_WEBHOOK = os.environ.get('DISCORD_WEBHOOK_URL')
+
+# Load DISCORD_WEBHOOK from .env if not in env
+if not DISCORD_WEBHOOK:
+    try:
+        for line in open(f'{BASE}/.env'):
+            l = line.strip()
+            if l.startswith('DISCORD_WEBHOOK_URL='):
+                DISCORD_WEBHOOK = l.split('=', 1)[1].strip().strip("'").strip('"')
+                break
+    except Exception:
+        pass
 
 # Sessions to monitor: name → prompt file (for restart)
 WATCHED = {
-    'smart_loop':       {'type': 'python',  'cmd': 'python3 smart_render_loop.py', 'log': 'video_pipeline_v3/logs/smart_loop_run3.log', 'critical': True},
-    'sovereignty_stack':{'type': 'cc',      'prompt': 'docs/cc_sovereignty_stack.md', 'critical': False},
+    'gpu_orchestrator': {'type': 'python',  'cmd': 'python3 dual_gpu_orchestrator.py', 'log': 'logs/orchestrator.log', 'critical': True},
     'flask_main':       {'type': 'service', 'cmd': 'bash run_flask.sh',             'critical': True},
     'video_server':     {'type': 'service', 'cmd': 'python3 video_file_server.py',  'critical': True},
 }
@@ -165,6 +177,173 @@ def write_status_file():
     with open(f'{BASE}/logs/watchdog_status.json', 'w') as f:
         json.dump(status, f, indent=2)
 
+
+# ─── SYSTEM 5: CORRECTNESS MONITORS ──────────────────────────────────────────
+
+def send_discord_alert(message):
+    """Send alert to Discord webhook if configured."""
+    if not DISCORD_WEBHOOK:
+        return
+    try:
+        payload = json.dumps({'content': f'[WATCHDOG] {message}'}).encode()
+        req = urllib.request.Request(DISCORD_WEBHOOK, data=payload,
+                                     headers={'Content-Type': 'application/json'})
+        urllib.request.urlopen(req, timeout=10)
+        log(f'Discord alert sent: {message[:60]}')
+    except Exception as e:
+        log(f'Discord alert failed: {e}')
+
+
+def check_grade_trend():
+    """Read last 3 grades. If all identical (stuck), alert."""
+    grades = []
+    for gpu_id in (0, 1):
+        grade_file = f'{BASE}/logs/gpu{gpu_id}_grade.json'
+        if os.path.exists(grade_file):
+            try:
+                data = json.load(open(grade_file))
+                grades.append(data.get('score', 0))
+            except Exception:
+                pass
+
+    # Also check the render log for recent grade entries
+    for log_file in [f'{BASE}/logs/gpu0_render.log', f'{BASE}/logs/gpu1_render.log']:
+        if os.path.exists(log_file):
+            try:
+                lines = open(log_file).readlines()
+                for line in reversed(lines[-50:]):
+                    m = re.search(r'Grade.*?(\d+)/100', line)
+                    if m:
+                        grades.append(int(m.group(1)))
+                        if len(grades) >= 3:
+                            break
+            except Exception:
+                pass
+
+    if len(grades) >= 3:
+        last3 = grades[-3:]
+        if len(set(last3)) == 1:
+            msg = f'GRADE STUCK: last 3 grades are all {last3[0]}/100. Pipeline may be stuck in a loop.'
+            log(f'WATCHDOG: {msg}')
+            append_to_lessons('GRADE-STUCK', 'orchestrator', msg)
+            send_discord_alert(msg)
+            return True
+    return False
+
+
+def check_tts_health():
+    """Fire a minimal ElevenLabs API test to verify TTS is working."""
+    try:
+        api_key = None
+        for line in open(f'{BASE}/.env'):
+            l = line.strip()
+            if l.startswith('ELEVENLABS_API_KEY='):
+                api_key = l.split('=', 1)[1].strip().strip("'").strip('"')
+                break
+        if not api_key:
+            log('WATCHDOG: TTS health skip — no ELEVENLABS_API_KEY')
+            return True
+
+        # Quick voices list check (cheaper than generating audio)
+        req = urllib.request.Request(
+            'https://api.elevenlabs.io/v1/voices',
+            headers={'xi-api-key': api_key, 'Accept': 'application/json'}
+        )
+        resp = urllib.request.urlopen(req, timeout=15)
+        data = json.loads(resp.read())
+        voice_count = len(data.get('voices', []))
+        if voice_count > 0:
+            return True
+        else:
+            msg = 'TTS HEALTH FAIL: ElevenLabs returned 0 voices'
+            log(f'WATCHDOG: {msg}')
+            append_to_lessons('TTS-HEALTH', 'tts', msg)
+            return False
+    except Exception as e:
+        msg = f'TTS HEALTH FAIL: {e}'
+        log(f'WATCHDOG: {msg}')
+        append_to_lessons('TTS-HEALTH', 'tts', msg)
+        return False
+
+
+# Track GPU idle duration
+_gpu_idle_since = {}  # gpu_id → timestamp when first seen at 0%
+
+def check_gpu_utilization():
+    """Check nvidia-smi. Alert if both GPUs at 0% for >10 minutes."""
+    try:
+        r = subprocess.run(
+            ['nvidia-smi', '--query-gpu=index,utilization.gpu',
+             '--format=csv,noheader,nounits'],
+            capture_output=True, text=True, timeout=10
+        )
+        if r.returncode != 0:
+            return
+
+        now = time.time()
+        all_idle = True
+        for line in r.stdout.strip().split('\n'):
+            parts = line.strip().split(',')
+            if len(parts) >= 2:
+                gpu_id = int(parts[0].strip())
+                util = int(parts[1].strip())
+                if util > 0:
+                    all_idle = False
+                    _gpu_idle_since.pop(gpu_id, None)
+                elif gpu_id not in _gpu_idle_since:
+                    _gpu_idle_since[gpu_id] = now
+
+        if all_idle and len(_gpu_idle_since) >= 2:
+            oldest_idle = min(_gpu_idle_since.values())
+            idle_minutes = (now - oldest_idle) / 60
+            if idle_minutes > 10:
+                # Only alert if orchestrator is supposed to be running
+                if session_alive('gpu_orchestrator'):
+                    msg = f'GPU IDLE: Both GPUs at 0% for {idle_minutes:.0f} min while orchestrator is running'
+                    log(f'WATCHDOG: {msg}')
+                    append_to_lessons('GPU-IDLE', 'orchestrator', msg)
+                    send_discord_alert(msg)
+    except Exception as e:
+        log(f'WATCHDOG: GPU check error: {e}')
+
+
+# Track render throughput
+_render_throughput = {'count': 0, 'window_start': time.time()}
+
+def check_render_throughput():
+    """Track renders/hour. Alert if below 1/hr while orchestrator runs."""
+    global _render_throughput
+    now = time.time()
+
+    # Count renders by checking grade files' modification times
+    current_count = 0
+    for gpu_id in (0, 1):
+        grade_file = f'{BASE}/logs/gpu{gpu_id}_grade.json'
+        if os.path.exists(grade_file):
+            try:
+                data = json.load(open(grade_file))
+                # Count if graded in last hour
+                ts = data.get('timestamp', '')
+                if ts:
+                    grade_time = datetime.fromisoformat(ts)
+                    age_s = (datetime.now() - grade_time).total_seconds()
+                    if age_s < 3600:
+                        current_count += 1
+            except Exception:
+                pass
+
+    elapsed_hours = (now - _render_throughput['window_start']) / 3600
+    if elapsed_hours >= 1.0:
+        rph = current_count / max(elapsed_hours, 0.01)
+        if rph < 1.0 and session_alive('gpu_orchestrator'):
+            msg = f'LOW THROUGHPUT: {rph:.1f} renders/hour (expected >= 1). Check for stuck renders.'
+            log(f'WATCHDOG: {msg}')
+            append_to_lessons('LOW-THROUGHPUT', 'orchestrator', msg)
+            send_discord_alert(msg)
+        # Reset window
+        _render_throughput = {'count': 0, 'window_start': now}
+
+
 def main():
     log('=' * 60)
     log('CC WATCHDOG STARTED — monitoring all active sessions')
@@ -178,15 +357,19 @@ def main():
     
     check_interval = 60  # seconds between checks
     status_interval = 300  # write status file every 5 min
+    tts_interval = 600     # TTS health check every 10 min
+    gpu_interval = 300     # GPU utilization check every 5 min
     last_status = time.time()
-    
+    last_tts_check = time.time()
+    last_gpu_check = time.time()
+
     while True:
         time.sleep(check_interval)
         now = time.time()
-        
+
         for name, config in WATCHED.items():
             stype = config['type']
-            
+
             if not session_alive(name):
                 if config.get('critical'):
                     log(f'WATCHDOG: CRITICAL session {name} is DEAD')
@@ -195,7 +378,7 @@ def main():
                     elif stype == 'cc':
                         restart_cc_session(name, config)
                 continue
-            
+
             # Check for stall
             stall = is_stalled(name, stype)
             if stall:
@@ -206,20 +389,33 @@ def main():
                     restart_cc_session(name, config)
                 elif stype == 'python' and config.get('critical'):
                     restart_python_session(name, config)
-            
+
             # Log a heartbeat every 5 min
             if now - last_status >= status_interval:
                 content = get_pane(name)
                 last_line = [l for l in content.split('\n') if l.strip()]
                 last_line = last_line[-1] if last_line else '(empty)'
                 log(f'HEARTBEAT {name}: {last_line[:80]}')
-        
+
         if now - last_status >= status_interval:
             write_status_file()
             progress = check_render_progress()
             log(f'RENDER PROGRESS: {progress}')
-            append_to_lessons('RENDER-HEARTBEAT', 'smart_loop', f'Progress: {progress}')
+            append_to_lessons('RENDER-HEARTBEAT', 'gpu_orchestrator', f'Progress: {progress}')
+            # Grade trend + throughput checks every 5 min
+            check_grade_trend()
+            check_render_throughput()
             last_status = now
+
+        # GPU utilization check every 5 min
+        if now - last_gpu_check >= gpu_interval:
+            check_gpu_utilization()
+            last_gpu_check = now
+
+        # TTS health check every 10 min
+        if now - last_tts_check >= tts_interval:
+            check_tts_health()
+            last_tts_check = now
 
 if __name__ == '__main__':
     main()
