@@ -350,7 +350,7 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
                                    social_posts=social_posts, live_context=live_block)
 
     logger.info(f"Generating script for {len(clips)} clips...")
-    text = call_llm(prompt, max_tokens=4000)
+    text = call_llm(prompt, max_tokens=8000)
     if text is None:
         logger.warning("All LLM providers failed, using fallback script")
         return _fallback_script(selections)
