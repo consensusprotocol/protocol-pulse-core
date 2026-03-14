@@ -80,6 +80,10 @@ WATERMARK = os.path.join(ASSETS, "logo", "watermark.png")
 BG_MUSIC = os.path.join(ASSETS, "music", "pp_background.mp3")
 TAG_VIDEO = os.path.join(ASSETS, "tag_vertical.mp4")
 OUTRO_BRANDED = os.path.join(ASSETS, "outro_branded.mp4")
+INTRO_TAG = os.path.join(ASSETS, "intro_tag.mp4")
+INTRO_MUSIC_FILE = os.path.join(ASSETS, "intro_music.mp3")
+BG_LOOP = os.path.join(ASSETS, "bg_loop.mp4")
+OUTRO_BRANDED_NEW = os.path.join(ASSETS, "outro_branded_new.mp4")
 LOGO_IMAGE = os.path.join(ASSETS, "logo_protocol_pulse.png")
 # Issue 3: Custom whoosh sound — prefer custom_whoosh.wav/.mp3 over generated glitch_whoosh.wav
 _CUSTOM_WHOOSH_MP3 = os.path.join(ASSETS, "sfx", "custom_whoosh.mp3")
@@ -97,6 +101,29 @@ else:
 CARD_SWOOSH = os.path.join(ASSETS, "sfx", "card_swoosh.wav")
 DATA_BLIP = os.path.join(ASSETS, "sfx", "data_blip.wav")
 LOWER_SLIDE = os.path.join(ASSETS, "sfx", "lower_slide.wav")
+
+
+def _get_bg_layer(inputs: list, duration: float, label_out: str = "bb_bg") -> str:
+    """Get background layer filtergraph. Uses bg_loop.mp4 if available, else procedural.
+
+    Appends bg_loop to inputs list and returns filtergraph that outputs [label_out].
+    bg_loop replaces the procedural background for narration/host segments.
+    """
+    if os.path.exists(BG_LOOP):
+        inputs.append(["-stream_loop", "-1", "-i", BG_LOOP])
+        bg_idx = len(inputs) - 1
+        fg = (f"[{bg_idx}:v]scale=1920:1080,setsar=1,fps=30,"
+              f"trim=0:{duration},setpts=PTS-STARTPTS,"
+              # Keep vignette for cinematic depth
+              f"vignette=PI/4:mode=backward,"
+              # Red border frame (2px all edges — PIPELINE_LAWS)
+              f"drawbox=x=0:y=0:w=1920:h=2:color={COLOR_RED}@0.75:t=fill,"
+              f"drawbox=x=0:y=1078:w=1920:h=2:color={COLOR_RED}@0.75:t=fill,"
+              f"drawbox=x=0:y=0:w=2:h=1080:color={COLOR_RED}@0.75:t=fill,"
+              f"drawbox=x=1918:y=0:w=2:h=1080:color={COLOR_RED}@0.75:t=fill[{label_out}];\n")
+        return fg
+    _, fg = _build_broadcast_bg(duration, label_out=label_out)
+    return fg
 
 
 def get_latest_spaces_summary() -> dict:
@@ -555,6 +582,67 @@ def make_tag_video(output_path: str, narration_audio: str = "") -> str:
     return ""
 
 
+# ── Branded intro tag ─────────────────────────────────────────────────────
+
+def make_intro_tag_sequence(output_path: str) -> str:
+    """Render intro_tag.mp4 (8s branded intro) as the episode opener.
+
+    Plays intro_tag.mp4 at full quality with its embedded audio.
+    intro_music.mp3 is NOT mixed here — it's mixed in concatenate_parts()
+    so it can continue seamlessly into the first narration segment.
+    """
+    if not os.path.exists(INTRO_TAG):
+        logger.warning("intro_tag.mp4 not found — skipping intro tag")
+        return ""
+
+    tag_dur = ffprobe_duration(INTRO_TAG)
+    if tag_dur <= 0:
+        logger.warning("intro_tag.mp4 has zero duration")
+        return ""
+
+    vf = "scale=1920:1080,setsar=1,format=yuv420p"
+
+    # Check if intro_tag has audio
+    r = subprocess.run(
+        ["ffprobe", "-v", "error", "-select_streams", "a",
+         "-show_entries", "stream=codec_type", "-of", "csv=p=0", INTRO_TAG],
+        capture_output=True, text=True,
+    )
+    has_audio = "audio" in r.stdout
+
+    if has_audio:
+        ok = run_ffmpeg([
+            "-i", INTRO_TAG,
+            "-vf", vf,
+            "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+            "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+            "-r", "30", "-pix_fmt", "yuv420p",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+            output_path,
+        ], "intro tag sequence", 120)
+    else:
+        # Add silent audio track for concat compatibility
+        ok = run_ffmpeg([
+            "-i", INTRO_TAG,
+            "-f", "lavfi", "-i", f"anullsrc=r=48000:cl=stereo",
+            "-vf", vf,
+            "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+            "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+            "-r", "30", "-pix_fmt", "yuv420p",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+            "-t", str(tag_dur), "-shortest",
+            output_path,
+        ], "intro tag sequence (no audio)", 120)
+
+    if ok and os.path.exists(output_path):
+        dur = ffprobe_duration(output_path)
+        logger.info(f"  Intro tag: {dur:.1f}s")
+        return output_path
+
+    logger.warning("Intro tag failed — skipping")
+    return ""
+
+
 # ── Cold open intro ───────────────────────────────────────────────────────
 
 def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A", thumbnail_path: str = "") -> str:
@@ -568,9 +656,9 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
 
     date_str = datetime.datetime.now().strftime("%b %d, %Y").upper()
 
-    # Build 7-layer broadcast background
-    _, bg_fg = _build_broadcast_bg(total_dur, label_out="co_bg")
-    fg = bg_fg
+    # Build background (bg_loop if available, else procedural)
+    inputs = [tts_path]
+    fg = _get_bg_layer(inputs, total_dur, "co_bg")
 
     # Only date text centered — no logos, no waveform, no bars
     fg += (f"[co_bg]"
@@ -583,7 +671,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
            f"alimiter=limit=0.891:level=disabled:attack=5:release=50,aresample=async=1[outa]")
 
     ok = run_ffmpeg_filtergraph(
-        [tts_path], fg, ["[outv]", "[outa]"],
+        inputs, fg, ["[outv]", "[outa]"],
         ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
          "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(total_dur)],
@@ -690,6 +778,43 @@ def make_branded_outro(output_path: str, narration_audio: str = "") -> str:
     if ok and os.path.exists(output_path):
         out_dur = ffprobe_duration(output_path)
         logger.info(f"  Branded outro: {out_dur:.1f}s{' (with narration)' if narration_audio else ''}")
+        return output_path
+    return ""
+
+
+# ── Branded outro (new) ───────────────────────────────────────────────────
+
+def make_outro_branded_new(output_path: str) -> str:
+    """Render outro_branded_new.mp4 as the final episode segment.
+
+    Has its own embedded music — NO additional music, NO wrap narration.
+    Hard cut at end — NO fade-to-black, NO silence padding.
+    """
+    if not os.path.exists(OUTRO_BRANDED_NEW):
+        logger.warning("outro_branded_new.mp4 not found — falling back to old outro")
+        return ""
+
+    dur = ffprobe_duration(OUTRO_BRANDED_NEW)
+    if dur <= 0:
+        return ""
+
+    # Scale to 1920x1080, hard cut at end (no fades)
+    vf = ("scale=1920:1080:force_original_aspect_ratio=increase,"
+          "crop=1920:1080,setsar=1,fps=30,format=yuv420p")
+
+    ok = run_ffmpeg([
+        "-i", OUTRO_BRANDED_NEW,
+        "-vf", vf,
+        "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+        "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+        "-pix_fmt", "yuv420p", "-r", "30",
+        "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+        output_path,
+    ], "branded outro new", 60)
+
+    if ok and os.path.exists(output_path):
+        out_dur = ffprobe_duration(output_path)
+        logger.info(f"  Branded outro (new): {out_dur:.1f}s — hard cut, own music")
         return output_path
     return ""
 
@@ -1053,8 +1178,7 @@ def make_cold_open_scene(audio_path: str, headline: str, body: str, tag: str,
     safe_btc = btc_price.replace("'", "").replace('"', "").replace("\\", "")
 
     inputs = [audio_path]
-    _, bg_fg = _build_broadcast_bg(total_dur, label_out="bb_bg")
-    fg = bg_fg
+    fg = _get_bg_layer(inputs, total_dur, "bb_bg")
 
     # Top system bar
     fg += _build_top_system_bar("bb_bg", "bv2_bar", progress_pct=84)
@@ -1256,8 +1380,7 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     _handle_safe = _sanitize_text(_quote_handle)
     _ts_safe = _dt.datetime.now(tz=_dt.timezone.utc).strftime("%H:%M UTC")
 
-    _, bg_fg = _build_broadcast_bg(total_dur, label_out="bb_bg")
-    fg = bg_fg
+    fg = _get_bg_layer(inputs, total_dur, "bb_bg")
 
     fg += _build_top_system_bar("bb_bg", "bv2_bar", progress_pct=67)
 
@@ -1590,8 +1713,7 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
     total_dur = duration if duration > 0 else audio_dur + 0.3
 
     inputs = [audio_path]
-    _, bg_fg = _build_broadcast_bg(total_dur, label_out="bb_bg")
-    fg = bg_fg
+    fg = _get_bg_layer(inputs, total_dur, "bb_bg")
 
     fg += _build_top_system_bar("bb_bg", "bv2_bar", progress_pct=72)
 
@@ -1742,8 +1864,7 @@ def make_social_stack_scene(audio_path: str, headline: str, social_cards: list,
     total_dur = duration if duration > 0 else audio_dur + 0.3
 
     inputs = [audio_path]
-    _, bg_fg = _build_broadcast_bg(total_dur, label_out="bb_bg")
-    fg = bg_fg
+    fg = _get_bg_layer(inputs, total_dur, "bb_bg")
 
     fg += _build_top_system_bar("bb_bg", "bv2_bar", progress_pct=58)
 
@@ -1850,8 +1971,7 @@ def make_wrap_scene(audio_path: str, headline: str, body: str,
     safe_body = _word_wrap(_sanitize_text(body), max_width=30, max_lines=3) if body else ""
 
     inputs = [audio_path]
-    _, bg_fg = _build_broadcast_bg(total_dur, label_out="bb_bg")
-    fg = bg_fg
+    fg = _get_bg_layer(inputs, total_dur, "bb_bg")
 
     fg += _build_top_system_bar("bb_bg", "bv2_bar", progress_pct=100)
 
@@ -3127,11 +3247,19 @@ def normalize_part(part_path: str, output_path: str) -> str:
     return output_path if (ok and os.path.exists(output_path)) else part_path
 
 
-def concatenate_parts(parts: list, output_path: str) -> str:
+def concatenate_parts(parts: list, output_path: str,
+                       intro_music_duration: float = 0,
+                       skip_outro_fade: bool = False) -> str:
     """FIX 1+8+12: Concat video parts with fade transitions (no black frames).
 
     Uses concat demuxer with fade-in/fade-out on each part for smooth transitions.
     No standalone glitch transition clips. Final loudnorm with LRA=7 (FIX 12).
+
+    Args:
+        intro_music_duration: Total play time of intro_music.mp3 including 3s fade.
+            Mixed from t=0 at -18dB. 0 = no intro music.
+        skip_outro_fade: If True, last part is branded outro — no extended fade,
+            BGM fades out before it, no additional music on outro.
     """
     valid = [p for p in parts if p and os.path.exists(p)]
     if not valid:
@@ -3197,7 +3325,8 @@ def concatenate_parts(parts: list, output_path: str) -> str:
         normalized.append(chosen)
 
     # Session 4 Fix 7B: Re-apply longer fade to last part (outro) for clean ending
-    if len(normalized) >= 2:
+    # Skip if branded outro (skip_outro_fade) — it has its own audio and hard-cuts
+    if len(normalized) >= 2 and not skip_outro_fade:
         last_part = normalized[-1]
         last_dur = ffprobe_duration(last_part)
         if last_dur > 2.0:
@@ -3243,6 +3372,12 @@ def concatenate_parts(parts: list, output_path: str) -> str:
     if has_bgm:
         dur = _music_ffprobe_dur(concat_raw)
         if dur > 0:
+            # If branded outro, fade BGM out before outro starts
+            if skip_outro_fade and valid:
+                outro_dur_est = ffprobe_duration(valid[-1])
+                bgm_fade_st = max(0, dur - outro_dur_est - 3.0)
+            else:
+                bgm_fade_st = max(0, dur - 3.0)
             music_mixed = output_path + ".music_mixed.mp4"
             ok_music = run_ffmpeg([
                 "-fflags", "+genpts",
@@ -3252,7 +3387,7 @@ def concatenate_parts(parts: list, output_path: str) -> str:
                     # Issue 6 FIX: Continuous BGM with sidechain ducking — music never drops to silence
                     f"[0:a]asetpts=PTS-STARTPTS,asplit[tts_main][tts_sc];"
                     f"[1:a]volume=0.12,afade=t=in:d=2.0,"
-                    f"afade=t=out:st={max(0,dur-3.0)}:d=3.0[bgm_raw];"
+                    f"afade=t=out:st={bgm_fade_st}:d=3.0[bgm_raw];"
                     f"[bgm_raw][tts_sc]sidechaincompress="
                     f"threshold=0.02:ratio=4:attack=5:release=200[bgm_ducked];"
                     f"[tts_main][bgm_ducked]amix=inputs=2:duration=first"
@@ -3276,6 +3411,51 @@ def concatenate_parts(parts: list, output_path: str) -> str:
                 logger.warning("  APEX V2: BGM mix failed — proceeding without music")
     else:
         logger.warning("  APEX V2: No BG_MUSIC file found — no music bed")
+
+    # Intro music underlay: plays from t=0 for intro_music_duration, fades out over 3s
+    if intro_music_duration > 0 and os.path.exists(INTRO_MUSIC_FILE):
+        ep_dur = ffprobe_duration(concat_raw)
+        if ep_dur > 0:
+            intro_mus_mixed = output_path + ".intro_mus.mp4"
+            im_fade_start = max(0, intro_music_duration - 3.0)
+            ok_im = run_ffmpeg([
+                "-i", concat_raw,
+                "-stream_loop", "-1", "-i", INTRO_MUSIC_FILE,
+                "-filter_complex",
+                (f"[1:a]volume=0.126,atrim=0:{intro_music_duration},"
+                 f"asetpts=PTS-STARTPTS,"
+                 f"afade=t=out:st={im_fade_start}:d=3.0,aresample=48000[im];"
+                 f"[0:a][im]amix=inputs=2:duration=first:weights=1 1[outa]"),
+                "-map", "0:v", "-map", "[outa]",
+                "-c:v", "copy",
+                "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                intro_mus_mixed,
+            ], "intro music underlay", 300)
+            if ok_im and os.path.exists(intro_mus_mixed):
+                logger.info(f"  Intro music mixed: {intro_music_duration:.1f}s play, fade at {im_fade_start:.1f}s")
+                concat_raw = intro_mus_mixed
+            else:
+                logger.warning("  Intro music mix failed — continuing without")
+
+    # bg_loop ambient audio at -35dB (nearly silent, just ambience)
+    if os.path.exists(BG_LOOP):
+        ep_dur = ffprobe_duration(concat_raw)
+        if ep_dur > 0:
+            bgl_mixed = output_path + ".bgl_audio.mp4"
+            ok_bgl = run_ffmpeg([
+                "-i", concat_raw,
+                "-stream_loop", "-1", "-i", BG_LOOP,
+                "-filter_complex",
+                (f"[1:a]volume=0.018,aresample=48000[bgl];"
+                 f"[0:a][bgl]amix=inputs=2:duration=first:weights=1 1[outa]"),
+                "-map", "0:v", "-map", "[outa]",
+                "-c:v", "copy",
+                "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                bgl_mixed,
+            ], "bg loop ambience mix", 300)
+            if ok_bgl and os.path.exists(bgl_mixed):
+                logger.info("  BG loop ambient audio mixed at -35dB")
+                concat_raw = bgl_mixed
 
     # FIX 6: Mix whoosh SFX at transition points between segments
     has_whoosh = os.path.exists(GLITCH_WHOOSH)
@@ -3456,9 +3636,20 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         for ti, tp in enumerate(tweet_card_posts):
             logger.info(f"    #{ti}: @{tp.get('handle', '?')} — {tp.get('text', '')[:40]}")
 
-    # --- 1. INTRO: Session 4 Fix 1 — COLD OPEN ONLY, NO TITLE CARD ---
-    # Title card killed — dead air that murders momentum. Episode goes:
-    # cold_open_hook → immediate first narration segment.
+    # --- 0. INTRO TAG (branded intro_tag.mp4) ---
+    intro_tag_dur = 0.0
+    if os.path.exists(INTRO_TAG):
+        intro_tag_out = os.path.join(work_dir, f"part_{part_idx:03d}_intro_tag.mp4")
+        intro_tag_result = make_intro_tag_sequence(intro_tag_out)
+        if intro_tag_result:
+            parts.append(intro_tag_result)
+            intro_tag_dur = ffprobe_duration(intro_tag_result)
+            logger.info(f"[{part_idx:03d}] INTRO TAG: {intro_tag_dur:.1f}s")
+            part_idx += 1
+    else:
+        logger.info("  No intro_tag.mp4 — skipping branded intro")
+
+    # --- 1. COLD OPEN ---
     audio_lines = audio_data.get("lines", [])
     cold_open_consumed = False
 
@@ -3896,50 +4087,57 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             logger.warning(f"[---] Host visual failed for {entry_type}")
 
     # --- 3. BRANDED OUTRO ---
-    # Issue 8 FIX: The "Stay sovereign" wrap narration plays OVER the outro visual.
-    # Remove the last wrap segment from parts (it will play over the outro instead).
-    # Find the wrap audio (last non-CLIP audio line).
-    wrap_audio = ""
-    for al in reversed(audio_lines):
-        if al.get("host") not in ("CLIP",) and al.get("path") and os.path.exists(al.get("path", "")):
-            wrap_audio = al["path"]
-            break
+    skip_outro_fade = False
 
-    # Issue 8 FIX: If the last part is a wrap scene, remove it — wrap audio plays over outro instead
-    if parts and wrap_audio:
-        last_part_name = os.path.basename(parts[-1]) if parts[-1] else ""
-        if "wrap" in last_part_name.lower():
-            removed = parts.pop()
-            part_idx -= 1
-            logger.info(f"  Issue 8: Removed duplicate wrap segment ({os.path.basename(removed)}) — plays over outro instead")
+    if os.path.exists(OUTRO_BRANDED_NEW):
+        # New branded outro — has its own music, hard cut, NO wrap narration
+        narration_end = sum(ffprobe_duration(p) for p in parts if p and os.path.exists(p))
+        logger.info(f"Narration ends at {narration_end:.1f}s — outro starts here")
 
-    if wrap_audio:
-        logger.info(f"  Wrap narration for outro: {os.path.basename(wrap_audio)}")
-
-    narration_end = sum(ffprobe_duration(p) for p in parts if p and os.path.exists(p))
-    logger.info(f"Narration ends at {narration_end:.1f}s — outro starts here")
-
-    # FIX 1: No standalone pre-outro transition — xfade in concatenation
-
-    outro_out = os.path.join(work_dir, f"part_{part_idx:03d}_outro_branded.mp4")
-    # Pass wrap narration so "Stay sovereign" plays OVER the branded outro visual
-    outro_result = make_branded_outro(outro_out, narration_audio=wrap_audio)
-    if outro_result:
-        parts.append(outro_result)
-        dur = ffprobe_duration(outro_result)
-        logger.info(f"[{part_idx:03d}] OUTRO (branded): {dur:.1f}s")
-        part_idx += 1
-    else:
-        # Fall back to tag video
-        outro_out2 = os.path.join(work_dir, f"part_{part_idx:03d}_outro_tag.mp4")
-        outro_result = make_tag_video(outro_out2)
+        outro_out = os.path.join(work_dir, f"part_{part_idx:03d}_outro_branded_new.mp4")
+        outro_result = make_outro_branded_new(outro_out)
         if outro_result:
             parts.append(outro_result)
             dur = ffprobe_duration(outro_result)
-            logger.info(f"[{part_idx:03d}] OUTRO (tag fallback): {dur:.1f}s")
+            logger.info(f"[{part_idx:03d}] OUTRO (branded new): {dur:.1f}s — hard cut, own music")
+            part_idx += 1
+            skip_outro_fade = True
+        else:
+            logger.warning("  outro_branded_new.mp4 render failed — falling back to old outro")
+            # Fall through to old outro logic below
+
+    if not skip_outro_fade:
+        # Old outro flow: wrap narration plays OVER branded outro
+        wrap_audio = ""
+        for al in reversed(audio_lines):
+            if al.get("host") not in ("CLIP",) and al.get("path") and os.path.exists(al.get("path", "")):
+                wrap_audio = al["path"]
+                break
+        if parts and wrap_audio:
+            last_part_name = os.path.basename(parts[-1]) if parts[-1] else ""
+            if "wrap" in last_part_name.lower():
+                removed = parts.pop()
+                part_idx -= 1
+                logger.info(f"  Removed duplicate wrap segment ({os.path.basename(removed)})")
+        narration_end = sum(ffprobe_duration(p) for p in parts if p and os.path.exists(p))
+        logger.info(f"Narration ends at {narration_end:.1f}s — outro starts here")
+        outro_out = os.path.join(work_dir, f"part_{part_idx:03d}_outro_branded.mp4")
+        outro_result = make_branded_outro(outro_out, narration_audio=wrap_audio)
+        if outro_result:
+            parts.append(outro_result)
+            dur = ffprobe_duration(outro_result)
+            logger.info(f"[{part_idx:03d}] OUTRO (branded): {dur:.1f}s")
             part_idx += 1
         else:
-            logger.warning("[---] No outro available")
+            outro_out2 = os.path.join(work_dir, f"part_{part_idx:03d}_outro_tag.mp4")
+            outro_result = make_tag_video(outro_out2)
+            if outro_result:
+                parts.append(outro_result)
+                dur = ffprobe_duration(outro_result)
+                logger.info(f"[{part_idx:03d}] OUTRO (tag fallback): {dur:.1f}s")
+                part_idx += 1
+            else:
+                logger.warning("[---] No outro available")
 
     # --- 4. CONCATENATE ---
     logger.info(f"\nConcatenating {len(parts)} parts...")
@@ -3947,8 +4145,13 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         dur = ffprobe_duration(p) if p and os.path.exists(p) else 0
         logger.info(f"  Part {i:03d}: {os.path.basename(p)} ({dur:.1f}s)")
 
+    # Calculate intro music duration: intro_tag + 10s narration + 3s fade
+    intro_music_total = (intro_tag_dur + 10.0 + 3.0) if intro_tag_dur > 0 else 0
+
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
-    result = concatenate_parts(parts, output_path)
+    result = concatenate_parts(parts, output_path,
+                               intro_music_duration=intro_music_total,
+                               skip_outro_fade=skip_outro_fade)
 
     if result and os.path.exists(result):
         dur = ffprobe_duration(result)
