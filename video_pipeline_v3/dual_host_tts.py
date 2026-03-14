@@ -304,13 +304,11 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
     silence_path = os.path.join(output_dir, "silence.m4a")
     _generate_silence(silence_path, SILENCE_GAP)
 
-    # FIX 4: PBX (HOST_2) MUST always open the episode
-    # Find first non-CLIP line and force it to host=2 if it's host=1
+    # IRON LAW: PBX (HOST_2) MUST always open the episode — unconditional
     for _idx, _entry in enumerate(dialogue):
-        if _entry.get("host") != "CLIP":
-            if int(_entry.get("host", 1)) == 1:
-                _entry["host"] = 2
-                print("[TTS] Forcing PBX opener on segment 0")
+        if _entry.get("host") != "CLIP" and _entry.get("host") != "SFX":
+            _entry["host"] = 2  # Force PBX regardless of current value
+            print(f"[TTS] IRON LAW: Forced PBX opener on line {_idx}")
             break
 
     lines = []

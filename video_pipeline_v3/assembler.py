@@ -653,28 +653,99 @@ def make_intro_tag_sequence(output_path: str) -> str:
 # ── Cold open intro ───────────────────────────────────────────────────────
 
 def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A", thumbnail_path: str = "") -> str:
-    """FIX 2 — Clean Cold Open: ONLY cyberpunk background + centered date text.
-    Per PIPELINE_LAWS: cold open = NO logos, bars, watermarks, thumbnails, PiP.
-    Pure dramatic background. Minimum 3 seconds. Voice starts on frame 1.
+    """PBX voice-over intro: overlay cold_open TTS on intro_tag.mp4 video.
+
+    Broadcast hook technique — PBX starts speaking at t=0.5s while the
+    Protocol Pulse logo animates.  Intro music ducks to 30% under TTS.
+    If TTS is longer than 8s the intro video freezes its last frame and
+    PBX keeps talking.  Falls back to cyberpunk bg if intro_tag is missing.
     """
     import datetime
     tts_dur = ffprobe_duration(tts_path)
-    total_dur = max(tts_dur + 0.3, 3.0)
+    total_dur = max(tts_dur + 0.8, 3.0)  # 0.5s delay + tts + 0.3s tail
 
+    # ── Try intro_tag.mp4 as video source ──
+    use_intro_tag = os.path.exists(INTRO_TAG)
+    if use_intro_tag:
+        tag_dur = ffprobe_duration(INTRO_TAG)
+        if tag_dur <= 0:
+            use_intro_tag = False
+
+    if use_intro_tag:
+        # Check if intro_tag has embedded audio
+        r = subprocess.run(
+            ["ffprobe", "-v", "error", "-select_streams", "a",
+             "-show_entries", "stream=codec_type", "-of", "csv=p=0", INTRO_TAG],
+            capture_output=True, text=True,
+        )
+        tag_has_audio = "audio" in r.stdout
+
+        # Video: use intro_tag, freeze last frame if TTS outlasts it
+        vid_dur = max(total_dur, tag_dur)
+        vf = (f"scale=1920:1080,setsar=1,format=yuv420p,"
+              f"tpad=stop_mode=clone:stop_duration={max(0, vid_dur - tag_dur + 1)}")
+
+        if tag_has_audio:
+            # Mix: intro music ducked to 30%, TTS at full volume starting at 0.5s
+            ok = run_ffmpeg([
+                "-i", INTRO_TAG,                    # [0] intro tag (video+audio)
+                "-i", tts_path,                     # [1] PBX cold open TTS
+                "-filter_complex", (
+                    # Video: intro tag with last-frame freeze
+                    f"[0:v]{vf},"
+                    f"fade=t=out:st={max(0, vid_dur - 0.5)}:d=0.5[outv];"
+                    # Audio: duck intro music to 30%, delay TTS by 0.5s
+                    f"[0:a]volume=0.30,afade=t=out:st={max(0, vid_dur - 1.0)}:d=1.0[intro_mus];"
+                    f"[1:a]adelay=500|500,aformat=channel_layouts=stereo[tts_delayed];"
+                    f"[intro_mus][tts_delayed]amix=inputs=2:duration=longest:weights=1 1,"
+                    f"alimiter=limit=0.891:level=disabled:attack=5:release=50,"
+                    f"aresample=async=1[outa]"
+                ),
+                "-map", "[outv]", "-map", "[outa]",
+                "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+                "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+                "-r", "30",
+                "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                "-t", str(vid_dur),
+                output_path,
+            ], "intro tag + PBX voice-over", 300)
+        else:
+            # No intro audio — just overlay TTS on silent intro video
+            ok = run_ffmpeg([
+                "-i", INTRO_TAG,
+                "-i", tts_path,
+                "-filter_complex", (
+                    f"[0:v]{vf},"
+                    f"fade=t=out:st={max(0, vid_dur - 0.5)}:d=0.5[outv];"
+                    f"[1:a]adelay=500|500,aformat=channel_layouts=stereo,"
+                    f"alimiter=limit=0.891:level=disabled:attack=5:release=50,"
+                    f"aresample=async=1[outa]"
+                ),
+                "-map", "[outv]", "-map", "[outa]",
+                "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+                "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+                "-r", "30",
+                "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                "-t", str(vid_dur),
+                output_path,
+            ], "intro tag + PBX voice-over (no tag audio)", 300)
+
+        if ok and os.path.exists(output_path):
+            dur = ffprobe_duration(output_path)
+            logger.info(f"  Intro+PBX voice-over: {dur:.1f}s (tag={tag_dur:.1f}s, tts={tts_dur:.1f}s)")
+            return output_path
+        logger.warning("Intro tag + PBX voice-over failed — falling back to bg-only cold open")
+
+    # ── Fallback: cyberpunk background + date text ──
     date_str = datetime.datetime.now().strftime("%b %d, %Y").upper()
-
-    # Build background (bg_loop if available, else procedural)
     inputs = [tts_path]
     fg = _get_bg_layer(inputs, total_dur, "co_bg")
-
-    # Only date text centered — no logos, no waveform, no bars
     fg += (f"[co_bg]"
            f"drawtext=fontfile={FONT_MONO}:text='{date_str}':"
            f"fontcolor={COLOR_WHITE}:fontsize=48:x=(w-text_w)/2:y=(h-text_h)/2,"
            f"fade=t=in:st=0:d=0.5,fade=t=out:st={max(0, total_dur - 0.5)}:d=0.5"
            f"[outv];\n")
-
-    fg += (f"[0:a]aformat=channel_layouts=stereo,"
+    fg += (f"[0:a]adelay=500|500,aformat=channel_layouts=stereo,"
            f"alimiter=limit=0.891:level=disabled:attack=5:release=50,aresample=async=1[outa]")
 
     ok = run_ffmpeg_filtergraph(
@@ -682,7 +753,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
         ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
          "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(total_dur)],
-        output_path, "clean cold open", 120,
+        output_path, "clean cold open (fallback)", 120,
     )
     return output_path if ok else ""
 
@@ -3083,7 +3154,7 @@ def make_transition_visual(output_path: str, duration: float = 0.6) -> str:
                 f"[0:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=1.5[ta];"
                 # Round 3 FIX 8B: Whoosh at volume=1.2 (clearly audible)
                 f"[1:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=1.2,alimiter=limit=0.95[wa];"
-                f"[ta][wa]amix=inputs=2:duration=first[outa]",
+                f"[ta][wa]amix=inputs=2:duration=first,alimiter=limit=0.891:level=disabled:attack=5:release=50[outa]",
                 "-map", "[outv]", "-map", "[outa]",
                 "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
                 "-r", "30", "-pix_fmt", "yuv420p",
@@ -3385,8 +3456,9 @@ def concatenate_parts(parts: list, output_path: str,
         logger.error("Concat demuxer failed")
         return ""
 
-    # APEX V2 FIX 1: Continuous background music across ENTIRE episode
-    # Music plays ONCE continuously — no per-segment start/stop/fade
+    # APEX V2 FIX 2: Continuous BGM — infinite loop, duration=longest, no gaps
+    # BGM loops infinitely via -stream_loop -1, trimmed to episode+5s safety buffer.
+    # amix duration=longest ensures BGM never cuts short at clip boundaries.
     from music import ffprobe_duration as _music_ffprobe_dur
     has_bgm = os.path.exists(BG_MUSIC)
     if has_bgm:
@@ -3404,14 +3476,18 @@ def concatenate_parts(parts: list, output_path: str,
                 "-i", concat_raw,
                 "-stream_loop", "-1", "-i", BG_MUSIC,
                 "-filter_complex", (
-                    # Issue 6 FIX: Continuous BGM with sidechain ducking — music never drops to silence
+                    # BGM infinite loop: stream_loop=-1 loops the file forever.
+                    # atrim cuts it to episode duration + 5s safety buffer.
+                    # amix duration=longest so BGM NEVER drops at segment boundaries.
+                    # Sidechain compress ducks BGM under TTS.
                     f"[0:a]asetpts=PTS-STARTPTS,asplit[tts_main][tts_sc];"
-                    f"[1:a]volume=0.12,afade=t=in:d=2.0,"
+                    f"[1:a]atrim=0:{dur + 5.0},asetpts=PTS-STARTPTS,"
+                    f"volume=0.10,afade=t=in:d=2.0,"
                     f"afade=t=out:st={bgm_fade_st}:d=3.0[bgm_raw];"
                     f"[bgm_raw][tts_sc]sidechaincompress="
-                    f"threshold=0.02:ratio=4:attack=5:release=200[bgm_ducked];"
-                    f"[tts_main][bgm_ducked]amix=inputs=2:duration=first"
-                    f":weights=1 1[mixed_audio];"
+                    f"threshold=0.02:ratio=6:attack=5:release=200[bgm_ducked];"
+                    f"[tts_main][bgm_ducked]amix=inputs=2:duration=longest"
+                    f":weights=1 0.10[mixed_audio];"
                     f"[mixed_audio]aresample=async=1[outa]"
                 ),
                 "-map", "0:v", "-map", "[outa]",
@@ -3423,9 +3499,9 @@ def concatenate_parts(parts: list, output_path: str,
                 "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                 "-t", str(dur),
                 music_mixed
-            ], "continuous bgm mix", 600)
+            ], "continuous bgm mix (infinite loop)", 600)
             if ok_music and os.path.exists(music_mixed):
-                logger.info(f"  APEX V2: Continuous BGM mixed ({dur:.1f}s episode)")
+                logger.info(f"  APEX V2: Continuous BGM mixed — infinite loop ({dur:.1f}s episode)")
                 concat_raw = music_mixed
             else:
                 logger.warning("  APEX V2: BGM mix failed — proceeding without music")
@@ -3692,20 +3768,8 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         for ti, tp in enumerate(tweet_card_posts):
             logger.info(f"    #{ti}: @{tp.get('handle', '?')} — {tp.get('text', '')[:40]}")
 
-    # --- 0. INTRO TAG (branded intro_tag.mp4) ---
+    # --- 0+1. INTRO TAG + COLD OPEN (merged: PBX narrates over intro) ---
     intro_tag_dur = 0.0
-    if os.path.exists(INTRO_TAG):
-        intro_tag_out = os.path.join(work_dir, f"part_{part_idx:03d}_intro_tag.mp4")
-        intro_tag_result = make_intro_tag_sequence(intro_tag_out)
-        if intro_tag_result:
-            parts.append(intro_tag_result)
-            intro_tag_dur = ffprobe_duration(intro_tag_result)
-            logger.info(f"[{part_idx:03d}] INTRO TAG: {intro_tag_dur:.1f}s")
-            part_idx += 1
-    else:
-        logger.info("  No intro_tag.mp4 — skipping branded intro")
-
-    # --- 1. COLD OPEN ---
     audio_lines = audio_data.get("lines", [])
     cold_open_consumed = False
 
@@ -3721,25 +3785,32 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
     logger.info("  Session 4: Title card SUPPRESSED — cold open leads directly into content")
 
     if cold_open_audio:
-        intro_out = os.path.join(work_dir, f"part_{part_idx:03d}_cold_open_hook.mp4")
-        # GPT face-first: get clip 1 YouTube thumbnail for cold open face panel
-        co_thumb = ""
-        if 1 in extracted_clips:
-            co_clip_info = extracted_clips[1]
-            co_thumb = fetch_youtube_thumbnail(co_clip_info)
-            if co_thumb:
-                logger.info(f"  Cold open thumbnail: {os.path.basename(co_thumb)}")
+        # FIX 1: PBX voice-over the intro — make_intro_coldopen() now uses intro_tag.mp4
+        # as video source and overlays TTS on top (intro music ducked to 30%).
+        # No separate intro_tag part needed.
+        intro_out = os.path.join(work_dir, f"part_{part_idx:03d}_intro_pbx_hook.mp4")
         intro_result = make_intro_coldopen(cold_open_audio["path"], intro_out, btc_price=btc_price)
         if intro_result:
-            # FIX 2: No PiP overlay on cold open — pure background + date text per PIPELINE_LAWS
             parts.append(intro_result)
             dur = ffprobe_duration(intro_result)
-            logger.info(f"[{part_idx:03d}] COLD OPEN (clean bg + date only): {dur:.1f}s")
+            intro_tag_dur = dur  # counts toward intro_music_total calc
+            logger.info(f"[{part_idx:03d}] INTRO+PBX HOOK: {dur:.1f}s")
             part_idx += 1
             cold_open_consumed = True
         else:
-            logger.warning("[---] Cold open intro failed, starting with first dialogue")
+            logger.warning("[---] Intro+PBX hook failed, starting with first dialogue")
     else:
+        # No cold open audio — render intro_tag standalone (silent branded intro)
+        if os.path.exists(INTRO_TAG):
+            intro_tag_out = os.path.join(work_dir, f"part_{part_idx:03d}_intro_tag.mp4")
+            intro_tag_result = make_intro_tag_sequence(intro_tag_out)
+            if intro_tag_result:
+                parts.append(intro_tag_result)
+                intro_tag_dur = ffprobe_duration(intro_tag_result)
+                logger.info(f"[{part_idx:03d}] INTRO TAG (no TTS): {intro_tag_dur:.1f}s")
+                part_idx += 1
+        else:
+            logger.info("  No intro_tag.mp4 — skipping branded intro")
         logger.warning("[---] No cold open audio available, starting with first dialogue")
 
     # FIX 6: Prepare B-roll clips for insertion between host segments

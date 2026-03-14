@@ -450,7 +450,7 @@ def _fallback_script(selections: dict) -> dict:
     cold_open = selections.get("cold_open", "Breaking developments in Bitcoin today.")
 
     dialogue = [
-        {"host": 1, "text": cold_open, "type": "cold_open"},
+        {"host": 2, "text": cold_open, "type": "cold_open"},  # IRON LAW: PBX always opens
     ]
 
     for c in clips:
@@ -493,7 +493,7 @@ def generate_sample_script(style="default"):
         "episode_title": "The Quiet Accumulation",
         "cold_open": "Three sovereign wealth funds just disclosed Bitcoin positions worth twelve billion dollars.",
         "dialogue": [
-            {"host": 1, "text": "Three sovereign wealth funds just disclosed Bitcoin positions. Twelve billion dollars. This is Pulse Check.", "type": "cold_open"},
+            {"host": 2, "text": "Three sovereign wealth funds just disclosed Bitcoin positions. Twelve billion dollars. This is Pulse Check.", "type": "cold_open"},  # IRON LAW: PBX always opens
             {"host": 1, "text": "Bitcoin Magazine just dropped this bombshell.", "type": "setup", "clip_rank": 1},
             {"host": "CLIP", "rank": 1},
             {"host": 2, "text": "Dude. When the entities that print fiat start hoarding the exit asset, that tells you everything.", "type": "react", "clip_rank": 1},
