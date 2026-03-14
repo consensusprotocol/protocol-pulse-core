@@ -188,8 +188,8 @@ def _format_transcripts(videos: list) -> str:
     for i, v in enumerate(videos):
         timestamped = v.get("timestamped_text", "")
         # Truncate very long transcripts to keep within token limits
-        if len(timestamped) > 8000:
-            timestamped = timestamped[:8000] + "\n... [transcript truncated]"
+        if len(timestamped) > 1500:
+            timestamped = timestamped[:1500] + "\n... [transcript truncated]"
 
         parts.append(
             f"--- VIDEO {i+1} ---\n"
