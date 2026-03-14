@@ -336,7 +336,7 @@ def _redownload_high_quality(video_id: str, start_sec: int, end_sec: int, output
 
 def _check_clip_quality(clip_path: str, channel: str, video_id: str = "",
                         start_sec: int = 0, end_sec: int = 0) -> str:
-    """Quality enforcement — reject below 3Mbps floor, retry on low.
+    """Quality enforcement — reject below 1.5Mbps floor, retry on low.
 
     Returns: 'ok', 'redownloaded', or 'rejected'.
     """
@@ -347,23 +347,23 @@ def _check_clip_quality(clip_path: str, channel: str, video_id: str = "",
 
     mbps = bitrate / 1_000_000
 
-    if mbps >= 3.0:
+    if mbps >= 1.5:
         logger.info(f"  Quality OK: {channel} at {mbps:.1f}Mbps")
         return "ok"
 
     # Below 3Mbps floor — try re-download before rejecting
-    logger.warning(f"  BELOW 3Mbps FLOOR: {channel} clip at {mbps:.1f}Mbps")
+    logger.warning(f"  BELOW 1.5Mbps FLOOR: {channel} clip at {mbps:.1f}Mbps")
     if video_id and _redownload_high_quality(video_id, start_sec, end_sec, clip_path):
         new_bitrate = _get_bitrate(clip_path)
         new_mbps = new_bitrate / 1_000_000
-        if new_mbps >= 3.0:
+        if new_mbps >= 1.5:
             logger.info(f"  Re-download succeeded: {channel} now at {new_mbps:.1f}Mbps")
             return "redownloaded"
-        logger.error(f"  Re-download still below 3Mbps floor: {channel} at {new_mbps:.1f}Mbps — REJECTED")
+        logger.error(f"  Re-download still below 1.5Mbps floor: {channel} at {new_mbps:.1f}Mbps — REJECTED")
         os.remove(clip_path)
         return "rejected"
 
-    logger.error(f"  REJECTED: {channel} clip at {mbps:.1f}Mbps — below 3Mbps floor")
+    logger.error(f"  REJECTED: {channel} clip at {mbps:.1f}Mbps — below 1.5Mbps floor")
     os.remove(clip_path)
     return "rejected"
 
@@ -422,7 +422,7 @@ def extract_all(selections: dict, output_dir: str) -> dict:
         output_path = os.path.join(output_dir, f"clip_{rank}_{channel}_{video_id}.mp4")
 
         if extract_clip(video_id, start, end, output_path):
-            # Issue 10: Quality enforcement — reject below 1.5Mbps, retry below 3Mbps
+            # Issue 10: Quality enforcement — reject below 1.5Mbps floor
             quality = _check_clip_quality(output_path, clip.get("channel", channel),
                                           video_id=video_id, start_sec=start, end_sec=end)
             if quality == "rejected":
