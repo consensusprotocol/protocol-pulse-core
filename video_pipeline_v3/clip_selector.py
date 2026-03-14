@@ -39,6 +39,10 @@ SELECTION CRITERIA (in order of priority):
 5. VISUAL — prefer clips where someone is on camera talking (not just voice-over slides)
 
 RULES:
+- INTRO AVOIDANCE: Never select a clip starting at 0:00 unless the transcript shows
+  substantive speech begins within the first 3 seconds. Prefer clips starting at 30s+
+  into the video to skip channel intros, jingles, and logos. Clips starting in the
+  first 10 seconds of a video almost always contain branding — avoid them.
 - CRITICAL — AD READ DETECTION: NEVER select a timestamp range that contains
   an ad read, sponsorship mention, or promotional segment. Ad reads are identified by:
   * "This episode is brought to you by..."
@@ -245,7 +249,7 @@ def select_clips(videos: list) -> dict:
         logger.error("No videos to select from")
         return {"clips": [], "episode_title": "Pulse Check", "cold_open": ""}
 
-    from relay import call_llm
+    from relay import call_llm, reload_env; reload_env()
 
     transcripts_text = _format_transcripts(videos)
     prompt = SELECTION_PROMPT.format(transcripts=transcripts_text)

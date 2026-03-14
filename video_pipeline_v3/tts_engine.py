@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """TTS Engine V7 — Dual-provider: ElevenLabs (default) + Inworld.
 Host 1 (Eryn): kdnRe2koJdOK4Ovxn2DI at 1.12x — sharp female setup host.
-Host 2 (Mark): 1SM7GgM6IMuvQlz2BwM3 at 1.10x — male contrarian react host.
+Host 2 (PBX): HmUVvDlHsEz0m3eUGLgu at 1.0x — male contrarian react host.
 Generates per-line audio with 0.3s silence gaps."""
-import os, sys, json, subprocess, tempfile, time, struct
+import os, sys, json, subprocess, tempfile, time, struct, shutil, logging
 from pathlib import Path
 
 try:
@@ -14,8 +14,12 @@ except ImportError:
 
 from relay import get_key
 
-# DUAL HOST RESTORED 2026-03-10: Eryn (HOST_1) + Mark (HOST_2)
-# Nicole/Chris/Deborah/Brian are all BANNED.
+logger = logging.getLogger(__name__)
+
+# DUAL HOST RESTORED 2026-03-10: Eryn (HOST_1) + PBX (HOST_2)
+# Nicole/Chris/Deborah/Brian/Mark are all BANNED.
+PBX_VOICE_ID = "HmUVvDlHsEz0m3eUGLgu"
+
 _NATASHA_VOICE = {
     "voice_id": "kdnRe2koJdOK4Ovxn2DI",
     "name": "Eryn",
@@ -29,11 +33,11 @@ _NATASHA_VOICE = {
     },
 }
 
-_MARK_VOICE = {
-    "voice_id": "1SM7GgM6IMuvQlz2BwM3",
-    "name": "Mark",
+_PBX_VOICE = {
+    "voice_id": PBX_VOICE_ID,
+    "name": "PBX",
     "model_id": "eleven_turbo_v2_5",
-    "speed": 1.10,
+    "speed": 1.0,
     "voice_settings": {
         "stability": 0.55,
         "similarity_boost": 0.80,
@@ -44,7 +48,7 @@ _MARK_VOICE = {
 
 VOICES = {
     1: _NATASHA_VOICE,   # HOST_1 → Eryn (female)
-    2: _MARK_VOICE,   # HOST_2 → Mark (male)
+    2: _PBX_VOICE,       # HOST_2 → PBX (male) — replaces Mark
 }
 
 # ── INWORLD VOICE CONFIGS (set TTS_PROVIDER=inworld in .env to activate) ──

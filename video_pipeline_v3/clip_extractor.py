@@ -152,6 +152,11 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
             logger.info(f"  Clip cached: {video_id} ({dur:.1f}s)")
             return True
 
+    # FIX 1B: Skip channel intro window — if clip starts < 10s, add +8s offset
+    if start_sec < 10:
+        logger.info(f"  INTRO SKIP: clip starts at {start_sec}s (<10s) — adding +8s offset to skip channel intro")
+        start_sec = start_sec + 8
+
     # Apply start -3s / end +10s padding to avoid mid-sentence cuts (LAW A4)
     # Issue 6: Increased end padding from 8s to 10s for natural pauses
     padded_start = max(0, start_sec - 3)

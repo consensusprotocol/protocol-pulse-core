@@ -312,10 +312,10 @@ Brand constants: remotion/src/brand.ts
   - SOCIAL: stability 0.60, similarity 0.75, style 0.12, speed 1.12
   - WARM: stability 0.60, similarity 0.72, style 0.20, speed 1.10
 
-### Host 2 (Male): Mark
-- Voice ID: 1SM7GgM6IMuvQlz2BwM3
+### Host 2 (Male): PBX
+- Voice ID: HmUVvDlHsEz0m3eUGLgu
 - Model: eleven_turbo_v2_5
-- Description: Wholesome, strong, warm male voice
+- Description: PBX broadcaster voice (replaced Mark 2026-03-14)
 - Settings: stability 0.40, similarity 0.75, style 0.10, speed 1.10
 
 ### BANNED voices (do not use under any circumstances):

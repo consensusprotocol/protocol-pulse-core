@@ -3290,33 +3290,41 @@ def concatenate_parts(parts: list, output_path: str,
             "normalize+fade", 180,
         )
         chosen = tmp if (ok and os.path.exists(tmp)) else p
-        # BLACK HOLE GUARD: scan for >1s of black, replace with bg-only clip
+        # BLACK HOLE GUARD (FIX 3): scan for >0.5s of black mid-part, re-render or replace
+        # Lowered from d=1 to d=0.5 to catch 1.9s black frames from failed PiP composites
         try:
             bd = subprocess.run(
-                ["ffprobe", "-v", "quiet", "-f", "lavfi",
-                 "-i", "movie=" + chosen + ",blackdetect=d=1:pix_th=0.02",
-                 "-show_entries", "tags=lavfi.black_start,lavfi.black_end",
-                 "-of", "csv=p=0"],
-                capture_output=True, text=True, timeout=30
+                ["ffmpeg", "-i", chosen,
+                 "-vf", "blackdetect=d=0.5:pix_th=0.02",
+                 "-an", "-f", "null", "-"],
+                capture_output=True, text=True, timeout=60
             )
-            black_dur = sum(
-                float(m.group(1))
-                for m in [re.search(r"black_duration:([\d.]+)", l) for l in bd.stderr.splitlines()]
-                if m
+            import re as _re_bd
+            black_segments = _re_bd.findall(
+                r"black_start:([\d.]+)\s+black_end:([\d.]+)\s+black_duration:([\d.]+)",
+                bd.stderr
             )
-            if black_dur > 1.0:
-                logger.warning("BLACK HOLE part %d: %.1fs black -- replacing with bg-only", i, black_dur)
-                dur = ffprobe_duration(chosen)
+            part_dur = ffprobe_duration(chosen)
+            # Filter: only count black segments that are mid-part (not at start/end edges)
+            mid_black = [
+                (float(bs), float(be), float(bd_val))
+                for bs, be, bd_val in black_segments
+                if float(bs) > 0.2 and float(be) < part_dur - 0.2 and float(bd_val) > 0.5
+            ]
+            if mid_black:
+                total_mid_black = sum(d for _, _, d in mid_black)
+                logger.warning("BLACK HOLE part %d: %.1fs mid-part black (%d segments) -- replacing with bg-only",
+                               i, total_mid_black, len(mid_black))
                 bg_only = chosen + ".bgonly.mp4"
                 run_ffmpeg([
                     "-f", "lavfi", "-i",
-                    "color=c=0x0A0A0F:s=1920x1080:d={:.3f}:r=30".format(dur),
+                    "color=c=0x0A0A0F:s=1920x1080:d={:.3f}:r=30".format(part_dur),
                     "-f", "lavfi", "-i",
-                    "anullsrc=r=48000:cl=stereo:d={:.3f}".format(dur),
+                    "anullsrc=r=48000:cl=stereo:d={:.3f}".format(part_dur),
                     "-c:v", "libx264", "-crf", "17", "-preset", "fast",
                     "-r", "30", "-vsync", "cfr", "-pix_fmt", "yuv420p",
                     "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
-                    "-t", "{:.3f}".format(dur), bg_only
+                    "-t", "{:.3f}".format(part_dur), bg_only
                 ], "bg-only fallback {}".format(i), 60)
                 if os.path.exists(bg_only):
                     chosen = bg_only
@@ -3437,24 +3445,46 @@ def concatenate_parts(parts: list, output_path: str,
             else:
                 logger.warning("  Intro music mix failed — continuing without")
 
-    # bg_loop ambient audio at -35dB (nearly silent, just ambience)
+    # bg_loop ambient audio — raised to -25dB during transitions to prevent silence gaps (FIX 2)
     if os.path.exists(BG_LOOP):
         ep_dur = ffprobe_duration(concat_raw)
         if ep_dur > 0:
             bgl_mixed = output_path + ".bgl_audio.mp4"
+            # Build volume envelope: boost bg_loop at clip transitions
+            # Default: volume=0.018 (-35dB), transitions: volume=0.056 (-25dB), clip boundaries: volume=0.1 (-20dB)
+            # Calculate transition timestamps from part durations
+            vol_expr_parts = []
+            cumulative = 0.0
+            for pidx, p in enumerate(valid):
+                pdur = ffprobe_duration(p)
+                t_start = cumulative
+                cumulative += pdur
+                # Detect transition/glitch parts by filename
+                pbase = os.path.basename(p).lower()
+                if "transition" in pbase or "glitch" in pbase:
+                    # Raise to -25dB for entire transition segment
+                    vol_expr_parts.append(f"between(t,{t_start:.3f},{cumulative:.3f})*0.056")
+                elif pidx > 0:
+                    # Raise to -20dB for 0.5s after each part boundary (clip boundary boost)
+                    vol_expr_parts.append(f"between(t,{max(0,t_start-0.5):.3f},{t_start+0.5:.3f})*0.1")
+            if vol_expr_parts:
+                # Use volume expr: boosted at transitions, default 0.018 elsewhere
+                vol_filter = "volume='if(" + "+".join(f"({vp})" for vp in vol_expr_parts) + f",1,0.018)':eval=frame"
+            else:
+                vol_filter = "volume=0.018"
             ok_bgl = run_ffmpeg([
                 "-i", concat_raw,
                 "-stream_loop", "-1", "-i", BG_LOOP,
                 "-filter_complex",
-                (f"[1:a]volume=0.018,aresample=48000[bgl];"
+                (f"[1:a]{vol_filter},aresample=48000[bgl];"
                  f"[0:a][bgl]amix=inputs=2:duration=first:weights=1 1[outa]"),
                 "-map", "0:v", "-map", "[outa]",
                 "-c:v", "copy",
                 "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                 bgl_mixed,
-            ], "bg loop ambience mix", 300)
+            ], "bg loop ambience mix (boosted transitions)", 300)
             if ok_bgl and os.path.exists(bgl_mixed):
-                logger.info("  BG loop ambient audio mixed at -35dB")
+                logger.info("  BG loop ambient audio mixed (boosted at transitions)")
                 concat_raw = bgl_mixed
 
     # FIX 6: Mix whoosh SFX at transition points between segments
@@ -3523,7 +3553,8 @@ def concatenate_parts(parts: list, output_path: str,
          "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
          # BUG5 FIX: Single authoritative loudnorm at end (removed from all intermediate steps)
-         "-af", "asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.1:first_pts=0,loudnorm=I=-14:TP=-2.0:LRA=7:linear=true,alimiter=level_in=1:level_out=0.891:limit=0.891:attack=5:release=50",
+         # FIX 4: adelay=65ms to compensate video PTS 0.066 vs DTS -0.000651 offset (audio leads video)
+         "-af", "adelay=65|65,asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.1:first_pts=0,loudnorm=I=-14:TP=-2.0:LRA=7:linear=true,alimiter=level_in=1:level_out=0.891:limit=0.891:attack=5:release=50",
          "-avoid_negative_ts", "make_zero",
          "-max_interleave_delta", "0",
          "-movflags", "+faststart",

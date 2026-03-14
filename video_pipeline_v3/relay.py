@@ -134,7 +134,7 @@ def _set_spend_cap_sentinel(error_msg: str = ''):
     except Exception:
         pass
 
-def call_llm(prompt: str, max_tokens: int = 4000, temperature: float = 0.3) -> str | None:
+def call_llm(prompt: str, max_tokens: int = 4000, temperature: float = 0.3, model: str = "") -> str | None:
     """Call an LLM with Anthropic→Grok fallback. Returns response text or None."""
     import logging
     log = logging.getLogger("relay.call_llm")
@@ -151,7 +151,7 @@ def call_llm(prompt: str, max_tokens: int = 4000, temperature: float = 0.3) -> s
             import anthropic
             client = anthropic.Anthropic(api_key=anthropic_key)
             resp = client.messages.create(
-                model="claude-sonnet-4-6",
+                model=model or "claude-haiku-4-5-20251001",
                 max_tokens=max_tokens,
                 messages=[{"role": "user", "content": prompt}],
             )

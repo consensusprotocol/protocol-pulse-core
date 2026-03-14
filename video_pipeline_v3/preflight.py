@@ -136,8 +136,8 @@ def check_voices():
     c = open(f'{V3}/tts_engine.py').read() if os.path.exists(f'{V3}/tts_engine.py') else ''
     chk('Eryn voice present: kdnRe2koJdOK4Ovxn2DI', 'kdnRe2koJdOK4Ovxn2DI' in c,
         'Eryn voice ID missing from tts_engine.py')
-    chk('Mark voice present: 1SM7GgM6IMuvQlz2BwM3', '1SM7GgM6IMuvQlz2BwM3' in c,
-        'Mark voice ID missing from tts_engine.py')
+    chk('PBX voice present: HmUVvDlHsEz0m3eUGLgu', 'HmUVvDlHsEz0m3eUGLgu' in c,
+        'PBX voice ID missing from tts_engine.py')
     chk('Banned voice absent: uxKr2vlA4hYgXZR1oPRT', 'uxKr2vlA4hYgXZR1oPRT' not in c,
         'BANNED voice in tts_engine.py — causes silent 0-byte audio')
 
