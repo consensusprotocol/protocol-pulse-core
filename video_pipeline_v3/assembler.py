@@ -3077,12 +3077,12 @@ def make_transition_visual(output_path: str, duration: float = 0.6) -> str:
                 "-i", GLITCH_TRANSITION,
                 "-i", GLITCH_WHOOSH,
                 "-filter_complex",
-                # Round 2 Fix 4B: 2-frame (0.067s) fade in/out on video to eliminate black flash
+                # Round 3 FIX 8: Wider fade (0.1s) to prevent black flash + louder whoosh (1.2)
                 f"[0:v]scale=1920:1080,setsar=1,fps=30,trim=0:{duration},setpts=PTS-STARTPTS,format=yuv420p,"
-                f"fade=t=in:st=0:d=0.067,fade=t=out:st={duration - 0.067}:d=0.067[outv];"
+                f"fade=t=in:st=0:d=0.1,fade=t=out:st={max(0, duration - 0.1)}:d=0.1[outv];"
                 f"[0:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=1.5[ta];"
-                # Round 2 Fix 4A: volume limiter on whoosh to prevent audio clipping
-                f"[1:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=0.7,alimiter=limit=0.9[wa];"
+                # Round 3 FIX 8B: Whoosh at volume=1.2 (clearly audible)
+                f"[1:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=1.2,alimiter=limit=0.95[wa];"
                 f"[ta][wa]amix=inputs=2:duration=first[outa]",
                 "-map", "[outv]", "-map", "[outa]",
                 "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
@@ -3096,7 +3096,7 @@ def make_transition_visual(output_path: str, duration: float = 0.6) -> str:
                 "-i", GLITCH_TRANSITION,
                 "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
                 "-r", "30", "-vf", (f"scale=1920:1080,setsar=1,fps=30,trim=0:{duration},setpts=PTS-STARTPTS,format=yuv420p,"
-                                    f"fade=t=in:st=0:d=0.067,fade=t=out:st={duration - 0.067}:d=0.067"),
+                                    f"fade=t=in:st=0:d=0.1,fade=t=out:st={max(0, duration - 0.1)}:d=0.1"),
                 "-af", f"atrim=0:{duration},asetpts=PTS-STARTPTS,volume=2.0",
                 "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                 "-t", str(duration),
@@ -3296,7 +3296,8 @@ def concatenate_parts(parts: list, output_path: str,
              "-video_track_timescale", "90000",
              "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
              # BUG5 FIX: Remove per-segment loudnorm — single authoritative pass at end
-             "-af", f"aresample=async=1,afade=t=in:d=0.1,afade=t=out:st={fade_out_start}:d=0.15",
+             # Round 3 FIX 7: Widen audio fades to 0.5s for smoother transitions (was 0.1/0.15)
+             "-af", f"aresample=async=1,afade=t=in:d=0.3,afade=t=out:st={max(0, fade_out_start - 0.35)}:d=0.5",
              tmp],
             "normalize+fade", 180,
         )
@@ -3431,8 +3432,15 @@ def concatenate_parts(parts: list, output_path: str,
     else:
         logger.warning("  APEX V2: No BG_MUSIC file found — no music bed")
 
+    # Round 3 FIX 4: Skip intro_music.mp3 if intro_tag.mp4 was used (it has baked-in audio)
+    skip_intro_music = os.path.exists(INTRO_TAG) and any(
+        "intro_tag" in os.path.basename(p).lower() for p in valid
+    )
+    if skip_intro_music:
+        logger.info("  FIX 4: Skipping intro_music.mp3 — intro_tag.mp4 has baked-in audio")
+
     # Intro music underlay: plays from t=0 for intro_music_duration, fades out over 3s
-    if intro_music_duration > 0 and os.path.exists(INTRO_MUSIC_FILE):
+    if intro_music_duration > 0 and os.path.exists(INTRO_MUSIC_FILE) and not skip_intro_music:
         ep_dur = ffprobe_duration(concat_raw)
         if ep_dur > 0:
             intro_mus_mixed = output_path + ".intro_mus.mp4"
@@ -3456,33 +3464,31 @@ def concatenate_parts(parts: list, output_path: str,
             else:
                 logger.warning("  Intro music mix failed — continuing without")
 
-    # bg_loop ambient audio — raised to -25dB during transitions to prevent silence gaps (FIX 2)
+    # Round 3 FIX 7: bg_loop ambient audio — RAISED to -18dB during transitions (was -25dB)
     if os.path.exists(BG_LOOP):
         ep_dur = ffprobe_duration(concat_raw)
         if ep_dur > 0:
             bgl_mixed = output_path + ".bgl_audio.mp4"
             # Build volume envelope: boost bg_loop at clip transitions
-            # Default: volume=0.018 (-35dB), transitions: volume=0.056 (-25dB), clip boundaries: volume=0.1 (-20dB)
-            # Calculate transition timestamps from part durations
+            # Default: volume=0.04 (-28dB), transitions: volume=0.126 (-18dB), clip boundaries: volume=0.16 (-16dB)
             vol_expr_parts = []
             cumulative = 0.0
             for pidx, p in enumerate(valid):
                 pdur = ffprobe_duration(p)
                 t_start = cumulative
                 cumulative += pdur
-                # Detect transition/glitch parts by filename
                 pbase = os.path.basename(p).lower()
                 if "transition" in pbase or "glitch" in pbase:
-                    # Raise to -25dB for entire transition segment
-                    vol_expr_parts.append(f"between(t,{t_start:.3f},{cumulative:.3f})*0.056")
+                    # FIX 7: Raise to -18dB for entire transition segment (was -25dB)
+                    vol_expr_parts.append(f"between(t,{t_start:.3f},{cumulative:.3f})*0.126")
                 elif pidx > 0:
-                    # Raise to -20dB for 0.5s after each part boundary (clip boundary boost)
-                    vol_expr_parts.append(f"between(t,{max(0,t_start-0.5):.3f},{t_start+0.5:.3f})*0.1")
+                    # FIX 7: Raise to -16dB for 1.0s around each part boundary (was -20dB/0.5s)
+                    vol_expr_parts.append(f"between(t,{max(0,t_start-0.5):.3f},{t_start+0.5:.3f})*0.16")
             if vol_expr_parts:
-                # Use volume expr: boosted at transitions, default 0.018 elsewhere
-                vol_filter = "volume='if(" + "+".join(f"({vp})" for vp in vol_expr_parts) + f",1,0.018)':eval=frame"
+                # Use volume expr: boosted at transitions, default 0.04 elsewhere (was 0.018)
+                vol_filter = "volume='if(" + "+".join(f"({vp})" for vp in vol_expr_parts) + f",1,0.04)':eval=frame"
             else:
-                vol_filter = "volume=0.018"
+                vol_filter = "volume=0.04"
             ok_bgl = run_ffmpeg([
                 "-i", concat_raw,
                 "-stream_loop", "-1", "-i", BG_LOOP,
@@ -3842,14 +3848,9 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                 else:
                     logger.warning(f"[---] Clip #{rank}: visual failed, skipping")
             else:
-                logger.warning(f"[---] Clip #{rank}: file not found ({clip_path}) — injecting branded placeholder")
-                placeholder_out = os.path.join(work_dir, f"part_{part_idx:03d}_clip_placeholder_r{rank}.mp4")
-                placeholder_result = _make_clip_unavailable_card(rank, placeholder_out, btc_price)
-                if placeholder_result:
-                    parts.append(placeholder_result)
-                    dur = ffprobe_duration(placeholder_result)
-                    logger.info(f"[{part_idx:03d}] CLIP #{rank} PLACEHOLDER: {dur:.1f}s")
-                    part_idx += 1
+                # FIX 1 (Round 3): Clip not found — SKIP entirely, no placeholder.
+                # Placeholders caused 30s black screens. Extend narration gap instead.
+                logger.warning(f"[assembler] Clip #{rank} not found ({clip_path}) — SKIPPING slot, extending narration")
             prev_segment_type = "clip"
             continue
 

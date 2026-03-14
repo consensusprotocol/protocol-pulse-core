@@ -3,7 +3,7 @@
 
 Generates audio using ElevenLabs TTS.
 Host 1 (Natasha): uxKr2vlA4hYgXZR1oPRT — sharp female, 1.12x speed.
-Host 2 (Mark): 1SM7GgM6IMuvQlz2BwM3 — male contrarian, 1.10x speed.
+Host 2 (Mark): HmUVvDlHsEz0m3eUGLgu — male contrarian, 1.10x speed.
 
 Usage:
     from dual_host_tts import generate_dialogue_audio
@@ -62,7 +62,7 @@ _NATASHA_VOICE = {
 }
 
 _MARK_VOICE = {
-    "voice_id": "1SM7GgM6IMuvQlz2BwM3",
+    "voice_id": "HmUVvDlHsEz0m3eUGLgu",
     "name": "Mark",
     "model_id": "eleven_turbo_v2_5",
     "voice_settings": {

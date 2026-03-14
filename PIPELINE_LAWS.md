@@ -28,7 +28,7 @@
 
 ## TTS (locked)
 - Host 1 (Eryn): ID kdnRe2koJdOK4Ovxn2DI at 1.12x speed — sharp female setup/bridge host
-- Host 2 (Mark): ID 1SM7GgM6IMuvQlz2BwM3 at 1.10x speed — male contrarian/react host
+- Host 2 (PBX): ID HmUVvDlHsEz0m3eUGLgu at 1.0x speed — male contrarian/react host, ALWAYS opens episode
 - DUAL HOST RESTORED 2026-03-10: both voices MUST render in every episode
 - Speed param: top-level body param, NOT inside voice_settings
 - Fallback chain: ElevenLabs → pyttsx3 → gTTS → silence

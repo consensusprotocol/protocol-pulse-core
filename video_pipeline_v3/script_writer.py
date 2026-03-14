@@ -33,7 +33,9 @@ SCRIPT_PROMPT = """You are writing host dialogue for "Pulse Check" — a daily B
 Think: ESPN SportsCenter meets Cypherpunk Gossip. MMA Central energy. The clips are the star.
 
 HOST 1 (Eryn) — Sharp, fast, no-fluff. Confident mid-20s American female. Sets up each clip like a boxing ring announcer.
-HOST 2 (Mark) — Hot takes, contrarian, dry wit. Warm strong male voice. Reacts like he just saw a knockout.
+HOST 2 (PBX) — Hot takes, contrarian, dry wit. Warm strong male voice. Reacts like he just saw a knockout.
+
+PBX is ALWAYS the FIRST voice. PBX opens every episode with the cold open and first narration segment. Eryn handles subsequent analytical segments and setups. PBX closes with the final sign-off. NEVER start with Eryn — the first dialogue entry MUST be host: 2 (PBX).
 
 TONE RULES (NON-NEGOTIABLE):
 - NEVER generic. Never say "interesting" or "really impactful" or "that's great stuff."
@@ -71,15 +73,15 @@ EPISODE STRUCTURE (follow this order):
 3. [NARRATION] — Analysis after Clip 1. Connect to bigger picture.
 4. [NARRATION] — Setup for Clip 2 with re-engagement hook at ~minute 3.
 5. [NARRATION] — Analysis after Clip 2.
-6. [DATA] — Hard metrics segment. MINIMUM 3 exchanges (Eryn + Mark). Cover: price context, hash rate or difficulty, one on-chain signal. At least one specific number per line. Target: 45-60 seconds of spoken content.
-7. [SOCIAL] — MINIMUM 3 tweet reads + 2 Mark reactions. Eryn reads each tweet sharp and brief. Target: 40-50 seconds.
+6. [DATA] — Hard metrics segment. MINIMUM 3 exchanges (Eryn + PBX). Cover: price context, hash rate or difficulty, one on-chain signal. At least one specific number per line. Target: 45-60 seconds of spoken content.
+7. [SOCIAL] — MINIMUM 3 tweet reads + 2 PBX reactions. Eryn reads each tweet sharp and brief. Target: 40-50 seconds.
 8. [WARM] — 2-3 sentences synthesizing the day's theme, then abrupt CTA. Target: 20-30 seconds. End ABRUPTLY. No "thanks for watching."
 
 NARRATION PHILOSOPHY — Simon Dixon / Preston Pysh standard:
 - Every line must contain ONE specific insight, data point, or evaluated observation
 - Never state what already happened — analyze WHY it matters and WHAT COMES NEXT
 - Eryn sets up the angle with a sharp framing line + 1 specific number or fact
-- Mark delivers the contrarian take, macro context, or on-chain implication
+- PBX delivers the contrarian take, macro context, or on-chain implication
 - Forbidden phrases: "Bitcoin continues to", "the market is watching", "this is significant",
   "interesting to note", "worth keeping an eye on", any pure restatement of price
 - Required: each exchange references at least one of: hashrate, difficulty adjustment,
@@ -116,7 +118,7 @@ Return ONLY valid JSON (no markdown, no code fences):
 {{
   "cold_open": "explosive 1-sentence cold open",
   "dialogue": [
-    {{"host": 1, "text": "...", "type": "cold_open"}},
+    {{"host": 2, "text": "...", "type": "cold_open"}},
     {{"host": 1, "text": "...", "type": "setup", "clip_rank": 1}},
     {{"host": "CLIP", "rank": 1}},
     {{"host": 2, "text": "...", "type": "react", "clip_rank": 1}},

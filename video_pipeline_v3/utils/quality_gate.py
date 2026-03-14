@@ -33,7 +33,7 @@ def _run_ffprobe_duration(video_path: str) -> float:
 
 
 def _detect_silence(video_path: str, min_duration: float = 2.0,
-                    noise_db: int = -40) -> list:
+                    noise_db: int = -50) -> list:
     """Run ffmpeg silencedetect and return list of silent segments.
 
     Returns: [{"start": float, "end": float, "duration": float}, ...]
@@ -130,7 +130,8 @@ def compute_quality_score(manifest_path: str, video_path: str = "") -> int:
     Penalties:
       - True peak > -1.0 dBFS: -20 points
       - LUFS deviation > 3 from -14: -10 points
-      - Any silence > 2s: -15 per occurrence (on top of critical check)
+      - Any silence > 2s: -5 per occurrence (on top of critical check)
+      - Any black > 0.5s: -15 per second over 0.5s
 
     Base points (from manifest, max 50):
       - Clips present with good AV sync: up to 15
@@ -138,6 +139,8 @@ def compute_quality_score(manifest_path: str, video_path: str = "") -> int:
       - Music present: 10
       - Pipeline success flag: 15
     """
+    import time as _time
+
     # ── Load manifest ──
     try:
         with open(manifest_path) as f:
@@ -145,6 +148,16 @@ def compute_quality_score(manifest_path: str, video_path: str = "") -> int:
     except Exception as e:
         logger.error(f"Cannot read manifest: {e}")
         return 0
+
+    # ── Round 3 FIX 2: Verify video file freshness ──
+    if video_path and os.path.exists(video_path):
+        mtime = os.path.getmtime(video_path)
+        age_hours = (_time.time() - mtime) / 3600
+        fsize_mb = os.path.getsize(video_path) / (1024 * 1024)
+        logger.info(f"  QC scanning: {video_path}")
+        logger.info(f"  File mtime: {age_hours:.1f}h ago, size: {fsize_mb:.1f}MB")
+        if age_hours > 2.0:
+            logger.warning(f"  WARNING: Video file is {age_hours:.1f}h old — may be stale cached file")
 
     # ── Base score from manifest (max 50) ──
     score = 0
@@ -192,8 +205,8 @@ def compute_quality_score(manifest_path: str, video_path: str = "") -> int:
         logger.error(f"  CRITICAL: Video duration {duration:.1f}s < 60s")
         return 0
 
-    # ── Silence detection ──
-    silences = _detect_silence(video_path, min_duration=2.0)
+    # ── Silence detection (Round 3 FIX 2: -40dB threshold, 2.0s min) ──
+    silences = _detect_silence(video_path, min_duration=2.0, noise_db=-40)
     total_silence = sum(s["duration"] for s in silences)
 
     if total_silence > 5.0:
@@ -206,12 +219,14 @@ def compute_quality_score(manifest_path: str, video_path: str = "") -> int:
                           f"({s['duration']:.1f}s)")
         return 0
 
-    # Non-critical silence penalty: -15 per gap
-    silence_penalty = len(silences) * 15
+    # Non-critical silence penalty: -5 per gap > 2s
+    silence_penalty = len(silences) * 5
     if silences:
         logger.warning(f"  Silence penalty: -{silence_penalty} ({len(silences)} gaps >2s)")
+        for s in silences:
+            logger.warning(f"    Silent gap: {s['start']:.1f}s - {s['end']:.1f}s ({s['duration']:.1f}s)")
 
-    # ── Black frame detection ──
+    # ── Black frame detection (Round 3 FIX 2: d=0.5 threshold, -15/sec penalty) ──
     blacks = _detect_black_frames(video_path, min_duration=0.5)
 
     # Filter: ignore first 2s (title card) and last 5s (outro fade)
@@ -227,9 +242,14 @@ def compute_quality_score(manifest_path: str, video_path: str = "") -> int:
                           f"({b['duration']:.1f}s)")
         return 0
 
-    black_penalty = len(mid_blacks) * 10
+    # Penalty: -15 per second of black over 0.5s threshold
+    total_black_excess = sum(max(0, b["duration"] - 0.5) for b in mid_blacks)
+    black_penalty = int(total_black_excess * 15)
     if mid_blacks:
-        logger.warning(f"  Black frame penalty: -{black_penalty} ({len(mid_blacks)} segments >0.5s)")
+        logger.warning(f"  Black frame penalty: -{black_penalty} ({len(mid_blacks)} segments, "
+                       f"{total_black_excess:.1f}s excess)")
+        for b in mid_blacks:
+            logger.warning(f"    Black: {b['start']:.1f}s - {b['end']:.1f}s ({b['duration']:.1f}s)")
 
     # ── Loudness / True peak ──
     loudness = _measure_loudness(video_path)

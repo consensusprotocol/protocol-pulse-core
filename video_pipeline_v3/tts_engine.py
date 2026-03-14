@@ -663,6 +663,12 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
             continue
 
         host_num = int(host) if host in (1, 2, "1", "2") else 1
+        # Round 3 FIX 3B: First spoken segment MUST be PBX (opener)
+        # Count non-CLIP lines processed so far to determine segment_index
+        spoken_count = sum(1 for l in lines if l.get("host") != "CLIP")
+        if spoken_count == 0 and host_num != 2:
+            logger.info(f"[TTS] Segment 0 — forcing PBX opener (was host={host_num})")
+            host_num = 2
         voice = VOICES.get(host_num, VOICES[1])
         segment_type = entry.get("type", "")
         line_path = os.path.join(output_dir, f"line_{i:03d}_{voice['name'].lower()}.m4a")

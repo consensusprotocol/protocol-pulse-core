@@ -152,9 +152,10 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
             logger.info(f"  Clip cached: {video_id} ({dur:.1f}s)")
             return True
 
-    # Round 2 Fix 6: Expanded intro-skip window 10→20s, offset 8→12s (Natalie Brunell "Coin Stories" jingle at 5:24)
-    if start_sec < 20:
-        logger.info(f"[extractor] Applying +12s intro-skip offset to {video_id} (was {start_sec}s)")
+    # Round 3 FIX 5: Lower threshold 20→15 and add debug logging
+    logger.info(f"[extractor] Clip {video_id}: raw start_sec={start_sec}, end_sec={end_sec}")
+    if start_sec < 15:
+        logger.info(f"[extractor] Applying +12s intro-skip offset to {video_id} (was {start_sec}s, threshold <15)")
         start_sec = start_sec + 12
 
     # Apply start -3s / end +10s padding to avoid mid-sentence cuts (LAW A4)
@@ -211,6 +212,22 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
                     logger.info(f"  Nuclear re-encode: final offset {final_offset:+.3f}s")
                 elif os.path.exists(nuclear_tmp):
                     os.remove(nuclear_tmp)
+            # Round 3 FIX 6: Lip sync — apply 100ms audio delay to compensate yt-dlp offset
+            final_av = check_av_sync(output_path)
+            if final_av < -0.05:  # audio leads video
+                lipsync_tmp = output_path + ".lipsync.mp4"
+                delay = min(0.2, abs(final_av))
+                if _run_ffmpeg([
+                    "-i", output_path,
+                    "-itsoffset", str(delay), "-i", output_path,
+                    "-map", "0:v:0", "-map", "1:a:0",
+                    "-c:v", "copy", "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                    lipsync_tmp,
+                ], f"lipsync +{delay:.3f}s audio delay", 60) and os.path.exists(lipsync_tmp):
+                    os.replace(lipsync_tmp, output_path)
+                    logger.info(f"  FIX 6: Applied {delay:.3f}s audio delay (was {final_av:+.3f}s)")
+                elif os.path.exists(lipsync_tmp):
+                    os.remove(lipsync_tmp)
             dur = ffprobe_duration(output_path)
             sz = os.path.getsize(output_path) / 1024
             logger.info(f"  Extracted: {dur:.1f}s, {sz:.0f}KB")
