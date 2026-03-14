@@ -112,10 +112,14 @@ def _get_bg_layer(inputs: list, duration: float, label_out: str = "bb_bg") -> st
     if os.path.exists(BG_LOOP):
         inputs.append(["-stream_loop", "-1", "-i", BG_LOOP])
         bg_idx = len(inputs) - 1
+        # Round 2 Fix 7: Glassmorphic darkening overlay on bg_loop for PiP segments
+        # Applies 45% black overlay so bg_loop is visible but not distracting
         fg = (f"[{bg_idx}:v]scale=1920:1080,setsar=1,fps=30,"
               f"trim=0:{duration},setpts=PTS-STARTPTS,"
               # Keep vignette for cinematic depth
               f"vignette=PI/4:mode=backward,"
+              # Glassmorphic darken: multiply brightness by 0.55 (45% darker)
+              f"eq=brightness=-0.15:contrast=0.9,"
               # Red border frame (2px all edges — PIPELINE_LAWS)
               f"drawbox=x=0:y=0:w=1920:h=2:color={COLOR_RED}@0.75:t=fill,"
               f"drawbox=x=0:y=1078:w=1920:h=2:color={COLOR_RED}@0.75:t=fill,"
@@ -618,6 +622,9 @@ def make_intro_tag_sequence(output_path: str) -> str:
             "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+            # Round 2 Fix 3: Aggressive audio fade-out starting at 6.0s (was no fade)
+            # Prevents intro music bed from spilling into first narration segment
+            "-af", "afade=t=out:st=6.0:d=2.0",
             output_path,
         ], "intro tag sequence", 120)
     else:
@@ -3070,9 +3077,12 @@ def make_transition_visual(output_path: str, duration: float = 0.6) -> str:
                 "-i", GLITCH_TRANSITION,
                 "-i", GLITCH_WHOOSH,
                 "-filter_complex",
-                f"[0:v]scale=1920:1080,setsar=1,fps=30,trim=0:{duration},setpts=PTS-STARTPTS,format=yuv420p[outv];"
+                # Round 2 Fix 4B: 2-frame (0.067s) fade in/out on video to eliminate black flash
+                f"[0:v]scale=1920:1080,setsar=1,fps=30,trim=0:{duration},setpts=PTS-STARTPTS,format=yuv420p,"
+                f"fade=t=in:st=0:d=0.067,fade=t=out:st={duration - 0.067}:d=0.067[outv];"
                 f"[0:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=1.5[ta];"
-                f"[1:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=0.5[wa];"
+                # Round 2 Fix 4A: volume limiter on whoosh to prevent audio clipping
+                f"[1:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=0.7,alimiter=limit=0.9[wa];"
                 f"[ta][wa]amix=inputs=2:duration=first[outa]",
                 "-map", "[outv]", "-map", "[outa]",
                 "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
@@ -3085,7 +3095,8 @@ def make_transition_visual(output_path: str, duration: float = 0.6) -> str:
             ok = run_ffmpeg([
                 "-i", GLITCH_TRANSITION,
                 "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
-                "-r", "30", "-vf", f"scale=1920:1080,setsar=1,fps=30,trim=0:{duration},setpts=PTS-STARTPTS,format=yuv420p",
+                "-r", "30", "-vf", (f"scale=1920:1080,setsar=1,fps=30,trim=0:{duration},setpts=PTS-STARTPTS,format=yuv420p,"
+                                    f"fade=t=in:st=0:d=0.067,fade=t=out:st={duration - 0.067}:d=0.067"),
                 "-af", f"atrim=0:{duration},asetpts=PTS-STARTPTS,volume=2.0",
                 "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                 "-t", str(duration),
@@ -3513,8 +3524,9 @@ def concatenate_parts(parts: list, output_path: str,
             whoosh_fg_parts = [f"[1:a]asplit={n}{split_labels}"]
             for ti, ttime in enumerate(transition_times):
                 delay_ms = int(ttime * 1000)
+                # Round 2 Fix 4A: volume limiter on whoosh to prevent audio clipping
                 whoosh_fg_parts.append(
-                    f"[ws{ti}]volume=0.6,adelay={delay_ms}|{delay_ms}[whoosh_{ti}]"
+                    f"[ws{ti}]volume=0.7,alimiter=limit=0.9,adelay={delay_ms}|{delay_ms}[whoosh_{ti}]"
                 )
             # Amix all whooshes together
             whoosh_labels = "".join(f"[whoosh_{ti}]" for ti in range(n))
@@ -3976,7 +3988,9 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                 if card_result:
                     card_rendered_paths.append(card_result)
                     dur = ffprobe_duration(card_result)
-                    logger.info(f"  SOCIAL CARD {ci} rendered: @{cp.get('handle', '?')} ({dur:.1f}s)")
+                    # Round 2 Fix 5: Log tweet→timestamp mapping for narrator cross-reference
+                    logger.info(f"  SOCIAL CARD {ci} rendered: @{cp.get('handle', '?')} ({dur:.1f}s) "
+                                f"[text: {cp.get('text', '')[:50]}]")
 
             # Issue 5 FIX: Stitch cards with xfade transitions (no black flash)
             if len(card_rendered_paths) >= 2:

@@ -152,10 +152,10 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
             logger.info(f"  Clip cached: {video_id} ({dur:.1f}s)")
             return True
 
-    # FIX 1B: Skip channel intro window — if clip starts < 10s, add +8s offset
-    if start_sec < 10:
-        logger.info(f"  INTRO SKIP: clip starts at {start_sec}s (<10s) — adding +8s offset to skip channel intro")
-        start_sec = start_sec + 8
+    # Round 2 Fix 6: Expanded intro-skip window 10→20s, offset 8→12s (Natalie Brunell "Coin Stories" jingle at 5:24)
+    if start_sec < 20:
+        logger.info(f"[extractor] Applying +12s intro-skip offset to {video_id} (was {start_sec}s)")
+        start_sec = start_sec + 12
 
     # Apply start -3s / end +10s padding to avoid mid-sentence cuts (LAW A4)
     # Issue 6: Increased end padding from 8s to 10s for natural pauses
@@ -201,7 +201,8 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
                     "-r", "30", "-vsync", "cfr",
                     "-vf", "setpts=PTS-STARTPTS,scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,format=yuv420p",
                     "-c:a", "aac", "-ar", "48000", "-ac", "2",
-                    "-af", "asetpts=PTS-STARTPTS",
+                    # Round 2 Fix 8: async resampler to let ffmpeg resync audio to video per-clip
+                    "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
                     "-avoid_negative_ts", "make_zero",
                     nuclear_tmp,
                 ], "av_sync_nuclear", 180) and os.path.exists(nuclear_tmp):
@@ -253,6 +254,8 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
         "-t", str(duration),
         "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
         "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+        # Round 2 Fix 8: async resample during extraction to resync audio to video
+        "-af", "aresample=async=1:first_pts=0",
         output_path,
     ]
 
@@ -279,7 +282,8 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
                     "-r", "30", "-vsync", "cfr",
                     "-vf", "setpts=PTS-STARTPTS,scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,format=yuv420p",
                     "-c:a", "aac", "-ar", "48000", "-ac", "2",
-                    "-af", "asetpts=PTS-STARTPTS",
+                    # Round 2 Fix 8: async resampler to let ffmpeg resync audio to video per-clip
+                    "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
                     "-avoid_negative_ts", "make_zero",
                     nuclear_tmp,
                 ], "av_sync_nuclear", 180) and os.path.exists(nuclear_tmp):

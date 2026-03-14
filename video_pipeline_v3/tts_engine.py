@@ -26,9 +26,9 @@ _NATASHA_VOICE = {
     "model_id": "eleven_turbo_v2_5",
     "speed": 1.12,
     "voice_settings": {
-        "stability": 0.55,
-        "similarity_boost": 0.80,
-        "style": 0.15,
+        "stability": 0.35,           # Round 2 Fix 2: reduced from 0.55 for less robotic cadence
+        "similarity_boost": 0.85,     # Round 2 Fix 2: increased from 0.80 to stay closer to voice character
+        "style": 0.20,               # Round 2 Fix 2: slight style exaggeration for naturalness
         "use_speaker_boost": True,
     },
 }
@@ -159,10 +159,125 @@ def _chunk_text(text: str, max_chars: int = MAX_CHUNK_CHARS) -> list:
 
 
 def expand_numbers_for_tts(text: str) -> str:
-    """Session 4 Fix 3: Expand numbers and abbreviations so ElevenLabs reads them naturally."""
+    """Round 2 Fix 1: Full num2words preprocessing — converts ALL numbers >999 to spoken form.
+
+    Previous version used manual thousand/million/billion templates which caused garbled
+    speech on numbers like "1,056 EH/s" or "$74,000". Now uses num2words for natural
+    spoken-word output: "$74,000" → "seventy-four thousand dollars".
+    """
+    import re as _re
+    try:
+        from num2words import num2words as _n2w
+    except ImportError:
+        logger.warning("[TTS] num2words not installed — falling back to basic expansion")
+        return _expand_numbers_basic(text)
+
+    # Dollar + billion/million shorthand first: $308 billion → "three hundred and eight billion dollars"
+    def _dollar_scale(m):
+        num_str = m.group(1)
+        scale = m.group(2).lower()
+        try:
+            val = float(num_str)
+            spoken = _n2w(val) if val != int(val) else _n2w(int(val))
+            return f"{spoken} {scale} dollars"
+        except Exception:
+            return m.group(0)
+    text = _re.sub(r'\$(\d+(?:\.\d+)?)\s*([Bb]illion|[Mm]illion|[Tt]rillion)', _dollar_scale, text)
+
+    # Dollar amounts: $74,000 → "seventy-four thousand dollars"
+    def _dollar(m):
+        val_str = m.group(1).replace(",", "")
+        try:
+            val = int(float(val_str))
+            if val > 999:
+                return f"{_n2w(val)} dollars"
+            return f"{val} dollars"
+        except Exception:
+            return m.group(0)
+    text = _re.sub(r'\$([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]+)?)', _dollar, text)
+
+    # Hashrate units BEFORE plain numbers (so "1,056 EH/s" is caught here)
+    def _hashrate(m):
+        val_str = m.group(1).replace(",", "")
+        unit = m.group(2)
+        unit_map = {"EH": "exahashes", "TH": "terahashes", "PH": "petahashes"}
+        try:
+            val = float(val_str)
+            spoken = _n2w(val) if val != int(val) else _n2w(int(val))
+            return f"{spoken} {unit_map.get(unit, unit)} per second"
+        except Exception:
+            return m.group(0)
+    text = _re.sub(r'([0-9]{1,3}(?:,[0-9]{3})*(?:\.\d+)?)\s*(EH|TH|PH)/?s', _hashrate, text)
+
+    # Percentages: 42% → "forty-two percent"
+    def _pct(m):
+        val_str = m.group(1)
+        try:
+            val = float(val_str)
+            if val == int(val):
+                return f"{_n2w(int(val))} percent"
+            # 8.4% → "eight point four percent"
+            whole = int(val)
+            frac = val_str.split('.')[1] if '.' in val_str else ''
+            if frac:
+                frac_spoken = ' '.join(_n2w(int(d)) for d in frac)
+                return f"{_n2w(whole)} point {frac_spoken} percent"
+            return f"{_n2w(int(val))} percent"
+        except Exception:
+            return m.group(0)
+    text = _re.sub(r'([\d.]+)%', _pct, text)
+
+    # Large plain numbers with commas: 70,015 → "seventy thousand and fifteen"
+    def _plain_num(m):
+        val_str = m.group(0).replace(",", "")
+        try:
+            val = int(val_str)
+            if val > 999:
+                return _n2w(val)
+            return m.group(0)
+        except Exception:
+            return m.group(0)
+    text = _re.sub(r'\b\d{1,3}(?:,\d{3})+\b', _plain_num, text)
+
+    # Billion/million shorthand in text (no dollar): 1.2 billion → "one point two billion"
+    def _scale(m):
+        val_str = m.group(1)
+        scale = m.group(2).lower()
+        try:
+            val = float(val_str)
+            spoken = _n2w(val) if val != int(val) else _n2w(int(val))
+            return f"{spoken} {scale}"
+        except Exception:
+            return m.group(0)
+    text = _re.sub(r'(\d+(?:\.\d+)?)\s*([Bb]illion|[Mm]illion|[Tt]rillion)', _scale, text)
+
+    # K shorthand: 74K → "seventy-four thousand"
+    def _k(m):
+        try:
+            val = float(m.group(1))
+            return _n2w(int(val * 1000))
+        except Exception:
+            return m.group(0)
+    text = _re.sub(r'(\d+(?:\.\d+)?)[Kk]\b', _k, text)
+
+    # Standalone large numbers without commas (e.g. 74000)
+    def _bare_num(m):
+        try:
+            val = int(m.group(0))
+            if val > 999:
+                return _n2w(val)
+            return m.group(0)
+        except Exception:
+            return m.group(0)
+    text = _re.sub(r'\b\d{4,}\b', _bare_num, text)
+
+    return text
+
+
+def _expand_numbers_basic(text: str) -> str:
+    """Fallback number expansion without num2words (original logic)."""
     import re as _re
 
-    # Dollar amounts: $83,420 → "83 thousand 420 dollars"
     def _dollar(m):
         val_str = m.group(1).replace(",", "")
         try:
@@ -181,13 +296,10 @@ def expand_numbers_for_tts(text: str) -> str:
             return f"{b} thousand {r} dollars"
         return f"{val} dollars"
 
-    # Dollar + billion/million shorthand first: $1.2 billion → "1.2 billion dollars"
     text = _re.sub(r'\$(\d+(?:\.\d+)?)\s*[Bb]illion', lambda m: f"{m.group(1)} billion dollars", text)
     text = _re.sub(r'\$(\d+(?:\.\d+)?)\s*[Mm]illion', lambda m: f"{m.group(1)} million dollars", text)
-
     text = _re.sub(r'\$([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]+)?)', _dollar, text)
 
-    # Large plain numbers with commas: 70,015 → "70 thousand 15"
     def _plain_num(m):
         val_str = m.group(0).replace(",", "")
         try:
@@ -204,24 +316,19 @@ def expand_numbers_for_tts(text: str) -> str:
             if r == 0:
                 return f"{b} thousand"
             return f"{b} thousand {r}"
-        return m.group(0)  # leave small numbers as-is
+        return m.group(0)
     text = _re.sub(r'\b\d{1,3}(?:,\d{3})+\b', _plain_num, text)
 
-    # Percentages: 8.4% → "8 point 4 percent"
     def _pct(m):
         return m.group(1).replace(".", " point ") + " percent"
     text = _re.sub(r'([\d.]+)%', _pct, text)
 
-    # Hashrate units
     text = _re.sub(r'(\d+(?:\.\d+)?)\s*EH/?s', lambda m: f"{m.group(1)} exahash per second", text)
     text = _re.sub(r'(\d+(?:\.\d+)?)\s*TH/?s', lambda m: f"{m.group(1)} terahash per second", text)
     text = _re.sub(r'(\d+(?:\.\d+)?)\s*PH/?s', lambda m: f"{m.group(1)} petahash per second", text)
-
-    # Billion/million shorthand already in text (normalize)
     text = _re.sub(r'(\d+(?:\.\d+)?)\s*[Bb]illion', lambda m: f"{m.group(1)} billion", text)
     text = _re.sub(r'(\d+(?:\.\d+)?)\s*[Mm]illion', lambda m: f"{m.group(1)} million", text)
 
-    # K shorthand: 74K → "74 thousand"
     def _k(m):
         val = float(m.group(1))
         if val == int(val):
@@ -233,6 +340,47 @@ def expand_numbers_for_tts(text: str) -> str:
 
 
 TTS_CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tts_cache")
+
+
+def _trim_trailing_silence(audio_path: str) -> None:
+    """Round 2 Fix 2: Trim trailing silence/vowel-stretch from TTS output.
+
+    Detects if the last 0.5s is significantly quieter than the body (trailing off)
+    and trims it to avoid the stretched-vowel artifact common in ElevenLabs output.
+    """
+    try:
+        import re as _re
+        # Measure RMS of last 0.5s vs body
+        result = subprocess.run(
+            ["ffmpeg", "-i", audio_path, "-af",
+             "silencedetect=noise=-35dB:d=0.15", "-f", "null", "-"],
+            capture_output=True, text=True, timeout=15,
+        )
+        # Find silence at end of file
+        dur = ffprobe_duration(audio_path)
+        if dur <= 1.0:
+            return
+        silences = [float(m.group(1)) for m in
+                    _re.finditer(r"silence_start: ([\d.]+)", result.stderr)]
+        if not silences:
+            return
+        last_silence = silences[-1]
+        # If silence starts within last 0.5s, trim there
+        if dur - last_silence <= 0.5 and last_silence > dur * 0.8:
+            trimmed = audio_path + ".trimmed.m4a"
+            trim_ok = subprocess.run(
+                ["ffmpeg", "-y", "-i", audio_path,
+                 "-t", f"{last_silence + 0.05:.3f}",
+                 "-c:a", "aac", "-ar", "48000", "-b:a", "192k", trimmed],
+                capture_output=True, text=True, timeout=15,
+            )
+            if trim_ok.returncode == 0 and os.path.exists(trimmed) and os.path.getsize(trimmed) > 5000:
+                os.replace(trimmed, audio_path)
+                logger.info(f"[TTS] Trimmed trailing silence: {dur:.2f}s → {last_silence + 0.05:.2f}s")
+            elif os.path.exists(trimmed):
+                os.remove(trimmed)
+    except Exception as e:
+        logger.debug(f"[TTS] Trailing silence trim skipped: {e}")
 
 
 def _tts_cache_key(text: str, voice_id: str, segment_type: str) -> str:
@@ -435,6 +583,7 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
         except Exception:
             pass
         if ok and os.path.exists(output_path):
+            _trim_trailing_silence(output_path)  # Round 2 Fix 2: trim vowel-stretch artifacts
             validate_tts_output(output_path)
             _tts_cache_put(cache_key, output_path)
         return ok
@@ -458,6 +607,7 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
         except Exception:
             pass
     if ok and os.path.exists(output_path):
+        _trim_trailing_silence(output_path)  # Round 2 Fix 2: trim vowel-stretch artifacts
         validate_tts_output(output_path)
         _tts_cache_put(cache_key, output_path)
     return ok

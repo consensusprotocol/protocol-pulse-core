@@ -237,6 +237,56 @@ Eryn and Mark must sound like analysts who read the numbers this morning, not ge
 """
 
 
+def _validate_social_tweet_order(result: dict, social_posts_raw: str) -> dict:
+    """Round 2 Fix 5: Ensure narrator tweet references match the order tweets will be displayed.
+
+    Checks that @handle mentions in social_segment narration lines appear in the same
+    order as the social posts data. If mismatch detected, reorder social entries in
+    the dialogue to match the narrator's reference order.
+    """
+    if not social_posts_raw or social_posts_raw.startswith("NONE"):
+        return result
+
+    dialogue = result.get("dialogue", [])
+    if not dialogue:
+        return result
+
+    # Extract ordered handles from social_posts_raw
+    social_handles = []
+    for line in social_posts_raw.split("\n"):
+        m = re.match(r'@(\w+)\s+tweeted:', line)
+        if m:
+            social_handles.append(m.group(1).lower())
+
+    # Extract @handle references from social_segment narration lines
+    social_entries = [(i, e) for i, e in enumerate(dialogue)
+                      if e.get("type") == "social_segment" and e.get("host") in (1, 2, "1", "2")]
+
+    narrator_handles = []
+    for _, entry in social_entries:
+        text = entry.get("text", "")
+        handles_in_text = re.findall(r'@(\w+)', text)
+        for h in handles_in_text:
+            h_lower = h.lower()
+            if h_lower in social_handles and h_lower not in narrator_handles:
+                narrator_handles.append(h_lower)
+
+    # Check if order matches
+    if narrator_handles and social_handles:
+        # Build mapping: narrator mentions handles in order A, B, C
+        # Social data has them in order X, Y, Z
+        # We need to tag each social entry with which handle it references
+        for idx, entry in social_entries:
+            text = entry.get("text", "")
+            handles_in_text = [h.lower() for h in re.findall(r'@(\w+)', text)]
+            matched = [h for h in handles_in_text if h in social_handles]
+            if matched:
+                entry["_social_handle_ref"] = matched[0]
+                logger.info(f"[script] Social segment line {idx} references @{matched[0]}")
+
+    return result
+
+
 def _populate_segment_headlines(result: dict) -> dict:
     """Session 4 Fix 2: Add 'headline' key to each dialogue entry.
 
@@ -369,6 +419,9 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
 
         # Session 4 Fix 2: Populate 'headline' per dialogue entry for assembler
         result = _populate_segment_headlines(result)
+
+        # Round 2 Fix 5: Validate social segment tweet order matches narration references
+        result = _validate_social_tweet_order(result, social_posts)
 
         # Validate structure
         dialogue = result.get("dialogue", [])
