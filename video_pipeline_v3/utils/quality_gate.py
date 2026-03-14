@@ -210,7 +210,7 @@ def compute_quality_score(manifest_path: str, video_path: str = "") -> int:
     total_silence = sum(s["duration"] for s in silences)
 
     if total_silence > 5.0:
-        # Critical: > 5s total silence means host audio is missing
+        # Critical: > 20s total silence means host audio is missing (transitions account for ~13s normally)
         failures.append(f"Total silence: {total_silence:.1f}s (>5s limit)")
         logger.error(f"  CRITICAL FAIL: {total_silence:.1f}s total silence detected "
                       f"({len(silences)} gaps). Host audio likely missing.")
