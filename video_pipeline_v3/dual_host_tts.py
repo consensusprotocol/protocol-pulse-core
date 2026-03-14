@@ -2,8 +2,9 @@
 """dual_host_tts.py — Dual-host TTS engine for Pulse Check.
 
 Generates audio using ElevenLabs TTS.
-Host 1 (Natasha): uxKr2vlA4hYgXZR1oPRT — sharp female, 1.12x speed.
-Host 2 (Mark): HmUVvDlHsEz0m3eUGLgu — male contrarian, 1.10x speed.
+Host 1 (Eryn): kdnRe2koJdOK4Ovxn2DI — sharp female, 1.12x speed.
+Host 2 (PBX): HmUVvDlHsEz0m3eUGLgu — male contrarian, 1.10x speed.
+NOTE: uxKr2vlA4hYgXZR1oPRT is PERMANENTLY BANNED (see PIPELINE_LAWS.md).
 
 Usage:
     from dual_host_tts import generate_dialogue_audio
@@ -49,21 +50,21 @@ from relay import get_key
 # Nicole (piTKgcLEGmPE4e6mEKli) and Chris (iP95p4xoKVk53GoZ742B) are BANNED.
 
 _NATASHA_VOICE = {
-    "voice_id": "uxKr2vlA4hYgXZR1oPRT",
+    "voice_id": "kdnRe2koJdOK4Ovxn2DI",
     "name": "Eryn",
     "model_id": "eleven_turbo_v2_5",
     "voice_settings": {
-        "stability": 0.55,
-        "similarity_boost": 0.80,
-        "style": 0.15,
+        "stability": 0.35,
+        "similarity_boost": 0.85,
+        "style": 0.20,
         "use_speaker_boost": True,
         "speed": 1.12,
     },
 }
 
-_MARK_VOICE = {
+_PBX_VOICE = {
     "voice_id": "HmUVvDlHsEz0m3eUGLgu",
-    "name": "Mark",
+    "name": "PBX",
     "model_id": "eleven_turbo_v2_5",
     "voice_settings": {
         "stability": 0.55,
@@ -75,8 +76,8 @@ _MARK_VOICE = {
 }
 
 VOICES = {
-    1: _NATASHA_VOICE,   # HOST_1 → Natasha (female)
-    2: _MARK_VOICE,   # HOST_2 → Mark (male)
+    1: _NATASHA_VOICE,   # HOST_1 → Eryn (female)
+    2: _PBX_VOICE,       # HOST_2 → PBX (male)
 }
 
 SILENCE_GAP = 0.3  # seconds between speakers
@@ -302,6 +303,15 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
 
     silence_path = os.path.join(output_dir, "silence.m4a")
     _generate_silence(silence_path, SILENCE_GAP)
+
+    # FIX 4: PBX (HOST_2) MUST always open the episode
+    # Find first non-CLIP line and force it to host=2 if it's host=1
+    for _idx, _entry in enumerate(dialogue):
+        if _entry.get("host") != "CLIP":
+            if int(_entry.get("host", 1)) == 1:
+                _entry["host"] = 2
+                print("[TTS] Forcing PBX opener on segment 0")
+            break
 
     lines = []
     parts_for_concat = []

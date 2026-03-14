@@ -3470,7 +3470,7 @@ def concatenate_parts(parts: list, output_path: str,
         if ep_dur > 0:
             bgl_mixed = output_path + ".bgl_audio.mp4"
             # Build volume envelope: boost bg_loop at clip transitions
-            # Default: volume=0.04 (-28dB), transitions: volume=0.126 (-18dB), clip boundaries: volume=0.16 (-16dB)
+            # Default: volume=0.10 (-20dB floor), transitions: volume=0.126 (-18dB), clip boundaries: volume=0.16 (-16dB)
             vol_expr_parts = []
             cumulative = 0.0
             for pidx, p in enumerate(valid):
@@ -3485,10 +3485,10 @@ def concatenate_parts(parts: list, output_path: str,
                     # FIX 7: Raise to -16dB for 1.0s around each part boundary (was -20dB/0.5s)
                     vol_expr_parts.append(f"between(t,{max(0,t_start-0.5):.3f},{t_start+0.5:.3f})*0.16")
             if vol_expr_parts:
-                # Use volume expr: boosted at transitions, default 0.04 elsewhere (was 0.018)
-                vol_filter = "volume='if(" + "+".join(f"({vp})" for vp in vol_expr_parts) + f",1,0.04)':eval=frame"
+                # Use volume expr: boosted at transitions, floor 0.10 (-20dB) elsewhere
+                vol_filter = "volume='if(" + "+".join(f"({vp})" for vp in vol_expr_parts) + f",1,0.10)':eval=frame"
             else:
-                vol_filter = "volume=0.04"
+                vol_filter = "volume=0.10"
             ok_bgl = run_ffmpeg([
                 "-i", concat_raw,
                 "-stream_loop", "-1", "-i", BG_LOOP,
