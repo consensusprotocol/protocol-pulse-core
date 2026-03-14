@@ -3458,6 +3458,7 @@ def concatenate_parts(parts: list, output_path: str,
                 concat_raw = bgl_mixed
 
     # FIX 6: Mix whoosh SFX at transition points between segments
+    # FIX 6B: Single input + asplit (was N inputs → ffmpeg filter graph explosion at 30+ parts)
     has_whoosh = os.path.exists(GLITCH_WHOOSH)
     if has_whoosh and len(valid) > 1:
         # Calculate transition timestamps (cumulative durations of each part)
@@ -3468,21 +3469,27 @@ def concatenate_parts(parts: list, output_path: str,
             cumulative += pdur
             transition_times.append(cumulative)
 
+        # Cap at 20 whooshes — thin out evenly if too many
+        MAX_WHOOSH = 20
+        if len(transition_times) > MAX_WHOOSH:
+            step = len(transition_times) / MAX_WHOOSH
+            transition_times = [transition_times[int(i * step)] for i in range(MAX_WHOOSH)]
+
         if transition_times:
             whoosh_mixed = output_path + ".whoosh_mixed.mp4"
-            # Build filter: delay each whoosh to its transition time, then amix all
-            whoosh_inputs = []
-            whoosh_fg_parts = []
+            n = len(transition_times)
+            # Single whoosh input → asplit into N copies, delay each, amix together
+            split_labels = "".join(f"[ws{i}]" for i in range(n))
+            whoosh_fg_parts = [f"[1:a]asplit={n}{split_labels}"]
             for ti, ttime in enumerate(transition_times):
-                whoosh_inputs.extend(["-i", GLITCH_WHOOSH])
                 delay_ms = int(ttime * 1000)
                 whoosh_fg_parts.append(
-                    f"[{ti+1}:a]volume=0.6,adelay={delay_ms}|{delay_ms}[whoosh_{ti}]"
+                    f"[ws{ti}]volume=0.6,adelay={delay_ms}|{delay_ms}[whoosh_{ti}]"
                 )
             # Amix all whooshes together
-            whoosh_labels = "".join(f"[whoosh_{ti}]" for ti in range(len(transition_times)))
+            whoosh_labels = "".join(f"[whoosh_{ti}]" for ti in range(n))
             whoosh_fg_parts.append(
-                f"{whoosh_labels}amix=inputs={len(transition_times)}:duration=longest[all_whoosh]"
+                f"{whoosh_labels}amix=inputs={n}:duration=longest[all_whoosh]"
             )
             # Mix whoosh into episode audio
             whoosh_fg_parts.append(
@@ -3491,8 +3498,8 @@ def concatenate_parts(parts: list, output_path: str,
             whoosh_fg = ";\n".join(whoosh_fg_parts)
 
             ok_whoosh = run_ffmpeg(
-                ["-fflags", "+genpts", "-i", concat_raw] + whoosh_inputs +
-                ["-filter_complex", whoosh_fg,
+                ["-fflags", "+genpts", "-i", concat_raw, "-i", GLITCH_WHOOSH,
+                 "-filter_complex", whoosh_fg,
                  "-map", "0:v", "-map", "[outa]",
                  "-c:v", "copy",
                  "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
@@ -3500,10 +3507,10 @@ def concatenate_parts(parts: list, output_path: str,
                 "whoosh SFX mix", 300,
             )
             if ok_whoosh and os.path.exists(whoosh_mixed):
-                logger.info(f"  FIX 6: Whoosh SFX at {len(transition_times)} transitions")
+                logger.info(f"  FIX 6B: Whoosh SFX at {n} transitions (single-input asplit)")
                 concat_raw = whoosh_mixed
             else:
-                logger.warning("  FIX 6: Whoosh mix failed — proceeding without SFX")
+                logger.warning("  FIX 6B: Whoosh mix failed — proceeding without SFX")
 
     # Final encode: nuclear PTS reset + AV sync lock + BUG5 single authoritative loudnorm
     # CRF 15 + minrate 3.5M floor to guarantee ≥3.5Mbps output (was CRF 17 → 2.8Mbps on dark content)
