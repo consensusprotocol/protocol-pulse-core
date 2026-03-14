@@ -150,6 +150,26 @@ def check_assembler():
             f'{const} missing or wrong value — expected {val}')
 
 # ── 7. LIVE TTS SMOKE TEST ────────────────────────────────
+
+def check_branded_assets():
+    """Verify new branded assets exist and are non-empty."""
+    base = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets')
+    required = [
+        ('intro_tag.mp4',        1_000_000),   # min 1MB
+        ('bg_loop.mp4',          10_000_000),  # min 10MB
+        ('outro_branded_new.mp4', 1_000_000),  # min 1MB
+        ('intro_music.mp3',       100_000),    # min 100KB
+        ('logo_protocol_pulse.png', 10_000),   # min 10KB
+    ]
+    for fname, min_size in required:
+        fpath = os.path.join(base, fname)
+        if not os.path.exists(fpath):
+            chk(f'Branded asset missing: {fname}', False)
+        elif os.path.getsize(fpath) < min_size:
+            chk(f'Branded asset too small: {fname} ({os.path.getsize(fpath)}B < {min_size}B)', False)
+        else:
+            chk(f'Branded asset present: {fname}', True)
+
 def check_tts_smoke():
     sec('LIVE TTS SMOKE TEST')
     import urllib.request as ul
@@ -204,6 +224,7 @@ def main():
     check_env()
     check_voices()
     check_assembler()
+    check_branded_assets()
     if not args.no_tts:
         check_tts_smoke()
 
