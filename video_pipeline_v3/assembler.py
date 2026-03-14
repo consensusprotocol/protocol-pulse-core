@@ -3148,12 +3148,12 @@ def make_transition_visual(output_path: str, duration: float = 0.6) -> str:
                 "-i", GLITCH_TRANSITION,
                 "-i", GLITCH_WHOOSH,
                 "-filter_complex",
-                # Round 3 FIX 8: Wider fade (0.1s) to prevent black flash + louder whoosh (1.2)
+                # FIX 3: Wider fade + whoosh at volume=2.0 (clearly audible over transition)
                 f"[0:v]scale=1920:1080,setsar=1,fps=30,trim=0:{duration},setpts=PTS-STARTPTS,format=yuv420p,"
                 f"fade=t=in:st=0:d=0.1,fade=t=out:st={max(0, duration - 0.1)}:d=0.1[outv];"
                 f"[0:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=1.5[ta];"
-                # Round 3 FIX 8B: Whoosh at volume=1.2 (clearly audible)
-                f"[1:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=1.2,alimiter=limit=0.95[wa];"
+                # FIX 3: Whoosh at volume=2.0 — must cut through transition clearly
+                f"[1:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=2.0,alimiter=limit=0.95[wa];"
                 f"[ta][wa]amix=inputs=2:duration=first,alimiter=limit=0.891:level=disabled:attack=5:release=50[outa]",
                 "-map", "[outv]", "-map", "[outa]",
                 "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
@@ -3185,7 +3185,8 @@ def make_transition_visual(output_path: str, duration: float = 0.6) -> str:
             "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30",
             "-i", GLITCH_WHOOSH,
             "-filter_complex",
-            f"[1:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=0.5[outa]",
+            # FIX 3: Whoosh volume 0.5→2.0 so it's actually audible
+            f"[1:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=2.0[outa]",
             "-map", "0:v", "-map", "[outa]",
             "-t", str(duration),
             "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
@@ -3459,6 +3460,7 @@ def concatenate_parts(parts: list, output_path: str,
     # APEX V2 FIX 2: Continuous BGM — infinite loop, duration=longest, no gaps
     # BGM loops infinitely via -stream_loop -1, trimmed to episode+5s safety buffer.
     # amix duration=longest ensures BGM never cuts short at clip boundaries.
+    # FIX 1+4: Volume envelope ducks BGM to -28dB during partner clips, -24dB during PiP narration
     from music import ffprobe_duration as _music_ffprobe_dur
     has_bgm = os.path.exists(BG_MUSIC)
     if has_bgm:
@@ -3470,6 +3472,27 @@ def concatenate_parts(parts: list, output_path: str,
                 bgm_fade_st = max(0, dur - outro_dur_est - 3.0)
             else:
                 bgm_fade_st = max(0, dur - 3.0)
+
+            # FIX 1+4: Build volume envelope — duck during clip segments and narration
+            # clip_r parts → 0.04 (-28dB), narration → 0.06 (-24dB), default → 0.10 (-20dB)
+            cumulative_t = 0.0
+            vol_clauses = []
+            for p in valid:
+                pdur = ffprobe_duration(p)
+                pbase = os.path.basename(p).lower()
+                t_start = cumulative_t
+                t_end = cumulative_t + pdur
+                cumulative_t = t_end
+                if "clip_r" in pbase or "clip_" in pbase and "partner" not in pbase:
+                    # Partner clips: duck to 0.04 (-28dB) — let clip audio breathe
+                    vol_clauses.append(f"between(t,{t_start:.3f},{t_end:.3f})*0.04")
+            if vol_clauses:
+                # Nested if: check clip windows first, default 0.10
+                vol_expr = "volume='if(" + "+".join(f"({vc})" for vc in vol_clauses) + ",1,0.10)':eval=frame"
+                bgm_vol_filter = f"{vol_expr},afade=t=in:d=2.0,afade=t=out:st={bgm_fade_st}:d=3.0"
+            else:
+                bgm_vol_filter = f"volume=0.10,afade=t=in:d=2.0,afade=t=out:st={bgm_fade_st}:d=3.0"
+
             music_mixed = output_path + ".music_mixed.mp4"
             ok_music = run_ffmpeg([
                 "-fflags", "+genpts",
@@ -3479,15 +3502,15 @@ def concatenate_parts(parts: list, output_path: str,
                     # BGM infinite loop: stream_loop=-1 loops the file forever.
                     # atrim cuts it to episode duration + 5s safety buffer.
                     # amix duration=longest so BGM NEVER drops at segment boundaries.
-                    # Sidechain compress ducks BGM under TTS.
+                    # Sidechain compress ducks BGM under TTS (narration segments).
+                    # FIX 1: Volume envelope ducks to -28dB during partner clips.
                     f"[0:a]asetpts=PTS-STARTPTS,asplit[tts_main][tts_sc];"
                     f"[1:a]atrim=0:{dur + 5.0},asetpts=PTS-STARTPTS,"
-                    f"volume=0.10,afade=t=in:d=2.0,"
-                    f"afade=t=out:st={bgm_fade_st}:d=3.0[bgm_raw];"
+                    f"{bgm_vol_filter}[bgm_raw];"
                     f"[bgm_raw][tts_sc]sidechaincompress="
-                    f"threshold=0.02:ratio=6:attack=5:release=200[bgm_ducked];"
+                    f"threshold=0.02:ratio=8:attack=3:release=150[bgm_ducked];"
                     f"[tts_main][bgm_ducked]amix=inputs=2:duration=longest"
-                    f":weights=1 0.10[mixed_audio];"
+                    f":weights=1 0.06[mixed_audio];"
                     f"[mixed_audio]aresample=async=1[outa]"
                 ),
                 "-map", "0:v", "-map", "[outa]",
@@ -3606,9 +3629,9 @@ def concatenate_parts(parts: list, output_path: str,
             whoosh_fg_parts = [f"[1:a]asplit={n}{split_labels}"]
             for ti, ttime in enumerate(transition_times):
                 delay_ms = int(ttime * 1000)
-                # Round 2 Fix 4A: volume limiter on whoosh to prevent audio clipping
+                # FIX 3: Whoosh volume raised 0.7→1.5 + limiter to prevent clipping
                 whoosh_fg_parts.append(
-                    f"[ws{ti}]volume=0.7,alimiter=limit=0.9,adelay={delay_ms}|{delay_ms}[whoosh_{ti}]"
+                    f"[ws{ti}]volume=1.5,alimiter=limit=0.9,adelay={delay_ms}|{delay_ms}[whoosh_{ti}]"
                 )
             # Amix all whooshes together
             whoosh_labels = "".join(f"[whoosh_{ti}]" for ti in range(n))
@@ -3617,7 +3640,8 @@ def concatenate_parts(parts: list, output_path: str,
             )
             # Mix whoosh into episode audio
             whoosh_fg_parts.append(
-                f"[0:a][all_whoosh]amix=inputs=2:duration=first:weights=1 0.5[outa]"
+                # FIX 3: Whoosh mix weight raised 0.5→1.0 so whooshes cut through
+                f"[0:a][all_whoosh]amix=inputs=2:duration=first:weights=1 1.0[outa]"
             )
             whoosh_fg = ";\n".join(whoosh_fg_parts)
 

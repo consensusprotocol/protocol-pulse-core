@@ -189,10 +189,10 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
                 logger.info(f"  AV sync fix applied")
             elif os.path.exists(sync_tmp):
                 os.remove(sync_tmp)
-            # Sync validation gate
+            # Sync validation gate — FIX 2: lowered nuclear threshold 0.15→0.08
             offset = check_av_sync(output_path)
-            if abs(offset) > 0.15:
-                logger.error(f"  CLIP AV offset {offset:+.3f}s after fix — nuclear re-encode")
+            if abs(offset) > 0.08:
+                logger.error(f"  CLIP AV offset {offset:+.3f}s after fix — nuclear re-encode (threshold 0.08s)")
                 nuclear_tmp = output_path + ".nuclear.mp4"
                 if _run_ffmpeg([
                     "-fflags", "+genpts+igndts+discardcorrupt",
@@ -202,7 +202,6 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
                     "-r", "30", "-vsync", "cfr",
                     "-vf", "setpts=PTS-STARTPTS,scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,format=yuv420p",
                     "-c:a", "aac", "-ar", "48000", "-ac", "2",
-                    # Round 2 Fix 8: async resampler to let ffmpeg resync audio to video per-clip
                     "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
                     "-avoid_negative_ts", "make_zero",
                     nuclear_tmp,
@@ -212,20 +211,28 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
                     logger.info(f"  Nuclear re-encode: final offset {final_offset:+.3f}s")
                 elif os.path.exists(nuclear_tmp):
                     os.remove(nuclear_tmp)
-            # Round 3 FIX 6: Lip sync — apply 100ms audio delay to compensate yt-dlp offset
+            # FIX 2: Dynamic offset correction — apply measured offset for ANY drift >20ms
             final_av = check_av_sync(output_path)
-            if final_av < -0.05:  # audio leads video
+            if abs(final_av) > 0.02:
                 lipsync_tmp = output_path + ".lipsync.mp4"
-                delay = min(0.2, abs(final_av))
+                correction = -final_av  # negate to correct
+                # If audio leads video (offset > 0, correction < 0): delay audio
+                # If video leads audio (offset < 0, correction > 0): delay video
+                audio_delay = max(0, correction)
+                video_delay = max(0, -correction)
+                before_offset = final_av
                 if _run_ffmpeg([
+                    "-itsoffset", f"{audio_delay:.4f}",
                     "-i", output_path,
-                    "-itsoffset", str(delay), "-i", output_path,
-                    "-map", "0:v:0", "-map", "1:a:0",
-                    "-c:v", "copy", "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                    "-itsoffset", f"{video_delay:.4f}",
+                    "-i", output_path,
+                    "-map", "1:v:0", "-map", "0:a:0",
+                    "-c:v", "copy", "-c:a", "copy",
                     lipsync_tmp,
-                ], f"lipsync +{delay:.3f}s audio delay", 60) and os.path.exists(lipsync_tmp):
+                ], f"lipsync correction {correction:+.3f}s (was {final_av:+.3f}s)", 60) and os.path.exists(lipsync_tmp):
                     os.replace(lipsync_tmp, output_path)
-                    logger.info(f"  FIX 6: Applied {delay:.3f}s audio delay (was {final_av:+.3f}s)")
+                    after_offset = check_av_sync(output_path)
+                    logger.info(f"  FIX 2: Lipsync corrected {before_offset:+.3f}s → {after_offset:+.3f}s")
                 elif os.path.exists(lipsync_tmp):
                     os.remove(lipsync_tmp)
             dur = ffprobe_duration(output_path)
@@ -286,10 +293,10 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
                 logger.info(f"  AV sync fix applied")
             elif os.path.exists(sync_tmp):
                 os.remove(sync_tmp)
-            # Sync validation gate
+            # Sync validation gate — FIX 2: lowered nuclear threshold 0.15→0.08
             offset = check_av_sync(output_path)
-            if abs(offset) > 0.15:
-                logger.error(f"  CLIP AV offset {offset:+.3f}s after fix — nuclear re-encode")
+            if abs(offset) > 0.08:
+                logger.error(f"  CLIP AV offset {offset:+.3f}s after fix — nuclear re-encode (threshold 0.08s)")
                 nuclear_tmp = output_path + ".nuclear.mp4"
                 if _run_ffmpeg([
                     "-fflags", "+genpts+igndts+discardcorrupt",
@@ -299,7 +306,6 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
                     "-r", "30", "-vsync", "cfr",
                     "-vf", "setpts=PTS-STARTPTS,scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,format=yuv420p",
                     "-c:a", "aac", "-ar", "48000", "-ac", "2",
-                    # Round 2 Fix 8: async resampler to let ffmpeg resync audio to video per-clip
                     "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
                     "-avoid_negative_ts", "make_zero",
                     nuclear_tmp,
@@ -309,6 +315,27 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
                     logger.info(f"  Nuclear re-encode: final offset {final_offset:+.3f}s")
                 elif os.path.exists(nuclear_tmp):
                     os.remove(nuclear_tmp)
+            # FIX 2: Dynamic offset correction for fallback path too
+            fb_offset = check_av_sync(output_path)
+            if abs(fb_offset) > 0.02:
+                lipsync_tmp = output_path + ".lipsync.mp4"
+                correction = -fb_offset
+                audio_delay = max(0, correction)
+                video_delay = max(0, -correction)
+                if _run_ffmpeg([
+                    "-itsoffset", f"{audio_delay:.4f}",
+                    "-i", output_path,
+                    "-itsoffset", f"{video_delay:.4f}",
+                    "-i", output_path,
+                    "-map", "1:v:0", "-map", "0:a:0",
+                    "-c:v", "copy", "-c:a", "copy",
+                    lipsync_tmp,
+                ], f"lipsync correction {correction:+.3f}s (fallback)", 60) and os.path.exists(lipsync_tmp):
+                    os.replace(lipsync_tmp, output_path)
+                    after = check_av_sync(output_path)
+                    logger.info(f"  FIX 2: Fallback lipsync corrected {fb_offset:+.3f}s → {after:+.3f}s")
+                elif os.path.exists(lipsync_tmp):
+                    os.remove(lipsync_tmp)
             dur = ffprobe_duration(output_path)
             logger.info(f"  Trimmed: {dur:.1f}s")
             # Clean up full video
