@@ -342,6 +342,121 @@ def _expand_numbers_basic(text: str) -> str:
 TTS_CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tts_cache")
 
 
+
+# ── Bitcoin Ecosystem Pronunciation Map ────────────────────────────────────
+# ElevenLabs renders these phonetic substitutions naturally.
+# Longer/more specific entries first to avoid partial replacements.
+PRONUNCIATION_MAP = {
+    # Satoshi
+    "Satoshi Nakamoto": "Sah-TOH-shee Nah-kah-MOH-toh",
+    "Satoshi": "Sah-TOH-shee",
+    "Nakamoto": "Nah-kah-MOH-toh",
+    # Saylor
+    "Michael Saylor": "MY-kul SAY-lor",
+    "Saylor": "SAY-lor",
+    # Lyn Alden
+    "Lyn Alden": "Lin AWL-den",
+    # Lummis
+    "Cynthia Lummis": "SIN-thee-ah LUM-iss",
+    "Lummis": "LUM-iss",
+    # Brunell
+    "Natalie Brunell": "NAT-uh-lee broo-NELL",
+    "Brunell": "broo-NELL",
+    # Preston Pysh
+    "Preston Pysh": "PRESS-tun PYE-sh",
+    "Pysh": "PYE-sh",
+    # Max Keiser
+    "Max Keiser": "MAX KY-zer",
+    "Keiser": "KY-zer",
+    # Nayib Bukele
+    "Nayib Bukele": "NYE-eeb boo-KEH-leh",
+    "Bukele": "boo-KEH-leh",
+    # Saifedean Ammous
+    "Saifedean Ammous": "sy-feh-DEAN AH-moos",
+    "Saifedean": "sy-feh-DEAN",
+    "Ammous": "AH-moos",
+    # Robert Breedlove
+    "Robert Breedlove": "ROB-ert BREED-love",
+    "Breedlove": "BREED-love",
+    # Alex Gladstein
+    "Alex Gladstein": "AL-ex GLAD-steen",
+    "Gladstein": "GLAD-steen",
+    # Knut Svanholm
+    "Knut Svanholm": "kuh-NOOT SVAHN-holm",
+    "Svanholm": "SVAHN-holm",
+    # Luke Dashjr
+    "Luke Dashjr": "LUKE DASH-junior",
+    "Dashjr": "DASH-junior",
+    # Andreas Antonopoulos
+    "Andreas Antonopoulos": "ahn-DRAY-us an-TON-oh-POO-lus",
+    "Antonopoulos": "an-TON-oh-POO-lus",
+    "Andreas": "ahn-DRAY-us",
+    # Charlie Shrem
+    "Charlie Shrem": "CHAR-lee SHREM",
+    "Shrem": "SHREM",
+    # Lawrence Lepard
+    "Lawrence Lepard": "LAW-rents leh-PARD",
+    "Larry Lepard": "LAIR-ee leh-PARD",
+    "Lepard": "leh-PARD",
+    # Erik Voorhees
+    "Erik Voorhees": "AIR-ik VOR-hees",
+    "Voorhees": "VOR-hees",
+    # Gabor Gurbacs
+    "Gabor Gurbacs": "GAH-bor GUR-bacs",
+    "Gurbacs": "GUR-bacs",
+    # Gary Gensler
+    "Gary Gensler": "GAIR-ee GENZ-ler",
+    "Gensler": "GENZ-ler",
+    # Jerome Powell
+    "Jerome Powell": "jeh-ROME POW-ul",
+    "Powell": "POW-ul",
+    # CJ Konstantinos
+    "CJ Konstantinos": "see-JAY kon-stan-TEE-nos",
+    "Konstantinos": "kon-stan-TEE-nos",
+    # Bob Iaccino
+    "Bob Iaccino": "BOB ee-ah-CHEE-no",
+    "Iaccino": "ee-ah-CHEE-no",
+    # Alex Stanczyk
+    "Alex Stanczyk": "AL-ex STAN-chik",
+    "Stanczyk": "STAN-chik",
+    # Matt Odell
+    "Matt Odell": "MAT OH-dell",
+    "Odell": "OH-dell",
+    # Marty Bent
+    "Marty Bent": "MAR-tee BENT",
+    # Willy Woo
+    "Willy Woo": "WIL-ee WOO",
+    # Technical terms
+    "EH/s": "exahashes per second",
+    "TH/s": "terahashes per second",
+    "PH/s": "petahashes per second",
+    "UTXO": "you-tee-ex-oh",
+    "HODL": "HOD-ul",
+    "halving": "HAV-ing",
+    "SegWit": "SEG-wit",
+    "Segwit": "SEG-wit",
+    "mempool": "MEM-pool",
+    "multisig": "MUL-tee-sig",
+    "satoshis": "sah-TOH-sheez",
+    "MicroStrategy": "MY-crow-STRAT-uh-jee",
+    "Coinbase": "KOYN-base",
+    "Binance": "BY-nance",
+    "Chainalysis": "CHAIN-uh-LY-sis",
+}
+
+
+def apply_pronunciation_map(text: str) -> str:
+    """Replace names/terms with phonetic versions ElevenLabs renders correctly.
+    Processes longer entries first to avoid partial replacements."""
+    import re
+    # Sort by length descending so longer matches take priority
+    for written, phonetic in sorted(PRONUNCIATION_MAP.items(), key=lambda x: -len(x[0])):
+        # Word-boundary aware replacement (case-insensitive)
+        pattern = re.compile(re.escape(written), re.IGNORECASE)
+        text = pattern.sub(phonetic, text)
+    return text
+
+
 def _trim_trailing_silence(audio_path: str) -> None:
     """Round 2 Fix 2: Trim trailing silence/vowel-stretch from TTS output.
 

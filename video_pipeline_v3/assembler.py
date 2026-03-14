@@ -695,10 +695,10 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                     f"[0:v]{vf},"
                     f"fade=t=out:st={max(0, vid_dur - 0.5)}:d=0.5[outv];"
                     # Audio: duck intro music to 30%, delay TTS by 0.5s
-                    f"[0:a]volume=0.30,afade=t=out:st={max(0, vid_dur - 1.0)}:d=1.0[intro_mus];"
+                    f"[0:a]volume=0.30,afade=t=out:st=3.0:d=3.0[intro_mus];"
                     f"[1:a]adelay=500|500,aformat=channel_layouts=stereo[tts_delayed];"
                     f"[intro_mus][tts_delayed]amix=inputs=2:duration=longest:weights=1 1,"
-                    f"alimiter=limit=0.891:level=disabled:attack=5:release=50,"
+                    f"alimiter=limit=0.85:level=disabled:attack=5:release=50,"
                     f"aresample=async=1[outa]"
                 ),
                 "-map", "[outv]", "-map", "[outa]",
@@ -718,7 +718,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                     f"[0:v]{vf},"
                     f"fade=t=out:st={max(0, vid_dur - 0.5)}:d=0.5[outv];"
                     f"[1:a]adelay=500|500,aformat=channel_layouts=stereo,"
-                    f"alimiter=limit=0.891:level=disabled:attack=5:release=50,"
+                    f"alimiter=limit=0.85:level=disabled:attack=5:release=50,"
                     f"aresample=async=1[outa]"
                 ),
                 "-map", "[outv]", "-map", "[outa]",
@@ -746,7 +746,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
            f"fade=t=in:st=0:d=0.5,fade=t=out:st={max(0, total_dur - 0.5)}:d=0.5"
            f"[outv];\n")
     fg += (f"[0:a]adelay=500|500,aformat=channel_layouts=stereo,"
-           f"alimiter=limit=0.891:level=disabled:attack=5:release=50,aresample=async=1[outa]")
+           f"alimiter=limit=0.85:level=disabled:attack=5:release=50,aresample=async=1[outa]")
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -1228,7 +1228,7 @@ def _bv2_encode(inputs, fg, output_path, total_dur, label="bv2 scene",
     pre-split audio via asplit should pass their output pad here.
     """
     fg += (f"{audio_pad}aformat=channel_layouts=stereo,"
-           f"alimiter=limit=0.891:level=disabled:attack=5:release=50,aresample=async=1[outa]")
+           f"alimiter=limit=0.85:level=disabled:attack=5:release=50,aresample=async=1[outa]")
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -2462,7 +2462,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
         fg += f"[v_final]format=yuv420p[outv];\n"
 
     # Audio: TTS only — APEX V2: music mixed continuously in concatenate_parts()
-    fg += (f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,alimiter=limit=0.891:level=disabled:attack=5:release=50[outa]")
+    fg += (f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,alimiter=limit=0.85:level=disabled:attack=5:release=50[outa]")
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -2680,7 +2680,7 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
     fg += f"[{last_v}]format=yuv420p[outv];\n"
 
     # FIX 4: explicit stereo format before loudnorm/aresample to prevent channel layout error
-    fg += f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,alimiter=limit=0.891:level=disabled:attack=5:release=50[outa]"
+    fg += f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,alimiter=limit=0.85:level=disabled:attack=5:release=50[outa]"
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
@@ -3154,7 +3154,7 @@ def make_transition_visual(output_path: str, duration: float = 0.6) -> str:
                 f"[0:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=1.5[ta];"
                 # FIX 3: Whoosh at volume=2.0 — must cut through transition clearly
                 f"[1:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=2.0,alimiter=limit=0.95[wa];"
-                f"[ta][wa]amix=inputs=2:duration=first,alimiter=limit=0.891:level=disabled:attack=5:release=50[outa]",
+                f"[ta][wa]amix=inputs=2:duration=first,alimiter=limit=0.85:level=disabled:attack=5:release=50[outa]",
                 "-map", "[outv]", "-map", "[outa]",
                 "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
                 "-r", "30", "-pix_fmt", "yuv420p",
@@ -3672,7 +3672,7 @@ def concatenate_parts(parts: list, output_path: str,
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
          # BUG5 FIX: Single authoritative loudnorm at end (removed from all intermediate steps)
          # FIX 4: adelay=65ms to compensate video PTS 0.066 vs DTS -0.000651 offset (audio leads video)
-         "-af", "adelay=65|65,asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.1:first_pts=0,loudnorm=I=-14:TP=-2.0:LRA=7:linear=true,alimiter=level_in=1:level_out=0.891:limit=0.891:attack=5:release=50",
+         "-af", "asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.1:first_pts=0,loudnorm=I=-14:TP=-2.0:LRA=7:linear=true,alimiter=level_in=1:level_out=0.85:limit=0.85:attack=5:release=50",
          "-avoid_negative_ts", "make_zero",
          "-max_interleave_delta", "0",
          "-movflags", "+faststart",

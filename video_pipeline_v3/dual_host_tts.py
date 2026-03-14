@@ -30,7 +30,7 @@ import json
 import subprocess
 import time
 try:
-    from tts_engine import expand_numbers_for_tts
+    from tts_engine import expand_numbers_for_tts, apply_pronunciation_map
 except ImportError:
     def expand_numbers_for_tts(t): return t
 
@@ -172,7 +172,8 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1) -> bool:
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice['voice_id']}"
     headers = {"xi-api-key": key, "Content-Type": "application/json"}
 
-    text = expand_numbers_for_tts(text)  # Fix 3: number babble prevention
+    text = expand_numbers_for_tts(text)
+    text = apply_pronunciation_map(text)  # Fix 3: number babble prevention
     chunks = _chunk_text(text)
     chunk_files = []
 
