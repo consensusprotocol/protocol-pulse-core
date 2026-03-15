@@ -162,7 +162,7 @@ def _mp3_to_m4a(mp3_path: str, m4a_path: str) -> bool:
     return r.returncode == 0 and os.path.exists(m4a_path)
 
 
-def trim_to_sentence(text: str, max_chars: int = 500) -> str:
+def trim_to_sentence(text: str, max_chars: int = 400) -> str:
     """Trim text at the last sentence boundary before max_chars."""
     if len(text) <= max_chars:
         return text

@@ -95,7 +95,7 @@ NARRATION PHILOSOPHY — Simon Dixon / Preston Pysh standard:
 - Bridges between clips must connect thematic dots — not just "next up"
 - DATA segment minimum: 4 exchanges, each with a specific metric, each with an implication
 
-EPISODE LENGTH LAW: Target exactly 400-450 narration words TOTAL across all dialogue entries (excluding clip durations). This gives ~145s of narration. With 5 clips at avg 30s each (150s), total episode = ~295s under 10 min. NEVER write more than 450 narration words total. Count your words. Sharp means efficient — every sentence must earn its place. NO padding. NO repetition.
+EPISODE LENGTH LAW: Target exactly 320-380 narration words TOTAL across all dialogue entries (excluding clip durations). This gives ~120s of narration. With 5 clips at avg 30s each (150s), total episode = ~270s under 10 min. NEVER write more than 380 narration words total. Count your words. Sharp means efficient — every sentence must earn its place. NO padding. NO repetition.
 
 SEGMENT TAGGING (MANDATORY — controls Eryn's voice dynamics):
 Every dialogue text line MUST start with a segment type tag in brackets. The TTS engine reads this tag to adjust vocal delivery. If missing, the voice defaults to CLEAR which is safe but loses dramatic range.

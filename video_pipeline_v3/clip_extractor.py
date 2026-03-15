@@ -192,6 +192,7 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
                 "-c:a", "aac", "-ar", "48000",
                 "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
                 "-avoid_negative_ts", "make_zero", "-max_interleave_delta", "0",
+                "-output_ts_offset", "0",
                 resync_tmp,
             ], f"hard PTS resync {video_id}", 300)
             if resync_ok and os.path.exists(resync_tmp):
@@ -245,9 +246,12 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
                     "-itsoffset", f"{video_delay:.4f}",
                     "-i", output_path,
                     "-map", "1:v:0", "-map", "0:a:0",
-                    "-c:v", "copy", "-c:a", "copy",
+                    "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+                    "-vf", "setpts=PTS-STARTPTS",
+                    "-c:a", "aac", "-ar", "48000",
+                    "-af", "asetpts=PTS-STARTPTS",
                     lipsync_tmp,
-                ], f"lipsync correction {correction:+.3f}s (was {final_av:+.3f}s)", 60) and os.path.exists(lipsync_tmp):
+                ], f"lipsync correction {correction:+.3f}s (was {final_av:+.3f}s)", 120) and os.path.exists(lipsync_tmp):
                     os.replace(lipsync_tmp, output_path)
                     after_offset = check_av_sync(output_path)
                     logger.info(f"  FIX 2: Lipsync corrected {before_offset:+.3f}s → {after_offset:+.3f}s")
@@ -313,6 +317,7 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
                 "-c:a", "aac", "-ar", "48000",
                 "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
                 "-avoid_negative_ts", "make_zero", "-max_interleave_delta", "0",
+                "-output_ts_offset", "0",
                 resync_tmp,
             ], f"hard PTS resync fallback {video_id}", 300)
             if resync_ok and os.path.exists(resync_tmp):
@@ -363,9 +368,12 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
                     "-itsoffset", f"{video_delay:.4f}",
                     "-i", output_path,
                     "-map", "1:v:0", "-map", "0:a:0",
-                    "-c:v", "copy", "-c:a", "copy",
+                    "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+                    "-vf", "setpts=PTS-STARTPTS",
+                    "-c:a", "aac", "-ar", "48000",
+                    "-af", "asetpts=PTS-STARTPTS",
                     lipsync_tmp,
-                ], f"lipsync correction {correction:+.3f}s (fallback)", 60) and os.path.exists(lipsync_tmp):
+                ], f"lipsync correction {correction:+.3f}s (fallback)", 120) and os.path.exists(lipsync_tmp):
                     os.replace(lipsync_tmp, output_path)
                     after = check_av_sync(output_path)
                     logger.info(f"  FIX 2: Fallback lipsync corrected {fb_offset:+.3f}s → {after:+.3f}s")

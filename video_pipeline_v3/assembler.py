@@ -2621,7 +2621,7 @@ def _sanitize_text(text: str) -> str:
                 .replace("\n", " ").replace("%", "pct"))
 
 
-def trim_to_sentence(text: str, max_chars: int = 500) -> str:
+def trim_to_sentence(text: str, max_chars: int = 400) -> str:
     """Trim text at the last sentence boundary before max_chars."""
     if len(text) <= max_chars:
         return text
@@ -3762,9 +3762,9 @@ def concatenate_parts(parts: list, output_path: str,
                 "-i", concat_raw,
                 "-stream_loop", "-1", "-i", INTRO_MUSIC_FILE,
                 "-filter_complex",
-                (f"[1:a]volume=0.126,atrim=0:{intro_music_duration},"
+                (f"[1:a]volume=0.40,atrim=0:4.0,"
                  f"asetpts=PTS-STARTPTS,"
-                 f"afade=t=out:st={im_fade_start}:d=3.0,aresample=48000[im];"
+                 f"afade=t=out:st=2.5:d=1.5,aresample=48000[im];"
                  f"[0:a][im]amix=inputs=2:duration=first:weights=1 1[outa]"),
                 "-map", "0:v", "-map", "[outa]",
                 "-c:v", "copy",
