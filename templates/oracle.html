@@ -209,6 +209,97 @@ body.oracle-page-body .pp-ticker { display:none!important; }
 }
 .oracle-vision-speak-btn:hover { background:rgba(220,38,38,.3); }
 
+/* ── Mic Gate Screen ── */
+.oracle-gate {
+  position:fixed; inset:0; z-index:10000;
+  background:#06070b;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:28px; transition:opacity .5s;
+}
+.oracle-gate.hidden { opacity:0; pointer-events:none; }
+.oracle-gate-avatar {
+  width:220px; height:220px; border-radius:50%;
+  border:2px solid rgba(255,59,95,.35);
+  object-fit:cover;
+  box-shadow:0 0 60px rgba(255,59,95,.15);
+}
+.oracle-gate-title {
+  font-size:.62rem; letter-spacing:5px; color:rgba(229,229,229,.35); text-transform:uppercase;
+}
+.oracle-gate-btn {
+  appearance:none; border:none; border-radius:50px;
+  background:linear-gradient(135deg,#ff3b5f,#dc2626);
+  color:#fff; font-family:'Inter',sans-serif; font-weight:700; font-size:28px;
+  padding:22px 48px; cursor:pointer;
+  box-shadow:0 0 40px rgba(255,59,95,.25);
+  animation:gate-pulse 2.5s ease-in-out infinite;
+  transition:transform .2s;
+}
+.oracle-gate-btn:hover { transform:scale(1.04); }
+@keyframes gate-pulse {
+  0%,100%{box-shadow:0 0 40px rgba(255,59,95,.25)} 50%{box-shadow:0 0 70px rgba(255,59,95,.45)}
+}
+.oracle-gate-error {
+  font-size:.78rem; color:#ff8080; max-width:360px; text-align:center; line-height:1.5;
+  display:none;
+}
+
+/* ── Mic Button (hold-to-record) ── */
+.oracle-mic-wrap { display:flex; align-items:center; gap:12px; }
+.oracle-mic-btn {
+  width:52px; height:52px; border-radius:50%; border:2px solid rgba(220,38,38,.5);
+  background:rgba(220,38,38,.12); cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:background .2s, border-color .2s, box-shadow .2s;
+  flex-shrink:0;
+}
+.oracle-mic-btn:hover { background:rgba(220,38,38,.2); }
+.oracle-mic-btn.recording { background:rgba(220,38,38,.4); border-color:#dc2626; box-shadow:0 0 20px rgba(220,38,38,.4); }
+.oracle-mic-btn svg { width:22px; height:22px; fill:#e5e5e5; }
+.oracle-mic-label {
+  font-size:.58rem; letter-spacing:2px; color:rgba(229,229,229,.35); text-transform:uppercase;
+}
+.oracle-live-transcript {
+  position:relative; z-index:10; width:100%; max-width:900px;
+  margin:0 auto 10px; padding:8px 14px;
+  background:rgba(100,200,255,.06); border-left:2px solid rgba(100,200,255,.4);
+  border-radius:0 3px 3px 0; font-size:.75rem; color:rgba(100,200,255,.7);
+  display:none; animation:fade-in .3s ease;
+}
+.oracle-live-transcript.visible { display:block; }
+
+/* ── Sovereignty Pillar Cards ── */
+.oracle-pillars {
+  position:relative; z-index:10; width:100%; max-width:900px;
+  display:none; grid-template-columns:repeat(4,1fr); gap:12px;
+  margin:0 auto 20px;
+}
+.oracle-pillars.visible { display:grid; }
+.oracle-pillar-card {
+  background:rgba(18,18,18,.85); border:1px solid rgba(248,193,92,.2); border-radius:8px;
+  padding:16px 14px; text-align:center; cursor:pointer;
+  transition:border-color .2s, background .2s;
+}
+.oracle-pillar-card:hover { border-color:rgba(248,193,92,.55); background:rgba(248,193,92,.06); }
+.oracle-pillar-icon { font-size:1.8rem; margin-bottom:6px; display:block; }
+.oracle-pillar-name { font-size:.62rem; letter-spacing:2px; color:rgba(229,229,229,.7); text-transform:uppercase; }
+.oracle-pillar-link {
+  display:block; margin-top:6px; font-size:.5rem; letter-spacing:1px;
+  color:rgba(220,38,38,.6); text-decoration:none; transition:color .2s;
+}
+.oracle-pillar-link:hover { color:#dc2626; }
+@media (max-width:600px) {
+  .oracle-pillars { grid-template-columns:repeat(2,1fr); }
+}
+
+/* ── Thinking Pulse ── */
+.oracle-thinking-pulse {
+  display:none; position:relative; z-index:10; width:100%; max-width:900px;
+  margin:0 auto 12px; text-align:center;
+  font-size:.62rem; letter-spacing:3px; color:rgba(220,38,38,.65); text-transform:uppercase;
+  animation:signal-pulse .8s ease-in-out infinite alternate;
+}
+.oracle-thinking-pulse.visible { display:block; }
+
 /* Suggested Questions */
 .oracle-suggestions {
   position:relative; z-index:10; width:100%; max-width:900px;
@@ -234,11 +325,19 @@ body.oracle-page-body .pp-ticker { display:none!important; }
 {% block content %}
 <script>document.body.classList.add('oracle-page-body');</script>
 
+<!-- MIC GATE SCREEN -->
+<div class="oracle-gate" id="oracle-gate">
+  <img class="oracle-gate-avatar" src="/static/images/Proto_P_Avatar_1024.png" alt="Oracle Avatar">
+  <div class="oracle-gate-title">PROTOCOL PULSE</div>
+  <button class="oracle-gate-btn" id="oracle-gate-btn" type="button">TALK TO THE ORACLE</button>
+  <div class="oracle-gate-error" id="oracle-gate-error">Enable your mic in browser settings, then reload.</div>
+</div>
+
 <div class="oracle-bg-stream" aria-hidden="true">
   <div class="oracle-bg-stream-inner" id="oracle-stream-wrap"></div>
 </div>
 
-<div class="oracle-sanctuary" id="oracle-sanctuary" data-state="idle">
+<div class="oracle-sanctuary" id="oracle-sanctuary" data-state="idle" style="display:none">
 
   <header class="oracle-header" role="banner">
     <div class="oracle-header-left">
@@ -295,6 +394,35 @@ body.oracle-page-body .pp-ticker { display:none!important; }
     <div id="oracle-transcript-text"></div>
   </div>
 
+  <div class="oracle-thinking-pulse" id="oracle-thinking-pulse">Oracle is thinking...</div>
+
+  <div class="oracle-live-transcript" id="oracle-live-transcript">
+    <span id="oracle-live-transcript-text"></span>
+  </div>
+
+  <div class="oracle-pillars" id="oracle-pillars">
+    <div class="oracle-pillar-card" data-intent="SOVEREIGNTY_COLD_WALLET">
+      <span class="oracle-pillar-icon">&#128274;</span>
+      <div class="oracle-pillar-name">Self-Custody</div>
+      <a class="oracle-pillar-link" href="https://coldcard.com" target="_blank" rel="noopener">coldcard.com</a>
+    </div>
+    <div class="oracle-pillar-card" data-intent="SOVEREIGNTY_NODE">
+      <span class="oracle-pillar-icon">&#128421;</span>
+      <div class="oracle-pillar-name">Run a Node</div>
+      <a class="oracle-pillar-link" href="https://getumbrel.com" target="_blank" rel="noopener">getumbrel.com</a>
+    </div>
+    <div class="oracle-pillar-card" data-intent="SOVEREIGNTY_BITAXE">
+      <span class="oracle-pillar-icon">&#9874;</span>
+      <div class="oracle-pillar-name">Solo Mining</div>
+      <a class="oracle-pillar-link" href="https://curatedmining.com" target="_blank" rel="noopener">curatedmining.com</a>
+    </div>
+    <div class="oracle-pillar-card" data-intent="SOVEREIGNTY_LIFE_INSURANCE">
+      <span class="oracle-pillar-icon">&#128737;</span>
+      <div class="oracle-pillar-name">Bitcoin Insurance</div>
+      <a class="oracle-pillar-link" href="https://application.meanwhile.bm/start?referralCode=KKM73K" target="_blank" rel="noopener">meanwhile.bm</a>
+    </div>
+  </div>
+
   <div class="oracle-vision-panel" id="oracle-vision-panel" aria-live="polite">
     <div class="oracle-vision-label">&#9670; Hardware Guide</div>
     <div class="oracle-vision-alert" id="oracle-vision-alert"></div>
@@ -322,12 +450,18 @@ body.oracle-page-body .pp-ticker { display:none!important; }
 
 </div>
 
-<nav class="oracle-input-bar" aria-label="Ask The Oracle">
+<nav class="oracle-input-bar" aria-label="Ask The Oracle" style="display:none">
   <div class="oracle-input-inner">
     <label for="oracle-question" class="visually-hidden">Your question for The Oracle</label>
     <input type="text" class="oracle-input" id="oracle-question"
            placeholder="What does the protocol signal today?"
            maxlength="500" autocomplete="off" autocorrect="off" spellcheck="false">
+    <div class="oracle-mic-wrap">
+      <button class="oracle-mic-btn" id="oracle-mic-btn" type="button" title="Hold to record">
+        <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+      </button>
+      <span class="oracle-mic-label" id="oracle-mic-label">HOLD TO SPEAK</span>
+    </div>
     <button class="oracle-ask-btn" id="oracle-ask-btn" type="button">ASK ORACLE &#9654;</button>
     <button class="oracle-vision-btn" id="oracle-vision-btn" type="button" title="Show your Bitcoin hardware for guided setup">&#128247; DEVICE</button>
     <input type="file" id="oracle-vision-file" accept="image/*" capture="environment" style="display:none">
@@ -337,10 +471,14 @@ body.oracle-page-body .pp-ticker { display:none!important; }
 <script>
 (function(){
 'use strict';
+var ORACLE_API='http://localhost:8200';
 var ORACLE_IMG='/static/images/Proto_P_Avatar_1024.png';
 var ASK_URL='/api/oracle/ask';
 var RECENT_URL='/api/oracle/recent';
 
+var gate=document.getElementById('oracle-gate');
+var gateBtn=document.getElementById('oracle-gate-btn');
+var gateError=document.getElementById('oracle-gate-error');
 var sanctuary=document.getElementById('oracle-sanctuary');
 var statusEl=document.getElementById('oracle-status');
 var video=document.getElementById('oracle-video');
@@ -353,15 +491,175 @@ var inp=document.getElementById('oracle-question');
 var askBtn=document.getElementById('oracle-ask-btn');
 var errorMsgEl=document.getElementById('oracle-error-msg');
 var retryBtn=document.getElementById('oracle-retry-btn');
+var micBtn=document.getElementById('oracle-mic-btn');
+var micLabel=document.getElementById('oracle-mic-label');
+var thinkingPulse=document.getElementById('oracle-thinking-pulse');
+var liveTranscript=document.getElementById('oracle-live-transcript');
+var liveTranscriptText=document.getElementById('oracle-live-transcript-text');
+var pillarsPanel=document.getElementById('oracle-pillars');
+var inputBar=document.querySelector('.oracle-input-bar');
 
 var isGenerating=false;
 var lastQuestion='';
+var micStream=null;
+var mediaRecorder=null;
+var recognition=null;
+
+// ── Gate: mic approval ──
+gateBtn.addEventListener('click',function(){
+  navigator.mediaDevices.getUserMedia({audio:true})
+  .then(function(stream){
+    micStream=stream;
+    gate.classList.add('hidden');
+    sanctuary.style.display='';
+    inputBar.style.display='';
+    setTimeout(function(){gate.style.display='none';},600);
+    // Autoplay GREETING
+    playOracleResponse('GREETING');
+    setupMic(stream);
+    loadRecent();
+    loadInfoBar();
+    setInterval(loadInfoBar,60000);
+  })
+  .catch(function(){
+    gateError.style.display='block';
+  });
+});
+
+function setupMic(stream){
+  // Web Speech API for live transcript
+  var SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(SpeechRecognition){
+    recognition=new SpeechRecognition();
+    recognition.continuous=false;
+    recognition.interimResults=true;
+    recognition.lang='en-US';
+  }
+}
+
+// ── Hold-to-record mic button ──
+var micChunks=[];
+micBtn.addEventListener('mousedown',startRecording);
+micBtn.addEventListener('touchstart',function(e){e.preventDefault();startRecording();});
+micBtn.addEventListener('mouseup',stopRecording);
+micBtn.addEventListener('mouseleave',stopRecording);
+micBtn.addEventListener('touchend',stopRecording);
+
+function startRecording(){
+  if(isGenerating||!micStream)return;
+  micBtn.classList.add('recording');
+  micLabel.textContent='LISTENING...';
+  micChunks=[];
+  try{
+    mediaRecorder=new MediaRecorder(micStream,{mimeType:'audio/webm'});
+  }catch(e){
+    mediaRecorder=new MediaRecorder(micStream);
+  }
+  mediaRecorder.ondataavailable=function(e){if(e.data.size>0)micChunks.push(e.data);};
+  mediaRecorder.onstop=function(){processMicInput();};
+  mediaRecorder.start();
+  // Start speech recognition for live transcript
+  if(recognition){
+    liveTranscript.classList.add('visible');
+    liveTranscriptText.textContent='';
+    recognition.onresult=function(e){
+      var text='';
+      for(var i=0;i<e.results.length;i++){text+=e.results[i][0].transcript;}
+      liveTranscriptText.textContent=text;
+    };
+    try{recognition.start();}catch(_){}
+  }
+}
+
+function stopRecording(){
+  if(!mediaRecorder||mediaRecorder.state!=='recording')return;
+  micBtn.classList.remove('recording');
+  micLabel.textContent='HOLD TO SPEAK';
+  mediaRecorder.stop();
+  if(recognition){try{recognition.stop();}catch(_){}}
+}
+
+function processMicInput(){
+  var transcript=(liveTranscriptText?liveTranscriptText.textContent:'').trim();
+  liveTranscript.classList.remove('visible');
+  if(!transcript||transcript.length<2){
+    // No speech recognized — try from text input
+    var q=inp.value.trim();
+    if(q)askOracleViaIntent(q);
+    return;
+  }
+  askOracleViaIntent(transcript);
+}
+
+// ── Intent-based Oracle interaction ──
+function askOracleViaIntent(text){
+  if(isGenerating)return;
+  isGenerating=true;
+  thinkingPulse.classList.add('visible');
+  setState('generating');
+
+  fetch(ORACLE_API+'/oracle/intent',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({transcript:text})
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    var intent=data.intent||'UNKNOWN';
+    var confidence=data.confidence||0;
+
+    // Show sovereignty pillars after assessment
+    if(intent==='SOVEREIGNTY_INTRO'||intent==='SOVEREIGNTY_ASSESSMENT'){
+      pillarsPanel.classList.add('visible');
+    }
+
+    if(data.cached&&confidence>0.5){
+      return playOracleResponse(intent);
+    } else if(intent==='DAILY_BRIEF'){
+      return playOracleResponse('DAILY_BRIEF');
+    } else if(confidence>0.5&&intent!=='UNKNOWN'){
+      return playOracleResponse(intent);
+    } else {
+      // Fallback to existing /api/oracle/ask
+      return askOracleClassic(text);
+    }
+  })
+  .catch(function(err){
+    console.error('[Oracle intent]',err);
+    // Fallback to classic
+    askOracleClassic(text);
+  });
+}
+
+function playOracleResponse(intent){
+  setState('generating');
+  thinkingPulse.classList.add('visible');
+  fetch(ORACLE_API+'/oracle/speak',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({intent:intent})
+  })
+  .then(function(resp){
+    if(!resp.ok)throw new Error('Oracle speak failed: '+resp.status);
+    return resp.blob();
+  })
+  .then(function(blob){
+    thinkingPulse.classList.remove('visible');
+    var url=URL.createObjectURL(blob);
+    playVideo(url);
+    isGenerating=false;
+  })
+  .catch(function(err){
+    console.error('[Oracle speak]',err);
+    thinkingPulse.classList.remove('visible');
+    setState('idle');
+    isGenerating=false;
+  });
+}
 
 function setState(state){
   sanctuary.dataset.state=state;
   var active=(state==='playing'||state==='generating');
   statusEl.className='oracle-status'+(active?' active':'');
-  if(state==='idle'){statusEl.textContent='AWAITING QUERY';askBtn.disabled=false;inp.disabled=false;}
+  if(state==='idle'){statusEl.textContent='AWAITING QUERY';askBtn.disabled=false;inp.disabled=false;thinkingPulse.classList.remove('visible');}
   else if(state==='generating'){statusEl.textContent='GENERATING...';askBtn.disabled=true;inp.disabled=false;}
   else if(state==='playing'){statusEl.textContent='\u25CF BROADCASTING';askBtn.disabled=false;inp.disabled=false;}
   else if(state==='error'){statusEl.textContent='SIGNAL LOST';askBtn.disabled=false;inp.disabled=false;}
@@ -420,12 +718,11 @@ function addSession(s,prepend){
   }else{recentList.appendChild(item);}
 }
 
-function askOracle(question){
-  if(isGenerating)return;
+function askOracleClassic(question){
   question=question.trim();
-  if(!question||question.length<3){inp.focus();return;}
+  if(!question||question.length<3){inp.focus();isGenerating=false;return;}
   if(question.length>500){question=question.slice(0,500);}
-  isGenerating=true; lastQuestion=question; inp.value=''; setState('generating');
+  lastQuestion=question; inp.value=''; setState('generating');
   transcriptEl.classList.remove('visible');
   fetch(ASK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:question})})
   .then(function(resp){
@@ -444,11 +741,27 @@ function askOracle(question){
     setState('error');
     setTimeout(function(){if(sanctuary.dataset.state==='error'){setState('idle');}},4000);
   })
-  .finally(function(){isGenerating=false;});
+  .finally(function(){isGenerating=false;thinkingPulse.classList.remove('visible');});
 }
 
-askBtn.addEventListener('click',function(){var q=inp.value.trim();if(!q)return;if(isGenerating){var old=askBtn.textContent;askBtn.textContent='GENERATING...';setTimeout(function(){askBtn.textContent=old;},1500);return;}askOracle(q);});
-inp.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();var q=this.value.trim();if(q)askOracle(q);}});
+// Text input: route through intent system
+askBtn.addEventListener('click',function(){
+  var q=inp.value.trim();if(!q)return;
+  if(isGenerating){var old=askBtn.textContent;askBtn.textContent='GENERATING...';setTimeout(function(){askBtn.textContent=old;},1500);return;}
+  askOracleViaIntent(q);
+});
+inp.addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();var q=this.value.trim();if(q)askOracleViaIntent(q);}
+});
+
+// Sovereignty pillar cards
+document.querySelectorAll('.oracle-pillar-card').forEach(function(card){
+  card.addEventListener('click',function(e){
+    if(e.target.tagName==='A')return; // let affiliate links work
+    var intent=this.dataset.intent;
+    if(intent&&!isGenerating) playOracleResponse(intent);
+  });
+});
 
 function loadRecent(){
   fetch(RECENT_URL).then(function(r){return r.ok?r.json():[];})
@@ -464,12 +777,12 @@ function buildStream(){
 var wrap=document.getElementById('oracle-stream-wrap');
 if(wrap){var c1=buildStream();var c2=buildStream();for(var ci=0;ci<4;ci++){var d=document.createElement('div');d.className='oracle-bg-col';d.textContent=ci<2?c1:c2;wrap.appendChild(d);}}
 
-// Suggested question pills
+// Suggested question pills — route through intent
 document.querySelectorAll('.oracle-pill').forEach(function(pill){
   pill.addEventListener('click',function(){
     if(isGenerating)return;
     inp.value=this.textContent;
-    askOracle(this.textContent);
+    askOracleViaIntent(this.textContent);
   });
 });
 
@@ -492,8 +805,6 @@ function loadInfoBar(){
     if(val) fgEl.textContent=val+(label?' ('+label+')':'');
   }).catch(function(){});
 }
-loadInfoBar();
-setInterval(loadInfoBar,60000);
 
 // Vision Guide — hardware image analysis
 var visionBtn=document.getElementById('oracle-vision-btn');
@@ -544,12 +855,10 @@ visionFile.addEventListener('change',function(){
 
 visionSpeak.addEventListener('click',function(){
   if(!lastGuidanceText||isGenerating)return;
-  askOracle(lastGuidanceText);
+  askOracleViaIntent(lastGuidanceText);
 });
 
-setState('idle');
-loadRecent();
-inp.focus();
+// Don't auto-init — gate handles it
 }());
 </script>
 {% endblock %}

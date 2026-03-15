@@ -33,6 +33,7 @@ from flask import Flask, request, jsonify, send_file, after_this_request
 from model_registry import ModelRegistry, WAV2LIP_DIR, AVATAR_SOURCE, DEVICE
 
 import requests as http_requests  # ElevenLabs TTS
+import json as _json
 
 # Face enhancement + blink modules
 from face_enhancer import sharpen_mouth_region
@@ -40,7 +41,9 @@ from blink_engine import apply_blink_gradient, generate_blink_schedule
 
 # ─── Config ───────────────────────────────────────────────────────────
 PORT = 8200
-BATCH_SIZE = 48  # Proven stable at 134fps — 64 caused VRAM pressure on GPU 1
+BATCH_SIZE_DEFAULT = 48  # Proven stable at 134fps — 64 caused VRAM pressure on GPU 1
+BATCH_SIZE_SMALL = 16    # For short audio < 60 mel frames
+BATCH_SIZE = BATCH_SIZE_DEFAULT
 DEFAULT_FPS = 30.0  # Upgraded from 25fps — smoother motion
 
 # Post-processing config
@@ -80,6 +83,9 @@ def _record_latency(seconds):
 # WAV2LIP INFERENCE (FP16)
 # ═══════════════════════════════════════════════════════════════════════
 
+FACE_BBOX_CACHE = os.path.join(os.path.dirname(__file__), "cache", "face_bbox.json")
+
+
 def wav2lip_generate(audio_path, fps=30.0):
     """Run Wav2Lip inference in FP16. Returns list of BGR frames with duration matching."""
     reg = ModelRegistry.get()
@@ -116,9 +122,21 @@ def wav2lip_generate(audio_path, fps=30.0):
             chunk = mel[:, start_col:end_col]
         mel_chunks.append(chunk)
 
-    logger.info(f"Mel: {mel.shape[1]} cols, {num_frames} frames @ {fps}fps, audio {audio_duration:.2f}s")
+    # Adaptive batch size: smaller for short audio
+    batch_size = BATCH_SIZE_SMALL if len(mel_chunks) < 60 else BATCH_SIZE_DEFAULT
 
+    logger.info(f"Mel: {mel.shape[1]} cols, {num_frames} frames @ {fps}fps, audio {audio_duration:.2f}s, batch={batch_size}")
+
+    # Face bbox caching: skip detection if cached
     y1, y2, x1, x2 = reg.avatar_face_coords
+    try:
+        os.makedirs(os.path.dirname(FACE_BBOX_CACHE), exist_ok=True)
+        if not os.path.exists(FACE_BBOX_CACHE):
+            with open(FACE_BBOX_CACHE, "w") as f:
+                _json.dump({"y1": y1, "y2": y2, "x1": x1, "x2": x2}, f)
+            logger.info(f"Face bbox cached: {[y1, y2, x1, x2]}")
+    except Exception:
+        pass
     face_crop = reg.avatar_face[y1:y2, x1:x2]
     face_resized = cv2.resize(face_crop, (96, 96))
     face_masked = face_resized.copy()
@@ -127,8 +145,8 @@ def wav2lip_generate(audio_path, fps=30.0):
     frames = []
     total_chunks = len(mel_chunks)
 
-    for batch_start in range(0, total_chunks, BATCH_SIZE):
-        batch_end = min(batch_start + BATCH_SIZE, total_chunks)
+    for batch_start in range(0, total_chunks, batch_size):
+        batch_end = min(batch_start + batch_size, total_chunks)
         batch_mels = mel_chunks[batch_start:batch_end]
 
         img_concat = np.concatenate((face_masked, face_resized), axis=2)
@@ -941,6 +959,247 @@ def generate_idle_loop():
 
 
 # ═══════════════════════════════════════════════════════════════════════
+# ORACLE PRE-CACHE + INTELLIGENCE ENDPOINTS
+# ═══════════════════════════════════════════════════════════════════════
+
+import oracle_cache_manager
+import oracle_intelligence_feed
+
+# Intent classification — keyword matching
+INTENT_PATTERNS = {
+    "DAILY_BRIEF": r"brief|today|news|happening|what's|latest",
+    "SOVEREIGNTY_INTRO": r"sovereign|score|free",
+    "SOVEREIGNTY_COLD_WALLET": r"cold.?wallet|hardware|ledger|coldcard|custody",
+    "SOVEREIGNTY_NODE": r"node|umbrel|raspberry|verify",
+    "SOVEREIGNTY_BITAXE": r"bitaxe|mine|mining|solo",
+    "SOVEREIGNTY_LIFE_INSURANCE": r"insurance|meanwhile|estate|death",
+    "SOVEREIGNTY_RESIDENCY": r"residency|palau|rns|passport|citizenship",
+    "GOODBYE": r"bye|goodbye|later|thanks",
+}
+
+
+def classify_intent(transcript):
+    """Classify user transcript to an intent key. Returns (intent, confidence)."""
+    text = transcript.lower().strip()
+    for intent, pattern in INTENT_PATTERNS.items():
+        if re.search(pattern, text):
+            return intent, 0.85
+    return "UNKNOWN", 0.4
+
+
+@app.route("/oracle/cache/status")
+def oracle_cache_status():
+    """Return status of pre-cached responses and daily brief."""
+    cache_status = oracle_cache_manager.get_cache_status()
+    daily_brief = oracle_intelligence_feed.get_daily_brief()
+    return jsonify({
+        "cached_responses": cache_status,
+        "daily_brief_ready": daily_brief is not None,
+        "daily_brief_path": daily_brief,
+        "cache_ttl_s": oracle_cache_manager.CACHE_TTL,
+    })
+
+
+@app.route("/oracle/response/<key>")
+def oracle_response(key):
+    """Serve pre-cached mp4 for a response key."""
+    key = key.upper()
+    if key not in oracle_cache_manager.RESPONSE_TREE and key != "DAILY_BRIEF_LIVE":
+        return jsonify({"error": "Unknown response key", "valid_keys": list(oracle_cache_manager.RESPONSE_TREE.keys())}), 404
+
+    # Daily brief special case
+    if key == "DAILY_BRIEF_LIVE":
+        path = oracle_intelligence_feed.get_daily_brief()
+        if path:
+            return send_file(path, mimetype="video/mp4")
+        return jsonify({"error": "Daily brief not ready yet", "status": "pending"}), 202
+
+    # Check if rendering
+    if oracle_cache_manager.is_rendering(key):
+        return jsonify({"error": "Response is being rendered", "status": "rendering"}), 202
+
+    path = oracle_cache_manager.get_cached_response(key)
+    if path:
+        return send_file(path, mimetype="video/mp4")
+
+    return jsonify({"error": "Response not cached yet", "status": "pending"}), 202
+
+
+@app.route("/oracle/speak", methods=["POST"])
+def oracle_speak():
+    """Serve cached response for an intent, or fallback to /generate."""
+    data = request.get_json()
+    if not data or not data.get("intent"):
+        return jsonify({"error": "intent required"}), 400
+
+    intent = data["intent"].upper()
+
+    # Try daily brief
+    if intent == "DAILY_BRIEF":
+        brief_path = oracle_intelligence_feed.get_daily_brief()
+        if brief_path:
+            return send_file(brief_path, mimetype="video/mp4")
+        # Fallback to intro
+        intent = "DAILY_BRIEF_INTRO"
+
+    # Try cached response
+    path = oracle_cache_manager.get_cached_response(intent)
+    if path:
+        return send_file(path, mimetype="video/mp4")
+
+    # Fallback: generate on the fly using the response tree text
+    text = oracle_cache_manager.RESPONSE_TREE.get(intent)
+    if not text:
+        text = oracle_cache_manager.RESPONSE_TREE["UNKNOWN_QUESTION"]
+
+    # Redirect to /generate with the text
+    return generate_inline(text)
+
+
+def generate_inline(text):
+    """Internal helper: generate a video from text and return it."""
+    try:
+        audio_bytes = text_to_speech(text, ORACLE_VOICE_ID)
+    except Exception as e:
+        return jsonify({"error": f"TTS failed: {e}"}), 500
+
+    ext = ".mp3"
+    with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
+        tmp.write(audio_bytes)
+        audio_path = tmp.name
+
+    wav_path = audio_path + "_16k.wav"
+    os.system(f'ffmpeg -y -loglevel error -i {audio_path} -ar 16000 -ac 1 {wav_path}')
+
+    try:
+        acquired = _lock.acquire(timeout=LOCK_TIMEOUT)
+        if not acquired:
+            return jsonify({"error": "GPU busy", "retry_after": 5}), 503
+        try:
+            frames = wav2lip_generate(wav_path, DEFAULT_FPS)
+            reg = ModelRegistry.get()
+            try:
+                frames = sharpen_mouth_region(frames, reg.avatar_face_coords)
+            except Exception:
+                pass
+            frames = post_process_frames(frames, DEFAULT_FPS, enable_blinks=False, enable_head=True)
+            video_path = frames_to_video(frames, DEFAULT_FPS, audio_path=wav_path)
+        finally:
+            _lock.release()
+
+        if not video_path:
+            return jsonify({"error": "Video encoding failed"}), 500
+
+        cleanup_paths = [audio_path, wav_path, video_path]
+
+        @after_this_request
+        def _cleanup(response):
+            for p in cleanup_paths:
+                try:
+                    if p and os.path.exists(p):
+                        os.unlink(p)
+                except OSError:
+                    pass
+            return response
+
+        return send_file(video_path, mimetype="video/mp4", as_attachment=True, download_name="oracle.mp4")
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        for p in [audio_path, wav_path]:
+            try:
+                if os.path.exists(p):
+                    os.unlink(p)
+            except OSError:
+                pass
+
+
+@app.route("/oracle/intent", methods=["POST"])
+def oracle_intent():
+    """Classify user transcript to an intent."""
+    data = request.get_json()
+    if not data or not data.get("transcript"):
+        return jsonify({"error": "transcript required"}), 400
+
+    intent, confidence = classify_intent(data["transcript"])
+
+    # If low confidence, try Claude Haiku for better classification
+    if confidence < 0.6:
+        try:
+            api_key = _get_anthropic_key()
+            if api_key:
+                resp = http_requests.post(
+                    "https://api.anthropic.com/v1/messages",
+                    headers={
+                        "x-api-key": api_key,
+                        "anthropic-version": "2023-06-01",
+                        "content-type": "application/json",
+                    },
+                    json={
+                        "model": "claude-haiku-4-5-20251001",
+                        "max_tokens": 30,
+                        "messages": [{
+                            "role": "user",
+                            "content": (
+                                f"Classify this user message into ONE intent from this list: "
+                                f"{', '.join(INTENT_PATTERNS.keys())}, GREETING, UNKNOWN. "
+                                f"Reply with ONLY the intent name.\n\nMessage: {data['transcript']}"
+                            ),
+                        }],
+                    },
+                    timeout=10,
+                )
+                if resp.status_code == 200:
+                    ai_intent = resp.json()["content"][0]["text"].strip().upper()
+                    valid = set(INTENT_PATTERNS.keys()) | {"GREETING", "UNKNOWN", "SOVEREIGNTY_ASSESSMENT"}
+                    if ai_intent in valid:
+                        intent = ai_intent
+                        confidence = 0.75
+        except Exception as e:
+            logger.warning(f"Intent AI fallback failed: {e}")
+
+    return jsonify({
+        "intent": intent,
+        "confidence": round(confidence, 2),
+        "cached": oracle_cache_manager.get_cached_response(intent) is not None,
+    })
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# SENTENCE CHUNKING FOR LONG TEXT
+# ═══════════════════════════════════════════════════════════════════════
+
+_chunk_sessions = {}
+_chunk_lock = threading.Lock()
+
+
+@app.route("/oracle/chunks/<session_id>")
+def oracle_chunks(session_id):
+    """Poll for additional chunks from a long-text generation."""
+    session = _chunk_sessions.get(session_id)
+    if not session:
+        return jsonify({"error": "Session not found"}), 404
+
+    return jsonify({
+        "session_id": session_id,
+        "chunks_ready": len(session["paths"]),
+        "total_chunks": session["total"],
+        "complete": session["complete"],
+        "paths": [f"/oracle/chunks/{session_id}/{i}" for i in range(len(session["paths"]))],
+    })
+
+
+@app.route("/oracle/chunks/<session_id>/<int:idx>")
+def oracle_chunk_file(session_id, idx):
+    """Serve a specific chunk file."""
+    session = _chunk_sessions.get(session_id)
+    if not session or idx >= len(session["paths"]):
+        return jsonify({"error": "Chunk not ready"}), 404
+    return send_file(session["paths"][idx], mimetype="video/mp4")
+
+
+# ═══════════════════════════════════════════════════════════════════════
 # MAIN
 # ═══════════════════════════════════════════════════════════════════════
 
@@ -1001,6 +1260,15 @@ if __name__ == "__main__":
 
     # Generate idle loop if not already present
     generate_idle_loop()
+
+    # Phase 2: Start cache warming in background
+    logger.info("[STARTUP] Starting Oracle cache warmer...")
+    threading.Thread(target=oracle_cache_manager.warm_cache, daemon=True).start()
+    oracle_cache_manager.start_background_warmer()
+
+    # Phase 3: Start intelligence feed
+    logger.info("[STARTUP] Starting intelligence feed...")
+    oracle_intelligence_feed.start_intelligence_feed()
 
     logger.info(f"Avatar server v2 ready on port {PORT}")
     app.run(host="0.0.0.0", port=PORT, threaded=True)
