@@ -80,7 +80,7 @@ VOICES = {
     2: _PBX_VOICE,       # HOST_2 → PBX (male)
 }
 
-SILENCE_GAP = 0.3  # seconds between speakers
+SILENCE_GAP = 0.05  # seconds between speakers (render11: 0.3→0.05 — barely perceptible, prevents overlap)
 MAX_CHUNK_CHARS = 4900
 
 _KEY_CACHE: dict = {}

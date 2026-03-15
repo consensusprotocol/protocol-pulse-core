@@ -687,29 +687,55 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
               f"tpad=stop_mode=clone:stop_duration={max(0, vid_dur - tag_dur + 1)}")
 
         if tag_has_audio:
-            # Mix: intro music ducked to 30%, TTS at full volume starting at 0.5s
-            ok = run_ffmpeg([
-                "-i", INTRO_TAG,                    # [0] intro tag (video+audio)
-                "-i", tts_path,                     # [1] PBX cold open TTS
-                "-filter_complex", (
-                    # Video: intro tag with last-frame freeze
-                    f"[0:v]{vf},"
-                    f"fade=t=out:st={max(0, vid_dur - 0.5)}:d=0.5[outv];"
-                    # Audio: duck intro music to 30%, delay TTS by 0.5s
-                    f"[0:a]volume='if(lt(t,3.0),0.30,0)':eval=frame[intro_mus];"
-                    f"[1:a]adelay=500|500,aformat=channel_layouts=stereo[tts_delayed];"
-                    f"[intro_mus][tts_delayed]amix=inputs=2:duration=longest:weights=1 1,"
-                    f"alimiter=limit=0.85:level=disabled:attack=5:release=50,"
-                    f"aresample=async=1[outa]"
-                ),
-                "-map", "[outv]", "-map", "[outa]",
-                "-c:v", "libx264", "-crf", "17", "-preset", "medium",
-                "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
-                "-r", "30",
-                "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-                "-t", str(vid_dur),
-                output_path,
-            ], "intro tag + PBX voice-over", 300)
+            # FIX 1 (render11): Hard cut intro music at exactly 3.0s — strip tag's baked audio,
+            # use only intro_music.mp3 trimmed to 3s + TTS delayed by 0.5s.
+            # The -an on intro_tag input is handled by ignoring [0:a] — we read intro_music separately.
+            _has_intro_mus = os.path.exists(INTRO_MUSIC_FILE)
+            if _has_intro_mus:
+                ok = run_ffmpeg([
+                    "-i", INTRO_TAG,                    # [0] intro tag (video+audio — audio ignored)
+                    "-i", tts_path,                     # [1] PBX cold open TTS
+                    "-i", INTRO_MUSIC_FILE,             # [2] intro music (clean source)
+                    "-filter_complex", (
+                        # Video: intro tag with last-frame freeze
+                        f"[0:v]{vf},"
+                        f"fade=t=out:st={max(0, vid_dur - 0.5)}:d=0.5[outv];"
+                        # Audio: intro music hard-cut at 3.0s (atrim), then silence via apad
+                        f"[2:a]atrim=0:3.0,asetpts=PTS-STARTPTS,volume=0.25,"
+                        f"apad=whole_dur={vid_dur}[intro_mus];"
+                        f"[1:a]adelay=500|500,aformat=channel_layouts=stereo[tts_delayed];"
+                        f"[intro_mus][tts_delayed]amix=inputs=2:duration=longest:weights=1 1,"
+                        f"alimiter=limit=0.85:level=disabled:attack=5:release=50,"
+                        f"aresample=async=1[outa]"
+                    ),
+                    "-map", "[outv]", "-map", "[outa]",
+                    "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+                    "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+                    "-r", "30",
+                    "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                    "-t", str(vid_dur),
+                    output_path,
+                ], "intro tag + PBX voice-over (hard cut intro music)", 300)
+            else:
+                # No separate intro music file — strip tag audio entirely, TTS only
+                ok = run_ffmpeg([
+                    "-i", INTRO_TAG,                    # [0] intro tag (video+audio — audio ignored)
+                    "-i", tts_path,                     # [1] PBX cold open TTS
+                    "-filter_complex", (
+                        f"[0:v]{vf},"
+                        f"fade=t=out:st={max(0, vid_dur - 0.5)}:d=0.5[outv];"
+                        f"[1:a]adelay=500|500,aformat=channel_layouts=stereo,"
+                        f"alimiter=limit=0.85:level=disabled:attack=5:release=50,"
+                        f"aresample=async=1[outa]"
+                    ),
+                    "-map", "[outv]", "-map", "[outa]",
+                    "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+                    "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+                    "-r", "30",
+                    "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                    "-t", str(vid_dur),
+                    output_path,
+                ], "intro tag + PBX voice-over (no intro music file)", 300)
         else:
             # No intro audio — just overlay TTS on silent intro video
             ok = run_ffmpeg([
@@ -1094,9 +1120,9 @@ def _build_top_system_bar(label_in: str, label_out: str, scene_label: str = "",
            # Left: bullet + PROTOCOL PULSE
            f"drawtext=fontfile={FONT_BOLD}:text='  PROTOCOL PULSE':"
            f"fontcolor={COLOR_WHITE}:fontsize=20:x=38:y=26,"
-           # LIVE label in red
+           # LIVE label in red (render11 FIX 4: +16px gap from PROTOCOL PULSE text end)
            f"drawtext=fontfile={FONT_BOLD}:text='LIVE':"
-           f"fontcolor={COLOR_RED}:fontsize=16:x=236:y=30,"
+           f"fontcolor={COLOR_RED}:fontsize=16:x=252:y=30,"
            # Bottom separator
            f"drawbox=x=20:y=64:w=1880:h=1:color={COLOR_RED}@0.25:t=fill"
            f"[{label_out}];\n")
@@ -1181,18 +1207,29 @@ def _build_narration_wave(label_in: str, label_out: str,
 
 def _bv2_text_zone(label_in: str, label_out: str, eyebrow: str, headline: str,
                     body: str, tag: str = "") -> str:
-    """APEX left 58% text zone — gold eyebrow kicker (VDS), warm white headline."""
+    """APEX left 58% text zone — gold eyebrow kicker (VDS), warm white headline.
+    Render11 FIX 3: Glassmorphic dark panel behind headline for readability.
+    """
     safe_eye = _sanitize_text(eyebrow)
     safe_head = _sanitize_text(headline)
     safe_body = _word_wrap(_sanitize_text(body), max_width=30, max_lines=3) if body else ""
     safe_tag = _sanitize_text(tag) if tag else ""
 
+    # FIX 3: Calculate headline panel height (1 line = ~72px, 2 lines = ~144px)
+    _head_nlines = max(1, (len(safe_head) // 18) + 1)
+    _head_ph = _head_nlines * 72 + 20
+
     fg = ""
     # Gold eyebrow kicker (VDS)
     fg += (f"[{label_in}]drawtext=fontfile={FONT_MONO}:text='{safe_eye}':"
            f"fontcolor={COLOR_GOLD}:fontsize=13:x=64:y=100[bv2_eye];\n")
-    # Headline (large, with shadow for depth)
-    fg += (f"[bv2_eye]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
+    # FIX 3: Glassmorphic panel behind headline (dark 60% fill + white border)
+    fg += (f"[bv2_eye]"
+           f"drawbox=x=56:y=120:w=860:h={_head_ph}:color=0x000000@0.60:t=fill,"
+           f"drawbox=x=56:y=120:w=860:h={_head_ph}:color=0xFFFFFF@0.12:t=2"
+           f"[bv2_glass];\n")
+    # Headline (large, with shadow for depth) — rendered ON TOP of glass panel
+    fg += (f"[bv2_glass]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
            f"fontcolor=0x111111:fontsize=64:x=66:y=132,"
            f"drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
            f"fontcolor={COLOR_WHITE}:fontsize=64:x=64:y=130[bv2_head];\n")
@@ -1657,8 +1694,38 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
            f"drawbox=x=1877:y=664:w=3:h=16:color={COLOR_RED}:t=fill"
            f"[np_pip_final];\n")
 
+    # Render11 FIX 7: Mini-dashboard panel below PiP (x=1060, y=700, w=820, h=160)
+    # BTC price ticker + episode date + PULSE CHECK branding
+    import datetime as _dt7
+    _ep_date = _dt7.datetime.now().strftime("%b %d, %Y").upper()
+    _ep_num = _dt7.datetime.now().strftime("EP-%j")
+    fg += (f"[np_pip_final]"
+           # Glassmorphic mini-dashboard panel
+           f"drawbox=x=1060:y=700:w=820:h=160:color=0x05060A@0.85:t=fill,"
+           f"drawbox=x=1060:y=700:w=820:h=2:color={COLOR_RED}@0.4:t=fill,"
+           f"drawbox=x=1060:y=700:w=2:h=160:color={COLOR_RED}@0.3:t=fill,"
+           # BTC LIVE label
+           f"drawtext=fontfile={FONT_MONO}:text='BTC LIVE':"
+           f"fontcolor={COLOR_GOLD}@0.6:fontsize=11:x=1078:y=714,"
+           # BTC price in gold (large)
+           f"drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(btc_price)}':"
+           f"fontcolor={COLOR_GOLD}:fontsize=42:x=1078:y=730,"
+           # Vertical separator
+           f"drawbox=x=1400:y=714:w=1:h=130:color=0xFFFFFF@0.08:t=fill,"
+           # Episode number + date
+           f"drawtext=fontfile={FONT_MONO}:text='{_ep_num}':"
+           f"fontcolor={COLOR_RED}:fontsize=12:x=1420:y=718,"
+           f"drawtext=fontfile={FONT_MONO}:text='{_ep_date}':"
+           f"fontcolor=0xFFFFFF@0.5:fontsize=11:x=1420:y=738,"
+           # PULSE CHECK branding
+           f"drawtext=fontfile={FONT_BOLD}:text='PULSE CHECK':"
+           f"fontcolor={COLOR_WHITE}@0.3:fontsize=24:x=1420:y=780,"
+           # Bottom edge
+           f"drawbox=x=1060:y=858:w=820:h=1:color=0xFFFFFF@0.06:t=fill"
+           f"[np_dash];\n")
+
     # Corner brackets (main frame)
-    fg += _build_corner_brackets_fg("np_pip_final", "np_corners")
+    fg += _build_corner_brackets_fg("np_dash", "np_corners")
     wave_fg, np_audio_pad = _build_narration_wave("np_corners", "np_wave", "np_a_out")
     fg += wave_fg
     fg += _build_signature_info_rail(total_dur, btc_price, "np_wave", "np_railed")
@@ -2391,8 +2458,9 @@ def make_host_visual(audio_path: str, host: int, text: str,
            f"drawbox=x=0:y=70:w=1920:h=2:color={COLOR_RED}@0.8:t=fill,"
            f"drawtext=fontfile={FONT_BOLD}:text='PROTOCOL PULSE':"
            f"fontcolor={COLOR_WHITE}:fontsize=28:x=24:y=22,"
+           # render11 FIX 4: +16px gap from PROTOCOL PULSE text end
            f"drawtext=fontfile={FONT_BOLD}:text='LIVE':"
-           f"fontcolor={COLOR_RED}:fontsize=22:x=280:y=26,"
+           f"fontcolor={COLOR_RED}:fontsize=22:x=296:y=26,"
            f"drawtext=fontfile={FONT_BOLD}:text='|':"
            f"fontcolor={COLOR_MUTED}:fontsize=28:x=340:y=22,"
            f"drawbox=x=0:y=0:w=0:h=0:color=0x000000@0:t=fill"
@@ -3443,18 +3511,24 @@ def concatenate_parts(parts: list, output_path: str,
         tmp = output_path + f".norm{i}.mp4"
         p = ensure_audio(p)
         dur = ffprobe_duration(p)
-        fade_out_start = max(0, dur - 0.15)
+        fade_out_start = max(0, dur - 0.05)
+        # Render11 FIX 2: Reduce fades from 0.15/0.3/0.5s to 0.05s on narration parts
+        # to eliminate audible pauses at segment boundaries
+        pbase_norm = os.path.basename(p).lower()
+        is_clip_part = "clip_r" in pbase_norm or ("clip_" in pbase_norm and "partner" not in pbase_norm)
+        v_fade = 0.15 if is_clip_part else 0.05
+        a_fade_in = 0.15 if is_clip_part else 0.05
+        a_fade_out = 0.3 if is_clip_part else 0.05
+        fade_out_start_v = max(0, dur - v_fade)
         ok = run_ffmpeg(
             ["-i", p,
              "-c:v", "libx264", "-crf", "17", "-preset", "medium",
              "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
              "-r", "30", "-vsync", "cfr",
-             "-vf", f"scale=1920:1080,setsar=1,format=yuv420p,fade=t=in:d=0.15,fade=t=out:st={fade_out_start}:d=0.15",
+             "-vf", f"scale=1920:1080,setsar=1,format=yuv420p,fade=t=in:d={v_fade},fade=t=out:st={fade_out_start_v}:d={v_fade}",
              "-video_track_timescale", "90000",
              "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
-             # BUG5 FIX: Remove per-segment loudnorm — single authoritative pass at end
-             # Round 3 FIX 7: Widen audio fades to 0.5s for smoother transitions (was 0.1/0.15)
-             "-af", f"aresample=async=1,afade=t=in:d=0.3,afade=t=out:st={max(0, fade_out_start - 0.35)}:d=0.5",
+             "-af", f"aresample=async=1,afade=t=in:d={a_fade_in},afade=t=out:st={max(0, dur - a_fade_out - 0.05)}:d={a_fade_out}",
              tmp],
             "normalize+fade", 180,
         )
@@ -3730,9 +3804,10 @@ def concatenate_parts(parts: list, output_path: str,
             whoosh_fg_parts = [f"[1:a]asplit={n}{split_labels}"]
             for ti, ttime in enumerate(transition_times):
                 delay_ms = int(ttime * 1000)
-                # FIX 3: Whoosh volume raised 0.7→1.5 + limiter to prevent clipping
+                # Render11 FIX 6: Normalize whoosh to consistent perceived loudness
+                # loudnorm ensures every whoosh hits at same level regardless of surrounding audio
                 whoosh_fg_parts.append(
-                    f"[ws{ti}]volume=1.5,alimiter=limit=0.9,adelay={delay_ms}|{delay_ms}[whoosh_{ti}]"
+                    f"[ws{ti}]volume=2.5,loudnorm=I=-12:TP=-1.0:LRA=3,alimiter=limit=0.9,adelay={delay_ms}|{delay_ms}[whoosh_{ti}]"
                 )
             # Amix all whooshes together
             whoosh_labels = "".join(f"[whoosh_{ti}]" for ti in range(n))

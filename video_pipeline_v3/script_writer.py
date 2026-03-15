@@ -240,11 +240,11 @@ Eryn and Mark must sound like analysts who read the numbers this morning, not ge
 
 
 def _validate_social_tweet_order(result: dict, social_posts_raw: str) -> dict:
-    """Round 2 Fix 5: Ensure narrator tweet references match the order tweets will be displayed.
+    """Render11 FIX 5: Ensure narrator tweet references match tweet display order.
 
-    Checks that @handle mentions in social_segment narration lines appear in the same
-    order as the social posts data. If mismatch detected, reorder social entries in
-    the dialogue to match the narrator's reference order.
+    If narrator mentions @handle that doesn't match the expected tweet position,
+    reorder social_segment entries so card display matches narration order.
+    Tags each social entry with _social_handle_ref for assembler card matching.
     """
     if not social_posts_raw or social_posts_raw.startswith("NONE"):
         return result
@@ -253,10 +253,10 @@ def _validate_social_tweet_order(result: dict, social_posts_raw: str) -> dict:
     if not dialogue:
         return result
 
-    # Extract ordered handles from social_posts_raw
+    # Extract ordered handles from social_posts_raw (sorted by likes in generate_from_clips)
     social_handles = []
     for line in social_posts_raw.split("\n"):
-        m = re.match(r'@(\w+)\s+tweeted:', line)
+        m = re.match(r'(?:Tweet \d+: )?@(\w+)\s+tweeted:', line)
         if m:
             social_handles.append(m.group(1).lower())
 
@@ -273,38 +273,60 @@ def _validate_social_tweet_order(result: dict, social_posts_raw: str) -> dict:
             if h_lower in social_handles and h_lower not in narrator_handles:
                 narrator_handles.append(h_lower)
 
-    # Check if order matches
-    if narrator_handles and social_handles:
-        # Build mapping: narrator mentions handles in order A, B, C
-        # Social data has them in order X, Y, Z
-        # We need to tag each social entry with which handle it references
-        for idx, entry in social_entries:
-            text = entry.get("text", "")
-            handles_in_text = [h.lower() for h in re.findall(r'@(\w+)', text)]
-            matched = [h for h in handles_in_text if h in social_handles]
-            if matched:
-                entry["_social_handle_ref"] = matched[0]
-                logger.info(f"[script] Social segment line {idx} references @{matched[0]}")
+    # Tag each social entry with its referenced handle
+    for idx, entry in social_entries:
+        text = entry.get("text", "")
+        handles_in_text = [h.lower() for h in re.findall(r'@(\w+)', text)]
+        matched = [h for h in handles_in_text if h in social_handles]
+        if matched:
+            entry["_social_handle_ref"] = matched[0]
+            logger.info(f"[script] Social segment line {idx} references @{matched[0]}")
+
+    # FIX 5: Reorder social_segment entries so narration order matches display order
+    # The social_posts were sorted by likes desc — narrator should mention them in that order
+    if narrator_handles and social_handles and narrator_handles != social_handles[:len(narrator_handles)]:
+        logger.warning(f"[script] TWEET MISMATCH: narrator={narrator_handles}, data={social_handles[:len(narrator_handles)]}")
+        # Reorder social_segment dialogue entries to match data order
+        social_with_handle = [(i, e) for i, e in social_entries if e.get("_social_handle_ref")]
+        if social_with_handle:
+            # Sort by position in social_handles (data order = likes desc)
+            social_with_handle.sort(
+                key=lambda x: social_handles.index(x[1]["_social_handle_ref"])
+                if x[1]["_social_handle_ref"] in social_handles else 999
+            )
+            # Swap entries in-place in dialogue
+            original_indices = [i for i, _ in [(i, e) for i, e in social_entries if e.get("_social_handle_ref")]]
+            for new_pos, (_, entry) in enumerate(social_with_handle):
+                if new_pos < len(original_indices):
+                    dialogue[original_indices[new_pos]] = entry
+            logger.info(f"[script] Reordered social entries to match data order")
 
     return result
 
 
 def _make_editorial_headline(raw: str) -> str:
-    """Convert a raw summary/title into a 4-8 word ALL CAPS editorial headline.
+    """Convert a raw summary/title into a 3-7 word ALL CAPS editorial headline.
 
-    Strips common filler, keeps it punchy like a Bloomberg ticker.
+    Render11 FIX 8: Strict Bloomberg/newspaper front page format.
+    No punctuation except dash. 3-7 words. Always ALL CAPS.
+    BAD: 'Saylor talks about sonic boom theory'
+    GOOD: 'SAYLOR SONIC BOOM BITCOIN THESIS'
     """
     import re
-    # Strip quotes, URLs, timestamps
+    # Strip quotes, URLs, timestamps, punctuation (except dash)
     clean = re.sub(r'https?://\S+', '', raw)
-    clean = re.sub(r'["\'\[\]()]', '', clean)
+    clean = re.sub(r'["\'\[\]().,;:!?]', '', clean)
     clean = re.sub(r'\s+', ' ', clean).strip()
-    # Take first ~8 words, uppercase
-    words = clean.split()[:8]
+    # Take first 7 words, uppercase
+    words = clean.split()[:7]
     headline = " ".join(words).upper()
-    # Ensure not too short
-    if len(headline) < 10 and len(words) < 4:
-        headline = headline + " — BREAKING"
+    # Ensure minimum 3 words
+    if len(words) < 3:
+        headline = headline + " - BREAKING"
+    # FIX 8: Post-generation validation — force ALL CAPS, strip non-conforming chars
+    headline = re.sub(r'[^A-Z0-9 \-/]', '', headline).strip()
+    if not headline or len(headline) < 5:
+        headline = "BREAKING SIGNAL DETECTED"
     return headline[:55]
 
 
@@ -313,7 +335,7 @@ def _populate_segment_headlines(result: dict) -> dict:
 
     Maps segment type + clip rank to a meaningful headline so _smart_headline()
     in assembler.py gets a real headline instead of truncated spoken text.
-    Render10 FIX 3: Headlines are 4-8 word ALL CAPS editorial style, never truncated quotes.
+    Render11 FIX 8: Headlines are 3-7 word ALL CAPS editorial style with regex validation.
     """
     dialogue = result.get("dialogue", [])
     summaries = result.get("segments_summary", [])
@@ -350,6 +372,20 @@ def _populate_segment_headlines(result: dict) -> dict:
             # Generic narrator — use episode title
             entry["headline"] = _make_editorial_headline(episode_title)
 
+    # Render11 FIX 8: Post-validation — force ALL CAPS, reject >8 words or lowercase
+    for entry in dialogue:
+        h = entry.get("headline", "")
+        if not h or entry.get("host") == "CLIP":
+            continue
+        # Force uppercase and strip non-conforming chars
+        h = re.sub(r'[^A-Z0-9 \-/]', '', h.upper()).strip()
+        words = h.split()
+        if len(words) > 8:
+            h = " ".join(words[:7])
+        if not h or len(h) < 5:
+            h = "BREAKING SIGNAL DETECTED"
+        entry["headline"] = h
+
     return result
 
 
@@ -375,14 +411,27 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
     clips_info = _format_clips_info(selections)
 
     # Real social data — per Law A1, never fabricate
+    # Render11 FIX 5: Sort by likes descending BEFORE passing to script generator
+    # so highest engagement tweet = first displayed = first mentioned by narrator
+    social_data_sorted = []
     try:
         from utils.social_fetcher import get_todays_social_posts
         social_data = get_todays_social_posts(max_posts=5)
         if social_data:
+            social_data_sorted = sorted(social_data, key=lambda x: x.get('likes', 0), reverse=True)
             social_posts = "\n".join([
-                f"@{p['handle']} tweeted: \"{p['text'][:200]}\" ({p['likes']} likes)"
-                for p in social_data
+                f"Tweet {ti+1}: @{p['handle']} tweeted: \"{p['text'][:200]}\" ({p['likes']} likes)"
+                for ti, p in enumerate(social_data_sorted)
             ])
+            # FIX 5B: Explicit instruction to prevent hallucination
+            social_posts += (
+                "\n\nCRITICAL SOCIAL RULES:"
+                "\n- Read ONLY what is written above. Do NOT paraphrase, add, or invent words."
+                "\n- Quote tweet text DIRECTLY and verbatim."
+                "\n- Reference tweets BY POSITION: 'Tweet 1 from @handle' matches the first tweet listed above."
+                "\n- If you mention @handle, the DISPLAYED tweet card MUST match that handle."
+                "\n- Never attribute words from one tweet to a different person."
+            )
         else:
             social_posts = "NONE — skip social segment entirely"
     except Exception as e:
