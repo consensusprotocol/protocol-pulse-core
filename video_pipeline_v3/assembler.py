@@ -64,6 +64,7 @@ COLOR_RED_DIM     = "0x1a0000"   # CTA box backgrounds
 COLOR_TICKER_BG   = "0x0c0c0c"   # ticker bar bg (kept dark)
 
 # Legacy aliases for backward compat in make_host_visual / make_clip_visual
+COLOR_CYAN        = "0x5DE4FF"   # VDS cyan — data accents, chart signal line
 COLOR_AMBER       = COLOR_CORAL
 BV2_OBSIDIAN    = COLOR_BG
 BV2_DEEP_PANEL  = COLOR_PANEL
@@ -1784,7 +1785,8 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
 def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
                              output_path: str, btc_price: str = "N/A",
                              duration: float = 0) -> str:
-    """APEX Data Segment — gold eyebrow cards + emerald/coral deltas + chart."""
+    """APEX Data Segment — full-canvas intelligence dashboard with 6 metric cards,
+    animated bar chart, and rotating sponsor strip (Meanwhile/Curated Mining/Protocol Pulse)."""
     audio_dur = ffprobe_duration(audio_path)
     if audio_dur <= 0:
         audio_dur = 5
@@ -1793,33 +1795,38 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
     inputs = [audio_path]
     fg = _get_bg_layer(inputs, total_dur, "bb_bg")
 
-    fg += _build_top_system_bar("bb_bg", "bv2_bar", progress_pct=72)
+    # ── Top eyebrow: "TODAY'S INTELLIGENCE" left, date right ──
+    import datetime
+    date_str = datetime.date.today().strftime("%B %d, %Y").upper()
+    fg += (f"[bb_bg]drawtext=fontfile={FONT_MONO}:text='TODAYS INTELLIGENCE':"
+           f"fontcolor={COLOR_GOLD}:fontsize=11:x=40:y=40,"
+           f"drawtext=fontfile={FONT_MONO}:text='{date_str}':"
+           f"fontcolor={COLOR_GOLD}:fontsize=11:x=w-tw-40:y=40"
+           f"[ds_eyebrow];\n")
 
-    # Left text zone with gold eyebrow
-    safe_head = _sanitize_text(headline)[:40]
-    fg += (f"[bv2_bar]drawtext=fontfile={FONT_MONO}:text='MARKET STRUCTURE':"
-           f"fontcolor={COLOR_GOLD}:fontsize=13:x=64:y=100[ds_eye];\n")
-    fg += (f"[ds_eye]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
-           f"fontcolor=0x111111:fontsize=64:x=66:y=132,"
-           f"drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
-           f"fontcolor={COLOR_WHITE}:fontsize=64:x=64:y=130,"
-           # ANALYTICS tag pill
-           f"drawbox=x=64:y=580:w=220:h=32:color={COLOR_RED}@0.15:t=fill,"
-           f"drawbox=x=64:y=580:w=220:h=32:color={COLOR_RED}@0.4:t=2,"
-           f"drawtext=fontfile={FONT_MONO}:text='ANALYTICS':"
-           f"fontcolor={COLOR_RED}:fontsize=12:x=76:y=590"
-           f"[ds_txt];\n")
+    # ── LEFT PANEL: headline + 6 metric cards (2x3) ──
+    safe_head = _sanitize_text(headline)[:60]
+    # Word-wrap headline to max 2 lines at ~30 chars
+    if len(safe_head) > 30:
+        mid = safe_head[:30].rfind(' ')
+        if mid > 10:
+            safe_head = safe_head[:mid] + '\\n' + safe_head[mid+1:]
+    fg += (f"[ds_eyebrow]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
+           f"fontcolor={COLOR_WHITE}:fontsize=52:x=40:y=80:line_spacing=4"
+           f"[ds_headline];\n")
 
-    # 2x2 metric card grid with gold eyebrow labels (VDS)
+    # 6 metrics: BTC PRICE | HASHRATE | ETF FLOW | MEMPOOL FEE | HALVING % | DOMINANCE
     default_metrics = [
-        ("BTC", btc_price, "+2.1 pct", True),
+        ("BTC PRICE", btc_price, "+2.1 pct", True),
         ("HASHRATE", "1,056 EH/s", "+4.2 pct", True),
         ("ETF FLOW", "$340M", "+18 pct", True),
-        ("MARGIN", "42 pct", "-1.2 pct", False),
+        ("MEMPOOL FEE", "12 sat/vB", "-8 pct", False),
+        ("HALVING PCT", "78 pct", "+0.3 pct", True),
+        ("DOMINANCE", "61.4 pct", "+1.1 pct", True),
     ]
     use_metrics = []
-    if metrics and len(metrics) >= 4:
-        for m in metrics[:4]:
+    if metrics:
+        for m in metrics[:6]:
             if isinstance(m, dict):
                 use_metrics.append((
                     m.get("label", "DATA"),
@@ -1831,79 +1838,150 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
                 use_metrics.append((str(m[0]), _sanitize_text(str(m[1])),
                                     _sanitize_text(str(m[2])),
                                     m[3] if len(m) > 3 else True))
-    if len(use_metrics) < 4:
-        use_metrics = default_metrics
+    while len(use_metrics) < 6:
+        use_metrics.append(default_metrics[len(use_metrics)])
 
-    last = "ds_txt"
+    # Card grid: 2 columns x 3 rows, 410w x 110h, gap=12
+    card_w, card_h, gap = 410, 110, 12
+    grid_x, grid_y = 40, 200
+    last = "ds_headline"
     for mi, (mlabel, mval, mdelta, mpos) in enumerate(use_metrics):
-        mx = 64 + (mi % 2) * 360
-        my = 460 + (mi // 2) * 160
+        col = mi % 2
+        row = mi // 2
+        mx = grid_x + col * (card_w + gap)
+        my = grid_y + row * (card_h + gap)
         dc = COLOR_GREEN if mpos else COLOR_CORAL
-        out = f"ds_dm{mi}"
-        fg += (f"[{last}]drawbox=x={mx}:y={my}:w=340:h=140:color={COLOR_PANEL2}@0.95:t=fill,"
-               f"drawbox=x={mx}:y={my}:w=340:h=3:color={COLOR_RED}@0.5:t=fill,"
-               # Gold eyebrow label (VDS)
+        out = f"ds_m{mi}"
+        fg += (f"[{last}]"
+               # Card background
+               f"drawbox=x={mx}:y={my}:w={card_w}:h={card_h}:color={COLOR_PANEL2}@0.95:t=fill,"
+               # 3px red top accent
+               f"drawbox=x={mx}:y={my}:w={card_w}:h=3:color={COLOR_RED}@0.6:t=fill,"
+               # Gold label 11px
                f"drawtext=fontfile={FONT_MONO}:text='{mlabel}':"
-               f"fontcolor={COLOR_GOLD}:fontsize=11:x={mx+16}:y={my+14},"
+               f"fontcolor={COLOR_GOLD}:fontsize=11:x={mx+14}:y={my+14},"
+               # White value 28px bold
                f"drawtext=fontfile={FONT_BOLD}:text='{mval}':"
-               f"fontcolor={COLOR_WHITE}:fontsize=28:x={mx+16}:y={my+38},"
-               # Emerald/coral delta (VDS)
+               f"fontcolor={COLOR_WHITE}:fontsize=28:x={mx+14}:y={my+36},"
+               # Emerald/coral delta 13px mono
                f"drawtext=fontfile={FONT_MONO}:text='{mdelta}':"
-               f"fontcolor={dc}:fontsize=13:x={mx+16}:y={my+80}"
+               f"fontcolor={dc}:fontsize=13:x={mx+14}:y={my+78}"
                f"[{out}];\n")
         last = out
 
-    # FIX 5: Try TradingView chart screenshot, fallback to static bars
-    tv_chart_path = ""
-    try:
-        from chart_capture import get_chart
-        tv_chart_path = get_chart("btc_usd_1d")
-    except Exception as e:
-        logger.warning(f"  TradingView chart capture unavailable: {e}")
+    # ── RIGHT PANEL: bar chart ──
+    chart_panel_x, chart_panel_y = 960, 80
+    chart_panel_w, chart_panel_h = 920, 440
+    fg += (f"[{last}]"
+           # Chart panel background
+           f"drawbox=x={chart_panel_x}:y={chart_panel_y}:w={chart_panel_w}:h={chart_panel_h}:"
+           f"color={COLOR_PANEL2}@0.85:t=fill,"
+           # Top border line
+           f"drawbox=x={chart_panel_x}:y={chart_panel_y}:w={chart_panel_w}:h=1:"
+           f"color=0xFFFFFF@0.08:t=fill,"
+           # "BTC NETWORK STRESS" label
+           f"drawtext=fontfile={FONT_MONO}:text='BTC NETWORK STRESS':"
+           f"fontcolor={COLOR_GOLD}:fontsize=11:x={chart_panel_x+20}:y={chart_panel_y+16},"
+           # "LIVE MODEL" badge
+           f"drawbox=x={chart_panel_x+chart_panel_w-120}:y={chart_panel_y+12}:w=100:h=24:"
+           f"color={COLOR_GOLD}@0.12:t=fill,"
+           f"drawtext=fontfile={FONT_MONO}:text='LIVE MODEL':"
+           f"fontcolor={COLOR_GOLD}:fontsize=10:x={chart_panel_x+chart_panel_w-110}:y={chart_panel_y+18}"
+           f"[ds_chart_bg];\n")
 
-    if tv_chart_path and os.path.exists(tv_chart_path):
-        # Live TradingView chart overlay
-        inputs.append(tv_chart_path)
-        chart_input_idx = len(inputs) - 1
-        fg += (f"[{last}]drawbox=x=1120:y=90:w=760:h=820:color={COLOR_PANEL}@0.92:t=fill,"
-               f"drawbox=x=1120:y=90:w=760:h=1:color=0xFFFFFF@0.08:t=fill,"
-               f"drawtext=fontfile={FONT_MONO}:text='TRADINGVIEW // BTCUSD 1D':"
-               f"fontcolor={COLOR_GOLD}:fontsize=11:x=1140:y=108,"
-               f"drawbox=x=1720:y=105:w=100:h=24:color={COLOR_GREEN}@0.15:t=fill,"
-               f"drawtext=fontfile={FONT_MONO}:text='LIVE CHART':"
-               f"fontcolor={COLOR_GREEN}:fontsize=10:x=1732:y=110"
-               f"[ds_chart_hdr];\n")
-        fg += (f"[{chart_input_idx}:v]scale=740:700:force_original_aspect_ratio=decrease,"
-               f"pad=740:700:(ow-iw)/2:(oh-ih)/2:color=0x050607[ds_tv_chart];\n")
-        fg += f"[ds_chart_hdr][ds_tv_chart]overlay=1130:130[ds_chart_done];\n"
-    else:
-        # Fallback: static FFmpeg chart bars
-        fg += (f"[{last}]drawbox=x=1120:y=90:w=760:h=820:color={COLOR_PANEL}@0.92:t=fill,"
-               f"drawbox=x=1120:y=90:w=760:h=1:color=0xFFFFFF@0.08:t=fill,"
-               f"drawtext=fontfile={FONT_MONO}:text='BTC NETWORK STRESS':"
-               f"fontcolor={COLOR_GOLD}:fontsize=11:x=1140:y=108,"
-               f"drawbox=x=1720:y=105:w=100:h=24:color={COLOR_GOLD}@0.12:t=fill,"
-               f"drawtext=fontfile={FONT_MONO}:text='Model Active':"
-               f"fontcolor={COLOR_GOLD}:fontsize=10:x=1732:y=110"
-               f"[ds_chart_hdr];\n")
-        chart_x_start = 1160
-        chart_y_base = 800
-        chart_w = 680
-        step_w = chart_w // 10
-        heights = [30, 45, 38, 60, 55, 72, 85, 78, 95, 110]
-        last_chart = "ds_chart_hdr"
-        for ci, ch in enumerate(heights):
-            cx = chart_x_start + ci * step_w
-            cy = chart_y_base - ch
-            out_c = f"ds_cbar{ci}"
-            fg += (f"[{last_chart}]drawbox=x={cx}:y={cy}:w={step_w-4}:h={ch}:"
-                   f"color={COLOR_RED}@0.6:t=fill[{out_c}];\n")
-            last_chart = out_c
-        fg += (f"[{last_chart}]drawbox=x={chart_x_start + 9*step_w + step_w//2 - 6}:"
-               f"y={chart_y_base - heights[-1] - 8}:w=12:h=12:"
-               f"color={COLOR_RED}:t=fill[ds_chart_done];\n")
+    # Bar chart: 10 bars, 20% wider, 30% taller chart area
+    chart_x_start = chart_panel_x + 40
+    chart_y_base = chart_panel_y + chart_panel_h - 40
+    chart_area_w = chart_panel_w - 80
+    step_w = chart_area_w // 10
+    bar_w = int(step_w * 0.75)  # 20% wider than old (was step_w-4 ~ 64, now ~69)
+    heights_raw = [30, 45, 38, 60, 55, 72, 85, 78, 95, 110]
+    scale_factor = 1.3  # 30% taller
+    heights = [int(h * scale_factor) for h in heights_raw]
+    day_labels = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN", "MON", "TUE", "WED"]
+    signal_line_y = chart_y_base - int(72 * scale_factor)
 
-    fg += _build_corner_brackets_fg("ds_chart_done", "ds_corners")
+    last_chart = "ds_chart_bg"
+    for ci, ch in enumerate(heights):
+        cx = chart_x_start + ci * step_w + (step_w - bar_w) // 2
+        cy = chart_y_base - ch
+        # Gradient: red at bottom → gold at top via geq
+        out_c = f"ds_bar{ci}"
+        # Draw bar as red base with gold top half overlay for gradient effect
+        gold_h = ch // 2
+        fg += (f"[{last_chart}]"
+               # Full bar in red
+               f"drawbox=x={cx}:y={cy}:w={bar_w}:h={ch}:color={COLOR_RED}@0.6:t=fill,"
+               # Top portion in gold for gradient effect
+               f"drawbox=x={cx}:y={cy}:w={bar_w}:h={gold_h}:color={COLOR_GOLD}@0.45:t=fill,"
+               # Day label below bar
+               f"drawtext=fontfile={FONT_MONO}:text='{day_labels[ci]}':"
+               f"fontcolor={COLOR_GOLD}:fontsize=9:"
+               f"x={cx + bar_w//2 - 9}:y={chart_y_base + 8}"
+               f"[{out_c}];\n")
+        last_chart = out_c
+
+    # Cyan horizontal signal line spanning full chart width
+    fg += (f"[{last_chart}]"
+           f"drawbox=x={chart_x_start}:y={signal_line_y}:w={chart_area_w}:h=2:"
+           f"color={COLOR_CYAN}@0.7:t=fill,"
+           f"drawtext=fontfile={FONT_MONO}:text='SIGNAL LINE':"
+           f"fontcolor={COLOR_CYAN}:fontsize=9:x={chart_x_start + chart_area_w - 80}:"
+           f"y={signal_line_y - 14}"
+           f"[ds_chart_done];\n")
+
+    # ── SPONSOR ROTATION STRIP ──
+    sponsors = [
+        {"name": "Meanwhile", "tagline": "Bitcoin Life Insurance",
+         "cta": "Get covered in Bitcoin  protocolpulse.io/meanwhile", "color": COLOR_GOLD},
+        {"name": "Curated Mining", "tagline": "White-Glove Bitcoin Mining",
+         "cta": "Start mining  curatedmining.com", "color": COLOR_CYAN},
+        {"name": "Protocol Pulse", "tagline": "Bitcoin Intelligence Daily",
+         "cta": "Subscribe  protocolpulse.io", "color": COLOR_RED},
+    ]
+    slot_dur = total_dur / 3.0
+    strip_x, strip_y, strip_w, strip_h = 40, 730, 1840, 120
+
+    last_sp = "ds_chart_done"
+    for si, sp in enumerate(sponsors):
+        t_start = si * slot_dur
+        t_end = (si + 1) * slot_dur
+        enable = f"enable='between(t,{t_start:.3f},{t_end:.3f})'"
+        sp_name = _sanitize_text(sp["name"])
+        sp_tagline = _sanitize_text(sp["tagline"])
+        sp_cta = _sanitize_text(sp["cta"])
+        sp_color = sp["color"]
+        out_sp = f"ds_sp{si}"
+        fg += (f"[{last_sp}]"
+               # Strip background
+               f"drawbox=x={strip_x}:y={strip_y}:w={strip_w}:h={strip_h}:"
+               f"color={COLOR_PANEL2}@0.95:t=fill:{enable},"
+               # Left accent bar
+               f"drawbox=x={strip_x}:y={strip_y}:w=6:h={strip_h}:"
+               f"color={sp_color}@1.0:t=fill:{enable},"
+               # "SPONSORED BY" micro label
+               f"drawtext=fontfile={FONT_MONO}:text='SPONSORED BY':"
+               f"fontcolor={COLOR_GOLD}:fontsize=10:x={strip_x+20}:y={strip_y+18}:{enable},"
+               # Sponsor NAME 34px bold
+               f"drawtext=fontfile={FONT_BOLD}:text='{sp_name}':"
+               f"fontcolor={COLOR_WHITE}:fontsize=34:x={strip_x+20}:y={strip_y+38}:{enable},"
+               # Tagline gray mono 15px
+               f"drawtext=fontfile={FONT_MONO}:text='{sp_tagline}':"
+               f"fontcolor={COLOR_MUTED}:fontsize=15:x={strip_x+20}:y={strip_y+80}:{enable},"
+               # CTA right-aligned in sponsor color
+               f"drawtext=fontfile={FONT_MONO}:text='{sp_cta}':"
+               f"fontcolor={sp_color}:fontsize=14:"
+               f"x={strip_x+strip_w}-tw-20:y={strip_y+80}:{enable},"
+               # PARTNER badge top-right
+               f"drawbox=x={strip_x+strip_w-100}:y={strip_y+8}:w=90:h=22:"
+               f"color={sp_color}@0.15:t=fill:{enable},"
+               f"drawtext=fontfile={FONT_MONO}:text='PARTNER':"
+               f"fontcolor={sp_color}:fontsize=10:"
+               f"x={strip_x+strip_w-90}:y={strip_y+13}:{enable}"
+               f"[{out_sp}];\n")
+        last_sp = out_sp
+
+    fg += _build_corner_brackets_fg(last_sp, "ds_corners")
     wave_fg, ds_audio_pad = _build_narration_wave("ds_corners", "ds_wave", "ds_a_out")
     fg += wave_fg
     fg += _build_signature_info_rail(total_dur, btc_price, "ds_wave", "ds_railed")
