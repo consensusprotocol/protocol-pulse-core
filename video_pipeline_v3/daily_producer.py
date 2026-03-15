@@ -808,6 +808,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         yt_description = build_description(
             summary=f"{ep_title}\n\nBTC Price: {btc_price}",
             chapters_text=chapters_text,
+            clips=clips,
         )
         topics = [c.get("channel", "") for c in clips]
         yt_tags = build_tags(topics)

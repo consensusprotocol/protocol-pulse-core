@@ -182,6 +182,24 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
         if result.returncode == 0 and os.path.exists(output_path):
+            # FIX 1 (render10): Hard PTS resync — force both A/V to start at exactly 0
+            # Eliminates B-frame DTS offsets from yt-dlp downloads that cause ~1s audio lag
+            resync_tmp = output_path + ".resync.mp4"
+            resync_ok = _run_ffmpeg([
+                "-i", output_path,
+                "-c:v", "libx264", "-crf", "18", "-preset", "fast", "-r", "30", "-vsync", "cfr",
+                "-vf", "setpts=PTS-STARTPTS",
+                "-c:a", "aac", "-ar", "48000",
+                "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
+                "-avoid_negative_ts", "make_zero", "-max_interleave_delta", "0",
+                resync_tmp,
+            ], f"hard PTS resync {video_id}", 300)
+            if resync_ok and os.path.exists(resync_tmp):
+                os.replace(resync_tmp, output_path)
+                logger.info(f"[extractor] Hard PTS resync applied to {video_id}")
+            elif os.path.exists(resync_tmp):
+                os.remove(resync_tmp)
+
             # AV sync fix pass
             sync_tmp = output_path + ".sync.mp4"
             if fix_av_sync(output_path, sync_tmp) and os.path.exists(sync_tmp):
@@ -286,6 +304,23 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
     try:
         result = subprocess.run(trim_cmd, capture_output=True, text=True, timeout=120)
         if result.returncode == 0 and os.path.exists(output_path):
+            # FIX 1 (render10): Hard PTS resync — force both A/V to start at exactly 0
+            resync_tmp = output_path + ".resync.mp4"
+            resync_ok = _run_ffmpeg([
+                "-i", output_path,
+                "-c:v", "libx264", "-crf", "18", "-preset", "fast", "-r", "30", "-vsync", "cfr",
+                "-vf", "setpts=PTS-STARTPTS",
+                "-c:a", "aac", "-ar", "48000",
+                "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
+                "-avoid_negative_ts", "make_zero", "-max_interleave_delta", "0",
+                resync_tmp,
+            ], f"hard PTS resync fallback {video_id}", 300)
+            if resync_ok and os.path.exists(resync_tmp):
+                os.replace(resync_tmp, output_path)
+                logger.info(f"[extractor] Hard PTS resync applied to {video_id} (fallback)")
+            elif os.path.exists(resync_tmp):
+                os.remove(resync_tmp)
+
             # AV sync fix pass
             sync_tmp = output_path + ".sync.mp4"
             if fix_av_sync(output_path, sync_tmp) and os.path.exists(sync_tmp):

@@ -135,7 +135,7 @@ Return ONLY valid JSON (no markdown, no code fences):
     "headline": "BOLD THUMBNAIL TEXT (5-8 words)",
     "subtext": "secondary line"
   }},
-  "segments_summary": ["headline for each clip topic"],
+  "segments_summary": ["4-8 WORD ALL CAPS EDITORIAL HEADLINE FOR EACH CLIP — like 'SAYLOR BETS BIG ON BITCOIN DIP' not a quote from the segment"],
   "shorts_quotes": ["best one-liner 1", "best one-liner 2", "best one-liner 3"]
 }}
 
@@ -289,11 +289,31 @@ def _validate_social_tweet_order(result: dict, social_posts_raw: str) -> dict:
     return result
 
 
+def _make_editorial_headline(raw: str) -> str:
+    """Convert a raw summary/title into a 4-8 word ALL CAPS editorial headline.
+
+    Strips common filler, keeps it punchy like a Bloomberg ticker.
+    """
+    import re
+    # Strip quotes, URLs, timestamps
+    clean = re.sub(r'https?://\S+', '', raw)
+    clean = re.sub(r'["\'\[\]()]', '', clean)
+    clean = re.sub(r'\s+', ' ', clean).strip()
+    # Take first ~8 words, uppercase
+    words = clean.split()[:8]
+    headline = " ".join(words).upper()
+    # Ensure not too short
+    if len(headline) < 10 and len(words) < 4:
+        headline = headline + " — BREAKING"
+    return headline[:55]
+
+
 def _populate_segment_headlines(result: dict) -> dict:
     """Session 4 Fix 2: Add 'headline' key to each dialogue entry.
 
     Maps segment type + clip rank to a meaningful headline so _smart_headline()
     in assembler.py gets a real headline instead of truncated spoken text.
+    Render10 FIX 3: Headlines are 4-8 word ALL CAPS editorial style, never truncated quotes.
     """
     dialogue = result.get("dialogue", [])
     summaries = result.get("segments_summary", [])
@@ -310,14 +330,14 @@ def _populate_segment_headlines(result: dict) -> dict:
         clip_rank = entry.get("clip_rank", 0)
 
         if seg_type == "cold_open":
-            entry["headline"] = episode_title
+            entry["headline"] = _make_editorial_headline(episode_title)
         elif seg_type in ("setup", "react") and clip_rank:
-            # Use segments_summary (clip "why" strings) keyed by rank
+            # Use segments_summary keyed by rank — force editorial style
             idx = clip_rank - 1
             if 0 <= idx < len(summaries) and summaries[idx]:
-                entry["headline"] = summaries[idx][:55]
+                entry["headline"] = _make_editorial_headline(summaries[idx])
             else:
-                entry["headline"] = episode_title
+                entry["headline"] = _make_editorial_headline(episode_title)
         elif seg_type == "data":
             entry["headline"] = "TODAY'S INTELLIGENCE"
         elif seg_type == "social_segment":
@@ -325,10 +345,10 @@ def _populate_segment_headlines(result: dict) -> dict:
         elif seg_type in ("wrap", "outro"):
             entry["headline"] = "STAY SOVEREIGN"
         elif seg_type == "bridge":
-            entry["headline"] = episode_title
+            entry["headline"] = _make_editorial_headline(episode_title)
         else:
             # Generic narrator — use episode title
-            entry["headline"] = episode_title
+            entry["headline"] = _make_editorial_headline(episode_title)
 
     return result
 

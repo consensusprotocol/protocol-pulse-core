@@ -696,7 +696,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                     f"[0:v]{vf},"
                     f"fade=t=out:st={max(0, vid_dur - 0.5)}:d=0.5[outv];"
                     # Audio: duck intro music to 30%, delay TTS by 0.5s
-                    f"[0:a]volume=0.30,afade=t=out:st=3.0:d=3.0[intro_mus];"
+                    f"[0:a]volume='if(lt(t,3.0),0.30,0)':eval=frame[intro_mus];"
                     f"[1:a]adelay=500|500,aformat=channel_layouts=stereo[tts_delayed];"
                     f"[intro_mus][tts_delayed]amix=inputs=2:duration=longest:weights=1 1,"
                     f"alimiter=limit=0.85:level=disabled:attack=5:release=50,"
@@ -1468,7 +1468,14 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     safe_head = _sanitize_text(headline)[:55]
     safe_body = _word_wrap(_sanitize_text(body), max_width=30, max_lines=3) if body else ""
 
-    fg += f"[bv2_bar]copy[np_eye];\n"
+    # FIX 4 (render10): Glassmorphic panel behind headline for readability
+    # Estimate headline height: single line = 72px, multi-line = 72*lines + 20
+    _head_lines = max(1, (len(safe_head) // 20) + 1)
+    _head_panel_h = _head_lines * 72 + 20
+    fg += (f"[bv2_bar]"
+           f"drawbox=x=56:y=122:w=860:h={_head_panel_h}:color=0x000000@0.55:t=fill,"
+           f"drawbox=x=56:y=122:w=860:h={_head_panel_h}:color=0xFFFFFF@0.15:t=2"
+           f"[np_eye];\n")
     fg += (f"[np_eye]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
            f"fontcolor=0x111111:fontsize=64:x=66:y=132,"
            f"drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
@@ -3567,8 +3574,8 @@ def concatenate_parts(parts: list, output_path: str,
             else:
                 bgm_fade_st = max(0, dur - 3.0)
 
-            # FIX 1+4: Build volume envelope — duck during clip segments and narration
-            # clip_r parts → 0.04 (-28dB), narration → 0.06 (-24dB), default → 0.10 (-20dB)
+            # FIX 5 (render10): Build volume envelope — duck during clip segments
+            # clip_r parts → 0.02 (-34dB), default → 0.10 (-20dB)
             cumulative_t = 0.0
             vol_clauses = []
             for p in valid:
@@ -3578,8 +3585,8 @@ def concatenate_parts(parts: list, output_path: str,
                 t_end = cumulative_t + pdur
                 cumulative_t = t_end
                 if "clip_r" in pbase or "clip_" in pbase and "partner" not in pbase:
-                    # Partner clips: duck to 0.04 (-28dB) — let clip audio breathe
-                    vol_clauses.append(f"between(t,{t_start:.3f},{t_end:.3f})*0.04")
+                    # Partner clips: duck to 0.02 (-34dB) — let clip audio breathe
+                    vol_clauses.append(f"between(t,{t_start:.3f},{t_end:.3f})*0.02")
             if vol_clauses:
                 # Nested if: check clip windows first, default 0.10
                 vol_expr = "volume='if(" + "+".join(f"({vc})" for vc in vol_clauses) + ",1,0.10)':eval=frame"
@@ -3604,7 +3611,7 @@ def concatenate_parts(parts: list, output_path: str,
                     f"[bgm_raw][tts_sc]sidechaincompress="
                     f"threshold=0.02:ratio=8:attack=3:release=150[bgm_ducked];"
                     f"[tts_main][bgm_ducked]amix=inputs=2:duration=longest"
-                    f":weights=1 0.06[mixed_audio];"
+                    f":weights=1 0.04[mixed_audio];"
                     f"[mixed_audio]aresample=async=1[outa]"
                 ),
                 "-map", "0:v", "-map", "[outa]",

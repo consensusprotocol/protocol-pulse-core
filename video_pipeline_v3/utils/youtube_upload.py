@@ -19,6 +19,7 @@ DESCRIPTION_TEMPLATE = """{summary}
 
 {chapters}
 
+{show_notes}
 ---
 Subscribe for daily Bitcoin intelligence: https://www.youtube.com/@ProtocolPulse?sub_confirmation=1
 
@@ -69,11 +70,37 @@ def _refresh_access_token(tokens: dict) -> str:
     return ""
 
 
-def build_description(summary: str = "", chapters_text: str = "") -> str:
+def build_show_notes(clips: list) -> str:
+    """Build SHOW NOTES section from clip data.
+
+    Args:
+        clips: List of clip dicts with channel, video_title, video_id keys.
+
+    Returns:
+        Formatted show notes string.
+    """
+    if not clips:
+        return ""
+    lines = ["--- SHOW NOTES ---", "Clips featured in this episode:"]
+    for c in clips:
+        channel = c.get("channel", "Unknown")
+        title = c.get("video_title", c.get("title", "Untitled"))
+        vid = c.get("video_id", "")
+        url = f"https://www.youtube.com/watch?v={vid}" if vid else ""
+        lines.append(f"  \u2022 {channel} \u2014 {title} \u2014 {url}")
+    lines.append("")
+    lines.append("Full episode transcripts and sources at protocolpulse.io")
+    return "\n".join(lines)
+
+
+def build_description(summary: str = "", chapters_text: str = "",
+                      clips: list = None) -> str:
     """Build YouTube description from episode data."""
+    show_notes = build_show_notes(clips or [])
     return DESCRIPTION_TEMPLATE.format(
         summary=summary or "Daily Bitcoin intelligence briefing from Protocol Pulse.",
         chapters=chapters_text or "",
+        show_notes=show_notes,
         meanwhile_link=MEANWHILE_LINK,
     )
 
