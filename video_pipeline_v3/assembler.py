@@ -703,9 +703,9 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                         f"fade=t=out:st={max(0, vid_dur - 0.5)}:d=0.5[outv];"
                         # Audio: intro music hard-cut at 3.0s (atrim), then silence via apad
                         f"[2:a]atrim=0:4.0,asetpts=PTS-STARTPTS,afade=t=out:st=2.5:d=1.5,volume=0.40,"
-                        f"apad=whole_dur={vid_dur}[intro_mus];"
+                        f"asetpts=PTS-STARTPTS[intro_mus];"
                         f"[1:a]aformat=channel_layouts=stereo[tts_delayed];"
-                        f"[intro_mus][tts_delayed]amix=inputs=2:duration=longest:weights=1 1,"
+                        f"[intro_mus][tts_delayed]amix=inputs=2:duration=shortest:weights=1 1,"
                         f"alimiter=limit=0.85:level=disabled:attack=5:release=50,"
                         f"aresample=async=1[outa]"
                     ),
