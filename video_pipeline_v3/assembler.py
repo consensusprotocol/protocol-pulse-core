@@ -702,7 +702,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                         f"[0:v]{vf},"
                         f"fade=t=out:st={max(0, vid_dur - 0.5)}:d=0.5[outv];"
                         # Audio: intro music hard-cut at 3.0s (atrim), then silence via apad
-                        f"[2:a]atrim=0:8.0,asetpts=PTS-STARTPTS,afade=t=out:st=5.5:d=2.5,volume=0.35,"
+                        f"[2:a]atrim=0:4.0,asetpts=PTS-STARTPTS,afade=t=out:st=2.5:d=1.5,volume=0.40,"
                         f"apad=whole_dur={vid_dur}[intro_mus];"
                         f"[1:a]aformat=channel_layouts=stereo[tts_delayed];"
                         f"[intro_mus][tts_delayed]amix=inputs=2:duration=longest:weights=1 1,"
@@ -960,6 +960,7 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
     """
     if not clip_path or not os.path.exists(clip_path):
         logger.warning(f"PiP: clip path missing: {clip_path}")
+        logger.warning(f"PiP SKIP — will show narration without PiP overlay")
         return ""
     try:
         file_size = os.path.getsize(clip_path)
@@ -1001,6 +1002,7 @@ def overlay_pip_on_narration(narration_path: str, pip_path: str,
     "COMING UP..." label inside PiP bottom-left.
     """
     if not pip_path or not os.path.exists(pip_path):
+        logger.info(f"PiP: no preview available, using narration-only for this segment")
         return narration_path
     pip_dur = ffprobe_duration(pip_path)
     ok = run_ffmpeg([
@@ -1831,19 +1833,13 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
     # Info rail (always present)
     fg += _build_signature_info_rail(clip_dur, btc_price, "pc_lt", "pc_railed")
     fg += (f"[pc_railed]format=yuv420p[outv];\n"
-           # Issue 4 FIX: Strip first 2.5s of partner clip audio (intro jangle) + fade in
-           # Session 4 Fix 5: aresample=async=1 for lip sync drift correction
-           f"[0:a]aresample=async=1,atrim=start=2.5,asetpts=PTS-STARTPTS,"
+           # Render14: removed atrim=start=2.5 (was root cause of lipsync desync)
+           f"[0:a]aresample=async=1,asetpts=PTS-STARTPTS,"
            f"highpass=f=50,lowpass=f=15000,"
-           f"afade=t=in:d=0.5,afade=t=out:st={max(0, fade_out_start - 2.5)}:d=0.5[outa]")
+           f"afade=t=in:d=0.5,afade=t=out:st={max(0, fade_out_start - 0.5)}:d=0.5[outa]")
 
-    # Session 4 Fix 5: Probe audio offset for lip sync correction
-    a_offset = _get_audio_offset(video_path)
+    # Render14: removed itsoffset probing (was causing lipsync issues with atrim removal)
     input_spec = video_path
-    if a_offset > 0.01:
-        # Use list input form so itsoffset is prepended before -i
-        input_spec = ["-itsoffset", str(a_offset), "-i", video_path]
-        logger.info(f"  Fix 5: Audio offset {a_offset:.3f}s applied for lip sync")
 
     ok = run_ffmpeg_filtergraph(
         [input_spec], fg, ["[outv]", "[outa]"],
@@ -3315,7 +3311,7 @@ def make_transition_visual(output_path: str, duration: float = 2.2) -> str:
                 # Composite RGBA digital grid over dark bg
                 f"[0:v]trim=0:{duration},setpts=PTS-STARTPTS[bg];"
                 f"[1:v]scale=1920:1080,format=rgba,trim=0.2:1.65,setpts=PTS-STARTPTS[fg];"
-                f"[bg][fg]overlay=0:0:format=auto,format=yuv420p,"
+                f"[bg][fg]blend=all_mode=screen,format=yuv420p,"
                 f"fade=t=in:st=0:d=0.15,fade=t=out:st={duration - 0.15}:d=0.15[outv];"
                 # Whoosh at volume=2.5 over full transition
                 f"[2:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=2.5,"
@@ -3336,7 +3332,7 @@ def make_transition_visual(output_path: str, duration: float = 2.2) -> str:
                 "-filter_complex",
                 f"[0:v]trim=0:{duration},setpts=PTS-STARTPTS[bg];"
                 f"[1:v]scale=1920:1080,format=rgba,trim=0.2:1.65,setpts=PTS-STARTPTS[fg];"
-                f"[bg][fg]overlay=0:0:format=auto,format=yuv420p,"
+                f"[bg][fg]blend=all_mode=screen,format=yuv420p,"
                 f"fade=t=in:st=0:d=0.15,fade=t=out:st={duration - 0.15}:d=0.15[outv]",
                 "-map", "[outv]", "-map", "2:a",
                 "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
@@ -3495,10 +3491,10 @@ def make_clip_visual(clip_path: str, source: str, output_path: str,
     fg += _build_signature_info_rail(clip_dur, btc_price, "clip_lt", "clip_railed")
     fg += (
         f"[clip_railed]format=yuv420p[outv];\n"
-        # Issue 4 FIX: Strip first 2.5s of clip audio (intro jangle) + fade in 0.5s
-        f"[0:a]atrim=start=2.5,asetpts=PTS-STARTPTS,"
+        # Render14: removed atrim=start=2.5 (was root cause of lipsync desync)
+        f"[0:a]aresample=async=1,asetpts=PTS-STARTPTS,"
         f"highpass=f=50,lowpass=f=15000,"
-        f"afade=t=in:d=0.5,afade=t=out:st={max(0, fade_out_start - 2.5)}:d=0.5[outa]"
+        f"afade=t=in:d=0.5,afade=t=out:st={max(0, fade_out_start - 0.5)}:d=0.5[outa]"
     )
 
     ok = run_ffmpeg_filtergraph(
