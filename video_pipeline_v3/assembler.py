@@ -3290,7 +3290,7 @@ def make_transition_visual(output_path: str, duration: float = 2.2) -> str:
     """
     # Render12: Use premium digital transition if available
     if os.path.exists(DIGITAL_TRANSITION):
-        duration = 2.2  # fixed duration matching the asset
+        duration = 1.45  # trimmed: skip black frames at 0-0.2s and 1.65-2.2s
         has_whoosh = os.path.exists(GLITCH_WHOOSH)
         if has_whoosh:
             ok = run_ffmpeg([
@@ -3300,7 +3300,7 @@ def make_transition_visual(output_path: str, duration: float = 2.2) -> str:
                 "-filter_complex",
                 # Composite RGBA digital grid over dark bg
                 f"[0:v]trim=0:{duration},setpts=PTS-STARTPTS[bg];"
-                f"[1:v]scale=1920:1080,format=rgba,trim=0:{duration},setpts=PTS-STARTPTS[fg];"
+                f"[1:v]scale=1920:1080,format=rgba,trim=0.2:1.65,setpts=PTS-STARTPTS[fg];"
                 f"[bg][fg]overlay=0:0:format=auto,format=yuv420p,"
                 f"fade=t=in:st=0:d=0.15,fade=t=out:st={duration - 0.15}:d=0.15[outv];"
                 # Whoosh at volume=2.5 over full transition
@@ -3321,7 +3321,7 @@ def make_transition_visual(output_path: str, duration: float = 2.2) -> str:
                 "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
                 "-filter_complex",
                 f"[0:v]trim=0:{duration},setpts=PTS-STARTPTS[bg];"
-                f"[1:v]scale=1920:1080,format=rgba,trim=0:{duration},setpts=PTS-STARTPTS[fg];"
+                f"[1:v]scale=1920:1080,format=rgba,trim=0.2:1.65,setpts=PTS-STARTPTS[fg];"
                 f"[bg][fg]overlay=0:0:format=auto,format=yuv420p,"
                 f"fade=t=in:st=0:d=0.15,fade=t=out:st={duration - 0.15}:d=0.15[outv]",
                 "-map", "[outv]", "-map", "2:a",
