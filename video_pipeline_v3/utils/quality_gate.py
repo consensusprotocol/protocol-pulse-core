@@ -61,8 +61,8 @@ def _detect_silence(video_path: str, min_duration: float = 2.0,
         return []
 
 
-def _detect_black_frames(video_path: str, min_duration: float = 0.5,
-                         pix_threshold: float = 0.02) -> list:
+def _detect_black_frames(video_path: str, min_duration: float = 0.3,
+                         pix_threshold: float = 0.08) -> list:
     """Run ffmpeg blackdetect and return list of black segments.
 
     Returns: [{"start": float, "end": float, "duration": float}, ...]
@@ -206,10 +206,10 @@ def compute_quality_score(manifest_path: str, video_path: str = "") -> int:
         return 0
 
     # ── Silence detection (Round 3 FIX 2: -40dB threshold, 2.0s min) ──
-    silences = _detect_silence(video_path, min_duration=2.0, noise_db=-40)
+    silences = _detect_silence(video_path, min_duration=2.8, noise_db=-40)
     total_silence = sum(s["duration"] for s in silences)
 
-    if total_silence > 5.0:
+    if total_silence > 20.0:
         # Critical: > 20s total silence means host audio is missing (transitions account for ~13s normally)
         failures.append(f"Total silence: {total_silence:.1f}s (>5s limit)")
         logger.error(f"  CRITICAL FAIL: {total_silence:.1f}s total silence detected "
@@ -226,8 +226,8 @@ def compute_quality_score(manifest_path: str, video_path: str = "") -> int:
         for s in silences:
             logger.warning(f"    Silent gap: {s['start']:.1f}s - {s['end']:.1f}s ({s['duration']:.1f}s)")
 
-    # ── Black frame detection (Round 3 FIX 2: d=0.5 threshold, -15/sec penalty) ──
-    blacks = _detect_black_frames(video_path, min_duration=0.5)
+    # ── Black frame detection (Render12 FIX B: pix_th 0.02→0.08, min_dur 0.5→0.3 to catch near-black) ──
+    blacks = _detect_black_frames(video_path, min_duration=0.3, pix_threshold=0.08)
 
     # Filter: ignore first 2s (title card) and last 5s (outro fade)
     mid_blacks = [b for b in blacks

@@ -1879,15 +1879,14 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
            f"fontcolor={COLOR_GOLD}:fontsize=11:x=w-tw-40:y=40"
            f"[ds_eyebrow];\n")
 
-    # ── LEFT PANEL: headline + 6 metric cards (2x3) ──
+    # ── HEADLINE ──
     safe_head = _sanitize_text(headline)[:60]
-    # Word-wrap headline to max 2 lines at ~30 chars
     if len(safe_head) > 30:
         mid = safe_head[:30].rfind(' ')
         if mid > 10:
             safe_head = safe_head[:mid] + '\\n' + safe_head[mid+1:]
     fg += (f"[ds_eyebrow]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
-           f"fontcolor={COLOR_WHITE}:fontsize=52:x=40:y=80:line_spacing=4"
+           f"fontcolor={COLOR_WHITE}:fontsize=42:x=40:y=72:line_spacing=4"
            f"[ds_headline];\n")
 
     # 6 metrics: BTC PRICE | HASHRATE | ETF FLOW | MEMPOOL FEE | HALVING % | DOMINANCE
@@ -1916,15 +1915,13 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
     while len(use_metrics) < 6:
         use_metrics.append(default_metrics[len(use_metrics)])
 
-    # Card grid: 2 columns x 3 rows, 410w x 110h, gap=12
-    card_w, card_h, gap = 410, 110, 12
-    grid_x, grid_y = 40, 200
+    # Render12 FIX C: Horizontal metric strip (6 cards in a row above hero chart)
+    card_w, card_h, gap = 280, 80, 12
+    grid_x, grid_y = 40, 140
     last = "ds_headline"
     for mi, (mlabel, mval, mdelta, mpos) in enumerate(use_metrics):
-        col = mi % 2
-        row = mi // 2
-        mx = grid_x + col * (card_w + gap)
-        my = grid_y + row * (card_h + gap)
+        mx = grid_x + mi * (card_w + gap)
+        my = grid_y
         dc = COLOR_GREEN if mpos else COLOR_CORAL
         out = f"ds_m{mi}"
         fg += (f"[{last}]"
@@ -1932,21 +1929,22 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
                f"drawbox=x={mx}:y={my}:w={card_w}:h={card_h}:color={COLOR_PANEL2}@0.95:t=fill,"
                # 3px red top accent
                f"drawbox=x={mx}:y={my}:w={card_w}:h=3:color={COLOR_RED}@0.6:t=fill,"
-               # Gold label 11px
+               # Gold label 10px
                f"drawtext=fontfile={FONT_MONO}:text='{mlabel}':"
-               f"fontcolor={COLOR_GOLD}:fontsize=11:x={mx+14}:y={my+14},"
-               # White value 28px bold
+               f"fontcolor={COLOR_GOLD}:fontsize=10:x={mx+10}:y={my+10},"
+               # White value 22px bold
                f"drawtext=fontfile={FONT_BOLD}:text='{mval}':"
-               f"fontcolor={COLOR_WHITE}:fontsize=28:x={mx+14}:y={my+36},"
-               # Emerald/coral delta 13px mono
+               f"fontcolor={COLOR_WHITE}:fontsize=22:x={mx+10}:y={my+28},"
+               # Emerald/coral delta 11px mono
                f"drawtext=fontfile={FONT_MONO}:text='{mdelta}':"
-               f"fontcolor={dc}:fontsize=13:x={mx+14}:y={my+78}"
+               f"fontcolor={dc}:fontsize=11:x={mx+10}:y={my+58}"
                f"[{out}];\n")
         last = out
 
-    # ── RIGHT PANEL: bar chart ──
-    chart_panel_x, chart_panel_y = 960, 80
-    chart_panel_w, chart_panel_h = 920, 440
+    # ── HERO CHART (center screen, almost full width) ──
+    # Render12 FIX C: Chart is the hero element — large and centered
+    chart_panel_x, chart_panel_y = 200, 250
+    chart_panel_w, chart_panel_h = 1520, 460
     fg += (f"[{last}]"
            # Chart panel background
            f"drawbox=x={chart_panel_x}:y={chart_panel_y}:w={chart_panel_w}:h={chart_panel_h}:"
@@ -1954,25 +1952,25 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
            # Top border line
            f"drawbox=x={chart_panel_x}:y={chart_panel_y}:w={chart_panel_w}:h=1:"
            f"color=0xFFFFFF@0.08:t=fill,"
-           # "BTC NETWORK STRESS" label
-           f"drawtext=fontfile={FONT_MONO}:text='BTC NETWORK STRESS':"
-           f"fontcolor={COLOR_GOLD}:fontsize=11:x={chart_panel_x+20}:y={chart_panel_y+16},"
+           # "BTC NETWORK STRESS INDEX" label — prominent gold 24px
+           f"drawtext=fontfile={FONT_MONO}:text='BTC NETWORK STRESS INDEX':"
+           f"fontcolor={COLOR_GOLD}:fontsize=24:x={chart_panel_x+24}:y={chart_panel_y+16},"
            # "LIVE MODEL" badge
-           f"drawbox=x={chart_panel_x+chart_panel_w-120}:y={chart_panel_y+12}:w=100:h=24:"
+           f"drawbox=x={chart_panel_x+chart_panel_w-140}:y={chart_panel_y+12}:w=120:h=28:"
            f"color={COLOR_GOLD}@0.12:t=fill,"
            f"drawtext=fontfile={FONT_MONO}:text='LIVE MODEL':"
-           f"fontcolor={COLOR_GOLD}:fontsize=10:x={chart_panel_x+chart_panel_w-110}:y={chart_panel_y+18}"
+           f"fontcolor={COLOR_GOLD}:fontsize=12:x={chart_panel_x+chart_panel_w-128}:y={chart_panel_y+18}"
            f"[ds_chart_bg];\n")
 
-    # Bar chart: 10 bars, 20% wider, 30% taller chart area
+    # Bar chart: 10 bars, 120px wide, heights 3x scaled, full chart width
     chart_x_start = chart_panel_x + 40
-    chart_y_base = chart_panel_y + chart_panel_h - 40
+    chart_y_base = chart_panel_y + chart_panel_h - 50
     chart_area_w = chart_panel_w - 80
     step_w = chart_area_w // 10
-    bar_w = int(step_w * 0.75)  # 20% wider than old (was step_w-4 ~ 64, now ~69)
+    bar_w = 120  # Render12 FIX C: wide bars (was ~69)
     heights_raw = [30, 45, 38, 60, 55, 72, 85, 78, 95, 110]
-    scale_factor = 1.3  # 30% taller
-    heights = [int(h * scale_factor) for h in heights_raw]
+    scale_factor = 3.0  # Render12 FIX C: 3x taller (was 1.3)
+    heights = [min(int(h * scale_factor), chart_panel_h - 100) for h in heights_raw]
     day_labels = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN", "MON", "TUE", "WED"]
     signal_line_y = chart_y_base - int(72 * scale_factor)
 
@@ -1980,9 +1978,7 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
     for ci, ch in enumerate(heights):
         cx = chart_x_start + ci * step_w + (step_w - bar_w) // 2
         cy = chart_y_base - ch
-        # Gradient: red at bottom → gold at top via geq
         out_c = f"ds_bar{ci}"
-        # Draw bar as red base with gold top half overlay for gradient effect
         gold_h = ch // 2
         fg += (f"[{last_chart}]"
                # Full bar in red
@@ -1991,18 +1987,18 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
                f"drawbox=x={cx}:y={cy}:w={bar_w}:h={gold_h}:color={COLOR_GOLD}@0.45:t=fill,"
                # Day label below bar
                f"drawtext=fontfile={FONT_MONO}:text='{day_labels[ci]}':"
-               f"fontcolor={COLOR_GOLD}:fontsize=9:"
-               f"x={cx + bar_w//2 - 9}:y={chart_y_base + 8}"
+               f"fontcolor={COLOR_GOLD}:fontsize=11:"
+               f"x={cx + bar_w//2 - 11}:y={chart_y_base + 10}"
                f"[{out_c}];\n")
         last_chart = out_c
 
     # Cyan horizontal signal line spanning full chart width
     fg += (f"[{last_chart}]"
-           f"drawbox=x={chart_x_start}:y={signal_line_y}:w={chart_area_w}:h=2:"
+           f"drawbox=x={chart_x_start}:y={signal_line_y}:w={chart_area_w}:h=3:"
            f"color={COLOR_CYAN}@0.7:t=fill,"
            f"drawtext=fontfile={FONT_MONO}:text='SIGNAL LINE':"
-           f"fontcolor={COLOR_CYAN}:fontsize=9:x={chart_x_start + chart_area_w - 80}:"
-           f"y={signal_line_y - 14}"
+           f"fontcolor={COLOR_CYAN}:fontsize=11:x={chart_x_start + chart_area_w - 100}:"
+           f"y={signal_line_y - 16}"
            f"[ds_chart_done];\n")
 
     # ── SPONSOR ROTATION STRIP ──
@@ -3989,10 +3985,14 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
     script_social_posts = script.get("social_posts", [])
     if script_social_posts:
         tweet_card_posts = list(script_social_posts)
-        # Add display_order to each post for deterministic ordering
+        # Render12 FIX A: Force display_order explicitly matching script narration order.
+        # The script generator sorted by likes desc before writing narration — this index
+        # guarantees card 0 matches narrator's first tweet reference.
         for di, dp in enumerate(tweet_card_posts):
             dp["display_order"] = di
-        logger.info(f"  SOCIAL ORDER (from script, Issue 5 fix): {len(tweet_card_posts)} posts")
+        logger.info(f"  SOCIAL ORDER (from script, Render12 FIX A): {len(tweet_card_posts)} posts")
+        for di, dp in enumerate(tweet_card_posts):
+            logger.info(f"    SCRIPT ORDER #{di}: @{dp.get('handle', '?')} display_order={dp.get('display_order')}")
     else:
         # Fallback: fetch fresh if script has no social_posts
         try:
@@ -4007,11 +4007,39 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             logger.warning(f"Tweet card data load failed: {e}")
 
     if tweet_card_posts:
-        # Sort by display_order to guarantee match with script narration
+        # Render12 FIX A: Sort by display_order to guarantee card N = narrator reference N
         tweet_card_posts.sort(key=lambda p: p.get("display_order", 0))
-        logger.info(f"  SOCIAL POST ORDER CHECK:")
+        logger.info(f"  SOCIAL POST ORDER (final, after sort):")
         for ti, tp in enumerate(tweet_card_posts):
-            logger.info(f"    #{ti}: @{tp.get('handle', '?')} — {tp.get('text', '')[:40]}")
+            logger.info(f"    CARD #{ti}: @{tp.get('handle', '?')} (display_order={tp.get('display_order')}) — {tp.get('text', '')[:40]}")
+
+        # Cross-check: extract @handles from social_segment dialogue to verify match
+        _social_dialogue = [d for d in dialogue if d.get("type") == "social_segment"
+                            and d.get("host") in (1, 2, "1", "2")]
+        _narrator_handles = []
+        for sd in _social_dialogue:
+            for h in re.findall(r'@(\w+)', sd.get("text", "")):
+                h_lower = h.lower()
+                if h_lower not in _narrator_handles:
+                    _narrator_handles.append(h_lower)
+        _card_handles = [tp.get("handle", "").lower().lstrip("@") for tp in tweet_card_posts]
+        if _narrator_handles and _card_handles:
+            if _narrator_handles[:len(_card_handles)] == _card_handles[:len(_narrator_handles)]:
+                logger.info(f"  FIX A VERIFIED: narrator handles {_narrator_handles} match card order {_card_handles}")
+            else:
+                logger.warning(f"  FIX A MISMATCH: narrator={_narrator_handles} vs cards={_card_handles} — reordering cards to match narrator")
+                # Reorder tweet_card_posts to match narrator handle order
+                handle_to_post = {tp.get("handle", "").lower().lstrip("@"): tp for tp in tweet_card_posts}
+                reordered = []
+                for nh in _narrator_handles:
+                    if nh in handle_to_post:
+                        reordered.append(handle_to_post.pop(nh))
+                # Append any remaining cards not referenced by narrator
+                reordered.extend(handle_to_post.values())
+                tweet_card_posts = reordered
+                for ri, rp in enumerate(tweet_card_posts):
+                    rp["display_order"] = ri
+                logger.info(f"  FIX A: Cards reordered to match narrator: {[tp.get('handle') for tp in tweet_card_posts]}")
 
     # --- 0+1. INTRO TAG + COLD OPEN (merged: PBX narrates over intro) ---
     intro_tag_dur = 0.0
