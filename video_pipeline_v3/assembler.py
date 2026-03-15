@@ -290,7 +290,7 @@ def _build_info_bar_fg(duration: float, btc_price: str, block_height: str = "",
 
 def run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
     cmd = ["ffmpeg", "-y"] + args
-    r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+    r = subprocess.run(cmd, capture_output=True, encoding="utf-8", errors="replace", timeout=timeout)
     if r.returncode != 0:
         logger.error(f"FAIL {label}: {r.stderr[-600:]}")
         return False
@@ -315,7 +315,7 @@ def run_ffmpeg_filtergraph(inputs: list, filtergraph: str, maps: list,
             cmd.extend(["-map", m])
         cmd.extend(output_args)
         cmd.append(output_path)
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        r = subprocess.run(cmd, capture_output=True, encoding="utf-8", errors="replace", timeout=timeout)
         if r.returncode != 0:
             logger.error(f"FAIL {label}: {r.stderr[-600:]}")
             return False
