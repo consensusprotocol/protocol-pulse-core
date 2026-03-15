@@ -207,6 +207,42 @@ def get_latest_spaces_summary() -> dict:
     return None
 
 
+_PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+def _get_live_metric(key: str, fallback: str) -> str:
+    """Fetch a live metric from intelligence signals JSON files, with API fallback for hashrate."""
+    for path in ['data/intelligence/live_signals.json', 'data/intelligence/daily_signals.json']:
+        try:
+            with open(os.path.join(_PIPELINE_DIR, path)) as f:
+                d = json.load(f)
+                if key in d:
+                    return str(d[key])
+        except Exception:
+            pass
+    # API fallback for hashrate
+    if key == "hashrate":
+        try:
+            import urllib.request as _ur
+            with _ur.urlopen("https://mempool.space/api/v1/mining/hashrate/3d", timeout=5) as r:
+                data = json.load(r)
+                if data.get("currentHashrate"):
+                    eh = data["currentHashrate"] / 1e18
+                    return f"{eh:,.0f} EH/s"
+        except Exception:
+            pass
+    # API fallback for mempool fee
+    if key == "mempool_fee":
+        try:
+            import urllib.request as _ur
+            with _ur.urlopen("https://mempool.space/api/v1/fees/recommended", timeout=5) as r:
+                data = json.load(r)
+                return f"{data.get('halfHourFee', 'N/A')} sat/vB"
+        except Exception:
+            pass
+    return fallback
+
+
 def _fetch_btc_price() -> str:
     """FIX 5: Fetch BTC price with dual fallback (CoinGecko → Mempool)."""
     try:
@@ -1318,7 +1354,7 @@ def make_cold_open_scene(audio_path: str, headline: str, body: str, tag: str,
         audio_dur = 5
     total_dur = duration if duration > 0 else audio_dur + 0.3
 
-    safe_head = _sanitize_text(headline)[:30]
+    safe_head = _sanitize_text(headline)[:60]
     safe_body = _word_wrap(_sanitize_text(body), max_width=38, max_lines=4) if body else ""
     safe_btc = btc_price.replace("'", "").replace('"', "").replace("\\", "")
 
@@ -1355,8 +1391,8 @@ def make_cold_open_scene(audio_path: str, headline: str, body: str, tag: str,
     # RIGHT PANEL — VDS 2x2 Metric Cards (x=780,y=100)
     metrics_data = [
         ("BTC PRICE", safe_btc, "+2.1 pct", True),
-        ("HASHRATE", "1,056 EH/s", "+4.2 pct", True),
-        ("ETF FLOW", "$340M", "+18 pct", True),
+        ("HASHRATE", _get_live_metric("hashrate", "850 EH/s"), "+4.2 pct", True),
+        ("ETF FLOW", _get_live_metric("etf_flow", "$340M"), "+18 pct", True),
         ("MARGIN", "42 pct", "-1.2 pct", False),
     ]
     last = "co_left"
@@ -1901,20 +1937,21 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
 
     # ── HEADLINE ──
     safe_head = _sanitize_text(headline)[:60]
+    _head_fontsize = 36 if len(safe_head) > 40 else 42
     if len(safe_head) > 30:
         mid = safe_head[:30].rfind(' ')
         if mid > 10:
             safe_head = safe_head[:mid] + '\\n' + safe_head[mid+1:]
     fg += (f"[ds_eyebrow]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
-           f"fontcolor={COLOR_WHITE}:fontsize=42:x=40:y=72:line_spacing=4"
+           f"fontcolor={COLOR_WHITE}:fontsize={_head_fontsize}:x=40:y=72:line_spacing=4"
            f"[ds_headline];\n")
 
     # 6 metrics: BTC PRICE | HASHRATE | ETF FLOW | MEMPOOL FEE | HALVING % | DOMINANCE
     default_metrics = [
         ("BTC PRICE", btc_price, "+2.1 pct", True),
-        ("HASHRATE", "1,056 EH/s", "+4.2 pct", True),
-        ("ETF FLOW", "$340M", "+18 pct", True),
-        ("MEMPOOL FEE", "12 sat/vB", "-8 pct", False),
+        ("HASHRATE", _get_live_metric("hashrate", "850 EH/s"), "+4.2 pct", True),
+        ("ETF FLOW", _get_live_metric("etf_flow", "$340M"), "+18 pct", True),
+        ("MEMPOOL FEE", _get_live_metric("mempool_fee", "12 sat/vB"), "-8 pct", False),
         ("HALVING PCT", "78 pct", "+0.3 pct", True),
         ("DOMINANCE", "61.4 pct", "+1.1 pct", True),
     ]
@@ -2118,8 +2155,8 @@ def make_social_stack_scene(audio_path: str, headline: str, social_cards: list,
     # Header zone with gold eyebrow
     fg += (f"[bv2_bar]drawtext=fontfile={FONT_MONO}:text='SIGNAL LAYER':"
            f"fontcolor={COLOR_GOLD}:fontsize=13:x=64:y=100,"
-           f"drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(headline)[:40]}':"
-           f"fontcolor={COLOR_WHITE}:fontsize=48:x=64:y=130,"
+           f"drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(headline)[:60]}':"
+           f"fontcolor={COLOR_WHITE}:fontsize={'40' if len(_sanitize_text(headline)) > 40 else '48'}:x=64:y=130,"
            f"drawtext=fontfile={FONT_MONO}:text='Bitcoin Social Conviction Index':"
            f"fontcolor=0xFFFFFF@0.5:fontsize=16:x=64:y=200"
            f"[ss_hdr];\n")
@@ -2214,7 +2251,8 @@ def make_wrap_scene(audio_path: str, headline: str, body: str,
         audio_dur = 5
     total_dur = duration if duration > 0 else audio_dur + 0.3
 
-    safe_head = _sanitize_text(headline)[:40]
+    safe_head = _sanitize_text(headline)[:60]
+    _wrap_fontsize = 52 if len(safe_head) <= 40 else 44
     safe_body = _word_wrap(_sanitize_text(body), max_width=30, max_lines=3) if body else ""
 
     inputs = [audio_path]
@@ -2226,9 +2264,9 @@ def make_wrap_scene(audio_path: str, headline: str, body: str,
     fg += (f"[bv2_bar]drawtext=fontfile={FONT_MONO}:text='FINAL TAKE':"
            f"fontcolor={COLOR_GOLD}:fontsize=13:x=64:y=100[wr_eye];\n")
     fg += (f"[wr_eye]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
-           f"fontcolor=0x111111:fontsize=64:x=66:y=132,"
+           f"fontcolor=0x111111:fontsize={_wrap_fontsize}:x=66:y=132,"
            f"drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
-           f"fontcolor={COLOR_WHITE}:fontsize=64:x=64:y=130[wr_head];\n")
+           f"fontcolor={COLOR_WHITE}:fontsize={_wrap_fontsize}:x=64:y=130[wr_head];\n")
     if safe_body:
         fg += (f"[wr_head]drawtext=fontfile={FONT_MONO}:text='{safe_body}':"
                f"fontcolor=0xFFFFFF@0.6:fontsize=18:x=64:y=420:line_spacing=8[wr_body];\n")
@@ -4075,6 +4113,12 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                 for ri, rp in enumerate(tweet_card_posts):
                     rp["display_order"] = ri
                 logger.info(f"  FIX A: Cards reordered to match narrator: {[tp.get('handle') for tp in tweet_card_posts]}")
+
+        # Render19: Log WARNING if narrator text mentions names not matching card handles
+        if _narrator_handles and _card_handles:
+            for ni, nh in enumerate(_narrator_handles):
+                if ni < len(_card_handles) and nh != _card_handles[ni]:
+                    logger.warning(f"  TWEET NARRATOR MISMATCH: narrator position {ni} says '{nh}' but card[{ni}] is '@{tweet_card_posts[ni].get('handle', '?')}' — cards were reordered to compensate")
 
     # --- 0+1. INTRO TAG + COLD OPEN (merged: PBX narrates over intro) ---
     intro_tag_dur = 0.0

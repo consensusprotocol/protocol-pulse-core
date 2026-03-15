@@ -114,6 +114,7 @@ If social posts data is provided below, add a "WHAT THE BITCOIN INTERNET IS SAYI
 - PBX reacts first to the top tweet, then Eryn analyzes the second, PBX wraps the third
 - This is a separate section in the dialogue with type: "social_segment"
 CRITICAL: If no social posts data is provided (empty or "NONE"), do NOT fabricate tweet content. Skip the social segment entirely. Law A1 — no invented data.
+TWEET LAW — IRON LAW: Before writing ANY tweet narration, read the actual social_posts list in order. Tweet segment narration MUST reference social_posts[0]['handle'] for the first tweet, social_posts[1]['handle'] for the second, etc. NEVER reference a name not in the list. NEVER assume who tweeted. Read the handle from the data and use it verbatim.
 
 {clips_info}
 
