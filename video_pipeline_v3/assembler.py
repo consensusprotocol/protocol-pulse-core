@@ -85,6 +85,7 @@ OUTRO_BRANDED = os.path.join(ASSETS, "outro_branded.mp4")
 INTRO_TAG = os.path.join(ASSETS, "intro_tag.mp4")
 INTRO_MUSIC_FILE = os.path.join(ASSETS, "intro_music.mp3")
 BG_LOOP = os.path.join(ASSETS, "bg_loop.mp4")
+PIP_PLACEHOLDER = os.path.join(ASSETS, "pip_placeholder.mp4")
 OUTRO_BRANDED_NEW = os.path.join(ASSETS, "outro_branded_new.mp4")
 LOGO_IMAGE = os.path.join(ASSETS, "logo_protocol_pulse.png")
 # Issue 3: Custom whoosh sound — prefer custom_whoosh.wav/.mp3 over generated glitch_whoosh.wav
@@ -993,6 +994,27 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
     return output_path if ok and os.path.exists(output_path) else ""
 
 
+def _ensure_pip_placeholder() -> str:
+    """Render18 FIX 1: Generate branded PiP placeholder from bg_loop if it doesn't exist."""
+    if os.path.exists(PIP_PLACEHOLDER) and os.path.getsize(PIP_PLACEHOLDER) > 10000:
+        return PIP_PLACEHOLDER
+    if not os.path.exists(BG_LOOP):
+        logger.warning("PiP placeholder: bg_loop.mp4 not found, cannot generate")
+        return ""
+    ok = run_ffmpeg([
+        "-i", BG_LOOP,
+        "-t", "8",
+        "-vf", "scale=716:370:force_original_aspect_ratio=increase,crop=716:370",
+        "-c:v", "libx264", "-crf", "20", "-preset", "medium",
+        "-an",
+        PIP_PLACEHOLDER,
+    ], "generate pip placeholder", 60)
+    if ok and os.path.exists(PIP_PLACEHOLDER):
+        logger.info(f"PiP placeholder generated: {PIP_PLACEHOLDER}")
+        return PIP_PLACEHOLDER
+    return ""
+
+
 def overlay_pip_on_narration(narration_path: str, pip_path: str,
                               output_path: str) -> str:
     """Overlay PiP preview clip onto narration video.
@@ -1002,8 +1024,12 @@ def overlay_pip_on_narration(narration_path: str, pip_path: str,
     "COMING UP..." label inside PiP bottom-left.
     """
     if not pip_path or not os.path.exists(pip_path):
-        logger.info(f"PiP: no preview available, using narration-only for this segment")
-        return narration_path
+        # Render18 FIX 1: Use branded placeholder instead of returning narration-only
+        pip_path = _ensure_pip_placeholder()
+        if not pip_path:
+            logger.info(f"PiP: no preview available, using narration-only for this segment")
+            return narration_path
+        logger.info(f"PiP: using branded placeholder for this segment")
     pip_dur = ffprobe_duration(pip_path)
     ok = run_ffmpeg([
         "-i", narration_path,
@@ -1666,16 +1692,27 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
         fg += f"[np_pip_hdr][np_thumb]overlay=1072:240[np_pip_thumb];\n"
         pip_base = "np_pip_thumb"
     else:
-        # Minimal styled placeholder — keeps PiP frame occupied
-        fg += (
-            f"[np_pip_hdr]"
-            f"drawbox=x=1072:y=240:w=796:h=370:color=0x050607:t=fill,"
-            f"drawtext=fontfile={FONT_MONO}:text='PREVIEW':"
-            f"fontcolor={COLOR_RED}@0.4:fontsize=14:x=1420:y=410,"
-            f"drawtext=fontfile={FONT_MONO}:text='LOADING':"
-            f"fontcolor=0xFFFFFF@0.2:fontsize=11:x=1422:y=430"
-            f"[np_pip_thumb];\n"
-        )
+        # Render18 FIX 1: Use branded placeholder (bg_loop) instead of black box
+        placeholder = _ensure_pip_placeholder()
+        if placeholder and os.path.exists(placeholder):
+            inputs.append(placeholder)
+            ph_idx = len(inputs) - 1
+            ph_dur = ffprobe_duration(placeholder)
+            ph_frames = max(30, int(ph_dur * 30) + 5) if ph_dur > 0 else 240
+            ph_loop = f"loop=loop=-1:size={ph_frames}:start=0," if ph_dur < total_dur else ""
+            fg += (f"[{ph_idx}:v]{ph_loop}"
+                   f"scale=796:370:force_original_aspect_ratio=increase,"
+                   f"crop=796:370,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS[np_pip_ph];\n")
+            fg += f"[np_pip_hdr][np_pip_ph]overlay=1072:240[np_pip_thumb];\n"
+        else:
+            # Last resort: subtle styled placeholder (not pure black)
+            fg += (
+                f"[np_pip_hdr]"
+                f"drawbox=x=1072:y=240:w=796:h=370:color=0x0A0A0F:t=fill,"
+                f"drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
+                f"fontcolor={COLOR_GOLD}@0.3:fontsize=16:x=1380:y=420"
+                f"[np_pip_thumb];\n"
+            )
         pip_base = "np_pip_thumb"
 
     # Lower third in preview
@@ -3550,13 +3587,13 @@ def concatenate_parts(parts: list, output_path: str,
         p = ensure_audio(p)
         dur = ffprobe_duration(p)
         fade_out_start = max(0, dur - 0.05)
-        # Render11 FIX 2: Reduce fades from 0.15/0.3/0.5s to 0.05s on narration parts
-        # to eliminate audible pauses at segment boundaries
+        # Render11 FIX 2: Reduce fades on narration parts to eliminate audible pauses
+        # Render18 FIX 2: Further tightened narrator fades 0.05→0.03s to kill dead air gaps
         pbase_norm = os.path.basename(p).lower()
         is_clip_part = "clip_r" in pbase_norm or ("clip_" in pbase_norm and "partner" not in pbase_norm)
-        v_fade = 0.15 if is_clip_part else 0.05
-        a_fade_in = 0.15 if is_clip_part else 0.05
-        a_fade_out = 0.3 if is_clip_part else 0.05
+        v_fade = 0.15 if is_clip_part else 0.03
+        a_fade_in = 0.15 if is_clip_part else 0.03
+        a_fade_out = 0.3 if is_clip_part else 0.03
         fade_out_start_v = max(0, dur - v_fade)
         ok = run_ffmpeg(
             ["-i", p,
@@ -4306,8 +4343,8 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
 
         # Sprint 1.5: Each tweet as its OWN video segment
         if entry_type == "social_segment" and tweet_card_posts and social_card_idx < len(tweet_card_posts):
-            # Render up to 3 individual card segments (one per tweet)
-            card_posts = tweet_card_posts[social_card_idx:social_card_idx + 3]
+            # Render18 FIX 4: Render ALL remaining cards (was capped at 3, skipping last card)
+            card_posts = tweet_card_posts[social_card_idx:]
             # Session 4 Fix 4: Rank cards by relevance to narrator text
             card_posts = _rank_cards_for_segment(card_posts, text)
 
@@ -4452,8 +4489,17 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             if entry_type == "setup" and clip_rank and clip_rank in extracted_clips:
                 seg_data["next_speaker"] = extracted_clips[clip_rank].get("channel", "")
             # FIX 1: Pass PiP video directly into the scene renderer (not as a post-processing overlay)
-            pip_vid = pip_previews.get(clip_rank, "") if entry_type == "setup" and clip_rank else ""
-            if pip_vid:
+            # Render18 FIX 1: For cold_open, skip PiP entirely. For setup with missing PiP, use placeholder.
+            pip_vid = ""
+            if entry_type == "cold_open":
+                pip_vid = ""  # cold_open is the hook — no preview box
+            elif entry_type == "setup" and clip_rank:
+                pip_vid = pip_previews.get(clip_rank, "")
+                if not pip_vid:
+                    pip_vid = _ensure_pip_placeholder()
+                    if pip_vid:
+                        logger.info(f"  FIX1-R18: Using branded placeholder PiP for SETUP → clip #{clip_rank}")
+            if pip_vid and pip_vid != PIP_PLACEHOLDER:
                 logger.info(f"  FIX1: PiP video embedded for SETUP → clip #{clip_rank}")
             result = make_broadcast_segment(
                 seg_data, audio_path, host_num,

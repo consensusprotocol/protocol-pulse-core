@@ -81,7 +81,7 @@ VOICES = {
     2: _PBX_VOICE,       # HOST_2 → PBX (male)
 }
 
-SILENCE_GAP = 0.05  # seconds between speakers (render11: 0.3→0.05 — barely perceptible, prevents overlap)
+SILENCE_GAP = 0.03  # seconds between speakers (render18: 0.05→0.03 — tighter handoffs, eliminates dead air)
 MAX_CHUNK_CHARS = 4900
 
 # Render12 FIX 3: Key emphasis words for natural delivery
@@ -162,14 +162,26 @@ def _mp3_to_m4a(mp3_path: str, m4a_path: str) -> bool:
     return r.returncode == 0 and os.path.exists(m4a_path)
 
 
-def trim_to_sentence(text: str, max_chars: int = 400) -> str:
-    """Trim text at the last sentence boundary before max_chars."""
+def trim_to_sentence(text: str, max_chars: int = 500) -> str:
+    """Trim text at the last sentence boundary before max_chars.
+
+    Render18 FIX 3: max_chars 400→500 to prevent mid-word cuts on number-heavy sentences.
+    Sentence boundary requires >=20 chars before and >=15 chars after to avoid splitting
+    on abbreviations like 'U.S.' or numbers like '$308'.
+    """
     if len(text) <= max_chars:
         return text
     chunk = text[:max_chars]
-    matches = list(re.finditer(r'[.!?](?:\s|$)', chunk))
+    # Render18 FIX 3: Require min 20 chars before boundary and 15 chars after
+    matches = [m for m in re.finditer(r'[.!?](?:\s|$)', chunk)
+               if m.start() > 20 and (len(chunk) - m.end()) > 15]
     if matches:
         last = matches[-1]
+        return text[:last.end()].strip()
+    # Fallback: any sentence boundary (relaxed constraint)
+    all_matches = list(re.finditer(r'[.!?](?:\s|$)', chunk))
+    if all_matches:
+        last = all_matches[-1]
         return text[:last.end()].strip()
     # No sentence boundary — trim at last word boundary
     last_space = chunk.rfind(' ')
