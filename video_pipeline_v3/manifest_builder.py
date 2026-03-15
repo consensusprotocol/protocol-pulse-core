@@ -253,7 +253,7 @@ def build_manifest(script: dict, audio_data: dict, extracted_clips: dict,
             "unique_channels": len(unique_channels),
             "loudness_lufs": -14,
             "true_peak_dbtp": -1.5,
-            "max_silent_gap_sec": 2.0,
+            "max_silent_gap_sec": 2.8,
             "max_black_frames_sec": 0.5,
         },
     }
@@ -266,6 +266,13 @@ def build_manifest(script: dict, audio_data: dict, extracted_clips: dict,
 
     logger.info(f"Manifest built: {len(segments)} segments, ~{cumulative_sec:.0f}s estimated")
     logger.info(f"  Clips: {clip_count} from {len(unique_channels)} channels")
+    # Render12 FIX 4C: Warn if estimated duration exceeds 10min target
+    if cumulative_sec > 660:
+        logger.warning(f"  EPISODE OVER-LENGTH: {cumulative_sec:.0f}s estimated (target 600s, hard warn at 660s)")
+    elif cumulative_sec > 600:
+        logger.info(f"  EPISODE LENGTH: {cumulative_sec:.0f}s (slightly over 10min target)")
+    else:
+        logger.info(f"  EPISODE LENGTH: {cumulative_sec:.0f}s (within 10min target)")
     logger.info(f"  Saved: {manifest_path}")
 
     return manifest

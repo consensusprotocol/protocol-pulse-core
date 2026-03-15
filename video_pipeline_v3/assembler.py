@@ -77,6 +77,7 @@ BV2_RED_LIGHT   = "0xFF8595"   # gradient accent
 INTRO_VIDEO = os.path.join(ASSETS, "intro.mp4")
 OUTRO_VIDEO = os.path.join(ASSETS, "outro.mp4")
 GLITCH_TRANSITION = os.path.join(ASSETS, "transitions", "glitch_transition_waud.mp4")
+DIGITAL_TRANSITION = os.path.join(ASSETS, "transitions", "digital_transition_1080p.mov")
 WATERMARK = os.path.join(ASSETS, "logo", "watermark.png")
 BG_MUSIC = os.path.join(ASSETS, "music", "pp_background.mp3")
 TAG_VIDEO = os.path.join(ASSETS, "tag_vertical.mp4")
@@ -3281,31 +3282,76 @@ def make_remotion_lower_third(clip_path: str, source: str, output_path: str,
     return ""
 
 
-def make_transition_visual(output_path: str, duration: float = 0.6) -> str:
-    """Glitch transition — branded asset with custom_whoosh mixed at -6dB.
+def make_transition_visual(output_path: str, duration: float = 2.2) -> str:
+    """Render12: Premium digital binary grid transition overlay.
 
-    Priority:
-    1. Branded glitch_transition_waud.mp4 asset + custom_whoosh.wav at -6dB
-    2. Simple dark flash fallback with whoosh
+    Uses digital_transition_1080p.mov (2.2s, 1080p RGBA) composited over a dark
+    background. First 0.8s = wipe-over on outgoing, last 0.8s = reveal of incoming.
+    Whoosh SFX mixed at volume=2.5 for the full 2.2s.
 
-    Duration: 0.5s-0.8s. Clamped to this range.
+    Fallback: old glitch asset → dark flash.
+    Duration: 2.2s (fixed for digital asset), clamped 0.5-0.8s for fallback.
     """
-    duration = max(0.5, min(0.8, duration))
+    # Render12: Use premium digital transition if available
+    if os.path.exists(DIGITAL_TRANSITION):
+        duration = 2.2  # fixed duration matching the asset
+        has_whoosh = os.path.exists(GLITCH_WHOOSH)
+        if has_whoosh:
+            ok = run_ffmpeg([
+                "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30",
+                "-i", DIGITAL_TRANSITION,
+                "-i", GLITCH_WHOOSH,
+                "-filter_complex",
+                # Composite RGBA digital grid over dark bg
+                f"[0:v]trim=0:{duration},setpts=PTS-STARTPTS[bg];"
+                f"[1:v]scale=1920:1080,format=rgba,trim=0:{duration},setpts=PTS-STARTPTS[fg];"
+                f"[bg][fg]overlay=0:0:format=auto,format=yuv420p,"
+                f"fade=t=in:st=0:d=0.15,fade=t=out:st={duration - 0.15}:d=0.15[outv];"
+                # Whoosh at volume=2.5 over full transition
+                f"[2:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=2.5,"
+                f"afade=t=in:d=0.1,afade=t=out:st={duration - 0.2}:d=0.2,"
+                f"alimiter=limit=0.95[outa]",
+                "-map", "[outv]", "-map", "[outa]",
+                "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
+                "-r", "30", "-pix_fmt", "yuv420p",
+                "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                "-t", str(duration),
+                output_path,
+            ], "digital transition + whoosh", 60)
+        else:
+            ok = run_ffmpeg([
+                "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30",
+                "-i", DIGITAL_TRANSITION,
+                "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
+                "-filter_complex",
+                f"[0:v]trim=0:{duration},setpts=PTS-STARTPTS[bg];"
+                f"[1:v]scale=1920:1080,format=rgba,trim=0:{duration},setpts=PTS-STARTPTS[fg];"
+                f"[bg][fg]overlay=0:0:format=auto,format=yuv420p,"
+                f"fade=t=in:st=0:d=0.15,fade=t=out:st={duration - 0.15}:d=0.15[outv]",
+                "-map", "[outv]", "-map", "2:a",
+                "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
+                "-r", "30", "-pix_fmt", "yuv420p",
+                "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                "-t", str(duration), "-shortest",
+                output_path,
+            ], "digital transition (no whoosh)", 60)
+        if ok and os.path.exists(output_path):
+            dur = ffprobe_duration(output_path)
+            logger.info(f"  TRANSITION FIRING: digital binary grid + whoosh ({dur:.2f}s)")
+            return output_path
 
-    # Issue 7 FIX: Use branded asset IMMEDIATELY (skip Remotion — it fails silently)
+    # Fallback: old glitch asset
+    duration = max(0.5, min(0.8, duration))
     if os.path.exists(GLITCH_TRANSITION):
-        # Mix custom whoosh at -6dB (loud enough to hear clearly)
         has_whoosh = os.path.exists(GLITCH_WHOOSH)
         if has_whoosh:
             ok = run_ffmpeg([
                 "-i", GLITCH_TRANSITION,
                 "-i", GLITCH_WHOOSH,
                 "-filter_complex",
-                # FIX 3: Wider fade + whoosh at volume=2.0 (clearly audible over transition)
                 f"[0:v]scale=1920:1080,setsar=1,fps=30,trim=0:{duration},setpts=PTS-STARTPTS,format=yuv420p,"
                 f"fade=t=in:st=0:d=0.1,fade=t=out:st={max(0, duration - 0.1)}:d=0.1[outv];"
                 f"[0:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=1.5[ta];"
-                # FIX 3: Whoosh at volume=2.0 — must cut through transition clearly
                 f"[1:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=2.0,alimiter=limit=0.95[wa];"
                 f"[ta][wa]amix=inputs=2:duration=first,alimiter=limit=0.85:level=disabled:attack=5:release=50[outa]",
                 "-map", "[outv]", "-map", "[outa]",
@@ -3314,7 +3360,7 @@ def make_transition_visual(output_path: str, duration: float = 0.6) -> str:
                 "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                 "-t", str(duration),
                 output_path,
-            ], "glitch transition + whoosh", 30)
+            ], "glitch transition + whoosh (fallback)", 30)
         else:
             ok = run_ffmpeg([
                 "-i", GLITCH_TRANSITION,
@@ -3325,21 +3371,20 @@ def make_transition_visual(output_path: str, duration: float = 0.6) -> str:
                 "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                 "-t", str(duration),
                 output_path,
-            ], "glitch transition", 30)
+            ], "glitch transition (fallback)", 30)
         if ok and os.path.exists(output_path):
             dur = ffprobe_duration(output_path)
-            logger.info(f"  TRANSITION FIRING: glitch asset + whoosh ({dur:.2f}s)")
+            logger.info(f"  TRANSITION FIRING: glitch asset fallback ({dur:.2f}s)")
             return output_path
 
     # Last resort: short dark flash with whoosh
-    logger.warning("Glitch asset not found — using dark flash with whoosh")
+    logger.warning("No transition assets found — using dark flash with whoosh")
     if os.path.exists(GLITCH_WHOOSH):
         ok = run_ffmpeg([
             "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30",
             "-i", GLITCH_WHOOSH,
             "-filter_complex",
-            # FIX 3: Whoosh volume 0.5→2.0 so it's actually audible
-            f"[1:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=2.0[outa]",
+            f"[1:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=2.5[outa]",
             "-map", "0:v", "-map", "[outa]",
             "-t", str(duration),
             "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
@@ -3973,6 +4018,21 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
     audio_lines = audio_data.get("lines", [])
     cold_open_consumed = False
 
+    # Render12 FIX 4B: Estimate total duration and apply soft 10min cap
+    # If narration + clips > 600s, trim setup segment audio to 80% length via atrim
+    _est_narration = sum(al.get("duration", 0) for al in audio_lines if al.get("host") not in ("CLIP",))
+    _est_clips = sum(al.get("duration", 0) for al in audio_lines if al.get("host") == "CLIP")
+    _est_clips += sum(c.get("duration", 0) for c in extracted_clips.values())
+    _est_total = _est_narration + _est_clips + 20  # +20s for transitions/intro/outro
+    logger.info(f"  EPISODE ESTIMATE: narration={_est_narration:.0f}s + clips={_est_clips:.0f}s + overhead=20s = {_est_total:.0f}s")
+    _trim_setup_factor = 1.0
+    if _est_total > 660:
+        logger.warning(f"  EPISODE OVER 11min ({_est_total:.0f}s) — will trim setup narration to 80%")
+        _trim_setup_factor = 0.80
+    elif _est_total > 600:
+        logger.warning(f"  EPISODE OVER 10min ({_est_total:.0f}s) — will trim setup narration to 90%")
+        _trim_setup_factor = 0.90
+
     # Find cold_open audio (first dialogue entry with type "cold_open", or first host line)
     cold_open_audio = None
     for al in audio_lines:
@@ -4065,10 +4125,10 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             # Issue 7 FIX: Fire glitch transition before each clip (setup→clip)
             if prev_segment_type in ("setup", "cold_open", "react"):
                 trans_out = os.path.join(work_dir, f"part_{part_idx:03d}_transition_to_clip.mp4")
-                trans_result = make_transition_visual(trans_out, duration=0.6)
+                trans_result = make_transition_visual(trans_out, duration=2.2)
                 if trans_result:
                     parts.append(trans_result)
-                    logger.info(f"GLITCH TRANSITION: [{prev_segment_type}] → [CLIP] using {os.path.basename(GLITCH_TRANSITION)}")
+                    logger.info(f"DIGITAL TRANSITION: [{prev_segment_type}] → [CLIP]")
                     part_idx += 1
 
             # YouTube clip — full screen, original audio
@@ -4128,10 +4188,10 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         # Issue 7 FIX: Fire glitch transition between setup→clip pairs
         if prev_segment_type in ("setup", "react") and entry_type in ("setup",):
             trans_out = os.path.join(work_dir, f"part_{part_idx:03d}_transition.mp4")
-            trans_result = make_transition_visual(trans_out, duration=0.6)
+            trans_result = make_transition_visual(trans_out, duration=2.2)
             if trans_result:
                 parts.append(trans_result)
-                logger.info(f"GLITCH TRANSITION: [{prev_segment_type}] → [{entry_type}] using {os.path.basename(GLITCH_TRANSITION)}")
+                logger.info(f"DIGITAL TRANSITION: [{prev_segment_type}] → [{entry_type}]")
                 part_idx += 1
 
         # Host dialogue line — find matching audio
@@ -4181,6 +4241,21 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                     audio_path = silence_pad
         except OSError:
             pass
+
+        # Render12 FIX 4B: Trim setup narration audio if episode is over-length
+        if _trim_setup_factor < 1.0 and entry_type == "setup":
+            audio_dur = ffprobe_duration(audio_path)
+            trimmed_dur = audio_dur * _trim_setup_factor
+            trimmed_path = audio_path + ".trimmed.m4a"
+            trim_ok = run_ffmpeg([
+                "-i", audio_path,
+                "-af", f"atrim=0:{trimmed_dur:.2f},asetpts=PTS-STARTPTS,atempo=1.0",
+                "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                trimmed_path,
+            ], f"setup trim {audio_dur:.1f}s→{trimmed_dur:.1f}s", 30)
+            if trim_ok and os.path.exists(trimmed_path):
+                audio_path = trimmed_path
+                logger.info(f"  FIX4B: Setup narration trimmed {audio_dur:.1f}s → {trimmed_dur:.1f}s ({_trim_setup_factor:.0%})")
 
         # Mix TTS with background music if music utility supports it
         # (We handle music mixing directly in make_host_visual via assets/music/pp_background.mp3)

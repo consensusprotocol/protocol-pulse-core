@@ -83,6 +83,42 @@ VOICES = {
 SILENCE_GAP = 0.05  # seconds between speakers (render11: 0.3→0.05 — barely perceptible, prevents overlap)
 MAX_CHUNK_CHARS = 4900
 
+# Render12 FIX 3: Key emphasis words for natural delivery
+_EMPHASIS_WORDS = {"Bitcoin", "ETF", "billion", "trillion", "record", "halving", "hashrate", "sovereign"}
+
+
+def _apply_prosody_substitutions(text: str) -> str:
+    """Render12: Text-level prosody for natural AI voice delivery.
+
+    ElevenLabs eleven_turbo_v2_5 does NOT support SSML — use text substitutions:
+    1. Natural pauses after commas via ellipsis
+    2. Slow down numbers by spacing digits in large numbers
+    3. Emphasis on key words via CAPS (ElevenLabs reads caps with emphasis)
+    """
+    import re
+
+    # 1. Natural pauses: replace ", " with " ... " for breath-like pauses
+    # Only for mid-sentence commas (not inside numbers like "1,000")
+    text = re.sub(r',\s+(?=[A-Za-z])', ' ... ', text)
+
+    # 2. Numbers: add slight pauses around large numbers for clarity
+    # "96482" → "96,482" (ElevenLabs handles formatted numbers better)
+    def _format_number(m):
+        num_str = m.group(0)
+        if len(num_str) >= 4 and '.' not in num_str:
+            try:
+                return f"{int(num_str):,}"
+            except ValueError:
+                return num_str
+        return num_str
+    text = re.sub(r'\b\d{4,}\b', _format_number, text)
+
+    # 3. Emphasis: capitalize key words (ElevenLabs adds natural stress to CAPS)
+    for word in _EMPHASIS_WORDS:
+        text = re.sub(r'\b' + re.escape(word) + r'\b', word.upper(), text, flags=re.IGNORECASE)
+
+    return text
+
 _KEY_CACHE: dict = {}
 
 
@@ -174,6 +210,7 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1) -> bool:
 
     text = expand_numbers_for_tts(text)
     text = apply_pronunciation_map(text)  # Fix 3: number babble prevention
+    text = _apply_prosody_substitutions(text)  # Render12: natural delivery
     chunks = _chunk_text(text)
     chunk_files = []
 

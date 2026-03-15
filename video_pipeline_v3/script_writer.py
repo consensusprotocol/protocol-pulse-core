@@ -74,7 +74,12 @@ EPISODE STRUCTURE (follow this order):
 4. [NARRATION] — Setup for Clip 2 with re-engagement hook at ~minute 3.
 5. [NARRATION] — Analysis after Clip 2.
 6. [DATA] — Hard metrics segment. MINIMUM 3 exchanges (Eryn + PBX). Cover: price context, hash rate or difficulty, one on-chain signal. At least one specific number per line. Target: 45-60 seconds of spoken content.
-7. [SOCIAL] — MINIMUM 3 tweet reads + 2 PBX reactions. Eryn reads each tweet sharp and brief. Target: 40-50 seconds.
+7. [SOCIAL] — MINIMUM 3 tweets + 2 PBX reactions. PBX and Eryn REACT to and ANALYZE each tweet. They do NOT read tweets word for word. Instead:
+  - PBX: 'Saylor just dropped HODL again — that's his entire thesis in one word. No explanation needed at this point.'
+  - Eryn: 'Pomp's take on BlackRock is interesting because he's been skeptical — if he's bullish now, retail follows.'
+  Keep each reaction to 1-2 sentences. Sharp, opinionated, adds value beyond what the tweet says.
+  The tweet card is already on screen — viewers can read it. Your job is to ADD context.
+  CRITICAL: First tweet card shown = first referenced in narration. Maintain strict order. Target: 40-50 seconds.
 8. [WARM] — 2-3 sentences synthesizing the day's theme, then abrupt CTA. Target: 20-30 seconds. End ABRUPTLY. No "thanks for watching."
 
 NARRATION PHILOSOPHY — Simon Dixon / Preston Pysh standard:
@@ -104,8 +109,9 @@ The tag is INSIDE the text string, not the type field. Both must be present.
 
 SOCIAL SEGMENT:
 If social posts data is provided below, add a "WHAT THE BITCOIN INTERNET IS SAYING" segment after the last clip:
-- Eryn reads 2-3 of the top tweets provided (sharp, brief, 1 line each)
-- Mark drops a one-liner reaction to the best one
+- PBX and Eryn ANALYZE (not read) 2-3 of the top tweets — the card is on screen, viewers read it themselves
+- Each host adds 1-2 sentences of sharp, opinionated CONTEXT about why the tweet matters
+- PBX reacts first to the top tweet, then Eryn analyzes the second, PBX wraps the third
 - This is a separate section in the dialogue with type: "social_segment"
 CRITICAL: If no social posts data is provided (empty or "NONE"), do NOT fabricate tweet content. Skip the social segment entirely. Law A1 — no invented data.
 
@@ -281,6 +287,14 @@ def _validate_social_tweet_order(result: dict, social_posts_raw: str) -> dict:
         if matched:
             entry["_social_handle_ref"] = matched[0]
             logger.info(f"[script] Social segment line {idx} references @{matched[0]}")
+
+    # Render12 FIX 2: Assert strict tweet order — first card shown = first referenced
+    if narrator_handles and social_handles:
+        expected = social_handles[:len(narrator_handles)]
+        if narrator_handles != expected:
+            logger.warning(f"[script] TWEET ORDER VIOLATION: narrator={narrator_handles}, expected={expected} — reordering")
+        else:
+            logger.info(f"[script] TWEET ORDER OK: {narrator_handles}")
 
     # FIX 5: Reorder social_segment entries so narration order matches display order
     # The social_posts were sorted by likes desc — narrator should mention them in that order

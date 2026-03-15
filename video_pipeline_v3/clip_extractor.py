@@ -17,7 +17,7 @@ if not logger.handlers:
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 CLIP_CACHE = os.path.join(BASE, "downloads", "clip_cache")
-MAX_CLIP_DURATION = 90  # Hard cap: no clip exceeds 90s (target 5×90=450s + narration ≈ 540s)
+MAX_CLIP_DURATION = 35  # Render12: Hard cap 35s per clip (5×35=175s clips + narration ≈ 600s target)
 
 
 def _run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
