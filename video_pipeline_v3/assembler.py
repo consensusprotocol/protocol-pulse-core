@@ -1767,19 +1767,6 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
 
 # ── BV2 Scene 3: PARTNER CLIP ───────────────────────────────────────────
 
-def _get_audio_offset(clip_path: str) -> float:
-    """Session 4 Fix 5: Probe container-level audio start offset for lip sync."""
-    try:
-        r = subprocess.run([
-            "ffprobe", "-v", "quiet", "-select_streams", "a:0",
-            "-show_entries", "stream=start_time",
-            "-of", "csv=p=0", clip_path
-        ], capture_output=True, text=True, timeout=10)
-        val = float(r.stdout.strip())
-        return val if 0 < val < 2.0 else 0.0  # ignore large or negative offsets
-    except Exception:
-        return 0.0
-
 
 def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
                              quote: str, output_path: str,
@@ -4011,7 +3998,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             if is_enabled("tweet_cards"):
                 from utils.social_fetcher import get_todays_social_posts
                 tweet_card_posts = get_todays_social_posts(max_posts=4)
-                tweet_card_posts.sort(key=lambda p: p.get("likes", 0), reverse=True)
+                # DO NOT sort by likes — display_order must match narration reference order
                 for di, dp in enumerate(tweet_card_posts):
                     dp["display_order"] = di
         except Exception as e:
@@ -4140,7 +4127,17 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         clip_path = cinfo.get("path", "")
         if clip_path and os.path.exists(clip_path):
             pip_out = os.path.join(work_dir, f"pip_preview_r{rank}.mp4")
-            pip_result = make_pip_preview(clip_path, pip_out)
+            # Resolve re-encoded clip from clips/ dir (better quality + proper PTS)
+            clips_dir = os.path.join(os.path.dirname(work_dir), "clips")
+            reencoded = None
+            if os.path.isdir(clips_dir):
+                import glob
+                pattern = os.path.join(clips_dir, f"clip_{rank}_*.mp4")
+                matches = sorted(glob.glob(pattern))
+                if matches:
+                    reencoded = matches[0]
+            pip_source = reencoded if reencoded and os.path.getsize(reencoded) > 50000 else clip_path
+            pip_result = make_pip_preview(pip_source, pip_out)
             if pip_result:
                 pip_previews[rank] = pip_result
                 logger.info(f"  PiP preview for clip #{rank}: ready")
