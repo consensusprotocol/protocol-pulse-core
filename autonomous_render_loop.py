@@ -273,6 +273,12 @@ def launch_render():
         proc = subprocess.Popen(
             [sys.executable, f'{PIPELINE}/daily_producer.py'],
             cwd=PIPELINE, env=env, stdout=logf, stderr=subprocess.STDOUT)
+    import shutil as _sh
+    free_gb = _sh.disk_usage('/home/ultron').free / 1024**3
+    if free_gb < 3.0:
+        telegram(f'DISK CRITICAL: {free_gb:.1f}GB free — loop paused')
+        time.sleep(300)
+        return
     log(f'Render PID {proc.pid}')
     while True:
         time.sleep(10)
@@ -326,6 +332,14 @@ def main():
                 clear_pycache()
                 pf_fails = 0
 
+        # Archive any existing MP4 so find_mp4() only detects genuinely new renders
+        existing = glob.glob(f'{today_dir()}/pulse_check_*.mp4')
+        existing = [f for f in existing if '.mp4.' not in os.path.basename(f)]
+        for old_mp4 in existing:
+            archived = old_mp4.replace('pulse_check_', 'archived_iter_prev_')
+            try: os.rename(old_mp4, archived)
+            except Exception: pass
+
         success, output, exit_code, render_start = launch_render()
 
         mp4 = find_mp4(after_ts=render_start)
@@ -367,8 +381,12 @@ def main():
             unk_streak += 1
             log(f'Unknown error #{unk_streak} - spawning CC')
             cc_auto_repair(output, iteration)
-            if unk_streak % 5 == 0:
-                telegram(f'{unk_streak} consecutive unknown errors - CC handling, loop continues')
+            if unk_streak >= 5:
+                telegram(f'LOOP STOPPED: {unk_streak} consecutive crashes. Fix issue then restart manually.')
+                log('HARD STOP: 5 consecutive unknown errors')
+                return
+            elif unk_streak >= 3:
+                telegram(f'WARNING: {unk_streak} consecutive errors')
 
         clear_pycache()
         kill_renders()
