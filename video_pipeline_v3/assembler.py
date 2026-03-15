@@ -702,9 +702,9 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                         f"[0:v]{vf},"
                         f"fade=t=out:st={max(0, vid_dur - 0.5)}:d=0.5[outv];"
                         # Audio: intro music hard-cut at 3.0s (atrim), then silence via apad
-                        f"[2:a]atrim=0:3.0,asetpts=PTS-STARTPTS,volume=0.25,"
+                        f"[2:a]atrim=0:8.0,asetpts=PTS-STARTPTS,afade=t=out:st=5.5:d=2.5,volume=0.35,"
                         f"apad=whole_dur={vid_dur}[intro_mus];"
-                        f"[1:a]adelay=500|500,aformat=channel_layouts=stereo[tts_delayed];"
+                        f"[1:a]aformat=channel_layouts=stereo[tts_delayed];"
                         f"[intro_mus][tts_delayed]amix=inputs=2:duration=longest:weights=1 1,"
                         f"alimiter=limit=0.85:level=disabled:attack=5:release=50,"
                         f"aresample=async=1[outa]"
@@ -725,7 +725,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                     "-filter_complex", (
                         f"[0:v]{vf},"
                         f"fade=t=out:st={max(0, vid_dur - 0.5)}:d=0.5[outv];"
-                        f"[1:a]adelay=500|500,aformat=channel_layouts=stereo,"
+                        f"[1:a]aformat=channel_layouts=stereo,"
                         f"alimiter=limit=0.85:level=disabled:attack=5:release=50,"
                         f"aresample=async=1[outa]"
                     ),
@@ -745,7 +745,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                 "-filter_complex", (
                     f"[0:v]{vf},"
                     f"fade=t=out:st={max(0, vid_dur - 0.5)}:d=0.5[outv];"
-                    f"[1:a]adelay=500|500,aformat=channel_layouts=stereo,"
+                    f"[1:a]aformat=channel_layouts=stereo,"
                     f"alimiter=limit=0.85:level=disabled:attack=5:release=50,"
                     f"aresample=async=1[outa]"
                 ),
@@ -773,7 +773,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
            f"fontcolor={COLOR_WHITE}:fontsize=48:x=(w-text_w)/2:y=(h-text_h)/2,"
            f"fade=t=in:st=0:d=0.5,fade=t=out:st={max(0, total_dur - 0.5)}:d=0.5"
            f"[outv];\n")
-    fg += (f"[0:a]adelay=500|500,aformat=channel_layouts=stereo,"
+    fg += (f"[0:a]aformat=channel_layouts=stereo,"
            f"alimiter=limit=0.85:level=disabled:attack=5:release=50,aresample=async=1[outa]")
 
     ok = run_ffmpeg_filtergraph(
@@ -2636,6 +2636,20 @@ def _sanitize_text(text: str) -> str:
                 .replace("[", "(").replace("]", ")")
                 .replace("\u2014", "-").replace("\\", "")
                 .replace("\n", " ").replace("%", "pct"))
+
+
+def trim_to_sentence(text: str, max_chars: int = 500) -> str:
+    """Trim text at the last sentence boundary before max_chars."""
+    if len(text) <= max_chars:
+        return text
+    chunk = text[:max_chars]
+    matches = list(re.finditer(r'[.!?](?:\s|$)', chunk))
+    if matches:
+        last = matches[-1]
+        return text[:last.end()].strip()
+    # No sentence boundary — trim at last word boundary
+    last_space = chunk.rfind(' ')
+    return (text[:last_space] if last_space > 0 else chunk).strip()
 
 
 def _smart_headline(text: str, max_len: int = 55) -> str:

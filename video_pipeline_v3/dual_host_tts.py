@@ -25,6 +25,7 @@ Usage:
     # }
 """
 import os
+import re
 import sys
 import json
 import subprocess
@@ -161,6 +162,20 @@ def _mp3_to_m4a(mp3_path: str, m4a_path: str) -> bool:
     return r.returncode == 0 and os.path.exists(m4a_path)
 
 
+def trim_to_sentence(text: str, max_chars: int = 500) -> str:
+    """Trim text at the last sentence boundary before max_chars."""
+    if len(text) <= max_chars:
+        return text
+    chunk = text[:max_chars]
+    matches = list(re.finditer(r'[.!?](?:\s|$)', chunk))
+    if matches:
+        last = matches[-1]
+        return text[:last.end()].strip()
+    # No sentence boundary — trim at last word boundary
+    last_space = chunk.rfind(' ')
+    return (text[:last_space] if last_space > 0 else chunk).strip()
+
+
 def _chunk_text(text: str, max_chars: int = MAX_CHUNK_CHARS) -> list:
     if len(text) <= max_chars:
         return [text]
@@ -168,6 +183,9 @@ def _chunk_text(text: str, max_chars: int = MAX_CHUNK_CHARS) -> list:
     sentences = raw.split("\x00")
     chunks, current = [], ""
     for sent in sentences:
+        # Safety: trim overly long sentences at sentence/word boundary
+        if len(sent) > max_chars:
+            sent = trim_to_sentence(sent, max_chars)
         if len(current) + len(sent) + 1 <= max_chars:
             current = f"{current} {sent}".strip() if current else sent
         else:
