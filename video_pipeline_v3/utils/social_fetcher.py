@@ -34,7 +34,15 @@ def get_todays_social_posts(max_posts=5):
             posts = data.get("tweets", data if isinstance(data, list) else [])[:max_posts]
             if posts:
                 logger.info(f"Social: {len(posts)} curated tweets loaded")
-                return posts
+                # Dedup by handle - max 1 tweet per account
+        seen_handles = set()
+        deduped = []
+        for p in posts:
+            h = p.get('handle','').lower().strip('@')
+            if h not in seen_handles:
+                seen_handles.add(h)
+                deduped.append(p)
+        return deduped
         except Exception as e:
             logger.warning(f"Error reading daily_tweets.json: {e}")
 

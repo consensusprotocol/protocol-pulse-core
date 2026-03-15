@@ -3603,13 +3603,14 @@ def concatenate_parts(parts: list, output_path: str,
                 # Use bg_loop as fallback video (not pure black) + preserve original audio
                 _bg_loop = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "bg_loop.mp4")
                 if os.path.exists(_bg_loop):
+                    _fc = "[0:v]scale=1920:1080,setsar=1,setpts=PTS-STARTPTS,eq=brightness=-0.15:contrast=0.9[outv]"
                     run_ffmpeg([
-                        "-stream_loop", "-1", "-i", _bg_loop,
+                        "-stream_loop", "-1",
+                        "-t", "{:.3f}".format(part_dur),
+                        "-i", _bg_loop,
                         "-i", chosen,
-                        "-filter_complex",
-                        "[0:v]scale=1920:1080,setsar=1,trim=0:{dur},setpts=PTS-STARTPTS[bgv];".format(dur=part_dur) +
-                        "[bgv]eq=brightness=-0.15:contrast=0.9[outv]",
-                        "-map", "[outv]", "-map", "1:a",
+                        "-filter_complex", _fc,
+                        "-map", "[outv]", "-map", "1:a?",
                         "-c:v", "libx264", "-crf", "17", "-preset", "fast",
                         "-r", "30", "-vsync", "cfr", "-pix_fmt", "yuv420p",
                         "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
