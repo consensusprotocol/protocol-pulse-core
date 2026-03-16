@@ -220,13 +220,44 @@ def _render_placeholder(plt, title: str, output_path: str) -> str:
     return output_path
 
 
+def render_sparkline_24h(data: dict) -> str:
+    """R26 UPGRADE 5: Minimal 300x160 sparkline of last 24h price, transparent bg."""
+    plt = _setup_matplotlib()
+
+    output_path = os.path.join(CHART_DIR, "sparkline_24h.png")
+    price_7d = data.get("price_7d", [])
+
+    if not price_7d or len(price_7d) < 2:
+        return _render_placeholder(plt, "NO DATA", output_path)
+
+    # Last 24h: ~24 hourly points from 7d data
+    prices_24h = [p[1] for p in price_7d[-24:]]
+
+    fig, ax = plt.subplots(figsize=(300 / 96, 160 / 96), dpi=96)
+    ax.plot(range(len(prices_24h)), prices_24h, color=GOLD, linewidth=1.5)
+    ax.fill_between(range(len(prices_24h)), prices_24h, min(prices_24h) * 0.999,
+                    color=GOLD, alpha=0.15)
+    ax.axis("off")
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+
+    plt.tight_layout(pad=0)
+    os.makedirs(CHART_DIR, exist_ok=True)
+    fig.savefig(output_path, dpi=96, facecolor=BG_COLOR, transparent=True,
+                bbox_inches="tight", pad_inches=0)
+    plt.close(fig)
+    log.info("Sparkline 24h saved: %s (%d points)", output_path, len(prices_24h))
+    return output_path
+
+
 def render_all(data: dict) -> None:
-    """Render all 3 charts from intelligence data. Creates cache/charts/ dir."""
+    """Render all 3 charts + sparkline from intelligence data. Creates cache/charts/ dir."""
     os.makedirs(CHART_DIR, exist_ok=True)
     render_price_chart(data)
     render_hashrate_chart(data)
     render_dominance_chart(data)
-    log.info("All 3 charts rendered to %s", CHART_DIR)
+    render_sparkline_24h(data)
+    log.info("All 4 charts rendered to %s", CHART_DIR)
 
 
 if __name__ == "__main__":

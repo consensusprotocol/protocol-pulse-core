@@ -88,6 +88,7 @@ BG_LOOP = os.path.join(ASSETS, "bg_loop.mp4")
 PIP_PLACEHOLDER = os.path.join(ASSETS, "pip_placeholder.mp4")
 OUTRO_BRANDED_NEW = os.path.join(ASSETS, "outro_branded_new.mp4")
 LOGO_IMAGE = os.path.join(ASSETS, "logo_protocol_pulse.png")
+SCANLINE_OVERLAY = os.path.join(ASSETS, "scanline_overlay.png")
 # Issue 3: Custom whoosh sound — prefer custom_whoosh.wav/.mp3 over generated glitch_whoosh.wav
 _CUSTOM_WHOOSH_MP3 = os.path.join(ASSETS, "sfx", "custom_whoosh.mp3")
 _CUSTOM_WHOOSH_WAV = os.path.join(ASSETS, "sfx", "custom_whoosh.wav")
@@ -130,6 +131,24 @@ def _get_bg_layer(inputs: list, duration: float, label_out: str = "bb_bg") -> st
               f"drawbox=x=1918:y=0:w=2:h=1080:color={COLOR_RED}@0.75:t=fill[{label_out}];\n")
         return fg
     _, fg = _build_broadcast_bg(duration, label_out=label_out)
+    return fg
+
+
+def apply_scanline(inputs: list, fg: str, label_in: str, label_out: str,
+                   duration: float) -> str:
+    """R26 UPGRADE 1: CRT scanline overlay — adds scanline_overlay.png on top of scene.
+
+    Appends the PNG to inputs and returns updated filtergraph that overlays it.
+    """
+    if not os.path.exists(SCANLINE_OVERLAY):
+        fg += f"[{label_in}]copy[{label_out}];\n"
+        return fg
+    inputs.append(SCANLINE_OVERLAY)
+    sl_idx = len(inputs) - 1
+    fg += (f"[{sl_idx}:v]scale=1920:1080,loop=loop=-1:size=2:start=0,"
+           f"setpts=PTS-STARTPTS,trim=0:{duration},setpts=PTS-STARTPTS,"
+           f"format=rgba[_scanline];\n")
+    fg += f"[{label_in}][_scanline]overlay=0:0:format=auto[{label_out}];\n"
     return fg
 
 
@@ -1656,110 +1675,106 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     fg += f"[np_head]copy[np_body];\n"
 
     # ═══════════════════════════════════════════════════════
-    # INTELLIGENCE PANEL — Left zone, x=64, y=220, w=960, h=430
-    # Glassmorphic cyberpunk design: dark glass + red accents
+    # R26 UPGRADE 5: NARRATOR LEFT PANEL — 4-ZONE LAYOUT
+    # x=40, w=300, replaces BTC price panel
+    # Zone A y=80-230: HASHRATE hero metric
+    # Zone B y=240-420: 300x160 sparkline PNG
+    # Zone C y=430-590: TODAY SIGNAL (fear/greed)
+    # Zone D y=600-800: Five stacked metrics
     # ═══════════════════════════════════════════════════════
 
-    # Glassmorphic panel base — dark translucent surface
+    # Fetch intelligence data for zones
+    _z_intel = {}
+    try:
+        from fetch_intelligence_data import load_or_refresh as _z_intel_load
+        _z_intel = _z_intel_load()
+    except Exception:
+        pass
+
+    _z_hashrate = _sanitize_text(_get_live_metric("hashrate", "850 EH/s"))
+    _z_hashrate_delta = _sanitize_text(_get_live_metric("hashrate_delta", "+4.2 pct"))
+    _z_fg_value = _z_intel.get("fear_greed_value", 50)
+    _z_block_height = _z_intel.get("block_height", 0)
+    _z_dominance = _sanitize_text(_get_live_metric("dominance", "61.4 pct"))
+    _z_mempool = _sanitize_text(_get_live_metric("mempool_fee", "12 sat/vB"))
+    _z_etf = _sanitize_text(_get_live_metric("etf_flow", "$340M"))
+    _z_halving = _sanitize_text(_get_live_metric("halving_pct", "78 pct"))
+
+    # Panel background
     fg += (
         f"[np_body]"
-        f"drawbox=x=64:y=222:w=960:h=430:color=0x05060A@0.88:t=fill,"
-        f"drawbox=x=64:y=222:w=960:h=2:color={COLOR_RED}:t=fill,"
-        f"drawbox=x=64:y=222:w=2:h=430:color={COLOR_RED}@0.6:t=fill,"
-        f"drawbox=x=64:y=651:w=960:h=1:color=0xFFFFFF@0.08:t=fill,"
-        f"drawbox=x=1023:y=222:w=1:h=430:color=0xFFFFFF@0.05:t=fill,"
-        f"drawbox=x=66:y=226:w=956:h=1:color=0xFFFFFF@0.07:t=fill"
-        f"[np_glass_base];\n"
+        f"drawbox=x=40:y=220:w=300:h=590:color=0x05060A@0.88:t=fill,"
+        f"drawbox=x=40:y=220:w=300:h=2:color={COLOR_RED}:t=fill,"
+        f"drawbox=x=40:y=220:w=2:h=590:color={COLOR_RED}@0.6:t=fill"
+        f"[np_z_base];\n"
     )
 
-    # ── SECTION 1: BTC PRICE (top of panel, y=240-310) ──────────────────
+    # ── Zone A: HASHRATE hero metric (y=230-380) ──
     fg += (
-        f"[np_glass_base]"
-        f"drawtext=fontfile={FONT_MONO}:text='BTC LIVE':"
-        f"fontcolor={COLOR_GOLD}@0.65:fontsize=11:x=80:y=236,"
-        f"drawtext=fontfile={FONT_MONO}:text='{_ts_safe}':"
-        f"fontcolor=0xFFFFFF@0.25:fontsize=10:x=960:y=236,"
-        f"drawtext=fontfile={FONT_BOLD}:text='{_btc_safe}':"
-        f"fontcolor={COLOR_GOLD}:fontsize=52:x=78:y=248,"
-        f"drawbox=x=78:y=316:w=930:h=1:color=0xFFFFFF@0.07:t=fill"
-        f"[np_price];\n"
+        f"[np_z_base]"
+        f"drawtext=fontfile={FONT_MONO}:text='HASHRATE':"
+        f"fontcolor={COLOR_GOLD}:fontsize=13:x=54:y=232,"
+        f"drawtext=fontfile={FONT_BOLD}:text='{_z_hashrate}':"
+        f"fontcolor={COLOR_WHITE}:fontsize=32:x=54:y=252,"
+        f"drawtext=fontfile={FONT_MONO}:text='{_z_hashrate_delta}':"
+        f"fontcolor={COLOR_GREEN}:fontsize=13:x=54:y=292,"
+        f"drawbox=x=54:y=316:w=270:h=1:color=0xFFFFFF@0.08:t=fill"
+        f"[np_zone_a];\n"
     )
 
-    # ── SECTION 2: NARRATIVE (middle, y=328-420) ─────────────────────────
-    _mood_pill_w = min(len(_mood_safe) * 8 + 20, 200)
-    fg += (
-        f"[np_price]"
-        f"drawtext=fontfile={FONT_MONO}:text='SIGNAL':"
-        f"fontcolor={COLOR_RED}@0.6:fontsize=10:x=80:y=326,"
-        f"drawbox=x=940:y=322:w={_mood_pill_w}:h=18:color={COLOR_RED}@0.12:t=fill,"
-        f"drawbox=x=940:y=322:w={_mood_pill_w}:h=18:color={COLOR_RED}@0.4:t=1,"
-        f"drawtext=fontfile={FONT_MONO}:text='{_mood_safe}':"
-        f"fontcolor={COLOR_RED}:fontsize=9:x=950:y=326,"
-        f"drawtext=fontfile={FONT_BOLD}:text='{_narr_safe}':"
-        f"fontcolor={COLOR_WHITE}:fontsize=24:x=78:y=342,"
-        f"drawbox=x=78:y=380:w=930:h=1:color=0xFFFFFF@0.06:t=fill"
-        f"[np_narrative];\n"
-    )
-
-    # ── SECTION 3: THOUGHT LEADER QUOTE OR TOPICS (bottom, y=390-630) ────
-    if _quote_safe:
-        _q_lines = []
-        _words = _quote_safe.split()
-        _line = ""
-        for _w in _words:
-            if len(_line) + len(_w) + 1 <= 48:
-                _line += (" " + _w if _line else _w)
-            else:
-                _q_lines.append(_line)
-                _line = _w
-                if len(_q_lines) >= 2:
-                    break
-        if _line and len(_q_lines) < 2:
-            _q_lines.append(_line)
-        _q1 = _sanitize_text(_q_lines[0]) if len(_q_lines) > 0 else ""
-        _q2 = _sanitize_text(_q_lines[1]) if len(_q_lines) > 1 else ""
-
-        fg += (
-            f"[np_narrative]"
-            f"drawtext=fontfile={FONT_BOLD}:text='\\\"':"
-            f"fontcolor={COLOR_RED}@0.5:fontsize=32:x=78:y=386,"
-        )
-        if _q1:
-            fg += (
-                f"drawtext=fontfile={FONT_MONO}:text='{_q1}':"
-                f"fontcolor=0xFFFFFF@0.80:fontsize=16:x=112:y=392,"
-            )
-        if _q2:
-            fg += (
-                f"drawtext=fontfile={FONT_MONO}:text='{_q2}':"
-                f"fontcolor=0xFFFFFF@0.80:fontsize=16:x=112:y=412,"
-            )
-        fg += (
-            f"drawtext=fontfile={FONT_MONO}:text='{_handle_safe}':"
-            f"fontcolor={COLOR_RED}:fontsize=12:x=112:y=436,"
-            f"drawtext=fontfile={FONT_MONO}:text='THOUGHT LEADER SIGNAL':"
-            f"fontcolor=0xFFFFFF@0.20:fontsize=9:x=80:y=456"
-            f"[np_quote];\n"
-        )
-        intel_out = "np_quote"
-    elif _top_topics:
-        fg += f"[np_narrative]"
-        fg += (
-            f"drawtext=fontfile={FONT_MONO}:text='TRENDING TOPICS':"
-            f"fontcolor=0xFFFFFF@0.25:fontsize=10:x=80:y=390,"
-        )
-        for _ti, _tp in enumerate(_top_topics[:3]):
-            _tp_safe = _sanitize_text(_tp)
-            _ty = 410 + _ti * 24
-            fg += (
-                f"drawtext=fontfile={FONT_MONO}:text='▸ {_tp_safe}':"
-                f"fontcolor=0xFFFFFF@0.65:fontsize=14:x=86:y={_ty},"
-            )
-        fg += f"drawbox=x=78:y=476:w=200:h=1:color={COLOR_RED}@0.3:t=fill[np_topics];\n"
-        intel_out = "np_topics"
+    # ── Zone B: Sparkline PNG overlay (y=330-490, 300x160) ──
+    _sparkline_path = os.path.join(_PIPELINE_DIR, "cache", "charts", "sparkline_24h.png")
+    if os.path.exists(_sparkline_path) and os.path.getsize(_sparkline_path) > 500:
+        inputs.append(_sparkline_path)
+        _spark_idx = len(inputs) - 1
+        fg += (f"[{_spark_idx}:v]scale=280:140[_np_spark];\n"
+               f"[np_zone_a][_np_spark]overlay=50:330[np_zone_b];\n")
     else:
-        fg += f"[np_narrative]copy[np_intel_empty];\n"
-        intel_out = "np_intel_empty"
+        fg += f"[np_zone_a]copy[np_zone_b];\n"
+
+    # ── Zone C: TODAY SIGNAL — fear/greed conviction (y=490-590) ──
+    if _z_fg_value > 60:
+        _z_conviction = "HIGH CONVICTION"
+        _z_conv_color = COLOR_GREEN
+    elif _z_fg_value >= 40:
+        _z_conviction = "NEUTRAL"
+        _z_conv_color = COLOR_WHITE
+    else:
+        _z_conviction = "CAUTION"
+        _z_conv_color = COLOR_CORAL
+    fg += (
+        f"[np_zone_b]"
+        f"drawtext=fontfile={FONT_MONO}:text='TODAY SIGNAL':"
+        f"fontcolor={COLOR_GOLD}:fontsize=11:x=54:y=492,"
+        f"drawtext=fontfile={FONT_BOLD}:text='{_z_fg_value}':"
+        f"fontcolor={COLOR_WHITE}:fontsize=28:x=54:y=510,"
+        f"drawtext=fontfile={FONT_BOLD}:text='{_z_conviction}':"
+        f"fontcolor={_z_conv_color}:fontsize=14:x=54:y=544,"
+        f"drawbox=x=54:y=570:w=270:h=1:color=0xFFFFFF@0.08:t=fill"
+        f"[np_zone_c];\n"
+    )
+
+    # ── Zone D: Five stacked metrics (y=580-800) ──
+    _z_bh_str = f"{_z_block_height:,}" if _z_block_height else "N/A"
+    _zone_d_metrics = [
+        ("MEMPOOL", _z_mempool),
+        ("ETF FLOW", _z_etf),
+        ("HALVING", _z_halving),
+        ("DOMINANCE", _z_dominance),
+        ("BLOCK HEIGHT", _sanitize_text(_z_bh_str)),
+    ]
+    _zd_last = "np_zone_c"
+    for _zdi, (_zdl, _zdv) in enumerate(_zone_d_metrics):
+        _zd_y = 582 + _zdi * 38
+        _zd_out = f"np_zd{_zdi}"
+        fg += (f"[{_zd_last}]"
+               f"drawtext=fontfile={FONT_MONO}:text='{_zdl}':"
+               f"fontcolor={COLOR_GOLD}:fontsize=11:x=54:y={_zd_y},"
+               f"drawtext=fontfile={FONT_BOLD}:text='{_zdv}':"
+               f"fontcolor={COLOR_WHITE}:fontsize=18:x=54:y={_zd_y + 14}"
+               f"[{_zd_out}];\n")
+        _zd_last = _zd_out
+    intel_out = _zd_last
 
     # Corner bracket accents (cyberpunk tactical)
     fg += (
@@ -1875,7 +1890,9 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     wave_fg, np_audio_pad = _build_narration_wave("np_corners", "np_wave", "np_a_out")
     fg += wave_fg
     fg += _build_signature_info_rail(total_dur, btc_price, "np_wave", "np_railed")
-    fg += f"[np_railed]format=yuv420p[outv];\n"
+    # R26 UPGRADE 1: CRT SCANLINE
+    fg = apply_scanline(inputs, fg, "np_railed", "np_scanned", total_dur)
+    fg += f"[np_scanned]format=yuv420p[outv];\n"
 
     result = _bv2_encode(inputs, fg, output_path, total_dur, "APEX narrator+pip",
                          audio_pad=np_audio_pad)
@@ -2218,7 +2235,9 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
     wave_fg, ds_audio_pad = _build_narration_wave("ds_corners", "ds_wave", "ds_a_out")
     fg += wave_fg
     fg += _build_signature_info_rail(total_dur, btc_price, "ds_wave", "ds_railed")
-    fg += f"[ds_railed]format=yuv420p[outv];\n"
+    # R26 UPGRADE 1: CRT SCANLINE
+    fg = apply_scanline(inputs, fg, "ds_railed", "ds_scanned", total_dur)
+    fg += f"[ds_scanned]format=yuv420p[outv];\n"
 
     return _bv2_encode(inputs, fg, output_path, total_dur, "APEX data segment",
                        audio_pad=ds_audio_pad)
@@ -2617,26 +2636,43 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
     _, bg_fg = _build_black_diamond_bg(total_dur, label_out="sig_bg")
     fg = bg_fg
 
-    # ── HEADER BAR ──
+    # ── R26 UPGRADE 2: HEADER BAR — left-aligned terminal header ──
+    import datetime as _dt_sig
+    _utc_ts = _dt_sig.datetime.utcnow().strftime("%H\\:%M UTC")
     fg += (f"[sig_bg]drawbox=x=0:y=0:w=1920:h=72:color=0x050505@0.97:t=fill,"
            f"drawbox=x=0:y=70:w=1920:h=2:color={COLOR_SIG_RED}@0.8:t=fill,"
+           # Red dot
+           f"drawbox=x=60:y=22:w=14:h=14:color={COLOR_SIG_RED}:t=fill,"
+           # LIVE text
+           f"drawtext=fontfile={FONT_MONO}:text='LIVE':"
+           f"fontcolor={COLOR_SIG_RED}:fontsize=18:x=84:y=14,"
+           # SIGNAL ACTIVE
            f"drawtext=fontfile={FONT_BOLD}:text='SIGNAL ACTIVE':"
-           f"fontcolor={COLOR_SIG_RED}:fontsize=42:x=(w-text_w)/2:y=14"
+           f"fontcolor={COLOR_WHITE}:fontsize=38:x=150:y=8,"
+           # UTC timestamp top-right
+           f"drawtext=fontfile={FONT_MONO}:text='{_utc_ts}':"
+           f"fontcolor={COLOR_GOLD}:fontsize=16:x=w-tw-40:y=14"
            f"[sig_hdr];\n")
 
-    # ── COLUMN HEADERS ──
+    # ── R26 UPGRADE 4: COLUMN HEADERS with sub-labels ──
     fg += (f"[sig_hdr]"
            f"drawtext=fontfile={FONT_BOLD}:text='X SPACES LIVE':"
-           f"fontcolor={COLOR_GOLD}:fontsize=28:x=60:y=90,"
+           f"fontcolor={COLOR_GOLD}:fontsize=28:x=60:y=84,"
+           # Sub-label: TRANSCRIBING... in gold 13px
+           f"drawtext=fontfile={FONT_MONO}:text='TRANSCRIBING...':"
+           f"fontcolor={COLOR_GOLD}:fontsize=13:x=60:y=116,"
            f"drawtext=fontfile={FONT_BOLD}:text='NOSTR SIGNAL':"
-           f"fontcolor={COLOR_NOSTR}:fontsize=28:x=1160:y=90"
+           f"fontcolor={COLOR_NOSTR}:fontsize=28:x=1160:y=84,"
+           # Sub-label: RELAY CONNECTED in green 13px
+           f"drawtext=fontfile={FONT_MONO}:text='RELAY CONNECTED':"
+           f"fontcolor={COLOR_NOSTR}:fontsize=13:x=1160:y=116"
            f"[sig_cols];\n")
 
     last_label = "sig_cols"
 
     # ── LEFT COLUMN: X SPACES (x=60..1140, width=1080) ──
     for idx, quote in enumerate(spaces):
-        card_y = 140 + idx * 280
+        card_y = 150 + idx * 280
         card_h = 260
         card_w = 1080
         card_x = 60
@@ -2649,6 +2685,10 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
 
         enable_t = idx * 6  # stagger: 0s, 6s, 12s
         enable = f"enable='between(t,{enable_t},{total_dur:.1f})'"
+
+        # R26: FETCHED source at card bottom
+        space_source = _sanitize_text(quote.get("source", "X Spaces"))
+        fetched_spaces = f"FETCHED {space_source}"
 
         out_label = f"sc{idx}"
         fg += (f"[{last_label}]"
@@ -2666,19 +2706,25 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
                f"drawtext=fontfile={FONT_MONO}:"
                f"text='{wrapped}':"
                f"fontcolor=0xe8e8e8:fontsize=26:x={card_x + 16}:y={card_y + 50}:"
-               f"line_spacing=8:{enable}"
+               f"line_spacing=8:{enable},"
+               # R26: FETCHED source at card bottom
+               f"drawtext=fontfile={FONT_MONO}:"
+               f"text='{fetched_spaces}':"
+               f"fontcolor={COLOR_MUTED2}:fontsize=10:x={card_x + 16}:y={card_y + card_h - 20}:{enable}"
                f"[{out_label}];\n")
         last_label = out_label
 
-    # ── RIGHT COLUMN: NOSTR (x=1160..1860, width=700) ──
+    # ── R26 UPGRADE 4: RIGHT COLUMN: NOSTR (x=1160..1860, width=700) ──
     for idx, post in enumerate(nostr):
-        card_y = 140 + idx * 280
+        card_y = 150 + idx * 280
         card_h = 260
         card_w = 700
         card_x = 1160
 
         text_raw = post.get("text", "")
-        display_name = post.get("display_name") or post.get("pubkey", "")[:16]
+        # R26: Primary identity = nip05 if available, else truncated pubkey
+        nip05 = post.get("nip05", "")
+        display_name = nip05 if nip05 else (post.get("display_name") or post.get("pubkey", "")[:16])
         text_safe = _sanitize_text(text_raw)
         name_safe = _sanitize_text(display_name)
         wrapped = _word_wrap(text_safe, max_width=38, max_lines=4)
@@ -2686,12 +2732,23 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
         enable_t = idx * 6
         enable = f"enable='between(t,{enable_t},{total_dur:.1f})'"
 
+        # R26: ZAP+amount+sats in gold if zap_amount present
         zap_indicator = ""
-        if post.get("has_zap"):
+        zap_amount = post.get("zap_amount", 0)
+        if zap_amount:
+            zap_indicator = (
+                f"drawtext=fontfile={FONT_BOLD}:text='ZAP {zap_amount} sats':"
+                f"fontcolor={COLOR_GOLD}:fontsize=14:x={card_x + card_w - 160}:y={card_y + 14}:{enable},"
+            )
+        elif post.get("has_zap"):
             zap_indicator = (
                 f"drawtext=fontfile={FONT_BOLD}:text='ZAP':"
                 f"fontcolor={COLOR_GOLD}:fontsize=14:x={card_x + card_w - 60}:y={card_y + 14}:{enable},"
             )
+
+        # R26: FETCHED source at card bottom
+        fetch_source = _sanitize_text(post.get("source", "relay"))
+        fetched_text = f"FETCHED {fetch_source}"
 
         out_label = f"nc{idx}"
         fg += (f"[{last_label}]"
@@ -2701,7 +2758,7 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
                # 1px green border
                f"drawbox=x={card_x}:y={card_y}:w={card_w}:h={card_h}:"
                f"color={COLOR_NOSTR}@0.6:t=1:{enable},"
-               # Display name
+               # Display name (nip05 or pubkey)
                f"drawtext=fontfile={FONT_MONO}:"
                f"text='{name_safe}':"
                f"fontcolor={COLOR_NOSTR}:fontsize=18:x={card_x + 16}:y={card_y + 14}:{enable},"
@@ -2711,7 +2768,11 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
                f"drawtext=fontfile={FONT_MONO}:"
                f"text='{wrapped}':"
                f"fontcolor=0xe8e8e8:fontsize=26:x={card_x + 16}:y={card_y + 50}:"
-               f"line_spacing=8:{enable}"
+               f"line_spacing=8:{enable},"
+               # R26: FETCHED source at card bottom
+               f"drawtext=fontfile={FONT_MONO}:"
+               f"text='{fetched_text}':"
+               f"fontcolor={COLOR_MUTED2}:fontsize=10:x={card_x + 16}:y={card_y + card_h - 20}:{enable}"
                f"[{out_label}];\n")
         last_label = out_label
 
@@ -2727,13 +2788,21 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
                f"fontcolor={COLOR_MUTED}:fontsize=12:x={sx}-(text_w/2):y=1008{sep}")
     fg += f"[sig_sponsored];\n"
 
+    # ── R26 UPGRADE 3: WAVEFORM BOTTOM BAND at y=880 ──
+    fg += (f"[0:a]showwavespic=s=1800x120:colors=ff3b5f[_sig_wave_pic];\n"
+           f"[_sig_wave_pic]format=rgba,colorchannelmixer=aa=0.4[_sig_wave_alpha];\n"
+           f"[sig_sponsored][_sig_wave_alpha]overlay=60:880[sig_waved];\n")
+
     # ── CORNER BRACKETS ──
-    fg += _build_corner_brackets_fg("sig_sponsored", "sig_cornered")
+    fg += _build_corner_brackets_fg("sig_waved", "sig_cornered")
 
     # ── TICKER BAR ──
     fg += _build_info_bar_fg(total_dur, btc_price, label_in="sig_cornered", label_out="sig_final")
 
-    fg += f"[sig_final]format=yuv420p[outv];\n"
+    # ── R26 UPGRADE 1: CRT SCANLINE ──
+    fg = apply_scanline(inputs, fg, "sig_final", "sig_scanned", total_dur)
+
+    fg += f"[sig_scanned]format=yuv420p[outv];\n"
 
     # Audio
     fg += (f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,"

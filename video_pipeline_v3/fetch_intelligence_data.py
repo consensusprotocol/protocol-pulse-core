@@ -83,6 +83,17 @@ def fetch_all() -> dict:
     except Exception as e:
         log.warning("Fear & Greed fetch failed: %s", e)
 
+    # 5. Mempool.space — block height (R26 UPGRADE 5)
+    block_height = 0
+    try:
+        url = "https://mempool.space/api/blocks/tip/height"
+        req = urllib.request.Request(url, headers={"User-Agent": "ProtocolPulse/1.0"})
+        with urllib.request.urlopen(req, timeout=5) as r:
+            block_height = int(r.read().decode().strip())
+        log.info("Block height: %d", block_height)
+    except Exception as e:
+        log.warning("Block height fetch failed: %s", e)
+
     result = {
         "fetched_at": time.time(),
         "price_7d": price_7d,
@@ -90,6 +101,7 @@ def fetch_all() -> dict:
         "btc_dominance": btc_dominance,
         "fear_greed_value": fear_greed_value,
         "fear_greed_label": fear_greed_label,
+        "block_height": block_height,
     }
 
     os.makedirs(CACHE_DIR, exist_ok=True)
@@ -142,6 +154,7 @@ def load_or_refresh(max_age_hours: float = 6) -> dict:
             "btc_dominance": 0.0,
             "fear_greed_value": 0,
             "fear_greed_label": "N/A",
+            "block_height": 0,
         }
 
 
