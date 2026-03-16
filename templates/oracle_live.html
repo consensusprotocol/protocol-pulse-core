@@ -1,348 +1,175 @@
-{% extends "base.html" %}
-{% block title %}Oracle · Protocol Pulse{% endblock %}
-
-{% block head %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#06070b">
 <meta name="description" content="The Oracle — Real-time Bitcoin intelligence. Ask anything.">
+<title>Oracle · Protocol Pulse</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ── RESET & HIDE BASE CHROME ─────────────────────────────────────── */
-body.oracle-live-body { background:#06070b!important; margin:0; padding:0; overflow-x:hidden; }
-body.oracle-live-body .navbar,
-body.oracle-live-body footer,
-body.oracle-live-body .pp-ticker,
-body.oracle-live-body #cookie-banner { display:none!important; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#06070b;overflow:hidden;font-family:'Inter',sans-serif}
 
-*, *::before, *::after { box-sizing:border-box; }
+@keyframes btn-pulse{
+  0%,100%{box-shadow:0 0 20px rgba(255,59,95,.35),0 0 40px rgba(255,59,95,.15)}
+  50%{box-shadow:0 0 60px rgba(255,59,95,.65),0 0 100px rgba(255,59,95,.25)}
+}
+@keyframes img-breathe{
+  0%,100%{filter:drop-shadow(0 0 18px rgba(255,59,95,.4))}
+  50%{filter:drop-shadow(0 0 38px rgba(255,59,95,.75))}
+}
+@keyframes live-dot{0%,100%{opacity:1}50%{opacity:.2}}
+@keyframes mic-ring{
+  0%{box-shadow:0 0 0 0 rgba(255,59,95,.6)}
+  70%{box-shadow:0 0 0 18px rgba(255,59,95,0)}
+  100%{box-shadow:0 0 0 0 rgba(255,59,95,0)}
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fade-up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes card-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── KEYFRAMES ────────────────────────────────────────────────────── */
-@keyframes btn-pulse {
-  0%,100% { box-shadow: 0 0 20px rgba(255,59,95,0.35), 0 0 40px rgba(255,59,95,0.15); }
-  50%      { box-shadow: 0 0 60px rgba(255,59,95,0.65), 0 0 100px rgba(255,59,95,0.25); }
-}
-@keyframes img-breathe {
-  0%,100% { filter: drop-shadow(0 0 18px rgba(255,59,95,0.4)); }
-  50%      { filter: drop-shadow(0 0 38px rgba(255,59,95,0.75)); }
-}
-@keyframes live-dot {
-  0%,100% { opacity:1; } 50% { opacity:0.2; }
-}
-@keyframes mic-ring {
-  0%   { box-shadow: 0 0 0 0 rgba(255,59,95,0.6); }
-  70%  { box-shadow: 0 0 0 18px rgba(255,59,95,0); }
-  100% { box-shadow: 0 0 0 0 rgba(255,59,95,0); }
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-@keyframes fade-up {
-  from { opacity:0; transform:translateY(8px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-@keyframes card-in {
-  from { opacity:0; transform:translateY(16px); }
-  to   { opacity:1; transform:translateY(0); }
+#oracle-root{
+  position:fixed;inset:0;background:#06070b;
+  display:flex;align-items:center;justify-content:center;overflow:hidden
 }
 
-/* ── SHARED LAYOUT ────────────────────────────────────────────────── */
-#oracle-root {
-  position:fixed; inset:0;
-  background:#06070b;
-  font-family:'Inter',sans-serif;
-  display:flex; align-items:center; justify-content:center;
-  overflow:hidden;
+/* ── GATE ── */
+#gate-screen{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:24px;padding:40px 24px;
+  width:100%;max-width:520px;transition:opacity .4s ease
+}
+.gate-brand{font-size:12px;font-weight:700;letter-spacing:.3em;color:#ff3b5f;text-transform:uppercase}
+.gate-avatar-wrap{
+  width:180px;height:180px;border-radius:50%;overflow:hidden;
+  animation:img-breathe 3s ease-in-out infinite;
+  background:radial-gradient(circle,#3a0e18 0%,#0f0406 100%);
+  display:flex;align-items:center;justify-content:center
+}
+.gate-avatar-wrap img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.gate-avatar-fallback{
+  width:80px;height:80px;border-radius:50%;
+  background:radial-gradient(circle,#ff3b5f 0%,#8b1428 100%);opacity:.8
+}
+.gate-title{font-size:48px;font-weight:800;color:#fff;letter-spacing:-.02em;text-align:center}
+.gate-sub{font-size:16px;color:#b8c2d9;text-align:center;line-height:1.5}
+#gate-btn{
+  background:#ff3b5f;color:#fff;font-family:'Inter',sans-serif;
+  font-size:20px;font-weight:700;padding:18px 52px;
+  border:none;border-radius:4px;cursor:pointer;letter-spacing:.02em;
+  animation:btn-pulse 2s ease-in-out infinite;transition:transform .1s;margin-top:8px
+}
+#gate-btn:hover{transform:scale(1.03)}
+#gate-btn:active{transform:scale(.98)}
+#gate-btn:disabled{opacity:.6;cursor:not-allowed;animation:none}
+#gate-error{
+  display:none;color:#ff3b5f;font-size:14px;
+  text-align:center;line-height:1.5;max-width:360px
 }
 
-/* ══════════════════════════════════════════════════════════════════ */
-/* GATE SCREEN                                                        */
-/* ══════════════════════════════════════════════════════════════════ */
-#gate-screen {
-  display:flex; flex-direction:column; align-items:center;
-  justify-content:center; gap:24px;
-  padding:40px 24px;
-  width:100%; max-width:560px;
-  transition: opacity 0.4s ease;
+/* ── LIVE STAGE ── */
+#live-stage{
+  display:none;flex-direction:column;align-items:center;
+  width:100%;max-width:600px;padding:16px 20px 24px;gap:12px;
+  animation:fade-up .5s ease;max-height:100vh;overflow-y:auto
+}
+.stage-topbar{width:100%;display:flex;align-items:center;justify-content:space-between}
+.stage-label{font-size:11px;font-weight:700;letter-spacing:.35em;color:#ff3b5f;text-transform:uppercase}
+.live-indicator{display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#4ade80;font-weight:500;letter-spacing:.1em}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;animation:live-dot 1.4s ease-in-out infinite}
+
+.video-wrap{
+  width:100%;max-width:480px;aspect-ratio:1/1;border-radius:10px;
+  overflow:hidden;background:#0a0b0f;position:relative;border:1px solid #1a1f2e
+}
+#oracle-video{width:100%;height:100%;object-fit:cover;display:block}
+.video-placeholder{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 40%,#1a0810 0%,#06070b 70%)
+}
+.video-placeholder-avatar{
+  width:60%;height:60%;border-radius:50%;
+  background:radial-gradient(circle,#2a0e18 0%,#0f0406 100%);
+  animation:img-breathe 3s ease-in-out infinite
 }
 
-.gate-brand {
-  font-family:'Inter',sans-serif;
-  font-size:12px; font-weight:600;
-  letter-spacing:0.3em;
-  color:#ff3b5f;
-  text-transform:uppercase;
+#subtitle-bar{
+  width:100%;max-width:480px;min-height:44px;
+  font-family:'JetBrains Mono',monospace;font-size:13px;color:#f8c15c;
+  line-height:1.6;text-align:center;opacity:0;transition:opacity .3s;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical
+}
+#subtitle-bar.visible{opacity:1}
+
+#status-bar{
+  font-family:'JetBrains Mono',monospace;font-size:13px;color:#b8c2d9;
+  letter-spacing:.05em;height:22px;display:flex;align-items:center;gap:8px;transition:color .25s
+}
+.status-spinner{
+  width:14px;height:14px;border:2px solid currentColor;border-top-color:transparent;
+  border-radius:50%;display:none;animation:spin .7s linear infinite
 }
 
-.gate-avatar-wrap {
-  width:180px; height:180px;
-  border-radius:50%;
-  overflow:hidden;
-  animation: img-breathe 3s ease-in-out infinite;
-  background: radial-gradient(circle, #3a0e18 0%, #0f0406 100%);
-  display:flex; align-items:center; justify-content:center;
+#transcript-bar{
+  font-family:'JetBrains Mono',monospace;font-size:12px;color:#b8c2d9;font-style:italic;
+  min-height:20px;text-align:center;opacity:0;transition:opacity .2s;
+  max-width:480px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;width:100%
 }
-.gate-avatar-wrap img {
-  width:100%; height:100%; object-fit:cover;
-  border-radius:50%;
-}
-.gate-avatar-fallback {
-  width:80px; height:80px;
-  border-radius:50%;
-  background: radial-gradient(circle, #ff3b5f 0%, #8b1428 100%);
-  opacity:0.8;
-}
+#transcript-bar.visible{opacity:.7}
 
-.gate-title {
-  font-family:'Inter',sans-serif;
-  font-size:48px; font-weight:800;
-  color:#fff;
-  letter-spacing:-0.02em;
-  margin:0;
-  text-align:center;
+.mic-wrap{display:flex;flex-direction:column;align-items:center;gap:8px}
+#mic-btn{
+  width:72px;height:72px;border-radius:50%;background:#1a1d27;border:2px solid #ff3b5f;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background .2s,border-color .2s,transform .1s;position:relative
 }
+#mic-btn:hover:not(:disabled){transform:scale(1.05)}
+#mic-btn:disabled{opacity:.3;cursor:not-allowed}
+#mic-btn.recording{background:#ff3b5f;border-color:#ff3b5f;animation:mic-ring 1.2s ease-out infinite}
+#mic-btn svg{pointer-events:none}
+.mic-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:#5a6080;letter-spacing:.08em}
 
-.gate-sub {
-  font-size:16px; color:#b8c2d9;
-  margin:0; text-align:center;
-  line-height:1.5;
+/* ── SOVEREIGNTY CARDS ── */
+#sovereignty-cards{
+  display:none;grid-template-columns:1fr 1fr;gap:10px;
+  width:100%;max-width:480px;animation:card-in .4s ease
 }
-
-#gate-btn {
-  background:#ff3b5f;
-  color:#fff;
-  font-family:'Inter',sans-serif;
-  font-size:20px; font-weight:700;
-  padding:18px 52px;
-  border:none; border-radius:4px;
-  cursor:pointer;
-  letter-spacing:0.02em;
-  animation: btn-pulse 2s ease-in-out infinite;
-  transition: transform 0.1s;
-  margin-top:8px;
+#sovereignty-cards.visible{display:grid}
+.sov-card{
+  background:#0f1117;border:1px solid #1e2235;border-radius:6px;
+  padding:14px 16px;cursor:pointer;transition:border-color .2s,background .2s;
+  display:flex;flex-direction:column;gap:6px
 }
-#gate-btn:hover { transform:scale(1.03); }
-#gate-btn:active { transform:scale(0.98); }
-#gate-btn:disabled { opacity:0.6; cursor:not-allowed; animation:none; }
-
-#gate-error {
-  display:none;
-  color:#ff3b5f;
-  font-size:14px;
-  text-align:center;
-  line-height:1.5;
-  max-width:360px;
-}
-
-/* ══════════════════════════════════════════════════════════════════ */
-/* LIVE STAGE                                                         */
-/* ══════════════════════════════════════════════════════════════════ */
-#live-stage {
-  display:none;
-  flex-direction:column;
-  align-items:center;
-  width:100%; max-width:600px;
-  padding:16px 20px 32px;
-  gap:14px;
-  animation: fade-up 0.5s ease;
-  max-height:100vh;
-  overflow-y:auto;
-}
-
-/* Top bar */
-.stage-topbar {
-  width:100%;
-  display:flex; align-items:center; justify-content:space-between;
-}
-.stage-label {
-  font-size:11px; font-weight:700;
-  letter-spacing:0.35em;
-  color:#ff3b5f;
-  text-transform:uppercase;
-}
-.live-indicator {
-  display:flex; align-items:center; gap:6px;
-  font-family:'JetBrains Mono',monospace;
-  font-size:11px; color:#4ade80; font-weight:500;
-  letter-spacing:0.1em;
-}
-.live-dot {
-  width:7px; height:7px; border-radius:50%;
-  background:#4ade80;
-  animation: live-dot 1.4s ease-in-out infinite;
-}
-
-/* Video container */
-.video-wrap {
-  width:100%; max-width:480px;
-  aspect-ratio:1/1;
-  border-radius:10px;
-  overflow:hidden;
-  background:#0a0b0f;
-  position:relative;
-  border:1px solid #1a1f2e;
-}
-#oracle-video {
-  width:100%; height:100%;
-  object-fit:cover;
-  display:block;
-}
-.video-placeholder {
-  position:absolute; inset:0;
-  display:flex; align-items:center; justify-content:center;
-  background: radial-gradient(circle at 50% 40%, #1a0810 0%, #06070b 70%);
-}
-.video-placeholder-avatar {
-  width:60%; height:60%;
-  border-radius:50%;
-  background: radial-gradient(circle, #2a0e18 0%, #0f0406 100%);
-  animation: img-breathe 3s ease-in-out infinite;
-}
-
-/* Subtitle */
-#subtitle-bar {
-  width:100%; max-width:480px;
-  min-height:44px;
-  font-family:'JetBrains Mono',monospace;
-  font-size:13px; color:#f8c15c;
-  line-height:1.6;
-  text-align:center;
-  opacity:0;
-  transition:opacity 0.3s;
-  overflow:hidden;
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
-}
-#subtitle-bar.visible { opacity:1; }
-
-/* Status bar */
-#status-bar {
-  font-family:'JetBrains Mono',monospace;
-  font-size:13px;
-  color:#b8c2d9;
-  letter-spacing:0.05em;
-  height:22px;
-  display:flex; align-items:center; gap:8px;
-  transition:color 0.25s;
-}
-.status-spinner {
-  width:14px; height:14px;
-  border:2px solid currentColor;
-  border-top-color:transparent;
-  border-radius:50%;
-  display:none;
-  animation:spin 0.7s linear infinite;
-}
-
-/* Transcript */
-#transcript-bar {
-  font-family:'JetBrains Mono',monospace;
-  font-size:12px; color:#b8c2d9;
-  font-style:italic;
-  min-height:20px;
-  text-align:center;
-  opacity:0;
-  transition:opacity 0.2s;
-  max-width:480px;
-  overflow:hidden;
-  white-space:nowrap;
-  text-overflow:ellipsis;
-  width:100%;
-}
-#transcript-bar.visible { opacity:0.7; }
-
-/* Mic button */
-.mic-wrap {
-  display:flex; flex-direction:column; align-items:center; gap:10px;
-}
-#mic-btn {
-  width:72px; height:72px; border-radius:50%;
-  background:#1a1d27;
-  border:2px solid #ff3b5f;
-  cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-  transition:background 0.2s, border-color 0.2s, transform 0.1s;
-  position:relative;
-}
-#mic-btn:hover:not(:disabled) { transform:scale(1.05); }
-#mic-btn:disabled { opacity:0.3; cursor:not-allowed; }
-#mic-btn.recording {
-  background:#ff3b5f;
-  border-color:#ff3b5f;
-  animation: mic-ring 1.2s ease-out infinite;
-}
-#mic-btn svg { pointer-events:none; }
-.mic-label {
-  font-family:'JetBrains Mono',monospace;
-  font-size:11px; color:#5a6080;
-  letter-spacing:0.08em;
-}
-
-/* Sovereignty cards */
-#sovereignty-cards {
-  display:none;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  width:100%; max-width:480px;
-  animation: card-in 0.4s ease;
-}
-#sovereignty-cards.visible { display:grid; }
-
-.sov-card {
-  background:#0f1117;
-  border:1px solid #1e2235;
-  border-radius:6px;
-  padding:14px 16px;
-  cursor:pointer;
-  transition:border-color 0.2s, background 0.2s;
-  display:flex; flex-direction:column; gap:6px;
-}
-.sov-card:hover {
-  border-color:#ff3b5f;
-  background:#140a10;
-}
-.sov-card-title {
-  font-family:'Inter',sans-serif;
-  font-size:14px; font-weight:600;
-  color:#fff;
-}
-.sov-card-link {
-  font-family:'JetBrains Mono',monospace;
-  font-size:11px; color:#ff3b5f;
-  text-decoration:none;
-  letter-spacing:0.05em;
-}
-.sov-card-link:hover { text-decoration:underline; }
+.sov-card:hover{border-color:#ff3b5f;background:#140a10}
+.sov-card-title{font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:#fff}
+.sov-card-link{font-family:'JetBrains Mono',monospace;font-size:11px;color:#ff3b5f;text-decoration:none;letter-spacing:.05em}
+.sov-card-link:hover{text-decoration:underline}
 </style>
-{% endblock %}
-
-{% block content %}
-<body class="oracle-live-body">
+</head>
+<body>
 <div id="oracle-root">
 
-  <!-- ═══════════ GATE SCREEN ═══════════ -->
+  <!-- GATE SCREEN -->
   <div id="gate-screen">
     <div class="gate-brand">Protocol Pulse</div>
-
-    <div class="gate-avatar-wrap" id="gate-avatar-wrap">
+    <div class="gate-avatar-wrap">
       <img src="/static/oracle_avatar.png" alt="Oracle"
            onerror="this.style.display='none';document.getElementById('gate-avatar-fallback').style.display='block'">
       <div class="gate-avatar-fallback" id="gate-avatar-fallback" style="display:none"></div>
     </div>
-
     <h1 class="gate-title">THE ORACLE</h1>
     <p class="gate-sub">Real-time Bitcoin intelligence. Ask anything.</p>
-
     <button id="gate-btn" onclick="requestMic()">TALK TO THE ORACLE</button>
     <div id="gate-error"></div>
   </div>
 
-  <!-- ═══════════ LIVE STAGE ═══════════ -->
+  <!-- LIVE STAGE -->
   <div id="live-stage">
-
     <div class="stage-topbar">
       <span class="stage-label">Oracle</span>
-      <div class="live-indicator">
-        <div class="live-dot"></div>
-        LIVE
-      </div>
+      <div class="live-indicator"><div class="live-dot"></div>LIVE</div>
     </div>
 
     <div class="video-wrap">
@@ -363,14 +190,12 @@ body.oracle-live-body #cookie-banner { display:none!important; }
 
     <div class="mic-wrap">
       <button id="mic-btn" disabled onclick="toggleMic()" title="Click to speak">
-        <!-- Mic icon (idle) -->
         <svg id="icon-mic" width="28" height="28" viewBox="0 0 24 24" fill="none">
           <rect x="9" y="2" width="6" height="12" rx="3" fill="#ff3b5f"/>
           <path d="M5 10a7 7 0 0014 0" stroke="#ff3b5f" stroke-width="2" stroke-linecap="round"/>
           <line x1="12" y1="19" x2="12" y2="22" stroke="#ff3b5f" stroke-width="2" stroke-linecap="round"/>
           <line x1="9" y1="22" x2="15" y2="22" stroke="#ff3b5f" stroke-width="2" stroke-linecap="round"/>
         </svg>
-        <!-- Stop icon (recording) -->
         <svg id="icon-stop" width="28" height="28" viewBox="0 0 24 24" fill="none" style="display:none">
           <rect x="6" y="6" width="12" height="12" rx="2" fill="#fff"/>
         </svg>
@@ -378,51 +203,49 @@ body.oracle-live-body #cookie-banner { display:none!important; }
       <span class="mic-label" id="mic-label">TAP TO SPEAK</span>
     </div>
 
-    <!-- Sovereignty pillar cards -->
+    <!-- Sovereignty Cards -->
     <div id="sovereignty-cards">
       <div class="sov-card" onclick="speakIntent('SOVEREIGNTY_COLD_WALLET')">
-        <div class="sov-card-title">🔐 Self-Custody</div>
-        <a class="sov-card-link" href="https://coldcard.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Setup Guide →</a>
+        <div class="sov-card-title">&#128272; Self-Custody</div>
+        <a class="sov-card-link" href="https://coldcard.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Setup Guide &#8594;</a>
       </div>
       <div class="sov-card" onclick="speakIntent('SOVEREIGNTY_NODE')">
-        <div class="sov-card-title">⚡ Run a Node</div>
-        <a class="sov-card-link" href="https://getumbrel.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Setup Guide →</a>
+        <div class="sov-card-title">&#9889; Run a Node</div>
+        <a class="sov-card-link" href="https://getumbrel.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Setup Guide &#8594;</a>
       </div>
       <div class="sov-card" onclick="speakIntent('SOVEREIGNTY_BITAXE')">
-        <div class="sov-card-title">⛏ Solo Mining</div>
-        <a class="sov-card-link" href="https://curatedmining.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Setup Guide →</a>
+        <div class="sov-card-title">&#9935; Solo Mining</div>
+        <a class="sov-card-link" href="https://curatedmining.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Setup Guide &#8594;</a>
       </div>
       <div class="sov-card" onclick="speakIntent('SOVEREIGNTY_LIFE_INSURANCE')">
-        <div class="sov-card-title">🛡 Bitcoin Insurance</div>
-        <a class="sov-card-link" href="https://application.meanwhile.bm/start?referralCode=KKM73K" target="_blank" rel="noopener" onclick="event.stopPropagation()">Setup Guide →</a>
+        <div class="sov-card-title">&#128737; Bitcoin Insurance</div>
+        <a class="sov-card-link" href="https://application.meanwhile.bm/start?referralCode=KKM73K" target="_blank" rel="noopener" onclick="event.stopPropagation()">Setup Guide &#8594;</a>
       </div>
     </div>
-
   </div><!-- /live-stage -->
+
 </div><!-- /oracle-root -->
 
 <script>
 'use strict';
 
-/* ── CONFIG ──────────────────────────────────────────────────────── */
 const API = 'https://avatar.protocolpulse.io';
 
 const SUBTITLES = {
-  GREETING:                 "Hey. I'm the Oracle. I live inside Protocol Pulse and I'm tracking everything happening in Bitcoin right now — on-chain, macro, geopolitical, all of it. What brings you here today?",
-  SOVEREIGNTY_INTRO:        "Your sovereignty score is basically a snapshot of how free you actually are — how much of your financial life you've removed from legacy systems and moved into things you actually control.",
-  SOVEREIGNTY_ASSESSMENT:   "Okay let's map it out. There are four pillars: self-custody of your Bitcoin, your own node running, private communications, and no KYC exposure on your income. Where are you today?",
-  SOVEREIGNTY_COLD_WALLET:  "If your Bitcoin is on an exchange, it's not yours — it's an IOU. The fix is a hardware wallet. I can walk you through setting one up right now, step by step.",
-  SOVEREIGNTY_NODE:         "Running your own node means you verify your own transactions — you don't trust, you verify. The easiest entry point right now is a Raspberry Pi with Umbrel.",
-  SOVEREIGNTY_BITAXE:       "Bitaxe is a solo miner you can run at home — it's a lottery ticket, but a Bitcoin lottery ticket. Curated Mining also offers white-glove setup if you want the hands-off version.",
-  SOVEREIGNTY_LIFE_INSURANCE: "One thing most Bitcoiners miss — if you die with Bitcoin in cold storage and nobody knows the seed phrase, that wealth disappears. Meanwhile offers life insurance that understands Bitcoin.",
-  SOVEREIGNTY_RESIDENCY:    "Digital residency through Palau — via RNS.ID — gives you a second identity layer and a legal domicile outside your home country. Real tax and privacy implications.",
-  DAILY_BRIEF_INTRO:        "Alright, here's what's moving right now in Bitcoin. Give me a second and I'll pull the latest from our intelligence layer.",
-  DAILY_BRIEF_LIVE:         "Here's what's happening in Bitcoin right now.",
-  UNKNOWN_QUESTION:         "That's outside my real-time data right now, but I'm going to research it and come back with something solid. Give me a few seconds.",
-  GOODBYE:                  "Alright. Stack sats, verify everything, and come back anytime. I'll be here."
+  GREETING: "Hey. I'm the Oracle. I live inside Protocol Pulse and I'm tracking everything happening in Bitcoin right now. What brings you here today?",
+  SOVEREIGNTY_INTRO: "Your sovereignty score is a snapshot of how free you actually are — how much of your financial life you've moved into things you actually control.",
+  SOVEREIGNTY_ASSESSMENT: "Let's map it out. Four pillars: self-custody of your Bitcoin, your own node running, private communications, and no KYC exposure on your income. Where are you today?",
+  SOVEREIGNTY_COLD_WALLET: "If your Bitcoin is on an exchange, it's not yours — it's an IOU. The fix is a hardware wallet. I can walk you through setting one up right now, step by step.",
+  SOVEREIGNTY_NODE: "Running your own node means you verify your own transactions — you don't trust, you verify. Easiest entry point: Raspberry Pi with Umbrel.",
+  SOVEREIGNTY_BITAXE: "Bitaxe is a solo miner you can run at home. It's a lottery ticket — a Bitcoin lottery ticket. Curated Mining also offers white-glove setup if you want hands-off.",
+  SOVEREIGNTY_LIFE_INSURANCE: "If you die with Bitcoin in cold storage and nobody knows the seed phrase, that wealth disappears. Meanwhile offers life insurance that understands Bitcoin.",
+  SOVEREIGNTY_RESIDENCY: "Digital residency through Palau via RNS.ID gives you a second identity layer and a legal domicile outside your home country. Real tax and privacy implications.",
+  DAILY_BRIEF_INTRO: "Here's what's moving right now in Bitcoin. Give me a second and I'll pull the latest from our intelligence layer.",
+  DAILY_BRIEF_LIVE: "Here's what's happening in Bitcoin right now.",
+  UNKNOWN_QUESTION: "That's outside my real-time data right now, but I'm researching it and coming back with something solid. Give me a few seconds.",
+  GOODBYE: "Alright. Stack sats, verify everything, and come back anytime."
 };
 
-/* ── STATE ───────────────────────────────────────────────────────── */
 let micStream = null;
 let isRecording = false;
 let recognition = null;
@@ -430,24 +253,22 @@ let currentTranscript = '';
 let currentObjectURL = null;
 let isBusy = false;
 
-/* ── DOM REFS ────────────────────────────────────────────────────── */
-const gateScreen   = document.getElementById('gate-screen');
-const liveStage    = document.getElementById('live-stage');
-const gateBtn      = document.getElementById('gate-btn');
-const gateError    = document.getElementById('gate-error');
-const video        = document.getElementById('oracle-video');
-const placeholder  = document.getElementById('video-placeholder');
-const subtitleBar  = document.getElementById('subtitle-bar');
-const statusText   = document.getElementById('status-text');
-const statusSpinner= document.getElementById('status-spinner');
-const transcriptBar= document.getElementById('transcript-bar');
-const micBtn       = document.getElementById('mic-btn');
-const micLabel     = document.getElementById('mic-label');
-const iconMic      = document.getElementById('icon-mic');
-const iconStop     = document.getElementById('icon-stop');
-const sovCards     = document.getElementById('sovereignty-cards');
+const gateScreen    = document.getElementById('gate-screen');
+const liveStage     = document.getElementById('live-stage');
+const gateBtn       = document.getElementById('gate-btn');
+const gateError     = document.getElementById('gate-error');
+const video         = document.getElementById('oracle-video');
+const placeholder   = document.getElementById('video-placeholder');
+const subtitleBar   = document.getElementById('subtitle-bar');
+const statusText    = document.getElementById('status-text');
+const statusSpinner = document.getElementById('status-spinner');
+const transcriptBar = document.getElementById('transcript-bar');
+const micBtn        = document.getElementById('mic-btn');
+const micLabel      = document.getElementById('mic-label');
+const iconMic       = document.getElementById('icon-mic');
+const iconStop      = document.getElementById('icon-stop');
+const sovCards      = document.getElementById('sovereignty-cards');
 
-/* ── MIC REQUEST ─────────────────────────────────────────────────── */
 async function requestMic() {
   gateBtn.disabled = true;
   gateBtn.textContent = 'Requesting mic access...';
@@ -459,11 +280,10 @@ async function requestMic() {
     gateBtn.disabled = false;
     gateBtn.textContent = 'TALK TO THE ORACLE';
     gateError.style.display = 'block';
-    gateError.textContent = '⚠ Mic access required. Enable it in your browser settings and reload.';
+    gateError.textContent = '\u26a0 Mic access required. Enable it in your browser settings and reload.';
   }
 }
 
-/* ── TRANSITION ──────────────────────────────────────────────────── */
 async function transitionToLiveStage() {
   gateScreen.style.opacity = '0';
   await sleep(400);
@@ -471,95 +291,90 @@ async function transitionToLiveStage() {
   liveStage.style.display = 'flex';
   liveStage.style.opacity = '0';
   await sleep(50);
-  liveStage.style.opacity = '1';
   liveStage.style.transition = 'opacity 0.5s';
+  liveStage.style.opacity = '1';
   initSpeechRecognition();
   await playIntent('GREETING');
 }
 
-/* ── PLAY A CACHED INTENT ────────────────────────────────────────── */
 async function playIntent(intent) {
   setBusy(true);
-  setStatus('thinking');
+  setStatus('Preparing Oracle...', '#f4c46f', true);
   showSubtitle(SUBTITLES[intent] || '');
   try {
     const t0 = Date.now();
-    const res = await fetchWithTimeout(`${API}/oracle/speak`, {
+    const res = await fetchWithTimeout(API + '/oracle/speak', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ intent })
     }, 30000);
-    if (!res.ok) throw new Error(`speak ${res.status}`);
+    if (!res.ok) throw new Error('speak ' + res.status);
     const ct = res.headers.get('content-type') || '';
     let videoURL;
     if (ct.includes('video')) {
       const blob = await res.blob();
-      videoURL = createObjectURL(blob);
+      videoURL = URL.createObjectURL(blob);
     } else {
       const j = await res.json();
-      if (j.video_url) {
-        const vr = await fetchWithTimeout(`${API}${j.video_url}`, {}, 20000);
-        const blob = await vr.blob();
-        videoURL = createObjectURL(blob);
-      } else throw new Error('no video_url in response');
+      const vr = await fetchWithTimeout(API + j.video_url, {}, 20000);
+      const blob = await vr.blob();
+      videoURL = URL.createObjectURL(blob);
     }
-    console.log(`${intent} loaded in ${Date.now()-t0}ms`);
+    console.log(intent + ' loaded in ' + (Date.now()-t0) + 'ms');
     await playVideo(videoURL);
     if (intent === 'SOVEREIGNTY_ASSESSMENT') showSovCards();
   } catch (err) {
     console.error('playIntent error:', err);
-    setStatus('Oracle encountered an error. Try again.', '#ff3b5f');
+    setStatus('Oracle error. Try again.', '#ff3b5f');
   } finally {
     setBusy(false);
     enableMic();
   }
 }
 
-/* ── SPEAK INTENT (for card clicks) ─────────────────────────────── */
 async function speakIntent(intent) {
   if (isBusy) return;
   hideSovCards();
   await playIntent(intent);
 }
 
-/* ── PROCESS USER TRANSCRIPT ─────────────────────────────────────── */
 async function processTranscript(text) {
   if (!text.trim() || isBusy) return;
   setBusy(true);
   hideSovCards();
   showTranscript(text);
-  setStatus('thinking', '#f4c46f', true);
+  setStatus('Oracle is thinking...', '#f4c46f', true);
   try {
-    // 1. Classify intent
-    const intentRes = await fetchWithTimeout(`${API}/oracle/intent`, {
+    const intentRes = await fetchWithTimeout(API + '/oracle/intent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ transcript: text })
     }, 10000);
-    const { intent, confidence } = await intentRes.json();
-    console.log(`Intent: ${intent} (${confidence})`);
+    const intentData = await intentRes.json();
+    const intent = intentData.intent;
+    const confidence = intentData.confidence;
+    console.log('Intent: ' + intent + ' (' + confidence + ')');
 
-    // 2. Get response video
     const t0 = Date.now();
-    const speakRes = await fetchWithTimeout(`${API}/oracle/speak`, {
+    const speakRes = await fetchWithTimeout(API + '/oracle/speak', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ intent, text })
+      body: JSON.stringify({ intent: intent, text: text })
     }, 35000);
-    if (!speakRes.ok) throw new Error(`speak ${speakRes.status}`);
+    if (!speakRes.ok) throw new Error('speak ' + speakRes.status);
 
     const ct = speakRes.headers.get('content-type') || '';
     let videoURL;
     if (ct.includes('video')) {
       const blob = await speakRes.blob();
-      videoURL = createObjectURL(blob);
+      videoURL = URL.createObjectURL(blob);
     } else {
       const j = await speakRes.json();
-      const vr = await fetchWithTimeout(`${API}${j.video_url}`, {}, 25000);
+      const vr = await fetchWithTimeout(API + j.video_url, {}, 25000);
       const blob = await vr.blob();
-      videoURL = createObjectURL(blob);
+      videoURL = URL.createObjectURL(blob);
     }
-    console.log(`Response loaded in ${Date.now()-t0}ms`);
+    console.log('Response loaded in ' + (Date.now()-t0) + 'ms');
     showSubtitle(SUBTITLES[intent] || text);
     await playVideo(videoURL);
     if (intent === 'SOVEREIGNTY_ASSESSMENT') showSovCards();
@@ -577,49 +392,47 @@ async function processTranscript(text) {
   }
 }
 
-/* ── PLAY VIDEO ──────────────────────────────────────────────────── */
 function playVideo(url) {
-  return new Promise(resolve => {
+  return new Promise(function(resolve) {
     placeholder.style.display = 'none';
     if (currentObjectURL) URL.revokeObjectURL(currentObjectURL);
     currentObjectURL = url;
     video.src = url;
     setStatus('Speaking', '#6cff9f');
-    video.onended = () => {
+    video.onended = function() {
       setStatus('Ready', '#b8c2d9');
       hideSubtitle();
       resolve();
     };
-    video.onerror = () => { resolve(); };
-    video.play().catch(() => resolve());
+    video.onerror = function() { resolve(); };
+    video.play().catch(function() { resolve(); });
   });
 }
 
-/* ── SPEECH RECOGNITION ──────────────────────────────────────────── */
 function initSpeechRecognition() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) { micLabel.textContent = 'SPEECH API UNAVAILABLE'; return; }
   recognition = new SR();
   recognition.continuous = false;
   recognition.interimResults = true;
   recognition.lang = 'en-US';
-  recognition.onresult = (e) => {
-    let interim = '', final = '';
-    for (let r of e.results) {
-      if (r.isFinal) final += r[0].transcript;
-      else interim += r[0].transcript;
+  recognition.onresult = function(e) {
+    var interim = '', final = '';
+    for (var i = 0; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
     }
     showTranscript(final || interim);
-    if (final) { currentTranscript = final; }
+    if (final) currentTranscript = final;
   };
-  recognition.onend = () => {
+  recognition.onend = function() {
     if (isRecording) {
       setRecordingState(false);
       if (currentTranscript.trim()) processTranscript(currentTranscript);
       currentTranscript = '';
     }
   };
-  recognition.onerror = (e) => {
+  recognition.onerror = function(e) {
     console.warn('SpeechRecognition error:', e.error);
     setRecordingState(false);
   };
@@ -636,7 +449,7 @@ function startRecording() {
   currentTranscript = '';
   isRecording = true;
   setRecordingState(true);
-  setStatus('🎙 Listening...', '#66d9ff');
+  setStatus('\ud83c\udf99 Listening...', '#66d9ff');
   try { recognition.start(); } catch(e) { console.warn(e); }
 }
 
@@ -654,17 +467,14 @@ function setRecordingState(active) {
   micLabel.textContent = active ? 'TAP TO SEND' : 'TAP TO SPEAK';
 }
 
-/* ── UI HELPERS ──────────────────────────────────────────────────── */
-function setStatus(msg, color='#b8c2d9', spinner=false) {
+function setStatus(msg, color, spinner) {
+  color = color || '#b8c2d9';
   statusText.textContent = msg;
   statusText.style.color = color;
   statusSpinner.style.display = spinner ? 'block' : 'none';
   statusSpinner.style.color = color;
 }
-function setBusy(b) {
-  isBusy = b;
-  if (b) disableMic();
-}
+function setBusy(b) { isBusy = b; if (b) disableMic(); }
 function enableMic()  { micBtn.disabled = false; }
 function disableMic() { micBtn.disabled = true; if (isRecording) stopRecording(); }
 function showSubtitle(t) { subtitleBar.textContent = t; subtitleBar.classList.add('visible'); }
@@ -673,15 +483,17 @@ function showTranscript(t) { transcriptBar.textContent = t; transcriptBar.classL
 function hideTranscript()  { transcriptBar.classList.remove('visible'); }
 function showSovCards()  { sovCards.classList.add('visible'); }
 function hideSovCards()  { sovCards.classList.remove('visible'); }
-function createObjectURL(blob) { return URL.createObjectURL(blob); }
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-function fetchWithTimeout(url, opts={}, ms=30000) {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), ms);
-  return fetch(url, { ...opts, signal: controller.signal })
-    .finally(() => clearTimeout(id))
-    .catch(e => { if (e.name==='AbortError') throw new Error('timeout'); throw e; });
+function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+function fetchWithTimeout(url, opts, ms) {
+  ms = ms || 30000;
+  var controller = new AbortController();
+  var id = setTimeout(function() { controller.abort(); }, ms);
+  opts = opts || {};
+  opts.signal = controller.signal;
+  return fetch(url, opts)
+    .finally(function() { clearTimeout(id); })
+    .catch(function(e) { if (e.name === 'AbortError') throw new Error('timeout'); throw e; });
 }
 </script>
 </body>
-{% endblock %}
+</html>

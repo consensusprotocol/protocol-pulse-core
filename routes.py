@@ -10265,8 +10265,13 @@ def intelligence_page():
 
 @app.route('/oracle-live')
 def oracle_live_page():
-    """Oracle Live — avatar streaming interface."""
-    return render_template('oracle.html')
+    """Oracle Live â avatar streaming interface."""
+    import os
+    from flask import Response
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates', 'oracle_live.html')
+    with open(path, 'r') as _f:
+        html = _f.read()
+    return Response(html, mimetype='text/html')
 
 
 @app.route('/api/sentiment')
