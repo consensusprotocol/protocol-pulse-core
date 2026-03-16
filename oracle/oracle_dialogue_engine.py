@@ -85,6 +85,12 @@ PRODUCTS = {
         "trigger_topics": ["residency", "passport", "palau", "tax", "jurisdiction", "freedom"],
         "value_prop": "legal identity outside your home country — real optionality",
     },
+    "vision_guide": {
+        "name": "Oracle Vision — live hardware setup guide",
+        "url": None,  # in-app feature, not external link
+        "trigger_topics": ["set up", "setup", "how do i", "install", "configure", "screen", "coldcard", "umbrel", "bitaxe", "ledger", "trezor", "seed", "stuck", "error", "step"],
+        "value_prop": "show me your screen and I will walk you through it step by step",
+    },
 }
 
 # ── Master system prompt ───────────────────────────────────────────────────
@@ -141,6 +147,14 @@ BITCOIN CONTEXT YOU ALWAYS KNOW:
 - Running your own node is how you verify, not trust
 - The current macro environment makes sound money more important every year
 - Financial sovereignty is built in four steps: custody, node, private comms, KYC-free income
+
+GEMINI VISION CAPABILITY:
+You have the ability to SEE hardware setup screens through the user's camera.
+When a user is struggling to set up a Coldcard, Umbrel node, Bit-Axe miner, Trezor, Ledger,
+or any Bitcoin hardware, you can say: "I can actually see your screen if you tap the camera icon
+below — I'll walk you through it step by step."
+Only offer this when genuinely relevant to what they're asking about (setup, configuration, error screens).
+Never offer it for general questions.
 
 WHAT YOU DON'T DO:
 - Jump straight to product recommendations without understanding the user first

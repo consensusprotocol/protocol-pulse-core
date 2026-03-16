@@ -46,7 +46,21 @@ class GeminiClient:
     """Minimal Gemini API client using urllib (no extra deps)."""
 
     def __init__(self, api_key=None, model=DEFAULT_MODEL):
-        self.api_key = api_key or os.environ.get("GEMINI_API_KEY", "")
+        # Lazy-load key: read from env OR .env file directly
+        key = api_key or os.environ.get("GEMINI_API_KEY", "")
+        if not key:
+            for env_path in [
+                os.path.join(os.path.dirname(__file__), "..", ".env"),
+                "/home/ultron/protocol_pulse/.env",
+            ]:
+                if os.path.exists(env_path):
+                    for line in open(env_path):
+                        if line.startswith("GEMINI_API_KEY="):
+                            key = line.strip().split("=", 1)[1].strip().strip("\"'")
+                            break
+                if key:
+                    break
+        self.api_key = key
         self.model = model
         self.rate_limiter = RateLimiter(RPM_LIMIT)
         self.enabled = bool(self.api_key)

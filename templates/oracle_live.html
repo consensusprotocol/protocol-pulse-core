@@ -318,6 +318,21 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
 #mic:disabled{opacity:.2;cursor:not-allowed}
 #mic.rec{background:#ff3b5f;animation:mic-pulse 1s ease-out infinite}
 .mic-hint{font-family:'JetBrains Mono',monospace;font-size:9px;color:#334;letter-spacing:.12em;text-transform:uppercase}
+#cam-btn{
+  width:42px;height:42px;border-radius:50%;background:#0a0c12;
+  border:1.5px solid #334;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:border-color .15s;-webkit-appearance:none;touch-action:manipulation;
+  flex-shrink:0;
+}
+#cam-btn:hover{border-color:#f8c15c}
+#cam-btn.active{border-color:#f8c15c;background:#1a1500}
+#cam-input{display:none}
+#vision-status{
+  font-family:'JetBrains Mono',monospace;font-size:10px;color:#f8c15c;
+  text-align:center;opacity:0;transition:opacity .3s;min-height:14px;
+}
+#vision-status.on{opacity:1}
 
 /* Sovereignty cards */
 #cards{display:none;grid-template-columns:1fr 1fr;gap:8px;width:100%;animation:card-up .35s ease}
@@ -717,6 +732,93 @@ function showTX(t){txEl.textContent=t;txEl.classList.add('on');}
 function hideTX(){txEl.classList.remove('on');}
 function showCards(){cards.classList.add('on');}
 function hideCards(){cards.classList.remove('on');}
+/* ── GEMINI VISION ── */
+var _visionSessionId = null;
+
+function triggerCamera(){
+  document.getElementById("cam-input").click();
+}
+
+function handleVisionUpload(evt){
+  var file = evt.target.files[0];
+  if(!file) return;
+  evt.target.value = "";
+  
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var b64 = e.result.split(",")[1];
+    var mime = file.type || "image/jpeg";
+    sendVisionImage(b64, mime);
+  };
+  reader.readAsDataURL(file);
+}
+
+function sendVisionImage(b64, mimeType){
+  setBusy(true);
+  showVisionStatus("Oracle is analyzing your screen...");
+  
+  var endpoint = _visionSessionId
+    ? A + "/vision/guide"
+    : A + "/vision/analyze";
+
+  var body = {
+    image_base64: b64,
+    mime_type: mimeType,
+    context: "User is setting up Bitcoin hardware and needs step-by-step guidance",
+  };
+  if(_visionSessionId) {
+    body.session_id = _visionSessionId;
+    body.question = "What step am I at and what should I do next?";
+  }
+
+  fetchTO(endpoint, {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(body)
+  }, 20000)
+  .then(function(r){
+    if(!r.ok) throw new Error("vision "+r.status);
+    return r.json();
+  })
+  .then(function(d){
+    _visionSessionId = d.session_id || _visionSessionId;
+    var guideText = d.guidance || d.analysis || d.response || "I can see your screen. Here is what I see.";
+    // Trim to 30 words for TTS
+    var words = guideText.split(" ");
+    if(words.length > 30) guideText = words.slice(0,30).join(" ");
+    showVisionStatus("Generating response...");
+    // Generate avatar video for vision response
+    return fetchTO(A+"/oracle/chat",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({text:guideText, session_id:SESSION_ID, use_cache_for_intents:false})
+    }, 90000)
+    .then(function(vr){
+      if(!vr.ok) throw new Error("chat "+vr.status);
+      return vr.blob().then(blobURL).then(function(url){
+        hideVisionStatus();
+        showSub(guideText);
+        return playVid(url);
+      });
+    });
+  })
+  .catch(function(e){
+    console.error("Vision error:", e);
+    showVisionStatus("Vision error — try again.");
+    setTimeout(hideVisionStatus, 3000);
+  })
+  .finally(function(){ setBusy(false); mic.disabled=false; });
+}
+
+function showVisionStatus(msg){ 
+  var el=document.getElementById("vision-status");
+  el.textContent=msg; el.classList.add("on");
+}
+function hideVisionStatus(){ 
+  var el=document.getElementById("vision-status");
+  el.classList.remove("on");
+}
+
 function fetchTO(url,opts,ms){
   var ctrl=new AbortController();
   var id=setTimeout(function(){ctrl.abort();},ms);

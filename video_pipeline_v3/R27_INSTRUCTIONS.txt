@@ -1,0 +1,27 @@
+Load PIPELINE_LAWS.md. 3 targeted fixes. Read assembler.py clip_selector.py script_writer.py daily_producer.py first.
+
+FIX 1: EPISODE DURATION - reduce clip count not narration quality
+In clip_selector.py or wherever the number of clips selected is set: change MAX_CLIPS or equivalent from 6 to 5.
+DO NOT change per-segment word budgets for react or commentary narration.
+Only reduce: clip count from 6 to 5. This shaves ~2 minutes without touching PBX voice quality.
+If there is a word budget for setup/intro transitional lines only (not react/commentary): cap at 60 words max.
+NEVER truncate mid-sentence. Any word budget must be enforced at script generation time, not at audio assembly time.
+
+FIX 2: USED CLIPS SAME-DAY EXPIRY
+In clip_selector.py or wherever used_clips.json is read: change the eligibility check so clips are only blocked if used_date matches TODAY (same calendar date, UTC). Clips from any previous date are immediately eligible again. Remove any 30-day or longer expiry logic and replace with same-day-only block.
+
+FIX 3: FULL-SCREEN ZOOMPAN PiP
+This replaces the small contained PiP box with a full-screen cinematic preview.
+In make_narrator_pip_scene in assembler.py:
+Instead of overlaying a small PiP window in the corner:
+1. Scale the pip_video_path clip to full 1920x1080 using scale=1920:1080 with crop to fill
+2. Apply desaturation: hue=s=0.4 to make it clearly a preview/flashback not live content
+3. Apply slow zoom: zoompan=z=min(zoom+0.0004\,1.08):d=total_frames:x=iw/2-(iw/zoom/2):y=ih/2-(ih/zoom/2)
+4. Overlay the Protocol Pulse red wireframe corner brackets PNG at assets/corner_brackets.png if it exists, else draw them with drawbox: 4 corner L-shapes in red #ff3b5f, 3px width, 60px length
+5. Overlay waveform strip at bottom y=920 height=80 from audio using showwavespic or existing waveform logic
+6. Overlay channel name and clip title text as before
+7. PBX narration audio plays over this full-screen background
+If pip_video_path is missing or NONE: fall back to current bg_loop full-screen (not intro_tag, never intro_tag)
+If corner_brackets.png does not exist: create it using PIL - 1920x1080 RGBA, draw 4 red L-shaped corners 60px each
+
+AFTER: regression_test.sh, git add -A commit feat-render27-fullscreen-pip-sameday-clips-duration push, nohup daily_producer to proof_render27.log, report clip count confirmed 5, confirm same-day expiry logic, confirm zoompan applied.

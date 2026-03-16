@@ -1133,29 +1133,44 @@ def generate_inline(text):
         if not video_path:
             return jsonify({"error": "Video encoding failed"}), 500
 
-        cleanup_paths = [audio_path, wav_path, video_path]
+        # Stream video as inline (not attachment) so browser plays it directly.
+        # Generator pattern ensures file stays on disk until fully sent,
+        # then cleans up. Fixes iOS mid-stream cutoff + double-unlink race.
+        def _stream_and_cleanup():
+            try:
+                with open(video_path, "rb") as vf:
+                    while True:
+                        chunk = vf.read(65536)
+                        if not chunk:
+                            break
+                        yield chunk
+            finally:
+                for p in [audio_path, wav_path, video_path]:
+                    try:
+                        if p and os.path.exists(p):
+                            os.unlink(p)
+                    except OSError:
+                        pass
 
-        @after_this_request
-        def _cleanup(response):
-            for p in cleanup_paths:
-                try:
-                    if p and os.path.exists(p):
-                        os.unlink(p)
-                except OSError:
-                    pass
-            return response
-
-        return send_file(video_path, mimetype="video/mp4", as_attachment=True, download_name="oracle.mp4")
+        from flask import Response
+        return Response(
+            _stream_and_cleanup(),
+            mimetype="video/mp4",
+            headers={
+                "Content-Disposition": "inline",
+                "X-Accel-Buffering": "no",
+                "Cache-Control": "no-cache",
+            },
+        )
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    finally:
+        logger.error(f"generate_inline error: {e}", exc_info=True)
         for p in [audio_path, wav_path]:
             try:
-                if os.path.exists(p):
-                    os.unlink(p)
+                if os.path.exists(p): os.unlink(p)
             except OSError:
                 pass
+        return jsonify({"error": str(e)}), 500
 
 
 
