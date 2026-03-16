@@ -566,7 +566,7 @@ function process(text){
     return fetchTO(A+'/oracle/speak',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({intent:di,text:text})
-    },35000);
+    },90000);
   })
   .then(function(r){
     if(!r.ok)throw new Error('HTTP '+r.status);
@@ -577,7 +577,31 @@ function process(text){
     });
   })
   .then(function(url){return playVid(url);})
-  .then(function(){if(di==='SOVEREIGNTY_ASSESSMENT')showCards();})
+  .then(function(){
+    if(di==='SOVEREIGNTY_ASSESSMENT')showCards();
+    // After DAILY_BRIEF_INTRO, immediately fetch the real brief (may now be ready)
+    if(di==='DAILY_BRIEF'){
+      setTimeout(function(){
+        setStat('Fetching live intel...','#f4c46f',true);
+        fetchTO(A+'/oracle/speak',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({intent:'DAILY_BRIEF'})
+        },90000)
+        .then(function(r){
+          if(!r.ok){
+            setStat('Ready','#334',false);
+            return;
+          }
+          var ct=r.headers.get('content-type')||'';
+          if(ct.indexOf('video')>=0)return r.blob().then(blobURL).then(function(url){return playVid(url);});
+          return r.json().then(function(j){
+            return fetchTO(A+j.video_url,{},25000).then(function(r2){return r2.blob().then(blobURL);}).then(function(url){return playVid(url);});
+          });
+        })
+        .catch(function(){setStat('Ready','#334',false);});
+      }, 500);
+    }
+  })
   .catch(function(e){
     console.error(e);
     setStat((e.message||'').indexOf('timeout')>=0?'Still rendering — hang tight...':'Oracle error. Try again.','#f4c46f',false);

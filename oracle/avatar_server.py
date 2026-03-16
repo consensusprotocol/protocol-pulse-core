@@ -56,7 +56,7 @@ HEAD_TRANSLATION_Y = 2.0        # pixels — visible vertical drift
 HEAD_PERIOD = 5.0               # seconds per full cycle — slow and natural
 
 # Lock timeout (seconds) — if GPU is busy longer than this, return 503
-LOCK_TIMEOUT = int(os.environ.get("AVATAR_LOCK_TIMEOUT", "10"))
+LOCK_TIMEOUT = int(os.environ.get("AVATAR_LOCK_TIMEOUT", "120"))  # increased: real-time Q must wait for GPU
 
 # Max audio duration (seconds) — longer clips get chunked
 MAX_AUDIO_SECONDS = 30
@@ -221,27 +221,39 @@ def wav2lip_generate(audio_path, fps=30.0):
 # ═══════════════════════════════════════════════════════════════════════
 
 def apply_head_movement(frame, frame_idx, fps):
+    # LAW: NO rotation — warpAffine on portrait avatar looks like body spinning.
+    # Only micro XY translation: subtle alive-breathing feel, not distracting.
     t = frame_idx / fps
-    rot_angle = (
-        HEAD_ROTATION_AMPLITUDE * 0.6 * math.sin(2 * math.pi * t / HEAD_PERIOD) +
-        HEAD_ROTATION_AMPLITUDE * 0.3 * math.sin(2 * math.pi * t / (HEAD_PERIOD * 1.7) + 0.5) +
-        HEAD_ROTATION_AMPLITUDE * 0.1 * math.sin(2 * math.pi * t / (HEAD_PERIOD * 0.6) + 1.2)
-    )
+    # Gentle breathing drift: max ±1.5px horizontal, ±1px vertical
+    # Two overlapping slow sinusoids so it never feels mechanical
     tx = (
-        HEAD_TRANSLATION_X * 0.6 * math.sin(2 * math.pi * t / (HEAD_PERIOD * 1.3) + 0.8) +
-        HEAD_TRANSLATION_X * 0.4 * math.sin(2 * math.pi * t / (HEAD_PERIOD * 2.1) + 2.0)
+        1.0 * math.sin(2 * math.pi * t / 6.0 + 0.8) +
+        0.5 * math.sin(2 * math.pi * t / 11.0 + 2.1)
     )
     ty = (
-        HEAD_TRANSLATION_Y * 0.5 * math.sin(2 * math.pi * t / (HEAD_PERIOD * 0.9) + 1.5) +
-        HEAD_TRANSLATION_Y * 0.3 * math.sin(2 * math.pi * t / (HEAD_PERIOD * 1.6) + 0.3) +
-        HEAD_TRANSLATION_Y * 0.2 * math.sin(2 * math.pi * t / (HEAD_PERIOD * 3.0))
+        0.8 * math.sin(2 * math.pi * t / 7.5 + 1.5) +
+        0.2 * math.sin(2 * math.pi * t / 4.2 + 0.6)
     )
+    # Integer shift only — no warpAffine, no rotation, no interpolation artifacts
+    ix, iy = int(round(tx)), int(round(ty))
+    if ix == 0 and iy == 0:
+        return frame
     h, w = frame.shape[:2]
-    center = (w / 2, h / 2)
-    M = cv2.getRotationMatrix2D(center, rot_angle, 1.0)
-    M[0, 2] += tx
-    M[1, 2] += ty
-    result = cv2.warpAffine(frame, M, (w, h), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
+    result = frame.copy()
+    # Clip-and-shift: roll pixels, fill edges with border value
+    if ix > 0:
+        result[:, ix:] = frame[:, :w-ix]
+        result[:, :ix] = frame[:, :1]
+    elif ix < 0:
+        result[:, :w+ix] = frame[:, -ix:]
+        result[:, w+ix:] = frame[:, -1:]
+    tmp = result.copy()
+    if iy > 0:
+        result[iy:, :] = tmp[:h-iy, :]
+        result[:iy, :] = tmp[:1, :]
+    elif iy < 0:
+        result[:h+iy, :] = tmp[-iy:, :]
+        result[h+iy:, :] = tmp[-1:, :]
     return result
 
 
@@ -1104,7 +1116,7 @@ def generate_inline(text):
     try:
         acquired = _lock.acquire(timeout=LOCK_TIMEOUT)
         if not acquired:
-            return jsonify({"error": "GPU busy", "retry_after": 5}), 503
+            return jsonify({"error": "GPU busy — try again in a moment", "retry_after": 10}), 503
         try:
             frames = wav2lip_generate(wav_path, DEFAULT_FPS)
             reg = ModelRegistry.get()
