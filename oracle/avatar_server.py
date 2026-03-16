@@ -67,6 +67,36 @@ logger = logging.getLogger("avatar_server")
 
 app = Flask(__name__)
 
+# ── CORS: allow protocolpulse.io and any origin to call avatar APIs ──────────
+CORS_ORIGINS = [
+    "https://protocolpulse.io",
+    "https://www.protocolpulse.io",
+    "http://localhost:3000",
+    "http://localhost:5000",
+    "http://localhost:8080",
+]
+
+@app.after_request
+def add_cors_headers(response):
+    origin = request.headers.get("Origin", "")
+    # Allow configured origins + any localhost
+    if origin in CORS_ORIGINS or origin.startswith("http://localhost") or origin.startswith("http://127.0.0.1"):
+        response.headers["Access-Control-Allow-Origin"] = origin
+    else:
+        # Allow all for video endpoints (videos are not sensitive)
+        response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With"
+    response.headers["Access-Control-Allow-Credentials"] = "false"
+    response.headers["Access-Control-Max-Age"] = "86400"
+    return response
+
+@app.route("/", defaults={"path": ""}, methods=["OPTIONS"])
+@app.route("/<path:path>", methods=["OPTIONS"])
+def handle_options(path):
+    response = app.make_default_options_response()
+    return response
+
 # ─── Metrics ──────────────────────────────────────────────────────────
 _lock = threading.Lock()
 _start_time = time.time()

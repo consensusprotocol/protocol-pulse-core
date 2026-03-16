@@ -2,496 +2,691 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#06070b">
-<meta name="description" content="The Oracle — Real-time Bitcoin intelligence. Ask anything.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Oracle · Protocol Pulse</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:#06070b;overflow:hidden;font-family:'Inter',sans-serif}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{
+  height:100%;width:100%;
+  background:#06070b;
+  overflow:hidden;
+  font-family:'Inter',sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
 
+/* ── ANIMATIONS ─────────────────────────────────────── */
 @keyframes btn-pulse{
-  0%,100%{box-shadow:0 0 20px rgba(255,59,95,.35),0 0 40px rgba(255,59,95,.15)}
-  50%{box-shadow:0 0 60px rgba(255,59,95,.65),0 0 100px rgba(255,59,95,.25)}
+  0%,100%{box-shadow:0 0 20px rgba(255,59,95,.4),0 0 50px rgba(255,59,95,.1)}
+  50%{box-shadow:0 0 50px rgba(255,59,95,.8),0 0 100px rgba(255,59,95,.2)}
 }
-@keyframes img-breathe{
-  0%,100%{filter:drop-shadow(0 0 18px rgba(255,59,95,.4))}
-  50%{filter:drop-shadow(0 0 38px rgba(255,59,95,.75))}
+@keyframes breathe{
+  0%,100%{filter:drop-shadow(0 0 20px rgba(255,59,95,.5))}
+  50%{filter:drop-shadow(0 0 45px rgba(255,59,95,.9))}
 }
-@keyframes live-dot{0%,100%{opacity:1}50%{opacity:.2}}
+@keyframes live-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.7)}}
 @keyframes mic-ring{
-  0%{box-shadow:0 0 0 0 rgba(255,59,95,.6)}
-  70%{box-shadow:0 0 0 18px rgba(255,59,95,0)}
+  0%{box-shadow:0 0 0 0 rgba(255,59,95,.7)}
+  70%{box-shadow:0 0 0 20px rgba(255,59,95,0)}
   100%{box-shadow:0 0 0 0 rgba(255,59,95,0)}
 }
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes fade-up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@keyframes card-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fade-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes card-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes thinking-pulse{0%,100%{opacity:.4}50%{opacity:1}}
 
+/* ── ROOT ───────────────────────────────────────────── */
 #oracle-root{
-  position:fixed;inset:0;background:#06070b;
-  display:flex;align-items:center;justify-content:center;overflow:hidden
+  position:fixed;inset:0;
+  background:#06070b;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
 }
 
-/* ── GATE ── */
+/* ══════════════════════════════════════════════════════
+   GATE SCREEN
+══════════════════════════════════════════════════════ */
 #gate-screen{
   display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:24px;padding:40px 24px;
-  width:100%;max-width:520px;transition:opacity .4s ease
+  justify-content:center;
+  gap:clamp(16px,3vw,28px);
+  padding:clamp(20px,5vw,48px) clamp(20px,5vw,40px);
+  width:100%;max-width:480px;
+  transition:opacity .4s ease;
 }
-.gate-brand{font-size:12px;font-weight:700;letter-spacing:.3em;color:#ff3b5f;text-transform:uppercase}
-.gate-avatar-wrap{
-  width:180px;height:180px;border-radius:50%;overflow:hidden;
-  animation:img-breathe 3s ease-in-out infinite;
-  background:radial-gradient(circle,#3a0e18 0%,#0f0406 100%);
-  display:flex;align-items:center;justify-content:center
+
+.gate-brand{
+  font-size:11px;font-weight:700;
+  letter-spacing:.35em;color:#ff3b5f;
+  text-transform:uppercase;opacity:.9;
 }
-.gate-avatar-wrap img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+
+.gate-avatar{
+  width:clamp(120px,35vw,180px);
+  height:clamp(120px,35vw,180px);
+  border-radius:50%;
+  overflow:hidden;
+  animation:breathe 3s ease-in-out infinite;
+  background:radial-gradient(circle,#2a0810 0%,#0a0305 100%);
+  border:2px solid rgba(255,59,95,.25);
+  flex-shrink:0;
+}
+.gate-avatar img{
+  width:100%;height:100%;
+  object-fit:cover;border-radius:50%;
+  display:block;
+}
 .gate-avatar-fallback{
-  width:80px;height:80px;border-radius:50%;
-  background:radial-gradient(circle,#ff3b5f 0%,#8b1428 100%);opacity:.8
+  width:100%;height:100%;
+  border-radius:50%;
+  background:radial-gradient(circle,#ff3b5f 0%,#7a1020 60%,#2a0810 100%);
+  display:none;
+  align-items:center;justify-content:center;
+  font-size:clamp(40px,12vw,72px);
 }
-.gate-title{font-size:48px;font-weight:800;color:#fff;letter-spacing:-.02em;text-align:center}
-.gate-sub{font-size:16px;color:#b8c2d9;text-align:center;line-height:1.5}
+
+.gate-title{
+  font-size:clamp(36px,10vw,56px);
+  font-weight:800;color:#fff;
+  letter-spacing:-.02em;
+  text-align:center;line-height:1;
+}
+
+.gate-sub{
+  font-size:clamp(14px,3.5vw,17px);
+  color:#8899bb;
+  text-align:center;line-height:1.5;
+  max-width:320px;
+}
+
 #gate-btn{
-  background:#ff3b5f;color:#fff;font-family:'Inter',sans-serif;
-  font-size:20px;font-weight:700;padding:18px 52px;
-  border:none;border-radius:4px;cursor:pointer;letter-spacing:.02em;
-  animation:btn-pulse 2s ease-in-out infinite;transition:transform .1s;margin-top:8px
+  background:#ff3b5f;
+  color:#fff;
+  font-family:'Inter',sans-serif;
+  font-size:clamp(16px,4.5vw,20px);
+  font-weight:700;
+  padding:clamp(14px,4vw,18px) clamp(32px,8vw,52px);
+  border:none;border-radius:6px;
+  cursor:pointer;
+  letter-spacing:.03em;
+  animation:btn-pulse 2.5s ease-in-out infinite;
+  transition:transform .1s,opacity .2s;
+  width:100%;max-width:320px;
+  -webkit-appearance:none;
 }
-#gate-btn:hover{transform:scale(1.03)}
-#gate-btn:active{transform:scale(.98)}
-#gate-btn:disabled{opacity:.6;cursor:not-allowed;animation:none}
+#gate-btn:active{transform:scale(.97)}
+#gate-btn:disabled{opacity:.5;cursor:not-allowed;animation:none}
+
 #gate-error{
-  display:none;color:#ff3b5f;font-size:14px;
-  text-align:center;line-height:1.5;max-width:360px
+  display:none;
+  color:#ff3b5f;font-size:13px;
+  text-align:center;line-height:1.5;
+  background:rgba(255,59,95,.08);
+  border:1px solid rgba(255,59,95,.2);
+  border-radius:6px;padding:10px 14px;
+  max-width:320px;width:100%;
 }
 
-/* ── LIVE STAGE ── */
+/* ══════════════════════════════════════════════════════
+   LIVE STAGE
+══════════════════════════════════════════════════════ */
 #live-stage{
-  display:none;flex-direction:column;align-items:center;
-  width:100%;max-width:600px;padding:16px 20px 24px;gap:12px;
-  animation:fade-up .5s ease;max-height:100vh;overflow-y:auto
+  display:none;
+  flex-direction:column;align-items:center;
+  width:100%;
+  /* Mobile: use full height with safe areas */
+  height:100%;max-height:100vh;
+  padding:
+    clamp(8px,3vw,16px)
+    clamp(12px,4vw,24px)
+    clamp(12px,4vw,24px);
+  gap:clamp(8px,2vw,12px);
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  animation:fade-in .5s ease;
 }
-.stage-topbar{width:100%;display:flex;align-items:center;justify-content:space-between}
-.stage-label{font-size:11px;font-weight:700;letter-spacing:.35em;color:#ff3b5f;text-transform:uppercase}
-.live-indicator{display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#4ade80;font-weight:500;letter-spacing:.1em}
-.live-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;animation:live-dot 1.4s ease-in-out infinite}
 
+.stage-topbar{
+  width:100%;display:flex;
+  align-items:center;justify-content:space-between;
+  flex-shrink:0;
+  padding:0 2px;
+}
+.stage-label{
+  font-size:10px;font-weight:700;
+  letter-spacing:.35em;color:#ff3b5f;
+  text-transform:uppercase;
+}
+.live-indicator{
+  display:flex;align-items:center;gap:5px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;color:#4ade80;font-weight:500;letter-spacing:.1em;
+}
+.live-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:#4ade80;
+  animation:live-dot 1.4s ease-in-out infinite;
+}
+
+/* Video — square on mobile, slightly bigger on desktop */
 .video-wrap{
-  width:100%;max-width:480px;aspect-ratio:1/1;border-radius:10px;
-  overflow:hidden;background:#0a0b0f;position:relative;border:1px solid #1a1f2e
+  width:100%;
+  max-width:min(480px, calc(100vw - 24px));
+  aspect-ratio:1/1;
+  border-radius:10px;overflow:hidden;
+  background:#080a0e;
+  position:relative;
+  border:1px solid #151a26;
+  flex-shrink:0;
 }
-#oracle-video{width:100%;height:100%;object-fit:cover;display:block}
-.video-placeholder{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  background:radial-gradient(circle at 50% 40%,#1a0810 0%,#06070b 70%)
+#oracle-video{
+  width:100%;height:100%;
+  object-fit:cover;display:block;
+  /* Critical: NOT muted so audio plays */
 }
-.video-placeholder-avatar{
-  width:60%;height:60%;border-radius:50%;
-  background:radial-gradient(circle,#2a0e18 0%,#0f0406 100%);
-  animation:img-breathe 3s ease-in-out infinite
+.vid-placeholder{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 50% 40%,#150610 0%,#06070b 65%);
+}
+.vid-placeholder-orb{
+  width:55%;height:55%;border-radius:50%;
+  background:radial-gradient(circle,#2a0e18 0%,#0a0306 100%);
+  animation:breathe 3s ease-in-out infinite;
 }
 
+/* Subtitle */
 #subtitle-bar{
-  width:100%;max-width:480px;min-height:44px;
-  font-family:'JetBrains Mono',monospace;font-size:13px;color:#f8c15c;
-  line-height:1.6;text-align:center;opacity:0;transition:opacity .3s;
-  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical
+  width:100%;
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(11px,3vw,13px);
+  color:#f8c15c;
+  line-height:1.5;text-align:center;
+  min-height:36px;
+  opacity:0;transition:opacity .35s;
+  overflow:hidden;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  padding:0 8px;
 }
-#subtitle-bar.visible{opacity:1}
+#subtitle-bar.show{opacity:1}
 
+/* Status */
 #status-bar{
-  font-family:'JetBrains Mono',monospace;font-size:13px;color:#b8c2d9;
-  letter-spacing:.05em;height:22px;display:flex;align-items:center;gap:8px;transition:color .25s
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(11px,3vw,13px);
+  color:#6677aa;
+  display:flex;align-items:center;gap:7px;
+  height:20px;transition:color .25s;
+  flex-shrink:0;
 }
-.status-spinner{
-  width:14px;height:14px;border:2px solid currentColor;border-top-color:transparent;
-  border-radius:50%;display:none;animation:spin .7s linear infinite
+.spinner{
+  width:13px;height:13px;
+  border:2px solid currentColor;border-top-color:transparent;
+  border-radius:50%;display:none;
+  animation:spin .65s linear infinite;flex-shrink:0;
 }
 
+/* Transcript */
 #transcript-bar{
-  font-family:'JetBrains Mono',monospace;font-size:12px;color:#b8c2d9;font-style:italic;
-  min-height:20px;text-align:center;opacity:0;transition:opacity .2s;
-  max-width:480px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;width:100%
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(11px,3vw,12px);color:#5566aa;font-style:italic;
+  min-height:18px;text-align:center;
+  opacity:0;transition:opacity .2s;
+  width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+  padding:0 8px;
 }
-#transcript-bar.visible{opacity:.7}
+#transcript-bar.show{opacity:1}
 
-.mic-wrap{display:flex;flex-direction:column;align-items:center;gap:8px}
+/* Mic */
+.mic-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0}
 #mic-btn{
-  width:72px;height:72px;border-radius:50%;background:#1a1d27;border:2px solid #ff3b5f;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  transition:background .2s,border-color .2s,transform .1s;position:relative
+  width:clamp(64px,16vw,76px);
+  height:clamp(64px,16vw,76px);
+  border-radius:50%;
+  background:#111520;
+  border:2px solid #ff3b5f;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .2s,transform .1s;
+  -webkit-appearance:none;
+  touch-action:manipulation;
 }
-#mic-btn:hover:not(:disabled){transform:scale(1.05)}
-#mic-btn:disabled{opacity:.3;cursor:not-allowed}
-#mic-btn.recording{background:#ff3b5f;border-color:#ff3b5f;animation:mic-ring 1.2s ease-out infinite}
-#mic-btn svg{pointer-events:none}
-.mic-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:#5a6080;letter-spacing:.08em}
+#mic-btn:active:not(:disabled){transform:scale(.94)}
+#mic-btn:disabled{opacity:.25;cursor:not-allowed}
+#mic-btn.rec{
+  background:#ff3b5f;border-color:#ff3b5f;
+  animation:mic-ring 1s ease-out infinite;
+}
+.mic-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;color:#445;letter-spacing:.1em;
+  text-transform:uppercase;
+}
 
-/* ── SOVEREIGNTY CARDS ── */
-#sovereignty-cards{
-  display:none;grid-template-columns:1fr 1fr;gap:10px;
-  width:100%;max-width:480px;animation:card-in .4s ease
+/* Sovereignty cards */
+#sov-cards{
+  display:none;
+  grid-template-columns:1fr 1fr;
+  gap:clamp(8px,2vw,10px);
+  width:100%;
+  animation:card-in .4s ease;
 }
-#sovereignty-cards.visible{display:grid}
+#sov-cards.show{display:grid}
 .sov-card{
-  background:#0f1117;border:1px solid #1e2235;border-radius:6px;
-  padding:14px 16px;cursor:pointer;transition:border-color .2s,background .2s;
-  display:flex;flex-direction:column;gap:6px
+  background:#0c0e14;border:1px solid #1a2030;
+  border-radius:8px;padding:clamp(10px,3vw,14px) clamp(10px,3vw,14px);
+  cursor:pointer;transition:border-color .2s,background .2s;
+  display:flex;flex-direction:column;gap:6px;
+  -webkit-appearance:none;touch-action:manipulation;
 }
-.sov-card:hover{border-color:#ff3b5f;background:#140a10}
-.sov-card-title{font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:#fff}
-.sov-card-link{font-family:'JetBrains Mono',monospace;font-size:11px;color:#ff3b5f;text-decoration:none;letter-spacing:.05em}
-.sov-card-link:hover{text-decoration:underline}
+.sov-card:active{background:#130810;border-color:#ff3b5f}
+.sov-card-title{
+  font-size:clamp(12px,3.5vw,14px);font-weight:600;color:#dde;line-height:1.3;
+}
+.sov-card-link{
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(10px,2.5vw,11px);color:#ff3b5f;
+  text-decoration:none;letter-spacing:.03em;
+}
 </style>
 </head>
 <body>
 <div id="oracle-root">
 
-  <!-- GATE SCREEN -->
+  <!-- ════ GATE ════ -->
   <div id="gate-screen">
     <div class="gate-brand">Protocol Pulse</div>
-    <div class="gate-avatar-wrap">
+
+    <div class="gate-avatar" id="gate-avatar">
       <img src="/static/oracle_avatar.png" alt="Oracle"
-           onerror="this.style.display='none';document.getElementById('gate-avatar-fallback').style.display='block'">
-      <div class="gate-avatar-fallback" id="gate-avatar-fallback" style="display:none"></div>
+           onerror="this.style.display='none';document.getElementById('gate-fallback').style.display='flex'">
+      <div class="gate-avatar-fallback" id="gate-fallback">⚡</div>
     </div>
+
     <h1 class="gate-title">THE ORACLE</h1>
     <p class="gate-sub">Real-time Bitcoin intelligence. Ask anything.</p>
+
     <button id="gate-btn" onclick="requestMic()">TALK TO THE ORACLE</button>
     <div id="gate-error"></div>
   </div>
 
-  <!-- LIVE STAGE -->
+  <!-- ════ LIVE STAGE ════ -->
   <div id="live-stage">
+
     <div class="stage-topbar">
       <span class="stage-label">Oracle</span>
       <div class="live-indicator"><div class="live-dot"></div>LIVE</div>
     </div>
 
     <div class="video-wrap">
-      <div class="video-placeholder" id="video-placeholder">
-        <div class="video-placeholder-avatar"></div>
+      <div class="vid-placeholder" id="vid-placeholder">
+        <div class="vid-placeholder-orb"></div>
       </div>
-      <video id="oracle-video" playsinline></video>
+      <!-- NOT muted — audio must play. playsinline for iOS -->
+      <video id="oracle-video" playsinline webkit-playsinline></video>
     </div>
 
     <div id="subtitle-bar"></div>
 
     <div id="status-bar">
-      <span class="status-spinner" id="status-spinner"></span>
+      <span class="spinner" id="spinner"></span>
       <span id="status-text">Ready</span>
     </div>
 
     <div id="transcript-bar"></div>
 
     <div class="mic-wrap">
-      <button id="mic-btn" disabled onclick="toggleMic()" title="Click to speak">
-        <svg id="icon-mic" width="28" height="28" viewBox="0 0 24 24" fill="none">
+      <button id="mic-btn" disabled onclick="toggleMic()">
+        <svg id="icon-mic" width="26" height="26" viewBox="0 0 24 24" fill="none">
           <rect x="9" y="2" width="6" height="12" rx="3" fill="#ff3b5f"/>
           <path d="M5 10a7 7 0 0014 0" stroke="#ff3b5f" stroke-width="2" stroke-linecap="round"/>
           <line x1="12" y1="19" x2="12" y2="22" stroke="#ff3b5f" stroke-width="2" stroke-linecap="round"/>
           <line x1="9" y1="22" x2="15" y2="22" stroke="#ff3b5f" stroke-width="2" stroke-linecap="round"/>
         </svg>
-        <svg id="icon-stop" width="28" height="28" viewBox="0 0 24 24" fill="none" style="display:none">
+        <svg id="icon-stop" width="26" height="26" viewBox="0 0 24 24" fill="none" style="display:none">
           <rect x="6" y="6" width="12" height="12" rx="2" fill="#fff"/>
         </svg>
       </button>
-      <span class="mic-label" id="mic-label">TAP TO SPEAK</span>
+      <span class="mic-label" id="mic-label">Tap to speak</span>
     </div>
 
-    <!-- Sovereignty Cards -->
-    <div id="sovereignty-cards">
+    <div id="sov-cards">
       <div class="sov-card" onclick="speakIntent('SOVEREIGNTY_COLD_WALLET')">
         <div class="sov-card-title">&#128272; Self-Custody</div>
-        <a class="sov-card-link" href="https://coldcard.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Setup Guide &#8594;</a>
+        <a class="sov-card-link" href="https://coldcard.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Setup guide &#8594;</a>
       </div>
       <div class="sov-card" onclick="speakIntent('SOVEREIGNTY_NODE')">
         <div class="sov-card-title">&#9889; Run a Node</div>
-        <a class="sov-card-link" href="https://getumbrel.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Setup Guide &#8594;</a>
+        <a class="sov-card-link" href="https://getumbrel.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Setup guide &#8594;</a>
       </div>
       <div class="sov-card" onclick="speakIntent('SOVEREIGNTY_BITAXE')">
         <div class="sov-card-title">&#9935; Solo Mining</div>
-        <a class="sov-card-link" href="https://curatedmining.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Setup Guide &#8594;</a>
+        <a class="sov-card-link" href="https://curatedmining.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Setup guide &#8594;</a>
       </div>
       <div class="sov-card" onclick="speakIntent('SOVEREIGNTY_LIFE_INSURANCE')">
-        <div class="sov-card-title">&#128737; Bitcoin Insurance</div>
-        <a class="sov-card-link" href="https://application.meanwhile.bm/start?referralCode=KKM73K" target="_blank" rel="noopener" onclick="event.stopPropagation()">Setup Guide &#8594;</a>
+        <div class="sov-card-title">&#128737; BTC Insurance</div>
+        <a class="sov-card-link" href="https://application.meanwhile.bm/start?referralCode=KKM73K" target="_blank" rel="noopener" onclick="event.stopPropagation()">Learn more &#8594;</a>
       </div>
     </div>
-  </div><!-- /live-stage -->
 
+  </div><!-- /live-stage -->
 </div><!-- /oracle-root -->
 
 <script>
 'use strict';
 
-const API = 'https://avatar.protocolpulse.io';
+/* ── CONFIG ── */
+var API = 'https://avatar.protocolpulse.io';
 
-const SUBTITLES = {
-  GREETING: "Hey. I'm the Oracle. I live inside Protocol Pulse and I'm tracking everything happening in Bitcoin right now. What brings you here today?",
-  SOVEREIGNTY_INTRO: "Your sovereignty score is a snapshot of how free you actually are — how much of your financial life you've moved into things you actually control.",
-  SOVEREIGNTY_ASSESSMENT: "Let's map it out. Four pillars: self-custody of your Bitcoin, your own node running, private communications, and no KYC exposure on your income. Where are you today?",
-  SOVEREIGNTY_COLD_WALLET: "If your Bitcoin is on an exchange, it's not yours — it's an IOU. The fix is a hardware wallet. I can walk you through setting one up right now, step by step.",
-  SOVEREIGNTY_NODE: "Running your own node means you verify your own transactions — you don't trust, you verify. Easiest entry point: Raspberry Pi with Umbrel.",
-  SOVEREIGNTY_BITAXE: "Bitaxe is a solo miner you can run at home. It's a lottery ticket — a Bitcoin lottery ticket. Curated Mining also offers white-glove setup if you want hands-off.",
-  SOVEREIGNTY_LIFE_INSURANCE: "If you die with Bitcoin in cold storage and nobody knows the seed phrase, that wealth disappears. Meanwhile offers life insurance that understands Bitcoin.",
-  SOVEREIGNTY_RESIDENCY: "Digital residency through Palau via RNS.ID gives you a second identity layer and a legal domicile outside your home country. Real tax and privacy implications.",
-  DAILY_BRIEF_INTRO: "Here's what's moving right now in Bitcoin. Give me a second and I'll pull the latest from our intelligence layer.",
-  DAILY_BRIEF_LIVE: "Here's what's happening in Bitcoin right now.",
-  UNKNOWN_QUESTION: "That's outside my real-time data right now, but I'm researching it and coming back with something solid. Give me a few seconds.",
-  GOODBYE: "Alright. Stack sats, verify everything, and come back anytime."
+var SUBS = {
+  GREETING:                  "Hey. I'm the Oracle. I'm tracking everything happening in Bitcoin right now — on-chain, macro, geopolitical. What brings you here?",
+  SOVEREIGNTY_INTRO:         "Your sovereignty score is a snapshot of how free you actually are — how much you've moved out of legacy systems into things you control.",
+  SOVEREIGNTY_ASSESSMENT:    "Let's map it out. Four pillars: self-custody of your Bitcoin, your own node, private communications, and no KYC on your income. Where are you today?",
+  SOVEREIGNTY_COLD_WALLET:   "If your Bitcoin is on an exchange, it's not yours — it's an IOU. A hardware wallet fixes that. I can walk you through it step by step.",
+  SOVEREIGNTY_NODE:          "Running your own node means you verify your own transactions — you don't trust, you verify. Umbrel on a Raspberry Pi is the easiest path.",
+  SOVEREIGNTY_BITAXE:        "Bitaxe is a solo miner you can run at home — a Bitcoin lottery ticket. Curated Mining also offers white-glove setup if you want hands-off.",
+  SOVEREIGNTY_LIFE_INSURANCE:"If you die with Bitcoin in cold storage and nobody knows the seed phrase, that wealth disappears. Meanwhile offers life insurance that understands Bitcoin.",
+  SOVEREIGNTY_RESIDENCY:     "Digital residency through Palau via RNS.ID gives you a second identity layer outside your home country. Real tax and privacy implications.",
+  DAILY_BRIEF_INTRO:         "Here's what's moving in Bitcoin right now. Pulling from our intelligence layer...",
+  DAILY_BRIEF_LIVE:          "Here's today's Bitcoin intelligence brief.",
+  UNKNOWN_QUESTION:          "I'm researching that now. Give me a moment.",
+  GOODBYE:                   "Stack sats, verify everything, and come back anytime."
 };
 
-let micStream = null;
-let isRecording = false;
-let recognition = null;
-let currentTranscript = '';
-let currentObjectURL = null;
-let isBusy = false;
+/* ── STATE ── */
+var micStream = null;
+var isRec = false;
+var recognition = null;
+var pending = '';
+var objURL = null;
+var busy = false;
+// AudioContext kept alive from user gesture
+var audioCtx = null;
 
-const gateScreen    = document.getElementById('gate-screen');
-const liveStage     = document.getElementById('live-stage');
-const gateBtn       = document.getElementById('gate-btn');
-const gateError     = document.getElementById('gate-error');
-const video         = document.getElementById('oracle-video');
-const placeholder   = document.getElementById('video-placeholder');
-const subtitleBar   = document.getElementById('subtitle-bar');
-const statusText    = document.getElementById('status-text');
-const statusSpinner = document.getElementById('status-spinner');
-const transcriptBar = document.getElementById('transcript-bar');
-const micBtn        = document.getElementById('mic-btn');
-const micLabel      = document.getElementById('mic-label');
-const iconMic       = document.getElementById('icon-mic');
-const iconStop      = document.getElementById('icon-stop');
-const sovCards      = document.getElementById('sovereignty-cards');
+/* ── DOM ── */
+var gateScreen  = document.getElementById('gate-screen');
+var liveStage   = document.getElementById('live-stage');
+var gateBtn     = document.getElementById('gate-btn');
+var gateError   = document.getElementById('gate-error');
+var video       = document.getElementById('oracle-video');
+var vidPH       = document.getElementById('vid-placeholder');
+var subtitleBar = document.getElementById('subtitle-bar');
+var statusText  = document.getElementById('status-text');
+var spinner     = document.getElementById('spinner');
+var txBar       = document.getElementById('transcript-bar');
+var micBtn      = document.getElementById('mic-btn');
+var micLabel    = document.getElementById('mic-label');
+var iconMic     = document.getElementById('icon-mic');
+var iconStop    = document.getElementById('icon-stop');
+var sovCards    = document.getElementById('sov-cards');
 
-async function requestMic() {
+/* ── MIC REQUEST ── */
+function requestMic() {
   gateBtn.disabled = true;
-  gateBtn.textContent = 'Requesting mic access...';
+  gateBtn.textContent = 'Requesting mic...';
   gateError.style.display = 'none';
-  try {
-    micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-    transitionToLiveStage();
-  } catch (err) {
-    gateBtn.disabled = false;
-    gateBtn.textContent = 'TALK TO THE ORACLE';
-    gateError.style.display = 'block';
-    gateError.textContent = '\u26a0 Mic access required. Enable it in your browser settings and reload.';
-  }
+
+  // Create AudioContext on user gesture — required for audio playback on iOS/Safari
+  try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){}
+
+  navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+    .then(function(stream) {
+      micStream = stream;
+      go();
+    })
+    .catch(function() {
+      gateBtn.disabled = false;
+      gateBtn.textContent = 'TALK TO THE ORACLE';
+      gateError.style.display = 'block';
+      gateError.textContent = '\u26a0\ufe0f Mic access required. Enable it in your browser settings and reload.';
+    });
 }
 
-async function transitionToLiveStage() {
+/* ── TRANSITION ── */
+function go() {
   gateScreen.style.opacity = '0';
-  await sleep(400);
-  gateScreen.style.display = 'none';
-  liveStage.style.display = 'flex';
-  liveStage.style.opacity = '0';
-  await sleep(50);
-  liveStage.style.transition = 'opacity 0.5s';
-  liveStage.style.opacity = '1';
-  initSpeechRecognition();
-  await playIntent('GREETING');
+  setTimeout(function() {
+    gateScreen.style.display = 'none';
+    liveStage.style.display = 'flex';
+    liveStage.style.opacity = '0';
+    setTimeout(function() {
+      liveStage.style.transition = 'opacity .5s';
+      liveStage.style.opacity = '1';
+      initSR();
+      playIntent('GREETING');
+    }, 30);
+  }, 400);
 }
 
-async function playIntent(intent) {
+/* ── PLAY CACHED INTENT ── */
+function playIntent(intent) {
   setBusy(true);
-  setStatus('Preparing Oracle...', '#f4c46f', true);
-  showSubtitle(SUBTITLES[intent] || '');
-  try {
-    const t0 = Date.now();
-    const res = await fetchWithTimeout(API + '/oracle/speak', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ intent })
-    }, 30000);
-    if (!res.ok) throw new Error('speak ' + res.status);
-    const ct = res.headers.get('content-type') || '';
-    let videoURL;
-    if (ct.includes('video')) {
-      const blob = await res.blob();
-      videoURL = URL.createObjectURL(blob);
+  stat('Loading Oracle...', '#f4c46f', true);
+  sub(SUBS[intent] || '');
+
+  var t0 = Date.now();
+  fetchTO(API + '/oracle/speak', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ intent: intent })
+  }, 30000)
+  .then(function(res) {
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var ct = res.headers.get('content-type') || '';
+    if (ct.indexOf('video') >= 0) {
+      return res.blob().then(function(b) { return URL.createObjectURL(b); });
     } else {
-      const j = await res.json();
-      const vr = await fetchWithTimeout(API + j.video_url, {}, 20000);
-      const blob = await vr.blob();
-      videoURL = URL.createObjectURL(blob);
+      return res.json().then(function(j) {
+        return fetchTO(API + j.video_url, {}, 20000)
+          .then(function(r2) { return r2.blob(); })
+          .then(function(b) { return URL.createObjectURL(b); });
+      });
     }
-    console.log(intent + ' loaded in ' + (Date.now()-t0) + 'ms');
-    await playVideo(videoURL);
-    if (intent === 'SOVEREIGNTY_ASSESSMENT') showSovCards();
-  } catch (err) {
-    console.error('playIntent error:', err);
-    setStatus('Oracle error. Try again.', '#ff3b5f');
-  } finally {
+  })
+  .then(function(url) {
+    console.log(intent + ' in ' + (Date.now()-t0) + 'ms');
+    return playVideo(url);
+  })
+  .then(function() {
+    if (intent === 'SOVEREIGNTY_ASSESSMENT') showSov();
+  })
+  .catch(function(e) {
+    console.error('playIntent:', e);
+    stat('Oracle error — try again.', '#ff3b5f', false);
+  })
+  .finally(function() {
     setBusy(false);
     enableMic();
-  }
-}
-
-async function speakIntent(intent) {
-  if (isBusy) return;
-  hideSovCards();
-  await playIntent(intent);
-}
-
-async function processTranscript(text) {
-  if (!text.trim() || isBusy) return;
-  setBusy(true);
-  hideSovCards();
-  showTranscript(text);
-  setStatus('Oracle is thinking...', '#f4c46f', true);
-  try {
-    const intentRes = await fetchWithTimeout(API + '/oracle/intent', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ transcript: text })
-    }, 10000);
-    const intentData = await intentRes.json();
-    const intent = intentData.intent;
-    const confidence = intentData.confidence;
-    console.log('Intent: ' + intent + ' (' + confidence + ')');
-
-    const t0 = Date.now();
-    const speakRes = await fetchWithTimeout(API + '/oracle/speak', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ intent: intent, text: text })
-    }, 35000);
-    if (!speakRes.ok) throw new Error('speak ' + speakRes.status);
-
-    const ct = speakRes.headers.get('content-type') || '';
-    let videoURL;
-    if (ct.includes('video')) {
-      const blob = await speakRes.blob();
-      videoURL = URL.createObjectURL(blob);
-    } else {
-      const j = await speakRes.json();
-      const vr = await fetchWithTimeout(API + j.video_url, {}, 25000);
-      const blob = await vr.blob();
-      videoURL = URL.createObjectURL(blob);
-    }
-    console.log('Response loaded in ' + (Date.now()-t0) + 'ms');
-    showSubtitle(SUBTITLES[intent] || text);
-    await playVideo(videoURL);
-    if (intent === 'SOVEREIGNTY_ASSESSMENT') showSovCards();
-  } catch (err) {
-    console.error('processTranscript error:', err);
-    if (err.message && err.message.includes('timeout')) {
-      setStatus('Connection timeout — Oracle is rendering your response.', '#f4c46f');
-    } else {
-      setStatus('Oracle encountered an error. Try again.', '#ff3b5f');
-    }
-  } finally {
-    setBusy(false);
-    enableMic();
-    hideTranscript();
-  }
-}
-
-function playVideo(url) {
-  return new Promise(function(resolve) {
-    placeholder.style.display = 'none';
-    if (currentObjectURL) URL.revokeObjectURL(currentObjectURL);
-    currentObjectURL = url;
-    video.src = url;
-    setStatus('Speaking', '#6cff9f');
-    video.onended = function() {
-      setStatus('Ready', '#b8c2d9');
-      hideSubtitle();
-      resolve();
-    };
-    video.onerror = function() { resolve(); };
-    video.play().catch(function() { resolve(); });
   });
 }
 
-function initSpeechRecognition() {
+function speakIntent(intent) {
+  if (busy) return;
+  hideSov();
+  playIntent(intent);
+}
+
+/* ── PROCESS USER SPEECH ── */
+function process(text) {
+  if (!text.trim() || busy) return;
+  setBusy(true);
+  hideSov();
+  showTX(text);
+  stat('Oracle is thinking...', '#f4c46f', true);
+
+  var detectedIntent = 'UNKNOWN';
+
+  fetchTO(API + '/oracle/intent', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ transcript: text })
+  }, 10000)
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    detectedIntent = d.intent || 'UNKNOWN';
+    sub(SUBS[detectedIntent] || text);
+    return fetchTO(API + '/oracle/speak', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ intent: detectedIntent, text: text })
+    }, 35000);
+  })
+  .then(function(res) {
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var ct = res.headers.get('content-type') || '';
+    if (ct.indexOf('video') >= 0) {
+      return res.blob().then(function(b) { return URL.createObjectURL(b); });
+    } else {
+      return res.json().then(function(j) {
+        return fetchTO(API + j.video_url, {}, 25000)
+          .then(function(r2) { return r2.blob(); })
+          .then(function(b) { return URL.createObjectURL(b); });
+      });
+    }
+  })
+  .then(function(url) { return playVideo(url); })
+  .then(function() {
+    if (detectedIntent === 'SOVEREIGNTY_ASSESSMENT') showSov();
+  })
+  .catch(function(e) {
+    console.error('process:', e);
+    var msg = (e.message && e.message.indexOf('timeout') >= 0)
+      ? 'Oracle is still rendering — hang tight...'
+      : 'Oracle error. Try again.';
+    stat(msg, '#f4c46f', false);
+  })
+  .finally(function() {
+    setBusy(false);
+    enableMic();
+    hideTX();
+  });
+}
+
+/* ── PLAY VIDEO WITH AUDIO ── */
+function playVideo(url) {
+  return new Promise(function(resolve) {
+    vidPH.style.display = 'none';
+    if (objURL) { try { URL.revokeObjectURL(objURL); } catch(e){} }
+    objURL = url;
+
+    // Resume AudioContext if suspended (iOS requirement)
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume().catch(function(){});
+    }
+
+    video.src = url;
+    video.muted = false;
+    video.volume = 1.0;
+
+    stat('Speaking', '#6cff9f', false);
+
+    video.onended = function() {
+      stat('Ready', '#6677aa', false);
+      hideSub();
+      resolve();
+    };
+    video.onerror = function(e) {
+      console.error('video error:', e);
+      stat('Video error', '#ff3b5f', false);
+      resolve();
+    };
+
+    var playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(function(e) {
+        console.warn('play() failed:', e);
+        // Fallback: muted play (browser blocked audio)
+        video.muted = true;
+        video.play().catch(function() { resolve(); });
+      });
+    }
+  });
+}
+
+/* ── SPEECH RECOGNITION ── */
+function initSR() {
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { micLabel.textContent = 'SPEECH API UNAVAILABLE'; return; }
+  if (!SR) { micLabel.textContent = 'No speech API'; return; }
   recognition = new SR();
   recognition.continuous = false;
   recognition.interimResults = true;
   recognition.lang = 'en-US';
   recognition.onresult = function(e) {
-    var interim = '', final = '';
+    var interim = '', fin = '';
     for (var i = 0; i < e.results.length; i++) {
-      if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      if (e.results[i].isFinal) fin += e.results[i][0].transcript;
       else interim += e.results[i][0].transcript;
     }
-    showTranscript(final || interim);
-    if (final) currentTranscript = final;
+    showTX(fin || interim);
+    if (fin) pending = fin;
   };
   recognition.onend = function() {
-    if (isRecording) {
-      setRecordingState(false);
-      if (currentTranscript.trim()) processTranscript(currentTranscript);
-      currentTranscript = '';
+    if (isRec) {
+      setRec(false);
+      if (pending.trim()) process(pending);
+      pending = '';
     }
   };
   recognition.onerror = function(e) {
-    console.warn('SpeechRecognition error:', e.error);
-    setRecordingState(false);
+    console.warn('SR error:', e.error);
+    setRec(false);
   };
 }
 
 function toggleMic() {
-  if (isBusy) return;
-  if (isRecording) stopRecording();
-  else startRecording();
+  if (busy) return;
+  if (isRec) { stopRec(); } else { startRec(); }
 }
 
-function startRecording() {
-  if (!recognition) { setStatus('Speech recognition unavailable', '#ff3b5f'); return; }
-  currentTranscript = '';
-  isRecording = true;
-  setRecordingState(true);
-  setStatus('\ud83c\udf99 Listening...', '#66d9ff');
+function startRec() {
+  if (!recognition) { stat('Speech API unavailable', '#ff3b5f', false); return; }
+  pending = '';
+  isRec = true;
+  setRec(true);
+  stat('\ud83c\udf99 Listening...', '#66d9ff', false);
   try { recognition.start(); } catch(e) { console.warn(e); }
 }
 
-function stopRecording() {
-  isRecording = false;
-  setRecordingState(false);
+function stopRec() {
+  isRec = false;
+  setRec(false);
   if (recognition) try { recognition.stop(); } catch(e) {}
 }
 
-function setRecordingState(active) {
-  isRecording = active;
-  micBtn.classList.toggle('recording', active);
-  iconMic.style.display = active ? 'none' : 'block';
-  iconStop.style.display = active ? 'block' : 'none';
-  micLabel.textContent = active ? 'TAP TO SEND' : 'TAP TO SPEAK';
+function setRec(on) {
+  isRec = on;
+  micBtn.classList.toggle('rec', on);
+  iconMic.style.display = on ? 'none' : 'block';
+  iconStop.style.display = on ? 'block' : 'none';
+  micLabel.textContent = on ? 'Tap to send' : 'Tap to speak';
 }
 
-function setStatus(msg, color, spinner) {
-  color = color || '#b8c2d9';
+/* ── HELPERS ── */
+function stat(msg, color, spin) {
   statusText.textContent = msg;
-  statusText.style.color = color;
-  statusSpinner.style.display = spinner ? 'block' : 'none';
-  statusSpinner.style.color = color;
+  statusText.style.color = color || '#6677aa';
+  spinner.style.display = spin ? 'block' : 'none';
+  spinner.style.color = color || '#6677aa';
 }
-function setBusy(b) { isBusy = b; if (b) disableMic(); }
-function enableMic()  { micBtn.disabled = false; }
-function disableMic() { micBtn.disabled = true; if (isRecording) stopRecording(); }
-function showSubtitle(t) { subtitleBar.textContent = t; subtitleBar.classList.add('visible'); }
-function hideSubtitle()  { subtitleBar.classList.remove('visible'); }
-function showTranscript(t) { transcriptBar.textContent = t; transcriptBar.classList.add('visible'); }
-function hideTranscript()  { transcriptBar.classList.remove('visible'); }
-function showSovCards()  { sovCards.classList.add('visible'); }
-function hideSovCards()  { sovCards.classList.remove('visible'); }
-function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
-function fetchWithTimeout(url, opts, ms) {
-  ms = ms || 30000;
-  var controller = new AbortController();
-  var id = setTimeout(function() { controller.abort(); }, ms);
-  opts = opts || {};
-  opts.signal = controller.signal;
-  return fetch(url, opts)
-    .finally(function() { clearTimeout(id); })
+function setBusy(b) { busy = b; if (b) { micBtn.disabled = true; if (isRec) stopRec(); } }
+function enableMic() { micBtn.disabled = false; }
+function sub(t) { subtitleBar.textContent = t; subtitleBar.classList.add('show'); }
+function hideSub() { subtitleBar.classList.remove('show'); }
+function showTX(t) { txBar.textContent = t; txBar.classList.add('show'); }
+function hideTX() { txBar.classList.remove('show'); }
+function showSov() { sovCards.classList.add('show'); }
+function hideSov() { sovCards.classList.remove('show'); }
+
+function fetchTO(url, opts, ms) {
+  var ctrl = new AbortController();
+  var id = setTimeout(function() { ctrl.abort(); }, ms);
+  var o = opts || {};
+  o.signal = ctrl.signal;
+  return fetch(url, o).finally(function() { clearTimeout(id); })
     .catch(function(e) { if (e.name === 'AbortError') throw new Error('timeout'); throw e; });
 }
 </script>
