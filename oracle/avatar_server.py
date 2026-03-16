@@ -418,7 +418,7 @@ def health():
         ),
         "face_detected": reg is not None and reg.avatar_face_coords is not None,
         "face_enhancer": "cv2_sharpen_only",
-        "blinks_enabled": False,
+        "blinks_enabled": True,  # v2 engine: cached landmarks
         "eye_landmarks_detected": reg is not None and reg.eye_landmarks is not None,
         "vram": vram,
         "vision_enabled": vision_enabled,
