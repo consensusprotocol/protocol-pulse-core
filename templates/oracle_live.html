@@ -387,7 +387,7 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
 
   <div class="video-wrap">
     <div class="vid-ph" id="vid-ph"><div class="vid-orb">⚡</div></div>
-    <video id="vid" playsinline webkit-playsinline x-webkit-airplay="allow"></video>
+    <video id="vid" playsinline webkit-playsinline x-webkit-airplay="allow" preload="auto"></video>
   </div>
 
   <div id="subtitle"></div>
@@ -542,7 +542,10 @@ function playIntent(intent){
     });
   })
   .then(function(url){return playVid(url);})
-  .then(function(){if(intent==='SOVEREIGNTY_ASSESSMENT')showCards();})
+  .then(function(){
+    if(intent==='SOVEREIGNTY_ASSESSMENT')showCards();
+    if(intent==='GREETING') window._briefFetched=false;  // reset on each session
+  })
   .catch(function(e){console.error(e);setStat('Oracle error — try again.','#ff3b5f',false);})
   .finally(function(){setBusy(false);mic.disabled=false;});
 }
@@ -580,26 +583,34 @@ function process(text){
   .then(function(){
     if(di==='SOVEREIGNTY_ASSESSMENT')showCards();
     // After DAILY_BRIEF_INTRO, immediately fetch the real brief (may now be ready)
-    if(di==='DAILY_BRIEF'){
+    if(di==='DAILY_BRIEF' && !window._briefFetched){
+      window._briefFetched = true;
       setTimeout(function(){
         setStat('Fetching live intel...','#f4c46f',true);
+        setBusy(true);
         fetchTO(A+'/oracle/speak',{
           method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({intent:'DAILY_BRIEF'})
         },90000)
         .then(function(r){
-          if(!r.ok){
-            setStat('Ready','#334',false);
-            return;
-          }
+          if(!r.ok){ setStat('Ready','#334',false); return; }
           var ct=r.headers.get('content-type')||'';
           if(ct.indexOf('video')>=0)return r.blob().then(blobURL).then(function(url){return playVid(url);});
           return r.json().then(function(j){
-            return fetchTO(A+j.video_url,{},25000).then(function(r2){return r2.blob().then(blobURL);}).then(function(url){return playVid(url);});
+            return fetchTO(A+j.video_url,{},25000)
+              .then(function(r2){return r2.blob().then(blobURL);})
+              .then(function(url){return playVid(url);});
           });
         })
-        .catch(function(){setStat('Ready','#334',false);});
-      }, 500);
+        .catch(function(){setStat('Ready','#334',false);})
+        .finally(function(){
+          setBusy(false);
+          mic.disabled=false;
+          setStat('Ready — ask me anything','#6677aa',false);
+          // Reset flag after 30s so user can request brief again
+          setTimeout(function(){ window._briefFetched=false; }, 30000);
+        });
+      }, 400);
     }
   })
   .catch(function(e){
@@ -620,6 +631,7 @@ function playVid(url){
   return new Promise(function(res){
     vidPh.style.display='none';
     vid.src=url;
+    vid.loop=false;  /* CRITICAL: never loop */
     /* Unmute now — audio context already unlocked */
     vid.muted=false;
     vid.volume=1.0;
