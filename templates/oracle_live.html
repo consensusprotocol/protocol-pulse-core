@@ -703,7 +703,11 @@ function playVid(url){
     vid.loop=false;
     vid.src=url;
     setStat('Speaking','#6cff9f',false);
-    vid.onended=function(){setStat('Ready','#334',false);hideSub();res();};
+    try{if(window.parent!==window) window.parent.postMessage('oracle:speaking','*');}catch(e){}
+    vid.onended=function(){
+      setStat('Ready','#334',false);hideSub();res();
+      try{if(window.parent!==window) window.parent.postMessage('oracle:idle','*');}catch(e){}
+    };
     vid.onerror=function(){setStat('Video error','#ff3b5f',false);res();};
     // iOS/Brave: always start muted, unmute on canplay (within user gesture window)
     vid.muted=true;
@@ -892,6 +896,8 @@ function restoreOracle(){
 }
 
 function exitOracle(){
+  // Notify parent widget to close panel
+  try{if(window.parent!==window){window.parent.postMessage('oracle:close','*');return;}}catch(e){}
   // Full close — return user to gate screen
   _oracleMinimized = false;
   // Stop any playing audio/video

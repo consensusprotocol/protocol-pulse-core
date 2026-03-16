@@ -647,6 +647,11 @@
     })();
     </script>
 
+
+    <!-- Oracle Widget — site-wide floating Oracle bubble -->
+    <!-- Skips /oracle-live (standalone page). Zero GPU impact. -->
+    <script src="{{ url_for('static', filename='js/oracle_widget.js') }}" defer></script>
+
     {% block scripts %}{% endblock %}
 </body>
 </html>

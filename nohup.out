@@ -922,3 +922,224 @@ SOCIAL ORDER: #4: @maxkeiser — Capitalism started in 1602 in the Nether
 [TTS] Trimmed trailing silence: 30.42s → 30.14s
 [TTS] Trimmed trailing silence: 16.11s → 15.80s
 [TTS] Trimmed trailing silence: 27.82s → 27.51s
+[TTS] Trimmed trailing silence: 29.26s → 28.91s
+[TTS] Trimmed trailing silence: 18.16s → 17.78s
+[TTS] Trimmed trailing silence: 29.16s → 28.89s
+[TTS] Trimmed trailing silence: 15.88s → 15.56s
+[TTS] Trimmed trailing silence: 25.82s → 25.65s
+[TTS] Trimmed trailing silence: 32.04s → 31.73s
+[TTS] Trimmed trailing silence: 16.25s → 16.03s
+[TTS] Trimmed trailing silence: 15.70s → 15.41s
+[TTS] Trimmed trailing silence: 18.86s → 18.55s
+[TTS] Trimmed trailing silence: 19.88s → 19.53s
+[TTS] Trimmed trailing silence: 21.22s → 20.95s
+[TTS] Trimmed trailing silence: 19.23s → 18.84s
+[TTS] Trimmed trailing silence: 19.09s → 18.73s
+[TTS] Trimmed trailing silence: 26.38s → 26.06s
+[TTS] Trimmed trailing silence: 33.16s → 32.85s
+[TTS] Trimmed trailing silence: 31.39s → 31.07s
+[manifest] Manifest built: 33 segments, ~639s estimated
+Manifest built: 33 segments, ~639s estimated
+[manifest]   Clips: 4 from 4 channels
+  Clips: 4 from 4 channels
+[manifest]   EPISODE LENGTH: 639s (slightly over 10min target)
+  EPISODE LENGTH: 639s (slightly over 10min target)
+[manifest]   Saved: /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/episode_manifest.json
+  Saved: /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/episode_manifest.json
+[qc] Preflight check: 33 segments
+Preflight check: 33 segments
+[qc] Preflight: PASS — 0 errors, 1 warnings
+Preflight: PASS — 0 errors, 1 warnings
+[qc]   WARN: No background video assets found
+  WARN: No background video assets found
+[assemble] ============================================================
+============================================================
+[assemble] ASSEMBLING V10 EPISODE — WAVEFORM VISUALIZER
+ASSEMBLING V10 EPISODE — WAVEFORM VISUALIZER
+[assemble] ============================================================
+============================================================
+[assemble]   Music bed ACTIVE: tense_04.mp3
+  Music bed ACTIVE: tense_04.mp3
+[assemble]   FIX 4: Hashrate synced in dialogue: 936 EH/s
+  FIX 4: Hashrate synced in dialogue: 936 EH/s
+[assemble]   R25 FIX 6: SOCIAL ORDER (from script only): 5 posts
+  R25 FIX 6: SOCIAL ORDER (from script only): 5 posts
+[assemble]   SOCIAL POST ORDER (final):
+  SOCIAL POST ORDER (final):
+[assemble]     CARD #0: @saylor — HODL
+    CARD #0: @saylor — HODL
+[assemble]     CARD #1: @saylor — HODL https://t.co/sQysm4i88t
+    CARD #1: @saylor — HODL https://t.co/sQysm4i88t
+[assemble]     CARD #2: @APompliano — This is so badass.
+
+Risk your life flyin
+    CARD #2: @APompliano — This is so badass.
+
+Risk your life flyin
+[assemble]     CARD #3: @LynAldenContact — For context, their safeguards are 1) no 
+    CARD #3: @LynAldenContact — For context, their safeguards are 1) no 
+[assemble]     CARD #4: @maxkeiser — Capitalism started in 1602 in the Nether
+    CARD #4: @maxkeiser — Capitalism started in 1602 in the Nether
+[assemble]   EPISODE ESTIMATE: narration=530s + clips=340s + overhead=20s = 890s
+  EPISODE ESTIMATE: narration=530s + clips=340s + overhead=20s = 890s
+[assemble]   Session 4: Title card SUPPRESSED — cold open leads directly into content
+  Session 4: Title card SUPPRESSED — cold open leads directly into content
+[assemble]   Intro+PBX voice-over: 12.2s (tag=8.0s, tts=10.4s)
+  Intro+PBX voice-over: 12.2s (tag=8.0s, tts=10.4s)
+[assemble] [000] INTRO+PBX HOOK: 12.2s
+[000] INTRO+PBX HOOK: 12.2s
+[assemble]   Thumbnail for clip #1: thumb_N6vOLQ3qJiA.jpg
+  Thumbnail for clip #1: thumb_N6vOLQ3qJiA.jpg
+[assemble]   Thumbnail for clip #2: thumb_a1U7kz3FCn0.jpg
+  Thumbnail for clip #2: thumb_a1U7kz3FCn0.jpg
+[assemble]   Thumbnail for clip #4: thumb_NK4-LeozO34.jpg
+  Thumbnail for clip #4: thumb_NK4-LeozO34.jpg
+[assemble]   Thumbnail for clip #5: thumb_pkZqnM22l8Y.jpg
+  Thumbnail for clip #5: thumb_pkZqnM22l8Y.jpg
+[assemble]   Thumbnail for clip #6: thumb_d5lL95bvOog.jpg
+  Thumbnail for clip #6: thumb_d5lL95bvOog.jpg
+[assemble]   R25 FIX 1: PiP source for rank 1 from /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/clips
+  R25 FIX 1: PiP source for rank 1 from /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/clips
+[assemble]   R25 FIX 1: PiP rank 1 source=clip_1_Bitcoin_Magazine_N6vOLQ3qJiA.mp4 (reencoded=True)
+  R25 FIX 1: PiP rank 1 source=clip_1_Bitcoin_Magazine_N6vOLQ3qJiA.mp4 (reencoded=True)
+[assemble] PiP verified: 8.0s, 240 frames from /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/clips/clip_1_Bitcoin_Magazine_N6vOLQ3qJiA.mp4
+PiP verified: 8.0s, 240 frames from /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/clips/clip_1_Bitcoin_Magazine_N6vOLQ3qJiA.mp4
+[assemble]   PiP preview for clip #1: ready
+  PiP preview for clip #1: ready
+[assemble]   R25 FIX 1: PiP source for rank 2 from /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/clips
+  R25 FIX 1: PiP source for rank 2 from /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/clips
+[assemble]   R25 FIX 1: PiP rank 2 source=clip_2_Bitcoin_Magazine_N6vOLQ3qJiA.mp4 (reencoded=True)
+  R25 FIX 1: PiP rank 2 source=clip_2_Bitcoin_Magazine_N6vOLQ3qJiA.mp4 (reencoded=True)
+[assemble] PiP verified: 8.0s, 240 frames from /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/clips/clip_2_Bitcoin_Magazine_N6vOLQ3qJiA.mp4
+PiP verified: 8.0s, 240 frames from /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/clips/clip_2_Bitcoin_Magazine_N6vOLQ3qJiA.mp4
+[assemble]   PiP preview for clip #2: ready
+  PiP preview for clip #2: ready
+[assemble]   R25 FIX 1: PiP source for rank 4 from /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/clips
+  R25 FIX 1: PiP source for rank 4 from /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/clips
+[assemble]   R25 FIX 1: PiP rank 4 source=clip_4_Coin_Bureau_g-dTRbXPGw0.mp4 (reencoded=True)
+  R25 FIX 1: PiP rank 4 source=clip_4_Coin_Bureau_g-dTRbXPGw0.mp4 (reencoded=True)
+[assemble] PiP verified: 8.0s, 240 frames from /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/clips/clip_4_Coin_Bureau_g-dTRbXPGw0.mp4
+PiP verified: 8.0s, 240 frames from /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/clips/clip_4_Coin_Bureau_g-dTRbXPGw0.mp4
+[assemble]   PiP preview for clip #4: ready
+  PiP preview for clip #4: ready
+[assemble]   R25 FIX 1: PiP source for rank 5 from /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/clips
+  R25 FIX 1: PiP source for rank 5 from /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/clips
+[assemble]   R25 FIX 1: PiP rank 5 source=clip_5_Natalie_Brunell_NK4-LeozO34.mp4 (reencoded=True)
+  R25 FIX 1: PiP rank 5 source=clip_5_Natalie_Brunell_NK4-LeozO34.mp4 (reencoded=True)
+[assemble] PiP verified: 8.0s, 240 frames from /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/clips/clip_5_Natalie_Brunell_NK4-LeozO34.mp4
+PiP verified: 8.0s, 240 frames from /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/clips/clip_5_Natalie_Brunell_NK4-LeozO34.mp4
+[assemble]   PiP preview for clip #5: ready
+  PiP preview for clip #5: ready
+[assemble]   R25 FIX 1: PiP source for rank 6 from /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/clips
+  R25 FIX 1: PiP source for rank 6 from /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/clips
+[assemble]   R25 FIX 1: PiP rank 6 source=clip_6_Anthony_Pompliano_d5lL95bvOog.mp4 (reencoded=True)
+  R25 FIX 1: PiP rank 6 source=clip_6_Anthony_Pompliano_d5lL95bvOog.mp4 (reencoded=True)
+[assemble] PiP verified: 8.0s, 240 frames from /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/clips/clip_6_Anthony_Pompliano_d5lL95bvOog.mp4
+PiP verified: 8.0s, 240 frames from /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/clips/clip_6_Anthony_Pompliano_d5lL95bvOog.mp4
+[assemble]   PiP preview for clip #6: ready
+  PiP preview for clip #6: ready
+Extracted 0 spaces quotes from 0 candidates
+Read 3 nostr posts from cache (856s old)
+[assemble]   FIX 7: Signal intelligence loaded — 3 spaces, 3 nostr
+  FIX 7: Signal intelligence loaded — 3 spaces, 3 nostr
+[assemble]   PiP clip #1 path: /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/work/pip_preview_r1.mp4
+  PiP clip #1 path: /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/work/pip_preview_r1.mp4
+[assemble]   FIX 3: PiP video embedded for SETUP → clip #1
+  FIX 3: PiP video embedded for SETUP → clip #1
+Using cached intelligence data (14m old, max 6h)
+[assemble] [001] SETUP [PBX]: 28.2s
+[001] SETUP [PBX]: 28.2s
+[assemble]   R25 TRANSITION: instant black + whoosh (0.50s)
+  R25 TRANSITION: instant black + whoosh (0.50s)
+[assemble] DIGITAL TRANSITION: [setup] → [CLIP]
+DIGITAL TRANSITION: [setup] → [CLIP]
+[assemble] [003] CLIP #1 [Bitcoin Magazine]: 31.1s (with lower slide SFX)
+[003] CLIP #1 [Bitcoin Magazine]: 31.1s (with lower slide SFX)
+[assemble]   R25 TRANSITION: instant black + whoosh (0.50s)
+  R25 TRANSITION: instant black + whoosh (0.50s)
+[assemble] DIGITAL TRANSITION: [clip] → [setup]
+DIGITAL TRANSITION: [clip] → [setup]
+[assemble]   PiP clip #1 path: /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/work/pip_preview_r1.mp4
+  PiP clip #1 path: /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/work/pip_preview_r1.mp4
+[assemble]   FIX 3: PiP video embedded for SETUP → clip #1
+  FIX 3: PiP video embedded for SETUP → clip #1
+Using cached intelligence data (15m old, max 6h)
+[assemble] [005] SETUP [PBX]: 29.3s
+[005] SETUP [PBX]: 29.3s
+[assemble]   PiP clip #2 path: /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/work/pip_preview_r2.mp4
+  PiP clip #2 path: /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/work/pip_preview_r2.mp4
+[assemble]   FIX 3: PiP video embedded for SETUP → clip #2
+  FIX 3: PiP video embedded for SETUP → clip #2
+Using cached intelligence data (15m old, max 6h)
+[assemble] [006] SETUP [PBX]: 22.8s
+[006] SETUP [PBX]: 22.8s
+[assemble]   R25 TRANSITION: instant black + whoosh (0.50s)
+  R25 TRANSITION: instant black + whoosh (0.50s)
+[assemble] DIGITAL TRANSITION: [setup] → [CLIP]
+DIGITAL TRANSITION: [setup] → [CLIP]
+[assemble] [008] CLIP #2 [Simply Bitcoin]: 42.1s (with lower slide SFX)
+[008] CLIP #2 [Simply Bitcoin]: 42.1s (with lower slide SFX)
+[assemble]   R25 TRANSITION: instant black + whoosh (0.50s)
+  R25 TRANSITION: instant black + whoosh (0.50s)
+[assemble] DIGITAL TRANSITION: [clip] → [setup]
+DIGITAL TRANSITION: [clip] → [setup]
+[assemble]   PiP clip #2 path: /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/work/pip_preview_r2.mp4
+  PiP clip #2 path: /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/work/pip_preview_r2.mp4
+[assemble]   FIX 3: PiP video embedded for SETUP → clip #2
+  FIX 3: PiP video embedded for SETUP → clip #2
+Using cached intelligence data (16m old, max 6h)
+[assemble] [010] SETUP [PBX]: 30.4s
+[010] SETUP [PBX]: 30.4s
+Using cached intelligence data (17m old, max 6h)
+[assemble] [011] SETUP [PBX]: 16.1s
+[011] SETUP [PBX]: 16.1s
+[assemble]   PiP clip #3 path: NONE
+  PiP clip #3 path: NONE
+[assemble]   FIX 1: Using bg_loop as PiP placeholder for SETUP → clip #3
+  FIX 1: Using bg_loop as PiP placeholder for SETUP → clip #3
+[assemble]   FIX 3: PiP video embedded for SETUP → clip #3
+  FIX 3: PiP video embedded for SETUP → clip #3
+Using cached intelligence data (17m old, max 6h)
+[assemble] [012] SETUP [PBX]: 27.8s
+[012] SETUP [PBX]: 27.8s
+[assemble]   R25 TRANSITION: instant black + whoosh (0.50s)
+  R25 TRANSITION: instant black + whoosh (0.50s)
+[assemble] DIGITAL TRANSITION: [setup] → [CLIP]
+DIGITAL TRANSITION: [setup] → [CLIP]
+[assemble] [assembler] Clip #3 not found () — SKIPPING slot
+[assembler] Clip #3 not found () — SKIPPING slot
+[assemble]   R25 TRANSITION: instant black + whoosh (0.50s)
+  R25 TRANSITION: instant black + whoosh (0.50s)
+[assemble] DIGITAL TRANSITION: [clip] → [setup]
+DIGITAL TRANSITION: [clip] → [setup]
+[assemble]   PiP clip #3 path: NONE
+  PiP clip #3 path: NONE
+[assemble]   FIX 1: Using bg_loop as PiP placeholder for SETUP → clip #3
+  FIX 1: Using bg_loop as PiP placeholder for SETUP → clip #3
+[assemble]   FIX 3: PiP video embedded for SETUP → clip #3
+  FIX 3: PiP video embedded for SETUP → clip #3
+Using cached intelligence data (17m old, max 6h)
+[assemble] [015] SETUP [PBX]: 29.2s
+[015] SETUP [PBX]: 29.2s
+[assemble]   PiP clip #4 path: /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/work/pip_preview_r4.mp4
+  PiP clip #4 path: /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/work/pip_preview_r4.mp4
+[assemble]   FIX 3: PiP video embedded for SETUP → clip #4
+  FIX 3: PiP video embedded for SETUP → clip #4
+Using cached intelligence data (18m old, max 6h)
+[assemble] [016] SETUP [PBX]: 18.1s
+[016] SETUP [PBX]: 18.1s
+[assemble]   R25 TRANSITION: instant black + whoosh (0.50s)
+  R25 TRANSITION: instant black + whoosh (0.50s)
+[assemble] DIGITAL TRANSITION: [setup] → [CLIP]
+DIGITAL TRANSITION: [setup] → [CLIP]
+[assemble] [018] CLIP #4 [Natalie Brunell]: 27.2s (with lower slide SFX)
+[018] CLIP #4 [Natalie Brunell]: 27.2s (with lower slide SFX)
+[assemble]   R25 TRANSITION: instant black + whoosh (0.50s)
+  R25 TRANSITION: instant black + whoosh (0.50s)
+[assemble] DIGITAL TRANSITION: [clip] → [setup]
+DIGITAL TRANSITION: [clip] → [setup]
+[assemble]   PiP clip #4 path: /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/work/pip_preview_r4.mp4
+  PiP clip #4 path: /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-16/work/pip_preview_r4.mp4
+[assemble]   FIX 3: PiP video embedded for SETUP → clip #4
+  FIX 3: PiP video embedded for SETUP → clip #4
+Using cached intelligence data (18m old, max 6h)
