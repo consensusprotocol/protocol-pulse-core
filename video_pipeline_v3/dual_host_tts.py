@@ -47,6 +47,8 @@ except ImportError:
 
 from relay import get_key
 
+DUAL_HOST_ENABLED = False
+
 # ── Voice configuration ──────────────────────────────────────────────────────
 # DUAL HOST RESTORED 2026-03-10: Deborah (HOST_1) + PBX (HOST_2)
 # BANNED voices — ERROR if any appear:
@@ -230,6 +232,10 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1) -> bool:
 
     Falls back to pyttsx3 system TTS, then silence, on ElevenLabs quota/auth failure.
     """
+    # DUAL_HOST_ENABLED gate: remap host 1 → host 2 (PBX) when disabled
+    if not DUAL_HOST_ENABLED and host == 1:
+        host = 2
+
     # Render20: Banned voice guard
     voice = VOICES.get(host, VOICES[1])
     if voice["voice_id"] in _BANNED_VOICE_IDS:
@@ -388,6 +394,13 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
             _entry["host"] = 2  # Force PBX regardless of current value
             print(f"[TTS] IRON LAW: Forced PBX opener on line {_idx}")
             break
+
+    # DUAL_HOST_ENABLED gate: when False, ALL dialogue routes to PBX (host 2)
+    if not DUAL_HOST_ENABLED:
+        for _idx, _entry in enumerate(dialogue):
+            if _entry.get("host") not in ("CLIP", "SFX"):
+                _entry["host"] = 2
+        print(f"[TTS] DUAL_HOST_ENABLED=False — all {sum(1 for e in dialogue if e.get('host') not in ('CLIP', 'SFX'))} dialogue lines forced to PBX (host 2)")
 
     lines = []
     parts_for_concat = []

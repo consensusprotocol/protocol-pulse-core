@@ -700,7 +700,8 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
     """
     import datetime
     tts_dur = ffprobe_duration(tts_path)
-    total_dur = max(tts_dur + 0.8, 3.0)  # 0.5s delay + tts + 0.3s tail
+    # Render22 FIX 4: Full cold open — 1.5s PBX start delay + full TTS + 0.3s tail
+    total_dur = max(tts_dur + 1.8, 3.0)  # 1.5s delay + tts + 0.3s tail
 
     # ── Try intro_tag.mp4 as video source ──
     use_intro_tag = os.path.exists(INTRO_TAG)
@@ -740,8 +741,8 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                         # Audio: intro music hard-cut at 3.0s (atrim), then silence via apad
                         f"[2:a]atrim=0:4.0,asetpts=PTS-STARTPTS,afade=t=out:st=2.5:d=1.5,volume=0.40,"
                         f"asetpts=PTS-STARTPTS[intro_mus];"
-                        f"[1:a]aformat=channel_layouts=stereo[tts_delayed];"
-                        f"[intro_mus][tts_delayed]amix=inputs=2:duration=first:weights=1 1,"
+                        f"[1:a]aformat=channel_layouts=stereo,adelay=1500|1500[tts_delayed];"
+                        f"[intro_mus][tts_delayed]amix=inputs=2:duration=longest:weights=1 1,"
                         f"alimiter=limit=0.85:level=disabled:attack=5:release=50,"
                         f"aresample=async=1[outa]"
                     ),
@@ -761,7 +762,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                     "-filter_complex", (
                         f"[0:v]{vf},"
                         f"fade=t=out:st={max(0, vid_dur - 0.5)}:d=0.5[outv];"
-                        f"[1:a]aformat=channel_layouts=stereo,"
+                        f"[1:a]aformat=channel_layouts=stereo,adelay=1500|1500,"
                         f"alimiter=limit=0.85:level=disabled:attack=5:release=50,"
                         f"aresample=async=1[outa]"
                     ),
@@ -1078,6 +1079,11 @@ def overlay_pip_on_narration(narration_path: str, pip_path: str,
     Drop shadow behind PiP (drawbox at +4px offset, black@0.3).
     "COMING UP..." label inside PiP bottom-left.
     """
+    # Render22 FIX 2: NEVER use intro_tag as PiP source
+    if pip_path and os.path.abspath(pip_path) == os.path.abspath(INTRO_TAG):
+        logger.error(f"FIX 2: BLOCKED intro_tag.mp4 as PiP source in overlay_pip_on_narration! Returning narration unchanged.")
+        return narration_path
+
     if not pip_path or not os.path.exists(pip_path):
         # Render18 FIX 1: Use branded placeholder instead of returning narration-only
         pip_path = _ensure_pip_placeholder()
@@ -2515,7 +2521,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
         audio_dur = 5
     total_dur = audio_dur + 0.3
 
-    speaker = "DEBORAH" if host == 1 else "MARK"  # dual host restored 2026-03-10
+    speaker = "PBX"  # Render22: PBX solo mode — single host
 
     safe_btc = btc_price.replace("'", "").replace('"', "")
 
@@ -2618,26 +2624,32 @@ def make_host_visual(audio_path: str, host: int, text: str,
            f"fontcolor={COLOR_GREEN}:fontsize=12:x=756:y=588"
            f"[dp1];\n")
 
+    # Render22 FIX 6: Live metrics panels (HASHRATE, MEMPOOL, DOMINANCE)
+    _live_hashrate = _get_live_metric("hashrate", "N/A").replace("'", "")
+    _live_mempool = _get_live_metric("mempool_fee", "N/A").replace("'", "")
+    _live_dominance = _get_live_metric("btc_dominance", "N/A").replace("'", "")
     fg += (f"[dp1]drawbox=x=1120:y=502:w=300:h=150:color={COLOR_PANEL}@0.95:t=fill,"
            f"drawbox=x=1120:y=502:w=300:h=2:color={COLOR_RED}@0.5:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='RENDER ENGINE':"
+           f"drawtext=fontfile={FONT_MONO}:text='HASHRATE':"
            f"fontcolor={COLOR_MUTED}:fontsize=12:x=1136:y=517,"
-           f"drawtext=fontfile={FONT_BOLD}:text='134':"
-           f"fontcolor={COLOR_WHITE}:fontsize=52:x=1136:y=530,"
-           f"drawtext=fontfile={FONT_MONO}:text='FPS':"
-           f"fontcolor={COLOR_RED}:fontsize=18:x=1220:y=546,"
-           f"drawtext=fontfile={FONT_MONO}:text='4090 CLUSTER // H264':"
-           f"fontcolor=0x666666:fontsize=12:x=1136:y=588"
+           f"drawtext=fontfile={FONT_BOLD}:text='{_live_hashrate}':"
+           f"fontcolor={COLOR_WHITE}:fontsize=36:x=1136:y=535,"
+           f"drawtext=fontfile={FONT_MONO}:text='MEMPOOL FEE':"
+           f"fontcolor={COLOR_MUTED}:fontsize=12:x=1136:y=576,"
+           f"drawtext=fontfile={FONT_BOLD}:text='{_live_mempool}':"
+           f"fontcolor={COLOR_GREEN}:fontsize=18:x=1136:y=592"
            f"[dp2];\n")
 
     fg += (f"[dp2]drawbox=x=1430:y=502:w=280:h=150:color={COLOR_PANEL}@0.95:t=fill,"
            f"drawbox=x=1430:y=502:w=280:h=2:color={COLOR_RED}@0.5:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='  AUDIO AMPLITUDE':"
-           f"fontcolor={COLOR_MUTED}:fontsize=11:x=1446:y=514"
+           f"drawtext=fontfile={FONT_MONO}:text='BTC DOMINANCE':"
+           f"fontcolor={COLOR_MUTED}:fontsize=11:x=1446:y=514,"
+           f"drawtext=fontfile={FONT_BOLD}:text='{_live_dominance}':"
+           f"fontcolor={COLOR_WHITE}:fontsize=36:x=1446:y=535"
            f"[dp3];\n")
     fg += (f"[0:a]showwaves=s=250x60:mode=line:"
            f"colors={COLOR_RED}:scale=lin:rate=30[amp_wave];\n")
-    fg += f"[dp3][amp_wave]overlay=1440:530[dp_done];\n"
+    fg += f"[dp3][amp_wave]overlay=1440:570[dp_done];\n"
 
     # ── RIGHT BOT — EPISODE SEGMENTS TRACKER ──
     fg += (f"[dp_done]drawbox=x=740:y=660:w=1160:h=360:color={COLOR_PANEL}@0.92:t=fill,"
@@ -3823,11 +3835,11 @@ def concatenate_parts(parts: list, output_path: str,
                     # Partner clips: duck to 0.02 (-34dB) — let clip audio breathe
                     vol_clauses.append(f"between(t,{t_start:.3f},{t_end:.3f})*0.02")
             if vol_clauses:
-                # Nested if: check clip windows first, default 0.10
-                vol_expr = "volume='if(" + "+".join(f"({vc})" for vc in vol_clauses) + ",1,0.10)':eval=frame"
+                # Render22 FIX 10: BGM at -18dB (0.126) for narrator segments, ducked during clips
+                vol_expr = "volume='if(" + "+".join(f"({vc})" for vc in vol_clauses) + ",1,0.126)':eval=frame"
                 bgm_vol_filter = f"{vol_expr},afade=t=in:d=2.0,afade=t=out:st={bgm_fade_st}:d=3.0"
             else:
-                bgm_vol_filter = f"volume=0.10,afade=t=in:d=2.0,afade=t=out:st={bgm_fade_st}:d=3.0"
+                bgm_vol_filter = f"volume=0.126,afade=t=in:d=2.0,afade=t=out:st={bgm_fade_st}:d=3.0"
 
             music_mixed = output_path + ".music_mixed.mp4"
             ok_music = run_ffmpeg([
@@ -4069,6 +4081,31 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
         return ""
 
 
+def should_insert_transition(prev_part: str, next_part: str) -> bool:
+    """Render22 FIX 5: Transition logic — returns True ONLY when clip_rank changes
+    or transitioning to/from a clip part. Returns False for all narrator-to-narrator
+    switches on same topic/screen.
+
+    Args:
+        prev_part: previous segment type (e.g. "clip", "setup", "react", "cold_open", "intro", "wrap", "social_segment", "data")
+        next_part: next segment type
+    Returns:
+        True if a transition animation should be inserted between these segments.
+    """
+    # Always transition into or out of a clip
+    if prev_part == "clip" or next_part == "clip":
+        return True
+    # Transition when moving from react to setup (next clip block)
+    if prev_part == "react" and next_part == "setup":
+        return True
+    # Transition into social or data segments from clip-related segments
+    if prev_part in ("react", "clip") and next_part in ("social_segment", "data"):
+        return True
+    # NO transition for narrator-to-narrator within same flow
+    # e.g., setup→setup, react→react, cold_open→setup, data→social_segment
+    return False
+
+
 def _assemble_episode_inner(script, audio_data, extracted_clips,
                             output_path, btc_price="N/A", music_bed="", intro_music="",
                             broll_clips=None):
@@ -4099,5 +4136,636 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                 if old_text != entry["text"]:
                     logger.info(f"  FIX 4: Hashrate synced in dialogue: {live_hr}")
 
+    work_dir = os.path.join(os.path.dirname(os.path.abspath(output_path)), "work")
+    os.makedirs(work_dir, exist_ok=True)
 
-def verify_video(path): return bool(path and __import__(os).path.exists(path))
+    dialogue = script.get("dialogue", [])
+    lines = audio_data.get("lines", [])
+    parts = []
+    part_idx = 0
+
+    # Issue 5 FIX: Use the SAME social_posts list from the script (set by daily_producer).
+    tweet_card_posts = []
+    social_card_idx = 0
+
+    script_social_posts = script.get("social_posts", [])
+    if script_social_posts:
+        tweet_card_posts = list(script_social_posts)
+        for di, dp in enumerate(tweet_card_posts):
+            dp["display_order"] = di
+        logger.info(f"  SOCIAL ORDER (from script): {len(tweet_card_posts)} posts")
+    else:
+        try:
+            from utils.feature_flags import is_enabled
+            if is_enabled("tweet_cards"):
+                from utils.social_fetcher import get_todays_social_posts
+                tweet_card_posts = get_todays_social_posts(max_posts=4)
+                for di, dp in enumerate(tweet_card_posts):
+                    dp["display_order"] = di
+        except Exception as e:
+            logger.warning(f"Tweet card data load failed: {e}")
+
+    if tweet_card_posts:
+        tweet_card_posts.sort(key=lambda p: p.get("display_order", 0))
+        logger.info(f"  SOCIAL POST ORDER (final):")
+        for ti, tp in enumerate(tweet_card_posts):
+            logger.info(f"    CARD #{ti}: @{tp.get('handle', '?')} — {tp.get('text', '')[:40]}")
+
+        # Cross-check narrator handles vs card handles
+        _social_dialogue = [d for d in dialogue if d.get("type") == "social_segment"
+                            and d.get("host") in (1, 2, "1", "2")]
+        _narrator_handles = []
+        for sd in _social_dialogue:
+            for h in re.findall(r'@(\w+)', sd.get("text", "")):
+                h_lower = h.lower()
+                if h_lower not in _narrator_handles:
+                    _narrator_handles.append(h_lower)
+        _card_handles = [tp.get("handle", "").lower().lstrip("@") for tp in tweet_card_posts]
+        if _narrator_handles and _card_handles:
+            if _narrator_handles[:len(_card_handles)] == _card_handles[:len(_narrator_handles)]:
+                logger.info(f"  FIX A VERIFIED: narrator handles {_narrator_handles} match card order {_card_handles}")
+            else:
+                logger.warning(f"  FIX A MISMATCH: narrator={_narrator_handles} vs cards={_card_handles} — reordering")
+                handle_to_post = {tp.get("handle", "").lower().lstrip("@"): tp for tp in tweet_card_posts}
+                reordered = []
+                for nh in _narrator_handles:
+                    if nh in handle_to_post:
+                        reordered.append(handle_to_post.pop(nh))
+                reordered.extend(handle_to_post.values())
+                tweet_card_posts = reordered
+                for ri, rp in enumerate(tweet_card_posts):
+                    rp["display_order"] = ri
+
+    # --- 0+1. INTRO TAG + COLD OPEN (merged: PBX narrates over intro) ---
+    intro_tag_dur = 0.0
+    audio_lines = audio_data.get("lines", [])
+    cold_open_consumed = False
+
+    _est_narration = sum(al.get("duration", 0) for al in audio_lines if al.get("host") not in ("CLIP",))
+    _est_clips = sum(al.get("duration", 0) for al in audio_lines if al.get("host") == "CLIP")
+    _est_clips += sum(c.get("duration", 0) for c in extracted_clips.values())
+    _est_total = _est_narration + _est_clips + 20
+    logger.info(f"  EPISODE ESTIMATE: narration={_est_narration:.0f}s + clips={_est_clips:.0f}s + overhead=20s = {_est_total:.0f}s")
+
+    cold_open_audio = None
+    for al in audio_lines:
+        if al.get("host") in ("CLIP",) or not al.get("path"):
+            continue
+        if al.get("path") and os.path.exists(al.get("path", "")):
+            cold_open_audio = al
+            break
+
+    logger.info("  Session 4: Title card SUPPRESSED — cold open leads directly into content")
+
+    if cold_open_audio:
+        intro_out = os.path.join(work_dir, f"part_{part_idx:03d}_intro_pbx_hook.mp4")
+        intro_result = make_intro_coldopen(cold_open_audio["path"], intro_out, btc_price=btc_price)
+        if intro_result:
+            parts.append(intro_result)
+            dur = ffprobe_duration(intro_result)
+            intro_tag_dur = dur
+            logger.info(f"[{part_idx:03d}] INTRO+PBX HOOK: {dur:.1f}s")
+            part_idx += 1
+            cold_open_consumed = True
+        else:
+            logger.warning("[---] Intro+PBX hook failed, starting with first dialogue")
+    else:
+        if os.path.exists(INTRO_TAG):
+            intro_tag_out = os.path.join(work_dir, f"part_{part_idx:03d}_intro_tag.mp4")
+            intro_tag_result = make_intro_tag_sequence(intro_tag_out)
+            if intro_tag_result:
+                parts.append(intro_tag_result)
+                intro_tag_dur = ffprobe_duration(intro_tag_result)
+                logger.info(f"[{part_idx:03d}] INTRO TAG (no TTS): {intro_tag_dur:.1f}s")
+                part_idx += 1
+        else:
+            logger.info("  No intro_tag.mp4 — skipping branded intro")
+        logger.warning("[---] No cold open audio available, starting with first dialogue")
+
+    # FIX 6: Prepare B-roll clips
+    broll_queue = []
+    if broll_clips:
+        for bp in broll_clips:
+            if isinstance(bp, str) and os.path.exists(bp):
+                broll_queue.append(bp)
+            elif isinstance(bp, dict) and bp.get("path") and os.path.exists(bp["path"]):
+                broll_queue.append(bp["path"])
+        logger.info(f"  B-roll clips available: {len(broll_queue)}")
+    broll_idx = 0
+    host_segment_count = 0
+
+    # --- 2. DIALOGUE + CLIPS ---
+
+    clip_thumbnails = {}
+    for rank, cinfo in extracted_clips.items():
+        tp = fetch_youtube_thumbnail(cinfo)
+        if tp:
+            clip_thumbnails[rank] = tp
+            logger.info(f"  Thumbnail for clip #{rank}: {os.path.basename(tp)}")
+
+    # Build PiP preview map: rank → pip_path
+    pip_previews = {}
+    for rank, cinfo in extracted_clips.items():
+        clip_path = cinfo.get("path", "")
+        if clip_path and os.path.exists(clip_path):
+            pip_out = os.path.join(work_dir, f"pip_preview_r{rank}.mp4")
+            clips_dir = os.path.join(os.path.dirname(work_dir), "clips")
+            reencoded = None
+            if os.path.isdir(clips_dir):
+                import glob
+                pattern = os.path.join(clips_dir, f"clip_{rank}_*.mp4")
+                matches = sorted(glob.glob(pattern))
+                if matches:
+                    reencoded = matches[0]
+            pip_source = reencoded if reencoded and os.path.getsize(reencoded) > 50000 else clip_path
+            pip_result = make_pip_preview(pip_source, pip_out)
+            if pip_result:
+                pip_previews[rank] = pip_result
+                logger.info(f"  PiP preview for clip #{rank}: ready")
+
+    audio_idx = 1 if cold_open_consumed else 0
+    prev_segment_type = "intro"
+
+    # Render22 FIX 7: Signal Active segment — load real content
+    signal_content = None
+    try:
+        from signal_intelligence import get_signal_content, generate_signal_summary
+        signal_content = get_signal_content()
+        if signal_content and (signal_content.get("spaces_quotes") or signal_content.get("nostr_posts")):
+            logger.info(f"  FIX 7: Signal intelligence loaded — {len(signal_content.get('spaces_quotes', []))} spaces, {len(signal_content.get('nostr_posts', []))} nostr")
+        else:
+            signal_content = None
+            logger.info("  FIX 7: No signal intelligence available")
+    except Exception as _sig_err:
+        logger.warning(f"  FIX 7: Signal intelligence import failed: {_sig_err}")
+
+    for i, entry in enumerate(dialogue):
+        entry_type = entry.get("type", "")
+        host_field = entry.get("host", "")
+
+        if cold_open_consumed and i == 0 and host_field != "CLIP":
+            cold_open_consumed = False
+            continue
+
+        if host_field == "CLIP":
+            # Render22 FIX 5: Use should_insert_transition()
+            if should_insert_transition(prev_segment_type, "clip"):
+                trans_out = os.path.join(work_dir, f"part_{part_idx:03d}_transition_to_clip.mp4")
+                trans_result = make_transition_visual(trans_out, duration=2.2)
+                if trans_result:
+                    parts.append(trans_result)
+                    logger.info(f"DIGITAL TRANSITION: [{prev_segment_type}] → [CLIP]")
+                    part_idx += 1
+
+            rank = entry.get("rank", 0)
+            clip_info = extracted_clips.get(rank, {})
+            clip_path = clip_info.get("path", "")
+
+            if clip_path and os.path.exists(clip_path):
+                codec_check = subprocess.run(
+                    ["ffprobe", "-v", "error", "-select_streams", "v:0",
+                     "-show_entries", "stream=codec_name", "-of", "default", clip_path],
+                    capture_output=True, text=True, timeout=10
+                )
+                clip_codec = codec_check.stdout.strip().replace("codec_name=", "").strip()
+                if clip_codec in ("av1", "hevc", "vp9", "vp8"):
+                    h264_path = clip_path + ".h264.mp4"
+                    ok_conv = run_ffmpeg([
+                        "-i", clip_path,
+                        "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+                        "-r", "30", "-pix_fmt", "yuv420p", "-c:a", "aac", "-ar", "48000", "-b:a", "192k", h264_path,
+                    ], f"AV1→H264 pre-convert clip #{rank}", 120)
+                    if ok_conv and os.path.exists(h264_path):
+                        clip_path = h264_path
+                        logger.info(f"  FIX4: Pre-converted {clip_codec.upper()} clip #{rank} to H264")
+
+                clip_out = os.path.join(work_dir, f"part_{part_idx:03d}_clip_r{rank}.mp4")
+                channel = clip_info.get("channel", "")
+                handle = f"@{channel.replace(' ', '')}" if channel else "ProtocolPulse"
+                result = ""
+                try:
+                    result = make_remotion_lower_third(
+                        clip_path, handle, clip_out,
+                        btc_price=btc_price,
+                        speaker_name=clip_info.get("speaker", ""),
+                    )
+                except Exception as e:
+                    logger.warning(f"Remotion LowerThird failed: {e}")
+                if not result:
+                    result = make_clip_visual(clip_path, handle, clip_out, btc_price=btc_price)
+                if result:
+                    mix_lower_slide_sfx(result)
+                    parts.append(result)
+                    dur = ffprobe_duration(result)
+                    logger.info(f"[{part_idx:03d}] CLIP #{rank} [{channel}]: {dur:.1f}s (with lower slide SFX)")
+                    part_idx += 1
+                else:
+                    logger.warning(f"[---] Clip #{rank}: visual failed, skipping")
+            else:
+                logger.warning(f"[assembler] Clip #{rank} not found ({clip_path}) — SKIPPING slot")
+            prev_segment_type = "clip"
+            continue
+
+        # Render22 FIX 5: Use should_insert_transition() for all segments
+        if should_insert_transition(prev_segment_type, entry_type):
+            trans_out = os.path.join(work_dir, f"part_{part_idx:03d}_transition.mp4")
+            trans_result = make_transition_visual(trans_out, duration=2.2)
+            if trans_result:
+                parts.append(trans_result)
+                logger.info(f"DIGITAL TRANSITION: [{prev_segment_type}] → [{entry_type}]")
+                part_idx += 1
+
+        # Host dialogue line — find matching audio
+        line_audio = None
+        while audio_idx < len(audio_lines):
+            al = audio_lines[audio_idx]
+            audio_idx += 1
+            if al.get("host") in ("CLIP",):
+                continue
+            line_audio = al
+            break
+
+        if not line_audio:
+            logger.warning(f"[---] No audio entry for dialogue {i} ({entry_type}) — skipping")
+            continue
+
+        if not line_audio.get("path") or not os.path.exists(line_audio.get("path", "")):
+            fallback_text = line_audio.get("text", entry.get("text", ""))
+            fallback_path = _generate_fallback_silent_audio(work_dir, part_idx, fallback_text)
+            if fallback_path:
+                line_audio = dict(line_audio)
+                line_audio["path"] = fallback_path
+                logger.warning(f"  [BUG1] Segment {i} ({entry_type}): TTS fallback silence generated")
+            else:
+                logger.warning(f"  [BUG1] Segment {i} ({entry_type}): silence generation failed, skipping")
+                continue
+
+        host_num = int(line_audio.get("host", 1)) if str(line_audio.get("host", "1")).isdigit() else 1
+        text = line_audio.get("text", entry.get("text", ""))
+        audio_path = line_audio["path"]
+
+        try:
+            tts_size = os.path.getsize(audio_path)
+            if tts_size < 5000:
+                logger.warning(f"  [GAP GUARD] Segment {i} ({entry_type}): TTS file {os.path.basename(audio_path)} is {tts_size}B (<5KB)")
+                silence_pad = os.path.join(work_dir, f"silence_pad_{part_idx:03d}.m4a")
+                run_ffmpeg([
+                    "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
+                    "-t", "0.5", "-c:a", "aac", "-b:a", "192k", silence_pad,
+                ], "silence pad", 10)
+                if os.path.exists(silence_pad):
+                    audio_path = silence_pad
+        except OSError:
+            pass
+
+        clip_rank = entry.get("clip_rank", 0)
+        thumb = clip_thumbnails.get(clip_rank, "") if entry_type in ("setup", "react") else ""
+
+        line_out = os.path.join(work_dir, f"part_{part_idx:03d}_{entry_type}.mp4")
+
+        # Sprint 1.5: Each tweet as its OWN video segment
+        if entry_type == "social_segment" and tweet_card_posts and social_card_idx < len(tweet_card_posts):
+            card_posts = tweet_card_posts[social_card_idx:]
+            card_posts = _rank_cards_for_segment(card_posts, text)
+
+            for cp in card_posts:
+                tweet_url = cp.get("tweet_url", cp.get("url", ""))
+                if tweet_url and not cp.get("screenshot_path"):
+                    handle_name = cp.get("handle", "unknown").replace("@", "")
+                    ss_path = os.path.join(work_dir, f"tweet_{handle_name}_{social_card_idx}.png")
+                    try:
+                        from utils.tweet_screenshot import capture_tweet
+                        if capture_tweet(tweet_url, ss_path):
+                            cp["screenshot_path"] = ss_path
+                    except Exception:
+                        pass
+
+            card_rendered_paths = []
+            for ci, cp in enumerate(card_posts):
+                card_out = os.path.join(work_dir, f"part_{part_idx:03d}_social_card_{ci}.mp4")
+                logger.info(f"  SOCIAL CARD {ci}: @{cp.get('handle', '?')} — {cp.get('text', '')[:40]}")
+
+                card_audio = audio_path if ci == 0 else None
+                if ci > 0:
+                    peek_idx = audio_idx
+                    while peek_idx < len(audio_lines):
+                        al = audio_lines[peek_idx]
+                        if al.get("host") not in ("CLIP",) and al.get("path") and os.path.exists(al["path"]):
+                            card_audio = al["path"]
+                            audio_idx = peek_idx + 1
+                            break
+                        peek_idx += 1
+                    if not card_audio:
+                        card_audio = audio_path
+
+                card_result = ""
+                try:
+                    card_result = make_remotion_social_card(
+                        card_audio, [cp], card_out, btc_price=btc_price,
+                    )
+                except Exception:
+                    pass
+                if not card_result:
+                    card_result = make_social_card_visual(
+                        card_audio, [cp], card_out, btc_price=btc_price,
+                    )
+                    if card_result:
+                        card_result = _mix_swoosh_into_segment(card_result)
+                if not card_result:
+                    card_result = make_host_visual(
+                        card_audio, host_num, text, card_out,
+                        btc_price=btc_price, label=f"social_card_{ci}",
+                        segment_type="social_segment",
+                    )
+                if card_result:
+                    card_rendered_paths.append(card_result)
+                    dur = ffprobe_duration(card_result)
+                    logger.info(f"  SOCIAL CARD {ci} rendered: @{cp.get('handle', '?')} ({dur:.1f}s)")
+
+            if len(card_rendered_paths) >= 2:
+                current_stitched = card_rendered_paths[0]
+                for xfi in range(1, len(card_rendered_paths)):
+                    xfade_out = os.path.join(work_dir, f"part_{part_idx:03d}_social_xfade_{xfi}.mp4")
+                    xfade_result = apply_xfade(
+                        current_stitched, card_rendered_paths[xfi],
+                        xfade_out, transition="slideleft", duration=0.4,
+                    )
+                    if xfade_result:
+                        current_stitched = xfade_result
+                    else:
+                        parts.append(current_stitched)
+                        current_stitched = card_rendered_paths[xfi]
+                        part_idx += 1
+                if os.path.exists(CARD_SWOOSH) and len(card_rendered_paths) > 1:
+                    swoosh_mixed = current_stitched + ".swoosh.mp4"
+                    card_durs = [ffprobe_duration(p) for p in card_rendered_paths]
+                    swoosh_inputs = []
+                    swoosh_fg_parts = []
+                    cumul = 0.0
+                    for si in range(len(card_durs) - 1):
+                        cumul += card_durs[si] - 0.4
+                        swoosh_inputs.extend(["-i", CARD_SWOOSH])
+                        delay_ms = int(cumul * 1000)
+                        swoosh_fg_parts.append(f"[{si+1}:a]volume=0.5,adelay={delay_ms}|{delay_ms}[sw_{si}]")
+                    sw_labels = "".join(f"[sw_{si}]" for si in range(len(card_durs) - 1))
+                    swoosh_fg_parts.append(f"{sw_labels}amix=inputs={len(card_durs)-1}:duration=longest[all_sw]")
+                    swoosh_fg_parts.append(f"[0:a][all_sw]amix=inputs=2:duration=first:weights=1 0.5[outa]")
+                    swoosh_fg = ";\n".join(swoosh_fg_parts)
+                    ok_sw = run_ffmpeg(
+                        ["-i", current_stitched] + swoosh_inputs +
+                        ["-filter_complex", swoosh_fg,
+                         "-map", "0:v", "-map", "[outa]",
+                         "-c:v", "copy", "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                         swoosh_mixed],
+                        "card swoosh mix", 120,
+                    )
+                    if ok_sw and os.path.exists(swoosh_mixed):
+                        current_stitched = swoosh_mixed
+                parts.append(current_stitched)
+                dur = ffprobe_duration(current_stitched)
+                logger.info(f"[{part_idx:03d}] SOCIAL CARDS (xfaded): {dur:.1f}s")
+                part_idx += 1
+            elif len(card_rendered_paths) == 1:
+                parts.append(card_rendered_paths[0])
+                dur = ffprobe_duration(card_rendered_paths[0])
+                logger.info(f"[{part_idx:03d}] SOCIAL CARD (single): {dur:.1f}s")
+                part_idx += 1
+
+            social_card_idx += len(card_posts)
+            prev_segment_type = entry_type
+            continue
+        elif entry_type == "social_segment":
+            result = make_host_visual(
+                audio_path, host_num, text, line_out,
+                btc_price=btc_price, label=f"{entry_type} #{part_idx}",
+                segment_type=entry_type,
+            )
+        else:
+            # Render22: PBX solo — speaker always PBX
+            seg_speaker = "PBX"
+            seg_data = {"type": entry_type, "text": text,
+                        "speaker": seg_speaker,
+                        "headline": entry.get("headline", ""),
+                        "next_speaker": ""}
+            if entry_type == "setup" and clip_rank and clip_rank in extracted_clips:
+                seg_data["next_speaker"] = extracted_clips[clip_rank].get("channel", "")
+
+            # Render22 FIX 2+3: PiP guard — NEVER use INTRO_TAG as PiP source
+            pip_vid = ""
+            if entry_type == "cold_open":
+                pip_vid = ""
+            elif entry_type in ("setup", "react") and clip_rank:
+                # FIX 3: SETUP for clip N → pip_previews[N]. REACT for clip N → pip_previews[N].
+                pip_vid = pip_previews.get(clip_rank, "")
+                logger.info(f"  PiP clip #{clip_rank} path: {pip_vid or 'NONE'}")
+                # FIX 2: NEVER use intro_tag as PiP source
+                if pip_vid and os.path.abspath(pip_vid) == os.path.abspath(INTRO_TAG):
+                    logger.error(f"  FIX 2: BLOCKED intro_tag.mp4 as PiP source! Using fallback.")
+                    pip_vid = ""
+                if not pip_vid and entry_type == "setup":
+                    # Fallback: bg_loop placeholder, then no PiP
+                    if os.path.exists(BG_LOOP):
+                        pip_vid = BG_LOOP
+                        logger.info(f"  FIX 2: Using bg_loop as PiP placeholder for SETUP → clip #{clip_rank}")
+                    else:
+                        pip_vid = _ensure_pip_placeholder()
+                        if pip_vid:
+                            logger.info(f"  FIX 2: Using branded placeholder PiP for SETUP → clip #{clip_rank}")
+            if pip_vid and pip_vid != PIP_PLACEHOLDER:
+                logger.info(f"  FIX 3: PiP video embedded for {entry_type.upper()} → clip #{clip_rank}")
+
+            # Render22 FIX 7: Signal Active segment — replace debug data with real content
+            if seg_data.get("headline", "").startswith("SIGNAL") and signal_content:
+                seg_data["signal_content"] = signal_content
+
+            result = make_broadcast_segment(
+                seg_data, audio_path, host_num,
+                part_idx, len(dialogue),
+                line_out, btc_price=btc_price,
+                thumbnail_path=thumb,
+                pip_video_path=pip_vid,
+            )
+
+        if result:
+            parts.append(result)
+            dur = ffprobe_duration(result)
+            logger.info(f"[{part_idx:03d}] {entry_type.upper()} [PBX]: {dur:.1f}s")
+            part_idx += 1
+            prev_segment_type = entry_type
+            host_segment_count += 1
+
+            if broll_queue and broll_idx < len(broll_queue) and host_segment_count % 2 == 0:
+                broll_path = broll_queue[broll_idx]
+                broll_out = os.path.join(work_dir, f"part_{part_idx:03d}_broll_{broll_idx}.mp4")
+                bd_broll_vf = (
+                    "[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,"
+                    "setsar=1,fps=30,fade=t=in:d=0.3,fade=t=out:st=3.5:d=0.5,"
+                    f"drawbox=x=0:y=0:w=1920:h=2:color={COLOR_RED}@0.85:t=fill,"
+                    f"drawbox=x=0:y=1078:w=1920:h=2:color={COLOR_RED}@0.85:t=fill,"
+                    f"drawbox=x=0:y=0:w=2:h=1080:color={COLOR_RED}@0.85:t=fill,"
+                    f"drawbox=x=1918:y=0:w=2:h=1080:color={COLOR_RED}@0.85:t=fill,"
+                    f"drawbox=x=0:y=0:w=40:h=4:color={COLOR_RED}:t=fill,"
+                    f"drawbox=x=0:y=0:w=4:h=40:color={COLOR_RED}:t=fill,"
+                    f"drawbox=x=1880:y=0:w=40:h=4:color={COLOR_RED}:t=fill,"
+                    f"drawbox=x=1916:y=0:w=4:h=40:color={COLOR_RED}:t=fill,"
+                    f"drawbox=x=0:y=1076:w=40:h=4:color={COLOR_RED}:t=fill,"
+                    f"drawbox=x=0:y=1040:w=4:h=40:color={COLOR_RED}:t=fill,"
+                    f"drawbox=x=1880:y=1076:w=40:h=4:color={COLOR_RED}:t=fill,"
+                    f"drawbox=x=1916:y=1040:w=4:h=40:color={COLOR_RED}:t=fill,"
+                    f"drawtext=fontfile={FONT_BOLD}:text='PROTOCOL PULSE':"
+                    f"fontcolor={COLOR_RED}@0.6:fontsize=18:x=W-text_w-20:y=16,"
+                    f"drawtext=fontfile={FONT_MONO}:text='// INCOMING SIGNAL':"
+                    f"fontcolor={COLOR_RED}@0.8:fontsize=12:x=16:y=18,"
+                    "format=yuv420p[outv];"
+                )
+                broll_ok = run_ffmpeg([
+                    "-i", broll_path,
+                    "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
+                    "-t", "4",
+                    "-filter_complex",
+                    bd_broll_vf +
+                    "[1:a]atrim=0:4[outa]",
+                    "-map", "[outv]", "-map", "[outa]",
+                    "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
+                    "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                    "-shortest",
+                    broll_out,
+                ], f"broll clip {broll_idx}", 60)
+                if broll_ok and os.path.exists(broll_out):
+                    parts.append(broll_out)
+                    logger.info(f"[{part_idx:03d}] B-ROLL #{broll_idx}: 4.0s")
+                    part_idx += 1
+                broll_idx += 1
+        else:
+            logger.warning(f"[---] Host visual failed for {entry_type}")
+
+    # --- 3. BRANDED OUTRO ---
+    skip_outro_fade = False
+
+    if os.path.exists(OUTRO_BRANDED_NEW):
+        narration_end = sum(ffprobe_duration(p) for p in parts if p and os.path.exists(p))
+        logger.info(f"Narration ends at {narration_end:.1f}s — outro starts here")
+
+        outro_out = os.path.join(work_dir, f"part_{part_idx:03d}_outro_branded_new.mp4")
+        outro_result = make_outro_branded_new(outro_out)
+        if outro_result:
+            parts.append(outro_result)
+            dur = ffprobe_duration(outro_result)
+            logger.info(f"[{part_idx:03d}] OUTRO (branded new): {dur:.1f}s — hard cut, own music")
+            part_idx += 1
+            skip_outro_fade = True
+        else:
+            logger.warning("  outro_branded_new.mp4 render failed — falling back to old outro")
+
+    if not skip_outro_fade:
+        wrap_audio = ""
+        for al in reversed(audio_lines):
+            if al.get("host") not in ("CLIP",) and al.get("path") and os.path.exists(al.get("path", "")):
+                wrap_audio = al["path"]
+                break
+        if parts and wrap_audio:
+            last_part_name = os.path.basename(parts[-1]) if parts[-1] else ""
+            if "wrap" in last_part_name.lower():
+                removed = parts.pop()
+                part_idx -= 1
+                logger.info(f"  Removed duplicate wrap segment ({os.path.basename(removed)})")
+        narration_end = sum(ffprobe_duration(p) for p in parts if p and os.path.exists(p))
+        logger.info(f"Narration ends at {narration_end:.1f}s — outro starts here")
+        outro_out = os.path.join(work_dir, f"part_{part_idx:03d}_outro_branded.mp4")
+        outro_result = make_branded_outro(outro_out, narration_audio=wrap_audio)
+        if outro_result:
+            parts.append(outro_result)
+            dur = ffprobe_duration(outro_result)
+            logger.info(f"[{part_idx:03d}] OUTRO (branded): {dur:.1f}s")
+            part_idx += 1
+        else:
+            outro_out2 = os.path.join(work_dir, f"part_{part_idx:03d}_outro_tag.mp4")
+            outro_result = make_tag_video(outro_out2)
+            if outro_result:
+                parts.append(outro_result)
+                dur = ffprobe_duration(outro_result)
+                logger.info(f"[{part_idx:03d}] OUTRO (tag fallback): {dur:.1f}s")
+                part_idx += 1
+            else:
+                logger.warning("[---] No outro available")
+
+    # --- 4. CONCATENATE ---
+    logger.info(f"\nConcatenating {len(parts)} parts...")
+    for i, p in enumerate(parts):
+        dur = ffprobe_duration(p) if p and os.path.exists(p) else 0
+        logger.info(f"  Part {i:03d}: {os.path.basename(p)} ({dur:.1f}s)")
+
+    intro_music_total = (intro_tag_dur + 10.0 + 3.0) if intro_tag_dur > 0 else 0
+
+    os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+    result = concatenate_parts(parts, output_path,
+                               intro_music_duration=intro_music_total,
+                               skip_outro_fade=skip_outro_fade)
+
+    if result and os.path.exists(result):
+        dur = ffprobe_duration(result)
+        sz = os.path.getsize(result) / 1024 / 1024
+        logger.info(f"\n{'='*60}")
+        logger.info(f"DONE: {result}")
+        logger.info(f"Duration: {dur:.1f}s | Size: {sz:.1f}MB")
+        logger.info(f"{'='*60}")
+        return result
+
+    logger.error("Assembly failed — no output produced")
+    return ""
+
+
+def verify_video(path: str) -> bool:
+    """Verify output video meets spec."""
+    logger.info(f"Verifying: {os.path.basename(path)}")
+
+    if not os.path.exists(path):
+        logger.error("File does not exist")
+        return False
+
+    r = subprocess.run(
+        ["ffprobe", "-v", "error", "-show_streams", "-show_format", "-of", "json", path],
+        capture_output=True, text=True,
+    )
+    try:
+        info = json.loads(r.stdout)
+    except Exception:
+        logger.error("Cannot parse ffprobe output")
+        return False
+
+    streams = info.get("streams", [])
+    fmt = info.get("format", {})
+    vid = next((s for s in streams if s.get("codec_type") == "video"), None)
+    aud = next((s for s in streams if s.get("codec_type") == "audio"), None)
+
+    checks = []
+    if vid:
+        w, h = int(vid.get("width", 0)), int(vid.get("height", 0))
+        checks.append(("Video codec", vid.get("codec_name") == "h264", vid.get("codec_name")))
+        checks.append(("Resolution", w == 1920 and h == 1080, f"{w}x{h}"))
+    else:
+        checks.append(("Video stream", False, "MISSING"))
+
+    if aud:
+        checks.append(("Audio codec", aud.get("codec_name") == "aac", aud.get("codec_name")))
+        checks.append(("Sample rate", aud.get("sample_rate") == "48000", aud.get("sample_rate")))
+    else:
+        checks.append(("Audio stream", False, "MISSING"))
+
+    duration = float(fmt.get("duration", 0))
+    size_mb = int(fmt.get("size", 0)) / 1024 / 1024
+    checks.append(("Duration", 5 <= duration <= 600, f"{duration:.1f}s"))
+    checks.append(("File size", 0.5 <= size_mb <= 500, f"{size_mb:.1f}MB"))
+
+    all_pass = True
+    for name, passed, detail in checks:
+        status = "PASS" if passed else "FAIL"
+        if not passed:
+            all_pass = False
+        logger.info(f"  [{status}] {name}: {detail}")
+
+    return all_pass
+
+
+if __name__ == "__main__":
+    logger.info("Assembler V6 — use daily_producer.py to run the full pipeline")

@@ -400,6 +400,27 @@ def select_clips(videos: list) -> dict:
         if len(clean_clips) < 5 and not test_mode:
             logger.error(f"HARD DEDUP: Only {len(clean_clips)} unique channels. Need replacement clips.")
 
+        # Render22 FIX 9: Clip diversity — no consecutive clips from same channel or speaker
+        if len(clean_clips) > 1:
+            reordered = [clean_clips[0]]
+            remaining = list(clean_clips[1:])
+            while remaining:
+                prev_ch = reordered[-1].get("channel", "")
+                # Find first clip from a different channel
+                found = False
+                for idx, c in enumerate(remaining):
+                    if c.get("channel", "") != prev_ch:
+                        reordered.append(remaining.pop(idx))
+                        found = True
+                        break
+                if not found:
+                    # No different channel available — take first remaining
+                    reordered.append(remaining.pop(0))
+                    logger.warning(f"  FIX 9: Consecutive same-channel unavoidable at position {len(reordered)}")
+            clean_clips = reordered
+            result["clips"] = clean_clips
+            logger.info(f"  FIX 9: Clip order after diversity: {[c.get('channel', '') for c in clean_clips]}")
+
         # Score-based ranking (CLIP SCORER per PRODUCTION_DESIGN_LAWS)
         try:
             from utils.clip_scorer import rank_clips, _load_narrative_context

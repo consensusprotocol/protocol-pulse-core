@@ -32,10 +32,9 @@ if not logger.handlers:
 SCRIPT_PROMPT = """You are writing host dialogue for "Pulse Check" — a daily Bitcoin highlight show.
 Think: ESPN SportsCenter meets Cypherpunk Gossip. MMA Central energy. The clips are the star.
 
-HOST 1 (Deborah) — Sharp, authoritative female newscaster. Sets up each clip like a boxing ring announcer.
-HOST 2 (PBX) — Hot takes, contrarian, dry wit. Warm strong male voice. Reacts like he just saw a knockout.
+HOST (PBX) — Hot takes, contrarian, dry wit. Warm strong male voice. PBX is the SOLE host. There is NO second host. PBX handles ALL segments: setup, react, data, social, wrap.
 
-PBX is ALWAYS the FIRST voice. PBX opens every episode with the cold open and first narration segment. Deborah handles subsequent analytical segments and setups. PBX closes with the final sign-off. NEVER start with Deborah — the first dialogue entry MUST be host: 2 (PBX).
+PBX is ALWAYS the FIRST voice. PBX opens every episode with the cold open and handles ALL narration segments. PBX closes with the final sign-off. The first dialogue entry MUST be host: 2 (PBX). ALL dialogue entries MUST be host: 2.
 
 TONE RULES (NON-NEGOTIABLE):
 - NEVER generic. Never say "interesting" or "really impactful" or "that's great stuff."
@@ -45,7 +44,7 @@ TONE RULES (NON-NEGOTIABLE):
 - Wit over wisdom. Brief over brilliant. Gossip energy, Bitcoin knowledge.
 - Think: "Yo, you gotta hear what Saylor just said about this" NOT "Michael Saylor made some interesting comments about..."
 - Reactions should feel genuine — surprised, amused, sharp, or skeptical. Never neutral.
-- After clips 2 and 4, add a BRIDGE line (type: "bridge") connecting that clip's theme to the next. 1-2 sentences. Deborah only. Elevate the stakes or pivot the angle.
+- After clips 2 and 4, add a BRIDGE line (type: "bridge") connecting that clip's theme to the next. 1-2 sentences. PBX only. Elevate the stakes or pivot the angle.
 - REACT lines: when a clip lands something genuinely significant, give it 2-3 sharp sentences. Brief is not always best. Incisive > terse.
 - NO banned phrases: "Let's dive in", "Without further ado", "Buckle up", "game changer"
 - End with "Stay sovereign."
@@ -73,10 +72,10 @@ EPISODE STRUCTURE (follow this order):
 3. [NARRATION] — Analysis after Clip 1. Connect to bigger picture.
 4. [NARRATION] — Setup for Clip 2 with re-engagement hook at ~minute 3.
 5. [NARRATION] — Analysis after Clip 2.
-6. [DATA] — Hard metrics segment. MINIMUM 3 exchanges (Deborah + PBX). Cover: price context, hash rate or difficulty, one on-chain signal. At least one specific number per line. Target: 45-60 seconds of spoken content.
-7. [SOCIAL] — MINIMUM 3 tweets + 2 PBX reactions. PBX and Deborah REACT to and ANALYZE each tweet. They do NOT read tweets word for word. Instead:
+6. [DATA] — Hard metrics segment. MINIMUM 3 exchanges (all PBX). Cover: price context, hash rate or difficulty, one on-chain signal. At least one specific number per line. Target: 45-60 seconds of spoken content.
+7. [SOCIAL] — MINIMUM 3 tweets + 2 PBX reactions. PBX REACTS to and ANALYZES each tweet. He does NOT read tweets word for word. Instead:
   - PBX: 'Saylor just dropped HODL again — that's his entire thesis in one word. No explanation needed at this point.'
-  - Deborah: 'Pomp's take on BlackRock is interesting because he's been skeptical — if he's bullish now, retail follows.'
+  - PBX: 'Pomp's take on BlackRock is interesting because he's been skeptical — if he's bullish now, retail follows.'
   Keep each reaction to 1-2 sentences. Sharp, opinionated, adds value beyond what the tweet says.
   The tweet card is already on screen — viewers can read it. Your job is to ADD context.
   CRITICAL: First tweet card shown = first referenced in narration. Maintain strict order. Target: 40-50 seconds.
@@ -85,7 +84,7 @@ EPISODE STRUCTURE (follow this order):
 NARRATION PHILOSOPHY — Simon Dixon / Preston Pysh standard:
 - Every line must contain ONE specific insight, data point, or evaluated observation
 - Never state what already happened — analyze WHY it matters and WHAT COMES NEXT
-- Deborah sets up the angle with a sharp framing line + 1 specific number or fact
+- PBX sets up the angle with a sharp framing line + 1 specific number or fact
 - PBX delivers the contrarian take, macro context, or on-chain implication
 - Forbidden phrases: "Bitcoin continues to", "the market is watching", "this is significant",
   "interesting to note", "worth keeping an eye on", any pure restatement of price
@@ -93,25 +92,25 @@ NARRATION PHILOSOPHY — Simon Dixon / Preston Pysh standard:
   miner profitability, HODLer behavior, lightning adoption, ETF flows, or macro correlation
 - Minimum 3 sentences per speaker turn. Never 1-2 sentence fluff turns.
 - Bridges between clips must connect thematic dots — not just "next up"
-- DATA segment minimum: 4 exchanges, each with a specific metric, each with an implication
+- DATA segment minimum: 4 lines from PBX, each with a specific metric, each with an implication
 
 EPISODE LENGTH LAW: Target 600-750 narration words total. Never truncate a sentence. Every segment must be complete. Sharp means efficient — every sentence must earn its place. NO padding. NO repetition.
 
-SEGMENT TAGGING (MANDATORY — controls Deborah's voice dynamics):
+SEGMENT TAGGING (MANDATORY — controls PBX's voice dynamics):
 Every dialogue text line MUST start with a segment type tag in brackets. The TTS engine reads this tag to adjust vocal delivery. If missing, the voice defaults to CLEAR which is safe but loses dramatic range.
   [COLD_OPEN] — opening hook only (first 1-2 sentences). Dramatic whisper. MAX 2 per episode.
   [NARRATION] — standard narration, setup, and analysis. Clear and confident. This is 70-80% of lines.
   [DATA] — specific metrics, prices, hashrates, on-chain numbers. Authoritative.
   [SOCIAL] — social segment commentary. Slightly warmer tone.
   [WARM] — outros, calls to action, sign-offs. Inviting.
-Example: {{"host": 1, "text": "[NARRATION] Bitcoin miners are facing a squeeze as difficulty adjusts upward.", "type": "setup"}}
+Example: {{"host": 2, "text": "[NARRATION] Bitcoin miners are facing a squeeze as difficulty adjusts upward.", "type": "setup"}}
 The tag is INSIDE the text string, not the type field. Both must be present.
 
 SOCIAL SEGMENT:
 If social posts data is provided below, add a "WHAT THE BITCOIN INTERNET IS SAYING" segment after the last clip:
-- PBX and Deborah ANALYZE (not read) 2-3 of the top tweets — the card is on screen, viewers read it themselves
+- PBX ANALYZES (not reads) 2-3 of the top tweets — the card is on screen, viewers read it themselves
 - Each host adds 1-2 sentences of sharp, opinionated CONTEXT about why the tweet matters
-- PBX reacts first to the top tweet, then Deborah analyzes the second, PBX wraps the third
+- PBX reacts to each tweet in order — top tweet first, then second, then third
 - This is a separate section in the dialogue with type: "social_segment"
 CRITICAL: If no social posts data is provided (empty or "NONE"), do NOT fabricate tweet content. Skip the social segment entirely. Law A1 — no invented data.
 TWEET LAW — IRON LAW: Before writing ANY tweet narration, read the actual social_posts list in order. Tweet segment narration MUST reference social_posts[0]['handle'] for the first tweet, social_posts[1]['handle'] for the second, etc. NEVER reference a name not in the list. NEVER assume who tweeted. Read the handle from the data and use it verbatim.
@@ -126,16 +125,16 @@ Return ONLY valid JSON (no markdown, no code fences):
   "cold_open": "explosive 1-sentence cold open",
   "dialogue": [
     {{"host": 2, "text": "...", "type": "cold_open"}},
-    {{"host": 1, "text": "...", "type": "setup", "clip_rank": 1}},
+    {{"host": 2, "text": "...", "type": "setup", "clip_rank": 1}},
     {{"host": "CLIP", "rank": 1}},
     {{"host": 2, "text": "...", "type": "react", "clip_rank": 1}},
-    {{"host": 1, "text": "...", "type": "setup", "clip_rank": 2}},
+    {{"host": 2, "text": "...", "type": "setup", "clip_rank": 2}},
     {{"host": "CLIP", "rank": 2}},
     {{"host": 2, "text": "...", "type": "react", "clip_rank": 2}},
     ...and so on for all clips...
-    {{"host": 1, "text": "...", "type": "social_segment"}},
     {{"host": 2, "text": "...", "type": "social_segment"}},
-    {{"host": 1, "text": "Final wrap. Stay sovereign.", "type": "wrap"}}
+    {{"host": 2, "text": "...", "type": "social_segment"}},
+    {{"host": 2, "text": "Final wrap. Stay sovereign.", "type": "wrap"}}
   ],
   "episode_title": "Short punchy title (5-8 words)",
   "thumbnail": {{
@@ -227,22 +226,22 @@ TODAY'S LIVE NARRATIVE CONTEXT (from real-time thought leader monitoring):
 Dominant narrative: {dominant_narrative}
 Market mood: {market_mood}
 What thought leaders are saying: {episode_narrative}
-Deborah should reference: {eryn_intro_hook}
-Mark should add: {mark_context}
+PBX should reference: {eryn_intro_hook}
+PBX should add: {mark_context}
 Suggested bridge lines: {narrative_bridge_lines}
 
 MANDATORY SCRIPT RULES (from narrative context):
-- Deborah's cold open MUST reference the dominant narrative in her first sentence
+- PBX's cold open MUST reference the dominant narrative in his first sentence
 - At least ONE of the clips must be explicitly connected to the X discourse
   (e.g., "This is what everyone on Crypto Twitter has been discussing all morning...")
-- Mark must cite at least one specific data point from the narrative context (not generic)
+- PBX must cite at least one specific data point from the narrative context (not generic)
 - Avoid topics flagged in: {avoid_topics}
-- The show must feel LIVE — like Deborah and Mark have been tracking this story all morning
+- The show must feel LIVE — like PBX has been tracking this story all morning
 
 DATA SEGMENT REQUIREMENT: The data/metrics discussed must relate to today's
 dominant narrative ({dominant_narrative}). If narrative is "ETF inflows",
 cite actual ETF flow numbers. If "mining difficulty", cite actual hashrate/difficulty data.
-Deborah and Mark must sound like analysts who read the numbers this morning, not generalists.
+PBX must sound like an analyst who read the numbers this morning, not a generalist.
 """
 
 
@@ -542,12 +541,12 @@ def _fallback_script(selections: dict) -> dict:
         setup = c.get("host_setup", f"Check out what {c.get('channel', 'this channel')} just dropped.")
         react = c.get("host_react", "That's a big deal. The market hasn't priced this in yet.")
 
-        dialogue.append({"host": 1, "text": setup, "type": "setup", "clip_rank": rank})
+        dialogue.append({"host": 2, "text": setup, "type": "setup", "clip_rank": rank})
         dialogue.append({"host": "CLIP", "rank": rank})
         dialogue.append({"host": 2, "text": react, "type": "react", "clip_rank": rank})
 
     dialogue.append({
-        "host": 1,
+        "host": 2,
         "text": "That's your Pulse Check for today. Stay sovereign.",
         "type": "wrap",
     })
@@ -578,13 +577,13 @@ def generate_sample_script(style="default"):
         "cold_open": "Three sovereign wealth funds just disclosed Bitcoin positions worth twelve billion dollars.",
         "dialogue": [
             {"host": 2, "text": "Three sovereign wealth funds just disclosed Bitcoin positions. Twelve billion dollars. This is Pulse Check.", "type": "cold_open"},  # IRON LAW: PBX always opens
-            {"host": 1, "text": "Bitcoin Magazine just dropped this bombshell.", "type": "setup", "clip_rank": 1},
+            {"host": 2, "text": "Bitcoin Magazine just dropped this bombshell.", "type": "setup", "clip_rank": 1},
             {"host": "CLIP", "rank": 1},
             {"host": 2, "text": "Dude. When the entities that print fiat start hoarding the exit asset, that tells you everything.", "type": "react", "clip_rank": 1},
-            {"host": 1, "text": "And look at what Simply Bitcoin is reporting on hash rate.", "type": "setup", "clip_rank": 2},
+            {"host": 2, "text": "And look at what Simply Bitcoin is reporting on hash rate.", "type": "setup", "clip_rank": 2},
             {"host": "CLIP", "rank": 2},
             {"host": 2, "text": "Record high hash rate. Miners aren't leaving. They're doubling down.", "type": "react", "clip_rank": 2},
-            {"host": 1, "text": "That's your Pulse Check. Stay sovereign.", "type": "wrap"},
+            {"host": 2, "text": "That's your Pulse Check. Stay sovereign.", "type": "wrap"},
         ],
         "thumbnail": {"headline": "SMART MONEY IS MOVING", "subtext": "Nations are stacking"},
         "segments_summary": ["Sovereign wealth funds buying BTC", "Hash rate hits record"],
