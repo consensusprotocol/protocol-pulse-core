@@ -1006,6 +1006,7 @@ def generate_idle_loop():
 
 import oracle_cache_manager
 import oracle_intelligence_feed
+import oracle_dialogue_engine
 
 # Intent classification — keyword matching
 INTENT_PATTERNS = {
@@ -1156,6 +1157,43 @@ def generate_inline(text):
             except OSError:
                 pass
 
+
+
+
+@app.route("/oracle/chat", methods=["POST"])
+def oracle_chat():
+    data = request.get_json()
+    if not data or not data.get("text"):
+        return jsonify({"error": "text required"}), 400
+    text = data["text"].strip()
+    session_id = data.get("session_id", "anon")
+    if data.get("use_cache_for_intents", True):
+        intent, confidence = classify_intent(text)
+        if confidence >= 0.8 and intent != "UNKNOWN":
+            path = oracle_cache_manager.get_cached_response(intent)
+            if path:
+                logger.info(f"[CHAT] Cache hit {intent}")
+                return send_file(path, mimetype="video/mp4")
+    live_intel = {}
+    try:
+        live_intel = oracle_dialogue_engine.get_live_intel()
+    except Exception:
+        pass
+    result = oracle_dialogue_engine.generate_response(session_id, text, live_intel)
+    logger.info(f"[CHAT] {session_id} t={result['turn']} p={result['personality']}: {result['text'][:50]}")
+    return generate_inline(result["text"])
+
+
+@app.route("/oracle/session", methods=["GET"])
+def oracle_session_info():
+    return jsonify(oracle_dialogue_engine.get_session_info(request.args.get("session_id","anon")))
+
+
+@app.route("/oracle/session/reset", methods=["POST"])
+def oracle_session_reset():
+    data = request.get_json() or {}
+    oracle_dialogue_engine.reset_session(data.get("session_id","anon"))
+    return jsonify({"status": "reset"})
 
 @app.route("/oracle/intent", methods=["POST"])
 def oracle_intent():

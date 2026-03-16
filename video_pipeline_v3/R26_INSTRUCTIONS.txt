@@ -1,0 +1,17 @@
+Load PIPELINE_LAWS.md. Visual upgrade sprint render26. Read assembler.py signal_intelligence.py first.
+
+UPGRADE 1 CRT SCANLINE: Create video_pipeline_v3/assets/scanline_overlay.png - 1920x1080 RGBA numpy array where every even row has alpha=38 black pixels. Use PIL Image.fromarray. Install Pillow if needed. Create apply_scanline helper that overlays this PNG at end of make_signal_active_scene, make_data_segment_scene, make_narrator_pip_scene.
+
+UPGRADE 2 SIGNAL ACTIVE HEADER: Replace centered SIGNAL ACTIVE with left-aligned terminal header. Red dot drawbox x=60 y=22 w=14 h=14 filled red. LIVE text x=84 y=14 red mono 18px. SIGNAL ACTIVE x=150 y=8 white bold 38px. UTC timestamp top-right using datetime.utcnow strftime H:M UTC gold mono 16px.
+
+UPGRADE 3 WAVEFORM BOTTOM BAND: Remove waveform from top-right corner. Add full-width waveform band at y=880 spanning x=60 to x=1860 height=120 at 40pct opacity using showwavespic filter on audio with colors=ff3b5f size=1800x120 overlaid.
+
+UPGRADE 4 NOSTR CARDS: Primary identity = nip05 field if available else truncated pubkey. If zap_amount in post data add ZAP+amount+sats in gold fontsize=14 at card top-right. Add FETCHED+source tiny text at card bottom. Add column sub-labels: TRANSCRIBING... under X SPACES LIVE in gold 13px, RELAY CONNECTED under NOSTR SIGNAL in green 13px.
+
+UPGRADE 5 NARRATOR LEFT PANEL ZONES: Replace BTC price left panel in make_narrator_pip_scene with 4-zone layout at x=40 panel width=300.
+Zone A y=80-230: HASHRATE hero metric label gold 13px value white bold 32px delta green 13px.
+Zone B y=240-420: 300x160 sparkline PNG from cache/charts/sparkline_24h.png. Add render_sparkline_24h function to render_chart_assets.py that saves last 24h of price_7d as minimal matplotlib line chart 300x160 transparent. Overlay at x=40 y=240.
+Zone C y=430-590: TODAY SIGNAL label, fear_greed_value from cache, HIGH CONVICTION green if above 60, NEUTRAL white if 40-60, CAUTION red if below 40, two-line rationale.
+Zone D y=600-800: Five metrics MEMPOOL ETF_FLOW HALVING DOMINANCE BLOCK_HEIGHT stacked with label gold 11px value white 18px bold spacing 38px. Add block height fetch to fetch_intelligence_data.py from mempool.space/api/blocks/tip/height.
+
+AFTER: verify scanline PNG, syntax check assembler.py, regression_test.sh, git add -A commit feat-render26-visual-upgrade push, launch nohup daily_producer to proof_render26.log, report scanline size, confirm UTC header, confirm 4 zones, commit hash.

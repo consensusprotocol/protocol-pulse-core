@@ -455,6 +455,10 @@ var S={
 };
 
 var busy=false,isRec=false,pending='',objURL=null,recognition=null;
+var SESSION_ID = (function(){
+  // Persistent per-page-load session ID
+  return 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+})();
 
 /* DOM */
 var gate=document.getElementById('gate');
@@ -518,6 +522,8 @@ function go(){
       stage.style.transition='opacity .45s';
       stage.style.opacity='1';
       initSR();
+      // Reset server-side session for fresh conversation
+      fetch(A+'/oracle/session/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:SESSION_ID})}).catch(function(){});
       playIntent('GREETING');
     },30);
   },350);
@@ -567,18 +573,15 @@ function process(text){
   setBusy(true);hideCards();showTX(text);
   setStat('Oracle thinking...','#f4c46f',true);
   var di='UNKNOWN';
-  fetchTO(A+'/oracle/intent',{
+  // Use /oracle/chat — full conversational AI with session memory
+  fetchTO(A+'/oracle/chat',{
     method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({transcript:text})
-  },10000)
-  .then(function(r){return r.json();})
-  .then(function(d){
-    di=d.intent||'UNKNOWN';
-    showSub(S[di]||text);
-    return fetchTO(A+'/oracle/speak',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({intent:di,text:text})
-    },90000);
+    body:JSON.stringify({text:text,session_id:SESSION_ID,use_cache_for_intents:true})
+  },90000)
+  .then(function(r){
+    // /oracle/chat always returns video/mp4 directly
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return r.blob().then(blobURL).then(function(url){return playVid(url);});
   })
   .then(function(r){
     if(!r.ok)throw new Error('HTTP '+r.status);
