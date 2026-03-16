@@ -224,7 +224,8 @@ def check_avatar_server():
 
 @oracle_bp.route('/oracle')
 def oracle_page():
-    return render_template('oracle.html')
+    from flask import redirect
+    return redirect('/oracle-live', code=302)
 
 
 @oracle_bp.route('/oracle-live')

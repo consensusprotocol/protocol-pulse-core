@@ -9674,7 +9674,8 @@ def _oracle_rate_ok(ip_hash):
 @app.route('/oracle')
 def oracle_page():
     """Oracle Sanctuary — Bitcoin Intelligence."""
-    return render_template('oracle.html')
+    from flask import redirect
+    return redirect("/oracle-live", code=302)
 
 
 @app.route('/api/oracle/ask', methods=['POST'])

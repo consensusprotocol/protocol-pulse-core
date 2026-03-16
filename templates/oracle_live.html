@@ -2,692 +2,663 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#06070b">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#000">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <title>Oracle · Protocol Pulse</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{
-  height:100%;width:100%;
-  background:#06070b;
-  overflow:hidden;
-  font-family:'Inter',sans-serif;
-  -webkit-font-smoothing:antialiased;
-}
+html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}
 
-/* ── ANIMATIONS ─────────────────────────────────────── */
-@keyframes btn-pulse{
-  0%,100%{box-shadow:0 0 20px rgba(255,59,95,.4),0 0 50px rgba(255,59,95,.1)}
-  50%{box-shadow:0 0 50px rgba(255,59,95,.8),0 0 100px rgba(255,59,95,.2)}
-}
-@keyframes breathe{
-  0%,100%{filter:drop-shadow(0 0 20px rgba(255,59,95,.5))}
-  50%{filter:drop-shadow(0 0 45px rgba(255,59,95,.9))}
-}
-@keyframes live-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.7)}}
-@keyframes mic-ring{
-  0%{box-shadow:0 0 0 0 rgba(255,59,95,.7)}
-  70%{box-shadow:0 0 0 20px rgba(255,59,95,0)}
-  100%{box-shadow:0 0 0 0 rgba(255,59,95,0)}
-}
+/* ─── KEYFRAMES ─────────────────────────────────────────── */
+@keyframes orbit{to{transform:rotate(360deg)}}
+@keyframes orbit-rev{to{transform:rotate(-360deg)}}
+@keyframes breathe{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.04)}}
+@keyframes scan{0%{top:-4px}100%{top:100%}}
+@keyframes live-blink{0%,100%{opacity:1}49%{opacity:1}50%,99%{opacity:.15}}
+@keyframes fade-up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes mic-pulse{0%{box-shadow:0 0 0 0 rgba(255,59,95,.6)}70%{box-shadow:0 0 0 22px rgba(255,59,95,0)}100%{box-shadow:0 0 0 0 rgba(255,59,95,0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes fade-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-@keyframes card-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@keyframes thinking-pulse{0%,100%{opacity:.4}50%{opacity:1}}
+@keyframes card-up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes hex-glow{0%,100%{filter:drop-shadow(0 0 8px rgba(255,59,95,.4))}50%{filter:drop-shadow(0 0 22px rgba(255,59,95,.9))}}
 
-/* ── ROOT ───────────────────────────────────────────── */
-#oracle-root{
-  position:fixed;inset:0;
-  background:#06070b;
-  display:flex;align-items:center;justify-content:center;
-  overflow:hidden;
+/* ─── ROOT ──────────────────────────────────────────────── */
+#root{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden}
+
+/* ─── BACKGROUND GRID ───────────────────────────────────── */
+#root::before{
+  content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,59,95,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,59,95,.04) 1px,transparent 1px);
+  background-size:40px 40px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 40%,transparent 100%);
+  pointer-events:none;
 }
 
-/* ══════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    GATE SCREEN
-══════════════════════════════════════════════════════ */
-#gate-screen{
+═══════════════════════════════════════════════════════════ */
+#gate{
   display:flex;flex-direction:column;align-items:center;
-  justify-content:center;
-  gap:clamp(16px,3vw,28px);
-  padding:clamp(20px,5vw,48px) clamp(20px,5vw,40px);
-  width:100%;max-width:480px;
-  transition:opacity .4s ease;
+  gap:clamp(18px,4vw,28px);
+  padding:clamp(24px,5vw,48px) clamp(24px,5vw,48px);
+  width:100%;max-width:520px;
+  transition:opacity .35s ease;
 }
 
-.gate-brand{
-  font-size:11px;font-weight:700;
-  letter-spacing:.35em;color:#ff3b5f;
-  text-transform:uppercase;opacity:.9;
+/* Oracle sigil */
+.sigil-wrap{
+  position:relative;
+  width:clamp(140px,38vw,200px);
+  height:clamp(140px,38vw,200px);
+  flex-shrink:0;
 }
-
-.gate-avatar{
-  width:clamp(120px,35vw,180px);
-  height:clamp(120px,35vw,180px);
+/* Rotating rings */
+.ring{
+  position:absolute;inset:0;
+  border-radius:50%;
+  border:1px solid rgba(255,59,95,.25);
+}
+.ring-1{animation:orbit 12s linear infinite}
+.ring-1::before{
+  content:'';position:absolute;
+  width:6px;height:6px;background:#ff3b5f;border-radius:50%;
+  top:-3px;left:50%;transform:translateX(-50%);
+  box-shadow:0 0 8px #ff3b5f;
+}
+.ring-2{
+  inset:12%;border-color:rgba(255,180,50,.2);
+  animation:orbit-rev 8s linear infinite;
+}
+.ring-2::before{
+  content:'';position:absolute;
+  width:4px;height:4px;background:#f8c15c;border-radius:50%;
+  bottom:-2px;left:50%;transform:translateX(-50%);
+  box-shadow:0 0 6px #f8c15c;
+}
+/* Avatar in center */
+.sigil-avatar{
+  position:absolute;
+  inset:18%;
   border-radius:50%;
   overflow:hidden;
-  animation:breathe 3s ease-in-out infinite;
-  background:radial-gradient(circle,#2a0810 0%,#0a0305 100%);
-  border:2px solid rgba(255,59,95,.25);
-  flex-shrink:0;
+  background:radial-gradient(circle,#1a0608 0%,#050203 100%);
+  border:1px solid rgba(255,59,95,.3);
+  animation:breathe 3.5s ease-in-out infinite;
 }
-.gate-avatar img{
-  width:100%;height:100%;
-  object-fit:cover;border-radius:50%;
-  display:block;
+.sigil-avatar img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
+.sigil-fallback{
+  width:100%;height:100%;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(28px,8vw,44px);
+  background:radial-gradient(circle,#2a0810 0%,#080205 100%);
 }
-.gate-avatar-fallback{
-  width:100%;height:100%;
-  border-radius:50%;
-  background:radial-gradient(circle,#ff3b5f 0%,#7a1020 60%,#2a0810 100%);
-  display:none;
-  align-items:center;justify-content:center;
-  font-size:clamp(40px,12vw,72px);
+/* Scan line */
+.sigil-scan{
+  position:absolute;inset:18%;border-radius:50%;overflow:hidden;pointer-events:none;
 }
-
-.gate-title{
-  font-size:clamp(36px,10vw,56px);
-  font-weight:800;color:#fff;
-  letter-spacing:-.02em;
-  text-align:center;line-height:1;
+.sigil-scan::after{
+  content:'';position:absolute;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(255,59,95,.6),transparent);
+  animation:scan 2.5s ease-in-out infinite;
 }
 
-.gate-sub{
-  font-size:clamp(14px,3.5vw,17px);
-  color:#8899bb;
-  text-align:center;line-height:1.5;
-  max-width:320px;
-}
-
-#gate-btn{
-  background:#ff3b5f;
-  color:#fff;
-  font-family:'Inter',sans-serif;
-  font-size:clamp(16px,4.5vw,20px);
-  font-weight:700;
-  padding:clamp(14px,4vw,18px) clamp(32px,8vw,52px);
-  border:none;border-radius:6px;
-  cursor:pointer;
-  letter-spacing:.03em;
-  animation:btn-pulse 2.5s ease-in-out infinite;
-  transition:transform .1s,opacity .2s;
-  width:100%;max-width:320px;
-  -webkit-appearance:none;
-}
-#gate-btn:active{transform:scale(.97)}
-#gate-btn:disabled{opacity:.5;cursor:not-allowed;animation:none}
-
-#gate-error{
-  display:none;
-  color:#ff3b5f;font-size:13px;
-  text-align:center;line-height:1.5;
-  background:rgba(255,59,95,.08);
-  border:1px solid rgba(255,59,95,.2);
-  border-radius:6px;padding:10px 14px;
-  max-width:320px;width:100%;
-}
-
-/* ══════════════════════════════════════════════════════
-   LIVE STAGE
-══════════════════════════════════════════════════════ */
-#live-stage{
-  display:none;
-  flex-direction:column;align-items:center;
-  width:100%;
-  /* Mobile: use full height with safe areas */
-  height:100%;max-height:100vh;
-  padding:
-    clamp(8px,3vw,16px)
-    clamp(12px,4vw,24px)
-    clamp(12px,4vw,24px);
-  gap:clamp(8px,2vw,12px);
-  overflow-y:auto;
-  -webkit-overflow-scrolling:touch;
-  animation:fade-in .5s ease;
-}
-
-.stage-topbar{
-  width:100%;display:flex;
-  align-items:center;justify-content:space-between;
-  flex-shrink:0;
-  padding:0 2px;
-}
-.stage-label{
+/* Wordmark */
+.gate-brand{
   font-size:10px;font-weight:700;
-  letter-spacing:.35em;color:#ff3b5f;
+  letter-spacing:.4em;color:rgba(255,59,95,.7);
   text-transform:uppercase;
 }
-.live-indicator{
-  display:flex;align-items:center;gap:5px;
-  font-family:'JetBrains Mono',monospace;
-  font-size:10px;color:#4ade80;font-weight:500;letter-spacing:.1em;
+
+/* Title */
+.gate-title{
+  font-size:clamp(32px,9vw,52px);
+  font-weight:900;color:#fff;
+  letter-spacing:-.03em;line-height:1;
+  text-align:center;
 }
-.live-dot{
-  width:6px;height:6px;border-radius:50%;
-  background:#4ade80;
-  animation:live-dot 1.4s ease-in-out infinite;
+.gate-title span{color:#ff3b5f}
+
+/* Sub */
+.gate-sub{
+  font-size:clamp(13px,3.5vw,15px);
+  color:#556;
+  text-align:center;line-height:1.6;
+  max-width:300px;
+  font-weight:400;
 }
 
-/* Video — square on mobile, slightly bigger on desktop */
-.video-wrap{
-  width:100%;
-  max-width:min(480px, calc(100vw - 24px));
-  aspect-ratio:1/1;
-  border-radius:10px;overflow:hidden;
-  background:#080a0e;
+/* ─── THE BUTTON ─────────────────────────────────────────── */
+#gate-btn{
   position:relative;
-  border:1px solid #151a26;
-  flex-shrink:0;
-}
-#oracle-video{
-  width:100%;height:100%;
-  object-fit:cover;display:block;
-  /* Critical: NOT muted so audio plays */
-}
-.vid-placeholder{
-  position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  background:radial-gradient(ellipse at 50% 40%,#150610 0%,#06070b 65%);
-}
-.vid-placeholder-orb{
-  width:55%;height:55%;border-radius:50%;
-  background:radial-gradient(circle,#2a0e18 0%,#0a0306 100%);
-  animation:breathe 3s ease-in-out infinite;
-}
-
-/* Subtitle */
-#subtitle-bar{
-  width:100%;
-  font-family:'JetBrains Mono',monospace;
-  font-size:clamp(11px,3vw,13px);
-  color:#f8c15c;
-  line-height:1.5;text-align:center;
-  min-height:36px;
-  opacity:0;transition:opacity .35s;
-  overflow:hidden;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
-  padding:0 8px;
-}
-#subtitle-bar.show{opacity:1}
-
-/* Status */
-#status-bar{
-  font-family:'JetBrains Mono',monospace;
-  font-size:clamp(11px,3vw,13px);
-  color:#6677aa;
-  display:flex;align-items:center;gap:7px;
-  height:20px;transition:color .25s;
-  flex-shrink:0;
-}
-.spinner{
-  width:13px;height:13px;
-  border:2px solid currentColor;border-top-color:transparent;
-  border-radius:50%;display:none;
-  animation:spin .65s linear infinite;flex-shrink:0;
-}
-
-/* Transcript */
-#transcript-bar{
-  font-family:'JetBrains Mono',monospace;
-  font-size:clamp(11px,3vw,12px);color:#5566aa;font-style:italic;
-  min-height:18px;text-align:center;
-  opacity:0;transition:opacity .2s;
-  width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
-  padding:0 8px;
-}
-#transcript-bar.show{opacity:1}
-
-/* Mic */
-.mic-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0}
-#mic-btn{
-  width:clamp(64px,16vw,76px);
-  height:clamp(64px,16vw,76px);
-  border-radius:50%;
-  background:#111520;
-  border:2px solid #ff3b5f;
-  cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:background .2s,transform .1s;
+  background:transparent;
+  border:none;cursor:pointer;
+  padding:0;
+  width:clamp(200px,55vw,280px);
   -webkit-appearance:none;
   touch-action:manipulation;
 }
-#mic-btn:active:not(:disabled){transform:scale(.94)}
-#mic-btn:disabled{opacity:.25;cursor:not-allowed}
-#mic-btn.rec{
-  background:#ff3b5f;border-color:#ff3b5f;
-  animation:mic-ring 1s ease-out infinite;
+#gate-btn:disabled{opacity:.4;cursor:not-allowed}
+#gate-btn:active .btn-inner{transform:scale(.97)}
+
+.btn-inner{
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#1a0508 0%,#0d0203 100%);
+  border:1px solid rgba(255,59,95,.5);
+  border-radius:4px;
+  padding:clamp(14px,4vw,18px) clamp(20px,5vw,32px);
+  transition:transform .1s,border-color .2s;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
 }
-.mic-label{
+#gate-btn:not(:disabled):hover .btn-inner{border-color:rgba(255,59,95,.9)}
+
+/* Top label */
+.btn-label{
   font-family:'JetBrains Mono',monospace;
-  font-size:10px;color:#445;letter-spacing:.1em;
-  text-transform:uppercase;
+  font-size:9px;letter-spacing:.35em;
+  color:rgba(255,59,95,.6);text-transform:uppercase;
+}
+/* Main text */
+.btn-text{
+  font-size:clamp(13px,4vw,16px);font-weight:700;
+  color:#fff;letter-spacing:.05em;text-transform:uppercase;
+  display:flex;align-items:center;gap:10px;
+}
+.btn-mic-icon{
+  width:16px;height:16px;flex-shrink:0;
+  opacity:.9;
+}
+/* Corner accents */
+.btn-inner::before,.btn-inner::after{
+  content:'';position:absolute;width:8px;height:8px;
+  border-color:rgba(255,59,95,.6);border-style:solid;
+}
+.btn-inner::before{top:4px;left:4px;border-width:1px 0 0 1px}
+.btn-inner::after{bottom:4px;right:4px;border-width:0 1px 1px 0}
+/* Glow sweep on hover */
+.btn-sweep{
+  position:absolute;inset:0;
+  background:linear-gradient(105deg,transparent 40%,rgba(255,59,95,.06) 50%,transparent 60%);
+  transform:translateX(-100%);
+  transition:transform .5s ease;
+}
+#gate-btn:not(:disabled):hover .btn-sweep{transform:translateX(100%)}
+
+/* Status line below btn */
+#gate-status{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:#334;letter-spacing:.08em;
+  min-height:16px;text-align:center;
+}
+#gate-error{
+  display:none;font-size:12px;color:#ff3b5f;
+  text-align:center;line-height:1.5;max-width:280px;
+  background:rgba(255,59,95,.06);border:1px solid rgba(255,59,95,.15);
+  border-radius:4px;padding:8px 12px;
 }
 
-/* Sovereignty cards */
-#sov-cards{
-  display:none;
-  grid-template-columns:1fr 1fr;
-  gap:clamp(8px,2vw,10px);
-  width:100%;
-  animation:card-in .4s ease;
+/* ═══════════════════════════════════════════════════════════
+   LIVE STAGE
+═══════════════════════════════════════════════════════════ */
+#stage{
+  display:none;flex-direction:column;align-items:center;
+  width:100%;height:100%;
+  padding:clamp(8px,2.5vw,14px) clamp(12px,3.5vw,20px) clamp(10px,3vw,16px);
+  gap:clamp(6px,1.5vw,10px);
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  animation:fade-up .4s ease;
 }
-#sov-cards.show{display:grid}
-.sov-card{
-  background:#0c0e14;border:1px solid #1a2030;
-  border-radius:8px;padding:clamp(10px,3vw,14px) clamp(10px,3vw,14px);
-  cursor:pointer;transition:border-color .2s,background .2s;
-  display:flex;flex-direction:column;gap:6px;
-  -webkit-appearance:none;touch-action:manipulation;
+
+/* Top bar */
+.topbar{
+  width:100%;display:flex;align-items:center;
+  justify-content:space-between;flex-shrink:0;
 }
-.sov-card:active{background:#130810;border-color:#ff3b5f}
-.sov-card-title{
-  font-size:clamp(12px,3.5vw,14px);font-weight:600;color:#dde;line-height:1.3;
-}
-.sov-card-link{
+.topbar-brand{
   font-family:'JetBrains Mono',monospace;
-  font-size:clamp(10px,2.5vw,11px);color:#ff3b5f;
-  text-decoration:none;letter-spacing:.03em;
+  font-size:10px;font-weight:500;
+  letter-spacing:.3em;color:rgba(255,59,95,.7);text-transform:uppercase;
 }
+.live-pill{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(74,222,128,.06);
+  border:1px solid rgba(74,222,128,.2);
+  border-radius:20px;padding:3px 8px;
+}
+.live-dot{
+  width:5px;height:5px;border-radius:50%;background:#4ade80;
+  animation:live-blink 2s step-end infinite;
+}
+.live-text{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;font-weight:500;color:#4ade80;letter-spacing:.15em;
+}
+
+/* Video */
+.video-wrap{
+  position:relative;
+  width:100%;
+  max-width:min(440px,calc(100vw - 24px));
+  aspect-ratio:1/1;
+  border-radius:8px;overflow:hidden;
+  background:#050508;
+  flex-shrink:0;
+}
+/* Corner brackets */
+.video-wrap::before,.video-wrap::after{
+  content:'';position:absolute;width:16px;height:16px;
+  border-color:rgba(255,59,95,.4);border-style:solid;z-index:2;
+}
+.video-wrap::before{top:6px;left:6px;border-width:1px 0 0 1px}
+.video-wrap::after{bottom:6px;right:6px;border-width:0 1px 1px 0}
+
+#vid{width:100%;height:100%;object-fit:cover;display:block}
+.vid-ph{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 50% 35%,#120408 0%,#050208 60%);
+}
+.vid-orb{
+  width:50%;height:50%;border-radius:50%;
+  background:radial-gradient(circle,#2a0810 0%,#080205 100%);
+  border:1px solid rgba(255,59,95,.2);
+  animation:breathe 3s ease-in-out infinite;
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(24px,8vw,40px);
+}
+
+/* Subtitle */
+#subtitle{
+  width:100%;
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(11px,3vw,13px);color:#f8c15c;
+  line-height:1.55;text-align:center;
+  min-height:34px;
+  opacity:0;transition:opacity .3s;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  overflow:hidden;padding:0 4px;
+}
+#subtitle.on{opacity:1}
+
+/* Status */
+#stat{
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(10px,2.8vw,12px);
+  color:#334;display:flex;align-items:center;gap:6px;
+  height:18px;transition:color .2s;flex-shrink:0;
+}
+.spin{width:12px;height:12px;border:1.5px solid currentColor;border-top-color:transparent;border-radius:50%;display:none;animation:spin .6s linear infinite;flex-shrink:0}
+
+/* Transcript */
+#tx{
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(10px,2.8vw,11px);color:#445;font-style:italic;
+  min-height:16px;text-align:center;
+  opacity:0;transition:opacity .2s;
+  width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+}
+#tx.on{opacity:1}
+
+/* Mic */
+.mic-area{display:flex;flex-direction:column;align-items:center;gap:7px;flex-shrink:0}
+#mic{
+  width:clamp(60px,15vw,72px);height:clamp(60px,15vw,72px);
+  border-radius:50%;
+  background:#0a0c12;
+  border:1.5px solid #ff3b5f;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s,transform .1s;
+  -webkit-appearance:none;touch-action:manipulation;
+  flex-shrink:0;
+}
+#mic:active:not(:disabled){transform:scale(.92)}
+#mic:disabled{opacity:.2;cursor:not-allowed}
+#mic.rec{background:#ff3b5f;animation:mic-pulse 1s ease-out infinite}
+.mic-hint{font-family:'JetBrains Mono',monospace;font-size:9px;color:#334;letter-spacing:.12em;text-transform:uppercase}
+
+/* Sovereignty cards */
+#cards{display:none;grid-template-columns:1fr 1fr;gap:8px;width:100%;animation:card-up .35s ease}
+#cards.on{display:grid}
+.card{
+  background:#080a0f;
+  border:1px solid #141824;
+  border-radius:6px;
+  padding:clamp(10px,2.5vw,13px);
+  cursor:pointer;
+  transition:border-color .15s,background .15s;
+  display:flex;flex-direction:column;gap:5px;
+  touch-action:manipulation;
+}
+.card:active{background:#100610;border-color:rgba(255,59,95,.5)}
+.card-title{font-size:clamp(11px,3.2vw,13px);font-weight:600;color:#ccd;line-height:1.3}
+.card-link{font-family:'JetBrains Mono',monospace;font-size:clamp(9px,2.5vw,10px);color:rgba(255,59,95,.7);text-decoration:none;letter-spacing:.03em}
 </style>
 </head>
 <body>
-<div id="oracle-root">
+<div id="root">
 
-  <!-- ════ GATE ════ -->
-  <div id="gate-screen">
-    <div class="gate-brand">Protocol Pulse</div>
+<!-- ══ GATE ══ -->
+<div id="gate">
+  <div class="gate-brand">Protocol Pulse</div>
 
-    <div class="gate-avatar" id="gate-avatar">
+  <div class="sigil-wrap">
+    <div class="ring ring-1"></div>
+    <div class="ring ring-2"></div>
+    <div class="sigil-avatar">
       <img src="/static/oracle_avatar.png" alt="Oracle"
-           onerror="this.style.display='none';document.getElementById('gate-fallback').style.display='flex'">
-      <div class="gate-avatar-fallback" id="gate-fallback">⚡</div>
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="sigil-fallback" style="display:none">⚡</div>
     </div>
-
-    <h1 class="gate-title">THE ORACLE</h1>
-    <p class="gate-sub">Real-time Bitcoin intelligence. Ask anything.</p>
-
-    <button id="gate-btn" onclick="requestMic()">TALK TO THE ORACLE</button>
-    <div id="gate-error"></div>
+    <div class="sigil-scan"></div>
   </div>
 
-  <!-- ════ LIVE STAGE ════ -->
-  <div id="live-stage">
+  <h1 class="gate-title">THE <span>ORACLE</span></h1>
+  <p class="gate-sub">Sovereign Bitcoin intelligence.<br>Ask anything, in real time.</p>
 
-    <div class="stage-topbar">
-      <span class="stage-label">Oracle</span>
-      <div class="live-indicator"><div class="live-dot"></div>LIVE</div>
-    </div>
-
-    <div class="video-wrap">
-      <div class="vid-placeholder" id="vid-placeholder">
-        <div class="vid-placeholder-orb"></div>
-      </div>
-      <!-- NOT muted — audio must play. playsinline for iOS -->
-      <video id="oracle-video" playsinline webkit-playsinline></video>
-    </div>
-
-    <div id="subtitle-bar"></div>
-
-    <div id="status-bar">
-      <span class="spinner" id="spinner"></span>
-      <span id="status-text">Ready</span>
-    </div>
-
-    <div id="transcript-bar"></div>
-
-    <div class="mic-wrap">
-      <button id="mic-btn" disabled onclick="toggleMic()">
-        <svg id="icon-mic" width="26" height="26" viewBox="0 0 24 24" fill="none">
+  <button id="gate-btn" onclick="requestMic()">
+    <div class="btn-sweep"></div>
+    <div class="btn-inner">
+      <div class="btn-label">Protocol Pulse Intelligence</div>
+      <div class="btn-text">
+        <svg class="btn-mic-icon" viewBox="0 0 24 24" fill="none">
           <rect x="9" y="2" width="6" height="12" rx="3" fill="#ff3b5f"/>
-          <path d="M5 10a7 7 0 0014 0" stroke="#ff3b5f" stroke-width="2" stroke-linecap="round"/>
-          <line x1="12" y1="19" x2="12" y2="22" stroke="#ff3b5f" stroke-width="2" stroke-linecap="round"/>
-          <line x1="9" y1="22" x2="15" y2="22" stroke="#ff3b5f" stroke-width="2" stroke-linecap="round"/>
+          <path d="M5 10a7 7 0 0014 0" stroke="#ff3b5f" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="12" y1="19" x2="12" y2="22" stroke="#ff3b5f" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
-        <svg id="icon-stop" width="26" height="26" viewBox="0 0 24 24" fill="none" style="display:none">
-          <rect x="6" y="6" width="12" height="12" rx="2" fill="#fff"/>
-        </svg>
-      </button>
-      <span class="mic-label" id="mic-label">Tap to speak</span>
-    </div>
-
-    <div id="sov-cards">
-      <div class="sov-card" onclick="speakIntent('SOVEREIGNTY_COLD_WALLET')">
-        <div class="sov-card-title">&#128272; Self-Custody</div>
-        <a class="sov-card-link" href="https://coldcard.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Setup guide &#8594;</a>
-      </div>
-      <div class="sov-card" onclick="speakIntent('SOVEREIGNTY_NODE')">
-        <div class="sov-card-title">&#9889; Run a Node</div>
-        <a class="sov-card-link" href="https://getumbrel.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Setup guide &#8594;</a>
-      </div>
-      <div class="sov-card" onclick="speakIntent('SOVEREIGNTY_BITAXE')">
-        <div class="sov-card-title">&#9935; Solo Mining</div>
-        <a class="sov-card-link" href="https://curatedmining.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Setup guide &#8594;</a>
-      </div>
-      <div class="sov-card" onclick="speakIntent('SOVEREIGNTY_LIFE_INSURANCE')">
-        <div class="sov-card-title">&#128737; BTC Insurance</div>
-        <a class="sov-card-link" href="https://application.meanwhile.bm/start?referralCode=KKM73K" target="_blank" rel="noopener" onclick="event.stopPropagation()">Learn more &#8594;</a>
+        Speak to the Oracle
       </div>
     </div>
+  </button>
 
-  </div><!-- /live-stage -->
-</div><!-- /oracle-root -->
+  <div id="gate-status">— tap to activate —</div>
+  <div id="gate-error"></div>
+</div>
+
+<!-- ══ LIVE STAGE ══ -->
+<div id="stage">
+
+  <div class="topbar">
+    <span class="topbar-brand">Oracle</span>
+    <div class="live-pill"><div class="live-dot"></div><span class="live-text">LIVE</span></div>
+  </div>
+
+  <div class="video-wrap">
+    <div class="vid-ph" id="vid-ph"><div class="vid-orb">⚡</div></div>
+    <video id="vid" playsinline webkit-playsinline x-webkit-airplay="allow"></video>
+  </div>
+
+  <div id="subtitle"></div>
+
+  <div id="stat">
+    <span class="spin" id="spin"></span>
+    <span id="stat-text">Ready</span>
+  </div>
+
+  <div id="tx"></div>
+
+  <div class="mic-area">
+    <button id="mic" disabled onclick="toggleMic()">
+      <svg id="i-mic" width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <rect x="9" y="2" width="6" height="12" rx="3" fill="#ff3b5f"/>
+        <path d="M5 10a7 7 0 0014 0" stroke="#ff3b5f" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="12" y1="19" x2="12" y2="22" stroke="#ff3b5f" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="9" y1="22" x2="15" y2="22" stroke="#ff3b5f" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <svg id="i-stop" width="24" height="24" viewBox="0 0 24 24" fill="none" style="display:none">
+        <rect x="6" y="6" width="12" height="12" rx="2" fill="#fff"/>
+      </svg>
+    </button>
+    <span class="mic-hint" id="mic-hint">tap to speak</span>
+  </div>
+
+  <div id="cards">
+    <div class="card" onclick="si('SOVEREIGNTY_COLD_WALLET')">
+      <div class="card-title">&#128272; Self-Custody</div>
+      <a class="card-link" href="https://coldcard.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">coldcard.com &#8594;</a>
+    </div>
+    <div class="card" onclick="si('SOVEREIGNTY_NODE')">
+      <div class="card-title">&#9889; Run a Node</div>
+      <a class="card-link" href="https://getumbrel.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">getumbrel.com &#8594;</a>
+    </div>
+    <div class="card" onclick="si('SOVEREIGNTY_BITAXE')">
+      <div class="card-title">&#9935; Solo Mining</div>
+      <a class="card-link" href="https://curatedmining.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">curatedmining.com &#8594;</a>
+    </div>
+    <div class="card" onclick="si('SOVEREIGNTY_LIFE_INSURANCE')">
+      <div class="card-title">&#128737; BTC Insurance</div>
+      <a class="card-link" href="https://application.meanwhile.bm/start?referralCode=KKM73K" target="_blank" rel="noopener" onclick="event.stopPropagation()">meanwhile.bm &#8594;</a>
+    </div>
+  </div>
+
+</div><!-- /stage -->
+</div><!-- /root -->
 
 <script>
 'use strict';
-
-/* ── CONFIG ── */
-var API = 'https://avatar.protocolpulse.io';
-
-var SUBS = {
-  GREETING:                  "Hey. I'm the Oracle. I'm tracking everything happening in Bitcoin right now — on-chain, macro, geopolitical. What brings you here?",
-  SOVEREIGNTY_INTRO:         "Your sovereignty score is a snapshot of how free you actually are — how much you've moved out of legacy systems into things you control.",
-  SOVEREIGNTY_ASSESSMENT:    "Let's map it out. Four pillars: self-custody of your Bitcoin, your own node, private communications, and no KYC on your income. Where are you today?",
-  SOVEREIGNTY_COLD_WALLET:   "If your Bitcoin is on an exchange, it's not yours — it's an IOU. A hardware wallet fixes that. I can walk you through it step by step.",
-  SOVEREIGNTY_NODE:          "Running your own node means you verify your own transactions — you don't trust, you verify. Umbrel on a Raspberry Pi is the easiest path.",
-  SOVEREIGNTY_BITAXE:        "Bitaxe is a solo miner you can run at home — a Bitcoin lottery ticket. Curated Mining also offers white-glove setup if you want hands-off.",
-  SOVEREIGNTY_LIFE_INSURANCE:"If you die with Bitcoin in cold storage and nobody knows the seed phrase, that wealth disappears. Meanwhile offers life insurance that understands Bitcoin.",
-  SOVEREIGNTY_RESIDENCY:     "Digital residency through Palau via RNS.ID gives you a second identity layer outside your home country. Real tax and privacy implications.",
-  DAILY_BRIEF_INTRO:         "Here's what's moving in Bitcoin right now. Pulling from our intelligence layer...",
-  DAILY_BRIEF_LIVE:          "Here's today's Bitcoin intelligence brief.",
-  UNKNOWN_QUESTION:          "I'm researching that now. Give me a moment.",
-  GOODBYE:                   "Stack sats, verify everything, and come back anytime."
+var A='https://avatar.protocolpulse.io';
+var S={
+  GREETING:"Hey. I'm the Oracle — tracking everything happening in Bitcoin right now. On-chain, macro, geopolitical. What brings you here?",
+  SOVEREIGNTY_INTRO:"Your sovereignty score is a snapshot of how free you actually are — how much of your financial life you've pulled out of legacy systems.",
+  SOVEREIGNTY_ASSESSMENT:"Four pillars: self-custody of your Bitcoin, your own node, private comms, and no KYC on your income. Where are you today?",
+  SOVEREIGNTY_COLD_WALLET:"If your Bitcoin is on an exchange, it's not yours — it's an IOU. A hardware wallet fixes that. I can walk you through it.",
+  SOVEREIGNTY_NODE:"Running your own node means you verify your own transactions. You don't trust, you verify. Umbrel on a Pi is the easiest path.",
+  SOVEREIGNTY_BITAXE:"Bitaxe is a solo miner you can run at home. A Bitcoin lottery ticket. Curated Mining also does white-glove setup.",
+  SOVEREIGNTY_LIFE_INSURANCE:"If you die with Bitcoin in cold storage and nobody knows the seed phrase, it's gone. Meanwhile offers life insurance that actually understands Bitcoin.",
+  SOVEREIGNTY_RESIDENCY:"Digital residency through Palau via RNS.ID gives you a second legal identity outside your home country. Real tax and privacy implications.",
+  DAILY_BRIEF_INTRO:"Here's what's moving in Bitcoin right now. Pulling the latest from our intelligence layer...",
+  DAILY_BRIEF_LIVE:"Here's today's Bitcoin intelligence brief.",
+  UNKNOWN_QUESTION:"I'm researching that now. One moment.",
+  GOODBYE:"Stack sats, verify everything, and come back anytime."
 };
 
-/* ── STATE ── */
-var micStream = null;
-var isRec = false;
-var recognition = null;
-var pending = '';
-var objURL = null;
-var busy = false;
-// AudioContext kept alive from user gesture
-var audioCtx = null;
+var busy=false,isRec=false,pending='',objURL=null,recognition=null;
 
-/* ── DOM ── */
-var gateScreen  = document.getElementById('gate-screen');
-var liveStage   = document.getElementById('live-stage');
-var gateBtn     = document.getElementById('gate-btn');
-var gateError   = document.getElementById('gate-error');
-var video       = document.getElementById('oracle-video');
-var vidPH       = document.getElementById('vid-placeholder');
-var subtitleBar = document.getElementById('subtitle-bar');
-var statusText  = document.getElementById('status-text');
-var spinner     = document.getElementById('spinner');
-var txBar       = document.getElementById('transcript-bar');
-var micBtn      = document.getElementById('mic-btn');
-var micLabel    = document.getElementById('mic-label');
-var iconMic     = document.getElementById('icon-mic');
-var iconStop    = document.getElementById('icon-stop');
-var sovCards    = document.getElementById('sov-cards');
+/* DOM */
+var gate=document.getElementById('gate');
+var stage=document.getElementById('stage');
+var gBtn=document.getElementById('gate-btn');
+var gStatus=document.getElementById('gate-status');
+var gErr=document.getElementById('gate-error');
+var vid=document.getElementById('vid');
+var vidPh=document.getElementById('vid-ph');
+var sub=document.getElementById('subtitle');
+var statEl=document.getElementById('stat-text');
+var spinEl=document.getElementById('spin');
+var txEl=document.getElementById('tx');
+var mic=document.getElementById('mic');
+var micHint=document.getElementById('mic-hint');
+var iMic=document.getElementById('i-mic');
+var iStop=document.getElementById('i-stop');
+var cards=document.getElementById('cards');
 
 /* ── MIC REQUEST ── */
-function requestMic() {
-  gateBtn.disabled = true;
-  gateBtn.textContent = 'Requesting mic...';
-  gateError.style.display = 'none';
+function requestMic(){
+  gBtn.disabled=true;
+  gStatus.textContent='Requesting microphone...';
+  gErr.style.display='none';
 
-  // Create AudioContext on user gesture — required for audio playback on iOS/Safari
-  try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){}
+  /* CRITICAL: unlock audio on this user gesture */
+  try{
+    var ac=new(window.AudioContext||window.webkitAudioContext)();
+    var buf=ac.createBuffer(1,1,22050);
+    var src=ac.createBufferSource();
+    src.buffer=buf;src.connect(ac.destination);src.start(0);
+    setTimeout(function(){try{ac.close();}catch(e){}},500);
+  }catch(e){}
 
-  navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-    .then(function(stream) {
-      micStream = stream;
+  /* Also "unlock" video element immediately */
+  vid.muted=true;
+  vid.play().catch(function(){});
+
+  navigator.mediaDevices.getUserMedia({audio:true,video:false})
+    .then(function(stream){
+      stream.getTracks().forEach(function(t){t.stop();}); /* don't need stream, just the gesture */
+      gStatus.textContent='';
       go();
     })
-    .catch(function() {
-      gateBtn.disabled = false;
-      gateBtn.textContent = 'TALK TO THE ORACLE';
-      gateError.style.display = 'block';
-      gateError.textContent = '\u26a0\ufe0f Mic access required. Enable it in your browser settings and reload.';
+    .catch(function(){
+      gBtn.disabled=false;
+      gStatus.textContent='';
+      gErr.style.display='block';
+      gErr.textContent='\u26a0\ufe0f Microphone access required. Enable it in your browser and reload.';
     });
 }
 
 /* ── TRANSITION ── */
-function go() {
-  gateScreen.style.opacity = '0';
-  setTimeout(function() {
-    gateScreen.style.display = 'none';
-    liveStage.style.display = 'flex';
-    liveStage.style.opacity = '0';
-    setTimeout(function() {
-      liveStage.style.transition = 'opacity .5s';
-      liveStage.style.opacity = '1';
+function go(){
+  gate.style.opacity='0';
+  setTimeout(function(){
+    gate.style.display='none';
+    stage.style.display='flex';
+    stage.style.opacity='0';
+    setTimeout(function(){
+      stage.style.transition='opacity .45s';
+      stage.style.opacity='1';
       initSR();
       playIntent('GREETING');
-    }, 30);
-  }, 400);
+    },30);
+  },350);
 }
 
 /* ── PLAY CACHED INTENT ── */
-function playIntent(intent) {
+function playIntent(intent){
   setBusy(true);
-  stat('Loading Oracle...', '#f4c46f', true);
-  sub(SUBS[intent] || '');
-
-  var t0 = Date.now();
-  fetchTO(API + '/oracle/speak', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ intent: intent })
-  }, 30000)
-  .then(function(res) {
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    var ct = res.headers.get('content-type') || '';
-    if (ct.indexOf('video') >= 0) {
-      return res.blob().then(function(b) { return URL.createObjectURL(b); });
-    } else {
-      return res.json().then(function(j) {
-        return fetchTO(API + j.video_url, {}, 20000)
-          .then(function(r2) { return r2.blob(); })
-          .then(function(b) { return URL.createObjectURL(b); });
-      });
-    }
+  setStat('Loading..','#f4c46f',true);
+  showSub(S[intent]||'');
+  fetchTO(A+'/oracle/speak',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({intent:intent})
+  },30000)
+  .then(function(r){
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    var ct=r.headers.get('content-type')||'';
+    if(ct.indexOf('video')>=0)return r.blob().then(blobURL);
+    return r.json().then(function(j){
+      return fetchTO(A+j.video_url,{},20000).then(function(r2){return r2.blob().then(blobURL);});
+    });
   })
-  .then(function(url) {
-    console.log(intent + ' in ' + (Date.now()-t0) + 'ms');
-    return playVideo(url);
-  })
-  .then(function() {
-    if (intent === 'SOVEREIGNTY_ASSESSMENT') showSov();
-  })
-  .catch(function(e) {
-    console.error('playIntent:', e);
-    stat('Oracle error — try again.', '#ff3b5f', false);
-  })
-  .finally(function() {
-    setBusy(false);
-    enableMic();
-  });
+  .then(function(url){return playVid(url);})
+  .then(function(){if(intent==='SOVEREIGNTY_ASSESSMENT')showCards();})
+  .catch(function(e){console.error(e);setStat('Oracle error — try again.','#ff3b5f',false);})
+  .finally(function(){setBusy(false);mic.disabled=false;});
 }
 
-function speakIntent(intent) {
-  if (busy) return;
-  hideSov();
-  playIntent(intent);
+function si(intent){if(busy)return;hideCards();playIntent(intent);}
+
+/* ── PROCESS SPEECH ── */
+function process(text){
+  if(!text.trim()||busy)return;
+  setBusy(true);hideCards();showTX(text);
+  setStat('Oracle thinking...','#f4c46f',true);
+  var di='UNKNOWN';
+  fetchTO(A+'/oracle/intent',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({transcript:text})
+  },10000)
+  .then(function(r){return r.json();})
+  .then(function(d){
+    di=d.intent||'UNKNOWN';
+    showSub(S[di]||text);
+    return fetchTO(A+'/oracle/speak',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({intent:di,text:text})
+    },35000);
+  })
+  .then(function(r){
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    var ct=r.headers.get('content-type')||'';
+    if(ct.indexOf('video')>=0)return r.blob().then(blobURL);
+    return r.json().then(function(j){
+      return fetchTO(A+j.video_url,{},25000).then(function(r2){return r2.blob().then(blobURL);});
+    });
+  })
+  .then(function(url){return playVid(url);})
+  .then(function(){if(di==='SOVEREIGNTY_ASSESSMENT')showCards();})
+  .catch(function(e){
+    console.error(e);
+    setStat((e.message||'').indexOf('timeout')>=0?'Still rendering — hang tight...':'Oracle error. Try again.','#f4c46f',false);
+  })
+  .finally(function(){setBusy(false);mic.disabled=false;hideTX();});
 }
 
-/* ── PROCESS USER SPEECH ── */
-function process(text) {
-  if (!text.trim() || busy) return;
-  setBusy(true);
-  hideSov();
-  showTX(text);
-  stat('Oracle is thinking...', '#f4c46f', true);
-
-  var detectedIntent = 'UNKNOWN';
-
-  fetchTO(API + '/oracle/intent', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ transcript: text })
-  }, 10000)
-  .then(function(r) { return r.json(); })
-  .then(function(d) {
-    detectedIntent = d.intent || 'UNKNOWN';
-    sub(SUBS[detectedIntent] || text);
-    return fetchTO(API + '/oracle/speak', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ intent: detectedIntent, text: text })
-    }, 35000);
-  })
-  .then(function(res) {
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    var ct = res.headers.get('content-type') || '';
-    if (ct.indexOf('video') >= 0) {
-      return res.blob().then(function(b) { return URL.createObjectURL(b); });
-    } else {
-      return res.json().then(function(j) {
-        return fetchTO(API + j.video_url, {}, 25000)
-          .then(function(r2) { return r2.blob(); })
-          .then(function(b) { return URL.createObjectURL(b); });
-      });
-    }
-  })
-  .then(function(url) { return playVideo(url); })
-  .then(function() {
-    if (detectedIntent === 'SOVEREIGNTY_ASSESSMENT') showSov();
-  })
-  .catch(function(e) {
-    console.error('process:', e);
-    var msg = (e.message && e.message.indexOf('timeout') >= 0)
-      ? 'Oracle is still rendering — hang tight...'
-      : 'Oracle error. Try again.';
-    stat(msg, '#f4c46f', false);
-  })
-  .finally(function() {
-    setBusy(false);
-    enableMic();
-    hideTX();
-  });
+function blobURL(b){
+  if(objURL)try{URL.revokeObjectURL(objURL);}catch(e){}
+  objURL=URL.createObjectURL(b);
+  return objURL;
 }
 
-/* ── PLAY VIDEO WITH AUDIO ── */
-function playVideo(url) {
-  return new Promise(function(resolve) {
-    vidPH.style.display = 'none';
-    if (objURL) { try { URL.revokeObjectURL(objURL); } catch(e){} }
-    objURL = url;
-
-    // Resume AudioContext if suspended (iOS requirement)
-    if (audioCtx && audioCtx.state === 'suspended') {
-      audioCtx.resume().catch(function(){});
-    }
-
-    video.src = url;
-    video.muted = false;
-    video.volume = 1.0;
-
-    stat('Speaking', '#6cff9f', false);
-
-    video.onended = function() {
-      stat('Ready', '#6677aa', false);
-      hideSub();
-      resolve();
-    };
-    video.onerror = function(e) {
-      console.error('video error:', e);
-      stat('Video error', '#ff3b5f', false);
-      resolve();
-    };
-
-    var playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(function(e) {
-        console.warn('play() failed:', e);
-        // Fallback: muted play (browser blocked audio)
-        video.muted = true;
-        video.play().catch(function() { resolve(); });
-      });
-    }
+/* ── PLAY VIDEO ── */
+function playVid(url){
+  return new Promise(function(res){
+    vidPh.style.display='none';
+    vid.src=url;
+    /* Unmute now — audio context already unlocked */
+    vid.muted=false;
+    vid.volume=1.0;
+    setStat('Speaking','#6cff9f',false);
+    vid.onended=function(){setStat('Ready','#334',false);hideSub();res();};
+    vid.onerror=function(){setStat('Video error','#ff3b5f',false);res();};
+    var p=vid.play();
+    if(p)p.catch(function(){
+      /* Fallback: muted — at least show lip sync */
+      vid.muted=true;vid.play().catch(function(){res();});
+    });
   });
 }
 
 /* ── SPEECH RECOGNITION ── */
-function initSR() {
-  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { micLabel.textContent = 'No speech API'; return; }
-  recognition = new SR();
-  recognition.continuous = false;
-  recognition.interimResults = true;
-  recognition.lang = 'en-US';
-  recognition.onresult = function(e) {
-    var interim = '', fin = '';
-    for (var i = 0; i < e.results.length; i++) {
-      if (e.results[i].isFinal) fin += e.results[i][0].transcript;
-      else interim += e.results[i][0].transcript;
+function initSR(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){micHint.textContent='no speech api';return;}
+  recognition=new SR();
+  recognition.continuous=false;recognition.interimResults=true;recognition.lang='en-US';
+  recognition.onresult=function(e){
+    var fin='',int='';
+    for(var i=0;i<e.results.length;i++){
+      if(e.results[i].isFinal)fin+=e.results[i][0].transcript;
+      else int+=e.results[i][0].transcript;
     }
-    showTX(fin || interim);
-    if (fin) pending = fin;
+    showTX(fin||int);if(fin)pending=fin;
   };
-  recognition.onend = function() {
-    if (isRec) {
-      setRec(false);
-      if (pending.trim()) process(pending);
-      pending = '';
-    }
+  recognition.onend=function(){
+    if(isRec){setRec(false);if(pending.trim())process(pending);pending='';}
   };
-  recognition.onerror = function(e) {
-    console.warn('SR error:', e.error);
-    setRec(false);
-  };
+  recognition.onerror=function(e){console.warn(e.error);setRec(false);};
 }
 
-function toggleMic() {
-  if (busy) return;
-  if (isRec) { stopRec(); } else { startRec(); }
+function toggleMic(){if(busy)return;isRec?stopRec():startRec();}
+function startRec(){
+  if(!recognition){setStat('No speech API','#ff3b5f',false);return;}
+  pending='';isRec=true;setRec(true);setStat('\ud83c\udf99 Listening...','#66d9ff',false);
+  try{recognition.start();}catch(e){console.warn(e);}
 }
-
-function startRec() {
-  if (!recognition) { stat('Speech API unavailable', '#ff3b5f', false); return; }
-  pending = '';
-  isRec = true;
-  setRec(true);
-  stat('\ud83c\udf99 Listening...', '#66d9ff', false);
-  try { recognition.start(); } catch(e) { console.warn(e); }
-}
-
-function stopRec() {
-  isRec = false;
-  setRec(false);
-  if (recognition) try { recognition.stop(); } catch(e) {}
-}
-
-function setRec(on) {
-  isRec = on;
-  micBtn.classList.toggle('rec', on);
-  iconMic.style.display = on ? 'none' : 'block';
-  iconStop.style.display = on ? 'block' : 'none';
-  micLabel.textContent = on ? 'Tap to send' : 'Tap to speak';
+function stopRec(){isRec=false;setRec(false);if(recognition)try{recognition.stop();}catch(e){}}
+function setRec(on){
+  mic.classList.toggle('rec',on);
+  iMic.style.display=on?'none':'block';
+  iStop.style.display=on?'block':'none';
+  micHint.textContent=on?'tap to send':'tap to speak';
 }
 
 /* ── HELPERS ── */
-function stat(msg, color, spin) {
-  statusText.textContent = msg;
-  statusText.style.color = color || '#6677aa';
-  spinner.style.display = spin ? 'block' : 'none';
-  spinner.style.color = color || '#6677aa';
-}
-function setBusy(b) { busy = b; if (b) { micBtn.disabled = true; if (isRec) stopRec(); } }
-function enableMic() { micBtn.disabled = false; }
-function sub(t) { subtitleBar.textContent = t; subtitleBar.classList.add('show'); }
-function hideSub() { subtitleBar.classList.remove('show'); }
-function showTX(t) { txBar.textContent = t; txBar.classList.add('show'); }
-function hideTX() { txBar.classList.remove('show'); }
-function showSov() { sovCards.classList.add('show'); }
-function hideSov() { sovCards.classList.remove('show'); }
-
-function fetchTO(url, opts, ms) {
-  var ctrl = new AbortController();
-  var id = setTimeout(function() { ctrl.abort(); }, ms);
-  var o = opts || {};
-  o.signal = ctrl.signal;
-  return fetch(url, o).finally(function() { clearTimeout(id); })
-    .catch(function(e) { if (e.name === 'AbortError') throw new Error('timeout'); throw e; });
+function setStat(t,c,sp){statEl.textContent=t;statEl.style.color=c||'#334';spinEl.style.display=sp?'block':'none';spinEl.style.color=c||'#334';}
+function setBusy(b){busy=b;if(b){mic.disabled=true;if(isRec)stopRec();}}
+function showSub(t){sub.textContent=t;sub.classList.add('on');}
+function hideSub(){sub.classList.remove('on');}
+function showTX(t){txEl.textContent=t;txEl.classList.add('on');}
+function hideTX(){txEl.classList.remove('on');}
+function showCards(){cards.classList.add('on');}
+function hideCards(){cards.classList.remove('on');}
+function fetchTO(url,opts,ms){
+  var ctrl=new AbortController();
+  var id=setTimeout(function(){ctrl.abort();},ms);
+  var o=opts||{};o.signal=ctrl.signal;
+  return fetch(url,o).finally(function(){clearTimeout(id);})
+    .catch(function(e){if(e.name==='AbortError')throw new Error('timeout');throw e;});
 }
 </script>
 </body>

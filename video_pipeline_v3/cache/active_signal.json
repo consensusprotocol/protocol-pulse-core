@@ -1,6 +1,6 @@
 {
-  "fetched_at": 1773639077.350455,
-  "fetched_at_iso": "2026-03-16T05:31:17.350459+00:00",
+  "fetched_at": 1773639906.685445,
+  "fetched_at_iso": "2026-03-16T05:45:06.685449+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
@@ -21,7 +21,7 @@
       "connected": false,
       "events_raw": 0,
       "events_filtered": 0,
-      "error": "[Errno 113] Connect call failed ('95.216.33.150', 443)"
+      "error": "timed out during opening handshake"
     },
     {
       "relay": "wss://purplepag.es",
@@ -34,7 +34,7 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 84,
+      "events_filtered": 83,
       "error": null
     }
   ],
@@ -221,6 +221,6 @@
     }
   ],
   "total_raw": 300,
-  "total_filtered": 226,
+  "total_filtered": 225,
   "total_scored": 20
 }
