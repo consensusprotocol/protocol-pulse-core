@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1773647105.0849185,
-  "fetched_at_iso": "2026-03-16T07:45:05.084924+00:00",
+  "fetched_at": 1773648906.6096323,
+  "fetched_at_iso": "2026-03-16T08:15:06.609637+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 79,
+      "events_filtered": 80,
       "error": null
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 83,
+      "events_filtered": 85,
       "error": null
     },
     {
@@ -34,7 +34,7 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 82,
+      "events_filtered": 83,
       "error": null
     }
   ],
@@ -55,6 +55,15 @@
       "created_at": 1773646477,
       "relay": "wss://nos.lol",
       "score": 90,
+      "has_zap": false
+    },
+    {
+      "text": "\u23f3 Countdown do Halving (Bitcoin)\n\n\u2022 Bloco atual: 940.866\n\u2022 Pr\u00f3ximo Halving: 1.050.000\n\u2022 Faltam: 109.134 blocos\n\u2022 Ritmo (m\u00e9dia 144 blocos): ~11.53 min/bloco\n\u2022 Estimativa (retarget-aware): ~758.5 dias (~18204 horas) dia 12/04/2028\n\u2022 Pre\u00e7o BTC (Binance): $73,514\n\n\u2699\ufe0f Previs\u00e3o de redu\u00e7\u00e3o de dificuldade (blocos mais lentos que 10 min).\n\u2022 Pr\u00f3ximo ajuste autom\u00e1tico: bloco 941.472 (faltam 606 blocos) ~4.9 dias\n\nPS: estimativa \u00e9 estimativa \u2014 tempo \u00e9 um bicho arisco \ud83e\udee0",
+      "pubkey": "aee8bcf7b1a2984ffd6cb967e544bc8fa0e5c9a5b97e738eed92c641009d5c35",
+      "display_name": "npub1aee8bcf7...9d5c35",
+      "created_at": 1773648016,
+      "relay": "wss://relay.damus.io",
+      "score": 80,
       "has_zap": false
     },
     {
@@ -134,8 +143,17 @@
       "pubkey": "aee8bcf7b1a2984ffd6cb967e544bc8fa0e5c9a5b97e738eed92c641009d5c35",
       "display_name": "npub1aee8bcf7...9d5c35",
       "created_at": 1773632021,
-      "relay": "wss://nos.lol",
+      "relay": "wss://relay.primal.net",
       "score": 80,
+      "has_zap": false
+    },
+    {
+      "text": "BTCUSDT: \ud83d\udcb8$73,658.65\nLast Update: 03/16/2026 08:05 (GMT Time)\n\n\ud83d\udccaACTION ZONE\n 4H  \u2705 UpTrend  (+4.62%)  \ud83d\udcc503/10/2026 08:00 \ud83d\udcb8@$70,406.01\n12H  \u2705 UpTrend  (+3.58%)  \ud83d\udcc503/04/2026 20:00 \ud83d\udcb8@$71,111.40\n 1D  \u2705 UpTrend  (+1.16%)  \ud83d\udcc503/16/2026 \ud83d\udcb8@$72,815.24\n 1W  \u274c DownTrend  (-15.17%)  \ud83d\udcc511/24/2025 \ud83d\udcb8@$86,830.00\n\n #spaceship #bitcoin #btc #nostr #plebchain #zap #zaps",
+      "pubkey": "e5f3339e34bf2f16dd03c62cad6bad8a4d27a9b776f37d65115983e20952d54d",
+      "display_name": "npub1e5f3339e...52d54d",
+      "created_at": 1773648305,
+      "relay": "wss://relay.damus.io",
+      "score": 73,
       "has_zap": false
     },
     {
@@ -145,6 +163,15 @@
       "created_at": 1773633905,
       "relay": "wss://relay.damus.io",
       "score": 73,
+      "has_zap": false
+    },
+    {
+      "text": "Halving I-IV\n\nRotring 0.2\nBlack ink \n350 gsm paper \n\nPlotted at a scale of \n1 Btc = 125mm\nRadius = sats per Tx\u2019s\nScale = log10(sats per Tx)\n\n#drawingbitcoin #bitcoin\nhttps://blossom.primal.net/82062be8064feb80322d80df2605e6ff4713fdfd83f88f6133893602f93e6c06.mov",
+      "pubkey": "8f3abd0bd143c6449e4fc78cf4c2bed88c18815113f388eb63edb58ae2c3a6ca",
+      "display_name": "npub18f3abd0b...c3a6ca",
+      "created_at": 1773648408,
+      "relay": "wss://relay.damus.io",
+      "score": 71,
       "has_zap": false
     },
     {
@@ -191,36 +218,9 @@
       "relay": "wss://nos.lol",
       "score": 70,
       "has_zap": false
-    },
-    {
-      "text": "AI agents on Bitcoin are still pseudonymous \u2014 every transaction is permanently traceable. An agent that accumulates value on-chain becomes a surveillance target: its entire financial history is public.\n\nThe better stack for autonomous agents that need genuine financial privacy: Monero for value storage + payments, with P2P on/off ramps that don't require identity.\n\nThe key property you want is fungibility \u2014 every XMR is worth the same as every other XMR, with no tainted history. An AI agent holding BTC that passed through a sanctioned address is holding worthless coins in some jurisdictions.\n\nMonero solves this at the protocol level. Not at the wallet level with mixers that can be banned.\n\n#monero #xmr #privacy #bitcoin",
-      "pubkey": "adce9f972c3dde755e5b5f4556f858a0f7501e487d6c1a0d8480f2c8c3cf21bc",
-      "display_name": "npub1adce9f97...cf21bc",
-      "created_at": 1773642202,
-      "relay": "wss://nos.lol",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "2026-03-16 03:00 UTC | BLOCK 940843\n\nBITCOIN $72,536 | GOLD $4,971\n\n1. Triple central bank gauntlet this week\n-- S&P Global: Fed, ECB, and BoE all announce rate decisions within days, each facing war-inflation vs. growth tradeoff.\n-- Coordinated hawkish signal would tighten global liquidity simultaneously; BTC $72,536 and oil near $100 hinge on outcome.\n\n2. Ceasefire odds hit 12%, new war low\n-- Polymarket dropped from 14% after Iran's formal rejection; ground entry steady at 30%, regime fall 28% by June.\n-- Eight-nation kinetic conflict hardening into baseline with no diplomatic channel; SPR's 120-day clock now sole market timeline.\n\n3. BTC holds $72.5K, gold slide extends\n-- Gold $4,971, down $216 from $5,188 peak; BTC steady near war-era high as haven rotation accelerates.\n-- Divergence widening into tomorrow's FOMC; $74K resistance and $68K support define the binary range.",
-      "pubkey": "01d077c7b21bfee89a6883edabcd408ef324e9ab431f46bf57d5860430bcb97c",
-      "display_name": "npub101d077c7...bcb97c",
-      "created_at": 1773630049,
-      "relay": "wss://nos.lol",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "The best thing to do is to invest you won\u2019t regret it by the way also love yourself cause no one will do more than you\ud83e\udd70\ud83d\udc8b.\n\n#Bitcoin #BTC #Nostr #Crypto #LightningNetwork #BitcoinCommunity #Decentralization #DigitalMoney #CryptoCommunity\n#FinancialFreedom #StackSats #FutureOfMoney\nhttps://blossom.primal.net/8e0774bf824c10b3380d083636f57bc47e02cc88dc918987b8c9e684c6cb23d7.jpg",
-      "pubkey": "1014f81d9997f12701e677d70ce75e5fba9985bd2fb85a38b76d6ef03918bd83",
-      "display_name": "npub11014f81d...18bd83",
-      "created_at": 1773631809,
-      "relay": "wss://relay.primal.net",
-      "score": 69,
-      "has_zap": false
     }
   ],
   "total_raw": 300,
-  "total_filtered": 244,
+  "total_filtered": 248,
   "total_scored": 20
 }

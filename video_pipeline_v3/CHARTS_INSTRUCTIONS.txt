@@ -1,0 +1,21 @@
+BUILD rotating chart system for Todays Intelligence. Only touch make_data_segment_scene and new files. Load PIPELINE_LAWS.md first.
+
+STEP1 Create video_pipeline_v3/fetch_intelligence_data.py:
+fetch_all() hits CoinGecko price 7d hourly, mempool hashrate 30d, CoinGecko global btc_dominance, Alternative.me fear_greed. 10s timeouts each. Returns dict with price_7d hashrate_30d btc_dominance fear_greed_value fear_greed_label fetched_at.
+load_or_refresh(max_age_hours=6) reads cache/intelligence_charts_cache.json if under 6h old else calls fetch_all and saves. Fallback to stale cache on error.
+
+STEP2 Create video_pipeline_v3/render_chart_assets.py:
+matplotlib 3.9. All charts 1520x460px 96dpi transparent=True bg #06070b no axis spines.
+render_price_chart(data): gold #f8c15c line+fill under, price_7d hourly, latest price top-right white bold, title BITCOIN PRICE 7 DAY top-left gold, source COINGECKO bottom-right dim. Save cache/charts/price_chart.png
+render_hashrate_chart(data): green #00ff9d area+line, hashrate_30d div 1e18 for EH/s, current EH/s top-right, title NETWORK HASHRATE 30 DAY, source MEMPOOL.SPACE. Save cache/charts/hashrate_chart.png
+render_dominance_chart(data): horizontal progress bar full width, cyan #4af8f8 fill to btc_dominance pct, dark bg rest, large 52px white bold number centered, title BTC MARKET DOMINANCE top-left cyan, no axes. Save cache/charts/dominance_chart.png
+render_all(data): makedirs cache/charts then calls all three.
+
+STEP3 Update make_data_segment_scene in assembler.py:
+At very start call load_or_refresh and render_all. Set charts_available = all 3 PNGs exist and above 1000 bytes. Get fear_greed_value and fear_greed_label from intel data.
+Replace the fake bar chart section (heights_raw list and all bar loops) with: if charts_available add 3 PNG inputs and overlay each with timed enable expressions. t1=total_dur/3.0 t2=2*total_dur/3.0. Use overlay filter with enable=between notation. Position x=200 y=250. Final output named ds_chart_done same as before. If not available keep existing bars as fallback also named ds_chart_done.
+Replace first metric card from BTC price to Fear Greed: label FEAR GREED, value str(fear_greed_value), delta fear_greed_label, green if above 50.
+
+STEP4 Add to crontab: every 30 min run fetch_intelligence_data.py in video_pipeline_v3 dir.
+
+AFTER test both scripts verify 3 PNGs in cache/charts, syntax check assembler.py, git commit feat-charts-rotating-intelligence push, report sizes and values.

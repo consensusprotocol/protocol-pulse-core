@@ -526,7 +526,16 @@ function go(){
 /* ── PLAY CACHED INTENT ── */
 function playIntent(intent){
   setBusy(true);
-  setStat('Loading..','#f4c46f',true);
+  setStat('Oracle loading...','#f4c46f',true);
+  // Progress messages so user knows it's working, not broken
+  var _loadMsgs = ['Initializing...','Rendering response...','Almost ready...'];
+  var _loadIdx = 0;
+  var _loadTimer = setInterval(function(){
+    _loadIdx++;
+    if(_loadIdx < _loadMsgs.length) setStat(_loadMsgs[_loadIdx],'#f4c46f',true);
+    else clearInterval(_loadTimer);
+  }, 6000);
+  var _clearTimer = function(){ clearInterval(_loadTimer); };
   showSub(S[intent]||'');
   fetchTO(A+'/oracle/speak',{
     method:'POST',
@@ -541,7 +550,7 @@ function playIntent(intent){
       return fetchTO(A+j.video_url,{},20000).then(function(r2){return r2.blob().then(blobURL);});
     });
   })
-  .then(function(url){return playVid(url);})
+  .then(function(url){ if(typeof _clearTimer=='function') _clearTimer(); return playVid(url);})
   .then(function(){
     if(intent==='SOVEREIGNTY_ASSESSMENT')showCards();
     if(intent==='GREETING') window._briefFetched=false;  // reset on each session
@@ -579,7 +588,7 @@ function process(text){
       return fetchTO(A+j.video_url,{},25000).then(function(r2){return r2.blob().then(blobURL);});
     });
   })
-  .then(function(url){return playVid(url);})
+  .then(function(url){ if(typeof _clearTimer=='function') _clearTimer(); return playVid(url);})
   .then(function(){
     if(di==='SOVEREIGNTY_ASSESSMENT')showCards();
     // After DAILY_BRIEF_INTRO, immediately fetch the real brief (may now be ready)
@@ -595,11 +604,11 @@ function process(text){
         .then(function(r){
           if(!r.ok){ setStat('Ready','#334',false); return; }
           var ct=r.headers.get('content-type')||'';
-          if(ct.indexOf('video')>=0)return r.blob().then(blobURL).then(function(url){return playVid(url);});
+          if(ct.indexOf('video')>=0)return r.blob().then(blobURL).then(function(url){ if(typeof _clearTimer=='function') _clearTimer(); return playVid(url);});
           return r.json().then(function(j){
             return fetchTO(A+j.video_url,{},25000)
               .then(function(r2){return r2.blob().then(blobURL);})
-              .then(function(url){return playVid(url);});
+              .then(function(url){ if(typeof _clearTimer=='function') _clearTimer(); return playVid(url);});
           });
         })
         .catch(function(){setStat('Ready','#334',false);})
@@ -630,19 +639,35 @@ function blobURL(b){
 function playVid(url){
   return new Promise(function(res){
     vidPh.style.display='none';
+    vid.loop=false;
     vid.src=url;
-    vid.loop=false;  /* CRITICAL: never loop */
-    /* Unmute now — audio context already unlocked */
-    vid.muted=false;
-    vid.volume=1.0;
     setStat('Speaking','#6cff9f',false);
     vid.onended=function(){setStat('Ready','#334',false);hideSub();res();};
     vid.onerror=function(){setStat('Video error','#ff3b5f',false);res();};
+    // iOS/Brave: always start muted, unmute on canplay (within user gesture window)
+    vid.muted=true;
+    vid.volume=1.0;
+    var unmuted=false;
+    function tryUnmute(){
+      if(unmuted)return; unmuted=true;
+      vid.muted=false;
+      vid.volume=1.0;
+    }
+    vid.addEventListener('canplay',function oncp(){
+      vid.removeEventListener('canplay',oncp);
+      tryUnmute();
+    },{once:true});
     var p=vid.play();
-    if(p)p.catch(function(){
-      /* Fallback: muted — at least show lip sync */
-      vid.muted=true;vid.play().catch(function(){res();});
-    });
+    if(p){
+      p.then(function(){
+        // Playing — try to unmute
+        setTimeout(tryUnmute,50);
+      }).catch(function(){
+        // Autoplay blocked even muted — show placeholder, let user tap to play
+        setStat('Tap to play','#f4c46f',false);
+        vid.addEventListener('click',function(){vid.muted=false;vid.play();},{once:true});
+      });
+    }
   });
 }
 
