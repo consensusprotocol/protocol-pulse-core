@@ -2068,65 +2068,96 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
                f"[{out}];\n")
         last = out
 
-    # ── HERO CHART (center screen, almost full width) ──
-    # Render12 FIX C: Chart is the hero element — large and centered
+    # ── HERO CHART — ROTATING CHART OVERLAYS (price → hashrate → dominance) ──
+    # Render matplotlib PNGs from live data, overlay with timed enable expressions.
+    # Each chart displays for total_dur/3 seconds, crossfading via enable windows.
     chart_panel_x, chart_panel_y = 200, 250
     chart_panel_w, chart_panel_h = 1520, 460
-    fg += (f"[{last}]"
-           # Chart panel background
-           f"drawbox=x={chart_panel_x}:y={chart_panel_y}:w={chart_panel_w}:h={chart_panel_h}:"
-           f"color={COLOR_PANEL2}@0.85:t=fill,"
-           # Top border line
-           f"drawbox=x={chart_panel_x}:y={chart_panel_y}:w={chart_panel_w}:h=1:"
-           f"color=0xFFFFFF@0.08:t=fill,"
-           # "BTC NETWORK STRESS INDEX" label — prominent gold 24px
-           f"drawtext=fontfile={FONT_MONO}:text='BTC NETWORK STRESS INDEX':"
-           f"fontcolor={COLOR_GOLD}:fontsize=24:x={chart_panel_x+24}:y={chart_panel_y+16},"
-           # "LIVE MODEL" badge
-           f"drawbox=x={chart_panel_x+chart_panel_w-140}:y={chart_panel_y+12}:w=120:h=28:"
-           f"color={COLOR_GOLD}@0.12:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='LIVE MODEL':"
-           f"fontcolor={COLOR_GOLD}:fontsize=12:x={chart_panel_x+chart_panel_w-128}:y={chart_panel_y+18}"
-           f"[ds_chart_bg];\n")
 
-    # Bar chart: 10 bars, 120px wide, heights 3x scaled, full chart width
-    chart_x_start = chart_panel_x + 40
-    chart_y_base = chart_panel_y + chart_panel_h - 50
-    chart_area_w = chart_panel_w - 80
-    step_w = chart_area_w // 10
-    bar_w = 120  # Render12 FIX C: wide bars (was ~69)
-    heights_raw = [30, 45, 38, 60, 55, 72, 85, 78, 95, 110]
-    scale_factor = 3.0  # Render12 FIX C: 3x taller (was 1.3)
-    heights = [min(int(h * scale_factor), chart_panel_h - 100) for h in heights_raw]
-    day_labels = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN", "MON", "TUE", "WED"]
-    signal_line_y = chart_y_base - int(72 * scale_factor)
+    # Generate chart PNGs (cached 10 min via fetch_intelligence_data)
+    _chart_paths = []
+    _chart_labels = ["BTC PRICE — 14 DAY", "NETWORK HASHRATE", "MARKET DOMINANCE"]
+    try:
+        from render_chart_assets import render_all_charts
+        _chart_map = render_all_charts()  # uses load_or_refresh internally
+        _chart_paths = [_chart_map.get("price", ""), _chart_map.get("hashrate", ""),
+                        _chart_map.get("dominance", "")]
+        _chart_paths = [p for p in _chart_paths if p and os.path.exists(p)]
+    except Exception as _chart_err:
+        logger.warning("Chart rendering failed: %s — falling back to static panel", _chart_err)
 
-    last_chart = "ds_chart_bg"
-    for ci, ch in enumerate(heights):
-        cx = chart_x_start + ci * step_w + (step_w - bar_w) // 2
-        cy = chart_y_base - ch
-        out_c = f"ds_bar{ci}"
-        gold_h = ch // 2
-        fg += (f"[{last_chart}]"
-               # Full bar in red
-               f"drawbox=x={cx}:y={cy}:w={bar_w}:h={ch}:color={COLOR_RED}@0.6:t=fill,"
-               # Top portion in gold for gradient effect
-               f"drawbox=x={cx}:y={cy}:w={bar_w}:h={gold_h}:color={COLOR_GOLD}@0.45:t=fill,"
-               # Day label below bar
-               f"drawtext=fontfile={FONT_MONO}:text='{day_labels[ci]}':"
-               f"fontcolor={COLOR_GOLD}:fontsize=11:"
-               f"x={cx + bar_w//2 - 11}:y={chart_y_base + 10}"
-               f"[{out_c}];\n")
-        last_chart = out_c
+    if _chart_paths:
+        # Add chart images as FFmpeg inputs (indices start after audio input at [0])
+        _chart_input_start = len(inputs)
+        for cp in _chart_paths:
+            inputs.append(cp)
 
-    # Cyan horizontal signal line spanning full chart width
-    fg += (f"[{last_chart}]"
-           f"drawbox=x={chart_x_start}:y={signal_line_y}:w={chart_area_w}:h=3:"
-           f"color={COLOR_CYAN}@0.7:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='SIGNAL LINE':"
-           f"fontcolor={COLOR_CYAN}:fontsize=11:x={chart_x_start + chart_area_w - 100}:"
-           f"y={signal_line_y - 16}"
-           f"[ds_chart_done];\n")
+        n_charts = len(_chart_paths)
+        slot_dur = total_dur / n_charts
+
+        # Panel background (always visible)
+        fg += (f"[{last}]"
+               f"drawbox=x={chart_panel_x}:y={chart_panel_y}:w={chart_panel_w}:h={chart_panel_h}:"
+               f"color={COLOR_PANEL2}@0.85:t=fill,"
+               f"drawbox=x={chart_panel_x}:y={chart_panel_y}:w={chart_panel_w}:h=1:"
+               f"color=0xFFFFFF@0.08:t=fill"
+               f"[ds_chart_panel];\n")
+
+        # Overlay each chart image with timed enable
+        last_overlay = "ds_chart_panel"
+        for ci in range(n_charts):
+            inp_idx = _chart_input_start + ci
+            t_start = ci * slot_dur
+            t_end = (ci + 1) * slot_dur
+            chart_tag = f"ds_cht{ci}"
+            scaled_tag = f"ds_chts{ci}"
+
+            # Scale chart PNG to panel size
+            fg += (f"[{inp_idx}:v]scale={chart_panel_w}:{chart_panel_h},"
+                   f"format=yuva420p[{scaled_tag}];\n")
+            # Overlay with enable window
+            out_tag = f"ds_chto{ci}"
+            fg += (f"[{last_overlay}][{scaled_tag}]overlay=x={chart_panel_x}:y={chart_panel_y}:"
+                   f"enable='between(t,{t_start:.3f},{t_end:.3f})'[{out_tag}];\n")
+            last_overlay = out_tag
+
+        # Chart label rotation (gold text indicating current chart)
+        for ci in range(n_charts):
+            t_start = ci * slot_dur
+            t_end = (ci + 1) * slot_dur
+            lbl = _chart_labels[ci] if ci < len(_chart_labels) else "DATA"
+            lbl_out = f"ds_clbl{ci}"
+            fg += (f"[{last_overlay}]"
+                   f"drawtext=fontfile={FONT_MONO}:text='{lbl}':"
+                   f"fontcolor={COLOR_GOLD}:fontsize=12:"
+                   f"x={chart_panel_x+24}:y={chart_panel_y+chart_panel_h+8}:"
+                   f"enable='between(t,{t_start:.3f},{t_end:.3f})',"
+                   # LIVE DATA badge
+                   f"drawbox=x={chart_panel_x+chart_panel_w-140}:y={chart_panel_y+chart_panel_h+4}:"
+                   f"w=120:h=22:color={COLOR_GOLD}@0.12:t=fill:"
+                   f"enable='between(t,{t_start:.3f},{t_end:.3f})',"
+                   f"drawtext=fontfile={FONT_MONO}:text='LIVE DATA':"
+                   f"fontcolor={COLOR_GOLD}:fontsize=11:"
+                   f"x={chart_panel_x+chart_panel_w-128}:y={chart_panel_y+chart_panel_h+8}:"
+                   f"enable='between(t,{t_start:.3f},{t_end:.3f})'"
+                   f"[{lbl_out}];\n")
+            last_overlay = lbl_out
+
+        fg += f"[{last_overlay}]null[ds_chart_done];\n"
+    else:
+        # Fallback: static panel with "INTELLIGENCE LOADING" if charts unavailable
+        fg += (f"[{last}]"
+               f"drawbox=x={chart_panel_x}:y={chart_panel_y}:w={chart_panel_w}:h={chart_panel_h}:"
+               f"color={COLOR_PANEL2}@0.85:t=fill,"
+               f"drawbox=x={chart_panel_x}:y={chart_panel_y}:w={chart_panel_w}:h=1:"
+               f"color=0xFFFFFF@0.08:t=fill,"
+               f"drawtext=fontfile={FONT_MONO}:text='INTELLIGENCE LOADING':"
+               f"fontcolor={COLOR_GOLD}:fontsize=24:x={chart_panel_x+24}:y={chart_panel_y+16},"
+               f"drawbox=x={chart_panel_x+chart_panel_w-140}:y={chart_panel_y+12}:w=120:h=28:"
+               f"color={COLOR_GOLD}@0.12:t=fill,"
+               f"drawtext=fontfile={FONT_MONO}:text='STANDBY':"
+               f"fontcolor={COLOR_GOLD}:fontsize=12:x={chart_panel_x+chart_panel_w-110}:y={chart_panel_y+18}"
+               f"[ds_chart_done];\n")
 
     # ── SPONSOR ROTATION STRIP ──
     sponsors = [
