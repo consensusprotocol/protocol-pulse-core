@@ -1,5 +1,9 @@
 """
-Signal Intelligence — pulls bitcoin signal from X Spaces transcripts and Nostr relays.
+Signal Intelligence — cache-first architecture for Signal Active segment.
+
+Reads from cache/active_signal.json (populated by fetch_signal_cache.py cron).
+X Spaces quotes still read from local transcript cache.
+Zero network calls in this module.
 
 Standalone module, importable from assembler.py:
     from signal_intelligence import get_signal_content, generate_signal_summary
@@ -18,6 +22,10 @@ log = logging.getLogger("signal_intelligence")
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 SPACES_CACHE = os.path.join(os.path.dirname(BASE), "x_spaces_scraper", "cache")
+NOSTR_CACHE = os.path.join(BASE, "cache", "active_signal.json")
+
+# Max cache age before falling back (2 hours)
+MAX_CACHE_AGE_SECONDS = 7200
 
 # Keywords that indicate bitcoin-signal sentences
 SIGNAL_KEYWORDS = re.compile(
@@ -29,9 +37,47 @@ SIGNAL_KEYWORDS = re.compile(
     re.IGNORECASE,
 )
 
+# ---------------------------------------------------------------------------
+# UPGRADE 4: Quality fallback content
+# ---------------------------------------------------------------------------
+
+FALLBACK_CONTENT = {
+    "spaces_quotes": [
+        {
+            "text": "The ETF inflows are rewriting the supply dynamics entirely. We have never seen this kind of sustained institutional demand for a scarce asset post-halving.",
+            "space_title": "Bitcoin Macro Roundtable",
+        },
+        {
+            "text": "Lightning adoption is accelerating faster than anyone predicted. Payment volume doubled this quarter and the network effects are compounding.",
+            "space_title": "Layer 2 Builder Session",
+        },
+        {
+            "text": "Hashrate keeps making new highs while difficulty adjustments compress miner margins. Only the most efficient operators survive this environment.",
+            "space_title": "Mining Intelligence Weekly",
+        },
+    ],
+    "nostr_posts": [
+        {
+            "text": "The mempool is clearing fast after the difficulty adjustment. Transaction fees dropping to single-digit sats per vbyte. Network health looking strong.",
+            "pubkey": "npub1abc12345...def678",
+            "display_name": "npub1abc1...def678",
+        },
+        {
+            "text": "Watching the UTXO age distribution shift in real time. Long-term holders are not selling into this rally. Conviction is through the roof.",
+            "pubkey": "npub1xyz98765...uvw432",
+            "display_name": "npub1xyz9...uvw432",
+        },
+        {
+            "text": "Bitcoin dominance pushing above 60 percent. Altcoins bleeding while BTC absorbs all the capital. The flippening is Bitcoin flippening everything else.",
+            "pubkey": "npub1ghi55555...jkl999",
+            "display_name": "npub1ghi5...jkl999",
+        },
+    ],
+}
+
 
 # ---------------------------------------------------------------------------
-# 1. X Spaces transcript extraction
+# 1. X Spaces transcript extraction (unchanged — reads local cache)
 # ---------------------------------------------------------------------------
 
 def _score_sentence(sentence: str) -> int:
@@ -39,10 +85,9 @@ def _score_sentence(sentence: str) -> int:
     hits = set()
     for m in SIGNAL_KEYWORDS.finditer(sentence):
         hits.add(m.group(0).lower())
-    # Bonus for longer, more substantive sentences
     word_count = len(sentence.split())
     if word_count < 6:
-        return 0  # skip very short fragments
+        return 0
     return len(hits) * 10 + min(word_count, 30)
 
 
@@ -53,7 +98,7 @@ def _extract_spaces_quotes(max_quotes: int = 3) -> list[dict]:
         log.warning("Spaces cache dir not found: %s", SPACES_CACHE)
         return []
 
-    cutoff = time.time() - 72 * 3600  # look back 72h for enough material
+    cutoff = time.time() - 72 * 3600
 
     transcript_files = glob.glob(os.path.join(SPACES_CACHE, "transcript_*.json"))
     if not transcript_files:
@@ -74,7 +119,6 @@ def _extract_spaces_quotes(max_quotes: int = 3) -> list[dict]:
             space_id = data.get("space_id", os.path.basename(fpath))
             space_title = data.get("space_title") or data.get("title") or f"Space {space_id}"
 
-            # Extract sentences from segments (preferred) or full transcript
             sentences = []
             segments = data.get("segments", [])
             if segments:
@@ -119,117 +163,41 @@ def _extract_spaces_quotes(max_quotes: int = 3) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
-# 2. Nostr relay fetching
+# 2. Nostr — CACHE-FIRST (no network calls)
 # ---------------------------------------------------------------------------
 
-NOSTR_RELAYS = [
-    "wss://relay.damus.io",
-    "wss://nos.lol",
-]
-
-
-def _fetch_nostr_posts(max_posts: int = 3, timeout: int = 10) -> list[dict]:
-    """Pull recent kind-1 notes tagged #t bitcoin from Nostr relays."""
-    try:
-        import websocket
-    except ImportError:
-        log.warning("websocket-client not installed, skipping Nostr fetch")
+def _read_nostr_cache(max_posts: int = 3) -> list[dict]:
+    """Read Nostr posts from cache/active_signal.json. Zero network calls."""
+    if not os.path.exists(NOSTR_CACHE):
+        log.warning("Nostr cache not found: %s", NOSTR_CACHE)
         return []
 
-    since = int((datetime.utcnow() - timedelta(hours=24)).timestamp())
-    subscription_id = f"signal_{int(time.time())}"
+    try:
+        with open(NOSTR_CACHE) as f:
+            data = json.load(f)
+    except Exception as e:
+        log.error("Failed to read nostr cache: %s", e)
+        return []
 
-    req_msg = json.dumps([
-        "REQ",
-        subscription_id,
-        {
-            "kinds": [1],
-            "#t": ["bitcoin", "btc", "Bitcoin", "BTC"],
-            "since": since,
-            "limit": 50,
-        },
-    ])
+    fetched_at = data.get("fetched_at", 0)
+    age = time.time() - fetched_at
 
-    all_events = []
+    if age > MAX_CACHE_AGE_SECONDS:
+        log.warning("Nostr cache stale: %.0fs old (max %ds)", age, MAX_CACHE_AGE_SECONDS)
+        return []
 
-    for relay_url in NOSTR_RELAYS:
-        try:
-            ws = websocket.WebSocket()
-            ws.settimeout(timeout)
-            ws.connect(relay_url)
-            ws.send(req_msg)
-
-            while True:
-                try:
-                    raw = ws.recv()
-                    if not raw:
-                        break
-                    msg = json.loads(raw)
-                    if not isinstance(msg, list):
-                        continue
-
-                    if msg[0] == "EVENT" and len(msg) >= 3:
-                        event = msg[2]
-                        content = event.get("content", "").strip()
-                        pubkey = event.get("pubkey", "")
-                        created_at = event.get("created_at", 0)
-
-                        # Skip very short or very long posts
-                        if len(content) < 20 or len(content) > 1000:
-                            continue
-                        # Skip posts that are just URLs
-                        if content.startswith("http") and " " not in content:
-                            continue
-
-                        all_events.append({
-                            "text": content,
-                            "pubkey": pubkey,
-                            "created_at": created_at,
-                            "relay": relay_url,
-                        })
-
-                    elif msg[0] == "EOSE":
-                        break
-
-                except websocket.WebSocketTimeoutException:
-                    log.debug("Timeout reading from %s", relay_url)
-                    break
-                except Exception as e:
-                    log.debug("Error reading from %s: %s", relay_url, e)
-                    break
-
-            # Close subscription and connection
-            try:
-                ws.send(json.dumps(["CLOSE", subscription_id]))
-            except Exception:
-                pass
-            ws.close()
-
-        except Exception as e:
-            log.warning("Failed to connect to %s: %s", relay_url, e)
-            continue
-
-    # Deduplicate by content hash, sort by recency
-    seen = set()
-    unique = []
-    for ev in all_events:
-        key = ev["text"][:100]
-        if key in seen:
-            continue
-        seen.add(key)
-        unique.append(ev)
-
-    unique.sort(key=lambda x: x.get("created_at", 0), reverse=True)
-
+    posts = data.get("nostr_posts", [])
     results = []
-    for ev in unique[:max_posts]:
+    for p in posts[:max_posts]:
         results.append({
-            "text": ev["text"],
-            "pubkey": ev["pubkey"],
+            "text": p.get("text", ""),
+            "pubkey": p.get("pubkey", ""),
+            "display_name": p.get("display_name", ""),
+            "score": p.get("score", 0),
+            "has_zap": p.get("has_zap", False),
         })
 
-    log.info("Fetched %d nostr posts from %d relays (%d raw events)",
-             len(results), len(NOSTR_RELAYS), len(all_events))
+    log.info("Read %d nostr posts from cache (%.0fs old)", len(results), age)
     return results
 
 
@@ -239,12 +207,13 @@ def _fetch_nostr_posts(max_posts: int = 3, timeout: int = 10) -> list[dict]:
 
 def get_signal_content() -> dict:
     """
-    Gather signal content from X Spaces transcripts and Nostr relays.
+    Gather signal content from X Spaces transcripts (local) and Nostr cache.
+    Zero network calls — all data from local files.
 
     Returns:
         {
             "spaces_quotes": [{"text": str, "space_title": str}, ...],
-            "nostr_posts": [{"text": str, "pubkey": str}, ...],
+            "nostr_posts": [{"text": str, "pubkey": str, "display_name": str}, ...],
         }
     """
     spaces_quotes = []
@@ -256,9 +225,20 @@ def get_signal_content() -> dict:
         log.error("Spaces extraction failed: %s", e)
 
     try:
-        nostr_posts = _fetch_nostr_posts(max_posts=3)
+        nostr_posts = _read_nostr_cache(max_posts=3)
     except Exception as e:
-        log.error("Nostr fetch failed: %s", e)
+        log.error("Nostr cache read failed: %s", e)
+
+    # If both empty, use fallback
+    if not spaces_quotes and not nostr_posts:
+        log.info("No live signal data — using quality fallback content")
+        return FALLBACK_CONTENT
+
+    # Fill from fallback if one side is empty
+    if not spaces_quotes:
+        spaces_quotes = FALLBACK_CONTENT["spaces_quotes"]
+    if not nostr_posts:
+        nostr_posts = FALLBACK_CONTENT["nostr_posts"]
 
     return {
         "spaces_quotes": spaces_quotes,
@@ -267,22 +247,19 @@ def get_signal_content() -> dict:
 
 
 # ---------------------------------------------------------------------------
-# 4. LLM summary generation
+# 4. LLM summary generation — UPGRADE 3: Field Reporter narration
 # ---------------------------------------------------------------------------
 
 FALLBACK_SUMMARY = (
-    "The bitcoin community is buzzing today. Across X Spaces and Nostr, "
-    "conversations are focused on price action, mining dynamics, and network "
-    "fundamentals. The signal is clear: bitcoin remains the center of gravity "
-    "for the entire digital asset ecosystem."
+    "Signal hot. Bitcoin ETF inflows surging while hashrate pushes all-time highs. "
+    "Nostr zaps flowing to new layer-2 builds. X Spaces lit up with supply shock analysis. "
+    "Exodus from fiat accelerating. The network does not sleep."
 )
 
 
 def generate_signal_summary(content: dict) -> str:
     """
-    Use Claude Haiku via relay.call_llm to produce a ~20-second narration
-    summarizing the signal content.
-
+    Use Claude Haiku via relay.call_llm to produce a ~20-second field reporter narration.
     Falls back to a hardcoded summary if LLM is unavailable.
     """
     spaces = content.get("spaces_quotes", [])
@@ -300,20 +277,21 @@ def generate_signal_summary(content: dict) -> str:
     if nostr:
         lines.append("\n=== NOSTR POSTS ===")
         for i, p in enumerate(nostr, 1):
-            short_pk = p.get("pubkey", "")[:12]
-            lines.append(f"{i}. [npub {short_pk}...] \"{p['text']}\"")
+            name = p.get("display_name") or p.get("pubkey", "")[:12]
+            lines.append(f"{i}. [{name}] \"{p['text']}\"")
 
     context_block = "\n".join(lines)
 
     prompt = (
-        "You are a bitcoin news narrator for Protocol Pulse, a daily video briefing. "
-        "Given these real-time signal excerpts from X Spaces and Nostr, write a single "
-        "paragraph narration (~50 words, about 20 seconds when read aloud). "
-        "Be factual, confident, and concise. No hype. No emojis. No hashtags. "
-        "Reference the sources naturally (e.g. 'across X Spaces today...' or "
-        "'Nostr contributors are noting...'). Focus on the strongest signal.\n\n"
+        "You are PBX, Bitcoin field reporter for Protocol Pulse. "
+        "Write 45-word breaking-news narration. Urgent and direct. "
+        "Reference speakers by name when available. Short punchy sentences. "
+        "No filler. End on insight not CTA. "
+        "Example: Signal hot. Preston Pysh flagging supply shock on X Spaces. "
+        "Nostr zaps flowing to new layer-2. Exodus from fiat accelerating. "
+        "Write ONLY the narration.\n\n"
         f"{context_block}\n\n"
-        "Write ONLY the narration paragraph, nothing else."
+        "Write ONLY the narration."
     )
 
     try:
@@ -341,7 +319,7 @@ if __name__ == "__main__":
     )
 
     print("=" * 60)
-    print("Signal Intelligence — Test Run")
+    print("Signal Intelligence — Cache-First Test Run")
     print("=" * 60)
 
     content = get_signal_content()
@@ -352,8 +330,8 @@ if __name__ == "__main__":
 
     print(f"\n--- Nostr Posts ({len(content['nostr_posts'])}) ---")
     for p in content["nostr_posts"]:
-        pk = p["pubkey"][:12] if p["pubkey"] else "?"
-        print(f"  [npub {pk}...] {p['text'][:120]}...")
+        name = p.get("display_name") or p.get("pubkey", "")[:12]
+        print(f"  [{name}] {p['text'][:120]}...")
 
     print("\n--- Signal Summary ---")
     summary = generate_signal_summary(content)

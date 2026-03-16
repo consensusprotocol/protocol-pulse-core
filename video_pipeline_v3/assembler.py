@@ -2473,6 +2473,13 @@ def make_broadcast_segment(segment_data: dict, audio_path: str, host_num: int,
                 audio_path, headline, text,
                 output_path, btc_price=btc_price,
             )
+
+        # Signal Active 60/40 layout — triggered when signal_content injected
+        signal_data = segment_data.get("signal_content")
+        if signal_data and headline.upper().startswith("SIGNAL"):
+            return make_signal_active_scene(
+                audio_path, signal_data, output_path, btc_price=btc_price,
+            )
     except Exception as e:
         logger.warning(f"BV2 scene '{scene}' failed: {e} — falling back to make_host_visual")
 
@@ -2500,6 +2507,164 @@ def make_broadcast_segment(segment_data: dict, audio_path: str, host_num: int,
         except Exception as _e:
             logger.error("Emergency clip also failed: %s", _e)
     return result
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# SIGNAL ACTIVE — 60/40 split layout (X Spaces left, Nostr right)
+# ══════════════════════════════════════════════════════════════════════════
+
+COLOR_GOLD    = "0xf8c15c"
+COLOR_NOSTR   = "0x00ff9d"
+COLOR_SIG_RED = "0xff3b5f"
+
+def make_signal_active_scene(audio_path: str, signal_content: dict,
+                              output_path: str, btc_price: str = "N/A") -> str:
+    """Render Signal Active segment with 60/40 split: X Spaces left, Nostr right.
+
+    Left 60% (x=60-1140): X SPACES LIVE header in gold
+    Right 40% (x=1160-1860): NOSTR SIGNAL header in green
+    Cards stagger in at 0s/6s/12s per column.
+    """
+    audio_dur = ffprobe_duration(audio_path)
+    if audio_dur <= 0:
+        audio_dur = 15
+    total_dur = audio_dur + 0.3
+
+    spaces = signal_content.get("spaces_quotes", [])[:3]
+    nostr = signal_content.get("nostr_posts", [])[:3]
+
+    safe_btc = btc_price.replace("'", "").replace('"', "")
+
+    inputs = [audio_path]
+
+    # Procedural dark background
+    _, bg_fg = _build_black_diamond_bg(total_dur, label_out="sig_bg")
+    fg = bg_fg
+
+    # ── HEADER BAR ──
+    fg += (f"[sig_bg]drawbox=x=0:y=0:w=1920:h=72:color=0x050505@0.97:t=fill,"
+           f"drawbox=x=0:y=70:w=1920:h=2:color={COLOR_SIG_RED}@0.8:t=fill,"
+           f"drawtext=fontfile={FONT_BOLD}:text='SIGNAL ACTIVE':"
+           f"fontcolor={COLOR_SIG_RED}:fontsize=42:x=(w-text_w)/2:y=14"
+           f"[sig_hdr];\n")
+
+    # ── COLUMN HEADERS ──
+    fg += (f"[sig_hdr]"
+           f"drawtext=fontfile={FONT_BOLD}:text='X SPACES LIVE':"
+           f"fontcolor={COLOR_GOLD}:fontsize=28:x=60:y=90,"
+           f"drawtext=fontfile={FONT_BOLD}:text='NOSTR SIGNAL':"
+           f"fontcolor={COLOR_NOSTR}:fontsize=28:x=1160:y=90"
+           f"[sig_cols];\n")
+
+    last_label = "sig_cols"
+
+    # ── LEFT COLUMN: X SPACES (x=60..1140, width=1080) ──
+    for idx, quote in enumerate(spaces):
+        card_y = 140 + idx * 280
+        card_h = 260
+        card_w = 1080
+        card_x = 60
+
+        text_raw = quote.get("text", "")
+        title = quote.get("space_title", "X Spaces")
+        text_safe = _sanitize_text(text_raw)
+        title_safe = _sanitize_text(title)
+        wrapped = _word_wrap(text_safe, max_width=60, max_lines=4)
+
+        enable_t = idx * 6  # stagger: 0s, 6s, 12s
+        enable = f"enable='between(t,{enable_t},{total_dur:.1f})'"
+
+        out_label = f"sc{idx}"
+        fg += (f"[{last_label}]"
+               # Card background
+               f"drawbox=x={card_x}:y={card_y}:w={card_w}:h={card_h}:"
+               f"color=0x0a0a0a@0.85:t=fill:{enable},"
+               # 1px gold border
+               f"drawbox=x={card_x}:y={card_y}:w={card_w}:h={card_h}:"
+               f"color={COLOR_GOLD}@0.6:t=1:{enable},"
+               # Space title
+               f"drawtext=fontfile={FONT_BOLD}:"
+               f"text='{title_safe}':"
+               f"fontcolor={COLOR_GOLD}:fontsize=20:x={card_x + 16}:y={card_y + 14}:{enable},"
+               # Quote text
+               f"drawtext=fontfile={FONT_MONO}:"
+               f"text='{wrapped}':"
+               f"fontcolor=0xe8e8e8:fontsize=26:x={card_x + 16}:y={card_y + 50}:"
+               f"line_spacing=8:{enable}"
+               f"[{out_label}];\n")
+        last_label = out_label
+
+    # ── RIGHT COLUMN: NOSTR (x=1160..1860, width=700) ──
+    for idx, post in enumerate(nostr):
+        card_y = 140 + idx * 280
+        card_h = 260
+        card_w = 700
+        card_x = 1160
+
+        text_raw = post.get("text", "")
+        display_name = post.get("display_name") or post.get("pubkey", "")[:16]
+        text_safe = _sanitize_text(text_raw)
+        name_safe = _sanitize_text(display_name)
+        wrapped = _word_wrap(text_safe, max_width=38, max_lines=4)
+
+        enable_t = idx * 6
+        enable = f"enable='between(t,{enable_t},{total_dur:.1f})'"
+
+        zap_indicator = ""
+        if post.get("has_zap"):
+            zap_indicator = (
+                f"drawtext=fontfile={FONT_BOLD}:text='ZAP':"
+                f"fontcolor={COLOR_GOLD}:fontsize=14:x={card_x + card_w - 60}:y={card_y + 14}:{enable},"
+            )
+
+        out_label = f"nc{idx}"
+        fg += (f"[{last_label}]"
+               # Card background
+               f"drawbox=x={card_x}:y={card_y}:w={card_w}:h={card_h}:"
+               f"color=0x0a0a0a@0.85:t=fill:{enable},"
+               # 1px green border
+               f"drawbox=x={card_x}:y={card_y}:w={card_w}:h={card_h}:"
+               f"color={COLOR_NOSTR}@0.6:t=1:{enable},"
+               # Display name
+               f"drawtext=fontfile={FONT_MONO}:"
+               f"text='{name_safe}':"
+               f"fontcolor={COLOR_NOSTR}:fontsize=18:x={card_x + 16}:y={card_y + 14}:{enable},"
+               # Zap indicator
+               f"{zap_indicator}"
+               # Post text
+               f"drawtext=fontfile={FONT_MONO}:"
+               f"text='{wrapped}':"
+               f"fontcolor=0xe8e8e8:fontsize=26:x={card_x + 16}:y={card_y + 50}:"
+               f"line_spacing=8:{enable}"
+               f"[{out_label}];\n")
+        last_label = out_label
+
+    # ── CORNER BRACKETS ──
+    fg += _build_corner_brackets_fg(last_label, "sig_cornered")
+
+    # ── TICKER BAR ──
+    fg += _build_info_bar_fg(total_dur, btc_price, label_in="sig_cornered", label_out="sig_final")
+
+    fg += f"[sig_final]format=yuv420p[outv];\n"
+
+    # Audio
+    fg += (f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,"
+           f"alimiter=limit=0.85:level=disabled:attack=5:release=50[outa]")
+
+    ok = run_ffmpeg_filtergraph(
+        inputs, fg, ["[outv]", "[outa]"],
+        ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
+         "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+         "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(total_dur)],
+        output_path, "signal_active_60_40", 180,
+    )
+
+    if ok:
+        logger.info("Signal Active 60/40 rendered: %s", output_path)
+        return output_path
+
+    logger.error("Signal Active 60/40 render failed — falling back to host visual")
+    return ""
 
 
 # ══════════════════════════════════════════════════════════════════════════
