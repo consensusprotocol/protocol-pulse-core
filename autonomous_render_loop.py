@@ -13,6 +13,7 @@ LOG_FILE     = f'{LOGS}/autonomous_loop.log'
 GRADE_LOG    = f'{LOGS}/grade_report.log'
 BEST_GRADE   = f'{LOGS}/best_grade.json'
 OUTPUT_BASE  = f'{PIPELINE}/output'
+GEMINI_GRADE_FILE   = f'{PIPELINE}/logs/v6_gemini_grade.json'
 RENDER_TIMEOUT      = 1200
 CC_REPAIR_TIMEOUT   = 600
 TARGET_A            = 5
@@ -145,7 +146,14 @@ def diagnose_and_fix(error_output):
 def cc_auto_repair(error_output, iteration):
     session = f'cc_fix_{iteration}'
     log(f'CC repair: {session}')
-    telegram(f'Unknown error iter {iteration} - CC auto-repair spawned')
+    telegram(f'Error iter {iteration} - CC auto-repair spawned')
+
+    # Extract Gemini critical failure lines for the CC prompt
+    critical_lines = []
+    for line in error_output.strip().split('\n'):
+        if any(kw in line for kw in ['!!', 'CRITICAL', 'FAIL', 'critical_failure', 'GRADE_']):
+            critical_lines.append(line.strip())
+    gemini_failures = '\n'.join(critical_lines[:30]) if critical_lines else ''
 
     broken = 'tts_engine.py'
     matches = [f for f in re.findall(r'File "([^"]+\.py)"', error_output) if 'video_pipeline_v3' in f]
@@ -168,7 +176,8 @@ def cc_auto_repair(error_output, iteration):
     prompt = (
         f'AUTONOMOUS REPAIR - do not ask questions, fix and commit.\n\n'
         f'ERROR (iter {iteration}):\n{err_snippet}\n\n'
-        f'BROKEN FILE: video_pipeline_v3/{broken}\n\n'
+        + (f'GEMINI QUALITY FAILURES:\n{gemini_failures}\n\n' if gemini_failures else '')
+        + f'BROKEN FILE: video_pipeline_v3/{broken}\n\n'
         f'LAWS:\n{laws}\n\n'
         f'STEPS:\n'
         f'1. Read traceback, open video_pipeline_v3/{broken}, find root cause\n'
@@ -251,17 +260,38 @@ def find_mp4(after_ts=None):
         files = [f for f in files if os.path.getmtime(f) >= after_ts]
     return sorted(files)[-1] if files else None
 
-def get_grade():
+def run_gemini_grade():
+    """Run gemini_grade.py as subprocess, return (score, full_output) or (0, error_msg)."""
+    grade_script = f'{PIPELINE}/gemini_grade.py'
+    log('Running Gemini grading subprocess...')
     try:
-        scores = re.findall(r'TOTAL[:\s]+(\d+)/100', open(GRADE_LOG).read())
-        if scores:
-            return int(scores[-1])
-    except Exception:
-        pass
+        r = subprocess.run(
+            [sys.executable, grade_script],
+            capture_output=True, text=True, cwd=PIPELINE, timeout=300)
+        combined = (r.stdout or '') + '\n' + (r.stderr or '')
+        log(f'Gemini grade exit={r.returncode}')
+        # Parse GRADE_X_PASS|score| or GRADE_X_FAIL|score|
+        m = re.search(r'GRADE_[A-F]_(PASS|FAIL)\|(\d+)\|', combined)
+        if m:
+            score = int(m.group(2))
+            log(f'Gemini parsed score={score} ({m.group(0)})')
+            return score, combined
+        log(f'Gemini output did not match expected pattern, falling back to JSON')
+    except subprocess.TimeoutExpired:
+        log('Gemini grade subprocess timed out (300s)')
+        combined = 'TIMEOUT: gemini_grade.py exceeded 300s'
+    except Exception as e:
+        log(f'Gemini grade subprocess error: {e}')
+        combined = str(e)
+    # Fallback: read the JSON grade file
     try:
-        return json.load(open(BEST_GRADE)).get('score', 0)
+        data = json.load(open(GEMINI_GRADE_FILE))
+        score = data.get('overall_score', 0)
+        log(f'Fallback grade from JSON: {score}')
+        return score, combined
     except Exception:
-        return 0
+        log('No fallback grade available')
+        return 0, combined
 
 def launch_render():
     log_path = f'{LOGS}/render_{int(time.time())}.log'
@@ -344,7 +374,7 @@ def main():
 
         mp4 = find_mp4(after_ts=render_start)
         if mp4:
-            grade = get_grade()
+            grade, gemini_output = run_gemini_grade()
             if grade > best:
                 best = grade
             log(f'VIDEO: {os.path.basename(mp4)} | grade={grade}/100')
@@ -359,6 +389,8 @@ def main():
                     return
             else:
                 consec_a = 0
+                log(f'Below 90 — sending Gemini report to CC for repair')
+                cc_auto_repair(gemini_output, iteration)
             unk_streak = 0
             kill_renders()
             clear_pycache()
