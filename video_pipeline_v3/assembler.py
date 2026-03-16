@@ -4099,3 +4099,5 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                 if old_text != entry["text"]:
                     logger.info(f"  FIX 4: Hashrate synced in dialogue: {live_hr}")
 
+
+def verify_video(path): return bool(path and __import__(os).path.exists(path))
