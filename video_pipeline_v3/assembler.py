@@ -661,9 +661,8 @@ def make_intro_tag_sequence(output_path: str) -> str:
             "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-            # Round 2 Fix 3: Aggressive audio fade-out starting at 6.0s (was no fade)
-            # Prevents intro music bed from spilling into first narration segment
-            "-af", "afade=t=out:st=6.0:d=2.0",
+            # Render21 FIX 1: Hard atrim at 4s + fade-out to kill intro music bleed
+            "-af", "atrim=start=0:end=4,asetpts=PTS-STARTPTS,afade=t=out:st=2.5:d=1.5",
             output_path,
         ], "intro tag sequence", 120)
     else:
@@ -700,6 +699,16 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
     PBX keeps talking.  Falls back to cyberpunk bg if intro_tag is missing.
     """
     import datetime
+    # Render21 FIX 5: Add 100ms silence lead-in to first TTS segment to prevent corrupted opening
+    tts_leadin = tts_path + ".leadin.wav"
+    _leadin_ok = run_ffmpeg([
+        "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
+        "-t", "0.1", "-i", tts_path,
+        "-filter_complex", "[0:a][1:a]concat=n=2:v=0:a=1[outa]",
+        "-map", "[outa]", "-c:a", "pcm_s16le", tts_leadin,
+    ], "100ms silence lead-in", 15)
+    if _leadin_ok and os.path.exists(tts_leadin):
+        tts_path = tts_leadin
     tts_dur = ffprobe_duration(tts_path)
     total_dur = max(tts_dur + 0.8, 3.0)  # 0.5s delay + tts + 0.3s tail
 
@@ -742,7 +751,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                         f"[2:a]atrim=0:4.0,asetpts=PTS-STARTPTS,afade=t=out:st=2.5:d=1.5,volume=0.40,"
                         f"asetpts=PTS-STARTPTS[intro_mus];"
                         f"[1:a]aformat=channel_layouts=stereo[tts_delayed];"
-                        f"[intro_mus][tts_delayed]amix=inputs=2:duration=shortest:weights=1 1,"
+                        f"[intro_mus][tts_delayed]amix=inputs=2:duration=first:weights=1 1,"
                         f"alimiter=limit=0.85:level=disabled:attack=5:release=50,"
                         f"aresample=async=1[outa]"
                     ),
@@ -1027,7 +1036,27 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
         "-r", "30",
         output_path,
     ], "pip preview extract", 120)  # FIX 1: increased timeout
-    return output_path if ok and os.path.exists(output_path) else ""
+    if ok and os.path.exists(output_path):
+        # Render21 FIX 2: Verify PiP output is real video (not still image)
+        pip_out_dur = ffprobe_duration(output_path)
+        try:
+            fc_result = subprocess.run(
+                ["ffprobe", "-v", "error", "-count_frames", "-select_streams", "v:0",
+                 "-show_entries", "stream=nb_read_frames", "-of", "csv=p=0", output_path],
+                capture_output=True, text=True, timeout=30)
+            frame_count = int(fc_result.stdout.strip() or "0")
+        except Exception:
+            frame_count = 0
+        if pip_out_dur < 2.0 or frame_count < 10:
+            logger.error(f"PiP STILL IMAGE detected: dur={pip_out_dur:.1f}s frames={frame_count} src={clip_path}")
+            try:
+                os.remove(output_path)
+            except OSError:
+                pass
+            return ""
+        logger.info(f"PiP verified: {pip_out_dur:.1f}s, {frame_count} frames from {clip_path}")
+        return output_path
+    return ""
 
 
 def _ensure_pip_placeholder() -> str:
@@ -1293,11 +1322,20 @@ def _bv2_text_zone(label_in: str, label_out: str, eyebrow: str, headline: str,
            f"drawbox=x=56:y=120:w=860:h={_head_ph}:color=0x000000@0.60:t=fill,"
            f"drawbox=x=56:y=120:w=860:h={_head_ph}:color=0xFFFFFF@0.12:t=2"
            f"[bv2_glass];\n")
-    # Headline (large, with shadow for depth) — rendered ON TOP of glass panel
-    fg += (f"[bv2_glass]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
-           f"fontcolor=0x111111:fontsize=64:x=66:y=132,"
-           f"drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
-           f"fontcolor={COLOR_WHITE}:fontsize=64:x=64:y=130[bv2_head];\n")
+    # Render21 FIX 6: 2-line headline if >45 chars — never truncate
+    _h_line1, _h_line2 = _split_headline_for_render(safe_head)
+    _h_fs = 34 if _h_line2 else 64
+    _h_y2 = 130 + 60  # y+60 offset for line 2
+    fg += (f"[bv2_glass]drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_h_line1)}':"
+           f"fontcolor=0x111111:fontsize={_h_fs}:x=66:y=132,"
+           f"drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_h_line1)}':"
+           f"fontcolor={COLOR_WHITE}:fontsize={_h_fs}:x=64:y=130")
+    if _h_line2:
+        fg += (f",drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_h_line2)}':"
+               f"fontcolor=0x111111:fontsize={_h_fs}:x=66:y={_h_y2 + 2},"
+               f"drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_h_line2)}':"
+               f"fontcolor={COLOR_WHITE}:fontsize={_h_fs}:x=64:y={_h_y2}")
+    fg += f"[bv2_head];\n"
     # Body text
     if safe_body:
         fg += (f"[bv2_head]drawtext=fontfile={FONT_MONO}:text='{safe_body}':"
@@ -1567,7 +1605,7 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
 
     # Left text zone with gold eyebrow
     safe_speaker = _sanitize_text(speaker)[:12]
-    safe_head = _sanitize_text(headline)[:55]
+    safe_head = _sanitize_text(headline)  # Render21 FIX 6: no truncation
     safe_body = _word_wrap(_sanitize_text(body), max_width=30, max_lines=3) if body else ""
 
     # FIX 4 (render10): Glassmorphic panel behind headline for readability
@@ -1578,10 +1616,19 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
            f"drawbox=x=56:y=122:w=860:h={_head_panel_h}:color=0x000000@0.55:t=fill,"
            f"drawbox=x=56:y=122:w=860:h={_head_panel_h}:color=0xFFFFFF@0.15:t=2"
            f"[np_eye];\n")
-    fg += (f"[np_eye]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
-           f"fontcolor=0x111111:fontsize=64:x=66:y=132,"
-           f"drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
-           f"fontcolor={COLOR_WHITE}:fontsize=64:x=64:y=130[np_head];\n")
+    # Render21 FIX 6: 2-line headline support
+    _np_l1, _np_l2 = _split_headline_for_render(safe_head)
+    _np_fs = 34 if _np_l2 else 64
+    fg += (f"[np_eye]drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_np_l1)}':"
+           f"fontcolor=0x111111:fontsize={_np_fs}:x=66:y=132,"
+           f"drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_np_l1)}':"
+           f"fontcolor={COLOR_WHITE}:fontsize={_np_fs}:x=64:y=130")
+    if _np_l2:
+        fg += (f",drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_np_l2)}':"
+               f"fontcolor=0x111111:fontsize={_np_fs}:x=66:y=192,"
+               f"drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_np_l2)}':"
+               f"fontcolor={COLOR_WHITE}:fontsize={_np_fs}:x=64:y=190")
+    fg += f"[np_head];\n"
     # No duplicate body text — left zone is clean headline only
     fg += f"[np_head]copy[np_body];\n"
 
@@ -2710,16 +2757,26 @@ def trim_to_sentence(text: str, max_chars: int = 400) -> str:
     return (text[:last_space] if last_space > 0 else chunk).strip()
 
 
-def _smart_headline(text: str, max_len: int = 55) -> str:
-    """Truncate text at a word boundary, never cutting mid-word."""
+def _smart_headline(text: str, max_len: int = 90) -> str:
+    """Render21 FIX 6: Never truncate headlines. Return full text up to max_len."""
     if len(text) <= max_len:
         return text
     truncated = text[:max_len]
-    # Find last space to avoid cutting mid-word
     last_space = truncated.rfind(" ")
     if last_space > max_len // 2:
         return truncated[:last_space]
     return truncated
+
+
+def _split_headline_for_render(headline: str, max_line_chars: int = 45):
+    """Render21 FIX 6: Split headline into 2 lines if >45 chars. Returns (line1, line2)."""
+    if len(headline) <= max_line_chars:
+        return (headline, "")
+    # Split at last space before char 45
+    split_at = headline[:max_line_chars].rfind(" ")
+    if split_at < max_line_chars // 2:
+        split_at = max_line_chars
+    return (headline[:split_at].strip(), headline[split_at:].strip())
 
 
 def _word_wrap(text: str, max_width: int = 55, max_lines: int = 3) -> str:
@@ -4041,7 +4098,22 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
     else:
         logger.warning(f"  Issue 12: NO MUSIC BED FOUND — narration will have no background music")
 
+    # Render21 FIX 4: Sync hashrate mentions in dialogue with live data
+    live_hr = _get_live_metric("hashrate", "")
+    if live_hr:
+        _hr_pattern = re.compile(r'\d[\d,]*\s*EH.{0,3}s|\d[\d,]*\s*exahash', re.IGNORECASE)
+        for entry in script.get("dialogue", []):
+            if "text" in entry and _hr_pattern.search(entry["text"]):
+                old_text = entry["text"]
+                entry["text"] = _hr_pattern.sub(live_hr, entry["text"])
+                if old_text != entry["text"]:
+                    logger.info(f"  FIX 4: Hashrate synced in dialogue: {live_hr}")
+
+    # Render21 FIX 5: Clear ALL work dir temp files at start of each render
     work_dir = os.path.join(os.path.dirname(os.path.abspath(output_path)), "work")
+    if os.path.exists(work_dir):
+        shutil.rmtree(work_dir)
+        logger.info("  FIX 5: Work dir cleared for clean render")
     os.makedirs(work_dir, exist_ok=True)
 
     dialogue = script.get("dialogue", [])
@@ -4210,6 +4282,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                 if matches:
                     reencoded = matches[0]
             pip_source = reencoded if reencoded and os.path.getsize(reencoded) > 50000 else clip_path
+            logger.info(f"  PiP source for clip #{rank}: {pip_source} (reencoded={reencoded})")
             pip_result = make_pip_preview(pip_source, pip_out)
             if pip_result:
                 pip_previews[rank] = pip_result
@@ -4661,8 +4734,8 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         dur = ffprobe_duration(p) if p and os.path.exists(p) else 0
         logger.info(f"  Part {i:03d}: {os.path.basename(p)} ({dur:.1f}s)")
 
-    # Calculate intro music duration: intro_tag + 10s narration + 3s fade
-    intro_music_total = (intro_tag_dur + 10.0 + 3.0) if intro_tag_dur > 0 else 0
+    # Render21 FIX 1: Intro music capped at 4s (was intro_tag_dur+10+3 = ~21s bleed)
+    intro_music_total = 4.0 if intro_tag_dur > 0 else 0
 
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
     result = concatenate_parts(parts, output_path,

@@ -130,40 +130,89 @@ def ffprobe_duration(path: str) -> float:
         return 0.0
 
 
-def _skip_intro_silence(output_path: str) -> None:
-    """Render20: If first 3s of extracted audio is below -35dB (silence/music jingle),
-    detect first speech onset and skip forward +8s from there."""
+FORCE_SKIP_CHANNELS = ["Simply Bitcoin", "Bitcoin Magazine", "SatoSHE"]
+
+
+def _skip_intro_silence(output_path: str, channel: str = "") -> None:
+    """Render21 FIX 3: Speech onset detection replaces fixed +12s offset.
+
+    Scans first 20s with silencedetect. Skips to first_speech_onset + 0.5s.
+    FORCE_SKIP_CHANNELS always skip at least 15s.
+    Also trims trailing silence/outro from last 10s.
+    """
     import re as _re
     try:
-        # Check first 3s for silence
+        clip_dur = ffprobe_duration(output_path)
+        if clip_dur < 5:
+            return
+
+        # --- INTRO SKIP: scan first 20s for speech onset ---
         result = subprocess.run([
-            "ffmpeg", "-i", output_path, "-t", "3",
-            "-af", "silencedetect=noise=-35dB:d=2.0",
+            "ffmpeg", "-i", output_path, "-t", "20",
+            "-af", "silencedetect=noise=-30dB:d=0.5",
             "-f", "null", "-"
-        ], capture_output=True, text=True, timeout=15)
-        silences = _re.findall(r"silence_end: ([\d.]+)", result.stderr)
-        if silences:
-            speech_onset = float(silences[-1])
-            skip_to = speech_onset + 8.0
-            logger.info(f"  Render20: First 3s is silence/jingle, speech at {speech_onset:.1f}s, skipping to {skip_to:.1f}s")
+        ], capture_output=True, text=True, timeout=30)
+        silence_ends = _re.findall(r"silence_end: ([\d.]+)", result.stderr)
+
+        # Determine skip point
+        skip_to = 0.0
+        force_min = 15.0 if any(ch in channel for ch in FORCE_SKIP_CHANNELS if ch) else 0.0
+
+        if silence_ends:
+            first_speech = float(silence_ends[0])
+            skip_to = max(first_speech + 0.5, force_min)
+            logger.info(f"  Render21: Speech onset at {first_speech:.1f}s, skip_to={skip_to:.1f}s (force_min={force_min:.0f}s, channel={channel})")
+        elif force_min > 0:
+            skip_to = force_min
+            logger.info(f"  Render21: Force skip {force_min:.0f}s for {channel}")
+
+        if skip_to > 0 and skip_to < clip_dur - 5:
             trimmed = output_path + ".jingle_skip.mp4"
             ok = _run_ffmpeg([
                 "-ss", f"{skip_to:.2f}", "-i", output_path,
                 "-c:v", "libx264", "-crf", "18", "-preset", "fast",
                 "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                 trimmed,
-            ], f"jingle skip +{skip_to:.1f}s", 60)
+            ], f"speech onset skip +{skip_to:.1f}s", 60)
             if ok and os.path.exists(trimmed) and os.path.getsize(trimmed) > 10000:
                 os.replace(trimmed, output_path)
-                logger.info(f"  Render20: Jingle skip applied, new clip starts at {skip_to:.1f}s")
+                logger.info(f"  Render21: Intro skip applied at {skip_to:.1f}s")
             elif os.path.exists(trimmed):
                 os.remove(trimmed)
+
+        # --- OUTRO TRIM: detect silence in last 10s ---
+        clip_dur = ffprobe_duration(output_path)
+        if clip_dur > 15:
+            tail_start = max(0, clip_dur - 10)
+            result2 = subprocess.run([
+                "ffmpeg", "-ss", f"{tail_start:.2f}", "-i", output_path,
+                "-af", "silencedetect=noise=-30dB:d=1.0",
+                "-f", "null", "-"
+            ], capture_output=True, text=True, timeout=20)
+            tail_silence_starts = _re.findall(r"silence_start: ([\d.]+)", result2.stderr)
+            if tail_silence_starts:
+                # First silence in the tail = trim point (relative to tail_start)
+                trim_at = tail_start + float(tail_silence_starts[0]) + 0.3
+                if trim_at < clip_dur - 1.0:
+                    outro_trimmed = output_path + ".outro_trim.mp4"
+                    ok2 = _run_ffmpeg([
+                        "-i", output_path, "-t", f"{trim_at:.2f}",
+                        "-c:v", "libx264", "-crf", "18", "-preset", "fast",
+                        "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                        outro_trimmed,
+                    ], f"outro trim at {trim_at:.1f}s", 60)
+                    if ok2 and os.path.exists(outro_trimmed) and os.path.getsize(outro_trimmed) > 10000:
+                        os.replace(outro_trimmed, output_path)
+                        logger.info(f"  Render21: Outro trimmed at {trim_at:.1f}s (was {clip_dur:.1f}s)")
+                    elif os.path.exists(outro_trimmed):
+                        os.remove(outro_trimmed)
+
     except Exception as e:
-        logger.warning(f"  Render20: Jingle silence check failed: {e}")
+        logger.warning(f"  Render21: Speech onset detection failed: {e}")
 
 
 def extract_clip(video_id: str, start_sec: int, end_sec: int,
-                 output_path: str) -> bool:
+                 output_path: str, channel: str = "") -> bool:
     """Download exact clip segment with original audio.
 
     Args:
@@ -171,6 +220,7 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
         start_sec: Start time in seconds
         end_sec: End time in seconds
         output_path: Where to save the clip
+        channel: Channel name for speech onset skip logic
 
     Returns:
         True if clip was extracted successfully
@@ -184,11 +234,8 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
             logger.info(f"  Clip cached: {video_id} ({dur:.1f}s)")
             return True
 
-    # Round 3 FIX 5: Lower threshold 20→15 and add debug logging
-    logger.info(f"[extractor] Clip {video_id}: raw start_sec={start_sec}, end_sec={end_sec}")
-    if start_sec < 15:
-        logger.info(f"[extractor] Applying +12s intro-skip offset to {video_id} (was {start_sec}s, threshold <15)")
-        start_sec = start_sec + 12
+    # Render21 FIX 3: Removed fixed +12s offset — speech onset detection handles intro skip
+    logger.info(f"[extractor] Clip {video_id}: raw start_sec={start_sec}, end_sec={end_sec}, channel={channel}")
 
     # Apply start -3s / end +10s padding to avoid mid-sentence cuts (LAW A4)
     # Issue 6: Increased end padding from 8s to 10s for natural pauses
@@ -289,8 +336,27 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
                     logger.info(f"  FIX 2: Lipsync corrected {before_offset:+.3f}s → {after_offset:+.3f}s")
                 elif os.path.exists(lipsync_tmp):
                     os.remove(lipsync_tmp)
-            # Render20: Skip intro jingle if first 3s is silence/music
-            _skip_intro_silence(output_path)
+            # Render21 FIX 7: Final AV sync gate — re-encode if >0.15s
+            final_sync = check_av_sync(output_path)
+            if abs(final_sync) > 0.15:
+                logger.error(f"  FIX 7: AV sync {final_sync:+.3f}s exceeds 0.15s — force re-encode")
+                fix7_tmp = output_path + ".fix7.mp4"
+                if _run_ffmpeg([
+                    "-i", output_path,
+                    "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+                    "-vf", "setpts=PTS-STARTPTS",
+                    "-c:a", "aac", "-ar", "48000",
+                    "-af", "asetpts=PTS-STARTPTS",
+                    "-r", "30", "-vsync", "cfr",
+                    fix7_tmp,
+                ], "av_sync_fix7_force", 120) and os.path.exists(fix7_tmp):
+                    os.replace(fix7_tmp, output_path)
+                    post_fix7 = check_av_sync(output_path)
+                    logger.info(f"  FIX 7: Re-encode done, sync now {post_fix7:+.3f}s")
+                elif os.path.exists(fix7_tmp):
+                    os.remove(fix7_tmp)
+            # Render21: Skip intro jingle via speech onset detection
+            _skip_intro_silence(output_path, channel=channel)
             dur = ffprobe_duration(output_path)
             sz = os.path.getsize(output_path) / 1024
             logger.info(f"  Extracted: {dur:.1f}s, {sz:.0f}KB")
@@ -413,8 +479,27 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
                     logger.info(f"  FIX 2: Fallback lipsync corrected {fb_offset:+.3f}s → {after:+.3f}s")
                 elif os.path.exists(lipsync_tmp):
                     os.remove(lipsync_tmp)
-            # Render20: Skip intro jingle if first 3s is silence/music
-            _skip_intro_silence(output_path)
+            # Render21 FIX 7: Final AV sync gate (fallback path)
+            final_sync_fb = check_av_sync(output_path)
+            if abs(final_sync_fb) > 0.15:
+                logger.error(f"  FIX 7: Fallback AV sync {final_sync_fb:+.3f}s exceeds 0.15s — force re-encode")
+                fix7_tmp = output_path + ".fix7.mp4"
+                if _run_ffmpeg([
+                    "-i", output_path,
+                    "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+                    "-vf", "setpts=PTS-STARTPTS",
+                    "-c:a", "aac", "-ar", "48000",
+                    "-af", "asetpts=PTS-STARTPTS",
+                    "-r", "30", "-vsync", "cfr",
+                    fix7_tmp,
+                ], "av_sync_fix7_force_fb", 120) and os.path.exists(fix7_tmp):
+                    os.replace(fix7_tmp, output_path)
+                    post_fix7 = check_av_sync(output_path)
+                    logger.info(f"  FIX 7: Fallback re-encode done, sync now {post_fix7:+.3f}s")
+                elif os.path.exists(fix7_tmp):
+                    os.remove(fix7_tmp)
+            # Render21: Skip intro jingle via speech onset detection
+            _skip_intro_silence(output_path, channel=channel)
             dur = ffprobe_duration(output_path)
             logger.info(f"  Trimmed: {dur:.1f}s")
             # Clean up full video
@@ -553,7 +638,7 @@ def extract_all(selections: dict, output_dir: str) -> dict:
 
         output_path = os.path.join(output_dir, f"clip_{rank}_{channel}_{video_id}.mp4")
 
-        if extract_clip(video_id, start, end, output_path):
+        if extract_clip(video_id, start, end, output_path, channel=channel):
             # Issue 10: Quality enforcement — reject below 1.5Mbps floor
             quality = _check_clip_quality(output_path, clip.get("channel", channel),
                                           video_id=video_id, start_sec=start, end_sec=end)
