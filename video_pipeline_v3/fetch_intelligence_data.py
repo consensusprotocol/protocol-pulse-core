@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """fetch_intelligence_data.py — Fetch live BTC intelligence data for Today Intelligence charts.
 
-APIs: CoinGecko (price history), Mempool.space (hashrate), CoinGecko (dominance).
-Cache: cache/intelligence_data.json (10 min TTL).
+APIs: CoinGecko (price 7d hourly, dominance), Mempool.space (hashrate 30d), Alternative.me (fear/greed).
+Cache: cache/intelligence_charts_cache.json (6h TTL).
 
 Usage:
     from fetch_intelligence_data import fetch_all, load_or_refresh
-    data = load_or_refresh()  # cached, fast
-    data = fetch_all()        # force fresh
+    data = load_or_refresh()           # cached if < 6h old
+    data = load_or_refresh(max_age_hours=1)  # custom TTL
+    data = fetch_all()                 # force fresh
 """
 
 import json
@@ -21,127 +22,132 @@ log = logging.getLogger("intel_data")
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 CACHE_DIR = os.path.join(BASE, "cache")
-CACHE_FILE = os.path.join(CACHE_DIR, "intelligence_data.json")
-CACHE_TTL = 600  # 10 minutes
+CACHE_FILE = os.path.join(CACHE_DIR, "intelligence_charts_cache.json")
 
 
-def _api_get(url: str, timeout: int = 8) -> dict:
+def _api_get(url: str, timeout: int = 10) -> dict:
     """GET JSON from URL with timeout."""
     req = urllib.request.Request(url, headers={"User-Agent": "ProtocolPulse/1.0"})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return json.loads(r.read())
 
 
-def fetch_price_history(days: int = 14) -> list:
-    """Fetch BTC/USD daily price from CoinGecko. Returns list of [timestamp_ms, price]."""
+def fetch_all() -> dict:
+    """Fetch all intelligence data from APIs and save to cache.
+
+    Returns dict with keys: price_7d, hashrate_30d, btc_dominance,
+    fear_greed_value, fear_greed_label, fetched_at.
+    """
+    log.info("Fetching all intelligence data...")
+
+    # 1. CoinGecko — BTC price 7 day hourly
+    price_7d = []
     try:
-        url = f"https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days={days}&interval=daily"
+        url = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=7"
         data = _api_get(url)
-        prices = data.get("prices", [])
-        log.info("Price history: %d data points (%d days)", len(prices), days)
-        return prices
+        price_7d = data.get("prices", [])  # list of [timestamp_ms, price]
+        log.info("Price 7d: %d hourly points", len(price_7d))
     except Exception as e:
-        log.warning("Price history fetch failed: %s", e)
-        return []
+        log.warning("Price 7d fetch failed: %s", e)
 
-
-def fetch_hashrate_history(days: int = 14) -> list:
-    """Fetch hashrate from Mempool.space. Returns list of {timestamp, avgHashrate}."""
+    # 2. Mempool.space — hashrate 30 day
+    hashrate_30d = []
     try:
-        period = f"{days}d" if days <= 30 else "1m"
-        url = f"https://mempool.space/api/v1/mining/hashrate/{period}"
+        url = "https://mempool.space/api/v1/mining/hashrate/1m"
         data = _api_get(url)
-        points = data.get("hashrates", [])
-        log.info("Hashrate history: %d data points", len(points))
-        return points
+        hashrate_30d = data.get("hashrates", [])  # list of {timestamp, avgHashrate}
+        log.info("Hashrate 30d: %d data points", len(hashrate_30d))
     except Exception as e:
-        log.warning("Hashrate history fetch failed: %s", e)
-        return []
+        log.warning("Hashrate 30d fetch failed: %s", e)
 
-
-def fetch_dominance() -> dict:
-    """Fetch BTC dominance from CoinGecko global endpoint."""
+    # 3. CoinGecko — BTC dominance (global endpoint)
+    btc_dominance = 0.0
     try:
         url = "https://api.coingecko.com/api/v3/global"
         data = _api_get(url)
-        gd = data.get("data", {})
-        btc_dom = gd.get("market_cap_percentage", {}).get("btc", 0)
-        total_mcap = gd.get("total_market_cap", {}).get("usd", 0)
-        btc_mcap = gd.get("total_market_cap", {}).get("btc", 0)
-        log.info("Dominance: BTC %.1f%%", btc_dom)
-        return {
-            "btc_dominance": round(btc_dom, 2),
-            "total_market_cap_usd": total_mcap,
-            "btc_market_cap_usd": btc_mcap,
-            "eth_dominance": round(gd.get("market_cap_percentage", {}).get("eth", 0), 2),
-        }
+        btc_dominance = data.get("data", {}).get("market_cap_percentage", {}).get("btc", 0.0)
+        log.info("BTC Dominance: %.1f%%", btc_dominance)
     except Exception as e:
         log.warning("Dominance fetch failed: %s", e)
-        return {"btc_dominance": 61.0, "total_market_cap_usd": 0, "eth_dominance": 0}
 
-
-def fetch_current_price() -> float:
-    """Fetch current BTC price. Returns float or 0."""
+    # 4. Alternative.me — Fear & Greed Index
+    fear_greed_value = 0
+    fear_greed_label = "N/A"
     try:
-        url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true"
+        url = "https://api.alternative.me/fng/?limit=1"
         data = _api_get(url)
-        return data.get("bitcoin", {}).get("usd", 0)
-    except Exception:
-        try:
-            url2 = "https://mempool.space/api/v1/prices"
-            data = _api_get(url2)
-            return data.get("USD", 0)
-        except Exception:
-            return 0
-
-
-def fetch_all() -> dict:
-    """Fetch all intelligence data and save to cache. Returns full data dict."""
-    log.info("Fetching all intelligence data...")
-
-    price_history = fetch_price_history(14)
-    hashrate_history = fetch_hashrate_history(14)
-    dominance = fetch_dominance()
-    current_price = fetch_current_price()
+        fg_data = data.get("data", [{}])[0]
+        fear_greed_value = int(fg_data.get("value", 0))
+        fear_greed_label = fg_data.get("value_classification", "N/A")
+        log.info("Fear & Greed: %d (%s)", fear_greed_value, fear_greed_label)
+    except Exception as e:
+        log.warning("Fear & Greed fetch failed: %s", e)
 
     result = {
         "fetched_at": time.time(),
-        "current_price": current_price,
-        "price_history": price_history,
-        "hashrate_history": hashrate_history,
-        "dominance": dominance,
+        "price_7d": price_7d,
+        "hashrate_30d": hashrate_30d,
+        "btc_dominance": btc_dominance,
+        "fear_greed_value": fear_greed_value,
+        "fear_greed_label": fear_greed_label,
     }
 
     os.makedirs(CACHE_DIR, exist_ok=True)
     with open(CACHE_FILE, "w") as f:
         json.dump(result, f)
 
-    log.info("Intelligence data cached: price=$%s, dominance=%.1f%%, %d price points, %d hashrate points",
-             f"{current_price:,.0f}" if current_price else "N/A",
-             dominance.get("btc_dominance", 0),
-             len(price_history), len(hashrate_history))
+    log.info("Intelligence data cached: %d price pts, %d hashrate pts, dominance=%.1f%%, F&G=%d (%s)",
+             len(price_7d), len(hashrate_30d), btc_dominance, fear_greed_value, fear_greed_label)
 
     return result
 
 
-def load_or_refresh() -> dict:
-    """Load from cache if fresh (< 10 min), otherwise fetch fresh."""
+def load_or_refresh(max_age_hours: float = 6) -> dict:
+    """Load from cache if fresh (< max_age_hours), otherwise fetch fresh.
+
+    Falls back to stale cache on fetch error.
+    """
+    max_age_sec = max_age_hours * 3600
+
     if os.path.exists(CACHE_FILE):
         try:
             with open(CACHE_FILE) as f:
                 data = json.load(f)
             age = time.time() - data.get("fetched_at", 0)
-            if age < CACHE_TTL:
-                log.info("Using cached intelligence data (%.0fs old)", age)
+            if age < max_age_sec:
+                log.info("Using cached intelligence data (%.0fm old, max %.0fh)", age / 60, max_age_hours)
                 return data
+            log.info("Cache expired (%.1fh old, max %.0fh) — refreshing", age / 3600, max_age_hours)
         except Exception:
             pass
-    return fetch_all()
+
+    # Try fresh fetch, fall back to stale cache on error
+    try:
+        return fetch_all()
+    except Exception as e:
+        log.warning("Fresh fetch failed: %s — trying stale cache", e)
+        if os.path.exists(CACHE_FILE):
+            try:
+                with open(CACHE_FILE) as f:
+                    data = json.load(f)
+                log.info("Using stale cache as fallback")
+                return data
+            except Exception:
+                pass
+        # Return empty defaults
+        return {
+            "fetched_at": 0,
+            "price_7d": [],
+            "hashrate_30d": [],
+            "btc_dominance": 0.0,
+            "fear_greed_value": 0,
+            "fear_greed_label": "N/A",
+        }
 
 
 if __name__ == "__main__":
     data = fetch_all()
-    print(f"BTC Price: ${data['current_price']:,.0f}")
-    print(f"Price points: {len(data['price_history'])}")
-    print(f"Hashrate points: {len(data['hashrate_history'])}")
-    print(f"BTC Dominance: {data['dominance']['btc_dominance']}%")
+    print(f"Price 7d points: {len(data['price_7d'])}")
+    print(f"Hashrate 30d points: {len(data['hashrate_30d'])}")
+    print(f"BTC Dominance: {data['btc_dominance']:.1f}%")
+    print(f"Fear & Greed: {data['fear_greed_value']} ({data['fear_greed_label']})")

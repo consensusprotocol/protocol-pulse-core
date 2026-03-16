@@ -1987,11 +1987,29 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
                              output_path: str, btc_price: str = "N/A",
                              duration: float = 0) -> str:
     """APEX Data Segment — full-canvas intelligence dashboard with 6 metric cards,
-    animated bar chart, and rotating sponsor strip (Meanwhile/Curated Mining/Protocol Pulse)."""
+    rotating chart overlays, and sponsor strip (Meanwhile/Curated Mining/Protocol Pulse)."""
     audio_dur = ffprobe_duration(audio_path)
     if audio_dur <= 0:
         audio_dur = 5
     total_dur = duration if duration > 0 else audio_dur + 0.3
+
+    # ── Fetch intelligence data and render chart PNGs ──
+    _intel_data = {}
+    try:
+        from fetch_intelligence_data import load_or_refresh as _intel_load
+        _intel_data = _intel_load()
+        from render_chart_assets import render_all as _render_charts
+        _render_charts(_intel_data)
+    except Exception as _intel_err:
+        logger.warning("Intelligence data/chart render failed: %s", _intel_err)
+
+    _chart_dir = os.path.join(_PIPELINE_DIR, "cache", "charts")
+    _chart_files = ["price_chart.png", "hashrate_chart.png", "dominance_chart.png"]
+    _chart_full = [os.path.join(_chart_dir, f) for f in _chart_files]
+    charts_available = all(os.path.exists(p) and os.path.getsize(p) > 1000 for p in _chart_full)
+
+    _fg_value = _intel_data.get("fear_greed_value", 0)
+    _fg_label = _intel_data.get("fear_greed_label", "N/A")
 
     inputs = [audio_path]
     fg = _get_bg_layer(inputs, total_dur, "bb_bg")
@@ -2016,9 +2034,9 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
                f"fontcolor={COLOR_WHITE}:fontsize={_ds_fs}:x=40:y={72 + 65}")
     fg += f"[ds_headline];\n"
 
-    # 6 metrics: BTC PRICE | HASHRATE | ETF FLOW | MEMPOOL FEE | HALVING % | DOMINANCE
+    # 6 metrics: FEAR GREED | HASHRATE | ETF FLOW | MEMPOOL FEE | HALVING % | DOMINANCE
     default_metrics = [
-        ("BTC PRICE", btc_price, "+2.1 pct", True),
+        ("FEAR GREED", str(_fg_value), _sanitize_text(_fg_label), _fg_value > 50),
         ("HASHRATE", _get_live_metric("hashrate", "850 EH/s"), "+4.2 pct", True),
         ("ETF FLOW", _get_live_metric("etf_flow", "$340M"), "+18 pct", True),
         ("MEMPOOL FEE", _get_live_metric("mempool_fee", "12 sat/vB"), "-8 pct", False),
@@ -2069,94 +2087,80 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
         last = out
 
     # ── HERO CHART — ROTATING CHART OVERLAYS (price → hashrate → dominance) ──
-    # Render matplotlib PNGs from live data, overlay with timed enable expressions.
-    # Each chart displays for total_dur/3 seconds, crossfading via enable windows.
     chart_panel_x, chart_panel_y = 200, 250
     chart_panel_w, chart_panel_h = 1520, 460
 
-    # Generate chart PNGs (cached 10 min via fetch_intelligence_data)
-    _chart_paths = []
-    _chart_labels = ["BTC PRICE — 14 DAY", "NETWORK HASHRATE", "MARKET DOMINANCE"]
-    try:
-        from render_chart_assets import render_all_charts
-        _chart_map = render_all_charts()  # uses load_or_refresh internally
-        _chart_paths = [_chart_map.get("price", ""), _chart_map.get("hashrate", ""),
-                        _chart_map.get("dominance", "")]
-        _chart_paths = [p for p in _chart_paths if p and os.path.exists(p)]
-    except Exception as _chart_err:
-        logger.warning("Chart rendering failed: %s — falling back to static panel", _chart_err)
-
-    if _chart_paths:
-        # Add chart images as FFmpeg inputs (indices start after audio input at [0])
+    if charts_available:
+        # Add 3 chart PNGs as FFmpeg inputs
         _chart_input_start = len(inputs)
-        for cp in _chart_paths:
+        for cp in _chart_full:
             inputs.append(cp)
 
-        n_charts = len(_chart_paths)
-        slot_dur = total_dur / n_charts
+        t1 = total_dur / 3.0
+        t2 = 2 * total_dur / 3.0
 
-        # Panel background (always visible)
-        fg += (f"[{last}]"
-               f"drawbox=x={chart_panel_x}:y={chart_panel_y}:w={chart_panel_w}:h={chart_panel_h}:"
-               f"color={COLOR_PANEL2}@0.85:t=fill,"
-               f"drawbox=x={chart_panel_x}:y={chart_panel_y}:w={chart_panel_w}:h=1:"
-               f"color=0xFFFFFF@0.08:t=fill"
-               f"[ds_chart_panel];\n")
-
-        # Overlay each chart image with timed enable
-        last_overlay = "ds_chart_panel"
-        for ci in range(n_charts):
+        # Scale each chart PNG to panel size
+        for ci in range(3):
             inp_idx = _chart_input_start + ci
-            t_start = ci * slot_dur
-            t_end = (ci + 1) * slot_dur
-            chart_tag = f"ds_cht{ci}"
-            scaled_tag = f"ds_chts{ci}"
-
-            # Scale chart PNG to panel size
             fg += (f"[{inp_idx}:v]scale={chart_panel_w}:{chart_panel_h},"
-                   f"format=yuva420p[{scaled_tag}];\n")
-            # Overlay with enable window
-            out_tag = f"ds_chto{ci}"
-            fg += (f"[{last_overlay}][{scaled_tag}]overlay=x={chart_panel_x}:y={chart_panel_y}:"
-                   f"enable='between(t,{t_start:.3f},{t_end:.3f})'[{out_tag}];\n")
-            last_overlay = out_tag
+                   f"format=yuva420p[ds_chts{ci}];\n")
 
-        # Chart label rotation (gold text indicating current chart)
-        for ci in range(n_charts):
-            t_start = ci * slot_dur
-            t_end = (ci + 1) * slot_dur
-            lbl = _chart_labels[ci] if ci < len(_chart_labels) else "DATA"
-            lbl_out = f"ds_clbl{ci}"
-            fg += (f"[{last_overlay}]"
-                   f"drawtext=fontfile={FONT_MONO}:text='{lbl}':"
-                   f"fontcolor={COLOR_GOLD}:fontsize=12:"
-                   f"x={chart_panel_x+24}:y={chart_panel_y+chart_panel_h+8}:"
-                   f"enable='between(t,{t_start:.3f},{t_end:.3f})',"
-                   # LIVE DATA badge
-                   f"drawbox=x={chart_panel_x+chart_panel_w-140}:y={chart_panel_y+chart_panel_h+4}:"
-                   f"w=120:h=22:color={COLOR_GOLD}@0.12:t=fill:"
-                   f"enable='between(t,{t_start:.3f},{t_end:.3f})',"
-                   f"drawtext=fontfile={FONT_MONO}:text='LIVE DATA':"
-                   f"fontcolor={COLOR_GOLD}:fontsize=11:"
-                   f"x={chart_panel_x+chart_panel_w-128}:y={chart_panel_y+chart_panel_h+8}:"
-                   f"enable='between(t,{t_start:.3f},{t_end:.3f})'"
-                   f"[{lbl_out}];\n")
-            last_overlay = lbl_out
-
-        fg += f"[{last_overlay}]null[ds_chart_done];\n"
+        # Overlay chart 0 (price): 0 → t1
+        fg += (f"[{last}][ds_chts0]overlay=x={chart_panel_x}:y={chart_panel_y}:"
+               f"enable='between(t,0,{t1:.3f})'[ds_chto0];\n")
+        # Overlay chart 1 (hashrate): t1 → t2
+        fg += (f"[ds_chto0][ds_chts1]overlay=x={chart_panel_x}:y={chart_panel_y}:"
+               f"enable='between(t,{t1:.3f},{t2:.3f})'[ds_chto1];\n")
+        # Overlay chart 2 (dominance): t2 → end
+        fg += (f"[ds_chto1][ds_chts2]overlay=x={chart_panel_x}:y={chart_panel_y}:"
+               f"enable='between(t,{t2:.3f},{total_dur:.3f})'[ds_chart_done];\n")
     else:
-        # Fallback: static panel with "INTELLIGENCE LOADING" if charts unavailable
+        # Fallback: static bars when charts unavailable
+        chart_x_start = chart_panel_x + 40
+        chart_y_base = chart_panel_y + chart_panel_h - 50
+        chart_area_w = chart_panel_w - 80
+        step_w = chart_area_w // 10
+        bar_w = 120
+        heights_raw = [30, 45, 38, 60, 55, 72, 85, 78, 95, 110]
+        scale_factor = 3.0
+        heights = [min(int(h * scale_factor), chart_panel_h - 100) for h in heights_raw]
+        day_labels = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN", "MON", "TUE", "WED"]
+        signal_line_y = chart_y_base - int(72 * scale_factor)
+
         fg += (f"[{last}]"
                f"drawbox=x={chart_panel_x}:y={chart_panel_y}:w={chart_panel_w}:h={chart_panel_h}:"
                f"color={COLOR_PANEL2}@0.85:t=fill,"
                f"drawbox=x={chart_panel_x}:y={chart_panel_y}:w={chart_panel_w}:h=1:"
                f"color=0xFFFFFF@0.08:t=fill,"
-               f"drawtext=fontfile={FONT_MONO}:text='INTELLIGENCE LOADING':"
+               f"drawtext=fontfile={FONT_MONO}:text='BTC NETWORK STRESS INDEX':"
                f"fontcolor={COLOR_GOLD}:fontsize=24:x={chart_panel_x+24}:y={chart_panel_y+16},"
                f"drawbox=x={chart_panel_x+chart_panel_w-140}:y={chart_panel_y+12}:w=120:h=28:"
                f"color={COLOR_GOLD}@0.12:t=fill,"
-               f"drawtext=fontfile={FONT_MONO}:text='STANDBY':"
-               f"fontcolor={COLOR_GOLD}:fontsize=12:x={chart_panel_x+chart_panel_w-110}:y={chart_panel_y+18}"
+               f"drawtext=fontfile={FONT_MONO}:text='LIVE MODEL':"
+               f"fontcolor={COLOR_GOLD}:fontsize=12:x={chart_panel_x+chart_panel_w-128}:y={chart_panel_y+18}"
+               f"[ds_chart_bg];\n")
+
+        last_chart = "ds_chart_bg"
+        for ci, ch in enumerate(heights):
+            cx = chart_x_start + ci * step_w + (step_w - bar_w) // 2
+            cy = chart_y_base - ch
+            out_c = f"ds_bar{ci}"
+            gold_h = ch // 2
+            fg += (f"[{last_chart}]"
+                   f"drawbox=x={cx}:y={cy}:w={bar_w}:h={ch}:color={COLOR_RED}@0.6:t=fill,"
+                   f"drawbox=x={cx}:y={cy}:w={bar_w}:h={gold_h}:color={COLOR_GOLD}@0.45:t=fill,"
+                   f"drawtext=fontfile={FONT_MONO}:text='{day_labels[ci]}':"
+                   f"fontcolor={COLOR_GOLD}:fontsize=11:"
+                   f"x={cx + bar_w//2 - 11}:y={chart_y_base + 10}"
+                   f"[{out_c}];\n")
+            last_chart = out_c
+
+        fg += (f"[{last_chart}]"
+               f"drawbox=x={chart_x_start}:y={signal_line_y}:w={chart_area_w}:h=3:"
+               f"color={COLOR_CYAN}@0.7:t=fill,"
+               f"drawtext=fontfile={FONT_MONO}:text='SIGNAL LINE':"
+               f"fontcolor={COLOR_CYAN}:fontsize=11:x={chart_x_start + chart_area_w - 100}:"
+               f"y={signal_line_y - 16}"
                f"[ds_chart_done];\n")
 
     # ── SPONSOR ROTATION STRIP ──

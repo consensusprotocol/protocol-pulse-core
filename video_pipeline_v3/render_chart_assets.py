@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """render_chart_assets.py — Render matplotlib charts as PNGs for Today Intelligence overlay.
 
-Brand-compliant: #0A0A0F bg, #FF3333 red, #F8C15C gold, #F4F5F8 white, JetBrains Mono where available.
-Output: cache/charts/{price,hashrate,dominance}.png at 1520x460 (hero chart panel size).
+All charts: 1520x460px, 96 DPI, transparent=True, bg #06070b, no axis spines.
+Output: cache/charts/{price_chart,hashrate_chart,dominance_chart}.png
 
 Usage:
-    from render_chart_assets import render_all_charts
-    paths = render_all_charts(data)  # data from fetch_intelligence_data
+    from render_chart_assets import render_all
+    render_all(data)  # data from fetch_intelligence_data
 """
 
 import logging
 import os
-import time
+from collections import defaultdict
 from datetime import datetime, timezone
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [chart_render] %(levelname)s %(message)s")
@@ -20,259 +20,220 @@ log = logging.getLogger("chart_render")
 BASE = os.path.dirname(os.path.abspath(__file__))
 CHART_DIR = os.path.join(BASE, "cache", "charts")
 
-# Brand colors (hex for matplotlib)
-BG_COLOR = "#0A0A0F"
-PANEL_COLOR = "#080A0C"
-RED = "#FF3333"
-RED_DIM = "#661414"
-GOLD = "#F8C15C"
-WHITE = "#F4F5F8"
-MUTED = "#888888"
-GREEN = "#6EE7B7"
-CORAL = "#FF8BA0"
-CYAN = "#5DE4FF"
+# Brand colors
+BG_COLOR = "#06070b"
+GOLD = "#f8c15c"
+WHITE = "#f4f5f8"
+GREEN = "#00ff9d"
+CYAN = "#4af8f8"
+DIM = "#444444"
 
-# Chart dimensions match hero panel: 1520x460 px at 100 DPI → 15.2 x 4.6 inches
-CHART_W, CHART_H = 15.2, 4.6
-CHART_DPI = 100
-
-# Font setup — use DejaVu Sans Mono (pipeline standard) if available
-FONT_FAMILY = "DejaVu Sans Mono"
+# 1520x460 at 96 DPI
+CHART_W = 1520 / 96
+CHART_H = 460 / 96
+CHART_DPI = 96
 
 
 def _setup_matplotlib():
-    """Configure matplotlib for headless rendering with brand styling."""
+    """Configure matplotlib for headless rendering."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-
     plt.rcParams.update({
         "figure.facecolor": BG_COLOR,
         "axes.facecolor": BG_COLOR,
-        "axes.edgecolor": MUTED,
-        "axes.labelcolor": GOLD,
         "text.color": WHITE,
-        "xtick.color": MUTED,
-        "ytick.color": MUTED,
-        "grid.color": "#1F1F1F",
-        "grid.alpha": 0.5,
+        "xtick.color": DIM,
+        "ytick.color": DIM,
         "font.family": "monospace",
-        "font.size": 12,
+        "font.size": 11,
     })
     return plt
 
 
-def render_price_chart(price_history: list, output_path: str) -> str:
-    """Render BTC price line chart (14-day). Red line, gold fill, grid."""
+def render_price_chart(data: dict) -> str:
+    """Gold line + fill, 7d hourly price, latest price top-right white bold."""
     plt = _setup_matplotlib()
+    import matplotlib.dates as mdates
 
-    if not price_history or len(price_history) < 2:
-        log.warning("Insufficient price data (%d points), generating placeholder", len(price_history))
-        return _render_placeholder(plt, "BTC PRICE — NO DATA", output_path)
+    output_path = os.path.join(CHART_DIR, "price_chart.png")
+    price_7d = data.get("price_7d", [])
 
-    timestamps = [datetime.fromtimestamp(p[0] / 1000, tz=timezone.utc) for p in price_history]
-    prices = [p[1] for p in price_history]
+    if not price_7d or len(price_7d) < 2:
+        return _render_placeholder(plt, "BITCOIN PRICE — NO DATA", output_path)
+
+    timestamps = [datetime.fromtimestamp(p[0] / 1000, tz=timezone.utc) for p in price_7d]
+    prices = [p[1] for p in price_7d]
 
     fig, ax = plt.subplots(figsize=(CHART_W, CHART_H), dpi=CHART_DPI)
 
-    # Price line
-    ax.plot(timestamps, prices, color=RED, linewidth=2.5, zorder=3)
-    # Fill below
-    ax.fill_between(timestamps, prices, min(prices) * 0.995, color=RED_DIM, alpha=0.3, zorder=2)
+    # Gold line + fill under
+    ax.plot(timestamps, prices, color=GOLD, linewidth=2.0, zorder=3)
+    ax.fill_between(timestamps, prices, min(prices) * 0.998, color=GOLD, alpha=0.15, zorder=2)
 
-    # Grid
-    ax.grid(True, axis="y", linewidth=0.5)
-    ax.grid(True, axis="x", linewidth=0.3, alpha=0.3)
+    # No axis spines
+    for spine in ax.spines.values():
+        spine.set_visible(False)
 
-    # Labels
-    ax.set_title("BTC / USD — 14 DAY", color=GOLD, fontsize=16, fontweight="bold", loc="left", pad=12)
-    ax.set_ylabel("USD", fontsize=11)
+    # Title top-left gold
+    ax.set_title("BITCOIN PRICE 7 DAY", color=GOLD, fontsize=14, fontweight="bold", loc="left", pad=10)
 
-    # Format y-axis as currency
+    # Latest price top-right white bold
+    latest_price = prices[-1]
+    ax.text(0.98, 0.92, f"${latest_price:,.0f}", transform=ax.transAxes,
+            fontsize=18, fontweight="bold", color=WHITE, ha="right", va="top")
+
+    # Source bottom-right dim
+    ax.text(0.99, 0.03, "COINGECKO", transform=ax.transAxes,
+            fontsize=8, color=DIM, ha="right", va="bottom")
+
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"${x:,.0f}"))
-
-    # Format x-axis as dates
-    import matplotlib.dates as mdates
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
-    ax.xaxis.set_major_locator(mdates.DayLocator(interval=2))
-    fig.autofmt_xdate(rotation=0)
+    ax.xaxis.set_major_locator(mdates.DayLocator(interval=1))
+    ax.tick_params(axis="both", length=0)
 
-    # Current price annotation
-    if prices:
-        latest = prices[-1]
-        ax.annotate(f"${latest:,.0f}", xy=(timestamps[-1], latest),
-                    fontsize=14, fontweight="bold", color=GOLD,
-                    xytext=(10, 10), textcoords="offset points",
-                    bbox=dict(boxstyle="round,pad=0.3", facecolor=BG_COLOR, edgecolor=GOLD, alpha=0.9))
-
-    # 14d change badge
-    if len(prices) >= 2:
-        change_pct = ((prices[-1] - prices[0]) / prices[0]) * 100
-        badge_color = GREEN if change_pct >= 0 else CORAL
-        sign = "+" if change_pct >= 0 else ""
-        ax.text(0.98, 0.95, f"{sign}{change_pct:.1f}%", transform=ax.transAxes,
-                fontsize=14, fontweight="bold", color=badge_color,
-                ha="right", va="top",
-                bbox=dict(boxstyle="round,pad=0.3", facecolor=BG_COLOR, edgecolor=badge_color, alpha=0.8))
-
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-
-    plt.tight_layout(pad=1.0)
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    fig.savefig(output_path, dpi=CHART_DPI, facecolor=BG_COLOR, bbox_inches="tight", pad_inches=0.2)
+    plt.tight_layout(pad=0.5)
+    os.makedirs(CHART_DIR, exist_ok=True)
+    fig.savefig(output_path, dpi=CHART_DPI, facecolor=BG_COLOR, transparent=True,
+                bbox_inches="tight", pad_inches=0.15)
     plt.close(fig)
-    log.info("Price chart saved: %s (%d points)", output_path, len(prices))
+    log.info("Price chart saved: %s (%d points, $%s)", output_path, len(prices), f"{latest_price:,.0f}")
     return output_path
 
 
-def render_hashrate_chart(hashrate_history: list, output_path: str) -> str:
-    """Render hashrate bar chart (14-day). Red bars, gold accent."""
+def render_hashrate_chart(data: dict) -> str:
+    """Green area + line, hashrate 30d in EH/s, current EH/s top-right."""
     plt = _setup_matplotlib()
+    import matplotlib.dates as mdates
 
-    if not hashrate_history or len(hashrate_history) < 2:
-        log.warning("Insufficient hashrate data, generating placeholder")
-        return _render_placeholder(plt, "HASHRATE — NO DATA", output_path)
+    output_path = os.path.join(CHART_DIR, "hashrate_chart.png")
+    hashrate_30d = data.get("hashrate_30d", [])
 
-    # Downsample to daily averages (API returns per-block data — thousands of points)
-    from collections import defaultdict
+    if not hashrate_30d or len(hashrate_30d) < 2:
+        return _render_placeholder(plt, "NETWORK HASHRATE — NO DATA", output_path)
+
+    # Downsample to daily averages (API returns per-block data)
     daily_buckets = defaultdict(list)
-    for h in hashrate_history:
+    for h in hashrate_30d:
         day = datetime.fromtimestamp(h.get("timestamp", 0), tz=timezone.utc).date()
         daily_buckets[day].append(h.get("avgHashrate", 0) / 1e18)
-    sorted_days = sorted(daily_buckets.keys())[-14:]  # last 14 days
+    sorted_days = sorted(daily_buckets.keys())[-30:]
     timestamps = [datetime(d.year, d.month, d.day, tzinfo=timezone.utc) for d in sorted_days]
     hashrates_eh = [sum(daily_buckets[d]) / len(daily_buckets[d]) for d in sorted_days]
 
     fig, ax = plt.subplots(figsize=(CHART_W, CHART_H), dpi=CHART_DPI)
 
-    # Bar chart
-    bar_colors = [RED if i < len(hashrates_eh) - 1 else GOLD for i in range(len(hashrates_eh))]
-    bars = ax.bar(timestamps, hashrates_eh, width=0.7, color=bar_colors, alpha=0.85, zorder=3,
-                  edgecolor=RED_DIM, linewidth=0.5)
+    # Green area + line
+    ax.plot(timestamps, hashrates_eh, color=GREEN, linewidth=2.0, zorder=3)
+    ax.fill_between(timestamps, hashrates_eh, min(hashrates_eh) * 0.998,
+                    color=GREEN, alpha=0.12, zorder=2)
 
-    # Trend line
-    if len(hashrates_eh) >= 3:
-        ax.plot(timestamps, hashrates_eh, color=GOLD, linewidth=1.5, alpha=0.6, zorder=4, linestyle="--")
+    # No axis spines
+    for spine in ax.spines.values():
+        spine.set_visible(False)
 
-    ax.grid(True, axis="y", linewidth=0.5)
+    # Title top-left gold
+    ax.set_title("NETWORK HASHRATE 30 DAY", color=GOLD, fontsize=14, fontweight="bold", loc="left", pad=10)
 
-    ax.set_title("NETWORK HASHRATE — EH/s", color=GOLD, fontsize=16, fontweight="bold", loc="left", pad=12)
-    ax.set_ylabel("EH/s", fontsize=11)
+    # Current EH/s top-right white bold
+    latest_hr = hashrates_eh[-1]
+    ax.text(0.98, 0.92, f"{latest_hr:,.0f} EH/s", transform=ax.transAxes,
+            fontsize=18, fontweight="bold", color=WHITE, ha="right", va="top")
+
+    # Source bottom-right dim
+    ax.text(0.99, 0.03, "MEMPOOL.SPACE", transform=ax.transAxes,
+            fontsize=8, color=DIM, ha="right", va="bottom")
+
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"{x:,.0f}"))
-
-    import matplotlib.dates as mdates
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
-    ax.xaxis.set_major_locator(mdates.DayLocator(interval=2))
-    fig.autofmt_xdate(rotation=0)
+    ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))
+    ax.tick_params(axis="both", length=0)
 
-    # Latest value badge
-    if hashrates_eh:
-        latest = hashrates_eh[-1]
-        ax.text(0.98, 0.95, f"{latest:,.0f} EH/s", transform=ax.transAxes,
-                fontsize=14, fontweight="bold", color=GOLD,
-                ha="right", va="top",
-                bbox=dict(boxstyle="round,pad=0.3", facecolor=BG_COLOR, edgecolor=GOLD, alpha=0.9))
-
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-
-    plt.tight_layout(pad=1.0)
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    fig.savefig(output_path, dpi=CHART_DPI, facecolor=BG_COLOR, bbox_inches="tight", pad_inches=0.2)
+    plt.tight_layout(pad=0.5)
+    os.makedirs(CHART_DIR, exist_ok=True)
+    fig.savefig(output_path, dpi=CHART_DPI, facecolor=BG_COLOR, transparent=True,
+                bbox_inches="tight", pad_inches=0.15)
     plt.close(fig)
-    log.info("Hashrate chart saved: %s (%d points)", output_path, len(hashrates_eh))
+    log.info("Hashrate chart saved: %s (%d daily points, %s EH/s)", output_path, len(hashrates_eh), f"{latest_hr:,.0f}")
     return output_path
 
 
-def render_dominance_chart(dominance_data: dict, output_path: str) -> str:
-    """Render BTC dominance donut chart. Red/gold palette."""
+def render_dominance_chart(data: dict) -> str:
+    """Horizontal progress bar, cyan fill to btc_dominance %, large centered number."""
     plt = _setup_matplotlib()
 
-    btc_dom = dominance_data.get("btc_dominance", 61.0)
-    eth_dom = dominance_data.get("eth_dominance", 17.0)
-    other_dom = max(0, 100 - btc_dom - eth_dom)
+    output_path = os.path.join(CHART_DIR, "dominance_chart.png")
+    btc_dom = data.get("btc_dominance", 0.0)
 
     fig, ax = plt.subplots(figsize=(CHART_W, CHART_H), dpi=CHART_DPI)
 
-    sizes = [btc_dom, eth_dom, other_dom]
-    labels = [f"BTC {btc_dom:.1f}%", f"ETH {eth_dom:.1f}%", f"OTHER {other_dom:.1f}%"]
-    colors = [RED, MUTED, "#2A2A2A"]
-    explode = (0.03, 0, 0)
+    # No axes at all
+    ax.axis("off")
 
-    wedges, texts, autotexts = ax.pie(
-        sizes, labels=labels, colors=colors, explode=explode,
-        autopct="%1.1f%%", startangle=90, pctdistance=0.75,
-        wedgeprops=dict(width=0.4, edgecolor=BG_COLOR, linewidth=2),
-        textprops=dict(color=WHITE, fontsize=12),
-    )
-    for at in autotexts:
-        at.set_color(WHITE)
-        at.set_fontsize(11)
-        at.set_fontweight("bold")
+    # Title top-left cyan
+    ax.text(0.01, 0.92, "BTC MARKET DOMINANCE", transform=ax.transAxes,
+            fontsize=14, fontweight="bold", color=CYAN, ha="left", va="top")
 
-    # Center text
-    ax.text(0, 0, f"{btc_dom:.1f}%", ha="center", va="center",
-            fontsize=28, fontweight="bold", color=GOLD)
-    ax.text(0, -0.15, "BTC DOM", ha="center", va="center",
-            fontsize=11, color=MUTED)
+    # Large centered number — 52px equivalent (fontsize in matplotlib points ≈ px * 0.75)
+    ax.text(0.5, 0.55, f"{btc_dom:.1f}%", transform=ax.transAxes,
+            fontsize=52, fontweight="bold", color=WHITE, ha="center", va="center")
 
-    ax.set_title("MARKET DOMINANCE", color=GOLD, fontsize=16, fontweight="bold", pad=20)
+    # Horizontal progress bar (full width, centered vertically)
+    bar_y = 0.18
+    bar_h = 0.12
+    # Dark background bar (full width)
+    from matplotlib.patches import FancyBboxPatch
+    bg_bar = FancyBboxPatch((0.02, bar_y), 0.96, bar_h, transform=ax.transAxes,
+                            boxstyle="round,pad=0.005", facecolor="#1a1a2e", edgecolor="none",
+                            zorder=1)
+    ax.add_patch(bg_bar)
+    # Cyan fill bar (proportional to dominance)
+    fill_w = 0.96 * (btc_dom / 100.0)
+    fill_bar = FancyBboxPatch((0.02, bar_y), fill_w, bar_h, transform=ax.transAxes,
+                              boxstyle="round,pad=0.005", facecolor=CYAN, edgecolor="none",
+                              alpha=0.85, zorder=2)
+    ax.add_patch(fill_bar)
 
-    plt.tight_layout(pad=1.0)
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    fig.savefig(output_path, dpi=CHART_DPI, facecolor=BG_COLOR, bbox_inches="tight", pad_inches=0.2)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+
+    plt.tight_layout(pad=0.5)
+    os.makedirs(CHART_DIR, exist_ok=True)
+    fig.savefig(output_path, dpi=CHART_DPI, facecolor=BG_COLOR, transparent=True,
+                bbox_inches="tight", pad_inches=0.15)
     plt.close(fig)
     log.info("Dominance chart saved: %s (BTC %.1f%%)", output_path, btc_dom)
     return output_path
 
 
 def _render_placeholder(plt, title: str, output_path: str) -> str:
-    """Render a branded placeholder chart when data is unavailable."""
+    """Branded placeholder when data is unavailable."""
     fig, ax = plt.subplots(figsize=(CHART_W, CHART_H), dpi=CHART_DPI)
-    ax.text(0.5, 0.5, title, ha="center", va="center", fontsize=24, color=MUTED, fontweight="bold")
+    ax.text(0.5, 0.5, title, ha="center", va="center", fontsize=20, color=DIM, fontweight="bold")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis("off")
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    fig.savefig(output_path, dpi=CHART_DPI, facecolor=BG_COLOR, bbox_inches="tight", pad_inches=0.2)
+    os.makedirs(CHART_DIR, exist_ok=True)
+    fig.savefig(output_path, dpi=CHART_DPI, facecolor=BG_COLOR, transparent=True,
+                bbox_inches="tight", pad_inches=0.15)
     plt.close(fig)
     return output_path
 
 
-def render_all_charts(data: dict = None) -> dict:
-    """Render all 3 charts from intelligence data. Returns {chart_name: png_path}.
-
-    If data is None, calls load_or_refresh() from fetch_intelligence_data.
-    """
-    if data is None:
-        from fetch_intelligence_data import load_or_refresh
-        data = load_or_refresh()
-
+def render_all(data: dict) -> None:
+    """Render all 3 charts from intelligence data. Creates cache/charts/ dir."""
     os.makedirs(CHART_DIR, exist_ok=True)
-
-    paths = {}
-    paths["price"] = render_price_chart(
-        data.get("price_history", []),
-        os.path.join(CHART_DIR, "price.png"),
-    )
-    paths["hashrate"] = render_hashrate_chart(
-        data.get("hashrate_history", []),
-        os.path.join(CHART_DIR, "hashrate.png"),
-    )
-    paths["dominance"] = render_dominance_chart(
-        data.get("dominance", {}),
-        os.path.join(CHART_DIR, "dominance.png"),
-    )
-
-    log.info("All charts rendered: %s", list(paths.keys()))
-    return paths
+    render_price_chart(data)
+    render_hashrate_chart(data)
+    render_dominance_chart(data)
+    log.info("All 3 charts rendered to %s", CHART_DIR)
 
 
 if __name__ == "__main__":
     from fetch_intelligence_data import fetch_all
     data = fetch_all()
-    paths = render_all_charts(data)
-    for name, path in paths.items():
+    render_all(data)
+    for name in ["price_chart.png", "hashrate_chart.png", "dominance_chart.png"]:
+        path = os.path.join(CHART_DIR, name)
         size = os.path.getsize(path) if os.path.exists(path) else 0
-        print(f"  {name}: {path} ({size // 1024}KB)")
+        print(f"  {name}: {size // 1024}KB")
