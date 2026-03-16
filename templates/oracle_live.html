@@ -513,10 +513,32 @@ var S={
 };
 
 var busy=false,isRec=false,pending='',objURL=null,recognition=null;
-var SESSION_ID = (function(){
-  // Persistent per-page-load session ID
-  return 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
-})();
+
+// Read session_id and page context from URL params (injected by widget)
+var _urlParams = new URLSearchParams(window.location.search);
+var SESSION_ID = _urlParams.get('session_id') || ('sess_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));
+var PAGE_CONTEXT = {
+  type: _urlParams.get('page_type') || 'general',
+  path: _urlParams.get('page_path') || window.location.pathname,
+  content: null,
+  url: document.referrer || window.location.href,
+};
+
+// Receive richer context from parent widget via postMessage
+window.addEventListener('message', function(e) {
+  if (!e.data || typeof e.data !== 'object') return;
+  var d = e.data;
+  if (d.type === 'oracle:context') {
+    // Parent widget sent full page context
+    if (d.sessionId) SESSION_ID = d.sessionId;
+    if (d.pageContext) PAGE_CONTEXT = d.pageContext;
+  }
+});
+
+// Tell parent we want context (in case we loaded before message was sent)
+setTimeout(function(){
+  try{ if(window.parent!==window) window.parent.postMessage({type:'oracle:context_request'},'*'); }catch(e){}
+},300);
 
 /* DOM */
 var gate=document.getElementById('gate');
@@ -634,7 +656,7 @@ function process(text){
   // Use /oracle/chat — full conversational AI with session memory
   fetchTO(A+'/oracle/chat',{
     method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({text:text,session_id:SESSION_ID,use_cache_for_intents:true})
+    body:JSON.stringify({text:text,session_id:SESSION_ID,use_cache_for_intents:true,page_context:PAGE_CONTEXT})
   },90000)
   .then(function(r){
     // /oracle/chat always returns video/mp4 directly
@@ -703,10 +725,10 @@ function playVid(url){
     vid.loop=false;
     vid.src=url;
     setStat('Speaking','#6cff9f',false);
-    try{if(window.parent!==window) window.parent.postMessage('oracle:speaking','*');}catch(e){}
+    try{if(window.parent!==window) window.parent.postMessage({type:'oracle:speaking'},'*');}catch(e){}
     vid.onended=function(){
       setStat('Ready','#334',false);hideSub();res();
-      try{if(window.parent!==window) window.parent.postMessage('oracle:idle','*');}catch(e){}
+      try{if(window.parent!==window) window.parent.postMessage({type:'oracle:idle'},'*');}catch(e){}
     };
     vid.onerror=function(){setStat('Video error','#ff3b5f',false);res();};
     // iOS/Brave: always start muted, unmute on canplay (within user gesture window)
@@ -880,12 +902,16 @@ function hideVisionStatus(){
 var _oracleMinimized = false;
 
 function minimizeOracle(){
+  var inIframe = (function(){ try{ return window.self !== window.top; }catch(e){ return true; }})();
+  if(inIframe){
+    try{ window.parent.postMessage({type:'oracle:minimize'},'*'); }catch(e){}
+    return;
+  }
+  // Standalone: shrink to float bubble
   _oracleMinimized = true;
   document.getElementById("oracle-root").style.display = "none";
   var f = document.getElementById("oracle-float");
-  f.style.display = "flex";
-  // Brief speaking indicator if oracle is mid-response
-  if(busy) f.classList.add("speaking");
+  if(f){ f.style.display = "flex"; if(busy) f.classList.add("speaking"); }
 }
 
 function restoreOracle(){
@@ -896,9 +922,13 @@ function restoreOracle(){
 }
 
 function exitOracle(){
-  // Notify parent widget to close panel
-  try{if(window.parent!==window){window.parent.postMessage('oracle:close','*');return;}}catch(e){}
-  // Full close — return user to gate screen
+  // If running inside widget iframe — tell parent to close
+  var inIframe = (function(){ try{ return window.self !== window.top; }catch(e){ return true; }})();
+  if(inIframe){
+    try{ window.parent.postMessage({type:'oracle:close'},'*'); }catch(e){}
+    return;
+  }
+  // Standalone page — return to gate screen
   _oracleMinimized = false;
   // Stop any playing audio/video
   vid.pause(); vid.src="";

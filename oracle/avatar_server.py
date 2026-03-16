@@ -1232,8 +1232,9 @@ def oracle_chat():
         live_intel = oracle_dialogue_engine.get_live_intel()
     except Exception:
         pass
-    result = oracle_dialogue_engine.generate_response(session_id, text, live_intel)
-    logger.info(f"[CHAT] {session_id} t={result['turn']} p={result['personality']}: {result['text'][:50]}")
+    page_context = data.get("page_context", None)
+    result = oracle_dialogue_engine.generate_response(session_id, text, live_intel, page_context)
+    logger.info(f"[CHAT] {session_id} t={result['turn']} p={result['personality']} ctx={page_context.get('type','?') if page_context else 'none'}: {result['text'][:50]}")
     return generate_inline(result["text"])
 
 

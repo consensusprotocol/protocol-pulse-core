@@ -285,6 +285,7 @@ def generate_response(
     session_id: str,
     user_text: str,
     live_intel: dict | None = None,
+    page_context: dict | None = None,
 ) -> dict:
     """
     Generate a conversational response for the user's message.
@@ -326,6 +327,35 @@ def generate_response(
         f"TOPICS DISCUSSED SO FAR: {', '.join(session['topics_discussed'][-5:]) or 'none yet'}",
         f"PRODUCTS ALREADY MENTIONED: {', '.join(session['products_mentioned']) or 'none'}",
     ]
+
+    # Inject page context so Oracle knows what user is looking at
+    if page_context:
+        ptype = page_context.get("type", "general")
+        ppath = page_context.get("path", "")
+        pcontent = page_context.get("content", "")
+        if ptype == "article" and pcontent:
+            context_lines.append(f"USER IS READING: {pcontent[:200]}")
+            context_lines.append("INSTRUCTION: If relevant, you can reference or discuss this specific article.")
+        elif ptype == "mining":
+            context_lines.append("USER IS ON: Mining Intel page — mining-related questions are likely.")
+        elif ptype == "whale_watcher":
+            context_lines.append("USER IS ON: Whale Watcher page — on-chain large transaction monitoring.")
+        elif ptype == "charts":
+            context_lines.append("USER IS ON: Bitcoin charts page — price/technical analysis context.")
+        elif ptype == "terminal":
+            context_lines.append("USER IS ON: Intel Terminal — real-time signal aggregation dashboard.")
+        elif ptype == "bitcoin_insurance":
+            context_lines.append("USER IS ON: Bitcoin Insurance page — they may be interested in Meanwhile.")
+        elif ptype == "curated_mining":
+            context_lines.append("USER IS ON: Curated Mining page — white-glove mining setup service.")
+        elif ptype == "briefing":
+            context_lines.append("USER IS ON: Daily Bitcoin brief page — interested in market intelligence.")
+        elif ptype == "podcasts":
+            context_lines.append("USER IS ON: CypherPunk'd podcast page — Bitcoin culture and philosophy.")
+        elif ptype == "solo_slayers":
+            context_lines.append("USER IS ON: Solo Slayers page — solo mining community.")
+        # Store page type in session for follow-up turns
+        session["last_page_type"] = ptype
 
     if product_to_mention and turn >= 3:
         prod = PRODUCTS[product_to_mention]

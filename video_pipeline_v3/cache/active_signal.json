@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1773658803.382439,
-  "fetched_at_iso": "2026-03-16T11:00:03.382445+00:00",
+  "fetched_at": 1773659706.2019155,
+  "fetched_at_iso": "2026-03-16T11:15:06.201921+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
-      "connected": true,
-      "events_raw": 100,
-      "events_filtered": 75,
-      "error": null
+      "connected": false,
+      "events_raw": 0,
+      "events_filtered": 0,
+      "error": "timed out during opening handshake"
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 78,
+      "events_filtered": 77,
       "error": null
     },
     {
@@ -21,7 +21,7 @@
       "connected": false,
       "events_raw": 0,
       "events_filtered": 0,
-      "error": "[Errno 113] Connect call failed ('95.216.33.150', 443)"
+      "error": "timed out during opening handshake"
     },
     {
       "relay": "wss://purplepag.es",
@@ -34,20 +34,11 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 78,
+      "events_filtered": 79,
       "error": null
     }
   ],
   "nostr_posts": [
-    {
-      "text": "\u26a1 LIGHTNING \n             COLD STORAGE \u26a1\n\nMeet the future of Bitcoin with Jade Plus and the Blockstream app \ud83d\udd10\n\nNow you can send and receive Lightning payments directly secured by your hardware wallet\n\n\u26a1 Lightning speed\n\ud83c\udf0a Liquid flexibility\n\ud83d\udd12 Cold storage security\n\nThree Bitcoin layers\n   One app\n       One device\n\nNo hot wallet risk\nNo slow transactions\nJust secure self-custody\n\n\ud83d\udca5 Use code JOKHODL and get -10% discount on your Jade Plus\nhttps://rewards.blockstream.com/jokhodl\nStack sats smarter\nSecure your Bitcoin the right way\n\nYou in? \u26a1\n\n#Bitcoin #Blockstream #JadePlus #Lightning #StackSats #SelfCustody #HODL #BitcoinSecurity \n@Blockstream\n \n@BlockstreamJade\nhttps://blossom.primal.net/e3ceeaf350509d2f659a2bf6c196010164e7c99fdfa32b68e267fa9899ac61d9.mov",
-      "pubkey": "0695cb75dbb27d935a9b97e1a8b7ccd335076b0ced0ec88aa8d3a3bf129ee74f",
-      "display_name": "npub10695cb75...9ee74f",
-      "created_at": 1773645042,
-      "relay": "wss://relay.damus.io",
-      "score": 90,
-      "has_zap": false
-    },
     {
       "text": "ES\n\ud83d\udcca BTC ~ $73K mientras el mercado entra en fase de consolidaci\u00f3n. La demanda institucional sigue fuerte (ETFs con +$568M en inflows recientes) y las empresas contin\u00faan acumulando BTC. Aun as\u00ed, factores macro \u2014inflaci\u00f3n, petr\u00f3leo y geopol\u00edtica\u2014 siguen marcando la volatilidad del mercado.\n#Bitcoin #BTC #Cripto #OnChain #Nostr\n\nEN\n\ud83d\udcca BTC ~ $73K as the market enters a consolidation phase. Institutional demand remains strong (+$568M in recent ETF inflows) and corporations continue accumulating BTC. However, macro factors\u2014 inflation, oil prices, and geopolitics\u2014are still driving market volatility.\n#Bitcoin #BTC #Crypto #OnChain #Nostr",
       "pubkey": "2231faa0e05e1f69fdb4126b22de5d15b247ac79bafd738dfd687092a9903541",
@@ -58,11 +49,20 @@
       "has_zap": false
     },
     {
-      "text": "Rare unseen young,incest contents in bio to get and know more \n\nhttps://crazystoress.netlify.app/\n\nhttps://crazystoress.netlify.app/\n\n#coins #coin #money #silver #numismatics #gold #coincollecting #crypto #trading #ethereum #blockchain #invest #numismatic #ico #trader #cryptocurrency #bitcoin    #bitcoins #history #collection #usa #ebay #cryptocurrencies #bullion #tokens #makemoney #vintage #currency #philadelphia\n#pyt #cnc #trading #teen #schoolthot #snapleak #politics #japan #nature #caturday #nostr    #btc    #privacy #infant #dogstr #freedom #plebchain    #bestiality #bitcoin    #asknostr #art #ned #photography #horny #grownostr #elon #paywithbtc #bitcoin     #crypto #btc    #eth #altcoin #trading #signal #memecoin #forex #xau #investing #gold #blockchain $B",
-      "pubkey": "1b436cb4eca739a13fc403363edb6556b2c11242af07ae34271ef232562658da",
-      "display_name": "npub11b436cb4...2658da",
-      "created_at": 1773658178,
-      "relay": "wss://relay.damus.io",
+      "text": "\u26a1 LIGHTNING \n             COLD STORAGE \u26a1\n\nMeet the future of Bitcoin with Jade Plus and the Blockstream app \ud83d\udd10\n\nNow you can send and receive Lightning payments directly secured by your hardware wallet\n\n\u26a1 Lightning speed\n\ud83c\udf0a Liquid flexibility\n\ud83d\udd12 Cold storage security\n\nThree Bitcoin layers\n   One app\n       One device\n\nNo hot wallet risk\nNo slow transactions\nJust secure self-custody\n\n\ud83d\udca5 Use code JOKHODL and get -10% discount on your Jade Plus\nhttps://rewards.blockstream.com/jokhodl\nStack sats smarter\nSecure your Bitcoin the right way\n\nYou in? \u26a1\n\n#Bitcoin #Blockstream #JadePlus #Lightning #StackSats #SelfCustody #HODL #BitcoinSecurity \n@Blockstream\n \n@BlockstreamJade\nhttps://blossom.primal.net/e3ceeaf350509d2f659a2bf6c196010164e7c99fdfa32b68e267fa9899ac61d9.mov",
+      "pubkey": "0695cb75dbb27d935a9b97e1a8b7ccd335076b0ced0ec88aa8d3a3bf129ee74f",
+      "display_name": "npub10695cb75...9ee74f",
+      "created_at": 1773645042,
+      "relay": "wss://nos.lol",
+      "score": 90,
+      "has_zap": false
+    },
+    {
+      "text": "\u23f3 Countdown do Halving (Bitcoin)\n\n\u2022 Bloco atual: 940.881\n\u2022 Pr\u00f3ximo Halving: 1.050.000\n\u2022 Faltam: 109.119 blocos\n\u2022 Ritmo (m\u00e9dia 144 blocos): ~11.84 min/bloco\n\u2022 Estimativa (retarget-aware): ~758.5 dias (~18205 horas) dia 12/04/2028\n\u2022 Pre\u00e7o BTC (Binance): $73,797\n\n\u2699\ufe0f Previs\u00e3o de redu\u00e7\u00e3o de dificuldade (blocos mais lentos que 10 min).\n\u2022 Pr\u00f3ximo ajuste autom\u00e1tico: bloco 941.472 (faltam 591 blocos) ~4.9 dias\n\nPS: estimativa \u00e9 estimativa \u2014 tempo \u00e9 um bicho arisco \ud83e\udee0",
+      "pubkey": "aee8bcf7b1a2984ffd6cb967e544bc8fa0e5c9a5b97e738eed92c641009d5c35",
+      "display_name": "npub1aee8bcf7...9d5c35",
+      "created_at": 1773658818,
+      "relay": "wss://nos.lol",
       "score": 80,
       "has_zap": false
     },
@@ -71,7 +71,7 @@
       "pubkey": "038ec1fbd1febc0490b9d548ed8029b602f376de727d83a370c104a84c91aebb",
       "display_name": "npub1038ec1fb...91aebb",
       "created_at": 1773656426,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 80,
       "has_zap": false
     },
@@ -80,7 +80,7 @@
       "pubkey": "aee8bcf7b1a2984ffd6cb967e544bc8fa0e5c9a5b97e738eed92c641009d5c35",
       "display_name": "npub1aee8bcf7...9d5c35",
       "created_at": 1773655218,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 80,
       "has_zap": false
     },
@@ -89,7 +89,7 @@
       "pubkey": "aee8bcf7b1a2984ffd6cb967e544bc8fa0e5c9a5b97e738eed92c641009d5c35",
       "display_name": "npub1aee8bcf7...9d5c35",
       "created_at": 1773651616,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 80,
       "has_zap": false
     },
@@ -98,7 +98,7 @@
       "pubkey": "aee8bcf7b1a2984ffd6cb967e544bc8fa0e5c9a5b97e738eed92c641009d5c35",
       "display_name": "npub1aee8bcf7...9d5c35",
       "created_at": 1773648016,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 80,
       "has_zap": false
     },
@@ -107,7 +107,7 @@
       "pubkey": "aee8bcf7b1a2984ffd6cb967e544bc8fa0e5c9a5b97e738eed92c641009d5c35",
       "display_name": "npub1aee8bcf7...9d5c35",
       "created_at": 1773644420,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 80,
       "has_zap": false
     },
@@ -121,29 +121,20 @@
       "has_zap": false
     },
     {
+      "text": "Rare unseen young,incest contents in bio to get and know more \n\nhttps://crazystoress.netlify.app/\n\nhttps://crazystoress.netlify.app/\n\n#coins #coin #money #silver #numismatics #gold #coincollecting #crypto #trading #ethereum #blockchain #invest #numismatic #ico #trader #cryptocurrency #bitcoin    #bitcoins #history #collection #usa #ebay #cryptocurrencies #bullion #tokens #makemoney #vintage #currency #philadelphia\n#pyt #cnc #trading #teen #schoolthot #snapleak #politics #japan #nature #caturday #nostr    #btc    #privacy #infant #dogstr #freedom #plebchain    #bestiality #bitcoin    #asknostr #art #ned #photography #horny #grownostr #elon #paywithbtc #bitcoin     #crypto #btc    #eth #altcoin #trading #signal #memecoin #forex #xau #investing #gold #blockchain $B",
+      "pubkey": "1b436cb4eca739a13fc403363edb6556b2c11242af07ae34271ef232562658da",
+      "display_name": "npub11b436cb4...2658da",
+      "created_at": 1773658178,
+      "relay": "wss://relay.primal.net",
+      "score": 80,
+      "has_zap": false
+    },
+    {
       "text": "\u23f3 Countdown do Halving (Bitcoin)\n\n\u2022 Bloco atual: 940.856\n\u2022 Pr\u00f3ximo Halving: 1.050.000\n\u2022 Faltam: 109.144 blocos\n\u2022 Ritmo (m\u00e9dia 144 blocos): ~11.42 min/bloco\n\u2022 Estimativa (retarget-aware): ~758.6 dias (~18205 horas) dia 12/04/2028\n\u2022 Pre\u00e7o BTC (Binance): $74,170\n\n\u2699\ufe0f Previs\u00e3o de redu\u00e7\u00e3o de dificuldade (blocos mais lentos que 10 min).\n\u2022 Pr\u00f3ximo ajuste autom\u00e1tico: bloco 941.472 (faltam 616 blocos) ~4.9 dias\n\nPS: estimativa \u00e9 estimativa \u2014 tempo \u00e9 um bicho arisco \ud83e\udee0",
       "pubkey": "aee8bcf7b1a2984ffd6cb967e544bc8fa0e5c9a5b97e738eed92c641009d5c35",
       "display_name": "npub1aee8bcf7...9d5c35",
       "created_at": 1773640816,
-      "relay": "wss://nos.lol",
-      "score": 80,
-      "has_zap": false
-    },
-    {
-      "text": "Back at the gym for the early morning grind. \ud83c\udfcb\ufe0f\u200d\u2642\ufe0f\u2615\ufe0f\nhttps://image.nostr.build/26521cddc769e7a4e4ed6c5abaa276b1f0e2a2bcf5a7d1b211bce76c48cf112c.jpg\nToday is back and biceps\u2014stacking weights and stacking sats. It\u2019s been exactly 10 weeks since I committed to getting back into the routine. The gains, like the protocol, are compounding. \ud83e\uddf1\u26a1\ufe0f\n\n#Gym #Bitcoin #StackingSats #ProofOfWork #BackAndBiceps #Health #Nostr #PlebChain",
-      "pubkey": "f9441c99177c576e5d1fe78f01b3524d77b516d3a1b5b9e5b69228507fb8e151",
-      "display_name": "npub1f9441c99...b8e151",
-      "created_at": 1773638079,
-      "relay": "wss://nos.lol",
-      "score": 80,
-      "has_zap": false
-    },
-    {
-      "text": "ETF flows tell a story: institutional money moving under the radar while retail shakes out.\n\nThe Cantillon effect works both ways \u2014 those close to the traditional financial apparatus get the advantage. Wall Street gets the new money first, through ETFs and QE, before prices adjust. Main Street gets inflation, volatility, and exit liquidity.\n\nBitcoin levels this playing field.\n\nThere's no \"first-mover advantage\" from a printer. No one gets Bitcoin because they work at BlackRock. The rules are the same for everyone: proof-of-work, digital scarcity, voluntary exchange.\n\nThat's why they want to regulate it, censor it, \"manage\" it. They're trying to recreate Cantillon advantages in Bitcoin.\n\nBut they can't. The protocol doesn't care who you are. Only that you follow the rules.\n\nThat's honest money.\n\n#bitcoin #austrian #etf #cantillon",
-      "pubkey": "b9c467c62f2ea762501566c7c271b4a6e1600c230f5b9ea75cb1a052a94e9ebc",
-      "display_name": "npub1b9c467c6...4e9ebc",
-      "created_at": 1773637825,
-      "relay": "wss://nos.lol",
+      "relay": "wss://relay.primal.net",
       "score": 80,
       "has_zap": false
     },
@@ -152,7 +143,7 @@
       "pubkey": "ba9521f1c3c2e4415b8a24db43f71fa18c2c63b30ec3298dbf402247afb8a9ec",
       "display_name": "npub1ba9521f1...b8a9ec",
       "created_at": 1773652885,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 76,
       "has_zap": false
     },
@@ -161,7 +152,7 @@
       "pubkey": "e5f3339e34bf2f16dd03c62cad6bad8a4d27a9b776f37d65115983e20952d54d",
       "display_name": "npub1e5f3339e...52d54d",
       "created_at": 1773648305,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 73,
       "has_zap": false
     },
@@ -170,7 +161,7 @@
       "pubkey": "8f3abd0bd143c6449e4fc78cf4c2bed88c18815113f388eb63edb58ae2c3a6ca",
       "display_name": "npub18f3abd0b...c3a6ca",
       "created_at": 1773648408,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 71,
       "has_zap": false
     },
@@ -179,7 +170,7 @@
       "pubkey": "34d2619e68720360854828326d149415e96394b76a93d7c107556d57e5d0d9a8",
       "display_name": "npub134d2619e...d0d9a8",
       "created_at": 1773656513,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 70,
       "has_zap": false
     },
@@ -188,25 +179,7 @@
       "pubkey": "038ec1fbd1febc0490b9d548ed8029b602f376de727d83a370c104a84c91aebb",
       "display_name": "npub1038ec1fb...91aebb",
       "created_at": 1773656437,
-      "relay": "wss://relay.damus.io",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83c\udfaf Flip Assets to RWA Tokens \u2013 30% Off Now!\n\nTurn your real-world assets into tradable crypto with Afreum RWA Tokens! Launch, trade, and earn profits securely with Security Tokenizer. Don\u2019t miss this chance \u2013 claim 30% OFF today and step into the future of finance!\n\nStart your RWA token journey now\ud83d\ude80 \nWebsite: https://www.securitytokenizer.io/real-world-asset-tokenization\n\n\ud83d\udcde +91\u202f9489606634 | \u2709\ufe0ftalktous@securitytokenizer.io | \ud83d\udcac@Team_SecurityTokenizer\n\n#tokenization #realworldassets #RWA #RWAtoken #blockchain #crypto #digitalassets #blockchaintech #decentralized #crypto #cryptocurrency #bitcoin #blockchain #ethereum #btc #cryptonews #cryptotrading #defi #cryptoinvesting #investing #usa #uk #uae\n\n\nhttps://npub16wlxap7yp77j0a7ck0lmx2u0j8zjg7su94slzv0l5relmj4dyc5s5wuc2d.blossom.band/a111697913c43cae28d26bdba78530d577028d62b56403601fc35a8ffb7ce4d9.jpg",
-      "pubkey": "d3be6e87c40fbd27f7d8b3ffb32b8f91c5247a1c2d61f131ffa0f3fdcaad2629",
-      "display_name": "npub1d3be6e87...ad2629",
-      "created_at": 1773655829,
-      "relay": "wss://relay.damus.io",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\nhttps://image.nostr.build/122457713303171e6c05b9c219407120dfce31270d7d12d86841f8574e001ce5.jpg\n\n\ud83d\udcf0 **What Has Happened This Week in the Bitcoin World**\n\u270d\ufe0f by NM team\n\nForget the boring price charts. This week, the quiet world of Bitcoin was shattered by a violent home invasion that reads like a Netflix thriller and a shadowy 100-million-dollar war declaration from the biggest banks in the world. While you were sleeping, a couple lost a fortune at knifepoint, and traditional finance launched its most aggressive attack yet. The digital gold rush just got dangerous.\n\n\ud83d\udd17 https://nostrmag.com/article/w11bitcoin03\n\n\ud83d\udcca id#88138316",
-      "pubkey": "794833e538ff2acb9149a736cf02d30c6ae0022c76d2dd55b57e540dc2f9c731",
-      "display_name": "npub1794833e5...f9c731",
-      "created_at": 1773645592,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 70,
       "has_zap": false
     },
@@ -218,9 +191,36 @@
       "relay": "wss://nos.lol",
       "score": 70,
       "has_zap": false
+    },
+    {
+      "text": "Hoje \u00e9 o anivers\u00e1rio de 36 anos do plano Collor, o que a hist\u00f3ria nos ensina ? \u00c9 que o ESTADO sempre est\u00e1 l\u00e1 pra te ferrar, se o seu pai ou av\u00f4 na \u00e9poca n\u00e3o estourou uma bala na cabe\u00e7a, ele foi macho e superiou as adversidades do seu tempo.\nHoje no seu \ud83e\udef5 tempo, existe o #bitcoin , ent\u00e3o   haja de acordo.\nhttps://video.nostr.build/dbbf4af0b14af1dd6d3ecb270946a3dc129a90ead0a85686c19ff7d2f14d682d.mp4",
+      "pubkey": "b7dddc2dfd1bde32f323f2c575080f22cd14d28a5ace0eb2026dd9cd302c8f04",
+      "display_name": "npub1b7dddc2d...2c8f04",
+      "created_at": 1773653178,
+      "relay": "wss://nos.lol",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "From seed to harvest. \ud83c\udf31\ud83c\udf3d\nThis small farm is more than just food; it\u2019s part of a vision. A vision of building a sustainable #Bitcoin circular economy, where we grow, produce, trade, and support each other using sound money.\nStep by step, harvest by harvest, we are creating real value in the community.\n#BitcoinAves\n#CircularEconomy\n#BuildingCommunity\nhttps://blossom.primal.net/2c363d3807c120c65e40136dc97fae23c1cca824bdab72347fb60acad029153d.mov\nnostr:nevent1qqsrwjpnzfmavs992x9ms3ujcv3tfesl6a2wp2ef0ufutqr23q8j75qppamhxue69uhkztnwdaejumr0dsp3922a",
+      "pubkey": "6040626abdcbbb5a2fd8b7fcd8cfaf7d917277e2c3635871575cf11bf92c930c",
+      "display_name": "npub16040626a...2c930c",
+      "created_at": 1773647004,
+      "relay": "wss://nos.lol",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\nhttps://image.nostr.build/122457713303171e6c05b9c219407120dfce31270d7d12d86841f8574e001ce5.jpg\n\n\ud83d\udcf0 **What Has Happened This Week in the Bitcoin World**\n\u270d\ufe0f by NM team\n\nForget the boring price charts. This week, the quiet world of Bitcoin was shattered by a violent home invasion that reads like a Netflix thriller and a shadowy 100-million-dollar war declaration from the biggest banks in the world. While you were sleeping, a couple lost a fortune at knifepoint, and traditional finance launched its most aggressive attack yet. The digital gold rush just got dangerous.\n\n\ud83d\udd17 https://nostrmag.com/article/w11bitcoin03\n\n\ud83d\udcca id#88138316",
+      "pubkey": "794833e538ff2acb9149a736cf02d30c6ae0022c76d2dd55b57e540dc2f9c731",
+      "display_name": "npub1794833e5...f9c731",
+      "created_at": 1773645592,
+      "relay": "wss://nos.lol",
+      "score": 70,
+      "has_zap": false
     }
   ],
-  "total_raw": 300,
-  "total_filtered": 231,
+  "total_raw": 200,
+  "total_filtered": 156,
   "total_scored": 20
 }

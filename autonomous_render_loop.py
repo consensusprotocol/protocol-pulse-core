@@ -260,6 +260,9 @@ def find_mp4(after_ts=None):
         files = [f for f in files if os.path.getmtime(f) >= after_ts]
     return sorted(files)[-1] if files else None
 
+def get_grade():
+    return run_gemini_grade()[1]
+
 def run_gemini_grade():
     """Run gemini_grade.py as subprocess, return (score, full_output) or (0, error_msg)."""
     grade_script = f'{PIPELINE}/gemini_grade.py'
