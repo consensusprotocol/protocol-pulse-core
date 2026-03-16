@@ -1,0 +1,157 @@
+{
+  "video_id": "P5Zh2vbT89M",
+  "title": "What is Bitcoin Mining",
+  "channel": "Compass Mining",
+  "upload_date": "",
+  "duration": 122,
+  "transcript_text": "Bitcoin mining is the process of recording transactions on the Bitcoin network. Miners receive Bitcoin from users and the network in return for sending Bitcoin among participants. Miners package transactions into groups called blocks. These blocks are placed into a history of transactions called the blockchain, where each block builds upon the previous block. Miners compete against each other to create the next block. This competition is a race to reveal encrypted data, which can be thought of like a puzzle. Miners need hidden data created by the Bitcoin protocol, called the nouns, to make block. Nounces are further encrypted in what are known as hashes. The hash is an algorithmically generated string of letters and numbers that is impossible to decode in specific to each block. This data can only be found by comparing generated hashes against the Bitcoin block's hash one at a time, like matching puzzle piece corners against one another. So, the only way for miners to discover the nouns is to generate random hashes over and over to find the value that matches the hash of the Bitcoin block's nouns. Reminders, the rules are simple. Be the first to guess the hash correctly. A miner wins a block race when identical hash to a network's desired hash is found. The hash unlock some new block, which is then added to the chain, and the miner collects or reward corresponding to the block. To earn Bitcoins, miners make new guesses at the encrypted nouns over and over as fast as possible. More guesses means more Bitcoins. Bitcoins' hash rate is a measurement of how many hashes have been guessed by an individual computer and when aggregated the Bitcoin network itself. This measurement can be used for various estimates such as Bitcoins' network security or how much energy the Bitcoin network uses.",
+  "timestamped_text": [
+    {
+      "start": 5.23,
+      "end": 9.23,
+      "text": "Bitcoin mining is the process of recording transactions on the Bitcoin network."
+    },
+    {
+      "start": 9.23,
+      "end": 16.26,
+      "text": "Miners receive Bitcoin from users and the network in return for sending Bitcoin among participants."
+    },
+    {
+      "start": 16.26,
+      "end": 19.83,
+      "text": "Miners package transactions into groups called blocks."
+    },
+    {
+      "start": 19.83,
+      "end": 23.83,
+      "text": "These blocks are placed into a history of transactions called the blockchain,"
+    },
+    {
+      "start": 23.83,
+      "end": 26.83,
+      "text": "where each block builds upon the previous block."
+    },
+    {
+      "start": 26.83,
+      "end": 30.02,
+      "text": "Miners compete against each other to create the next block."
+    },
+    {
+      "start": 30.02,
+      "end": 33.02,
+      "text": "This competition is a race to reveal encrypted data,"
+    },
+    {
+      "start": 33.02,
+      "end": 35.02,
+      "text": "which can be thought of like a puzzle."
+    },
+    {
+      "start": 35.02,
+      "end": 39.86,
+      "text": "Miners need hidden data created by the Bitcoin protocol,"
+    },
+    {
+      "start": 39.86,
+      "end": 41.86,
+      "text": "called the nouns, to make block."
+    },
+    {
+      "start": 41.86,
+      "end": 44.86,
+      "text": "Nounces are further encrypted in what are known as hashes."
+    },
+    {
+      "start": 44.86,
+      "end": 48.86,
+      "text": "The hash is an algorithmically generated string of letters and numbers"
+    },
+    {
+      "start": 48.86,
+      "end": 51.86,
+      "text": "that is impossible to decode in specific to each block."
+    },
+    {
+      "start": 51.86,
+      "end": 59.24,
+      "text": "This data can only be found by comparing generated hashes against the Bitcoin block's hash one at a time,"
+    },
+    {
+      "start": 59.24,
+      "end": 62.3,
+      "text": "like matching puzzle piece corners against one another."
+    },
+    {
+      "start": 62.3,
+      "end": 67.3,
+      "text": "So, the only way for miners to discover the nouns is to generate random hashes over and over"
+    },
+    {
+      "start": 67.3,
+      "end": 71.3,
+      "text": "to find the value that matches the hash of the Bitcoin block's nouns."
+    },
+    {
+      "start": 71.3,
+      "end": 73.82,
+      "text": "Reminders, the rules are simple."
+    },
+    {
+      "start": 73.82,
+      "end": 75.82,
+      "text": "Be the first to guess the hash correctly."
+    },
+    {
+      "start": 75.82,
+      "end": 80.91,
+      "text": "A miner wins a block race when identical hash to a network's desired hash is found."
+    },
+    {
+      "start": 80.91,
+      "end": 82.94,
+      "text": "The hash unlock some new block,"
+    },
+    {
+      "start": 82.94,
+      "end": 88.39,
+      "text": "which is then added to the chain, and the miner collects or reward corresponding to the block."
+    },
+    {
+      "start": 88.39,
+      "end": 93.39,
+      "text": "To earn Bitcoins, miners make new guesses at the encrypted nouns over and over as fast as possible."
+    },
+    {
+      "start": 93.39,
+      "end": 96.39,
+      "text": "More guesses means more Bitcoins."
+    },
+    {
+      "start": 96.39,
+      "end": 102.1,
+      "text": "Bitcoins' hash rate is a measurement of how many hashes have been guessed by an individual computer"
+    },
+    {
+      "start": 102.1,
+      "end": 105.1,
+      "text": "and when aggregated the Bitcoin network itself."
+    },
+    {
+      "start": 105.1,
+      "end": 109.1,
+      "text": "This measurement can be used for various estimates such as Bitcoins' network security"
+    },
+    {
+      "start": 109.1,
+      "end": 113.1,
+      "text": "or how much energy the Bitcoin network uses."
+    }
+  ],
+  "topics": [
+    "mining",
+    "regulation",
+    "privacy"
+  ],
+  "sentiment": "neutral",
+  "archived_at": "2026-03-13T09:38:12Z"
+}

@@ -192,6 +192,19 @@ try:
 except Exception as e:
     logging.warning("Could not list routes: %s", e)
 
+
+
+@app.route('/video/<filename>')
+def serve_video(filename):
+    import os, glob
+    from flask import send_from_directory, abort
+    pattern = '/home/ultron/protocol_pulse/video_pipeline_v3/output/**/' + filename
+    matches = glob.glob(pattern, recursive=True)
+    if matches:
+        d = os.path.dirname(matches[0])
+        return send_from_directory(d, filename, mimetype='video/mp4', as_attachment=False)
+    abort(404)
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     print(f"Starting Protocol Pulse → http://127.0.0.1:{port}/ (debug routes: http://127.0.0.1:{port}/debug-routes)")

@@ -2514,53 +2514,730 @@
       ],
       "sentiment": "bullish",
       "archived_at": "2026-03-12T22:31:42Z"
+    },
+    "BNnWrehbTzA": {
+      "title": "Why The Bitcoin Whales Are About To Eat You Alive",
+      "channel": "Simply Bitcoin",
+      "upload_date": "",
+      "duration": 1357,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-13T08:45:54Z"
+    },
+    "yjW0ySy26eE": {
+      "title": "312. Principles of Economics Lecture 3: Time",
+      "channel": "Saifedean Ammous",
+      "upload_date": "",
+      "duration": 2964,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-13T08:47:40Z"
+    },
+    "JF-swevWl7E": {
+      "title": "Roundtable_017 - Did Epstein Hijack Bitcoin?",
+      "channel": "Guy Swann",
+      "upload_date": "",
+      "duration": 8151,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-03-13T08:53:06Z"
+    },
+    "l95Uf91mOo0": {
+      "title": "Surviving Sun's Micronova & Pole Flip by Ben Davidson at Observer Ranch",
+      "channel": "Tone Vays",
+      "upload_date": "",
+      "duration": 3309,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-13T08:54:57Z"
+    },
+    "HOOvX4evAVc": {
+      "title": "Trading Panel from Future Blockchian Summit - Dubai",
+      "channel": "Tone Vays",
+      "upload_date": "",
+      "duration": 1544,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-03-13T08:55:46Z"
+    },
+    "XWfTyGpNXxM": {
+      "title": "A Treatise on Metal Bitcoin Seed Storage Design",
+      "channel": "Jameson Lopp",
+      "upload_date": "",
+      "duration": 1777,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "self-custody",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-13T08:56:40Z"
+    },
+    "eWbBnqRcIo0": {
+      "title": "Attack Vectors in Real Life: Being your own Bitcoin Bank",
+      "channel": "Jameson Lopp",
+      "upload_date": "",
+      "duration": 1747,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "self-custody",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-03-13T08:57:42Z"
+    },
+    "nwvUGC3M9RE": {
+      "title": "11 - Downloading the Node",
+      "channel": "Base58",
+      "upload_date": "",
+      "duration": 211,
+      "topics": [
+        "regulation"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-13T08:57:50Z"
+    },
+    "-CfPbKOAc8w": {
+      "title": "12 - The Genesis Block",
+      "channel": "Base58",
+      "upload_date": "",
+      "duration": 595,
+      "topics": [
+        "mining",
+        "price",
+        "regulation"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-13T08:58:09Z"
+    },
+    "-WVF9gtHmvk": {
+      "title": "Scallop - The World\u2019s First Bank on a Blockchain?",
+      "channel": "The Bitcoin Podcast",
+      "upload_date": "",
+      "duration": 622,
+      "topics": [
+        "mining",
+        "regulation",
+        "self-custody",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-13T08:58:35Z"
+    },
+    "TRBTw0Mtl-A": {
+      "title": "Masa Finance - The Future of On-Chain Identity and Credit Scoring?",
+      "channel": "The Bitcoin Podcast",
+      "upload_date": "",
+      "duration": 621,
+      "topics": [
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-13T08:59:03Z"
+    },
+    "JGjD-il29_M": {
+      "title": "Tone Vays BIP-110 Reaction Vid",
+      "channel": "Bitcoin Mechanic",
+      "upload_date": "",
+      "duration": 3487,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-13T09:02:30Z"
+    },
+    "16HHgqStifI": {
+      "title": "Gloria...Gone? Humiliation Ritual Over?!",
+      "channel": "Bitcoin Mechanic",
+      "upload_date": "",
+      "duration": 1542,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-13T09:04:43Z"
+    },
+    "NhcBVsVGqT0": {
+      "title": "TradFi and Crypto Are Merging Into One w/ Armani Ferrante",
+      "channel": "Real Vision Finance",
+      "upload_date": "",
+      "duration": 1186,
+      "topics": [
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-13T09:06:52Z"
+    },
+    "qJNj1eVmgNc": {
+      "title": "Wall Street Just Proved Bitcoin Is Not Digital Gold (The Data Is Terrifying)",
+      "channel": "Coin Bureau",
+      "upload_date": "",
+      "duration": 817,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-03-13T09:07:44Z"
+    },
+    "PuQLREKxshY": {
+      "title": "Your Bitcoin Isn't Real",
+      "channel": "Coin Bureau",
+      "upload_date": "",
+      "duration": 1322,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-13T09:09:46Z"
+    },
+    "0mHU6N2G6_o": {
+      "title": "How Bitcoin Could Get To $10 MILLION Per Coin",
+      "channel": "Anthony Pompliano",
+      "upload_date": "",
+      "duration": 2452,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-13T09:15:07Z"
+    },
+    "NjdKMaeRBoU": {
+      "title": "Billionaire Just Fired 40% Of His Company. Here's What's Next.",
+      "channel": "Marty Bent (Rabbit Hole Recap)",
+      "upload_date": "",
+      "duration": 1219,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-13T09:18:32Z"
+    },
+    "mOlsR9T37ho": {
+      "title": "\"Another Major Financial Crisis Is Coming\"  What Bitcoin Investors Must Know! Andrej Majcen",
+      "channel": "Scott Melker",
+      "upload_date": "",
+      "duration": 2216,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-03-13T09:24:52Z"
+    },
+    "kRJeSWIvJ1M": {
+      "title": "Go visit KORLAI FORT - A perfect travel guide to this weekend getaway (2020)",
+      "channel": "Wolf Of All Streets",
+      "upload_date": "",
+      "duration": 428,
+      "topics": [
+        "price",
+        "regulation",
+        "lightning",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-13T09:25:32Z"
+    },
+    "gBpm2gq81ow": {
+      "title": "A quick view of Kolad - Perfect location for river rafting and ATV ride",
+      "channel": "Wolf Of All Streets",
+      "upload_date": "",
+      "duration": 131,
+      "topics": [
+        "institutional"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-13T09:25:37Z"
+    },
+    "KiUhgQLakBU": {
+      "title": "Top 10 latest android tips and tricks - 2020",
+      "channel": "Wolf Of All Streets",
+      "upload_date": "",
+      "duration": 1407,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-13T09:28:17Z"
+    },
+    "-J5M0RzRssI": {
+      "title": "Taking Apart An S19j Pro",
+      "channel": "Compass Mining",
+      "upload_date": "",
+      "duration": 839,
+      "topics": [
+        "mining",
+        "regulation",
+        "lightning"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-13T09:30:00Z"
+    },
+    "5c2sqhh3IGg": {
+      "title": "Proto Rig: How Block\u2019s New Mining System Could Transform Bitcoin Mining",
+      "channel": "Compass Mining",
+      "upload_date": "",
+      "duration": 2065,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-13T09:37:43Z"
+    },
+    "P5Zh2vbT89M": {
+      "title": "What is Bitcoin Mining",
+      "channel": "Compass Mining",
+      "upload_date": "",
+      "duration": 122,
+      "topics": [
+        "mining",
+        "regulation",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-13T09:38:12Z"
+    },
+    "afag9_lo1SY": {
+      "title": "Episode 46: Grid Innovations and Bitcoin: A New Era in Texas",
+      "channel": "Riot Platforms",
+      "upload_date": "",
+      "duration": 2134,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "bullish",
+      "archived_at": "2026-03-13T09:46:01Z"
+    },
+    "nSeB2NNG7uk": {
+      "title": "\u201cAll Assets Are Now Risk Assets\u201d \u2014 Mike McGlone Explains the Oil Crisis & Impact on BTC",
+      "channel": "CoinTelegraph",
+      "upload_date": "",
+      "duration": 1107,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-15T18:03:50Z"
+    },
+    "dmNhm7nW-oA": {
+      "title": "Biggest Moment For Bitcoin Happening Now..",
+      "channel": "Altcoin Daily",
+      "upload_date": "",
+      "duration": 4512,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-15T18:04:34Z"
+    },
+    "m5nunXOj2VM": {
+      "title": "\ud83d\udea8 ALERT: The Bitcoin Floodgates Are Open!!",
+      "channel": "Altcoin Daily",
+      "upload_date": "",
+      "duration": 518,
+      "topics": [
+        "etf",
+        "price",
+        "regulation",
+        "lightning",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-15T18:04:34Z"
+    },
+    "MkcdRQRxahY": {
+      "title": "Bitcoin & Ethereum Are About To Do Something MASSIVE!!",
+      "channel": "Altcoin Daily",
+      "upload_date": "",
+      "duration": 811,
+      "topics": [
+        "etf",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bullish",
+      "archived_at": "2026-03-15T18:15:34Z"
+    },
+    "UdUY0ol6HVk": {
+      "title": "FORGET WALL ST: How the Biggest Bitcoin Attack Is Coming From Within!",
+      "channel": "Simply Bitcoin",
+      "upload_date": "",
+      "duration": 850,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-15T19:00:03Z"
+    },
+    "a1U7kz3FCn0": {
+      "title": "The Government Has No Choice: Trillions Must Be Printed! (Bitcoin Wins)",
+      "channel": "Simply Bitcoin",
+      "upload_date": "",
+      "duration": 873,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-03-15T19:00:03Z"
+    },
+    "AkSeaACtb6o": {
+      "title": "The Most Important Conversation I've Had This Year",
+      "channel": "TFTC",
+      "upload_date": "",
+      "duration": 4289,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-15T19:00:04Z"
+    },
+    "GA_7P8RdyRU": {
+      "title": "Oil Shock, Stablecoin Surge, and Bitcoin Isn't Flinching",
+      "channel": "The Bitcoin Layer",
+      "upload_date": "",
+      "duration": 312,
+      "topics": [
+        "price",
+        "macro"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-15T19:00:06Z"
+    },
+    "jYzKvJiKnO0": {
+      "title": "Peptides, Fasting, and the Future of Longevity w/ Miguel & Carlos",
+      "channel": "Robert Breedlove",
+      "upload_date": "",
+      "duration": 10491,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "bullish",
+      "archived_at": "2026-03-15T19:00:08Z"
+    },
+    "-_C4dZZvWIk": {
+      "title": "Strategy is Driving ALL The Bitcoin Out Of Circulation FOREVER!",
+      "channel": "Swan Bitcoin",
+      "upload_date": "",
+      "duration": 734,
+      "topics": [
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bullish",
+      "archived_at": "2026-03-15T19:00:10Z"
+    },
+    "HdKeXV_vZZM": {
+      "title": "Did They Just Release The Most Advanced Bitcoin Wallet Ever Built? (Arkade Tutorial)",
+      "channel": "BTC Sessions",
+      "upload_date": "",
+      "duration": 2321,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-15T19:00:11Z"
+    },
+    "WRORpKW_-QE": {
+      "title": "\u201cThis Is Worldwide\u201d \u2014 Major Bank Contagion Just Hit BlackRock + JP Morgan",
+      "channel": "BTC Sessions",
+      "upload_date": "",
+      "duration": 1121,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-03-15T19:00:11Z"
+    },
+    "2mC594q-s9M": {
+      "title": "Nintendo Stock Deep Dive w/ Clay Finck (TIP798)",
+      "channel": "The Investors Podcast Network",
+      "upload_date": "",
+      "duration": 3725,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-15T19:00:15Z"
+    },
+    "Gb75HhiAYtA": {
+      "title": "Incoming Market Panic Could Send Bitcoin Vertical",
+      "channel": "Anthony Pompliano",
+      "upload_date": "",
+      "duration": 2802,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-15T19:00:38Z"
+    },
+    "Z3Z2wHRZnOc": {
+      "title": "McDonald's CEO mocked for taking small bite of new Arch Burger - Burger King",
+      "channel": "Stacker News",
+      "upload_date": "",
+      "duration": 189,
+      "topics": [
+        "mining",
+        "price",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-15T19:00:41Z"
+    },
+    "-3MF3jWGCbQ": {
+      "title": "This Bitcoin Chart Is Signaling a Move To $85,000",
+      "channel": "TheStreet",
+      "upload_date": "",
+      "duration": 1156,
+      "topics": [
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-15T19:03:07Z"
+    },
+    "oK1Azot7j9w": {
+      "title": "The Fed Setup for Bitcoin\u2019s Next Run",
+      "channel": "Simply Bitcoin",
+      "upload_date": "",
+      "duration": 1042,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-03-15T23:00:02Z"
     }
   },
-  "last_scan": "2026-03-12T23:17:13Z",
-  "total_archived": 159,
+  "last_scan": "2026-03-16T04:16:17Z",
+  "total_archived": 202,
   "_last_upload_Bitcoin Magazine": "2026-03-12T21:00:01Z",
-  "_last_upload_Simply Bitcoin": "2026-03-12T22:30:03Z",
-  "_last_upload_TFTC": "2026-03-12T21:00:09Z",
+  "_last_upload_Simply Bitcoin": "2026-03-15T23:00:02Z",
+  "_last_upload_TFTC": "2026-03-15T19:00:04Z",
   "_last_upload_Preston Pysh": "2026-03-05T17:23:57Z",
-  "_last_upload_The Bitcoin Layer": "2026-03-12T04:15:02Z",
+  "_last_upload_The Bitcoin Layer": "2026-03-15T19:00:06Z",
   "_last_upload_Blockworks": "2026-03-05T17:27:06Z",
   "_last_upload_Natalie Brunell": "2026-03-12T04:15:03Z",
   "_last_upload_Andreas Antonopoulos": "2026-03-05T17:30:06Z",
-  "_last_upload_Robert Breedlove": "2026-03-06T12:30:16Z",
+  "_last_upload_Robert Breedlove": "2026-03-15T19:00:08Z",
   "_last_upload_Unchained": "2026-03-05T17:44:20Z",
   "_last_upload_Tucker Carlson": "2026-03-05T17:44:23Z",
-  "_last_upload_Swan Bitcoin": "2026-03-12T22:30:07Z",
-  "_last_upload_BTC Sessions": "2026-03-12T21:00:16Z",
-  "_last_upload_Saifedean Ammous": "2026-03-12T21:00:18Z",
+  "_last_upload_Swan Bitcoin": "2026-03-15T19:00:10Z",
+  "_last_upload_BTC Sessions": "2026-03-15T19:00:11Z",
+  "_last_upload_Saifedean Ammous": "2026-03-13T08:47:40Z",
   "_last_upload_Bitcoin Magazine Pro": "2026-03-12T21:00:21Z",
-  "_last_upload_The Investors Podcast Network": "2026-03-08T11:09:23Z",
+  "_last_upload_The Investors Podcast Network": "2026-03-15T19:00:15Z",
   "_last_upload_Nathaniel Whittemore": "2026-03-10T15:36:50Z",
   "_last_upload_CoinDesk": "2026-03-12T04:16:36Z",
-  "_last_upload_Guy Swann": "2026-03-12T22:30:15Z",
-  "_last_upload_Tone Vays": "2026-03-12T04:15:11Z",
-  "_last_upload_Jameson Lopp": "2026-03-12T04:15:16Z",
-  "_last_upload_Base58": "2026-03-12T04:15:21Z",
-  "_last_upload_The Bitcoin Podcast": "2026-03-12T04:15:26Z",
-  "_last_upload_Bitcoin Mechanic": "2026-03-12T04:15:31Z",
+  "_last_upload_Guy Swann": "2026-03-13T08:53:06Z",
+  "_last_upload_Tone Vays": "2026-03-13T08:55:46Z",
+  "_last_upload_Jameson Lopp": "2026-03-13T08:57:42Z",
+  "_last_upload_Base58": "2026-03-13T08:58:09Z",
+  "_last_upload_The Bitcoin Podcast": "2026-03-13T08:59:03Z",
+  "_last_upload_Bitcoin Mechanic": "2026-03-13T09:04:43Z",
   "_last_upload_Bitcoin Podcast": "2026-03-12T04:15:36Z",
   "_last_upload_George Gammon": "2026-03-12T04:15:41Z",
-  "_last_upload_Coin Bureau": "2026-03-12T22:30:46Z",
-  "_last_upload_Anthony Pompliano": "2026-03-12T04:15:48Z",
-  "_last_upload_Marty Bent (Rabbit Hole Recap)": "2026-03-12T22:30:54Z",
+  "_last_upload_Coin Bureau": "2026-03-13T09:09:46Z",
+  "_last_upload_Anthony Pompliano": "2026-03-15T19:00:38Z",
+  "_last_upload_Marty Bent (Rabbit Hole Recap)": "2026-03-13T09:18:32Z",
   "_last_upload_Max Keiser": "2026-03-12T04:15:55Z",
-  "_last_upload_Stacker News": "2026-03-12T22:30:57Z",
+  "_last_upload_Stacker News": "2026-03-15T19:00:41Z",
   "_last_upload_Strike": "2026-03-12T04:16:00Z",
-  "_last_upload_Scott Melker": "2026-03-12T04:16:01Z",
-  "_last_upload_Wolf Of All Streets": "2026-03-12T04:16:04Z",
-  "_last_upload_Compass Mining": "2026-03-12T04:16:10Z",
-  "_last_upload_Riot Platforms": "2026-03-12T04:16:17Z",
+  "_last_upload_Scott Melker": "2026-03-13T09:24:52Z",
+  "_last_upload_Wolf Of All Streets": "2026-03-13T09:28:17Z",
+  "_last_upload_Compass Mining": "2026-03-13T09:38:12Z",
+  "_last_upload_Riot Platforms": "2026-03-13T09:46:01Z",
   "_last_upload_Bitfarms": "2026-03-12T04:16:23Z",
   "_last_upload_Blockware Solutions": "2026-03-12T04:16:26Z",
-  "_last_upload_CoinTelegraph": "2026-03-12T04:16:31Z",
+  "_last_upload_CoinTelegraph": "2026-03-15T18:03:50Z",
   "_last_upload_DataDash": "2026-03-12T22:31:35Z",
   "_last_upload_Digital Asset News": "2026-03-12T04:16:43Z",
-  "_last_upload_Altcoin Daily": "2026-03-12T04:16:47Z",
+  "_last_upload_Altcoin Daily": "2026-03-15T18:15:34Z",
   "_last_upload_CoinGecko": "2026-03-12T04:16:52Z",
   "_last_upload_CNBC Television": "2026-03-12T22:31:42Z",
-  "_last_upload_Real Vision Finance": "2026-03-12T22:30:43Z"
+  "_last_upload_Real Vision Finance": "2026-03-13T09:06:52Z",
+  "_last_upload_TheStreet": "2026-03-15T19:03:07Z"
 }

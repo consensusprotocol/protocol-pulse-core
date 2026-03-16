@@ -227,6 +227,11 @@ def oracle_page():
     return render_template('oracle.html')
 
 
+@oracle_bp.route('/oracle-live')
+def oracle_live_page():
+    return render_template('oracle_live.html')
+
+
 @oracle_bp.route('/api/oracle/ask', methods=['POST'])
 @rate_limit
 def oracle_ask():

@@ -1,0 +1,2049 @@
+{
+  "video_id": "afag9_lo1SY",
+  "title": "Episode 46: Grid Innovations and Bitcoin: A New Era in Texas",
+  "channel": "Riot Platforms",
+  "upload_date": "",
+  "duration": 2134,
+  "transcript_text": "Welcome to Block Time, a podcast produced by Riot platforms where we take a deep dive into topics relating to Bitcoin, Bitcoin mining and the grid. Today we're really going to be focused on the grid side of things to build off of the previous episode where we talked about how Bitcoin economics connects ultimately to a dollar per megawatt figure. And specifically the topic we're going to look at is a pretty broad one, which is demand flexibility. I thought that it would be really interesting to dive into this after reading a research report written by Texas A&M's Professor Lacey for the PUC and legislators in Irka where he took a look at reviewing what the situation is with demand flexibility in Texas where we're at and also making some recommendations of directions to go in. So first to provide an overview of what demand flexibility is because it covers a lot of different topics and some of them are actually sometimes in a contradiction but we'll explore that. So starting at the top left here we've got index price responsiveness also known as economic curtailment. We'll dive into that, that's very relevant to Bitcoin mining. We've got answer your services, emergency response service for CP, for coincident peaks. So those are on the left in the middle, and these are ones that are arguably a little bit less developed than the ones on the left, but could be further enhanced as Professor Lacey's report suggests. So TDSP load management programs, demand response programs like smart thermostats, the aggregated distributed energy resource ADER program with virtual power plants, and last but not least is one that I thought was really interesting to see in the report, especially in its impact, was energy efficiency of things like adding more insulation in your attic. Let's start off with that one because that one was really interesting. So when we think about energy efficiency, it's not about shifting the power consumption from one type period to another, or about turning off your AC at a particular time, rather it's about shifting your whole demand curve down so that you need to use your AC less because you've improved the efficiency of your household. So in the report, they put together different packages of improvements to energy efficiency that you could do in kind of your typical single-family resonance. And then they looked at what the impact would be of changing or improving the efficiency of all the homes in Texas. Now the one that improved things the most essentially took more than 10 gigawatts of electricity consumption off of the peak. And so it shifted down the peak by 10 gigawatts, which is a tremendous amount. So it's things like adding attic insulation, sealing the homes better, and adding more insulation and more insulation after that, right? But also combined with whole-home electrification. So they're also looking at what happens if we replace gas appliances, for example, with electric appliances, including heat pumps, which are often discussed as ways of improving energy efficiency. Something that's important to note that I was surprised by was that some combinations of these improvements can actually increase the peak in the winter, mainly because if you replace a gas furnace with an electric heat pump, that means that during the winter months, you're actually going to be using more electricity, and that's going to contribute to peak electricity use, because you're shifting energy consumption from the gas system to the electrical system. And so that's something that policymakers also have to be aware of as they look at the recommendations and put together suggestions or mandatory energy efficiency requirements in building codes. There's an interesting question about whether these requirements or whether these changes should be required or not, right? Because they do come at an expense, it costs money to insulate buildings, especially if it's retrofitting old buildings in renovations and whatnot. And left to their own devices, a retail consumer would look at, okay, what's the cost of insulation versus what's the monthly add to my bill from being inefficient, right? So if it costs like $10 a month to be inefficient and it costs $100,000 to add insulation, a consumer might rationally decide to pay a little bit more every month for their electricity rather than doing a huge retrofit. And part of the reason why they might do that is because they are not very price responsive because they are in a fixed rate electricity plan with a utility company. And so they're not actually seeing the full cost of having an inefficient house because it is essentially being hidden from them by the utility. This was a point that was raised in the report, which is that after what happened in winter storm Yuri with a service called Gritty, it's no longer feasible or allowed. It's no longer permitted to have an electricity plan that just goes based on index, meaning that you are looking at the real-time cost of electricity and that's what you will have to pay as a consumer. Instead you are forced by statute to have a fixed rate plan where you're not really going to be exposed to the price changes. In order to try to mitigate that problem of not being exposed to the real-time price, there are demand response programs where it really is about shaping the peak demand by incentives. So the report looked at two smart thermostat incentive programs that are available here in Texas from Austin Energy here in Austin, as well as CPS, which is Dan and San Antonio. And what they found was that if this was rolled out to everyone and kind of the most optimistic scenario, you get almost four gigawatts of load shaved off the peak. And four gigawatts, it's less than the energy efficiency, which I thought was interesting. You get more effect from energy efficiency of more than 10 gigawatts. But at the same time, it's still substantial. If we look at the total system consumption of 85 gigawatts, shaving four gigawatts off of that gets you down to 81 gigawatts. That means that you've got to build fewer power plants to meet that peak load. You've got to build fewer batteries to meet that demand. So it can have a significant effect. It also reduces how much transmission you have to build if you are able to shave that peak time. So I want to contrast the smart thermostat program with what happens with Bitcoin mining price responsiveness. So Bitcoin mining price responsiveness is really, this is very different because it is based on real time price of electricity, whereas the smart thermostat programs are really far more opaque and indirect in how they reward consumers. So with Bitcoin mining, it's not so much about rewarding Bitcoin miners for turning off. Rather, it's penalizing them for staying on. So when we look at this chart, you see here in black is the mining revenue. So it's around $100 per megawatt hour. And then in red, you have the price of electricity that this Bitcoin miner is going to pay. And when that price of electricity is greater, so when the red line is over the black line, then if the Bitcoin miner stays on, he is penalized. He has to pay a higher price of electricity than he is earning in revenue from Bitcoin mining. And so it's economically irrational for the Bitcoin miner to stay on during that peak time. This particular chart looks at August of 2023, which is really the period of greatest price volatility in recent memory. And I believe it was more than 25% of the time during this month or between 25 and 10% of the time that the red line was over the black line. I had to put this chart in log scale because the maximum, regulatory maximum of what the electricity price can be is $5,000 per megawatt. So when we compare the breakeven for Bitcoin mining of around $100 per megawatt with $5,000 megawatt, that's an order of magnitude difference. So it's just a lot easier to see what is going on with the electricity price when we look at it on a log scale. And it really highlights that Bitcoin miners are turning off very early in the scarcity period. It's not like they're waiting for the top to turn off, right? They're actually turning off long before the peak is hit. And then they come back online after the peak has occurred. You can also see here that the price of electricity is far more volatile than the Bitcoin price or the Bitcoin mining revenue. It's just, it's like a heartbeat that in August of 2023 was beating on an almost daily basis that in the evening as the sun would set and the solar ramp would remove, I believe it was 12 gigawatts last summer, this summer it's 20 gigawatts that you have a massive increase in the price of electricity. So this is the price responsiveness that occurs in real time. It's far more dynamic than what we have with the smart thermostat. And I think that there's an argument to be made that retail should have the same exposure to the electricity price than Bitcoin miners do. It's just, it seems to have been politically unpopular because basically what Gritty did during winter storm Yuri was charge retail a huge amount of money in order to heat their homes. And people kind of felt like they were being price gouged. So the reality is that the heating, right, so if it's freezing outside and you want to turn on your heater, your revenue is the utility of heat in your home, right? It's you consuming that heat, that's the value that you're getting. And when we think about that value, in many cases, it's probably far greater than the cost of electricity, even at $9,000 a megawatt, right, because as a consumer, you're basically saying, I want to heat my home at basically any price. And I'm willing to, you know, make sacrifices to get that, you know, maybe I'll have to drink fewer lattes from Starbucks or something, but it really reflects the fact that people value energy and they value warmth and, you know, in the winter and then cooling in the summer. A tremendous amount. And so that's where that's kind of the limit on these smart thermostat programs is that people really want to get the outcome of having a comfortable home. And so I think that, you know, when people talk about, oh, retail consumers should have the same access to demand response programs, as Bitcoin miners do, I think that that might make sense in a vacuum, but when we look at actual human behavior, the reality is that they don't want to be penalized for heating their homes. And they would much rather, I think they would much rather be rewarded for adding insulation to their home and making it more energy efficient through efficiency programs than through smart thermostat programs. Okay, so next slide is looking at, and this is actually something that came out yesterday from the EIA, the Energy Information Administration. So they actually have ways of gathering data legally by going to the grid operator and looking up publicly available information in order to take a look at how much electricity Bitcoin mining is consuming in Texas. And they found that it's actually going to be more than 10% of the kilowatt hours in 2025 will be going to Bitcoin mining here in Texas. So you've got a massive, you know, at 10% of the grid essentially being responsive to real-time prices is going to help provide a cushion for essentially being able to shave those peaks while also filling the valleys, right? If we look at the underutilization in the system, it's substantial and that we can better monetize energy assets by having Bitcoin miners turning on off peak. I really liked that the EIA's article on this topic that came out on October 3rd did highlight that Bitcoin miners are price responsive and that they are large flexible loads. I think that even from a policy-making perspective at the federal level, there's greater and greater understanding of the value that Bitcoin mining has for the grid. The next topic, once we get past price responsiveness and that kind of demand flexibility, we have to talk about ancillary services. So this chart here is from ERCOT that shows the performance of the large loads, large flexible loads during the April 8th solar eclipse. And what we see is that when the real-time price of electricity went above the break even, you had a substantial amount of load shed. You had one gigawatt of Bitcoin mining load turn off. They've got that in blue in green at the bottom is the ancillary service responsibility. And what you see there is that it's a flat line through the solar eclipse and one might wonder, okay, well, why is ERCOT doing this? Why are they paying Bitcoin miners to stay on during the solar eclipse? Conversely, why are they paying power generators, power plants to stay off during the solar eclipse in reserve? Well, the answer is grid reliability because what they want is they want these resources to ignore the real-time price of electricity and only listen to ERCOT's reliability directives. And so this falls under a lot of different buckets. So this chart shows each ERCOT, sorry, each ERCOT ancillary service program, each product that they have, and its purpose. So we start with the shortest duration, right? So these are broken down into what is the expected response time. The first is reg up and reg down. So that's short for regulation service up and regulation service down. So this is to really try to stabilize the system frequency around 60 hertz. And the response time is a matter of seconds. Now typically, ERCOT procures between 190 and 880 megawatts of this resource. And what that means is that if you're a Bitcoin miner who is providing this resource and reg up or reg down, you're going to get paid to essentially stay on so that ERCOT can choose which specific seconds, right, are you going to be turning off? And then they'll turn you back on. So it's about controlling this load in a very short time frame that is unrelated to the real-time price of electricity. In the next category, there is the responsive reserve service. So you've got primary frequency response, under frequency response, and fast frequency response. These range from one minute to an hour to 15 minutes. And ERCOT procures two to three gigawatts of this reserve. And then you have ECRS, ERCOT contingency reserve service. This is usually deployed when there's a very fast solar ramp. And so it answers controls within 10 minutes. And ERCOT procures between one and three gigawatts of this reserve. Last but not least, you have non-spin reserve service. And this ERCOT procures between two and three gigawatts of. It can respond within 30 minutes and last up to four hours. So all of these reserves are procured in the day ahead market. And when it's a load, ERCOT is paying to keep that load on. And when it's a generator, ERCOT's paying to keep that generator off. And it's by maintaining those reserves that ERCOT can achieve its reliability mandate. Without those reserves, you would get into problems. So let's talk about the problems. This chart shows the ERCOT emergency emergency alert communications. So this is kind of the range of different outcomes, different scenarios you can have on the grid. Hopefully, we're always in normal conditions, okay? So this is where ERCOT has ample reserves, right? So I talked about the reserves, but I didn't talk about the energy market. So you have the reserves that ERCOT procures. And that's on top of the energy market where essentially that's the, if you've got 80 gigawatts of demand, ERCOT will make sure that there's 80 gigawatts of supply lined up, right? Scheduled out to provide electricity. And so that's where demand is paying generation, right? Loads are paying generators to stay on. So loads are on, generators are on, everybody's happy. So that's kind of the energy market. And then as things shift around, you know, loads will turn off, generators will turn off in response and vice versa. The reserves are a safety blanket on top of that energy system. And the reserves are to make sure that things, you know, that from an electrical engineering perspective, things continue to work. When the reserves are greater than three gigawatts, we're in normal conditions. And so there's nothing, nothing happening, all green, all good. Now as reserves get a little tighter, you might see ERCOT announce a conservation alert. And that's where they'll send a text message to everyone and say, hey, you know, maybe back off on your conditioning a little bit, things could be a little bit tight. And then you have control room advisory, control room watch as you go below three gigawatts of reserves and then two and a half gigawatts of reserve. And then once you're below 2.3 gigawatts, you go into EEA1. So this is an energy emergency alert. And that's where you need to really start reaching out to folks, telling them to turn on generators, turn off loads. You also start to see emergency response service, ERS. So ERS is one of the demand flexibility programs here in Texas. So ERS starts getting deployed and then you have EEA2. And so once you started getting into EEAs, this is where the grid operator is really smashing the button on deploying reserves. And essentially taking resources out of reserve and deploying them onto the grid. So that means that for Bitcoin miners, they would be telling you Bitcoin miners to turn off. And I want to emphasize here, they're not paying the Bitcoin miners to turn off in this scenario. In fact, when they tell a Bitcoin miner to turn off that's in reserve in Ancillary Services, they're doing it under threat of penalty of saying, if you don't turn off right now, you're going to have to pay fines and you might get kicked out of Ancillary Services. So there are, this is the stick situation. But the Bitcoin miner has voluntarily entered into the stick situation, meaning that the day before the Bitcoin miner was competing to be in Ancillary Services to get paid to stay on. And then when an EEA happens, it's not like the grid operator or the Bitcoin miner was expecting an EEA to happen. They certainly don't want it to happen. When they get into that situation, it is very much one of all hands on deck and punitive rather than rewarding Bitcoin miners. Exact same scenario for batteries and power plants, by the way. So if a battery is instructed to discharge, they will get penalized if they do not discharge and they're part of Ancillary Services, same thing with a natural gas power plant. So once they've exhausted all the reserves and they're unable to maintain system frequency above 59 hertz, 59.91 hertz, then you start getting into rotating outages. So this is what happened with winter storm Yuri. They have to turn off parts of the grid in order to maintain the overall stability of the system. This shows that this is why we have reserves is so that they are available there as a cushion for ERCOT to release into the system when things are tight. And it really is about maintaining system frequency rather than trying to target a price of electricity. This is really becomes apparent when we start looking at transmission constraints. So you can have an EEA on the whole system of the whole ERCOT grid, but you can also have an EEA on a specific transmission constraint. And you can say, hey, look, and this happened last year where there was one specific power line where they were like, okay, this is a bad situation here. If we push more electricity through this power line, it's going to melt down. And so we have to find ways to curtail load or to increase generation on one side or the other of the line, regardless of what the electricity price is, right? Because now you're having to deal with an electrical engineering constraint. It's not an economic constraint. And so it's very important to keep in mind that answer your services are not there to suppress the price of electricity when things get expensive. They are there to respond to engineering challenges. Okay. Next demand response program I want to dive into is called four coincident peaks, four CP. So this program is really about modifying transmission costs to try to better reflect who is causing the need for incremental additional transmission investments. And so they look at who was consuming the most electricity at specific periods of time, at the peak times, in fact, in June, July, August, September, right, during those hot summer months, at the peak time, who was consuming the most electricity? And if you are not consuming electricity at those peak times, then you get your demand charges reduced. So on your electricity bill, you've got two kinds of charges. You've got energy charges, which is how much electricity in total did you consume throughout that month, for example? And then you have demand charges of, okay, what was at the peak times how much electricity were you consuming? Because those demand charges go towards the transmission and distribution system, whereas the energy charges go to generators. And so there are two different sources of cost going to two different, you know, participants in the system. Four CP allows you to reduce your demand charges by not being on during those peak times. And it's really, it's something that, you know, it can be hard to guess sometimes what the peak time is. And so you've got four CP alerts that will say, hey, you might, this might be the peak. We won't know until after the fact. But if you want to participate in the four CP program, then you should turn off your load during this time. And then what we see here in these charts is looking at 2022, what was the effect, this is from grid status of four CP. And what we see is that the peak time is actually not with the peak electricity price. So the peak time generally happens before the peak electricity price. And that's because four CP does not include solar and wind, meaning that it's a total load. It's not a net load. Net load will subtract out solar and wind. And net load is typically what you would look at to get some indication of where the electricity price might be. In the report that Professor Lay She wrote, he suggested to look at, or, you know, that there are two other methodologies that are out there. One is to look at net for CP. And the other is to look at six CP, or you could even, you know, people have said 12 CP of looking at more months than just the summer months, because you can actually have peaks happen outside of the summer months, for example, in winter, but also in outage season when natural gas plants are in maintenance mode, sometimes you can have a surprising demand spike. So that's four CP now we're going to shift gears here because, you know, away from kind of just purely looking at demand flexibility, because we also want to look at how does the grid interact with neighboring grids? So you'll hear people say that Texas, Ircott, the grid should be joining the national grid is what they'll say. And then, you know, it's a really interesting question because when we look at a map of North America, there's not a national grid. There is actually lots of different grids. And what these show, these, you might hear them refer to as interconnections, but it's really about what system frequency are they on, right? So Texas is on its 60 hertz, and these other interconnects, they might be at 60 hertz as well, that is 60 cycles per second, but they might not necessarily be in tune with each other, right? So they might not be at the same 60 hertz and getting these grids to connect is really about saying, hey, let's have this alternating current all on 60 hertz across the whole continent, which is kind of an engineering challenge that has been tried in the past. So they did actually get the whole United States to the same 60 hertz once in the past. It was found to be too expensive, and so they stopped doing that. So I don't think that when people talk about Ircott joining the national grid, I don't think they necessarily know what they're talking about. I think that they're usually, what they want to talk about is that for whatever reason they want Ircott to be subject to federal regulatory oversight, it might be related to other policy situations that might be environmentally related, carbon emissions or other topics like that. But I don't think that there's a real reliability argument for connecting all of these different interconnects into one giant mega grid, because at the end of the day, you're still going to have constraints, you're still going to have to have ancillary services and demand response and all the rest. Now the way that Texas is connected to other grids is not through alternating current of maintaining the same 60 hertz, but rather through direct current DC ties. So there's currently four of them. Two of them are with Mexico. One is with Oklahoma, and the other is with the eastern part of Texas that is technically not in the Ircott region. So Ircott does not cover the whole state of Texas. There's parts of Texas that are actually parts of other interconnects interestingly enough. Now a piece of news that came out recently that I thought was interesting was that they have approved a new DC tie called Southern Spirit that will cross from Texas through Louisiana to Mississippi. And so this will help export electricity from Texas to other southern states. And it is of substantial size. It just got approved for a grant from the Department of Energy. So that's going to further connect the Texas grid to the rest of the United States in a way that's kind of more rational than trying to force everyone on the same 60 hertz instead. You know, let's build some high voltage direct current and get electricity moving to other states through that methodology. This is particularly good for solar because when we think about the solar ramp, if you move things west or east, now you have a different solar ramp because the sun is setting gradually over the United States. And so you can kind of smooth out the solar ramp by having better transmission between states going east and west. All right. So for today, we took a deep dive into demand flexibility looked at some of the transmission implications and how ERCOT operates the grid. Hope you found it interesting. There's lots of different moving parts. And I think that it's important to unpack all these different concepts because when they get simplified by journalists and by others and they all get put into one demand response bucket. I think people get confused as to what demand response is and whether they want to participate in it or not. So hopefully you found it enlightening. Leave a five star review for the podcast, share, subscribe, and let us know if you have any questions. We'd be happy to dive into them in the next episode. Cheers.",
+  "timestamped_text": [
+    {
+      "start": 0.14,
+      "end": 12.74,
+      "text": "Welcome to Block Time, a podcast produced by Riot platforms where we take a deep dive"
+    },
+    {
+      "start": 12.74,
+      "end": 17.46,
+      "text": "into topics relating to Bitcoin, Bitcoin mining and the grid."
+    },
+    {
+      "start": 17.46,
+      "end": 22.94,
+      "text": "Today we're really going to be focused on the grid side of things to build off of the"
+    },
+    {
+      "start": 22.94,
+      "end": 29.54,
+      "text": "previous episode where we talked about how Bitcoin economics connects ultimately to a"
+    },
+    {
+      "start": 29.54,
+      "end": 32.66,
+      "text": "dollar per megawatt figure."
+    },
+    {
+      "start": 32.66,
+      "end": 37.98,
+      "text": "And specifically the topic we're going to look at is a pretty broad one, which is demand"
+    },
+    {
+      "start": 37.98,
+      "end": 39.58,
+      "text": "flexibility."
+    },
+    {
+      "start": 39.58,
+      "end": 45.38,
+      "text": "I thought that it would be really interesting to dive into this after reading a research"
+    },
+    {
+      "start": 45.38,
+      "end": 53.74,
+      "text": "report written by Texas A&M's Professor Lacey for the PUC and legislators in Irka"
+    },
+    {
+      "start": 53.74,
+      "end": 60.74,
+      "text": "where he took a look at reviewing what the situation is with demand flexibility in Texas"
+    },
+    {
+      "start": 60.74,
+      "end": 66.46,
+      "text": "where we're at and also making some recommendations of directions to go in."
+    },
+    {
+      "start": 66.46,
+      "end": 72.98,
+      "text": "So first to provide an overview of what demand flexibility is because it covers a lot of"
+    },
+    {
+      "start": 72.98,
+      "end": 80.41,
+      "text": "different topics and some of them are actually sometimes in a contradiction but we'll explore"
+    },
+    {
+      "start": 80.41,
+      "end": 81.41,
+      "text": "that."
+    },
+    {
+      "start": 81.41,
+      "end": 87.37,
+      "text": "So starting at the top left here we've got index price responsiveness also known as economic"
+    },
+    {
+      "start": 87.37,
+      "end": 88.37,
+      "text": "curtailment."
+    },
+    {
+      "start": 88.37,
+      "end": 93.13,
+      "text": "We'll dive into that, that's very relevant to Bitcoin mining."
+    },
+    {
+      "start": 93.13,
+      "end": 99.25,
+      "text": "We've got answer your services, emergency response service for CP, for coincident peaks."
+    },
+    {
+      "start": 99.25,
+      "end": 107.65,
+      "text": "So those are on the left in the middle, and these are ones that are arguably a little"
+    },
+    {
+      "start": 107.65,
+      "end": 114.49,
+      "text": "bit less developed than the ones on the left, but could be further enhanced as Professor"
+    },
+    {
+      "start": 114.49,
+      "end": 117.37,
+      "text": "Lacey's report suggests."
+    },
+    {
+      "start": 117.37,
+      "end": 124.85,
+      "text": "So TDSP load management programs, demand response programs like smart thermostats, the aggregated"
+    },
+    {
+      "start": 124.85,
+      "end": 134.77,
+      "text": "distributed energy resource ADER program with virtual power plants, and last but not"
+    },
+    {
+      "start": 134.77,
+      "end": 140.73,
+      "text": "least is one that I thought was really interesting to see in the report, especially in its impact,"
+    },
+    {
+      "start": 140.73,
+      "end": 146.45,
+      "text": "was energy efficiency of things like adding more insulation in your attic."
+    },
+    {
+      "start": 146.45,
+      "end": 151.01,
+      "text": "Let's start off with that one because that one was really interesting."
+    },
+    {
+      "start": 151.01,
+      "end": 157.57,
+      "text": "So when we think about energy efficiency, it's not about shifting the power consumption"
+    },
+    {
+      "start": 157.57,
+      "end": 164.85,
+      "text": "from one type period to another, or about turning off your AC at a particular time, rather"
+    },
+    {
+      "start": 164.85,
+      "end": 171.89,
+      "text": "it's about shifting your whole demand curve down so that you need to use your AC less"
+    },
+    {
+      "start": 171.89,
+      "end": 177.01,
+      "text": "because you've improved the efficiency of your household."
+    },
+    {
+      "start": 177.01,
+      "end": 186.81,
+      "text": "So in the report, they put together different packages of improvements to energy efficiency"
+    },
+    {
+      "start": 186.81,
+      "end": 191.49,
+      "text": "that you could do in kind of your typical single-family resonance."
+    },
+    {
+      "start": 191.49,
+      "end": 197.13,
+      "text": "And then they looked at what the impact would be of changing or improving the efficiency"
+    },
+    {
+      "start": 197.13,
+      "end": 199.95,
+      "text": "of all the homes in Texas."
+    },
+    {
+      "start": 199.95,
+      "end": 209.94,
+      "text": "Now the one that improved things the most essentially took more than 10 gigawatts of electricity"
+    },
+    {
+      "start": 209.94,
+      "end": 213.5,
+      "text": "consumption off of the peak."
+    },
+    {
+      "start": 213.5,
+      "end": 220.62,
+      "text": "And so it shifted down the peak by 10 gigawatts, which is a tremendous amount."
+    },
+    {
+      "start": 220.62,
+      "end": 228.62,
+      "text": "So it's things like adding attic insulation, sealing the homes better, and adding more insulation"
+    },
+    {
+      "start": 228.62,
+      "end": 230.94,
+      "text": "and more insulation after that, right?"
+    },
+    {
+      "start": 230.94,
+      "end": 234.02,
+      "text": "But also combined with whole-home electrification."
+    },
+    {
+      "start": 234.02,
+      "end": 242.54,
+      "text": "So they're also looking at what happens if we replace gas appliances, for example, with"
+    },
+    {
+      "start": 242.54,
+      "end": 249.7,
+      "text": "electric appliances, including heat pumps, which are often discussed as ways of improving"
+    },
+    {
+      "start": 249.7,
+      "end": 251.66,
+      "text": "energy efficiency."
+    },
+    {
+      "start": 251.66,
+      "end": 257.22,
+      "text": "Something that's important to note that I was surprised by was that some combinations"
+    },
+    {
+      "start": 257.22,
+      "end": 263.5,
+      "text": "of these improvements can actually increase the peak in the winter, mainly because if"
+    },
+    {
+      "start": 263.5,
+      "end": 268.86,
+      "text": "you replace a gas furnace with an electric heat pump, that means that during the winter"
+    },
+    {
+      "start": 268.86,
+      "end": 273.74,
+      "text": "months, you're actually going to be using more electricity, and that's going to contribute"
+    },
+    {
+      "start": 273.74,
+      "end": 279.94,
+      "text": "to peak electricity use, because you're shifting energy consumption from the gas system to"
+    },
+    {
+      "start": 279.94,
+      "end": 281.9,
+      "text": "the electrical system."
+    },
+    {
+      "start": 281.9,
+      "end": 288.34,
+      "text": "And so that's something that policymakers also have to be aware of as they look at the"
+    },
+    {
+      "start": 288.34,
+      "end": 294.86,
+      "text": "recommendations and put together suggestions or mandatory energy efficiency requirements"
+    },
+    {
+      "start": 294.86,
+      "end": 296.62,
+      "text": "in building codes."
+    },
+    {
+      "start": 296.62,
+      "end": 303.68,
+      "text": "There's an interesting question about whether these requirements or whether these changes"
+    },
+    {
+      "start": 303.68,
+      "end": 305.48,
+      "text": "should be required or not, right?"
+    },
+    {
+      "start": 305.48,
+      "end": 311.24,
+      "text": "Because they do come at an expense, it costs money to insulate buildings, especially if"
+    },
+    {
+      "start": 311.24,
+      "end": 316.48,
+      "text": "it's retrofitting old buildings in renovations and whatnot."
+    },
+    {
+      "start": 316.48,
+      "end": 322.04,
+      "text": "And left to their own devices, a retail consumer would look at, okay, what's the cost"
+    },
+    {
+      "start": 322.04,
+      "end": 331.4,
+      "text": "of insulation versus what's the monthly add to my bill from being inefficient, right?"
+    },
+    {
+      "start": 331.4,
+      "end": 340.12,
+      "text": "So if it costs like $10 a month to be inefficient and it costs $100,000 to add insulation, a consumer"
+    },
+    {
+      "start": 340.12,
+      "end": 345.04,
+      "text": "might rationally decide to pay a little bit more every month for their electricity rather"
+    },
+    {
+      "start": 345.04,
+      "end": 348.65,
+      "text": "than doing a huge retrofit."
+    },
+    {
+      "start": 348.65,
+      "end": 355.09,
+      "text": "And part of the reason why they might do that is because they are not very price responsive"
+    },
+    {
+      "start": 355.09,
+      "end": 359.93,
+      "text": "because they are in a fixed rate electricity plan with a utility company."
+    },
+    {
+      "start": 359.93,
+      "end": 366.41,
+      "text": "And so they're not actually seeing the full cost of having an inefficient house because"
+    },
+    {
+      "start": 366.41,
+      "end": 370.29,
+      "text": "it is essentially being hidden from them by the utility."
+    },
+    {
+      "start": 370.33,
+      "end": 377.73,
+      "text": "This was a point that was raised in the report, which is that after what happened in winter"
+    },
+    {
+      "start": 377.73,
+      "end": 384.17,
+      "text": "storm Yuri with a service called Gritty, it's no longer feasible or allowed."
+    },
+    {
+      "start": 384.17,
+      "end": 391.13,
+      "text": "It's no longer permitted to have an electricity plan that just goes based on index, meaning"
+    },
+    {
+      "start": 391.13,
+      "end": 397.33,
+      "text": "that you are looking at the real-time cost of electricity and that's what you will have"
+    },
+    {
+      "start": 397.33,
+      "end": 399.41,
+      "text": "to pay as a consumer."
+    },
+    {
+      "start": 399.41,
+      "end": 407.41,
+      "text": "Instead you are forced by statute to have a fixed rate plan where you're not really going"
+    },
+    {
+      "start": 407.41,
+      "end": 410.77,
+      "text": "to be exposed to the price changes."
+    },
+    {
+      "start": 410.77,
+      "end": 417.09,
+      "text": "In order to try to mitigate that problem of not being exposed to the real-time price,"
+    },
+    {
+      "start": 417.09,
+      "end": 423.69,
+      "text": "there are demand response programs where it really is about shaping the peak demand"
+    },
+    {
+      "start": 423.69,
+      "end": 425.89,
+      "text": "by incentives."
+    },
+    {
+      "start": 425.89,
+      "end": 431.25,
+      "text": "So the report looked at two smart thermostat incentive programs that are available here"
+    },
+    {
+      "start": 431.25,
+      "end": 438.04,
+      "text": "in Texas from Austin Energy here in Austin, as well as CPS, which is Dan and San Antonio."
+    },
+    {
+      "start": 438.04,
+      "end": 445.62,
+      "text": "And what they found was that if this was rolled out to everyone and kind of the most optimistic"
+    },
+    {
+      "start": 445.62,
+      "end": 453.1,
+      "text": "scenario, you get almost four gigawatts of load shaved off the peak."
+    },
+    {
+      "start": 453.1,
+      "end": 459.18,
+      "text": "And four gigawatts, it's less than the energy efficiency, which I thought was interesting."
+    },
+    {
+      "start": 459.18,
+      "end": 465.26,
+      "text": "You get more effect from energy efficiency of more than 10 gigawatts."
+    },
+    {
+      "start": 465.26,
+      "end": 470.06,
+      "text": "But at the same time, it's still substantial."
+    },
+    {
+      "start": 470.06,
+      "end": 474.98,
+      "text": "If we look at the total system consumption of 85 gigawatts, shaving four gigawatts off"
+    },
+    {
+      "start": 474.98,
+      "end": 479.46,
+      "text": "of that gets you down to 81 gigawatts."
+    },
+    {
+      "start": 479.46,
+      "end": 483.34,
+      "text": "That means that you've got to build fewer power plants to meet that peak load."
+    },
+    {
+      "start": 483.34,
+      "end": 487.98,
+      "text": "You've got to build fewer batteries to meet that demand."
+    },
+    {
+      "start": 487.98,
+      "end": 491.66,
+      "text": "So it can have a significant effect."
+    },
+    {
+      "start": 491.66,
+      "end": 497.22,
+      "text": "It also reduces how much transmission you have to build if you are able to shave that peak"
+    },
+    {
+      "start": 497.22,
+      "end": 498.38,
+      "text": "time."
+    },
+    {
+      "start": 498.38,
+      "end": 506.94,
+      "text": "So I want to contrast the smart thermostat program with what happens with Bitcoin mining"
+    },
+    {
+      "start": 506.94,
+      "end": 508.42,
+      "text": "price responsiveness."
+    },
+    {
+      "start": 508.42,
+      "end": 515.18,
+      "text": "So Bitcoin mining price responsiveness is really, this is very different because it is based"
+    },
+    {
+      "start": 515.18,
+      "end": 522.7,
+      "text": "on real time price of electricity, whereas the smart thermostat programs are really far"
+    },
+    {
+      "start": 522.7,
+      "end": 526.5,
+      "text": "more opaque and indirect in how they reward consumers."
+    },
+    {
+      "start": 526.5,
+      "end": 533.38,
+      "text": "So with Bitcoin mining, it's not so much about rewarding Bitcoin miners for turning off."
+    },
+    {
+      "start": 533.38,
+      "end": 536.78,
+      "text": "Rather, it's penalizing them for staying on."
+    },
+    {
+      "start": 536.78,
+      "end": 543.42,
+      "text": "So when we look at this chart, you see here in black is the mining revenue."
+    },
+    {
+      "start": 543.42,
+      "end": 547.66,
+      "text": "So it's around $100 per megawatt hour."
+    },
+    {
+      "start": 547.66,
+      "end": 553.14,
+      "text": "And then in red, you have the price of electricity that this Bitcoin miner is going to pay."
+    },
+    {
+      "start": 553.14,
+      "end": 559.06,
+      "text": "And when that price of electricity is greater, so when the red line is over the black line,"
+    },
+    {
+      "start": 559.06,
+      "end": 562.34,
+      "text": "then if the Bitcoin miner stays on, he is penalized."
+    },
+    {
+      "start": 562.34,
+      "end": 569.38,
+      "text": "He has to pay a higher price of electricity than he is earning in revenue from Bitcoin"
+    },
+    {
+      "start": 569.38,
+      "end": 570.38,
+      "text": "mining."
+    },
+    {
+      "start": 570.38,
+      "end": 579.14,
+      "text": "And so it's economically irrational for the Bitcoin miner to stay on during that peak time."
+    },
+    {
+      "start": 579.14,
+      "end": 587.66,
+      "text": "This particular chart looks at August of 2023, which is really the period of greatest"
+    },
+    {
+      "start": 587.66,
+      "end": 590.86,
+      "text": "price volatility in recent memory."
+    },
+    {
+      "start": 590.86,
+      "end": 599.66,
+      "text": "And I believe it was more than 25% of the time during this month or between 25 and 10%"
+    },
+    {
+      "start": 599.66,
+      "end": 604.54,
+      "text": "of the time that the red line was over the black line."
+    },
+    {
+      "start": 604.54,
+      "end": 613.46,
+      "text": "I had to put this chart in log scale because the maximum, regulatory maximum of what the"
+    },
+    {
+      "start": 613.46,
+      "end": 616.74,
+      "text": "electricity price can be is $5,000 per megawatt."
+    },
+    {
+      "start": 616.74,
+      "end": 624.5,
+      "text": "So when we compare the breakeven for Bitcoin mining of around $100 per megawatt with $5,000"
+    },
+    {
+      "start": 624.5,
+      "end": 627.54,
+      "text": "megawatt, that's an order of magnitude difference."
+    },
+    {
+      "start": 627.54,
+      "end": 632.66,
+      "text": "So it's just a lot easier to see what is going on with the electricity price when we look"
+    },
+    {
+      "start": 632.66,
+      "end": 634.94,
+      "text": "at it on a log scale."
+    },
+    {
+      "start": 634.94,
+      "end": 641.98,
+      "text": "And it really highlights that Bitcoin miners are turning off very early in the scarcity"
+    },
+    {
+      "start": 641.98,
+      "end": 643.55,
+      "text": "period."
+    },
+    {
+      "start": 643.55,
+      "end": 648.15,
+      "text": "It's not like they're waiting for the top to turn off, right?"
+    },
+    {
+      "start": 648.15,
+      "end": 652.75,
+      "text": "They're actually turning off long before the peak is hit."
+    },
+    {
+      "start": 652.75,
+      "end": 657.75,
+      "text": "And then they come back online after the peak has occurred."
+    },
+    {
+      "start": 657.75,
+      "end": 664.27,
+      "text": "You can also see here that the price of electricity is far more volatile than the Bitcoin price"
+    },
+    {
+      "start": 664.27,
+      "end": 666.79,
+      "text": "or the Bitcoin mining revenue."
+    },
+    {
+      "start": 666.79,
+      "end": 673.87,
+      "text": "It's just, it's like a heartbeat that in August of 2023 was beating on an almost daily"
+    },
+    {
+      "start": 673.87,
+      "end": 682.63,
+      "text": "basis that in the evening as the sun would set and the solar ramp would remove, I believe"
+    },
+    {
+      "start": 682.63,
+      "end": 688.99,
+      "text": "it was 12 gigawatts last summer, this summer it's 20 gigawatts that you have a massive"
+    },
+    {
+      "start": 688.99,
+      "end": 691.47,
+      "text": "increase in the price of electricity."
+    },
+    {
+      "start": 691.47,
+      "end": 697.79,
+      "text": "So this is the price responsiveness that occurs in real time."
+    },
+    {
+      "start": 697.79,
+      "end": 702.79,
+      "text": "It's far more dynamic than what we have with the smart thermostat."
+    },
+    {
+      "start": 702.79,
+      "end": 711.11,
+      "text": "And I think that there's an argument to be made that retail should have the same exposure"
+    },
+    {
+      "start": 711.11,
+      "end": 716.19,
+      "text": "to the electricity price than Bitcoin miners do."
+    },
+    {
+      "start": 716.19,
+      "end": 722.45,
+      "text": "It's just, it seems to have been politically unpopular because basically what Gritty"
+    },
+    {
+      "start": 722.45,
+      "end": 731.49,
+      "text": "did during winter storm Yuri was charge retail a huge amount of money in order to heat"
+    },
+    {
+      "start": 731.49,
+      "end": 733.09,
+      "text": "their homes."
+    },
+    {
+      "start": 733.09,
+      "end": 736.01,
+      "text": "And people kind of felt like they were being price gouged."
+    },
+    {
+      "start": 736.01,
+      "end": 745.05,
+      "text": "So the reality is that the heating, right, so if it's freezing outside and you want"
+    },
+    {
+      "start": 745.05,
+      "end": 752.93,
+      "text": "to turn on your heater, your revenue is the utility of heat in your home, right?"
+    },
+    {
+      "start": 752.93,
+      "end": 757.9,
+      "text": "It's you consuming that heat, that's the value that you're getting."
+    },
+    {
+      "start": 757.9,
+      "end": 765.82,
+      "text": "And when we think about that value, in many cases, it's probably far greater than the cost"
+    },
+    {
+      "start": 765.82,
+      "end": 771.02,
+      "text": "of electricity, even at $9,000 a megawatt, right, because as a consumer, you're basically"
+    },
+    {
+      "start": 771.02,
+      "end": 776.06,
+      "text": "saying, I want to heat my home at basically any price."
+    },
+    {
+      "start": 776.06,
+      "end": 785.22,
+      "text": "And I'm willing to, you know, make sacrifices to get that, you know, maybe I'll have to drink"
+    },
+    {
+      "start": 785.22,
+      "end": 791.82,
+      "text": "fewer lattes from Starbucks or something, but it really reflects the fact that people"
+    },
+    {
+      "start": 791.82,
+      "end": 798.94,
+      "text": "value energy and they value warmth and, you know, in the winter and then cooling in the"
+    },
+    {
+      "start": 798.94,
+      "end": 799.94,
+      "text": "summer."
+    },
+    {
+      "start": 800.34,
+      "end": 801.78,
+      "text": "A tremendous amount."
+    },
+    {
+      "start": 801.78,
+      "end": 809.7,
+      "text": "And so that's where that's kind of the limit on these smart thermostat programs is that"
+    },
+    {
+      "start": 809.7,
+      "end": 817.94,
+      "text": "people really want to get the outcome of having a comfortable home."
+    },
+    {
+      "start": 817.94,
+      "end": 823.7,
+      "text": "And so I think that, you know, when people talk about, oh, retail consumers should have"
+    },
+    {
+      "start": 823.7,
+      "end": 830.18,
+      "text": "the same access to demand response programs, as Bitcoin miners do, I think that that might"
+    },
+    {
+      "start": 830.18,
+      "end": 835.1,
+      "text": "make sense in a vacuum, but when we look at actual human behavior, the reality is that"
+    },
+    {
+      "start": 835.1,
+      "end": 839.9,
+      "text": "they don't want to be penalized for heating their homes."
+    },
+    {
+      "start": 839.9,
+      "end": 845.94,
+      "text": "And they would much rather, I think they would much rather be rewarded for adding insulation"
+    },
+    {
+      "start": 845.94,
+      "end": 854.94,
+      "text": "to their home and making it more energy efficient through efficiency programs than through"
+    },
+    {
+      "start": 854.94,
+      "end": 856.87,
+      "text": "smart thermostat programs."
+    },
+    {
+      "start": 856.99,
+      "end": 862.15,
+      "text": "Okay, so next slide is looking at, and this is actually something that came out yesterday"
+    },
+    {
+      "start": 862.15,
+      "end": 867.23,
+      "text": "from the EIA, the Energy Information Administration."
+    },
+    {
+      "start": 867.23,
+      "end": 874.91,
+      "text": "So they actually have ways of gathering data legally by going to the grid operator and looking"
+    },
+    {
+      "start": 874.91,
+      "end": 881.99,
+      "text": "up publicly available information in order to take a look at how much electricity Bitcoin"
+    },
+    {
+      "start": 881.99,
+      "end": 884.15,
+      "text": "mining is consuming in Texas."
+    },
+    {
+      "start": 884.15,
+      "end": 890.87,
+      "text": "And they found that it's actually going to be more than 10% of the kilowatt hours in"
+    },
+    {
+      "start": 890.87,
+      "end": 895.51,
+      "text": "2025 will be going to Bitcoin mining here in Texas."
+    },
+    {
+      "start": 895.51,
+      "end": 902.19,
+      "text": "So you've got a massive, you know, at 10% of the grid essentially being responsive to"
+    },
+    {
+      "start": 902.19,
+      "end": 908.91,
+      "text": "real-time prices is going to help provide a cushion for essentially being able to shave"
+    },
+    {
+      "start": 908.95,
+      "end": 912.71,
+      "text": "those peaks while also filling the valleys, right?"
+    },
+    {
+      "start": 912.71,
+      "end": 919.35,
+      "text": "If we look at the underutilization in the system, it's substantial and that we can better"
+    },
+    {
+      "start": 919.35,
+      "end": 925.79,
+      "text": "monetize energy assets by having Bitcoin miners turning on off peak."
+    },
+    {
+      "start": 925.79,
+      "end": 932.51,
+      "text": "I really liked that the EIA's article on this topic that came out on October 3rd did"
+    },
+    {
+      "start": 932.51,
+      "end": 937.91,
+      "text": "highlight that Bitcoin miners are price responsive and that they are large flexible loads."
+    },
+    {
+      "start": 937.91,
+      "end": 945.38,
+      "text": "I think that even from a policy-making perspective at the federal level, there's greater and"
+    },
+    {
+      "start": 945.38,
+      "end": 950.5,
+      "text": "greater understanding of the value that Bitcoin mining has for the grid."
+    },
+    {
+      "start": 950.5,
+      "end": 958.82,
+      "text": "The next topic, once we get past price responsiveness and that kind of demand flexibility, we have"
+    },
+    {
+      "start": 958.82,
+      "end": 961.26,
+      "text": "to talk about ancillary services."
+    },
+    {
+      "start": 961.3,
+      "end": 969.14,
+      "text": "So this chart here is from ERCOT that shows the performance of the large loads, large flexible"
+    },
+    {
+      "start": 969.14,
+      "end": 973.14,
+      "text": "loads during the April 8th solar eclipse."
+    },
+    {
+      "start": 973.14,
+      "end": 979.82,
+      "text": "And what we see is that when the real-time price of electricity went above the break even,"
+    },
+    {
+      "start": 979.82,
+      "end": 982.42,
+      "text": "you had a substantial amount of load shed."
+    },
+    {
+      "start": 982.42,
+      "end": 986.63,
+      "text": "You had one gigawatt of Bitcoin mining load turn off."
+    },
+    {
+      "start": 987.51,
+      "end": 994.88,
+      "text": "They've got that in blue in green at the bottom is the ancillary service responsibility."
+    },
+    {
+      "start": 994.88,
+      "end": 1001.96,
+      "text": "And what you see there is that it's a flat line through the solar eclipse and one might"
+    },
+    {
+      "start": 1001.96,
+      "end": 1005.36,
+      "text": "wonder, okay, well, why is ERCOT doing this?"
+    },
+    {
+      "start": 1005.36,
+      "end": 1012.44,
+      "text": "Why are they paying Bitcoin miners to stay on during the solar eclipse?"
+    },
+    {
+      "start": 1013.26,
+      "end": 1019.18,
+      "text": "Conversely, why are they paying power generators, power plants to stay off during the solar"
+    },
+    {
+      "start": 1019.18,
+      "end": 1021.06,
+      "text": "eclipse in reserve?"
+    },
+    {
+      "start": 1021.06,
+      "end": 1029.5,
+      "text": "Well, the answer is grid reliability because what they want is they want these resources to"
+    },
+    {
+      "start": 1029.5,
+      "end": 1036.94,
+      "text": "ignore the real-time price of electricity and only listen to ERCOT's reliability directives."
+    },
+    {
+      "start": 1036.94,
+      "end": 1040.34,
+      "text": "And so this falls under a lot of different buckets."
+    },
+    {
+      "start": 1040.58,
+      "end": 1048.58,
+      "text": "So this chart shows each ERCOT, sorry, each ERCOT ancillary service program, each product"
+    },
+    {
+      "start": 1048.58,
+      "end": 1052.48,
+      "text": "that they have, and its purpose."
+    },
+    {
+      "start": 1052.48,
+      "end": 1056.56,
+      "text": "So we start with the shortest duration, right?"
+    },
+    {
+      "start": 1056.56,
+      "end": 1062.7,
+      "text": "So these are broken down into what is the expected response time."
+    },
+    {
+      "start": 1062.7,
+      "end": 1064.46,
+      "text": "The first is reg up and reg down."
+    },
+    {
+      "start": 1064.46,
+      "end": 1069.29,
+      "text": "So that's short for regulation service up and regulation service down."
+    },
+    {
+      "start": 1069.29,
+      "end": 1077.93,
+      "text": "So this is to really try to stabilize the system frequency around 60 hertz."
+    },
+    {
+      "start": 1077.93,
+      "end": 1081.21,
+      "text": "And the response time is a matter of seconds."
+    },
+    {
+      "start": 1081.21,
+      "end": 1089.25,
+      "text": "Now typically, ERCOT procures between 190 and 880 megawatts of this resource."
+    },
+    {
+      "start": 1089.25,
+      "end": 1097.69,
+      "text": "And what that means is that if you're a Bitcoin miner who is providing this resource and"
+    },
+    {
+      "start": 1097.69,
+      "end": 1107.57,
+      "text": "reg up or reg down, you're going to get paid to essentially stay on so that ERCOT can"
+    },
+    {
+      "start": 1107.57,
+      "end": 1114.29,
+      "text": "choose which specific seconds, right, are you going to be turning off?"
+    },
+    {
+      "start": 1114.29,
+      "end": 1116.29,
+      "text": "And then they'll turn you back on."
+    },
+    {
+      "start": 1116.29,
+      "end": 1122.29,
+      "text": "So it's about controlling this load in a very short time frame that is unrelated to the"
+    },
+    {
+      "start": 1122.29,
+      "end": 1124.85,
+      "text": "real-time price of electricity."
+    },
+    {
+      "start": 1124.85,
+      "end": 1128.09,
+      "text": "In the next category, there is the responsive reserve service."
+    },
+    {
+      "start": 1128.09,
+      "end": 1133.29,
+      "text": "So you've got primary frequency response, under frequency response, and fast frequency"
+    },
+    {
+      "start": 1133.29,
+      "end": 1134.93,
+      "text": "response."
+    },
+    {
+      "start": 1134.93,
+      "end": 1140.17,
+      "text": "These range from one minute to an hour to 15 minutes."
+    },
+    {
+      "start": 1140.17,
+      "end": 1146.37,
+      "text": "And ERCOT procures two to three gigawatts of this reserve."
+    },
+    {
+      "start": 1146.37,
+      "end": 1151.41,
+      "text": "And then you have ECRS, ERCOT contingency reserve service."
+    },
+    {
+      "start": 1151.41,
+      "end": 1156.01,
+      "text": "This is usually deployed when there's a very fast solar ramp."
+    },
+    {
+      "start": 1156.01,
+      "end": 1161.05,
+      "text": "And so it answers controls within 10 minutes."
+    },
+    {
+      "start": 1161.05,
+      "end": 1164.81,
+      "text": "And ERCOT procures between one and three gigawatts of this reserve."
+    },
+    {
+      "start": 1164.81,
+      "end": 1169.65,
+      "text": "Last but not least, you have non-spin reserve service."
+    },
+    {
+      "start": 1169.65,
+      "end": 1174.09,
+      "text": "And this ERCOT procures between two and three gigawatts of."
+    },
+    {
+      "start": 1174.09,
+      "end": 1178.85,
+      "text": "It can respond within 30 minutes and last up to four hours."
+    },
+    {
+      "start": 1178.85,
+      "end": 1184.69,
+      "text": "So all of these reserves are procured in the day ahead market."
+    },
+    {
+      "start": 1184.69,
+      "end": 1190.05,
+      "text": "And when it's a load, ERCOT is paying to keep that load on."
+    },
+    {
+      "start": 1190.05,
+      "end": 1194.29,
+      "text": "And when it's a generator, ERCOT's paying to keep that generator off."
+    },
+    {
+      "start": 1194.29,
+      "end": 1200.61,
+      "text": "And it's by maintaining those reserves that ERCOT can achieve its reliability mandate."
+    },
+    {
+      "start": 1200.61,
+      "end": 1203.41,
+      "text": "Without those reserves, you would get into problems."
+    },
+    {
+      "start": 1203.41,
+      "end": 1205.97,
+      "text": "So let's talk about the problems."
+    },
+    {
+      "start": 1205.97,
+      "end": 1213.09,
+      "text": "This chart shows the ERCOT emergency emergency alert communications."
+    },
+    {
+      "start": 1213.09,
+      "end": 1217.53,
+      "text": "So this is kind of the range of different outcomes, different scenarios you can have"
+    },
+    {
+      "start": 1217.53,
+      "end": 1219.21,
+      "text": "on the grid."
+    },
+    {
+      "start": 1219.21,
+      "end": 1222.29,
+      "text": "Hopefully, we're always in normal conditions, okay?"
+    },
+    {
+      "start": 1222.29,
+      "end": 1226.25,
+      "text": "So this is where ERCOT has ample reserves, right?"
+    },
+    {
+      "start": 1226.25,
+      "end": 1232.37,
+      "text": "So I talked about the reserves, but I didn't talk about the energy market."
+    },
+    {
+      "start": 1232.37,
+      "end": 1236.49,
+      "text": "So you have the reserves that ERCOT procures."
+    },
+    {
+      "start": 1236.49,
+      "end": 1244.85,
+      "text": "And that's on top of the energy market where essentially that's the, if you've got 80"
+    },
+    {
+      "start": 1244.85,
+      "end": 1251.41,
+      "text": "gigawatts of demand, ERCOT will make sure that there's 80 gigawatts of supply lined up,"
+    },
+    {
+      "start": 1251.41,
+      "end": 1252.41,
+      "text": "right?"
+    },
+    {
+      "start": 1252.41,
+      "end": 1255.85,
+      "text": "Scheduled out to provide electricity."
+    },
+    {
+      "start": 1255.85,
+      "end": 1262.73,
+      "text": "And so that's where demand is paying generation, right?"
+    },
+    {
+      "start": 1262.73,
+      "end": 1265.77,
+      "text": "Loads are paying generators to stay on."
+    },
+    {
+      "start": 1265.77,
+      "end": 1269.41,
+      "text": "So loads are on, generators are on, everybody's happy."
+    },
+    {
+      "start": 1269.41,
+      "end": 1271.33,
+      "text": "So that's kind of the energy market."
+    },
+    {
+      "start": 1271.33,
+      "end": 1277.25,
+      "text": "And then as things shift around, you know, loads will turn off, generators will turn off"
+    },
+    {
+      "start": 1277.25,
+      "end": 1280.08,
+      "text": "in response and vice versa."
+    },
+    {
+      "start": 1280.08,
+      "end": 1285.76,
+      "text": "The reserves are a safety blanket on top of that energy system."
+    },
+    {
+      "start": 1285.76,
+      "end": 1291.48,
+      "text": "And the reserves are to make sure that things, you know, that from an electrical engineering"
+    },
+    {
+      "start": 1291.48,
+      "end": 1294.34,
+      "text": "perspective, things continue to work."
+    },
+    {
+      "start": 1294.34,
+      "end": 1300.3,
+      "text": "When the reserves are greater than three gigawatts, we're in normal conditions."
+    },
+    {
+      "start": 1300.3,
+      "end": 1305.26,
+      "text": "And so there's nothing, nothing happening, all green, all good."
+    },
+    {
+      "start": 1305.26,
+      "end": 1313.74,
+      "text": "Now as reserves get a little tighter, you might see ERCOT announce a conservation alert."
+    },
+    {
+      "start": 1313.74,
+      "end": 1317.54,
+      "text": "And that's where they'll send a text message to everyone and say, hey, you know, maybe"
+    },
+    {
+      "start": 1317.54,
+      "end": 1323.56,
+      "text": "back off on your conditioning a little bit, things could be a little bit tight."
+    },
+    {
+      "start": 1323.56,
+      "end": 1329.36,
+      "text": "And then you have control room advisory, control room watch as you go below three gigawatts"
+    },
+    {
+      "start": 1329.36,
+      "end": 1333.78,
+      "text": "of reserves and then two and a half gigawatts of reserve."
+    },
+    {
+      "start": 1333.78,
+      "end": 1338.42,
+      "text": "And then once you're below 2.3 gigawatts, you go into EEA1."
+    },
+    {
+      "start": 1338.42,
+      "end": 1342.74,
+      "text": "So this is an energy emergency alert."
+    },
+    {
+      "start": 1342.74,
+      "end": 1351.3,
+      "text": "And that's where you need to really start reaching out to folks, telling them to turn"
+    },
+    {
+      "start": 1351.3,
+      "end": 1354.58,
+      "text": "on generators, turn off loads."
+    },
+    {
+      "start": 1354.58,
+      "end": 1358.86,
+      "text": "You also start to see emergency response service, ERS."
+    },
+    {
+      "start": 1358.86,
+      "end": 1365.26,
+      "text": "So ERS is one of the demand flexibility programs here in Texas."
+    },
+    {
+      "start": 1365.26,
+      "end": 1369.42,
+      "text": "So ERS starts getting deployed and then you have EEA2."
+    },
+    {
+      "start": 1369.42,
+      "end": 1376.38,
+      "text": "And so once you started getting into EEAs, this is where the grid operator is really smashing"
+    },
+    {
+      "start": 1376.38,
+      "end": 1379.7,
+      "text": "the button on deploying reserves."
+    },
+    {
+      "start": 1379.7,
+      "end": 1387.62,
+      "text": "And essentially taking resources out of reserve and deploying them onto the grid."
+    },
+    {
+      "start": 1387.62,
+      "end": 1391.62,
+      "text": "So that means that for Bitcoin miners, they would be telling you Bitcoin miners to turn"
+    },
+    {
+      "start": 1391.62,
+      "end": 1393.03,
+      "text": "off."
+    },
+    {
+      "start": 1393.27,
+      "end": 1396.71,
+      "text": "And I want to emphasize here, they're not paying the Bitcoin miners to turn off in this"
+    },
+    {
+      "start": 1396.71,
+      "end": 1397.71,
+      "text": "scenario."
+    },
+    {
+      "start": 1397.71,
+      "end": 1404.43,
+      "text": "In fact, when they tell a Bitcoin miner to turn off that's in reserve in Ancillary Services,"
+    },
+    {
+      "start": 1404.43,
+      "end": 1410.51,
+      "text": "they're doing it under threat of penalty of saying, if you don't turn off right now,"
+    },
+    {
+      "start": 1410.51,
+      "end": 1416.03,
+      "text": "you're going to have to pay fines and you might get kicked out of Ancillary Services."
+    },
+    {
+      "start": 1416.03,
+      "end": 1420.82,
+      "text": "So there are, this is the stick situation."
+    },
+    {
+      "start": 1420.82,
+      "end": 1426.14,
+      "text": "But the Bitcoin miner has voluntarily entered into the stick situation, meaning that the"
+    },
+    {
+      "start": 1426.14,
+      "end": 1433.77,
+      "text": "day before the Bitcoin miner was competing to be in Ancillary Services to get paid to"
+    },
+    {
+      "start": 1433.77,
+      "end": 1435.53,
+      "text": "stay on."
+    },
+    {
+      "start": 1435.53,
+      "end": 1441.65,
+      "text": "And then when an EEA happens, it's not like the grid operator or the Bitcoin miner was"
+    },
+    {
+      "start": 1441.65,
+      "end": 1445.41,
+      "text": "expecting an EEA to happen."
+    },
+    {
+      "start": 1445.41,
+      "end": 1447.45,
+      "text": "They certainly don't want it to happen."
+    },
+    {
+      "start": 1448.58,
+      "end": 1457.7,
+      "text": "When they get into that situation, it is very much one of all hands on deck and punitive"
+    },
+    {
+      "start": 1457.7,
+      "end": 1461.7,
+      "text": "rather than rewarding Bitcoin miners."
+    },
+    {
+      "start": 1461.7,
+      "end": 1464.62,
+      "text": "Exact same scenario for batteries and power plants, by the way."
+    },
+    {
+      "start": 1464.62,
+      "end": 1473.74,
+      "text": "So if a battery is instructed to discharge, they will get penalized if they do not discharge"
+    },
+    {
+      "start": 1473.74,
+      "end": 1477.98,
+      "text": "and they're part of Ancillary Services, same thing with a natural gas power plant."
+    },
+    {
+      "start": 1477.98,
+      "end": 1486.54,
+      "text": "So once they've exhausted all the reserves and they're unable to maintain system frequency"
+    },
+    {
+      "start": 1486.54,
+      "end": 1495.94,
+      "text": "above 59 hertz, 59.91 hertz, then you start getting into rotating outages."
+    },
+    {
+      "start": 1495.94,
+      "end": 1498.94,
+      "text": "So this is what happened with winter storm Yuri."
+    },
+    {
+      "start": 1498.94,
+      "end": 1505.5,
+      "text": "They have to turn off parts of the grid in order to maintain the overall stability of"
+    },
+    {
+      "start": 1505.5,
+      "end": 1506.9,
+      "text": "the system."
+    },
+    {
+      "start": 1506.9,
+      "end": 1513.46,
+      "text": "This shows that this is why we have reserves is so that they are available there as a cushion"
+    },
+    {
+      "start": 1513.46,
+      "end": 1519.94,
+      "text": "for ERCOT to release into the system when things are tight."
+    },
+    {
+      "start": 1519.94,
+      "end": 1526.5,
+      "text": "And it really is about maintaining system frequency rather than trying to target a price"
+    },
+    {
+      "start": 1526.5,
+      "end": 1528.86,
+      "text": "of electricity."
+    },
+    {
+      "start": 1528.86,
+      "end": 1532.38,
+      "text": "This is really becomes apparent when we start looking at transmission constraints."
+    },
+    {
+      "start": 1532.38,
+      "end": 1540.0,
+      "text": "So you can have an EEA on the whole system of the whole ERCOT grid, but you can also have"
+    },
+    {
+      "start": 1540.0,
+      "end": 1543.04,
+      "text": "an EEA on a specific transmission constraint."
+    },
+    {
+      "start": 1543.04,
+      "end": 1549.28,
+      "text": "And you can say, hey, look, and this happened last year where there was one specific power"
+    },
+    {
+      "start": 1549.28,
+      "end": 1553.04,
+      "text": "line where they were like, okay, this is a bad situation here."
+    },
+    {
+      "start": 1553.04,
+      "end": 1557.52,
+      "text": "If we push more electricity through this power line, it's going to melt down."
+    },
+    {
+      "start": 1557.52,
+      "end": 1564.52,
+      "text": "And so we have to find ways to curtail load or to increase generation on one side or the"
+    },
+    {
+      "start": 1564.52,
+      "end": 1570.74,
+      "text": "other of the line, regardless of what the electricity price is, right?"
+    },
+    {
+      "start": 1570.74,
+      "end": 1574.7,
+      "text": "Because now you're having to deal with an electrical engineering constraint."
+    },
+    {
+      "start": 1574.7,
+      "end": 1576.9,
+      "text": "It's not an economic constraint."
+    },
+    {
+      "start": 1576.9,
+      "end": 1581.54,
+      "text": "And so it's very important to keep in mind that answer your services are not there to"
+    },
+    {
+      "start": 1581.54,
+      "end": 1588.34,
+      "text": "suppress the price of electricity when things get expensive."
+    },
+    {
+      "start": 1588.34,
+      "end": 1591.98,
+      "text": "They are there to respond to engineering challenges."
+    },
+    {
+      "start": 1591.98,
+      "end": 1592.98,
+      "text": "Okay."
+    },
+    {
+      "start": 1592.98,
+      "end": 1600.58,
+      "text": "Next demand response program I want to dive into is called four coincident peaks, four"
+    },
+    {
+      "start": 1600.58,
+      "end": 1601.98,
+      "text": "CP."
+    },
+    {
+      "start": 1601.98,
+      "end": 1610.76,
+      "text": "So this program is really about modifying transmission costs to try to better reflect who is causing"
+    },
+    {
+      "start": 1610.76,
+      "end": 1616.2,
+      "text": "the need for incremental additional transmission investments."
+    },
+    {
+      "start": 1616.2,
+      "end": 1623.2,
+      "text": "And so they look at who was consuming the most electricity at specific periods of time,"
+    },
+    {
+      "start": 1623.2,
+      "end": 1629.44,
+      "text": "at the peak times, in fact, in June, July, August, September, right, during those hot summer"
+    },
+    {
+      "start": 1629.44,
+      "end": 1634.8,
+      "text": "months, at the peak time, who was consuming the most electricity?"
+    },
+    {
+      "start": 1634.8,
+      "end": 1641.0,
+      "text": "And if you are not consuming electricity at those peak times, then you get your demand"
+    },
+    {
+      "start": 1641.0,
+      "end": 1642.56,
+      "text": "charges reduced."
+    },
+    {
+      "start": 1642.56,
+      "end": 1645.28,
+      "text": "So on your electricity bill, you've got two kinds of charges."
+    },
+    {
+      "start": 1645.28,
+      "end": 1651.6,
+      "text": "You've got energy charges, which is how much electricity in total did you consume throughout"
+    },
+    {
+      "start": 1651.6,
+      "end": 1653.44,
+      "text": "that month, for example?"
+    },
+    {
+      "start": 1653.44,
+      "end": 1659.4,
+      "text": "And then you have demand charges of, okay, what was at the peak times how much electricity"
+    },
+    {
+      "start": 1659.4,
+      "end": 1661.94,
+      "text": "were you consuming?"
+    },
+    {
+      "start": 1661.94,
+      "end": 1666.98,
+      "text": "Because those demand charges go towards the transmission and distribution system, whereas"
+    },
+    {
+      "start": 1666.98,
+      "end": 1670.5,
+      "text": "the energy charges go to generators."
+    },
+    {
+      "start": 1670.5,
+      "end": 1676.74,
+      "text": "And so there are two different sources of cost going to two different, you know, participants"
+    },
+    {
+      "start": 1676.74,
+      "end": 1677.94,
+      "text": "in the system."
+    },
+    {
+      "start": 1677.94,
+      "end": 1685.42,
+      "text": "Four CP allows you to reduce your demand charges by not being on during those peak times."
+    },
+    {
+      "start": 1685.42,
+      "end": 1690.02,
+      "text": "And it's really, it's something that, you know, it can be hard to guess sometimes what"
+    },
+    {
+      "start": 1690.02,
+      "end": 1691.02,
+      "text": "the peak time is."
+    },
+    {
+      "start": 1691.02,
+      "end": 1698.58,
+      "text": "And so you've got four CP alerts that will say, hey, you might, this might be the peak."
+    },
+    {
+      "start": 1698.58,
+      "end": 1701.06,
+      "text": "We won't know until after the fact."
+    },
+    {
+      "start": 1701.06,
+      "end": 1708.26,
+      "text": "But if you want to participate in the four CP program, then you should turn off your load"
+    },
+    {
+      "start": 1708.26,
+      "end": 1709.86,
+      "text": "during this time."
+    },
+    {
+      "start": 1709.86,
+      "end": 1718.02,
+      "text": "And then what we see here in these charts is looking at 2022, what was the effect, this"
+    },
+    {
+      "start": 1718.02,
+      "end": 1722.1,
+      "text": "is from grid status of four CP."
+    },
+    {
+      "start": 1722.1,
+      "end": 1732.1,
+      "text": "And what we see is that the peak time is actually not with the peak electricity price."
+    },
+    {
+      "start": 1732.1,
+      "end": 1737.78,
+      "text": "So the peak time generally happens before the peak electricity price."
+    },
+    {
+      "start": 1737.78,
+      "end": 1746.31,
+      "text": "And that's because four CP does not include solar and wind, meaning that it's a total"
+    },
+    {
+      "start": 1746.31,
+      "end": 1747.31,
+      "text": "load."
+    },
+    {
+      "start": 1747.31,
+      "end": 1749.23,
+      "text": "It's not a net load."
+    },
+    {
+      "start": 1749.23,
+      "end": 1752.39,
+      "text": "Net load will subtract out solar and wind."
+    },
+    {
+      "start": 1752.39,
+      "end": 1756.67,
+      "text": "And net load is typically what you would look at to get some indication of where the"
+    },
+    {
+      "start": 1756.67,
+      "end": 1759.19,
+      "text": "electricity price might be."
+    },
+    {
+      "start": 1759.19,
+      "end": 1766.91,
+      "text": "In the report that Professor Lay She wrote, he suggested to look at, or, you know, that"
+    },
+    {
+      "start": 1766.91,
+      "end": 1771.19,
+      "text": "there are two other methodologies that are out there."
+    },
+    {
+      "start": 1771.19,
+      "end": 1775.23,
+      "text": "One is to look at net for CP."
+    },
+    {
+      "start": 1775.23,
+      "end": 1779.99,
+      "text": "And the other is to look at six CP, or you could even, you know, people have said 12 CP"
+    },
+    {
+      "start": 1779.99,
+      "end": 1787.31,
+      "text": "of looking at more months than just the summer months, because you can actually have peaks"
+    },
+    {
+      "start": 1787.31,
+      "end": 1795.91,
+      "text": "happen outside of the summer months, for example, in winter, but also in outage season when"
+    },
+    {
+      "start": 1795.91,
+      "end": 1801.87,
+      "text": "natural gas plants are in maintenance mode, sometimes you can have a surprising demand"
+    },
+    {
+      "start": 1801.87,
+      "end": 1803.27,
+      "text": "spike."
+    },
+    {
+      "start": 1803.27,
+      "end": 1809.99,
+      "text": "So that's four CP now we're going to shift gears here because, you know, away from kind"
+    },
+    {
+      "start": 1809.99,
+      "end": 1816.79,
+      "text": "of just purely looking at demand flexibility, because we also want to look at how does the"
+    },
+    {
+      "start": 1816.79,
+      "end": 1820.19,
+      "text": "grid interact with neighboring grids?"
+    },
+    {
+      "start": 1820.19,
+      "end": 1826.91,
+      "text": "So you'll hear people say that Texas, Ircott, the grid should be joining the national grid"
+    },
+    {
+      "start": 1826.91,
+      "end": 1827.91,
+      "text": "is what they'll say."
+    },
+    {
+      "start": 1827.91,
+      "end": 1834.19,
+      "text": "And then, you know, it's a really interesting question because when we look at a map of"
+    },
+    {
+      "start": 1834.19,
+      "end": 1838.23,
+      "text": "North America, there's not a national grid."
+    },
+    {
+      "start": 1838.23,
+      "end": 1842.47,
+      "text": "There is actually lots of different grids."
+    },
+    {
+      "start": 1842.47,
+      "end": 1849.07,
+      "text": "And what these show, these, you might hear them refer to as interconnections, but it's"
+    },
+    {
+      "start": 1849.07,
+      "end": 1852.67,
+      "text": "really about what system frequency are they on, right?"
+    },
+    {
+      "start": 1852.67,
+      "end": 1859.28,
+      "text": "So Texas is on its 60 hertz, and these other interconnects, they might be at 60 hertz"
+    },
+    {
+      "start": 1859.28,
+      "end": 1866.2,
+      "text": "as well, that is 60 cycles per second, but they might not necessarily be in tune with"
+    },
+    {
+      "start": 1866.2,
+      "end": 1867.2,
+      "text": "each other, right?"
+    },
+    {
+      "start": 1867.2,
+      "end": 1874.48,
+      "text": "So they might not be at the same 60 hertz and getting these grids to connect is really"
+    },
+    {
+      "start": 1874.48,
+      "end": 1879.84,
+      "text": "about saying, hey, let's have this alternating current all on 60 hertz across the whole"
+    },
+    {
+      "start": 1879.84,
+      "end": 1888.36,
+      "text": "continent, which is kind of an engineering challenge that has been tried in the past."
+    },
+    {
+      "start": 1888.36,
+      "end": 1895.16,
+      "text": "So they did actually get the whole United States to the same 60 hertz once in the past."
+    },
+    {
+      "start": 1895.16,
+      "end": 1898.8,
+      "text": "It was found to be too expensive, and so they stopped doing that."
+    },
+    {
+      "start": 1898.8,
+      "end": 1903.8,
+      "text": "So I don't think that when people talk about Ircott joining the national grid, I don't"
+    },
+    {
+      "start": 1903.8,
+      "end": 1906.36,
+      "text": "think they necessarily know what they're talking about."
+    },
+    {
+      "start": 1906.36,
+      "end": 1912.24,
+      "text": "I think that they're usually, what they want to talk about is that for whatever reason"
+    },
+    {
+      "start": 1912.24,
+      "end": 1921.71,
+      "text": "they want Ircott to be subject to federal regulatory oversight, it might be related to other"
+    },
+    {
+      "start": 1921.71,
+      "end": 1928.67,
+      "text": "policy situations that might be environmentally related, carbon emissions or other topics"
+    },
+    {
+      "start": 1928.67,
+      "end": 1930.39,
+      "text": "like that."
+    },
+    {
+      "start": 1930.39,
+      "end": 1937.83,
+      "text": "But I don't think that there's a real reliability argument for connecting all of these different"
+    },
+    {
+      "start": 1937.83,
+      "end": 1943.31,
+      "text": "interconnects into one giant mega grid, because at the end of the day, you're still going"
+    },
+    {
+      "start": 1943.31,
+      "end": 1948.87,
+      "text": "to have constraints, you're still going to have to have ancillary services and demand"
+    },
+    {
+      "start": 1948.87,
+      "end": 1950.71,
+      "text": "response and all the rest."
+    },
+    {
+      "start": 1950.71,
+      "end": 1956.79,
+      "text": "Now the way that Texas is connected to other grids is not through alternating current of"
+    },
+    {
+      "start": 1956.79,
+      "end": 1962.49,
+      "text": "maintaining the same 60 hertz, but rather through direct current DC ties."
+    },
+    {
+      "start": 1962.49,
+      "end": 1964.27,
+      "text": "So there's currently four of them."
+    },
+    {
+      "start": 1964.27,
+      "end": 1966.35,
+      "text": "Two of them are with Mexico."
+    },
+    {
+      "start": 1966.35,
+      "end": 1974.03,
+      "text": "One is with Oklahoma, and the other is with the eastern part of Texas that is technically"
+    },
+    {
+      "start": 1974.03,
+      "end": 1976.99,
+      "text": "not in the Ircott region."
+    },
+    {
+      "start": 1976.99,
+      "end": 1980.07,
+      "text": "So Ircott does not cover the whole state of Texas."
+    },
+    {
+      "start": 1980.07,
+      "end": 1986.03,
+      "text": "There's parts of Texas that are actually parts of other interconnects interestingly enough."
+    },
+    {
+      "start": 1986.03,
+      "end": 1992.91,
+      "text": "Now a piece of news that came out recently that I thought was interesting was that they"
+    },
+    {
+      "start": 1992.91,
+      "end": 2003.11,
+      "text": "have approved a new DC tie called Southern Spirit that will cross from Texas through Louisiana"
+    },
+    {
+      "start": 2003.11,
+      "end": 2004.51,
+      "text": "to Mississippi."
+    },
+    {
+      "start": 2004.51,
+      "end": 2011.31,
+      "text": "And so this will help export electricity from Texas to other southern states."
+    },
+    {
+      "start": 2011.31,
+      "end": 2013.99,
+      "text": "And it is of substantial size."
+    },
+    {
+      "start": 2013.99,
+      "end": 2018.31,
+      "text": "It just got approved for a grant from the Department of Energy."
+    },
+    {
+      "start": 2018.31,
+      "end": 2024.83,
+      "text": "So that's going to further connect the Texas grid to the rest of the United States in"
+    },
+    {
+      "start": 2024.83,
+      "end": 2032.51,
+      "text": "a way that's kind of more rational than trying to force everyone on the same 60 hertz instead."
+    },
+    {
+      "start": 2032.51,
+      "end": 2040.55,
+      "text": "You know, let's build some high voltage direct current and get electricity moving to other"
+    },
+    {
+      "start": 2040.55,
+      "end": 2043.5,
+      "text": "states through that methodology."
+    },
+    {
+      "start": 2043.5,
+      "end": 2051.74,
+      "text": "This is particularly good for solar because when we think about the solar ramp, if you move"
+    },
+    {
+      "start": 2051.74,
+      "end": 2059.74,
+      "text": "things west or east, now you have a different solar ramp because the sun is setting gradually"
+    },
+    {
+      "start": 2059.74,
+      "end": 2061.3,
+      "text": "over the United States."
+    },
+    {
+      "start": 2061.3,
+      "end": 2069.26,
+      "text": "And so you can kind of smooth out the solar ramp by having better transmission between"
+    },
+    {
+      "start": 2069.26,
+      "end": 2071.58,
+      "text": "states going east and west."
+    },
+    {
+      "start": 2071.58,
+      "end": 2072.58,
+      "text": "All right."
+    },
+    {
+      "start": 2072.58,
+      "end": 2079.82,
+      "text": "So for today, we took a deep dive into demand flexibility looked at some of the transmission"
+    },
+    {
+      "start": 2079.82,
+      "end": 2084.74,
+      "text": "implications and how ERCOT operates the grid."
+    },
+    {
+      "start": 2084.74,
+      "end": 2086.94,
+      "text": "Hope you found it interesting."
+    },
+    {
+      "start": 2086.94,
+      "end": 2088.78,
+      "text": "There's lots of different moving parts."
+    },
+    {
+      "start": 2088.78,
+      "end": 2093.26,
+      "text": "And I think that it's important to unpack all these different concepts because when they"
+    },
+    {
+      "start": 2093.26,
+      "end": 2099.34,
+      "text": "get simplified by journalists and by others and they all get put into one demand response"
+    },
+    {
+      "start": 2099.34,
+      "end": 2100.9,
+      "text": "bucket."
+    },
+    {
+      "start": 2100.9,
+      "end": 2107.74,
+      "text": "I think people get confused as to what demand response is and whether they want to participate"
+    },
+    {
+      "start": 2107.74,
+      "end": 2109.26,
+      "text": "in it or not."
+    },
+    {
+      "start": 2109.26,
+      "end": 2112.74,
+      "text": "So hopefully you found it enlightening."
+    },
+    {
+      "start": 2112.74,
+      "end": 2118.98,
+      "text": "Leave a five star review for the podcast, share, subscribe, and let us know if you have"
+    },
+    {
+      "start": 2118.98,
+      "end": 2119.98,
+      "text": "any questions."
+    },
+    {
+      "start": 2119.98,
+      "end": 2122.34,
+      "text": "We'd be happy to dive into them in the next episode."
+    },
+    {
+      "start": 2122.34,
+      "end": 2123.1,
+      "text": "Cheers."
+    }
+  ],
+  "topics": [
+    "mining",
+    "price",
+    "regulation",
+    "macro",
+    "privacy"
+  ],
+  "sentiment": "bullish",
+  "archived_at": "2026-03-13T09:46:01Z"
+}

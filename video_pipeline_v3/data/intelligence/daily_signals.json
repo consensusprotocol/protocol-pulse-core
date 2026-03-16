@@ -1,66 +1,66 @@
 {
   "topic_velocity": [
     {
-      "topic": "etf",
-      "channels": 19,
-      "sentiment": "bullish",
+      "topic": "mining",
+      "channels": 9,
+      "sentiment": "bearish",
       "velocity_score": 100
     },
     {
       "topic": "price",
-      "channels": 36,
+      "channels": 12,
       "sentiment": "bullish",
       "velocity_score": 100
     },
     {
       "topic": "regulation",
-      "channels": 34,
-      "sentiment": "bullish",
-      "velocity_score": 100
-    },
-    {
-      "topic": "macro",
-      "channels": 33,
-      "sentiment": "bullish",
-      "velocity_score": 100
-    },
-    {
-      "topic": "privacy",
-      "channels": 35,
-      "sentiment": "bullish",
-      "velocity_score": 100
-    },
-    {
-      "topic": "mining",
-      "channels": 32,
+      "channels": 10,
       "sentiment": "bullish",
       "velocity_score": 100
     },
     {
       "topic": "lightning",
-      "channels": 27,
+      "channels": 9,
       "sentiment": "bullish",
       "velocity_score": 100
     },
     {
-      "topic": "self-custody",
-      "channels": 11,
+      "topic": "macro",
+      "channels": 10,
       "sentiment": "bullish",
       "velocity_score": 100
     },
     {
       "topic": "institutional",
-      "channels": 22,
+      "channels": 9,
       "sentiment": "bullish",
       "velocity_score": 100
+    },
+    {
+      "topic": "privacy",
+      "channels": 11,
+      "sentiment": "bullish",
+      "velocity_score": 100
+    },
+    {
+      "topic": "self-custody",
+      "channels": 5,
+      "sentiment": "bullish",
+      "velocity_score": 80
+    },
+    {
+      "topic": "etf",
+      "channels": 3,
+      "sentiment": "neutral",
+      "velocity_score": 50
     }
   ],
   "breaking_threshold": true,
   "recommended_topics": [
-    "etf",
+    "mining",
     "price",
     "regulation"
   ],
-  "scan_time": "2026-03-12T23:17:13Z",
-  "total_videos_48h": 91
+  "scan_time": "2026-03-16T04:16:17Z",
+  "total_videos_48h": 17
 }
