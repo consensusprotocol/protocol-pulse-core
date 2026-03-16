@@ -177,7 +177,7 @@ FREEZE FRAMES (>1s): {freeze_count}
 Grade each dimension 1-10. Then calculate weighted overall score.
 
 TECHNICAL QUALITY (40% weight):
-1. duration_check: 240-480s ideal (8-8min). Under 180s = automatic F. 480-600s acceptable. Over 600s penalise.
+1. duration_check: 300-600s ideal (5-10min). Under 180s = automatic F. 600-900s acceptable. Over 900s penalise.
 2. resolution_check: 1920x1080 = 10. 1280x720 = 7. Anything else = fail.
 3. framerate_check: 24-30fps = 10. Under 24fps = 5. Under 15fps = 0.
 4. loudness_check: -16 to -14 LUFS = 10. -18 to -12 LUFS = 7. Outside -20 to -10 = critical failure (score 0).
@@ -256,6 +256,7 @@ Grade thresholds:
 - C: overall_score 60-74
 - D: overall_score 40-59
 - F: overall_score < 40 OR duration < 180s OR clipping OR 2+ mid-video black segments
+Note: Episodes up to 900s (15min) are acceptable. 10-15 minute episodes with 5 clips are the target format.
 """
 
 # ── Call Gemini ───────────────────────────────────────────────────────────────

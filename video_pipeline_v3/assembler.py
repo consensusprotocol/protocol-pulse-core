@@ -320,11 +320,11 @@ def _build_info_bar_fg(duration: float, btc_price: str, block_height: str = "",
     date_str = datetime.datetime.now().strftime("%b %d, %Y").upper()
     safe_btc = btc_price.replace("'", "").replace('"', "").replace("\\", "")
 
-    content = (f"  PROTOCOL PULSE  //  BTC {safe_btc}  //  {date_str}"
+    content = (f"  PROTOCOL PULSE  //  BITCOIN {safe_btc}  //  {date_str}"
                f"  //  PROTOCOLPULSE.IO  //  STAY SOVEREIGN  "
                f"  //  PROTOCOL PULSE DAILY BRIEF  //  {date_str}"
                f"  //  FEAR/GREED  //  STAY SOVEREIGN"
-               f"  //  BTC {safe_btc}  //  PROTOCOLPULSE.IO  ")
+               f"  //  BITCOIN {safe_btc}  //  PROTOCOLPULSE.IO  ")
     safe_content = content.replace("'", "").replace('"', "").replace("\\", "")
 
     fg = ""
@@ -462,7 +462,7 @@ def make_intro_video(output_path: str) -> str:
             "-i", jingle_path,
             "-filter_complex",
             (f"[0:v]{vf}[outv];"
-             f"[0:a]volume=0.7[va];[1:a]volume=0.9[vb];"
+             f"[0:a]volume=0.15[va];[1:a]volume=0.25[vb];"
              f"[va][vb]amix=inputs=2:duration=shortest,"
              f"afade=t=out:st={fade_out_a}:d=1.5[outa]"),
             "-map", "[outv]",
@@ -758,7 +758,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                         f"[0:v]{vf},"
                         f"fade=t=out:st={max(0, vid_dur - 0.5)}:d=0.5[outv];"
                         # Audio: intro music hard-cut at 3.0s (atrim), then silence via apad
-                        f"[2:a]atrim=0:8.0,asetpts=PTS-STARTPTS,afade=t=out:st=6.0:d=2.0,volume=0.40,"
+                        f"[2:a]atrim=0:8.0,asetpts=PTS-STARTPTS,afade=t=out:st=6.0:d=2.0,volume=0.20,"
                         f"asetpts=PTS-STARTPTS[intro_mus];"
                         f"[1:a]aformat=channel_layouts=stereo,adelay=1500|1500[tts_delayed];"
                         f"[intro_mus][tts_delayed]amix=inputs=2:duration=longest:weights=1 1,"
@@ -886,7 +886,7 @@ def _make_clip_unavailable_card(rank: int, output_path: str, btc_price: str = "$
         f":fontcolor={COLOR_RED}@0.7:fontsize=18:x=(w-text_w)/2:y=500,"
         # Gold info rail at bottom
         f"drawbox=x=0:y=1032:w=1920:h=48:color={COLOR_GOLD}@0.95:t=fill,"
-        f"drawtext=fontfile={FONT_BOLD}:text='BTC {safe_btc}':fontcolor=0x000000:fontsize=14:x=20:y=1048,"
+        f"drawtext=fontfile={FONT_BOLD}:text='BITCOIN {safe_btc}':fontcolor=0x000000:fontsize=14:x=20:y=1048,"
         f"drawtext=fontfile={FONT_BOLD}:text='PROTOCOLPULSE.IO':fontcolor=0x000000:fontsize=15:x=(w-text_w)/2:y=1047,"
         f"drawtext=fontfile={FONT_MONO}:text='{date_str} - DAILY BRIEF':fontcolor=0x000000:fontsize=14:x=w-text_w-20:y=1048,"
         # Watermark top-right
@@ -1040,7 +1040,11 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
         "-vf", (
             # FIX 1: scale UP to fill the frame, then crop — NOT decrease+pad which leaves black borders
             "scale=716:370:force_original_aspect_ratio=increase,"
-            "crop=716:370,setsar=1,format=yuv420p"
+            "crop=716:370,setsar=1,"
+            # Issue 3: grayscale + slow Ken Burns zoom for preview aesthetic
+            "hue=s=0,eq=brightness=-0.1:contrast=1.1,"
+            "zoompan=z='min(zoom+0.0005,1.15)':d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=716x370:fps=30,"
+            "format=yuv420p"
         ),
         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
         "-r", "30",
@@ -1057,7 +1061,7 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
             frame_count = int(fc_result.stdout.strip() or "0")
         except Exception:
             frame_count = 0
-        if pip_out_dur < 2.0 or frame_count < 10:
+        if pip_out_dur < 2.0 or frame_count < 15:
             logger.error(f"PiP STILL IMAGE detected: dur={pip_out_dur:.1f}s frames={frame_count} src={clip_path}")
             try:
                 os.remove(output_path)
@@ -1116,10 +1120,14 @@ def overlay_pip_on_narration(narration_path: str, pip_path: str,
         "-i", pip_path,
         "-filter_complex",
         # Drop shadow: dark box at +4px offset behind PiP
-        f"[0:v]drawbox=x=1060:y=204:w=824:h=466:color={COLOR_BG}@0.3:t=fill:enable='lte(t,{pip_dur})'[bg_shadow];"
+        f"[0:v]drawbox=x=1060:y=144:w=824:h=466:color={COLOR_BG}@0.3:t=fill:enable='lte(t,{pip_dur})',"
+        # Red border outline around PiP box
+        f"drawbox=x=1054:y=138:w=824:h=466:color=0xff3b5f@0.8:t=2:enable='lte(t,{pip_dur})',"
+        # Channel name above PiP
+        f"drawtext=fontfile={FONT_BOLD}:text='COMING UP':fontcolor={COLOR_GOLD}:fontsize=22:x=1056:y=120:enable='lte(t,{pip_dur})'[bg_shadow];"
         f"[1:v]drawtext=fontfile={FONT_BOLD}:text='COMING UP...':fontcolor={COLOR_TEXT}:fontsize=28:"
         f"x=12:y=h-38:box=1:boxcolor={COLOR_BG}@0.5:boxborderw=6,format=yuva420p[pip];"
-        f"[bg_shadow][pip]overlay=1056:200:enable='lte(t,{pip_dur})',format=yuv420p[outv]",
+        f"[bg_shadow][pip]overlay=1056:140:enable='lte(t,{pip_dur})',format=yuv420p[outv]",
         "-map", "[outv]", "-map", "0:a",
         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
         "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
@@ -1247,9 +1255,9 @@ def _build_signature_info_rail(duration: float, btc_price: str, label_in: str,
     date_str = datetime.datetime.now().strftime("%b %d, %Y").upper()
     safe_btc = (btc_price or "N/A").replace("'", "").replace('"', "").replace("\\", "")
     ticker_content = (
-        f"  BTC {safe_btc}  //  PROTOCOL PULSE DAILY BRIEF  //  "
+        f"  BITCOIN {safe_btc}  //  PROTOCOL PULSE DAILY BRIEF  //  "
         f"{date_str}  //  FEAR/GREED  //  STAY SOVEREIGN  //  "
-        f"BTC {safe_btc}  //  PROTOCOLPULSE.IO  //  STAY SOVEREIGN  "
+        f"BITCOIN {safe_btc}  //  PROTOCOLPULSE.IO  //  STAY SOVEREIGN  "
     )
     safe_ticker = ticker_content.replace("'", "").replace('"', "").replace("\\", "")
 
@@ -1470,7 +1478,7 @@ def make_cold_open_scene(audio_path: str, headline: str, body: str, tag: str,
 
     # RIGHT PANEL — VDS 2x2 Metric Cards (x=780,y=100)
     metrics_data = [
-        ("BTC PRICE", safe_btc, "+2.1 pct", True),
+        ("BITCOIN PRICE", safe_btc, "+2.1 pct", True),
         ("HASHRATE", _get_live_metric("hashrate", "850 EH/s"), "+4.2 pct", True),
         ("ETF FLOW", _get_live_metric("etf_flow", "$340M"), "+18 pct", True),
         ("MARGIN", "42 pct", "-1.2 pct", False),
@@ -2626,6 +2634,10 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
     spaces = signal_content.get("spaces_quotes", [])[:3]
     nostr = signal_content.get("nostr_posts", [])[:3]
 
+    # Issue 13: If both sources empty, show clean placeholder instead of debug text
+    if not spaces and not nostr:
+        logger.info("Signal Active: no spaces/nostr data — showing SIGNAL COLLECTING placeholder")
+
     safe_btc = btc_price.replace("'", "").replace('"', "")
 
     inputs = [audio_path]
@@ -2898,8 +2910,11 @@ def make_host_visual(audio_path: str, host: int, text: str,
     # Divider line
     fg += f"[lpanel]drawbox=x=20:y=358:w=680:h=1:color={COLOR_RED}@0.35:t=fill[ldiv];\n"
 
-    # Body text (wrapped subtitle)
+    # Body text (wrapped subtitle) — Issue 13: filter out debug/internal text
+    _debug_patterns = {"COLD OPEN", "COLD_OPEN", "SETUP", "REACT", "BRIDGE", "WRAP", "DATA", "SOCIAL"}
     safe_sub = _sanitize_text(text) if text else ""
+    if safe_sub and safe_sub.strip().upper() in _debug_patterns:
+        safe_sub = ""  # suppress internal segment type labels
     if safe_sub:
         wrapped_sub = _word_wrap(safe_sub, max_width=40, max_lines=3)
         fg += (f"[ldiv]drawtext=fontfile={FONT_MONO}:"
@@ -4537,14 +4552,21 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             clips_dir = os.path.join(os.path.dirname(work_dir), "clips")
             output_clips_dir = os.path.join(BASE, "output", "clips")
             reencoded = None
+            expected_channel = cinfo.get("channel", "").lower().replace(" ", "_")
             for _search_dir in [clips_dir, output_clips_dir]:
                 if os.path.isdir(_search_dir):
                     import glob
                     pattern = os.path.join(_search_dir, f"clip_{rank}_*.mp4")
                     matches = sorted(glob.glob(pattern))
-                    if matches:
-                        reencoded = matches[0]
-                        logger.info(f"  R25 FIX 1: PiP source for rank {rank} from {_search_dir}")
+                    for _m in matches:
+                        _mbase = os.path.basename(_m).lower()
+                        if expected_channel and expected_channel in _mbase:
+                            reencoded = _m
+                            logger.info(f"  PiP source for rank {rank} matched channel '{expected_channel}' in {_search_dir}")
+                            break
+                    if not reencoded and matches:
+                        logger.warning(f"  PiP rank {rank}: glob found {len(matches)} files but none match channel '{expected_channel}' — using cinfo path directly")
+                    if reencoded:
                         break
             pip_source = reencoded if reencoded and os.path.getsize(reencoded) > 50000 else clip_path
             logger.info(f"  R25 FIX 1: PiP rank {rank} source={os.path.basename(pip_source)} (reencoded={reencoded is not None})")
@@ -5107,7 +5129,7 @@ def verify_video(path: str) -> bool:
 
     duration = float(fmt.get("duration", 0))
     size_mb = int(fmt.get("size", 0)) / 1024 / 1024
-    checks.append(("Duration", 5 <= duration <= 600, f"{duration:.1f}s"))
+    checks.append(("Duration", 5 <= duration <= 900, f"{duration:.1f}s"))
     checks.append(("File size", 0.5 <= size_mb <= 500, f"{size_mb:.1f}MB"))
 
     all_pass = True

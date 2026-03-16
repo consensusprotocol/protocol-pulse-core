@@ -85,8 +85,10 @@ def _generate_silence(output_path: str, duration: float) -> bool:
 
 
 def _mp3_to_m4a(mp3_path: str, m4a_path: str) -> bool:
+    # Issue 7: atempo=1.08 post-processing gives effective 1.3x speed (1.2 ElevenLabs × 1.08)
     r = subprocess.run(
         ["ffmpeg", "-y", "-i", mp3_path,
+         "-af", "atempo=1.08",
          "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k", m4a_path],
         capture_output=True, text=True, timeout=120,
     )
@@ -138,6 +140,30 @@ def expand_numbers_for_tts(text: str) -> str:
     except ImportError:
         logger.warning("[TTS] num2words not installed — falling back to basic expansion")
         return _expand_numbers_basic(text)
+
+    # Issue 12: Year detection BEFORE general number expansion
+    # 4-digit numbers 1600-2099 not preceded by $ or currency → spoken as years
+    def _year_to_words(y: int) -> str:
+        """Convert year number to spoken form: 1602→sixteen oh two, 2024→twenty twenty-four."""
+        if 2000 <= y <= 2009:
+            return f"two thousand {_n2w(y - 2000) if y > 2000 else ''}".strip()
+        if 2010 <= y <= 2099:
+            return f"twenty {_n2w(y - 2000)}"
+        hi = y // 100
+        lo = y % 100
+        hi_word = _n2w(hi)
+        if lo == 0:
+            return f"{hi_word} hundred"
+        elif lo < 10:
+            return f"{hi_word} oh {_n2w(lo)}"
+        else:
+            return f"{hi_word} {_n2w(lo)}"
+
+    def _year_sub(m):
+        val = int(m.group(0))
+        return _year_to_words(val)
+    # Match 1600-2099 NOT preceded by $ or digits
+    text = _re.sub(r'(?<!\$)(?<!\d)\b(1[6-9]\d{2}|20[0-9]\d)\b(?!\s*(?:EH|TH|PH|dollars|percent|%|K\b))', _year_sub, text)
 
     # Dollar + billion/million shorthand first: $308 billion → "three hundred and eight billion dollars"
     def _dollar_scale(m):
@@ -238,6 +264,11 @@ def expand_numbers_for_tts(text: str) -> str:
             return m.group(0)
     text = _re.sub(r'\b\d{4,}\b', _bare_num, text)
 
+    # Issue 6: Strip commas and "and" from num2words output to prevent micro-pauses
+    text = _re.sub(r'(\w),\s', r'\1 ', text)  # remove commas in spoken numbers
+    text = _re.sub(r'\band\b\s*', '', text)  # remove "and" (e.g. "one hundred and fifty" → "one hundred fifty")
+    text = _re.sub(r'\s{2,}', ' ', text)  # collapse double spaces
+
     return text
 
 
@@ -319,16 +350,16 @@ PRONUNCIATION_MAP = {
     "Satoshi": "Sah-TOH-shee",
     "Nakamoto": "Nah-kah-MOH-toh",
     # Saylor
-    "Michael Saylor": "MY-kul SAY-lor",
-    "Saylor": "SAY-lor",
+    "Michael Saylor": "Michael Sayler",
+    "Saylor": "Sayler",
     # Lyn Alden
     "Lyn Alden": "Lin AWL-den",
     # Lummis
     "Cynthia Lummis": "SIN-thee-ah LUM-iss",
     "Lummis": "LUM-iss",
     # Brunell
-    "Natalie Brunell": "NAT-uh-lee broo-NELL",
-    "Brunell": "broo-NELL",
+    "Natalie Brunell": "Natalie Brunelle",
+    "Brunell": "Brunelle",
     # Preston Pysh
     "Preston Pysh": "Preston PISH",
     "Pysh": "PISH",
@@ -409,6 +440,33 @@ PRONUNCIATION_MAP = {
     "Coinbase": "KOYN-base",
     "Binance": "BY-nance",
     "Chainalysis": "CHAIN-uh-LY-sis",
+    # Issue 10: BTC → Bitcoin spoken form
+    "BTC": "Bitcoin",
+}
+
+
+def _expand_handle(handle: str) -> str:
+    """Issue 11: Convert @handle to spoken form.
+    CamelCase → separate words, underscores → spaces, ALL CAPS → spelled out."""
+    import re as _re
+    name = handle.lstrip("@")
+    # ALL CAPS (like TFTC, WBD) → spelled out with dashes
+    if name.isupper() and len(name) <= 6:
+        return "at " + "-".join(name)
+    # Split camelCase: MaxKeiser → Max Keiser
+    name = _re.sub(r'([a-z])([A-Z])', r'\1 \2', name)
+    # Split underscores
+    name = name.replace("_", " ")
+    return "at " + name
+
+
+# Known handles with correct spoken forms
+_HANDLE_PRONUNCIATIONS = {
+    "@maxkeiser": "at Max Kaiser",
+    "@prestopysh": "at Preston Pish",
+    "@tftc": "at T-F-T-C",
+    "@wbd": "at W-B-D",
+    "@saborchain": "at Sabor Chain",
 }
 
 
@@ -416,10 +474,18 @@ def apply_pronunciation_map(text: str) -> str:
     """Replace names/terms with phonetic versions ElevenLabs renders correctly.
     Processes longer entries first to avoid partial replacements."""
     import re
+    # Issue 11: Pre-process @handles before pronunciation map
+    def _handle_sub(m):
+        raw = m.group(0).lower()
+        if raw in _HANDLE_PRONUNCIATIONS:
+            return _HANDLE_PRONUNCIATIONS[raw]
+        return _expand_handle(m.group(0))
+    text = re.sub(r'@[A-Za-z0-9_]+', _handle_sub, text)
+
     # Sort by length descending so longer matches take priority
     for written, phonetic in sorted(PRONUNCIATION_MAP.items(), key=lambda x: -len(x[0])):
         # Word-boundary aware replacement (case-insensitive)
-        pattern = re.compile(re.escape(written), re.IGNORECASE)
+        pattern = re.compile(r'\b' + re.escape(written) + r'\b', re.IGNORECASE)
         text = pattern.sub(phonetic, text)
     return text
 
