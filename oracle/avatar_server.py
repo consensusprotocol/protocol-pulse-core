@@ -498,7 +498,7 @@ def generate():
     if not data:
         return jsonify({"error": "JSON body required"}), 400
 
-    enable_blinks = False  # LAW 2: blinks permanently disabled — black oval artifacts
+    enable_blinks = data.get("enable_blinks", True)  # v2 blink engine enabled
     enable_head_movement = data.get("enable_head_movement", True)
     fps = float(data.get("fps", DEFAULT_FPS))
 
@@ -824,7 +824,7 @@ def _generate_chunk(sentence, chunk_num, session_dir, fps=30.0):
                 frames = sharpen_mouth_region(frames, reg.avatar_face_coords)
             except Exception:
                 pass
-            frames = post_process_frames(frames, fps, enable_blinks=False, enable_head=True)
+            frames = post_process_frames(frames, fps, enable_blinks=True, enable_head=True)
 
         video_path = os.path.join(session_dir, f"chunk_{chunk_num:03d}.mp4")
         tmp_path = frames_to_video(frames, fps, audio_path=wav_path)
@@ -990,7 +990,7 @@ def generate_idle_loop():
     base_frame = reg.avatar_face.copy()
     frames = [base_frame.copy() for _ in range(num_frames)]
 
-    frames = post_process_frames(frames, fps, enable_blinks=False, enable_head=True)
+    frames = post_process_frames(frames, fps, enable_blinks=True, enable_head=True)
 
     video_path = frames_to_video(frames, fps, audio_path=None)
     if video_path:
@@ -1124,7 +1124,7 @@ def generate_inline(text):
                 frames = sharpen_mouth_region(frames, reg.avatar_face_coords)
             except Exception:
                 pass
-            frames = post_process_frames(frames, DEFAULT_FPS, enable_blinks=False, enable_head=True)
+            frames = post_process_frames(frames, DEFAULT_FPS, enable_blinks=True, enable_head=True)
             video_path = frames_to_video(frames, DEFAULT_FPS, audio_path=wav_path)
         finally:
             _lock.release()
