@@ -597,6 +597,8 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
 
     # Session 4 Fix 3: Expand numbers before TTS to prevent babbling
     text = expand_numbers_for_tts(text)
+    # R25 FIX 7: Apply pronunciation map (Pysh→PISH, etc.) — was defined but never called
+    text = apply_pronunciation_map(text)
 
     voice = VOICES.get(host, VOICES[1])
     # Check TTS cache first — avoid API call if same text+voice was generated before

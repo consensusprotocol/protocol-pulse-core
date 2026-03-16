@@ -661,8 +661,8 @@ def make_intro_tag_sequence(output_path: str) -> str:
             "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-            # Render21 FIX 1: Hard atrim at 4s + fade-out to kill intro music bleed
-            "-af", "atrim=start=0:end=4,asetpts=PTS-STARTPTS,afade=t=out:st=2.5:d=1.5",
+            # R25 FIX 3: Intro music atrim 8s, fade from 6s
+            "-af", "atrim=start=0:end=8,asetpts=PTS-STARTPTS,afade=t=out:st=6.0:d=2.0",
             output_path,
         ], "intro tag sequence", 120)
     else:
@@ -739,7 +739,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                         f"[0:v]{vf},"
                         f"fade=t=out:st={max(0, vid_dur - 0.5)}:d=0.5[outv];"
                         # Audio: intro music hard-cut at 3.0s (atrim), then silence via apad
-                        f"[2:a]atrim=0:4.0,asetpts=PTS-STARTPTS,afade=t=out:st=2.5:d=1.5,volume=0.40,"
+                        f"[2:a]atrim=0:8.0,asetpts=PTS-STARTPTS,afade=t=out:st=6.0:d=2.0,volume=0.40,"
                         f"asetpts=PTS-STARTPTS[intro_mus];"
                         f"[1:a]aformat=channel_layouts=stereo,adelay=1500|1500[tts_delayed];"
                         f"[intro_mus][tts_delayed]amix=inputs=2:duration=longest:weights=1 1,"
@@ -2715,8 +2715,20 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
                f"[{out_label}];\n")
         last_label = out_label
 
+    # ── R25 FIX 4: SPONSOR STRIP (replaces leaked EPISODE SEGMENTS) ──
+    sponsors = ["MEANWHILE", "CURATED MINING", "PROTOCOL PULSE"]
+    sponsor_w = 1800 // len(sponsors)
+    fg += (f"[{last_label}]drawbox=x=60:y=990:w=1800:h=50:color=0x050505@0.85:t=fill,"
+           f"drawbox=x=60:y=990:w=1800:h=1:color={COLOR_RED}@0.4:t=fill")
+    for si, sp in enumerate(sponsors):
+        sx = 60 + si * sponsor_w + sponsor_w // 2
+        sep = f",drawbox=x={60 + (si+1)*sponsor_w}:y=995:w=1:h=40:color={COLOR_MUTED2}@0.5:t=fill" if si < len(sponsors) - 1 else ""
+        fg += (f",drawtext=fontfile={FONT_MONO}:text='{sp}':"
+               f"fontcolor={COLOR_MUTED}:fontsize=12:x={sx}-(text_w/2):y=1008{sep}")
+    fg += f"[sig_sponsored];\n"
+
     # ── CORNER BRACKETS ──
-    fg += _build_corner_brackets_fg(last_label, "sig_cornered")
+    fg += _build_corner_brackets_fg("sig_sponsored", "sig_cornered")
 
     # ── TICKER BAR ──
     fg += _build_info_bar_fg(total_dur, btc_price, label_in="sig_cornered", label_out="sig_final")
@@ -2736,7 +2748,7 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
     )
 
     if ok:
-        logger.info("Signal Active 60/40 rendered: %s", output_path)
+        logger.info("R25 FIX 4: Signal Active 60/40 rendered (no EPISODE SEGMENTS, sponsor strip added): %s", output_path)
         return output_path
 
     logger.error("Signal Active 60/40 render failed — falling back to host visual")
@@ -2830,12 +2842,37 @@ def make_host_visual(audio_path: str, host: int, text: str,
     else:
         fg += f"[ldiv]copy[lbody];\n"
 
+    # R25 FIX 5: All 5 live metrics in left panel for narrator segments
+    _lm_btc = _sanitize_text(safe_btc)
+    _lm_hashrate = _sanitize_text(_get_live_metric("hashrate", "850 EH/s"))
+    _lm_mempool = _sanitize_text(_get_live_metric("mempool_fee", "12 sat/vB"))
+    _lm_etf = _sanitize_text(_get_live_metric("etf_flow", "$340M"))
+    _lm_dominance = _sanitize_text(_get_live_metric("dominance", "61.4 pct"))
+    _metrics_5 = [
+        ("BTC", _lm_btc, COLOR_WHITE),
+        ("HASHRATE", _lm_hashrate, COLOR_GREEN),
+        ("MEMPOOL", _lm_mempool, COLOR_CORAL),
+        ("ETF FLOW", _lm_etf, COLOR_GREEN),
+        ("DOMINANCE", _lm_dominance, COLOR_WHITE),
+    ]
+    _m5_y = 480
+    _m5_last = "lbody"
+    for _mi, (_ml, _mv, _mc) in enumerate(_metrics_5):
+        _m5_row_y = _m5_y + _mi * 28
+        _m5_out = f"lm5_{_mi}"
+        fg += (f"[{_m5_last}]drawtext=fontfile={FONT_MONO}:text='{_ml}':"
+               f"fontcolor={COLOR_MUTED}:fontsize=11:x=24:y={_m5_row_y},"
+               f"drawtext=fontfile={FONT_BOLD}:text='{_mv}':"
+               f"fontcolor={_mc}:fontsize=14:x=140:y={_m5_row_y}"
+               f"[{_m5_out}];\n")
+        _m5_last = _m5_out
+
     # CTA box
-    fg += (f"[lbody]drawbox=x=20:y=600:w=440:h=52:color={COLOR_RED_DIM}@0.95:t=fill,"
-           f"drawbox=x=20:y=600:w=4:h=52:color={COLOR_RED}:t=fill,"
+    fg += (f"[{_m5_last}]drawbox=x=20:y=640:w=440:h=52:color={COLOR_RED_DIM}@0.95:t=fill,"
+           f"drawbox=x=20:y=640:w=4:h=52:color={COLOR_RED}:t=fill,"
            f"drawtext=fontfile={FONT_MONO}:"
            f"text='  DUAL-HOST ANALYSIS // INCOMING':"
-           f"fontcolor={COLOR_RED}:fontsize=13:x=34:y=622"
+           f"fontcolor={COLOR_RED}:fontsize=13:x=34:y=660"
            f"[lcta];\n")
 
     # Mini waveform in left panel bottom
@@ -3657,114 +3694,30 @@ def make_remotion_lower_third(clip_path: str, source: str, output_path: str,
 
 
 def make_transition_visual(output_path: str, duration: float = 2.2) -> str:
-    """Render12: Premium digital binary grid transition overlay.
+    """R25 FIX 2: Instant 0.06s black frame + whoosh SFX only.
 
-    Uses digital_transition_1080p.mov (2.2s, 1080p RGBA) composited over a dark
-    background. First 0.8s = wipe-over on outgoing, last 0.8s = reveal of incoming.
-    Whoosh SFX mixed at volume=2.5 for the full 2.2s.
-
-    Fallback: old glitch asset → dark flash.
-    Duration: 2.2s (fixed for digital asset), clamped 0.5-0.8s for fallback.
+    No visual overlay — just a flash-cut black frame with whoosh sound.
+    This creates snappy broadcast-style transitions without visual clutter.
     """
-    # Render12: Use premium digital transition if available
-    if os.path.exists(DIGITAL_TRANSITION):
-        duration = 1.45  # trimmed: skip black frames at 0-0.2s and 1.65-2.2s
-        has_whoosh = os.path.exists(GLITCH_WHOOSH)
-        if has_whoosh:
-            ok = run_ffmpeg([
-                "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30",
-                "-i", DIGITAL_TRANSITION,
-                "-i", GLITCH_WHOOSH,
-                "-filter_complex",
-                # Composite RGBA digital grid over dark bg
-                f"[0:v]trim=0:{duration},setpts=PTS-STARTPTS[bg];"
-                f"[1:v]scale=1920:1080,format=rgba,trim=0.2:1.65,setpts=PTS-STARTPTS[fg];"
-                f"[fg]colorkey=0x000000:0.35:0.1[fg_keyed];[bg][fg_keyed]overlay=0:0,format=yuv420p,"
-                f"fade=t=in:st=0:d=0.15,fade=t=out:st={duration - 0.15}:d=0.15[outv];"
-                # Whoosh at volume=2.5 over full transition
-                f"[2:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=2.5,"
-                f"afade=t=in:d=0.1,afade=t=out:st={duration - 0.2}:d=0.2,"
-                f"alimiter=limit=0.95[outa]",
-                "-map", "[outv]", "-map", "[outa]",
-                "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
-                "-r", "30", "-pix_fmt", "yuv420p",
-                "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-                "-t", str(duration),
-                output_path,
-            ], "digital transition + whoosh", 60)
-        else:
-            ok = run_ffmpeg([
-                "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30",
-                "-i", DIGITAL_TRANSITION,
-                "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
-                "-filter_complex",
-                f"[0:v]trim=0:{duration},setpts=PTS-STARTPTS[bg];"
-                f"[1:v]scale=1920:1080,format=rgba,trim=0.2:1.65,setpts=PTS-STARTPTS[fg];"
-                f"[fg]colorkey=0x000000:0.35:0.1[fg_keyed];[bg][fg_keyed]overlay=0:0,format=yuv420p,"
-                f"fade=t=in:st=0:d=0.15,fade=t=out:st={duration - 0.15}:d=0.15[outv]",
-                "-map", "[outv]", "-map", "2:a",
-                "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
-                "-r", "30", "-pix_fmt", "yuv420p",
-                "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-                "-t", str(duration), "-shortest",
-                output_path,
-            ], "digital transition (no whoosh)", 60)
-        if ok and os.path.exists(output_path):
-            dur = ffprobe_duration(output_path)
-            logger.info(f"  TRANSITION FIRING: digital binary grid + whoosh ({dur:.2f}s)")
-            return output_path
+    duration = 0.06  # R25: instant black flash
+    has_whoosh = os.path.exists(GLITCH_WHOOSH)
 
-    # Fallback: old glitch asset
-    duration = max(0.5, min(0.8, duration))
-    if os.path.exists(GLITCH_TRANSITION):
-        has_whoosh = os.path.exists(GLITCH_WHOOSH)
-        if has_whoosh:
-            ok = run_ffmpeg([
-                "-i", GLITCH_TRANSITION,
-                "-i", GLITCH_WHOOSH,
-                "-filter_complex",
-                f"[0:v]scale=1920:1080,setsar=1,fps=30,trim=0:{duration},setpts=PTS-STARTPTS,format=yuv420p,"
-                f"fade=t=in:st=0:d=0.1,fade=t=out:st={max(0, duration - 0.1)}:d=0.1[outv];"
-                f"[0:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=1.5[ta];"
-                f"[1:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=2.0,alimiter=limit=0.95[wa];"
-                f"[ta][wa]amix=inputs=2:duration=first,alimiter=limit=0.85:level=disabled:attack=5:release=50[outa]",
-                "-map", "[outv]", "-map", "[outa]",
-                "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
-                "-r", "30", "-pix_fmt", "yuv420p",
-                "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-                "-t", str(duration),
-                output_path,
-            ], "glitch transition + whoosh (fallback)", 30)
-        else:
-            ok = run_ffmpeg([
-                "-i", GLITCH_TRANSITION,
-                "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
-                "-r", "30", "-vf", (f"scale=1920:1080,setsar=1,fps=30,trim=0:{duration},setpts=PTS-STARTPTS,format=yuv420p,"
-                                    f"fade=t=in:st=0:d=0.1,fade=t=out:st={max(0, duration - 0.1)}:d=0.1"),
-                "-af", f"atrim=0:{duration},asetpts=PTS-STARTPTS,volume=2.0",
-                "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-                "-t", str(duration),
-                output_path,
-            ], "glitch transition (fallback)", 30)
-        if ok and os.path.exists(output_path):
-            dur = ffprobe_duration(output_path)
-            logger.info(f"  TRANSITION FIRING: glitch asset fallback ({dur:.2f}s)")
-            return output_path
-
-    # Last resort: short dark flash with whoosh
-    logger.warning("No transition assets found — using dark flash with whoosh")
-    if os.path.exists(GLITCH_WHOOSH):
+    if has_whoosh:
+        # 0.06s black + whoosh (whoosh extends slightly for audibility)
+        whoosh_dur = 0.5  # whoosh needs ~0.5s to be heard
         ok = run_ffmpeg([
-            "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30",
+            "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s=1920x1080:d={whoosh_dur}:r=30",
             "-i", GLITCH_WHOOSH,
             "-filter_complex",
-            f"[1:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=2.5[outa]",
+            f"[1:a]atrim=0:{whoosh_dur},asetpts=PTS-STARTPTS,volume=2.5,"
+            f"afade=t=out:st=0.3:d=0.2,alimiter=limit=0.95[outa]",
             "-map", "0:v", "-map", "[outa]",
-            "-t", str(duration),
+            "-t", str(whoosh_dur),
             "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
+            "-r", "30", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-shortest",
             output_path,
-        ], "transition fallback + whoosh", 30)
+        ], "R25 instant black + whoosh", 30)
     else:
         ok = run_ffmpeg([
             "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30",
@@ -3773,8 +3726,12 @@ def make_transition_visual(output_path: str, duration: float = 2.2) -> str:
             "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-shortest",
             output_path,
-        ], "transition fallback", 30)
-    return output_path if ok else ""
+        ], "R25 instant black (silent)", 30)
+    if ok and os.path.exists(output_path):
+        dur = ffprobe_duration(output_path)
+        logger.info(f"  R25 TRANSITION: instant black + whoosh ({dur:.2f}s)")
+        return output_path
+    return ""
 
 
 def apply_xfade(clip1_path: str, clip2_path: str, output_path: str,
@@ -4082,11 +4039,11 @@ def concatenate_parts(parts: list, output_path: str,
                     # Partner clips: duck to 0.02 (-34dB) — let clip audio breathe
                     vol_clauses.append(f"between(t,{t_start:.3f},{t_end:.3f})*0.02")
             if vol_clauses:
-                # Render22 FIX 10: BGM at -18dB (0.126) for narrator segments, ducked during clips
-                vol_expr = "volume='if(" + "+".join(f"({vc})" for vc in vol_clauses) + ",1,0.126)':eval=frame"
+                # R25 FIX 8: BGM at -14dB (0.2) for narrator segments, ducked during clips
+                vol_expr = "volume='if(" + "+".join(f"({vc})" for vc in vol_clauses) + ",1,0.2)':eval=frame"
                 bgm_vol_filter = f"{vol_expr},afade=t=in:d=2.0,afade=t=out:st={bgm_fade_st}:d=3.0"
             else:
-                bgm_vol_filter = f"volume=0.126,afade=t=in:d=2.0,afade=t=out:st={bgm_fade_st}:d=3.0"
+                bgm_vol_filter = f"volume=0.2,afade=t=in:d=2.0,afade=t=out:st={bgm_fade_st}:d=3.0"
 
             music_mixed = output_path + ".music_mixed.mp4"
             ok_music = run_ffmpeg([
@@ -4143,9 +4100,9 @@ def concatenate_parts(parts: list, output_path: str,
                 "-i", concat_raw,
                 "-stream_loop", "-1", "-i", INTRO_MUSIC_FILE,
                 "-filter_complex",
-                (f"[1:a]volume=0.40,atrim=0:4.0,"
+                (f"[1:a]volume=0.40,atrim=0:8.0,"
                  f"asetpts=PTS-STARTPTS,"
-                 f"afade=t=out:st=2.5:d=1.5,aresample=48000[im];"
+                 f"afade=t=out:st=6.0:d=2.0,aresample=48000[im];"
                  f"[0:a][im]amix=inputs=2:duration=first:weights=1 1[outa]"),
                 "-map", "0:v", "-map", "[outa]",
                 "-c:v", "copy",
@@ -4164,7 +4121,7 @@ def concatenate_parts(parts: list, output_path: str,
         if ep_dur > 0:
             bgl_mixed = output_path + ".bgl_audio.mp4"
             # Build volume envelope: boost bg_loop at clip transitions
-            # Default: volume=0.10 (-20dB floor), transitions: volume=0.126 (-18dB), clip boundaries: volume=0.16 (-16dB)
+            # R25 FIX 8: volume=0.10 (-20dB floor), transitions: volume=0.2 (-14dB), clip boundaries: volume=0.16 (-16dB)
             vol_expr_parts = []
             cumulative = 0.0
             for pidx, p in enumerate(valid):
@@ -4174,7 +4131,7 @@ def concatenate_parts(parts: list, output_path: str,
                 pbase = os.path.basename(p).lower()
                 if "transition" in pbase or "glitch" in pbase:
                     # FIX 7: Raise to -18dB for entire transition segment (was -25dB)
-                    vol_expr_parts.append(f"between(t,{t_start:.3f},{cumulative:.3f})*0.126")
+                    vol_expr_parts.append(f"between(t,{t_start:.3f},{cumulative:.3f})*0.2")
                 elif pidx > 0:
                     # FIX 7: Raise to -16dB for 1.0s around each part boundary (was -20dB/0.5s)
                     vol_expr_parts.append(f"between(t,{max(0,t_start-0.5):.3f},{t_start+0.5:.3f})*0.16")
@@ -4395,22 +4352,15 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
     tweet_card_posts = []
     social_card_idx = 0
 
+    # R25 FIX 6: Use script social_posts ONLY — no fetcher fallback
     script_social_posts = script.get("social_posts", [])
     if script_social_posts:
         tweet_card_posts = list(script_social_posts)
         for di, dp in enumerate(tweet_card_posts):
             dp["display_order"] = di
-        logger.info(f"  SOCIAL ORDER (from script): {len(tweet_card_posts)} posts")
+        logger.info(f"  R25 FIX 6: SOCIAL ORDER (from script only): {len(tweet_card_posts)} posts")
     else:
-        try:
-            from utils.feature_flags import is_enabled
-            if is_enabled("tweet_cards"):
-                from utils.social_fetcher import get_todays_social_posts
-                tweet_card_posts = get_todays_social_posts(max_posts=4)
-                for di, dp in enumerate(tweet_card_posts):
-                    dp["display_order"] = di
-        except Exception as e:
-            logger.warning(f"Tweet card data load failed: {e}")
+        logger.info("  R25 FIX 6: No social_posts in script — skipping tweet cards (no fetcher fallback)")
 
     if tweet_card_posts:
         tweet_card_posts.sort(key=lambda p: p.get("display_order", 0))
@@ -4511,24 +4461,32 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             logger.info(f"  Thumbnail for clip #{rank}: {os.path.basename(tp)}")
 
     # Build PiP preview map: rank → pip_path
+    # R25 FIX 1: Also search output/clips/ as fallback for PiP source
     pip_previews = {}
     for rank, cinfo in extracted_clips.items():
         clip_path = cinfo.get("path", "")
         if clip_path and os.path.exists(clip_path):
             pip_out = os.path.join(work_dir, f"pip_preview_r{rank}.mp4")
             clips_dir = os.path.join(os.path.dirname(work_dir), "clips")
+            output_clips_dir = os.path.join(BASE, "output", "clips")
             reencoded = None
-            if os.path.isdir(clips_dir):
-                import glob
-                pattern = os.path.join(clips_dir, f"clip_{rank}_*.mp4")
-                matches = sorted(glob.glob(pattern))
-                if matches:
-                    reencoded = matches[0]
+            for _search_dir in [clips_dir, output_clips_dir]:
+                if os.path.isdir(_search_dir):
+                    import glob
+                    pattern = os.path.join(_search_dir, f"clip_{rank}_*.mp4")
+                    matches = sorted(glob.glob(pattern))
+                    if matches:
+                        reencoded = matches[0]
+                        logger.info(f"  R25 FIX 1: PiP source for rank {rank} from {_search_dir}")
+                        break
             pip_source = reencoded if reencoded and os.path.getsize(reencoded) > 50000 else clip_path
+            logger.info(f"  R25 FIX 1: PiP rank {rank} source={os.path.basename(pip_source)} (reencoded={reencoded is not None})")
             pip_result = make_pip_preview(pip_source, pip_out)
             if pip_result:
                 pip_previews[rank] = pip_result
                 logger.info(f"  PiP preview for clip #{rank}: ready")
+            else:
+                logger.warning(f"  R25 FIX 1: PiP preview for clip #{rank} FAILED — will use fallback")
 
     audio_idx = 1 if cold_open_consumed else 0
     prev_segment_type = "intro"
