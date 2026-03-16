@@ -1321,7 +1321,7 @@ def _bv2_text_zone(label_in: str, label_out: str, eyebrow: str, headline: str,
     # Render21 FIX 6: 2-line headline if >45 chars — never truncate
     _h_line1, _h_line2 = _split_headline_for_render(safe_head)
     _h_fs = 34 if _h_line2 else 64
-    _h_y2 = 130 + 60  # y+60 offset for line 2
+    _h_y2 = 130 + 65  # Render24 FIX 7: y+65 offset for line 2
     fg += (f"[bv2_glass]drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_h_line1)}':"
            f"fontcolor=0x111111:fontsize={_h_fs}:x=66:y=132,"
            f"drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_h_line1)}':"
@@ -1338,14 +1338,41 @@ def _bv2_text_zone(label_in: str, label_out: str, eyebrow: str, headline: str,
                f"fontcolor=0xFFFFFF@0.6:fontsize=18:x=64:y=420:line_spacing=8[bv2_body];\n")
     else:
         fg += f"[bv2_head]copy[bv2_body];\n"
+    # Render24 FIX 5: Live metrics strip below body text
+    _m_hashrate = _sanitize_text(_get_live_metric("hashrate", "850 EH/s"))
+    _m_mempool = _sanitize_text(_get_live_metric("mempool_fee", "12 sat/vB"))
+    _m_etf = _sanitize_text(_get_live_metric("etf_flow", "$340M"))
+    _m_halving = _sanitize_text(_get_live_metric("halving_pct", "78 pct"))
+    _m_dominance = _sanitize_text(_get_live_metric("dominance", "61.4 pct"))
+    fg += (f"[bv2_body]"
+           # Metric strip background
+           f"drawbox=x=64:y=480:w=860:h=80:color=0x000000@0.45:t=fill,"
+           f"drawbox=x=64:y=480:w=860:h=1:color=0xFFFFFF@0.08:t=fill,"
+           # HASHRATE
+           f"drawtext=fontfile={FONT_MONO}:text='HASHRATE':fontcolor={COLOR_MUTED}:fontsize=9:x=76:y=486,"
+           f"drawtext=fontfile={FONT_BOLD}:text='{_m_hashrate}':fontcolor={COLOR_WHITE}:fontsize=13:x=76:y=500,"
+           # MEMPOOL
+           f"drawtext=fontfile={FONT_MONO}:text='MEMPOOL':fontcolor={COLOR_MUTED}:fontsize=9:x=250:y=486,"
+           f"drawtext=fontfile={FONT_BOLD}:text='{_m_mempool}':fontcolor={COLOR_WHITE}:fontsize=13:x=250:y=500,"
+           # ETF FLOW
+           f"drawtext=fontfile={FONT_MONO}:text='ETF FLOW':fontcolor={COLOR_MUTED}:fontsize=9:x=424:y=486,"
+           f"drawtext=fontfile={FONT_BOLD}:text='{_m_etf}':fontcolor={COLOR_WHITE}:fontsize=13:x=424:y=500,"
+           # HALVING
+           f"drawtext=fontfile={FONT_MONO}:text='HALVING':fontcolor={COLOR_MUTED}:fontsize=9:x=598:y=486,"
+           f"drawtext=fontfile={FONT_BOLD}:text='{_m_halving}':fontcolor={COLOR_WHITE}:fontsize=13:x=598:y=500,"
+           # DOMINANCE
+           f"drawtext=fontfile={FONT_MONO}:text='DOMINANCE':fontcolor={COLOR_MUTED}:fontsize=9:x=750:y=486,"
+           f"drawtext=fontfile={FONT_BOLD}:text='{_m_dominance}':fontcolor={COLOR_WHITE}:fontsize=13:x=750:y=500"
+           f"[bv2_metrics];\n")
+
     # Tag pill (red accent)
     if safe_tag:
-        fg += (f"[bv2_body]drawbox=x=64:y=580:w=220:h=32:color={COLOR_RED}@0.15:t=fill,"
+        fg += (f"[bv2_metrics]drawbox=x=64:y=580:w=220:h=32:color={COLOR_RED}@0.15:t=fill,"
                f"drawbox=x=64:y=580:w=220:h=32:color={COLOR_RED}@0.4:t=2,"
                f"drawtext=fontfile={FONT_MONO}:text='{safe_tag}':"
                f"fontcolor={COLOR_RED}:fontsize=12:x=76:y=590[{label_out}];\n")
     else:
-        fg += f"[bv2_body]copy[{label_out}];\n"
+        fg += f"[bv2_metrics]copy[{label_out}];\n"
     return fg
 
 
@@ -1621,9 +1648,9 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
            f"fontcolor={COLOR_WHITE}:fontsize={_np_fs}:x=64:y=130")
     if _np_l2:
         fg += (f",drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_np_l2)}':"
-               f"fontcolor=0x111111:fontsize={_np_fs}:x=66:y=192,"
+               f"fontcolor=0x111111:fontsize={_np_fs}:x=66:y={130 + 65 + 2},"
                f"drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_np_l2)}':"
-               f"fontcolor={COLOR_WHITE}:fontsize={_np_fs}:x=64:y=190")
+               f"fontcolor={COLOR_WHITE}:fontsize={_np_fs}:x=64:y={130 + 65}")
     fg += f"[np_head];\n"
     # No duplicate body text — left zone is clean headline only
     fg += f"[np_head]copy[np_body];\n"
@@ -1978,16 +2005,16 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
            f"fontcolor={COLOR_GOLD}:fontsize=11:x=w-tw-40:y=40"
            f"[ds_eyebrow];\n")
 
-    # ── HEADLINE ──
-    safe_head = _sanitize_text(headline)[:60]
-    _head_fontsize = 36 if len(safe_head) > 40 else 42
-    if len(safe_head) > 30:
-        mid = safe_head[:30].rfind(' ')
-        if mid > 10:
-            safe_head = safe_head[:mid] + '\\n' + safe_head[mid+1:]
-    fg += (f"[ds_eyebrow]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
-           f"fontcolor={COLOR_WHITE}:fontsize={_head_fontsize}:x=40:y=72:line_spacing=4"
-           f"[ds_headline];\n")
+    # ── HEADLINE (Render24 FIX 7: universal 2-line wrap at char45) ──
+    safe_head = _sanitize_text(headline)
+    _ds_l1, _ds_l2 = _split_headline_for_render(safe_head)
+    _ds_fs = 34 if _ds_l2 else 42
+    fg += (f"[ds_eyebrow]drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_ds_l1)}':"
+           f"fontcolor={COLOR_WHITE}:fontsize={_ds_fs}:x=40:y=72")
+    if _ds_l2:
+        fg += (f",drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_ds_l2)}':"
+               f"fontcolor={COLOR_WHITE}:fontsize={_ds_fs}:x=40:y={72 + 65}")
+    fg += f"[ds_headline];\n"
 
     # 6 metrics: BTC PRICE | HASHRATE | ETF FLOW | MEMPOOL FEE | HALVING % | DOMINANCE
     default_metrics = [
@@ -2195,12 +2222,18 @@ def make_social_stack_scene(audio_path: str, headline: str, social_cards: list,
 
     fg += _build_top_system_bar("bb_bg", "bv2_bar", progress_pct=58)
 
-    # Header zone with gold eyebrow
+    # Header zone with gold eyebrow — Render24 FIX 7: universal 2-line wrap
+    _ss_head = _sanitize_text(headline)
+    _ss_l1, _ss_l2 = _split_headline_for_render(_ss_head)
+    _ss_fs = 34 if _ss_l2 else 48
     fg += (f"[bv2_bar]drawtext=fontfile={FONT_MONO}:text='SIGNAL LAYER':"
            f"fontcolor={COLOR_GOLD}:fontsize=13:x=64:y=100,"
-           f"drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(headline)[:60]}':"
-           f"fontcolor={COLOR_WHITE}:fontsize={'40' if len(_sanitize_text(headline)) > 40 else '48'}:x=64:y=130,"
-           f"drawtext=fontfile={FONT_MONO}:text='Bitcoin Social Conviction Index':"
+           f"drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_ss_l1)}':"
+           f"fontcolor={COLOR_WHITE}:fontsize={_ss_fs}:x=64:y=130,")
+    if _ss_l2:
+        fg += (f"drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_ss_l2)}':"
+               f"fontcolor={COLOR_WHITE}:fontsize={_ss_fs}:x=64:y={130 + 65},")
+    fg += (f"drawtext=fontfile={FONT_MONO}:text='Bitcoin Social Conviction Index':"
            f"fontcolor=0xFFFFFF@0.5:fontsize=16:x=64:y=200"
            f"[ss_hdr];\n")
 
@@ -2294,8 +2327,10 @@ def make_wrap_scene(audio_path: str, headline: str, body: str,
         audio_dur = 5
     total_dur = duration if duration > 0 else audio_dur + 0.3
 
-    safe_head = _sanitize_text(headline)[:60]
-    _wrap_fontsize = 52 if len(safe_head) <= 40 else 44
+    safe_head = _sanitize_text(headline)
+    # Render24 FIX 7: universal 2-line wrap at char45
+    _wr_l1, _wr_l2 = _split_headline_for_render(safe_head)
+    _wrap_fontsize = 34 if _wr_l2 else 52
     safe_body = _word_wrap(_sanitize_text(body), max_width=30, max_lines=3) if body else ""
 
     inputs = [audio_path]
@@ -2306,10 +2341,16 @@ def make_wrap_scene(audio_path: str, headline: str, body: str,
     # Left text zone with gold eyebrow
     fg += (f"[bv2_bar]drawtext=fontfile={FONT_MONO}:text='FINAL TAKE':"
            f"fontcolor={COLOR_GOLD}:fontsize=13:x=64:y=100[wr_eye];\n")
-    fg += (f"[wr_eye]drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
+    fg += (f"[wr_eye]drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_wr_l1)}':"
            f"fontcolor=0x111111:fontsize={_wrap_fontsize}:x=66:y=132,"
-           f"drawtext=fontfile={FONT_BOLD}:text='{safe_head}':"
-           f"fontcolor={COLOR_WHITE}:fontsize={_wrap_fontsize}:x=64:y=130[wr_head];\n")
+           f"drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_wr_l1)}':"
+           f"fontcolor={COLOR_WHITE}:fontsize={_wrap_fontsize}:x=64:y=130")
+    if _wr_l2:
+        fg += (f",drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_wr_l2)}':"
+               f"fontcolor=0x111111:fontsize={_wrap_fontsize}:x=66:y={130 + 65 + 2},"
+               f"drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_wr_l2)}':"
+               f"fontcolor={COLOR_WHITE}:fontsize={_wrap_fontsize}:x=64:y={130 + 65}")
+    fg += f"[wr_head];\n"
     if safe_body:
         fg += (f"[wr_head]drawtext=fontfile={FONT_MONO}:text='{safe_body}':"
                f"fontcolor=0xFFFFFF@0.6:fontsize=18:x=64:y=420:line_spacing=8[wr_body];\n")
@@ -3325,8 +3366,14 @@ def _mix_swoosh_into_segment(video_path: str) -> str:
     """Mix card_swoosh.wav into the first 0.4s of a video segment.
 
     Modifies the file in-place (via temp rename). Returns the path.
+    Render24 FIX 3: Skip if filename contains xfade or transition (already has swoosh).
     """
     if not os.path.exists(CARD_SWOOSH) or not os.path.exists(video_path):
+        return video_path
+    # FIX 3: Prevent double whoosh on xfade/transition segments
+    basename = os.path.basename(video_path).lower()
+    if "xfade" in basename or "transition" in basename:
+        logger.info(f"  FIX 3: Skipping swoosh — filename has xfade/transition: {basename}")
         return video_path
     tmp = video_path + ".swoosh.mp4"
     ok = run_ffmpeg([
@@ -4518,6 +4565,40 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                     logger.warning(f"Remotion LowerThird failed: {e}")
                 if not result:
                     result = make_clip_visual(clip_path, handle, clip_out, btc_price=btc_price)
+                # Render24 FIX 2: If partner clip ffmpeg fails, retry stream copy then bg_loop fallback
+                if not result:
+                    stream_copy_out = clip_out + ".streamcopy.mp4"
+                    sc_ok = run_ffmpeg([
+                        "-i", clip_path, "-c:v", "copy", "-c:a", "copy",
+                        "-t", str(ffprobe_duration(clip_path)),
+                        stream_copy_out,
+                    ], f"FIX2 stream copy clip #{rank}", 60)
+                    if sc_ok and os.path.exists(stream_copy_out):
+                        result = stream_copy_out
+                        logger.info(f"  FIX 2: Stream copy fallback for clip #{rank}")
+                    else:
+                        if os.path.exists(stream_copy_out):
+                            os.remove(stream_copy_out)
+                        # Last resort: bg_loop video + clip audio
+                        if os.path.exists(BG_LOOP):
+                            clip_audio_dur = ffprobe_duration(clip_path)
+                            bg_fallback_out = clip_out + ".bgfallback.mp4"
+                            bg_ok = run_ffmpeg([
+                                "-stream_loop", "-1", "-i", BG_LOOP,
+                                "-i", clip_path,
+                                "-map", "0:v", "-map", "1:a",
+                                "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+                                "-vf", "scale=1920:1080,setsar=1,fps=30",
+                                "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                                "-t", str(clip_audio_dur),
+                                "-shortest",
+                                bg_fallback_out,
+                            ], f"FIX2 bg_loop+audio clip #{rank}", 120)
+                            if bg_ok and os.path.exists(bg_fallback_out):
+                                result = bg_fallback_out
+                                logger.info(f"  FIX 2: bg_loop+audio fallback for clip #{rank}")
+                            elif os.path.exists(bg_fallback_out):
+                                os.remove(bg_fallback_out)
                 if result:
                     mix_lower_slide_sfx(result)
                     parts.append(result)
@@ -4698,6 +4779,35 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
 
             social_card_idx += len(card_posts)
             prev_segment_type = entry_type
+
+            # Render24 FIX 4: Signal Active as its own segment after tweet cards
+            if signal_content and (signal_content.get("spaces_quotes") or signal_content.get("nostr_posts")):
+                try:
+                    from signal_intelligence import generate_signal_summary
+                    from tts_engine import tts_elevenlabs
+                    sig_summary = generate_signal_summary(signal_content)
+                    if sig_summary:
+                        sig_tts_path = os.path.join(work_dir, f"part_{part_idx:03d}_signal_active_tts.m4a")
+                        tts_ok = tts_elevenlabs(sig_summary, sig_tts_path, host=2, segment_type="signal_active")
+                        if tts_ok and os.path.exists(sig_tts_path):
+                            sig_out = os.path.join(work_dir, f"part_{part_idx:03d}_signal_active.mp4")
+                            sig_result = make_signal_active_scene(
+                                sig_tts_path, signal_content, sig_out, btc_price=btc_price,
+                            )
+                            if sig_result:
+                                parts.append(sig_result)
+                                sig_dur = ffprobe_duration(sig_result)
+                                logger.info(f"[{part_idx:03d}] SIGNAL ACTIVE [PBX]: {sig_dur:.1f}s")
+                                part_idx += 1
+                                prev_segment_type = "signal_active"
+                                signal_content = None  # consumed — don't re-inject
+                            else:
+                                logger.warning("  FIX 4: Signal Active scene render failed")
+                        else:
+                            logger.warning("  FIX 4: Signal Active TTS generation failed")
+                except Exception as _sig4_err:
+                    logger.warning(f"  FIX 4: Signal Active segment failed: {_sig4_err}")
+
             continue
         elif entry_type == "social_segment":
             result = make_host_visual(
@@ -4727,15 +4837,15 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                 if pip_vid and os.path.abspath(pip_vid) == os.path.abspath(INTRO_TAG):
                     logger.error(f"  FIX 2: BLOCKED intro_tag.mp4 as PiP source! Using fallback.")
                     pip_vid = ""
-                if not pip_vid and entry_type == "setup":
-                    # Fallback: bg_loop placeholder, then no PiP
+                if not pip_vid and entry_type in ("setup", "react"):
+                    # Render24 FIX 1: PiP fallback — use bg_loop or skip. NEVER use rank1's PiP for another rank.
                     if os.path.exists(BG_LOOP):
                         pip_vid = BG_LOOP
-                        logger.info(f"  FIX 2: Using bg_loop as PiP placeholder for SETUP → clip #{clip_rank}")
-                    else:
+                        logger.info(f"  FIX 1: Using bg_loop as PiP placeholder for {entry_type.upper()} → clip #{clip_rank}")
+                    elif entry_type == "setup":
                         pip_vid = _ensure_pip_placeholder()
                         if pip_vid:
-                            logger.info(f"  FIX 2: Using branded placeholder PiP for SETUP → clip #{clip_rank}")
+                            logger.info(f"  FIX 1: Using branded placeholder PiP for SETUP → clip #{clip_rank}")
             if pip_vid and pip_vid != PIP_PLACEHOLDER:
                 logger.info(f"  FIX 3: PiP video embedded for {entry_type.upper()} → clip #{clip_rank}")
 

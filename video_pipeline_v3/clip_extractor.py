@@ -149,7 +149,7 @@ def _skip_intro_silence(output_path: str, channel: str = "") -> None:
         # --- INTRO SKIP: scan first 20s for speech onset ---
         result = subprocess.run([
             "ffmpeg", "-i", output_path, "-t", "20",
-            "-af", "silencedetect=noise=-30dB:d=0.5",
+            "-af", "silencedetect=noise=-25dB:d=0.5",
             "-f", "null", "-"
         ], capture_output=True, text=True, timeout=30)
         silence_ends = _re.findall(r"silence_end: ([\d.]+)", result.stderr)
