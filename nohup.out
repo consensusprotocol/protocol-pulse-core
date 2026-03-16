@@ -1,0 +1,924 @@
+TTS cache wiped
+Feature flags: {"mood_music": true, "ad_read_filter": true, "channel_dedup": true, "silence_detection": true, "social_segment": true, "tweet_cards": true, "youtube_auto_upload": false, "telegram_alerts": false, "analytics_feedback": false, "breaking_news_detector": false, "sponsor_rotation": false, "remotion_visuals": false, "agent_dev_mode": false, "test_mode": false, "multi_format_output": false}
+[scanner] Scanning 80 channels (max age: 48h)...
+Scanning 80 channels (max age: 48h)...
+[scanner]   Bitcoin Magazine: 1 videos found
+  Bitcoin Magazine: 1 videos found
+[scanner]   Simply Bitcoin: 3 videos found
+  Simply Bitcoin: 3 videos found
+[scanner] yt-dlp failed for What Bitcoin Did: ERROR: [youtube:tab] @WBDPodcast: This channel does not have a videos tab
+
+yt-dlp failed for What Bitcoin Did: ERROR: [youtube:tab] @WBDPodcast: This channel does not have a videos tab
+
+[scanner]   TFTC: 3 videos found
+  TFTC: 3 videos found
+[scanner]   Preston Pysh: 3 videos found
+  Preston Pysh: 3 videos found
+[scanner]   The Bitcoin Layer: 3 videos found
+  The Bitcoin Layer: 3 videos found
+[scanner]   Blockworks: 3 videos found
+  Blockworks: 3 videos found
+[scanner]   Natalie Brunell: 3 videos found
+  Natalie Brunell: 3 videos found
+[scanner]   Robert Breedlove: 3 videos found
+  Robert Breedlove: 3 videos found
+[scanner]   Andreas Antonopoulos: 3 videos found
+  Andreas Antonopoulos: 3 videos found
+[scanner]   Unchained: 2 videos found
+  Unchained: 2 videos found
+[scanner]   Swan Bitcoin: 3 videos found
+  Swan Bitcoin: 3 videos found
+[scanner]   BTC Sessions: 3 videos found
+  BTC Sessions: 3 videos found
+[scanner] yt-dlp failed for Bitcoin Audible: ERROR: [youtube:tab] @BitcoinAudible: This channel does not have a videos tab
+
+yt-dlp failed for Bitcoin Audible: ERROR: [youtube:tab] @BitcoinAudible: This channel does not have a videos tab
+
+[scanner]   Saifedean Ammous: 3 videos found
+  Saifedean Ammous: 3 videos found
+[scanner]   Bitcoin Magazine Pro: 3 videos found
+  Bitcoin Magazine Pro: 3 videos found
+[scanner]   The Investors Podcast Network: 3 videos found
+  The Investors Podcast Network: 3 videos found
+[scanner]   Guy Swann: 3 videos found
+  Guy Swann: 3 videos found
+[scanner] yt-dlp failed for BTC Inc: ERROR: [youtube:tab] @BTCInc: This channel does not have a videos tab
+
+yt-dlp failed for BTC Inc: ERROR: [youtube:tab] @BTCInc: This channel does not have a videos tab
+
+[scanner]   Tone Vays: 3 videos found
+  Tone Vays: 3 videos found
+[scanner]   Jameson Lopp: 3 videos found
+  Jameson Lopp: 3 videos found
+[scanner] yt-dlp failed for Casa: ERROR: [youtube:tab] @CasaBitcoin: This channel does not have a videos tab
+
+yt-dlp failed for Casa: ERROR: [youtube:tab] @CasaBitcoin: This channel does not have a videos tab
+
+[scanner]   Base58: 3 videos found
+  Base58: 3 videos found
+[scanner]   Nathaniel Whittemore: 3 videos found
+  Nathaniel Whittemore: 3 videos found
+[scanner]   The Bitcoin Podcast: 3 videos found
+  The Bitcoin Podcast: 3 videos found
+[scanner]   Bitcoin Mechanic: 3 videos found
+  Bitcoin Mechanic: 3 videos found
+[scanner] yt-dlp failed for Ansel Lindner: ERROR: [youtube:tab] @AnselLindner: This channel does not have a videos tab
+
+yt-dlp failed for Ansel Lindner: ERROR: [youtube:tab] @AnselLindner: This channel does not have a videos tab
+
+[scanner]   Bitcoin Podcast: 2 videos found
+  Bitcoin Podcast: 2 videos found
+[scanner]   KEYWORD FILTER: Real Vision Finance — 2 videos, 1 matched keywords, 1 filtered out
+  KEYWORD FILTER: Real Vision Finance — 2 videos, 1 matched keywords, 1 filtered out
+[scanner]   Real Vision Finance: 1 videos found
+  Real Vision Finance: 1 videos found
+[scanner]   KEYWORD FILTER: George Gammon — 9 videos, 1 matched keywords, 8 filtered out
+  KEYWORD FILTER: George Gammon — 9 videos, 1 matched keywords, 8 filtered out
+[scanner]   George Gammon: 1 videos found
+  George Gammon: 1 videos found
+[scanner]   KEYWORD FILTER: Coin Bureau — 9 videos, 3 matched keywords, 6 filtered out
+  KEYWORD FILTER: Coin Bureau — 9 videos, 3 matched keywords, 6 filtered out
+[scanner]   Coin Bureau: 3 videos found
+  Coin Bureau: 3 videos found
+[scanner]   Anthony Pompliano: 3 videos found
+  Anthony Pompliano: 3 videos found
+[scanner]   Marty Bent (Rabbit Hole Recap): 3 videos found
+  Marty Bent (Rabbit Hole Recap): 3 videos found
+[scanner]   Max Keiser: 1 videos found
+  Max Keiser: 1 videos found
+[scanner]   Stacker News: 3 videos found
+  Stacker News: 3 videos found
+[scanner] yt-dlp failed for Gemini: ERROR: [youtube:tab] @GeminiExchange: This channel does not have a videos tab
+
+yt-dlp failed for Gemini: ERROR: [youtube:tab] @GeminiExchange: This channel does not have a videos tab
+
+[scanner]   Strike: 1 videos found
+  Strike: 1 videos found
+[scanner] yt-dlp failed for Real Vision: ERROR: [youtube:tab] @RealVision: This channel does not have a videos tab
+
+yt-dlp failed for Real Vision: ERROR: [youtube:tab] @RealVision: This channel does not have a videos tab
+
+[scanner]   Scott Melker: 1 videos found
+  Scott Melker: 1 videos found
+[scanner]   Wolf Of All Streets: 1 videos found
+  Wolf Of All Streets: 1 videos found
+[scanner]   Compass Mining: 2 videos found
+  Compass Mining: 2 videos found
+[scanner] yt-dlp failed for MARA Holdings (Marathon Digital): ERROR: [youtube:tab] @MARAHoldings: This channel does not have a videos tab
+
+yt-dlp failed for MARA Holdings (Marathon Digital): ERROR: [youtube:tab] @MARAHoldings: This channel does not have a videos tab
+
+[scanner]   Riot Platforms: 2 videos found
+  Riot Platforms: 2 videos found
+[scanner] yt-dlp failed for HIVE Digital: ERROR: [youtube:tab] @HiveBlockchain: This channel does not have a videos tab
+
+yt-dlp failed for HIVE Digital: ERROR: [youtube:tab] @HiveBlockchain: This channel does not have a videos tab
+
+[scanner]   Bitfarms: 3 videos found
+  Bitfarms: 3 videos found
+[scanner]   Blockware Solutions: 3 videos found
+  Blockware Solutions: 3 videos found
+[scanner] yt-dlp failed for Strategy (MicroStrategy): ERROR: [youtube:tab] @Strategy: This channel does not have a videos tab
+
+yt-dlp failed for Strategy (MicroStrategy): ERROR: [youtube:tab] @Strategy: This channel does not have a videos tab
+
+[scanner] yt-dlp failed for Clark Moody: ERROR: [youtube:tab] @ClarkMoody: This channel does not have a videos tab
+
+yt-dlp failed for Clark Moody: ERROR: [youtube:tab] @ClarkMoody: This channel does not have a videos tab
+
+[scanner]   KEYWORD FILTER: CoinTelegraph — 6 videos, 4 matched keywords, 2 filtered out
+  KEYWORD FILTER: CoinTelegraph — 6 videos, 4 matched keywords, 2 filtered out
+[scanner]   CoinTelegraph: 3 videos found
+  CoinTelegraph: 3 videos found
+[scanner]   KEYWORD FILTER: CoinDesk — 9 videos, 2 matched keywords, 7 filtered out
+  KEYWORD FILTER: CoinDesk — 9 videos, 2 matched keywords, 7 filtered out
+[scanner]   CoinDesk: 2 videos found
+  CoinDesk: 2 videos found
+[scanner]   DataDash: 3 videos found
+  DataDash: 3 videos found
+[scanner]   KEYWORD FILTER: Investing With Tom — 8 videos, 0 matched keywords, 8 filtered out
+  KEYWORD FILTER: Investing With Tom — 8 videos, 0 matched keywords, 8 filtered out
+[scanner]   KEYWORD FILTER: Digital Asset News — 9 videos, 6 matched keywords, 3 filtered out
+  KEYWORD FILTER: Digital Asset News — 9 videos, 6 matched keywords, 3 filtered out
+[scanner]   Digital Asset News: 3 videos found
+  Digital Asset News: 3 videos found
+[scanner]   KEYWORD FILTER: Altcoin Daily — 8 videos, 4 matched keywords, 4 filtered out
+  KEYWORD FILTER: Altcoin Daily — 8 videos, 4 matched keywords, 4 filtered out
+[scanner]   Altcoin Daily: 3 videos found
+  Altcoin Daily: 3 videos found
+[scanner]   KEYWORD FILTER: CoinGecko — 9 videos, 4 matched keywords, 5 filtered out
+  KEYWORD FILTER: CoinGecko — 9 videos, 4 matched keywords, 5 filtered out
+[scanner]   CoinGecko: 3 videos found
+  CoinGecko: 3 videos found
+[scanner]   KEYWORD FILTER: Bitstamp — 4 videos, 0 matched keywords, 4 filtered out
+  KEYWORD FILTER: Bitstamp — 4 videos, 0 matched keywords, 4 filtered out
+[scanner] yt-dlp failed for Bitcoin Magazine Clips: ERROR: [youtube:tab] @bitcoinmagazineclips: This channel does not have a videos tab
+
+yt-dlp failed for Bitcoin Magazine Clips: ERROR: [youtube:tab] @bitcoinmagazineclips: This channel does not have a videos tab
+
+[scanner]   KEYWORD FILTER: CNBC — 8 videos, 0 matched keywords, 8 filtered out
+  KEYWORD FILTER: CNBC — 8 videos, 0 matched keywords, 8 filtered out
+[scanner]   KEYWORD FILTER: CNBC Television — 8 videos, 0 matched keywords, 8 filtered out
+  KEYWORD FILTER: CNBC Television — 8 videos, 0 matched keywords, 8 filtered out
+[scanner] yt-dlp failed for Bloomberg Television: ERROR: [youtube:tab] @BloombergTelevision: This channel does not have a videos tab
+
+yt-dlp failed for Bloomberg Television: ERROR: [youtube:tab] @BloombergTelevision: This channel does not have a videos tab
+
+[scanner]   KEYWORD FILTER: Fox Business — 8 videos, 0 matched keywords, 8 filtered out
+  KEYWORD FILTER: Fox Business — 8 videos, 0 matched keywords, 8 filtered out
+[scanner]   KEYWORD FILTER: Yahoo Finance — 9 videos, 0 matched keywords, 9 filtered out
+  KEYWORD FILTER: Yahoo Finance — 9 videos, 0 matched keywords, 9 filtered out
+[scanner]   KEYWORD FILTER: Kitco News — 5 videos, 0 matched keywords, 5 filtered out
+  KEYWORD FILTER: Kitco News — 5 videos, 0 matched keywords, 5 filtered out
+[scanner]   KEYWORD FILTER: Bankless — 6 videos, 0 matched keywords, 6 filtered out
+  KEYWORD FILTER: Bankless — 6 videos, 0 matched keywords, 6 filtered out
+[scanner]   KEYWORD FILTER: The Block — 1 videos, 0 matched keywords, 1 filtered out
+  KEYWORD FILTER: The Block — 1 videos, 0 matched keywords, 1 filtered out
+[scanner]   KEYWORD FILTER: TheStreet — 9 videos, 0 matched keywords, 9 filtered out
+  KEYWORD FILTER: TheStreet — 9 videos, 0 matched keywords, 9 filtered out
+[scanner]   KEYWORD FILTER: Joe Rogan Experience — 9 videos, 0 matched keywords, 9 filtered out
+  KEYWORD FILTER: Joe Rogan Experience — 9 videos, 0 matched keywords, 9 filtered out
+[scanner]   KEYWORD FILTER: Patrick Bet-David — 1 videos, 0 matched keywords, 1 filtered out
+  KEYWORD FILTER: Patrick Bet-David — 1 videos, 0 matched keywords, 1 filtered out
+[scanner]   KEYWORD FILTER: Tucker Carlson — 9 videos, 0 matched keywords, 9 filtered out
+  KEYWORD FILTER: Tucker Carlson — 9 videos, 0 matched keywords, 9 filtered out
+[scanner] yt-dlp failed for All-In Podcast: ERROR: [youtube:tab] @All-In-Podcast: Unable to download API page: HTTP Error 404: Not Found (caused by <HTTPError 404: Not Found>)
+
+yt-dlp failed for All-In Podcast: ERROR: [youtube:tab] @All-In-Podcast: Unable to download API page: HTTP Error 404: Not Found (caused by <HTTPError 404: Not Found>)
+
+[scanner] yt-dlp failed for Megyn Kelly Show: ERROR: [youtube:tab] @TheMegynKellyShow: Unable to download API page: HTTP Error 404: Not Found (caused by <HTTPError 404: Not Found>)
+
+yt-dlp failed for Megyn Kelly Show: ERROR: [youtube:tab] @TheMegynKellyShow: Unable to download API page: HTTP Error 404: Not Found (caused by <HTTPError 404: Not Found>)
+
+[scanner] yt-dlp failed for JRE Clips: ERROR: [youtube:tab] @PowerfulJRE: Unable to download API page: HTTP Error 404: Not Found (caused by <HTTPError 404: Not Found>)
+
+yt-dlp failed for JRE Clips: ERROR: [youtube:tab] @PowerfulJRE: Unable to download API page: HTTP Error 404: Not Found (caused by <HTTPError 404: Not Found>)
+
+[scanner] Total videos found: 110
+Total videos found: 110
+[scanner] [1/110] Bitcoin Magazine: Michael Saylor's 5 Most Powerful Bitcoin Moments
+[1/110] Bitcoin Magazine: Michael Saylor's 5 Most Powerful Bitcoin Moments
+[scanner]   Transcript cached (3651 chars)
+  Transcript cached (3651 chars)
+[scanner] [2/110] Simply Bitcoin: The Fed Setup for Bitcoin’s Next Run
+[2/110] Simply Bitcoin: The Fed Setup for Bitcoin’s Next Run
+[scanner]   Transcript cached (16785 chars)
+  Transcript cached (16785 chars)
+[scanner] [3/110] Simply Bitcoin: FORGET WALL ST: How the Biggest Bitcoin Attack Is Coming Fro
+[3/110] Simply Bitcoin: FORGET WALL ST: How the Biggest Bitcoin Attack Is Coming Fro
+[scanner]   Transcript cached (12437 chars)
+  Transcript cached (12437 chars)
+[scanner] [4/110] Simply Bitcoin: The Government Has No Choice: Trillions Must Be Printed! (Bi
+[4/110] Simply Bitcoin: The Government Has No Choice: Trillions Must Be Printed! (Bi
+[scanner]   Transcript cached (14859 chars)
+  Transcript cached (14859 chars)
+[scanner] [5/110] TFTC: The Most Important Conversation I've Had This Year
+[5/110] TFTC: The Most Important Conversation I've Had This Year
+[scanner]   Transcript cached (70525 chars)
+  Transcript cached (70525 chars)
+[scanner] [6/110] TFTC: The One Thing That Kept People In Power For Centuries Just S
+[6/110] TFTC: The One Thing That Kept People In Power For Centuries Just S
+[scanner]   Transcript cached (64228 chars)
+  Transcript cached (64228 chars)
+[scanner] [7/110] TFTC: The Second American Revolution Has Already Started
+[7/110] TFTC: The Second American Revolution Has Already Started
+[scanner]   Transcript cached (70695 chars)
+  Transcript cached (70695 chars)
+[scanner] [8/110] Preston Pysh: OpenClaw and Self Sovereign AI w/ Alex Gladstein & Justin Mo
+[8/110] Preston Pysh: OpenClaw and Self Sovereign AI w/ Alex Gladstein & Justin Mo
+[scanner]   Transcript cached (72700 chars)
+  Transcript cached (72700 chars)
+[scanner] [9/110] Preston Pysh: Bitcoin & Theoretical Physics w/ Jeff Booth, Jack & Nick (BT
+[9/110] Preston Pysh: Bitcoin & Theoretical Physics w/ Jeff Booth, Jack & Nick (BT
+[scanner]   Transcript cached (69340 chars)
+  Transcript cached (69340 chars)
+[scanner] [10/110] Preston Pysh: Is AGI Here? Clawdbot, Local AI Agent Swarms w/ Pablo Fernan
+[10/110] Preston Pysh: Is AGI Here? Clawdbot, Local AI Agent Swarms w/ Pablo Fernan
+[scanner]   Transcript cached (63839 chars)
+  Transcript cached (63839 chars)
+[scanner] [11/110] The Bitcoin Layer: Oil Shock, Stablecoin Surge, and Bitcoin Isn't Flinching
+[11/110] The Bitcoin Layer: Oil Shock, Stablecoin Surge, and Bitcoin Isn't Flinching
+[scanner]   Transcript cached (3695 chars)
+  Transcript cached (3695 chars)
+[scanner] [12/110] The Bitcoin Layer: A Physicist Proved Bitcoin Will Hit $1 Million. Here’s When
+[12/110] The Bitcoin Layer: A Physicist Proved Bitcoin Will Hit $1 Million. Here’s When
+[scanner]   Transcript cached (40766 chars)
+  Transcript cached (40766 chars)
+[scanner] [13/110] The Bitcoin Layer: Bitcoin May Have Already Bottomed During War Markets
+[13/110] The Bitcoin Layer: Bitcoin May Have Already Bottomed During War Markets
+[scanner]   Transcript cached (4392 chars)
+  Transcript cached (4392 chars)
+[scanner] [14/110] Blockworks: How to transform Minecraft Java into Minecraft Alpha ( 1.17 
+[14/110] Blockworks: How to transform Minecraft Java into Minecraft Alpha ( 1.17 
+[scanner]   Transcript cached (4257 chars)
+  Transcript cached (4257 chars)
+[scanner] [15/110] Blockworks: Gravity Test
+[15/110] Blockworks: Gravity Test
+[scanner]   Transcript cached (0 chars)
+  Transcript cached (0 chars)
+[scanner] [16/110] Blockworks: Roblox Under Water 2021
+[16/110] Blockworks: Roblox Under Water 2021
+[scanner]   Transcript cached (0 chars)
+  Transcript cached (0 chars)
+[scanner] [17/110] Natalie Brunell: Arthur Hayes: The Fed Will Print Again — That’s When Bitcoin
+[17/110] Natalie Brunell: Arthur Hayes: The Fed Will Print Again — That’s When Bitcoin
+[scanner]   Transcript cached (52202 chars)
+  Transcript cached (52202 chars)
+[scanner] [18/110] Natalie Brunell: America’s Retirement Crisis Is Worse Than You Think
+[18/110] Natalie Brunell: America’s Retirement Crisis Is Worse Than You Think
+[scanner]   Transcript cached (13369 chars)
+  Transcript cached (13369 chars)
+[scanner] [19/110] Natalie Brunell: The Untold Bitcoin Boom in Africa, with Stafford Masie
+[19/110] Natalie Brunell: The Untold Bitcoin Boom in Africa, with Stafford Masie
+[scanner]   Transcript cached (35576 chars)
+  Transcript cached (35576 chars)
+[scanner] [20/110] Robert Breedlove: How to Slow Aging by Fixing Your Cells w/ Miguel & Carlos
+[20/110] Robert Breedlove: How to Slow Aging by Fixing Your Cells w/ Miguel & Carlos
+[scanner]   Transcript cached (185746 chars)
+  Transcript cached (185746 chars)
+[scanner] [21/110] Robert Breedlove: Why Poor People Rarely Buy Bitcoin
+[21/110] Robert Breedlove: Why Poor People Rarely Buy Bitcoin
+[scanner]   Transcript cached (6540 chars)
+  Transcript cached (6540 chars)
+[scanner] [22/110] Robert Breedlove: The Dollar Is the Titanic… And Most People Are Still Dancing
+[22/110] Robert Breedlove: The Dollar Is the Titanic… And Most People Are Still Dancing
+[scanner]   Transcript cached (6789 chars)
+  Transcript cached (6789 chars)
+[scanner] [23/110] Andreas Antonopoulos: What US Taxpayers With Crypto NEED to do before Dec 31, 2024
+[23/110] Andreas Antonopoulos: What US Taxpayers With Crypto NEED to do before Dec 31, 2024
+[scanner]   Transcript cached (85086 chars)
+  Transcript cached (85086 chars)
+[scanner] [24/110] Andreas Antonopoulos: Bitcoin Halving 2024: How It's Different This Time, Myths De
+[24/110] Andreas Antonopoulos: Bitcoin Halving 2024: How It's Different This Time, Myths De
+[scanner]   Transcript cached (15503 chars)
+  Transcript cached (15503 chars)
+[scanner] [25/110] Andreas Antonopoulos: Lightning Network: what is it? why should I care? what can I
+[25/110] Andreas Antonopoulos: Lightning Network: what is it? why should I care? what can I
+[scanner]   Transcript cached (23734 chars)
+  Transcript cached (23734 chars)
+[scanner] [26/110] Unchained: Bitcoin vs Banks: What They Don’t Want You to Know
+[26/110] Unchained: Bitcoin vs Banks: What They Don’t Want You to Know
+[scanner]   Transcript cached (3022 chars)
+  Transcript cached (3022 chars)
+[scanner] [27/110] Unchained: How Bitcoin Gives You Freedom (Explained in under 5 Minutes)
+[27/110] Unchained: How Bitcoin Gives You Freedom (Explained in under 5 Minutes)
+[scanner]   Transcript cached (3567 chars)
+  Transcript cached (3567 chars)
+[scanner] [28/110] Swan Bitcoin: Strategy is Driving ALL The Bitcoin Out Of Circulation FOREV
+[28/110] Swan Bitcoin: Strategy is Driving ALL The Bitcoin Out Of Circulation FOREV
+[scanner]   Transcript cached (12151 chars)
+  Transcript cached (12151 chars)
+[scanner] [29/110] Swan Bitcoin: The Countdown to Bitcoin's Next Face Melting Rally Has Begun
+[29/110] Swan Bitcoin: The Countdown to Bitcoin's Next Face Melting Rally Has Begun
+[scanner]   Transcript cached (19658 chars)
+  Transcript cached (19658 chars)
+[scanner] [30/110] Swan Bitcoin: The Iran War Is Proving Bitcoin Is Different
+[30/110] Swan Bitcoin: The Iran War Is Proving Bitcoin Is Different
+[scanner]   Transcript cached (14328 chars)
+  Transcript cached (14328 chars)
+[scanner] [31/110] BTC Sessions: Did They Just Release The Most Advanced Bitcoin Wallet Ever 
+[31/110] BTC Sessions: Did They Just Release The Most Advanced Bitcoin Wallet Ever 
+[scanner]   Transcript cached (33303 chars)
+  Transcript cached (33303 chars)
+[scanner] [32/110] BTC Sessions: “This Is Worldwide” — Major Bank Contagion Just Hit BlackRoc
+[32/110] BTC Sessions: “This Is Worldwide” — Major Bank Contagion Just Hit BlackRoc
+[scanner]   Transcript cached (17479 chars)
+  Transcript cached (17479 chars)
+[scanner] [33/110] BTC Sessions: The Rothschilds’ FINAL Solution Is Coming & Bitcoiners Need 
+[33/110] BTC Sessions: The Rothschilds’ FINAL Solution Is Coming & Bitcoiners Need 
+[scanner]   Transcript cached (20048 chars)
+  Transcript cached (20048 chars)
+[scanner] [34/110] Saifedean Ammous: 316. Principles of Economics Lecture 7: Technology
+[34/110] Saifedean Ammous: 316. Principles of Economics Lecture 7: Technology
+[scanner]   Transcript cached (41705 chars)
+  Transcript cached (41705 chars)
+[scanner] [35/110] Saifedean Ammous: 315. Principles of Economics Lecture 6: Capital
+[35/110] Saifedean Ammous: 315. Principles of Economics Lecture 6: Capital
+[scanner]   Transcript cached (42952 chars)
+  Transcript cached (42952 chars)
+[scanner] [36/110] Saifedean Ammous: 314. Principles of Economics Lecture 5: Property
+[36/110] Saifedean Ammous: 314. Principles of Economics Lecture 5: Property
+[scanner]   Transcript cached (40478 chars)
+  Transcript cached (40478 chars)
+[scanner] [37/110] Bitcoin Magazine Pro: Bitcoin Update: Macroeconomic Conditions Just Changed
+[37/110] Bitcoin Magazine Pro: Bitcoin Update: Macroeconomic Conditions Just Changed
+[scanner]   Transcript cached (10429 chars)
+  Transcript cached (10429 chars)
+[scanner] [38/110] Bitcoin Magazine Pro: Institutions Aren't Capitulating On BTC (They're Buying)
+[38/110] Bitcoin Magazine Pro: Institutions Aren't Capitulating On BTC (They're Buying)
+[scanner]   Transcript cached (12874 chars)
+  Transcript cached (12874 chars)
+[scanner] [39/110] Bitcoin Magazine Pro: Is Bitcoin Actually Dead This Time? (Unbiased Analysis)
+[39/110] Bitcoin Magazine Pro: Is Bitcoin Actually Dead This Time? (Unbiased Analysis)
+[scanner]   Transcript cached (23054 chars)
+  Transcript cached (23054 chars)
+[scanner] [40/110] The Investors Podcast Network: Nintendo Stock Deep Dive w/ Clay Finck (TIP798)
+[40/110] The Investors Podcast Network: Nintendo Stock Deep Dive w/ Clay Finck (TIP798)
+[scanner]   Transcript cached (60001 chars)
+  Transcript cached (60001 chars)
+[scanner] [41/110] The Investors Podcast Network: How John Malone Compounded Wealth: The Risk & Reward Playboo
+[41/110] The Investors Podcast Network: How John Malone Compounded Wealth: The Risk & Reward Playboo
+[scanner]   Transcript cached (71676 chars)
+  Transcript cached (71676 chars)
+[scanner] [42/110] The Investors Podcast Network: Die with Zero & Linde PLC Stock Analysis w/ Clay Finck (TIP7
+[42/110] The Investors Podcast Network: Die with Zero & Linde PLC Stock Analysis w/ Clay Finck (TIP7
+[scanner]   Transcript cached (56736 chars)
+  Transcript cached (56736 chars)
+[scanner] [43/110] Guy Swann: Chat_162 - Plan-B El Salvador with Giacomo Zucco
+[43/110] Guy Swann: Chat_162 - Plan-B El Salvador with Giacomo Zucco
+[scanner]   Transcript cached (32073 chars)
+  Transcript cached (32073 chars)
+[scanner] [44/110] Guy Swann: Roundtable_018 - Everything is Fake and Gay
+[44/110] Guy Swann: Roundtable_018 - Everything is Fake and Gay
+[scanner]   Transcript cached (122215 chars)
+  Transcript cached (122215 chars)
+[scanner] [45/110] Guy Swann: Guy's Take_104 - The User Doesn't Care About Your Mission
+[45/110] Guy Swann: Guy's Take_104 - The User Doesn't Care About Your Mission
+[scanner]   Transcript cached (46694 chars)
+  Transcript cached (46694 chars)
+[scanner] [46/110] Tone Vays: Knots (BIP110) Debate from Plan ₿ Forum El Salvador 2026 – L
+[46/110] Tone Vays: Knots (BIP110) Debate from Plan ₿ Forum El Salvador 2026 – L
+[scanner]   Transcript cached (43360 chars)
+  Transcript cached (43360 chars)
+[scanner] [47/110] Tone Vays: Simply Bitcoin Interview by Nico Moran at Plan B El Salvador
+[47/110] Tone Vays: Simply Bitcoin Interview by Nico Moran at Plan B El Salvador
+[scanner]   Transcript cached (20568 chars)
+  Transcript cached (20568 chars)
+[scanner] [48/110] Tone Vays: Why BIP110 (aka Knots) is a Hostile Attack on Bitcoin - Plan
+[48/110] Tone Vays: Why BIP110 (aka Knots) is a Hostile Attack on Bitcoin - Plan
+[scanner]   Transcript cached (20847 chars)
+  Transcript cached (20847 chars)
+[scanner] [49/110] Jameson Lopp: Bitcoin Core 2024 Development
+[49/110] Jameson Lopp: Bitcoin Core 2024 Development
+[scanner]   Transcript cached (0 chars)
+  Transcript cached (0 chars)
+[scanner] [50/110] Jameson Lopp: Bitcoin Core 2023 Development
+[50/110] Jameson Lopp: Bitcoin Core 2023 Development
+[scanner]   Transcript cached (0 chars)
+  Transcript cached (0 chars)
+[scanner] [51/110] Jameson Lopp: POW Summit - The Hunt for the Real Bitcoin Hashrate
+[51/110] Jameson Lopp: POW Summit - The Hunt for the Real Bitcoin Hashrate
+[scanner]   Transcript cached (27774 chars)
+  Transcript cached (27774 chars)
+[scanner] [52/110] Base58: Covenants: The Power of Introspection
+[52/110] Base58: Covenants: The Power of Introspection
+[scanner]   Transcript cached (13071 chars)
+  Transcript cached (13071 chars)
+[scanner] [53/110] Base58: 16 - Mining
+[53/110] Base58: 16 - Mining
+[scanner]   Transcript cached (6764 chars)
+  Transcript cached (6764 chars)
+[scanner] [54/110] Base58: 13 - Transactions
+[54/110] Base58: 13 - Transactions
+[scanner]   Transcript cached (8725 chars)
+  Transcript cached (8725 chars)
+[scanner] [55/110] Nathaniel Whittemore: Sleigh Bells - Comeback Kid
+[55/110] Nathaniel Whittemore: Sleigh Bells - Comeback Kid
+[scanner]   Transcript cached (0 chars)
+  Transcript cached (0 chars)
+[scanner] [56/110] Nathaniel Whittemore: Skrillex closes the night with Cinema
+[56/110] Nathaniel Whittemore: Skrillex closes the night with Cinema
+[scanner]   Transcript cached (0 chars)
+  Transcript cached (0 chars)
+[scanner] [57/110] Nathaniel Whittemore: New APC40!!
+[57/110] Nathaniel Whittemore: New APC40!!
+[scanner]   Transcript cached (0 chars)
+  Transcript cached (0 chars)
+[scanner] [58/110] The Bitcoin Podcast: Predicting Bitcoin’s Price
+[58/110] The Bitcoin Podcast: Predicting Bitcoin’s Price
+[scanner]   Transcript cached (23685 chars)
+  Transcript cached (23685 chars)
+[scanner] [59/110] The Bitcoin Podcast: Potential Consequences When the U.S. Dollar Collapses!
+[59/110] The Bitcoin Podcast: Potential Consequences When the U.S. Dollar Collapses!
+[scanner]   Transcript cached (21193 chars)
+  Transcript cached (21193 chars)
+[scanner] [60/110] The Bitcoin Podcast: Arkham - Blockchain Transparency and Deanonymization?
+[60/110] The Bitcoin Podcast: Arkham - Blockchain Transparency and Deanonymization?
+[scanner]   Transcript cached (14539 chars)
+  Transcript cached (14539 chars)
+[scanner] [61/110] Bitcoin Mechanic: BIP-110 Fixes Taproot
+[61/110] Bitcoin Mechanic: BIP-110 Fixes Taproot
+[scanner]   Transcript cached (53356 chars)
+  Transcript cached (53356 chars)
+[scanner] [62/110] Bitcoin Mechanic: Dirty Laundry, Delusion, Humility etc
+[62/110] Bitcoin Mechanic: Dirty Laundry, Delusion, Humility etc
+[scanner]   Transcript cached (74230 chars)
+  Transcript cached (74230 chars)
+[scanner] [63/110] Bitcoin Mechanic: BIP-110 Just Wins
+[63/110] Bitcoin Mechanic: BIP-110 Just Wins
+[scanner]   Transcript cached (52461 chars)
+  Transcript cached (52461 chars)
+[scanner] [64/110] Bitcoin Podcast: The Bitcoin Podcast - Episode 2
+[64/110] Bitcoin Podcast: The Bitcoin Podcast - Episode 2
+[scanner]   Transcript cached (4757 chars)
+  Transcript cached (4757 chars)
+[scanner] [65/110] Bitcoin Podcast: Bitcoin Forum Podcast - Episode 1
+[65/110] Bitcoin Podcast: Bitcoin Forum Podcast - Episode 1
+[scanner]   Transcript cached (3844 chars)
+  Transcript cached (3844 chars)
+[scanner] [66/110] Real Vision Finance: Will Crypto Replace Banks? Abra CEO, Bill Barhydt, Explains 
+[66/110] Real Vision Finance: Will Crypto Replace Banks? Abra CEO, Bill Barhydt, Explains 
+[scanner]   Transcript cached (21385 chars)
+  Transcript cached (21385 chars)
+[scanner] [67/110] George Gammon: BREAKING: The Fed Just Made A Huge Mistake (What You Need To
+[67/110] George Gammon: BREAKING: The Fed Just Made A Huge Mistake (What You Need To
+[scanner]   Transcript cached (21206 chars)
+  Transcript cached (21206 chars)
+[scanner] [68/110] Coin Bureau: Morgan Stanley Just Declared War On BlackRock's Bitcoin Empi
+[68/110] Coin Bureau: Morgan Stanley Just Declared War On BlackRock's Bitcoin Empi
+[scanner]   Transcript cached (7149 chars)
+  Transcript cached (7149 chars)
+[scanner] [69/110] Coin Bureau: BlackRock Now Controls Bitcoin's Future
+[69/110] Coin Bureau: BlackRock Now Controls Bitcoin's Future
+[scanner]   Transcript cached (8731 chars)
+  Transcript cached (8731 chars)
+[scanner] [70/110] Coin Bureau: The ETF Lie Is Hiding Bitcoin's Bottom
+[70/110] Coin Bureau: The ETF Lie Is Hiding Bitcoin's Bottom
+[scanner]   Transcript cached (16424 chars)
+  Transcript cached (16424 chars)
+[scanner] [71/110] Anthony Pompliano: The Next Bitcoin Bull Run Could Start In A Crisis
+[71/110] Anthony Pompliano: The Next Bitcoin Bull Run Could Start In A Crisis
+[scanner]   Transcript cached (49842 chars)
+  Transcript cached (49842 chars)
+[scanner] [72/110] Anthony Pompliano: AI Is About to Trigger Bitcoin’s Next EXPLOSION
+[72/110] Anthony Pompliano: AI Is About to Trigger Bitcoin’s Next EXPLOSION
+[scanner]   Transcript cached (36195 chars)
+  Transcript cached (36195 chars)
+[scanner] [73/110] Anthony Pompliano: Will Global Conflict Send Bitcoin Higher?
+[73/110] Anthony Pompliano: Will Global Conflict Send Bitcoin Higher?
+[scanner]   Transcript cached (27695 chars)
+  Transcript cached (27695 chars)
+[scanner] [74/110] Marty Bent (Rabbit Hole Recap): World's Largest Bitcoin Exchange Is Trying To Kill Bitcoin
+[74/110] Marty Bent (Rabbit Hole Recap): World's Largest Bitcoin Exchange Is Trying To Kill Bitcoin
+[scanner]   Transcript cached (15090 chars)
+  Transcript cached (15090 chars)
+[scanner] [75/110] Marty Bent (Rabbit Hole Recap): The Fed Has No Way Out Of This One
+[75/110] Marty Bent (Rabbit Hole Recap): The Fed Has No Way Out Of This One
+[scanner]   Transcript cached (30695 chars)
+  Transcript cached (30695 chars)
+[scanner] [76/110] Marty Bent (Rabbit Hole Recap): They're About To Attack The US Banking System (And Nobody Is
+[76/110] Marty Bent (Rabbit Hole Recap): They're About To Attack The US Banking System (And Nobody Is
+[scanner]   Transcript cached (23006 chars)
+  Transcript cached (23006 chars)
+[scanner] [77/110] Max Keiser: Keiser Report prep
+[77/110] Max Keiser: Keiser Report prep
+[scanner]   Transcript cached (4302 chars)
+  Transcript cached (4302 chars)
+[scanner] [78/110] Stacker News: McDonald's CEO mocked for taking small bite of new Arch Burg
+[78/110] Stacker News: McDonald's CEO mocked for taking small bite of new Arch Burg
+[scanner]   Transcript cached (2539 chars)
+  Transcript cached (2539 chars)
+[scanner] [79/110] Stacker News: How to DIY your own paper Bitcoin - Fractional Reserve
+[79/110] Stacker News: How to DIY your own paper Bitcoin - Fractional Reserve
+[scanner]   Transcript cached (2437 chars)
+  Transcript cached (2437 chars)
+[scanner] [80/110] Stacker News: [PSI] Personal Sats Inflation of everyday items.
+[80/110] Stacker News: [PSI] Personal Sats Inflation of everyday items.
+[scanner]   Transcript cached (2881 chars)
+  Transcript cached (2881 chars)
+[scanner] [81/110] Strike: Strike - what are buyers really looking at on viewings?
+[81/110] Strike: Strike - what are buyers really looking at on viewings?
+[scanner]   Transcript cached (2822 chars)
+  Transcript cached (2822 chars)
+[scanner] [82/110] Scott Melker: Grant Cardone: I’m Going ALL IN On Bitcoin
+[82/110] Scott Melker: Grant Cardone: I’m Going ALL IN On Bitcoin
+[scanner]   Transcript cached (24219 chars)
+  Transcript cached (24219 chars)
+[scanner] [83/110] Wolf Of All Streets: Goa Water Sports 2020
+[83/110] Wolf Of All Streets: Goa Water Sports 2020
+[scanner]   Transcript cached (3034 chars)
+  Transcript cached (3034 chars)
+[scanner] [84/110] Compass Mining: What is Proof-of-Work?
+[84/110] Compass Mining: What is Proof-of-Work?
+[scanner]   Transcript cached (1870 chars)
+  Transcript cached (1870 chars)
+[scanner] [85/110] Compass Mining: Dashboard Demo: Billing & invoices
+[85/110] Compass Mining: Dashboard Demo: Billing & invoices
+[scanner]   Transcript cached (2430 chars)
+  Transcript cached (2430 chars)
+[scanner] [86/110] Riot Platforms: Episode 47: Texas Energy Dominance
+[86/110] Riot Platforms: Episode 47: Texas Energy Dominance
+[scanner]   Transcript cached (46974 chars)
+  Transcript cached (46974 chars)
+[scanner] [87/110] Riot Platforms: Behind the Scenes: Riot Rookie
+[87/110] Riot Platforms: Behind the Scenes: Riot Rookie
+[scanner]   Transcript cached (4642 chars)
+  Transcript cached (4642 chars)
+[scanner] [88/110] Bitfarms: CNBC - Bitfarms CEO says ‘strengthening U.S. exposure’ big p
+[88/110] Bitfarms: CNBC - Bitfarms CEO says ‘strengthening U.S. exposure’ big p
+[scanner]   Transcript cached (10205 chars)
+  Transcript cached (10205 chars)
+[scanner] [89/110] Bitfarms: Get to know Bitfarms’ new CEO, Ben Gagnon
+[89/110] Bitfarms: Get to know Bitfarms’ new CEO, Ben Gagnon
+[scanner]   Transcript cached (2280 chars)
+  Transcript cached (2280 chars)
+[scanner] [90/110] Bitfarms: The Future of Bitcoin Mining
+[90/110] Bitfarms: The Future of Bitcoin Mining
+[scanner]   Transcript cached (9827 chars)
+  Transcript cached (9827 chars)
+[scanner] [91/110] Blockware Solutions: Why I’m Never Selling My Bitcoin (Strike BLOC)
+[91/110] Blockware Solutions: Why I’m Never Selling My Bitcoin (Strike BLOC)
+[scanner]   Transcript cached (20021 chars)
+  Transcript cached (20021 chars)
+[scanner] [92/110] Blockware Solutions: BTC Hits $73,0000 - Why The Iran War is Signaling a Bottom f
+[92/110] Blockware Solutions: BTC Hits $73,0000 - Why The Iran War is Signaling a Bottom f
+[scanner]   Transcript cached (24063 chars)
+  Transcript cached (24063 chars)
+[scanner] [93/110] Blockware Solutions: Block Just Fired 4,000 People: The AI Purge Has Begun
+[93/110] Blockware Solutions: Block Just Fired 4,000 People: The AI Purge Has Begun
+[scanner]   Transcript cached (9527 chars)
+  Transcript cached (9527 chars)
+[scanner] [94/110] CoinTelegraph: Arthur Hayes On What Happens to Bitcoin If the Iran War Drag
+[94/110] CoinTelegraph: Arthur Hayes On What Happens to Bitcoin If the Iran War Drag
+[scanner]   Transcript cached (28116 chars)
+  Transcript cached (28116 chars)
+[scanner] [95/110] CoinTelegraph: What Went Wrong With Bitcoin? Coin Bureau CEO’s 2026 Outlook
+[95/110] CoinTelegraph: What Went Wrong With Bitcoin? Coin Bureau CEO’s 2026 Outlook
+[scanner]   Transcript cached (30117 chars)
+  Transcript cached (30117 chars)
+[scanner] [96/110] CoinTelegraph: Bitcoin Could Drop 40% — But 2026 Is a Buy Opportunity?
+[96/110] CoinTelegraph: Bitcoin Could Drop 40% — But 2026 Is a Buy Opportunity?
+[scanner]   Transcript cached (11458 chars)
+  Transcript cached (11458 chars)
+[scanner] [97/110] CoinDesk: Bitcoin’s Resilience Stands Out as Stocks Face Geopolitical 
+[97/110] CoinDesk: Bitcoin’s Resilience Stands Out as Stocks Face Geopolitical 
+[scanner]   Transcript cached (6659 chars)
+  Transcript cached (6659 chars)
+[scanner] [98/110] CoinDesk: Why Ric Edelman Still Sees Bitcoin at $500,000 by 2030
+[98/110] CoinDesk: Why Ric Edelman Still Sees Bitcoin at $500,000 by 2030
+[scanner]   Transcript cached (11118 chars)
+  Transcript cached (11118 chars)
+[scanner] [99/110] DataDash: 🚨 Bitcoin’s Next Move Could Shock Everyone (Don’t Miss This)
+[99/110] DataDash: 🚨 Bitcoin’s Next Move Could Shock Everyone (Don’t Miss This)
+[scanner]   Transcript cached (18877 chars)
+  Transcript cached (18877 chars)
+[scanner] [100/110] DataDash: 🚨 Oil Is Surging, Stocks Are Falling… So Why Is Bitcoin Pump
+[100/110] DataDash: 🚨 Oil Is Surging, Stocks Are Falling… So Why Is Bitcoin Pump
+[scanner]   Transcript cached (19459 chars)
+  Transcript cached (19459 chars)
+[scanner] [101/110] DataDash: 📈 Bitcoin Surges $66K → $74K… But This Signal Matters More
+[101/110] DataDash: 📈 Bitcoin Surges $66K → $74K… But This Signal Matters More
+[scanner]   Transcript cached (11648 chars)
+  Transcript cached (11648 chars)
+[scanner] [102/110] Digital Asset News: The Bitcoin Quantum Computer Lie.
+[102/110] Digital Asset News: The Bitcoin Quantum Computer Lie.
+[scanner]   Transcript cached (7079 chars)
+  Transcript cached (7079 chars)
+[scanner] [103/110] Digital Asset News: Quick Saturday Update: Bitcoin Holds. Clarity Crumbles. 
+[103/110] Digital Asset News: Quick Saturday Update: Bitcoin Holds. Clarity Crumbles. 
+[scanner]   Transcript cached (2879 chars)
+  Transcript cached (2879 chars)
+[scanner] [104/110] Digital Asset News: Buy Bitcoin With ZERO Fees, NO Spreads & Get $5 Bonus FREE! 
+[104/110] Digital Asset News: Buy Bitcoin With ZERO Fees, NO Spreads & Get $5 Bonus FREE! 
+[scanner]   Transcript cached (4954 chars)
+  Transcript cached (4954 chars)
+[scanner] [105/110] Altcoin Daily: Bitcoin & Ethereum Are About To Do Something MASSIVE!!
+[105/110] Altcoin Daily: Bitcoin & Ethereum Are About To Do Something MASSIVE!!
+[scanner]   Transcript cached (13028 chars)
+  Transcript cached (13028 chars)
+[scanner] [106/110] Altcoin Daily: Michael Saylor Is Actually Out Of Control (bitcoin news)
+[106/110] Altcoin Daily: Michael Saylor Is Actually Out Of Control (bitcoin news)
+[scanner]   Transcript cached (7903 chars)
+  Transcript cached (7903 chars)
+[scanner] [107/110] Altcoin Daily: Bitcoin & Ethereum Are About To Wake Up (Watch Immediately)
+[107/110] Altcoin Daily: Bitcoin & Ethereum Are About To Wake Up (Watch Immediately)
+[scanner]   Transcript cached (9983 chars)
+  Transcript cached (9983 chars)
+[scanner] [108/110] CoinGecko: The Black Market That Launched Bitcoin
+[108/110] CoinGecko: The Black Market That Launched Bitcoin
+[scanner]   Transcript cached (3341 chars)
+  Transcript cached (3341 chars)
+[scanner] [109/110] CoinGecko: Why Is Bitcoin Dumping?? DON’T Catch The Falling Knife!
+[109/110] CoinGecko: Why Is Bitcoin Dumping?? DON’T Catch The Falling Knife!
+[scanner]   Transcript cached (6535 chars)
+  Transcript cached (6535 chars)
+[scanner] [110/110] CoinGecko: Best Bitcoin Desktop Wallet?? Electrum Tutorial 2026
+[110/110] CoinGecko: Best Bitcoin Desktop Wallet?? Electrum Tutorial 2026
+[scanner]   Transcript cached (7846 chars)
+  Transcript cached (7846 chars)
+[scanner] Transcribed 110/110 videos
+Transcribed 110/110 videos
+[selector] Sending 110 transcripts for clip selection...
+Sending 110 transcripts for clip selection...
+HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+[selector] 🚫 AD READ DETECTED — pattern 'swan bitcoin' found. Clip REJECTED.
+🚫 AD READ DETECTED — pattern 'swan bitcoin' found. Clip REJECTED.
+[selector]   REJECTED clip #1 [Swan Bitcoin] — ad read content
+  REJECTED clip #1 [Swan Bitcoin] — ad read content
+[selector] EPISODE MEMORY: 21 video_ids blocked from last 7 episodes
+EPISODE MEMORY: 21 video_ids blocked from last 7 episodes
+[selector] EPISODE MEMORY: Dropped clip from video N6vOLQ3qJiA [Bitcoin Magazine] — used in recent episode
+EPISODE MEMORY: Dropped clip from video N6vOLQ3qJiA [Bitcoin Magazine] — used in recent episode
+[selector] EPISODE MEMORY: Dropped clip from video zulFR27czZk [Swan Bitcoin] — used in recent episode
+EPISODE MEMORY: Dropped clip from video zulFR27czZk [Swan Bitcoin] — used in recent episode
+[selector] EPISODE MEMORY: Dropped clip from video RtKFexfYiA8 [Bitcoin Magazine Pro] — used in recent episode
+EPISODE MEMORY: Dropped clip from video RtKFexfYiA8 [Bitcoin Magazine Pro] — used in recent episode
+[selector] EPISODE MEMORY: Dropped clip from video Ny9P1l0WKwo [Natalie Brunell] — used in recent episode
+EPISODE MEMORY: Dropped clip from video Ny9P1l0WKwo [Natalie Brunell] — used in recent episode
+[selector] 5-CLIP RULE: Only 0 clips after filtering, need 5. Re-selecting from remaining channels...
+5-CLIP RULE: Only 0 clips after filtering, need 5. Re-selecting from remaining channels...
+HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+[selector]   RE-SELECT: Added #1 [Bitcoin Magazine] Michael Saylor's 5 Most Powerful Bitcoin
+  RE-SELECT: Added #1 [Bitcoin Magazine] Michael Saylor's 5 Most Powerful Bitcoin
+[selector]   RE-SELECT: Added #2 [Simply Bitcoin] The Government Has No Choice: Trillions 
+  RE-SELECT: Added #2 [Simply Bitcoin] The Government Has No Choice: Trillions 
+[selector]   RE-SELECT: Added #3 [Swan Bitcoin] The Iran War Is Proving Bitcoin Is Diffe
+  RE-SELECT: Added #3 [Swan Bitcoin] The Iran War Is Proving Bitcoin Is Diffe
+[selector]   RE-SELECT: Added #4 [Natalie Brunell] The Untold Bitcoin Boom in Africa, with 
+  RE-SELECT: Added #4 [Natalie Brunell] The Untold Bitcoin Boom in Africa, with 
+[selector]   RE-SELECT: Added #5 [Unchained] Bitcoin vs Banks: What They Don't Want Y
+  RE-SELECT: Added #5 [Unchained] Bitcoin vs Banks: What They Don't Want Y
+[selector]   FIX 9: Clip order after diversity: ['Bitcoin Magazine', 'Simply Bitcoin', 'Swan Bitcoin', 'Natalie Brunell', 'Unchained']
+  FIX 9: Clip order after diversity: ['Bitcoin Magazine', 'Simply Bitcoin', 'Swan Bitcoin', 'Natalie Brunell', 'Unchained']
+[selector] Episode narrative: Geopolitical tensions
+Episode narrative: Geopolitical tensions
+Episode narrative: Geopolitical tensions | Priority topics: ['Geopolitical tensions', 'Bitcoin security', 'ETF inflows']
+  SCORE #1: [Simply Bitcoin] score=65 — The Government Has No Choice: Trillions 
+  SCORE #2: [Unchained] score=40 — Bitcoin vs Banks: What They Don't Want Y
+  SCORE #3: [Bitcoin Magazine] score=32 — Michael Saylor's 5 Most Powerful Bitcoin
+  SCORE #4: [Swan Bitcoin] score=32 — The Iran War Is Proving Bitcoin Is Diffe
+  SCORE #5: [Natalie Brunell] score=28 — The Untold Bitcoin Boom in Africa, with 
+[selector] Clip scorer applied — clips re-ranked by intelligence score (narrative-aware)
+Clip scorer applied — clips re-ranked by intelligence score (narrative-aware)
+[selector] 5-CLIP RULE: Selected 5 clips from 5 unique channels: ['Bitcoin Magazine', 'Natalie Brunell', 'Simply Bitcoin', 'Swan Bitcoin', 'Unchained']
+5-CLIP RULE: Selected 5 clips from 5 unique channels: ['Bitcoin Magazine', 'Natalie Brunell', 'Simply Bitcoin', 'Swan Bitcoin', 'Unchained']
+[selector] Claude selected 5 clips, 5 passed all filters:
+Claude selected 5 clips, 5 passed all filters:
+[selector]   #2: [Simply Bitcoin] The Government Has No Choice: Trillions  (0-32s)
+  #2: [Simply Bitcoin] The Government Has No Choice: Trillions  (0-32s)
+[selector]     Quote: "Scott Besson just told you something terrifying. He said the..."
+    Quote: "Scott Besson just told you something terrifying. He said the..."
+[selector]   #5: [Unchained] Bitcoin vs Banks: What They Don't Want Y (0-27s)
+  #5: [Unchained] Bitcoin vs Banks: What They Don't Want Y (0-27s)
+[selector]     Quote: "Banks don't just store your money, they lend it out using fr..."
+    Quote: "Banks don't just store your money, they lend it out using fr..."
+[selector]   #1: [Bitcoin Magazine] Michael Saylor's 5 Most Powerful Bitcoin (0-27s)
+  #1: [Bitcoin Magazine] Michael Saylor's 5 Most Powerful Bitcoin (0-27s)
+[selector]     Quote: "The center of gravity of the financial universe is Bitcoin. ..."
+    Quote: "The center of gravity of the financial universe is Bitcoin. ..."
+[selector]   #3: [Swan Bitcoin] The Iran War Is Proving Bitcoin Is Diffe (0-35s)
+  #3: [Swan Bitcoin] The Iran War Is Proving Bitcoin Is Diffe (0-35s)
+[selector]     Quote: "When most people think about war, they think about missiles ..."
+    Quote: "When most people think about war, they think about missiles ..."
+[selector]   #4: [Natalie Brunell] The Untold Bitcoin Boom in Africa, with  (0-26s)
+  #4: [Natalie Brunell] The Untold Bitcoin Boom in Africa, with  (0-26s)
+[selector]     Quote: "We always say, we think Bitcoin was made for us, not for you..."
+    Quote: "We always say, we think Bitcoin was made for us, not for you..."
+[extractor]   Clip cached: N6vOLQ3qJiA (31.1s)
+  Clip cached: N6vOLQ3qJiA (31.1s)
+[extractor]   Quality OK: Bitcoin Magazine at 3.1Mbps
+  Quality OK: Bitcoin Magazine at 3.1Mbps
+[extractor] CLIP TRIM: No silence found, using 10.0s hard pad
+CLIP TRIM: No silence found, using 10.0s hard pad
+[extractor]   Clip cached: a1U7kz3FCn0 (42.0s)
+  Clip cached: a1U7kz3FCn0 (42.0s)
+[extractor]   Quality OK: Simply Bitcoin at 3.4Mbps
+  Quality OK: Simply Bitcoin at 3.4Mbps
+[extractor] CLIP TRIM: No silence found, using 10.0s hard pad
+CLIP TRIM: No silence found, using 10.0s hard pad
+[extractor] [extractor] Clip zulFR27czZk: raw start_sec=0, end_sec=35, channel=Swan_Bitcoin
+[extractor] Clip zulFR27czZk: raw start_sec=0, end_sec=35, channel=Swan_Bitcoin
+[extractor]   Extracting zulFR27czZk [0-35s]...
+  Extracting zulFR27czZk [0-35s]...
+[extractor] [extractor] Hard PTS resync applied to zulFR27czZk
+[extractor] Hard PTS resync applied to zulFR27czZk
+[extractor]   AV sync fix applied
+  AV sync fix applied
+[extractor] AV packet-level offset for clip_3_Swan_Bitcoin_zulFR27czZk.mp4: +0.046s
+AV packet-level offset for clip_3_Swan_Bitcoin_zulFR27czZk.mp4: +0.046s
+[extractor] AV packet-level offset for clip_3_Swan_Bitcoin_zulFR27czZk.mp4: +0.046s
+AV packet-level offset for clip_3_Swan_Bitcoin_zulFR27czZk.mp4: +0.046s
+[extractor] AV packet-level offset for clip_3_Swan_Bitcoin_zulFR27czZk.mp4: +0.045s
+AV packet-level offset for clip_3_Swan_Bitcoin_zulFR27czZk.mp4: +0.045s
+[extractor]   FIX 2: Lipsync corrected +0.046s → +0.045s
+  FIX 2: Lipsync corrected +0.046s → +0.045s
+[extractor] AV packet-level offset for clip_3_Swan_Bitcoin_zulFR27czZk.mp4: +0.045s
+AV packet-level offset for clip_3_Swan_Bitcoin_zulFR27czZk.mp4: +0.045s
+[extractor]   Extracted: 45.1s, 6578KB
+  Extracted: 45.1s, 6578KB
+[extractor]   BELOW 1.5Mbps FLOOR: Swan Bitcoin clip at 1.2Mbps
+  BELOW 1.5Mbps FLOOR: Swan Bitcoin clip at 1.2Mbps
+[extractor]   Re-download still below 1.5Mbps floor: Swan Bitcoin at 0.7Mbps — REJECTED
+  Re-download still below 1.5Mbps floor: Swan Bitcoin at 0.7Mbps — REJECTED
+[extractor]   Skipping clip #3: quality below 3Mbps floor
+  Skipping clip #3: quality below 3Mbps floor
+[extractor]   Clip cached: NK4-LeozO34 (27.1s)
+  Clip cached: NK4-LeozO34 (27.1s)
+[extractor]   Quality OK: Natalie Brunell at 2.5Mbps
+  Quality OK: Natalie Brunell at 2.5Mbps
+[extractor] [extractor] Clip etTv2PtW2UA: raw start_sec=0, end_sec=27, channel=Unchained
+[extractor] Clip etTv2PtW2UA: raw start_sec=0, end_sec=27, channel=Unchained
+[extractor]   Extracting etTv2PtW2UA [0-27s]...
+  Extracting etTv2PtW2UA [0-27s]...
+[extractor] [extractor] Hard PTS resync applied to etTv2PtW2UA
+[extractor] Hard PTS resync applied to etTv2PtW2UA
+[extractor]   AV sync fix applied
+  AV sync fix applied
+[extractor] AV packet-level offset for clip_5_Unchained_etTv2PtW2UA.mp4: +0.046s
+AV packet-level offset for clip_5_Unchained_etTv2PtW2UA.mp4: +0.046s
+[extractor] AV packet-level offset for clip_5_Unchained_etTv2PtW2UA.mp4: +0.046s
+AV packet-level offset for clip_5_Unchained_etTv2PtW2UA.mp4: +0.046s
+[extractor] AV packet-level offset for clip_5_Unchained_etTv2PtW2UA.mp4: +0.045s
+AV packet-level offset for clip_5_Unchained_etTv2PtW2UA.mp4: +0.045s
+[extractor]   FIX 2: Lipsync corrected +0.046s → +0.045s
+  FIX 2: Lipsync corrected +0.046s → +0.045s
+[extractor] AV packet-level offset for clip_5_Unchained_etTv2PtW2UA.mp4: +0.045s
+AV packet-level offset for clip_5_Unchained_etTv2PtW2UA.mp4: +0.045s
+[extractor]   Render21: Speech onset at 2.5s, skip_to=3.0s (force_min=0s, channel=Unchained)
+  Render21: Speech onset at 2.5s, skip_to=3.0s (force_min=0s, channel=Unchained)
+[extractor]   Render21: Intro skip applied at 3.0s
+  Render21: Intro skip applied at 3.0s
+[extractor]   Render21: Outro trimmed at 27.8s (was 34.2s)
+  Render21: Outro trimmed at 27.8s (was 34.2s)
+[extractor]   Extracted: 27.8s, 2869KB
+  Extracted: 27.8s, 2869KB
+[extractor]   BELOW 1.5Mbps FLOOR: Unchained clip at 0.8Mbps
+  BELOW 1.5Mbps FLOOR: Unchained clip at 0.8Mbps
+[extractor]   Re-download still below 1.5Mbps floor: Unchained at 0.6Mbps — REJECTED
+  Re-download still below 1.5Mbps floor: Unchained at 0.6Mbps — REJECTED
+[extractor]   Skipping clip #5: quality below 3Mbps floor
+  Skipping clip #5: quality below 3Mbps floor
+[extractor] Extracted 3/5 clips
+Extracted 3/5 clips
+[extractor] Only 3/5 clips passed quality — selecting fallbacks from 101 candidates (need 2)
+[selector] Sending 101 transcripts for clip selection...
+Sending 101 transcripts for clip selection...
+HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+[selector] DEDUP: Removed duplicate from channel The Bitcoin Layer, keeping rank 2 clip
+DEDUP: Removed duplicate from channel The Bitcoin Layer, keeping rank 2 clip
+[selector] EPISODE MEMORY: 21 video_ids blocked from last 7 episodes
+EPISODE MEMORY: 21 video_ids blocked from last 7 episodes
+[selector] EPISODE MEMORY: Dropped clip from video RtKFexfYiA8 [Bitcoin Magazine Pro] — used in recent episode
+EPISODE MEMORY: Dropped clip from video RtKFexfYiA8 [Bitcoin Magazine Pro] — used in recent episode
+[selector] EPISODE MEMORY: Dropped clip from video bezGcOzLbw0 [Swan Bitcoin] — used in recent episode
+EPISODE MEMORY: Dropped clip from video bezGcOzLbw0 [Swan Bitcoin] — used in recent episode
+[selector] 5-CLIP RULE: Only 2 clips after filtering, need 5. Re-selecting from remaining channels...
+5-CLIP RULE: Only 2 clips after filtering, need 5. Re-selecting from remaining channels...
+HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+[selector]   RE-SELECT: Added #3 [TFTC] The One Thing That Kept People In Power 
+  RE-SELECT: Added #3 [TFTC] The One Thing That Kept People In Power 
+[selector]   RE-SELECT: Added #4 [Preston Pysh] OpenClaw and Self Sovereign AI w/ Alex G
+  RE-SELECT: Added #4 [Preston Pysh] OpenClaw and Self Sovereign AI w/ Alex G
+[selector] HARD DEDUP: Only 4 unique channels. Need replacement clips.
+HARD DEDUP: Only 4 unique channels. Need replacement clips.
+[selector]   FIX 9: Clip order after diversity: ['The Bitcoin Layer', 'Anthony Pompliano', 'TFTC', 'Preston Pysh']
+  FIX 9: Clip order after diversity: ['The Bitcoin Layer', 'Anthony Pompliano', 'TFTC', 'Preston Pysh']
+[selector] Episode narrative: Geopolitical tensions
+Episode narrative: Geopolitical tensions
+Episode narrative: Geopolitical tensions | Priority topics: ['Geopolitical tensions', 'Bitcoin security', 'ETF inflows']
+  SCORE #1: [TFTC] score=47 — The One Thing That Kept People In Power 
+  SCORE #2: [The Bitcoin Layer] score=40 — Bitcoin May Have Already Bottomed During
+  SCORE #3: [Anthony Pompliano] score=36 — AI Is About to Trigger Bitcoin's Next EX
+  SCORE #4: [Preston Pysh] score=20 — OpenClaw and Self Sovereign AI w/ Alex G
+[selector] Clip scorer applied — clips re-ranked by intelligence score (narrative-aware)
+Clip scorer applied — clips re-ranked by intelligence score (narrative-aware)
+[selector] 5-CLIP RULE: Selected 4 clips from 4 unique channels: ['Anthony Pompliano', 'Preston Pysh', 'TFTC', 'The Bitcoin Layer']
+5-CLIP RULE: Selected 4 clips from 4 unique channels: ['Anthony Pompliano', 'Preston Pysh', 'TFTC', 'The Bitcoin Layer']
+[selector] Claude selected 5 clips, 4 passed all filters:
+Claude selected 5 clips, 4 passed all filters:
+[selector]   #3: [TFTC] The One Thing That Kept People In Power  (0-18s)
+  #3: [TFTC] The One Thing That Kept People In Power  (0-18s)
+[selector]     Quote: "All these institutions have been able to exist for so long b..."
+    Quote: "All these institutions have been able to exist for so long b..."
+[selector]   #2: [The Bitcoin Layer] Bitcoin May Have Already Bottomed During (32-68s)
+  #2: [The Bitcoin Layer] Bitcoin May Have Already Bottomed During (32-68s)
+[selector]     Quote: "Bitcoin is up 20% off of the lows... during the first week o..."
+    Quote: "Bitcoin is up 20% off of the lows... during the first week o..."
+[selector]   #4: [Anthony Pompliano] AI Is About to Trigger Bitcoin's Next EX (0-38s)
+  #4: [Anthony Pompliano] AI Is About to Trigger Bitcoin's Next EX (0-38s)
+[selector]     Quote: "Bitcoin taking the center stage as the best savings mechanis..."
+    Quote: "Bitcoin taking the center stage as the best savings mechanis..."
+[selector]   #4: [Preston Pysh] OpenClaw and Self Sovereign AI w/ Alex G (0-36s)
+  #4: [Preston Pysh] OpenClaw and Self Sovereign AI w/ Alex G (0-36s)
+[selector]     Quote: "Open Flores is like a story, and that's why it went so viral..."
+    Quote: "Open Flores is like a story, and that's why it went so viral..."
+[extractor] Clip failed quality — trying fallback candidate #5 [The Bitcoin Layer] from selections
+[extractor] [extractor] Clip pkZqnM22l8Y: raw start_sec=32, end_sec=68, channel=The_Bitcoin_Layer
+[extractor] Clip pkZqnM22l8Y: raw start_sec=32, end_sec=68, channel=The_Bitcoin_Layer
+[extractor]   Extracting pkZqnM22l8Y [32-68s]...
+  Extracting pkZqnM22l8Y [32-68s]...
+[extractor] [extractor] Hard PTS resync applied to pkZqnM22l8Y
+[extractor] Hard PTS resync applied to pkZqnM22l8Y
+[extractor]   AV sync fix applied
+  AV sync fix applied
+[extractor] AV packet-level offset for clip_5_The_Bitcoin_Layer_pkZqnM22l8Y.mp4: +0.046s
+AV packet-level offset for clip_5_The_Bitcoin_Layer_pkZqnM22l8Y.mp4: +0.046s
+[extractor] AV packet-level offset for clip_5_The_Bitcoin_Layer_pkZqnM22l8Y.mp4: +0.046s
+AV packet-level offset for clip_5_The_Bitcoin_Layer_pkZqnM22l8Y.mp4: +0.046s
+[extractor] AV packet-level offset for clip_5_The_Bitcoin_Layer_pkZqnM22l8Y.mp4: +0.045s
+AV packet-level offset for clip_5_The_Bitcoin_Layer_pkZqnM22l8Y.mp4: +0.045s
+[extractor]   FIX 2: Lipsync corrected +0.046s → +0.045s
+  FIX 2: Lipsync corrected +0.046s → +0.045s
+[extractor] AV packet-level offset for clip_5_The_Bitcoin_Layer_pkZqnM22l8Y.mp4: +0.045s
+AV packet-level offset for clip_5_The_Bitcoin_Layer_pkZqnM22l8Y.mp4: +0.045s
+[extractor]   Render21: Speech onset at 0.7s, skip_to=1.2s (force_min=0s, channel=The_Bitcoin_Layer)
+  Render21: Speech onset at 0.7s, skip_to=1.2s (force_min=0s, channel=The_Bitcoin_Layer)
+[extractor]   Render21: Intro skip applied at 1.2s
+  Render21: Intro skip applied at 1.2s
+[extractor]   Render21: Outro trimmed at 41.6s (was 47.9s)
+  Render21: Outro trimmed at 41.6s (was 47.9s)
+[extractor]   Extracted: 41.6s, 10236KB
+  Extracted: 41.6s, 10236KB
+[extractor]   Quality OK: The Bitcoin Layer at 2.0Mbps
+  Quality OK: The Bitcoin Layer at 2.0Mbps
+[extractor] CLIP TRIM: Trimmed at natural pause at 41.5s
+CLIP TRIM: Trimmed at natural pause at 41.5s
+[extractor]   Trimmed clip #5 at 41.5s (silence detection)
+  Trimmed clip #5 at 41.5s (silence detection)
+[extractor] Extracted 1/1 clips
+Extracted 1/1 clips
+[extractor] Fallback clip #5 passed quality — The Bitcoin Layer (41.6s)
+[extractor] Clip failed quality — trying fallback candidate #6 [Anthony Pompliano] from selections
+[extractor] [extractor] Clip d5lL95bvOog: raw start_sec=0, end_sec=38, channel=Anthony_Pompliano
+[extractor] Clip d5lL95bvOog: raw start_sec=0, end_sec=38, channel=Anthony_Pompliano
+[extractor]   Extracting d5lL95bvOog [0-38s]...
+  Extracting d5lL95bvOog [0-38s]...
+[extractor] [extractor] Hard PTS resync applied to d5lL95bvOog
+[extractor] Hard PTS resync applied to d5lL95bvOog
+[extractor]   AV sync fix applied
+  AV sync fix applied
+[extractor] AV packet-level offset for clip_6_Anthony_Pompliano_d5lL95bvOog.mp4: +0.046s
+AV packet-level offset for clip_6_Anthony_Pompliano_d5lL95bvOog.mp4: +0.046s
+[extractor] AV packet-level offset for clip_6_Anthony_Pompliano_d5lL95bvOog.mp4: +0.046s
+AV packet-level offset for clip_6_Anthony_Pompliano_d5lL95bvOog.mp4: +0.046s
+[extractor] AV packet-level offset for clip_6_Anthony_Pompliano_d5lL95bvOog.mp4: +0.045s
+AV packet-level offset for clip_6_Anthony_Pompliano_d5lL95bvOog.mp4: +0.045s
+[extractor]   FIX 2: Lipsync corrected +0.046s → +0.045s
+  FIX 2: Lipsync corrected +0.046s → +0.045s
+[extractor] AV packet-level offset for clip_6_Anthony_Pompliano_d5lL95bvOog.mp4: +0.045s
+AV packet-level offset for clip_6_Anthony_Pompliano_d5lL95bvOog.mp4: +0.045s
+[extractor]   Extracted: 48.1s, 25227KB
+  Extracted: 48.1s, 25227KB
+[extractor]   Quality OK: Anthony Pompliano at 4.3Mbps
+  Quality OK: Anthony Pompliano at 4.3Mbps
+[extractor] CLIP TRIM: No silence found, using 10.0s hard pad
+CLIP TRIM: No silence found, using 10.0s hard pad
+[extractor] Extracted 1/1 clips
+Extracted 1/1 clips
+[extractor] Fallback clip #6 passed quality — Anthony Pompliano (48.1s)
+[extractor] After fallback: 5/5 clips
+Social: 5 tweets from raw study data
+[script] Narrative context is 123.7h old (>6h) — using generic prompt
+Narrative context is 123.7h old (>6h) — using generic prompt
+[script] Generating script for 7 clips...
+Generating script for 7 clips...
+HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+[script] Script generated: 28 entries (23 speech, 5 clips)
+Script generated: 28 entries (23 speech, 5 clips)
+[script] Title: Sonic Boom: Bitcoin Survives Everything
+Title: Sonic Boom: Bitcoin Survives Everything
+Social: 5 tweets from raw study data
+SOCIAL ORDER: #0: @saylor — HODL
+SOCIAL ORDER: #1: @saylor — HODL https://t.co/sQysm4i88t
+SOCIAL ORDER: #2: @APompliano — This is so badass.
+
+Risk your life flyin
+SOCIAL ORDER: #3: @LynAldenContact — For context, their safeguards are 1) no 
+SOCIAL ORDER: #4: @maxkeiser — Capitalism started in 1602 in the Nether
+[TTS] Trimmed trailing silence: 10.63s → 10.36s
+[TTS] Trimmed trailing silence: 28.14s → 27.87s
+[TTS] Trimmed trailing silence: 29.30s → 29.01s
+[TTS] Trimmed trailing silence: 22.76s → 22.48s
+[TTS] Trimmed trailing silence: 30.42s → 30.14s
+[TTS] Trimmed trailing silence: 16.11s → 15.80s
+[TTS] Trimmed trailing silence: 27.82s → 27.51s

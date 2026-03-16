@@ -1175,6 +1175,44 @@ def generate_inline(text):
 
 
 
+
+
+@app.route("/oracle/voice", methods=["POST"])
+def oracle_voice():
+    """
+    Voice-only endpoint: text -> ElevenLabs TTS -> audio/mpeg.
+    No Wav2Lip, no GPU. ~400ms vs ~14s for full video.
+    Use for vision guidance, quick confirmations, non-visual responses.
+    Body: {"text": "...", "voice_id": "optional"}
+    """
+    data = request.get_json()
+    if not data or not data.get("text"):
+        return jsonify({"error": "text required"}), 400
+
+    text = data["text"].strip()
+    voice_id = data.get("voice_id", ORACLE_VOICE_ID)
+
+    try:
+        t0 = time.time()
+        audio_bytes = text_to_speech(text, voice_id)
+        logger.info(f"[VOICE] TTS {len(audio_bytes)}B in {time.time()-t0:.2f}s")
+    except Exception as e:
+        return jsonify({"error": f"TTS failed: {e}"}), 500
+
+    def _stream():
+        yield audio_bytes
+
+    from flask import Response
+    return Response(
+        _stream(),
+        mimetype="audio/mpeg",
+        headers={
+            "Content-Disposition": "inline",
+            "Content-Length": str(len(audio_bytes)),
+            "Cache-Control": "no-cache",
+        },
+    )
+
 @app.route("/oracle/chat", methods=["POST"])
 def oracle_chat():
     data = request.get_json()

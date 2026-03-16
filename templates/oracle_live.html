@@ -216,6 +216,49 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   width:100%;display:flex;align-items:center;
   justify-content:space-between;flex-shrink:0;
 }
+/* Exit and minimize buttons */
+.stage-controls{display:flex;align-items:center;gap:8px}
+#minimize-btn,#exit-btn{
+  width:28px;height:28px;border-radius:50%;
+  background:transparent;border:1px solid #1e2235;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:border-color .15s,background .15s;
+  -webkit-appearance:none;touch-action:manipulation;flex-shrink:0;
+  opacity:0.5;
+}
+#minimize-btn:hover,#exit-btn:hover{opacity:1;border-color:#556;background:#0f1117}
+#exit-btn:hover{border-color:rgba(255,59,95,.5)}
+
+/* ── FLOATING MINI MODE ─────────────────────────────────────────── */
+@keyframes mini-in{from{opacity:0;transform:scale(.6) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes mini-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,59,95,.4)}70%{box-shadow:0 0 0 8px rgba(255,59,95,0)}}
+
+#oracle-float{
+  position:fixed;bottom:24px;right:24px;
+  width:72px;height:72px;border-radius:50%;
+  background:#0a0b0f;border:2px solid rgba(255,59,95,.6);
+  cursor:pointer;z-index:9999;
+  display:none;align-items:center;justify-content:center;
+  animation:mini-in .3s ease, mini-pulse 2s ease-in-out infinite;
+  box-shadow:0 4px 20px rgba(0,0,0,.6);
+  overflow:hidden;transition:transform .15s;
+}
+#oracle-float:hover{transform:scale(1.08)}
+#oracle-float:active{transform:scale(.95)}
+#oracle-float img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+#oracle-float-fallback{font-size:28px}
+/* Speaking ring on float */
+#oracle-float.speaking{border-color:#6cff9f;animation:mini-pulse 0.8s ease-in-out infinite}
+/* Tooltip */
+#oracle-float::after{
+  content:"Talk to Oracle";
+  position:absolute;right:80px;
+  background:#0f1117;border:1px solid #1e2235;border-radius:4px;
+  padding:4px 8px;font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:#b8c2d9;white-space:nowrap;pointer-events:none;
+  opacity:0;transition:opacity .2s;
+}
+#oracle-float:hover::after{opacity:1}
 .topbar-brand{
   font-family:'JetBrains Mono',monospace;
   font-size:10px;font-weight:500;
@@ -755,50 +798,60 @@ function handleVisionUpload(evt){
 
 function sendVisionImage(b64, mimeType){
   setBusy(true);
-  showVisionStatus("Oracle is analyzing your screen...");
-  
-  var endpoint = _visionSessionId
-    ? A + "/vision/guide"
-    : A + "/vision/analyze";
+  showVisionStatus("Analyzing your screen...");
 
-  var body = {
-    image_base64: b64,
-    mime_type: mimeType,
-    context: "User is setting up Bitcoin hardware and needs step-by-step guidance",
-  };
-  if(_visionSessionId) {
+  var endpoint = _visionSessionId ? A+"/vision/guide" : A+"/vision/analyze";
+  var body = {image_base64:b64, mime_type:mimeType,
+    context:"User needs Bitcoin hardware setup guidance"};
+  if(_visionSessionId){
     body.session_id = _visionSessionId;
     body.question = "What step am I at and what should I do next?";
   }
 
-  fetchTO(endpoint, {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(body)
-  }, 20000)
+  fetchTO(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(body)},20000)
   .then(function(r){
     if(!r.ok) throw new Error("vision "+r.status);
     return r.json();
   })
   .then(function(d){
     _visionSessionId = d.session_id || _visionSessionId;
-    var guideText = d.guidance || d.analysis || d.response || "I can see your screen. Here is what I see.";
-    // Trim to 30 words for TTS
-    var words = guideText.split(" ");
-    if(words.length > 30) guideText = words.slice(0,30).join(" ");
-    showVisionStatus("Generating response...");
-    // Generate avatar video for vision response
-    return fetchTO(A+"/oracle/chat",{
-      method:"POST",
+    // FIXED: use guidance_text key (actual API response field)
+    var raw = d.guidance_text || d.guidance || d.analysis || d.response
+      || "I can see your hardware. Let me walk you through the next step.";
+    // Security alert takes priority
+    if(d.security_alert) raw = d.security_alert + ". " + raw;
+    // Hard 30-word cap for TTS speed
+    var words = raw.split(/\s+/);
+    var guideText = words.length > 30 ? words.slice(0,30).join(" ") : raw;
+
+    showVisionStatus("Speaking...");
+    showSub(guideText);
+
+    // VOICE-ONLY: /oracle/voice is ElevenLabs-only, no GPU, ~400ms vs 14s
+    return fetchTO(A+"/oracle/voice",{method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({text:guideText, session_id:SESSION_ID, use_cache_for_intents:false})
-    }, 90000)
-    .then(function(vr){
-      if(!vr.ok) throw new Error("chat "+vr.status);
-      return vr.blob().then(blobURL).then(function(url){
-        hideVisionStatus();
-        showSub(guideText);
-        return playVid(url);
+      body:JSON.stringify({text:guideText})},15000)
+    .then(function(ar){
+      if(!ar.ok) throw new Error("voice "+ar.status);
+      return ar.blob();
+    })
+    .then(function(audioBlob){
+      hideVisionStatus();
+      // Play audio over the still avatar (no lip sync — but instant)
+      var audioURL = URL.createObjectURL(audioBlob);
+      var audio = new Audio(audioURL);
+      audio.volume = 1.0;
+      setStat("Speaking","#6cff9f",false);
+      return new Promise(function(res){
+        audio.onended = function(){
+          URL.revokeObjectURL(audioURL);
+          setStat("Ready","#334",false);
+          hideSub();
+          res();
+        };
+        audio.onerror = function(){ URL.revokeObjectURL(audioURL); res(); };
+        audio.play().catch(function(){ res(); });
       });
     });
   })
@@ -818,6 +871,61 @@ function hideVisionStatus(){
   var el=document.getElementById("vision-status");
   el.classList.remove("on");
 }
+
+/* ── MINIMIZE / EXIT / FLOAT ── */
+var _oracleMinimized = false;
+
+function minimizeOracle(){
+  _oracleMinimized = true;
+  document.getElementById("oracle-root").style.display = "none";
+  var f = document.getElementById("oracle-float");
+  f.style.display = "flex";
+  // Brief speaking indicator if oracle is mid-response
+  if(busy) f.classList.add("speaking");
+}
+
+function restoreOracle(){
+  _oracleMinimized = false;
+  document.getElementById("oracle-float").style.display = "none";
+  document.getElementById("oracle-root").style.display = "flex";
+  document.getElementById("oracle-float").classList.remove("speaking");
+}
+
+function exitOracle(){
+  // Full close — return user to gate screen
+  _oracleMinimized = false;
+  // Stop any playing audio/video
+  vid.pause(); vid.src="";
+  if(isRec) stopRec();
+  // Reset session on server
+  fetch(A+"/oracle/session/reset",{method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({session_id:SESSION_ID})}).catch(function(){});
+  // Hide everything
+  document.getElementById("oracle-float").style.display = "none";
+  document.getElementById("live-stage").style.display = "none";
+  document.getElementById("oracle-root").style.display = "flex";
+  // Show gate again
+  var g = document.getElementById("gate");
+  g.style.display = "flex";
+  g.style.opacity = "1";
+  g.style.transition = "opacity .3s";
+  // Reset state
+  busy = false; window._briefFetched = false;
+  setStat("Ready","#334",false);
+  hideSub(); hideTranscript && hideTX();
+}
+
+// Keep float speaking indicator in sync
+var _origSetStat = setStat;
+setStat = function(msg, color, spin){
+  _origSetStat(msg, color, spin);
+  var f = document.getElementById("oracle-float");
+  if(f && _oracleMinimized){
+    if(msg === "Speaking") f.classList.add("speaking");
+    else f.classList.remove("speaking");
+  }
+};
 
 function fetchTO(url,opts,ms){
   var ctrl=new AbortController();
