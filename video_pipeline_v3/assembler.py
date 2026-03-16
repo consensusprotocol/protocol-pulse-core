@@ -2744,7 +2744,7 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
         ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
          "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(total_dur)],
-        output_path, "signal_active_60_40", 180,
+        output_path, "signal_active_60_40", 600,
     )
 
     if ok:
