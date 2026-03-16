@@ -301,27 +301,25 @@ Brand constants: remotion/src/brand.ts
 
 ## SECTION 20: APPROVED VOICES (updated 2026-03-05)
 
-### Host 1 (Female): Eryn
-- Voice ID: kdnRe2koJdOK4Ovxn2DI
+### Host 1 (Female): Deborah
+- Voice ID: VeCVR24o7g2y1IxLJzZs
 - Model: eleven_turbo_v2_5
-- Description: Confident, clear, attractive mid-20s American female
-- Settings per voice mode:
-  - COLD_OPEN: stability 0.38, similarity 0.78, style 0.15, speed 1.12
-  - NARRATION: stability 0.75, similarity 0.75, style 0.10, speed 1.12
-  - AUTHORITY: stability 0.70, similarity 0.78, style 0.10, speed 1.10
-  - SOCIAL: stability 0.60, similarity 0.75, style 0.12, speed 1.12
-  - WARM: stability 0.60, similarity 0.72, style 0.20, speed 1.10
+- Description: Female newscaster — authoritative, steady broadcaster
+- Settings: stability 0.55, similarity 0.80, style 0.30, speed 1.0
 
 ### Host 2 (Male): PBX
 - Voice ID: HmUVvDlHsEz0m3eUGLgu
 - Model: eleven_turbo_v2_5
 - Description: PBX broadcaster voice (replaced Mark 2026-03-14)
-- Settings: stability 0.40, similarity 0.75, style 0.10, speed 1.10
+- Settings: stability 0.55, similarity 0.80, style 0.15, speed 1.2
 
 ### BANNED voices (do not use under any circumstances):
+- Eryn (kdnRe2koJdOK4Ovxn2DI) — replaced by Deborah Render20
 - Gigi (jBpfuIE2acCO8z3wKNLl) — too childish
 - Jessica (cgSgspJ2msm6clMCkdW9) — too British/old
 - Nicole (piTKgcLEGmPE4e6mEKli) — too breathy/whispery at any stability
+- Chris (iP95p4xoKVk53GoZ742B) — banned
+- uxKr2vlA4hYgXZR1oPRT — permanently banned
 - Sarah (EXAVITQu4vr4xnSDxMaL) — still whispery
 - Matilda (XrExE9yKIg1WjnnlVkGX) — fallback only, not approved for production
 

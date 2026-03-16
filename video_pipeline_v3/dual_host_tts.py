@@ -2,9 +2,10 @@
 """dual_host_tts.py — Dual-host TTS engine for Pulse Check.
 
 Generates audio using ElevenLabs TTS.
-Host 1 (Eryn): kdnRe2koJdOK4Ovxn2DI — sharp female, 1.12x speed.
-Host 2 (PBX): HmUVvDlHsEz0m3eUGLgu — male contrarian, 1.10x speed.
+Host 1 (Deborah): VeCVR24o7g2y1IxLJzZs — female newscaster, 1.0x speed.
+Host 2 (PBX): HmUVvDlHsEz0m3eUGLgu — male contrarian, 1.2x speed.
 NOTE: uxKr2vlA4hYgXZR1oPRT is PERMANENTLY BANNED (see PIPELINE_LAWS.md).
+NOTE: kdnRe2koJdOK4Ovxn2DI (Eryn) is BANNED as of Render20.
 
 Usage:
     from dual_host_tts import generate_dialogue_audio
@@ -47,19 +48,22 @@ except ImportError:
 from relay import get_key
 
 # ── Voice configuration ──────────────────────────────────────────────────────
-# DUAL HOST RESTORED 2026-03-10: Natasha (HOST_1) + Mark (HOST_2)
-# Nicole (piTKgcLEGmPE4e6mEKli) and Chris (iP95p4xoKVk53GoZ742B) are BANNED.
+# DUAL HOST RESTORED 2026-03-10: Deborah (HOST_1) + PBX (HOST_2)
+# BANNED voices — ERROR if any appear:
+#   Nicole (piTKgcLEGmPE4e6mEKli), Chris (iP95p4xoKVk53GoZ742B),
+#   Eryn (kdnRe2koJdOK4Ovxn2DI), uxKr2vlA4hYgXZR1oPRT
+_BANNED_VOICE_IDS = {"piTKgcLEGmPE4e6mEKli", "iP95p4xoKVk53GoZ742B", "kdnRe2koJdOK4Ovxn2DI", "uxKr2vlA4hYgXZR1oPRT"}
 
 _NATASHA_VOICE = {
-    "voice_id": "kdnRe2koJdOK4Ovxn2DI",
-    "name": "Eryn",
+    "voice_id": "VeCVR24o7g2y1IxLJzZs",
+    "name": "Deborah",
     "model_id": "eleven_turbo_v2_5",
     "voice_settings": {
-        "stability": 0.35,
-        "similarity_boost": 0.85,
-        "style": 0.20,
+        "stability": 0.55,
+        "similarity_boost": 0.80,
+        "style": 0.30,
         "use_speaker_boost": True,
-        "speed": 1.12,
+        "speed": 1.0,
     },
 }
 
@@ -72,7 +76,7 @@ _PBX_VOICE = {
         "similarity_boost": 0.80,
         "style": 0.15,
         "use_speaker_boost": True,
-        "speed": 1.10,
+        "speed": 1.2,  # Render20: +10% from 1.10 → 1.21, capped at ElevenLabs max 1.2
     },
 }
 
@@ -162,12 +166,11 @@ def _mp3_to_m4a(mp3_path: str, m4a_path: str) -> bool:
     return r.returncode == 0 and os.path.exists(m4a_path)
 
 
-def trim_to_sentence(text: str, max_chars: int = 500) -> str:
+def trim_to_sentence(text: str, max_chars: int = 800) -> str:
     """Trim text at the last sentence boundary before max_chars.
 
-    Render18 FIX 3: max_chars 400→500 to prevent mid-word cuts on number-heavy sentences.
-    Sentence boundary requires >=20 chars before and >=15 chars after to avoid splitting
-    on abbreviations like 'U.S.' or numbers like '$308'.
+    Render20: max_chars raised to 800. Only trim at natural sentence end —
+    never mid-word, never mid-thought.
     """
     if len(text) <= max_chars:
         return text
@@ -227,6 +230,13 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1) -> bool:
 
     Falls back to pyttsx3 system TTS, then silence, on ElevenLabs quota/auth failure.
     """
+    # Render20: Banned voice guard
+    voice = VOICES.get(host, VOICES[1])
+    if voice["voice_id"] in _BANNED_VOICE_IDS:
+        import logging as _lg
+        _lg.getLogger("dual_host_tts").error(f"BANNED VOICE DETECTED: {voice['voice_id']} ({voice['name']})")
+        raise RuntimeError(f"BANNED voice {voice['voice_id']} attempted — aborting")
+
     if not HAS_REQUESTS:
         return _tts_generate_silence_fallback(text, output_path)
 

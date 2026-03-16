@@ -17,7 +17,7 @@ if not logger.handlers:
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 CLIP_CACHE = os.path.join(BASE, "downloads", "clip_cache")
-MAX_CLIP_DURATION = 35  # Render12: Hard cap 35s per clip (5×35=175s clips + narration ≈ 600s target)
+# Render20: No hard clip duration cap — episode is as long as it needs to be
 
 
 def _run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
@@ -128,6 +128,38 @@ def ffprobe_duration(path: str) -> float:
         return float(r.stdout.strip())
     except Exception:
         return 0.0
+
+
+def _skip_intro_silence(output_path: str) -> None:
+    """Render20: If first 3s of extracted audio is below -35dB (silence/music jingle),
+    detect first speech onset and skip forward +8s from there."""
+    import re as _re
+    try:
+        # Check first 3s for silence
+        result = subprocess.run([
+            "ffmpeg", "-i", output_path, "-t", "3",
+            "-af", "silencedetect=noise=-35dB:d=2.0",
+            "-f", "null", "-"
+        ], capture_output=True, text=True, timeout=15)
+        silences = _re.findall(r"silence_end: ([\d.]+)", result.stderr)
+        if silences:
+            speech_onset = float(silences[-1])
+            skip_to = speech_onset + 8.0
+            logger.info(f"  Render20: First 3s is silence/jingle, speech at {speech_onset:.1f}s, skipping to {skip_to:.1f}s")
+            trimmed = output_path + ".jingle_skip.mp4"
+            ok = _run_ffmpeg([
+                "-ss", f"{skip_to:.2f}", "-i", output_path,
+                "-c:v", "libx264", "-crf", "18", "-preset", "fast",
+                "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                trimmed,
+            ], f"jingle skip +{skip_to:.1f}s", 60)
+            if ok and os.path.exists(trimmed) and os.path.getsize(trimmed) > 10000:
+                os.replace(trimmed, output_path)
+                logger.info(f"  Render20: Jingle skip applied, new clip starts at {skip_to:.1f}s")
+            elif os.path.exists(trimmed):
+                os.remove(trimmed)
+    except Exception as e:
+        logger.warning(f"  Render20: Jingle silence check failed: {e}")
 
 
 def extract_clip(video_id: str, start_sec: int, end_sec: int,
@@ -257,6 +289,8 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
                     logger.info(f"  FIX 2: Lipsync corrected {before_offset:+.3f}s → {after_offset:+.3f}s")
                 elif os.path.exists(lipsync_tmp):
                     os.remove(lipsync_tmp)
+            # Render20: Skip intro jingle if first 3s is silence/music
+            _skip_intro_silence(output_path)
             dur = ffprobe_duration(output_path)
             sz = os.path.getsize(output_path) / 1024
             logger.info(f"  Extracted: {dur:.1f}s, {sz:.0f}KB")
@@ -379,6 +413,8 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
                     logger.info(f"  FIX 2: Fallback lipsync corrected {fb_offset:+.3f}s → {after:+.3f}s")
                 elif os.path.exists(lipsync_tmp):
                     os.remove(lipsync_tmp)
+            # Render20: Skip intro jingle if first 3s is silence/music
+            _skip_intro_silence(output_path)
             dur = ffprobe_duration(output_path)
             logger.info(f"  Trimmed: {dur:.1f}s")
             # Clean up full video
@@ -542,18 +578,7 @@ def extract_all(selections: dict, output_dir: str) -> dict:
                     elif os.path.exists(trimmed):
                         os.remove(trimmed)
 
-            # Hard duration cap: trim clips exceeding MAX_CLIP_DURATION
-            clip_dur = ffprobe_duration(output_path)
-            if clip_dur > MAX_CLIP_DURATION:
-                capped = output_path + ".capped.mp4"
-                if _run_ffmpeg([
-                    "-i", output_path, "-t", str(MAX_CLIP_DURATION),
-                    "-c:v", "copy", "-c:a", "copy", capped,
-                ], f"duration cap {clip_dur:.0f}s→{MAX_CLIP_DURATION}s", 30) and os.path.exists(capped):
-                    os.replace(capped, output_path)
-                    logger.info(f"  DURATION CAP: clip #{rank} trimmed {clip_dur:.0f}s → {MAX_CLIP_DURATION}s")
-                elif os.path.exists(capped):
-                    os.remove(capped)
+            # Render20: No hard clip duration cap — quality over runtime
 
             # Issue 5: Second-pass ad read scan
             if _second_pass_ad_read(output_path, clip.get("channel", ""), rank):

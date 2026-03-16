@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """TTS Engine V7 — Dual-provider: ElevenLabs (default) + Inworld.
-Host 1 (Eryn): kdnRe2koJdOK4Ovxn2DI at 1.12x — sharp female setup host.
-Host 2 (PBX): HmUVvDlHsEz0m3eUGLgu at 1.0x — male contrarian react host.
+Host 1 (Deborah): VeCVR24o7g2y1IxLJzZs at 1.0x — female newscaster setup host.
+Host 2 (PBX): HmUVvDlHsEz0m3eUGLgu at 1.2x — male contrarian react host.
 Generates per-line audio with 0.3s silence gaps."""
 import os, sys, json, subprocess, tempfile, time, struct, shutil, logging
 from pathlib import Path
@@ -16,19 +16,19 @@ from relay import get_key
 
 logger = logging.getLogger(__name__)
 
-# DUAL HOST RESTORED 2026-03-10: Eryn (HOST_1) + PBX (HOST_2)
-# Nicole/Chris/Deborah/Brian/Mark are all BANNED.
+# DUAL HOST: Deborah (HOST_1) + PBX (HOST_2)
+# BANNED: Nicole/Chris/Eryn/Brian/Mark — kdnRe2koJdOK4Ovxn2DI (Eryn) banned Render20
 PBX_VOICE_ID = "HmUVvDlHsEz0m3eUGLgu"
 
 _NATASHA_VOICE = {
-    "voice_id": "kdnRe2koJdOK4Ovxn2DI",
-    "name": "Eryn",
+    "voice_id": "VeCVR24o7g2y1IxLJzZs",
+    "name": "Deborah",
     "model_id": "eleven_turbo_v2_5",
-    "speed": 1.12,
+    "speed": 1.0,
     "voice_settings": {
-        "stability": 0.35,           # Round 2 Fix 2: reduced from 0.55 for less robotic cadence
-        "similarity_boost": 0.85,     # Round 2 Fix 2: increased from 0.80 to stay closer to voice character
-        "style": 0.20,               # Round 2 Fix 2: slight style exaggeration for naturalness
+        "stability": 0.55,
+        "similarity_boost": 0.80,
+        "style": 0.30,
         "use_speaker_boost": True,
     },
 }
@@ -37,7 +37,7 @@ _PBX_VOICE = {
     "voice_id": PBX_VOICE_ID,
     "name": "PBX",
     "model_id": "eleven_turbo_v2_5",
-    "speed": 1.0,
+    "speed": 1.2,  # Render20: +10% from 1.10, capped at ElevenLabs max 1.2
     "voice_settings": {
         "stability": 0.55,
         "similarity_boost": 0.80,
@@ -363,8 +363,8 @@ PRONUNCIATION_MAP = {
     "Natalie Brunell": "NAT-uh-lee broo-NELL",
     "Brunell": "broo-NELL",
     # Preston Pysh
-    "Preston Pysh": "PRESS-tun PYE-sh",
-    "Pysh": "PYE-sh",
+    "Preston Pysh": "Preston PISH",
+    "Pysh": "PISH",
     # Max Keiser
     "Max Keiser": "MAX KY-zer",
     "Keiser": "KY-zer",

@@ -2393,7 +2393,7 @@ def make_broadcast_segment(segment_data: dict, audio_path: str, host_num: int,
     seg_type = segment_data.get("type", "")
     text = segment_data.get("text", "")
     headline = segment_data.get("headline") or segment_data.get("title") or _smart_headline(text)
-    speaker = segment_data.get("speaker", "ERYN")  # dual host — Eryn (HOST_1) + Mark (HOST_2)
+    speaker = segment_data.get("speaker", "DEBORAH")  # dual host — Deborah (HOST_1) + Mark (HOST_2)
     scene = select_scene_type(seg_type, segment_index, total_segments)
 
     try:
@@ -2478,7 +2478,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
         audio_dur = 5
     total_dur = audio_dur + 0.3
 
-    speaker = "ERYN" if host == 1 else "MARK"  # dual host restored 2026-03-10
+    speaker = "DEBORAH" if host == 1 else "MARK"  # dual host restored 2026-03-10
 
     safe_btc = btc_price.replace("'", "").replace('"', "")
 
@@ -3373,7 +3373,7 @@ def make_transition_visual(output_path: str, duration: float = 2.2) -> str:
                 # Composite RGBA digital grid over dark bg
                 f"[0:v]trim=0:{duration},setpts=PTS-STARTPTS[bg];"
                 f"[1:v]scale=1920:1080,format=rgba,trim=0.2:1.65,setpts=PTS-STARTPTS[fg];"
-                f"[bg][fg]blend=all_mode=screen,format=yuv420p,"
+                f"[fg]colorkey=0x000000:0.35:0.1[fg_keyed];[bg][fg_keyed]overlay=0:0,format=yuv420p,"
                 f"fade=t=in:st=0:d=0.15,fade=t=out:st={duration - 0.15}:d=0.15[outv];"
                 # Whoosh at volume=2.5 over full transition
                 f"[2:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=2.5,"
@@ -3394,7 +3394,7 @@ def make_transition_visual(output_path: str, duration: float = 2.2) -> str:
                 "-filter_complex",
                 f"[0:v]trim=0:{duration},setpts=PTS-STARTPTS[bg];"
                 f"[1:v]scale=1920:1080,format=rgba,trim=0.2:1.65,setpts=PTS-STARTPTS[fg];"
-                f"[bg][fg]blend=all_mode=screen,format=yuv420p,"
+                f"[fg]colorkey=0x000000:0.35:0.1[fg_keyed];[bg][fg_keyed]overlay=0:0,format=yuv420p,"
                 f"fade=t=in:st=0:d=0.15,fade=t=out:st={duration - 0.15}:d=0.15[outv]",
                 "-map", "[outv]", "-map", "2:a",
                 "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
@@ -4125,20 +4125,12 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
     audio_lines = audio_data.get("lines", [])
     cold_open_consumed = False
 
-    # Render12 FIX 4B: Estimate total duration and apply soft 10min cap
-    # If narration + clips > 600s, trim setup segment audio to 80% length via atrim
+    # Render20: No duration cap — episode is as long as it needs to be. Quality over runtime.
     _est_narration = sum(al.get("duration", 0) for al in audio_lines if al.get("host") not in ("CLIP",))
     _est_clips = sum(al.get("duration", 0) for al in audio_lines if al.get("host") == "CLIP")
     _est_clips += sum(c.get("duration", 0) for c in extracted_clips.values())
     _est_total = _est_narration + _est_clips + 20  # +20s for transitions/intro/outro
     logger.info(f"  EPISODE ESTIMATE: narration={_est_narration:.0f}s + clips={_est_clips:.0f}s + overhead=20s = {_est_total:.0f}s")
-    _trim_setup_factor = 1.0
-    if _est_total > 660:
-        logger.warning(f"  EPISODE OVER 11min ({_est_total:.0f}s) — will trim setup narration to 80%")
-        _trim_setup_factor = 0.80
-    elif _est_total > 600:
-        logger.warning(f"  EPISODE OVER 10min ({_est_total:.0f}s) — will trim setup narration to 90%")
-        _trim_setup_factor = 0.90
 
     # Find cold_open audio (first dialogue entry with type "cold_open", or first host line)
     cold_open_audio = None
@@ -4302,8 +4294,19 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             prev_segment_type = "clip"
             continue
 
-        # Issue 7 FIX: Fire glitch transition between setup→clip pairs
-        if prev_segment_type in ("setup", "react") and entry_type in ("setup",):
+        # TRANSITION RULE (Render20):
+        # Transitions (whoosh SFX + digital animation) fire ONLY between:
+        #   SETUP → CLIP, CLIP → REACT, REACT → SETUP (moving to next clip)
+        # NEVER fire between two consecutive narrator segments in the same flow
+        #   (e.g., PBX narrator → Deborah narrator within same setup/react)
+        _needs_transition = False
+        if prev_segment_type == "clip" and entry_type in ("react", "setup"):
+            _needs_transition = True  # CLIP → REACT or CLIP → SETUP
+        elif prev_segment_type == "react" and entry_type == "setup":
+            _needs_transition = True  # REACT → SETUP (next clip block)
+        # setup → setup or react → react within same flow: NO transition
+
+        if _needs_transition:
             trans_out = os.path.join(work_dir, f"part_{part_idx:03d}_transition.mp4")
             trans_result = make_transition_visual(trans_out, duration=2.2)
             if trans_result:
@@ -4359,20 +4362,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         except OSError:
             pass
 
-        # Render12 FIX 4B: Trim setup narration audio if episode is over-length
-        if _trim_setup_factor < 1.0 and entry_type == "setup":
-            audio_dur = ffprobe_duration(audio_path)
-            trimmed_dur = audio_dur * _trim_setup_factor
-            trimmed_path = audio_path + ".trimmed.m4a"
-            trim_ok = run_ffmpeg([
-                "-i", audio_path,
-                "-af", f"atrim=0:{trimmed_dur:.2f},asetpts=PTS-STARTPTS,atempo=1.0",
-                "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-                trimmed_path,
-            ], f"setup trim {audio_dur:.1f}s→{trimmed_dur:.1f}s", 30)
-            if trim_ok and os.path.exists(trimmed_path):
-                audio_path = trimmed_path
-                logger.info(f"  FIX4B: Setup narration trimmed {audio_dur:.1f}s → {trimmed_dur:.1f}s ({_trim_setup_factor:.0%})")
+        # Render20: No setup trimming — episode is as long as it needs to be
 
         # Mix TTS with background music if music utility supports it
         # (We handle music mixing directly in make_host_visual via assets/music/pp_background.mp3)
@@ -4524,9 +4514,9 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         else:
             # BV2: Route to Broadcast Engine V2 scene system (falls back to Black Diamond)
             # Dual host: map host_num to speaker name
-            seg_speaker = "ERYN" if host_num == 1 else "MARK"
+            seg_speaker = "DEBORAH" if host_num == 1 else "MARK"
             seg_data = {"type": entry_type, "text": text,
-                        "speaker": seg_speaker,  # dual host — Eryn + Mark
+                        "speaker": seg_speaker,  # dual host — Deborah + Mark
                         "headline": entry.get("headline", ""),  # Session 4 Fix 2
                         "next_speaker": ""}
             # Look ahead for next clip speaker
@@ -4537,9 +4527,10 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             pip_vid = ""
             if entry_type == "cold_open":
                 pip_vid = ""  # cold_open is the hook — no preview box
-            elif entry_type == "setup" and clip_rank:
+            elif entry_type in ("setup", "react") and clip_rank:
+                # Render20: REACT segments show PiP of the clip just played (same rank)
                 pip_vid = pip_previews.get(clip_rank, "")
-                if not pip_vid:
+                if not pip_vid and entry_type == "setup":
                     pip_vid = _ensure_pip_placeholder()
                     if pip_vid:
                         logger.info(f"  FIX1-R18: Using branded placeholder PiP for SETUP → clip #{clip_rank}")
@@ -4556,7 +4547,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         if result:
             parts.append(result)
             dur = ffprobe_duration(result)
-            speaker_label = "ERYN" if host_num == 1 else "MARK"
+            speaker_label = "DEBORAH" if host_num == 1 else "MARK"
             logger.info(f"[{part_idx:03d}] {entry_type.upper()} [{speaker_label}]: {dur:.1f}s")
             part_idx += 1
             prev_segment_type = entry_type
