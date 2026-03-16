@@ -38,7 +38,7 @@ PBX is ALWAYS the FIRST voice. PBX opens every episode with the cold open and ha
 
 TONE RULES (NON-NEGOTIABLE):
 - NEVER generic. Never say "interesting" or "really impactful" or "that's great stuff."
-- SETUP lines = 2-4 sentences. A sharp framing angle + one specific data point. Leave them wanting the clip.
+- SETUP lines = 2-4 sentences, MAX 60 WORDS. A sharp framing angle + one specific data point. Leave them wanting the clip.
 - REACT lines = 2-4 sentences. A hot take with substance — specific implication, not a vague platitude.
 - Cold open = 1 explosive sentence. Most outrageous or interesting story. Hook them in 3 seconds.
 - Wit over wisdom. Brief over brilliant. Gossip energy, Bitcoin knowledge.
@@ -94,7 +94,7 @@ NARRATION PHILOSOPHY — Simon Dixon / Preston Pysh standard:
 - Bridges between clips must connect thematic dots — not just "next up"
 - DATA segment minimum: 4 lines from PBX, each with a specific metric, each with an implication
 
-EPISODE LENGTH LAW: Target 600-750 narration words total. Never truncate a sentence. Every segment must be complete. Sharp means efficient — every sentence must earn its place. NO padding. NO repetition.
+EPISODE LENGTH LAW: Target 550-680 narration words total. Never truncate a sentence. Every segment must be complete. Sharp means efficient — every sentence must earn its place. NO padding. NO repetition.
 
 SEGMENT TAGGING (MANDATORY — controls PBX's voice dynamics):
 Every dialogue text line MUST start with a segment type tag in brackets. The TTS engine reads this tag to adjust vocal delivery. If missing, the voice defaults to CLEAR which is safe but loses dramatic range.

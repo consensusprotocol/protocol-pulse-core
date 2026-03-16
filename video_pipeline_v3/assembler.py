@@ -1786,73 +1786,71 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
         f"[np_pills];\n"
     )
 
-    # Right PiP preview panel (x=1060, y=220, w=820, h=460) — strictly right half, no text overlap
-    # Gold eyebrow above PiP
-    fg += (f"[np_pills]drawtext=fontfile={FONT_MONO}:text='COMING UP NEXT':"
-           f"fontcolor={COLOR_GOLD}:fontsize=11:x=1080:y=202[np_pip_eye];\n")
-    fg += (f"[np_pip_eye]drawbox=x=1060:y=220:w=820:h=460:color={COLOR_PANEL}@0.92:t=fill,"
-           f"drawbox=x=1060:y=220:w=820:h=1:color=0xFFFFFF@0.1:t=fill,"
-           f"drawbox=x=1060:y=679:w=820:h=1:color=0xFFFFFF@0.1:t=fill,"
-           f"drawbox=x=1060:y=220:w=0:h=0:color=0x000000@0:t=fill"
-           f"[np_pip_hdr];\n")
-
-    # FIX 1: Use actual video in PiP box — loop the preview clip to match segment duration
-    # PiP content area: x=1072, y=232, w=796, h=370 (inside the 1060,220,820,460 panel)
+    # ═══════════════════════════════════════════════════════════════════════
+    # R27 FIX 3: FULL-SCREEN ZOOMPAN PiP — cinematic preview background
+    # Replaces small contained PiP box with full-screen desaturated preview
+    # ═══════════════════════════════════════════════════════════════════════
     if has_pip_video and pip_vid_idx >= 0:
         pip_dur_src = ffprobe_duration(pip_video_path)
         src_frames = max(30, int(pip_dur_src * 30) + 5) if pip_dur_src > 0 else 300
+        total_frames = max(30, int(total_dur * 30))
         loop_flag = f"loop=loop=-1:size={src_frames}:start=0," if pip_dur_src < total_dur else ""
+        # Scale to full 1920x1080, crop to fill, desaturate, slow zoompan
         fg += (f"[{pip_vid_idx}:v]{loop_flag}"
-               f"scale=796:370:force_original_aspect_ratio=increase,"
-               f"crop=796:370,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS[np_pip_vid];\n")
-        fg += f"[np_pip_hdr][np_pip_vid]overlay=1072:240[np_pip_thumb];\n"
-        pip_base = "np_pip_thumb"
-    elif has_thumb and thumb_idx >= 0:
-        fg += (f"[{thumb_idx}:v]scale=796:370:force_original_aspect_ratio=increase,"
-               f"crop=796:370,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS[np_thumb];\n")
-        fg += f"[np_pip_hdr][np_thumb]overlay=1072:240[np_pip_thumb];\n"
-        pip_base = "np_pip_thumb"
+               f"scale=1920:1080:force_original_aspect_ratio=increase,"
+               f"crop=1920:1080,setsar=1,fps=30,"
+               f"hue=s=0.4,"
+               f"zoompan=z='min(zoom+0.0004,1.08)':d={total_frames}:"
+               f"x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080:fps=30,"
+               f"trim=0:{total_dur},setpts=PTS-STARTPTS[np_fs_pip];\n")
+        # Overlay full-screen PiP behind narrator panels (replaces bg)
+        fg += f"[np_pills][np_fs_pip]overlay=0:0:shortest=1[np_fs_bg];\n"
     else:
-        # Render18 FIX 1: Use branded placeholder (bg_loop) instead of black box
-        placeholder = _ensure_pip_placeholder()
-        if placeholder and os.path.exists(placeholder):
-            inputs.append(placeholder)
-            ph_idx = len(inputs) - 1
-            ph_dur = ffprobe_duration(placeholder)
-            ph_frames = max(30, int(ph_dur * 30) + 5) if ph_dur > 0 else 240
-            ph_loop = f"loop=loop=-1:size={ph_frames}:start=0," if ph_dur < total_dur else ""
-            fg += (f"[{ph_idx}:v]{ph_loop}"
-                   f"scale=796:370:force_original_aspect_ratio=increase,"
-                   f"crop=796:370,setsar=1,fps=30,trim=0:{total_dur},setpts=PTS-STARTPTS[np_pip_ph];\n")
-            fg += f"[np_pip_hdr][np_pip_ph]overlay=1072:240[np_pip_thumb];\n"
-        else:
-            # Last resort: subtle styled placeholder (not pure black)
-            fg += (
-                f"[np_pip_hdr]"
-                f"drawbox=x=1072:y=240:w=796:h=370:color=0x0A0A0F:t=fill,"
-                f"drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
-                f"fontcolor={COLOR_GOLD}@0.3:fontsize=16:x=1380:y=420"
-                f"[np_pip_thumb];\n"
-            )
-        pip_base = "np_pip_thumb"
+        # No PiP video: keep current bg as-is (bg_loop, never intro_tag)
+        fg += f"[np_pills]copy[np_fs_bg];\n"
 
-    # Lower third in preview
+    # Corner brackets overlay (red L-shapes, 60px each, 3px width)
+    _cb_path = os.path.join(_PIPELINE_DIR, "assets", "corner_brackets.png")
+    if os.path.exists(_cb_path) and os.path.getsize(_cb_path) > 500:
+        inputs.append(_cb_path)
+        _cb_idx = len(inputs) - 1
+        fg += (f"[{_cb_idx}:v]scale=1920:1080[_cb_img];\n"
+               f"[np_fs_bg][_cb_img]overlay=0:0[np_cb_over];\n")
+    else:
+        # Draw corner brackets with drawbox: 4 L-shapes, red #ff3b5f, 3px, 60px
+        fg += (f"[np_fs_bg]"
+               # Top-left L
+               f"drawbox=x=40:y=40:w=60:h=3:color=0xFF3B5F:t=fill,"
+               f"drawbox=x=40:y=40:w=3:h=60:color=0xFF3B5F:t=fill,"
+               # Top-right L
+               f"drawbox=x=1820:y=40:w=60:h=3:color=0xFF3B5F:t=fill,"
+               f"drawbox=x=1877:y=40:w=3:h=60:color=0xFF3B5F:t=fill,"
+               # Bottom-left L
+               f"drawbox=x=40:y=1037:w=60:h=3:color=0xFF3B5F:t=fill,"
+               f"drawbox=x=40:y=980:w=3:h=60:color=0xFF3B5F:t=fill,"
+               # Bottom-right L
+               f"drawbox=x=1820:y=1037:w=60:h=3:color=0xFF3B5F:t=fill,"
+               f"drawbox=x=1877:y=980:w=3:h=60:color=0xFF3B5F:t=fill"
+               f"[np_cb_over];\n")
+
+    # Waveform strip at bottom y=920 h=80 from audio
+    fg += (f"[np_cb_over]"
+           f"drawbox=x=0:y=920:w=1920:h=80:color=0x000000@0.5:t=fill"
+           f"[np_wave_bg];\n")
+    # Audio waveform visualization in the strip
+    fg += (f"[0:a]showwavespic=s=1920x80:colors={COLOR_RED}@0.7|{COLOR_RED}@0.3,"
+           f"format=rgba[np_wave_pic];\n")
+    fg += f"[np_wave_bg][np_wave_pic]overlay=0:920:shortest=1[np_wave_done];\n"
+
+    # Channel name and clip title text overlay
     safe_next = _sanitize_text(next_speaker)[:30] if next_speaker else "NEXT SOURCE"
-    fg += (f"[{pip_base}]drawbox=x=1072:y=620:w=796:h=50:color=0x000000@0.7:t=fill,"
+    fg += (f"[np_wave_done]"
+           f"drawbox=x=0:y=860:w=800:h=50:color=0x000000@0.7:t=fill,"
            f"drawtext=fontfile={FONT_BOLD}:text='{safe_next}':"
-           f"fontcolor={COLOR_WHITE}:fontsize=18:x=1088:y=634,"
-           f"drawbox=x=1740:y=628:w=110:h=24:color={COLOR_RED}@0.12:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='Preview Active':"
-           f"fontcolor={COLOR_RED}:fontsize=10:x=1750:y=633,"
-           # BD tactical mini corner brackets on PiP frame (16px)
-           f"drawbox=x=1060:y=220:w=16:h=3:color={COLOR_RED}:t=fill,"
-           f"drawbox=x=1060:y=220:w=3:h=16:color={COLOR_RED}:t=fill,"
-           f"drawbox=x=1864:y=220:w=16:h=3:color={COLOR_RED}:t=fill,"
-           f"drawbox=x=1877:y=220:w=3:h=16:color={COLOR_RED}:t=fill,"
-           f"drawbox=x=1060:y=677:w=16:h=3:color={COLOR_RED}:t=fill,"
-           f"drawbox=x=1060:y=664:w=3:h=16:color={COLOR_RED}:t=fill,"
-           f"drawbox=x=1864:y=677:w=16:h=3:color={COLOR_RED}:t=fill,"
-           f"drawbox=x=1877:y=664:w=3:h=16:color={COLOR_RED}:t=fill"
+           f"fontcolor={COLOR_WHITE}:fontsize=20:x=24:y=870,"
+           f"drawbox=x=1600:y=860:w=200:h=24:color={COLOR_RED}@0.15:t=fill,"
+           f"drawtext=fontfile={FONT_MONO}:text='PREVIEW':"
+           f"fontcolor={COLOR_RED}:fontsize=12:x=1660:y=864"
            f"[np_pip_final];\n")
 
     # Render11 FIX 7: Mini-dashboard panel below PiP (x=1060, y=700, w=820, h=160)

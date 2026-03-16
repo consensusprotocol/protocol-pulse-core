@@ -109,14 +109,14 @@ def _load_used_clips() -> dict:
 
 
 def _prune_old_episodes():
-    """Remove episodes older than 7 days from used_clips.json."""
+    """Remove episodes older than today from used_clips.json (R27 same-day expiry)."""
     data = _load_used_clips()
-    cutoff = (datetime.utcnow() - timedelta(days=7)).strftime("%Y-%m-%d")
+    today = datetime.utcnow().strftime("%Y-%m-%d")
     before = len(data.get("episodes", []))
-    data["episodes"] = [ep for ep in data.get("episodes", []) if ep.get("date", "") >= cutoff]
+    data["episodes"] = [ep for ep in data.get("episodes", []) if ep.get("date", "") == today]
     after = len(data["episodes"])
     if after < before:
-        logger.info(f"EPISODE MEMORY: Pruned {before - after} episodes older than 7 days")
+        logger.info(f"EPISODE MEMORY: Pruned {before - after} episodes from previous days")
         os.makedirs(os.path.dirname(USED_CLIPS_PATH), exist_ok=True)
         with open(USED_CLIPS_PATH, "w") as f:
             json.dump(data, f, indent=2)
@@ -124,18 +124,17 @@ def _prune_old_episodes():
 
 
 def _get_recent_video_ids(max_episodes: int = 7) -> set:
-    """Get video_ids used in the last N episodes (video-level dedup only, NOT channel-level).
+    """Get video_ids used TODAY (same calendar day, UTC).
 
-    Per PIPELINE_LAWS: 'Never reuse a video_id from the last 7 episodes.'
+    R27: Same-day expiry — clips from any previous date are immediately eligible.
     """
-    data = _prune_old_episodes()
-    episodes = data.get("episodes", [])
-    # Only look at last N episodes, not all episodes in the time window
-    recent = episodes[-max_episodes:] if len(episodes) > max_episodes else episodes
+    data = _load_used_clips()
+    today = datetime.utcnow().strftime("%Y-%m-%d")
     ids = set()
-    for ep in recent:
-        ids.update(ep.get("video_ids", []))
-    logger.info(f"EPISODE MEMORY: {len(ids)} video_ids blocked from last {len(recent)} episodes")
+    for ep in data.get("episodes", []):
+        if ep.get("date", "") == today:
+            ids.update(ep.get("video_ids", []))
+    logger.info(f"EPISODE MEMORY: {len(ids)} video_ids blocked (same-day only, {today})")
     return ids
 
 
@@ -149,9 +148,9 @@ def _record_episode(clips: list):
         "video_ids": video_ids,
         "channels": channels,
     })
-    # Prune episodes older than 7 days
-    cutoff = (datetime.utcnow() - timedelta(days=7)).strftime("%Y-%m-%d")
-    data["episodes"] = [ep for ep in data["episodes"] if ep.get("date", "") >= cutoff]
+    # R27: Keep only today's episodes
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    data["episodes"] = [ep for ep in data["episodes"] if ep.get("date", "") == today]
     os.makedirs(os.path.dirname(USED_CLIPS_PATH), exist_ok=True)
     with open(USED_CLIPS_PATH, "w") as f:
         json.dump(data, f, indent=2)
