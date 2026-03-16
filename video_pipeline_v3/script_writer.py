@@ -36,6 +36,8 @@ HOST (PBX) — Hot takes, contrarian, dry wit. Warm strong male voice. PBX is th
 
 PBX is ALWAYS the FIRST voice. PBX opens every episode with the cold open and handles ALL narration segments. PBX closes with the final sign-off. The first dialogue entry MUST be host: 2 (PBX). ALL dialogue entries MUST be host: 2.
 
+CRITICAL JSON RULE: NEVER output "host": 1 anywhere in your response. The ONLY valid host values are 2 (PBX) and "CLIP". Any entry with host:1 will cause a catastrophic render failure. Use ONLY host:2.
+
 TONE RULES (NON-NEGOTIABLE):
 - NEVER generic. Never say "interesting" or "really impactful" or "that's great stuff."
 - SETUP lines = 2-4 sentences, MAX 60 WORDS. A sharp framing angle + one specific data point. Leave them wanting the clip.
@@ -168,6 +170,9 @@ def _extract_segment_tags(result: dict) -> dict:
     from the text and set/override the type field for TTS voice mode selection.
     """
     dialogue = result.get("dialogue", [])
+    # Force PBX-only: normalize any host:1 → host:2
+    for _e in dialogue:
+        if isinstance(_e, dict) and _e.get("host") in (1, "1"): _e["host"] = 2
     for entry in dialogue:
         text = entry.get("text", "")
         if not text:
@@ -256,6 +261,9 @@ def _validate_social_tweet_order(result: dict, social_posts_raw: str) -> dict:
         return result
 
     dialogue = result.get("dialogue", [])
+    # Force PBX-only: normalize any host:1 → host:2
+    for _e in dialogue:
+        if isinstance(_e, dict) and _e.get("host") in (1, "1"): _e["host"] = 2
     if not dialogue:
         return result
 
@@ -352,6 +360,9 @@ def _populate_segment_headlines(result: dict) -> dict:
     Render11 FIX 8: Headlines are 3-7 word ALL CAPS editorial style with regex validation.
     """
     dialogue = result.get("dialogue", [])
+    # Force PBX-only: normalize any host:1 → host:2
+    for _e in dialogue:
+        if isinstance(_e, dict) and _e.get("host") in (1, "1"): _e["host"] = 2
     summaries = result.get("segments_summary", [])
     episode_title = result.get("episode_title", "Pulse Check Daily")
 
@@ -510,6 +521,9 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
 
         # Validate structure
         dialogue = result.get("dialogue", [])
+        # Force PBX-only: normalize any host:1 â host:2
+        for _e in dialogue:
+            if isinstance(_e, dict) and _e.get("host") in (1, "1"): _e["host"] = 2
         clip_entries = [d for d in dialogue if d.get("host") == "CLIP"]
         speech_entries = [d for d in dialogue if d.get("host") in (1, 2, "1", "2")]
 
