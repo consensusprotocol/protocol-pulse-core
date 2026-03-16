@@ -132,14 +132,17 @@ def check_env():
 
 # ── 5. VOICE IDs ──────────────────────────────────────────
 def check_voices():
-    sec('VOICE IDs')
+    sec('VOICE IDs — SINGLE HOST PBX')
     c = open(f'{V3}/tts_engine.py').read() if os.path.exists(f'{V3}/tts_engine.py') else ''
-    chk('Eryn voice present: kdnRe2koJdOK4Ovxn2DI', 'kdnRe2koJdOK4Ovxn2DI' in c,
-        'Eryn voice ID missing from tts_engine.py')
     chk('PBX voice present: HmUVvDlHsEz0m3eUGLgu', 'HmUVvDlHsEz0m3eUGLgu' in c,
         'PBX voice ID missing from tts_engine.py')
     chk('Banned voice absent: uxKr2vlA4hYgXZR1oPRT', 'uxKr2vlA4hYgXZR1oPRT' not in c,
         'BANNED voice in tts_engine.py — causes silent 0-byte audio')
+    chk('Banned Eryn voice absent: kdnRe2koJdOK4Ovxn2DI',
+        'kdnRe2koJdOK4Ovxn2DI' not in c,
+        'Eryn voice ID still in tts_engine.py — BANNED since Render20')
+    chk('Deborah voice absent (HOST_1 removed)', 'VeCVR24o7g2y1IxLJzZs' not in c,
+        'Deborah voice ID still in tts_engine.py — Option A requires PBX only')
 
 # ── 6. ASSEMBLER CONSTANTS ────────────────────────────────
 def check_assembler():
@@ -171,18 +174,18 @@ def check_branded_assets():
             chk(f'Branded asset present: {fname}', True)
 
 def check_tts_smoke():
-    sec('LIVE TTS SMOKE TEST')
+    sec('LIVE TTS SMOKE TEST — PBX VOICE')
     import urllib.request as ul
     e = env()
     api_key = e.get('ELEVENLABS_API_KEY', '')
     if not api_key:
         chk('ElevenLabs key available', False, 'Cannot smoke test — key missing'); return
 
-    VOICE = 'kdnRe2koJdOK4Ovxn2DI'
+    VOICE = 'HmUVvDlHsEz0m3eUGLgu'  # PBX — sole host
     url   = f'https://api.elevenlabs.io/v1/text-to-speech/{VOICE}'
     body  = json.dumps({'text': 'Bitcoin. Signal confirmed.',
-                        'model_id': 'eleven_turbo_v2',
-                        'voice_settings': {'stability': 0.45, 'similarity_boost': 0.82}}).encode()
+                        'model_id': 'eleven_turbo_v2_5',
+                        'voice_settings': {'stability': 0.55, 'similarity_boost': 0.80, 'style': 0.15}}).encode()
     try:
         t0  = time.time()
         req = ul.Request(url, data=body, headers={

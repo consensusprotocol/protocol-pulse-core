@@ -226,8 +226,8 @@ TODAY'S LIVE NARRATIVE CONTEXT (from real-time thought leader monitoring):
 Dominant narrative: {dominant_narrative}
 Market mood: {market_mood}
 What thought leaders are saying: {episode_narrative}
-PBX should reference: {eryn_intro_hook}
-PBX should add: {mark_context}
+PBX cold open hook: {pbx_intro_hook}
+PBX analysis angle: {pbx_context}
 Suggested bridge lines: {narrative_bridge_lines}
 
 MANDATORY SCRIPT RULES (from narrative context):
@@ -471,8 +471,8 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
                 dominant_narrative=narrative_ctx.get("dominant_narrative", ""),
                 market_mood=narrative_ctx.get("market_mood", ""),
                 episode_narrative=narrative_ctx.get("episode_narrative", ""),
-                eryn_intro_hook=narrative_ctx.get("eryn_intro_hook", ""),
-                mark_context=narrative_ctx.get("mark_context", ""),
+                pbx_intro_hook=narrative_ctx.get("eryn_intro_hook", narrative_ctx.get("pbx_intro_hook", "")),
+                pbx_context=narrative_ctx.get("mark_context", narrative_ctx.get("pbx_context", "")),
                 narrative_bridge_lines="\n".join(bridge_lines) if bridge_lines else "none",
                 avoid_topics=", ".join(narrative_ctx.get("avoid_topics", [])),
             )

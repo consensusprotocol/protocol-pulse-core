@@ -115,12 +115,17 @@ def _measure_loudness(video_path: str) -> dict:
     return {"lufs": None, "true_peak": None}
 
 
-def compute_quality_score(manifest_path: str, video_path: str = "") -> int:
+def compute_quality_score(manifest_path: str, video_path: str = "",
+                          gemini_qc_result: dict = None) -> int:
     """Score 0-100 based on real video quality analysis.
 
     Two modes:
       - manifest_path only: legacy manifest-based scoring (capped at 60)
       - manifest_path + video_path: full ffprobe analysis
+
+    Gemini QC integration (Option A fix):
+      - If gemini_qc_result is provided and has critical failures, cap score < 50
+      - Prevents the false 94/100 bug where broken renders scored high
 
     Critical failures that force score to 0:
       - Total silence > 5s (host audio missing)
@@ -278,6 +283,38 @@ def compute_quality_score(manifest_path: str, video_path: str = "") -> int:
     logger.info(f"  Video analysis: +{video_bonus}/50 "
                 f"(silence:-{silence_penalty} black:-{black_penalty} "
                 f"peak:-{peak_penalty} lufs:-{lufs_penalty})")
+
+    # ── Gemini QC integration (Option A fix) ──
+    # If Gemini QC ran and found critical issues, cap the score so broken
+    # renders can never score 94/100 again.
+    if gemini_qc_result and isinstance(gemini_qc_result, dict):
+        qc_grade = gemini_qc_result.get("overall_grade", "").upper()
+        qc_issues = gemini_qc_result.get("issues", [])
+        qc_voices = gemini_qc_result.get("voices", 0)
+
+        # Grade F from Gemini QC = hard cap at 30
+        if qc_grade == "F":
+            final_score = min(final_score, 30)
+            logger.warning(f"  Gemini QC grade F — capping score at {final_score}")
+
+        # Grade D from Gemini QC = hard cap at 45
+        elif qc_grade == "D":
+            final_score = min(final_score, 45)
+            logger.warning(f"  Gemini QC grade D — capping score at {final_score}")
+
+        # Voice quality < 5 = critical failure, cap at 40
+        if isinstance(qc_voices, (int, float)) and qc_voices < 5:
+            final_score = min(final_score, 40)
+            logger.warning(f"  Gemini QC voices={qc_voices}/10 — capping score at {final_score}")
+
+        # Any critical issue string = cap at 50
+        critical_keywords = ["dead air", "missing audio", "no narration", "silent", "zero-byte"]
+        for issue in qc_issues:
+            if any(kw in issue.lower() for kw in critical_keywords):
+                final_score = min(final_score, 50)
+                logger.warning(f"  Gemini QC critical issue: {issue} — capping at {final_score}")
+                break
+
     logger.info(f"  Final score: {final_score}/100")
 
     return final_score

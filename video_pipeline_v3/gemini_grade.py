@@ -193,7 +193,7 @@ CONTENT QUALITY (35% weight):
 12. script_quality: Is the narration between clips informed, specific, and adds value beyond just re-reading the clips?
 13. cold_open_hook: Does the episode open with a compelling, specific hook that makes you want to keep watching?
 14. narrative_arc: Does the episode flow logically from open -> clips -> analysis -> close? Or is it random?
-15. host_authenticity: Do the two hosts (Eryn and Mark) sound like distinct voices? Natural banter? Not robotic?
+15. host_authenticity: Does PBX's single voice sound natural, authoritative, and well-paced throughout? Is there any dead air, robotic tone, or missing audio? PBX is the sole host — no second voice expected.
 16. episode_title: Is the title specific and punchy? Not generic clickbait. Should reflect the actual main story.
 17. no_filler: No ad reads, no sponsor segments, no off-topic content, no repeated clips.
 18. timeliness: Is the content from today or yesterday? Not stale week-old news.

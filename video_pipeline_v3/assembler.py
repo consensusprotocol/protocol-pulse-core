@@ -5025,10 +5025,28 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                 logger.warning("[---] No outro available")
 
     # --- 4. CONCATENATE ---
-    logger.info(f"\nConcatenating {len(parts)} parts...")
+    # Option A FIX: Zero-byte / missing audio detection before concat
+    # Abort if any part is missing, zero-byte, or has no detectable duration
+    logger.info(f"\nValidating {len(parts)} parts before concat...")
     for i, p in enumerate(parts):
-        dur = ffprobe_duration(p) if p and os.path.exists(p) else 0
-        logger.info(f"  Part {i:03d}: {os.path.basename(p)} ({dur:.1f}s)")
+        if not p or not os.path.exists(p):
+            raise RuntimeError(
+                f"ASSEMBLY ABORT: Part {i:03d} missing or null path: {p}. "
+                f"Cannot concatenate with missing segments."
+            )
+        fsize = os.path.getsize(p)
+        if fsize < 1000:
+            raise RuntimeError(
+                f"ASSEMBLY ABORT: Part {i:03d} is {fsize} bytes (zero-byte/corrupt): "
+                f"{os.path.basename(p)}. Refusing to render around missing audio."
+            )
+        dur = ffprobe_duration(p)
+        if dur < 0.1:
+            raise RuntimeError(
+                f"ASSEMBLY ABORT: Part {i:03d} has {dur:.3f}s duration (effectively empty): "
+                f"{os.path.basename(p)}. Refusing to render around missing audio."
+            )
+        logger.info(f"  Part {i:03d}: {os.path.basename(p)} ({dur:.1f}s, {fsize//1024}KB) OK")
 
     intro_music_total = (intro_tag_dur + 10.0 + 3.0) if intro_tag_dur > 0 else 0
 

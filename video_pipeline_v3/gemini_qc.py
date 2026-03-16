@@ -43,7 +43,7 @@ SHOW DESIGN (score against THIS, not generic expectations):
 - Social cards: tweet content on dark background
 - Waveform visualizer in narration segments is intentional design
 - "COMING UP NEXT" label on PiP is functional, NOT debug text
-- DUAL HOSTS: There MUST be BOTH a female voice (Eryn/HOST_1) and male voice (Mark/HOST_2)
+- SINGLE HOST: PBX is the sole broadcaster. There is ONE male voice throughout. This is intentional design, NOT a bug.
 
 SCORING DIMENSIONS (1-10 each):
 
@@ -53,7 +53,7 @@ SCORING DIMENSIONS (1-10 each):
 
 3. **background** — Background consistency across narration segments. Score 10 if dark cyberpunk with grid consistently present. Score 8 if mostly consistent. Score 5 if inconsistent. Score 1 if plain black or broken.
 
-4. **voices** — DUAL HOST CHECK: Are there BOTH a female voice (Eryn) AND male voice (Mark) clearly present? Look for different speaker names/labels in narration segments. Score 10 if BOTH voices clearly present with distinct speaker labels. Score 5 MAXIMUM if only one voice is present (single narrator). Score 1 if no narration at all.
+4. **voices** — SINGLE HOST QUALITY CHECK: PBX is the sole host. Score 10 if PBX's voice is clear, natural, authoritative, and well-paced throughout with no dead air or robotic tone. Score 8 if mostly good with minor issues. Score 5 if voice sounds robotic or has noticeable dead air gaps. Score 1 if no narration or missing audio segments.
 
 5. **audio_quality** — Visual indicators of audio quality AND music continuity. Score 10 if: narration text present, waveform visualizers show activity, bottom ticker scrolling, AND background music appears continuous (no silent gaps between segments). Score 6 MAXIMUM if music drops to silence between segments. Score 5 only if MOST segments lack audio indicators.
 
@@ -66,7 +66,7 @@ ADDITIONAL CRITICAL CHECKS (must report in issues):
 - Transition quality: Are there visual transitions (glitch/wipe effects) between segments? Hard-cut black flash between segments = issue flag, cap overall at B.
 
 GRADE A requires ALL of:
-- voices >= 9 (both Eryn AND Mark present)
+- voices >= 8 (PBX voice clear, well-paced, no dead air)
 - pip >= 8 (PiP not overlapping text)
 - cold_open >= 8
 - background >= 9
@@ -89,7 +89,7 @@ Return ONLY valid JSON (no markdown fences):
   "overall_grade": "<A/B/C/D/F>",
   "issues": ["<issue 1>", "<issue 2>"],
   "strengths": ["<strength 1>", "<strength 2>"],
-  "dual_host_detected": <true/false>,
+  "single_host_quality": <true/false>,
   "black_flash_detected": <true/false>,
   "duplicate_outro_detected": <true/false>,
   "music_continuous": <true/false>

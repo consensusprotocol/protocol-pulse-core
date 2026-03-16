@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""TTS Engine V7 — Dual-provider: ElevenLabs (default) + Inworld.
-Host 1 (Deborah): VeCVR24o7g2y1IxLJzZs at 1.0x — female newscaster setup host.
-Host 2 (PBX): HmUVvDlHsEz0m3eUGLgu at 1.2x — male contrarian react host.
+"""TTS Engine V8 — Single-host PBX pipeline (Option A).
+Host: PBX (HmUVvDlHsEz0m3eUGLgu) at 1.2x — sole broadcaster.
+All hosts map to PBX. Deborah/Eryn/Mark/Nicole/Chris ALL BANNED.
 Generates per-line audio with 0.3s silence gaps."""
 import os, sys, json, subprocess, tempfile, time, struct, shutil, logging
 from pathlib import Path
@@ -16,22 +16,9 @@ from relay import get_key
 
 logger = logging.getLogger(__name__)
 
-# DUAL HOST: Deborah (HOST_1) + PBX (HOST_2)
-# BANNED: Nicole/Chris/Eryn/Brian/Mark — kdnRe2koJdOK4Ovxn2DI (Eryn) banned Render20
+# SINGLE HOST: PBX only (Option A — fixes 9 consecutive Grade F renders)
+# BANNED: Deborah/Nicole/Chris/Eryn/Brian/Mark — ALL removed
 PBX_VOICE_ID = "HmUVvDlHsEz0m3eUGLgu"
-
-_NATASHA_VOICE = {
-    "voice_id": "VeCVR24o7g2y1IxLJzZs",
-    "name": "Deborah",
-    "model_id": "eleven_turbo_v2_5",
-    "speed": 1.0,
-    "voice_settings": {
-        "stability": 0.55,
-        "similarity_boost": 0.80,
-        "style": 0.30,
-        "use_speaker_boost": True,
-    },
-}
 
 _PBX_VOICE = {
     "voice_id": PBX_VOICE_ID,
@@ -46,30 +33,10 @@ _PBX_VOICE = {
     },
 }
 
+# Both host 1 and host 2 map to PBX — single host pipeline
 VOICES = {
-    1: _NATASHA_VOICE,   # HOST_1 → Eryn (female)
-    2: _PBX_VOICE,       # HOST_2 → PBX (male) — replaces Mark
-}
-
-# ── INWORLD VOICE CONFIGS (set TTS_PROVIDER=inworld in .env to activate) ──
-# Winners selected 2026-03-12: Lauren (sharp female) + Nate (authoritative male)
-_LAUREN_INWORLD = {
-    "voice_id": "Lauren",
-    "name": "Lauren",
-    "model_id": "inworld-tts-1.5-max",
-    "speed": 1.0,
-    "temperature": 0.5,
-}
-_NATE_INWORLD = {
-    "voice_id": "Nate",
-    "name": "Nate",
-    "model_id": "inworld-tts-1.5-max",
-    "speed": 1.0,
-    "temperature": 0.5,
-}
-INWORLD_VOICES = {
-    1: _LAUREN_INWORLD,
-    2: _NATE_INWORLD,
+    1: _PBX_VOICE,       # HOST_1 → PBX (single host)
+    2: _PBX_VOICE,       # HOST_2 → PBX (single host)
 }
 
 def _get_tts_provider() -> str:
@@ -570,13 +537,31 @@ def validate_tts_output(path: str, min_size: int = 10240) -> None:
         )
 
 
-def tts_inworld(text: str, output_path: str, host: int = 1,
-                segment_type: str = "narration") -> bool:
-    """DISABLED: Inworld TTS banned per PIPELINE_LAWS (0-byte synthesis)."""
-    raise RuntimeError(
-        "Inworld TTS is disabled per PIPELINE_LAWS. TTS_PROVIDER must be 'elevenlabs'. "
-        "Inworld synthesis returns 0 bytes — account not provisioned."
-    )
+def tts_preflight_test() -> bool:
+    """Preflight: call ElevenLabs with a 5-word test phrase, confirm >1000 bytes returned.
+    Raises RuntimeError on failure so the pipeline aborts before wasting render time."""
+    if not HAS_REQUESTS:
+        raise RuntimeError("TTS preflight: 'requests' library not installed")
+    key = _get_cached_key("ELEVENLABS_API_KEY")
+    if not key:
+        raise RuntimeError("TTS preflight: ELEVENLABS_API_KEY not available")
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{PBX_VOICE_ID}"
+    headers = {"xi-api-key": key, "Content-Type": "application/json"}
+    body = {
+        "text": "Bitcoin signal confirmed today.",
+        "model_id": "eleven_turbo_v2_5",
+        "voice_settings": {"stability": 0.55, "similarity_boost": 0.80, "style": 0.15},
+    }
+    try:
+        r = requests.post(url, json=body, headers=headers, timeout=20)
+        if r.status_code != 200:
+            raise RuntimeError(f"TTS preflight: ElevenLabs returned HTTP {r.status_code}: {r.text[:200]}")
+        if len(r.content) < 1000:
+            raise RuntimeError(f"TTS preflight: ElevenLabs returned only {len(r.content)} bytes (need >1000)")
+        logger.info(f"[TTS] Preflight PASS: PBX voice returned {len(r.content)} bytes")
+        return True
+    except requests.RequestException as e:
+        raise RuntimeError(f"TTS preflight: ElevenLabs unreachable: {e}")
 
 
 def tts_elevenlabs(text: str, output_path: str, host: int = 1,
@@ -600,7 +585,7 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
     # R25 FIX 7: Apply pronunciation map (Pysh→PISH, etc.) — was defined but never called
     text = apply_pronunciation_map(text)
 
-    voice = VOICES.get(host, VOICES[1])
+    voice = VOICES.get(host, VOICES[2])  # All hosts → PBX
     # Check TTS cache first — avoid API call if same text+voice was generated before
     cache_key = _tts_cache_key(text, voice["voice_id"], segment_type)
     if _tts_cache_get(cache_key, output_path):
@@ -667,29 +652,13 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
                     os.remove(f)
                 except Exception:
                     pass
-            # P0.6 FIX: Fall back the ENTIRE text to pyttsx3 (not just this chunk).
-            # Returning inside the chunk loop would abandon remaining chunks.
-            print(f"  [tts] ElevenLabs failed for chunk {ci} — falling back entire text to pyttsx3")
-            try:
-                import pyttsx3
-                _engine = pyttsx3.init()
-                _engine.setProperty("rate", 150)
-                wav_tmp = output_path + ".pyttsx3.wav"
-                _engine.save_to_file(text, wav_tmp)  # full text, not just the failed chunk
-                _engine.runAndWait()
-                if os.path.exists(wav_tmp) and os.path.getsize(wav_tmp) > 1000:
-                    ok = _mp3_to_m4a(wav_tmp, output_path)
-                    try:
-                        os.remove(wav_tmp)
-                    except Exception:
-                        pass
-                    if ok:
-                        print(f"  [tts] pyttsx3 fallback SUCCESS (full text)")
-                        return True
-            except Exception as pyttsx_err:
-                print(f"  [tts] pyttsx3 unavailable: {pyttsx_err}")
-            # Final fallback: generate silence so the segment still renders
-            return _tts_generate_silence_fallback(text, output_path)
+            # Option A: NO pyttsx3 fallback, NO silence fallback. Hard abort.
+            # Per PIPELINE_FIX: if ElevenLabs fails, ABORT the render, do NOT substitute.
+            raise RuntimeError(
+                f"TTS FATAL: ElevenLabs failed for chunk {ci} after 3 retries. "
+                f"Text: \"{(text[:80] + '...') if len(text) > 80 else text}\". "
+                f"Aborting render — no pyttsx3/silence fallback allowed."
+            )
         chunk_files.append(mp3_tmp)
 
     # Single chunk
@@ -779,14 +748,8 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
             current_time += clip_duration  # advance timeline so subsequent audio is correctly offset
             continue
 
-        host_num = int(host) if host in (1, 2, "1", "2") else 1
-        # Round 3 FIX 3B: First spoken segment MUST be PBX (opener)
-        # Count non-CLIP lines processed so far to determine segment_index
-        spoken_count = sum(1 for l in lines if l.get("host") != "CLIP")
-        if spoken_count == 0 and host_num != 2:
-            logger.info(f"[TTS] Segment 0 — forcing PBX opener (was host={host_num})")
-            host_num = 2
-        voice = VOICES.get(host_num, VOICES[1])
+        host_num = 2  # Option A: ALL lines → PBX (single host pipeline)
+        voice = VOICES[2]
         segment_type = entry.get("type", "")
         line_path = os.path.join(output_dir, f"line_{i:03d}_{voice['name'].lower()}.m4a")
 
@@ -797,7 +760,20 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
         # ElevenLabs only — Inworld disabled per PIPELINE_LAWS
         _tts_ok = tts_elevenlabs(text, line_path, host_num, segment_type=segment_type)
         if _tts_ok:
+            # Zero-byte / short audio guard: abort if TTS returned garbage
+            if not os.path.exists(line_path) or os.path.getsize(line_path) < 1000:
+                raise RuntimeError(
+                    f"TTS FATAL: Line {i} generated zero-byte or tiny audio "
+                    f"({os.path.getsize(line_path) if os.path.exists(line_path) else 0} bytes). "
+                    f"Text: \"{text[:60]}...\""
+                )
             dur = ffprobe_duration(line_path)
+            # Per-line duration check: if text > 10 chars but audio < 0.5s, something is wrong
+            if dur < 0.5 and len(text) > 10:
+                raise RuntimeError(
+                    f"TTS FATAL: Line {i} audio too short ({dur:.2f}s) for {len(text)}-char text. "
+                    f"ElevenLabs likely returned empty audio. Text: \"{text[:60]}...\""
+                )
             lines.append({
                 "path": line_path,
                 "host": host_num,
