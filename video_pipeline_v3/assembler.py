@@ -705,8 +705,8 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
         "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
         "-t", "0.1", "-i", tts_path,
         "-filter_complex", "[0:a][1:a]concat=n=2:v=0:a=1[outa]",
-        "-map", "[outa]", "-c:a", "pcm_s16le", tts_leadin,
-    ], "100ms silence lead-in", 15)
+        "-map", "[outa]", "-c:a", "aac", tts_leadin,
+    ], "100ms silence lead-in", 60)
     if _leadin_ok and os.path.exists(tts_leadin):
         tts_path = tts_leadin
     tts_dur = ffprobe_duration(tts_path)
