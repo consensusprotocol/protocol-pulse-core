@@ -2143,7 +2143,7 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
 
         _chart_input_start = len(inputs)
         for cp in _chart_full:
-            inputs.append(cp)
+            inputs.append(["-loop", "1", "-framerate", "30", "-i", cp])
 
         if len(_matched_charts) == 1:
             # Single chart full-panel
