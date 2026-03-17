@@ -327,7 +327,10 @@ def find_mp4(after_ts=None):
     return sorted(files)[-1] if files else None
 
 def get_grade():
-    return run_gemini_grade()[0]
+    score = run_gemini_grade()[0]
+    if score is None:
+        return 'STALE'
+    return score
 
 def _check_grade_mtime(render_start):
     """Return True if grade file was written AFTER render_start, else False."""
@@ -465,10 +468,10 @@ def main():
         if mp4:
             grade, gemini_output = run_gemini_grade(render_start=render_start)
             if grade is None:
-                log('Grade stale or unavailable — skipping this iteration, will re-render')
+                log('STALE grade detected — sleeping 30s then re-rendering')
                 kill_renders()
                 clear_pycache()
-                time.sleep(15)
+                time.sleep(30)
                 continue
             if grade > best:
                 best = grade
