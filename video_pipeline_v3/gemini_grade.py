@@ -39,7 +39,7 @@ today = time.strftime('%Y%m%d')
 candidates = []
 for root, dirs, files in os.walk(OUTPUT_DIR):
     for f in files:
-        if f.endswith('.mp4') and 'pulse_check' in f and '.mp4.' not in os.path.basename(f) and 'bgl_audio' not in f and 'archived' not in f and 'test_' not in root and 'music_mixed' not in f and 'concat_raw' not in f and 'norm' not in f:
+        if f.endswith('.mp4') and 'pulse_check' in f and '.mp4.' not in os.path.basename(f) and 'bgl_audio' not in f and 'archived' not in f and 'music_mixed' not in f and 'concat_raw' not in f and 'norm' not in f:
             full = os.path.join(root, f)
             candidates.append((os.path.getmtime(full), full))
 
