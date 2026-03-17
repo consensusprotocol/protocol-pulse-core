@@ -513,7 +513,30 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
         elif "```" in text:
             text = text.split("```")[1].split("```")[0]
 
-        result = json.loads(text)
+        # FIX 4: JSON retry loop — send malformed JSON back for repair, max 3 retries
+        json_text = text
+        result = None
+        for _retry in range(4):  # attempt 0 = first try, 1-3 = retries
+            try:
+                result = json.loads(json_text)
+                break
+            except json.JSONDecodeError as je:
+                if _retry >= 3:
+                    raise RuntimeError(f"JSON repair failed after 3 retries: {je}") from je
+                logger.warning(f"JSON parse error (retry {_retry+1}/3): {je}")
+                repair_prompt = (
+                    f"The following JSON is malformed. Fix it and return ONLY valid JSON, "
+                    f"no markdown, no explanation:\n\n{json_text}\n\n"
+                    f"Error was: {je}"
+                )
+                json_text = call_llm(repair_prompt, max_tokens=8000, model="claude-sonnet-4-6")
+                if json_text is None:
+                    raise RuntimeError("JSON repair LLM call returned None")
+                # Strip code fences from repair response
+                if "```json" in json_text:
+                    json_text = json_text.split("```json")[1].split("```")[0]
+                elif "```" in json_text:
+                    json_text = json_text.split("```")[1].split("```")[0]
 
         # Extract [TAG] prefixes from text and set type fields for TTS
         result = _extract_segment_tags(result)

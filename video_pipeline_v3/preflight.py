@@ -144,6 +144,95 @@ def check_voices():
     chk('Deborah voice absent (HOST_1 removed)', 'VeCVR24o7g2y1IxLJzZs' not in c,
         'Deborah voice ID still in tts_engine.py — Option A requires PBX only')
 
+    # FIX 1: Live HTTP check — verify PBX voice ID exists on ElevenLabs
+    import urllib.request as ul
+    e = env()
+    api_key = e.get('ELEVENLABS_API_KEY', '')
+    if api_key:
+        try:
+            req = ul.Request('https://api.elevenlabs.io/v1/voices/HmUVvDlHsEz0m3eUGLgu',
+                             headers={'xi-api-key': api_key})
+            with ul.urlopen(req, timeout=10) as r:
+                chk('PBX voice live HTTP check (200)', r.status == 200)
+        except Exception as ex:
+            chk('PBX voice live HTTP check (200)', False, f'Voice ID 404 or API error: {ex}')
+
+# ── 5B. ELEVENLABS QUOTA ─────────────────────────────────
+def check_elevenlabs_quota():
+    sec('ELEVENLABS QUOTA')
+    import urllib.request as ul
+    e = env()
+    api_key = e.get('ELEVENLABS_API_KEY', '')
+    if not api_key:
+        chk('ElevenLabs key available for quota check', False, 'Key missing'); return
+    try:
+        req = ul.Request('https://api.elevenlabs.io/v1/user/subscription',
+                         headers={'xi-api-key': api_key})
+        with ul.urlopen(req, timeout=10) as r:
+            data = json.loads(r.read())
+        used = data.get('character_count', 0)
+        limit = data.get('character_limit', 1)
+        pct = (used / limit) * 100 if limit else 100
+        if pct >= 95:
+            chk(f'ElevenLabs quota ({pct:.1f}% used)', False,
+                f'{used:,}/{limit:,} chars — CRITICALLY LOW, render will fail')
+        elif pct >= 80:
+            chk(f'ElevenLabs quota ({pct:.1f}% used)', True,
+                f'WARNING: {used:,}/{limit:,} chars — approaching limit')
+            # Store for final report
+            check_elevenlabs_quota._pct = pct
+        else:
+            chk(f'ElevenLabs quota ({pct:.1f}% used)', True)
+        check_elevenlabs_quota._pct = pct
+    except Exception as ex:
+        chk('ElevenLabs quota check', False, str(ex))
+check_elevenlabs_quota._pct = None
+
+# ── 5C. DISK SPACE ───────────────────────────────────────
+def check_disk_space():
+    sec('DISK SPACE')
+    import shutil
+    usage = shutil.disk_usage(BASE)
+    free_gb = usage.free / (1024 ** 3)
+    if free_gb < 5:
+        chk(f'Disk free space ({free_gb:.1f} GB)', False,
+            f'Under 5 GB free — render will fail (need space for clips + TTS + final)')
+    elif free_gb < 10:
+        chk(f'Disk free space ({free_gb:.1f} GB)', True,
+            f'WARNING: Under 10 GB free — monitor closely')
+    else:
+        chk(f'Disk free space ({free_gb:.1f} GB)', True)
+
+# ── 5D. FFMPEG / FFPROBE BINARIES ────────────────────────
+def check_ffmpeg_binaries():
+    sec('FFMPEG / FFPROBE BINARIES')
+    for binary in ['ffmpeg', 'ffprobe']:
+        try:
+            r = subprocess.run([binary, '-version'], capture_output=True, text=True, timeout=5)
+            version_line = r.stdout.split('\n')[0] if r.stdout else 'unknown'
+            chk(f'{binary} available ({version_line.split(" ")[2] if len(version_line.split(" ")) > 2 else "ok"})',
+                r.returncode == 0)
+        except FileNotFoundError:
+            chk(f'{binary} available', False, f'{binary} not found in PATH')
+        except Exception as ex:
+            chk(f'{binary} available', False, str(ex))
+
+# ── 5E. ANTHROPIC API PING ───────────────────────────────
+def check_anthropic_api():
+    sec('ANTHROPIC API')
+    import urllib.request as ul
+    e = env()
+    api_key = e.get('ANTHROPIC_API_KEY', '')
+    if not api_key:
+        chk('Anthropic API key for ping', False, 'Key missing'); return
+    try:
+        req = ul.Request('https://api.anthropic.com/v1/models',
+                         headers={'x-api-key': api_key, 'anthropic-version': '2023-06-01'})
+        with ul.urlopen(req, timeout=10) as r:
+            chk('Anthropic API reachable (200)', r.status == 200)
+    except Exception as ex:
+        chk('Anthropic API reachable (200)', False, str(ex))
+
 # ── 6. ASSEMBLER CONSTANTS ────────────────────────────────
 def check_assembler():
     sec('ASSEMBLER COLOR CONSTANTS')
@@ -226,6 +315,10 @@ def main():
     check_banned()
     check_env()
     check_voices()
+    check_elevenlabs_quota()
+    check_disk_space()
+    check_ffmpeg_binaries()
+    check_anthropic_api()
     check_assembler()
     check_branded_assets()
     if not args.no_tts:
@@ -242,6 +335,8 @@ def main():
             if not ok:
                 print(f'     • {name}')
                 if detail: print(f'       → {detail}')
+    if check_elevenlabs_quota._pct is not None:
+        print(f'  ElevenLabs quota: {check_elevenlabs_quota._pct:.1f}% used')
     print(f'{"═"*60}\n')
     sys.exit(0 if failed == 0 else 1)
 
