@@ -329,8 +329,23 @@ def find_mp4(after_ts=None):
 def get_grade():
     return run_gemini_grade()[0]
 
-def run_gemini_grade():
-    """Run gemini_grade.py as subprocess, return (score, full_output) or (0, error_msg)."""
+def _check_grade_mtime(render_start):
+    """Return True if grade file was written AFTER render_start, else False."""
+    if render_start is None:
+        return True  # no render_start provided, skip check
+    try:
+        mtime = os.path.getmtime(GEMINI_GRADE_FILE)
+        if mtime < render_start:
+            log(f'GRADE STALE: grade file mtime {mtime:.0f} < render_start {render_start:.0f}')
+            return False
+        return True
+    except OSError:
+        log('GRADE STALE: grade file does not exist')
+        return False
+
+def run_gemini_grade(render_start=None):
+    """Run gemini_grade.py as subprocess, return (score, full_output) or (0, error_msg).
+    If render_start is provided, verify grade file mtime > render_start; return (None, msg) if stale."""
     grade_script = f'{PIPELINE}/gemini_grade.py'
     log('Running Gemini grading subprocess...')
     try:
@@ -339,6 +354,9 @@ def run_gemini_grade():
             capture_output=True, text=True, cwd=PIPELINE, timeout=300)
         combined = (r.stdout or '') + '\n' + (r.stderr or '')
         log(f'Gemini grade exit={r.returncode}')
+        # Staleness check — grade file must have been written after this render started
+        if not _check_grade_mtime(render_start):
+            return None, 'GRADE STALE: grade file older than render_start'
         # Parse GRADE_X_PASS|score| or GRADE_X_FAIL|score|
         m = re.search(r'GRADE_[A-F]_(PASS|FAIL)\|(\d+)\|', combined)
         if m:
@@ -354,6 +372,8 @@ def run_gemini_grade():
         combined = str(e)
     # Fallback: read the JSON grade file
     try:
+        if not _check_grade_mtime(render_start):
+            return None, 'GRADE STALE: grade file older than render_start'
         data = json.load(open(GEMINI_GRADE_FILE))
         score = data.get('overall_score', 0)
         log(f'Fallback grade from JSON: {score}')
@@ -443,7 +463,13 @@ def main():
 
         mp4 = find_mp4(after_ts=render_start)
         if mp4:
-            grade, gemini_output = run_gemini_grade()
+            grade, gemini_output = run_gemini_grade(render_start=render_start)
+            if grade is None:
+                log('Grade stale or unavailable — skipping this iteration, will re-render')
+                kill_renders()
+                clear_pycache()
+                time.sleep(15)
+                continue
             if grade > best:
                 best = grade
             log(f'VIDEO: {os.path.basename(mp4)} | grade={grade}/100')

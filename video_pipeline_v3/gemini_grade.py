@@ -311,10 +311,19 @@ critical = result.get('critical_failures', [])
 warnings = result.get('warnings', [])
 strengths = result.get('strengths', [])
 
-# Save full grade report
+# Save full grade report — legacy path + per-render timestamped copy
 with open(GRADE_FILE, 'w') as f:
     json.dump(result, f, indent=2)
 log(f"Grade report saved to {GRADE_FILE}")
+
+# Per-render grade history
+GRADES_DIR = '/home/ultron/protocol_pulse/video_pipeline_v3/logs/grades'
+os.makedirs(GRADES_DIR, exist_ok=True)
+ts_tag = time.strftime('%Y%m%d_%H%M%S')
+per_render_path = os.path.join(GRADES_DIR, f'grade_{ts_tag}.json')
+with open(per_render_path, 'w') as f:
+    json.dump(result, f, indent=2)
+log(f"Per-render grade saved to {per_render_path}")
 
 # ── Print full scorecard ──────────────────────────────────────────────────────
 log("=" * 60)
