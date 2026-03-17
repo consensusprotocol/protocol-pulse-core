@@ -10800,6 +10800,49 @@ def api_intelligence_events():
 
 
 
+@app.route('/api/stage/next_briefing')
+def api_stage_next_briefing():
+    """Return latest stage brief metadata and countdown to next."""
+    import json as _j
+    from pathlib import Path
+    from datetime import datetime, timezone, timedelta
+    brief_dir = Path(__file__).resolve().parent / 'video_pipeline_v3' / 'data' / 'stage_briefs'
+    latest_path = brief_dir / 'latest.json'
+    try:
+        if not latest_path.exists():
+            return jsonify({'has_brief': False, 'last_brief': None,
+                            'next_estimated_at': None, 'countdown_seconds': 0})
+        meta = _j.loads(latest_path.read_text())
+        gen_at = datetime.fromisoformat(meta['generated_at'].replace('Z', '+00:00'))
+        next_at = gen_at + timedelta(hours=24)
+        now = datetime.now(timezone.utc)
+        countdown = max(0, int((next_at - now).total_seconds()))
+        return jsonify({
+            'has_brief': True,
+            'last_brief': {
+                'title': meta.get('title', ''),
+                'generated_at': meta.get('generated_at', ''),
+                'mp4_url': meta.get('mp4_url', ''),
+                'duration': meta.get('duration', 0),
+                'script_summary': meta.get('script_summary', '')[:300],
+            },
+            'next_estimated_at': next_at.isoformat(),
+            'countdown_seconds': countdown,
+        })
+    except Exception as e:
+        logging.warning('stage next_briefing error: %s', e)
+        return jsonify({'has_brief': False, 'last_brief': None,
+                        'next_estimated_at': None, 'countdown_seconds': 0})
+
+
+@app.route('/data/stage_briefs/<path:filename>')
+def serve_stage_brief(filename):
+    """Serve stage brief MP4 and JSON files."""
+    from flask import send_from_directory
+    brief_dir = os.path.join(os.path.dirname(__file__), 'video_pipeline_v3', 'data', 'stage_briefs')
+    return send_from_directory(brief_dir, filename)
+
+
 @app.route('/api/stage/transcripts')
 def api_stage_transcripts():
     import glob, os, json as _j

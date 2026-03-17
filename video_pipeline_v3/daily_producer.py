@@ -844,6 +844,28 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         json.dump(manifest, f, indent=2)
     timing["13_quality_gate"] = round(time.time() - t0, 2)
 
+    # ── Step 14: STAGE BRIEF (post Grade-A render) ─────────────────────────
+    if quality_score >= 85:
+        try:
+            from generate_stage_brief import generate_brief
+            print("\n[STEP 14] GENERATING STAGE BRIEF...")
+            t0 = time.time()
+            brief_path = generate_brief(run_dir)
+            if brief_path:
+                logger.info(f"Stage brief generated: {brief_path}")
+                print(f"  Stage brief: {brief_path}")
+                manifest["stage_brief"] = brief_path
+            else:
+                logger.warning("Stage brief returned None")
+                print("  Stage brief: skipped (returned None)")
+            timing["14_stage_brief"] = round(time.time() - t0, 2)
+        except Exception as e:
+            logger.warning(f"Stage brief generation failed (non-fatal): {e}")
+            print(f"  Stage brief failed (non-fatal): {e}")
+            timing["14_stage_brief"] = 0
+    else:
+        logger.info(f"Skipping stage brief — quality score {quality_score} < 85")
+
     # Save episode performance data (V17)
     try:
         from utils.analytics_store import save_episode_performance

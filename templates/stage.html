@@ -290,6 +290,50 @@ body { background: var(--s-bg); }
 }
 .stage-status.speaking { color: var(--s-green); }
 
+/* ── BRIEFING COUNTDOWN ──────────────────────────────  */
+.stage-brief-countdown {
+  background: var(--s-surface);
+  border: 1px solid var(--s-border);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.stage-brief-countdown__row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+}
+.stage-brief-countdown__dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--s-muted); flex-shrink: 0;
+}
+.stage-brief-countdown__dot.ready {
+  background: var(--s-red);
+  animation: live-pulse 1.4s infinite;
+}
+.stage-brief-countdown__label {
+  font-family: var(--s-mono); font-size: 9px;
+  letter-spacing: .15em; color: var(--s-muted);
+}
+.stage-brief-countdown__timer {
+  font-family: var(--s-mono); font-size: 28px;
+  font-weight: 700; color: var(--s-gold);
+  letter-spacing: .05em; line-height: 1.1;
+  margin-bottom: 4px;
+}
+.stage-brief-countdown__timer.ready {
+  color: var(--s-red);
+  animation: brief-flash 2s ease-in-out infinite;
+}
+.stage-brief-countdown__sub {
+  font-family: var(--s-mono); font-size: 10px;
+  color: var(--s-muted); letter-spacing: .08em;
+}
+.stage-brief-countdown__play {
+  margin-top: 10px; width: 100%;
+}
+@keyframes brief-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .6; }
+}
+
 /* ── CHANNEL TRANSCRIPTS ─────────────────────────────  */
 .stage-transcripts {
   display: grid;
@@ -598,6 +642,22 @@ body { background: var(--s-bg); }
                   👋 Greet
                 </button>
                 <div class="stage-status" id="stageStatus">Ready</div>
+              </div>
+            </div>
+
+            <!-- Timed Briefing Countdown -->
+            <div>
+              <div class="stage-brief__section-label">Timed Briefing</div>
+              <div id="briefingCountdown" class="stage-brief-countdown">
+                <div class="stage-brief-countdown__row">
+                  <div class="stage-brief-countdown__dot" id="briefDot"></div>
+                  <div class="stage-brief-countdown__label">NEXT BRIEFING</div>
+                </div>
+                <div class="stage-brief-countdown__timer" id="countdownTimer">&mdash;</div>
+                <div class="stage-brief-countdown__sub" id="countdownSub">Checking schedule&hellip;</div>
+                <button class="stage-btn stage-btn--primary stage-brief-countdown__play"
+                        id="briefPlayBtn" style="display:none"
+                        onclick="playLatestBrief()">&#9654; Play Brief</button>
               </div>
             </div>
 
@@ -959,15 +1019,108 @@ body { background: var(--s-bg); }
     requestGreet();
   }, 800);
 
+  // ── BRIEFING COUNTDOWN ──────────────────────────────
+  var _briefCountdownId = null;
+  var _latestBriefUrl = null;
+  var _hasUserInteracted = false;
+
+  document.addEventListener('click', function(){ _hasUserInteracted = true; }, {once:true});
+
+  function loadBriefingSchedule(){
+    fetch('/api/stage/next_briefing')
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(!d.has_brief){
+        document.getElementById('countdownTimer').textContent = '\u2014';
+        document.getElementById('countdownSub').textContent = 'First brief coming soon';
+        return;
+      }
+      _latestBriefUrl = d.last_brief.mp4_url;
+      if(d.countdown_seconds <= 0){
+        showBriefReady(d.last_brief);
+      } else {
+        startCountdown(d.countdown_seconds, d.last_brief);
+      }
+    })
+    .catch(function(){
+      document.getElementById('countdownSub').textContent = 'Schedule unavailable';
+    });
+  }
+
+  function startCountdown(seconds, lastBrief){
+    if(_briefCountdownId) clearInterval(_briefCountdownId);
+    var remaining = seconds;
+    var timerEl = document.getElementById('countdownTimer');
+    var subEl = document.getElementById('countdownSub');
+    var dotEl = document.getElementById('briefDot');
+    var playBtn = document.getElementById('briefPlayBtn');
+
+    dotEl.classList.remove('ready');
+    timerEl.classList.remove('ready');
+    playBtn.style.display = 'none';
+
+    subEl.textContent = lastBrief.title || 'Last brief loaded';
+
+    function update(){
+      if(remaining <= 0){
+        clearInterval(_briefCountdownId);
+        showBriefReady(lastBrief);
+        return;
+      }
+      var h = Math.floor(remaining / 3600);
+      var m = Math.floor((remaining % 3600) / 60);
+      var s = remaining % 60;
+      timerEl.textContent = pad(h) + ':' + pad(m) + ':' + pad(s);
+      remaining--;
+    }
+    update();
+    _briefCountdownId = setInterval(update, 1000);
+  }
+
+  function pad(n){ return n < 10 ? '0'+n : ''+n; }
+
+  function showBriefReady(brief){
+    var timerEl = document.getElementById('countdownTimer');
+    var subEl = document.getElementById('countdownSub');
+    var dotEl = document.getElementById('briefDot');
+    var playBtn = document.getElementById('briefPlayBtn');
+
+    timerEl.textContent = 'NEW BRIEF';
+    timerEl.classList.add('ready');
+    dotEl.classList.add('ready');
+    subEl.textContent = brief.title || 'Ready to play';
+    playBtn.style.display = 'block';
+    _latestBriefUrl = brief.mp4_url;
+
+    // Auto-play if user has interacted
+    if(_hasUserInteracted && !busy){
+      playLatestBrief();
+    }
+  }
+
+  window.playLatestBrief = function(){
+    if(!_latestBriefUrl || busy) return;
+    setBusy(true);
+    setStatus('Playing brief\u2026','var(--s-gold)');
+    playVid(_latestBriefUrl)
+    .then(function(){
+      loadBriefingSchedule();
+    })
+    .finally(function(){ setBusy(false); });
+  };
+
   // ── INIT DATA ─────────────────────────────────────────
   loadIntel();
   loadTranscripts();
   loadNostr();
+  loadBriefingSchedule();
 
   // Refresh intel every 3 minutes
   setInterval(loadIntel, 180000);
   // Refresh Nostr every 2 minutes
   setInterval(loadNostr, 120000);
+  // Refresh briefing schedule every 5 minutes
+  setInterval(loadBriefingSchedule, 300000);
 
 })();
 </script>
