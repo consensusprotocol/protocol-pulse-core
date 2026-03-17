@@ -232,7 +232,7 @@ def scan_channel(channel_url: str, channel_name: str,
             "duration": duration,
             "upload_date": upload_date,
             "upload_date_iso": f"{upload_date[:4]}-{upload_date[4:6]}-{upload_date[6:8]}",
-            "hours_old": round(hours_old, 1),
+            "hours_old": round(hours_old if "hours_old" in vars() else -1.0, 1),
             "url": f"https://www.youtube.com/watch?v={video_id}",
         })
 
