@@ -269,6 +269,18 @@ def rank_clips(clips, daily_signals=None, narrative_context=None):
     if dominant and dominant != "none":
         logger.info(f"Episode narrative: {dominant} | Priority topics: {priorities}")
 
+    # Load engagement multipliers for channel-level audience signal
+    try:
+        import sys as _sys
+        _data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "data")
+        if _data_dir not in _sys.path:
+            _sys.path.insert(0, _data_dir)
+        from engagement_scorer import get_channel_engagement_multiplier
+        _has_engagement = True
+    except ImportError:
+        _has_engagement = False
+        logger.debug("engagement_scorer not available, skipping engagement multiplier")
+
     for clip in clips:
         clip["score"] = score_clip(
             clip,
@@ -278,6 +290,13 @@ def rank_clips(clips, daily_signals=None, narrative_context=None):
             live_topics=live_topics,
             narrative_context=narrative_context,
         )
+        # Apply audience engagement multiplier (0.5-1.5×)
+        if _has_engagement:
+            channel = clip.get("channel", "")
+            if channel:
+                multiplier = get_channel_engagement_multiplier(channel)
+                clip["engagement_score"] = round(multiplier, 2)
+                clip["score"] = round(clip["score"] * multiplier)
 
     ranked = sorted(clips, key=lambda c: c.get("score", 0), reverse=True)
 

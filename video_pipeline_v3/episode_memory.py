@@ -31,7 +31,7 @@ def _save(episodes: list) -> None:
 
 
 def record_episode(render_id: str, date: str, gemini_scores: dict,
-                   clips_used: list) -> None:
+                   clips_used: list, topics: list = None) -> None:
     """Append an episode record after a Gemini grade run.
 
     Args:
@@ -39,6 +39,7 @@ def record_episode(render_id: str, date: str, gemini_scores: dict,
         date: ISO date string (YYYY-MM-DD)
         gemini_scores: Full Gemini grade JSON (grade, overall_score, dimensions, etc.)
         clips_used: List of dicts with channel, video_id keys
+        topics: Optional list of topic strings that appeared in this episode
     """
     episodes = _load()
 
@@ -52,6 +53,7 @@ def record_episode(render_id: str, date: str, gemini_scores: dict,
         "technical_score": gemini_scores.get("technical_score", 0),
         "content_score": gemini_scores.get("content_score", 0),
         "production_score": gemini_scores.get("production_score", 0),
+        "topics": topics or [],
         "recorded_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
 

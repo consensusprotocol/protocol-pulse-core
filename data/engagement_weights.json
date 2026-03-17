@@ -1,0 +1,50 @@
+{
+  "updated": "2026-03-17T05:48:47.147855+00:00",
+  "channels": {
+    "Preston Pysh": 8.8,
+    "Lyn Alden": 8.5,
+    "Robert Breedlove": 8.0,
+    "Simply Bitcoin": 7.6,
+    "Bitcoin Magazine": 7.4,
+    "The Bitcoin Layer": 7.3,
+    "What Bitcoin Did": 7.2,
+    "Bitcoin Audible": 7.0,
+    "Blockworks": 7.0,
+    "Swan Bitcoin": 6.8,
+    "Coin Bureau": 6.5,
+    "TFTC": 4.7
+  },
+  "topics": {
+    "halving": 8.0,
+    "macro": 7.2,
+    "regulation": 6.6,
+    "mining": 6.1,
+    "adoption": 5.2,
+    "layer 2": 5.1,
+    "lightning": 4.6,
+    "privacy": 4.4,
+    "self-custody": 3.7,
+    "sovereignty": 3.3,
+    "institutional": 3.2,
+    "stacking": 3.1,
+    "on-chain": 2.7,
+    "ETF": 1.9
+  },
+  "handles": {
+    "@PrestonPysh": 3.8,
+    "@LynAldenContact": 5.1,
+    "@Breedlove22": 8.0,
+    "@MartyBent": 4.9,
+    "@saylor": 7.0,
+    "@gladstein": 3.7,
+    "@CryptoHayes": 5.3,
+    "@ErikVoorhees": 3.6,
+    "@WClementeIII": 7.2,
+    "@nic__carter": 7.5,
+    "@adam3us": 2.7,
+    "@APompliano": 4.3,
+    "@maxkeiser": 4.5,
+    "@PeterMcCormack": 4.2,
+    "@NickSzabo4": 2.7
+  }
+}

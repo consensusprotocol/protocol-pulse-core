@@ -497,6 +497,29 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
         except Exception as e:
             logger.warning(f"Failed to inject narrative context: {e}")
 
+    # Inject audience engagement intelligence
+    engagement_block = ""
+    try:
+        import sys as _sys
+        _data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data")
+        if _data_dir not in _sys.path:
+            _sys.path.insert(0, _data_dir)
+        from engagement_scorer import get_trending_topics, get_top_channels
+        trending = get_trending_topics()[:3]
+        top_chs = get_top_channels(5)
+        if trending or top_chs:
+            parts = ["\nAUDIENCE ENGAGEMENT INTELLIGENCE (from real audience data — use naturally):"]
+            if trending:
+                topics_str = ", ".join(f"{t[0]} ({t[1]:.1f}/10)" for t in trending)
+                parts.append(f"- Currently trending in our audience: {topics_str} — weight these if relevant.")
+            if top_chs:
+                chs_str = ", ".join(f"{c[0]} ({c[1]:.1f})" for c in top_chs)
+                parts.append(f"- Highest engagement channels this week: {chs_str} — prioritize their clips.")
+            engagement_block = "\n".join(parts) + "\n"
+            logger.info(f"Engagement intelligence injected: {len(trending)} topics, {len(top_chs)} channels")
+    except Exception as e:
+        logger.debug(f"Engagement scorer unavailable: {e}")
+
     # Inject episode memory feedback if enough history exists
     memory_block = ""
     try:
@@ -522,7 +545,7 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
 
     prompt = SCRIPT_PROMPT.format(clips_info=clips_info, btc_price=btc_price,
                                    social_posts=social_posts,
-                                   live_context=live_block + memory_block)
+                                   live_context=live_block + engagement_block + memory_block)
 
     logger.info(f"Generating script for {len(clips)} clips...")
     text = call_llm(prompt, max_tokens=8000, model="claude-sonnet-4-6")
