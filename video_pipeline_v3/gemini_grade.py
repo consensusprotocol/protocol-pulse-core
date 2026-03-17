@@ -19,7 +19,7 @@ GEMINI_KEY = os.environ.get('GEMINI_API_KEY', '')
 LOG = '/home/ultron/protocol_pulse/video_pipeline_v3/logs/grade_report.log'
 GRADE_FILE = '/home/ultron/protocol_pulse/video_pipeline_v3/logs/v6_gemini_grade.json'
 PASS_FILE = '/home/ultron/protocol_pulse/video_pipeline_v3/logs/v6_grade_PASS.txt'
-RENDER_LOG = '/home/ultron/protocol_pulse/video_pipeline_v3/logs/v6_render.log'
+RENDER_LOG = None  # resolved dynamically below
 
 def log(msg):
     ts = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -127,14 +127,26 @@ has_video = v_stream != {}
 has_audio = a_stream != {}
 
 # ── Read render log for content context ──────────────────────────────────────
+# Find most recent render log by mtime (v6_render.log is stale)
 render_log_content = ''
 try:
+    import glob as _glob
+    _log_dir = '/home/ultron/protocol_pulse/video_pipeline_v3/logs'
+    _candidates = (_glob.glob(f'{_log_dir}/render_*.log') +
+                   _glob.glob(f'{_log_dir}/full_render_*.log') +
+                   _glob.glob(f'{_log_dir}/v6_render.log'))
+    _candidates = [f for f in _candidates if os.path.isfile(f)]
+    if _candidates:
+        RENDER_LOG = max(_candidates, key=os.path.getmtime)
+    else:
+        RENDER_LOG = f'{_log_dir}/v6_render.log'  # fallback
+    log(f"Using render log: {RENDER_LOG}")
     with open(RENDER_LOG) as f:
         lines = f.readlines()
-    # Filter noise, keep meaningful lines
+    # Filter noise, keep last 50 meaningful lines
     keep = [l.strip() for l in lines if l.strip() and
             not any(x in l for x in ['urllib3', 'HTTP Request', 'DEBUG', 'WARNING: Retrying'])]
-    render_log_content = '\n'.join(keep[-200:])
+    render_log_content = '\n'.join(keep[-50:])
 except:
     render_log_content = 'Render log unavailable'
 

@@ -504,19 +504,25 @@ def main():
         snippet = '\n'.join(lines[max(0,(idx or 0)-2):(idx or 0)+12]) if idx else '\n'.join(lines[-12:])
         log(f'CRASH:\n{snippet}')
 
-        fixed, desc = diagnose_and_fix(output)
-        if fixed:
+        # Clip extraction partial failure is not fatal — don't increment unk_streak
+        is_partial_clip = bool(re.search(r'Extracted \d+/\d+ clips', output))
+        if is_partial_clip:
+            log('Partial clip extraction — not fatal, retrying')
             unk_streak = 0
         else:
-            unk_streak += 1
-            log(f'Unknown error #{unk_streak} - spawning CC')
-            cc_auto_repair(output, iteration)
-            if unk_streak >= 10:
-                telegram(f'LOOP STOPPED: {unk_streak} consecutive crashes. Fix issue then restart manually.')
-                log('HARD STOP: 5 consecutive unknown errors')
-                return
-            elif unk_streak >= 3:
-                telegram(f'WARNING: {unk_streak} consecutive errors')
+            fixed, desc = diagnose_and_fix(output)
+            if fixed:
+                unk_streak = 0
+            else:
+                unk_streak += 1
+                log(f'Unknown error #{unk_streak} - spawning CC')
+                cc_auto_repair(output, iteration)
+                if unk_streak >= 20:
+                    telegram(f'LOOP STOPPED: {unk_streak} consecutive crashes. Fix issue then restart manually.')
+                    log('HARD STOP: 20 consecutive unknown errors')
+                    return
+                elif unk_streak >= 3:
+                    telegram(f'WARNING: {unk_streak} consecutive errors')
 
         clear_pycache()
         kill_renders()
