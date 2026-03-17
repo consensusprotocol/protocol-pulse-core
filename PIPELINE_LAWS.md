@@ -110,6 +110,24 @@
 - On `JSONDecodeError`, send raw output back to LLM for repair before next attempt
 - After 3 failures, raise and abort render
 
+### LAW: YT-DLP COOKIES
+- Use `data/yt_cookies.txt` if present and non-empty
+- Export from logged-in YouTube browser session (`yt-dlp --cookies-from-browser chrome`)
+- Prevents rate limiting on high-frequency extraction runs
+
+### LAW: CLIP MINIMUM
+- Hard fail is 3 clips from 2 channels minimum — never require 5/5
+- Quality-aware fallback fills gaps before hard fail gate
+
+### LAW: EPISODE SCHEDULE
+- Three daily episodes at 06:00, 12:00, 18:00 UTC via cron
+- Separate log files per run: `episode_morning.log`, `episode_noon.log`, `episode_evening.log`
+
+### LAW: CLIP ARCHIVE
+- Every extracted clip archived to `data/clip_archive/CHANNEL/VIDEO_ID.mp4`
+- On yt-dlp failure, always try archive fallback (max 7 days old) before skipping clip
+- `utils/clip_archive.py`: `save_clip()`, `get_fallback_clip()`, `list_archive()`
+
 ---
 
 ### PRE-GAUNTLET (cycles 1-3 on feature/video-audio-fix)

@@ -6,7 +6,9 @@ CRITICAL: Clips retain their ORIGINAL audio. No muting. No TTS overlay.
 """
 import logging
 import os
+import shutil
 import subprocess
+import time
 
 logger = logging.getLogger("ClipExtractor")
 if not logger.handlers:
@@ -17,7 +19,13 @@ if not logger.handlers:
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 CLIP_CACHE = os.path.join(BASE, "downloads", "clip_cache")
+COOKIES_FILE = os.path.join(BASE, "data", "yt_cookies.txt")
 # Render20: No hard clip duration cap — episode is as long as it needs to be
+
+from utils.clip_archive import save_clip, get_fallback_clip
+
+if not (os.path.isfile(COOKIES_FILE) and os.path.getsize(COOKIES_FILE) > 0):
+    logger.info("[yt-dlp] No cookies file — add data/yt_cookies.txt for rate limit protection")
 
 
 def _run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
@@ -256,6 +264,10 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
         "--force-overwrites",
         url,
     ]
+    # RULE 3: yt-dlp cookies for rate limit protection
+    if os.path.isfile(COOKIES_FILE) and os.path.getsize(COOKIES_FILE) > 0:
+        cmd.insert(1, COOKIES_FILE)
+        cmd.insert(1, "--cookies")
 
     logger.info(f"  Extracting {video_id} [{start_sec}-{end_sec}s]...")
     try:
@@ -381,6 +393,10 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
         "--force-overwrites",
         url,
     ]
+    # RULE 3: yt-dlp cookies for rate limit protection
+    if os.path.isfile(COOKIES_FILE) and os.path.getsize(COOKIES_FILE) > 0:
+        dl_cmd.insert(1, COOKIES_FILE)
+        dl_cmd.insert(1, "--cookies")
 
     try:
         result = subprocess.run(dl_cmd, capture_output=True, text=True, timeout=300)
@@ -670,7 +686,7 @@ def extract_all(selections: dict, output_dir: str) -> dict:
                 logger.warning(f"  REJECTED clip #{rank} [{channel}] — ad read in extracted audio")
                 continue
 
-            extracted[rank] = {
+            clip_info = {
                 "path": output_path,
                 "video_id": video_id,
                 "channel": clip.get("channel", ""),
@@ -679,8 +695,27 @@ def extract_all(selections: dict, output_dir: str) -> dict:
                 "duration": ffprobe_duration(output_path),
                 "quote": clip.get("quote", ""),
             }
+            extracted[rank] = clip_info
+            # RULE 1: Archive every successful clip for fallback
+            save_clip(channel, video_id, output_path, clip_info)
         else:
-            logger.warning(f"  Skipping clip #{rank}: extraction failed")
+            # RULE 1: Try archived fallback before giving up
+            fallback = get_fallback_clip(clip.get("channel", ""))
+            if fallback:
+                age_days = round((time.time() - os.path.getmtime(fallback)) / 86400, 1)
+                logger.info(f"[extractor] Using archived clip for {clip.get('channel', channel)} ({age_days} days old)")
+                shutil.copy2(fallback, output_path)
+                extracted[rank] = {
+                    "path": output_path,
+                    "video_id": video_id,
+                    "channel": clip.get("channel", ""),
+                    "start": start,
+                    "end": end,
+                    "duration": ffprobe_duration(output_path),
+                    "quote": clip.get("quote", ""),
+                }
+            else:
+                logger.warning(f"  Skipping clip #{rank}: extraction failed, no archive fallback")
 
     logger.info(f"Extracted {len(extracted)}/{len(clips)} clips")
     return extracted
