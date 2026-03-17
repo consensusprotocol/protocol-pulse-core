@@ -130,6 +130,498 @@
       "production_score": 15,
       "topics": [],
       "recorded_at": "2026-03-17T03:07:59Z"
+    },
+    {
+      "render_id": "test_20260316_222353",
+      "date": "2026-03-17",
+      "overall_score": 46,
+      "grade": "F",
+      "clips": [
+        {
+          "channel": "TheStreet",
+          "video_id": "-3MF3jWGCbQ"
+        },
+        {
+          "channel": "Simply_Bitcoin",
+          "video_id": "-8lS8eunbNo"
+        }
+      ],
+      "dimensions": {
+        "duration_check": {
+          "score": 0,
+          "note": "105.7s is well below the 180s minimum for a viable episode. This is an automatic failure."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "1920x1080 meets the standard."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "30.0 fps meets the standard."
+        },
+        "loudness_check": {
+          "score": 0,
+          "note": "-70.0 LUFS is effectively silent. A catastrophic failure against the -16 to -14 LUFS target."
+        },
+        "true_peak_check": {
+          "score": 1,
+          "note": "No peak detected, which is a direct result of the catastrophic absence of audio. While not clipping, it confirms a total audio system failure."
+        },
+        "black_frames_check": {
+          "score": 0,
+          "note": "Five mid-video black frame segments detected. This is a critical failure making the video unwatchable."
+        },
+        "silence_check": {
+          "score": 3,
+          "note": "Render logs and loudness data confirm massive silent gaps due to TTS failure. The audio is non-existent for large portions of the intended script."
+        },
+        "freeze_check": {
+          "score": 10,
+          "note": "No freeze frames detected."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Standard h264/aac codecs used correctly."
+        },
+        "file_integrity_check": {
+          "score": 5,
+          "note": "While codecs are correct, the file content is fundamentally broken by render errors."
+        },
+        "clip_relevance": {
+          "score": 8,
+          "note": "Render log indicates relevant sources like Saylor and Pompliano were selected, which is a strength in the planning stage."
+        },
+        "script_quality": {
+          "score": 7,
+          "note": "Log snippets suggest the script provides valuable context, but it's un-realized due to TTS failure."
+        },
+        "cold_open_hook": {
+          "score": 5,
+          "note": "Cannot be assessed due to missing audio and video."
+        },
+        "narrative_arc": {
+          "score": 8,
+          "note": "The planned narrative appears logical, but the execution failed completely."
+        },
+        "host_authenticity": {
+          "score": 0,
+          "note": "Critical failure. The render log shows lines for two voices ('Mark' and 'Eryn'), violating the explicit single-host (PBX) format. Furthermore, the TTS for 'Eryn' failed, resulting in dead air."
+        },
+        "episode_title": {
+          "score": 9,
+          "note": "The title 'Bitcoin's Geopolitical Ignition' from a related log is strong; assuming a similar quality was intended here."
+        },
+        "no_filler": {
+          "score": 10,
+          "note": "The planned content appears to be on-topic and concise."
+        },
+        "timeliness": {
+          "score": 10,
+          "note": "Content appears to be timely based on file date."
+        },
+        "music_mix": {
+          "score": 1,
+          "note": "BGM is irrelevant when the primary narration is missing. The audio mix is a total failure."
+        },
+        "transitions": {
+          "score": 2,
+          "note": "Transitions are broken, resulting in black frames instead of clean effects."
+        },
+        "visual_polish": {
+          "score": 2,
+          "note": "The cyberpunk aesthetic is completely undermined by multiple black frame segments."
+        },
+        "no_artifacts": {
+          "score": 0,
+          "note": "Critical failure. The video is dominated by black frame artifacts."
+        },
+        "audio_quality": {
+          "score": 0,
+          "note": "Critical failure. TTS API errors led to the generation of silence instead of narration. The audio is unusable."
+        },
+        "pacing": {
+          "score": 0,
+          "note": "Destroyed by silence and black frames. The episode is unwatchable."
+        }
+      },
+      "technical_score": 49,
+      "content_score": 71,
+      "production_score": 8,
+      "topics": [],
+      "recorded_at": "2026-03-17T03:47:13Z"
+    },
+    {
+      "render_id": "test_20260316_222353",
+      "date": "2026-03-17",
+      "overall_score": 28,
+      "grade": "F",
+      "clips": [
+        {
+          "channel": "TheStreet",
+          "video_id": "-3MF3jWGCbQ"
+        },
+        {
+          "channel": "Simply_Bitcoin",
+          "video_id": "-8lS8eunbNo"
+        }
+      ],
+      "dimensions": {
+        "duration_check": {
+          "score": 0,
+          "note": "Automatic F. Duration is 105.7s, which is well below the 180s minimum threshold for a viable episode."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "Pass. Resolution is 1920x1080 as required."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "Pass. Framerate is 30.0 fps, which is ideal."
+        },
+        "loudness_check": {
+          "score": 0,
+          "note": "Critical Failure. Integrated loudness is -70.0 LUFS. The episode is effectively silent and completely inaudible. Target is -16 to -14 LUFS."
+        },
+        "true_peak_check": {
+          "score": 0,
+          "note": "Critical Failure. While the forensic data shows 'None', the render log for a similar recent build shows clipping (0.4 dBTP). The catastrophic audio failure makes this a moot point but still a failure."
+        },
+        "black_frames_check": {
+          "score": 0,
+          "note": "Critical Failure. 5 mid-video black frame segments detected. The rubric allows for zero; 2+ is an automatic F. This makes the video unwatchable."
+        },
+        "silence_check": {
+          "score": 0,
+          "note": "Critical Failure. The -70 LUFS loudness confirms the episode is almost entirely dead air. The render log explicitly states 'silence generated' due to TTS API failures."
+        },
+        "freeze_check": {
+          "score": 10,
+          "note": "Pass. No freeze frames detected."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Pass. Standard h264/aac codecs used."
+        },
+        "file_integrity_check": {
+          "score": 2,
+          "note": "The container exists, but it's full of errors (black frames, silent audio). The file is fundamentally broken."
+        },
+        "clip_relevance": {
+          "score": 2,
+          "note": "Unverifiable. The episode is unwatchable. The render log mentions good sources (Saylor, Pompliano), but the content cannot be confirmed."
+        },
+        "script_quality": {
+          "score": 2,
+          "note": "Unverifiable. The host's narration is inaudible due to the catastrophic audio failure."
+        },
+        "cold_open_hook": {
+          "score": 2,
+          "note": "Unverifiable. Cannot assess the hook without audio or coherent video."
+        },
+        "narrative_arc": {
+          "score": 2,
+          "note": "Unverifiable. The episode is a collection of black frames and silence; there is no narrative."
+        },
+        "host_authenticity": {
+          "score": 0,
+          "note": "Critical Failure. The render log shows attempts to generate audio for two voices, 'Mark' and 'Eryn', violating the single-host (PBX) format. Furthermore, the audio generation failed completely, resulting in silence instead of any host voice."
+        },
+        "episode_title": {
+          "score": 5,
+          "note": "Unverifiable for this specific file. The log for a related file shows 'Bitcoin's Geopolitical Ignition', which is a decent title, but its relevance to this broken render is unknown."
+        },
+        "no_filler": {
+          "score": 2,
+          "note": "The entire 105s file is effectively filler, consisting of errors, black screens, and silence."
+        },
+        "timeliness": {
+          "score": 10,
+          "note": "Pass. The file date of 2026-03-16 suggests the content is current."
+        },
+        "music_mix": {
+          "score": 0,
+          "note": "Fail. There is no audible music or audio of any kind. The mix is non-existent."
+        },
+        "transitions": {
+          "score": 0,
+          "note": "Fail. The presence of 5 hard black frames indicates transitions have failed catastrophically."
+        },
+        "visual_polish": {
+          "score": 0,
+          "note": "Fail. The episode is visually broken with multiple black segments. There is no polish."
+        },
+        "no_artifacts": {
+          "score": 0,
+          "note": "Fail. The black frames are severe visual artifacts that destroy the viewing experience."
+        },
+        "audio_quality": {
+          "score": 0,
+          "note": "Critical Failure. Audio is non-existent (-70 LUFS). The render log confirms a complete failure of the text-to-speech pipeline."
+        },
+        "pacing": {
+          "score": 0,
+          "note": "Fail. The episode has no pacing. It is a short, broken file with dead air and black screens."
+        }
+      },
+      "technical_score": 42,
+      "content_score": 31,
+      "production_score": 0,
+      "topics": [],
+      "recorded_at": "2026-03-17T03:47:23Z"
+    },
+    {
+      "render_id": "2026-03-09",
+      "date": "2026-03-17",
+      "overall_score": 29,
+      "grade": "F",
+      "clips": [
+        {
+          "channel": "Robert_Breedlove_Mi",
+          "video_id": "Y2jGxOx4"
+        },
+        {
+          "channel": "Preston_Pysh",
+          "video_id": "X7ua58iwcd4"
+        },
+        {
+          "channel": "The_Bitcoin_Layer",
+          "video_id": "V82emH4q6o0"
+        },
+        {
+          "channel": "Andreas_Antonopoulos",
+          "video_id": "vwkRsp0gqX4"
+        }
+      ],
+      "dimensions": {
+        "duration_check": {
+          "score": 10,
+          "note": "Duration of 549.9s (9.2 minutes) is within the ideal 8-15 minute target range."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "Resolution is 1920x1080, the required standard."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "Framerate is 30.0 fps, which is perfect."
+        },
+        "loudness_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: Integrated loudness is -70.0 LUFS. This is effectively silent and far outside the broadcast-ready range of -16 to -14 LUFS. This indicates a catastrophic audio generation failure."
+        },
+        "true_peak_check": {
+          "score": 7,
+          "note": "The render log QC reports a true peak of 0.4 dBTP. While not clipping, this is above the -1.0 dBFS target and indicates poor audio mastering. However, the forensic data shows 'None', suggesting the audio is so low it didn't register. The QC log is more reliable here, but the core issue is the lack of audio, not the peak."
+        },
+        "black_frames_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 3 mid-video black frame segments detected. This is an unrecoverable error for a broadcast-ready product."
+        },
+        "silence_check": {
+          "score": 3,
+          "note": "MAJOR ISSUE: 21 mid-video silence gaps (>0.8s) were detected. This completely destroys the viewing experience and points to a systemic failure in the audio pipeline."
+        },
+        "freeze_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 15 freeze frames (>1s) were detected. This makes the video unwatchable."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Codecs h264/aac are standard and correct."
+        },
+        "file_integrity_check": {
+          "score": 10,
+          "note": "File container is clean, streams are present, and bitrate is acceptable."
+        },
+        "clip_relevance": {
+          "score": 9,
+          "note": "Based on the render log, the use of sources like Pompliano and Saylor is editorially sound and relevant to the show's focus."
+        },
+        "script_quality": {
+          "score": 2,
+          "note": "MAJOR ISSUE: The render log shows the script was written for two voices, 'Mark' and 'Eryn'. This fundamentally violates the single-host (PBX) format of the show and is the root cause of the TTS failures."
+        },
+        "cold_open_hook": {
+          "score": 6,
+          "note": "Cannot be fully assessed due to the technical failures, but the title suggests a strong hook. Assumed neutral."
+        },
+        "narrative_arc": {
+          "score": 6,
+          "note": "The flow from clips to a wrap-up seems logical in the script log, but is completely broken in execution by the technical failures."
+        },
+        "host_authenticity": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: The host's voice is entirely missing for large segments due to a catastrophic TTS failure. The show has no host for significant portions, which is the ultimate failure of authenticity for a single-host show."
+        },
+        "episode_title": {
+          "score": 9,
+          "note": "The title 'Bitcoin's Geopolitical Ignition' is specific, compelling, and reflects the cypherpunk/Austrian lens."
+        },
+        "no_filler": {
+          "score": 10,
+          "note": "The episode appears to be free of ads, sponsor reads, or off-topic content."
+        },
+        "timeliness": {
+          "score": 10,
+          "note": "The content is for the current day, meeting the daily intelligence briefing standard."
+        },
+        "music_mix": {
+          "score": 3,
+          "note": "While BGM is present, the massive silence gaps where narration should be would make the mix sound awkward and unprofessional."
+        },
+        "transitions": {
+          "score": 8,
+          "note": "The log indicates 33 whoosh SFX were applied, which is a positive production choice. However, their effectiveness is negated by the surrounding technical failures."
+        },
+        "visual_polish": {
+          "score": 2,
+          "note": "The presence of numerous freeze frames and black screens completely undermines any intended visual polish or cyberpunk aesthetic."
+        },
+        "no_artifacts": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: The episode is riddled with artifacts, including 15 freeze frames and 3 black frame segments."
+        },
+        "audio_quality": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: The audio is fundamentally broken. The -70 LUFS loudness and dozens of silence gaps mean there is effectively no usable narration audio."
+        },
+        "pacing": {
+          "score": 0,
+          "note": "The pacing is completely destroyed by the constant freezes, black screens, and long silences. The episode is unwatchable."
+        }
+      },
+      "technical_score": 43,
+      "content_score": 53,
+      "production_score": 15,
+      "topics": [],
+      "recorded_at": "2026-03-17T04:00:15Z"
+    },
+    {
+      "render_id": "2026-03-09",
+      "date": "2026-03-17",
+      "overall_score": 48,
+      "grade": "F",
+      "clips": [
+        {
+          "channel": "Robert_Breedlove_Mi",
+          "video_id": "Y2jGxOx4"
+        },
+        {
+          "channel": "Preston_Pysh",
+          "video_id": "X7ua58iwcd4"
+        },
+        {
+          "channel": "The_Bitcoin_Layer",
+          "video_id": "V82emH4q6o0"
+        },
+        {
+          "channel": "Andreas_Antonopoulos",
+          "video_id": "vwkRsp0gqX4"
+        }
+      ],
+      "dimensions": {
+        "duration_check": {
+          "score": 10,
+          "note": "Duration of 549.9s (9.2 min) is within the ideal 480-900s target range."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "Resolution is 1920x1080, meeting the quality standard."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "Framerate is 30.0 fps, meeting the quality standard."
+        },
+        "loudness_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: Integrated loudness is -70.0 LUFS, which is effectively silent. Target is -16 to -14 LUFS. The audio is unusable."
+        },
+        "true_peak_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: No true peak was detected, a direct result of the catastrophic loudness failure. The audio is non-existent for practical purposes."
+        },
+        "black_frames_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 3 mid-video black frame segments detected. The rubric allows for zero; 2+ is a critical failure."
+        },
+        "silence_check": {
+          "score": 3,
+          "note": "MAJOR ISSUE: 21 mid-video silence gaps detected. This indicates a severely broken audio track and destroys pacing."
+        },
+        "freeze_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 15 freeze frames detected. The rubric allows for zero; 2+ is a critical failure. The video is unwatchable."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Codecs h264/aac are standard and acceptable."
+        },
+        "file_integrity_check": {
+          "score": 10,
+          "note": "File container is intact with both streams present and a reasonable bitrate."
+        },
+        "clip_relevance": {
+          "score": 8,
+          "note": "Assuming the 5 selected clips are relevant to the show's cypherpunk/Austrian economics focus as per the pipeline's design. Cannot verify content directly."
+        },
+        "script_quality": {
+          "score": 7,
+          "note": "Cannot verify script due to unusable audio, but assuming the generation process was standard. Score reflects uncertainty."
+        },
+        "cold_open_hook": {
+          "score": 7,
+          "note": "Cannot evaluate the hook's effectiveness. Assuming a standard-quality opening was scripted."
+        },
+        "narrative_arc": {
+          "score": 7,
+          "note": "Cannot evaluate the narrative flow. Assuming a standard logical progression was scripted."
+        },
+        "host_authenticity": {
+          "score": 2,
+          "note": "While PBX is the sole host, the audio is unusable (-70 LUFS) and riddled with 21 silence gaps. The host's 'voice' is technically broken."
+        },
+        "episode_title": {
+          "score": 9,
+          "note": "The title 'Squeezed, Shocked, and Saying It Loud' is punchy, specific, and reflects a clear theme."
+        },
+        "no_filler": {
+          "score": 10,
+          "note": "Assuming the episode adheres to the no-filler format as designed."
+        },
+        "timeliness": {
+          "score": 10,
+          "note": "Assuming content is from the day of render, meeting the daily intelligence brief standard."
+        },
+        "music_mix": {
+          "score": 0,
+          "note": "Cannot be evaluated due to the catastrophic loudness failure. The entire audio mix is broken."
+        },
+        "transitions": {
+          "score": 1,
+          "note": "The presence of multiple black frames and freezes indicates that transitions are likely broken or contributing to the visual corruption."
+        },
+        "visual_polish": {
+          "score": 1,
+          "note": "The cyberpunk aesthetic is completely undermined by severe technical glitches, including freezes and black frames."
+        },
+        "no_artifacts": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: The episode is riddled with artifacts, including 15 freeze frames and 3 black frame segments."
+        },
+        "audio_quality": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: Audio is effectively silent at -70 LUFS. It is completely unusable."
+        },
+        "pacing": {
+          "score": 0,
+          "note": "Pacing is destroyed by 21 silence gaps, 15 freeze frames, and 3 black frame segments. The viewing experience is nonexistent."
+        }
+      },
+      "technical_score": 53,
+      "content_score": 75,
+      "production_score": 3,
+      "topics": [],
+      "recorded_at": "2026-03-17T04:02:41Z"
     }
   ]
 }

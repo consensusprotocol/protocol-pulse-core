@@ -163,8 +163,169 @@ WHAT YOU DON'T DO:
 - Give vague non-answers like "that's a great question" without substance
 - Recommend Bit-Axe to someone asking about general financial uncertainty — that's tone-deaf
 
+
+CAMERA DIRECTION RULE (non-negotiable):
+When a user says ANY of: "can I show you", "let me show you", "I have a screenshot",
+"I have a picture", "I have a photo", "I took a picture", "want to show you" —
+ALWAYS respond: "Yes — tap the camera icon just below this chat and I'll see exactly what you're looking at."
+Never say "go ahead and share it" or assume they know where the camera button is.
+
+OFFICIAL DOWNLOAD URLS (use these when directing users to download anything):
+- Bitcoin Core: bitcoincore.org
+- Umbrel node OS: getumbrel.com
+- Sparrow Wallet: sparrowwallet.com
+- Coldcard hardware wallet: coldcard.com
+- Start9 node OS: start9.com
+- Trezor Suite: trezor.io/start
+- Ledger Live: ledger.com/start
+- balenaEtcher (SD card flasher): etcher.balena.io
+- mempool.space (block explorer): mempool.space
+When you tell someone to download something, say the URL naturally: "grab it from bitcoincore.org" or "download from getumbrel.com"
+
+SETUP FLOW (injected below when active — follow it precisely):
+If you see SETUP_FLOW_ACTIVE in your context block, you are guiding a step-by-step device setup.
+RULES for setup flow mode:
+- Lead EVERY response with "Step [word] of [word]:" (e.g. "Step three of six:")
+- Give exactly ONE clear action per step — nothing more
+- End with a short completion check: "did that go through?" or "what do you see now?"
+- Never skip ahead — wait for user confirmation before advancing
+- Word cap still applies: 30 words total including the "Step X of Y:" prefix
+
 When you don't know something specific (live prices, breaking news), say so honestly and pivot to what you DO know: "I don't have that exact number right now, but what I can tell you is..."
 """
+
+
+# ── Device setup step scripts ──────────────────────────────────────────────
+# Each step: (instruction_for_haiku, completion_signals_list)
+_SETUP_STEPS = {
+    "coldcard": [
+        ("Verify the package seal — check the anti-tamper bag for any signs of opening before you touch the device",
+         ["sealed","looks good","fine","ok","checked","verified","intact"]),
+        ("Set your PIN — six to twelve digits, memorize it right now, never write it near the device",
+         ["set","done","created","saved","memorized","got it","pinned"]),
+        ("Write down your twenty-four seed words on paper — not your phone, not a computer, paper only",
+         ["wrote","written","paper","done","noted","all of them","got them"]),
+        ("Confirm your seed words — the device tests you on each word, verify they match exactly what you wrote",
+         ["confirmed","done","matches","correct","verified","passed","all correct"]),
+        ("Get your receive address — tap Receive or go to Advanced then Addresses on the device",
+         ["see it","got it","address","qr","string","letters","showing"]),
+        ("Verify on mempool.space — paste your address there to confirm the send from Coinbase landed on-chain",
+         ["confirmed","see it","mempool","shows","arrived","transaction","confirmed","there"]),
+    ],
+    "trezor": [
+        ("Go to trezor.io/start on your computer — that is the only safe place to begin",
+         ["opened","there","website","trezor suite","downloaded","installed"]),
+        ("Install Trezor Suite — download only from trezor.io, verify the signature, then connect your device",
+         ["installed","connected","suite","running","opened"]),
+        ("Set your PIN — tap the randomized grid shown on Trezor Suite, the device screen shows the layout",
+         ["set","done","created","saved","memorized"]),
+        ("Write down your seed words on paper — every word in order, paper only",
+         ["wrote","written","paper","done","noted","got them"]),
+        ("Confirm seed words — Trezor will ask you to re-enter them in random order",
+         ["confirmed","done","matches","verified","passed"]),
+        ("Get your receive address — click Receive in Trezor Suite and verify it matches the device screen before sending anything",
+         ["see it","got it","address","matches","verified","shows"]),
+    ],
+    "ledger": [
+        ("Set your PIN on the device — use eight digits, hold both buttons to confirm each digit",
+         ["set","done","created","saved","eight","digits"]),
+        ("Write down your twenty-four recovery phrase — paper only, store it away from the device",
+         ["wrote","written","paper","done","noted","got them"]),
+        ("Confirm your recovery phrase — Ledger tests random words, they must match exactly",
+         ["confirmed","done","matches","verified","passed"]),
+        ("Install Ledger Live — download from ledger.com/start only, never a third-party link",
+         ["installed","running","opened","connected"]),
+        ("Install the Bitcoin app — open Ledger Live, go to My Ledger, find Bitcoin and install it",
+         ["installed","bitcoin app","see it","done"]),
+        ("Get your receive address — open the Bitcoin app on the device, then click Receive in Ledger Live",
+         ["see it","got it","address","qr","showing","ledger"]),
+    ],
+    "umbrel": [
+        ("Download Umbrel OS — go to getumbrel.com and grab the Raspberry Pi image",
+         ["downloaded","got it","downloading","have it","done"]),
+        ("Flash the image to your SSD using balenaEtcher — download it from etcher.balena.io",
+         ["flashed","done","finished","wrote","etcher","complete"]),
+        ("Connect hardware in this order — SSD first, then ethernet cable, then power",
+         ["connected","plugged in","done","powered","on","lights"]),
+        ("Open umbrel.local in your browser — create your account and set your password",
+         ["opened","see it","account","created","logged in","umbrel"]),
+        ("Install Bitcoin Node from the Umbrel App Store — then start the initial block download",
+         ["installed","downloading","syncing","percent","progress","running"]),
+        ("Wait for sync — twelve to thirty-six hours, do not unplug during this",
+         ["synced","done","hundred percent","complete","ready","finished"]),
+        ("Connect Sparrow Wallet — go to Server settings in Sparrow and enter your Umbrel node address",
+         ["connected","sparrow","see it","working","done","verified"]),
+    ],
+    "bitcoincore": [
+        ("Download Bitcoin Core from bitcoincore.org — verify the signature file before installing",
+         ["downloaded","verified","installed","running","have it"]),
+        ("Choose your data directory — you need at least five hundred gigabytes free on that drive",
+         ["chose","selected","set","pointing","done","directory"]),
+        ("Let the initial block download run — twelve to thirty-six hours, do not interrupt it",
+         ["synced","done","complete","hundred percent","caught up","finished"]),
+        ("Enable RPC — add server equals one plus your rpcuser and rpcpassword to bitcoin.conf",
+         ["done","edited","saved","config","rpc","added"]),
+        ("Test your node — run bitcoin-cli getblockcount in terminal, you should see a block number",
+         ["see it","number","block","working","output","responds"]),
+        ("Connect Sparrow — set server type to Bitcoin Core in Sparrow and enter your RPC credentials",
+         ["connected","sparrow","working","verified","done","green"]),
+    ],
+    "bitaxe": [
+        ("Power up your Bit-Axe — connect the USB-C cable to a quality power adapter, at least five watts",
+         ["on","lit","lights","powered","connected","running"]),
+        ("Connect to the Bit-Axe WiFi — it broadcasts its own network first, connect your phone to it",
+         ["connected","see it","bitaxe network","joined","on it"]),
+        ("Configure your pool — enter the stratum address and your Bitcoin wallet address",
+         ["entered","done","saved","configured","set","applied"]),
+        ("Save settings and reboot — Bit-Axe joins your home WiFi and starts mining",
+         ["rebooted","back","mining","connected","home wifi","working"]),
+        ("Check your pool dashboard — visit your pool website and look for your Bit-Axe hashrate appearing",
+         ["see it","showing","hashrate","gigahash","working","contributing"]),
+    ],
+}
+
+# Setup trigger phrases
+_SETUP_TRIGGERS = [
+    "in front of me", "just arrived", "just got", "setting up", "set it up",
+    "how do i set up", "what do i do when", "turned it on", "first time",
+    "unboxed", "just opened", "box arrived", "it arrived", "just got it",
+    "have it here", "have it now", "starting setup", "begin setup",
+    "brand new", "just bought", "got my",
+]
+
+# Device detection map: keyword → setup key
+_DEVICE_KEYWORDS = {
+    "coldcard": "coldcard", "cold card": "coldcard",
+    "trezor": "trezor",
+    "ledger": "ledger",
+    "umbrel": "umbrel",
+    "bitcoin core": "bitcoincore", "bitcoincore": "bitcoincore",
+    "bitaxe": "bitaxe", "bit-axe": "bitaxe", "bit axe": "bitaxe",
+    "raspberry pi": "umbrel",  # default Pi setup = umbrel
+}
+
+
+def _detect_setup_device(text: str, history: list) -> str | None:
+    """Detect which device is being set up from current + recent messages."""
+    combined = text.lower()
+    # Also scan last 4 history items
+    for h in history[-4:]:
+        combined += " " + h.get("content", "").lower()
+    for keyword, device in _DEVICE_KEYWORDS.items():
+        if keyword in combined:
+            return device
+    return None
+
+
+def _check_step_completion(user_text: str, current_step_signals: list) -> bool:
+    """Return True if user's message indicates they completed the current step."""
+    text = user_text.lower()
+    generic = ["done", "ok", "okay", "got it", "did it", "it worked", "next",
+               "confirmed", "all set", "ready", "moved on", "finished", "complete"]
+    all_signals = current_step_signals + generic
+    return any(s in text for s in all_signals)
+
+
 
 # ── Session store ──────────────────────────────────────────────────────────
 _sessions = {}
@@ -188,6 +349,13 @@ def _get_session(session_id: str) -> dict:
                 "topics_discussed": [],
                 "products_mentioned": [],
                 "last_active": now,
+                "setup_flow": {       # step-counter for device setup walkthroughs
+                    "active": False,
+                    "device": None,
+                    "step": 0,
+                    "steps": [],
+                    "total_steps": 0,
+                },
             }
         else:
             _sessions[session_id]["last_active"] = now
@@ -320,6 +488,34 @@ def generate_response(
     # Build conversation history
     history = session["history"][-MAX_HISTORY_TURNS:]
 
+    # ── Setup flow detection ───────────────────────────────────────────────
+    flow = session["setup_flow"]
+    text_lower = user_text.lower()
+
+    # Activate flow if not already active and user seems to be starting setup
+    if not flow["active"]:
+        has_trigger = any(t in text_lower for t in _SETUP_TRIGGERS)
+        device = _detect_setup_device(user_text, session["history"])
+        if has_trigger and device and device in _SETUP_STEPS:
+            flow["active"] = True
+            flow["device"] = device
+            flow["steps"] = _SETUP_STEPS[device]
+            flow["total_steps"] = len(_SETUP_STEPS[device])
+            flow["step"] = 0
+            logger.info(f"[SETUP_FLOW] Activated {device} ({flow['total_steps']} steps)")
+    elif flow["active"]:
+        # Check if user completed current step
+        current_idx = flow["step"]
+        if current_idx < flow["total_steps"]:
+            _, completion_signals = flow["steps"][current_idx]
+            if _check_step_completion(user_text, completion_signals):
+                flow["step"] = min(current_idx + 1, flow["total_steps"] - 1)
+                logger.info(f"[SETUP_FLOW] Step advanced to {flow['step'] + 1}/{flow['total_steps']}")
+        # Deactivate if all steps done
+        if flow["step"] >= flow["total_steps"] - 1 and _check_step_completion(user_text, []):
+            if all(sig in text_lower for sig in ["done", "verified"]) or "all done" in text_lower:
+                flow["active"] = False
+
     # Build context block for the prompt
     context_lines = [
         f"SESSION TURN: {turn}",
@@ -357,7 +553,23 @@ def generate_response(
         # Store page type in session for follow-up turns
         session["last_page_type"] = ptype
 
-    if product_to_mention and turn >= 3:
+    # Inject setup flow context when active
+    if flow["active"] and flow["steps"]:
+        step_idx = flow["step"]
+        total = flow["total_steps"]
+        step_instruction, _ = flow["steps"][step_idx]
+        # Word numbers for natural speech
+        nums = ["zero","one","two","three","four","five","six","seven","eight","nine","ten"]
+        step_word = nums[step_idx + 1] if step_idx + 1 <= 10 else str(step_idx + 1)
+        total_word = nums[total] if total <= 10 else str(total)
+        context_lines.append(f"SETUP_FLOW_ACTIVE: {flow['device']} setup — Step {step_idx + 1} of {total}")
+        context_lines.append(f"CURRENT STEP INSTRUCTION: {step_instruction}")
+        context_lines.append(f"INSTRUCTION: Lead your response with 'Step {step_word} of {total_word}:' then give exactly ONE action from the step instruction above. End with a short completion check. Stay within 30 words total.")
+        if step_idx + 1 < total:
+            next_instruction, _ = flow["steps"][step_idx + 1]
+            context_lines.append(f"NEXT STEP (do NOT mention yet): {next_instruction[:80]}")
+
+    if product_to_mention and turn >= 3 and not flow["active"]:
         prod = PRODUCTS[product_to_mention]
         context_lines.append(
             f"RELEVANT PRODUCT (weave in naturally if it fits): {prod['name']} — {prod['value_prop']} — {prod['url']}"
@@ -430,6 +642,8 @@ def generate_response(
 
     # Apply pronunciation fixes
     spoken_text = normalize_pronunciation(raw_text)
+    # Re-trim after normalization — expansions like "Coldcard"→"Cold Card" can push over limit
+    spoken_text = _trim_to_word_limit(spoken_text, MAX_RESPONSE_WORDS)
 
     # Update session history
     session["history"].append({"role": "user", "content": user_text})
@@ -509,6 +723,7 @@ def get_live_intel() -> dict:
 def get_session_info(session_id: str) -> dict:
     """Return session state for debugging."""
     session = _sessions.get(session_id, {})
+    sf = session.get("setup_flow", {})
     return {
         "turn": session.get("turn", 0),
         "personality": session.get("personality"),
@@ -516,6 +731,12 @@ def get_session_info(session_id: str) -> dict:
         "history_len": len(session.get("history", [])),
         "topics": session.get("topics_discussed", [])[-5:],
         "products_mentioned": session.get("products_mentioned", []),
+        "setup_flow": {
+            "active": sf.get("active", False),
+            "device": sf.get("device"),
+            "step": sf.get("step", 0),
+            "total_steps": sf.get("total_steps", 0),
+        },
     }
 
 
