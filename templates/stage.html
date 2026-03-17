@@ -687,11 +687,7 @@ body { background: var(--s-bg); }
 
   // ── FETCH INTEL ───────────────────────────────────────
   function loadIntel(){
-    fetch('/api/oracle/ask', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({question:'stage_intel_refresh'})
-    })
+    fetch('/api/stage/intel')
     .then(function(r){ return r.json(); })
     .then(function(d){
       // price
@@ -728,10 +724,9 @@ body { background: var(--s-bg); }
       }
     })
     .catch(function(){
-      // Fallback: try oracle health endpoint for price
-      fetch(AVATAR_BASE + '/health')
-        .then(function(r){ return r.json(); })
-        .catch(function(){});
+      document.getElementById('narrativeText').textContent = 'Intel feed offline — retrying in 60s';
+      document.getElementById('tickerOracle').textContent = 'Offline';
+      setTimeout(loadIntel, 60000);
     });
   }
 
@@ -811,7 +806,7 @@ body { background: var(--s-bg); }
 
   // ── NOSTR SIGNAL ──────────────────────────────────────
   function loadNostr(){
-    fetch('/api/oracle/recent')
+    fetch('/api/stage/signal')
     .then(function(r){ return r.json(); })
     .then(function(d){
       var posts = d.nostr_posts || [];
@@ -819,6 +814,7 @@ body { background: var(--s-bg); }
     })
     .catch(function(){
       renderNostr([]);
+      document.getElementById('nostrCount').textContent = 'offline';
     });
   }
 
@@ -833,11 +829,16 @@ body { background: var(--s-bg); }
     posts.slice(0,12).forEach(function(p){
       var item = document.createElement('div');
       item.className = 'stage-signal-item';
-      var author = p.nip05 || p.display_name || (p.pubkey ? p.pubkey.slice(0,12)+'…' : 'anon');
-      item.innerHTML = [
-        '<div class="stage-signal-item__author">' + esc(author) + '</div>',
-        '<div class="stage-signal-item__text">' + esc((p.text||'').slice(0,180)) + '</div>',
-      ].join('');
+      var author = p.nip05 || p.display_name || 'anon';
+      // textContent prevents XSS from user-controlled Nostr content
+      var aDiv = document.createElement('div');
+      aDiv.className = 'stage-signal-item__author';
+      aDiv.textContent = author.slice(0,50);
+      var tDiv = document.createElement('div');
+      tDiv.className = 'stage-signal-item__text';
+      tDiv.textContent = (p.text||'').slice(0,180);
+      item.appendChild(aDiv);
+      item.appendChild(tDiv);
       feed.appendChild(item);
     });
   }
@@ -878,7 +879,7 @@ body { background: var(--s-bg); }
 
   function playVid(url){
     return new Promise(function(resolve){
-      if(objURL) try{ URL.revokeObjectURL(objURL); }catch(e){}
+      if(objURL){ try{ URL.revokeObjectURL(objURL); }catch(e){} objURL = null; }
       objURL = url;
       vid.src = url;
       vid.muted = true;
@@ -911,8 +912,12 @@ body { background: var(--s-bg); }
     return fetch(url, o).finally(function(){ clearTimeout(id); });
   }
 
+  var _briefCooldown = 0;
   window.requestBrief = function(){
     if(busy) return;
+    var now = Date.now();
+    if(now - _briefCooldown < 10000){ setStatus('Please wait…','var(--s-gold)'); return; }
+    _briefCooldown = now;
     setBusy(true); setStatus('Fetching brief…','var(--s-gold)');
     fetchTO(AVATAR_BASE + '/oracle/speak',{
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -932,8 +937,12 @@ body { background: var(--s-bg); }
     .finally(function(){ setBusy(false); });
   };
 
+  var _greetCooldown = 0;
   window.requestGreet = function(){
     if(busy) return;
+    var now = Date.now();
+    if(now - _greetCooldown < 5000){ return; }
+    _greetCooldown = now;
     setBusy(true); setStatus('Loading…','var(--s-gold)');
     fetchTO(AVATAR_BASE + '/oracle/response/GREETING',{},15000)
     .then(function(r){

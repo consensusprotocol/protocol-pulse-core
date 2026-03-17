@@ -46,7 +46,63 @@ FEATURE_MAP = {
     "stripe_commander": ("F1_STRIPE_COMMANDER_GOSPEL.md", "feature/f1-stripe-commander"),
     "article_page_laws": ("ARTICLE_PAGE_LAWS.md", "feature/f2-article-laws"),
     "tts-pipeline": ("TTS_PIPELINE_AUDIT_GOSPEL.md", "feature/tts-pipeline"),
+    "oracle-stage": ("ORACLE_STAGE_GOSPEL.md", "main"),
 }
+
+# Explicit file lists for features already merged to main (no branch diff available)
+EXPLICIT_FILES = {
+    "oracle-stage": [
+        "templates/stage.html",
+        "routes.py",
+    ],
+}
+
+# For large files, extract only relevant route functions instead of the whole file.
+# Key: (feature_name, filename) → list of route prefixes to extract
+ROUTE_EXTRACTS = {
+    ("oracle-stage", "routes.py"): ["/stage", "/api/stage/", "/api/oracle/"],
+}
+
+def extract_routes_from_file(filepath: Path, route_prefixes: list[str]) -> str:
+    """Extract only route functions matching given prefixes from a large Flask routes file."""
+    lines = filepath.read_text().split("\n")
+    extracted = []
+    in_route = False
+    route_start = 0
+    brace_indent = 0
+
+    for i, line in enumerate(lines):
+        # Detect @app.route decorators matching our prefixes
+        if "@app.route(" in line:
+            for prefix in route_prefixes:
+                if prefix in line:
+                    in_route = True
+                    route_start = i
+                    brace_indent = 0
+                    break
+            else:
+                # Different route — if we were capturing, this ends the previous function
+                if in_route:
+                    extracted.append((route_start, i - 1))
+                    in_route = False
+        # End of function: next decorator or top-level def/class not indented
+        elif in_route and i > route_start + 1:
+            stripped = line.strip()
+            if stripped and not line.startswith(" ") and not line.startswith("\t") and not stripped.startswith("#") and not stripped.startswith("@"):
+                extracted.append((route_start, i - 1))
+                in_route = False
+
+    if in_route:
+        extracted.append((route_start, len(lines) - 1))
+
+    # Build output with line numbers
+    sections = []
+    for start, end in extracted:
+        chunk_lines = lines[start:end + 1]
+        numbered = "\n".join(f"{start + j + 1:4d} | {l}" for j, l in enumerate(chunk_lines))
+        sections.append(numbered)
+
+    return "\n\n# ... (other routes omitted) ...\n\n".join(sections)
 
 # High-stakes features get full 2-cycle audit. Others can use 1-cycle if score > 85.
 HIGH_STAKES = {"f1-avatar-oracle", "v30-terminal-api", "v22-multi-format", "f2-briefing-room"}
@@ -71,41 +127,57 @@ def build_audit_package(feature_name: str) -> str:
 
     # Get diff vs main
     print(f"  [PACKAGE] Pulling code diff for {branch}...")
-    try:
-        diff_files = subprocess.check_output(
-            ["git", "diff", "main.." + branch, "--name-only"],
-            cwd=BASE, text=True
-        ).strip().split("\n")
-        diff_files = [f for f in diff_files if f]
-    except Exception as e:
-        print(f"  [PACKAGE] Git diff failed: {e}. Using worktree scan.")
-        worktree = Path.home() / f"worktrees/{feature_name}"
-        if worktree.exists():
-            diff_files = [
-                str(p.relative_to(worktree))
-                for p in worktree.rglob("*.py")
-                if "pycache" not in str(p)
-            ] + [
-                str(p.relative_to(worktree))
-                for p in worktree.rglob("*.html")
-                if "pycache" not in str(p)
-            ]
-        else:
-            diff_files = []
+    # Check for explicit file list first (features already on main)
+    if feature_name in EXPLICIT_FILES:
+        diff_files = EXPLICIT_FILES[feature_name]
+        print(f"  [PACKAGE] Using explicit file list: {diff_files}")
+    elif branch == "main":
+        diff_files = []
+        print(f"  [PACKAGE] Branch is main and no explicit files — no diff available")
+    else:
+        try:
+            diff_files = subprocess.check_output(
+                ["git", "diff", "main.." + branch, "--name-only"],
+                cwd=BASE, text=True
+            ).strip().split("\n")
+            diff_files = [f for f in diff_files if f]
+        except Exception as e:
+            print(f"  [PACKAGE] Git diff failed: {e}. Using worktree scan.")
+            worktree = Path.home() / f"worktrees/{feature_name}"
+            if worktree.exists():
+                diff_files = [
+                    str(p.relative_to(worktree))
+                    for p in worktree.rglob("*.py")
+                    if "pycache" not in str(p)
+                ] + [
+                    str(p.relative_to(worktree))
+                    for p in worktree.rglob("*.html")
+                    if "pycache" not in str(p)
+                ]
+            else:
+                diff_files = []
 
     # Build code section
     code_sections = []
     worktree = Path.home() / f"worktrees/{feature_name}"
     for fpath in diff_files[:20]:  # cap at 20 files to stay within context
         full_path = worktree / fpath if worktree.exists() else BASE / fpath
-        if full_path.exists() and full_path.stat().st_size < 100_000:
-            try:
+        if not full_path.exists():
+            continue
+        try:
+            # Check if we should extract specific routes from a large file
+            route_key = (feature_name, fpath)
+            if route_key in ROUTE_EXTRACTS:
+                numbered = extract_routes_from_file(full_path, ROUTE_EXTRACTS[route_key])
+                total_lines = len(full_path.read_text().split("\n"))
+                code_sections.append(f"\n### File: {fpath} (extracted stage routes from {total_lines} lines)\n```\n{numbered}\n```")
+            elif full_path.stat().st_size < 100_000:
                 code = full_path.read_text()
                 lines = code.split("\n")
                 numbered = "\n".join(f"{i+1:4d} | {l}" for i, l in enumerate(lines))
                 code_sections.append(f"\n### File: {fpath} ({len(lines)} lines)\n```\n{numbered}\n```")
-            except Exception:
-                pass
+        except Exception:
+            pass
 
     code_block = "\n".join(code_sections) if code_sections else "(No code files found — run after Claude Code session completes)"
 

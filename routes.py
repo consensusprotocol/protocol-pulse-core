@@ -10844,3 +10844,48 @@ def api_stage_transcripts():
         except Exception: continue
         if len(results) >= 12: break
     return jsonify(results)
+
+
+@app.route('/api/stage/intel')
+def api_stage_intel():
+    import sys as _sys, os as _os
+    res = {'price':'N/A','price_float':0,'price_formatted':'N/A',
+           'sentiment_score':50,'sentiment_label':'neutral','narrative':'','topics':''}
+    try:
+        _sys.path.insert(0, _os.path.join(_os.path.dirname(__file__), 'oracle'))
+        from oracle_dialogue_engine import get_live_intel
+        intel = get_live_intel()
+        pf = intel.get('price_float', 0)
+        res['price_float'] = pf
+        res['price'] = intel.get('price_spoken', 'N/A')
+        res['price_formatted'] = '${:,.0f}'.format(pf) if pf else 'N/A'
+        res['narrative'] = intel.get('narrative', '')
+        res['topics'] = intel.get('topics', '')
+        res['sentiment_score'] = intel.get('sentiment_score', 50)
+        res['sentiment_label'] = intel.get('sentiment_label', 'neutral')
+    except Exception as e:
+        logging.warning('stage intel error: %s', e)
+    return jsonify(res)
+
+
+@app.route('/api/stage/signal')
+def api_stage_signal():
+    import json as _j
+    from pathlib import Path
+    cache = Path(__file__).resolve().parent / 'video_pipeline_v3' / 'cache' / 'active_signal.json'
+    try:
+        if not cache.exists():
+            return jsonify({'nostr_posts': [], 'cached': False})
+        data = _j.loads(cache.read_text())
+        posts = [{'text': (p.get('text') or '')[:280],
+                  'display_name': p.get('display_name') or p.get('nip05') or 'anon',
+                  'nip05': p.get('nip05') or '', 'score': p.get('score', 0)}
+                 for p in data.get('nostr_posts', [])[:15]]
+        spaces = [{'text': (q.get('text') or '')[:280],
+                   'source': q.get('space_title') or 'X Spaces'}
+                  for q in data.get('spaces_quotes', [])[:6]]
+        return jsonify({'nostr_posts': posts, 'spaces_quotes': spaces,
+                        'fetched_at': data.get('fetched_at_iso', ''), 'cached': True})
+    except Exception as e:
+        logging.warning('stage signal error: %s', e)
+        return jsonify({'nostr_posts': [], 'cached': False})
