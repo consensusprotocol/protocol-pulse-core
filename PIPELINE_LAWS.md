@@ -66,6 +66,52 @@
 
 ## CYCLE LEARNINGS
 
+---
+
+## ADDED MARCH 17 2026
+
+### LAW: AUDIO MIX
+- `amix` BGM must use `duration=first` and `weight>=0.08`
+- Audio stream guard MUST verify audio stream exists before mix (`if "audio" not in _ac.stdout` → skip mix)
+- TTS-anchored mix ensures BGM never outlives narration
+
+### LAW: HOST DEFAULT
+- Segment host default MUST be `2` (PBX), never `1`
+- Any `host:1` in script output is normalized to `host:2`
+
+### LAW: TTS FALLBACK BANNED
+- `_generate_fallback_silent_audio` MUST raise `RuntimeError`, never generate silence
+- Silent renders are pipeline-killing defects — fail fast, never ship silence
+
+### LAW: GEMINI GRADING
+- Exclude `.mp4`, `bgl_audio/`, archived files, and `test_` directories from grading candidates
+- Gemini grades only the real final render, not intermediate artifacts
+
+### LAW: VOICE LOCK
+- Only voice ID `HmUVvDlHsEz0m3eUGLgu` (PBX) is permitted
+- Validate voice exists and is active via ElevenLabs `/v1/voices/{voice_id}` API in preflight
+
+### LAW: PREFLIGHT MANDATORY
+- Before every render, preflight MUST validate:
+  1. Voice ID is live (ElevenLabs API check)
+  2. ElevenLabs quota usage < 95%
+  3. Disk free space > 5 GB
+  4. `ffprobe` and `ffmpeg` binaries are accessible
+  5. Anthropic API ping succeeds
+- Render MUST NOT proceed if any preflight check fails
+
+### LAW: SOLO HOST
+- PBX only — no dual host in current pipeline
+- Script writer outputs only `host:2` segments
+- No `host:1` voice rendering permitted
+
+### LAW: JSON RETRY
+- `script_writer` JSON parse uses 3-attempt retry
+- On `JSONDecodeError`, send raw output back to LLM for repair before next attempt
+- After 3 failures, raise and abort render
+
+---
+
 ### PRE-GAUNTLET (cycles 1-3 on feature/video-audio-fix)
 - Fixed: ElevenLabs fallback chain (gTTS added), AV sync, gold rail in make_host_visual, subtitle band in make_host_visual, per-segment loudnorm removed, bg color 0x0A0A0F, ffmpeg timeout raised to 300s
 - Locked: Single loudnorm in concatenate_parts()
