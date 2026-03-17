@@ -408,6 +408,8 @@ def _generate_fallback_silent_audio(work_dir: str, idx: int, text: str = "") -> 
     Estimates duration from text length (~150 words/min, ~5 chars/word).
     Returns path to silent .m4a file, or "" on failure.
     """
+    raise RuntimeError("[ABORT] TTS failed - refusing silent audio fallback. Fix ElevenLabs voice/key.")
+
     # Estimate duration: ~150 wpm, ~5 chars/word → ~750 chars/min → ~12.5 chars/s
     # Minimum 2s, maximum 30s
     dur = max(2.0, min(30.0, len(text) / 12.5)) if text else 3.0
@@ -4728,7 +4730,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                 logger.warning(f"  [BUG1] Segment {i} ({entry_type}): silence generation failed, skipping")
                 continue
 
-        host_num = int(line_audio.get("host", 1)) if str(line_audio.get("host", "1")).isdigit() else 1
+        host_num = int(line_audio.get("host", 2)) if str(line_audio.get("host", "2")).isdigit() else 2
         text = line_audio.get("text", entry.get("text", ""))
         audio_path = line_audio["path"]
 
