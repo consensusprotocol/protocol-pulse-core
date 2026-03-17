@@ -312,7 +312,22 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     # ── Step 4: EXTRACT CLIPS ─────────────────────────────────────────────
     print("\n[STEP 4/12] EXTRACTING CLIPS (yt-dlp with original audio)...")
     t0 = time.time()
+    # FIX 2: Wipe clips/ dir completely to prevent stale files from prior renders
     clip_dir = os.path.join(run_dir, "clips")
+    if os.path.exists(clip_dir):
+        shutil.rmtree(clip_dir)
+        logger.info(f"  Wiped stale clips dir: {clip_dir}")
+    os.makedirs(clip_dir, exist_ok=True)
+    # Also wipe stale pip_preview files from work dir
+    work_dir = os.path.join(run_dir, "work")
+    if os.path.exists(work_dir):
+        import glob as _pip_glob
+        for stale_pip in _pip_glob.glob(os.path.join(work_dir, "pip_preview_*.mp4")):
+            try:
+                os.remove(stale_pip)
+            except OSError:
+                pass
+        logger.info("  Wiped stale pip_preview files from work/")
     extracted_clips = extract_all(selections, clip_dir)
     print(f"  Extracted: {len(extracted_clips)}/{len(clips)} clips")
 
@@ -542,7 +557,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         json.dump(script, f, indent=2)
 
     # ── Step 6: TTS ───────────────────────────────────────────────────────
-    print("\n[STEP 6/12] GENERATING DUAL-HOST AUDIO (ElevenLabs)...")
+    print("\n[STEP 6/12] GENERATING PBX NARRATION AUDIO (ElevenLabs)...")
     t0 = time.time()
     audio_dir = os.path.join(run_dir, "audio")
     audio_data = generate_dialogue_audio(dialogue, audio_dir)

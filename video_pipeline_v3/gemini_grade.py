@@ -136,10 +136,17 @@ try:
                    _glob.glob(f'{_log_dir}/full_render_*.log') +
                    _glob.glob(f'{_log_dir}/v6_render.log'))
     _candidates = [f for f in _candidates if os.path.isfile(f)]
+    # FIX 5: Only accept render logs with mtime within last 2 hours
+    _fresh_cutoff = time.time() - 7200
+    _candidates = [f for f in _candidates if os.path.getmtime(f) >= _fresh_cutoff]
     if _candidates:
         RENDER_LOG = max(_candidates, key=os.path.getmtime)
     else:
-        RENDER_LOG = f'{_log_dir}/v6_render.log'  # fallback
+        RENDER_LOG = None  # No fresh render log available
+    if not RENDER_LOG:
+        log("No fresh render log found (within 2h) — using empty context")
+        render_log_content = ''
+        raise FileNotFoundError("skip")
     log(f"Using render log: {RENDER_LOG}")
     with open(RENDER_LOG) as f:
         lines = f.readlines()

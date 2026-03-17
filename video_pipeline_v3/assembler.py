@@ -1017,8 +1017,22 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
     Thin 2px white border at 30% opacity.
     """
     if not clip_path or not os.path.exists(clip_path):
-        logger.warning(f"PiP: clip path missing: {clip_path}")
-        logger.warning(f"PiP SKIP — will show narration without PiP overlay")
+        logger.warning(f"PiP: clip path missing: {clip_path} — generating dark placeholder")
+        # FIX 1: Generate solid dark placeholder instead of returning empty/NONE
+        try:
+            ok = run_ffmpeg([
+                "-f", "lavfi", "-i", f"color=c=0x0A0A0F:s=716x370:d={duration}:r=30",
+                "-f", "lavfi", "-i", f"anullsrc=r=48000:cl=stereo",
+                "-t", str(duration), "-an",
+                "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+                "-r", "30", "-pix_fmt", "yuv420p",
+                output_path,
+            ], "pip dark placeholder", 30)
+            if ok and os.path.exists(output_path):
+                logger.info(f"PiP: dark placeholder generated ({duration}s)")
+                return output_path
+        except Exception as e:
+            logger.warning(f"PiP: dark placeholder generation failed: {e}")
         return ""
     try:
         file_size = os.path.getsize(clip_path)
@@ -3884,7 +3898,7 @@ def normalize_part(part_path: str, output_path: str) -> str:
          "-vf", "scale=1920:1080,setsar=1,format=yuv420p",
          "-video_track_timescale", "90000",
          "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
-         "-af", "aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,loudnorm=I=-14:TP=-3.0:LRA=7,aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,alimiter=level_in=1:level_out=0.794:limit=0.708:attack=3:release=30",
+         "-af", "aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,volume=1.0,aresample=async=1,aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp",
          output_path],
         "normalize", 180,
     )
@@ -4528,7 +4542,20 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                 pip_previews[rank] = pip_result
                 logger.info(f"  PiP preview for clip #{rank}: ready")
             else:
-                logger.warning(f"  R25 FIX 1: PiP preview for clip #{rank} FAILED — will use fallback")
+                # FIX 1: Generate dark placeholder so pip_previews[rank] is never NONE/empty
+                pip_dark = os.path.join(work_dir, f"pip_preview_r{rank}_dark.mp4")
+                run_ffmpeg([
+                    "-f", "lavfi", "-i", "color=c=0x0A0A0F:s=716x370:d=8:r=30",
+                    "-t", "8", "-an",
+                    "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+                    "-r", "30", "-pix_fmt", "yuv420p",
+                    pip_dark,
+                ], "pip dark fallback", 30)
+                if os.path.exists(pip_dark):
+                    pip_previews[rank] = pip_dark
+                    logger.info(f"  PiP preview for clip #{rank}: dark placeholder")
+                else:
+                    logger.warning(f"  R25 FIX 1: PiP preview for clip #{rank} FAILED — will use fallback")
 
     audio_idx = 1 if cold_open_consumed else 0
     prev_segment_type = "intro"
