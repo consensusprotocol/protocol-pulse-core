@@ -141,7 +141,8 @@ except:
 # ── Build Gemini prompt ───────────────────────────────────────────────────────
 log("Building Gemini grading prompt...")
 
-PROMPT = f"""You are the Chief Quality Officer for Protocol Pulse, a daily autonomous Bitcoin intelligence video show.
+PROMPT = f"""You are the Chief Quality Officer for Protocol Pulse, a daily autonomous cypherpunk Bitcoin intelligence video show viewed through an Austrian economics lens.
+PBX is the SOLE host. This is a single-host show — there is no co-host, no second voice, no guest expected. Do NOT penalise for the absence of a second host.
 Your job: grade this episode with maximum rigour. Be brutally honest. A grade A means it is genuinely broadcast-ready and PBX will publish it immediately. Do not hand out A grades lightly.
 
 === EPISODE FORENSIC DATA ===
@@ -177,7 +178,7 @@ FREEZE FRAMES (>1s): {freeze_count}
 Grade each dimension 1-10. Then calculate weighted overall score.
 
 TECHNICAL QUALITY (40% weight):
-1. duration_check: 300-600s ideal (5-10min). Under 180s = automatic F. 600-900s acceptable. Over 900s penalise.
+1. duration_check: 480-900s ideal (8-15min). Under 180s = automatic F. 300-480s acceptable but short. Over 900s penalise.
 2. resolution_check: 1920x1080 = 10. 1280x720 = 7. Anything else = fail.
 3. framerate_check: 24-30fps = 10. Under 24fps = 5. Under 15fps = 0.
 4. loudness_check: -16 to -14 LUFS = 10. -18 to -12 LUFS = 7. Outside -20 to -10 = critical failure (score 0).
@@ -189,11 +190,11 @@ TECHNICAL QUALITY (40% weight):
 10. file_integrity_check: Clean container, both streams present, reasonable bitrate (500-5000 kbps) = 10.
 
 CONTENT QUALITY (35% weight):
-11. clip_relevance: Are clips from real Bitcoin news? Are the sources credible (not altcoin shills, not 24/7 loops)?
+11. clip_relevance: Are clips from real Bitcoin news? Are the sources credible (not altcoin shills, not 24/7 loops)? Preston Pysh, Lyn Alden, Robert Breedlove, TFTC, and Simply Bitcoin rank editorially higher — clips from these sources are a positive signal. Austrian economics framing (sound money, Cantillon effect, time preference, proof-of-work ethos) is a positive editorial signal. Signal Active Nostr content (npubs, zaps, relay discussion) is a feature, not a bug — do not penalise.
 12. script_quality: Is the narration between clips informed, specific, and adds value beyond just re-reading the clips?
 13. cold_open_hook: Does the episode open with a compelling, specific hook that makes you want to keep watching?
 14. narrative_arc: Does the episode flow logically from open -> clips -> analysis -> close? Or is it random?
-15. host_authenticity: Does PBX's single voice sound natural, authoritative, and well-paced throughout? Is there any dead air, robotic tone, or missing audio? PBX is the sole host — no second voice expected.
+15. host_authenticity: PBX is the SOLE host — score 10/10 if PBX voice is clean, natural, authoritative, and well-paced throughout. Do NOT penalise for absence of a second host or co-host. Only deduct for dead air, robotic tone, or missing audio in PBX's voice.
 16. episode_title: Is the title specific and punchy? Not generic clickbait. Should reflect the actual main story.
 17. no_filler: No ad reads, no sponsor segments, no off-topic content, no repeated clips.
 18. timeliness: Is the content from today or yesterday? Not stale week-old news.
@@ -256,7 +257,7 @@ Grade thresholds:
 - C: overall_score 60-74
 - D: overall_score 40-59
 - F: overall_score < 40 OR duration < 180s OR clipping OR 2+ mid-video black segments
-Note: Episodes up to 900s (15min) are acceptable. 10-15 minute episodes with 5 clips are the target format.
+Note: Episodes 8-15 minutes (480-900s) are the ideal target format. 5 clips is the target.
 """
 
 # ── Call Gemini ───────────────────────────────────────────────────────────────
