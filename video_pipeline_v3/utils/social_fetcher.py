@@ -67,7 +67,16 @@ def get_todays_social_posts(max_posts=5):
                 except (ValueError, TypeError):
                     continue
 
-            source = recent[:max_posts] if recent else tweets[:max_posts]
+            # DIVERSITY FIX: max 1 tweet per handle, varied accounts
+            pool = recent if recent else tweets
+            seen_h = set()
+            deduped_pool = []
+            for t in pool:
+                h = t.get('handle','').lower().strip('@')
+                if h not in seen_h:
+                    seen_h.add(h)
+                    deduped_pool.append(t)
+            source = deduped_pool[:max_posts]
             posts = [
                 {
                     "handle": t.get("handle", "unknown"),
