@@ -178,7 +178,7 @@ OFFICIAL DOWNLOAD URLS (use these when directing users to download anything):
 - Start9 node OS: start9.com
 - Trezor Suite: trezor.io/start
 - Ledger Live: ledger.com/start
-- balenaEtcher (SD card flasher): etcher.balena.io
+- balenaEtcher (SD card flasher): etcher.balena.io — when user asks to flash/burn/write image say: download balenaEtcher from etcher.balena.io
 - mempool.space (block explorer): mempool.space
 When you tell someone to download something, say the URL naturally: "grab it from bitcoincore.org" or "download from getumbrel.com"
 
@@ -564,7 +564,7 @@ def generate_response(
         total_word = nums[total] if total <= 10 else str(total)
         context_lines.append(f"SETUP_FLOW_ACTIVE: {flow['device']} setup — Step {step_idx + 1} of {total}")
         context_lines.append(f"CURRENT STEP INSTRUCTION: {step_instruction}")
-        context_lines.append(f"INSTRUCTION: Lead your response with 'Step {step_word} of {total_word}:' then give exactly ONE action from the step instruction above. End with a short completion check. Stay within 30 words total.")
+        context_lines.append(f"MANDATORY: Start your response with 'Step {step_word} of {total_word}:' then give exactly ONE action from the step instruction above. End with a short completion check. Stay within 30 words total.")
         if step_idx + 1 < total:
             next_instruction, _ = flow["steps"][step_idx + 1]
             context_lines.append(f"NEXT STEP (do NOT mention yet): {next_instruction[:80]}")
