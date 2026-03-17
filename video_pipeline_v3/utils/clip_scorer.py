@@ -238,6 +238,12 @@ def score_clip(clip, daily_signals=None, channel_priorities=None, recent_channel
 
     # Normalize: raw 0-125 → 0-100
     final_score = min(100, round(raw_score * 100 / 125))
+
+    # Apply editorial tier multiplier if present (from channel_scanner)
+    tier_mult = clip.get("tier_multiplier")
+    if tier_mult is not None:
+        final_score = min(100, round(final_score * tier_mult))
+
     return final_score
 
 

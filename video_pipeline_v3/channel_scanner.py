@@ -27,6 +27,59 @@ if not logger.handlers:
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
 
+# ── Editorial Tier Hierarchy ─────────────────────────────────────────────────
+# Score multiplier applied per channel tier. Tier 1 = highest editorial trust.
+EDITORIAL_TIERS = {
+    # TIER 1 — Bitcoin thought leaders (1.4× multiplier)
+    1: {
+        "multiplier": 1.4,
+        "channels": [
+            "Preston Pysh", "Lyn Alden", "Robert Breedlove", "TFTC",
+            "Stephan Livera", "Bitcoin Audible", "Saifedean Ammous",
+        ],
+    },
+    # TIER 2 — Trusted Bitcoin media (1.2× multiplier)
+    2: {
+        "multiplier": 1.2,
+        "channels": [
+            "Simply Bitcoin", "Bitcoin Magazine", "Natalie Brunell",
+            "Swan Bitcoin", "BTC Sessions",
+        ],
+    },
+    # TIER 3 — Solid analysts (1.0× — baseline)
+    3: {
+        "multiplier": 1.0,
+        "channels": [
+            "The Bitcoin Layer", "Blockworks", "Nathaniel Whittemore",
+        ],
+    },
+}
+
+# Reverse lookup: channel_name -> multiplier
+_CHANNEL_TIER_MULTIPLIER = {}
+for _tier_data in EDITORIAL_TIERS.values():
+    for _ch in _tier_data["channels"]:
+        _CHANNEL_TIER_MULTIPLIER[_ch.lower()] = _tier_data["multiplier"]
+_DEFAULT_TIER_MULTIPLIER = 0.8  # Untiered channels
+
+# ── Banned Content Filter ────────────────────────────────────────────────────
+# Reject clips whose title or transcript contains any of these terms.
+BANNED_CONTENT_TERMS = [
+    "altcoin", "ethereum", "solana", "defi", "nft", "xrp",
+    "crypto portfolio", "price target", "buy signal", "sell signal",
+]
+
+
+def get_tier_multiplier(channel_name: str) -> float:
+    """Return editorial tier multiplier for a channel (default 0.8 for untiered)."""
+    return _CHANNEL_TIER_MULTIPLIER.get(channel_name.lower(), _DEFAULT_TIER_MULTIPLIER)
+
+
+def is_banned_content(title: str, transcript: str = "") -> bool:
+    """Return True if title or transcript contains banned content terms."""
+    combined = (title + " " + transcript).lower()
+    return any(term in combined for term in BANNED_CONTENT_TERMS)
+
 # ── GPU Memory Guard ──────────────────────────────────────────────────────────
 MIN_FREE_VRAM_MB = 3000  # Require 3GB free before loading Whisper on CUDA
 
@@ -388,7 +441,24 @@ def scan_all_channels(model_size: str = "base") -> list:
             continue
 
     logger.info(f"Transcribed {len(transcribed)}/{len(all_videos)} videos")
-    return transcribed
+
+    # ── Apply editorial tier multipliers + banned content filter ──
+    scored = []
+    banned_count = 0
+    for video in transcribed:
+        title = video.get("title", "")
+        transcript = video.get("transcript_text", "")
+        if is_banned_content(title, transcript):
+            banned_count += 1
+            logger.info(f"  BANNED: [{video['channel']}] {title[:60]}")
+            continue
+        video["tier_multiplier"] = get_tier_multiplier(video.get("channel", ""))
+        scored.append(video)
+
+    if banned_count:
+        logger.info(f"Filtered {banned_count} banned-content clips")
+    logger.info(f"Returning {len(scored)} clips (tier-scored, content-filtered)")
+    return scored
 
 
 if __name__ == "__main__":
