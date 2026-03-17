@@ -416,7 +416,7 @@ def main():
             unk_streak += 1
             log(f'Unknown error #{unk_streak} - spawning CC')
             cc_auto_repair(output, iteration)
-            if unk_streak >= 5:
+            if unk_streak >= 10:
                 telegram(f'LOOP STOPPED: {unk_streak} consecutive crashes. Fix issue then restart manually.')
                 log('HARD STOP: 5 consecutive unknown errors')
                 return

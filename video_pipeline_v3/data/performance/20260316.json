@@ -1,19 +1,16 @@
 {
   "date": "2026-03-16",
-  "episode_title": "BlackRock Bought While You Were Sleeping",
+  "episode_title": "Fast Test \u2014 $74,746",
   "channels_used": [
-    "Bitcoin Magazine",
-    "Simply Bitcoin",
-    "Swan Bitcoin",
-    "Coin Bureau",
-    "TFTC"
+    "TheStreet",
+    "Simply Bitcoin"
   ],
-  "quality_score": 72,
-  "clips_count": 5,
-  "duration_seconds": 676.4,
-  "bitrate_mbps": 4.3,
+  "quality_score": 89,
+  "clips_count": 2,
+  "duration_seconds": 105.7,
+  "bitrate_mbps": 4.9,
   "av_sync_offset": 0.046,
   "music_mood": "tense",
-  "test_mode": false,
+  "test_mode": true,
   "episode_id": "20260316"
 }
