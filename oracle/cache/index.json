@@ -1,57 +1,57 @@
 {
   "GREETING": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/GREETING.mp4",
-    "generated_at_ts": 1773719018.0900085,
-    "duration_s": 14.43
+    "generated_at_ts": 1773732488.1808143,
+    "duration_s": 14.63
   },
   "SOVEREIGNTY_INTRO": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/SOVEREIGNTY_INTRO.mp4",
-    "generated_at_ts": 1773719035.664789,
-    "duration_s": 13.57
+    "generated_at_ts": 1773732522.4852781,
+    "duration_s": 13.64
   },
   "SOVEREIGNTY_ASSESSMENT": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/SOVEREIGNTY_ASSESSMENT.mp4",
-    "generated_at_ts": 1773719054.1140797,
-    "duration_s": 14.71
+    "generated_at_ts": 1773732554.2294278,
+    "duration_s": 13.97
   },
   "SOVEREIGNTY_COLD_WALLET": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/SOVEREIGNTY_COLD_WALLET.mp4",
-    "generated_at_ts": 1773719074.3713267,
-    "duration_s": 14.34
+    "generated_at_ts": 1773732607.2300482,
+    "duration_s": 13.97
   },
   "SOVEREIGNTY_NODE": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/SOVEREIGNTY_NODE.mp4",
-    "generated_at_ts": 1773719093.2858942,
-    "duration_s": 14.07
+    "generated_at_ts": 1773732638.8546414,
+    "duration_s": 14.01
   },
   "SOVEREIGNTY_BITAXE": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/SOVEREIGNTY_BITAXE.mp4",
-    "generated_at_ts": 1773719112.2431855,
-    "duration_s": 15.1
+    "generated_at_ts": 1773732673.3671286,
+    "duration_s": 15.0
   },
   "SOVEREIGNTY_LIFE_INSURANCE": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/SOVEREIGNTY_LIFE_INSURANCE.mp4",
-    "generated_at_ts": 1773719131.6158397,
-    "duration_s": 15.1
+    "generated_at_ts": 1773732710.9311013,
+    "duration_s": 15.78
   },
   "SOVEREIGNTY_RESIDENCY": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/SOVEREIGNTY_RESIDENCY.mp4",
-    "generated_at_ts": 1773719150.3287864,
-    "duration_s": 15.41
+    "generated_at_ts": 1773732728.1140897,
+    "duration_s": 14.57
   },
   "DAILY_BRIEF_INTRO": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/DAILY_BRIEF_INTRO.mp4",
-    "generated_at_ts": 1773719163.8398871,
-    "duration_s": 6.5
+    "generated_at_ts": 1773732742.3756213,
+    "duration_s": 6.17
   },
   "UNKNOWN_QUESTION": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/UNKNOWN_QUESTION.mp4",
-    "generated_at_ts": 1773719177.7794683,
-    "duration_s": 6.87
+    "generated_at_ts": 1773732755.8956952,
+    "duration_s": 6.54
   },
   "GOODBYE": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/GOODBYE.mp4",
-    "generated_at_ts": 1773719190.3127952,
-    "duration_s": 4.87
+    "generated_at_ts": 1773732768.7358909,
+    "duration_s": 5.0
   }
 }

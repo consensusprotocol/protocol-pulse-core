@@ -122,9 +122,42 @@ async def fetch_from_relay(relay_url: str, since: int) -> dict:
     return {"events": events, "stats": stats}
 
 
+
+_NON_EN = {
+    'que','para','com','nao','uma','dos','por','seu','isso','voce','como',
+    'mais','mas','foi','tem','ser','bloco','atual','faltam','ritmo','blocos',
+    'proximo','estimativa','media','retarget','velocidade','minutos',
+    'ein','ist','und','die','der','das','ich','sie','wir','nicht','aber',
+    'les','des','une','pas','est','pour','dans','avec','qui','sur',
+    'los','las','del','pero','esta','todo','muy','tambien','como',
+    'sono','che','della','per','con','lui','lei','questo','quello','alla',
+}
+_EN_WORDS = {
+    'the','a','an','is','are','was','were','have','has','had','do','does',
+    'will','would','can','could','this','that','i','you','he','she','we',
+    'they','not','all','any','what','how','when','where','just','now',
+    'bitcoin','btc','mining','block','blocks','node','sats','lightning',
+    'hashrate','mempool','taproot','hodl','wallet','network','price',
+}
+
+def _is_english(text):
+    if not text:
+        return True
+    non_ascii = sum(1 for ch in text if ord(ch) > 127)
+    if non_ascii / max(len(text), 1) > 0.08:
+        return False
+    words = [w.rstrip('.,!?:;()[]') for w in text.lower().split()[:30]]
+    if sum(1 for w in words if w in _NON_EN) >= 2:
+        return False
+    if len(words) > 10 and sum(1 for w in words if w in _EN_WORDS) == 0:
+        return False
+    return True
+
 def score_event(event: dict) -> int:
     """Score a Nostr event. Base score by content quality, +20 for zap, +50 for authority."""
     text = event.get("text", "")
+    if not _is_english(text):
+        return 0
     score = 0
 
     # Word count quality (longer = more substantive)
