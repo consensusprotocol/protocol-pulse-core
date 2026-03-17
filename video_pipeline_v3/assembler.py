@@ -760,10 +760,10 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                         f"[0:v]{vf},"
                         f"fade=t=out:st={max(0, vid_dur - 0.5)}:d=0.5[outv];"
                         # Audio: intro music hard-cut at 3.0s (atrim), then silence via apad
-                        f"[2:a]atrim=0:8.0,asetpts=PTS-STARTPTS,afade=t=out:st=6.0:d=2.0,volume=0.08,"
+                        f"[2:a]atrim=0:8.0,asetpts=PTS-STARTPTS,afade=t=out:st=6.0:d=2.0,volume=0.05,"
                         f"asetpts=PTS-STARTPTS[intro_mus];"
                         f"[1:a]aformat=channel_layouts=stereo,adelay=1500|1500[tts_delayed];"
-                        f"[intro_mus][tts_delayed]amix=inputs=2:duration=longest:weights=1 1.5,"
+                        f"[intro_mus][tts_delayed]amix=inputs=2:duration=longest:weights=1 2.0,"
                         f"alimiter=limit=0.85:level=disabled:attack=5:release=50,"
                         f"aresample=async=1[outa]"
                     ),
@@ -1814,16 +1814,19 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     if has_pip_video and pip_vid_idx >= 0:
         pip_dur_src = ffprobe_duration(pip_video_path)
         src_frames = max(30, int(pip_dur_src * 30) + 5) if pip_dur_src > 0 else 300
-        total_frames = max(30, int(total_dur * 30))
         loop_flag = f"loop=loop=-1:size={src_frames}:start=0," if pip_dur_src < total_dur else ""
-        # Scale to full 1920x1080, crop to fill, desaturate, slow zoompan
+        # FIX 3: Use -stream_loop for proper video looping — remove zoompan which
+        # treats each frame as a still image (causing static/slideshow appearance).
+        # Instead: loop video, desaturate, slow scale-zoom via setpts tempo + scale.
+        zoom_end = 1.06  # subtle 6% zoom over duration
         fg += (f"[{pip_vid_idx}:v]{loop_flag}"
-               f"scale=1920:1080:force_original_aspect_ratio=increase,"
-               f"crop=1920:1080,setsar=1,fps=30,"
-               f"hue=s=0.4,"
-               f"zoompan=z='min(zoom+0.0004,1.08)':d={total_frames}:"
-               f"x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080:fps=30,"
-               f"trim=0:{total_dur},setpts=PTS-STARTPTS[np_fs_pip];\n")
+               f"scale=2036:1145:force_original_aspect_ratio=increase,"
+               f"crop=2036:1145,setsar=1,fps=30,"
+               f"hue=s=0.4,eq=brightness=-0.05,"
+               f"trim=0:{total_dur},setpts=PTS-STARTPTS,"
+               f"crop='iw/(1+{zoom_end - 1}*t/{total_dur})':'ih/(1+{zoom_end - 1}*t/{total_dur})':"
+               f"'(iw-iw/(1+{zoom_end - 1}*t/{total_dur}))/2':'(ih-ih/(1+{zoom_end - 1}*t/{total_dur}))/2',"
+               f"scale=1920:1080,setsar=1[np_fs_pip];\n")
         # Overlay full-screen PiP behind narrator panels (replaces bg)
         fg += f"[np_pills][np_fs_pip]overlay=0:0:shortest=1[np_fs_bg];\n"
     else:
@@ -2021,9 +2024,9 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
 
 def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
                              output_path: str, btc_price: str = "N/A",
-                             duration: float = 0) -> str:
+                             duration: float = 0, script_text: str = "") -> str:
     """APEX Data Segment — full-canvas intelligence dashboard with 6 metric cards,
-    rotating chart overlays, and sponsor strip (Meanwhile/Curated Mining/Protocol Pulse)."""
+    chart overlays aligned to narration, and sponsor strip."""
     audio_dur = ffprobe_duration(audio_path)
     if audio_dur <= 0:
         audio_dur = 5
@@ -2122,34 +2125,67 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
                f"[{out}];\n")
         last = out
 
-    # ── HERO CHART — ROTATING CHART OVERLAYS (price → hashrate → dominance) ──
+    # ── HERO CHART — NARRATION-ALIGNED CHART DISPLAY ──
     chart_panel_x, chart_panel_y = 200, 250
     chart_panel_w, chart_panel_h = 1520, 460
 
     if charts_available:
-        # Add 3 chart PNGs as FFmpeg inputs
+        # FIX 5: Detect which chart matches the narration text
+        _st_lower = (script_text or headline or "").lower()
+        _wants_price = any(kw in _st_lower for kw in ("price", "$", "bitcoin at", "btc at", "rally", "dump", "correction"))
+        _wants_hashrate = any(kw in _st_lower for kw in ("hashrate", "hash rate", "mining", "eh/s", "difficulty", "miner"))
+        _wants_mempool = any(kw in _st_lower for kw in ("mempool", "fees", "sat/vb", "congestion", "transaction"))
+        # Determine layout: single matched chart full-size, or all 3 in grid
+        _matched_charts = []
+        if _wants_price: _matched_charts.append(0)
+        if _wants_hashrate: _matched_charts.append(1)
+        if _wants_mempool: _matched_charts.append(2)
+
         _chart_input_start = len(inputs)
         for cp in _chart_full:
             inputs.append(cp)
 
-        t1 = total_dur / 3.0
-        t2 = 2 * total_dur / 3.0
-
-        # Scale each chart PNG to panel size
-        for ci in range(3):
+        if len(_matched_charts) == 1:
+            # Single chart full-panel
+            ci = _matched_charts[0]
             inp_idx = _chart_input_start + ci
             fg += (f"[{inp_idx}:v]scale={chart_panel_w}:{chart_panel_h},"
-                   f"format=yuva420p[ds_chts{ci}];\n")
-
-        # Overlay chart 0 (price): 0 → t1
-        fg += (f"[{last}][ds_chts0]overlay=x={chart_panel_x}:y={chart_panel_y}:"
-               f"enable='between(t,0,{t1:.3f})'[ds_chto0];\n")
-        # Overlay chart 1 (hashrate): t1 → t2
-        fg += (f"[ds_chto0][ds_chts1]overlay=x={chart_panel_x}:y={chart_panel_y}:"
-               f"enable='between(t,{t1:.3f},{t2:.3f})'[ds_chto1];\n")
-        # Overlay chart 2 (dominance): t2 → end
-        fg += (f"[ds_chto1][ds_chts2]overlay=x={chart_panel_x}:y={chart_panel_y}:"
-               f"enable='between(t,{t2:.3f},{total_dur:.3f})'[ds_chart_done];\n")
+                   f"format=yuva420p[ds_chts_single];\n")
+            fg += (f"[{last}][ds_chts_single]overlay=x={chart_panel_x}:y={chart_panel_y}"
+                   f"[ds_chart_done];\n")
+            logger.info(f"  FIX 5: Showing chart {_chart_files[ci]} (matched narration)")
+        elif len(_matched_charts) == 0:
+            # Default: show all 3 charts in a grid layout simultaneously
+            _grid_w = chart_panel_w // 3 - 8
+            _grid_h = chart_panel_h
+            for ci in range(3):
+                inp_idx = _chart_input_start + ci
+                fg += (f"[{inp_idx}:v]scale={_grid_w}:{_grid_h},"
+                       f"format=yuva420p[ds_chtg{ci}];\n")
+            _gx0 = chart_panel_x
+            _gx1 = chart_panel_x + _grid_w + 12
+            _gx2 = chart_panel_x + 2 * (_grid_w + 12)
+            fg += (f"[{last}][ds_chtg0]overlay=x={_gx0}:y={chart_panel_y}[ds_chto0];\n"
+                   f"[ds_chto0][ds_chtg1]overlay=x={_gx1}:y={chart_panel_y}[ds_chto1];\n"
+                   f"[ds_chto1][ds_chtg2]overlay=x={_gx2}:y={chart_panel_y}[ds_chart_done];\n")
+            logger.info("  FIX 5: Showing all 3 charts in grid (no specific metric detected)")
+        else:
+            # Multiple matches: rotate between matched charts
+            _slot_dur = total_dur / len(_matched_charts)
+            for ci in range(3):
+                inp_idx = _chart_input_start + ci
+                fg += (f"[{inp_idx}:v]scale={chart_panel_w}:{chart_panel_h},"
+                       f"format=yuva420p[ds_chts{ci}];\n")
+            _chart_last = last
+            for si, ci in enumerate(_matched_charts):
+                t_start = si * _slot_dur
+                t_end = (si + 1) * _slot_dur
+                _out = f"ds_chto{si}"
+                fg += (f"[{_chart_last}][ds_chts{ci}]overlay=x={chart_panel_x}:y={chart_panel_y}:"
+                       f"enable='between(t,{t_start:.3f},{t_end:.3f})'[{_out}];\n")
+                _chart_last = _out
+            fg += f"[{_chart_last}]copy[ds_chart_done];\n"
+            logger.info(f"  FIX 5: Rotating {len(_matched_charts)} matched charts")
     else:
         # Fallback: static bars when charts unavailable
         chart_x_start = chart_panel_x + 40
@@ -2551,6 +2587,7 @@ def make_broadcast_segment(segment_data: dict, audio_path: str, host_num: int,
             return make_data_segment_scene(
                 audio_path, headline, metrics,
                 output_path, btc_price=btc_price,
+                script_text=text,
             )
         elif scene == "social_stack":
             return make_social_stack_scene(
@@ -2668,56 +2705,75 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
 
     last_label = "sig_cols"
 
-    # ── LEFT COLUMN: X SPACES (x=60..1140, width=1080) ──
-    for idx, quote in enumerate(spaces):
-        card_y = 150 + idx * 280
-        card_h = 260
-        card_w = 1080
-        card_x = 60
+    # FIX 7: If no real X Spaces data, show placeholder and expand Nostr full-width
+    _has_real_spaces = bool(spaces)
+    _nostr_x = 1160 if _has_real_spaces else 60
+    _nostr_w = 700 if _has_real_spaces else 1800
 
-        text_raw = quote.get("text", "")
-        title = quote.get("space_title", "X Spaces")
-        text_safe = _sanitize_text(text_raw)
-        title_safe = _sanitize_text(title)
-        wrapped = _word_wrap(text_safe, max_width=60, max_lines=4)
+    if _has_real_spaces:
+        # ── LEFT COLUMN: X SPACES (x=60..1140, width=1080) ──
+        for idx, quote in enumerate(spaces):
+            card_y = 150 + idx * 280
+            card_h = 260
+            card_w = 1080
+            card_x = 60
 
-        enable_t = idx * 6  # stagger: 0s, 6s, 12s
-        enable = f"enable='between(t,{enable_t},{total_dur:.1f})'"
+            text_raw = quote.get("text", "")
+            title = quote.get("space_title", "X Spaces")
+            text_safe = _sanitize_text(text_raw)
+            title_safe = _sanitize_text(title)
+            wrapped = _word_wrap(text_safe, max_width=60, max_lines=4)
 
-        # R26: FETCHED source at card bottom
-        space_source = _sanitize_text(quote.get("source", "X Spaces"))
-        fetched_spaces = f"FETCHED {space_source}"
+            enable_t = idx * 6  # stagger: 0s, 6s, 12s
+            enable = f"enable='between(t,{enable_t},{total_dur:.1f})'"
 
-        out_label = f"sc{idx}"
+            # R26: FETCHED source at card bottom
+            space_source = _sanitize_text(quote.get("source", "X Spaces"))
+            fetched_spaces = f"FETCHED {space_source}"
+
+            out_label = f"sc{idx}"
+            fg += (f"[{last_label}]"
+                   # Card background
+                   f"drawbox=x={card_x}:y={card_y}:w={card_w}:h={card_h}:"
+                   f"color=0x0a0a0a@0.85:t=fill:{enable},"
+                   # 1px gold border
+                   f"drawbox=x={card_x}:y={card_y}:w={card_w}:h={card_h}:"
+                   f"color={COLOR_GOLD}@0.6:t=1:{enable},"
+                   # Space title
+                   f"drawtext=fontfile={FONT_BOLD}:"
+                   f"text='{title_safe}':"
+                   f"fontcolor={COLOR_GOLD}:fontsize=20:x={card_x + 16}:y={card_y + 14}:{enable},"
+                   # Quote text
+                   f"drawtext=fontfile={FONT_MONO}:"
+                   f"text='{wrapped}':"
+                   f"fontcolor=0xe8e8e8:fontsize=26:x={card_x + 16}:y={card_y + 50}:"
+                   f"line_spacing=8:{enable},"
+                   # R26: FETCHED source at card bottom
+                   f"drawtext=fontfile={FONT_MONO}:"
+                   f"text='{fetched_spaces}':"
+                   f"fontcolor={COLOR_MUTED2}:fontsize=10:x={card_x + 16}:y={card_y + card_h - 20}:{enable}"
+                   f"[{out_label}];\n")
+            last_label = out_label
+    else:
+        # FIX 7: No live spaces — show placeholder panel
         fg += (f"[{last_label}]"
-               # Card background
-               f"drawbox=x={card_x}:y={card_y}:w={card_w}:h={card_h}:"
-               f"color=0x0a0a0a@0.85:t=fill:{enable},"
-               # 1px gold border
-               f"drawbox=x={card_x}:y={card_y}:w={card_w}:h={card_h}:"
-               f"color={COLOR_GOLD}@0.6:t=1:{enable},"
-               # Space title
-               f"drawtext=fontfile={FONT_BOLD}:"
-               f"text='{title_safe}':"
-               f"fontcolor={COLOR_GOLD}:fontsize=20:x={card_x + 16}:y={card_y + 14}:{enable},"
-               # Quote text
+               f"drawbox=x=60:y=150:w=1080:h=260:color=0x0a0a0a@0.85:t=fill,"
+               f"drawbox=x=60:y=150:w=1080:h=260:color={COLOR_GOLD}@0.3:t=1,"
+               f"drawtext=fontfile={FONT_BOLD}:text='NO LIVE SPACES DETECTED':"
+               f"fontcolor={COLOR_GOLD}:fontsize=28:x=120:y=230,"
                f"drawtext=fontfile={FONT_MONO}:"
-               f"text='{wrapped}':"
-               f"fontcolor=0xe8e8e8:fontsize=26:x={card_x + 16}:y={card_y + 50}:"
-               f"line_spacing=8:{enable},"
-               # R26: FETCHED source at card bottom
-               f"drawtext=fontfile={FONT_MONO}:"
-               f"text='{fetched_spaces}':"
-               f"fontcolor={COLOR_MUTED2}:fontsize=10:x={card_x + 16}:y={card_y + card_h - 20}:{enable}"
-               f"[{out_label}];\n")
-        last_label = out_label
+               f"text='X Spaces monitoring active  --  next capture when live Bitcoin spaces detected':"
+               f"fontcolor={COLOR_MUTED}:fontsize=14:x=120:y=280"
+               f"[sc_placeholder];\n")
+        last_label = "sc_placeholder"
+        logger.info("  FIX 7: No real X Spaces data — showing placeholder")
 
-    # ── R26 UPGRADE 4: RIGHT COLUMN: NOSTR (x=1160..1860, width=700) ──
+    # ── R26 UPGRADE 4: RIGHT COLUMN: NOSTR (dynamic width based on spaces availability) ──
     for idx, post in enumerate(nostr):
         card_y = 150 + idx * 280
         card_h = 260
-        card_w = 700
-        card_x = 1160
+        card_w = _nostr_w
+        card_x = _nostr_x
 
         text_raw = post.get("text", "")
         # R26: Primary identity = nip05 if available, else truncated pubkey
@@ -2774,17 +2830,13 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
                f"[{out_label}];\n")
         last_label = out_label
 
-    # ── R25 FIX 4: SPONSOR STRIP (replaces leaked EPISODE SEGMENTS) ──
-    sponsors = ["MEANWHILE", "CURATED MINING", "PROTOCOL PULSE"]
-    sponsor_w = 1800 // len(sponsors)
-    fg += (f"[{last_label}]drawbox=x=60:y=990:w=1800:h=50:color=0x050505@0.85:t=fill,"
-           f"drawbox=x=60:y=990:w=1800:h=1:color={COLOR_RED}@0.4:t=fill")
-    for si, sp in enumerate(sponsors):
-        sx = 60 + si * sponsor_w + sponsor_w // 2
-        sep = f",drawbox=x={60 + (si+1)*sponsor_w}:y=995:w=1:h=40:color={COLOR_MUTED2}@0.5:t=fill" if si < len(sponsors) - 1 else ""
-        fg += (f",drawtext=fontfile={FONT_MONO}:text='{sp}':"
-               f"fontcolor={COLOR_MUTED}:fontsize=12:x={sx}-(text_w/2):y=1008{sep}")
-    fg += f"[sig_sponsored];\n"
+    # ── FIX 6: SPONSOR STRIP — Curated Mining branding ──
+    fg += (f"[{last_label}]drawbox=x=60:y=990:w=1800:h=50:color=0x050505@0.90:t=fill,"
+           f"drawbox=x=60:y=990:w=1800:h=2:color={COLOR_SIG_RED}@0.6:t=fill,"
+           f"drawbox=x=60:y=990:w=4:h=50:color={COLOR_SIG_RED}@0.8:t=fill,"
+           f"drawtext=fontfile={FONT_MONO}:text='SPONSORED BY\\:  CURATED MINING  //  LEARN MORE AT CURATEDMINING.COM':"
+           f"fontcolor={COLOR_WHITE}:fontsize=14:x=960-(text_w/2):y=1008"
+           f"[sig_sponsored];\n")
 
     # ── R26 UPGRADE 3: WAVEFORM BOTTOM BAND at y=880 ──
     fg += (f"[0:a]showwavespic=s=1800x120:colors=ff3b5f[_sig_wave_pic];\n"
@@ -4206,7 +4258,14 @@ def concatenate_parts(parts: list, output_path: str,
 
     # FIX 6: Mix whoosh SFX at transition points between segments
     # FIX 6B: Single input + asplit (was N inputs → ffmpeg filter graph explosion at 30+ parts)
+    # FIX 4 (UX): Track which parts already have whoosh to prevent double whoosh
     has_whoosh = os.path.exists(GLITCH_WHOOSH)
+    _whooshed_parts = set()  # indices of parts that already contain whoosh/swoosh
+    for pidx, p in enumerate(valid):
+        bn = os.path.basename(p).lower()
+        if "transition" in bn or "xfade" in bn or "swoosh" in bn:
+            _whooshed_parts.add(pidx)
+            _whooshed_parts.add(pidx + 1)  # next part also has entrance whoosh from transition
     if has_whoosh and len(valid) > 1:
         # Calculate transition timestamps (cumulative durations of each part)
         transition_times = []
@@ -4214,7 +4273,11 @@ def concatenate_parts(parts: list, output_path: str,
         for pidx, p in enumerate(valid[:-1]):
             pdur = ffprobe_duration(p)
             cumulative += pdur
-            transition_times.append(cumulative)
+            # FIX 4: skip if this boundary already has whoosh
+            if pidx not in _whooshed_parts and (pidx + 1) not in _whooshed_parts:
+                transition_times.append(cumulative)
+            else:
+                logger.info(f"  FIX 4: Skipping whoosh at part {pidx}→{pidx+1} (already has transition SFX)")
 
         # Cap at 20 whooshes — thin out evenly if too many
         MAX_WHOOSH = 20
@@ -4407,7 +4470,11 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         tweet_card_posts = list(script_social_posts)
         for di, dp in enumerate(tweet_card_posts):
             dp["display_order"] = di
-        logger.info(f"  R25 FIX 6: SOCIAL ORDER (from script only): {len(tweet_card_posts)} posts")
+        # FIX 9: Log source file and tweet details for debugging
+        _src = script_social_posts[0].get("source", "unknown") if script_social_posts else "none"
+        logger.info(f"  R25 FIX 6: SOCIAL ORDER (from script only): {len(tweet_card_posts)} posts (source: {_src})")
+        for ti, tp in enumerate(tweet_card_posts):
+            logger.info(f"    POST #{ti}: @{tp.get('handle', '?')} — {tp.get('text', '')[:50]}... (ss: {tp.get('screenshot_path', 'none')})")
     else:
         logger.info("  R25 FIX 6: No social_posts in script — skipping tweet cards (no fetcher fallback)")
 
@@ -4567,6 +4634,9 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         signal_content = get_signal_content()
         if signal_content and (signal_content.get("spaces_quotes") or signal_content.get("nostr_posts")):
             logger.info(f"  FIX 7: Signal intelligence loaded — {len(signal_content.get('spaces_quotes', []))} spaces, {len(signal_content.get('nostr_posts', []))} nostr")
+        elif signal_content and signal_content.get("nostr_posts"):
+            # FIX 7: Even with empty spaces, nostr-only is valid signal content
+            logger.info(f"  FIX 7: Signal intelligence (nostr only) — {len(signal_content.get('nostr_posts', []))} nostr posts, 0 spaces")
         else:
             signal_content = None
             logger.info("  FIX 7: No signal intelligence available")
@@ -4662,6 +4732,22 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                             elif os.path.exists(bg_fallback_out):
                                 os.remove(bg_fallback_out)
                 if result:
+                    # FIX 8: Ensure 0.5s audio fade-out on clip end to prevent abrupt cutoff
+                    _clip_dur = ffprobe_duration(result)
+                    if _clip_dur > 1.0:
+                        _fade_tmp = result + ".fadeout.mp4"
+                        _fade_st = max(0, _clip_dur - 0.5)
+                        _fade_ok = run_ffmpeg([
+                            "-i", result,
+                            "-c:v", "copy",
+                            "-af", f"afade=t=out:st={_fade_st:.3f}:d=0.5",
+                            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                            _fade_tmp,
+                        ], f"FIX8 clip fade-out #{rank}", 60)
+                        if _fade_ok and os.path.exists(_fade_tmp):
+                            os.replace(_fade_tmp, result)
+                        elif os.path.exists(_fade_tmp):
+                            os.remove(_fade_tmp)
                     mix_lower_slide_sfx(result)
                     parts.append(result)
                     dur = ffprobe_duration(result)
@@ -4751,7 +4837,14 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             card_rendered_paths = []
             for ci, cp in enumerate(card_posts):
                 card_out = os.path.join(work_dir, f"part_{part_idx:03d}_social_card_{ci}.mp4")
-                logger.info(f"  SOCIAL CARD {ci}: @{cp.get('handle', '?')} — {cp.get('text', '')[:40]}")
+                # FIX 9: Log card-screenshot match for debugging
+                _ss = cp.get("screenshot_path", "")
+                _ss_handle = os.path.basename(_ss).split("_")[1] if _ss and "_" in os.path.basename(_ss) else "none"
+                _card_handle = cp.get("handle", "?").lstrip("@").lower()
+                if _ss and _ss_handle.lower() != _card_handle:
+                    logger.warning(f"  FIX 9: SCREENSHOT MISMATCH! Card @{_card_handle} has screenshot for {_ss_handle}")
+                    cp.pop("screenshot_path", None)  # remove mismatched screenshot
+                logger.info(f"  SOCIAL CARD {ci}: @{cp.get('handle', '?')} — {cp.get('text', '')[:40]} (ss: {os.path.basename(_ss) if _ss else 'none'})")
 
                 card_audio = audio_path if ci == 0 else None
                 if ci > 0:

@@ -229,19 +229,16 @@ def get_signal_content() -> dict:
     except Exception as e:
         log.error("Nostr cache read failed: %s", e)
 
-    # If both empty, use fallback
-    if not spaces_quotes and not nostr_posts:
-        log.info("No live signal data — using quality fallback content")
-        return FALLBACK_CONTENT
-
-    # Fill from fallback if one side is empty
+    # FIX 7: NEVER use fabricated space titles. If no real spaces data,
+    # return empty list so the renderer shows "NO LIVE SPACES DETECTED" placeholder.
     if not spaces_quotes:
-        spaces_quotes = FALLBACK_CONTENT["spaces_quotes"]
+        log.info("No real X Spaces data — returning empty (no fabricated content)")
     if not nostr_posts:
         nostr_posts = FALLBACK_CONTENT["nostr_posts"]
+        log.info("No nostr data — using fallback nostr content")
 
     return {
-        "spaces_quotes": spaces_quotes,
+        "spaces_quotes": spaces_quotes,  # may be empty — renderer handles this
         "nostr_posts": nostr_posts,
     }
 
