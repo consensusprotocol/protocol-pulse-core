@@ -1220,13 +1220,16 @@ def oracle_chat():
         return jsonify({"error": "text required"}), 400
     text = data["text"].strip()
     session_id = data.get("session_id", "anon")
-    if data.get("use_cache_for_intents", True):
+    _sess_turn = oracle_dialogue_engine.get_session_info(session_id).get("turn", 0)
+    if data.get("use_cache_for_intents", True) and _sess_turn == 0:
         intent, confidence = classify_intent(text)
         if confidence >= 0.8 and intent != "UNKNOWN":
             path = oracle_cache_manager.get_cached_response(intent)
             if path:
                 logger.info(f"[CHAT] Cache hit {intent}")
                 return send_file(path, mimetype="video/mp4")
+    elif _sess_turn > 0:
+        logger.info(f"[CHAT] Cache skipped turn={_sess_turn}")
     live_intel = {}
     try:
         live_intel = oracle_dialogue_engine.get_live_intel()
