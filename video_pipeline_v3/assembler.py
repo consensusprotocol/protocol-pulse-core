@@ -762,8 +762,8 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                         # Audio: intro music hard-cut at 3.0s (atrim), then silence via apad
                         f"[2:a]atrim=0:8.0,asetpts=PTS-STARTPTS,afade=t=out:st=6.0:d=2.0,volume=0.05,"
                         f"asetpts=PTS-STARTPTS[intro_mus];"
-                        f"[1:a]aformat=channel_layouts=stereo,adelay=1500|1500[tts_delayed];"
-                        f"[intro_mus][tts_delayed]amix=inputs=2:duration=longest:weights=1 2.0,"
+                        f"[1:a]aformat=channel_layouts=stereo,adelay=300|300[tts_delayed];"
+                        f"[intro_mus][tts_delayed]amix=inputs=2:duration=first:weights=0.5 3.0,"
                         f"alimiter=limit=0.85:level=disabled:attack=5:release=50,"
                         f"aresample=async=1[outa]"
                     ),
@@ -783,7 +783,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                     "-filter_complex", (
                         f"[0:v]{vf},"
                         f"fade=t=out:st={max(0, vid_dur - 0.5)}:d=0.5[outv];"
-                        f"[1:a]aformat=channel_layouts=stereo,adelay=1500|1500,"
+                        f"[1:a]aformat=channel_layouts=stereo,adelay=300|300,"
                         f"alimiter=limit=0.85:level=disabled:attack=5:release=50,"
                         f"aresample=async=1[outa]"
                     ),
