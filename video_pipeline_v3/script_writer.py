@@ -497,8 +497,32 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
         except Exception as e:
             logger.warning(f"Failed to inject narrative context: {e}")
 
+    # Inject episode memory feedback if enough history exists
+    memory_block = ""
+    try:
+        from episode_memory import get_episode_count, get_weak_dimensions, get_strong_dimensions, get_best_channels
+        if get_episode_count() >= 5:
+            weak = get_weak_dimensions(threshold=6.0)
+            strong = get_strong_dimensions(threshold=8.0)
+            top_ch = get_best_channels(5)
+            parts = ["\nEPISODE MEMORY FEEDBACK (from past renders — adapt accordingly):"]
+            if weak:
+                dims = ", ".join(f"{d['dimension']} ({d['avg_score']}/10)" for d in weak[:5])
+                parts.append(f"- WEAK AREAS (improve these): {dims}")
+            if strong:
+                dims = ", ".join(f"{d['dimension']} ({d['avg_score']}/10)" for d in strong[:5])
+                parts.append(f"- STRONG AREAS (maintain these): {dims}")
+            if top_ch:
+                chs = ", ".join(f"{c['channel']} ({c['avg_score']})" for c in top_ch)
+                parts.append(f"- TOP CHANNELS by quality score: {chs}")
+            memory_block = "\n".join(parts) + "\n"
+            logger.info(f"Episode memory injected: {len(weak)} weak, {len(strong)} strong dimensions")
+    except Exception as e:
+        logger.warning(f"Episode memory unavailable: {e}")
+
     prompt = SCRIPT_PROMPT.format(clips_info=clips_info, btc_price=btc_price,
-                                   social_posts=social_posts, live_context=live_block)
+                                   social_posts=social_posts,
+                                   live_context=live_block + memory_block)
 
     logger.info(f"Generating script for {len(clips)} clips...")
     text = call_llm(prompt, max_tokens=8000, model="claude-sonnet-4-6")

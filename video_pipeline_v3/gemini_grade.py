@@ -345,6 +345,30 @@ if strengths:
         log(f"  ++ {s}")
 log("=" * 60)
 
+# ── Record to episode memory ─────────────────────────────────────────────
+try:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from episode_memory import record_episode
+    _render_id = os.path.basename(os.path.dirname(LATEST)) or os.path.basename(LATEST).replace('.mp4', '')
+    _date = time.strftime('%Y-%m-%d')
+    _clips_used = []
+    _manifest_path = os.path.join(os.path.dirname(LATEST), 'episode_manifest.json')
+    if os.path.exists(_manifest_path):
+        with open(_manifest_path) as _mf:
+            _manifest = json.load(_mf)
+        for _seg in _manifest.get('segments', []):
+            if _seg.get('type') == 'partner_clip':
+                _vpath = _seg.get('video_path', '')
+                _fname = os.path.basename(_vpath)
+                _parts = _fname.replace('.mp4', '').split('_', 2)
+                _clip_info = {'channel': _parts[2].rsplit('_', 1)[0] if len(_parts) > 2 else 'Unknown',
+                              'video_id': _parts[2].rsplit('_', 1)[-1] if len(_parts) > 2 else ''}
+                _clips_used.append(_clip_info)
+    record_episode(_render_id, _date, result, _clips_used)
+    log(f"Episode memory recorded: {_render_id} — grade {grade}, {len(_clips_used)} clips")
+except Exception as _em_err:
+    log(f"[WARN] Episode memory recording failed: {_em_err}")
+
 # ── Pass/fail gate ────────────────────────────────────────────────────────────
 if grade == 'A' and broadcast and score >= 88:
     log("*** GRADE A CONFIRMED — BROADCAST READY ***")
