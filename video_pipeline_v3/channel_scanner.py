@@ -219,8 +219,7 @@ def scan_channel(channel_url: str, channel_name: str,
                 logger.info(f"  SKIPPED old video: {title[:60]} (uploaded {upload_date}) — exceeds {max_age_hours}h window")
                 continue
         except ValueError:
-            logger.info(f"  SKIPPED video with unparseable upload_date: {video_id} ({upload_date})")
-            continue
+            logger.warning(f"  WARNING unparseable upload_date {video_id} - allowing")
 
         # Skip shorts (under 2 minutes) and super-long videos (over 4 hours)
         if duration < 120 or duration > 14400:
