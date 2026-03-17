@@ -1,609 +1,965 @@
 {% extends "base.html" %}
-{% block title %}The Oracle — Bitcoin Intelligence | Protocol Pulse{% endblock %}
 
-{% block meta_description %}Ask the Protocol Pulse Oracle anything about Bitcoin. AI-powered intelligence with real-time voice and avatar responses.{% endblock %}
-
-{% block og_meta %}
-<meta property="og:title" content="The Oracle — Bitcoin Intelligence | Protocol Pulse">
-<meta property="og:description" content="Ask the Protocol Pulse Oracle anything about Bitcoin. AI-powered intelligence with real-time voice and avatar responses.">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Protocol Pulse">
-<meta property="og:image" content="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
-<meta property="og:url" content="{{ request.url }}">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@ProtocolPulse">
-{% endblock %}
+{% block title %}Oracle Stage — Protocol Pulse Live{% endblock %}
+{% block meta_description %}Bitcoin intelligence. Live. Oracle reports in real time on price, on-chain signals, partner channel transcripts, and Nostr discourse.{% endblock %}
 
 {% block head %}
 <style>
-/* ═══════════════════════════════════════════════
-   THE ORACLE — Broadcast Studio Aesthetic
-   ═══════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════
+   ORACLE STAGE — Broadcast Desk Layout
+   Aesthetic: News control room meets Bitcoin terminal.
+   Obsidian base, signal-red accents, gold data rails,
+   Syne Mono headlines for that teletype authority.
+   ══════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Syne+Mono&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
-.oracle-stage {
-    min-height: 100vh;
-    background: #000;
-    padding: 60px 20px 80px;
+:root {
+  --s-bg:        #04050a;
+  --s-surface:   #080b12;
+  --s-border:    rgba(255,59,95,.18);
+  --s-red:       #ff3b5f;
+  --s-gold:      #f8c15c;
+  --s-green:     #2eff8a;
+  --s-muted:     rgba(255,255,255,.28);
+  --s-mono:      'Syne Mono', 'JetBrains Mono', monospace;
+  --s-head:      'Syne', sans-serif;
 }
 
-.oracle-stage-inner {
-    max-width: 800px;
-    margin: 0 auto;
+/* Page shell */
+body { background: var(--s-bg); }
+.stage-wrap {
+  min-height: 100vh;
+  background: var(--s-bg);
+  background-image:
+    radial-gradient(ellipse 60% 40% at 20% 10%, rgba(255,59,95,.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 35% at 80% 80%, rgba(248,193,92,.04) 0%, transparent 60%),
+    repeating-linear-gradient(0deg,   rgba(255,59,95,.025) 0px, transparent 1px, transparent 39px, rgba(255,59,95,.025) 40px),
+    repeating-linear-gradient(90deg,  rgba(255,59,95,.025) 0px, transparent 1px, transparent 39px, rgba(255,59,95,.025) 40px);
+  padding: 0 0 60px;
 }
 
-/* ─── Avatar Zone ─────────────────────────────── */
-.oracle-avatar-zone {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 48px;
+/* ── TOP STATUS BAR ─────────────────────────────────── */
+.stage-topbar {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(4,5,10,.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--s-border);
+  display: flex; align-items: center; gap: 0;
+  height: 42px; overflow: hidden;
+}
+.stage-topbar__live {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 20px; border-right: 1px solid var(--s-border);
+  flex-shrink: 0;
+}
+.stage-topbar__dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--s-red);
+  box-shadow: 0 0 6px var(--s-red);
+  animation: live-pulse 1.4s ease-in-out infinite;
+}
+@keyframes live-pulse {
+  0%,100% { opacity:1; box-shadow: 0 0 6px var(--s-red); }
+  50%      { opacity:.5; box-shadow: 0 0 14px var(--s-red); }
+}
+.stage-topbar__label {
+  font-family: var(--s-mono); font-size: 11px; letter-spacing:.18em;
+  color: var(--s-red); text-transform: uppercase;
+}
+.stage-topbar__ticker {
+  flex: 1; overflow: hidden; display: flex; align-items: center;
+  padding: 0 16px;
+}
+.stage-topbar__ticker-inner {
+  display: flex; gap: 40px; white-space: nowrap;
+  animation: ticker-scroll 40s linear infinite;
+}
+.stage-topbar__ticker-inner:hover { animation-play-state: paused; }
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-item {
+  font-family: var(--s-mono); font-size: 11px;
+  color: rgba(255,255,255,.5); letter-spacing: .06em;
+}
+.ticker-item .ti-label { color: var(--s-muted); margin-right: 6px; }
+.ticker-item .ti-val   { color: rgba(255,255,255,.85); }
+.ticker-item .ti-up    { color: var(--s-green); }
+.ticker-item .ti-down  { color: var(--s-red); }
+.ticker-item .ti-sep   { color: var(--s-border); margin: 0 8px; }
+.stage-topbar__time {
+  font-family: var(--s-mono); font-size: 11px;
+  color: var(--s-gold); letter-spacing: .1em;
+  padding: 0 20px; border-left: 1px solid var(--s-border);
+  flex-shrink: 0;
 }
 
-.oracle-avatar-ring {
-    position: relative;
-    width: 380px;
-    height: 380px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 28px;
+/* ── PAGE HEADER ──────────────────────────────────────  */
+.stage-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 28px 32px 20px;
+  border-bottom: 1px solid var(--s-border);
+}
+.stage-header__title {
+  font-family: var(--s-head); font-size: 11px; font-weight: 700;
+  letter-spacing: .3em; text-transform: uppercase;
+  color: var(--s-red);
+}
+.stage-header__sub {
+  font-family: var(--s-mono); font-size: 10px;
+  color: rgba(255,255,255,.3); letter-spacing: .12em;
+  margin-top: 3px;
+}
+.stage-header__right {
+  display: flex; align-items: center; gap: 12px;
+}
+.stage-badge {
+  font-family: var(--s-mono); font-size: 10px; letter-spacing: .1em;
+  padding: 4px 10px; border-radius: 3px;
+  text-transform: uppercase;
+}
+.stage-badge--on  { background: rgba(255,59,95,.12); color: var(--s-red); border: 1px solid rgba(255,59,95,.3); }
+.stage-badge--ok  { background: rgba(46,255,138,.08); color: var(--s-green); border: 1px solid rgba(46,255,138,.2); }
+
+/* ── MAIN GRID ──────────────────────────────────────── */
+.stage-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  grid-template-rows: auto;
+  gap: 0;
+  min-height: calc(100vh - 140px);
+}
+@media (max-width: 900px) {
+  .stage-grid { grid-template-columns: 1fr; }
+  .stage-sidebar { border-left: none; border-top: 1px solid var(--s-border); }
 }
 
-.oracle-avatar-ring::before {
-    content: '';
-    position: absolute;
-    inset: -3px;
-    border-radius: 50%;
-    border: 2px solid rgba(220, 38, 38, 0.2);
-    transition: border-color 0.6s ease;
+/* ── MAIN CONTENT (left) ────────────────────────────── */
+.stage-main {
+  padding: 24px 32px;
+  border-right: 1px solid var(--s-border);
+  display: flex; flex-direction: column; gap: 28px;
 }
 
-.oracle-avatar-ring.is-speaking::before {
-    border-color: rgba(220, 38, 38, 0.6);
-    box-shadow: 0 0 40px rgba(220, 38, 38, 0.15);
+/* ── AVATAR DESK ─────────────────────────────────────── */
+.stage-desk {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+  align-items: start;
 }
-
-.oracle-avatar-ring.is-thinking::before {
-    border-color: rgba(247, 147, 26, 0.4);
-    animation: think-pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes think-pulse {
-    0%, 100% { border-color: rgba(247, 147, 26, 0.2); }
-    50% { border-color: rgba(247, 147, 26, 0.5); }
-}
-
-.oracle-avatar-img {
-    width: 360px;
-    height: 360px;
-    border-radius: 50%;
-    object-fit: cover;
-    display: block;
-    animation: oracle-breathe 4s ease-in-out infinite;
-}
-
-@keyframes oracle-breathe {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.012); }
-}
-
-.oracle-avatar-video {
-    width: 360px;
-    height: 360px;
-    border-radius: 50%;
-    object-fit: cover;
-    display: none;
-    position: absolute;
-    top: 10px;
-    left: 10px;
-}
-
-.oracle-avatar-video.active {
-    display: block;
-}
-
-.oracle-status {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.25);
-    height: 16px;
-    margin-bottom: 24px;
-    transition: color 0.3s ease;
-}
-
-.oracle-status.speaking { color: #dc2626; }
-.oracle-status.thinking { color: #f7931a; }
-
-.oracle-title {
-    font-family: 'Crimson Pro', serif;
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: rgba(255,255,255,0.92);
-    letter-spacing: -0.02em;
-    margin-bottom: 8px;
-    text-align: center;
-}
-
-.oracle-subtitle {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    color: rgba(255,255,255,0.3);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    text-align: center;
-}
-
-/* ─── Input Zone ─────────────────────────────── */
-.oracle-input-zone {
-    margin-bottom: 48px;
-}
-
-.oracle-input-wrap {
-    display: flex;
-    gap: 0;
-    background: rgba(20, 20, 20, 0.8);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    overflow: hidden;
-    transition: border-color 0.3s ease;
-}
-
-.oracle-input-wrap:focus-within {
-    border-color: rgba(220, 38, 38, 0.3);
-}
-
-.oracle-input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    padding: 16px 20px;
-    font-family: 'Inter', -apple-system, sans-serif;
-    font-size: 0.95rem;
-    color: rgba(255,255,255,0.9);
-}
-
-.oracle-input::placeholder {
-    color: rgba(255,255,255,0.2);
-}
-
-.oracle-send-btn {
-    padding: 16px 24px;
-    background: rgba(220, 38, 38, 0.15);
-    border: none;
-    border-left: 1px solid rgba(255,255,255,0.06);
-    color: #dc2626;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-}
-
-.oracle-send-btn:hover {
-    background: rgba(220, 38, 38, 0.25);
-}
-
-.oracle-send-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-/* ─── Response Zone ──────────────────────────── */
-.oracle-response-zone {
-    margin-bottom: 56px;
-    min-height: 80px;
-}
-
-.oracle-response {
-    display: none;
-    background: rgba(20, 20, 20, 0.8);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    padding: 24px;
-}
-
-.oracle-response.visible {
-    display: block;
-    animation: fade-up 0.4s ease-out;
-}
-
-@keyframes fade-up {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.oracle-response-text {
-    font-family: 'Crimson Pro', serif;
-    font-size: 1.05rem;
-    line-height: 1.75;
-    color: rgba(255,255,255,0.85);
-}
-
-.oracle-response-meta {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-top: 16px;
-    padding-top: 12px;
-    border-top: 1px solid rgba(255,255,255,0.05);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.6rem;
-    color: rgba(255,255,255,0.2);
-    letter-spacing: 0.04em;
-}
-
-/* ─── Quick Questions ────────────────────────── */
-.oracle-quick-questions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 16px;
-}
-
-.oracle-quick-btn {
-    padding: 8px 14px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 20px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    color: rgba(255,255,255,0.35);
-    letter-spacing: 0.02em;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.oracle-quick-btn:hover {
-    border-color: rgba(220, 38, 38, 0.3);
-    color: rgba(255,255,255,0.6);
-    background: rgba(220, 38, 38, 0.05);
-}
-
-/* ─── Divider ────────────────────────────────── */
-.oracle-divider {
-    width: 60px;
-    height: 1px;
-    background: rgba(255,255,255,0.06);
-    margin: 0 auto 48px;
-}
-
-/* ─── Latest Intelligence ────────────────────── */
-.oracle-intel-section {
-    margin-bottom: 40px;
-}
-
-.oracle-intel-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.2);
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.oracle-intel-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-}
-
 @media (max-width: 700px) {
-    .oracle-intel-grid {
-        grid-template-columns: 1fr;
-    }
-    .oracle-avatar-ring {
-        width: 280px;
-        height: 280px;
-    }
-    .oracle-avatar-img,
-    .oracle-avatar-video {
-        width: 260px;
-        height: 260px;
-    }
-    .oracle-title {
-        font-size: 1.6rem;
-    }
+  .stage-desk { grid-template-columns: 1fr; }
+}
+.stage-avatar-wrap {
+  position: relative;
+  background: radial-gradient(circle at 50% 100%, rgba(255,59,95,.08) 0%, transparent 60%),
+              #06080f;
+  border: 1px solid var(--s-border);
+  border-radius: 8px;
+  overflow: hidden;
+  aspect-ratio: 3/4;
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.stage-avatar-wrap::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(4,5,10,.8) 0%, transparent 40%);
+  z-index: 2; pointer-events: none;
+}
+/* Desk surface */
+.stage-avatar-wrap::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 28%;
+  background: linear-gradient(to top, #0d1017 0%, rgba(13,16,23,.5) 70%, transparent 100%);
+  z-index: 3; pointer-events: none;
+}
+.stage-avatar-img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: center top;
+  filter: brightness(.9) contrast(1.08);
+}
+.stage-avatar-vid {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: center top;
+  display: none; z-index: 1;
+}
+.stage-avatar-vid.active { display: block; }
+.stage-avatar-nameplate {
+  position: absolute; bottom: 12px; left: 12px; z-index: 10;
+  display: flex; align-items: center; gap: 8px;
+}
+.stage-avatar-nameplate__dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--s-red); box-shadow: 0 0 5px var(--s-red);
+  animation: live-pulse 1.4s ease-in-out infinite;
+}
+.stage-avatar-nameplate__name {
+  font-family: var(--s-mono); font-size: 11px; letter-spacing: .14em;
+  color: rgba(255,255,255,.9); text-transform: uppercase;
 }
 
-.oracle-intel-card {
-    background: rgba(20, 20, 20, 0.8);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 8px;
-    padding: 20px;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    display: block;
+/* ── BRIEF PANEL (right of avatar) ─────────────────── */
+.stage-brief {
+  display: flex; flex-direction: column; gap: 16px;
+}
+.stage-brief__section-label {
+  font-family: var(--s-mono); font-size: 9px; letter-spacing: .22em;
+  text-transform: uppercase; color: var(--s-muted);
+  margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
+}
+.stage-brief__section-label::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(to right, var(--s-border), transparent);
+}
+.stage-brief__sentiment {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  background: var(--s-surface); border: 1px solid var(--s-border);
+  border-radius: 6px;
+}
+.stage-brief__sentiment-bar-wrap {
+  flex: 1; height: 4px; background: rgba(255,255,255,.08);
+  border-radius: 2px; overflow: hidden;
+}
+.stage-brief__sentiment-bar {
+  height: 100%; border-radius: 2px;
+  background: linear-gradient(to right, var(--s-red), var(--s-gold), var(--s-green));
+  transition: width .6s ease;
+}
+.stage-brief__sentiment-score {
+  font-family: var(--s-mono); font-size: 22px; font-weight: 600;
+  line-height: 1; color: #fff; min-width: 36px; text-align: right;
+}
+.stage-brief__sentiment-label {
+  font-family: var(--s-mono); font-size: 9px; letter-spacing: .12em;
+  text-transform: uppercase; margin-top: 2px;
 }
 
-.oracle-intel-card:hover {
-    border-color: rgba(220, 38, 38, 0.2);
-    transform: translateY(-2px);
+/* Narrative card */
+.stage-narrative {
+  padding: 14px 16px;
+  background: var(--s-surface); border: 1px solid var(--s-border);
+  border-left: 3px solid var(--s-red); border-radius: 6px;
+  font-family: var(--s-head); font-size: 14px; font-weight: 500;
+  line-height: 1.5; color: rgba(255,255,255,.82);
+  position: relative;
+}
+.stage-narrative::before {
+  content: 'ORACLE NARRATIVE';
+  font-family: var(--s-mono); font-size: 8px; letter-spacing: .22em;
+  color: var(--s-red); display: block; margin-bottom: 6px;
 }
 
-.oracle-intel-card-img {
-    width: 100%;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 6px;
-    margin-bottom: 12px;
-    background: rgba(255,255,255,0.03);
+/* Topics */
+.stage-topics {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.stage-topic {
+  font-family: var(--s-mono); font-size: 9px; letter-spacing: .1em;
+  padding: 4px 10px; border-radius: 3px;
+  text-transform: uppercase; border: 1px solid;
+}
+.stage-topic--bull  { background: rgba(46,255,138,.07);  color: var(--s-green); border-color: rgba(46,255,138,.2); }
+.stage-topic--bear  { background: rgba(255,59,95,.07);   color: var(--s-red);   border-color: rgba(255,59,95,.2);  }
+.stage-topic--neut  { background: rgba(248,193,92,.07);  color: var(--s-gold);  border-color: rgba(248,193,92,.2); }
+
+/* Playback controls */
+.stage-controls {
+  display: flex; gap: 8px; align-items: center;
+}
+.stage-btn {
+  font-family: var(--s-mono); font-size: 10px; letter-spacing: .12em;
+  text-transform: uppercase; padding: 8px 16px;
+  border-radius: 4px; cursor: pointer; border: 1px solid;
+  transition: all .15s; flex-shrink: 0;
+}
+.stage-btn--primary {
+  background: var(--s-red); color: #fff; border-color: var(--s-red);
+}
+.stage-btn--primary:hover { background: #ff1a40; }
+.stage-btn--ghost {
+  background: transparent; color: rgba(255,255,255,.6); border-color: var(--s-border);
+}
+.stage-btn--ghost:hover { border-color: rgba(255,255,255,.3); color: #fff; }
+.stage-btn:disabled { opacity: .35; cursor: not-allowed; }
+.stage-status {
+  font-family: var(--s-mono); font-size: 10px; letter-spacing: .1em;
+  color: var(--s-muted); flex: 1; text-align: right;
+}
+.stage-status.speaking { color: var(--s-green); }
+
+/* ── CHANNEL TRANSCRIPTS ─────────────────────────────  */
+.stage-transcripts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+.stage-tx-card {
+  background: var(--s-surface);
+  border: 1px solid var(--s-border);
+  border-radius: 6px;
+  padding: 14px 16px;
+  transition: border-color .15s, transform .15s;
+  cursor: default;
+}
+.stage-tx-card:hover {
+  border-color: rgba(255,59,95,.35);
+  transform: translateY(-1px);
+}
+.stage-tx-card__channel {
+  font-family: var(--s-mono); font-size: 9px; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--s-red); margin-bottom: 5px;
+}
+.stage-tx-card__title {
+  font-family: var(--s-head); font-size: 13px; font-weight: 600;
+  color: rgba(255,255,255,.9); line-height: 1.35; margin-bottom: 8px;
+}
+.stage-tx-card__excerpt {
+  font-family: var(--s-head); font-size: 12px; font-weight: 400;
+  color: rgba(255,255,255,.42); line-height: 1.5;
+}
+.stage-tx-card__footer {
+  margin-top: 10px; padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,.05);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.stage-tx-card__read-btn {
+  font-family: var(--s-mono); font-size: 9px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--s-gold);
+  background: none; border: none; cursor: pointer; padding: 0;
+  transition: color .1s;
+}
+.stage-tx-card__read-btn:hover { color: #fff; }
+.stage-tx-card__sentiment {
+  font-family: var(--s-mono); font-size: 9px; letter-spacing: .08em;
+  text-transform: uppercase;
 }
 
-.oracle-intel-card-title {
-    font-family: 'Crimson Pro', serif;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: rgba(255,255,255,0.8);
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+/* ── SIDEBAR (right) ─────────────────────────────────  */
+.stage-sidebar {
+  border-left: 1px solid var(--s-border);
+  display: flex; flex-direction: column;
+  height: fit-content; position: sticky; top: 42px;
+  max-height: calc(100vh - 42px); overflow: hidden;
+}
+.stage-panel {
+  border-bottom: 1px solid var(--s-border);
+  flex-shrink: 0;
+}
+.stage-panel__header {
+  padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+  background: rgba(8,11,18,.7);
+  font-family: var(--s-mono); font-size: 9px; letter-spacing: .2em;
+  text-transform: uppercase; color: rgba(255,255,255,.4);
+}
+.stage-panel__header-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  margin-right: 7px; display: inline-block; vertical-align: middle;
+}
+.stage-panel__body { padding: 12px 16px; }
+
+/* Price panel */
+.stage-price-big {
+  font-family: var(--s-head); font-size: 36px; font-weight: 800;
+  color: #fff; line-height: 1; letter-spacing: -.02em;
+}
+.stage-price-label {
+  font-family: var(--s-mono); font-size: 9px; letter-spacing: .2em;
+  color: var(--s-muted); margin-top: 4px; text-transform: uppercase;
+}
+.stage-price-change {
+  font-family: var(--s-mono); font-size: 12px;
+  margin-top: 8px;
+}
+
+/* Nostr feed */
+.stage-signal-feed {
+  overflow-y: auto;
+  max-height: 380px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,59,95,.2) transparent;
+}
+.stage-signal-item {
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.stage-signal-item:last-child { border-bottom: none; }
+.stage-signal-item__author {
+  font-family: var(--s-mono); font-size: 9px; letter-spacing: .1em;
+  color: var(--s-gold); margin-bottom: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.stage-signal-item__text {
+  font-family: var(--s-head); font-size: 12px;
+  color: rgba(255,255,255,.6); line-height: 1.45;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Transcript reader overlay */
+.stage-reader {
+  display: none; position: fixed; inset: 0;
+  z-index: 500; background: rgba(4,5,10,.95);
+  backdrop-filter: blur(8px);
+  overflow-y: auto;
+  padding: 40px 24px;
+}
+.stage-reader.open { display: block; }
+.stage-reader__inner {
+  max-width: 680px; margin: 0 auto;
+  background: var(--s-surface); border: 1px solid var(--s-border);
+  border-radius: 8px; padding: 32px;
+}
+.stage-reader__close {
+  font-family: var(--s-mono); font-size: 10px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--s-muted);
+  background: none; border: none; cursor: pointer;
+  margin-bottom: 20px; display: flex; align-items: center; gap: 6px;
+  transition: color .1s;
+}
+.stage-reader__close:hover { color: #fff; }
+.stage-reader__channel {
+  font-family: var(--s-mono); font-size: 9px; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--s-red); margin-bottom: 8px;
+}
+.stage-reader__title {
+  font-family: var(--s-head); font-size: 22px; font-weight: 700;
+  color: #fff; line-height: 1.3; margin-bottom: 16px;
+}
+.stage-reader__body {
+  font-family: var(--s-head); font-size: 14px; font-weight: 400;
+  color: rgba(255,255,255,.68); line-height: 1.7;
+  white-space: pre-wrap; word-break: break-word;
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.stage-desk     { animation: fadeUp .5s ease both; }
+.stage-tx-card  { animation: fadeUp .5s ease both; }
+.stage-tx-card:nth-child(2) { animation-delay: .05s; }
+.stage-tx-card:nth-child(3) { animation-delay: .10s; }
+.stage-tx-card:nth-child(4) { animation-delay: .15s; }
+.stage-tx-card:nth-child(5) { animation-delay: .20s; }
+.stage-tx-card:nth-child(6) { animation-delay: .25s; }
+
+/* Loading shimmer */
+.shimmer {
+  background: linear-gradient(90deg, rgba(255,255,255,.04) 0%, rgba(255,255,255,.08) 50%, rgba(255,255,255,.04) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="oracle-stage">
-    <div class="oracle-stage-inner">
+<div class="stage-wrap">
 
-        <!-- Avatar Zone -->
-        <div class="oracle-avatar-zone">
-            <div class="oracle-avatar-ring" id="avatarRing">
-                <img class="oracle-avatar-img" id="avatarImg"
-                     src="{{ url_for('static', filename='images/oracle_avatar_anime.png') }}"
-                     alt="The Oracle">
-                <video class="oracle-avatar-video" id="avatarVideo" muted playsinline></video>
-            </div>
-            <div class="oracle-status" id="oracleStatus"></div>
-            <h1 class="oracle-title">The Oracle</h1>
-            <p class="oracle-subtitle">Bitcoin Intelligence on Demand</p>
-        </div>
-
-        <!-- Input Zone -->
-        <div class="oracle-input-zone">
-            <div class="oracle-input-wrap">
-                <input type="text" class="oracle-input" id="oracleInput"
-                       placeholder="Ask anything about Bitcoin..."
-                       autocomplete="off" maxlength="500">
-                <button class="oracle-send-btn" id="oracleSend">Ask</button>
-            </div>
-            <div class="oracle-quick-questions">
-                <button class="oracle-quick-btn" data-q="What is the current state of the Bitcoin network?">Network Status</button>
-                <button class="oracle-quick-btn" data-q="Why is Bitcoin valuable?">Why Bitcoin?</button>
-                <button class="oracle-quick-btn" data-q="What are the latest developments in Bitcoin?">Latest News</button>
-                <button class="oracle-quick-btn" data-q="Explain the Bitcoin halving and its impact on price">Halving Impact</button>
-            </div>
-        </div>
-
-        <!-- Response Zone -->
-        <div class="oracle-response-zone">
-            <div class="oracle-response" id="oracleResponse">
-                <div class="oracle-response-text" id="oracleResponseText"></div>
-                <div class="oracle-response-meta">
-                    <span id="oraclePipeline"></span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Divider -->
-        <div class="oracle-divider"></div>
-
-        <!-- Latest Intelligence -->
-        <div class="oracle-intel-section">
-            <div class="oracle-intel-label">Latest Intelligence</div>
-            <div class="oracle-intel-grid" id="intelGrid">
-                <!-- Populated by JS -->
-            </div>
-        </div>
-
+  <!-- TOP STATUS BAR -->
+  <div class="stage-topbar">
+    <div class="stage-topbar__live">
+      <div class="stage-topbar__dot"></div>
+      <span class="stage-topbar__label">On Air</span>
     </div>
+    <div class="stage-topbar__ticker">
+      <div class="stage-topbar__ticker-inner" id="tickerInner">
+        <span class="ticker-item">
+          <span class="ti-label">BITCOIN</span>
+          <span class="ti-val" id="tickerPrice">Loading…</span>
+        </span>
+        <span class="ticker-item"><span class="ti-sep">·</span></span>
+        <span class="ticker-item">
+          <span class="ti-label">SENTIMENT</span>
+          <span class="ti-val" id="tickerSentiment">—</span>
+        </span>
+        <span class="ticker-item"><span class="ti-sep">·</span></span>
+        <span class="ticker-item">
+          <span class="ti-label">ORACLE</span>
+          <span class="ti-val" id="tickerOracle">Standing By</span>
+        </span>
+        <span class="ticker-item"><span class="ti-sep">·</span></span>
+        <span class="ticker-item">
+          <span class="ti-label">NETWORK</span>
+          <span class="ti-val" id="tickerTopics">—</span>
+        </span>
+        <!-- Duplicate for seamless loop -->
+        <span class="ticker-item">
+          <span class="ti-label">BITCOIN</span>
+          <span class="ti-val" id="tickerPrice2">Loading…</span>
+        </span>
+        <span class="ticker-item"><span class="ti-sep">·</span></span>
+        <span class="ticker-item">
+          <span class="ti-label">SENTIMENT</span>
+          <span class="ti-val" id="tickerSentiment2">—</span>
+        </span>
+        <span class="ticker-item"><span class="ti-sep">·</span></span>
+        <span class="ticker-item">
+          <span class="ti-label">ORACLE</span>
+          <span class="ti-val">Standing By</span>
+        </span>
+        <span class="ticker-item"><span class="ti-sep">·</span></span>
+        <span class="ticker-item">
+          <span class="ti-label">NETWORK</span>
+          <span class="ti-val" id="tickerTopics2">—</span>
+        </span>
+      </div>
+    </div>
+    <div class="stage-topbar__time" id="stageTime">—</div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="stage-header">
+    <div>
+      <div class="stage-header__title">⚡ Oracle Stage</div>
+      <div class="stage-header__sub">LIVE BITCOIN INTELLIGENCE BROADCAST — PROTOCOLPULSE.IO</div>
+    </div>
+    <div class="stage-header__right">
+      <div class="stage-badge stage-badge--on">● On Air</div>
+      <div class="stage-badge stage-badge--ok" id="avatarStatusBadge">● Avatar Ready</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="stage-grid">
+
+    <!-- LEFT: Main content -->
+    <div class="stage-main">
+
+      <!-- AVATAR DESK -->
+      <div>
+        <div class="stage-brief__section-label">Oracle Desk</div>
+        <div class="stage-desk">
+
+          <!-- Avatar -->
+          <div class="stage-avatar-wrap">
+            <img class="stage-avatar-img" id="avatarStill"
+                 src="/static/oracle_avatar.png" alt="Oracle Avatar"
+                 onerror="this.style.display='none'">
+            <video class="stage-avatar-vid" id="avatarVid"
+                   playsinline webkit-playsinline muted autoplay></video>
+            <div class="stage-avatar-nameplate">
+              <div class="stage-avatar-nameplate__dot"></div>
+              <div class="stage-avatar-nameplate__name">Oracle — Protocol Pulse</div>
+            </div>
+          </div>
+
+          <!-- Brief panels -->
+          <div class="stage-brief">
+
+            <!-- Sentiment -->
+            <div>
+              <div class="stage-brief__section-label">Market Sentiment</div>
+              <div class="stage-brief__sentiment">
+                <div>
+                  <div class="stage-brief__sentiment-score" id="sentimentScore">—</div>
+                  <div class="stage-brief__sentiment-label" id="sentimentLabel">Loading</div>
+                </div>
+                <div style="flex:1">
+                  <div class="stage-brief__sentiment-bar-wrap">
+                    <div class="stage-brief__sentiment-bar" id="sentimentBar" style="width:50%"></div>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;margin-top:4px">
+                    <span style="font-family:var(--s-mono);font-size:8px;color:var(--s-red)">BEARISH</span>
+                    <span style="font-family:var(--s-mono);font-size:8px;color:var(--s-green)">BULLISH</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Narrative -->
+            <div>
+              <div class="stage-narrative" id="narrativeText">Loading Oracle narrative…</div>
+            </div>
+
+            <!-- Topics -->
+            <div>
+              <div class="stage-brief__section-label">Active Topics</div>
+              <div class="stage-topics" id="topicsWrap">
+                <span class="stage-topic stage-topic--neut shimmer" style="width:100px;height:20px;">&nbsp;</span>
+              </div>
+            </div>
+
+            <!-- Playback controls -->
+            <div>
+              <div class="stage-brief__section-label">Oracle Broadcast</div>
+              <div class="stage-controls">
+                <button class="stage-btn stage-btn--primary" id="briefBtn" onclick="requestBrief()">
+                  ▶ Daily Brief
+                </button>
+                <button class="stage-btn stage-btn--ghost" id="greetBtn" onclick="requestGreet()">
+                  👋 Greet
+                </button>
+                <div class="stage-status" id="stageStatus">Ready</div>
+              </div>
+            </div>
+
+          </div><!-- /stage-brief -->
+        </div><!-- /stage-desk -->
+      </div>
+
+      <!-- CHANNEL TRANSCRIPTS -->
+      <div>
+        <div class="stage-brief__section-label">Partner Channel Intelligence</div>
+        <div class="stage-transcripts" id="transcriptsGrid">
+          <!-- Skeleton loaders -->
+          {% for i in range(6) %}
+          <div class="stage-tx-card shimmer" style="height:140px;"></div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div><!-- /stage-main -->
+
+    <!-- RIGHT: Sidebar -->
+    <div class="stage-sidebar">
+
+      <!-- Price Panel -->
+      <div class="stage-panel">
+        <div class="stage-panel__header">
+          <span><span class="stage-panel__header-dot" style="background:var(--s-gold)"></span>Bitcoin Price</span>
+          <span id="priceUpdated" style="font-size:8px;color:rgba(255,255,255,.2)">live</span>
+        </div>
+        <div class="stage-panel__body">
+          <div class="stage-price-big" id="sidebarPrice">—</div>
+          <div class="stage-price-label">USD · Real-Time</div>
+          <div class="stage-price-change" id="sidebarSentimentLine">—</div>
+        </div>
+      </div>
+
+      <!-- Nostr Signal Panel -->
+      <div class="stage-panel" style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
+        <div class="stage-panel__header">
+          <span><span class="stage-panel__header-dot" style="background:var(--s-red);animation:live-pulse 1.4s infinite"></span>Nostr Signal</span>
+          <span id="nostrCount" style="font-size:8px;color:rgba(255,255,255,.3)">0 posts</span>
+        </div>
+        <div class="stage-panel__body stage-signal-feed" id="nostrFeed">
+          <div style="font-family:var(--s-mono);font-size:10px;color:var(--s-muted);text-align:center;padding:20px 0">
+            Loading signal…
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /stage-sidebar -->
+  </div><!-- /stage-grid -->
+</div><!-- /stage-wrap -->
+
+<!-- Transcript Reader Overlay -->
+<div class="stage-reader" id="stageReader">
+  <div class="stage-reader__inner">
+    <button class="stage-reader__close" onclick="closeReader()">
+      ← Back to Stage
+    </button>
+    <div class="stage-reader__channel" id="readerChannel"></div>
+    <div class="stage-reader__title" id="readerTitle"></div>
+    <div class="stage-reader__body" id="readerBody"></div>
+  </div>
 </div>
-{% endblock %}
 
-{% block scripts %}
-{% raw %}
 <script>
-(function() {
-    'use strict';
+(function(){
+  'use strict';
 
-    const SPEAK_URL = '/api/oracle/speak';
-    const avatarImg = document.getElementById('avatarImg');
-    const avatarVideo = document.getElementById('avatarVideo');
-    const avatarRing = document.getElementById('avatarRing');
-    const statusEl = document.getElementById('oracleStatus');
-    const inputEl = document.getElementById('oracleInput');
-    const sendBtn = document.getElementById('oracleSend');
-    const responseBox = document.getElementById('oracleResponse');
-    const responseText = document.getElementById('oracleResponseText');
-    const pipelineEl = document.getElementById('oraclePipeline');
+  var AVATAR_BASE = 'https://avatar.protocolpulse.io';
+  var busy = false;
+  var objURL = null;
+  var vid = document.getElementById('avatarVid');
+  var still = document.getElementById('avatarStill');
+  var briefBtn = document.getElementById('briefBtn');
+  var greetBtn = document.getElementById('greetBtn');
+  var statusEl = document.getElementById('stageStatus');
+  var badgeEl  = document.getElementById('avatarStatusBadge');
 
-    let isProcessing = false;
-    let currentAudio = null;
+  // ── CLOCK ────────────────────────────────────────────
+  function tick(){
+    var now = new Date();
+    document.getElementById('stageTime').textContent =
+      now.toUTCString().slice(17,22) + ' UTC';
+  }
+  tick(); setInterval(tick, 1000);
 
-    function setStatus(state) {
-        statusEl.className = 'oracle-status ' + state;
-        avatarRing.className = 'oracle-avatar-ring' + (state ? ' is-' + state : '');
-        if (state === 'thinking') statusEl.textContent = 'Processing...';
-        else if (state === 'speaking') statusEl.textContent = 'Speaking';
-        else statusEl.textContent = '';
-    }
-
-    function stopSpeaking() {
-        if (currentAudio) {
-            currentAudio.pause();
-            currentAudio = null;
-        }
-        avatarVideo.classList.remove('active');
-        avatarVideo.pause();
-        avatarImg.style.animation = 'oracle-breathe 4s ease-in-out infinite';
-        setStatus('');
-    }
-
-    function b64ToBlob(b64, mime) {
-        var bin = atob(b64);
-        var arr = new Uint8Array(bin.length);
-        for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-        return new Blob([arr], { type: mime });
-    }
-
-    async function askOracle(msg) {
-        if (!msg || isProcessing) return;
-
-        isProcessing = true;
-        sendBtn.disabled = true;
-        stopSpeaking();
-        setStatus('thinking');
-
-        // Hide old response during processing
-        responseBox.classList.remove('visible');
-
-        try {
-            var resp = await fetch(SPEAK_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: msg })
-            });
-
-            if (!resp.ok) {
-                responseText.textContent = 'Connection disrupted. Try again.';
-                responseBox.classList.add('visible');
-                setStatus('');
-                isProcessing = false;
-                sendBtn.disabled = false;
-                return;
-            }
-
-            var data = await resp.json();
-
-            // Show text response
-            if (data.response) {
-                responseText.textContent = data.response;
-                responseBox.classList.add('visible');
-            }
-
-            // Pipeline time
-            if (data.pipeline_time) {
-                pipelineEl.textContent = 'Generated in ' + data.pipeline_time.toFixed(1) + 's';
-            }
-
-            // Play video lip-sync
-            if (data.video_base64) {
-                try {
-                    var videoBlob = b64ToBlob(data.video_base64, 'video/mp4');
-                    var videoUrl = URL.createObjectURL(videoBlob);
-                    avatarVideo.src = videoUrl;
-                    avatarVideo.classList.add('active');
-                    avatarImg.style.animation = 'none';
-                    setStatus('speaking');
-
-                    avatarVideo.onended = function() {
-                        URL.revokeObjectURL(videoUrl);
-                        stopSpeaking();
-                    };
-
-                    avatarVideo.play().catch(function(e) {
-                        console.warn('Video play failed:', e);
-                        stopSpeaking();
-                    });
-                } catch (e) {
-                    console.warn('Video setup failed:', e);
-                }
-            }
-
-            // Play audio
-            if (data.audio_base64) {
-                try {
-                    var audioBlob = b64ToBlob(data.audio_base64, 'audio/mpeg');
-                    var audioUrl = URL.createObjectURL(audioBlob);
-                    currentAudio = new Audio(audioUrl);
-
-                    if (!data.video_base64) {
-                        setStatus('speaking');
-                    }
-
-                    currentAudio.onended = function() {
-                        URL.revokeObjectURL(audioUrl);
-                        if (!data.video_base64) {
-                            stopSpeaking();
-                        }
-                    };
-
-                    currentAudio.play().catch(function(e) {
-                        console.warn('Audio play failed:', e);
-                    });
-                } catch (e) {
-                    console.warn('Audio setup failed:', e);
-                }
-            }
-
-            if (!data.video_base64 && !data.audio_base64) {
-                setStatus('');
-            }
-
-        } catch (e) {
-            responseText.textContent = 'The Oracle is currently offline. Try again shortly.';
-            responseBox.classList.add('visible');
-            setStatus('');
-        }
-
-        isProcessing = false;
-        sendBtn.disabled = false;
-    }
-
-    // Send button
-    sendBtn.addEventListener('click', function() {
-        askOracle(inputEl.value.trim());
-        inputEl.value = '';
+  // ── FETCH INTEL ───────────────────────────────────────
+  function loadIntel(){
+    fetch('/api/oracle/ask', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({question:'stage_intel_refresh'})
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      // price
+      var price = d.price || '';
+      updatePrice(price, d.price_float);
+      // sentiment
+      var score = d.sentiment_score || 50;
+      var label = d.sentiment_label || 'neutral';
+      document.getElementById('sentimentScore').textContent = score;
+      document.getElementById('sentimentLabel').textContent = label.toUpperCase();
+      document.getElementById('sentimentBar').style.width = score + '%';
+      var sentColor = score > 60 ? 'var(--s-green)' : score < 40 ? 'var(--s-red)' : 'var(--s-gold)';
+      document.getElementById('sentimentScore').style.color = sentColor;
+      document.getElementById('sentimentLabel').style.color = sentColor;
+      // ticker
+      document.getElementById('tickerPrice').textContent = price;
+      document.getElementById('tickerPrice2').textContent = price;
+      document.getElementById('tickerSentiment').textContent = label.toUpperCase() + ' ' + score + '/100';
+      document.getElementById('tickerSentiment2').textContent = label.toUpperCase() + ' ' + score + '/100';
+      // sidebar sentiment line
+      document.getElementById('sidebarSentimentLine').innerHTML =
+        '<span style="color:'+sentColor+';font-family:var(--s-mono);font-size:11px">' +
+        label.toUpperCase() + ' — ' + score + '/100</span>';
+      // narrative
+      if(d.narrative){
+        document.getElementById('narrativeText').textContent = d.narrative;
+      }
+      // topics
+      if(d.topics){
+        renderTopics(d.topics);
+        var topicsText = d.topics.replace(/\([^)]+\)/g,'').replace(/,/g,' ·');
+        document.getElementById('tickerTopics').textContent = topicsText;
+        document.getElementById('tickerTopics2').textContent = topicsText;
+      }
+    })
+    .catch(function(){
+      // Fallback: try oracle health endpoint for price
+      fetch(AVATAR_BASE + '/health')
+        .then(function(r){ return r.json(); })
+        .catch(function(){});
     });
+  }
 
-    // Enter key
-    inputEl.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            askOracle(inputEl.value.trim());
-            inputEl.value = '';
-        }
+  function updatePrice(priceStr, priceFloat){
+    if(!priceStr) return;
+    var fmt = priceFloat ? '$' + Number(priceFloat).toLocaleString('en-US',{maximumFractionDigits:0}) : priceStr;
+    document.getElementById('sidebarPrice').textContent = fmt;
+    document.getElementById('tickerPrice').textContent = fmt;
+    document.getElementById('tickerPrice2').textContent = fmt;
+    document.getElementById('priceUpdated').textContent = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  }
+
+  function renderTopics(topicsStr){
+    var wrap = document.getElementById('topicsWrap');
+    wrap.innerHTML = '';
+    var parts = topicsStr.split(',');
+    parts.forEach(function(t){
+      t = t.trim();
+      var cls = 'stage-topic--neut';
+      if(t.indexOf('(bullish)')>=0 || t.indexOf('bullish')>=0) cls = 'stage-topic--bull';
+      if(t.indexOf('(bearish)')>=0 || t.indexOf('bearish')>=0) cls = 'stage-topic--bear';
+      var label = t.replace(/\s*\([^)]+\)\s*/g,'').trim();
+      var span = document.createElement('span');
+      span.className = 'stage-topic ' + cls;
+      span.textContent = label;
+      wrap.appendChild(span);
     });
+  }
 
-    // Quick question buttons
-    document.querySelectorAll('.oracle-quick-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            var q = btn.getAttribute('data-q');
-            inputEl.value = q;
-            askOracle(q);
-            inputEl.value = '';
-        });
+  // ── LOAD TRANSCRIPTS ──────────────────────────────────
+  function loadTranscripts(){
+    fetch('/api/stage/transcripts')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      renderTranscripts(data);
+    })
+    .catch(function(){
+      // Fallback: show placeholder cards
+      renderTranscripts([]);
     });
+  }
 
-    // Fetch latest articles
-    fetch('/api/latest-articles')
-        .then(function(r) { return r.json(); })
-        .then(function(articles) {
-            var grid = document.getElementById('intelGrid');
-            var items = articles.slice(0, 3);
-            if (!items.length) {
-                grid.innerHTML = '<p style="color:rgba(255,255,255,0.2); font-size:0.8rem; text-align:center; grid-column:1/-1;">Intelligence feed loading...</p>';
-                return;
-            }
-            grid.innerHTML = items.map(function(a) {
-                return '<a href="/articles/' + a.id + '" class="oracle-intel-card">' +
-                    '<img class="oracle-intel-card-img" src="' + (a.header_image_url || '/static/images/default-header.png') + '" alt="" loading="lazy">' +
-                    '<div class="oracle-intel-card-title">' + a.title + '</div>' +
-                    '</a>';
-            }).join('');
-        })
-        .catch(function() {});
+  function renderTranscripts(items){
+    var grid = document.getElementById('transcriptsGrid');
+    if(!items || !items.length){
+      grid.innerHTML = '<div style="grid-column:1/-1;font-family:var(--s-mono);font-size:11px;color:var(--s-muted);padding:20px 0">No transcript data available yet. Channel scan in progress.</div>';
+      return;
+    }
+    grid.innerHTML = '';
+    items.forEach(function(item){
+      var sentCls = 'stage-topic--neut';
+      var sentLabel = item.sentiment || 'neutral';
+      if(sentLabel === 'bullish') sentCls = 'stage-topic--bull';
+      if(sentLabel === 'bearish') sentCls = 'stage-topic--bear';
+      var card = document.createElement('div');
+      card.className = 'stage-tx-card';
+      card.innerHTML = [
+        '<div class="stage-tx-card__channel">' + esc(item.channel||'Unknown') + '</div>',
+        '<div class="stage-tx-card__title">' + esc((item.title||'').slice(0,70)) + '</div>',
+        '<div class="stage-tx-card__excerpt">' + esc((item.excerpt||item.transcript_snippet||'').slice(0,120)) + '…</div>',
+        '<div class="stage-tx-card__footer">',
+          '<button class="stage-tx-card__read-btn" onclick="openReader(this)">Read Brief →</button>',
+          '<span class="stage-topic ' + sentCls + '">' + esc(sentLabel) + '</span>',
+        '</div>',
+      ].join('');
+      // Store full data on card
+      card.dataset.channel  = item.channel || '';
+      card.dataset.title    = item.title   || '';
+      card.dataset.body     = item.transcript_text || item.excerpt || '';
+      grid.appendChild(card);
+    });
+  }
+
+  function esc(s){
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── NOSTR SIGNAL ──────────────────────────────────────
+  function loadNostr(){
+    fetch('/api/oracle/recent')
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var posts = d.nostr_posts || [];
+      renderNostr(posts);
+    })
+    .catch(function(){
+      renderNostr([]);
+    });
+  }
+
+  function renderNostr(posts){
+    var feed = document.getElementById('nostrFeed');
+    document.getElementById('nostrCount').textContent = posts.length + ' posts';
+    if(!posts.length){
+      feed.innerHTML = '<div style="font-family:var(--s-mono);font-size:10px;color:var(--s-muted);text-align:center;padding:20px 0">No signal yet — relay scanning…</div>';
+      return;
+    }
+    feed.innerHTML = '';
+    posts.slice(0,12).forEach(function(p){
+      var item = document.createElement('div');
+      item.className = 'stage-signal-item';
+      var author = p.nip05 || p.display_name || (p.pubkey ? p.pubkey.slice(0,12)+'…' : 'anon');
+      item.innerHTML = [
+        '<div class="stage-signal-item__author">' + esc(author) + '</div>',
+        '<div class="stage-signal-item__text">' + esc((p.text||'').slice(0,180)) + '</div>',
+      ].join('');
+      feed.appendChild(item);
+    });
+  }
+
+  // ── TRANSCRIPT READER ─────────────────────────────────
+  window.openReader = function(btn){
+    var card = btn.closest('.stage-tx-card');
+    document.getElementById('readerChannel').textContent = card.dataset.channel;
+    document.getElementById('readerTitle').textContent   = card.dataset.title;
+    document.getElementById('readerBody').textContent    = card.dataset.body || 'Full transcript not available.';
+    document.getElementById('stageReader').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+  window.closeReader = function(){
+    document.getElementById('stageReader').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  // ── AVATAR PLAYBACK ───────────────────────────────────
+  function setStatus(msg, color, spin){
+    statusEl.textContent = msg;
+    statusEl.style.color = color || 'rgba(255,255,255,.3)';
+    statusEl.className   = 'stage-status' + (msg==='Speaking' ? ' speaking' : '');
+    tickerOracle(msg);
+  }
+  function tickerOracle(msg){
+    document.getElementById('tickerOracle').textContent = msg;
+  }
+  function setBusy(b){
+    busy = b;
+    briefBtn.disabled = b;
+    greetBtn.disabled = b;
+    badgeEl.textContent = b ? '● Rendering…' : '● Avatar Ready';
+    badgeEl.style.color = b ? 'var(--s-gold)' : 'var(--s-green)';
+    badgeEl.style.borderColor = b ? 'rgba(248,193,92,.3)' : 'rgba(46,255,138,.2)';
+    badgeEl.style.background  = b ? 'rgba(248,193,92,.08)' : 'rgba(46,255,138,.08)';
+  }
+
+  function playVid(url){
+    return new Promise(function(resolve){
+      if(objURL) try{ URL.revokeObjectURL(objURL); }catch(e){}
+      objURL = url;
+      vid.src = url;
+      vid.muted = true;
+      vid.volume = 1.0;
+      still.style.opacity = '0';
+      vid.classList.add('active');
+      setStatus('Speaking','var(--s-green)');
+      var unmuted = false;
+      function tryUnmute(){ if(unmuted) return; unmuted=true; vid.muted=false; vid.volume=1.0; }
+      vid.addEventListener('canplay', function oncp(){ vid.removeEventListener('canplay',oncp); tryUnmute(); }, {once:true});
+      vid.onended = function(){
+        vid.classList.remove('active');
+        still.style.opacity = '1';
+        setStatus('Ready','rgba(255,255,255,.3)');
+        resolve();
+      };
+      vid.onerror = function(){ vid.classList.remove('active'); still.style.opacity='1'; resolve(); };
+      var p = vid.play();
+      if(p){ p.then(function(){ setTimeout(tryUnmute,50); }).catch(function(){
+        setStatus('Tap to play','var(--s-gold)');
+        vid.addEventListener('click', function(){ vid.muted=false; vid.play(); }, {once:true});
+      }); }
+    });
+  }
+
+  function fetchTO(url, opts, ms){
+    var ctrl = new AbortController();
+    var id = setTimeout(function(){ ctrl.abort(); }, ms||30000);
+    var o = opts||{}; o.signal = ctrl.signal;
+    return fetch(url, o).finally(function(){ clearTimeout(id); });
+  }
+
+  window.requestBrief = function(){
+    if(busy) return;
+    setBusy(true); setStatus('Fetching brief…','var(--s-gold)');
+    fetchTO(AVATAR_BASE + '/oracle/speak',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({intent:'DAILY_BRIEF'})
+    }, 60000)
+    .then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      return r.blob().then(function(b){
+        return URL.createObjectURL(b);
+      });
+    })
+    .then(function(url){ return playVid(url); })
+    .catch(function(e){
+      setStatus('Error — try again','var(--s-red)');
+      console.error(e);
+    })
+    .finally(function(){ setBusy(false); });
+  };
+
+  window.requestGreet = function(){
+    if(busy) return;
+    setBusy(true); setStatus('Loading…','var(--s-gold)');
+    fetchTO(AVATAR_BASE + '/oracle/response/GREETING',{},15000)
+    .then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      return r.blob().then(function(b){ return URL.createObjectURL(b); });
+    })
+    .then(function(url){ return playVid(url); })
+    .catch(function(e){ setStatus('Error','var(--s-red)'); console.error(e); })
+    .finally(function(){ setBusy(false); });
+  };
+
+  // Auto-play greeting on load
+  setTimeout(function(){
+    requestGreet();
+  }, 800);
+
+  // ── INIT DATA ─────────────────────────────────────────
+  loadIntel();
+  loadTranscripts();
+  loadNostr();
+
+  // Refresh intel every 3 minutes
+  setInterval(loadIntel, 180000);
+  // Refresh Nostr every 2 minutes
+  setInterval(loadNostr, 120000);
+
 })();
 </script>
-{% endraw %}
 {% endblock %}

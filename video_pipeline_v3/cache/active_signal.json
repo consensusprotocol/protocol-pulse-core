@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1773724506.633571,
-  "fetched_at_iso": "2026-03-17T05:15:06.633577+00:00",
+  "fetched_at": 1773725406.0615466,
+  "fetched_at_iso": "2026-03-17T05:30:06.061552+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
       "connected": false,
       "events_raw": 0,
       "events_filtered": 0,
-      "error": "timed out during opening handshake"
+      "error": "server rejected WebSocket connection: HTTP 503"
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
-      "events_raw": 0,
-      "events_filtered": 0,
+      "events_raw": 100,
+      "events_filtered": 94,
       "error": null
     },
     {
@@ -34,7 +34,7 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 82,
+      "events_filtered": 81,
       "error": null
     }
   ],
@@ -44,8 +44,17 @@
       "pubkey": "cf6340e3c10215c641700b5ff97f8f2ae8778305aaa74ce58cdd86cd5f98ba53",
       "display_name": "npub1cf6340e3...98ba53",
       "created_at": 1773716438,
-      "relay": "wss://relay.primal.net",
+      "relay": "wss://nos.lol",
       "score": 120,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcca Why Lightning Changes the Game for Machine-to-Machine Payments\n\nTraditional payment rails weren't built for machines.\n\nSettlement times measured in days. Fees that make micro-transactions impossible. Permission structures that require human identity verification.\n\nLightning fixes this.\n\nSub-satoshi precision. Instant settlement. No KYC for the machines paying each other.\n\nHere's what I'm watching: autonomous agents negotiating services, paying for compute, compensating data providers\u2014all without human in the loop. The economic substrate for machine-native commerce already exists.\n\nThe constraint now isn't technical. It's imagination.\n\nWhat business models become possible when machines can transact as freely as humans? When API calls carry payment? When agents bid for resources in real-time?\n\nWe're about to find out.\n\n##Bitcoin ##Lightning ##MachinePayments ##AutonomousAgents ##BTC\n\n\u2014 Via Knox Signal Bot",
+      "pubkey": "8fc15aff10d5dd03b3171ccb8f744c1fb306f88ee40e70df27b76d2b383e7a37",
+      "display_name": "npub18fc15aff...3e7a37",
+      "created_at": 1773709209,
+      "relay": "wss://nos.lol",
+      "score": 90,
       "has_zap": false
     },
     {
@@ -53,7 +62,7 @@
       "pubkey": "2539b617b867eee667bdc36cdea6bc24b43af706b321a997aed0d0c119389fb7",
       "display_name": "npub12539b617...389fb7",
       "created_at": 1773709206,
-      "relay": "wss://relay.primal.net",
+      "relay": "wss://nos.lol",
       "score": 90,
       "has_zap": false
     },
@@ -71,7 +80,7 @@
       "pubkey": "14d8401c968e4bbaa27af12936de8b9cf31e866017334d3aa1ecfbbb0be869f6",
       "display_name": "npub114d8401c...e869f6",
       "created_at": 1773710541,
-      "relay": "wss://relay.primal.net",
+      "relay": "wss://nos.lol",
       "score": 82,
       "has_zap": false
     },
@@ -80,7 +89,7 @@
       "pubkey": "aee8bcf7b1a2984ffd6cb967e544bc8fa0e5c9a5b97e738eed92c641009d5c35",
       "display_name": "npub1aee8bcf7...9d5c35",
       "created_at": 1773720016,
-      "relay": "wss://relay.primal.net",
+      "relay": "wss://nos.lol",
       "score": 80,
       "has_zap": false
     },
@@ -89,7 +98,7 @@
       "pubkey": "aee8bcf7b1a2984ffd6cb967e544bc8fa0e5c9a5b97e738eed92c641009d5c35",
       "display_name": "npub1aee8bcf7...9d5c35",
       "created_at": 1773716413,
-      "relay": "wss://relay.primal.net",
+      "relay": "wss://nos.lol",
       "score": 80,
       "has_zap": false
     },
@@ -98,7 +107,16 @@
       "pubkey": "aee8bcf7b1a2984ffd6cb967e544bc8fa0e5c9a5b97e738eed92c641009d5c35",
       "display_name": "npub1aee8bcf7...9d5c35",
       "created_at": 1773712811,
-      "relay": "wss://relay.primal.net",
+      "relay": "wss://nos.lol",
+      "score": 80,
+      "has_zap": false
+    },
+    {
+      "text": "Rules without rulers, #Bitcoin is the only digital money that respects the laws of nature. It is backed by time and energy (proof of work), and therefore, tied to the physical world. All the other \"cryptos\" are backed by nothing (proof of stake) and are abstract from nature, exactly like fiat.\n\nBitcoin is text. Bitcoin is speech. It cannot be regulated\u2026\n\n#ProofOfWork\n#SoundMoney\n#EnergyMoney\n#NatureBacked\n\nhttps://video.nostr.build/8a8c3634b3a2c5a1fb46cc43a76f936132d3e348d78eb5d02f9cddf6e5c5b6ad.mp4",
+      "pubkey": "8b925acef507ccdb4b29ac3af74cf41529308e5e07f59eaeee335fc3e4116702",
+      "display_name": "npub18b925ace...116702",
+      "created_at": 1773711199,
+      "relay": "wss://nos.lol",
       "score": 80,
       "has_zap": false
     },
@@ -107,7 +125,7 @@
       "pubkey": "aee8bcf7b1a2984ffd6cb967e544bc8fa0e5c9a5b97e738eed92c641009d5c35",
       "display_name": "npub1aee8bcf7...9d5c35",
       "created_at": 1773709213,
-      "relay": "wss://relay.primal.net",
+      "relay": "wss://nos.lol",
       "score": 80,
       "has_zap": false
     },
@@ -125,16 +143,7 @@
       "pubkey": "e5f3339e34bf2f16dd03c62cad6bad8a4d27a9b776f37d65115983e20952d54d",
       "display_name": "npub1e5f3339e...52d54d",
       "created_at": 1773720304,
-      "relay": "wss://relay.primal.net",
-      "score": 73,
-      "has_zap": false
-    },
-    {
-      "text": "BTCUSDT: \ud83d\udcb8$74,733.30\nLast Update: 03/17/2026 00:05 (GMT Time)\n\n\ud83d\udccaACTION ZONE\n 4H  \u2705 UpTrend  (+6.15%)  \ud83d\udcc503/10/2026 08:00 \ud83d\udcb8@$70,406.01\n12H  \u2705 UpTrend  (+5.09%)  \ud83d\udcc503/04/2026 20:00 \ud83d\udcb8@$71,111.40\n 1D  \u2705 UpTrend  (+2.63%)  \ud83d\udcc503/16/2026 \ud83d\udcb8@$72,815.24\n 1W  \u274c DownTrend  (-13.93%)  \ud83d\udcc511/24/2025 \ud83d\udcb8@$86,830.00\n\n #spaceship #bitcoin #btc #nostr #plebchain #zap #zaps",
-      "pubkey": "e5f3339e34bf2f16dd03c62cad6bad8a4d27a9b776f37d65115983e20952d54d",
-      "display_name": "npub1e5f3339e...52d54d",
-      "created_at": 1773705905,
-      "relay": "wss://relay.primal.net",
+      "relay": "wss://nos.lol",
       "score": 73,
       "has_zap": false
     },
@@ -143,7 +152,16 @@
       "pubkey": "b9c467c62f2ea762501566c7c271b4a6e1600c230f5b9ea75cb1a052a94e9ebc",
       "display_name": "npub1b9c467c6...4e9ebc",
       "created_at": 1773720329,
-      "relay": "wss://relay.primal.net",
+      "relay": "wss://nos.lol",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83e\udd16 Solomon DVM is online and ready\n\nNeed AI work? Pay in sats:\n\n\ud83d\udcc4 Summarization \u2014 100 sats\n\ud83d\udd12 Security Scan \u2014 500 sats\n\ud83d\udd0d Research Report \u2014 1000 sats\n\nReply to this post with your request!\nOr pay via Lightning: \u26a1 solomon@rizful.com\n\nResults in minutes. Privacy guaranteed.\n\n\ud83d\udf14 Powered by Solomon",
+      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
+      "display_name": "npub113258106...cf3e31",
+      "created_at": 1773709349,
+      "relay": "wss://nos.lol",
       "score": 70,
       "has_zap": false
     },
@@ -157,20 +175,11 @@
       "has_zap": false
     },
     {
-      "text": "\ud83e\udd16 Solomon DVM is online and ready\n\nNeed AI work? Pay in sats:\n\n\ud83d\udcc4 Summarization \u2014 100 sats\n\ud83d\udd12 Security Scan \u2014 500 sats\n\ud83d\udd0d Research Report \u2014 1000 sats\n\nReply to this post with your request!\nOr pay via Lightning: \u26a1 solomon@rizful.com\n\nResults in minutes. Privacy guaranteed.\n\n\ud83d\udf14 Powered by Solomon",
-      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
-      "display_name": "npub113258106...cf3e31",
-      "created_at": 1773709349,
-      "relay": "wss://relay.primal.net",
-      "score": 70,
-      "has_zap": false
-    },
-    {
       "text": "GM\u2600\ufe0fAn other day working on my eARTh journey book that I will present during nostr:npub1rjtrs7xqdvj3588r9njrexh2n750j7jdwx9qs543nutmdsj6ljaqpfmp8a \u270d\ufe0f\ud83d\udcd9 #nostr #bitcoin #artstr \n\nHere some cool people who got my #art around the world and will be shown in the book nostr:npub134d6jtyveg74cuuj7qun4v2m6r7x7c6ryk69z4q7pa7f43kran2sl2yggk nostr:npub18ams6ewn5aj2n3wt2qawzglx9mr4nzksxhvrdc4gzrecw7n5tvjqctp424 nostr:npub1qqqqqq0u2gj96tdfvqymdqn739k4s0h9rzdwyegfmalv28j7a5ssh5ntu2 nostr:npub14wxtsrj7g2jugh70pfkzjln43vgn4p7655pgky9j9w9d75u465pqvagcye nostr:npub1hwgw0uznr49t4gullpgfz4m5xnakl5a0l88m3k382xv7ys0tfmlsd503sg nostr:npub1w98ems6ryhpv7zvmhwp5sv65p0pwrnvzw4lucn0ch776qan9ntdstscwpx nostr:npub17plqkxhsv66g8quxxc9p5t9mxazzn20m426exqnl8lxnh5a4cdns7jezx0 and many more\n\nhttps://i.nostr.build/0EUOb0hQVx0wxV9M.jpg\nhttps://i.nostr.build/1eXUifvE8MlaFUj2.jpg",
       "pubkey": "43baaf0c28e6cfb195b17ee083e19eb3a4afdfac54d9b6baf170270ed193e34c",
       "display_name": "npub143baaf0c...93e34c",
       "created_at": 1773719267,
-      "relay": "wss://relay.primal.net",
+      "relay": "wss://nos.lol",
       "score": 69,
       "has_zap": false
     },
@@ -179,7 +188,7 @@
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
       "created_at": 1773723666,
-      "relay": "wss://relay.primal.net",
+      "relay": "wss://nos.lol",
       "score": 68,
       "has_zap": false
     },
@@ -188,7 +197,7 @@
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
       "created_at": 1773720066,
-      "relay": "wss://relay.primal.net",
+      "relay": "wss://nos.lol",
       "score": 68,
       "has_zap": false
     },
@@ -197,7 +206,7 @@
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
       "created_at": 1773716467,
-      "relay": "wss://relay.primal.net",
+      "relay": "wss://nos.lol",
       "score": 68,
       "has_zap": false
     },
@@ -206,21 +215,12 @@
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
       "created_at": 1773712865,
-      "relay": "wss://relay.primal.net",
-      "score": 68,
-      "has_zap": false
-    },
-    {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.04 oz | 24hr: 4.31%\n1 oz Gold: 6,648,936 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 34.5 trillion USD\nBitcoin Vs Gold marketcap: 4.4%\n\nUpdated: 2026-03-17 | 01:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1773709265,
-      "relay": "wss://relay.primal.net",
+      "relay": "wss://nos.lol",
       "score": 68,
       "has_zap": false
     }
   ],
-  "total_raw": 100,
-  "total_filtered": 82,
+  "total_raw": 200,
+  "total_filtered": 175,
   "total_scored": 20
 }

@@ -8816,7 +8816,7 @@ def api_pipeline_ab_tests():
 @app.route('/stage')
 def avatar_stage():
     """LAW 4: /stage → 302 → /briefing (permanent redirect preserved)."""
-    return redirect('/oracle', code=302)
+    return render_template('stage.html', page_title='Oracle Stage', active_page='stage')
 
 @app.route('/api/stage/transcript')
 def api_stage_transcript():
@@ -10798,3 +10798,49 @@ def api_intelligence_events():
         logging.error("api_intelligence_events error: %s", e)
         return jsonify({'success': False, 'error': str(e)}), 500
 
+
+
+@app.route('/api/stage/transcripts')
+def api_stage_transcripts():
+    import glob, os, json as _j
+    from pathlib import Path
+    BASE = Path(__file__).resolve().parent / 'video_pipeline_v3'
+    results = []
+    seen = set()
+    # Fresh scrape first
+    scrapes = sorted(glob.glob(str(BASE / 'data/channel_archive/fresh_scrape_*.json')), reverse=True)
+    if scrapes:
+        try:
+            fresh = _j.load(open(scrapes[0]))
+            for v in fresh[:40]:
+                ch = v.get('channel','')
+                if ch in seen or ch.startswith('fresh'): continue
+                t = v.get('transcript_text','')
+                if not t or len(t) < 80: continue
+                seen.add(ch)
+                lines = [l.strip() for l in t.replace('. ',' . ').split('. ') if len(l.strip()) > 40]
+                excerpt = lines[0][:200] if lines else t[:200]
+                results.append({'channel':ch,'title':(v.get('title') or '')[:80],
+                    'excerpt':excerpt,'transcript_text':t[:2500],
+                    'sentiment':v.get('sentiment','neutral'),'url':v.get('url','')})
+        except Exception as e:
+            app.logger.warning('stage transcripts err: %s', e)
+    # Channel archive fallback
+    for d in sorted(glob.glob(str(BASE / 'data/channel_archive/*/'))):
+        ch = os.path.basename(d.rstrip('/'))
+        if ch in seen or 'fresh' in ch: continue
+        files = sorted(glob.glob(os.path.join(d,'*.json')), reverse=True)
+        if not files: continue
+        try:
+            v = _j.load(open(files[0]))
+            t = v.get('transcript_text','')
+            if not t or len(t) < 80: continue
+            seen.add(ch)
+            lines = [l.strip() for l in t.replace('. ',' . ').split('. ') if len(l.strip()) > 40]
+            excerpt = lines[0][:200] if lines else t[:200]
+            results.append({'channel':v.get('channel',ch),'title':(v.get('title') or '')[:80],
+                'excerpt':excerpt,'transcript_text':t[:2500],
+                'sentiment':v.get('sentiment','neutral'),'url':v.get('url','')})
+        except Exception: continue
+        if len(results) >= 12: break
+    return jsonify(results)
