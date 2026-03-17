@@ -4100,6 +4100,9 @@ def concatenate_parts(parts: list, output_path: str,
     from music import ffprobe_duration as _music_ffprobe_dur
     has_bgm = os.path.exists(BG_MUSIC)
     if has_bgm:
+        _ac = __import__("subprocess").run(["ffprobe","-v","error","-select_streams","a","-show_entries","stream=codec_type","-of","csv=p=0",concat_raw],capture_output=True,text=True,timeout=15)
+        if "audio" not in _ac.stdout:
+            raise RuntimeError("[ABORT] concat_raw has no audio stream - TTS was not embedded")
         dur = _music_ffprobe_dur(concat_raw)
         if dur > 0:
             # If branded outro, fade BGM out before outro starts
@@ -4145,8 +4148,8 @@ def concatenate_parts(parts: list, output_path: str,
                     f"{bgm_vol_filter}[bgm_raw];"
                     f"[bgm_raw][tts_sc]sidechaincompress="
                     f"threshold=0.02:ratio=8:attack=3:release=150[bgm_ducked];"
-                    f"[tts_main][bgm_ducked]amix=inputs=2:duration=longest"
-                    f":weights=1 0.04[mixed_audio];"
+                    f"[tts_main][bgm_ducked]amix=inputs=2:duration=first"
+                    f":weights=1 0.08[mixed_audio];"
                     f"[mixed_audio]aresample=async=1[outa]"
                 ),
                 "-map", "0:v", "-map", "[outa]",
