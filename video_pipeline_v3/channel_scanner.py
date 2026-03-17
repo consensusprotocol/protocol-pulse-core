@@ -209,6 +209,20 @@ def scan_channel(channel_url: str, channel_name: str,
             duration = 0
         upload_date = parts[3] if parts[3] != "NA" else ""
 
+        # ── Strict upload_date freshness enforcement ──
+        if not upload_date:
+            logger.info(f"  SKIPPED video with no upload_date: {video_id}")
+            continue
+        try:
+            upload_dt = datetime.strptime(upload_date, "%Y%m%d")
+            hours_old = (datetime.now() - upload_dt).total_seconds() / 3600
+            if upload_dt < cutoff:
+                logger.info(f"  SKIPPED old video: {title[:60]} (uploaded {upload_date}) — exceeds {max_age_hours}h window")
+                continue
+        except ValueError:
+            logger.info(f"  SKIPPED video with unparseable upload_date: {video_id} ({upload_date})")
+            continue
+
         # Skip shorts (under 2 minutes) and super-long videos (over 4 hours)
         if duration < 120 or duration > 14400:
             continue
@@ -219,6 +233,8 @@ def scan_channel(channel_url: str, channel_name: str,
             "channel": channel_name,
             "duration": duration,
             "upload_date": upload_date,
+            "upload_date_iso": f"{upload_date[:4]}-{upload_date[4:6]}-{upload_date[6:8]}",
+            "hours_old": round(hours_old, 1),
             "url": f"https://www.youtube.com/watch?v={video_id}",
         })
 
@@ -374,6 +390,8 @@ def scan_all_channels(model_size: str = "base") -> list:
         keywords = ch.get("filter_keywords")
         videos = scan_channel(ch["url"], ch["name"], max_age, max_videos,
                               filter_keywords=keywords)
+        if not videos:
+            logger.info(f"  DEAD CHANNEL: {ch['name']} — 0 fresh videos in last {max_age}h")
         all_videos.extend(videos)
 
     # Fallback: if too few videos, expand time window
@@ -421,7 +439,7 @@ def scan_all_channels(model_size: str = "base") -> list:
             video["transcript_text"] = result["text"]
             video["timestamped_text"] = result["timestamped_text"]
 
-            # Cache transcript
+            # Cache transcript (with upload_date for downstream freshness checks)
             with open(transcript_cache, "w") as f:
                 json.dump({
                     "text": result["text"],
@@ -430,6 +448,9 @@ def scan_all_channels(model_size: str = "base") -> list:
                     "video_id": vid,
                     "title": video["title"],
                     "channel": video["channel"],
+                    "upload_date": video.get("upload_date", ""),
+                    "upload_date_iso": video.get("upload_date_iso", ""),
+                    "hours_old": video.get("hours_old", -1),
                 }, f, indent=2)
 
             transcribed.append(video)

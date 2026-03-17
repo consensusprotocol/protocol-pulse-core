@@ -387,6 +387,11 @@ When daily_producer.py needs clips:
 5. If STILL fewer than 5, expand to 7 days but log a warning:
    "LOW CONTENT: Only {n} channels have uploads in 7 days"
 
+## SECTION 21B: FRESHNESS LAW
+FRESHNESS LAW: Every clip must have upload_date within 48 hours of render time. Any video without a verifiable upload_date within the window is REJECTED. No exceptions. Stale content destroys editorial credibility.
+
+---
+
 ## SECTION 22: THE 5-CLIP RULE — ABSOLUTE REQUIREMENT
 
 ### Every Pulse Check episode features EXACTLY 5 partner clips from 5 DIFFERENT channels.
