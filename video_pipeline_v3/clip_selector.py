@@ -123,6 +123,24 @@ def _prune_old_episodes():
     return data
 
 
+def _get_recent_channels(max_episodes: int = 3) -> set:
+    """Get channels used in the last N episode_memory entries for diversity penalty.
+
+    ISSUE 5 FIX: Channels appearing in recent episodes get a 50% score reduction
+    to force clip variety across episodes.
+    """
+    data = _load_used_clips()
+    episodes = data.get("episodes", [])
+    # Take the last N episodes (most recent)
+    recent = episodes[-max_episodes:] if len(episodes) >= max_episodes else episodes
+    channels = set()
+    for ep in recent:
+        channels.update(ep.get("channels", []))
+    if channels:
+        logger.info(f"DIVERSITY: {len(channels)} channels from last {len(recent)} episodes")
+    return channels
+
+
 def _get_recent_video_ids(max_episodes: int = 7) -> set:
     """Get video_ids used TODAY (same calendar day, UTC).
 
@@ -419,6 +437,23 @@ def select_clips(videos: list) -> dict:
             clean_clips = reordered
             result["clips"] = clean_clips
             logger.info(f"  FIX 9: Clip order after diversity: {[c.get('channel', '') for c in clean_clips]}")
+
+        # ISSUE 5 FIX: Channel diversity bonus — penalize channels from last 3 episodes by 50%
+        recent_channels = _get_recent_channels(max_episodes=3)
+        if recent_channels:
+            logger.info(f"DIVERSITY: Penalizing {len(recent_channels)} recently-used channels: {sorted(recent_channels)}")
+            for clip in clean_clips:
+                ch = clip.get("channel", "")
+                if ch in recent_channels:
+                    clip["_diversity_penalty"] = True
+            # Sort: non-penalized first (preserving relative order), penalized last
+            non_penalized = [c for c in clean_clips if not c.get("_diversity_penalty")]
+            penalized = [c for c in clean_clips if c.get("_diversity_penalty")]
+            if non_penalized:
+                # Only reorder if we have enough non-penalized clips to fill slots
+                clean_clips = non_penalized + penalized
+                result["clips"] = clean_clips
+                logger.info(f"  DIVERSITY: {len(non_penalized)} fresh + {len(penalized)} penalized clips")
 
         # Score-based ranking (CLIP SCORER per PRODUCTION_DESIGN_LAWS)
         try:

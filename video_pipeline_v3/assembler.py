@@ -104,6 +104,9 @@ else:
     logging.getLogger("Assembler").info("CUSTOM WHOOSH NOT FOUND — using generated")
 CARD_SWOOSH = os.path.join(ASSETS, "sfx", "card_swoosh.wav")
 DATA_BLIP = os.path.join(ASSETS, "sfx", "data_blip.wav")
+
+# ISSUE 3 FIX: Global whoosh dedup — tracks output paths that already have whoosh/swoosh applied
+_whoosh_applied_parts = set()
 LOWER_SLIDE = os.path.join(ASSETS, "sfx", "lower_slide.wav")
 
 
@@ -3537,8 +3540,15 @@ def _mix_swoosh_into_segment(video_path: str) -> str:
 
     Modifies the file in-place (via temp rename). Returns the path.
     Render24 FIX 3: Skip if filename contains xfade or transition (already has swoosh).
+    ISSUE 3 FIX: Global whoosh dedup via _whoosh_applied_parts set.
     """
+    global _whoosh_applied_parts
     if not os.path.exists(CARD_SWOOSH) or not os.path.exists(video_path):
+        return video_path
+    # ISSUE 3: Check global whoosh dedup set
+    abs_path = os.path.abspath(video_path)
+    if abs_path in _whoosh_applied_parts:
+        logger.info(f"  WHOOSH DEDUP: Skipping swoosh — already applied to {os.path.basename(video_path)}")
         return video_path
     # FIX 3: Prevent double whoosh on xfade/transition segments
     basename = os.path.basename(video_path).lower()
@@ -3558,6 +3568,7 @@ def _mix_swoosh_into_segment(video_path: str) -> str:
     ], "mix card swoosh", 30)
     if ok and os.path.exists(tmp):
         os.replace(tmp, video_path)
+        _whoosh_applied_parts.add(abs_path)  # ISSUE 3: Track applied whoosh
     elif os.path.exists(tmp):
         os.remove(tmp)
     return video_path
@@ -3796,9 +3807,16 @@ def make_transition_visual(output_path: str, duration: float = 2.2) -> str:
 
     No visual overlay — just a flash-cut black frame with whoosh sound.
     This creates snappy broadcast-style transitions without visual clutter.
+    ISSUE 3 FIX: Global whoosh dedup via _whoosh_applied_parts set.
     """
+    global _whoosh_applied_parts
     duration = 0.06  # R25: instant black flash
     has_whoosh = os.path.exists(GLITCH_WHOOSH)
+    # ISSUE 3: Check global whoosh dedup set
+    abs_out = os.path.abspath(output_path)
+    if abs_out in _whoosh_applied_parts:
+        logger.info(f"  WHOOSH DEDUP: Skipping transition whoosh — already applied to {os.path.basename(output_path)}")
+        has_whoosh = False  # render without whoosh
 
     if has_whoosh:
         # 0.06s black + whoosh (whoosh extends slightly for audibility)
@@ -3827,6 +3845,7 @@ def make_transition_visual(output_path: str, duration: float = 2.2) -> str:
         ], "R25 instant black (silent)", 30)
     if ok and os.path.exists(output_path):
         dur = ffprobe_duration(output_path)
+        _whoosh_applied_parts.add(abs_out)  # ISSUE 3: Track applied whoosh
         logger.info(f"  R25 TRANSITION: instant black + whoosh ({dur:.2f}s)")
         return output_path
     return ""
@@ -4531,6 +4550,25 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
     logger.info("  Session 4: Title card SUPPRESSED — cold open leads directly into content")
 
     if cold_open_audio:
+        # ISSUE 1 FIX: Log exact cold open TTS path and file size for debugging
+        _co_path = cold_open_audio["path"]
+        try:
+            _co_size = os.path.getsize(_co_path)
+        except OSError:
+            _co_size = -1
+        logger.info(f"  COLD OPEN TTS: path={_co_path} size={_co_size}B exists={os.path.exists(_co_path)}")
+        if _co_size <= 0:
+            # Fallback: find first valid audio file in audio/ directory
+            _audio_dir = os.path.dirname(_co_path) if _co_path else ""
+            if _audio_dir and os.path.isdir(_audio_dir):
+                _sorted_audio = sorted(f for f in os.listdir(_audio_dir) if f.endswith(('.m4a', '.mp3', '.wav')))
+                for _af in _sorted_audio:
+                    _af_path = os.path.join(_audio_dir, _af)
+                    if os.path.getsize(_af_path) > 1000:
+                        cold_open_audio = dict(cold_open_audio)
+                        cold_open_audio["path"] = _af_path
+                        logger.warning(f"  COLD OPEN FIX: Original TTS empty/missing, using fallback: {_af_path}")
+                        break
         intro_out = os.path.join(work_dir, f"part_{part_idx:03d}_intro_pbx_hook.mp4")
         intro_result = make_intro_coldopen(cold_open_audio["path"], intro_out, btc_price=btc_price)
         if intro_result:
@@ -5067,7 +5105,24 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                     part_idx += 1
                 broll_idx += 1
         else:
-            logger.warning(f"[---] Host visual failed for {entry_type}")
+            # ISSUE 2 FIX: Generate 15s filler segment instead of skipping — prevents short episodes
+            logger.warning(f"[---] Host visual failed for {entry_type} — generating 15s filler segment")
+            filler_out = os.path.join(work_dir, f"part_{part_idx:03d}_{entry_type}_filler.mp4")
+            filler_ok = run_ffmpeg([
+                "-f", "lavfi", "-i", f"color=c=0x0A0A0F:s=1920x1080:d=15:r=30",
+                "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
+                "-t", "15",
+                "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+                "-r", "30", "-vsync", "cfr", "-pix_fmt", "yuv420p",
+                "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
+                "-shortest",
+                filler_out,
+            ], f"segment filler ({entry_type})", 30)
+            if filler_ok and os.path.exists(filler_out):
+                parts.append(filler_out)
+                logger.info(f"[{part_idx:03d}] FILLER ({entry_type.upper()}): 15.0s")
+                part_idx += 1
+                prev_segment_type = entry_type
 
     # --- 3. BRANDED OUTRO ---
     skip_outro_fade = False

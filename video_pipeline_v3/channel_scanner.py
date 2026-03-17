@@ -95,6 +95,27 @@ def _check_gpu_memory_mb() -> float:
     except Exception:
         return 0.0
 
+# ── ISSUE 4 FIX: Stale Video Blacklist ────────────────────────────────────────
+# One video_id per line in data/stale_blacklist.txt. Permanently skipped during scanning.
+_STALE_BLACKLIST_PATH = os.path.join(BASE, "data", "stale_blacklist.txt")
+
+
+def _load_stale_blacklist() -> set:
+    """Load stale video IDs from data/stale_blacklist.txt."""
+    if not os.path.exists(_STALE_BLACKLIST_PATH):
+        return set()
+    try:
+        with open(_STALE_BLACKLIST_PATH) as f:
+            return {line.strip() for line in f if line.strip() and not line.startswith("#")}
+    except Exception:
+        return set()
+
+
+STALE_VIDEO_BLACKLIST = _load_stale_blacklist()
+if STALE_VIDEO_BLACKLIST:
+    logger.info(f"STALE BLACKLIST: {len(STALE_VIDEO_BLACKLIST)} video_ids loaded: {STALE_VIDEO_BLACKLIST}")
+
+
 # ── YT-DLP URL fallbacks for channels without /videos tab ─────────────────────
 YT_URL_FALLBACKS = {
     "@WBDPodcast": "https://www.youtube.com/@WBDPodcast/podcasts",
@@ -401,6 +422,14 @@ def scan_all_channels(model_size: str = "base") -> list:
             videos = scan_channel(ch["url"], ch["name"], fallback_age, max_videos,
                                   filter_keywords=keywords)
             all_videos.extend(videos)
+
+    # ISSUE 4 FIX: Filter out stale/blacklisted video IDs
+    if STALE_VIDEO_BLACKLIST:
+        before_count = len(all_videos)
+        all_videos = [v for v in all_videos if v.get("video_id") not in STALE_VIDEO_BLACKLIST]
+        removed = before_count - len(all_videos)
+        if removed:
+            logger.info(f"STALE BLACKLIST: Removed {removed} blacklisted videos from scan results")
 
     logger.info(f"Total videos found: {len(all_videos)}")
     if not all_videos:
