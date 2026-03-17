@@ -299,7 +299,7 @@ def select_clips(videos: list) -> dict:
         result["clips"] = clean_clips
 
         # Episode memory: drop clips from recently used videos
-        recent_ids = _get_recent_video_ids(max_episodes=7)
+        recent_ids = _get_recent_video_ids(max_episodes=1)
         if recent_ids:
             memory_filtered = []
             for c in clean_clips:
