@@ -609,6 +609,7 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
 
         # Round 2 Fix 5: Validate social segment tweet order matches narration references
         result = _validate_social_tweet_order(result, social_posts)
+        result = _enforce_setup_per_clip(result, selections)
 
         # Validate structure
         dialogue = result.get("dialogue", [])
@@ -631,6 +632,50 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
         logger.error(f"Claude API error: {e}")
         return _fallback_script(selections)
 
+
+
+def _enforce_setup_per_clip(result: dict, selections: dict) -> dict:
+    """IRON LAW: Every clip rank must have exactly one SETUP segment before it.
+    If the LLM collapses two setups onto clip_rank 1 and skips clip_rank 2,
+    this function detects and repairs it by inserting a bridging setup."""
+    import logging
+    _log = logging.getLogger(__name__)
+    dialogue = result.get("dialogue", [])
+    clips = selections.get("clips", [])
+    clip_ranks = [c.get("rank", 0) for c in clips if c.get("rank")]
+
+    # Find which ranks have a setup
+    setup_ranks = set()
+    for entry in dialogue:
+        if isinstance(entry, dict) and entry.get("type") == "setup":
+            cr = entry.get("clip_rank")
+            if cr:
+                setup_ranks.add(cr)
+
+    missing = [r for r in clip_ranks if r not in setup_ranks]
+    if not missing:
+        return result
+
+    _log.warning(f"[script] SETUP MISSING for clip ranks: {missing} — inserting bridge narration")
+    clips_by_rank = {c.get("rank"): c for c in clips}
+    new_dialogue = []
+    for entry in dialogue:
+        if isinstance(entry, dict) and entry.get("host") == "CLIP":
+            rank = entry.get("rank", 0)
+            if rank in missing:
+                ch = clips_by_rank.get(rank, {}).get("channel", "our next source")
+                bridge = {
+                    "host": 2,
+                    "text": f"[NARRATION] Now — {ch} brings a signal you need to hear.",
+                    "type": "setup",
+                    "clip_rank": rank,
+                    "headline": f"{ch.upper()} SIGNAL"
+                }
+                new_dialogue.append(bridge)
+                missing.remove(rank)
+        new_dialogue.append(entry)
+    result["dialogue"] = new_dialogue
+    return result
 
 def _fallback_script(selections: dict) -> dict:
     """Generate a basic script from clip selections without Claude."""
