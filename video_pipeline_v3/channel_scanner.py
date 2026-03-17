@@ -211,8 +211,7 @@ def scan_channel(channel_url: str, channel_name: str,
 
         # ── Strict upload_date freshness enforcement ──
         if not upload_date:
-            logger.info(f"  SKIPPED video with no upload_date: {video_id}")
-            continue
+            logger.warning(f"  WARNING no upload_date for {video_id} - allowing through")
         try:
             upload_dt = datetime.strptime(upload_date, "%Y%m%d")
             hours_old = (datetime.now() - upload_dt).total_seconds() / 3600
