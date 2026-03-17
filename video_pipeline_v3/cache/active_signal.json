@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1773722703.8781674,
-  "fetched_at_iso": "2026-03-17T04:45:03.878172+00:00",
+  "fetched_at": 1773723604.3576667,
+  "fetched_at_iso": "2026-03-17T05:00:04.357671+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 86,
+      "events_filtered": 84,
       "error": null
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 95,
+      "events_filtered": 94,
       "error": null
     },
     {
@@ -34,7 +34,7 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 83,
+      "events_filtered": 81,
       "error": null
     }
   ],
@@ -143,7 +143,7 @@
       "pubkey": "c53371872fbe26688f640b3d6df3cba92129a4ad98d60065ab17ea3ca5f35224",
       "display_name": "npub1c5337187...f35224",
       "created_at": 1773707356,
-      "relay": "wss://nos.lol",
+      "relay": "wss://relay.primal.net",
       "score": 77,
       "has_zap": false
     },
@@ -221,6 +221,6 @@
     }
   ],
   "total_raw": 300,
-  "total_filtered": 264,
+  "total_filtered": 259,
   "total_scored": 20
 }
