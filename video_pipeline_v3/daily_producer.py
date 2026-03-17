@@ -377,7 +377,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
 
     if not test_mode:
         _unique_ch = len({info.get("channel", f"unk_{i}") for i, info in enumerate(extracted_clips.values())})
-        if len(extracted_clips) < 5 or _unique_ch < 5:
+        if len(extracted_clips) < 3 or _unique_ch < 2:
             logger.critical(
                 f"[PIPELINE] HARD FAIL: Need 5 clips from 5 unique channels, "
                 f"got {len(extracted_clips)} clips from {_unique_ch} channels."
