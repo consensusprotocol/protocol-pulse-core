@@ -142,6 +142,69 @@ def diagnose_and_fix(error_output):
                 log(f'Fix exception: {e}')
     return False, None
 
+# ── repair context builder ────────────────────────────────────────────────────
+def build_repair_context(iteration):
+    """Build rich context string for CC auto-repair prompts."""
+    sections = []
+
+    # 1. Latest episode_manifest.json (3000 char limit)
+    try:
+        manifests = sorted(glob.glob(f'{OUTPUT_BASE}/*/episode_manifest.json'))
+        if manifests:
+            raw = open(manifests[-1]).read()
+            sections.append(f'EPISODE MANIFEST ({os.path.basename(os.path.dirname(manifests[-1]))}):\n{raw[:3000]}')
+    except Exception:
+        pass
+
+    # 2. Latest script.json — first 20 segments
+    try:
+        scripts = sorted(glob.glob(f'{OUTPUT_BASE}/*/script.json'))
+        if scripts:
+            data = json.loads(open(scripts[-1]).read())
+            segs = data if isinstance(data, list) else data.get('segments', data.get('script', []))
+            if isinstance(segs, list):
+                preview = json.dumps(segs[:20], indent=1)
+            else:
+                preview = json.dumps(data, indent=1)[:3000]
+            sections.append(f'SCRIPT (first 20 segments):\n{preview}')
+    except Exception:
+        pass
+
+    # 3. Last 50 lines of most recent render log
+    try:
+        render_logs = sorted(glob.glob(f'{PIPELINE}/logs/render_iter*.log') +
+                             glob.glob(f'{PIPELINE}/logs/full_render_*.log'))
+        if render_logs:
+            lines = open(render_logs[-1]).readlines()
+            tail = ''.join(lines[-50:])
+            sections.append(f'RENDER LOG TAIL ({os.path.basename(render_logs[-1])}):\n{tail}')
+    except Exception:
+        pass
+
+    # 4. Gemini dimension scores table
+    try:
+        if os.path.exists(GEMINI_GRADE_FILE):
+            gdata = json.loads(open(GEMINI_GRADE_FILE).read())
+            dims = gdata.get('dimensions', gdata.get('scores', {}))
+            if isinstance(dims, dict):
+                table = '\n'.join(f'  {k}: {v}' for k, v in dims.items())
+            else:
+                table = json.dumps(gdata, indent=1)[:1500]
+            overall = gdata.get('overall_grade', gdata.get('grade', '?'))
+            sections.append(f'GEMINI GRADE (overall={overall}):\n{table}')
+    except Exception:
+        pass
+
+    # 5. git log --oneline -5
+    try:
+        r = subprocess.run(['git', 'log', '--oneline', '-5'], capture_output=True, text=True, cwd=BASE)
+        if r.returncode == 0:
+            sections.append(f'RECENT COMMITS:\n{r.stdout.strip()}')
+    except Exception:
+        pass
+
+    return '\n\n'.join(sections)
+
 # ── CC auto-repair ────────────────────────────────────────────────────────────
 def cc_auto_repair(error_output, iteration):
     session = f'cc_fix_{iteration}'
@@ -173,10 +236,13 @@ def cc_auto_repair(error_output, iteration):
     except Exception:
         pass
 
+    repair_ctx = build_repair_context(iteration)
+
     prompt = (
         f'AUTONOMOUS REPAIR - do not ask questions, fix and commit.\n\n'
-        f'ERROR (iter {iteration}):\n{err_snippet}\n\n'
-        + (f'GEMINI QUALITY FAILURES:\n{gemini_failures}\n\n' if gemini_failures else '')
+        f'=== REPAIR CONTEXT ===\n{repair_ctx}\n\n'
+        f'=== ERROR (iter {iteration}) ===\n{err_snippet}\n\n'
+        + (f'=== GEMINI QUALITY FAILURES ===\n{gemini_failures}\n\n' if gemini_failures else '')
         + f'BROKEN FILE: video_pipeline_v3/{broken}\n\n'
         f'LAWS:\n{laws}\n\n'
         f'STEPS:\n'
