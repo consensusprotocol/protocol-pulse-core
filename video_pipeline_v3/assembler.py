@@ -1076,22 +1076,18 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
 
 
 def _ensure_pip_placeholder() -> str:
-    """Render18 FIX 1: Generate branded PiP placeholder from bg_loop if it doesn't exist."""
+    """Generate dark solid PiP placeholder (never bg_loop — that's for narrator bg only)."""
     if os.path.exists(PIP_PLACEHOLDER) and os.path.getsize(PIP_PLACEHOLDER) > 10000:
         return PIP_PLACEHOLDER
-    if not os.path.exists(BG_LOOP):
-        logger.warning("PiP placeholder: bg_loop.mp4 not found, cannot generate")
-        return ""
     ok = run_ffmpeg([
-        "-i", BG_LOOP,
-        "-t", "8",
-        "-vf", "scale=716:370:force_original_aspect_ratio=increase,crop=716:370",
+        "-f", "lavfi", "-i",
+        "color=c=0x0A0A0F:s=716x370:d=8:r=30",
         "-c:v", "libx264", "-crf", "20", "-preset", "medium",
         "-an",
         PIP_PLACEHOLDER,
-    ], "generate pip placeholder", 60)
+    ], "generate dark pip placeholder", 60)
     if ok and os.path.exists(PIP_PLACEHOLDER):
-        logger.info(f"PiP placeholder generated: {PIP_PLACEHOLDER}")
+        logger.info(f"PiP placeholder generated (dark fallback): {PIP_PLACEHOLDER}")
         return PIP_PLACEHOLDER
     return ""
 
@@ -1110,12 +1106,13 @@ def overlay_pip_on_narration(narration_path: str, pip_path: str,
         return narration_path
 
     if not pip_path or not os.path.exists(pip_path):
-        # Render18 FIX 1: Use branded placeholder instead of returning narration-only
+        # FIX 4: Dark fallback instead of bg_loop mosaic
+        logger.warning("PiP preview missing for clip — using dark fallback")
         pip_path = _ensure_pip_placeholder()
         if not pip_path:
             logger.info(f"PiP: no preview available, using narration-only for this segment")
             return narration_path
-        logger.info(f"PiP: using branded placeholder for this segment")
+        logger.info(f"PiP: using dark placeholder for this segment")
     pip_dur = ffprobe_duration(pip_path)
     ok = run_ffmpeg([
         "-i", narration_path,
@@ -2426,8 +2423,7 @@ def make_wrap_scene(audio_path: str, headline: str, body: str,
     # Right Signal Wave panel (x=1120, y=140, w=740, h=500)
     fg += (f"[wr_txt]drawbox=x=1120:y=140:w=740:h=500:color={COLOR_PANEL}@0.92:t=fill,"
            f"drawbox=x=1120:y=140:w=740:h=1:color=0xFFFFFF@0.08:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='Signal Wave':"
-           f"fontcolor={COLOR_GOLD}:fontsize=11:x=1140:y=158"
+           f"drawbox=x=1120:y=140:w=0:h=0:color=0x000000@0:t=fill"
            f"[wr_panel];\n")
     # FIX 3: Single asplit for ALL audio consumers in wrap scene
     # 1=big waveform, 2+3=narration wave (primary+accent)
@@ -2438,34 +2434,10 @@ def make_wrap_scene(audio_path: str, headline: str, body: str,
            f"colors={COLOR_RED}|{COLOR_WHITE}:scale=sqrt:draw=full:rate=30[wr_sigwave];\n")
     fg += f"[wr_panel][wr_sigwave]overlay=1140:220[wr_waved];\n"
 
-    # BD Episode Segments tracker (x=1120,y=660,w=740,h=240)
-    fg += (f"[wr_waved]drawtext=fontfile={FONT_MONO}:text='EPISODE SEGMENTS':"
-           f"fontcolor={COLOR_GOLD}:fontsize=11:x=1140:y=655[wr_seg_eye];\n")
-    segments = [
-        ("COLD OPEN", "DONE"),
-        ("ORACLE BRIEF", "DONE"),
-        ("CLIP REACTION", "DONE"),
-        ("DUAL-HOST", "ACTIVE"),
-    ]
-    last_seg = "wr_seg_eye"
-    for si, (sname, sstatus) in enumerate(segments):
-        sy = 675 + si * 44
-        if sstatus == "DONE":
-            sc = COLOR_GREEN
-        elif sstatus == "ACTIVE":
-            sc = COLOR_RED
-        else:
-            sc = COLOR_MUTED2
-        out_s = f"wr_seg{si}"
-        fg += (f"[{last_seg}]drawbox=x=1140:y={sy}:w=700:h=36:color={COLOR_PANEL2}@0.8:t=fill,"
-               f"drawtext=fontfile={FONT_MONO}:text='{sname}':"
-               f"fontcolor={COLOR_WHITE}@0.7:fontsize=12:x=1156:y={sy+10},"
-               f"drawtext=fontfile={FONT_MONO}:text='{sstatus}':"
-               f"fontcolor={sc}:fontsize=12:x=1740:y={sy+10}"
-               f"[{out_s}];\n")
-        last_seg = out_s
+    # DUAL-HOST DISABLED — PBX SOLO MODE (segment tracker removed)
+    fg += f"[wr_waved]copy[wr_clean];\n"
 
-    fg += _build_corner_brackets_fg(last_seg, "wr_corners")
+    fg += _build_corner_brackets_fg("wr_clean", "wr_corners")
 
     # Inline Cipher Line wave using pre-split audio pads (FIX 3)
     fg += (f"[_wr_a_nav1]showwaves=s=1920x80:mode=line:"
@@ -2539,7 +2511,7 @@ def make_broadcast_segment(segment_data: dict, audio_path: str, host_num: int,
     seg_type = segment_data.get("type", "")
     text = segment_data.get("text", "")
     headline = segment_data.get("headline") or segment_data.get("title") or _smart_headline(text)
-    speaker = segment_data.get("speaker", "DEBORAH")  # dual host — Deborah (HOST_1) + Mark (HOST_2)
+    speaker = segment_data.get("speaker", "PBX")  # PBX solo mode — single host
     scene = select_scene_type(seg_type, segment_index, total_segments)
 
     try:
@@ -2955,7 +2927,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
     fg += (f"[{_m5_last}]drawbox=x=20:y=640:w=440:h=52:color={COLOR_RED_DIM}@0.95:t=fill,"
            f"drawbox=x=20:y=640:w=4:h=52:color={COLOR_RED}:t=fill,"
            f"drawtext=fontfile={FONT_MONO}:"
-           f"text='  DUAL-HOST ANALYSIS // INCOMING':"
+           f"text='  SIGNAL ANALYSIS // ACTIVE':"
            f"fontcolor={COLOR_RED}:fontsize=13:x=34:y=660"
            f"[lcta];\n")
 
@@ -3013,33 +2985,9 @@ def make_host_visual(audio_path: str, host: int, text: str,
            f"colors={COLOR_RED}:scale=lin:rate=30[amp_wave];\n")
     fg += f"[dp3][amp_wave]overlay=1440:570[dp_done];\n"
 
-    # ── RIGHT BOT — EPISODE SEGMENTS TRACKER ──
-    fg += (f"[dp_done]drawbox=x=740:y=660:w=1160:h=360:color={COLOR_PANEL}@0.92:t=fill,"
-           f"drawbox=x=740:y=660:w=1160:h=2:color={COLOR_RED}@0.4:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='EPISODE SEGMENTS':"
-           f"fontcolor={COLOR_MUTED}:fontsize=12:x=756:y=675"
-           f"[seg_hdr];\n")
-
-    seg_labels = ["COLD OPEN", "ORACLE BRIEF", "CLIP REACTION", "DUAL-HOST SEGMENT"]
-    last_seg = "seg_hdr"
-    for si, sl in enumerate(seg_labels):
-        row_y = 700 + si * 30
-        if si < seg_idx:
-            status_text, status_color = "DONE", COLOR_GREEN
-        elif si == seg_idx:
-            status_text, status_color = "ACTIVE", COLOR_RED
-        else:
-            status_text, status_color = "PENDING", "0x444444"
-        out_label = f"seg_r{si}"
-        fg += (f"[{last_seg}]drawtext=fontfile={FONT_MONO}:text='{sl}':"
-               f"fontcolor={COLOR_MUTED}:fontsize=14:x=756:y={row_y},"
-               f"drawtext=fontfile={FONT_MONO}:text='{status_text}':"
-               f"fontcolor={status_color}:fontsize=14:x=1100:y={row_y}"
-               f"[{out_label}];\n")
-        last_seg = out_label
-
-    # ── CORNER BRACKETS ──
-    fg += _build_corner_brackets_fg(last_seg, "cornered")
+    # ── CORNER BRACKETS ── (EPISODE SEGMENTS debug overlay removed)
+    fg += f"[dp_done]copy[seg_clean];\n"
+    fg += _build_corner_brackets_fg("seg_clean", "cornered")
 
     # ── TICKER BAR ──
     fg += _build_info_bar_fg(total_dur, btc_price, label_in="cornered", label_out="v_final")
