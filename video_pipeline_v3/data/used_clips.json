@@ -1,563 +1,386 @@
 {
   "episodes": [
     {
-      "date": "2026-03-16",
+      "date": "2026-03-17",
       "video_ids": [
-        "oK1Azot7j9w",
-        "N6vOLQ3qJiA",
-        "s7-l7gzm_PE",
-        "NK4-LeozO34"
+        "kCi1gYaIbBc",
+        "wC4w2jtB8_Y",
+        "CPqLPryNBdM",
+        "Ma6N9qacoa0",
+        "N6vOLQ3qJiA"
       ],
       "channels": [
+        "The Bitcoin Layer",
+        "TFTC",
         "Simply Bitcoin",
-        "Bitcoin Magazine",
-        "Preston Pysh",
-        "Natalie Brunell"
+        "Swan Bitcoin",
+        "Bitcoin Magazine"
       ]
     },
     {
-      "date": "2026-03-16",
+      "date": "2026-03-17",
       "video_ids": [
-        "AYAreuNzx58",
-        "kCi1gYaIbBc",
-        "q7Yq5qaAb-A",
-        "etTv2PtW2UA"
+        "vwkRsp0gqX4",
+        "Ny9P1l0WKwo",
+        "-_C4dZZvWIk",
+        "s7-l7gzm_PE",
+        "zflAVKCaPfU"
       ],
       "channels": [
         "Andreas Antonopoulos",
-        "The Bitcoin Layer",
-        "TFTC",
-        "Unchained"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "a1U7kz3FCn0",
-        "UdUY0ol6HVk",
-        "GA_7P8RdyRU",
-        "N6vOLQ3qJiA",
-        "s7-l7gzm_PE"
-      ],
-      "channels": [
+        "Natalie Brunell",
         "Swan Bitcoin",
-        "Simply Bitcoin",
-        "The Bitcoin Layer",
-        "Bitcoin Magazine",
-        "Preston Pysh"
+        "Preston Pysh",
+        "Robert Breedlove"
       ]
     },
     {
-      "date": "2026-03-16",
+      "date": "2026-03-17",
       "video_ids": [
         "g-dTRbXPGw0",
-        "PF4dSKK_kww",
-        "kCi1gYaIbBc",
-        "q7Yq5qaAb-A",
-        "NK4-LeozO34"
+        "pGeECOBSMjc",
+        "N6vOLQ3qJiA",
+        "wC4w2jtB8_Y",
+        "s7-l7gzm_PE"
       ],
       "channels": [
         "Coin Bureau",
-        "Marty Bent (Rabbit Hole Recap)",
-        "The Bitcoin Layer",
-        "TFTC",
-        "Natalie Brunell"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "oK1Azot7j9w",
-        "N6vOLQ3qJiA",
-        "s7-l7gzm_PE",
-        "NK4-LeozO34"
-      ],
-      "channels": [
         "Simply Bitcoin",
         "Bitcoin Magazine",
-        "Preston Pysh",
-        "Natalie Brunell"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "kCi1gYaIbBc",
-        "q7Yq5qaAb-A",
-        "zflAVKCaPfU",
-        "zulFR27czZk"
-      ],
-      "channels": [
-        "The Bitcoin Layer",
         "TFTC",
-        "Robert Breedlove",
-        "Swan Bitcoin"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "oK1Azot7j9w",
-        "Ny9P1l0WKwo",
-        "pkZqnM22l8Y",
-        "N6vOLQ3qJiA",
-        "s7-l7gzm_PE"
-      ],
-      "channels": [
-        "Simply Bitcoin",
-        "Natalie Brunell",
-        "The Bitcoin Layer",
-        "Bitcoin Magazine",
         "Preston Pysh"
       ]
     },
     {
-      "date": "2026-03-16",
+      "date": "2026-03-17",
       "video_ids": [
         "RtKFexfYiA8",
-        "NK4-LeozO34",
-        "q7Yq5qaAb-A",
-        "vwkRsp0gqX4",
-        "etTv2PtW2UA"
-      ],
-      "channels": [
-        "Bitcoin Magazine Pro",
-        "Natalie Brunell",
-        "TFTC",
-        "Andreas Antonopoulos",
-        "Unchained"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "q7Yq5qaAb-A",
-        "N6vOLQ3qJiA",
-        "oK1Azot7j9w",
-        "s7-l7gzm_PE"
-      ],
-      "channels": [
-        "TFTC",
-        "Bitcoin Magazine",
-        "Simply Bitcoin",
-        "Preston Pysh"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "oK1Azot7j9w",
-        "N6vOLQ3qJiA",
-        "s7-l7gzm_PE"
-      ],
-      "channels": [
-        "Simply Bitcoin",
-        "Bitcoin Magazine",
-        "Preston Pysh"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "bezGcOzLbw0",
-        "GA_7P8RdyRU",
-        "q7Yq5qaAb-A",
-        "NK4-LeozO34",
-        "zflAVKCaPfU"
-      ],
-      "channels": [
-        "Swan Bitcoin",
-        "The Bitcoin Layer",
-        "TFTC",
-        "Natalie Brunell",
-        "Robert Breedlove"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "a1U7kz3FCn0",
-        "UdUY0ol6HVk",
-        "kCi1gYaIbBc",
-        "N6vOLQ3qJiA",
-        "NK4-LeozO34"
-      ],
-      "channels": [
-        "Swan Bitcoin",
-        "Simply Bitcoin",
-        "The Bitcoin Layer",
-        "Bitcoin Magazine",
-        "Natalie Brunell"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "ExYe0PrTZhE",
-        "q7Yq5qaAb-A",
-        "57GVjvYfpx0",
-        "oK1Azot7j9w",
-        "X7ua58iwcd4"
-      ],
-      "channels": [
-        "George Gammon",
-        "TFTC",
-        "Blockware Solutions",
-        "Simply Bitcoin",
-        "Preston Pysh"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "NK4-LeozO34",
-        "oK1Azot7j9w",
-        "zulFR27czZk",
-        "N6vOLQ3qJiA",
-        "s7-l7gzm_PE"
-      ],
-      "channels": [
-        "Natalie Brunell",
-        "Simply Bitcoin",
-        "Swan Bitcoin",
-        "Bitcoin Magazine",
-        "Preston Pysh"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "-_C4dZZvWIk",
-        "kCi1gYaIbBc",
-        "q7Yq5qaAb-A",
-        "zflAVKCaPfU"
-      ],
-      "channels": [
-        "Swan Bitcoin",
-        "The Bitcoin Layer",
-        "TFTC",
-        "Robert Breedlove"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "RtKFexfYiA8",
+        "GdfvYL1vKRk",
         "Ny9P1l0WKwo",
-        "a1U7kz3FCn0",
-        "vFTEUwYha0A",
-        "s7-l7gzm_PE"
-      ],
-      "channels": [
-        "Bitcoin Magazine Pro",
-        "Natalie Brunell",
-        "Simply Bitcoin",
-        "Marty Bent (Rabbit Hole Recap)",
-        "Preston Pysh"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "a1U7kz3FCn0",
-        "bezGcOzLbw0",
-        "N6vOLQ3qJiA",
         "GA_7P8RdyRU"
       ],
       "channels": [
-        "Simply Bitcoin",
-        "Swan Bitcoin",
-        "Bitcoin Magazine",
+        "Bitcoin Magazine Pro",
+        "Coin Bureau",
+        "Natalie Brunell",
         "The Bitcoin Layer"
       ]
     },
     {
-      "date": "2026-03-16",
+      "date": "2026-03-17",
       "video_ids": [
-        "g-dTRbXPGw0",
-        "q7Yq5qaAb-A",
-        "bv_-UQG3ork",
-        "s7-l7gzm_PE",
-        "NK4-LeozO34"
-      ],
-      "channels": [
-        "Coin Bureau",
-        "TFTC",
-        "CoinDesk",
-        "Preston Pysh",
-        "Natalie Brunell"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "a1U7kz3FCn0",
-        "etTv2PtW2UA",
+        "tTkD-DnUPM8",
+        "NK4-LeozO34",
         "N6vOLQ3qJiA",
-        "zulFR27czZk",
-        "NK4-LeozO34"
-      ],
-      "channels": [
-        "Simply Bitcoin",
-        "Unchained",
-        "Bitcoin Magazine",
-        "Swan Bitcoin",
-        "Natalie Brunell"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "q7Yq5qaAb-A",
-        "pkZqnM22l8Y",
-        "d5lL95bvOog",
-        "X7ua58iwcd4"
-      ],
-      "channels": [
-        "TFTC",
-        "The Bitcoin Layer",
-        "Anthony Pompliano",
-        "Preston Pysh"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "4yMGeaL4KfY",
-        "4nDVYeU6SRw",
-        "GdfvYL1vKRk",
-        "2DIlhctrBcY"
-      ],
-      "channels": [
-        "Simply Bitcoin",
-        "Altcoin Daily",
-        "Coin Bureau",
-        "Anthony Pompliano"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "N6vOLQ3qJiA",
-        "oK1Azot7j9w",
-        "z4cTEJ8UyaA"
-      ],
-      "channels": [
-        "Bitcoin Magazine",
-        "Simply Bitcoin",
-        "Natalie Brunell"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "kCi1gYaIbBc",
-        "q7Yq5qaAb-A",
-        "zulFR27czZk",
-        "X7ua58iwcd4"
-      ],
-      "channels": [
-        "The Bitcoin Layer",
-        "TFTC",
-        "Swan Bitcoin",
-        "Preston Pysh"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "7Yvga6vQz3s",
-        "EAdSg0NcZGQ",
-        "FF86TL4Udns",
-        "AOr8Db4q860"
-      ],
-      "channels": [
-        "Bitfarms",
-        "CoinTelegraph",
-        "Swan Bitcoin",
-        "Blockware Solutions"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "pkZqnM22l8Y",
-        "oK1Azot7j9w",
-        "N6vOLQ3qJiA",
+        "pGeECOBSMjc",
         "s7-l7gzm_PE"
       ],
       "channels": [
-        "The Bitcoin Layer",
+        "Bitcoin Magazine Pro",
+        "Natalie Brunell",
+        "Bitcoin Magazine",
+        "Simply Bitcoin",
+        "Preston Pysh"
+      ]
+    },
+    {
+      "date": "2026-03-17",
+      "video_ids": [
+        "AYAreuNzx58",
+        "zflAVKCaPfU",
+        "wC4w2jtB8_Y",
+        "GA_7P8RdyRU"
+      ],
+      "channels": [
+        "Andreas Antonopoulos",
+        "Robert Breedlove",
+        "TFTC",
+        "The Bitcoin Layer"
+      ]
+    },
+    {
+      "date": "2026-03-17",
+      "video_ids": [
+        "pGeECOBSMjc",
+        "N6vOLQ3qJiA",
+        "X7ua58iwcd4"
+      ],
+      "channels": [
         "Simply Bitcoin",
         "Bitcoin Magazine",
         "Preston Pysh"
       ]
     },
     {
-      "date": "2026-03-16",
+      "date": "2026-03-17",
       "video_ids": [
-        "vwkRsp0gqX4",
-        "q7Yq5qaAb-A",
+        "Ma6N9qacoa0",
+        "AYAreuNzx58",
         "etTv2PtW2UA",
+        "wC4w2jtB8_Y",
         "NK4-LeozO34"
       ],
       "channels": [
+        "Swan Bitcoin",
         "Andreas Antonopoulos",
-        "TFTC",
         "Unchained",
+        "TFTC",
         "Natalie Brunell"
       ]
     },
     {
-      "date": "2026-03-16",
+      "date": "2026-03-17",
       "video_ids": [
-        "N6vOLQ3qJiA",
-        "oK1Azot7j9w",
         "s7-l7gzm_PE",
-        "AkSeaACtb6o"
+        "pGeECOBSMjc",
+        "N6vOLQ3qJiA",
+        "wC4w2jtB8_Y"
       ],
       "channels": [
-        "Bitcoin Magazine",
-        "Simply Bitcoin",
         "Preston Pysh",
+        "Simply Bitcoin",
+        "Bitcoin Magazine",
         "TFTC"
       ]
     },
     {
-      "date": "2026-03-16",
+      "date": "2026-03-17",
       "video_ids": [
-        "zulFR27czZk",
-        "Ny9P1l0WKwo",
-        "5scEV0IVYeY",
-        "yzIe6gOKU50",
-        "GA_7P8RdyRU"
-      ],
-      "channels": [
-        "Swan Bitcoin",
-        "Natalie Brunell",
-        "Tone Vays",
-        "Unchained",
-        "The Bitcoin Layer"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "oK1Azot7j9w",
-        "N6vOLQ3qJiA",
+        "pkZqnM22l8Y",
+        "vwkRsp0gqX4",
+        "zflAVKCaPfU",
         "Ny9P1l0WKwo"
       ],
       "channels": [
-        "Simply Bitcoin",
-        "Bitcoin Magazine",
+        "The Bitcoin Layer",
+        "Andreas Antonopoulos",
+        "Robert Breedlove",
         "Natalie Brunell"
       ]
     },
     {
-      "date": "2026-03-16",
+      "date": "2026-03-17",
       "video_ids": [
+        "pGeECOBSMjc",
         "q7Yq5qaAb-A",
-        "oXw7wHEokfY",
-        "pkZqnM22l8Y",
-        "X7ua58iwcd4"
-      ],
-      "channels": [
-        "TFTC",
-        "Anthony Pompliano",
-        "The Bitcoin Layer",
-        "Preston Pysh"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "q7Yq5qaAb-A",
-        "oK1Azot7j9w",
         "N6vOLQ3qJiA",
-        "X7ua58iwcd4"
+        "s7-l7gzm_PE"
       ],
       "channels": [
-        "TFTC",
         "Simply Bitcoin",
+        "TFTC",
         "Bitcoin Magazine",
         "Preston Pysh"
       ]
     },
     {
-      "date": "2026-03-16",
+      "date": "2026-03-17",
       "video_ids": [
-        "taV0gxDljIA",
         "Ny9P1l0WKwo",
+        "etTv2PtW2UA",
         "GA_7P8RdyRU",
         "zflAVKCaPfU"
       ],
       "channels": [
-        "CoinTelegraph",
         "Natalie Brunell",
+        "Unchained",
         "The Bitcoin Layer",
         "Robert Breedlove"
       ]
     },
     {
-      "date": "2026-03-16",
+      "date": "2026-03-17",
       "video_ids": [
-        "oK1Azot7j9w",
-        "vwkRsp0gqX4",
-        "N6vOLQ3qJiA",
-        "zflAVKCaPfU"
-      ],
-      "channels": [
-        "Simply Bitcoin",
-        "Andreas Antonopoulos",
-        "Bitcoin Magazine",
-        "Robert Breedlove"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "tTkD-DnUPM8",
-        "q7Yq5qaAb-A",
-        "NK4-LeozO34",
-        "X7ua58iwcd4"
-      ],
-      "channels": [
-        "Bitcoin Magazine Pro",
-        "TFTC",
-        "Natalie Brunell",
-        "Preston Pysh"
-      ]
-    },
-    {
-      "date": "2026-03-16",
-      "video_ids": [
-        "CPqLPryNBdM",
-        "Ma6N9qacoa0",
+        "pGeECOBSMjc",
         "N6vOLQ3qJiA",
         "wC4w2jtB8_Y",
         "s7-l7gzm_PE"
       ],
       "channels": [
         "Simply Bitcoin",
-        "Swan Bitcoin",
         "Bitcoin Magazine",
         "TFTC",
         "Preston Pysh"
       ]
     },
     {
-      "date": "2026-03-16",
+      "date": "2026-03-17",
+      "video_ids": [
+        "Ny9P1l0WKwo",
+        "GA_7P8RdyRU",
+        "zflAVKCaPfU"
+      ],
+      "channels": [
+        "Natalie Brunell",
+        "The Bitcoin Layer",
+        "Robert Breedlove"
+      ]
+    },
+    {
+      "date": "2026-03-17",
+      "video_ids": [
+        "N6vOLQ3qJiA",
+        "pGeECOBSMjc",
+        "s7-l7gzm_PE",
+        "NK4-LeozO34"
+      ],
+      "channels": [
+        "Bitcoin Magazine",
+        "Simply Bitcoin",
+        "Preston Pysh",
+        "Natalie Brunell"
+      ]
+    },
+    {
+      "date": "2026-03-17",
       "video_ids": [
         "GA_7P8RdyRU",
-        "vwkRsp0gqX4",
-        "Ny9P1l0WKwo",
-        "etTv2PtW2UA"
+        "etTv2PtW2UA",
+        "wC4w2jtB8_Y",
+        "zflAVKCaPfU"
       ],
       "channels": [
         "The Bitcoin Layer",
+        "Unchained",
+        "TFTC",
+        "Robert Breedlove"
+      ]
+    },
+    {
+      "date": "2026-03-17",
+      "video_ids": [
+        "s7-l7gzm_PE",
+        "pGeECOBSMjc",
+        "N6vOLQ3qJiA",
+        "wC4w2jtB8_Y",
+        "NK4-LeozO34"
+      ],
+      "channels": [
+        "Preston Pysh",
+        "Simply Bitcoin",
+        "Bitcoin Magazine",
+        "TFTC",
+        "Natalie Brunell"
+      ]
+    },
+    {
+      "date": "2026-03-17",
+      "video_ids": [
+        "bezGcOzLbw0",
+        "pGeECOBSMjc",
+        "N6vOLQ3qJiA",
+        "s7-l7gzm_PE"
+      ],
+      "channels": [
+        "Swan Bitcoin",
+        "Simply Bitcoin",
+        "Bitcoin Magazine",
+        "Preston Pysh"
+      ]
+    },
+    {
+      "date": "2026-03-17",
+      "video_ids": [
+        "vwkRsp0gqX4",
+        "wC4w2jtB8_Y",
+        "GA_7P8RdyRU",
+        "z4cTEJ8UyaA"
+      ],
+      "channels": [
         "Andreas Antonopoulos",
+        "TFTC",
+        "The Bitcoin Layer",
+        "Natalie Brunell"
+      ]
+    },
+    {
+      "date": "2026-03-17",
+      "video_ids": [
+        "vwkRsp0gqX4",
+        "N6vOLQ3qJiA",
+        "pGeECOBSMjc",
+        "wC4w2jtB8_Y"
+      ],
+      "channels": [
+        "Andreas Antonopoulos",
+        "Bitcoin Magazine",
+        "Simply Bitcoin",
+        "TFTC"
+      ]
+    },
+    {
+      "date": "2026-03-17",
+      "video_ids": [
+        "Gb75HhiAYtA",
+        "kCi1gYaIbBc",
+        "Ma6N9qacoa0",
+        "NK4-LeozO34",
+        "s7-l7gzm_PE"
+      ],
+      "channels": [
+        "Anthony Pompliano",
+        "The Bitcoin Layer",
+        "Swan Bitcoin",
         "Natalie Brunell",
-        "Unchained"
+        "Preston Pysh"
+      ]
+    },
+    {
+      "date": "2026-03-17",
+      "video_ids": [
+        "pGeECOBSMjc",
+        "N6vOLQ3qJiA",
+        "NK4-LeozO34",
+        "X7ua58iwcd4"
+      ],
+      "channels": [
+        "Simply Bitcoin",
+        "Bitcoin Magazine",
+        "Natalie Brunell",
+        "Preston Pysh"
+      ]
+    },
+    {
+      "date": "2026-03-17",
+      "video_ids": [
+        "zflAVKCaPfU",
+        "GA_7P8RdyRU",
+        "wC4w2jtB8_Y"
+      ],
+      "channels": [
+        "Robert Breedlove",
+        "The Bitcoin Layer",
+        "TFTC"
+      ]
+    },
+    {
+      "date": "2026-03-17",
+      "video_ids": [
+        "Ma6N9qacoa0",
+        "N6vOLQ3qJiA",
+        "pGeECOBSMjc",
+        "X7ua58iwcd4"
+      ],
+      "channels": [
+        "Swan Bitcoin",
+        "Bitcoin Magazine",
+        "Simply Bitcoin",
+        "Preston Pysh"
+      ]
+    },
+    {
+      "date": "2026-03-17",
+      "video_ids": [
+        "etTv2PtW2UA",
+        "wC4w2jtB8_Y",
+        "NK4-LeozO34",
+        "zflAVKCaPfU"
+      ],
+      "channels": [
+        "Unchained",
+        "TFTC",
+        "Natalie Brunell",
+        "Robert Breedlove"
       ]
     }
   ]

@@ -639,7 +639,16 @@ function playIntent(intent){
   .then(function(url){ if(typeof _clearTimer=='function') _clearTimer(); return playVid(url);})
   .then(function(){
     if(intent==='SOVEREIGNTY_ASSESSMENT')showCards();
-    if(intent==='GREETING') window._briefFetched=false;  // reset on each session
+    if(intent==='GREETING'){
+      window._briefFetched=false;  // reset on each session
+      // Auto-activate mic 350ms after GREETING ends — visitor is ready to respond
+      setTimeout(function(){
+        if(!busy && !isRec && mic && !mic.disabled){
+          startRec();
+          setStat('Listening…','#6cff9f',false);
+        }
+      }, 350);
+    }
   })
   .catch(function(e){console.error(e);setStat('Oracle error — try again.','#ff3b5f',false);})
   .finally(function(){setBusy(false);mic.disabled=false;});
