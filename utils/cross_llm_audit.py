@@ -690,13 +690,13 @@ Then: FINAL SECOND-PASS PRIORITY LIST — the definitive ordered list of what to
     # Auto-update AUDIT_REGISTRY.json so CI integrity gate stays green
     try:
         import json as _j, subprocess as _sp
-        from datetime import datetime, timezone
+        from datetime import datetime as _dt, timezone as _tz
         rp = BASE / "docs" / "audits" / "AUDIT_REGISTRY.json"
         existing = _j.loads(rp.read_text()) if rp.exists() else {}
         audits = [a for a in existing.get("audits", []) if a.get("feature") != feature]
-        audits.append({"feature": feature, "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"), "models": ["gemini", "gpt4o", "grok"]})
+        audits.append({"feature": feature, "date": _dt.now(_tz.utc).strftime("%Y-%m-%d"), "models": ["gemini", "gpt4o", "grok"]})
         sha = _sp.check_output(["git", "rev-parse", "--short", "HEAD"], cwd=str(BASE), text=True).strip()
-        rp.write_text(_j.dumps({"last_audit": datetime.now(timezone.utc).isoformat(), "feature": feature, "commit": sha, "audits": audits[-20:]}, indent=2))
+        rp.write_text(_j.dumps({"last_audit": _dt.now(_tz.utc).isoformat(), "feature": feature, "commit": sha, "audits": audits[-20:]}, indent=2))
         print(f"[registry] AUDIT_REGISTRY.json updated for {feature}")
     except Exception as _e:
         print(f"[registry] Warning: could not update registry: {_e}")
